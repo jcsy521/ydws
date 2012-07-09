@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block include %}
+<script src="/static/js/WdatePicker.js" type="text/javascript"></script>
+<script src="/static/js/track.js" type="text/javascript"></script>
+{% end %}
+{% block title %}车联网-轨迹查询{% end %}
+{% block body %}
+<body class="j_trackbody">
+	<!--查询条件-->
+	<div class="trackHeader" id="trackHeader" tid="{{tid}}">
+		<!--时间选择-->
+		<span class="trackPos">
+			<span class="timeTip">时间范围:</span>
+			<span class="trackTime">
+				<input type="text" class="time" id="trackBeginTime" />
+				至
+				<input type="text" class="time" id="trackEndTime" />
+			</span>
+		</span>
+		<!--按钮-->
+		<span class="trackBtn">
+			<span id="trackSearch" class="tSearch"></span>
+			<span id="tPlay" class="tPlay hide j_tBtnhover"></span>
+			<span id="tPause" class="tPause hide j_tBtnhover"></span>
+		</span>
+		<span id="trackSpeed" class="trackSpeed hide">
+			<span>播放速度：</span>
+			<div id="trackSlide" title="一般速度"></div>
+		</span>
+	</div>
+	<!--地图显示-->
+	<div id="mapObj"></div>
+	<div id="jNotifyMessage"></div> <!--消息提示框-->	
+	<div id="maskLayer" class="hide"></div> <!--页面遮罩层-->
+</body>
+{% end %}

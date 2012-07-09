@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block include %}
+<script src="/static/js/WdatePicker.js" type="text/javascript"></script>
+<script src="/static/js/event.js" type="text/javascript"></script>
+{% end %}
+{% block title %}车联网-报警查询{% end %}
+{% block body %}
+<body class="eventbody">
+	<!--查询条件-->
+	<div class="eventHeader">
+		<!--时间选择-->
+		<span class="eventPos">
+			<span class="timeTip">查询日期:</span>
+			<input type="text" class="time" id="eventTime" />
+		</span>
+		<span class="eventPos">
+			<span class="timeTip">报警类型:</span>
+			<select class="cEventType" id="eventType">
+				<option value="-1">全部</option>
+				<option value="2">低电</option>
+				<option value="3">断电</option>
+				<option value="4">越界</option>
+				<option value="5">超速</option>
+				<option value="6">非法移动</option>
+				<option value="7">心跳丢失</option>
+			</select>
+		</span>
+		<!--按钮-->
+		<span id="eventSearch" class="eventBtn j_tBtnhover">
+		</span>
+	</div>
+	<!--查询结果显示-->
+	<div id="eventResult" tid="{{tid}}">
+		<table class="dataTable" align="center" border="1" cellspacing="0">
+			<tbody>
+				<tr id="eventTableHeader">
+					<th class="eventTime">时间</th>
+					<th class="eventType">类型类型</th>
+					<th class="eventLocation">位置详情</th>
+				</tr>
+			</tbody>
+		</table>
+		<!-- 分页 -->
+		<div id="pagerContainer" class="hide">
+			<span id="prevPage" class="prevBtn j_pBtnHover"></span>
+			<span id="pageNums"><label id="currentPage"></label>/<label id="pageCount"></label></span>
+			<span id="nextPage" class="nextBtn j_pBtnHover"></span>
+		</div>
+	</div>
+	<!--地图显示-->
+	<div class="eventMapContent hide wrapper">
+		<h2>
+			<div class="eventMapClose j_close" id="mapClose" title="关闭窗口"></div>
+		</h2>
+		<div id="mapObj" style="width:350px; height:300px;"></div> 
+	</div>
+	<div id="jNotifyMessage"></div> <!--消息提示框-->
+	<div id="maskLayer" class="hide"></div><!--页面遮罩-->
+</body>	
+{% end %}

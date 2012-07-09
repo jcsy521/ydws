@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link type="text/css" href="/static/css/login.css" rel="stylesheet" />
+		<script src="/static/js/jquery-1.7.1.min.js"></script>
+		<script src="/static/js/jquery_cookie.js" type="text/javascript"></script>
+		<script src="/static/js/login.js" type="text/javascript"></script>
+		<title>车联网--登录</title>
+	</head>
+	<body>
+		<div class="loginBody">
+			<h1 class="header">
+				<span>车联网</span>
+			</h1>
+			<div class="mainContent">
+				<img class="pabbLogo" src="static/images/memberCenterLogo.png" alt="车联网" />
+				<div class="loginFormContent">
+					<form action="/login" method="post">
+						<ul>
+							<li>
+								<label for="username">用户名：</label>
+								<input id="username" type="text" name="username"
+									value="{{username}}" placeholder="请输入用户名"
+									onKeyUp="value=value.replace(/[^\w|chun]/g,'')" />
+							</li>
+							<li class="pwd">
+								<label for="password">密码：</label>
+								<input id="password" type="password" name="password" value="{{password}}"
+								   onKeyUp="value=value.replace(/[^\w|chun]/g,'')"
+								   placeholder="请输入密码" />
+								<span class="txtColor">
+									{% if message %}
+										{{ message }}
+									{% end %}
+								</span>
+							</li>
+							<li>
+								<label for="captcha">验证码：</label>
+								<input id="captcha" type="text" name="captcha" maxlength="4"
+								   onKeyUp="value=value.replace(/[^\w|chun]/g,'')" class="captchaInput"
+								   placeholder="请输入验证码"
+								   autocomplete="off" />
+								<span class="txtColor">
+									{% if message_captcha %}
+										{{ message_captcha }}
+									{% end %}
+								</span>
+							</li>
+							<li>
+								<img alt="验证码图片" id="captchaimg" src="" class="captchaImg" />
+								<a href="#" onclick="$('#captchaimg').click();" class="txtColor">看不清？换一张！</a>
+									<input type="hidden" name="captchahash" id="captchahash" value="" />
+							</li>
+						</ul>
+						<input type="submit" class="commit" value="" />
+						<a href="/register" class="register" id="register" target="_blank"></a>
+					</form>
+				</div>
+				<div class="footer">
+					<p>
+						为了获得更好的用户体验，建议您使用IE 8，Firefox 3，Chrome 10或更高版本的浏览器访问本站。
+					</p>
+					<p>建议使用1024*768或更高屏幕解析度。</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block include %}
+<script src="/static/js/formValidator-4.1.1.js" type="text/javascript"></script>
+<script src="/static/js/formValidatorRegex.js" type="text/javascript"></script>
+<script src="/static/js/WdatePicker.js" type="text/javascript"></script>
+<script src="/static/js/terminal.js" type="text/javascript"></script>
+<script src="/static/js/main.js" type="text/javascript"></script>
+<script src="/static/js/current.js" type="text/javascript"></script>
+<script src="/static/js/track.js" type="text/javascript"></script>
+{% end %}
+{% block body %}
+<body class="j_body">
+	<!--导航标题-->
+	<div class="navi">
+		<!--用户个人信息-->
+		<div class="navSelf">
+			<ul class="selfList">
+				<li id="activeNav"><a href="#" id="personalData" class="j_click">我的资料</a></li>
+				<li><a href="#" id="changePwd" class="j_click">修改密码</a></li>
+				<li><a href="#" id="logout" onclick="dlf.fn_exit()">退出</a></li>
+			</ul>
+			<p class="userMsg fontMic" id="uName">欢迎您，{{name}}</p>
+		</div>
+		<!--logo, 主功能菜单-->
+		<div class="menumList">
+			<!--logo-->
+			<div id="logo">
+				<img src="../static/images/logo.png" alt="车联网" />
+			</div>
+			<!--menu nav-->
+			<div class="mnNav">
+				<span class="mnNavLeft"></span>
+				<span class="mnNavCenter">
+					<img src="../static/images/home.png" id="home" alt="首页" />
+					<ul class="menuNav">
+						<li><a href="#" id="realtime" class="j_click">实时定位</a></li>
+						<!--<li><a href="#" id="track"class="j_click">轨迹查询</a></li>-->
+						<li><a href="/event" id="warnEvent" target="_blank" class="j_click">报警查询</a></li>
+						<li><a href="#" id="defend" class="j_click">设防/撤防</a></li>
+						<li><a href="#" id="terminal" class="j_click">终端设置</a></li>
+						<li><a href="#" id="remote" class="j_remoteMenu">远程操作</a></li>
+					</ul>
+				</span>
+				<span class="mnNavRight"></span>
+			</div>
+		</div>
+	</div>
+	<!--车辆列表、地图、当前车辆信息-->
+	<div class="main">
+		<!--车辆列表-->
+		<div class="mainCar" id="mainCar">
+			<div class="carTitle">
+				<span id="addCar" class="newCar j_click" title="新增车辆"></span>
+			</div>
+			<!--用户的车辆列表,需要后台传给相应的数据-->
+			<div class="carContent">
+				<ul class="carList" id="carList">
+					{% for car in cars %}
+						{% if car.login == 1 %}
+							<li class="carCurrent carlogin">
+						{% else %}
+							<li class="carlogout">
+						{% end %}
+							<a href="#" tlid="{{car.id}}" tid="{{car.tid}}" cLogin="{{car.login}}">{{car.sim}}</a>
+						</li>
+					{% end %}
+				</ul>
+			</div>
+		</div>
+		<!--车辆列表的显示隐藏按钮-->
+		<div>
+			<div id="ovLine" class="hide"></div>
+			<p id="listov" class="j_click">
+				<img src="../static/images/ov_left.png" />
+			</p>
+		</div>
+		<div class="content" id="mainContent">
+			<!--轨迹查询条件-->
+			<div class="trackHeader hide" id="trackHeader">
+				<!--时间选择-->
+				<span class="trackPos">
+					<span class="timeTip">时间范围:</span>
+					<span class="trackTime">
+						<input type="text" class="time" id="trackBeginTime" />
+						至
+						<input type="text" class="time" id="trackEndTime" />
+					</span>
+				</span>
+				<!--按钮-->
+				<span class="trackBtn">
+					<span id="trackSearch" class="tSearch"></span>
+					<span id="tPlay" class="tPlay hide j_tBtnhover"></span>
+					<span id="tPause" class="tPause hide j_tBtnhover"></span>
+					<span id="tStop" class="tStop hide j_tBtnhover"></span>
+				</span>
+				<!--关闭按钮-->
+				<span id="trackClose" class="tClose"></span>
+			</div>
+			<!--地图-->
+			<div id="mapObj"></div> 
+			<!--当前车辆信息-->
+			<div class="carInfo" id="carInfo">
+				<div class="infoWidth" id="infoTitle">
+					<img id="infoStatus" class="j_click" src="../static/images/bt_bottom.png" />
+				</div>
+				<table class="infoList" id="infoList">
+					<tr>
+						<td>用户号码：<label id="userId">{{uid}}</label></td>
+						<td>终端号码：<label id="terminalId"></label></td>
+						<td>车辆当前速度：<label id="carSpeed">0</label>km/h</td>
+					</tr>
+					<tr>
+						<td>方向角：<label id="carDegree"></label></td>
+						<td>定位类型：<label id="carLocType"></label></td>
+						<td>定位时间：<label id="timesTamp"></label></td>
+					</tr>
+					<tr>
+						<td>经纬度：<label id="carLngLat"></label></td>
+						<td>报警状态：<label id="eventStatus">无报警</label></td>
+						<td>终端状态：<label id="defendStatus">未设防</label></td>
+					</tr>
+					<tr>
+						<td colspan="3">车辆当前位置：<label id="carAddress"></label></td>
+						<input type="hidden" id="lockStatus" />  <!-- 解车锁车状态-->
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div id="maskLayer" class="hide"></div>
+	<!--copy right-->
+	<div></div>
+	<!--辅助元素begin-->
+	{% include dialogs.html %}
+	<!--辅助元素end-->
+</body>
+{% end %}

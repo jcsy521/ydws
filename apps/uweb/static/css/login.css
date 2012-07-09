@@ -1,0 +1,91 @@
+body {
+	font-family: "微软雅黑","宋体","Arial Narrow";
+	font-size: 12px;
+	background-color: #FFF;
+}
+.loginBody {
+	width: 810px;
+	margin: 200px auto 0;
+}
+.header {
+	height: 34px;
+	width: 800px;
+	background: url('../images/helpCenterBg.png') no-repeat scroll 0 0;
+	font-size: 18px;
+}
+.header span {
+	background: url("../images/helpCenterBg.png") repeat-x scroll 0 -38px transparent;
+    color: DeepSkyBlue;
+    display: block;
+    height: 34px;
+    line-height: 2;
+    margin-left: 24px;
+    width: 782px;
+	padding-left: 4px;
+}
+.pabbLogo {
+	float: left;
+	margin-top: 35px;
+}
+.loginFormContent {
+	border-left: 1px solid #CCCCCC;
+    float: right;
+    height: 222px;
+    margin-left: 10px;
+    padding-left: 20px;
+    width: 410px;
+}
+.mainContent {
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	padding-top: 20px;
+	width: 809px;
+}
+.loginFormContent input {
+	height: 22px;
+	border: 1px solid #CCCCCC;
+	padding: 4px 0 4px 3px;
+	width: 170px;
+}
+.loginFormContent ul li {
+	margin-top: 10px;
+	list-style: none;
+}
+.pwd {
+	margin-left: 12px;
+}
+.captchaImg {
+	width: 123px;
+	height: 25px;
+	margin-left: 52px;
+}
+.loginFormContent  .commit, .register {
+	border: none;
+	background: url('../images/loginButton.png') no-repeat scroll 0 0;
+    cursor: pointer;
+    display: inline-block;
+    height: 42px;
+	left: 84px;
+    position: relative;
+    width: 131px;
+}
+.commit {
+	top: -15px;
+	*top: 0px;
+}
+.register {
+	background: url('../images/register.png') no-repeat scroll 0 0;
+}
+.txtColor {
+	color: #583C32;
+	font-weight: bold;
+}
+.footer {
+	clear: both;
+    color: #333333;
+    font-size: 11px;
+    font-weight: bold;
+    height: 50px;
+    margin-left: 30px;
+    padding-top: 20px;
+}

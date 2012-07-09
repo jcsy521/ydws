@@ -1,0 +1,185 @@
+<div id="dialogsWrapper">
+	<div id="jNotifyMessage" class="hide"></div> <!--消息提示框-->
+	<div id="jContentLock" class="readonly_overlay hide"></div> <!--消息提示框-->
+	<!--实时查询-->
+	<div id="currentWrapper" class="wrapper hide j_drag">
+		<h2 class="wrapperTitle">
+			<span class="titleName fontMic">实时定位</span>
+			<span class="close j_close" title="关闭窗口"></span>
+		</h2>
+		<div class="currentContent">
+			<div class="currentText">
+				<em id="currentMsg">定位进行中...<img src="/static/images/blue-wait.gif" /></em>
+			</div>
+			<span id="currentBtn" class="confirmBtn"></span>
+		</div>
+	</div>
+	
+	<!--撤防/设防-->
+	<div id="defendWrapper" class="wrapper hide j_drag">
+		<h2 class="wrapperTitle">
+			<span class="titleName fontMic">设防/撤防</span>
+			<span class="close j_close" title="关闭窗口"></span>
+		</h2>
+		<div class="defendContent">
+			<div class="defendText">
+				<em id="defendMsg"></em>
+			</div>
+			<span id="defendBtn" class="confirmBtn"></span>
+		</div>
+	</div>
+	
+	<!--个人资料框-->
+	<div id="personalWrapper" class="wrapper hide j_drag">
+		<h2 class="wrapperTitle">
+			<span class="titleName fontMic">我的资料</span>
+			<span class="close j_close" title="关闭窗口"></span>
+		</h2>
+		<div class="wrapperContent personalContent">
+			<form id="personalForm" >
+				<ul class="personalList">
+					<li>车主姓名:<input type="text" name="name" id="name" maxlength="11" /></li>
+					<li>车主电话:<input type="text" name="phone" id="phone" disabled class="textDisabled" maxlength="11" /></li>
+					<li>地址:<input type="text" name="address" id="address" /></li>
+					<li>EMAIL:<input type="text" name="email" id="email" /></li>
+					<li>公司:<input type="text" name="corporation" id="corporation" /></li>
+					<li>备注:<input type="text" name="remark" id="remark" /></li>
+				</ul>
+				<input type="submit" value="保存" id="personalSave" class="personalButton" />
+			</form>
+		</div>
+	</div><!--个人资料框end-->
+	<!--密码修改框-->
+	<div id="pwdWrapper" class="wrapper hide j_drag">
+		<h2 class="wrapperTitle">
+			<span class="titleName fontMic">修改密码</span>
+			<span class="close j_close" title="关闭窗口"></span>
+		</h2>
+		<div class="pwdContent wrapperContent">
+			<form id="pwdForm" >
+				<ul class="pwdList">
+					<li>原密码:<input type="password" id="oldPwd" class="j_validate" maxlength="16" /></li>
+					<li>新密码:<input type="password" id="newPwd" class="j_validate" maxlength="16" /></li>
+					<li>确认密码:<input type="password" id="newPwd2" class="j_validate" maxlength="16" /></li>
+				</ul>
+				<input type="submit" value="保存" id="pwdSave" class="pwdButton" />
+			</form>
+		</div>
+	</div><!--密码修改框end-->
+	<!--终端参数设置-->
+	<div id="terminalWrapper" class="wrapper hide j_drag">
+		<h2 class="wrapperTitle">
+			<span class="titleName fontMic">终端参数设置</span>
+			<span class="close j_close" title="关闭窗口"></span>
+		</h2>
+		
+		<div class="terminalContent wrapperContent">
+			<!--tab选项卡 -->
+			<ul id="terminalTab" class="tabs">
+				<li id="rTab" class="j_tabs tabItems currentTab">可查询参数列表</li>
+				<li id="wTab" class="j_tabs tabItems">可编辑参数列表</li>
+			</ul>
+			
+			<div class="j_terminalList">
+				<!-- 可查询参数列表 -->
+				<div id="terminalList0" class="j_terminalcontent">
+					<table id="bListR">
+					</table>
+					<input type="button" id="refresh" value="刷新" class="terminalRefresh hide j_click"/>
+				</div>
+				<!-- 可编辑参数-->
+				<div id="terminalList1" class="hide j_terminalcontent">
+					<div class="baseContent">
+						<!--基本参数列表-->
+						<input type="text" id="bListSet" readonly="true" />
+						<a class="dropDownbox" id="bDropDownbox" href="#"></a>
+						<ul id="baseList" class="bList hide">
+						</ul>
+						<div class="j_tInput tInput">
+							<input type="text" id="bListVal" />
+							<label id="terminalUnit">km/h</label>
+						</div>
+						<div class="j_radio radioContent hide">
+							<input type="radio" name="tStatus" id="tRadioVal1" value="1" /><label id="tRadioLable1"></label>
+							<input type="radio" name="tStatus" id="tRadioVal2" value="0" /><label id="tRadioLable2"></label>
+						</div>
+						<div class="hide" id="radioTip"></div>
+						<div  id="terminalListTip">提示信息</div>
+					</div>
+					<input type="button" value="保存" id="terminalSave" class="terminalButton j_click" />
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 重启终端框-->
+	<div id="rebootWrapper" class="wrapper hide j_drag">
+		<h2 class="wrapperTitle">
+			<span class="titleName fontMic">重启终端</span>
+			<span class="close j_close" title="关闭窗口"></span>
+		</h2>
+		<div class="rebootContent">
+			<div class="rebootText">
+				<em id="rebootMsg"></em>
+			</div>
+			<span id="rebootBtn" class="confirmBtn"></span>
+		</div>
+	</div>
+	<!--锁车/解车-->
+	<div id="lockWrapper" class="wrapper hide j_drag">
+		<h2 class="wrapperTitle">
+			<span class="titleName fontMic">锁车/解锁</span>
+			<span class="close j_close" title="关闭窗口"></span>
+		</h2>
+		<div class="lockContent">
+			<div class="lockText">
+				<em id="lockMsg"></em>
+			</div>
+			<span id="lockBtn" class="confirmBtn"></span>
+		</div>
+	</div>
+	<!-- 远程终端菜单 -->
+	<div id="remoteWrapper" class="hide">
+		<div class="rw_left"></div>
+		<div class="rw_center">
+			<ul id="remoteList">
+				<li  id="lock" class="j_click j_remoteMouse">锁车/解锁</li>
+				<li  id="reboot" class="j_click j_remoteMouse">重启终端</li>
+			</ul>
+		</div>
+		<div class="rw_right"></div>
+	</div>
+	<!-- 终端的添加-->
+	<div id="terminalListWrapper" class="wrapper hide j_drag">
+		<h2 class="wrapperTitle">
+			<span class="titleName fontMic">终端列表</span>
+			<span class="close j_close" title="关闭窗口"></span>
+		</h2>
+		<div id="terminalListContent" class="terminalListContent wrapperContent">
+			<ol class="olTable">
+				<li>
+					<label>终端手机号</label>
+					<input id="tlmobile" class="iInput j_mobile" type="text" maxlength="11" />
+				</li>
+				<li>
+					<label>终端序列号</label>
+					<input id="tlTid" class="iInput j_tid" type="text" maxlength="18" />
+				</li>
+			</ol>
+			<div class="tlButton">
+				<input type="button" id="tlSave" class="tlBtn" value="保存" />
+			</div>
+		</div>
+	</div>
+	<!--指向添加终端-->
+	<div id="terminalMsgWrapper" class="wrapper hide">
+		<span class="close j_close" title="关闭窗口"></span>
+		<div id="terminalMsgContent" class="terminalMsgContent">
+			请点击<em><img src="/static/images/addCarSign_yellow.png" alt="新增车辆" /></em>添加终端！
+		</div>
+	</div>
+	<!-- 终端的删除-->
+	<div id="terminalDownItem" class="hide mouseItem">
+		<span id="delTerminal" class="mouseSpan">删除</span>
+		
+	</div>
+</div>

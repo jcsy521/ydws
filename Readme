@@ -1,0 +1,83 @@
+Packages
+========
+python 2.6 (or 2.7)
+pycrypto
+tornado
+MySQLdb
+python-memcached
+PIL
+celeryd
+rabbitmq
+
+How to run
+==========
+There are several components in the system, and they should be started in
+the following order (numbers in the parenthesis is `port`):
+
+o memcached (11211)
+refer to memcached's man page.
+
+
+o sms (2000)
+todo: should be as simple as possible.
+jdk版本为1.5以上
+1.修改程序地址
+  如果服务器的地址是'http://drone-005'
+  Send地址： 用'http://drone-005:2000/sms/sms' 来send信息
+  Receive地址：sms项目里src路径下posturl.properties文件里的spurl应该写成uweb接收短信的路径
+
+2.配置jetty7服务器
+  删除contexts和webapps目录下jetty7自带的配置文件和项目
+  将sms项目放到jetty7的webapps目录下
+  启动jetty7：运行jetty7中的start.jar 命令为 java -jar start.jar
+  sms项目部署完毕
+
+
+o sender (3000)
+cd sender
+python26 -tt server.py --conf=conf/global.conf --port=3000
+
+
+o receiver (4000)
+cd receiver
+python26 -tt receiver/server.py --port=4000 --conf=conf/global.conf
+
+
+o eventer (5000)
+cd eventer
+python26 -tt server.py --conf=conf/global.conf --port=5000
+
+
+o admin (7000)
+cd admin
+python26 -tt server.py --port=xxx
+
+
+o celeryd
+# start rabbitmq and config it
+# $ rabbitmqctl delete_user guest
+# $ rabbitmqctl add_user celery celery
+# $ rabbitmqctl add_vhost celeryhost
+# $ rabbitmqctl set_permissions -p celeryhost celery ".*" ".*" ".*"
+cd mycelery
+celeryd -E -B -s /home/pabb/celeryd/celerybeat-schedule [-l info]
+# user -E to let celeryev work
+
+
+o uweb (8000)
+cd uweb
+python26 -tt server.py --conf=conf/global.conf --port=8000
+
+
+o syncer (9000)
+cd syncer
+python26 -tt xxtsyncer.py --port=9000
+python26 -tt cwtsyncer.py --sync=[all|inc]
+NOTE: cwtsyncer is managed by celeryd.
+
+
+o cleaner
+cd cleaner
+python26 -tt cwtcleaner.py
+python26 -tt xxtcleaner.py
+NOTE: they are managed by celeryd now.

@@ -1,0 +1,497 @@
+Web界面和后台交互接口
+===================
+
+一般说明
+=======
+o 登陆之后, cookie中携带用户uid, 车辆tid, 以及车辆对应的sim卡号。
+o location的经纬度全部为整数，精确到毫秒。(*/3600000)
+o 所有的时间戳均采用UTC时间，用Epoch表示，精确到毫秒。
+
+HTTP方法说明
+===========
+1. GET：获取已有配置, 有返回值。READ or redirect
+2. POST：添加新条目（id域为无意义值NULL）。CREAT
+3. PUT：更新条目（id不为空）。UPDATE
+4. DELETE：删除记录（id不为空）
+
+
+DB参数配置
+=========
+
+Database: DB_CLW
+Username: pabb
+Password: pabb
+
+号码段
+=======
+电信: 133、153、180、189
+联通：130、131、132、155、156、185、186	
+移动：134、135、136、137、138、139、147、150、151、152、157、158、159、182、187、188
+
+********
+注册
+********
+
+URL: /register
+Table:  T_TERMINAL_INFO_R, T_TERMINAL_W, T_USER
+
+GET :用来进行页面的跳转.
+
+POST请求内容：form 表单
+              uid, # 用户手机号
+              name ,  # 用户姓名
+              password,  # 用户密码
+              address,  # 用户住址 
+              email, # 用户邮箱
+              
+              mobile, # 终端手机号
+              tid, # 终端序列号
+              psw, # 终端密码              
+              
+	
+POST返回结果：
+
+注册失败返回 register.html.
+            message
+ 
+ 
+注册成功进入index.html.
+            uid,
+			name,
+			cars, 
+               { tid,
+			     sim
+				 login // 终端是否连接到平台. 1: 连接成功； 0：连接失败		 
+			   }			
+			from_         
+
+********
+用户注册校验
+********
+URL: /register
+Table:T_USER
+
+PUT 请求数据：
+	{
+    	'uid': n_int,  
+    }
+
+
+PUT 返回数据：
+	{
+	  'status': n_int, // 0: success, other, failed. 
+	  'message':  str, //只显示失败时的信息
+ 	}
+
+********
+登陆
+********
+URL: /login
+Table: T_TERMINAL_INFO_R, T_TERMINAL_W, T_USER
+
+POST请求内容：form 表单
+              username,
+              password,
+              captcha, 
+              captchahash(hidden)
+	
+POST返回结果：
+
+登陆失败返回login.html.
+            username,
+			password,
+			message_captcha,
+			message
+			
+登陆成功进入index.html.
+            uid,
+			name,
+			cars,[ 
+               { id, 
+                 tid,
+			     sim
+				 login // 终端是否连接到平台. 1: 连接成功； 0：连接失败		 
+			   },
+			   ...	
+			   ]		
+			from_
+			
+不支持PUT、DELETE。	
+
+********
+车辆切换
+********
+URL: /switchcar
+Table: T_LOCATION, T_TERMINAL_INFO_W
+
+GET请求方式：/switchcar/tid
+GET返回结果：返回结果：
+{
+  'status': n_int, // 0: success, other, failed. 
+  'message':  str ,//只显示失败时的信息
+}
+
+不支持PUT、DELETE。
+无POST、PUT、DELETE
+
+********
+实时查询
+********
+URL: /realtime
+Table: T_LOCATION
+
+说明：
+o web界面控制用户查询不得太频繁（比如3分钟之内最多1次）
+  - 首先通过POST方式发起请求，如果返回为空，则反复通过GET方式得到结果
+o server返回查询结果
+  - 时间间隔内最近一次有意义的结果
+
+POST请求内容:
+  {
+    'timestamp': time_int,  // 时间戳
+  }
+
+
+POST返回结果：
+{
+  'status': n_int, // 0: success, other, failed. 
+  'message':  str, //只显示失败时的信息
+  'location':  //null when location has not been determined by terminal
+  {
+      'latitude': x_int, 
+      'longitude': x_int,
+      'clatitude': x_int,
+      'clongitude': x_int,
+      'name': 'address_str',
+      'degree': int,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角 0-36
+      'timestamp': time_int,
+      'type': x_int // 终端定位方式
+	  'speed': int,	  
+  }
+}
+
+不支持PUT、DELETE。
+
+********
+轨迹查询
+********
+URL: /track
+Table: T_LOCATION
+
+**GET :用来进行页面的跳转
+
+POST请求内容:
+  {
+    'start_time': time_int,
+	'end_time': time_int,
+	'tid': int 
+  }
+POST返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+    'track':[
+        {
+          'latitude': x_int,
+          'longitude': x_int,
+          'clatitude': y_int, //加密后的经纬度
+          'clongitude': y_int,
+          'timestamp': time_int,
+          'name': 'address_str',
+		  'type': x_int // 终端定位方式
+		  'speed': int // 终端速度
+        }
+        , ...
+    ]
+  }
+
+不支持GET、PUT、DELETE
+
+********
+报警查询
+********
+URL: /event
+Table: T_EVENT, T_LOCATION
+
+GET :用来进行页面的跳转, 提供tid
+
+POST请求内容:
+  {
+    'event_type': int,  // -1: 全部; 1: 点名上报； 2：低电；3：断电；4：越界；5：超速；6：非法移动；7：心跳丢失  
+    'start_time': time_int,
+	'end_time': time_int,
+	'tid': id_int
+	'pagecnt': int,
+	'pagenum':int 
+  }
+// NOTE: 前台第一次访问的时候， pagecnt = -1, 后台返回一个真实的pagecnt。 之后的请求用 真实的pagecnt 和 pagenum
+  
+  
+POST返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+    'pagecnt': int // 记录的页数
+    'events':[
+		{
+		'category': n_int, // 报警的标记 0:未知; 1: 点名上报； 2：低电；3：断电；4：越界；5：超速；6：非法移动；7：心跳丢失 
+		'latitude': x_int,
+		'longitude': x_int,
+		'clatitude': y_int, //加密后的经纬度
+		'clongitude': y_int,
+		'timestamp': time_int,
+		'name': 'address_str',
+		'type': x_int // 终端定位方式 gps or cellid
+		'speed': int // 终端速度
+		}
+	,...
+    ]
+  }
+
+不支持PUT、DELETE
+
+********
+设防撤防
+********
+URL: /defend
+Table: T_TERMINAL_INFO_W
+
+
+POST请求内容:
+  {
+    
+  }
+POST返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+  }
+
+不支持GET、PUT、DELETE
+
+
+********
+远程控制
+********
+URL: /remote
+Table: T_TERMINAL_INFO_W
+
+POST请求内容：
+{
+  'action': 'action_str', // 'REBOOT', 'LOCK'
+}
+
+POST返回结果：
+{
+  'status': n_int, // 0: success; non-zero: error
+  'message': 'msg_str' // 如果status不为0，表示错误消息
+}
+
+不支持GET、PUT、DELETE。
+
+********
+终端设置
+********
+URL: /terminal
+Table: T_TERMINAL_W， T_TERMINAL_R
+
+
+GET请求内容:
+  { 'terminal_info' = 'r'  # r: 可查询参数列表; w: 可编辑参数列表; f: 刷新 需要将数据库ID通过&id=传送到后台  
+  }
+  
+GET返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+	'id': int, //记录编号
+	'car_sets':
+	[		
+		{
+		'key': 'key_str',
+		'name': 'name_str',
+		'value': 'val_str',
+		'unit' : str
+		}
+	]
+	,.....
+  }
+  
+PUT请求内容:
+  {
+    'id': int,
+	'car_sets':
+	{
+		'key': str_key,
+		'value': str_value
+	}
+  }
+  
+PUT返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+  }
+  
+POST请求内容:
+  {
+    'check_key': tid or mobile,
+	'check_value': the value of tid or mobile
+  }
+  
+POST返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+  }  
+  
+  
+不支持DELETE
+
+
+********
+终端列表
+********
+URL: /terminallist
+Table: T_TERMINAL_INFO_R, T_TERMINAL_INFO_W
+
+POST  请求内容：
+	[
+		{ 
+			'tid': 'n_str',
+			'mobile': 'n_int',
+		},
+		...
+	]
+  
+DELETE 请求内容：
+
+URL: /terminallist?ids=id1,id2,id3[,...]
+
+POST、DELETE 返回结果：
+{
+  'status': n_int, // 0: success; non-zero: error
+  'message': 'msg_str' // 如果status不为0，表示错误消息
+  'ids':[{'status': n_int //status为0，表示成功
+          'id': n_int
+         }, ...
+        ]         //status为0时,返回新添加的id, 如果status为非0, ids为空
+}
+GET、PUT不支持
+
+********
+个人资料
+********
+URL: /detail
+Table: T_USER
+
+GET请求内容:
+  {
+    
+  }
+  
+GET返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+	'id': int,
+	'details':
+	{
+		'name': 'name_str',
+		'uid': 'n_int',
+		'address': str,
+		'email': str,
+		'corporation': str,
+		'remark': str
+	}
+  }
+  
+  
+PUT请求内容:
+  {
+	'id': int,
+	'name': 'name_str',
+	'uid': 'n_int',
+	'address': str,
+	'email': str,
+	'corporation': str,
+	'remark': str
+  }
+  
+PUT返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+  }
+  
+不支持POST、DELETE
+
+
+********
+密码操作
+********
+URL: /password
+Table: T_USER
+
+PUT请求内容:
+  {
+	'old_password': 'pwd_str',
+	'new_password': 'pwd2_str'
+  }
+  
+PUT返回结果:  
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+  }
+  
+不支持GET、POST、DELETE
+
+************
+动态更新操作
+************
+
+URL: /lastinfo
+Table: T_LOCATION, T_TERMINAL_INFO_W
+
+GET请求方式：/lastinfo/tid
+GET返回结果:  
+  {
+	'status': n_int, // 0: success, other, failed. 
+	'message':  str ,//只显示失败时的信息
+	'car_info':  
+	{
+	    'type': int, // 终端定位类型。 gps 或者 cellid
+	    'clongitude': int, // 加密之后的经度
+	    ’clatitude': int, // 加密之后的纬度
+		'tid': int,
+		'defend_status': int  // 设防撤防状态 
+		'timestamp': int,  // 定位时间
+		'speed': int,  // 当前速度
+		'event_status': int // 事件状态 #todo
+		'name': str // 车辆当前位置
+		'degree': int,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角 0-36
+		'login': int // 终端是否连接到平台. 1: 连接成功； 0：连接失败
+		'lock_status'：int // 判断车是否被锁定. 1:车被锁定； 0： 车未被锁定			 
+	}
+  }
+不支持PUT、POST、DELETE
+
+************
+向android 推送报警信息
+************
+
+{ 'uid': str // 用户编号
+  'tid'：str // 终端编号
+  'category': int // 参看 "报警查询" event_type
+  'clongitude': int, // 加密之后的经度
+  ’clatitude': int, // 加密之后的纬度  
+  'name': str // 位置描述
+  'timestamp': int // 时间戳
+  'volume': int // 电量
+  'speed': int // 速度
+  ’degree': int // 方位角
+  'type': int // 定位类型 
+}
+
+

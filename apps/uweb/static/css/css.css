@@ -1,0 +1,1032 @@
+@charset "utf-8";
+/**
+*cheweishi css v1.0
+*2012-4-12 11:12
+*/
+
+/*html tab*/
+html, a, input, ul, li, p {
+	font-size: 12px;
+	font-family: "宋体","Arial Narrow";
+	margin: 0;
+	padding: 0;
+}
+body {
+	/*height: 1000px;*/
+	margin: 0;
+	padding: 0;
+	background-color: #FFF;
+	min-width: 1260px;
+}
+/*index.html*/
+.fontMic {
+	color: #ffffff;
+}
+.navi {
+	height: 90px;
+}
+#logo{
+	float: left;
+	padding: 0px 30px;
+}
+.mnNav {
+	position: absolute;
+	height: 57px;
+	left: 189px;
+	min-width: 1260px;
+    position: absolute;
+    top: 32px;
+}
+.menumList .mnNavLeft {
+	display: inline-block;
+	background: url('/static/images/headleft.png') no-repeat;
+	width: 14px;
+	height: 57px;
+	float: left;
+}
+.menumList .mnNavCenter {
+	display: inline-block;
+	background: url('/static/images/navBg.png') repeat-x;
+	height: 57px;
+	float: left;
+}
+.menumList .mnNavRight {
+	display: inline-block;
+	background: url('/static/images/headright.png') no-repeat;
+	width: 14px;
+	height: 57px;
+	float: left;
+}
+.menuNav {
+	display: inline-block;
+	margin-left: 20px;
+}
+.menuNav li {
+	width: 126px;
+	text-align: center;
+}
+.menuNav li, .selfList li {
+	float: left;
+	list-style: none;
+}
+.mnHover{
+	background-image: url('/static/images/headhover.png');
+	position: relative;
+	top: 0px;
+	left: -8px;
+	width: 103px;
+	height: 49px;
+	line-height: 20px;
+	padding :18px 0px 0px 0px;
+	color :#000000;
+	font-size: 14px;
+	text-decoration: none;
+}
+.menuNav li a {
+	display: block;
+	height: 57px;
+	line-height: 50px;
+	width: 89px;
+	color :#FFF;
+	font-size: 14px;
+	text-decoration: none;
+}
+/*
+*/
+.menuNav li a:hover {
+	background: url('/static/images/headhover.png') no-repeat;
+	position: relative;
+	top: 0px;
+	left: -8px;
+	width: 103px;
+	height: 49px;
+	line-height: 20px;
+	padding :18px 0px 0px 0px;
+	color :#000000;
+	font-size: 14px;
+	text-decoration: none;
+}
+.navSelf {
+	text-align: right;
+	height: 32px;
+	line-height: 32px;
+    width: 97%;
+}
+#personalData {
+	color: #B75B28;
+}
+.selfList {
+	float:right;
+}
+.selfList li {
+	margin-left: 10px;
+	background: url('/static/images/blacksign.png') no-repeat 0px 15px;
+}
+#activeNav {
+	background: url('/static/images/brownsign.png') no-repeat 0px 15px;
+}
+.selfList a {
+	margin-left: 5px;
+	text-decoration: none;
+	color: #464646;
+}
+.selfList a:hover{
+	text-decoration: underline;
+}
+.selfList a:visited, .carList a:visited {
+	color: #464646;
+}
+.carList a , .carList a:hover {
+	text-decoration: none;
+	color: #000000;
+}
+.carList li {
+	background-repeat: no-repeat;
+	background-position: right;
+	border-radius: 10px;
+	height: 25px;
+    line-height: 25px;
+	list-style: inside;
+	margin: 0;
+	padding: 0;
+}
+.carList .carListHover {
+	background-color: #3F9DC3;
+	height: 30px;
+	line-height: 30px;
+}
+.userMsg {
+	color: #464646;
+    font-size: 12px;
+	display: block;
+	float: right;
+}
+.main {
+	height: 934px;
+}
+.mainCar {
+	height: 934px;
+	width: 189px;
+}
+.carTitle {
+	background: url('/static/images/carlist.png');
+	height: 29px;
+	width: 178px;
+}
+.carTitle .title {
+	_background-position: 10px 1px;
+}
+.newCar {
+	background: url("/static/images/addCarSign.png") no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+    display: inline-block;
+    height: 18px;
+    left: 156px;
+    position: relative;
+    top: 7px;
+    width: 18px;
+}
+.title {
+	background: url("/static/images/bt_car.png") no-repeat scroll 10px center transparent;
+	height: 19px;
+    padding-left: 33px;
+    position: relative;
+    top: -1px;
+	_top: -1px; /*ie6*/ 
+}
+#infoTitle {
+	background: url("/static/images/carinfo.png") no-repeat scroll 0 0 transparent;
+    height: 35px;
+    width: 100%;
+}
+.infoTitleImg {
+	background-image: url("/static/images/bt_sign.png");
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	display: inline-block;
+	line-height: 19px;
+	top: -2px;
+	_top: -4px;
+}
+.carContent {
+	height: 909px;
+	width: 189px;
+	float: left;
+}
+.carList {
+	margin-left: 10px;
+    margin-top: 5px;
+	width: 168px;
+}
+.content {
+	left: 189px;
+    position: absolute;
+    top: 90px;
+}
+.carInfo {
+	height: 125px;
+	background: url('/static/images/bg2.png');
+}
+.infoList {
+	color: #FFFFFF;
+    font-size: 12px;
+    height: 90px; 
+    min-width: 1082px;
+    margin-left: 38px;
+	float: left;
+    width: 95%;
+}
+.infoList td {
+	height: auto;
+	text-align: left;
+}
+.infoWidth, #mapObj, .content{
+	min-width: 1000px;
+}
+.timeout {
+	text-align: center;
+}
+.layer {
+	background-color: #ccc;
+	left: 0;
+    opacity: 0.5;
+	filter: alpha(opacity=50); /*ie*/
+	position: absolute;
+	top: 0;	
+	width: 100%;
+	z-index: 1000;
+}
+/*dialogs wrapper*/
+.wrapper {
+	border: 1px solid #cccccc;
+	height: 335px;
+	left: 38%;
+	width: 290px;
+	position: absolute;
+	top: 20%;
+	z-index: 1001;
+}
+.wrapperTitle {
+	height: 35px;
+	background-image: url('/static/images/bg_3.png');
+	cursor: move;
+	margin: 0;
+}
+.wrapperContent {
+	height: 300px;
+	background-color: #ffffff;
+}
+.close {
+    background: url("/static/images/close_default.png") no-repeat;
+    cursor: pointer;
+	display: inline-block;
+    height: 20px;
+    left: 140px;
+	*left: 130px; /*ie6,7*/
+    position: relative;
+	top: 3px;
+	+top: -5px; /*ie7*/
+	_top: 3px; /*ie6*/
+    width: 20px;
+}
+.titleName {
+	color: #ffffff;
+	display: inline-block;
+	font-size: 20px;
+	height: 35px;
+    line-height: 35px;
+    text-indent: 24px;
+	*text-indent: 10px; /*ie6,7*/
+    width: 120px
+}
+#currentWrapper {
+	height: 120px;
+	width: 450px;
+}
+#currentWrapper .close {
+	left: 295px;
+	*left: 280px; /*ie6,7*/
+	*top: -3px;
+	_top: 5px; /*ie6*/
+}
+.currentContent {
+	background-color: #ffffff;
+	height: 85px;
+}
+.currentText {
+	background: url("/static/images/currentSign.png") no-repeat scroll 0 0 transparent;
+    height: 85px;
+    padding-left: 121px;
+    text-align: center;
+    width: 240px;
+}
+#currentMsg {
+	font-size: 14px;
+	font-style: normal;
+    left: -15px;
+    position: relative;
+    top: 31px;
+}
+#currentBtn {
+	background: url("/static/images/currentBtn.png") no-repeat scroll 0 0 transparent;
+}
+.confirmBtn {
+	cursor: pointer;
+	display: inline-block;
+    height: 85px;
+    left: 352px;
+    position: absolute;
+    top: 35px;
+    width: 97px;
+}
+
+/*defend  start*/
+#defendWrapper {
+	height: 120px;
+	width: 450px;
+}
+#defendWrapper .close {
+	left: 295px;
+	*left: 280px; /*ie6,7*/
+	*top: -3px;
+	_top: 5px; /*ie6*/
+}
+.defendContent {
+	background-color: #ffffff;
+	height: 85px;
+} 	
+.defendText {
+	/*background: url("../static/images/currentSign.png") no-repeat scroll 0 0 transparent;*/
+    height: 85px;
+    padding-left: 50px;
+   
+}
+#defendMsg {
+    left: -25px;
+    line-height:2;
+    position: relative;
+    top: 11px;
+	font-style: normal;
+	font-size: 14px;
+}
+#defendBtn {
+	background: url("/static/images/qd.png") no-repeat scroll 0 0 transparent;
+}
+/*defend  end*/
+/*reboot  start*/
+#rebootWrapper {
+	height: 120px;
+	width: 450px;
+}
+#rebootWrapper .close {
+	left: 295px;
+	*left: 280px; /*ie6,7*/
+	*top: -3px;
+	_top: 5px; /*ie6*/
+}
+.rebootContent {
+	background-color: #ffffff;
+	height: 85px;
+}
+.rebootText {
+	/*background: url("../static/images/currentSign.png") no-repeat scroll 0 0 transparent;*/
+    height: 85px;
+    padding-left: 50px;
+}
+#rebootMsg {
+    left: -25px;
+    line-height:2;
+    position: relative;
+    top: 11px;
+	width: 300px;
+	display: inline-block;
+	font-style: normal;
+	font-size: 14px;
+}
+ #lockMsg p {
+	font-size: 14px;
+}
+#rebootBtn {
+	background: url("/static/images/qd.png") no-repeat scroll 0 0 transparent;
+}
+/*reboot  end*/
+/*lock  start*/
+#lockWrapper {
+	height: 120px;
+	width: 450px;
+}
+#lockWrapper .close {
+	left: 295px;
+	*left: 280px; /*ie6,7*/
+	*top: -3px;
+	_top: 5px; /*ie6*/
+}
+.lockContent {
+	background-color: #ffffff;
+	height: 85px;
+}
+.lockText {
+	/*background: url("../static/images/currentSign.png") no-repeat scroll 0 0 transparent;*/
+    height: 85px;
+    padding-left: 50px;
+}
+#lockMsg {
+    left: -25px;
+    line-height:2;
+    position: relative;
+    top: 21px;
+	font-style: normal;
+}
+#lockBtn {
+	background: url("/static/images/qd.png") no-repeat scroll 0 0 transparent;
+}
+/*lock  end*/
+
+/*personal*/
+.personalList li, .pwdList  {
+	line-height: 37px;
+    list-style: none outside none;
+    margin-left: 26px;
+}
+.personalList li  input, .pwdList li  input {
+	float: right;
+    margin-right: 26px;
+	height: 20px;
+	line-height: 20px;
+	margin-top: 8px;
+    *margin-top: -29px; /*ie6,7*/
+}
+.personalList li input {
+	width: 165px;
+}
+.personalButton, .pwdButton, .terminalRefresh {
+	height: 31px;
+    left: 224px;
+    position: relative;
+    top: 3px;
+    width: 40px;
+}
+
+/*pwd*/
+#pwdWrapper{
+	height: 191px;
+}
+.pwdContent {
+	height: 156px;
+}
+/*display: none*/
+.hide, .trackBtn .hide {
+	display: none;
+}
+#home {
+	float: left;
+}
+/*remoteList*/
+.rw_left {
+	background: url('/static/images/rw_left.png');
+	display: inline-block;
+    float: left;
+    height: 22px;
+    width: 10px;
+}
+.rw_center {
+	background: url('/static/images/rw_center.png');
+	display: inline-block;
+    float: left;
+    height: 22px;
+}
+.rw_right {
+	background: url('/static/images/rw_right.png');
+	display: inline-block;
+    float: left;
+    height: 22px;
+    width: 10px;
+}
+.rw_active {
+	background: url('/static/images/rw_active.png') no-repeat;
+	display: inline-block;
+	color: #000000;
+    float: left;
+    height: 22px;
+    width: 89px;
+}
+#remoteWrapper {
+	position: absolute;
+	top: 81px;
+	left: 760px;
+	z-index: 100;
+}
+#remoteList li {
+	float: left;
+	list-style: none;
+	height:24px;
+	padding-left:5px;
+	line-height:24px;
+	width:82px;
+	color: #B4B4B4;
+	cursor: pointer;
+}
+#mapObj {
+	height: 838px;
+}
+#infoStatus {
+	cursor: pointer;
+	position: relative;
+	top: 2px;
+}
+#listov {
+	cursor: pointer;
+	position: absolute;
+	left: 189px;
+	top: 50%;
+	z-index: 1;
+}
+#ovLine {
+	background-color: #3C7EA6;
+    position: absolute;
+    top: 90px;
+    width: 10px;
+    z-index: 1;
+}
+/*terminal start*/
+#terminalWrapper {
+	width: 390px;
+}
+#terminalWrapper .terminalContent {
+	height: 420px;
+}
+#terminalWrapper .titleName {
+	width: 154px;
+}
+#terminalWrapper .close {
+	left: 200px;
+	*left: 187px; /*ie6,7*/
+	*top: -1px;
+	_top: 5px; /*ie6*/
+}
+	/*terminal tab*/
+#terminalWrapper .tabs {
+	border-bottom: 1px solid #CCCCCC; 
+	height:31px;
+}
+.tabs  li {
+	list-style: none;
+	float: left;
+}
+.tabs .tabItems {
+	cursor: pointer;
+	height: 30px;
+	line-height:30px;
+	width: 49.5%;
+	text-align: center;
+	top: 1px;
+	left: -1px;
+	position: relative;
+}
+.tabs .currentTab {
+	height: 30px;
+	border-bottom: 1px solid white;
+	border-left: 1px solid #CCCCCC; 
+	border-right: 1px solid #CCCCCC; 
+	color: #3C7EA6;
+	font-weight: bold;
+}
+#rTab {
+	left: -1px;
+}
+#wTab {
+	left: 3px;
+}
+.baseContent {
+	margin-left: 10px;
+}
+#bListSet, #bListVal {
+	display: block;
+	height: 22px;
+	line-height: 22px;
+	width: 170px;
+}
+#bListVal {
+	display: inline;
+    width: 169px;
+}
+.radioContent, .tInput {
+	margin-top: 12px;
+}
+#terminalUnit {
+	color: #00BB00;
+    font-size: 16px;
+    font-weight: bold;
+}
+.bList {
+	background-color: #FFFFFF;
+    border: 1px solid #BBBBBB;
+    left: 21px;
+    position: absolute;
+	top: 77px;
+	*top: 78px;
+	width: 169px;
+}
+.bList li {
+	height: 17px;
+	list-style: none;
+}
+#terminalList1 {
+	padding: 10px 0px 0px 10px;
+	display: inline-block;
+}
+.terminalButton {
+	height: 31px;
+	position: absolute;
+    right: 13px;
+    top: 100px;
+	width: 40px;
+}
+.listHover {
+	background-color: #3399ff;
+	color: white;
+}
+.dropDownbox {
+	background: url("/static/images/sersj.png") no-repeat scroll 0 0 transparent;
+    cursor: default;
+    display: inline-block;
+    height: 20px;
+    left: 172px;
+    position: absolute;
+	text-decoration: none;
+    top: 80px;
+	*top: 81px;
+    width: 20px;
+}
+.dropDownbox:hover {
+	background: url('/static/images/sersjhover.png') no-repeat;
+}
+.terminalRefresh {
+	left: 302px;
+	top: 11px;
+}
+#terminalList0 {
+	padding: 10px 10px 0px 10px;
+	display: inline-block;
+}
+#bListR {
+	width: 365px;
+}
+#bListR, #bListR td{
+	border: 1px solid #ccc;
+	text-align: left;
+	height: 24px;
+	line-height: 24px;
+	border-collapse: collapse;
+}
+#bListR .terminalTdL {
+	width: 127px;
+}
+.blistRValue {
+	padding-left: 5px;
+	font-weight: bold;
+}
+/*terminal end*/
+/*track css start*/
+.trackHeader, .eventHeader {
+	background: url('/static/images/trackBj.png');
+	height: 40px;
+	min-width: 1094px;
+	text-align: center;
+}
+.trackHeader {
+	border: 1px solid white;
+    height: 40px;
+    z-index: 1;
+}
+.trackPos {
+	display: inline-block;
+    height: 26px;
+    position: relative;
+    top: -1px;
+    width: 400px;
+}
+#trackSlide {
+    display: inline-block;
+    margin-left: 12px;
+    width: 82px;
+}
+.time {
+	background: url("/static/images/datePicker.gif") no-repeat scroll right center #FFFFFF;
+	border: 1px solid #cccccc;
+	height: 17px;
+	line-height: 17px;
+	width: 141px;
+	/*ie6,7*/
+	*position: relative;
+	*top: 3px;
+}
+.trackBtn, .tClose {
+	display: inline-block;
+    position: relative;
+    text-align: left;
+    top: 7px;
+    width: 186px;
+}
+.trackBtn span, .tClose {
+	cursor: pointer;
+	display: inline-block;
+	height: 26px;
+}
+.tSearch {
+	background: url('/static/images/ssgj1.png') no-repeat;
+	width: 85px;
+}
+.tPlay, .tStop, .tPause, .tClose {
+	width: 85px;
+}
+.tPlay {
+	background: url('/static/images/bf1.png') no-repeat;
+}
+.tPause {
+	background: url('/static/images/zt1.png') no-repeat;
+}
+.tStop {
+	background: url('/static/images/tz1.png') no-repeat;
+}
+.tClose {
+	background: url('/static/images/gb1.png') no-repeat;
+	position: absolute;
+    right: 10px;
+}
+/*track css end*/
+/*event css start*/
+.eventbody {
+	min-height: 470px;
+}
+.eventHeader {
+	min-width: 0px;
+}
+.eventMapClose {
+    background-image: url("/static/images/close_default.png");
+    height: 20px;
+    left: 330px;
+    position: relative;
+    top: -6px;
+    width: 20px;
+	cursor: pointer;
+}
+.eventMapContent {
+	background-color: #FFFFFF;
+    border: 1px solid #BBBBBB;
+    height: 323px;
+    padding: 11px;
+    width: 350px;
+}
+.eventMapContent h2 {
+	margin: 0;
+	cursor: move;
+}
+.eventMapContent  #mapObj {
+	min-width: 0px;
+}
+.eventBtn {
+	background: url('/static/images/cx.png') no-repeat;
+	cursor: pointer;
+	display: inline-block;
+	height: 26px;
+	margin-left: 30px;
+	position: relative;
+	top: 8px;
+	width: 58px;
+}
+.dataTable {
+	border: 1px solid #BBBBBB;
+	margin-top: 8px;
+	width: 850px;
+}
+#eventTableHeader th, #eventTableHeader td {
+	background-color: #266090;
+	border: 1px solid #CCCCCC;
+	height: 30px;
+	color: #FFFFFF;
+}
+td {
+	height: 30px;
+	text-align: center;
+}
+.dataTable a,.dataTable a:link{
+	color: 	black;
+	text-decoration: none;
+}
+.dataTable a:hover {
+	color: #4876FF;
+	font-weight: bold;
+	text-decoration: underline;
+}
+#eventTableHeader th {
+    font-size: 16px;
+    height: 40px;
+}
+.eventTime {
+	width: 200px;
+}
+.eventType {
+	width: 150px;
+}
+.eventLocation {
+	width: 500px;
+}
+.eventPos {
+	display: inline-block;
+	position: relative;
+	+top: 5px; /*ie6, 7*/
+	_top: 2px; /*ie6*/
+}
+#pagerContainer {
+	width: 850px;
+	height: 30px;
+	line-height: 30px;
+	margin:0 auto;
+	margin:0 auto;
+}
+#pageNums {
+	font-size: 12px;
+	margin-left: 30px;
+}
+.prevBtn {
+	background: url('/static/images/prevPage0.png') no-repeat;
+	cursor: pointer;
+	display: inline-block;
+	height: 26px;
+	margin-left: 300px;
+	position: relative;
+	top: 8px;
+	width: 64px;
+}
+.nextBtn {
+	background: url('/static/images/nextPage0.png') no-repeat;
+	cursor: pointer;
+	display: inline-block;
+	height: 26px;
+	margin-left: 30px;
+	position: relative;
+	top: 8px;
+	width: 64px;
+}
+/*event css end*/
+/*terminallist */
+#terminalListWrapper {
+	height: 200px;
+	width: 300px;
+}
+.terminalListContent {
+	height: 165px;
+	*height: 195px;
+	overflow: auto;
+}
+#terminalListWrapper .close {
+	left: 145px;
+	*left: 135px;
+}
+.olTable {
+	margin-top: 10px;
+}
+.olTable  li {
+	list-style: none;
+	margin-bottom: 10px;
+}
+.iInput {
+	border: 1px solid #CCCCCC;
+    height: 24px;
+    line-height: 24px;
+}
+.tlButton {
+	margin-right: 65px;
+}
+#tlSave {
+	float: right;
+	width: 60px;
+	margin-right: 10px;
+}
+/*terminallist end*/
+
+/*tmsgbox*/
+#terminalMsgWrapper {
+	background: url("/static/images/msgBox.png") no-repeat;
+	border: none;
+	height: 156px;
+    left: 170px;
+    top: 110px;
+    width: 272px;
+}
+#terminalMsgWrapper .close {
+	left: 235px;
+    top: 33px;
+}
+.terminalMsgContent {
+	font-size: 16px;
+    padding-left: 25%;
+    padding-top: 22%;
+    width: 170px;
+}
+.terminalMsgContent em {
+	color: red;
+}
+/*tmsgbos end*/
+/*jnotify message*/
+#jNotifyMessage {
+	filter: alpha(opacity=90);
+	float: right;
+	font-size: 14px;
+	font-weight: bold;
+	opacity: 0.9;
+	position: absolute;
+	text-align: center;
+	top: 93px;
+    width: 400px;
+	z-index: 100001;
+}
+.jnotify-item {
+	display: block;
+    height: auto;
+    margin: 0 0 5px 0;
+    padding: 10px 0;
+}
+.jnotify-item-close {
+	float: right;
+	margin-right: 0.5em;
+	margin-top: 2px;
+}
+/*carlist for bgcolor*/
+.carCurrent {
+	background-color: #dbecf4;
+}
+.carlogin {
+	background-image: url('/static/images/car_on.png');
+}
+.carlogout {
+	background-image: url('/static/images/car_off.png');
+}
+/*disbaled style*/
+.textDisabled {
+	background-color: scrollbar;
+}
+/*readonly style*/
+.readonly_overlay {
+	background-color: #aaa;
+	opacity: 0.2;
+	filter: alpha(opacity=20);
+	padding: 0!important;
+	margin: 0!important;
+	position: absolute;
+	z-index: 1100;
+}
+.mouseItem {
+	background-color: #F0F0F0;
+	border: 1px solid #718BB7;
+    height: 20px;
+	line-height: 20px;
+	position: absolute;
+    text-align: center;
+    width: 60px;
+}
+.mouseSpan {
+	cursor: pointer;
+	display: block;
+    height: 20px;
+    width: 60px;
+}
+#markerWindowtitle {
+	width: 250px;
+}
+#markerWindowtitle h4 {
+	margin: 0px 0 5px 8px;
+	font-size: 12px;
+}
+#markerWindowtitle ul {
+	margin-left: 8px;
+}
+#markerWindowtitle ul li {
+	height: 16px;
+	list-style: none;
+}
+#markerWindowtitle label {
+	display: inline-block;
+    width: 80px;
+	float: left;
+}
+#markerWindowtitle .labelRight {
+	float: right;
+}
+#markerWindowtitle a {
+	margin-right: 10px;
+}
+#markerWindowtitle a:visited {
+	color: #0000ff;
+}
+#terminalListTip {
+	margin-top: 10px;
+	padding: 0px 10px 10px 0px;
+	color: #3C7EA6;
+	font-weight: bold;
+}
+#radioTip {
+	margin-top: 10px;
+	color: gray;
+}
