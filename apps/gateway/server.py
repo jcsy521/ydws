@@ -7,6 +7,7 @@ import site
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
+import signal
 import logging
 import multiprocessing
 from multiprocessing import Process, Queue, Pool
@@ -41,6 +42,7 @@ def main():
     memcached = MyMemcached()
     db = DBConnection().db
     si_requests_queue = Queue()
+    gw_requests_queue = Queue()
 
     servers = None
     processes = None
@@ -54,11 +56,14 @@ def main():
             server.db = db
         si_process = Process(name='SIServer',
                              target=siserver.handle_si_connections,
-                             args=(si_requests_queue,))
-        gw_process = Process(name='GWServer',
-                             target=gwserver.handle_terminal_connections,
-                             args=(si_requests_queue,))
-        processes = (si_process, gw_process)
+                             args=(si_requests_queue, gw_requests_queue))
+        gw_send = Process(name='GWSender',
+                          target=gwserver.send,
+                          args=(gw_requests_queue,))
+        gw_recv = Process(name='GWReceiver',
+                          target=gwserver.recv,
+                          args=(si_requests_queue, gw_requests_queue))
+        processes = (si_process, gw_send, gw_recv)
         for p in processes:
             p.start()
         for p in processes:

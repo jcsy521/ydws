@@ -14,7 +14,7 @@ from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
 from utils.mymemcached import MyMemcached
 from db_.mysql import get_connection
-from utils.misc import get_gw_requests_key, get_gw_fd_key
+from utils.misc import get_terminal_address_key
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.confhelper import ConfHelper
@@ -97,8 +97,8 @@ class SIServer():
         status = GFCode.SUCCESS 
         terminal_fd = None
         
-        fd_key = get_gw_fd_key(terminal_id)
-        terminal_fd = self.memcached.get(fd_key)
+        address_key = get_terminal_address_key(terminal_id)
+        terminal_fd = self.memcached.get(address_key)
         if (not terminal_fd or terminal_fd == DUMMY_FD):
             terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO_W"
                                    "  WHERE tid = %s",
@@ -181,7 +181,7 @@ class SIServer():
 
         return len(request['packet'])
 
-    def handle_response_from_si(self, fd, response, si_requests_queue):
+    def handle_response_from_si(self, fd, response, si_requests_queue, gw_requests_queue):
         """
         @param fd: readable fd
                response: recv from si system(eg: abt), most to send command
@@ -243,16 +243,11 @@ class SIServer():
                 terminal_id = sp.gfbody.Terminal_id.strip()
                 clwc = S_CLWCheck(sp.gfbody.Content)
                 terminal_type = clwc.head.type
-                t_fd, t_status = self.get_terminal_status(terminal_id)
-                if (t_fd and t_fd != DUMMY_FD): 
-                    request = sp.gfbody.Content
-                    gw_requests_key = get_gw_requests_key(t_fd)
-                    gw_requests = self.memcached.get(gw_requests_key)
-                    if gw_requests:
-                        gw_requests.append(request)
-                    else:
-                        gw_requests = [request,]
-                    self.memcached.set(gw_requests_key, gw_requests)
+                t_address, t_status = self.get_terminal_status(terminal_id)
+                if (t_address and t_address != DUMMY_FD): 
+                    request = DotDict(packet=sp.gfbody.Content,
+                                      address=t_address)
+                    gw_requests_queue.put(request)
                 
                 # response it.
                 args = DotDict(seq=gfhead.seq,
@@ -331,7 +326,7 @@ class SIServer():
         except Exception as e:
             logging.exception("unknown error: %s", e.args)
 
-    def handle_si_connections(self, si_requests_queue):
+    def handle_si_connections(self, si_requests_queue, gw_requests_queue):
         while True:
             try:
                 if not self.epoll_fd:
@@ -361,7 +356,7 @@ class SIServer():
                             logging.info("[SI]<--%s:%s Recv:\n %r",
                                          self.addresses[fd][0], self.addresses[fd][1],
                                          response)
-                            self.handle_response_from_si(fd, response, si_requests_queue)
+                            self.handle_response_from_si(fd, response, si_requests_queue, gw_requests_queue)
                             self.epoll_fd.modify(fd, select.EPOLLET | select.EPOLLIN | select.EPOLLOUT) 
                     elif select.EPOLLOUT & events:
                         if si_requests_queue.qsize() != 0:

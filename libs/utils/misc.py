@@ -52,11 +52,8 @@ def str_to_list(str_, delimiter=','):
 def get_alarm_status_key(dev_id):
     return str("alarm:%s" % dev_id)
 
-def get_gw_fd_key(dev_id):
-    return str("gw_fd:%s" % dev_id)
-
-def get_gw_requests_key(fd):
-    return str("gw_requests:%d" % fd)
+def get_terminal_address_key(dev_id):
+    return str("terminal_address:%s" % dev_id)
 
 def get_ssdw_sms_key(sim):
     return str("ssdw:%s" % sim)
