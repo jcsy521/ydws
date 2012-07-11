@@ -109,28 +109,34 @@ class GatewayServer(object):
             t_info.update(lp.ret) 
                     
             try:
-                self.db.execute("INSERT INTO T_TERMINAL_INFO_W"
-                                "  (id, tid, mobile, owner_mobile, psw)"
-                                "  VALUES(NULL, %s, %s, %s, %s)"
-                                "  ON DUPLICATE KEY"
-                                "    UPDATE tid = VALUES(tid),"
-                                "    mobile = VALUES(mobile),"
-                                "    owner_mobile = VALUES(owner_mobile),"
-                                "    psw = VALUES(psw)",
-                                t_info["dev_id"], t_info["t_msisdn"],
-                                t_info["u_msisdn"], t_info["passwd"])
+                if t_info["u_msisdn"] and t_info["t_msisdn"]:
+                    self.db.execute("INSERT INTO T_TERMINAL_INFO_W"
+                                    "  (id, tid, mobile, dev_id, owner_mobile, psw)"
+                                    "  VALUES(NULL, %s, %s, %s, %s, %s)"
+                                    "  ON DUPLICATE KEY"
+                                    "    UPDATE tid = VALUES(tid),"
+                                    "    mobile = VALUES(mobile),"
+                                    "    dev_id = VALUES(dev_id),"
+                                    "    owner_mobile = VALUES(owner_mobile),"
+                                    "    psw = VALUES(psw)",
+                                    t_info["t_msisdn"], t_info["t_msisdn"], t_info["dev_id"],
+                                    t_info["u_msisdn"], t_info["passwd"])
 
-                self.db.execute("INSERT INTO T_TERMINAL_INFO_R"
-                                "  VALUES(NULL, %s, %s, %s, %s,"
-                                "         NULL, NULL, NULL, NULL, NULL,"
-                                "         DEFAULT, NULL)"
-                                "  ON DUPLICATE KEY"
-                                "    UPDATE tid = VALUES(tid),"
-                                "           imsi = VALUES(imsi),"
-                                "           imei = VALUES(imei),"
-                                "           factory_name = VALUES(factory_name)",
-                                t_info["dev_id"], t_info["imsi"],
-                                t_info["imei"], t_info["factory_name"])
+                    self.db.execute("INSERT INTO T_TERMINAL_INFO_R"
+                                    "  VALUES(NULL, %s, %s, %s, %s, %s,"
+                                    "         NULL, NULL, NULL, NULL, NULL,"
+                                    "         DEFAULT, NULL)"
+                                    "  ON DUPLICATE KEY"
+                                    "    UPDATE tid = VALUES(tid),"
+                                    "           imsi = VALUES(imsi),"
+                                    "           imei = VALUES(imei),"
+                                    "           dev_id = VALUES(dev_id),"
+                                    "           factory_name = VALUES(factory_name)",
+                                    t_info["t_msisdn"], t_info["imsi"],
+                                    t_info["imei"], t_info["dev_id"], t_info["factory_name"])
+                else:
+                    args.success = LOGIN_FAILD
+                    logging.error("[GW] login terminal miss sim or owner_mobile information")
             except:
                 args.success = LOGIN_FAILD
                 args.info = "1"
