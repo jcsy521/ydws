@@ -97,16 +97,16 @@ class SIServer():
         status = GFCode.SUCCESS 
         terminal_fd = None
         
-        terminal = self.db.get("SELECT dev_id FROM T_TERMINAL_INFO_W"
-                               "  WHERE tid = %s",
-                               terminal_id) 
-        if terminal:
-            address_key = get_terminal_address_key(terminal.dev_id)
-            terminal_fd = self.memcached.get(address_key)
-            if (not terminal_fd or terminal_fd == DUMMY_FD):
+        address_key = get_terminal_address_key(terminal_id)
+        terminal_fd = self.memcached.get(address_key)
+        if (not terminal_fd or terminal_fd == DUMMY_FD):
+            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO_W"
+                                   "  WHERE tid = %s",
+                                   terminal_id) 
+            if terminal:
                 status = GFCode.TERMINAL_OFFLINE 
-        else:
-            status = GFCode.GF_NOT_ORDERED 
+            else:
+                status = GFCode.GF_NOT_ORDERED 
                     
         return terminal_fd, status
                         
