@@ -331,7 +331,11 @@ class GFBase(object):
                         if gfhead.command == '0010':
                             sp = SendParser(gf.datas[0])
                             clw = S_CLWCheck(sp.gfbody.Content)
-                            r_key = ("%s%s" % (sp.gfbody.Terminal_id, clw.head.type)).replace(' ','')
+                            # replace tid to dev_id
+                            terminal = self.db.get("SELECT dev_id FROM T_TERMINAL_INFO_W"
+                                                   "  WHERE tid = %s",
+                                                   sp.gfbody.Terminal_id)
+                            r_key = ("%s%s" % (terminal.dev_id, clw.head.type)).replace(' ','')
                             r_value = {'callback':request['callback'],
                                        'timestamp':time()}
                             if self.wait_response_queue.get('r_key'):
