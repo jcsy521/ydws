@@ -102,15 +102,16 @@ class AsyncParser(object):
         position['speed'] = float(position['speed'])
         position['degree'] = float(position['degree'])
 
-        d = {'0' : 3.65,
-             '3' : 3.7,
-             '6' : 4.15,
-             '9' : 4.2}
-        volume = position['volume']
-        if volume in d:
-            position['volume'] = d[volume]
-        else:
-            position['volume'] = 0
+        #NOTE: here, just stor 0, 3, 6, 9 in database to show the electry quantity of battery 
+        #d = {'0' : 3.65,
+        #     '3' : 3.7,
+        #     '6' : 4.15,
+        #     '9' : 4.2}
+        #volume = position['volume']
+        #if volume in d:
+        #    position['volume'] = d[volume]
+        #else:
+        #    position['volume'] = 0
 
         position['valid'] = self.get_valid(position['valid']) 
 
