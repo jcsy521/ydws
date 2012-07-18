@@ -1,0 +1,171 @@
+﻿<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css" />
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/jquery.validationEngine-en.js"></script>
+<script src="/static/js/jquery.validationEngine.js"></script>
+<script src="/static/js/initStyle.js"></script>
+<script src="/static/js/adminEdit.js"></script>
+<script src="/static/js/provAndCity.js"></script>
+<script src="/static/js/privileges.js"></script>
+<script src="/static/js/formValue.js"></script>
+<script src="/static/js/submitForm.js"></script>
+
+{% block body %}
+<h3>编辑用户信息</h3>
+<form id="formID" method="post" action="" onsubmit="return adminSubmit({{str(is_self).lower()}});">
+    <table>
+		<tr>
+			<td align="left" colspan="2">
+				<span style="color:red">带红色*为必填项</span>
+			</td>
+		</tr>
+        <tr>
+            <td align="right">姓名：</td>
+            <td align="left">
+                <input type="text" name="name" value="{{administrator.name}}" 
+                   id="name" class="validate[required,sp_char_space,length[16]],onsubmit"/>
+				<span class="required">*</span>
+            </td>
+        </tr>
+        <tr>
+            <td align="right">账号：</td>
+            <td align="left">
+                <label name="login">{{administrator.login}}</label>
+            </td>
+        </tr>
+		<tr>
+            <td align="right">手机号码：</td>
+            <td align="left">
+                <input type="text" name="mobile" value="{{administrator.mobile}}" id="mobile" 
+                    maxlength="11" /> <!--class="validate[custom[mobile]]" -->
+            </td>
+        </tr>
+		<tr>
+            <td align="right">固定电话：</td>
+            <td align="left">
+                <input type="text" name="phone" value="{{administrator.phone}}"
+                   id="phone"  maxlength="13" /><!--class="validate[custom[phone]]" -->
+            </td>
+        </tr>
+	    <tr>
+            <td align="right">公司名称：</td>
+            <td align="left">
+                <input type="text" name="corporation" value="{{administrator.corporation}}" 
+                   id="corporation" maxlength="100" /> <!--class="validate[sp_char_space,length[100]]" -->
+            </td>
+        </tr>
+		<tr>
+            <td align="right">电子邮件：</td>
+            <td align="left">
+                <input type="text" name="email" value="{{administrator.email}}" 
+                   id="email" maxlength="40" /> <!-- class="validate[custom[email],length[40]]"-->
+            </td>
+        </tr>
+        {% if not is_self %}
+        <tr>
+            <td align="right">公司类型：</td>
+            <td align="left">
+				<select name="source_id" id="source_id">
+					 {% for group in sources %}
+						{% if group.id == administrator.source_id %}
+							<option value="{{group.id}}" selected>{{group.name}}</option>
+						{% else %}
+							<option value="{{group.id}}">{{group.name}}</option>
+						{% end %}
+					{% end %}
+				</select>
+            </td>
+        </tr>
+        {% end %}
+        {% if not is_self %}
+        <tr>
+            <td align="right">状态：</td>
+            <td align="left">
+				{% if  administrator.valid == 1 %}
+					<input type="radio" name="valid" checked="true" value="1" />启用
+					<input type="radio" name="valid" value="0" />停用
+				{% else %}
+					<input type="radio" name="valid" value="1" />启用
+					<input type="radio" name="valid" checked="true" value="0" />停用
+				{% end %}
+            </td>
+        </tr>
+        <tr>
+            <td align="right">权限类型：</td>
+            <td align="left">
+				 <ul id="ulCheckbox" class="ulCheckbox" style="width:300px;">
+                    {% for p in administrator.privileges %}
+                        {% if p.valid == 1 %}
+                            <li style="width:140px;" onmouseover="selectPrivileges({{p.id}}, this)" onmouseout="fn_closeMsgBox()">
+                                <input id="check{{p.id}}" type="checkbox" value="{{p.id}}" name="privileges" checked="checked" />
+                                <span id="s{{p.id}}">{{p.name}}</span>
+                            </li>
+                        {% else %}
+                            <li style="width:140px;" onmouseover="selectPrivileges({{p.id}}, this)" onmouseout="fn_closeMsgBox()">
+                                <input id="check{{p.id}}" type="checkbox" value="{{p.id}}" name="privileges" />
+                                <span id="s{{p.id}}">{{p.name}}</span>
+                            </li>
+                        {% end %}
+                    {% end %}
+                </ul>
+				
+            </td>
+        </tr>
+        
+        <tr id="city">
+            <td align="right">城市：</td>
+            <td align="left">			
+				<div id="msgBox" class="ui-state-highlight"></div>
+				{% if int(administrator.type) == 1 %}
+					{% if administrator.cities %}
+						{% for current_city in administrator.cities %}
+								<input type="hidden" id="hidCurrentCities{{current_city.city_id}}" class="j_CurrentCities" value="{{current_city.city_id}}" name="{{current_city.city_name}}" />
+						{% end %}
+					<span id="normalUserCity" ></span>
+					{% end %}
+				{% else %}
+					<div id="d_cities">
+						<div class="ckList" style="display:none">
+							{% if administrator.cities %}
+							{% for current_city in administrator.cities %}
+								<input type="hidden" id="hidCurrentCities{{current_city.city_id}}" class="j_CurrentCities" value="{{current_city.city_id}}" name="{{current_city.city_name}}" />
+							{% end %}
+							{% end %}
+							<strong class="cTxt">请选择城市</strong>
+							<input type="checkbox" id="checkAll" value="全选" onclick="f_AllChooses();" /><span class="cTxt">全选</span>
+							<ul class='ulCheckbox j_cities'>
+								{% for city in cities %}
+									<li>
+										<input id="checkbox{{city.city_id}}" type="checkbox" class="j_ckCity" value="{{city.city_id}}" name="cities" onclick="disabledAllChoose();" />
+										<span id="span{{city.city_id}}">{{city.city_name}}</span>
+									</li>
+								{% end %}
+							</ul>
+						</div>
+					</div>
+					<input type="text" id="citiesNames" class="noBorderTxt"  onclick="_ajaxGetData('#getCities');" class ="validate[required]" readonly="true" value=""/>
+				{% end %}
+					<input type="hidden" id="cities" name="cities" value="" />
+            </td>
+        </tr>
+        {% end %}
+        <tr>
+            <td colspan="2" align="right">
+				<input type="submit" value="保存" class="ui-button ui-widget ui-state-default ui-corner-all" 
+                    role="button" aria-disabled="false" />
+			</td>
+        </tr>
+    </table>
+    <div id="d_provinces">
+        <div id="d_cities"></div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(function(){
+        f_editAdmin({{ json_encode(administrator['cities']) }});
+		fn_selectCurrentCities();
+    });
+</script>
+{% end %}

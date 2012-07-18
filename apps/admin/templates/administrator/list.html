@@ -1,0 +1,81 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/initStyle.js"></script>
+<script src="/static/js/submitForm.js"></script>
+<script src="/static/js/jquery_cookie.js"></script>
+
+{% block body %}
+{% if success %}
+	<h3>显示详细信息</h3>
+	<table class="tableStyle">
+		<tr>
+			<td class="tLeft">姓名</td>
+			<td align="left">{{administrator.name}}</td>
+		</tr>
+		<tr>
+			<td class="tLeft">手机号</td>
+			<td align="left">{{administrator.mobile}}</td>
+		</tr>
+		<tr>
+			<td class="tLeft">固定电话</td>
+			<td align="left">{{administrator.phone}}</td>
+		</tr>
+		<tr>
+			<td class="tLeft">登录名</td>
+			<td align="left">{{administrator.login}}</td>
+		</tr>
+		<tr>
+			<td class="tLeft">状态</td>
+			<td align="left">
+				{% if  administrator.valid == 1 %}
+					启用
+				{% else %}
+					停用
+				{% end %}
+			</td>
+		</tr>
+		<tr>
+			<td class="tLeft">所属公司</td>
+			<td align="left">{{administrator.corporation}}</td>
+		</tr>
+		<tr>
+			<td class="tLeft">权限组名</td>
+			<td align="left">
+				{% for privilege in administrator.privileges %}
+					{% if privilege.valid == 1 %}
+						{{ privilege.name }}
+					{% end %}		    
+				{% end %}
+			</td>
+		</tr>
+		<tr>
+			<td class="tLeft">城市</td>
+			<td align="left">
+				{% for city in administrator.cities %}
+					{{city.city_name}}
+				{% end %}
+			</td>
+		</tr>
+	</table>
+	<br />
+	<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+        href="/administrator/edit/{{administrator.id}}">
+        <span class="ui-button-text">修改</span>
+    </a>
+{% else %}
+	<div class="ui-widget" align="center">
+		<div class="errorbox ui-state-error ui-corner-all">
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-left: 1em; margin-right: .5em;"></span>
+			<strong style="float: left;">操作错误：</strong>
+			<br />
+			<br />
+			{{ message }}
+		</div>
+		<br />
+		<a class="button" href="javascript:history.back(document.referrer);">返回</a>
+	</div>
+{% end %}
+{% end %}
+

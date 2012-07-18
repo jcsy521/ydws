@@ -1,0 +1,45 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css"
+      rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/initStyle.js" type="text/javascript"></script>
+<script src="/static/js/privgroup.js" type="text/javascript"></script>
+<script src="/static/js/dataTable.js" type="text/javascript"></script>
+
+{% block body %}
+<a href="/privgroup/create" class="priviBtn button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+    role="button">
+   <span class="ui-button-text">新建权限组</span>
+</a>
+<h3>详细信息</h3>
+<table id="rDataTables" class="display">
+    <thead>
+        <tr>
+            <th>序号</th><th>权限组名</th><th>该权限组人数</th><th>编辑</th> <th>删除</th>
+        </tr>
+    </thead>
+    <tbody  id="privTbody">
+        {% for id, group in groups.iteritems() %}
+			<tr id="priv{{id}}" style="display">
+				<td>{{group.seq}}</td>
+				<td>
+					<a href="#" onclick="toPrivDetail({{id}},'{{group.name}}');">{{group.name}}</a>
+				</td>
+				<td>{{group.num}}</td>
+				{% if not group.builtin %}
+					<td><a href="/privgroup/edit/{{id}}">编辑</a></td>
+					<td><a href="#" onclick="if(confirm('是否删除本权限组？'))privDelete({{id}});">删除</a></td>
+				{% else %}
+				<td>默认权限组</td>
+				<td>默认权限组</td>
+			{% end %}
+			</tr>
+		{% end %}
+    </tbody>
+</table>
+<div id="privList"></div>
+{% end %}

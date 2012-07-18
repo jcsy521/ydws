@@ -1,0 +1,20 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" 
+      rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/static/js/submitForm.js"></script>
+{% block body %}
+<div class="ui-widget" align="center">
+<div class="errorbox ui-state-error ui-corner-all">
+<span class="ui-icon ui-icon-alert" style="float: left; margin-left: 1em; margin-right: .5em;"></span>
+<strong style="float: left;">下载错误：</strong>
+<br />
+<br />
+请您先选择查询条件，执行查询之后，再点击“导出Excel”按钮。
+</div>
+<br />
+<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+   href="#" onclick="fn_GoBack();"><span class="ui-button-text">返回</span></a>
+</div>
+{% end %}

@@ -1,0 +1,39 @@
+.infotable tbody tr.even:hover, .infotable tbody tr.even td.highlighted {
+    background-color: #ECFFB3;
+}
+
+.infotable tbody tr.odd:hover, .infotable tbody tr.odd td.highlighted {
+    background-color: #E6FF99;
+}
+
+.infotable tr.even:hover {
+    background-color: #ECFFB3;
+}
+
+.infotable tr.even:hover td.sorting_1 {
+    background-color: #DDFF75;
+}
+
+.infotable tr.even:hover td.sorting_2 {
+    background-color: #E7FF9E;
+}
+
+.infotable tr.even:hover td.sorting_3 {
+    background-color: #E2FF89;
+}
+
+.infotable tr.odd:hover {
+    background-color: #E6FF99;
+}
+
+.infotable tr.odd:hover td.sorting_1 {
+    background-color: #D6FF5C;
+}
+
+.infotable tr.odd:hover td.sorting_2 {
+    background-color: #E0FF84;
+}
+
+.infotable tr.odd:hover td.sorting_3 {
+    background-color: #DBFF70;
+}

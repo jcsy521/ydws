@@ -1,0 +1,468 @@
+* {
+    padding: 0; 
+}
+body {
+    padding: 10pt;
+    font-family: 'Microsoft YaHei', Arial, Helvetica, Verdana, sans-serif; 
+    font-size: 11pt;
+    margin: auto;
+}
+h3 {
+    margin: 5px 0;
+    border-left: 5px solid #cd0a0a;
+    color: #416F29;
+    background: url('/static/image/bg_all.gif') repeat;
+    line-height: 2.3;
+    text-indent: 0.5em;
+    font-size: 18px;
+}
+.resultQuery h3 {
+    float: left;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+}
+.resultQuery {
+    border-left: 5px solid #cd0a0a;
+    color: #416F29;
+    background: url('/static/image/bg_all.gif') repeat;  
+    height: 40px;
+    margin: 8px 0;
+}
+.resultTitle {
+	width: 90px;
+	float: left;
+}
+a {
+    color: blue;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+.legend {
+    text-align: left;
+}
+fieldset {
+    padding: 10px;
+}
+#logo {
+    padding: 10px 5px 10px 10px;
+    font-size: 2em;
+    font-weight: bold;
+    height: 40px;
+}
+.cThemeSwitcher {
+    float: right;
+    margin: 0px!important;
+    margin-top: -40px;
+    padding: 0;
+}
+#footer {
+    margin-top: 10px;
+    border-top: 1px dashed #ccc;
+    padding-top: 10px;
+    text-align: center;
+}
+b {
+	color: #aaa;
+	cursor: pointer;
+	width: 10px;
+}
+table, .ui-widget-header {
+    font-size: 13px;
+}
+.txt {
+    width: 90px;
+    border: 1px solid yellow;
+}
+.cLogin {
+    height: 250px;
+    width: 500px;
+    text-align: center;
+	margin-top: 100px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: #bed3ee;
+	padding: 20px 0 0 0;
+	color: #0d449f;
+}
+.cbtns {
+    width: 70px;
+    height: 32px;
+    padding: 3px 0 0 0;
+    border: none;
+    margin-left: 3px;
+}
+#login form {
+	margin-top: 20px;
+}
+#login form table {
+    height: 150px;
+}
+.error {
+    text-align: center;
+	padding: 10px 0 10px 0;
+    color: #cd0a0a;
+	font-weight: bold;
+}
+.errorbox {
+	padding: 10px 0 10px 0;
+	width: 400px;
+	margin-top: 100px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.resultQuery .download {
+    display: block;
+    width: 90px;
+    font-size: 12px;
+    float: right;
+    margin-top: 6px;
+}
+#left {
+	width: 12%; 
+	margin: 20px 5px 0 0;
+	float: left;
+}
+#right {
+	width: 86%;
+	margin-top: 20px;
+	float: left;
+	border-left: 1px solid #ccc; 
+	border-right: 1px solid #ccc;
+	padding-left: 5pt;
+	padding-right: 5pt;
+	position: relative;
+}
+#searchTable {
+	width: 270px;
+}
+#searchTable td {
+	height: 28px;
+	line-height: 28px;
+}
+.searchTable0 {
+	float:left;
+}
+.searchTable0 td {
+	height: 28px;
+	line-height: 28px;
+}
+#searchButton {
+	float: left;
+	padding:27px 0px 0px 50px;
+}
+#groupNumbers {
+	padding-left: 40px;
+	line-height: 44px;
+	float: left;
+}
+#groupNumbers span {
+	display: inline-block;
+	padding-left: 20px;
+}
+.hideLeft {
+	position: absolute;
+	top: 300px;
+	left: -10px;
+}
+.showLeft {
+	position: absolute;
+	top: 300px;
+	left: 0;
+}
+.mobile {
+    margin: 5px 0 100px 0;
+}
+.mobile h3 {
+    margin: 3px 0 2px 0;
+    line-height: 10px;
+}
+#accordion div ul li {
+	padding-bottom: 5px;
+}
+#accordion div ul li a {
+	text-decoration: none;
+}
+#accordion div ul li a:hover {
+	font-weight: bold;
+}
+#accordion div ul li span:hover {
+	font-weight: bold;
+}
+.ui-widget {
+	font-size: 0.9em; 
+}
+/*-------------*/
+.hideul {
+    display: none;
+    width: 120px;
+    margin: 8px 0 0 10px;
+    padding: 0;
+}
+.hideSearchTable {
+    display: none;
+}
+#showOrHideSearch {
+    cursor: pointer;
+    font-size: 18px;
+}
+.ultoggle {
+    cursor: pointer;
+}
+.ulCheckbox {
+    list-style: none;
+    border-top: 1px solid #AED0EA;
+    margin: 0;
+    width: 480px;
+}
+.ulCheckbox li {
+    width: 155px;
+    float: left;
+}
+.clear {
+    clear: both;
+}
+.noBorderTxt {
+    border: none;
+    background-color: #c1d2d1;
+}
+.highlight {
+    background-color: #6f9cd6;
+    border-top: 1px dashed #3b7ed4;
+    border-bottom: 1px dashed #3b7ed4;
+    color: white;
+}
+.cpro_city {
+    display: none;
+    width: 602px;
+    border: 1px solid #62bbe8;
+    margin: 2px 0 0 0;
+    position: absolute;
+    z-index: 99999;
+}
+.cpro_city li {
+    list-style: none;
+    float: left;
+    zoom: 1;
+    border: 1px solid #ddd;
+    margin-bottom: 3px;
+    width: 148px;
+	height: 18px;
+}
+.cpro_city li span {
+    display: none;
+}
+.cpro_cityLink {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    background-color: #62bbe8;
+    text-align: center;
+}
+.city_hover {
+    background-color: #ffef8f;
+}
+#proCities a {
+    color: white;
+}
+#proCities a:hover {
+    color: black;
+}
+#show_hideCities {
+    width: 133px;
+    height: 26px;
+    font-size: 12px;
+}
+.cUlItem {
+    margin: 0;
+    padding: 0;
+    width: 110px;
+    list-style-position: inside;
+}
+.privilegesMsg {
+	border-bottom: 1px solid red;
+    width: 480px;
+    margin: 2px 0 0;
+    text-indent: 1em;
+}
+.privilegesMsg em {
+    color: blue;
+    font-style: normal;
+    font-weight: bold;
+}
+.cDeleg {
+    height: 150px;
+}
+.cDelegUL {
+    border: none;
+    margin: 0 0 0 50px;
+    padding: 0;
+    text-align: left;
+}
+.cDelegUL li {
+    list-style: none;
+    margin-top: 3px;
+}
+.cDelegUL li span strong {
+    font-size: 11px;
+}
+.cDelegUL li button {
+    left: 115px;
+}
+.cPrivisItem {
+    color: blue;
+    font-size: 12px;
+    margin-left: 1em;
+}
+.cTxt {
+    font-size: 12px;
+    color: blue;
+}
+
+/*------------tooltip----------*/
+#tooltip {
+	position: absolute;
+	z-index: 3000;
+	border: 1px solid #111;
+	width: auto;
+	background-color: #eee;
+	padding: 5px;
+	opacity: 0.85;
+}
+.tableStyle {
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.tableStyle td {
+    background-color: #EFEFEF;
+    border: 1px dashed #AAAAAA;
+    padding: 5px 15px 5px 5px;
+    height: 20px;
+}
+.tLeft {
+    width: 100px;
+}
+#loginhistory {
+    text-align: center;
+}
+#loginhistory td {
+	border: 1px solid #cdcdcd;
+}
+.privList {
+	float: left;
+	width: 120px;
+	list-style: none;
+}
+.priviBtn {
+    margin-bottom: 5px;
+}
+.passwordForms {
+    margin: 0;
+}
+#msgBox {
+    height: 165px;
+    width: 480px;
+    position: absolute;
+    display: none;
+    text-align: left;
+}
+#formID .ui-button {
+    position: static;
+}
+#d_provinces, #x_city {
+    display: none;
+    overflow: visible;
+}
+.planType {
+	display: none;
+}
+#rDataTables {
+    text-align: center;
+	font-size: 12px;
+}
+#rDataTables th {
+	padding:3px 0px 3px 5px;
+}
+#rDataTables td {
+	border: 1px solid #cdcdcd;
+}
+#reportDataTables {
+    text-align: center;
+	font-size: 12px;
+}
+#reportDataTables th {
+	padding:3px 0px 3px 5px;
+}
+#reportDataTables td {
+	border: 1px solid #cdcdcd;
+}
+.menus {
+	width: 150px;
+}
+.width60 {
+	width: 60px;
+}
+.width100 {
+	width: 100px;
+}
+/*color for status*/
+.success {
+	color: green;
+}
+.error {
+	color: #FFC125;
+}
+.failed {
+	color: red;
+}
+.iLayer {
+	display: none;
+    background-color: #999999;
+	filter: alpha(opacity=20);
+	left: 0px;
+	opacity: 0.2;
+    position: absolute;
+	top: 0px;
+    width: 100%;
+    z-index: 99999;
+}
+.layerFrame {
+	display: block;
+}
+.msg {
+	background-color: #D3D6FF;
+	display: none;
+	height: 54px;
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	width: 284px;
+}
+.msgContent {
+	left: 60px;
+    position: relative;
+    top: 19px;
+}
+.ckList {
+	width:220px;
+	padding-top: 20px;
+}
+.required {
+	color: red;
+}
+.fontStyle {
+	font-weight: bold;
+	padding: 0px;
+	font-size: 14pt;
+}
+.searchbtn {
+	padding-left: 20px;
+}
+tfoot {
+	font-size: 14px;
+	font-weight: bold;
+}

@@ -1,0 +1,142 @@
+<script src="/static/js/lockScreen.js"></script>
+<script type="text/javascript">
+	fn_lockScreen();
+</script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/jquery.ui.datepicker-zh-CN.js"></script>
+<script src="/static/js/jquery.validationEngine-en.js"></script>
+<script src="/static/js/jquery.validationEngine.js"></script>
+<script src="/static/js/initStyle.js"></script>
+<script src="/static/js/adminEdit.js"></script>
+<script src="/static/js/cacheQueryValues.js"></script>
+<script src="/static/js/dataTable.js"></script>
+<script src="/static/js/formValue.js"></script>
+
+{% block body %}
+<fieldset class="ui-widget ui-widget-content ui-corner-all">
+<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+	<span class="ui-button-text">查询后台用户</span>
+</legend>
+<form id="formID" method="post" action="">
+    <table id="searchTable" align="left">
+        <tr>
+            <td align="right">姓名：</td>
+            <td align="left">
+                <input type="text" name="name" id="name" class="validate[sp_char_space,length[40]]" onKeyUp="fn_textKeyUp(this, 'text')" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right">账号：</td>
+            <td align="left">
+                <input type="text" name="login" id="logina" onKeyUp="fn_textKeyUp(this, 'user')" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right">手机号码：</td>
+            <td align="left">
+                <input type="text" name="mobile" id="mobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right">状态：</td>
+            <td align="left">
+                <input type="radio" name="valid" value="1" checked="true" />启用
+                <input type="radio" name="valid" value="0" />停用
+            </td>
+        </tr>
+    </table>
+    <table>
+	    <tr>
+            <td align="right">公司名称：</td>
+            <td align="left">
+                <input type="text" name="corporation" id="corporation" class="validate[sp_char_space,length[100]]" onKeyUp="fn_textKeyUp(this, 'text')" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right">公司类型：</td>
+            <td align="left">
+				<select name="source_id" id="source_id" >
+				    <option value="">--请选择公司类型--</option>
+					<option value="">全部</option>
+				    {% for group in sources %}
+				        <option value="{{group.id}}">{{group.name}}</option>
+				    {% end %}
+				</select>
+			</td>
+        </tr>
+        <tr>
+            <td align="right">固定电话：</td>
+            <td align="left">
+                <input type="text" name="phone" id="phone" maxlength="13" onKeyUp="fn_textKeyUp(this, 'tel')" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right" colspan="2">
+				<input type="submit" value="查询" 
+                    onclick="fn_PushData('name,logina,mobile,corporation,phone,valid,source_id','adminsear');" 
+                    class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" />
+			</td>
+        </tr>
+    </table>
+</form>
+</fieldset>
+
+<h3>查询结果</h3>
+<table id="rDataTables" class="display">
+    <thead>
+        <tr>
+            <th>序号</th><th>公司</th><th>姓名</th><th>手机</th><th>固话</th><th>账号</th>
+            <th>级别</th><th>状态</th><th>编辑</th><th>删除</th><th>详细信息</th>
+        </tr>
+    </thead>
+    <tbody id="adminTbody">
+        {% for administrator in administrators %}
+            <tr id="admin{{administrator.id}}" style="display">
+				<td>{{ administrator.seq }}</td>
+	            <td>{{ administrator.corporation }}</td>
+                <td>{{ administrator.name }} </td>
+                <td>{{ administrator.mobile }}</td>
+                <td>{{ administrator.phone}}</td>
+                <td>{{ administrator.login }} </td>
+				<td>
+					{% if int(administrator.type) == 0 %}
+						超级管理员
+					{% elif int(administrator.type) == 1 %}
+						普通业务管理员
+					{% elif int(administrator.type) == 2 %}
+						市级管理员
+					{% else %}
+						
+					{% end %}
+				</td>
+	            <td>
+	                {% if administrator.valid == 0 %}
+		                停用
+	                {% else %}
+		                启用
+	                {% end %}
+	            </td>
+                <td>
+                    <a href="/administrator/edit/{{administrator.id}}">编辑</a>
+                </td>
+                <td>
+                    <a href="#" onclick="if(confirm('是否删除本用户？'))adminDelete({{administrator.id}});">删除</a>
+                </td>
+                <td>
+                    <a href="/administrator/list/{{administrator.id}}">详细信息</a>
+                </td>
+            </tr>
+        {% end %}
+    </tbody>
+</table>
+<script type="text/javascript">
+    fn_PopData('adminsear');
+</script>
+{% end %}

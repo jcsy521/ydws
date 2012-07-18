@@ -1,0 +1,42 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/initStyle.js"></script>
+<script src="/static/js/jquery.validationEngine-en.js"></script>
+<script src="/static/js/jquery.validationEngine.js"></script>
+<script src="/static/js/formValue.js"></script>
+<script src="/static/js/delegation.js"></script>
+
+
+{% block body %}
+
+{% if url is None %}
+<div id="login" class="ui-widget ui-corner-all cLogin cDeleg">
+{% if message %}
+<div class="error">错误：{{ message }}</div>
+<hr />
+{% end %}
+
+<form id="formID" method="post" action="" onsubmit="return showMsgAndSendMsg();">
+  <ul class="cDelegUL">
+    <li>
+        <label for="targetmobile">儿童手机号：</label>
+        <input type="text"  maxlength="11" id="targetmobile" name="targetmobile" onKeyUp="fn_textKeyUp(this, 'tel')" />
+    </li>
+    <li>
+		<input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+                    value="开始代操作" />
+	</li>
+  </ul>
+</form>
+</div>
+{% else %}
+<b class="hideLeft">&laquo;</b>
+<b class="hideLeft hideRight" style="display:none;">&raquo;</b>
+<iframe id="frameMap" src="{{url}}" frameborder="0" width="100%">
+您的浏览器不支持内嵌网页功能，继续代用户操作请点击：<a href="{{url}}" target="_blank">继续操作</a>
+</iframe>
+{% end %}
+{% end %}

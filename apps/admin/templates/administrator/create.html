@@ -1,0 +1,154 @@
+﻿<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/jquery.validationEngine-en.js"></script>
+<script src="/static/js/jquery.validationEngine.js"></script>
+<script src="/static/js/initStyle.js"></script>
+<script src="/static/js/provAndCity.js"></script>
+<script src="/static/js/privileges.js"></script>
+<script src="/static/js/formValue.js"></script>
+<script src="/static/js/submitForm.js"></script>
+
+{% block body %}
+<h3>新建用户</h3>
+<form id="formID" method="post" action="" onsubmit="return adminSubmit();">
+    <table >
+		<tr>
+			<td align="left" colspan="2">
+				<span style="color:red">带红色*为必填项</span>
+			</td>
+		</tr>
+        <tr>
+            <td align="right">姓名：</td>
+            <td align="left">
+                <input type="text" name="name" id="name" class="validate[required,sp_char_space,length[16]],onsubmit" />
+				<span class="required">*</span>
+            </td>
+        </tr>
+        <tr>
+            <td align="right">账号：</td>
+            <td align="left">
+                <input type="text" name="login" id="logina"
+                    class="validate[custom[mobile],required,ajax[ajaxUser]],onsubmit"  maxlength="11"/>
+				<span class="required">*</span>
+            </td>
+        </tr>
+        <tr>
+            <td align="right">密码：</td>
+            <td align="left">
+                <input type="password" name="password" id="password" 
+                   class="validate[required,funcCall[fn_lengthBetween[pwd]]],onsubmit" 
+				   onKeyUp="fn_textKeyUp(this, 'text')" />
+				<span class="required">*</span>
+            </td>
+        </tr>
+        <tr>
+            <td align="right">确认密码：</td>
+            <td align="left">
+                <input type="password" id="password2" 
+                    class="validate[required,confirm[password]],onsubmit" />
+				<span class="required">*</span>
+            </td>
+        </tr>
+		<tr>
+            <td align="right">手机号码：</td>
+            <td align="left">
+                <input type="text" name="mobile" id="mobile" 
+                   maxlength="11" /> <!--class="validate[custom[mobile]]"-->
+            </td>
+        </tr>
+		<tr>
+            <td align="right">固定电话：</td>
+            <td align="left">
+                <input type="text" name="phone" id="phone" 
+                    maxlength="13" /> <!--validate[custom[phone]]-->
+            </td>
+        </tr>
+	    <tr>
+            <td align="right">公司名称：</td>
+            <td align="left">
+                <input type="text" name="corporation" id="corporation" 
+                   maxlength="100" /><!--validate[sp_char_space,length[100]]-->
+            </td>
+        </tr>
+        <tr>
+            <td align="right">公司类型：</td>
+            <td align="left">
+				<select name ="source_id" id="source_id">
+					<option value=" ">--请选择公司类型--</option>
+                    {% for s in sources %}
+                        <option value="{{s.id}}">{{s.name}}</option>
+                    {% end %}
+				</select>
+			</td>
+        </tr>
+		<tr>
+            <td align="right">电子邮件：</td>
+            <td align="left">
+                <input type="text" name="email" id="email" 
+                   maxlength="40" /> <!--class="validate[custom[email],length[40]]"-->
+            </td>
+        </tr>
+        <tr>
+            <td align="right">状态：</td>
+            <td align="left">
+                <input type="radio" name="valid" checked="checked" value="1"/>启用
+                <input type="radio" name="valid" value="0" />停用
+            </td>
+        </tr>
+        <tr>
+            <td align="right">权限：</td>
+            <td align="left">
+                <ul id="ulCheckbox" class="ulCheckbox" style="width:300px;">
+                    {% for p in privilege_groups %}
+                        <li style="width:140px;" onmouseover="selectPrivileges({{p.id}}, this)" onmouseout="fn_closeMsgBox()">
+                            <input id="check{{p.id}}" type="checkbox" value="{{p.id}}" name="privileges" />
+                            <span id="s{{p.id}}">{{p.name}}</span>
+                        </li>
+                    {% end %}
+                </ul>
+                <div id="s_hPrivileges"></div>
+                <input type="hidden" id="privi_s" name="privileges" />
+            </td>
+        </tr>
+        <tr id="city">
+            <td align="right">管理城市：</td>
+            <td align="left">
+			 <div id="msgBox" class="ui-state-highlight"></div>
+			 <div id="d_cities">
+				<div class="ckList" style="display:none">
+					<strong class="cTxt">请选择城市</strong>
+					<input type="checkbox" id="checkAll" value="全选" onclick="f_AllChooses();" /><span class="cTxt">全选</span>
+					<ul class='ulCheckbox j_cities'>
+					{% for city in cities %}
+						<li>
+							<input id="checkbox{{city.city_id}}" type="checkbox" class="j_ckCity" value="{{city.city_id}}" name="ckCity" onclick="disabledAllChoose();" />
+							<span id="span{{city.city_id}}">{{city.city_name}}</span>
+						</li>
+					{% end %}
+					</ul>
+				</div>
+			 </div>
+			  <input type="hidden" id="cities" name="cities" value="" />
+			 <input type="text" id="citiesNames" class="noBorderTxt"  onclick="_ajaxGetData('#getCities');" class ="validate[required]" readonly="true" value=""/>
+               <!-- <div class="ckList">
+					{% for city in cities %}
+						<input id="checkbox{{city.city_id}}" type="checkbox" class="j_cities" value="{{city.city_id}}" name="cities" />
+						<span id="span{{city.city_id}}">{{city.city_name}}</span>
+					{% end %}
+				</div>
+				-->
+				
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+                    value="确定" />
+            </td>
+        </tr>
+    </table>
+</form>
+{% end %}

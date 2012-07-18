@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<title>爱贝通后台管理系统</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+		<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+		<script src="/static/js/jquery_cookie.js"></script>
+		<script src="/static/js/jquery.dataTables.min.js"></script>
+		<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+		<script src="/static/js/jquery.ui.datepicker-zh-CN.js"></script>
+		<script src="/static/js/lockScreen.js"></script>
+		<script src="/static/js/initStyle.js"></script>
+		<script src="/static/js/initialize.js"></script>
+		<script src="/static/js/submitForm.js"></script>
+	</head>
+<body>
+    {% block body %}
+    <div>
+        <div id="logo" class="ui-widget-header ui-corner-all">
+            爱贝通后台系统 v1.0
+        </div>
+    </div>
+    <div id="left">
+        <div class="ui-widget ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 5px;">
+          <span class="ui-icon ui-icon-person" style="float: left; margin-right: .5em"></span>
+          <div id="loginUser" style="display: inline;"></div>
+        </div>
+        <div id="accordion">
+            <h3><a href="#">个人信息</a></h3>
+            <div>
+                <ul class="cUlItem">
+                    <li onclick="fn_CreateIframeSrc('/administrator/me');">
+                        <a href="#">基本信息</a>
+                    </li>
+                    <li onclick="fn_CreateIframeSrc('/administrator/password/me');">
+                        <a href="#">修改密码</a>
+                    </li>
+                </ul>
+            </div>
+			{% if type == '0' %}
+            <h3><a href="#">系统管理</a></h3>
+            <div>
+                <ul class="cUlItem">
+                    <li class="ultoggle">
+                        <span id="adminUser">后台用户管理</span>
+                        <ul class="hideul" id="toggle">
+                            <li onclick="fn_CreateIframeSrc('/administrator/search');">
+                                <a href="#">查询后台用户</a>
+                            </li>
+							<li onclick="fn_CreateIframeSrc('/administrator/create');">
+                                <a id="a_creatPerson" href="#">新增后台用户</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li onclick="fn_CreateIframeSrc('/privgroup/list');">
+                        <a href="#">权限组管理</a>
+                    </li>
+                    <li onclick="fn_CreateIframeSrc('/administrator/password/other');">
+                        <a href="#">密码管理</a>
+                    </li>
+                </ul>
+            </div>
+			{% end %}
+			<h3><a href="#">代客操作</a></h3>
+			<div>
+				<ul class="cUlItem">
+					<li id="begDelegation" onclick="fn_CreateIframeSrc('/delegation');">
+						<a href="#">代客操作</a>
+					</li>
+					<li onclick="fn_CreateIframeSrc('/delegation/log');">
+						<a href="#">代客操作记录</a>
+					</li>
+				</ul>
+			</div>
+		    <h3><a href="#">业务查询</a></h3>
+            <div>
+                <ul class="cUlItem">
+                    <li onclick="fn_CreateIframeSrc('/user/search');">
+                        <a href="#">集团订购查询</a>
+                    </li>
+					<li onclick="fn_CreateIframeSrc('/user/subscription');">
+                        <a href="#">成员订购查询</a>
+                    </li>
+                </ul>
+            </div>
+			<h3><a href="#">业务统计</a></h3>
+            <div>
+                <ul class="cUlItem">
+				{% if type == '0' or type == '2'  %}
+                    <li onclick="fn_CreateIframeSrc('/report/subscriber');">
+                        <a href="#">地市用户统计</a>
+                    </li>
+				{% end %}
+					<li onclick="fn_CreateIframeSrc('/report/group');">
+                        <a href="#">集团用户统计</a>
+                    </li>
+                </ul>
+            </div>
+			{% if type == '0' or type == '2' %}
+			<h3><a href="#">业务报表</a></h3>
+            <div>
+                <ul class="cUlItem">
+                    <li onclick="fn_CreateIframeSrc('/report/daily');"">
+                        <a href="#">业务日报</a>
+                    </li>
+					<li onclick="fn_CreateIframeSrc('/report/monthly');">
+						<a href="#">业务月报</a>
+                    </li>
+					<li onclick="fn_CreateIframeSrc('/report/business');">
+						<a href="#">报表查询</a>
+                    </li>
+                </ul>
+            </div>
+			{% end %}
+		    <h3><a href="#">退出</a></h3>
+            <div>
+                <ul class="cUlItem">
+                    <li><a href="#" onclick="if(confirm('你确定要退出吗？'))location.href='/logout';">退出</a></li>
+                </ul>
+            </div>
+        </div>
+        <ul id="cacheDatas" style="display:none;"></ul>
+        <input type="hidden" id="loginIf" value="captchaimg" />
+		<div style="display:none;" id="totals"></div>
+    </div>
+	<div id="right">
+		{% block contents %}{% end %}
+	</div>
+	<div id="msg" class="msg">
+		<strong class="msgContent">
+			页面数据正在加载中...
+			<img src="/static/image/blue-wait.gif"></img>
+		</strong>
+	</div>
+	<div id="maskLayer" class="iLayer">
+		<iframe scrolling="no" frameborder="0" style="width:100%; height:100%; top:0px; left:0px; position:absolute; z-index:-1; filter: alpha(opacity=20);"> 
+        </iframe>
+	</div>
+{% end %}
+
