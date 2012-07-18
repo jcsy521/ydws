@@ -34,7 +34,7 @@ class LastInfoHandler(BaseHandler):
                                   tid)
 
             location = self.db.get("SELECT speed, timestamp, category, name,"
-                                   "  degree, type, clatitude, clongitude"
+                                   "  degree, type, clatitude, clongitude, volume"
                                    "  FROM T_LOCATION"
                                    "  WHERE tid = %s"
                                    "    AND NOT (clatitude = 0 AND clongitude = 0)"
@@ -56,6 +56,7 @@ class LastInfoHandler(BaseHandler):
                                                 type=location.type if location else 1,
                                                 clatitude=location.clatitude if location else 0,
                                                 clongitude=location.clongitude if location else 0,
+												volume=location.volume,
                                                 login=monitor.login,
                                                 lock_status=monitor.lock_status)))
         except Exception as e:

@@ -6,9 +6,7 @@
 window.dlf.fn_currentQuery = function() {
 	var obj_pd = {'timestamp': new Date().getTime()}, 
 		obj_cWrapper = $('#currentWrapper');
-	
-	//dlf.fn_clearMapComponent();
-	obj_cWrapper.css({'left': '38%', 'top': '20%'}).show();
+	obj_cWrapper.show();
 	fn_currentRequest(obj_pd);
 	$('#currentBtn').unbind('click').click(function() {
 		dlf.fn_closeDialog(); // 窗口关闭
@@ -17,7 +15,7 @@ window.dlf.fn_currentQuery = function() {
 function fn_currentRequest(obj_pd) {
 	var obj_cWrapper = $('#currentWrapper'),
 		obj_msg = $('#currentMsg'), 
-		str_carCurrent = $('.carCurrent a').html(), // 当前车辆
+		str_carCurrent = $('.carCurrent').html(), // 当前车辆
 		str_msg = '车辆<b>'+ str_carCurrent +'</b>定位中...<img src="/static/images/blue-wait.gif" />';
 		
 	obj_msg.html(str_msg);
@@ -76,9 +74,7 @@ window.dlf.fn_defendQuery = function() {
 	}
 	//设防撤防 业务保存
 	$('#defendBtn').unbind('click').click(function() {
-		if ( confirm(str_confirmMsg) ) { // 提示
-			dlf.fn_jsonPost(DEFEND_URL, '', 'defend', '终端状态保存中');
-		}
+		dlf.fn_jsonPost(DEFEND_URL, '', 'defend', '终端状态保存中');
 	}); 
 }
 })();

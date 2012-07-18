@@ -12,69 +12,57 @@
 <body class="j_body">
 	<!--导航标题-->
 	<div class="navi">
-		<!--用户个人信息-->
-		<div class="navSelf">
-			<ul class="selfList">
-				<li id="activeNav"><a href="#" id="personalData" class="j_click">我的资料</a></li>
-				<li><a href="#" id="changePwd" class="j_click">修改密码</a></li>
-				<li><a href="#" id="logout" onclick="dlf.fn_exit()">退出</a></li>
-			</ul>
-			<p class="userMsg fontMic" id="uName">欢迎您，{{name}}</p>
-		</div>
 		<!--logo, 主功能菜单-->
 		<div class="menumList">
 			<!--logo-->
 			<div id="logo">
-				<img src="../static/images/logo.png" alt="车联网" />
+				<img src="../static/images/logo.png" alt="爱车保" />
 			</div>
 			<!--menu nav-->
 			<div class="mnNav">
-				<span class="mnNavLeft"></span>
-				<span class="mnNavCenter">
-					<img src="../static/images/home.png" id="home" alt="首页" />
-					<ul class="menuNav">
-						<li><a href="#" id="realtime" class="j_click">实时定位</a></li>
-						<!--<li><a href="#" id="track"class="j_click">轨迹查询</a></li>-->
-						<li><a href="/event" id="warnEvent" target="_blank" class="j_click">报警查询</a></li>
-						<li><a href="#" id="defend" class="j_click">设防/撤防</a></li>
-						<li><a href="#" id="terminal" class="j_click">终端设置</a></li>
-						<li><a href="#" id="remote" class="j_remoteMenu">远程操作</a></li>
-					</ul>
-				</span>
-				<span class="mnNavRight"></span>
-			</div>
-		</div>
-	</div>
-	<!--车辆列表、地图、当前车辆信息-->
-	<div class="main">
-		<!--车辆列表-->
-		<div class="mainCar" id="mainCar">
-			<div class="carTitle">
-				<span id="addCar" class="newCar j_click" title="新增车辆"></span>
-			</div>
-			<!--用户的车辆列表,需要后台传给相应的数据-->
-			<div class="carContent">
-				<ul class="carList" id="carList">
-					{% for car in cars %}
-						{% if car.login == 1 %}
-							<li class="carCurrent carlogin">
-						{% else %}
-							<li class="carlogout">
-						{% end %}
-							<a href="#" tlid="{{car.id}}" tid="{{car.tid}}" cLogin="{{car.login}}">{{car.sim}}</a>
-						</li>
-					{% end %}
+				<ul class="menuNav">
+					<li><a href="#" id="realtime" class="j_click"><img src="../static/images/menu1.png" alt="实时定位" /></a></li>
+					<li><a href="#" id="track"class="j_click"><img src="../static/images/menu2.png" alt="轨迹查询" /></a></li>
+					<li><a href="/event" id="warnEvent" target="_blank" class="j_click"><img src="../static/images/menu3.png" alt="报警查询" /></a></li>
+					<li><a href="#" id="defend" class="j_click"><img src="../static/images/menu4.png" alt="设防/撤防" /></a></li>
+					<li><a href="#" id="terminal" class="j_click"><img src="../static/images/menu5.png" alt="终端设置" /></a></li>
+					<li><a href="#" id="reboot" class="j_click"><img src="../static/images/menu6.png" alt="远程重启" /></a></li>
 				</ul>
+				<!--用户个人信息-->
+				<div class="navSelf">
+					<ul class="selfList">
+						<li id="power" title="">10%</li>
+						<li id="activeNav"><a href="#" id="personalData" class="j_click">我的资料</a></li>
+						<li><a href="#" id="changePwd" class="j_click">修改密码</a></li>
+						<li><a href="#" id="logout" onclick="dlf.fn_exit()">退出</a></li>
+					</ul>
+					<p class="userMsg fontMic" id="uName">欢迎您，{{name}}</p>
+				</div>
 			</div>
 		</div>
-		<!--车辆列表的显示隐藏按钮-->
-		<div>
-			<div id="ovLine" class="hide"></div>
-			<p id="listov" class="j_click">
-				<img src="../static/images/ov_left.png" />
-			</p>
-		</div>
-		<div class="content" id="mainContent">
+		<div class="carContainer">
+			<div class="" id="carLineState" >车辆列表</div>
+			<ul id="carList" class="dropdown-options">
+			{% for car in cars %}
+				{% if car.login == 1 %}
+					<li tlid="{{car.id}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogin" title="在线车辆">
+				{% else %}
+					<li tlid="{{car.id}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogout" title="离线车辆">
+				{% end  %}
+					{{car.sim}}</li>
+			{% end %}
+			</ul>
+			<a id="carSet" href="#" class="dropdown mini-dropdown">
+				{% if cars %}
+						{% if cars[0].login == 1 %}
+							<span class="dropdown-input carlogin" id="currentCar" title="在线" >
+						{% else %}
+							<span class="dropdown-input carlogout" id="currentCar" title="离线">
+						{% end %}
+							{{cars[0].sim}}</span>
+				{% end %}
+				<span class="dropdown-icon">&nbsp;</span>
+			</a>
 			<!--轨迹查询条件-->
 			<div class="trackHeader hide" id="trackHeader">
 				<!--时间选择-->
@@ -93,9 +81,17 @@
 					<span id="tPause" class="tPause hide j_tBtnhover"></span>
 					<span id="tStop" class="tStop hide j_tBtnhover"></span>
 				</span>
-				<!--关闭按钮-->
-				<span id="trackClose" class="tClose"></span>
+				<span id="trackSpeed" class="trackSpeed hide">
+					<span>播放速度：</span>
+					<div id="trackSlide" title="一般速度"></div>
+				</span>
+				
 			</div>
+		</div>
+	</div>
+	<!--车辆列表、地图、当前车辆信息-->
+	<div class="main">
+		<div class="content" id="mainContent">
 			<!--地图-->
 			<div id="mapObj"></div> 
 			<!--当前车辆信息-->

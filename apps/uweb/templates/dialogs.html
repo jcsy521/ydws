@@ -40,9 +40,10 @@
 				<ul class="personalList">
 					<li>车主姓名:<input type="text" name="name" id="name" maxlength="11" /></li>
 					<li>车主电话:<input type="text" name="phone" id="phone" disabled class="textDisabled" maxlength="11" /></li>
+					<li>车牌号:<input type="text" name="licenseNum" id="licenseNum" /></li>
 					<li>地址:<input type="text" name="address" id="address" /></li>
 					<li>EMAIL:<input type="text" name="email" id="email" /></li>
-					<li>公司:<input type="text" name="corporation" id="corporation" /></li>
+					<li>单位:<input type="text" name="corporation" id="corporation" /></li>
 					<li>备注:<input type="text" name="remark" id="remark" /></li>
 				</ul>
 				<input type="submit" value="保存" id="personalSave" class="personalButton" />
@@ -124,31 +125,6 @@
 			<span id="rebootBtn" class="confirmBtn"></span>
 		</div>
 	</div>
-	<!--锁车/解车-->
-	<div id="lockWrapper" class="wrapper hide j_drag">
-		<h2 class="wrapperTitle">
-			<span class="titleName fontMic">锁车/解锁</span>
-			<span class="close j_close" title="关闭窗口"></span>
-		</h2>
-		<div class="lockContent">
-			<div class="lockText">
-				<em id="lockMsg"></em>
-			</div>
-			<span id="lockBtn" class="confirmBtn"></span>
-		</div>
-	</div>
-	<!-- 远程终端菜单 -->
-	<div id="remoteWrapper" class="hide">
-		<div class="rw_left"></div>
-		<div class="rw_center">
-			<ul id="remoteList">
-				<li  id="lock" class="j_click j_remoteMouse">锁车/解锁</li>
-				<li  id="reboot" class="j_click j_remoteMouse">重启终端</li>
-			</ul>
-		</div>
-		<div class="rw_right"></div>
-	</div>
-	<!-- 终端的添加-->
 	<div id="terminalListWrapper" class="wrapper hide j_drag">
 		<h2 class="wrapperTitle">
 			<span class="titleName fontMic">终端列表</span>
@@ -170,16 +146,55 @@
 			</div>
 		</div>
 	</div>
-	<!--指向添加终端-->
-	<div id="terminalMsgWrapper" class="wrapper hide">
-		<span class="close j_close" title="关闭窗口"></span>
-		<div id="terminalMsgContent" class="terminalMsgContent">
-			请点击<em><img src="/static/images/addCarSign_yellow.png" alt="新增车辆" /></em>添加终端！
+	<!-- 周边查询 -->
+	<div id="POISearchWrapper" class="POISearchWrapper hide j_drag">
+		<h2 class="PWrapperTitle">
+			<span>周边查询</span>
+			<span class="pClose close j_close" id="POISClose" title="关闭窗口"></span>
+		</h2>
+		<div id="POISearchContent" class="POISearchContent">
+			<ol class="siv_list">
+				<li class="hotel">
+					<span></span>
+					<a href="#">快捷酒店</a>
+					<a href="#">星级酒店</a>
+					<a href="#">旅馆</a>
+					<a href="#">如家</a>
+					<a href="#">7天</a>
+				</li>
+				<li class="food">
+					<span></span>
+					<a href="#">餐馆</a>
+					<a href="#">快餐</a>
+					<a href="#">肯德基</a>
+					<a href="#">麦当劳</a>
+					<a href="#">咖啡厅</a>
+				</li>
+				<li class="jiayou">
+					<span></span>
+					<a href="#">楼盘小区</a>
+					<a href="#">公交车站</a>
+					<a href="#">银行</a>
+					<a href="#">医院</a>
+					<a href="#">超市</a>
+					<a href="#">ATM</a>
+					<a href="#">停车场</a>
+					<a href="#">加油站</a>
+				</li>
+				<li class="entertain">
+					<span></span>
+					<a href="#">KTV</a>
+					<a href="#">电影院</a>
+					<a href="#">网吧</a>
+					<a href="#">酒吧</a>
+					<a href="#">健身中心</a>
+				</li>
+			</ol>
+			<div class="searchCondition">
+				<span>关键词：<input type="text" value="查找其他关键词" class="textbox j_blur" id="txtKeywords"><font id="keywordsTip"></font></span>
+				<span>范围：&nbsp;&nbsp;<input type="text" value="1000"  class="textbox j_blur" id="txtBounds">米<font id="boundsTip"></font></span>
+				<span><input type="button" id="btnSearch" class="btnSearch" value="搜索" /></span>
+			</div>
 		</div>
-	</div>
-	<!-- 终端的删除-->
-	<div id="terminalDownItem" class="hide mouseItem">
-		<span id="delTerminal" class="mouseSpan">删除</span>
-		
 	</div>
 </div>

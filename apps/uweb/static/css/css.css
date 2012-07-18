@@ -5,7 +5,7 @@
 */
 
 /*html tab*/
-html, a, input, ul, li, p {
+html, a, input, ul, ol, li, p {
 	font-size: 12px;
 	font-family: "宋体","Arial Narrow";
 	margin: 0;
@@ -15,102 +15,59 @@ body {
 	/*height: 1000px;*/
 	margin: 0;
 	padding: 0;
-	background-color: #FFF;
-	min-width: 1260px;
+	background: url('/static/images/bodyBg.png');
 }
 /*index.html*/
 .fontMic {
 	color: #ffffff;
 }
 .navi {
-	height: 90px;
+	height: 104px;
+	min-width: 1300px;
 }
 #logo{
 	float: left;
-	padding: 0px 30px;
+	padding: 11px 30px;
+	display: inline-block;
 }
 .mnNav {
-	position: absolute;
-	height: 57px;
-	left: 189px;
-	min-width: 1260px;
-    position: absolute;
-    top: 32px;
-}
-.menumList .mnNavLeft {
-	display: inline-block;
-	background: url('/static/images/headleft.png') no-repeat;
-	width: 14px;
-	height: 57px;
+	height: 72px;
 	float: left;
+	min-width: 1100px;
 }
-.menumList .mnNavCenter {
+.menumList {
 	display: inline-block;
-	background: url('/static/images/navBg.png') repeat-x;
-	height: 57px;
+	height: 72px;
 	float: left;
-}
-.menumList .mnNavRight {
-	display: inline-block;
-	background: url('/static/images/headright.png') no-repeat;
-	width: 14px;
-	height: 57px;
-	float: left;
+	min-width: 1300px;
 }
 .menuNav {
 	display: inline-block;
-	margin-left: 20px;
+	padding-top: 20px;
+	float: left;
+}
+.menuNav img {
+	border: 0px;
 }
 .menuNav li {
-	width: 126px;
-	text-align: center;
+	width: 130px;
+	height: 40px;
 }
 .menuNav li, .selfList li {
 	float: left;
 	list-style: none;
 }
-.mnHover{
-	background-image: url('/static/images/headhover.png');
-	position: relative;
-	top: 0px;
-	left: -8px;
-	width: 103px;
-	height: 49px;
-	line-height: 20px;
-	padding :18px 0px 0px 0px;
-	color :#000000;
-	font-size: 14px;
-	text-decoration: none;
-}
 .menuNav li a {
 	display: block;
-	height: 57px;
-	line-height: 50px;
-	width: 89px;
-	color :#FFF;
-	font-size: 14px;
-	text-decoration: none;
-}
-/*
-*/
-.menuNav li a:hover {
-	background: url('/static/images/headhover.png') no-repeat;
-	position: relative;
-	top: 0px;
-	left: -8px;
-	width: 103px;
-	height: 49px;
-	line-height: 20px;
-	padding :18px 0px 0px 0px;
-	color :#000000;
-	font-size: 14px;
+	height: 40px;
+	width: 130px;
 	text-decoration: none;
 }
 .navSelf {
 	text-align: right;
-	height: 32px;
-	line-height: 32px;
-    width: 97%;
+	height: 72px;
+	line-height: 100px;
+	margin-right: 100px;
 }
 #personalData {
 	color: #B75B28;
@@ -120,10 +77,10 @@ body {
 }
 .selfList li {
 	margin-left: 10px;
-	background: url('/static/images/blacksign.png') no-repeat 0px 15px;
+	background: url('/static/images/blacksign.png') no-repeat 0px 48px;
 }
 #activeNav {
-	background: url('/static/images/brownsign.png') no-repeat 0px 15px;
+	background: url('/static/images/brownsign.png') no-repeat 0px 48px;
 }
 .selfList a {
 	margin-left: 5px;
@@ -133,24 +90,22 @@ body {
 .selfList a:hover{
 	text-decoration: underline;
 }
-.selfList a:visited, .carList a:visited {
+.carContainer {
+	height: 32px;
+	line-height: 32px;
+	float: left;
+	background: url('/static/images/carListBg.png') repeat-x;
+	min-width: 1300px;
+	color: #FFF;
+}
+.selfList a:visited, .carContainer a:visited {
 	color: #464646;
 }
-.carList a , .carList a:hover {
+.carContainer a , .carContainer a:hover {
 	text-decoration: none;
 	color: #000000;
 }
-.carList li {
-	background-repeat: no-repeat;
-	background-position: right;
-	border-radius: 10px;
-	height: 25px;
-    line-height: 25px;
-	list-style: inside;
-	margin: 0;
-	padding: 0;
-}
-.carList .carListHover {
+.carContainer .carListHover {
 	background-color: #3F9DC3;
 	height: 30px;
 	line-height: 30px;
@@ -160,78 +115,33 @@ body {
     font-size: 12px;
 	display: block;
 	float: right;
+	padding-right: 30px;
 }
 .main {
-	height: 934px;
-}
-.mainCar {
-	height: 934px;
-	width: 189px;
-}
-.carTitle {
-	background: url('/static/images/carlist.png');
-	height: 29px;
-	width: 178px;
-}
-.carTitle .title {
-	_background-position: 10px 1px;
-}
-.newCar {
-	background: url("/static/images/addCarSign.png") no-repeat scroll 0 0 transparent;
-    cursor: pointer;
-    display: inline-block;
-    height: 18px;
-    left: 156px;
-    position: relative;
-    top: 7px;
-    width: 18px;
-}
-.title {
-	background: url("/static/images/bt_car.png") no-repeat scroll 10px center transparent;
-	height: 19px;
-    padding-left: 33px;
-    position: relative;
-    top: -1px;
-	_top: -1px; /*ie6*/ 
+	min-width: 1300px;
 }
 #infoTitle {
-	background: url("/static/images/carinfo.png") no-repeat scroll 0 0 transparent;
+	background: url("/static/images/carinfo.png") no-repeat scroll 20px 10px transparent;
     height: 35px;
     width: 100%;
 }
-.infoTitleImg {
-	background-image: url("/static/images/bt_sign.png");
-	background-repeat: no-repeat;
-	background-position: 10px center;
-	display: inline-block;
-	line-height: 19px;
-	top: -2px;
-	_top: -4px;
-}
-.carContent {
-	height: 909px;
-	width: 189px;
+.content {
+    position: absolute;
+    top: 104px;
+	min-width: 1300px;
 	float: left;
 }
-.carList {
-	margin-left: 10px;
-    margin-top: 5px;
-	width: 168px;
-}
-.content {
-	left: 189px;
-    position: absolute;
-    top: 90px;
-}
 .carInfo {
+	width: 100%;
 	height: 125px;
 	background: url('/static/images/bg2.png');
+	position: absolute;
+	z-index: 10;
 }
 .infoList {
-	color: #FFFFFF;
+	color: #3F3F3F;
     font-size: 12px;
     height: 90px; 
-    min-width: 1082px;
     margin-left: 38px;
 	float: left;
     width: 95%;
@@ -239,9 +149,6 @@ body {
 .infoList td {
 	height: auto;
 	text-align: left;
-}
-.infoWidth, #mapObj, .content{
-	min-width: 1000px;
 }
 .timeout {
 	text-align: center;
@@ -281,11 +188,11 @@ body {
     cursor: pointer;
 	display: inline-block;
     height: 20px;
-    left: 140px;
-	*left: 130px; /*ie6,7*/
+    left: 133px;
+	*left: 120px; /*ie6,7*/
     position: relative;
 	top: 3px;
-	+top: -5px; /*ie7*/
+	+top: -1px; /*ie7*/
 	_top: 3px; /*ie6*/
     width: 20px;
 }
@@ -334,7 +241,7 @@ body {
 	cursor: pointer;
 	display: inline-block;
     height: 85px;
-    left: 352px;
+    left: 353px;
     position: absolute;
     top: 35px;
     width: 97px;
@@ -356,21 +263,16 @@ body {
 	height: 85px;
 } 	
 .defendText {
-	/*background: url("../static/images/currentSign.png") no-repeat scroll 0 0 transparent;*/
     height: 85px;
     padding-left: 50px;
-   
 }
 #defendMsg {
     left: -25px;
     line-height:2;
     position: relative;
-    top: 11px;
+    top: 21px;
 	font-style: normal;
 	font-size: 14px;
-}
-#defendBtn {
-	background: url("/static/images/qd.png") no-repeat scroll 0 0 transparent;
 }
 /*defend  end*/
 /*reboot  start*/
@@ -389,7 +291,6 @@ body {
 	height: 85px;
 }
 .rebootText {
-	/*background: url("../static/images/currentSign.png") no-repeat scroll 0 0 transparent;*/
     height: 85px;
     padding-left: 50px;
 }
@@ -397,7 +298,7 @@ body {
     left: -25px;
     line-height:2;
     position: relative;
-    top: 11px;
+    top: 21px;
 	width: 300px;
 	display: inline-block;
 	font-style: normal;
@@ -441,7 +342,6 @@ body {
 	background: url("/static/images/qd.png") no-repeat scroll 0 0 transparent;
 }
 /*lock  end*/
-
 /*personal*/
 .personalList li, .pwdList  {
 	line-height: 37px;
@@ -466,7 +366,6 @@ body {
     top: 3px;
     width: 40px;
 }
-
 /*pwd*/
 #pwdWrapper{
 	height: 191px;
@@ -482,57 +381,26 @@ body {
 	float: left;
 }
 /*remoteList*/
-.rw_left {
-	background: url('/static/images/rw_left.png');
-	display: inline-block;
-    float: left;
-    height: 22px;
-    width: 10px;
-}
-.rw_center {
-	background: url('/static/images/rw_center.png');
-	display: inline-block;
-    float: left;
-    height: 22px;
-}
-.rw_right {
-	background: url('/static/images/rw_right.png');
-	display: inline-block;
-    float: left;
-    height: 22px;
-    width: 10px;
-}
-.rw_active {
-	background: url('/static/images/rw_active.png') no-repeat;
-	display: inline-block;
-	color: #000000;
-    float: left;
-    height: 22px;
-    width: 89px;
-}
-#remoteWrapper {
+.downIcon {
 	position: absolute;
-	top: 81px;
-	left: 760px;
-	z-index: 100;
+	top: -8px;
+	left: 45px;
+	z-index: 10px;
 }
 #remoteList li {
 	float: left;
 	list-style: none;
-	height:24px;
-	padding-left:5px;
-	line-height:24px;
+	height:31px;
+	text-align: center;
+	line-height:31px;
 	width:82px;
-	color: #B4B4B4;
+	color: #FFFFFF;
 	cursor: pointer;
-}
-#mapObj {
-	height: 838px;
 }
 #infoStatus {
 	cursor: pointer;
 	position: relative;
-	top: 2px;
+	top: 5px;
 }
 #listov {
 	cursor: pointer;
@@ -564,7 +432,113 @@ body {
 	*top: -1px;
 	_top: 5px; /*ie6*/
 }
-	/*terminal tab*/
+/*---- POISearch start ----*/
+.POISearchWrapper {
+	border: 1px solid #cccccc;
+	background-color: #FFF;
+	height: 285px;
+	right: 10px;
+	width: 300px;
+	position: absolute;
+	top: 144px;
+	z-index: 0;
+}
+.PWrapperTitle {
+	background: none repeat scroll 0 0 #F9F9F9;
+    border-bottom: 1px solid #DADADA;
+    color: #4C4C4C;
+    font-size: 12px;
+    height: 25px;
+    line-height: 25px;
+    padding-left: 7px;
+	margin: 0px;
+}
+.POISearchContent {
+	height: 242px;
+    overflow-y: auto;
+    padding-left: 10px;
+}
+.siv_list {
+	margin-top: 10px;
+    overflow: hidden;
+	width: 253px;
+	list-style: none outside none;
+}
+.siv_list li {
+    clear: both;
+    float: left;
+    line-height: 18px;
+    overflow: hidden;
+    padding: 2px 0 8px 25px;
+    width: 90%;
+}
+.siv_list .hotel span {
+    background-position: -75px -45px;
+    left: 2px;
+    width: 15px;
+	background: url('/static/images/g1.png');
+}
+.siv_list .food span {
+    background-position: 0 -45px;
+	background: url('/static/images/g2.png');
+}
+.siv_list .jiayou span {
+    background-position: -50px -45px;
+	background: url('/static/images/g3.png');
+}
+.siv_list .entertain span {
+    background-position: -25px -45px;
+	background: url('/static/images/g4.png');
+}
+.siv_list li span {
+    float: left;
+    height: 14px;
+    margin: 0px 0 0 -25px;
+    width: 14px;
+}
+.siv_list li a {
+    cursor: pointer;
+    float: left;
+    margin-right: 12px;
+    color: #3D6DCC;
+    text-decoration: none;
+}
+.POISearchWrapper .pClose {
+  
+    left: 209px;
+	*left: 210px; /*ie6,7*/
+    position: relative;
+	top: 3px;
+	+top: -1px; /*ie7*/
+	_top: 3px; /*ie6*/
+}
+.titleName {
+	color: #ffffff;
+	display: inline-block;
+	font-size: 20px;
+	height: 35px;
+    line-height: 35px;
+    text-indent: 24px;
+	*text-indent: 10px; /*ie6,7*/
+    width: 120px
+}
+.searchCondition span {
+	display: inline-block;
+	width: 253px;
+	margin-top: 5px;
+}
+.textbox {
+	color: #808080;
+}
+.searchCondition font {
+	color: red;
+}
+.btnSearch {
+	margin-left: 100px;
+    width: 60px;
+}
+/*----- POISearch  end --------*/
+/*terminal tab*/
 #terminalWrapper .tabs {
 	border-bottom: 1px solid #CCCCCC; 
 	height:31px;
@@ -621,11 +595,16 @@ body {
 .bList {
 	background-color: #FFFFFF;
     border: 1px solid #BBBBBB;
-    left: 21px;
+    left: 20px;
     position: absolute;
-	top: 77px;
-	*top: 78px;
-	width: 169px;
+	top: 100px;
+	*top: 101x;
+	width: 166px;
+	padding-left: 4px;
+	padding-top: 8px;
+	height: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 .bList li {
 	height: 17px;
@@ -688,22 +667,21 @@ body {
 }
 /*terminal end*/
 /*track css start*/
-.trackHeader, .eventHeader {
+.eventHeader {
 	background: url('/static/images/trackBj.png');
 	height: 40px;
-	min-width: 1094px;
 	text-align: center;
 }
 .trackHeader {
-	border: 1px solid white;
-    height: 40px;
-    z-index: 1;
+    height: 32px;
+	line-height: 32px;
+	float: left;
 }
 .trackPos {
 	display: inline-block;
     height: 26px;
     position: relative;
-    top: -1px;
+    top: -5px;
     width: 400px;
 }
 #trackSlide {
@@ -725,7 +703,13 @@ body {
 	display: inline-block;
     position: relative;
     text-align: left;
-    top: 7px;
+    top: 3px;
+    width: 186px;
+}
+.trackSpeed {
+    position: relative;
+    text-align: left;
+    top: -3px;
     width: 186px;
 }
 .trackBtn span, .tClose {
@@ -734,11 +718,11 @@ body {
 	height: 26px;
 }
 .tSearch {
-	background: url('/static/images/ssgj1.png') no-repeat;
-	width: 85px;
+	background: url('/static/images/cx.png') no-repeat;
+	width: 58px;
 }
-.tPlay, .tStop, .tPause, .tClose {
-	width: 85px;
+.tPlay, .tStop, .tPause{
+	width: 58px;
 }
 .tPlay {
 	background: url('/static/images/bf1.png') no-repeat;
@@ -800,14 +784,16 @@ body {
 	margin-top: 8px;
 	width: 850px;
 }
+.dataTable td {
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+}
 #eventTableHeader th, #eventTableHeader td {
 	background-color: #266090;
 	border: 1px solid #CCCCCC;
 	height: 30px;
 	color: #FFFFFF;
-}
-td {
-	height: 30px;
 	text-align: center;
 }
 .dataTable a,.dataTable a:link{
@@ -904,31 +890,6 @@ td {
 	width: 60px;
 	margin-right: 10px;
 }
-/*terminallist end*/
-
-/*tmsgbox*/
-#terminalMsgWrapper {
-	background: url("/static/images/msgBox.png") no-repeat;
-	border: none;
-	height: 156px;
-    left: 170px;
-    top: 110px;
-    width: 272px;
-}
-#terminalMsgWrapper .close {
-	left: 235px;
-    top: 33px;
-}
-.terminalMsgContent {
-	font-size: 16px;
-    padding-left: 25%;
-    padding-top: 22%;
-    width: 170px;
-}
-.terminalMsgContent em {
-	color: red;
-}
-/*tmsgbos end*/
 /*jnotify message*/
 #jNotifyMessage {
 	filter: alpha(opacity=90);
@@ -954,14 +915,74 @@ td {
 	margin-top: 2px;
 }
 /*carlist for bgcolor*/
+#carList {
+	color: #454545;
+	display: none;
+}
+#carList li {
+	list-style: none;
+	cursor: pointer;
+	padding-left: 10px;
+}
+#carList li:hover {
+	background-color: #C7C7C7;
+}
+.dropdown {
+    background-color: #FFF;
+    border: 1px solid #D9D9D9;
+    cursor: default;
+    display: inline-block;
+    height: 28px;
+    line-height: 28px;
+    overflow: hidden;
+}
+.dropdown:hover, .dropdown:visited, .dropdown:active {
+	border:1px solid #c7c7c7;
+	color: #454545;
+}
+.mini-dropdown {
+    height: 20px;
+    line-height: 20px;
+	margin-top: 4px;
+	float: left;
+}
+.dropdown .dropdown-input {
+    display: inline-block;
+	width: 100px;
+    padding-left: 10px;
+}
+.dropdown .dropdown-icon {
+    background: url('/static/images/sersj.png') no-repeat scroll center center transparent;
+    display: inline-block;
+    width: 20px;
+}
+.dropdown-options {
+	background-color: #FFFFFF;
+	border: 1px solid #D9D9D9;
+	border-top: 0px;
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+	height: 65px;
+	width: 136px;
+    left: 88px;
+    position: absolute;
+    top: 100px;
+	z-index: 1000;
+}
 .carCurrent {
 	background-color: #dbecf4;
 }
+#carLineState {
+	margin:0px 15px 0px 0px;
+	float: left;
+	padding-left: 25px;
+}
 .carlogin {
-	background-image: url('/static/images/car_on.png');
+	background: url('/static/images/car_on.png') no-repeat scroll 90px center transparent;
 }
 .carlogout {
-	background-image: url('/static/images/car_off.png');
+	background: url('/static/images/car_off.png') no-repeat scroll 90px center transparent;
 }
 /*disbaled style*/
 .textDisabled {
@@ -1029,4 +1050,11 @@ td {
 #radioTip {
 	margin-top: 10px;
 	color: gray;
+}
+#power {
+	background: url('/static/images/power0.png') no-repeat left center;
+	padding-left: 30px;
+}
+#power a {
+	padding-left: 20px;
 }

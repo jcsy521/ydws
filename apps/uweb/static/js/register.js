@@ -38,7 +38,7 @@ $(function() {
 	});
 	$('#uid').formValidator({onFocus: '请输入用户名！', onShow: '请输入用户名！', onCorrect: '<font color="#000">用户名正确！</font>'})
 	.inputValidator({min: 6, max: 16, onError: '用户名范围(6-16)！'})
-	.regexValidator({regExp: 'username', dataType: 'enum', onError:'请输入正确的用户名！'})
+	.regexValidator({regExp: 'username', dataType: 'enum', onError:'用户名只能由6-16位数字、26个英文字母或者下划线组成。'})
 	.ajaxValidator({
 		dataType : "json",
 		type: 'PUT', 

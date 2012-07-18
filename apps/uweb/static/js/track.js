@@ -8,9 +8,13 @@
 *str_actionState : 暂停操作的状态
 */
 var timerId = null, counter = 0, str_actionState = 0,n_speed = 1000;
-/*
 // 初始化轨迹显示页面
 window.dlf.fn_initTrack = function() {
+	$('#POISearchWrapper').hide();  // 关闭周边查询
+	dlf.fn_clearInterval(currentLastInfo); // lastinfo关闭
+	//计时器关闭
+	dlf.fn_clearInterval(timerId);
+	dlf.fn_clearMapComponent(); // 清除页面图形
 	$('#trackHeader').show();
 }
 // 关闭轨迹显示页面
@@ -19,9 +23,9 @@ window.dlf.fn_closeTrackWindow = function() {
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	$('#trackHeader').hide();
 	// 动态更新终端相关数据
-	dlf.fn_updateLastInfo($($('#carList li[class*=carCurrent] a')).attr('tid'));
+	dlf.fn_updateLastInfo($($('#carList li[class*=carCurrent]')).attr('tid'));
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-}*/
+}
 // 轨迹查询操作
 function trackQuery() {
 	$('.j_tBtnhover').hide();
@@ -32,7 +36,7 @@ function trackQuery() {
 		str_endTime = $('#trackEndTime').val(), 
 	    obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime), 
 						'end_time': dlf.fn_changeDateStringToNum(str_endTime), 
-						'tid': $('#trackHeader').attr('tid')}; //$($('#carList li[class*=carCurrent] a')).attr('tid')};
+						'tid': $($('#carList li[class*=carCurrent]')).attr('tid')}; //$('#trackHeader').attr('tid')};
 	
 	dlf.fn_jNotifyMessage('行踪查询中...<img src="/static/images/blue-wait.gif" />', 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
@@ -198,7 +202,7 @@ $(function () {
 	//$('#mapObj').css('height', n_windowHeight - 40);
 	
 	// 加载ABCMAP
-	dlf.fn_loadMap();
+	//dlf.fn_loadMap();
 	
 	// 初始化时间
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
@@ -214,7 +218,7 @@ $(function () {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) {
-			str_imgUrl = 'ssgj2.png';
+			str_imgUrl = 'cx2.png';
 		} else if ( str_id == 'tPlay' ) {
 			str_imgUrl = 'bf2.png';
 		} else if ( str_id == 'tPause' ) {
@@ -229,7 +233,7 @@ $(function () {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) {
-			str_imgUrl = 'ssgj1.png';
+			str_imgUrl = 'cx.png';
 		} else if ( str_id == 'tPlay' ) {
 			str_imgUrl = 'bf1.png';
 		} else if ( str_id == 'tPause' ) {
@@ -257,6 +261,8 @@ $(function () {
 			//fn_bindPlay();
 			$(this).hide();
 			$('#tPlay').css('display', 'inline-block');
+		} else {
+			dlf.fn_closeTrackWindow();
 		}
 		/*else if ( str_id == 'tStop' ) { // 停止
 			str_actionState = 0;
@@ -264,13 +270,10 @@ $(function () {
 			fn_bindPlay();
 			$('#tPause').hide();
 			$('#tPlay').css('display', 'inline-block');
-		}
-		else {
-			dlf.fn_closeTrackWindow();
 		}*/
 	});
 	// 初始化速度滑块
-	var arr_slide = [3000, 1000, 500, 100], 
+	var arr_slide = [1000, 500, 200, 100], 
 		arr_slideTitle = ['慢速', '一般速度', '比较快', '极速'];
 	
 	$('#trackSlide').slider({

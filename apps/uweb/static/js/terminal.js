@@ -450,7 +450,6 @@ function fn_validAjaxText(obj_data, str_msg) {
 	}
 	return f_returnData;
 }
-//-----------
 //重启终端初始化
 window.dlf.fn_reboot = function() {
 	//dlf.fn_clearMapComponent(); //清除地图上的图形
@@ -458,48 +457,18 @@ window.dlf.fn_reboot = function() {
 	$('#rebootMsg').html('确定要重启终端吗？');
 	$('#rebootWrapper').css({'left': '38%', 'top': '22%'}).show(); // 显示重启终端窗口 
 	$('#rebootBtn').unbind('click').click(function() {
-		fn_remoteSave('REBOOT', '您确定要重启终端吗？', 'reboot', '终端重启中');
-	});
-}
-//开锁、解锁初始化 ( 1:车被锁定； 0： 车未被锁定)
-window.dlf.fn_lock = function(param) {
-	//dlf.fn_clearMapComponent(); //清除地图上的图形
-	dlf.fn_lockScreen(); //添加页面遮罩
-	$('#lockWrapper').css({'left': '38%', 'top': '22%'}).show(); // 显示开锁解锁窗口 
-	var str_lockStatus = $('#lockStatus').val(),  // 当前状态
-		obj_lMsg = $('#lockMsg'), //提示
-		str_Msg = '',
-		str_alertText = '',
-		str_showText = ''; //提示信息
-	if ( str_lockStatus == LOCK_ON ) {
-		str_Msg = '<p>车当前状态：锁车状态</p>'; 
-		str_alertText = '您确定要将车解锁吗？';
-		str_showText ='车辆解锁中，请稍后...';
-		$('#lockBtn').css('background', 'url("static/images/jc.png")');
-	} else {
-		str_Msg = '<p>车当前状态：未被锁定</p>'; 
-		str_alertText = '您确定要锁车吗？';
-		$('#lockBtn').css('background', 'url("static/images/sc.png")');
-		str_showText ='车辆锁车中，请稍后...';
-	}
-	obj_lMsg.html(str_Msg);
-	$('#lockBtn').unbind('click').click(function() {
-		fn_remoteSave('LOCK', str_alertText, 'lock', str_showText);
+		fn_remoteSave('REBOOT', 'reboot', '终端重启中');
 	});
 }
 /**重启终端保存
 * action: LOCK/REBOOT
-* str_remoteMsg: 确认提示信息
 * str_who : 所要进行的操作 lock, reboot
 */
-function fn_remoteSave(action, str_remoteMsg, str_who, str_alertMsg) {
+function fn_remoteSave(action, str_who, str_alertMsg) {
 	var obj_wrapper = $('.'+str_who+'Wrapper'), 
 		obj_content = $('.'+str_who+'Content'), 
 		param = {'action': action}, 
 		f_warpperStatus = !obj_wrapper.is(':hidden'); //参数
-		
-	if ( confirm(str_remoteMsg) ) { // 提示
 		dlf.fn_jsonPost(REMOTE_URL, param, str_who, str_alertMsg);
-	}
 }
 })();
