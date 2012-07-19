@@ -42,8 +42,7 @@ window.dlf.fn_personalData = function() {
 	// 获取用户数据
 	dlf.fn_jNotifyMessage('用户信息查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
-	var n_tid = $('#carList li[class*=carCurrent]').attr('tid');
-	$.get_(PERSON_URL + '/' + n_tid, '', function (data) {
+	$.get_(PERSON_URL, '', function (data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.details;
 			$('#personalForm').data({'personalid': data.id, 'uid': obj_data.uid});
