@@ -58,7 +58,7 @@ class TrackHandler(BaseHandler):
                                   tid, start_time, end_time)
             dev = QueryHelper.get_mobile_by_dev_id(tid, self.db)
             for item in track:
-                item['degree'] = int(round(item['degree']/10))
+                item['degree'] = int(round(item['degree']/36))
                 item['mobile'] = dev.mobile
                 
             self.write_ret(ErrorCode.SUCCESS,
