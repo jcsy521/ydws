@@ -185,8 +185,14 @@ class GatewayServer(object):
                     gw_requests_queue.put(request)
                     ap = AsyncParser(packet.body, packet.head)
                     position = ap.ret
-                    if position['status'] in ('4', '5'):
-                        self.update_terminal_status(dev_id, DUMMY_FD, False)
+                    status = int(position['status'], 16)
+                    if status & 255 != 255:
+                        if status & 512 != 0:
+                            self.update_terminal_status(dev_id, DUMMY_FD, False)
+                        if status & 2 == 0:
+                            self.update_terminal_defend_status(dev_id)
+                        elif status & 2 == 2:
+                            self.update_terminal_defend_status(dev_id, False)
             else:
                 logging.error("[GW] Invalid terminal request from: %s", packet.head.dev_id) 
         except:
@@ -205,6 +211,15 @@ class GatewayServer(object):
             self.memcached.set(terminal_status_key, address, 2*HEARTBEAT_INTERVAL)
         else:
             self.memcached.set(terminal_status_key, address, 2*SLEEP_HEARTBEAT_INTERVAL)
+
+    def update_terminal_defend_status(self, dev_id, flag=True):
+        defend_status = 1
+        if not flag:
+            defend_status = 0
+        self.db.execute("UPDATE T_TERMINAL_INFO_W"
+                        "  SET defend_status = %s"
+                        "  WHERE tid = %s",
+                        defend_status, dev_id)
  
     def get_terminal_status(self, dev_id):
         terminal_status_key = get_terminal_address_key(dev_id)
