@@ -77,7 +77,7 @@ class RealtimeMixin(BaseMixin):
         location = None
         if (location and location.clatitude and location.clongitude):
             
-            location['degree'] = int(round(float(location.degree)/10))
+            location['degree'] = int(round(float(location.degree)/36))
             if callback:
                 callback(ret)
         else:
@@ -98,7 +98,7 @@ class RealtimeMixin(BaseMixin):
                         ret.location.name = location.name
                         ret.location.speed = location.speed
                         ret.location.type = location.type
-                        ret.location.degree = int(round(float(location.degree)/10))
+                        ret.location.degree = int(round(float(location.degree)/36))
                     else: 
                         ret.status = ErrorCode.LOCATION_FAILED 
                         ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
