@@ -4,28 +4,26 @@
 (function () {
 /*添加标记*/
 window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenWin) { 
-	var str_imgUrl = '/static/images/default-marker.png', 
-		myIcon = new BMap.Icon(str_imgUrl, new BMap.Size(20, 32)),
+	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
+		str_imgUrl = '/static/images/' + n_degree + '.png', 
+		myIcon = new BMap.Icon(str_imgUrl, new BMap.Size(34, 34)),
 		mPoint = new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT), 
 		infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_iconType)),  // 创建信息窗口对象;
 		marker = null;
-			
 	if ( str_iconType == 'start' ) {
 		str_imgUrl = '/static/images/green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {
 		str_imgUrl = '/static/images/green_MarkerB.png';
-	} else if ( str_iconType == 'draw' ) {
-		str_imgUrl = '/static/images/markerDraw.gif';
+	} else {
+		str_imgUrl = '/static/images/'+n_degree+'.png';
 	}
 	myIcon.imageUrl = str_imgUrl;
 	marker= new BMap.Marker(mPoint, {icon: myIcon}); 
-	marker.setOffset(new BMap.Size(0, -13));
+	marker.setOffset(new BMap.Size(0, 0));
 	marker.selfInfoWindow = infoWindow;
 	if ( str_iconType == 'draw' ) {
 		actionMarker = marker;
-		actionMarker.selfInfoWindow = infoWindow;
-		myIcon.setSize(new BMap.Size(28, 32));
-		marker.setIcon(myIcon);
+		marker.setIcon(marker.getIcon().setImageUrl ('/static/images/'+n_degree+'.png'));
 	} else if ( str_iconType == 'actiontrack' ) {
 		var obj_carItem = $('#carList li').eq(n_carNum);
 		obj_carItem.data('selfmarker', marker);
@@ -74,16 +72,16 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	}
 	
 	if ( n_degree == 0 ) {
-		n_degree = 36;
+		n_degree = 10;
 	}
 	str_html += '<h4>'+str_title+'</h4><ul>'+ 
 				'<li><label>速度:'+ speed+'km/h</label>'+
-				'<label class="labelRight">方向角:'+n_degree*10+'</label></li>'+
+				'<label class="labelRight">方向角:'+n_degree*36+'</label></li>'+
 				'<li><label>经度:'+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
 				'<label class="labelRight">纬度:'+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
 				'<li>时间:'+ date +'</li>';
 	if ( str_iconType == 'actiontrack' ) {
-		str_html+='<li><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
+		str_html+='<li class="top10"><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
 			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹回放</a><a href="#" id="poiSearch" onclick="dlf.fn_POISearch('+ str_clon +', '+ str_clat +');" >周边查询</a></li>';
 	} else {
 		str_html+='<li>位置:'+ address +'</li>';

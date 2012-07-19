@@ -7,7 +7,7 @@
 *counter : 动态运行次数
 *str_actionState : 暂停操作的状态
 */
-var timerId = null, counter = 0, str_actionState = 0,n_speed = 1000;
+var timerId = null, counter = 0, str_actionState = 0,n_speed = 1000, f_trackMsgStatus = false;
 // 初始化轨迹显示页面
 window.dlf.fn_initTrack = function() {
 	$('#POISearchWrapper').hide();  // 关闭周边查询
@@ -144,7 +144,6 @@ function fn_stopDraw() {
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };
 	counter = 0;
 	mapObj.removeOverlay(actionMarker);
-	actionMarker = null;
 }
 
 // 动态标记移动方法
@@ -155,55 +154,25 @@ function fn_drawMarker() {
 		str_actionState = 0;
 	}
 	if ( counter <= n_len-1 ) {
-		if ( actionMarker ) { 
-			var obj_tempData = arr_dataArr[counter],
-				infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_tempData)), 
-				obj_tempPoint = new BMap.Point(obj_tempData.clongitude/NUMLNGLAT, obj_tempData.clatitude/NUMLNGLAT);
-
-			actionMarker.selfInfoWindow = infoWindow;
-			actionMarker.setPosition(obj_tempPoint);
-			actionMarker.openInfoWindow(infoWindow);
-		} else { 
-			dlf.fn_addMarker(arr_dataArr[counter], 'draw'); // 添加标记
+		if ( actionMarker ) {
+			f_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();
+			mapObj.removeOverlay(actionMarker);
+		}
+		dlf.fn_addMarker(arr_dataArr[counter], 'draw'); // 添加标记
+		if ( f_trackMsgStatus ) {
 			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框
 		}
 		counter ++;
 	} else {
 		str_actionState = 0;
 		fn_stopDraw();
-		fn_bindPlay();
 		mapObj.removeOverlay(actionMarker);
-		actionMarker = null;
 		$('#tPause').hide();
 		$('#tPlay').css('display', 'inline-block');
 	}
 }
-
-// 当用户窗口改变时,地图做相应调整
-/*
-window.onresize = function () {
-    setTimeout (function () {
-		// 调整地图页面大小
-		var n_windowHeight = $(window).height(), 
-			f_layer = $('.j_trackbody').data('layer');
-			
-		$('#mapObj').css('height', n_windowHeight - 40);
-		
-		if ( f_layer ) {
-			dlf.fn_lockScreen('j_trackbody');
-		}
-	}, 25);
-}
-*/
 // 页面加载完成后进行加载地图
 $(function () {	
-	// 调整地图大小 
-	//var n_windowHeight = $(window).height();
-	//$('#mapObj').css('height', n_windowHeight - 40);
-	
-	// 加载ABCMAP
-	//dlf.fn_loadMap();
-	
 	// 初始化时间
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
 	$('#trackBeginTime').unbind('click').click(function() {

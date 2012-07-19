@@ -266,6 +266,7 @@ function fn_getCarData() {
 				// 车辆详细信息更新
 				var obj_carInfo = data.car_info, 
 					polyline = null, 
+					n_degree = obj_carInfo.degree, 
 					str_loginst = obj_carInfo.login,
 					str_tid = obj_carInfo.tid,
 					n_clon = obj_carInfo.clongitude/NUMLNGLAT,
@@ -274,8 +275,8 @@ function fn_getCarData() {
 					obj_tempPoint = new BMap.Point(n_clon, n_clat), 
 					obj_tempLocation = {'name': obj_carInfo.address, 'timestamp': obj_carInfo.timestamp, 'speed': obj_carInfo.speed, 
 									'clongitude': obj_carInfo.clongitude, 'clatitude': obj_carInfo.clatitude, 'type': obj_carInfo.type,'tid': obj_carInfo.tid},
-					n_power = obj_carInfo.volume,	// 电池电量 0 , 3 ,6 , 9
-					str_percent = (n_power+1)*10 + '%';
+					n_power = parseInt(obj_carInfo.volume),	// 电池电量 0-9
+					n_percent = (n_power+1)*10;
 				// 经纬度数据不正确不做处理
 				if ( n_clon != 0 && n_clat != 0 ) {	
 					mapObj.setCenter(obj_tempPoint);
@@ -284,10 +285,18 @@ function fn_getCarData() {
 					dlf.fn_clearMapComponent();
 				}
 				dlf.fn_updateTerminalInfo(data.car_info); // 填充车辆信息
-				// 动态改变电量
-				$('#power').html(str_percent);
-				$('#power').css('background-image', 'url("/static/images/power'+n_power+'.png")');
-				$('#power').attr('title', '剩余电量:'+ str_percent );
+				// 电池电量填充
+				$('#power').html(n_percent + '%' );
+				if ( n_percent >= 10 && n_percent <= 25 ) {
+					$('#power').css('background-image', 'url("/static/images/power0.png")');
+				} else if ( n_percent > 25 && n_percent <= 50 ) {
+					$('#power').css('background-image', 'url("/static/images/power3.png")');
+				} else if ( n_percent > 50 && n_percent <= 75 ) {
+					$('#power').css('background-image', 'url("/static/images/power6.png")');
+				} else if ( n_percent > 75 && n_percent <= 100 ) {
+					$('#power').css('background-image', 'url("/static/images/power9.png")');
+				}  
+				$('#power').attr('title', '剩余电量:'+ n_percent + '%' );
 				// 动态修改车辆当前连接状态
 				if ( str_loginst == LOGINST) {
 					obj_carLi.removeClass('carlogout').addClass('carlogin');
@@ -307,11 +316,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
 		str_tid = obj_carLi.attr('tid'), 
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
+		n_degree = obj_carInfo.degree,
 		obj_tempVal = dlf.fn_checkCarVal(str_tid), // 查询缓存中是否有当前车辆信息
 		obj_tempPoint = new BMap.Point(n_clon, n_clat),
 		actionPolyline = null, // 轨迹线对象
 		str_actionTrack = obj_carLi.attr('actiontrack'), 
 		obj_selfMarker = obj_carLi.data('selfmarker'), 
+		n_imgDegree = n_degree != 0 ? n_degree : 10
 		obj_selfPolyline = obj_carLi.data('selfpolyline');
 	// 存储车辆信息
 	if ( obj_tempVal ) { // 追加
@@ -338,7 +349,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
 		obj_selfMarker.selfInfoWindow = infoWindow;
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_carLi.data('selfmarker', obj_selfMarker);
-		obj_selfMarker.openInfoWindow(infoWindow);
+		//方向角
+		obj_selfMarker.setIcon(new BMap.Icon('/static/images/'+n_imgDegree+'.png', new BMap.Size(34, 34)));
+		//obj_selfMarker.openInfoWindow(infoWindow);
 	} else { 
 		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carLi.index(), true); // 添加标记
 	}
@@ -378,16 +391,13 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		n_time = obj_carInfo.timestamp != null ? obj_carInfo.timestamp : new Date().getTime(),
 		str_lngLat = 'E '+Math.floor(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL+'，N '+
 				Math.floor(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL; // 经纬度
-	if ( n_degree == 0 ) {
-		n_degree = 36;
-	}
 	if ( str_address == '' || str_address == null ) {
 		str_address = '暂无';
 	}
 	$('#timesTamp').html(dlf.fn_changeNumToDateString(n_time)); // 最后一次定位时间
 	$('#carAddress').html(str_address); // 最后一次定们地址
 	$('#terminalId').html(obj_carInfo.tid); // 终端卡号
-	$('#carDegree').html(n_degree*10); // 车辆当前方向角
+	$('#carDegree').html(dlf.fn_processDegree(n_degree)*36); // 车辆当前方向角
 	$('#carLocType').html(str_type); // 车辆定位类型
 	$('#carLngLat').html(str_lngLat); // 车辆经纬度
 	$('#carSpeed').html(obj_carInfo.speed); // 终端最后一次定位速度
@@ -397,6 +407,10 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#eventStatus').html(str_eStatus); // 终端最后一次报警状态
 		$('#lockStatus').val(obj_carInfo.lock_status); // 开锁解锁状态 ( 1:车被锁定； 0： 车未被锁定)
 	}
+}
+// 方向角处理
+window.dlf.fn_processDegree = function(n_degree) {
+	return n_degree != 0 ? n_degree : 10;
 }
 /**根据相应的报警状态码显示相应的报警提示*/
 window.dlf.fn_eventText = function(n_eventNum) {
@@ -504,10 +518,6 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 				if ( str_who == 'defend' ) {
 					var str_rStatus = $('#defendStatus').html() == '已设防' ? '未设防' : '已设防';
 					$('#defendStatus').html(str_rStatus);	// 设置车辆信息的设防状态
-				} else if ( str_who == 'lock' ) {
-						//远程解锁车操作成功,根据当前车状态修改页面数据
-						var str_lStatus = $('#lockStatus').val() == LOCK_ON ? LOCK_OFF : LOCK_ON;
-						$('#lockStatus').val(str_lStatus);
 				} else if ( str_who == 'terminalList' ) {
 					// 终端列表,进行数据ID回填
 					obj_data[0].id = data.ids[0].id;
@@ -597,6 +607,35 @@ window.dlf.fn_showTerminalMsgWrp = function() {
 ****周边查询
 */
 
+// 查询周边信息
+window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {	
+	var str_keywords = '',
+		n_bounds = parseInt($('#txtBounds').val()),
+		obj_kw = $('#txtKeywords');
+	if ( obj_keywords !='' ) {
+		str_keywords = obj_keywords.html();
+		obj_kw.val(str_keywords); // 填充关键字文本框
+	} else {
+		str_keywords = obj_kw.val();
+		if ( str_keywords == '查找其他关键词' ) {
+			$('#keywordsTip').html('请输入关键词'); return;
+		} else {
+			$('#keywordsTip').html('');
+		}
+	}
+	if ( !obj_localSearch ) { 
+		obj_localSearch = new BMap.LocalSearch(mapObj, {
+				renderOptions:{map: mapObj} // 查询结果显示在地图容器
+		}); 
+	}
+	obj_localSearch.setSearchCompleteCallback(function(results) { 
+		
+	});
+	obj_localSearch.searchNearby(str_keywords, new BMap.Point(n_clon, n_clat), n_bounds);
+	obj_localSearch.disableFirstResultSelection();	// 禁用自动选择第一个检索结果
+	obj_localSearch.disableAutoViewport();	// 禁用根据结果自动调整地图层级
+}
+
 window.dlf.fn_POISearch = function(n_clon, n_clat) {
 	// 文本框获取/失去焦点
 	$('.j_blur').blur(function() {
@@ -635,44 +674,15 @@ window.dlf.fn_POISearch = function(n_clon, n_clat) {
 		$('#POISearchWrapper').hide();
 	});
 	//关键字点击事件
-	$('.siv_list li a').click(function() {
-		fn_searchPoints($(this), n_clon, n_clat);
+	$('.siv_list li a').unbind('click').bind('click', function() {
+		dlf.fn_searchPoints($(this), n_clon, n_clat);
 	});
 	// 搜索点击事件 
 	$('#btnSearch').click(function() {
-		fn_searchPoints('',n_clon, n_clat);
+		dlf.fn_searchPoints('',n_clon, n_clat);
 	});
 	//显示窗口
 	$('#POISearchWrapper').css({'right': '10px', 'top': '144px'}).show();
-}
-// 查询周边信息
-function fn_searchPoints(obj_keywords, n_clon, n_clat) {	
-	var str_keywords = '',
-		n_bounds = parseInt($('#txtBounds').val()),
-		obj_kw = $('#txtKeywords');
-	if ( obj_keywords !='' ) {
-		str_keywords = obj_keywords.html();
-		obj_kw.val(str_keywords); // 填充关键字文本框
-	} else {
-		str_keywords = obj_kw.val();
-		if ( str_keywords == '查找其他关键词' ) {
-			$('#keywordsTip').html('请输入关键词'); return;
-		} else {
-			$('#keywordsTip').html('');
-		}
-	}
-	if ( !obj_localSearch ) { 
-		obj_localSearch = new BMap.LocalSearch(mapObj, {
-				renderOptions:{map: mapObj} // 查询结果显示在地图容器
-		}); 
-	}
-	obj_localSearch.setSearchCompleteCallback(function(results) { 
-		
-	});
-	console.log(n_clon, '-----', n_clat);
-	obj_localSearch.searchNearby(str_keywords, new BMap.Point(n_clon, n_clat), n_bounds);
-	obj_localSearch.disableFirstResultSelection();	// 禁用自动选择第一个检索结果
-	obj_localSearch.disableAutoViewport();	// 禁用根据结果自动调整地图层级
 }
 
 

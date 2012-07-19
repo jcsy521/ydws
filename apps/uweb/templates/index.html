@@ -14,11 +14,9 @@
 	<div class="navi">
 		<!--logo, 主功能菜单-->
 		<div class="menumList">
-			<!--logo-->
 			<div id="logo">
 				<img src="../static/images/logo.png" alt="爱车保" />
 			</div>
-			<!--menu nav-->
 			<div class="mnNav">
 				<ul class="menuNav">
 					<li><a href="#" id="realtime" class="j_click"><img src="../static/images/menu1.png" alt="实时定位" /></a></li>
@@ -28,7 +26,6 @@
 					<li><a href="#" id="terminal" class="j_click"><img src="../static/images/menu5.png" alt="终端设置" /></a></li>
 					<li><a href="#" id="reboot" class="j_click"><img src="../static/images/menu6.png" alt="远程重启" /></a></li>
 				</ul>
-				<!--用户个人信息-->
 				<div class="navSelf">
 					<ul class="selfList">
 						<li id="power" title="">10%</li>
@@ -83,7 +80,7 @@
 				</span>
 				<span id="trackSpeed" class="trackSpeed hide">
 					<span>播放速度：</span>
-					<div id="trackSlide" title="一般速度"></div>
+					<span id="trackSlide" title="一般速度"></span>
 				</span>
 				
 			</div>
@@ -101,24 +98,25 @@
 				</div>
 				<table class="infoList" id="infoList">
 					<tr>
-						<td>用户号码：<label id="userId">{{uid}}</label></td>
+						<!--<td>用户号码：<label id="userId">{{uid}}</label></td>-->
 						<td>终端号码：<label id="terminalId"></label></td>
 						<td>车辆当前速度：<label id="carSpeed">0</label>km/h</td>
+						<td>方向角：<label id="carDegree"></label></td>
 					</tr>
 					<tr>
-						<td>方向角：<label id="carDegree"></label></td>
+						
 						<td>定位类型：<label id="carLocType"></label></td>
 						<td>定位时间：<label id="timesTamp"></label></td>
+						<td>经纬度：<label id="carLngLat"></label></td>
 					</tr>
 					<tr>
-						<td>经纬度：<label id="carLngLat"></label></td>
+						
 						<td>报警状态：<label id="eventStatus">无报警</label></td>
 						<td>终端状态：<label id="defendStatus">未设防</label></td>
-					</tr>
-					<tr>
 						<td colspan="3">车辆当前位置：<label id="carAddress"></label></td>
 						<input type="hidden" id="lockStatus" />  <!-- 解车锁车状态-->
 					</tr>
+					
 				</table>
 			</div>
 		</div>

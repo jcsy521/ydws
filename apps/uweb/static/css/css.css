@@ -65,9 +65,10 @@ body {
 }
 .navSelf {
 	text-align: right;
-	height: 72px;
+	padding-top: 45px;
+	/*height: 72px;
 	line-height: 100px;
-	margin-right: 100px;
+	margin-right: 100px;*/
 }
 #personalData {
 	color: #B75B28;
@@ -114,7 +115,7 @@ body {
 	color: #464646;
     font-size: 12px;
 	display: block;
-	float: right;
+	/*float: right;*/
 	padding-right: 30px;
 }
 .main {
@@ -126,8 +127,6 @@ body {
     width: 100%;
 }
 .content {
-    position: absolute;
-    top: 104px;
 	min-width: 1300px;
 	float: left;
 }
@@ -137,6 +136,7 @@ body {
 	background: url('/static/images/bg2.png');
 	position: absolute;
 	z-index: 10;
+	min-width: 1300px;
 }
 .infoList {
 	color: #3F3F3F;
@@ -470,7 +470,7 @@ body {
     line-height: 18px;
     overflow: hidden;
     padding: 2px 0 8px 25px;
-    width: 90%;
+    width: 100%;
 }
 .siv_list .hotel span {
     background-position: -75px -45px;
@@ -681,13 +681,15 @@ body {
 	display: inline-block;
     height: 26px;
     position: relative;
-    top: -5px;
+	*top: -2px;
     width: 400px;
+	float: left;
 }
 #trackSlide {
     display: inline-block;
     margin-left: 12px;
     width: 82px;
+	top: 2px;
 }
 .time {
 	background: url("/static/images/datePicker.gif") no-repeat scroll right center #FFFFFF;
@@ -697,22 +699,24 @@ body {
 	width: 141px;
 	/*ie6,7*/
 	*position: relative;
-	*top: 3px;
+	*top: 1px;
 }
-.trackBtn, .tClose {
+.trackBtn {
 	display: inline-block;
     position: relative;
     text-align: left;
     top: 3px;
     width: 186px;
+	float: left;
 }
 .trackSpeed {
     position: relative;
     text-align: left;
-    top: -3px;
     width: 186px;
 }
-.trackBtn span, .tClose {
+.trackSpeed span {
+}
+.trackBtn span {
 	cursor: pointer;
 	display: inline-block;
 	height: 26px;
@@ -1057,4 +1061,7 @@ body {
 }
 #power a {
 	padding-left: 20px;
+}
+.top10 {
+	padding-top: 10px;
 }

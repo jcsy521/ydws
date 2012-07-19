@@ -42,21 +42,21 @@ window.dlf.fn_personalData = function() {
 	// 获取用户数据
 	dlf.fn_jNotifyMessage('用户信息查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
-	
-	$.get_(PERSON_URL, '', function (data) {
+	var n_tid = $('#carList li[class*=carCurrent]').attr('tid');
+	$.get_(PERSON_URL + '/' + n_tid, '', function (data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.details;
 			$('#personalForm').data({'personalid': data.id, 'uid': obj_data.uid});
 			$('#name').val(obj_data.name);
 			$('#phone').val(obj_data.mobile);
-			//$('#licenseNum').val(obj_data.licenseNum);
+			$('#licenseNum').val(obj_data.cid);	// 车牌号
 			$('#address').val(obj_data.address);
 			$('#email').val(obj_data.email);
 			$('#corporation').val(obj_data.corporation);
 			$('#remark').val(obj_data.remark);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-		} else { // 查询状态不正确,错误提示
-			dlf.fn_jNotifyMessage(data.message, 'error');
+		} else { 
+			dlf.fn_jNotifyMessage(data.message, 'error'); // 查询状态不正确,错误提示
 		}	
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
 	}, 
@@ -106,7 +106,7 @@ window.onresize = function () {
 		$('.main, #mainContent, .navi, .menumList, .carContainer').css('width', n_windowWidth);
 		$('.mnNav').css('width', n_windowWidth-300); // 菜单宽度
 		$('#trackHeader').css('margin-left', n_windowWidth/4); // 轨迹查询条件 位置调整
-		$('#infoStatus').css('left', $('#infoTitle').width() - 80);	
+		$('#infoStatus').css('left', $('#infoTitle').width()/2);	
 		$('#mapObj').css('height', n_mapHeight);
 		$('.main, #mainContent').css('height', n_mainContent);
 		// 动态调整遮罩层
@@ -134,7 +134,7 @@ $(function () {
 	$('.mnNav').css('width', n_windowWidth-300); // 菜单宽度
 	$('#trackHeader').css('margin-left', n_windowWidth/4); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight); // 地图高度
-	$('#infoStatus').css('left', $('#infoTitle').width() - 80); // 车辆信息标题的隐藏按钮位置
+	$('#infoStatus').css('left', $('#infoTitle').width()/2); // 车辆信息标题的隐藏按钮位置
 	$('.main, #mainContent').css('height', n_windowHeight - 104); // 内容域的高度
 	// 加载ABCMAP
 	dlf.fn_loadMap();
@@ -156,7 +156,7 @@ $(function () {
 			}
 		}
 		if ( str_trackStatus != 'none' ) {
-			dlf.fn_closeTrackWindow();
+			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
 		}
 		$('#terminalMsgWrapper').hide();
 		switch (str_id) {
@@ -181,14 +181,9 @@ $(function () {
 			case 'reboot': // 重启中断
 				dlf.fn_reboot();
 				break;
-			case 'trackReplay': // 轨迹查询
-				dlf.fn_initTrack();
-				break;
 			case 'track': // 轨迹查询
 				dlf.fn_initTrack();
 				break;
-			case 'poiSearch': //poi查询
-				dlf.fn_POISearch();
 		}
 	});
 	
@@ -230,6 +225,8 @@ $(function () {
 	
 	//选择车辆列表
 	$('#carList li').click(function() {
+		// 轨迹查询隐藏
+		$('#trackHeader').hide();
 		var obj_currentCar = $('#currentCar');
 		obj_currentCar.html($(this).html());
 		$('#carList').hide();
@@ -272,7 +269,7 @@ $(function () {
 					'email': $('#email').val(),
 					'corporation': $('#corporation').val(),
 					'remark': $('#remark').val(),
-					'licenseNum': $('#licenseNum').val().toUpperCase()
+					'cid': $('#licenseNum').val()
 				};
 			dlf.fn_personalSave(obj_personalData);
 		}
@@ -282,7 +279,7 @@ $(function () {
 	$('#email').formValidator().inputValidator({max: 255, onError: '你输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '你输入的邮箱格式不正确！'});
 	$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});
 	$('#remark').formValidator().inputValidator({max: 255, onError: '备注过长，请重新输入！'});
-	$('#licenseNum').formValidator().regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '您输入的车牌号不正确'});
+	$('#licenseNum').formValidator().inputValidator({max: 8, onError: '你输入的车牌号长度非法,请确认！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字', param:'g'}); // 区分大小写
 	// 密码进行验证
 	$.formValidator.initConfig({
 		formID: 'pwdForm', //指定from的ID 编号
