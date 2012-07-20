@@ -220,7 +220,7 @@ class GatewayServer(object):
     def update_terminal_info(self, t_info):
         self.db.execute("UPDATE T_TERMINAL_INFO_R"
                         "  SET gps_num = %s,"
-                        "  volume = %s"
+                        "  volume = %s,"
                         "  gsm = %s"
                         "  WHERE tid = %s",
                         t_info['GPS'], t_info['POWER'], 
