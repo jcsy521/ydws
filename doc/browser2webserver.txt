@@ -398,11 +398,12 @@ GET返回结果:
 	'details':
 	{
 		'name': 'name_str',
-		'uid': 'n_int',
+                'mobile': n_int,
 		'address': str,
 		'email': str,
 		'corporation': str,
-		'remark': str
+		'remark': str,
+                'cid': str
 	}
   }
   
@@ -411,11 +412,12 @@ PUT请求内容:
   {
 	'id': int,
 	'name': 'name_str',
-	'uid': 'n_int',
-	'address': str,
+	'mobile': n_int,
+        'address': str,
 	'email': str,
 	'corporation': str,
-	'remark': str
+	'remark': str,
+        'cid': str
   }
   
 PUT返回结果:  
@@ -471,6 +473,7 @@ GET返回结果:
 		'event_status': int // 事件状态 #todo
 		'name': str // 车辆当前位置
 		'degree': int,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角 0-36
+                'volume': str //电池电量的一个代号，需要拿到后转换成电池百分比,算法：(volume+1)/10 
 		'login': int // 终端是否连接到平台. 1: 连接成功； 0：连接失败
 		'lock_status'：int // 判断车是否被锁定. 1:车被锁定； 0： 车未被锁定			 
 	}
