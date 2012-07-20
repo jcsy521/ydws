@@ -56,7 +56,7 @@ class LastInfoHandler(BaseHandler):
                                                 type=location.type if location else 1,
                                                 clatitude=location.clatitude if location else 0,
                                                 clongitude=location.clongitude if location else 0,
-												volume=location.volume,
+												volume=location.volume if location else 0,
                                                 login=monitor.login,
                                                 lock_status=monitor.lock_status)))
         except Exception as e:
