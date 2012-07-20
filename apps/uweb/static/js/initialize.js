@@ -8,6 +8,7 @@ var mapObj = null, // 地图对象
 	viewControl = null, // 鹰眼对象
 	currentLastInfo = null,  //动态更新的定时器对象
 	arr_infoPoint = [],  //通过动态更新获取到的车辆数据进行轨迹显示
+	f_infoWindowStatus = true, // 吹出框是否显示
 	obj_localSearch = null;
 if ( !window.dlf ) { window.dlf = {}; }
 
@@ -313,7 +314,7 @@ function fn_getCarData() {
 window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
 	var obj_tempData = [], 
 		obj_carLi = $('#carList li[class*=carCurrent]'),
-		str_tid = obj_carLi.attr('tid'), 
+		str_tid = obj_carLi.attr('tid'),
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		n_degree = obj_carInfo.degree,
@@ -344,11 +345,10 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
 	
 	obj_carLi.data('selfpolyline', actionPolyline);
 	if ( obj_selfMarker ) {
-		mapObj.addOverlay(obj_selfMarker);
-		var infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
-		obj_selfMarker.selfInfoWindow = infoWindow;
+		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_carLi.data('selfmarker', obj_selfMarker);
+		
 		//方向角
 		obj_selfMarker.setIcon(new BMap.Icon('/static/images/'+n_imgDegree+'.png', new BMap.Size(34, 34)));
 		//obj_selfMarker.openInfoWindow(infoWindow);

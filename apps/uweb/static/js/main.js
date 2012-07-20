@@ -36,7 +36,6 @@ window.dlf.fn_infoStatus = function() {
 
 // 个人信息框 
 window.dlf.fn_personalData = function() {
-	dlf.fn_clearMapComponent(); //清除地图上的图形
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#personalWrapper').css({'left': '38%', 'top': '22%'}).show();
 	// 获取用户数据
@@ -45,7 +44,7 @@ window.dlf.fn_personalData = function() {
 	$.get_(PERSON_URL, '', function (data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.details;
-			$('#personalForm').data({'personalid': data.id, 'uid': obj_data.uid});
+			$('#personalForm').data({'personalid': data.id});
 			$('#name').val(obj_data.name);
 			$('#phone').val(obj_data.mobile);
 			$('#licenseNum').val(obj_data.cid);	// 车牌号
@@ -73,7 +72,6 @@ window.dlf.fn_personalSave = function(obj_personalData) {
 
 //  修改密码框显示
 window.dlf.fn_changePwd = function() {
-	dlf.fn_clearMapComponent(); //清除地图上的图形
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#pwdWrapper').css({'left': '38%', 'top': '22%'}).show();
 	$('#pwdWrapper input[type=password]').val('');// 清除文本框数据
@@ -262,7 +260,6 @@ $(function () {
 				obj_personalData = {
 					'id': obj_pFrom.data('personalid'),
 					'name': $('#name').val(),
-					'uid': obj_pFrom.data('uid'),
 					'mobile': $('#phone').val(),
 					'address': $('#address').val(),
 					'email': $('#email').val(),
