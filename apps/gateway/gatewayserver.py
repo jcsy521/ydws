@@ -123,8 +123,8 @@ class GatewayServer(object):
 
                     self.db.execute("INSERT INTO T_TERMINAL_INFO_R"
                                     "  VALUES(NULL, %s, %s, %s, %s,"
-                                    "         NULL, NULL, NULL, NULL, NULL,"
-                                    "         DEFAULT, NULL)"
+                                    "         NULL, NULL, NULL, DEFAULT, DEFAULT,"
+                                    "         NULL, NULL, DEFAULT, NULL)"
                                     "  ON DUPLICATE KEY"
                                     "    UPDATE tid = VALUES(tid),"
                                     "           imsi = VALUES(imsi),"
@@ -164,6 +164,7 @@ class GatewayServer(object):
                 request = DotDict(packet=hc.buf,
                                   address=address)
                 self.update_terminal_status(heartbeat_info.dev_id, address)
+                self.update_terminal_info(heartbeat_info)
                 gw_requests_queue.put(request)
             else:
                 logging.error("[GW] Invalid heartbeat request from: %s", heartbeat_info.dev_id) 
@@ -215,6 +216,13 @@ class GatewayServer(object):
             self.memcached.set(terminal_status_key, address, 2*HEARTBEAT_INTERVAL)
         else:
             self.memcached.set(terminal_status_key, address, 2*SLEEP_HEARTBEAT_INTERVAL)
+
+    def update_terminal_info(self, t_info):
+        self.db.execute("UPDATE T_TERMINAL_INFO_R"
+                        "  SET gps_num = %s,"
+                        "  volume = %s"
+                        "  WHERE tid = %s",
+                        t_info['GPS'], t_info['POWER'], t_info['dev_id'])
 
     def update_terminal_defend_status(self, dev_id, flag=True):
         defend_status = 1
