@@ -221,8 +221,10 @@ class GatewayServer(object):
         self.db.execute("UPDATE T_TERMINAL_INFO_R"
                         "  SET gps_num = %s,"
                         "  volume = %s"
+                        "  gsm = %s"
                         "  WHERE tid = %s",
-                        t_info['GPS'], t_info['POWER'], t_info['dev_id'])
+                        t_info['GPS'], t_info['POWER'], 
+                        t_info['GSM'], t_info['dev_id'])
 
     def update_terminal_defend_status(self, dev_id, flag=True):
         defend_status = 1
