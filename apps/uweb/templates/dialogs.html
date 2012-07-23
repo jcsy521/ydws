@@ -3,10 +3,14 @@
 	<div id="jContentLock" class="readonly_overlay hide"></div> <!--消息提示框-->
 	<!--实时查询-->
 	<div id="currentWrapper" class="wrapper hide j_drag">
-		<h2 class="wrapperTitle">
+		<div class="wrapperTitle">
+			<span class="wrapperTitleL popbox"></span>
+			<span class="wrapperTitleC popbox">
 			<span class="titleName fontMic">实时定位</span>
 			<span class="close j_close" title="关闭窗口"></span>
-		</h2>
+			</span>
+			<span class="wrapperTitleR popbox"></span>
+		</div>
 		<div class="currentContent">
 			<div class="currentText">
 				<em id="currentMsg">定位进行中...<img src="/static/images/blue-wait.gif" /></em>
@@ -17,10 +21,14 @@
 	
 	<!--撤防/设防-->
 	<div id="defendWrapper" class="wrapper hide j_drag">
-		<h2 class="wrapperTitle">
-			<span class="titleName fontMic">设防/撤防</span>
-			<span class="close j_close" title="关闭窗口"></span>
-		</h2>
+		<div class="wrapperTitle">
+			<span class="wrapperTitleL popbox"></span>
+			<span class="wrapperTitleC popbox">
+				<span class="titleName fontMic">设防/撤防</span>
+				<span class="close j_close" title="关闭窗口"></span>
+			</span>
+			<span class="wrapperTitleR popbox"></span>	
+		</div>
 		<div class="defendContent">
 			<div class="defendText">
 				<em id="defendMsg"></em>
@@ -31,10 +39,14 @@
 	
 	<!--个人资料框-->
 	<div id="personalWrapper" class="wrapper hide j_drag">
-		<h2 class="wrapperTitle">
-			<span class="titleName fontMic">我的资料</span>
-			<span class="close j_close" title="关闭窗口"></span>
-		</h2>
+		<div class="wrapperTitle">
+			<span class="wrapperTitleL popbox"></span>
+			<span class="p_wtc popbox">
+				<span class="titleName fontMic">我的资料</span>
+				<span class="close j_close" title="关闭窗口"></span>
+			</span>
+			<span class="wrapperTitleR popbox"></span>
+		</div>
 		<div class="wrapperContent personalContent">
 			<form id="personalForm" >
 				<ul class="personalList">
@@ -52,10 +64,14 @@
 	</div><!--个人资料框end-->
 	<!--密码修改框-->
 	<div id="pwdWrapper" class="wrapper hide j_drag">
-		<h2 class="wrapperTitle">
-			<span class="titleName fontMic">修改密码</span>
-			<span class="close j_close" title="关闭窗口"></span>
-		</h2>
+		<div class="wrapperTitle">
+			<span class="wrapperTitleL popbox"></span>
+			<span class="p_wtc popbox">
+				<span class="titleName fontMic">修改密码</span>
+				<span class="close j_close" title="关闭窗口"></span>
+			</span>
+			<span class="wrapperTitleR popbox"></span>
+		</div>
 		<div class="pwdContent wrapperContent">
 			<form id="pwdForm" >
 				<ul class="pwdList">
@@ -69,11 +85,14 @@
 	</div><!--密码修改框end-->
 	<!--终端参数设置-->
 	<div id="terminalWrapper" class="wrapper hide j_drag">
-		<h2 class="wrapperTitle">
-			<span class="titleName fontMic">终端参数设置</span>
-			<span class="close j_close" title="关闭窗口"></span>
-		</h2>
-		
+		<div class="wrapperTitle">
+			<span class="wrapperTitleL popbox"></span>
+			<span class="t_wtc popbox">
+				<span class="titleName fontMic">终端参数设置</span>
+				<span class="close j_close" title="关闭窗口"></span>
+			</span>
+			<span class="wrapperTitleR popbox"></span>
+		</div>
 		<div class="terminalContent wrapperContent">
 			<!--tab选项卡 -->
 			<ul id="terminalTab" class="tabs">
@@ -114,10 +133,14 @@
 	</div>
 	<!-- 重启终端框-->
 	<div id="rebootWrapper" class="wrapper hide j_drag">
-		<h2 class="wrapperTitle">
-			<span class="titleName fontMic">重启终端</span>
-			<span class="close j_close" title="关闭窗口"></span>
-		</h2>
+		<div class="wrapperTitle">
+			<span class="wrapperTitleL popbox"></span>
+			<span class="wrapperTitleC popbox">
+				<span class="titleName fontMic">重启终端</span>
+				<span class="close j_close" title="关闭窗口"></span>
+			</span>
+			<span class="wrapperTitleR popbox"></span>
+		</div>
 		<div class="rebootContent">
 			<div class="rebootText">
 				<em id="rebootMsg"></em>
@@ -126,10 +149,10 @@
 		</div>
 	</div>
 	<div id="terminalListWrapper" class="wrapper hide j_drag">
-		<h2 class="wrapperTitle">
+		<div class="wrapperTitle">
 			<span class="titleName fontMic">终端列表</span>
 			<span class="close j_close" title="关闭窗口"></span>
-		</h2>
+		</div>
 		<div id="terminalListContent" class="terminalListContent wrapperContent">
 			<ol class="olTable">
 				<li>

@@ -14,6 +14,7 @@ var SWITCHCAR_URL = '/switchcar'; //车辆切换
 var REMOTE_URL = '/remote'; //远程终端
 var TERMINALLIST_URL = '/terminallist'; //终端列表
 var LASTINFO_URL = '/lastinfo'; //动态更新当前终端数据
+var LOGIN_URL = '/login'; // 登录
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒
 var CHECK_PERIOD = 60000; // 总共执行的时间
