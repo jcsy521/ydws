@@ -12,9 +12,9 @@ var timerId = null, counter = 0, str_actionState = 0,n_speed = 1000, f_trackMsgS
 window.dlf.fn_initTrack = function() {
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // lastinfo关闭
-	//计时器关闭
-	dlf.fn_clearInterval(timerId);
+	dlf.fn_clearInterval(timerId);//计时器关闭
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	$('#carList li[class*=carCurrent]').removeData('selfmarker');	// 清除marker
 	$('#trackHeader').show();
 }
 // 关闭轨迹显示页面
@@ -22,8 +22,7 @@ window.dlf.fn_closeTrackWindow = function() {
 	dlf.fn_clearInterval(timerId);
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	$('#trackHeader').hide();
-	// 动态更新终端相关数据
-	dlf.fn_updateLastInfo($($('#carList li[class*=carCurrent]')).attr('tid'));
+	dlf.fn_updateLastInfo($($('#carList li[class*=carCurrent]')).attr('tid'));// 动态更新终端相关数据
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 }
 // 轨迹查询操作
