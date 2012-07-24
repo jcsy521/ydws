@@ -1,10 +1,8 @@
 @charset "utf-8";
 /**
-*cheweishi css v1.0
-*2012-4-12 11:12
+*acb css v1.0
+*2012-07-09 
 */
-
-/*html tab*/
 html, a, input, ul, ol, li, p {
 	font-size: 12px;
 	font-family: "宋体","Arial Narrow";
@@ -12,15 +10,11 @@ html, a, input, ul, ol, li, p {
 	padding: 0;
 }
 body {
-	/*height: 1000px;*/
 	margin: 0;
 	padding: 0;
 	background: url('/static/images/bodyBg.png');
 }
-/*index.html*/
-.fontMic {
-	color: #ffffff;
-}
+/*navigation css start*/
 .navi {
 	height: 104px;
 	min-width: 1300px;
@@ -66,9 +60,6 @@ body {
 .navSelf {
 	text-align: right;
 	padding-top: 45px;
-	/*height: 72px;
-	line-height: 100px;
-	margin-right: 100px;*/
 }
 #personalData {
 	color: #B75B28;
@@ -91,6 +82,19 @@ body {
 .selfList a:hover{
 	text-decoration: underline;
 }
+.selfList a:visited, .carContainer a:visited {
+	color: #464646;
+}
+#power {
+	background: url('/static/images/power0.png') no-repeat left center;
+	padding-left: 30px;
+}
+#power a {
+	padding-left: 20px;
+}
+/*navigation css end*/
+
+/*carlist Sidebar start*/
 .carContainer {
 	height: 32px;
 	line-height: 32px;
@@ -98,9 +102,6 @@ body {
 	background: url('/static/images/carListBg.png') repeat-x;
 	min-width: 1300px;
 	color: #FFF;
-}
-.selfList a:visited, .carContainer a:visited {
-	color: #464646;
 }
 .carContainer a , .carContainer a:hover {
 	text-decoration: none;
@@ -111,25 +112,25 @@ body {
 	height: 30px;
 	line-height: 30px;
 }
+/*carlist Sidebar end*/
 .userMsg {
 	color: #464646;
     font-size: 12px;
 	display: block;
-	/*float: right;*/
 	padding-right: 30px;
 }
+.fontMic {
+	color: #ffffff;
+}
+/*main content start*/
 .main {
 	min-width: 1300px;
-}
-#infoTitle {
-	background: url("/static/images/carinfo.png") no-repeat scroll 20px 10px transparent;
-    height: 35px;
-    width: 100%;
 }
 .content {
 	min-width: 1300px;
 	float: left;
 }
+	/*car info start*/
 .carInfo {
 	width: 100%;
 	height: 125px;
@@ -137,6 +138,11 @@ body {
 	position: absolute;
 	z-index: 10;
 	min-width: 1300px;
+}
+#infoTitle {
+	background: url("/static/images/carinfo.png") no-repeat scroll 20px 10px transparent;
+    height: 35px;
+    width: 100%;
 }
 .infoList {
 	color: #3F3F3F;
@@ -150,6 +156,85 @@ body {
 	height: auto;
 	text-align: left;
 }
+#infoStatus {
+	cursor: pointer;
+	position: relative;
+	top: 3px;
+}
+/*carlist for bgcolor*/
+#carList {
+	color: #454545;
+	display: none;
+}
+#carList li {
+	list-style: none;
+	cursor: pointer;
+	padding-left: 10px;
+}
+#carList li:hover {
+	background-color: #C7C7C7;
+}
+.dropdown {
+    background-color: #FFF;
+    border: 1px solid #D9D9D9;
+    cursor: default;
+    display: inline-block;
+    height: 28px;
+    line-height: 28px;
+    overflow: hidden;
+}
+.dropdown:hover, .dropdown:visited, .dropdown:active {
+	border:1px solid #c7c7c7;
+	color: #454545;
+}
+.mini-dropdown {
+    height: 20px;
+    line-height: 20px;
+	margin-top: 4px;
+	float: left;
+}
+.dropdown .dropdown-input {
+    display: inline-block;
+	width: 100px;
+    padding-left: 10px;
+}
+.dropdown .dropdown-icon {
+    background: url('/static/images/sersj.png') no-repeat scroll center center transparent;
+    display: inline-block;
+    width: 20px;
+}
+.dropdown-options {
+	background-color: #FFFFFF;
+	border: 1px solid #D9D9D9;
+	border-top: 0px;
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+	height: 65px;
+	width: 136px;
+    left: 88px;
+    position: absolute;
+    top: 100px;
+	z-index: 1000;
+}
+.carCurrent {
+	background-color: #dbecf4;
+}
+#carLineState {
+	margin:0px 15px 0px 0px;
+	float: left;
+	padding-left: 25px;
+}
+.carlogin {
+	background: url('/static/images/car_on.png') no-repeat scroll 90px center transparent;
+}
+.carlogout {
+	background: url('/static/images/car_off.png') no-repeat scroll 90px center transparent;
+}
+	/*car info end*/
+/*main content end*/
+
+/*dialogs wrapper start*/
 .timeout {
 	text-align: center;
 }
@@ -163,9 +248,7 @@ body {
 	width: 100%;
 	z-index: 1000;
 }
-/*dialogs wrapper*/
 .wrapper {
-	/*border: 1px solid #cccccc;*/
 	height: 335px;
 	left: 38%;
 	width: 290px;
@@ -279,8 +362,6 @@ body {
 	font-style: normal;
 	font-size: 14px;
 }
-/*defend  end*/
-/*reboot  start*/
 #rebootWrapper {
 	height: 120px;
 	width: 450px;
@@ -291,10 +372,10 @@ body {
 }
 .rebootText {
     height: 85px;
-    padding-left: 50px;
+	width: 353px;
+	text-align: center;
 }
 #rebootMsg {
-    left: -25px;
     line-height:2;
     position: relative;
     top: 21px;
@@ -309,39 +390,6 @@ body {
 #rebootBtn {
 	background: url("/static/images/qd.png") no-repeat scroll 0 0 transparent;
 }
-/*reboot  end*/
-/*lock  start*/
-#lockWrapper {
-	height: 120px;
-	width: 450px;
-}
-#lockWrapper .close {
-	left: 295px;
-	*left: 280px; /*ie6,7*/
-	*top: -3px;
-	_top: 5px; /*ie6*/
-}
-.lockContent {
-	background-color: #ffffff;
-	height: 85px;
-}
-.lockText {
-	/*background: url("../static/images/currentSign.png") no-repeat scroll 0 0 transparent;*/
-    height: 85px;
-    padding-left: 50px;
-}
-#lockMsg {
-    left: -25px;
-    line-height:2;
-    position: relative;
-    top: 21px;
-	font-style: normal;
-}
-#lockBtn {
-	background: url("/static/images/qd.png") no-repeat scroll 0 0 transparent;
-}
-/*lock  end*/
-/*personal*/
 .personalList li, .pwdList  {
 	line-height: 37px;
     list-style: none outside none;
@@ -365,57 +413,12 @@ body {
     top: 3px;
     width: 40px;
 }
-/*pwd*/
 #pwdWrapper{
 	height: 191px;
 }
 .pwdContent {
 	height: 156px;
 }
-/*display: none*/
-.hide, .trackBtn .hide {
-	display: none;
-}
-#home {
-	float: left;
-}
-/*remoteList*/
-.downIcon {
-	position: absolute;
-	top: -8px;
-	left: 45px;
-	z-index: 10px;
-}
-#remoteList li {
-	float: left;
-	list-style: none;
-	height:31px;
-	text-align: center;
-	line-height:31px;
-	width:82px;
-	color: #FFFFFF;
-	cursor: pointer;
-}
-#infoStatus {
-	cursor: pointer;
-	position: relative;
-	top: 3px;
-}
-#listov {
-	cursor: pointer;
-	position: absolute;
-	left: 189px;
-	top: 50%;
-	z-index: 1;
-}
-#ovLine {
-	background-color: #3C7EA6;
-    position: absolute;
-    top: 90px;
-    width: 10px;
-    z-index: 1;
-}
-/*terminal start*/
 #terminalWrapper {
 	width: 390px;
 }
@@ -435,102 +438,6 @@ body {
 	background-image: url('/static/images/popboxC.png');
 	width: 380px;
 }
-/*---- POISearch start ----*/
-.POISearchWrapper {
-	border: 1px solid #cccccc;
-	background-color: #FFF;
-	height: 285px;
-	right: 10px;
-	width: 300px;
-	position: absolute;
-	top: 144px;
-	z-index: 0;
-}
-.PWrapperTitle {
-	background: none repeat scroll 0 0 #F9F9F9;
-    border-bottom: 1px solid #DADADA;
-    color: #4C4C4C;
-    font-size: 12px;
-    height: 25px;
-    line-height: 25px;
-    padding-left: 7px;
-	margin: 0px;
-}
-.POISearchContent {
-	height: 242px;
-    overflow-y: auto;
-    padding-left: 10px;
-}
-.siv_list {
-	margin-top: 10px;
-    overflow: hidden;
-	width: 253px;
-	list-style: none outside none;
-}
-.siv_list li {
-    clear: both;
-    float: left;
-    line-height: 18px;
-    overflow: hidden;
-    padding: 2px 0 8px 25px;
-    width: 100%;
-}
-.siv_list .hotel span {
-    background-position: -75px -45px;
-    left: 2px;
-    width: 15px;
-	background: url('/static/images/g1.png');
-}
-.siv_list .food span {
-    background-position: 0 -45px;
-	background: url('/static/images/g2.png');
-}
-.siv_list .jiayou span {
-    background-position: -50px -45px;
-	background: url('/static/images/g3.png');
-}
-.siv_list .entertain span {
-    background-position: -25px -45px;
-	background: url('/static/images/g4.png');
-}
-.siv_list li span {
-    float: left;
-    height: 14px;
-    margin: 0px 0 0 -25px;
-    width: 14px;
-}
-.siv_list li a {
-    cursor: pointer;
-    float: left;
-    margin-right: 12px;
-    color: #3D6DCC;
-    text-decoration: none;
-}
-.POISearchWrapper .pClose {
-  
-    left: 209px;
-	*left: 210px; /*ie6,7*/
-    position: relative;
-	top: 3px;
-	+top: -1px; /*ie7*/
-	_top: 3px; /*ie6*/
-}
-.searchCondition span {
-	display: inline-block;
-	width: 253px;
-	margin-top: 5px;
-}
-.textbox {
-	color: #808080;
-}
-.searchCondition font {
-	color: red;
-}
-.btnSearch {
-	margin-left: 100px;
-    width: 60px;
-}
-/*----- POISearch  end --------*/
 /*terminal tab*/
 #terminalWrapper .tabs {
 	border-bottom: 1px solid #CCCCCC; 
@@ -658,8 +565,119 @@ body {
 	padding-left: 5px;
 	font-weight: bold;
 }
+#terminalListTip {
+	margin-top: 10px;
+	padding: 0px 10px 10px 0px;
+	color: #3C7EA6;
+	font-weight: bold;
+}
+#radioTip {
+	margin-top: 10px;
+	color: gray;
+}
 /*terminal end*/
-/*track css start*/
+/*dialogs wrapper start*/
+
+/*---- POISearch start ----*/
+.POISearchWrapper {
+	border: 1px solid #cccccc;
+	background-color: #FFF;
+	height: 285px;
+	right: 10px;
+	width: 300px;
+	position: absolute;
+	top: 144px;
+	z-index: 0;
+}
+.PWrapperTitle {
+	background: none repeat scroll 0 0 #F9F9F9;
+    border-bottom: 1px solid #DADADA;
+    color: #4C4C4C;
+    font-size: 12px;
+    height: 25px;
+    line-height: 25px;
+    padding-left: 7px;
+	margin: 0px;
+}
+.POISearchContent {
+	height: 242px;
+    overflow-y: auto;
+    padding-left: 10px;
+}
+.siv_list {
+	margin-top: 10px;
+    overflow: hidden;
+	width: 253px;
+	list-style: none outside none;
+}
+.siv_list li {
+    clear: both;
+    float: left;
+    line-height: 18px;
+    overflow: hidden;
+    padding: 2px 0 8px 25px;
+    width: 100%;
+}
+.siv_list .hotel span {
+    background-position: -75px -45px;
+    left: 2px;
+    width: 15px;
+	background: url('/static/images/g1.png');
+}
+.siv_list .food span {
+    background-position: 0 -45px;
+	background: url('/static/images/g2.png');
+}
+.siv_list .jiayou span {
+    background-position: -50px -45px;
+	background: url('/static/images/g3.png');
+}
+.siv_list .entertain span {
+    background-position: -25px -45px;
+	background: url('/static/images/g4.png');
+}
+.siv_list li span {
+    float: left;
+    height: 14px;
+    margin: 0px 0 0 -25px;
+    width: 14px;
+}
+.siv_list li a {
+    cursor: pointer;
+    float: left;
+    margin-right: 12px;
+    color: #3D6DCC;
+    text-decoration: none;
+}
+.POISearchWrapper .pClose {
+  
+    left: 209px;
+	*left: 210px; /*ie6,7*/
+    position: relative;
+	top: 3px;
+	+top: -1px; /*ie7*/
+	_top: 3px; /*ie6*/
+}
+.searchCondition span {
+	display: inline-block;
+	width: 253px;
+	margin-top: 5px;
+}
+.textbox {
+	color: #808080;
+}
+.searchCondition font {
+	color: red;
+}
+.btnSearch {
+	margin-left: 100px;
+    width: 60px;
+}
+/*----- POISearch  end --------*/
+/*track ,event css start*/
+.hide, .trackBtn .hide {
+	display: none;
+}
 .eventHeader {
 	background: url('/static/images/trackBj.png');
 	height: 40px;
@@ -690,8 +708,7 @@ body {
 	height: 17px;
 	line-height: 17px;
 	width: 141px;
-	/*ie6,7*/
-	*position: relative;
+	*position: relative;	/*ie6,7*/
 	*top: 1px;
 }
 .trackBtn {
@@ -911,76 +928,6 @@ body {
 	margin-right: 0.5em;
 	margin-top: 2px;
 }
-/*carlist for bgcolor*/
-#carList {
-	color: #454545;
-	display: none;
-}
-#carList li {
-	list-style: none;
-	cursor: pointer;
-	padding-left: 10px;
-}
-#carList li:hover {
-	background-color: #C7C7C7;
-}
-.dropdown {
-    background-color: #FFF;
-    border: 1px solid #D9D9D9;
-    cursor: default;
-    display: inline-block;
-    height: 28px;
-    line-height: 28px;
-    overflow: hidden;
-}
-.dropdown:hover, .dropdown:visited, .dropdown:active {
-	border:1px solid #c7c7c7;
-	color: #454545;
-}
-.mini-dropdown {
-    height: 20px;
-    line-height: 20px;
-	margin-top: 4px;
-	float: left;
-}
-.dropdown .dropdown-input {
-    display: inline-block;
-	width: 100px;
-    padding-left: 10px;
-}
-.dropdown .dropdown-icon {
-    background: url('/static/images/sersj.png') no-repeat scroll center center transparent;
-    display: inline-block;
-    width: 20px;
-}
-.dropdown-options {
-	background-color: #FFFFFF;
-	border: 1px solid #D9D9D9;
-	border-top: 0px;
-    display: block;
-    overflow-x: hidden;
-    overflow-y: auto;
-	height: 65px;
-	width: 136px;
-    left: 88px;
-    position: absolute;
-    top: 100px;
-	z-index: 1000;
-}
-.carCurrent {
-	background-color: #dbecf4;
-}
-#carLineState {
-	margin:0px 15px 0px 0px;
-	float: left;
-	padding-left: 25px;
-}
-.carlogin {
-	background: url('/static/images/car_on.png') no-repeat scroll 90px center transparent;
-}
-.carlogout {
-	background: url('/static/images/car_off.png') no-repeat scroll 90px center transparent;
-}
 /*disbaled style*/
 .textDisabled {
 	background-color: scrollbar;
@@ -1011,6 +958,7 @@ body {
     height: 20px;
     width: 60px;
 }
+/*marker css start*/
 #markerWindowtitle {
 	width: 250px;
 }
@@ -1039,23 +987,7 @@ body {
 #markerWindowtitle a:visited {
 	color: #0000ff;
 }
-#terminalListTip {
-	margin-top: 10px;
-	padding: 0px 10px 10px 0px;
-	color: #3C7EA6;
-	font-weight: bold;
-}
-#radioTip {
-	margin-top: 10px;
-	color: gray;
-}
-#power {
-	background: url('/static/images/power0.png') no-repeat left center;
-	padding-left: 30px;
-}
-#power a {
-	padding-left: 20px;
-}
+/*marker css end*/
 .top10 {
 	padding-top: 10px;
 }

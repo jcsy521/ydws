@@ -1,13 +1,16 @@
 ﻿$(function(){
 	$.ajaxSetup({ cache: false }); // 不保存缓存
+	// input css
     $('tr.input input').focus(function() {
         $(this).parent().parent().addClass('highlight');
     });
     $('tr.input input').blur(function(){
         $(this).parent().parent().removeClass('highlight');
     });
+	
 	var index = 0,
 		currentAd = null;
+	// set all ad default , set the first ad seleted
 	$('#adNums li').removeClass('seleted').addClass('default');
 	$('#adNums li').eq(0).removeClass('default').addClass('seleted');
 	// 鼠标移上去显示相应广告 并停止计时
@@ -22,7 +25,7 @@
 		index = $(this).index();
 		currentAd = setInterval(function () { // 每5秒
 			fn_timer();
-		}, 1000);
+		}, 5000);
 	});
 	
 	// 每5秒 循环显示广告

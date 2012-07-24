@@ -4,6 +4,7 @@ body, html {
 	background-color: #FFF;
 	padding: 0px;
 	margin: 0px;
+	margin-top: 10px;
 }
 ul, li {
 	margin: 0px;
@@ -185,6 +186,7 @@ h2 {
 #adNums  {
 	width: 110px;
 	height: 20px;
+	line-height: 20px;
 	position: relative;
 	top: -20px;
 	background-color: #bacadb;

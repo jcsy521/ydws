@@ -96,13 +96,13 @@ window.onresize = function () {
 			n_mainContent = n_windowHeight - 104;
 		// 根据车辆详细信息显示状态设置地图高度
 		if ( str_infoStatus == 'show' ) {
-			n_mapHeight =n_mainContent - 125;
+			n_mapHeight =n_mainContent - 129;
 		} else {
-			n_mapHeight = n_windowHeight - 35;
-		}	
+			n_mapHeight = n_mainContent - 35;
+		}
 		$('.main, #mainContent, .navi, .menumList, .carContainer').css('width', n_windowWidth);
 		$('.mnNav').css('width', n_windowWidth-300); // 菜单宽度
-		$('#trackHeader').css('margin-left', n_windowWidth/4); // 轨迹查询条件 位置调整
+		$('#trackHeader').css('margin-left', n_windowWidth/5); // 轨迹查询条件 位置调整
 		$('#infoStatus').css('left', $('#infoTitle').width()/2);	
 		$('#mapObj').css('height', n_mapHeight);
 		$('.main, #mainContent').css('height', n_mainContent);
@@ -129,7 +129,7 @@ $(function () {
 	}
 	$('.main, #mainContent, .navi, .menumList, .carContainer').css('width', n_windowWidth);
 	$('.mnNav').css('width', n_windowWidth-300); // 菜单宽度
-	$('#trackHeader').css('margin-left', n_windowWidth/4); // 轨迹查询条件 位置调整
+	$('#trackHeader').css('margin-left', n_windowWidth/5); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight); // 地图高度
 	$('#infoStatus').css('left', $('#infoTitle').width()/2); // 车辆信息标题的隐藏按钮位置
 	$('.main, #mainContent').css('height', n_windowHeight - 104); // 内容域的高度
