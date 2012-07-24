@@ -54,7 +54,6 @@ function fn_displayCurrentMarker(obj_location) {
 /*设防撤防操作*/
 window.dlf.fn_defendQuery = function() {
 	var str_defendStatus = $('#defendStatus').html(),  // 设防撤防状态
-		str_confirmMsg = '';
 		obj_dMsg = $('#defendMsg'), 
 		obj_wrapper = $('#defendWrapper'),
 		obj_defendBtn = $('#defendBtn'); 
@@ -64,17 +63,15 @@ window.dlf.fn_defendQuery = function() {
 	obj_wrapper.css({'left':'38%','top':'22%'}).show();
 	
 	if ( str_defendStatus == '已设防' ) {
-		obj_dMsg.html('终端当前已设防');
-		str_confirmMsg = '您确定要撤防吗？';
+		obj_dMsg.html('您的爱车保当前已设防');
 		obj_defendBtn.css('background', 'url("/static/images/cf.png")');
 	} else {
-		obj_dMsg.html('终端当前未设防');
-		str_confirmMsg = '您确定要设防吗？';
+		obj_dMsg.html('您的爱车保当前未设防');
 		obj_defendBtn.css('background', 'url("/static/images/sf.png")');
 	}
 	//设防撤防 业务保存
 	$('#defendBtn').unbind('click').click(function() {
-		dlf.fn_jsonPost(DEFEND_URL, '', 'defend', '终端状态保存中');
+		dlf.fn_jsonPost(DEFEND_URL, '', 'defend', '爱车保状态保存中');
 	}); 
 }
 })();

@@ -54,7 +54,7 @@ window.dlf.fn_personalData = function() {
 			$('#remark').val(obj_data.remark);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { 
-			dlf.fn_jNotifyMessage(data.message, 'error'); // 查询状态不正确,错误提示
+			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
 		}	
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
 	}, 
@@ -253,7 +253,7 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		submitButtonID: 'personalSave', // 指定本form的submit按钮
 		onError: function(msg) { 
-			dlf.fn_jNotifyMessage(msg, 'error', true); 
+			dlf.fn_jNotifyMessage(msg, 'message', true); 
 		}, 
 		onSuccess: function() { 
 			var obj_pFrom = $('#personalForm'), 
@@ -283,7 +283,7 @@ $(function () {
 		validatorGroup: '2', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'pwdSave', // 指定本form的submit按钮
 		onError: function(msg) { 
-			dlf.fn_jNotifyMessage(msg, 'error', true); 
+			dlf.fn_jNotifyMessage(msg, 'message', true); 
 		}, 
 		onSuccess: function() { 
 			var obj_pwd = {'old_password' : $("#oldPwd").val(), 

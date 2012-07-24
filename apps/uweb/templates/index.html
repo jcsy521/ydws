@@ -76,13 +76,11 @@
 					<span id="trackSearch" class="tSearch"></span>
 					<span id="tPlay" class="tPlay hide j_tBtnhover"></span>
 					<span id="tPause" class="tPause hide j_tBtnhover"></span>
-					<span id="tStop" class="tStop hide j_tBtnhover"></span>
 				</span>
 				<span id="trackSpeed" class="trackSpeed hide">
 					<span>播放速度：</span>
 					<span id="trackSlide" title="一般速度"></span>
 				</span>
-				
 			</div>
 		</div>
 	</div>
@@ -100,19 +98,17 @@
 					<tr>
 						<!--<td>用户号码：<label id="userId">{{uid}}</label></td>-->
 						<td>终端号码：<label id="terminalId"></label></td>
-						<td>车辆当前速度：<label id="carSpeed">0</label>km/h</td>
-						<td>方向角：<label id="carDegree"></label></td>
+						<td>报警状态：<label id="eventStatus">无报警</label></td>
+						<td>终端状态：<label id="defendStatus">未设防</label></td>
 					</tr>
 					<tr>
-						
-						<td>定位类型：<label id="carLocType"></label></td>
-						<td>定位时间：<label id="timesTamp"></label></td>
+						<td>车辆当前速度：<label id="carSpeed">0</label>km/h</td>
+						<td>方向角：<label id="carDegree"></label></td>
 						<td>经纬度：<label id="carLngLat"></label></td>
 					</tr>
 					<tr>
-						
-						<td>报警状态：<label id="eventStatus">无报警</label></td>
-						<td>终端状态：<label id="defendStatus">未设防</label></td>
+						<td>定位时间：<label id="timesTamp"></label></td>
+						<td>定位类型：<label id="carLocType"></label></td>
 						<td colspan="3">车辆当前位置：<label id="carAddress"></label></td>
 						<input type="hidden" id="lockStatus" />  <!-- 解车锁车状态-->
 					</tr>

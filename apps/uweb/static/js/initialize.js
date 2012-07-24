@@ -242,7 +242,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			dlf.fn_updateLastInfo();
 			fn_getCarData(); // lastinfo
 		} else { // 查询状态不正确,错误提示
-			dlf.fn_jNotifyMessage(data.message, 'error');
+			dlf.fn_jNotifyMessage(data.message, 'message');
 		}
 	}, 
 	function (XMLHttpRequest, textStatus, errorThrown) {
@@ -526,7 +526,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 				dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 			} else {
-				dlf.fn_jNotifyMessage(data.message, 'error', true);
+				dlf.fn_jNotifyMessage(data.message, 'message', true);
 			}
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
@@ -568,7 +568,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 				}
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 			} else {
-				dlf.fn_jNotifyMessage(data.message, 'error', true);
+				dlf.fn_jNotifyMessage(data.message, 'message', true);
 			}
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩

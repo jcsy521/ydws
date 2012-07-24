@@ -104,10 +104,10 @@ function fn_initEventSearch(n_num, n_et) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			} else {
 				$('#pagerContainer').hide(); //显示分页
-				dlf.fn_jNotifyMessage('该时间范围内没有报警记录', 'error', false, 6000);
+				dlf.fn_jNotifyMessage('该时间范围内没有报警记录', 'message', false, 6000);
 			}
 		} else {
-			dlf.fn_jNotifyMessage(data.message, 'error', false, 3000);	
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);	
 		}
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 		$('.eventbody').removeData('layer');

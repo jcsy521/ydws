@@ -223,7 +223,7 @@ window.dlf.fn_initTerminalWR = function (param, id) {
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { // 查询状态不正确,错误提示
-			dlf.fn_jNotifyMessage(data.message, 'error');
+			dlf.fn_jNotifyMessage(data.message, 'message');
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}, 
@@ -378,7 +378,7 @@ window.dlf.fn_tlDel = function(obj_item) {
 				}
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 1000);
 			} else {
-				dlf.fn_jNotifyMessage(data.message, 'error');
+				dlf.fn_jNotifyMessage(data.message, 'message');
 			}
 		},
 		function (XMLHttpRequest, textStatus, errorThrown) {
@@ -454,7 +454,7 @@ function fn_validAjaxText(obj_data, str_msg) {
 window.dlf.fn_reboot = function() {
 	//dlf.fn_clearMapComponent(); //清除地图上的图形
 	dlf.fn_lockScreen(); //添加页面遮罩
-	$('#rebootMsg').html('确定要重启终端吗？');
+	$('#rebootMsg').html('您确定要重启爱车保吗？');
 	$('#rebootWrapper').css({'left': '38%', 'top': '22%'}).show(); // 显示重启终端窗口 
 	$('#rebootBtn').unbind('click').click(function() {
 		fn_remoteSave('REBOOT', 'reboot', '终端重启中');

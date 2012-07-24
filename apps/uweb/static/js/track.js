@@ -15,7 +15,9 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_clearInterval(timerId);//计时器关闭
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	$('#carList li[class*=carCurrent]').removeData('selfmarker');	// 清除marker
-	$('#trackHeader').show();
+	// 查询条件初始化
+	$('.j_tBtnhover, .trackSpeed').hide();	
+	$('#trackHeader').show();	// 轨迹查询条件显示
 }
 // 关闭轨迹显示页面
 window.dlf.fn_closeTrackWindow = function() {
@@ -44,7 +46,7 @@ function trackQuery() {
 	
 	$.post_(TRACK_URL, JSON.stringify(obj_locusDate), function (data) {
 		if ( data.status != 0 ) { // 查询状态不正确,错误提示
-			dlf.fn_jNotifyMessage(data.message, 'error');
+			dlf.fn_jNotifyMessage(data.message, 'message');
 		} else {
 			/**
 			   * 获取最大和最小的差值
@@ -55,6 +57,7 @@ function trackQuery() {
 				locLength = arr_locations.length;
 			if ( locLength <= 0) {
 				dlf.fn_jNotifyMessage('该时间段没有行踪数据，请选择其它时间段！', 'message', false, 3000);
+				$('#trackSpeed').hide();	// 速度滑块隐藏
 			} else {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 				arr_dataArr = [], 

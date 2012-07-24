@@ -337,11 +337,11 @@ body {
 .confirmBtn {
 	cursor: pointer;
 	display: inline-block;
-    height: 84px;
+    height: 83px;
     left: 353px;
     position: absolute;
     top: 36px;
-    width: 97px;
+    width: 96px;
 }
 #currentWrapper .close, #defendWrapper .close, #rebootWrapper .close  {
 	left: 293px;
