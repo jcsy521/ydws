@@ -152,7 +152,7 @@ $(function () {
 				return false;
 			}
 		}
-		if ( str_trackStatus != 'none' ) {
+		if ( str_trackStatus != 'none' && str_id != 'infoStatus' ) {
 			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
 		}
 		$('#terminalMsgWrapper').hide();

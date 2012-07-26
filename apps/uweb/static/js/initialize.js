@@ -48,7 +48,7 @@ window.dlf.fn_closeDialog = function() {
 // 处理请求服务器错误
 window.dlf.fn_serverError = function(XMLHttpRequest) {
 	if ( XMLHttpRequest && XMLHttpRequest.status > 200 ) {
-		alert('操作失败，请重新登录！');
+		alert('请求失败，请重新操作！');	// httpRequest failed 
 		if ( window == window.parent ) {
 			window.location.replace('/'); // redirect to the index.
 		} else {

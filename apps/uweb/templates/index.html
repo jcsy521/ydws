@@ -46,7 +46,7 @@
 				{% else %}
 					<li tlid="{{car.id}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogout" title="离线车辆">
 				{% end  %}
-					{{car.sim}}</li>
+				{{car.name}}</li>
 			{% end %}
 			</ul>
 			<a id="carSet" href="#" class="dropdown mini-dropdown">
@@ -56,7 +56,7 @@
 						{% else %}
 							<span class="dropdown-input carlogout" id="currentCar" title="离线">
 						{% end %}
-							{{cars[0].sim}}</span>
+							{{cars[0].name}}</span>
 				{% end %}
 				<span class="dropdown-icon">&nbsp;</span>
 			</a>

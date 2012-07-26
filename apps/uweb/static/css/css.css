@@ -961,6 +961,7 @@ body {
 /*marker css start*/
 #markerWindowtitle {
 	width: 250px;
+	font-size: 12px;
 }
 #markerWindowtitle h4 {
 	margin: 0px 0 5px 8px;
@@ -975,7 +976,6 @@ body {
 }
 #markerWindowtitle label {
 	display: inline-block;
-    width: 80px;
 	float: left;
 }
 #markerWindowtitle .labelRight {
