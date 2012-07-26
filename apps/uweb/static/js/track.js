@@ -15,6 +15,7 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_clearInterval(timerId);//计时器关闭
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	$('#carList li[class*=carCurrent]').removeData('selfmarker');	// 清除marker
+	$('#carList .carCurrent').removeAttr('actiontrack');	// 移除 开始追踪
 	// 查询条件初始化
 	$('.j_tBtnhover, .trackSpeed').hide();	
 	$('#trackHeader').show();	// 轨迹查询条件显示
