@@ -54,7 +54,8 @@ class TrackHandler(BaseHandler):
                                   "  FROM T_LOCATION"
                                   "  WHERE tid = %s"
                                   "    AND NOT (clatitude = 0 AND clongitude = 0)"
-                                  "    AND (timestamp BETWEEN %s AND %s)",
+                                  "    AND (timestamp BETWEEN %s AND %s)"
+                                  "    ORDER BY timestamp",
                                   tid, start_time, end_time)
             dev = QueryHelper.get_mobile_by_dev_id(tid, self.db)
             for item in track:
