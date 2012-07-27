@@ -49,7 +49,7 @@ class GatewayServer(object):
         try:
             while True:
                 response, address = self.socket.recvfrom(1024)
-                logging.info("[GW] recv: %s", response)
+                logging.info("[GW] recv: %s from %s", response, address)
                 if response:
                     self.handle_response_from_terminal(response,
                                                        address,
