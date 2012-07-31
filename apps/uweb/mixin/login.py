@@ -20,9 +20,8 @@ class LoginMixin(BaseMixin):
                            "  FROM T_USER"
                            "    WHERE uid = %s"
                            "      AND password = password(%s)"
-                           "      AND valid = %s"
                            "      LIMIT 1", 
-                           username, password, UWEB.USER_VALID.VALID)
+                           username, password)
 
         return self.__internal_check(username, user)
 

@@ -57,10 +57,10 @@ class TrackHandler(BaseHandler):
                                   "    AND (timestamp BETWEEN %s AND %s)"
                                   "    ORDER BY timestamp",
                                   tid, start_time, end_time)
-            dev = QueryHelper.get_mobile_by_dev_id(tid, self.db)
+            terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
             for item in track:
                 item['degree'] = int(round(item['degree']/36))
-                item['mobile'] = dev.mobile
+                item['mobile'] = terminal.mobile
                 
             self.write_ret(ErrorCode.SUCCESS,
                            dict_=DotDict(track=track))

@@ -33,11 +33,9 @@ CATEGORY=DotDict(UNKNOWN=0,
 CHECK_TERMINAL=DotDict(TID=u'tid',
                        MOBILE=u'mobile')
 
-DEFEND_STATUS=DotDict(NO=0,
-                      YES=1)
+DEFEND_STATUS=DotDict(NO='0',
+                      YES='1')
 
-LOCK_STATUS=DotDict(NO=0,
-                    YES=1)
 
 TERMINAL_INFO_CATEGORY=DotDict(R=u'r',
                                W=u'w',

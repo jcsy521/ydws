@@ -27,19 +27,17 @@ class MainHandler(BaseHandler):
                                "  WHERE uid=%s LIMIT 1",
                                self.current_user.uid)
 
-            umobile = QueryHelper.get_umobile_by_uid(self.current_user.uid, self.db)
+            user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
 
-            terminals = self.db.query("SELECT tiw.id, tiw.tid, tiw.name, tiw.mobile as sim, tir.login"
-                                      "    FROM T_TERMINAL_INFO_R as tir,"
-                                      "    T_TERMINAL_INFO_W as tiw " 
-                                      "    WHERE tiw.owner_mobile = %s" 
-                                      "    AND tir.tid = tiw.tid",
-                                      umobile.mobile)
+            terminals = self.db.query("SELECT ti.id, ti.tid, ti.alias as name, ti.mobile as sim, ti.login"
+                                      "    FROM T_TERMINAL_INFO as ti"
+                                      "    WHERE ti.owner_mobile = %s",
+                                      user_info.mobile)
             url = "index.html"
 
         if from_ == 'android':
 
-            self.login_sms_remind(umobile.mobile, terminals, login="ANDROID")
+            self.login_sms_remind(user_info.mobile, terminals, login="ANDROID")
             data = DotDict(uid=self.current_user.uid,
                            name=user.name,
                            cars=terminals,

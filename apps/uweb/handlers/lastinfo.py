@@ -23,18 +23,15 @@ class LastInfoHandler(BaseHandler):
         try:
             status = ErrorCode.SUCCESS
             # NOTE: monitor and location must not be null. lastinfo is invoked after switchcar
-            monitor = self.db.get("SELECT tiw.tid, tiw.mobile as sim,"
-                                  "  tir.login, tiw.defend_status, "
-                                  "  tiw.lock_status"
-                                  "  FROM T_TERMINAL_INFO_R as tir, "
-                                  "    T_TERMINAL_INFO_W as tiw"
-                                  "  WHERE tir.tid = tiw.tid"
-                                  "  AND tiw.tid = %s"
+            monitor = self.db.get("SELECT ti.tid, ti.mobile as sim,"
+                                  "  ti.login, ti.defend_status, ti.pbat "
+                                  "  FROM T_TERMINAL_INFO as ti "
+                                  "  WHERE ti.tid = %s"
                                   "  LIMIT 1",
                                   tid)
 
             location = self.db.get("SELECT speed, timestamp, category, name,"
-                                   "  degree, type, clatitude, clongitude, volume"
+                                   "  degree, type, clatitude, clongitude"
                                    "  FROM T_LOCATION"
                                    "  WHERE tid = %s"
                                    "    AND NOT (clatitude = 0 AND clongitude = 0)"
@@ -56,9 +53,9 @@ class LastInfoHandler(BaseHandler):
                                                 type=location.type if location else 1,
                                                 clatitude=location.clatitude if location else 0,
                                                 clongitude=location.clongitude if location else 0,
-												volume=location.volume if location else 0,
+												volume=monitor.pbat,
                                                 login=monitor.login,
-                                                lock_status=monitor.lock_status)))
+                                                lock_status=0)))
         except Exception as e:
             logging.exception("[UWEB] get lastinfo failed. Exception: %s", e.args) 
             status = ErrorCode.SERVER_ERROR        

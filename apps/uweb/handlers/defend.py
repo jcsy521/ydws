@@ -27,7 +27,7 @@ class DefendHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             res = self.db.get("SELECT defend_status"
-                              "  FROM T_TERMINAL_INFO_W"
+                              "  FROM T_TERMINAL_INFO"
                               "  WHERE tid = %s",
                               self.current_user.tid)
         except Exception as e:
@@ -51,7 +51,7 @@ class DefendHandler(BaseHandler):
                 else: 
                     logging.error("Unknown defend_status: %s", res.defend_status)
                     status = ErrorCode.SERVER_ERROR
-                self.db.execute("UPDATE T_TERMINAL_INFO_W"
+                self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET defend_status = %s"
                                 "  WHERE tid = %s",
                                 defend_status, self.current_user.tid)

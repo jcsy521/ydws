@@ -19,13 +19,10 @@ class SwitchCarHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self, tid):
         try:
-            monitor = self.db.get("SELECT tiw.tid, tiw.mobile as sim,"
-                                  "  tir.login, tiw.defend_status, "
-                                  "  tiw.lock_status"
-                                  "  FROM T_TERMINAL_INFO_R as tir, "
-                                  "    T_TERMINAL_INFO_W as tiw"
-                                  "  WHERE tir.tid = tiw.tid"
-                                  "  AND tiw.tid = %s"
+            monitor = self.db.get("SELECT ti.tid, ti.mobile as sim,"
+                                  "  ti.login, ti.defend_status "
+                                  "  FROM T_TERMINAL_INFO as ti "
+                                  "  WHERE ti.tid = %s"
                                   "  LIMIT 1",
                                   tid)
             if monitor: 
