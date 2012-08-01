@@ -227,11 +227,13 @@ window.dlf.fn_bindCarListItem = function() {
 window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 	$('#carList li[class*=carCurrent]').removeData('selfmarker');
 	var obj_CurrentLi = $('#carList li[tid='+n_tid+']');
+	/*// 车辆不在线 电池电量隐藏
 	if ( obj_CurrentLi.attr('clogin') != '1' ) {
-		$('#power').hide(); // 车辆不在线 电池电量隐藏
+		$('#power').hide(); 
 	} else {
 		$('#power').show();
 	}
+	*/
 	// 向后台发送切换请求
 	$.get_(SWITCHCAR_URL + '/' + n_tid, '', function (data) {
 		if ( data.status == 0 ) {
@@ -276,8 +278,9 @@ function fn_getCarData() {
 					obj_tempPoint = new BMap.Point(n_clon, n_clat), 
 					obj_tempLocation = {'name': obj_carInfo.address, 'timestamp': obj_carInfo.timestamp, 'speed': obj_carInfo.speed, 
 									'clongitude': obj_carInfo.clongitude, 'clatitude': obj_carInfo.clatitude, 'type': obj_carInfo.type,'tid': obj_carInfo.tid},
-					n_power = parseInt(obj_carInfo.volume),	// 电池电量 0-9
-					n_percent = (n_power+1)*10;
+					n_power = parseInt(obj_carInfo.volume),
+					str_power = n_power + '%';	// 电池电量 0-100
+					//n_percent = (n_power+1)*10;
 				// 经纬度数据不正确不做处理
 				if ( n_clon != 0 && n_clat != 0 ) {	
 					mapObj.setCenter(obj_tempPoint);
@@ -287,17 +290,19 @@ function fn_getCarData() {
 				}
 				dlf.fn_updateTerminalInfo(data.car_info); // 填充车辆信息
 				// 电池电量填充
-				$('#power').html(n_percent + '%' );
-				if ( n_percent >= 10 && n_percent <= 25 ) {
+				$('#power').html(str_power);
+				
+				if ( n_power >= 0 && n_power <= 25 ) {
 					$('#power').css('background-image', 'url("/static/images/power0.png")');
-				} else if ( n_percent > 25 && n_percent <= 50 ) {
+				} else if ( n_power > 25 && n_power <= 50 ) {
 					$('#power').css('background-image', 'url("/static/images/power3.png")');
-				} else if ( n_percent > 50 && n_percent <= 75 ) {
+				} else if ( n_power > 50 && n_power <= 75 ) {
 					$('#power').css('background-image', 'url("/static/images/power6.png")');
-				} else if ( n_percent > 75 && n_percent <= 100 ) {
+				} else if ( n_power > 75 && n_power <= 100 ) {
 					$('#power').css('background-image', 'url("/static/images/power9.png")');
 				}  
-				$('#power').attr('title', '剩余电量:'+ n_percent + '%' );
+				
+				$('#power').attr('title', '剩余电量:'+ str_power );
 				// 动态修改车辆当前连接状态
 				if ( str_loginst == LOGINST) {
 					obj_carLi.removeClass('carlogout').addClass('carlogin');

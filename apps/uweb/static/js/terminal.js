@@ -4,60 +4,32 @@
 (function () {
 // 终端参数设置初始化页面
 window.dlf.fn_initTerminal = function() {
-	//dlf.fn_clearMapComponent(); //清除地图上的图形
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	// 标签初始化
-	$('.j_tabs').removeClass('currentTab');
-	$('#rTab').addClass('currentTab');
-	$('.j_terminalcontent').hide();//css('display', 'none');
-	$('#terminalList0').show();//css('display', 'block');
-	
 	$('#terminalWrapper').css({'left': '38%', 'top': '20%'}).show(); // 显示终端设置窗口
 	
-	// 选项卡
-	$('.j_tabs').unbind('click').click(function() {
-		var n_index  = $(this).index(), // 当前li索引
-			str_className = $(this)[0].className, 
-			param = 'w';
-			
-		if ( str_className.search('currentTab') != -1 ) {
-			return;
-		}
-		$('.j_tabs').removeClass('currentTab'); //移除所有选中样式
-		$(this).addClass('currentTab'); // 选中样式
-		$('#terminalList'+n_index).show().siblings().hide(); // 显示当前内容 隐藏其他内容
-		if ( n_index == 1 ) {
-			param = 'w';
-		} else {
-			param = 'r';
-			$('#refresh').addClass('hide'); // 刷新按钮隐藏
-		}
-		dlf.fn_initTerminalWR(param); // 初始化加载可编辑参数查询
-	});
 	// 对文本输入框进行验证
-	$('#bListVal').unbind('keyup').keyup(function(event) {
-		var str_key = $('#bListSet').attr('terminalkey'), 
-			obj_listVal = $('#bListVal'), 
+	$('#bListR input[type=text]').unbind('keyup').keyup(function(event) {
+		var str_key = $(this).attr('terminalkey'),
 			obj_reg = ARR_TERMINAL_REG[str_key], 
+			str_regex = obj_reg.regex, 
 			n_maxLen = obj_reg.maxLen,
 			str_val = $(this).val(), 
 			n_cLen = str_val.length;
 		if ( n_cLen > n_maxLen ) {
 			$(this).val(str_val.substr(0, n_maxLen));
-			dlf.fn_jNotifyMessage(obj_reg.alertText, 'message', true);	// 正则验证出错
+			dlf.fn_jNotifyMessage(obj_reg.alertText, 'message', false, 3000);	// 正则验证出错
+		}
+		if ( !eval(str_regex).test(str_val) ) {
+			dlf.fn_jNotifyMessage(obj_reg.alertText, 'message', false, 3000);	// 正则验证出错
+			return;
 		}
 	});
-	dlf.fn_initTerminalWR('r'); // 初始化加载可查询参数查询
-	
-	// 绑定点击事件
-	$('#bListSet, #bDropDownbox').unbind('click').click(function() {
-		fn_initBaseListItem();
-	});
+	dlf.fn_initTerminalWR(); // 初始化加载参数
 	// 保存参数设置
 	$('#terminalSave').unbind('click').click(fn_baseSave);
 	// 参数刷新
 	$('#refresh').unbind('click').click(function() {
-		dlf.fn_initTerminalWR('f', $('.j_terminalList').data('rid'));
+		dlf.fn_initTerminalWR('f');
 	});
 }
 /* 刷新替换td的值
@@ -85,6 +57,7 @@ function fn_replaceNull(str_val) {
 		return str_val;
 	}
 }
+
 /* 拆分 可查询参数
 *	obj_data: 后台发送的数据集
 *	type: 刷新f 或者 查询r
@@ -169,58 +142,79 @@ function fn_keySplit(obj_data, type) {
 }
 
 // 可编辑参数查询
-window.dlf.fn_initTerminalWR = function (param, id) {
+window.dlf.fn_initTerminalWR = function (param) {
 	// 获取参数数据
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
-	var str_url  = TERMINAL_URL + '?terminal_info=' +  param, 
-		str_msg = '终端参数查询中，请稍后';
-	if ( param == 'f' ) {
-		str_msg = '终端参数刷新中，请稍后';
-	}
-	$('#radioTip').hide();
-	dlf.fn_jNotifyMessage(str_msg+'...<img src="/static/images/blue-wait.gif" />', 'message', true);
-	if ( id != 0 && id != undefined) {
-		str_url += '&id=' + id;
+	var str_url  =  TERMINAL_URL;
+	if ( param ) {
+		 str_url = str_url + '?terminal_info=' +  param;
 	}
 	$.get_(str_url, '', function (data) {  
 		if (data.status == 0) {	
-			
-			$('.j_radio').addClass('hide');
-			$('.j_tInput').removeClass('hide');
-			var obj_tempData = data.car_sets, 
-				n_len = obj_tempData.length, 
-				str_html = '';
-				
-			if ( param == 'w' ) { //可编辑参数
-				for (var i = 0; i < n_len; i++ ) {
-					str_html += '<li t_val="'+obj_tempData[i].value+'" t_id="'+obj_tempData[i].key+'" t_unit="'+obj_tempData[i].unit+'">'+obj_tempData[i].name+'</li>';
-				}
-				$('#baseList').html(str_html); // 填空列表数据
-				// 设置默认值 
-				var obj_blistFirst = $($('#baseList li')[0]), 
-					str_tid = obj_blistFirst.attr('t_id'), 
-					n_maxLen = ARR_TERMINAL_REG[str_tid].maxLen,
-					str_alertText = '* 功能说明：';     //ARR_TERMINAL_REG[str_tid].alertText; 
-				
-				$('#bListSet').val(obj_blistFirst.text()).attr('terminalkey', str_tid); // 填充默认显示值 
-				$('#bListVal').val(obj_blistFirst.attr('t_val'));
-				$('#terminalUnit').html(obj_blistFirst.attr('t_unit'));
-				$('.j_terminalList').data('wid', data.id);
-				$('#terminalListTip').html(str_alertText);
+			var obj_data = data.car_sets,
+				n_gsm = obj_data.gsm,
+				str_gsm = '',
+				n_gps = obj_data.gps,
+				str_gps = '',
+				n_pbat = obj_data.pbat,
+				str_pbat = n_pbat + '%',
+				str_freq = obj_data.freq,
+				str_pulse = obj_data.pulse,
+				str_white_list1 = obj_data.whitelist_1,
+				str_white_list2 = obj_data.whitelist_2,
+				str_cnum = obj_data.cnum,
+				str_alias = obj_data.alias,
+				str_vibchk = obj_data.vibchk,
+				str_track = obj_data.trace,	// 开启追踪
+				str_cellid_status = obj_data.cellid_status,	// 开启基站定位
+				str_service_status = obj_data.service_status;	// 终端服务状态
+			//console.log(obj_data['gsm']);
+			// gsm init
+			if ( n_gsm >= 0 && n_gsm < 3 ) {
+				str_gsm = '弱';
+			} else if ( n_gsm >= 3 && n_gsm < 6 ) {
+				str_gsm = '较弱';
 			} else {
-				if ( param == 'r' ){ // 可查询参数
-					for (var i = 0; i < n_len; i++ ) {
-						str_html += fn_keySplit(obj_tempData[i], param); //  拼装要显示的消息
-					}
-					$('#bListR').html(str_html); // 容器填充数据
-					$('.j_terminalList').data('rid', data.id);
-					$('#refresh').removeClass('hide'); // 显示数据后 刷新按钮才显示
-				} else { // 刷新可查询参数
-					for (var i = 0; i < n_len; i++ ) {
-						fn_keySplit(obj_tempData[i], param); // 拼装要显示的消息
-					}
-				}
+				str_gsm = '强';
 			}
+			// gps init
+			if ( n_gps >= 0 && n_gps < 10 ) {
+				str_gps = '弱';
+			} else if ( n_gps >= 10 && n_gps < 20 ) {
+				str_gps = '较弱';
+			} else if ( n_gps >= 20 && n_gps < 30 ) {
+				str_gps = '较强';
+			} else {
+				str_gps = '强';
+			}
+			$('#t_gsm').html(str_gsm);
+			$('#t_gps').html(str_gps);
+			$('#t_pbat').html(str_pbat);
+			// allow edit params
+			$('#t_freq').val(str_freq);
+			$('#t_pulse').val(str_pulse);
+			$('#t_white_list1').val(str_white_list1);
+			$('#t_white_list2').val(str_white_list2);
+			$('#t_cnum').val(str_cnum);
+			$('#t_alias').val(str_alias);
+			$('#t_vibchk').val(str_vibchk);
+			$('#tr_trace' + str_track).attr('checked', 'checked');
+			$('#tr_service_status' + str_service_status).attr('checked', 'checked');
+			$('#tr_cellid_status' + str_cellid_status).attr('checked', 'checked');
+			// original value
+			$('#gsm').attr('t_val', n_gsm);
+			$('#gps').attr('t_val', n_gps);
+			$('#pbat').attr('t_val', n_pbat);
+			$('#freq').attr('t_val', str_freq);
+			$('#pulse').attr('t_val', str_pulse);
+			$('#white_list1').attr('t_val', str_white_list1);
+			$('#white_list2').attr('t_val', str_white_list2);
+			$('#cnum').attr('t_val', str_cnum);
+			$('#alias').attr('t_val', str_alias);
+			$('#vibchk').attr('t_val', str_vibchk);
+			$('#trace').attr('t_val', str_cnum);
+			$('#service_status').attr('t_val', str_alias);
+			$('#cellid_status').attr('t_val', str_vibchk);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { // 查询状态不正确,错误提示
 			dlf.fn_jNotifyMessage(data.message, 'message');
@@ -287,28 +281,40 @@ function fn_initBaseListItem() {
 		obj_bList.hide();
 	});
 }
+
 // 保存用户操作
 function fn_baseSave() {
-	var f_warpperStatus = !$('#terminalWrapper').is(':hidden'), 
-		str_tId = $('.j_terminalList').data('wid'), 
+	/*var f_warpperStatus = !$('#terminalWrapper').is(':hidden'), 
 		str_key = $('#bListSet').attr('terminalkey'), 
-		str_val = $('#bListVal').val(), 
-		obj_reg = ARR_TERMINAL_REG[str_key], 
-		str_regex = obj_reg.regex, 
-		obj_terminalData = {
-				'id': str_tId,
-				'car_sets': {
-					'key': str_key,
-					'value': str_val
-				}
-			};
-	
-	// 对要提交的参数进行正则验证
-	if ( !eval(str_regex).test(str_val) ) {
-		dlf.fn_jNotifyMessage(obj_reg.alertText, 'message', true);	// 正则验证出错
-		return;
-	}
-	
+		obj_terminalData = {},
+		obj_listVal = $('.j_ListVal'); // td t_val 
+		
+	$.each(obj_listVal, function(index, dom) {
+		var obj_this = $(this),
+			str_key = obj_this.attr('id'),
+			str_t_val = obj_this.attr('t_val'),
+			obj_text = obj_this.children('input[type=text]')[0],	
+			obj_radio = obj_this.children('input[type=radio][checked]');
+		console.log(obj_text);
+		if ( obj_text ) {
+			var str_val = '';
+			if ( str_val != str_t_val ) {
+				console.log(obj_text.val(),'---',str_val);
+				obj_terminalData[str_key] = str_val;
+			}
+		} 
+		if ( obj_radio ) {
+			var str_val = obj_radio.val();
+			if ( str_val != str_t_val ) {
+				obj_terminalData[str_key] = str_val;
+			}
+		}
+	});*/
+		//console.log(obj_terminalData);
+		var obj_terminalData = {
+			'freq': '10',
+			'pulse': '1800'
+		};
 	dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中');
 }
 

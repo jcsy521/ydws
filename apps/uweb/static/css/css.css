@@ -17,7 +17,7 @@ body {
 /*navigation css start*/
 .navi {
 	height: 104px;
-	min-width: 1300px;
+	min-width: 1280px;
 }
 #logo{
 	float: left;
@@ -27,13 +27,13 @@ body {
 .mnNav {
 	height: 72px;
 	float: left;
-	min-width: 1100px;
+	min-width: 1000px;
 }
 .menumList {
 	display: inline-block;
 	height: 72px;
 	float: left;
-	min-width: 1300px;
+	min-width: 1280px;
 }
 .menuNav {
 	display: inline-block;
@@ -100,7 +100,7 @@ body {
 	line-height: 32px;
 	float: left;
 	background: url('/static/images/carListBg.png') repeat-x;
-	min-width: 1300px;
+	min-width: 1280px;
 	color: #FFF;
 }
 .carContainer a , .carContainer a:hover {
@@ -124,10 +124,10 @@ body {
 }
 /*main content start*/
 .main {
-	min-width: 1300px;
+	min-width: 1280px;
 }
 .content {
-	min-width: 1300px;
+	min-width: 1280px;
 	float: left;
 }
 	/*car info start*/
@@ -137,7 +137,11 @@ body {
 	background: url('/static/images/bg2.png');
 	position: absolute;
 	z-index: 10;
-	min-width: 1300px;
+	min-width: 1280px;
+}
+.terminalInfo {
+	float: left;
+	padding-left: 30px;
 }
 #infoTitle {
 	background: url("/static/images/carinfo.png") no-repeat scroll 20px 10px transparent;
@@ -406,7 +410,7 @@ body {
 .personalList li input {
 	width: 165px;
 }
-.personalButton, .pwdButton, .terminalRefresh {
+.personalButton, .pwdButton{
 	height: 31px;
     left: 224px;
     position: relative;
@@ -423,7 +427,7 @@ body {
 	width: 390px;
 }
 #terminalWrapper .terminalContent {
-	height: 420px;
+	height: 450px;
 }
 #terminalWrapper .titleName {
 	width: 154px;
@@ -474,16 +478,6 @@ body {
 .baseContent {
 	margin-left: 10px;
 }
-#bListSet, #bListVal {
-	display: block;
-	height: 22px;
-	line-height: 22px;
-	width: 170px;
-}
-#bListVal {
-	display: inline;
-    width: 169px;
-}
 .radioContent, .tInput {
 	margin-top: 12px;
 }
@@ -516,9 +510,6 @@ body {
 }
 .terminalButton {
 	height: 31px;
-	position: absolute;
-    right: 13px;
-    top: 100px;
 	width: 40px;
 }
 .listHover {
@@ -540,19 +531,16 @@ body {
 .dropDownbox:hover {
 	background: url('/static/images/sersjhover.png') no-repeat;
 }
-.terminalRefresh {
-	left: 302px;
-	top: 11px;
-}
 #terminalList0 {
 	padding: 10px 10px 0px 10px;
 	display: inline-block;
 }
 #bListR {
 	width: 365px;
+	border: 1px;
 }
-#bListR, #bListR td{
-	border: 1px solid #ccc;
+#bListR td{
+	border-bottom: 1px dashed #ccc;
 	text-align: left;
 	height: 24px;
 	line-height: 24px;
@@ -560,6 +548,31 @@ body {
 }
 #bListR .terminalTdL {
 	width: 127px;
+}
+#bListR span {
+	display: inline-block;
+	width: 250px;
+}
+#bListR input {
+	background-color: #FFF;
+}
+.bListR_text_mouseOut  {
+	border: 1px solid #cdcdcd;
+	height: 22px;
+	line-height: 22px;
+	width: 170px;
+}
+.bListR_text_mouseOver {
+	border: 2px groove #8E8E8E;
+	height: 22px;
+	line-height: 22px;
+	width: 170px;
+}
+.bListR_text_mouseFocus  {
+	border: 2px groove #7EC0EE;	
+	height: 22px;
+	line-height: 22px;
+	width: 170px;
 }
 .blistRValue {
 	padding-left: 5px;
@@ -687,6 +700,7 @@ body {
     height: 32px;
 	line-height: 32px;
 	float: left;
+	width: 780px;
 }
 .trackPos {
 	display: inline-block;

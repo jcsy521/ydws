@@ -91,19 +91,25 @@ window.onresize = function () {
 		// 调整页面大小
 		var n_windowHeight = $(window).height(), 
 			n_windowWidth = $(window).width(),
-			str_infoStatus = $('#infoStatus').attr('status'), // 车辆信息框是否显示状态
-			n_mapHeight = n_windowHeight,
+			//str_infoStatus = $('#infoStatus').attr('status'), // 车辆信息框是否显示状态
+			n_mapHeight = n_windowHeight - 104,
+			n_trackLeft = ( n_windowWidth - 1180 )/3;
 			n_mainContent = n_windowHeight - 104;
 		// 根据车辆详细信息显示状态设置地图高度
+		/*
 		if ( str_infoStatus == 'show' ) {
 			n_mapHeight =n_mainContent - 129;
 		} else {
 			n_mapHeight = n_mainContent - 35;
 		}
+		*/
+		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
+			n_mapHeight = n_windowHeight - 110;
+		}
 		$('.main, #mainContent, .navi, .menumList, .carContainer').css('width', n_windowWidth);
 		$('.mnNav').css('width', n_windowWidth-300); // 菜单宽度
-		$('#trackHeader').css('margin-left', n_windowWidth/5); // 轨迹查询条件 位置调整
-		$('#infoStatus').css('left', $('#infoTitle').width()/2);	
+		$('#trackHeader').css('margin-left', n_trackLeft); // 轨迹查询条件 位置调整
+		//$('#infoStatus').css('left', $('#infoTitle').width()/2);	
 		$('#mapObj').css('height', n_mapHeight);
 		$('.main, #mainContent').css('height', n_mainContent);
 		// 动态调整遮罩层
@@ -123,15 +129,17 @@ $(function () {
 	// 调整页面大小
 	var n_windowHeight = $(window).height(),
 		n_windowWidth = $(window).width(),
-		n_mapHeight = n_windowHeight - 231;
+		n_mapHeight = n_windowHeight - 104,
+		n_trackLeft = ( n_windowWidth - 1180 )/3;
+		obj_track = $('#trackHeader');
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-		n_mapHeight = n_windowHeight - 231;
+		n_mapHeight = n_windowHeight - 110;
 	}
 	$('.main, #mainContent, .navi, .menumList, .carContainer').css('width', n_windowWidth);
 	$('.mnNav').css('width', n_windowWidth-300); // 菜单宽度
-	$('#trackHeader').css('margin-left', n_windowWidth/5); // 轨迹查询条件 位置调整
+	obj_track.css('margin-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight); // 地图高度
-	$('#infoStatus').css('left', $('#infoTitle').width()/2); // 车辆信息标题的隐藏按钮位置
+	//$('#infoStatus').css('left', $('#infoTitle').width()/2); // 车辆信息标题的隐藏按钮位置
 	$('.main, #mainContent').css('height', n_windowHeight - 104); // 内容域的高度
 	// 加载ABCMAP
 	dlf.fn_loadMap();
@@ -238,6 +246,7 @@ $(function () {
 	}).mouseout(function() {
 		$('#carList').hide();
 	});
+	
 	$('#carSet').click(function() {
 		var status = $('#carList').css('display');
 		if ( status == 'none' ) { 
@@ -245,6 +254,13 @@ $(function () {
 		} else {
 			$('#carList').hide();
 		}
+	});
+	
+	// params input css 
+	$('#bListR input[type=text]').focus(function() {
+		$(this).addClass('bListR_text_mouseFocus');
+	}).blur(function() {
+		$(this).removeClass('bListR_text_mouseFocus');
 	});
 	
 	// 个人信息的验证
