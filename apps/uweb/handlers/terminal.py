@@ -13,76 +13,70 @@ from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from constants import UWEB
+from helpers.queryhelper import QueryHelper  
 from mixin.terminal import TerminalMixin 
 
 
 class TerminalHandler(BaseHandler, TerminalMixin):
 
-    # 9 items
-    R_KEY = ['softversion','gsm','gps','vbat','vin','login','plcid','imsi','imei']
-    # 7 items
-    F_KEY = ['softversion','gsm','gps','vbat','vin','login','plcid']
-    # 27 items
-    W_KEY = ['psw','domain','freq','trace','pulse','phone','owner_mobile','radius','vib',
-             'vibl','pof','lbv','sleep','vibgps','speed','calllock','calldisp','vibcall','sms',
-             'vibchk', 'poft','wakeupt','sleept','acclt','acclock','stop_service','cid']
+    # flush key
+    F_KEYS = ['gsm','gps','pbat','freq','pulse','bibchk','trace']
 
     @authenticated
     @tornado.web.removeslash
     def get(self):
         """Get terminal_info.
+        workflow:
+        if get first:
+            get terminal_info from database
+        elif flush:
+            query terminal_info from terminal itself, then update the database
         """
-        flag = self.get_argument('terminal_info')
-        car_sets = []
+        status = ErrorCode.SUCCESS
+        car_sets = DotDict()
+        flag = self.get_argument('terminal_info','')
         if flag == UWEB.TERMINAL_INFO_CATEGORY.F:
-            tid = self.get_argument('id')
-            for key in self.F_KEY:  
-                args = DotDict(seq=SeqGenerator.next(self.db),
-                               tid=self.current_user.tid,
-                               f_key=key)
-                ret = GFSenderHelper.forward(GFSenderHelper.URLS.QUERY, args)
-                ret = json_decode(ret)
-                if ret['success'] == 0:
-                    value = ret[key.upper()]
-                    car_sets.append(dict(key=key, 
-                                         name=UWEB.TERMINAL_PARAMS[key],
-                                         value=value,
-                                         unit=UWEB.TERMINAL_UNIT[key]))
-                    self.update_terminal_r(key, value, tid)
-                else: 
-                    #NOTE: when one item failed, abort the flush and return data.
-                    logging.error('[UWEB] Query value of %s failed, and abort the flush.', key)
-                    self.write_ret(ErrorCode.SUCCESS,
-                                   dict_=dict(
-                                         id=tid,
-                                         car_sets=car_sets))
-                    return 
-            self.write_ret(ErrorCode.SUCCESS,
-                           dict_=dict(
-                                 id=tid,
-                                 car_sets=car_sets))
-        elif flag == UWEB.TERMINAL_INFO_CATEGORY.R:
-            data = self.get_terminal_r()
-            for key in self.R_KEY:
-                car_sets.append(dict(key=key,
-                                     name=UWEB.TERMINAL_PARAMS[key],
-                                     value=data[key],
-                                     unit=UWEB.TERMINAL_UNIT[key]))
-            self.write_ret(ErrorCode.SUCCESS,
-                           dict_=dict(
-                                 id=data.id,
-                                 car_sets=car_sets))
-        else:
-            data = self.get_terminal_w()
-            for key in self.W_KEY:
-                car_sets.append(dict(key=key,
-                                     name=UWEB.TERMINAL_PARAMS[key],
-                                     value=data[key],
-                                     unit=UWEB.TERMINAL_UNIT[key]))
-            self.write_ret(ErrorCode.SUCCESS,
-                           dict_=dict(
-                                 id=data.id,
-                                 car_sets=car_sets))
+            args = DotDict(seq=SeqGenerator.next(self.db),
+                           tid=self.current_user.tid,
+                           params=self.F_KEYS)
+            ret = GFSenderHelper.forward(GFSenderHelper.URLS.QUERY, args)
+            ret = json_decode(ret)
+            if ret['success'] == 0:
+                for key, value in ret['params'].iteritems():
+                    car_sets.key=value
+                self.update_terminal_info(car_sets, tid)
+            else: 
+                status = ErrorCode.FAILED 
+                logging.error('[UWEB] Query terminal_info failed.')
+        else:            
+            # 1: terminal
+            terminal = self.db.get("SELECT gsm, gps, pbat, freq, pulse, alias, vibchk,"
+                                   "     trace, service_status, cellid_status"
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s"
+                                   "  LIMIT 1",
+                                   self.current_user.tid)
+            # 2: whitelist
+            user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+            whitelist = self.db.get("SELECT mobile"
+                                    "  FROM T_WHITELIST"
+                                    "  WHERE tid = %s"
+                                    "  LIMIT 1",
+                                    self.current_user.tid)
+
+            # 3: car
+            car = self.db.get("SELECT cnum FROM T_CAR"
+                              "  WHERE tid = %s",
+                              self.current_user.tid)
+
+            # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
+            car_sets.update(terminal)
+            car_sets.update(car)
+            car_sets.whitelist_1 = user.mobile 
+            car_sets.whitelist_2 = whitelist.mobile if whitelist else '' 
+
+        self.write_ret(status,
+                       dict_=dict(car_sets=car_sets))
 
     @authenticated
     @tornado.web.removeslash
@@ -93,10 +87,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            # NOTE: in python, id is a keyword. so use tid instead
-            tid = data.id
-            key = data.car_sets['key']
-            value = data.car_sets['value']
         except Exception as e:
             logging.exception("[UWEB] Set terminal failed. Exception: %s", e.args)
             status = ErrorCode.SERVER_BUSY
@@ -108,7 +98,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             status = ErrorCode.SUCCESS
             response = json_decode(response)
             if response['success'] == 0:
-                self.update_terminal_w(key, value, tid)
+                self.update_terminal_info(response['params'], tid)
             else:
                 status = response['success'] 
                 logging.error("[UWEB] Set terminal failed. status: %s, message: %s", 
@@ -118,16 +108,16 @@ class TerminalHandler(BaseHandler, TerminalMixin):
 
         args = DotDict(seq=SeqGenerator.next(self.db),
                        tid=self.current_user.tid)
-        # add key in args. in the agreement, the key should be in upper
-        args[key.upper()] = value
+        args.params = data 
         GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
                                           _on_finish)
 
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        """Add some params for terminal.
+        """Some checks for fields.
         """
+        # TODO: 
         status = ErrorCode.SUCCESS
         data = DotDict(json_decode(self.request.body))
         check_key = data.check_key
@@ -140,3 +130,4 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         else:
             logging.error("[UWEB] Unknown check_key: %s", check_key)
         self.write_ret(status)
+

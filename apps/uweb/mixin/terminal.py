@@ -34,11 +34,14 @@ class TerminalMixin(BaseMixin):
                           self.current_user.tid)
         return res
 
-    def update_terminal_r(self, key, value, tid):
-        """Update T_TERMINAL_INFO_R.
+    def update_terminal_info(self, car_sets, tid):
+        """Update T_TERMINAL_INFO.
         """
-        sql_cmd = "UPDATE T_TERMINAL_INFO_R SET " + key + " = %s WHERE id = %s" 
-        self.db.execute(sql_cmd, value, tid)
+        set_clause = ""
+        for key, value in car_sets.itertiems():
+            set_clause = set_clause + key + " = " + value + ","
+        sql_cmd = "UPDATE T_TERMINAL_INFO SET " + set_clause[0:-1] + " WHERE id = %s" 
+        self.db.execute(sql_cmd, tid)
 
     def update_terminal_w(self, key, value, tid):
         """Update T_TERMINAL_INFO_W.
