@@ -14,16 +14,15 @@ from base import BaseHandler, authenticated
 
        
 class LastInfoHandler(BaseHandler):
-    """Switch current car for the current user.
+    """Get the newest info of terminal, from database.
     """
-
     @authenticated
     @tornado.web.removeslash
     def get(self, tid):
         try:
             status = ErrorCode.SUCCESS
             # NOTE: monitor and location must not be null. lastinfo is invoked after switchcar
-            monitor = self.db.get("SELECT ti.tid, ti.mobile as sim,"
+            terminal = self.db.get("SELECT ti.tid, ti.mobile as sim,"
                                   "  ti.login, ti.defend_status, ti.pbat "
                                   "  FROM T_TERMINAL_INFO as ti "
                                   "  WHERE ti.tid = %s"
@@ -42,8 +41,8 @@ class LastInfoHandler(BaseHandler):
             # has never got location, just return None
             event_status = self.get_event_status(tid)
             self.write_ret(status, 
-                 dict_=DotDict(car_info=DotDict(tid=monitor.tid,
-                                                defend_status=monitor.defend_status,
+                 dict_=DotDict(car_info=DotDict(tid=terminal.tid,
+                                                defend_status=terminal.defend_status,
                                                 timestamp=location.timestamp if location else None,
                                                 speed=location.speed if location else 0,
                                                 # NOTE: degree's type is Decimal, str() it before json_encode
@@ -52,10 +51,9 @@ class LastInfoHandler(BaseHandler):
                                                 name=location.name if location else None,
                                                 type=location.type if location else 1,
                                                 clatitude=location.clatitude if location else 0,
-                                                clongitude=location.clongitude if location else 0,
-												volume=monitor.pbat,
-                                                login=monitor.login,
-                                                lock_status=0)))
+                                                clongitude=location.clongitude if location else 0, 
+                                                pbat=terminal.pbat,
+                                                login=terminal.login)))
         except Exception as e:
             logging.exception("[UWEB] get lastinfo failed. Exception: %s", e.args) 
             status = ErrorCode.SERVER_ERROR        

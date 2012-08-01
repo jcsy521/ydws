@@ -54,8 +54,8 @@ class RealtimeMixin(BaseMixin):
         is_alived = self.memcached.get('is_alived')
         if is_alived == ALIVED:
             location = self.memcached.get(str(self.current_user.tid))
-#            if location and (time.time() * 1000 - location.timestamp) > UWEB.REALTIME_VALID_INTERVAL:
-#                location = None
+            if location and (time.time() * 1000 - location.timestamp) > UWEB.REALTIME_VALID_INTERVAL:
+                location = None
         else:
             # we should eventually search location from T_LOCATION
             location = self.db.get("SELECT id, clatitude, clongitude, latitude,"
@@ -88,7 +88,7 @@ class RealtimeMixin(BaseMixin):
                 response = json_decode(response)
                 if response['success'] == 0:
                     location = DotDict(response['position'])
-                    location = handle_location(location, self.memcached, cellid=True)
+                    location = handle_location(location, self.memcached, cellid=True if query.cellid_status == UWEB.CELLID_STATUS.ON else False)
                     if location.get('cLat') and location.get('cLon'):
                         ret.location.latitude = location.lat
                         ret.location.longitude = location.lon
