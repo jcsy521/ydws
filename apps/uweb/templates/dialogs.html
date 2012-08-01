@@ -84,6 +84,7 @@
 		</div>
 	</div><!--密码修改框end-->
 	<!--终端参数设置-->
+	<!-- demo -->
 	<div id="terminalWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle">
 			<span class="wrapperTitleL popbox"></span>
@@ -94,23 +95,104 @@
 			<span class="wrapperTitleR popbox"></span>
 		</div>
 		<div class="terminalContent wrapperContent">
-			<!--tab选项卡 -->
-			<ul id="terminalTab" class="tabs">
-				<li id="rTab" class="j_tabs tabItems currentTab">可查询参数列表</li>
-				<li id="wTab" class="j_tabs tabItems">可编辑参数列表</li>
-			</ul>
-			
 			<div class="j_terminalList">
 				<!-- 可查询参数列表 -->
 				<div id="terminalList0" class="j_terminalcontent">
 					<table id="bListR">
+						<tbody>
+							<tr>
+								<td class="terminalTdL">GSM信号强度:</td>
+								<td id="gsm"  t_val=""><label id="t_gsm">强</label></td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">SNR卫星信号强度:</td>
+								<td id="gps"  t_val=""><label id="t_gps">强</label></td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">PBAT电池剩余电量:</td>
+								<td id="pbat"   t_val=""><label id="t_pbat">80%(0-100)</label></td>
+							</tr>
+							<!-- allow edit params -->
+							<tr>
+								<td class="terminalTdL">上报频率:</td>
+								<td id="freq" class="j_ListVal"  t_val="0">
+									<input id="t_freq"  terminalkey="freq"  class="bListR_text_mouseOut" type="text" value="">秒
+							</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">心跳时间:</td>
+								<td id="pulse" class="j_ListVal"   t_val="">
+									<input id="t_pulse"  terminalkey="pulse" class="bListR_text_mouseOut"  type="text" value="">秒
+								</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">定位白名单:</td>
+								<td id="white_list1" class="j_ListVal"   t_val="">
+									<input id="t_white_list1" terminalkey="owner_mobile"  class="bListR_text_mouseOut" type="text" value="" >白名单1
+									
+								</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL"></td>
+								<td id="white_list2"  class="j_ListVal"  t_val="">
+									<input id="t_white_list2"  terminalkey="owner_mobile"class="bListR_text_mouseOut"  type="text" value="" >白名单2
+								</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">车牌号:</td>
+								<td id="cnum" class="j_ListVal"  t_val="">
+									<input type="text" id="t_cnum" terminalkey="cnum" id="licenseNum" class="bListR_text_mouseOut" value="" />
+								</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">终端别名:</td>
+								<td id="alias" class="j_ListVal"  t_val="">
+									<input id="t_alias" type="text" terminalkey="t_alias" class="bListR_text_mouseOut"  value="" >
+								</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">振动告警设置:</td>
+								<td id="vibchk" class="j_ListVal"  t_val="">
+									<input id="t_vibchk" type="text" terminalkey="vibchk"  class="bListR_text_mouseOut" value="">
+								</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">追踪器开关:</td>
+								<td id="trace"  class="j_ListVal" t_val="">
+									<input id="tr_trace1" type="radio" value="1" name="trStatus" checked="checked">
+									<label id="tRadioLable1">开启追踪</label>
+									<input id="tr_trace0" type="radio" value="0" name="trStatus">
+									<label id="tRadioLable0">关闭追踪</label>
+								</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">终端服务状态:</td>
+								<td id="service_status"  class="j_ListVal" t_val="">
+									<input id="tr_service_status1" type="radio" value="1" name="tssStatus" checked="checked">
+									<label id="trssLabel1">开启服务</label>
+									<input id="tr_service_status0" type="radio" value="0" name="tssStatus">
+									<label id="trssLabel1">停止服务</label>
+								</td>
+							</tr>
+							<tr>
+								<td class="terminalTdL">是否开启基站定位:</td>
+								<td id="cellid_status" class="j_ListVal"  t_val="">
+									<input id="tr_cellid_status1" type="radio" value="1" name="tcStatus" checked="checked">
+									<label id="tcsLable1">开启基站定位</label>
+									<input id="tr_cellid_status0" type="radio" value="0" name="tcStatus">
+									<label id="tcsLable0">关闭基站定位</label>
+								</td>
+							</tr>
+							</tr>
+						</tbody>
 					</table>
-					<input type="button" id="refresh" value="刷新" class="terminalRefresh hide j_click"/>
+					
+					<input type="button" id="refresh" value="刷新" class="terminalButton j_click"/>
+					<input type="button" value="保存" id="terminalSave" class="terminalButton j_click" />
 				</div>
-				<!-- 可编辑参数-->
+				<!-- 可编辑参数
 				<div id="terminalList1" class="hide j_terminalcontent">
 					<div class="baseContent">
-						<!--基本参数列表-->
 						<input type="text" id="bListSet" readonly="true" />
 						<a class="dropDownbox" id="bDropDownbox" href="#"></a>
 						<ul id="baseList" class="bList hide">
@@ -127,11 +209,11 @@
 						<div  id="terminalListTip">提示信息</div>
 					</div>
 					<input type="button" value="保存" id="terminalSave" class="terminalButton j_click" />
-				</div>
+				</div>-->
 			</div>
 		</div>
 	</div>
-	<!-- 重启终端框-->
+	<!-- 重启终端框
 	<div id="rebootWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle">
 			<span class="wrapperTitleL popbox"></span>
@@ -148,6 +230,7 @@
 			<span id="rebootBtn" class="confirmBtn"></span>
 		</div>
 	</div>
+	-->
 	<div id="terminalListWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle">
 			<span class="titleName fontMic">终端列表</span>
