@@ -3,15 +3,15 @@
 from base import BaseComposer
 from constants.GATEWAY import S_MESSAGE_TYPE
 
-class RemoteLockComposer(BaseComposer):
+class LocationDescRespComposer(BaseComposer):
  
     def __init__(self, args):
         BaseComposer.__init__(self)
         self.buf = self.compose(args)
 
     def compose(self, args):
-        lock = args['lock_status']
-        packet = "%s,%s,%s" % (self.time, S_MESSAGE_TYPE.REMOTELOCK, lock)
+        packet = "%s,%s,%s,%s" % (self.time, S_MESSAGE_TYPE.LOCATIONDESC, 
+                                  args['success'], args['locationdesc'])
         request = self.format_packet(packet)
-        
+
         return request

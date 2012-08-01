@@ -5,10 +5,10 @@ from codes.clwcode import CLWCode
 
 class DefendParser(object):
 
-    def __init__(self, ret, packet):
-        self.ret = self.parse(ret, packet)
+    def __init__(self, packet, ret):
+        self.ret = self.parse(packet, ret)
 
-    def parse(self, ret, packet):
+    def parse(self, packet, ret):
         if packet[0] == '0':
             ret['status'] = CLWCode.DEFEND_FAILED
         elif packet[0] == '1':

@@ -10,8 +10,10 @@ class LoginRespComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self, args):
-        type = S_MESSAGE_TYPE.LOGIN 
+        command = S_MESSAGE_TYPE.LOGIN 
         success = args['success']
-        info = args['info']
-        packet = ','.join([self.time, type, success, info])
-        return self.format_packet(packet)
+        sessionID = args['sessionID']
+        packet = ','.join([self.time, command, success, sessionID])
+        request = self.format_packet(packet)
+
+        return request 

@@ -5,13 +5,16 @@ from codes.clwcode import CLWCode
 
 class QueryParser(object):
 
-    def __init__(self, ret, packet):
-        self.ret = self.parse(ret, packet)
+    def __init__(self, packet, ret):
+        self.ret = self.parse(packet, ret)
 
-    def parse(self, ret, packet):
-        p = packet[0].split('=')
-        ret['f_key'] = p[0]  
-        ret['f_value'] = p[1]
+    def parse(self, packet, ret):
+        params = {}
+        for p in packet:
+            res = p.split('=')
+            params[res[0]] = res[1]
+
+        ret['params'] = params
 
         return ret
 

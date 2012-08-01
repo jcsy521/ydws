@@ -49,6 +49,9 @@ def str_to_list(str_, delimiter=','):
     else:
         return str_.replace(delimiter, ' ').split()
 
+def get_terminal_sessionID_key(dev_id):
+    return str("sessionID:%s" % dev_id)
+
 def get_alarm_status_key(dev_id):
     return str("alarm:%s" % dev_id)
 
@@ -92,3 +95,11 @@ def list_to_str(list):
 
     return s
 
+def get_sessionID():
+    sessionID = ''
+    base_str = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    for i in range(8):
+        index = random.randint(0, 35)
+        sessionID += base_str[index]
+
+    return sessionID

@@ -7,6 +7,7 @@ from tornado.escape import json_decode
 
 from helpers.lbmpsenderhelper import LbmpSenderHelper
 from utils.misc import get_location_cache_key, get_alarm_status_key
+from utils.dotdict import DotDict
 from codes.clwcode import CLWCode
 from constants import EVENTER
 
@@ -66,7 +67,8 @@ def handle_location(location, memcached, cellid=False):
            cellid: if True issue cellid
     @return location
     """
-    if location.valid != CLWCode.LOCATION_SUCCESS:
+    location = DotDict(location)
+    if location.valid == CLWCode.LOCATION_FAILED:
         location.lat = 0
         location.lon = 0
         location.cLat = 0

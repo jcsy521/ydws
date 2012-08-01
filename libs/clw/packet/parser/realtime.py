@@ -7,10 +7,10 @@ from constants import EVENTER
 
 class RealtimeParser(object):
 
-    def __init__(self, ret, packet):
-        self.ret = self.parse(ret, packet)
+    def __init__(self, packet, ret):
+        self.ret = self.parse(packet, ret)
 
-    def parse(self, ret, packet):
+    def parse(self, packet, ret):
         if ret.type == 'T4':
             ret['t'] = EVENTER.INFO_TYPE.POSITION
             info = self.get_position(packet)

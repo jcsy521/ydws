@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import base64
+
 from utils.dotdict import DotDict
 from constants import EVENTER
 from codes.clwcode import CLWCode
@@ -13,22 +15,21 @@ class AsyncParser(object):
     def parse(self, packet, ret):
         info = {}
 
-        if ret.type == 'T3':
+        if ret.command  == 'T3':
             ret['t'] = EVENTER.INFO_TYPE.POSITION
-            ret['Tid'] = self.get_tid(ret.type) 
+            ret['Tid'] = self.get_tid(ret.command) 
             info = self.get_position_info(packet)
-        elif ret.type in ('T11', 'T12', 'T14', 'T15'):
+        elif ret.command  == 'T11':
+            ret['t'] = EVENTER.INFO_TYPE.POSITION
+            ret['Tid'] = self.get_tid(ret.command)
+            info = self.get_pvt_info(packet)
+        elif ret.command in ('T13', 'T14', 'T15', 'T16'):
             ret['t'] = EVENTER.INFO_TYPE.REPORT
-            ret['rName'] = self.get_tid(ret.type) 
+            ret['rName'] = self.get_tid(ret.command) 
             info = self.get_report_info(packet)
-        elif ret.type == 'T13':
-            ret['t'] = EVENTER.INFO_TYPE.REPORT
-            ret['rName'] = self.get_tid(ret.type) 
-            info = self.get_power(packet)
-        elif ret.type == 'T16':
-            ret['t'] = EVENTER.INFO_TYPE.STATISTICS
-            ret['statistics'] = EVENTER.STATISTICS.MILEAGE
-            info = self.get_mileage(packet)
+        elif ret.command == 'T12':
+            ret['t'] = EVENTER.INFO_TYPE.CHARGE
+            info = self.get_charge_info(packet)
         else:
             return info 
 
@@ -36,19 +37,19 @@ class AsyncParser(object):
 
         return info
 
-    def get_tid(self, type):
-        if type == "T3":
+    def get_tid(self, command):
+        if command == "T3":
             tid = EVENTER.TRIGGERID.CALL
-        elif type == "T11":
+        elif command == "T11":
+            tid = EVENTER.TRIGGERID.PVT
+        elif command == "T13":
             tid = EVENTER.RNAME.ILLEGALMOVE
-        elif type == "T12":
-            tid = EVENTER.RNAME.POWEROFF
-        elif type == "T13":
+        elif command == "T14":
             tid = EVENTER.RNAME.POWERLOW
-        elif type == "T14":
-            tid = EVENTER.RNAME.REGION_OUT
-        elif type == "T15":
-            tid = EVENTER.RNAME.SPEED_OUT
+        elif command == "T15":
+            tid = EVENTER.RNAME.POWEROFF
+        elif command == "T16":
+            tid = EVENTER.RNAME.EMERGENCY
         else:
             tid = None
 
@@ -64,11 +65,14 @@ class AsyncParser(object):
                     'valid': 0, 
                     'speed' : 0, 
                     'degree' : 0,
-                    'status' : 0, 
+                    'defend_status' : None, 
                     'cellid' : None, 
-                    'gps' : 0, 
-                    'gsm' : 0, 
-                    'volume' : 0}
+                    'gps' : None, 
+                    'gsm' : None, 
+                    'pbat' : None, #volume
+                    'gps_time' : None,
+                    'dev_type' : None}
+
         return position 
 
     def get_valid(self, valid):
@@ -81,6 +85,32 @@ class AsyncParser(object):
 
         return valid
 
+    def get_charge_info(self, packet):
+        content = base64.decodestring(packet[0]).decode('utf-8')
+        info = {'content': content}
+
+        return info
+
+    def get_pvt_info(self, packet):
+        positions = []
+        keys = ['ew', 'lon', 'ns', 'lat', 'speed', 'degree', 'gps_time'] 
+        for index in range(len(packet)/len(keys)):
+            position = self.get_position()
+            pvt = packet[index*len(keys):index*len(keys)+len(keys)]
+            for i, item in enumerate(pvt):
+                item = item.replace('{', '')
+                item = item.replace('}', '')
+                position['t'] = EVENTER.INFO_TYPE.POSITION 
+                position[keys[i]] = item 
+            position['lon'] = int(float(position['lon']) * 3600000)
+            position['lat'] = int(float(position['lat']) * 3600000)
+            position['speed'] = float(position['speed'])
+            position['degree'] = float(position['degree'])
+            positions.append(position)
+        info = {'pvts': positions}
+
+        return info 
+
     def get_position_info(self, packet):
         """Extrac position info from the async report.
            CALL
@@ -88,31 +118,21 @@ class AsyncParser(object):
         """
 
         keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed',
-                'degree', 'status', 'cellid']
+                'degree', 'defend_status', 'cellid', 'extra', 'gps_time']
         position = self.get_position()
         for i, key in enumerate(keys):
             position[key] = packet[i]
 
-        keys = ['gps', 'gsm', 'volume']
+        keys = ['gps', 'gsm', 'pbat']
+        ggp = position['extra'].split(':')
         for i, key in enumerate(keys):
-            position[key] = str(packet[-1:][0])[i]
+            position[key] = ggp[i]
+        del position['extra']
 
         position['lon'] = int(float(position['lon']) * 3600000)
         position['lat'] = int(float(position['lat']) * 3600000)
         position['speed'] = float(position['speed'])
         position['degree'] = float(position['degree'])
-
-        #NOTE: here, just stor 0, 3, 6, 9 in database to show the electry quantity of battery 
-        #d = {'0' : 3.65,
-        #     '3' : 3.7,
-        #     '6' : 4.15,
-        #     '9' : 4.2}
-        #volume = position['volume']
-        #if volume in d:
-        #    position['volume'] = d[volume]
-        #else:
-        #    position['volume'] = 0
-
         position['valid'] = self.get_valid(position['valid']) 
 
         return position 
@@ -123,10 +143,16 @@ class AsyncParser(object):
         """
 
         keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed',
-                'degree', 'status', 'cellid']
+                'degree', 'defend_status', 'cellid', 'extra', 'gps_time', 'dev_type']
         position = self.get_position()
         for i, key in enumerate(keys):
             position[key] = packet[i] 
+
+        keys = ['gps', 'gsm', 'pbat']
+        ggp = position['extra'].split(':')
+        for i, key in enumerate(keys):
+            position[key] = ggp[i]
+        del position['extra']
 
         position['lon'] = int(float(position['lon']) * 3600000)
         position['lat'] = int(float(position['lat']) * 3600000)
@@ -135,16 +161,4 @@ class AsyncParser(object):
         position['valid'] = self.get_valid(position['valid']) 
 
         return position 
-
-    def get_power(self, packet):
-        position = self.get_position()
-        position['volume'] = int(packet[0])/1000.0
-        position['valid'] = self.get_valid(position['valid']) 
-
-        return position 
-
-    def get_mileage(self, packet):
-        info = DotDict(mileage=packet[0])
-
-        return info
 

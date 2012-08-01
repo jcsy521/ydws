@@ -5,6 +5,13 @@ from constants.GATEWAY import S_MESSAGE_TYPE
 
 class HeartbeatRespComposer(BaseComposer):
  
-    def __init__(self):
-        packet = ",%s" % S_MESSAGE_TYPE.HEARTBEAT
-        self.buf = self.format_packet(packet)
+    def __init__(self, args):
+        BaseComposer.__init__(self)
+        self.buf = self.compose(args)
+
+    def compose(self, args):
+        packet = "%s,%s,%s" % (self.time, S_MESSAGE_TYPE.HEARTBEAT,
+                               args['success'])
+        request = self.format_packet(packet)
+
+        return request

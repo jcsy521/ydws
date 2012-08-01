@@ -5,21 +5,20 @@ from utils.dotdict import DotDict
 
 class TerminalParser(object):
 
-    def __init__(self, ret, packet):
-        self.ret = self.parse(ret, packet)
+    def __init__(self, packet, ret):
+        self.ret = self.parse(packet, ret)
 
-    def parse(self, ret, packet):
-        info = self.get_info(packet)
-
-        ret.update(info)
+    def parse(self, packet, ret):
+        params = self.get_info(packet)
+        ret['params'] = params
 
         return ret
 
     def get_info(self, packet):
-        info = DotDict()
-        keys = ['name', 'status']
-        for i, key in enumerate(keys):
-            info[key] = packet[i]
+        dct = {}
+        for p in packet:
+            res = p.split('=')
+            dct[res[0]] = res[1]
 
-        return info 
+        return dct 
 

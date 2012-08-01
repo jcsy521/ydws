@@ -1,30 +1,35 @@
+# -*- coding: utf-8 -*-
 import socket
 import select
 import time
 import thread
 import logging
+import base64
 
 from dotdict import DotDict
 from base import BaseParser
 
 class Terminal(object):
 
-    login_mg = "[%s,1,V.1.0.0,A123045612AA123487,T1,15002494865,13011292217,123456,460023615223538,355889008722099,CLW]"
-    heartbeat_mg = "[, , ,A123045612AA123487,T2,669]"
-    realtime_mg = "[%s,1,V1.0.0,A123045612AA123487,T4,1,E,113.252432,N,22.564152,120.3,270.5,1,460:00:16662:40953]"
+    login_mg = "[%s,,1,1.0.0,A123,T1,15002494865,13011292217,460023615223538,355889008722099,CLW]"
+    heartbeat_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T2,23:9:95]"
+    realtime_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T4,1,E,113.252432,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
 
-    location_mg = "[%s,1,V1.0.0,A123045612AA123487,T3,1,E,113.25,N,22.564152,120.3,270.5,1,460:00:16662:40953,669]"
-    query_args_mg = "[%s,1,V1.0.0,A123045612AA123487,T5,%s=%s]"
-    set_args_mg = "[%s,1,V1.0.0,A123045612AA123487,T6,%s,%s]"
-    remote_set_mg = "[%s,1,V1.0.0,A123045612AA123487,T8,1]"
-    remote_unset_mg = "[%s,1,V1.0.0,A123045612AA123487,T9,1]"
-    remote_lock_mg = "[%s,1,V1.0.0,A123045612AA123487,T10,1]"
-    move_report_mg = "[%s,1,V1.0.0,A123045612AA123487,T11,1,E,113.2524,N,22.5641,120.3,270.5,1,460:00:16662:40953]"
-    poweroff_report_mg = "[%s,1,V1.0.0,A123045612AA123487,T12,1,E,113.252,N,22.564,120.3,270.5,1,460:00:16662:40953]"
-    powerlow_report_mg = "[%s,1,V1.0.0,A123045612AA123487,T13,3780]"
-    cross_report_mg = "[%s,1,V1.0.0,A123045612AA123487,T14,1,E,113.2524,N,22.5641,120.3,270.5,1,460:00:16662:40953]" 
-    speed_report_mg = "[%s,1,V1.0.0,A123045612AA123487,T15,1,E,113.2524,N,22.5641,120.3,270.5,1, 460:00:16662:40953]"
-    mileage_count_mg = "[%s, , ,A123045612AA123487,T16,2000]"
+    location_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T3,1,E,113.25,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
+    query_args_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T5,%s=%s]"
+    set_args_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T6,%s,%s]"
+    reboot_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T7,1]"
+    remote_set_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T8,1]"
+    remote_unset_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T9,1]"
+    locationdesc_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T10,E,113.252432,N,22.564152]"
+    pvt_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T11,{E,113.252432,N,22.564152,120.3,270.5,1343278800},{E,114.252432,N,23.564152,130.3,280.5,1343279800}]"
+    charge_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T12,%s]"
+    move_report_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T13,1,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]"
+    poweroff_report_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T15,1,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]"
+    powerlow_report_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T14,1,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:20,%s,1]"
+    sos_report_mg = "[%s,1a2b3c4d,1,1.0.0,A123,T16,1,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]" 
+    #speed_report_mg = "[%s,1,V1.0.0,A123045612AA123487,T15,1,E,113.2524,N,22.5641,120.3,270.5,1, 460:00:16662:40953]"
+    #mileage_count_mg = "[%s, , ,A123045612AA123487,T16,2000]"
 
     ARGS = DotDict(PSW="123456",
                    GSM=16,
@@ -50,12 +55,13 @@ class Terminal(object):
                    )
 
     def __init__(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect(('192.168.1.4', 9905))
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.connect(('192.168.1.8', 9909))
         self.logging = self.initlog() 
 
     def login(self):
         t_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        t_time = int(time.time())
         self.logging.info("Send login message:\n%s", (self.login_mg % t_time))
         self.socket.send(self.login_mg % t_time)
         time.sleep(1)
@@ -73,30 +79,47 @@ class Terminal(object):
         time.sleep(2)
         while True:
             self.logging.info("Send heartbeat:\n%s", self.heartbeat_mg)
-            self.socket.send(self.heartbeat_mg)
+            self.socket.send(self.heartbeat_mg % int(time.time()))
             time.sleep(120)
     
     def realtime(self):
-        t_time = time.strftime("%Y-%m-%d %H:%M:%S")
-        self.logging.info("Send realtime response:\n%s", (self.realtime_mg % t_time))
-        self.socket.send(self.realtime_mg % t_time)
+        #t_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        t_time = int(time.time())
+        msg = self.realtime_mg % (t_time, t_time)
+        self.logging.info("Send realtime response:\n%s", msg)
+        self.socket.send(msg)
 
     def upload_position(self):
         time.sleep(5)
         while True:
-            t_time = time.strftime("%Y-%m-%d %H:%M:%S")
-            self.logging.info("Upload location:\n%s", (self.location_mg % t_time))
-            self.socket.send(self.location_mg % t_time)
+            t_time = int(time.time())
+            msg = self.location_mg % (t_time, t_time)
+            self.logging.info("Upload location:\n%s", msg)
+            self.socket.send(msg)
             time.sleep(60)
  
+    def report_once_mg(self):
+        time.sleep(30)
+        s = u'查询余额服务：您好，您的总账户余额为343.91元，感谢您的使用'
+        t_time = int(time.time())
+        charge = base64.b64encode(s.encode("utf-8", 'ignore'))
+        charge_mg = self.charge_mg % (t_time, charge)
+        mgs = [(self.locationdesc_mg % t_time),(self.pvt_mg % t_time), charge_mg] 
+        for mg in mgs:
+            print '----', mg
+            self.logging.info("Send report mg:\n%s", mg)
+            self.socket.send(mg)
+            time.sleep(30)
+
     def report_mg(self):
         time.sleep(10)
-        report_mgs = [self.move_report_mg, self.poweroff_report_mg, self.powerlow_report_mg, self.cross_report_mg, self.speed_report_mg]
+        report_mgs = [self.move_report_mg, self.poweroff_report_mg, self.powerlow_report_mg, self.sos_report_mg]
         while True:
             for report_mg in report_mgs:
-                t_time = time.strftime("%Y-%m-%d %H:%M:%S")
-                self.logging.info("Send report mg:\n%s", (report_mg % t_time))
-                self.socket.send(report_mg % t_time)
+                t_time = int(time.time())
+                msg = report_mg % (t_time, t_time)
+                self.logging.info("Send report mg:\n%s", msg)
+                self.socket.send(msg)
                 time.sleep(60)
 
     def query_args(self, bp):
@@ -148,10 +171,25 @@ class Terminal(object):
     def mileage_count(self):
         self.logging.info("Report mileage_count success!")
 
+    def locationdesc(self, bp):
+        self.logging.info("Report locationdesc success!")
+        desc = bp.packet_info[-1:][0]
+        locationdesc = base64.b64decode(desc)
+        locationdesc = locationdesc.decode("utf-8")
+        print 'locationdesc: ', locationdesc
+
+    def pvt(self):
+        self.logging.info("Report pvt success!")
+    def charge(self):
+        self.logging.info("Report charge success!")
+    def async(self):
+        self.logging.info("Report async success!")
+
     def start_each_thread(self):
         thread.start_new_thread(self.heartbeat, ())
         thread.start_new_thread(self.upload_position, ())
         thread.start_new_thread(self.report_mg, ())
+        thread.start_new_thread(self.report_once_mg, ())
 
 
     def handle_recv(self, bp):
@@ -175,9 +213,15 @@ class Terminal(object):
         elif bp.type == "S9":
             self.remote_unset()
         elif bp.type == "S10":
-            self.remote_lock()
-        elif bp.type == "S16":
-            self.mileage_count()
+            self.locationdesc(bp)
+        elif bp.type == "S11":
+            self.pvt()
+        elif bp.type == "S12":
+            self.charge()
+        elif bp.type in ("S13, S14, S15, S16"):
+            self.async()
+        #elif bp.type == "S16":
+        #    self.mileage_count()
     
     def tcpClient(self):
         try:

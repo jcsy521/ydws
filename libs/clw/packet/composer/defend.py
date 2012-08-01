@@ -7,6 +7,7 @@ from constants import UWEB
 class DefendComposer(BaseComposer):
  
     def __init__(self, args):
+        BaseComposer.__init__(self)
         self.buf = self.compose(args)
 
     def compose(self, args):
@@ -14,7 +15,7 @@ class DefendComposer(BaseComposer):
             defend = S_MESSAGE_TYPE.DEFENDON
         else:
             defend = S_MESSAGE_TYPE.DEFENDOFF
-        packet = ",%s" % defend 
+        packet = "%s,%s" % (self.time, defend) 
         request = self.format_packet(packet)
         
         return request

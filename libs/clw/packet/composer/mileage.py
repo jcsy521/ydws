@@ -6,5 +6,11 @@ from constants.GATEWAY import S_MESSAGE_TYPE
 class MileageRespComposer(BaseComposer):
  
     def __init__(self):
-        packet = ",%s" % S_MESSAGE_TYPE.MILEAGE
-        self.buf = self.format_packet(packet)
+        BaseComposer.__init__(self)
+        self.buf = self.compose(args)
+
+    def compose(self):
+        packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.MILEAGE)
+        request = self.format_packet(packet)
+
+        return request

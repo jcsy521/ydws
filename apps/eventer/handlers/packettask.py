@@ -35,8 +35,8 @@ class PacketTask(object):
             self.handle_position_info(info)
         elif info['t'] == EVENTER.INFO_TYPE.REPORT: # reportinfo:
             self.handle_report_info(info)
-        elif info['t'] == EVENTER.INFO_TYPE.STATISTICS: # statisticsinfo:
-            self.handle_statistics_info(info)
+        elif info['t'] == EVENTER.INFO_TYPE.CHARGE: # chargeinfo:
+            self.handle_charge_info(info)
         else:
             pass       
 
@@ -50,14 +50,13 @@ class PacketTask(object):
         # insert data into T_LOCATION
         lid = self.db.execute("INSERT INTO T_LOCATION"
                               "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s,"
-                              "          %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                              "          %s, %s, %s, %s, %s, %s)",
                               location.dev_id, location.lat, location.lon, 
                               location.alt, location.cLat, location.cLon,
-                              location.timestamp, location.name,
+                              location.gps_time, location.name,
                               location.category, location.type,
-                              location.speed, location.volume,
-                              location.degree, location.status,
-                              location.cellid, location.gps, location.gsm)
+                              location.speed, location.degree,
+                              location.cellid)
         is_alived = self.memcached.get('is_alived')
         if (is_alived == ALIVED and location.valid == CLWCode.LOCATION_SUCCESS):
             mem_location = DotDict({'id':lid,
@@ -66,7 +65,7 @@ class PacketTask(object):
                                     'type':location.type,
                                     'clatitude':location.cLat,
                                     'clongitude':location.cLon,
-                                    'timestamp':location.timestamp,
+                                    'timestamp':location.gps_time,
                                     'name':location.name,
                                     'degree':location.degree,
                                     'speed':location.speed})
@@ -74,11 +73,6 @@ class PacketTask(object):
         return lid
         
     def realtime_location_hook(self, location):
-
-        r_location = lbmphelper.handle_location(location, self.memcached)
-        if r_location:
-            for key in ['lon', 'lat', 'cLon', 'cLat', 'name', 'type']:
-                location[key] = r_location[key]
         self.insert_location(location)
         key = get_ssdw_sms_key(location.dev_id)                          
         flag = self.memcached.get(key)
@@ -94,22 +88,35 @@ class PacketTask(object):
 
     def unknown_location_hook(self, location):
         pass
+
+    def update_terminal_status(self, location):
+        fields = []
+        keys = ['gps', 'gsm', 'pbat', 'defend_status']
+        for key in keys:
+            if location[key] is not None:
+                 fields.append(key + " = " + location[key])
+        set_clause = ','.join(fields)
+        if set_clause:
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET " + set_clause +
+                            "  WHERE tid = %s",
+                            location.dev_id)
     
     def handle_position_info(self, location):
         location = DotDict(location)
-         
-        if location.valid == CLWCode.LOCATION_SUCCESS: 
-            location.type = 0
-        else:
-            location.lon = 0
-            location.lat = 0
-            location.cLon = 0
-            location.cLat = 0
-            location.type = 1
-
         if location.Tid == EVENTER.TRIGGERID.CALL:
+            # get available location from lbmphelper
+            location = lbmphelper.handle_location(location, self.memcached) 
             location.category = EVENTER.CATEGORY.REALTIME
+            self.update_terminal_status(location)
             self.realtime_location_hook(location)
+        elif location.Tid == EVENTER.TRIGGERID.PVT:
+            for pvt in location['pvts']:
+                # get available location from lbmphelper
+                pvt['dev_id'] = location['dev_id']
+                location = lbmphelper.handle_location(pvt, self.memcached) 
+                location.category = EVENTER.CATEGORY.REALTIME
+                self.realtime_location_hook(location) 
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)
@@ -118,67 +125,63 @@ class PacketTask(object):
         """These reports should be handled here:
         POWERLOW
         POWEROFF
-        REGION_OUT
         ILLEGALMOVE
-        SPEED_OUT
         HEARTBEAT_LOST
-        """
-        report = DotDict(info)
-        name = self.get_tname(report.dev_id)
-        terminal_time = get_terminal_time(int(report.timestamp))
+        EMERGENCY
 
-        if report.valid == CLWCode.LOCATION_SUCCESS: 
-            report.type = 0
-        else:
-            report.lon = 0
-            report.lat = 0
-            report.cLon = 0
-            report.cLat = 0
-            report.type = 1
+        CHARGE
+        """
         # get available location from lbmphelper 
-        location = lbmphelper.handle_location(report, self.memcached)
-        if location:
-            for key in ['lat', 'lon', 'cLat', 'cLon', 'name', 'type', 'category']:
-                    report[key] = location[key]
+        report = lbmphelper.handle_location(info, self.memcached)
+        name = self.get_tname(report.dev_id)
+        terminal_time = get_terminal_time(int(report.gps_time))
+
         report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
         sms = None
 
         if report.rName == EVENTER.RNAME.POWEROFF:
             sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
         elif report.rName == EVENTER.RNAME.POWERLOW:
-            sms = SMSCode.SMS_POWERLOW % (name, report.volume, terminal_time)
-        elif report.rName == EVENTER.RNAME.REGION_OUT:
-            sms = SMSCode.SMS_REGION_OUT % (name, report_name, terminal_time)
-        elif report.rName == EVENTER.RNAME.SPEED_OUT:
-            sms = SMSCode.SMS_SPEED_OUT % (name, report_name, terminal_time)
+            if report.dev_type == "1":
+                sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), terminal_time)
+            else:
+                sms = SMSCode.SMS_POB_POWERLOW % (name, int(report.pbat), terminal_time)
+        #elif report.rName == EVENTER.RNAME.REGION_OUT:
+        #    sms = SMSCode.SMS_REGION_OUT % (name, report_name, terminal_time)
+        #elif report.rName == EVENTER.RNAME.SPEED_OUT:
+        #    sms = SMSCode.SMS_SPEED_OUT % (name, report_name, terminal_time)
         elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
             sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
-        elif report.rName == EVENTER.RNAME.HEARTBEAT_LOST:
-            sms = SMSCode.SMS_HEARTBEAT_LOST % (name, terminal_time)
+        #elif report.rName == EVENTER.RNAME.HEARTBEAT_LOST:
+        #    sms = SMSCode.SMS_HEARTBEAT_LOST % (name, terminal_time)
+        elif report.rName == EVENTER.RNAME.EMERGENCY:
+            sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
         else:
             pass
 
+        self.update_terminal_status(report)
         lid = self.insert_location(report)
 
         if report.category != EVENTER.CATEGORY.UNKNOWN:
-            self.event_hook(report.category, report.dev_id, lid)
+            self.event_hook(report.category, report.dev_id, report.dev_type, lid, report.pbat)
             self.sms_to_parents(report.dev_id, sms)
-            self.notify_to_parents(report.category, report.dev_id, location)
+            self.notify_to_parents(report.category, report.dev_id, report)
             
 
-    def event_hook(self, category, dev_id, lid):
+    def event_hook(self, category, dev_id, dev_type, lid, pbat=None):
         self.db.execute("INSERT INTO T_EVENT"
-                        "  VALUES (NULL, %s, %s, %s)",
-                        dev_id, lid, category)
+                        "  VALUES (NULL, %s, %s, %s, %s, %s)",
+                        dev_id, dev_type, lid, pbat, category)
 
-    def handle_statistics_info(self, info):
+    def handle_charge_info(self, info):
         info = DotDict(info)
-        if info.STATISTICS == EVENTER.STATISTICS.MILEAGE:
-            self.db.execute("INSERT INTO T_STATISTICS_MILEAGE"
-                            "  VALUES (NULL, %s, %s, %s)",
-                            info.dev_id, info.mileage, info.timestamp)
-        else:
-            pass
+        self.db.execute("INSERT INTO T_CHARGE"
+                        "  VALUES (NULL, %s, %s, %s)",
+                        info.dev_id, info.content, info.timestamp)
+        name = self.get_tname(info.dev_id)
+        terminal_time = get_terminal_time(int(info.timestamp))
+        sms = SMSCode.SMS_CHARGE % (name, info.content, terminal_time)
+        self.sms_to_parents(report.dev_id, sms)
 
     def sms_to_parents(self, dev_id, sms):
         if not sms:

@@ -11,13 +11,13 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          REBOOT="T7",
                          DEFENDON="T8",
                          DEFENDOFF="T9",
-                         REMOTELOCK="T10",
-                         ILLEAGALMOVE="T11",
-                         POWEROFF="T12",
-                         POWERLOW="T13",
-                         BOUND="T14",
-                         OVERSPEED="T15",
-                         MILEAGE="T16"
+                         LOCATIONDESC="T10",
+                         MULTIPVT="T11",
+                         CHARGE="T12",
+                         ILLEGALMOVE="T13",
+                         POWERLOW="T14",
+                         POWEROFF="T15",
+                         EMERGENCY="T16"
                          )
 
 S_MESSAGE_TYPE = DotDict(LOGIN="S1",
@@ -29,21 +29,23 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          REBOOT="S7",
                          DEFENDON="S8",
                          DEFENDOFF="S9",
-                         REMOTELOCK="S10",
-                         ILLEAGALMOVE="S11",
-                         POWEROFF="S12",
-                         POWERLOW="S13",
-                         BOUND="S14",
-                         OVERSPEED="S15",
-                         MILEAGE="S16"
+                         LOCATIONDESC="S10",
+                         MULTIPVT="S11",
+                         CHARGE="S12",
+                         ILLEGALMOVE="S13",
+                         POWERLOW="S14",
+                         POWEROFF="S15",
+                         EMERGENCY="S16"
                          )
 
 T_REGIST_STATUS = DotDict(REGIST="1",
                           UN_REGIST="0"
                           )
 
-LOGIN_SUCCESS = "1"
-LOGIN_FAILD = "0"
+LOGIN_STATUS = DotDict(SUCCESS="0",
+                       UNREGISTER="1",
+                       EXPIRED="2",
+                       ILLEGAL_SIM="3")
 
 HEARTBEAT_INTERVAL = 2*60
 SLEEP_HEARTBEAT_INTERVAL = 2*60*60

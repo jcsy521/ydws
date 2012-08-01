@@ -5,10 +5,10 @@ from utils.dotdict import DotDict
 
 class RemoteLockParser(object):
 
-    def __init__(self, ret, packet):
-        self.ret = self.parse(ret, packet)
+    def __init__(self, packet, ret):
+        self.ret = self.parse(packet, ret)
 
-    def parse(self, ret, packet):
+    def parse(self, packet, ret):
         ret['status'] = packet[0]
 
         return ret

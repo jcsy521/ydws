@@ -5,7 +5,7 @@ import time
 class BaseComposer(object):
 
     def __init__(self):
-        self.time = time.strftime("%Y-%m-%d %H:%M:%S")
+        self.time = str(int(time.time()))
 
     def format_packet(self, packet):
         format = "[%s]"

@@ -6,23 +6,24 @@ from constants.GATEWAY import S_MESSAGE_TYPE
 class TerminalComposer(BaseComposer):
  
     def __init__(self, args):
+        BaseComposer.__init__(self)
         self.buf = self.compose(args)
 
     def compose(self, args):
-        value = ""
+        packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.TERMINAL) 
+        params = args['params']
         valid_keys = ['psw', 'domain', 'freq', 'trace', 'pulse', 'phone',
                       'owner_mobile', 'radius', 'vib', 'vibl', 'pof', 'lbv', 
                       'sleep', 'vibgps', 'speed', 'calllock', 'calldisp',
                       'vibcall', 'sms', 'vibchk', 'poft', 'wakeupt', 'sleept',
                       'acclt', 'acclock', 'stop_service', 'cid', 'defend_status',
                       'lock_status']
-        for key in args.keys():
+        for key in params.keys():
             if key.lower() in valid_keys:
-                value += "%s=%s" % (key.upper(), args[key])
                 if key.lower() == "owner_mobile":
-                    value = "%s=%s" % ("USER", args[key])
-                break
-        packet = ",%s,%s" % (S_MESSAGE_TYPE.TERMINAL, value)
+                    packet += "%s=%s" % ("USER", params[key])
+                else:
+                    packet += ",%s=%s" % (key.upper(), params[key])
         request = self.format_packet(packet)
         
         return request
