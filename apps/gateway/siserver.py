@@ -242,7 +242,7 @@ class SIServer():
                 # check terminal_id, status
                 terminal_id = sp.gfbody.Terminal_id.strip()
                 clwc = S_CLWCheck(sp.gfbody.Content)
-                terminal_type = clwc.head.type
+                terminal_type = clwc.head.command
                 t_address, t_status = self.get_terminal_status(terminal_id)
                 if (t_address and t_address != DUMMY_FD): 
                     request = DotDict(packet=sp.gfbody.Content,
