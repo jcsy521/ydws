@@ -29,61 +29,6 @@ Password: pabb
 移动：134、135、136、137、138、139、147、150、151、152、157、158、159、182、187、188
 
 ********
-注册
-********
-
-URL: /register
-Table:  T_TERMINAL_INFO_R, T_TERMINAL_W, T_USER
-
-GET :用来进行页面的跳转.
-
-POST请求内容：form 表单
-              uid, # 用户手机号
-              name ,  # 用户姓名
-              password,  # 用户密码
-              address,  # 用户住址 
-              email, # 用户邮箱
-              
-              mobile, # 终端手机号
-              tid, # 终端序列号
-              psw, # 终端密码              
-              
-	
-POST返回结果：
-
-注册失败返回 register.html.
-            message
- 
- 
-注册成功进入index.html.
-            uid,
-			name,
-			cars, 
-               { tid,
-			     sim
-				 login // 终端是否连接到平台. 1: 连接成功； 0：连接失败		 
-			   }			
-			from_         
-
-********
-用户注册校验
-********
-URL: /register
-Table:T_USER
-
-PUT 请求数据：
-	{
-    	'uid': n_int,  
-    }
-
-
-PUT 返回数据：
-	{
-	  'status': n_int, // 0: success, other, failed. 
-	  'message':  str, //只显示失败时的信息
- 	}
-
-********
 登陆
 ********
 URL: /login
@@ -97,13 +42,14 @@ POST请求内容：form 表单
 	
 POST返回结果：
 
-登陆失败返回login.html.
+{
+    登陆失败返回login.html.
             username,
 			password,
 			message_captcha,
 			message
 			
-登陆成功进入index.html.
+   登陆成功进入index.html.
             uid,
 			name,
 			cars,[ 
@@ -111,11 +57,13 @@ POST返回结果：
                  tid,
 			     sim,
 				 login, // 终端是否连接到平台. 1: 连接成功； 0：连接失败		
-				 name // 终端别名
+				 alias, // 终端别名
+				 cellid_status // 是否开启基站定位 1:开启基站定位；0：关闭基站定位
 			   },
 			   ...	
 			   ]		
 			from_
+}
 			
 不支持PUT、DELETE。	
 
@@ -150,6 +98,7 @@ o server返回查询结果
 POST请求内容:
   {
     'timestamp': time_int,  // 时间戳
+    'cellid_status': int // 时候开启基站定位
   }
 
 
@@ -218,7 +167,7 @@ GET :用来进行页面的跳转, 提供tid
 
 POST请求内容:
   {
-    'event_type': int,  // -1: 全部; 1: 点名上报； 2：低电；3：断电；4：越界；5：超速；6：非法移动；7：心跳丢失  
+    'event_type': int,  // -1: 全部; 0:未知类型; 1: 点名上报； 2：低电；3：断电；4：非法移动；5：SOS 
     'start_time': time_int,
 	'end_time': time_int,
 	'tid': id_int
@@ -235,7 +184,7 @@ POST返回结果:
     'pagecnt': int // 记录的页数
     'events':[
 		{
-		'category': n_int, // 报警的标记 0:未知; 1: 点名上报； 2：低电；3：断电；4：越界；5：超速；6：非法移动；7：心跳丢失 
+		'category': n_int, // 报警的标记 0:未知类型; 1: 点名上报； 2：低电；3：断电；4：非法移动；5：SOS 
 		'latitude': x_int,
 		'longitude': x_int,
 		'clatitude': y_int, //加密后的经纬度
@@ -255,7 +204,7 @@ POST返回结果:
 设防撤防
 ********
 URL: /defend
-Table: T_TERMINAL_INFO_W
+Table: T_TERMINAL_INFO
 
 
 POST请求内容:
@@ -294,11 +243,11 @@ POST返回结果：
 终端设置
 ********
 URL: /terminal
-Table: T_TERMINAL_W， T_TERMINAL_R
+Table: T_TERMINAL_INFO
 
 
 GET请求内容:
-  { 'terminal_info' = 'r'  # r: 可查询参数列表; w: 可编辑参数列表; f: 刷新 需要将数据库ID通过&id=传送到后台  
+  { 'terminal_info' = 'f'  # terminal_info 为可选参数。第一次查询可以不提供； terminal_info =f 表示对与终端有关的参数做刷新。  
   }
   
 GET返回结果:  
@@ -306,25 +255,31 @@ GET返回结果:
     'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
     'message': str  //失败信息, status为非0时，才有内容，否则为空
 	'id': int, //记录编号
-	'car_sets':
-	[		
-		{
-		'key': 'key_str',
-		'name': 'name_str',
-		'value': 'val_str',
-		'unit' : str
-		}
-	]
-	,.....
+	'car_sets':	
+	{		
+		'cellid_status': str,  // 是否开启基站定位
+		'trace': str,  //  时候关闭追踪
+		'cnum': str,  // 车牌号
+		'pulse': int,  // 心跳时间
+		'vibchk': str,  // 振动监测
+		'alias': str, // 车辆别名 
+		'service_status': int, // 服务是否开启 
+		'pbat': int,  // 电量
+		'whitelist_1': int, // 白名单1， 默认提车主手机号 
+		'whitelist_2': int,  // 白名单2
+		'freq': int,  // 上报频率
+		'gsm': int, // gsm 信号强度 
+		'gps': int // gps 信号强度	
+	}
   }
   
 PUT请求内容:
   {
-    'id': int,
 	'car_sets':
 	{
-		'key': str_key,
-		'value': str_value
+		key=value,
+		key2=value2,
+		...
 	}
   }
   
@@ -334,7 +289,7 @@ PUT返回结果:
     'message': str  //失败信息, status为非0时，才有内容，否则为空
   }
   
-POST请求内容:
+POST请求内容: # TODO: 如果必要，添加...
   {
     'check_key': tid or mobile,
 	'check_value': the value of tid or mobile
@@ -349,36 +304,6 @@ POST返回结果:
   
 不支持DELETE
 
-
-********
-终端列表
-********
-URL: /terminallist
-Table: T_TERMINAL_INFO_R, T_TERMINAL_INFO_W
-
-POST  请求内容：
-	[
-		{ 
-			'tid': 'n_str',
-			'mobile': 'n_int',
-		},
-		...
-	]
-  
-DELETE 请求内容：
-
-URL: /terminallist?ids=id1,id2,id3[,...]
-
-POST、DELETE 返回结果：
-{
-  'status': n_int, // 0: success; non-zero: error
-  'message': 'msg_str' // 如果status不为0，表示错误消息
-  'ids':[{'status': n_int //status为0，表示成功
-          'id': n_int
-         }, ...
-        ]         //status为0时,返回新添加的id, 如果status为非0, ids为空
-}
-GET、PUT不支持
 
 ********
 个人资料
@@ -398,27 +323,26 @@ GET返回结果:
 	'id': int,
 	'details':
 	{
-		'name': 'name_str',
-        'mobile': n_int,
-		'address': str,
-		'email': str,
-		'corporation': str,
-		'remark': str,
-        'cid': str
+		'name': 'name_str', // 车主姓名
+        'mobile': n_int, // 车主手机号
+        'cnum':str, // 车牌号
+		'address': str, // 车主地址 
+		'email': str, // 邮箱地址
+		'corporation': str, // 单位
+		'remark': str, // 备注
 	}
   }
   
   
 PUT请求内容:
   {
-	'id': int,
-	'name': 'name_str',
-	'mobile': n_int,
-    'address': str,
-	'email': str,
-	'corporation': str,
-	'remark': str,
-    'cid': str
+    'name': 'name_str', // 车主姓名
+    'mobile': n_int, // 车主手机号
+    'cnum':str, // 车牌号
+	'address': str, // 车主地址 
+	'email': str, // 邮箱地址
+	'corporation': str, // 单位
+	'remark': str, // 备注
   }
   
 PUT返回结果:  
@@ -451,7 +375,7 @@ PUT返回结果:
 不支持GET、POST、DELETE
 
 ************
-动态更新操作
+动态更新操作  # TODO:　．．．
 ************
 
 URL: /lastinfo
