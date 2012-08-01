@@ -4,6 +4,7 @@ import time
 import datetime
 from dateutil.relativedelta import relativedelta
 import functools
+import random
 
 # import some modules for VG
 from dotdict import DotDict

@@ -45,7 +45,6 @@ class S_CLWCheck(object):
         keys = ['timestamp', 'command']
         for i, key in enumerate(keys):
             head[key] = packet[i]
-        timestamp = head.timestamp if head.timestamp else time.strftime("%Y-%m-%d %H:%M:%S")
-        head.timestamp = int(time.mktime(time.strptime(timestamp, '%Y-%m-%d %H:%M:%S'))) * 1000
+        timestamp = head.timestamp if head.timestamp else int(time.time()) 
        
         return head, packet[len(keys):]
