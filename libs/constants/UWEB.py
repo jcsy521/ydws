@@ -36,6 +36,9 @@ CHECK_TERMINAL=DotDict(TID=u'tid',
 DEFEND_STATUS=DotDict(NO='0',
                       YES='1')
 
+SERVICE_STATUS=DotDict(OFF='0',
+                       ON='1')
+
 
 TERMINAL_INFO_CATEGORY=DotDict(R=u'r',
                                W=u'w',

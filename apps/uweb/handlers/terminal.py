@@ -30,7 +30,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Get terminal_info_r and terminal_info_w.
+        """Get terminal_info.
         """
         flag = self.get_argument('terminal_info')
         car_sets = []
@@ -88,7 +88,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
     @tornado.web.removeslash
     @tornado.web.asynchronous
     def put(self):
-        """Update the params of terminal_info_w.
+        """Update the params of terminal.
         """
         status = ErrorCode.SUCCESS
         try:
@@ -123,10 +123,11 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
                                           _on_finish)
 
-
     @authenticated
     @tornado.web.removeslash
     def post(self):
+        """Add some params for terminal.
+        """
         status = ErrorCode.SUCCESS
         data = DotDict(json_decode(self.request.body))
         check_key = data.check_key

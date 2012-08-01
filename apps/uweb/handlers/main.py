@@ -29,10 +29,14 @@ class MainHandler(BaseHandler):
 
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
 
-            terminals = self.db.query("SELECT ti.id, ti.tid, ti.alias as name, ti.mobile as sim, ti.login"
+            terminals = self.db.query("SELECT ti.id, ti.tid, ti.alias, ti.mobile as sim, ti.login"
                                       "    FROM T_TERMINAL_INFO as ti"
                                       "    WHERE ti.owner_mobile = %s",
                                       user_info.mobile)
+            #NOTE: if aliasa is null, provide tid instead
+            for terminal in terminals:
+                if not terminal.alias:
+                    terminal.alias = terminal.tid
             url = "index.html"
 
         if from_ == 'android':
