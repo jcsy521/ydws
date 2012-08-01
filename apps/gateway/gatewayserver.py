@@ -47,7 +47,6 @@ class GatewayServer(object):
 
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        print ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
         self.__start_check_heartbeat_thread()
 
@@ -92,8 +91,6 @@ class GatewayServer(object):
          try:
              clw = T_CLWCheck(response)
              for packet_info in clw.packets_info:
-                 print 'head: ', packet_info.head
-                 print 'body: ', packet_info.body
                  if packet_info.head.command == T_MESSAGE_TYPE.LOGIN:
                      logging.info("[GW] Recv login message:\n%s", packet_info.message)
                      self.handle_login(packet_info.head, packet_info.body,
@@ -183,8 +180,7 @@ class GatewayServer(object):
                               t_info['dev_id'])
 
             if args.success == LOGIN_STATUS.SUCCESS:
-                #args.sessionID = get_sessionID()
-                args.sessionID = '1a2b3c4d'
+                args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
                 self.memcached.set(terminal_sessionID_key, args.sessionID)
 
