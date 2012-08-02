@@ -39,7 +39,6 @@ class TerminalMixin(BaseMixin):
         """
         set_clause = ""
         for key, value in car_sets.iteritems():
-            print 'key', key, 'value', value
             set_clause = set_clause + key + " = '" + value + "',"
         sql_cmd = "UPDATE T_TERMINAL_INFO SET " + set_clause[0:-1] + " WHERE tid = %s" 
         self.db.execute(sql_cmd, tid)

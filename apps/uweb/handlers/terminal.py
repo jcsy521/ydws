@@ -66,8 +66,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
 
             # 3: car
             car = self.db.get("SELECT cnum FROM T_CAR"
-                              "  WHERE tid = %s",
-                              self.current_user.tid)
+                              "  WHERE tmobile = %s",
+                              self.current_user.sim)
 
             # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
             car_sets.update(terminal)

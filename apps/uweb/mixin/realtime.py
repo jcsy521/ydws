@@ -38,7 +38,7 @@ class RealtimeMixin(BaseMixin):
                               "          %s, %s, %s, %s, %s, %s)",
                               location.dev_id, location.lat, location.lon, 
                               0, location.cLat, location.cLon,
-                              location.timestamp, location.name,
+                              location.gps_time, location.name,
                               EVENTER.CATEGORY.REALTIME,
                               location.type, location.speed,
                               location.degree, location.cellid)
