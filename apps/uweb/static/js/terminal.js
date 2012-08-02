@@ -25,7 +25,7 @@ window.dlf.fn_initTerminal = function() {
 	//$('#t_white_list1').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'});
 	$('#t_white_list2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});;
 	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字！', param:'g'}); // 区分大小写
-	$('#t_alias').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度为10位汉字，20位字符！'}).regexValidator({regExp: 'alias', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
+	$('#t_alias').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度为10位汉字，20位字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
 	$('#t_vibchk').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--60:60)！'}); // 区分大小写
 	
 	// 参数刷新

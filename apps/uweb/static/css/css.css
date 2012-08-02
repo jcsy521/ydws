@@ -548,6 +548,7 @@ body {
 }
 #bListR .terminalTdL {
 	width: 127px;
+	text-align: right;
 }
 #bListR span {
 	display: inline-block;
