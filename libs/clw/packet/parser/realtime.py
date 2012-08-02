@@ -11,7 +11,7 @@ class RealtimeParser(object):
         self.ret = self.parse(packet, ret)
 
     def parse(self, packet, ret):
-        if ret.type == 'T4':
+        if ret.command == 'T4':
             ret['t'] = EVENTER.INFO_TYPE.POSITION
             info = self.get_position(packet)
         else:
