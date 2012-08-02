@@ -43,8 +43,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             ret = json_decode(ret)
             if ret['success'] == 0:
                 for key, value in ret['params'].iteritems():
-                    car_sets.key=value
-                self.update_terminal_info(car_sets, tid)
+                    car_sets[key.lower()]=value
+                self.update_terminal_info(car_sets, self.current_user.tid)
             else: 
                 status = ErrorCode.FAILED 
                 logging.error('[UWEB] Query terminal_info failed.')
@@ -102,7 +102,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             status = ErrorCode.SUCCESS
             response = json_decode(response)
             if response['success'] == 0:
-                self.update_terminal_info(response['params'], data,  tid)
+                self.update_terminal_info(response['params'], data, self.current_user.tid)
             else:
                 status = response['success'] 
                 logging.error("[UWEB] Set terminal failed. status: %s, message: %s", 

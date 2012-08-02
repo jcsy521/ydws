@@ -18,20 +18,30 @@ from base import BaseMixin
 
 class RealtimeMixin(BaseMixin):
     """Mix-in for realtime related functions."""
-
+ 
+    def update_terminal_status(self, location): 
+        fields = [] 
+        keys = ['gps', 'gsm', 'pbat', 'defend_status'] 
+        for key in keys: 
+            if location[key] is not None: 
+                fields.append(key + " = " + location[key]) 
+        set_clause = ','.join(fields) 
+        if set_clause: 
+            self.db.execute("UPDATE T_TERMINAL_INFO" " SET " + set_clause + " WHERE tid = %s", 
+            location.dev_id)
+    
     def insert_location(self, location):
         """Insert the location into mysql and keep it in memcached.
         """
         lid = self.db.execute("INSERT INTO T_LOCATION"
                               "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s,"
-                              "          %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                              location.dev_id, location.lat,
-                              location.lon, 0, location.cLat, location.cLon,
+                              "          %s, %s, %s, %s, %s, %s)",
+                              location.dev_id, location.lat, location.lon, 
+                              0, location.cLat, location.cLon,
                               location.timestamp, location.name,
                               EVENTER.CATEGORY.REALTIME,
-                              location.type, location.speed, 0,
-                              location.degree, location.status,
-                              location.cellid, 0, 0)
+                              location.type, location.speed,
+                              location.degree, location.cellid)
         is_alived = self.memcached.get('is_alived')
         if (is_alived == ALIVED and location.valid == CLWCode.LOCATION_SUCCESS):
             mem_location = DotDict({'id':lid,
@@ -40,7 +50,7 @@ class RealtimeMixin(BaseMixin):
                                     'type':location.type,
                                     'clatitude':location.cLat,
                                     'clongitude':location.cLon,
-                                    'timestamp':location.timestamp,
+                                    'timestamp':location.gps_time,
                                     'name':location.name,
                                     'degree':location.degree,
                                     'speed':location.speed})
@@ -94,17 +104,17 @@ class RealtimeMixin(BaseMixin):
                         ret.location.longitude = location.lon
                         ret.location.clongitude = location.cLon
                         ret.location.clatitude = location.cLat
-                        ret.location.timestamp = location.timestamp
+                        ret.location.timestamp = location.gps_time
                         ret.location.name = location.name
                         ret.location.speed = location.speed
                         ret.location.type = location.type
                         ret.location.degree = int(round(float(location.degree)/36))
+                        self.insert_location(location)
+                        self.update_terminal_status(location)
                     else: 
                         ret.status = ErrorCode.LOCATION_FAILED 
                         ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
                         logging.error("[UWEB] realtime failed. status: %s, message: %s", ret.status, ret.message)
-
-                    self.insert_location(location)
                 else:
                     ret.status = response['success']
                     ret.message = response['info']
