@@ -114,14 +114,19 @@ class GatewayServer(object):
         try:
             args = DotDict(success="0",
                            locationdesc="")
-            ldp = LocationDescParser(body, head)
-            location = ldp.ret
-            location['valid'] = CLWCode.LOCATION_SUCCESS
-            location['t'] = EVENTER.INFO_TYPE.POSITION
-            location = lbmphelper.handle_location(location, self.memcached)
-            locationdesc = unicode(location.name)
-            locationdesc = locationdesc.encode("utf-8", 'ignore')
-            args.locationdesc = base64.b64encode(locationdesc)
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID:
+                args.success = "1"
+                logging.error("[GW] Invalid sessionID, terminal: %s", head.dev_id)
+            else:
+                ldp = LocationDescParser(body, head)
+                location = ldp.ret
+                location['valid'] = CLWCode.LOCATION_SUCCESS
+                location['t'] = EVENTER.INFO_TYPE.POSITION
+                location = lbmphelper.handle_location(location, self.memcached)
+                locationdesc = unicode(location.name)
+                locationdesc = locationdesc.encode("utf-8", 'ignore')
+                args.locationdesc = base64.b64encode(locationdesc)
             lc = LocationDescRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address)
@@ -141,7 +146,6 @@ class GatewayServer(object):
                                        "  WHERE tid = %s",
                                        t_info['dev_id'])
                 if terminal:
-                    #TODO 服务到期？？
                     if (terminal.endtime < time.time() or
                         terminal.service_status == '0'):
                         args.success = LOGIN_STATUS.EXPIRED
