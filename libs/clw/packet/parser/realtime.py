@@ -22,11 +22,33 @@ class RealtimeParser(object):
         return ret
 
     def get_position(self, packet):
+        position = {'lon' : 0, 
+                    'lat' : 0,
+                    'alt' : 0,
+                    'cLon' : 0,
+                    'cLat' : 0,
+                    'name' : None,
+                    'valid': 0, 
+                    'speed' : 0, 
+                    'degree' : 0,
+                    'defend_status' : None, 
+                    'cellid' : None, 
+                    'gps' : None, 
+                    'gsm' : None, 
+                    'pbat' : None, #volume
+                    'gps_time' : None,
+                    'dev_type' : None}
+
         keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed',
-                'degree', 'status', 'cellid']
-        position = DotDict()
+                'degree', 'defend_status', 'cellid', 'extra', 'gps_time']
         for i, key in enumerate(keys):
             position[key] = packet[i]
+
+        keys = ['gps', 'gsm', 'pbat']
+        ggp = position['extra'].split(':')
+        for i, key in enumerate(keys):
+            position[key] = ggp[i]
+        del position['extra']
 
         position['lon'] = int(float(position['lon']) * 3600000)
         position['lat'] = int(float(position['lat']) * 3600000)

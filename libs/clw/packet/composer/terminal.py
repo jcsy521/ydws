@@ -20,10 +20,7 @@ class TerminalComposer(BaseComposer):
                       'lock_status']
         for key in params.keys():
             if key.lower() in valid_keys:
-                if key.lower() == "owner_mobile":
-                    packet += "%s=%s" % ("USER", params[key])
-                else:
-                    packet += ",%s=%s" % (key.upper(), params[key])
+                packet += ",%s=%s" % (key.upper(), params[key])
         request = self.format_packet(packet)
         
         return request
