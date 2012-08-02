@@ -50,8 +50,7 @@ class QueryHandler(BaseHandler):
                            info=response.info)
                 if response.clwhead and response.clwbody:
                     rp = QueryParser(response.clwbody, response.clwhead)
-                    key = rp.ret.f_key
-                    ret[key] = rp.ret.f_value
+                    ret['params'] = rp['params']
 
                 self.set_header(*self.JSON_HEADER)
                 self.write(json_encode(ret))

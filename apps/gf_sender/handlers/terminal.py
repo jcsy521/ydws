@@ -50,11 +50,7 @@ class TerminalHandler(BaseHandler):
                            info=response.info)
                 if response.clwhead and response.clwbody:
                     rp = TerminalParser(response.clwbody, response.clwhead)
-                    if int(rp.ret['status']) == CLWCode.SUCCESS:
-                        ret['success'] = ErrorCode.SUCCESS
-                    else:
-                        ret['success'] = ErrorCode.FAILED
-                        ret['info'] = None
+                    ret['params'] = rp['params']
 
                 self.set_header(*self.JSON_HEADER)
                 self.write(json_encode(ret))
