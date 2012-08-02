@@ -49,7 +49,7 @@ class QueryHandler(BaseHandler):
                 ret = dict(success=response.success,
                            info=response.info)
                 if response.clwhead and response.clwbody:
-                    rp = QueryParser(response.clwhead, response.clwbody)
+                    rp = QueryParser(response.clwbody, response.clwhead)
                     key = rp.ret.f_key
                     ret[key] = rp.ret.f_value
 

@@ -49,7 +49,7 @@ class TerminalHandler(BaseHandler):
                 ret = dict(success=response.success,
                            info=response.info)
                 if response.clwhead and response.clwbody:
-                    rp = TerminalParser(response.clwhead, response.clwbody)
+                    rp = TerminalParser(response.clwbody, response.clwhead)
                     if int(rp.ret['status']) == CLWCode.SUCCESS:
                         ret['success'] = ErrorCode.SUCCESS
                     else:

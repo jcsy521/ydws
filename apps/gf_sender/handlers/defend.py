@@ -50,7 +50,7 @@ class DefendHandler(BaseHandler):
                 ret = dict(success=response.success,
                            info=response.info)
                 if response.clwhead and response.clwbody:
-                    rp = DefendParser(response.clwhead, response.clwbody)
+                    rp = DefendParser(response.clwbody, response.clwhead)
                     status = int(rp.ret['status'])
                     s_codes = (CLWCode.DEFEND_SUCCESS,CLWCode.DEFEND_NO_HOST_SUCCESS)
                     if status in s_codes: 

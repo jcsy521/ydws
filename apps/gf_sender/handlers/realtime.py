@@ -51,7 +51,7 @@ class RealtimeHandler(BaseHandler):
                            info=response.info,
                            position={})
                 if response.clwhead and response.clwbody:
-                    rp = RealtimeParser(response.clwhead, response.clwbody)
+                    rp = RealtimeParser(response.clwbody, response.clwhead)
                     ret['position'] = rp.ret
 
                 self.set_header(*self.JSON_HEADER)
