@@ -24,7 +24,7 @@ CELERY_RESULT_BACKEND = "amqp"
 
 CELERY_DISABLE_RATE_LIMITS = True
 
-CELERY_IMPORTS = ("gatewaytask")
+CELERY_IMPORTS = ("gatewaytask",)
 
 CELERYBEAT_SCHEDULE = {
 
