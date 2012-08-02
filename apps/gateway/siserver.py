@@ -100,7 +100,7 @@ class SIServer():
         address_key = get_terminal_address_key(terminal_id)
         terminal_fd = self.memcached.get(address_key)
         if (not terminal_fd or terminal_fd == DUMMY_FD):
-            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO_W"
+            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s",
                                    terminal_id) 
             if terminal:

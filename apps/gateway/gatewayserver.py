@@ -243,10 +243,14 @@ class GatewayServer(object):
                     args.success = "1"
                     logging.error("[GW] Invalid packet: %s", response)
 
-            rc = AsyncRespComposer(args)
-            request = DotDict(packet=rc.buf,
-                              address=address)
-            gw_requests_queue.put(request)
+            if packet.head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
+                                       T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
+                                       T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.POWEROFF,
+                                       T_MESSAGE_TYPE.EMERGENCY):
+                rc = AsyncRespComposer(args)
+                request = DotDict(packet=rc.buf,
+                                  address=address)
+                gw_requests_queue.put(request)
         except:
             logging.exception("[GW] Handle SI message exception.")
 
