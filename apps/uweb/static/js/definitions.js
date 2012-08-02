@@ -158,15 +158,5 @@ var ARR_TERMINAL_REG = {
 	'cid': {
 		'maxLen': 8,
 		'regex': '/^([A-F0-9a-f]{8})$/',
-		'alertText': '预制控制器序列号功能，CID = AABBCCDD （8 位16进制数据，表示对终端预制控制器序列号），CID=00000000 （表示清除终端本地的控制器序列号） ！'},
-	'cnum': {
-		'maxLen': 8, 
-		'regex': '',
-		'alertText': '您输入的车牌号不正确！'
-		},
-	't_alias': {
-		'maxLen': 20,
-		'regex': '',
-		'alertText': '您输入的终端别名不合法，请重新输入！'
-	}
+		'alertText': '预制控制器序列号功能，CID = AABBCCDD （8 位16进制数据，表示对终端预制控制器序列号），CID=00000000 （表示清除终端本地的控制器序列号） ！'}
 }

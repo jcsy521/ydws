@@ -102,4 +102,5 @@ class BaseHandler(tornado.web.RequestHandler):
         if isinstance(dict_, dict):
             ret.update(dict_)
         self.set_header(*self.JSON_HEADER)
+        print 'test base', json_encode(ret)
         self.write(json_encode(ret))

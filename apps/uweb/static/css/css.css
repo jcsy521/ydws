@@ -553,16 +553,15 @@ body {
 	display: inline-block;
 	width: 250px;
 }
-#bListR input {
-	background-color: #FFF;
-}
 .bListR_text_mouseOut  {
+	background-color: #FFF;
 	border: 1px solid #cdcdcd;
 	height: 22px;
 	line-height: 22px;
 	width: 170px;
 }
 .bListR_text_mouseOver {
+	background-color: #FFF;
 	border: 2px groove #8E8E8E;
 	height: 22px;
 	line-height: 22px;

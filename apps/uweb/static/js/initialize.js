@@ -278,7 +278,7 @@ function fn_getCarData() {
 					obj_tempPoint = new BMap.Point(n_clon, n_clat), 
 					obj_tempLocation = {'name': obj_carInfo.address, 'timestamp': obj_carInfo.timestamp, 'speed': obj_carInfo.speed, 
 									'clongitude': obj_carInfo.clongitude, 'clatitude': obj_carInfo.clatitude, 'type': obj_carInfo.type,'tid': obj_carInfo.tid},
-					n_power = parseInt(obj_carInfo.volume),
+					n_power = parseInt(obj_carInfo.pbat),
 					str_power = n_power + '%';	// 电池电量 0-100
 					//n_percent = (n_power+1)*10;
 				// 经纬度数据不正确不做处理
@@ -425,7 +425,7 @@ window.dlf.fn_eventText = function(n_eventNum) {
 			str_text = '未知类型';
 			break;
 		case 1:
-			str_text = '无报警';
+			str_text = '点名上报';
 			break;
 		case 2:
 			str_text = '低电';
@@ -434,16 +434,10 @@ window.dlf.fn_eventText = function(n_eventNum) {
 			str_text = '断电';
 			break;
 		case 4:
-			str_text = '越界';
-			break;
-		case 5:
-			str_text = '超速';
-			break;
-		case 6:
 			str_text = '非法移动';
 			break;
-		case 7:
-			str_text = '心跳丢失';
+		case 5:
+			str_text = 'SOS';
 			break;
 	}
 	return str_text;

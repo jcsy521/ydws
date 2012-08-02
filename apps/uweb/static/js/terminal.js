@@ -2,35 +2,37 @@
 *终端设置相关操作方法
 */
 (function () {
+
 // 终端参数设置初始化页面
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#terminalWrapper').css({'left': '38%', 'top': '20%'}).show(); // 显示终端设置窗口
-	
-	// 对文本输入框进行验证
-	$('#bListR input[type=text]').unbind('keyup').keyup(function(event) {
-		var str_key = $(this).attr('terminalkey'),
-			obj_reg = ARR_TERMINAL_REG[str_key], 
-			str_regex = obj_reg.regex, 
-			n_maxLen = obj_reg.maxLen,
-			str_val = $(this).val(), 
-			n_cLen = str_val.length;
-		if ( n_cLen > n_maxLen ) {
-			$(this).val(str_val.substr(0, n_maxLen));
-			dlf.fn_jNotifyMessage(obj_reg.alertText, 'message', false, 3000);	// 正则验证出错
-		}
-		if ( !eval(str_regex).test(str_val) ) {
-			dlf.fn_jNotifyMessage(obj_reg.alertText, 'message', false, 3000);	// 正则验证出错
-			return;
+	// 终端参数的验证
+	$.formValidator.initConfig({
+		formID: 'terminalForm', //指定from的ID 编号
+		debug: true, // 指定调试模式,不提交form
+		validatorGroup: '3', // 指定本form组编码,默认为1, 多个验证组时使用
+		submitButtonID: 'terminalSave', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+		}, 
+		onSuccess: function() { 
+			dlf.fn_baseSave();	// put请求
 		}
 	});
-	dlf.fn_initTerminalWR(); // 初始化加载参数
-	// 保存参数设置
-	$('#terminalSave').unbind('click').click(fn_baseSave);
+	$('#t_freq').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '上报频率最大长度为4位数字！'}).regexValidator({regExp: 'freq', dataType: 'enum', onError: '您设置的上报频率不正确，范围(5-3600秒)！'});
+	$('#t_pulse').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '心跳时间最大长度为4位数字！'}).regexValidator({regExp: 'pulse', dataType: 'enum', onError: '您设置的终端的心跳时间不正确，范围(1-1800秒)！'});;
+	//$('#t_white_list1').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'});
+	$('#t_white_list2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});;
+	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字！', param:'g'}); // 区分大小写
+	$('#t_alias').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度为10位汉字，20位字符！'}).regexValidator({regExp: 'alias', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
+	$('#t_vibchk').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--60:60)！'}); // 区分大小写
+	
 	// 参数刷新
 	$('#refresh').unbind('click').click(function() {
 		dlf.fn_initTerminalWR('f');
 	});
+	dlf.fn_initTerminalWR(); // 初始化加载参数
 }
 /* 刷新替换td的值
 *	str_key: 后台发送的参数的key
@@ -168,7 +170,6 @@ window.dlf.fn_initTerminalWR = function (param) {
 				str_track = obj_data.trace,	// 开启追踪
 				str_cellid_status = obj_data.cellid_status,	// 开启基站定位
 				str_service_status = obj_data.service_status;	// 终端服务状态
-			//console.log(obj_data['gsm']);
 			// gsm init
 			if ( n_gsm >= 0 && n_gsm < 3 ) {
 				str_gsm = '弱';
@@ -212,9 +213,10 @@ window.dlf.fn_initTerminalWR = function (param) {
 			$('#cnum').attr('t_val', str_cnum);
 			$('#alias').attr('t_val', str_alias);
 			$('#vibchk').attr('t_val', str_vibchk);
-			$('#trace').attr('t_val', str_cnum);
-			$('#service_status').attr('t_val', str_alias);
-			$('#cellid_status').attr('t_val', str_vibchk);
+			
+			$('#trace').attr('t_val', str_track);
+			$('#service_status').attr('t_val', str_service_status);
+			$('#cellid_status').attr('t_val', str_cellid_status);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { // 查询状态不正确,错误提示
 			dlf.fn_jNotifyMessage(data.message, 'message');
@@ -283,38 +285,31 @@ function fn_initBaseListItem() {
 }
 
 // 保存用户操作
-function fn_baseSave() {
-	/*var f_warpperStatus = !$('#terminalWrapper').is(':hidden'), 
+window.dlf.fn_baseSave =function() {
+	var f_warpperStatus = !$('#terminalWrapper').is(':hidden'), 
 		str_key = $('#bListSet').attr('terminalkey'), 
 		obj_terminalData = {},
 		obj_listVal = $('.j_ListVal'); // td t_val 
-		
+	// 遍历 td 查找text和radio
 	$.each(obj_listVal, function(index, dom) {
 		var obj_this = $(this),
 			str_key = obj_this.attr('id'),
-			str_t_val = obj_this.attr('t_val'),
-			obj_text = obj_this.children('input[type=text]')[0],	
-			obj_radio = obj_this.children('input[type=radio][checked]');
-		console.log(obj_text);
-		if ( obj_text ) {
-			var str_val = '';
-			if ( str_val != str_t_val ) {
-				console.log(obj_text.val(),'---',str_val);
-				obj_terminalData[str_key] = str_val;
+			str_t_val = obj_this.attr('t_val'),  // 原始值
+			obj_input = obj_this.children('input[type=text]').eq(0),	// 文本框
+			obj_radio = obj_this.children('input[type=radio][checked]').eq(0),	 // 单选按钮
+			n_len = obj_radio.length,
+			str_val = obj_input.val(), 	// text of value
+			str_radio = obj_radio.val();	// radio of value
+		if ( n_len > 0 ) {
+			if ( str_radio != str_t_val  ) {
+				obj_terminalData[str_key] = str_radio;
 			}
-		} 
-		if ( obj_radio ) {
-			var str_val = obj_radio.val();
+		} else {
 			if ( str_val != str_t_val ) {
 				obj_terminalData[str_key] = str_val;
 			}
 		}
-	});*/
-		//console.log(obj_terminalData);
-		var obj_terminalData = {
-			'freq': '10',
-			'pulse': '1800'
-		};
+	});
 	dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中');
 }
 

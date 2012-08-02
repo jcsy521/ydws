@@ -42,9 +42,9 @@
 			<ul id="carList" class="dropdown-options">
 			{% for car in cars %}
 				{% if car.login == 1 %}
-					<li tlid="{{car.id}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogin" title="在线车辆">
+					<li tlid="{{car.id}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogin" title="在线车辆">
 				{% else %}
-					<li tlid="{{car.id}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogout" title="离线车辆">
+					<li tlid="{{car.id}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogout" title="离线车辆">
 				{% end  %}
 				{{cars[0].alias}}
 				</li>
@@ -62,6 +62,7 @@
 				{% end %}
 				<span class="dropdown-icon">&nbsp;</span>
 			</a>
+			<input type="hidden" id="hidCellid_status" value="{{cars}}" /> 
 			<div class="terminalInfo">
 				报警状态：<label id="eventStatus">无报警</label>
 				终端状态：<label id="defendStatus">未设防</label>

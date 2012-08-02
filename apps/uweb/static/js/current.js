@@ -4,7 +4,11 @@
 */
 (function () {
 window.dlf.fn_currentQuery = function() {
-	var obj_pd = {'timestamp': new Date().getTime()}, 
+	var str_cellid_status = $('.carCurrent').attr('cellid_status'),	// 是否是基站定位
+		obj_pd = {
+					'timestamp': new Date().getTime(),
+					'cellid_status': str_cellid_status
+				}, 
 		obj_cWrapper = $('#currentWrapper');
 	obj_cWrapper.show();
 	fn_currentRequest(obj_pd);

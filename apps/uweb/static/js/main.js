@@ -291,7 +291,6 @@ $(function () {
 	$('#email').formValidator().inputValidator({max: 255, onError: '你输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '你输入的邮箱格式不正确！'});
 	$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});
 	$('#remark').formValidator().inputValidator({max: 255, onError: '备注过长，请重新输入！'});
-	$('#licenseNum').formValidator().inputValidator({max: 8, onError: '你输入的车牌号长度非法,请确认！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字', param:'g'}); // 区分大小写
 	// 密码进行验证
 	$.formValidator.initConfig({
 		formID: 'pwdForm', //指定from的ID 编号
