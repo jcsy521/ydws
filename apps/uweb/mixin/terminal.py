@@ -34,9 +34,12 @@ class TerminalMixin(BaseMixin):
                           self.current_user.tid)
         return res
 
-    def update_terminal_info(self, car_sets, tid):
+    def update_terminal_info(self, car_sets, old_car_sets, tid):
         """Update T_TERMINAL_INFO.
         """
+        for key, value in car_sets.iteritems():
+            if value == '0':
+                car_sets.key = old_car_sets.key
         set_clause = ""
         for key, value in car_sets.iteritems():
             set_clause = set_clause + key + " = '" + value + "',"
