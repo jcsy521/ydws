@@ -95,7 +95,7 @@ class PacketTask(object):
         for key in keys:
             if location.get(key, None) is not None:
                 if key == 'softversion':
-                    location[key] = str(location[key])
+                    location[key] = "'" + location[key] + "'"
                 fields.append(key + " = " + location[key])
         set_clause = ','.join(fields)
         if set_clause:

@@ -289,7 +289,7 @@ class GatewayServer(object):
         for key in keys:
             if t_info.get(key, None) is not None:
                 if key == 'softversion':
-                     t_info[key] = str(t_info[key])
+                     t_info[key] = "'" + t_info[key] + "'"
                 fields.append(key + " = " + t_info[key])
         set_clause = ','.join(fields)
         if set_clause:
