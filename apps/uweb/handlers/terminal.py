@@ -20,7 +20,7 @@ from mixin.terminal import TerminalMixin
 class TerminalHandler(BaseHandler, TerminalMixin):
 
     # flush key
-    F_KEYS = ['gsm','gps','pbat','freq','pulse','bibchk','trace']
+    F_KEYS = ['gsm','gps','pbat','freq','pulse','vibchk','trace']
 
     @authenticated
     @tornado.web.removeslash
@@ -94,11 +94,15 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             IOLoop.instance().add_callback(self.finish)
             return 
         
+        args = DotDict(seq=SeqGenerator.next(self.db),
+                       tid=self.current_user.tid)
+        args.params = data 
+
         def _on_finish(response):
             status = ErrorCode.SUCCESS
             response = json_decode(response)
             if response['success'] == 0:
-                self.update_terminal_info(response['params'], tid)
+                self.update_terminal_info(response['params'], data,  tid)
             else:
                 status = response['success'] 
                 logging.error("[UWEB] Set terminal failed. status: %s, message: %s", 
@@ -106,9 +110,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
 
-        args = DotDict(seq=SeqGenerator.next(self.db),
-                       tid=self.current_user.tid)
-        args.params = data 
         GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
                                           _on_finish)
 
