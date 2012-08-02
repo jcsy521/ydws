@@ -50,7 +50,7 @@ class TerminalHandler(BaseHandler):
                            info=response.info)
                 if response.clwhead and response.clwbody:
                     rp = TerminalParser(response.clwbody, response.clwhead)
-                    ret['params'] = rp['params']
+                    ret['params'] = rp.ret['params']
 
                 self.set_header(*self.JSON_HEADER)
                 self.write(json_encode(ret))
