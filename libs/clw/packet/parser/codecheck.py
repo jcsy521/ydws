@@ -20,7 +20,7 @@ class T_CLWCheck(object):
             for packet in packet_list:
                 packet_info = DotDict(head=DotDict(), body="")
                 p_info = packet.split(',') 
-                keys = ['timestamp', 'sessionID', 'dev_type', 'version', 'dev_id', 'command']
+                keys = ['timestamp', 'sessionID', 'dev_type', 'softversion', 'dev_id', 'command']
                 for i, key in enumerate(keys):
                     packet_info.head[key] = p_info[i]
                 timestamp = packet_info.head.timestamp if packet_info.head.timestamp else int(time.time())

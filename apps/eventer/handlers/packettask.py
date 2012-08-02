@@ -91,7 +91,7 @@ class PacketTask(object):
 
     def update_terminal_status(self, location):
         fields = []
-        keys = ['gps', 'gsm', 'pbat', 'defend_status']
+        keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat', 'defend_status']
         for key in keys:
             if location[key] is not None:
                  fields.append(key + " = " + location[key])

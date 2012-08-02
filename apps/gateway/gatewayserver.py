@@ -159,24 +159,29 @@ class GatewayServer(object):
                           terminal.factory_name != t_info['factory_name']):
                         self.db.execute("UPDATE T_TEMINAL_INFO"
                                         "  SET owner_mobile = %s"
+                                        "      dev_type = %s"
                                         "      imsi = %s"
                                         "      imei = %s"
-                                        "      factory_name = %s",
-                                        t_info['u_msisdn'],
-                                        t_info['imsi'],
-                                        t_info['imei'],
-                                        t_info['factory_name']) 
+                                        "      factory_name = %s"
+                                        "      softversion = %s"
+                                        "  WHERE tid = %s",
+                                        t_info['u_msisdn'], t_info['dev_type'],
+                                        t_info['imsi'], t_info['imei'],
+                                        t_info['factory_name'],
+                                        t_info['softversion'], t_info['dev_id']) 
                         logging.info("[GW] Terminal %s changes info! old_info: %s, new_info: %s",
                                      t_info['t_msisdn'], terminal, t_info)
                     else:
                         pass
                 else:
                     self.db.execute("INSERT INTO T_TERMINAL_INFO"
-                                    "  (id, tid, mobile, owner_mobile, imsi, imei, factory_name)"
-                                    "  VALUES(NULL, %s, %s, %s, %s, %s, %s)",
-                                    t_info['dev_id'], t_info['t_msisdn'],
+                                    "  (id, tid, dev_type, mobile, owner_mobile,"
+                                    "   imsi, imei, factory_name, softversion)"
+                                    "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                    t_info['dev_id'], t_info['dev_type'], t_info['t_msisdn'],
                                     t_info['u_msisdn'], t_info['imsi'],
-                                    t_info['imei'], t_info['factory_name'])
+                                    t_info['imei'], t_info['factory_name'],
+                                    t_info['softversion'])
                     logging.info("[GW] New terminal %s Regists!", t_info['t_msisdn'])
             else:
                 args.success = LOGIN_STATUS.UNREGISTER 
@@ -279,13 +284,17 @@ class GatewayServer(object):
             self.memcached.set(terminal_status_key, address, 2*SLEEP_HEARTBEAT_INTERVAL)
 
     def update_terminal_info(self, t_info):
-        self.db.execute("UPDATE T_TERMINAL_INFO"
-                        "  SET gps = %s,"
-                        "      gsm = %s,"
-                        "      pbat = %s"
-                        "  WHERE tid = %s",
-                        t_info['gps'], t_info['gsm'], 
-                        t_info['pbat'], t_info['dev_id'])
+        fields = []
+        keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat', 'defend_status']
+        for key in keys:
+            if t_info[key] is not None:
+                fields.append(key + " = " + t_info[key])
+        set_clause = ','.join(fields)
+        if set_clause:
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET " + set_clause + 
+                            "  WHERE tid = %s",
+                            t_info['dev_id'])
 
     def get_terminal_status(self, dev_id):
         terminal_status_key = get_terminal_address_key(dev_id)
