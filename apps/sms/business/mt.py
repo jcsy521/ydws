@@ -68,6 +68,7 @@ class MT(object):
     
     def send_mt(self, msgid, mobile, content):
         try:
+            url = "http://kltx.sms10000.com.cn/sdk/SMS"
             cmd = "send"
             uid = "2590"
             psw = "CEE712A91DD4D0A8A67CC8E47B645662"
@@ -82,7 +83,7 @@ class MT(object):
                         msgid=msgid,
                         msg=msg
                         )
-            result = HttpClient().send_http_post_request(data)
+            result = HttpClient().send_http_post_request(url, data)
             return result
         except Exception, msg:
             logging.exception("Send mt sms exception : %s", msg)

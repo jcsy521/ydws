@@ -8,12 +8,11 @@ import re
 
 class HttpClient(object):
     
-    def send_http_post_request(self, data = None, encoding = 'utf-8'):
+    def send_http_post_request(self, url = None, data = None, encoding = 'utf-8'):
         """
         Send the packet to sms service and receive the response.
         """
         try: 
-            url = "http://kltx.sms10000.com.cn/sdk/SMS"
             # 定义请求对象  
             request = urllib2.Request(url)  
     #        uid=2590&msg=%E4%BD%A0%E5%A5%BD+%E5%88%98%E6%97%B6%E5%98%89%EF%BC%81&msgid=53970002&cmd=send&psw=CEE712A91DD4D0A8A67CC8E47B645662&mobiles=15010955397
@@ -66,7 +65,7 @@ class HttpClient(object):
                     charset = re.search(r'charset=([^;]*)', contentType.lower()).group(1)
                     if charset != encoding:  
                         try:  
-                            htmlCode = htmlCode.decode(charset).encode(encoding)  
+                            htmlCode = htmlCode.decode(charset)
                         except:
                             logging.exception("Encoding return message exception : %s", msg)
             

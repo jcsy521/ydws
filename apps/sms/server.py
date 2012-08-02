@@ -26,7 +26,9 @@ from db_.mysql import DBConnection
 from handlers.mainhandler import MainHandler
 from handlers.acbmthandler import ACBMTHandler
 from business.mt import MT
+from business.mo import MO
 from business.status import Status
+from business.moacb import MOACB
 
 
 class Application(tornado.web.Application):
@@ -80,7 +82,33 @@ def run_user_receive_status_thread():
             status.get_user_receive_status()
         except Exception as e:
             logging.exception("Start user receive status thread failed: %s", e.args)
-    
+            
+            
+def run_get_mo_thread():
+    logging.info("Get mo sms thread started.")
+    #time interval 5 second
+    INTERVAL = 5
+    mo = MO()
+    while True:
+        try:
+            time.sleep(INTERVAL)
+            mo.get_mo_sms()
+        except Exception as e:
+            logging.exception("Start get mo sms thread failed: %s", e.args)
+            
+            
+def run_send_mo_thread():
+    logging.info("Send mo to acb thread started.")
+    #time interval 1 second
+    INTERVAL = 1
+    moacb = MOACB()
+    while True:
+        try:
+            time.sleep(INTERVAL)
+            moacb.fetch_mo_sms()
+        except Exception as e:
+            logging.exception("Start send mo to acb thread failed: %s", e.args)
+
 
 def main():
     tornado.options.parse_command_line()
@@ -99,6 +127,12 @@ def main():
         
         # create user receive status thread
         thread.start_new_thread(run_user_receive_status_thread, ())
+        
+        # create get mo thread
+        thread.start_new_thread(run_get_mo_thread, ())
+        
+        # create send mo thread
+        thread.start_new_thread(run_send_mo_thread, ())
         
         http_server.listen(options.port)
         logging.warn("[acb sms] running on: localhost:%d", options.port)

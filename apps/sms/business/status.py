@@ -22,6 +22,7 @@ class Status(object):
         
     def get_user_receive_status(self):
         try:
+            url = "http://kltx.sms10000.com.cn/sdk/SMS"
             cmd = "getstatus"
             uid = "2590"
             psw = "CEE712A91DD4D0A8A67CC8E47B645662"
@@ -30,8 +31,7 @@ class Status(object):
                         uid=uid,
                         psw=psw,
                         )
-            result = HttpClient().send_http_post_request(data)
-            print result
+            result = HttpClient().send_http_post_request(url, data)
             self.save_user_receive_status(result)
         except Exception, msg:
             logging.exception("Get user receive status exception : %s", msg)
