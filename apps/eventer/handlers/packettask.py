@@ -93,7 +93,7 @@ class PacketTask(object):
         fields = []
         keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat', 'defend_status']
         for key in keys:
-            if location[key] is not None:
+            if location.get(key, None) is not None:
                  fields.append(key + " = " + location[key])
         set_clause = ','.join(fields)
         if set_clause:

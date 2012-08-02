@@ -287,7 +287,7 @@ class GatewayServer(object):
         fields = []
         keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat', 'defend_status']
         for key in keys:
-            if t_info[key] is not None:
+            if t_info.get(key, None) is not None:
                 fields.append(key + " = " + t_info[key])
         set_clause = ','.join(fields)
         if set_clause:
