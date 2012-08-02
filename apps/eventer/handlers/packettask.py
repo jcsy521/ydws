@@ -94,7 +94,9 @@ class PacketTask(object):
         keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat', 'defend_status']
         for key in keys:
             if location.get(key, None) is not None:
-                 fields.append(key + " = " + location[key])
+                if key == 'softversion':
+                    location[key] = str(location[key])
+                fields.append(key + " = " + location[key])
         set_clause = ','.join(fields)
         if set_clause:
             self.db.execute("UPDATE T_TERMINAL_INFO"
