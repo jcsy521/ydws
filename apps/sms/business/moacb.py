@@ -57,7 +57,7 @@ class MOACB(object):
             
     def send_mo_to_acb(self, mobile, content):
         try:
-            url = "http://drone-009:6301/sms"
+            url = "http://drone-004:8600/sms/mo"
             mobile = mobile
             content = content.encode('utf-8')
             
