@@ -12,12 +12,9 @@ class TerminalComposer(BaseComposer):
     def compose(self, args):
         packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.TERMINAL) 
         params = args['params']
-        valid_keys = ['psw', 'domain', 'freq', 'trace', 'pulse', 'phone',
-                      'owner_mobile', 'radius', 'vib', 'vibl', 'pof', 'lbv', 
-                      'sleep', 'vibgps', 'speed', 'calllock', 'calldisp',
-                      'vibcall', 'sms', 'vibchk', 'poft', 'wakeupt', 'sleept',
-                      'acclt', 'acclock', 'stop_service', 'cid', 'defend_status',
-                      'lock_status']
+        valid_keys = ['domain', 'freq', 'trace', 'pulse', 'phone',
+                      'user', 'vibchk', 'service_status',
+                      'white_list']
         for key in params.keys():
             if key.lower() in valid_keys:
                 packet += ",%s=%s" % (key.upper(), params[key])
