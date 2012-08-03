@@ -38,13 +38,19 @@ class TerminalMixin(BaseMixin):
         """Update T_TERMINAL_INFO. Here just modify database.
         """
         for key, value in car_sets.iteritems():
-            if key == 'whitelist_2':
-                self.db.execute("INSERT INTO T_WHITELIST"
-                                "  VALUES(NULL, %s, %s)"
-                                "  ON DUPLICATE KEY"
-                                "  UPDATE tid = VALUES(tid),"
-                                "    MOBILE = VALUES(mobile)",
-                                tid, value)
+            #if key == 'whitelist_2':
+            #    self.db.execute("INSERT INTO T_WHITELIST"
+            #                    "  VALUES(NULL, %s, %s)"
+            #                    "  ON DUPLICATE KEY"
+            #                    "  UPDATE tid = VALUES(tid),"
+            #                    "    MOBILE = VALUES(mobile)",
+            #                    tid, value)
+
+            if key == 'cellid_status':
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET cellid_status = %s"
+                                "  WHERE tid = %s",
+                                value, tid)
             if key == 'alias':
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET alias = %s"
@@ -63,7 +69,12 @@ class TerminalMixin(BaseMixin):
         """
         for key, value in car_sets.iteritems():
             if value == '0':
-                car_sets.key = old_car_sets.key
+                if key == 'white_list' :
+                    self.db.execute("update T_WHITELIST set mobile = %",
+                                    "  where tid = %s",
+                                    value, tid)
+                    continue 
+                car_sets[key] = old_car_sets[key]
         set_clause = ""
         for key, value in car_sets.iteritems():
             set_clause = set_clause + key + " = '" + value + "',"

@@ -97,14 +97,17 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         args = DotDict(seq=SeqGenerator.next(self.db),
                        tid=self.current_user.tid)
         # check the data, some be sent to  
-        fields=['whitelist_2', 'alias', 'cnum']
+        user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+        fields=['alias', 'cnum', 'cellid_status']
         gf_params = DotDict()
         db_params = DotDict()
         for key, value in data.iteritems():
             if key in fields:
                 db_params[key]=value
             else:
-                gf_params[key]=value
+                if key == 'whitelist_2':
+                    key = 'white_list' 
+                    gf_params[key]=value+":"+str(user.mobile)
                
         self.update_terminal_db(db_params, self.current_user.tid, self.current_user.sim) 
         args.params = gf_params 
@@ -121,8 +124,13 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
 
-        GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
-                                          _on_finish)
+        if args.params:
+            GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
+                                              _on_finish)
+        else: 
+            self.write_ret(status)
+            IOLoop.instance().add_callback(self.finish)
+            
 
     @authenticated
     @tornado.web.removeslash
