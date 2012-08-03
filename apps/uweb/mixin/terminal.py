@@ -38,48 +38,71 @@ class TerminalMixin(BaseMixin):
         """Update T_TERMINAL_INFO. Here just modify database.
         """
         for key, value in car_sets.iteritems():
-            #if key == 'whitelist_2':
-            #    self.db.execute("INSERT INTO T_WHITELIST"
-            #                    "  VALUES(NULL, %s, %s)"
-            #                    "  ON DUPLICATE KEY"
-            #                    "  UPDATE tid = VALUES(tid),"
-            #                    "    MOBILE = VALUES(mobile)",
-            #                    tid, value)
+            if key == 'white_list':
+                self.db.execute("INSERT INTO T_WHITELIST"
+                                "  VALUES(NULL, %s, %s)"
+                                "  ON DUPLICATE KEY"
+                                "  UPDATE tid = VALUES(tid),"
+                                "    mobile = VALUES(mobile)",
+                                tid, value)
 
-            if key == 'cellid_status':
+            elif key == 'cellid_status':
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET cellid_status = %s"
                                 "  WHERE tid = %s",
                                 value, tid)
-            if key == 'alias':
+            elif key == 'alias':
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET alias = %s"
                                 "  WHERE tid = %s",
                                 value, tid)
 
             # NOTE: T_CAR use tmobile 
-            if key == 'cnum':
+            elif key == 'cnum':
                 self.db.execute("UPDATE T_CAR"
                                 "  SET cnum = %s"
                                 "  WHERE tmobile = %s",
                                 value, tmobile )
+            else:
+                sql = "UPDATE T_TERMINAL_INFO SET "+ key+" = '"+ value +"'"
+                self.db.execute(sql+ " WHERE tid = %s",
+                                tid)
 
     def update_terminal_info(self, car_sets, old_car_sets, tid):
         """Update T_TERMINAL_INFO.
+        When set terminal info,get 0 or 1 from terminal, recomposer car_sets
+        and keep it in database.
+        workflow:
+        for key, value in cars_sets:
+            if success:
+                s_keys.append(key)
+                car_sets[key] = new value
+            else:
+                f_keys.append(key)
+        update car_sets to database
         """
+        s_keys = [] 
+        f_keys = []
         for key, value in car_sets.iteritems():
             if value == '0':
-                if key == 'white_list' :
-                    self.db.execute("update T_WHITELIST set mobile = %",
-                                    "  where tid = %s",
-                                    value, tid)
+                if key.lower() == 'white_list' :
+                    mobile = old_car_sets['whitelist_2']
+                    self.db.execute("UPDATE T_WHITELIST SET mobile = %s"
+                                    "  WHERE tid = %s",
+                                    mobile, tid)
                     continue 
-                car_sets[key] = old_car_sets[key]
+                car_sets[key] = old_car_sets[key.lower()]
+                s_keys.append(key)
+            else: 
+                f_keys.append(key)
+       
         set_clause = ""
-        for key, value in car_sets.iteritems():
-            set_clause = set_clause + key + " = '" + value + "',"
-        sql_cmd = "UPDATE T_TERMINAL_INFO SET " + set_clause[0:-1] + " WHERE tid = %s" 
-        self.db.execute(sql_cmd, tid)
+        if not s_keys:
+            pass
+        for key in s_keys:
+            set_clause = set_clause + key.lower() + " = '" + car_sets[key] + "',"
+            sql_cmd = "UPDATE T_TERMINAL_INFO SET " + set_clause[0:-1] + " WHERE tid = %s" 
+            self.db.execute(sql_cmd, tid)
 
     def update_terminal_w(self, key, value, tid):
         """Update T_TERMINAL_INFO_W.

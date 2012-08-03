@@ -20,7 +20,8 @@ from mixin.terminal import TerminalMixin
 class TerminalHandler(BaseHandler, TerminalMixin):
 
     # flush key
-    F_KEYS = ['gsm','gps','pbat','freq','pulse','vibchk','trace']
+    # 8 items, 
+    F_KEYS = ['gsm','gps','pbat','freq','pulse','vibchk','trace','white_list','service_status']
 
     @authenticated
     @tornado.web.removeslash
@@ -44,7 +45,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             if ret['success'] == 0:
                 for key, value in ret['params'].iteritems():
                     car_sets[key.lower()]=value
-                self.update_terminal_info(car_sets, self.current_user.tid)
+                self.update_terminal_db(car_sets, self.current_user.tid, self.current_user.sim)
             else: 
                 status = ErrorCode.FAILED 
                 logging.error('[UWEB] Query terminal_info failed.')
@@ -131,7 +132,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         else: 
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
-            
 
     @authenticated
     @tornado.web.removeslash
