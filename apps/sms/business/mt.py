@@ -26,10 +26,10 @@ class MT(object):
             mts = self.db.query("SELECT id, msgid, mobile, content "
                                 "  FROM T_SMS "
                                 "  WHERE category = %s "
-                                "  AND sendstatus != %s"
+                                "  AND sendstatus = %s"
                                 "  ORDER BY id ASC"
                                 "  LIMIT 10",
-                                SMS.CATEGORY.SEND, 1)
+                                SMS.CATEGORY.SEND, 0)
             
             for mt in mts:
                 mobile = mt["mobile"]
@@ -64,6 +64,10 @@ class MT(object):
                     
         except Exception, msg:
             logging.exception("Fetch mt sms exception : %s", msg)
+            self.db.execute("UPDATE T_SMS "
+                                   "  SET sendstatus = 2"
+                                   "  WHERE id = %s",
+                                   id)
     
     
     def send_mt(self, msgid, mobile, content):

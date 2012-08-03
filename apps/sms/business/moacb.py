@@ -10,6 +10,11 @@ TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 site.addsitedir(os.path.join(TOP_DIR_, "apps/sms"))
 
+from tornado.options import define, options
+if 'conf' not in options:
+    define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+
+from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
 from net.httpclient import HttpClient
 from constants import SMS
@@ -20,6 +25,7 @@ class MOACB(object):
     
     def __init__(self):
         self.db = DBConnection().db
+        ConfHelper.load(options.conf)
     
     
     def fetch_mo_sms(self):
@@ -27,10 +33,10 @@ class MOACB(object):
             mos = self.db.query("SELECT id, mobile, content "
                                 "  FROM T_SMS "
                                 "  WHERE category = %s "
-                                "  AND sendstatus != %s"
+                                "  AND sendstatus = %s"
                                 "  ORDER BY id ASC"
                                 "  LIMIT 10",
-                                SMS.CATEGORY.RECEIVE, 1)
+                                SMS.CATEGORY.RECEIVE, 0)
             
             for mo in mos:
                 mobile = mo["mobile"]
@@ -52,12 +58,18 @@ class MOACB(object):
                                    id)
             
         except Exception, msg:
-            logging.exception("Fetch mt sms exception : %s", msg)
+            logging.exception("Fetch mo sms exception : %s", msg)
+            self.db.execute("UPDATE T_SMS "
+                            "  SET sendstatus = 2"
+                            "  WHERE id = %s",
+                            id)
             
             
     def send_mo_to_acb(self, mobile, content):
         try:
-            url = "http://drone-004:8600/sms/mo"
+#            url = "http://drone-004:8600/sms/mo" 
+#            url = "http://drone-009:6301/sms/mo" 
+            url = ConfHelper.UWEB_CONF.url_in + "/sms/mo"
             mobile = mobile
             content = content.encode('utf-8')
             
@@ -67,7 +79,7 @@ class MOACB(object):
             result = HttpClient().send_http_post_request(url, data)
             return result
         except Exception, msg:
-            logging.exception("Send mt sms exception : %s", msg)
+            logging.exception("Send mo sms to acb exception : %s", msg)
             
             
             
