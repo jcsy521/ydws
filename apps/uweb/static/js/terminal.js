@@ -2,32 +2,12 @@
 *终端设置相关操作方法
 */
 (function () {
+	
 
 // 终端参数设置初始化页面
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#terminalWrapper').css({'left': '38%', 'top': '20%'}).show(); // 显示终端设置窗口
-	// 终端参数的验证
-	$.formValidator.initConfig({
-		formID: 'terminalForm', //指定from的ID 编号
-		debug: true, // 指定调试模式,不提交form
-		validatorGroup: '3', // 指定本form组编码,默认为1, 多个验证组时使用
-		submitButtonID: 'terminalSave', // 指定本form的submit按钮
-		onError: function(msg) {
-			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
-		}, 
-		onSuccess: function() { 
-			dlf.fn_baseSave();	// put请求
-		}
-	});
-	$('#t_freq').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '上报频率最大长度为4位数字！'}).regexValidator({regExp: 'freq', dataType: 'enum', onError: '您设置的上报频率不正确，范围(5-3600秒)！'});
-	$('#t_pulse').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '心跳时间最大长度为4位数字！'}).regexValidator({regExp: 'pulse', dataType: 'enum', onError: '您设置的终端的心跳时间不正确，范围(1-1800秒)！'});;
-	
-	$('#t_white_list2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});;
-	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字！', param:'g'}); // 区分大小写
-	$('#t_alias').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度为10位汉字，20位字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
-	$('#t_vibchk').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--60:60)！'}); // 区分大小写
-	
 	// 参数刷新
 	$('#refresh').unbind('click').click(function() {
 		dlf.fn_initTerminalWR('f');
