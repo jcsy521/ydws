@@ -539,8 +539,12 @@ body {
 	width: 365px;
 	border: 1px;
 }
-#bListR td{
-	border-bottom: 1px dashed #ccc;
+#bListR tr{
+	height: 30px;
+	line-height: 30px;
+}
+#bListR, #bListR td{
+	border: 1px dashed #ccc;
 	text-align: left;
 	height: 24px;
 	line-height: 24px;

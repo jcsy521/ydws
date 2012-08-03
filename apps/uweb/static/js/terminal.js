@@ -99,8 +99,8 @@ window.dlf.fn_initTerminalWR = function (param) {
 			$('#pbat').attr('t_val', n_pbat);
 			$('#freq').attr('t_val', str_freq);
 			$('#pulse').attr('t_val', str_pulse);
-			$('#white_list1').attr('t_val', str_white_list1);
-			$('#white_list2').attr('t_val', str_white_list2);
+			$('#whitelist_1').attr('t_val', str_white_list1);
+			$('#whitelist_2').attr('t_val', str_white_list2);
 			$('#cnum').attr('t_val', str_cnum);
 			$('#alias').attr('t_val', str_alias);
 			$('#vibchk').attr('t_val', str_vibchk);

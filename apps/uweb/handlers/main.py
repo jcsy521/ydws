@@ -37,7 +37,7 @@ class MainHandler(BaseHandler):
             #NOTE: if aliasa is null, provide tid instead
             for terminal in terminals:
                 if not terminal.alias:
-                    terminal.alias = terminal.tid
+                    terminal.alias = terminal.sim
             url = "index.html"
 
         if from_ == 'android':
