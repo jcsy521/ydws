@@ -96,7 +96,18 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         
         args = DotDict(seq=SeqGenerator.next(self.db),
                        tid=self.current_user.tid)
-        args.params = data 
+        # check the data, some be sent to  
+        fields=['whitelist_2', 'alias', 'cnum']
+        gf_params = DotDict()
+        db_params = DotDict()
+        for key, value in data.iteritems():
+            if key in fields:
+                db_params[key]=value
+            else:
+                gf_params[key]=value
+               
+        self.update_terminal_db(db_params, self.current_user.tid, self.current_user.sim) 
+        args.params = gf_params 
 
         def _on_finish(response):
             status = ErrorCode.SUCCESS

@@ -34,6 +34,30 @@ class TerminalMixin(BaseMixin):
                           self.current_user.tid)
         return res
 
+    def update_terminal_db(self, car_sets, tid, tmobile):
+        """Update T_TERMINAL_INFO. Here just modify database.
+        """
+        for key, value in car_sets.iteritems():
+            if key == 'whitelist_2':
+                self.db.execute("INSERT INTO T_WHITELIST"
+                                "  VALUES(NULL, %s, %s)"
+                                "  ON DUPLICATE KEY"
+                                "  UPDATE tid = VALUES(tid),"
+                                "    MOBILE = VALUES(mobile)",
+                                tid, value)
+            if key == 'alias':
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET alias = %s"
+                                "  WHERE tid = %s",
+                                value, tid)
+
+            # NOTE: T_CAR use tmobile 
+            if key == 'cnum':
+                self.db.execute("UPDATE T_CAR"
+                                "  SET cnum = %s"
+                                "  WHERE tmobile = %s",
+                                value, tmobile )
+
     def update_terminal_info(self, car_sets, old_car_sets, tid):
         """Update T_TERMINAL_INFO.
         """
