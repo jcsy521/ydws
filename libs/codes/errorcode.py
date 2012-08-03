@@ -13,7 +13,6 @@ class ErrorCode(object):
     WRONG_CAPTCHA = 202
     WRONG_PASSWORD = 203 
 
-    REGISTER_FAILED = 204
     REGISTER_EXIST = 205
     USER_MOBILE_EXIST = 206
     USER_UID_EXIST = 207
@@ -50,7 +49,6 @@ class ErrorCode(object):
         LOGIN_FAILED:               u"用户名或密码错误。",
         USER_MOBILE_EXIST:          u"手机号已被关联。",
         USER_UID_EXIST:             u"该用户名已被使用。",
-        REGISTER_FAILED:            u"注册失败。",
         REGISTER_EXIST:             u"用户已存在。",
         TERMINAL_MOBILE_EXIST:      u"手机号已被关联。",
         TERMINAL_TID_EXIST:         u"终端已被关联。",
@@ -60,7 +58,7 @@ class ErrorCode(object):
         ADDITION_EXCESS:            u'该功能设置已超过上限，本次操作失败。',
         QUERY_INTERVAL_EXCESS:      u'对不起，只能查询一个星期之内的记录！',
         PARENT_NOT_ORDERED:         u'对不起，您输入的用户名或密码有误，请重新输入！',
-        TERMINAL_NOT_ORDERED:       u'对不起，定位器尚未订购"车联网"业务！',
+        TERMINAL_NOT_ORDERED:       u'对不起，定位器尚未订购"爱车保"业务！',
         LOCATION_NAME_NONE:         u"无法解析经纬度对应的地址",
         LOCATION_FAILED:            u"定位器定位失败，请稍后重试。",
         LOCATION_CELLID_FAILED:     u"定位器基站定位失败，请稍后重试。",
@@ -68,5 +66,5 @@ class ErrorCode(object):
         TERMINAL_OFFLINE:           u'定位器不在线。',
         TERMINAL_TIME_OUT:          u'连接定位器超时，请稍后重试。',
         TERMINAL_OTHER_ERRORS:      u'连接定位器失败，请稍后重试。',
-        UNKNOWN_COMMAND:            u"您好，你输入的指令车联网系统不识别，请输入标准指令。",
+        UNKNOWN_COMMAND:            u"您好，你输入的指令爱车保系统不识别，请输入标准指令。",
     }

@@ -19,8 +19,7 @@ from mixin.terminal import TerminalMixin
 
 class TerminalHandler(BaseHandler, TerminalMixin):
 
-    # flush key
-    # 8 items, 
+    # flush key 8 items, 
     F_KEYS = ['gsm','gps','pbat','freq','pulse','vibchk','trace','white_list','service_status']
 
     @authenticated
@@ -34,7 +33,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             query terminal_info from terminal itself, then update the database
         """
         status = ErrorCode.SUCCESS
-        car_sets = DotDict()
+        car_sets = [] 
         flag = self.get_argument('terminal_info','')
         if flag == UWEB.TERMINAL_INFO_CATEGORY.F:
             args = DotDict(seq=SeqGenerator.next(self.db),
@@ -44,8 +43,13 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             ret = json_decode(ret)
             if ret['success'] == 0:
                 for key, value in ret['params'].iteritems():
-                    car_sets[key.lower()]=value
-                self.update_terminal_db(car_sets, self.current_user.tid, self.current_user.sim)
+                    car_sets.append(DotDict(key=key.lower(),
+                                            value=value))
+                    car_dct = DotDict()
+                    for item in car_sets:  
+                       car_dct[item.key] = item.value
+  
+                self.update_terminal_db(car_dct, self.current_user.tid, self.current_user.sim)
             else: 
                 status = ErrorCode.FAILED 
                 logging.error('[UWEB] Query terminal_info failed.')
@@ -71,10 +75,16 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                               self.current_user.sim)
 
             # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
-            car_sets.update(terminal)
-            car_sets.update(car)
-            car_sets.whitelist_1 = user.mobile 
-            car_sets.whitelist_2 = whitelist.mobile if whitelist else '' 
+            car_tmp = DotDict()
+            car_tmp.update(terminal)
+            car_tmp.update(car)
+            for key, value in car_tmp.iteritems():
+                car_sets.append(DotDict(key=key.lower(),
+                                        value=value))
+            car_sets.append(DotDict(key='whitelist_1',
+                                    value=user.mobile))
+            car_sets.append(DotDict(key='whitelist_2',
+                                    value=whitelist.mobile if whitelist else ''))
 
         self.write_ret(status,
                        dict_=dict(car_sets=car_sets))
