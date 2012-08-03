@@ -563,7 +563,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 				if ( str_who != 'terminal' ) {
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else {
-					dlf.fn_initTerminalWR('w');
+					dlf.fn_initTerminalWR();
 				}
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 			} else {

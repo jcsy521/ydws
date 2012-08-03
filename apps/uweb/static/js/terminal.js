@@ -18,76 +18,53 @@ window.dlf.fn_initTerminal = function() {
 window.dlf.fn_initTerminalWR = function (param) {
 	// 获取参数数据
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
+	// 获取用户数据
+	dlf.fn_jNotifyMessage('终端参数查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
 	var str_url  =  TERMINAL_URL;
 	if ( param ) {
 		 str_url = str_url + '?terminal_info=' +  param;
 	}
+	// get request
 	$.get_(str_url, '', function (data) {  
 		if (data.status == 0) {	
-			var obj_data = data.car_sets,
-				n_gsm = obj_data.gsm,
-				str_gsm = '',
-				n_gps = obj_data.gps,
-				str_gps = '',
-				n_pbat = obj_data.pbat,
-				str_pbat = n_pbat + '%',
-				str_freq = obj_data.freq,
-				str_pulse = obj_data.pulse,
-				str_white_list1 = obj_data.whitelist_1,
-				str_white_list2 = obj_data.whitelist_2,
-				str_cnum = obj_data.cnum,
-				str_alias = obj_data.alias,
-				str_vibchk = obj_data.vibchk,
-				str_track = obj_data.trace,	// 开启追踪
-				str_cellid_status = obj_data.cellid_status,	// 开启基站定位
-				str_service_status = obj_data.service_status;	// 终端服务状态
-			// gsm init
-			if ( n_gsm >= 0 && n_gsm < 3 ) {
-				str_gsm = '弱';
-			} else if ( n_gsm >= 3 && n_gsm < 6 ) {
-				str_gsm = '较弱';
-			} else {
-				str_gsm = '强';
+			var obj_data = data.car_sets;
+			// for : key value
+			for ( var i = 0; i < obj_data.length; i++ ) {
+				var str_key = obj_data[i].key,
+					str_val = obj_data[i].value;
+				if ( str_key ) {
+					if ( str_key == 'service_status' || str_key == 'trace' || str_key == 'cellid_status' ) {
+						$('#tr_' + str_key + str_val ).attr('checked', 'checked'); 	// radio value
+					} else if ( str_key == 'gsm' ) {// gsm 
+						var str_gsm = '';
+						if ( str_val >= 0 && str_val < 3 ) {
+							str_gsm = '弱';
+						} else if ( str_val >= 3 && str_val < 6 ) {
+							str_gsm = '较弱';
+						} else {
+							str_gsm = '强';
+						}
+						$('#t_' + str_key ).val(str_gsm);	
+					} else if ( str_key == 'gps' ) {	// gps 
+						var str_gps = '';
+						if ( str_val >= 0 && str_val < 10 ) {
+							str_gps = '弱';
+						} else if ( str_val >= 10 && str_val < 20 ) {
+							str_gps = '较弱';
+						} else if ( str_val >= 20 && str_val < 30 ) {
+							str_gps = '较强';
+						} else {
+							str_gps = '强';
+						}
+						$('#t_' + str_key ).val(str_gps);	// input value
+					} else if ( str_key == 'pbat' ) {	// pbat
+						$('#t_' + str_key ).val(str_val + '%');	// input value
+					} else {
+						$('#t_' + str_key ).val(str_val);	// other input value
+					}
+					$('#' + str_key ).attr('t_val', str_val);	// save original value
+				}
 			}
-			// gps init
-			if ( n_gps >= 0 && n_gps < 10 ) {
-				str_gps = '弱';
-			} else if ( n_gps >= 10 && n_gps < 20 ) {
-				str_gps = '较弱';
-			} else if ( n_gps >= 20 && n_gps < 30 ) {
-				str_gps = '较强';
-			} else {
-				str_gps = '强';
-			}
-			$('#t_gsm').html(str_gsm);
-			$('#t_gps').html(str_gps);
-			$('#t_pbat').html(str_pbat);
-			// allow edit params
-			$('#t_freq').val(str_freq);
-			$('#t_pulse').val(str_pulse);
-			$('#t_white_list1').val(str_white_list1);
-			$('#t_white_list2').val(str_white_list2);
-			$('#t_cnum').val(str_cnum);
-			$('#t_alias').val(str_alias);
-			$('#t_vibchk').val(str_vibchk);
-			$('#tr_trace' + str_track).attr('checked', 'checked');
-			$('#tr_service_status' + str_service_status).attr('checked', 'checked');
-			$('#tr_cellid_status' + str_cellid_status).attr('checked', 'checked');
-			// original value
-			$('#gsm').attr('t_val', n_gsm);
-			$('#gps').attr('t_val', n_gps);
-			$('#pbat').attr('t_val', n_pbat);
-			$('#freq').attr('t_val', str_freq);
-			$('#pulse').attr('t_val', str_pulse);
-			$('#whitelist_1').attr('t_val', str_white_list1);
-			$('#whitelist_2').attr('t_val', str_white_list2);
-			$('#cnum').attr('t_val', str_cnum);
-			$('#alias').attr('t_val', str_alias);
-			$('#vibchk').attr('t_val', str_vibchk);
-			
-			$('#trace').attr('t_val', str_track);
-			$('#service_status').attr('t_val', str_service_status);
-			$('#cellid_status').attr('t_val', str_cellid_status);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { // 查询状态不正确,错误提示
 			dlf.fn_jNotifyMessage(data.message, 'message');
