@@ -70,11 +70,12 @@ class LeHandler(BaseHandler):
                 response, content = self.http.request(url, "POST", request, self.JSON_HEADER)
                 logging.info('[LE] response:\n %s', content)
                 json_data = json_decode(content)
-                ret.position.lat = int(json_data["location"]["latitude"] * 3600000)
-                ret.position.lon = int(json_data["location"]["longitude"] * 3600000)
-                ret.success = ErrorCode.SUCCESS 
-                logging.info("[LE] get lat=%s, lon=%s  through lac=%s, cid=%s", 
-                                   ret.position.lat, ret.position.lon, data.lac, data.cid)
+                if json_data.get("location"):
+                    ret.position.lat = int(json_data["location"]["latitude"] * 3600000)
+                    ret.position.lon = int(json_data["location"]["longitude"] * 3600000)
+                    ret.success = ErrorCode.SUCCESS 
+                    logging.info("[LE] get lat=%s, lon=%s  through lac=%s, cid=%s", 
+                                       ret.position.lat, ret.position.lon, data.lac, data.cid)
             except Exception as e:
                 logging.exception("[LE] get latlon failed. Exception: %s", e.args)
                 ret.info = "LE get latlon failed"

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from codes.clwcode import CLWCode
 
 class QueryParser(object):
 

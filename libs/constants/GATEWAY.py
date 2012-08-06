@@ -38,16 +38,31 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          EMERGENCY="S16"
                          )
 
-T_REGIST_STATUS = DotDict(REGIST="1",
-                          UN_REGIST="0"
-                          )
-
 LOGIN_STATUS = DotDict(SUCCESS="0",
                        UNREGISTER="1",
                        EXPIRED="2",
                        ILLEGAL_SIM="3")
 
+LOCATION_STATUS = DotDict(FAILED="0",
+                          SUCCESS="1",
+                          UNREALTIME="2")
+
+RESPONSE_STATUS = DotDict(SUCCESS="0",
+                          INVALID_SESSIONID="1")
+
+SERVICE_STATUS = DotDict(ON="1",
+                         OFF="0")
+
+DEFEND_STATUS = DotDict(FAILED="0",
+                        SUCCESS="1",
+                        NO_HOST_SUCCESS="2",
+                        NO_HOST_FAILED="3")
+
+TERMINAL_LOGIN = DotDict(LOGIN="1",
+                         UNLOGIN="0")
+
 # 30min
 HEARTBEAT_INTERVAL = 30 * 60 
+# no use
 SLEEP_HEARTBEAT_INTERVAL = 2*60*60
 DUMMY_FD = "-1"

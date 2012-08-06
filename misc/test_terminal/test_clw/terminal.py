@@ -15,7 +15,7 @@ class Terminal(object):
     heartbeat_mg = "[%s,%s,1,1.0.0,A123,T2,23:9:95]"
     realtime_mg = "[%s,%s,1,1.0.0,A123,T4,1,E,113.252432,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
 
-    location_mg = "[%s,%s,1,1.0.0,A123,T3,1,E,113.25,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
+    location_mg = "[%s,%s,1,1.0.0,A123,T3,0,E,113.25,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
     query_args_mg = "[%s,%s,1,1.0.0,A123,T5,%s]"
     set_args_mg = "[%s,%s,1,1.0.0,A123,T6,%s]"
     reboot_mg = "[%s,%s,1,1.0.0,A123,T7,1]"
@@ -24,10 +24,10 @@ class Terminal(object):
     locationdesc_mg = "[%s,%s,1,1.0.0,A123,T10,E,113.252432,N,22.564152]"
     pvt_mg = "[%s,%s,1,1.0.0,A123,T11,{E,113.252432,N,22.564152,120.3,270.5,1343278800},{E,114.252432,N,23.564152,130.3,280.5,1343279800}]"
     charge_mg = "[%s,%s,1,1.0.0,A123,T12,%s]"
-    move_report_mg = "[%s,%s,1,1.0.0,A123,T13,1,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]"
+    move_report_mg = "[%s,%s,1,1.0.0,A123,T13,2,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]"
     poweroff_report_mg = "[%s,%s,1,1.0.0,A123,T15,1,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]"
-    powerlow_report_mg = "[%s,%s,1,1.0.0,A123,T14,1,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:20,%s,1]"
-    sos_report_mg = "[%s,%s,1,1.0.0,A123,T16,1,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]" 
+    powerlow_report_mg = "[%s,%s,1,1.0.0,A123,T14,0,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:20,%s,1]"
+    sos_report_mg = "[%s,%s,1,1.0.0,A123,T16,2,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]" 
     #speed_report_mg = "[%s,1,V1.0.0,A123045612AA123487,T15,1,E,113.2524,N,22.5641,120.3,270.5,1, 460:00:16662:40953]"
     #mileage_count_mg = "[%s, , ,A123045612AA123487,T16,2000]"
 
@@ -60,11 +60,10 @@ class Terminal(object):
 
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.connect(('192.168.1.4', 9907))
+        self.socket.connect(('192.168.1.8', 9909))
         self.logging = self.initlog() 
 
     def login(self):
-        t_time = time.strftime("%Y-%m-%d %H:%M:%S")
         t_time = int(time.time())
         self.logging.info("Send login message:\n%s", (self.login_mg % t_time))
         self.socket.send(self.login_mg % t_time)
@@ -157,17 +156,20 @@ class Terminal(object):
         self.logging.info("Restart terminal...")
 
     def remote_set(self):
-        t_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        #t_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        t_time = int(time.time())
         self.logging.info("Send remote_set mg:\n%s", (self.remote_set_mg % (t_time, self.sessionID)))
         self.socket.send(self.remote_set_mg % (t_time, self.sessionID))
         
     def remote_unset(self):
-        t_time = time.strftime("%Y-%m-%d %H:%M:%S")
-        self.logging.info("Send remote_unset mg:\n%s", (self.remote_unset_mg % t_time))
+        #t_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        t_time = int(time.time())
+        self.logging.info("Send remote_unset mg:\n%s", (self.remote_unset_mg % (t_time, self.sessionID)))
         self.socket.send(self.remote_unset_mg % (t_time, self.sessionID))
 
     def remote_lock(self):
-        t_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        #t_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        t_time = int(time.time())
         self.logging.info("Send remote_lock mg:\n%s", (self.remote_lock_mg % t_time))
         self.socket.send(self.remote_lock_mg % t_time)
 
@@ -189,9 +191,9 @@ class Terminal(object):
 
     def start_each_thread(self):
         thread.start_new_thread(self.heartbeat, ())
-        #thread.start_new_thread(self.upload_position, ())
-        #thread.start_new_thread(self.report_mg, ())
-        #thread.start_new_thread(self.report_once_mg, ())
+        thread.start_new_thread(self.upload_position, ())
+        thread.start_new_thread(self.report_mg, ())
+        thread.start_new_thread(self.report_once_mg, ())
 
 
     def handle_recv(self, bp):

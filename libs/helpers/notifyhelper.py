@@ -24,7 +24,7 @@ def push_to_android(category, uid, tid, location):
                    clatitude=location.cLat,
                    timestamp=location.timestamp,
                    name=location.name,
-                   volume=location.volume,
+                   volume=location.pbat,
                    speed=location.speed,
                    type=location.type)
      msg=str(json_encode(ret)) 

@@ -73,7 +73,7 @@ def get_terminal_time(timestamp):
     terminal_time = ""
     try:
         from datetime import datetime
-        terminal_time = datetime.fromtimestamp(int(timestamp/1000)).strftime("%Y-%m-%d %H:%M:%S")
+        terminal_time = datetime.fromtimestamp(int(timestamp)).strftime("%Y-%m-%d %H:%M:%S")
     except:
         terminal_time = time.strftime("%Y-%m-%d %H:%M:%S")
     return terminal_time

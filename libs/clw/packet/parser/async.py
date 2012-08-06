@@ -5,7 +5,6 @@ import base64
 
 from utils.dotdict import DotDict
 from constants import EVENTER
-from codes.clwcode import CLWCode
 
 class AsyncParser(object):
 
@@ -75,16 +74,6 @@ class AsyncParser(object):
 
         return position 
 
-    def get_valid(self, valid):
-        if valid == '1':
-            valid = CLWCode.LOCATION_SUCCESS
-        elif valid == '2':
-            valid = CLWCode.LOCATION_LAST
-        else:
-            valid = CLWCode.LOCATION_FAILED
-
-        return valid
-
     def get_charge_info(self, packet):
         content = base64.decodestring(packet[0]).decode('utf-8')
         info = {'content': content}
@@ -106,6 +95,7 @@ class AsyncParser(object):
             position['lat'] = int(float(position['lat']) * 3600000)
             position['speed'] = float(position['speed'])
             position['degree'] = float(position['degree'])
+            position['gps_time'] = int(position['gps_time'])
             positions.append(position)
         info = {'pvts': positions}
 
@@ -133,7 +123,7 @@ class AsyncParser(object):
         position['lat'] = int(float(position['lat']) * 3600000)
         position['speed'] = float(position['speed'])
         position['degree'] = float(position['degree'])
-        position['valid'] = self.get_valid(position['valid']) 
+        position['gps_time'] = int(position['gps_time'])
 
         return position 
 
@@ -158,7 +148,7 @@ class AsyncParser(object):
         position['lat'] = int(float(position['lat']) * 3600000)
         position['speed'] = float(position['speed'])
         position['degree'] = float(position['degree'])
-        position['valid'] = self.get_valid(position['valid']) 
+        position['gps_time'] = int(position['gps_time'])
 
         return position 
 

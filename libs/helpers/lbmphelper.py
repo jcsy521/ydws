@@ -8,8 +8,7 @@ from tornado.escape import json_decode
 from helpers.lbmpsenderhelper import LbmpSenderHelper
 from utils.misc import get_location_cache_key, get_alarm_status_key
 from utils.dotdict import DotDict
-from codes.clwcode import CLWCode
-from constants import EVENTER
+from constants import EVENTER, GATEWAY
 
 def get_clocation_from_ge(location):
     response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GE, location)
@@ -35,7 +34,7 @@ def get_latlon_from_cellid(location):
         if response['success'] == 0:
             location.lat = response['position']['lat']
             location.lon = response['position']['lon']
-            location.valid = CLWCode.LOCATION_SUCCESS
+            location.valid = GATEWAY.LOCATION_STATUS.SUCCESS 
         else:
             logging.info("Get clocation from GE error: %s, locaton: %s",
                          response['info'], location)
@@ -68,12 +67,13 @@ def handle_location(location, memcached, cellid=False):
     @return location
     """
     location = DotDict(location)
-    if location.valid == CLWCode.LOCATION_FAILED:
+    if location.valid == GATEWAY.LOCATION_STATUS.FAILED: 
         location.lat = 0
         location.lon = 0
         location.cLat = 0
         location.cLon = 0
         location.type = 1
+        location.gps_time = location.timestamp
         if cellid:
             location = get_latlon_from_cellid(location)
             #if location.lat and location.lon:

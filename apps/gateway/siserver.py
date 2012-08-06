@@ -8,7 +8,7 @@ import logging
 from multiprocessing import Queue
 
 from constants import GF 
-from constants.GATEWAY import T_REGIST_STATUS, DUMMY_FD
+from constants.GATEWAY import DUMMY_FD
 from codes.gfcode import GFCode
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer

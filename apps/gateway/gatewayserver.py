@@ -10,12 +10,11 @@ from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
 from utils.misc import get_terminal_address_key, get_alarm_status_key,\
      get_terminal_time, get_sessionID, get_terminal_sessionID_key
-from constants.GATEWAY import T_MESSAGE_TYPE, S_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
-     LOGIN_STATUS, SLEEP_HEARTBEAT_INTERVAL, DUMMY_FD
+from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
+     SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
 from constants import EVENTER, GATEWAY
 from codes.smscode import SMSCode
-from codes.clwcode import CLWCode
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.confhelper import ConfHelper
@@ -121,73 +120,67 @@ class GatewayServer(object):
         """
         login packet
         0: success, then get a sessionID for terminal and record terminal's address
-        1: unregister, have not u_msisdn or t_msisdn
+        1: unregister, have no u_msisdn or t_msisdn
         2: expired, service stop or endtime < now
         3: illegal sim, a mismatch between tid and sim 
         """
         try:
-            args = DotDict(success=LOGIN_STATUS.SUCCESS,
+            args = DotDict(success=GATEWAY.LOGIN_STATUS.SUCCESS,
                            sessionID='')
             lp = LoginParser(body, head)
             t_info = lp.ret
                     
             if t_info['u_msisdn'] and t_info['t_msisdn']:
-                terminal = self.db.get("SELECT * FROM T_TERMINAL_INFO"
+                terminal = self.db.get("SELECT mobile, service_status, endtime"
+                                       "  FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s",
                                        t_info['dev_id'])
                 if terminal:
                     if (terminal.endtime < time.time() or
-                        terminal.service_status == '0'):
-                        args.success = LOGIN_STATUS.EXPIRED
-                        logging.error("[GW] Terminal %s expired!", t_info['t_msisdn'])
+                        terminal.service_status == GATEWAY.SERVICE_STATUS.OFF):
+                        # expired or stop service
+                        args.success = GATEWAY.LOGIN_STATUS.EXPIRED
+                        logging.error("[GW] Login failed! Expired Terminal: %s", t_info['dev_id'])
                     elif terminal.mobile != t_info['t_msisdn']:
                         # illegal sim
-                        args.success = LOGIN_STATUS.ILLEGAL_SIM
-                    elif (terminal.owner_mobile != t_info['u_msisdn'] or
-                          terminal.imsi != t_info['imsi'] or
-                          terminal.imei != t_info['imei'] or
-                          terminal.factory_name != t_info['factory_name']):
-                        self.db.execute("UPDATE T_TEMINAL_INFO"
-                                        "  SET owner_mobile = %s"
-                                        "      dev_type = %s"
-                                        "      imsi = %s"
-                                        "      imei = %s"
-                                        "      factory_name = %s"
-                                        "      softversion = %s"
-                                        "  WHERE tid = %s",
-                                        t_info['u_msisdn'], t_info['dev_type'],
-                                        t_info['imsi'], t_info['imei'],
-                                        t_info['factory_name'],
-                                        t_info['softversion'], t_info['dev_id']) 
-                        logging.info("[GW] Terminal %s changes info! old_info: %s, new_info: %s",
-                                     t_info['t_msisdn'], terminal, t_info)
+                        args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                        logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
+                                      t_info['t_msisdn'], t_info['dev_id'])
                     else:
                         pass
-                else:
-                    self.db.execute("INSERT INTO T_TERMINAL_INFO"
-                                    "  (id, tid, dev_type, mobile, owner_mobile,"
-                                    "   imsi, imei, factory_name, softversion)"
-                                    "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                    t_info['dev_id'], t_info['dev_type'], t_info['t_msisdn'],
-                                    t_info['u_msisdn'], t_info['imsi'],
-                                    t_info['imei'], t_info['factory_name'],
-                                    t_info['softversion'])
-                    logging.info("[GW] New terminal %s Regists!", t_info['t_msisdn'])
             else:
-                args.success = LOGIN_STATUS.UNREGISTER 
-                logging.error("[GW] login terminal %s miss sim or owner_mobile information",
+                args.success = GATEWAY.LOGIN_STATUS.UNREGISTER 
+                logging.error("[GW] Login failed! Miss sim or owner_mobile, Terminal: %s",
                               t_info['dev_id'])
 
-            if args.success == LOGIN_STATUS.SUCCESS:
+            if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
+                t_info['login'] = GATEWAY.TERMINAL_LOGIN.LOGIN
+                self.db.execute("INSERT INTO T_TERMINAL_INFO"
+                                "  (id, tid, dev_type, mobile, owner_mobile,"
+                                "   imsi, imei, factory_name, softversion)"
+                                "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                "  ON DUPLICATE KEY"
+                                "    UPDATE tid = VALUES(tid),"
+                                "           dev_type = VALUES(dev_type),"
+                                "           mobile = VALUES(mobile),"
+                                "           owner_mobile = VALUES(owner_mobile),"
+                                "           imsi = VALUES(imsi),"
+                                "           imei = VALUES(imei),"
+                                "           factory_name = VALUES(factory_name),"
+                                "           softversion = VALUES(softversion)",
+                                t_info['dev_id'], t_info['dev_type'], t_info['t_msisdn'],
+                                t_info['u_msisdn'], t_info['imsi'], t_info['imei'],
+                                t_info['factory_name'], t_info['softversion'])
+                # get SessionID
                 args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
                 self.memcached.set(terminal_sessionID_key, args.sessionID)
 
                 self.update_terminal_status(t_info["dev_id"], address)
-                self.update_login_status(t_info["dev_id"], LOGIN_STATUS.SUCCESS)
+                self.update_terminal_info(t_info)
                 if not t_info["dev_id"] in self.online_terminals:
                     self.online_terminals.append(t_info["dev_id"])
-                logging.info("[GW] %s login success!", t_info['dev_id'])
+                logging.info("[GW] Terminal %s login success!", t_info['dev_id'])
 
             lc = LoginRespComposer(args)
             request = DotDict(packet=lc.buf,
@@ -203,20 +196,16 @@ class GatewayServer(object):
         1: invalid SessionID 
         """
         try:
-            args = DotDict(success="0")
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS)
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
-                args.success = "1"
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
-                terminal_status = self.get_terminal_status(head.dev_id)
-                if terminal_status:
-                    hp = HeartbeatParser(body, head)
-                    heartbeat_info = hp.ret 
-                    self.update_terminal_status(head.dev_id, address)
-                    self.update_terminal_info(heartbeat_info)
-                else:
-                    args.success = "1"
-                    logging.error("[GW] Invalid heartbeat request from: %s", head.dev_id) 
+                hp = HeartbeatParser(body, head)
+                heartbeat_info = hp.ret 
+                self.update_terminal_status(head.dev_id, address)
+                self.update_terminal_info(heartbeat_info)
+
             hc = HeartbeatRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address)
@@ -231,56 +220,52 @@ class GatewayServer(object):
         1: invalid SessionID 
         """
         try:
-            args = DotDict(success="0",
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            locationdesc="")
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
-                args.success = "1"
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
                 logging.error("[GW] Invalid sessionID, terminal: %s", head.dev_id)
             else:
                 ldp = LocationDescParser(body, head)
                 location = ldp.ret
-                location['valid'] = CLWCode.LOCATION_SUCCESS
+                location['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS 
                 location['t'] = EVENTER.INFO_TYPE.POSITION
                 location = lbmphelper.handle_location(location, self.memcached)
                 locationdesc = unicode(location.name)
                 locationdesc = locationdesc.encode("utf-8", 'ignore')
                 args.locationdesc = base64.b64encode(locationdesc)
+                self.update_terminal_status(head.dev_id, address)
+
             lc = LocationDescRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address)
             gw_requests_queue.put(request)
-            self.update_terminal_status(head.dev_id, address)
         except:
             logging.exception("[GW] Handle locationdesc exception.")
 
     def foward_packet_to_si(self, packet, response, address, si_requests_queue, gw_requests_queue):
         """
-        command response packet or position/report/charge packet from terminal
+        response packet or position/report/charge packet
         0: success, then forward it to SIServer and record new terminal's address
         1: invalid SessionID 
         """
         try:
-            args = DotDict(success="0",
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=packet.head.command)
             dev_id = packet.head.dev_id
             sessionID = self.get_terminal_sessionID(dev_id)
             if sessionID != packet.head.sessionID:
-                args.success = "1"
-                logging.error("[GW] Invalid sessionID, packet: %s", response)
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
+                logging.error("[GW] Invalid sessionID, Terminal: %s", dev_id)
             else:
-                terminal_status = self.get_terminal_status(dev_id)
-                if terminal_status:
-                    uargs = DotDict(seq=SeqGenerator.next(self.db),
-                                    dev_id=dev_id,
-                                    content=response)
-                    content = UploadDataComposer(uargs).buf
-                    logging.info("[GW] Forward message to SI:\n%s", content)
-                    self.append_si_request(content, si_requests_queue)
-                    self.update_terminal_status(dev_id, address)
-                else:
-                    args.success = "1"
-                    logging.error("[GW] Invalid packet: %s", response)
+                uargs = DotDict(seq=SeqGenerator.next(self.db),
+                                dev_id=dev_id,
+                                content=response)
+                content = UploadDataComposer(uargs).buf
+                logging.info("[GW] Forward message to SI:\n%s", content)
+                self.append_si_request(content, si_requests_queue)
+                self.update_terminal_status(dev_id, address)
 
             if packet.head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
                                        T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
@@ -315,7 +300,8 @@ class GatewayServer(object):
 
     def update_terminal_info(self, t_info):
         fields = []
-        keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat', 'defend_status']
+        keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat',
+                'defend_status', 'login']
         for key in keys:
             if t_info.get(key, None) is not None:
                 if key == 'softversion':
@@ -332,15 +318,6 @@ class GatewayServer(object):
         terminal_status_key = get_terminal_address_key(dev_id)
         return self.memcached.get(terminal_status_key)
 
-    def update_login_status(self, dev_id, login):
-        try:
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET login = %s"
-                            "  WHERE tid = %s",
-                            login, dev_id)
-        except:
-            logging.exception("[GW] Update login status exception")
-
     def check_heartbeat(self):
         try:
             is_alived = self.memcached.get("is_alived")
@@ -349,7 +326,6 @@ class GatewayServer(object):
                     status = self.get_terminal_status(dev_id)
                     if not status:
                         self.heartbeat_lost_report(dev_id)
-                        self.update_login_status(dev_id, LOGIN_FAILD)
         except:
             logging.exception("[GW] Check gateway heartbeat exception.")
                 
@@ -374,9 +350,15 @@ class GatewayServer(object):
         #    SMSHelper.send(user.owner_mobile, sms)
         #    logging.warn("[GW] Terminal %s Heartbeat lost report:\n%s", dev_id, sms)
         logging.error("[GW] Terminal %s Heartbeat lost!!!", dev_id)
+        # 1. memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
         self.memcached.delete(terminal_sessionID_key)
+        # 2. offline
         self.online_terminals.remove(dev_id)
+        # 3. db set unlogin
+        info = DotDict(dev_id=dev_id,
+                       login=GATEWAY.TERMINAL_LOGIN.UNLOGIN)
+        self.update_terminal_info(info)
 
     def __start_check_heartbeat_thread(self):
         self.check_heartbeat_thread = RepeatedTimer(ConfHelper.GW_SERVER_CONF.check_heartbeat_interval,

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from codes.clwcode import CLWCode
 
 class RebootParser(object):
 
@@ -9,10 +8,7 @@ class RebootParser(object):
         self.ret = self.parse(packet, ret)
 
     def parse(self, packet, ret):
-        if packet[0] == '0':
-            ret['status'] = CLWCode.FAILED
-        elif packet[0] == '1':
-            ret['status'] = CLWCode.SUCCESS
+        ret['status'] = packet[0] 
 
         return ret
 

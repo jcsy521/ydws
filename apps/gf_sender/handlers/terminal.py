@@ -7,7 +7,6 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from codes.clwcode import CLWCode
 
 from clw.packet.composer.terminal import TerminalComposer
 from clw.packet.parser.terminal import TerminalParser

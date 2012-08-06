@@ -14,8 +14,7 @@ from utils.misc import get_name_cache_key, get_terminal_time,\
      get_ssdw_sms_key
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
-from codes.clwcode import CLWCode
-from constants import EVENTER
+from constants import EVENTER, GATEWAY
 from constants.MEMCACHED import ALIVED
 
 
@@ -58,7 +57,7 @@ class PacketTask(object):
                               location.speed, location.degree,
                               location.cellid)
         is_alived = self.memcached.get('is_alived')
-        if (is_alived == ALIVED and location.valid == CLWCode.LOCATION_SUCCESS):
+        if (is_alived == ALIVED and location.valid == GATEWAY.LOCATION_STATUS.SUCCESS):
             mem_location = DotDict({'id':lid,
                                     'latitude':location.lat,
                                     'longitude':location.lon,
@@ -195,7 +194,7 @@ class PacketTask(object):
 
 
     def notify_to_parents(self, category, dev_id, location):
-        # NOtE: if user is not null, notify android
+        # NOTE: if user is not null, notify android
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
         if user:
-            notifyhelper.push_to_android(category, user.uid, dev_id, location)      
+            notifyhelper.push_to_android(category, user.owner_mobile, dev_id, location)      

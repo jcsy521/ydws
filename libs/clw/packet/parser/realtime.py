@@ -2,7 +2,6 @@
 
 import logging
 from utils.dotdict import DotDict
-from codes.clwcode import CLWCode
 from constants import EVENTER
 
 class RealtimeParser(object):
@@ -54,16 +53,7 @@ class RealtimeParser(object):
         position['lat'] = int(float(position['lat']) * 3600000)
         position['speed'] = float(position['speed'])
         position['degree'] = float(position['degree'])
-        position['valid'] = self.get_valid(position['valid'])
+        position['gps_time'] = int(position['gps_time'])
 
         return position
 
-    def get_valid(self, valid):
-        if valid == '1':
-            valid = CLWCode.LOCATION_SUCCESS
-        elif valid == '2':
-            valid = CLWCode.LOCATION_LAST
-        else:
-            valid = CLWCode.LOCATION_FAILED
-
-        return valid

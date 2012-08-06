@@ -8,10 +8,9 @@ from tornado.escape import json_decode, json_encode
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.seqgenerator import SeqGenerator
 from codes.errorcode import ErrorCode
-from codes.clwcode import CLWCode
 from utils.dotdict import DotDict
 from helpers.lbmphelper import handle_location
-from constants import UWEB, EVENTER
+from constants import UWEB, EVENTER, GATEWAY
 from constants.MEMCACHED import ALIVED
 from base import BaseMixin
 
@@ -43,7 +42,7 @@ class RealtimeMixin(BaseMixin):
                               location.type, location.speed,
                               location.degree, location.cellid)
         is_alived = self.memcached.get('is_alived')
-        if (is_alived == ALIVED and location.valid == CLWCode.LOCATION_SUCCESS):
+        if (is_alived == ALIVED and location.valid == GATEWAY.LOCATION_STATUS.SUCCESS):
             mem_location = DotDict({'id':lid,
                                     'latitude':location.lat,
                                     'longitude':location.lon,
@@ -98,7 +97,8 @@ class RealtimeMixin(BaseMixin):
                 response = json_decode(response)
                 if response['success'] == 0:
                     location = DotDict(response['position'])
-                    location = handle_location(location, self.memcached, cellid=True if query.cellid_status == UWEB.CELLID_STATUS.ON else False)
+                    location = handle_location(location, self.memcached,
+                                               cellid=True if query.cellid_status == UWEB.CELLID_STATUS.ON else False)
                     if location.get('cLat') and location.get('cLon'):
                         ret.location.latitude = location.lat
                         ret.location.longitude = location.lon
