@@ -143,7 +143,7 @@ window.dlf.fn_changeDateStringToNum = function(dateString) {
 
 // 将日期整数转化为字符串
 window.dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
-	var myDate = new Date(myEpoch),
+	var myDate = new Date(myEpoch*1000),
         year = myDate.getFullYear(), 
         month = myDate.getMonth()+1,
 	    day = myDate.getDate(), 
@@ -350,6 +350,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
 	
 	obj_carLi.data('selfpolyline', actionPolyline);
 	if ( obj_selfMarker ) {
+		console.log('111111', obj_carInfo);
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_carLi.data('selfmarker', obj_selfMarker);

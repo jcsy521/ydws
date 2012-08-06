@@ -177,13 +177,13 @@ function fn_drawMarker() {
 // 页面加载完成后进行加载地图
 $(function () {	
 	// 初始化时间
-	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
+	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime()/1000, 'ymd');
 	$('#trackBeginTime').unbind('click').click(function() {
 		WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}'});
 	}).val(str_nowDate+' 00:00:00');
 	$('#trackEndTime').unbind('click').click(function() {
 		WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}'});
-	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date(), 'sfm'));
+	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date()/1000, 'sfm'));
 	
 	// 按钮变色
 	$('.j_tBtnhover, #trackSearch, #trackClose').mouseover(function(event) {

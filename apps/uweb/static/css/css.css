@@ -558,6 +558,9 @@ body {
 	display: inline-block;
 	width: 250px;
 }
+#bListR input {
+	margin-left: 10px;
+}
 .bListR_text_mouseOut  {
 	background-color: #FFF;
 	border: 1px solid #cdcdcd;
@@ -948,8 +951,9 @@ body {
 }
 /*disbaled style*/
 .textDisabled {
-	background-color: scrollbar;
-	color: #4A4A4A;
+	/*background-color: scrollbar;*/
+	border: 0px;
+	color: black;
 }
 /*readonly style*/
 .readonly_overlay {

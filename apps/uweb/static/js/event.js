@@ -145,7 +145,7 @@ $(function () {
 	});
 	
 	// 初始化时间
-	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
+	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime()/1000, 'ymd');
 	$('#eventTime').click(function() {
 		WdatePicker({dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false, maxDate: '%y-%M-%d'});
 	}).val(str_nowDate);

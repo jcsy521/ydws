@@ -50,7 +50,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 		str_tempMsg = '开始跟踪',
 		str_actionTrack =$('#carList .carCurrent').attr('actiontrack'),
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
-	
+	console.log(date);
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
 	}
