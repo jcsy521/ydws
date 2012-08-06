@@ -19,19 +19,25 @@ class HttpClient(object):
     #        uid=2590&msg=%E4%BD%A0%E5%A5%BD+%E5%88%98%E6%97%B6%E5%98%89%EF%BC%81&msgid=53970002&cmd=send&psw=CEE712A91DD4D0A8A67CC8E47B645662&mobiles=15010955397
             request.add_data(urllib.urlencode(data))
             request.add_header("Content-type", "application/x-www-form-urlencoded")
-            # Open the page to obtain response object
+            
+            # Definition connect times
             tries = 3
             response = None
             while tries:  
-                try:  
+                try:
+                    # Open the page to obtain response object
                     response = urllib2.urlopen(request)  
-                    break  
+                    break
+                except HTTPError, msg:
+                    logging.exception("Connection sms service HTTPError : %s", msg)
+                except URLError, msg:
+                    logging.exception("Connection sms service URLError : %s", msg)
                 except Exception, msg:  
+                    logging.exception("Connection sms service exception : %s", msg)
+                finally:
                     tries = tries - 1  
                     if tries:  
-                        continue  
-                    else:  
-                        logging.exception("Connection sms service exception : %s", msg)
+                        continue
         
             if response:
                 # Get response message header  
