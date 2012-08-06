@@ -10,8 +10,11 @@ class QueryComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self, args):
-        #valid_keys = ['SOFTVERSION', 'GSM', 'GPS', 'VBAT', 'VIN', 'LOGIN',
-        #              'PLCID', 'IMSI', 'IMEI']
+        """
+        eg: [1343278800,S5,PSW,GSM]
+        """
+        #valid_keys = ['SOFTVERSION', 'GSM', 'GPS', 'PBAT',
+        #              'IMSI', 'IMEI']
         packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.QUERY)
         for key in args['params']:
             packet += ",%s" % key.upper()

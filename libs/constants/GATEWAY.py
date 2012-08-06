@@ -47,6 +47,7 @@ LOGIN_STATUS = DotDict(SUCCESS="0",
                        EXPIRED="2",
                        ILLEGAL_SIM="3")
 
-HEARTBEAT_INTERVAL = 2*60
+# 30min
+HEARTBEAT_INTERVAL = 30 * 60 
 SLEEP_HEARTBEAT_INTERVAL = 2*60*60
 DUMMY_FD = "-1"

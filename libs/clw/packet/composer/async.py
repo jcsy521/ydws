@@ -10,6 +10,9 @@ class AsyncRespComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self, args):
+        """
+        eg: [1343278800,S3,0]
+        """
         if args.command == T_MESSAGE_TYPE.POSITION:
             args.command = S_MESSAGE_TYPE.POSITION
         elif args.command == T_MESSAGE_TYPE.MULTIPVT:

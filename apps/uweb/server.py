@@ -82,7 +82,7 @@ class Application(tornado.web.Application):
             (r"/wap/*", WAPTransferHandler),
 
             # accept sms from sms proxy
-            (r"/sms/*", SMSHandler),
+            (r"/sms/mo/*", SMSHandler),
             
         ]
 

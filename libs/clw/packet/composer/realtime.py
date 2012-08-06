@@ -10,6 +10,9 @@ class RealtimeComposer(BaseComposer):
         self.buf = self.compose()
 
     def compose(self):
+        """
+        eg: [1343278800,S4]
+        """
         packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.REALTIME)
         request = self.format_packet(packet)
 

@@ -15,7 +15,10 @@ class T_CLWCheck(object):
 
     def parse_head(self, packets):
         packets_info = []
-        if packets.startswith('[') and packets.endswith(']'):
+        start_index = packets.find('[')
+        end_index = packets.rfind(']')
+        if start_index != -1 and end_index != -1:
+            packets = packets[start_index:end_index+1]
             packet_list = packets[1:-1].split('][')
             for packet in packet_list:
                 packet_info = DotDict(head=DotDict(), body="")

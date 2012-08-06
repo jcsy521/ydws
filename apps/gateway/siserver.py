@@ -160,6 +160,10 @@ class SIServer():
         return packet 
 
     def send_request(self, fd, request):
+        """
+        @param fd: address of SI
+               request: whole gf request
+        """
         try:
             while len(request['packet']) > 0:
                 logging.info("[SI]-->%s:%s Send:\n%r",
@@ -184,8 +188,7 @@ class SIServer():
     def handle_response_from_si(self, fd, response, si_requests_queue, gw_requests_queue):
         """
         @param fd: readable fd
-               response: recv from si system(eg: abt), most to send command
-                         to terminal
+               response: whole packet recv from SI.
         workflow:
             if recv login:
                 start heart_beat thread for this fd
@@ -296,6 +299,11 @@ class SIServer():
                                   response)
 
     def handle_requests_to_si(self, fd, request):
+        """
+        heartbeat: stop fd if have no response to heartbeat for 3 times.
+        unbind: unregister fd
+        other: send to SI 
+        """
         if request.get('category') == 'H': # heart_beat
             # send 3 times at most
             if not self.heart_beat_queues.has_key(fd):
@@ -327,6 +335,11 @@ class SIServer():
             logging.exception("unknown error: %s", e.args)
 
     def handle_si_connections(self, si_requests_queue, gw_requests_queue):
+        """
+        main process
+        all operations about socket: register fd, send request and recv
+        response
+        """
         while True:
             try:
                 if not self.epoll_fd:

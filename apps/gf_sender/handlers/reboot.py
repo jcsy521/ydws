@@ -24,7 +24,7 @@ class RebootHandler(BaseHandler):
         workflow:
         vg_buf = VGComposer(args)
         gf_buf = GFComposer(vg_buf, args)
-        get vg_buf via ConfigComposer(), then get complete gf_buf
+        get vg_buf via RebootComposer(), then get complete gf_buf
         via SendComposer(), send it!
         """
         

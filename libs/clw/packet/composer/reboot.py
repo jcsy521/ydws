@@ -10,6 +10,9 @@ class RebootComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self, args):
+        """
+        [1343278800,S7]
+        """
         packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.REBOOT)
         request = self.format_packet(packet)
         

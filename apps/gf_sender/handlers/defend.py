@@ -25,7 +25,7 @@ class DefendHandler(BaseHandler):
         workflow:
         clw_buf = CLWComposer(args)
         gf_buf = GFComposer(clw_buf, args)
-        get clw_buf via RealtimeComposer(), then get complete gf_buf
+        get clw_buf via DefendComposer(), then get complete gf_buf
         via SendComposer(), send it!
         """
         

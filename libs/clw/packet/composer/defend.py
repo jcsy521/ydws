@@ -11,6 +11,9 @@ class DefendComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self, args):
+        """
+        eg: [1343278800,S8] 
+        """
         if args['defend_status'] == UWEB.DEFEND_STATUS.YES:
             defend = S_MESSAGE_TYPE.DEFENDON
         else:

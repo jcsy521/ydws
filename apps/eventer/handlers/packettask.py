@@ -189,7 +189,7 @@ class PacketTask(object):
         if not sms:
             return
 
-        user = QueryHelper.get_umobile_by_dev_id(dev_id, self.db) 
+        user = QueryHelper.get_user_by_tid(dev_id, self.db) 
         if user:
             SMSHelper.send(user.owner_mobile, sms)
 

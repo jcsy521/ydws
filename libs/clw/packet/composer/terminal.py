@@ -10,6 +10,9 @@ class TerminalComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self, args):
+        """
+        eg: [1343278800,S6,DOMAIN=pinganbb.info:9002,FREQ=15]
+        """
         packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.TERMINAL) 
         params = args['params']
         valid_keys = ['domain', 'freq', 'trace', 'pulse', 'phone',

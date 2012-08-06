@@ -10,6 +10,9 @@ class HeartbeatRespComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self, args):
+        """
+        eg: [1343278800,S2,0]
+        """
         packet = "%s,%s,%s" % (self.time, S_MESSAGE_TYPE.HEARTBEAT,
                                args['success'])
         request = self.format_packet(packet)

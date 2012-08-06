@@ -139,11 +139,11 @@ class AsyncParser(object):
 
     def get_report_info(self, packet):
         """Get the location report information. Location is classified as the 
-        following categories: REGION_ENTER, REGION_OUT, POWERON, POWEROFF
+        following categories: POWEROFF, POWERLOW, EMERGENCY, ILLEGALMOVE 
         """
 
-        keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed',
-                'degree', 'defend_status', 'cellid', 'extra', 'gps_time', 'dev_type']
+        keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed', 'degree',
+                'defend_status', 'cellid', 'extra', 'gps_time', 'dev_type']
         position = self.get_position()
         for i, key in enumerate(keys):
             position[key] = packet[i] 

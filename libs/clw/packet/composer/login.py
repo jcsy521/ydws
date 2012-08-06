@@ -10,6 +10,9 @@ class LoginRespComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self, args):
+        """
+        eg: [1343278800,S1,0,1q2w3e45]
+        """
         command = S_MESSAGE_TYPE.LOGIN 
         success = args['success']
         sessionID = args['sessionID']
