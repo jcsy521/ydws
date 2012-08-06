@@ -138,7 +138,7 @@ window.dlf.fn_changeDateStringToNum = function(dateString) {
         hour = timeArr[0], 
         min = timeArr[1];
     }
-	return new Date(year,month,day,hour,min,seconds).getTime(); // Your timezone!
+	return new Date(year,month,day,hour,min,seconds).getTime()/1000; // Your timezone!
 }
 
 // 将日期整数转化为字符串
@@ -421,12 +421,6 @@ window.dlf.fn_processDegree = function(n_degree) {
 window.dlf.fn_eventText = function(n_eventNum) {
 	var str_text = '无法获取';
 	switch (n_eventNum) {
-		case 0:
-			str_text = '未知类型';
-			break;
-		case 1:
-			str_text = '点名上报';
-			break;
 		case 2:
 			str_text = '低电';
 			break;
