@@ -44,18 +44,25 @@ class MOACB(object):
                 id = mo["id"]
                 
                 status = self.send_mo_to_acb(mobile, content)
-                if status == '0':
-                    logging.info("Send mo success mobile = %s, content = %s", mobile, content)
-                    self.db.execute("UPDATE T_SMS "
-                                   "  SET sendstatus = 1"
-                                   "  WHERE id = %s",
-                                   id)
+                if status:
+                    if status == '0':
+                        logging.info("Send mo success mobile = %s, content = %s", mobile, content)
+                        self.db.execute("UPDATE T_SMS "
+                                       "  SET sendstatus = 1"
+                                       "  WHERE id = %s",
+                                       id)
+                    elif status == '1':
+                        logging.info("Send mo failed mobile = %s, content = %s", mobile, content)
+                        self.db.execute("UPDATE T_SMS "
+                                       "  SET sendstatus = 2"
+                                       "  WHERE id = %s",
+                                       id)
+                    else:
+                        #sms-->acb reponse error result
+                        pass
                 else:
-                    logging.info("Send mo failed mobile = %s, content = %s", mobile, content)
-                    self.db.execute("UPDATE T_SMS "
-                                   "  SET sendstatus = 2"
-                                   "  WHERE id = %s",
-                                   id)
+                    # http response is None
+                    pass
             
         except Exception, msg:
             logging.exception("Fetch mo sms exception : %s", msg)

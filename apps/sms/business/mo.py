@@ -33,21 +33,25 @@ class MO(object):
                         psw=psw,
                         )
             result = HttpClient().send_http_post_request(url, data)
-            result_list = result.strip().splitlines()
-            if result_list[0] == "101":
-                logging.info("No mo sms")
+            if result:
+                result_list = result.strip().splitlines()
+                if result_list[0] == "101":
+                    logging.info("No mo sms")
+                else:
+                    logging.info("Obtain mo sms")
+                    result_list.remove(result_list[0])
+                    for info in result_list:
+                        info_list = info.split("#")
+                        msgid = info_list[0]
+                        time = info_list[1]
+                        mobile = info_list[2]
+                        uid = info_list[3]
+                        content = info_list[4]
+                        
+                        self.save(msgid, mobile, content)
             else:
-                logging.info("Obtain mo sms")
-                result_list.remove(result_list[0])
-                for info in result_list:
-                    info_list = info.split("#")
-                    msgid = info_list[0]
-                    time = info_list[1]
-                    mobile = info_list[2]
-                    uid = info_list[3]
-                    content = info_list[4]
-                    
-                    self.save(msgid, mobile, content)
+                # http response is None
+                pass
                     
         except Exception, msg:
             logging.exception("Get mo sms exception : %s", msg)

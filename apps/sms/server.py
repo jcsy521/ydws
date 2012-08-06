@@ -60,8 +60,8 @@ def shutdown(server):
 
 def run_mt_thread():
     logging.info("MT thread started.")
-    #time interval 1 second
-    INTERVAL = 1
+    #time interval 5 second
+    INTERVAL = 5
     mt = MT()
     while True:
         try:

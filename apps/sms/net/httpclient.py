@@ -6,6 +6,7 @@ import urllib
 import logging
 import re
 
+
 class HttpClient(object):
     
     def send_http_post_request(self, url = None, data = None, encoding = 'utf-8'):
@@ -20,6 +21,7 @@ class HttpClient(object):
             request.add_header("Content-type", "application/x-www-form-urlencoded")
             # Open the page to obtain response object
             tries = 3
+            response = None
             while tries:  
                 try:  
                     response = urllib2.urlopen(request)  
@@ -31,44 +33,48 @@ class HttpClient(object):
                     else:  
                         logging.exception("Connection sms service exception : %s", msg)
         
-            # Get response message header  
-            headerObject = response.headers  
-            # Get response text  
-            streamData = "" 
-            while True:  
-                subData = response.read(2048)  
-                if subData == "":  
-                    break  
-                streamData = streamData + subData  
-        
-            # Judge returns the page code mechanism  
-            if headerObject.has_key('Content-Encoding'):  
-                if cmp(headerObject['Content-Encoding'].strip().upper(), 'gzip'.upper()) == 0:  
-                    compresseddata = streamData  
-                    compressedstream = StringIO.StringIO(compresseddata)  
-                    gzipper = gzip.GzipFile(fileobj=compressedstream)  
-                    htmlCode = gzipper.read()
-                else:  
-                    htmlCode = streamData  
-            else:  
-                # Get back to the page content  
-                htmlCode = streamData  
-#            print dir(headerObject)
-#            print dict(headerObject)
-#            print dir(response)
-#            print response.__dict__
-            # Judge returns the content of the page code, and transformed into utf-8 encoding
-            if headerObject.has_key('content-type'):  
-                contentType = headerObject['content-type']
-                # If there is a 'charset =' the string
-                if contentType.lower().find('charset=') != -1:  
-                    charset = re.search(r'charset=([^;]*)', contentType.lower()).group(1)
-                    if charset != encoding:  
-                        try:  
-                            htmlCode = htmlCode.decode(charset)
-                        except:
-                            logging.exception("Encoding return message exception : %s", msg)
+            if response:
+                # Get response message header  
+                headerObject = response.headers  
+                # Get response text  
+                streamData = "" 
+                while True:  
+                    subData = response.read(2048)  
+                    if subData == "":  
+                        break  
+                    streamData = streamData + subData  
             
+                # Judge returns the page code mechanism  
+                if headerObject.has_key('Content-Encoding'):  
+                    if cmp(headerObject['Content-Encoding'].strip().upper(), 'gzip'.upper()) == 0:  
+                        compresseddata = streamData  
+                        compressedstream = StringIO.StringIO(compresseddata)  
+                        gzipper = gzip.GzipFile(fileobj=compressedstream)  
+                        htmlCode = gzipper.read()
+                    else:  
+                        htmlCode = streamData  
+                else:  
+                    # Get back to the page content  
+                    htmlCode = streamData  
+    #            print dir(headerObject)
+    #            print dict(headerObject)
+    #            print dir(response)
+    #            print response.__dict__
+                # Judge returns the content of the page code, and transformed into utf-8 encoding
+                if headerObject.has_key('content-type'):  
+                    contentType = headerObject['content-type']
+                    # If there is a 'charset =' the string
+                    if contentType.lower().find('charset=') != -1:  
+                        charset = re.search(r'charset=([^;]*)', contentType.lower()).group(1)
+                        if charset != encoding:  
+                            try:  
+                                htmlCode = htmlCode.decode(charset)
+                            except:
+                                logging.exception("Encoding return message exception : %s", msg)
+            else:
+                logging.error("Connection response is None")
+                htmlCode = None
+                
         except Exception, msg:  
             logging.exception("Send http post request exception : %s", msg)
         finally:

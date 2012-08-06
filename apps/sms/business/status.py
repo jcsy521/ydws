@@ -32,7 +32,12 @@ class Status(object):
                         psw=psw,
                         )
             result = HttpClient().send_http_post_request(url, data)
-            self.save_user_receive_status(result)
+            if result:
+                self.save_user_receive_status(result)
+            else:
+                # http response is None
+                pass
+            
         except Exception, msg:
             logging.exception("Get user receive status exception : %s", msg)
         

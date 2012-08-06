@@ -30,44 +30,54 @@ class MT(object):
                                 "  ORDER BY id ASC"
                                 "  LIMIT 10",
                                 SMS.CATEGORY.SEND, 0)
-            
-            for mt in mts:
-                mobile = mt["mobile"]
-                content = mt["content"]
-                msgid = mt["msgid"]
-                id = mt["id"]
                 
-                status = self.send_mt(msgid, mobile, content)
-                
-                if status == "100":
-                    logging.info("Send mt success mobile = %s, content = %s", mobile, content)
-                    self.db.execute("UPDATE T_SMS "
-                                   "  SET sendstatus = 1"
-                                   "  WHERE id = %s",
-                                   id)
-                else:
-                    if status == "101":
-                        logging.error("Send mt failure mobile = %s, content = %s", mobiles, content)
-                    elif status == "104":
-                        logging.error("Send mt content error! mobile = %s, content = %s", mobile, content)
-                    elif status == "105":
-                        logging.error("Send mt frequency too fast")
-                    elif status == "106":
-                        logging.error("Send mt number limited")
-                    else:
-                        logging.error("Send mt other error")
+            if mts:
+                for mt in mts:
+                    try:
+                        mobile = mt["mobile"]
+                        content = mt["content"]
+                        msgid = mt["msgid"]
+                        id = mt["id"]
                         
-                    self.db.execute("UPDATE T_SMS "
-                                   "  SET sendstatus = 2"
-                                   "  WHERE id = %s",
-                                   id)
-                    
+                        status = self.send_mt(msgid, mobile, content)
+                        
+                        if status:
+                            if status == "100":
+                                logging.info("Send mt success mobile = %s, content = %s", mobile, content)
+                                self.db.execute("UPDATE T_SMS "
+                                               "  SET sendstatus = 1"
+                                               "  WHERE id = %s",
+                                               id)
+                            else:
+                                if status == "101":
+                                    logging.error("Send mt failure mobile = %s, content = %s", mobiles, content)
+                                elif status == "104":
+                                    logging.error("Send mt content error! mobile = %s, content = %s", mobile, content)
+                                elif status == "105":
+                                    logging.error("Send mt frequency too fast")
+                                elif status == "106":
+                                    logging.error("Send mt number limited")
+                                else:
+                                    logging.error("Send mt other error")
+                                    
+                                self.db.execute("UPDATE T_SMS "
+                                                "  SET sendstatus = 2"
+                                                "  WHERE id = %s",
+                                                id)
+                        else:
+                            # http response is None
+                            pass
+                    except:
+                        if mts != None:
+                            self.db.execute("UPDATE T_SMS "
+                                            "  SET sendstatus = 2"
+                                            "  WHERE id = %s",
+                                            id)
+            else:
+                logging.info("No mt sms")
+                            
         except Exception, msg:
             logging.exception("Fetch mt sms exception : %s", msg)
-            self.db.execute("UPDATE T_SMS "
-                                   "  SET sendstatus = 2"
-                                   "  WHERE id = %s",
-                                   id)
     
     
     def send_mt(self, msgid, mobile, content):
