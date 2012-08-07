@@ -118,7 +118,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             else:
                 if key == 'whitelist_2':
                     key = 'white_list' 
-                    gf_params[key]=value+":"+str(user.mobile)
+                    gf_params[key]=str(user.mobile)+":"+value
                 else:
                     gf_params[key]=value
                
