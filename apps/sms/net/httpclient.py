@@ -30,11 +30,16 @@ class HttpClient(object):
                     break
                 except HTTPError, msg:
                     logging.exception("Connection sms service HTTPError : %s", msg)
+                    tries = tries - 1  
+                    if tries:  
+                        continue
                 except URLError, msg:
                     logging.exception("Connection sms service URLError : %s", msg)
+                    tries = tries - 1  
+                    if tries:  
+                        continue
                 except Exception, msg:  
                     logging.exception("Connection sms service exception : %s", msg)
-                finally:
                     tries = tries - 1  
                     if tries:  
                         continue
