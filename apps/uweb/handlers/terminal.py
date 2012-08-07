@@ -119,7 +119,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 if key == 'whitelist_2':
                     key = 'white_list' 
                     gf_params[key]=value+":"+str(user.mobile)
-                gf_params[key]=value
+                else:
+                    gf_params[key]=value
                
         self.update_terminal_db(db_params, self.current_user.tid, self.current_user.sim) 
         args.params = gf_params 
