@@ -14,7 +14,7 @@ from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
 from utils.mymemcached import MyMemcached
 from db_.mysql import get_connection
-from utils.misc import get_terminal_address_key
+from utils.misc import get_terminal_address_key, get_terminal_sessionID_key
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.confhelper import ConfHelper
@@ -105,6 +105,13 @@ class SIServer():
                                    terminal_id) 
             if terminal:
                 status = GFCode.TERMINAL_OFFLINE 
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET login = 0"
+                                "  WHERE id = %s", terminal.id)
+                terminal_sessionID_key = get_terminal_sessionID_key(terminal_id)
+                terminal_status_key = get_terminal_address_key(terminal_id)
+                keys = [terminal_sessionID_key, terminal_status_key]
+                self.memcached.delete_multi(keys)
             else:
                 status = GFCode.GF_NOT_ORDERED 
                     

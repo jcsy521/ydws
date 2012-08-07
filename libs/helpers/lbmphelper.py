@@ -8,7 +8,8 @@ from tornado.escape import json_decode
 from helpers.lbmpsenderhelper import LbmpSenderHelper
 from utils.misc import get_location_cache_key, get_alarm_status_key
 from utils.dotdict import DotDict
-from constants import EVENTER, GATEWAY
+from constants import EVENTER, GATEWAY, UWEB
+from constants.MEMCACHED import ALIVED
 
 def get_clocation_from_ge(location):
     response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GE, location)
@@ -59,7 +60,29 @@ def get_location_name(location, memcached):
 
     return location.name 
 
-def handle_location(location, memcached, cellid=False):
+def get_last_degree(location, memcached, db):
+    # if the car is still(speed < min_speed) or location is cellid, the degree is suspect.
+    # use degree of last usable location
+    is_alived = memcached.get('is_alived')
+    if is_alived == ALIVED:
+        last_location = memcached.get(str(location.dev_id))
+    else:
+        last_location = db.get("SELECT degree FROM T_LOCATION"
+                               "  WHERE tid = %s"
+                               "    AND type = 0"
+                               "    AND (%s BETWEEN timestamp - %s"
+                               "                AND timestamp + %s)"
+                               "  ORDER BY timestamp DESC"
+                               "  LIMIT 1",
+                               location.dev_id, location.timestamp,
+                               EVENTER.LOCATION_EXPIRY * 1000,
+                               EVENTER.LOCATION_EXPIRY * 1000)
+    if last_location:
+        location.degree = last_location.degree
+
+    return float(location.degree)
+
+def handle_location(location, memcached, cellid=False, db=None):
     """
     @param location
            memcached
@@ -74,12 +97,16 @@ def handle_location(location, memcached, cellid=False):
         location.cLon = 0
         location.type = 1
         location.gps_time = location.timestamp
+        location.degree = get_last_degree(location, memcached, db)
         if cellid:
             location = get_latlon_from_cellid(location)
             #if location.lat and location.lon:
             #    location = filter_location(location, memcached)
     else:
         location.type = 0
+        # car is still, degree is suspect 
+        if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
+            location.degree = get_last_degree(location, memcached, db)
 
     if location and location.lat and location.lon:
         location.cLat, location.cLon = get_clocation_from_ge(location)

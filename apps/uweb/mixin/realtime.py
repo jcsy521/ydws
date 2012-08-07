@@ -98,7 +98,8 @@ class RealtimeMixin(BaseMixin):
                 if response['success'] == 0:
                     location = DotDict(response['position'])
                     location = handle_location(location, self.memcached,
-                                               cellid=True if query.cellid_status == UWEB.CELLID_STATUS.ON else False)
+                                               cellid=True if query.cellid_status == UWEB.CELLID_STATUS.ON else False,
+                                               db=self.db)
                     if location.get('cLat') and location.get('cLon'):
                         ret.location.latitude = location.lat
                         ret.location.longitude = location.lon

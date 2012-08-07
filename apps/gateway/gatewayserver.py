@@ -8,6 +8,8 @@ import base64
 
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
+from db_.mysql import DBConnection
+from utils.mymemcached import MyMemcached
 from utils.misc import get_terminal_address_key, get_alarm_status_key,\
      get_terminal_time, get_sessionID, get_terminal_sessionID_key
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
@@ -48,6 +50,7 @@ class GatewayServer(object):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
         self.__start_check_heartbeat_thread()
+        self.__record_online_terminals()
 
     def recv(self, si_requests_queue, gw_requests_queue):
         try:
@@ -360,6 +363,26 @@ class GatewayServer(object):
                        login=GATEWAY.TERMINAL_LOGIN.UNLOGIN)
         self.update_terminal_info(info)
 
+    def __record_online_terminals(self):
+        """
+        if restart gatewayserver, record online terminals again.
+        """
+        db = DBConnection().db
+        memcached = MyMemcached()
+        online_terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                    "  WHERE login = 1")
+        for terminal in online_terminals:
+            terminal_status_key = get_terminal_address_key(terminal.tid)
+            terminal_status = memcached.get(terminal_status_key)
+            if terminal_status:
+                self.online_terminals.append(terminal.tid)
+            else:
+                db.execute("UPDATE T_TERMINAL_INFO"
+                           "  SET login = 0"
+                           "  WHERE tid = %s",
+                           terminal.tid)
+        db.close()
+        
     def __start_check_heartbeat_thread(self):
         self.check_heartbeat_thread = RepeatedTimer(ConfHelper.GW_SERVER_CONF.check_heartbeat_interval,
                                                     self.check_heartbeat)

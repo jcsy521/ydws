@@ -5,6 +5,8 @@ from utils.dotdict import DotDict
 # the priority is same with abt
 PRIORITY = DotDict(SMS=40, )
 
+SPEED_DIFF = 3 # if speed < 3km/h, be considered as still point.
+
 
 REALTIME_VALID_INTERVAL = 180000
 GPS_REALTIME_INTERVAL = 60000

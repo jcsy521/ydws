@@ -32,5 +32,5 @@ CATEGORY = DotDict(UNKNOWN=0,
 # The location name will be cached for 7 days
 LOCATION_NAME_EXPIRY = 60*60*24*7
 
-# location of target keep 15s 
-LOCATION_EXPIRY = 15 
+# location of target keep 60 minutes 
+LOCATION_EXPIRY = 60 * 60 

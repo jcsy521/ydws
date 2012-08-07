@@ -107,7 +107,8 @@ class PacketTask(object):
         location = DotDict(location)
         if location.Tid == EVENTER.TRIGGERID.CALL:
             # get available location from lbmphelper
-            location = lbmphelper.handle_location(location, self.memcached) 
+            location = lbmphelper.handle_location(location, self.memcached,
+                                                  cellid=False, db=self.db) 
             location.category = EVENTER.CATEGORY.REALTIME
             self.update_terminal_status(location)
             self.realtime_location_hook(location)
@@ -115,7 +116,8 @@ class PacketTask(object):
             for pvt in location['pvts']:
                 # get available location from lbmphelper
                 pvt['dev_id'] = location['dev_id']
-                location = lbmphelper.handle_location(pvt, self.memcached) 
+                location = lbmphelper.handle_location(pvt, self.memcached,
+                                                      cellid=False, db=self.db) 
                 location.category = EVENTER.CATEGORY.REALTIME
                 self.realtime_location_hook(location) 
         else:
@@ -133,7 +135,8 @@ class PacketTask(object):
         CHARGE
         """
         # get available location from lbmphelper 
-        report = lbmphelper.handle_location(info, self.memcached)
+        report = lbmphelper.handle_location(info, self.memcached,
+                                            cellid=False, db=self.db)
         name = self.get_tname(report.dev_id)
         terminal_time = get_terminal_time(int(report.gps_time))
 
@@ -182,7 +185,7 @@ class PacketTask(object):
         name = self.get_tname(info.dev_id)
         terminal_time = get_terminal_time(int(info.timestamp))
         sms = SMSCode.SMS_CHARGE % (name, info.content, terminal_time)
-        self.sms_to_parents(report.dev_id, sms)
+        self.sms_to_parents(info.dev_id, sms)
 
     def sms_to_parents(self, dev_id, sms):
         if not sms:

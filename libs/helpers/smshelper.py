@@ -51,7 +51,7 @@ class SMSHelper:
 
         send_ok = False
         try:
-            req = urllib2.Request(url=ConfHelper.SMS_CONF.url,
+            req = urllib2.Request(url=ConfHelper.UWEB_CONF.sms_url,
                                   data=urlencode(dict(mobile=mobile,
                                                       content=content)))
             f = urllib2.urlopen(req)
