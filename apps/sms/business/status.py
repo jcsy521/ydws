@@ -9,23 +9,30 @@ import logging
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "apps/sms"))
 
-from net.httpclient import HttpClient
+from tornado.options import define, options
+if 'conf' not in options:
+    define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+
+from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
+from constants import SMS
+from net.httpclient import HttpClient
 
 
 class Status(object):
     
     
     def __init__(self):
+        ConfHelper.load(options.conf)
         self.db = DBConnection().db
         
         
     def get_user_receive_status(self):
         try:
-            url = "http://kltx.sms10000.com.cn/sdk/SMS"
+            url = ConfHelper.SMS_CONF.mt_url
             cmd = "getstatus"
-            uid = "2590"
-            psw = "CEE712A91DD4D0A8A67CC8E47B645662"
+            uid = ConfHelper.SMS_CONF.uid
+            psw = ConfHelper.SMS_CONF.psw
             
             data = dict(cmd=cmd,
                         uid=uid,
@@ -61,14 +68,16 @@ class Status(object):
                     msgid = info_list[0]
                     mobile = info_list[1]
                     status = info_list[2]
-                    if status == '1':
+                    if status == str(SMS.USERSTATUS.FAILURE):
                         logging.warn("User %s does not recieve sms, msgid = %s ", mobile, msgid)
-                    
-                    self.db.execute("UPDATE T_SMS "
-                                    "  SET userstatus = %s"
-                                    "  WHERE msgid = %s"
-                                    "  AND mobile = %s",
-                                    status, msgid, mobile)
+                    elif status == str(SMS.USERSTATUS.SUCCESS):
+                        self.db.execute("UPDATE T_SMS "
+                                        "  SET userstatus = %s"
+                                        "  WHERE msgid = %s"
+                                        "  AND mobile = %s",
+                                        SMS.USERSTATUS.SUCCESS, msgid, mobile)
+                    else:
+                        logging.error("User %s recieve sms status error, msgid = %s, status = %s ", mobile, msgid, status)
         except Exception, msg:
             logging.exception("Save user receive status exception : %s", msg)
                 

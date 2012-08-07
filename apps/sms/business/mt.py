@@ -10,14 +10,20 @@ TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 site.addsitedir(os.path.join(TOP_DIR_, "apps/sms"))
 
+from tornado.options import define, options
+if 'conf' not in options:
+    define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+
+from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
-from net.httpclient import HttpClient
 from constants import SMS
+from net.httpclient import HttpClient
 
 
 class MT(object):
     
     def __init__(self):
+        ConfHelper.load(options.conf)
         self.db = DBConnection().db
     
     
@@ -29,8 +35,8 @@ class MT(object):
                                 "  AND sendstatus = %s"
                                 "  ORDER BY id ASC"
                                 "  LIMIT 10",
-                                SMS.CATEGORY.SEND, 0)
-                
+                                SMS.CATEGORY.SEND, SMS.SENDSTATUS.PENDING)
+
             if mts:
                 for mt in mts:
                     try:
@@ -43,36 +49,36 @@ class MT(object):
                         
                         if status:
                             if status == "100":
-                                logging.info("Send mt success mobile = %s, content = %s", mobile, content)
+                                logging.info("sms-->gateway success mobile = %s, content = %s", mobile, content)
                                 self.db.execute("UPDATE T_SMS "
-                                               "  SET sendstatus = 1"
+                                               "  SET sendstatus = %s"
                                                "  WHERE id = %s",
-                                               id)
+                                               SMS.SENDSTATUS.SUCCESS, id)
                             else:
                                 if status == "101":
-                                    logging.error("Send mt failure mobile = %s, content = %s", mobiles, content)
+                                    logging.error("sms-->gateway failure errorcode = 101, mobile = %s, content = %s ", mobiles, content)
                                 elif status == "104":
-                                    logging.error("Send mt content error! mobile = %s, content = %s", mobile, content)
+                                    logging.error("sms-->gateway content error! errorcode = 104, mobile = %s, content = %s ", mobile, content)
                                 elif status == "105":
-                                    logging.error("Send mt frequency too fast")
+                                    logging.error("sms-->gateway frequency too fast errorcode = 105 ")
                                 elif status == "106":
-                                    logging.error("Send mt number limited")
+                                    logging.error("sms-->gateway number limited errorcode = 106 ")
                                 else:
-                                    logging.error("Send mt other error")
+                                    logging.error("sms-->gateway other error, errorcode unknown ")
                                     
                                 self.db.execute("UPDATE T_SMS "
-                                                "  SET sendstatus = 2"
+                                                "  SET sendstatus = %s"
                                                 "  WHERE id = %s",
-                                                id)
+                                                SMS.SENDSTATUS.FAILURE, id)
                         else:
                             # http response is None
                             pass
                     except:
                         if mts != None:
                             self.db.execute("UPDATE T_SMS "
-                                            "  SET sendstatus = 2"
+                                            "  SET sendstatus = %s"
                                             "  WHERE id = %s",
-                                            id)
+                                            SMS.SENDSTATUS.FAILURE, id)
             else:
                 logging.info("No mt sms")
                             
@@ -82,10 +88,10 @@ class MT(object):
     
     def send_mt(self, msgid, mobile, content):
         try:
-            url = "http://kltx.sms10000.com.cn/sdk/SMS"
+            url = ConfHelper.SMS_CONF.mt_url
             cmd = "send"
-            uid = "2590"
-            psw = "CEE712A91DD4D0A8A67CC8E47B645662"
+            uid = ConfHelper.SMS_CONF.uid
+            psw = ConfHelper.SMS_CONF.psw
             msgid = msgid
             mobiles = mobile
             msg = content.encode('gbk')

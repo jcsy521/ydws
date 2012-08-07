@@ -9,24 +9,30 @@ import time
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "apps/sms"))
 
-from net.httpclient import HttpClient
+from tornado.options import define, options
+if 'conf' not in options:
+    define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+
+from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
 from constants import SMS
+from net.httpclient import HttpClient
 
 
 class MO(object):
     
     
     def __init__(self):
+        ConfHelper.load(options.conf)
         self.db = DBConnection().db
         
         
     def get_mo_sms(self):
         try:
-            url = "http://kltx.sms10000.com.cn/sdk/SMS"
+            url = ConfHelper.SMS_CONF.mt_url
             cmd = "getmo"
-            uid = "2590"
-            psw = "CEE712A91DD4D0A8A67CC8E47B645662"
+            uid = ConfHelper.SMS_CONF.uid
+            psw = ConfHelper.SMS_CONF.psw
             
             data = dict(cmd=cmd,
                         uid=uid,
@@ -64,10 +70,10 @@ class MO(object):
                             " inserttime, category, sendstatus) "
                             "  VALUES(%s, %s, %s, %s, %s, %s)",
                             msgid, mobile, content, insert_time,
-                            SMS.CATEGORY.RECEIVE, 0)
+                            SMS.CATEGORY.RECEIVE, SMS.SENDSTATUS.PENDING)
             logging.info("Gateway-->sms save success! mobile = %s, content = %s", mobile, content)
         except Exception, msg:
-            logging.exception("Save mo sms exception : %s", msg)
+            logging.exception("Gateway-->sms save exception : %s", msg)
         
         
         

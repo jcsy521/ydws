@@ -33,7 +33,7 @@ class ACBMTHandler(BaseHandler):
                             " inserttime, category, sendstatus) "
                             "  VALUES(%s, %s, %s, %s, %s, %s)",
                             msgid, mobile, content, insert_time,
-                            SMS.CATEGORY.SEND, 0)
+                            SMS.CATEGORY.SEND, SMS.SENDSTATUS.PENDING)
             logging.info("acb-->sms save success! mobile = %s, content = %s", mobile, content)
             return "0"
         except Exception, msg:

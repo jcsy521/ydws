@@ -16,16 +16,16 @@ if 'conf' not in options:
 
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
-from net.httpclient import HttpClient
 from constants import SMS
+from net.httpclient import HttpClient
 
 
 class MOACB(object):
     
     
     def __init__(self):
-        self.db = DBConnection().db
         ConfHelper.load(options.conf)
+        self.db = DBConnection().db
     
     
     def fetch_mo_sms(self):
@@ -36,7 +36,7 @@ class MOACB(object):
                                 "  AND sendstatus = %s"
                                 "  ORDER BY id ASC"
                                 "  LIMIT 10",
-                                SMS.CATEGORY.RECEIVE, 0)
+                                SMS.CATEGORY.RECEIVE, SMS.SENDSTATUS.PENDING)
             
             for mo in mos:
                 mobile = mo["mobile"]
@@ -46,17 +46,17 @@ class MOACB(object):
                 status = self.send_mo_to_acb(mobile, content)
                 if status:
                     if status == '0':
-                        logging.info("Send mo success mobile = %s, content = %s", mobile, content)
+                        logging.info("sms-->acb success mobile = %s, content = %s", mobile, content)
                         self.db.execute("UPDATE T_SMS "
-                                       "  SET sendstatus = 1"
+                                       "  SET sendstatus = %s"
                                        "  WHERE id = %s",
-                                       id)
+                                       SMS.SENDSTATUS.SUCCESS, id)
                     elif status == '1':
-                        logging.info("Send mo failed mobile = %s, content = %s", mobile, content)
+                        logging.info("sms-->acb failure mobile = %s, content = %s", mobile, content)
                         self.db.execute("UPDATE T_SMS "
-                                       "  SET sendstatus = 2"
+                                       "  SET sendstatus = %s"
                                        "  WHERE id = %s",
-                                       id)
+                                       SMS.SENDSTATUS.FAILURE, id)
                     else:
                         #sms-->acb reponse error result
                         pass
@@ -67,9 +67,9 @@ class MOACB(object):
         except Exception, msg:
             logging.exception("Fetch mo sms exception : %s", msg)
             self.db.execute("UPDATE T_SMS "
-                            "  SET sendstatus = 2"
+                            "  SET sendstatus = %s"
                             "  WHERE id = %s",
-                            id)
+                            SMS.SENDSTATUS.FAILURE, id)
             
             
     def send_mo_to_acb(self, mobile, content):
