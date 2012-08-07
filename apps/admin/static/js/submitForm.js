@@ -1,7 +1,7 @@
 $(function () {	
 	// get the login from the cookie 
 	if (jQuery.isFunction($.cookie)) {
-		var login = decodeURIComponent($.cookie("APPADMIN_N"));
+		var login = decodeURIComponent($.cookie("ACBADMIN_N"));
 		var loginUser = parent.document.getElementById('loginUser');
 		$(loginUser).text('您好，' + login);
 	}
@@ -11,8 +11,12 @@ function formSubmit(option) {
 	var starttime = $('#start_time1').val(),
 		endtime = $('#end_time1').val(),
 		dailytime = $('#daily_time').val(), // daily
-		provs = $('#provincesId').val(),
-		str_groups = $('#group').val(),
+		begintime1 = $('#begintime1').val(), // business begintime
+		endtime1 = $('#endtime1').val(),	// business endtime
+		begintime0 = $('#begintime0').val(), // business begintime
+		endtime0 = $('#endtime0').val(),	// business endtime
+		begintime2 = $('#begintime2').val(), // business begintime
+		endtime2 = $('#endtime2').val(),	// business endtime
 		mobile = $('#mobile').val();
 	if (starttime && endtime) {
 		var et = toEpochDate(endtime + ' 23:59:59');
@@ -22,6 +26,30 @@ function formSubmit(option) {
 			alert('开始时间不能大于结束时间！请重新操作。');
 			return false;
 		}
+	}
+	// business
+	if ( option == 'business' ) {
+		var et = toEpochDate(endtime1 + ' 23:59:59')/1000,
+			bt = toEpochDate(begintime1 + ' 00:00:00')/1000;
+		$('#endtime').val(et);
+		$('#begintime').val(bt);
+		return true;
+	}
+	// business edit
+	if ( option == 'businessEdit' ) {
+		var et = toEpochDate(endtime2 + ' 23:59:59')/1000,
+			bt = toEpochDate(begintime2 + ' 00:00:00')/1000;
+		$('#endtime').val(et);
+		$('#begintime').val(bt);
+		return true;
+	}
+	// business search
+	if ( option == 'businessSearch' ) {	
+		var et = endtime0 == '' ? '' : toEpochDate(endtime0 + ' 23:59:59')/1000,
+			bt = begintime0 == '' ? '' : toEpochDate(begintime0 + ' 00:00:00')/1000;
+		$('#endtime').val(et);
+		$('#begintime').val(bt);
+		return true;
 	}
 	// 日报
 	if ( option == 'day' ) {
@@ -41,6 +69,7 @@ function formSubmit(option) {
 		}
 	}
 }
+// 新建用户 验证数据 
 function fn_validateForm () {
 	var $mobile  = $('#mobile'),	 // 手机
 		$phone = $('#phone'),	 // 固定电话
@@ -165,11 +194,4 @@ function fn_GoBack() {
     } else {
         parent.location.replace('/');
     }
-}
-
-// 获取当月的最后一天
-function fn_getLastDayOfCurrentMonth() {
-	var date = new Date(), year = date.getFullYear(), month = date.getMonth();
-	var nextDate = new Date(year, month+1, 1); // 下个月的第一天
-	return new Date(nextDate.getTime()-1000*60*60*24).getDate();
 }

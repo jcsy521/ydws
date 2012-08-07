@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-		<title>爱贝通后台管理系统</title>
+		<title>爱车保后台管理系统</title>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 		<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -21,7 +21,7 @@
     {% block body %}
     <div>
         <div id="logo" class="ui-widget-header ui-corner-all">
-            爱贝通后台系统 v1.0
+            爱车保后台系统 v1.0
         </div>
     </div>
     <div id="left">
@@ -41,7 +41,18 @@
                     </li>
                 </ul>
             </div>
-			{% if type == '0' %}
+			<h3><a href="#">业务受理</a></h3>
+            <div>
+                <ul class="cUlItem">
+                    <li onclick="fn_CreateIframeSrc('/business/create');">
+                        <a href="#">业务开通</a>
+                    </li>
+                    <li onclick="fn_CreateIframeSrc('/business/search');">
+                        <a href="#">业务查询</a>
+                    </li>
+                </ul>
+            </div>
+			<!--
             <h3><a href="#">系统管理</a></h3>
             <div>
                 <ul class="cUlItem">
@@ -64,7 +75,6 @@
                     </li>
                 </ul>
             </div>
-			{% end %}
 			<h3><a href="#">代客操作</a></h3>
 			<div>
 				<ul class="cUlItem">
@@ -116,6 +126,7 @@
                 </ul>
             </div>
 			{% end %}
+		-->	
 		    <h3><a href="#">退出</a></h3>
             <div>
                 <ul class="cUlItem">

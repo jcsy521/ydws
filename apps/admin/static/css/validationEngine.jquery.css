@@ -5,6 +5,7 @@
 			display:block;
 			z-index:5000;
 			height: 26px;
+			cursor: pointer;
 		}
 			#debugMode{
 				background:#000;
@@ -22,12 +23,13 @@
 		
 			.ajaxSubmit{ padding:20px; background:#55ea55;border:1px solid #999;display:none}
 			.formError .formErrorContent {
+				cursor: pointer;
 				width:100%; 
 				background:#ee0101;
 				color:#fff;
-				width:150px;
+				width:180px;
 				font-family:tahoma;
-				font-size:11px;
+				font-size:12px;
 				border:2px solid #ddd;
 				box-shadow: 0px 0px 6px #000;
 				-moz-box-shadow: 0px 0px 6px #000;
@@ -42,11 +44,10 @@
 			.blackPopup .formErrorContent {background:#393939;color:#FFF;}
 			
 			.formError .formErrorArrow{
-				position:absolute;
-				bottom:0!important;bottom:-15px;left:20px;
-				width:15px; height:15px;
-
-				z-index:5001;
+				margin: -2px 0 0 13px;
+				position: relative;
+				width: 15px;
+				z-index: 5006;
 			}
 			.formError .formErrorArrowBottom{top:0;margin:-6px;}
 			

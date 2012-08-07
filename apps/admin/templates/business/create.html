@@ -1,0 +1,106 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/jquery.ui.datepicker-zh-CN.js"></script>
+<script src="/static/js/jquery.validationEngine-en.js"></script>
+<script src="/static/js/jquery.validationEngine.js"></script>
+<script src="/static/js/initStyle.js"></script>
+<script src="/static/js/dateChoose.js"></script>
+<script src="/static/js/formValue.js"></script>
+<script src="/static/js/submitForm.js"></script>
+{% block body %}
+<h3>业务开通</h3>
+<form id="formID" method="post" action="" onsubmit="return formSubmit('business');">
+		<table cellspacing="0" cellpadding="0" border="0" align="center" class="tableStyle j_business">
+			<tr>
+				<td>
+					<span style="color:red">带红色*为必填项</span>
+				</td>
+				<td> &nbsp;</td>
+			</tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>车主姓名：</td>
+				<td	  align="left">
+					<input type="text" name="name" id="name" class="validate[custom[t_name],length[2,16]],onsubmit" />
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>车主手机号：</td>
+				<td  align="left">
+					<input type="text" name="mobile" id="mobile"
+						class="validate[custom[mobile],ajax[ajaxMobile]],onsubmit"  maxlength="11"/> 
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>终端手机号：</td>
+				<td  align="left">
+					<input type="text" name="tmobile" id="tmobile"
+						class="validate[custom[mobile],ajax[ajaxTMobile]],onsubmit"  maxlength="11"/>
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>密码：</td>
+				<td	  align="left">
+					<input type="password" name="password" id="password" 
+					   class="validate[required,length[6,64]],onsubmit" 
+					   onKeyUp="fn_textKeyUp(this, 'text')" value="111111"  />
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>确认密码：</td>
+				<td	  align="left">
+					<input type="password" id="password2" 
+						class="validate[required,confirm[password]],onsubmit" value="111111"  />
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>开通日期：</td>
+				<td	  align="left">
+					<input type="text" name="begintime1" id="begintime1" readonly="true"
+					   maxlength="40" />
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>截止日期：</td>
+				<td	  align="left">
+					<input type="text" name="endtime1" id="endtime1"  readonly="true"
+					   maxlength="40" />
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft">车牌号：</td>
+				<td	  align="left">
+					<input type="text" name="cnum" id="cnum" class="validate[optional,custom[cnum]],onsubmit"
+					   maxlength="8" /> 
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft">联系地址：</td>
+				<td	  align="left">
+					<input type="text" name="address" id="address"  class="validate[optional],onsubmit" maxlength="100" /> <!--validate[custom[phone]]-->
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft">公司名称：</td>
+				<td	  align="left">
+					<input type="text" name="corporation" id="corporation"  class="validate[optional],onsubmit" maxlength="100"/>
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft">电子邮件：</td>
+				<td	  align="left">
+					<input type="text" name="email" id="email"  class="validate[optional,custom[email],length[0,50]],onsubmit" maxlength="50" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+				<input type="hidden" id="begintime" name="begintime" value="" />
+				<input type="hidden" id="endtime" name="endtime" value="" />
+					 <input class="ui-widget ui-button ui-corner-all ui-state-default" type="submit" value="确定"  /> 
+				</td>
+			</tr>
+    </table>
+</form>
+{% end %}

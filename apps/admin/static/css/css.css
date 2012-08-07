@@ -6,6 +6,7 @@ body {
     font-family: 'Microsoft YaHei', Arial, Helvetica, Verdana, sans-serif; 
     font-size: 11pt;
     margin: auto;
+	background-color: #FFF;
 }
 h3 {
     margin: 5px 0;
@@ -15,6 +16,21 @@ h3 {
     line-height: 2.3;
     text-indent: 0.5em;
     font-size: 18px;
+}
+.text_blur {
+	background-color: #FFF;
+	border: 1px solid #cdcdcd;
+	height: 22px;
+	line-height: 22px;
+	width: 170px;
+}
+.text_focus  {
+	background-color: #FFF;
+	border: 0px;
+	border: 2px groove #7EC0EE;	
+	height: 22px;
+	line-height: 22px;
+	width: 170px;
 }
 .resultQuery h3 {
     float: left;
@@ -136,10 +152,10 @@ table, .ui-widget-header {
 	padding-right: 5pt;
 	position: relative;
 }
-#searchTable {
+.searchTable {
 	width: 270px;
 }
-#searchTable td {
+.searchTable td {
 	height: 28px;
 	line-height: 28px;
 }
@@ -335,16 +351,18 @@ table, .ui-widget-header {
 .tableStyle {
     border-collapse: collapse;
     text-align: left;
+	float: left;
+	width: 350px;
 }
-
 .tableStyle td {
     background-color: #EFEFEF;
     border: 1px dashed #AAAAAA;
     padding: 5px 15px 5px 5px;
-    height: 20px;
+    height: 36px;
 }
 .tLeft {
     width: 100px;
+	text-align: right;
 }
 #loginhistory {
     text-align: center;
@@ -413,9 +431,6 @@ table, .ui-widget-header {
 .success {
 	color: green;
 }
-.error {
-	color: #FFC125;
-}
 .failed {
 	color: red;
 }
@@ -465,4 +480,12 @@ table, .ui-widget-header {
 tfoot {
 	font-size: 14px;
 	font-weight: bold;
+}
+.signColor {
+	color: red;
+	display: inline-block;
+	margin-right: 10px;
+}
+.button {
+	display: inline-block;
 }

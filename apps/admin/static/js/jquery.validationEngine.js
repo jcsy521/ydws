@@ -388,13 +388,24 @@ $.validationEngine = {
 				promptText += $.validationEngine.settings.allrules["confirm"].alertText+"<br />";
 			}
 		}
-		function _length(caller,rules,position){    	  // VALIDATE LENGTH
+		/*function _length(caller,rules,position){    	  // VALIDATE LENGTH
 			fieldValue = $(caller).attr('value').replace(/[^\w|chun]/g,'**');
 			forLength = eval(rules[position+1]);
 			feildLength = fieldValue.length;
 			if( feildLength>forLength){
 				$.validationEngine.isError = true;
 				promptText += $.validationEngine.settings.allrules["length"].alertText+forLength+"<br />"
+			}
+		}*/
+		function _length(caller,rules,position){    	  // VALIDATE LENGTH
+		
+			startLength = eval(rules[position+1]);
+			endLength = eval(rules[position+2]);
+			feildLength = $(caller).attr('value').length;
+
+			if(feildLength<startLength || feildLength>endLength){
+				$.validationEngine.isError = true;
+				promptText += $.validationEngine.settings.allrules["length"].alertText+startLength+$.validationEngine.settings.allrules["length"].alertText2+endLength+$.validationEngine.settings.allrules["length"].alertText3+"<br />"
 			}
 		}
 		function _maxCheckbox(caller,rules,position){  	  // VALIDATE CHECKBOX NUMBER

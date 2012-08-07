@@ -54,7 +54,9 @@ from handlers.user import UserHandler, UserDownloadHandler
 from handlers.subscriber import SubscriberHandler, SubscriberDownloadHandler
 #from handlers.location import LocationHandler, LocationDownloadHandler
 from handlers.subscription import SubscriptionHandler, SubscriptionDownloadHandler
-from handlers.business import BusinessHandler, BusinessDownloadHandler
+from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler,\
+        BusinessCheckTMobileHandler, BusinessSearchHandler, BusinessListHandler,\
+        BusinessEditHandler, BusinessDeleteHandler
 from handlers.daily import DailyHandler, DailyDownloadHandler
 from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
 from handlers.group import GroupHandler, GroupDownloadHandler
@@ -85,6 +87,15 @@ class Application(tornado.web.Application):
             (r"/administrator/me/*", AdministratorSelfEditHandler),           
             (r"/administrator/password/me/*", MyPasswordHandler),
             (r"/administrator/password/other/*", OtherPasswordHandler),
+
+            # business
+            (r"/business/create/*", BusinessCreateHandler),
+            (r"/business/checkmobile/(\S+)/*", BusinessCheckMobileHandler),
+            (r"/business/checktmobile/(\S+)/*", BusinessCheckTMobileHandler),
+            (r"/business/search/*", BusinessSearchHandler),
+            (r"/business/list/(\S+)/*", BusinessListHandler),
+            (r"/business/edit/(\S+)/*", BusinessEditHandler),
+            (r"/business/delete/(\S+)/(\S+)/*", BusinessDeleteHandler),
 
             # privilege group
             (r"/privgroup/list/*", PrivGroupListHandler),
@@ -123,7 +134,7 @@ class Application(tornado.web.Application):
             #(r"/report/location/*", LocationHandler),
             (r"/report/monthly/*", MonthlyHandler),
             (r"/report/daily/*", DailyHandler),
-            (r"/report/business/*", BusinessHandler),
+            #(r"/report/business/*", BusinessHandler),
             #(r"/report/sms/*", SMSHandler),
 
             # download the report
@@ -132,7 +143,7 @@ class Application(tornado.web.Application):
             #(r"/download/location/(.*)/*", LocationDownloadHandler),
             (r"/download/monthly/(.*)/*", MonthlyDownloadHandler),
             (r"/download/daily/(.*)/*", DailyDownloadHandler),
-            (r"/download/business/(.*)/*", BusinessDownloadHandler),
+            #(r"/download/business/(.*)/*", BusinessDownloadHandler),
             (r"/download/group/(.*)/*", GroupDownloadHandler),
             #(r"/download/sms/(.*)/*", SMSDownloadHandler),
         ]
@@ -143,7 +154,7 @@ class Application(tornado.web.Application):
             cookie_secret="s8g1gVxKOiQoZptLRi2nSuXmiK2ThYJJBSHIUHnqoUw=",
             login_url="/login",
             debug=debug,
-            app_name="APPADMIN",
+            app_name="ACBADMIN",
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)

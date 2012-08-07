@@ -7,6 +7,7 @@ import hashlib
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
+from tornado.ioloop import IOLoop
 
 from constants import LOCATION, XXT
 from utils.dotdict import DotDict
@@ -15,8 +16,15 @@ from mixin import BaseMixin
 from excelheaders import BUSINESS_HEADER, BUSINESS_SHEET, BUSINESS_FILE_NAME
 from base import BaseHandler, authenticated
 
-from checker import check_areas, check_privileges
-from constants import PRIVILEGES, SMS
+from checker import check_areas, check_privileges 
+from codes.errorcode import ErrorCode 
+from utils.checker import check_sql_injection
+from helpers.smshelper import SMSHelper
+from helpers.seqgenerator import SeqGenerator
+from helpers.gfsenderhelper import GFSenderHelper
+from helpers.queryhelper import QueryHelper 
+from codes.smscode import SMSCode 
+from constants import PRIVILEGES, SMS, UWEB
 from utils.misc import str_to_list, DUMMY_IDS
 from myutils import city_list
 from mongodb.mdaily import MDaily, MDailyMixin
@@ -27,173 +35,319 @@ class BusinessMixin(BaseMixin):
     KEY_TEMPLATE = "business_report_%s_%s"
 
     def prepare_data(self, hash_):
-
+        """Prepare search results for post.
+        """
         mem_key = self.get_memcache_key(hash_)
         
         data = self.memcached.get(mem_key)
         if data:
             return data
 
-        results = []
-        counts = DotDict(new_groups=0,
-                         new_targets=0,
-                         cancel_targets=0,
-                         new_plan1=0,
-                         new_plan2=0,
-                         new_plan3=0)
+        begintime = int(self.get_argument('begintime',0))
+        endtime = int(self.get_argument('endtime',0))
+        interval=[begintime, endtime]
 
-        start_time = int(self.get_argument('start_time', None))
-        end_time = int(self.get_argument('end_time', None))
-        interval = [start_time, end_time]
-        s_time = time.strftime("%Y%m%d%H%M%S0000", time.localtime(start_time/1000))
-        e_time = time.strftime("%Y%m%d%H%M%S0000", time.localtime(end_time/1000))
+        fields = DotDict(cnum="tc.cnum LIKE '%%%%%s%%%%'",
+                         name="tu.name LIKE '%%%%%s%%%%'",
+                         mobile="tu.mobile LIKE '%%%%%s%%%%'",
+                         tmobile="tt.mobile LIKE '%%%%%s%%%%'",
+                         #service_status="tt.service_status = %s",
+                         begintime="tt.begintime >= %s",
+                         endtime="tt.endtime <= %s") 
 
-        for i, city in enumerate(self.cities):
-            c = self.db.get("SELECT city_name, region_code FROM T_HLR_CITY"
-                            "  WHERE city_id = %s",
-                            city.city_id)
-            new_groups = self.db.get("SELECT count(*) AS count FROM T_XXT_GROUP"
-                                     "  WHERE city_id = %s"
-                                     "    AND timestamp BETWEEN %s AND %s",
-                                     c.region_code, s_time, e_time)
-            total_groups = self.db.query("SELECT xxt_id FROM T_XXT_GROUP"
-                                         "  WHERE city_id = %s",
-                                         c.region_code)
-            group_ids = [int(group.xxt_id) for group in total_groups]
-            new_targets = self.db.query("SELECT id, plan_id FROM T_XXT_TARGET"
-                                        "  WHERE group_id IN %s"
-                                        "    AND optype = %s"
-                                        "    AND timestamp BETWEEN %s AND %s",
-                                        tuple(group_ids + DUMMY_IDS),
-                                        XXT.OPER_TYPE.CREATE, s_time, e_time)
-            plans = [target.plan_id for target in new_targets]
-            cancel_targets = self.db.get("SELECT count(*) AS count FROM T_XXT_TARGET"
-                                         "  WHERE group_id IN %s"
-                                         "    AND optype = %s"
-                                         "    AND timestamp BETWEEN %s AND %s",
-                                         tuple(group_ids + DUMMY_IDS),
-                                         XXT.OPER_TYPE.CANCEL, s_time, e_time)
+        for key in fields.iterkeys():
+            v = self.get_argument(key, None)
+            if v:
+                if not check_sql_injection(v):
+                    self.get()
+                    return  
+                fields[key] = fields[key] % (v,)
+            else:
+                 fields[key] = None
 
-            result = DotDict(id=i+1,
-                             city=c.city_name,
-                             new_groups=new_groups.count,
-                             new_targets=len(new_targets),
-                             cancel_targets=cancel_targets.count,
-                             new_plan1=plans.count('40102908')+plans.count('40102918'),
-                             new_plan2=plans.count('40102905')+plans.count('40102915'),
-                             new_plan3=plans.count('40102906')+plans.count('40102916'))
-            results.append(result)
-            for key in counts:
-                counts[key] += result[key]
+        where_clause = ' AND '.join([v for v in fields.itervalues()
+                                     if v is not None])
 
-        self.memcached.set(mem_key,(results, counts, interval), 
+        if where_clause:
+            sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tu.corporation, tt.begintime, tt.endtime,"
+                   "  tt.mobile as tmobile, tt.service_status, tc.cnum"
+                   "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
+                   "  WHERE  tu.mobile = tt.owner_mobile "
+                   "    AND tt.mobile = tc.tmobile "
+                   "    AND ") + where_clause
+            businesses = self.db.query(sql)
+        else:
+
+            sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tu.corporation, tt.begintime, tt.endtime,"
+                   "  tt.mobile as tmobile, tt.service_status, tc.cnum"
+                   "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
+                   "  WHERE  tu.mobile = tt.owner_mobile "
+                   "    AND tt.mobile = tc.tmobile ")
+            businesses = self.db.query(sql)
+        for i, business in enumerate(businesses):
+            business['seq'] = i + 1
+            for key in business:
+                if business[key] is None:
+                    business[key] = ''
+
+        self.memcached.set(mem_key,(businesses,interval), 
                            time=self.MEMCACHE_EXPIRY)
-        return results, counts, interval
+        return businesses, interval
 
-
-class BusinessHandler(BaseHandler, BusinessMixin):
+    def get_business_info(self, tmobile):
+        """Get business info in detail throught tmobile.
+        """
+        business = self.db.get("SELECT tu.name, tu.mobile, tu.address, tu.email, tu.corporation, tt.begintime, tt.endtime,"
+                               "  tt.mobile as tmobile, tt.service_status, tc.cnum"
+                               "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
+                               "  WHERE  tu.mobile = tt.owner_mobile "
+                               "    AND tt.mobile = tc.tmobile "
+                               "    AND tt.mobile = %s",
+                               tmobile)
+        if business:
+            return business
+        else: 
+            return None
+   
+class BusinessCheckMobileHandler(BaseHandler, BusinessMixin):
 
     @authenticated
     @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
     @tornado.web.removeslash
-    def prepare(self):
+    def get(self, mobile):
+        """Check whether the mobile exists or not in T_USER. If exists, return True, else False.
+        """
+        status = False 
+        res = self.db.get("SELECT id FROM T_USER"
+                          "  WHERE mobile = %s"
+                          "  LIMIT 1",
+                          mobile)
+        if res:
+            status = True 
+        self.write_ret(status)
 
-        key = self.get_area_memcache_key(self.current_user.id)
-        areas = self.memcached.get(key)
-        if not areas:
-            areas = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(key, areas)
-        self.cities = areas
-        res  = self.db.get("SELECT type FROM T_ADMINISTRATOR"
-                           "  WHERE id = %s", self.current_user.id)
-        self.type = res.type
+class BusinessCheckTMobileHandler(BaseHandler, BusinessMixin):
 
+    @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @tornado.web.removeslash
+    def get(self, tmobile):
+        """Check whether the mobile exists or not in T_TERMINAL_INFO. If exists, return True, else False.
+        """
+        status = False 
+        res = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                          "  WHERE mobile = %s"
+                          "  LIMIT 1",
+                          tmobile)
+        if res:
+            status = True 
+        self.write_ret(status)
+
+class BusinessCreateHandler(BaseHandler, BusinessMixin):
 
     @authenticated
     @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
     @tornado.web.removeslash
     def get(self):
+        """Just to create.html.
+        """
+        self.render('business/create.html')
 
-        self.render('report/business.html',
-                    results=[],
-                    interval=[],
-                    counts={},
-                    type=self.type,
-                    hash_=None)
+    @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @tornado.web.removeslash
+    def post(self):
+        """Create business for a couple of users.
+        """
+        fields = DotDict(name="",
+                         mobile="",
+                         tmobile="",
+                         password="",
+                         cnum="",
+                         address="",
+                         email="",
+                         corporation="",
+                         begintime="",
+                         endtime="")
+
+        for key in fields.iterkeys():
+            fields[key] = self.get_argument(key,'')
+
+        # 1: add user
+        uid = self.db.execute("INSERT INTO T_USER(uid, password, name, mobile, address,"
+                              "  email, corporation)"
+                              "  VALUES (%s, password(%s), %s, %s, %s, %s, %s)",
+                              fields.mobile, fields.password,
+                              fields.name, fields.mobile,
+                              fields.address, fields.email, 
+                              fields.corporation)
+
+        # 2: add terminal
+        tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
+                              "  begintime, endtime)"
+                              "  VALUES (%s, %s, %s, %s, %s)",
+                              fields.tmobile, fields.tmobile,
+                              fields.mobile, fields.begintime, 
+                              fields.endtime)
+
+        # 3: add car tnum --> cnum
+        cid = self.db.execute("INSERT INTO T_CAR(cnum, tmobile)"
+                              "  VALUES (%s, %s)",
+                              fields.cnum, fields.tmobile)
+        
+        # 4: send message to terminal
+        register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
+        SMSHelper.send(fields.tmobile, register_sms)
+        self.redirect("/business/list/%s" % fields.tmobile)
+        
+
+class BusinessSearchHandler(BaseHandler, BusinessMixin):
+
+    @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @tornado.web.removeslash
+    def prepare(self):
+        # TODO: if any nees, prepare can be invoked before the actual handler method.
+        pass
+
+    @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @tornado.web.removeslash
+    def get(self):
+        self.render('business/search.html',
+                    interval=[], 
+                    businesses=[])
 
     @authenticated
     @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
     #@check_areas()
     @tornado.web.removeslash
     def post(self):
-
+        """Query bsinesses according to the given params.
+        """
         m = hashlib.md5()
         m.update(self.request.body)
-        hash_ = m.hexdigest()
-        results, counts, interval = self.prepare_data(hash_)
+        hash_ = m.hexdigest() 
+        businesses, interval = self.prepare_data(hash_)
+        self.render('business/search.html',
+                    interval=interval, 
+                    businesses=businesses)
 
-        self.render('report/business.html',
-                    results=results,
-                    counts=counts,
-                    interval=interval,
-                    type=self.type,
-                    hash_=hash_)
-
-
-class BusinessDownloadHandler(BaseHandler, BusinessMixin):
+class BusinessListHandler(BaseHandler, BusinessMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
     @tornado.web.removeslash
-    def get(self, hash_):
+    def get(self, tmobile):
+        """Show the info in detail for the given business.
+        #NOTE: in admin, a business is distinguished from others by tmobile.
+        """
+        business = self.get_business_info(tmobile) 
+        self.render('business/list.html',
+                    success=True,
+                    business=business)
 
-        mem_key = self.get_memcache_key(hash_)
+class BusinessEditHandler(BaseHandler, BusinessMixin):
 
-        r = self.memcached.get(mem_key)
-        if r:
-            results, counts = r[0], r[1]
-        else:
-            self.render("errors/download.html")
-            return
+    @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @tornado.web.removeslash
+    def get(self, tmobile):
+        """Jump to editer.html.
+        """
+        business = self.get_business_info(tmobile) 
+        self.render("business/edit.html",
+                    business=business)
 
-        import xlwt
-        from cStringIO import StringIO
+    @authenticated
+    @check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
+    @tornado.web.removeslash
+    def post(self, tmobile):
+        """Modify a business.
+        """
+        # for user
+        u_fields = DotDict(name="name=%s",
+                           address="address=%s",
+                           email="email=%s",
+                           corporation="corporation=%s")
+        # for car
+        c_fields = DotDict(cnum="cnum=%s")
+        # for terminal
+        t_fields = DotDict(service_status="service_status=%s",
+                           begintime="begintime=%s",
+                           endtime="endtime=%s")
 
-        date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
+        list_inject = ['corporation','name','mobile'] 
+        for key in list_inject:
+            v = self.get_argument(key, '')
+            if not check_sql_injection(v):
+               self.get(administrator_id) 
+               return
+        user = QueryHelper.get_user_by_tmobile(tmobile, self.db) 
+        u_data = [self.get_argument(key, '') for key in u_fields.iterkeys()] + [user.owner_mobile]
+        u_set_clause = ','.join([v for v in u_fields.itervalues()])
+        if u_data:
+            self.db.execute("UPDATE T_USER"
+                            "  SET "+u_set_clause+
+                            "  WHERE mobile = %s",
+                            *u_data)
         
-        wb = xlwt.Workbook()
-        ws = wb.add_sheet(BUSINESS_SHEET)
+        c_data = [self.get_argument(key, '') for key in c_fields.iterkeys()] + [tmobile]
+        c_set_clause = ','.join([v for v in c_fields.itervalues()])
+        if c_data:
+            self.db.execute("UPDATE T_CAR"
+                            "  SET "+c_set_clause+
+                            "  WHERE tmobile = %s",
+                            *c_data)
 
-        start_line = 0
-        for i, head in enumerate(BUSINESS_HEADER):
-            ws.write(0, i, head)
+        # TODO: ...
+        t_data = [self.get_argument(key, '') for key in t_fields.iterkeys()] + [tmobile]
+        t_set_clause = ','.join([v for v in t_fields.itervalues()])
+        if t_data:
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET "+t_set_clause+
+                            "  WHERE mobile = %s",
+                            *t_data)
+        self.redirect("/business/list/%s" % tmobile)
 
-        start_line += 1
-        for i, result in zip(range(start_line, len(results) + start_line), results):
-            ws.write(i, 0, result['city'])
-            ws.write(i, 1, result['new_groups'])
-            ws.write(i, 2, result['new_targets'])
-            ws.write(i, 3, result['cancel_targets'])
-            ws.write(i, 4, result['new_plan1'])
-            ws.write(i, 5, result['new_plan2'])
-            ws.write(i, 6, result['new_plan3'])
-        last_row = len(results) + start_line
-        ws.write(last_row, 0, u'合计')
-        ws.write(last_row, 1, counts['new_groups']) 
-        ws.write(last_row, 2, counts['new_targets']) 
-        ws.write(last_row, 3, counts['cancel_targets'])
-        ws.write(last_row, 4, counts['new_plan1'])
-        ws.write(last_row, 5, counts['new_plan2'])
-        ws.write(last_row, 6, counts['new_plan3'])
+class BusinessDeleteHandler(BaseHandler, BusinessMixin):
 
-        _tmp_file = StringIO()
-        wb.save(_tmp_file)
-        filename = self.generate_file_name(BUSINESS_FILE_NAME)
+    @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @tornado.web.removeslash
+    #@tornado.web.asynchronous  
+    def post(self, tmobile, service_status):
+        status = ErrorCode.SUCCESS
+        try: 
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET service_status = %s"
+                            "  WHERE mobile = %s",
+                            service_status, tmobile)
+        except Exception as e:
+            status = ErrorCode.SUCCESS
+            logging.exception("Stop service failed. tmobile: %s", mobile)
 
-        
-        self.set_header('Content-Type', 'application/force-download')
-        self.set_header('Content-Disposition', 'attachment; filename=%s.xls' % (filename,))
+        #NOTE: here just modify database.
+        #terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db)
+        #args = DotDict(seq=SeqGenerator.next(self.db),
+        #               tid=terminal.tid)
+        #args.params = DotDict(service_status=service_status) 
+        #def _on_finish(response):
+        #    status = ErrorCode.SUCCESS
+        #    response = json_decode(response)
+        #    if response['success'] == 0:
+        #        self.update_terminal_info(response['params'], data, self.current_user.tid)
+        #    else:
+        #        status = response['success'] 
+        #        logging.error("[UWEB] Set terminal failed. status: %s, message: %s", 
+        #                       status, ErrorCode.ERROR_MESSAGE[status] )
+        #    self.write_ret(status)
+        #    IOLoop.instance().add_callback(self.finish)       
+        #if args.params:
+        #    GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
+        #                                      _on_finish)
+        #else: 
+        #    self.write_ret(status)
+        #    IOLoop.instance().add_callback(self.finish)
 
-        # move the the begging. 
-        _tmp_file.seek(0, SEEK_SET)
-        self.write(_tmp_file.read())
-        _tmp_file.close()
+        self.write_ret(status)

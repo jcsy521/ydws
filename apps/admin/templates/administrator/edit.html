@@ -15,17 +15,18 @@
 {% block body %}
 <h3>编辑用户信息</h3>
 <form id="formID" method="post" action="" onsubmit="return adminSubmit({{str(is_self).lower()}});">
-    <table>
+    <table  class="conTable">
 		<tr>
-			<td align="left" colspan="2">
+			<td>
 				<span style="color:red">带红色*为必填项</span>
 			</td>
+			<td> &nbsp;</td>
 		</tr>
         <tr>
             <td align="right">姓名：</td>
             <td align="left">
                 <input type="text" name="name" value="{{administrator.name}}" 
-                   id="name" class="validate[required,sp_char_space,length[16]],onsubmit"/>
+                   id="name" class="validate[required,custom[t_name],length[0,16]],onsubmit"/>
 				<span class="required">*</span>
             </td>
         </tr>
@@ -152,7 +153,7 @@
         </tr>
         {% end %}
         <tr>
-            <td colspan="2" align="right">
+            <td colspan="2" align="center">
 				<input type="submit" value="保存" class="ui-button ui-widget ui-state-default ui-corner-all" 
                     role="button" aria-disabled="false" />
 			</td>

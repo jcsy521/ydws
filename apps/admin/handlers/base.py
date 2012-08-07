@@ -8,6 +8,8 @@ import re
 import tornado.web
 
 from utils.dotdict import DotDict
+from codes.errorcode import ErrorCode
+from tornado.escape import json_encode, json_decode
 
 # expires period for cookie, it's 30 minutes now.
 EXPIRES_MINUTES = 30
@@ -79,3 +81,23 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.bookkeep(res.groupdict(), username)
                 return DotDict(res.groupdict())
         return None
+
+    def write_ret(self, status, message=None, dict_=None):
+        """
+        write back ret message: dict(status=status,
+                                     message=ErrorCode.ERROR_MESSAGE[status],
+                                     ...)
+        NOTE: in the basis of status, add handling of True, False
+        """
+        ret = DotDict(success=status)
+        if message is None:
+            if status in (True, False):
+                ret.message = "" 
+            else:
+                ret.message = ErrorCode.ERROR_MESSAGE[status]
+        else:
+            ret.message = message
+        if isinstance(dict_, dict):
+            ret.update(dict_)
+        self.set_header(*self.JSON_HEADER)
+        self.write(json_encode(ret))

@@ -58,12 +58,16 @@
 				{% end %}
 			</td>
 		</tr>
+		<tr>
+			<td align="center" colspan="2">
+				<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+					href="/administrator/edit/{{administrator.id}}">
+					<span class="ui-button-text">修改</span>
+				</a>
+			</td>
+		</tr>
 	</table>
 	<br />
-	<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
-        href="/administrator/edit/{{administrator.id}}">
-        <span class="ui-button-text">修改</span>
-    </a>
 {% else %}
 	<div class="ui-widget" align="center">
 		<div class="errorbox ui-state-error ui-corner-all">

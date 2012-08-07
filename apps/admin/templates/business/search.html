@@ -1,0 +1,126 @@
+<script src="/static/js/lockScreen.js"></script>
+<script type="text/javascript">
+	fn_lockScreen();
+</script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/jquery.ui.datepicker-zh-CN.js"></script>
+<script src="/static/js/jquery.validationEngine-en.js"></script>
+<script src="/static/js/jquery.validationEngine.js"></script>
+<script src="/static/js/initStyle.js"></script>
+<script src="/static/js/submitForm.js"></script>
+<script src="/static/js/dataTable.js"></script>
+<script src="/static/js/adminEdit.js"></script>
+<script src="/static/js/dateChoose.js"></script>
+<script src="/static/js/formValue.js"></script>
+<script src="/static/js/cacheQueryValues.js"></script>
+<script src="/static/js/json2.js"></script>
+{% block body %}
+<fieldset class="ui-widget ui-widget-content ui-corner-all">
+<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+	<span class="ui-button-text">业务用户查询</span>
+</legend>
+<form id="formID" method="post"  action=""  onsubmit="return formSubmit('businessSearch');">
+    <table class="searchTable" align="left">
+        <tr>
+            <td align="right">姓名：</td>
+            <td align="left">
+                <input type="text" name="name" id="name"  onKeyUp="fn_textKeyUp(this, 'text')" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right">车主手机号：</td>
+            <td align="left">
+                <input type="text" name="mobile" id="mobile" maxlength="11"   maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right">终端手机号：</td>
+            <td align="left">
+                <input type="text" name="tmobile" id="tmobile"   maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
+            </td>
+        </tr>
+    </table>
+    <table class="searchTable" align="left">
+	    <tr>
+            <td align="right">车牌号：</td>
+            <td align="left">
+                <input type="text" name="cnum" id="cnum"  maxlength="8" onKeyUp="fn_textKeyUp(this, 'text')" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right">开通日期：</td>
+            <td align="left">
+				<input type="text" name="begintime0" id="begintime0" readonly="true" maxlength="40" />
+			</td>
+        </tr>
+        <tr>
+            <td align="right">截止日期：</td>
+            <td align="left">
+				<input type="text" name="endtime0" id="endtime0" readonly="true" maxlength="40" />
+            </td>
+        </tr>
+        <tr>
+            <td align="center" colspan="2">
+				<input type="hidden" id="begintime" name="begintime" value="" />
+				<input type="hidden" id="endtime" name="endtime" value="" />
+				<input type="submit" value="查询" 
+                    onclick="fn_PushData('name,mobile,terminalMobile,cnum,service_status','business');" 
+                    class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" />
+			</td>
+        </tr>
+    </table>
+</form>
+</fieldset>
+
+<h3>查询结果</h3>
+<table id="rDataTables" class="display">
+    <thead>
+        <tr>
+            <th>序号</th><th>车主名</th><th>车主手机</th><th>终端手机</th><th>车牌号</th>
+            <th>编辑</th><th>启用/停用</th><th>详细信息</th>
+        </tr>
+    </thead>
+		
+    <tbody id="adminTbody">
+	{% for business in businesses %}
+            <tr id="business{{business.tmobile}}" style="display">
+				<td>{{ business.seq }}</td>
+	            <td>{{ business.name }}</td>
+                <td>{{ business.mobile }}</td>
+                <td>{{ business.tmobile}}</td>
+                <td>{{ business.cnum }} </td>
+                <td>
+                    <a href="/business/edit/{{business.tmobile}}">编辑</a>
+                </td>
+                <td>
+                   
+						{% if business.service_status == '0' %}
+							 <a href="#" onclick="if(confirm('是否启用本用户？'))businessDelete({{business.tmobile}}, {{business.service_status}});">启用</a>
+						{% else %}
+							 <a href="#" onclick="if(confirm('是否停用本用户？'))businessDelete({{business.tmobile}}, {{business.service_status}});">停用</a>
+						{% end %}
+					
+                </td>
+                <td>
+                    <a href="/business/list/{{business.tmobile}}">详细信息</a>
+                </td>
+            </tr>
+        {% end %}
+    </tbody>
+</table>
+<div style="display:none">
+	<input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'business_begin'}}"/>
+	<input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'business_end'}}"/>
+</div>
+<script type="text/javascript">
+    fn_PopData('business');
+</script>
+{% end %}
+

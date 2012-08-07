@@ -56,3 +56,15 @@ function adminDelete(adminid) {
 		}
 	});
 }
+// delete business 
+function businessDelete(tmobile, status) {
+	var pos = oTable.fnGetPosition(document.getElementById("business" + tmobile)),
+		str_status = status == '0' ? '1' : '0';
+	$.post("/business/delete/" + tmobile + "/" + str_status, function (data) {
+		if (data.success == 0) {
+            oTable.fnDeleteRow(pos);
+		} else {
+			alert("删除失败。");
+		}
+	});
+}

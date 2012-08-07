@@ -1,4 +1,12 @@
 ﻿$(function () {
+
+    //将页面查询到的时间进行转换
+	 var timeta= $(".j_timestamp");
+	 if (timeta.length != 0) {
+		timeta.each(function () {
+			 $(this).html(toHumanDate($(this).html()*1000, "no"));
+		});		
+	 }
 	/*
         *修改 iframe中body的样式
     */
@@ -6,6 +14,12 @@
         $('body').css({'padding' : '10px 0px 0px 0px'});
     }
     $('input[type=text],input[type=password]').css({'width':'130px'});
+	$('input[type=text]').addClass('text_blur');
+	$('input[type=text]').focus(function() {
+		$(this).removeClass('text_blur').addClass('text_focus');
+	}).blur(function() {
+		$(this).removeClass('text_focus').addClass('text_blur');		
+	});
     $('select').css({'width':'133px'});
 	$('.j_userSelect').css({'width': '260px'});
     $('#showOrHideSearch').toggle(function () {
@@ -15,12 +29,14 @@
         $('#searchTable').hide();
         $('#showOrHideSearch').text('+');
     });
+	
     $('#provincesNames,#privs').click(function () {
         var pLeft = parent.document.getElementById('left');
         if (pLeft) {
             left = pLeft.clientWidth + 150;
         }
     });
+	
     $('legend').click(function () { // fieldset的样式
 		$(this).next("form").slideToggle('slow');
 	});
@@ -31,6 +47,22 @@
 	// 日报时间控件 默认昨天
 	$('#daily_time').datepicker();
 	$('#daily_time').datepicker('option', 'maxDate', '-1d');
+	
+	// 业务查询 时间控件
+	$('#begintime0, #begintime2').datepicker({
+        onSelect: function(dateText, inst) {	// dateText：当前选中日期  inst: 当前日期插件实例
+			$('#endtime0, #endtime2').datepicker('option', 'minDate', dateText);	// set minDate is today
+	}});
+	
+	// open business date and close date init
+	$('#begintime1').datepicker({
+        onSelect: function(dateText, inst) {	// dateText：当前选中日期  inst: 当前日期插件实例
+			$('#endtime1').datepicker('option', 'minDate', dateText);	// set minDate is today
+	}});
+	$('#begintime1').datepicker('option', 'minDate', new Date());	// set minDate is today
+	$('#endtime1').datepicker('option', 'minDate', new Date());	// set minDate is today
+	
+	$('#begintime0, #endtime0, #begintime2, #endtime2, #begintime1, #endtime1').datepicker();
     /*
         *初始化地图页面的大小
         *初始化右侧iframe大小

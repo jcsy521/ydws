@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-        <title>爱贝通后台管理系统</title>
+        <title>爱车保后台管理系统</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
         <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css"rel="stylesheet"type="text/css"/>
@@ -13,7 +13,7 @@
 	</head>
 	<body>
 		<div id="login" class="ui-widget ui-corner-all cLogin">
-			<h1>爱贝通后台系统</h1>	
+			<h1>爱车保后台系统</h1>	
 			<hr />
 			<form method="post" action="">
 				<table align="center" cellspacing="0" cellpadding="10" width="100%">
@@ -41,14 +41,14 @@
 				<tr class="input">
                     <td align="right">验证码：</td>
                     <td align="left">
-                      <input id="captcha" type="text" name="captcha" 
+                    <input id="captcha" type="text" name="captcha" 
                          maxlength="4" value="" onKeyUp="value=value.replace(/[^\w|chun]/g,'')" 
                          placeholder="请输入下面的验证码" autocomplete='off'/>
-                      <span class="error">
+                    <span class="error">
                         {% if message_captcha %}
                             {{ message_captcha }}
                         {% end %}
-                      </span>
+                    </span>
                     </td>
 				</tr>
 				<tr>

@@ -1,15 +1,5 @@
 $(document).ready(function () {
 	$.ajaxSetup({cache: false});
-
-    //将页面查询到的时间进行转换
-	
-	// var timeta= $(".timestamp");
-	// if (timeta.length != 0) {
-		// $(".timestamp").each(function () {
-			// $(this).text(toHumanDate($(this).text(), "yes"));
-		// });		
-	// }
-	
     $("button, input:submit, input:reset, .button").button();
 	$("#accordion").accordion({autoHeight: false,navigation: true});
 	
@@ -18,7 +8,7 @@ $(document).ready(function () {
     });
 		
 	/*
-		*index dataTable style
+		*index  loginhistory dataTable style
 	*/
 	$('#loginhistory').dataTable({
 		"aaSorting": [[0, "desc" ]],
