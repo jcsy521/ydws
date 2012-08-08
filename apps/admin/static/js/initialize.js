@@ -46,10 +46,18 @@ $(document).ready(function () {
         $('#toggle').toggle('fast');
     });
 	
+	// set left and right width 
+	var n_width = $(window).width() - 20;
+	console.log($(window).width());
+	$('#logo').width(n_width-15);
+	$('#content').width(n_width);
+	$('#right').width(n_width - 170);
+
 	$(window).resize(function() {
-		var n_width = $(window).width()-50;
-		$('#left').width(n_width*0.12);
-		$('#right').width(n_width*0.85);
+		var n_width = $(window).width() - 20;
+		$('#logo').width(n_width-15);
+		$('#content').width(n_width);
+		$('#right').width(n_width - 170);
 	});
 });
 /*
