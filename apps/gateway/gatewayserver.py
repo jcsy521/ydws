@@ -157,11 +157,10 @@ class GatewayServer(object):
                               t_info['dev_id'])
 
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
-                t_info['login'] = GATEWAY.TERMINAL_LOGIN.LOGIN
                 self.db.execute("INSERT INTO T_TERMINAL_INFO"
                                 "  (id, tid, dev_type, mobile, owner_mobile,"
-                                "   imsi, imei, factory_name, softversion)"
-                                "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                "   imsi, imei, factory_name, softversion, login)"
+                                "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                                 "  ON DUPLICATE KEY"
                                 "    UPDATE tid = VALUES(tid),"
                                 "           dev_type = VALUES(dev_type),"
@@ -170,17 +169,19 @@ class GatewayServer(object):
                                 "           imsi = VALUES(imsi),"
                                 "           imei = VALUES(imei),"
                                 "           factory_name = VALUES(factory_name),"
-                                "           softversion = VALUES(softversion)",
+                                "           softversion = VALUES(softversion),"
+                                "           login = VALUES(login)",
                                 t_info['dev_id'], t_info['dev_type'], t_info['t_msisdn'],
                                 t_info['u_msisdn'], t_info['imsi'], t_info['imei'],
-                                t_info['factory_name'], t_info['softversion'])
+                                t_info['factory_name'], t_info['softversion'],
+                                GATEWAY.TERMINAL_LOGIN.LOGIN)
                 # get SessionID
                 args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
                 self.memcached.set(terminal_sessionID_key, args.sessionID)
-
+                # record terminal address
                 self.update_terminal_status(t_info["dev_id"], address)
-                self.update_terminal_info(t_info)
+                # append into online terminals
                 if not t_info["dev_id"] in self.online_terminals:
                     self.online_terminals.append(t_info["dev_id"])
                 logging.info("[GW] Terminal %s login success!", t_info['dev_id'])
@@ -235,6 +236,7 @@ class GatewayServer(object):
                 location['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS 
                 location['t'] = EVENTER.INFO_TYPE.POSITION
                 location = lbmphelper.handle_location(location, self.memcached)
+                location.name = location.name if location.name else ""
                 locationdesc = unicode(location.name)
                 locationdesc = locationdesc.encode("utf-8", 'ignore')
                 args.locationdesc = base64.b64encode(locationdesc)
@@ -254,8 +256,9 @@ class GatewayServer(object):
         1: invalid SessionID 
         """
         try:
+            command = packet.head.command
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
-                           command=packet.head.command)
+                           command=command)
             dev_id = packet.head.dev_id
             sessionID = self.get_terminal_sessionID(dev_id)
             if sessionID != packet.head.sessionID:
@@ -270,10 +273,10 @@ class GatewayServer(object):
                 self.append_si_request(content, si_requests_queue)
                 self.update_terminal_status(dev_id, address)
 
-            if packet.head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
-                                       T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
-                                       T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.POWEROFF,
-                                       T_MESSAGE_TYPE.EMERGENCY):
+            if command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
+                           T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
+                           T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.POWEROFF,
+                           T_MESSAGE_TYPE.EMERGENCY):
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
                                   address=address)

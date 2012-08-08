@@ -84,7 +84,7 @@ def get_last_degree(location, memcached, db):
 
 def handle_location(location, memcached, cellid=False, db=None):
     """
-    @param location
+    @param location: position/report/locationdesc/pvt
            memcached
            cellid: if True issue cellid
     @return location
@@ -105,8 +105,12 @@ def handle_location(location, memcached, cellid=False, db=None):
     else:
         location.type = 0
         # car is still, degree is suspect 
-        if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
-            location.degree = get_last_degree(location, memcached, db)
+        if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
+            if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
+                location.degree = get_last_degree(location, memcached, db)
+        else:
+           # UNREALTIME, pvt
+           pass
 
     if location and location.lat and location.lon:
         location.cLat, location.cLon = get_clocation_from_ge(location)

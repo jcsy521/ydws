@@ -90,11 +90,9 @@ class PacketTask(object):
 
     def update_terminal_status(self, location):
         fields = []
-        keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat', 'defend_status']
+        keys = ['gps', 'gsm', 'pbat', 'defend_status']
         for key in keys:
             if location.get(key, None) is not None:
-                if key == 'softversion':
-                    location[key] = "'" + location[key] + "'"
                 fields.append(key + " = " + location[key])
         set_clause = ','.join(fields)
         if set_clause:
@@ -119,7 +117,7 @@ class PacketTask(object):
                 location = lbmphelper.handle_location(pvt, self.memcached,
                                                       cellid=False, db=self.db) 
                 location.category = EVENTER.CATEGORY.REALTIME
-                self.realtime_location_hook(location) 
+                self.insert_location(location)
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)

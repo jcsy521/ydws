@@ -4,7 +4,7 @@ import logging
 import base64
 
 from utils.dotdict import DotDict
-from constants import EVENTER
+from constants import EVENTER, GATEWAY
 
 class AsyncParser(object):
 
@@ -18,7 +18,7 @@ class AsyncParser(object):
             ret['t'] = EVENTER.INFO_TYPE.POSITION
             ret['Tid'] = self.get_tid(ret.command) 
             info = self.get_position_info(packet)
-        elif ret.command  == 'T11':
+        elif ret.command  == 'T11': # pvt
             ret['t'] = EVENTER.INFO_TYPE.POSITION
             ret['Tid'] = self.get_tid(ret.command)
             info = self.get_pvt_info(packet)
@@ -96,6 +96,7 @@ class AsyncParser(object):
             position['speed'] = float(position['speed'])
             position['degree'] = float(position['degree'])
             position['gps_time'] = int(position['gps_time'])
+            position['valid'] = GATEWAY.LOCATION_STATUS.UNREALTIME
             positions.append(position)
         info = {'pvts': positions}
 
