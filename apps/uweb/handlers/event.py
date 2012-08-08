@@ -9,6 +9,7 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from helpers.seqgenerator import SeqGenerator
+from helpers.queryhelper import QueryHelper 
 from utils.misc import DUMMY_IDS, get_today_last_month
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
@@ -21,9 +22,11 @@ class EventHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Jump to event.html, provide tid """ 
+        """Jump to event.html, provide tid, alias """ 
+        terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
         self.render("event.html",
-                    tid=self.current_user.tid)
+                    tid=self.current_user.tid,
+                    alias=terminal.alias if terminal.alias else self.current_user.sim)
 
     @authenticated
     @tornado.web.removeslash
@@ -57,7 +60,7 @@ class EventHandler(BaseHandler):
                     page_count = (d + 1) if m else d
 
                 events = self.db.query("SELECT latitude, longitude, clatitude, clongitude," 
-                                       "  timestamp, name, type, speed, category"  
+                                       "  timestamp, name, type, speed, degree, category"  
                                        "  FROM V_EVENT"
                                        "  WHERE tid = %s"
                                        "    AND (timestamp BETWEEN %s AND %s)"
@@ -77,7 +80,7 @@ class EventHandler(BaseHandler):
                     page_count = (d + 1) if m else d
 
                 events = self.db.query("SELECT latitude, longitude, clatitude, clongitude," 
-                                       "  timestamp, name, type, speed, category"  
+                                       "  timestamp, name, type, speed, degree, category"  
                                        "  FROM V_EVENT"
                                        "  WHERE tid = %s"
                                        "    AND (timestamp BETWEEN %s AND %s)"
@@ -86,6 +89,10 @@ class EventHandler(BaseHandler):
                                        "  LIMIT %s, %s",
                                        tid, start_time, end_time, event_type,
                                        page_number * page_size, page_size)
+
+            # change the type form decimal to float.
+            for event in events:
+                event['degree'] = float(event['degree'])
                 
             self.write_ret(ErrorCode.SUCCESS,
                           dict_=DotDict(events=events,

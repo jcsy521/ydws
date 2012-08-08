@@ -46,7 +46,8 @@ class LastInfoHandler(BaseHandler):
                                                 timestamp=location.timestamp if location else None,
                                                 speed=location.speed if location else 0,
                                                 # NOTE: degree's type is Decimal, str() it before json_encode
-                                                degree=int(round(location.degree/36)) if location else 0,
+                                                #degree=int(round(location.degree/36)) if location else 0,
+                                                degree=float(location.degree) if location else 0.00,
                                                 event_status=event_status if event_status else 0,
                                                 name=location.name if location else None,
                                                 type=location.type if location else 1,

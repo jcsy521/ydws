@@ -29,7 +29,6 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		obj_carItem.data('selfmarker', marker);
 	}
 	mapObj.addOverlay(marker);//向地图添加覆盖物 
-	// marker.openInfoWindow(infoWindow);
 	if ( isOpenWin ) {
 		marker.openInfoWindow(infoWindow);
 	}
@@ -42,11 +41,13 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	var	address = obj_location.name, 
 		speed = obj_location.speed,
 		date = dlf.fn_changeNumToDateString(obj_location.timestamp),
-		n_degree = obj_location.degree, 
-		str_tid = $('#carList .carCurrent').attr('tid'),
+		n_degree = Math.round(obj_location.degree), 
+		str_tid = obj_location.tid,
 		str_clon = obj_location.clongitude/NUMLNGLAT,
-		str_clat = obj_location.clatitude/NUMLNGLAT
-		str_title = '',
+		str_clat = obj_location.clatitude/NUMLNGLAT,
+		//str_mobile = obj_location.mobile, 
+		str_alias = obj_location.alias,
+		str_title = '车辆：',
 		str_tempMsg = '开始跟踪',
 		str_actionTrack =$('#carList .carCurrent').attr('actiontrack'),
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
@@ -64,10 +65,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	} else {
 		speed = Math.round(speed*10)/10;
 	}
-	if ( obj_location.mobile ) { // 如果是轨迹回放 
-		str_title ='车辆：' + obj_location.mobile;
+	if ( str_alias ) { // 如果是轨迹回放 
+		str_title += str_alias;
 	} else {
-		str_title = '车辆：' + $('#carList li[tid='+str_tid+']').html();
+		str_tid = $('#carList .carCurrent').attr('tid');
+		str_title += $('#carList li[tid='+str_tid+']').html();
 	}
 	
 	if ( n_degree == 0 ) {
@@ -75,7 +77,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	}
 	str_html += '<h4>'+str_title+'</h4><ul>'+ 
 				'<li><label>速度:'+ speed+'km/h</label>'+
-				'<label class="labelRight">方向角:'+n_degree*36+'</label></li>'+
+				'<label class="labelRight">方向角:'+n_degree+'</label></li>'+
 				'<li><label>经度:'+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
 				'<label class="labelRight">纬度:'+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
 				'<li>时间:'+ date +'</li>' + 
@@ -84,10 +86,6 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 		str_html+='<li class="top10"><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
 			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹回放</a><a href="#" id="poiSearch" onclick="dlf.fn_POISearch('+ str_clon +', '+ str_clat +');" >周边查询</a></li>';
 	}
-/*	else {
-		str_html+='<li>位置:'+ address +'</li>';
-	}
-	*/
 	str_html += '</ul></div>';
 	return str_html;
 			

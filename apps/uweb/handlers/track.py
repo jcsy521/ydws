@@ -59,7 +59,7 @@ class TrackHandler(BaseHandler):
                                   tid, start_time, end_time)
             terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
             for item in track:
-                item['degree'] = int(round(item['degree']/36))
+                item['degree'] = float(item['degree'])
                 item['mobile'] = terminal.mobile
                 
             self.write_ret(ErrorCode.SUCCESS,

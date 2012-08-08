@@ -1,7 +1,8 @@
 /*
 *报警相关操作方法
 */
-var pagecnt = -1,
+var arr_eventData = [],
+	pagecnt = -1,
 	n_pageNum = 0;
 //初始化轨迹查询
 function fn_initEventSearch(n_num, n_et) {
@@ -26,7 +27,8 @@ function fn_initEventSearch(n_num, n_et) {
 			obj_nextPage = $('#nextPage');
 			
 		if ( data.status == 0 ) {  // success
-			var n_len = data.events.length; 	//记录数
+			arr_eventData = data.events;
+			var n_len = arr_eventData.length; 	//记录数
 			if ( n_len > 0 ) {
 				$('#pagerContainer').show(); //显示分页
 				// 总页数>1 
@@ -57,7 +59,7 @@ function fn_initEventSearch(n_num, n_et) {
 					$('#currentPage').html('1');	//当前页数
 				}
 				for(var i = 0; i < n_len; i++) {
-					var obj_location = data.events[i], 
+					var obj_location = arr_eventData[i], 
 						str_type = obj_location.category,	//类型
 						str_location = obj_location.name, 
 						str_text = '';	//地址
@@ -85,21 +87,21 @@ function fn_initEventSearch(n_num, n_et) {
 				// 用户点击位置进行地图显示
 				$('.j_eventItem').click(function(event) {
 					dlf.fn_clearMapComponent();
-					
 					$('.eventMapContent').css({
 						'left': event.clientX+20, 
 						'top': event.clientY		
 					}).show();
 					
-					var str_imgUrl = '/static/images/default-marker.png', 
-						myIcon = new BMap.Icon(str_imgUrl, new BMap.Size(20, 32)), 
-						mPoint = new BMap.Point($(this).attr('c_lon')/NUMLNGLAT, $(this).attr('c_lat')/NUMLNGLAT), 
-						marker= new BMap.Marker(mPoint, {icon: myIcon});
+					var n_tempIndex = $(this).parent().parent().index()-1,
+						obj_tempData = arr_eventData[n_tempIndex];
 					
-					mapObj.addOverlay(marker);//向地图添加覆盖物
-					setTimeout (function () {
-						mapObj.centerAndZoom(mPoint, 17);
-					}, 100);
+						obj_tempData.tid = n_carId;
+						obj_tempData.alias = $('.eventbody').attr('alias');
+						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
+						setTimeout (function () {
+							var obj_centerPointer = new BMap.Point(obj_tempData.clongitude/NUMLNGLAT, obj_tempData.clatitude/NUMLNGLAT);
+							mapObj.centerAndZoom(obj_centerPointer, 17);
+						}, 100);
 				});
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			} else {

@@ -328,7 +328,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
 		actionPolyline = null, // 轨迹线对象
 		str_actionTrack = obj_carLi.attr('actiontrack'), 
 		obj_selfMarker = obj_carLi.data('selfmarker'), 
-		n_imgDegree = n_degree != 0 ? n_degree : 10
+		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
 		obj_selfPolyline = obj_carLi.data('selfpolyline');
 	// 存储车辆信息
 	if ( obj_tempVal ) { // 追加
@@ -415,7 +415,8 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 }
 // 方向角处理
 window.dlf.fn_processDegree = function(n_degree) {
-	return n_degree != 0 ? n_degree : 10;
+	var n_roundDegree = Math.floor(n_degree/36);
+	return n_roundDegree != 0 ? n_roundDegree : 10;
 }
 /**根据相应的报警状态码显示相应的报警提示*/
 window.dlf.fn_eventText = function(n_eventNum) {
