@@ -951,7 +951,7 @@ body {
 }
 /*disbaled style*/
 .textDisabled {
-	/*background-color: scrollbar;*/
+	background-color: #FFF;
 	border: 0px;
 	color: black;
 }

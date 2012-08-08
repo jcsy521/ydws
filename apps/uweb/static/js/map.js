@@ -80,7 +80,6 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 				'<label class="labelRight">纬度:'+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
 				'<li>时间:'+ date +'</li>' + 
 				'<li>位置:'+ address +'</li>';
-	console.log(str_iconType);
 	if ( str_iconType == 'actiontrack' ) {
 		str_html+='<li class="top10"><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
 			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹回放</a><a href="#" id="poiSearch" onclick="dlf.fn_POISearch('+ str_clon +', '+ str_clat +');" >周边查询</a></li>';
