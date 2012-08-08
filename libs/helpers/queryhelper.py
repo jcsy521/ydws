@@ -9,7 +9,7 @@ class QueryHelper(object):
     def get_terminal_by_tid(tid, db):
         """Get terminal's info throught tid.
         """
-        terminal = db.get("SELECT mobile"
+        terminal = db.get("SELECT mobile, alias"
                           "  FROM T_TERMINAL_INFO"
                           "  WHERE tid = %s LIMIT 1",
                           tid) 
@@ -32,6 +32,26 @@ class QueryHelper(object):
                       "  WHERE uid= %s LIMIT 1",
                       uid) 
         return user
+
+    @staticmethod
+    def get_user_by_tmobile(tmobile, db):
+        """Get user info throught tmobile.
+        """
+        user = db.get("SELECT owner_mobile"
+                      "  FROM T_TERMINAL_INFO"
+                      "  WHERE mobile = %s LIMIT 1",
+                      tmobile) 
+        return user
+
+    @staticmethod
+    def get_terminal_by_tmobile(tmobile, db):
+        """Get terminal info throught tmobile.
+        """
+        terminal = db.get("SELECT tid"
+                          "  FROM T_TERMINAL_INFO"
+                          "  WHERE mobile = %s LIMIT 1",
+                          tmobile) 
+        return terminal
 
     #@staticmethod
     #def get_user_by_tid(tid, db):
