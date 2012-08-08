@@ -1002,6 +1002,9 @@ body {
 }
 #markerWindowtitle .labelRight {
 	float: right;
+	width: 100px;
+	display: inline-block;
+	text-align: left;
 }
 #markerWindowtitle a {
 	margin-right: 10px;
