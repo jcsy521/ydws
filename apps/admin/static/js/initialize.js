@@ -48,7 +48,6 @@ $(document).ready(function () {
 	
 	// set left and right width 
 	var n_width = $(window).width() - 20;
-	console.log($(window).width());
 	$('#logo').width(n_width-15);
 	$('#content').width(n_width);
 	$('#right').width(n_width - 170);

@@ -86,7 +86,7 @@
 					"alertTextOk":"可以使用.",	
 					"alertTextLoad":"请稍候...",
 					"alertText":"终端已注册"
-				},
+				}
 			}	
 		}
 	}
