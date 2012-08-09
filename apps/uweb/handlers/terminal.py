@@ -51,8 +51,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
   
                 self.update_terminal_db(car_dct, self.current_user.tid, self.current_user.sim)
             else: 
-                if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                    self.send_lq_sms(sim, SMS.LQ.WEB)
+                if ret['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+                    self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
                 status = ErrorCode.FAILED 
                 logging.error('[UWEB] Query terminal_info failed.')
         else:            
