@@ -42,8 +42,13 @@ class PacketTask(object):
     def get_tname(self, dev_id):
         key = get_name_cache_key(dev_id)
         name = self.memcached.get(key)
+        if not name:
+            t = self.db.get("SELECT alias FROM T_TERMINAL_INFO"
+                            "  WHERE tid = %s", dev_id)
+            name = t.alias
+            self.memcached.set(key, name)
         name = name if name else dev_id
-        return name or  ""
+        return name
 
     def insert_location(self, location):
         # insert data into T_LOCATION
@@ -176,6 +181,7 @@ class PacketTask(object):
                         dev_id, dev_type, lid, pbat, category)
 
     def handle_charge_info(self, info):
+        #TODO, parse charge 
         info = DotDict(info)
         self.db.execute("INSERT INTO T_CHARGE"
                         "  VALUES (NULL, %s, %s, %s)",

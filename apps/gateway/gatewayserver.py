@@ -50,7 +50,7 @@ class GatewayServer(object):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
         self.__start_check_heartbeat_thread()
-        self.__record_online_terminals()
+        self.__restore_online_terminals()
 
     def recv(self, si_requests_queue, gw_requests_queue):
         try:
@@ -58,10 +58,10 @@ class GatewayServer(object):
                 response, address = self.socket.recvfrom(1024)
                 logging.info("[GW] recv: %s from %s", response, address)
                 if response:
-                    self.handle_response_from_terminal(response,
-                                                       address,
-                                                       si_requests_queue,
-                                                       gw_requests_queue)
+                    self.handle_packet_from_terminal(response,
+                                                     address,
+                                                     si_requests_queue,
+                                                     gw_requests_queue)
         except socket.error as e:
             logging.exception("[GW]sock recv error: %s", e.args)
         except KeyboardInterrupt:
@@ -89,7 +89,7 @@ class GatewayServer(object):
         finally:
             self.stop()
         
-    def handle_response_from_terminal(self, response, address, si_requests_queue, gw_requests_queue):
+    def handle_packet_from_terminal(self, response, address, si_requests_queue, gw_requests_queue):
         """
         handle resonse recv from terminal:
         - login
@@ -134,47 +134,47 @@ class GatewayServer(object):
             t_info = lp.ret
                     
             if t_info['u_msisdn'] and t_info['t_msisdn']:
-                terminal = self.db.get("SELECT mobile, service_status, endtime"
+                terminal = self.db.get("SELECT mobile, imsi, imei, service_status, endtime"
                                        "  FROM T_TERMINAL_INFO"
-                                       "  WHERE tid = %s",
-                                       t_info['dev_id'])
+                                       "  WHERE mobile = %s",
+                                       t_info['t_msisdn'])
                 if terminal:
                     if (terminal.endtime < time.time() or
                         terminal.service_status == GATEWAY.SERVICE_STATUS.OFF):
                         # expired or stop service
                         args.success = GATEWAY.LOGIN_STATUS.EXPIRED
                         logging.error("[GW] Login failed! Expired Terminal: %s", t_info['dev_id'])
-                    elif terminal.mobile != t_info['t_msisdn']:
+                    elif terminal.imsi != t_info['imsi']:
                         # illegal sim
                         args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                         logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
                                       t_info['t_msisdn'], t_info['dev_id'])
                     else:
                         pass
+                else:
+                    args.success = GATEWAY.LOGIN_STATUS.UNREGISTER 
+                    logging.error("[GW] Login failed! Not registed, Terminal: %s, Mobile: %s",
+                                  t_info['dev_id'], t_info['t_msisdn'])
             else:
                 args.success = GATEWAY.LOGIN_STATUS.UNREGISTER 
                 logging.error("[GW] Login failed! Miss sim or owner_mobile, Terminal: %s",
                               t_info['dev_id'])
 
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
-                self.db.execute("INSERT INTO T_TERMINAL_INFO"
-                                "  (id, tid, dev_type, mobile, owner_mobile,"
-                                "   imsi, imei, factory_name, softversion, login)"
-                                "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                                "  ON DUPLICATE KEY"
-                                "    UPDATE tid = VALUES(tid),"
-                                "           dev_type = VALUES(dev_type),"
-                                "           mobile = VALUES(mobile),"
-                                "           owner_mobile = VALUES(owner_mobile),"
-                                "           imsi = VALUES(imsi),"
-                                "           imei = VALUES(imei),"
-                                "           factory_name = VALUES(factory_name),"
-                                "           softversion = VALUES(softversion),"
-                                "           login = VALUES(login)",
-                                t_info['dev_id'], t_info['dev_type'], t_info['t_msisdn'],
-                                t_info['u_msisdn'], t_info['imsi'], t_info['imei'],
-                                t_info['factory_name'], t_info['softversion'],
-                                GATEWAY.TERMINAL_LOGIN.LOGIN)
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET tid = %s,"
+                                "      dev_type = %s,"
+                                "      owner_mobile = %s,"
+                                "      imsi = %s,"
+                                "      imei = %s,"
+                                "      factory_name = %s,"
+                                "      softversion = %s,"
+                                "      login = %s"
+                                "  WHERE mobile = %s",
+                                t_info['dev_id'], t_info['dev_type'], t_info['u_msisdn'],
+                                t_info['imsi'], t_info['imei'], t_info['factory_name'],
+                                t_info['softversion'], GATEWAY.TERMINAL_LOGIN.LOGIN,
+                                t_info['t_msisdn'])
                 # get SessionID
                 args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
@@ -366,7 +366,7 @@ class GatewayServer(object):
                        login=GATEWAY.TERMINAL_LOGIN.UNLOGIN)
         self.update_terminal_info(info)
 
-    def __record_online_terminals(self):
+    def __restore_online_terminals(self):
         """
         if restart gatewayserver, record online terminals again.
         """

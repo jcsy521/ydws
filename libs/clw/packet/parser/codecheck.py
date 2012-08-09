@@ -15,23 +15,39 @@ class T_CLWCheck(object):
 
     def parse_head(self, packets):
         packets_info = []
-        start_index = packets.find('[')
-        end_index = packets.rfind(']')
-        if start_index != -1 and end_index != -1:
-            packets = packets[start_index:end_index+1]
-            packet_list = packets[1:-1].split('][')
-            for packet in packet_list:
-                packet_info = DotDict(head=DotDict(), body="")
-                p_info = packet.split(',') 
-                keys = ['timestamp', 'sessionID', 'dev_type', 'softversion', 'dev_id', 'command']
+        valid_packets = []
+
+        while len(packets) > 0:
+            start_index = packets.find('[')
+            end_index = packets.find(']')
+            if start_index == -1 or end_index == -1:
+                logging.error("[GW] Invalid packets:%s", packets)
+                packets = ''
+            elif end_index < start_index:
+                logging.error("[GW] Invalid packets:%s", packets[:start_index])
+                packets = packets[start_index:]
+            else:
+                packet = packets[start_index:end_index+1]
+                tmp_index = packet[1:].rfind('[')
+                if tmp_index != -1:
+                    logging.error("[GW] Invalid packets:%s", packets[:tmp_index])
+                    packet = packet[tmp_index:]
+                valid_packets.append(packet)
+                packets = packets[end_index+1:]
+
+        for packet in valid_packets:
+            packet_info = DotDict(head=DotDict(), body="")
+            p_info = packet[1:-1].split(',')
+            keys = ['timestamp', 'sessionID', 'dev_type', 'softversion', 'dev_id', 'command']
+            if len(p_info) > len(keys):
                 for i, key in enumerate(keys):
                     packet_info.head[key] = p_info[i]
                 timestamp = packet_info.head.timestamp if packet_info.head.timestamp else int(time.time())
                 packet_info.body = p_info[len(keys):]
-                packet_info.message = "[" + packet + "]"
+                packet_info.message = packet
                 packets_info.append(packet_info)
-        else:
-            logging.warn("[GW] Invalid packets:%s", packets)
+            else:
+                logging.error("[GW] Not full packets:%s", packet)
        
         return packets_info 
     

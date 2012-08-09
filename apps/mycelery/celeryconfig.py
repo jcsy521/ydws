@@ -30,8 +30,8 @@ CELERYBEAT_SCHEDULE = {
 
    "gatewaytask": {
        "task": "gatewaytask.execute",
-       # every 30 minutes 
-       "schedule": timedelta(minutes=30), 
+       # 1:00AM every day 
+       "schedule": crontab(minute=0, hour=1), 
    },
 
 }
