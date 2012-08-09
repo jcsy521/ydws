@@ -62,7 +62,7 @@ class Application(tornado.web.Application):
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
             (r"/login/*", LoginHandler),
-            (r"/register/*", RegisterHandler),
+            #(r"/register/*", RegisterHandler),
             (r"/terminallist/*", TerminalListHandler),
             (r"/captcha", CaptchaHandler),
             (r"/logout/*", LogoutHandler),

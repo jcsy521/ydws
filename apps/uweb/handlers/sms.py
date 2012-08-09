@@ -8,6 +8,7 @@ from helpers.smshelper import SMSHelper
 from constants import UWEB
 
 from base import BaseHandler
+from codes.errorcode import ErrorCode
 #from smscallback import process
 
 
@@ -37,4 +38,4 @@ class SMSHandler(BaseHandler):
 
         self.queue.put((UWEB.PRIORITY.SMS, _on_finish))
         self.set_header("Content-type", "text/plain")
-        self.write("0")
+        self.write(ErrorCode.SUCCESS)
