@@ -8,17 +8,18 @@ TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
 import time, datetime
+from functools import partial
 
 from celery.decorators import task
 from celery.task.base import Task
 from tornado.options import options, define, parse_command_line
-from tornado.ioloop import IOLoop
 
 from db_.mysql import get_connection
 from utils.mymemcached import MyMemcached
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
+from utils.repeatedtimer import RepeatedTimer 
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
                        get_name_cache_key
 from codes.smscode import SMSCode
@@ -59,7 +60,7 @@ def execute():
     tday = int(time.mktime(t.timetuple()))
     # 86400s: 24h
     yday = tday - 86400 
-    terminals = db.query("SELECT id, tid, service_status"
+    terminals = db.query("SELECT id, tid, mobile, service_status"
                          "  FROM T_TERMINAL_INFO"
                          "  WHERE endtime BETWEEN %s AND %s"
                          "     OR service_status = 0",
@@ -67,17 +68,20 @@ def execute():
     for terminal in terminals:
         terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
         terminal_status_key = get_terminal_address_key(terminal.tid)
-        # send sms to user, after 9 hours.
-        memcached.set(terminal_sessionID_key, 1)
-        if memcached.get(terminal_sessionID_key):
+        sessionID = memcached.get(terminal_sessionID_key)
+        status = memcached.get(terminal_status_key)
+        if sessionID or status:
+            keys = [terminal_sessionID_key, terminal_status_key]
+            memcached.delete_multi(keys)
+            logging.error("[CELERY] Expired terminal: %s, SIM: %s",
+                          terminal.tid, terminal.mobile)
             name = get_tname(terminal.tid, db, memcached)
-            sms = SMSCode.SMS_SERVICE_STOP % (name)
-            sms_to_user(terminal.tid, sms, db)
-            #IOLoop.instance().add_timeout(int(time.time()) + 120,
-            #                              lambda: sms_to_user(terminal.tid, sms, db))
-        keys = [terminal_sessionID_key, terminal_status_key]
-        memcached.delete_multi(keys)
-        logging.error("[CELERY] Expired terminal: %s", terminal.tid)
+            sms = SMSCode.SMS_SERVICE_STOP % (name,)
+            send_sms = partial(sms_to_user, *(terminal.tid, sms, db))
+            # send sms to user, after 9 hours(daytime).
+            r = RepeatedTimer(9 * 60 * 60, send_sms, 1)
+            r.start()
+
         if terminal.service_status != '0':
             db.execute("UPDATE T_TERMINAL_INFO"
                        "  SET service_status = 0"
