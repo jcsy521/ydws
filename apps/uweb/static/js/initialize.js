@@ -353,18 +353,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_carLi.data('selfmarker', obj_selfMarker);
-		
 		//方向角
 		obj_selfMarker.setIcon(new BMap.Icon('/static/images/'+n_imgDegree+'.png', new BMap.Size(34, 34)));
-		//obj_selfMarker.openInfoWindow(infoWindow);
 	} else { 
 		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carLi.index(), true); // 添加标记
 	}
-	/*
-	if ( str_actionType == 'realtime' ) {
-		mapObj.openInfoWindow(obj_carLi.data('selfmarker').selfInfoWindow, obj_tempPoint);
-	}
-	*/
 }
 
 /**查找相应tid下的数据*/
@@ -388,29 +381,9 @@ window.dlf.fn_clearInterval = function(obj_interval) {
 * car_info: 车辆的信息
 */
 window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
-	var str_dStatus = obj_carInfo.defend_status == DEFEND_ON ? '已设防' : '未设防', 
-		str_type = obj_carInfo.type == GPS_TYPE ? 'GPS定位' : '基站定位',
-		n_degree = obj_carInfo.degree,
-		str_eStatus = dlf.fn_eventText(obj_carInfo.event_status),  // 报警状态
-		str_address = obj_carInfo.name,
-		n_time = obj_carInfo.timestamp != null ? obj_carInfo.timestamp : new Date().getTime(),
-		str_lngLat = 'E '+Math.floor(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL+'，N '+
-				Math.floor(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL; // 经纬度
-	if ( str_address == '' || str_address == null ) {
-		str_address = '暂无';
-	}
-	$('#timesTamp').html(dlf.fn_changeNumToDateString(n_time)); // 最后一次定位时间
-	$('#carAddress').html(str_address); // 最后一次定们地址
-	$('#terminalId').html(obj_carInfo.tid); // 终端卡号
-	$('#carDegree').html(dlf.fn_processDegree(n_degree)*36); // 车辆当前方向角
-	$('#carLocType').html(str_type); // 车辆定位类型
-	$('#carLngLat').html(str_lngLat); // 车辆经纬度
-	$('#carSpeed').html(obj_carInfo.speed); // 终端最后一次定位速度
-	
+	var str_dStatus = obj_carInfo.defend_status == DEFEND_ON ? '已设防' : '未设防';
 	if ( !type ) {
 		$('#defendStatus').html(str_dStatus); // 终端最后一次设防状态
-		$('#eventStatus').html(str_eStatus); // 终端最后一次报警状态
-		$('#lockStatus').val(obj_carInfo.lock_status); // 开锁解锁状态 ( 1:车被锁定； 0： 车未被锁定)
 	}
 }
 // 方向角处理

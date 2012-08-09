@@ -103,30 +103,4 @@ window.dlf.fn_baseSave =function() {
 	});
 	dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中');
 }
-
-/**
-*验证内容后台是否存在
-*obj_data: 要验证的数据
-*str_msg: 难正不通过的提示信息
-*/
-function fn_validAjaxText(obj_data, str_msg) {
-	var f_returnData = true;
-	if ( obj_data ) {
-		$.ajax({
-			url: TERMINAL_URL,
-			type: 'POST',
-			dataType: 'json',
-			async: false,
-			data: JSON.stringify(obj_data),
-			processData: false,
-			success: function(data){
-				if ( data.status != 0 ) {
-					dlf.fn_jNotifyMessage(str_msg+'已存在，请重新输入！', 'message', false, 5000);
-					f_returnData = false;
-				}
-			}
-		});
-	}
-	return f_returnData;
-}
 })();
