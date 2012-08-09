@@ -10,7 +10,7 @@ from helpers.seqgenerator import SeqGenerator
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
 from helpers.lbmphelper import handle_location
-from constants import UWEB, EVENTER, GATEWAY
+from constants import UWEB, EVENTER, GATEWAY, SMS
 from constants.MEMCACHED import ALIVED
 from base import BaseMixin
 
@@ -119,6 +119,8 @@ class RealtimeMixin(BaseMixin):
                         ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
                         logging.error("[UWEB] realtime failed. status: %s, message: %s", ret.status, ret.message)
                 else:
+                    if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+                        self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
                     ret.status = response['success']
                     ret.message = response['info']
                     logging.error("[UWEB] realtime failed. status: %s, message: %s", ret.status, ret.message)

@@ -69,6 +69,9 @@ def get_location_cache_key(lon, lat):
 def get_name_cache_key(sim):
     return str("pabb:%s" % sim)
 
+def get_lq_sms_key(sim):
+    return str("lq:%s" % sim)
+
 def get_terminal_time(timestamp):
     terminal_time = ""
     try:

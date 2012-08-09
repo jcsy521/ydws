@@ -18,7 +18,7 @@ HTTP方法说明
 DB参数配置
 =========
 
-Database: DB_CLW
+Database: DB_ABT
 Username: pabb
 Password: pabb
 
@@ -113,7 +113,7 @@ POST返回结果：
       'clatitude': x_int,
       'clongitude': x_int,
       'name': 'address_str',
-      'degree': int,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角 0-36
+      'degree': double,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角
       'timestamp': time_int,
       'type': x_int, // 终端定位方式
 	  'speed': int,	  
@@ -149,6 +149,7 @@ POST返回结果:
           'timestamp': time_int,
           'name': 'address_str',
 		  'type': x_int // 终端定位方式
+          'degree': double,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角
 		  'speed': int // 终端速度
         }
         , ...
@@ -163,11 +164,20 @@ POST返回结果:
 URL: /event
 Table: T_EVENT, T_LOCATION
 
-GET :用来进行页面的跳转, 提供tid
+GET :用来进行页面的跳转, 提供tid, alias
+
+GET 请求：/event
+GET 返回结果：
+{ event.html,
+  tid, // 终端id
+  alias, // 终端别名
+}
+
+
 
 POST请求内容:
   {
-    'event_type': int,  // -1: 全部; 0:未知类型; 1: 点名上报； 2：低电；3：断电；4：非法移动；5：SOS 
+    'event_type': int,  // -1: 全部; 2：低电；3：断电；4：非法移动；5：SOS 
     'start_time': time_int,
 	'end_time': time_int,
 	'tid': id_int
@@ -184,7 +194,7 @@ POST返回结果:
     'pagecnt': int // 记录的页数
     'events':[
 		{
-		'category': n_int, // 报警的标记 0:未知类型; 1: 点名上报； 2：低电；3：断电；4：非法移动；5：SOS 
+		'category': n_int, // 报警的标记 0:未知类型; 2：低电；3：断电；4：非法移动；5：SOS 
 		'latitude': x_int,
 		'longitude': x_int,
 		'clatitude': y_int, //加密后的经纬度
@@ -193,6 +203,7 @@ POST返回结果:
 		'name': 'address_str',
 		'type': x_int // 终端定位方式 gps or cellid
 		'speed': int // 终端速度
+        'degree': double,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角
 		}
 	,...
     ]
@@ -395,7 +406,7 @@ GET返回结果:
 		'speed': int,  // 当前速度
 		'event_status': int // 事件状态 #todo
 		'name': str // 车辆当前位置
-		'degree': int,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角 0-36
+		'degree': double,  // 方位角， 从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角 
         'volume': str //电池电量的一个代号，需要拿到后转换成电池百分比,算法：(volume+1)/10 
 		'login': int // 终端是否连接到平台. 1: 连接成功； 0：连接失败
 	}

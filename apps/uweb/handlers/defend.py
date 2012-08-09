@@ -14,11 +14,12 @@ from helpers.gfsenderhelper import GFSenderHelper
 from utils.misc import get_today_last_month
 from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
+from mixin.base import BaseMixin
 from codes.errorcode import ErrorCode
-from constants import UWEB
+from constants import UWEB, SMS
 
 
-class DefendHandler(BaseHandler):
+class DefendHandler(BaseHandler, BaseMixin):
 
     @authenticated
     @tornado.web.removeslash
@@ -56,6 +57,9 @@ class DefendHandler(BaseHandler):
                                 "  WHERE tid = %s",
                                 defend_status, self.current_user.tid)
             else:
+                if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+                    self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
+
                 status = response['success'] 
                 logging.error('Set defend_status failed. status: %s, message: %s', status, ErrorCode.ERROR_MESSAGE[status] )
             self.write_ret(status)

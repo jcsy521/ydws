@@ -12,7 +12,7 @@ from utils.misc import get_today_last_month
 from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
-from constants import UWEB
+from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper  
 from mixin.terminal import TerminalMixin 
 
@@ -51,6 +51,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
   
                 self.update_terminal_db(car_dct, self.current_user.tid, self.current_user.sim)
             else: 
+                if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+                    self.send_lq_sms(sim, SMS.LQ.WEB)
                 status = ErrorCode.FAILED 
                 logging.error('[UWEB] Query terminal_info failed.')
         else:            
@@ -131,6 +133,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             if response['success'] == 0:
                 self.update_terminal_info(response['params'], data, self.current_user.tid)
             else:
+                if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+                    self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
                 status = response['success'] 
                 logging.error("[UWEB] Set terminal failed. status: %s, message: %s", 
                                status, ErrorCode.ERROR_MESSAGE[status] )
