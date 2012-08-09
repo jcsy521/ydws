@@ -191,13 +191,22 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                               fields.endtime)
 
         # 3: add car tnum --> cnum
-        cid = self.db.execute("INSERT INTO T_CAR(cnum, tmobile)"
-                              "  VALUES (%s, %s)",
+        cid = self.db.execute("INSERT INTO T_CAR"
+                              "  VALUES(NULL, %s, %s)"
+                              "  ON DUPLICATE KEY"
+                              "  UPDATE cnum = VALUES(cnum),"
+                              "         tmobile = VALUES(tmobile)",
                               fields.cnum, fields.tmobile)
         
         # 4: send message to terminal
         register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
-        SMSHelper.send(fields.tmobile, register_sms)
+        ret = SMSHelper.send(fields.tmobile, register_sms)
+        ret = DotDict(json_decode(ret))
+        if ret.status == ErrorCode.SUCCESS:
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET msgid = %s"
+                            "  WHERE mobile = %s",
+                            ret['msgid'], fields.tmobile)
         self.redirect("/business/list/%s" % fields.tmobile)
         
 

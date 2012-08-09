@@ -38,4 +38,4 @@ class SMSHandler(BaseHandler):
 
         self.queue.put((UWEB.PRIORITY.SMS, _on_finish))
         self.set_header("Content-type", "text/plain")
-        self.write(ErrorCode.SUCCESS)
+        self.write(str(ErrorCode.SUCCESS))

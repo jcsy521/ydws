@@ -42,14 +42,17 @@ class SMSHelper:
         @param mobile: send to whom
         @param content: what to send
 
-        @return  True: send ok
-                False: fails
+        @return response: str,
+                { 
+                 'status':int 0:success,-1:failed.
+                 'msgid': 
+                }
         """
         logging.debug("mobile=%s, content=%s", mobile, content)
 
         content = safe_utf8(content)
 
-        send_ok = False
+        response = None
         try:
             req = urllib2.Request(url=ConfHelper.UWEB_CONF.sms_url,
                                   data=urlencode(dict(mobile=mobile,
@@ -61,12 +64,5 @@ class SMSHelper:
             logging.error("URLError: %s", e.args)
         except Exception as e:
             logging.error("Unknow error: %s", e.args)
-        else:
-            # contract with the sms gateway
-            # 0: success
-            # other: failse
-            if response == '0':
-                send_ok = True
             
-        # return send_ok
-        return True 
+        return response 
