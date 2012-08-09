@@ -134,7 +134,7 @@ class GatewayServer(object):
             t_info = lp.ret
                     
             if t_info['u_msisdn'] and t_info['t_msisdn']:
-                terminal = self.db.get("SELECT mobile, imsi, imei, service_status, endtime"
+                terminal = self.db.get("SELECT tid, mobile, imsi, imei, service_status, endtime"
                                        "  FROM T_TERMINAL_INFO"
                                        "  WHERE mobile = %s",
                                        t_info['t_msisdn'])
@@ -144,11 +144,12 @@ class GatewayServer(object):
                         # expired or stop service
                         args.success = GATEWAY.LOGIN_STATUS.EXPIRED
                         logging.error("[GW] Login failed! Expired Terminal: %s", t_info['dev_id'])
-                    elif terminal.imsi != t_info['imsi']:
-                        # illegal sim
-                        args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                        logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
-                                      t_info['t_msisdn'], t_info['dev_id'])
+                    elif terminal.tid != terminal.mobile:
+                        if terminal.imsi != t_info['imsi']:
+                            # illegal sim
+                            args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                            logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
+                                          t_info['t_msisdn'], t_info['dev_id'])
                     else:
                         pass
                 else:
