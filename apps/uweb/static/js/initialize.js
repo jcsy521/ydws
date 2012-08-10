@@ -306,8 +306,10 @@ function fn_getCarData() {
 				// 动态修改车辆当前连接状态
 				if ( str_loginst == LOGINST) {
 					obj_carLi.removeClass('carlogout').addClass('carlogin');
+					$('#currentCar').removeClass('carlogout').addClass('carlogin');
 				} else {
 					obj_carLi.removeClass('carlogin').addClass('carlogout');
+					$('#currentCar').removeClass('carlogin').addClass('carlogout');
 				}
 			}
 		}, 
