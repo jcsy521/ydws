@@ -8,7 +8,7 @@ import logging
 from multiprocessing import Queue
 
 from constants import GF 
-from constants.GATEWAY import DUMMY_FD
+from constants.GATEWAY import DUMMY_FD, TERMINAL_LOGIN
 from codes.gfcode import GFCode
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
@@ -106,8 +106,9 @@ class SIServer():
             if terminal:
                 status = GFCode.TERMINAL_OFFLINE 
                 self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET login = 0"
-                                "  WHERE id = %s", terminal.id)
+                                "  SET login = %s"
+                                "  WHERE id = %s",
+                                TERMINAL_LOGIN.UNLOGIN, terminal.id)
                 terminal_sessionID_key = get_terminal_sessionID_key(terminal_id)
                 terminal_status_key = get_terminal_address_key(terminal_id)
                 keys = [terminal_sessionID_key, terminal_status_key]

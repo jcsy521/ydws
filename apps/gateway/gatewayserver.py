@@ -88,49 +88,76 @@ class GatewayServer(object):
             logging.exception("[GW] Main socket Exception:%s", e.args)
         finally:
             self.stop()
-        
-    def handle_packet_from_terminal(self, response, address, si_requests_queue, gw_requests_queue):
+
+    def divide_packets(self, packets):
         """
-        handle resonse recv from terminal:
+        @param: multi-packets
+        @return: valid_packets
+        divide multi-packets into a list, that contains valid packet.
+        """
+        valid_packets = []
+
+        while len(packets) > 0:
+            start_index = packets.find('[')
+            end_index = packets.find(']')
+            if start_index == -1 or end_index == -1:
+                logging.error("[GW] Invalid packets:%s", packets)
+                packets = ''
+            elif end_index < start_index:
+                logging.error("[GW] Invalid packets:%s", packets[:start_index])
+                packets = packets[start_index:]
+            else:
+                packet = packets[start_index:end_index+1]
+                tmp_index = packet[1:].rfind('[')
+                if tmp_index != -1:
+                    logging.error("[GW] Invalid packets:%s", packets[:tmp_index])
+                    packet = packet[tmp_index:]
+                valid_packets.append(packet)
+                packets = packets[end_index+1:]
+
+        return valid_packets
+        
+    def handle_packet_from_terminal(self, packets, address, si_requests_queue, gw_requests_queue):
+        """
+        handle packet recv from terminal:
         - login
         - heartbeat
         - locationdesc
         - other, forward it to si.
         """
         try:
-            clw = T_CLWCheck(response)
-            for packet_info in clw.packets_info:
-                if packet_info.head.command == T_MESSAGE_TYPE.LOGIN:
-                    logging.info("[GW] Recv login message:\n%s", packet_info.message)
-                    self.handle_login(packet_info.head, packet_info.body,
-                                      address, gw_requests_queue) 
-                elif packet_info.head.command == T_MESSAGE_TYPE.HEARTBEAT:
-                    logging.info("[GW] Recv heartbeat message:\n%s", packet_info.message)
-                    self.handle_heartbeat(packet_info.head, packet_info.body,
-                                          address, gw_requests_queue)
-                elif packet_info.head.command == T_MESSAGE_TYPE.LOCATIONDESC:
-                    logging.info("[GW] Recv locationdesc message:\n%s", packet_info.message)
-                    self.handle_locationdesc(packet_info.head, packet_info.body,
-                                             address, gw_requests_queue)
+            packets = self.divide_packets(packets)
+            for packet in packets:
+                clw = T_CLWCheck(packet)
+                command = clw.head.command
+                if command == T_MESSAGE_TYPE.LOGIN:
+                    logging.info("[GW] Recv login packet:\n%s", packet)
+                    self.handle_login(clw, address, gw_requests_queue) 
+                elif command == T_MESSAGE_TYPE.HEARTBEAT:
+                    logging.info("[GW] Recv heartbeat packet:\n%s", packet)
+                    self.handle_heartbeat(clw, address, gw_requests_queue)
+                elif command == T_MESSAGE_TYPE.LOCATIONDESC:
+                    logging.info("[GW] Recv locationdesc packet:\n%s", packet)
+                    self.handle_locationdesc(clw, address, gw_requests_queue)
                 else:
-                    logging.info("[GW] Recv message from terminal:\n%s", packet_info.message)
-                    self.foward_packet_to_si(packet_info, packet_info.message, address,
+                    logging.info("[GW] Recv packet from terminal:\n%s", packet)
+                    self.foward_packet_to_si(clw, packet, address,
                                              si_requests_queue, gw_requests_queue)
         except:
             logging.exception("[GW] Recv Exception.")
 
-    def handle_login(self, head, body, address, gw_requests_queue):
+    def handle_login(self, info, address, gw_requests_queue):
         """
         login packet
         0: success, then get a sessionID for terminal and record terminal's address
         1: unregister, have no u_msisdn or t_msisdn
         2: expired, service stop or endtime < now
-        3: illegal sim, a mismatch between tid and sim 
+        3: illegal sim, a mismatch between imsi and sim 
         """
         try:
             args = DotDict(success=GATEWAY.LOGIN_STATUS.SUCCESS,
                            sessionID='')
-            lp = LoginParser(body, head)
+            lp = LoginParser(info.body, info.head)
             t_info = lp.ret
                     
             if t_info['u_msisdn'] and t_info['t_msisdn']:
@@ -194,13 +221,15 @@ class GatewayServer(object):
         except:
             logging.exception("[GW] Hand login exception.")
         
-    def handle_heartbeat(self, head, body, address, gw_requests_queue):
+    def handle_heartbeat(self, info, address, gw_requests_queue):
         """
         heartbeat packet
         0: success, then record new terminal's address
         1: invalid SessionID 
         """
         try:
+            head = info.head
+            body = info.body
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS)
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
@@ -218,13 +247,15 @@ class GatewayServer(object):
         except:
             logging.exception("[GW] Hand heartbeat exception.")
 
-    def handle_locationdesc(self, head, body, address, gw_requests_queue):
+    def handle_locationdesc(self, info, address, gw_requests_queue):
         """
         locationdesc packet
         0: success, then return locationdesc to terminal and record new terminal's address
         1: invalid SessionID 
         """
         try:
+            head = info.head
+            body = info.body
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            locationdesc="")
             sessionID = self.get_terminal_sessionID(head.dev_id)
@@ -250,34 +281,34 @@ class GatewayServer(object):
         except:
             logging.exception("[GW] Handle locationdesc exception.")
 
-    def foward_packet_to_si(self, packet, response, address, si_requests_queue, gw_requests_queue):
+    def foward_packet_to_si(self, info, packet, address, si_requests_queue, gw_requests_queue):
         """
         response packet or position/report/charge packet
         0: success, then forward it to SIServer and record new terminal's address
         1: invalid SessionID 
         """
         try:
-            command = packet.head.command
+            head = info.head
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
-                           command=command)
-            dev_id = packet.head.dev_id
+                           command=head.command)
+            dev_id = head.dev_id
             sessionID = self.get_terminal_sessionID(dev_id)
-            if sessionID != packet.head.sessionID:
+            if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
                 logging.error("[GW] Invalid sessionID, Terminal: %s", dev_id)
             else:
                 uargs = DotDict(seq=SeqGenerator.next(self.db),
                                 dev_id=dev_id,
-                                content=response)
+                                content=packet)
                 content = UploadDataComposer(uargs).buf
                 logging.info("[GW] Forward message to SI:\n%s", content)
                 self.append_si_request(content, si_requests_queue)
                 self.update_terminal_status(dev_id, address)
 
-            if command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
-                           T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
-                           T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.POWEROFF,
-                           T_MESSAGE_TYPE.EMERGENCY):
+            if head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
+                                T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
+                                T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.POWEROFF,
+                                T_MESSAGE_TYPE.EMERGENCY):
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
                                   address=address)
@@ -374,7 +405,8 @@ class GatewayServer(object):
         db = DBConnection().db
         memcached = MyMemcached()
         online_terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                    "  WHERE login = 1")
+                                    "  WHERE login = %s",
+                                    GATEWAY.TERMINAL_LOGIN.LOGIN)
         for terminal in online_terminals:
             terminal_status_key = get_terminal_address_key(terminal.tid)
             terminal_status = memcached.get(terminal_status_key)
@@ -382,9 +414,9 @@ class GatewayServer(object):
                 self.online_terminals.append(terminal.tid)
             else:
                 db.execute("UPDATE T_TERMINAL_INFO"
-                           "  SET login = 0"
+                           "  SET login = %s"
                            "  WHERE tid = %s",
-                           terminal.tid)
+                           GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
         db.close()
         
     def __start_check_heartbeat_thread(self):

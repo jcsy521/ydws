@@ -87,7 +87,7 @@ class PacketTask(object):
             sms = SMSCode.SMS_REALTIME_RESULT % (self.get_tname(location.dev_id), 
                                                  location.name,
                                                  get_terminal_time(int(location.timestamp)))
-            self.sms_to_parents(location.dev_id, sms)
+            self.sms_to_user(location.dev_id, sms)
             self.memcached.delete(key)
 
     def unknown_location_hook(self, location):
@@ -171,7 +171,7 @@ class PacketTask(object):
 
         if report.category != EVENTER.CATEGORY.UNKNOWN:
             self.event_hook(report.category, report.dev_id, report.dev_type, lid, report.pbat)
-            self.sms_to_parents(report.dev_id, sms)
+            self.sms_to_user(report.dev_id, sms)
             self.notify_to_parents(report.category, report.dev_id, report)
             
 
@@ -189,9 +189,9 @@ class PacketTask(object):
         name = self.get_tname(info.dev_id)
         terminal_time = get_terminal_time(int(info.timestamp))
         sms = SMSCode.SMS_CHARGE % (name, info.content, terminal_time)
-        self.sms_to_parents(info.dev_id, sms)
+        self.sms_to_user(info.dev_id, sms)
 
-    def sms_to_parents(self, dev_id, sms):
+    def sms_to_user(self, dev_id, sms):
         if not sms:
             return
 

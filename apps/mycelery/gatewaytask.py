@@ -19,6 +19,7 @@ from utils.mymemcached import MyMemcached
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
+from constants import GATEWAY
 from utils.repeatedtimer import RepeatedTimer 
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
                        get_name_cache_key
@@ -63,8 +64,8 @@ def execute():
     terminals = db.query("SELECT id, tid, mobile, service_status"
                          "  FROM T_TERMINAL_INFO"
                          "  WHERE endtime BETWEEN %s AND %s"
-                         "     OR service_status = 0",
-                         yday, tday)
+                         "     OR service_status = %s",
+                         yday, tday, GATEWAY.TERMINAL_LOGIN.UNLOGIN)
     for terminal in terminals:
         terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
         terminal_status_key = get_terminal_address_key(terminal.tid)
@@ -82,10 +83,11 @@ def execute():
             r = RepeatedTimer(9 * 60 * 60, send_sms, 1)
             r.start()
 
-        if terminal.service_status != '0':
+        if terminal.service_status != GATEWAY.TERMINAL_LOGIN.UNLOGIN:
             db.execute("UPDATE T_TERMINAL_INFO"
-                       "  SET service_status = 0"
-                       "  WHERE id = %s", terminal.id)
+                       "  SET service_status = %s"
+                       "  WHERE id = %s", 
+                       GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.id)
         
     db.close()
 

@@ -397,25 +397,24 @@ class GFBase(object):
                                 # and delete from wait response queue
                                 udp = UploadDataParser(gfdata)
                                 tc = T_CLWCheck(udp.content)
-                                for clw in tc.packets_info:
-                                    clwhead = clw.head
-                                    clwbody = clw.body
+                                clwhead = tc.head
+                                clwbody = tc.body
 
-                                    r_key = ("%s%s" % (clwhead.dev_id, 'S'+clwhead.command[1:])).replace(' ','')
-                                    if self.wait_response_queue.has_key(r_key):
-                                        callback = self.wait_response_queue[r_key][0]['callback']
-                                        resp.clwbody= clwbody
-                                        resp.clwhead = clwhead
-                                        callback(resp)
-                                        del self.wait_response_queue[r_key][0]
-                                        if len(self.wait_response_queue[r_key]) == 0:
-                                            del self.wait_response_queue[r_key]
+                                r_key = ("%s%s" % (clwhead.dev_id, 'S'+clwhead.command[1:])).replace(' ','')
+                                if self.wait_response_queue.has_key(r_key):
+                                    callback = self.wait_response_queue[r_key][0]['callback']
+                                    resp.clwbody= clwbody
+                                    resp.clwhead = clwhead
+                                    callback(resp)
+                                    del self.wait_response_queue[r_key][0]
+                                    if len(self.wait_response_queue[r_key]) == 0:
+                                        del self.wait_response_queue[r_key]
+                                else:
+                                    ap = AsyncParser(clwbody, clwhead)
+                                    if ap.ret:
+                                        self.forward(ap.ret)
                                     else:
-                                        ap = AsyncParser(clwbody, clwhead)
-                                        if ap.ret:
-                                            self.forward(ap.ret)
-                                        else:
-                                            logging.error("Unknow response received: %s, and drop it!",response)
+                                        logging.error("Unknow response received: %s, and drop it!",response)
                             else:
                                 logging.exception("unknown command:%s", gfhead.command)
 
