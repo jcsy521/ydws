@@ -19,7 +19,7 @@ class T_CLWCheck(object):
         if packet.startswith('[') and packet.endswith(']'):
             p_info = packet[1:-1].split(',')
             keys = ['timestamp', 'sessionID', 'dev_type', 'softversion', 'dev_id', 'command']
-            if len(p_info) > len(keys):
+            if len(p_info) >= len(keys):
                 for i, key in enumerate(keys):
                     head[key] = p_info[i]
                 head.timestamp = head.timestamp if head.timestamp else int(time.time())
@@ -44,7 +44,7 @@ class S_CLWCheck(object):
         if packet.startswith('[') and packet.endswith(']'):
             p_info = packet[1:-1].split(',') 
             keys = ['timestamp', 'command']
-            if len(p_info) > len(keys):
+            if len(p_info) >= len(keys):
                 for i, key in enumerate(keys):
                     head[key] = p_info[i]
                 head.timestamp = head.timestamp if head.timestamp else int(time.time()) 
