@@ -23,12 +23,15 @@ options['logging'].set('info')
 
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
+from codes.errorcode import ErrorCode
+
 from handlers.mainhandler import MainHandler
 from handlers.acbmthandler import ACBMTHandler
 from business.mt import MT
 from business.mo import MO
 from business.status import Status
 from business.moacb import MOACB
+
 
 
 class Application(tornado.web.Application):
@@ -62,11 +65,16 @@ def run_mt_thread():
     logging.info("MT thread started.")
     #time interval 5 second
     INTERVAL = 5
+    result = ErrorCode.FAILED
     mt = MT()
     while True:
         try:
             time.sleep(INTERVAL)
-            mt.fetch_mt_sms()
+            result = mt.fetch_mt_sms()
+            if result == ErrorCode.SUCCESS:
+                INTERVAL = 5
+            else:
+                INTERVAL = 60
         except Exception as e:
             logging.exception("Start MT thread failed: %s", e.args)
             
@@ -84,7 +92,7 @@ def run_user_receive_status_thread():
             logging.exception("Start user receive status thread failed: %s", e.args)
             
             
-def run_get_mo_thread():
+def run_get_mo_from_gateway_thread():
     logging.info("Get mo sms thread started.")
     #time interval 5 second
     INTERVAL = 5
@@ -97,7 +105,7 @@ def run_get_mo_thread():
             logging.exception("Start get mo sms thread failed: %s", e.args)
             
             
-def run_send_mo_thread():
+def run_send_mo_to_acb_thread():
     logging.info("Send mo to acb thread started.")
     #time interval 1 second
     INTERVAL = 1
@@ -129,10 +137,10 @@ def main():
         thread.start_new_thread(run_user_receive_status_thread, ())
         
         # create get mo thread
-        thread.start_new_thread(run_get_mo_thread, ())
+        thread.start_new_thread(run_get_mo_from_gateway_thread, ())
         
         # create send mo thread
-        thread.start_new_thread(run_send_mo_thread, ())
+        thread.start_new_thread(run_send_mo_to_acb_thread, ())
         
         http_server.listen(options.port)
         logging.warn("[acb sms] running on: localhost:%d", options.port)

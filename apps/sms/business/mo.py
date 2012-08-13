@@ -28,6 +28,7 @@ class MO(object):
         
         
     def get_mo_sms(self):
+        result = None
         try:
             url = ConfHelper.SMS_CONF.mt_url
             cmd = "getmo"
@@ -42,7 +43,7 @@ class MO(object):
             if result:
                 result_list = result.strip().splitlines()
                 if result_list[0] == "101":
-                    logging.info("No mo sms")
+                    pass
                 else:
                     logging.info("Obtain mo sms")
                     result_list.remove(result_list[0])
@@ -70,7 +71,7 @@ class MO(object):
                             " inserttime, category, sendstatus) "
                             "  VALUES(%s, %s, %s, %s, %s, %s)",
                             msgid, mobile, content, insert_time,
-                            SMS.CATEGORY.RECEIVE, SMS.SENDSTATUS.PENDING)
+                            SMS.CATEGORY.MO, SMS.SENDSTATUS.PREPARING)
             logging.info("Gateway-->sms save success! mobile = %s, content = %s", mobile, content)
         except Exception, msg:
             logging.exception("Gateway-->sms save exception : %s", msg)

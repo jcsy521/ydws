@@ -17,6 +17,7 @@ if 'conf' not in options:
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
 from constants import SMS
+from codes.errorcode import ErrorCode
 from net.httpclient import HttpClient
 
 
@@ -29,6 +30,7 @@ class MOACB(object):
     
     
     def fetch_mo_sms(self):
+        status = ErrorCode.FAILED
         try:
             mos = self.db.query("SELECT id, mobile, content "
                                 "  FROM T_SMS "
@@ -36,7 +38,7 @@ class MOACB(object):
                                 "  AND sendstatus = %s"
                                 "  ORDER BY id ASC"
                                 "  LIMIT 10",
-                                SMS.CATEGORY.RECEIVE, SMS.SENDSTATUS.PENDING)
+                                SMS.CATEGORY.MO, SMS.SENDSTATUS.PREPARING)
             
             for mo in mos:
                 mobile = mo["mobile"]
@@ -45,13 +47,13 @@ class MOACB(object):
                 
                 status = self.send_mo_to_acb(mobile, content)
                 if status:
-                    if status == '0':
+                    if status == str(ErrorCode.SUCCESS):
                         logging.info("sms-->acb success mobile = %s, content = %s", mobile, content)
                         self.db.execute("UPDATE T_SMS "
                                        "  SET sendstatus = %s"
                                        "  WHERE id = %s",
                                        SMS.SENDSTATUS.SUCCESS, id)
-                    elif status == '1':
+                    elif status == str(ErrorCode.FAILED):
                         logging.info("sms-->acb failure mobile = %s, content = %s", mobile, content)
                         self.db.execute("UPDATE T_SMS "
                                        "  SET sendstatus = %s"
@@ -66,16 +68,11 @@ class MOACB(object):
             
         except Exception, msg:
             logging.exception("Fetch mo sms exception : %s", msg)
-            self.db.execute("UPDATE T_SMS "
-                            "  SET sendstatus = %s"
-                            "  WHERE id = %s",
-                            SMS.SENDSTATUS.FAILURE, id)
             
             
     def send_mo_to_acb(self, mobile, content):
+        result = None
         try:
-#            url = "http://drone-004:8600/sms/mo" 
-#            url = "http://drone-009:6301/sms/mo" 
             url = ConfHelper.UWEB_CONF.url_in + "/sms/mo"
             mobile = mobile
             content = content.encode('utf-8')
@@ -84,10 +81,10 @@ class MOACB(object):
                         content=content
                         )
             result = HttpClient().send_http_post_request(url, data)
-            return result
         except Exception, msg:
             logging.exception("Send mo sms to acb exception : %s", msg)
-            
+        finally:
+            return result
             
             
             

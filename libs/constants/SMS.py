@@ -10,12 +10,13 @@ LQ = DotDict(WEB=30, # 30 minutes
 
 LQ_INTERVAL = 3 * 60 # 3mins
 
-CATEGORY = DotDict(RECEIVE=10,
-                   SEND=20)
+#modify
+CATEGORY = DotDict(MO=10,
+                   MT=20)
 
-SENDSTATUS = DotDict(PENDING=0,
-                     SUCCESS=1,
-                     FAILURE=2)
+SENDSTATUS = DotDict(PREPARING=-1,
+                     SUCCESS=0,
+                     FAILURE=1)
 
 USERSTATUS = DotDict(NOSYNC=-1,
                      SUCCESS=0,

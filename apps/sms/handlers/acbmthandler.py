@@ -8,37 +8,27 @@ import tornado.web
 
 from basehandler import BaseHandler
 from constants import SMS
+from codes.errorcode import ErrorCode
 
 
 class ACBMTHandler(BaseHandler):
     
     @tornado.web.removeslash
     def post(self):
-        status = "1"
         try:
             mobile = self.get_argument("mobile")
             content = self.get_argument("content")
-            status = self.save(mobile, content)
-        except Exception, msg:  
-            logging.exception("acb-->sms post exception : %s", msg)
-        finally:
-            self.write(status)
-        
-        
-    def save(self, mobile, content):
-        try:
             insert_time = int(time.time() * 1000)
-            msgid = mobile[-4:] + str(insert_time)[-5:]
+            msgid = str(insert_time)[-9:]
             self.db.execute("INSERT INTO T_SMS(msgid, mobile, content, "
                             " inserttime, category, sendstatus) "
                             "  VALUES(%s, %s, %s, %s, %s, %s)",
                             msgid, mobile, content, insert_time,
-                            SMS.CATEGORY.SEND, SMS.SENDSTATUS.PENDING)
+                            SMS.CATEGORY.MT, SMS.SENDSTATUS.PREPARING)
             logging.info("acb-->sms save success! mobile = %s, content = %s", mobile, content)
-            return "0"
-        except Exception, msg:
-            logging.exception("acb-->sms save exception : %s", msg)
-            return "1"
-            
-            
-            
+            self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
+        except Exception, msg:  
+            logging.exception("acb-->sms post exception : %s", msg)
+            self.write({'status' : ErrorCode.FAILED, 'msgid' : msgid})
+        
+        

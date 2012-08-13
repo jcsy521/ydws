@@ -28,6 +28,7 @@ class Status(object):
         
         
     def get_user_receive_status(self):
+        result = None
         try:
             url = ConfHelper.SMS_CONF.mt_url
             cmd = "getstatus"
@@ -58,7 +59,7 @@ class Status(object):
             # result_list = ['100', '567848895#15012345678#0', '567816375#18842476170#0']
             result_list = result.strip().splitlines()
             if result_list[0] == "101":
-                logging.info("No user receive status")
+                pass
             # result_list[0] == "100"
             else:
                 logging.info("Obtain user receive status")
@@ -70,12 +71,19 @@ class Status(object):
                     status = info_list[2]
                     if status == str(SMS.USERSTATUS.FAILURE):
                         logging.warn("User %s does not recieve sms, msgid = %s ", mobile, msgid)
+                        self.db.execute("UPDATE T_SMS "
+                                        "  SET userstatus = %s"
+                                        "  WHERE msgid = %s"
+                                        "  AND category = %s"
+                                        "  AND mobile = %s",
+                                        SMS.USERSTATUS.FAILURE, msgid, SMS.CATEGORY.MT, mobile)
                     elif status == str(SMS.USERSTATUS.SUCCESS):
                         self.db.execute("UPDATE T_SMS "
                                         "  SET userstatus = %s"
                                         "  WHERE msgid = %s"
+                                        "  AND category = %s"
                                         "  AND mobile = %s",
-                                        SMS.USERSTATUS.SUCCESS, msgid, mobile)
+                                        SMS.USERSTATUS.SUCCESS, msgid, SMS.CATEGORY.MT, mobile)
                     else:
                         logging.error("User %s recieve sms status error, msgid = %s, status = %s ", mobile, msgid, status)
         except Exception, msg:
