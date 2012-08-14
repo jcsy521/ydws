@@ -29,7 +29,7 @@ class SMSMixin(BaseMixin):
 
         mem_key = self.get_memcache_key(hash_)
 
-        data = self.memcached.get(mem_key)
+        data = self.redis.getvalue(mem_key)
         if data:
             return data
 
@@ -123,7 +123,7 @@ class SMSMixin(BaseMixin):
             if flag:
                 results.append(r)
       
-        self.memcached.set(mem_key,(results, [start_time, end_time]), 
+        self.redis.setvalue(mem_key,(results, [start_time, end_time]), 
                            time=self.MEMCACHE_EXPIRY)
         return results, [start_time, end_time]
 
@@ -136,10 +136,10 @@ class SMSHandler(BaseHandler, SMSMixin):
     def prepare(self):
 
         key = self.get_area_memcache_key(self.current_user.id)
-        areas = self.memcached.get(key)
+        areas = self.redis.getvalue(key)
         if not areas:
             areas = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(key, areas)
+            self.redis.setvalue(key, areas)
         self.areas = areas
         #self.provinces = self.db.query("SELECT province_id, province_name FROM T_HLR_PROVINCE")
         #self.groups = self.db.query("SELECT id, name FROM T_XXT_GROUP")
@@ -200,7 +200,7 @@ class SMSDownloadHandler(SMSMixin, BaseHandler):
     def get(self, hash_):
 
         mem_key = self.get_memcache_key(hash_)
-        r = self.memcached.get(mem_key)
+        r = self.redis.getvalue(mem_key)
         if r:
             results = r[0]
             start_time, end_time = r[1][0], r[1][1]

@@ -30,7 +30,7 @@ class UserMixin(BaseMixin):
 
         Workflow:
         mem_key = self.get_memcache_key(hash_)
-        data = self.memcached.get(mem_key)
+        data = self.redis.getvalue(mem_key)
         if data:
             return data
         # now, begin the true query    
@@ -50,13 +50,13 @@ class UserMixin(BaseMixin):
             sql = union select_clause, from_table_clause, terms
         else:
            # do the same with parent, except the extra filed 'plan_id'
-        self.memcached.set(mem_key,data,time_period)
+        self.redis.setvalue(mem_key,data,time_period)
         return data
         """
 
         mem_key = self.get_memcache_key(hash_)
         
-        data = self.memcached.get(mem_key)
+        data = self.redis.getvalue(mem_key)
         if data:
             return data
 
@@ -159,7 +159,7 @@ class UserMixin(BaseMixin):
         counts.cancel = targets.count(XXT.OPER_TYPE.CANCEL)
         results = dict(users=users,
                        counts=counts)
-        self.memcached.set(mem_key, (results, interval), time=self.MEMCACHE_EXPIRY)
+        self.redis.setvalue(mem_key, (results, interval), time=self.MEMCACHE_EXPIRY)
         return results, interval
 
 
@@ -172,10 +172,10 @@ class UserHandler(BaseHandler, UserMixin):
 
         self.plans = self.db.query("SELECT xxt_id AS id, name FROM T_XXT_PLAN")
         mem_key = self.get_area_memcache_key(self.current_user.id)
-        cities = self.memcached.get(mem_key)
+        cities = self.redis.getvalue(mem_key)
         if not cities:
             cities = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(mem_key, cities)
+            self.redis.setvalue(mem_key, cities)
         self.cities = cities
         res  = self.db.get("SELECT type FROM T_ADMINISTRATOR"
                            "  WHERE id = %s", self.current_user.id)
@@ -223,7 +223,7 @@ class UserDownloadHandler(BaseHandler, UserMixin):
     def get(self, hash_):
 
         mem_key = self.get_memcache_key(hash_)
-        r = self.memcached.get(mem_key)
+        r = self.redis.getvalue(mem_key)
         if not r:
             self.render("errors/download.html")
             return

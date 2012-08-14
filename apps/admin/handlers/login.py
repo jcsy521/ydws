@@ -86,7 +86,7 @@ class LoginHandler(BaseHandler, BaseMixin):
             # update the privilege_area for current user.(through BaseMixin)
             key = self.get_area_memcache_key(r.id)
             areas = self.get_privilege_area(r.id)
-            self.memcached.set(key, areas)
+            self.redis.setvalue(key, areas)
 
             self.clear_cookie('captchahash')
             self.redirect(self.get_argument("next","/"))

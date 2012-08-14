@@ -29,7 +29,7 @@ define('mode', default='deploy')
 options['logging'].set('warning')
 
 from db_.mysql import DBConnection
-from utils.mymemcached import MyMemcached
+from utils.myredis import MyRedis
 from helpers.confhelper import ConfHelper
 
 from handlers.worker import WorkerPool

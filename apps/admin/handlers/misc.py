@@ -20,10 +20,10 @@ class AreaHandler(BaseHandler, BaseMixin):
        return privilege_area include provinces and cities
        """
        key = self.get_area_memcache_key(self.current_user.id)
-       areas = self.memcached.get(key)
+       areas = self.redis.getvalue(key)
        if not areas:
            areas = self.get_privilege_area(self.current_user.id)
-           self.memcached.set(key, areas)
+           self.redis.setvalue(key, areas)
 
        self.set_header(*self.JSON_HEADER)
        self.write(json_encode(areas))
@@ -41,10 +41,10 @@ class ProvinceListHandler(BaseHandler, BaseMixin):
         #provinces = self.db.query("SELECT * FROM T_HLR_PROVINCE")
         provinces = []
         key = self.get_area_memcache_key(self.current_user.id)
-        areas = self.memcached.get(key)
+        areas = self.redis.getvalue(key)
         if not areas:
             areas = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(key, areas)
+            self.redis.setvalue(key, areas)
         for area in areas:
             province = DotDict(id=area.pid,
                                name=area.pname)
@@ -68,10 +68,10 @@ class ProvinceHandler(BaseHandler, BaseMixin):
         #                   "  WHERE province_id = %s",
         #                   province_id)
         key = self.get_area_memcache_key(self.current_user.id)
-        areas = self.memcached.get(key)
+        areas = self.redis.getvalue(key)
         if not areas:
             areas = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(key, areas)
+            self.redis.setvalue(key, areas)
         for area in areas:
             if area.pid == int(province_id):
                 rs = area.city

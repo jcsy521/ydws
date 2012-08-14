@@ -105,10 +105,10 @@ class AdministratorMixin(BaseMixin):
             administrator.privileges = privilege_groups
             
             key = self.get_area_memcache_key(administrator_id)
-            areas = self.memcached.get(key)
+            areas = self.redis.getvalue(key)
             if not areas:
                 areas = self.get_privilege_area(administrator_id)
-                self.memcached.set(key, areas)
+                self.redis.setvalue(key, areas)
             administrator.cities = areas 
             return administrator
 
@@ -255,11 +255,11 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                 cities = self.db.query("SELECT city_id, city_name FROM T_HLR_CITY"
                                        "  WHERE province_id = %s",
                                        AREA.PROVINCE.LIAONING)
-                self.memcached.set(key, cities)
+                self.redis.setvalue(key, cities)
             else:
                 if cities:
                     areas = self.get_area(cities)
-                    self.memcached.set(key, areas)
+                    self.redis.setvalue(key, areas)
 
                     cities = self.db.query("SELECT region_code FROM T_HLR_CITY"
                                            "  WHERE city_id IN %s",
@@ -292,7 +292,7 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                     self.db.execute("DELETE FROM T_AREA_PRIVILEGE"
                                     "  WHERE administrator_id = %s",
                                     administrator_id)
-                    self.memcached.delete(key)
+                    self.redis.delete(key)
 
 
         self.redirect("/administrator/list/%s" % administrator_id)
@@ -307,10 +307,10 @@ class AdministratorCreateHandler(BaseHandler, BaseMixin):
         self.privilege_groups = self.db.query("SELECT * FROM T_PRIVILEGE_GROUP")
         self.sources = self.db.query("SELECT * FROM T_ADMINISTRATOR_SOURCE")
         key = self.get_area_memcache_key(self.current_user.id)
-        areas = self.memcached.get(key)
+        areas = self.redis.getvalue(key)
         if not areas:
             areas = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(key, areas)
+            self.redis.setvalue(key, areas)
         self.render("administrator/create.html",
                     sources=self.sources,
                     cities=areas,
@@ -367,11 +367,11 @@ class AdministratorCreateHandler(BaseHandler, BaseMixin):
             cities = self.db.query("SELECT city_id, city_name FROM T_HLR_CITY"
                                    "  WHERE province_id = %s",
                                    AREA.PROVINCE.LIAONING)
-            self.memcached.set(key, cities)
+            self.redis.setvalue(key, cities)
         else:
             # put privilege_areas into memcached
             areas = self.get_area(cities)
-            self.memcached.set(key, areas)
+            self.redis.setvalue(key, areas)
 
             cities = self.db.query("SELECT region_code FROM T_HLR_CITY"
                                    "  WHERE city_id IN %s",
@@ -400,7 +400,7 @@ class AdministratorDeleteHandler(BaseHandler, BaseMixin):
                             administrator_id)
             ret = dict(success=0)
             key = self.get_area_memcache_key(administrator_id) 
-            self.memcached.delete(key)
+            self.redis.delete(key)
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))
 

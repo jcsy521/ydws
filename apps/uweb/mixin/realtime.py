@@ -41,7 +41,7 @@ class RealtimeMixin(BaseMixin):
                               EVENTER.CATEGORY.REALTIME,
                               location.type, location.speed,
                               location.degree, location.cellid)
-        is_alived = self.memcached.get('is_alived')
+        is_alived = self.redis.getvalue('is_alived')
         if (is_alived == ALIVED and location.valid == GATEWAY.LOCATION_STATUS.SUCCESS):
             mem_location = DotDict({'id':lid,
                                     'latitude':location.lat,
@@ -53,16 +53,16 @@ class RealtimeMixin(BaseMixin):
                                     'name':location.name,
                                     'degree':location.degree,
                                     'speed':location.speed})
-            self.memcached.set(str(location.dev_id), mem_location, EVENTER.LOCATION_EXPIRY)
+            self.redis.setvalue(str(location.dev_id), mem_location, EVENTER.LOCATION_EXPIRY)
 
     def request_realtime(self, query, callback=None):
         """
         All realtime requests in REALTIME_VALID_INTERVAL will be considered as
         only one. If not, invoke gf and use handle_location of lbmphelper. 
         """
-        is_alived = self.memcached.get('is_alived')
+        is_alived = self.redis.getvalue('is_alived')
         if is_alived == ALIVED:
-            location = self.memcached.get(str(self.current_user.tid))
+            location = self.redis.getvalue(str(self.current_user.tid))
             if location and (time.time() * 1000 - location.timestamp) > UWEB.REALTIME_VALID_INTERVAL:
                 location = None
         else:
@@ -97,7 +97,7 @@ class RealtimeMixin(BaseMixin):
                 response = json_decode(response)
                 if response['success'] == 0:
                     location = DotDict(response['position'])
-                    location = handle_location(location, self.memcached,
+                    location = handle_location(location, self.redis,
                                                cellid=True if query.cellid_status == UWEB.CELLID_STATUS.ON else False,
                                                db=self.db)
                     if location.get('cLat') and location.get('cLon'):

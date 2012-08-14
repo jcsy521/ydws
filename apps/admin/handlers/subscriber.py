@@ -37,7 +37,7 @@ class SubscriberMixin(BaseMixin):
     def prepare_data(self, hash_):
 
         mem_key = self.get_memcache_key(hash_)
-        data = self.memcached.get(mem_key)
+        data = self.redis.getvalue(mem_key)
         data = None
         if data:
             return data
@@ -100,7 +100,7 @@ class SubscriberMixin(BaseMixin):
             results.append(result)
             for key in counts:
                 counts[key] += result[key]
-        self.memcached.set(mem_key, (results, counts, interval), time=self.MEMCACHE_EXPIRY)
+        self.redis.setvalue(mem_key, (results, counts, interval), time=self.MEMCACHE_EXPIRY)
 
         return results, counts, interval
 
@@ -112,10 +112,10 @@ class SubscriberHandler(BaseHandler, SubscriberMixin):
     @tornado.web.removeslash
     def prepare(self):
         key = self.get_area_memcache_key(self.current_user.id)
-        cities = self.memcached.get(key)
+        cities = self.redis.getvalue(key)
         if not cities:
             cities = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(key, cities)
+            self.redis.setvalue(key, cities)
         self.cities = cities
         res  = self.db.get("SELECT type FROM T_ADMINISTRATOR"
                            "  WHERE id = %s", self.current_user.id)
@@ -156,7 +156,7 @@ class SubscriberDownloadHandler(BaseHandler, SubscriberMixin):
     @tornado.web.removeslash
     def get(self, hash_):
         mem_key = self.get_memcache_key(hash_)
-        r = self.memcached.get(mem_key)
+        r = self.redis.getvalue(mem_key)
         if not r:
             self.render("errors/download.html")
             return

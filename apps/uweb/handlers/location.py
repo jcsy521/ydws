@@ -42,7 +42,7 @@ class LocationHandler(BaseHandler):
             return
 
         key = get_location_cache_key(location.longitude, location.latitude)
-        location.name = self.memcached.get(key)
+        location.name = self.redis.getvalue(key)
        
         def _on_finish(response):
             try:
@@ -50,7 +50,7 @@ class LocationHandler(BaseHandler):
                 if response['success'] == 0:
                     location.name = response.get('location').get('name')
                     if location.name:
-                        self.memcached.set(key, location.name, LOCATION.MEMCACHE_EXPIRY)
+                        self.redis.setvalue(key, location.name, LOCATION.MEMCACHE_EXPIRY)
                         if location.id:
                             self.update_location_name(location.name, location.id) 
                     else:

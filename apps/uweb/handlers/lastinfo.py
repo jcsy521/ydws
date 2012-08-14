@@ -62,8 +62,8 @@ class LastInfoHandler(BaseHandler):
 
     def get_event_status(self, tid):
         alarm_key = get_alarm_status_key(tid)
-        event_status = self.memcached.get(alarm_key)
-        is_alived = self.memcached.get("is_alived")
+        event_status = self.redis.getvalue(alarm_key)
+        is_alived = self.redis.getvalue("is_alived")
         if is_alived != ALIVED:
             location = self.db.get("SELECT category"
                                    "  FROM T_LOCATION"

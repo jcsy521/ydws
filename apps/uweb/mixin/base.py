@@ -13,8 +13,8 @@ class BaseMixin(object):
         """Send LQ Message to terminal.
         """
         lq_sms_key = get_lq_sms_key(sim) 
-        if not self.memcached.get(lq_sms_key): 
+        if not self.redis.getvalue(lq_sms_key): 
             sms = "LQ %s" % interval 
             SMSHelper.send(sim, sms) 
             logging.info("Send %s to Sim: %s", sms, sim) 
-            self.memcached.set(lq_sms_key, True, SMS.LQ_INTERVAL)
+            self.redis.setvalue(lq_sms_key, True, SMS.LQ_INTERVAL)

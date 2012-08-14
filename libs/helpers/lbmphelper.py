@@ -42,9 +42,9 @@ def get_latlon_from_cellid(location):
 
     return location
 
-def get_location_name(location, memcached):
+def get_location_name(location, redis):
     key = get_location_cache_key(int(location.cLon), int(location.cLat))
-    location.name = memcached.get(key)
+    location.name = redis.getvalue(key)
     if not location.name:
         args = dict(lon=(float(location.cLon)/3600000),
                     lat=(float(location.cLat)/3600000))
@@ -53,19 +53,19 @@ def get_location_name(location, memcached):
         if response['success'] == 0:
             location.name = response.get('address')
             if location.name:
-                memcached.set(key, location.name, EVENTER.LOCATION_NAME_EXPIRY)
+                redis.setvalue(key, location.name, EVENTER.LOCATION_NAME_EXPIRY)
         else:
             logging.error("Get location name error: %s, %s",
                           response.get('info'), location.dev_id)
 
     return location.name 
 
-def get_last_degree(location, memcached, db):
+def get_last_degree(location, redis, db):
     # if the car is still(speed < min_speed) or location is cellid, the degree is suspect.
     # use degree of last usable location
-    is_alived = memcached.get('is_alived')
+    is_alived = redis.getvalue('is_alived')
     if is_alived == ALIVED:
-        last_location = memcached.get(str(location.dev_id))
+        last_location = redis.getvalue(str(location.dev_id))
     else:
         last_location = db.get("SELECT degree FROM T_LOCATION"
                                "  WHERE tid = %s"
@@ -82,7 +82,7 @@ def get_last_degree(location, memcached, db):
 
     return float(location.degree)
 
-def handle_location(location, memcached, cellid=False, db=None):
+def handle_location(location, redis, cellid=False, db=None):
     """
     @param location: position/report/locationdesc/pvt
            memcached
@@ -97,7 +97,7 @@ def handle_location(location, memcached, cellid=False, db=None):
         location.cLon = 0
         location.type = 1
         location.gps_time = location.timestamp
-        location.degree = get_last_degree(location, memcached, db)
+        location.degree = get_last_degree(location, redis, db)
         if cellid:
             location = get_latlon_from_cellid(location)
             #if location.lat and location.lon:
@@ -107,14 +107,14 @@ def handle_location(location, memcached, cellid=False, db=None):
         # car is still, degree is suspect 
         if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
             if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
-                location.degree = get_last_degree(location, memcached, db)
+                location.degree = get_last_degree(location, redis, db)
         else:
            # UNREALTIME, pvt
            pass
 
     if location and location.lat and location.lon:
         location.cLat, location.cLon = get_clocation_from_ge(location)
-        location.name = get_location_name(location, memcached)
+        location.name = get_location_name(location, redis)
 
     if location['t'] == EVENTER.INFO_TYPE.POSITION:
         location.category = EVENTER.CATEGORY.REALTIME
@@ -124,9 +124,9 @@ def handle_location(location, memcached, cellid=False, db=None):
         location.category = EVENTER.CATEGORY.UNKNOWN
 
     alarm_key = get_alarm_status_key(location.dev_id)
-    alarm_status = memcached.get(alarm_key)
+    alarm_status = redis.getvalue(alarm_key)
     if alarm_status != location.category:
-        memcached.set(alarm_key, location.category)
+        redis.setvalue(alarm_key, location.category)
 
     return location
 
@@ -157,7 +157,7 @@ def get_distance(lon1, lat1, lon2, lat2):
 
     return d 
 
-def filter_location(location, memcached):
+def filter_location(location, redis):
     """
     workflow:
     if old_location:
@@ -185,7 +185,7 @@ def filter_location(location, memcached):
     ratio = 0
     distance = 0
 
-    old_location = memcached.get(str(location.dev_id))
+    old_location = redis.getvalue(str(location.dev_id))
     if old_location:
         # not first location, need to check distance and speed
         interval = location.timestamp - old_location.timestamp

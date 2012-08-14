@@ -39,7 +39,7 @@ class BusinessMixin(BaseMixin):
         """
         mem_key = self.get_memcache_key(hash_)
         
-        data = self.memcached.get(mem_key)
+        data = self.redis.getvalue(mem_key)
         if data:
             return data
 
@@ -90,8 +90,8 @@ class BusinessMixin(BaseMixin):
                 if business[key] is None:
                     business[key] = ''
 
-        self.memcached.set(mem_key,(businesses,interval), 
-                           time=self.MEMCACHE_EXPIRY)
+        self.redis.setvalue(mem_key,(businesses,interval), 
+                            time=self.MEMCACHE_EXPIRY)
         return businesses, interval
 
     def get_sms_status(self, tmobile):

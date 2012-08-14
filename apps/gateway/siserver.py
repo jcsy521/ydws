@@ -12,7 +12,6 @@ from constants.GATEWAY import DUMMY_FD, TERMINAL_LOGIN
 from codes.gfcode import GFCode
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
-from utils.mymemcached import MyMemcached
 from db_.mysql import get_connection
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key
 
@@ -40,7 +39,7 @@ class SIServer():
         for i in ('port', 'count'):
             ConfHelper.SI_SERVER_CONF[i] = int(ConfHelper.SI_SERVER_CONF[i])
         self.db = None 
-        self.memcached = None
+        self.redis = None
 
         self.heart_beat_queues = {} 
         self.heartbeat_threads = {} 
@@ -98,7 +97,7 @@ class SIServer():
         terminal_fd = None
         
         address_key = get_terminal_address_key(terminal_id)
-        terminal_fd = self.memcached.get(address_key)
+        terminal_fd = self.redis.getvalue(address_key)
         if (not terminal_fd or terminal_fd == DUMMY_FD):
             terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s",
@@ -112,7 +111,7 @@ class SIServer():
                 terminal_sessionID_key = get_terminal_sessionID_key(terminal_id)
                 terminal_status_key = get_terminal_address_key(terminal_id)
                 keys = [terminal_sessionID_key, terminal_status_key]
-                self.memcached.delete_multi(keys)
+                self.redis.delete_multi(keys)
             else:
                 status = GFCode.GF_NOT_ORDERED 
                     
@@ -226,12 +225,12 @@ class SIServer():
                     request = DotDict(packet=brc.buf)
                     si_requests_queue.put(request, False)
                     self.__start_heartbeat_thread(fd, si_requests_queue)
-                    fds = self.memcached.get('fds')
+                    fds = self.redis.getvalue('fds')
                     if fds:
                         fds = fds.append(fd)
                     else:
                         fds = [fd,]
-                    self.memcached.set('fds', fds)
+                    self.redis.setvalue('fds', fds)
             elif gfhead.command == '0002': # unbind
                 logging.debug("[SI]<--%s:%s UNBind: %r",
                               self.addresses[fd][0], self.addresses[fd][1],
@@ -440,7 +439,7 @@ class SIServer():
     def stop(self):
         for fd in self.connections.keys():
             self.__stop_client(fd)
-        self.memcached.delete('fds')
+        self.redis.delete('fds')
         self.__close_main_socket()
         #self.__close_database()
 

@@ -9,7 +9,7 @@ import base64
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
 from db_.mysql import DBConnection
-from utils.mymemcached import MyMemcached
+from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_alarm_status_key,\
      get_terminal_time, get_sessionID, get_terminal_sessionID_key
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
@@ -43,7 +43,7 @@ class GatewayServer(object):
             ConfHelper.GW_SERVER_CONF[i] = int(ConfHelper.GW_SERVER_CONF[i])
         self.check_heartbeat_thread = None
         self.online_terminals = [] 
-        self.memcached = None 
+        self.redis = None 
         self.db = None
 
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
@@ -208,7 +208,7 @@ class GatewayServer(object):
                 # get SessionID
                 args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
-                self.memcached.set(terminal_sessionID_key, args.sessionID)
+                self.redis.setvalue(terminal_sessionID_key, args.sessionID)
                 # record terminal address
                 self.update_terminal_status(t_info["dev_id"], address)
                 # append into online terminals
@@ -269,7 +269,7 @@ class GatewayServer(object):
                 location = ldp.ret
                 location['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS 
                 location['t'] = EVENTER.INFO_TYPE.POSITION
-                location = lbmphelper.handle_location(location, self.memcached)
+                location = lbmphelper.handle_location(location, self.redis)
                 location.name = location.name if location.name else ""
                 locationdesc = unicode(location.name)
                 locationdesc = locationdesc.encode("utf-8", 'ignore')
@@ -319,7 +319,7 @@ class GatewayServer(object):
             logging.exception("[GW] Handle SI message exception.")
 
     def append_si_request(self, request, si_requests_queue):
-        si_fds = self.memcached.get('fds')
+        si_fds = self.redis.getvalue('fds')
         if si_fds:
             si_fd = si_fds[0]
             request = dict({"packet":request})
@@ -327,16 +327,16 @@ class GatewayServer(object):
 
     def get_terminal_sessionID(self, dev_id):
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id) 
-        sessionID = self.memcached.get(terminal_sessionID_key)
+        sessionID = self.redis.getvalue(terminal_sessionID_key)
 
         return sessionID
 
     def update_terminal_status(self, dev_id, address, flag=True):
         terminal_status_key = get_terminal_address_key(dev_id)
         if flag:
-            self.memcached.set(terminal_status_key, address, 2*HEARTBEAT_INTERVAL)
+            self.redis.setvalue(terminal_status_key, address, 2*HEARTBEAT_INTERVAL)
         else:
-            self.memcached.set(terminal_status_key, address, 2*SLEEP_HEARTBEAT_INTERVAL)
+            self.redis.setvalue(terminal_status_key, address, 2*SLEEP_HEARTBEAT_INTERVAL)
 
     def update_terminal_info(self, t_info):
         fields = []
@@ -356,11 +356,11 @@ class GatewayServer(object):
 
     def get_terminal_status(self, dev_id):
         terminal_status_key = get_terminal_address_key(dev_id)
-        return self.memcached.get(terminal_status_key)
+        return self.redis.getvalue(terminal_status_key)
 
     def check_heartbeat(self):
         try:
-            is_alived = self.memcached.get("is_alived")
+            is_alived = self.redis.getvalue("is_alived")
             if is_alived == ALIVED:
                 for dev_id in self.online_terminals:
                     status = self.get_terminal_status(dev_id)
@@ -380,9 +380,9 @@ class GatewayServer(object):
         #                "  VALUES (NULL, %s, %s, %s)",
         #                dev_id, lid, category)
         #alarm_key = get_alarm_status_key(dev_id)
-        #alarm_status = self.memcached.get(alarm_key)
+        #alarm_status = self.redis.getvalue(alarm_key)
         #if alarm_status != rname: 
-        #    self.memcached.set(alarm_key, category) 
+        #    self.redis.setvalue(alarm_key, category) 
         #user = QueryHelper.get_user_by_tid(dev_id, self.db)
         #current_time = get_terminal_time(timestamp) 
         #sms = SMSCode.SMS_HEARTBEAT_LOST % (dev_id, current_time)
@@ -392,7 +392,7 @@ class GatewayServer(object):
         logging.error("[GW] Terminal %s Heartbeat lost!!!", dev_id)
         # 1. memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
-        self.memcached.delete(terminal_sessionID_key)
+        self.redis.delete(terminal_sessionID_key)
         # 2. offline
         self.online_terminals.remove(dev_id)
         # 3. db set unlogin
@@ -405,13 +405,13 @@ class GatewayServer(object):
         if restart gatewayserver, record online terminals again.
         """
         db = DBConnection().db
-        memcached = MyMemcached()
+        redis = MyRedis()
         online_terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
                                     "  WHERE login = %s",
                                     GATEWAY.TERMINAL_LOGIN.LOGIN)
         for terminal in online_terminals:
             terminal_status_key = get_terminal_address_key(terminal.tid)
-            terminal_status = memcached.get(terminal_status_key)
+            terminal_status = redis.getvalue(terminal_status_key)
             if terminal_status:
                 self.online_terminals.append(terminal.tid)
             else:

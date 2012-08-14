@@ -55,6 +55,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def memcached(self):
         return self.application.memcached
 
+    @property
+    def redis(self):
+        return self.application.redis
+
     #@property
     #def mongodb(self):
     #    return self.application.mongodb

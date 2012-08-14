@@ -6,7 +6,7 @@ import Queue
 import logging
 
 from db_.mysql import get_connection
-from utils.mymemcached import MyMemcached
+from utils.myredis import MyRedis
 
 from packettask import PacketTask
 
@@ -27,7 +27,7 @@ class Worker(object):
     
     def start(self):
         self.db = get_connection()
-        self.memcached = MyMemcached()
+        self.redis = MyRedis()
 
         self.thread = Thread(target=self.run)
         self.is_alive = True
@@ -64,7 +64,7 @@ class Worker(object):
                 # issued?
                 self._run_callback(PacketTask(packet, 
                                               self.db, 
-                                              self.memcached).run)
+                                              self.redis).run)
 
     def stop(self):
         self.is_alive = False

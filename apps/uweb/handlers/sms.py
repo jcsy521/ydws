@@ -34,7 +34,7 @@ class SMSHandler(BaseHandler):
         def _on_finish(db):
             pass
             #self.db = db
-            #response = process(pmobile, packet, self.db, self.memcached)
+            #response = process(pmobile, packet, self.db, self.redis)
             #if response:
             #    SMSHelper.send(pmobile, response)
 

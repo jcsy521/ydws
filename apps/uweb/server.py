@@ -28,7 +28,7 @@ define('mode', default='deploy')
 options['logging'].set('info')
 
 from db_.mysql import DBConnection
-from utils.mymemcached import MyMemcached
+from utils.myredis import MyRedis
 from constants.MEMCACHED import ALIVED
 
 from handlers.captcha import CaptchaHandler
@@ -98,8 +98,8 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers, **settings)
         self.queue = PriorityQueue()
         self.db = DBConnection().db
-        self.memcached = MyMemcached()
-        self.memcached.set('is_alived', ALIVED)
+        self.redis = MyRedis()
+        self.redis.setvalue('is_alived', ALIVED)
 
 
 def shutdown(pool, server):

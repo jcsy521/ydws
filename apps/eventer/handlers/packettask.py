@@ -20,10 +20,10 @@ from constants.MEMCACHED import ALIVED
 
 class PacketTask(object):
     
-    def __init__(self, packet, db, memcached):
+    def __init__(self, packet, db, redis):
         self.packet = packet
         self.db = db
-        self.memcached = memcached
+        self.redis = redis
 
     def run(self):
         """Process the current packet."""
@@ -41,12 +41,12 @@ class PacketTask(object):
 
     def get_tname(self, dev_id):
         key = get_name_cache_key(dev_id)
-        name = self.memcached.get(key)
+        name = self.redis.getvalue(key)
         if not name:
             t = self.db.get("SELECT alias FROM T_TERMINAL_INFO"
                             "  WHERE tid = %s", dev_id)
             name = t.alias
-            self.memcached.set(key, name)
+            self.redis.setvalue(key, name)
         name = name if name else dev_id
         return name
 
@@ -61,7 +61,7 @@ class PacketTask(object):
                               location.category, location.type,
                               location.speed, location.degree,
                               location.cellid)
-        is_alived = self.memcached.get('is_alived')
+        is_alived = self.redis.getvalue('is_alived')
         if (is_alived == ALIVED and location.valid == GATEWAY.LOCATION_STATUS.SUCCESS):
             mem_location = DotDict({'id':lid,
                                     'latitude':location.lat,
@@ -73,13 +73,13 @@ class PacketTask(object):
                                     'name':location.name,
                                     'degree':location.degree,
                                     'speed':location.speed})
-            self.memcached.set(str(location.dev_id), mem_location, EVENTER.LOCATION_EXPIRY)
+            self.redis.setvalue(str(location.dev_id), mem_location, EVENTER.LOCATION_EXPIRY)
         return lid
         
     def realtime_location_hook(self, location):
         self.insert_location(location)
         key = get_ssdw_sms_key(location.dev_id)                          
-        flag = self.memcached.get(key)
+        flag = self.redis.getvalue(key)
         if flag:
             location.name = location.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
 
@@ -88,7 +88,7 @@ class PacketTask(object):
                                                  location.name,
                                                  get_terminal_time(int(location.timestamp)))
             self.sms_to_user(location.dev_id, sms)
-            self.memcached.delete(key)
+            self.redis.delete(key)
 
     def unknown_location_hook(self, location):
         pass
@@ -110,7 +110,7 @@ class PacketTask(object):
         location = DotDict(location)
         if location.Tid == EVENTER.TRIGGERID.CALL:
             # get available location from lbmphelper
-            location = lbmphelper.handle_location(location, self.memcached,
+            location = lbmphelper.handle_location(location, self.redis,
                                                   cellid=False, db=self.db) 
             location.category = EVENTER.CATEGORY.REALTIME
             self.update_terminal_status(location)
@@ -119,7 +119,7 @@ class PacketTask(object):
             for pvt in location['pvts']:
                 # get available location from lbmphelper
                 pvt['dev_id'] = location['dev_id']
-                location = lbmphelper.handle_location(pvt, self.memcached,
+                location = lbmphelper.handle_location(pvt, self.redis,
                                                       cellid=False, db=self.db) 
                 location.category = EVENTER.CATEGORY.REALTIME
                 self.insert_location(location)
@@ -138,7 +138,7 @@ class PacketTask(object):
         CHARGE
         """
         # get available location from lbmphelper 
-        report = lbmphelper.handle_location(info, self.memcached,
+        report = lbmphelper.handle_location(info, self.redis,
                                             cellid=False, db=self.db)
         name = self.get_tname(report.dev_id)
         terminal_time = get_terminal_time(int(report.gps_time))

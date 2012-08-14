@@ -28,7 +28,7 @@ class SubscriptionMixin(BaseMixin):
 
         mem_key = self.get_memcache_key(hash_)
         
-        data = self.memcached.get(mem_key)
+        data = self.redis.getvalue(mem_key)
         if data:
             return data
 
@@ -136,7 +136,7 @@ class SubscriptionMixin(BaseMixin):
                 else:
                     user[key] = user[key] if user[key] else ''
 
-        self.memcached.set(mem_key, users, time=self.MEMCACHE_EXPIRY)
+        self.redis.setvalue(mem_key, users, time=self.MEMCACHE_EXPIRY)
         return users 
 
 
@@ -149,10 +149,10 @@ class SubscriptionHandler(BaseHandler, SubscriptionMixin):
 
         self.plans = self.db.query("SELECT xxt_id as id, name FROM T_XXT_PLAN")
         key = self.get_area_memcache_key(self.current_user.id)
-        cities = self.memcached.get(key)
+        cities = self.redis.getvalue(key)
         if not cities:
             cities = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(key, cities)
+            self.redis.setvalue(key, cities)
         self.cities = cities
         res  = self.db.get("SELECT type FROM T_ADMINISTRATOR"
                            "  WHERE id = %s", self.current_user.id)
@@ -196,7 +196,7 @@ class SubscriptionDownloadHandler(BaseHandler, SubscriptionMixin):
     def get(self, hash_):
 
         mem_key = self.get_memcache_key(hash_)
-        results = self.memcached.get(mem_key)
+        results = self.redis.getvalue(mem_key)
         if not results:
             self.render("errors/download.html")
             return

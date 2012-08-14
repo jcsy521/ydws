@@ -25,13 +25,13 @@ from uwebtasks import check_sms_realtime
 
     
 class BaseCallback(object):
-    def __init__(self, pmobile, packet, db, memcached):
+    def __init__(self, pmobile, packet, db, redis):
         # parent's mobile
         self.pmobile = pmobile
         # what the parent sent via sms
         self.packet = packet
         self.db = db
-        self.memcached = memcached
+        self.redis = redis
 
     
 class RealtimeCallback(BaseCallback, RealtimeMixin):
@@ -39,8 +39,8 @@ class RealtimeCallback(BaseCallback, RealtimeMixin):
     _STANDARD_PACKET_COMPONENTS_NUM = 2
     _SIMPLE_PACKET_COMPONENTS_NUM = 1
 
-    def __init__(self, pmobile, packet, db, memcached):
-        BaseCallback.__init__(self, pmobile, packet, db, memcached)
+    def __init__(self, pmobile, packet, db, redis):
+        BaseCallback.__init__(self, pmobile, packet, db, redis)
         
     def __check(self):
         """@param
@@ -85,24 +85,24 @@ class RealtimeCallback(BaseCallback, RealtimeMixin):
                         flag=flag)
 
         sms_key = get_ssdw_sms_key(self.sim)
-        flag = self.memcached.get(sms_key)
+        flag = self.redis.getvalue(sms_key)
         if flag:
-            location = self.memcached.get(str(self.sim))
+            location = self.redis.getvalue(str(self.sim))
             if location and abs(time() * 1000 - location.timestamp) > REALTIME_VALID_INTERVAL:
                 location = None
             if location:
                 terminal_time = get_terminal_time(int(location.timestamp))
                 xxt_key = get_name_cache_key(self.sim)
-                xxt_name = self.memcached.get(xxt_key) or ""
+                xxt_name = self.redis.getvalue(xxt_key) or ""
                 realtime_result = SMSCode.SMS_REALTIME_RESULT % (xxt_name, location.name, terminal_time)
                 SMSHelper.send(self.pmobile, realtime_result)
-                self.memcached.delete(sms_key)
+                self.redis.delete(sms_key)
             else:
                 SMSHelper.send(self.pmobile, SMSCode.SMS_REALTIME_WARNING)
 
             return
         else:
-            self.memcached.set(sms_key, True, REALTIME_VALID_INTERVAL / 1000)
+            self.redis.setvalue(sms_key, True, REALTIME_VALID_INTERVAL / 1000)
 
         def _on_finish(realtime):
             realtime_result = None
@@ -118,12 +118,12 @@ class RealtimeCallback(BaseCallback, RealtimeMixin):
                     else:
                         terminal_time = get_terminal_time(int(realtime.location.timestamp))
                         key = get_name_cache_key(self.sim)
-                        xxt_name = self.memcached.get(key) or ""
+                        xxt_name = self.redis.getvalue(key) or ""
                         realtime_result = SMSCode.SMS_REALTIME_RESULT % (xxt_name, realtime.location.name, terminal_time)
                 else:
                     check_sms_realtime(self.sim)
             if realtime_result:
-                self.memcached.delete(sms_key)
+                self.redis.delete(sms_key)
                 SMSHelper.send(self.pmobile, realtime_result)
 
         # this contains async_forward, so use callback.
@@ -140,8 +140,8 @@ class ScheduleCallback(BaseCallback, ScheduleMixin):
     _STANDARD_PACKET_COMPONENTS_NUM = 3
     _SIMPLE_PACKET_COMPONENTS_NUM = 2
 
-    def __init__(self, pmobile, packet, db, memcached):
-        BaseCallback.__init__(self, pmobile, packet, db, memcached)
+    def __init__(self, pmobile, packet, db, redis):
+        BaseCallback.__init__(self, pmobile, packet, db, redis)
         self.retry_flag = 0
  
     def __check(self):
@@ -267,8 +267,8 @@ class RemoteEventCallback(BaseCallback, RemoteEventMixin):
     _STANDARD_PACKET_COMPONENTS_NUM = 2
     _SIMPLE_PACKET_COMPONENTS_NUM = 1
     
-    def __init__(self, pmobile, packet, db, memcached):
-        BaseCallback.__init__(self, pmobile, packet, db, memcached)
+    def __init__(self, pmobile, packet, db, redis):
+        BaseCallback.__init__(self, pmobile, packet, db, redis)
         self.retry_flag = 0
  
     def __check(self):
@@ -376,10 +376,10 @@ _DISPATCHER = {
     }
 
 
-def process(mobile, packet, db, memcached):
+def process(mobile, packet, db, redis):
     try:
         action = packet.split()[0].upper()
-        callback = _DISPATCHER[action](mobile, packet, db, memcached)
+        callback = _DISPATCHER[action](mobile, packet, db, redis)
         response = callback.handle()
     except KeyError as e:
         return ErrorCode.ERROR_MESSAGE[ErrorCode.UNKNOWN_COMMAND]

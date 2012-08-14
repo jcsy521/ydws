@@ -17,7 +17,7 @@ from utils import options
 options.define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 options.options['logging'].set('info')
 
-from utils.mymemcached import MyMemcached
+from utils.myredis import MyRedis
 from db_.mysql import DBConnection
 from helpers.confhelper import ConfHelper
 
@@ -39,7 +39,7 @@ def shutdown(servers, processes):
 def main():
     options.parse_command_line()
     ConfHelper.load(options.options.conf)
-    memcached = MyMemcached()
+    redis = MyRedis()
     db = DBConnection().db
     si_requests_queue = Queue()
     gw_requests_queue = Queue()
@@ -52,7 +52,7 @@ def main():
         gwserver = GatewayServer(options.options.conf)
         servers = (siserver, gwserver)
         for server in servers: 
-            server.memcached = memcached
+            server.redis = redis
             server.db = db
         si_process = Process(name='SIServer',
                              target=siserver.handle_si_connections,

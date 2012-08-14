@@ -32,7 +32,7 @@ class MonthlyMixin(BaseMixin):
 
         mem_key = self.get_memcache_key(hash_)
         
-        data = self.memcached.get(mem_key)
+        data = self.redis.getvalue(mem_key)
         if data:
             return data
 
@@ -89,7 +89,7 @@ class MonthlyMixin(BaseMixin):
             for key in counts:
                 counts[key] += result[key]
 
-        self.memcached.set(mem_key, (results, counts, start_time), 
+        self.redis.setvalue(mem_key, (results, counts, start_time), 
                            time=self.MEMCACHE_EXPIRY)
         return results, counts, start_time
 
@@ -102,10 +102,10 @@ class MonthlyHandler(BaseHandler, MonthlyMixin):
     def prepare(self):
 
         key = self.get_area_memcache_key(self.current_user.id)
-        areas = self.memcached.get(key)
+        areas = self.redis.getvalue(key)
         if not areas:
             areas = self.get_privilege_area(self.current_user.id)
-            self.memcached.set(key, areas)
+            self.redis.setvalue(key, areas)
         self.cities = areas
         res  = self.db.get("SELECT type FROM T_ADMINISTRATOR"
                            "  WHERE id = %s", self.current_user.id)
@@ -153,7 +153,7 @@ class MonthlyDownloadHandler(BaseHandler, MonthlyMixin):
 
         mem_key = self.get_memcache_key(hash_)
 
-        r = self.memcached.get(mem_key)
+        r = self.redis.getvalue(mem_key)
         if r:
             results, counts, timestamp = r[0], r[1], r[2]
         else:

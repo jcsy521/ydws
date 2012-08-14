@@ -66,6 +66,10 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.memcached
 
     @property
+    def redis(self):
+        return self.application.redis
+
+    @property
     def app_name(self):
         return self.application.settings.get('app_name')
 

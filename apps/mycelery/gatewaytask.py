@@ -15,7 +15,7 @@ from celery.task.base import Task
 from tornado.options import options, define, parse_command_line
 
 from db_.mysql import get_connection
-from utils.mymemcached import MyMemcached
+from utils.myredis import MyRedis
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
@@ -28,14 +28,14 @@ from codes.smscode import SMSCode
 if not 'conf' in options:
     define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 
-def get_tname(dev_id, db, memcached):
+def get_tname(dev_id, db, redis):
     key = get_name_cache_key(dev_id)
-    name = memcached.get(key)
+    name = redis.getvalue(key)
     if not name:
         t = db.get("SELECT alias FROM T_TERMINAL_INFO"
                    "  WHERE tid = %s", dev_id)
         name = t.alias
-        memcached.set(key, name)
+        redis.setvalue(key, name)
     name = name if name else dev_id
     return name
 
@@ -54,7 +54,7 @@ def execute():
     """
     ConfHelper.load(options.conf)
     db = get_connection()
-    memcached = MyMemcached()
+    redis = MyRedis()
     d = datetime.datetime.fromtimestamp(time.time())
     t = datetime.datetime.combine(datetime.date(d.year, d.month, d.day), datetime.time(0, 0))
     # get today 0:00:00
@@ -69,14 +69,14 @@ def execute():
     for terminal in terminals:
         terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
         terminal_status_key = get_terminal_address_key(terminal.tid)
-        sessionID = memcached.get(terminal_sessionID_key)
-        status = memcached.get(terminal_status_key)
+        sessionID = redis.getvalue(terminal_sessionID_key)
+        status = redis.getvalue(terminal_status_key)
         if sessionID or status:
             keys = [terminal_sessionID_key, terminal_status_key]
-            memcached.delete_multi(keys)
+            redis.delete(*keys)
             logging.error("[CELERY] Expired terminal: %s, SIM: %s",
                           terminal.tid, terminal.mobile)
-            name = get_tname(terminal.tid, db, memcached)
+            name = get_tname(terminal.tid, db, redis)
             sms = SMSCode.SMS_SERVICE_STOP % (name,)
             send_sms = partial(sms_to_user, *(terminal.tid, sms, db))
             # send sms to user, after 9 hours(daytime).

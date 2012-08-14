@@ -24,7 +24,7 @@ from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
 #from db_.mongodb import MongoDBConnection
 #from db_.exceptions import MongoDBException
-from utils.mymemcached import MyMemcached
+from utils.myredis import MyRedis
 
 from utils.dotdict import DotDict
 
@@ -160,7 +160,7 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers, **settings)
 
         self.db = DBConnection().db
-        self.memcached = MyMemcached()
+        self.redis = MyRedis()
         #try:
         #    self.mongodb = MongoDBConnection().db
         #except MongoDBException as e:
