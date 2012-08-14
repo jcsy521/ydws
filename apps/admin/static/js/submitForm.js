@@ -41,7 +41,12 @@ function formSubmit(option) {
 			bt = toEpochDate(begintime2 + ' 00:00:00')/1000;
 		$('#endtime').val(et);
 		$('#begintime').val(bt);
-		return true;
+		var str_tipsDisplay = $('.j_tips').css('display');
+		if ( str_tipsDisplay == '' || str_tipsDisplay == 'none' ) {
+			return true;
+		} else {
+			return false;	
+		}
 	}
 	// business search
 	if ( option == 'businessSearch' ) {	

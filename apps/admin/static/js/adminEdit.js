@@ -57,14 +57,25 @@ function adminDelete(adminid) {
 	});
 }
 // delete business 
-function businessDelete(tmobile, status) {
-	var pos = oTable.fnGetPosition(document.getElementById("business" + tmobile)),
-		str_status = status == '0' ? '1' : '0';
-	$.post("/business/delete/" + tmobile + "/" + str_status, function (data) {
-		if (data.success == 0) {
-            oTable.fnDeleteRow(pos);
-		} else {
-			alert("删除失败。");
-		}
-	});
+function businessDelete(tmobile, seq) {
+	var obj_service_status = $('#service_status' + seq ),
+		status = obj_service_status.attr('service_status'),
+		str_status = status == '0' ? '1' : '0',
+		str_html = status == '0' ? '停用' : '启用',
+		str_msg = '';
+	if ( status == '0' ) {
+		str_msg = '是否启用该用户？';
+	} else {
+		str_msg = '是否停用该用户？';
+	}
+	if ( confirm(str_msg) ) {
+		$.post("/business/delete/" + tmobile + "/" + str_status, function (data) {
+			if (data.success == 0) {
+				obj_service_status.attr('service_status', str_status);
+				obj_service_status.html(str_html);
+			} else {
+				alert("删除失败。");
+			}
+		});
+	}
 }

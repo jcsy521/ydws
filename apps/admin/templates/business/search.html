@@ -22,6 +22,7 @@
 <script src="/static/js/cacheQueryValues.js"></script>
 <script src="/static/js/json2.js"></script>
 {% block body %}
+{% if status == 0 %}
 <fieldset class="ui-widget ui-widget-content ui-corner-all">
 <legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
 	<span class="ui-button-text">业务用户查询</span>
@@ -78,41 +79,49 @@
     </table>
 </form>
 </fieldset>
-
 <h3>查询结果</h3>
 <table id="rDataTables" class="display">
     <thead>
         <tr>
             <th>序号</th><th>车主名</th><th>车主手机</th><th>终端手机</th><th>车牌号</th>
-            <th>编辑</th><th>启用/停用</th><th>详细信息</th>
+            <th>受理状态</th><th>编辑</th><th>终端启用/停用</th><th>详细信息</th>
         </tr>
     </thead>
 		
     <tbody id="adminTbody">
 	{% for business in businesses %}
-            <tr id="business{{business.tmobile}}" style="display">
+            <tr id="business{{business.tmobile}}" >
 				<td>{{ business.seq }}</td>
 	            <td>{{ business.name }}</td>
                 <td>{{ business.mobile }}</td>
                 <td>{{ business.tmobile}}</td>
                 <td>{{ business.cnum }} </td>
+				<td>
+					{% if business.sms_status == 0 %}
+						<label class="sms_status0">短信发送失败</label>
+					{% elif business.sms_status == 1 %}
+						<label class="sms_status1">短信已发送</label>
+					{% elif business.sms_status == 2 %}
+						<label class="sms_status2">短信发送成功</label>
+					{% elif business.sms_status == 3 %}
+						<label class="sms_status3">终端登陆成功</label>
+					{% end %}
+				</td>
                 <td>
                     <a href="/business/edit/{{business.tmobile}}">编辑</a>
                 </td>
                 <td>
-                   
-						{% if business.service_status == '0' %}
-							 <a href="#" onclick="if(confirm('是否启用本用户？'))businessDelete({{business.tmobile}}, {{business.service_status}});">启用</a>
-						{% else %}
-							 <a href="#" onclick="if(confirm('是否停用本用户？'))businessDelete({{business.tmobile}}, {{business.service_status}});">停用</a>
-						{% end %}
-					
+					{% if business.service_status == '0' %}
+						 <a href="#" onclick="businessDelete({{business.tmobile}}, {{business.seq}});" service_status="{{business.service_status}}" id="service_status{{business.seq}}">启用</a>
+					{% else %}
+						 <a href="#" onclick="businessDelete({{business.tmobile}}, {{business.seq}});" service_status="{{business.service_status}}"  id="service_status{{business.seq}}">停用</a>
+					{% end %}
                 </td>
                 <td>
                     <a href="/business/list/{{business.tmobile}}">详细信息</a>
                 </td>
             </tr>
-        {% end %}
+    {% end %}
     </tbody>
 </table>
 <div style="display:none">
@@ -122,5 +131,18 @@
 <script type="text/javascript">
     fn_PopData('business');
 </script>
+{% else %}
+	<div class="ui-widget" align="center">
+		<div class="errorbox ui-state-error ui-corner-all">
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-left: 1em; margin-right: .5em;"></span>
+			<strong style="float: left;">操作错误：</strong>
+			<br />
+			<br />
+			{{ message }}
+		</div>
+		<br />
+		<a class="button" href="javascript:history.back(document.referrer);">返回</a>
+	</div>
+{% end %}
 {% end %}
 

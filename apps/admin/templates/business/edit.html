@@ -7,36 +7,46 @@
 <script src="/static/js/jquery.validationEngine-en.js"></script>
 <script src="/static/js/jquery.validationEngine.js"></script>
 <script src="/static/js/initStyle.js"></script>
-<script src="/static/js/submitForm.js"></script>
 <script src="/static/js/formValue.js"></script>
+<script src="/static/js/submitForm.js"></script>
 <script src="/static/js/dateChoose.js"></script>
 <script src="/static/js/json2.js"></script>
 {% block body %}
 <h3>编辑业务用户</h3>
+
+{% if status == 0 %}
 <form id="formID" method="post" action="" onsubmit="return formSubmit('businessEdit');">
 		<table cellspacing="0" cellpadding="0"  class="tableStyle">
 			<tr>
-				<td>
-					<span style="color:red">带红色*为必填项</span>
+				<td colspan="2">
+					<p>
+						<span class="signColor">* 带红色*为必填项</span>
+					</p>
+					<p><span class="signColor">* 如果终端手机号修改，即为车主重新添加一个新的终端。</span></p>
 				</td>
-				<td> &nbsp;</td>
 			</tr>
 			<tr>
-				<td	class="tLeft">车主姓名：<span class="signColor">*</span></td>
+				<td	class="tLeft"><span class="signColor">*</span>车主姓名：</td>
 				<td	  align="left">
 					<input type="text" name="name" id="name" class="validate[required,custom[t_name],length[2,16]],onsubmit"  value="{{business.name}}" />
 				</td>
 			</tr>
 			<tr>
-				<td	class="tLeft">车主手机号：<span class="signColor">*</span></td>
-				<td   align="left">
-					{{business.mobile}}
+				<td	class="tLeft"><span class="signColor">*</span>车主手机号：</td>
+				<td align="left">
+					<input type="text" name="mobile" id="mobile"
+						class="validate[required,custom[mobile]],onsubmit" onchange="fn_checkMobile('mobile')"  mobile="{{business.mobile}}" value="{{business.mobile}}"  maxlength="11" /> 
+					<span class="tips j_tips"></span>
+					<input type="hidden" id="mobile_p" name="mobile_p" value="{{business.mobile}}" />
 				</td>
 			</tr>
 			<tr>
-				<td	class="tLeft">终端手机号：<span class="signColor">*</span></td>
-				<td   align="left">
-					{{business.tmobile}}
+				<td	class="tLeft"><span class="signColor">*</span>终端手机号：</td>
+				<td  align="left">
+					<input type="text" name="tmobile" id="tmobile"
+						class="validate[required,custom[mobile]],onsubmit" onchange="fn_checkMobile('tmobile')" mobile="{{business.tmobile}}"  maxlength="11" value="{{business.tmobile}}" />
+					<span class="tips j_tips"></span>
+					<input type="hidden" id="tmobile_p" name="tmobile_p" value="{{business.tmobile}}" />
 				</td>
 			</tr>
 			<tr>
@@ -65,7 +75,7 @@
 				</td> 
 			</tr>
 			<tr>
-				<td align="right">状态：</td>
+				<td align="right">终端状态：</td>
 				<td align="left">
 					{% if  business.service_status == '1' %}
 						<input type="radio" name="service_status" checked="true" value="1" />启用
@@ -94,8 +104,11 @@
 				<td colspan="2" align="center">
 				<input type="hidden" id="begintime" name="begintime" value="" />
 				<input type="hidden" id="endtime" name="endtime" value="" />
-					<input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
-						value="确定" />
+				<input class="ui-widget ui-button ui-corner-all ui-state-default" type="submit" value="确定"  /> 
+				<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+						href="/business/list/{{business.tmobile}}">
+						<span class="ui-button-text">取消</span>
+				</a>
 				</td>
 			</tr>
     </table>
@@ -104,4 +117,17 @@
 	<input type="text" id="end_temp" value="{{business.endtime}}"/>
 </div>
 </form>
+{% else %}
+	<div class="ui-widget" align="center">
+		<div class="errorbox ui-state-error ui-corner-all">
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-left: 1em; margin-right: .5em;"></span>
+			<strong style="float: left;">操作错误：</strong>
+			<br />
+			<br />
+			{{ message }}
+		</div>
+		<br />
+		<a class="button" href="javascript:history.back(document.referrer);">返回</a>
+	</div>
+{% end %}
 {% end %}

@@ -28,3 +28,33 @@ function fn_lengthBetween(isFlag) { // VALIDATE LENGTH BETWEEN
 		} 
 	}
 }
+// business : check mobile and tmobile 
+function fn_checkMobile(id) {
+	var obj_this = $('#' + id),
+		str_mobile = obj_this.attr('mobile'),
+		str_val = obj_this.val(),
+		str_url = '',
+		obj_tips = obj_this.siblings('.j_tips');
+	if ( id == 'mobile' ) {
+		str_url = '/business/checkmobile/' + str_val;
+	} else {
+		str_url = '/business/checktmobile/' + str_val;
+	}
+	if ( str_mobile == str_val ) {
+		return true;
+	} else {
+		$.get(str_url, function (data) {
+			if (data.success == true) {
+				obj_tips.html('已存在');
+				obj_tips.show(function() {
+					obj_this.val(str_mobile);
+				});
+				return false;
+			} else {
+				obj_tips.html('');
+				obj_tips.hide();
+				return true;
+			}
+		});
+	}
+}

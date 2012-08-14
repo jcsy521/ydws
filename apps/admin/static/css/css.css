@@ -357,7 +357,7 @@ table, .ui-widget-header {
     border-collapse: collapse;
     text-align: left;
 	float: left;
-	width: 350px;
+	width: 400px;
 }
 .tableStyle td {
     background-color: #EFEFEF;
@@ -493,4 +493,21 @@ tfoot {
 }
 .button {
 	display: inline-block;
+}
+.sms_status0 {
+	color: red;
+}
+.sms_status1 {
+	color: #2311F1;
+}
+.sms_status2 {
+	color: #F1F111;
+}
+.sms_status3 {
+	color: green;
+}
+.tips {
+	color: red;
+	display: none;
+	width: 60px;
 }

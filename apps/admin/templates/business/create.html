@@ -11,14 +11,15 @@
 <script src="/static/js/formValue.js"></script>
 <script src="/static/js/submitForm.js"></script>
 {% block body %}
+
+{% if status == 0 %}
 <h3>业务开通</h3>
 <form id="formID" method="post" action="" onsubmit="return formSubmit('business');">
 		<table cellspacing="0" cellpadding="0" border="0" align="center" class="tableStyle j_business">
 			<tr>
-				<td>
+				<td colspan="2">
 					<span style="color:red">带红色*为必填项</span>
 				</td>
-				<td> &nbsp;</td>
 			</tr>
 			<tr>
 				<td	class="tLeft"><span class="signColor">*</span>车主姓名：</td>
@@ -46,6 +47,7 @@
 					<input type="password" name="password" id="password" 
 					   class="validate[required,length[6,64]],onsubmit" 
 					   onKeyUp="fn_textKeyUp(this, 'text')" value="111111"  />
+					<span>    * 默认密码：111111</span>
 				</td>
 			</tr>
 			<tr>
@@ -103,4 +105,17 @@
 			</tr>
     </table>
 </form>
+{% else %}
+	<div class="ui-widget" align="center">
+		<div class="errorbox ui-state-error ui-corner-all">
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-left: 1em; margin-right: .5em;"></span>
+			<strong style="float: left;">操作错误：</strong>
+			<br />
+			<br />
+			{{ message }}
+		</div>
+		<br />
+		<a class="button" href="javascript:history.back(document.referrer);">返回</a>
+	</div>
+{% end %}
 {% end %}

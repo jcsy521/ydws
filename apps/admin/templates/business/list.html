@@ -5,7 +5,7 @@
 <script src="/static/js/dateChoose.js"></script>
 <script src="/static/js/initStyle.js"></script>
 {% block body %}
-{% if success %}
+{% if status == 0 %}
 	<h3>业务用户详情</h3>
 	<table class="tableStyle j_business">
 		<tr>
@@ -63,12 +63,26 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="tLeft">状态：</td>
+			<td class="tLeft">终端状态：</td>
 			<td>
 				{% if business.service_status == '0' %}
 					停用
 				{% else %}
 					启用
+				{% end %}
+			</td>
+		</tr>
+		<tr>
+			<td class="tLeft">受理状态：</td>
+			<td>
+				{% if business.sms_status == 0 %}
+					<label class="sms_status0">短信发送失败</label>
+				{% elif business.sms_status == 1 %}
+					<label class="sms_status1">短信已发送</label>
+				{% elif business.sms_status == 2 %}
+					<label class="sms_status2">短信发送成功</label>
+				{% elif business.sms_status == 3 %}
+					<label class="sms_status3">终端登陆成功</label>
 				{% end %}
 			</td>
 		</tr>
@@ -98,7 +112,4 @@
 		<a class="button" href="javascript:history.back(document.referrer);">返回</a>
 	</div>
 {% end %}
-<script type="text/javascript">
-	
-</script>
 {% end %}
