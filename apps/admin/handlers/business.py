@@ -108,7 +108,7 @@ class BusinessMixin(BaseMixin):
         elif not terminal.msgid:
             sms_status = 0
         else:
-            sms = self.db.get("SELECT sendstatus, userstatus"
+            sms = self.db.get("SELECT send_status, user_status"
                               "  FROM T_SMS"
                               "  WHERE msgid = %s"
                               "  AND category = %s"
