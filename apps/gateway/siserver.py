@@ -111,7 +111,7 @@ class SIServer():
                 terminal_sessionID_key = get_terminal_sessionID_key(terminal_id)
                 terminal_status_key = get_terminal_address_key(terminal_id)
                 keys = [terminal_sessionID_key, terminal_status_key]
-                self.redis.delete_multi(keys)
+                self.redis.delete(*keys)
             else:
                 status = GFCode.GF_NOT_ORDERED 
                     
