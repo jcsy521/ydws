@@ -163,8 +163,9 @@ class GatewayServer(object):
             if t_info['u_msisdn'] and t_info['t_msisdn']:
                 terminal = self.db.get("SELECT tid, mobile, imsi, imei, service_status, endtime"
                                        "  FROM T_TERMINAL_INFO"
-                                       "  WHERE mobile = %s",
-                                       t_info['t_msisdn'])
+                                       "  WHERE mobile = %s"
+                                       "    AND owner_mobile = %s",
+                                       t_info['t_msisdn'], t_info['u_msisdn'])
                 if terminal:
                     if (terminal.endtime < time.time() or
                         terminal.service_status == GATEWAY.SERVICE_STATUS.OFF):
@@ -196,13 +197,14 @@ class GatewayServer(object):
                                 "      imsi = %s,"
                                 "      imei = %s,"
                                 "      factory_name = %s,"
+                                "      keys_num = %s,"
                                 "      softversion = %s,"
                                 "      login = %s"
                                 "  WHERE mobile = %s",
                                 t_info['dev_id'], t_info['dev_type'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'], t_info['factory_name'],
-                                t_info['softversion'], GATEWAY.TERMINAL_LOGIN.LOGIN,
-                                t_info['t_msisdn'])
+                                t_info['keys_num'], t_info['softversion'],
+                                GATEWAY.TERMINAL_LOGIN.LOGIN, t_info['t_msisdn'])
                 # get SessionID
                 args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
