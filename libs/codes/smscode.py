@@ -7,7 +7,7 @@ class SMSCode(object):
     SMS_USIM = u":U_SIM %s"
     SMS_DOMAIN = u":DOMAIN %s"
     SMS_LQ = u":LQ %s"
-    SMS_REGISTER = SMS_TSIM + SMS_USIM 
+    SMS_REGISTER = u":SIM %s:%s" 
 
     # TO user
     SMS_TRACKER_POWERLOW = u"定位器%s后备电池电量不足，当前电量为%d%%；时间：%s"

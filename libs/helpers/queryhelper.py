@@ -44,10 +44,22 @@ class QueryHelper(object):
         return user
 
     @staticmethod
+    def get_user_by_mobile(mobile, db):
+        """Get user info throught tmobile.
+        """
+        user = db.get("SELECT id"
+                      "  FROM T_USER"
+                      "  WHERE mobile = %s LIMIT 1",
+                      mobile) 
+        return user
+
+
+
+    @staticmethod
     def get_terminal_by_tmobile(tmobile, db):
         """Get terminal info throught tmobile.
         """
-        terminal = db.get("SELECT tid"
+        terminal = db.get("SELECT tid, login, msgid"
                           "  FROM T_TERMINAL_INFO"
                           "  WHERE mobile = %s LIMIT 1",
                           tmobile) 

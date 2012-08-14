@@ -18,7 +18,7 @@ HTTP方法说明
 DB参数配置
 =========
 
-Database: DB_ABT
+Database: DB_ACB
 Username: pabb
 Password: pabb
 
@@ -32,7 +32,7 @@ Password: pabb
 登陆
 ********
 URL: /login
-Table: T_TERMINAL_INFO_R, T_TERMINAL_W, T_USER
+Table: T_TERMINAL_INFO, T_USER
 
 POST请求内容：form 表单
               username,
@@ -71,7 +71,7 @@ POST返回结果：
 车辆切换
 ********
 URL: /switchcar
-Table: T_LOCATION, T_TERMINAL_INFO_W
+Table: T_LOCATION, T_TERMINAL_INFO
 
 GET请求方式：/switchcar/tid
 GET返回结果：返回结果：
@@ -235,7 +235,7 @@ POST返回结果:
 远程控制
 ********
 URL: /remote
-Table: T_TERMINAL_INFO_W
+Table: T_TERMINAL_INFO
 
 POST请求内容：
 {
@@ -388,7 +388,7 @@ PUT返回结果:
 ************
 
 URL: /lastinfo
-Table: T_LOCATION, T_TERMINAL_INFO_W
+Table: T_LOCATION, T_TERMINAL_INFO
 
 GET请求方式：/lastinfo/tid
 GET返回结果:  

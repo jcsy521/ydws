@@ -30,7 +30,7 @@ class MainHandler(BaseHandler):
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
 
             terminals = self.db.query("SELECT ti.id, ti.tid, ti.alias, ti.mobile as sim,"
-                                      "  ti.login, ti.cellid_status"
+                                      "  ti.login, ti.cellid_status, ti.keys_num"
                                       "  FROM T_TERMINAL_INFO as ti"
                                       "  WHERE ti.owner_mobile = %s",
                                       user_info.mobile)

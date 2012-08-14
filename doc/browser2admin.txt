@@ -1,0 +1,791 @@
+网页前端和业务后台接口
+
+==============
+独立工作的接口
+=============
+只返回操作结果，必须通过ajax异步调用。
+
+****************
+根据省份获取城市
+****************
+根据省份获取该省份下的所有城市名称
+
+GET格式：
+/province/{id}/city
+
+返回：
+[ 
+  {'id': x_int,  //城市id
+   'name': x_str, //城市名称
+  }, ...
+]
+不支持PUT, POST, DELETE操作
+
+****************
+根据省份、城市获取学校
+****************
+
+根据城市获取该城市下的所有学校名称
+
+POST格式：
+/group/*
+
+提交：
+{
+ 'province':[id,...],
+ 'city':[id, ...]
+}
+
+返回：
+[
+  {
+   'id': x_int, //学校id
+   'name': x_str, //学校名
+  }, ...
+]
+
+不支持PUT, GET, DELETE操作
+
+*************
+启用/停用账号
+*************
+更改后台用户的使用状态
+
+POST格式：
+/administrator/{id}/status
+{
+  'valid': 0 | 1;  // 0：停用；1：启用
+} 
+
+返回：
+{ 'status': 0 | 1}
+
+**********************
+根据管理员获取管理范围
+**********************
+GET格式：
+/administrator/{id}/area
+
+返回：
+{
+  ['category': x_int; // 10：省；20：市
+   'area_id': x_int; //省市id。0表示全部
+   'name': name_str; // 省市名称
+  ],...
+}
+
+*********************
+检查当前login是否可用
+*********************
+新建后台管理员时，页面可以通过此接口立即检查login是否可用，避免后续错误。
+
+GET格式：
+/administrator/checkloginname/{login_name}
+
+返回格式：
+{ 'status': true | false}
+
+
+**********************
+根据手机号获取用户信息
+**********************
+GET格式：
+/user/mobile/{mobile}
+
+返回：
+{
+  'user': { // 如果用户不存在，返回NULL
+    'name': name_str;
+    '...': ....; // to be extend
+  }
+}
+
+************************
+判断家长和儿童的监控关系
+************************
+GET格式：
+/monitor/{parent_mobile}/{child_mobile}
+
+返回：
+{'status': true | false}
+
+
+****************
+获取所有基本权限
+****************
+GET格式：
+/privileges
+
+返回：
+[ 
+  {'id': id_int,
+   'name': name_str},
+  ...
+]
+
+**********************
+根据权限组获取权限集合
+**********************
+GET格式：
+/privileges/id
+
+返回：
+[
+  {'id': id_int,
+   'name': name_str},
+  ...
+]
+
+===========================================
+正常操作接口
+===========================================
+这部分采用基本的form method，而且对同一用户不同的功能需要显式不同的基
+本页面，只通过GET很难区分（显式修改用户页面和增加用户页面）。所以这部
+分采用不同动作不同网页的方式，在URL中会体现动作，所有页面的POST操作都
+提交至自身。
+
+************
+后台用户管理
+************
+
+** 查询后台用户
+
+URL：/administrator/search
+template: administrator/search.html
+传递变量：sources(id, name), administrators
+
+显示查询页面（GET），填写查询条件之后提交至本页面（POST），提交至当前URL：
+
+  'corporation': 所属公司， 长度在100个英文字符以内，中文字符在50个以内
+  'name': 真实姓名, 长度在40个字符以内，中文字符在20个以内
+  'mobile': 移动手机号， 11位，合法性检查
+  'phone': 固话号 ， 11位，合法性检查
+  'login': 登录名， 20个字符以内，最短长度限制在6位，不允许有中文字符，命名同变量声明
+  'valid': 0表示停用，1表示启用
+  'source_id': 公司所属类型
+
+返回搜索结果，在本页显示，通过administrators变量传递搜索结果。
+页面显示字段如下：
+  公司、姓名、手机、帐号、权限组?、状态、编辑（可点击）、删除（可点击）、显示详细（可点击）。
+
+** 显示详细信息
+URL: /administrator/list/{id}
+template: administrator/list.html
+
+传递变量：administrator(name, mobile, phone, login, valid, corporation,
+                        privileges(id, name, valid),
+                        areas(provinces(id, name), cities(id, name, province_id)))
+          sucess：返回状态。0成功，1失败。//添加、修改也返回此页。
+          message：错误消息。
+	
+
+** 点击编辑，进入用户修改页面：
+
+URL：/administrator/edit/{id}
+template: administrator/edit.html
+传递变量：administrator
+          provinces
+	  sources(id, name)
+          privileges
+
+
+页面以Form形式显示所有用户数据，修改提交POST（页面段进行字段的合法性检
+查）至当前URL。各字段的命名如下：
+
+ 'name': 管理员的真实姓名
+ 'login': 登录名
+ 'password': 密码
+ 'mobile': 手机号
+ 'phone': 固话号
+ 'corporation': 公司名称
+ 'email': 电子邮件   
+ 'source_id': int, //公司所属类型
+ 'valid': int,     //1表示启用，0表示停用
+ 'privileges': [id1, id2,...] //权限组id，或者权限id
+ 'provinces': "id1, id2, ...", // 每个id表示省的全部市；0表示全部省
+ 'cities': "id1, id2, ...", // 全部市只设置省id
+
+ NOTE: 页面修改提交时需做合法性验证，具体要求同管理员添加(administrator/create)
+
+返回修改结果页面（把所有信息显式出来）：
+URL: /administrator/list/{id}
+template: administrator/list.html
+
+
+** 点击删除，异步请求（POST）删除用户
+/administrator/delete/{id}
+
+返回状态：
+{ 
+  'success': x_int //0: ok; other, fail 
+} 
+
+如果删除成功就在当前页面(administrator/search.html)的表格中删除一行。
+
+** 添加后台用户
+
+URL：/administrator/create
+template: administrator/create.html
+传递变量：cities, privileges
+
+首先显示（GET）添加页面，信息填写完成之后提交（基本与修改页面相同）至当前URL，
+
+添加页面各字段长度限制：
+name: 长度限制在40个英文字符以内，中文字符限制在20个字符以内
+login: 长度限制在20个英文字符以内，中文字符限制在10个字符以内
+password: 64个英文字符以内，最短为6个字符，不允许有中文字符
+mobile, phone: 11位，合法性检查
+corporation：100个字符以内，中文字符在50个以内
+email: 40个英文字符以内，20个中文字符以内
+
+返回：/administrator/list/{id}
+
+
+
+************ 
+业务受理
+************
+
+** 业务开通异步校验
+
+校验车主手机号：
+GET 请求： /business/checkmobile/
+
+校验终端手机号：
+GET 请求：/business/checktmobile/
+
+GET 返回结果：
+
+{	
+	status: boolean // True: 表示成功 False: 表示失败
+	messae: str // 在status 不为 True 的时候有效
+}
+
+** 业务开通
+
+URL：/business/create
+
+
+GET 请求：/business/create
+
+GET 返回结果：
+{	
+	url: business/create.html // 跳转到新增用户界面
+
+｝
+
+POST 请求：
+｛
+	  'seq': 序号
+	  'name': 车主姓名
+	  'mobile': 车主手机号	  
+	  'cnum': 车牌号
+	  'address': 联系地址
+	  'email': 邮件地址
+	  'corporation': 公司
+	  'begintime':开通日期
+	  'endtime': 截止日期
+ ｝
+ 
+POST 返回：
+ 
+ 失败：
+ {	
+   status: int, // 状态码 0 okay, else failed
+   message: str, // 错误信息，只有在status 不为0 的时候才可用。
+ }
+ 成功：
+ /business/list/[tmobile]
+
+ 
+ ** 业务查询
+URL：/business/search
+
+GET 请求：
+/business/search
+
+GET 返回：business/search.html
+
+POST 请求：
+｛
+	'name': 车主姓名
+	'mobile': 车主手机号
+	'tmobile': 终端手机号
+	'tnum': 车牌号
+	'begintime':开通日期 // utc, in seconds
+	'endtime': 截止日期 // utc, in seconds
+｝
+
+POST 返回：
+
+{	'businesses': 
+	’interval': list // 记录 [begintime, endtime]
+	'status':int,
+	'message': str
+}
+
+ ** 业务启用/停用：
+
+POST 请求：
+/business/delete/[tmobile]/[service_status]
+
+POST 返回： 
+ {	
+   status: int, // 状态码
+   message: str, // 错误信息，只有在status 不为0 的时候才可用。
+ }
+
+** 业务用户明细 ****
+URL: /business/list/{tmobile}
+template: business/list.html
+
+GET 请求：
+/business/list/{tmobile}
+
+GET 返回结果：
+{	
+	business/list.html,
+    business：// 业务信息
+	｛
+		'name': str // 用户名
+		'mobile'：int // 用户手机号
+		'address': str // 用户地址
+		'email': str // 用户邮箱
+		'corporation': str // 用户公司名称
+		'begintime': utc, in second // 服务开通时间
+		'endtime': utc, in second // 服务到期时间
+		'sms_status': int // 短信状态：０：短信发送失败（没有到达网关） 1：短信已发送（到达网关），2：短信发送成功（到达终端），3:终端登陆成功
+	｝
+}
+
+传递变量：	business(name, mobile, tmobile, cnum, address, corporation,
+                        email, begintime, endtime)
+			sucess：返回状态。0成功，1失败。//添加、修改也返回此页。
+			message：错误消息。
+	
+
+** 点击编辑，进入用户修改页面：****
+URL：/business/edit/{id}
+template: business/edit.html
+传递变量：	sucess：返回状态。0成功，1失败。//添加、修改也返回此页。
+			message：错误消息。
+			
+页面以Form形式显示所有用户数据，修改提交POST（页面段进行字段的合法性检
+查）至当前URL。各字段的命名如下：
+
+ 'name': 管理员的真实姓名
+ 'mobile': 车主手机号
+ 'tmobile': 终端手机号
+ 'tnum': 车牌号
+ 'address': 地址
+ 'corporation': 公司名称
+ 'email': 电子邮件   
+ 'begintime': 开通日期
+ 'endtime': 截止日期
+
+ NOTE: 页面修改提交时需做合法性验证，具体要求同管理员添加(administrator/create)
+
+返回修改结果页面（把所有信息显式出来）：
+URL: /business/list/{id}
+template: business/list.html
+
+
+** 点击删除，异步请求（POST）删除用户
+/business/delete/{id}
+
+返回状态：
+{ 
+  'status': x_int //0: ok; other, fail 
+  'message':　
+} 
+
+如果删除成功就在当前页面(business/search.html)的表格中删除一行。
+
+
+
+
+**********
+权限组管理
+**********
+
+** 显示权限组
+URL: /privgroup
+template: privgroup/list.html
+
+页面显示：
+   权限组名、该权限组人数、编辑、删除、新建。
+
+传递变量：groups={id:
+                   {name, count, builtin, privileges=[(id, name),...]}
+                  ,...}
+如果builtin为1，表示此权限组为基本权限的映射，不允许修改、删除。
+
+** 新建
+
+URL: /privgroup/create
+template: privgroup/create.html
+传递变量：
+          privileges=[(id, name),...]
+
+添加页面显示：
+ 'name': x_str, 长度不超过100个字符
+ [id, ...] //权限集合
+
+添加信息之后POST至当前URL，返回权限组列表/privgroup.
+返回参数：
+name:
+privs=[id1, id2,...]
+
+** 修改
+URL: /privgroup/edit/{id}
+template: privgroup/edit.html
+传递变量：group={id, name, privileges=[id1, id2,,...]}
+          privileges=[(id, name),...]
+          sucess：返回状态。0成功，1失败。//添加、修改也返回此页。
+          message：错误消息。
+
+页面显示字段与新建相同，提交至当前URL然后返回权限组列表/privgroup.
+
+提交字段：privilege
+NOTE:提交时做合法性检查，权限组至少包括一个基本权限
+
+** 删除
+异步POST：
+URL: /privgroup/delete/{id}
+
+返回状态：
+{ 
+  'success': x_int //0: ok; other, fail 
+} 
+
+
+**********
+密码管理
+**********
+
+** 修改密码
+URL: 
+/administrator/password/me (修改自己密码）
+/administrator/password/other (修改别人密码）
+template: administrator/password.html
+传递变量：is_response: 是否为修改的返回结果
+          is_self: 是否为修改自己的密码
+          message: 操作结果提示信息
+
+页面字段：
+  old_password, new_password   //密码长度限制在64个字符以内，最短不能少于6个字符，不允许有中文字符
+
+如果为修改他人密码，需要同时提交被修改人的id（可以通过hidden域过来：login）。
+提交至当前URL，返回当前页面，设置is_response为True。
+
+
+**********
+代用户操作
+**********
+URL: /delegation
+template: delegation/delegation.html
+
+页面显示：
+   家长号码，儿童号码
+
+输入正确后，点击“开始代操作”提交至当前URL（必须检查家长，儿童的合法
+性，以及二者是否能监控），返回当前页面，并显示代操作页面（嵌入当前页
+面）。
+
+**************
+代用户操作查询
+**************
+URL：/delegation/log
+template: delegation/log.html
+界面检查: start_time, end_time不能为空, 其它可为空
+
+页面显示搜索字段：
+
+  'name': x_str,  // 操作员姓名, 支持部分匹配，最多不超过40个字符
+  'login': x_str,  //登录名, 支持部分匹配，最多不超过20个字符
+  'start_time': x_time, //代操作起始时间
+  'end_time': x_time,  //代操作终止时间
+  'mobile': x_str, //用户手机号, 支持部分匹配，最多为11位
+  'user_name': //用户姓名， 支持部分匹配，最多不超过40个字符
+
+提交查询至当前URL，返回当前页面：
+传递变量：logs
+[{
+  'name': x_str,
+  'login': x_str,
+  'parent_name': x_str,
+  'child_name': x_str,
+  'timestamp': x_time,
+ }, ...
+]
+
+
+********
+用户查询
+********
+URL: /user/search
+template: user/search.html
+
+检查字段: province_id, category, valid不能为空, 其它可为空
+
+查询提交字段：
+{
+ 'province_id': [....,..],
+ 'city_id': [,...,...],
+ 'group': id,
+ 'name': x_str, 支持部分匹配，最多不超过40个字符
+ 'category': int,   //1代表"家长", 2代表"儿童"
+ 'mobile': x_str,  支持部分匹配，最多11位
+ 'plan_id': x_str,
+ 'valid': int,
+}
+
+POST至当前URL，返回当前页面，
+传递变量：users, provinces, plans, valid
+[
+ {
+  'name': x_str,
+  'mobile': x_str,
+  'province': x_str,
+  'city': x_str,
+  'group_name': x_str,
+  'category': x_str, //"家长" 或者 "儿童", 
+  'plan': x_str,   //套餐类型
+  'valid': x_int  //状态，0: 退订，1: 订购
+  'timestamp': x_time //订购时间或是退订时间
+ }, ...
+]
+
+
+************
+订购日志查询
+************
+URL: /subscription/log
+template: subscription/log.html
+传递变量：results, provinces, plans, status, category, groups, group_ids
+页面检查：province_id, category, status ,start_time,
+end_time不能为空,其他可为空
+
+查询提交字段：
+{
+ 'province_id': x_int,
+ 'city_id': x_int,
+ 'group_id': x_str,
+ 'mobile': x_str,
+ 'user_name': x_str,
+ 'category': x_int,
+ 'plan_id': x_int,
+ 'status': x_int,
+ 'start_time': x_time,
+ 'end_time': x_time
+}
+
+请求提交至当前URL，返回当前页面，传递参数logs：
+[{
+  'province': x_str,
+  'city': x_str,
+  'user_name': x_str, 支持部分匹配，最多40个字符
+  'mobile': x_str, 支持部分匹配，最多11位
+  'group_name': x_str,
+  'category': x_str,
+  'plan': x_str,
+  'status': int,
+  'timestamp': x_time
+ }, ...
+]
+
+
+************
+用户数量统计
+************
+URL:/report/user
+template: /report/user.html
+传递变量: results
+页面检查：province_int不能为空，city_id可为空, timestamp不能为空
+
+显示查询页面（GET），填写查询条件之后提交至本页面（POST），提交至当前URL：
+
+ 'province_id': [id, id, ...]
+ 'city_id': [id, id, ...]
+ 'timestamp': x_time, //时间精确到月份即可
+
+返回搜索结果，在本页显示，传递变量results：
+{[
+   province: 省份、
+   city: 城市、
+   new_groups: 新增集团数、
+   new_parents: 新增家长数、
+   new_children: 新增儿童数、
+   total_groups: 总集团数、
+   total_parents: 总用户数、
+   total_children: 总儿童数。
+  ], ...
+}
+
+
+************
+定位数量统计
+************
+URL:/report/location
+template: /report/location.html
+传递变量：results
+页面检查：province_int不能为空，city_id可为空, timestamp不能为空
+
+显示查询页面（GET），填写查询条件之后提交至本页面（POST），提交至当前URL：
+
+ 'province_id': [省份id, ...]
+ 'city_id': [城市id, ...]
+ 'timestamp': x_time, //为本月的月底时间,比如: 2010/10/31对应的utc.
+
+返回搜索结果，在本页显示，通过results变量传递搜索结果:
+{[
+  'province': 省份、
+  'city': 城市、
+  'group_name': 集团名称、
+  'custom': 自定义定位次数、
+  'schedule': 定时定位次数、
+  'realtime': 实时定位次数。
+  ],...
+}
+
+************
+业务月报统计
+************
+URL: /report/monthly
+template: /report/monthly.html
+传递变量：results
+
+页面检查：province_int不能为空，city_id可为空, timestamp不能为空
+
+显示查询页面（GET），填写查询条件之后提交至本页面（POST），提交至当前URL：
+
+ 'province_int': [x_int, ...]
+ 'city_id': [x_int, ...]
+ 'timestamp': x_time // 某年某月，时间精确到月份即可, 比如：2010/10对应的utc
+
+返回搜索结果，在本页显示，通过results变量传递搜索结果。
+{[
+   province: 省份、
+   city: 城市、
+   new_groups: 新增集团数、
+   new_parents: 新增家长数、
+   new_children: 新增儿童数、
+   total_groups: 总集团数、
+   total_parents: 总用户数、
+   total_children: 总儿童数。
+   total_sms: 短信总数
+   mo_sms: 短信上行数量
+   mt_sms: 短信下行数量
+  'custom': 自定义定位次数、
+  'schedule': 定时定位次数、
+  'realtime': 实时定位次数。
+  'bound': 进出围栏次数
+  'power': 缺电关机次数
+  'sos': SOS次数 // orz...
+  ], ...
+}
+
+
+************
+业务日报统计
+************
+URL: /report/daily
+template: /report/daily.html
+传递变量：results
+
+页面检查：province_int, start_time, end_time不能为空, city_id可为空
+
+显示查询页面（GET），填写查询条件之后提交至本页面（POST），提交至当前URL：
+
+ 'province_int': x_int,
+ 'city_id': x_int,
+ 'start_time': x_time // 某年某月某日，时间精确到日即可, 比如：2010/10/09对应的utc
+ 'end_time': x_time
+
+返回搜索结果，在本页显示，通过results变量传递搜索结果。
+{[
+   province: 省份、
+   city: 城市、
+   new_groups: 新增集团数、
+   new_parents: 新增家长数、
+   new_children: 新增儿童数、
+   total_groups: 总集团数、
+   total_parents: 总用户数、
+   total_children: 总儿童数。
+   total_sms: 短信总数
+   mo_sms: 短信上行数量
+   mt_sms: 短信下行数量
+  'custom': 自定义定位次数、
+  'schedule': 定时定位次数、
+  'realtime': 实时定位次数。
+  'bound': 进出围栏次数
+  'power': 缺电关机次数
+  'sos': SOS次数 // orz...
+  ], ...
+}
+
+
+************
+集团成员统计
+************
+统计集团下用户数量
+
+URL: /report/group
+template: /report/group.html
+传递变量：results, agencies, groups, provinces
+
+页面检查：province_id不能为空, 其他变量都可为空
+
+显示查询页面（GET），填写查询条件之后提交至本页面（POST），提交至当前URL：
+
+ 'agency': x_int //代理商
+ 'province_id': [x_int, ...] //省份
+ 'city_id': [x_int, ...]  //城市
+ 'group_name': x_int //集团
+
+返回搜索结果，在本页显示，通过results变量传递搜索结果。
+{[
+   province: 省份、
+   city: 城市、
+   group_name: 集团、
+   group_id: 集团编号
+   agency: 代理商
+   total_parents: 家长数、
+   total_children: 儿童数。
+  ], ...
+}
+
+
+********
+短信明细
+********
+显示某个时间段内短信统计信息
+
+URL: /report/sms
+template: /report/sms.html
+传递变量：results, provinces, groups
+
+页面检查：province_id, start_time, end_time 不能为空, 其他变量都可为空
+
+显示查询页面（GET），填写查询条件之后提交至本页面（POST），提交至当前URL：
+
+ 'province_id': 省份id,
+ 'city_id': 城市id,
+ 'group': 集团id
+ 'user_name': 用户姓名, 支持部分匹配，最多40个字符
+ 'mobile': 接收手机号， 支持部分匹配，最多11位
+ 'start_time': 起始时间
+ 'end_time': 终止时间
+
+
+返回搜索结果，在本页显示，通过results变量传递搜索结果。
+ 集团名称、集团编号、用户姓名、手机号、短信总数。
+{[
+   province: 省份、
+   city: 城市、
+   group_name: 集团、
+   user_name: 用户名
+   mobile: 手机号
+   count: 短信总数
+  ], ...
+}
