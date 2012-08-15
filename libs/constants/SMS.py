@@ -11,8 +11,8 @@ LQ = DotDict(WEB=30, # 30 minutes
 LQ_INTERVAL = 3 * 60 # 3mins
 
 #modify
-CATEGORY = DotDict(MO=10,
-                   MT=20)
+CATEGORY = DotDict(MO=1,
+                   MT=2)
 
 SENDSTATUS = DotDict(PREPARING=-1,
                      SUCCESS=0,

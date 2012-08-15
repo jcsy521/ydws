@@ -58,8 +58,8 @@ DEFEND_STATUS = DotDict(FAILED="0",
                         NO_HOST_SUCCESS="2",
                         NO_HOST_FAILED="3")
 
-TERMINAL_LOGIN = DotDict(LOGIN="1",
-                         UNLOGIN="0")
+TERMINAL_LOGIN = DotDict(LOGIN=1,
+                         UNLOGIN=0)
 
 # 30min
 HEARTBEAT_INTERVAL = 30 * 60 

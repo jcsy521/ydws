@@ -38,7 +38,7 @@ class BusinessMixin(BaseMixin):
         """Prepare search results for post.
         """
         mem_key = self.get_memcache_key(hash_)
-        
+
         data = self.redis.getvalue(mem_key)
         if data:
             return data
@@ -51,7 +51,6 @@ class BusinessMixin(BaseMixin):
                          name="tu.name LIKE '%%%%%s%%%%'",
                          mobile="tu.mobile LIKE '%%%%%s%%%%'",
                          tmobile="tt.mobile LIKE '%%%%%s%%%%'",
-                         #service_status="tt.service_status = %s",
                          begintime="tt.begintime >= %s",
                          endtime="tt.endtime <= %s") 
 
@@ -108,7 +107,7 @@ class BusinessMixin(BaseMixin):
         elif not terminal.msgid:
             sms_status = 0
         else:
-            sms = self.db.get("SELECT send_status, user_status"
+            sms = self.db.get("SELECT send_status, recv_status"
                               "  FROM T_SMS"
                               "  WHERE msgid = %s"
                               "  AND category = %s"
@@ -116,9 +115,9 @@ class BusinessMixin(BaseMixin):
                               terminal.msgid, SMS.CATEGORY.MT)
             if not sms:
                 pass
-            elif sms.userstatus == 0:
+            elif sms.recv_status == 0:
                 sms_status = 2
-            elif sms.sendstatus == 0:
+            elif sms.send_status == 0:
                 sms_status = 1
         return sms_status
            
@@ -192,10 +191,11 @@ class BusinessMixin(BaseMixin):
         
         # 4: send message to terminal
         #NOTE: here, not send message actually. if need, remove the annotations velow. 
-        #register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
-        #ret = SMSHelper.send(fields.tmobile, register_sms)
-        ret = DotDict(status=0,
-                      msgid=1111)
+        register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
+        ret = SMSHelper.send(fields.tmobile, register_sms)
+        ret = DotDict(json_decode(ret))
+        #ret = DotDict(status=0,
+        #              msgid=1111)
         if ret.status == ErrorCode.SUCCESS:
             self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET msgid = %s"
@@ -356,6 +356,14 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
             change the owner of the terminal
         """
         
+        list_inject = ['corporation','name','mobile'] 
+        for key in list_inject:
+            v = self.get_argument(key, '')
+            if not check_sql_injection(v):
+               # call get method
+               self.get(tmobile) 
+               return
+
         user = QueryHelper.get_user_by_tmobile(tmobile, self.db)
         mobile_p = self.get_argument('mobile_p', '')
         tmobile_p = self.get_argument('tmobile_p', '')
@@ -447,13 +455,6 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                                begintime="begintime=%s",
                                endtime="endtime=%s")
 
-            list_inject = ['corporation','name','mobile'] 
-            for key in list_inject:
-                v = self.get_argument(key, '')
-                if not check_sql_injection(v):
-                   # call get method
-                   self.get(tmobile) 
-                   return
 
             user = QueryHelper.get_user_by_tmobile(tmobile, self.db) 
             u_data = [self.get_argument(key, '') for key in u_fields.iterkeys()] + [user.owner_mobile]
