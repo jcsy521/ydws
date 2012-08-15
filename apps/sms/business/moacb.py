@@ -30,12 +30,13 @@ class MOACB(object):
     
     
     def fetch_mo_sms(self):
-        status = ErrorCode.FAILED
+        status = ErrorCode.SUCCESS
+        result = None
         try:
             mos = self.db.query("SELECT id, mobile, content "
                                 "  FROM T_SMS "
                                 "  WHERE category = %s "
-                                "  AND sendstatus = %s"
+                                "  AND send_status = %s"
                                 "  ORDER BY id ASC"
                                 "  LIMIT 10",
                                 SMS.CATEGORY.MO, SMS.SENDSTATUS.PREPARING)
@@ -45,29 +46,34 @@ class MOACB(object):
                 content = mo["content"]
                 id = mo["id"]
                 
-                status = self.send_mo_to_acb(mobile, content)
-                if status:
-                    if status == str(ErrorCode.SUCCESS):
-                        logging.info("sms-->acb success mobile = %s, content = %s", mobile, content)
+                result = self.send_mo_to_acb(mobile, content)
+                if result["status"] == ErrorCode.SUCCESS:
+                    if int(result["ret"]) == ErrorCode.SUCCESS:
+                        logging.info("SMS-->ACB success mobile = %s, content = %s", mobile, content)
                         self.db.execute("UPDATE T_SMS "
-                                       "  SET sendstatus = %s"
+                                       "  SET send_status = %s"
                                        "  WHERE id = %s",
                                        SMS.SENDSTATUS.SUCCESS, id)
-                    elif status == str(ErrorCode.FAILED):
-                        logging.info("sms-->acb failure mobile = %s, content = %s", mobile, content)
+                        status = ErrorCode.SUCCESS
+                    elif int(result["ret"]) == ErrorCode.FAILED:
+                        logging.info("SMS-->ACB failure mobile = %s, content = %s", mobile, content)
                         self.db.execute("UPDATE T_SMS "
-                                       "  SET sendstatus = %s"
+                                       "  SET send_status = %s"
                                        "  WHERE id = %s",
                                        SMS.SENDSTATUS.FAILURE, id)
+                        status = ErrorCode.FAILURE
                     else:
                         #sms-->acb reponse error result
-                        pass
+                        status = ErrorCode.FAILURE
                 else:
                     # http response is None
-                    pass
+                    status = ErrorCode.FAILURE
             
         except Exception, msg:
+            status = ErrorCode.FAILURE
             logging.exception("Fetch mo sms exception : %s", msg)
+        finally:
+            return status
             
             
     def send_mo_to_acb(self, mobile, content):

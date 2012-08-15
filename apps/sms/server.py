@@ -33,7 +33,6 @@ from business.status import Status
 from business.moacb import MOACB
 
 
-
 class Application(tornado.web.Application):
 
     def __init__(self, debug=False):
@@ -61,61 +60,84 @@ def shutdown(server):
         pass
 
 
-def run_mt_thread():
+def run_send_mt_thread():
     logging.info("MT thread started.")
-    #time interval 5 second
-    INTERVAL = 5
-    result = ErrorCode.FAILED
+    #time interval 3 second
+    INTERVAL = 3
+    status = ErrorCode.FAILED
     mt = MT()
-    while True:
-        try:
+    try:
+        while True:
             time.sleep(INTERVAL)
-            result = mt.fetch_mt_sms()
-            if result == ErrorCode.SUCCESS:
-                INTERVAL = 5
+            status = mt.fetch_mt_sms()
+            if status == ErrorCode.SUCCESS:
+                INTERVAL = 3
             else:
-                INTERVAL = 60
-        except Exception as e:
-            logging.exception("Start MT thread failed: %s", e.args)
+                INTERVAL = INTERVAL * 2
+                if INTERVAL > 600:
+                    INTERVAL = 600
+    except Exception as e:
+        logging.exception("Start MT thread failed: %s", e.args)
             
             
 def run_user_receive_status_thread():
     logging.info("Get user receive status thread started.")
-    #time interval 5 second
-    INTERVAL = 5
+    #time interval 3 second
+    INTERVAL = 3
+    result = ErrorCode.FAILED
     status = Status()
-    while True:
-        try:
+    try:
+        while True:
             time.sleep(INTERVAL)
-            status.get_user_receive_status()
-        except Exception as e:
-            logging.exception("Start user receive status thread failed: %s", e.args)
+            result = status.get_user_receive_status()
+            if result == ErrorCode.SUCCESS:
+                INTERVAL = 3
+            else:
+                INTERVAL = INTERVAL * 2
+                if INTERVAL > 600:
+                    INTERVAL = 600
+    except Exception as e:
+        logging.exception("Start user receive status thread failed: %s", e.args)
             
             
 def run_get_mo_from_gateway_thread():
     logging.info("Get mo sms thread started.")
-    #time interval 5 second
-    INTERVAL = 5
+    #time interval 3 second
+    INTERVAL = 3
+    status = ErrorCode.FAILED
     mo = MO()
-    while True:
-        try:
+    try:
+        while True:
             time.sleep(INTERVAL)
-            mo.get_mo_sms()
-        except Exception as e:
-            logging.exception("Start get mo sms thread failed: %s", e.args)
+            status = mo.get_mo_sms_from_gateway()
+            if status == ErrorCode.SUCCESS:
+                INTERVAL = 3
+            else:
+                INTERVAL = INTERVAL * 2
+                if INTERVAL > 600:
+                    INTERVAL = 600
+    except Exception as e:
+        logging.exception("Start get mo sms thread failed: %s", e.args)
             
             
 def run_send_mo_to_acb_thread():
     logging.info("Send mo to acb thread started.")
     #time interval 1 second
     INTERVAL = 1
+    status = ErrorCode.FAILED
     moacb = MOACB()
-    while True:
-        try:
+    try:
+        while True:
             time.sleep(INTERVAL)
-            moacb.fetch_mo_sms()
-        except Exception as e:
-            logging.exception("Start send mo to acb thread failed: %s", e.args)
+            status = moacb.fetch_mo_sms()
+            if status == ErrorCode.SUCCESS:
+                INTERVAL = 1
+            else:
+                INTERVAL = INTERVAL * 2
+                if INTERVAL > 600:
+                    INTERVAL = 600
+    except Exception as e:
+        logging.exception("Start send mo to acb thread failed: %s", e.args)
 
 
 def main():
@@ -131,7 +153,7 @@ def main():
         application = Application(debug=debug_mode)
         http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
         # create mt thread
-        thread.start_new_thread(run_mt_thread, ())
+        thread.start_new_thread(run_send_mt_thread, ())
         
         # create user receive status thread
         thread.start_new_thread(run_user_receive_status_thread, ())
@@ -143,17 +165,17 @@ def main():
         thread.start_new_thread(run_send_mo_to_acb_thread, ())
         
         http_server.listen(options.port)
-        logging.warn("[acb sms] running on: localhost:%d", options.port)
+        logging.warn("[ACB SMS] running on: localhost:%d", options.port)
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
         logging.error("Ctrl-C is pressed.")
     except:
-        logging.exception("[acb sms] exit exception")
+        logging.exception("[ACB SMS] exit exception")
     finally:
-        logging.warn("[acb sms] shutdown...")
+        logging.warn("[ACB SMS] shutdown...")
         if http_server:
             shutdown(http_server)
-        logging.warn("[acb sms] Stopped. Bye!")
+        logging.warn("[ACB SMS] Stopped. Bye!")
 
 
 if __name__ == "__main__":

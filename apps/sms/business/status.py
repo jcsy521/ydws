@@ -7,6 +7,7 @@ import site
 import logging
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
+site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 site.addsitedir(os.path.join(TOP_DIR_, "apps/sms"))
 
 from tornado.options import define, options
@@ -16,6 +17,7 @@ if 'conf' not in options:
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
 from constants import SMS
+from codes.errorcode import ErrorCode
 from net.httpclient import HttpClient
 
 
@@ -29,6 +31,7 @@ class Status(object):
         
     def get_user_receive_status(self):
         result = None
+        status = ErrorCode.SUCCESS
         try:
             url = ConfHelper.SMS_CONF.mt_url
             cmd = "getstatus"
@@ -40,14 +43,18 @@ class Status(object):
                         psw=psw,
                         )
             result = HttpClient().send_http_post_request(url, data)
-            if result:
-                self.save_user_receive_status(result)
+            if result["status"] == ErrorCode.SUCCESS:
+                self.save_user_receive_status(result["ret"])
+                status = ErrorCode.SUCCESS
             else:
                 # http response is None
-                pass
+                status = ErrorCode.FAILED
             
         except Exception, msg:
+            status = ErrorCode.FAILED
             logging.exception("Get user receive status exception : %s", msg)
+        finally:
+            return status
         
     
     def save_user_receive_status(self, result):
@@ -58,11 +65,11 @@ class Status(object):
             
             # result_list = ['100', '567848895#15012345678#0', '567816375#18842476170#0']
             result_list = result.strip().splitlines()
+            # 101 means get status connection success, but no status data
             if result_list[0] == "101":
                 pass
             # result_list[0] == "100"
             else:
-                logging.info("Obtain user receive status")
                 result_list.remove(result_list[0])
                 for info in result_list:
                     info_list = info.split("#")
@@ -72,14 +79,14 @@ class Status(object):
                     if status == str(SMS.USERSTATUS.FAILURE):
                         logging.warn("User %s does not recieve sms, msgid = %s ", mobile, msgid)
                         self.db.execute("UPDATE T_SMS "
-                                        "  SET userstatus = %s"
+                                        "  SET recv_status = %s"
                                         "  WHERE msgid = %s"
                                         "  AND category = %s"
                                         "  AND mobile = %s",
                                         SMS.USERSTATUS.FAILURE, msgid, SMS.CATEGORY.MT, mobile)
                     elif status == str(SMS.USERSTATUS.SUCCESS):
                         self.db.execute("UPDATE T_SMS "
-                                        "  SET userstatus = %s"
+                                        "  SET recv_status = %s"
                                         "  WHERE msgid = %s"
                                         "  AND category = %s"
                                         "  AND mobile = %s",
@@ -90,5 +97,3 @@ class Status(object):
             logging.exception("Save user receive status exception : %s", msg)
                 
         
-if __name__ == "__main__":
-    print Status().get_user_receive_status()

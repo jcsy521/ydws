@@ -21,7 +21,7 @@ class ACBMTHandler(BaseHandler):
             insert_time = int(time.time() * 1000)
             msgid = str(insert_time)[-9:]
             self.db.execute("INSERT INTO T_SMS(msgid, mobile, content, "
-                            " inserttime, category, sendstatus) "
+                            " insert_time, category, send_status) "
                             "  VALUES(%s, %s, %s, %s, %s, %s)",
                             msgid, mobile, content, insert_time,
                             SMS.CATEGORY.MT, SMS.SENDSTATUS.PREPARING)
