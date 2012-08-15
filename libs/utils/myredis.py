@@ -2,6 +2,7 @@
 
 import redis 
 
+from dotdict import DotDict
 from helpers.confhelper import ConfHelper
 
 class MyRedis(redis.Redis):
@@ -21,6 +22,8 @@ class MyRedis(redis.Redis):
         if value:
             try:
                 e_value = eval(value)
+                if isinstance(e_value, dict):
+                    e_value = DotDict(e_value)
                 return e_value
             except:
                 return value
