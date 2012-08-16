@@ -300,7 +300,7 @@ table, .ui-widget-header {
 .cUlItem {
     margin: 0;
     padding: 0;
-    width: 110px;
+  /*  width: 110px;*/
     list-style-position: inside;
 }
 .privilegesMsg {
@@ -357,7 +357,7 @@ table, .ui-widget-header {
     border-collapse: collapse;
     text-align: left;
 	float: left;
-	width: 400px;
+	width: 420px;
 }
 .tableStyle td {
     background-color: #EFEFEF;
@@ -501,7 +501,7 @@ tfoot {
 	color: #2311F1;
 }
 .sms_status2 {
-	color: #F1F111;
+	color: #1E90FF;
 }
 .sms_status3 {
 	color: green;
