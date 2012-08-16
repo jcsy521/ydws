@@ -79,7 +79,7 @@
 				<select name ="source_id" id="source_id">
 					<option value=" ">--请选择公司类型--</option>
                     {% for s in sources %}
-                        <option value="{{s.id}}">{{s.name}}</option>
+                        <option value="{{s['id']}}">{{s['name']}}</option>
                     {% end %}
 				</select>
 			</td>
@@ -103,9 +103,9 @@
             <td align="left">
                 <ul id="ulCheckbox" class="ulCheckbox" style="width:300px;">
                     {% for p in privilege_groups %}
-                        <li style="width:140px;" onmouseover="selectPrivileges({{p.id}}, this)" onmouseout="fn_closeMsgBox()">
-                            <input id="check{{p.id}}" type="checkbox" value="{{p.id}}" name="privileges" />
-                            <span id="s{{p.id}}">{{p.name}}</span>
+                        <li style="width:140px;" onmouseover="selectPrivileges({{p['id']}}, this)" onmouseout="fn_closeMsgBox()">
+                            <input id="check{{p['id']}}" type="checkbox" value="{{p['id']}}" name="privileges" />
+                            <span id="s{{p['id']}}">{{p['name']}}</span>
                         </li>
                     {% end %}
                 </ul>
@@ -124,8 +124,8 @@
 					<ul class='ulCheckbox j_cities'>
 					{% for city in cities %}
 						<li>
-							<input id="checkbox{{city.city_id}}" type="checkbox" class="j_ckCity" value="{{city.city_id}}" name="ckCity" onclick="disabledAllChoose();" />
-							<span id="span{{city.city_id}}">{{city.city_name}}</span>
+							<input id="checkbox{{city['city_id']}}" type="checkbox" class="j_ckCity" value="{{city['city_id']}}" name="ckCity" onclick="disabledAllChoose();" />
+							<span id="span{{city['city_id']}}">{{city['city_name']}}</span>
 						</li>
 					{% end %}
 					</ul>

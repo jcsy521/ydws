@@ -17,6 +17,10 @@
 					"name":"fn_lengthBetween",
 					"regex":"none",
 					"alertText":"*"},
+				"fn_checkUserName":{
+					"name":"fn_checkUserName",
+					"regex":"none",
+					"alertText":"*"},
 				"maxCheckbox":{
 					"regex":"none",
 					"alertText":"* 请选择"},	
@@ -28,8 +32,8 @@
 					"regex":"none",
 					"alertText":"* 内容不一致"},		
 				"mobile":{
-					"regex":"/^0{0,1}(13[4-9]|15[7-9]|15[0-2]|18[2378]|147)[0-9]{8}$/",
-					"alertText":"* 只能填写移动号码"},
+					"regex":"/^0{0,1}(13[0-9]|15[7-9]|15[0-3]|15[56]|18[023789]|147)[0-9]{8}$/",
+					"alertText":"* 请填写正确的手机号码."},
 				"phone":{
 					"regex":"/^(0[0-9]{2,3}\-)?([1-9][0-9]{6,7})$/",
 					"alertText":"* 固定电话格式填写错误"

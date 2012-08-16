@@ -290,9 +290,8 @@ $.validationEngine = {
 				if(position == 1){
 					var fn_result = fn(rules[3]);
 				}else{
-					var fn_result = fn();
+					var fn_result = fn(rules[2]);	// 1个参数
 				}
-				
 				if(!fn_result){
 					$.validationEngine.isError = false;
 				}else{
@@ -543,7 +542,7 @@ $.validationEngine = {
 			"left":calculatedPosition.callerleftPosition+40+'px',
 			"marginTop":calculatedPosition.marginTopSize+'px',
 			"opacity":0
-		})
+		});
 		return $(divFormError).animate({"opacity":0.87},function(){return true;});	
 	},
 	updatePromptText : function(caller,promptText,type,ajaxed) {	// UPDATE TEXT ERROR IF AN ERROR IS ALREADY DISPLAYED
@@ -562,7 +561,8 @@ $.validationEngine = {
 		calculatedPosition.callerTopPosition +="px";
 		calculatedPosition.callerleftPosition +="px";
 		calculatedPosition.marginTopSize +="px"
-		$(updateThisPrompt).animate({ "top":calculatedPosition.callerTopPosition,"marginTop":calculatedPosition.marginTopSize });
+		/*错误提示 修改内容时位置不变*/
+		//$(updateThisPrompt).animate({ "top":calculatedPosition.callerTopPosition,"marginTop":calculatedPosition.marginTopSize });
 	},
 	calculatePosition : function(caller,promptText,type,ajaxed,divFormError){
 		

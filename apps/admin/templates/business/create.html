@@ -24,7 +24,7 @@
 			<tr>
 				<td	class="tLeft"><span class="signColor">*</span>车主姓名：</td>
 				<td	  align="left">
-					<input type="text" name="name" id="name" class="validate[custom[t_name],length[2,16]],onsubmit" />
+					<input type="text" name="name" id="name" class="validate[funcCall[fn_checkUserName[]]],onsubmit" />
 				</td>
 			</tr>
 			<tr>
@@ -45,7 +45,7 @@
 				<td	class="tLeft"><span class="signColor">*</span>密码：</td>
 				<td	  align="left">
 					<input type="password" name="password" id="password" 
-					   class="validate[required,length[6,64]],onsubmit" 
+					   class="validate[funcCall[fn_lengthBetween[pwd,abc]]],onsubmit" 
 					   onKeyUp="fn_textKeyUp(this, 'text')" value="111111"  />
 					<span>    * 默认密码：111111</span>
 				</td>

@@ -44,8 +44,8 @@
 			<td class="tLeft">权限组名</td>
 			<td align="left">
 				{% for privilege in administrator.privileges %}
-					{% if privilege.valid == 1 %}
-						{{ privilege.name }}
+					{% if privilege['valid'] == 1 %}
+						{{ privilege['name'] }}
 					{% end %}		    
 				{% end %}
 			</td>
@@ -54,7 +54,7 @@
 			<td class="tLeft">城市</td>
 			<td align="left">
 				{% for city in administrator.cities %}
-					{{city.city_name}}
+					{{city['city_name']}}
 				{% end %}
 			</td>
 		</tr>
