@@ -149,7 +149,7 @@ $(function () {
 	// 初始化时间
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime()/1000, 'ymd');
 	$('#eventTime').click(function() {
-		WdatePicker({dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false, maxDate: '%y-%M-%d'});
+		WdatePicker({el:'eventTime', dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false, maxDate: '%y-%M-%d'});
 	}).val(str_nowDate);
 	
 	dlf.fn_closeWrapper(); //关闭地图位置显示框事件

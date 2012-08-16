@@ -179,10 +179,10 @@ $(function () {
 	// 初始化时间
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime()/1000, 'ymd');
 	$('#trackBeginTime').unbind('click').click(function() {
-		WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}'});
+		WdatePicker({el:'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}'});
 	}).val(str_nowDate+' 00:00:00');
 	$('#trackEndTime').unbind('click').click(function() {
-		WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}'});
+		WdatePicker({el:'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}'});
 	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date()/1000, 'sfm'));
 	
 	// 按钮变色

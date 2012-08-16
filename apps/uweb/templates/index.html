@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block include %}
-<script src="/static/js/formValidator-4.1.1.js" type="text/javascript"></script>
-<script src="/static/js/formValidatorRegex.js" type="text/javascript"></script>
-<script src="/static/js/WdatePicker.js" type="text/javascript"></script>
-<script src="/static/js/terminal.js" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
-<script src="/static/js/current.js" type="text/javascript"></script>
-<script src="/static/js/track.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/js/formValidator-4.1.1.js"></script>
+<script type="text/javascript" src="/static/js/formValidatorRegex.js"></script>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/terminal.js"></script>
+<script type="text/javascript" src="/static/js/main.js"></script>
+<script type="text/javascript" src="/static/js/current.js"></script>
+<script type="text/javascript" src="/static/js/track.js"></script>
 {% end %}
 {% block body %}
 <body class="j_body">
@@ -21,10 +21,16 @@
 				<ul class="menuNav">
 					<li><a href="#" id="realtime" class="j_click" title="实时定位"><img src="../static/images/menu1.png" alt="实时定位" /></a></li>
 					<li><a href="#" id="track"class="j_click" title="轨迹查询"><img src="../static/images/menu2.png" alt="轨迹查询" /></a></li>
-					<li><a href="/event" id="warnEvent" target="_blank" class="j_click" title="报警查询"><img src="../static/images/menu3.png" alt="报警查询" /></a></li>
-					<li><a href="#" id="defend" class="j_click" title="设防/撤防"><img src="../static/images/menu4.png" alt="设防/撤防" /></a></li>
+				{% if cars %}
+					{% if cars[0].keys_num == 1 %}
+						<li class="hide"><a href="/event" id="warnEvent" target="_blank" class="j_click" title="报警查询"><img src="../static/images/menu3.png" alt="报警查询" /></a></li>
+						<li class="hide"><a href="#" id="defend" class="j_click" title="设防/撤防"><img src="../static/images/menu4.png" alt="设防/撤防" /></a></li>
+					{% else %}
+						<li><a href="/event" id="warnEvent" target="_blank" class="j_click" title="报警查询"><img src="../static/images/menu3.png" alt="报警查询" /></a></li>
+						<li><a href="#" id="defend" class="j_click" title="设防/撤防"><img src="../static/images/menu4.png" alt="设防/撤防" /></a></li>
+					{% end %}
+				{% end %}
 					<li><a href="#" id="terminal" class="j_click" title="终端设置"><img src="../static/images/menu5.png" alt="终端设置" /></a></li>
-					<!--<li><a href="#" id="reboot" class="j_click"><img src="../static/images/menu6.png" alt="远程重启" /></a></li>-->
 				</ul>
 				<div class="navSelf">
 					<ul class="selfList">
@@ -42,9 +48,9 @@
 			<ul id="carList" class="dropdown-options">
 			{% for car in cars %}
 				{% if car.login == 1 %}
-					<li tlid="{{car.id}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogin" title="在线车辆">
+					<li tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogin" title="在线车辆">
 				{% else %}
-					<li tlid="{{car.id}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogout" title="离线车辆">
+					<li tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogout" title="离线车辆">
 				{% end  %}
 				{{cars[0].alias}}
 				</li>
@@ -52,17 +58,16 @@
 			</ul>
 			<a id="carSet" href="#" class="dropdown mini-dropdown">
 				{% if cars %}
-						{% if cars[0].login == 1 %}
-							<span class="dropdown-input carlogin" id="currentCar" title="在线" >
-						{% else %}
-							<span class="dropdown-input carlogout" id="currentCar" title="离线">
-						{% end %}
+					{% if cars[0].login == 1 %}
+						<span class="dropdown-input carlogin" id="currentCar" title="在线" >
+					{% else %}
+						<span class="dropdown-input carlogout" id="currentCar" title="离线">
+					{% end %}
 						{{cars[0].alias}}
 						</span>
 				{% end %}
 				<span class="dropdown-icon">&nbsp;</span>
 			</a>
-			<input type="hidden" id="hidCellid_status" value="{{cars}}" /> 
 			<div class="terminalInfo">
 				<!--报警状态：<label id="eventStatus"></label>-->
 				终端状态：<label id="defendStatus"></label>
