@@ -169,17 +169,19 @@ class BusinessMixin(BaseMixin):
                                    fields.address, fields.email, fields.corporation) 
         # 2: add terminal
         tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
-                              "  begintime, endtime)"
-                              "  VALUES (%s, %s, %s, %s, %s)"
+                              "  alias, begintime, endtime)"
+                              "  VALUES (%s, %s, %s, %s, %s, %s)"
                               "  on duplicate key"
                               "  update tid=values(tid),"
                               "         mobile=values(mobile),"
                               "         owner_mobile=values(owner_mobile),"
+                              "         alias=values(alias),"
+                              "         begintime=values(begintime),"
                               "         begintime=values(begintime),"
                               "         endtime=values(endtime)",
                               fields.tmobile, fields.tmobile,
-                              fields.mobile, fields.begintime, 
-                              fields.endtime)
+                              fields.mobile, fields.cnum, 
+                              fields.begintime, fields.endtime)
 
         # 3: add car tnum --> cnum
         cid = self.db.execute("INSERT INTO T_CAR"
@@ -452,6 +454,7 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
             c_fields = DotDict(cnum="cnum=%s")
             t_fields = DotDict(tmobile="mobile=%s",
                                service_status="service_status=%s",
+                               cnum="alias=%s",
                                begintime="begintime=%s",
                                endtime="endtime=%s")
 
