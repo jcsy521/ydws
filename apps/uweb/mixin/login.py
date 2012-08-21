@@ -39,7 +39,8 @@ class LoginMixin(BaseMixin):
             terminal = self.db.get("SELECT id, tid, mobile FROM T_TERMINAL_INFO"
                                    "  WHERE service_status = %s"
                                    "    AND owner_mobile = %s"
-                                   "    AND (%s BETWEEN begintime AND endtime)",
+                                   "    AND (%s BETWEEN begintime AND endtime)"
+                                   "  LIMIT 1",
                                    UWEB.SERVICE_STATUS.ON, user.mobile, int(time.time()))
             if not terminal: 
                 status = ErrorCode.TERMINAL_NOT_ORDERED

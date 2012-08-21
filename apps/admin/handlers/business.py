@@ -171,8 +171,8 @@ class BusinessMixin(BaseMixin):
         tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                               "  alias, begintime, endtime)"
                               "  VALUES (%s, %s, %s, %s, %s, %s)"
-                              "  on duplicate key"
-                              "  update tid=values(tid),"
+                              "  ON DUPLICATE KEY"
+                              "  UPDATE tid=values(tid),"
                               "         mobile=values(mobile),"
                               "         owner_mobile=values(owner_mobile),"
                               "         alias=values(alias),"
@@ -184,8 +184,8 @@ class BusinessMixin(BaseMixin):
                               fields.begintime, fields.endtime)
 
         # 3: add car tnum --> cnum
-        cid = self.db.execute("INSERT INTO T_CAR"
-                              "  VALUES(NULL, %s, %s)"
+        cid = self.db.execute("INSERT INTO T_CAR(cnum, tmobile)"
+                              "  VALUES(%s, %s)"
                               "  ON DUPLICATE KEY"
                               "  UPDATE cnum = VALUES(cnum),"
                               "         tmobile = VALUES(tmobile)",

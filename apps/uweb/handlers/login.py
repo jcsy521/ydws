@@ -99,23 +99,13 @@ class WAPTransferHandler(BaseHandler, LoginMixin):
     def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
-
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
-            self.render("login.html",
-                        username='',
-                        password='',
-                        message_captcha=None,
-                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
-            return
-
+            status= ErrorCode.LOGIN_FAILED
+            self.write_ret(status)
         if not (check_sql_injection(username) and check_sql_injection(password)):
-            self.render("login.html",
-                        username="",
-                        password="",
-                        message_captcha=None,
-                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
-            return
+            status= ErrorCode.LOGIN_FAILED
+            self.write_ret(status)
 
         # check the user, return uid, tid, sim and status
         uid, tid, sim, status = self.login_passwd_auth(username, password)
@@ -123,7 +113,6 @@ class WAPTransferHandler(BaseHandler, LoginMixin):
             self.bookkeep(dict(uid=uid,
                                tid=tid,
                                sim=sim))
-            self.clear_cookie('captchahash')
             self.write_ret(status)
         else:
             logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
