@@ -13,6 +13,8 @@ class MyRedis(redis.Redis):
         redis.Redis.__init__(self, host=host, port=port)
 
     def setvalue(self, key, value, time=None):
+        if isinstance(value, DotDict):
+            value = dict(value)
         self.set(key, value)
         if time:
             self.expire(key, time)
