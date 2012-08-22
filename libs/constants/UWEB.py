@@ -36,14 +36,14 @@ CATEGORY=DotDict(UNKNOWN=0,
 CHECK_TERMINAL=DotDict(TID=u'tid',
                        MOBILE=u'mobile')
 
-DEFEND_STATUS=DotDict(NO='0',
-                      YES='1')
+DEFEND_STATUS=DotDict(NO=0,
+                      YES=1)
 
-CELLID_STATUS=DotDict(OFF='0',
-                      ON='1')
+CELLID_STATUS=DotDict(OFF=0,
+                      ON=1)
 
-SERVICE_STATUS=DotDict(OFF='0',
-                       ON='1')
+SERVICE_STATUS=DotDict(OFF=0,
+                       ON=1)
 
 
 TERMINAL_INFO_CATEGORY=DotDict(R=u'r',

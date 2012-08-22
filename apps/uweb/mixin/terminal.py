@@ -39,6 +39,8 @@ class TerminalMixin(BaseMixin):
         """
         for key, value in car_sets.iteritems():
             if key == 'white_list':
+                values = value.split(":")
+                value = values[1]
                 self.db.execute("INSERT INTO T_WHITELIST"
                                 "  VALUES(NULL, %s, %s)"
                                 "  ON DUPLICATE KEY"
