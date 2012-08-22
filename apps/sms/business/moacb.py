@@ -33,7 +33,7 @@ class MOACB(object):
         status = ErrorCode.SUCCESS
         result = None
         try:
-            mos = self.db.query("SELECT id, mobile, content "
+            mos = self.db.query("SELECT id, msgid, mobile, content "
                                 "  FROM T_SMS "
                                 "  WHERE category = %s "
                                 "  AND send_status = %s"
@@ -45,8 +45,9 @@ class MOACB(object):
                 mobile = mo["mobile"]
                 content = mo["content"]
                 id = mo["id"]
+                msgid = mo["msgid"]
                 
-                result = self.send_mo_to_acb(mobile, content)
+                result = self.send_mo_to_acb(mobile, content, msgid)
                 if result["status"] == ErrorCode.SUCCESS:
                     if int(result["ret"]) == ErrorCode.SUCCESS:
                         logging.info("SMS-->ACB success mobile = %s, content = %s", mobile, content)
@@ -76,15 +77,17 @@ class MOACB(object):
             return status
             
             
-    def send_mo_to_acb(self, mobile, content):
+    def send_mo_to_acb(self, mobile, content, msgid):
         result = None
         try:
             url = ConfHelper.UWEB_CONF.url_in + "/sms/mo"
             mobile = mobile
             content = content.encode('utf-8')
+            msgid = msgid
             
             data = dict(mobile=mobile,
-                        content=content
+                        content=content,
+                        msgid = msgid
                         )
             result = HttpClient().send_http_post_request(url, data)
         except Exception, msg:
