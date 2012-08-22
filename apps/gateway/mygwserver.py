@@ -3,8 +3,13 @@
 import socket, select, errno 
 import logging
 import time
+from time import sleep
 import Queue
 import base64
+import pika
+from pika.adapters import *
+import json
+from functools import partial
 
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
@@ -35,7 +40,9 @@ from clw.packet.composer.async import AsyncRespComposer
 from clw.packet.composer.locationdesc import LocationDescRespComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
 
-class GatewayServer(object):
+class MyGWServer(object):
+    """
+    """
 
     def __init__(self, conf_file):
         ConfHelper.load(conf_file)
@@ -45,49 +52,177 @@ class GatewayServer(object):
         self.online_terminals = [] 
         self.redis = None 
         self.db = None
+        # RabbitMQ
+        self.publish_connection = None
+        self.publish_channel = None
+        self.consume_connection = None
+        self.consume_channel = None
+        self.exchange = 'acb_gw_test'
+        self.gw_queue = 'gw_requests_queue'
+        self.si_queue = 'si_requests_queue'
+        self.gw_binding = 'gw_requests_binding'
+        self.si_binding = 'si_requests_binding'
 
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
-        self.__start_check_heartbeat_thread()
         self.__restore_online_terminals()
+        self.__start_check_heartbeat_thread()
 
-    def recv(self, si_requests_queue, gw_requests_queue):
+    def check_heartbeat(self):
+        try:
+            is_alived = self.redis.getvalue("is_alived")
+            if is_alived == ALIVED:
+                for dev_id in self.online_terminals:
+                    status = self.get_terminal_status(dev_id)
+                    if not status:
+                        self.heartbeat_lost_report(dev_id)
+        except:
+            logging.exception("[GW] Check gateway heartbeat exception.")
+                
+    def heartbeat_lost_report(self, dev_id):
+        #timestamp = int(time.time() * 1000)
+        #rname = EVENTER.RNAME.HEARTBEAT_LOST
+        #category = EVENTER.CATEGORY[rname]
+        #lid = self.db.execute("INSERT INTO T_LOCATION(tid, timestamp, category, type)"
+        #                      "  VALUES(%s, %s, %s, %s)",
+        #                      dev_id, timestamp, category, 1)
+        #self.db.execute("INSERT INTO T_EVENT"
+        #                "  VALUES (NULL, %s, %s, %s)",
+        #                dev_id, lid, category)
+        #alarm_key = get_alarm_status_key(dev_id)
+        #alarm_status = self.redis.getvalue(alarm_key)
+        #if alarm_status != rname: 
+        #    self.redis.setvalue(alarm_key, category) 
+        #user = QueryHelper.get_user_by_tid(dev_id, self.db)
+        #current_time = get_terminal_time(timestamp) 
+        #sms = SMSCode.SMS_HEARTBEAT_LOST % (dev_id, current_time)
+        #if user:
+        #    SMSHelper.send(user.owner_mobile, sms)
+        #    logging.warn("[GW] Terminal %s Heartbeat lost report:\n%s", dev_id, sms)
+        logging.error("[GW] Terminal %s Heartbeat lost!!!", dev_id)
+        # 1. memcached clear sessionID
+        terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
+        self.redis.delete(terminal_sessionID_key)
+        # 2. offline
+        self.online_terminals.remove(dev_id)
+        # 3. db set unlogin
+        info = DotDict(dev_id=dev_id,
+                       login=GATEWAY.TERMINAL_LOGIN.UNLOGIN)
+        self.update_terminal_info(info)
+
+    def __start_check_heartbeat_thread(self):
+        self.check_heartbeat_thread = RepeatedTimer(ConfHelper.GW_SERVER_CONF.check_heartbeat_interval,
+                                                    self.check_heartbeat)
+        self.check_heartbeat_thread.start()
+        logging.info("[GW] Check heartbeat thread is running...")
+
+    def __restore_online_terminals(self):
+        """
+        if restart gatewayserver, record online terminals again.
+        """
+        db = DBConnection().db
+        redis = MyRedis()
+        online_terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                    "  WHERE login = %s",
+                                    GATEWAY.TERMINAL_LOGIN.LOGIN)
+        for terminal in online_terminals:
+            terminal_status_key = get_terminal_address_key(terminal.tid)
+            terminal_status = redis.getvalue(terminal_status_key)
+            if terminal_status:
+                self.online_terminals.append(terminal.tid)
+            else:
+                db.execute("UPDATE T_TERMINAL_INFO"
+                           "  SET login = %s"
+                           "  WHERE tid = %s",
+                           GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
+        db.close()
+        
+    def __stop_check_heartbeat_thread(self):
+        if self.check_heartbeat_thread is not None:
+            self.check_heartbeat_thread.cancel()
+            self.check_heartbeat_thread.join()
+            logging.info("[GW] Check heartbeat stop.")
+            self.check_heartbeat_thread = None
+
+    def consume(self, host):
+        try:
+            parameters = pika.ConnectionParameters(host=host)
+            self.consume_connection = BlockingConnection(parameters)
+            self.consume_channel = self.consume_connection.channel()
+            self.consume_channel.exchange_declare(exchange=self.exchange,
+                                                  durable=True,
+                                                  auto_delete=True) 
+            self.consume_channel.queue_declare(queue=self.gw_queue,
+                                               durable=True,
+                                               exclusive=False,
+                                               auto_delete=True) 
+            self.consume_channel.queue_bind(exchange=self.exchange,
+                                            queue=self.gw_queue,
+                                            routing_key=self.gw_binding)
+            while True:
+                method, header, body = self.consume_channel.basic_get(queue=self.gw_queue,
+                                                                      no_ack=True)
+                if method.NAME == 'Basic.GetEmpty':
+                    sleep(1) 
+                else:
+                    self.send(body)
+        except KeyboardInterrupt:
+            logging.warn("[GW] Ctrl-C is pressed")
+        except Exception as e:
+            logging.exception("[GW] Unknow Exception:%s", e.args)
+        finally:
+            self.stop()
+
+    def send(self, body):
+        try:
+            message = json.loads(body)
+            message = DotDict(message)
+            self.socket.sendto(message.packet, tuple(message.address))
+            logging.info("[GW] send: %s to %s", message.packet, message.address)
+            # NOTE: 保证客户端收到，有确认结果
+            #channel.basic_ack(delivery_tag=method.delivery_tag)
+        except socket.error as e:
+            logging.exception("[GW]sock send error: %s", e.args)
+        except Exception as e:
+            logging.exception("[GW]unknown send Exception:%s", e.args)
+
+    def publish(self, host):
+        try:
+            parameters = pika.ConnectionParameters(host='localhost')
+            self.publish_connection = BlockingConnection(parameters)
+            self.publish_channel = self.publish_connection.channel()
+            self.publish_channel.exchange_declare(exchange=self.exchange,
+                                                  durable=True,
+                                                  auto_delete=True)
+            self.publish_channel.queue_declare(queue=self.gw_queue,
+                                               durable=True,
+                                               exclusive=False,
+                                               auto_delete=True)
+            self.publish_channel.queue_declare(queue=self.si_queue,
+                                               durable=True,
+                                               exclusive=False,
+                                               auto_delete=True)
+            self.recv()
+        except KeyboardInterrupt:
+            logging.warn("[GW] Ctrl-C is pressed")
+        except Exception as e:
+            logging.exception("[GW] Unknow Exception:%s", e.args)
+        finally:
+            self.stop()
+
+    def recv(self):
         try:
             while True:
                 response, address = self.socket.recvfrom(1024)
                 logging.info("[GW] recv: %s from %s", response, address)
                 if response:
                     self.handle_packet_from_terminal(response,
-                                                     address,
-                                                     si_requests_queue,
-                                                     gw_requests_queue)
+                                                     address)
         except socket.error as e:
             logging.exception("[GW]sock recv error: %s", e.args)
-        except KeyboardInterrupt:
-            logging.warn("[GW] Ctrl-C is pressed")
         except Exception as e:
-            logging.exception("[GW] sock recv Exception:%s", e.args)
-        finally:
-            self.stop()
-
-    def send(self, gw_requests_queue):
-        try:
-            while True:
-                try:
-                    request = gw_requests_queue.get(True, 1)
-                    self.socket.sendto(request.packet, request.address)
-                    logging.info("[GW] send: %s to %s", request.packet, request.address)
-                except Queue.Empty:
-                    pass
-        except socket.error as e:
-            logging.exception("[GW]sock error: %s", e.args)
-        except KeyboardInterrupt:
-            logging.warn("[GW] Ctrl-C is pressed")
-        except Exception as e:
-            logging.exception("[GW] Main socket Exception:%s", e.args)
-        finally:
-            self.stop()
+            logging.exception("[GW]unknow recv Exception:%s", e.args)
 
     def divide_packets(self, packets):
         """
@@ -117,7 +252,7 @@ class GatewayServer(object):
 
         return valid_packets
         
-    def handle_packet_from_terminal(self, packets, address, si_requests_queue, gw_requests_queue):
+    def handle_packet_from_terminal(self, packets, address):
         """
         handle packet recv from terminal:
         - login
@@ -132,21 +267,20 @@ class GatewayServer(object):
                 command = clw.head.command
                 if command == T_MESSAGE_TYPE.LOGIN:
                     logging.info("[GW] Recv login packet:\n%s", packet)
-                    self.handle_login(clw, address, gw_requests_queue) 
+                    self.handle_login(clw, address) 
                 elif command == T_MESSAGE_TYPE.HEARTBEAT:
                     logging.info("[GW] Recv heartbeat packet:\n%s", packet)
-                    self.handle_heartbeat(clw, address, gw_requests_queue)
+                    self.handle_heartbeat(clw, address)
                 elif command == T_MESSAGE_TYPE.LOCATIONDESC:
                     logging.info("[GW] Recv locationdesc packet:\n%s", packet)
-                    self.handle_locationdesc(clw, address, gw_requests_queue)
+                    self.handle_locationdesc(clw, address)
                 else:
                     logging.info("[GW] Recv packet from terminal:\n%s", packet)
-                    self.foward_packet_to_si(clw, packet, address,
-                                             si_requests_queue, gw_requests_queue)
+                    self.foward_packet_to_si(clw, packet, address)
         except:
             logging.exception("[GW] Recv Exception.")
 
-    def handle_login(self, info, address, gw_requests_queue):
+    def handle_login(self, info, address):
         """
         login packet
         0: success, then get a sessionID for terminal and record terminal's address
@@ -219,11 +353,11 @@ class GatewayServer(object):
             lc = LoginRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address)
-            gw_requests_queue.put(request)
+            self.append_gw_request(request)
         except:
             logging.exception("[GW] Hand login exception.")
         
-    def handle_heartbeat(self, info, address, gw_requests_queue):
+    def handle_heartbeat(self, info, address):
         """
         heartbeat packet
         0: success, then record new terminal's address
@@ -245,11 +379,11 @@ class GatewayServer(object):
             hc = HeartbeatRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address)
-            gw_requests_queue.put(request)
+            self.append_gw_request(request)
         except:
             logging.exception("[GW] Hand heartbeat exception.")
 
-    def handle_locationdesc(self, info, address, gw_requests_queue):
+    def handle_locationdesc(self, info, address):
         """
         locationdesc packet
         0: success, then return locationdesc to terminal and record new terminal's address
@@ -279,11 +413,11 @@ class GatewayServer(object):
             lc = LocationDescRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address)
-            gw_requests_queue.put(request)
+            self.append_gw_request(request)
         except:
             logging.exception("[GW] Handle locationdesc exception.")
 
-    def foward_packet_to_si(self, info, packet, address, si_requests_queue, gw_requests_queue):
+    def foward_packet_to_si(self, info, packet, address):
         """
         response packet or position/report/charge packet
         0: success, then forward it to SIServer and record new terminal's address
@@ -304,7 +438,7 @@ class GatewayServer(object):
                                 content=packet)
                 content = UploadDataComposer(uargs).buf
                 logging.info("[GW] Forward message to SI:\n%s", content)
-                self.append_si_request(content, si_requests_queue)
+                self.append_si_request(content)
                 self.update_terminal_status(dev_id, address)
 
             if head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
@@ -314,16 +448,31 @@ class GatewayServer(object):
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
                                   address=address)
-                gw_requests_queue.put(request)
+                self.append_gw_request(request)
         except:
             logging.exception("[GW] Handle SI message exception.")
 
-    def append_si_request(self, request, si_requests_queue):
-        si_fds = self.redis.getvalue('fds')
-        if si_fds:
-            si_fd = si_fds[0]
-            request = dict({"packet":request})
-            si_requests_queue.put(request, False)
+    def append_gw_request(self, request):
+        message = json.dumps(request)
+        # make message persistent
+        properties = pika.BasicProperties(delivery_mode=2,)
+        self.publish_channel.basic_publish(exchange=self.exchange,
+                                           routing_key=self.gw_binding,
+                                           body=message,
+                                           properties=properties)
+
+    def append_si_request(self, request):
+        #si_fds = self.redis.getvalue('fds')
+        #if si_fds:
+        #    si_fd = si_fds[0]
+        request = dict({"packet":request})
+        message = json.dumps(request)
+        # make message persistent
+        properties = pika.BasicProperties(delivery_mode=2,)
+        self.publish_channel.basic_publish(exchange=self.exchange,
+                                           routing_key=self.si_binding,
+                                           body=message,
+                                           properties=properties)
 
     def get_terminal_sessionID(self, dev_id):
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id) 
@@ -358,81 +507,11 @@ class GatewayServer(object):
         terminal_status_key = get_terminal_address_key(dev_id)
         return self.redis.getvalue(terminal_status_key)
 
-    def check_heartbeat(self):
-        try:
-            is_alived = self.redis.getvalue("is_alived")
-            if is_alived == ALIVED:
-                for dev_id in self.online_terminals:
-                    status = self.get_terminal_status(dev_id)
-                    if not status:
-                        self.heartbeat_lost_report(dev_id)
-        except:
-            logging.exception("[GW] Check gateway heartbeat exception.")
-                
-    def heartbeat_lost_report(self, dev_id):
-        #timestamp = int(time.time() * 1000)
-        #rname = EVENTER.RNAME.HEARTBEAT_LOST
-        #category = EVENTER.CATEGORY[rname]
-        #lid = self.db.execute("INSERT INTO T_LOCATION(tid, timestamp, category, type)"
-        #                      "  VALUES(%s, %s, %s, %s)",
-        #                      dev_id, timestamp, category, 1)
-        #self.db.execute("INSERT INTO T_EVENT"
-        #                "  VALUES (NULL, %s, %s, %s)",
-        #                dev_id, lid, category)
-        #alarm_key = get_alarm_status_key(dev_id)
-        #alarm_status = self.redis.getvalue(alarm_key)
-        #if alarm_status != rname: 
-        #    self.redis.setvalue(alarm_key, category) 
-        #user = QueryHelper.get_user_by_tid(dev_id, self.db)
-        #current_time = get_terminal_time(timestamp) 
-        #sms = SMSCode.SMS_HEARTBEAT_LOST % (dev_id, current_time)
-        #if user:
-        #    SMSHelper.send(user.owner_mobile, sms)
-        #    logging.warn("[GW] Terminal %s Heartbeat lost report:\n%s", dev_id, sms)
-        logging.error("[GW] Terminal %s Heartbeat lost!!!", dev_id)
-        # 1. memcached clear sessionID
-        terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
-        self.redis.delete(terminal_sessionID_key)
-        # 2. offline
-        self.online_terminals.remove(dev_id)
-        # 3. db set unlogin
-        info = DotDict(dev_id=dev_id,
-                       login=GATEWAY.TERMINAL_LOGIN.UNLOGIN)
-        self.update_terminal_info(info)
-
-    def __restore_online_terminals(self):
-        """
-        if restart gatewayserver, record online terminals again.
-        """
-        db = DBConnection().db
-        redis = MyRedis()
-        online_terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                    "  WHERE login = %s",
-                                    GATEWAY.TERMINAL_LOGIN.LOGIN)
-        for terminal in online_terminals:
-            terminal_status_key = get_terminal_address_key(terminal.tid)
-            terminal_status = redis.getvalue(terminal_status_key)
-            if terminal_status:
-                self.online_terminals.append(terminal.tid)
-            else:
-                db.execute("UPDATE T_TERMINAL_INFO"
-                           "  SET login = %s"
-                           "  WHERE tid = %s",
-                           GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
-        db.close()
-        
-    def __start_check_heartbeat_thread(self):
-        self.check_heartbeat_thread = RepeatedTimer(ConfHelper.GW_SERVER_CONF.check_heartbeat_interval,
-                                                    self.check_heartbeat)
-        self.check_heartbeat_thread.start()
-        logging.info("[GW] Check heartbeat thread is running...")
-
-    def __stop_check_heartbeat_thread(self):
-        if self.check_heartbeat_thread is not None:
-            self.check_heartbeat_thread.cancel()
-            self.check_heartbeat_thread.join()
-            logging.info("[GW] Check heartbeat stop.")
-            self.check_heartbeat_thread = None
+    def __close_rabbitmq(self):
+        if self.consume_connection:
+            self.consume_connection.close()
+        if self.publish_connection:
+            self.publish_connection.close()
 
     def __close_socket(self):
         try:
@@ -445,6 +524,7 @@ class GatewayServer(object):
 
     def stop(self):
         self.__close_socket()
+        self.__close_rabbitmq()
         self.__stop_check_heartbeat_thread()
         self.__clear_memcached()
 

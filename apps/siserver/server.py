@@ -21,16 +21,11 @@ from utils.myredis import MyRedis
 from db_.mysql import DBConnection
 from helpers.confhelper import ConfHelper
 
-from mygwserver import MyGWServer
+from mysiserver import MySIServer
 
-def shutdown(gwserver, processes):
+def shutdown(server):
     try:
-        for process in processes:
-            if process and process.is_alive():
-                process.join()
-            logging.warn("Process: %s ", process)
-        gwserver.stop()
-
+        server.stop()
     except:
         pass
 
@@ -40,26 +35,13 @@ def main():
     redis = MyRedis()
     db = DBConnection().db
 
-    gwserver = None
-    processes = None
+    siserver = None
     try:
         logging.warn("[gateway] running on: localhost")
-        gwserver = MyGWServer(options.options.conf)
-        gwserver.redis = redis
-        gwserver.db = db
-        gw_send = Process(name='GWSender',
-                          target=gwserver.consume,
-                          args=(ConfHelper.RABBITMQ_CONF.host,))
-        gw_recv = Process(name='GWReceiver',
-                          target=gwserver.publish,
-                          args=(ConfHelper.RABBITMQ_CONF.host,))
-        processes = (gw_send, gw_recv,)
-        for p in processes:
-            p.start()
-        for p in processes:
-            # NOTE: just to put into join queue, it will work until process
-            # finished
-            p.join()
+        siserver = MySIServer(options.options.conf)
+        siserver.redis = redis
+        siserver.db = db
+        siserver.handle_si_connections()
 
     except KeyboardInterrupt:
         logging.error("Ctrl-C is pressed.")
@@ -67,7 +49,7 @@ def main():
         logging.exception("[gateway] Exit Exception")
     finally:
         logging.warn("[gateway] shutdown...")
-        shutdown(gwserver, processes)
+        shutdown(siserver)
         logging.warn("[gateway] stopped. Bye!")
 
 

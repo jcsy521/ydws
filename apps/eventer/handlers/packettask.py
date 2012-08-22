@@ -48,6 +48,8 @@ class PacketTask(object):
             name = t.alias
             self.redis.setvalue(key, name)
         name = name if name else dev_id
+        if isinstance(name, str):
+            name = name.decode("utf-8")
         return name
 
     def insert_location(self, location):
@@ -145,6 +147,9 @@ class PacketTask(object):
 
         report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
         sms = None
+        if isinstance(report_name, str):
+            report_name = report_name.decode('utf-8')
+            report_name = unicode(report_name)
 
         if report.rName == EVENTER.RNAME.POWEROFF:
             sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)

@@ -5,7 +5,10 @@ import errno
 import select
 import struct
 import logging
-from multiprocessing import Queue
+import json
+import pika
+from pika.adapters import *
+from functools import partial
 
 from constants import GF 
 from constants.GATEWAY import DUMMY_FD, TERMINAL_LOGIN
@@ -28,7 +31,7 @@ from gf.packet.parser.sendparser import SendParser
 
 from clw.packet.parser.codecheck import S_CLWCheck
 
-class SIServer():
+class MySIServer():
     """
     SIServer
     It receives requests from SI and sends these requests to GWServer,
@@ -40,6 +43,16 @@ class SIServer():
             ConfHelper.SI_SERVER_CONF[i] = int(ConfHelper.SI_SERVER_CONF[i])
         self.db = None 
         self.redis = None
+        # RabbitMQ
+        self.consume_connection = None
+        self.consume_channel = None
+        self.publish_connection = None
+        self.publish_channel = None
+        self.exchange = 'acb_gw_test'
+        self.gw_queue = 'gw_requests_queue'
+        self.si_queue = 'si_requests_queue'
+        self.gw_binding = 'gw_requests_binding'
+        self.si_binding = 'si_requests_binding'
 
         self.heart_beat_queues = {} 
         self.heartbeat_threads = {} 
@@ -47,6 +60,44 @@ class SIServer():
         self.connections = {}
         self.addresses = {}
         self.listen_fd, self.epoll_fd = self.get_socket()
+        self._connect_rabbitmq(ConfHelper.RABBITMQ_CONF.host)
+
+    def _connect_rabbitmq(self, host):
+        self.publish(host)
+        self.consume(host)
+
+    def publish(self, host):
+        parameters = pika.ConnectionParameters(host=host)
+        self.publish_connection = BlockingConnection(parameters)
+        self.publish_channel = self.publish_connection.channel()
+        self.publish_channel.exchange_declare(exchange=self.exchange,
+                                              durable=True,
+                                              auto_delete=True,
+                                              type='direct')
+        self.publish_channel.queue_declare(queue=self.si_queue,
+                                           durable=True,
+                                           exclusive=False,
+                                           auto_delete=True)
+        self.publish_channel.queue_declare(queue=self.gw_queue,
+                                           durable=True,
+                                           exclusive=False,
+                                           auto_delete=True)
+
+    def consume(self, host):
+        parameters = pika.ConnectionParameters(host=host)
+        self.consume_connection = BlockingConnection(parameters)
+        self.consume_channel = self.consume_connection.channel()
+        self.consume_channel.exchange_declare(exchange=self.exchange,
+                                              durable=True,
+                                              auto_delete=True,
+                                              type='direct')
+        self.consume_channel.queue_declare(queue=self.si_queue,
+                                           durable=True,
+                                           exclusive=False,
+                                           auto_delete=True)
+        self.consume_channel.queue_bind(exchange=self.exchange,
+                                        queue=self.si_queue,
+                                        routing_key=self.si_binding)
 
     def get_socket(self):
         listen_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -63,7 +114,7 @@ class SIServer():
         
         return listen_fd, epoll_fd
 
-    def activetest(self, fd, si_requests_queue):
+    def activetest(self, fd):
         args = DotDict(seq=SeqGenerator.next(self.db),
                        status=GFCode.SUCCESS)
         atc = ActiveTestComposer(args)
@@ -71,13 +122,13 @@ class SIServer():
                       self.addresses[fd][0], self.addresses[fd][1], atc.buf)
         request = DotDict(packet=atc.buf,
                           category='H')
-        si_requests_queue.put(request, False)
+        self.append_si_request(request)
 
-    def __start_heartbeat_thread(self, fd, si_requests_queue):
+    def __start_heartbeat_thread(self, fd):
         # why this thread can use self.db, not need to get a new connection
         # maybe because it's the first thread to use db
         heartbeat_thread = RepeatedTimer(15, self.activetest,
-                                         args=(fd, si_requests_queue))
+                                         args=(fd,))
         self.heartbeat_threads[fd] = heartbeat_thread
         heartbeat_thread.start()
         logging.info("[SI]%s:%s Heartbeat thread is running...",
@@ -192,7 +243,7 @@ class SIServer():
 
         return len(request['packet'])
 
-    def handle_response_from_si(self, fd, response, si_requests_queue, gw_requests_queue):
+    def handle_response_from_si(self, fd, response):
         """
         @param fd: readable fd
                response: whole packet recv from SI.
@@ -223,8 +274,8 @@ class SIServer():
                                   self.addresses[fd][0], self.addresses[fd][1],
                                   brc.buf)
                     request = DotDict(packet=brc.buf)
-                    si_requests_queue.put(request, False)
-                    self.__start_heartbeat_thread(fd, si_requests_queue)
+                    self.append_si_request(request)
+                    self.__start_heartbeat_thread(fd)
                     fds = self.redis.getvalue('fds')
                     if fds:
                         fds = fds.append(fd)
@@ -243,7 +294,7 @@ class SIServer():
                               nbrc.buf)
                 request = DotDict(packet=nbrc.buf,
                                   category='C')
-                si_requests_queue.put(request, False)
+                self.append_si_request(request)
             elif gfhead.command == '0010': # senddata
                 sp = SendParser(gfdata)
                 logging.debug("[SI]<--%s:%s SendData:\n %r",
@@ -257,7 +308,7 @@ class SIServer():
                 if (t_address and t_address != DUMMY_FD): 
                     request = DotDict(packet=sp.gfbody.Content,
                                       address=t_address)
-                    gw_requests_queue.put(request)
+                    self.append_gw_request(request)
                 
                 # response it.
                 args = DotDict(seq=gfhead.seq,
@@ -269,7 +320,7 @@ class SIServer():
                               self.addresses[fd][0], self.addresses[fd][1],
                               src.buf)
                 request = DotDict(packet=src.buf)
-                si_requests_queue.put(request, False)
+                self.append_si_request(request)
             elif gfhead.command == '0012': # query_terminal
                 qtp = QueryTerminalParser(gfdata)
                 logging.debug("[SI]<--%s:%s QueryTerminal: %r",
@@ -290,7 +341,7 @@ class SIServer():
                               self.addresses[fd][0], self.addresses[fd][1],
                               qtrc.buf)
                 request = DotDict(packet=qtrc.buf)
-                si_requests_queue.put(request, False)
+                self.append_si_request(request)
             elif gfhead.command == '1011': # upload_data_resp
                 logging.debug("[SI]<--%s:%s Upload_data_resp:%r",
                               self.addresses[fd][0], self.addresses[fd][1],
@@ -305,12 +356,18 @@ class SIServer():
                                   self.addresses[fd][0], self.addresses[fd][1],
                                   response)
 
-    def handle_requests_to_si(self, fd, request):
+    def handle_requests_to_si(self, fd):
         """
         heartbeat: stop fd if have no response to heartbeat for 3 times.
         unbind: unregister fd
         other: send to SI 
         """
+        method, header, body = self.consume_channel.basic_get(queue=self.si_queue)
+        if method.NAME == 'Basic.GetEmpty':
+            #print "demo_get: Empty Basic.Get Response (Basic.GetEmpty)"
+            return
+        self.consume_channel.basic_ack(delivery_tag=method.delivery_tag)
+        request = json.loads(body)
         if request.get('category') == 'H': # heart_beat
             # send 3 times at most
             if not self.heart_beat_queues.has_key(fd):
@@ -341,7 +398,7 @@ class SIServer():
         except Exception as e:
             logging.exception("unknown error: %s", e.args)
 
-    def handle_si_connections(self, si_requests_queue, gw_requests_queue):
+    def handle_si_connections(self):
         """
         main process
         all operations about socket: register fd, send request and recv
@@ -376,12 +433,10 @@ class SIServer():
                             logging.info("[SI]<--%s:%s Recv:\n %r",
                                          self.addresses[fd][0], self.addresses[fd][1],
                                          response)
-                            self.handle_response_from_si(fd, response, si_requests_queue, gw_requests_queue)
+                            self.handle_response_from_si(fd, response)
                             self.epoll_fd.modify(fd, select.EPOLLET | select.EPOLLIN | select.EPOLLOUT) 
                     elif select.EPOLLOUT & events:
-                        if si_requests_queue.qsize() != 0:
-                            request = si_requests_queue.get(True, 1)
-                            self.handle_requests_to_si(fd, request)
+                        self.handle_requests_to_si(fd)
                         try:
                             self.epoll_fd.modify(fd, select.EPOLLET | select.EPOLLIN | select.EPOLLOUT) 
                         except:
@@ -398,6 +453,28 @@ class SIServer():
                 self.stop() 
             except Exception as e:
                 logging.exception("[SI] unknown error: %s", e.args)
+
+    def append_gw_request(self, request):
+        message = json.dumps(request)
+        self.publish_channel.basic_publish(exchange=self.exchange,
+                                   routing_key=self.gw_binding,
+                                   body=message
+                                   #properties=pika.BasicProperties(
+                                   #               delivery_mode=2, # make message persistent
+                                   #)
+                                   )
+
+    def append_si_request(self, request):
+        #si_fds = self.redis.getvalue('fds')
+        #if si_fds:
+        #    si_fd = si_fds[0]
+        message = json.dumps(request)
+        properties = pika.BasicProperties(delivery_mode=1,)
+        self.publish_channel.basic_publish(exchange=self.exchange,
+                                   routing_key=self.si_binding,
+                                   body=message,
+                                   properties=properties
+                                   )
 
     def __close_thread_by_fd(self, fd):
         if fd:
@@ -436,12 +513,19 @@ class SIServer():
         self.__close_thread_by_fd(fd)
         self.__close_fd(fd)
 
+    def __close_rabbitmq(self):
+        if self.consume_connection:
+            self.consume_connection.close()
+        if self.publish_connection:
+            self.publish_connection.close()
+
     def stop(self):
         for fd in self.connections.keys():
             self.__stop_client(fd)
         self.redis.delete('fds')
         self.__close_main_socket()
         #self.__close_database()
+        self.__close_rabbitmq()
 
     def __del__(self):
         self.stop()
