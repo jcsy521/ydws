@@ -4,7 +4,7 @@
 */
 (function () {
 window.dlf.fn_currentQuery = function() {
-	var str_cellid_status = $('.carCurrent').attr('cellid_status'),	// 是否是基站定位
+	var str_cellid_status = $('.currentCar').attr('cellid_status'),	// 是否是基站定位
 		obj_pd = {
 					'timestamp': new Date().getTime(),
 					'cellid_status': str_cellid_status
@@ -19,7 +19,7 @@ window.dlf.fn_currentQuery = function() {
 function fn_currentRequest(obj_pd) {
 	var obj_cWrapper = $('#currentWrapper'),
 		obj_msg = $('#currentMsg'), 
-		str_carCurrent = $('.carCurrent').html(), // 当前车辆
+		str_carCurrent = $('.currentCar').siblings('span').html(), // 当前车辆
 		str_msg = '车辆<b>'+ str_carCurrent +'</b>定位中...<img src="/static/images/blue-wait.gif" />';
 		
 	obj_msg.html(str_msg);
@@ -68,10 +68,11 @@ window.dlf.fn_defendQuery = function() {
 	
 	if ( str_defendStatus == '已设防' ) {
 		obj_dMsg.html('您的爱车保当前已设防');
-		obj_defendBtn.css('background', 'url("/static/images/cf.png")');
+		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2', 'cf'));
 	} else {
 		obj_dMsg.html('您的爱车保当前未设防');
-		obj_defendBtn.css('background', 'url("/static/images/sf.png")');
+		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2', 'sf'));
+		//obj_defendBtn.css('background', 'url("/static/images/sf.png")');
 	}
 	//设防撤防 业务保存
 	$('#defendBtn').unbind('click').click(function() {

@@ -25,9 +25,10 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		actionMarker = marker;
 		marker.setIcon(marker.getIcon().setImageUrl ('/static/images/'+n_degree+'.png'));
 	} else if ( str_iconType == 'actiontrack' ) {
-		var obj_carItem = $('#carList li').eq(n_carNum);
+		var obj_carItem = $('#carList a').eq(n_carNum);
 		obj_carItem.data('selfmarker', marker);
 	}
+	
 	mapObj.addOverlay(marker);//向地图添加覆盖物 
 	if ( isOpenWin ) {
 		marker.openInfoWindow(infoWindow);
@@ -49,7 +50,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 		str_alias = obj_location.alias,
 		str_title = '车辆：',
 		str_tempMsg = '开始跟踪',
-		str_actionTrack =$('#carList .carCurrent').attr('actiontrack'),
+		str_actionTrack =$('#carList .currentCar').attr('actiontrack'),
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
@@ -68,23 +69,23 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	if ( str_alias ) { // 如果是轨迹回放 
 		str_title += str_alias;
 	} else {
-		str_tid = $('#carList .carCurrent').attr('tid');
-		str_title += $('#carList li[tid='+str_tid+']').html();
+		str_tid = $('#carList .currentCar').attr('tid');
+		str_title += $('#carList a[tid='+str_tid+']').siblings('span').html();
 	}
 	
 	if ( n_degree == 0 ) {
 		n_degree = 10;
 	}
 	str_html += '<h4>'+str_title+'</h4><ul>'+ 
-				'<li><label>速度:'+ speed+'km/h</label>'+
-				'<label class="labelRight">方向角:'+n_degree+'</label></li>'+
-				'<li><label>经度:'+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
-				'<label class="labelRight">纬度:'+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
-				'<li>时间:'+ date +'</li>' + 
-				'<li>位置:'+ address +'</li>';
+				'<li><label>速度： '+ speed+' km/h</label>'+
+				'<label class="labelRight">方向角： '+n_degree+'</label></li>'+
+				'<li><label>经度： '+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
+				'<label class="labelRight">纬度： '+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
+				'<li>时间： '+ date +'</li>' + 
+				'<li>位置： '+ address +'</li>';
 	if ( str_iconType == 'actiontrack' ) {
 		str_html+='<li class="top10"><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
-			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹回放</a><a href="#" id="poiSearch" onclick="dlf.fn_POISearch('+ str_clon +', '+ str_clat +');" >周边查询</a></li>';
+			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹查询</a><a href="#" id="poiSearch" onclick="dlf.fn_POISearch('+ str_clon +', '+ str_clat +');" >周边查询</a></li>';
 	}
 	str_html += '</ul></div>';
 	return str_html;

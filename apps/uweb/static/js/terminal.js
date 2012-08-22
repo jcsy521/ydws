@@ -35,31 +35,18 @@ window.dlf.fn_initTerminalWR = function (param) {
 				if ( str_key ) {
 					if ( str_key == 'service_status' || str_key == 'trace' || str_key == 'cellid_status' ) {
 						$('#tr_' + str_key + str_val ).attr('checked', 'checked'); 	// radio value
-					} else if ( str_key == 'gsm' ) {// gsm 
-						var str_gsm = '';
-						if ( str_val >= 0 && str_val < 3 ) {
-							str_gsm = '弱';
-						} else if ( str_val >= 3 && str_val < 6 ) {
-							str_gsm = '较弱';
-						} else {
-							str_gsm = '强';
-						}
+					}
+					/*  else if ( str_key == 'gsm' ) {// gsm 
+						var str_gsm = dlf.fn_changeData(str_key, str_val);
 						$('#t_' + str_key ).val(str_gsm);	
 					} else if ( str_key == 'gps' ) {	// gps 
-						var str_gps = '';
-						if ( str_val >= 0 && str_val < 10 ) {
-							str_gps = '弱';
-						} else if ( str_val >= 10 && str_val < 20 ) {
-							str_gps = '较弱';
-						} else if ( str_val >= 20 && str_val < 30 ) {
-							str_gps = '较强';
-						} else {
-							str_gps = '强';
-						}
+						var str_gps = dlf.fn_changeData(str_key, str_val);
 						$('#t_' + str_key ).val(str_gps);	// input value
 					} else if ( str_key == 'pbat' ) {	// pbat
 						$('#t_' + str_key ).val(str_val + '%');	// input value
-					} else {
+					} 
+					*/
+					else {
 						$('#t_' + str_key ).val(str_val);	// other input value
 					}
 					$('#' + str_key ).attr('t_val', str_val);	// save original value

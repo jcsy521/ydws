@@ -3,116 +3,260 @@
 *acb css v1.0
 *2012-07-09 
 */
+* {
+	outline: none;
+}
 html, a, input, ul, ol, li, p {
 	font-size: 12px;
 	font-family: "宋体","Arial Narrow";
 	margin: 0;
 	padding: 0;
 }
+ul, ol, li {
+	list-style: none;
+}
 body {
 	margin: 0;
 	padding: 0;
-	background: url('/static/images/bodyBg.png');
+	float: left;
 }
 /*navigation css start*/
-.navi {
-	height: 104px;
-	min-width: 1280px;
+#top {
+	height: 123px;
+	min-width: 1040px;
+	float: left;
 }
 #logo{
+	background-color: white;
 	float: left;
-	padding: 11px 30px;
-	display: inline-block;
+	width: 247px;
+	height: 123px;
 }
-.mnNav {
-	height: 72px;
+#banner {
+	background: url('/static/images/banner.png') repeat-x;
+	height: 123px;
 	float: left;
-	min-width: 1000px;
+	min-width: 791px;
 }
-.menumList {
-	display: inline-block;
-	height: 72px;
-	float: left;
-	min-width: 1280px;
-}
-.menuNav {
-	display: inline-block;
-	padding-top: 20px;
+#bnnWord {
+	height: 69px;
+	width: 147px;
+	background: url("/static/images/bannerWord.png") no-repeat;
+	margin-top: 27px;
+	margin-left: 70px;
 	float: left;
 }
-.menuNav img {
-	border: 0px;
-}
-.menuNav li {
-	width: 130px;
-	height: 40px;
-}
-.menuNav li, .selfList li {
+#bnnIcon {
+	height: 109px;
+	width: 139px;
+	background: url('/static/images/bannerIcon.png') no-repeat;
 	float: left;
-	list-style: none;
 }
-.menuNav li a {
-	display: block;
-	height: 40px;
-	width: 130px;
-	text-decoration: none;
-}
-.navSelf {
-	text-align: right;
-	padding-top: 45px;
-}
-#personalData {
-	color: #B75B28;
-}
-.selfList {
-	float:right;
-}
-.selfList li {
-	margin-left: 10px;
-	background: url('/static/images/blacksign.png') no-repeat 0px 48px;
-}
-#activeNav {
-	background: url('/static/images/brownsign.png') no-repeat 0px 48px;
-}
-.selfList a {
-	margin-left: 5px;
-	text-decoration: none;
-	color: #464646;
-}
-.selfList a:hover{
-	text-decoration: underline;
-}
-.selfList a:visited, .carContainer a:visited {
-	color: #464646;
-}
-#power {
-	background: url('/static/images/power0.png') no-repeat left center;
-	padding-left: 30px;
-}
-#power a {
-	padding-left: 20px;
-}
-/*navigation css end*/
-
-/*carlist Sidebar start*/
-.carContainer {
-	height: 32px;
-	line-height: 32px;
-	float: left;
-	background: url('/static/images/carListBg.png') repeat-x;
-	min-width: 1280px;
+.welcome {
+	background: url('/static/images/userIcon.png') no-repeat 0px center;
+	padding-left: 40px;
+	float: right;
 	color: #FFF;
-}
-.carContainer a , .carContainer a:hover {
-	text-decoration: none;
-	color: #000000;
-}
-.carContainer .carListHover {
-	background-color: #3F9DC3;
+	font-size: 16px;
+	margin-right: 50px;
+	margin-top: 90px;
 	height: 30px;
 	line-height: 30px;
 }
-/*carlist Sidebar end*/
+/*main content start*/
+#main {
+	min-width: 1040px;
+	min-height: 540px;
+	background: #1661c2 url('/static/images/bgColor.png') repeat-x;
+	float: left;
+}
+#left, #right {
+	float: left;
+	margin-top: 5px;
+	min-height: 536px;
+	background-color: #f7f7f7;
+}
+#left {
+	width: 247px;
+	border-right: 1px solid #afafaf;
+}
+#right {
+	margin-left: 5px;
+	min-width: 785px;
+}
+#left .title {
+	font-size: 14px;
+	color: #1661c2;
+	float: left;
+	display: inline-block;
+	padding-left: 20px;
+	width: 227px;
+}
+/*left start*/
+#cars, #carInfo, #terminalInfo, .updateTime {
+	float: left;
+	color: #435871;
+}
+#carInfo, #terminalInfo {
+	background-color: #fbfbfb;
+}
+#carList {
+	float: left;
+	padding: 15px 10px 10px 0px;
+}
+#cInfo, #tInfo {
+	float: left;
+	padding: 10px 10px 10px 20px;
+}
+#cars .clTitle {
+	background: url('/static/images/title1.png') repeat-x;
+	height: 31px;
+	line-height: 28px;
+}
+#carInfo .ciTitle, #terminalInfo .tiTitle{
+	background: url('/static/images/title2.png') repeat-x;
+	height: 25px;
+	line-height: 25px;
+}
+#carList li {
+	padding-left: 10px;
+	text-align: center;
+	float: left;
+	width: 108px;
+	height: 82px;
+}
+#carList li a {
+	width: 98px;
+	height: 60px;
+	display: inline-block;
+	text-decoration: none;
+	float: left;
+}
+#carList li a:hover {
+	border: 2px solid #266bc2;
+	color: #435871;
+}
+.currentCar {
+	border: 2px solid #266bc2;
+	color: #435871;
+	background: url('/static/images/car11.png') no-repeat 2px 1px;
+}
+.carlogin {
+	color: green;
+}
+.carlogout {
+	color: gray;
+}
+.car1 {
+	background: url('/static/images/car1.png') no-repeat 10px 1px;
+}
+.car1:hover {
+	background: url('/static/images/car11.png') no-repeat 2px 1px;
+}
+#carList span {
+	display: inline-block;
+	height: 22px;
+	line-height: 22px;
+	cursor: pointer;
+	color: #435871;
+}
+#cInfo li, #tInfo li {
+	line-height: 27px;
+	width: 210px;
+}
+#power {
+	background: url('/static/images/power0.png') no-repeat 120px center;
+}
+#defend_status {
+	background: url('/static/images/defend_status1.png') no-repeat 120px center;
+}
+#GSM {
+	background: url('/static/images/gsm1.png') no-repeat 120px center;
+}
+#GPS {
+	background: url('/static/images/gps1.png') no-repeat 120px center;
+}
+.updateTime {
+	width: 225px;
+	height: 32px;
+	line-height: 32px;
+	background-color: #fcfcfc;
+	border-top: 1px solid #afafaf;
+	border-bottom: 1px solid #afafaf;
+	float: left;
+	padding-left: 20px;
+}
+/*left end*/
+/* right start */
+#navi {
+	background: url('/static/images/menuBg.png') repeat-x;
+	height: 36px;
+	min-width: 785px;
+}
+.menu, .menu li {
+	float: left;
+}
+#mapObj {
+	min-width: 785px;
+	min-height: 500px;
+}
+.menu a {
+	display: inline-block;
+	height: 36px;
+	width: 104px;
+	line-height: 36px;
+	text-align: center;
+	float: left;
+}
+.realtime {
+	background: url('/static/images/realtime0.png') no-repeat;
+}
+.realtime:hover {
+	background: url('/static/images/realtime1.png') no-repeat;
+}
+.track {
+	background: url('/static/images/track0.png') no-repeat;
+}
+.track:hover {
+	background: url('/static/images/track1.png') no-repeat;
+}
+.event {
+	background: url('/static/images/event0.png') no-repeat;
+}
+.event:hover {
+	background: url('/static/images/event1.png') no-repeat;
+}
+.defend {
+	background: url('/static/images/defend0.png') no-repeat;
+}
+.defend:hover {
+	background: url('/static/images/defend1.png') no-repeat;
+}
+.terminal {
+	background: url('/static/images/terminal0.png') no-repeat;
+}
+.terminal:hover {
+	background: url('/static/images/terminal1.png') no-repeat;
+}
+.selfList {
+	float:right;
+	margin-right: 20px;
+}
+.selfList li {
+	float: left;
+	margin-left: 20px;
+	height: 36px;
+	line-height: 36px;
+}
+.selfList a {
+	text-decoration: none;
+	color: #276dc3;
+	font-size: 12px;
+}
+#logout {
+	color: #4c4c4c;
+}
+/* right end */
 .userMsg {
 	color: #464646;
     font-size: 12px;
@@ -122,120 +266,6 @@ body {
 .fontMic {
 	color: #ffffff;
 }
-/*main content start*/
-.main {
-	min-width: 1280px;
-}
-.content {
-	min-width: 1280px;
-	float: left;
-}
-	/*car info start*/
-.carInfo {
-	width: 100%;
-	height: 125px;
-	background: url('/static/images/bg2.png');
-	position: absolute;
-	z-index: 10;
-	min-width: 1280px;
-}
-.terminalInfo {
-	float: left;
-	padding-left: 30px;
-}
-#infoTitle {
-	background: url("/static/images/carinfo.png") no-repeat scroll 20px 10px transparent;
-    height: 35px;
-    width: 100%;
-}
-.infoList {
-	color: #3F3F3F;
-    font-size: 12px;
-    height: 90px; 
-    margin-left: 38px;
-	float: left;
-    width: 95%;
-}
-.infoList td {
-	height: auto;
-	text-align: left;
-}
-#infoStatus {
-	cursor: pointer;
-	position: relative;
-	top: 3px;
-}
-/*carlist for bgcolor*/
-#carList {
-	color: #454545;
-	display: none;
-}
-#carList li {
-	list-style: none;
-	cursor: pointer;
-	padding-left: 10px;
-}
-#carList li:hover {
-	background-color: #C7C7C7;
-}
-.dropdown {
-    background-color: #FFF;
-    border: 1px solid #D9D9D9;
-    cursor: default;
-    display: inline-block;
-    height: 28px;
-    line-height: 28px;
-    overflow: hidden;
-}
-.dropdown:hover, .dropdown:visited, .dropdown:active {
-	border:1px solid #c7c7c7;
-	color: #454545;
-}
-.mini-dropdown {
-    height: 20px;
-    line-height: 20px;
-	margin-top: 4px;
-	float: left;
-}
-.dropdown .dropdown-input {
-    display: inline-block;
-	width: 100px;
-    padding-left: 10px;
-}
-.dropdown .dropdown-icon {
-    background: url('/static/images/sersj.png') no-repeat scroll center center transparent;
-    display: inline-block;
-    width: 20px;
-}
-.dropdown-options {
-	background-color: #FFFFFF;
-	border: 1px solid #D9D9D9;
-	border-top: 0px;
-    display: block;
-    overflow-x: hidden;
-    overflow-y: auto;
-	height: 65px;
-	width: 136px;
-    left: 88px;
-    position: absolute;
-    top: 100px;
-	z-index: 1000;
-}
-.carCurrent {
-	background-color: #dbecf4;
-}
-#carLineState {
-	margin:0px 15px 0px 0px;
-	float: left;
-	padding-left: 25px;
-}
-.carlogin {
-	background: url('/static/images/car_on.png') no-repeat scroll 90px center transparent;
-}
-.carlogout {
-	background: url('/static/images/car_off.png') no-repeat scroll 90px center transparent;
-}
-	/*car info end*/
 /*main content end*/
 
 /*dialogs wrapper start*/
@@ -262,7 +292,7 @@ body {
 }
 .p_wtc {
 	background-image: url('/static/images/popboxC.png');
-	width: 280px;
+	width: 284px;
 }
 .wrapperTitle {
 	height: 36px;
@@ -276,14 +306,14 @@ body {
 }
 .wrapperTitleL {
 	background-image: url('/static/images/popboxL.png');
-	width: 5px;
+	width: 3px;
 }
 .wrapperTitleC {
 	background-image: url('/static/images/popboxC.png');
-	width: 440px;
+	width: 444px;
 }
 .wrapperTitleR {
-	width: 5px;
+	width: 3px;
 	background-image: url('/static/images/popboxR.png');
 }
 .wrapperContent {
@@ -294,19 +324,19 @@ body {
     background: url("/static/images/close_default.png") no-repeat;
     cursor: pointer;
 	display: inline-block;
-    height: 20px;
+    height: 17px;
     left: 133px;
 	*left: 124px; /*ie6,7*/
     position: relative;
 	top: 3px;
 	+top: 1px; /*ie7*/
 	_top: 3px; /*ie6*/
-    width: 20px;
+    width: 16px;
 }
 .titleName {
-	color: #ffffff;
+	color: #155493;
 	display: inline-block;
-	font-size: 20px;
+	font-size: 16px;
 	height: 36px;
     line-height: 36px;
     text-indent: 20px;
@@ -322,30 +352,31 @@ body {
 	height: 84px;
 }
 .currentText {
-	background: url("/static/images/currentSign.png") no-repeat scroll 0 0 transparent;
     height: 84px;
-    padding-left: 121px;
     text-align: center;
     width: 240px;
 }
 #currentMsg {
 	font-size: 14px;
 	font-style: normal;
-    left: -15px;
+    left: 25px;
     position: relative;
     top: 31px;
 }
 #currentBtn {
-	background: url("/static/images/currentBtn.png") no-repeat scroll 0 0 transparent;
+	background: url('/static/images/gb.png') no-repeat scroll 0 0 transparent;
+}
+#currentBtn:hover {
+	background: url('/static/images/gb2.png') no-repeat scroll 0 0 transparent;
 }
 .confirmBtn {
 	cursor: pointer;
 	display: inline-block;
-    height: 83px;
+    height: 25px;
     left: 353px;
     position: absolute;
-    top: 36px;
-    width: 96px;
+    top: 62px;
+    width: 63px;
 }
 #currentWrapper .close, #defendWrapper .close, #rebootWrapper .close  {
 	left: 293px;
@@ -355,7 +386,7 @@ body {
 }
 .defendText {
     height: 84px;
-	width: 350px;
+	width: 320px;
 	text-align: center;
 }
 #defendMsg {
@@ -365,6 +396,15 @@ body {
     top: 21px;
 	font-style: normal;
 	font-size: 14px;
+	color: #317bae;
+}
+.msgLine {
+	background: url('/static/images/msgLine.png') no-repeat;
+	width: 1px;
+	height: 59px;
+	position: absolute;
+	top: 45px;
+	left: 300px;
 }
 #rebootWrapper {
 	height: 120px;
@@ -412,22 +452,22 @@ body {
 }
 .personalButton, .pwdButton{
 	height: 31px;
-    left: 224px;
+    left: 200px;
     position: relative;
-    top: 3px;
+    top: 13px;
     width: 40px;
 }
 #pwdWrapper{
 	height: 191px;
 }
 .pwdContent {
-	height: 156px;
+	height: 166px;
 }
 #terminalWrapper {
 	width: 390px;
 }
 #terminalWrapper .terminalContent {
-	height: 450px;
+	height: 390px;
 }
 #terminalWrapper .titleName {
 	width: 154px;
@@ -440,7 +480,7 @@ body {
 }
 #terminalWrapper  .t_wtc {
 	background-image: url('/static/images/popboxC.png');
-	width: 380px;
+	width: 384px;
 }
 /*terminal tab*/
 #terminalWrapper .tabs {
@@ -595,6 +635,22 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
+#personalSave, #pwdSave, #terminalSave {
+	border: 0px;
+	background: url('/static/images/bc.png') no-repeat;
+	width: 63px;
+	height: 25px;	
+}
+#refresh {
+	border: 0px;
+	background: url('/static/images/sx.png') no-repeat;
+	width: 63px;
+	height: 25px;	
+}
+#tmnTable {
+	width: 320px;
+	padding-top: 20px;
+}
 /*terminal end*/
 /*dialogs wrapper start*/
 
@@ -606,7 +662,7 @@ body {
 	right: 10px;
 	width: 300px;
 	position: absolute;
-	top: 144px;
+	top: 210px;
 	z-index: 0;
 }
 .PWrapperTitle {
@@ -700,18 +756,22 @@ body {
 }
 .eventHeader {
 	background: url('/static/images/trackBj.png');
-	height: 40px;
+	height: 77px;
+	line-height: 77px;
 	text-align: center;
+	font-size: 14px;
+	color: #154781;
 }
 .trackHeader {
-    height: 32px;
+	background: url('/static/images/menuBg.png') repeat-x;
+    height: 36px;
 	line-height: 32px;
 	float: left;
-	width: 780px;
+	min-width: 780px;
 }
 .trackPos {
 	display: inline-block;
-    height: 26px;
+    height: 36px;
     position: relative;
 	*top: -2px;
     width: 400px;
@@ -721,14 +781,21 @@ body {
     display: inline-block;
     margin-left: 12px;
     width: 82px;
-	top: 2px;
+	top: 4px;
+}
+#trackBeginTime, #trackEndTime {
+	width: 155px;
+	height: 24px;
+	line-height: 24px;
+	font-size: 12px;
 }
 .time {
-	background: url("/static/images/datePicker.gif") no-repeat scroll right center #FFFFFF;
+	background: url("/static/images/datePicker.png") no-repeat scroll right center #FFFFFF;
 	border: 1px solid #cccccc;
-	height: 17px;
-	line-height: 17px;
-	width: 141px;
+	height: 30px;
+	line-height: 30px;
+	width: 195px;
+	font-size: 14px;
 	*position: relative;	/*ie6,7*/
 	*top: 1px;
 }
@@ -736,7 +803,7 @@ body {
 	display: inline-block;
     position: relative;
     text-align: left;
-    top: 3px;
+    top: 5px;
     width: 186px;
 	float: left;
 }
@@ -745,33 +812,24 @@ body {
     text-align: left;
     width: 186px;
 }
-.trackSpeed span {
-}
 .trackBtn span {
 	cursor: pointer;
 	display: inline-block;
-	height: 26px;
+	height: 25px;
+	padding-left: 10px;
 }
 .tSearch {
 	background: url('/static/images/cx.png') no-repeat;
-	width: 58px;
+	width: 63px;
 }
 .tPlay, .tStop, .tPause{
-	width: 58px;
+	width: 63px;
 }
 .tPlay {
 	background: url('/static/images/bf1.png') no-repeat;
 }
 .tPause {
-	background: url('/static/images/zt1.png') no-repeat;
-}
-.tStop {
 	background: url('/static/images/tz1.png') no-repeat;
-}
-.tClose {
-	background: url('/static/images/gb1.png') no-repeat;
-	position: absolute;
-    right: 10px;
 }
 /*track css end*/
 /*event css start*/
@@ -805,17 +863,17 @@ body {
 	min-width: 0px;
 }
 .eventBtn {
-	background: url('/static/images/cx.png') no-repeat;
+	background: url('/static/images/search.png') no-repeat;
 	cursor: pointer;
 	display: inline-block;
-	height: 26px;
+	height: 36px;
 	margin-left: 30px;
 	position: relative;
-	top: 8px;
-	width: 58px;
+	top: 15px;
+	width: 92px;
 }
 .dataTable {
-	border: 1px solid #BBBBBB;
+	border: 1px solid #5784b9;
 	margin-top: 8px;
 	width: 850px;
 }
@@ -823,10 +881,11 @@ body {
 	height: 30px;
 	line-height: 30px;
 	text-align: center;
+	border: 1px solid #5784b9;
 }
 #eventTableHeader th, #eventTableHeader td {
-	background-color: #266090;
-	border: 1px solid #CCCCCC;
+	background-color: #5784b9;
+	border: 1px solid #ececec;
 	height: 30px;
 	color: #FFFFFF;
 	text-align: center;
@@ -878,7 +937,7 @@ body {
 	margin-left: 300px;
 	position: relative;
 	top: 8px;
-	width: 64px;
+	width: 63px;
 }
 .nextBtn {
 	background: url('/static/images/nextPage0.png') no-repeat;
@@ -888,7 +947,7 @@ body {
 	margin-left: 30px;
 	position: relative;
 	top: 8px;
-	width: 64px;
+	width: 63px;
 }
 /*event css end*/
 /*terminallist */

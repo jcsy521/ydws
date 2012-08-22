@@ -92,26 +92,20 @@ window.onresize = function () {
 		var n_windowHeight = $(window).height(), 
 			n_windowWidth = $(window).width(),
 			//str_infoStatus = $('#infoStatus').attr('status'), // 车辆信息框是否显示状态
-			n_mapHeight = n_windowHeight - 104,
-			n_trackLeft = ( n_windowWidth - 1180 )/3;
+			n_mapHeight = n_windowHeight - 164,
+			n_trackLeft = ( n_windowWidth - 1028 )/3,
+			n_banner = n_windowWidth - 247,
 			n_mainContent = n_windowHeight - 104;
-		// 根据车辆详细信息显示状态设置地图高度
-		/*
-		if ( str_infoStatus == 'show' ) {
-			n_mapHeight =n_mainContent - 129;
-		} else {
-			n_mapHeight = n_mainContent - 35;
-		}
-		*/
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-			n_mapHeight = n_windowHeight - 110;
+			n_banner = n_windowWidth - 249;
 		}
-		$('.main, #mainContent, .navi, .menumList, .carContainer').css('width', n_windowWidth);
-		$('.mnNav').css('width', n_windowWidth-300); // 菜单宽度
-		$('#trackHeader').css('margin-left', n_trackLeft); // 轨迹查询条件 位置调整
-		//$('#infoStatus').css('left', $('#infoTitle').width()/2);	
+		$('#banner').css('width', n_banner); // banner width
+		$('#top, #main').css('width', n_windowWidth);
+		$('#main').css('height', n_windowHeight - 123 );
+		$('#left, #right').css('height', n_windowHeight - 128 );	// 左右栏高度
+		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 253);	// 右侧宽度
+		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		$('#mapObj').css('height', n_mapHeight);
-		$('.main, #mainContent').css('height', n_mainContent);
 		// 动态调整遮罩层
 		var f_layer = $('.j_body').data('layer');
 		if ( f_layer ) { 
@@ -129,29 +123,28 @@ $(function () {
 	// 调整页面大小
 	var n_windowHeight = $(window).height(),
 		n_windowWidth = $(window).width(),
-		n_mapHeight = n_windowHeight - 104,
-		n_trackLeft = ( n_windowWidth - 1180 )/3;
+		n_mapHeight = n_windowHeight - 164,
+		n_trackLeft = ( n_windowWidth - 1028 )/3,
+		n_banner = n_windowWidth - 247,
 		obj_track = $('#trackHeader');
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-		n_mapHeight = n_windowHeight - 110;
+		n_banner = n_windowWidth - 249;
 	}
-	$('.main, #mainContent, .navi, .menumList, .carContainer').css('width', n_windowWidth);
-	$('.mnNav').css('width', n_windowWidth-300); // 菜单宽度
-	obj_track.css('margin-left', n_trackLeft); // 轨迹查询条件 位置调整
-	$('#mapObj').css('height', n_mapHeight); // 地图高度
-	//$('#infoStatus').css('left', $('#infoTitle').width()/2); // 车辆信息标题的隐藏按钮位置
-	$('.main, #mainContent').css('height', n_windowHeight - 104); // 内容域的高度
+	$('#banner').css('width',  n_banner); // banner width
+	$('#top, #main').css('width', n_windowWidth);
+	$('#main').css('height', n_windowHeight - 123); // 内容域的高度
+	$('#left, #right').css('height', n_windowHeight - 128 );	// 左右栏高度
+	$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 253);	// 右侧宽度
+	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
+	$('#mapObj').css('height', n_mapHeight);
 	// 加载ABCMAP
 	dlf.fn_loadMap();
-		
-	// 车辆信息及车辆列表显示框状态初始化
-	$('#infoStatus').attr('status', 'show');
 	
 	// 页面的点击事件分流处理
 	$('.j_click').click(function(event) {
 		var str_id = event.currentTarget.id, 
 			n_carNum = $('#carList li').length,
-			str_trackStatus = $('#trackHeader').css('display');
+			str_trackStatus = $('#trackHeader').css('display');			
 		// 检测当前是否有车辆信息
 		if ( n_carNum <= 0 ){
 			if ( str_id != 'personalData' && str_id != 'changePwd' && str_id != 'infoStatus') {
@@ -192,26 +185,6 @@ $(function () {
 		}
 	});
 	
-	//菜单的mouseOver和mouseOut
-	function fn_mouseOverOrOut(obj, isOver) {
-		var str_src = '../static/images/',
-			obj_currentImg = obj.children('img').eq(0),
-			n_index =obj.parent().index()+1;
-		if ( isOver ) {
-			str_src =str_src + 'menuH' + n_index + '.png';
-		} else {
-			str_src =str_src + 'menu' + n_index + '.png';
-		}
-		obj_currentImg.attr('src', str_src);
-	}
-	
-	// 导航菜单鼠标样式
-	$('.menuNav .j_click').mouseover(function() {
-		fn_mouseOverOrOut($(this), true);
-	}).mouseout(function() {
-		fn_mouseOverOrOut($(this), false);
-	});
-	
 	dlf.fn_closeWrapper(); //吹出框关闭事件
 	// 弹出窗口
 	$('.j_drag').draggable({handle: 'h2', containment: 'body',
@@ -226,34 +199,13 @@ $(function () {
 				$(this).css('top', 0);
 			}
 	}});
-	
-	
 	//选择车辆列表
 	$('#carList li').click(function() {
 		// 轨迹查询隐藏
 		$('#trackHeader').hide();
 		var obj_currentCar = $('#currentCar');
-		obj_currentCar.html($(this).html());
-		$('#carList').hide();
-		var str_login = $(this).attr('clogin');
-		if ( str_login == '1' ) {
-			obj_currentCar.removeClass('carlogout').addClass('carlogin').attr('title', '在线');
-		} else {
-			obj_currentCar.removeClass('carlogin').addClass('carlogout').attr('title', '离线');
-		}
-	}).mouseover(function() {
-		$('#carList').show();
-	}).mouseout(function() {
-		$('#carList').hide();
-	});
-	
-	$('#carSet').click(function() {
-		var status = $('#carList').css('display');
-		if ( status == 'none' ) { 
-			$('#carList').show();
-		} else {
-			$('#carList').hide();
-		}
+		// change css
+		
 	});
 	
 	// params input css 
@@ -331,10 +283,10 @@ $(function () {
 	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字！', param:'g'}); // 区分大小写
 	$('#t_alias').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度为10位汉字，20位字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
 	$('#t_vibchk').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--60:60)！'}); // 区分大小写
-	// 如果没有车辆信息,让用户进行新增绑定
+	// 如果没有车辆信息,提示用户
 	var n_carNum = $('#carList li').length;
 	if ( n_carNum > 0 ) {
-		dlf.fn_switchCar($('#carList li').eq(0).attr('tid'), $($('#carList li')[0])); // 登录成功, 车辆列表切换
+		dlf.fn_switchCar($('#carList a').eq(0).attr('tid'), $($('#carList a')[0])); // 登录成功, 车辆列表切换
 		dlf.fn_bindCarListItem();
 	} else { // 提示添加终端车辆
 		dlf.fn_showTerminalMsgWrp();

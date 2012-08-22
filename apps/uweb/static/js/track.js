@@ -14,8 +14,8 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_clearInterval(currentLastInfo); // lastinfo关闭
 	dlf.fn_clearInterval(timerId);//计时器关闭
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	$('#carList li[class*=carCurrent]').removeData('selfmarker');	// 清除marker
-	$('#carList .carCurrent').removeAttr('actiontrack');	// 移除 开始追踪
+	$('#carList a[class*=currentCar]').removeData('selfmarker');	// 清除marker
+	$('#carList .currentCar').removeAttr('actiontrack');	// 移除 开始追踪
 	// 查询条件初始化
 	$('.j_tBtnhover, .trackSpeed').hide();	
 	$('#trackHeader').show();	// 轨迹查询条件显示
@@ -25,7 +25,7 @@ window.dlf.fn_closeTrackWindow = function() {
 	dlf.fn_clearInterval(timerId);
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	$('#trackHeader').hide();
-	dlf.fn_updateLastInfo($($('#carList li[class*=carCurrent]')).attr('tid'));// 动态更新终端相关数据
+	dlf.fn_updateLastInfo($($('#carList li[class*=currentCar]')).attr('tid'));// 动态更新终端相关数据
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 }
 // 轨迹查询操作
@@ -38,7 +38,7 @@ function trackQuery() {
 		str_endTime = $('#trackEndTime').val(), 
 	    obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime), 
 						'end_time': dlf.fn_changeDateStringToNum(str_endTime), 
-						'tid': $($('#carList li[class*=carCurrent]')).attr('tid')}; //$('#trackHeader').attr('tid')};
+						'tid': $($('#carList a[class*=currentCar]')).attr('tid')}; //$('#trackHeader').attr('tid')};
 	
 	dlf.fn_jNotifyMessage('行踪查询中...<img src="/static/images/blue-wait.gif" />', 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩

@@ -53,7 +53,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             else: 
                 if ret['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
                     self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
-                status = ErrorCode.FAILED 
+                status = ret['success']
                 logging.error('[UWEB] Query terminal_info failed.')
         else:            
             # 1: terminal

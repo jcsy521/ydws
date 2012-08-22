@@ -15,7 +15,8 @@
 			<div class="currentText">
 				<em id="currentMsg">定位进行中...<img src="/static/images/blue-wait.gif" /></em>
 			</div>
-			<span id="currentBtn" class="confirmBtn"></span>
+			<div class="msgLine"></div>
+			<a id="currentBtn" class="confirmBtn"></a>
 		</div>
 	</div>
 	
@@ -33,7 +34,8 @@
 			<div class="defendText">
 				<em id="defendMsg"></em>
 			</div>
-			<span id="defendBtn" class="confirmBtn"></span>
+			<div class="msgLine"></div>
+			<a id="defendBtn" class="confirmBtn"></a>
 		</div>
 	</div>
 	
@@ -58,7 +60,7 @@
 					<li>单位:<input type="text" name="corporation" id="corporation" /></li>
 					<li>备注:<input type="text" name="remark" id="remark" /></li>
 				</ul>
-				<input type="submit" value="保存" id="personalSave" class="personalButton" />
+				<input type="submit" value="" id="personalSave" class="personalButton" />
 			</form>
 		</div>
 	</div><!--个人资料框end-->
@@ -79,7 +81,7 @@
 					<li>新密码:<input type="password" id="newPwd" class="j_validate" maxlength="16" /></li>
 					<li>确认密码:<input type="password" id="newPwd2" class="j_validate" maxlength="16" /></li>
 				</ul>
-				<input type="submit" value="保存" id="pwdSave" class="pwdButton" />
+				<input type="submit" value="" id="pwdSave" class="pwdButton" />
 			</form>
 		</div>
 	</div><!--密码修改框end-->
@@ -101,7 +103,7 @@
 					<div id="terminalList0" class="j_terminalcontent">
 						<table id="bListR">
 							<tbody>
-								<tr>
+								<!--<tr>
 									<td class="terminalTdL">GSM信号强度:</td>
 									<td id="gsm"  t_val=""><input id="t_gsm" class="textDisabled bListR_text_mouseOut" type="text"  disabled /></td>
 								</tr>
@@ -113,6 +115,7 @@
 									<td class="terminalTdL">电池剩余电量:</td>
 									<td id="pbat"   t_val=""><input id="t_pbat" class="textDisabled bListR_text_mouseOut" type="text"  disabled /></td>
 								</tr>
+								-->
 								<!-- allow edit params -->
 								<tr>
 									<td class="terminalTdL">上报频率:</td>
@@ -187,11 +190,11 @@
 								</tr>
 							</tbody>
 						</table>
-						<table width="320" >
+						<table id="tmnTable" >
 							<tr>
 								<td align="center">
-									<input type="button" id="refresh" value="刷新" class="terminalButton"/>
-									<input type="submit" value="保存" id="terminalSave" class="terminalButton" />
+									<input type="button" id="refresh" value="" class="terminalButton"/>
+									<input type="submit" value="" id="terminalSave" class="terminalButton" />
 								</td>
 							</tr>
 						</table>

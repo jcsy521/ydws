@@ -10,68 +10,80 @@
 {% end %}
 {% block body %}
 <body class="j_body">
-	<!--导航标题-->
-	<div class="navi">
-		<!--logo, 主功能菜单-->
-		<div class="menumList">
-			<div id="logo">
-				<img src="../static/images/logo.png" alt="爱车保" />
-			</div>
-			<div class="mnNav">
-				<ul class="menuNav">
-					<li><a href="#" id="realtime" class="j_click" title="实时定位"><img src="../static/images/menu1.png" alt="实时定位" /></a></li>
-					<li><a href="#" id="track"class="j_click" title="轨迹查询"><img src="../static/images/menu2.png" alt="轨迹查询" /></a></li>
-				{% if cars %}
-					{% if cars[0].keys_num == 1 %}
-						<li class="hide"><a href="/event" id="warnEvent" target="_blank" class="j_click" title="报警查询"><img src="../static/images/menu3.png" alt="报警查询" /></a></li>
-						<li class="hide"><a href="#" id="defend" class="j_click" title="设防/撤防"><img src="../static/images/menu4.png" alt="设防/撤防" /></a></li>
-					{% else %}
-						<li><a href="/event" id="warnEvent" target="_blank" class="j_click" title="报警查询"><img src="../static/images/menu3.png" alt="报警查询" /></a></li>
-						<li><a href="#" id="defend" class="j_click" title="设防/撤防"><img src="../static/images/menu4.png" alt="设防/撤防" /></a></li>
-					{% end %}
-				{% end %}
-					<li><a href="#" id="terminal" class="j_click" title="终端设置"><img src="../static/images/menu5.png" alt="终端设置" /></a></li>
-				</ul>
-				<div class="navSelf">
-					<ul class="selfList">
-						<li id="power" title=""></li>
-						<li id="activeNav"><a href="#" id="personalData" class="j_click" title="我的资料">我的资料</a></li>
-						<li><a href="#" id="changePwd" class="j_click" title="修改密码">修改密码</a></li>
-						<li><a href="#" id="logout" onclick="dlf.fn_exit()" title="退出">退出</a></li>
-					</ul>
-					<p class="userMsg" id="uName">欢迎您，{{name}}</p>
-				</div>
+	<!-- top -->
+	<div id="top">
+		<!-- todo logo -->
+		<div id="logo">
+			<img src="../static/images/logo.png" alt="爱车保" />
+		</div>
+		<div id="banner">
+			<div id="bnnWord"></div>
+			<div id="bnnIcon"></div>
+			<div class="welcome">
+				欢迎您，{{name}}
 			</div>
 		</div>
-		<div class="carContainer">
-			<div class="" id="carLineState" >车辆列表</div>
-			<ul id="carList" class="dropdown-options">
-			{% for car in cars %}
-				{% if car.login == 1 %}
-					<li tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogin" title="在线车辆">
-				{% else %}
-					<li tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" class="carlogout" title="离线车辆">
+	</div>
+	<!-- main  -->
+	<div id="main">
+		<!-- carInfo -->
+		<div id="left">
+			<div id="cars">
+				<div class="title clTitle">我的爱车</div>
+				<ul id="carList">
+				{% for car in cars %}
+					<li>
+						<a href="#" title="{{car.alias}}" class="car1" tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
+						<span>{{car.alias}}</span>
+						{% if car.login == 1 %} 
+								<font class="carlogin">(在线)</font>
+						{% else %}
+								<font class="carlogout">(离线)</font>
+						{% end %}
+					</li>
 				{% end  %}
-				{{cars[0].alias}}
+				</ul>
+			</div>
+			<div id="carInfo">
+				<div class="title ciTitle">车辆信息</div>
+				<ul id="cInfo">
+					<li id="speed"></li>
+					<li id="degree"></li>
+					<li id="lng"></li>
+					<li id="lat"></li>
+					<li id="type"></li>
+					<li id="address"></li>
 				</li>
-			{% end %}
-			</ul>
-			<a id="carSet" href="#" class="dropdown mini-dropdown">
-				{% if cars %}
-					{% if cars[0].login == 1 %}
-						<span class="dropdown-input carlogin" id="currentCar" title="在线" >
-					{% else %}
-						<span class="dropdown-input carlogout" id="currentCar" title="离线">
-					{% end %}
-						{{cars[0].alias}}
-						</span>
-				{% end %}
-				<span class="dropdown-icon">&nbsp;</span>
-			</a>
-			<div class="terminalInfo">
-				<!--报警状态：<label id="eventStatus"></label>-->
-				终端状态：<label id="defendStatus"></label>
-			</div>			
+			</div>
+			<div id="terminalInfo">
+				<div class="title tiTitle">终端状态</div>
+				<ul id="tInfo">
+					<li id="defend_status"></li>
+					<li id="power"></li>
+					<li id="GSM"></li>
+					<li id="GPS"></li>
+				</ul>
+			</div>
+			<div class="updateTime">
+				
+			</div>
+		</div>
+		<!-- menu and map-->
+		<div id="right">
+			<div id="navi">
+				<ul class="menu">
+					<li><a href="#" id="realtime" class="realtime j_click" t title="实时定位"></a></li>
+					<li><a href="#" id="track" class="track j_click"  title="轨迹查询"></a></li>
+					<li><a href="/event" id="warnEvent" target="_blank" class="event j_click" title="报警查询"></a></li>
+					<li><a href="#" id="defend" class="defend j_click"  title="设防/撤防"></a></li>
+					<li><a href="#" id="terminal" class="terminal j_click" title="终端设置"></a></li>
+				</ul>
+				<ul class="selfList">
+					<li><a href="#" id="personalData" class="j_click" title="我的资料">我的资料</a></li>
+					<li><a href="#" id="changePwd" class="j_click" title="修改密码">修改密码</a></li>
+					<li><a href="#" id="logout" onclick="dlf.fn_exit()" title="退出">退出</a></li>
+				</ul>
+			</div>
 			<!--轨迹查询条件-->
 			<div class="trackHeader hide" id="trackHeader">
 				<!--时间选择-->
@@ -94,39 +106,9 @@
 					<span id="trackSlide" title="一般速度"></span>
 				</span>
 			</div>
-		</div>
-	</div>
-	<!--车辆列表、地图、当前车辆信息-->
-	<div class="main">
-		<div class="content" id="mainContent">
-			<!--地图-->
-			<div id="mapObj"></div> 
-			<!--当前车辆信息-->
-			<!--<div class="carInfo" id="carInfo">
-				<div class="infoWidth" id="infoTitle">
-					<img id="infoStatus" class="j_click" src="../static/images/bt_bottom.png" />
-				</div>
-				<table class="infoList" id="infoList">
-					<tr>
-						<td>终端号码：<label id="terminalId"></label></td>
-						<td>报警状态：<label id="eventStatus">无报警</label></td>
-						<td>终端状态：<label id="defendStatus">未设防</label></td>
-					</tr>
-					<tr>
-						<td>车辆当前速度：<label id="carSpeed">0</label>km/h</td>
-						<td>方向角：<label id="carDegree"></label></td>
-						<td>经纬度：<label id="carLngLat"></label></td>
-					</tr>
-					<tr>
-						<td>定位时间：<label id="timesTamp"></label></td>
-						<td>定位类型：<label id="carLocType"></label></td>
-						<td colspan="3">车辆当前位置：<label id="carAddress"></label></td>
-						<input type="hidden" id="lockStatus" />  
-					</tr>
-				</table>
-			</div>
-			-->
-		</div>
+			
+			<div id="mapObj"></div>
+		</div> 
 	</div>
 	<div id="maskLayer" class="hide"></div>
 	<!--copy right-->

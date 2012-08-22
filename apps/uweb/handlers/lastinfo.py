@@ -22,12 +22,12 @@ class LastInfoHandler(BaseHandler):
         try:
             status = ErrorCode.SUCCESS
             # NOTE: monitor and location must not be null. lastinfo is invoked after switchcar
-            terminal = self.db.get("SELECT ti.tid, ti.mobile as sim,"
-                                  "  ti.login, ti.defend_status, ti.pbat "
-                                  "  FROM T_TERMINAL_INFO as ti "
-                                  "  WHERE ti.tid = %s"
-                                  "  LIMIT 1",
-                                  tid)
+            terminal = self.db.get("SELECT ti.tid, ti.mobile as sim, ti.login,"
+                                   "  ti.defend_status, ti.pbat, ti.gps, ti.gsm "
+                                   "  FROM T_TERMINAL_INFO as ti "
+                                   "  WHERE ti.tid = %s"
+                                   "  LIMIT 1",
+                                   tid)
 
             location = self.db.get("SELECT speed, timestamp, category, name,"
                                    "  degree, type, clatitude, clongitude"
@@ -54,6 +54,8 @@ class LastInfoHandler(BaseHandler):
                                                 clatitude=location.clatitude if location else 0,
                                                 clongitude=location.clongitude if location else 0, 
                                                 pbat=terminal.pbat,
+                                                gps=terminal.gps,
+                                                gsm=terminal.gsm,
                                                 login=terminal.login)))
         except Exception as e:
             logging.exception("[UWEB] get lastinfo failed. Exception: %s", e.args) 

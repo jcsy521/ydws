@@ -39,14 +39,17 @@ class TerminalMixin(BaseMixin):
         """
         for key, value in car_sets.iteritems():
             if key == 'white_list':
-                values = value.split(":")
-                value = values[1]
-                self.db.execute("INSERT INTO T_WHITELIST"
-                                "  VALUES(NULL, %s, %s)"
-                                "  ON DUPLICATE KEY"
-                                "  UPDATE tid = VALUES(tid),"
-                                "    mobile = VALUES(mobile)",
-                                tid, value)
+                whitelists = value.split(":")
+                if len(whitelists) <=1:
+                    pass
+                else:
+                    for whitelist in whitelists[1:]:
+                        self.db.execute("INSERT INTO T_WHITELIST"
+                                        "  VALUES(NULL, %s, %s)"
+                                        "  ON DUPLICATE KEY"
+                                        "  UPDATE tid = VALUES(tid),"
+                                        "    mobile = VALUES(mobile)",
+                                        tid, whitelist)
 
             elif key == 'cellid_status':
                 self.db.execute("UPDATE T_TERMINAL_INFO"
