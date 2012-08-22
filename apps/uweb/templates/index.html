@@ -57,16 +57,35 @@
 			</div>
 			<div id="terminalInfo">
 				<div class="title tiTitle">终端状态</div>
+				<!--<table id="tInfo" width="247">
+					<tr>
+						<td class="td_left">设防状态：</td>
+						<td id="defend_status" class="td_center"></td>
+						<td><div id="d_img"></div></td>
+					</tr>
+					<tr>
+						<td class="td_left">剩余电量：</td>
+						<td id="power" class="td_center"></td>
+						<td><div id="p_img"></div></td>
+					</tr>
+					<tr><td class="td_left">GSM 信号：</td><td id="GSM" class="td_center"></td><td><div id="gsm_img"></div></td></tr>
+					<tr><td class="td_left">GPS 信号：</td><td id="GPS" class="td_center"></td><td><div id="gps_img"></div></td></tr>
+				</table>
+				-->
 				<ul id="tInfo">
-					<li id="defend_status"></li>
+					<li id="defendStatus">
+						<span id="defend_word"></span>
+						<span class="d_img"><img id="defend_status"></img></span>
+					</li>
 					<li id="power"></li>
 					<li id="GSM"></li>
-					<li id="GPS"></li>
+					<li id="gps">
+						<span id="g_word"></span>
+						<span class="g_img"><img id="GPS"></img></span>
+					</li>
 				</ul>
 			</div>
-			<div class="updateTime">
-				
-			</div>
+			<div class="updateTime"></div>
 		</div>
 		<!-- menu and map-->
 		<div id="right">

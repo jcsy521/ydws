@@ -331,8 +331,11 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	$('#power').css('background-image', str_pImg).html(str_power);
 	$('#power').attr('title', str_power );	// 电池电量填充
 	$('#GSM').html(str_gsm).attr('title', 'GSM 信号强度：' + n_gsm);
-	$('#GPS').html(str_gps).attr('title', 'GPS 信号强度：' + n_gps);
-	$('#defend_status').css('background-image', str_dImg).html(str_dStatus); // 终端最后一次设防状态
+	$('#g_word').html(str_gps);
+	//$('#GPS').html(str_gps).attr('title', 'GPS 信号强度：' + n_gps);
+	$('#defend_word').html(str_dStatus);
+	$('#defendStatus').attr('title', str_dStatus);
+	$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
 }
 /*对动态数据做更新*/
 window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
@@ -401,19 +404,20 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			obj_gps = $('#GPS');
 		if ( str_val >= 0 && str_val < 10 ) {
 			str_return = '弱';
-			str_gpsImg = 'url("/static/images/gps0.png")';
+			str_gpsImg = '/static/images/gps0.png';
 		} else if ( str_val >= 10 && str_val < 20 ) {
 			str_return = '较弱';
-			str_gpsImg = 'url("/static/images/gps1.png")';
+			str_gpsImg = '/static/images/gps1.png';
 		} else if ( str_val >= 20 && str_val < 30 ) {
 			str_return = '较强';
-			str_gpsImg = 'url("/static/images/gps2.png")';
+			str_gpsImg = '/static/images/gps2.png';
 		} else {
 			str_return = '强';
-			str_gpsImg = 'url("/static/images/gps4.png")';
+			str_gpsImg = '/static/images/gps3.png';
 		}
 		if ( obj_gps ) {
-			obj_gps.css('background-image', str_gpsImg);
+			obj_gps.attr('src', str_gpsImg); // 终端最后一次设防状态
+			$('#gps').attr('title', 'GPS信号：' + str_val);
 		}
 	} else if ( str_key == 'power' ) {
 		if ( str_val >= 0 && str_val <= 25 ) {

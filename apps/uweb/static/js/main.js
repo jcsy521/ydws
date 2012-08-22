@@ -93,7 +93,7 @@ window.onresize = function () {
 			n_windowWidth = $(window).width(),
 			//str_infoStatus = $('#infoStatus').attr('status'), // 车辆信息框是否显示状态
 			n_mapHeight = n_windowHeight - 164,
-			n_trackLeft = ( n_windowWidth - 1028 )/3,
+			n_trackLeft = ( n_windowWidth - 1028 )/2,
 			n_banner = n_windowWidth - 247,
 			n_mainContent = n_windowHeight - 104;
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
@@ -124,7 +124,7 @@ $(function () {
 	var n_windowHeight = $(window).height(),
 		n_windowWidth = $(window).width(),
 		n_mapHeight = n_windowHeight - 164,
-		n_trackLeft = ( n_windowWidth - 1028 )/3,
+		n_trackLeft = ( n_windowWidth - 1028 )/2,
 		n_banner = n_windowWidth - 247,
 		obj_track = $('#trackHeader');
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 

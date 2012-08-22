@@ -262,6 +262,6 @@ $(function () {
 			$('#tPause').css('display', 'inline-block');
 			fn_markerAction();
 		}
-	}).slider('option', 'value', 1);
+	}).slider('option', 'value', 2);
 	
 })

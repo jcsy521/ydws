@@ -42,6 +42,8 @@ body {
 	height: 69px;
 	width: 147px;
 	background: url("/static/images/bannerWord.png") no-repeat;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/bannerWord.png',sizingMethod='scale');
 	margin-top: 27px;
 	margin-left: 70px;
 	float: left;
@@ -50,6 +52,8 @@ body {
 	height: 109px;
 	width: 139px;
 	background: url('/static/images/bannerIcon.png') no-repeat;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/bannerIcon.png',sizingMethod='scale');
 	float: left;
 }
 .welcome {
@@ -91,6 +95,7 @@ body {
 	display: inline-block;
 	padding-left: 20px;
 	width: 227px;
+	font-weight: bold;
 }
 /*left start*/
 #cars, #carInfo, #terminalInfo, .updateTime {
@@ -107,6 +112,20 @@ body {
 #cInfo, #tInfo {
 	float: left;
 	padding: 10px 10px 10px 20px;
+}
+.d_img, .g_img {
+	display: inline-block; 
+	position: relative;
+    top: 3px;
+	left: -25px;
+	_left: -20px;
+}
+#tInfo span {
+	display: inline-block;
+}
+#defend_word, #g_word {
+	display: inline-block; 
+	width: 140px;
 }
 #cars .clTitle {
 	background: url('/static/images/title1.png') repeat-x;
@@ -167,14 +186,26 @@ body {
 #power {
 	background: url('/static/images/power0.png') no-repeat 120px center;
 }
-#defend_status {
+.defend_status1 {
+	display: inline-block;
+	height: 17px;
+	width: 15px;
 	background: url('/static/images/defend_status1.png') no-repeat 120px center;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/defend_status1.png',sizingMethod='scale');
+	float: left;
+}
+.defend_status0 {
+	display: inline-block;
+	height: 17px;
+	width: 15px;
+	background: url('/static/images/defend_status1.png') no-repeat 120px center;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/defend_status1.png',sizingMethod='scale');
+	float: left;
 }
 #GSM {
 	background: url('/static/images/gsm1.png') no-repeat 120px center;
-}
-#GPS {
-	background: url('/static/images/gps1.png') no-repeat 120px center;
 }
 .updateTime {
 	width: 225px;
@@ -788,6 +819,9 @@ body {
 	height: 24px;
 	line-height: 24px;
 	font-size: 12px;
+	position: relative;
+	top: 2px;
+	_top: 5px;
 }
 .time {
 	background: url("/static/images/datePicker.png") no-repeat scroll right center #FFFFFF;
@@ -804,8 +838,9 @@ body {
     position: relative;
     text-align: left;
     top: 5px;
-    width: 186px;
+    width: 166px;
 	float: left;
+	padding-left: 10px;
 }
 .trackSpeed {
     position: relative;
