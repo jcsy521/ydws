@@ -41,8 +41,16 @@ class MainHandler(BaseHandler):
             url = "index.html"
 
         if from_ == 'android':
-
             self.login_sms_remind(user_info.mobile, terminals, login="ANDROID")
+            data = DotDict(uid=self.current_user.uid,
+                           name=user.name,
+                           cars=terminals,
+                           from_=from_)
+            self.write_ret(ErrorCode.SUCCESS, dict_=data)
+            return
+
+        if from_ == 'ios':
+            self.login_sms_remind(user_info.mobile, terminals, login="IOS")
             data = DotDict(uid=self.current_user.uid,
                            name=user.name,
                            cars=terminals,
