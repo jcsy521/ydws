@@ -32,7 +32,7 @@ from utils.myredis import MyRedis
 from constants.MEMCACHED import ALIVED
 
 from handlers.captcha import CaptchaHandler
-from handlers.login import LoginHandler, LogoutHandler, WAPTransferHandler
+from handlers.login import LoginHandler, LogoutHandler, WAPTransferHandler, IOSHandler, AndroidHandler
 from handlers.register import RegisterHandler
 from handlers.terminallist import TerminalListHandler
 from handlers.car import SwitchCarHandler
@@ -80,6 +80,8 @@ class Application(tornado.web.Application):
 
 
             (r"/wap/*", WAPTransferHandler),
+            (r"/android/*", WAPTransferHandler),
+            (r"/ios/*", IOSHandler),
 
             # accept sms from sms proxy
             (r"/sms/mo/*", SMSHandler),

@@ -118,6 +118,56 @@ class WAPTransferHandler(BaseHandler, LoginMixin):
             logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
 
+class IOSHandler(BaseHandler, LoginMixin):
+
+    @tornado.web.removeslash
+    def post(self):
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+        # must check username and password avoid sql injection.
+        if not (username.isalnum() and password.isalnum()):
+            status= ErrorCode.LOGIN_FAILED
+            self.write_ret(status)
+        if not (check_sql_injection(username) and check_sql_injection(password)):
+            status= ErrorCode.LOGIN_FAILED
+            self.write_ret(status)
+
+        # check the user, return uid, tid, sim and status
+        uid, tid, sim, status = self.login_passwd_auth(username, password)
+        if status == ErrorCode.SUCCESS: 
+            self.bookkeep(dict(uid=uid,
+                               tid=tid,
+                               sim=sim))
+            self.write_ret(status)
+        else:
+            logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
+            self.write_ret(status)
+
+class AndroidHandler(BaseHandler, LoginMixin):
+
+    @tornado.web.removeslash
+    def post(self):
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+        # must check username and password avoid sql injection.
+        if not (username.isalnum() and password.isalnum()):
+            status= ErrorCode.LOGIN_FAILED
+            self.write_ret(status)
+        if not (check_sql_injection(username) and check_sql_injection(password)):
+            status= ErrorCode.LOGIN_FAILED
+            self.write_ret(status)
+
+        # check the user, return uid, tid, sim and status
+        uid, tid, sim, status = self.login_passwd_auth(username, password)
+        if status == ErrorCode.SUCCESS: 
+            self.bookkeep(dict(uid=uid,
+                               tid=tid,
+                               sim=sim))
+            self.write_ret(status)
+        else:
+            logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
+            self.write_ret(status)
+
 class LogoutHandler(BaseHandler):
 
     @authenticated

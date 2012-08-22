@@ -22,7 +22,8 @@ LOCATION_TYPE = DotDict(GPS=0,
 
 LOGIN_WAY=DotDict(WEB=u"web",
                   WAP=u"wap",
-                  ANDROID=u"android客户端")
+                  ANDROID=u"android客户端",
+                  IOS=u"ios客户端")
 
              # you can have up to 10 records in one page
 LIMIT=DotDict(PAGE_SIZE=10, 
