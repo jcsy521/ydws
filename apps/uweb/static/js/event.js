@@ -11,9 +11,10 @@ function fn_initEventSearch(n_num, n_et) {
 	dlf.fn_lockScreen('eventbody'); // 添加页面遮罩
 	$('.eventbody').data('layer', true);
 	
-	var n_time = $('#eventTime').val(), // 用户选择时间
-		n_bgTime = dlf.fn_changeDateStringToNum(n_time+' 00:00:00'), // 开始时间
-		n_endTime = dlf.fn_changeDateStringToNum(n_time+' 23:59:59'), //结束时间
+	var n_startTime = $('#eventStartTime').val(), // 用户选择时间
+		n_endTime = $('#eventEndTime').val(), // 用户选择时间
+		n_bgTime = dlf.fn_changeDateStringToNum(n_startTime+' 00:00:00')/1000, // 开始时间
+		n_endTime = dlf.fn_changeDateStringToNum(n_endTime+' 23:59:59')/1000, //结束时间
 		n_carId = $('#eventResult').attr('tid'),	//car_id
 		n_eventType = $('#eventType').val(), 
 		param = {'start_time': n_bgTime, 'end_time': n_endTime, 'tid' : n_carId, 
@@ -146,11 +147,46 @@ $(function () {
 		'width': $(window).width()
 	});
 	
-	// 初始化时间
+	/*初始化时间
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime()/1000, 'ymd');
 	$('#eventTime').click(function() {
 		WdatePicker({el:'eventTime', dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false, maxDate: '%y-%M-%d'});
 	}).val(str_nowDate);
+	*/
+	
+	// 初始化时间
+	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd'), 
+		obj_stTime = $('#eventStartTime'), 
+		obj_endTime = $('#eventEndTime');
+		
+	obj_stTime.click(function() {
+		WdatePicker({el: 'eventStartTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'eventEndTime\')}', qsEnabled: false, 
+			onpicked: function() {
+				var obj_endDate = $dp.$D('eventEndTime'), 
+					str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
+					str_endTime = dlf.fn_changeDateStringToNum(str_endString), 
+					str_beginTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
+				if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
+					obj_endTime.val(dlf.fn_changeNumToDateString(str_beginTime + WEEKMILISECONDS));
+				}
+			}
+		});
+	}).val(str_nowDate+' 00:00:00');
+	obj_endTime.click(function() {
+		WdatePicker({el: 'eventEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'eventStartTime\')}', qsEnabled: false, 
+			onpicked: function() {
+				var obj_beginDate = $dp.$D('eventStartTime'), 
+					str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
+					str_beginTime = dlf.fn_changeDateStringToNum(str_beginString), 
+					str_endTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
+				if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
+					obj_stTime.val(dlf.fn_changeNumToDateString(str_endTime - WEEKMILISECONDS));
+				}
+			}
+		});
+	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date(), 'sfm'));
+	
+	
 	
 	dlf.fn_closeWrapper(); //关闭地图位置显示框事件
 	// 弹出的地图可以拖动

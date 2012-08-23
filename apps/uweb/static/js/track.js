@@ -36,8 +36,8 @@ function trackQuery() {
 	str_actionState = 0;
 	var str_beginTime = $('#trackBeginTime').val(), 
 		str_endTime = $('#trackEndTime').val(), 
-	    obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime), 
-						'end_time': dlf.fn_changeDateStringToNum(str_endTime), 
+	    obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime)/1000, 
+						'end_time': dlf.fn_changeDateStringToNum(str_endTime)/1000, 
 						'tid': $($('#carList a[class*=currentCar]')).attr('tid')}; //$('#trackHeader').attr('tid')};
 	
 	dlf.fn_jNotifyMessage('行踪查询中...<img src="/static/images/blue-wait.gif" />', 'message', true);
@@ -177,13 +177,13 @@ function fn_drawMarker() {
 // 页面加载完成后进行加载地图
 $(function () {	
 	// 初始化时间
-	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime()/1000, 'ymd');
+	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
 	$('#trackBeginTime').unbind('click').click(function() {
 		WdatePicker({el:'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}'});
 	}).val(str_nowDate+' 00:00:00');
 	$('#trackEndTime').unbind('click').click(function() {
 		WdatePicker({el:'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}'});
-	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date()/1000, 'sfm'));
+	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date(), 'sfm'));
 	
 	// 按钮变色
 	$('.j_tBtnhover, #trackSearch, #trackClose').mouseover(function(event) {

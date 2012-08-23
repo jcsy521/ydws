@@ -799,6 +799,8 @@ body {
 	line-height: 32px;
 	float: left;
 	min-width: 780px;
+	position: absolute;
+	z-index: 1000;
 }
 .trackPos {
 	display: inline-block;
@@ -832,6 +834,9 @@ body {
 	font-size: 14px;
 	*position: relative;	/*ie6,7*/
 	*top: 1px;
+}
+.title_xfont {
+    margin: 0 35px;
 }
 .trackBtn {
 	display: inline-block;

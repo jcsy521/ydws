@@ -199,14 +199,6 @@ $(function () {
 				$(this).css('top', 0);
 			}
 	}});
-	//选择车辆列表
-	$('#carList li').click(function() {
-		// 轨迹查询隐藏
-		$('#trackHeader').hide();
-		var obj_currentCar = $('#currentCar');
-		// change css
-		
-	});
 	
 	// params input css 
 	$('#bListR input[type=text]').focus(function() {
@@ -214,6 +206,9 @@ $(function () {
 	}).blur(function() {
 		$(this).removeClass('bListR_text_mouseFocus');
 	});
+	
+	dlf.fn_setItemMouseStatus($('.j_save'), 'pointer', new Array('bc', 'bc2', 'bc'));	// 保存按钮鼠标滑过样式
+	
 	
 	// 个人信息的验证
 	$.formValidator.initConfig({

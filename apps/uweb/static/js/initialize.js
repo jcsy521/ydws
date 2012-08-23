@@ -138,12 +138,13 @@ window.dlf.fn_changeDateStringToNum = function(dateString) {
         hour = timeArr[0], 
         min = timeArr[1];
     }
-	return new Date(year,month,day,hour,min,seconds).getTime()/1000; // Your timezone!
+	return parseInt(new Date(year,month,day,hour,min,seconds).getTime()); // Your timezone!
 }
 
 // 将日期整数转化为字符串
 window.dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
-	var myDate = new Date(myEpoch*1000),
+	var myEpoch = parseInt(myEpoch/1000)*1000,
+		myDate = new Date(myEpoch),
         year = myDate.getFullYear(), 
         month = myDate.getMonth()+1,
 	    day = myDate.getDate(), 
@@ -326,7 +327,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#type').html('定位类型：   ' + str_type); // 车辆定位类型
 		$('#lng').html('经度： E ' + Math.floor(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL); // 车辆经度
 		$('#lat').html('纬度： N ' + Math.floor(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL);	// 车辆纬度
-		$('#speed').html('速度： ' + obj_carInfo.speed + 'km/h'); // 终端最后一次定位速度
+		$('#speed').html('速度： ' + obj_carInfo.speed + ' km/h'); // 终端最后一次定位速度
 	}
 	// 终端状态
 	$('#power').css('background-image', str_pImg).html(str_power);
@@ -377,8 +378,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_actionType) {
 		obj_carLi.data('selfmarker', obj_selfMarker);
 		//方向角
 		obj_selfMarker.setIcon(new BMap.Icon('/static/images/'+n_imgDegree+'.png', new BMap.Size(34, 34)));
-	} else { 
-		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carLi.index(), true); // 添加标记
+	} else {
+		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carLi.parent().index(), true); // 添加标记
 	}
 }
 /** 转换GPS信号和GSM信号 为相应的强度**/

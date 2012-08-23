@@ -29,6 +29,7 @@ var LOCK_ON = 1; // 车被锁定
 var LOCK_OFF = 0; // 车未被锁定
 var LOGINST = 1; //终端连接到平台
 var NUMLNGLAT = 3600000; /*int->lnglat num值*/ 
+var WEEKMILISECONDS = 1000*24*60*60*6; // 一个星期的毫秒数
 /*
 *终端参数的正则
 *1: 开启  0: 关闭
