@@ -384,6 +384,12 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                             "  WHERE mobile = %s",
                             mobile_n, mobile_p)
 
+            # modify owner_mobile of other terminals of the owner.
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET owner_mobile = %s"
+                            "  WHERE owner_mobile = %s",
+                            mobile_n, mobile_p)
+
             fields = DotDict(name="",
                              mobile="",
                              tmobile="",
@@ -408,6 +414,12 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
             self.db.execute("UPDATE T_USER"
                             "  SET mobile = %s"
                             "  WHERE mobile = %s",
+                            mobile_n, mobile_p)
+
+            # modify owner_mobile of other terminals of the owner.
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET owner_mobile = %s"
+                            "  WHERE owner_mobile = %s",
                             mobile_n, mobile_p)
 
             fields = DotDict(name="",
