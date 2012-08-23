@@ -5,7 +5,7 @@
 // 全局变量存放处 :)
 var mapObj = null, // 地图对象
 	actionMarker = null, // 轨迹的动态marker 
-	viewControl = null, // 鹰眼对象
+	viewControl = null, // 鹰眼对象 
 	currentLastInfo = null,  //动态更新的定时器对象
 	arr_infoPoint = [],  //通过动态更新获取到的车辆数据进行轨迹显示
 	f_infoWindowStatus = true, // 吹出框是否显示
@@ -23,8 +23,11 @@ window.dlf.fn_loadMap = function() {
 	mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
 	viewControl = new BMap.OverviewMapControl({isOpen: true});
 	mapObj.addControl(viewControl); //添加缩略地图控件
-	mapObj.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT})); 
-	mapObj.addControl(new BMap.MapTypeControl({offset: new BMap.Size(100, 8)}));
+	mapObj.addControl(new BMap.MapTypeControl({
+												mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], 
+												offset: new BMap.Size(100, 10)
+												}));	// 地图类型 自定义显示 普通地图和卫星地图
+	mapObj.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
 	mapObj.addControl(new BMapLib.TrafficControl({anchor: BMAP_ANCHOR_TOP_RIGHT})); //添加路况信息控件
 }	
 // 窗口关闭事件
@@ -227,7 +230,7 @@ window.dlf.fn_bindCarListItem = function() {
 // 车辆列表的切换方法
 window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 	var obj_selfMarker = $('#carList a[class*=currentCar]');
-	mapObj.removeOverlay(obj_selfMarker.data('selfmarker')); 	// 移除地图上车辆marker
+	//mapObj.removeOverlay(obj_selfMarker.data('selfmarker')); 	// 移除地图上车辆marker
 	obj_selfMarker.removeData('selfmarker');	// 移除容器data中的marker
 	// 向后台发送切换请求
 	$.get_(SWITCHCAR_URL + '/' + n_tid, '', function (data) {
@@ -269,9 +272,6 @@ function fn_getCarData() {
 					n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 					obj_carLi = $('#carList a[tid='+str_tid+']'), 
 					obj_tempPoint = new BMap.Point(n_clon, n_clat);
-				//obj_tempLocation = {'name': obj_carInfo.address, 'timestamp': obj_carInfo.timestamp, 'speed': obj_carInfo.speed, 'clongitude': obj_carInfo.clongitude, 'clatitude': obj_carInfo.clatitude, 'type': obj_carInfo.type,'tid': obj_carInfo.tid},
-					
-					//n_percent = (n_power+1)*10;
 				// 经纬度数据不正确不做处理
 				if ( n_clon != 0 && n_clat != 0 ) {	
 					mapObj.setCenter(obj_tempPoint);

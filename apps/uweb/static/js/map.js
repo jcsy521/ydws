@@ -9,7 +9,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		myIcon = new BMap.Icon(str_imgUrl, new BMap.Size(34, 34)),
 		mPoint = new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT), 
 		infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_iconType)),  // 创建信息窗口对象;
-		marker = null;
+		marker = null,
+		label = new BMap.Label(obj_location.tid, {offset:new BMap.Size(20, -10)}); // todo  tid >>  别名
 	if ( str_iconType == 'start' ) {
 		str_imgUrl = '/static/images/green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {
@@ -25,6 +26,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		actionMarker = marker;
 		marker.setIcon(marker.getIcon().setImageUrl ('/static/images/'+n_degree+'.png'));
 	} else if ( str_iconType == 'actiontrack' ) {
+		marker.setLabel(label);	// marker标记
 		var obj_carItem = $('#carList a').eq(n_carNum);
 		obj_carItem.data('selfmarker', marker);
 	}
