@@ -97,10 +97,10 @@ class PacketTask(object):
 
     def update_terminal_status(self, location):
         fields = []
-        keys = ['gps', 'gsm', 'pbat', 'defend_status']
+        keys = ['gps', 'gsm', 'pbat', 'defend_status', 'login']
         for key in keys:
             if location.get(key, None) is not None:
-                fields.append(key + " = " + location[key])
+                fields.append(key + " = " + str(location[key]))
         set_clause = ','.join(fields)
         if set_clause:
             self.db.execute("UPDATE T_TERMINAL_INFO"
@@ -152,6 +152,7 @@ class PacketTask(object):
             report_name = unicode(report_name)
 
         if report.rName == EVENTER.RNAME.POWEROFF:
+            report.login = GATEWAY.TERMINAL_LOGIN.LOGIN
             sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
         elif report.rName == EVENTER.RNAME.POWERLOW:
             if report.dev_type == "1":

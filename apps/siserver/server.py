@@ -7,11 +7,7 @@ import site
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
-import signal
 import logging
-import multiprocessing
-from multiprocessing import Process, Queue, Pool
-from threading import Thread
 
 from utils import options
 options.define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
@@ -37,7 +33,7 @@ def main():
 
     siserver = None
     try:
-        logging.warn("[gateway] running on: localhost")
+        logging.warn("[siserver] running on: localhost")
         siserver = MySIServer(options.options.conf)
         siserver.redis = redis
         siserver.db = db
@@ -46,11 +42,11 @@ def main():
     except KeyboardInterrupt:
         logging.error("Ctrl-C is pressed.")
     except:
-        logging.exception("[gateway] Exit Exception")
+        logging.exception("[siserver] Exit Exception")
     finally:
-        logging.warn("[gateway] shutdown...")
+        logging.warn("[siserver] shutdown...")
         shutdown(siserver)
-        logging.warn("[gateway] stopped. Bye!")
+        logging.warn("[siserver] stopped. Bye!")
 
 
 if __name__ == '__main__':

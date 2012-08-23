@@ -66,8 +66,8 @@ class MyGWServer(object):
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
-        self.__restore_online_terminals()
-        self.__start_check_heartbeat_thread()
+        #self.__restore_online_terminals()
+        #self.__start_check_heartbeat_thread()
 
     def check_heartbeat(self):
         try:
@@ -189,6 +189,9 @@ class MyGWServer(object):
 
     def publish(self, host):
         try:
+            self.__restore_online_terminals()
+            self.__start_check_heartbeat_thread()
+
             parameters = pika.ConnectionParameters(host='localhost')
             self.publish_connection = BlockingConnection(parameters)
             self.publish_channel = self.publish_connection.channel()
@@ -454,8 +457,8 @@ class MyGWServer(object):
 
     def append_gw_request(self, request):
         message = json.dumps(request)
-        # make message persistent
-        properties = pika.BasicProperties(delivery_mode=2,)
+        # make message not persistent
+        properties = pika.BasicProperties(delivery_mode=1,)
         self.publish_channel.basic_publish(exchange=self.exchange,
                                            routing_key=self.gw_binding,
                                            body=message,
@@ -467,8 +470,8 @@ class MyGWServer(object):
         #    si_fd = si_fds[0]
         request = dict({"packet":request})
         message = json.dumps(request)
-        # make message persistent
-        properties = pika.BasicProperties(delivery_mode=2,)
+        # make message not persistent
+        properties = pika.BasicProperties(delivery_mode=1,)
         self.publish_channel.basic_publish(exchange=self.exchange,
                                            routing_key=self.si_binding,
                                            body=message,
@@ -495,7 +498,7 @@ class MyGWServer(object):
             if t_info.get(key, None) is not None:
                 if key == 'softversion':
                      t_info[key] = "'" + t_info[key] + "'"
-                fields.append(key + " = " + t_info[key])
+                fields.append(key + " = " + str(t_info[key]))
         set_clause = ','.join(fields)
         if set_clause:
             self.db.execute("UPDATE T_TERMINAL_INFO"

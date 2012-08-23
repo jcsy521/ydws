@@ -456,12 +456,12 @@ class MySIServer():
 
     def append_gw_request(self, request):
         message = json.dumps(request)
+        # make message not persistent
+        properties = pika.BasicProperties(delivery_mode=1,)
         self.publish_channel.basic_publish(exchange=self.exchange,
                                    routing_key=self.gw_binding,
-                                   body=message
-                                   #properties=pika.BasicProperties(
-                                   #               delivery_mode=2, # make message persistent
-                                   #)
+                                   body=message,
+                                   properties=properties
                                    )
 
     def append_si_request(self, request):
@@ -469,6 +469,7 @@ class MySIServer():
         #if si_fds:
         #    si_fd = si_fds[0]
         message = json.dumps(request)
+        # make message not persistent
         properties = pika.BasicProperties(delivery_mode=1,)
         self.publish_channel.basic_publish(exchange=self.exchange,
                                    routing_key=self.si_binding,
