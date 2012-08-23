@@ -507,7 +507,7 @@ body {
 	left: 200px;
 	*left: 190px; /*ie6,7*/
 	*top: 1px;
-	_top: 5px; /*ie6*/
+	_top: 3px; /*ie6*/
 }
 #terminalWrapper  .t_wtc {
 	background-image: url('/static/images/popboxC.png');
@@ -875,11 +875,12 @@ body {
 	min-width: 0px;
 }
 .eventMapClose {
-    background-image: url("/static/images/close_default.png");
+    background: url("/static/images/close_default.png") no-repeat;
     height: 20px;
-    left: 330px;
+    left: 338px;
     position: relative;
     top: -6px;
+    _top: -4px;
     width: 20px;
 	cursor: pointer;
 }
@@ -951,7 +952,7 @@ body {
 	display: inline-block;
 	position: relative;
 	+top: 5px; /*ie6, 7*/
-	_top: 2px; /*ie6*/
+	_top: 12px; /*ie6*/
 }
 #pagerContainer {
 	width: 850px;
