@@ -70,14 +70,14 @@ body {
 /*main content start*/
 #main {
 	min-width: 1040px;
-	min-height: 540px;
+	min-height: 520px;
 	background: #1661c2 url('/static/images/bgColor.png') repeat-x;
 	float: left;
 }
 #left, #right {
 	float: left;
 	margin-top: 5px;
-	min-height: 536px;
+	min-height: 516px;
 	background-color: #f7f7f7;
 }
 #left {
@@ -180,7 +180,7 @@ body {
 	color: #435871;
 }
 #cInfo li, #tInfo li {
-	line-height: 27px;
+	line-height: 25px;
 	width: 210px;
 }
 #power {
@@ -229,7 +229,7 @@ body {
 }
 #mapObj {
 	min-width: 785px;
-	min-height: 500px;
+	min-height: 460px;
 }
 .menu a {
 	display: inline-block;
@@ -679,7 +679,8 @@ body {
 	height: 25px;	
 }
 #tmnTable {
-	width: 320px;
+	height: 30px;
+	width: 360px;
 	padding-top: 20px;
 }
 /*terminal end*/
@@ -824,6 +825,7 @@ body {
 	position: relative;
 	top: 2px;
 	_top: 5px;
+	*top: 4px;
 }
 .time {
 	background: url("/static/images/datePicker.png") no-repeat scroll right center #FFFFFF;
@@ -838,7 +840,7 @@ body {
 .title_xfont {
     margin: 0 35px;
 }
-.trackBtn {
+.trackBtn{
 	display: inline-block;
     position: relative;
     text-align: left;
@@ -864,6 +866,10 @@ body {
 }
 .tPlay, .tStop, .tPause{
 	width: 63px;
+}
+#trackClose {
+	background: url('/static/images/gb.png') no-repeat;
+	position: absolute;
 }
 .tPlay {
 	background: url('/static/images/bf1.png') no-repeat;
@@ -1115,4 +1121,28 @@ body {
 /*marker css end*/
 .top10 {
 	padding-top: 10px;
+}
+/* index ads */
+#ads, #contents {
+	width: 585px;
+	height: 123px;
+	float: left;
+}
+.adImg {
+	width: 123px;
+	height: 123px;
+	float: left;
+}
+#firstImg {
+	margin-left: 100px; 
+}
+#contents p {
+	display: inline-block;
+	width: 350px;
+	font-size: 13px;
+	text-indent:2em;
+	padding-left: 10px;
+	height: 128px;
+	line-height: 22px;
+	float: left;
 }

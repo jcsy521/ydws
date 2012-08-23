@@ -209,7 +209,23 @@ $(function () {
 	
 	dlf.fn_setItemMouseStatus($('.j_save'), 'pointer', new Array('bc', 'bc2', 'bc'));	// 保存按钮鼠标滑过样式
 	
-	
+	var n_index = 0,
+		currentAd = null;
+	/*主页面 广告幻灯片效果*/
+	function fn_timer() {
+		var obj_content = $('#contents li').eq(n_index);
+		obj_content.siblings().hide();
+		obj_content.show();
+		if ( n_index < 3 ) {
+			n_index++;
+		} else {
+			n_index = 0;
+		}
+	}
+	// 计时器 
+	currentAd = setInterval(function () { // 每5秒
+		fn_timer();
+	}, 4000);
 	// 个人信息的验证
 	$.formValidator.initConfig({
 		formID: 'personalForm', //指定from的ID 编号

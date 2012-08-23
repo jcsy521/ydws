@@ -17,8 +17,15 @@
 			<img src="../static/images/logo.png" alt="爱车保" />
 		</div>
 		<div id="banner">
-			<div id="bnnWord"></div>
-			<div id="bnnIcon"></div>
+			<!-- <div id="bnnWord"></div>
+			<div id="bnnIcon"></div> -->
+				<div id="ads">
+					<ul id="contents">
+						<li id="firstImg"><img src="./static/images/banner1.jpg" /></li>
+						<li class="hide"><img src="./static/images/banner2.jpg" /></li>
+						<li class="hide"><img src="./static/images/banner3.jpg" /></li>
+					</ul>
+				</div>
 			<div class="welcome">
 				欢迎您，{{name}}
 			</div>
@@ -120,10 +127,12 @@
 					<span id="tPlay" class="tPlay hide j_tBtnhover"></span>
 					<span id="tPause" class="tPause hide j_tBtnhover"></span>
 				</span>
+				<!--关闭按钮-->
 				<span id="trackSpeed" class="trackSpeed hide">
 					<span>播放速度：</span>
 					<span id="trackSlide" title="一般速度"></span>
 				</span>
+				<!--<span id="trackClose" class="tClose"></span>-->
 			</div>
 			
 			<div id="mapObj"></div>

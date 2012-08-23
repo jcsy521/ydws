@@ -3,14 +3,14 @@
 */
 (function () {
 /*添加标记*/
-window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenWin) { 
+window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenWin) {
 	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
 		str_imgUrl = '/static/images/' + n_degree + '.png', 
 		myIcon = new BMap.Icon(str_imgUrl, new BMap.Size(34, 34)),
 		mPoint = new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT), 
 		infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_iconType)),  // 创建信息窗口对象;
 		marker = null,
-		label = new BMap.Label(obj_location.tid, {offset:new BMap.Size(20, -10)}); // todo  tid >>  别名
+		label = new BMap.Label(obj_location.alias, {offset:new BMap.Size(20, -10)}); // todo  tid >>  别名
 	if ( str_iconType == 'start' ) {
 		str_imgUrl = '/static/images/green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {
@@ -35,8 +35,20 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	if ( isOpenWin ) {
 		marker.openInfoWindow(infoWindow);
 	}
-	marker.addEventListener('click', function(){   
-	   this.openInfoWindow(infoWindow);
+	marker.addEventListener('click', function(){  
+	    // 进行左侧车辆列表的切换
+	   if ( str_iconType == 'actiontrack' ) { // 主页车辆点击与左侧车辆列表同步
+			var obj_carItem = $('#carList a').eq(n_carNum),
+				str_className = obj_carItem.attr('class'), 
+				str_tid = obj_carItem.attr('tid');
+			this.openInfoWindow(this.selfInfoWindow); // 显示吹出框
+			if ( str_className.search('currentCar') != -1 ) { // 如果用户点击当前车辆不做操作
+				return;
+			}
+			dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
+		} else {
+			this.openInfoWindow(infoWindow);
+		}
 	});
 }
 // 吹出框内容

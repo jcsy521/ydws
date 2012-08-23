@@ -68,6 +68,7 @@ class Application(tornado.web.Application):
             (r"/logout/*", LogoutHandler),
             (r"/switchcar/(\S+)/*", SwitchCarHandler),
             (r"/lastinfo/(\S+)/*", LastInfoHandler),
+            (r"/lastinfo/*", LastInfoHandler),
             (r"/track/*", TrackHandler),
             (r"/trackback/(\S+)/*", TrackBackHandler),
             (r"/event/*", EventHandler),
