@@ -298,8 +298,9 @@ function fn_getCarData() {
 * car_info: 车辆的信息
 */
 window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
-	var str_dStatus = obj_carInfo.defend_status == DEFEND_ON ? '设防状态：  已设防' : '设防状态：  未设防', 
-		str_dImg= obj_carInfo.defend_status == DEFEND_ON ? '/static/images/defend_status1.png' : '/static/images/defend_status0.png',
+	var n_defendStatus = obj_carInfo.defend_status, 
+		str_dStatus = n_defendStatus == DEFEND_ON ? '设防状态：  已设防' : '设防状态：  未设防', 
+		str_dImg= n_defendStatus == DEFEND_ON ? '/static/images/defend_status1.png' : '/static/images/defend_status0.png',
 		str_type = obj_carInfo.type == GPS_TYPE ? 'GPS定位' : '基站定位',
 		n_degree = obj_carInfo.degree,
 		str_degree = dlf.fn_changeData('degree', n_degree), //,
@@ -333,7 +334,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	$('#GSM').html(str_gsm).attr('title', 'GSM 信号强度：' + n_gsm);
 	$('#g_word').html(str_gps);
 	//$('#GPS').html(str_gps).attr('title', 'GPS 信号强度：' + n_gps);
-	$('#defend_word').html(str_dStatus);
+	$('#defend_word').html(str_dStatus).data('defend', n_defendStatus);
 	$('#defendStatus').attr('title', str_dStatus);
 	$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
 }

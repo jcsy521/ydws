@@ -57,7 +57,7 @@ function fn_displayCurrentMarker(obj_location) {
 
 /*设防撤防操作*/
 window.dlf.fn_defendQuery = function() {
-	var str_defendStatus = $('#defendStatus').html(),  // 设防撤防状态
+	var str_defendStatus = $('#defend_word').data('defend'),  // 设防撤防状态
 		obj_dMsg = $('#defendMsg'), 
 		obj_wrapper = $('#defendWrapper'),
 		obj_defendBtn = $('#defendBtn'); 
@@ -66,7 +66,7 @@ window.dlf.fn_defendQuery = function() {
 	dlf.fn_lockScreen();	//添加页面遮罩
 	obj_wrapper.css({'left':'38%','top':'22%'}).show();
 	
-	if ( str_defendStatus == '已设防' ) {
+	if ( str_defendStatus == DEFEND_ON ) {
 		obj_dMsg.html('您的爱车保当前已设防');
 		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2', 'cf'));
 	} else {
