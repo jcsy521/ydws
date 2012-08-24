@@ -83,7 +83,6 @@ class RealtimeMixin(BaseMixin):
                       message='',
                       location=location)
 
-        location = None
         if (location and location.clatitude and location.clongitude):
             
             location['degree'] = float(location.degree)
