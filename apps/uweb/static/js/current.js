@@ -68,7 +68,7 @@ window.dlf.fn_defendQuery = function() {
 	
 	if ( str_defendStatus == DEFEND_ON ) {
 		obj_dMsg.html('您的爱车保当前已设防');
-		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2', 'cf'));
+		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2', 'cf'));						
 	} else {
 		obj_dMsg.html('您的爱车保当前未设防');
 		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2', 'sf'));

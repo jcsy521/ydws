@@ -351,7 +351,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		n_power = parseInt(obj_carInfo.pbat),
 		str_power = '剩余电量：   ' + n_power + '%',	// 电池电量 0-100
 		str_pImg = dlf.fn_changeData('power', n_power), // 电量图标
-		str_time = obj_carInfo.timestamp != null ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp*1000) : '--',
+		str_time = obj_carInfo.timestamp != null ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp*1000) : '-',
 		n_gsm = obj_carInfo.gsm,	// gsm 值
 		str_gsm = 'GSM 信号：    ' + dlf.fn_changeData('gsm', n_gsm),	// gsm信号
 		n_gps = obj_carInfo.gps,	// gps 值
@@ -366,12 +366,12 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	}
 	// 经纬度为0 不显示位置信息
 	if ( n_clat == 0 || n_clon == 0 ) {
-		str_address = '--';
-		str_degree = '--';
-		str_type = '--';
-		str_clon += '--';
-		str_clat += '--';
-		str_speed = '--';
+		str_address = '-';
+		str_degree = '-';
+		str_type = '-';
+		str_clon += '-';
+		str_clat += '-';
+		str_speed = '-';
 	} else {
 		str_clon += 'E ' + Math.floor(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
 		str_clat += 'N ' + Math.floor(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
@@ -514,7 +514,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			str_return = 'url("/static/images/power9.png")';
 		}
 	} else if ( str_key == 'degree' ) {
-		if ( str_val == 0 && str_val == 360 ) {
+		if ( str_val == 0 || str_val == 360 ) {
 			str_return = '正北';
 		} else if ( str_val > 0 && str_val < 90) {
 			str_return = '东北';
@@ -647,8 +647,24 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 		if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,不进行后续操作
 			if ( data.status == 0 ) {
 				if ( str_who == 'defend' ) {
-					var str_rStatus = $('#defendStatus').html() == '已设防' ? '未设防' : '已设防';
-					$('#defendStatus').html(str_rStatus);	// 设置车辆信息的设防状态
+					// 修改设防状态
+					var str_defendStatus = $('#defend_word').data('defend'),
+						str_html = '',
+						str_dImg = '',
+						n_defendStatus = 0;
+					if ( str_defendStatus == DEFEND_ON ) { 
+						// 修改成功 状态改为：撤防
+						n_defendStatus = 0;
+						str_html = '设防状态：  未设防';
+						str_dImg=  '/static/images/defend_status0.png';
+					} else {
+						n_defendStatus = 1;
+						str_html = '设防状态：  已设防';
+						str_dImg= '/static/images/defend_status1.png';
+					}
+					$('#defend_word').html(str_html).data('defend', n_defendStatus);
+					$('#defendStatus').attr('title', str_html);
+					$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
 				} else if ( str_who == 'terminalList' ) {
 					// 终端列表,进行数据ID回填
 					obj_data[0].id = data.ids[0].id;
