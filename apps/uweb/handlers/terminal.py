@@ -109,13 +109,15 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         
         args = DotDict(seq=SeqGenerator.next(self.db),
                        tid=self.current_user.tid)
-        # check the data, some be sent to  
+
+        # check the data. some be sent to terminal, some just be modified in db 
         user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
-        fields=['alias', 'cnum', 'cellid_status']
+   
+        db_fields=['alias', 'cnum', 'cellid_status']
         gf_params = DotDict()
         db_params = DotDict()
         for key, value in data.iteritems():
-            if key in fields:
+            if key in db_fields:
                 db_params[key]=value
             else:
                 if key == 'whitelist_2':
