@@ -304,7 +304,8 @@ window.dlf.fn_getCarData = function() {
 					var obj_carInfo = obj_cars[i], 
 						str_tid = obj_carInfo.tid, 	//车辆tid
 						str_loginst = obj_carInfo.login,
-						obj_carLi = $('#carList a[tid='+str_tid+']').parent();	
+						obj_carA = $('#carList a[tid='+str_tid+']'),
+						obj_carLi = obj_carA.parent(),
 						n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 						n_clat = obj_carInfo.clatitude/NUMLNGLAT;
 					// 经纬度数据不正确不做处理
@@ -320,6 +321,7 @@ window.dlf.fn_getCarData = function() {
 					} else {
 						obj_carLi.children().eq(2).removeClass('carlogin').addClass('carlogout').html('离线');
 					}
+					obj_carA.attr('clogin', str_loginst);
 					// 更新当前车辆信息
 					if ( str_currentTid == str_tid ) {
 						dlf.fn_updateTerminalInfo(obj_carInfo);
