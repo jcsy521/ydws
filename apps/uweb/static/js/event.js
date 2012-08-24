@@ -67,7 +67,7 @@ function fn_initEventSearch(n_num, n_et) {
 					
 					// 拼接table
 					html+= '<tr>';
-					html+= '<td>'+dlf.fn_changeNumToDateString(obj_location.timestamp)+'</td>';	// 报警时间
+					html+= '<td>'+dlf.fn_changeNumToDateString(obj_location.timestamp*1000)+'</td>';	// 报警时间
 					html+= '<td>'+dlf.fn_eventText(str_type)+'</td>';	//类型 // todo 
 					if ( obj_location.clongitude == 0 || obj_location.clatitude == 0 ) {
 						html+= '<td>无</td>';	//无地址
