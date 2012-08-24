@@ -298,7 +298,7 @@ window.dlf.fn_getCarData = function() {
 	$.post_(LASTINFO_URL, JSON.stringify(obj_tids), function (data) {
 			if ( data.status == 0 ) {
 				var obj_cars = data.cars_info,
-					n_len = 2;
+					n_len = obj_cars.length;
 				for ( var i = 0; i < n_len; i++ ) {
 					// 车辆详细信息更新
 					var obj_carInfo = obj_cars[i], 

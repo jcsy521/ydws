@@ -77,7 +77,7 @@ body {
 #left, #right {
 	float: left;
 	margin-top: 5px;
-	min-height: 516px;
+	min-height: 515px;
 	background-color: #f7f7f7;
 }
 #left {
@@ -112,6 +112,12 @@ body {
 #cInfo, #tInfo {
 	float: left;
 	padding: 10px 10px 10px 20px;
+}
+#cInfo {
+	height: 145px;
+}
+#tInfo {
+	height: 105px;
 }
 .d_img, .g_img {
 	display: inline-block; 
@@ -229,7 +235,7 @@ body {
 }
 #mapObj {
 	min-width: 785px;
-	min-height: 460px;
+	min-height: 480px;
 }
 .menu a {
 	display: inline-block;
