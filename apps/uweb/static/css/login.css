@@ -59,7 +59,7 @@ ul, li {
 	background-color: #FFF;
 }
 #captcha {
-	width: 107px;
+	width: 80px;
 }
 .loginFormContent ul{
 	font-size: 13px;
@@ -74,12 +74,12 @@ ul, li {
 	margin-left: 13px;
 }
 .captchaImg {
-	height: 27px;
+	height: 31px;
     margin-left: 3px;
     padding-top: 0;
     top: 10px;
 	*top: 4px;
-    width: 73px;
+    width: 82px;
 	position: relative;
 }
 .loginFormContent  .commit {
