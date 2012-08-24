@@ -220,7 +220,7 @@ $(function () {
 		} else if ( str_id == 'tStop' ) {
 			str_imgUrl = 'tz2.png';
 		} else {
-			str_imgUrl = 'gb2.png';
+			str_imgUrl = 'close_default.png';
 		}
 		$(this).css('background-image', 'url("/static/images/'+str_imgUrl+'")');
 	}).mouseout(function(event){
@@ -235,7 +235,7 @@ $(function () {
 		} else if ( str_id == 'tStop' ) {
 			str_imgUrl = 'tz1.png';
 		} else {
-			str_imgUrl = 'gb.png';
+			str_imgUrl = 'close_default.png';
 		}
 		$(this).css('background-image', 'url("/static/images/'+str_imgUrl+'")');
 	}).click(function(event) {

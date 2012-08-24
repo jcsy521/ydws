@@ -874,9 +874,12 @@ body {
 	width: 63px;
 }
 .tClose {
-	background: url('/static/images/gb.png') no-repeat;
+	background: url('/static/images/close_default.png') no-repeat;
 	position: absolute;
-    right: 10px;
+	height: 17px;
+	width: 16px;
+	right: 10px;
+	top: 10px;
 }
 .tPlay {
 	background: url('/static/images/bf1.png') no-repeat;
