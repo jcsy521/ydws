@@ -205,6 +205,7 @@ $(function () {
 		obj_search = $('#eventSearch');
 	
 	// 按钮变色
+	dlf.fn_setItemMouseStatus(obj_search, 'pointer', new Array('cx', 'cx2', 'cx'));
 	dlf.fn_setItemMouseStatus(obj_prevPage, 'pointer', new Array('prevPage2', 'prevPage1', 'prevPage0'));
 	dlf.fn_setItemMouseStatus(obj_nextPage, 'pointer', new Array('nextPage2', 'nextPage1', 'nextPage0'));
 	//上一页分页		

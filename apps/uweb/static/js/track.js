@@ -25,7 +25,29 @@ window.dlf.fn_closeTrackWindow = function() {
 	dlf.fn_clearInterval(timerId);
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	$('#trackHeader').hide();
-	dlf.fn_updateLastInfo($($('#carList li[class*=currentCar]')).attr('tid'));// 动态更新终端相关数据
+	// 清除存储数据
+	var obj_cars = $('#carList a'),
+		obj_selfMarker = null,
+		obj_li = $('#carList li'),
+		obj_carInfo = null; //obj_li.data('')
+	$.each(obj_cars, function(index, dom) {
+		var obj_currentCar = $(dom);
+		obj_selfMarker = obj_currentCar.data('selfmarker');
+		if ( obj_selfMarker ) {	
+			obj_currentCar.removeData('selfmarker');
+		}
+	});
+	$.each(obj_li, function(index, dom) {
+		var obj_currentLi = $(dom);
+		obj_carInfo = obj_currentLi.data('carData');
+		if ( obj_carInfo ) {
+			obj_currentLi.removeData('carData');
+		}
+	});
+	// 重新请求lastinfo
+	dlf.fn_getCarData();
+	// 动态更新终端相关数据
+	dlf.fn_updateLastInfo($($('#carList a[class*=currentCar]')).attr('tid'));
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 }
 // 轨迹查询操作
@@ -213,7 +235,7 @@ $(function () {
 		} else if ( str_id == 'tStop' ) {
 			str_imgUrl = 'tz1.png';
 		} else {
-			str_imgUrl = 'gb1.png';
+			str_imgUrl = 'gb.png';
 		}
 		$(this).css('background-image', 'url("/static/images/'+str_imgUrl+'")');
 	}).click(function(event) {

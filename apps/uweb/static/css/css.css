@@ -788,8 +788,8 @@ body {
 }
 .eventHeader {
 	background: url('/static/images/trackBj.png');
-	height: 77px;
-	line-height: 77px;
+	height: 83px;
+	line-height: 83px;
 	text-align: center;
 	font-size: 14px;
 	color: #154781;
@@ -840,7 +840,7 @@ body {
 .title_xfont {
     margin: 0 35px;
 }
-.trackBtn{
+.trackBtn, .tClose {
 	display: inline-block;
     position: relative;
     text-align: left;
@@ -854,7 +854,7 @@ body {
     text-align: left;
     width: 186px;
 }
-.trackBtn span {
+.trackBtn span, .tClose  {
 	cursor: pointer;
 	display: inline-block;
 	height: 25px;
@@ -864,12 +864,13 @@ body {
 	background: url('/static/images/cx.png') no-repeat;
 	width: 63px;
 }
-.tPlay, .tStop, .tPause{
+.tPlay, .tStop, .tPause, .tClose{
 	width: 63px;
 }
-#trackClose {
+.tClose {
 	background: url('/static/images/gb.png') no-repeat;
 	position: absolute;
+    right: 10px;
 }
 .tPlay {
 	background: url('/static/images/bf1.png') no-repeat;
@@ -910,14 +911,14 @@ body {
 	min-width: 0px;
 }
 .eventBtn {
-	background: url('/static/images/search.png') no-repeat;
+	background: url('/static/images/cx.png') no-repeat;
 	cursor: pointer;
 	display: inline-block;
-	height: 36px;
+	height: 25px;
 	margin-left: 30px;
 	position: relative;
-	top: 15px;
-	width: 92px;
+	top: 7px;
+	width: 63px;
 }
 .dataTable {
 	border: 1px solid #5784b9;

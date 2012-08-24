@@ -238,18 +238,24 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				obj_carDatas = obj_carLi.data('carData');
 			if ( obj_carDatas ) {
 				var obj_selfMarker = obj_carLi.children().eq(0).data('selfmarker');
-					//mapObj.removeOverlay(obj_selfMarker.data('selfmarker')); 	// 移除地图上车辆marker
-					//obj_selfMarker.removeData('selfmarker');	// 移除容器data中的marker
 				dlf.fn_updateTerminalInfo(obj_carDatas); 	//更新当前车辆的详细信息显示
-				obj_selfMarker.openInfoWindow(obj_selfMarker.selfInfoWindow);
+				//obj_selfMarker.openInfoWindow(obj_selfMarker.selfInfoWindow);
 			} else {
-				fn_getCarData(); // 启动动态获取数据
+				dlf.fn_getCarData(); // 启动动态获取数据
 			}
 			// 查找到当前车辆的信息
 			var obj_toCentInterval = setInterval(function() {
 				var obj_tempMarker = obj_currentItem.data('selfmarker');
 				if ( obj_tempMarker ) {
 					mapObj.panTo(obj_tempMarker.getPosition());
+				var arr_overlays = $('#carList li a');
+				for ( var i = 0; i < arr_overlays.length; i++ ) {
+					var obj_marker = $(arr_overlays[i]).data('selfmarker');
+					if ( obj_marker ) {
+						obj_marker.setTop(false);
+					}
+				}
+				obj_tempMarker.setTop(true);
 					clearInterval(obj_toCentInterval);
 				}
 			}, 500);
@@ -271,11 +277,11 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 window.dlf.fn_updateLastInfo = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除定时器
 	currentLastInfo = setInterval(function () { // 每15秒启动
-		fn_getCarData();
+		dlf.fn_getCarData();
 	}, INFOTIME);
 }
 	
-function fn_getCarData() {
+window.dlf.fn_getCarData = function() {
 	var str_currentTid = $($('#carList a[class*=currentCar]')).attr('tid'),	//当前车tid
 		obj_carListLi = $('#carList li'), 
 		n_length = obj_carListLi.length, 	//车辆总数
@@ -299,15 +305,20 @@ function fn_getCarData() {
 						str_tid = obj_carInfo.tid, 	//车辆tid
 						str_loginst = obj_carInfo.login,
 						obj_carLi = $('#carList a[tid='+str_tid+']').parent();	
-					if ( obj_carInfo ) {
-						obj_carLi.data('carData', obj_carInfo);
-						// 动态修改车辆当前连接状态
-						if ( str_loginst == LOGINST) {
-							obj_carLi.children().eq(2).removeClass('carlogout').addClass('carlogin');
-						} else {
-							obj_carLi.children().eq(2).removeClass('carlogin').addClass('carlogout');
+						n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
+						n_clat = obj_carInfo.clatitude/NUMLNGLAT;
+					// 经纬度数据不正确不做处理
+					if ( n_clon != 0 && n_clat != 0 ) {
+						if ( obj_carInfo ) {
+							obj_carLi.data('carData', obj_carInfo);
+							dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据
 						}
-						dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据
+					}
+					// 动态修改车辆当前连接状态
+					if ( str_loginst == LOGINST) {
+						obj_carLi.children().eq(2).removeClass('carlogout').addClass('carlogin').html('在线');
+					} else {
+						obj_carLi.children().eq(2).removeClass('carlogin').addClass('carlogout').html('离线');
 					}
 					// 更新当前车辆信息
 					if ( str_currentTid == str_tid ) {
@@ -329,44 +340,63 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_dStatus = n_defendStatus == DEFEND_ON ? '设防状态：  已设防' : '设防状态：  未设防', 
 		str_dImg= n_defendStatus == DEFEND_ON ? '/static/images/defend_status1.png' : '/static/images/defend_status0.png',
 		str_type = obj_carInfo.type == GPS_TYPE ? 'GPS定位' : '基站定位',
+		str_speed = obj_carInfo.speed + ' km/h',
 		n_degree = obj_carInfo.degree,
-		str_degree = dlf.fn_changeData('degree', n_degree), //,
+		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
+		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_eStatus = dlf.fn_eventText(obj_carInfo.event_status),  // 报警状态
 		str_address = obj_carInfo.name,
 		n_power = parseInt(obj_carInfo.pbat),
 		str_power = '剩余电量：   ' + n_power + '%',	// 电池电量 0-100
 		str_pImg = dlf.fn_changeData('power', n_power), // 电量图标
-		n_time = obj_carInfo.timestamp != null ? obj_carInfo.timestamp : new Date().getTime(),
+		str_time = obj_carInfo.timestamp != null ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp) : '--',
 		n_gsm = obj_carInfo.gsm,	// gsm 值
 		str_gsm = 'GSM 信号：    ' + dlf.fn_changeData('gsm', n_gsm),	// gsm信号
 		n_gps = obj_carInfo.gps,	// gps 值
-		str_gps = 'GPS 信号：   ' + dlf.fn_changeData('gps', n_gps);	// gps信号
+		str_gps = 'GPS 信号：   ' + dlf.fn_changeData('gps', n_gps),	// gps信号
+		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
+		str_clon = '经度： ',
+		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
+		str_clat = '纬度：';	// 经纬度
+		
 	if ( str_address == '' || str_address == null ) {
 		str_address = '暂无';
 	}
-	// 如果lastinfo 更新车辆信息和终端信息  realtime: 只更新终端信息
-	if ( !type ) {
-		// 车辆信息
-		$('.updateTime').html('更新时间： ' + dlf.fn_changeNumToDateString(n_time)); // 最后一次定位时间
-		$('#address').html('位置：   ' + str_address); // 最后一次定们地址
-		$('#degree').html('方向：   ' + str_degree).attr('title', '方向角：' + Math.round(n_degree));
-		$('#type').html('定位类型：   ' + str_type); // 车辆定位类型
-		$('#lng').html('经度： E ' + Math.floor(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL); // 车辆经度
-		$('#lat').html('纬度： N ' + Math.floor(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL);	// 车辆纬度
-		$('#speed').html('速度： ' + obj_carInfo.speed + ' km/h'); // 终端最后一次定位速度
+	// 经纬度为0 不显示位置信息
+	if ( n_clat == 0 || n_clon == 0 ) {
+		str_address = '--';
+		str_degree = '--';
+		str_type = '--';
+		str_clon += '--';
+		str_clat += '--';
+		str_speed = '--';
+	} else {
+		str_clon += 'E ' + Math.floor(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
+		str_clat += 'N ' + Math.floor(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
 	}
-	// 终端状态
-	$('#power').css('background-image', str_pImg).html(str_power);
-	$('#power').attr('title', str_power );	// 电池电量填充
-	$('#GSM').html(str_gsm).attr('title', 'GSM 信号强度：' + n_gsm);
-	$('#g_word').html(str_gps);
-	//$('#GPS').html(str_gps).attr('title', 'GPS 信号强度：' + n_gps);
-	$('#defend_word').html(str_dStatus).data('defend', n_defendStatus);
-	$('#defendStatus').attr('title', str_dStatus);
-	$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
+	// lastinfo 更新车辆信息和终端信息  realtime: 只更新位置信息
+	if ( !type ) {
+		// 终端状态
+		$('#power').css('background-image', str_pImg).html(str_power);
+		$('#power').attr('title', str_power );	// 电池电量填充
+		$('#GSM').html(str_gsm).attr('title', 'GSM 信号强度：' + n_gsm);
+		$('#g_word').html(str_gps);
+		//$('#GPS').html(str_gps).attr('title', 'GPS 信号强度：' + n_gps);
+		$('#defend_word').html(str_dStatus).data('defend', n_defendStatus);
+		$('#defendStatus').attr('title', str_dStatus);
+		$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
+	}
+	// 车辆信息/位置信息
+	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
+	$('#address').html('位置：   ' + str_address); // 最后一次定们地址
+	$('#degree').html('方向：   ' + str_degree).attr('title', str_degreeTip);
+	$('#type').html('定位类型：   ' + str_type); // 车辆定位类型
+	$('#lng').html(str_clon); // 车辆经度
+	$('#lat').html(str_clat);	// 车辆纬度
+	$('#speed').html( '速度： ' + str_speed); // 终端最后一次定位速度
 }
 /*对动态数据做更新*/
-window.dlf.fn_updateInfoData = function(obj_carInfo, currentShow) {
+window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	var obj_tempData = [], 
 		str_currentTid = $('#carList a[class*=currentCar]').attr('tid'),
 		str_tid = obj_carInfo.tid,
@@ -409,6 +439,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, currentShow) {
 	} else {
 		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carA.parent().index(), true); // 添加标记
 	}
+	// 实时定位
+	if ( str_type ) {
+		obj_selfMarker.openInfoWindow(obj_selfMarker.selfInfoWindow);
+	}
+	/*
 	// 查找到当前车辆的信息
 	if ( currentShow == 'current' ) {
 		f_infoWindowStatus = true;
@@ -417,11 +452,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, currentShow) {
 		var obj_tempMarker = obj_carA.data('selfmarker');
 		if (( str_currentTid == str_tid ) && f_infoWindowStatus ) { 
 			if ( obj_tempMarker ) {
+					console.log(11111111111111);
 				obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
 				clearInterval(obj_toWindowInterval);
 			}
 		}
 	}, 500);
+	*/
 }
 /** 转换GPS信号和GSM信号 为相应的强度**/
 window.dlf.fn_changeData = function(str_key, str_val) {
@@ -463,7 +500,9 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			$('#gps').attr('title', 'GPS信号：' + str_val);
 		}
 	} else if ( str_key == 'power' ) {
-		if ( str_val >= 0 && str_val <= 25 ) {
+		if ( str_val == 0 ) {
+			str_return = 'url("/static/images/power.png")';
+		} else if ( str_val > 0 && str_val <= 25 ) {
 			str_return = 'url("/static/images/power0.png")';
 		} else if ( str_val > 25 && str_val <= 50 ) {
 			str_return = 'url("/static/images/power3.png")';

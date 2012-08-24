@@ -55,7 +55,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 window.dlf.fn_tipContents = function (obj_location, str_iconType) { 
 	var	address = obj_location.name, 
 		speed = obj_location.speed,
-		date = dlf.fn_changeNumToDateString(obj_location.timestamp),
+		date = dlf.fn_changeNumToDateString(obj_location.timestamp*1000),
 		n_degree = Math.round(obj_location.degree), 
 		str_tid = obj_location.tid,
 		str_clon = obj_location.clongitude/NUMLNGLAT,
@@ -66,6 +66,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 		str_tempMsg = '开始跟踪',
 		str_actionTrack =$('#carList .currentCar').attr('actiontrack'),
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
+	console.log(obj_location.timestamp);
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
 	}
