@@ -77,7 +77,7 @@
 			<tr>
 				<td align="right">终端状态：</td>
 				<td align="left">
-					{% if  business.service_status == '1' %}
+					{% if  business.service_status == 1 %}
 						<input type="radio" name="service_status" checked="true" value="1" />启用
 						<input type="radio" name="service_status" value="0" />停用
 					{% else %}

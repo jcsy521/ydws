@@ -111,7 +111,7 @@
                     <a href="/business/edit/{{business['tmobile']}}">编辑</a>
                 </td>
                 <td>
-					{% if business['service_status'] == '0' %}
+					{% if business['service_status'] == 0 %}
 						 <a href="#" onclick="businessDelete({{business['tmobile']}}, {{business['seq']}});" service_status="{{business['service_status']}}" id="service_status{{business['seq']}}">启用</a>
 					{% else %}
 						 <a href="#" onclick="businessDelete({{business['tmobile']}}, {{business['seq']}});" service_status="{{business['service_status']}}"  id="service_status{{business['seq']}}">停用</a>
