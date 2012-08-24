@@ -44,11 +44,9 @@ class MySIServer():
         self.db = None 
         self.redis = None
         # RabbitMQ
-        self.consume_connection = None
-        self.consume_channel = None
-        self.publish_connection = None
-        self.publish_channel = None
-        self.exchange = 'acb_gw_test'
+        self.rabbitmq_connection = None
+        self.rabbitmq_channel = None
+        self.exchange = 'acb_exchange'
         self.gw_queue = 'gw_requests_queue'
         self.si_queue = 'si_requests_queue'
         self.gw_binding = 'gw_requests_binding'
@@ -60,44 +58,30 @@ class MySIServer():
         self.connections = {}
         self.addresses = {}
         self.listen_fd, self.epoll_fd = self.get_socket()
-        self._connect_rabbitmq(ConfHelper.RABBITMQ_CONF.host)
+        self.rabbitmq_connection, self.rabbitmq_channel = self.__connect_rabbitmq(ConfHelper.RABBITMQ_CONF.host)
 
-    def _connect_rabbitmq(self, host):
-        self.publish(host)
-        self.consume(host)
+    def __connect_rabbitmq(self, host):
+        connection = None
+        channel = None
+        try:
+            parameters = pika.ConnectionParameters(host=host)
+            connection = BlockingConnection(parameters)
+            channel = connection.channel()
+            channel.exchange_declare(exchange=self.exchange,
+                                     durable=False,
+                                     auto_delete=True)
+            channel.queue_declare(queue=self.si_queue,
+                                  durable=False,
+                                  exclusive=False,
+                                  auto_delete=True)
+            channel.queue_bind(exchange=self.exchange,
+                               queue=self.si_queue,
+                               routing_key=self.si_binding)
 
-    def publish(self, host):
-        parameters = pika.ConnectionParameters(host=host)
-        self.publish_connection = BlockingConnection(parameters)
-        self.publish_channel = self.publish_connection.channel()
-        self.publish_channel.exchange_declare(exchange=self.exchange,
-                                              durable=True,
-                                              auto_delete=True,
-                                              type='direct')
-        self.publish_channel.queue_declare(queue=self.si_queue,
-                                           durable=True,
-                                           exclusive=False,
-                                           auto_delete=True)
-        self.publish_channel.queue_declare(queue=self.gw_queue,
-                                           durable=True,
-                                           exclusive=False,
-                                           auto_delete=True)
+        except:
+            logging.exception("[SI] Connect Rabbitmq-server Error!")
 
-    def consume(self, host):
-        parameters = pika.ConnectionParameters(host=host)
-        self.consume_connection = BlockingConnection(parameters)
-        self.consume_channel = self.consume_connection.channel()
-        self.consume_channel.exchange_declare(exchange=self.exchange,
-                                              durable=True,
-                                              auto_delete=True,
-                                              type='direct')
-        self.consume_channel.queue_declare(queue=self.si_queue,
-                                           durable=True,
-                                           exclusive=False,
-                                           auto_delete=True)
-        self.consume_channel.queue_bind(exchange=self.exchange,
-                                        queue=self.si_queue,
-                                        routing_key=self.si_binding)
+        return connection, channel
 
     def get_socket(self):
         listen_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -122,7 +106,15 @@ class MySIServer():
                       self.addresses[fd][0], self.addresses[fd][1], atc.buf)
         request = DotDict(packet=atc.buf,
                           category='H')
-        self.append_si_request(request)
+        connection, channel = self.__connect_rabbitmq(host=ConfHelper.RABBITMQ_CONF.host)
+        message = json.dumps(request)
+        # make message not persistent
+        properties = pika.BasicProperties(delivery_mode=1,)
+        channel.basic_publish(exchange=self.exchange,
+                              routing_key=self.si_binding,
+                              body=message,
+                              properties=properties)
+        connection.close()
 
     def __start_heartbeat_thread(self, fd):
         # why this thread can use self.db, not need to get a new connection
@@ -362,11 +354,11 @@ class MySIServer():
         unbind: unregister fd
         other: send to SI 
         """
-        method, header, body = self.consume_channel.basic_get(queue=self.si_queue)
+        method, header, body = self.rabbitmq_channel.basic_get(queue=self.si_queue)
         if method.NAME == 'Basic.GetEmpty':
             #print "demo_get: Empty Basic.Get Response (Basic.GetEmpty)"
             return
-        self.consume_channel.basic_ack(delivery_tag=method.delivery_tag)
+        self.rabbitmq_channel.basic_ack(delivery_tag=method.delivery_tag)
         request = json.loads(body)
         if request.get('category') == 'H': # heart_beat
             # send 3 times at most
@@ -458,11 +450,10 @@ class MySIServer():
         message = json.dumps(request)
         # make message not persistent
         properties = pika.BasicProperties(delivery_mode=1,)
-        self.publish_channel.basic_publish(exchange=self.exchange,
-                                   routing_key=self.gw_binding,
-                                   body=message,
-                                   properties=properties
-                                   )
+        self.rabbitmq_channel.basic_publish(exchange=self.exchange,
+                                            routing_key=self.gw_binding,
+                                            body=message,
+                                            properties=properties)
 
     def append_si_request(self, request):
         #si_fds = self.redis.getvalue('fds')
@@ -471,11 +462,10 @@ class MySIServer():
         message = json.dumps(request)
         # make message not persistent
         properties = pika.BasicProperties(delivery_mode=1,)
-        self.publish_channel.basic_publish(exchange=self.exchange,
-                                   routing_key=self.si_binding,
-                                   body=message,
-                                   properties=properties
-                                   )
+        self.rabbitmq_channel.basic_publish(exchange=self.exchange,
+                                            routing_key=self.si_binding,
+                                            body=message,
+                                            properties=properties)
 
     def __close_thread_by_fd(self, fd):
         if fd:
@@ -515,10 +505,9 @@ class MySIServer():
         self.__close_fd(fd)
 
     def __close_rabbitmq(self):
-        if self.consume_connection:
-            self.consume_connection.close()
-        if self.publish_connection:
-            self.publish_connection.close()
+        if self.rabbitmq_connection and self.rabbitmq_connection.is_open:
+            self.rabbitmq_channel.queue_delete(queue=self.si_queue)
+            self.rabbitmq_connection.close()
 
     def stop(self):
         for fd in self.connections.keys():

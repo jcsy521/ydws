@@ -53,21 +53,42 @@ class MyGWServer(object):
         self.redis = None 
         self.db = None
         # RabbitMQ
-        self.publish_connection = None
-        self.publish_channel = None
-        self.consume_connection = None
-        self.consume_channel = None
-        self.exchange = 'acb_gw_test'
+        self.rabbitmq_connection = None
+        self.rabbitmq_channel = None
+        self.exchange = 'acb_exchange'
         self.gw_queue = 'gw_requests_queue'
         self.si_queue = 'si_requests_queue'
         self.gw_binding = 'gw_requests_binding'
         self.si_binding = 'si_requests_binding'
+        self.rabbitmq_connection, self.rabbitmq_channel = self.__connect_rabbitmq(ConfHelper.RABBITMQ_CONF.host)
 
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
         #self.__restore_online_terminals()
         #self.__start_check_heartbeat_thread()
+
+    def __connect_rabbitmq(self, host):
+        connection = None
+        channel = None
+        try:
+            parameters = pika.ConnectionParameters(host=host)
+            connection = BlockingConnection(parameters)
+            channel = connection.channel()
+            channel.exchange_declare(exchange=self.exchange,
+                                     durable=False,
+                                     auto_delete=True)
+            channel.queue_declare(queue=self.gw_queue,
+                                  durable=False, # not persistent
+                                  exclusive=True, # only use by creator
+                                  auto_delete=True) # all client break connection, auto del
+            channel.queue_bind(exchange=self.exchange,
+                               queue=self.gw_queue,
+                               routing_key=self.gw_binding)
+        except:
+            logging.exception("[GW] Connect Rabbitmq-server Error!")
+
+        return connection, channel
 
     def check_heartbeat(self):
         try:
@@ -147,25 +168,12 @@ class MyGWServer(object):
 
     def consume(self, host):
         try:
-            parameters = pika.ConnectionParameters(host=host)
-            self.consume_connection = BlockingConnection(parameters)
-            self.consume_channel = self.consume_connection.channel()
-            self.consume_channel.exchange_declare(exchange=self.exchange,
-                                                  durable=True,
-                                                  auto_delete=True) 
-            self.consume_channel.queue_declare(queue=self.gw_queue,
-                                               durable=True,
-                                               exclusive=False,
-                                               auto_delete=True) 
-            self.consume_channel.queue_bind(exchange=self.exchange,
-                                            queue=self.gw_queue,
-                                            routing_key=self.gw_binding)
             while True:
-                method, header, body = self.consume_channel.basic_get(queue=self.gw_queue,
-                                                                      no_ack=True)
+                method, header, body = self.rabbitmq_channel.basic_get(queue=self.gw_queue)
                 if method.NAME == 'Basic.GetEmpty':
                     sleep(1) 
                 else:
+                    self.rabbitmq_channel.basic_ack(delivery_tag=method.delivery_tag)
                     self.send(body)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
@@ -180,8 +188,6 @@ class MyGWServer(object):
             message = DotDict(message)
             self.socket.sendto(message.packet, tuple(message.address))
             logging.info("[GW] send: %s to %s", message.packet, message.address)
-            # NOTE: 保证客户端收到，有确认结果
-            #channel.basic_ack(delivery_tag=method.delivery_tag)
         except socket.error as e:
             logging.exception("[GW]sock send error: %s", e.args)
         except Exception as e:
@@ -189,23 +195,10 @@ class MyGWServer(object):
 
     def publish(self, host):
         try:
+            #NOTE: self.online_terminals, this process will change it!
             self.__restore_online_terminals()
             self.__start_check_heartbeat_thread()
 
-            parameters = pika.ConnectionParameters(host='localhost')
-            self.publish_connection = BlockingConnection(parameters)
-            self.publish_channel = self.publish_connection.channel()
-            self.publish_channel.exchange_declare(exchange=self.exchange,
-                                                  durable=True,
-                                                  auto_delete=True)
-            self.publish_channel.queue_declare(queue=self.gw_queue,
-                                               durable=True,
-                                               exclusive=False,
-                                               auto_delete=True)
-            self.publish_channel.queue_declare(queue=self.si_queue,
-                                               durable=True,
-                                               exclusive=False,
-                                               auto_delete=True)
             self.recv()
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
@@ -459,10 +452,10 @@ class MyGWServer(object):
         message = json.dumps(request)
         # make message not persistent
         properties = pika.BasicProperties(delivery_mode=1,)
-        self.publish_channel.basic_publish(exchange=self.exchange,
-                                           routing_key=self.gw_binding,
-                                           body=message,
-                                           properties=properties)
+        self.rabbitmq_channel.basic_publish(exchange=self.exchange,
+                                            routing_key=self.gw_binding,
+                                            body=message,
+                                            properties=properties)
 
     def append_si_request(self, request):
         #si_fds = self.redis.getvalue('fds')
@@ -472,10 +465,10 @@ class MyGWServer(object):
         message = json.dumps(request)
         # make message not persistent
         properties = pika.BasicProperties(delivery_mode=1,)
-        self.publish_channel.basic_publish(exchange=self.exchange,
-                                           routing_key=self.si_binding,
-                                           body=message,
-                                           properties=properties)
+        self.rabbitmq_channel.basic_publish(exchange=self.exchange,
+                                            routing_key=self.si_binding,
+                                            body=message,
+                                            properties=properties)
 
     def get_terminal_sessionID(self, dev_id):
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id) 
@@ -511,10 +504,8 @@ class MyGWServer(object):
         return self.redis.getvalue(terminal_status_key)
 
     def __close_rabbitmq(self):
-        if self.consume_connection:
-            self.consume_connection.close()
-        if self.publish_connection:
-            self.publish_connection.close()
+        if self.rabbitmq_connection and self.rabbitmq_connection.is_open:
+            self.rabbitmq_connection.close()
 
     def __close_socket(self):
         try:
