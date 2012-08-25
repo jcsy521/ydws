@@ -51,7 +51,7 @@ class DefendHandler(BaseHandler):
                            info=response.info)
                 if response.clwhead and response.clwbody:
                     rp = DefendParser(response.clwbody, response.clwhead)
-                    status = int(rp.ret['status'])
+                    status = rp.ret['status']
                     if status == GATEWAY.DEFEND_STATUS.SUCCESS : 
                         ret['success'] = ErrorCode.SUCCESS
                     else:
