@@ -37,6 +37,9 @@ def get_tname(dev_id, db, redis):
         name = t.alias
         redis.setvalue(key, name)
     name = name if name else dev_id
+    if isinstance(name, str):
+        name = name.decode("utf-8")
+
     return name
 
 def sms_to_user(dev_id, sms, db):
