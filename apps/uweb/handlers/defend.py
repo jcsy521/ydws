@@ -43,7 +43,7 @@ class DefendHandler(BaseHandler, BaseMixin):
             status = ErrorCode.SUCCESS
 
             response = json_decode(response)
-            if response['success'] == 0:
+            if response['success'] == ErrorCode.SUCCESS:
                 defend_status = UWEB.DEFEND_STATUS.YES 
                 if res.defend_status == UWEB.DEFEND_STATUS.YES:
                     defend_status = UWEB.DEFEND_STATUS.NO

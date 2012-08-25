@@ -63,7 +63,7 @@ class RealtimeMixin(BaseMixin):
         is_alived = self.redis.getvalue('is_alived')
         if is_alived == ALIVED:
             location = self.redis.getvalue(str(self.current_user.tid))
-            if location and (time.time() * 1000 - location.timestamp) > UWEB.REALTIME_VALID_INTERVAL:
+            if location and (time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
                 location = None
         else:
             # we should eventually search location from T_LOCATION
@@ -94,10 +94,11 @@ class RealtimeMixin(BaseMixin):
                               message='',
                               location=DotDict())
                 response = json_decode(response)
+
                 if response['success'] == 0:
                     location = DotDict(response['position'])
                     location = handle_location(location, self.redis,
-                                               cellid=True if query.cellid_status == UWEB.CELLID_STATUS.ON else False,
+                                               cellid=True if int(query.cellid_status) == UWEB.CELLID_STATUS.ON else False,
                                                db=self.db)
                     if location.get('cLat') and location.get('cLon'):
                         ret.location.latitude = location.lat

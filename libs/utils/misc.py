@@ -72,6 +72,9 @@ def get_name_cache_key(sim):
 def get_lq_sms_key(sim):
     return str("lq:%s" % sim)
 
+def get_lq_interval_key(tid):
+    return str("lq_interval:%s" % tid)
+
 def get_terminal_time(timestamp):
     terminal_time = ""
     try:

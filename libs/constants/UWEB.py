@@ -8,7 +8,7 @@ PRIORITY = DotDict(SMS=40, )
 SPEED_DIFF = 3 # if speed < 3km/h, be considered as still point.
 
 
-REALTIME_VALID_INTERVAL = 180000
+REALTIME_VALID_INTERVAL = 180 # 3 minutes. in seconds.
 GPS_REALTIME_INTERVAL = 60000
 
 USER_VALID = DotDict(VALID=1,
