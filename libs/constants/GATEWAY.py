@@ -53,10 +53,8 @@ RESPONSE_STATUS = DotDict(SUCCESS="0",
 SERVICE_STATUS = DotDict(ON=1,
                          OFF=0)
 
-DEFEND_STATUS = DotDict(FAILED="0",
-                        SUCCESS="1",
-                        NO_HOST_SUCCESS="2",
-                        NO_HOST_FAILED="3")
+DEFEND_STATUS = DotDict(SUCCESS="0",
+                        FAILED="1")
 
 TERMINAL_LOGIN = DotDict(LOGIN=1,
                          UNLOGIN=0)

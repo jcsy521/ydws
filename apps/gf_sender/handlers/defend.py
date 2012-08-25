@@ -52,13 +52,10 @@ class DefendHandler(BaseHandler):
                 if response.clwhead and response.clwbody:
                     rp = DefendParser(response.clwbody, response.clwhead)
                     status = int(rp.ret['status'])
-                    s_codes = (CLWCode.DEFEND_SUCCESS,CLWCode.DEFEND_NO_HOST_SUCCESS)
-                    if status in s_codes: 
+                    if status == GATEWAY.DEFEND_STATUS.SUCCESS : 
                         ret['success'] = ErrorCode.SUCCESS
-                        ret['info'] = CLWCode.ERROR_MESSAGE[status] 
                     else:
                         ret['success'] = ErrorCode.FAILED
-                        ret['info'] = CLWCode.ERROR_MESSAGE[status] 
 
                 self.set_header(*self.JSON_HEADER)
                 self.write(json_encode(ret))
