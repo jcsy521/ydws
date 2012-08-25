@@ -17,7 +17,7 @@ from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_alarm_status_key,\
      get_terminal_time, get_sessionID, get_terminal_sessionID_key,\
-     get_lq_interval_key
+     get_lq_interval_key, get_name_cache_key
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -102,6 +102,20 @@ class MyGWServer(object):
         except:
             logging.exception("[GW] Check gateway heartbeat exception.")
                 
+    def get_tname(self, dev_id):
+        key = get_name_cache_key(dev_id)
+        name = self.redis.getvalue(key)
+        if not name:
+            t = self.db.get("SELECT alias FROM T_TERMINAL_INFO"
+                            "  WHERE tid = %s", dev_id)
+            name = t.alias
+            self.redis.setvalue(key, name)
+        name = name if name else dev_id
+        if isinstance(name, str):
+            name = name.decode("utf-8")
+
+        return name
+
     def heartbeat_lost_report(self, dev_id):
         timestamp = int(time.time())
         rname = EVENTER.RNAME.HEARTBEAT_LOST
@@ -118,7 +132,8 @@ class MyGWServer(object):
         #    self.redis.setvalue(alarm_key, category) 
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
         current_time = get_terminal_time(timestamp) 
-        sms = SMSCode.SMS_HEARTBEAT_LOST % (dev_id, current_time)
+        tname = self.get_tname(dev_id)
+        sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
         if user:
             SMSHelper.send(user.owner_mobile, sms)
         logging.warn("[GW] Terminal %s Heartbeat lost!!! SMS: %s", dev_id, sms)
