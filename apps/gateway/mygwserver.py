@@ -16,7 +16,8 @@ from utils.repeatedtimer import RepeatedTimer
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_alarm_status_key,\
-     get_terminal_time, get_sessionID, get_terminal_sessionID_key
+     get_terminal_time, get_sessionID, get_terminal_sessionID_key,\
+     get_lq_interval_key
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -102,26 +103,25 @@ class MyGWServer(object):
             logging.exception("[GW] Check gateway heartbeat exception.")
                 
     def heartbeat_lost_report(self, dev_id):
-        #timestamp = int(time.time() * 1000)
-        #rname = EVENTER.RNAME.HEARTBEAT_LOST
-        #category = EVENTER.CATEGORY[rname]
-        #lid = self.db.execute("INSERT INTO T_LOCATION(tid, timestamp, category, type)"
-        #                      "  VALUES(%s, %s, %s, %s)",
-        #                      dev_id, timestamp, category, 1)
-        #self.db.execute("INSERT INTO T_EVENT"
-        #                "  VALUES (NULL, %s, %s, %s)",
-        #                dev_id, lid, category)
+        timestamp = int(time.time())
+        rname = EVENTER.RNAME.HEARTBEAT_LOST
+        category = EVENTER.CATEGORY[rname]
+        lid = self.db.execute("INSERT INTO T_LOCATION(tid, timestamp, category, type)"
+                              "  VALUES(%s, %s, %s, %s)",
+                              dev_id, timestamp, category, 1)
+        self.db.execute("INSERT INTO T_EVENT"
+                        "  VALUES (NULL, %s, DEFAULT, %s, NULL, %s)",
+                        dev_id, lid, category)
         #alarm_key = get_alarm_status_key(dev_id)
         #alarm_status = self.redis.getvalue(alarm_key)
         #if alarm_status != rname: 
         #    self.redis.setvalue(alarm_key, category) 
-        #user = QueryHelper.get_user_by_tid(dev_id, self.db)
-        #current_time = get_terminal_time(timestamp) 
-        #sms = SMSCode.SMS_HEARTBEAT_LOST % (dev_id, current_time)
-        #if user:
-        #    SMSHelper.send(user.owner_mobile, sms)
-        #    logging.warn("[GW] Terminal %s Heartbeat lost report:\n%s", dev_id, sms)
-        logging.error("[GW] Terminal %s Heartbeat lost!!!", dev_id)
+        user = QueryHelper.get_user_by_tid(dev_id, self.db)
+        current_time = get_terminal_time(timestamp) 
+        sms = SMSCode.SMS_HEARTBEAT_LOST % (dev_id, current_time)
+        if user:
+            SMSHelper.send(user.owner_mobile, sms)
+        logging.warn("[GW] Terminal %s Heartbeat lost!!! SMS: %s", dev_id, sms)
         # 1. memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
         self.redis.delete(terminal_sessionID_key)
@@ -476,9 +476,11 @@ class MyGWServer(object):
 
         return sessionID
 
-    def update_terminal_status(self, dev_id, address, flag=True):
+    def update_terminal_status(self, dev_id, address):
         terminal_status_key = get_terminal_address_key(dev_id)
-        if flag:
+        lq_interval_key = get_lq_interval_key(dev_id)
+        is_lq = self.redis.getvalue(lq_interval_key)
+        if is_lq:
             self.redis.setvalue(terminal_status_key, address, 2*HEARTBEAT_INTERVAL)
         else:
             self.redis.setvalue(terminal_status_key, address, 2*SLEEP_HEARTBEAT_INTERVAL)

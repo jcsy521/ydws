@@ -19,6 +19,7 @@ RNAME = DotDict(POWEROFF="POWEROFF",
                 POWERLOW="POWERLOW",
                 ILLEGALMOVE="ILLEGALMOVE",
                 EMERGENCY="EMERGENCY",
+                HEARTBEAT_LOST="HEARTBEAT_LOST",
                 UNKNOWN="UNKNOWN")
 
 # match definitions in db.
@@ -27,7 +28,8 @@ CATEGORY = DotDict(UNKNOWN=0,
                    POWERLOW=2,
                    POWEROFF=3,
                    ILLEGALMOVE=4,
-                   EMERGENCY=5)
+                   EMERGENCY=5,
+                   HEARTBEAT_LOST=6)
 
 # The location name will be cached for 7 days
 LOCATION_NAME_EXPIRY = 60*60*24*7
