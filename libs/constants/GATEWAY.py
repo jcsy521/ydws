@@ -50,8 +50,8 @@ LOCATION_STATUS = DotDict(FAILED="0",
 RESPONSE_STATUS = DotDict(SUCCESS="0",
                           INVALID_SESSIONID="1")
 
-SERVICE_STATUS = DotDict(ON="1",
-                         OFF="0")
+SERVICE_STATUS = DotDict(ON=1,
+                         OFF=0)
 
 DEFEND_STATUS = DotDict(FAILED="0",
                         SUCCESS="1",

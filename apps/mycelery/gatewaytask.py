@@ -65,7 +65,7 @@ def execute():
                          "  FROM T_TERMINAL_INFO"
                          "  WHERE endtime BETWEEN %s AND %s"
                          "     OR service_status = %s",
-                         yday, tday, GATEWAY.TERMINAL_LOGIN.UNLOGIN)
+                         yday, tday, GATEWAY.SERVICE_STATUS.OFF)
     for terminal in terminals:
         terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
         terminal_status_key = get_terminal_address_key(terminal.tid)
@@ -83,11 +83,11 @@ def execute():
             r = RepeatedTimer(9 * 60 * 60, send_sms, 1)
             r.start()
 
-        if terminal.service_status != GATEWAY.TERMINAL_LOGIN.UNLOGIN:
+        if terminal.service_status != GATEWAY.SERVICE_STATUS.OFF
             db.execute("UPDATE T_TERMINAL_INFO"
                        "  SET service_status = %s"
                        "  WHERE id = %s", 
-                       GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.id)
+                       GATEWAY.SERVICE_STATUS.OFF, terminal.id)
         
     db.close()
 
