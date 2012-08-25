@@ -22,7 +22,7 @@ class T_CLWCheck(object):
             if len(p_info) >= len(keys):
                 for i, key in enumerate(keys):
                     head[key] = p_info[i]
-                head.timestamp = head.timestamp if head.timestamp else int(time.time())
+                head.timestamp = int(head.timestamp) if head.timestamp else int(time.time())
                 body = p_info[len(keys):]
             else:
                 logging.error("Not a complete packet: %s", packet)
@@ -47,7 +47,7 @@ class S_CLWCheck(object):
             if len(p_info) >= len(keys):
                 for i, key in enumerate(keys):
                     head[key] = p_info[i]
-                head.timestamp = head.timestamp if head.timestamp else int(time.time()) 
+                head.timestamp = int(head.timestamp) if head.timestamp else int(time.time()) 
                 body = p_info[len(keys):]
             else:
                 logging.error("Not a complete packet: %s", packet)
