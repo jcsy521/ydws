@@ -83,7 +83,7 @@ def execute():
             r = RepeatedTimer(9 * 60 * 60, send_sms, 1)
             r.start()
 
-        if terminal.service_status != GATEWAY.SERVICE_STATUS.OFF
+        if terminal.service_status != GATEWAY.SERVICE_STATUS.OFF:
             db.execute("UPDATE T_TERMINAL_INFO"
                        "  SET service_status = %s"
                        "  WHERE id = %s", 
