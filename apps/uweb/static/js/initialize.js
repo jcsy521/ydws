@@ -279,7 +279,7 @@ window.dlf.fn_updateLastInfo = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除定时器
 	currentLastInfo = setInterval(function () { // 每15秒启动
 		dlf.fn_getCarData();
-	}, INFOTIME);
+	}, INFOTIME); //
 }
 	
 window.dlf.fn_getCarData = function() {
@@ -316,6 +316,8 @@ window.dlf.fn_getCarData = function() {
 							dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据
 						}
 					}
+					// 修改别名
+					obj_carLi.children().eq(1).html(obj_carInfo.alias);
 					// 动态修改车辆当前连接状态
 					if ( str_loginst == LOGINST) {
 						obj_carLi.children().eq(2).removeClass('carlogout').addClass('carlogin').html('在线');
@@ -433,6 +435,12 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	mapObj.addOverlay(actionPolyline);//向地图添加覆盖物 
 	obj_carA.data('selfpolyline', actionPolyline);
 	if ( obj_selfMarker ) {
+		// 修改别名
+		obj_selfMarker.getLabel().setContent(obj_carInfo.alias);
+		//console.log(obj_selfMarker.selfInfoWindow.content);
+		//;
+		//obj_selfMarker.setLabel(new BMap.Label(obj_carInfo.alias, {offset:new BMap.Size(20, -10)})); // todo  tid >>  别名 obj_carInfo.alias);
+		obj_selfMarker.setTitle(obj_carInfo.alias);
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_carA.data('selfmarker', obj_selfMarker);
@@ -563,8 +571,8 @@ window.dlf.fn_clearInterval = function(obj_interval) {
 }
 // 方向角处理
 window.dlf.fn_processDegree = function(n_degree) {
-	var n_roundDegree = Math.floor(n_degree/36);
-	return n_roundDegree != 0 ? n_roundDegree : 10;
+	var n_roundDegree = Math.floor(n_degree/10);
+	return n_roundDegree != 0 ? n_roundDegree : 36;
 }
 /**根据相应的报警状态码显示相应的报警提示*/
 window.dlf.fn_eventText = function(n_eventNum) {
@@ -725,6 +733,19 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 				if ( str_who != 'terminal' ) {
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else {
+					var alias = obj_data.alias,
+						obj_car = $('#carList .currentCar'),
+						obj_selfMarker = obj_car.data('selfmarker');
+					if ( alias ) {
+						/*if ( obj_selfMarker ) {
+							// 修改别名
+							obj_selfMarker.getLabel().setContent(alias);
+							//obj_selfMarker.setLabel(new BMap.Label(alias, {offset:new BMap.Size(20, -10)})); 
+							obj_selfMarker.setTitle(alias);
+						}
+						*/						
+						$(obj_car.siblings()[0]).html(alias);
+					}
 					dlf.fn_initTerminalWR();
 				}
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
