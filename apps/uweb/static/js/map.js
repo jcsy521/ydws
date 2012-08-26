@@ -94,7 +94,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
 				'<li><label>经度： E '+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
 				'<label class="labelRight">纬度： N '+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
-				'<li>定位类型：'+ str_type +'</li>'+
+				'<li>类型： '+ str_type +'</li>'+
 				'<li>时间： '+ date +'</li>' + 
 				'<li>位置： '+ address +'</li>';
 	if ( str_iconType == 'actiontrack' ) {
