@@ -352,7 +352,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		n_power = parseInt(obj_carInfo.pbat),
 		str_power = '剩余电量：   ' + n_power + '%',	// 电池电量 0-100
 		str_pImg = dlf.fn_changeData('power', n_power), // 电量图标
-		str_time = obj_carInfo.timestamp != null ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp*1000) : '-',
+		str_time = obj_carInfo.timestamp > 0 ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp*1000) : '-',
 		n_gsm = obj_carInfo.gsm,	// gsm 值
 		str_gsm = 'GSM 信号：    ' + dlf.fn_changeData('gsm', n_gsm),	// gsm信号
 		n_gps = obj_carInfo.gps,	// gps 值
