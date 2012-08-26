@@ -56,7 +56,9 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	var	address = obj_location.name, 
 		speed = obj_location.speed,
 		date = dlf.fn_changeNumToDateString(obj_location.timestamp*1000),
-		n_degree = Math.round(obj_location.degree), 
+		n_degree = obj_location.degree, 
+		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
+		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_tid = obj_location.tid,
 		str_clon = obj_location.clongitude/NUMLNGLAT,
 		str_clat = obj_location.clatitude/NUMLNGLAT,
@@ -88,7 +90,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	}
 	str_html += '<h4>'+str_title+'</h4><ul>'+ 
 				'<li><label>速度： '+ speed+' km/h</label>'+
-				'<label class="labelRight">方向角： '+n_degree+'</label></li>'+
+				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
 				'<li><label>经度： E '+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
 				'<label class="labelRight">纬度： N '+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
 				'<li>时间： '+ date +'</li>' + 

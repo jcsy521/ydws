@@ -516,19 +516,19 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		if ( str_val == 0 || str_val == 360 ) {
 			str_return = '正北';
 		} else if ( str_val > 0 && str_val < 90) {
-			str_return = '东北';
+			str_return = '东偏北';
 		} else if ( str_val == 90) {
 			str_return = '正东';
 		} else if ( str_val > 90 && str_val < 180) {
-			str_return = '东南';
+			str_return = '东偏南';
 		} else if ( str_val == 180) {
 			str_return = '正南';
 		} else if ( str_val > 180 && str_val < 270) {
-			str_return = '西南';
+			str_return = '西偏南';
 		} else if ( str_val == 270) {
 			str_return = '正西';
 		} else if ( str_val > 270 && str_val < 360) {
-			str_return = '西北';
+			str_return = '西偏北';
 		}
 	}
 	return str_return;
