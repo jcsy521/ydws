@@ -512,8 +512,20 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		} else if ( str_val > 75 && str_val <= 100 ) {
 			str_return = 'url("/static/images/power9.png")';
 		}
-	} else if ( str_key == 'degree' ) {
-		if ( str_val == 0 || str_val == 360 ) {
+	} else if ( str_key == 'degree' ) {;
+		var arr_degree = [355,5,40,50,85,95,130,140,175,185,220,230,265,275,310,320,355],
+			arr_desc  = ['正北','北偏东','东北','东偏北','正东','东偏南','东南','南偏东','正南','南偏西','西南','西偏南','正西','西偏北','西北','北偏西','正北'];
+		for ( var i = 0; i < arr_degree.length; i++ ) {
+			if ( str_val >= 355 || str_val <= 5 ) {
+				str_return = '正北';
+				break;
+			} else if ( str_val >= arr_degree[i] && str_val <= arr_degree[i+1] ) {
+				console.log(arr_degree[i], arr_degree[i+1]);
+				str_return = arr_desc[i];
+				break;
+			}			
+		}
+		/*if ( str_val == 0 || str_val == 360 ) {
 			str_return = '正北';
 		} else if ( str_val > 0 && str_val < 90) {
 			str_return = '东偏北';
@@ -530,6 +542,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		} else if ( str_val > 270 && str_val < 360) {
 			str_return = '西偏北';
 		}
+		*/
 	}
 	return str_return;
 }
