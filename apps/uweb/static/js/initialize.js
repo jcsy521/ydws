@@ -481,7 +481,6 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			obj_gsm.css('background-image', str_gsmImg);
 		}
 	} else if ( str_key == 'gps' ) {	// gps 
-		console.log(str_val);
 		var str_gpsImg = '',
 			obj_gps = $('#GPS');
 		if ( str_val >= 0 && str_val < 10 ) {
@@ -499,7 +498,6 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		}
 		if ( obj_gps ) {
 			obj_gps.attr('src', str_gpsImg); // 终端最后一次设防状态
-			console.log(obj_gps.attr('src'));
 			$('#gps').attr('title', 'GPS信号：' + str_val);
 		}
 	} else if ( str_key == 'power' ) {
@@ -522,7 +520,6 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 				str_return = '正北';
 				break;
 			} else if ( str_val >= arr_degree[i] && str_val <= arr_degree[i+1] ) {
-				//console.log(arr_degree[i], arr_degree[i+1]);
 				str_return = arr_desc[i];
 				break;
 			}			
