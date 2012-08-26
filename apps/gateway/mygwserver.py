@@ -415,7 +415,7 @@ class MyGWServer(object):
                 location['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS 
                 location['t'] = EVENTER.INFO_TYPE.POSITION
                 location = lbmphelper.handle_location(location, self.redis)
-                location.name = location.name if location.name else ""
+                location.name = location.get('name') if location.get('name') else ""
                 locationdesc = unicode(location.name)
                 locationdesc = locationdesc.encode("utf-8", 'ignore')
                 args.locationdesc = base64.b64encode(locationdesc)
