@@ -395,7 +395,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
 	$('#address').html('位置：   ' + str_address); // 最后一次定们地址
 	$('#degree').html('方向：   ' + str_degree).attr('title', str_degreeTip);
-	$('#type').html('定位类型：   ' + str_type); // 车辆定位类型
+	$('#type').html('类型：   ' + str_type); // 车辆定位类型
 	$('#lng').html(str_clon); // 车辆经度
 	$('#lat').html(str_clat);	// 车辆纬度
 	$('#speed').html( '速度： ' + str_speed); // 终端最后一次定位速度
