@@ -496,7 +496,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			str_return = '强';
 			str_gpsImg = '/static/images/gps3.png';
 		}
-		if ( obj_gps ) {
+		if ( obj_gps && str_val) {
 			obj_gps.attr('src', str_gpsImg); // 终端最后一次设防状态
 			$('#gps').attr('title', 'GPS信号：' + str_val);
 		}
@@ -708,7 +708,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					if ( str_name == '' ) {
 						str_name = obj_data.uid;
 					} 
-					$('#uName').html('欢迎您，'+ str_name);
+					$('.welcome').html('欢迎您，'+ str_name);
 				}
 				if ( str_who != 'terminal' ) {
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
