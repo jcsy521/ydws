@@ -9,6 +9,7 @@ from helpers.gfsenderhelper import GFSenderHelper
 from helpers.seqgenerator import SeqGenerator
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
+from utils.misc import get_name_cache_key
 from helpers.lbmphelper import handle_location
 from constants import UWEB, EVENTER, GATEWAY, SMS
 from constants.MEMCACHED import ALIVED
@@ -61,6 +62,8 @@ class RealtimeMixin(BaseMixin):
         only one. If not, invoke gf and use handle_location of lbmphelper. 
         """
         is_alived = self.redis.getvalue('is_alived')
+        alias_key = get_name_cache_key(self.current_user.tid) 
+        alias = self.redis.getvalue(alias_key)
         if is_alived == ALIVED:
             location = self.redis.getvalue(str(self.current_user.tid))
             if location and (time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
@@ -87,6 +90,7 @@ class RealtimeMixin(BaseMixin):
             
             location['degree'] = float(location.degree)
             location['tid'] = self.current_user.tid
+            location['alias'] = alias if alias else '' 
 
             if callback:
                 callback(ret)
@@ -112,6 +116,7 @@ class RealtimeMixin(BaseMixin):
                         ret.location.speed = location.speed
                         ret.location.type = location.type
                         ret.location.tid = self.current_user.tid
+                        ret.location.alias = alias if alias else '' 
                         #ret.location.degree = int(round(float(location.degree)/36))
                         # now, provide the orginal degree.
                         ret.location.degree = float(location.degree)
