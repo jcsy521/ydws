@@ -88,7 +88,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 		str_tid = $('#carList .currentCar').attr('tid');
 		str_title += $('#carList a[tid='+str_tid+']').siblings('span').html();
 	}
-	str_html += '<h4>'+str_title+'</h4><ul>'+ 
+	str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 				'<li><label>速度： '+ speed+' km/h</label>'+
 				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
 				'<li><label>经度： E '+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+

@@ -437,7 +437,6 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( obj_selfMarker ) {
 		// 修改别名
 		obj_selfMarker.getLabel().setContent(obj_carInfo.alias);
-		//obj_selfMarker.setLabel(new BMap.Label(obj_carInfo.alias, {offset:new BMap.Size(20, -10)})); // todo  tid >>  别名 obj_carInfo.alias);
 		obj_selfMarker.setTitle(obj_carInfo.alias);
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
@@ -727,26 +726,29 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 						str_name = obj_data.uid;
 					} 
 					$('.welcome').html('欢迎您，'+ str_name);
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				}
 				if ( str_who != 'terminal' ) {
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else {
 					var alias = obj_data.alias,
 						obj_car = $('#carList .currentCar'),
 						obj_selfMarker = obj_car.data('selfmarker');
 					if ( alias ) {
-						/*if ( obj_selfMarker ) {
+						if ( obj_selfMarker ) {
 							// 修改别名
 							obj_selfMarker.getLabel().setContent(alias);
-							//obj_selfMarker.setLabel(new BMap.Label(alias, {offset:new BMap.Size(20, -10)})); 
-							obj_selfMarker.setTitle(alias);
+							var str_tid = $('#carList .currentCar').eq(0).attr('tid');
+							$('.cMsgWindow h4[tid='+str_tid+']').html(alias);
 						}
-						*/						
-						$(obj_car.siblings()[0]).html(alias);
+						obj_car.attr('title', alias);	// 
+						$(obj_car.siblings()[0]).html(alias).attr('title', alias);
 					}
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_initTerminalWR();
 				}
-				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+				
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', true);
 			}

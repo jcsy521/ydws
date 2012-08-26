@@ -20,7 +20,7 @@ window.dlf.fn_initTerminalWR = function (param) {
 	// 获取参数数据
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	// 获取用户数据
-	dlf.fn_jNotifyMessage('终端参数查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
+	//dlf.fn_jNotifyMessage('终端参数查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
 	var str_url  =  TERMINAL_URL;
 	if ( param ) {
 		 str_url = str_url + '?terminal_info=' +  param;
@@ -53,7 +53,7 @@ window.dlf.fn_initTerminalWR = function (param) {
 					$('#' + str_key ).attr('t_val', str_val);	// save original value
 				}
 			}
-			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+			//dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { // 查询状态不正确,错误提示
 			dlf.fn_jNotifyMessage(data.message, 'message');
 		}
