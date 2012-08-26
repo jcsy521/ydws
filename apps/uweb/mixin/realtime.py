@@ -86,6 +86,8 @@ class RealtimeMixin(BaseMixin):
         if (location and location.clatitude and location.clongitude):
             
             location['degree'] = float(location.degree)
+            location['tid'] = self.current_user.tid
+
             if callback:
                 callback(ret)
         else:
@@ -109,6 +111,7 @@ class RealtimeMixin(BaseMixin):
                         ret.location.name = location.name
                         ret.location.speed = location.speed
                         ret.location.type = location.type
+                        ret.location.tid = self.current_user.tid
                         #ret.location.degree = int(round(float(location.degree)/36))
                         # now, provide the orginal degree.
                         ret.location.degree = float(location.degree)

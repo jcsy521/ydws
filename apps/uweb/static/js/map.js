@@ -78,7 +78,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	if (speed == '' || speed == 'undefined' || speed == null || speed == ' undefined' || typeof speed == 'undefined') { 
 		speed = '0'; 
 	} else {
-		speed = Math.round(speed*10)/10;
+		speed = speed;
 	}
 	if ( str_alias ) { // 如果是轨迹回放 
 		str_title += str_alias;
@@ -86,15 +86,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 		str_tid = $('#carList .currentCar').attr('tid');
 		str_title += $('#carList a[tid='+str_tid+']').siblings('span').html();
 	}
-	
-	if ( n_degree == 0 ) {
-		n_degree = 10;
-	}
 	str_html += '<h4>'+str_title+'</h4><ul>'+ 
 				'<li><label>速度： '+ speed+' km/h</label>'+
 				'<label class="labelRight">方向角： '+n_degree+'</label></li>'+
-				'<li><label>经度： '+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
-				'<label class="labelRight">纬度： '+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
+				'<li><label>经度： E '+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
+				'<label class="labelRight">纬度： N '+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
 				'<li>时间： '+ date +'</li>' + 
 				'<li>位置： '+ address +'</li>';
 	if ( str_iconType == 'actiontrack' ) {

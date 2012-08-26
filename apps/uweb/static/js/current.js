@@ -50,7 +50,7 @@ function fn_currentRequest(obj_pd) {
 function fn_displayCurrentMarker(obj_location) {
 	dlf.fn_closeDialog();
     // 标记显示及中心点移动
-	mapObj.setCenter(new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT));
+	//mapObj.setCenter(new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT));
 	dlf.fn_updateInfoData(obj_location, 'realtime');
 	dlf.fn_updateTerminalInfo(obj_location, 'realtime');
 }

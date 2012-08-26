@@ -51,7 +51,8 @@ window.dlf.fn_closeDialog = function() {
 // 处理请求服务器错误
 window.dlf.fn_serverError = function(XMLHttpRequest) {
 	if ( XMLHttpRequest && XMLHttpRequest.status > 200 ) {
-		alert('请求失败，请重新操作！');	// httpRequest failed 
+		//alert('请求失败，请重新操作！');	// httpRequest failed
+		dlf.fn_jNotifyMessage('请求失败，请重新操作！', 'message', false, 3000);		
 		if ( window == window.parent ) {
 			window.location.replace('/'); // redirect to the index.
 		} else {
@@ -359,7 +360,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 		str_clon = '经度： ',
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
-		str_clat = '纬度：';	// 经纬度
+		str_clat = '纬度： ';	// 经纬度
 		
 	if ( str_address == '' || str_address == null ) {
 		str_address = '暂无';
@@ -442,25 +443,23 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carA.parent().index(), true); // 添加标记
 	}
 	// 实时定位
-	if ( str_type ) {
+	/*if ( str_type ) {
 		obj_selfMarker.openInfoWindow(obj_selfMarker.selfInfoWindow);
 	}
-	/*
+	*/
 	// 查找到当前车辆的信息
-	if ( currentShow == 'current' ) {
+	if ( str_type == 'current' ) {
 		f_infoWindowStatus = true;
 	}
 	var obj_toWindowInterval = setInterval(function() {
 		var obj_tempMarker = obj_carA.data('selfmarker');
 		if (( str_currentTid == str_tid ) && f_infoWindowStatus ) { 
 			if ( obj_tempMarker ) {
-					console.log(11111111111111);
 				obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
 				clearInterval(obj_toWindowInterval);
 			}
 		}
 	}, 500);
-	*/
 }
 /** 转换GPS信号和GSM信号 为相应的强度**/
 window.dlf.fn_changeData = function(str_key, str_val) {
@@ -570,6 +569,9 @@ window.dlf.fn_eventText = function(n_eventNum) {
 			break;
 		case 5:
 			str_text = 'SOS';
+			break;
+		case 6:
+			str_text = '心跳丢失';
 			break;
 	}
 	return str_text;
