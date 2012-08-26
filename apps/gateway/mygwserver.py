@@ -17,7 +17,7 @@ from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_alarm_status_key,\
      get_terminal_time, get_sessionID, get_terminal_sessionID_key,\
-     get_lq_interval_key, get_name_cache_key
+     get_lq_interval_key, get_name_cache_key, safe_unicode
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -416,8 +416,8 @@ class MyGWServer(object):
                 location['t'] = EVENTER.INFO_TYPE.POSITION
                 location = lbmphelper.handle_location(location, self.redis)
                 location.name = location.get('name') if location.get('name') else ""
-                locationdesc = unicode(location.name)
-                locationdesc = locationdesc.encode("utf-8", 'ignore')
+                location.name = safe_unicode(location.name)
+                locationdesc = location.name.encode("utf-8", 'ignore')
                 args.locationdesc = base64.b64encode(locationdesc)
                 self.update_terminal_status(head.dev_id, address)
 
