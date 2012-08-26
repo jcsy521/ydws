@@ -63,6 +63,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 		str_clon = obj_location.clongitude/NUMLNGLAT,
 		str_clat = obj_location.clatitude/NUMLNGLAT,
 		//str_mobile = obj_location.mobile, 
+		str_type = obj_location.type == GPS_TYPE ? 'GPS定位' : '基站定位',
 		str_alias = obj_location.alias,
 		str_title = '车辆：',
 		str_tempMsg = '开始跟踪',
@@ -93,6 +94,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
 				'<li><label>经度： E '+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
 				'<label class="labelRight">纬度： N '+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
+				'<li>定位类型：'+ str_type +'</li>'+
 				'<li>时间： '+ date +'</li>' + 
 				'<li>位置： '+ address +'</li>';
 	if ( str_iconType == 'actiontrack' ) {
