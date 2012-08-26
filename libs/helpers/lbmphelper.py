@@ -96,7 +96,7 @@ def handle_location(location, redis, cellid=False, db=None):
         location.cLat = 0
         location.cLon = 0
         location.type = 1
-        location.gps_time = location.timestamp
+        location.gps_time = int(time.time()) 
         location.degree = get_last_degree(location, redis, db)
         if cellid:
             location = get_latlon_from_cellid(location)
@@ -109,8 +109,17 @@ def handle_location(location, redis, cellid=False, db=None):
             if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
                 location.degree = get_last_degree(location, redis, db)
         else:
-           # UNREALTIME, pvt
-           pass
+            # UNREALTIME, pvt
+            # for realtime
+            if cellid:
+                location.lat = 0
+                location.lon = 0
+                location.cLat = 0
+                location.cLon = 0
+                location.type = 1
+                location.gps_time = int(time.time()) 
+                location.degree = get_last_degree(location, redis, db)
+                location = get_latlon_from_cellid(location)
 
     if location and location.lat and location.lon:
         location.cLat, location.cLon = get_clocation_from_ge(location)
