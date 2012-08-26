@@ -436,11 +436,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	obj_carA.data('selfpolyline', actionPolyline);
 	if ( obj_selfMarker ) {
 		// 修改别名
-		obj_selfMarker.getLabel().setContent(obj_carInfo.alias);
+		//obj_selfMarker.getLabel().setContent(obj_carInfo.alias);
 		//console.log(obj_selfMarker.selfInfoWindow.content);
 		//;
 		//obj_selfMarker.setLabel(new BMap.Label(obj_carInfo.alias, {offset:new BMap.Size(20, -10)})); // todo  tid >>  别名 obj_carInfo.alias);
-		obj_selfMarker.setTitle(obj_carInfo.alias);
+		//obj_selfMarker.setTitle(obj_carInfo.alias);
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_carA.data('selfmarker', obj_selfMarker);
