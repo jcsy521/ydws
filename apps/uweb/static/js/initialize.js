@@ -360,9 +360,9 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		n_gps = obj_carInfo.gps,	// gps 值
 		str_gps = 'GPS 信号：   ' + dlf.fn_changeData('gps', n_gps),	// gps信号
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
-		str_clon = '经度： ',
+		str_clon = '',
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
-		str_clat = '纬度： ';	// 经纬度
+		str_clat = '';	// 经纬度
 		
 	if ( str_address == '' || str_address == null ) {
 		str_address = '暂无';
@@ -393,12 +393,12 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	}
 	// 车辆信息/位置信息
 	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
-	$('#address').html('位置：   ' + str_address); // 最后一次定们地址
-	$('#degree').html('方向：   ' + str_degree).attr('title', str_degreeTip);
-	$('#type').html('类型：   ' + str_type); // 车辆定位类型
+	$('#address').html(str_address); // 最后一次定们地址
+	$('#degree').html(str_degree).attr('title', str_degreeTip);
+	$('#type').html(str_type); // 车辆定位类型
 	$('#lng').html(str_clon); // 车辆经度
 	$('#lat').html(str_clat);	// 车辆纬度
-	$('#speed').html( '速度： ' + str_speed); // 终端最后一次定位速度
+	$('#speed').html(str_speed); // 终端最后一次定位速度
 }
 /*对动态数据做更新*/
 window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
