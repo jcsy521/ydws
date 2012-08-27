@@ -113,12 +113,14 @@ body {
 	float: left;
 	padding: 10px 10px 10px 20px;
 }
+/*
 #cInfo {
 	height: 145px;
 }
 #tInfo {
 	height: 105px;
 }
+*/
 .d_img, .g_img {
 	display: inline-block; 
 	position: relative;
