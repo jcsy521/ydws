@@ -48,6 +48,7 @@ from handlers.defend import DefendHandler
 from handlers.terminal import TerminalHandler
 from handlers.password import PasswordHandler
 from handlers.detail import DetailHandler
+from handlers.business import BusinessCreateHandler
 
 from handlers.sms import SMSHandler
 
@@ -79,12 +80,17 @@ class Application(tornado.web.Application):
             (r"/password/*", PasswordHandler),
             (r"/detail/*", DetailHandler),
 
-
+            # for wap
             (r"/wap/*", WAPTransferHandler),
-            (r"/android/*", WAPTransferHandler),
+           
+            # for android 
+            (r"/android/*", AndroidHandler),
+            (r"/business/create/*", BusinessCreateHandler),
+
+            # for ios
             (r"/ios/*", IOSHandler),
 
-            # accept sms from sms proxy
+            # for sms: accept sms from sms proxy
             (r"/sms/mo/*", SMSHandler),
             
         ]
@@ -103,7 +109,6 @@ class Application(tornado.web.Application):
         self.db = DBConnection().db
         self.redis = MyRedis()
         self.redis.setvalue('is_alived', ALIVED)
-
 
 def shutdown(pool, server):
     try:
