@@ -93,7 +93,7 @@ class TerminalMixin(BaseMixin):
         s_keys = [] 
         f_keys = []
         for key, value in car_sets.iteritems():
-            if value == '0':
+            if value == "0":
                 if key.lower() == 'white_list' :
                     white_list = old_car_sets['white_list']
                     if len(old_car_sets['white_list']) < 1:
@@ -117,7 +117,7 @@ class TerminalMixin(BaseMixin):
         if not s_keys:
             pass
         for key in s_keys:
-            set_clause = set_clause + key.lower() + " = '" + car_sets[key] + "',"
+            set_clause = set_clause + key.lower() + " = '" + str(car_sets[key])+  "',"
             sql_cmd = "UPDATE T_TERMINAL_INFO SET " + set_clause[0:-1] + " WHERE tid = %s" 
             self.db.execute(sql_cmd, tid)
 
