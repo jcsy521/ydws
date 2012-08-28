@@ -163,7 +163,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
             self.bookkeep(dict(uid=uid,
                                tid=tid,
                                sim=sim))
-            self.write_ret(status)
+            self.write_ret(status,dict_=DotDict(app_key='e11e7e3e21180fd'))
         else:
             logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
