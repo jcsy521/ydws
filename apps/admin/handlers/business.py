@@ -68,7 +68,7 @@ class BusinessMixin(BaseMixin):
                                      if v is not None])
 
         if where_clause:
-            sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tu.corporation, tt.begintime, tt.endtime,"
+            sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
                    "  tt.mobile as tmobile, tt.service_status, tc.cnum"
                    "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
                    "  WHERE  tu.mobile = tt.owner_mobile "
@@ -76,7 +76,7 @@ class BusinessMixin(BaseMixin):
                    "    AND ") + where_clause
             businesses = self.db.query(sql)
         else:
-            sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tu.corporation, tt.begintime, tt.endtime,"
+            sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
                    "  tt.mobile as tmobile, tt.service_status, tc.cnum"
                    "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
                    "  WHERE  tu.mobile = tt.owner_mobile "
@@ -124,7 +124,7 @@ class BusinessMixin(BaseMixin):
     def get_business_info(self, tmobile):
         """Get business info in detail throught tmobile.
         """
-        business = self.db.get("SELECT tu.name, tu.mobile, tu.address, tu.email, tu.corporation, tt.begintime, tt.endtime,"
+        business = self.db.get("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
                                "  tt.mobile as tmobile, tt.service_status, tc.cnum"
                                "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
                                "  WHERE  tu.mobile = tt.owner_mobile "
@@ -141,32 +141,29 @@ class BusinessMixin(BaseMixin):
     def modify_user_terminal_car(self, fields):
         # 1: add user
         if fields.has_key('password'): # create a new user
-            uid = self.db.execute("INSERT INTO T_USER"
-                                  "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, %s, NULL, NULL)"
+            uid = self.db.execute("INSERT INTO T_USER(uid, password, name, mobile, address, email)"
+                                  "  VALUES(%s, password(%s), %s, %s, %s, %s)"
                                   "  ON DUPLICATE KEY"
                                   "  UPDATE uid = VALUES(uid),"
                                   "         password = VALUES(password),"
                                   "         name = VALUES(name), "
                                   "         mobile = VALUES(mobile), "
                                   "         address = VALUES(address), "
-                                  "         email = VALUES(email), "
-                                  "         corporation = VALUES(corporation)",
+                                  "         email = VALUES(email)",
                                   fields.mobile, fields.password,
                                   fields.name, fields.mobile,
-                                  fields.address, fields.email, 
-                                  fields.corporation) 
+                                  fields.address, fields.email) 
         else: # modify a user
-             uid = self.db.execute("INSERT INTO T_USER(uid, name, mobile, address, email, corporation)"
-                                   "  VALUES(%s, %s, %s, %s, %s, %s)"
+             uid = self.db.execute("INSERT INTO T_USER(uid, name, mobile, address, email)"
+                                   "  VALUES(%s, %s, %s, %s, %s)"
                                    "  ON DUPLICATE KEY"
                                    "  UPDATE uid = VALUES(uid),"
                                    "         name = VALUES(name), "
                                    "         mobile = VALUES(mobile), "
                                    "         address = VALUES(address), "
-                                   "         email = VALUES(email), "
-                                   "         corporation = VALUES(corporation)",
+                                   "         email = VALUES(email)",
                                    fields.mobile, fields.name, fields.mobile,
-                                   fields.address, fields.email, fields.corporation) 
+                                   fields.address, fields.email) 
         # 2: add terminal
         tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                               "  alias, begintime, endtime)"
@@ -196,8 +193,6 @@ class BusinessMixin(BaseMixin):
         register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
         ret = SMSHelper.send(fields.tmobile, register_sms)
         ret = DotDict(json_decode(ret))
-        #ret = DotDict(status=0,
-        #              msgid=1111)
         if ret.status == ErrorCode.SUCCESS:
             self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET msgid = %s"
@@ -267,7 +262,6 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                          cnum="",
                          address="",
                          email="",
-                         corporation="",
                          begintime="",
                          endtime="")
 
