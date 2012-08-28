@@ -30,32 +30,31 @@ window.dlf.fn_initTerminalWR = function (param) {
 		if (data.status == 0) {	
 			var obj_data = data.car_sets;
 			// for : key value
-			for ( var i = 0; i < obj_data.length; i++ ) {
-				var str_key = obj_data[i].key,
-					str_val = obj_data[i].value;
-				if ( str_key ) {
-					if ( str_key == 'service_status' || str_key == 'trace' || str_key == 'cellid_status' ) {
-						$('#tr_' + str_key + str_val ).attr('checked', 'checked'); 	// radio value
+			for(var param in obj_data) {
+				var str_val = obj_data[param];
+				if ( param ) {
+					if ( param == 'service_status' || param == 'trace' || param == 'cellid_status' ) {
+						$('#tr_' + param + str_val ).attr('checked', 'checked'); 	// radio value
+						
+					} else if ( param == 'white_list' ) {
+						var n_length = str_val.length;
+						for ( var x = 0; x < n_length; x++ ) {
+							var str_name = param  + '_' + (x+1),
+								obj_whitelist = $('#t_' + str_name),
+								obj_oriWhitelist = $('#' + str_name),
+								str_value = str_val[x];
+							obj_whitelist.val(str_value);	// whitelist
+							obj_oriWhitelist.attr('t_val', str_value);	// save original value
+						}
+					} else {
+						$('#t_' + param ).val(str_val);	// other input value
 					}
-					/*  else if ( str_key == 'gsm' ) {// gsm 
-						var str_gsm = dlf.fn_changeData(str_key, str_val);
-						$('#t_' + str_key ).val(str_gsm);	
-					} else if ( str_key == 'gps' ) {	// gps 
-						var str_gps = dlf.fn_changeData(str_key, str_val);
-						$('#t_' + str_key ).val(str_gps);	// input value
-					} else if ( str_key == 'pbat' ) {	// pbat
-						$('#t_' + str_key ).val(str_val + '%');	// input value
-					} 
-					*/
-					else {
-						$('#t_' + str_key ).val(str_val);	// other input value
-					}
-					$('#' + str_key ).attr('t_val', str_val);	// save original value
+					$('#' + param ).attr('t_val', str_val);	// save original value
 				}
 			}
 			//dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { // 查询状态不正确,错误提示
-			dlf.fn_jNotifyMessage(data.message, 'message');
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}, 
@@ -73,6 +72,8 @@ window.dlf.fn_baseSave =function() {
 	$.each(obj_listVal, function(index, dom) {
 		var obj_this = $(this),
 			str_key = obj_this.attr('id'),
+			str_class = obj_this.attr('class'),
+			str_whitelist1 = $('#t_white_list_1').val(),
 			str_t_val = obj_this.attr('t_val'),  // 原始值
 			obj_input = obj_this.children('input[type=text]').eq(0),	// 文本框
 			obj_radio = obj_this.children('input[type=radio][checked]').eq(0),	 // 单选按钮
@@ -85,7 +86,12 @@ window.dlf.fn_baseSave =function() {
 			}
 		} else {
 			if ( str_val != str_t_val ) {
-				obj_terminalData[str_key] = str_val;
+				// 白名单 [车主手机号,白名单1,白名单2,...]
+				if ( str_class.search('j_whitelist') != -1 ) {
+					obj_terminalData['white_list'] = [str_whitelist1, str_val];
+				} else {
+					obj_terminalData[str_key] = str_val;
+				}
 			}
 		}
 	});
