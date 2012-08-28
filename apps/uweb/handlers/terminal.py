@@ -33,7 +33,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             query terminal_info from terminal itself, then update the database
         """
         status = ErrorCode.SUCCESS
-        car_sets = [] 
+        car_sets = DotDict() 
         flag = self.get_argument('terminal_info','')
         if flag == UWEB.TERMINAL_INFO_CATEGORY.F:
             args = DotDict(seq=SeqGenerator.next(self.db),
@@ -65,11 +65,10 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                                    self.current_user.tid)
             # 2: whitelist
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
-            whitelist = self.db.get("SELECT mobile"
-                                    "  FROM T_WHITELIST"
-                                    "  WHERE tid = %s"
-                                    "  LIMIT 1",
-                                    self.current_user.tid)
+            whitelist = self.db.query("SELECT mobile"
+                                      "  FROM T_WHITELIST"
+                                      "  WHERE tid = %s",
+                                      self.current_user.tid)
 
             # 3: car
             car = self.db.get("SELECT cnum FROM T_CAR"
@@ -77,16 +76,12 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                               self.current_user.sim)
 
             # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
-            car_tmp = DotDict()
-            car_tmp.update(terminal)
-            car_tmp.update(car)
-            for key, value in car_tmp.iteritems():
-                car_sets.append(DotDict(key=key.lower(),
-                                        value=value))
-            car_sets.append(DotDict(key='whitelist_1',
-                                    value=user.mobile))
-            car_sets.append(DotDict(key='whitelist_2',
-                                    value=whitelist.mobile if whitelist else ''))
+            car_sets.update(terminal)
+            car_sets.update(car)
+            white_list = [user.mobile]
+            for item in whitelist: 
+                white_list.append(item['mobile'])
+            car_sets.update(DotDict(white_list=white_list))
 
         self.write_ret(status,
                        dict_=dict(car_sets=car_sets))
@@ -120,9 +115,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             if key in db_fields:
                 db_params[key]=value
             else:
-                if key == 'whitelist_2':
-                    key = 'white_list' 
-                    gf_params[key]=str(user.mobile)+":"+value
+                if key == 'white_list':
+                    gf_params[key]=":".join(value)
                 else:
                     gf_params[key]=value
                

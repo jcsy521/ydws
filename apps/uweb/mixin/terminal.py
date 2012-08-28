@@ -95,18 +95,17 @@ class TerminalMixin(BaseMixin):
         for key, value in car_sets.iteritems():
             if value == '0':
                 if key.lower() == 'white_list' :
-                    whitelists = old_car_sets['whitelist_2'].split(":") 
-                    if len(whitelists) < 1:
+                    white_list = old_car_sets['white_list']
+                    if len(old_car_sets['white_list']) < 1:
                         pass
                     else:
-                        for whitelist in whitelists:
-						  
+                        for white in white_list[1:]:
                             self.db.execute("INSERT INTO T_WHITELIST"
                                             "  VALUES(NULL, %s, %s)"
                                             "  ON DUPLICATE KEY"
                                             "  UPDATE tid = VALUES(tid),"
                                             "    mobile = VALUES(mobile)",
-                                        tid, whitelist)
+                                            tid, white)
 
                     continue 
                 car_sets[key] = old_car_sets[key.lower()]
