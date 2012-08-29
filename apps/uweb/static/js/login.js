@@ -73,13 +73,13 @@ $(function(){
 		$('#seconds').show();
 		fn_updateTime();
 	}
-	$('#btnGetPwd').click(function() {
+	$('#btnGetPwd').button().click(function() {
 		var str_val = $('#mobile').val(),
 			str_msg = '',
 			param = {'mobile': ''};
 		// 验证格式
 		if ( str_val == '' || str_val == null ) {
-			dlf.fn_jNotifyMessage('车主手机号必须填写！', 'message', false, 3000);
+			dlf.fn_jNotifyMessage('车主号码不能为空！', 'message', false, 3000);
 			return;
 		} else {
 			// 验证手机号

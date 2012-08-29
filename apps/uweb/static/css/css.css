@@ -604,21 +604,6 @@ body {
 	background-color: #3399ff;
 	color: white;
 }
-.dropDownbox {
-	background: url("/static/images/sersj.png") no-repeat scroll 0 0 transparent;
-    cursor: default;
-    display: inline-block;
-    height: 20px;
-    left: 172px;
-    position: absolute;
-	text-decoration: none;
-    top: 80px;
-	*top: 81px;
-    width: 20px;
-}
-.dropDownbox:hover {
-	background: url('/static/images/sersjhover.png') no-repeat;
-}
 #terminalList0 {
 	padding: 10px 10px 0px 10px;
 	display: inline-block;
