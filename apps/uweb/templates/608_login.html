@@ -43,8 +43,10 @@
 								<input type="hidden" name="captchahash" id="captchahash" value="" />
 							</li>
 						</ul>
-						<input type="submit" class="commit" id="btnLogin" value="" />
-						<a href="/password" target="getpassword.html" id="getPwd" title="忘记密码" >忘记密码？</a>
+						<div class="btnPanel">
+							<input type="submit" class="commit" id="btnLogin" value="" />
+							<a href="/password" target="getpassword.html" id="getPwd" title="忘记密码" >忘记密码？</a>
+						</div>
 						<span class="txtColor">
 							{% if message_captcha %}
 								{{ message_captcha }}

@@ -56,7 +56,6 @@ $(function(){
 		obj_updateTimeInterval = setInterval(function() {
 			var obj_updateTime = $('#flashTimeText'),
 				str_updateTime = obj_updateTime.html();
-			console.log('111111111');
 			if ( parseInt(str_updateTime) == 0 ) {
 				dlf.fn_clearInterval(obj_updateTimeInterval);
 				obj_updateTime.html('');
@@ -75,24 +74,42 @@ $(function(){
 		fn_updateTime();
 	}
 	$('#btnGetPwd').click(function() {
-		var param = {'mobile': $('#mobile').val()};
-		// 如果小于60 秒 不能发送
-		var n_seconds = parseInt($('#flashTimeText').html());
-		if ( n_seconds < 60 ) {
-			$('#btnGetPwd').attr('disabled',true);
+		var str_val = $('#mobile').val(),
+			str_msg = '',
+			param = {'mobile': ''};
+		// 验证格式
+		if ( str_val == '' || str_val == null ) {
+			dlf.fn_jNotifyMessage('车主手机号必须填写！', 'message', false, 3000);
+			return;
 		} else {
-			$('#btnGetPwd').removeAttr('disabled');
-		}
-		$.post_(PWD_URL, JSON.stringify(param) , function(data) {
-			if ( data.status == 0 ) {  // success
-				fn_resetUpdateTime();
+			// 验证手机号
+			var reg = /^(13[0-9]|15[7-9]|15[0-3]|15[56]|18[023789]|147)[0-9]{8}$/;
+			if ( !reg.test(str_val) ) {
+				dlf.fn_jNotifyMessage('请填写正确的手机号！', 'message', false, 3000);
+				return;
+			}			
+			param.mobile = str_val;
+			// 如果小于60 秒 不能发送
+			var n_seconds = parseInt($('#flashTimeText').html());
+			if ( n_seconds < 60 ) {
 				$('#btnGetPwd').attr('disabled',true);
+			} else {
+				$('#btnGetPwd').removeAttr('disabled');
 			}
-			dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
-		}, 
-		function(XMLHttpRequest, textStatus, errorThrown) {
-			dlf.fn_serverError(XMLHttpRequest);
-		});
+			$.post_(PWD_URL, JSON.stringify(param) , function(data) {
+				if ( data.status == 0 ) {  // success
+					fn_resetUpdateTime();
+					$('#btnGetPwd').attr('disabled',true);
+					str_msg = '您的密码已发送成功，请注意查收';
+				} else {
+					str_msg = data.message;
+				}
+				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
+			}, 
+			function(XMLHttpRequest, textStatus, errorThrown) {
+				dlf.fn_serverError(XMLHttpRequest);
+			});
+		}
 	});
 });
 
