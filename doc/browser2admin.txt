@@ -281,13 +281,13 @@ POST 请求：
 ｛
 	  'seq': 序号
 	  'name': 车主姓名
+	  'password': 车主密码。 默认 111111
 	  'mobile': 车主手机号	  
 	  'cnum': 车牌号
 	  'address': 联系地址
 	  'email': 邮件地址
-	  'corporation': 公司
 	  'begintime':开通日期
-	  'endtime': 截止日期
+	  'endtime': 截止日期	 
  ｝
  
 POST 返回：
@@ -354,7 +354,6 @@ GET 返回结果：
 		'mobile'：int // 用户手机号
 		'address': str // 用户地址
 		'email': str // 用户邮箱
-		'corporation': str // 用户公司名称
 		'begintime': utc, in second // 服务开通时间
 		'endtime': utc, in second // 服务到期时间
 		'sms_status': int // 短信状态：０：短信发送失败（没有到达网关） 1：短信已发送（到达网关），2：短信发送成功（到达终端），3:终端登陆成功
@@ -381,7 +380,6 @@ template: business/edit.html
  'tmobile': 终端手机号
  'tnum': 车牌号
  'address': 地址
- 'corporation': 公司名称
  'email': 电子邮件   
  'begintime': 开通日期
  'endtime': 截止日期
