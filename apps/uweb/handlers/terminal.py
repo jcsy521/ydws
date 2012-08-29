@@ -35,21 +35,17 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         car_sets = DotDict() 
         flag = self.get_argument('terminal_info','')
+        # NOTE: now, flush branch should not be used.
         if flag == UWEB.TERMINAL_INFO_CATEGORY.F:
             args = DotDict(seq=SeqGenerator.next(self.db),
                            tid=self.current_user.tid,
                            params=self.F_KEYS)
             ret = GFSenderHelper.forward(GFSenderHelper.URLS.QUERY, args)
             ret = json_decode(ret)
-            if ret['success'] == 0:
+            if ret['success'] == ErrorCode.SUCCESS:
                 for key, value in ret['params'].iteritems():
-                    car_sets.append(DotDict(key=key.lower(),
-                                            value=value))
-                    car_dct = DotDict()
-                    for item in car_sets:  
-                       car_dct[item.key] = item.value
-  
-                self.update_terminal_db(car_dct, self.current_user.tid, self.current_user.sim)
+                    car_sets[key.lower()] = value
+                self.update_terminal_db(car_sets, self.current_user.tid, self.current_user.sim)
             else: 
                 if ret['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
                     self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
