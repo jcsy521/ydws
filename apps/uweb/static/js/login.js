@@ -73,7 +73,7 @@ $(function(){
 		$('#seconds').show();
 		fn_updateTime();
 	}
-	$('#btnGetPwd').button().click(function() {
+	$('#btnGetPwd').click(function() {
 		var str_val = $('#mobile').val(),
 			str_msg = '',
 			param = {'mobile': ''};
