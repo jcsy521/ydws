@@ -21,9 +21,9 @@
 			<div id="bnnIcon"></div> -->
 				<div id="ads">
 					<ul id="contents">
-						<li id="firstImg"><img src="./static/images/banner1.jpg" /></li>
-						<li class="hide"><img src="./static/images/banner2.jpg" /></li>
-						<li class="hide"><img src="./static/images/banner3.jpg" /></li>
+						<li id="firstImg"><img src="/static/images/banner1.jpg" index="1" /></li>
+						<!--<li class="hide"><img src="./static/images/banner2.jpg" /></li>
+						<li class="hide"><img src="./static/images/banner3.jpg" /></li>-->
 					</ul>
 				</div>
 			<div class="welcome">
@@ -39,7 +39,7 @@
 				<div class="title clTitle">我的爱车</div>
 				<ul id="carList">
 				{% for car in cars %}
-					<li>
+					<li keys_num = '{{car.keys_num}}'>
 						<a href="#" title="{{car.alias}}" class="car1" tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
 						<span>{{car.alias}}</span>
 						{% if car.login == 1 %} 
@@ -53,32 +53,17 @@
 			</div>
 			<div id="carInfo">
 				<div class="title ciTitle">车辆信息</div>
-				<ul id="cInfo">
-					<li>速度：   <label  id="speed"></label></li>
-					<li>方向：   <label  id="degree"></label></li>
-					<li>经度：   <label  id="lng"></label></li>
-					<li>纬度：   <label  id="lat"></label></li>
-					<li>类型：   <label  id="type"></label></li>
-					<li>位置：   <label  id="address"></label></li>
-				</li>
+					<table id="cInfo">
+						<tr><td class="tLeft">速度：   </td><td><label  id="speed"></label></td></tr>
+						<tr><td class="tLeft">方向：   </td><td><label  id="degree"></label></td></tr>
+						<tr><td class="tLeft">经度：   </td><td><label  id="lng"></label></td></tr>
+						<tr><td class="tLeft">纬度：   </td><td><label  id="lat"></label></td></tr>
+						<tr><td class="tLeft">类型：   </td><td><label  id="type"></label></td></tr>
+						<tr><td class="tLeft">位置：   </td><td><label  id="address"></label></td></tr>
+					</table>
 			</div>
 			<div id="terminalInfo">
 				<div class="title tiTitle">终端状态</div>
-				<!--<table id="tInfo" width="247">
-					<tr>
-						<td class="td_left">设防状态：</td>
-						<td id="defend_status" class="td_center"></td>
-						<td><div id="d_img"></div></td>
-					</tr>
-					<tr>
-						<td class="td_left">剩余电量：</td>
-						<td id="power" class="td_center"></td>
-						<td><div id="p_img"></div></td>
-					</tr>
-					<tr><td class="td_left">GSM 信号：</td><td id="GSM" class="td_center"></td><td><div id="gsm_img"></div></td></tr>
-					<tr><td class="td_left">GPS 信号：</td><td id="GPS" class="td_center"></td><td><div id="gps_img"></div></td></tr>
-				</table>
-				-->
 				<ul id="tInfo">
 					<li id="defendStatus">
 						<span id="defend_word"></span>

@@ -7,7 +7,7 @@ window.dlf.fn_currentQuery = function() {
 	var str_cellid_status = $('.currentCar').attr('cellid_status'),	// 是否是基站定位
 		obj_pd = {
 					'timestamp': new Date().getTime(),
-					'cellid_status': str_cellid_status
+					'cellid_status': parseInt(str_cellid_status)
 				}, 
 		obj_cWrapper = $('#currentWrapper');
 	obj_cWrapper.show();
@@ -51,7 +51,7 @@ function fn_displayCurrentMarker(obj_location) {
 	dlf.fn_closeDialog();
     // 标记显示及中心点移动
 	mapObj.setCenter(new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT));
-	dlf.fn_updateInfoData(obj_location, 'realtime');
+	dlf.fn_updateInfoData(obj_location, 'current');
 	dlf.fn_updateTerminalInfo(obj_location, 'realtime');
 }
 
@@ -72,7 +72,6 @@ window.dlf.fn_defendQuery = function() {
 	} else {
 		obj_dMsg.html('您的爱车保当前未设防');
 		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2', 'sf'));
-		//obj_defendBtn.css('background', 'url("/static/images/sf.png")');
 	}
 	//设防撤防 业务保存
 	$('#defendBtn').unbind('click').click(function() {

@@ -55,7 +55,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 window.dlf.fn_tipContents = function (obj_location, str_iconType) { 
 	var	address = obj_location.name, 
 		speed = obj_location.speed,
-		date = dlf.fn_changeNumToDateString(obj_location.timestamp*1000),
+		date = dlf.fn_changeNumToDateString(obj_location.timestamp),
 		n_degree = obj_location.degree, 
 		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
@@ -92,8 +92,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 	str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 				'<li><label>速度： '+ speed+' km/h</label>'+
 				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
-				'<li><label>经度： E '+Math.floor(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
-				'<label class="labelRight">纬度： N '+Math.floor(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
+				'<li><label>经度： E '+Math.round(str_clon*CHECK_INTERVAL)/CHECK_INTERVAL+'</label>'+
+				'<label class="labelRight">纬度： N '+Math.round(str_clat*CHECK_INTERVAL)/CHECK_INTERVAL+'</label></li>'+
 				'<li>类型： '+ str_type +'</li>'+
 				'<li>时间： '+ date +'</li>' + 
 				'<li>位置： '+ address +'</li>';

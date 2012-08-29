@@ -13,20 +13,18 @@ function fn_initEventSearch(n_num, n_et) {
 	
 	var n_startTime = $('#eventStartTime').val(), // 用户选择时间
 		n_endTime = $('#eventEndTime').val(), // 用户选择时间
-		n_bgTime = dlf.fn_changeDateStringToNum(n_startTime+' 00:00:00')/1000, // 开始时间
-		n_endTime = dlf.fn_changeDateStringToNum(n_endTime+' 23:59:59')/1000, //结束时间
-		n_carId = $('#eventResult').attr('tid'),	//car_id
+		n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
+		n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
+		n_carId = $('#eventResult').attr('tid'),
 		n_eventType = $('#eventType').val(), 
-		param = {'start_time': n_bgTime, 'end_time': n_endTime, 'tid' : n_carId, 
-				'pagenum': n_pageNum, 'pagecnt': pagecnt, 'event_type': n_eventType}; //  id
-
+		param = {'start_time': n_bgTime, 'end_time': n_finishTime, 'tid' : n_carId, 
+				'pagenum': n_pageNum, 'pagecnt': pagecnt, 'event_type': n_eventType};
 	//获取报警记录信息
 	$.post_(EVENT_URL, JSON.stringify(param), function(data) {
 		$('#eventTableHeader').nextAll().remove();	//清除页面数据
 		pagecnt = data.pagecnt;
 		var obj_prevPage = $('#prevPage'), 
 			obj_nextPage = $('#nextPage');
-			
 		if ( data.status == 0 ) {  // success
 			arr_eventData = data.events;
 			var n_len = arr_eventData.length; 	//记录数
@@ -67,7 +65,7 @@ function fn_initEventSearch(n_num, n_et) {
 					
 					// 拼接table
 					html+= '<tr>';
-					html+= '<td>'+dlf.fn_changeNumToDateString(obj_location.timestamp*1000)+'</td>';	// 报警时间
+					html+= '<td>'+dlf.fn_changeNumToDateString(obj_location.timestamp)+'</td>';	// 报警时间
 					html+= '<td>'+dlf.fn_eventText(str_type)+'</td>';	//类型 // todo 
 					if ( obj_location.clongitude == 0 || obj_location.clatitude == 0 ) {
 						html+= '<td>无</td>';	//无地址
@@ -145,15 +143,7 @@ $(function () {
 	$('.eventbody').css({
 		'height': $(window).height() - 10,
 		'width': $(window).width()
-	});
-	
-	/*初始化时间
-	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime()/1000, 'ymd');
-	$('#eventTime').click(function() {
-		WdatePicker({el:'eventTime', dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false, maxDate: '%y-%M-%d'});
-	}).val(str_nowDate);
-	*/
-	
+	});	
 	// 初始化时间
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd'), 
 		obj_stTime = $('#eventStartTime'), 
