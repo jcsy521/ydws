@@ -96,10 +96,11 @@ def handle_location(location, redis, cellid=False, db=None):
         location.lon = 0
         location.cLat = 0
         location.cLon = 0
-        location.type = 1
+        location.type = 0
         location.gps_time = int(time.time()) 
         location.degree = get_last_degree(location, redis, db)
         if cellid:
+            location.type = 1
             location = get_latlon_from_cellid(location)
             #if location.lat and location.lon:
             #    location = filter_location(location, memcached)

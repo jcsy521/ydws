@@ -43,13 +43,13 @@ class PacketTask(object):
         key = get_name_cache_key(dev_id)
         name = self.redis.getvalue(key)
         if not name:
-            t = self.db.get("SELECT alias FROM T_TERMINAL_INFO"
+            t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
                             "  WHERE tid = %s", dev_id)
-            name = t.alias
+            name = t.alias if t.alias else t.mobile 
             self.redis.setvalue(key, name)
-        name = name if name else dev_id
         if isinstance(name, str):
             name = name.decode("utf-8")
+
         return name
 
     def insert_location(self, location):
@@ -116,7 +116,8 @@ class PacketTask(object):
                                                   cellid=False, db=self.db) 
             location.category = EVENTER.CATEGORY.REALTIME
             self.update_terminal_status(location)
-            self.realtime_location_hook(location)
+            if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
+                self.realtime_location_hook(location)
         elif location.Tid == EVENTER.TRIGGERID.PVT:
             for pvt in location['pvts']:
                 # get available location from lbmphelper
