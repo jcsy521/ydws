@@ -51,6 +51,7 @@ from handlers.detail import DetailHandler
 from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler, BusinessCheckTMobileHandler, BusinessCheckStatusHandler
 
 from handlers.sms import SMSHandler
+from handlers.servicesterms import ServicesTermsHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -95,6 +96,8 @@ class Application(tornado.web.Application):
 
             # for sms: accept sms from sms proxy
             (r"/sms/mo/*", SMSHandler),
+            
+            (r"/servicesterms/*", ServicesTermsHandler),
             
         ]
 
