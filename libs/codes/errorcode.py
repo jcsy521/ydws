@@ -21,6 +21,8 @@ class ErrorCode(object):
     TERMINAL_TID_EXIST = 210
     USER_NOT_EXIST = 211
     USER_EXCESS = 212
+    USER_NOT_ORDER = 213
+    
 
     PARENT_NOT_ORDERED = 214
     TERMINAL_NOT_ORDERED = 215
@@ -55,6 +57,7 @@ class ErrorCode(object):
         TERMINAL_MOBILE_EXIST:      u"手机号已被关联。",
         TERMINAL_TID_EXIST:         u"终端已被关联。",
         USER_NOT_EXIST:             u"用户不存在。",
+        USER_NOT_ORDER:             u"该手机号未订购爱车保业务。",
         USER_EXCESS:                u'用户已达到定位器的上限，不能再订购新的定位器。', 
         NO_TERMINAL:                u"您尚未关联车辆。",
         SERVER_ERROR:               u"服务器错误。",
