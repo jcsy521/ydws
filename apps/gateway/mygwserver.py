@@ -4,6 +4,8 @@ import socket, select, errno
 import logging
 import time
 from time import sleep
+import datetime
+from dateutil.relativedelta import relativedelta
 import Queue
 import base64
 import pika
@@ -300,56 +302,152 @@ class MyGWServer(object):
         3: illegal sim, a mismatch between imsi and sim 
         """
         try:
+            sms = None
             args = DotDict(success=GATEWAY.LOGIN_STATUS.SUCCESS,
                            sessionID='')
             lp = LoginParser(info.body, info.head)
             t_info = lp.ret
-                    
-            if t_info['u_msisdn'] and t_info['t_msisdn']:
-                terminal = self.db.get("SELECT tid, mobile, imsi, imei, service_status, endtime"
+
+            terminal = self.db.get("SELECT id, tid, owner_mobile, imsi, service_status, endtime"
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE mobile = %s",
+                                   t_info['t_msisdn'])
+            if terminal:
+                if (terminal.endtime < time.time() or
+                    terminal.service_status == GATEWAY.SERVICE_STATUS.OFF):
+                    # expired or stop service
+                    args.success = GATEWAY.LOGIN_STATUS.EXPIRED
+                    logging.error("[GW] Login failed! Expired Terminal: %s, SIM: %s",
+                                  t_info['dev_id'], t_info['t_msisdn'])
+                elif terminal.tid == t_info['t_msisdn']:
+                    # first login, admin regist terminal
+                    sms = '激活成功，平台网址：%s，用户名：%s，密码：%s'
+                    sms = sms % ('http://pinganbb.info:8002', t_info['u_msisdn'], '111111')
+                elif terminal.imsi != t_info['imsi']:
+                    # illegal sim, dev change sim
+                    args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                    sms = '终端换卡，请重新激活！发送短信：‘JH 终端手机号’到终端手机号。例如：JH 13900000000'
+                    logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
+                                  t_info['t_msisdn'], t_info['dev_id'])
+                elif terminal.owner_mobile != t_info['u_msisdn']:
+                    # user change sim
+                    user = self.db.get("SELECT id, password"
+                                       "  FROM T_USER"
+                                       "  WHERE mobile = %s",
+                                       terminal.owner_mobile)
+                    if user:
+                        info = self.db.get("SELECT password(%s) AS psd", t_info['psd'])
+                        if info.psd == user.password:
+                            owner = self.db.get("SELECT id FROM T_USER"
+                                                "  WHERE mobile = %s",
+                                                t_info['u_msisdn'])
+                            if owner:
+                                self.db.execute("UPDATE T_USER"
+                                                "  SET password = password(%s)"
+                                                "  WHERE id = %s",
+                                                t_info['psd'], owner.id)
+                            else:
+                                self.db.execute("UPDATE T_USER"
+                                                "  SET uid = %s,"
+                                                "      mobile = %s"
+                                                "  WHERE mobile = %s",
+                                                t_info['u_msisdn'],
+                                                t_info['u_msisdn'],
+                                                terminal.owner_mobile)
+                            sms = '车主号码换卡成功，平台地址：%s，用户名：%s，密码：%s'
+                            sms = sms % ('http://pinganbb.info:8002/', t_info['u_msisdn'], t_info['psd'])
+                            logging.info("[GW] User change SIM: %s to %s for terminal: %s",
+                                         terminal.owner_mobile, t_info['u_msisdn'], t_info['t_msisdn'])
+                        else:
+                            sms = '密码错误，请确认！'
+                            args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                            logging.error("[GW] User change SIM: %s to %s for terminal: %s failed! password error.",
+                                          terminal.owner_mobile, t_info['u_msisdn'], t_info['t_msisdn'])
+                    else:
+                        pass
+                else:
+                    pass
+            else:
+                terminal = self.db.get("SELECT id, mobile, owner_mobile, imsi, service_status, endtime"
                                        "  FROM T_TERMINAL_INFO"
-                                       "  WHERE mobile = %s"
-                                       "    AND owner_mobile = %s",
-                                       t_info['t_msisdn'], t_info['u_msisdn'])
+                                       "  WHERE tid = %s",
+                                       t_info['dev_id'])
                 if terminal:
                     if (terminal.endtime < time.time() or
                         terminal.service_status == GATEWAY.SERVICE_STATUS.OFF):
                         # expired or stop service
                         args.success = GATEWAY.LOGIN_STATUS.EXPIRED
                         logging.error("[GW] Login failed! Expired Terminal: %s", t_info['dev_id'])
-                    elif terminal.tid != terminal.mobile:
-                        if terminal.imsi != t_info['imsi']:
-                            # illegal sim
-                            args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                            logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
-                                          t_info['t_msisdn'], t_info['dev_id'])
                     else:
-                        pass
+                        # dev change sim
+                        user = self.db.get("SELECT id, password"
+                                           "  FROM T_USER"
+                                           "  WHERE mobile = %s",
+                                           terminal.owner_mobile)
+                        if user:
+                            info = self.db.get("SELECT password(%s) AS psd", t_info['psd'])
+                            if info.psd == user.password:
+                                sms = '终端号码换卡成功！'
+                                if terminal.owner_mobile != t_info['u_msisdn']:
+                                    self.db.execute("UPDATE T_USER"
+                                                    "  SET uid = %s,"
+                                                    "      mobile = %s"
+                                                    "  WHERE id = %s",
+                                                    t_info['u_msisdn'],
+                                                    t_info['u_msisdn'],
+                                                    user.id)
+                                logging.info("[GW] Terminal change SIM: %s to %s, User: %s",
+                                             terminal.mobile, t_info['t_msisdn'], t_info['u_msisdn'])
+                            else:
+                                sms = '密码错误，请确认！'
+                                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                                logging.error("[GW] Terminal change SIM: %s to %s, User: %s Failed!",
+                                              terminal.mobile, t_info['t_msisdn'], t_info['u_msisdn'])
+                        else:
+                            pass
                 else:
-                    args.success = GATEWAY.LOGIN_STATUS.UNREGISTER 
-                    logging.error("[GW] Login failed! Not registed, Terminal: %s, Mobile: %s",
-                                  t_info['dev_id'], t_info['t_msisdn'])
-            else:
-                args.success = GATEWAY.LOGIN_STATUS.UNREGISTER 
-                logging.error("[GW] Login failed! Miss sim or owner_mobile, Terminal: %s",
-                              t_info['dev_id'])
-
+                    # first login, send sms JH terminal. 
+                    begintime = datetime.datetime.now() 
+                    endtime = begintime + relativedelta(years=1)
+                    self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
+                                    "  VALUES(%s, password(%s), %s, %s)"
+                                    "  ON DUPLICATE KEY"
+                                    "  UPDATE password = VALUES(password)",
+                                    t_info['u_msisdn'], '111111',
+                                    t_info['u_msisdn'], t_info['u_msisdn'])
+                    self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
+                                    "  owner_mobile, imsi, imei, factory_name, softversion,"
+                                    "  keys_num, login, service_status, begintime, endtime)"
+                                    "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                    t_info['dev_id'], t_info['dev_type'],
+                                    t_info['t_msisdn'], t_info['u_msisdn'],
+                                    t_info['imsi'], t_info['imei'], t_info['factory_name'],
+                                    t_info['softversion'], t_info['keys_num'], 
+                                    GATEWAY.TERMINAL_LOGIN.LOGIN,
+                                    GATEWAY.SERVICE_STATUS.ON,
+                                    int(time.mktime(begintime.timetuple())),
+                                    int(time.mktime(endtime.timetuple())))
+                    sms = '激活成功，平台网址：%s，用户名：%s，密码：%s'
+                    sms = sms % ('http://pinganbb.info:8002', t_info['u_msisdn'], '111111')
+                    
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET tid = %s,"
-                                "      dev_type = %s,"
-                                "      owner_mobile = %s,"
-                                "      imsi = %s,"
-                                "      imei = %s,"
-                                "      factory_name = %s,"
-                                "      keys_num = %s,"
-                                "      softversion = %s,"
-                                "      login = %s"
-                                "  WHERE mobile = %s",
-                                t_info['dev_id'], t_info['dev_type'], t_info['u_msisdn'],
-                                t_info['imsi'], t_info['imei'], t_info['factory_name'],
-                                t_info['keys_num'], t_info['softversion'],
-                                GATEWAY.TERMINAL_LOGIN.LOGIN, t_info['t_msisdn'])
+                if terminal:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET tid = %s,"
+                                    "      mobile = %s,"
+                                    "      dev_type = %s,"
+                                    "      owner_mobile = %s,"
+                                    "      imsi = %s,"
+                                    "      imei = %s,"
+                                    "      factory_name = %s,"
+                                    "      keys_num = %s,"
+                                    "      softversion = %s,"
+                                    "      login = %s"
+                                    "  WHERE id = %s",
+                                    t_info['dev_id'], t_info['t_msisdn'], t_info['dev_type'],
+                                    t_info['u_msisdn'], t_info['imsi'], t_info['imei'],
+                                    t_info['factory_name'], t_info['keys_num'], t_info['softversion'],
+                                    GATEWAY.TERMINAL_LOGIN.LOGIN, terminal.id)
                 # get SessionID
                 args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
@@ -359,12 +457,15 @@ class MyGWServer(object):
                 # append into online terminals
                 if not t_info["dev_id"] in self.online_terminals:
                     self.online_terminals.append(t_info["dev_id"])
-                logging.info("[GW] Terminal %s login success!", t_info['dev_id'])
+                logging.info("[GW] Terminal %s login success! SIM: %s",
+                             t_info['dev_id'], t_info['t_msisdn'])
 
             lc = LoginRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address)
             self.append_gw_request(request)
+            if sms:
+                SMSHelper.send(t_info['u_msisdn'], sms)
         except:
             logging.exception("[GW] Hand login exception.")
         
