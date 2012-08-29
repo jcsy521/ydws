@@ -274,7 +274,7 @@ GET返回结果:
 		'alias': str, // 车辆别名 
 		'service_status': int, // 终端服务状态，0停止服务，1开启服务
 		'pbat': int,  // 电量
-		'whitelist': 
+		'white_list': 
 		    [ 
 		        white1: str,  // 白名单1：为家长手机号
 		        white2: str,　// 目前支持两个白名单。
@@ -286,7 +286,11 @@ GET返回结果:
 	}
   }
   
-PUT请求内容:  前端只有在内容发生改变的时候才会下发，即自下发修改的字段。
+PUT请求内容:
+#NOTE:  
+1：前端只有在相关信息发生改变的时候才会下发，即只下发修改的字段。
+2：具体字段名与get返回的字段保持一致。
+3: 白名单若有一个号发生修改，传递完整的白名单。即白名单white_list 作为一个整体。家长号仍作为第一个号码出现
 
   {	
 	key1=value1,
@@ -337,8 +341,7 @@ GET返回结果:
 		'name': 'name_str', // 车主姓名
         'mobile': n_int, // 车主手机号
 		'address': str, // 车主地址 
-		'email': str, // 邮箱地址
-		'corporation': str, // 单位
+		'email': str, // 邮箱地址	
 		'remark': str, // 备注
 	}
   }  
@@ -472,6 +475,7 @@ POST返回结果：
   {
     'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
     'message': str  //失败信息, status为非0时，才有内容，否则为空
+    'app_key': str // android 推送的密钥
   }
   
   
@@ -503,7 +507,88 @@ POST返回结果：
     	}
   }  
 
+************
+注册用户
+************
+URL: /business/create
+Table: T_TERMINAL_INFO, T_USER
 
+POST 请求内容：
+
+  { 
+    // info about car
+	'cnum': str // 车牌号
+	'type': int // 车辆类型 1：小汽车、 2：小货车、 3：大巴、4：摩托车
+	'color': str // 车辆颜色
+	'brand': str // 品牌
+	
+	// info about terminal
+	'tmobile':str //终端手机号
+	'begintime': int // 服务开启时间。  单位秒 。  
+	‘endtime': int // 服务终止时间。 单位：秒 
+	
+	// info about owner 
+	’name‘: str  // 车主姓名
+	'password' str // 用户密码  默认 111111 
+	'mobile': // str 车主手机号
+	'address':　// str 车主地址
+	'email':　// 邮箱　	
+ }
+
+POST返回结果：
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+  }
+  
+  
+************
+校验车主手机号
+************
+URL:  /business/checkmobile
+Table: T_TERMINAL_INFO, T_USER
+
+GET 请求内容： /business/checkmobile/[mobile]
+mobile: 车主手机号
+
+POST返回结果：
+  {
+    'status': int //0表示通过校验,非0表示校验未通过,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+  }
+  
+  
+************
+校验终端手机号
+************
+URL:  /business/checktmobile
+Table: T_TERMINAL_INFO, T_USER
+
+GET 请求内容： /business/checkmobile/[tmobile]  
+tmobile: 终端手机号
+
+POST返回结果：
+  {
+    'status': int // //0表示通过校验,非0表示校验未通过,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+  }
+  
+************
+查看激活状态
+************
+URL:  /business/checkstatus
+Table: T_TERMINAL_INFO, T_USER
+
+GET 请求内容： /business/checkmobile/[tmobile]
+tmobile: 终端手机号
+
+POST返回结果：
+  {
+    'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+    'message': str  //失败信息, status为非0时，才有内容，否则为空
+    'business_status': int // 0: 激活成功； 1: 正在激活中； 3： 激活失败
+  }  
+   
 ************
 向android 推送报警信息
 ************
