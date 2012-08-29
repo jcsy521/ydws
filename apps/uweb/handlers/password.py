@@ -26,10 +26,11 @@ class PasswordHandler(BaseHandler, PasswordMixin):
         self.render('getpassword.html', message='')
     
     
-    """Modify the password."""
     @authenticated
     @tornado.web.removeslash
     def put(self):
+        """Modify the password."""
+
         try:
             data = DotDict(json_decode(self.request.body))
             old_password = data.old_password
@@ -46,10 +47,9 @@ class PasswordHandler(BaseHandler, PasswordMixin):
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
             
-            
-    """Retrieve the password."""
     @tornado.web.removeslash
     def post(self):
+        """Retrieve the password."""
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
@@ -76,16 +76,14 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                 ret = SMSHelper.send(mobile, retrieve_password_sms)
                 ret = DotDict(json_decode(ret))
                 if ret.status == ErrorCode.SUCCESS:
-                    self.write_ret(status)
+                    pass
                 else:
                     status = ErrorCode.FAILED
-                    self.write_ret(status)
             else:
                 status = ErrorCode.USER_NOT_ORDER
-                self.write_ret(status)
+            self.write_ret(status)
             
         except Exception as e:
             logging.exception("Retrieve password failed. Exception: %s", e.args)
             status = ErrorCode.FAILED
             self.write_ret(status)
-            
