@@ -26,6 +26,7 @@ class MainHandler(BaseHandler):
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if not user_info:
                 # is nuser_info is None, means cookie is invalid, so redirectlogin.html
+                logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
                 self.clear_cookie(self.app_name)
                 self.redirect(self.get_argument("next", "/"))
                 return

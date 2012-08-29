@@ -63,6 +63,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
 
             if not user:
+                logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
                 self.clear_cookie(self.app_name)
                 self.redirect(self.get_argument("next", "/"))
                 return
@@ -110,6 +111,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         # check the data. some be sent to terminal, some just be modified in db 
         user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
         if not user:
+            logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
             self.clear_cookie(self.app_name)
             self.redirect(self.get_argument("next", "/"))
             return

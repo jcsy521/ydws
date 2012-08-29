@@ -82,6 +82,12 @@ class LastInfoHandler(BaseHandler):
                                        "  LIMIT 1",
                                        tid)
 
+                if not terminal:
+                    logging.error("The terminal with tid: %s is noexist, redirect to login.html", tid)
+                    self.clear_cookie(self.app_name)
+                    self.redirect(self.get_argument("next", "/"))
+                    return
+
                 location = self.db.get("SELECT speed, timestamp, category, name,"
                                        "  degree, type, clatitude, clongitude"
                                        "  FROM T_LOCATION"

@@ -7,6 +7,7 @@ from tornado.escape import json_decode, json_encode
 
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.seqgenerator import SeqGenerator
+from helpers.queryhelper import QueryHelper 
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
 from utils.misc import get_name_cache_key
@@ -64,6 +65,14 @@ class RealtimeMixin(BaseMixin):
         is_alived = self.redis.getvalue('is_alived')
         alias_key = get_name_cache_key(self.current_user.tid) 
         alias = self.redis.getvalue(alias_key)
+        if not alias:
+            t = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+            if t.alias:
+                alias = t.alias
+                self.redis.setvalue(alias_key, alias)
+            else:
+                alias = self.current.sim
+
         if is_alived == ALIVED:
             location = self.redis.getvalue(str(self.current_user.tid))
             if location and (time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
@@ -90,7 +99,7 @@ class RealtimeMixin(BaseMixin):
             
             location['degree'] = float(location.degree)
             location['tid'] = self.current_user.tid
-            location['alias'] = alias if alias else '' 
+            location['alias'] = alias  
 
             if callback:
                 callback(ret)
@@ -116,7 +125,7 @@ class RealtimeMixin(BaseMixin):
                         ret.location.speed = location.speed
                         ret.location.type = location.type
                         ret.location.tid = self.current_user.tid
-                        ret.location.alias = alias if alias else '' 
+                        ret.location.alias = alias 
                         #ret.location.degree = int(round(float(location.degree)/36))
                         # now, provide the orginal degree.
                         ret.location.degree = float(location.degree)

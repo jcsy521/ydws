@@ -28,6 +28,7 @@ class DetailHandler(BaseHandler):
                            "  LIMIT 1",
                            self.current_user.uid) 
         if not user:
+            logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
             self.clear_cookie(self.app_name)
             self.redirect(self.get_argument("next", "/"))
             return
