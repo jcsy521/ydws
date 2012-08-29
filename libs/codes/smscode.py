@@ -22,4 +22,5 @@ class SMSCode(object):
     SMS_LOGIN_REMIND = u"尊敬的车主，您于%s通过%s登陆车联网平台，车主号码为%s，所关注定位器号码为%s。"
     SMS_CHARGE = u"尊敬的车主，定位器%s，%s，时间：%s"
     SMS_SERVICE_STOP = u"尊敬的车主，定位器%s已经停止服务。"
+    SMS_RETRIEVE_PASSWORD = u"尊敬的车主,您刚才使用了爱车保网站的密码找回功能，新的登陆密码为：%s，请妥善保管。" 
 

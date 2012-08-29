@@ -3,6 +3,8 @@
 import logging
 import datetime
 import time
+import random
+import time
 from dateutil.relativedelta import relativedelta
 
 from tornado.escape import json_decode, json_encode
@@ -14,10 +16,17 @@ from utils.dotdict import DotDict
 from mixin.password import PasswordMixin 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
+from codes.smscode import SMSCode
+from helpers.smshelper import SMSHelper
 
 class PasswordHandler(BaseHandler, PasswordMixin):
-    """Modify the password."""
     
+    @tornado.web.removeslash
+    def get(self):
+        self.render('getpassword.html', message='')
+    
+    
+    """Modify the password."""
     @authenticated
     @tornado.web.removeslash
     def put(self):
@@ -36,3 +45,47 @@ class PasswordHandler(BaseHandler, PasswordMixin):
             logging.exception("Update password failed. Exception: %s", e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+            
+            
+    """Retrieve the password."""
+    @tornado.web.removeslash
+    def post(self):
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+            mobile = data.mobile
+            info = self.db.get("SELECT mobile"
+                               "  FROM T_USER"
+                               "  WHERE mobile = %s"
+                               "  LIMIT 1",
+                               mobile)
+            if info:
+                password = ""
+                for i in range(6):
+                    if i % 2 == 0:
+                        password = password + chr(random.randint(97, 122))
+                    else:
+                        password = password + str(random.randint(0, 9))
+                        
+                self.db.execute("UPDATE T_USER"
+                                "  SET password = password(%s)"
+                                "  WHERE mobile = %s",
+                                password, mobile)
+                        
+                retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (password) 
+                ret = SMSHelper.send(mobile, retrieve_password_sms)
+                ret = DotDict(json_decode(ret))
+                if ret.status == ErrorCode.SUCCESS:
+                    self.write_ret(status)
+                else:
+                    status = ErrorCode.FAILED
+                    self.write_ret(status)
+            else:
+                status = ErrorCode.USER_NOT_EXIST
+                self.write_ret(status)
+            
+        except Exception as e:
+            logging.exception("Retrieve password failed. Exception: %s", e.args)
+            status = ErrorCode.FAILED
+            self.write_ret(status)
+            
