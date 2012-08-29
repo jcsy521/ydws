@@ -12,6 +12,7 @@ from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
+from helpers.notifyhelper import get_push_info
 from mixin.login import LoginMixin
 
 class LoginHandler(BaseHandler, LoginMixin):
@@ -163,7 +164,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
             self.bookkeep(dict(uid=uid,
                                tid=tid,
                                sim=sim))
-            self.write_ret(status,dict_=DotDict(app_key='e11e7e3e21180fd'))
+            push_info = get_push_info()
+            self.write_ret(status,dict_=DotDict(app_key=push_info.app_key))
         else:
             logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
