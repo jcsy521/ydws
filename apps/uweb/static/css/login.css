@@ -230,3 +230,13 @@ h2 {
 .hide {
 	display: none;
 }
+#getPwd {
+	position: relative;
+	display: inline-block;
+	top: 10px;
+	left: 83px;
+	color: #1F376D;
+}
+#getPwd:hover, #getPwd:visited {
+	color: #1F376D;
+}

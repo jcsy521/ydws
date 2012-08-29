@@ -109,18 +109,26 @@ body {
 	float: left;
 	padding: 15px 10px 10px 0px;
 }
-#cInfo, #tInfo {
+#tInfo {
 	float: left;
 	padding: 10px 10px 10px 20px;
 }
-/*
 #cInfo {
-	height: 145px;
+	float: left;
+	width: 207px;
+	margin: 10px 10px 10px 20px;
 }
-#tInfo {
-	height: 105px;
+#cInfo .tLeft {
+	width: 40px;
 }
-*/
+#cInfo tr, #cInfo td {
+	border: 0px;
+	margin: 0px;
+	padding: 0px;
+}
+#cInfo span {
+	display: inline-block;
+}
 .d_img, .g_img {
 	display: inline-block; 
 	position: relative;
@@ -187,9 +195,10 @@ body {
 	cursor: pointer;
 	color: #435871;
 }
-#cInfo li, #tInfo li {
+#cInfo tr, #tInfo li {
 	line-height: 25px;
 	width: 210px;
+	vertical-align: top;
 }
 #power {
 	background: url('/static/images/power0.png') no-repeat 120px center;
@@ -892,6 +901,7 @@ body {
 /*track css end*/
 /*event css start*/
 .eventbody {
+	background-color: #fff;
 	min-height: 470px;
 }
 .eventHeader {
@@ -1157,4 +1167,82 @@ body {
 	height: 128px;
 	line-height: 22px;
 	float: left;
+}
+/* getpassword start */
+.bdpwd {
+	float: none;
+	padding-top: 10px;
+	margin: 0px;
+	background-color: #FFF;	
+}
+#password {
+	background:#F9F9F9;
+	margin: 0 auto;
+	padding: 30px 20px;
+	width: 960px;
+}
+#pwdBox {
+	background: url('/static/images/reg_bg.gif') repeat scroll 0 0 transparent;
+    color: #999999;
+    overflow: hidden;
+    padding: 5px 0;
+    text-align: left;
+}
+.pwdTitle {
+	padding-left:30px;
+	color:#367203;
+	font-weight:bold;
+	font-size:14px;
+}
+.newRegBox_top {
+	background: url('/static/images/reg_top.gif') no-repeat scroll 0 0 transparent;
+    height: 11px;
+    overflow: hidden;
+    width: 100%;
+}
+.newRegBox_buttom {
+    background: url('/static/images/reg_buttom.gif') no-repeat scroll 0 0 transparent;
+    height: 12px;
+    overflow: hidden;
+    width: 100%;
+}
+.newRegBox_line {
+    background: url('/static/images/reg_line.gif') no-repeat scroll 0 0 transparent;
+    height: 12px;
+    overflow: hidden;
+}
+.pwdContent {
+	margin-top: 20px;
+	text-align: center;
+}
+.pwdTips {
+	background: none repeat scroll 0 0 #FFFF99;
+    border: 1px solid #EFAC22;
+    height: 30px;
+    line-height: 30px;
+    margin-left: 235px;
+    width: 388px;
+	color: #CD0101;
+	font-weight: bold;
+}
+#tab_pwd {
+	width: 500px;
+	margin: 0 auto;
+}
+#pwdBox p {
+	margin-right:30px;
+	text-align: right;
+	padding-top: 10px;
+	color: #999;
+}
+#mobile {
+	height: 22px;
+	line-height: 22px;
+	padding-left: 5px;
+	width: 220px;
+	margin-right: 10px;
+}
+/* getpassword end */
+.txtColor {
+	color: red;
 }
