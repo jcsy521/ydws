@@ -3,37 +3,6 @@
 */
 
 (function () {
-
-// 车辆详细信息显示隐藏
-window.dlf.fn_infoStatus = function() {
-	var str_img = 'bt_top.png', // 车辆详细信息右侧的箭头提示图片
-		obj_map = $('#mapObj'),  // 地图对象
-		obj_inList = $('#infoList'), // 信息框对象
-		obj_infoStatus = $('#infoStatus'), // 车辆信息框对象
-		str_status = obj_infoStatus.attr('status'), // 车辆信息框是否显示状态
-		str_tmepSt = ''; // 状态的中间变量
-		n_mapHeight = 0, //地图的高度
-		n_ciHeight = 0,  // 车辆信息框的高度
-		n_windowHeight = $(window).height(); 
-	
-	if ( str_status == 'show' ) {
-		obj_inList.hide();
-		str_tmepSt = 'hide';
-		n_mapHeight = n_windowHeight - 141;
-		n_ciHeight = 35;
-		str_img = 'bt_top.png';
-	} else {
-		obj_inList.show();
-		str_tmepSt = 'show';
-		n_mapHeight = n_windowHeight - 231;
-		n_ciHeight = 125;
-		str_img = 'bt_bottom.png';
-	}
-	obj_map.css('height', n_mapHeight); // 调整地图的高度
-	$('#carInfo').css('height', n_ciHeight); // 车辆信息框的高度
-	obj_infoStatus.attr('status', str_tmepSt).attr('src', '/static/images/'+str_img);; // 车辆信息框状态
-}
-
 // 个人信息框 
 window.dlf.fn_personalData = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
@@ -50,7 +19,7 @@ window.dlf.fn_personalData = function() {
 			$('#licenseNum').val(obj_data.cid);	// 车牌号
 			$('#txtAddress').val(obj_data.address);
 			$('#email').val(obj_data.email);
-			$('#corporation').val(obj_data.corporation);
+			/*$('#corporation').val(obj_data.corporation);*/
 			$('#remark').val(obj_data.remark);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { 
@@ -158,9 +127,6 @@ $(function () {
 		}
 		$('#terminalMsgWrapper').hide();
 		switch (str_id) {
-			case 'infoStatus': // 车辆详细信息显示隐藏
-				dlf.fn_infoStatus();
-				break;
 			case 'personalData': //  个人资料 
 				dlf.fn_personalData();
 				break;
@@ -175,9 +141,6 @@ $(function () {
 				break;
 			case 'defend': // 设防撤防
 				dlf.fn_defendQuery();
-				break;
-			case 'reboot': // 重启中断
-				dlf.fn_reboot();
 				break;
 			case 'track': // 轨迹查询
 				dlf.fn_initTrack();
@@ -209,18 +172,21 @@ $(function () {
 	
 	dlf.fn_setItemMouseStatus($('.j_save'), 'pointer', new Array('bc', 'bc2', 'bc'));	// 保存按钮鼠标滑过样式
 	
-	var n_index = 0,
+	var n_index = 1,
 		currentAd = null;
 	/*主页面 广告幻灯片效果*/
 	function fn_timer() {
-		var obj_content = $('#contents li').eq(n_index);
-		obj_content.siblings().hide();
-		obj_content.show();
-		if ( n_index < 3 ) {
-			n_index++;
-		} else {
-			n_index = 0;
-		}
+		var obj_ad =  $('#contents img'),
+			n_index = parseInt(obj_ad.attr('index'));
+		obj_ad.fadeOut(function() {
+			if ( n_index < 3 ) {
+				n_index++;
+			} else {
+				n_index = 1;
+			}
+			obj_ad.attr('index', n_index);
+			$(this).attr('src', '/static/images/banner'+ n_index +'.jpg').fadeIn(1000);
+		});
 	}
 	// 计时器 
 	currentAd = setInterval(function () { // 每5秒
@@ -242,7 +208,7 @@ $(function () {
 					'mobile': $('#phone').val(),
 					'address': $('#txtAddress').val(),
 					'email': $('#email').val(),
-					'corporation': $('#corporation').val(),
+					/*'corporation': $('#corporation').val(),*/
 					'remark': $('#remark').val(),
 					'cid': $('#licenseNum').val()
 				};
