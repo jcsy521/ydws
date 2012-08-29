@@ -382,7 +382,22 @@ PUT返回结果:
     'message': str  //失败信息, status为非0时，才有内容，否则为空
   }
   
-不支持GET、POST、DELETE
+取回密码：
+URL: /password
+Table: T_USER
+GET :用来进行页面的跳转，初始化message=""
+
+POST请求内容:
+  {
+	'mobile': 'str'
+  }
+POST返回结果:  
+  {
+    'status': int //0表示成功,非-1表示获取数据失败，213表示用户手机号未订购爱车保业务
+    'message': str  //返回信息
+  }
+  
+不支持DELETE
 
 ************
 动态更新操作  
