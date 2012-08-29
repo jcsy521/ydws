@@ -9,7 +9,7 @@ class LoginParser(object):
 
     def parse(self, packet, ret):
         keys = ["t_msisdn", "u_msisdn", "imsi", "imei", "factory_name",
-                "keys_num"]
+                "keys_num", "psd"]
         for i, key in enumerate(keys):
             ret[key] = packet[i]
 
