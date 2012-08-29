@@ -27,6 +27,10 @@ class DetailHandler(BaseHandler):
                            "  WHERE uid = %s"
                            "  LIMIT 1",
                            self.current_user.uid) 
+        if not user:
+            self.clear_cookie(self.app_name)
+            self.redirect(self.get_argument("next", "/"))
+            return
 
         details = DotDict()
         details.update(user)

@@ -27,7 +27,7 @@ class QueryHelper(object):
 
     @staticmethod
     def get_user_by_uid(uid, db):
-        user = db.get("SELECT mobile"
+        user = db.get("SELECT mobile, name"
                       "  FROM T_USER"
                       "  WHERE uid= %s LIMIT 1",
                       uid) 

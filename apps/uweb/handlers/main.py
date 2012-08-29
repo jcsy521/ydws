@@ -23,11 +23,12 @@ class MainHandler(BaseHandler):
             pass
 
         else:
-            user = self.db.get("SELECT name FROM T_USER"
-                               "  WHERE uid=%s LIMIT 1",
-                               self.current_user.uid)
-
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+            if not user_info:
+                # is nuser_info is None, means cookie is invalid, so redirectlogin.html
+                self.clear_cookie(self.app_name)
+                self.redirect(self.get_argument("next", "/"))
+                return
 
             terminals = self.db.query("SELECT ti.id, ti.tid, ti.alias, ti.mobile as sim,"
                                       "  ti.login, ti.cellid_status, ti.keys_num"
@@ -43,7 +44,7 @@ class MainHandler(BaseHandler):
         if from_ == 'android':
             self.login_sms_remind(user_info.mobile, terminals, login="ANDROID")
             data = DotDict(uid=self.current_user.uid,
-                           name=user.name,
+                           name=user_info.name,
                            cars=terminals,
                            from_=from_)
             self.write_ret(ErrorCode.SUCCESS, dict_=data)
@@ -52,7 +53,7 @@ class MainHandler(BaseHandler):
         if from_ == 'ios':
             self.login_sms_remind(user_info.mobile, terminals, login="IOS")
             data = DotDict(uid=self.current_user.uid,
-                           name=user.name,
+                           name=user_info.name,
                            cars=terminals,
                            from_=from_)
             self.write_ret(ErrorCode.SUCCESS, dict_=data)
@@ -61,7 +62,7 @@ class MainHandler(BaseHandler):
         self.set_header("P3P", "CP=CAO PSA OUR")
         self.render(url,
                     uid=self.current_user.uid,
-                    name=user.name,
+                    name=user_info.name,
                     cars=terminals, 
                     from_=from_)
 

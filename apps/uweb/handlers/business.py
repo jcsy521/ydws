@@ -34,11 +34,11 @@ class BusinessCheckMobileHandler(BaseHandler, BusinessMixin):
         if the ower has two terminal, retrun FAILED, give a message and do not allow continue.
         if not, return SUCESS, let the business go ahead.
         """
-        status = ErrorCode.FAILED 
+        status = ErrorCode.USER_EXCESS 
         res = self.db.query("SELECT id FROM T_TERMINAL_INFO"
                             "  WHERE owner_mobile = %s",
                             mobile)
-        if len(res) < 2:
+        if len(res) < UWEB.LIMIT.TERMINAL:
             status = ErrorCode.SUCCESS 
         self.write_ret(status)
 
@@ -51,7 +51,7 @@ class BusinessCheckTMobileHandler(BaseHandler, BusinessMixin):
         if terminal exist, return FAILED, give a message and do not allow continue. 
         if not, return SUCCESS, let the business go ahead.
         """
-        status = ErrorCode.FAILED 
+        status = ErrorCode.TERMINAL_TID_EXIST
         res = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                           "  WHERE mobile = %s"
                           "  LIMIT 1",
@@ -60,6 +60,32 @@ class BusinessCheckTMobileHandler(BaseHandler, BusinessMixin):
             status = ErrorCode.SUCCESS 
         self.write_ret(status)
 
+class BusinessCheckStatusHandler(BaseHandler, BusinessMixin):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self, tmobile):
+        """Get business status.
+        0: success
+        1: processing
+        3: failed 
+        """
+        status = ErrorCode.SUCCESS 
+        business = 2
+        try: 
+            sms_status = self.get_sms_status(tmobile)
+            if sms_status == 3:
+                business_status = 0
+            elif sms_status == 0: 
+                business_status = 3 
+            else:
+                business_status = 2 
+        except Exception as e:
+            status = ErrorCode.FAILED
+            logging.exception("Get business status failed. tmobile: %s", tmobile)
+        
+        self.write_ret(status, dict_=DotDict(business_status=business_status))
+
 class BusinessCreateHandler(BaseHandler, BusinessMixin):
 
     @authenticated
@@ -67,8 +93,10 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
     def post(self):
         """Create business for a couple of users.
         """
-        print 'business create', self.request.body
         data = DotDict(json_decode(self.request.body))
-        print 'data', data
-
-        self.modify_user_terminal_car(data)
+        status = ErrorCode.SUCCESS 
+        try:
+            self.modify_user_terminal_car(data)
+        except Exception as e:
+            status = ErrorCode.FAILED 
+            self.write_ret(status)

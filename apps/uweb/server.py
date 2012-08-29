@@ -48,7 +48,7 @@ from handlers.defend import DefendHandler
 from handlers.terminal import TerminalHandler
 from handlers.password import PasswordHandler
 from handlers.detail import DetailHandler
-from handlers.business import BusinessCreateHandler
+from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler, BusinessCheckTMobileHandler, BusinessCheckStatusHandler
 
 from handlers.sms import SMSHandler
 
@@ -86,6 +86,9 @@ class Application(tornado.web.Application):
             # for android 
             (r"/android/*", AndroidHandler),
             (r"/business/create/*", BusinessCreateHandler),
+            (r"/business/checkmobile/(\S+)/*", BusinessCheckMobileHandler),
+            (r"/business/checktmobile/(\S+)/*", BusinessCheckTMobileHandler),
+            (r"/business/checkstatus/(\S+)/*", BusinessCheckStatusHandler),
 
             # for ios
             (r"/ios/*", IOSHandler),

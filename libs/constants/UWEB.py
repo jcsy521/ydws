@@ -25,9 +25,8 @@ LOGIN_WAY=DotDict(WEB=u"web",
                   ANDROID=u"android客户端",
                   IOS=u"ios客户端")
 
-             # you can have up to 10 records in one page
-LIMIT=DotDict(PAGE_SIZE=10, 
-              TERMINAL=20)
+LIMIT=DotDict(PAGE_SIZE=10, # you can have up to 10 records in one page
+              TERMINAL=2) # one user have 2 terminal at most.
 
 CATEGORY=DotDict(UNKNOWN=0,
                  WEB=10,

@@ -8,7 +8,8 @@ from utils.misc import get_name_cache_key
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
-from constants import UWEB 
+from helpers.queryhelper import QueryHelper 
+from constants import UWEB, SMS, GATEWAY 
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
 from base import BaseMixin
@@ -18,8 +19,8 @@ class BusinessMixin(BaseMixin):
 
     def get_sms_status(self, tmobile):
         """
-        sms_status: 0,  // failded
-                    1,  // sent
+        sms_status: 0,  // failded. not reached T_SMS
+                    1,  // be sent to smsproxy
                     2,  // reached to terminal
                     3,  // terminal has connected to gataway
         """ 
@@ -121,4 +122,3 @@ class BusinessMixin(BaseMixin):
                             "  SET msgid = %s"
                             "  WHERE mobile = %s",
                             ret['msgid'], fields.tmobile)
-

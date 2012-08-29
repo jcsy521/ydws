@@ -61,6 +61,12 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                                    self.current_user.tid)
             # 2: whitelist
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+
+            if not user:
+                self.clear_cookie(self.app_name)
+                self.redirect(self.get_argument("next", "/"))
+                return
+
             whitelist = self.db.query("SELECT mobile"
                                       "  FROM T_WHITELIST"
                                       "  WHERE tid = %s",
@@ -103,6 +109,10 @@ class TerminalHandler(BaseHandler, TerminalMixin):
 
         # check the data. some be sent to terminal, some just be modified in db 
         user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+        if not user:
+            self.clear_cookie(self.app_name)
+            self.redirect(self.get_argument("next", "/"))
+            return
    
         db_fields=['alias', 'cnum', 'cellid_status']
         gf_params = DotDict()
