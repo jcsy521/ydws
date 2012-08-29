@@ -352,7 +352,7 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
             change the owner of the terminal
         """
         
-        list_inject = ['corporation','name','mobile'] 
+        list_inject = ['name','mobile'] 
         for key in list_inject:
             v = self.get_argument(key, '')
             if not check_sql_injection(v):
@@ -390,7 +390,6 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                              cnum="",
                              address="",
                              email="",
-                             corporation="",
                              begintime="",
                              endtime="")
 
@@ -421,7 +420,6 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                              cnum="",
                              address="",
                              email="",
-                             corporation="",
                              begintime="",
                              endtime="")
 
@@ -442,7 +440,6 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                              cnum="",
                              address="",
                              email="",
-                             corporation="",
                              begintime="",
                              endtime="")
             for key in fields.iterkeys():
@@ -455,8 +452,7 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
             u_fields = DotDict(mobile="mobile=%s",
                                name="name=%s",
                                address="address=%s",
-                               email="email=%s",
-                               corporation="corporation=%s")
+                               email="email=%s")
             c_fields = DotDict(cnum="cnum=%s")
             t_fields = DotDict(tmobile="mobile=%s",
                                service_status="service_status=%s",
