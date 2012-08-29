@@ -22,10 +22,10 @@ class DetailHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        user = self.db.get("SELECT name, mobile, address, email, corporation, remark"
+        user = self.db.get("SELECT name, mobile, address, email, remark"
                            "  FROM T_USER"
                            "  WHERE uid = %s"
-                           "  limit 1",
+                           "  LIMIT 1",
                            self.current_user.uid) 
 
         details = DotDict()
@@ -42,7 +42,6 @@ class DetailHandler(BaseHandler):
             mobile = data.mobile
             address= data.address
             email = data.email
-            corporation = data.corporation
             remark = data.remark
 			
             self.db.execute("UPDATE T_USER"
@@ -50,11 +49,10 @@ class DetailHandler(BaseHandler):
                             "      name = %s,"
                             "      address = %s,"
                             "      email = %s,"
-                            "      corporation = %s,"
                             "      remark = %s"
                             "  WHERE uid = %s",
                             mobile, name, address, email, 
-                            corporation, remark, self.current_user.uid)
+                            remark, self.current_user.uid)
 
             self.write_ret(ErrorCode.SUCCESS)
 
