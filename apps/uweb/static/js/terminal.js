@@ -82,7 +82,7 @@ window.dlf.fn_baseSave =function() {
 			str_radio = obj_radio.val();	// radio of value
 		if ( n_len > 0 ) {
 			if ( str_radio != str_t_val  ) {
-				obj_terminalData[str_key] = str_radio;
+				obj_terminalData[str_key] = parseInt(str_radio);
 			}
 		} else {
 			if ( str_val != str_t_val ) {
