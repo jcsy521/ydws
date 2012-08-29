@@ -19,7 +19,7 @@ class ErrorCode(object):
     NO_TERMINAL = 208
     TERMINAL_MOBILE_EXIST = 209
     TERMINAL_TID_EXIST = 210
-    USER_NOT_EXIST = 211
+    USER_NOT_ORDER = 211
 
     PARENT_NOT_ORDERED = 214
     TERMINAL_NOT_ORDERED = 215
@@ -53,7 +53,7 @@ class ErrorCode(object):
         REGISTER_EXIST:             u"用户已存在。",
         TERMINAL_MOBILE_EXIST:      u"手机号已被关联。",
         TERMINAL_TID_EXIST:         u"终端已被关联。",
-        USER_NOT_EXIST:             u"用户不存在。",
+        USER_NOT_ORDER:             u"该手机号未订购爱车保业务。",
         NO_TERMINAL:                u"您尚未关联车辆。",
         SERVER_ERROR:               u"服务器错误。",
         SERVER_BUSY:                u"服务器忙，请稍后重试。",

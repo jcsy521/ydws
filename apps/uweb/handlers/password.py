@@ -81,7 +81,7 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                     status = ErrorCode.FAILED
                     self.write_ret(status)
             else:
-                status = ErrorCode.USER_NOT_EXIST
+                status = ErrorCode.USER_NOT_ORDER
                 self.write_ret(status)
             
         except Exception as e:
