@@ -66,8 +66,8 @@ def get_location_cache_key(lon, lat):
     """save name, Generate location (lon, lat)'s memechached key."""
     return "lk:%d:%d" % (lon/100, lat/100)
 
-def get_name_cache_key(sim):
-    return str("pabb:%s" % sim)
+def get_alias_key(tid):
+    return str("alias:%s" % tid)
 
 def get_lq_sms_key(sim):
     return str("lq:%s" % sim)
