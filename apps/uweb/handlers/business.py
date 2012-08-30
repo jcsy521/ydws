@@ -28,7 +28,8 @@ from utils.misc import str_to_list, DUMMY_IDS
 
 class BusinessCheckMobileHandler(BaseHandler, BusinessMixin):
 
-    @authenticated
+    # NOTE: never add authenticated.
+    #@authenticated
     @tornado.web.removeslash
     def get(self, mobile):
         """Check whether the owner_mobile can order a new terminal.     
@@ -45,7 +46,8 @@ class BusinessCheckMobileHandler(BaseHandler, BusinessMixin):
 
 class BusinessCheckTMobileHandler(BaseHandler, BusinessMixin):
 
-    @authenticated
+    # NOTE: never add authenticated.
+    #@authenticated
     @tornado.web.removeslash
     def get(self, tmobile):
         """Check whether the terminal can be ordered by a new owner.
@@ -63,7 +65,8 @@ class BusinessCheckTMobileHandler(BaseHandler, BusinessMixin):
 
 class BusinessCheckStatusHandler(BaseHandler, BusinessMixin):
 
-    @authenticated
+    # NOTE: never add authenticated.
+    #@authenticated
     @tornado.web.removeslash
     def get(self, tmobile):
         """Get business status.
@@ -89,7 +92,8 @@ class BusinessCheckStatusHandler(BaseHandler, BusinessMixin):
 
 class BusinessCreateHandler(BaseHandler, BusinessMixin):
 
-    @authenticated
+    # NOTE: never add authenticated.
+    #@authenticated
     @tornado.web.removeslash
     def post(self):
         """Create business for a couple of users.

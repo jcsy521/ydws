@@ -71,7 +71,7 @@ class RealtimeMixin(BaseMixin):
                 alias = t.alias
                 self.redis.setvalue(alias_key, alias)
             else:
-                alias = self.current.sim
+                alias = self.current_user.sim
 
         if is_alived == ALIVED:
             location = self.redis.getvalue(str(self.current_user.tid))
