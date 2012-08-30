@@ -26,7 +26,7 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             self.finish()
             return
 
-        current_query.timestamp = int(time() * 1000)
+        current_query.timestamp = int(time())
         logging.debug("Realtime query: %s", current_query)
         
         def _on_finish(realtime):
