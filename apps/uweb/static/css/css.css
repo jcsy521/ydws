@@ -167,14 +167,17 @@ body {
 	text-decoration: none;
 	float: left;
 }
+/*	
 #carList li a:hover {
 	border: 2px solid #266bc2;
 	color: #435871;
 }
+*/
 .currentCar {
 	border: 2px solid #266bc2;
 	color: #435871;
-	background: url('/static/images/car11.png') no-repeat 2px 1px;
+	/*background: url('/static/images/car11.png') no-repeat 2px 1px;*/
+	background: url('/static/images/car1.png') no-repeat 10px 7px;
 }
 .carlogin {
 	color: green;
@@ -186,6 +189,8 @@ body {
 	background: url('/static/images/car1.png') no-repeat 10px 1px;
 }
 .car1:hover {
+	border: 2px solid #266bc2;
+	color: #435871;
 	background: url('/static/images/car11.png') no-repeat 2px 1px;
 }
 #carList span {
