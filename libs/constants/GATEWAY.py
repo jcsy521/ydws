@@ -41,7 +41,8 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
 LOGIN_STATUS = DotDict(SUCCESS="0",
                        UNREGISTER="1",
                        EXPIRED="2",
-                       ILLEGAL_SIM="3")
+                       ILLEGAL_SIM="3",
+                       PSD_WRONG="4")
 
 LOCATION_STATUS = DotDict(FAILED="0",
                           SUCCESS="1",

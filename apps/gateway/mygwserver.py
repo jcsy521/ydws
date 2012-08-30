@@ -358,8 +358,8 @@ class MyGWServer(object):
                         else:
                             sms = SMSCode.SMS_PSD_WRONG
                             smses.append(sms)
-                            args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                            logging.error("[GW] User change SIM: %s to %s for terminal: %s failed! password error.",
+                            args.success = GATEWAY.LOGIN_STATUS.PSD_WRONG
+                            logging.error("[GW] User change SIM %s to %s for terminal %s failed: psd wrong.",
                                           terminal.owner_mobile, t_info['u_msisdn'], t_info['t_msisdn'])
                     else:
                         pass
@@ -406,8 +406,8 @@ class MyGWServer(object):
                             else:
                                 sms = SMSCode.SMS_PSD_WRONG
                                 smses.append(sms)
-                                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                                logging.error("[GW] Terminal change SIM: %s to %s, User: %s Failed!",
+                                args.success = GATEWAY.LOGIN_STATUS.PSD_WRONG
+                                logging.error("[GW] Terminal change SIM %s to %s for user %s failed: psd wrong.",
                                               terminal.mobile, t_info['t_msisdn'], t_info['u_msisdn'])
                         else:
                             pass
