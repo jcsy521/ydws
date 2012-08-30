@@ -120,13 +120,13 @@
 								<tr>
 									<td class="terminalTdL">上报频率:</td>
 									<td id="freq" class="j_ListVal"  t_val="0">
-										<input id="t_freq"  terminalkey="freq"  class="bListR_text_mouseOut" type="text" />秒
+										<input id="t_freq"  terminalkey="freq"  class="bListR_text_mouseOut" type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="4" />秒
 								</td>
 								</tr>
 								<tr>
 									<td class="terminalTdL">心跳时间:</td>
 									<td id="pulse" class="j_ListVal"   t_val="">
-										<input id="t_pulse"  terminalkey="pulse" class="bListR_text_mouseOut"  type="text" />秒
+										<input id="t_pulse"  terminalkey="pulse" class="bListR_text_mouseOut"  type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="4" />秒
 									</td>
 								</tr>
 								<tr>
@@ -138,7 +138,7 @@
 								</tr>
 								<tr>
 									<td id="white_list_2"  class="j_ListVal j_whitelist"  t_val="">
-										<input id="t_white_list_2"  terminalkey="owner_mobile"class="bListR_text_mouseOut"  type="text" />
+										<input id="t_white_list_2"  terminalkey="owner_mobile"class="bListR_text_mouseOut"  type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="11" />
 									</td>
 								</tr>
 								<tr>
