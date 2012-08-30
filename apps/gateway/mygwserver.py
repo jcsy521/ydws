@@ -15,6 +15,7 @@ from functools import partial
 
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
+from utils.checker import check_phone
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_alarm_status_key,\
@@ -310,6 +311,19 @@ class MyGWServer(object):
                            sessionID='')
             lp = LoginParser(info.body, info.head)
             t_info = lp.ret
+
+            if not (check_phone(t_info['u_msisdn']) and check_phone(t_info['t_msisdn'])):
+                args.success = GATEWAY.LOGIN_STATUS.UNREGISTER 
+                if check_phone(t_info['u_msisdn']):
+                    sms = SMSCode.SMS_JH_FAILED
+                    SMSHelper.send(t_info['u_msisdn'], sms)
+                lc = LoginRespComposer(args)
+                request = DotDict(packet=lc.buf,
+                                  address=address)
+                self.append_gw_request(request)
+                logging.error("[GW] Login failed! wrong sim or owner_mobile, Terminal: %s",
+                              t_info['dev_id'])
+                return
 
             terminal = self.db.get("SELECT id, tid, owner_mobile, imsi, service_status, endtime"
                                    "  FROM T_TERMINAL_INFO"
