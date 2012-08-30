@@ -11,7 +11,7 @@ from helpers import notifyhelper
 
 from utils.dotdict import DotDict
 from utils.misc import get_terminal_time,\
-     get_ssdw_sms_key
+     get_ssdw_sms_key, get_alias_key
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
 from constants import EVENTER, GATEWAY
