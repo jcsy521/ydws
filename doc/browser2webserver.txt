@@ -91,7 +91,6 @@ Table: T_LOCATION
 
 POST请求内容:
   {
-    'timestamp': time_int,  // 时间戳
     'cellid_status': int // 是否开启基站定位。1：开启基站定位; 0: 关闭基站定位
   }
 
@@ -381,8 +380,9 @@ PUT返回结果:
     'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
     'message': str  //失败信息, status为非0时，才有内容，否则为空
   }
-  
-取回密码：
+********
+找回密码
+********
 URL: /password
 Table: T_USER
 GET :用来进行页面的跳转，初始化message=""
@@ -391,6 +391,7 @@ POST请求内容:
   {
 	'mobile': 'str'
   }
+  
 POST返回结果:  
   {
     'status': int //0表示成功,非-1表示获取数据失败，213表示用户手机号未订购爱车保业务
@@ -538,13 +539,11 @@ POST 请求内容：
 	'brand': str // 品牌
 	
 	// info about terminal
-	'tmobile':str //终端手机号
-	'begintime': int // 服务开启时间。  单位秒 。  
-	‘endtime': int // 服务终止时间。 单位：秒 
+	'tmobile':str //终端手机号	
 	
 	// info about owner 
 	’name‘: str  // 车主姓名
-	'password' str // 用户密码  默认 111111 
+	'password' str // 用户密码  默认 
 	'mobile': // str 车主手机号
 	'address':　// str 车主地址
 	'email':　// 邮箱　	
