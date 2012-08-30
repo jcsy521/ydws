@@ -24,7 +24,7 @@ ul, li {
 	background: url('../images/loginBox.png');
     float: right;
 	position: relative;
-    right: 38px;
+    right: 36px;
     top: 41px;
     height: 261px;
     width: 280px;
@@ -230,7 +230,7 @@ h2 {
 	display: none;
 }
 .btnPanel {
-	margin-left: 65px;
+	margin-left: 82px;
 }
 .btnPanel * {
 	float: left;
