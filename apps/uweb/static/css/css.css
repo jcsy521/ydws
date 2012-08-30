@@ -1235,3 +1235,27 @@ body {
 .txtColor {
 	color: red;
 }
+/*service terms start */
+.services {
+	padding: 0px;
+	margin-top: 30px;
+	font-family: '微软雅黑';
+}
+#serviceTitle {
+	text-align: center;
+	font-size: 16px;
+	font-weight: bold;
+	height: 40px;
+}
+.services p {
+	line-height: 24px;
+}
+.headline {
+	text-indent: 2em;
+	font-size: 14px;
+}
+.subtitle {
+	text-indent: 4em;
+}
+
+/*service terms end*/

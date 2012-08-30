@@ -183,13 +183,13 @@ h2 {
 	height: 148px;
 }
 #adNums  {
-	width: 110px;
+	width: 132px;
 	height: 20px;
 	line-height: 20px;
 	position: relative;
 	top: -20px;
 	background-color: #bacadb;
-	padding-left: 378px;
+	padding-left: 356px;
 }
 #adNums li {
 	float: left;
@@ -246,4 +246,27 @@ h2 {
 }
 #getPwd:hover, #getPwd:visited {
 	color: #1F376D;
+}
+/*bottom*/
+.blinks {
+	outline: none;
+	width: 100%;
+	text-align: center;
+	height: 25px;
+	line-height: 30px;
+	color: #fff;
+}
+.blinks a{
+	display: inline-block;
+	padding-right: 10px;
+	color: #fff;
+}
+.bottom p { 
+	display: inline-block;
+    height: 20px;
+    line-height: 20px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    width: 100%;
 }

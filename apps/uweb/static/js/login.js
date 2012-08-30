@@ -38,7 +38,7 @@ $(function(){
 		obj_nums.removeClass('default').addClass('seleted');	// 当前节点 选中样式
 		obj_content.siblings().hide();
 		obj_content.show();
-		if ( index <5 ) {
+		if ( index < 6 ) {
 			index++;
 		} else {
 			index = 0;
