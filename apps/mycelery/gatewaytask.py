@@ -22,14 +22,14 @@ from helpers.queryhelper import QueryHelper
 from constants import GATEWAY
 from utils.repeatedtimer import RepeatedTimer 
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-                       get_name_cache_key
+                       get_alias_key
 from codes.smscode import SMSCode
 
 if not 'conf' in options:
     define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 
 def get_tname(dev_id, db, redis):
-    key = get_name_cache_key(dev_id)
+    key = get_alias_key(dev_id)
     name = redis.getvalue(key)
     if not name:
         t = db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"

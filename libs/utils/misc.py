@@ -66,14 +66,14 @@ def get_location_cache_key(lon, lat):
     """save name, Generate location (lon, lat)'s memechached key."""
     return "lk:%d:%d" % (lon/100, lat/100)
 
-def get_alias_key(tid):
-    return str("alias:%s" % tid)
+def get_alias_key(dev_id):
+    return str("alias:%s" % dev_id)
 
 def get_lq_sms_key(sim):
     return str("lq:%s" % sim)
 
-def get_lq_interval_key(tid):
-    return str("lq_interval:%s" % tid)
+def get_lq_interval_key(dev_id):
+    return str("lq_interval:%s" % dev_id)
 
 def get_terminal_time(timestamp):
     terminal_time = ""
@@ -110,3 +110,12 @@ def get_sessionID():
         sessionID += base_str[index]
 
     return sessionID
+
+def get_psd():
+    psd = ''
+    base_str = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    for i in range(6):
+        index = random.randint(0, 35)
+        psd += base_str[index]
+
+    return psd 

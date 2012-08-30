@@ -19,7 +19,7 @@ from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_alarm_status_key,\
      get_terminal_time, get_sessionID, get_terminal_sessionID_key,\
-     get_lq_interval_key, get_name_cache_key, safe_unicode
+     get_lq_interval_key, get_alias_key, safe_unicode, get_psd
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -105,7 +105,7 @@ class MyGWServer(object):
             logging.exception("[GW] Check gateway heartbeat exception.")
                 
     def get_tname(self, dev_id):
-        key = get_name_cache_key(dev_id)
+        key = get_alias_key(dev_id)
         name = self.redis.getvalue(key)
         if not name:
             t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
@@ -302,6 +302,7 @@ class MyGWServer(object):
         """
         try:
             smses = [] 
+            is_change = False
             args = DotDict(success=GATEWAY.LOGIN_STATUS.SUCCESS,
                            sessionID='')
             lp = LoginParser(info.body, info.head)
@@ -320,16 +321,22 @@ class MyGWServer(object):
                                   t_info['dev_id'], t_info['t_msisdn'])
                 elif terminal.tid == t_info['t_msisdn']:
                     # first login, admin regist terminal
+                    psd = get_psd()
                     sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
                                                     ConfHelper.UWEB_CONF.url_out,
                                                     t_info['u_msisdn'],
-                                                    '111111')
+                                                    psd)
                     smses.append(sms)
                     logging.info("[GW] Terminal %s JH success!", t_info['t_msisdn'])
+                elif terminal.tid != t_info['dev_id']:
+                    # change dev, use same sim
+                    is_change = True
+                    logging.info("[GW] Terminal %s change dev %s to %s!",
+                                 t_info['t_msisdn'], terminal.tid, t_info['dev_id'])
                 elif terminal.imsi != t_info['imsi']:
                     # illegal sim, dev change sim
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    sms = SMSCode.SMS_TERMINAL_HK_RJH % (t_info['t_msisdn'])
+                    sms = SMSCode.SMS_TERMINAL_HK % (t_info['t_msisdn'])
                     smses.append(sms)
                     logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
                                   t_info['t_msisdn'], t_info['dev_id'])
@@ -342,17 +349,23 @@ class MyGWServer(object):
                     if user:
                         info = self.db.get("SELECT password(%s) AS psd", t_info['psd'])
                         if info.psd == user.password:
-                            self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
-                                            "  VALUES(%s, password(%s), %s, %s)"
-                                            "  ON DUPLICATE KEY"
-                                            "  UPDATE password = VALUES(password)",
-                                            t_info['u_msisdn'], '111111',
-                                            t_info['u_msisdn'], t_info['u_msisdn'])
-                            sms = SMSCode.SMS_USER_HK_SUCCESS % (t_info['u_msisdn'],
-                                                                 ConfHelper.UWEB_CONF.url_out,
-                                                                 t_info['u_msisdn'],
-                                                                 '111111')
-                            smses.append(sms)
+                            exist = self.db.get("SELECT id FROM T_USER"
+                                                "  WHERE mobile = %s",
+                                                t_info['u_msisdn'])
+                            if exist:
+                                sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
+                                                                       ConfHelper.UWEB_CONF.url_out)
+                                smses.append(sms)
+                            else:
+                                psd = get_psd()
+                                self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
+                                                "  VALUES(%s, password(%s), %s, %s)",
+                                                t_info['u_msisdn'], psd,
+                                                t_info['u_msisdn'], t_info['u_msisdn'])
+                                sms = SMSCode.SMS_USER_HK_SUCCESS % (t_info['u_msisdn'],
+                                                                     ConfHelper.UWEB_CONF.url_out,
+                                                                     t_info['u_msisdn'], psd)
+                                smses.append(sms)
                             logging.info("[GW] User change SIM: %s to %s for terminal: %s",
                                          terminal.owner_mobile, t_info['u_msisdn'], t_info['t_msisdn'])
                         else:
@@ -366,6 +379,8 @@ class MyGWServer(object):
                 else:
                     pass
             else:
+                # dev change sim, clear cache
+                is_change = True
                 terminal = self.db.get("SELECT id, mobile, owner_mobile, imsi, service_status, endtime"
                                        "  FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s",
@@ -388,17 +403,23 @@ class MyGWServer(object):
                                 sms = SMSCode.SMS_TERMINAL_HK_SUCCESS % (terminal.mobile, t_info['t_msisdn'])
                                 smses.append(sms)
                                 if terminal.owner_mobile != t_info['u_msisdn']:
-                                    self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
-                                                    "  VALUES(%s, password(%s), %s, %s)"
-                                                    "  ON DUPLICATE KEY"
-                                                    "  UPDATE password = VALUES(password)",
-                                                    t_info['u_msisdn'], '111111',
-                                                    t_info['u_msisdn'], t_info['u_msisdn'])
-                                    sms = SMSCode.SMS_USER_HK_SUCCESS % (t_info['u_msisdn'],
-                                                                         ConfHelper.UWEB_CONF.url_out,
-                                                                         t_info['u_msisdn'],
-                                                                         '111111')
-                                    smses.append(sms)
+                                    exist = self.db.get("SELECT id FROM T_USER"
+                                                        "  WHERE mobile = %s",
+                                                        t_info['u_msisdn'])
+                                    if exist:
+                                        sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
+                                                                               ConfHelper.UWEB_CONF.url_out)
+                                        smses.append(sms)
+                                    else:
+                                        psd = get_psd()
+                                        self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
+                                                        "  VALUES(%s, password(%s), %s, %s)",
+                                                        t_info['u_msisdn'], psd,
+                                                        t_info['u_msisdn'], t_info['u_msisdn'])
+                                        sms = SMSCode.SMS_USER_HK_SUCCESS % (t_info['u_msisdn'],
+                                                                             ConfHelper.UWEB_CONF.url_out,
+                                                                             t_info['u_msisdn'], psd)
+                                        smses.append(sms)
                                     logging.info("[GW] User change SIM: %s to %s for terminal: %s",
                                                  terminal.owner_mobile, t_info['u_msisdn'], t_info['t_msisdn'])
                                 logging.info("[GW] Terminal change SIM: %s to %s, User: %s",
@@ -416,12 +437,24 @@ class MyGWServer(object):
                     # is one year.
                     begintime = datetime.datetime.now() 
                     endtime = begintime + relativedelta(years=1)
-                    self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
-                                    "  VALUES(%s, password(%s), %s, %s)"
-                                    "  ON DUPLICATE KEY"
-                                    "  UPDATE password = VALUES(password)",
-                                    t_info['u_msisdn'], '111111',
-                                    t_info['u_msisdn'], t_info['u_msisdn'])
+                    exist = self.db.get("SELECT id FROM T_USER"
+                                        "  WHERE mobile = %s",
+                                        t_info['u_msisdn'])
+                    if exist:
+                        sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
+                                                               ConfHelper.UWEB_CONF.url_out)
+                        smses.append(sms)
+                    else:
+                        psd = get_psd()
+                        self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
+                                        "  VALUES(%s, password(%s), %s, %s)",
+                                        t_info['u_msisdn'], psd,
+                                        t_info['u_msisdn'], t_info['u_msisdn'])
+                        sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
+                                                        ConfHelper.UWEB_CONF.url_out,
+                                                        t_info['u_msisdn'],
+                                                        psd)
+                        smses.append(sms)
                     self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
                                     "  owner_mobile, imsi, imei, factory_name, softversion,"
                                     "  keys_num, login, service_status, begintime, endtime)"
@@ -434,12 +467,20 @@ class MyGWServer(object):
                                     GATEWAY.SERVICE_STATUS.ON,
                                     int(time.mktime(begintime.timetuple())),
                                     int(time.mktime(endtime.timetuple())))
-                    sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
-                                                    ConfHelper.UWEB_CONF.url_out,
-                                                    t_info['u_msisdn'],
-                                                    '111111')
-                    smses.append(sms)
+                    self.db.execute("INSERT INTO T_CAR(tmobile)"
+                                    "  VALUES(%s)",
+                                    t_info['t_msisdn'])
                     logging.info("[GW] Terminal %s JH success!", t_info['t_msisdn'])
+
+            if is_change:
+                alias_key = get_alias_key(t_info['dev_id'])
+                alarm_key = get_alarm_status_key(t_info['dev_id'])
+                keys = [alias_key, alarm_key]
+                self.redis.delete(*keys)
+                if terminal:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET alias = NULL"
+                                    "  WHERE id = %s", terminal.id)
                     
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
                 if terminal:
