@@ -6,7 +6,6 @@
 window.dlf.fn_currentQuery = function() {
 	var str_cellid_status = $('.currentCar').attr('cellid_status'),	// 是否是基站定位
 		obj_pd = {
-					'timestamp': new Date().getTime(),
 					'cellid_status': parseInt(str_cellid_status)
 				}, 
 		obj_cWrapper = $('#currentWrapper');
