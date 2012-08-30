@@ -112,7 +112,7 @@ def handle_location(location, redis, cellid=False, db=None):
                 location.degree = get_last_degree(location, redis, db)
         else:
             # UNREALTIME, pvt
-            # for realtime
+            # for realtime, report
             if cellid:
                 location.lat = 0
                 location.lon = 0
