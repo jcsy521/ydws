@@ -40,7 +40,7 @@ class PacketTask(object):
             pass       
 
     def get_tname(self, dev_id):
-        key = get_name_cache_key(dev_id)
+        key = get_alias_key(dev_id)
         name = self.redis.getvalue(key)
         if not name:
             t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
@@ -157,9 +157,9 @@ class PacketTask(object):
             sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
         elif report.rName == EVENTER.RNAME.POWERLOW:
             if report.dev_type == "1":
-                sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), terminal_time)
+                sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
             else:
-                sms = SMSCode.SMS_POB_POWERLOW % (name, int(report.pbat), terminal_time)
+                sms = SMSCode.SMS_POB_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
         #elif report.rName == EVENTER.RNAME.REGION_OUT:
         #    sms = SMSCode.SMS_REGION_OUT % (name, report_name, terminal_time)
         #elif report.rName == EVENTER.RNAME.SPEED_OUT:
