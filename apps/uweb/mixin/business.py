@@ -4,7 +4,6 @@ import logging
 import time
 from tornado.escape import json_decode, json_encode
 
-from utils.misc import get_name_cache_key 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper

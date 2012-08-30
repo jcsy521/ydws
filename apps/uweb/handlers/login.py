@@ -104,9 +104,11 @@ class WAPTransferHandler(BaseHandler, LoginMixin):
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
             self.write_ret(status)
+            return
         if not (check_sql_injection(username) and check_sql_injection(password)):
             status= ErrorCode.LOGIN_FAILED
             self.write_ret(status)
+            return
 
         # check the user, return uid, tid, sim and status
         uid, tid, sim, status = self.login_passwd_auth(username, password)
@@ -129,9 +131,11 @@ class IOSHandler(BaseHandler, LoginMixin):
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
             self.write_ret(status)
+            return
         if not (check_sql_injection(username) and check_sql_injection(password)):
             status= ErrorCode.LOGIN_FAILED
             self.write_ret(status)
+            return
 
         # check the user, return uid, tid, sim and status
         uid, tid, sim, status = self.login_passwd_auth(username, password)
@@ -154,9 +158,11 @@ class AndroidHandler(BaseHandler, LoginMixin):
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
             self.write_ret(status)
+            return
         if not (check_sql_injection(username) and check_sql_injection(password)):
             status= ErrorCode.LOGIN_FAILED
             self.write_ret(status)
+            return
 
         # check the user, return uid, tid, sim and status
         uid, tid, sim, status = self.login_passwd_auth(username, password)

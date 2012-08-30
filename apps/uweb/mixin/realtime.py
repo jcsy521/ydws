@@ -10,7 +10,7 @@ from helpers.seqgenerator import SeqGenerator
 from helpers.queryhelper import QueryHelper 
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
-from utils.misc import get_name_cache_key
+from utils.misc import get_alias_key
 from helpers.lbmphelper import handle_location
 from constants import UWEB, EVENTER, GATEWAY, SMS
 from constants.MEMCACHED import ALIVED
@@ -63,7 +63,7 @@ class RealtimeMixin(BaseMixin):
         only one. If not, invoke gf and use handle_location of lbmphelper. 
         """
         is_alived = self.redis.getvalue('is_alived')
-        alias_key = get_name_cache_key(self.current_user.tid) 
+        alias_key = get_alias_key(self.current_user.sim) 
         alias = self.redis.getvalue(alias_key)
         if not alias:
             t = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)

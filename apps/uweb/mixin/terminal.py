@@ -3,7 +3,7 @@
 
 from base import BaseMixin
 from constants import UWEB 
-from utils.misc import get_name_cache_key
+from utils.misc import get_alias_key
 
 
 class TerminalMixin(BaseMixin):
@@ -63,7 +63,7 @@ class TerminalMixin(BaseMixin):
                                 "  WHERE tid = %s",
                                 value, tid)
                 # after update db, update redis
-                alias_key = get_name_cache_key(tid)
+                alias_key = get_alias_key(tid)
                 self.redis.setvalue(alias_key, value)
 
             # NOTE: T_CAR use tmobile 

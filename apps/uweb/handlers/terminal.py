@@ -33,61 +33,71 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             query terminal_info from terminal itself, then update the database
         """
         status = ErrorCode.SUCCESS
-        car_sets = DotDict() 
-        flag = self.get_argument('terminal_info','')
-        # NOTE: now, flush branch should not be used.
-        if flag == UWEB.TERMINAL_INFO_CATEGORY.F:
-            args = DotDict(seq=SeqGenerator.next(self.db),
-                           tid=self.current_user.tid,
-                           params=self.F_KEYS)
-            ret = GFSenderHelper.forward(GFSenderHelper.URLS.QUERY, args)
-            ret = json_decode(ret)
-            if ret['success'] == ErrorCode.SUCCESS:
-                for key, value in ret['params'].iteritems():
-                    car_sets[key.lower()] = value
-                self.update_terminal_db(car_sets, self.current_user.tid, self.current_user.sim)
-            else: 
-                if ret['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                    self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
-                status = ret['success']
-                logging.error('[UWEB] Query terminal_info failed.')
-        else:            
-            # 1: terminal
-            terminal = self.db.get("SELECT gsm, gps, pbat, freq, pulse, alias, vibchk,"
-                                   "     trace, service_status, cellid_status"
-                                   "  FROM T_TERMINAL_INFO"
-                                   "  WHERE tid = %s"
-                                   "  LIMIT 1",
-                                   self.current_user.tid)
-            # 2: whitelist
-            user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+        try:
+            car_sets = DotDict() 
+            flag = self.get_argument('terminal_info','')
+            # NOTE: now, flush branch should not be used.
+            if flag == UWEB.TERMINAL_INFO_CATEGORY.F:
+                args = DotDict(seq=SeqGenerator.next(self.db),
+                               tid=self.current_user.tid,
+                               params=self.F_KEYS)
+                ret = GFSenderHelper.forward(GFSenderHelper.URLS.QUERY, args)
+                ret = json_decode(ret)
+                if ret['success'] == ErrorCode.SUCCESS:
+                    for key, value in ret['params'].iteritems():
+                        car_sets[key.lower()] = value
+                    self.update_terminal_db(car_sets, self.current_user.tid, self.current_user.sim)
+                else: 
+                    if ret['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+                        self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
+                    status = ret['success']
+                    logging.error('[UWEB] Query terminal_info failed.')
+            else:            
+                # 1: terminal
+                terminal = self.db.get("SELECT gsm, gps, pbat, freq, pulse, alias, vibchk,"
+                                       "     trace, service_status, cellid_status"
+                                       "  FROM T_TERMINAL_INFO"
+                                       "  WHERE tid = %s"
+                                       "  LIMIT 1",
+                                       self.current_user.tid)
+                if not terminal:
+                    status = ErrorCode.LOGIN_AGAIN
+                    logging.error("The terminal with tid: %s is noexist, redirect to login.html", self.current_user.tid)
+                    self.clear_cookie(self.app_name)
+                    self.write_ret(status)
+                    return
+                # 2: whitelist
+                user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+                if not user:
+                    logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
+                    self.clear_cookie(self.app_name)
+                    self.write_ret(ErrorCode.LOGIN_AGAIN)
+                    return
 
-            if not user:
-                logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
-                self.clear_cookie(self.app_name)
-                self.redirect(self.get_argument("next", "/"))
-                return
+                whitelist = self.db.query("SELECT mobile"
+                                          "  FROM T_WHITELIST"
+                                          "  WHERE tid = %s",
+                                          self.current_user.tid)
 
-            whitelist = self.db.query("SELECT mobile"
-                                      "  FROM T_WHITELIST"
-                                      "  WHERE tid = %s",
-                                      self.current_user.tid)
+                # 3: car
+                car = self.db.get("SELECT cnum FROM T_CAR"
+                                  "  WHERE tmobile = %s",
+                                  self.current_user.sim)
 
-            # 3: car
-            car = self.db.get("SELECT cnum FROM T_CAR"
-                              "  WHERE tmobile = %s",
-                              self.current_user.sim)
+                # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
+                car_sets.update(terminal)
+                car_sets.update(car)
+                white_list = [user.mobile]
+                for item in whitelist: 
+                    white_list.append(item['mobile'])
+                car_sets.update(DotDict(white_list=white_list))
 
-            # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
-            car_sets.update(terminal)
-            car_sets.update(car)
-            white_list = [user.mobile]
-            for item in whitelist: 
-                white_list.append(item['mobile'])
-            car_sets.update(DotDict(white_list=white_list))
-
-        self.write_ret(status,
-                       dict_=dict(car_sets=car_sets))
+            self.write_ret(status,
+                           dict_=dict(car_sets=car_sets))
+        except Exception as e: 
+            status = ErrorCode.SERVER_BUSY
+            logging.exception("Get terminal failed. Exception: %s", e.args) 
+            self.write_ret(status)
 
     @authenticated
     @tornado.web.removeslash
@@ -99,56 +109,61 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         try:
             data = DotDict(json_decode(self.request.body))
         except Exception as e:
-            logging.exception("[UWEB] Set terminal failed. Exception: %s", e.args)
-            status = ErrorCode.SERVER_BUSY
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
             return 
         
-        args = DotDict(seq=SeqGenerator.next(self.db),
-                       tid=self.current_user.tid)
+        try:
+            args = DotDict(seq=SeqGenerator.next(self.db),
+                           tid=self.current_user.tid)
 
-        # check the data. some be sent to terminal, some just be modified in db 
-        user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
-        if not user:
-            logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
-            self.clear_cookie(self.app_name)
-            self.redirect(self.get_argument("next", "/"))
-            return
+            # check the data. some be sent to terminal, some just be modified in db 
+            user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+            if not user:
+                logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
+                self.clear_cookie(self.app_name)
+                self.redirect(self.get_argument("next", "/"))
+                return
    
-        db_fields=['alias', 'cnum', 'cellid_status']
-        gf_params = DotDict()
-        db_params = DotDict()
-        for key, value in data.iteritems():
-            if key in db_fields:
-                db_params[key]=value
-            else:
-                if key == 'white_list':
-                    gf_params[key]=":".join(value)
+            db_fields=['alias', 'cnum', 'cellid_status']
+            gf_params = DotDict()
+            db_params = DotDict()
+            for key, value in data.iteritems():
+                if key in db_fields:
+                    db_params[key]=value
                 else:
-                    gf_params[key]=value
-               
-        self.update_terminal_db(db_params, self.current_user.tid, self.current_user.sim) 
-        args.params = gf_params 
+                    if key == 'white_list':
+                        gf_params[key]=":".join(value)
+                    else:
+                        gf_params[key]=value
+                   
+            self.update_terminal_db(db_params, self.current_user.tid, self.current_user.sim) 
+            args.params = gf_params 
 
-        def _on_finish(response):
-            status = ErrorCode.SUCCESS
-            response = json_decode(response)
-            if response['success'] == 0:
-                self.update_terminal_info(response['params'], data, self.current_user.tid)
-            else:
-                if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                    self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
-                status = response['success'] 
-                logging.error("[UWEB] Set terminal failed. status: %s, message: %s", 
-                               status, ErrorCode.ERROR_MESSAGE[status] )
-            self.write_ret(status)
-            IOLoop.instance().add_callback(self.finish)
+            def _on_finish(response):
+                status = ErrorCode.SUCCESS
+                response = json_decode(response)
+                if response['success'] == 0:
+                    self.update_terminal_info(response['params'], data, self.current_user.tid)
+                else:
+                    if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+                        self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
+                    status = response['success'] 
+                    logging.error("[UWEB] Set terminal failed. status: %s, message: %s", 
+                                   status, ErrorCode.ERROR_MESSAGE[status] )
+                self.write_ret(status)
+                IOLoop.instance().add_callback(self.finish)
 
-        if args.params:
-            GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
-                                              _on_finish)
-        else: 
+            if args.params:
+                GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
+                                                  _on_finish)
+            else: 
+                self.write_ret(status)
+                IOLoop.instance().add_callback(self.finish)
+        except Exception as e:
+            logging.exception("Update detail failed. Exception: %s", e.args)
+            status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
 

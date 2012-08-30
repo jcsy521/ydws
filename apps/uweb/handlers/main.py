@@ -31,10 +31,11 @@ class MainHandler(BaseHandler):
                 self.redirect(self.get_argument("next", "/"))
                 return
 
+            # terminal which is login show first.
             terminals = self.db.query("SELECT ti.id, ti.tid, ti.alias, ti.mobile as sim,"
                                       "  ti.login, ti.cellid_status, ti.keys_num"
                                       "  FROM T_TERMINAL_INFO as ti"
-                                      "  WHERE ti.owner_mobile = %s",
+                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
             #NOTE: if aliasa is null, provide tid instead
             for terminal in terminals:

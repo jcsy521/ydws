@@ -68,10 +68,15 @@ class LastInfoHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        data = DotDict(json_decode(self.request.body))
-        tids = data.tids
-        cars_info = []
         try:
+            data = DotDict(json_decode(self.request.body))
+            tids = data.tids
+        except:
+            self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
+            return
+
+        try:
+            cars_info = []
             status = ErrorCode.SUCCESS
             for tid in tids:
                 # NOTE: monitor and location must not be null. lastinfo is invoked after switchcar
@@ -83,11 +88,11 @@ class LastInfoHandler(BaseHandler):
                                        tid)
 
                 if not terminal:
+                    status = ErrorCode.LOGIN_AGAIN
                     logging.error("The terminal with tid: %s is noexist, redirect to login.html", tid)
                     self.clear_cookie(self.app_name)
-                    self.redirect(self.get_argument("next", "/"))
+                    self.write_ret(status)
                     return
-
                 location = self.db.get("SELECT speed, timestamp, category, name,"
                                        "  degree, type, clatitude, clongitude"
                                        "  FROM T_LOCATION"

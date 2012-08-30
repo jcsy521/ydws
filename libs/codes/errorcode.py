@@ -10,6 +10,7 @@ class ErrorCode(object):
     ILLEGAL_DATA_FORMAT = 120
 
     LOGIN_FAILED = 200
+    LOGIN_AGAIN = 201
     WRONG_CAPTCHA = 202
     WRONG_PASSWORD = 203 
 
@@ -51,6 +52,7 @@ class ErrorCode(object):
         WRONG_CAPTCHA:              u"验证码错误。",
         WRONG_PASSWORD:             u"密码错误",
         LOGIN_FAILED:               u"用户名或密码错误。",
+        LOGIN_AGAIN:                u"业务信息发生变更，请重新登录。",
         USER_MOBILE_EXIST:          u"手机号已被关联。",
         USER_UID_EXIST:             u"该用户名已被使用。",
         REGISTER_EXIST:             u"用户已存在。",

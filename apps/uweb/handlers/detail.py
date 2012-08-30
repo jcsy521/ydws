@@ -22,26 +22,33 @@ class DetailHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        user = self.db.get("SELECT name, mobile, address, email, remark"
-                           "  FROM T_USER"
-                           "  WHERE uid = %s"
-                           "  LIMIT 1",
-                           self.current_user.uid) 
-        if not user:
-            logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
-            self.clear_cookie(self.app_name)
-            self.redirect(self.get_argument("next", "/"))
-            return
-
-        details = DotDict()
-        details.update(user)
-        self.write_ret(ErrorCode.SUCCESS,
-                       dict_=dict(details=details))
+        status = ErrorCode.SUCCESS
+        try: 
+            user = self.db.get("SELECT name, mobile, address, email, remark"
+                               "  FROM T_USER"
+                               "  WHERE uid = %s"
+                               "  LIMIT 1",
+                               self.current_user.uid) 
+            if not user:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
+                self.clear_cookie(self.app_name)
+                self.write_ret(status)
+                return
+            details = DotDict()
+            details.update(user)
+            self.write_ret(status,
+                           dict_=dict(details=details))
+        except Exception as e:
+            logging.exception("Get detail failed. Exception: %s", e.args) 
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
 
     @authenticated
     @tornado.web.removeslash
     def put(self):
         try:
+            status = ErrorCode.SUCCESS
             data = DotDict(json_decode(self.request.body))
             name = data.name
             mobile = data.mobile
@@ -58,11 +65,8 @@ class DetailHandler(BaseHandler):
                             "  WHERE uid = %s",
                             mobile, name, address, email, 
                             remark, self.current_user.uid)
-
-            self.write_ret(ErrorCode.SUCCESS)
-
+            self.write_ret(status)
         except Exception as e:
             logging.exception("Update detail failed. Exception: %s", e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-

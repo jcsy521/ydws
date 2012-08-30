@@ -5,7 +5,7 @@ import logging
 import tornado.web
 from tornado.escape import json_encode, json_decode
 
-from utils.misc import get_name_cache_key, DUMMY_IDS
+from utils.misc import DUMMY_IDS
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB, SMS
