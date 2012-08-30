@@ -10,7 +10,7 @@ from helpers import lbmphelper
 from helpers import notifyhelper
 
 from utils.dotdict import DotDict
-from utils.misc import get_name_cache_key, get_terminal_time,\
+from utils.misc import get_terminal_time,\
      get_ssdw_sms_key
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
