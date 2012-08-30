@@ -97,12 +97,21 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
         data = DotDict(json_decode(self.request.body))
         status = ErrorCode.SUCCESS 
         try:
+            res = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                              "  WHERE mobile = %s"
+                              "  LIMIT 1",
+                              data.tmobile)
+            if res:
+                status = ErrorCode.TERMINAL_ORDERED
+                self.write_ret(status)
+                return
+            
             begintime = datetime.datetime.now()
             endtime = begintime + relativedelta(years=1)
-
             data.begintime=int(time.mktime(begintime.timetuple()))
             data.endtime=int(time.mktime(endtime.timetuple()))
             self.modify_user_terminal_car(data)
+            self.write_ret(status)
         except Exception as e:
             status = ErrorCode.FAILED 
             self.write_ret(status)

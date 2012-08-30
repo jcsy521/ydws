@@ -27,6 +27,7 @@ class ErrorCode(object):
 
     PARENT_NOT_ORDERED = 214
     TERMINAL_NOT_ORDERED = 215
+    TERMINAL_ORDERED = 216
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -75,5 +76,6 @@ class ErrorCode(object):
         TERMINAL_OFFLINE:           u'您的爱车保不在线。',
         TERMINAL_TIME_OUT:          u'连接爱车保超时，请稍后重试。',
         TERMINAL_OTHER_ERRORS:      u'连接爱车保失败，请稍后重试。',
+        TERMINAL_ORDERED:           u'终端手机已被注册，请检查确认后再重试！',
         UNKNOWN_COMMAND:            u"您好，你输入的指令爱车保系统不识别，请输入标准指令。",
     }
