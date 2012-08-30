@@ -165,17 +165,25 @@ class MyGWServer(object):
                                     "  WHERE login = %s",
                                     GATEWAY.TERMINAL_LOGIN.LOGIN)
         for terminal in online_terminals:
+            db.execute("UPDATE T_TERMINAL_INFO"
+                       "  SET login = %s"
+                       "  WHERE tid = %s",
+                       GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
             terminal_status_key = get_terminal_address_key(terminal.tid)
-            terminal_status = redis.getvalue(terminal_status_key)
-            if terminal_status:
-                self.online_terminals.append(terminal.tid)
-            else:
-                db.execute("UPDATE T_TERMINAL_INFO"
-                           "  SET login = %s"
-                           "  WHERE tid = %s",
-                           GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
-                terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
-                self.redis.delete(terminal_sessionID_key)
+            terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
+            keys = [terminal_status_key, terminal_sessionID_key]
+            self.redis.delete(*keys)
+            #terminal_status_key = get_terminal_address_key(terminal.tid)
+            #terminal_status = redis.getvalue(terminal_status_key)
+            #if terminal_status:
+            #    self.online_terminals.append(terminal.tid)
+            #else:
+            #    db.execute("UPDATE T_TERMINAL_INFO"
+            #               "  SET login = %s"
+            #               "  WHERE tid = %s",
+            #               GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
+            #    terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
+            #    self.redis.delete(terminal_sessionID_key)
 
         db.close()
         
