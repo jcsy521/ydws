@@ -142,7 +142,7 @@ class PacketTask(object):
         """
         # get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
-                                            cellid=False, db=self.db)
+                                            cellid=True, db=self.db)
         name = self.get_tname(report.dev_id)
         terminal_time = get_terminal_time(int(report.gps_time))
 
