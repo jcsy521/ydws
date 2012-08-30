@@ -173,6 +173,9 @@ class MyGWServer(object):
                            "  SET login = %s"
                            "  WHERE tid = %s",
                            GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
+                terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
+                self.redis.delete(terminal_sessionID_key)
+
         db.close()
         
     def __stop_check_heartbeat_thread(self):
