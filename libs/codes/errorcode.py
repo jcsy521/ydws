@@ -64,7 +64,7 @@ class ErrorCode(object):
         SERVER_BUSY:                u"服务器忙，请稍后重试。",
         ADDITION_EXCESS:            u'该功能设置已超过上限，本次操作失败。',
         QUERY_INTERVAL_EXCESS:      u'对不起，只能查询一个星期之内的记录！',
-        PARENT_NOT_ORDERED:         u'对不起，您输入的用户名或密码有误，请重新输入！',
+        PARENT_NOT_ORDERED:         u'您输入的用户名或密码有误，请重新输入！',
         TERMINAL_NOT_ORDERED:       u'对不起，该号码尚未订购"爱车保"业务！',
         LOCATION_NAME_NONE:         u"无法解析经纬度对应的地址",
         LOCATION_FAILED:            u"爱车保定位失败，请稍后重试。",
