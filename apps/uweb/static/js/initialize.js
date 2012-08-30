@@ -251,8 +251,8 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 	$.get_(SWITCHCAR_URL + '/' + n_tid, '', function (data) {
 		if ( data.status == 0 ) {
 			// 车辆样式
-			$('#carList a').removeClass('currentCar').addClass('car1');
-			obj_currentItem.removeClass('car1').addClass('currentCar');
+			$('#carList a').removeClass('currentCar');
+			obj_currentItem.addClass('currentCar');
 			// 更新当前车辆的详细信息显示
 			var	obj_carDatas = obj_carLi.data('carData');
 			if ( obj_carDatas ) {
@@ -321,8 +321,11 @@ window.dlf.fn_getCarData = function() {
 						str_tid = obj_carInfo.tid, 	//车辆tid
 						str_alias = obj_carInfo.alias,
 						str_loginst = obj_carInfo.login,
+						str_loginClass = '',
 						obj_carA = $('#carList a[tid='+str_tid+']'),
 						obj_carLi = obj_carA.parent(),
+						obj_child2 = obj_carLi.children().eq(2), 
+						obj_child1 = obj_carLi.children().eq(1),
 						n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 						n_clat = obj_carInfo.clatitude/NUMLNGLAT;
 					// 经纬度数据不正确不做处理
@@ -333,12 +336,16 @@ window.dlf.fn_getCarData = function() {
 						}
 					}
 					// 修改别名
-					obj_carLi.children().eq(1).html(str_alias).attr('title', str_alias);
+					obj_child1.html(str_alias).attr('title', str_alias);
 					// 动态修改车辆当前连接状态
 					if ( str_loginst == LOGINST) {
-						obj_carLi.children().eq(2).removeClass('carlogout').addClass('carlogin').html('在线');
+						obj_carA.removeClass('carlogout').addClass('carlogin');
+						obj_child1.removeClass('gray').addClass('green');
+						obj_child2.removeClass('gray').addClass('green').html('(在线)');
 					} else {
-						obj_carLi.children().eq(2).removeClass('carlogin').addClass('carlogout').html('离线');
+						obj_carA.removeClass('carlogin').addClass('carlogout');
+						obj_child1.removeClass('green').addClass('gray');
+						obj_child2.removeClass('green').addClass('gray').html('(离线)');
 					}
 					obj_carA.attr('clogin', str_loginst);
 					// 更新当前车辆信息
@@ -517,16 +524,16 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			$('#gps').attr('title', 'GPS信号：' + str_val);
 		}
 	} else if ( str_key == 'power' ) {
-		if ( str_val == 0 ) {
-			str_return = 'url("/static/images/power.png")';
-		} else if ( str_val > 0 && str_val <= 25 ) {
-			str_return = 'url("/static/images/power0.png")';
-		} else if ( str_val > 25 && str_val <= 50 ) {
-			str_return = 'url("/static/images/power3.png")';
-		} else if ( str_val > 50 && str_val <= 75 ) {
-			str_return = 'url("/static/images/power6.png")';
-		} else if ( str_val > 75 && str_val <= 100 ) {
-			str_return = 'url("/static/images/power9.png")';
+		var arr_powers = [0,10,20,30,40,50,60,70,80,90,100],
+			arr_img = ['power0.png','power1.png','power2.png','power3.png','power4.png','power5.png','power6.png','power7.png','power8.png','power9.png','power10.png'];
+		for ( var i = 0; i < arr_powers.length; i++ ) {
+			if ( str_val >= 0 && str_val <= 10 ) {
+				str_return = 'url("/static/images/power0.png")';
+				break;
+			} else if ( str_val > arr_powers[i] && str_val <= arr_powers[i+1] ) {
+				str_return = 'url("/static/images/'+arr_img[i]+'")';
+				break;
+			}
 		}
 	} else if ( str_key == 'degree' ) {
 		var arr_degree = [355,5,40,50,85,95,130,140,175,185,220,230,265,275,310,320,355],
