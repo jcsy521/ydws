@@ -26,7 +26,7 @@ def get_push_info():
                    begintime=begintime,
                    endtime=endtime)
 
-def push_to_android(category, uid, tid, location):
+def push_to_android(category, uid, tid, t_alias, location):
      """Push info fo android by the means of ANPS
      """
 
@@ -44,7 +44,8 @@ def push_to_android(category, uid, tid, location):
                    volume=location.pbat,
                    speed=location.speed,
                    degree=float(location.degree),
-                   type=location.type)
+                   type=location.type,
+                   alias=t_alias)
 
      msg=str(json_encode(ret)) 
      url = "http://www.android-push.com/api/send/?secret=%s&app_key=%s&client_ids=&alias=%s&msg=%s" % (push_info.secret, push_info.app_key, alias, msg)

@@ -211,4 +211,5 @@ class PacketTask(object):
         # NOTE: if user is not null, notify android
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
         if user:
-            notifyhelper.push_to_android(category, user.owner_mobile, dev_id, location)      
+            name = self.get_tname(dev_id)
+            notifyhelper.push_to_android(category, user.owner_mobile, dev_id, name, location)      
