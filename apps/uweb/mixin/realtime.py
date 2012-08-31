@@ -63,7 +63,7 @@ class RealtimeMixin(BaseMixin):
         only one. If not, invoke gf and use handle_location of lbmphelper. 
         """
         is_alived = self.redis.getvalue('is_alived')
-        alias_key = get_alias_key(self.current_user.sim) 
+        alias_key = get_alias_key(self.current_user.tid) 
         alias = self.redis.getvalue(alias_key)
         if not alias:
             t = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
