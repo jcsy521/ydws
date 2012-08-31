@@ -510,7 +510,7 @@ class MyGWServer(object):
                     
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
                 if terminal:
-                    self.db.execute("DELETE T_TERMINAL_INFO"
+                    self.db.execute("DELETE FROM T_TERMINAL_INFO"
                                     "  WHERE tid = %s", t_info['dev_id'])
                     self.db.execute("UPDATE T_TERMINAL_INFO"
                                     "  SET tid = %s,"
