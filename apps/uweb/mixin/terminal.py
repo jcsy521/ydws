@@ -118,8 +118,9 @@ class TerminalMixin(BaseMixin):
             pass
         for key in s_keys:
             set_clause = set_clause + key.lower() + " = '" + str(car_sets[key])+  "',"
-        sql_cmd = "UPDATE T_TERMINAL_INFO SET " + set_clause[0:-1] + " WHERE tid = %s" 
-        self.db.execute(sql_cmd, tid)
+        if set_clause:
+            sql_cmd = "UPDATE T_TERMINAL_INFO SET " + set_clause[0:-1] + " WHERE tid = %s" 
+            self.db.execute(sql_cmd, tid)
 
     def update_terminal_w(self, key, value, tid):
         """Update T_TERMINAL_INFO_W.
