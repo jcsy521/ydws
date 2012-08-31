@@ -30,6 +30,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		marker.setLabel(label);	// marker标记
 		var obj_carItem = $('#carList a').eq(n_carNum);
 		obj_carItem.data('selfmarker', marker);
+		obj_carItem.data('selfLable', marker.getLabel());
 	}
 	
 	mapObj.addOverlay(marker);//向地图添加覆盖物 
@@ -42,8 +43,9 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 			var obj_carItem = $('#carList a').eq(n_carNum),
 				str_className = obj_carItem.attr('class'), 
 				str_tid = obj_carItem.attr('tid');
-			this.openInfoWindow(this.selfInfoWindow); // 显示吹出框
+			// 如果是当前车的话就直接打开infoWindow否则switchcar中打开infoWindow
 			if ( str_className.search('currentCar') != -1 ) { // 如果用户点击当前车辆不做操作
+				this.openInfoWindow(this.selfInfoWindow); // 显示吹出框
 				return;
 			}
 			dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
@@ -68,7 +70,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType) {
 		str_alias = obj_location.alias,
 		str_title = '车辆：',
 		str_tempMsg = '开始跟踪',
-		str_actionTrack =$('#carList .currentCar').attr('actiontrack'),
+		str_actionTrack =$('#carList a[tid='+str_tid+']').attr('actiontrack'),
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
