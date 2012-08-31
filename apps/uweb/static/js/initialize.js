@@ -307,7 +307,7 @@ window.dlf.fn_updateLastInfo = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除定时器
 	currentLastInfo = setInterval(function () { // 每15秒启动
 		dlf.fn_getCarData();
-	}, 5000); 
+	}, INFOTIME); 
 }
 // 每隔15秒获取数据
 window.dlf.fn_getCarData = function() {
