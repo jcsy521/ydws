@@ -9,8 +9,12 @@ site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
 import logging
 
-from utils import options
+import tornado
+from tornado.options import define, options
 options.define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+# deploy or debug
+define('mode', default='deploy')
+# use warning for deployment
 options.options['logging'].set('info')
 
 from utils.myredis import MyRedis
@@ -25,16 +29,29 @@ def shutdown(server):
     except:
         pass
 
+def usage():
+    print "python26 server.py --conf=/path/to/conf_file"
+
 def main():
-    options.parse_command_line()
-    ConfHelper.load(options.options.conf)
+    tornado.options.parse_command_line()
+    if not ('conf' in options):
+        import sys
+        usage()
+        sys.exit(1)
+
+    if options.mode.lower() == "debug":
+        debug_mode = True
+    else:
+        debug_mode = False
+
+    ConfHelper.load(options.conf)
     redis = MyRedis()
     db = DBConnection().db
 
     siserver = None
     try:
         logging.warn("[siserver] running on: localhost")
-        siserver = MySIServer(options.options.conf)
+        siserver = MySIServer(options.conf)
         siserver.redis = redis
         siserver.db = db
         siserver.handle_si_connections()

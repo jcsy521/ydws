@@ -13,9 +13,13 @@ import multiprocessing
 from multiprocessing import Process, Queue, Pool
 from threading import Thread
 
-from utils import options
-options.define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
-options.options['logging'].set('info')
+import tornado
+from tornado.options import define, options
+define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+# deploy or debug
+define('mode', default='deploy')
+# use warning for deployment
+options['logging'].set('info')
 
 from utils.myredis import MyRedis
 from db_.mysql import DBConnection
@@ -34,9 +38,22 @@ def shutdown(gwserver, processes):
     except:
         pass
 
+def usage():
+    print "python26 server.py --conf=/path/to/conf_file"
+
 def main():
-    options.parse_command_line()
-    ConfHelper.load(options.options.conf)
+    tornado.options.parse_command_line()
+    if not ('conf' in options):
+        import sys
+        usage()
+        sys.exit(1)
+
+    if options.mode.lower() == "debug":
+        debug_mode = True
+    else:
+        debug_mode = False
+
+    ConfHelper.load(options.conf)
     redis = MyRedis()
     db = DBConnection().db
 
@@ -44,7 +61,7 @@ def main():
     processes = None
     try:
         logging.warn("[gateway] running on: localhost")
-        gwserver = MyGWServer(options.options.conf)
+        gwserver = MyGWServer(options.conf)
         gwserver.redis = redis
         gwserver.db = db
         gw_send = Process(name='GWSender',

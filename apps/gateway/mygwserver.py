@@ -311,6 +311,7 @@ class MyGWServer(object):
         1: unregister, have no u_msisdn or t_msisdn
         2: expired, service stop or endtime < now
         3: illegal sim, a mismatch between imsi and sim 
+        4: psd wrong. HK
         """
         try:
             smses = [] 
@@ -329,8 +330,8 @@ class MyGWServer(object):
                 request = DotDict(packet=lc.buf,
                                   address=address)
                 self.append_gw_request(request)
-                logging.error("[GW] Login failed! wrong sim or owner_mobile, Terminal: %s",
-                              t_info['dev_id'])
+                logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, dev_id: %s",
+                              info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
                 return
 
             terminal = self.db.get("SELECT id, tid, owner_mobile, imsi, service_status, endtime"
@@ -509,6 +510,8 @@ class MyGWServer(object):
                     
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
                 if terminal:
+                    self.db.execute("DELETE T_TERMINAL_INFO"
+                                    "  WHERE tid = %s", t_info['dev_id'])
                     self.db.execute("UPDATE T_TERMINAL_INFO"
                                     "  SET tid = %s,"
                                     "      mobile = %s,"
