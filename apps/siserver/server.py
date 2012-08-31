@@ -11,11 +11,11 @@ import logging
 
 import tornado
 from tornado.options import define, options
-options.define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 # deploy or debug
 define('mode', default='deploy')
 # use warning for deployment
-options.options['logging'].set('info')
+options['logging'].set('info')
 
 from utils.myredis import MyRedis
 from db_.mysql import DBConnection

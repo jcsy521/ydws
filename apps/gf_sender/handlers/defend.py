@@ -8,6 +8,7 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from codes.clwcode import CLWCode
+from constants import GATEWAY
 
 from clw.packet.composer.defend import DefendComposer
 from clw.packet.parser.defend import DefendParser
