@@ -78,6 +78,10 @@ class MT(object):
                 else:
                     # http response is None
                     status = ErrorCode.FAILED
+                    self.db.execute("UPDATE T_SMS "
+                                    "  SET send_status = %s"
+                                    "  WHERE id = %s",
+                                    SMS.SENDSTATUS.FAILURE, id)
             
         except Exception, msg:
             status = ErrorCode.FAILED
@@ -87,7 +91,7 @@ class MT(object):
     
     
     def send_mt(self, msgid, mobile, content):
-        result = None
+        result['status'] = ErrorCode.FAILED
         try:
             url = ConfHelper.SMS_CONF.mt_url
             cmd = "send"
