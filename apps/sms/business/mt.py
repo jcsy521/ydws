@@ -91,7 +91,7 @@ class MT(object):
     
     
     def send_mt(self, msgid, mobile, content):
-        result['status'] = ErrorCode.FAILED
+        result = {'status': ErrorCode.FAILED, 'ret' : '100'}
         try:
             url = ConfHelper.SMS_CONF.mt_url
             cmd = "send"
