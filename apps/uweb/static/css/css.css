@@ -107,8 +107,8 @@ body {
 }
 #carList {
 	float: left;
-	padding: 15px 10px 10px 0px;
-	width: 237px;
+	padding: 15px 0px 10px 0px;
+	width: 247px;
 }
 #tInfo {
 	float: left;
@@ -159,7 +159,7 @@ body {
 	padding-left: 10px;
 	text-align: center;
 	float: left;
-	width: 100px;
+	width: 110px;
 	height: 87px;
 	display: inline;
 }
@@ -1242,10 +1242,9 @@ body {
 }
 /*service terms start */
 .services {
-	padding: 0px;
 	margin-top: 30px;
 	font-family: '微软雅黑';
-	padding-top: 217px;
+	padding:0px 217px;
 }
 #serviceTitle {
 	text-align: center;
