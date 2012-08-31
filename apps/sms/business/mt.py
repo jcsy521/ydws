@@ -115,3 +115,90 @@ class MT(object):
         finally:
             return result
         
+    
+    def fetch_failed_mt_sms(self):
+        status = ErrorCode.SUCCESS
+        result = {'status': ErrorCode.FAILED, 'ret' : '100'}
+        try:
+            mts = self.db.query("SELECT id, msgid, mobile, content "
+                                "  FROM T_SMS "
+                                "  WHERE category = %s "
+                                "  AND send_status = %s"
+                                "  OR recv_status != %s"
+                                "  AND retry_status = %s"
+                                "  ORDER BY id ASC"
+                                "  LIMIT 10",
+                                SMS.CATEGORY.MT, SMS.SENDSTATUS.FAILURE, 
+                                SMS.USERSTATUS.SUCCESS, SMS.RETRYSTATUS.NO)
+            for mt in mts:
+                mobile = mt["mobile"]
+                content = mt["content"]
+                msgid = mt["msgid"]
+                id = mt["id"]
+                
+                result = self.send_mt(msgid, mobile, content)
+                
+                if result["status"] == ErrorCode.SUCCESS:
+                    if result["ret"] == "100":
+                        logging.info("SMS-->Gateway success mobile = %s, content = %s, id = %s ", mobile, content, id)
+                        self.db.execute("UPDATE T_SMS "
+                                       "  SET send_status = %s"
+                                       "  WHERE id = %s",
+                                       SMS.SENDSTATUS.SUCCESS, id)
+                        status = ErrorCode.SUCCESS
+                    else:
+                        if result["ret"] == "101":
+                            logging.error("SMS-->Gateway failure, errorcode = 101, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                        elif result["ret"] == "104":
+                            logging.error("SMS-->Gateway content error, errorcode = 104, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                        elif result["ret"] == "105":
+                            logging.error("SMS-->Gateway frequency too fast, errorcode = 105, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                        elif result["ret"] == "106":
+                            logging.error("SMS-->Gateway number limited, errorcode = 106, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                        else:
+                            logging.error("SMS-->Gateway other error, errorcode unknown, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                            
+                        if  result["ret"] != "105":
+                            self.db.execute("UPDATE T_SMS "
+                                            "  SET send_status = %s"
+                                            "  WHERE id = %s",
+                                            SMS.SENDSTATUS.FAILURE, id)
+                        status = ErrorCode.FAILED
+                else:
+                    # http response is None
+                    status = ErrorCode.FAILED
+                    self.db.execute("UPDATE T_SMS "
+                                    "  SET send_status = %s"
+                                    "  WHERE id = %s",
+                                    SMS.SENDSTATUS.FAILURE, id)
+                self.db.execute("UPDATE T_SMS "
+                                "  SET retry_status = %s"
+                                "  WHERE id = %s",
+                                SMS.RETRYSTATUS.YES, id)
+        except Exception, msg:
+            status = ErrorCode.FAILED
+            logging.exception("Fetch failed mt sms exception : %s", msg)
+        finally:
+            return status
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        

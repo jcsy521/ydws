@@ -22,3 +22,7 @@ USERSTATUS = DotDict(NOSYNC=-1,
                      SUCCESS=0,
                      FAILURE=1)
 
+RETRYSTATUS = DotDict(NO=0,
+                      YES=1)
+                     
+

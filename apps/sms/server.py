@@ -60,6 +60,26 @@ def shutdown(server):
         pass
 
 
+def run_send_failed_mt_thread():
+    logging.info("Send failed mt thread started.")
+    #time interval 60 second
+    INTERVAL = 60
+    status = ErrorCode.FAILED
+    mt = MT()
+    try:
+        while True:
+            time.sleep(INTERVAL)
+            status = mt.fetch_failed_mt_sms()
+            if status == ErrorCode.SUCCESS:
+                INTERVAL = 60
+            else:
+                INTERVAL = INTERVAL * 2
+                if INTERVAL > 600:
+                    INTERVAL = 600
+    except Exception as e:
+        logging.exception("Start send failed MT thread failed: %s", e.args)
+
+
 def run_send_mt_thread():
     logging.info("MT thread started.")
     #time interval 3 second
@@ -154,6 +174,9 @@ def main():
         http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
         # create mt thread
         thread.start_new_thread(run_send_mt_thread, ())
+        
+        # create send failed mt thread
+        thread.start_new_thread(run_send_failed_mt_thread, ())
         
         # create user receive status thread
         thread.start_new_thread(run_user_receive_status_thread, ())
