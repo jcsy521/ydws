@@ -10,7 +10,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		mPoint = new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT), 
 		infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_iconType)),  // 创建信息窗口对象;
 		marker = null,
-		label = new BMap.Label(obj_location.alias, {offset:new BMap.Size(20, -10)}); // todo  tid >>  别名
+		label = new BMap.Label(obj_location.alias, {offset:new BMap.Size(31, 22)}); // todo  tid >>  别名
+	label.setStyle({background: '#FFA500', fontSize: '13px', height: '20px', borderColor: '#000', lineHeight: '24px',opacity: '0.7','paddingLeft': '5px','paddingRight': '5px'});
 	if ( str_iconType == 'start' ) {
 		str_imgUrl = '/static/images/green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {

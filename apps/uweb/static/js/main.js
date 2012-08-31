@@ -123,6 +123,9 @@ $(function () {
 			}
 		}
 		if ( str_trackStatus != 'none' && str_id != 'infoStatus' ) {
+			if ( str_id == 'track' ) {
+				return;
+			}
 			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
 		}
 		$('#terminalMsgWrapper').hide();
