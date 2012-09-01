@@ -72,7 +72,7 @@ class BusinessMixin(BaseMixin):
                    "  tt.mobile as tmobile, tt.service_status, tc.cnum"
                    "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
                    "  WHERE  tu.mobile = tt.owner_mobile "
-                   "    AND tt.mobile = tc.tmobile "
+                   "    AND tt.tid= tc.tid"
                    "    AND ") + where_clause
             businesses = self.db.query(sql)
         else:
@@ -80,7 +80,7 @@ class BusinessMixin(BaseMixin):
                    "  tt.mobile as tmobile, tt.service_status, tc.cnum"
                    "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
                    "  WHERE  tu.mobile = tt.owner_mobile "
-                   "    AND tt.mobile = tc.tmobile ")
+                   "    AND tt.tid = tc.tid")
             businesses = self.db.query(sql)
         for i, business in enumerate(businesses):
             business['seq'] = i + 1
@@ -128,7 +128,7 @@ class BusinessMixin(BaseMixin):
                                "  tt.mobile as tmobile, tt.service_status, tc.cnum"
                                "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
                                "  WHERE  tu.mobile = tt.owner_mobile "
-                               "    AND tt.mobile = tc.tmobile "
+                               "    AND tt.tid  = tc.tid "
                                "    AND tt.mobile = %s"
                                "    LIMIT 1",
                                tmobile)
@@ -137,6 +137,18 @@ class BusinessMixin(BaseMixin):
             return business
         else: 
             return None
+
+    def sms_to_terminal(self, mobile, tmobile):
+        # 4: send message to terminal
+        #NOTE: here, not send message actually. if need, remove the annotations velow. 
+        register_sms = SMSCode.SMS_REGISTER % (mobile, tmobile) 
+        ret = SMSHelper.send(tmobile, register_sms)
+        ret = DotDict(json_decode(ret))
+        if ret.status == ErrorCode.SUCCESS:
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET msgid = %s"
+                            "  WHERE mobile = %s",
+                            ret['msgid'], tmobile)
 
     def modify_user_terminal_car(self, fields):
         # 1: add user
@@ -165,6 +177,9 @@ class BusinessMixin(BaseMixin):
                                    fields.mobile, fields.name, fields.mobile,
                                    fields.address, fields.email) 
         # 2: add terminal
+        fields.alias = fields.tmobile
+        if fields.cnum:
+            fields.alias = fields.cnum
         tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                               "  alias, begintime, endtime)"
                               "  VALUES (%s, %s, %s, %s, %s, %s)"
@@ -177,7 +192,7 @@ class BusinessMixin(BaseMixin):
                               "         begintime=values(begintime),"
                               "         endtime=values(endtime)",
                               fields.tmobile, fields.tmobile,
-                              fields.mobile, fields.cnum, 
+                              fields.mobile, fields.alias, 
                               fields.begintime, fields.endtime)
 
         # 3: add car tnum --> cnum
@@ -188,17 +203,7 @@ class BusinessMixin(BaseMixin):
                               "         tid = VALUES(tid)",
                               fields.cnum, fields.tmobile)
         
-        # 4: send message to terminal
-        #NOTE: here, not send message actually. if need, remove the annotations velow. 
-        register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
-        ret = SMSHelper.send(fields.tmobile, register_sms)
-        ret = DotDict(json_decode(ret))
-        if ret.status == ErrorCode.SUCCESS:
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET msgid = %s"
-                            "  WHERE mobile = %s",
-                            ret['msgid'], fields.tmobile)
-
+        
 
 class BusinessCheckMobileHandler(BaseHandler, BusinessMixin):
 
@@ -269,6 +274,7 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
             fields[key] = self.get_argument(key,'')
 
         self.modify_user_terminal_car(fields)
+        self.sms_to_terminal(fields.mobile, fields.tmobile)
         self.redirect("/business/list/%s" % fields.tmobile)
 
 class BusinessSearchHandler(BaseHandler, BusinessMixin):
@@ -388,7 +394,7 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                             "  SET owner_mobile = %s"
                             "  WHERE owner_mobile = %s",
                             mobile_n, mobile_p)
-
+            self.sms_to_terminal(mobile_n, tmobile_n)
         elif mobile_n!=mobile_p and tmobile_n==tmobile_p:
             self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET owner_mobile = %s"
@@ -406,12 +412,13 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                             "  WHERE owner_mobile = %s",
                             mobile_n, mobile_p)
 
+            self.sms_to_terminal(mobile_n, tmobile_n)
         elif mobile_n==mobile_p and tmobile_n!=tmobile_p:
             self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET mobile = %s"
                             "  WHERE mobile = %s",
                             tmobile_n, tmobile_p)
-
+            self.sms_to_terminal(mobile_n, tmobile_n)
         elif mobile_n==mobile_p and tmobile_n==tmobile_p:
             pass
 
