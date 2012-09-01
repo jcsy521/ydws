@@ -24,6 +24,13 @@ class EventHandler(BaseHandler):
     def get(self):
         """Jump to event.html, provide tid, alias """ 
         terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+        if not terminal:
+            status = ErrorCode.LOGIN_AGAIN
+            logging.error("The terminal with tid: %s is noexist, redirect to login.html", tid)
+            self.clear_cookie(self.app_name)
+            self.write_ret(status)
+            return
+        
         self.render("event.html",
                     tid=self.current_user.tid,
                     alias=terminal.alias if terminal.alias else self.current_user.sim)
