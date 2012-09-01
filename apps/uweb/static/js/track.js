@@ -10,6 +10,7 @@
 var timerId = null, counter = 0, str_actionState = 0,n_speed = 1000, f_trackMsgStatus = false;
 // 初始化轨迹显示页面
 window.dlf.fn_initTrack = function() {
+	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // lastinfo关闭
 	dlf.fn_clearInterval(timerId);//计时器关闭
@@ -196,8 +197,7 @@ function fn_drawMarker() {
 		$('#tPlay').css('display', 'inline-block');
 	}
 }
-// 页面加载完成后进行加载地图
-$(function () {	
+window.dlf.fn_initTrackDatepicker = function() {
 	// 初始化时间
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
 	$('#trackBeginTime').unbind('click').click(function() {
@@ -206,7 +206,11 @@ $(function () {
 	$('#trackEndTime').unbind('click').click(function() {
 		WdatePicker({el:'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}'});
 	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date(), 'sfm'));
+}
+// 页面加载完成后进行加载地图
+$(function () {	
 	
+	dlf.fn_initTrackDatepicker();
 	// 按钮变色
 	$('.j_tBtnhover, #trackSearch, #trackClose').mouseover(function(event) {
 		var str_id = event.currentTarget.id, 
