@@ -62,9 +62,6 @@ class TerminalMixin(BaseMixin):
                                 "  SET alias = %s"
                                 "  WHERE tid = %s",
                                 value, tid)
-                # after update db, update redis
-                alias_key = get_alias_key(tid)
-                self.redis.setvalue(alias_key, value)
 
             # NOTE: T_CAR use tmobile 
             elif key == 'cnum':

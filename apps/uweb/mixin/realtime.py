@@ -62,16 +62,11 @@ class RealtimeMixin(BaseMixin):
         All realtime requests in REALTIME_VALID_INTERVAL will be considered as
         only one. If not, invoke gf and use handle_location of lbmphelper. 
         """
-        is_alived = self.redis.getvalue('is_alived')
-        alias_key = get_alias_key(self.current_user.tid) 
-        alias = self.redis.getvalue(alias_key)
-        if not alias:
-            t = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
-            if t.alias:
-                alias = t.alias
-                self.redis.setvalue(alias_key, alias)
-            else:
-                alias = self.current_user.sim
+        terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+        if terminal.alias:
+            alias = terminal.alias
+        else:
+            alias = self.current_user.sim
 
         if is_alived == ALIVED:
             location = self.redis.getvalue(str(self.current_user.tid))
