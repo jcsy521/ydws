@@ -181,11 +181,11 @@ class BusinessMixin(BaseMixin):
                               fields.begintime, fields.endtime)
 
         # 3: add car tnum --> cnum
-        cid = self.db.execute("INSERT INTO T_CAR(cnum, tmobile)"
+        cid = self.db.execute("INSERT INTO T_CAR(cnum, tid)"
                               "  VALUES(%s, %s)"
                               "  ON DUPLICATE KEY"
                               "  UPDATE cnum = VALUES(cnum),"
-                              "         tmobile = VALUES(tmobile)",
+                              "         tid = VALUES(tid)",
                               fields.cnum, fields.tmobile)
         
         # 4: send message to terminal

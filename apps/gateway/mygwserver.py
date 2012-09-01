@@ -106,13 +106,9 @@ class MyGWServer(object):
             logging.exception("[GW] Check gateway heartbeat exception.")
                 
     def get_tname(self, dev_id):
-        key = get_alias_key(dev_id)
-        name = self.redis.getvalue(key)
-        if not name:
-            t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
-                            "  WHERE tid = %s", dev_id)
-            name = t.alias if t.alias else t.mobile
-            self.redis.setvalue(key, name)
+        t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
+                        "  WHERE tid = %s", dev_id)
+        name = t.alias if t.alias else t.mobile
         if isinstance(name, str):
             name = name.decode("utf-8")
 
@@ -424,48 +420,77 @@ class MyGWServer(object):
                                  t_info['dev_id']) 
                 else:
                     logging.info("[GW] Terminal: %s JH started.", t_info['dev_id'])
-                    # send JH sms to terminal. default active time
-                    # is one year.
-                    begintime = datetime.datetime.now() 
-                    endtime = begintime + relativedelta(years=1)
-                    exist = self.db.get("SELECT id FROM T_USER"
-                                        "  WHERE mobile = %s",
-                                        t_info['u_msisdn'])
-                    if exist:
-                        logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
-                        sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
-                                                               ConfHelper.UWEB_CONF.url_out)
+                    admin_terminal = self.db.get("SELECT tid FROM T_TERMINAL_INFO"
+                                                 "  WHERE mobile = %s",
+                                                 t_info['t_msisdn'])
+                    if admin_terminal:
+                        # terminal added by admin
+                        self.db.execute("UPDATE T_TERMINAL_INFO"
+                                        "  SET tid = %s,"
+                                        "      dev_type = %s,"
+                                        "      owner_mobile = %s,"
+                                        "      imsi = %s,"
+                                        "      imei = %s,"
+                                        "      factory_name = %s,"
+                                        "      keys_num = %s,"
+                                        "      softversion = %s"
+                                        "  WHERE id = %s",
+                                        t_info['dev_id'],
+                                        t_info['dev_type'],
+                                        t_info['u_msisdn'],
+                                        t_info['imsi'],
+                                        t_info['imei'],
+                                        t_info['factory_name'],
+                                        t_info['keys_num'],
+                                        t_info['softversion'],
+                                        GATEWAY.TERMINAL_LOGIN.LOGIN,
+                                        admin_terminal.id)
+                        self.db.execute("UPDATE T_CAR SET tid = %s"
+                                        "  WHERE tid = %s",
+                                        t_info['dev_id'], t_info['t_msisdn'])
+                        logging.info("[GW] Terminal %s by ADMIN JH success!", t_info['dev_id'])
                     else:
-                        logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
-                        psd = get_psd()
-                        self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
-                                        "  VALUES(%s, password(%s), %s, %s)",
-                                        t_info['u_msisdn'], psd,
-                                        t_info['u_msisdn'], t_info['u_msisdn'])
-                        sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
-                                                        ConfHelper.UWEB_CONF.url_out,
-                                                        t_info['u_msisdn'],
-                                                        psd)
-                    # unbind old tmobile
-                    self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                                    "  WHERE mobile = %s",
-                                    t_info['t_msisdn'])
-                    self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
-                                    "  owner_mobile, imsi, imei, factory_name, softversion,"
-                                    "  keys_num, login, service_status, begintime, endtime)"
-                                    "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                    t_info['dev_id'], t_info['dev_type'],
-                                    t_info['t_msisdn'], t_info['u_msisdn'],
-                                    t_info['imsi'], t_info['imei'], t_info['factory_name'],
-                                    t_info['softversion'], t_info['keys_num'], 
-                                    GATEWAY.TERMINAL_LOGIN.LOGIN,
-                                    GATEWAY.SERVICE_STATUS.ON,
-                                    int(time.mktime(begintime.timetuple())),
-                                    int(time.mktime(endtime.timetuple())))
-                    self.db.execute("INSERT INTO T_CAR(tmobile)"
-                                    "  VALUES(%s)",
-                                    t_info['t_msisdn'])
-                    logging.info("[GW] Terminal %s JH success!", t_info['dev_id'])
+                        # send JH sms to terminal. default active time
+                        # is one year.
+                        begintime = datetime.datetime.now() 
+                        endtime = begintime + relativedelta(years=1)
+                        exist = self.db.get("SELECT id FROM T_USER"
+                                            "  WHERE mobile = %s",
+                                            t_info['u_msisdn'])
+                        if exist:
+                            logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
+                            sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
+                                                                   ConfHelper.UWEB_CONF.url_out)
+                        else:
+                            logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
+                            psd = get_psd()
+                            self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
+                                            "  VALUES(%s, password(%s), %s, %s)",
+                                            t_info['u_msisdn'], psd,
+                                            t_info['u_msisdn'], t_info['u_msisdn'])
+                            sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
+                                                            ConfHelper.UWEB_CONF.url_out,
+                                                            t_info['u_msisdn'],
+                                                            psd)
+                        # unbind old tmobile
+                        self.db.execute("DELETE FROM T_TERMINAL_INFO"
+                                        "  WHERE mobile = %s",
+                                        t_info['t_msisdn'])
+                        self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
+                                        "  owner_mobile, imsi, imei, factory_name, softversion,"
+                                        "  keys_num, login, service_status, begintime, endtime)"
+                                        "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s)",
+                                        t_info['dev_id'], t_info['dev_type'],
+                                        t_info['t_msisdn'], t_info['u_msisdn'],
+                                        t_info['imsi'], t_info['imei'], t_info['factory_name'],
+                                        t_info['softversion'], t_info['keys_num'], 
+                                        GATEWAY.SERVICE_STATUS.ON,
+                                        int(time.mktime(begintime.timetuple())),
+                                        int(time.mktime(endtime.timetuple())))
+                        self.db.execute("INSERT INTO T_CAR(tid)"
+                                        "  VALUES(%s)",
+                                        t_info['dev_id'])
+                        logging.info("[GW] Terminal %s by SMS JH success!", t_info['dev_id'])
 
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
                 # get SessionID
@@ -477,6 +502,12 @@ class MyGWServer(object):
                 # append into online terminals
                 if not t_info["dev_id"] in self.online_terminals:
                     self.online_terminals.append(t_info["dev_id"])
+                # set login
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET login = %s"
+                                "  WHERE tid = %s",
+                                GATEWAY.TERMINAL_LOGIN.LOGIN,
+                                t_info['dev_id']
                 logging.info("[GW] Terminal %s login success! SIM: %s",
                              t_info['dev_id'], t_info['t_msisdn'])
 

@@ -70,8 +70,8 @@ class TerminalMixin(BaseMixin):
             elif key == 'cnum':
                 self.db.execute("UPDATE T_CAR"
                                 "  SET cnum = %s"
-                                "  WHERE tmobile = %s",
-                                value, tmobile )
+                                "  WHERE tid = %s",
+                                value, tid)
             else:
                 sql = "UPDATE T_TERMINAL_INFO SET "+ key+" = '"+ str(value) +"'"
                 self.db.execute(sql+ " WHERE tid = %s",

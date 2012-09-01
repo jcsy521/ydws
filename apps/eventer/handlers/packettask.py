@@ -40,13 +40,9 @@ class PacketTask(object):
             pass       
 
     def get_tname(self, dev_id):
-        key = get_alias_key(dev_id)
-        name = self.redis.getvalue(key)
-        if not name:
-            t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
-                            "  WHERE tid = %s", dev_id)
-            name = t.alias if t.alias else t.mobile 
-            self.redis.setvalue(key, name)
+        t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
+                        "  WHERE tid = %s", dev_id)
+        name = t.alias if t.alias else t.mobile 
         if isinstance(name, str):
             name = name.decode("utf-8")
 
