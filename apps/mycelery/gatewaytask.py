@@ -29,13 +29,9 @@ if not 'conf' in options:
     define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 
 def get_tname(dev_id, db, redis):
-    key = get_alias_key(dev_id)
-    name = redis.getvalue(key)
-    if not name:
-        t = db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
-                   "  WHERE tid = %s", dev_id)
-        name = t.alias if t.alias else t.mobile
-        redis.setvalue(key, name)
+    t = db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
+               "  WHERE tid = %s", dev_id)
+    name = t.alias if t.alias else t.mobile
     if isinstance(name, str):
         name = name.decode("utf-8")
 

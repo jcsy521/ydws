@@ -477,12 +477,13 @@ class MyGWServer(object):
                                         "  WHERE mobile = %s",
                                         t_info['t_msisdn'])
                         self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
-                                        "  owner_mobile, imsi, imei, factory_name, softversion,"
+                                        "  owner_mobile, imsi, imei, alias, factory_name, softversion,"
                                         "  keys_num, login, service_status, begintime, endtime)"
-                                        "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s)",
+                                        "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s)",
                                         t_info['dev_id'], t_info['dev_type'],
                                         t_info['t_msisdn'], t_info['u_msisdn'],
-                                        t_info['imsi'], t_info['imei'], t_info['factory_name'],
+                                        t_info['imsi'], t_info['imei'],
+                                        t_info['t_msisdn'], t_info['factory_name'],
                                         t_info['softversion'], t_info['keys_num'], 
                                         GATEWAY.SERVICE_STATUS.ON,
                                         int(time.mktime(begintime.timetuple())),
@@ -507,7 +508,7 @@ class MyGWServer(object):
                                 "  SET login = %s"
                                 "  WHERE tid = %s",
                                 GATEWAY.TERMINAL_LOGIN.LOGIN,
-                                t_info['dev_id']
+                                t_info['dev_id'])
                 logging.info("[GW] Terminal %s login success! SIM: %s",
                              t_info['dev_id'], t_info['t_msisdn'])
 

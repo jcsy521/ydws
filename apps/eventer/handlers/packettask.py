@@ -115,13 +115,14 @@ class PacketTask(object):
             if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
                 self.realtime_location_hook(location)
         elif location.Tid == EVENTER.TRIGGERID.PVT:
-            for pvt in location['pvts']:
-                # get available location from lbmphelper
-                pvt['dev_id'] = location['dev_id']
-                location = lbmphelper.handle_location(pvt, self.redis,
-                                                      cellid=False, db=self.db) 
-                location.category = EVENTER.CATEGORY.REALTIME
-                self.insert_location(location)
+            pass
+            #for pvt in location['pvts']:
+            #    # get available location from lbmphelper
+            #    pvt['dev_id'] = location['dev_id']
+            #    location = lbmphelper.handle_location(pvt, self.redis,
+            #                                          cellid=False, db=self.db) 
+            #    location.category = EVENTER.CATEGORY.REALTIME
+            #    self.insert_location(location)
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)
