@@ -91,7 +91,11 @@ def handle_location(location, redis, cellid=False, db=None):
     @return location
     """
     location = DotDict(location)
-    if location.valid == GATEWAY.LOCATION_STATUS.FAILED: 
+    if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
+        location.type = 0
+        if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
+            location.degree = get_last_degree(location, redis, db)
+    else:
         location.lat = 0
         location.lon = 0
         location.cLat = 0
@@ -104,24 +108,7 @@ def handle_location(location, redis, cellid=False, db=None):
             location = get_latlon_from_cellid(location)
             #if location.lat and location.lon:
             #    location = filter_location(location, memcached)
-    else:
-        location.type = 0
-        # car is still, degree is suspect 
-        if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
-            if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
-                location.degree = get_last_degree(location, redis, db)
-        else:
-            # UNREALTIME, pvt
-            # for realtime, report
-            if cellid:
-                location.lat = 0
-                location.lon = 0
-                location.cLat = 0
-                location.cLon = 0
-                location.type = 1
-                location.gps_time = int(time.time()) 
-                location.degree = get_last_degree(location, redis, db)
-                location = get_latlon_from_cellid(location)
+
 
     if location and location.lat and location.lon:
         location.cLat, location.cLon = get_clocation_from_ge(location)
