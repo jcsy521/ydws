@@ -66,10 +66,10 @@ window.dlf.fn_defendQuery = function() {
 	obj_wrapper.css({'left':'38%','top':'22%'}).show();
 	
 	if ( str_defendStatus == DEFEND_ON ) {
-		obj_dMsg.html('您的爱车保当前已设防');
+		obj_dMsg.html('您的爱车保当前已设防。');
 		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2', 'cf'));						
 	} else {
-		obj_dMsg.html('您的爱车保当前未设防');
+		obj_dMsg.html('您的爱车保当前未设防。');
 		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2', 'sf'));
 	}
 	//设防撤防 业务保存

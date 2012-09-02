@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import logging
 
 from tornado.escape import json_encode
 
@@ -37,7 +38,7 @@ class MainHandler(BaseHandler):
                                       "  FROM T_TERMINAL_INFO as ti"
                                       "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
-            #NOTE: if aliasa is null, provide tid instead
+            #NOTE: if alias is null, provide tid instead
             for terminal in terminals:
                 if not terminal.alias:
                     terminal.alias = terminal.sim
