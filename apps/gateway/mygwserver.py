@@ -332,7 +332,7 @@ class MyGWServer(object):
                          t_info['imsi'], t_info['t_msisdn'], t_info['dev_id'])
             tmobile = self.db.get("SELECT imsi FROM T_TERMINAL_INFO"
                                   "  WHERE mobile = %s", t_info['t_msisdn'])
-            if tmobile and tmobile.imsi != t_info['imsi']:
+            if tmobile and tmobile.imsi and tmobile.imsi != t_info['imsi']:
                 args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                 sms = SMSCode.SMS_TERMINAL_HK % (t_info['t_msisdn'])
                 SMSHelper.send(t_info['u_msisdn'], sms)
@@ -420,7 +420,7 @@ class MyGWServer(object):
                                  t_info['dev_id']) 
                 else:
                     logging.info("[GW] Terminal: %s JH started.", t_info['dev_id'])
-                    admin_terminal = self.db.get("SELECT tid FROM T_TERMINAL_INFO"
+                    admin_terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                                  "  WHERE mobile = %s",
                                                  t_info['t_msisdn'])
                     if admin_terminal:
@@ -443,7 +443,6 @@ class MyGWServer(object):
                                         t_info['factory_name'],
                                         t_info['keys_num'],
                                         t_info['softversion'],
-                                        GATEWAY.TERMINAL_LOGIN.LOGIN,
                                         admin_terminal.id)
                         self.db.execute("UPDATE T_CAR SET tid = %s"
                                         "  WHERE tid = %s",
