@@ -153,57 +153,80 @@ class BusinessMixin(BaseMixin):
     def modify_user_terminal_car(self, fields):
         # 1: add user
         if fields.has_key('password'): # create a new user
-            uid = self.db.execute("INSERT INTO T_USER(uid, password, name, mobile, address, email)"
-                                  "  VALUES(%s, password(%s), %s, %s, %s, %s)"
-                                  "  ON DUPLICATE KEY"
-                                  "  UPDATE uid = VALUES(uid),"
-                                  "         password = VALUES(password),"
-                                  "         name = VALUES(name), "
-                                  "         mobile = VALUES(mobile), "
-                                  "         address = VALUES(address), "
-                                  "         email = VALUES(email)",
-                                  fields.mobile, fields.password,
-                                  fields.name, fields.mobile,
-                                  fields.address, fields.email) 
-        else: # modify a user
-             uid = self.db.execute("INSERT INTO T_USER(uid, name, mobile, address, email)"
-                                   "  VALUES(%s, %s, %s, %s, %s)"
-                                   "  ON DUPLICATE KEY"
-                                   "  UPDATE uid = VALUES(uid),"
-                                   "         name = VALUES(name), "
-                                   "         mobile = VALUES(mobile), "
-                                   "         address = VALUES(address), "
-                                   "         email = VALUES(email)",
-                                   fields.mobile, fields.name, fields.mobile,
-                                   fields.address, fields.email) 
-        # 2: add terminal
-        fields.alias = fields.tmobile
-        if fields.cnum:
-            fields.alias = fields.cnum
-        tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
-                              "  alias, begintime, endtime)"
-                              "  VALUES (%s, %s, %s, %s, %s, %s)"
-                              "  ON DUPLICATE KEY"
-                              "  UPDATE tid=values(tid),"
-                              "         mobile=values(mobile),"
-                              "         owner_mobile=values(owner_mobile),"
-                              "         alias=values(alias),"
-                              "         begintime=values(begintime),"
-                              "         begintime=values(begintime),"
-                              "         endtime=values(endtime)",
-                              fields.tmobile, fields.tmobile,
-                              fields.mobile, fields.alias, 
-                              fields.begintime, fields.endtime)
+            # 1: add user 
+            self.db.execute("INSERT INTO T_USER(uid, password, name, mobile, address, email)"
+                            "  VALUES(%s, password(%s), %s, %s, %s, %s)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE uid = VALUES(uid),"
+                            "         password = VALUES(password),"
+                            "         name = VALUES(name), "
+                            "         mobile = VALUES(mobile), "
+                            "         address = VALUES(address), "
+                            "         email = VALUES(email)",
+                            fields.mobile, fields.password,
+                            fields.name, fields.mobile,
+                            fields.address, fields.email) 
+            # 2: add terminal
+            fields.alias = fields.tmobile
+            if fields.cnum:
+                fields.alias = fields.cnum
+            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
+                            "  alias, begintime, endtime)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE mobile=values(mobile),"
+                            "         owner_mobile=values(owner_mobile),"
+                            "         alias=values(alias),"
+                            "         begintime=values(begintime),"
+                            "         endtime=values(endtime)",
+                            fields.tmobile, fields.tmobile,
+                            fields.mobile, fields.alias, 
+                            fields.begintime, fields.endtime)
 
-        # 3: add car tnum --> cnum
-        cid = self.db.execute("INSERT INTO T_CAR(cnum, tid)"
-                              "  VALUES(%s, %s)"
-                              "  ON DUPLICATE KEY"
-                              "  UPDATE cnum = VALUES(cnum),"
-                              "         tid = VALUES(tid)",
-                              fields.cnum, fields.tmobile)
-        
-        
+            # 3: add car tnum --> cnum
+            self.db.execute("INSERT INTO T_CAR(cnum, tid)"
+                            "  VALUES(%s, %s)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE cnum = values(cnum)",
+                            fields.cnum, fields.tmobile)
+
+        else: # modify a user
+            terminal = self.db.get("SELECT tid FROM T_TERMINAL_INFO WHERE mobile = %s", fields.tmobile)
+            # 1: add user 
+            self.db.execute("INSERT INTO T_USER(uid, name, mobile, address, email)"
+                            "  VALUES(%s, %s, %s, %s, %s)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE uid = VALUES(uid),"
+                            "         name = VALUES(name), "
+                            "         mobile = VALUES(mobile), "
+                            "         address = VALUES(address), "
+                            "         email = VALUES(email)",
+                            terminal.tid, fields.name, fields.mobile,
+                            fields.address, fields.email) 
+            # 2: add terminal
+            fields.alias = fields.tmobile
+            if fields.cnum:
+                fields.alias = fields.cnum
+            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
+                            "  alias, begintime, endtime)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE mobile=values(mobile),"
+                            "         owner_mobile=values(owner_mobile),"
+                            "         alias=values(alias),"
+                            "         begintime=values(begintime),"
+                            "         endtime=values(endtime)",
+                            terminal.tid, fields.tmobile,
+                            fields.mobile, fields.alias, 
+                            fields.begintime, fields.endtime)
+
+            # 3: add car tnum --> cnum
+            self.db.execute("INSERT INTO T_CAR(cnum, tid)"
+                            "  VALUES(%s, %s)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE cnum = values(cnum)",
+                            fields.cnum, terminal.tid)
+              
 
 class BusinessCheckMobileHandler(BaseHandler, BusinessMixin):
 
