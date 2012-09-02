@@ -68,6 +68,7 @@ class RealtimeMixin(BaseMixin):
         else:
             alias = self.current_user.sim
 
+        is_alived = self.redis.getvalue('is_alived')
         if is_alived == ALIVED:
             location = self.redis.getvalue(str(self.current_user.tid))
             if location and (time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
@@ -107,8 +108,12 @@ class RealtimeMixin(BaseMixin):
 
                 if response['success'] == 0:
                     location = DotDict(response['position'])
+
+                    cellid = False 
+                    if int(query.cellid_status) == UWEB.CELLID_STATUS.ON:
+                        cellid = True
                     location = handle_location(location, self.redis,
-                                               cellid=True if int(query.cellid_status) == UWEB.CELLID_STATUS.ON else False,
+                                               cellid=cellid,
                                                db=self.db)
                     if location.get('cLat') and location.get('cLon'):
                         ret.location.latitude = location.lat

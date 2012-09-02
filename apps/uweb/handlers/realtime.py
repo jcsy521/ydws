@@ -27,6 +27,17 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             return
 
         current_query.timestamp = int(time())
+        terminal = self.db.get("SELECT cellid_status FROM T_TERMINAL_INFO WHERE tid = %s", self.current_user.tid)
+
+        if not terminal:
+            status = ErrorCode.LOGIN_AGAIN
+            logging.error("The terminal with tid: %s is noexist, redirect to login.html", self.current_user.tid)
+            self.clear_cookie(self.app_name)
+            self.write_ret(status)
+            self.finish()
+            return
+        current_query.cellid_status = terminal.cellid_status 
+
         logging.debug("Realtime query: %s", current_query)
         
         def _on_finish(realtime):
