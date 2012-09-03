@@ -120,7 +120,7 @@ class MT(object):
         status = ErrorCode.SUCCESS
         result = {'status': ErrorCode.FAILED, 'ret' : '100'}
         try:
-            mts = self.db.query("SELECT id, msgid, mobile, content "
+            mts = self.db.query("SELECT id, msgid, mobile, content, insert_time "
                                 "  FROM T_SMS "
                                 "  WHERE category = %s "
                                 "  AND send_status = %s"
@@ -135,46 +135,53 @@ class MT(object):
                 content = mt["content"]
                 msgid = mt["msgid"]
                 id = mt["id"]
+                insert_time = mt["insert_time"]
                 
-                result = self.send_mt(msgid, mobile, content)
+                current_time = int(time.time() * 1000)
+                ONE_MIN = 60 * 1000 # millisecond
                 
-                if result["status"] == ErrorCode.SUCCESS:
-                    if result["ret"] == "100":
-                        logging.info("SMS-->Gateway success mobile = %s, content = %s, id = %s ", mobile, content, id)
-                        self.db.execute("UPDATE T_SMS "
-                                       "  SET send_status = %s"
-                                       "  WHERE id = %s",
-                                       SMS.SENDSTATUS.SUCCESS, id)
-                        status = ErrorCode.SUCCESS
-                    else:
-                        if result["ret"] == "101":
-                            logging.error("SMS-->Gateway failure, errorcode = 101, mobile = %s, content = %s, id = %s ", mobile, content, id)
-                        elif result["ret"] == "104":
-                            logging.error("SMS-->Gateway content error, errorcode = 104, mobile = %s, content = %s, id = %s ", mobile, content, id)
-                        elif result["ret"] == "105":
-                            logging.error("SMS-->Gateway frequency too fast, errorcode = 105, mobile = %s, content = %s, id = %s ", mobile, content, id)
-                        elif result["ret"] == "106":
-                            logging.error("SMS-->Gateway number limited, errorcode = 106, mobile = %s, content = %s, id = %s ", mobile, content, id)
-                        else:
-                            logging.error("SMS-->Gateway other error, errorcode unknown, mobile = %s, content = %s, id = %s ", mobile, content, id)
-                            
-                        if  result["ret"] != "105":
+                if current_time - int(insert_time) > ONE_MIN:
+                    result = self.send_mt(msgid, mobile, content)
+                    
+                    if result["status"] == ErrorCode.SUCCESS:
+                        if result["ret"] == "100":
+                            logging.info("SMS-->Gateway success mobile = %s, content = %s, id = %s ", mobile, content, id)
                             self.db.execute("UPDATE T_SMS "
-                                            "  SET send_status = %s"
-                                            "  WHERE id = %s",
-                                            SMS.SENDSTATUS.FAILURE, id)
+                                           "  SET send_status = %s"
+                                           "  WHERE id = %s",
+                                           SMS.SENDSTATUS.SUCCESS, id)
+                            status = ErrorCode.SUCCESS
+                        else:
+                            if result["ret"] == "101":
+                                logging.error("SMS-->Gateway failure, errorcode = 101, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                            elif result["ret"] == "104":
+                                logging.error("SMS-->Gateway content error, errorcode = 104, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                            elif result["ret"] == "105":
+                                logging.error("SMS-->Gateway frequency too fast, errorcode = 105, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                            elif result["ret"] == "106":
+                                logging.error("SMS-->Gateway number limited, errorcode = 106, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                            else:
+                                logging.error("SMS-->Gateway other error, errorcode unknown, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                                
+                            if  result["ret"] != "105":
+                                self.db.execute("UPDATE T_SMS "
+                                                "  SET send_status = %s"
+                                                "  WHERE id = %s",
+                                                SMS.SENDSTATUS.FAILURE, id)
+                            status = ErrorCode.FAILED
+                    else:
+                        # http response is None
                         status = ErrorCode.FAILED
-                else:
-                    # http response is None
-                    status = ErrorCode.FAILED
+                        self.db.execute("UPDATE T_SMS "
+                                        "  SET send_status = %s"
+                                        "  WHERE id = %s",
+                                        SMS.SENDSTATUS.FAILURE, id)
                     self.db.execute("UPDATE T_SMS "
-                                    "  SET send_status = %s"
+                                    "  SET retry_status = %s"
                                     "  WHERE id = %s",
-                                    SMS.SENDSTATUS.FAILURE, id)
-                self.db.execute("UPDATE T_SMS "
-                                "  SET retry_status = %s"
-                                "  WHERE id = %s",
-                                SMS.RETRYSTATUS.YES, id)
+                                    SMS.RETRYSTATUS.YES, id)
+                else:
+                    pass
         except Exception, msg:
             status = ErrorCode.FAILED
             logging.exception("Fetch failed mt sms exception : %s", msg)
