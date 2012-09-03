@@ -4,6 +4,7 @@ import logging
 import hashlib
 from os import SEEK_SET
 import tornado.web
+from tornado.escape import json_decode, json_encode
 import time
 import datetime
 import re
@@ -19,6 +20,9 @@ from utils.checker import check_sql_injection
 from utils.dotdict import DotDict
 from myutils import city_list
 from mongodb.msms import MSms, MSmsMixin
+from codes.errorcode import ErrorCode
+from codes.smscode import SMSCode 
+from helpers.smshelper import SMSHelper
 
 
 class SMSMixin(BaseMixin):
@@ -242,3 +246,33 @@ class SMSDownloadHandler(SMSMixin, BaseHandler):
         _tmp_file.seek(0, SEEK_SET)
         self.write(_tmp_file.read())
         _tmp_file.close()
+        
+        
+class SMSRegisterHandler(SMSMixin, BaseHandler):
+    
+    @authenticated
+    @tornado.web.removeslash
+    def post(self):
+        status = ErrorCode.SUCCESS
+        try:
+#            {"tmobile":18810496308,"pmobile":18810496308}
+            data = DotDict(json_decode(self.request.body))
+            tmobile = data.tmobile
+            pmobile = data.pmobile
+            register_sms = SMSCode.SMS_REGISTER % (pmobile, tmobile) 
+            ret = SMSHelper.send(tmobile, register_sms)
+            ret = DotDict(json_decode(ret))
+            if ret.status == ErrorCode.SUCCESS:
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET msgid = %s"
+                                "  WHERE mobile = %s",
+                                ret['msgid'], tmobile)
+                self.write_ret(status)
+            else:
+                status = ErrorCode.FAILED
+                self.write_ret(status)
+            
+        except Exception as e:
+            logging.exception("SMS register failed. Exception: %s", e.args)
+            status = ErrorCode.FAILED
+            self.write_ret(status)

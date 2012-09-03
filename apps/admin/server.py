@@ -56,11 +56,16 @@ from handlers.subscriber import SubscriberHandler, SubscriberDownloadHandler
 from handlers.subscription import SubscriptionHandler, SubscriptionDownloadHandler
 from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler,\
         BusinessCheckTMobileHandler, BusinessSearchHandler, BusinessListHandler,\
-        BusinessEditHandler, BusinessDeleteHandler
+        BusinessEditHandler, BusinessStopHandler, BusinessDeleteHandler
+from handlers.ecbusiness import ECBusinessHandler, ECBusinessCreateHandler, \
+        ECBusinessListHandler, ECBusinessSearchHandler, ECBusinessEditHandler, \
+        ECBusinessStopHandler, ECBusinessDeleteHandler, ECBusinessCheckMobileHandler, \
+        ECBusinessCheckTMobileHandler
 from handlers.daily import DailyHandler, DailyDownloadHandler
 from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
 from handlers.group import GroupHandler, GroupDownloadHandler
 #from handlers.sms import SMSHandler, SMSDownloadHandler
+from handlers.sms import SMSRegisterHandler
 
 
 from handlers.misc import *
@@ -95,7 +100,22 @@ class Application(tornado.web.Application):
             (r"/business/search/*", BusinessSearchHandler),
             (r"/business/list/(\S+)/*", BusinessListHandler),
             (r"/business/edit/(\S+)/*", BusinessEditHandler),
+            (r"/business/stop/(\S+)/(\S+)/*", BusinessStopHandler),
             (r"/business/delete/(\S+)/(\S+)/*", BusinessDeleteHandler),
+            
+            # EC business
+            (r"/ecbusiness/ec/*", ECBusinessHandler),
+            (r"/ecbusiness/createec/*", ECBusinessCreateHandler),
+            (r"/ecbusiness/list/(\S+)/*", ECBusinessListHandler),
+            (r"/ecbusiness/search/*", ECBusinessSearchHandler),
+            (r"/ecbusiness/edit/(\S+)/*", ECBusinessEditHandler),
+            (r"/ecbusiness/stop/(\S+)/(\S+)/*", ECBusinessStopHandler),
+            (r"/ecbusiness/delete/(\S+)/(\S+)/*", ECBusinessDeleteHandler),
+            (r"/ecbusiness/checkmobile/(\S+)/*", ECBusinessCheckMobileHandler),
+            (r"/ecbusiness/checktmobile/(\S+)/*", ECBusinessCheckTMobileHandler),
+
+            # SMS send
+            (r"/sms/register/*", SMSRegisterHandler),
 
             # privilege group
             (r"/privgroup/list/*", PrivGroupListHandler),
