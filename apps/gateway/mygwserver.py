@@ -649,9 +649,9 @@ class MyGWServer(object):
         lq_interval_key = get_lq_interval_key(dev_id)
         is_lq = self.redis.getvalue(lq_interval_key)
         if is_lq:
-            self.redis.setvalue(terminal_status_key, address, 2*HEARTBEAT_INTERVAL)
+            self.redis.setvalue(terminal_status_key, address, 3 * HEARTBEAT_INTERVAL)
         else:
-            self.redis.setvalue(terminal_status_key, address, 2*SLEEP_HEARTBEAT_INTERVAL)
+            self.redis.setvalue(terminal_status_key, address, 3 * SLEEP_HEARTBEAT_INTERVAL)
 
     def update_terminal_info(self, t_info):
         fields = []
