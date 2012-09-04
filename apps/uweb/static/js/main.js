@@ -13,13 +13,10 @@ window.dlf.fn_personalData = function() {
 	$.get_(PERSON_URL, '', function (data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.details;
-			$('#personalForm').data({'personalid': data.id});
 			$('#name').val(obj_data.name);
 			$('#phone').val(obj_data.mobile);
-			$('#licenseNum').val(obj_data.cid);	// 车牌号
 			$('#txtAddress').val(obj_data.address);
 			$('#email').val(obj_data.email);
-			/*$('#corporation').val(obj_data.corporation);*/
 			$('#remark').val(obj_data.remark);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else { 
@@ -204,16 +201,14 @@ $(function () {
 			dlf.fn_jNotifyMessage(msg, 'message', true); 
 		}, 
 		onSuccess: function() { 
+			// who edit who submit
 			var obj_pFrom = $('#personalForm'), 
 				obj_personalData = {
-					'id': obj_pFrom.data('personalid'),
 					'name': $('#name').val(),
 					'mobile': $('#phone').val(),
 					'address': $('#txtAddress').val(),
 					'email': $('#email').val(),
-					/*'corporation': $('#corporation').val(),*/
-					'remark': $('#remark').val(),
-					'cid': $('#licenseNum').val()
+					'remark': $('#remark').val()
 				};
 			dlf.fn_personalSave(obj_personalData);
 		}
@@ -221,7 +216,7 @@ $(function () {
 	$('#name').formValidator().inputValidator({max: 11, onError: '车主姓名过长，请重新输入！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
 	$('#txtAddress').formValidator().inputValidator({max: 255, onError: '地址过长，请重新输入！'});
 	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '你输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '你输入的邮箱格式不正确！'});
-	$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});
+	//$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});
 	$('#remark').formValidator().inputValidator({max: 255, onError: '备注过长，请重新输入！'});
 	// 密码进行验证
 	$.formValidator.initConfig({

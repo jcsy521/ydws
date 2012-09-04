@@ -4,18 +4,14 @@
 */
 (function () {
 window.dlf.fn_currentQuery = function() {
-	var str_cellid_status = $('.currentCar').attr('cellid_status'),	// 是否是基站定位
-		obj_pd = {
-					'cellid_status': parseInt(str_cellid_status)
-				}, 
-		obj_cWrapper = $('#currentWrapper');
+	var obj_cWrapper = $('#currentWrapper');
 	obj_cWrapper.show();
-	fn_currentRequest(obj_pd);
+	fn_currentRequest();
 	$('#currentBtn').unbind('click').click(function() {
 		dlf.fn_closeDialog(); // 窗口关闭
 	});
 }
-function fn_currentRequest(obj_pd) {
+function fn_currentRequest() {
 	var obj_cWrapper = $('#currentWrapper'),
 		obj_msg = $('#currentMsg'), 
 		str_carCurrent = $('.currentCar').siblings('span').html(), // 当前车辆
@@ -24,7 +20,7 @@ function fn_currentRequest(obj_pd) {
 	obj_msg.html(str_msg);
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_clearInterval(currentLastInfo); //停止计时
-	$.post_(REALTIME_URL, JSON.stringify(obj_pd), function (data) {
+	$.get_(REALTIME_URL, '', function (data) {
 		var f_warpperStatus = !obj_cWrapper.is(':hidden');
 		if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,则不进行标记的显示
 			if ( data.status == 0 ) { 
