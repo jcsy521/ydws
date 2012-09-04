@@ -94,7 +94,7 @@ function fn_initEventSearch(n_num, n_et) {
 					var n_tempIndex = $(this).parent().parent().index()-1,
 						obj_tempData = arr_eventData[n_tempIndex];
 					
-						//obj_tempData.tid = n_carId;
+						obj_tempData.tid = n_carId;
 						obj_tempData.alias = $('.eventbody').attr('alias');
 						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
 						setTimeout (function () {

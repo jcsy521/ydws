@@ -41,11 +41,11 @@
 				{% for car in cars %}
 					<li keys_num = '{{car.keys_num}}'>
 						{% if car.login == 1 %} 
-							<a href="#" title="{{car.alias}}" class="carlogin"  keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
+							<a href="#" title="{{car.alias}}" class="carlogin" tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
 							<span class="green">{{car.alias}}</span>
 							<font class="green">(在线)</font>
 						{% else %}
-							<a href="#" title="{{car.alias}}" class="carlogout" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
+							<a href="#" title="{{car.alias}}" class="carlogout" tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
 							<span class="gray">{{car.alias}}</span>
 							<font class="gray">(离线)</font>
 						{% end %}

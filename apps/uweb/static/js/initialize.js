@@ -244,7 +244,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 		n_keys_num = obj_carLi.attr('keys_num');
 	/* todo 终端挂件
 	if ( n_keys_num ) {
-		dlf.fn_showOrHideLocation(n_keys_num);
+		fn_showOrHideLocation(n_keys_num);
 	}
 	*/
 	// 向后台发送切换请求
@@ -295,10 +295,6 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
 		}
-		 // else if ( data.status == 201 ) {
-				// alert(data.message);
-				// window.location.replace('/logout');
-		// } 
 	}, 
 	function (XMLHttpRequest, textStatus, errorThrown) {
 		dlf.fn_serverError(XMLHttpRequest);
@@ -336,7 +332,7 @@ window.dlf.fn_getCarData = function() {
 					// 车辆详细信息更新
 					var obj_carInfo = obj_cars[i], 
 						str_tid = obj_carInfo.tid, 	//车辆tid
-						//str_alias = obj_carInfo.alias,
+						str_alias = obj_carInfo.alias,
 						str_loginst = obj_carInfo.login,
 						str_loginClass = '',
 						obj_carA = $('#carList a[tid='+str_tid+']'),
@@ -353,7 +349,7 @@ window.dlf.fn_getCarData = function() {
 						}
 					}
 					// 修改别名
-					//obj_child1.html(str_alias).attr('title', str_alias);
+					obj_child1.html(str_alias).attr('title', str_alias);
 					// 动态修改车辆当前连接状态
 					if ( str_loginst == LOGINST) {
 						obj_carA.removeClass('carlogout').addClass('carlogin');
@@ -370,13 +366,7 @@ window.dlf.fn_getCarData = function() {
 						dlf.fn_updateTerminalInfo(obj_carInfo);
 					}
 				}
-			} else {
-				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 			}
-			 // else if ( data.status == 201 ) {
-				// alert(data.message);
-				// window.location.replace('/logout');
-			// }
 		}, 
 		function (XMLHttpRequest, textStatus, errorThrown) {
 			dlf.fn_serverError(XMLHttpRequest);
@@ -454,7 +444,6 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		n_degree = obj_carInfo.degree,
-		str_alias = obj_carInfo.alias,
 		obj_tempVal = dlf.fn_checkCarVal(str_tid), // 查询缓存中是否有当前车辆信息
 		obj_tempPoint = new BMap.Point(n_clon, n_clat),
 		obj_carA = $('#carList a[tid='+str_tid+']'),	// 要更新的车辆
@@ -463,10 +452,6 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_selfMarker = obj_carA.data('selfmarker'), 
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
 		obj_selfPolyline = obj_carA.data('selfpolyline');
-	// 终端别名赋值
-	if ( !str_alias ) {
-		str_alias += $('#carList a[tid='+str_tid+']').siblings('span').html();
-	}	
 	// 存储车辆信息
 	if ( obj_tempVal ) { // 追加
 		if ( str_actionTrack == 'yes' ) { 
@@ -490,7 +475,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( obj_selfMarker ) {
 		// 修改别名
 		obj_selfMarker.setLabel(obj_carA.data('selfLable'));
-		obj_selfMarker.getLabel().setContent(str_alias);
+		obj_selfMarker.getLabel().setContent(obj_carInfo.alias);
+		
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_carA.data('selfmarker', obj_selfMarker);
@@ -785,7 +771,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 		dlf.fn_serverError(XMLHttpRequest);
 	});
 }
-// 提示用户绑定终端车辆 todo del fun
+// 提示用户绑定终端车辆
 window.dlf.fn_showTerminalMsgWrp = function() {
 	var obj_wrapper = $('#terminalMsgWrapper');
 	obj_wrapper.show();
@@ -872,10 +858,8 @@ window.dlf.fn_POISearch = function(n_clon, n_clat) {
 // 无钥匙挂件:无定位操作
 window.dlf.fn_showOrHideLocation = function(n_keys_num) {
 	if ( n_keys_num == 0 ) {
-		$('#defendStatus').hide();
 		$('#defend').parent().hide();
 	} else {
-		$('#defendStatus').show();
 		$('#defend').parent().show();
 	}
 }
