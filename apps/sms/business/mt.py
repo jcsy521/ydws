@@ -47,7 +47,7 @@ class MT(object):
                 msgid = mt["msgid"]
                 id = mt["id"]
                 
-                result = self.send_mt(msgid, mobile, content)
+                result = self.send_mt(id, msgid, mobile, content)
                 
                 if result["status"] == ErrorCode.SUCCESS:
                     if result["ret"] == "100":
@@ -90,7 +90,7 @@ class MT(object):
             return status
     
     
-    def send_mt(self, msgid, mobile, content):
+    def send_mt(self, id, msgid, mobile, content):
         result = {'status': ErrorCode.FAILED, 'ret' : '100'}
         try:
             url = ConfHelper.SMS_CONF.mt_url
@@ -111,6 +111,13 @@ class MT(object):
             result = HttpClient().send_http_post_request(url, data)
             
         except Exception, msg:
+            self.db.execute("UPDATE T_SMS "
+                            "  SET send_status = %s, "
+                            "  recv_status = %s, "
+                            "  retry_status = %s "
+                            "  WHERE id = %s",
+                            SMS.SENDSTATUS.FAILURE, SMS.USERSTATUS.FAILURE, 
+                            SMS.RETRYSTATUS.YES, id)
             logging.exception("Send mt sms exception : %s", msg)
         finally:
             return result
@@ -141,7 +148,7 @@ class MT(object):
                 ONE_MIN = 60 * 1000 # millisecond
                 
                 if current_time - int(insert_time) > ONE_MIN:
-                    result = self.send_mt(msgid, mobile, content)
+                    result = self.send_mt(id, msgid, mobile, content)
                     
                     if result["status"] == ErrorCode.SUCCESS:
                         if result["ret"] == "100":
