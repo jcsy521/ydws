@@ -192,7 +192,7 @@ class PacketTask(object):
                         info.dev_id, info.content, info.timestamp)
         name = self.get_tname(info.dev_id)
         terminal_time = get_terminal_time(int(info.timestamp))
-        sms = SMSCode.SMS_CHARGE % (name, info.content, terminal_time)
+        sms = SMSCode.SMS_CHARGE % (name, info.content)
         self.sms_to_user(info.dev_id, sms)
 
     def sms_to_user(self, dev_id, sms):

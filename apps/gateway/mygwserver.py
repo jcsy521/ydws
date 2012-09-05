@@ -76,7 +76,7 @@ class MyGWServer(object):
             parameters = pika.ConnectionParameters(host=host)
             connection = BlockingConnection(parameters)
             # Write buffer exceeded warning threshold
-            reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, (host,))
+            reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, *(connection, host))
             connection.add_backpressure_callback(reconnect_rabbitmq)
             channel = connection.channel()
             channel.exchange_declare(exchange=self.exchange,
@@ -442,21 +442,39 @@ class MyGWServer(object):
                         logging.error("[GW] What happened? Cannot find old terminal by dev_id: %s",
                                       t_info['dev_id']) 
             else:
-                # login or JH or change dev
+                # login or JH
                 if terminal:
                     # login
                     logging.info("[GW] Terminal: %s Normal login started!",
                                  t_info['dev_id']) 
                 else:
-                    # JH or change dev
+                    # SMS JH or admin JH or change new dev JH
                     logging.info("[GW] Terminal: %s JH started.", t_info['dev_id'])
-                    admin_terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
-                                                 "  WHERE mobile = %s",
+                    exist = self.db.get("SELECT id FROM T_USER"
+                                        "  WHERE mobile = %s",
+                                        t_info['u_msisdn'])
+                    if exist:
+                        logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
+                        sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
+                                                               ConfHelper.UWEB_CONF.url_out)
+                    else:
+                        # get a new psd for new user
+                        logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
+                        psd = get_psd()
+                        self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
+                                        "  VALUES(%s, password(%s), %s, %s)",
+                                        t_info['u_msisdn'], psd,
+                                        t_info['u_msisdn'], t_info['u_msisdn'])
+                        sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
+                                                        ConfHelper.UWEB_CONF.url_out,
+                                                        t_info['u_msisdn'],
+                                                        psd)
+
+                    admin_terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+                                                 "  WHERE tid = %s",
                                                  t_info['t_msisdn'])
                     if admin_terminal:
-                        # terminal added by admin or change dev
-                        if t_info['dev_id'] in self.online_terminals:
-                            self.online_terminals.remove(t_info['dev_id'])
+                        # admin JH
                         self.db.execute("UPDATE T_TERMINAL_INFO"
                                         "  SET tid = %s,"
                                         "      dev_type = %s,"
@@ -479,34 +497,26 @@ class MyGWServer(object):
                         self.db.execute("UPDATE T_CAR SET tid = %s"
                                         "  WHERE tid = %s",
                                         t_info['dev_id'], t_info['t_msisdn'])
-                        logging.info("[GW] Terminal %s by ADMIN JH or change dev success!", t_info['dev_id'])
+                        logging.info("[GW] Terminal %s by ADMIN JH success!", t_info['dev_id'])
                     else:
+                        exist_terminal = self.db.get("SELECT tid FROM T_TERMINAL_INFO"
+                                                     "  WHERE mobile = %s",
+                                                     t_info['t_msisdn'])
+                        if exist_terminal:
+                            # unbind old tmobile
+                            self.db.execute("DELETE FROM T_TERMINAL_INFO"
+                                            "  WHERE mobile = %s",
+                                            t_info['t_msisdn'])
+                            # remove old online dev
+                            if exist_terminal.tid in self.online_terminals:
+                                self.online_terminals.remove(exist_terminal.tid)
+                            logging.info("[GW] Terminal %s change dev, old dev: %s!",
+                                         t_info['dev_id'], exist_terminal.tid)
+
                         # send JH sms to terminal. default active time
                         # is one year.
                         begintime = datetime.datetime.now() 
                         endtime = begintime + relativedelta(years=1)
-                        exist = self.db.get("SELECT id FROM T_USER"
-                                            "  WHERE mobile = %s",
-                                            t_info['u_msisdn'])
-                        if exist:
-                            logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
-                            sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
-                                                                   ConfHelper.UWEB_CONF.url_out)
-                        else:
-                            logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
-                            psd = get_psd()
-                            self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
-                                            "  VALUES(%s, password(%s), %s, %s)",
-                                            t_info['u_msisdn'], psd,
-                                            t_info['u_msisdn'], t_info['u_msisdn'])
-                            sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
-                                                            ConfHelper.UWEB_CONF.url_out,
-                                                            t_info['u_msisdn'],
-                                                            psd)
-                        # unbind old tmobile
-                        self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                                        "  WHERE mobile = %s",
-                                        t_info['t_msisdn'])
                         self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
                                         "  owner_mobile, imsi, imei, alias, factory_name, softversion,"
                                         "  keys_num, login, service_status, begintime, endtime)"
@@ -733,7 +743,6 @@ class MyGWServer(object):
 
     def stop(self):
         self.__close_socket()
-        self.__close_rabbitmq()
         self.__stop_check_heartbeat_thread()
         self.__clear_memcached()
 
