@@ -118,7 +118,7 @@ class MT(object):
                             "  WHERE id = %s",
                             SMS.SENDSTATUS.FAILURE, SMS.USERSTATUS.FAILURE, 
                             SMS.RETRYSTATUS.YES, id)
-            logging.exception("Send mt sms exception : %s", msg)
+            logging.exception("Send mt sms exception : %s, msgid:%s, id:%s", msg, msgid, id)
         finally:
             return result
         
