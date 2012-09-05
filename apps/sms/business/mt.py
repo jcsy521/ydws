@@ -6,6 +6,7 @@ import os.path
 import site
 import logging
 import time
+from exceptions import UnicodeEncodeError
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
@@ -110,7 +111,7 @@ class MT(object):
                         )
             result = HttpClient().send_http_post_request(url, data)
             
-        except Exception, msg:
+        except UnicodeEncodeError, msg:
             self.db.execute("UPDATE T_SMS "
                             "  SET send_status = %s, "
                             "  recv_status = %s, "
@@ -118,6 +119,8 @@ class MT(object):
                             "  WHERE id = %s",
                             SMS.SENDSTATUS.FAILURE, SMS.USERSTATUS.FAILURE, 
                             SMS.RETRYSTATUS.YES, id)
+            logging.exception("MT sms encode exception : %s, msgid:%s, id:%s", msg, msgid, id)
+        except Exception, msg:
             logging.exception("Send mt sms exception : %s, msgid:%s, id:%s", msg, msgid, id)
         finally:
             return result
