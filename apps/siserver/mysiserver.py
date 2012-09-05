@@ -8,6 +8,7 @@ import logging
 import json
 import pika
 from pika.adapters import *
+from pika.exceptions import AMQPConnectionError
 from functools import partial
 
 from constants import GF 
@@ -66,6 +67,9 @@ class MySIServer():
         try:
             parameters = pika.ConnectionParameters(host=host)
             connection = BlockingConnection(parameters)
+            # Write buffer exceeded warning threshold
+            reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, (host,))
+            connection.add_backpressure_callback(reconnect_rabbitmq)
             channel = connection.channel()
             channel.exchange_declare(exchange=self.exchange,
                                      durable=False,
@@ -82,6 +86,24 @@ class MySIServer():
             logging.exception("[SI] Connect Rabbitmq-server Error!")
 
         return connection, channel
+
+    def __reconnect_rabbitmq(self, host=None):
+        """
+        This is for catching any unpredictable AMQPConnectionError.
+        Release resource for reconnect. 
+        """
+        logging.debug("[SI] Reconnect rabbitmq...") 
+        if not host:
+            host = ConfHelper.RABBITMQ_CONF.host
+
+        if self.rabbitmq_connection and self.rabbitmq_connection.is_open:
+            self.rabbitmq_connection.close()
+
+        try:
+            self.rabbitmq_connection, self.rabbitmq_channel = self.__connect_rabbitmq(host)
+            logging.info("[SI] Rabbitmq reconnected!")
+        except:
+            logging.exception("[SI] Connect rabbitmq error.")
 
     def get_socket(self):
         listen_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -106,15 +128,18 @@ class MySIServer():
                       self.addresses[fd][0], self.addresses[fd][1], atc.buf)
         request = DotDict(packet=atc.buf,
                           category='H')
-        connection, channel = self.__connect_rabbitmq(host=ConfHelper.RABBITMQ_CONF.host)
-        message = json.dumps(request)
-        # make message not persistent
-        properties = pika.BasicProperties(delivery_mode=1,)
-        channel.basic_publish(exchange=self.exchange,
-                              routing_key=self.si_binding,
-                              body=message,
-                              properties=properties)
-        connection.close()
+        try:
+            connection, channel = self.__connect_rabbitmq(host=ConfHelper.RABBITMQ_CONF.host)
+            message = json.dumps(request)
+            # make message not persistent
+            properties = pika.BasicProperties(delivery_mode=1,)
+            channel.basic_publish(exchange=self.exchange,
+                                  routing_key=self.si_binding,
+                                  body=message,
+                                  properties=properties)
+            connection.close()
+        except AMQPConnectionError as e:
+            logging.exception("[SI] Rabbitmq publish error: %s", e.args)
 
     def __start_heartbeat_thread(self, fd):
         # why this thread can use self.db, not need to get a new connection
@@ -354,41 +379,46 @@ class MySIServer():
         unbind: unregister fd
         other: send to SI 
         """
-        method, header, body = self.rabbitmq_channel.basic_get(queue=self.si_queue)
-        if method.NAME == 'Basic.GetEmpty':
-            #print "demo_get: Empty Basic.Get Response (Basic.GetEmpty)"
-            return
-        self.rabbitmq_channel.basic_ack(delivery_tag=method.delivery_tag)
-        request = json.loads(body)
-        if request.get('category') == 'H': # heart_beat
-            # send 3 times at most
-            if not self.heart_beat_queues.has_key(fd):
-                self.heart_beat_queues[fd] = [request,]
-            elif len(self.heart_beat_queues[fd]) < 3:
-                self.heart_beat_queues[fd].append(request)
-            else: 
-                logging.warn("[SI]-->%s:%s heart_beat_queue is full, quit.", 
-                             self.addresses[fd][0], self.addresses[fd][1])
-                self.__stop_client(fd)
-                return 
-        elif request.get('category') == 'C': # si unbind
-            logging.warn("[SI]<--%s:%s UNBind.",
-                         self.addresses[fd][0], self.addresses[fd][1])
-        else:
-            pass
-
         try:
-            left_len = self.send_request(fd, request)
-            if (request.get('category') == 'C' and left_len == 0):
-                # unbind, stop client fd
+            method, header, body = self.rabbitmq_channel.basic_get(queue=self.si_queue)
+            if method.NAME == 'Basic.GetEmpty':
+                #print "demo_get: Empty Basic.Get Response (Basic.GetEmpty)"
+                return
+            self.rabbitmq_channel.basic_ack(delivery_tag=method.delivery_tag)
+            request = json.loads(body)
+            if request.get('category') == 'H': # heart_beat
+                # send 3 times at most
+                if not self.heart_beat_queues.has_key(fd):
+                    self.heart_beat_queues[fd] = [request,]
+                elif len(self.heart_beat_queues[fd]) < 3:
+                    self.heart_beat_queues[fd].append(request)
+                else: 
+                    logging.warn("[SI]-->%s:%s heart_beat_queue is full, quit.", 
+                                 self.addresses[fd][0], self.addresses[fd][1])
+                    self.__stop_client(fd)
+                    return 
+            elif request.get('category') == 'C': # si unbind
+                logging.warn("[SI]<--%s:%s UNBind.",
+                             self.addresses[fd][0], self.addresses[fd][1])
+            else:
+                pass
+
+            try:
+                left_len = self.send_request(fd, request)
+                if (request.get('category') == 'C' and left_len == 0):
+                    # unbind, stop client fd
+                    self.__stop_client(fd)
+            except socket.error as e:
+                logging.exception("[SI]-->%s:%s sock send error:%s",
+                                  self.addresses[fd][0], self.addresses[fd][1],
+                                  e.args)
                 self.__stop_client(fd)
-        except socket.error as e:
-            logging.exception("[SI]-->%s:%s sock send error:%s",
-                              self.addresses[fd][0], self.addresses[fd][1],
-                              e.args)
-            self.__stop_client(fd)
+
+        except AMQPConnectionError as e:
+            logging.exception("[SI] Rabbitmq consume error: %s", e.args)
+            self.__reconnect_rabbitmq()
         except Exception as e:
-            logging.exception("unknown error: %s", e.args)
+            logging.exception("[SI] Unkown error: %s", e.args)
 
     def handle_si_connections(self):
         """
@@ -441,31 +471,37 @@ class MySIServer():
                         continue
             except select.error as e:
                 logging.exception("[SI] select error: %s", e.args)
-            except KeyboardInterrupt:
-                self.stop() 
             except Exception as e:
                 logging.exception("[SI] unknown error: %s", e.args)
 
     def append_gw_request(self, request):
         message = json.dumps(request)
-        # make message not persistent
-        properties = pika.BasicProperties(delivery_mode=1,)
-        self.rabbitmq_channel.basic_publish(exchange=self.exchange,
-                                            routing_key=self.gw_binding,
-                                            body=message,
-                                            properties=properties)
+        try:
+            # make message not persistent
+            properties = pika.BasicProperties(delivery_mode=1,)
+            self.rabbitmq_channel.basic_publish(exchange=self.exchange,
+                                                routing_key=self.gw_binding,
+                                                body=message,
+                                                properties=properties)
+        except AMQPConnectionError as e:
+            logging.exception("[SI] Rabbitmq publish error: %s", e.args)
+            self.__reconnect_rabbitmq()
 
     def append_si_request(self, request):
         #si_fds = self.redis.getvalue('fds')
         #if si_fds:
         #    si_fd = si_fds[0]
         message = json.dumps(request)
-        # make message not persistent
-        properties = pika.BasicProperties(delivery_mode=1,)
-        self.rabbitmq_channel.basic_publish(exchange=self.exchange,
-                                            routing_key=self.si_binding,
-                                            body=message,
-                                            properties=properties)
+        try:
+            # make message not persistent
+            properties = pika.BasicProperties(delivery_mode=1,)
+            self.rabbitmq_channel.basic_publish(exchange=self.exchange,
+                                                routing_key=self.si_binding,
+                                                body=message,
+                                                properties=properties)
+        except AMQPConnectionError as e:
+            logging.exception("[SI] Rabbitmq publish error: %s", e.args)
+            self.__reconnect_rabbitmq()
 
     def __close_thread_by_fd(self, fd):
         if fd:

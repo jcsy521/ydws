@@ -10,6 +10,7 @@ import Queue
 import base64
 import pika
 from pika.adapters import *
+from pika.exceptions import AMQPConnectionError, AMQPChannelError
 import json
 from functools import partial
 
@@ -56,15 +57,11 @@ class MyGWServer(object):
         self.online_terminals = [] 
         self.redis = None 
         self.db = None
-        # RabbitMQ
-        self.rabbitmq_connection = None
-        self.rabbitmq_channel = None
         self.exchange = 'acb_exchange'
         self.gw_queue = 'gw_requests_queue'
         self.si_queue = 'si_requests_queue'
         self.gw_binding = 'gw_requests_binding'
         self.si_binding = 'si_requests_binding'
-        self.rabbitmq_connection, self.rabbitmq_channel = self.__connect_rabbitmq(ConfHelper.RABBITMQ_CONF.host)
 
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -78,19 +75,42 @@ class MyGWServer(object):
         try:
             parameters = pika.ConnectionParameters(host=host)
             connection = BlockingConnection(parameters)
+            # Write buffer exceeded warning threshold
+            reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, (host,))
+            connection.add_backpressure_callback(reconnect_rabbitmq)
             channel = connection.channel()
             channel.exchange_declare(exchange=self.exchange,
                                      durable=False,
                                      auto_delete=True)
             channel.queue_declare(queue=self.gw_queue,
                                   durable=False, # not persistent
-                                  exclusive=True, # only use by creator
+                                  exclusive=False, 
                                   auto_delete=True) # all client break connection, auto del
             channel.queue_bind(exchange=self.exchange,
                                queue=self.gw_queue,
                                routing_key=self.gw_binding)
         except:
             logging.exception("[GW] Connect Rabbitmq-server Error!")
+
+        return connection, channel
+
+    def __reconnect_rabbitmq(self, connection, host):
+        """
+        This is for catching any unpredictable AMQPConnectionError.
+        Release resource for reconnect. 
+        """
+        logging.info("[GW] Reconnect rabbitmq...") 
+
+        if connection and connection.is_open:
+            connection.close()
+
+        connection = None
+        channel = None
+        try:
+            connection, channel = self.__connect_rabbitmq(host)
+            logging.info("[GW] Rabbitmq reconnected!")
+        except:
+            logging.exception("[GW] Connect rabbitmq error.")
 
         return connection, channel
 
@@ -106,11 +126,13 @@ class MyGWServer(object):
             logging.exception("[GW] Check gateway heartbeat exception.")
                 
     def get_tname(self, dev_id):
+        name = "" 
         t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
                         "  WHERE tid = %s", dev_id)
-        name = t.alias if t.alias else t.mobile
-        if isinstance(name, str):
-            name = name.decode("utf-8")
+        if t:
+            name = t.alias if t.alias else t.mobile
+            if isinstance(name, str):
+                name = name.decode("utf-8")
 
         return name
 
@@ -191,20 +213,24 @@ class MyGWServer(object):
             self.check_heartbeat_thread = None
 
     def consume(self, host):
+        consume_connection, consume_channel = self.__connect_rabbitmq(host)
         try:
-            while True:
-                method, header, body = self.rabbitmq_channel.basic_get(queue=self.gw_queue)
-                if method.NAME == 'Basic.GetEmpty':
-                    sleep(1) 
-                else:
-                    self.rabbitmq_channel.basic_ack(delivery_tag=method.delivery_tag)
-                    self.send(body)
+            while (consume_connection and consume_connection.is_open):
+                try:
+                    method, header, body = consume_channel.basic_get(queue=self.gw_queue)
+                    if method.NAME == 'Basic.GetEmpty':
+                        sleep(1) 
+                    else:
+                        consume_channel.basic_ack(delivery_tag=method.delivery_tag)
+                        self.send(body)
+                except AMQPConnectionError as e:
+                    logging.exception("[GW] Rabbitmq consume error: %s", e.args)
+                    consume_connection, consume_channel = self.__reconnect_rabbitmq(consume_connection, host)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
+            self.__close_rabbitmq(consume_connection, consume_channel)
         except Exception as e:
             logging.exception("[GW] Unknow Exception:%s", e.args)
-        finally:
-            self.stop()
 
     def send(self, body):
         try:
@@ -218,27 +244,30 @@ class MyGWServer(object):
             logging.exception("[GW]unknown send Exception:%s", e.args)
 
     def publish(self, host):
+        publish_connection, publish_channel = self.__connect_rabbitmq(host)
         try:
-            #NOTE: self.online_terminals, this process will change it!
-            self.__restore_online_terminals()
-            self.__start_check_heartbeat_thread()
+            if publish_connection and publish_connection.is_open:
+                #NOTE: self.online_terminals, this process will change it!
+                self.__restore_online_terminals()
+                self.__start_check_heartbeat_thread()
 
-            self.recv()
+                self.recv(publish_connection, publish_channel)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
+            self.__close_rabbitmq(publish_connection, publish_channel)
         except Exception as e:
             logging.exception("[GW] Unknow Exception:%s", e.args)
-        finally:
-            self.stop()
 
-    def recv(self):
+    def recv(self, connection, channel):
         try:
             while True:
                 response, address = self.socket.recvfrom(1024)
                 logging.info("[GW] recv: %s from %s", response, address)
                 if response:
                     self.handle_packet_from_terminal(response,
-                                                     address)
+                                                     address,
+                                                     connection,
+                                                     channel)
         except socket.error as e:
             logging.exception("[GW]sock recv error: %s", e.args)
         except Exception as e:
@@ -272,7 +301,7 @@ class MyGWServer(object):
 
         return valid_packets
         
-    def handle_packet_from_terminal(self, packets, address):
+    def handle_packet_from_terminal(self, packets, address, connection, channel):
         """
         handle packet recv from terminal:
         - login
@@ -287,20 +316,20 @@ class MyGWServer(object):
                 command = clw.head.command
                 if command == T_MESSAGE_TYPE.LOGIN:
                     logging.info("[GW] Recv login packet:\n%s", packet)
-                    self.handle_login(clw, address) 
+                    self.handle_login(clw, address, connection, channel) 
                 elif command == T_MESSAGE_TYPE.HEARTBEAT:
                     logging.info("[GW] Recv heartbeat packet:\n%s", packet)
-                    self.handle_heartbeat(clw, address)
+                    self.handle_heartbeat(clw, address, connection, channel)
                 elif command == T_MESSAGE_TYPE.LOCATIONDESC:
                     logging.info("[GW] Recv locationdesc packet:\n%s", packet)
-                    self.handle_locationdesc(clw, address)
+                    self.handle_locationdesc(clw, address, connection, channel)
                 else:
                     logging.info("[GW] Recv packet from terminal:\n%s", packet)
-                    self.foward_packet_to_si(clw, packet, address)
+                    self.foward_packet_to_si(clw, packet, address, connection, channel)
         except:
             logging.exception("[GW] Recv Exception.")
 
-    def handle_login(self, info, address):
+    def handle_login(self, info, address, connection, channel):
         """
         login packet
         0: success, then get a sessionID for terminal and record terminal's address
@@ -323,7 +352,7 @@ class MyGWServer(object):
                 lc = LoginRespComposer(args)
                 request = DotDict(packet=lc.buf,
                                   address=address)
-                self.append_gw_request(request)
+                self.append_gw_request(request, connection, channel)
                 logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, dev_id: %s",
                               t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
                 return
@@ -339,7 +368,7 @@ class MyGWServer(object):
                 lc = LoginRespComposer(args)
                 request = DotDict(packet=lc.buf,
                                   address=address)
-                self.append_gw_request(request)
+                self.append_gw_request(request, connection, channel)
                 logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
                               t_info['t_msisdn'], t_info['dev_id'])
                 return
@@ -413,18 +442,21 @@ class MyGWServer(object):
                         logging.error("[GW] What happened? Cannot find old terminal by dev_id: %s",
                                       t_info['dev_id']) 
             else:
-                # login or JH
+                # login or JH or change dev
                 if terminal:
                     # login
                     logging.info("[GW] Terminal: %s Normal login started!",
                                  t_info['dev_id']) 
                 else:
+                    # JH or change dev
                     logging.info("[GW] Terminal: %s JH started.", t_info['dev_id'])
                     admin_terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                                  "  WHERE mobile = %s",
                                                  t_info['t_msisdn'])
                     if admin_terminal:
-                        # terminal added by admin
+                        # terminal added by admin or change dev
+                        if t_info['dev_id'] in self.online_terminals:
+                            self.online_terminals.remove(t_info['dev_id'])
                         self.db.execute("UPDATE T_TERMINAL_INFO"
                                         "  SET tid = %s,"
                                         "      dev_type = %s,"
@@ -447,7 +479,7 @@ class MyGWServer(object):
                         self.db.execute("UPDATE T_CAR SET tid = %s"
                                         "  WHERE tid = %s",
                                         t_info['dev_id'], t_info['t_msisdn'])
-                        logging.info("[GW] Terminal %s by ADMIN JH success!", t_info['dev_id'])
+                        logging.info("[GW] Terminal %s by ADMIN JH or change dev success!", t_info['dev_id'])
                     else:
                         # send JH sms to terminal. default active time
                         # is one year.
@@ -514,14 +546,14 @@ class MyGWServer(object):
             lc = LoginRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address)
-            self.append_gw_request(request)
+            self.append_gw_request(request, connection, channel)
                     
             if sms:
                 SMSHelper.send(t_info['u_msisdn'], sms)
         except:
             logging.exception("[GW] Hand login exception.")
         
-    def handle_heartbeat(self, info, address):
+    def handle_heartbeat(self, info, address, connection, channel):
         """
         heartbeat packet
         0: success, then record new terminal's address
@@ -543,11 +575,11 @@ class MyGWServer(object):
             hc = HeartbeatRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address)
-            self.append_gw_request(request)
+            self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand heartbeat exception.")
 
-    def handle_locationdesc(self, info, address):
+    def handle_locationdesc(self, info, address, connection, channel):
         """
         locationdesc packet
         0: success, then return locationdesc to terminal and record new terminal's address
@@ -577,11 +609,11 @@ class MyGWServer(object):
             lc = LocationDescRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address)
-            self.append_gw_request(request)
+            self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle locationdesc exception.")
 
-    def foward_packet_to_si(self, info, packet, address):
+    def foward_packet_to_si(self, info, packet, address, connection, channel):
         """
         response packet or position/report/charge packet
         0: success, then forward it to SIServer and record new terminal's address
@@ -602,7 +634,7 @@ class MyGWServer(object):
                                 content=packet)
                 content = UploadDataComposer(uargs).buf
                 logging.info("[GW] Forward message to SI:\n%s", content)
-                self.append_si_request(content)
+                self.append_si_request(content, connection, channel)
                 self.update_terminal_status(dev_id, address)
 
             if head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
@@ -612,31 +644,40 @@ class MyGWServer(object):
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
                                   address=address)
-                self.append_gw_request(request)
+                self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle SI message exception.")
 
-    def append_gw_request(self, request):
+    def append_gw_request(self, request, connection, channel):
         message = json.dumps(request)
-        # make message not persistent
-        properties = pika.BasicProperties(delivery_mode=1,)
-        self.rabbitmq_channel.basic_publish(exchange=self.exchange,
-                                            routing_key=self.gw_binding,
-                                            body=message,
-                                            properties=properties)
+        try:
+            # make message not persistent
+            properties = pika.BasicProperties(delivery_mode=1,)
+            channel.basic_publish(exchange=self.exchange,
+                                  routing_key=self.gw_binding,
+                                  body=message,
+                                  properties=properties)
+        except AMQPConnectionError as e:
+            logging.exception("[GW] Rabbitmq publish into gw_queue error: %s", e.args)
+            self.__reconnect_rabbitmq(connection, host)
+        except Exception as e:
+            logging.exception("[GW] Unknown publish error: %s", e.args)
 
-    def append_si_request(self, request):
-        #si_fds = self.redis.getvalue('fds')
-        #if si_fds:
-        #    si_fd = si_fds[0]
+    def append_si_request(self, request, connection, channel):
         request = dict({"packet":request})
         message = json.dumps(request)
-        # make message not persistent
-        properties = pika.BasicProperties(delivery_mode=1,)
-        self.rabbitmq_channel.basic_publish(exchange=self.exchange,
-                                            routing_key=self.si_binding,
-                                            body=message,
-                                            properties=properties)
+        try:
+            # make message not persistent
+            properties = pika.BasicProperties(delivery_mode=1,)
+            channel.basic_publish(exchange=self.exchange,
+                                  routing_key=self.si_binding,
+                                  body=message,
+                                  properties=properties)
+        except AMQPConnectionError as e:
+            logging.exception("[GW] Rabbitmq publish into si_queue error: %s", e.args)
+            self.__reconnect_rabbitmq(connection, host)
+        except Exception as e:
+            logging.exception("[GW] Unknown publish error: %s", e.args)
 
     def get_terminal_sessionID(self, dev_id):
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id) 
@@ -673,9 +714,13 @@ class MyGWServer(object):
         terminal_status_key = get_terminal_address_key(dev_id)
         return self.redis.getvalue(terminal_status_key)
 
-    def __close_rabbitmq(self):
-        if self.rabbitmq_connection and self.rabbitmq_connection.is_open:
-            self.rabbitmq_connection.close()
+    def __close_rabbitmq(self, connection=None, channel=None):
+        if connection and connection.is_open:
+            try:
+                channel.queue_delete(queue=self.gw_queue)
+            except AMQPChannelError:
+                logging.warn("[GW] Delete queue error: already delete.")
+            connection.close()
 
     def __close_socket(self):
         try:
