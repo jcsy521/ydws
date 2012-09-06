@@ -12,7 +12,7 @@
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
 <script type="text/javascript" src="/static/js/json2.js"></script>
 {% block body %}
-<h3>编辑业务用户</h3>
+<h3>集团编辑用户</h3>
 
 {% if status == 0 %}
 <form id="formID" method="post" action="" onsubmit="return formSubmit('businessEdit');">
@@ -23,6 +23,19 @@
 						<span class="signColor">* 带红色*为必填项</span>
 					</p>
 					<p><span class="signColor">* 如果终端手机号修改，即为车主重新添加一个新的终端。</span></p>
+				</td>
+			</tr>
+			<tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>集团姓名：</td>
+				<td	  align="left">
+					<label>{{business.ecname}}</label>
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft"><span class="signColor">*</span>集团手机号：</td>
+				<td align="left">
+					<label>{{business.ecmobile}}</label>
 				</td>
 			</tr>
 			<tr>
@@ -44,7 +57,7 @@
 				<td	class="tLeft"><span class="signColor">*</span>终端手机号：</td>
 				<td  align="left">
 					<input type="text" name="tmobile" id="tmobile"
-						class="validate[required,custom[mobile],ajax[ajaxTMobile]]" onchange="fn_checkMobile('tmobile')" mobile="{{business.tmobile}}"  maxlength="11" value="{{business.tmobile}}" />
+						class="validate[required,custom[mobile],ajax[ajaxEcTMobile]]" onchange="fn_checkMobile('tmobile')" mobile="{{business.tmobile}}"  maxlength="11" value="{{business.tmobile}}" />
 					<span class="tips j_tips"></span>
 					<input type="hidden" id="tmobile_p" name="tmobile_p" value="{{business.tmobile}}" />
 				</td>
@@ -124,7 +137,7 @@
 				<input type="hidden" id="endtime" name="endtime" value="" />
 				<input class="ui-widget ui-button ui-corner-all ui-state-default" type="submit" value="确定"  /> 
 				<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
-						href="/business/list/{{business.tmobile}}">
+						href="/ecbusiness/list/{{business.tmobile}}">
 						<span class="ui-button-text">取消</span>
 				</a>
 				</td>

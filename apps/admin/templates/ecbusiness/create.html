@@ -1,6 +1,6 @@
-<script src="/static/js/jquery.min.js"></script>
-<script src="/static/js/jquery-ui.min.js"></script>
-<link href="/static/css/jquery-ui.css"rel="stylesheet"type="text/css"/>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script src="http://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script>
+<link href="http://code.jquery.com/ui/1.8.23/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
 <link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
 <script type="text/javascript" src="/static/js/jquery.ui.datepicker-zh-CN.js"></script>
@@ -10,26 +10,51 @@
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
 <script type="text/javascript" src="/static/js/formValue.js"></script>
 <script type="text/javascript" src="/static/js/submitForm.js"></script>
-<script type="text/javascript" src="/static/js/business.js"></script>
+<script type="text/javascript" src="/static/js/business-group.js"></script>
 {% block body %}
 
 {% if status == 0 %}
-	<h3>个人用户业务开通</h3>
+	<h3>集团用户业务开通</h3>
 	<!--分步创建用户信息-->
-	<div id="businessPanel" class="businessPanel">
+	<div id="businessPanel" class="businessPanel ecbPanel">
 		<!--step nav-->
 		<div id="panelNav">
 			<ul>
-				<li class="step1"></li>
-				<li class="step2"></li>
-				<li class="step3"></li>
-				<li class="step4"></li>
+				<li class="ecStep1"></li>
+				<li class="ecStep2"></li>
+				<li class="ecStep3"></li>
+				<li class="ecStep4"></li>
+				<li class="ecStep5"></li>
 			</ul>
 		</div>
 		<!--step content-->
-		<div id="panelContent">
+		<div id="panelContent" class="ecPcontent">
 			<div id="stepContent1" class="carCurrent stContent">
 				<form method="post" id="businessFormID1" action="">
+					<table cellspacing="0" cellpadding="0" border="0" class="tableStyle">
+						<tr>
+							<td	class="tLeft">集团名称：</td>
+							<td class="tdText">
+								<input type="text" id="ecName" class="validate[required]" />
+								<span class="redColor">*</span>
+							</td>	
+							<td>
+							</td>
+						</tr>
+						<tr>
+							<td	class="tLeft">集团手机号：</td>
+							<td class="tdText" id="ecMobilePanel">
+								<input type="text" id="ecMobile" class="validate[required,custom[mobile]]" maxlength="11" />
+								<span class="redColor">*</span>
+							</td>	
+							<td>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<div id="stepContent2" class="stContent">
+				<form method="post" id="businessFormID2" action="">
 					<table cellspacing="0" cellpadding="0" border="0" class="tableStyle">
 						<tr>
 							<td	class="tLeft">车牌号码：</td>
@@ -73,13 +98,13 @@
 					</table>
 				</form>
 			</div>
-			<div id="stepContent2" class="stContent">
-				<form method="post" id="businessFormID2" action="">
+			<div id="stepContent3" class="stContent">
+				<form method="post" id="businessFormID3" action="">
 					<table cellspacing="0" cellpadding="0" border="0" class="tableStyle">
 						<tr>
 							<td	class="tLeft">终端手机号：</td>
 							<td class="tdText">
-								<input type="text" id="terminalMobile" class="validate[required,custom[mobile],ajax[ajaxTMobile]]" maxlength="11" />
+								<input type="text" id="terminalMobile" class="validate[required,custom[mobile],ajax[ajaxEcTMobile]]" maxlength="11" />
 								<span class="redColor">*</span>
 							</td>	
 							<td>
@@ -88,7 +113,7 @@
 						<tr>
 							<td	class="tLeft">开通日期：</td>
 							<td class="tdText">
-								<input type="text" id="start_time1" class=""readonly="true" />
+								<input type="text" id="start_time1"  class=""readonly="true" />
 								<span class="redColor">*</span>
 							</td>
 							<td>
@@ -97,7 +122,7 @@
 						<tr>
 							<td	class="tLeft">截止日期：</td>
 							<td class="tdText">
-								<input type="text" id="end_time1" class="" readonly="true" />
+								<input type="text" id="end_time1"  class="" readonly="true" />
 								<span class="redColor">*</span>
 							</td>
 							<td>
@@ -106,8 +131,8 @@
 					</table>
 				</form>
 			</div>
-			<div id="stepContent3" class="stContent">
-				<form method="post" id="businessFormID3" action="">
+			<div id="stepContent4" class="stContent">
+				<form method="post" id="businessFormID4" action="">
 					<table cellspacing="0" cellpadding="0" border="0" class="tableStyle">
 						<tr>
 							<td	class="tLeft">车主姓名：</td>
@@ -146,8 +171,16 @@
 					</table>
 				</form>
 			</div>
-			<div id="stepContent4" class="stContent">
+			<div id="stepContent5" class="stContent">
 				<table cellspacing="0" cellpadding="0" border="0" class="tableStyle">
+					<tr>
+						<td	class="tLeft">集团名称：</td>
+						<td class="tdText" id="tdEcname"></td>	
+					</tr>
+					<tr>
+						<td	class="tLeft">集团手机号：</td>
+						<td class="tdText" id="tdEcmobile"></td>	
+					</tr>
 					<tr>
 						<td	class="tLeft">车牌号码：</td>
 						<td class="tdText" id="tdCnum"></td>	
@@ -158,7 +191,7 @@
 					</tr>
 					<tr>
 						<td	class="tLeft">车辆颜色：</td>
-						<td class="tdText" id="tdCcolor"></td>	
+						<td class="tdText" id="tdColor"></td>	
 					</tr>
 					<tr>
 						<td	class="tLeft">车辆品牌：</td>
@@ -201,14 +234,16 @@
 			<span id="nextBtn"></span>
 			<span id="submitBtn"></span>
 		</div>
-		<form method="post" id="businessFormID" action="" class="businessFrom">
+		<form method="post" id="ecFormID" action="/ecbusiness/createec" class="businessFrom">
+			<input type="hidden" id="ecname" name="ecname" value="" />
+			<input type="hidden" id="ecmobile" name="ecmobile" value="" />
 			<input type="hidden" id="cnum" name="cnum" value="" />
 			<input type="hidden" id="type" name="type" value="" />
 			<input type="hidden" id="color" name="color" value="" />
 			<input type="hidden" id="brand" name="brand" value="" />
 			<input type="hidden" id="tmobile" name="tmobile" value="" />
-			<input type="hidden" id="begintime" name="begintime" value="" />
-			<input type="hidden" id="endtime" name="endtime" value="" />
+			<input type="hidden" id="begintime1" name="begintime" value="" />
+			<input type="hidden" id="endtime1" name="endtime" value="" />
 			<input type="hidden" id="name" name="name" value="" />
 			<input type="hidden" id="mobile" name="mobile" value="" />
 			<input type="hidden" id="address" name="address" value="" />

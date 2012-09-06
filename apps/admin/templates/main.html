@@ -3,9 +3,9 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>爱车保后台管理系统</title>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-		<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+        <script src="/static/js/jquery.min.js"></script>
+		<script src="/static/js/jquery-ui.min.js"></script>
+		<link href="/static/css/jquery-ui.css"rel="stylesheet"type="text/css"/>
 		<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
 		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
 		<script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
@@ -44,10 +44,59 @@
 				<div>
 					<ul class="cUlItem">
 						<li onclick="fn_CreateIframeSrc('/business/create');">
-							<a href="#">业务开通</a>
+							<a href="#">个人用户</a>
 						</li>
-						<li onclick="fn_CreateIframeSrc('/business/search');">
-							<a href="#">业务查询</a>
+						<li onclick="fn_CreateIframeSrc('/ecbusiness/ec');">
+							<a id="a_creatPerson" href="#">集团用户</a>
+						</li>
+					</ul>
+				</div>
+				<h3><a href="#">业务查询</a></h3>
+				<div>
+					<ul class="cUlItem">
+						<li class="ultoggle">
+							<span id="adminUserSearch">业务查询</span>
+							<ul class="hideul" id="toggle1">
+								<li onclick="fn_CreateIframeSrc('/business/search');">
+									<a href="#">个人用户查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/ecbusiness/search');">
+									<a id="a_creatPerson" href="#">集团用户查询</a>
+								</li>
+							</ul>
+						</li>
+						<li class="ultoggle">
+							<span id="adminUser">告警查询</span>
+							<ul class="hideul" id="toggle">
+								<li>
+									<a href="#">非法移动</a>
+								</li>
+								<li>
+									<a href="#">SOS告警</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<h3><a href="#">业务统计</a></h3>
+				<div>
+					<ul class="cUlItem">
+						<li>
+							<a href="#">用户统计</a>
+						</li>
+						<li>
+							<a href="#">告警统计</a>
+						</li>
+					</ul>
+				</div>
+				<h3><a href="#">日报月报</a></h3>
+				<div>
+					<ul class="cUlItem">
+						<li>
+							<a href="#">用户日报</a>
+						</li>
+						<li>
+							<a href="#">用户月报</a>
 						</li>
 					</ul>
 				</div>

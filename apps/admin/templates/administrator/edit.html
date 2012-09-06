@@ -1,6 +1,6 @@
-﻿<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css" />
+﻿<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet"type="text/css"/>
 <link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
 <link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
 <script type="text/javascript" src="/static/js/jquery.validationEngine-en.js"></script>
@@ -26,7 +26,7 @@
             <td align="right">姓名：</td>
             <td align="left">
                 <input type="text" name="name" value="{{administrator.name}}" 
-                   id="name" class="validate[required,custom[t_name],length[0,16]],onsubmit"/>
+                   id="name" class="validate[required,custom[t_name],maxSize[16]]"/>
 				<span class="required">*</span>
             </td>
         </tr>
@@ -40,28 +40,28 @@
             <td align="right">手机号码：</td>
             <td align="left">
                 <input type="text" name="mobile" value="{{administrator.mobile}}" id="mobile" 
-                    maxlength="11" /> <!--class="validate[custom[mobile]]" -->
+                    maxlength="11" class="validate[optional,custom[mobile]]" /> <!--class="validate[custom[mobile]]" -->
             </td>
         </tr>
 		<tr>
             <td align="right">固定电话：</td>
             <td align="left">
                 <input type="text" name="phone" value="{{administrator.phone}}"
-                   id="phone"  maxlength="13" /><!--class="validate[custom[phone]]" -->
+                   id="phone"  maxlength="13" class="validate[optional,custom[phone]]" />
             </td>
         </tr>
 	    <tr>
             <td align="right">公司名称：</td>
             <td align="left">
                 <input type="text" name="corporation" value="{{administrator.corporation}}" 
-                   id="corporation" maxlength="100" /> <!--class="validate[sp_char_space,length[100]]" -->
+                   id="corporation" maxlength="100" class="validate[optional,sp_char_spacecustom[mobile]],maxSize[100]" /> <!--class="validate[sp_char_space,length[100]]" -->
             </td>
         </tr>
 		<tr>
             <td align="right">电子邮件：</td>
             <td align="left">
                 <input type="text" name="email" value="{{administrator.email}}" 
-                   id="email" maxlength="40" /> <!-- class="validate[custom[email],length[40]]"-->
+                   id="email" maxlength="40" class="validate[optional,custom[email],maxSize[40]]" /> <!-- class="validate[custom[email],length[40]]"-->
             </td>
         </tr>
         {% if not is_self %}
