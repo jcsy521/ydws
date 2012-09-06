@@ -60,7 +60,7 @@ from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler,
 from handlers.ecbusiness import ECBusinessHandler, ECBusinessCreateHandler, \
         ECBusinessListHandler, ECBusinessSearchHandler, ECBusinessEditHandler, \
         ECBusinessStopHandler, ECBusinessDeleteHandler, ECBusinessCheckMobileHandler, \
-        ECBusinessCheckTMobileHandler
+        ECBusinessCheckTMobileHandler, ECBusinessAsyncFillHandler
 from handlers.daily import DailyHandler, DailyDownloadHandler
 from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
 from handlers.group import GroupHandler, GroupDownloadHandler
@@ -113,6 +113,7 @@ class Application(tornado.web.Application):
             (r"/ecbusiness/delete/(\S+)/(\S+)/*", ECBusinessDeleteHandler),
             (r"/ecbusiness/checkmobile/(\S+)/*", ECBusinessCheckMobileHandler),
             (r"/ecbusiness/checktmobile/(\S+)/*", ECBusinessCheckTMobileHandler),
+            (r"/ecbusiness/asyncfill/*", ECBusinessAsyncFillHandler),
 
             # SMS send
             (r"/sms/register/*", SMSRegisterHandler),

@@ -279,12 +279,20 @@ class ECBusinessHandler(BaseHandler, ECBusinessMixin):
     @check_privileges([PRIVILEGES.EC_BUSINESS_STATISTIC])
     @tornado.web.removeslash
     def get(self):
-        ec_info = self.get_ec_info() 
         self.render('ecbusiness/create.html',
-                    ecinfo = ec_info,
                     status=ErrorCode.SUCCESS,
                     message='')
-    
+
+
+class ECBusinessAsyncFillHandler(BaseHandler, ECBusinessMixin):
+    @authenticated
+    @check_privileges([PRIVILEGES.EC_BUSINESS_STATISTIC])
+    @tornado.web.removeslash
+    def get(self):
+        ec_info = self.get_ec_info() 
+        self.set_header(*self.JSON_HEADER)
+        self.write(json_encode(ec_info))
+            
             
 class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
 
