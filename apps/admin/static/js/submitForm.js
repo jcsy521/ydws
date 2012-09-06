@@ -29,16 +29,17 @@ function formSubmit(option) {
 	}
 	// business
 	if ( option == 'business' ) {
-		var et = toEpochDate(endtime1 + ' 23:59:59')/1000,
-			bt = toEpochDate(begintime1 + ' 00:00:00')/1000;
+		var et = toEpochDate(endtime1 + ' 23:59:59'),
+			bt = toEpochDate(begintime1 + ' 00:00:00');
 		$('#endtime').val(et);
 		$('#begintime').val(bt);
 		return true;
 	}
 	// business edit
 	if ( option == 'businessEdit' ) {
-		var et = toEpochDate(endtime2 + ' 23:59:59')/1000,
-			bt = toEpochDate(begintime2 + ' 00:00:00')/1000;
+		var et = toEpochDate(endtime2 + ' 23:59:59'),
+			bt = toEpochDate(begintime2 + ' 00:00:00');
+		
 		$('#endtime').val(et);
 		$('#begintime').val(bt);
 		var str_tipsDisplay = $('.j_tips').css('display');
@@ -50,8 +51,8 @@ function formSubmit(option) {
 	}
 	// business search
 	if ( option == 'businessSearch' ) {	
-		var et = endtime0 == '' ? '' : toEpochDate(endtime0 + ' 23:59:59')/1000,
-			bt = begintime0 == '' ? '' : toEpochDate(begintime0 + ' 00:00:00')/1000;
+		var et = endtime0 == '' ? '' : toEpochDate(endtime0 + ' 23:59:59'),
+			bt = begintime0 == '' ? '' : toEpochDate(begintime0 + ' 00:00:00');
 		$('#endtime').val(et);
 		$('#begintime').val(bt);
 		return true;
@@ -199,4 +200,8 @@ function fn_GoBack() {
     } else {
         parent.location.replace('/');
     }
+}
+//formSubmit business 
+function businessSubmit() {
+	return false;
 }

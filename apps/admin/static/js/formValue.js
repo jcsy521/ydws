@@ -3,9 +3,7 @@
         *验证的事件,可选参数'keyup','blur'
         *inlineValidation: false; 是否即时验证
     */ 
-	$("#formID").validationEngine({
-		validationEventTriggers:"blur"
-	});
+	$("#formID").validationEngine();
 });
 // lengthbetween rules
 function fn_lengthBetween(isFlag, abc) { // VALIDATE LENGTH BETWEEN

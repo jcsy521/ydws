@@ -4,7 +4,7 @@
 	 var timeta= $(".j_timestamp");
 	 if (timeta.length != 0) {
 		timeta.each(function () {
-			 $(this).html(toHumanDate($(this).html()*1000, "no"));
+			 $(this).html(toHumanDate($(this).html(), "no"));
 		});		
 	 }
 	/*
@@ -13,14 +13,14 @@
     if ($('body').find('#left').length == 0) {
         $('body').css({'padding' : '10px 0px 0px 0px'});
     }
-    $('input[type=text],input[type=password]').css({'width':'130px'});
+    $('input[type=text],input[type=password]').css({'width':'120px'});
 	$('input[type=text]').addClass('text_blur');
 	$('input[type=text]').focus(function() {
 		$(this).removeClass('text_blur').addClass('text_focus');
 	}).blur(function() {
 		$(this).removeClass('text_focus').addClass('text_blur');		
 	});
-    $('select').css({'width':'133px'});
+    $('select').css({'width':'120px'});
 	$('.j_userSelect').css({'width': '260px'});
     $('#showOrHideSearch').toggle(function () {
         $('#searchTable').show();
@@ -102,6 +102,10 @@
 			return false;
 		}
 	});
+	// 业务用户编辑设置车型
+	var obj_carType = $('#type');
+	
+	obj_carType.val(obj_carType.attr('cartype'));
 });
 //to clear the password for message
 function clearSpan() {
@@ -121,3 +125,24 @@ function fn_textKeyUp(obj_this, str_reg) {
 		$tempInput.val(str_tempVal.replace(/[^\d]/g, ''));
 	}
 } 
+// input string, return a number
+function fn_getNumber(str) {
+	return str.replace(/\D/g,'');
+} 
+// 通过车辆类型标记返回相应的车辆类型文字
+function fn_setCarType(n_carType) {
+	switch (n_carType) {
+		case 1: 
+			return '小汽车';
+			break;
+		case 2: 
+			return '小货车';
+			break;
+		case 3: 
+			return '大巴车';
+			break;
+		case 4: 
+			return '摩托车';
+			break;
+	}
+}

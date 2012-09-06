@@ -1,4 +1,5 @@
 * {
+	outline: none;
     padding: 0; 
 }
 body {
@@ -108,7 +109,6 @@ table, .ui-widget-header {
 .cbtns {
     width: 70px;
     height: 32px;
-    padding: 3px 0 0 0;
     border: none;
     margin-left: 3px;
 }
@@ -219,9 +219,12 @@ table, .ui-widget-header {
 /*-------------*/
 .hideul {
     display: none;
-    width: 120px;
+    width: 100px;
     margin: 8px 0 0 10px;
     padding: 0;
+}
+.hideul li {
+	width: 100px;
 }
 .hideSearchTable {
     display: none;
@@ -363,7 +366,7 @@ table, .ui-widget-header {
     background-color: #EFEFEF;
     border: 1px dashed #AAAAAA;
     padding: 5px 15px 5px 5px;
-    height: 36px;
+    height: 26px;
 }
 .tLeft {
     width: 100px;
@@ -510,4 +513,144 @@ tfoot {
 	color: red;
 	display: none;
 	width: 60px;
+}
+/*business create */
+.redColor {
+	color: red;
+}
+.businessPanel {
+	background-color: #EFF6FC;
+	height: 270px;
+    margin-left: 8%;
+    width: 670px;
+}
+.businessPanel .tLeft {
+	text-align: center;
+	width: 120px;
+}
+.businessPanel td {
+	background-color: #F3F7F8;
+}
+.businessPanel .tdText {
+	width: 150px;
+	text-align: left;
+}
+.businessPanel .text_blur, .businessPanel select {
+	height: 25px;
+	line-height: 25px;
+}
+.businessPanel .stContent {
+	margin-bottom: 10px;
+}
+.businessPanel .tableStyle {
+	width: 460px;
+}
+#panelNav {
+	height: 50px;
+	*margin-left: -38px;
+}
+#panelNav ul li {
+	float: left;
+    height: 45px;
+    list-style: none outside none;
+    width: 172px;
+}
+#panelContent {
+	height: 165px;
+    padding-left: 57px;
+}
+#panelContent tr {
+	margin-bottom: 5px;
+}
+#panelContent .stContent {
+	display: none;
+}
+#panelContent .carCurrent {
+	display: block;
+}
+#panelBtn {
+	float: right;
+	height: 30px;
+	padding-right: 23px;
+}
+#panelBtn span {
+	background-color: cadetblue;
+    border-radius: 5px 5px 5px 5px;
+    cursor: pointer;
+    display: block;
+    float: left;
+    height: 25px;
+    line-height: 25px;
+    margin-right: 5px;
+    text-align: center;
+    width: 63px;
+}
+#stepContent4 td {
+	background-color: #F3F7F8;
+    border: 1px dashed #AAAAAA;
+	height: 28px;
+	padding: 3px 0 3px 10px;
+}
+.step1 {
+	background: url('/static/image/busImage/p11.png') no-repeat;
+}
+.step2 {
+	background: url('/static/image/busImage/p22.png') no-repeat;
+}
+.step3 {
+	background: url('/static/image/busImage/p32.png') no-repeat;
+}
+#panelNav ul .step4 {
+	background: url('/static/image/busImage/p42.png') no-repeat;
+	width: 154px;
+}
+#prevBtn {
+	background: url('/static/image/busImage/prevbtn.png') no-repeat;
+}
+#nextBtn {
+	background: url('/static/image/busImage/nextbtn.png') no-repeat;
+}
+#submitBtn {
+	background: url('/static/image/busImage/submitbtn.png') no-repeat;
+}
+/*ecbusiness*/
+.ecbPanel {
+	height: 300px;
+    width: 844px;
+}
+#businessPanel .ecPcontent {
+	height: 190px;
+}
+#businessPanel .carCurrent {
+	padding-left: 113px;
+}
+.ecStep1 {
+	background: url('/static/image/busImage/g11.png') no-repeat;
+}
+.ecStep2 {
+	background: url('/static/image/busImage/g22.png') no-repeat;
+}
+.ecStep3 {
+	background: url('/static/image/busImage/g32.png') no-repeat;
+}
+.ecStep4 {
+	background: url('/static/image/busImage/g42.png') no-repeat;
+}
+#panelNav ul .ecStep5 {
+	background: url('/static/image/busImage/g52.png') no-repeat;
+	width: 154px;
+}
+
+/*business end*/
+.resetSms {
+	color: red;
+}
+#ecMobilePanel label {
+	border: 1px solid #CDCDCD;
+    border-radius: 4px 4px 4px 4px;
+    display: inline-block;
+    height: 25px;
+    line-height: 25px;
+    margin-right: 2px;
+    width: 120px;
 }

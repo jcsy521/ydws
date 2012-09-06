@@ -22,7 +22,7 @@ function toHumanDate(myEpoch, flag) { // 将UTC时间转为正常时区时间
 	if ( !myEpoch ) {
 		return '';
 	}
-	var myDate = new Date(Number(myEpoch));
+	var myDate = new Date(Number(myEpoch)*1000);
 	var year = myDate.getFullYear();
 	var month = myDate.getMonth() + 1;
 	var day = myDate.getDate();
@@ -67,7 +67,7 @@ function toEpochDate(dateString) { // 将正常时区时间转为UTC时间
 		var min = timeArr[1];
 		var seconds = timeArr[2];
 		var myDate = new Date(year,month - 1,day,hour,min,seconds); // Your timezone!
-		var myEpoch = myDate.getTime();
+		var myEpoch = myDate.getTime() / 1000;
 		return myEpoch;
 	}
 }
@@ -88,7 +88,7 @@ function fn_InitChooseDate() {
 		$('#begintime2').val(toTodayDate());	// edit business init beigntime is today 
 	} else {
 		$('#start_time1').val(toHumanDate(startTemp, 'no')); 	//业务查询 等, #begintime0
-		$('#begintime0, #begintime2').val(toHumanDate(startTemp*1000, 'no')); 
+		$('#begintime0, #begintime2').val(toHumanDate(startTemp, 'no')); 
 		$('#daily_time').val(toHumanDate(startTemp, 'no')); // 日报 
 		$('#begintime1').val(toTodayDate());	// create business 
 	}
@@ -100,7 +100,7 @@ function fn_InitChooseDate() {
 		$('#endtime2').val(fn_getNextYearToday()); // edit business init endtime 
 	} else {
 		$('#end_time1').val(toHumanDate(endTemp, 'no')); 	
-		$('#endtime0, #endtime2').val(toHumanDate(endTemp*1000, 'no'));
+		$('#endtime0, #endtime2').val(toHumanDate(endTemp, 'no'));
 		$('#endtime1').val(fn_getNextYearToday());	// create business 
 	}
 	//对月份进行设置

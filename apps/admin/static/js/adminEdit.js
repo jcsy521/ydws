@@ -11,10 +11,10 @@ function f_editAdmin(data, privi_data) {
 }
 function f_forEditAdmin(data, output) {
     if (data && (data.length > 0)) {
-        var strings = "", len = data.length;
+        var strings = '', len = data.length;
         if (output == '#provincesNames') {
             for (var i = 0; i < len; i++) {
-                strings += data[i].name + "+";
+                strings += data[i].name + '+';
                 _getProvinceIdString += data[i].id + ',';
             }
             var sPid = _getProvinceIdString;
@@ -22,7 +22,7 @@ function f_forEditAdmin(data, output) {
             $('#provincesId').val(sPid);
         } else {
             for (var i = 0; i < len; i++) {
-                strings += data[i].name + "+";
+                strings += data[i].name + '+';
                 _getCityIdString += data[i].id + ',';
                 _getProvinceIdString += data[i].province_id + ','
             }
@@ -48,7 +48,7 @@ function f_forEditAdmin(data, output) {
 //删除用户
 function adminDelete(adminid) {
     var pos = oTable.fnGetPosition(document.getElementById("admin" + adminid));
-	$.post("/administrator/delete/" + adminid, function (data) {
+	$.post('/administrator/delete/' + adminid, function (data) {
 		if (data.success == 0) {
             oTable.fnDeleteRow(pos);
 		} else {
@@ -56,26 +56,67 @@ function adminDelete(adminid) {
 		}
 	});
 }
-// delete business 
-function businessDelete(tmobile, seq) {
+// stop business 
+function businessStop(tmobile, seq, tempType) {
 	var obj_service_status = $('#service_status' + seq ),
 		status = obj_service_status.attr('service_status'),
 		str_status = status == '0' ? '1' : '0',
 		str_html = status == '0' ? '停用' : '启用',
-		str_msg = '';
+		str_msg = '', 
+		str_url = '/business/stop/' + tmobile + '/' + str_status;
+	
 	if ( status == '0' ) {
 		str_msg = '是否启用该用户？';
 	} else {
 		str_msg = '是否停用该用户？';
 	}
+	if ( tempType == 'ec' ) {
+		str_url = '/ecbusiness/stop/' + tmobile + '/' + str_status;
+	}
+	
 	if ( confirm(str_msg) ) {
-		$.post("/business/delete/" + tmobile + "/" + str_status, function (data) {
-			if (data.success == 0) {
+		$.post(str_url, function (data) {
+			if ( data.success == 0 ) {
 				obj_service_status.attr('service_status', str_status);
 				obj_service_status.html(str_html);
+			} else {
+				alert("操作失败！");
+			}
+		});
+	}
+}
+// delete business 
+function businessDelete(tmobile, mobile, tempType) {
+	var str_id = 'business' + tmobile, 
+		str_url = '/business/delete/' + tmobile + '/' + mobile;
+		
+	if ( tempType == 'ec' ) {
+		str_id = 'ecbusiness' + tmobile, 
+		str_url = '/ecbusiness/delete/' + tmobile + '/' + mobile;
+	}
+	var obj_pos = oTable.fnGetPosition(document.getElementById(str_id));
+	
+	if ( confirm('是否删除该用户？') ) {
+		
+		$.post(str_url, function (data) {
+			if ( data.success == 0 ) {
+				 oTable.fnDeleteRow(obj_pos);
 			} else {
 				alert("删除失败。");
 			}
 		});
 	}
+}
+// 短信重发
+function fn_smsReset(tmobile, mobile, obj_panel) {
+	var obj_data = {
+		'tmobile': tmobile, 
+		'pmobile': mobile
+	};
+	
+	$.post('/sms/register', JSON.stringify(obj_data), function (data) {
+		if ( data.success == 0 ) {
+			$(obj_panel).parent().html('短信发送成功').removeClass().addClass('sms_status2');
+		}
+	});
 }
