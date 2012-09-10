@@ -17,7 +17,9 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          ILLEGALMOVE="T13",
                          POWERLOW="T14",
                          POWEROFF="T15",
-                         EMERGENCY="T16"
+                         EMERGENCY="T16",
+                         CONFIG="T17",
+                         DEFENDSTATUS="T18"
                          )
 
 S_MESSAGE_TYPE = DotDict(LOGIN="S1",
@@ -35,7 +37,9 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          ILLEGALMOVE="S13",
                          POWERLOW="S14",
                          POWEROFF="S15",
-                         EMERGENCY="S16"
+                         EMERGENCY="S16",
+                         CONFIG="S17",
+                         DEFENDSTATUS="S18"
                          )
 
 LOGIN_STATUS = DotDict(SUCCESS="0",
@@ -49,7 +53,9 @@ LOCATION_STATUS = DotDict(FAILED="0",
                           UNREALTIME="2")
 
 RESPONSE_STATUS = DotDict(SUCCESS="0",
-                          INVALID_SESSIONID="1")
+                          INVALID_SESSIONID="1",
+                          CELLID_FAILED="2" # only T10
+                          )
 
 SERVICE_STATUS = DotDict(ON=1,
                          OFF=0)

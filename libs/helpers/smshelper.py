@@ -3,6 +3,7 @@
 from urllib import urlencode
 import urllib2 
 import logging
+import time
 
 from confhelper import ConfHelper
 from utils.misc import safe_utf8
@@ -21,6 +22,9 @@ class SMSHelper:
     # the final mark (NULL now)
     TAIL_LEN = 0
 
+    # 0xACB2012
+    SMS_KEY = 181084178 
+
     @classmethod
     def sms_encode(cls, content):
         assert isinstance(content, unicode)
@@ -35,6 +39,23 @@ class SMSHelper:
         return (cls.HEADER_LEN + 
                 cls.sms_length(content) + 
                 cls.TAIL_LEN) <= cls.MAX_LENGTH
+
+    @classmethod
+    def send_to_terminal(cls, tmobile, content):
+        """
+        @param tmobile: mobile of terminal
+        @param content: original sms content
+        authentic content: xxx sign timestamp
+            - xxx: original sms content
+            - sign: (last 8 nums of tmobile) & SMS_KEY & timestamp
+            - timestamp: unix time
+        """
+        timestamp = int(time.time())
+        sign = int(str(tmobile)[-8:]) ^ (cls.SMS_KEY) ^ timestamp
+        content = ' '.join([content, str(sign), str(timestamp)])
+        response = cls.send(tmobile, content)
+
+        return response
 
     @staticmethod
     def send(mobile, content):
@@ -54,7 +75,7 @@ class SMSHelper:
 
         response = None
         try:
-            req = urllib2.Request(url=ConfHelper.UWEB_CONF.sms_url,
+            req = urllib2.Request(url=ConfHelper.SMS_CONF.sms_url,
                                   data=urlencode(dict(mobile=mobile,
                                                       content=content)))
             f = urllib2.urlopen(req)

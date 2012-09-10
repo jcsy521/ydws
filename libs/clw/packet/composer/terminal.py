@@ -17,7 +17,7 @@ class TerminalComposer(BaseComposer):
         params = args['params']
         valid_keys = ['domain', 'freq', 'trace', 'pulse', 'phone',
                       'user', 'vibchk', 'service_status',
-                      'white_list']
+                      'white_list', 'vibl']
         for key in params.keys():
             if key.lower() in valid_keys:
                 packet += ",%s=%s" % (key.upper(), params[key])

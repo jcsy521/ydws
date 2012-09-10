@@ -29,6 +29,8 @@ class AsyncParser(object):
         elif ret.command == 'T12':
             ret['t'] = EVENTER.INFO_TYPE.CHARGE
             info = self.get_charge_info(packet)
+        elif ret.command == 'T18':
+            info = self.get_status_info(packet)
         else:
             return info 
 
@@ -77,6 +79,12 @@ class AsyncParser(object):
     def get_charge_info(self, packet):
         content = base64.decodestring(packet[0]).decode('utf-8')
         info = {'content': content}
+
+        return info
+
+    def get_status_info(self, packet):
+        defend_status = packet[0]
+        info = {'defend_status': defend_status}
 
         return info
 

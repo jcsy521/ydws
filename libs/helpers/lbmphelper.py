@@ -102,7 +102,8 @@ def handle_location(location, redis, cellid=False, db=None):
         location.cLon = 0
         location.type = 0
         location.gps_time = int(time.time()) 
-        location.degree = get_last_degree(location, redis, db)
+        if db:
+            location.degree = get_last_degree(location, redis, db)
         if cellid:
             location.type = 1
             location = get_latlon_from_cellid(location)
@@ -112,7 +113,9 @@ def handle_location(location, redis, cellid=False, db=None):
 
     if location and location.lat and location.lon:
         location.cLat, location.cLon = get_clocation_from_ge(location)
-        location.name = get_location_name(location, redis)
+        if (location['t'] == EVENTER.INFO_TYPE.REPORT or
+            location['command'] == GATEWAY.T_MESSAGE_TYPE.LOCATIONDESC):
+            location.name = get_location_name(location, redis)
 
     if location['t'] == EVENTER.INFO_TYPE.POSITION:
         location.category = EVENTER.CATEGORY.REALTIME

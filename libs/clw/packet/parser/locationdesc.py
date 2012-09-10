@@ -8,7 +8,7 @@ class LocationDescParser(object):
         self.ret = self.parse(packet, ret)
 
     def parse(self, packet, ret):
-        keys = ['ew', 'lon', 'ns', 'lat'] 
+        keys = ['ew', 'lon', 'ns', 'lat', 'valid', 'cellid'] 
         for i, key in enumerate(keys):
             ret[key] = packet[i]
         ret['lon'] = int(float(ret['lon']) * 3600000)

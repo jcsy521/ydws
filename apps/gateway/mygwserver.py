@@ -38,11 +38,13 @@ from clw.packet.parser.codecheck import T_CLWCheck
 from clw.packet.parser.login import LoginParser
 from clw.packet.parser.heartbeat import HeartbeatParser 
 from clw.packet.parser.async import AsyncParser
+from clw.packet.parser.config import ConfigParser
 from clw.packet.parser.locationdesc import LocationDescParser
 from clw.packet.composer.login import LoginRespComposer
 from clw.packet.composer.heartbeat import HeartbeatRespComposer
 from clw.packet.composer.async import AsyncRespComposer
 from clw.packet.composer.locationdesc import LocationDescRespComposer
+from clw.packet.composer.config import ConfigRespComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
 
 class MyGWServer(object):
@@ -75,6 +77,8 @@ class MyGWServer(object):
         try:
             parameters = pika.ConnectionParameters(host=host)
             connection = BlockingConnection(parameters)
+            # default 10, maybe make it bigger.
+            connection.set_backpressure_multiplier(10)
             # Write buffer exceeded warning threshold
             reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, *(connection, host))
             connection.add_backpressure_callback(reconnect_rabbitmq)
@@ -323,6 +327,12 @@ class MyGWServer(object):
                 elif command == T_MESSAGE_TYPE.LOCATIONDESC:
                     logging.info("[GW] Recv locationdesc packet:\n%s", packet)
                     self.handle_locationdesc(clw, address, connection, channel)
+                elif command == T_MESSAGE_TYPE.CONFIG:
+                    logging.info("[GW] Recv query config packet:\n%s", packet)
+                    self.handle_config(clw, address, connection, channel)
+                elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
+                    logging.info("[GW] Recv defendstatus packet:\n%s", packet)
+                    self.handle_defendstatus(clw, address, connection, channel)
                 else:
                     logging.info("[GW] Recv packet from terminal:\n%s", packet)
                     self.foward_packet_to_si(clw, packet, address, connection, channel)
@@ -607,13 +617,22 @@ class MyGWServer(object):
             else:
                 ldp = LocationDescParser(body, head)
                 location = ldp.ret
-                location['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS 
                 location['t'] = EVENTER.INFO_TYPE.POSITION
-                location = lbmphelper.handle_location(location, self.redis)
+                if location['valid'] != GATEWAY.LOCATION_STATUS.SUCCESS:
+                    cellid = True
+                else:
+                    cellid = False
+                location = lbmphelper.handle_location(location, self.redis, cellid=cellid)
                 location.name = location.get('name') if location.get('name') else ""
                 location.name = safe_unicode(location.name)
                 locationdesc = location.name.encode("utf-8", 'ignore')
                 args.locationdesc = base64.b64encode(locationdesc)
+                args.ew = location.ew
+                args.ns = location.ns
+                args.lon = location.lon / 3600000.0
+                args.lat = location.lat / 3600000.0
+                if not (location.lat and location.lon):
+                    args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
                 self.update_terminal_status(head.dev_id, address)
 
             lc = LocationDescRespComposer(args)
@@ -622,6 +641,62 @@ class MyGWServer(object):
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle locationdesc exception.")
+
+    def handle_config(self, info, address, connection, channel):
+        """
+        config packet
+        0: success, then record new terminal's address
+        1: invalid SessionID 
+        """
+        try:
+            head = info.head
+            body = info.body
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           domain="",
+                           agps_server="")
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID:
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
+            else:
+                self.update_terminal_status(head.dev_id, address)
+                host = ConfHelper.GW_SERVER_CONFIG.host
+                port = ConfHelper.GW_SERVER_CONFIG.port
+                args.domain = ":".join(host, port)
+                args.agps_server = "xxx.xxx.xxx.xxx"
+
+            hc = ConfigRespComposer(args)
+            request = DotDict(packet=hc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Hand query config exception.")
+
+    def handle_defendstatus(self, info, address, connection, channel):
+        """
+        defend status report packet
+        0: success, then record new terminal's address
+        1: invalid SessionID 
+        """
+        try:
+            head = info.head
+            body = info.body
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           command=head.command)
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID:
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
+            else:
+                hp = AsyncParser(body, head)
+                defend_info = hp.ret 
+                self.update_terminal_status(head.dev_id, address)
+                self.update_terminal_info(defend_info)
+
+            hc = AsyncRespComposer(args)
+            request = DotDict(packet=hc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Hand defendstatus report exception.")
 
     def foward_packet_to_si(self, info, packet, address, connection, channel):
         """

@@ -11,10 +11,15 @@ class LocationDescRespComposer(BaseComposer):
 
     def compose(self, args):
         """
-        eg: [1343278800,S10,0,xxx]
+        eg: [1343278800,S10,0,xxx,E,xx,N,yy]
         """
-        packet = "%s,%s,%s,%s" % (self.time, S_MESSAGE_TYPE.LOCATIONDESC, 
-                                  args['success'], args['locationdesc'])
+        packet = "%s,%s,%s,%s,%s,%s,%s,%s" % (self.time, S_MESSAGE_TYPE.LOCATIONDESC, 
+                                              args['success'],
+                                              args['locationdesc'],
+                                              args['ew'],
+                                              args['lon'] if args['lon'] else "",
+                                              args['ns'],
+                                              args['lat'] if args['lat'] else "")
         request = self.format_packet(packet)
 
         return request
