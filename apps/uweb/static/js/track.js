@@ -7,7 +7,7 @@
 *counter : 动态运行次数
 *str_actionState : 暂停操作的状态
 */
-var timerId = null, counter = 0, str_actionState = 0,n_speed = 1000, f_trackMsgStatus = false;
+var timerId = null, counter = 0, str_actionState = 0,n_speed = 200, f_trackMsgStatus = false;
 // 初始化轨迹显示页面
 window.dlf.fn_initTrack = function() {
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
@@ -60,8 +60,7 @@ function trackQuery() {
 	var str_beginTime = $('#trackBeginTime').val(), 
 		str_endTime = $('#trackEndTime').val(), 
 	    obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime), 
-						'end_time': dlf.fn_changeDateStringToNum(str_endTime), 
-						'tid': $($('#carList a[class*=currentCar]')).attr('tid')}; //$('#trackHeader').attr('tid')};
+						'end_time': dlf.fn_changeDateStringToNum(str_endTime)}; //$('#trackHeader').attr('tid')};
 	
 	dlf.fn_jNotifyMessage('行踪查询中...<img src="/static/images/blue-wait.gif" />', 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
@@ -69,9 +68,7 @@ function trackQuery() {
 	dlf.fn_lockScreen();
 	
 	$.post_(TRACK_URL, JSON.stringify(obj_locusDate), function (data) {
-		if ( data.status != 0 ) { // 查询状态不正确,错误提示
-			dlf.fn_jNotifyMessage(data.message, 'message');
-		} else {
+		if ( data.status == 0 ) {
 			/**
 			   * 获取最大和最小的差值
 			   * n_tempMax 暂时存储与第一点的最大距离
@@ -97,6 +94,10 @@ function trackQuery() {
 				mapObj.setViewport([obj_firstPoint, obj_tempMaxPoint]);
 				fn_startDrawLineStatic(arr_dataArr);
 			}
+		} else if ( data.status == 201 ) { // 查询状态不正确,错误提示
+			dlf.fn_showBusinessTip();
+		} else {
+			dlf.fn_jNotifyMessage(data.message, 'message');
 		}
 		dlf.fn_unLockScreen(); // 清除页面遮罩
 		$('.j_trackbody').removeData('layer');
@@ -130,19 +131,18 @@ function fn_forMarkerDistance(firstPoint, secondPoint) {
 }
 
 // 添加轨迹线和轨迹点
-function fn_startDrawLineStatic(arr_dataArr) { 
+function fn_startDrawLineStatic(arr_dataArr) {
 	$('#tPlay, #trackSpeed').css('display', 'inline-block');
 	var arr = new Array(); //经纬度坐标数组 
 	for (var i = 0; i < arr_dataArr.length; i++) {
 		arr.push(new BMap.Point(arr_dataArr[i].clongitude/NUMLNGLAT, arr_dataArr[i].clatitude/NUMLNGLAT));
-		// dlf.fn_addMarker(arr_dataArr[i]); // 添加标记
+		//dlf.fn_addMarker(arr_dataArr[i]); // 添加标记
 	}
 	var polyline = new BMap.Polyline(arr);//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	mapObj.addOverlay(polyline);//向地图添加覆盖物 
-	
 	// 添加开始和结束点标记
-	dlf.fn_addMarker(arr_dataArr[0], 'start'); // 添加标记
-	dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end'); // 添加标记
+	dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 'draw', 0); // 添加标记
+	dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, 'draw', arr_dataArr.length - 1); // 添加标记
 	
 }
 
@@ -184,7 +184,7 @@ function fn_drawMarker() {
 			f_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();
 			mapObj.removeOverlay(actionMarker);
 		}
-		dlf.fn_addMarker(arr_dataArr[counter], 'draw'); // 添加标记
+		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, 'draw', counter); // 添加标记
 		if ( f_trackMsgStatus ) {
 			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框
 		}
@@ -277,7 +277,7 @@ $(function () {
 	$('#trackSlide').slider({
 		min: 0,
 		max: 3,
-		values: 1,
+		values: 2,
 		range: false,
 		slide: function (event, ui) {
 			var n_val = ui.value;

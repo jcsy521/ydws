@@ -52,13 +52,11 @@
 		<div class="wrapperContent personalContent">
 			<form id="personalForm" >
 				<ul class="personalList">
-					<li>车主姓名：<input type="text" name="name" id="name" maxlength="11" /></li>
+					<li>车主姓名：<input type="text" name="name" id="name" maxlength="11" class="j_personal" /></li>
 					<li>车主电话：<input type="text" name="phone" id="phone" disabled class="textDisabled" maxlength="11" /></li>
-					<!--<li>车牌号:<input type="text" name="licenseNum" id="licenseNum" /></li>-->
-					<li>地址：<input type="text" name="txtAddress" id="txtAddress" /></li>
-					<li>EMAIL：<input type="text" name="email" id="email" /></li>
-					<!--<li>单位：<input type="text" name="corporation" id="corporation" /></li>-->
-					<li>备注：<input type="text" name="remark" id="remark" /></li>
+					<li>地址：<input type="text" name="address" id="address"  class="j_personal" /></li>
+					<li>EMAIL：<input type="text" name="email" id="email" class="j_personal" /></li>
+					<li>备注：<input type="text" name="remark" id="remark"  class="j_personal" /></li>
 				</ul>
 				<input type="submit" value="" id="personalSave" class="personalButton j_save" />
 			</form>
@@ -103,30 +101,28 @@
 					<div id="terminalList0" class="j_terminalcontent">
 						<table id="bListR">
 							<tbody>
-								<!--<tr>
-									<td class="terminalTdL">GSM信号强度:</td>
-									<td id="gsm"  t_val=""><input id="t_gsm" class="textDisabled bListR_text_mouseOut" type="text"  disabled /></td>
+								<tr>
+									<td class="terminalTdL">终端手机号:</td>
+									<td id="mobile" class="j_ListVal"  t_val="0">
+										<input id="t_mobile"  terminalkey="mobile"  class="textDisabled bListR_text_mouseOut" type="text" disabled />
+									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL">卫星信号强度:</td>
-									<td id="gps"  t_val=""><input id="t_gps" class="textDisabled bListR_text_mouseOut" type="text"  disabled /></td>
+									<td class="terminalTdL">终端序列号:</td>
+									<td id="sn" class="j_ListVal"  t_val="0">
+										<input id="t_sn"  terminalkey="sn"  class="textDisabled bListR_text_mouseOut" type="text" disabled />
+									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL">电池剩余电量:</td>
-									<td id="pbat"   t_val=""><input id="t_pbat" class="textDisabled bListR_text_mouseOut" type="text"  disabled /></td>
-								</tr>
-								-->
-								<!-- allow edit params -->
-								<tr>
-									<td class="terminalTdL">上报频率:</td>
-									<td id="freq" class="j_ListVal"  t_val="0">
-										<input id="t_freq"  terminalkey="freq"  class="bListR_text_mouseOut" type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="4" />秒
-								</td>
+									<td class="terminalTdL">终端别名:</td>
+									<td id="alias" class="j_ListVal"  t_val="">
+										<input id="t_alias" type="text" terminalkey="t_alias" class="bListR_text_mouseOut"  />
+									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL">心跳时间:</td>
-									<td id="pulse" class="j_ListVal"   t_val="">
-										<input id="t_pulse"  terminalkey="pulse" class="bListR_text_mouseOut"  type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="4" />秒
+									<td class="terminalTdL">车牌号:</td>
+									<td id="cnum" class="j_ListVal"  t_val="">
+										<input type="text" id="t_cnum" terminalkey="cnum" id="licenseNum" class="bListR_text_mouseOut" />
 									</td>
 								</tr>
 								<tr>
@@ -142,43 +138,35 @@
 									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL">车牌号:</td>
-									<td id="cnum" class="j_ListVal"  t_val="">
-										<input type="text" id="t_cnum" terminalkey="cnum" id="licenseNum" class="bListR_text_mouseOut" />
+									<td class="terminalTdL">振动频率:</td>
+									<td id="vibchk" class="j_ListVal j_vibchk"  t_val="0">
+										<input id="t_vibchk0"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk " type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="2" /><label class="lblVibchk">秒内振动</label>
+										<input id="t_vibchk1"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk" type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="2" />
+										次
 									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL">终端别名:</td>
-									<td id="alias" class="j_ListVal"  t_val="">
-										<input id="t_alias" type="text" terminalkey="t_alias" class="bListR_text_mouseOut"  />
+									<td class="terminalTdL">振动灵敏度:</td>
+									<td id="vibl" class="j_ListVal j_vibl"  t_val="0">
+										<div id="viblSlider" title="1"></div>
 									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL">振动告警设置:</td>
-									<td id="vibchk" class="j_ListVal"  t_val="">
-										<input id="t_vibchk" type="text" terminalkey="vibchk"  class="bListR_text_mouseOut" />
-									</td>
-								</tr>
-								<tr>
-									<td class="terminalTdL">车辆追踪:</td>
+									<td class="terminalTdL">轨迹上报:</td>
 									<td id="trace"  class="j_ListVal" t_val="">
-										<input id="tr_trace1" type="radio" value="1" name="trStatus"  />
-										<label id="tRadioLable1">开启追踪</label>
-										<input id="tr_trace0" type="radio" value="0" name="trStatus"  />
-										<label id="tRadioLable0">关闭追踪</label>
+										<input id="tr_trace1" type="radio" value="1" name="trStatus"  class="j_trace" />
+										<label id="tRadioLable1">开启</label>
+										<input id="tr_trace0" type="radio" value="0" name="trStatus"   class="j_trace" />
+										<label id="tRadioLable0">关闭</label>
 									</td>
 								</tr>
-                                                                <!-- 
 								<tr>
-									<td class="terminalTdL">服务状态:</td>
-									<td id="service_status"  class="j_ListVal" t_val="">
-										<input id="tr_service_status1" type="radio" value="1" name="tssStatus"  />
-										<label id="trssLabel1">开启服务</label>
-										<input id="tr_service_status0" type="radio" value="0" name="tssStatus" />
-										<label id="trssLabel1">停止服务</label>
+									<td class="terminalTdL">上报间隔:</td>
+									<td id="freq" class="j_ListVal j_freq"  t_val="0">
+										<input id="t_freq"  terminalkey="freq"  class="bListR_text_mouseOut" type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="4" /><label class="lblVibchk">秒</label>
 									</td>
 								</tr>
-                                                                --> 
+								
 								<tr>
 									<td class="terminalTdL">基站定位:</td>
 									<td id="cellid_status" class="j_ListVal"  t_val="">
@@ -201,47 +189,9 @@
 						</table>
 					</div>
 				</form>
-				<!-- 可编辑参数
-				<div id="terminalList1" class="hide j_terminalcontent">
-					<div class="baseContent">
-						<input type="text" id="bListSet" readonly="true" />
-						<a class="dropDownbox" id="bDropDownbox" href="#"></a>
-						<ul id="baseList" class="bList hide">
-						</ul>
-						<div class="j_tInput tInput">
-							<input type="text" id="bListVal" />
-							<label id="terminalUnit">km/h</label>
-						</div>
-						<div class="j_radio radioContent hide">
-							<input type="radio" name="tStatus" id="tRadioVal1" value="1" /><label id="tRadioLable1"></label>
-							<input type="radio" name="tStatus" id="tRadioVal2" value="0" /><label id="tRadioLable2"></label>
-						</div>
-						<div class="hide" id="radioTip"></div>
-						<div  id="terminalListTip">提示信息</div>
-					</div>
-					<input type="button" value="保存" id="terminalSave" class="terminalButton j_click" />
-				</div>-->
 			</div>
 		</div>
 	</div>
-	<!-- 重启终端框
-	<div id="rebootWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="wrapperTitleL popbox"></span>
-			<span class="wrapperTitleC popbox">
-				<span class="titleName fontMic">远程重启</span>
-				<span class="close j_close" title="关闭窗口"></span>
-			</span>
-			<span class="wrapperTitleR popbox"></span>
-		</div>
-		<div class="rebootContent">
-			<div class="rebootText">
-				<em id="rebootMsg"></em>
-			</div>
-			<span id="rebootBtn" class="confirmBtn"></span>
-		</div>
-	</div>
-	-->
 	<div id="terminalListWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle">
 			<span class="titleName fontMic">终端列表</span>
@@ -312,6 +262,23 @@
 				<span>范围：&nbsp;&nbsp;<input type="text" value="1000"  class="textbox j_blur" id="txtBounds">米<font id="boundsTip"></font></span>
 				<span><input type="button" id="btnSearch" class="btnSearch" value="搜索" /></span>
 			</div>
+		</div>
+	</div>
+	<!-- 业务变更 -->
+	<div id="businessWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle">
+			<span class="wrapperTitleL popbox"></span>
+			<span class="wrapperTitleC popbox">
+				<span class="titleName fontMic">业务变更</span>
+			</span>
+			<span class="wrapperTitleR popbox"></span>	
+		</div>
+		<div class="businessContent">
+			<div class="businessText">
+				您的爱车保业务发生变更，请重新登录平台。
+			</div>
+			<div class="msgLine businessLine"></div>
+			<a id="businessBtn" class="businessBtn"></a>
 		</div>
 	</div>
 </div>

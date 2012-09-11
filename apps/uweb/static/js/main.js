@@ -6,25 +6,29 @@
 // 个人信息框 
 window.dlf.fn_personalData = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('#personalWrapper').css({'left': '38%', 'top': '22%'}).show();
+	$('#personalWrapper').css({'left': '40%', 'top': '22%'}).show();
 	// 获取用户数据
 	dlf.fn_jNotifyMessage('用户信息查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
 	$.get_(PERSON_URL, '', function (data) {
 		if ( data.status == 0 ) {
-			var obj_data = data.details;
-			$('#personalForm').data({'personalid': data.id});
-			$('#name').val(obj_data.name);
-			$('#phone').val(obj_data.mobile);
-			$('#licenseNum').val(obj_data.cid);	// 车牌号
-			$('#txtAddress').val(obj_data.address);
-			$('#email').val(obj_data.email);
-			/*$('#corporation').val(obj_data.corporation);*/
-			$('#remark').val(obj_data.remark);
+			var obj_data = data.details,
+				str_name = obj_data.name,
+				str_phone = obj_data.mobile,
+				str_address = obj_data.address,
+				str_email = obj_data.email,
+				str_remark = obj_data.remark;
+			$('#name').val(str_name).data('name', str_name);
+			$('#phone').val(str_phone).data('phone', str_phone);
+			$('#address').val(str_address).data('address', str_address);
+			$('#email').val(str_email).data('email', str_email);
+			$('#remark').val(str_remark).data('remark', str_remark);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+		} else if ( data.status == 201 ) {
+			dlf.fn_showBusinessTip();
 		} else { 
 			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
-		}	
+		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
 	}, 
 	function (XMLHttpRequest, textStatus, errorThrown) {
@@ -33,9 +37,19 @@ window.dlf.fn_personalData = function() {
 }
 
 // 个人信息保存 
-window.dlf.fn_personalSave = function(obj_personalData) { 
+window.dlf.fn_personalSave = function() { 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩	
 	var f_warpperStatus = !$('#personalWrapper').is(':hidden');
+	var obj_personalData = {};
+	$('.j_personal').each(function(index, dom) {
+		var obj_input = $(dom),
+			str_val = obj_input.val(),
+			str_id = obj_input.attr('id'),
+			str_data = $('#'+str_id).data(str_id);
+		if ( str_val != str_data ) {
+			obj_personalData[str_id] = str_val;
+		}
+	});
 	dlf.fn_jsonPut(PERSON_URL, obj_personalData, 'personal', '个人资料保存中');
 }
 
@@ -165,7 +179,6 @@ $(function () {
 				$(this).css('top', 0);
 			}
 	}});
-	
 	// params input css 
 	$('#bListR input[type=text]').focus(function() {
 		$(this).addClass('bListR_text_mouseFocus');
@@ -175,26 +188,6 @@ $(function () {
 	
 	dlf.fn_setItemMouseStatus($('.j_save'), 'pointer', new Array('bc', 'bc2', 'bc'));	// 保存按钮鼠标滑过样式
 	
-	var n_index = 1,
-		currentAd = null;
-	/*主页面 广告幻灯片效果*/
-	function fn_timer() {
-		var obj_ad =  $('#contents img'),
-			n_index = parseInt(obj_ad.attr('index'));
-		obj_ad.fadeOut(function() {
-			if ( n_index < 3 ) {
-				n_index++;
-			} else {
-				n_index = 1;
-			}
-			obj_ad.attr('index', n_index);
-			$(this).attr('src', '/static/images/banner'+ n_index +'.jpg').fadeIn(1000);
-		});
-	}
-	// 计时器 
-	currentAd = setInterval(function () { // 每5秒
-		fn_timer();
-	}, 4000);
 	// 个人信息的验证
 	$.formValidator.initConfig({
 		formID: 'personalForm', //指定from的ID 编号
@@ -204,18 +197,7 @@ $(function () {
 			dlf.fn_jNotifyMessage(msg, 'message', true); 
 		}, 
 		onSuccess: function() { 
-			var obj_pFrom = $('#personalForm'), 
-				obj_personalData = {
-					'id': obj_pFrom.data('personalid'),
-					'name': $('#name').val(),
-					'mobile': $('#phone').val(),
-					'address': $('#txtAddress').val(),
-					'email': $('#email').val(),
-					/*'corporation': $('#corporation').val(),*/
-					'remark': $('#remark').val(),
-					'cid': $('#licenseNum').val()
-				};
-			dlf.fn_personalSave(obj_personalData);
+			dlf.fn_personalSave();
 		}
 	});
 	$('#name').formValidator().inputValidator({max: 11, onError: '车主姓名过长，请重新输入！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
@@ -256,13 +238,14 @@ $(function () {
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	$('#t_freq').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '上报频率最大长度为4位数字！'}).regexValidator({regExp: 'freq', dataType: 'enum', onError: '您设置的上报频率不正确，范围(5-3600秒)！'});
+	$('#t_freq').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 4, onError: '上报频率最大长度为4位数字！'}).regexValidator({regExp: 'freq', dataType: 'enum', onError: '您设置的上报频率不正确，范围(15-3600秒)！'});
 	$('#t_pulse').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '心跳时间最大长度为4位数字！'}).regexValidator({regExp: 'pulse', dataType: 'enum', onError: '您设置的终端的心跳时间不正确，范围(1-1800秒)！'});;
 	
 	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});;
 	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字！', param:'g'}); // 区分大小写
 	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 10, onError: '终端别名最大长度为5位汉字，10位字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
-	$('#t_vibchk').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
+	$('#t_vibchk0').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
+	$('#t_vibchk1').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
 	// 如果没有车辆信息,提示用户
 	var n_carNum = $('#carList li').length;
 	if ( n_carNum > 0 ) {

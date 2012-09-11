@@ -17,7 +17,7 @@
 		</span>
 		<span class="eventPos">
 			<span class="timeTip">报警类型:</span>
-			<select class="cEventType" id="eventType">
+			<select class="cEventType" id="category">
 				<option value="-1">全部</option>
 				<option value="2">低电</option>
 				<option value="3">断电</option>
@@ -31,7 +31,7 @@
 		</span>
 	</div>
 	<!--查询结果显示-->
-	<div id="eventResult" tid="{{tid}}">
+	<div id="eventResult">
 		<table class="dataTable" align="center" border="1" cellspacing="0">
 			<tbody>
 				<tr id="eventTableHeader">
@@ -57,5 +57,22 @@
 	</div>
 	<div id="jNotifyMessage"></div> <!--消息提示框-->
 	<div id="maskLayer" class="hide"></div><!--页面遮罩-->
+	<!-- 业务变更 -->
+	<div id="businessWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle">
+			<span class="wrapperTitleL popbox"></span>
+			<span class="wrapperTitleC popbox">
+				<span class="titleName fontMic">业务变更</span>
+			</span>
+			<span class="wrapperTitleR popbox"></span>	
+		</div>
+		<div class="businessContent">
+			<div class="businessText">
+				您的爱车保业务发生变更，请重新登录平台。
+			</div>
+			<div class="msgLine businessLine"></div>
+			<a id="businessBtn" class="businessBtn"></a>
+		</div>
+	</div>
 </body>	
 {% end %}

@@ -1,0 +1,202 @@
+body {
+	font-family: "微软雅黑","宋体","Arial Narrow";
+	padding: 0;
+	font-size: 12px;
+	width: 1000px;
+	margin: 0 auto;
+}
+.content {
+	background-color: #FFFFFF;
+    border: 1px solid #D4D4D4;
+    height: 950px;
+    margin-bottom: 40px;
+    margin-top: 30px;
+    overflow: hidden;
+    width: 750px;
+}
+/*download infomessage*/
+.softInfo {
+	border-bottom: 1px solid #EBEBEB;
+    height: 180px;
+    margin: 0 20px 0 15px;
+    padding-top: 30px;
+}
+
+.infoL {
+	float: left;
+}
+.infoText {
+	color: #666666;
+    margin-left: 30px;
+    position: relative;
+    top: 26px;
+    width: 370px;
+}
+.infoText ul {
+	margin: 0;
+	padding: 0;
+}
+.infoText ul li {
+	list-style: none;
+	margin-bottom: 10px;
+}
+.infoText ul li span {
+	display: inline-block;
+    overflow: hidden;
+    width: 170px;
+}
+.infoTextTitle {
+	display: inline-block;
+    float: left;
+    font-size: 14px;
+    margin: 0;
+    padding-right: 10px;
+}
+.infoGrCode {
+	width: 160px;
+}
+.infoGrCode img { 
+	border: 1px solid #999999;
+	display: block;
+	height: 120px;
+	width: 120px;
+}
+.barCode {
+	
+}
+.infoBtn {
+	background: url("/static/images/btncommon.png") repeat scroll 98px 0 transparent;
+	color: #FFFFFF;
+    display: block;
+    font-size: 16px;
+    height: 31px;
+    line-height: 28px;
+    margin-right: 10px;
+    text-align: center;
+	text-decoration: none;
+    width: 98px;
+}
+.infoBtn:hover {
+	background-position: 98px 32px;
+	text-decoration: underline;
+}
+.smsBtn {
+	left: 100px;
+    position: relative;
+    top: -31px;
+}
+/*product detail css*/
+.softDesc {
+	height: 675px;
+	margin: 0 14px 0 15px;
+}
+.softDesc h1 {
+	color: #669900;
+    font-size: 14px;
+}
+.descProfess {
+	text-indent: 25px;
+}
+.descText {
+	margin: 0 0 0 25px;
+    padding: 0;
+}
+.descText li {
+	list-style: none;
+	margin-bottom: 8px;
+}
+
+/*desc img*/
+.descImg {
+	height: 330px;
+    margin: 0;
+    overflow-x: auto;
+    width: 675px;
+}
+.descImg ul {
+	margin: 0;
+	*margin-left: 42px;
+	overflow-y: hidden;
+}
+.descImg ul li {
+	float: left;
+    height: 300px;
+	list-style: none;
+    margin-right: 10px;
+    width: 200px
+}
+.descImg ul li img {
+	height: 300px;
+	width: 200px;
+}
+/*sms download css*/
+#downloadLayer {
+	display: none;
+}
+#smsWrapper {
+    height: 300px;
+    left: 30%;
+    top: 30%;
+    width: 400px;
+}
+#smsWrapper h2 {
+	cursor: default;
+	margin: 0;
+}
+#smsContent div, #smsContent .capPanel .capText {
+    margin: 0 0 10px 26px;
+}
+#smsContent {
+	height: 190px;
+}
+#smsContent input {
+	border: 1px solid #CCCCCC;
+	height: 20px;
+	line-height: 20px;
+}
+.downMobileTip {
+	color: #666666;
+    margin: 6px 0 0 51px;
+    width: 229px;
+}
+#smsCaptcha {
+	width: 84px;
+}
+#smsContent .btnSend {
+	background: none repeat scroll 0 0 #5E9D2A;
+    border: 1px solid #10A6A6;
+    border-radius: 3px 3px 3px 3px;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 14px;
+	height: 35px;
+    line-height: 20px;
+	margin-left: 50px;
+    padding: 5px 9px;
+	width: 76px;
+}
+#smsContent .msgPanel {
+	font-size: 17px;
+    height: 25px;
+    margin: 12px 0 0;
+}
+#smsMsg {
+	font-style: normal;
+}
+#smsContent .capPanel {
+	height: 50px;
+	margin: 0;
+	padding-top: 0;
+}
+#smsContent .capPanel div {
+	float: left;
+    margin: 0;
+    width: 180px;
+}
+.capText input {
+	width: 100px;
+}
+#smsContent .btnDisabled {
+	background-color: gray;
+	cursor: default;
+}

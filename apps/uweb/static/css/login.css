@@ -6,6 +6,9 @@ body, html {
 	margin: 0px;
 	margin-top: 10px;
 }
+a {
+	outline: none;
+}
 ul, li {
 	margin: 0px;
 	padding: 0px;
@@ -257,6 +260,7 @@ h2 {
 	color: #fff;
 }
 .blinks a{
+	outline: none;
 	display: inline-block;
 	padding-right: 10px;
 	color: #fff;

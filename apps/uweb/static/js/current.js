@@ -4,18 +4,13 @@
 */
 (function () {
 window.dlf.fn_currentQuery = function() {
-	var str_cellid_status = $('.currentCar').attr('cellid_status'),	// 是否是基站定位
-		obj_pd = {
-					'cellid_status': parseInt(str_cellid_status)
-				}, 
-		obj_cWrapper = $('#currentWrapper');
-	obj_cWrapper.show();
-	fn_currentRequest(obj_pd);
+	$('#currentWrapper').show();
+	fn_currentRequest();
 	$('#currentBtn').unbind('click').click(function() {
 		dlf.fn_closeDialog(); // 窗口关闭
 	});
 }
-function fn_currentRequest(obj_pd) {
+function fn_currentRequest() {
 	var obj_cWrapper = $('#currentWrapper'),
 		obj_msg = $('#currentMsg'), 
 		str_carCurrent = $('.currentCar').siblings('span').html(), // 当前车辆
@@ -24,7 +19,7 @@ function fn_currentRequest(obj_pd) {
 	obj_msg.html(str_msg);
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_clearInterval(currentLastInfo); //停止计时
-	$.post_(REALTIME_URL, JSON.stringify(obj_pd), function (data) {
+	$.get_(REALTIME_URL, '', function (data) {
 		var f_warpperStatus = !obj_cWrapper.is(':hidden');
 		if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,则不进行标记的显示
 			if ( data.status == 0 ) { 
@@ -34,6 +29,8 @@ function fn_currentRequest(obj_pd) {
 				} else {
 					obj_msg.html(data.message);
 				}
+			} else if ( data.status == 201 ) {
+				dlf.fn_showBusinessTip();
 			} else {
 				obj_msg.html(data.message);
 			}
@@ -52,29 +49,49 @@ function fn_displayCurrentMarker(obj_location) {
 	mapObj.setCenter(new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT));
 	dlf.fn_updateInfoData(obj_location, 'current');
 	dlf.fn_updateTerminalInfo(obj_location, 'realtime');
+	//dlf.fn_getAddressByLngLat(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT, obj_location.tid);
 }
 
 /*设防撤防操作*/
 window.dlf.fn_defendQuery = function() {
-	var str_defendStatus = $('#defend_word').data('defend'),  // 设防撤防状态
-		obj_dMsg = $('#defendMsg'), 
-		obj_wrapper = $('#defendWrapper'),
-		obj_defendBtn = $('#defendBtn'); 
-		
-	//dlf.fn_clearMapComponent(); //清除地图上的图形
-	dlf.fn_lockScreen();	//添加页面遮罩
-	obj_wrapper.css({'left':'38%','top':'22%'}).show();
-	
-	if ( str_defendStatus == DEFEND_ON ) {
-		obj_dMsg.html('您的爱车保当前已设防。');
-		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2', 'cf'));						
-	} else {
-		obj_dMsg.html('您的爱车保当前未设防。');
-		dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2', 'sf'));
-	}
+	var n_defend = 0,
+		obj_defend = {};
+	$.get_(DEFEND_URL, '', function(data) {
+		if ( data.status == 0 ) {
+			var str_defendStatus = data.defend_status,  // 设防撤防状态
+				obj_dMsg = $('#defendMsg'), 
+				obj_wrapper = $('#defendWrapper'),
+				str_html = '',
+				str_dImg = '',
+				obj_defendBtn = $('#defendBtn'); 
+			dlf.fn_lockScreen();	//添加页面遮罩
+			obj_wrapper.css({'left':'38%','top':'22%'}).show();
+			if ( str_defendStatus == DEFEND_ON ) {
+				n_defend = 0;
+				obj_dMsg.html('您的爱车保当前已设防。');
+				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2', 'cf'));	
+				str_html = '设防状态：  已设防';
+				str_dImg= '/static/images/defend_status1.png';
+			} else {
+				n_defend = 1;
+				obj_dMsg.html('您的爱车保当前未设防。');
+				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2', 'sf'));
+				str_html = '设防状态：  未设防';
+				str_dImg=  '/static/images/defend_status0.png';				
+			}
+			obj_defend['defend_status'] = n_defend;
+			$('#defend_word').html(str_html).data('defend', str_defendStatus);
+			$('#defendStatus').attr('title', str_html);
+			$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
+		} else if ( data.status == 201 ) {
+			dlf.fn_showBusinessTip();
+		} else {
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+		}
+	});
 	//设防撤防 业务保存
 	$('#defendBtn').unbind('click').click(function() {
-		dlf.fn_jsonPost(DEFEND_URL, '', 'defend', '爱车保状态保存中');
+		dlf.fn_jsonPost(DEFEND_URL, obj_defend, 'defend', '爱车保状态保存中');
 	}); 
 }
 })();

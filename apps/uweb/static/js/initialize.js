@@ -9,6 +9,7 @@ var mapObj = null, // 地图对象
 	currentLastInfo = null,  //动态更新的定时器对象
 	arr_infoPoint = [],  //通过动态更新获取到的车辆数据进行轨迹显示
 	f_infoWindowStatus = true, // 吹出框是否显示
+	obj_currentPoint = {},
 	obj_localSearch = null;
 if ( !window.dlf ) { window.dlf = {}; }
 
@@ -198,7 +199,7 @@ window.dlf.fn_jNotifyMessage = function(messages, types, f_permanent, showTime) 
 
 	$('#jNotifyMessage').css({
 		'display': 'block',
-        'left': pf+'px'
+        'left': '40%'
     }).jnotifyAddMessage({
 		text: messages,
 		permanent: f_perMan_type,
@@ -292,6 +293,8 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			}, 500);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			dlf.fn_updateLastInfo(); // 动态更新终端相关数据
+		} else if ( data.status == 201 ) {
+			dlf.fn_showBusinessTip();
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
 		}
@@ -328,10 +331,9 @@ window.dlf.fn_getCarData = function() {
 			if ( data.status == 0 ) {
 				var obj_cars = data.cars_info,
 					n_len = obj_cars.length;
-				for ( var i = 0; i < n_len; i++ ) {
-					// 车辆详细信息更新
-					var obj_carInfo = obj_cars[i], 
-						str_tid = obj_carInfo.tid, 	//车辆tid
+				for(var param in obj_cars) {
+					var obj_carInfo = obj_cars[param], 
+						str_tid = param,
 						str_alias = obj_carInfo.alias,
 						str_loginst = obj_carInfo.login,
 						str_loginClass = '',
@@ -341,8 +343,13 @@ window.dlf.fn_getCarData = function() {
 						obj_child1 = obj_carLi.children().eq(1),
 						n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 						n_clat = obj_carInfo.clatitude/NUMLNGLAT;
+					
+					obj_carInfo.tid = str_tid; 
 					// 经纬度数据不正确不做处理
 					if ( n_clon != 0 && n_clat != 0 ) {
+						// 存储当前经纬度
+						obj_currentPoint['clongitude'] = n_clon;
+						obj_currentPoint['clatitude'] = n_clat;						
 						if ( obj_carInfo ) {
 							obj_carLi.data('carData', obj_carInfo);
 							dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据
@@ -366,6 +373,10 @@ window.dlf.fn_getCarData = function() {
 						dlf.fn_updateTerminalInfo(obj_carInfo);
 					}
 				}
+			} else if ( data.status == 201 ) {
+				dlf.fn_showBusinessTip();
+			} else {
+				dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
 			}
 		}, 
 		function (XMLHttpRequest, textStatus, errorThrown) {
@@ -386,23 +397,18 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_eStatus = dlf.fn_eventText(obj_carInfo.event_status),  // 报警状态
-		str_address = obj_carInfo.name,
-		n_power = parseInt(obj_carInfo.pbat),
-		str_power = '剩余电量：   ' + n_power + '%',	// 电池电量 0-100
-		str_pImg = dlf.fn_changeData('power', n_power), // 电量图标
+		//str_address = obj_carInfo.name,	// 位置描述
+		
 		str_time = obj_carInfo.timestamp > 0 ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp) : '-',
-		n_gsm = obj_carInfo.gsm,	// gsm 值
-		str_gsm = 'GSM 信号：    ' + dlf.fn_changeData('gsm', n_gsm),	// gsm信号
-		n_gps = obj_carInfo.gps,	// gps 值
-		str_gps = 'GPS 信号：   ' + dlf.fn_changeData('gps', n_gps),	// gps信号
+		
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 		str_clon = '',
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		str_clat = '';	// 经纬度
 		
-	if ( str_address == '' || str_address == null ) {
-		str_address = '暂无';
-	}
+	//if ( str_address == '' || str_address == null ) {
+	//	str_address = '暂无';
+	//}
 	// 经纬度为0 不显示位置信息
 	if ( n_clat == 0 || n_clon == 0 ) {
 		str_address = '-';
@@ -417,6 +423,13 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	}
 	// lastinfo 更新车辆信息和终端信息  realtime: 只更新位置信息
 	if ( !type ) {
+		var n_power = parseInt(obj_carInfo.pbat),
+			str_power = '剩余电量：   ' + n_power + '%',	// 电池电量 0-100
+			str_pImg = dlf.fn_changeData('power', n_power), // 电量图标
+			n_gsm = obj_carInfo.gsm,	// gsm 值
+			str_gsm = 'GSM 信号：    ' + dlf.fn_changeData('gsm', n_gsm),	// gsm信号
+			n_gps = obj_carInfo.gps,	// gps 值
+			str_gps = 'GPS 信号：   ' + dlf.fn_changeData('gps', n_gps);	// gps信号
 		// 终端状态
 		$('#power').css('background-image', str_pImg).html(str_power);
 		$('#power').attr('title', str_power );	// 电池电量填充
@@ -429,7 +442,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	}
 	// 车辆信息/位置信息
 	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
-	$('#address').html(str_address); // 最后一次定们地址
+	//$('#address').html(str_address); // 最后一次定们地址
 	$('#degree').html(str_degree).attr('title', str_degreeTip);
 	$('#type').html(str_type); // 车辆定位类型
 	$('#lng').html(str_clon); // 车辆经度
@@ -441,6 +454,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	var obj_tempData = [], 
 		str_currentTid = $('#carList a[class*=currentCar]').attr('tid'),
 		str_tid = obj_carInfo.tid,
+		str_alias = obj_carInfo.alias,
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		n_degree = obj_carInfo.degree,
@@ -474,17 +488,19 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	
 	if ( obj_selfMarker ) {
 		// 修改别名
+		if ( !str_alias ) {
+			str_alias = obj_carA.siblings('span').html()
+		}
 		obj_selfMarker.setLabel(obj_carA.data('selfLable'));
-		obj_selfMarker.getLabel().setContent(obj_carInfo.alias);
-		
-		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
+		obj_selfMarker.getLabel().setContent(str_alias);
+		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack', 'lastinfo'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_carA.data('selfmarker', obj_selfMarker);
 		//方向角
 		obj_selfMarker.setIcon(new BMap.Icon('/static/images/'+n_imgDegree+'.png', new BMap.Size(34, 34)));
 		//f_infoWindowStatus = obj_selfMarker.selfInfoWindow.isOpen();	
 	} else {
-		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carA.parent().index(), true); // 添加标记
+		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carA.parent().index(), true, 'lastinfo'); // 添加标记
 	}
 	// 查找到当前车辆的信息
 	// todo 实时定位 
@@ -532,7 +548,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		} else if ( str_val >= 20 && str_val < 30 ) {
 			str_return = '较强';
 			str_gpsImg = '/static/images/gps2.png';
-		} else {
+		} else if ( str_val >= 30 ) {
 			str_return = '强';
 			str_gpsImg = '/static/images/gps3.png';
 		}
@@ -662,6 +678,18 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 	obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;
 	obj_carLi.attr('actiontrack', str_tempAction).data('selfmarker', obj_selfMarker);
 	$(selfItem).html(str_tempMsg);
+}              
+/**
+* 业务变更提示 
+*/
+window.dlf.fn_showBusinessTip = function() {
+	// 遮罩
+	dlf.fn_lockScreen(); 
+	$('#businessWrapper').css({'left': '38%', 'top': '22%'}).show();
+	//dlf.fn_lockContent($('.businessContent')); // 添加内容区域的遮罩
+	$('#businessBtn').click(function() {
+		window.location.replace('/logout');
+	});
 }
 /**
 *POST方法的整合 defend,remote: lock,reboot
@@ -687,15 +715,15 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						str_html = '',
 						str_dImg = '',
 						n_defendStatus = 0;
-					if ( str_defendStatus == DEFEND_ON ) { 
-						// 修改成功 状态改为：撤防
+					if ( str_defendStatus == DEFEND_OFF ) { 
+						n_defendStatus = 1;
+						str_html = '设防状态：  已设防';
+						str_dImg= '/static/images/defend_status1.png';						
+					} else {
+					// 修改成功 状态改为：撤防
 						n_defendStatus = 0;
 						str_html = '设防状态：  未设防';
 						str_dImg=  '/static/images/defend_status0.png';
-					} else {
-						n_defendStatus = 1;
-						str_html = '设防状态：  已设防';
-						str_dImg= '/static/images/defend_status1.png';
 					}
 					$('#defend_word').html(str_html).data('defend', n_defendStatus);
 					$('#defendStatus').attr('title', str_html);
@@ -703,6 +731,8 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 				}
 				dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+			} else if ( data.status == 201 ) {
+				dlf.fn_showBusinessTip();
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', true);
 			}
@@ -734,10 +764,9 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 				if ( str_who == 'personal') {
 					// 用户名称回填
 					var str_name = obj_data.name;
-					if ( str_name == '' ) {
-						str_name = obj_data.uid;
-					} 
-					$('.welcome').html('欢迎您，'+ str_name);
+					if ( str_name ) {
+						$('.welcome').html('欢迎您，'+ str_name);
+					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				}
 				if ( str_who != 'terminal' ) {
@@ -759,8 +788,10 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 						$(obj_car.siblings()[0]).html(alias).attr('title', alias);
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
-					dlf.fn_initTerminalWR();
+					//dlf.fn_initTerminalWR();
 				}				
+			} else if ( data.status == 201 ) {
+				dlf.fn_showBusinessTip();
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', true);
 			}

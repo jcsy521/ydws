@@ -7,6 +7,7 @@
 <script type="text/javascript" src="/static/js/main.js"></script>
 <script type="text/javascript" src="/static/js/current.js"></script>
 <script type="text/javascript" src="/static/js/track.js"></script>
+<script type="text/javascript" src="/static/js/turntopimage.js"></script>
 {% end %}
 {% block body %}
 <body class="j_body">
@@ -41,11 +42,11 @@
 				{% for car in cars %}
 					<li keys_num = '{{car.keys_num}}'>
 						{% if car.login == 1 %} 
-							<a href="#" title="{{car.alias}}" class="carlogin" tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
+							<a href="#" title="{{car.alias}}" class="carlogin"  keys_num="{{car.keys_num}}"  tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
 							<span class="green">{{car.alias}}</span>
 							<font class="green">(在线)</font>
 						{% else %}
-							<a href="#" title="{{car.alias}}" class="carlogout" tlid="{{car.id}}" keys_num="{{car.keys_num}}" cellid_status="{{car.cellid_status}}" tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
+							<a href="#" title="{{car.alias}}" class="carlogout"  keys_num="{{car.keys_num}}"  tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" ></a>
 							<span class="gray">{{car.alias}}</span>
 							<font class="gray">(离线)</font>
 						{% end %}
@@ -85,7 +86,7 @@
 		<div id="right">
 			<div id="navi">
 				<ul class="menu">
-					<li><a href="#" id="realtime" class="realtime j_click" t title="实时定位"></a></li>
+					<li><a href="#" id="realtime" class="realtime j_click" title="实时定位"></a></li>
 					<li><a href="#" id="track" class="track j_click"  title="轨迹查询"></a></li>
 					<li><a href="/event" id="warnEvent" target="event.html" class="event j_click" title="报警查询"></a></li>
 					<li><a href="#" id="defend" class="defend j_click"  title="设防/撤防"></a></li>

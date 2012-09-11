@@ -1,26 +1,56 @@
 /*
 *终端设置相关操作方法
 */
+
+var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 
+	arr_slideTitle = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 (function () {
 	
 
 // 终端参数设置初始化页面
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('#terminalWrapper').css({'left': '38%', 'top': '20%'}).show(); // 显示终端设置窗口
+	$('#terminalWrapper').css({'left': '40%', 'top': '20%'}).show(); // 显示终端设置窗口
 	dlf.fn_setItemMouseStatus($('#refresh'), 'pointer', new Array('sx', 'sx2', 'sx'));	// 刷新按钮鼠标滑过样式
 	// 参数刷新
-	$('#refresh').unbind('click').click(function() {
+	/*$('#refresh').unbind('click').click(function() {
 		dlf.fn_initTerminalWR('f');
 	});
+	*/
+	$('#viblSlider').slider({
+		min: 0,
+		max: 15,
+		values: 1,
+		range: false,
+		slide: function (event, ui) {
+			var n_val = ui.value;
+			n_vibl = arr_slide[n_val];
+			$('#viblSlider').attr('title', '震动灵敏度值：' + arr_slideTitle[n_val]);
+		}
+	}).slider('option', 'value', 1);
+	
 	dlf.fn_initTerminalWR(); // 初始化加载参数
+	
+	$('.j_trace').unbind('click').bind('click', function() {
+		var obj_this = $(this),
+			obj_freq = $('#t_freq'),
+			str_val = obj_this.val(),
+			str_oldVal = $('#freq').attr('t_val');
+		if ( str_val == 0 ) {
+			str_oldVal = str_oldVal=='0'?'':str_oldVal;
+			obj_freq.val(str_oldVal);
+			obj_freq.attr('disabled', true);
+		} else {
+			$('#t_freq').attr('disabled', false);
+		}
+	});
 }
 // 刷新终端参数、查询终端参数
 window.dlf.fn_initTerminalWR = function (param) {
 	// 获取参数数据
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	// 获取用户数据
-	//dlf.fn_jNotifyMessage('终端参数查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
+	dlf.fn_jNotifyMessage('终端设置查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
 	var str_url  =  TERMINAL_URL;
 	if ( param ) {
 		 str_url = str_url + '?terminal_info=' +  param;
@@ -33,12 +63,20 @@ window.dlf.fn_initTerminalWR = function (param) {
 			for(var param in obj_data) {
 				var str_val = obj_data[param];
 				if ( param ) {
-					if ( param == 'service_status' || param == 'trace' || param == 'cellid_status' ) {
+					if ( param == 'trace' || param == 'cellid_status' ) {
+						// 如果轨迹上报为关闭状态  上报间隔不可编辑
+						if ( param == 'trace' ) {
+							if ( str_val == 0 ) {
+								$('#t_freq').attr('disabled', true);
+							} else {
+								$('#t_freq').attr('disabled', false);
+							}
+						}
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 	// radio value
-						
 					} else if ( param == 'white_list' ) {
 						var n_length = str_val.length;
 						for ( var x = 0; x < n_length; x++ ) {
+							$('.j_whitelist input[type=text]').val('');
 							var str_name = param  + '_' + (x+1),
 								obj_whitelist = $('#t_' + str_name),
 								obj_oriWhitelist = $('#' + str_name),
@@ -46,15 +84,29 @@ window.dlf.fn_initTerminalWR = function (param) {
 							obj_whitelist.val(str_value);	// whitelist
 							obj_oriWhitelist.attr('t_val', str_value);	// save original value
 						}
+					} else if ( param == 'vibchk' ) {
+						var arr_vibchk = str_val.split(':');
+						$('#t_vibchk0').val(arr_vibchk[0]);
+						$('#t_vibchk1').val(arr_vibchk[1]);
+					} else if ( param == 'vibl' ) {
+						// 震动灵敏度
+						$('#viblSlider').slider('option', 'value', str_val).attr('title', '震动灵敏度值：' + arr_slideTitle[parseInt(str_val)]);
 					} else {
-						$('#t_' + param ).val(str_val);	// other input value
+						if ( param == 'freq' ) {
+							$('#t_' + param ).val('');	
+						} else {
+							$('#t_' + param ).val(str_val);	// other input value
+						}
 					}
 					$('#' + param ).attr('t_val', str_val);	// save original value
 				}
 			}
-			//dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+		} else if ( data.status == 201 ) {
+			dlf.fn_showBusinessTip();
 		} else { // 查询状态不正确,错误提示
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
+			dlf.fn_closeDialog(); // 窗口关闭
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}, 
@@ -75,7 +127,9 @@ window.dlf.fn_baseSave =function() {
 			str_class = obj_this.attr('class'),
 			str_whitelist1 = $('#t_white_list_1').val(),
 			str_t_val = obj_this.attr('t_val'),  // 原始值
-			obj_input = obj_this.children('input[type=text]').eq(0),	// 文本框
+			obj_text = obj_this.children('input[type=text]'),
+			obj_input = obj_text.eq(0),	// 文本框
+			obj_input1 = obj_text.eq(1),	// 文本框1
 			obj_radio = obj_this.children('input[type=radio][checked]').eq(0),	 // 单选按钮
 			n_len = obj_radio.length,
 			str_val = obj_input.val(), 	// text of value
@@ -84,11 +138,25 @@ window.dlf.fn_baseSave =function() {
 			if ( str_radio != str_t_val  ) {
 				obj_terminalData[str_key] = parseInt(str_radio);
 			}
+		} else if ( str_class.search('j_vibchk') != -1 ) {
+			var str_vibchk = $('#t_vibchk0').val() + ':' + $('#t_vibchk1').val();
+			if ( str_vibchk != str_t_val ) {
+				obj_terminalData['vibchk'] = str_vibchk; 
+			}
+		} else if ( str_class.search('j_vibl') != -1 ) {
+			var str_vibl = $('#viblSlider').slider('option', 'value');
+			if ( str_t_val != str_vibl ) {
+				obj_terminalData['vibl'] = str_vibl; 
+			}
 		} else {
 			if ( str_val != str_t_val ) {
 				// 白名单 [车主手机号,白名单1,白名单2,...]
 				if ( str_class.search('j_whitelist') != -1 ) {
 					obj_terminalData['white_list'] = [str_whitelist1, str_val];
+				} else if ( str_class.search('j_freq') != -1 ) {
+					if ( str_val != '' ) {
+						obj_terminalData['freq'] = parseInt(str_val);
+					}
 				} else {
 					obj_terminalData[str_key] = str_val;
 				}

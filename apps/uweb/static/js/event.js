@@ -15,10 +15,9 @@ function fn_initEventSearch(n_num, n_et) {
 		n_endTime = $('#eventEndTime').val(), // 用户选择时间
 		n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
 		n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
-		n_carId = $('#eventResult').attr('tid'),
-		n_eventType = $('#eventType').val(), 
-		param = {'start_time': n_bgTime, 'end_time': n_finishTime, 'tid' : n_carId, 
-				'pagenum': n_pageNum, 'pagecnt': pagecnt, 'event_type': n_eventType};
+		n_category = $('#category').val(), 
+		param = {'start_time': n_bgTime, 'end_time': n_finishTime, 
+				'pagenum': n_pageNum, 'pagecnt': pagecnt, 'category': n_category};
 	//获取报警记录信息
 	$.post_(EVENT_URL, JSON.stringify(param), function(data) {
 		$('#eventTableHeader').nextAll().remove();	//清除页面数据
@@ -60,6 +59,8 @@ function fn_initEventSearch(n_num, n_et) {
 				for(var i = 0; i < n_len; i++) {
 					var obj_location = arr_eventData[i], 
 						str_type = obj_location.category,	//类型
+						n_lng = obj_location.clongitude,
+						n_lat = obj_location.clatitude,
 						str_location = obj_location.name, 
 						str_text = '';	//地址
 					
@@ -67,10 +68,14 @@ function fn_initEventSearch(n_num, n_et) {
 					html+= '<tr>';
 					html+= '<td>'+dlf.fn_changeNumToDateString(obj_location.timestamp)+'</td>';	// 报警时间
 					html+= '<td>'+dlf.fn_eventText(str_type)+'</td>';	//类型 // todo 
-					if ( obj_location.clongitude == 0 || obj_location.clatitude == 0 ) {
+					if ( n_lng == 0 || n_lat == 0 ) {
 						html+= '<td>无</td>';	//无地址
 					} else {
-					html+= '<td><a href="#" c_lon="'+obj_location.clongitude+'" c_lat="'+obj_location.clatitude+'" class="j_eventItem">'+str_location+'</a></td>';	//详细地址
+						if ( str_location == '' || str_location == null ) {
+							html+= '<td><a href="#"   onclick="dlf.fn_getAddressByLngLat('+n_lng+', '+n_lat+',this);">获取位置</a></td>';
+						} else {
+							html+= '<td><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem">'+str_location+'</a></td>';	//详细地址
+						}
 					}
 					html+= '</tr>';
 				}
@@ -94,7 +99,7 @@ function fn_initEventSearch(n_num, n_et) {
 					var n_tempIndex = $(this).parent().parent().index()-1,
 						obj_tempData = arr_eventData[n_tempIndex];
 					
-						obj_tempData.tid = n_carId;
+						//obj_tempData.tid = n_carId;
 						obj_tempData.alias = $('.eventbody').attr('alias');
 						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
 						setTimeout (function () {
@@ -107,6 +112,8 @@ function fn_initEventSearch(n_num, n_et) {
 				$('#pagerContainer').hide(); //显示分页
 				dlf.fn_jNotifyMessage('该时间范围内没有报警记录', 'message', false, 6000);
 			}
+		} else if ( data.status == 201 ) {
+			dlf.fn_showBusinessTip();
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);	
 		}
