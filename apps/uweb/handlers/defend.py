@@ -23,39 +23,48 @@ class DefendHandler(BaseHandler, BaseMixin):
 
     @authenticated
     @tornado.web.removeslash
+    def get(self):
+        status = ErrorCode.SUCCESS
+        try:
+            terminal = self.db.get("SELECT defend_status"
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s",
+                                   self.current_user.tid)
+            if not terminal:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The terminal with tid: %s is noexist, redirect to login.html", tid)
+                self.write_ret(status)
+                return
+
+            self.write_ret(status,dict_=DotDict(defend_status=terminal.defend_status))
+        except Exception as e:
+            logging.exception("Set terminal failed. Exception: %s", e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+            return 
+
+    @authenticated
+    @tornado.web.removeslash
     @tornado.web.asynchronous
     def post(self):
         status = ErrorCode.SUCCESS
         try:
-            res = self.db.get("SELECT defend_status"
-                              "  FROM T_TERMINAL_INFO"
-                              "  WHERE tid = %s",
-                              self.current_user.tid)
+            data = DotDict(json_decode(self.request.body))
+            print 'data', self.request.body
         except Exception as e:
-            logging.exception("Set terminal failed. Exception: %s", e.args)
-            status = ErrorCode.SERVER_BUSY
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
             return 
 
         def _on_finish(response):
-            
             status = ErrorCode.SUCCESS
-
             response = json_decode(response)
             if response['success'] == ErrorCode.SUCCESS:
-                defend_status = UWEB.DEFEND_STATUS.YES 
-                if res.defend_status == UWEB.DEFEND_STATUS.YES:
-                    defend_status = UWEB.DEFEND_STATUS.NO
-                elif res.defend_status == UWEB.DEFEND_STATUS.NO:  
-                    pass
-                else: 
-                    logging.error("Unknown defend_status: %s", res.defend_status)
-                    status = ErrorCode.SERVER_ERROR
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET defend_status = %s"
                                 "  WHERE tid = %s",
-                                defend_status, self.current_user.tid)
+                                data.defend_status, self.current_user.tid)
             else:
                 if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
                     self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
@@ -66,26 +75,13 @@ class DefendHandler(BaseHandler, BaseMixin):
             IOLoop.instance().add_callback(self.finish)
 
         try:
-            if res.defend_status == UWEB.DEFEND_STATUS.YES:
-                args = DotDict(seq=SeqGenerator.next(self.db),
-                               tid=self.current_user.tid,
-                               defend_status=UWEB.DEFEND_STATUS.NO)
+           #NOTE: in defend, should invoke get before post. if tid is inexistence, there is no need to handle here.
+           args = DotDict(seq=SeqGenerator.next(self.db),
+                          tid=self.current_user.tid,
+                          defend_status=data.defend_status)
 
-                logging.info("set defend_status from Yes to No")
-                GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args,
-                                                  _on_finish)
-            elif res.defend_status == UWEB.DEFEND_STATUS.NO:
-                args = DotDict(seq=SeqGenerator.next(self.db),
-                               tid=self.current_user.tid,
-                               defend_status=UWEB.DEFEND_STATUS.YES)
-
-                logging.info("set defend_status from No to Yes")
-                GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args,
-                                                  _on_finish)
-            else:
-                # NOTE: in fact, this branch should be never used.
-                logging.error("Unknown defend_status: %s", res.defend_status)
-                raise Exception("Unknown defend_status: %s" % res.defend_status)
+           logging.info("Set defend_status to %d", data.defend_status)
+           GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args, _on_finish)
         except Exception as e:
             logging.exception("Set defend_status failed. Exception: %s", e.args)
             status = ErrorCode.SERVER_ERROR

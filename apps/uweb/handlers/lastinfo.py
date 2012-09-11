@@ -15,86 +15,35 @@ from base import BaseHandler, authenticated
        
 class LastInfoHandler(BaseHandler):
     """Get the newest info of terminal, from database.
+    NOTE:It just retrieves data from db, not get info from terminal. 
     """
-
-    # maybe, get method is unused.
-    @authenticated
-    @tornado.web.removeslash
-    def get(self, tid):
-        try:
-            status = ErrorCode.SUCCESS
-            # NOTE: monitor and location must not be null. lastinfo is invoked after switchcar
-            terminal = self.db.get("SELECT ti.tid, ti.mobile as sim, ti.login,"
-                                   "  ti.defend_status, ti.pbat, ti.gps, ti.gsm, ti.alias "
-                                   "  FROM T_TERMINAL_INFO as ti "
-                                   "  WHERE ti.tid = %s"
-                                   "  LIMIT 1",
-                                   tid)
-
-            location = self.db.get("SELECT speed, timestamp, category, name,"
-                                   "  degree, type, clatitude, clongitude"
-                                   "  FROM T_LOCATION"
-                                   "  WHERE tid = %s"
-                                   "    AND NOT (clatitude = 0 AND clongitude = 0)"
-                                   "    ORDER BY timestamp DESC"
-                                   "    LIMIT 1",
-                                   tid)
-            # NOTE: if there is no records in T_LOCATION, when the car
-            # has never got location, just return None
-            event_status = self.get_event_status(tid)
-            self.write_ret(status, 
-                 dict_=DotDict(car_info=DotDict(tid=terminal.tid,
-                                                defend_status=terminal.defend_status,
-                                                timestamp=location.timestamp if location else -1,
-                                                speed=location.speed if location else 0,
-                                                # NOTE: degree's type is Decimal, str() it before json_encode
-                                                #degree=int(round(location.degree/36)) if location else 0,
-                                                degree=float(location.degree) if location else 0.00,
-                                                event_status=event_status if event_status else 0,
-                                                name=location.name if location else '',
-                                                type=location.type if location else 1,
-                                                clatitude=location.clatitude if location else 0,
-                                                clongitude=location.clongitude if location else 0, 
-                                                pbat=terminal.pbat,
-                                                gps=terminal.gps,
-                                                gsm=terminal.gsm,
-                                                alias=terminal.alias if terminal.alias else terminal.sim,
-                                                login=terminal.login)))
-        except Exception as e:
-            logging.exception("[UWEB] get lastinfo failed. Exception: %s", e.args) 
-            status = ErrorCode.SERVER_ERROR        
-            self.write_ret(status)
-
     @authenticated
     @tornado.web.removeslash
     def post(self):
         try:
             data = DotDict(json_decode(self.request.body))
-            tids = data.tids
         except:
             self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
             return
 
         try:
-            cars_info = []
+            cars_info = DotDict() 
             status = ErrorCode.SUCCESS
-            for tid in tids:
+            for tid in data.tids:
                 # NOTE: monitor and location must not be null. lastinfo is invoked after switchcar
                 terminal = self.db.get("SELECT ti.tid, ti.mobile as sim, ti.login,"
-                                       "  ti.defend_status, ti.pbat, ti.gps, ti.gsm, ti.alias "
+                                       "  ti.defend_status, ti.pbat, ti.gps, ti.gsm, ti.alias, ti.keys_num "
                                        "  FROM T_TERMINAL_INFO as ti "
                                        "  WHERE ti.tid = %s"
                                        "  LIMIT 1",
                                        tid)
-
                 if not terminal:
                     status = ErrorCode.LOGIN_AGAIN
                     logging.error("The terminal with tid: %s is noexist, redirect to login.html", tid)
-                    self.clear_cookie(self.app_name)
                     self.write_ret(status)
                     return
                 location = self.db.get("SELECT speed, timestamp, category, name,"
-                                       "  degree, type, clatitude, clongitude"
+                                       "  degree, type, latitude, longitude, clatitude, clongitude"
                                        "  FROM T_LOCATION"
                                        "  WHERE tid = %s"
                                        "    AND NOT (clatitude = 0 AND clongitude = 0)"
@@ -103,26 +52,29 @@ class LastInfoHandler(BaseHandler):
                                        tid)
                 # NOTE: if there is no records in T_LOCATION, when the car
                 # has never got location, just return None
-                event_status = self.get_event_status(tid)
-                car_info=DotDict(tid=terminal.tid,
-                                 defend_status=terminal.defend_status,
-                                 timestamp=location.timestamp if location else None,
+                #event_status = self.get_event_status(tid)
+                car_dct = {}
+                car_info=DotDict(defend_status=terminal.defend_status,
+                                 timestamp=location.timestamp if location else 0,
                                  speed=location.speed if location else 0,
                                  # NOTE: degree's type is Decimal, str() it before json_encode
-                                 #degree=int(round(location.degree/36)) if location else 0,
                                  degree=float(location.degree) if location else 0.00,
-                                 event_status=event_status if event_status else 0,
-                                 name=location.name if location else None,
+                                 name='',
+                                 #name=location.name if location else '',
                                  type=location.type if location else 1,
+                                 latitude=location.latitude if location else 0,
+                                 longitude=location.longitude if location else 0, 
                                  clatitude=location.clatitude if location else 0,
                                  clongitude=location.clongitude if location else 0, 
-                                 pbat=terminal.pbat,
+                                 login=terminal.login,
                                  gps=terminal.gps,
                                  gsm=terminal.gsm,
+                                 pbat=terminal.pbat,
                                  alias=terminal.alias if terminal.alias else terminal.sim,
-                                 login=terminal.login)
+                                 keys_num=terminal.keys_num)
 
-                cars_info.append(car_info)
+                car_dct[tid]=car_info
+                cars_info.update(car_dct)
 
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info))
@@ -132,17 +84,17 @@ class LastInfoHandler(BaseHandler):
             status = ErrorCode.SERVER_ERROR        
             self.write_ret(status)
 
-    def get_event_status(self, tid):
-        alarm_key = get_alarm_status_key(tid)
-        event_status = self.redis.getvalue(alarm_key)
-        is_alived = self.redis.getvalue("is_alived")
-        if is_alived != ALIVED:
-            location = self.db.get("SELECT category"
-                                   "  FROM T_LOCATION"
-                                   "  WHERE tid = %s"
-                                   "    ORDER BY timestamp DESC"
-                                   "    LIMIT 1",
-                                   tid)
-            event_status = location.category if location else 0
+    #def get_event_status(self, tid):
+    #    alarm_key = get_alarm_status_key(tid)
+    #    event_status = self.redis.getvalue(alarm_key)
+    #    is_alived = self.redis.getvalue("is_alived")
+    #    if is_alived != ALIVED:
+    #        location = self.db.get("SELECT category"
+    #                               "  FROM T_LOCATION"
+    #                               "  WHERE tid = %s"
+    #                               "    ORDER BY timestamp DESC"
+    #                               "    LIMIT 1",
+    #                               tid)
+    #        event_status = location.category if location else 0
 
-        return event_status
+    #    return event_status

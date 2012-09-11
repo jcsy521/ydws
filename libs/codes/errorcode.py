@@ -28,6 +28,7 @@ class ErrorCode(object):
     PARENT_NOT_ORDERED = 214
     TERMINAL_NOT_ORDERED = 215
     TERMINAL_ORDERED = 216
+    TERMINAL_SET_FAILED= 217
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -45,6 +46,8 @@ class ErrorCode(object):
     SERVER_ERROR = 903
     SERVER_BUSY = 904
 
+    DOWNLOAD_FAILED = 906
+    FEEDBACK_FAILED = 907
 
     ERROR_MESSAGE  = {
         SUCCESS:                    u"操作成功。",
@@ -77,5 +80,9 @@ class ErrorCode(object):
         TERMINAL_TIME_OUT:          u'连接爱车保超时，请稍后重试。',
         TERMINAL_OTHER_ERRORS:      u'连接爱车保失败，请稍后重试。',
         TERMINAL_ORDERED:           u'终端手机已被注册，请检查确认后再重试！',
+        TERMINAL_SET_FAILED:        u'终端参数设置失败，请稍后重试。',
         UNKNOWN_COMMAND:            u"您好，你输入的指令爱车保系统不识别，请输入标准指令。",
+
+        DOWNLOAD_FAILED:            u'对不起，下载失败，请稍后重试。',
+        FEEDBACK_FAILED:            u'对不起，反馈失败，请稍后重试。',
     }

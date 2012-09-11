@@ -26,15 +26,17 @@ class MainHandler(BaseHandler):
         else:
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if not user_info:
+                status = ErrorCode.LOGIN_AGAIN
                 # is nuser_info is None, means cookie is invalid, so redirectlogin.html
                 logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
-                self.clear_cookie(self.app_name)
-                self.redirect(self.get_argument("next", "/"))
+                #self.clear_cookie(self.app_name)
+                #self.redirect(self.get_argument("next", "/"))
+                self.write_ret(status)
                 return
 
             # terminal which is login show first.
-            terminals = self.db.query("SELECT ti.id, ti.tid, ti.alias, ti.mobile as sim,"
-                                      "  ti.login, ti.cellid_status, ti.keys_num"
+            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
+                                      "  ti.login, ti.keys_num"
                                       "  FROM T_TERMINAL_INFO as ti"
                                       "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
@@ -44,30 +46,11 @@ class MainHandler(BaseHandler):
                     terminal.alias = terminal.sim
             url = "index.html"
 
-        if from_ == 'android':
-            self.login_sms_remind(user_info.mobile, terminals, login="ANDROID")
-            data = DotDict(uid=self.current_user.uid,
-                           name=user_info.name,
-                           cars=terminals,
-                           from_=from_)
-            self.write_ret(ErrorCode.SUCCESS, dict_=data)
-            return
-
-        if from_ == 'ios':
-            self.login_sms_remind(user_info.mobile, terminals, login="IOS")
-            data = DotDict(uid=self.current_user.uid,
-                           name=user_info.name,
-                           cars=terminals,
-                           from_=from_)
-            self.write_ret(ErrorCode.SUCCESS, dict_=data)
-            return
-
         self.set_header("P3P", "CP=CAO PSA OUR")
         self.render(url,
                     uid=self.current_user.uid,
                     name=user_info.name,
-                    cars=terminals, 
-                    from_=from_)
+                    cars=terminals)
 
     def login_sms_remind(self, owner_mobile, terminals, login="WEB"):
 

@@ -34,15 +34,15 @@ def push_to_android(category, uid, tid, t_alias, location):
      push_info = get_push_info()
      alias=uid
 
-     ret = DotDict(category=category,
-                   tid=tid,
-                   uid=uid,
+     ret = DotDict(tid=tid,
+                   category=category,
+                   longitude=location.lon,
+                   latitude=location.lat,
                    clongitude=location.cLon,
                    clatitude=location.cLat,
+                   name=location.name if location.name else '',
                    timestamp=location.timestamp,
-                   name=location.name,
-                   volume=location.pbat,
-                   speed=location.speed,
+                   speed=float(location.speed),
                    degree=float(location.degree),
                    type=location.type,
                    alias=t_alias)

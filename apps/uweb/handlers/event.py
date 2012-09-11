@@ -32,7 +32,6 @@ class EventHandler(BaseHandler):
             return
         
         self.render("event.html",
-                    tid=self.current_user.tid,
                     alias=terminal.alias if terminal.alias else self.current_user.sim)
 
     @authenticated
@@ -44,24 +43,23 @@ class EventHandler(BaseHandler):
             page_size = UWEB.LIMIT.PAGE_SIZE
 
             data = DotDict(json_decode(self.request.body))
-            event_type = int(data.event_type)
+            category = int(data.category)
             page_number = int(data.pagenum)
             page_count = int(data.pagecnt)
             start_time = data.start_time
             end_time = data.end_time
-            tid = data.tid
             # the interval between start_time and end_time is one week
             if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                 self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
                 return
 
-            if event_type == -1:
+            if category == -1:
                 # we need return the event count to GUI at first time query
                 if page_count == -1:
                     res = self.db.get("SELECT COUNT(*) as count FROM V_EVENT"
                                       "  WHERE tid = %s"
                                       "    AND (timestamp BETWEEN %s AND %s)",
-                                      tid, start_time, end_time)
+                                      self.current_user.tid, start_time, end_time)
                     event_count = res.count
                     d, m = divmod(event_count, page_size)
                     page_count = (d + 1) if m else d
@@ -73,7 +71,7 @@ class EventHandler(BaseHandler):
                                        "    AND (timestamp BETWEEN %s AND %s)"
                                        "  ORDER BY timestamp DESC"
                                        "  LIMIT %s, %s",
-                                       tid, start_time, end_time,
+                                       self.current_user.tid, start_time, end_time,
                                        page_number * page_size, page_size)
             else: 
                 if page_count == -1:
@@ -81,7 +79,7 @@ class EventHandler(BaseHandler):
                                       "  WHERE tid = %s"
                                       "    AND (timestamp BETWEEN %s AND %s)"
                                       "    AND category = %s",
-                                      tid, start_time, end_time, event_type)
+                                      self.current_user.tid, start_time, end_time, category)
                     event_count = res.count
                     d, m = divmod(event_count, page_size)
                     page_count = (d + 1) if m else d
@@ -94,16 +92,17 @@ class EventHandler(BaseHandler):
                                        "    AND category = %s"
                                        "  ORDER BY timestamp DESC"
                                        "  LIMIT %s, %s",
-                                       tid, start_time, end_time, event_type,
+                                       self.current_user.tid, start_time, end_time, category,
                                        page_number * page_size, page_size)
 
             # change the type form decimal to float.
             for event in events:
                 event['degree'] = float(event['degree'])
+                event['speed'] = float(event['speed'])
                 
             self.write_ret(ErrorCode.SUCCESS,
-                          dict_=DotDict(events=events,
-                                        pagecnt=page_count))
+                           dict_=DotDict(events=events,
+                                         pagecnt=page_count))
         except Exception as e:
             logging.exception("Get track failed. Exception: %s", e.args)
             status = ErrorCode.SERVER_BUSY

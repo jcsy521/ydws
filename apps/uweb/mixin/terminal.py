@@ -78,6 +78,8 @@ class TerminalMixin(BaseMixin):
         """Update T_TERMINAL_INFO.
         When set terminal info,get 0 or 1 from terminal, recomposer car_sets
         and keep it in database.
+        @params: car_sets, DotDict, the response of terminal
+                 old_car_sets, DotDict, the data of user
         workflow:
         for key, value in cars_sets:
             if success:

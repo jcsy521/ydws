@@ -10,7 +10,6 @@ from helpers.seqgenerator import SeqGenerator
 from helpers.queryhelper import QueryHelper 
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
-from utils.misc import get_alias_key
 from helpers.lbmphelper import handle_location
 from constants import UWEB, EVENTER, GATEWAY, SMS
 from constants.MEMCACHED import ALIVED
@@ -62,12 +61,6 @@ class RealtimeMixin(BaseMixin):
         All realtime requests in REALTIME_VALID_INTERVAL will be considered as
         only one. If not, invoke gf and use handle_location of lbmphelper. 
         """
-        terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
-        if terminal.alias:
-            alias = terminal.alias
-        else:
-            alias = self.current_user.sim
-
         is_alived = self.redis.getvalue('is_alived')
         if is_alived == ALIVED:
             location = self.redis.getvalue(str(self.current_user.tid))
@@ -95,7 +88,6 @@ class RealtimeMixin(BaseMixin):
             
             location['degree'] = float(location.degree)
             location['tid'] = self.current_user.tid
-            location['alias'] = alias  
 
             if callback:
                 callback(ret)
@@ -125,7 +117,6 @@ class RealtimeMixin(BaseMixin):
                         ret.location.speed = location.speed
                         ret.location.type = location.type
                         ret.location.tid = self.current_user.tid
-                        ret.location.alias = alias 
                         #ret.location.degree = int(round(float(location.degree)/36))
                         # now, provide the orginal degree.
                         ret.location.degree = float(location.degree)

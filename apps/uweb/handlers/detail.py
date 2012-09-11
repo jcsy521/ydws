@@ -32,7 +32,6 @@ class DetailHandler(BaseHandler):
             if not user:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
-                self.clear_cookie(self.app_name)
                 self.write_ret(status)
                 return
             details = DotDict()
@@ -50,21 +49,19 @@ class DetailHandler(BaseHandler):
         try:
             status = ErrorCode.SUCCESS
             data = DotDict(json_decode(self.request.body))
-            name = data.name
-            mobile = data.mobile
-            address= data.address
-            email = data.email
-            remark = data.remark
-			
-            self.db.execute("UPDATE T_USER"
-                            "  SET mobile = %s,"
-                            "      name = %s,"
-                            "      address = %s,"
-                            "      email = %s,"
-                            "      remark = %s"
-                            "  WHERE uid = %s",
-                            mobile, name, address, email, 
-                            remark, self.current_user.uid)
+            fields_ = DotDict()
+            fields = DotDict(name="name = '%s'",
+                             mobile="mobile = '%s'",
+                             address="address = '%s'",
+                             email="email = '%s'",
+                             remark="remark = '%s'")
+            for key, value in data.iteritems():
+                fields_.setdefault(key, fields[key] % value) 
+            set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
+            if set_clause:
+                self.db.execute("UPDATE T_USER SET " + set_clause +
+                                "  WHERE uid = %s",
+                                self.current_user.uid)
             self.write_ret(status)
         except Exception as e:
             logging.exception("Update detail failed. Exception: %s", e.args)

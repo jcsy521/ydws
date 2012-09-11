@@ -40,7 +40,7 @@ from handlers.lastinfo import LastInfoHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
 from handlers.track import TrackHandler
-from handlers.track import TrackBackHandler
+#from handlers.track import TrackBackHandler
 from handlers.event import EventHandler
 from handlers.realtime import RealtimeHandler
 from handlers.remote import RemoteHandler
@@ -49,6 +49,8 @@ from handlers.terminal import TerminalHandler
 from handlers.password import PasswordHandler
 from handlers.detail import DetailHandler
 from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler, BusinessCheckTMobileHandler, BusinessCheckStatusHandler
+from handlers.feedback import FeedBackHandler
+from handlers.instruction import WebInsHandler, AndroidInsHandler, IOSInsHandler, SMSInsHandler 
 
 from handlers.sms import SMSHandler
 from handlers.servicesterms import ServicesTermsHandler
@@ -72,7 +74,8 @@ class Application(tornado.web.Application):
             (r"/lastinfo/(\S+)/*", LastInfoHandler),
             (r"/lastinfo/*", LastInfoHandler),
             (r"/track/*", TrackHandler),
-            (r"/trackback/(\S+)/*", TrackBackHandler),
+            # no use 
+            #(r"/trackback/(\S+)/*", TrackBackHandler),
             (r"/event/*", EventHandler),
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),
@@ -80,6 +83,12 @@ class Application(tornado.web.Application):
             (r"/terminal/*", TerminalHandler),
             (r"/password/*", PasswordHandler),
             (r"/detail/*", DetailHandler),
+            (r"/feedback/*", FeedBackHandler),
+
+            (r"/instruction/web/*", WebInsHandler),
+            (r"/instruction/android/*", AndroidInsHandler),
+            (r"/instruction/ios/*", IOSInsHandler),
+            (r"/instruction/sms/*", SMSInsHandler),
 
             # for wap
             (r"/wap/*", WAPTransferHandler),
@@ -107,7 +116,7 @@ class Application(tornado.web.Application):
             cookie_secret="s8g1gVxKOiQoZptLRi2nSuXmiK2ThYJJBSHIUHnqoUw=",
             login_url="/login",
             debug=debug,
-            app_name="CLWUWEB",
+            app_name="ACBUWEB",
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)

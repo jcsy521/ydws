@@ -20,22 +20,22 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
     @tornado.web.removeslash
     def get(self, tid):
         try:
-            monitor = self.db.get("SELECT ti.tid, ti.mobile as sim,"
+            terminal = self.db.get("SELECT ti.tid, ti.mobile as sim,"
                                   "  ti.login, ti.defend_status "
                                   "  FROM T_TERMINAL_INFO as ti "
                                   "  WHERE ti.tid = %s"
                                   "  LIMIT 1",
                                   tid)
-            if monitor: 
+            if terminal: 
                 self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
                 
                 self.bookkeep(dict(uid=self.current_user.uid,
                                    tid=tid,
-                                   sim=monitor.sim))
+                                   sim=terminal.sim))
                 status = ErrorCode.SUCCESS
                 self.write_ret(status) 
             else:
-                status = ErrorCode.NO_TERMINAL
+                status = ErrorCode.LOGIN_AGAIN
                 self.write_ret(status) 
         except Exception as e:
             logging.exception("Switchcar failded. Exception: %s", e.args) 

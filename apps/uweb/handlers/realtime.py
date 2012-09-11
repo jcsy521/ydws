@@ -18,21 +18,15 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
     @authenticated
     @tornado.web.removeslash
     @tornado.web.asynchronous
-    def post(self):
-        try: 
-            current_query = DotDict(json_decode(self.request.body)) 
-        except:
-            self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
-            self.finish()
-            return
+    def get(self):
 
+        current_query = DotDict() 
         current_query.timestamp = int(time())
         terminal = self.db.get("SELECT cellid_status FROM T_TERMINAL_INFO WHERE tid = %s", self.current_user.tid)
 
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The terminal with tid: %s is noexist, redirect to login.html", self.current_user.tid)
-            self.clear_cookie(self.app_name)
             self.write_ret(status)
             self.finish()
             return

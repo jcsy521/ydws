@@ -13,12 +13,14 @@ from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
 from helpers.notifyhelper import get_push_info
+from helpers.queryhelper import QueryHelper 
 from mixin.login import LoginMixin
 
 class LoginHandler(BaseHandler, LoginMixin):
 
     @tornado.web.removeslash
     def get(self):
+        print 'come into login get'
         self.render("login.html",
                     username='',
                     password='',
@@ -58,7 +60,7 @@ class LoginHandler(BaseHandler, LoginMixin):
         if hash_.lower() != captchahash.lower():
             self.render("login.html",
                         username=username,
-                        password='',
+                        password=password,
                         message=None,
                         message_captcha=ErrorCode.ERROR_MESSAGE[ErrorCode.WRONG_CAPTCHA])
             return
@@ -143,7 +145,21 @@ class IOSHandler(BaseHandler, LoginMixin):
             self.bookkeep(dict(uid=uid,
                                tid=tid,
                                sim=sim))
-            self.write_ret(status)
+            user_info = QueryHelper.get_user_by_uid(uid, self.db)
+            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
+                                      "  ti.login, ti.keys_num"
+                                      "  FROM T_TERMINAL_INFO as ti"
+                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
+                                      user_info.mobile)
+            
+            #NOTE: if alias is null, provide tid instead
+            for terminal in terminals:
+                if not terminal.alias:
+                    terminal.alias = terminal.sim
+
+            self.write_ret(status,
+                           dict_=DotDict(name=user_info.name, 
+                                         cars=terminals))
         else:
             logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
@@ -170,8 +186,24 @@ class AndroidHandler(BaseHandler, LoginMixin):
             self.bookkeep(dict(uid=uid,
                                tid=tid,
                                sim=sim))
+
+            user_info = QueryHelper.get_user_by_uid(uid, self.db)
+            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
+                                      "  ti.login, ti.keys_num"
+                                      "  FROM T_TERMINAL_INFO as ti"
+                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
+                                      user_info.mobile)
+            
+            #NOTE: if alias is null, provide tid instead
+            for terminal in terminals:
+                if not terminal.alias:
+                    terminal.alias = terminal.sim
+
             push_info = get_push_info()
-            self.write_ret(status,dict_=DotDict(app_key=push_info.app_key))
+            self.write_ret(status,
+                           dict_=DotDict(app_key=push_info.app_key,
+                                         name=user_info.name, 
+                                         cars=terminals))
         else:
             logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
