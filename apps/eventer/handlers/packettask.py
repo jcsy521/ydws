@@ -7,7 +7,7 @@ from tornado.escape import json_decode
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 from helpers import lbmphelper
-from helpers import notifyhelper
+from helpers.notifyhelper import NotifyHelper
 
 from utils.dotdict import DotDict
 from utils.misc import get_terminal_time,\
@@ -209,4 +209,5 @@ class PacketTask(object):
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
         if user:
             name = self.get_tname(dev_id)
-            notifyhelper.push_to_android(category, user.owner_mobile, dev_id, name, location)      
+            push_key = NotifyHelper.get_push_key(user.owner_mobile, self.redis) 
+            NotifyHelper.push_to_android(category, user.owner_mobile, dev_id, name, location, push_key)      

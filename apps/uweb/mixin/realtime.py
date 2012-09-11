@@ -79,6 +79,8 @@ class RealtimeMixin(BaseMixin):
                                    "  LIMIT 1",
                                    self.current_user.tid, query.timestamp,
                                    UWEB.REALTIME_VALID_INTERVAL, UWEB.REALTIME_VALID_INTERVAL)
+            if not location.name:
+                location.name = ''
                 
         ret = DotDict(status=ErrorCode.SUCCESS,
                       message='',
@@ -113,7 +115,7 @@ class RealtimeMixin(BaseMixin):
                         ret.location.clongitude = location.cLon
                         ret.location.clatitude = location.cLat
                         ret.location.timestamp = location.gps_time
-                        ret.location.name = location.name
+                        ret.location.name = location.name if location.name else ''
                         ret.location.speed = location.speed
                         ret.location.type = location.type
                         ret.location.tid = self.current_user.tid

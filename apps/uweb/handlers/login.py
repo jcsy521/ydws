@@ -12,7 +12,7 @@ from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
-from helpers.notifyhelper import get_push_info
+from helpers.notifyhelper import NotifyHelper
 from helpers.queryhelper import QueryHelper 
 from mixin.login import LoginMixin
 
@@ -20,7 +20,6 @@ class LoginHandler(BaseHandler, LoginMixin):
 
     @tornado.web.removeslash
     def get(self):
-        print 'come into login get'
         self.render("login.html",
                     username='',
                     password='',
@@ -199,9 +198,11 @@ class AndroidHandler(BaseHandler, LoginMixin):
                 if not terminal.alias:
                     terminal.alias = terminal.sim
 
-            push_info = get_push_info()
+            push_info = NotifyHelper.get_push_info()
+            push_key = NotifyHelper.get_push_key(uid, self.redis)
             self.write_ret(status,
                            dict_=DotDict(app_key=push_info.app_key,
+                                         push_key=push_key,
                                          name=user_info.name, 
                                          cars=terminals))
         else:
