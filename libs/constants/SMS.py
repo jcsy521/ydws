@@ -5,8 +5,8 @@ from utils.dotdict import DotDict
 
 SMS_EXPIRY=24*60*60
 
-LQ = DotDict(WEB=5, # 5 minutes
-             SMS=5) # 5 minutes #TODO:  
+LQ = DotDict(WEB=30, # 30 minutes
+             SMS=30) # 30 minutes 
 
 LQ_INTERVAL = 3 * 60 # 3mins
 
