@@ -114,7 +114,7 @@ class BusinessMixin(BaseMixin):
         # 4: send message to terminal
         #NOTE: here, not send message actually. if need, remove the annotations velow. 
         register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
-        ret = SMSHelper.send(fields.tmobile, register_sms)
+        ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
         ret = DotDict(json_decode(ret))
         if ret.status == ErrorCode.SUCCESS:
             self.db.execute("UPDATE T_TERMINAL_INFO"

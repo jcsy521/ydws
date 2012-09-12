@@ -47,7 +47,7 @@ class SMSHelper:
         @param content: original sms content
         authentic content: xxx sign timestamp
             - xxx: original sms content
-            - sign: (last 8 nums of tmobile) & SMS_KEY & timestamp
+            - sign: (last 8 nums of tmobile) ^ SMS_KEY ^ timestamp
             - timestamp: unix time
         """
         timestamp = int(time.time())
