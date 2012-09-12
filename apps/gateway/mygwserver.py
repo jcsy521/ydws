@@ -659,8 +659,8 @@ class MyGWServer(object):
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
                 self.update_terminal_status(head.dev_id, address)
-                args.domain = 'pinganbb.info:9909'
-                args.agps_server = "x.x.x.x:y"
+                args.domain = ConfHelper.GW_SERVER_CONF.domain 
+                args.agps_server = ConfHelper.GW_SERVER_CONF.agps_server 
 
             hc = ConfigRespComposer(args)
             request = DotDict(packet=hc.buf,
