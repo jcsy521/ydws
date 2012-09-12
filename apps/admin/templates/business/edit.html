@@ -12,7 +12,7 @@
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
 <script type="text/javascript" src="/static/js/json2.js"></script>
 {% block body %}
-<h3>编辑业务用户</h3>
+<h3>个人用户编辑</h3>
 
 {% if status == 0 %}
 <form id="formID" method="post" action="" onsubmit="return formSubmit('businessEdit');">
@@ -34,19 +34,24 @@
 			<tr>
 				<td	class="tLeft"><span class="signColor">*</span>车主手机号：</td>
 				<td align="left">
-					<input type="text" name="mobile" id="mobile"
+					<!--
+					<input type="text" name="new_mobile" id="mobile"
 						class="validate[required,custom[mobile]]" onchange="fn_checkMobile('mobile')"  mobile="{{business.mobile}}" value="{{business.mobile}}" />
-					<span class="tips j_tips"></span>
-					<input type="hidden" id="mobile_p" name="mobile_p" value="{{business.mobile}}" />
+					-->
+					{{business.mobile}}
+					<input type="hidden" id="mobile" name="mobile" value="{{business.mobile}}" />
 				</td>
 			</tr>
 			<tr>
 				<td	class="tLeft"><span class="signColor">*</span>终端手机号：</td>
 				<td  align="left">
-					<input type="text" name="tmobile" id="tmobile"
-						class="validate[required,custom[mobile],ajax[ajaxTMobile]]" onchange="fn_checkMobile('tmobile')" mobile="{{business.tmobile}}"  maxlength="11" value="{{business.tmobile}}" />
+					<!--
+					<input type="text" name="new_tmobile" id="tmobile"
+						class="validate[required,custom[mobile]]" onblur="fn_checkMobile('tmobile')" mobile="{{business.tmobile}}"  maxlength="11" value="{{business.tmobile}}" />
 					<span class="tips j_tips"></span>
-					<input type="hidden" id="tmobile_p" name="tmobile_p" value="{{business.tmobile}}" />
+					-->
+					{{business.tmobile}}
+					<input type="hidden" id="tmobile" name="tmobile" value="{{business.tmobile}}" />
 				</td>
 			</tr>
 			<tr>

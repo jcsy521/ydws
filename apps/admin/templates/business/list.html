@@ -6,7 +6,7 @@
 <script type="text/javascript" src="/static/js/initStyle.js"></script>
 {% block body %}
 {% if status == 0 %}
-	<h3>业务用户详情</h3>
+	<h3>个人用户详情</h3>
 	<table class="tableStyle j_business">
 		<tr>
 			<td	class="tLeft">车主姓名：
@@ -106,10 +106,10 @@
 						href="/business/edit/{{business.tmobile}}">
 						<span class="ui-button-text">修改</span>
 				</a>
-				<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+				<!--<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
 						href="/business/search">
 						<span class="ui-button-text">返回列表</span>
-				</a>
+				</a>-->
 			</td>
 		</tr>
     </table>
