@@ -19,7 +19,8 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          POWEROFF="T15",
                          EMERGENCY="T16",
                          CONFIG="T17",
-                         DEFENDSTATUS="T18"
+                         DEFENDSTATUS="T18",
+                         AGPS="T100"
                          )
 
 S_MESSAGE_TYPE = DotDict(LOGIN="S1",
@@ -39,8 +40,17 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          POWEROFF="S15",
                          EMERGENCY="S16",
                          CONFIG="S17",
-                         DEFENDSTATUS="S18"
+                         DEFENDSTATUS="S18",
+                         AGPS="S100"
                          )
+
+LON_LAT = DotDict(default=(114.17, 30.45),
+                  O1=(83, 15.5),
+                  O2=(103, 15.5),
+                  O3=(123, 15.5),
+                  T1=(83, 40.5),
+                  T2=(103, 40.5),
+                  T3=(123, 40.5))
 
 LOGIN_STATUS = DotDict(SUCCESS="0",
                        UNREGISTER="1",

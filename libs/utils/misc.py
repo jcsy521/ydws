@@ -75,6 +75,9 @@ def get_lq_sms_key(sim):
 def get_lq_interval_key(dev_id):
     return str("lq_interval:%s" % dev_id)
 
+def get_agps_data_key(key):
+    return str("agps_data:%s" % key)
+
 def get_terminal_time(timestamp):
     terminal_time = ""
     try:
