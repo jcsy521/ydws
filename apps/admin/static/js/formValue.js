@@ -61,17 +61,22 @@ function fn_checkMobile(id) {
 		str_val = obj_this.val(),
 		str_url = '',
 		obj_tips = obj_this.siblings('.j_tips');
+		
+		
 	if ( id == 'mobile' ) {
 		str_url = '/business/checkmobile/' + str_val;
 	} else {
 		str_url = '/business/checktmobile/' + str_val;
 	}
 	if ( str_mobile == str_val ) {
+		obj_tips.html('');
+		obj_tips.hide();
 		return true;
 	} else {
 		$.get(str_url, function (data) {
-			if (data.success == true) {
-				obj_tips.html('已存在');
+			// 修改时终端号码取反判断
+			if (data.success == false) {
+				obj_tips.html('号码不存在,请重新输入！');
 				obj_tips.show(function() {
 					obj_this.val(str_mobile);
 				});

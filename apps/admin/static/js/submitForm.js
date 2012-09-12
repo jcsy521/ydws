@@ -42,12 +42,13 @@ function formSubmit(option) {
 		
 		$('#endtime').val(et);
 		$('#begintime').val(bt);
-		var str_tipsDisplay = $('.j_tips').css('display');
-		if ( str_tipsDisplay == '' || str_tipsDisplay == 'none' ) {
+		/*
+		if ( $('.j_tips').is(':hidden') ) {
 			return true;
 		} else {
 			return false;	
-		}
+		}*/
+		return true;
 	}
 	// business search
 	if ( option == 'businessSearch' ) {	

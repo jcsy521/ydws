@@ -3,7 +3,8 @@ $(function () {
 	$('#start_time1').val(toTodayDate());
 	$('#end_time1').val(fn_getNextYearToday());
 	
-	var obj_nextBtn = $('#nextBtn'), 
+	var obj_prevBtn = $('#prevBtn'),
+		obj_nextBtn = $('#nextBtn'), 
 		obj_submitBtn = $('#submitBtn'), 
 		obj_busGrounp = null;
 		
@@ -11,6 +12,9 @@ $(function () {
 	
 	// 表单验证, 
 	$('#businessFormID1, #businessFormID2, #businessFormID3, #businessFormID4, #businessFormID').validationEngine();
+	
+	// 初次加载上页隐藏
+	obj_prevBtn.hide();
 	
 	$('#panelBtn span').click(function(event) {
 		var str_id = event.currentTarget.id,
@@ -24,6 +28,11 @@ $(function () {
 	
 		switch (str_id) {
 			case 'prevBtn':
+				// 如果在第二页点上一页,隐藏上页操作
+				if ( n_cNum == 2 ) {
+					obj_prevBtn.hide();
+				}
+				
 				if ( n_cNum > 1 ) {
 					n_tempNum = --n_cNum;
 				}
@@ -35,9 +44,15 @@ $(function () {
 				} else {
 					n_tempNum = 5;
 				}
+				// 点击下一页按钮时进行表单的再次验证
 				if ( !f_validate ) {
 					return;
 				}
+				// 在第一页点击下一页,显示上一页按钮
+				if ( n_cNum == 2 ) {
+					obj_prevBtn.show();
+				}
+				// 表单验证通过隐藏表单提示层
 				$('#businessFormID'+ (n_cNum-1)).validationEngine('hide');
 				// 取得页面数据进行填充
 				fn_fillUserData(n_tempNum - 1);
@@ -100,10 +115,8 @@ $(function () {
 				var term = request.term;
 
 				if ( term in cache ) {
-				// todo处理中...
 					response( $.map(cache[ term ], function(item) {
 							var str_ecName = item.ec_name, 
-								str_ecMobile = item.mobile, 
 								str_inputText = $('#ecName').val();
 							
 							if ( str_ecName.search(str_inputText) != -1 ) {
@@ -127,7 +140,6 @@ $(function () {
 						
 						response( $.map(data, function(item) {
 							var str_ecName = item.ec_name, 
-								str_ecMobile = item.mobile, 
 								str_inputText = $('#ecName').val();
 							
 							if ( str_ecName.search(str_inputText) != -1 ) {

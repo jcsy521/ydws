@@ -116,7 +116,7 @@ function fn_smsReset(tmobile, mobile, obj_panel) {
 	
 	$.post('/sms/register', JSON.stringify(obj_data), function (data) {
 		if ( data.success == 0 ) {
-			$(obj_panel).parent().html('短信发送成功').removeClass().addClass('sms_status2');
+			$(obj_panel).parent().html('短信已发送').removeClass().addClass('sms_status1');
 		}
 	});
 }

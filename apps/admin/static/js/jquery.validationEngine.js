@@ -758,8 +758,17 @@
         _maxSize: function(field, rules, i, options) {
             var max = rules[i + 1];
             var len = field.val().length;
-
-            if (len > max) {
+			var n_valLength = 0;
+			// 汉字和英文字符的长度计算
+			for( var ii = 0; ii < len; ii++ ) {
+				var word = field.val().substr(ii,1);
+				if(/[^\x00-\xff]/g.test(word)){
+					n_valLength+=2;
+				}else{
+					n_valLength++;
+				}
+			}
+            if (n_valLength > max) {
                 var rule = options.allrules.maxSize;
                 return rule.alertText + max + rule.alertText2;
             };
@@ -777,8 +786,17 @@
         _minSize: function(field, rules, i, options) {
             var min = rules[i + 1];
             var len = field.val().length;
-
-            if (len < min) {
+			var n_valLength = 0;
+			// 汉字和英文字符的长度计算
+			for( var ii = 0; ii < len; ii++ ) {
+				var word = field.val().substr(ii,1);
+				if(/[^\x00-\xff]/g.test(word)){
+					n_valLength+=2;
+				}else{
+					n_valLength++;
+				}
+			}
+            if (n_valLength < min) {
                 var rule = options.allrules.minSize;
                 return rule.alertText + min + rule.alertText2;
             };
@@ -816,8 +834,8 @@
         _max: function(field, rules, i, options) {
             var max = parseFloat(rules[i + 1]);
             var len = parseFloat(field.val());
-
-            if (len >max ) {
+			
+            if (len > max ) {
                 var rule = options.allrules.max;
                 if (rule.alertText2) return rule.alertText + max + rule.alertText2;
                 //orefalo: to review, also do the translations
