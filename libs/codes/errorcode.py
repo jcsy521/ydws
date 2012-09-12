@@ -34,6 +34,13 @@ class ErrorCode(object):
     LOCATION_FAILED = 301
     LOCATION_CELLID_FAILED = 302
     LOCATION_OFFSET_FAILED = 303
+    
+    CREATE_USER_FAILURE = 400
+    SELECT_CONDITION_ILLEGAL = 401
+    SEARCH_BUSINESS_FAILURE = 402
+    EDIT_CONDITION_ILLEGAL = 403
+    CREATE_CONDITION_ILLEGAL = 404
+    EDIT_USER_FAILURE = 405
 
     ADDITION_EXCESS = 700
     QUERY_INTERVAL_EXCESS = 701
@@ -45,7 +52,6 @@ class ErrorCode(object):
     UNKNOWN_COMMAND = 901
     SERVER_ERROR = 903
     SERVER_BUSY = 904
-
     DOWNLOAD_FAILED = 906
     FEEDBACK_FAILED = 907
 
@@ -82,7 +88,12 @@ class ErrorCode(object):
         TERMINAL_ORDERED:           u'终端手机已被注册，请检查确认后再重试！',
         TERMINAL_SET_FAILED:        u'终端参数设置失败，请稍后重试。',
         UNKNOWN_COMMAND:            u"您好，你输入的指令爱车保系统不识别，请输入标准指令。",
-
+        CREATE_USER_FAILURE:        u"添加用户失败。",
+        SELECT_CONDITION_ILLEGAL:   u"您输入的查询条件非法。",
+        SEARCH_BUSINESS_FAILURE:    u"查询普通用户业务失败。",
+        EDIT_CONDITION_ILLEGAL:     u"您输入的编辑内容非法。",
+        CREATE_CONDITION_ILLEGAL:   u"您输入的创建内容非法。",
+        EDIT_USER_FAILURE:          u"编辑普通用户业务失败。",
         DOWNLOAD_FAILED:            u'对不起，下载失败，请稍后重试。',
         FEEDBACK_FAILED:            u'对不起，反馈失败，请稍后重试。',
     }

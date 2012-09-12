@@ -32,68 +32,6 @@ from mongodb.mdaily import MDaily, MDailyMixin
 
 class BusinessMixin(BaseMixin):
 
-    KEY_TEMPLATE = "business_report_%s_%s"
-
-    def prepare_data(self, hash_):
-        """Prepare search results for post.
-        """
-        mem_key = self.get_memcache_key(hash_)
-
-        data = self.redis.getvalue(mem_key)
-        if data:
-            if data[0]:
-                return data
-
-        begintime = int(self.get_argument('begintime',0))
-        endtime = int(self.get_argument('endtime',0))
-        interval=[begintime, endtime]
-
-        fields = DotDict(cnum="tc.cnum LIKE '%%%%%s%%%%'",
-                         name="tu.name LIKE '%%%%%s%%%%'",
-                         mobile="tu.mobile LIKE '%%%%%s%%%%'",
-                         tmobile="tt.mobile LIKE '%%%%%s%%%%'",
-                         begintime="tt.begintime >= %s",
-                         endtime="tt.endtime <= %s") 
-
-        for key in fields.iterkeys():
-            v = self.get_argument(key, None)
-            if v:
-                if not check_sql_injection(v):
-                    self.get()
-                    return  
-                fields[key] = fields[key] % (v,)
-            else:
-                 fields[key] = None
-
-        where_clause = ' AND '.join([v for v in fields.itervalues()
-                                     if v is not None])
-
-        if where_clause:
-            sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
-                   "  tt.mobile as tmobile, tt.service_status, tc.cnum"
-                   "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
-                   "  WHERE  tu.mobile = tt.owner_mobile "
-                   "    AND tt.tid = tc.tid "
-                   "    AND tc.group_id = 0"
-                   "    AND ") + where_clause
-            businesses = self.db.query(sql)
-        else:
-            sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
-                   "  tt.mobile as tmobile, tt.service_status, tc.cnum"
-                   "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
-                   "  WHERE  tu.mobile = tt.owner_mobile "
-                   "    AND tc.group_id = 0"
-                   "    AND tt.tid = tc.tid ")
-            businesses = self.db.query(sql)
-        for i, business in enumerate(businesses):
-            business['seq'] = i + 1
-            business['sms_status'] = self.get_sms_status(business['tmobile'])
-            for key in business:
-                if business[key] is None:
-                    business[key] = ''
-        self.redis.setvalue(mem_key,(businesses,interval), 
-                            time=self.MEMCACHE_EXPIRY)
-        return businesses, interval
 
     def get_sms_status(self, tmobile):
         """
@@ -137,84 +75,12 @@ class BusinessMixin(BaseMixin):
                                tmobile)
         if business:
             business['sms_status'] = self.get_sms_status(tmobile)
+            for key in business.iterkeys():
+                if business[key] is None:
+                    business[key] = ''
             return business
         else: 
             return None
-
-    def modify_user_terminal_car(self, fields):
-        terminal = QueryHelper.get_terminal_by_tmobile(fields.tmobile, self.db)
-        if terminal:
-            tid = terminal.tid
-        else:
-            tid = fields.tmobile
-        # 1: add user
-        if fields.has_key('password'): # create a new user
-            self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
-                            "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)"
-                            "  ON DUPLICATE KEY"
-                            "  UPDATE uid = VALUES(uid),"
-                            "         password = VALUES(password),"
-                            "         name = VALUES(name), "
-                            "         mobile = VALUES(mobile), "
-                            "         address = VALUES(address), "
-                            "         email = VALUES(email)",
-                            fields.mobile, fields.password,
-                            fields.name, fields.mobile,
-                            fields.address, fields.email) 
-        else: # modify a user
-            self.db.execute("INSERT INTO T_USER(uid, name, mobile, address, email)"
-                            "  VALUES(%s, %s, %s, %s, %s)"
-                            "  ON DUPLICATE KEY"
-                            "  UPDATE uid = VALUES(uid),"
-                            "         name = VALUES(name), "
-                            "         mobile = VALUES(mobile), "
-                            "         address = VALUES(address), "
-                            "         email = VALUES(email)",
-                            fields.mobile, fields.name, fields.mobile,
-                            fields.address, fields.email) 
-        # 2: add terminal
-        # because admin add terminal no tid info, for the moment tid = tmobile, when the terminal login, the tid is updated new
-        self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
-                        "  alias, begintime, endtime)"
-                        "  VALUES (%s, %s, %s, %s, %s, %s)"
-                        "  ON DUPLICATE KEY"
-                        "  UPDATE tid=values(tid),"
-                        "         mobile=values(mobile),"
-                        "         owner_mobile=values(owner_mobile),"
-                        "         alias=values(alias),"
-                        "         begintime=values(begintime),"
-                        "         begintime=values(begintime),"
-                        "         endtime=values(endtime)",
-                        tid, fields.tmobile,
-                        fields.mobile, fields.cnum, 
-                        fields.begintime, fields.endtime)
-
-        # 3: add car tnum --> cnum
-        
-        
-        self.db.execute("INSERT INTO T_CAR(cnum, tid, type, color, brand)"
-                        "  VALUES(%s, %s, %s, %s, %s)"
-                        "  ON DUPLICATE KEY"
-                        "  UPDATE cnum = VALUES(cnum), "
-                        "         tid = VALUES(tid), "
-                        "         type = VALUES(type), "
-                        "         color = VALUES(color), "
-                        "         brand = VALUES(brand)",
-                        fields.cnum, tid,
-                        fields.type, fields.color, fields.brand)
-        
-        # 4: send message to terminal
-        #NOTE: here, not send message actually. if need, remove the annotations velow. 
-        register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
-        ret = SMSHelper.send(fields.tmobile, register_sms)
-        ret = DotDict(json_decode(ret))
-        #ret = DotDict(status=0,
-        #              msgid=1111)
-        if ret.status == ErrorCode.SUCCESS:
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET msgid = %s"
-                            "  WHERE mobile = %s",
-                            ret['msgid'], fields.tmobile)
 
 
 # abandon
@@ -286,21 +152,78 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                          endtime="",
                          color="",
                          brand="")
-
         for key in fields.iterkeys():
-            fields[key] = self.get_argument(key,'')
+                fields[key] = self.get_argument(key,'')
+                if not check_sql_injection(fields[key]):
+                    logging.error("Create business condition contain SQL inject. %s : %s", key, fields[key])
+                    self.render('errors/error.html',
+                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_CONDITION_ILLEGAL])
+                    return
+                
+        try:
+            # 1: add user
+            self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
+                            "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE uid = VALUES(uid),"
+                            "         password = VALUES(password),"
+                            "         name = VALUES(name), "
+                            "         mobile = VALUES(mobile), "
+                            "         address = VALUES(address), "
+                            "         email = VALUES(email)",
+                            fields.mobile, fields.password,
+                            fields.name, fields.mobile,
+                            fields.address, fields.email)
+            
+            # 2: add terminal
+            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
+                            "  alias, begintime, endtime)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s)",
+                            fields.tmobile, fields.tmobile,
+                            fields.mobile, fields.cnum, 
+                            fields.begintime, fields.endtime)
+    
+            # 3: add car tnum --> cnum
+            self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand, group_id)"
+                            "  VALUES(%s, %s, %s, %s, %s, DEFAULT)",
+                            fields.tmobile, fields.cnum, 
+                            fields.type, fields.color, fields.brand)
+            
+            # 4: add default sms report value
+            self.db.execute("INSERT INTO T_SMS_OPTION(id, uid, login, powerlow, poweroff, illegalmove, sos, heartbeat_lost)"
+                            "  VALUES(NULL, %s, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT)",
+                            fields.mobile)
+            
+            # 5: send message to terminal
+            register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
+            ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
+            ret = DotDict(json_decode(ret))
+            #ret = DotDict(status=0, msgid=1111)
+            sms_status = 0
+            if ret.status == ErrorCode.SUCCESS:
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET msgid = %s"
+                                "  WHERE mobile = %s",
+                                ret['msgid'], fields.tmobile)
+            #convert front desk need format 
+                sms_status = 1
+            else:
+                
+                sms_status = 0
+                logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
+            fields.sms_status = sms_status
+            fields.service_status = 1
+            self.render('business/list.html',
+                        business=fields,
+                        status=ErrorCode.SUCCESS,
+                        message='')
+        except Exception as e:
+            logging.exception("Create business failed. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
+            self.render('errors/error.html',
+                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_USER_FAILURE])
 
-        self.modify_user_terminal_car(fields)
-        self.redirect("/business/list/%s" % fields.tmobile)
 
 class BusinessSearchHandler(BaseHandler, BusinessMixin):
-
-    @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
-    @tornado.web.removeslash
-    def prepare(self):
-        # TODO: if any nees, prepare can be invoked before the actual handler method.
-        pass
 
     @authenticated
     @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
@@ -312,22 +235,73 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                     status=ErrorCode.SUCCESS,
                     message='')
 
+
     @authenticated
     @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
-    #@check_areas()
     @tornado.web.removeslash
     def post(self):
-        """Query bsinesses according to the given params.
+        """Query businesses according to the given params.
         """
-        m = hashlib.md5()
-        m.update(self.request.body)
-        hash_ = m.hexdigest() 
-        businesses, interval = self.prepare_data(hash_)
-        self.render('business/search.html',
-                    interval=interval, 
-                    businesses=businesses,
-                    status=ErrorCode.SUCCESS,
-                    message='')
+        begintime = int(self.get_argument('begintime',0))
+        endtime = int(self.get_argument('endtime',0))
+        interval=[begintime, endtime]
+
+        fields = DotDict(cnum="tc.cnum LIKE '%%%%%s%%%%'",
+                         name="tu.name LIKE '%%%%%s%%%%'",
+                         mobile="tu.mobile LIKE '%%%%%s%%%%'",
+                         tmobile="tt.mobile LIKE '%%%%%s%%%%'",
+                         begintime="tt.begintime >= %s",
+                         endtime="tt.endtime <= %s")
+        
+        for key in fields.iterkeys():
+            v = self.get_argument(key, None)
+            if v:
+                if not check_sql_injection(v):
+                    logging.error("Search business condition contain SQL inject. %s : %s", key, v)
+                    self.render('errors/error.html',
+                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.SELECT_CONDITION_ILLEGAL])
+                    return
+                else:
+                    fields[key] = fields[key] % (v,)
+            else:
+                fields[key] = None
+
+        where_clause = ' AND '.join([v for v in fields.itervalues()
+                                     if v is not None])
+        try:
+            if where_clause:
+                sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
+                       "  tt.mobile as tmobile, tt.service_status, tc.cnum"
+                       "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
+                       "  WHERE  tu.mobile = tt.owner_mobile "
+                       "    AND tt.tid = tc.tid "
+                       "    AND tc.group_id = 0"
+                       "    AND ") + where_clause
+                businesses = self.db.query(sql)
+            else:
+                sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
+                       "  tt.mobile as tmobile, tt.service_status, tc.cnum"
+                       "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
+                       "  WHERE  tu.mobile = tt.owner_mobile "
+                       "    AND tc.group_id = 0"
+                       "    AND tt.tid = tc.tid ")
+                businesses = self.db.query(sql)
+            for i, business in enumerate(businesses):
+                business['seq'] = i + 1
+                business['sms_status'] = self.get_sms_status(business['tmobile'])
+                for key in business:
+                    if business[key] is None:
+                        business[key] = ''
+            self.render('business/search.html',
+                        interval=interval, 
+                        businesses=businesses,
+                        status=ErrorCode.SUCCESS,
+                        message='')
+        except Exception as e:
+            logging.exception("Search business failed.")
+            self.render('errors/error.html',
+                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.SEARCH_BUSINESS_FAILURE])
+
 
 class BusinessListHandler(BaseHandler, BusinessMixin):
 
@@ -344,15 +318,16 @@ class BusinessListHandler(BaseHandler, BusinessMixin):
                     status=ErrorCode.SUCCESS,
                     message='')
 
+
 class BusinessEditHandler(BaseHandler, BusinessMixin):
 
     @authenticated
     @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
     @tornado.web.removeslash
     def get(self, tmobile):
-        """Jump to editer.html.
+        """Jump to edit.html.
         """
-        business = self.get_business_info(tmobile) 
+        business = self.get_business_info(tmobile)
         self.render("business/edit.html",
                     business=business,
                     status=ErrorCode.SUCCESS,
@@ -362,172 +337,72 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
     @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
     @tornado.web.removeslash
     def post(self, tmobile):
-        """Modify a business.
-        workflow:
-        if new_user and new_terminal: 
-            update mobile of new user 
-            update owner_mobile and mobile of terminal 
-            update owner_mobile of other mobiles, whose owner_mobile is old owner_mobile 
-        elif new_user and old_terminal: 
-            update mobile of new user 
-            update owner_mobile of terminal 
-            update owner_mobile of other mobiles, whose owner_mobile is old owner_mobile
-        elif old_user and new_terminal: 
-            update mobile of terminal 
-        elif old_user and old_terminal: 
-            pass 
-        update other info 
-        """
+        """Modify a business."""
         
-        list_inject = ['name', 'mobile', 'type', 'color', 'brand',] 
-        for key in list_inject:
-            v = self.get_argument(key, '')
-            if not check_sql_injection(v):
-               # call get method
-               self.get(tmobile) 
-               return
-
-        user = QueryHelper.get_user_by_tmobile(tmobile, self.db)
-        mobile_p = self.get_argument('mobile_p', '')
-        tmobile_p = self.get_argument('tmobile_p', '')
-        mobile_n = self.get_argument('mobile', '')
-        tmobile_n = self.get_argument('tmobile', '')
-
-        if mobile_n!=mobile_p and tmobile_n!=tmobile_p:
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET mobile = %s,"
-                            "      owner_mobile = %s"
-                            "  WHERE mobile = %s",
-                            tmobile_n, mobile_n, tmobile_p)
-
+        fields = DotDict(name="",
+                         mobile="",
+                         tmobile="",
+                         cnum="",
+                         color="",
+                         brand="",
+                         address="",
+                         email="")
+        
+        for key in fields.iterkeys():
+            fields[key] = self.get_argument(key, "")
+            if fields[key]:
+                if not check_sql_injection(fields[key]):
+                    logging.error("Edit business condition contain SQL inject. %s : %s", key, fields[key])
+                    self.render('errors/error.html',
+                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.EDIT_CONDITION_ILLEGAL])
+                    return
+                
+        fields.begintime = int(self.get_argument('begintime',0))
+        fields.endtime = int(self.get_argument('endtime',0))
+        fields.type = int(self.get_argument('type',0))
+        fields.service_status = int(self.get_argument('service_status',0))
+        try:
             self.db.execute("UPDATE T_USER"
-                            "  SET mobile = %s"
+                            "  SET name = %s,"
+                            "  address = %s,"
+                            "  email = %s "
                             "  WHERE mobile = %s",
-                            mobile_n, mobile_p)
-
-            # modify owner_mobile of other terminals of the owner.
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET owner_mobile = %s"
-                            "  WHERE owner_mobile = %s",
-                            mobile_n, mobile_p)
-
-            fields = DotDict(name="",
-                             mobile="",
-                             tmobile="",
-                             cnum="",
-                             type="",
-                             color="",
-                             brand="",
-                             address="",
-                             email="",
-                             begintime="",
-                             endtime="")
-
-            for key in fields.iterkeys():
-                fields[key] = self.get_argument(key,'')
-
-            self.modify_user_terminal_car(fields)
-
-        elif mobile_n!=mobile_p and tmobile_n==tmobile_p:
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET owner_mobile = %s"
-                            "  WHERE mobile = %s",
-                            mobile_n, tmobile_p)
-
-            self.db.execute("UPDATE T_USER"
-                            "  SET mobile = %s"
-                            "  WHERE mobile = %s",
-                            mobile_n, mobile_p)
-
-            # modify owner_mobile of other terminals of the owner.
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET owner_mobile = %s"
-                            "  WHERE owner_mobile = %s",
-                            mobile_n, mobile_p)
-
-            fields = DotDict(name="",
-                             mobile="",
-                             cnum="",
-                             type="",
-                             color="",
-                             brand="",
-                             address="",
-                             email="",
-                             begintime="",
-                             endtime="")
-
-            for key in fields.iterkeys():
-                fields[key] = self.get_argument(key,'')
-            fields['tmobile'] = self.get_argument('tmobile','')
-
-            self.modify_user_terminal_car(fields)
-
-        elif mobile_n==mobile_p and tmobile_n!=tmobile_p:
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET mobile = %s"
-                            "  WHERE mobile = %s",
-                            tmobile_n, tmobile_p)
-            fields = DotDict(name="",
-                             mobile="",
-                             tmobile="",
-                             cnum="",
-                             type="",
-                             color="",
-                             brand="",
-                             address="",
-                             email="",
-                             begintime="",
-                             endtime="")
-            for key in fields.iterkeys():
-                fields[key] = self.get_argument(key,'')
-            fields['mobile'] = user.owner_mobile 
-
-            self.modify_user_terminal_car(fields)
-
-        elif mobile_n==mobile_p and tmobile_n==tmobile_p:
-            u_fields = DotDict(mobile="mobile=%s",
-                               name="name=%s",
-                               address="address=%s",
-                               email="email=%s")
-            c_fields = DotDict(cnum="cnum=%s",
-                               type="type=%s",
-                               color="color=%s",
-                               brand="brand=%s")
-            t_fields = DotDict(tmobile="mobile=%s",
-                               service_status="service_status=%s",
-                               cnum="alias=%s",
-                               begintime="begintime=%s",
-                               endtime="endtime=%s")
-
-
-            user = QueryHelper.get_user_by_tmobile(tmobile, self.db) 
-            u_data = [self.get_argument(key, '') for key in u_fields.iterkeys()] + [user.owner_mobile]
-            u_set_clause = ','.join([v for v in u_fields.itervalues()])
-            if u_data:
-                self.db.execute("UPDATE T_USER"
-                                "  SET "+u_set_clause+
-                                "  WHERE mobile = %s",
-                                *u_data)
+                            fields.name, fields.address, 
+                            fields.email, fields.mobile)
             
-            terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db)
-            c_data = [self.get_argument(key, '') for key in c_fields.iterkeys()] + [terminal.tid]
-            c_set_clause = ','.join([v for v in c_fields.itervalues()])
-            if c_data:
-                self.db.execute("UPDATE T_CAR"
-                                "  SET "+c_set_clause+
-                                "  WHERE tid = %s",
-                                *c_data)
-
-            t_data = [self.get_argument(key, '') for key in t_fields.iterkeys()] + [tmobile]
-            t_set_clause = ','.join([v for v in t_fields.itervalues()])
-            if t_data:
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET "+t_set_clause+
-                                "  WHERE mobile = %s",
-                                *t_data)
-
-        self.redirect("/business/list/%s" % tmobile_n)
-
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET begintime = %s,"
+                            "  endtime = %s,"
+                            "  service_status = %s "
+                            "  WHERE mobile = %s",
+                            fields.begintime, fields.endtime, 
+                            fields.service_status, fields.tmobile)
+            
+            terminal =  self.db.get("SELECT tid "
+                                    "  FROM T_TERMINAL_INFO"
+                                    "  WHERE mobile = %s",
+                                    fields.tmobile)
+            
+            self.db.execute("UPDATE T_CAR"
+                            "  SET cnum = %s,"
+                            "  type = %s,"
+                            "  color = %s,"
+                            "  brand = %s "
+                            "  WHERE tid = %s",
+                            fields.cnum, fields.type, 
+                            fields.color, fields.brand, terminal.tid)
+            
+            fields.sms_status = self.get_sms_status(fields.tmobile)
+            self.render('business/list.html',
+                        business=fields,
+                        status=ErrorCode.SUCCESS,
+                        message='')
+        except Exception as e:
+            logging.exception("Edit business failed.Terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
+            self.render('errors/error.html',
+                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.EDIT_USER_FAILURE])
+        
+        
 class BusinessStopHandler(BaseHandler, BusinessMixin):
 
     @authenticated
@@ -543,30 +418,7 @@ class BusinessStopHandler(BaseHandler, BusinessMixin):
                             service_status, tmobile)
         except Exception as e:
             status = ErrorCode.FAILED
-            logging.exception("Stop service failed. tmobile: %s", mobile)
-
-        #NOTE: here just modify database.
-        #terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db)
-        #args = DotDict(seq=SeqGenerator.next(self.db),
-        #               tid=terminal.tid)
-        #args.params = DotDict(service_status=service_status) 
-        #def _on_finish(response):
-        #    status = ErrorCode.SUCCESS
-        #    response = json_decode(response)
-        #    if response['success'] == 0:
-        #        self.update_terminal_info(response['params'], data, self.current_user.tid)
-        #    else:
-        #        status = response['success'] 
-        #        logging.error("[UWEB] Set terminal failed. status: %s, message: %s", 
-        #                       status, ErrorCode.ERROR_MESSAGE[status] )
-        #    self.write_ret(status)
-        #    IOLoop.instance().add_callback(self.finish)       
-        #if args.params:
-        #    GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
-        #                                      _on_finish)
-        #else: 
-        #    self.write_ret(status)
-        #    IOLoop.instance().add_callback(self.finish)
+            logging.exception("Set service status to %s failed. tmobile: %s", service_status, mobile)
 
         self.write_ret(status)
         
@@ -579,27 +431,20 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
     def post(self, tmobile, pmobile):
         status = ErrorCode.SUCCESS
         try:
-            terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db)
-            self.db.execute("DELETE FROM T_CAR"
-                            "  WHERE tid = %s",
-                            terminal.tid)
-            terminal = self.db.query("SELECT mobile"
-                                     "  FROM T_TERMINAL_INFO "
-                                     "  WHERE  owner_mobile = %s ",
-                                     pmobile)
             self.db.execute("DELETE FROM T_TERMINAL_INFO"
                             "  WHERE mobile = %s",
                             tmobile)
-            
-            if len(terminal) == 1:
+            terminal = self.db.query("SELECT mobile"
+                                     "  FROM T_TERMINAL_INFO"
+                                     "  WHERE owner_mobile = %s",
+                                     pmobile)
+            if len(terminal) == 0:
                 self.db.execute("DELETE FROM T_USER"
                                 "  WHERE mobile = %s",
                                 pmobile)
-            else:
-                pass
             
         except Exception as e:
             status = ErrorCode.FAILED
-            logging.exception("Delete service failed. tmobile: %s, pmobile: %s", tmobile, pmobile)
+            logging.exception("Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)
         self.write_ret(status)
             

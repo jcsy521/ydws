@@ -260,7 +260,7 @@ class SMSRegisterHandler(SMSMixin, BaseHandler):
             tmobile = data.tmobile
             pmobile = data.pmobile
             register_sms = SMSCode.SMS_REGISTER % (pmobile, tmobile) 
-            ret = SMSHelper.send(tmobile, register_sms)
+            ret = SMSHelper.send_to_terminal(tmobile, register_sms)
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:
                 self.db.execute("UPDATE T_TERMINAL_INFO"
