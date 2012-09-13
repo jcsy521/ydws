@@ -20,7 +20,7 @@ window.dlf.fn_personalData = function() {
 				str_remark = obj_data.remark;
 			$('#name').val(str_name).data('name', str_name);
 			$('#phone').val(str_phone).data('phone', str_phone);
-			$('#address').val(str_address).data('address', str_address);
+			$('#txtAddress').val(str_address).data('address', str_address);
 			$('#email').val(str_email).data('email', str_email);
 			$('#remark').val(str_remark).data('remark', str_remark);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
