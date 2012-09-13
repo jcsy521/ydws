@@ -3,7 +3,7 @@
 <script type="text/javascript" src="/static/js/WdatePicker.js"></script>
 <script type="text/javascript" src="/static/js/event.js"></script>
 {% end %}
-{% block title %}爱车保-报警查询{% end %}
+{% block title %}爱车保-告警查询{% end %}
 {% block body %}
 <body class="eventbody" alias={{alias}}>
 	<!--查询条件-->
@@ -16,7 +16,7 @@
 			<input type="text" class="time" id="eventEndTime" />			
 		</span>
 		<span class="eventPos">
-			<span class="timeTip">报警类型:</span>
+			<span class="timeTip">告警类型:</span>
 			<select class="cEventType" id="category">
 				<option value="-1">全部</option>
 				<option value="2">低电</option>
@@ -36,7 +36,7 @@
 			<tbody>
 				<tr id="eventTableHeader">
 					<th class="eventTime">时间</th>
-					<th class="eventType">报警类型</th>
+					<th class="eventType">告警类型</th>
 					<th class="eventLocation">位置详情</th>
 				</tr>
 			</tbody>

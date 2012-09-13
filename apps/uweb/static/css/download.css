@@ -1,5 +1,5 @@
 body {
-	font-family: "微软雅黑","宋体","Arial Narrow";
+	font-family: "宋体","Times New Roman","Arial";
 	padding: 0;
 	font-size: 12px;
 	width: 1000px;
@@ -200,3 +200,7 @@ body {
 	background-color: gray;
 	cursor: default;
 }
+
+/*browser download start*/
+
+/*browser download end*/

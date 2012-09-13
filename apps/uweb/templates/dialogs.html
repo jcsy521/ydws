@@ -83,22 +83,28 @@
 			</form>
 		</div>
 	</div><!--密码修改框end-->
+	
 	<!--终端参数设置-->
 	<!-- demo -->
 	<div id="terminalWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle">
 			<span class="wrapperTitleL popbox"></span>
 			<span class="t_wtc popbox">
-				<span class="titleName fontMic">终端设置</span>
+				<span class="titleName fontMic">参数设置</span>
 				<span class="close j_close" title="关闭窗口"></span>
 			</span>
 			<span class="wrapperTitleR popbox"></span>
 		</div>
 		<div class="terminalContent wrapperContent">
+			<!--tab选项卡 -->
+			<ul id="terminalTab" class="tabs">
+				<li id="rTab" class="j_tabs tabItems currentTab">终端参数设置</li>
+				<li id="wTab" class="j_tabs tabItems">短信告警设置</li>
+			</ul>
 			<div class="j_terminalList">
-				<!-- 可查询参数列表 -->
-				<form id="terminalForm" >
-					<div id="terminalList0" class="j_terminalcontent">
+				<div id="terminalList0" class="j_terminalcontent">
+					<!-- 可查询参数列表 -->
+					<form id="terminalForm" >
 						<table id="bListR">
 							<tbody>
 								<tr>
@@ -148,7 +154,10 @@
 								<tr>
 									<td class="terminalTdL">振动灵敏度:</td>
 									<td id="vibl" class="j_ListVal j_vibl"  t_val="0">
-										<div id="viblSlider" title="1"></div>
+										<div  class="viblslider">
+											<div id="viblSlider" title="1"></div>
+										</div>
+										<label id="viblTip"></label>
 									</td>
 								</tr>
 								<tr>
@@ -187,8 +196,45 @@
 								</td>
 							</tr>
 						</table>
+					</form>
+				</div>
+				<!-- 短信参数设置 -->
+				<div id="terminalList1" class="hide j_terminalcontent">
+					<span class="smsTip">请选择想要的短信通知项：</span>
+					<div class="smsContent wrapperContent">
+						<ul class="smsList">
+							<li>
+								<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">爱车保低电告警</label> 
+								<!--<span id="powerlow" class="sp_xjCheckBox j_checkbox"  value="2" t_checked="false"></span>-->
+							</li>
+							<li>
+								<input type="checkbox" id="poweroff" class="j_checkbox" title="断电" /><label for="poweroff">爱车保断电告警</label> 
+								<!--<span id="poweroff" class="sp_xjCheckBox j_checkbox" title="断电" value="2" t_checked="false">爱车保断电告警</span>-->
+							</li>
+							<li>
+								<input type="checkbox" id="sos" class="j_checkbox" title="SOS" /><label for="sos">爱车保SOS告警</label> 
+								<!--<span id="sos" class="sp_xjCheckBox j_checkbox" title="SOS" value="2" t_checked="false">爱车保SOS告警</span>-->
+							</li>
+							<li>
+								<input type="checkbox" id="illegalmove" class="j_checkbox" title="非法移动" /><label for="illegalmove">爱车保非法移动告警</label> 
+								<!--<span id="illegalmove" class="sp_xjCheckBox j_checkbox" title="非法移动" value="2" t_checked="false">爱车保非法移动告警</span>-->
+							</li>
+							<li>
+								<input type="checkbox" id="charge" class="j_checkbox" title="卡号余额" /><label for="charge">爱车保卡号余额提醒</label> 
+								<!--<span id="heartbeat_lost" class="sp_xjCheckBox j_checkbox" title="心跳丢失" value="2" t_checked="false">爱车保通讯异常提醒</span>-->
+							</li>
+							<li>
+								<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">爱车保平台登录提醒</label> 
+								<!--<span id="login" class="sp_xjCheckBox j_checkbox" title="车主登录" value="1" t_checked="false">爱车保平台登录提醒</span>-->
+							</li>
+							<li>
+								<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="心跳丢失" /><label for="heartbeat_lost">爱车保通讯异常提醒</label> 
+								<!--<span id="heartbeat_lost" class="sp_xjCheckBox j_checkbox" title="心跳丢失" value="2" t_checked="false">爱车保通讯异常提醒</span>-->
+							</li>
+						</ul>
+						<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
 					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 	</div>

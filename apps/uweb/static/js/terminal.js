@@ -2,35 +2,54 @@
 *终端设置相关操作方法
 */
 
-var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 
-	arr_slideTitle = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 (function () {
-	
-
 // 终端参数设置初始化页面
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#terminalWrapper').css({'left': '40%', 'top': '20%'}).show(); // 显示终端设置窗口
 	dlf.fn_setItemMouseStatus($('#refresh'), 'pointer', new Array('sx', 'sx2', 'sx'));	// 刷新按钮鼠标滑过样式
-	// 参数刷新
-	/*$('#refresh').unbind('click').click(function() {
-		dlf.fn_initTerminalWR('f');
+	// 标签初始化
+	$('.j_tabs').removeClass('currentTab');
+	$('#rTab').addClass('currentTab');
+	$('.j_terminalcontent').hide();//css('display', 'none');
+	$('#terminalList0').show();//css('display', 'block');
+	
+	// 选项卡
+	$('.j_tabs').unbind('click').click(function() {
+		var n_index  = $(this).index(), // 当前li索引
+			str_className = $(this)[0].className, 
+			param = 'w';
+			
+		if ( str_className.search('currentTab') != -1 ) {
+			return;
+		}
+		$('.j_tabs').removeClass('currentTab'); //移除所有选中样式
+		$(this).addClass('currentTab'); // 选中样式
+		$('#terminalList'+n_index).show().siblings().hide(); // 显示当前内容 隐藏其他内容
+		if ( n_index == 0 ) {
+			dlf.fn_initTerminalWR(); // 初始化 终端参数
+		} else {
+			// 初始化  短信参数
+			dlf.fn_initSMSParams();
+		}
 	});
-	*/
+	// 灵敏度
 	$('#viblSlider').slider({
 		min: 0,
-		max: 15,
+		max: 9,
 		values: 1,
 		range: false,
 		slide: function (event, ui) {
 			var n_val = ui.value;
 			n_vibl = arr_slide[n_val];
-			$('#viblSlider').attr('title', '震动灵敏度值：' + arr_slideTitle[n_val]);
+			$('#viblSlider').attr('title', '震动灵敏度值：' + n_vibl);
+			$('#viblTip').html(dlf.fn_changeData('vibl', n_vibl));
 		}
 	}).slider('option', 'value', 1);
 	
 	dlf.fn_initTerminalWR(); // 初始化加载参数
-	
+	// 轨迹上报开启状态：可以编辑上报间隔  反之不能编辑
 	$('.j_trace').unbind('click').bind('click', function() {
 		var obj_this = $(this),
 			obj_freq = $('#t_freq'),
@@ -39,9 +58,9 @@ window.dlf.fn_initTerminal = function() {
 		if ( str_val == 0 ) {
 			str_oldVal = str_oldVal=='0'?'':str_oldVal;
 			obj_freq.val(str_oldVal);
-			obj_freq.attr('disabled', true);
+			obj_freq.attr('disabled', true).css({'background': '#F2F2F2'});
 		} else {
-			$('#t_freq').attr('disabled', false);
+			$('#t_freq').attr('disabled', false).css({'background': '#FFF'});
 		}
 	});
 }
@@ -67,7 +86,7 @@ window.dlf.fn_initTerminalWR = function (param) {
 						// 如果轨迹上报为关闭状态  上报间隔不可编辑
 						if ( param == 'trace' ) {
 							if ( str_val == 0 ) {
-								$('#t_freq').attr('disabled', true);
+								$('#t_freq').attr('disabled', true).css({'background': '#F2F2F2'});
 							} else {
 								$('#t_freq').attr('disabled', false);
 							}
@@ -90,7 +109,8 @@ window.dlf.fn_initTerminalWR = function (param) {
 						$('#t_vibchk1').val(arr_vibchk[1]);
 					} else if ( param == 'vibl' ) {
 						// 震动灵敏度
-						$('#viblSlider').slider('option', 'value', str_val).attr('title', '震动灵敏度值：' + arr_slideTitle[parseInt(str_val)]);
+						$('#viblSlider').slider('option', 'value', str_val).attr('title', '震动灵敏度值：' + arr_slide[parseInt(str_val)]);
+						$('#viblTip').html(dlf.fn_changeData('vibl', str_val));
 					} else {
 						if ( param == 'freq' ) {
 							$('#t_' + param ).val('');	

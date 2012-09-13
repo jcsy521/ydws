@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block include %}
-<script type="text/javascript" src="/static/js/formValidator-4.1.1.js"></script>
+<script type="text/javascript" src="/static/js/formValidator-4.1.1.js"></script>		
+<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
 <script type="text/javascript" src="/static/js/formValidatorRegex.js"></script>
 <script type="text/javascript" src="/static/js/WdatePicker.js"></script>
 <script type="text/javascript" src="/static/js/terminal.js"></script>
@@ -10,7 +11,7 @@
 <script type="text/javascript" src="/static/js/turntopimage.js"></script>
 {% end %}
 {% block body %}
-<body class="j_body">
+<body class="j_body mainBody">
 	<!-- top -->
 	<div id="top">
 		<!-- todo logo -->
@@ -66,7 +67,7 @@
 					</table>
 			</div>
 			<div id="terminalInfo">
-				<div class="title tiTitle">终端状态</div>
+				<div class="title tiTitle">终端信息</div>
 				<ul id="tInfo">
 					<li id="defendStatus">
 						<span id="defend_word"></span>
@@ -78,6 +79,7 @@
 						<span id="g_word"></span>
 						<span class="g_img"><img id="GPS"></img></span>
 					</li>
+					<li id="tmobile"></li>
 				</ul>
 			</div>
 			<div class="updateTime"></div>
@@ -86,16 +88,16 @@
 		<div id="right">
 			<div id="navi">
 				<ul class="menu">
-					<li><a href="#" id="realtime" class="realtime j_click" title="实时定位"></a></li>
-					<li><a href="#" id="track" class="track j_click"  title="轨迹查询"></a></li>
-					<li><a href="/event" id="warnEvent" target="event.html" class="event j_click" title="报警查询"></a></li>
-					<li><a href="#" id="defend" class="defend j_click"  title="设防/撤防"></a></li>
-					<li><a href="#" id="terminal" class="terminal j_click" title="终端设置"></a></li>
+					<li><a href="#" id="realtime" class="realtime j_click"></a></li>
+					<li><a href="#" id="track" class="track j_click"></a></li>
+					<li><a href="/event" id="warnEvent" target="event.html" class="event j_click"></a></li>
+					<li><a href="#" id="defend" class="defend j_click"></a></li>
+					<li><a href="#" id="terminal" class="terminal j_click"></a></li>
 				</ul>
 				<ul class="selfList">
-					<li><a href="#" id="personalData" class="j_click" title="我的资料">我的资料</a></li>
-					<li><a href="#" id="changePwd" class="j_click" title="修改密码">修改密码</a></li>
-					<li><a href="#" id="logout" onclick="dlf.fn_exit()" title="退出">退出</a></li>
+					<li><a href="#" id="personalData" class="j_click">我的资料</a></li>
+					<li><a href="#" id="changePwd" class="j_click">修改密码</a></li>
+					<li><a href="#" id="logout" onclick="dlf.fn_exit()">退出</a></li>
 				</ul>
 			</div>
 			<!--轨迹查询条件-->

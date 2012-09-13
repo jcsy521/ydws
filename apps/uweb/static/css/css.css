@@ -8,7 +8,7 @@
 }
 html, a, input, ul, ol, li, p {
 	font-size: 12px;
-	font-family: "宋体","Arial Narrow";
+	font-family: "宋体","Times New Roman","Arial";
 	margin: 0;
 	padding: 0;
 }
@@ -18,7 +18,10 @@ ul, ol, li {
 body {
 	margin: 0;
 	padding: 0;
+}
+.mainBody {
 	float: left;
+	min-height: 685px;
 }
 /*navigation css start*/
 #top {
@@ -70,14 +73,14 @@ body {
 /*main content start*/
 #main {
 	min-width: 1040px;
-	min-height: 520px;
+	min-height: 565px;
 	background: #1661c2 url('/static/images/bgColor.png') repeat-x;
 	float: left;
 }
 #left, #right {
 	float: left;
 	margin-top: 5px;
-	min-height: 515px;
+	min-height: 560px;
 	background-color: #f7f7f7;
 }
 #left {
@@ -251,7 +254,7 @@ body {
 }
 #mapObj {
 	min-width: 785px;
-	min-height: 480px;
+	min-height: 525px;
 }
 .menu a {
 	display: inline-block;
@@ -489,10 +492,21 @@ body {
 .businessLine {
 	left: 320px;
 }
-.personalList li, .pwdList  {
+.personalList li, .pwdList, .smsList  {
 	line-height: 37px;
     list-style: none outside none;
     margin-left: 26px;
+}
+.smsList {
+	padding: 7px 18px 0px 39px;
+	float: left;
+}
+.smsList li {
+	float: left;
+	padding: 0px 10px 10px 0px;
+	height: 22px;
+	line-height: 22px;
+	width: 360px;
 }
 .personalList li  input, .pwdList li  input {
 	float: right;
@@ -505,15 +519,31 @@ body {
 .personalList li input {
 	width: 165px;
 }
-.personalButton, .pwdButton{
+.personalButton, .pwdButton, .smsButton{
 	height: 31px;
     left: 200px;
     position: relative;
     top: 13px;
     width: 40px;
 }
-#pwdWrapper{
+.smsButton {
+	left: 298px;
+ }
+#pwdWrapper {
 	height: 191px;
+}
+#smsWrapper {
+	height: 200px;
+}
+.smsContent {
+	height: 161px;
+	margin-top: 10px;
+}
+.smsTip {
+	display: inline-block;
+    line-height: 22px;
+    padding: 30px 18px 0 38px;
+    text-align: left;
 }
 .pwdContent {
 	height: 166px;
@@ -522,7 +552,7 @@ body {
 	width: 390px;
 }
 #terminalWrapper .terminalContent {
-	height: 400px;
+	height: 439px;	/* 400px*/
 }
 #terminalWrapper .titleName {
 	width: 154px;
@@ -599,10 +629,12 @@ body {
 	height: 17px;
 	list-style: none;
 }
+/*
 #terminalList1 {
 	padding: 10px 0px 0px 10px;
 	display: inline-block;
 }
+*/
 .terminalButton {
 	height: 31px;
 	width: 40px;
@@ -636,9 +668,23 @@ body {
 	width: 127px;
 	text-align: right;
 }
-#viblSlider {
-	width: 130px;
+.viblslider {
+	background: url("/static/images/sliderBg.png") no-repeat;
+	width: 132px;
+	height: 13px;
 	margin-left: 10px;
+	margin-top: 5px;
+	float: left;
+}
+#viblSlider {
+	width: 125px;
+	background: none;
+	border: 0px;
+}
+#viblSlider a {
+	top: -2px;
+	width: 11px;
+	margin-left: 0px;
 }
 #bListR span {
 	display: inline-block;
@@ -675,6 +721,9 @@ body {
 .vibchk {
 	width: 40px;
 }
+#viblTip {
+	margin-left: 20px;	
+}
 .lblVibchk {
 	margin-left: 10px;
 }
@@ -688,7 +737,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-#personalSave, #pwdSave, #terminalSave {
+#personalSave, #pwdSave, #terminalSave, #smsNoticeSave {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 63px;
@@ -1375,3 +1424,51 @@ body {
 	height: 39px;
 }
 /*feedback end*/
+
+/*checkbox css start*/
+.smsList input {
+	padding-right: 10px;
+}
+.smsList label {
+	padding-left: 10px;
+	display: inline-block;
+}
+/*checkbox css end*/
+
+/*web css start*/
+#webBody {
+	margin: 0 auto;
+}
+#webBody h2 {
+	margin-top: 30px;
+}
+#webTab {
+	margin-top: 20px;
+}
+#webBody a {
+	display: inline-block;
+	width: 64px;
+	height: 64px;
+	padding: 6px;
+	border: 1px solid #cdcdcd;
+	text-align: center;
+	font-size: 14px;
+	color: #696969;
+	text-decoration: none;
+	font-weight: bold;
+}
+#webBody a:hover {
+	background-color: #F4F4F4;
+}
+#webBody img {
+	border: 0px;
+}
+#webBody td {
+	padding: 10px 20px 0px 0px;
+}
+.orders {
+	line-height: 31px;
+	letter-spacing: 2px;
+	text-indent: 20px;
+}
+/*web css end*/

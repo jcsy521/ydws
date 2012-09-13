@@ -388,7 +388,8 @@ window.dlf.fn_getCarData = function() {
 * car_info: 车辆的信息
 */
 window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
-	var n_defendStatus = obj_carInfo.defend_status, 
+	var str_tmobile = '终端手机号：' + obj_carInfo.mobile,
+		n_defendStatus = obj_carInfo.defend_status, 
 		str_dStatus = n_defendStatus == DEFEND_ON ? '设防状态：  已设防' : '设防状态：  未设防', 
 		str_dImg= n_defendStatus == DEFEND_ON ? '/static/images/defend_status1.png' : '/static/images/defend_status0.png',
 		str_type = obj_carInfo.type == GPS_TYPE ? 'GPS定位' : '基站定位',
@@ -439,6 +440,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#defend_word').html(str_dStatus).data('defend', n_defendStatus);
 		$('#defendStatus').attr('title', str_dStatus);
 		$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
+		$('#tmobile').html(str_tmobile).attr('title', str_tmobile);
 	}
 	// 车辆信息/位置信息
 	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
@@ -500,7 +502,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_selfMarker.setIcon(new BMap.Icon('/static/images/'+n_imgDegree+'.png', new BMap.Size(34, 34)));
 		//f_infoWindowStatus = obj_selfMarker.selfInfoWindow.isOpen();	
 	} else {
-		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carA.parent().index(), true, 'lastinfo'); // 添加标记
+		dlf.fn_addMarker(obj_carInfo, 'actiontrack', obj_carA.parent().index(), false, 'lastinfo'); // 添加标记
 	}
 	// 查找到当前车辆的信息
 	// todo 实时定位 
@@ -511,7 +513,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		var obj_tempMarker = obj_carA.data('selfmarker');
 		if (( str_currentTid == str_tid ) ) {  //&& f_infoWindowStatus 
 			if ( obj_tempMarker ) {
-				//obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
+				obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
 				clearInterval(obj_toWindowInterval);
 			}
 		}
@@ -579,6 +581,14 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 				str_return = arr_desc[i];
 				break;
 			}			
+		}
+	} else if ( str_key == 'vibl' ) {	// 参数设置中的震动灵敏度
+		if ( str_val >= 0 && str_val <= 2 ) {
+			str_return = '很灵敏';
+		} else if ( str_val >= 3 && str_val <= 5 ) {
+			str_return = '灵敏';
+		} else if ( str_val >= 6 && str_val <= 9 ) {
+			str_return = '一般灵敏';
 		}
 	}
 	return str_return;
@@ -769,10 +779,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				}
-				if ( str_who != 'terminal' ) {
-					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
-					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				} else {
+				if ( str_who == 'terminal' ) {
 					// 别名回填
 					var alias = obj_data.alias,
 						obj_car = $('#carList .currentCar'),
@@ -789,8 +796,18 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					//dlf.fn_initTerminalWR();
+				} else if ( str_who == 'sms' ) {
+					for ( var param in obj_data ) {
+						var str_val = obj_data[param];
+						$('#' + param).attr('t_checked', str_val).attr('t_val', str_val);
+					}
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+				} else {
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				}				
 			} else if ( data.status == 201 ) {
+				dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				dlf.fn_showBusinessTip();
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', true);

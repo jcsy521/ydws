@@ -59,7 +59,57 @@ window.dlf.fn_changePwd = function() {
 	$('#pwdWrapper').css({'left': '38%', 'top': '22%'}).show();
 	$('#pwdWrapper input[type=password]').val('');// 清除文本框数据
 }
-	
+// 短息通知
+window.dlf.fn_initSMSParams = function() {
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	$('#smsWrapper').css({'left': '38%', 'top': '22%'}).show();
+	// get smsoption
+	$.get_(SMS_URL, '', function(data) {
+		if ( data.status == 0 ) {
+			var obj_data = data.sms_options;
+			for(var param in obj_data) { 
+				var n_val = obj_data[param],
+					obj_param = $('#' + param);
+				obj_param.attr('t_checked', n_val);
+				if ( n_val == 1 ) {
+					obj_param.attr('checked', true)
+				} else {
+					obj_param.attr('checked', false)
+				}
+			}
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+		} else if ( data.status == 201 ) {
+			dlf.fn_showBusinessTip();
+		} else { 
+			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
+		}
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
+	});
+	$('#smsNoticeSave').unbind('click').bind('click', function() {
+		dlf.fn_saveSMSOption();
+	});
+}
+window.dlf.fn_saveSMSOption = function() {
+	var obj_checkbox = $('.j_checkbox'),
+		obj_smsData = {};
+	$.each(obj_checkbox, function(index, dom) {
+		var obj_this = $(dom),
+			str_nowVal = obj_this.attr('checked') == 'checked' ? 1 : 0,
+			str_oldVal = parseInt(obj_this.attr('t_checked')),
+			str_id = obj_this.attr('id');
+		if ( str_nowVal != str_oldVal ) {
+			obj_smsData[str_id] = str_nowVal;
+		}
+	});
+	dlf.fn_jsonPut(SMS_URL, obj_smsData, 'sms', '短信告警参数保存中...');
+}
+window.dlf.fn_bindcheckbox = function(obj_checkbox) {
+	obj_checkbox.bind('mouseover', function() {
+		$(this).addClass('sp_xjCheckBox_H');
+	}).bind('mouseout', function() {
+		$(this).removeClass('sp_xjCheckBox_H').removeClass('sp_xjCheckBox_C');
+	})
+}
 // 用户点击退出按钮 
 window.dlf.fn_exit = function() {
 	if ( confirm('您确定退出本系统吗？') ) {
@@ -243,7 +293,7 @@ $(function () {
 	
 	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});;
 	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字！', param:'g'}); // 区分大小写
-	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 10, onError: '终端别名最大长度为5位汉字，10位字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
+	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 12, onError: '终端别名最大长度为6位汉字，12位字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
 	$('#t_vibchk0').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
 	$('#t_vibchk1').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
 	// 如果没有车辆信息,提示用户

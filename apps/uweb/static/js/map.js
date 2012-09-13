@@ -1,6 +1,7 @@
 /*
 *地图相关操作方法
 */
+var postAddress = null;
 (function () {
 /*添加标记
 * n_counter : draw 时根据值修改数组中点的位置描述  下次就不用重新获取位置
@@ -33,10 +34,13 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		var obj_carItem = $('#carList a').eq(n_carNum);
 		obj_carItem.data('selfmarker', marker);
 		obj_carItem.data('selfLable', marker.getLabel());
+	} else if ( str_iconType == 'start' || str_iconType == 'end' ) {
+		marker.setOffset(new BMap.Size(-1, -14));
 	}
 	
 	mapObj.addOverlay(marker);//向地图添加覆盖物 
 	if ( isOpenWin ) {
+		console.log('open window');
 		marker.openInfoWindow(infoWindow);
 	}
 	marker.addEventListener('click', function(){  
@@ -52,15 +56,21 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 			}
 			dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
 		} else {
-			var str_name = arr_dataArr[n_index].name;
+			var str_name = arr_dataArr[n_index].name,
+				n_beginNum =0,
+				n_endNum = 0,
+				str_address = '',
+				address = '';
 			if ( str_name != '' ) {
-				var str_content = infoWindow.getContent(),
-					n_beginNum = str_content.indexOf('位置：'),
-					n_endNum = str_content.indexOf('</a>') + 12,
+				var str_content = infoWindow.getContent();
+				if ( str_content.search('<a') != -1 ) {
+					n_beginNum = str_content.indexOf('位置：');
+					n_endNum = str_content.indexOf('</a></label>') + 12;
 					str_address = str_content.substring(n_beginNum, n_endNum),
 					address = '位置： <lable class="lblAddress">'+ str_name +'</label>';
-				str_content = str_content.replace(str_address, address);
-				marker.selfInfoWindow.setContent(str_content);
+					str_content = str_content.replace(str_address, address);
+					marker.selfInfoWindow.setContent(str_content);
+				}
 			}
 			this.openInfoWindow(infoWindow);
 		}
@@ -90,7 +100,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, str_operation,
 	if (str_tid == '' || str_tid == 'undefined' || str_tid == null ) { 
 		str_tid = $('#carList a[class*=currentCar]').attr('tid');
 	}
-	if (address == '' ) { 
+	if ( address == '' || address == null ) {
 		if ( str_operation == 'lastinfo' ) {
 			// 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
 			var obj_currentLi = $('#carList a[tid='+str_tid+']'),
@@ -107,18 +117,18 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, str_operation,
 					var obj_infowindow = obj_selfmarker.selfInfoWindow;
 					if ( obj_infowindow && obj_infowindow != null ) {
 						var str_content = obj_infowindow.getContent(),
-							n_beginNum = str_content.indexOf('位置：')+3,
-							n_endNum = str_content.indexOf('</li><li class="top10">'),
+							n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
+							n_endNum = str_content.indexOf('</label></li><li class="top10">'),
 							str_address = str_content.substring(n_beginNum, n_endNum);
 						address = str_address;
 					}
 				} else {
 					// 否则重新获取
-					address = '正在获取位置中...<img src="/static/images/blue-wait.gif" />'; 
+					address = '正在获取位置描述...<img src="/static/images/blue-wait.gif" />'; 
 					dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
 				}
 			} else {
-				address = '正在获取位置中...<img src="/static/images/blue-wait.gif" />'; 
+				address = '正在获取位置描述...<img src="/static/images/blue-wait.gif" />'; 
 				dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
 			}
 		} else if ( str_operation == 'draw' || str_operation == 'start' || str_operation == 'end' )  {
@@ -161,34 +171,62 @@ window.dlf.fn_clearMapComponent = function() {
 /**
 ** 根据经纬度向百度获取地理位置描述
 */
+window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index) {
+	var str_result = str_result,
+		obj_selfmarker = $('#carList a[tid='+tid+']').data('selfmarker'),
+		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
+	if ( str_type == 'realtime' || str_type == 'lastinfo' ) {
+		var str_currentTid = $('#carList a[class*=currentCar]').attr('tid');
+		// 左侧 位置描述填充
+		$('#address').html(str_result);
+		if ( str_currentTid == tid ) {
+			obj_addressLi.html('').html('位置：<lable class="lblAddress">' + str_result + '</label>');	// 替换marker上的位置描述
+		}
+		if ( obj_selfmarker && obj_selfmarker != null ) {
+			var str_content = obj_selfmarker.selfInfoWindow.getContent(),
+				str_address = '';
+			if ( str_content.search('正在获取位置描述...') != -1 ) {
+				str_content = str_content.replace('正在获取位置描述...<img src="/static/images/blue-wait.gif" />', str_result);
+			} else {
+				n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
+				n_endNum = str_content.indexOf('</label></li><li class="top10">'),
+				str_address = str_content.substring(n_beginNum, n_endNum);
+				str_content = str_content.replace(str_address, str_result);
+			}
+			obj_selfmarker.selfInfoWindow.setContent(str_content);
+		}
+	} else {
+		if ( n_index >= 0 ) {
+			arr_dataArr[n_index].name = str_result;
+		}
+		obj_addressLi.html('位置：' + str_result);	// 替换marker上的位置描述
+	}
+}
 window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index) {
 	var gc = new BMap.Geocoder(),
 		str_result = '',
-		obj_point = new BMap.Point(n_lon, n_lat);
+		obj_point = new BMap.Point(n_lon, n_lat);	// n_lon, n_lat
 	if ( n_lon == 0 || n_lat == 0 ) {
-		$('#address').html('-')
+		$('#address').html('-');
 	} else {
 		gc.getLocation(obj_point, function(result){
-				var str_result = result.address,
-					obj_selfmarker = $('#carList a[tid='+tid+']').data('selfmarker'),
-					obj_addressLi = $('#markerWindowtitle ul li').eq(4);
-			if ( str_type == 'realtime' || str_type == 'lastinfo' ) {
-				var str_currentTid = $('#carList a[class*=currentCar]').attr('tid');
-				// 左侧 位置描述填充
-				$('#address').html(str_result);
-				if ( str_currentTid == tid ) {
-					obj_addressLi.html('位置：<lable class="lblAddress">' + str_result + '</label>');	// 替换marker上的位置描述
-				}
-				if ( obj_selfmarker && obj_selfmarker != null ) {
-					var str_content = obj_selfmarker.infoWindow.getContent();
-					str_content = str_content.replace('正在获取位置中...<img src="/static/images/blue-wait.gif" />', str_result);
-					obj_selfmarker.infoWindow.setContent(str_content);
+			str_result = result.address;
+			if ( str_result == '' ) {
+				// 第一次如果未获取位置则重新获取一次,如果还未获得则显示"无法获取"
+				if ( postAddress != null ) {
+					clearTimeout(postAddress);
+					str_result = '无法获取位置';
+					dlf.fn_updateAddress(str_type, tid, str_result, n_index);
+				} else {
+					// 如果未获取到位置描述  5秒后重新获取
+					str_result = '正在获取位置描述...<img src="/static/images/blue-wait.gif" />';
+					dlf.fn_updateAddress(str_type, tid, str_result, n_index);
+					postAddress = setTimeout(function() {
+						dlf.fn_getAddressByLngLat(n_lon, n_lat, tid, str_type, n_index);
+					}, 5000);
 				}
 			} else {
-				if ( n_index ) {
-					arr_dataArr[n_index].name = str_result;
-				}
-				obj_addressLi.html('位置：' + str_result);	// 替换marker上的位置描述
+				dlf.fn_updateAddress(str_type, tid, str_result, n_index);
 			}
 		});
 	}

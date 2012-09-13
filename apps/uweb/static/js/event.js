@@ -1,5 +1,5 @@
 /*
-*报警相关操作方法
+*告警相关操作方法
 */
 var arr_eventData = [],
 	pagecnt = -1,
@@ -7,7 +7,7 @@ var arr_eventData = [],
 //初始化轨迹查询
 function fn_initEventSearch(n_num, n_et) {
 	dlf.fn_closeDialog(); // 小地图提示窗口关闭
-	dlf.fn_jNotifyMessage('报警记录查询中...<img src="/static/images/blue-wait.gif" />', 'message', true);	
+	dlf.fn_jNotifyMessage('告警记录查询中...<img src="/static/images/blue-wait.gif" />', 'message', true);	
 	dlf.fn_lockScreen('eventbody'); // 添加页面遮罩
 	$('.eventbody').data('layer', true);
 	
@@ -18,7 +18,7 @@ function fn_initEventSearch(n_num, n_et) {
 		n_category = $('#category').val(), 
 		param = {'start_time': n_bgTime, 'end_time': n_finishTime, 
 				'pagenum': n_pageNum, 'pagecnt': pagecnt, 'category': n_category};
-	//获取报警记录信息
+	//获取告警记录信息
 	$.post_(EVENT_URL, JSON.stringify(param), function(data) {
 		$('#eventTableHeader').nextAll().remove();	//清除页面数据
 		pagecnt = data.pagecnt;
@@ -66,7 +66,7 @@ function fn_initEventSearch(n_num, n_et) {
 					
 					// 拼接table
 					html+= '<tr>';
-					html+= '<td>'+dlf.fn_changeNumToDateString(obj_location.timestamp)+'</td>';	// 报警时间
+					html+= '<td>'+dlf.fn_changeNumToDateString(obj_location.timestamp)+'</td>';	// 告警时间
 					html+= '<td>'+dlf.fn_eventText(str_type)+'</td>';	//类型 // todo 
 					if ( n_lng == 0 || n_lat == 0 ) {
 						html+= '<td>无</td>';	//无地址
@@ -110,7 +110,7 @@ function fn_initEventSearch(n_num, n_et) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			} else {
 				$('#pagerContainer').hide(); //显示分页
-				dlf.fn_jNotifyMessage('该时间范围内没有报警记录', 'message', false, 6000);
+				dlf.fn_jNotifyMessage('该时间范围内没有告警记录', 'message', false, 6000);
 			}
 		} else if ( data.status == 201 ) {
 			dlf.fn_showBusinessTip();
@@ -192,7 +192,7 @@ $(function () {
 			$(this).css('top', 0);
 		}
 	}});
-	// 报警类型选项初始化
+	// 告警类型选项初始化
 	$('#eventType option[value=-1]').attr('selected', true);
 	
 	//上一页按钮 下一页按钮
@@ -222,7 +222,7 @@ $(function () {
 		fn_initEventSearch(n_pageNum, pagecnt);
 	} );
 	
-	// 报警记录查询事件
+	// 告警记录查询事件
 	obj_search.click(function() {
 		pagecnt = -1;
 		n_pageNum = 0;
