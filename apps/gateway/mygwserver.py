@@ -25,7 +25,7 @@ from utils.misc import get_terminal_address_key, get_alarm_status_key,\
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
-from constants import EVENTER, GATEWAY
+from constants import EVENTER, GATEWAY, UWEB 
 from codes.smscode import SMSCode
 
 from helpers.seqgenerator import SeqGenerator
@@ -155,12 +155,14 @@ class MyGWServer(object):
         #if alarm_status != rname: 
         #    self.redis.setvalue(alarm_key, category) 
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
-        current_time = get_terminal_time(timestamp) 
-        tname = self.get_tname(dev_id)
-        sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
         if user:
-            SMSHelper.send(user.owner_mobile, sms)
-        logging.warn("[GW] Terminal %s Heartbeat lost!!! SMS: %s", dev_id, sms)
+            sms_option = QueryHelper.get_sms_option_by_uid(user.owner_mobile, 'heartbeat_lost', self.db)
+            if sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
+                current_time = get_terminal_time(timestamp) 
+                tname = self.get_tname(dev_id)
+                sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
+                SMSHelper.send(user.owner_mobile, sms)
+        logging.warn("[GW] Terminal %s Heartbeat lost!!!", dev_id)
         # 1. memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
         self.redis.delete(terminal_sessionID_key)
@@ -439,6 +441,9 @@ class MyGWServer(object):
                                                 psd,
                                                 t_info['u_msisdn'],
                                                 t_info['u_msisdn'])
+                                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                                "  VALUES(%s)",
+                                                t_info['u_msisdn'])
                                 sms = SMSCode.SMS_USER_HK_SUCCESS % (t_info['u_msisdn'],
                                                                      ConfHelper.UWEB_CONF.url_out,
                                                                      t_info['u_msisdn'],
@@ -475,6 +480,9 @@ class MyGWServer(object):
                                         "  VALUES(%s, password(%s), %s, %s)",
                                         t_info['u_msisdn'], psd,
                                         t_info['u_msisdn'], t_info['u_msisdn'])
+                        self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                        "  VALUES(%s)",
+                                        t_info['u_msisdn'])
                         sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
                                                         ConfHelper.UWEB_CONF.url_out,
                                                         t_info['u_msisdn'],

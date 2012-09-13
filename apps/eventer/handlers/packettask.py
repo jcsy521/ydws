@@ -14,7 +14,7 @@ from utils.misc import get_terminal_time,\
      get_ssdw_sms_key, get_alias_key
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
-from constants import EVENTER, GATEWAY
+from constants import EVENTER, GATEWAY, UWEB 
 from constants.MEMCACHED import ALIVED
 
 
@@ -140,66 +140,95 @@ class PacketTask(object):
         # get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
-        name = self.get_tname(report.dev_id)
-        terminal_time = get_terminal_time(int(report.gps_time))
-
-        report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
-        sms = None
-        if isinstance(report_name, str):
-            report_name = report_name.decode('utf-8')
-            report_name = unicode(report_name)
-
-        if report.rName == EVENTER.RNAME.POWEROFF:
-            report.login = GATEWAY.TERMINAL_LOGIN.LOGIN
-            sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
-        elif report.rName == EVENTER.RNAME.POWERLOW:
-            if report.dev_type == "1":
-                sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
-            else:
-                sms = SMSCode.SMS_POB_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
-        #elif report.rName == EVENTER.RNAME.REGION_OUT:
-        #    sms = SMSCode.SMS_REGION_OUT % (name, report_name, terminal_time)
-        #elif report.rName == EVENTER.RNAME.SPEED_OUT:
-        #    sms = SMSCode.SMS_SPEED_OUT % (name, report_name, terminal_time)
-        elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
-            sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
-        #elif report.rName == EVENTER.RNAME.HEARTBEAT_LOST:
-        #    sms = SMSCode.SMS_HEARTBEAT_LOST % (name, terminal_time)
-        elif report.rName == EVENTER.RNAME.EMERGENCY:
-            sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
-        else:
-            pass
-
+        # save into database
         self.update_terminal_status(report)
         lid = self.insert_location(report)
-
-        if report.category != EVENTER.CATEGORY.UNKNOWN:
-            self.event_hook(report.category, report.dev_id, report.dev_type, lid, report.pbat)
-            self.sms_to_user(report.dev_id, sms)
-            self.notify_to_parents(report.category, report.dev_id, report)
+        self.event_hook(report.category, report.dev_id, report.dev_type, lid, report.pbat)
             
+        user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
+        if not user:
+            logging.error("[EVENTER] Cannot find USER of terminal: %s", report.dev_id)
+            return
+            
+        sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
+        if sms_option == UWEB.SMS_OPTION.SEND:
+            name = self.get_tname(report.dev_id)
+            terminal_time = get_terminal_time(int(report.gps_time))
+
+            report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
+            sms = None
+            if isinstance(report_name, str):
+                report_name = report_name.decode('utf-8')
+                report_name = unicode(report_name)
+
+            if report.rName == EVENTER.RNAME.POWEROFF:
+                report.login = GATEWAY.TERMINAL_LOGIN.LOGIN
+                sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
+            elif report.rName == EVENTER.RNAME.POWERLOW:
+                if report.dev_type == "1":
+                    sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
+                else:
+                    sms = SMSCode.SMS_POB_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
+            #elif report.rName == EVENTER.RNAME.REGION_OUT:
+            #    sms = SMSCode.SMS_REGION_OUT % (name, report_name, terminal_time)
+            #elif report.rName == EVENTER.RNAME.SPEED_OUT:
+            #    sms = SMSCode.SMS_SPEED_OUT % (name, report_name, terminal_time)
+            elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
+                sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
+            #elif report.rName == EVENTER.RNAME.HEARTBEAT_LOST:
+            #    sms = SMSCode.SMS_HEARTBEAT_LOST % (name, terminal_time)
+            elif report.rName == EVENTER.RNAME.EMERGENCY:
+                sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
+            else:
+                pass
+
+            if report.lon and report.lat:
+                wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s&width=800&height=800&zoom=17&markers=%s,%s'
+                wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
+                sms += u"点击" + wap_url + u"查看。"
+
+            self.sms_to_user(report.dev_id, sms, user)
+
+        self.notify_to_parents(report.category, report.dev_id, report)
+
 
     def event_hook(self, category, dev_id, dev_type, lid, pbat=None):
         self.db.execute("INSERT INTO T_EVENT"
                         "  VALUES (NULL, %s, %s, %s, %s, %s)",
                         dev_id, dev_type, lid, pbat, category)
 
+    def get_sms_option(self, uid, category):
+        sms_option = self.db.get("SELECT " + category +
+                                 "  FROM T_SMS_OPTION"
+                                 "  WHERE uid = %s",
+                                 uid)
+
+        return sms_option[category]
+
     def handle_charge_info(self, info):
-        #TODO, parse charge 
         info = DotDict(info)
         self.db.execute("INSERT INTO T_CHARGE"
                         "  VALUES (NULL, %s, %s, %s)",
                         info.dev_id, info.content, info.timestamp)
-        name = self.get_tname(info.dev_id)
-        terminal_time = get_terminal_time(int(info.timestamp))
-        sms = SMSCode.SMS_CHARGE % (name, info.content)
-        self.sms_to_user(info.dev_id, sms)
+        user = QueryHelper.get_user_by_tid(info.dev_id, self.db) 
+        if not user:
+            logging.error("[EVENTER] Cannot find USER of terminal: %s", info.dev_id)
+            return
+            
+        sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY.CHARGE.lower())
+        if sms_option == UWEB.SMS_OPTION.SEND:
+            name = self.get_tname(info.dev_id)
+            terminal_time = get_terminal_time(int(info.timestamp))
+            sms = SMSCode.SMS_CHARGE % (name, info.content)
+            self.sms_to_user(info.dev_id, sms, user)
 
-    def sms_to_user(self, dev_id, sms):
+    def sms_to_user(self, dev_id, sms, user=None):
         if not sms:
             return
 
-        user = QueryHelper.get_user_by_tid(dev_id, self.db) 
+        if not user:
+            user = QueryHelper.get_user_by_tid(dev_id, self.db) 
+
         if user:
             SMSHelper.send(user.owner_mobile, sms)
 

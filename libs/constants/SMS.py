@@ -25,4 +25,5 @@ USERSTATUS = DotDict(NOSYNC=-1,
 RETRYSTATUS = DotDict(NO=0,
                       YES=1)
                      
-
+OPTION = DotDict(SEND=1,
+                 NOSEND=0)

@@ -28,18 +28,21 @@ def get_clocation_from_ge(location):
 
 def get_latlon_from_cellid(location):
     if location.cellid:
-        cellid_info = [int(item) for item in location.cellid.split(":")]
-        args = dict(mcc=cellid_info[0], mnc=cellid_info[1],
-                    lac=cellid_info[2], cid=cellid_info[3])
-        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.LE, args)
-        response = json_decode(response) 
-        if response['success'] == 0:
-            location.lat = response['position']['lat']
-            location.lon = response['position']['lon']
-            location.valid = GATEWAY.LOCATION_STATUS.SUCCESS 
-        else:
-            logging.info("Get clocation from GE error: %s, locaton: %s",
-                         response['info'], location)
+        try:
+            cellid_info = [int(item) for item in location.cellid.split(":")]
+            args = dict(mcc=cellid_info[0], mnc=cellid_info[1],
+                        lac=cellid_info[2], cid=cellid_info[3])
+            response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.LE, args)
+            response = json_decode(response) 
+            if response['success'] == 0:
+                location.lat = response['position']['lat']
+                location.lon = response['position']['lon']
+                location.valid = GATEWAY.LOCATION_STATUS.SUCCESS 
+            else:
+                logging.info("Get clocation from GE error: %s, locaton: %s",
+                             response['info'], location)
+        except:
+            logging.exception("Parse cellid: %s error.", location.cellid)
 
     return location
 
@@ -124,10 +127,10 @@ def handle_location(location, redis, cellid=False, db=None):
     else:
         location.category = EVENTER.CATEGORY.UNKNOWN
 
-    alarm_key = get_alarm_status_key(location.dev_id)
-    alarm_status = redis.getvalue(alarm_key)
-    if alarm_status != location.category:
-        redis.setvalue(alarm_key, location.category)
+    #alarm_key = get_alarm_status_key(location.dev_id)
+    #alarm_status = redis.getvalue(alarm_key)
+    #if alarm_status != location.category:
+    #    redis.setvalue(alarm_key, location.category)
 
     return location
 

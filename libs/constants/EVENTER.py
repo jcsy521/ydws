@@ -22,6 +22,15 @@ RNAME = DotDict(POWEROFF="POWEROFF",
                 HEARTBEAT_LOST="HEARTBEAT_LOST",
                 UNKNOWN="UNKNOWN")
 
+# sms option 
+SMS_CATEGORY = DotDict(LOGIN="LOGIN",
+                       POWEROFF="POWEROFF",
+                       POWERLOW="POWERLOW",
+                       ILLEGALMOVE="ILLEGALMOVE",
+                       EMERGENCY="SOS",
+                       HEARTBEAT_LOST="HEARTBEAT_LOST",
+                       CHARGE="CHARGE")
+
 # match definitions in db.
 CATEGORY = DotDict(UNKNOWN=0,
                    REALTIME=1,

@@ -190,8 +190,8 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                             fields.type, fields.color, fields.brand)
             
             # 4: add default sms report value
-            self.db.execute("INSERT INTO T_SMS_OPTION(id, uid, login, powerlow, poweroff, illegalmove, sos, heartbeat_lost)"
-                            "  VALUES(NULL, %s, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT)",
+            self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                            "  VALUES(%s)",
                             fields.mobile)
             
             # 5: send message to terminal
