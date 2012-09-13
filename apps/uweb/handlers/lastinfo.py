@@ -70,6 +70,7 @@ class LastInfoHandler(BaseHandler):
                                  gps=terminal.gps,
                                  gsm=terminal.gsm,
                                  pbat=terminal.pbat,
+                                 mobile=terminal.sim,
                                  alias=terminal.alias if terminal.alias else terminal.sim,
                                  keys_num=terminal.keys_num)
 

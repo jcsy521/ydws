@@ -7,9 +7,7 @@ from tornado.escape import json_encode
 
 from base import BaseHandler, authenticated
 from helpers.queryhelper import QueryHelper
-from helpers.smshelper import SMSHelper
 from constants import UWEB 
-from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
 
@@ -52,10 +50,4 @@ class MainHandler(BaseHandler):
                     name=user_info.name,
                     cars=terminals)
 
-    def login_sms_remind(self, owner_mobile, terminals, login="WEB"):
 
-        login_time = time.strftime("%Y-%m-%d %H:%M:%S")
-        login_method = UWEB.LOGIN_WAY[login] 
-        terminal_mobile = u'，'.join(str(terminal.sim) for terminal in terminals)
-        remind_sms = SMSCode.SMS_LOGIN_REMIND % (login_time, login_method, owner_mobile, terminal_mobile) 
-        SMSHelper.send(self.current_user.uid, remind_sms)

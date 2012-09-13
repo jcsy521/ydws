@@ -70,6 +70,19 @@ class LoginHandler(BaseHandler, LoginMixin):
             self.bookkeep(dict(uid=uid,
                                tid=tid,
                                sim=sim))
+
+            user_info = QueryHelper.get_user_by_uid(uid, self.db)
+            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
+                                      "  ti.login, ti.keys_num"
+                                      "  FROM T_TERMINAL_INFO as ti"
+                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
+                                      user_info.mobile)
+            
+            #NOTE: if alias is null, provide sim instead
+            for terminal in terminals:
+                if not terminal.alias:
+                    terminal.alias = terminal.sim
+            self.login_sms_remind(uid, user_info.mobile, terminals, login="WEB")
             self.clear_cookie('captchahash')
             self.redirect(self.get_argument("next","/"))
         else:
@@ -117,6 +130,19 @@ class WAPTransferHandler(BaseHandler, LoginMixin):
             self.bookkeep(dict(uid=uid,
                                tid=tid,
                                sim=sim))
+
+            user_info = QueryHelper.get_user_by_uid(uid, self.db)
+            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
+                                      "  ti.login, ti.keys_num"
+                                      "  FROM T_TERMINAL_INFO as ti"
+                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
+                                      user_info.mobile)
+            
+            #NOTE: if alias is null, provide sim instead
+            for terminal in terminals:
+                if not terminal.alias:
+                    terminal.alias = terminal.sim
+            self.login_sms_remind(uid, user_info.mobile, terminals, login="WAP")
             self.write_ret(status)
         else:
             logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
@@ -151,7 +177,7 @@ class IOSHandler(BaseHandler, LoginMixin):
                                       "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
             
-            #NOTE: if alias is null, provide tid instead
+            #NOTE: if alias is null, provide sim instead
             for terminal in terminals:
                 if not terminal.alias:
                     terminal.alias = terminal.sim
@@ -159,6 +185,7 @@ class IOSHandler(BaseHandler, LoginMixin):
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name, 
                                          cars=terminals))
+            self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
         else:
             logging.info("Login failed, message: %s", ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
@@ -193,13 +220,14 @@ class AndroidHandler(BaseHandler, LoginMixin):
                                       "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
             
-            #NOTE: if alias is null, provide tid instead
+            #NOTE: if alias is null, provide sim instead
             for terminal in terminals:
                 if not terminal.alias:
                     terminal.alias = terminal.sim
 
             push_info = NotifyHelper.get_push_info()
             push_key = NotifyHelper.get_push_key(uid, self.redis)
+            self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
             self.write_ret(status,
                            dict_=DotDict(app_key=push_info.app_key,
                                          push_key=push_key,

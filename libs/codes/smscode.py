@@ -21,7 +21,7 @@ class SMSCode(object):
     SMS_HEARTBEAT_LOST = u"车主您好，您的爱车保%s与平台通讯可能出现异常，请检查，时间：%s"
     SMS_SOS = u"您的爱车保%s发起SOS请求，地址：%s，时间：%s"
     SMS_REALTIME_RESULT = u"实时定位结果：您的爱车保%s在：%s，时间：%s"
-    SMS_LOGIN_REMIND = u"尊敬的车主，您于%s通过%s登陆爱车保平台，车主号码为%s，所关注定位器号码为%s。"
+    SMS_LOGIN_REMIND = u"尊敬的车主，您于%s通过%s登陆爱车保平台，车主号码为%s，所关注的爱车保为%s。"
     SMS_CHARGE = u"爱车保%s余额信息：%s"
     SMS_SERVICE_STOP = u"尊敬的车主，您的爱车保%s已经停止服务。"
     SMS_RETRIEVE_PASSWORD = u"尊敬的车主,您刚才使用了爱车保网站的密码找回功能，新的登陆密码为：%s，请妥善保管。" 

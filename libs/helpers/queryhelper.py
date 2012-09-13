@@ -44,6 +44,15 @@ class QueryHelper(object):
         return user
 
     @staticmethod
+    def get_sms_option_by_uid(uid, category, db):
+        sms_option = db.get("SELECT " + category +
+                            "  FROM T_SMS_OPTION"
+                            "  WHERE uid = %s",
+                            uid)
+
+        return sms_option
+
+    @staticmethod
     def get_user_by_mobile(mobile, db):
         """Get user info throught tmobile.
         """

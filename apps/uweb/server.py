@@ -49,6 +49,7 @@ from handlers.terminal import TerminalHandler
 from handlers.password import PasswordHandler
 from handlers.detail import DetailHandler
 from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler, BusinessCheckTMobileHandler, BusinessCheckStatusHandler
+from handlers.smsoption import SMSOptionHandler
 from handlers.feedback import FeedBackHandler
 from handlers.instruction import WebInsHandler, AndroidInsHandler, IOSInsHandler, SMSInsHandler 
 
@@ -83,6 +84,7 @@ class Application(tornado.web.Application):
             (r"/terminal/*", TerminalHandler),
             (r"/password/*", PasswordHandler),
             (r"/detail/*", DetailHandler),
+            (r"/smsoption/*", SMSOptionHandler),
             (r"/feedback/*", FeedBackHandler),
 
             (r"/instruction/web/*", WebInsHandler),
