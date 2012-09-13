@@ -94,8 +94,8 @@ window.dlf.fn_initTerminalWR = function (param) {
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 	// radio value
 					} else if ( param == 'white_list' ) {
 						var n_length = str_val.length;
+						$('.j_whitelist input[type=text]').val('');
 						for ( var x = 0; x < n_length; x++ ) {
-							$('.j_whitelist input[type=text]').val('');
 							var str_name = param  + '_' + (x+1),
 								obj_whitelist = $('#t_' + str_name),
 								obj_oriWhitelist = $('#' + str_name),
@@ -172,7 +172,11 @@ window.dlf.fn_baseSave =function() {
 			if ( str_val != str_t_val ) {
 				// 白名单 [车主手机号,白名单1,白名单2,...]
 				if ( str_class.search('j_whitelist') != -1 ) {
-					obj_terminalData['white_list'] = [str_whitelist1, str_val];
+					if ( str_val != '' ) {
+						obj_terminalData['white_list'] = [str_whitelist1, str_val];
+					} else {
+						obj_terminalData['white_list'] = [str_whitelist1];
+					}
 				} else if ( str_class.search('j_freq') != -1 ) {
 					if ( str_val != '' ) {
 						obj_terminalData['freq'] = parseInt(str_val);
