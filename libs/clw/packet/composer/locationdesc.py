@@ -17,9 +17,9 @@ class LocationDescRespComposer(BaseComposer):
                                               args['success'],
                                               args['locationdesc'],
                                               args['ew'],
-                                              args['lon'] if args['lon'] else "",
+                                              args['lon'],
                                               args['ns'],
-                                              args['lat'] if args['lat'] else "")
+                                              args['lat'])
         request = self.format_packet(packet)
 
         return request
