@@ -14,9 +14,7 @@ from tornado.escape import json_decode, json_encode
 
 from utils.dotdict import DotDict 
 
-
 class NotifyHelper(object):
-
     @staticmethod
     def get_push_info():
         """Get the app_key, secret and so on from xml. """
@@ -35,8 +33,8 @@ class NotifyHelper(object):
     def push_to_android(category, uid, tid, t_alias, location, key):
          """Push info fo android by the means of ANPS
          """
-    
-         # part 1: android-push
+         # part 1: android-push 
+         #NOTE: for it's invalid most time, so close it.
          h = httplib2.Http()
          push_info = NotifyHelper.get_push_info()
          alias=uid
@@ -55,36 +53,51 @@ class NotifyHelper(object):
     
          msg=str(json_encode(ret)) 
          url = "http://www.android-push.com/api/send/?secret=%s&app_key=%s&client_ids=&alias=%s&msg=%s" % (push_info.secret, push_info.app_key, alias, msg)
-         response, content = h.request(url) 
-         logging.info("the push url: \n%s,\nthe response: %s", url, content) 
+         #response, content = h.request(url) 
+         #logging.info("the push url: \n%s,\nthe response: %s", url, content) 
     
-         # part 2: curl get
+         # part 2: openfire push 
          import subprocess
          msg_json=json_encode(ret)
-         msg = "curl -d uid=%s -d key=%s -d body='%s' http://219.131.223.238:8888/DbjPush/push" % (uid, key, msg_json) 
+         msg = "curl -d uid=%s -d key=%s -d body='%s' http://drone-003:8005/DbPush/push" % (uid, key, msg_json) 
          subprocess.call(msg,shell=True)
     
     @staticmethod
     def push_register(uid):
-         """uid: in fact it's mobile.
+         """Create a account for a user in openfire.
+         uid: in fact it's owner_mobile.
          """ 
-         h = httplib2.Http()
-         JSON_HEADER = {"Content-Type": "application/json; charset=utf-8"}
-         msg = DotDict(uid=uid)
-         msg={'uid':uid}
-         url_create = 'http://219.131.223.238:8888/DbjPush/accountCreate'
-         response, content = h.request(url_create, "POST", urlencode(msg),  headers={'Content-Type': 'application/x-www-form-urlencoded'})
-         res = DotDict(json_decode(content))
-         if res.status != 2:
-             return res.key
-         else:
+         try:
+             h = httplib2.Http()
+             msg = DotDict(uid=uid)
+             msg={'uid':uid}
+             url_create = 'http://drone-003:8005/DbPush/accountCreate'
+             response, content = h.request(url_create, "POST", urlencode(msg),  headers={'Content-Type': 'application/x-www-form-urlencoded'})
+             res = DotDict(json_decode(content))
+             if res.status != 2:
+                 return res.key
+             else:
+                 return None
+         except Exception as e:
              return None
+             logging.exception("Push register failed. Exception: %s", e.args)
     
     @staticmethod
     def get_push_key(uid, redis):
-        push_key = redis.getvalue(('push:%s' % uid))
-        push_key = None
-        if not push_key:
-            push_key = NotifyHelper.push_register(uid) 
-            redis.setvalue(('push:%s' % uid), push_key)
-        return push_key
+        """Get push key of current user for openfie push.
+        workflow:
+        if push_key in redis:
+            return push_key 
+        else:
+            push_key = push_register()
+            keep push_key in redis
+        """
+        try:
+            push_key = redis.getvalue(('push:%s' % uid))
+            if not push_key:
+                push_key = NotifyHelper.push_register(uid) 
+                redis.setvalue(('push:%s' % uid), push_key)
+            return push_key
+        except Exception as e:
+            return None 
+            logging.exception("Get push key failed. Exception: %s", e.args)
