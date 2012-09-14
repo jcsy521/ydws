@@ -47,7 +47,11 @@ window.dlf.fn_personalSave = function() {
 			str_id = obj_input.attr('id'),
 			str_data = $('#'+str_id).data(str_id);
 		if ( str_val != str_data ) {
-			obj_personalData[str_id] = str_val;
+			if ( str_id == 'txtAddress' ) {
+				obj_personalData['address'] = str_val;
+			} else {
+				obj_personalData[str_id] = str_val;
+			}
 		}
 	});
 	dlf.fn_jsonPut(PERSON_URL, obj_personalData, 'personal', '个人资料保存中');
