@@ -66,6 +66,9 @@ def get_location_cache_key(lon, lat):
     """save name, Generate location (lon, lat)'s memechached key."""
     return "lk:%d:%d" % (lon/100, lat/100)
 
+def get_terminal_info_key(dev_id):
+    return str("terminal_info:%s" % (dev_id))
+
 def get_alias_key(dev_id):
     return str("alias:%s" % dev_id)
 
