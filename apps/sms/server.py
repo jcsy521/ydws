@@ -70,7 +70,7 @@ def run_send_failed_mt_thread():
             time.sleep(INTERVAL)
             status = mt.fetch_failed_mt_sms()
             if status == ErrorCode.SUCCESS:
-                INTERVAL = ConfHelper.SMS_CONF.failed_mt_interval
+                INTERVAL = int(ConfHelper.SMS_CONF.failed_mt_interval)
             else:
                 INTERVAL = INTERVAL * 2
                 if INTERVAL > 600:
