@@ -12,6 +12,7 @@
 {% end %}
 {% block body %}
 <body class="j_body mainBody">
+	{% if status == 0 %}
 	<!-- top -->
 	<div id="top">
 		<!-- todo logo -->
@@ -23,7 +24,7 @@
 			<div id="bnnIcon"></div> -->
 				<div id="ads">
 					<ul id="contents">
-						<li id="firstImg"><img src="/static/images/banner1.jpg" index="1" /></li>
+						<li id="firstImg"><img src="/static/images/banner1.jpg" /></li>
 						<!--<li class="hide"><img src="./static/images/banner2.jpg" /></li>
 						<li class="hide"><img src="./static/images/banner3.jpg" /></li>-->
 					</ul>
@@ -71,13 +72,13 @@
 				<ul id="tInfo">
 					<li id="defendStatus">
 						<span id="defend_word"></span>
-						<span class="d_img"><img id="defend_status"></img></span>
+						<span class="d_img"><img id="defend_status" src="#"></img></span>
 					</li>
 					<li id="power"></li>
 					<li id="GSM"></li>
 					<li id="gps">
 						<span id="g_word"></span>
-						<span class="g_img"><img id="GPS"></img></span>
+						<span class="g_img"><img id="GPS" src="#"></img></span>
 					</li>
 					<li id="tmobile"></li>
 				</ul>
@@ -131,8 +132,11 @@
 		</div> 
 	</div>
 	<div id="maskLayer" class="hide"></div>
-	<!--copy right-->
-	<div></div>
+	{% elif status == 201 %}
+		<div id="errormsg">
+			
+		</div>
+	{% end %}
 	<!--辅助元素begin-->
 	{% include dialogs.html %}
 	<!--辅助元素end-->

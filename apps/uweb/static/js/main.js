@@ -12,7 +12,7 @@ window.dlf.fn_personalData = function() {
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
 	$.get_(PERSON_URL, '', function (data) {
 		if ( data.status == 0 ) {
-			var obj_data = data.details,
+			var obj_data = data.profile,
 				str_name = obj_data.name,
 				str_phone = obj_data.mobile,
 				str_address = obj_data.address,
@@ -20,7 +20,7 @@ window.dlf.fn_personalData = function() {
 				str_remark = obj_data.remark;
 			$('#name').val(str_name).data('name', str_name);
 			$('#phone').val(str_phone).data('phone', str_phone);
-			$('#txtAddress').val(str_address).data('address', str_address);
+			$('#txtAddress').val(str_address).data('txtAddress', str_address);
 			$('#email').val(str_email).data('email', str_email);
 			$('#remark').val(str_remark).data('remark', str_remark);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
@@ -152,6 +152,11 @@ window.onresize = function () {
 }
 // 页面加载完成后进行加载地图
 $(function () {
+	if ( $('#errormsg').length > 0 ) {
+		dlf.fn_showBusinessTip();
+		return;
+	}
+	
 	$.ajaxSetup({ cache: false }); // 不保存缓存
 	// 屏蔽鼠标右键相关功能
     $(document).bind('contextmenu', function (e) {
@@ -296,8 +301,8 @@ $(function () {
 	$('#t_pulse').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '心跳时间最大长度为4位数字！'}).regexValidator({regExp: 'pulse', dataType: 'enum', onError: '您设置的终端的心跳时间不正确，范围(1-1800秒)！'});;
 	
 	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});;
-	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号输入错误，正确格式:汉字+大写字母+数字！', param:'g'}); // 区分大小写
-	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 12, onError: '终端别名最大长度为6位汉字，12位字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "终端别名只能是英文、数字、下划线或中文"});  // 别名
+	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号长度不能超过20个字符！'}); // 区分大小写
+	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名长度不能超过20个字符！'});  // 别名
 	$('#t_vibchk0').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
 	$('#t_vibchk1').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
 	// 如果没有车辆信息,提示用户

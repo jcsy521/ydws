@@ -148,8 +148,9 @@ h2 {
 	text-decoration: none;
 	color: #696969;
 	font-weight: bold;
-	height: 90px;
 	width: 90px;
+	padding-top: 68px;
+	text-align: center;
 }
 .entrances  a:hover {
 	background-color: #F4F4F4;
@@ -160,7 +161,6 @@ h2 {
 	display: inline-block;
 	height: 8px;
 	margin-top: 68px;
-	text-align: center;
 }
 .web {
 	background: url('../images/web.png') no-repeat 16px 0px;

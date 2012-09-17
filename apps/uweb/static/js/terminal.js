@@ -82,7 +82,7 @@ window.dlf.fn_initTerminalWR = function (param) {
 			for(var param in obj_data) {
 				var str_val = obj_data[param];
 				if ( param ) {
-					if ( param == 'trace' || param == 'cellid_status' ) {
+					if ( param == 'trace' || param == 'cellid_status' ) {	// 单选按钮
 						// 如果轨迹上报为关闭状态  上报间隔不可编辑
 						if ( param == 'trace' ) {
 							if ( str_val == 0 ) {
@@ -92,7 +92,7 @@ window.dlf.fn_initTerminalWR = function (param) {
 							}
 						}
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 	// radio value
-					} else if ( param == 'white_list' ) {
+					} else if ( param == 'white_list' ) {	// 白名单
 						var n_length = str_val.length;
 						$('.j_whitelist input[type=text]').val('');
 						for ( var x = 0; x < n_length; x++ ) {
@@ -103,7 +103,7 @@ window.dlf.fn_initTerminalWR = function (param) {
 							obj_whitelist.val(str_value);	// whitelist
 							obj_oriWhitelist.attr('t_val', str_value);	// save original value
 						}
-					} else if ( param == 'vibchk' ) {
+					} else if ( param == 'vibchk' ) {	// 震动频率
 						var arr_vibchk = str_val.split(':');
 						$('#t_vibchk0').val(arr_vibchk[0]);
 						$('#t_vibchk1').val(arr_vibchk[1]);
@@ -111,14 +111,16 @@ window.dlf.fn_initTerminalWR = function (param) {
 						// 震动灵敏度
 						$('#viblSlider').slider('option', 'value', str_val).attr('title', '震动灵敏度值：' + arr_slide[parseInt(str_val)]);
 						$('#viblTip').html(dlf.fn_changeData('vibl', str_val));
-					} else {
-						if ( param == 'freq' ) {
-							$('#t_' + param ).val('');	
-						} else {
-							$('#t_' + param ).val(str_val);	// other input value
+					} else if ( param == 'freq' ) {	// 上报间隔
+						if ( str_val == 0 ) {
+							str_val = '';
 						}
+						$('#t_' + param ).val(str_val);	// other input value
+					} else {
+						$('#t_' + param ).val(str_val);	// other input value
 					}
 					$('#' + param ).attr('t_val', str_val);	// save original value
+					dlf.fn_updateAlias();
 				}
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
@@ -177,10 +179,11 @@ window.dlf.fn_baseSave =function() {
 					} else {
 						obj_terminalData['white_list'] = [str_whitelist1];
 					}
-				} else if ( str_class.search('j_freq') != -1 ) {
-					if ( str_val != '' ) {
-						obj_terminalData['freq'] = parseInt(str_val);
+				} else if ( str_class.search('j_freq') != -1 ) {	// 上报频率
+					if ( str_val == '' ) {
+						str_val = 0;
 					}
+					obj_terminalData['freq'] = parseInt(str_val);
 				} else {
 					obj_terminalData[str_key] = str_val;
 				}
