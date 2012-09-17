@@ -62,8 +62,7 @@ def shutdown(server):
 
 def run_send_failed_mt_thread():
     logging.info("Send failed mt thread started.")
-    #time interval 60 second
-    INTERVAL = 60
+    INTERVAL = ConfHelper.SMS_CONF.failed_mt_interval
     status = ErrorCode.FAILED
     mt = MT()
     try:
@@ -71,7 +70,7 @@ def run_send_failed_mt_thread():
             time.sleep(INTERVAL)
             status = mt.fetch_failed_mt_sms()
             if status == ErrorCode.SUCCESS:
-                INTERVAL = 60
+                INTERVAL = ConfHelper.SMS_CONF.failed_mt_interval
             else:
                 INTERVAL = INTERVAL * 2
                 if INTERVAL > 600:
