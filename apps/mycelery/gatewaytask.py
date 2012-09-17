@@ -22,20 +22,11 @@ from helpers.queryhelper import QueryHelper
 from constants import GATEWAY
 from utils.repeatedtimer import RepeatedTimer 
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-                       get_alias_key
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from codes.smscode import SMSCode
 
 if not 'conf' in options:
     define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
-
-def get_tname(dev_id, db, redis):
-    t = db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
-               "  WHERE tid = %s", dev_id)
-    name = t.alias if t.alias else t.mobile
-    if isinstance(name, str):
-        name = name.decode("utf-8")
-
-    return name
 
 def sms_to_user(dev_id, sms, db):
     if not sms:
@@ -65,16 +56,20 @@ def execute():
                          "     OR service_status = %s",
                          yday, tday, GATEWAY.SERVICE_STATUS.OFF)
     for terminal in terminals:
-        terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
-        terminal_status_key = get_terminal_address_key(terminal.tid)
-        sessionID = redis.getvalue(terminal_sessionID_key)
-        status = redis.getvalue(terminal_status_key)
+        sessionID_key = get_terminal_sessionID_key(terminal.tid)
+        address_key = get_terminal_address_key(terminal.tid)
+        info_key = get_terminal_info_key(terminal.tid)
+        lq_sms_key = get_lq_sms_key(terminal.tid)
+        lq_interval_key = get_lq_interval_key(terminal.tid)
+
+        sessionID = redis.getvalue(sessionID_key)
+        status = redis.getvalue(address_key)
         if sessionID or status:
-            keys = [terminal_sessionID_key, terminal_status_key]
+            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
             redis.delete(*keys)
             logging.error("[CELERY] Expired terminal: %s, SIM: %s",
                           terminal.tid, terminal.mobile)
-            name = get_tname(terminal.tid, db, redis)
+            name = QueryHelper.get_alias_by_tid(terminal.tid, redis, db)
             sms = SMSCode.SMS_SERVICE_STOP % (name,)
             send_sms = partial(sms_to_user, *(terminal.tid, sms, db))
             # send sms to user, after 9 hours(daytime).

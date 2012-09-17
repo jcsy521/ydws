@@ -19,9 +19,9 @@ from utils.repeatedtimer import RepeatedTimer
 from utils.checker import check_phone
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
-from utils.misc import get_terminal_address_key, get_alarm_status_key,\
-     get_terminal_time, get_sessionID, get_terminal_sessionID_key,\
-     get_lq_interval_key, get_alias_key, safe_unicode, get_psd
+from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key,\
+     get_terminal_time, get_sessionID, safe_unicode, get_psd
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -68,8 +68,6 @@ class MyGWServer(object):
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
-        #self.__restore_online_terminals()
-        #self.__start_check_heartbeat_thread()
 
     def __connect_rabbitmq(self, host):
         connection = None
@@ -129,17 +127,6 @@ class MyGWServer(object):
         except:
             logging.exception("[GW] Check gateway heartbeat exception.")
                 
-    def get_tname(self, dev_id):
-        name = "" 
-        t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
-                        "  WHERE tid = %s", dev_id)
-        if t:
-            name = t.alias if t.alias else t.mobile
-            if isinstance(name, str):
-                name = name.decode("utf-8")
-
-        return name
-
     def heartbeat_lost_report(self, dev_id):
         timestamp = int(time.time())
         rname = EVENTER.RNAME.HEARTBEAT_LOST
@@ -150,16 +137,12 @@ class MyGWServer(object):
         self.db.execute("INSERT INTO T_EVENT"
                         "  VALUES (NULL, %s, DEFAULT, %s, NULL, %s)",
                         dev_id, lid, category)
-        #alarm_key = get_alarm_status_key(dev_id)
-        #alarm_status = self.redis.getvalue(alarm_key)
-        #if alarm_status != rname: 
-        #    self.redis.setvalue(alarm_key, category) 
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
         if user:
             sms_option = QueryHelper.get_sms_option_by_uid(user.owner_mobile, 'heartbeat_lost', self.db)
             if sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
                 current_time = get_terminal_time(timestamp) 
-                tname = self.get_tname(dev_id)
+                tname = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
                 sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
                 SMSHelper.send(user.owner_mobile, sms)
         logging.warn("[GW] Terminal %s Heartbeat lost!!!", dev_id)
@@ -189,10 +172,9 @@ class MyGWServer(object):
                                     "  WHERE login = %s",
                                     GATEWAY.TERMINAL_LOGIN.LOGIN)
         for terminal in online_terminals:
-            db.execute("UPDATE T_TERMINAL_INFO"
-                       "  SET login = %s"
-                       "  WHERE tid = %s",
-                       GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
+            info = DotDict(dev_id=terminal.tid,
+                           login=GATEWAY.TERMINAL_LOGIN.UNLOGIN)
+            self.update_terminal_info(info)
             terminal_status_key = get_terminal_address_key(terminal.tid)
             terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
             keys = [terminal_status_key, terminal_sessionID_key]
@@ -408,10 +390,26 @@ class MyGWServer(object):
                             # terminal HK
                             logging.info("[GW] Terminal: %s HK started.", t_info['dev_id'])
                             # unbind old tmobile
-                            self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                                            "  WHERE mobile = %s"
-                                            "    AND id != %s",
-                                            t_info['t_msisdn'], terminal.id)
+                            old_bind = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+                                                   "  WHERE mobile = %s"
+                                                   "    AND id != %s",
+                                                   t_info['t_msisdn'], terminal.id)
+                            if old_bind:
+                                # clear db
+                                self.db.execute("DELETE FROM T_TERMINAL_INFO"
+                                                "  WHERE id = %s", 
+                                                old_bind.id) 
+                                # clear redis
+                                sessionID_key = get_terminal_sessionID_key(old_bind.tid)
+                                address_key = get_terminal_address_key(old_bind.tid)
+                                info_key = get_terminal_info_key(old_bind.tid)
+                                lq_sms_key = get_lq_sms_key(old_bind.tid)
+                                lq_interval_key = get_lq_interval_key(old_bind.tid)
+                                keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                                self.redis.delete(*keys)
+                                logging.info("[GW] Delete old bind Terminal: %s, SIM: %s",
+                                             t_info['dev_id'], t_info['t_msisdn'])
+
                             # update new tmobile
                             self.db.execute("UPDATE T_TERMINAL_INFO"
                                             "  SET mobile = %s,"
@@ -517,14 +515,22 @@ class MyGWServer(object):
                                         t_info['dev_id'], t_info['t_msisdn'])
                         logging.info("[GW] Terminal %s by ADMIN JH success!", t_info['dev_id'])
                     else:
-                        exist_terminal = self.db.get("SELECT tid FROM T_TERMINAL_INFO"
+                        exist_terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
                                                      "  WHERE mobile = %s",
                                                      t_info['t_msisdn'])
                         if exist_terminal:
                             # unbind old tmobile
                             self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                                            "  WHERE mobile = %s",
-                                            t_info['t_msisdn'])
+                                            "  WHERE id = %s",
+                                            exist_terminal.id)
+                            # clear redis
+                            sessionID_key = get_terminal_sessionID_key(exist_terminal.tid)
+                            address_key = get_terminal_address_key(exist_terminal.tid)
+                            info_key = get_terminal_info_key(exist_terminal.tid)
+                            lq_sms_key = get_lq_sms_key(exist_terminal.tid)
+                            lq_interval_key = get_lq_interval_key(exist_terminal.tid)
+                            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                            self.redis.delete(*keys)
                             # remove old online dev
                             if exist_terminal.tid in self.online_terminals:
                                 self.online_terminals.remove(exist_terminal.tid)
@@ -536,13 +542,13 @@ class MyGWServer(object):
                         begintime = datetime.datetime.now() 
                         endtime = begintime + relativedelta(years=1)
                         self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
-                                        "  owner_mobile, imsi, imei, alias, factory_name, softversion,"
+                                        "  owner_mobile, imsi, imei, factory_name, softversion,"
                                         "  keys_num, login, service_status, begintime, endtime)"
-                                        "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s)",
+                                        "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s)",
                                         t_info['dev_id'], t_info['dev_type'],
                                         t_info['t_msisdn'], t_info['u_msisdn'],
                                         t_info['imsi'], t_info['imei'],
-                                        t_info['t_msisdn'], t_info['factory_name'],
+                                        t_info['factory_name'],
                                         t_info['softversion'], t_info['keys_num'], 
                                         GATEWAY.SERVICE_STATUS.ON,
                                         int(time.mktime(begintime.timetuple())),
@@ -563,11 +569,9 @@ class MyGWServer(object):
                 if not t_info["dev_id"] in self.online_terminals:
                     self.online_terminals.append(t_info["dev_id"])
                 # set login
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET login = %s"
-                                "  WHERE tid = %s",
-                                GATEWAY.TERMINAL_LOGIN.LOGIN,
-                                t_info['dev_id'])
+                info = DotDict(login=GATEWAY.TERMINAL_LOGIN.LOGIN,
+                               dev_id=t_info["dev_id"])
+                self.update_terminal_info(info)
                 logging.info("[GW] Terminal %s login success! SIM: %s",
                              t_info['dev_id'], t_info['t_msisdn'])
 
@@ -617,7 +621,11 @@ class MyGWServer(object):
             head = info.head
             body = info.body
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
-                           locationdesc="")
+                           locationdesc="",
+                           ew="E",
+                           lon=0.0,
+                           ns="N",
+                           lat=0.0)
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
@@ -641,6 +649,8 @@ class MyGWServer(object):
                 args.lat = location.lat / 3600000.0
                 if not (location.lat and location.lon):
                     args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
+                else:
+                    self.insert_location(location)
                 self.update_terminal_status(head.dev_id, address)
 
             lc = LocationDescRespComposer(args)
@@ -770,6 +780,33 @@ class MyGWServer(object):
         except Exception as e:
             logging.exception("[GW] Unknown publish error: %s", e.args)
 
+    def insert_location(self, location):
+        # insert data into T_LOCATION
+        lid = self.db.execute("INSERT INTO T_LOCATION"
+                              "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s,"
+                              "          %s, %s, %s, %s, %s, %s)",
+                              location.dev_id, location.lat, location.lon, 
+                              location.alt, location.cLat, location.cLon,
+                              location.gps_time, location.name,
+                              location.category, location.type,
+                              location.speed, location.degree,
+                              location.cellid)
+        is_alived = self.redis.getvalue('is_alived')
+        if (is_alived == ALIVED and location.valid == GATEWAY.LOCATION_STATUS.SUCCESS):
+            mem_location = DotDict({'id':lid,
+                                    'latitude':location.lat,
+                                    'longitude':location.lon,
+                                    'type':location.type,
+                                    'clatitude':location.cLat,
+                                    'clongitude':location.cLon,
+                                    'timestamp':location.gps_time,
+                                    'name':location.name,
+                                    'degree':location.degree,
+                                    'speed':location.speed})
+            self.redis.setvalue(str(location.dev_id), mem_location, EVENTER.LOCATION_EXPIRY)
+
+        return lid
+        
     def get_terminal_sessionID(self, dev_id):
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id) 
         sessionID = self.redis.getvalue(terminal_sessionID_key)
@@ -786,13 +823,11 @@ class MyGWServer(object):
             self.redis.setvalue(terminal_status_key, address, 3 * SLEEP_HEARTBEAT_INTERVAL)
 
     def update_terminal_info(self, t_info):
+        # db
         fields = []
-        keys = ['dev_type', 'softversion', 'gps', 'gsm', 'pbat',
-                'defend_status', 'login']
+        keys = ['gps', 'gsm', 'pbat', 'defend_status', 'login']
         for key in keys:
             if t_info.get(key, None) is not None:
-                if key == 'softversion':
-                     t_info[key] = "'" + t_info[key] + "'"
                 fields.append(key + " = " + str(t_info[key]))
         set_clause = ','.join(fields)
         if set_clause:
@@ -800,6 +835,22 @@ class MyGWServer(object):
                             "  SET " + set_clause + 
                             "  WHERE tid = %s",
                             t_info['dev_id'])
+        # redis
+        terminal_info_key = get_terminal_info_key(t_info['dev_id'])
+        terminal_info = self.redis.getvalue(terminal_info_key)
+        if not terminal_info:
+            terminal_info = DotDict(defend_status=None,
+                                    login=None,
+                                    gps=None,
+                                    gsm=None,
+                                    pbat=None,
+                                    alias=None,
+                                    keys_num=None)
+        for key in terminal_info:
+            value = t_info.get(key, None)
+            if value is not None:
+                terminal_info[key] = value
+        self.redis.setvalue(terminal_info_key, terminal_info)
 
     def get_terminal_status(self, dev_id):
         terminal_status_key = get_terminal_address_key(dev_id)

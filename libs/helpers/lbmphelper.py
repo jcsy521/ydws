@@ -7,7 +7,7 @@ import time
 from tornado.escape import json_decode
 
 from helpers.lbmpsenderhelper import LbmpSenderHelper
-from utils.misc import get_location_cache_key, get_alarm_status_key
+from utils.misc import get_location_cache_key
 from utils.dotdict import DotDict
 from constants import EVENTER, GATEWAY, UWEB
 from constants.MEMCACHED import ALIVED
@@ -126,11 +126,6 @@ def handle_location(location, redis, cellid=False, db=None):
         location.category = EVENTER.CATEGORY[location.rName]
     else:
         location.category = EVENTER.CATEGORY.UNKNOWN
-
-    #alarm_key = get_alarm_status_key(location.dev_id)
-    #alarm_status = redis.getvalue(alarm_key)
-    #if alarm_status != location.category:
-    #    redis.setvalue(alarm_key, location.category)
 
     return location
 

@@ -53,14 +53,8 @@ def str_to_list(str_, delimiter=','):
 def get_terminal_sessionID_key(dev_id):
     return str("sessionID:%s" % dev_id)
 
-def get_alarm_status_key(dev_id):
-    return str("alarm:%s" % dev_id)
-
 def get_terminal_address_key(dev_id):
     return str("terminal_address:%s" % dev_id)
-
-def get_ssdw_sms_key(sim):
-    return str("ssdw:%s" % sim)
 
 def get_location_cache_key(lon, lat):
     """save name, Generate location (lon, lat)'s memechached key."""
@@ -69,11 +63,8 @@ def get_location_cache_key(lon, lat):
 def get_terminal_info_key(dev_id):
     return str("terminal_info:%s" % (dev_id))
 
-def get_alias_key(dev_id):
-    return str("alias:%s" % dev_id)
-
-def get_lq_sms_key(sim):
-    return str("lq:%s" % sim)
+def get_lq_sms_key(dev_id):
+    return str("lq:%s" % dev_id)
 
 def get_lq_interval_key(dev_id):
     return str("lq_interval:%s" % dev_id)

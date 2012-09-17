@@ -10,8 +10,7 @@ from helpers import lbmphelper
 from helpers.notifyhelper import NotifyHelper
 
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_time,\
-     get_ssdw_sms_key, get_alias_key
+from utils.misc import get_terminal_time, get_terminal_info_key 
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
 from constants import EVENTER, GATEWAY, UWEB 
@@ -76,22 +75,12 @@ class PacketTask(object):
         
     def realtime_location_hook(self, location):
         self.insert_location(location)
-        key = get_ssdw_sms_key(location.dev_id)                          
-        flag = self.redis.getvalue(key)
-        if flag:
-            location.name = location.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
-
-            # send sms to parents if they are realtime (from sms) query
-            sms = SMSCode.SMS_REALTIME_RESULT % (self.get_tname(location.dev_id), 
-                                                 location.name,
-                                                 get_terminal_time(int(location.timestamp)))
-            self.sms_to_user(location.dev_id, sms)
-            self.redis.delete(key)
 
     def unknown_location_hook(self, location):
         pass
 
-    def update_terminal_status(self, location):
+    def update_terminal_info(self, location):
+        # db
         fields = []
         keys = ['gps', 'gsm', 'pbat', 'defend_status', 'login']
         for key in keys:
@@ -103,6 +92,22 @@ class PacketTask(object):
                             "  SET " + set_clause +
                             "  WHERE tid = %s",
                             location.dev_id)
+        # redis
+        terminal_info_key = get_terminal_info_key(location.dev_id)
+        terminal_info = self.redis.getvalue(terminal_info_key)
+        if not terminal_info:
+            terminal_info = DotDict(defend_status=None,
+                                    login=None,
+                                    gps=None,
+                                    gsm=None,
+                                    pbat=None,
+                                    alias=None,
+                                    keys_num=None)
+        for key in terminal_info:
+            value = location.get(key, None)
+            if value is not None:
+                terminal_info[key] = value
+        self.redis.setvalue(terminal_info_key, terminal_info)
     
     def handle_position_info(self, location):
         location = DotDict(location)
@@ -111,7 +116,7 @@ class PacketTask(object):
             location = lbmphelper.handle_location(location, self.redis,
                                                   cellid=False, db=self.db) 
             location.category = EVENTER.CATEGORY.REALTIME
-            self.update_terminal_status(location)
+            self.update_terminal_info(location)
             if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
                 self.realtime_location_hook(location)
         elif location.Tid == EVENTER.TRIGGERID.PVT:
@@ -141,7 +146,7 @@ class PacketTask(object):
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
         # save into database
-        self.update_terminal_status(report)
+        self.update_terminal_info(report)
         lid = self.insert_location(report)
         self.event_hook(report.category, report.dev_id, report.dev_type, lid, report.pbat)
             
@@ -152,7 +157,7 @@ class PacketTask(object):
             
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
         if sms_option == UWEB.SMS_OPTION.SEND:
-            name = self.get_tname(report.dev_id)
+            name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
             terminal_time = get_terminal_time(int(report.gps_time))
 
             report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
@@ -169,14 +174,8 @@ class PacketTask(object):
                     sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
                 else:
                     sms = SMSCode.SMS_POB_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
-            #elif report.rName == EVENTER.RNAME.REGION_OUT:
-            #    sms = SMSCode.SMS_REGION_OUT % (name, report_name, terminal_time)
-            #elif report.rName == EVENTER.RNAME.SPEED_OUT:
-            #    sms = SMSCode.SMS_SPEED_OUT % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
                 sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
-            #elif report.rName == EVENTER.RNAME.HEARTBEAT_LOST:
-            #    sms = SMSCode.SMS_HEARTBEAT_LOST % (name, terminal_time)
             elif report.rName == EVENTER.RNAME.EMERGENCY:
                 sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
             else:
@@ -185,7 +184,7 @@ class PacketTask(object):
             if report.lon and report.lat:
                 wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s&width=800&height=800&zoom=17&markers=%s,%s'
                 wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
-                sms += u"点击" + wap_url + u"查看。"
+                sms += u"点击" + wap_url
 
             self.sms_to_user(report.dev_id, sms, user)
 
@@ -217,7 +216,7 @@ class PacketTask(object):
             
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY.CHARGE.lower())
         if sms_option == UWEB.SMS_OPTION.SEND:
-            name = self.get_tname(info.dev_id)
+            name = QueryHelper.get_alias_by_tid(info.dev_id, self.redis, self.db)
             terminal_time = get_terminal_time(int(info.timestamp))
             sms = SMSCode.SMS_CHARGE % (name, info.content)
             self.sms_to_user(info.dev_id, sms, user)
@@ -237,6 +236,6 @@ class PacketTask(object):
         # NOTE: if user is not null, notify android
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
         if user:
-            name = self.get_tname(dev_id)
+            name = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
             push_key = NotifyHelper.get_push_key(user.owner_mobile, self.redis) 
             NotifyHelper.push_to_android(category, user.owner_mobile, dev_id, name, location, push_key)      

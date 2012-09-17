@@ -19,6 +19,8 @@ from base import BaseHandler, authenticated
 from checker import check_areas, check_privileges 
 from codes.errorcode import ErrorCode 
 from utils.checker import check_sql_injection
+from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from helpers.smshelper import SMSHelper
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
@@ -412,10 +414,20 @@ class BusinessStopHandler(BaseHandler, BusinessMixin):
     def post(self, tmobile, service_status):
         status = ErrorCode.SUCCESS
         try: 
+            terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+                                   "  WHERE mobile = %s",
+                                   tmobile)
             self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET service_status = %s"
-                            "  WHERE mobile = %s",
-                            service_status, tmobile)
+                            "  WHERE id = %s",
+                            service_status, terminal.id)
+            sessionID_key = get_terminal_sessionID_key(terminal.tid)
+            address_key = get_terminal_address_key(terminal.tid)
+            info_key = get_terminal_info_key(terminal.tid)
+            lq_sms_key = get_lq_sms_key(terminal.tid)
+            lq_interval_key = get_lq_interval_key(terminal.tid)
+            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+            self.redis.delete(*keys)
         except Exception as e:
             status = ErrorCode.FAILED
             logging.exception("Set service status to %s failed. tmobile: %s", service_status, mobile)
@@ -431,9 +443,20 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
     def post(self, tmobile, pmobile):
         status = ErrorCode.SUCCESS
         try:
+            terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+                                   "  WHERE mobile = %s",
+                                   tmobile)
             self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                            "  WHERE mobile = %s",
-                            tmobile)
+                            "  WHERE id = %s",
+                            terminal.id)
+            # clear redis
+            sessionID_key = get_terminal_sessionID_key(terminal.tid)
+            address_key = get_terminal_address_key(terminal.tid)
+            info_key = get_terminal_info_key(terminal.tid)
+            lq_sms_key = get_lq_sms_key(terminal.tid)
+            lq_interval_key = get_lq_interval_key(terminal.tid)
+            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+            self.redis.delete(*keys)
             terminal = self.db.query("SELECT mobile"
                                      "  FROM T_TERMINAL_INFO"
                                      "  WHERE owner_mobile = %s",

@@ -19,56 +19,40 @@ class QueryHelper(object):
 
     @staticmethod
     def get_alias_by_tid(tid, redis, db):
-        """Get terminal's alias throught tid.
-        """
-        def get_alias(): 
-            """A inner method, get alias from db.
-            workflow:
-            if terminal.alias:
-                return terminal.alias
-            else:
-                if car.cnum:
-                    return car.cnum
-                else:
-                    return terminal.mobile 
-            """
-            terminal = db.get("SELECT mobile, alias"
-                              "  FROM T_TERMINAL_INFO"
-                              "  WHERE tid = %s LIMIT 1",
-                              tid) 
-            if terminal.alias:
-                alias = terminal.alias
-            else:
-                car = db.get("SELECT cnum FROM T_CAR"
-                             "  WHERE tid = %s LIMIT 1",
-                             tid)
-                if car.cnum:
-                   alias = car.cnum
-                else:
-                   alias = terminal.mobile
-            return alias
 
         terminal_info_key = get_terminal_info_key(tid)
         terminal_info = redis.getvalue(terminal_info_key)
         if terminal_info:
             if terminal_info.alias:
-                alias = terminal_info.alias
-            else:
-                alias=get_alias()    
-                terminal_info.alias=alias    
-                redis.setvalue(terminal_info_key, terminal_info)
+                return terminal_info.alias 
         else:
-            alias = get_alias()
-            #NOTE: the scene should neve appear.
             terminal_info = DotDict(defend_status=None,
                                     login=None,
                                     gps=None,
                                     gsm=None,
                                     pbat=None,
-                                    alias=alias,
+                                    alias=None,
                                     keys_num=None) 
-            redis.setvalue(terminal_info_key, terminal_info)
-        return alias 
+
+        terminal = db.get("SELECT mobile, alias"
+                          "  FROM T_TERMINAL_INFO"
+                          "  WHERE tid = %s LIMIT 1",
+                          tid) 
+        if terminal.alias:
+            alias = terminal.alias
+        else:
+            car = db.get("SELECT cnum FROM T_CAR"
+                         "  WHERE tid = %s LIMIT 1",
+                         tid)
+            if car.cnum:
+               alias = car.cnum
+            else:
+               alias = terminal.mobile
+
+        terminal_info['alias'] = alias
+        redis.setvalue(terminal_info_key, terminal_info)
+
+        return alias
 
     @staticmethod
     def get_user_by_tid(tid, db):
