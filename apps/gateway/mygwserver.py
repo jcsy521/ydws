@@ -134,8 +134,8 @@ class MyGWServer(object):
         lid = self.db.execute("INSERT INTO T_LOCATION(tid, timestamp, category, type)"
                               "  VALUES(%s, %s, %s, %s)",
                               dev_id, timestamp, category, 1)
-        self.db.execute("INSERT INTO T_EVENT"
-                        "  VALUES (NULL, %s, DEFAULT, %s, NULL, %s)",
+        self.db.execute("INSERT INTO T_EVENT(tid, lid, category)"
+                        "  VALUES (%s, %s, %s)",
                         dev_id, lid, category)
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
         if user:
