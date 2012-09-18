@@ -1,9 +1,9 @@
 <download>
     <android>
-        <versioncode>1</versioncode>
-        <versionname>1.0beta</versionname>
-        <versioninfo>1.新增自动更新功能;2.新增用户反馈;3.新增二维码扫描下载</versioninfo>
-        <updatetime>2012-09-14</updatetime>
-        <filesize>2.12M</filesize>
+        <versioncode>3</versioncode>
+        <versionname>1.0.2</versionname>
+        <versioninfo>1.新增修改密码;2.新增意见反馈反馈;3.新增自动更新;4.新增帮助</versioninfo>
+        <updatetime>2012-09-18</updatetime>
+        <filesize>3.71M</filesize>
     </android>
 </download>
