@@ -10,7 +10,6 @@ class PasswordMixin(BaseMixin):
     def check_user_by_password(self, password, uid):
         """Check the password whether be avaliable.
         """
-
         res = self.db.get("SELECT id FROM T_USER"
                           "  WHERE password = password(%s)"
                           "    AND uid = %s"

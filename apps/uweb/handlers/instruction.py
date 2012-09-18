@@ -7,6 +7,8 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
+from helpers.downloadhelper import get_version_info,\
+     get_download_count, update_download_count
 from codes.errorcode import ErrorCode
 from base import BaseHandler
 
@@ -22,7 +24,17 @@ class AndroidInsHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Jump to android.html."""
-        self.render('android.html')
+        category = self.get_argument('category', '2')
+        version_info = get_version_info('android')
+        download_info = get_download_count(category, self.db)
+
+        self.render('android.html',
+                    versioncode=version_info.versioncode,
+                    versionname=version_info.versionname,
+                    versioninfo=version_info.versioninfo,
+                    updatetime=version_info.updatetime,
+                    filesize=version_info.filesize,
+                    count=download_info.count)
 
 class IOSInsHandler(BaseHandler):
 

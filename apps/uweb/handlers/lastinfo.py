@@ -6,8 +6,9 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import get_alarm_status_key
+from utils.misc import get_terminal_info_key, get_location_key
 from codes.errorcode import ErrorCode
+from helpers.queryhelper import QueryHelper
 from constants import UWEB
 from constants.MEMCACHED import ALIVED
 from base import BaseHandler, authenticated
@@ -30,49 +31,63 @@ class LastInfoHandler(BaseHandler):
             cars_info = DotDict() 
             status = ErrorCode.SUCCESS
             for tid in data.tids:
-                # NOTE: monitor and location must not be null. lastinfo is invoked after switchcar
-                terminal = self.db.get("SELECT ti.tid, ti.mobile as sim, ti.login,"
-                                       "  ti.defend_status, ti.pbat, ti.gps, ti.gsm, ti.alias, ti.keys_num "
-                                       "  FROM T_TERMINAL_INFO as ti "
-                                       "  WHERE ti.tid = %s"
-                                       "  LIMIT 1",
-                                       tid)
+                # 1: get terminal info 
+                terminal_info_key = get_terminal_info_key(tid)
+                terminal = self.redis.getvalue(terminal_info_key)
+                #self.redis.delete(terminal_info_key)
                 if not terminal:
-                    status = ErrorCode.LOGIN_AGAIN
-                    logging.error("The terminal with tid: %s is noexist, redirect to login.html", tid)
-                    self.write_ret(status)
-                    return
-                location = self.db.get("SELECT speed, timestamp, category, name,"
-                                       "  degree, type, latitude, longitude, clatitude, clongitude"
-                                       "  FROM T_LOCATION"
-                                       "  WHERE tid = %s"
-                                       "    AND NOT (clatitude = 0 AND clongitude = 0)"
-                                       "    ORDER BY timestamp DESC"
-                                       "    LIMIT 1",
-                                       tid)
-                # NOTE: if there is no records in T_LOCATION, when the car
-                # has never got location, just return None
-                #event_status = self.get_event_status(tid)
+                    terminal = self.db.get("SELECT ti.login, ti.mobile, ti.defend_status, ti.pbat,"
+                                           "    ti.gps, ti.gsm, ti.alias, ti.keys_num "
+                                           "  FROM T_TERMINAL_INFO as ti "
+                                           "  WHERE ti.tid = %s"
+                                           "  LIMIT 1",
+                                          tid)
+                    if not terminal:
+                        status = ErrorCode.LOGIN_AGAIN
+                        logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
+                        self.write_ret(status)
+                        return
+
+                if not terminal['alias']:
+                   terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db) 
+
+                if not terminal['mobile']:
+                   terminal['mobile'] = QueryHelper.get_tmobile_by_tid(tid, self.redis, self.db) 
+
+                # 2: get location 
+                location_key = get_location_key(str(self.current_user.tid))
+                location = self.redis.getvalue(location_key)
+                if not location:
+                    location = self.db.get("SELECT speed, timestamp, category, name,"
+                                           "  degree, type, latitude, longitude, clatitude, clongitude"
+                                           "  FROM T_LOCATION"
+                                           "  WHERE tid = %s"
+                                           "    AND NOT (clatitude = 0 AND clongitude = 0)"
+                                           "    ORDER BY timestamp DESC"
+                                           "    LIMIT 1",
+                                           tid)
+                if location and location['name'] is None:
+                    location['name'] = ''
+
                 car_dct = {}
-                car_info=DotDict(defend_status=terminal.defend_status,
-                                 timestamp=location.timestamp if location else 0,
+                car_info=DotDict(defend_status=terminal['defend_status'],
+                                 timestamp=location['timestamp'] if location else 0,
                                  speed=location.speed if location else 0,
-                                 # NOTE: degree's type is Decimal, str() it before json_encode
+                                 # NOTE: degree's type is Decimal, float() it before json_encode
                                  degree=float(location.degree) if location else 0.00,
-                                 name='',
-                                 #name=location.name if location else '',
+                                 name=location.name if location else '',
                                  type=location.type if location else 1,
-                                 latitude=location.latitude if location else 0,
-                                 longitude=location.longitude if location else 0, 
-                                 clatitude=location.clatitude if location else 0,
-                                 clongitude=location.clongitude if location else 0, 
-                                 login=terminal.login,
-                                 gps=terminal.gps,
-                                 gsm=terminal.gsm,
-                                 pbat=terminal.pbat,
-                                 mobile=terminal.sim,
-                                 alias=terminal.alias if terminal.alias else terminal.sim,
-                                 keys_num=terminal.keys_num)
+                                 latitude=location['latitude'] if location else 0,
+                                 longitude=location['longitude'] if location else 0, 
+                                 clatitude=location['clatitude'] if location else 0,
+                                 clongitude=location['clongitude'] if location else 0, 
+                                 login=terminal['login'] if terminal['login'] is not None else 0,
+                                 gps=terminal['gps'] if terminal['gps'] is not None else 0,
+                                 gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
+                                 pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
+                                 mobile=terminal['mobile'],
+                                 alias=terminal['alias'],
+                                 keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0)
 
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)
@@ -81,21 +96,6 @@ class LastInfoHandler(BaseHandler):
                            dict_=DotDict(cars_info=cars_info))
 
         except Exception as e:
-            logging.exception("[UWEB] get lastinfo failed. Exception: %s", e.args) 
-            status = ErrorCode.SERVER_ERROR        
+            logging.exception("[UWEB] uid:%s, tid:%s get lastinfo failed. Exception: %s", e.args) 
+            status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-
-    #def get_event_status(self, tid):
-    #    alarm_key = get_alarm_status_key(tid)
-    #    event_status = self.redis.getvalue(alarm_key)
-    #    is_alived = self.redis.getvalue("is_alived")
-    #    if is_alived != ALIVED:
-    #        location = self.db.get("SELECT category"
-    #                               "  FROM T_LOCATION"
-    #                               "  WHERE tid = %s"
-    #                               "    ORDER BY timestamp DESC"
-    #                               "    LIMIT 1",
-    #                               tid)
-    #        event_status = location.category if location else 0
-
-    #    return event_status

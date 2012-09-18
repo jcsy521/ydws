@@ -22,12 +22,11 @@ class EventHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Jump to event.html, provide tid, alias """ 
+        """Jump to event.html, provide alias """ 
         terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
-            logging.error("The terminal with tid: %s is noexist, redirect to login.html", tid)
-            self.clear_cookie(self.app_name)
+            logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
             self.write_ret(status)
             return
         
@@ -39,10 +38,16 @@ class EventHandler(BaseHandler):
     def post(self):
         """Retrive various event.
         """
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return
+
         try:
             page_size = UWEB.LIMIT.PAGE_SIZE
-
-            data = DotDict(json_decode(self.request.body))
             category = int(data.category)
             page_number = int(data.pagenum)
             page_count = int(data.pagecnt)
@@ -100,10 +105,11 @@ class EventHandler(BaseHandler):
                 event['degree'] = float(event['degree'])
                 event['speed'] = float(event['speed'])
                 
-            self.write_ret(ErrorCode.SUCCESS,
+            self.write_ret(status,
                            dict_=DotDict(events=events,
                                          pagecnt=page_count))
         except Exception as e:
-            logging.exception("Get track failed. Exception: %s", e.args)
+            logging.exception("[UWEB] uid:%s, tid:%s get alarm info failed. Exception: %s",
+                              self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

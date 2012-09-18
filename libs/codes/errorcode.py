@@ -79,7 +79,7 @@ class ErrorCode(object):
         PARENT_NOT_ORDERED:         u'您输入的用户名或密码有误，请重新输入！',
         TERMINAL_NOT_ORDERED:       u'对不起，该号码尚未订购"爱车保"业务！',
         LOCATION_NAME_NONE:         u"无法解析经纬度对应的地址",
-        LOCATION_FAILED:            u"爱车保定位失败，请稍后重试。",
+        LOCATION_FAILED:            u"无法获取爱车保当前位置，请稍后重试。",
         LOCATION_CELLID_FAILED:     u"爱车保基站定位失败，请稍后重试。",
         LOCATION_OFFSET_FAILED :    u"经纬度偏转失败，请稍后重试。",
         TERMINAL_OFFLINE:           u'您的爱车保不在线。',

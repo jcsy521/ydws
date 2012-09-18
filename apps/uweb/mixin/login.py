@@ -37,19 +37,17 @@ class LoginMixin(BaseMixin):
             logging.info("%s login failed. Message: %s", mobile, ErrorCode.ERROR_MESSAGE[status])
             return None, None, None, status 
         else:    
-            terminal = self.db.get("SELECT id, tid, mobile FROM T_TERMINAL_INFO"
-                                   "  WHERE service_status = %s"
-                                   "    AND owner_mobile = %s"
-                                   "    AND (%s BETWEEN begintime AND endtime)"
-                                   "  LIMIT 1",
-                                   UWEB.SERVICE_STATUS.ON, user.mobile, int(time.time()))
-            if not terminal: 
+            terminals = self.db.query("SELECT id, tid, mobile FROM T_TERMINAL_INFO"
+                                      "  WHERE service_status = %s"
+                                      "    AND owner_mobile = %s"
+                                      "    AND (%s BETWEEN begintime AND endtime)",
+                                      UWEB.SERVICE_STATUS.ON, user.mobile, int(time.time()))
+            if not terminals: 
                 status = ErrorCode.TERMINAL_NOT_ORDERED
                 return None, None, None, status 
-
-        #NOTE: now, if a user is avaliabe, he can log in the platform.
-        #here, just provide a untrust tid and sim, and hope they can be 
-        #reseted by switch
+            else:
+                # provide a valid terminal
+                terminal = terminals[0]  
         return str(user.uid), str(terminal.tid), str(terminal.mobile), status
 
     def login_sms_remind(self, uid,  owner_mobile, terminals, login="WEB"):
@@ -58,6 +56,6 @@ class LoginMixin(BaseMixin):
         if sms_option.login == 1:
             login_time = time.strftime("%Y-%m-%d %H:%M:%S")
             login_method = UWEB.LOGIN_WAY[login] 
-            terminal_mobile = u'，'.join(str(terminal.alias) for terminal in terminals)
+            terminal_mobile = u'，'.join(terminal.alias for terminal in terminals)
             remind_sms = SMSCode.SMS_LOGIN_REMIND % (login_time, login_method, owner_mobile, terminal_mobile) 
             SMSHelper.send(owner_mobile, remind_sms)

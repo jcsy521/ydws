@@ -16,6 +16,33 @@ class QueryHelper(object):
                           "  WHERE tid = %s LIMIT 1",
                           tid) 
         return terminal 
+        
+
+    @staticmethod
+    def get_tmobile_by_tid(tid, redis, db):
+        terminal_info_key = get_terminal_info_key(tid)
+        terminal_info = redis.getvalue(terminal_info_key)
+        if terminal_info:
+            if terminal_info.mobile:
+                return terminal_info.mobile 
+        else:
+            terminal_info = DotDict(defend_status=None,
+                                    mobile=None,
+                                    login=None,
+                                    gps=None,
+                                    gsm=None,
+                                    pbat=None,
+                                    alias=None,
+                                    keys_num=None) 
+
+        terminal = db.get("SELECT mobile, alias"
+                          "  FROM T_TERMINAL_INFO"
+                          "  WHERE tid = %s LIMIT 1",
+                          tid) 
+        terminal_info['mobile'] = terminal.mobile 
+        redis.setvalue(terminal_info_key, terminal_info)
+
+        return terminal_info['mobile'] 
 
     @staticmethod
     def get_alias_by_tid(tid, redis, db):
@@ -27,6 +54,7 @@ class QueryHelper(object):
                 return terminal_info.alias 
         else:
             terminal_info = DotDict(defend_status=None,
+                                    mobile=None,
                                     login=None,
                                     gps=None,
                                     gsm=None,

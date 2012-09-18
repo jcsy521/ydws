@@ -8,6 +8,7 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
+from constants import UWEB
 from base import BaseHandler, authenticated
 from mixin.realtime import RealtimeMixin
 
@@ -30,7 +31,11 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             self.write_ret(status)
             self.finish()
             return
-        current_query.cellid_status = terminal.cellid_status 
+
+        if terminal.cellid_status == UWEB.CELLID_STATUS.ON:
+            current_query.cellid_status = True 
+        else: 
+            current_query.cellid_status = False 
 
         logging.debug("Realtime query: %s", current_query)
         

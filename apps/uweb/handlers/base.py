@@ -11,8 +11,8 @@ from tornado.escape import json_encode
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 
-# cookie expire periods, in minutes, JXQ cookie time out is 4 hours.
-EXPIRES_MINUTES = 36500 * 24 * 60 
+# cookie expire periods, in minutes. one week.
+EXPIRES_MINUTES = 7 * 24 * 60 
 
 
 class _DBDescriptor(object):

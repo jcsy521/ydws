@@ -5,13 +5,11 @@ import logging
 import tornado.web
 from tornado.escape import json_encode, json_decode
 
-from utils.misc import DUMMY_IDS
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import UWEB, SMS
+from constants import SMS
 from mixin.base import  BaseMixin
 from base import BaseHandler, authenticated
-
        
 class SwitchCarHandler(BaseHandler, BaseMixin):
     """Switch current car for the current user.
@@ -19,6 +17,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
     @authenticated
     @tornado.web.removeslash
     def get(self, tid):
+        status = ErrorCode.SUCCESS
         try:
             terminal = self.db.get("SELECT ti.tid, ti.mobile as sim,"
                                   "  ti.login, ti.defend_status "
@@ -28,16 +27,14 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                                   tid)
             if terminal: 
                 self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
-                
                 self.bookkeep(dict(uid=self.current_user.uid,
                                    tid=tid,
                                    sim=terminal.sim))
-                status = ErrorCode.SUCCESS
-                self.write_ret(status) 
             else:
                 status = ErrorCode.LOGIN_AGAIN
-                self.write_ret(status) 
+            self.write_ret(status) 
         except Exception as e:
-            logging.exception("Switchcar failded. Exception: %s", e.args) 
-            status = ErrorCode.SERVER_ERROR        
+            logging.exception("[UWEB] uid: %s switchcar to tid:%s failed.  Exception: %s", 
+                              self.current_user.uid, tid, e.args) 
+            status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

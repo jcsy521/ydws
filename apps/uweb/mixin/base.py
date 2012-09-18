@@ -13,7 +13,7 @@ class BaseMixin(object):
     def send_lq_sms(self, sim, interval):
         """Send LQ Message to terminal.
         """
-        lq_sms_key = get_lq_sms_key(sim) 
+        lq_sms_key = get_lq_sms_key(self.current_user.tid) 
         # keep the interval_key for interval
         lq_interval_key = get_lq_interval_key(self.current_user.tid) 
         self.redis.setvalue(lq_interval_key, True, interval*60)

@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import datetime
 import time
 import random
-import time
-from dateutil.relativedelta import relativedelta
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
-from helpers.seqgenerator import SeqGenerator
-from utils.misc import get_today_last_month
+from utils.misc import get_psd
 from utils.dotdict import DotDict
 from mixin.password import PasswordMixin 
 from base import BaseHandler, authenticated
@@ -25,23 +21,21 @@ class PasswordHandler(BaseHandler, PasswordMixin):
     def get(self):
         self.render('getpassword.html', message='')
     
-    
     @authenticated
     @tornado.web.removeslash
     def put(self):
         """Modify the password."""
-
+        status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
             old_password = data.old_password
             new_password = data.new_password
-
             if not self.check_user_by_password(old_password, self.current_user.uid): 
-                self.write_ret(ErrorCode.WRONG_PASSWORD)
-                return 
+                logging.error("[UWEB] uid: %s change password failed. old passwrod: %s, new passwrod: %s", self.current_user.uid, old_password, new_password)
+                status = ErrorCode.WRONG_PASSWORD
             else:    
                 self.update_password(new_password, self.current_user.uid)
-            self.write_ret(ErrorCode.SUCCESS)
+            self.write_ret(status)
         except Exception as e:
             logging.exception("Update password failed. Exception: %s", e.args)
             status = ErrorCode.SERVER_BUSY
@@ -54,36 +48,38 @@ class PasswordHandler(BaseHandler, PasswordMixin):
         try:
             data = DotDict(json_decode(self.request.body))
             mobile = data.mobile
-            info = self.db.get("SELECT mobile"
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+
+        try:
+            user = self.db.get("SELECT mobile"
                                "  FROM T_USER"
                                "  WHERE mobile = %s"
                                "  LIMIT 1",
                                mobile)
-            if info:
-                password = ""
-                for i in range(6):
-                    if i % 2 == 0:
-                        password = password + chr(random.randint(97, 122))
-                    else:
-                        password = password + str(random.randint(0, 9))
-                        
+            if user:
+                psd = get_psd()                        
                 self.db.execute("UPDATE T_USER"
                                 "  SET password = password(%s)"
                                 "  WHERE mobile = %s",
-                                password, mobile)
+                                psd, mobile)
                         
-                retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (password) 
+                retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (psd) 
                 ret = SMSHelper.send(mobile, retrieve_password_sms)
                 ret = DotDict(json_decode(ret))
                 if ret.status == ErrorCode.SUCCESS:
-                    pass
+                    logging.info("[UWEB] uid: %s retrieve password success, the new passwrod: %s", mobile, psd)
                 else:
-                    status = ErrorCode.FAILED
+                    status = ErrorCode.SERVER_BUSY
+                    logging.error("[UWEB] uid: %s retrieve password failed.", mobile)
             else:
+                logging.error("[UWEB] uid: %s does not exist, retrieve password failed.", mobile)
                 status = ErrorCode.USER_NOT_ORDER
             self.write_ret(status)
             
         except Exception as e:
-            logging.exception("Retrieve password failed. Exception: %s", e.args)
-            status = ErrorCode.FAILED
+            logging.exception("[UWEB] uid: %s retrieve password failed.  Exception: %s", mobile, e.args)
+            status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

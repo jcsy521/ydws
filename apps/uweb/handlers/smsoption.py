@@ -24,6 +24,8 @@ class SMSOptionHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
+        """Display smsoption of current user.
+        """
         status = ErrorCode.SUCCESS
         try: 
             sms_options = self.db.get("SELECT login, powerlow, poweroff,"
@@ -34,22 +36,30 @@ class SMSOptionHandler(BaseHandler):
                                       self.current_user.uid) 
             if not sms_options:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The user with uid: %s is noexist, redirect to login.html", self.current_user.uid)
+                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
                 self.write_ret(status)
                 return
             self.write_ret(status,
                            dict_=dict(sms_options=sms_options))
         except Exception as e:
-            logging.exception("Get SMS Options failed. Exception: %s", e.args) 
+            logging.exception("[UWEB] uid:%s tid:%s get SMS Options failed. Exception: %s", e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
     @authenticated
     @tornado.web.removeslash
     def put(self):
+        """Modify smsoptions for current user.
+        """
+        status = ErrorCode.SUCCESS
         try:
-            status = ErrorCode.SUCCESS
             data = DotDict(json_decode(self.request.body))
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+
+        try:
             fields = DotDict(login="login = %s",
                              powerlow="powerlow = %s",
                              poweroff="poweroff = %s",
@@ -66,6 +76,7 @@ class SMSOptionHandler(BaseHandler):
                                 self.current_user.uid)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("Update SMS Options failed. Exception: %s", e.args)
+            logging.exception("[UWEB] uid:%s tid:%s update SMS Options failed.  Exception: %s", 
+                              self.current_user.uid,self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

@@ -33,3 +33,6 @@ class SMSCode(object):
     SMS_TERMINAL_HK_SUCCESS = u"您的爱车保%s换卡成功，新卡号码：%s！"
     SMS_USER_ADD_TERMINAL = u"您的号码绑定了新的爱车保号码%s。请登录平台网址：%s查看。"
     SMS_PSD_WRONG = u"密码错误，请重新确认！"
+
+
+    SMS_DOWNLOAD_REMIND = u"尊敬的车主，您可以通过访问 %s 下载爱车保的Android客户端。"

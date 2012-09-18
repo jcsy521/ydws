@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import datetime
-import time
-from dateutil.relativedelta import relativedelta
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
@@ -11,12 +8,12 @@ from tornado.ioloop import IOLoop
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
-from utils.misc import get_today_last_month
+from utils.misc import get_terminal_info_key 
 from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
 from mixin.base import BaseMixin
 from codes.errorcode import ErrorCode
-from constants import UWEB, SMS
+from constants import SMS
 
 
 class DefendHandler(BaseHandler, BaseMixin):
@@ -32,13 +29,14 @@ class DefendHandler(BaseHandler, BaseMixin):
                                    self.current_user.tid)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The terminal with tid: %s is noexist, redirect to login.html", tid)
+                logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
                 self.write_ret(status)
                 return
 
             self.write_ret(status,dict_=DotDict(defend_status=terminal.defend_status))
         except Exception as e:
-            logging.exception("Set terminal failed. Exception: %s", e.args)
+            logging.exception("[UWEB] uid:%s tid:%s get defed status failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
             return 
@@ -64,12 +62,18 @@ class DefendHandler(BaseHandler, BaseMixin):
                                 "  SET defend_status = %s"
                                 "  WHERE tid = %s",
                                 data.defend_status, self.current_user.tid)
+
+                terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                terminal_info['defend_status'] = data.defend_status
+                self.redis.setvalue(terminal_info_key, terminal_info)
             else:
                 if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
                     self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
 
                 status = response['success'] 
-                logging.error('Set defend_status failed. status: %s, message: %s', status, ErrorCode.ERROR_MESSAGE[status] )
+                logging.error('[UWEB] uid:%s tid:%s set defend status to %d failed, message: %s', 
+                              self.current_user.uid, self.current_user.tid, ErrorCode.ERROR_MESSAGE[status] )
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
 
@@ -79,10 +83,12 @@ class DefendHandler(BaseHandler, BaseMixin):
                           tid=self.current_user.tid,
                           defend_status=data.defend_status)
 
-           logging.info("Set defend_status to %d", data.defend_status)
+           logging.info("[UWEB] uid:%s, tid:%s  set defend status to %d successfully", 
+                        self.current_user.uid,  self.current_user.tid, data.defend_status)
            GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args, _on_finish)
         except Exception as e:
-            logging.exception("Set defend_status failed. Exception: %s", e.args)
-            status = ErrorCode.SERVER_ERROR
+            logging.exception("[UWEB] uid:%s, tid:%s set defend status to %s failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, data.defend_status, e.args)
+            status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)

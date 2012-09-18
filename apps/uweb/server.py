@@ -31,29 +31,25 @@ from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from constants.MEMCACHED import ALIVED
 
-from handlers.captcha import CaptchaHandler
-from handlers.login import LoginHandler, LogoutHandler, WAPTransferHandler, IOSHandler, AndroidHandler
-from handlers.register import RegisterHandler
-from handlers.terminallist import TerminalListHandler
+from handlers.captcha import CaptchaHandler, CaptchaSmsHandler
+from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandler
 from handlers.car import SwitchCarHandler
 from handlers.lastinfo import LastInfoHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
 from handlers.track import TrackHandler
-#from handlers.track import TrackBackHandler
 from handlers.event import EventHandler
 from handlers.realtime import RealtimeHandler
-from handlers.remote import RemoteHandler
 from handlers.defend import DefendHandler
 from handlers.terminal import TerminalHandler
 from handlers.password import PasswordHandler
-from handlers.detail import DetailHandler
-from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler, BusinessCheckTMobileHandler, BusinessCheckStatusHandler
+from handlers.profile import ProfileHandler 
 from handlers.smsoption import SMSOptionHandler
 from handlers.feedback import FeedBackHandler
+from handlers.download import DownloadHandler, DownloadSmsHandler
+from handlers.about import AboutHandler
 from handlers.instruction import WebInsHandler, AndroidInsHandler, IOSInsHandler, SMSInsHandler 
 
-from handlers.sms import SMSHandler
 from handlers.servicesterms import ServicesTermsHandler
 
 from utils.dotdict import DotDict
@@ -67,24 +63,22 @@ class Application(tornado.web.Application):
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
             (r"/login/*", LoginHandler),
-            #(r"/register/*", RegisterHandler),
-            (r"/terminallist/*", TerminalListHandler),
             (r"/captcha", CaptchaHandler),
+            (r"/captchasms", CaptchaSmsHandler),
             (r"/logout/*", LogoutHandler),
             (r"/switchcar/(\S+)/*", SwitchCarHandler),
-            (r"/lastinfo/(\S+)/*", LastInfoHandler),
             (r"/lastinfo/*", LastInfoHandler),
             (r"/track/*", TrackHandler),
-            # no use 
-            #(r"/trackback/(\S+)/*", TrackBackHandler),
             (r"/event/*", EventHandler),
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),
-            (r"/remote/*", RemoteHandler),
             (r"/terminal/*", TerminalHandler),
             (r"/password/*", PasswordHandler),
-            (r"/detail/*", DetailHandler),
+            (r"/profile/*", ProfileHandler),
             (r"/smsoption/*", SMSOptionHandler),
+
+            (r"/about/*", AboutHandler),
+
             (r"/feedback/*", FeedBackHandler),
 
             (r"/instruction/web/*", WebInsHandler),
@@ -92,24 +86,17 @@ class Application(tornado.web.Application):
             (r"/instruction/ios/*", IOSInsHandler),
             (r"/instruction/sms/*", SMSInsHandler),
 
-            # for wap
-            (r"/wap/*", WAPTransferHandler),
-           
+            (r"/download/*", DownloadHandler),
+            (r"/downloadsms/*", DownloadSmsHandler),
+
+            (r"/servicesterms/*", ServicesTermsHandler),
+
             # for android 
             (r"/android/*", AndroidHandler),
-            (r"/business/create/*", BusinessCreateHandler),
-            (r"/business/checkmobile/(\S+)/*", BusinessCheckMobileHandler),
-            (r"/business/checktmobile/(\S+)/*", BusinessCheckTMobileHandler),
-            (r"/business/checkstatus/(\S+)/*", BusinessCheckStatusHandler),
 
             # for ios
             (r"/ios/*", IOSHandler),
 
-            # for sms: accept sms from sms proxy
-            (r"/sms/mo/*", SMSHandler),
-            
-            (r"/servicesterms/*", ServicesTermsHandler),
-            
         ]
 
         settings = dict(

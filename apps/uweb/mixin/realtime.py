@@ -11,6 +11,7 @@ from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
 from helpers.lbmphelper import handle_location
+from utils.misc import get_location_key 
 from constants import UWEB, EVENTER, GATEWAY, SMS
 from constants.MEMCACHED import ALIVED
 from base import BaseMixin
@@ -27,8 +28,8 @@ class RealtimeMixin(BaseMixin):
                 fields.append(key + " = " + location[key]) 
         set_clause = ','.join(fields) 
         if set_clause: 
-            self.db.execute("UPDATE T_TERMINAL_INFO" " SET " + set_clause + " WHERE tid = %s", 
-            location.dev_id)
+            self.db.execute("UPDATE T_TERMINAL_INFO SET " + set_clause + " WHERE tid = %s", 
+                            location.dev_id)
     
     def insert_location(self, location):
         """Insert the location into mysql and keep it in memcached.
@@ -54,7 +55,8 @@ class RealtimeMixin(BaseMixin):
                                     'name':location.name,
                                     'degree':location.degree,
                                     'speed':location.speed})
-            self.redis.setvalue(str(location.dev_id), mem_location, EVENTER.LOCATION_EXPIRY)
+            location_key = get_location_key(str(location.dev_id))
+            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
     def request_realtime(self, query, callback=None):
         """
@@ -63,7 +65,9 @@ class RealtimeMixin(BaseMixin):
         """
         is_alived = self.redis.getvalue('is_alived')
         if is_alived == ALIVED:
-            location = self.redis.getvalue(str(self.current_user.tid))
+            location_key = get_location_key(str(self.current_user.tid))
+            location = self.redis.getvalue(location_key)
+            # after 1 minute, the location is invalid, get it again.
             if location and (time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
                 location = None
         else:
@@ -100,14 +104,11 @@ class RealtimeMixin(BaseMixin):
                               location=DotDict())
                 response = json_decode(response)
 
-                if response['success'] == 0:
+                if response['success'] == ErrorCode.SUCCESS:
                     location = DotDict(response['position'])
 
-                    cellid = False 
-                    if int(query.cellid_status) == UWEB.CELLID_STATUS.ON:
-                        cellid = True
                     location = handle_location(location, self.redis,
-                                               cellid=cellid,
+                                               cellid=query.cellid_status,
                                                db=self.db)
                     if location.get('cLat') and location.get('cLon'):
                         ret.location.latitude = location.lat
@@ -119,8 +120,6 @@ class RealtimeMixin(BaseMixin):
                         ret.location.speed = location.speed
                         ret.location.type = location.type
                         ret.location.tid = self.current_user.tid
-                        #ret.location.degree = int(round(float(location.degree)/36))
-                        # now, provide the orginal degree.
                         ret.location.degree = float(location.degree)
                         self.insert_location(location)
                         self.update_terminal_status(location)
