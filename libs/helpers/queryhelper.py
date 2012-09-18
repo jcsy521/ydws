@@ -77,9 +77,6 @@ class QueryHelper(object):
             else:
                alias = terminal.mobile
 
-        terminal_info['alias'] = alias
-        redis.setvalue(terminal_info_key, terminal_info)
-
         return alias
 
     @staticmethod

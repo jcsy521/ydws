@@ -79,10 +79,6 @@ class LoginHandler(BaseHandler, LoginMixin):
                                       "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
             
-            #NOTE: if alias is null, provide cnum or sim instead
-            for terminal in terminals:
-                if not terminal.alias:
-                    terminal.alias = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
             self.login_sms_remind(uid, user_info.mobile, terminals, login="WEB")
             self.clear_cookie('captchahash')
             self.redirect(self.get_argument("next","/"))
@@ -123,11 +119,6 @@ class IOSHandler(BaseHandler, LoginMixin):
                                       "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
             
-            #NOTE: if alias is null, provide cnum or sim instead
-            for terminal in terminals:
-                if not terminal.alias:
-                    terminal.alias = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
-
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name, 
                                          cars=terminals))
@@ -166,11 +157,6 @@ class AndroidHandler(BaseHandler, LoginMixin):
                                       "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
             
-            #NOTE: if alias is null, provide cnum orsim instead
-            for terminal in terminals:
-                if not terminal.alias:
-                    terminal.alias = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
-
             push_info = NotifyHelper.get_push_info()
             push_key = NotifyHelper.get_push_key(uid, self.redis)
             version_info = get_version_info("android")
