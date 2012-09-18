@@ -10,7 +10,7 @@ from helpers import lbmphelper
 from helpers.notifyhelper import NotifyHelper
 
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_time, get_terminal_info_key 
+from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key 
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
 from constants import EVENTER, GATEWAY, UWEB 
@@ -70,7 +70,8 @@ class PacketTask(object):
                                     'name':location.name,
                                     'degree':location.degree,
                                     'speed':location.speed})
-            self.redis.setvalue(str(location.dev_id), mem_location, EVENTER.LOCATION_EXPIRY)
+            location_key = get_location_key(location.dev_id)
+            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
         return lid
         
     def realtime_location_hook(self, location):

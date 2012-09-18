@@ -20,7 +20,7 @@ from utils.checker import check_phone
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key,\
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
@@ -570,6 +570,7 @@ class MyGWServer(object):
                     self.online_terminals.append(t_info["dev_id"])
                 # set login
                 info = DotDict(login=GATEWAY.TERMINAL_LOGIN.LOGIN,
+                               mobile=t_info['t_msisdn'],
                                dev_id=t_info["dev_id"])
                 self.update_terminal_info(info)
                 logging.info("[GW] Terminal %s login success! SIM: %s",
@@ -803,7 +804,8 @@ class MyGWServer(object):
                                     'name':location.name,
                                     'degree':location.degree,
                                     'speed':location.speed})
-            self.redis.setvalue(str(location.dev_id), mem_location, EVENTER.LOCATION_EXPIRY)
+            location_key = get_location_key(location.dev_id)
+            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
         return lid
         
@@ -825,7 +827,7 @@ class MyGWServer(object):
     def update_terminal_info(self, t_info):
         # db
         fields = []
-        keys = ['gps', 'gsm', 'pbat', 'defend_status', 'login']
+        keys = ['mobile', 'gps', 'gsm', 'pbat', 'defend_status', 'login']
         for key in keys:
             if t_info.get(key, None) is not None:
                 fields.append(key + " = " + str(t_info[key]))
@@ -840,6 +842,7 @@ class MyGWServer(object):
         terminal_info = self.redis.getvalue(terminal_info_key)
         if not terminal_info:
             terminal_info = DotDict(defend_status=None,
+                                    mobile=None,
                                     login=None,
                                     gps=None,
                                     gsm=None,

@@ -7,7 +7,7 @@ import time
 from tornado.escape import json_decode
 
 from helpers.lbmpsenderhelper import LbmpSenderHelper
-from utils.misc import get_location_cache_key
+from utils.misc import get_location_cache_key, get_location_key
 from utils.dotdict import DotDict
 from constants import EVENTER, GATEWAY, UWEB
 from constants.MEMCACHED import ALIVED
@@ -69,7 +69,8 @@ def get_last_degree(location, redis, db):
     # use degree of last usable location
     is_alived = redis.getvalue('is_alived')
     if is_alived == ALIVED:
-        last_location = redis.getvalue(str(location.dev_id))
+        location_key = get_location_key(location.dev_id)
+        last_location = redis.getvalue(location_key)
     else:
         last_location = db.get("SELECT degree FROM T_LOCATION"
                                "  WHERE tid = %s"
@@ -184,7 +185,8 @@ def filter_location(location, redis):
     ratio = 0
     distance = 0
 
-    old_location = redis.getvalue(str(location.dev_id))
+    location_key = get_location_key(location.dev_id)
+    old_location = redis.getvalue(location_key)
     if old_location:
         # not first location, need to check distance and speed
         interval = location.timestamp - old_location.timestamp
