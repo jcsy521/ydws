@@ -37,7 +37,6 @@ class SMSComposer(object):
         s = ConfHelper.SMS_CONF.subport
         q_template = 'id=%s&s=%s&m=%s&p=0&c=%s'
         raw_q = q_template % (id, s, mobile, content)
-        logging.info("Raw data : %s", raw_q)
         self.result = None
         try:
             b = base64.encodestring(DES(raw_q).result)
