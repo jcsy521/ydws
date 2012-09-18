@@ -192,9 +192,11 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                             fields.type, fields.color, fields.brand)
             
             # 4: add default sms report value
-            self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                            "  VALUES(%s)",
-                            fields.mobile)
+            sms_option = self.db.get("SELECT id FROM T_SMS_OPTION WHERE uid = %s", fields.mobile)
+            if not sms_option:
+                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                "  VALUES(%s)",
+                                fields.mobile)
             
             # 5: send message to terminal
             register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
