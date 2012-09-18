@@ -184,7 +184,7 @@ class PacketTask(object):
                 pass
 
             if report.lon and report.lat:
-                wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s&width=800&height=800&zoom=17&markers=%s,%s'
+                wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s%26width=800%26height=800%26zoom=17%26markers=%s,%s'
                 wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
                 sms += u"点击" + wap_url
 
