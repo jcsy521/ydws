@@ -83,7 +83,7 @@ class DefendHandler(BaseHandler, BaseMixin):
                           tid=self.current_user.tid,
                           defend_status=data.defend_status)
 
-           logging.info("[UWEB] uid:%s, tid:%s  set defend status to %d successfully", 
+           logging.info("[UWEB] uid:%s, tid:%s  set defend status to %s successfully", 
                         self.current_user.uid,  self.current_user.tid, data.defend_status)
            GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args, _on_finish)
         except Exception as e:

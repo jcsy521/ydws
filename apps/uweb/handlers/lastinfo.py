@@ -70,7 +70,7 @@ class LastInfoHandler(BaseHandler):
                     location['name'] = ''
 
                 car_dct = {}
-                car_info=DotDict(defend_status=terminal['defend_status'],
+                car_info=DotDict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 0,
                                  timestamp=location['timestamp'] if location else 0,
                                  speed=location.speed if location else 0,
                                  # NOTE: degree's type is Decimal, float() it before json_encode
