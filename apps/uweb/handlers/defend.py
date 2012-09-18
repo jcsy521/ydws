@@ -72,8 +72,8 @@ class DefendHandler(BaseHandler, BaseMixin):
                     self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
 
                 status = response['success'] 
-                logging.error('[UWEB] uid:%s tid:%s set defend status to %d failed, message: %s', 
-                              self.current_user.uid, self.current_user.tid, ErrorCode.ERROR_MESSAGE[status] )
+                logging.error('[UWEB] uid:%s tid:%s set defend status to %s failed, message: %s', 
+                              self.current_user.uid, self.current_user.tid, data.defend_status, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
 
