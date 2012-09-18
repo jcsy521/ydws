@@ -67,6 +67,8 @@ class DefendHandler(BaseHandler, BaseMixin):
                 terminal_info = self.redis.getvalue(terminal_info_key)
                 terminal_info['defend_status'] = data.defend_status
                 self.redis.setvalue(terminal_info_key, terminal_info)
+                logging.info("[UWEB] uid:%s, tid:%s  set defend status to %s successfully", 
+                             self.current_user.uid,  self.current_user.tid, data.defend_status)
             else:
                 if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
                     self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
@@ -83,8 +85,6 @@ class DefendHandler(BaseHandler, BaseMixin):
                           tid=self.current_user.tid,
                           defend_status=data.defend_status)
 
-           logging.info("[UWEB] uid:%s, tid:%s  set defend status to %s successfully", 
-                        self.current_user.uid,  self.current_user.tid, data.defend_status)
            GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args, _on_finish)
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s set defend status to %s failed. Exception: %s", 
