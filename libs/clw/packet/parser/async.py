@@ -142,7 +142,8 @@ class AsyncParser(object):
         """
 
         keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed', 'degree',
-                'defend_status', 'cellid', 'extra', 'gps_time', 'dev_type']
+                'defend_status', 'cellid', 'extra', 'gps_time', 'terminal_type',
+                'fobid']
         position = self.get_position()
         for i, key in enumerate(keys):
             position[key] = packet[i] 

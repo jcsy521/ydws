@@ -29,8 +29,6 @@ from gf.proxy.sender import Sender
 from handlers.main import MainHandler
 from handlers.realtime import RealtimeHandler
 from handlers.terminal import TerminalHandler
-from handlers.remotelock import RemoteLockHandler
-from handlers.reboot import RebootHandler
 from handlers.defend import DefendHandler
 from handlers.query import QueryHandler
 
@@ -42,8 +40,6 @@ class Application(tornado.web.Application):
             (r"/", MainHandler),
             (r"/realtime/*", RealtimeHandler),
             (r"/terminal/*", TerminalHandler),
-            (r"/reboot/*", RebootHandler),
-            (r"/remotelock/*", RemoteLockHandler),
             (r"/defend/*", DefendHandler),
             (r"/query/*", QueryHandler),
         ]

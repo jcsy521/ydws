@@ -31,7 +31,7 @@ class ErrorCode(object):
     TERMINAL_SET_FAILED= 217
 
     LOCATION_NAME_NONE = 300
-    LOCATION_FAILED = 301
+    LOCATION_GPS_FAILED = 301
     LOCATION_CELLID_FAILED = 302
     LOCATION_OFFSET_FAILED = 303
     
@@ -79,11 +79,11 @@ class ErrorCode(object):
         PARENT_NOT_ORDERED:         u'您输入的用户名或密码有误，请重新输入！',
         TERMINAL_NOT_ORDERED:       u'对不起，该号码尚未订购"爱车保"业务！',
         LOCATION_NAME_NONE:         u"无法解析经纬度对应的地址",
-        LOCATION_FAILED:            u"无法获取爱车保当前位置，请稍后重试。",
+        LOCATION_GPS_FAILED:        u"爱车保GPS信号较弱，请稍后重试。",
         LOCATION_CELLID_FAILED:     u"爱车保基站定位失败，请稍后重试。",
         LOCATION_OFFSET_FAILED :    u"经纬度偏转失败，请稍后重试。",
         TERMINAL_OFFLINE:           u'您的爱车保不在线。',
-        TERMINAL_TIME_OUT:          u'连接爱车保超时，请稍后重试。',
+        TERMINAL_TIME_OUT:          u'爱车保响应超时，请稍后重试。',
         TERMINAL_OTHER_ERRORS:      u'连接爱车保失败，请稍后重试。',
         TERMINAL_ORDERED:           u'终端手机已被注册，请检查确认后再重试！',
         TERMINAL_SET_FAILED:        u'终端参数设置失败，请稍后重试。',

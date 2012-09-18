@@ -149,7 +149,8 @@ class PacketTask(object):
         # save into database
         self.update_terminal_info(report)
         lid = self.insert_location(report)
-        self.event_hook(report.category, report.dev_id, report.dev_type, lid, report.pbat)
+        fobid = report.get('fobid', None)
+        self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, fobid)
             
         user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
         if not user:
@@ -171,10 +172,10 @@ class PacketTask(object):
                 report.login = GATEWAY.TERMINAL_LOGIN.LOGIN
                 sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.POWERLOW:
-                if report.dev_type == "1":
+                if report.terminal_type == "1":
                     sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
                 else:
-                    sms = SMSCode.SMS_POB_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
+                    sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, int(report.pbat), report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
                 sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.EMERGENCY:
@@ -192,10 +193,10 @@ class PacketTask(object):
         self.notify_to_parents(report.category, report.dev_id, report)
 
 
-    def event_hook(self, category, dev_id, dev_type, lid, pbat=None):
-        self.db.execute("INSERT INTO T_EVENT"
-                        "  VALUES (NULL, %s, %s, %s, %s, %s)",
-                        dev_id, dev_type, lid, pbat, category)
+    def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):
+        self.db.execute("INSERT INTO T_EVENT(tid, terminal_type, fobid, lid, pbat, category)"
+                        "  VALUES (%s, %s, %s, %s, %s, %s)",
+                        dev_id, terminal_type, fobid, lid, pbat, category)
 
     def get_sms_option(self, uid, category):
         sms_option = self.db.get("SELECT " + category +

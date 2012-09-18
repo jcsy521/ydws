@@ -124,7 +124,7 @@ class RealtimeMixin(BaseMixin):
                         self.insert_location(location)
                         self.update_terminal_status(location)
                     else: 
-                        ret.status = ErrorCode.LOCATION_FAILED 
+                        ret.status = ErrorCode.LOCATION_GPS_FAILED 
                         ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
                         logging.error("[UWEB] realtime failed. status: %s, message: %s", ret.status, ret.message)
                 else:
