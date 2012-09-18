@@ -155,7 +155,7 @@ class MT(object):
                     
                     if result["status"] == ErrorCode.SUCCESS:
                         if result["ret"] == "100":
-                            logging.info("SMS-->Gateway success mobile = %s, content = %s, id = %s ", mobile, content, id)
+                            logging.info("SMS-->Gateway retry success mobile = %s, content = %s, id = %s ", mobile, content, id)
                             self.db.execute("UPDATE T_SMS "
                                            "  SET send_status = %s"
                                            "  WHERE id = %s",
@@ -163,15 +163,15 @@ class MT(object):
                             status = ErrorCode.SUCCESS
                         else:
                             if result["ret"] == "101":
-                                logging.error("SMS-->Gateway failure, errorcode = 101, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                                logging.error("SMS-->Gateway retry failure, errorcode = 101, mobile = %s, content = %s, id = %s ", mobile, content, id)
                             elif result["ret"] == "104":
-                                logging.error("SMS-->Gateway content error, errorcode = 104, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                                logging.error("SMS-->Gateway retry content error, errorcode = 104, mobile = %s, content = %s, id = %s ", mobile, content, id)
                             elif result["ret"] == "105":
-                                logging.error("SMS-->Gateway frequency too fast, errorcode = 105, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                                logging.error("SMS-->Gateway retry frequency too fast, errorcode = 105, mobile = %s, content = %s, id = %s ", mobile, content, id)
                             elif result["ret"] == "106":
-                                logging.error("SMS-->Gateway number limited, errorcode = 106, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                                logging.error("SMS-->Gateway retry number limited, errorcode = 106, mobile = %s, content = %s, id = %s ", mobile, content, id)
                             else:
-                                logging.error("SMS-->Gateway other error, errorcode unknown, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                                logging.error("SMS-->Gateway retry other error, errorcode unknown, mobile = %s, content = %s, id = %s ", mobile, content, id)
                                 
                             if  result["ret"] != "105":
                                 self.db.execute("UPDATE T_SMS "
