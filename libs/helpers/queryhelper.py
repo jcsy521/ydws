@@ -16,7 +16,6 @@ class QueryHelper(object):
                           "  WHERE tid = %s LIMIT 1",
                           tid) 
         return terminal 
-        
 
     @staticmethod
     def get_tmobile_by_tid(tid, redis, db):
@@ -35,10 +34,7 @@ class QueryHelper(object):
                                     alias=None,
                                     keys_num=None) 
 
-        terminal = db.get("SELECT mobile, alias"
-                          "  FROM T_TERMINAL_INFO"
-                          "  WHERE tid = %s LIMIT 1",
-                          tid) 
+        terminal = get_terminal_by_tid(tid, db)
         terminal_info['mobile'] = terminal.mobile 
         redis.setvalue(terminal_info_key, terminal_info)
 
@@ -46,7 +42,20 @@ class QueryHelper(object):
 
     @staticmethod
     def get_alias_by_tid(tid, redis, db):
-
+        """Get a readable alias  throught tid.
+        workflow:
+        if alias exists in redis:
+            return alias 
+        else:
+            if alias in db:
+                alias = alias 
+            elif cnum in db:
+                alias = cnum 
+            else: 
+                alias = sim
+        keep alias in redis     
+        return alias 
+        """
         terminal_info_key = get_terminal_info_key(tid)
         terminal_info = redis.getvalue(terminal_info_key)
         if terminal_info:
@@ -61,11 +70,7 @@ class QueryHelper(object):
                                     pbat=None,
                                     alias=None,
                                     keys_num=None) 
-
-        terminal = db.get("SELECT mobile, alias"
-                          "  FROM T_TERMINAL_INFO"
-                          "  WHERE tid = %s LIMIT 1",
-                          tid) 
+        terminal = QueryHelper.get_terminal_by_tid(tid, db)
         if terminal.alias:
             alias = terminal.alias
         else:
@@ -76,7 +81,8 @@ class QueryHelper(object):
                alias = car.cnum
             else:
                alias = terminal.mobile
-
+        terminal_info['alias'] = alias
+        redis.setvalue(terminal_info_key, terminal_info)
         return alias
 
     @staticmethod

@@ -27,7 +27,7 @@ from helpers.gfsenderhelper import GFSenderHelper
 from helpers.queryhelper import QueryHelper 
 from codes.smscode import SMSCode 
 from constants import PRIVILEGES, SMS, UWEB, GATEWAY
-from utils.misc import str_to_list, DUMMY_IDS
+from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
 from myutils import city_list
 from mongodb.mdaily import MDaily, MDailyMixin
 
@@ -382,10 +382,10 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                             fields.begintime, fields.endtime, 
                             fields.service_status, fields.tmobile)
             
-            terminal =  self.db.get("SELECT tid "
-                                    "  FROM T_TERMINAL_INFO"
-                                    "  WHERE mobile = %s",
-                                    fields.tmobile)
+            terminal = self.db.get("SELECT tid "
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE mobile = %s",
+                                   fields.tmobile)
             
             self.db.execute("UPDATE T_CAR"
                             "  SET cnum = %s,"
@@ -395,6 +395,12 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                             "  WHERE tid = %s",
                             fields.cnum, fields.type, 
                             fields.color, fields.brand, terminal.tid)
+            t = QueryHelper.get_terminal_by_tid(terminal.tid, self.db)
+            if not t.alias:
+                terminal_info_key = get_terminal_info_key(terminal.tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                terminal_info['alias'] = fields.cnum if fields.cnum else fields.tmobile
+                self.redis.setvalue(terminal_info_key, terminal_info)
             
             fields.sms_status = self.get_sms_status(fields.tmobile)
             self.render('business/list.html',

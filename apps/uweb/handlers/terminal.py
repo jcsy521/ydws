@@ -82,7 +82,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         try:
             data = DotDict(json_decode(self.request.body))
         except Exception as e:
-            #todo: add log..
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)

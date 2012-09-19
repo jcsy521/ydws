@@ -3,7 +3,8 @@
 
 from base import BaseMixin
 from constants import UWEB 
-from utils.misc import get_terminal_info_key 
+from utils.misc import get_terminal_info_key
+from helpers.queryhelper import QueryHelper 
 
 class TerminalMixin(BaseMixin):
     """Mix-in for terminal related functions."""
@@ -34,8 +35,13 @@ class TerminalMixin(BaseMixin):
                                 "  SET cnum = %s"
                                 "  WHERE tid = %s",
                                 value, self.current_user.tid)
+                terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+                if not terminal.alias:
+                    terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                    terminal_info = self.redis.getvalue(terminal_info_key)
+                    terminal_info['alias'] = value if value else self.current_user.sim
+                    self.redis.setvalue(terminal_info_key, terminal_info)
 
-    #def update_terminal_info(self, car_sets, old_car_sets, tid):
     def update_terminal_info(self, car_sets, car_sets_res):
         """Update T_TERMINAL_INFO.
         When set terminal info,get 0 or 1 from terminal, recomposer car_sets
