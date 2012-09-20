@@ -48,12 +48,12 @@ class AgpsServer(object):
                     if len(infds) > 0:
                         connection, address = self._socket.accept()
                         data = connection.recv(1024)
-                        logging.info("[AGPS] Recv request:\n%s", data)
+                        logging.info("[AGPS] Recv %d length request:\n%s", len(data), data)
                         agps_data = self.handle_request(data)
                         if agps_data:
                             connection.send(agps_data)
-                            logging.info("[AGPS] Send response:\n%s", agps_data)
-                            connection.close()
+                            logging.info("[AGPS] Send response length:%s", len(agps_data))
+                        connection.close()
                 except KeyboardInterrupt:
                     logging.error("[AGPS] Ctrl-C is pressed.") 
                     self._socket.close()
@@ -73,24 +73,29 @@ class AgpsServer(object):
                 head = packet.head
                 body = packet.body 
                 args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
-                               agps_data="")
+                               agps_data=None)
                 ap = AgpsParser(body, head)
                 agps_sign = self.get_agps_sign(ap.ret, int(head.timestamp))
                 if agps_sign != int(head.agps_sign, 16):
                     args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
+                    logging.error("[AGPS] agps_sign invalid.")
                 else:
                     agps = ap.ret
                     args.agps_data = self.get_agps_from_redis(agps)
-                    ac = AgpsComposer(args)
-                    return ac.buf
+                    if args.agps_data:
+                        ac = AgpsComposer(args)
+                        return ac.buf
+                    else:
+                        logging.error("[AGPS] there's no invalid agps data.")
+                        return None 
         except:
             logging.exception("[AGPS] Handle agps request exception.")
-            return ""
+            return None 
 
     def get_agps_sign(self, agps, timestamp):
         DEFAULT_KEY = 181084178
-        lon = int(float(agps.lon) * 3600000)
-        lat = int(float(agps.lat) * 3600000)
+        lon = int(agps.lon)
+        lat = int(agps.lat)
         agps_sign = DEFAULT_KEY ^ lon ^ lat ^ timestamp 
         return agps_sign 
                     
@@ -107,17 +112,14 @@ class AgpsServer(object):
                                                     ConfHelper.UBLOX_CONF.pacc)
                 u_socket.connect((ConfHelper.UBLOX_CONF.host, int(ConfHelper.UBLOX_CONF.port)))
                 u_socket.send(request)
-                agps_data = u_socket.recv(2048)
+                agps_data = self.recv_ublox(u_socket) 
                 agps_key = get_agps_data_key(key)
-                list_agps_data = agps_data.split('application/ubx\r\n\r\n')
-                if len(list_agps_data) > 1:
-                    binary_data = list_agps_data[1]
-                    self.redis.set(agps_key, base64.b64encode(binary_data))
+                if agps_data:
+                    self.redis.set(agps_key, base64.b64encode(agps_data))
                     logging.info("[AGPS] Get agps data [%s] from ublox success.", key)
                 else:
-                    # delete or not
-                    # self.redis.delete(agps_key)
-                    logging.info("[AGPS] Get agps data [%s] from ublox faild.", key) 
+                    self.redis.delete(agps_key)
+                    logging.info("[AGPS] Get agps data [%s] from ublox faild.", key)
             except:
                 logging.exception("[AGPS] Get agps from u-blox exception.")
             finally:
@@ -126,6 +128,24 @@ class AgpsServer(object):
                 except:
                     logging.exception("[AGPS] U-blox socket close exception.")               
             time.sleep(10)
+
+    def recv_ublox(self, u_socket):
+        default_length = 1024
+        split_str = ("\r\n\r\n")
+        agps_data = u_socket.recv(default_length)
+        head = agps_data.split(split_str)[0]
+        binary_length = int(head.split("\n")[1].split(": ")[1])
+        logging.info("[AGPS] agps_data length:%d", binary_length)
+        remain_length = binary_length - (default_length - (len(head) + len(split_str)))
+        while remain_length:
+            agps_buf = u_socket.recv(remain_length)
+            if not agps_buf:
+                logging.warn("[AGPS] recv empty response of socket!")
+                u_socket.close() 
+                raise socket.error(errno.EPIPE, "the pipe might be broken.")
+            agps_data += agps_buf
+            remain_length -= len(agps_buf)
+        return agps_data[-binary_length:]
 
     def get_agps_from_redis(self, agps):
         try:
@@ -143,8 +163,8 @@ class AgpsServer(object):
         LON_LAT = GATEWAY.LON_LAT 
         partition_key = "default"
         for key, lon_lat in LON_LAT.items():
-            if abs(float(lon_lat[0]) - lon) <= 10 and \
-               abs(float(lon_lat[1]) - lat) <= 12.5:   
+            if abs(float(lon_lat[0]) - lon / 3600000) <= 10 and \
+               abs(float(lon_lat[1]) - lat / 3600000) <= 12.5:   
                partition_key = key
                break
         logging.info("[AGPS] agps partition is:%s", partition_key)
