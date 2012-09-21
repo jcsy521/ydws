@@ -26,12 +26,14 @@ class EventHandler(BaseHandler):
         terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
-            logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
-            self.write_ret(status)
+            logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+            self.render("event.html",
+                        alias='')
             return
         
+        alias = QueryHelper.get_alias_by_tid(self.current_user.tid, self.redis, self.db)
         self.render("event.html",
-                    alias=terminal.alias if terminal.alias else self.current_user.sim)
+                    alias=alias)
 
     @authenticated
     @tornado.web.removeslash
@@ -47,6 +49,13 @@ class EventHandler(BaseHandler):
             return
 
         try:
+            terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+            if not terminal:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+                self.write_ret(status)
+                return
+
             page_size = UWEB.LIMIT.PAGE_SIZE
             category = int(data.category)
             page_number = int(data.pagenum)

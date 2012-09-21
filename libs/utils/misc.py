@@ -50,6 +50,10 @@ def str_to_list(str_, delimiter=','):
     else:
         return str_.replace(delimiter, ' ').split()
 
+def get_captcha_key(umobile):
+    """for the captcha of umobile"""
+    return str("captcha:%s" % umobile)
+
 def get_location_key(dev_id):
     """for the newest location of dev"""
     return str("location:%s" % dev_id)

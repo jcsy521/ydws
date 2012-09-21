@@ -25,9 +25,10 @@ class SMSCode(object):
     SMS_CHARGE = u"爱车保%s余额信息：%s"
     SMS_SERVICE_STOP = u"尊敬的车主，您的爱车保%s已经停止服务。"
     SMS_RETRIEVE_PASSWORD = u"尊敬的车主,您刚才使用了爱车保网站的密码找回功能，新的登陆密码为：%s，请妥善保管。" 
+    SMS_REG = u"尊敬的车主,您刚才使用了爱车保激活功能，验证码为：%s，请5分钟内进行激活。若非您本人或授权操作，请联系爱车保客服。" 
 
     SMS_JH_SUCCESS = u"您的爱车保%s激活成功，平台网址：%s，用户名：%s，密码：%s。"
-    SMS_JH_FAILED = u"激活失败，请确认手机号是否正确，或联系爱车保客服：400-xxxx-xxxx。"
+    SMS_JH_FAILED = u"激活失败，请确认手机号是否正确，或联系爱车保客服。"
     SMS_TERMINAL_HK = u"您的爱车保%s已经换卡，请发送换卡短信指令：‘HK+新爱车保号码+平台登录密码’到新爱车保号码。例如：HK 13900000000 111111"
     SMS_USER_HK_SUCCESS = u"车主号码换卡成功，新卡号码：%s，平台网址：%s，用户名：%s，密码：%s。"
     SMS_TERMINAL_HK_SUCCESS = u"您的爱车保%s换卡成功，新卡号码：%s！"

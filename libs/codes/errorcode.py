@@ -13,6 +13,7 @@ class ErrorCode(object):
     LOGIN_AGAIN = 201
     WRONG_CAPTCHA = 202
     WRONG_PASSWORD = 203 
+    NO_CAPTCHA = 204
 
     REGISTER_EXIST = 205
     USER_MOBILE_EXIST = 206
@@ -23,7 +24,6 @@ class ErrorCode(object):
     USER_NOT_EXIST = 211
     USER_EXCESS = 212
     USER_NOT_ORDER = 213
-    
 
     PARENT_NOT_ORDERED = 214
     TERMINAL_NOT_ORDERED = 215
@@ -55,12 +55,15 @@ class ErrorCode(object):
     DOWNLOAD_FAILED = 906
     FEEDBACK_FAILED = 907
 
+    REGISTER_FAILED = 908
+
     ERROR_MESSAGE  = {
         SUCCESS:                    u"操作成功。",
         FAILED:                     u"操作失败。",
         ILLEGAL_DATA_FORMAT:        u"错误的数据格式。",
         WRONG_CAPTCHA:              u"验证码错误。",
         WRONG_PASSWORD:             u"密码错误",
+        NO_CAPTCHA:                 u"验证码失效，请重新获取。",
         LOGIN_FAILED:               u"用户名或密码错误。",
         LOGIN_AGAIN:                u"业务信息发生变更，请重新登录。",
         USER_MOBILE_EXIST:          u"手机号已被关联。",
@@ -96,4 +99,5 @@ class ErrorCode(object):
         EDIT_USER_FAILURE:          u"编辑普通用户业务失败。",
         DOWNLOAD_FAILED:            u'对不起，下载失败，请稍后重试。',
         FEEDBACK_FAILED:            u'对不起，反馈失败，请稍后重试。',
+        REGISTER_FAILED:            u'对不起，注册失败，请稍后重试。',
     }

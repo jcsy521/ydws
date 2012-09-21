@@ -34,7 +34,7 @@ class QueryHelper(object):
                                     alias=None,
                                     keys_num=None) 
 
-        terminal = get_terminal_by_tid(tid, db)
+        terminal = QueryHelper.get_terminal_by_tid(tid, db)
         terminal_info['mobile'] = terminal.mobile 
         redis.setvalue(terminal_info_key, terminal_info)
 

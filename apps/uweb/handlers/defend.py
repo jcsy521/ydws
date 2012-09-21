@@ -8,6 +8,7 @@ from tornado.ioloop import IOLoop
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
+from helpers.queryhelper import QueryHelper
 from utils.misc import get_terminal_info_key 
 from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
@@ -29,7 +30,7 @@ class DefendHandler(BaseHandler, BaseMixin):
                                    self.current_user.tid)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
+                logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
 
@@ -80,12 +81,18 @@ class DefendHandler(BaseHandler, BaseMixin):
             IOLoop.instance().add_callback(self.finish)
 
         try:
-           #NOTE: in defend, should invoke get before post. if tid is inexistence, there is no need to handle here.
-           args = DotDict(seq=SeqGenerator.next(self.db),
-                          tid=self.current_user.tid,
-                          defend_status=data.defend_status)
+            terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+            if not terminal:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+                self.write_ret(status)
+                IOLoop.instance().add_callback(self.finish)
 
-           GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args, _on_finish)
+            args = DotDict(seq=SeqGenerator.next(self.db),
+                           tid=self.current_user.tid,
+                           defend_status=data.defend_status)
+
+            GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args, _on_finish)
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s set defend status to %s failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, data.defend_status, e.args)

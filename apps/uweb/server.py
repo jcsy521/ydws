@@ -34,6 +34,7 @@ from constants.MEMCACHED import ALIVED
 from handlers.captcha import CaptchaHandler, CaptchaSmsHandler
 from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandler
 from handlers.car import SwitchCarHandler
+from handlers.register import RegisterHandler
 from handlers.lastinfo import LastInfoHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
@@ -96,6 +97,8 @@ class Application(tornado.web.Application):
 
             # for ios
             (r"/ios/*", IOSHandler),
+
+            (r"/register/*", RegisterHandler),
 
         ]
 
