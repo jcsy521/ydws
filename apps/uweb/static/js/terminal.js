@@ -8,32 +8,6 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#terminalWrapper').css({'left': '40%', 'top': '20%'}).show(); // 显示终端设置窗口
-	dlf.fn_setItemMouseStatus($('#refresh'), 'pointer', new Array('sx', 'sx2', 'sx'));	// 刷新按钮鼠标滑过样式
-	// 标签初始化
-	$('.j_tabs').removeClass('currentTab');
-	$('#rTab').addClass('currentTab');
-	$('.j_terminalcontent').hide();//css('display', 'none');
-	$('#terminalList0').show();//css('display', 'block');
-	
-	// 选项卡
-	$('.j_tabs').unbind('click').click(function() {
-		var n_index  = $(this).index(), // 当前li索引
-			str_className = $(this)[0].className, 
-			param = 'w';
-			
-		if ( str_className.search('currentTab') != -1 ) {
-			return;
-		}
-		$('.j_tabs').removeClass('currentTab'); //移除所有选中样式
-		$(this).addClass('currentTab'); // 选中样式
-		$('#terminalList'+n_index).show().siblings().hide(); // 显示当前内容 隐藏其他内容
-		if ( n_index == 0 ) {
-			dlf.fn_initTerminalWR(); // 初始化 终端参数
-		} else {
-			// 初始化  短信参数
-			dlf.fn_initSMSParams();
-		}
-	});
 	// 灵敏度
 	$('#viblSlider').slider({
 		min: 0,
@@ -65,15 +39,12 @@ window.dlf.fn_initTerminal = function() {
 	});
 }
 // 刷新终端参数、查询终端参数
-window.dlf.fn_initTerminalWR = function (param) {
+window.dlf.fn_initTerminalWR = function () {
 	// 获取参数数据
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	// 获取用户数据
 	dlf.fn_jNotifyMessage('终端设置查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
 	var str_url  =  TERMINAL_URL;
-	if ( param ) {
-		 str_url = str_url + '?terminal_info=' +  param;
-	}
 	// get request
 	$.get_(str_url, '', function (data) {  
 		if (data.status == 0) {	
@@ -94,7 +65,8 @@ window.dlf.fn_initTerminalWR = function (param) {
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 	// radio value
 					} else if ( param == 'white_list' ) {	// 白名单
 						var n_length = str_val.length;
-						$('.j_whitelist input[type=text]').val('');
+						$('.j_white_list input[type=text]').val('');
+						$('.j_white_list').attr('t_val', '');
 						for ( var x = 0; x < n_length; x++ ) {
 							var str_name = param  + '_' + (x+1),
 								obj_whitelist = $('#t_' + str_name),
@@ -102,6 +74,7 @@ window.dlf.fn_initTerminalWR = function (param) {
 								str_value = str_val[x];
 							obj_whitelist.val(str_value);	// whitelist
 							obj_oriWhitelist.attr('t_val', str_value);	// save original value
+							
 						}
 					} else if ( param == 'vibchk' ) {	// 震动频率
 						var arr_vibchk = str_val.split(':');
@@ -117,12 +90,16 @@ window.dlf.fn_initTerminalWR = function (param) {
 						}
 						$('#t_' + param ).val(str_val);	// other input value
 					} else {
-						$('#t_' + param ).val(str_val);	// other input value
+						if ( param == 'alias' || param == 'cnum' ) {
+							$('#t_' + param ).val(str_val);	// other input value
+						} else {
+							$('#t_' + param ).html(str_val);	// other label value
+						}
 					}
 					$('#' + param ).attr('t_val', str_val);	// save original value
-					dlf.fn_updateAlias();
 				}
 			}
+			dlf.fn_updateAlias();
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {
 			dlf.fn_showBusinessTip();

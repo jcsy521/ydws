@@ -40,10 +40,10 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	
 	mapObj.addOverlay(marker);//向地图添加覆盖物 
 	if ( isOpenWin ) {
-		console.log('open window');
 		marker.openInfoWindow(infoWindow);
 	}
-	marker.addEventListener('click', function(){  
+	marker.addEventListener('click', function(){
+		// 别名更新
 	    // 进行左侧车辆列表的切换
 	   if ( str_iconType == 'actiontrack' ) { // 主页车辆点击与左侧车辆列表同步
 			var obj_carItem = $('#carList a').eq(n_carNum),
@@ -101,42 +101,55 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, str_operation,
 		str_tid = $('#carList a[class*=currentCar]').attr('tid');
 	}
 	if ( address == '' || address == null ) {
-		if ( str_operation == 'lastinfo' ) {
-			// 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
-			var obj_currentLi = $('#carList a[tid='+str_tid+']'),
-				obj_oldCarData = obj_currentLi.parent().data('carData'),
-				obj_selfmarker = obj_currentLi.data('selfmarker'),
-				str_oldClon = obj_oldCarData.clongitude,
-				str_oldClat = obj_oldCarData.clatitude,
-				str_newClon = obj_location.clongitude,
-				str_newClat = obj_location.clatitude;
-			// 第一次加载 没有selfmarker 
-			if ( obj_selfmarker ) {
-				// lastinfo or realtime not the first request, 判断和上次经纬度的差是否在100之内，在的话认为是同一个点
-				if ( Math.abs(str_oldClon-str_newClon) < 100 || Math.abs(str_oldClat-str_newClat) < 100 ) {
-					var obj_infowindow = obj_selfmarker.selfInfoWindow;
-					if ( obj_infowindow && obj_infowindow != null ) {
-						var str_content = obj_infowindow.getContent(),
-							n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
-							n_endNum = str_content.indexOf('</label></li><li class="top10">'),
-							str_address = str_content.substring(n_beginNum, n_endNum);
-						address = str_address;
+		if ( str_clon == 0 || str_clat == 0 ) {
+			address = '-';
+		} else {
+			if ( str_operation == 'lastinfo' ) {
+				// 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
+				var obj_currentLi = $('#carList a[tid='+str_tid+']'),
+					obj_oldCarData = obj_currentLi.parent().data('carData'),
+					obj_selfmarker = obj_currentLi.data('selfmarker'),
+					str_oldClon = obj_oldCarData.clongitude,
+					str_oldClat = obj_oldCarData.clatitude,
+					str_newClon = obj_location.clongitude,
+					str_newClat = obj_location.clatitude;
+				// 第一次加载 没有selfmarker 
+				if ( obj_selfmarker ) {
+					// lastinfo or realtime not the first request, 判断和上次经纬度的差是否在100之内，在的话认为是同一个点
+					if ( Math.abs(str_oldClon-str_newClon) < 100 || Math.abs(str_oldClat-str_newClat) < 100 ) {
+						var obj_infowindow = obj_selfmarker.selfInfoWindow;
+						if ( obj_infowindow && obj_infowindow != null ) {
+							var str_content = obj_infowindow.getContent(),
+								n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
+								n_endNum = str_content.indexOf('</label></li><li class="top10">'),
+								str_address = str_content.substring(n_beginNum, n_endNum);
+							address = str_address;
+						}
+					} else {
+						// 否则重新获取
+						address = '正在获取位置描述...<img src="/static/images/blue-wait.gif" />'; 
+						dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
 					}
 				} else {
-					// 否则重新获取
 					address = '正在获取位置描述...<img src="/static/images/blue-wait.gif" />'; 
 					dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
 				}
+			} else if ( str_operation == 'draw' || str_operation == 'start' || str_operation == 'end' )  {
+				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'draw\','+ n_index +');">获取位置</a>'; 
 			} else {
-				address = '正在获取位置描述...<img src="/static/images/blue-wait.gif" />'; 
-				dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
+				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',event,"'+str_tid+'");">获取位置</a>'; 
 			}
-		} else if ( str_operation == 'draw' || str_operation == 'start' || str_operation == 'end' )  {
-			address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'draw\','+ n_index +');">获取位置</a>'; 
-		} else {
-			address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',event,"'+str_tid+'");">获取位置</a>'; 
+		}
+	} else {
+		// 判断是否是当前车辆
+		var str_currenttid = $('#carList .currentCar').attr('tid');
+		if ( str_tid == str_currenttid ) {
+			$('#address').html(address);
 		}
 	}
+	// 临时存储每辆车的位置描述
+	$('#carList a[tid='+ str_tid +']').data('address', address);
+	
 	if (speed == '' || speed == 'undefined' || speed == null || speed == ' undefined' || typeof speed == 'undefined') { 
 		speed = '0'; 
 	} else {
@@ -147,7 +160,6 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, str_operation,
 	} else {
 		str_title += $('#carList a[tid='+str_tid+']').siblings('span').html();
 	}
-	
 	str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 				'<li><label>速度： '+ speed+' km/h</label>'+
 				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
@@ -178,9 +190,9 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index) {
 	if ( str_type == 'realtime' || str_type == 'lastinfo' ) {
 		var str_currentTid = $('#carList a[class*=currentCar]').attr('tid');
 		// 左侧 位置描述填充
-		$('#address').html(str_result);
 		if ( str_currentTid == tid ) {
 			obj_addressLi.html('').html('位置：<lable class="lblAddress">' + str_result + '</label>');	// 替换marker上的位置描述
+			$('#address').html(str_result);
 		}
 		if ( obj_selfmarker && obj_selfmarker != null ) {
 			var str_content = obj_selfmarker.selfInfoWindow.getContent(),

@@ -151,11 +151,11 @@ body {
 	text-align: left;
 }
 #smsCenter {
-	width: 394px;
+	width: 390px;
 }
 #smsClose {
-	left: 82px;
-	*left: 75px;
+	left: 111px;
+	*left: 111px;
 }
 #SMSWrapper h2 {
 	cursor: default;

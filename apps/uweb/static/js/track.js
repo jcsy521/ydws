@@ -199,10 +199,10 @@ function fn_drawMarker() {
 }
 window.dlf.fn_initTrackDatepicker = function() {
 	// 初始化时间
-	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
+	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');	// 当前时间前两个小时
 	$('#trackBeginTime').unbind('click').click(function() {
 		WdatePicker({el:'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}'});
-	}).val(str_nowDate+' 00:00:00');
+	}).val(str_nowDate + ' ' + dlf.fn_changeNumToDateString(new Date()-7200000, 'sfm'));
 	$('#trackEndTime').unbind('click').click(function() {
 		WdatePicker({el:'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}'});
 	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date(), 'sfm'));
@@ -216,7 +216,7 @@ $(function () {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) {
-			str_imgUrl = 'cx2.png';
+			str_imgUrl = 'trackcx2.png';
 		} else if ( str_id == 'tPlay' ) {
 			str_imgUrl = 'bf2.png';
 		} else if ( str_id == 'tPause' ) {
@@ -231,7 +231,7 @@ $(function () {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) {
-			str_imgUrl = 'cx.png';
+			str_imgUrl = 'trackcx1.png';
 		} else if ( str_id == 'tPlay' ) {
 			str_imgUrl = 'bf1.png';
 		} else if ( str_id == 'tPause' ) {

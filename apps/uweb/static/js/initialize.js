@@ -67,7 +67,7 @@ window.dlf.fn_serverError = function(XMLHttpRequest) {
 window.dlf.fn_lockScreen = function(str_body) {
 	var n_height = $(window).height(), 
 		obj_body = ''; 
-	if ( !str_body ) {;
+	if ( !str_body ) {
 		obj_body = $('.j_body');
 		obj_body.data('layer', true);
 	} else {
@@ -275,8 +275,10 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			});
 			// 查找到当前车辆的信息  更新marker信息
 			var obj_toCentInterval = setInterval(function() {
-				var obj_tempMarker = obj_currentItem.data('selfmarker');
+				var obj_tempMarker = obj_currentItem.data('selfmarker'),
+					obj_infoWindow = '';
 				if ( obj_tempMarker ) {
+					obj_infoWindow = obj_tempMarker.selfInfoWindow
 					mapObj.panTo(obj_tempMarker.getPosition());
 					// 查找当前车辆marker 设置位置位于最上面
 					var arr_overlays = $('#carList li a');
@@ -287,7 +289,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 						}
 					}
 					obj_tempMarker.setTop(true);
-					obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow); // 显示吹出框
+					obj_tempMarker.openInfoWindow(obj_infoWindow); // 显示吹出框
 					clearInterval(obj_toCentInterval);
 				}
 			}, 500);
@@ -338,12 +340,12 @@ window.dlf.fn_getCarData = function() {
 						str_loginst = obj_carInfo.login,
 						str_loginClass = '',
 						obj_carA = $('#carList a[tid='+str_tid+']'),
+						obj_img = obj_carA.children().eq(0),	// 在线离线图
 						obj_carLi = obj_carA.parent(),
 						obj_child2 = obj_carLi.children().eq(2), 
 						obj_child1 = obj_carLi.children().eq(1),
 						n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 						n_clat = obj_carInfo.clatitude/NUMLNGLAT;
-					
 					obj_carInfo.tid = str_tid; 
 					// 经纬度数据不正确不做处理
 					if ( n_clon != 0 && n_clat != 0 ) {
@@ -360,10 +362,12 @@ window.dlf.fn_getCarData = function() {
 					// 动态修改车辆当前连接状态
 					if ( str_loginst == LOGINST) {
 						obj_carA.removeClass('carlogout').addClass('carlogin');
+						obj_img.attr('src', 'static/images/car1.png');
 						obj_child1.removeClass('gray').addClass('green');
 						obj_child2.removeClass('gray').addClass('green').html('(在线)');
 					} else {
 						obj_carA.removeClass('carlogin').addClass('carlogout');
+						obj_img.attr('src', 'static/images/carout1.png');
 						obj_child1.removeClass('green').addClass('gray');
 						obj_child2.removeClass('green').addClass('gray').html('(离线)');
 					}
@@ -388,9 +392,12 @@ window.dlf.fn_getCarData = function() {
 * car_info: 车辆的信息
 */
 window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
-	var str_tmobile = '终端手机号：' + obj_carInfo.mobile,
+	var str_tmobile = obj_carInfo.mobile,
+		str_htmlMobile = '终端号码&nbsp;&nbsp;：<font class="fontColor">' + str_tmobile + '</font>',
+		str_titleMobile =  '终端号码：' + str_tmobile,
 		n_defendStatus = obj_carInfo.defend_status, 
-		str_dStatus = n_defendStatus == DEFEND_ON ? '设防状态：  已设防' : '设防状态：  未设防', 
+		str_dStatus = n_defendStatus == DEFEND_ON ? '设防状态&nbsp;&nbsp;：<font class="fontColor">已设防</font>' : '设防状态：   <font class="fontColor">未设防</font>', 
+		str_dStatusTitle =  n_defendStatus == DEFEND_ON ? '设防状态：已设防' : '设防状态：未设防',
 		str_dImg= n_defendStatus == DEFEND_ON ? '/static/images/defend_status1.png' : '/static/images/defend_status0.png',
 		str_type = obj_carInfo.type == GPS_TYPE ? 'GPS定位' : '基站定位',
 		str_speed = obj_carInfo.speed + ' km/h',
@@ -398,18 +405,12 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_eStatus = dlf.fn_eventText(obj_carInfo.event_status),  // 报警状态
-		//str_address = obj_carInfo.name,	// 位置描述
-		
+		//str_address = obj_carInfo.name,	// 位置描述		
 		str_time = obj_carInfo.timestamp > 0 ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp) : '-',
-		
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 		str_clon = '',
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		str_clat = '';	// 经纬度
-		
-	//if ( str_address == '' || str_address == null ) {
-	//	str_address = '暂无';
-	//}
 	// 经纬度为0 不显示位置信息
 	if ( n_clat == 0 || n_clon == 0 ) {
 		str_address = '-';
@@ -418,29 +419,31 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_clon += '-';
 		str_clat += '-';
 		str_speed = '-';
+		$('#address').html('-');
 	} else {
+		$('#address').html($('#carList a[tid='+ obj_carInfo.tid +']').data('address'));
 		str_clon += 'E ' + Math.round(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
 		str_clat += 'N ' + Math.round(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
 	}
 	// lastinfo 更新车辆信息和终端信息  realtime: 只更新位置信息
 	if ( !type ) {
 		var n_power = parseInt(obj_carInfo.pbat),
-			str_power = '剩余电量：   ' + n_power + '%',	// 电池电量 0-100
+			str_power = '剩余电量&nbsp;&nbsp;：<font class="fontColor">' + n_power + '%</font>',	// 电池电量 0-100
+			str_titlePower = '剩余电量：' + n_power ;
 			str_pImg = dlf.fn_changeData('power', n_power), // 电量图标
 			n_gsm = obj_carInfo.gsm,	// gsm 值
-			str_gsm = 'GSM 信号：    ' + dlf.fn_changeData('gsm', n_gsm),	// gsm信号
+			str_gsm = 'GSM 信号&nbsp;&nbsp;：<font class="fontColor">' + dlf.fn_changeData('gsm', n_gsm) + '</font>',	// gsm信号
 			n_gps = obj_carInfo.gps,	// gps 值
-			str_gps = 'GPS 信号：   ' + dlf.fn_changeData('gps', n_gps);	// gps信号
+			str_gps = 'GPS 信号&nbsp;&nbsp;：<font class="fontColor">' + dlf.fn_changeData('gps', n_gps) + '</font>';	// gps信号
 		// 终端状态
-		$('#power').css('background-image', str_pImg).html(str_power);
-		$('#power').attr('title', str_power );	// 电池电量填充
+		$('#power').css('background-image', str_pImg).html(str_power).attr('title', str_titlePower );// 电池电量填充
 		$('#GSM').html(str_gsm).attr('title', 'GSM 信号强度：' + n_gsm);
 		$('#g_word').html(str_gps);
 		//$('#GPS').html(str_gps).attr('title', 'GPS 信号强度：' + n_gps);
 		$('#defend_word').html(str_dStatus).data('defend', n_defendStatus);
-		$('#defendStatus').attr('title', str_dStatus);
+		$('#defendStatus').attr('title', str_dStatusTitle);
 		$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
-		$('#tmobile').html(str_tmobile).attr('title', str_tmobile);
+		$('#tmobile').html(str_htmlMobile).attr('title', str_titleMobile);
 	}
 	// 车辆信息/位置信息
 	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
@@ -690,9 +693,12 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 /**
 * 业务变更提示 
 */
-window.dlf.fn_showBusinessTip = function() {
+window.dlf.fn_showBusinessTip = function(str_type) {
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
-	dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+	if ( !str_type ) {
+		dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+	}
 	// 遮罩
 	dlf.fn_lockScreen(); 
 	$('#businessWrapper').css({'left': '38%', 'top': '22%'}).show();
@@ -726,12 +732,12 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						n_defendStatus = 0;
 					if ( str_defendStatus == DEFEND_OFF ) { 
 						n_defendStatus = 1;
-						str_html = '设防状态：  已设防';
+						str_html = '设防状态：   <font class="fontColor">已设防</font>';
 						str_dImg= '/static/images/defend_status1.png';						
 					} else {
 					// 修改成功 状态改为：撤防
 						n_defendStatus = 0;
-						str_html = '设防状态：  未设防';
+						str_html = '设防状态：    <font class="fontColor">未设防</font>';
 						str_dImg=  '/static/images/defend_status0.png';
 					}
 					$('#defend_word').html(str_html).data('defend', n_defendStatus);
@@ -772,9 +778,13 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 			if ( data.status == 0 ) {
 				if ( str_who == 'personal') {
 					// 用户名称回填
-					var str_name = obj_data.name;
+					var str_name = obj_data.name,
+						str_newName = str_name;
 					if ( str_name ) {
-						$('.welcome').html('欢迎您，'+ str_name);
+						if ( str_name.length > 4 ) {
+							str_newName = str_name.substr(0,4)+'...';
+						}
+						$('.welcome').html('欢迎您，'+ str_newName).attr('title', str_name);
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				}
@@ -809,24 +819,31 @@ window.dlf.fn_updateAlias = function() {
 	// 别名回填
 	var alias = $('#t_alias').val(),		// 终端别名
 		cnum = $('#t_cnum').val(),	// 车牌号
-		tmobile = $('#t_mobile').val(),
+		tmobile = $('#t_mobile').html(),
 		obj_car = $('#carList .currentCar'),
-		obj_selfMarker = obj_car.data('selfmarker');
+		obj_selfMarker = obj_car.data('selfmarker'),
+		str_alias = '';
 	if ( alias != '' ) {
-		alias = alias;
+		str_alias = alias;
 	} else if ( cnum != '' ) {
-		alias = cnum;
+		str_alias = cnum;
 	} else {
-		alias = tmobile;
+		str_alias = tmobile;
 	}
 	if ( obj_selfMarker ) {
 		// 修改 marker label 别名
-		obj_selfMarker.getLabel().setContent(alias);
-		var str_tid = $('#carList .currentCar').eq(0).attr('tid');
-		$('.cMsgWindow h4[tid='+str_tid+']').html('车辆：' + alias);
+		obj_selfMarker.getLabel().setContent(str_alias);
+		var str_tid = $('#carList .currentCar').eq(0).attr('tid'),
+			str_content = obj_selfMarker.selfInfoWindow.getContent(),
+			n_beginNum = str_content.indexOf('车辆：')+3,
+			n_endNum = str_content.indexOf('</h4>'),
+			str_oldname = str_content.substring(n_beginNum, n_endNum),
+			str_content = str_content.replace(str_oldname, str_alias);
+		$('.cMsgWindow h4[tid='+str_tid+']').html('车辆：' + str_alias);
+		obj_selfMarker.selfInfoWindow.setContent(str_content);
 	}
-	obj_car.attr('title', alias);	// 
-	$(obj_car.siblings()[0]).html(alias).attr('title', alias);
+	obj_car.attr('title', str_alias);	// 
+	$(obj_car.siblings()[0]).html(str_alias).attr('title', str_alias);
 }
 // 提示用户绑定终端车辆
 window.dlf.fn_showTerminalMsgWrp = function() {

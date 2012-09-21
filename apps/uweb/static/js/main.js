@@ -14,12 +14,17 @@ window.dlf.fn_personalData = function() {
 		if ( data.status == 0 ) {
 			var obj_data = data.profile,
 				str_name = obj_data.name,
+				str_newName = str_name;
 				str_phone = obj_data.mobile,
 				str_address = obj_data.address,
 				str_email = obj_data.email,
 				str_remark = obj_data.remark;
 			$('#name').val(str_name).data('name', str_name);
-			$('#phone').val(str_phone).data('phone', str_phone);
+			if ( str_name.length > 4 ) {
+				str_newName = str_name.substr(0,4)+'...';
+			}
+			$('.welcome').html('欢迎您，' + str_newName).attr('title', str_name);
+			$('#phone').html(str_phone).data('phone', str_phone);
 			$('#txtAddress').val(str_address).data('txtAddress', str_address);
 			$('#email').val(str_email).data('email', str_email);
 			$('#remark').val(str_remark).data('remark', str_remark);
@@ -107,13 +112,6 @@ window.dlf.fn_saveSMSOption = function() {
 	});
 	dlf.fn_jsonPut(SMS_URL, obj_smsData, 'sms', '短信告警参数保存中...');
 }
-window.dlf.fn_bindcheckbox = function(obj_checkbox) {
-	obj_checkbox.bind('mouseover', function() {
-		$(this).addClass('sp_xjCheckBox_H');
-	}).bind('mouseout', function() {
-		$(this).removeClass('sp_xjCheckBox_H').removeClass('sp_xjCheckBox_C');
-	})
-}
 // 用户点击退出按钮 
 window.dlf.fn_exit = function() {
 	if ( confirm('您确定退出本系统吗？') ) {
@@ -129,9 +127,9 @@ window.onresize = function () {
 		var n_windowHeight = $(window).height(), 
 			n_windowWidth = $(window).width(),
 			//str_infoStatus = $('#infoStatus').attr('status'), // 车辆信息框是否显示状态
-			n_mapHeight = n_windowHeight - 164,
+			n_mapHeight = n_windowHeight - 161,
 			n_trackLeft = ( n_windowWidth - 1028 )/2,
-			n_banner = n_windowWidth - 247,
+			n_banner = n_windowWidth - 249,
 			n_mainContent = n_windowHeight - 104;
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_banner = n_windowWidth - 249;
@@ -139,8 +137,8 @@ window.onresize = function () {
 		$('#banner').css('width', n_banner); // banner width
 		$('#top, #main').css('width', n_windowWidth);
 		$('#main').css('height', n_windowHeight - 123 );
-		$('#left, #right').css('height', n_windowHeight - 128 );	// 左右栏高度
-		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 253);	// 右侧宽度
+		$('#left, #right').css('height', n_windowHeight - 123 );	// 左右栏高度
+		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 249);	// 右侧宽度
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		$('#mapObj').css('height', n_mapHeight);
 		// 动态调整遮罩层
@@ -165,18 +163,20 @@ $(function () {
 	// 调整页面大小
 	var n_windowHeight = $(window).height(),
 		n_windowWidth = $(window).width(),
-		n_mapHeight = n_windowHeight - 164,
+		n_mapHeight = n_windowHeight - 166,
+		n_right = n_windowWidth - 249,
 		n_trackLeft = ( n_windowWidth - 1028 )/2,
-		n_banner = n_windowWidth - 247,
+		n_banner = n_windowWidth - 249,
 		obj_track = $('#trackHeader');
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 		n_banner = n_windowWidth - 249;
+		n_right = n_windowWidth - 249;
 	}
 	$('#banner').css('width',  n_banner); // banner width
 	$('#top, #main').css('width', n_windowWidth);
 	$('#main').css('height', n_windowHeight - 123); // 内容域的高度
-	$('#left, #right').css('height', n_windowHeight - 128 );	// 左右栏高度
-	$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 253);	// 右侧宽度
+	$('#left, #right').css('height', n_windowHeight - 123 );	// 左右栏高度
+	$('#right, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight);
 	// 加载ABCMAP
@@ -221,6 +221,9 @@ $(function () {
 			case 'track': // 轨迹查询
 				dlf.fn_initTrack();
 				break;
+			case 'smsoption': // 轨迹查询
+				dlf.fn_initSMSParams();
+				break;
 		}
 	});
 	
@@ -259,7 +262,7 @@ $(function () {
 			dlf.fn_personalSave();
 		}
 	});
-	$('#name').formValidator().inputValidator({max: 11, onError: '车主姓名过长，请重新输入！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
+	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
 	$('#txtAddress').formValidator().inputValidator({max: 255, onError: '地址过长，请重新输入！'});
 	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '你输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '你输入的邮箱格式不正确！'});
 	$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});

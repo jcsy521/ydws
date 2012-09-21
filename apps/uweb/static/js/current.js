@@ -62,24 +62,26 @@ window.dlf.fn_defendQuery = function() {
 				obj_dMsg = $('#defendMsg'), 
 				obj_wrapper = $('#defendWrapper'),
 				str_html = '',
+				str_tip = '',
 				str_dImg = '',
 				obj_defendBtn = $('#defendBtn'); 
 			dlf.fn_lockScreen();	//添加页面遮罩
 			obj_wrapper.css({'left':'38%','top':'22%'}).show();
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defend = 0;
-				obj_dMsg.html('您的爱车保当前已设防。');
+				str_tip = '您的爱车保当前已设防。';
 				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2', 'cf'));	
 				str_html = '设防状态：  已设防';
 				str_dImg= '/static/images/defend_status1.png';
 			} else {
 				n_defend = 1;
-				obj_dMsg.html('您的爱车保当前未设防。');
+				str_tip = '您的爱车保当前未设防。';
 				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2', 'sf'));
 				str_html = '设防状态：  未设防';
 				str_dImg=  '/static/images/defend_status0.png';				
 			}
 			obj_defend['defend_status'] = n_defend;
+			obj_dMsg.html(str_tip);
 			$('#defend_word').html(str_html).data('defend', str_defendStatus);
 			$('#defendStatus').attr('title', str_html);
 			$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态

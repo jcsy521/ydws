@@ -3,13 +3,8 @@
 	<div id="jContentLock" class="readonly_overlay hide"></div> <!--消息提示框-->
 	<!--实时查询-->
 	<div id="currentWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="wrapperTitleL popbox"></span>
-			<span class="wrapperTitleC popbox">
-			<span class="titleName fontMic">实时定位</span>
+		<div class="wrapperTitle currentTitle">
 			<span class="close j_close" title="关闭窗口"></span>
-			</span>
-			<span class="wrapperTitleR popbox"></span>
 		</div>
 		<div class="currentContent">
 			<div class="currentText">
@@ -22,13 +17,8 @@
 	
 	<!--撤防/设防-->
 	<div id="defendWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="wrapperTitleL popbox"></span>
-			<span class="wrapperTitleC popbox">
-				<span class="titleName fontMic">设防/撤防</span>
-				<span class="close j_close" title="关闭窗口"></span>
-			</span>
-			<span class="wrapperTitleR popbox"></span>	
+		<div class="wrapperTitle defendTitle">
+			<span class="close j_close" title="关闭窗口"></span>
 		</div>
 		<div class="defendContent">
 			<div class="defendText">
@@ -41,44 +31,36 @@
 	
 	<!--个人资料框-->
 	<div id="personalWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="wrapperTitleL popbox"></span>
-			<span class="p_wtc popbox">
-				<span class="titleName fontMic">我的资料</span>
-				<span class="close j_close" title="关闭窗口"></span>
-			</span>
-			<span class="wrapperTitleR popbox"></span>
+		<div class="wrapperTitle personalTitle">
+			<span class="close j_close" title="关闭窗口"></span>
 		</div>
 		<div class="wrapperContent personalContent">
 			<form id="personalForm" >
-				<ul class="personalList">
-					<li>车主姓名：<input type="text" name="name" id="name" maxlength="11" class="j_personal" /></li>
-					<li>车主电话：<input type="text" name="phone" id="phone" disabled class="textDisabled" maxlength="11" /></li>
-					<li>地址：<input type="text" name="txtAddress" id="txtAddress"  class="j_personal" /></li>
-					<li>EMAIL：<input type="text" name="email" id="email" class="j_personal" /></li>
-					<li>备注：<input type="text" name="remark" id="remark"  class="j_personal" /></li>
-				</ul>
+				<table class="personalList">
+					<tr><td><label>车主姓名：</label><input type="text" name="name" id="name" maxlength="11" class="j_personal" /></td>
+					</tr>
+					<tr><td><label>车主电话：</label><font  id="phone"></font></td>
+					</tr>
+					<tr><td><label>地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;址：</label><input type="text" name="txtAddress" id="txtAddress"  class="j_personal" /></td></tr>
+					<tr><td><label>E-MAIL&nbsp;：</label><input type="text" name="email" id="email" class="j_personal" /></td></tr>
+					<tr><td><label>备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</label><input type="text" name="remark" id="remark"  class="j_personal" /></td></tr>
+				</table>
 				<input type="submit" value="" id="personalSave" class="personalButton j_save" />
 			</form>
 		</div>
 	</div><!--个人资料框end-->
 	<!--密码修改框-->
 	<div id="pwdWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="wrapperTitleL popbox"></span>
-			<span class="p_wtc popbox">
-				<span class="titleName fontMic">修改密码</span>
-				<span class="close j_close" title="关闭窗口"></span>
-			</span>
-			<span class="wrapperTitleR popbox"></span>
+		<div class="wrapperTitle PWDTitle">
+			<span class="close j_close" title="关闭窗口"></span>
 		</div>
 		<div class="pwdContent wrapperContent">
 			<form id="pwdForm" >
-				<ul class="pwdList">
-					<li>原密码：<input type="password" id="oldPwd" class="j_validate" maxlength="16" /></li>
-					<li>新密码：<input type="password" id="newPwd" class="j_validate" maxlength="16" /></li>
-					<li>确认密码：<input type="password" id="newPwd2" class="j_validate" maxlength="16" /></li>
-				</ul>
+				<table class="pwdList">
+					<tr><td><label>原密码：</label><input type="password" id="oldPwd" class="j_validate" maxlength="16" /></td></tr>
+					<tr><td><label>新密码：</label><input type="password" id="newPwd" class="j_validate" maxlength="16" /></td></tr>
+					<tr><td><label>确认密码：</label><input type="password" id="newPwd2" class="j_validate" maxlength="16" /></td></tr>
+				</table>
 				<input type="submit" value="" id="pwdSave" class="pwdButton j_save" />
 			</form>
 		</div>
@@ -87,20 +69,10 @@
 	<!--终端参数设置-->
 	<!-- demo -->
 	<div id="terminalWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="wrapperTitleL popbox"></span>
-			<span class="t_wtc popbox">
-				<span class="titleName fontMic">参数设置</span>
-				<span class="close j_close" title="关闭窗口"></span>
-			</span>
-			<span class="wrapperTitleR popbox"></span>
+		<div class="wrapperTitle terminalTitle">
+			<span class="close j_close" title="关闭窗口"></span>
 		</div>
 		<div class="terminalContent wrapperContent">
-			<!--tab选项卡 -->
-			<ul id="terminalTab" class="tabs">
-				<li id="rTab" class="j_tabs tabItems currentTab">终端参数设置</li>
-				<li id="wTab" class="j_tabs tabItems">短信告警设置</li>
-			</ul>
 			<div class="j_terminalList">
 				<div id="terminalList0" class="j_terminalcontent">
 					<!-- 可查询参数列表 -->
@@ -109,14 +81,16 @@
 							<tbody>
 								<tr>
 									<td class="terminalTdL">终端手机号:</td>
-									<td id="mobile" class="j_ListVal"  t_val="0">
-										<input id="t_mobile"  terminalkey="mobile"  class="textDisabled bListR_text_mouseOut" type="text" disabled />
+									<td id="mobile"  t_val="0">
+										<label id="t_mobile" terminalkey="mobile"></label>
+										<!--<input id="t_mobile"  terminalkey="mobile"  class="textDisabled bListR_text_mouseOut" type="text" disabled />-->
 									</td>
 								</tr>
 								<tr>
 									<td class="terminalTdL">终端序列号:</td>
-									<td id="sn" class="j_ListVal"  t_val="0">
-										<input id="t_sn"  terminalkey="sn"  class="textDisabled bListR_text_mouseOut" type="text" disabled />
+									<td id="sn" t_val="0">
+										<label id="t_sn" terminalkey="sn"></label>
+										<!--<input id="t_sn"  terminalkey="sn"  class="textDisabled bListR_text_mouseOut" type="text" disabled />-->
 									</td>
 								</tr>
 								<tr>
@@ -132,23 +106,16 @@
 									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL" rowspan="2">定位白名单:</td>
-									<td id="white_list_1" class="j_ListVal j_whitelist"   t_val="">
+									<td class="terminalTdL" >定位白名单:</td>
+									<td id="white_list_1" class="j_white_list" t_val="">
+										<!--<label id="t_white_list_1" terminalkey="owner_mobile"></label>-->
 										<input id="t_white_list_1" terminalkey="owner_mobile"  class="textDisabled bListR_text_mouseOut" type="text"  disabled />
-										
 									</td>
 								</tr>
 								<tr>
-									<td id="white_list_2"  class="j_ListVal j_whitelist"  t_val="">
+									<td class="terminalTdL" ></td>
+									<td id="white_list_2"  class="j_ListVal j_whitelist j_white_list"  t_val="">
 										<input id="t_white_list_2"  terminalkey="owner_mobile"class="bListR_text_mouseOut"  type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="11" />
-									</td>
-								</tr>
-								<tr>
-									<td class="terminalTdL">振动频率:</td>
-									<td id="vibchk" class="j_ListVal j_vibchk"  t_val="0">
-										<input id="t_vibchk0"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk " type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="2" /><label class="lblVibchk">秒内振动</label>
-										<input id="t_vibchk1"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk" type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="2" />
-										次
 									</td>
 								</tr>
 								<tr>
@@ -158,6 +125,14 @@
 											<div id="viblSlider" title="1"></div>
 										</div>
 										<label id="viblTip"></label>
+									</td>
+								</tr>
+								<tr>
+									<td class="terminalTdL">振动频率:</td>
+									<td id="vibchk" class="j_ListVal j_vibchk"  t_val="0">
+										<input id="t_vibchk0"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk " type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="2" /><label class="lblVibchk">秒内振动</label>
+										<input id="t_vibchk1"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk" type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="2" />
+										次
 									</td>
 								</tr>
 								<tr>
@@ -190,72 +165,46 @@
 						<table id="tmnTable" >
 							<tr>
 								<td align="right">
-									<!--<input type="button" id="refresh" value="" class="terminalButton"/>-->
 									<input type="submit" value="" id="terminalSave" class="terminalButton j_save" />
 								</td>
 							</tr>
 						</table>
 					</form>
 				</div>
-				<!-- 短信参数设置 -->
-				<div id="terminalList1" class="hide j_terminalcontent">
-					<span class="smsTip">请选择想要的短信通知项：</span>
-					<div class="smsContent wrapperContent">
-						<ul class="smsList">
-							<li>
-								<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">爱车保低电告警</label> 
-								<!--<span id="powerlow" class="sp_xjCheckBox j_checkbox"  value="2" t_checked="false"></span>-->
-							</li>
-							<li>
-								<input type="checkbox" id="poweroff" class="j_checkbox" title="断电" /><label for="poweroff">爱车保断电告警</label> 
-								<!--<span id="poweroff" class="sp_xjCheckBox j_checkbox" title="断电" value="2" t_checked="false">爱车保断电告警</span>-->
-							</li>
-							<li>
-								<input type="checkbox" id="sos" class="j_checkbox" title="SOS" /><label for="sos">爱车保SOS告警</label> 
-								<!--<span id="sos" class="sp_xjCheckBox j_checkbox" title="SOS" value="2" t_checked="false">爱车保SOS告警</span>-->
-							</li>
-							<li>
-								<input type="checkbox" id="illegalmove" class="j_checkbox" title="非法移动" /><label for="illegalmove">爱车保非法移动告警</label> 
-								<!--<span id="illegalmove" class="sp_xjCheckBox j_checkbox" title="非法移动" value="2" t_checked="false">爱车保非法移动告警</span>-->
-							</li>
-							<li>
-								<input type="checkbox" id="charge" class="j_checkbox" title="卡号余额" /><label for="charge">爱车保卡号余额提醒</label> 
-								<!--<span id="heartbeat_lost" class="sp_xjCheckBox j_checkbox" title="心跳丢失" value="2" t_checked="false">爱车保通讯异常提醒</span>-->
-							</li>
-							<li>
-								<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">爱车保平台登录提醒</label> 
-								<!--<span id="login" class="sp_xjCheckBox j_checkbox" title="车主登录" value="1" t_checked="false">爱车保平台登录提醒</span>-->
-							</li>
-							<li>
-								<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="心跳丢失" /><label for="heartbeat_lost">爱车保通讯异常提醒</label> 
-								<!--<span id="heartbeat_lost" class="sp_xjCheckBox j_checkbox" title="心跳丢失" value="2" t_checked="false">爱车保通讯异常提醒</span>-->
-							</li>
-						</ul>
-						<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
-					</div>
-				</div>
 			</div>
 		</div>
 	</div>
-	<div id="terminalListWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="titleName fontMic">终端列表</span>
+	<!-- 短信参数设置 -->
+	<div id="smsWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle smsTitle">
 			<span class="close j_close" title="关闭窗口"></span>
 		</div>
-		<div id="terminalListContent" class="terminalListContent wrapperContent">
-			<ol class="olTable">
-				<li>
-					<label>终端手机号</label>
-					<input id="tlmobile" class="iInput j_mobile" type="text" maxlength="11" />
-				</li>
-				<li>
-					<label>终端序列号</label>
-					<input id="tlTid" class="iInput j_tid" type="text" maxlength="18" />
-				</li>
-			</ol>
-			<div class="tlButton">
-				<input type="button" id="tlSave" class="tlBtn" value="保存" />
-			</div>
+		<div id="smsContent" class="j_terminalcontent wrapperContent">
+			<span class="smsTip">请选择想要的短信通知项：</span>
+				<ul class="smsList">
+					<li>
+						<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">爱车保低电告警</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="poweroff" class="j_checkbox" title="断电" /><label for="poweroff">爱车保断电告警</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="sos" class="j_checkbox" title="SOS" /><label for="sos">爱车保SOS告警</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="illegalmove" class="j_checkbox" title="非法移动" /><label for="illegalmove">爱车保非法移动告警</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="charge" class="j_checkbox" title="卡号余额" /><label for="charge">爱车保卡号余额提醒</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">爱车保平台登录提醒</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="心跳丢失" /><label for="heartbeat_lost">爱车保通讯异常提醒</label>
+					</li>
+				</ul>
+				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
 		</div>
 	</div>
 	<!-- 周边查询 -->
@@ -311,12 +260,7 @@
 	</div>
 	<!-- 业务变更 -->
 	<div id="businessWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="wrapperTitleL popbox"></span>
-			<span class="wrapperTitleC popbox">
-				<span class="titleName fontMic">业务变更</span>
-			</span>
-			<span class="wrapperTitleR popbox"></span>	
+		<div class="wrapperTitle businessTitle">
 		</div>
 		<div class="businessContent">
 			<div class="businessText">

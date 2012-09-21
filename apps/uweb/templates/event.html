@@ -5,30 +5,32 @@
 {% end %}
 {% block title %}爱车保-告警查询{% end %}
 {% block body %}
-<body class="eventbody" alias={{alias}}>
+<body class="eventbody j_body" alias={{alias}}>
 	<!--查询条件-->
 	<div class="eventHeader">
-		<!--时间选择-->
-		<span class="eventPos">
-			<span class="timeTip">查询日期:</span>
-			<input type="text" class="time" id="eventStartTime" />
-			<span class="">至</span>
-			<input type="text" class="time" id="eventEndTime" />			
-		</span>
-		<span class="eventPos">
-			<span class="timeTip">告警类型:</span>
-			<select class="cEventType" id="category">
-				<option value="-1">全部</option>
-				<option value="2">低电</option>
-				<option value="3">断电</option>
-				<option value="4">非法移动</option>
-				<option value="5">SOS</option>
-				<option value="6">心跳丢失</option>
-			</select>
-		</span>
-		<!--按钮-->
-		<span id="eventSearch" class="eventBtn j_tBtnhover" title="搜索">
-		</span>
+		<div class="eventTitle">
+			<!--时间选择-->
+			<span class="eventPos">
+				<span class="timeTip">查询日期:</span>
+				<input type="text" class="time" id="eventStartTime" />
+				<span class="">至</span>
+				<input type="text" class="time" id="eventEndTime" />			
+			</span>
+			<span class="eventPos">
+				<span class="timeTip">告警类型:</span>
+				<select class="cEventType" id="category">
+					<option value="-1">全部</option>
+					<option value="2">低电</option>
+					<option value="3">断电</option>
+					<option value="4">非法移动</option>
+					<option value="5">SOS</option>
+					<option value="6">心跳丢失</option>
+				</select>
+			</span>
+			<!--按钮-->
+			<span id="eventSearch" class="eventBtn j_tBtnhover" title="搜索">
+			</span>
+		</div>
 	</div>
 	<!--查询结果显示-->
 	<div id="eventResult">
@@ -53,16 +55,12 @@
 		<div class="eventMapClose j_close" id="mapClose" title="关闭窗口"></div>
 		<div id="mapObj" style="width:350px; height:300px; min-height: 0px"></div> 
 	</div>
+	<div id="maskLayer" class="hide"></div>
 	<div id="jNotifyMessage"></div> <!--消息提示框-->
 	<div id="maskLayer" class="hide"></div><!--页面遮罩-->
 	<!-- 业务变更 -->
 	<div id="businessWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle">
-			<span class="wrapperTitleL popbox"></span>
-			<span class="wrapperTitleC popbox">
-				<span class="titleName fontMic">业务变更</span>
-			</span>
-			<span class="wrapperTitleR popbox"></span>	
+		<div class="wrapperTitle businessTitle">
 		</div>
 		<div class="businessContent">
 			<div class="businessText">

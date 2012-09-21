@@ -20,17 +20,19 @@ ul, li {
 }
 .top {
 	width: 950px;
-	height: 398px;
-	background: url('../images/loginBg.png') no-repeat scroll 0 0;
+	height: 411px;
+	background: url('../images/loginBg.jpg') no-repeat scroll 0 0;
 }
 .loginFormContent {
-	background: url('../images/loginBox.png');
+	background: url("../images/loginBox.png") no-repeat scroll 0 0 transparent;
     float: right;
-	position: relative;
-    right: 36px;
-    top: 41px;
-    height: 261px;
-    width: 280px;
+    height: 301px;
+    position: relative;
+    right: -2px;
+    top: 15px;
+	_top: -10px;
+	*top: 15px;
+    width: 360px;
 }
 .tab {
 	list-style: none;
@@ -44,23 +46,24 @@ ul, li {
 	font-size: 14px;
 }
 .current {
-	background-color: #FFF;
 	color: #105ebe;
 	width: 84px;
-	margin: 9px 0px 0px 30px;
+	margin: 50px 0px 0px 78px;
 }
 .other {
 	color: #FFF;
 	padding-left: 30px;
+	font-weight: bold;
 }
-.loginFormContent label {
-	color: #2B71C6;
+.loginFormContent label, .current {
+	color: #555454;
+	font-weight: bold;
 }
 .loginFormContent input {
 	height: 25px;
 	line-height: 25px;
 	font-size: 12px;
-	border: 1px solid #105ebe;
+	border: 1px solid #99bad0;
 	width: 170px;
 	background-color: #FFF;
 }
@@ -71,14 +74,11 @@ ul, li {
 	font-size: 13px;
 	height: 125px;
 	list-style: none;
-	margin-left: 26px;
+	margin-left: 67px;
 }
 .loginFormContent li {
 	height: 40px;
 	line-height: 40px;
-}
-.pwd {
-	margin-left: 13px;
 }
 .captchaImg {
 	height: 25px;
@@ -93,8 +93,9 @@ ul, li {
 	background: url('../images/login.png') no-repeat scroll 0 0;
     cursor: pointer;
     display: inline-block;
-    height: 41px;
-    width: 122px;
+    height: 34px;
+    width: 105px;
+	margin-left: 40px;
 }
 .txtColor {
 	color: #583C32;
@@ -116,29 +117,38 @@ ul, li {
 .center .left{
 	width: 488px;
 	height: 148px;
-	border: 1px solid #215892;
+	border: 1px solid #b2c0c9;
 	float: left;
 	margin-right: 10px;
 }
 .center .right{
 	width: 448px;
 	height: 148px;
-	border: 1px solid #215892;
+	border: 1px solid #b2c0c9;
 	float: left;
 }
-h2 {
-	display: inline-block;
-	padding-left: 20px;
-	font-size: 18px;
-	color: #525252;
+.right #title {
+	background: url('../images/titlebj.png') repeat-x;
+	height: 33px;
+	line-height: 33px;
+	text-align: center;
+	color: #446f8a;
+	font-size: 13px;
+	font-weight: bold;
+	width: 448px;
+	border-bottom: 1px solid #B2C0C9;
+}
+.right #title font {
+	color: #1b4761;
+	font-size: 14px;
 }
 .entrances {
-	padding-left: 20px;
 	list-style: none;
+	float: left;
 }
 .entrances li {
-	height: 90px;
-	width: 90px;
+	height: 114px;
+	width: 112px;
 	margin: 0px auto 0px;
 	float: left;
 	cursor: pointer;
@@ -146,53 +156,48 @@ h2 {
 .entrances  a {
 	float: left;
 	text-decoration: none;
-	color: #696969;
-	font-weight: bold;
-	width: 90px;
-	padding-top: 68px;
+	width: 112px;
+	padding-top: 114px;
+	_padding-top: 97px;
 	text-align: center;
-}
-.entrances  a:hover {
-	background-color: #F4F4F4;
-	border: 1px solid #cdcdcd;
-}
-.entrances li p {
-	width: 90px;
-	display: inline-block;
-	height: 8px;
-	margin-top: 68px;
+	display: inline;
 }
 .web {
-	background: url('../images/web.png') no-repeat 16px 0px;
+	background: url('../images/web.png') no-repeat;
 }
 .android {
-	background: url('../images/android.png') no-repeat 16px 0px;
+	background: url('../images/android.png') no-repeat;
 }
 .IOS {
-	background: url('../images/IOS.png') no-repeat 16px 0px;
+	background: url('../images/IOS.png') no-repeat;
 }
 .phone {
-	background: url('../images/phone.png') no-repeat 16px 0px;
+	background: url('../images/phone.png') no-repeat;
 }
 .bottom {
+	background: url('../images/bottom.png') repeat-x;
 	width: 950px;
-	height: 50px;
-	background-color: #215992;
+	height: 65px;
 	float: left;
 	margin-top: 10px;
 }
-#ads, #contents {
+#contents {
+	float: left;
+	height: 128px;
+}
+#ads {
+	background: url('../images/adsBg.png') repeat-x;
 	width: 488px;
 	height: 148px;
 }
 #adNums  {
+	float: left;
 	width: 132px;
 	height: 20px;
 	line-height: 20px;
 	position: relative;
+	padding-left: 340px;
 	top: -20px;
-	background-color: #bacadb;
-	padding-left: 356px;
 }
 #adNums li {
 	float: left;
@@ -200,32 +205,28 @@ h2 {
 	text-align: center;
 	cursor: pointer;
 	height: 20px;
-	position: relative;
-	top: -6px;
-	*top: 0px;
 	border-right: 2px solid #FFF;
-	
 }
 .seleted {
-	background-color: #FFF;
+	background-color: #93cfdf;
 	color: #306499;
 }
 .default {
-	background-color: #306499;
+	background-color: #2696b8;
 	color: white;	
 }
 .adImg {
 	width: 128px;
 	height: 128px;
 	float: left;
+	display: inline-block;
 }
 #contents p {
 	display: inline-block;
 	width: 350px;
 	font-size: 13px;
 	text-indent:2em;
-	padding-left: 10px;
-	height: 128px;
+	padding: 10px 0px 0px 10px;
 	line-height: 22px;
 	float: left;
 }
@@ -234,12 +235,14 @@ h2 {
 }
 .btnPanel {
 	margin-left: 82px;
+	margin-top: 20px;
 }
 .btnPanel * {
 	float: left;
 }
 #getPwd {
-	color: #1F376D;
+	font-size: 12px;
+	color: #5188ac;
     display: block;
     height: 15px;
     left: 10px;
@@ -248,7 +251,7 @@ h2 {
     width: 60px;
 }
 #getPwd:hover, #getPwd:visited {
-	color: #1F376D;
+	color: #5188ac;
 }
 /*bottom*/
 .blinks {
@@ -257,15 +260,16 @@ h2 {
 	text-align: center;
 	height: 25px;
 	line-height: 30px;
-	color: #fff;
+	color: #17557c;
 }
 .blinks a{
 	outline: none;
 	display: inline-block;
 	padding-right: 10px;
-	color: #fff;
+	color: #17557c;
 }
 .bottom p { 
+	color: #394f5c;
 	display: inline-block;
     height: 20px;
     line-height: 20px;
