@@ -50,8 +50,8 @@ from handlers.feedback import FeedBackHandler
 from handlers.download import DownloadHandler, DownloadSmsHandler
 from handlers.about import AboutHandler
 from handlers.instruction import WebInsHandler, AndroidInsHandler, IOSInsHandler, SMSInsHandler 
-
 from handlers.servicesterms import ServicesTermsHandler
+from handlers.helper import HelperHandler 
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -91,6 +91,7 @@ class Application(tornado.web.Application):
             (r"/downloadsms/*", DownloadSmsHandler),
 
             (r"/servicesterms/*", ServicesTermsHandler),
+            (r"/helper/*", HelperHandler),
 
             # for android 
             (r"/android/*", AndroidHandler),
