@@ -632,7 +632,7 @@ window.dlf.fn_eventText = function(n_eventNum) {
 			str_text = 'SOS';
 			break;
 		case 6:
-			str_text = '心跳丢失';
+			str_text = '通讯异常';
 			break;
 	}
 	return str_text;
