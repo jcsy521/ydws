@@ -6,7 +6,7 @@
 * {
 	outline: none;
 }
-html, a, input, ul, ol, li, p {
+html, a, input, ul, ol, li, p,dl, dt, dd {
 	font-size: 12px;
 	font-family: "宋体","Times New Roman","Arial";
 	margin: 0;
@@ -1291,8 +1291,7 @@ body {
 }
 /*service terms start */
 .services {
-	margin-top: 130px;
-	padding: 0 217px;
+	margin-top: 30px;
 }
 #serviceTitle {
 	text-align: center;
@@ -1300,42 +1299,46 @@ body {
 	font-weight: bold;
 	height: 40px;
 }
-.services p {
+.headdl {
+    float: left;
+}
+.services * {
+	line-height: 25px;
+}
+.services dl {
 	line-height: 24px;
+	margin-left: 30px;
+}
+.services dd {
+	margin-left: 35px;
 }
 .headline {
-	text-indent: 2em;
-	font-size: 14px;
-}
-.subtitle {
-	text-indent: 4em;
+	font-weight: bold;
+	margin-right: 10px;
 }
 /*service terms end*/
 
 /*feedback start*/
 .commonBody {
+	float: none;
 	padding: 0px;
 	margin: 0 auto;
 	background-color: #f7f8fb;
-	width: 100%;
-	min-width: 1038px;
+	width: 1070px;
 }
-.commonBody .top {    
-	float: left;
+.commonBody .top { 
     height: 123px;
-	width: 100%;
+	width: 970px;
 	background: url("/static/images/banner.png") repeat-x scroll 0 0 transparent;
-    float: left;
     height: 123px;
-    min-width: 791px;
+	margin: 0 auto;
 }
 .commonBody .banner {
 	width: 87%;
 }
 .fbtable {
-	margin-top: 30px;
-	float: left;
-	width: 100%;
+	margin: 30px auto 0;
+	width: 710px;
 }
 #suggestions {
 	margin: 0 auto;

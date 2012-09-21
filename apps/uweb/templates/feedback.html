@@ -8,53 +8,41 @@
 {% end %}
 {% block body %}
 	<body class="commonBody">
-		<div class="top">
-			<div id="logo">
-				<img src="../static/images/logo.png" alt="爱车保" />
-			</div>
-			<div class="banner">
-				<div id="ads">
-					<ul id="contents">
-						<li id="firstImg"><img src="../static/images/banner3.jpg" index="1" /></li>
-					</ul>
-				</div>
-			</div>
-		</div>
-			<div class="fbtable">
-				<form id="feedbackForm" >
-					<table id="suggestions">
-						<tr>
-							<td colspan="2">
-								<h1>意见反馈</h3>
-								<span class="fb_title">您好，欢迎提出宝贵意见和建议，您留下的每个意见都被用来改善我们的服务！</span>
-							</td>
-						</tr>
-						<tr>
-							<td class="tdLeft">联系人：</td>
-							<td>
-								<input type="text" id="contact" class="fb_textbox j_feedback" title="请输入联系人姓名" />
-							</td>
-						</tr>
-						<tr>
-							<td class="tdLeft">Email：</td>
-							<td><input type="text" id="email" class="fb_textbox j_feedback"  title="请输入Email地址" /></td>
-						</tr>
-						<tr>
-							<td class="tdLeft">反馈内容：</td>
-							<td>
-								<textarea class="feed_con j_feedback" title="请输入反馈内容" rows="" cols="" id="content" name="content"></textarea>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="2" align="center">
-								<input type="submit" id="btnSubmit" title="提交意见"  value="" class="fbSubmit" />
-								<input type="submit" id="btnCancle" title="取消" value="" class="fbqx" />
-							</td>
-						</tr>
-					</table>
-				</form>
-			</div>
-			<div id="jNotifyMessage" class="hide"></div>
+		<div class="fbtable">
+			<form id="feedbackForm" >
+				<table id="suggestions">
+					<tr>
+						<td colspan="2">
+							<h1>意见反馈</h3>
+							<span class="fb_title">您好，欢迎提出宝贵意见和建议，您留下的每个意见都会帮助我们提高服务。</span>
+						</td>
+					</tr>
+					<tr>
+						<td class="tdLeft">联系人：</td>
+						<td>
+							<input type="text" id="contact" class="fb_textbox j_feedback" title="请输入联系人姓名" />
+						</td>
+					</tr>
+					<tr>
+						<td class="tdLeft">Email：</td>
+						<td><input type="text" id="email" class="fb_textbox j_feedback"  title="请输入Email地址" /></td>
+					</tr>
+					<tr>
+						<td class="tdLeft">反馈内容：</td>
+						<td>
+							<textarea class="feed_con j_feedback" title="请输入反馈内容" rows="" cols="" id="content" name="content"></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" align="center">
+							<input type="submit" id="btnSubmit" title="提交意见"  value="" class="fbSubmit" />
+							<input type="submit" id="btnCancle" title="取消" value="" class="fbqx" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div> 
+		<div id="jNotifyMessage" class="hide"></div>
 		
 	</body>
 {% end %}
