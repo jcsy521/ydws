@@ -31,13 +31,7 @@
 		<!-- carInfo -->
 		<div id="left">
 			<div id="cars">
-				<div class="carsTitle">
-					<div class="titleLeft"></div>
-					<div class="titleCenter">
-						<img src="../static/images/wdac.png" />
-					</div>
-					<div class="titleRight"></div>
-				</div>
+				<div class="carsTitle"></div>
 				<ul id="carList">
 				{% for car in cars %}
 					<li keys_num = '{{car.keys_num}}'>
@@ -59,13 +53,7 @@
 				</ul>
 			</div>
 			<div id="carInfo">
-				<div class="carsTitle">
-					<div class="titleLeft"></div>
-					<div class="titleCenter">
-						<img src="../static/images/clxx.png" />
-					</div>
-					<div class="titleRight"></div>
-				</div>
+				<div class="carsInfoTitle"></div>
 				<table id="cInfo">
 					<tr><td class="tLeft">速度：   </td><td><label  id="speed"></label></td></tr>
 					<tr><td class="tLeft">方向：   </td><td><label  id="degree"></label></td></tr>
@@ -76,13 +64,7 @@
 				</table>
 			</div>
 			<div id="terminalInfo">
-				<div class="carsTitle">
-					<div class="titleLeft"></div>
-					<div class="titleCenter">
-						<img src="../static/images/zdxx.png" />
-					</div>
-					<div class="titleRight"></div>
-				</div>
+				<div class="terminalInfoTitle"></div>
 				<ul id="tInfo">
 					<li id="defendStatus">
 						<span id="defend_word"></span>
@@ -111,7 +93,7 @@
 					<li><a href="#" id="smsoption" class="smsOption j_click"></a></li>
 				</ul>
 				<ul class="selfList">
-					<!--<a class="help" title="显示帮助文档" href="/pabbHelp.html" target="_blank">帮助</a>-->
+					<li><a class="help" title="显示帮助文档" href="/helper" target="_blank">帮助</a></li>
 					<li><a href="#" id="personalData" class="j_click">我的资料</a></li>
 					<li><a href="#" id="changePwd" class="j_click">修改密码</a></li>
 					<li><a href="#" id="logout" onclick="dlf.fn_exit()">退出</a></li>
