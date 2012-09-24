@@ -1289,9 +1289,13 @@ body {
 .txtColor {
 	color: red;
 }
+.pwdBackTrPanel {
+	display: block;
+	margin: 15px 0 0 87px;
+}
 /*service terms start */
 .services {
-	margin-top: 130px;
+	margin-top: 30px;
 	padding: 0 217px;
 }
 #serviceTitle {
@@ -1300,12 +1304,23 @@ body {
 	font-weight: bold;
 	height: 40px;
 }
-.services p {
-	line-height: 24px;
+.services dl {
+	margin: 10px 0 10px 22px;
+	*margin-left: 46px;
+	padding: 0;
+}
+.services dd {
+	line-height: 20px;
+	margin-left: 32px;
+	*position: relative;
+	*top: -3px;
 }
 .headline {
 	text-indent: 2em;
 	font-size: 14px;
+}
+.headdl {
+	float: left;
 }
 .subtitle {
 	text-indent: 4em;
