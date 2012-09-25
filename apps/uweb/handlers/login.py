@@ -81,7 +81,7 @@ class LoginHandler(BaseHandler, LoginMixin):
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 if not terminal.alias:
-                    terminal.alias = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
+                    terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             
             self.login_sms_remind(uid, user_info.mobile, terminals, login="WEB")
             self.clear_cookie('captchahash')
@@ -125,7 +125,7 @@ class IOSHandler(BaseHandler, LoginMixin):
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 if not terminal.alias:
-                    terminal.alias = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
+                    terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name, 
@@ -167,7 +167,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 if not terminal.alias:
-                    terminal.alias = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
+                    terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             
             push_info = NotifyHelper.get_push_info()
             push_key = NotifyHelper.get_push_key(uid, self.redis)

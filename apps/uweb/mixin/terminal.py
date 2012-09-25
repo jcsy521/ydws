@@ -42,6 +42,12 @@ class TerminalMixin(BaseMixin):
                     terminal_info['alias'] = value if value else self.current_user.sim
                     self.redis.setvalue(terminal_info_key, terminal_info)
 
+            elif key == 'white_pop':
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET white_pop = %s"
+                                "  WHERE tid = %s",
+                                value, self.current_user.tid)
+
     def update_terminal_info(self, car_sets, car_sets_res):
         """Update T_TERMINAL_INFO.
         When set terminal info,get 0 or 1 from terminal, recomposer car_sets

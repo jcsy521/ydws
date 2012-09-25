@@ -28,7 +28,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         try:
             car_sets = DotDict() 
             # 1: terminal 
-            terminal = self.db.get("SELECT freq, alias, trace, cellid_status, vibchk, tid as sn, mobile, vibl"
+            terminal = self.db.get("SELECT freq, alias, trace, cellid_status, vibchk, tid as sn, mobile, vibl, white_pop"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "  LIMIT 1",
@@ -63,7 +63,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             for item in whitelist: 
                 white_list.append(item['mobile'])
             car_sets.update(DotDict(white_list=white_list))
-
             self.write_ret(status,
                            dict_=dict(car_sets=car_sets))
         except Exception as e: 
@@ -100,7 +99,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 IOLoop.instance().add_callback(self.finish)
                 return
    
-            DB_FIELDS = ['alias', 'cnum', 'cellid_status']
+            DB_FIELDS = ['alias', 'cnum', 'cellid_status', 'white_pop']
 
             gf_params = DotDict()
             db_params = DotDict()
