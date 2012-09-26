@@ -68,11 +68,12 @@
 						<p class="">主要内容：</p>
 						<ul class="descText">
 							<li>1。实时定位：通过短信和网络都可以实时定位到车辆的位置。</li>
-							<li>2。行踪查询：行踪查询功能可以帮您查看到车辆的路线轨迹。</li>
-							<li>3。设防/撤防：车主可通过web或短信形式远程设防/撤防终端或者利用挂件上的设防按钮，当终端处于设防状态，如果车辆有频繁振动终端将发短信告知车主以便采取急救措施。</li>
-							<li>4。短信告警设置：车主可登录平台设置短信通知项，当选中终端低电告警、终端断电告警、终端非法移动告警、SOS告警、终端通讯异常告警、终端卡号余额告警、平台登录告警选项后，如果终端出现告警或登录平台车主将收到平台下发的短信通知。</li>
-							<li>5。SOS号码：爱车保终端SOS键被按下后，汇报当前终端位置，并顺序拨打SOS、亲情号码，直至求助电话接通或顺序拨打结束。</li>
-							<li>6。报警查询：车主可以查询终端缺电、关机及SOS状态发生变化的信息。 </li>
+							<li>2。轨迹查询：车主查询指定时间段内车辆的路线行踪信息， 在平台页面上通过点线的形式显示出来的行踪轨迹图， 该功能便于查看车辆的活动范围和路线轨迹。</li>
+							<li>3。设防/撤防：终端设防时将开启非法移动功能，当终端撤防时，自动关闭功能。</li>
+							<li>4。终端参数：设定终端的各类参数，例如：车主手机号、振动报警频率，上报频率等。</li>
+							<li>5。短信告警设置：车主选择是否接受告警和提醒信息。</li>
+							<li>6。告警查询：车主在平台上查询车辆指定时间段内的非法移动、低电、SOS告警等信息。得到查询结果之后，车主点击位置可以查看具体的位置信息。</li>
+							<li>7。个人信息设置：车主可以对个人的信息如:手机号、邮箱及密码等进行修改设置。</li>
 						</ul>
 					</div>
 					<!--图片展示-->
@@ -88,17 +89,11 @@
 			
 			
 			<!--密码修改框-->
-			<div id="SMSWrapper" class="wrapper hide j_drag">
-				<div class="wrapperTitle">
-					<span class="wrapperTitleL popbox"></span>
-					<span class="p_wtc popbox" id="smsCenter">
-						<span class="titleName fontMic">短信下载</span>
-						<em id="smsMsg">通过短信获取安卓版下载地址</em>
-						<span class="close j_close" id="smsClose" title="关闭窗口"></span>
-					</span>
-					<span class="wrapperTitleR popbox"></span>
+			<div id="smsUploadWrapper" class="wrapper hide j_drag">
+				<div class="wrapperTitle smsUploadTitle">
+					<span class="close j_close" id="smsClose" title="关闭窗口"></span>
 				</div>
-				<div class="SMSContent wrapperContent">
+				<div class="wrapperContent smsUploadContent">
 					<div class="mobiles">
 						<label for="mobile">手机号：</label>
 						<input type="text" id="txtmobile" placeholder="请输入手机号" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="11" />

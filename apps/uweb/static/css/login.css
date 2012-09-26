@@ -59,6 +59,11 @@ ul, li {
 	color: #555454;
 	font-weight: bold;
 }
+.sPwd {
+	display: inline-block;
+	width: 28px;
+	float: left;
+}
 .loginFormContent input {
 	height: 25px;
 	line-height: 25px;

@@ -149,7 +149,7 @@ function fn_startDrawLineStatic(arr_dataArr) {
 // 动态标记显示
 function fn_markerAction() { 
 	$('#tPlay').unbind('mousedown');
-	fn_stopDraw();
+	//fn_stopDraw();
 	window.setTimeout(fn_drawMarker, 100);
 	timerId = window.setInterval(fn_drawMarker, n_speed);
 }
@@ -284,9 +284,14 @@ $(function () {
 			n_speed = arr_slide[n_val];
 			$('#trackSlide').attr('title', arr_slideTitle[n_val]);
 			if ( timerId ) { dlf.fn_clearInterval(timerId) };
-			$('#tPlay').hide();
-			$('#tPause').css('display', 'inline-block');
-			fn_markerAction();
+			var obj_tplay = $('#tPlay'),
+				str_ishidden = obj_tplay.is(':hidden');
+			if ( str_ishidden ) {	// 如果播放按钮不可用
+				fn_markerAction();
+			}
+			//$('#tPlay').hide();
+			//$('#tPause').css('display', 'inline-block');
+			//
 		}
 	}).slider('option', 'value', 2);
 	

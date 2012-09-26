@@ -41,9 +41,9 @@
 					</tr>
 					<tr><td><label>车主电话：</label><font  id="phone"></font></td>
 					</tr>
-					<tr><td><label>地&nbsp;&nbsp;&nbsp;&nbsp;址：</label><input type="text" name="txtAddress" id="txtAddress"  class="j_personal" /></td></tr>
-					<tr><td><label>E-MAIL&nbsp;&nbsp;：</label><input type="text" name="email" id="email" class="j_personal" /></td></tr>
-					<tr><td><label>备&nbsp;&nbsp;&nbsp;&nbsp;注：</label><input type="text" name="remark" id="remark"  class="j_personal" /></td></tr>
+					<tr><td><label>地址：</label><input type="text" name="txtAddress" id="txtAddress"  class="j_personal" /></td></tr>
+					<tr><td><label>E-MAIL：</label><input type="text" name="email" id="email" class="j_personal" /></td></tr>
+					<tr><td><label>备注：</label><input type="text" name="remark" id="remark"  class="j_personal" /></td></tr>
 				</table>
 				<input type="submit" value="" id="personalSave" class="personalButton j_save" />
 			</form>
@@ -57,8 +57,8 @@
 		<div class="pwdContent wrapperContent">
 			<form id="pwdForm" >
 				<table class="pwdList">
-					<tr><td><label>原密码&nbsp;&nbsp;：</label><input type="password" id="oldPwd" class="j_validate" maxlength="16" /></td></tr>
-					<tr><td><label>新密码&nbsp;&nbsp;：</label><input type="password" id="newPwd" class="j_validate" maxlength="16" /></td></tr>
+					<tr><td><label>原密码：</label><input type="password" id="oldPwd" class="j_validate" maxlength="16" /></td></tr>
+					<tr><td><label>新密码：</label><input type="password" id="newPwd" class="j_validate" maxlength="16" /></td></tr>
 					<tr><td><label>确认密码：</label><input type="password" id="newPwd2" class="j_validate" maxlength="16" /></td></tr>
 				</table>
 				<input type="submit" value="" id="pwdSave" class="pwdButton j_save" />
@@ -115,23 +115,29 @@
 								<tr>
 									<td class="terminalTdL" ></td>
 									<td id="white_list_2"  class="j_ListVal j_whitelist j_white_list"  t_val="">
-										<input id="t_white_list_2"  terminalkey="owner_mobile"class="bListR_text_mouseOut"  type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="11" />
+										<input id="t_white_list_2"  terminalkey="owner_mobile" class="bListR_text_mouseOut j_onkeyup"  type="text"  maxlength="11" />
 									</td>
 								</tr>
 								<tr>
 									<td class="terminalTdL">振动灵敏度:</td>
 									<td id="vibl" class="j_ListVal j_vibl"  t_val="0">
-										<div  class="viblslider">
+										<!--<div  class="viblslider">
 											<div id="viblSlider" title="1"></div>
 										</div>
-										<label id="viblTip"></label>
+										<label id="viblTip"></label>-->
+										<select id="t_vibl" >
+											<option value="1" >很灵敏</option>
+											<option value="3">灵敏</option>
+											<option value="6">一般灵敏</option>
+											<option value="9">不灵敏</option>
+										</select>
 									</td>
 								</tr>
 								<tr>
 									<td class="terminalTdL">振动频率:</td>
 									<td id="vibchk" class="j_ListVal j_vibchk"  t_val="0">
-										<input id="t_vibchk0"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk " type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="2" /><label class="lblVibchk">秒内振动</label>
-										<input id="t_vibchk1"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk" type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="2" />
+										<input id="t_vibchk0"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk j_onkeyup" type="text"  maxlength="2" /><label class="lblVibchk">秒内振动</label>
+										<input id="t_vibchk1"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk j_onkeyup" type="text"  maxlength="2" />
 										次
 									</td>
 								</tr>
@@ -147,10 +153,17 @@
 								<tr>
 									<td class="terminalTdL">上报间隔:</td>
 									<td id="freq" class="j_ListVal j_freq"  t_val="0">
-										<input id="t_freq"  terminalkey="freq"  class="bListR_text_mouseOut" type="text" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="4" /><label class="lblVibchk">秒</label>
+										<!--<input id="t_freq"  terminalkey="freq"  class="bListR_text_mouseOut j_onkeyup" type="text"  maxlength="4" /><label class="lblVibchk">秒</label>-->
+										<select id="t_freq" >
+											<option value="0">智能上报</option>
+											<option value="30">30秒</option>
+											<option value="60">1分钟</option>
+											<option value="300">5分钟</option>
+											<option value="600">10分钟</option>
+											<option value="1800">30分钟</option>
+										</select>
 									</td>
 								</tr>
-								
 								<tr>
 									<td class="terminalTdL">基站定位:</td>
 									<td id="cellid_status" class="j_ListVal"  t_val="">
@@ -174,12 +187,18 @@
 			</div>
 		</div>
 	</div>
+	<!-- 白名单设置提醒 -->
+	<div id="whitelistPopWrapper" class="hide wrapper">
+		<p class="noticeClose" title="关闭"></p>
+		<p class="noticeMsg">请您设置白名单</p>
+		<p class="noticeRemeber" title="我知道了">我知道了</p>
+	</div>
 	<!-- 短信参数设置 -->
 	<div id="smsWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle smsTitle">
 			<span class="close j_close" title="关闭窗口"></span>
 		</div>
-		<div id="smsContent" class="j_terminalcontent wrapperContent">
+		<div id="smsContent" class="smsContent j_terminalcontent wrapperContent">
 			<span class="smsTip">请选择想要的短信通知项：</span>
 				<ul class="smsList">
 					<li>

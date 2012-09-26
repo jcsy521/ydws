@@ -14,7 +14,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_iconType, str_operation, n_index)),  // 创建信息窗口对象;
 		marker = null,
 		label = new BMap.Label(obj_location.alias, {offset:new BMap.Size(31, 22)}); // todo  tid >>  别名
-	label.setStyle({background: '#FFA500', fontSize: '13px', height: '20px', borderColor: '#000', lineHeight: '24px',opacity: '0.7','paddingLeft': '5px','paddingRight': '5px'});
+	label.setStyle({background: '#FFFFFF', fontSize: '13px', height: '20px', borderColor: '#000', lineHeight: '24px',opacity: '0.7','paddingLeft': '5px','paddingRight': '5px', 'color': '#2ACB05'});
 	if ( str_iconType == 'start' ) {
 		str_imgUrl = '/static/images/green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {
@@ -143,7 +143,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, str_operation,
 	} else {
 		// 判断是否是当前车辆
 		var str_currenttid = $('#carList .currentCar').attr('tid');
-		if ( str_tid == str_currenttid ) {
+		if ( str_tid == str_currenttid && str_operation == 'lastinfo' ) {
 			$('#address').html(address);
 		}
 	}

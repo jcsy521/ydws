@@ -1,5 +1,5 @@
 $(function () {
-	var obj_smsWrapper = $('#SMSWrapper'), 
+	var obj_smsWrapper = $('#smsUploadWrapper'), 
 		obj_smsLayer = $('#downloadLayer');
 	
 	// 为短信下载添加相应事件
@@ -71,7 +71,7 @@ function fn_changeSmsCaptcha($obj) {
 }
 // 显示短信提示框 
 function fn_showSmsWrapper() {
-	var obj_smsWrapper = $('#SMSWrapper'), 
+	var obj_smsWrapper = $('#smsUploadWrapper'), 
 		obj_smsLayer = $('#downloadLayer');
 	
 	fn_changeSmsCaptcha($('#smsCaptchaimg'));

@@ -23,7 +23,7 @@ window.dlf.fn_personalData = function() {
 			if ( str_name.length > 4 ) {
 				str_newName = str_name.substr(0,4)+'...';
 			}
-			$('.welcome').html('欢迎您，' + str_newName).attr('title', str_name);
+			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_name);
 			$('#phone').html(str_phone).data('phone', str_phone);
 			$('#txtAddress').val(str_address).data('txtAddress', str_address);
 			$('#email').val(str_email).data('email', str_email);
@@ -118,6 +118,17 @@ window.dlf.fn_exit = function() {
 		window.location.href = '/logout'; 
 	}
 }
+// pop框位置随着wrapper的改变而改变
+window.dlf.fn_resizeWhitePop = function() {
+	var obj_terminalWrapperOffset = $('#terminalWrapper').offset(),
+		obj_whitePop = $('#whitelistPopWrapper'),
+		f_warpperStatus = !obj_whitePop.is(':hidden'),
+		n_left = obj_terminalWrapperOffset.left + 380,
+		n_top =  obj_terminalWrapperOffset.top + 200 ;
+		if ( f_warpperStatus ) {
+			obj_whitePop.css({left: n_left, top: n_top});
+		}
+}
 })();
 
 // 当用户窗口改变时,地图做相应调整
@@ -141,6 +152,7 @@ window.onresize = function () {
 		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 249);	// 右侧宽度
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		$('#mapObj').css('height', n_mapHeight);
+		dlf.fn_resizeWhitePop();
 		// 动态调整遮罩层
 		var f_layer = $('.j_body').data('layer');
 		if ( f_layer ) { 
@@ -156,10 +168,7 @@ $(function () {
 	}
 	
 	$.ajaxSetup({ cache: false }); // 不保存缓存
-	// 屏蔽鼠标右键相关功能
-    $(document).bind('contextmenu', function (e) {
-        return false;
-    });
+	
 	// 调整页面大小
 	var n_windowHeight = $(window).height(),
 		n_windowWidth = $(window).width(),
@@ -235,6 +244,14 @@ $(function () {
 			if ( f_conStatus ) {
 				dlf.fn_lockContent($($(this).children().eq(1)));
 			}
+			var str_currentId = event.target.id,
+				obj_whitePop = $('#whitelistPopWrapper'),
+				f_warpperStatus = !obj_whitePop.is(':hidden'),
+				n_left = ui.position.left + 380,
+				n_top = ui.position.top + 200;
+			if ( str_currentId == 'terminalWrapper' && f_warpperStatus ) {
+				obj_whitePop.css({left: n_left, top: n_top});
+			}
 		},
 		stop: function(event, ui) {
 			if ( ui.position.top < 0 ) {
@@ -300,7 +317,7 @@ $(function () {
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	$('#t_freq').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 4, onError: '上报频率最大长度为4位数字！'}).regexValidator({regExp: 'freq', dataType: 'enum', onError: '您设置的上报频率不正确，范围(15-3600秒)！'});
+	//$('#t_freq').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 4, onError: '上报频率最大长度为4位数字！'}).regexValidator({regExp: 'freq', dataType: 'enum', onError: '您设置的上报频率不正确，范围(15-3600秒)！'});
 	$('#t_pulse').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '心跳时间最大长度为4位数字！'}).regexValidator({regExp: 'pulse', dataType: 'enum', onError: '您设置的终端的心跳时间不正确，范围(1-1800秒)！'});;
 	
 	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});;

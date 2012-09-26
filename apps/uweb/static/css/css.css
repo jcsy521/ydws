@@ -50,13 +50,17 @@ body {
 	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/userIcon.png',sizingMethod='scale');
 	padding-left: 60px;
 	float: right;
-	color: #0a3464;
+	color: ##0aa0fb;
 	font-size: 14px;
 	margin-top: 70px;
 	margin-right: 29px;
 	height: 44px;
-	line-height: 54px;
 	width: 137px;
+}
+#spanWelcome {
+	display: inline-block;
+	float: left;
+	padding-top: 21px;
 }
 .help {
 	background: url('/static/images/helpIcon.png') no-repeat;
@@ -144,7 +148,9 @@ body {
 }
 #left .carsTitle, .carsInfoTitle, .terminalInfoTitle {
 	margin-left: 10px;
+	_margin-left: 5px;
 	float: left;
+	display: inline-block;
 }
 .carsTitle div, .carsTitle img {
 	float: left;
@@ -242,9 +248,11 @@ body {
 	color: #126393;
 	padding-left: 10px;
 }
-#power {
-	background: url('/static/images/power0.png') no-repeat 168px center;
+#defendStatus, #power, #gps{
+	background-repeat: no-repeat;
+	background-position: 168px center;
 }
+/*(
 .defend_status1 {
 	display: inline-block;
 	height: 17px;
@@ -263,7 +271,8 @@ body {
 	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/defend_status1.png',sizingMethod='scale');
 	float: left;
 }
-#GSM {
+*/
+#gsm {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;
 }
 .updateTime {
@@ -416,6 +425,10 @@ body {
 .businessTitle {
 	background-position: 0px -68px;
 }
+.smsUploadTitle {
+	width: 400px;
+	background-position: 0px -238px;
+}
 .wrapperContent {
 	height: 249px;
 	background-color: #ffffff;
@@ -556,7 +569,7 @@ body {
 	height: 190px;
 	margin-left: 23px;
 }
-.personalList tr {
+.personalList tr, .pwdList tr {
 	height: 27px;
 	line-height: 27px;
 }
@@ -573,8 +586,10 @@ body {
 }
 .personalList label, .pwdList label {
 	display: inline-block;
-	width: 73px;
-	float: left;
+    float: left;
+    margin-right: 20px;
+    text-align: right;
+    width: 60px;
 }
 .smsList  {
 	line-height: 37px;
@@ -619,7 +634,7 @@ body {
 	width: 200px;
 }
 .smsButton {
-    left: 291px;
+    left: 323px;
     position: absolute;
     top: 347px;
 }
@@ -670,15 +685,11 @@ body {
 	width: 87px;
 	text-align: right;
 }
-.viblslider {
-	width: 132px;
-	height: 13px;
-	margin-left: 10px;
-	margin-top: 10px;
-	float: left;
-}
-#viblSlider {
+#t_vibl, #t_freq {
 	width: 130px;
+	margin-left: 10px;
+	height: 22px;
+	padding-top: 1px;
 }
 #bListR span {
 	display: inline-block;
@@ -736,6 +747,36 @@ body {
 #tmnTable {
 	height: 30px;
 	width: 420px;
+}
+#whitelistPopWrapper {    
+	background: url("/static/images/notice.png") no-repeat scroll 0 0 transparent;
+    height: 70px;
+    position: absolute;
+    width: 170px;
+    z-index: 10000000;
+}
+.noticeClose {
+	cursor: pointer;
+	background: url('/static/images/close.png') no-repeat;
+	width: 8px;
+	height: 8px;    
+	left: 149px;
+    position: absolute;
+    top: 8px;
+}
+#whitelistPopWrapper p {
+	line-height: 17px;
+}
+.noticeMsg {
+	text-align: left;
+	padding-left: 30px;
+	padding-top: 16px;
+}
+.noticeRemeber {
+	padding-right: 10px;
+	text-align: right;
+	color: #13a3f8;
+	cursor: pointer;
 }
 /* dialog end */
 /*---- POISearch start ----*/
@@ -879,12 +920,16 @@ body {
 	height: 24px;
 	font-size: 12px;
 	position: relative;
-	top: 1px;
-	+top: 3px;
+	top: 0px;
+	+top: 0px;
 	_top: 3px;
+	background-position:  right -3px;
+}
+#eventStartTime, #eventEndTime {
+	background-position:  right 0px;
 }
 .time {
-	background: url("/static/images/datePicker.png") no-repeat scroll right center #FFFFFF;
+	background: url("/static/images/datePicker.png") no-repeat scroll #FFFFFF;
 	border: 1px solid #cccccc;
 	height: 30px;
 	line-height: 30px;
@@ -908,7 +953,11 @@ body {
 	padding-left: 10px;
 }
 .trackSpeed {
-    position: relative;
+	display: inline-block;
+    position: absolute;
+	height:34px;
+	line-height: 34px;
+	_top: 8px;
     text-align: left;
     width: 186px;
 }

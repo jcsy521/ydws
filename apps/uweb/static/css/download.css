@@ -143,7 +143,7 @@ body {
 #downloadLayer {
 	display: none;
 }
-#SMSWrapper {
+#smsUploadWrapper {
     height: 230px;
     left: 39%;
     top: 35%;
@@ -154,25 +154,25 @@ body {
 	width: 390px;
 }
 #smsClose {
-	left: 111px;
-	*left: 111px;
+	left: 372px;
+	*left: 372px;
 }
 #SMSWrapper h2 {
 	cursor: default;
 	margin: 0;
 }
-.SMSContent div, .SMSContent .capPanel .capText {
+.smsUploadContent div, .smsUploadContent .capPanel .capText {
     margin: 0 0 10px 26px;
 	display: inline-block;
 	float: left;
 }
-.SMSContent .mobiles {
+.smsUploadContent .mobiles {
 	padding-top: 26px;
 }
-.SMSContent {
+.smsUploadContent {
 	height: 190px;
 }
-.SMSContent input {
+.smsUploadContent input {
 	border: 1px solid #CCCCCC;
 	height: 20px;
 	line-height: 20px;
@@ -186,7 +186,7 @@ body {
 #smsCaptcha {
 	width: 84px;
 }
-.SMSContent .btnSend {
+.smsUploadContent .btnSend {
 	background: none repeat scroll 0 0 #3dc7ff;
     border: 1px solid #10A6A6;
     border-radius: 3px 3px 3px 3px;
@@ -201,7 +201,7 @@ body {
 	float: left;
 	font-weight: bold;
 }
-.SMSContent .msgPanel {
+.smsUploadContent .msgPanel {
 	font-size: 14px;
     height: 25px;
 	padding-left: 20px;
@@ -211,12 +211,12 @@ body {
 #smsMsg {
 	font-style: normal;
 }
-.SMSContent .capPanel {
+.smsUploadContent .capPanel {
 	height: 50px;
 	margin: 0;
 	padding-top: 0;
 }
-.SMSContent .capPanel div {
+.smsUploadContent .capPanel div {
 	display: inline-block;
 	float: left;
     margin: 0;
@@ -224,7 +224,7 @@ body {
 .capText input {
 	width: 100px;
 }
-.SMSContent .btnDisabled {
+.smsUploadContent .btnDisabled {
 	background-color: gray;
 	cursor: default;
 }

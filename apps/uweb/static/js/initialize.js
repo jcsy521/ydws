@@ -393,19 +393,18 @@ window.dlf.fn_getCarData = function() {
 */
 window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	var str_tmobile = obj_carInfo.mobile,
-		str_htmlMobile = '终端号码&nbsp;&nbsp;：<font class="fontColor">' + str_tmobile + '</font>',
 		str_titleMobile =  '终端号码：' + str_tmobile,
 		n_defendStatus = obj_carInfo.defend_status, 
-		str_dStatus = n_defendStatus == DEFEND_ON ? '设防状态&nbsp;&nbsp;：<font class="fontColor">已设防</font>' : '设防状态：   <font class="fontColor">未设防</font>', 
+		str_dStatus = n_defendStatus == DEFEND_ON ? '已设防' : '未设防', 
 		str_dStatusTitle =  n_defendStatus == DEFEND_ON ? '设防状态：已设防' : '设防状态：未设防',
-		str_dImg= n_defendStatus == DEFEND_ON ? '/static/images/defend_status1.png' : '/static/images/defend_status0.png',
+		str_dImg= n_defendStatus == DEFEND_ON ? 'url("/static/images/defend_status1.png")' : 'url("/static/images/defend_status0.png")',
 		str_type = obj_carInfo.type == GPS_TYPE ? 'GPS定位' : '基站定位',
 		str_speed = obj_carInfo.speed + ' km/h',
 		n_degree = obj_carInfo.degree,
 		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_eStatus = dlf.fn_eventText(obj_carInfo.event_status),  // 报警状态
-		//str_address = obj_carInfo.name,	// 位置描述		
+		str_address = '',	// 位置描述		
 		str_time = obj_carInfo.timestamp > 0 ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp) : '-',
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 		str_clon = '',
@@ -419,35 +418,32 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_clon += '-';
 		str_clat += '-';
 		str_speed = '-';
-		$('#address').html('-');
 	} else {
-		$('#address').html($('#carList a[tid='+ obj_carInfo.tid +']').data('address'));
+		str_address = $('#carList a[tid='+ obj_carInfo.tid +']').data('address');
 		str_clon += 'E ' + Math.round(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
 		str_clat += 'N ' + Math.round(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
 	}
 	// lastinfo 更新车辆信息和终端信息  realtime: 只更新位置信息
 	if ( !type ) {
 		var n_power = parseInt(obj_carInfo.pbat),
-			str_power = '剩余电量&nbsp;&nbsp;：<font class="fontColor">' + n_power + '%</font>',	// 电池电量 0-100
-			str_titlePower = '剩余电量：' + n_power ;
+			str_power =  n_power + '%',	// 电池电量 0-100
 			str_pImg = dlf.fn_changeData('power', n_power), // 电量图标
 			n_gsm = obj_carInfo.gsm,	// gsm 值
-			str_gsm = 'GSM 信号&nbsp;&nbsp;：<font class="fontColor">' + dlf.fn_changeData('gsm', n_gsm) + '</font>',	// gsm信号
+			str_gsm = dlf.fn_changeData('gsm', n_gsm),	// gsm信号
 			n_gps = obj_carInfo.gps,	// gps 值
-			str_gps = 'GPS 信号&nbsp;&nbsp;：<font class="fontColor">' + dlf.fn_changeData('gps', n_gps) + '</font>';	// gps信号
+			str_gps = dlf.fn_changeData('gps', n_gps);	// gps信号
 		// 终端状态
-		$('#power').css('background-image', str_pImg).html(str_power).attr('title', str_titlePower );// 电池电量填充
-		$('#GSM').html(str_gsm).attr('title', 'GSM 信号强度：' + n_gsm);
-		$('#g_word').html(str_gps);
-		//$('#GPS').html(str_gps).attr('title', 'GPS 信号强度：' + n_gps);
-		$('#defend_word').html(str_dStatus).data('defend', n_defendStatus);
-		$('#defendStatus').attr('title', str_dStatusTitle);
-		$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
-		$('#tmobile').html(str_htmlMobile).attr('title', str_titleMobile);
+		$('#powerContent').html(str_power);// 电池电量填充
+		$('#gsmContent').html(str_gsm);
+		$('#gpsContent').html(str_gps);
+		$('#defendContent').html(str_dStatus).data('defend', n_defendStatus);
+		$('#defendStatus').css('background-image', str_dImg).attr('title', str_dStatusTitle);
+		$('#tmobile').attr('title', str_titleMobile);
+		$('#tmobileContent').html(str_tmobile)
 	}
 	// 车辆信息/位置信息
 	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
-	//$('#address').html(str_address); // 最后一次定们地址
+	$('#address').html(str_address); // 最后一次定们地址
 	$('#degree').html(str_degree).attr('title', str_degreeTip);
 	$('#type').html(str_type); // 车辆定位类型
 	$('#lng').html(str_clon); // 车辆经度
@@ -525,7 +521,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 	var str_return = '';
 	if ( str_key == 'gsm' ) { // gsm 
 		var str_gsmImg = '',
-			obj_gsm = $('#GSM');
+			obj_gsm = $('#gsm');
 		if ( str_val >= 0 && str_val < 3 ) {
 			str_return = '弱';
 			str_gsmImg = 'url("/static/images/gsm1.png")';
@@ -537,27 +533,27 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			str_gsmImg = 'url("/static/images/gsm3.png")';
 		}
 		if ( obj_gsm ) {
-			obj_gsm.css('background-image', str_gsmImg);
+			obj_gsm.css('background-image', str_gsmImg).attr('title', 'GSM 信号强度：' + str_val);;
 		}
 	} else if ( str_key == 'gps' ) {	// gps 
 		var str_gpsImg = '',
-			obj_gps = $('#GPS');
+			obj_gps = $('#gps');
 		if ( str_val >= 0 && str_val < 10 ) {
 			str_return = '弱';
-			str_gpsImg = '/static/images/gps0.png';
+			str_gpsImg = 'gps0.png';
 		} else if ( str_val >= 10 && str_val < 20 ) {
 			str_return = '较弱';
-			str_gpsImg = '/static/images/gps1.png';
+			str_gpsImg = 'gps1.png';
 		} else if ( str_val >= 20 && str_val < 30 ) {
 			str_return = '较强';
-			str_gpsImg = '/static/images/gps2.png';
+			str_gpsImg = 'gps2.png';
 		} else if ( str_val >= 30 ) {
 			str_return = '强';
-			str_gpsImg = '/static/images/gps3.png';
+			str_gpsImg = 'gps3.png';
 		}
+		str_gpsImg = 'url("/static/images/'+ str_gpsImg +'")';
 		if ( obj_gps ) {
-			obj_gps.attr('src', str_gpsImg); // 终端最后一次设防状态
-			$('#gps').attr('title', 'GPS信号：' + str_val);
+			obj_gps.css('background-image', str_gpsImg).attr('title', 'GPS信号：' + str_val);
 		}
 	} else if ( str_key == 'power' ) {
 		var arr_powers = [0,10,20,30,40,50,60,70,80,90,100],
@@ -571,6 +567,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 				break;
 			}
 		}
+		$('#power').css('background-image', str_return).attr('title', '剩余电量：' + str_val );
 	} else if ( str_key == 'degree' ) {
 		var arr_degree = [355,5,40,50,85,95,130,140,175,185,220,230,265,275,310,320,355],
 			arr_desc  = ['正北','北偏东','东北','东偏北','正东','东偏南','东南','南偏东','正南','南偏西','西南','西偏南','正西','西偏北','西北','北偏西','正北'];
@@ -583,7 +580,8 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 				break;
 			}			
 		}
-	} else if ( str_key == 'vibl' ) {	// 参数设置中的震动灵敏度
+	}
+	/*else if ( str_key == 'vibl' ) {	// 参数设置中的震动灵敏度
 		if ( str_val >= 0 && str_val <= 2 ) {
 			str_return = '很灵敏';
 		} else if ( str_val >= 3 && str_val <= 5 ) {
@@ -591,7 +589,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		} else if ( str_val >= 6 && str_val <= 9 ) {
 			str_return = '一般灵敏';
 		}
-	}
+	}*/
 	return str_return;
 }
 /**查找相应tid下的数据*/
@@ -623,7 +621,7 @@ window.dlf.fn_eventText = function(n_eventNum) {
 			str_text = '低电';
 			break;
 		case 3:
-			str_text = '断电';
+			str_text = '关机';
 			break;
 		case 4:
 			str_text = '非法移动';
@@ -707,6 +705,16 @@ window.dlf.fn_showBusinessTip = function(str_type) {
 	});
 }
 /**
+* keyup：只能输入数字
+*/
+window.dlf.fn_onkeyUp = function() {
+	$('.j_onkeyup').unbind('keyup').bind('keyup', function() {
+		var obj_this = $(this),
+			str_val = obj_this.val().replace(/\D/g,'');
+		obj_this.val(str_val);
+	});
+}
+/**
 *POST方法的整合 defend,remote: lock,reboot
 *url: 要请求的URL地址
 *obj_data: 需要向后台发送的数据
@@ -726,23 +734,22 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 			if ( data.status == 0 ) {
 				if ( str_who == 'defend' ) {
 					// 修改左侧栏设防状态
-					var str_defendStatus = $('#defend_word').data('defend'),
+					var str_defendStatus = $('#defendContent').data('defend'),
 						str_html = '',
 						str_dImg = '',
 						n_defendStatus = 0;
 					if ( str_defendStatus == DEFEND_OFF ) { 
 						n_defendStatus = 1;
-						str_html = '设防状态：   <font class="fontColor">已设防</font>';
-						str_dImg= '/static/images/defend_status1.png';						
+						str_html = '已设防';
+						str_dImg= 'url("/static/images/defend_status1.png")';						
 					} else {
 					// 修改成功 状态改为：撤防
 						n_defendStatus = 0;
-						str_html = '设防状态：    <font class="fontColor">未设防</font>';
-						str_dImg=  '/static/images/defend_status0.png';
+						str_html = '未设防';
+						str_dImg=  'url("/static/images/defend_status0.png")';
 					}
-					$('#defend_word').html(str_html).data('defend', n_defendStatus);
-					$('#defendStatus').attr('title', str_html);
-					$('#defend_status').attr('src', str_dImg); // 终端最后一次设防状态
+					$('#defendContent').html(str_html).data('defend', n_defendStatus);
+					$('#defendStatus').css('background-image', str_dImg).attr('title', str_html);
 				}
 				dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
@@ -768,10 +775,10 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 	var obj_cWrapper = $('#'+str_who+'Wrapper'), 
 		obj_content = $('.'+str_who+'Content');
-
-	dlf.fn_jNotifyMessage(str_msg+'...<img src="/static/images/blue-wait.gif" />', 'message', true);
-	dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩
-	
+	if ( str_who != 'whitelistPop' ) {
+		dlf.fn_jNotifyMessage(str_msg+'...<img src="/static/images/blue-wait.gif" />', 'message', true);
+		dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩
+	}	
 	$.put_(url, JSON.stringify(obj_data), function (data) {
 		var f_warpperStatus = !obj_cWrapper.is(':hidden');
 		if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,不进行后续操作
@@ -784,14 +791,15 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 						if ( str_name.length > 4 ) {
 							str_newName = str_name.substr(0,4)+'...';
 						}
-						$('.welcome').html('欢迎您，'+ str_newName).attr('title', str_name);
+						$('#spanWelcome').html('欢迎您，'+ str_newName).attr('title', str_name);
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
-				}
-				if ( str_who == 'terminal' ) {
+				} else if ( str_who == 'terminal' ) {
 					dlf.fn_updateAlias();
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					//dlf.fn_initTerminalWR();
+				} else if ( str_who == 'whitelistPop' ) {
+					$('#whitelistPopWrapper').hide();
 				} else if ( str_who == 'sms' ) {
 					for ( var param in obj_data ) {
 						var str_val = obj_data[param];
@@ -801,14 +809,16 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				}				
+				}
 			} else if ( data.status == 201 ) {
 				dlf.fn_showBusinessTip();
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', true);
 			}
 		}
-		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+		if ( str_who != 'whitelistPop' ) {
+			dlf.fn_unLockContent(); // 清除内容区域的遮罩
+		}
 	}, 
 	function(XMLHttpRequest, textStatus, errorThrown) {
 		dlf.fn_serverError(XMLHttpRequest);
