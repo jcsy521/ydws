@@ -168,7 +168,10 @@ $(function () {
 	}
 	
 	$.ajaxSetup({ cache: false }); // 不保存缓存
-	
+   // 屏蔽鼠标右键相关功能 
+	$(document).bind('contextmenu', function (e) { 
+		return false; 
+	}); 
 	// 调整页面大小
 	var n_windowHeight = $(window).height(),
 		n_windowWidth = $(window).width(),

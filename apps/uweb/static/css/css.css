@@ -252,26 +252,11 @@ body {
 	background-repeat: no-repeat;
 	background-position: 168px center;
 }
-/*(
-.defend_status1 {
-	display: inline-block;
-	height: 17px;
-	width: 15px;
-	background: url('/static/images/defend_status1.png') no-repeat 168px center;
-	_background-image: none;
-	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/defend_status1.png',sizingMethod='scale');
+.tInfoWord {
+	text-align: right;
+    width: 60px;
 	float: left;
 }
-.defend_status0 {
-	display: inline-block;
-	height: 17px;
-	width: 15px;
-	background: url('/static/images/defend_status1.png') no-repeat 168px center;
-	_background-image: none;
-	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/defend_status1.png',sizingMethod='scale');
-	float: left;
-}
-*/
 #gsm {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;
 }
@@ -299,7 +284,6 @@ body {
 	min-width: 1028px;
 	min-height: 566px;
 }
-
 .menu a {
 	display: inline-block;
 	height: 36px;
@@ -410,7 +394,7 @@ body {
 	background-position: 0px -137px;
 }
 .personalTitle {
-	background-position: 0px -103px;
+	background-position: 0px -102px;
 }
 .smsTitle {
 	background-position: 0px -34px;
@@ -851,7 +835,7 @@ body {
     text-decoration: none;
 }
 .POISearchWrapper .pClose {
-    left: 218px;
+    left: 213px;
     position: relative;
 	top: 3px;
 	+top: -1px; /*ie7*/
