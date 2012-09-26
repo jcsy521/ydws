@@ -797,7 +797,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 				} else if ( str_who == 'terminal' ) {
 					dlf.fn_updateAlias();
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
-					//dlf.fn_initTerminalWR();
+					dlf.fn_initTerminalWR();
 				} else if ( str_who == 'whitelistPop' ) {
 					$('#whitelistPopWrapper').hide();
 				} else if ( str_who == 'sms' ) {
