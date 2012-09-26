@@ -250,8 +250,11 @@ body {
 }
 .tInfoWord {   
 	text-align: right;
-    width: 75px;
+    width: 80px;
 	letter-spacing: 2px;
+}
+.tInfoWord label {
+	letter-spacing: 3px;
 }
 #gsm {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;
