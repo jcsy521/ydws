@@ -253,9 +253,7 @@ body {
 	background-position: 168px center;
 }
 .tInfoWord {
-	text-align: right;
-    width: 60px;
-	float: left;
+	letter-spacing: 2px;
 }
 #gsm {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;
