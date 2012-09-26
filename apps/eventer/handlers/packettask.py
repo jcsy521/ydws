@@ -8,6 +8,7 @@ from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 from helpers import lbmphelper
 from helpers.notifyhelper import NotifyHelper
+from helpers.urlhelper import URLHelper
 
 from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key 
@@ -189,15 +190,20 @@ class PacketTask(object):
                     sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
             else:
                 pass
-            if report.lon and report.lat:
+            if report.cLon and report.cLat:
                 #wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s%26width=800%26height=800%26zoom=17%26markers=%s,%s'
                 #wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
                 wap_url = 'http://api.map.baidu.com/staticimage?center=' +\
-                          str(report.lon/3600000.0) + ',' + str(report.lat/3600000.0) +\
+                          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
                           '&width=800&height=800&zoom=17&markers=' +\
-                          str(report.lon/3600000.0) + ',' + str(report.lat/3600000.0)
-                sms += u"点击" + wap_url
-
+                          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
+                tiny_url=URLHelper.get_tinyurl(wap_url)
+                if tiny_url:
+                    logging.info("[EVENTER] get tiny url successfully.  tiny_url:%s", tiny_url)
+                    sms += u"查看车辆位置点击" +  tiny_url 
+                else:
+                    logging.info("[EVENTER] get tiny url failed.")
+                    pass
             self.sms_to_user(report.dev_id, sms, user)
 
         self.notify_to_parents(report.category, report.dev_id, report)
