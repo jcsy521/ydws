@@ -136,9 +136,15 @@
 								<tr>
 									<td class="terminalTdL">振动频率:</td>
 									<td id="vibchk" class="j_ListVal j_vibchk"  t_val="0">
-										<input id="t_vibchk0"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk j_onkeyup" type="text"  maxlength="2" /><label class="lblVibchk">秒内振动</label>
-										<input id="t_vibchk1"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk j_onkeyup" type="text"  maxlength="2" />
-										次
+										<!--<input id="t_vibchk0"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk j_onkeyup" type="text"  maxlength="2" /><label class="lblVibchk">秒内振动</label>
+										<!--<input id="t_vibchk1"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk j_onkeyup" type="text"  maxlength="2" />次-->
+										<select id="t_vibchk" >
+											<option value="10:1">10秒振动1次</option>
+											<option value="10:2">10秒振动2次</option>
+											<option value="10:3">10秒振动3次</option>
+											<option value="10:4">10秒振动4次</option>
+											<option value="10:5">10秒振动5次</option>
+										</select>
 									</td>
 								</tr>
 								<tr>
@@ -202,25 +208,25 @@
 			<span class="smsTip">请选择想要的短信通知项：</span>
 				<ul class="smsList">
 					<li>
-						<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">爱车保低电告警</label> 
+						<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">低电告警</label> 
 					</li>
 					<li>
-						<input type="checkbox" id="poweroff" class="j_checkbox" title="断电" /><label for="poweroff">爱车保断电告警</label> 
+						<input type="checkbox" id="poweroff" class="j_checkbox" title="断电" /><label for="poweroff">断电告警</label> 
 					</li>
 					<li>
-						<input type="checkbox" id="sos" class="j_checkbox" title="SOS" /><label for="sos">爱车保SOS告警</label> 
+						<input type="checkbox" id="sos" class="j_checkbox" title="SOS" /><label for="sos">SOS告警</label> 
 					</li>
 					<li>
-						<input type="checkbox" id="illegalmove" class="j_checkbox" title="非法移动" /><label for="illegalmove">爱车保非法移动告警</label> 
+						<input type="checkbox" id="illegalmove" class="j_checkbox" title="非法移动" /><label for="illegalmove">非法移动告警</label> 
 					</li>
 					<li>
-						<input type="checkbox" id="charge" class="j_checkbox" title="卡号余额" /><label for="charge">爱车保卡号余额提醒</label> 
+						<input type="checkbox" id="charge" class="j_checkbox" title="卡号余额" /><label for="charge">卡号余额提醒</label> 
 					</li>
 					<li>
-						<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">爱车保平台登录提醒</label> 
+						<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">平台登录提醒</label> 
 					</li>
 					<li>
-						<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="通讯异常" /><label for="heartbeat_lost">爱车保通讯异常提醒</label>
+						<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="通讯异常" /><label for="heartbeat_lost">通讯异常提醒</label>
 					</li>
 				</ul>
 				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />

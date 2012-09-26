@@ -14,7 +14,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_iconType, str_operation, n_index)),  // 创建信息窗口对象;
 		marker = null,
 		label = new BMap.Label(obj_location.alias, {offset:new BMap.Size(31, 22)}); // todo  tid >>  别名
-	label.setStyle({background: '#FFFFFF', fontSize: '13px', height: '20px', borderColor: '#000', lineHeight: '24px',opacity: '0.7','paddingLeft': '5px','paddingRight': '5px', 'color': '#2ACB05'});
+	label.setStyle({'backgroundColor': '#000000', 'fontSize': '13px', 'height': '20px','borderWidth':'0px','borderColor': '#000',
+	'opacity': '0.55','filter': 'alpha(opacity=50)','lineHeight': '20px','behavior': 'url("static/css/PIE.htc")','borderRadius': '6px','paddingLeft': '5px','paddingRight': '5px', 'color': '#ffffff'});
 	if ( str_iconType == 'start' ) {
 		str_imgUrl = '/static/images/green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {

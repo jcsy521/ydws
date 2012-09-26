@@ -69,11 +69,12 @@ ul, li {
 	line-height: 25px;
 	font-size: 12px;
 	border: 1px solid #99bad0;
-	width: 170px;
+	width: 160px;
+	padding: 0px 5px;
 	background-color: #FFF;
 }
 #captcha {
-	width: 80px;
+	width: 70px;
 }
 .loginFormContent ul{
 	font-size: 13px;
@@ -87,11 +88,12 @@ ul, li {
 }
 .captchaImg {
 	height: 25px;
-    margin-left: 3px;
+    margin-left: 0px;
     position: relative;
-    top: 12px;
+    top: 10px;
 	*top: 6px;
-    width: 82px;
+    width: 83px;
+	cursor: pointer;
 }
 .loginFormContent .commit {
 	border: none;
@@ -100,7 +102,7 @@ ul, li {
     display: inline-block;
     height: 34px;
     width: 105px;
-	margin-left: 40px;
+	margin-left: 47px;
 }
 .txtColor {
 	color: #583C32;

@@ -112,7 +112,7 @@ body {
 }
 #tInfo {
 	float: left;
-	padding: 10px 10px 10px 20px;
+	padding: 10px 10px 10px 17px;
 }
 #cInfo {
 	float: left;
@@ -225,10 +225,6 @@ body {
 .green {
 	color: green;
 }
-.BMapLabel {
-	opacity: 0.7;
-	filter: alpha(opacity=70);
-}
 #carList span {
 	line-height: 22px;
 	text-align: left;
@@ -252,7 +248,9 @@ body {
 	background-repeat: no-repeat;
 	background-position: 168px center;
 }
-.tInfoWord {
+.tInfoWord {   
+	text-align: right;
+    width: 75px;
 	letter-spacing: 2px;
 }
 #gsm {
@@ -573,11 +571,6 @@ body {
     text-align: right;
     width: 60px;
 }
-.smsList  {
-	line-height: 37px;
-    list-style: none outside none;
-    margin-left: 26px;
-}
 .pwdList {
 	height: 144px;
 	margin-left: 20px;
@@ -600,13 +593,15 @@ body {
 }
 #smsWrapper #smsContent {
 	height: 400px;	/* 400px*/
-	width: 448px;
+	width: 357px;
 }
 .smsList {
-	padding: 7px 18px 0px 84px;
+	padding: 7px 18px 0px 53px;
 	display: inline;
 	float: left;
 	width: 256px;
+	line-height: 37px;
+    list-style: none outside none;
 }
 .smsList li {
 	float: left;
@@ -616,15 +611,18 @@ body {
 	width: 200px;
 }
 .smsButton {
-    left: 323px;
+    left: 243px;
     position: absolute;
     top: 347px;
 }
 .smsTip {
 	display: inline-block;
     line-height: 22px;
-    padding: 30px 18px 10px 71px;
+    padding: 30px 18px 10px 27px;
     text-align: left;
+}
+#smsWrapper .close {
+	left: 333px;
 }
 	/* terminal dialog */
 #terminalWrapper {
@@ -667,7 +665,7 @@ body {
 	width: 87px;
 	text-align: right;
 }
-#t_vibl, #t_freq {
+#t_vibl, #t_freq, #t_vibchk {
 	width: 130px;
 	margin-left: 10px;
 	height: 22px;

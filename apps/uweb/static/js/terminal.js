@@ -18,9 +18,9 @@ window.dlf.fn_initTerminal = function() {
 		if ( str_val == 0 ) {
 			str_oldVal = str_oldVal=='0'?'':str_oldVal;
 			obj_freq.val(str_oldVal);
-			obj_freq.attr('disabled', true).css({'background': '#F2F2F2'});
+			obj_freq.attr('disabled', true);
 		} else {
-			$('#t_freq').attr('disabled', false).css({'background': '#FFF'});
+			$('#t_freq').attr('disabled', false);
 		}
 	});
 	// j_keyup : 只能输入数字
@@ -47,7 +47,7 @@ window.dlf.fn_initTerminalWR = function () {
 						// 如果轨迹上报为关闭状态  上报间隔不可编辑
 						if ( param == 'trace' ) {
 							if ( str_val == 0 ) {
-								$('#t_freq').attr('disabled', true).css({'background': '#F2F2F2'});
+								$('#t_freq').attr('disabled', true);
 							} else {
 								$('#t_freq').attr('disabled', false);
 							}
@@ -66,11 +66,7 @@ window.dlf.fn_initTerminalWR = function () {
 							obj_oriWhitelist.attr('t_val', str_value);	// save original value
 							
 						}
-					} else if ( param == 'vibchk' ) {	// 震动频率
-						var arr_vibchk = str_val.split(':');
-						$('#t_vibchk0').val(arr_vibchk[0]);
-						$('#t_vibchk1').val(arr_vibchk[1]);
-					} else if ( param == 'vibl' || param == 'freq' ) {		// 震动灵敏度   上报间隔
+					} else if ( param == 'vibl' || param == 'freq' || param == 'vibchk' ) {		// 震动灵敏度   上报间隔
 						$('#t_' + param).val(str_val);
 					} else {
 						if ( param == 'alias' || param == 'cnum' ) {
@@ -142,8 +138,8 @@ window.dlf.fn_baseSave =function() {
 				obj_terminalData[str_key] = parseInt(str_radio);
 			}
 		} else if ( str_class.search('j_vibchk') != -1 ) {
-			var str_vibchk = $('#t_vibchk0').val() + ':' + $('#t_vibchk1').val();
-			if ( str_vibchk != str_t_val ) {
+			var str_vibchk = $('#t_vibchk').val();
+			if ( str_t_val != str_vibchk ) {
 				obj_terminalData['vibchk'] = str_vibchk; 
 			}
 		} else if ( str_class.search('j_vibl') != -1 ) {
