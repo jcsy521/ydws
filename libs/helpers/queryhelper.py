@@ -144,3 +144,13 @@ class QueryHelper(object):
                           tmobile) 
         return terminal
 
+
+    @staticmethod
+    def get_white_list_by_tid(tid, db):
+        """Get white list throught tid.
+        """
+        whitelist = db.query("SELECT mobile"
+                             "  FROM T_WHITELIST"
+                             "  WHERE tid = %s LIMIT 1",
+                             tid) 
+        return whitelist

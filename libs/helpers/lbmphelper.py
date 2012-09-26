@@ -117,9 +117,10 @@ def handle_location(location, redis, cellid=False, db=None):
 
     if location and location.lat and location.lon:
         location.cLat, location.cLon = get_clocation_from_ge(location)
-        if (location['t'] == EVENTER.INFO_TYPE.REPORT or
-            location['command'] == GATEWAY.T_MESSAGE_TYPE.LOCATIONDESC):
-            location.name = get_location_name(location, redis)
+        #if (location['t'] == EVENTER.INFO_TYPE.REPORT or
+        #    location['command'] == GATEWAY.T_MESSAGE_TYPE.LOCATIONDESC):
+        # NOTE: change it temporarily: in platform get loction name of all
+        location.name = get_location_name(location, redis)
 
     if location['t'] == EVENTER.INFO_TYPE.POSITION:
         location.category = EVENTER.CATEGORY.REALTIME

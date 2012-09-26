@@ -179,7 +179,14 @@ class PacketTask(object):
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
                 sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.EMERGENCY:
-                sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
+                whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
+                if whitelist:
+                    white_str = ','.join(white['mobile'] for white in whitelist) 
+                    sms = SMSCode.SMS_SOS_OWNER % (name, white_str, report_name, terminal_time)
+                    sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
+                    self.sms_to_whitelist(sms_white, whitelist)
+                else:
+                    sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
             else:
                 pass
 
@@ -236,6 +243,14 @@ class PacketTask(object):
 
         if user:
             SMSHelper.send(user.owner_mobile, sms)
+
+    def sms_to_whitelist(self, sms, whitelist=None):
+        if not sms:
+            return
+
+        if whitelist:
+            for white in whitelist:
+                SMSHelper.send(white['mobile'], sms)
 
 
     def notify_to_parents(self, category, dev_id, location):
