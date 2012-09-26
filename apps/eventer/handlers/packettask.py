@@ -196,7 +196,7 @@ class PacketTask(object):
                 wap_url = 'http://api.map.baidu.com/staticimage?center=' +\
                           str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
                           '&width=800&height=800&zoom=17&markers=' +\
-                          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
+                          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
                 tiny_url=URLHelper.get_tinyurl(wap_url)
                 if tiny_url:
                     logging.info("[EVENTER] get tiny url successfully.  tiny_url:%s", tiny_url)
