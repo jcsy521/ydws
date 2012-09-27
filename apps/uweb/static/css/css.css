@@ -508,10 +508,6 @@ body {
 	height: 120px;
 	width: 456px;
 }
-.businessTitle {
-	background: url('/static/images/yegbtitle.png') no-repeat;
-	width: 456px;
-}
 .businessContent {
 	background-color: #ffffff;
 	height: 85px;
