@@ -334,7 +334,7 @@ class GFBase(object):
                             r_key = ("%s%s" % (sp.gfbody.Terminal_id, clw.head.command)).replace(' ','')
                             r_value = {'callback':request['callback'],
                                        'timestamp':time()}
-                            if self.wait_response_queue.get('r_key'):
+                            if self.wait_response_queue.has_key(r_key):
                                 self.wait_response_queue[r_key].append(r_value)
                             else:
                                 self.wait_response_queue[r_key] = [r_value,]
@@ -357,6 +357,7 @@ class GFBase(object):
                     infds, _, _ = select.select([self.__sock], [], [], 1)
                     if len(infds) > 0:
                         response = self.recv_response()
+                        logging.info('[GF] Recv whole packet: %s', response)
 
                         gf = GFCheck(response)
                         gfheads = gf.heads
