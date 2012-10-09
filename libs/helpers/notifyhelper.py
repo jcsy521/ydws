@@ -13,6 +13,7 @@ from urllib import urlencode
 from tornado.escape import json_decode, json_encode
 
 from utils.dotdict import DotDict 
+from helpers.confhelper import ConfHelper
 
 class NotifyHelper(object):
     @staticmethod
@@ -31,56 +32,68 @@ class NotifyHelper(object):
     
     @staticmethod
     def push_to_android(category, uid, tid, t_alias, location, key):
-         """Push info fo android by the means of ANPS
-         """
-         # part 1: android-push 
-         #NOTE: for it's invalid most time, so close it.
-         h = httplib2.Http()
-         push_info = NotifyHelper.get_push_info()
-         alias=uid
-         ret = DotDict(tid=tid,
-                       category=category,
-                       longitude=location.lon,
-                       latitude=location.lat,
-                       clongitude=location.cLon,
-                       clatitude=location.cLat,
-                       name=location.name if location.name else '',
-                       timestamp=location.timestamp,
-                       speed=float(location.speed),
-                       degree=float(location.degree),
-                       type=location.type,
-                       alias=t_alias)
+        """Push info fo android by the means of ANPS
+        """
+        # part 1: android-push 
+        #NOTE: because it's invalid most time, so close it.
+        h = httplib2.Http()
+        push_info = NotifyHelper.get_push_info()
+        alias=uid
+        ret = DotDict(tid=tid,
+                      category=category,
+                      longitude=location.lon,
+                      latitude=location.lat,
+                      clongitude=location.cLon,
+                      clatitude=location.cLat,
+                      name=location.name if location.name else '',
+                      timestamp=location.timestamp,
+                      speed=float(location.speed),
+                      degree=float(location.degree),
+                      type=location.type,
+                      alias=t_alias)
     
-         msg=str(json_encode(ret)) 
-         url = "http://www.android-push.com/api/send/?secret=%s&app_key=%s&client_ids=&alias=%s&msg=%s" % (push_info.secret, push_info.app_key, alias, msg)
-         #response, content = h.request(url) 
-         #logging.info("the push url: \n%s,\nthe response: %s", url, content) 
+        msg=str(json_encode(ret)) 
+        #url = "http://www.android-push.com/api/send/?secret=%s&app_key=%s&client_ids=&alias=%s&msg=%s" % (push_info.secret, push_info.app_key, alias, msg)
+        #response, content = h.request(url) 
+        #logging.info("the push url: \n%s,\nthe response: %s", url, content) 
     
-         # part 2: openfire push 
-         import subprocess
-         msg_json=json_encode(ret)
-         msg = "curl -d uid=%s -d key=%s -d body='%s' http://drone-003:8005/DbPush/push" % (uid, key, msg_json) 
-         subprocess.call(msg,shell=True)
+        ## part 2: openfire push 
+        #import subprocess
+        #msg_json=json_encode(ret)
+        #msg = "curl -d uid=%s -d key=%s -d body='%s' http://drone-003:8005/DbPush/push" % (uid, key, msg_json) 
+        #subprocess.call(msg,shell=True)
+
+        headers = {"Content-type": "application/x-www-form-urlencoded; charset=utf-8"}
+        url = ConfHelper.OPENFIRE_CONF.push_url 
+        data = DotDict(uid=uid,
+                       key=key,
+                       body=msg)
+        response, content = h.request(url, 'POST', body=urlencode(data), headers=headers)
+        ret = json_decode(content)
+        if ret['status'] == 0:
+            logging.info("Push to Android success! Message: %s", ret['message'])
+        else:
+            logging.error("Push to Android failed! Message: %s", ret['message'])
     
     @staticmethod
     def push_register(uid):
-         """Create a account for a user in openfire.
-         uid: in fact it's owner_mobile.
-         """ 
-         try:
-             h = httplib2.Http()
-             msg = DotDict(uid=uid)
-             msg={'uid':uid}
-             url_create = 'http://drone-003:8005/DbPush/accountCreate'
-             response, content = h.request(url_create, "POST", urlencode(msg),  headers={'Content-Type': 'application/x-www-form-urlencoded'})
-             res = DotDict(json_decode(content))
-             if res.status != 2:
-                 return res.key
-             else:
-                 return None
-         except Exception as e:
-             return None
-             logging.exception("Push register failed. Exception: %s", e.args)
+        """Create a account for a user in openfire.
+        uid: in fact it's owner_mobile.
+        """ 
+        try:
+            h = httplib2.Http()
+            msg = DotDict(uid=uid)
+            msg={'uid':uid}
+            url_create = ConfHelper.OPENFIRE_CONF.accountcreate_url 
+            response, content = h.request(url_create, "POST", urlencode(msg),  headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            ret = DotDict(json_decode(content))
+            if ret.status != 2:
+                return ret.key
+            else:
+                return None
+        except Exception as e:
+            return None
+            logging.exception("Push register failed. Exception: %s", e.args)
     
     @staticmethod
     def get_push_key(uid, redis):
