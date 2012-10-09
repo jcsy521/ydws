@@ -716,78 +716,84 @@ window.dlf.fn_onInputBlur = function() {
 	$('.j_onInputBlur').unbind('blur').bind('blur', function() {
 		$(this).removeClass('bListR_text_mouseFocus');
 		var $this = $(this),
+			obj_wrapper = $('#' + $this.attr('parent')),
+			str_status = obj_wrapper.is(':hidden'),
 			str_val = $this.val(),
 			str_msg = $this.attr('msg'),
 			n_maxLength = $this.attr('max'),
 			str_who = $this.attr('who'),
 			n_valLength = $.trim(str_val).replace(/[^\x00-\xff]/g, '^^').length;	// 一个汉字转换成2个字符
-		switch (str_who) {
-			case  'validateLength':
-				// 验证长度
-				if ( n_valLength > n_maxLength ) {
-					dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
-				} else {
-					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
-				}
-				break;
-			case 'mobile':
-				// 验证手机号
-				var reg =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/,
-					str_msg = '';
-				// 验证长度
-				if ( n_valLength == 0 ) {
-					str_msg = '';
-				} else if ( n_valLength > 14 || n_valLength < 11 ) {
-					str_msg = '您设置的车主号码不正确，请输入正确的手机号！'
-				} else {
-					if ( !reg.test(str_val) ) {
-						str_msg = '您设置的车主号码不正确，请输入正确的手机号！';
+		if ( str_status ) {
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+		} else {
+			switch (str_who) {
+				case  'validateLength':
+					// 验证长度
+					if ( n_valLength > n_maxLength ) {
+						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+					} else {
+						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
-				}
-				if ( str_msg != '' ) {
-					dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
-				} else {
-					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
-				}
-				break;
-			case 'email': 
-				// 验证email
-				var reg =  /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
-					str_msg = '';
-				// 验证长度
-				if ( n_valLength == 0 ) {
-					str_msg = '';
-				} else if ( n_valLength > n_maxLength ) {
-					str_msg = '邮箱的最大长度是255个字符！'
-				} else {
-					if ( !reg.test(str_val) ) {
-						str_msg = '您输入的邮箱格式不正确！';
+					break;
+				case 'mobile':
+					// 验证手机号
+					var reg =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/,
+						str_msg = '';
+					// 验证长度
+					if ( n_valLength == 0 ) {
+						str_msg = '';
+					} else if ( n_valLength > 14 || n_valLength < 11 ) {
+						str_msg = '您设置的车主号码不正确，请输入正确的手机号！'
+					} else {
+						if ( !reg.test(str_val) ) {
+							str_msg = '您设置的车主号码不正确，请输入正确的手机号！';
+						}
 					}
-				}
-				if ( str_msg != '' ) {
-					dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
-				} else {
-					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
-				}
-				break;
-			case 'name':
-				// 验证车主姓名
-				var reg =  /^[a-zA-Z0-9_\u4e00-\u9fa5 ]+$/,
-					str_msg = '';
-				// 验证长度
-				if ( n_valLength > n_maxLength ) {
-					str_msg = '车主姓名的最大长度是20个字符！'
-				} else {
-					if ( !reg.test(str_val) ) {
-						str_msg = '车主姓名只能是由数字、英文、下划线或中文组成！';
+					if ( str_msg != '' ) {
+						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+					} else {
+						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
-				}
-				if ( str_msg != '' ) {
-					dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
-				} else {
-					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
-				}
-				break;
+					break;
+				case 'email': 
+					// 验证email
+					var reg =  /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
+						str_msg = '';
+					// 验证长度
+					if ( n_valLength == 0 ) {
+						str_msg = '';
+					} else if ( n_valLength > n_maxLength ) {
+						str_msg = '邮箱的最大长度是255个字符！'
+					} else {
+						if ( !reg.test(str_val) ) {
+							str_msg = '您输入的邮箱格式不正确！';
+						}
+					}
+					if ( str_msg != '' ) {
+						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+					} else {
+						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+					}
+					break;
+				case 'name':
+					// 验证车主姓名
+					var reg =  /^[a-zA-Z0-9_\u4e00-\u9fa5 ]+$/,
+						str_msg = '';
+					// 验证长度
+					if ( n_valLength > n_maxLength ) {
+						str_msg = '车主姓名的最大长度是20个字符！'
+					} else {
+						if ( !reg.test(str_val) ) {
+							str_msg = '车主姓名只能是由数字、英文、下划线或中文组成！';
+						}
+					}
+					if ( str_msg != '' ) {
+						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+					} else {
+						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+					}
+					break;
+			}
 		}
  	});
  }

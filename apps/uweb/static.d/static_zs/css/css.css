@@ -564,7 +564,7 @@ body {
 	padding-top: 10px;
 }
 .personalContent {
-	height: 262px;
+	height: 285px;
 	padding-top: 10px;
 }
 .personalList {
@@ -576,12 +576,12 @@ body {
 	line-height: 27px;
 }
 .personalList input, .pwdList input {
-	height: 25px;
-	padding-left: 5px;
+	height: 20px;
+	padding: 5px;
 	border: 1px solid #99bad0;
 	background-color: #edf5f8;
 	float: left;
-	line-height: 25px;
+	line-height: 20px;
 }
 .personalList input {
 	width: 315px;
@@ -708,26 +708,32 @@ body {
 }
 #bListR input, #bListR label {
 	margin-left: 10px;
-	padding-left: 5px;
+	padding: 5px;
+}
+#trace input, #cellid_status input {
+	padding: 0px;
+}
+#trace label, #cellid_status label {
+	margin: 0px;
 }
 .bListR_text_mouseOut  {
 	background-color: #f3f9fa;
 	border: 1px solid #cdcdcd;
-	height: 28px;
-	line-height: 28px;
+	height: 20px;
+	line-height: 20px;
 	width: 240px;
 }
 .bListR_text_mouseOver {
 	background-color: #f3f9fa;
 	border: 2px groove #8E8E8E;
-	height: 28px;
-	line-height: 28px;
+	height: 20px;
+	line-height: 20px;
 	width: 240px;
 }
 .bListR_text_mouseFocus  {
 	border: 2px groove #7EC0EE;	
-	height: 28px;
-	line-height: 28px;
+	height: 20px;
+	line-height: 20px;
 	width: 240px;
 }
 .vibchk {

@@ -285,7 +285,7 @@ $(function () {
 	});
 	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
 	$('#txtAddress').formValidator().inputValidator({max: 255, onError: '地址过长，请重新输入！'});
-	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '你输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '你输入的邮箱格式不正确！'});
+	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '您输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '你输入的邮箱格式不正确！'});
 	$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});
 	$('#remark').formValidator().inputValidator({max: 255, onError: '备注过长，请重新输入！'});
 	// 密码进行验证
