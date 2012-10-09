@@ -9,6 +9,7 @@ window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#terminalWrapper').css({'left': '40%', 'top': '20%'}).show(); // 显示终端设置窗口	
 	dlf.fn_initTerminalWR(); // 初始化加载参数
+	dlf.fn_onInputBlur();	// input的blur事件初始化
 	// 轨迹上报开启状态：可以编辑上报间隔  反之不能编辑
 	$('.j_trace').unbind('click').bind('click', function() {
 		var obj_this = $(this),
@@ -23,8 +24,6 @@ window.dlf.fn_initTerminal = function() {
 			$('#t_freq').attr('disabled', false);
 		}
 	});
-	// j_keyup : 只能输入数字
-	dlf.fn_onkeyUp();
 }
 // 刷新终端参数、查询终端参数
 window.dlf.fn_initTerminalWR = function () {

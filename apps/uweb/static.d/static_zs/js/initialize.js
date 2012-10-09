@@ -490,7 +490,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( obj_selfMarker ) {
 		// 修改别名
 		if ( !str_alias ) {
-			str_alias = obj_carA.siblings('span').html()
+			str_alias = obj_carA.siblings('.j_currentCar').html()
 		}
 		obj_selfMarker.setLabel(obj_carA.data('selfLable'));
 		obj_selfMarker.getLabel().setContent(str_alias);
@@ -556,11 +556,16 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			obj_gps.css('background-image', str_gpsImg).attr('title', 'GPS信号：' + str_val);
 		}
 	} else if ( str_key == 'power' ) {
+		/*$('#pwoerSign').progressbar({value: str_val}); // 通过进度条实现电池电量效果
+		$('#pwoer').attr('title', '剩余电量：' + str_val );*/
 		var arr_powers = [0,10,20,30,40,50,60,70,80,90,100],
 			arr_img = ['power0.png','power1.png','power2.png','power3.png','power4.png','power5.png','power6.png','power7.png','power8.png','power9.png','power10.png'];
 		for ( var i = 0; i < arr_powers.length; i++ ) {
 			if ( str_val >= 0 && str_val <= 10 ) {
 				str_return = 'url("/static/images/power0.png")';
+				break;
+			} else if ( str_val == 100 ) {
+				str_return = 'url("/static/images/power10.png")';
 				break;
 			} else if ( str_val > arr_powers[i] && str_val <= arr_powers[i+1] ) {
 				str_return = 'url("/static/images/'+arr_img[i]+'")';
@@ -705,15 +710,85 @@ window.dlf.fn_showBusinessTip = function(str_type) {
 	});
 }
 /**
-* keyup：只能输入数字
+* input blur event
 */
-window.dlf.fn_onkeyUp = function() {
-	$('.j_onkeyup').unbind('keyup').bind('keyup', function() {
-		var obj_this = $(this),
-			str_val = obj_this.val().replace(/\D/g,'');
-		obj_this.val(str_val);
-	});
-}
+window.dlf.fn_onInputBlur = function() {
+	$('.j_onInputBlur').unbind('blur').bind('blur', function() {
+		$(this).removeClass('bListR_text_mouseFocus');
+		var $this = $(this),
+			str_val = $this.val(),
+			str_msg = $this.attr('msg'),
+			n_maxLength = $this.attr('max'),
+			str_who = $this.attr('who'),
+			n_valLength = $.trim(str_val).replace(/[^\x00-\xff]/g, '^^').length;	// 一个汉字转换成2个字符
+		switch (str_who) {
+			case  'validateLength':
+				// 验证长度
+				if ( n_valLength > n_maxLength ) {
+					dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+				} else {
+					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				}
+				break;
+			case 'mobile':
+				// 验证手机号
+				var reg =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/,
+					str_msg = '您设置的车主号码不正确，请输入正确的手机号！';
+				// 验证长度
+				if ( n_valLength > n_maxLength ) {
+					str_msg = '您设置的车主号码不正确，请输入正确的手机号！'
+				} else if ( n_valLength > 0 && n_valLength < 11 ) {
+					str_msg = '您设置的车主号码不正确，请输入正确的手机号！'					
+				} else {
+					if ( !reg.test(str_val) ) {
+						str_msg = '您设置的车主号码不正确，请输入正确的手机号！';
+					}
+				}
+				if ( str_msg != '' ) {
+					dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+				} else {
+					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				}
+				break;
+			case 'email': 
+				// 验证email
+				var reg =  /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
+					str_msg = '';
+				// 验证长度
+				if ( n_valLength > n_maxLength ) {
+					str_msg = '邮箱的最大长度是255个字符！'
+				} else {
+					if ( !reg.test(str_val) ) {
+						str_msg = '您输入的邮箱格式不正确！';
+					}
+				}
+				if ( str_msg != '' ) {
+					dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+				} else {
+					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				}
+				break;
+			case 'name':
+				// 验证车主姓名
+				var reg =  /^[a-zA-Z0-9_\u4e00-\u9fa5 ]+$/,
+					str_msg = '';
+				// 验证长度
+				if ( n_valLength > n_maxLength ) {
+					str_msg = '车主姓名的最大长度是20个字符！'
+				} else {
+					if ( !reg.test(str_val) ) {
+						str_msg = '车主姓名只能是由数字、英文、下划线或中文组成！';
+					}
+				}
+				if ( str_msg != '' ) {
+					dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+				} else {
+					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				}
+				break;
+		}
+ 	});
+ }
 /**
 *POST方法的整合 defend,remote: lock,reboot
 *url: 要请求的URL地址
@@ -853,7 +928,7 @@ window.dlf.fn_updateAlias = function() {
 		obj_selfMarker.selfInfoWindow.setContent(str_content);
 	}
 	obj_car.attr('title', str_alias);	// 
-	$(obj_car.siblings()[0]).html(str_alias).attr('title', str_alias);
+	obj_car.siblings('.j_currentCar').html(str_alias).attr('title', str_alias);
 }
 // 提示用户绑定终端车辆
 window.dlf.fn_showTerminalMsgWrp = function() {

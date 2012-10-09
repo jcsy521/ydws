@@ -17,7 +17,7 @@ var LASTINFO_URL = '/lastinfo'; //动态更新当前终端数据
 var LOGIN_URL = '/login'; // 登录
 var SMS_URL = '/smsoption'; // 短信告警参数
 /*常量*/
-var CHECK_INTERVAL = 1000; // 每N秒
+var CHECK_INTERVAL = 10000; // 每N秒
 var CHECK_PERIOD = 60000; // 总共执行的时间
 var INFOTIME = 15000; //动态更新的时间
 var CURRENT_TIMMER = null; // 定时器对象 

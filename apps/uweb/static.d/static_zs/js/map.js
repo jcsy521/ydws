@@ -159,7 +159,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, str_operation,
 	if ( str_alias ) { // 如果是轨迹回放 
 		str_title += str_alias;
 	} else {
-		str_title += $('#carList a[tid='+str_tid+']').siblings('span').html();
+		str_title += $('#carList a[tid='+str_tid+']').siblings('.j_currentCar').html();
 	}
 	str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 				'<li><label>速度： '+ speed+' km/h</label>'+

@@ -7,6 +7,7 @@
 window.dlf.fn_personalData = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#personalWrapper').css({'left': '40%', 'top': '22%'}).show();
+	dlf.fn_onInputBlur();
 	// 获取用户数据
 	dlf.fn_jNotifyMessage('用户信息查询中...<img src="/static/images/blue-wait.gif" />', 'message', true); 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
@@ -241,7 +242,7 @@ $(function () {
 	
 	dlf.fn_closeWrapper(); //吹出框关闭事件
 	// 弹出窗口
-	$('.j_drag').draggable({handle: 'h2', containment: 'body',
+	$('.j_drag').draggable({handle: '.wrapperTitle', containment: 'body',
 		drag: function(event, ui) {
 			var f_conStatus = !$('#jContentLock').is(':hidden');
 			if ( f_conStatus ) {
@@ -282,9 +283,9 @@ $(function () {
 			dlf.fn_personalSave();
 		}
 	});
-	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
+	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名的最大长度是20个字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
 	$('#txtAddress').formValidator().inputValidator({max: 255, onError: '地址过长，请重新输入！'});
-	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '你输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '你输入的邮箱格式不正确！'});
+	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '您输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '您输入的邮箱格式不正确！'});
 	$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});
 	$('#remark').formValidator().inputValidator({max: 255, onError: '备注过长，请重新输入！'});
 	// 密码进行验证
@@ -321,13 +322,13 @@ $(function () {
 		}
 	});
 	//$('#t_freq').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 4, onError: '上报频率最大长度为4位数字！'}).regexValidator({regExp: 'freq', dataType: 'enum', onError: '您设置的上报频率不正确，范围(15-3600秒)！'});
-	$('#t_pulse').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '心跳时间最大长度为4位数字！'}).regexValidator({regExp: 'pulse', dataType: 'enum', onError: '您设置的终端的心跳时间不正确，范围(1-1800秒)！'});;
+	//$('#t_pulse').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '心跳时间最大长度为4位数字！'}).regexValidator({regExp: 'pulse', dataType: 'enum', onError: '您设置的终端的心跳时间不正确，范围(1-1800秒)！'});;
 	
-	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});;
+	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的车主号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list_1', operateor: '!=', datatype: 'string', onError: '白名单2不能和白名单1相同'});
 	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号长度不能超过20个字符！'}); // 区分大小写
 	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名长度不能超过20个字符！'});  // 别名
-	$('#t_vibchk0').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
-	$('#t_vibchk1').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
+	//$('#t_vibchk0').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
+	//$('#t_vibchk1').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
 	// 如果没有车辆信息,提示用户
 	var n_carNum = $('#carList li').length;
 	if ( n_carNum > 0 ) {

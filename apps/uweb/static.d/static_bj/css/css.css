@@ -62,13 +62,14 @@ body {
 	float: left;
 	padding-top: 21px;
 }
+/*
 .help {
 	background: url('/static/images/helpIcon.png') no-repeat;
 	width: 17px;
 	height: 14px;
 	padding-left: 21px;
 	padding-top: 1px;
-}
+}*/
 /*main content start*/
 #main {
 	min-width: 1277px;
@@ -99,7 +100,7 @@ body {
 }
 /*left start*/
 #cars {
-	margin-top: 10px;
+	margin-top: 2px;
 }
 #cars, #carInfo, #terminalInfo, .updateTime {
 	float: left;
@@ -107,12 +108,12 @@ body {
 }
 #carList {
 	float: left;
-	padding: 15px 0px 10px 0px;
+	/*padding: 15px 0px 10px 0px;*/
 	width: 247px;
 }
 #tInfo {
 	float: left;
-	padding: 10px 10px 10px 13px;
+	padding: 10px 10px 10px 20px;
 }
 #cInfo {
 	float: left;
@@ -175,7 +176,7 @@ body {
 	line-height: 25px;
 }
 #carList li {
-	margin-left: 15px;
+	margin: 10px 0px 3px 15px;
 	text-align: center;
 	float: left;
 	width: 103px;
@@ -232,7 +233,12 @@ body {
 	word-wrap: break-word; 
 	word-break: normal; 
 }
-#cInfo tr, #tInfo li {
+#cInfo tr {
+	line-height: 23px;
+	width: 210px;
+	vertical-align: top;
+}
+#tInfo li {
 	line-height: 25px;
 	width: 210px;
 	vertical-align: top;
@@ -242,19 +248,23 @@ body {
 }
 .fontColor {
 	color: #126393;
-	padding-left: 10px;
+	padding-left: 3px;
 }
 #defendStatus, #power, #gps{
 	background-repeat: no-repeat;
 	background-position: 168px center;
 }
+#pwoerSign {
+	height: 10px;
+	margin-left: 50px;
+    width: 30px;
+}
 .tInfoWord {   
-	text-align: right;
-    width: 80px;
-	letter-spacing: 2px;
+	text-align: left;
+    width: 63px;
 }
 .tInfoWord label {
-	letter-spacing: 3px;
+	letter-spacing: 2px;
 }
 #gsm {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;
@@ -397,6 +407,7 @@ body {
 }
 .smsTitle {
 	background-position: 0px -34px;
+	width: 357px;
 }
 .terminalTitle {
 	background-position: 0px 0px;
@@ -450,6 +461,11 @@ body {
 	height: 120px;
 	width: 448px;
 }
+.waitingImg {
+	padding-top: 2px; 
+	position: relative;
+    top: 2px;
+}
 .currentContent, .defendContent {
 	background-color: #ffffff;
 	height: 84px;
@@ -457,7 +473,7 @@ body {
 .currentText {
     height: 84px;
     text-align: center;
-    width: 240px;
+    width: 262px;
 }
 #currentMsg {
 	font-size: 14px;
@@ -541,7 +557,7 @@ body {
 	padding-top: 10px;
 }
 .personalContent {
-	height: 246px;
+	height: 262px;
 	padding-top: 10px;
 }
 .personalList {
@@ -562,6 +578,15 @@ body {
 }
 .personalList input {
 	width: 315px;
+}
+#remark {
+	resize: none;
+    width: 310px;
+	height: 60px;
+	font-size: 12px;
+	border: 1px solid #99bad0;
+	background-color: #edf5f8;
+	padding: 5px;
 }
 .personalList label, .pwdList label {
 	display: inline-block;
