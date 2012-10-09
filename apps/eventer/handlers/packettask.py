@@ -9,6 +9,7 @@ from helpers.queryhelper import QueryHelper
 from helpers import lbmphelper
 from helpers.notifyhelper import NotifyHelper
 from helpers.urlhelper import URLHelper
+from helpers.confhelper import ConfHelper
 
 from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key 
@@ -148,9 +149,10 @@ class PacketTask(object):
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
         # save into database
-        self.update_terminal_info(report)
         lid = self.insert_location(report)
         fobid = report.get('fobid', None)
+        if fobid is not None:
+            self.update_terminal_info(report)
         self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, fobid)
             
         user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
@@ -193,17 +195,17 @@ class PacketTask(object):
             if report.cLon and report.cLat:
                 #wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s%26width=800%26height=800%26zoom=17%26markers=%s,%s'
                 #wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
-                wap_url = 'http://api.map.baidu.com/staticimage?center=' +\
-                          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
-                          '&width=320&height=480&zoom=17&markers=' +\
-                          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
-                tiny_url=URLHelper.get_tinyurl(wap_url)
+                #wap_url = 'http://api.map.baidu.com/staticimage?center=' +\
+                #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
+                #          '&width=320&height=480&zoom=17&markers=' +\
+                #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
+                url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + str(report.cLon/3600000.0) + '&clat=' + str(report.cLat/3600000.0)
+                tiny_url = URLHelper.get_tinyurl(url)
                 if tiny_url:
-                    logging.info("[EVENTER] get tiny url successfully.  tiny_url:%s", tiny_url)
-                    sms += u"查看车辆位置点击" +  tiny_url 
+                    logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
+                    sms += u"点击" + tiny_url + u" 查看车辆位置" 
                 else:
                     logging.info("[EVENTER] get tiny url failed.")
-                    pass
             self.sms_to_user(report.dev_id, sms, user)
 
         self.notify_to_parents(report.category, report.dev_id, report)

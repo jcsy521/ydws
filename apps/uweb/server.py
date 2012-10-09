@@ -52,6 +52,7 @@ from handlers.about import AboutHandler
 from handlers.instruction import WebInsHandler, AndroidInsHandler, IOSInsHandler, SMSInsHandler 
 from handlers.servicesterms import ServicesTermsHandler
 from handlers.helper import HelperHandler 
+from handlers.wapimg import WapImgHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -100,6 +101,9 @@ class Application(tornado.web.Application):
             (r"/ios/*", IOSHandler),
 
             (r"/register/*", RegisterHandler),
+            
+            # for wap
+            (r"/wapimg/*", WapImgHandler),
 
         ]
 

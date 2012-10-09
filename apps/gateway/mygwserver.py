@@ -671,15 +671,13 @@ class MyGWServer(object):
             head = info.head
             body = info.body
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
-                           domain="",
-                           agps_server="")
+                           domain="")
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
                 self.update_terminal_status(head.dev_id, address)
                 args.domain = ConfHelper.GW_SERVER_CONF.domain 
-                args.agps_server = ConfHelper.GW_SERVER_CONF.agps_server 
 
             hc = ConfigRespComposer(args)
             request = DotDict(packet=hc.buf,
