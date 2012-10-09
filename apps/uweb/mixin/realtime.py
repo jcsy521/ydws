@@ -127,7 +127,7 @@ class RealtimeMixin(BaseMixin):
                 
         ret = DotDict(status=ErrorCode.SUCCESS,
                       message='',
-                      location=DotDict())
+                      location=None)
 
         if (location and location.clatitude and location.clongitude):
             
@@ -156,6 +156,7 @@ class RealtimeMixin(BaseMixin):
                                            cellid=True,
                                            db=self.db)
 
+                ret.location = DotDict()
                 if location.get('cLat') and location.get('cLon'):
                     ret.location.latitude = location.lat
                     ret.location.longitude = location.lon
@@ -186,6 +187,8 @@ class RealtimeMixin(BaseMixin):
                         location = handle_location(location, self.redis,
                                                    cellid=False,
                                                    db=self.db)
+
+                        ret.location = DotDict()
                         if location.get('cLat') and location.get('cLon'):
                             ret.location.latitude = location.lat
                             ret.location.longitude = location.lon
