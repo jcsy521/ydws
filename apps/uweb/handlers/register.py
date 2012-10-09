@@ -65,7 +65,7 @@ class RegisterHandler(BaseHandler):
             captcha_key = get_captcha_key(umobile)
             captcha_old = self.redis.getvalue(captcha_key)
             if captcha_old:
-                if captcha == captcha_old:
+                if captcha == str(captcha_old):
                     terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db) 
                     if terminal:
                         status = ErrorCode.TERMINAL_ORDERED
@@ -86,6 +86,6 @@ class RegisterHandler(BaseHandler):
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] umobile:%s tmobile:%s register failed.  Exception: %s", 
-                              umobile, tmobile,e.args)
+                              umobile, tmobile, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
