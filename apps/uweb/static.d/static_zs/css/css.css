@@ -710,11 +710,9 @@ body {
 	margin-left: 10px;
 	padding: 5px;
 }
-#trace input, #cellid_status input {
-	padding: 0px;
-}
 #trace label, #cellid_status label {
 	margin: 0px;
+	padding: 0px;
 }
 .bListR_text_mouseOut  {
 	background-color: #f3f9fa;
