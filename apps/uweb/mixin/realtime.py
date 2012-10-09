@@ -147,6 +147,12 @@ class RealtimeMixin(BaseMixin):
                 location = DotDict(valid=GATEWAY.LOCATION_STATUS.FAILED,
                                    t=EVENTER.INFO_TYPE.POSITION, 
                                    dev_id=self.current_user.tid,
+                                   lat=0,
+                                   lon=0,
+                                   cLat=0,
+                                   cLon=0,
+                                   gps_time=int(time.time()),
+                                   type=1,
                                    speed=float(loc.speed) if loc else 0.0,
                                    degree=float(loc.degree) if loc else 0.0,
                                    name='',
@@ -168,6 +174,7 @@ class RealtimeMixin(BaseMixin):
                     ret.location.type = location.type
                     ret.location.tid = self.current_user.tid
                     ret.location.degree = float(location.degree)
+                    self.insert_location(location)
                 else:
                     ret.status = ErrorCode.LOCATION_CELLID_FAILED 
                     ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
