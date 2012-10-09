@@ -755,7 +755,9 @@ window.dlf.fn_onInputBlur = function() {
 				var reg =  /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
 					str_msg = '';
 				// 验证长度
-				if ( n_valLength > n_maxLength ) {
+				if ( n_valLength == 0 ) {
+					str_msg = '';
+				} else if ( n_valLength > n_maxLength ) {
 					str_msg = '邮箱的最大长度是255个字符！'
 				} else {
 					if ( !reg.test(str_val) ) {
