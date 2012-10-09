@@ -35,7 +35,6 @@ function fn_currentRequest(obj_pd) {
 		if ( n_status == 0  ) {
 			if ( postData.location ) {	// post拿到位置
 				fn_displayCurrentMarker(postData.location);
-				return;
 			} else {
 				// 每10秒发起一次get请求
 				var f_warpperStatus = !obj_cWrapper.is(':hidden');
