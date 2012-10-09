@@ -733,12 +733,10 @@ window.dlf.fn_onInputBlur = function() {
 			case 'mobile':
 				// 验证手机号
 				var reg =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/,
-					str_msg = '您设置的车主号码不正确，请输入正确的手机号！';
+					str_msg = '';
 				// 验证长度
-				if ( n_valLength > n_maxLength ) {
+				if ( n_valLength > 14 || n_valLength < 11 ) {
 					str_msg = '您设置的车主号码不正确，请输入正确的手机号！'
-				} else if ( n_valLength > 0 && n_valLength < 11 ) {
-					str_msg = '您设置的车主号码不正确，请输入正确的手机号！'					
 				} else {
 					if ( !reg.test(str_val) ) {
 						str_msg = '您设置的车主号码不正确，请输入正确的手机号！';

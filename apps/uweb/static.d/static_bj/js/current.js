@@ -57,7 +57,7 @@ function fn_currentRequest(obj_pd) {
 										if ( str_flagVal == GPS_TYPE ) {
 											if ( n_cellstatus == 1 ) {
 												// GPS定位失败, 3S发起基站
-												obj_msg.html('GPS没有信号，切换到基站定位'+str_img);
+												obj_msg.html('GPS没有信号，切换到基站定位 ' + str_img);
 												setTimeout(function () {
 													var obj_pd = { 'timestamp': new Date().getTime(), 'locate_flag': CELLID_TYPE };
 													fn_currentRequest(obj_pd);
@@ -77,7 +77,7 @@ function fn_currentRequest(obj_pd) {
 								if ( str_flagVal == GPS_TYPE ) {
 									if ( n_cellstatus == 1 ) {
 										// GPS定位失败, 3S发起基站
-										obj_msg.html('GPS没有信号，切换到基站定位'+str_img);
+										obj_msg.html('GPS没有信号，切换到基站定位 '+str_img);
 										setTimeout(function () {
 											var obj_pd = { 'timestamp': new Date().getTime(), 'locate_flag': CELLID_TYPE };
 											fn_currentRequest(obj_pd);
@@ -104,7 +104,7 @@ function fn_currentRequest(obj_pd) {
 			if ( str_flagVal == GPS_TYPE ) {
 				if ( n_cellstatus == 1 ) {
 					// GPS定位失败, 3S发起基站
-					obj_msg.html('GPS没有信号，切换到基站定位'+str_img);
+					obj_msg.html('GPS没有信号，切换到基站定位 '+str_img);
 					setTimeout(function () {
 						var obj_pd = { 'locate_flag': CELLID_TYPE };
 						fn_currentRequest(obj_pd);

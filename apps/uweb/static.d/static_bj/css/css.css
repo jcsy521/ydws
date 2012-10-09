@@ -176,11 +176,12 @@ body {
 	line-height: 25px;
 }
 #carList li {
-	margin: 10px 0px 3px 15px;
+	display: inline;
+	margin: 10px 0px 0px 15px;
+	padding-bottom: 8px;
 	text-align: center;
 	float: left;
 	width: 103px;
-	display: inline;
 }
 #carList li a {
 	text-decoration: none;
@@ -221,10 +222,16 @@ body {
 	color: #435871;
 }
 .gray {
-	color: gray;
+	clear: both;
+	color: gray;   
+	word-break: break-all;
+    word-wrap: break-word
 }
 .green {
+	clear: both;
 	color: green;
+	word-break: break-all;
+    word-wrap: break-word
 }
 #carList span {
 	line-height: 22px;
@@ -393,7 +400,7 @@ body {
 }
 .wrapperTitle {
 	height: 34px;
-	width: 456px;
+	width: 448px;
 	background: url('/static/images/acb-dialogTitle.png') no-repeat;
 }
 .currentTitle {
