@@ -39,14 +39,14 @@
 							<a href="#" title="{{car.alias}}" class="carlogin"  keys_num="{{car.keys_num}}"  tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" >
 								<img src="../static/images/car1.png" />
 							</a>
-							<span class="green">{{car.alias}}</span>
-							<font class="green">(在线)</font>
+							<div class="green j_currentCar">{{car.alias}}</div>
+							<div class="green">(在线)</div>
 						{% else %}
 							<a href="#" title="{{car.alias}}" class="carlogout"  keys_num="{{car.keys_num}}"  tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" >
 								<img src="../static/images/carout1.png" />
 							</a>
-							<span class="gray">{{car.alias}}</span>
-							<font class="gray">(离线)</font>
+							<div class="gray j_currentCar">{{car.alias}}</div>
+							<div class="gray">(离线)</div>
 						{% end %}
 					</li>
 				{% end  %}
@@ -71,6 +71,7 @@
 					</li>
 					<li id="power">
 						<span class="tInfoWord">剩余电量：</span><span class="fontColor" id="powerContent"></span>
+						<!--<span id="pwoerSign"></span>-->
 					</li>
 					<li id="gsm">
 						<span class="tInfoWord"><label>GSM</label>信号：</span><span class="fontColor" id="gsmContent"></span>

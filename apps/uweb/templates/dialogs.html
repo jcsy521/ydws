@@ -37,15 +37,15 @@
 		<div class="wrapperContent personalContent">
 			<form id="personalForm" >
 				<table class="personalList">
-					<tr><td><label>车主姓名：</label><input type="text" name="name" id="name" maxlength="11" class="j_personal" /></td>
+					<tr><td><label>车主姓名：</label><input type="text" name="name" id="name"  class="j_personal j_onInputBlur" max="20" who="name" msg="车主姓名只能是由数字、英文、下划线或中文组成！" /></td>
 					</tr>
 					<tr><td><label>车主电话：</label><font  id="phone"></font></td>
 					</tr>
-					<tr><td><label>地址：</label><input type="text" name="txtAddress" id="txtAddress"  class="j_personal" /></td></tr>
-					<tr><td><label>E-MAIL：</label><input type="text" name="email" id="email" class="j_personal" /></td></tr>
-					<tr><td><label>备注：</label><input type="text" name="remark" id="remark"  class="j_personal" /></td></tr>
+					<tr><td><label>地址：</label><input type="text" name="txtAddress" id="txtAddress"  class="j_personal j_onInputBlur" max="255" who="validateLength" msg="地址过长，请重新输入！"   /></td></tr>
+					<tr><td><label>E-MAIL：</label><input type="text" name="email" id="email" class="j_personal j_onInputBlur" msg="您输入的邮箱格式不正确！" max = "255"  who="email"  /></td></tr>
+					<tr><td><label>备注：</label><textarea name="remark" id="remark" class="j_personal j_onInputBlur" max="255" who="validateLength" msg="备注过长，请重新输入！"  ></textarea></td></tr>
 				</table>
-				<input type="submit" value="" id="personalSave" class="personalButton j_save" />
+				<input type="submit" value="" id="personalSave" class="personalButton j_save j_onInputBlur" />
 			</form>
 		</div>
 	</div><!--个人资料框end-->
@@ -96,13 +96,13 @@
 								<tr>
 									<td class="terminalTdL">终端别名:</td>
 									<td id="alias" class="j_ListVal"  t_val="">
-										<input id="t_alias" type="text" terminalkey="t_alias" class="bListR_text_mouseOut"  />
+										<input id="t_alias" type="text" terminalkey="t_alias" class="bListR_text_mouseOut j_onInputBlur" msg="终端别名长度不能超过20个字符！" max = "20"  who="validateLength"  />
 									</td>
 								</tr>
 								<tr>
 									<td class="terminalTdL">车牌号:</td>
 									<td id="cnum" class="j_ListVal"  t_val="">
-										<input type="text" id="t_cnum" terminalkey="cnum"  class="bListR_text_mouseOut" />
+										<input type="text" id="t_cnum" terminalkey="cnum"  class="bListR_text_mouseOut j_onInputBlur"  msg="车牌号长度不能超过20个字符！" max = "20"  who="validateLength"   />
 									</td>
 								</tr>
 								<tr>
@@ -115,7 +115,7 @@
 								<tr>
 									<td class="terminalTdL" ></td>
 									<td id="white_list_2"  class="j_ListVal j_whitelist j_white_list"  t_val="">
-										<input id="t_white_list_2"  terminalkey="owner_mobile" class="bListR_text_mouseOut j_onkeyup"  type="text"  maxlength="11" />
+										<input id="t_white_list_2"  terminalkey="owner_mobile" class="bListR_text_mouseOut j_onInputBlur"  type="text"  max="14"  msg="您设置的车主号码不正确，请输入正确的手机号！" who="mobile" />
 									</td>
 								</tr>
 								<tr>
