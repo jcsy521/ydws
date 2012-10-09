@@ -18,8 +18,48 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
 
     @authenticated
     @tornado.web.removeslash
-    @tornado.web.asynchronous
     def get(self):
+        """Get the latest usagle.
+        """
+        try: 
+            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO WHERE tid = %s", self.current_user.tid)
+
+            if not terminal:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The terminal with tid: %s is noexist, redirect to login.html", self.current_user.tid)
+                self.write_ret(status)
+                self.finish()
+                return
+
+            ret = self.get_realtime(self.current_user.uid, 
+                                    self.current_user.sim)
+            self.set_header(*self.JSON_HEADER)
+            self.write(json_encode(ret))
+        except Exception as e:
+            logging.exception("Failed to get location: %s, Sim: %s", 
+                               e.args, self.current_user.sim) 
+            status = ErrorCode.SERVER_BUSY  
+            self.write_ret(status)
+
+    @authenticated
+    @tornado.web.removeslash
+    @tornado.web.asynchronous
+    def post(self):
+        """Get a GPS location or cellid location.
+        workflow:
+        if gps:
+            try to get a gps location
+        elif cellid:
+            get a latest cellid and get a cellid location
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            self.finish()
+            return 
 
         current_query = DotDict() 
         current_query.timestamp = int(time())
@@ -27,19 +67,17 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
 
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
-            logging.error("The terminal with tid: %s is noexist, redirect to login.html", self.current_user.tid)
+            logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
             self.write_ret(status)
             self.finish()
             return
 
-        if terminal.cellid_status == UWEB.CELLID_STATUS.ON:
-            current_query.cellid_status = True 
-        else: 
-            current_query.cellid_status = False 
+        current_query.locate_flag = data.locate_flag
 
         logging.debug("Realtime query: %s", current_query)
         
         def _on_finish(realtime):
+            realtime['cellid_status'] = terminal.cellid_status
             self.set_header(*self.JSON_HEADER)
             self.write(json_encode(realtime))
             self.finish()

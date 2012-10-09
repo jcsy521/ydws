@@ -30,8 +30,8 @@ CHECK_TERMINAL=DotDict(TID=u'tid',
 DEFEND_STATUS=DotDict(NO=0,
                       YES=1)
 
-CELLID_STATUS=DotDict(OFF=0,
-                      ON=1)
+LOCATE_FLAG=DotDict(GPS=0,
+                    CELLID=1)
 
 SERVICE_STATUS=DotDict(OFF=0,
                        ON=1)
