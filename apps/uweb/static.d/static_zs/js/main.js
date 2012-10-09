@@ -242,7 +242,7 @@ $(function () {
 	
 	dlf.fn_closeWrapper(); //吹出框关闭事件
 	// 弹出窗口
-	$('.j_drag').draggable({handle: 'h2', containment: 'body',
+	$('.j_drag').draggable({handle: '.wrapperTitle', containment: 'body',
 		drag: function(event, ui) {
 			var f_conStatus = !$('#jContentLock').is(':hidden');
 			if ( f_conStatus ) {

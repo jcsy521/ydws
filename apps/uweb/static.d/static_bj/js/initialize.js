@@ -737,6 +737,8 @@ window.dlf.fn_onInputBlur = function() {
 				// 验证长度
 				if ( n_valLength > 14 || n_valLength < 11 ) {
 					str_msg = '您设置的车主号码不正确，请输入正确的手机号！'
+				} else if ( n_valLength == 0 ) {
+					str_msg = '';
 				} else {
 					if ( !reg.test(str_val) ) {
 						str_msg = '您设置的车主号码不正确，请输入正确的手机号！';
