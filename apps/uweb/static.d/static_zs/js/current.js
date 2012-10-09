@@ -2,10 +2,11 @@
 *实时定位相关操作方法
 * 设防撤防操作
 */
+var n_cellstatus;
 (function () {
 window.dlf.fn_currentQuery = function() {
 	$('#currentWrapper').show();
-	var obj_pd = {'cellid_status': 0};	// 第一次post发起gps定位
+	var obj_pd = {'locate_flag': 0};	// 第一次post发起gps定位
 	fn_currentRequest(obj_pd);
 	$('#currentBtn').unbind('click').click(function() {
 		dlf.fn_closeDialog(); // 窗口关闭
