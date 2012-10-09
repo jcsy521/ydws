@@ -51,21 +51,13 @@ from handlers.delegate import DelegationHandler, DelegationLogHandler
 
 from handlers.user import UserHandler, UserDownloadHandler
 
-from handlers.subscriber import SubscriberHandler, SubscriberDownloadHandler
 #from handlers.location import LocationHandler, LocationDownloadHandler
 from handlers.subscription import SubscriptionHandler, SubscriptionDownloadHandler
-from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler,\
-        BusinessCheckTMobileHandler, BusinessSearchHandler, BusinessListHandler,\
-        BusinessEditHandler, BusinessStopHandler, BusinessDeleteHandler
 from handlers.ecbusiness import ECBusinessHandler, ECBusinessCreateHandler, \
         ECBusinessListHandler, ECBusinessSearchHandler, ECBusinessEditHandler, \
         ECBusinessStopHandler, ECBusinessDeleteHandler, ECBusinessCheckMobileHandler, \
         ECBusinessCheckTMobileHandler, ECBusinessAsyncFillHandler
-from handlers.daily import DailyHandler, DailyDownloadHandler
-from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
-from handlers.group import GroupHandler, GroupDownloadHandler
 #from handlers.sms import SMSHandler, SMSDownloadHandler
-from handlers.sms import SMSRegisterHandler
 
 
 from handlers.misc import *
@@ -92,16 +84,6 @@ class Application(tornado.web.Application):
             (r"/administrator/me/*", AdministratorSelfEditHandler),           
             (r"/administrator/password/me/*", MyPasswordHandler),
             (r"/administrator/password/other/*", OtherPasswordHandler),
-
-            # business
-            (r"/business/create/*", BusinessCreateHandler),
-            (r"/business/checkmobile/(\S+)/*", BusinessCheckMobileHandler),
-            (r"/business/checktmobile/(\S+)/*", BusinessCheckTMobileHandler),
-            (r"/business/search/*", BusinessSearchHandler),
-            (r"/business/list/(\S+)/*", BusinessListHandler),
-            (r"/business/edit/(\S+)/*", BusinessEditHandler),
-            (r"/business/stop/(\S+)/(\S+)/*", BusinessStopHandler),
-            (r"/business/delete/(\S+)/(\S+)/*", BusinessDeleteHandler),
             
             # EC business
             (r"/ecbusiness/ec/*", ECBusinessHandler),
@@ -114,9 +96,6 @@ class Application(tornado.web.Application):
             (r"/ecbusiness/checkmobile/(\S+)/*", ECBusinessCheckMobileHandler),
             (r"/ecbusiness/checktmobile/(\S+)/*", ECBusinessCheckTMobileHandler),
             (r"/ecbusiness/asyncfill/*", ECBusinessAsyncFillHandler),
-
-            # SMS send
-            (r"/sms/register/*", SMSRegisterHandler),
 
             # privilege group
             (r"/privgroup/list/*", PrivGroupListHandler),
@@ -150,22 +129,14 @@ class Application(tornado.web.Application):
             (r"/download/subscription/(.*)/*", SubscriptionDownloadHandler),
 
             # statistic report
-            (r"/report/group/*", GroupHandler),
-            (r"/report/subscriber/*", SubscriberHandler),
             #(r"/report/location/*", LocationHandler),
-            (r"/report/monthly/*", MonthlyHandler),
-            (r"/report/daily/*", DailyHandler),
             #(r"/report/business/*", BusinessHandler),
             #(r"/report/sms/*", SMSHandler),
 
             # download the report
             #(r"/download/subscription/(.*)/*", SubscriptionDownloadHandler),
-            (r"/download/subscriber/(.*)/*", SubscriberDownloadHandler),
             #(r"/download/location/(.*)/*", LocationDownloadHandler),
-            (r"/download/monthly/(.*)/*", MonthlyDownloadHandler),
-            (r"/download/daily/(.*)/*", DailyDownloadHandler),
             #(r"/download/business/(.*)/*", BusinessDownloadHandler),
-            (r"/download/group/(.*)/*", GroupDownloadHandler),
             #(r"/download/sms/(.*)/*", SMSDownloadHandler),
         ]
 
