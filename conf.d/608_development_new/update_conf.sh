@@ -13,7 +13,7 @@ rm -rf sms
 rm -rf uweb/static
 rm -f uweb/templates/base.html
 rm -rf lbmp_sender
-ln -s sms.d/sms_bj sms
+ln -s sms.d/sms_zs sms
 ln -s lbmp_sender.d/lbmp_sender_bj lbmp_sender
 cd uweb/
 ln -s static.d/static_bj static
