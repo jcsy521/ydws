@@ -63,8 +63,8 @@ class EventHandler(BaseHandler):
             start_time = data.start_time
             end_time = data.end_time
             # the interval between start_time and end_time is one week
-            if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
-                self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
+            if (int(end_time) - int(start_time)) > UWEB.EVENT_QUERY_INTERVAL:
+                self.write_ret(ErrorCode.EVENT_QUERY_INTERVAL_EXCESS)
                 return
 
             if category == -1:

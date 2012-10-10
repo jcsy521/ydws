@@ -47,7 +47,10 @@ TERMINAL_CATEGORY = DotDict(ESPECIAL_GPS_TERMINAL=1,
                             GENERAL_TERMINAL=3)
 
 # the interval of query event, track: one week. in seconds.
-QUERY_INTERVAL = 7 * 24 * 60 * 60 
+EVENT_QUERY_INTERVAL = 7 * 24 * 60 * 60
+
+# the interval of track: one month. in seconds.
+TRACK_QUERY_INTERVAL = 31 * 24 * 60 * 60
 
 REMOTE_EVENT_COMMAND = DotDict(REBOOT='REBOOT', 
                                LOCK='LOCK')

@@ -30,8 +30,8 @@ class TrackHandler(BaseHandler):
 
         try:
             # the interval between start_time and end_time is one week
-            if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
-                self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
+            if (int(end_time) - int(start_time)) > UWEB.TRACK_QUERY_INTERVAL:
+                self.write_ret(ErrorCode.TRACK_QUERY_INTERVAL_EXCESS)
                 return
 
             track = self.db.query("SELECT latitude, longitude, clatitude,"
