@@ -162,8 +162,8 @@ class RealtimeMixin(BaseMixin):
                                            cellid=True,
                                            db=self.db)
 
-                ret.location = DotDict()
                 if location.get('cLat') and location.get('cLon'):
+                    ret.location = DotDict()
                     ret.location.latitude = location.lat
                     ret.location.longitude = location.lon
                     ret.location.clongitude = location.cLon
@@ -185,7 +185,7 @@ class RealtimeMixin(BaseMixin):
                 def _on_finish(response):
                     ret = DotDict(status=ErrorCode.SUCCESS,
                                   message='',
-                                  location=DotDict())
+                                  location=None)
                     response = json_decode(response)
 
                     if response['success'] == ErrorCode.SUCCESS:
@@ -195,8 +195,8 @@ class RealtimeMixin(BaseMixin):
                                                    cellid=False,
                                                    db=self.db)
 
-                        ret.location = DotDict()
                         if location.get('cLat') and location.get('cLon'):
+                            ret.location = DotDict()
                             ret.location.latitude = location.lat
                             ret.location.longitude = location.lon
                             ret.location.clongitude = location.cLon
