@@ -45,7 +45,8 @@ window.dlf.fn_personalData = function() {
 // 个人信息保存 
 window.dlf.fn_personalSave = function() { 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩	
-	var f_warpperStatus = !$('#personalWrapper').is(':hidden');
+	var f_warpperStatus = !$('#personalWrapper').is(':hidden'),
+		n_num = 0;
 	var obj_personalData = {};
 	$('.j_personal').each(function(index, dom) {
 		var obj_input = $(dom),
@@ -60,7 +61,17 @@ window.dlf.fn_personalSave = function() {
 			}
 		}
 	});
-	dlf.fn_jsonPut(PERSON_URL, obj_personalData, 'personal', '个人资料保存中');
+	
+	for(var param in obj_personalData) {
+		n_num = n_num +1;
+	}
+	if ( n_num != 0 ) {
+		dlf.fn_jsonPut(PERSON_URL, obj_personalData, 'personal', '个人资料保存中');
+	} else {
+		dlf.fn_jNotifyMessage('您未做任何修改！', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	}	
+	
 }
 
 //  修改密码框显示
@@ -285,7 +296,7 @@ $(function () {
 	});
 	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
 	$('#txtAddress').formValidator().inputValidator({max: 255, onError: '地址过长，请重新输入！'});
-	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '您输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '你输入的邮箱格式不正确！'});
+	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '您输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '您输入的邮箱格式不正确！'});
 	$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});
 	$('#remark').formValidator().inputValidator({max: 255, onError: '备注过长，请重新输入！'});
 	// 密码进行验证

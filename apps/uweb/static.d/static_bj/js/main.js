@@ -45,7 +45,8 @@ window.dlf.fn_personalData = function() {
 // 个人信息保存 
 window.dlf.fn_personalSave = function() { 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩	
-	var f_warpperStatus = !$('#personalWrapper').is(':hidden');
+	var f_warpperStatus = !$('#personalWrapper').is(':hidden'),
+		n_num = 0;
 	var obj_personalData = {};
 	$('.j_personal').each(function(index, dom) {
 		var obj_input = $(dom),
@@ -60,7 +61,16 @@ window.dlf.fn_personalSave = function() {
 			}
 		}
 	});
-	dlf.fn_jsonPut(PERSON_URL, obj_personalData, 'personal', '个人资料保存中');
+	for(var param in obj_personalData) {
+		n_num = n_num +1;
+	}
+	if ( n_num != 0 ) {
+		dlf.fn_jsonPut(PERSON_URL, obj_personalData, 'personal', '个人资料保存中');
+	} else {
+		dlf.fn_jNotifyMessage('您未做任何修改！', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	}	
+	
 }
 
 //  修改密码框显示

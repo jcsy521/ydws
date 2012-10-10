@@ -117,6 +117,7 @@ window.dlf.fn_baseSave =function() {
 	var f_warpperStatus = !$('#terminalWrapper').is(':hidden'), 
 		str_key = $('#bListSet').attr('terminalkey'), 
 		obj_terminalData = {},
+		n_num = 0,
 		obj_listVal = $('.j_ListVal'); // td t_val 
 	// 遍历 td 查找text和radio
 	$.each(obj_listVal, function(index, dom) {
@@ -166,6 +167,16 @@ window.dlf.fn_baseSave =function() {
 			}
 		}
 	});
-	dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中');
+	for(var param in obj_terminalData) {
+		n_num = n_num +1;
+	}
+	if ( n_num != 0 ) {
+		dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中');
+	} else {
+		dlf.fn_jNotifyMessage('您未做任何修改！', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	}
+	
+	//dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中');
 }
 })();
