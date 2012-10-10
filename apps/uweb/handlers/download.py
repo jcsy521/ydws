@@ -16,8 +16,10 @@ from codes.smscode import SMSCode
 from helpers.downloadhelper import get_version_info,\
      get_download_count, update_download_count
 from helpers.smshelper import SMSHelper
+from helpers.confhelper import ConfHelper
 from constants import DOWNLOAD
 from errors.updateerror import UpdateException, DataBaseException
+
 from base import BaseHandler, authenticated
 
 class DownloadHandler(BaseHandler):
@@ -59,7 +61,7 @@ class DownloadSmsHandler(BaseHandler):
             status = ErrorCode.WRONG_CAPTCHA
         else:
             version_info = get_version_info('android')
-            downloadurl = DOWNLOAD.URL.ANDROID % version_info.versionname
+            downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
             download_remind = SMSCode.SMS_DOWNLOAD_REMIND % downloadurl 
             SMSHelper.send(mobile, download_remind)
    
