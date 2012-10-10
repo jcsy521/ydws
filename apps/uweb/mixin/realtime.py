@@ -114,7 +114,7 @@ class RealtimeMixin(BaseMixin):
                 location = None
         else:
             # we should eventually search location from T_LOCATION
-            location = self.db.get("SELECT id, clatitude, clongitude, latitude,"
+            location = self.db.get("SELECT clatitude, clongitude, latitude,"
                                    "       longitude, name, timestamp, type, degree"
                                    "  FROM T_LOCATION"
                                    "  WHERE tid = %s"
