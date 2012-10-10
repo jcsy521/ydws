@@ -454,7 +454,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	var obj_tempData = [], 
 		str_currentTid = $('#carList a[class*=currentCar]').attr('tid'),
-		str_tid = obj_carInfo.tid,
+		str_tid = str_type == 'current' ? str_currentTid : obj_carInfo.tid,
 		str_alias = obj_carInfo.alias,
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
