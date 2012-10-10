@@ -8,6 +8,15 @@ class ErrorCode(object):
     FAILED = -1
 
     ILLEGAL_DATA_FORMAT = 120
+    ILLEGAL_ALIAS = 121
+    ILLEGAL_CNUM = 122
+    ILLEGAL_WHITELIST = 123
+    ILLEGAL_NAME = 124
+    ILLEGAL_ADDRESS = 125
+    ILLEGAL_EMAIL = 126
+    ILLEGAL_REMARK = 127
+    ILLEGAL_PASSWORD = 128
+    ILLEGAL_CONTENT = 129
 
     LOGIN_FAILED = 200
     LOGIN_AGAIN = 201
@@ -61,6 +70,15 @@ class ErrorCode(object):
         SUCCESS:                    u"操作成功。",
         FAILED:                     u"操作失败。",
         ILLEGAL_DATA_FORMAT:        u"错误的数据格式。",
+        ILLEGAL_ALIAS:              u"非法的终端别名。",
+        ILLEGAL_CNUM:               u"非法的车牌号。",
+        ILLEGAL_WHITELIST:          u"非法的白名单。",
+        ILLEGAL_NAME:               u"非法的姓名。",
+        ILLEGAL_ADDRESS:            u"非法的地址。",
+        ILLEGAL_EMAIL:              u"非法的E-MALL。",
+        ILLEGAL_REMARK:             u"非法的备注内容。",
+        ILLEGAL_PASSWORD:           u"非法的密码。",
+        ILLEGAL_CONTENT:            u"非法的反馈内容。",
         WRONG_CAPTCHA:              u"验证码错误。",
         WRONG_PASSWORD:             u"密码错误",
         NO_CAPTCHA:                 u"验证码失效，请重新获取。",

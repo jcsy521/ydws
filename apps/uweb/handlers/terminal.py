@@ -10,6 +10,7 @@ from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 from utils.misc import get_today_last_month
 from utils.dotdict import DotDict
+from utils.checker import check_sql_injection
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from constants import UWEB, SMS
@@ -100,6 +101,26 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 return
    
             DB_FIELDS = ['alias', 'cnum', 'cellid_status', 'white_pop']
+
+
+            # sql injection 
+            if data.has_key('alias')  and not check_sql_injection(data.alias):
+                status = ErrorCode.ILLEGAL_ALIAS 
+                self.write_ret(status)
+                IOLoop.instance().add_callback(self.finish)
+                return
+
+            if data.has_key('cnum')  and not check_sql_injection(data.cnum):
+                status = ErrorCode.ILLEGAL_CNUM 
+                self.write_ret(status)
+                IOLoop.instance().add_callback(self.finish)
+                return
+
+            if data.has_key('white_list')  and not check_sql_injection(data.white_list):
+                status = ErrorCode.ILLEGAL_WHITELIST 
+                self.write_ret(status)
+                IOLoop.instance().add_callback(self.finish)
+                return
 
             gf_params = DotDict()
             db_params = DotDict()

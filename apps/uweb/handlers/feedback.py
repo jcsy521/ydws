@@ -7,6 +7,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
+from utils.checker import check_sql_injection
 from codes.errorcode import ErrorCode
 from base import BaseHandler
 
@@ -32,6 +33,23 @@ class FeedBackHandler(BaseHandler):
             return 
 
         try:
+
+            if data.has_key('contact')  and not check_sql_injection(data.contact):
+                status = ErrorCode.ILLEGAL_NAME
+                self.write_ret(status)
+                return
+
+            if data.has_key('email')  and not check_sql_injection(data.email):
+                status = ErrorCode.ILLEGAL_EMAIL
+                self.write_ret(status)
+                return
+
+
+            if data.has_key('content')  and not check_sql_injection(data.content):
+                status = ErrorCode.ILLEGAL_CONTENT
+                self.write_ret(status)
+                return
+
             self.db.execute("INSERT into T_FEEDBACK(contact,email,content,timestamp,category)"
                             "  VALUES(%s, %s, %s, %s, %s)",
                             data.contact, data.email, data.content,
