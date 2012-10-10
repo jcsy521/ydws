@@ -74,7 +74,7 @@ class RealtimeMixin(BaseMixin):
             location_key = get_location_key(str(self.current_user.tid))
             location = self.redis.getvalue(location_key)
             # after 1 minute, the location is invalid, get it again.
-            if location and (time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
+            if location and abs(time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
                 location = None
         else:
             query_time = int(time.time())
@@ -112,7 +112,7 @@ class RealtimeMixin(BaseMixin):
             location_key = get_location_key(str(self.current_user.tid))
             location = self.redis.getvalue(location_key)
             # after 1 minute, the location is invalid, get it again.
-            if location and (time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
+            if location and abs(time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
                 location = None
         else:
             # we should eventually search location from T_LOCATION
@@ -141,6 +141,7 @@ class RealtimeMixin(BaseMixin):
             
             location['degree'] = float(location.degree)
             location['tid'] = self.current_user.tid
+            ret.location = location
 
             if callback:
                 callback(ret)
