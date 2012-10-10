@@ -39,12 +39,14 @@ from clw.packet.parser.login import LoginParser
 from clw.packet.parser.heartbeat import HeartbeatParser 
 from clw.packet.parser.async import AsyncParser
 from clw.packet.parser.config import ConfigParser
+from clw.packet.parser.fobinfo import FobInfoParser
 from clw.packet.parser.locationdesc import LocationDescParser
 from clw.packet.composer.login import LoginRespComposer
 from clw.packet.composer.heartbeat import HeartbeatRespComposer
 from clw.packet.composer.async import AsyncRespComposer
 from clw.packet.composer.locationdesc import LocationDescRespComposer
 from clw.packet.composer.config import ConfigRespComposer
+from clw.packet.composer.fobinfo import FobInfoRespComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
 
 class MyGWServer(object):
@@ -317,6 +319,9 @@ class MyGWServer(object):
                 elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
                     logging.info("[GW] Recv defendstatus packet:\n%s", packet)
                     self.handle_defendstatus(clw, address, connection, channel)
+                elif command == T_MESSAGE_TYPE.FOBINFO:
+                    logging.info("[GW] Recv fobinfo packet:\n%s", packet)
+                    self.handle_fobinfo(clw, address, connection, channel)
                 else:
                     logging.info("[GW] Recv packet from terminal:\n%s", packet)
                     self.foward_packet_to_si(clw, packet, address, connection, channel)
@@ -713,6 +718,32 @@ class MyGWServer(object):
         except:
             logging.exception("[GW] Hand defendstatus report exception.")
 
+    def handle_fobinfo(self, info, address, connection, channel):
+        """
+        fobinfo packet: add or remove fob
+        0: success, then record new terminal's address
+        1: invalid SessionID
+        """
+        try:
+            head = info.head
+            body = info.body
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS)
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID:
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
+            else:
+                fp = FobInfoParser(body, head)
+                fobinfo = fp.ret
+                self.update_terminal_status(head.dev_id, address)
+                self.update_fob_info(fobinfo)
+
+            fc = FobInfoRespComposer(args)
+            request = DotDict(packet=fc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Hand fobinfo report exception.")
+
     def foward_packet_to_si(self, info, packet, address, connection, channel):
         """
         response packet or position/report/charge packet
@@ -821,6 +852,22 @@ class MyGWServer(object):
             self.redis.setvalue(terminal_status_key, address, 3 * HEARTBEAT_INTERVAL)
         else:
             self.redis.setvalue(terminal_status_key, address, 3 * SLEEP_HEARTBEAT_INTERVAL)
+
+    def update_fob_info(self, fobinfo):
+        if int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.ADD:
+            self.db.execute("INSERT INTO T_FOB(tid, fobid)"
+                            "  VALUES(%s, %s)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE tid = VALUES(tid),"
+                            "         fobid = VALUES(fobid)",
+                            fobinfo['dev_id'], fobinfo['fobid'])
+        elif int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.REMOVE:
+            self.db.execute("DELETE FROM T_FOB"
+                            "  WHERE fobid = %s"
+                            "    AND tid = %s",
+                            fobinfo['fobid'], fobinfo['dev_id'])
+        else:
+            pass
 
     def update_terminal_info(self, t_info):
         # db

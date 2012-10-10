@@ -20,6 +20,8 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          EMERGENCY="T16",
                          CONFIG="T17",
                          DEFENDSTATUS="T18",
+                         FOBINFO="T19",
+                         FOBOPERATE="T20",
                          AGPS="T100"
                          )
 
@@ -41,6 +43,8 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          EMERGENCY="S16",
                          CONFIG="S17",
                          DEFENDSTATUS="S18",
+                         FOBINFO="S19",
+                         FOBOPERATE="S20",
                          AGPS="S100"
                          )
 
@@ -75,6 +79,9 @@ DEFEND_STATUS = DotDict(SUCCESS="0",
 
 TERMINAL_LOGIN = DotDict(LOGIN=1,
                          UNLOGIN=0)
+
+FOB_OPERATE = DotDict(ADD=0,
+                      REMOVE=1)
 
 # 10 second 
 HEARTBEAT_INTERVAL = 30 
