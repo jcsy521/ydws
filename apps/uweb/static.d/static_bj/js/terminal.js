@@ -117,6 +117,7 @@ window.dlf.fn_baseSave =function() {
 	var f_warpperStatus = !$('#terminalWrapper').is(':hidden'), 
 		str_key = $('#bListSet').attr('terminalkey'), 
 		obj_terminalData = {},
+		n_num = 0,
 		obj_listVal = $('.j_ListVal'); // td t_val 
 	// 遍历 td 查找text和radio
 	$.each(obj_listVal, function(index, dom) {
