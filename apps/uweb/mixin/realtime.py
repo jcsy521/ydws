@@ -209,10 +209,6 @@ class RealtimeMixin(BaseMixin):
                             ret.location.degree = float(location.degree)
                             self.insert_location(location)
                             self.update_terminal_status(location)
-                        else: 
-                            ret.status = ErrorCode.LOCATION_GPS_FAILED 
-                            ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
-                            logging.error("[UWEB] realtime failed. status: %s, message: %s", ret.status, ret.message)
                     else:
                         if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
                             self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
