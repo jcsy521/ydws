@@ -490,7 +490,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( obj_selfMarker ) {
 		// 修改别名
 		if ( !str_alias ) {
-			str_alias = obj_carA.siblings('.j_currentCar').html()
+			str_alias = obj_carA.next().html()
 		}
 		obj_selfMarker.setLabel(obj_carA.data('selfLable'));
 		obj_selfMarker.getLabel().setContent(str_alias);
@@ -936,7 +936,7 @@ window.dlf.fn_updateAlias = function() {
 		obj_selfMarker.selfInfoWindow.setContent(str_content);
 	}
 	obj_car.attr('title', str_alias);	// 
-	obj_car.siblings('.j_currentCar').html(str_alias).attr('title', str_alias);
+	obj_car.next().html(str_alias).attr('title', str_alias);
 }
 // 提示用户绑定终端车辆
 window.dlf.fn_showTerminalMsgWrp = function() {

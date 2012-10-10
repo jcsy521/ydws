@@ -263,12 +263,11 @@ $(function () {
 			}
 	}});
 	// params input css 
-	$('#bListR input[type=text]').focus(function() {
+	$('#bListR input[type=text], .personalList input, .pwdList input, #remark').focus(function() {
 		$(this).addClass('bListR_text_mouseFocus');
 	}).blur(function() {
 		$(this).removeClass('bListR_text_mouseFocus');
 	});
-	
 	dlf.fn_setItemMouseStatus($('.j_save'), 'pointer', new Array('bc', 'bc2', 'bc'));	// 保存按钮鼠标滑过样式
 	
 	// 个人信息的验证

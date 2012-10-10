@@ -6,11 +6,31 @@ var n_cellstatus;
 (function () {
 window.dlf.fn_currentQuery = function() {
 	$('#currentWrapper').show();
-	var obj_pd = {'locate_flag': 0};	// 第一次post发起gps定位
+	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位
 	fn_currentRequest(obj_pd);
 	$('#currentBtn').unbind('click').click(function() {
 		dlf.fn_closeDialog(); // 窗口关闭
 	});
+}
+// 是否发起基站定位
+function fn_startCell(n_locateFlag) {
+	var obj_msg = $('#currentMsg'),
+		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />';
+	// 发起基站定位
+	if ( n_locateFlag == GPS_TYPE ) {
+		if ( n_cellstatus == 1 ) {
+			// GPS定位失败, 3S发起基站
+			obj_msg.html('GPS信号弱，切换到基站定位 '+str_img);
+			setTimeout(function () {
+				var obj_pd = {'locate_flag': CELLID_TYPE };
+				fn_currentRequest(obj_pd);
+			}, 3000);
+		} else {
+			obj_msg.html(str_errorMsg);
+		}										
+	} else { // 基站失败
+		obj_msg.html(str_errorMsg);
+	}
 }
 function fn_currentRequest(obj_pd) {
 	var obj_cWrapper = $('#currentWrapper'),
@@ -19,110 +39,85 @@ function fn_currentRequest(obj_pd) {
 		str_flagVal = obj_pd.locate_flag, 
 		str_carCurrent = $('.currentCar').siblings('.j_currentCar').html(), // 当前车辆
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
-		str_msg = '车辆<b> '+ str_carCurrent +' </b>';
-	if ( str_flagVal == CELLID_TYPE) {
-		str_msg = str_msg + '基站定位进行中 ' + str_img;
-	} else {
-		str_msg = str_msg + 'GPS定位进行中 ' + str_img;
-	}
-	obj_msg.html(str_msg);
-	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_clearInterval(currentLastInfo); //停止计时
-	$.post_(REALTIME_URL, JSON.stringify(obj_pd), function (postData) {
-		n_cellstatus = postData.cellid_status;	// 是否开启基站定位
-		var n_status = postData.status;
-		if ( n_status == 0  ) {
-			if ( postData.location ) {	// post拿到位置
-				fn_displayCurrentMarker(postData.location);
-			} else {
-				// 每10秒发起一次get请求
-				var f_warpperStatus = !obj_cWrapper.is(':hidden');
-				if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,则不进行标记的显示
-					var n_count = 0, c_countNum = CHECK_PERIOD / CHECK_INTERVAL;
-					CURRENT_TIMMER = setInterval(function () { // 每10秒钟启动
-						if ( n_count++ >= c_countNum ) {
-							clearInterval(CURRENT_TIMMER);
-							obj_msg.html(str_errorMsg);
-							return;
-						}
-						$.get_(REALTIME_URL, '', function (getData) {
-							if ( getData.status == 0 ) {
-								if ( getData.location ) {
+		str_msg = '车辆<b> '+ str_carCurrent +' </b>'
+		f_warpperStatus = !obj_cWrapper.is(':hidden');
+	
+	if ( f_warpperStatus ) {
+		if ( str_flagVal == CELLID_TYPE) {
+			str_msg = str_msg + '基站定位进行中 ' + str_img;
+		} else {
+			str_msg = str_msg + 'GPS定位进行中 ' + str_img;
+		}
+		obj_msg.html(str_msg);
+		dlf.fn_lockScreen(); // 添加页面遮罩
+		dlf.fn_clearInterval(currentLastInfo); //停止计时
+		$.post_(REALTIME_URL, JSON.stringify(obj_pd), function (postData) {
+			var p_warpperStatus = !obj_cWrapper.is(':hidden');
+			
+			if ( p_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,则不进行标记的显示
+				n_cellstatus = postData.cellid_status;	// 是否开启基站定位
+				var n_status = postData.status;
+				if ( n_status == 0  ) {
+					if ( postData.location ) {	// post拿到位置
+						fn_displayCurrentMarker(postData.location);
+					} else {
+						// 每10秒发起一次get请求
+							var n_count = 0, c_countNum = CHECK_PERIOD / CHECK_INTERVAL;
+							
+							CURRENT_TIMMER = setInterval(function () { // 每10秒钟启动
+								if ( n_count++ >= c_countNum ) {
 									clearInterval(CURRENT_TIMMER);
-									fn_displayCurrentMarker(getData.location);
-								} else {
-									if ( n_count >= c_countNum ) {
-										clearInterval(CURRENT_TIMMER);
-										if ( str_flagVal == GPS_TYPE ) {
-											if ( n_cellstatus == 1 ) {
-												// GPS定位失败, 3S发起基站
-												obj_msg.html('GPS没有信号，切换到基站定位 ' + str_img);
-												setTimeout(function () {
-													var obj_pd = { 'timestamp': new Date().getTime(), 'locate_flag': CELLID_TYPE };
-													fn_currentRequest(obj_pd);
-												}, 3000);
-											} else {
-												obj_msg.html(str_errorMsg);
-											}											
-										} else { // 基站失败
-											obj_msg.html(str_errorMsg);
-										}
-									}
-								}
-							} else if ( getData.status == 201 ) {
-								dlf.fn_showBusinessTip();
-							} else {
-								// 发起基站定位
-								if ( str_flagVal == GPS_TYPE ) {
-									if ( n_cellstatus == 1 ) {
-										// GPS定位失败, 3S发起基站
-										obj_msg.html('GPS没有信号，切换到基站定位 '+str_img);
-										setTimeout(function () {
-											var obj_pd = { 'timestamp': new Date().getTime(), 'locate_flag': CELLID_TYPE };
-											fn_currentRequest(obj_pd);
-										}, 3000);
-									} else {
-										obj_msg.html(str_errorMsg);
-									}											
-								} else { // 基站失败
 									obj_msg.html(str_errorMsg);
+									return;
 								}
-								//obj_msg.html(getData.message);
-							}
-						},
-						function (XMLHttpRequest, textStatus, errorThrown) {
-							dlf.fn_serverError(XMLHttpRequest);
-						});
-					}, CHECK_INTERVAL);
+								var t_warpperStatus = !obj_cWrapper.is(':hidden');
+								
+								if ( t_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,则不进行标记的显示
+									$.get_(REALTIME_URL, '', function (getData) {
+										var g_warpperStatus = !obj_cWrapper.is(':hidden');
+										if ( g_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,则不进行标记的显示
+											var n_getStatus = getData.status;
+											
+											if ( n_getStatus == 0 ) {
+												if ( getData.location ) {
+													clearInterval(CURRENT_TIMMER);
+													fn_displayCurrentMarker(getData.location);
+												} else {
+													if ( n_count >= c_countNum ) {
+														clearInterval(CURRENT_TIMMER);
+														fn_startCell(str_flagVal);
+													}
+												}
+											} else if ( n_getStatus == 201 ) {
+												dlf.fn_showBusinessTip();
+											} else if ( n_getStatus == 301 || n_getStatus == 801 || n_getStatus == 800 ) {
+												fn_startCell(str_flagVal);
+											} else { // 基站失败
+												obj_msg.html(getData.message);
+											}
+										}
+									},
+									function (XMLHttpRequest, textStatus, errorThrown) {
+										dlf.fn_serverError(XMLHttpRequest);
+									});
+								}
+							}, CHECK_INTERVAL);
+					}
+				} else if ( n_status == 201 ) {
+					dlf.fn_showBusinessTip();
+				} else if ( n_status == 301 || n_status == 801 || n_status == 800 )  {
+					fn_startCell(str_flagVal);
+				} else {
+					obj_msg.html(postData.message)
 				}
 			}
-		} else if ( n_status == 201 ) {
-			dlf.fn_showBusinessTip();
-		} else if ( n_status == 301 || n_status == 801 || n_status == 800 )  {
-			// 发起基站定位
-			if ( str_flagVal == GPS_TYPE ) {
-				if ( n_cellstatus == 1 ) {
-					// GPS定位失败, 3S发起基站
-					obj_msg.html('GPS没有信号，切换到基站定位 '+str_img);
-					setTimeout(function () {
-						var obj_pd = { 'locate_flag': CELLID_TYPE };
-						fn_currentRequest(obj_pd);
-					}, 3000);
-				} else {
-					obj_msg.html(postData.message);
-				}											
-			} else { // 基站失败
-				obj_msg.html(postData.message);
-			}
-		} else {
-			obj_msg.html(postData.message)
-		}
-		// 动态更新终端相关数据
-		dlf.fn_updateLastInfo();
-	}, 
-	function(XMLHttpRequest, textStatus, errorThrown) {
-		dlf.fn_serverError(XMLHttpRequest);
-	});
+			// 动态更新终端相关数据
+			dlf.fn_updateLastInfo();
+		}, 
+		function(XMLHttpRequest, textStatus, errorThrown) {
+			dlf.fn_serverError(XMLHttpRequest);
+		});
+	}
 }
 /*实时到数据进行显示*/
 function fn_displayCurrentMarker(obj_location) {

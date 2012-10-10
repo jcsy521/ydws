@@ -575,24 +575,19 @@ body {
 	height: 27px;
 	line-height: 27px;
 }
-.personalList input, .pwdList input {
-	height: 20px;
-	padding: 5px;
-	border: 1px solid #99bad0;
-	background-color: #edf5f8;
-	float: left;
-	line-height: 20px;
-}
 .personalList input {
 	width: 310px;
 }
-#remark {
+.personalList input, .pwdList input {
+	padding: 5px;
+}
+.remark {
 	resize: none;
     width: 310px;
 	height: 60px;
 	font-size: 12px;
-	border: 1px solid #99bad0;
-	background-color: #edf5f8;
+	background-color: #F3F9FA;
+    border: 1px solid #CDCDCD;
 	padding: 5px;
 }
 .personalList label, .pwdList label {
@@ -714,25 +709,15 @@ body {
 	margin: 0px;
 	padding: 0px;
 }
-.bListR_text_mouseOut  {
+.text_mouseOut  {
 	background-color: #f3f9fa;
 	border: 1px solid #cdcdcd;
 	height: 20px;
 	line-height: 20px;
 	width: 240px;
 }
-.bListR_text_mouseOver {
-	background-color: #f3f9fa;
-	border: 2px groove #8E8E8E;
-	height: 20px;
-	line-height: 20px;
-	width: 240px;
-}
 .bListR_text_mouseFocus  {
-	border: 2px groove #7EC0EE;	
-	height: 20px;
-	line-height: 20px;
-	width: 240px;
+	border: 1px groove #4773a2;
 }
 .vibchk {
 	width: 40px;
@@ -1015,7 +1000,7 @@ body {
 .eventMapClose {
     background: url("/static/images/close_default.png") no-repeat;
     height: 20px;
-    left: 338px;
+    left: 378px;
     position: relative;
     top: -6px;
     _top: -4px;
@@ -1027,7 +1012,7 @@ body {
     border: 1px solid #BBBBBB;
     height: 323px;
     padding: 11px;
-    width: 350px;
+    width: 390px;
 }
 .eventMapContent h2 {
 	margin: 0;
