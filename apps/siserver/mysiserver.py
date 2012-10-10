@@ -71,10 +71,6 @@ class MySIServer():
             reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, (host,))
             connection.add_backpressure_callback(reconnect_rabbitmq)
             channel = connection.channel()
-            try:
-                channel.queue_delete(queue=self.si_queue)
-            except Exception as e:
-                logging.error("[SI] Delete si_queue error: %s", e.args)
             channel.exchange_declare(exchange=self.exchange,
                                      durable=False,
                                      auto_delete=True)

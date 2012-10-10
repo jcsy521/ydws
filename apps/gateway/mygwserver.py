@@ -83,10 +83,6 @@ class MyGWServer(object):
             reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, *(connection, host))
             connection.add_backpressure_callback(reconnect_rabbitmq)
             channel = connection.channel()
-            try:
-                channel.queue_delete(queue=self.gw_queue)
-            except Exception as e:
-                logging.error("[GW] Delete gw_queue error: %s", e.args)
             channel.exchange_declare(exchange=self.exchange,
                                      durable=False,
                                      auto_delete=True)
