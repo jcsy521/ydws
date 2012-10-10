@@ -93,6 +93,8 @@ class RealtimeMixin(BaseMixin):
         if (location and location.clatitude and location.clongitude):
             if not location.name:
                 location.name = ''
+            if location.has_key('id'):
+                del location['id']
 
             location['degree'] = float(location.degree)
             location['tid'] = self.current_user.tid
@@ -133,6 +135,9 @@ class RealtimeMixin(BaseMixin):
                       location=None)
 
         if (location and location.clatitude and location.clongitude):
+
+            if location.has_key('id'):
+                del location['id']
             
             location['degree'] = float(location.degree)
             location['tid'] = self.current_user.tid
