@@ -53,6 +53,10 @@ from handlers.user import UserHandler, UserDownloadHandler
 
 #from handlers.location import LocationHandler, LocationDownloadHandler
 from handlers.subscription import SubscriptionHandler, SubscriptionDownloadHandler
+from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler, \
+     BusinessCheckTMobileHandler, BusinessSearchHandler, BusinessListHandler,\
+     BusinessEditHandler, BusinessStopHandler, BusinessDeleteHandler
+
 from handlers.ecbusiness import ECBusinessHandler, ECBusinessCreateHandler, \
         ECBusinessListHandler, ECBusinessSearchHandler, ECBusinessEditHandler, \
         ECBusinessStopHandler, ECBusinessDeleteHandler, ECBusinessCheckMobileHandler, \
@@ -84,6 +88,16 @@ class Application(tornado.web.Application):
             (r"/administrator/me/*", AdministratorSelfEditHandler),           
             (r"/administrator/password/me/*", MyPasswordHandler),
             (r"/administrator/password/other/*", OtherPasswordHandler),
+
+            # business 
+            (r"/business/create/*", BusinessCreateHandler),
+            (r"/business/checkmobile/(\S+)/*", BusinessCheckMobileHandler),
+            (r"/business/checktmobile/(\S+)/*", BusinessCheckTMobileHandler),
+            (r"/business/search/*", BusinessSearchHandler),
+            (r"/business/list/(\S+)/*", BusinessListHandler),
+            (r"/business/edit/(\S+)/*", BusinessEditHandler), 
+            (r"/business/stop/(\S+)/(\S+)/*", BusinessStopHandler),
+            (r"/business/delete/(\S+)/(\S+)/*", BusinessDeleteHandler),
             
             # EC business
             (r"/ecbusiness/ec/*", ECBusinessHandler),
