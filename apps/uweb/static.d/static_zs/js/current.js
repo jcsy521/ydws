@@ -28,9 +28,18 @@ function fn_startCell(n_locateFlag) {
 		} else {
 			obj_msg.html(str_errorMsg);
 		}										
-	} else { // 基站失败
-		obj_msg.html(str_errorMsg);
+	} else { // 基站失败 重新开启lastinfo
+		fn_openLastinfo(str_errorMsg);
 	}
+}
+// 重新开启lastinfo
+function fn_openLastinfo(str_msg, f_clearInterval) {
+	if ( f_clearInterval ) {
+		clearInterval(CURRENT_TIMMER);
+	}
+	obj_msg.html(str_msg);
+	// 动态更新终端相关数据
+	dlf.fn_updateLastInfo();
 }
 function fn_currentRequest(obj_pd) {
 	var obj_cWrapper = $('#currentWrapper'),
@@ -41,7 +50,7 @@ function fn_currentRequest(obj_pd) {
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
 		str_msg = '车辆<b> '+ str_carCurrent +' </b>'
 		f_warpperStatus = !obj_cWrapper.is(':hidden');
-	
+	// 判断弹出框是否已经关闭，如果关闭:不进行任何操作
 	if ( f_warpperStatus ) {
 		if ( str_flagVal == CELLID_TYPE) {
 			str_msg = str_msg + '基站定位进行中 ' + str_img;
@@ -50,18 +59,18 @@ function fn_currentRequest(obj_pd) {
 		}
 		obj_msg.html(str_msg);
 		dlf.fn_lockScreen(); // 添加页面遮罩
-		dlf.fn_clearInterval(currentLastInfo); //停止计时
+		dlf.fn_clearInterval(currentLastInfo);  // lastinfo停止计时
 		$.post_(REALTIME_URL, JSON.stringify(obj_pd), function (postData) {
 			var p_warpperStatus = !obj_cWrapper.is(':hidden');
-			
-			if ( p_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,则不进行标记的显示
+			// 判断弹出框是否已经关闭，如果关闭:不进行任何操作
+			if ( p_warpperStatus ) { 
 				n_cellstatus = postData.cellid_status;	// 是否开启基站定位
 				var n_status = postData.status;
 				if ( n_status == 0  ) {
-					if ( postData.location ) {	// post拿到位置
+					if ( postData.location ) {
 						fn_displayCurrentMarker(postData.location);
 					} else {
-						// 每10秒发起一次get请求
+							// 每10秒发起一次get请求, 共发6次，如果查到结果则清除计时器
 							var n_count = 0, c_countNum = CHECK_PERIOD / CHECK_INTERVAL;
 							
 							CURRENT_TIMMER = setInterval(function () { // 每10秒钟启动
@@ -92,8 +101,8 @@ function fn_currentRequest(obj_pd) {
 												dlf.fn_showBusinessTip();
 											} else if ( n_getStatus == 301 || n_getStatus == 801 || n_getStatus == 800 ) {
 												fn_startCell(str_flagVal);
-											} else { // 基站失败
-												obj_msg.html(getData.message);
+											} else { // 基站失败 重新开启lastinfo
+												fn_openLastinfo(str_errorMsg, true);
 											}
 										}
 									},
@@ -107,12 +116,10 @@ function fn_currentRequest(obj_pd) {
 					dlf.fn_showBusinessTip();
 				} else if ( n_status == 301 || n_status == 801 || n_status == 800 )  {
 					fn_startCell(str_flagVal);
-				} else {
-					obj_msg.html(postData.message)
+				} else { // 异常  重新开启lastinfo
+					fn_openLastinfo(postData.message);
 				}
 			}
-			// 动态更新终端相关数据
-			dlf.fn_updateLastInfo();
 		}, 
 		function(XMLHttpRequest, textStatus, errorThrown) {
 			dlf.fn_serverError(XMLHttpRequest);
@@ -122,13 +129,14 @@ function fn_currentRequest(obj_pd) {
 /*实时到数据进行显示*/
 function fn_displayCurrentMarker(obj_location) {
 	dlf.fn_closeDialog();
+	// 动态更新终端相关数据
+	dlf.fn_updateLastInfo();
     // 标记显示及中心点移动
 	mapObj.setCenter(new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT));
 	dlf.fn_updateInfoData(obj_location, 'current');
 	dlf.fn_updateTerminalInfo(obj_location, 'realtime');
 	//dlf.fn_getAddressByLngLat(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT, obj_location.tid);
 }
-
 /*设防撤防操作*/
 window.dlf.fn_defendQuery = function() {
 	var n_defend = 0,
