@@ -15,7 +15,8 @@ window.dlf.fn_currentQuery = function() {
 // 是否发起基站定位
 function fn_startCell(n_locateFlag) {
 	var obj_msg = $('#currentMsg'),
-		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />';
+		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
+		str_errorMsg = '无法获取车辆位置，请稍候重试！';
 	// 发起基站定位
 	if ( n_locateFlag == GPS_TYPE ) {
 		if ( n_cellstatus == 1 ) {
