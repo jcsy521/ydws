@@ -116,11 +116,13 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 IOLoop.instance().add_callback(self.finish)
                 return
 
-            if data.has_key('white_list')  and not check_sql_injection(data.white_list):
-                status = ErrorCode.ILLEGAL_WHITELIST 
-                self.write_ret(status)
-                IOLoop.instance().add_callback(self.finish)
-                return
+            if data.has_key('white_list'):
+                white_list = ":".join(data.white_list)
+                if not check_sql_injection(white_list):
+                    status = ErrorCode.ILLEGAL_WHITELIST 
+                    self.write_ret(status)
+                    IOLoop.instance().add_callback(self.finish)
+                    return
 
             gf_params = DotDict()
             db_params = DotDict()
