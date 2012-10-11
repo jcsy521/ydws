@@ -33,7 +33,7 @@ window.dlf.fn_personalData = function() {
 		} else if ( data.status == 201 ) {
 			dlf.fn_showBusinessTip();
 		} else { 
-			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
 	}, 
@@ -102,7 +102,7 @@ window.dlf.fn_initSMSParams = function() {
 		} else if ( data.status == 201 ) {
 			dlf.fn_showBusinessTip();
 		} else { 
-			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
 	});
@@ -288,7 +288,7 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		submitButtonID: 'personalSave', // 指定本form的submit按钮
 		onError: function(msg) { 
-			dlf.fn_jNotifyMessage(msg, 'message', true); 
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
 		}, 
 		onSuccess: function() { 
 			dlf.fn_personalSave();
@@ -306,7 +306,7 @@ $(function () {
 		validatorGroup: '2', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'pwdSave', // 指定本form的submit按钮
 		onError: function(msg) { 
-			dlf.fn_jNotifyMessage(msg, 'message', true); 
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
 		}, 
 		onSuccess: function() { 
 			var obj_pwd = {'old_password' : $("#oldPwd").val(), 

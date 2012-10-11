@@ -839,7 +839,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 			} else if ( data.status == 201 ) {
 				dlf.fn_showBusinessTip();
 			} else {
-				dlf.fn_jNotifyMessage(data.message, 'message', true);
+				dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
 			}
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
@@ -876,9 +876,21 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 						}
 						$('#spanWelcome').html('欢迎您，'+ str_newName).attr('title', str_name);
 					}
+					// 修改保存成功的原始值
+					for(var param in obj_data) {
+						if ( param == 'address' ) {
+							$('#txtAddress').data('txtAddress', obj_data[param]);
+						} else {
+							$('#' + param ).data(param, obj_data[param]);
+						}
+					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else if ( str_who == 'terminal' ) {
 					dlf.fn_updateAlias();
+					// 修改保存成功的原始值
+					for(var param in obj_data) {
+						$('#' + param ).attr('t_val', obj_data[param]);
+					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else if ( str_who == 'whitelistPop' ) {
 					$('#whitelistPopWrapper').hide();
@@ -895,7 +907,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 			} else if ( data.status == 201 ) {
 				dlf.fn_showBusinessTip();
 			} else {
-				dlf.fn_jNotifyMessage(data.message, 'message', true);
+				dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
 			}
 		}
 		if ( str_who != 'whitelistPop' ) {
