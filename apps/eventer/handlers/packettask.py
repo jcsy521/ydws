@@ -105,7 +105,8 @@ class PacketTask(object):
                                     gsm=None,
                                     pbat=None,
                                     alias=None,
-                                    keys_num=None)
+                                    keys_num=None,
+                                    fob_list=[])
         for key in terminal_info:
             value = location.get(key, None)
             if value is not None:

@@ -576,6 +576,7 @@ class MyGWServer(object):
                 # set login
                 info = DotDict(login=GATEWAY.TERMINAL_LOGIN.LOGIN,
                                mobile=t_info['t_msisdn'],
+                               keys_num=t_info['keys_num'],
                                dev_id=t_info["dev_id"])
                 self.update_terminal_info(info)
                 logging.info("[GW] Terminal %s login success! SIM: %s",
@@ -854,6 +855,18 @@ class MyGWServer(object):
             self.redis.setvalue(terminal_status_key, address, 3 * SLEEP_HEARTBEAT_INTERVAL)
 
     def update_fob_info(self, fobinfo):
+        terminal_info_key = get_terminal_info_key(fobinfo['dev_id'])
+        terminal_info = self.redis.getvalue(terminal_info_key)
+        if not terminal_info:
+            terminal_info = DotDict(defend_status=None,
+                                    mobile=None,
+                                    login=None,
+                                    gps=None,
+                                    gsm=None,
+                                    pbat=None,
+                                    alias=None,
+                                    keys_num=None,
+                                    fob_list=[])
         if int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.ADD:
             self.db.execute("INSERT INTO T_FOB(tid, fobid)"
                             "  VALUES(%s, %s)"
@@ -861,18 +874,44 @@ class MyGWServer(object):
                             "  UPDATE tid = VALUES(tid),"
                             "         fobid = VALUES(fobid)",
                             fobinfo['dev_id'], fobinfo['fobid'])
+            fob_list = terminal_info['fob_list']
+            if fob_list:
+                fob_list.append(fobinfo['fobid'])
+            else:
+                fob_list = [fobinfo['fobid'],]
+            terminal_info['fob_list'] = list(set(fob_list))
+            terminal_info['keys_num'] = len(terminal_info['fob_list']) 
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET keys_num = %s"
+                            "  WHERE tid = %s", 
+                            terminal_info['keys_num'], fobinfo['dev_id'])
+            self.redis.setvalue(terminal_info_key, terminal_info)
         elif int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.REMOVE:
             self.db.execute("DELETE FROM T_FOB"
                             "  WHERE fobid = %s"
                             "    AND tid = %s",
                             fobinfo['fobid'], fobinfo['dev_id'])
+            fob_list = terminal_info['fob_list']
+            if fob_list:
+                if fobinfo['fobid'] in fob_list:
+                    fob_list.remove(fobinfo['fobid'])
+            else:
+                fob_list = []
+            terminal_info['fob_list'] = list(set(fob_list))
+            terminal_info['keys_num'] = len(terminal_info['fob_list']) 
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET keys_num = %s"
+                            "  WHERE tid = %s", 
+                            terminal_info['keys_num'], fobinfo['dev_id'])
+            self.redis.setvalue(terminal_info_key, terminal_info)
         else:
             pass
+
 
     def update_terminal_info(self, t_info):
         # db
         fields = []
-        keys = ['mobile', 'gps', 'gsm', 'pbat', 'defend_status', 'login']
+        keys = ['mobile', 'gps', 'gsm', 'pbat', 'defend_status', 'login', 'keys_num']
         for key in keys:
             if t_info.get(key, None) is not None:
                 fields.append(key + " = " + str(t_info[key]))
@@ -893,7 +932,8 @@ class MyGWServer(object):
                                     gsm=None,
                                     pbat=None,
                                     alias=None,
-                                    keys_num=None)
+                                    keys_num=None,
+                                    fob_list=[])
         for key in terminal_info:
             value = t_info.get(key, None)
             if value is not None:
