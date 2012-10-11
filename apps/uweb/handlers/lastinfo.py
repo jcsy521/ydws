@@ -48,11 +48,16 @@ class LastInfoHandler(BaseHandler):
                         self.write_ret(status)
                         return
 
+                    foblist = QueryHelper.get_fob_list_by_tid(tid, self.db)
+                    terminal['fob_list'] = [fob['fobid'] for fob in foblist] 
+                    self.redis.setvalue(terminal_info_key, DotDict(terminal))
+
                 if not terminal['alias']:
                    terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db) 
 
                 if not terminal['mobile']:
                    terminal['mobile'] = QueryHelper.get_tmobile_by_tid(tid, self.redis, self.db) 
+
 
                 # 2: get location 
                 location_key = get_location_key(str(self.current_user.tid))
@@ -87,11 +92,11 @@ class LastInfoHandler(BaseHandler):
                                  pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
                                  mobile=terminal['mobile'],
                                  alias=terminal['alias'],
-                                 keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0)
+                                 keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                                 fob_list=terminal['fob_list'])
 
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)
-
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info))
 

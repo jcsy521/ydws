@@ -69,7 +69,8 @@ class QueryHelper(object):
                                     gsm=None,
                                     pbat=None,
                                     alias=None,
-                                    keys_num=None) 
+                                    keys_num=None,
+                                    fob_list=[]) 
         terminal = QueryHelper.get_terminal_by_tid(tid, db)
         if terminal.alias:
             alias = terminal.alias
@@ -154,3 +155,13 @@ class QueryHelper(object):
                              "  WHERE tid = %s LIMIT 1",
                              tid) 
         return whitelist
+
+    @staticmethod
+    def get_fob_list_by_tid(tid, db):
+        """Get fob list throught tid.
+        """
+        foblist = db.query("SELECT fobid"
+                           "  FROM T_FOB"
+                           "  WHERE tid = %s",
+                           tid) 
+        return foblist
