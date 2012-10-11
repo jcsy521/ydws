@@ -7,7 +7,7 @@ _sql_injection_pattern ='|'.join((r"\b(select|update|insert|delete|drop|create|a
                                   r"\b(execute|prepare|call|start|lock|change|use)\b",
                                   r"\b(where|from|join|and|or|not|like)\b",
                                   r"--|#",
-                                  r";|&|\\|\'|\"|\*|\s|\?|\^|\(|\)|\%|\_|\$"))
+                                  r";|&|\\|\'|\"|\*|\?|\^|\(|\)|\%|\_|\$"))
 
 SQL_INJECTION_CHECKER = re.compile(_sql_injection_pattern, re.I)
 
