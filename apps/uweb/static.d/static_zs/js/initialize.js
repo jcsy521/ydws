@@ -494,6 +494,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_selfMarker = obj_carA.data('selfmarker'), 
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
 		obj_selfPolyline = obj_carA.data('selfpolyline');
+	if ( !str_alias ) {
+		str_alias = obj_carA.next().html();
+	}
 	// 存储车辆信息
 	if ( obj_tempVal ) { // 追加
 		if ( str_actionTrack == 'yes' ) { 
