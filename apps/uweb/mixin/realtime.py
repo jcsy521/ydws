@@ -149,6 +149,7 @@ class RealtimeMixin(BaseMixin):
             if query.locate_flag == UWEB.LOCATE_FLAG.CELLID:
                 loc = self.db.get("SELECT cellid, degree, speed"
                                   "  FROM T_LOCATION WHERE tid = %s"
+                                  "  AND cellid IS NOT NULL "
                                   "  AND cellid <> '' "
                                   "  ORDER BY timestamp DESC"
                                   "  LIMIT 1",self.current_user.tid)
@@ -171,6 +172,7 @@ class RealtimeMixin(BaseMixin):
                                            cellid=True,
                                            db=self.db)
 
+                self.insert_location(location)
                 if location.get('cLat') and location.get('cLon'):
                     ret.location = DotDict()
                     ret.location.latitude = location.lat
@@ -183,7 +185,6 @@ class RealtimeMixin(BaseMixin):
                     ret.location.type = location.type
                     ret.location.tid = self.current_user.tid
                     ret.location.degree = float(location.degree)
-                    self.insert_location(location)
                 else:
                     ret.status = ErrorCode.LOCATION_CELLID_FAILED 
                     ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
