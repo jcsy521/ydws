@@ -35,6 +35,7 @@ function fn_startCell(n_locateFlag) {
 }
 // 重新开启lastinfo
 function fn_openLastinfo(str_msg, f_clearInterval) {
+	var obj_msg = $('#currentMsg');
 	if ( f_clearInterval ) {
 		clearInterval(CURRENT_TIMMER);
 	}

@@ -409,7 +409,10 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 		str_clon = '',
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
-		str_clat = '';	// 经纬度
+		str_clat = '',	// 经纬度
+		arr_fob_list = obj_carInfo.fob_list,	// 挂件编号集合
+		n_fobListLength = 0;	// 挂件数量 
+		
 	// 经纬度为0 不显示位置信息
 	if ( n_clat == 0 || n_clon == 0 ) {
 		str_address = '-';
@@ -431,7 +434,9 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 			n_gsm = obj_carInfo.gsm,	// gsm 值
 			str_gsm = dlf.fn_changeData('gsm', n_gsm),	// gsm信号
 			n_gps = obj_carInfo.gps,	// gps 值
-			str_gps = dlf.fn_changeData('gps', n_gps);	// gps信号
+			str_gps = dlf.fn_changeData('gps', n_gps),	// gps信号
+			obj_fobListLabel = $('#fobListLable'),
+			obj_fobListTr = $('#fobList .j_fobListLable');
 		// 终端状态
 		$('#powerContent').html(str_power);// 电池电量填充
 		$('#gsmContent').html(str_gsm);
@@ -439,7 +444,30 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#defendContent').html(str_dStatus).data('defend', n_defendStatus);
 		$('#defendStatus').css('background-image', str_dImg).attr('title', str_dStatusTitle);
 		$('#tmobile').attr('title', str_titleMobile);
-		$('#tmobileContent').html(str_tmobile)
+		$('#tmobileContent').html(str_tmobile);
+		
+		n_fobListLength = arr_fob_list.length;
+		// 更新挂件
+		$('.j_fob').remove();
+		if ( n_fobListLength > 0 ) {
+			var str_html = '';
+			// 动态显示挂件编号
+			for ( var fob in arr_fob_list ) {
+				var str_fob = arr_fob_list[fob];
+				if ( fob == 0 ) {
+					$('#firstFob').html(str_fob);
+				} else {
+					str_html += '<tr class="j_fob"><td>'+ str_fob +'</td></tr>';
+				}
+			}
+			obj_fobListLabel.attr('rowspan', n_fobListLength);
+			// 追加
+			obj_fobListTr.after(str_html);
+		} else {
+			// 显示-
+			$('#firstFob').html('-');
+			obj_fobListLabel.attr('rowspan', 1);
+		}
 	}
 	// 车辆信息/位置信息
 	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间

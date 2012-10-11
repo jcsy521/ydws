@@ -115,6 +115,19 @@ body {
 	float: left;
 	padding: 10px 10px 10px 20px;
 }
+#fobList table {
+	width: 100%;
+	left: -4px;
+    position: relative;
+}
+#fobListLable {
+	width: 64px;
+	height: auto;
+}
+#fobList tr {
+	line-height: 18px;
+	vertical-align: top;
+}
 #cInfo {
 	float: left;
 	width: 207px;
