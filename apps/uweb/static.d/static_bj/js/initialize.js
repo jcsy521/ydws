@@ -435,6 +435,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 			str_gsm = dlf.fn_changeData('gsm', n_gsm),	// gsm信号
 			n_gps = obj_carInfo.gps,	// gps 值
 			str_gps = dlf.fn_changeData('gps', n_gps),	// gps信号
+			obj_firstFob = $('#firstFob'),
 			obj_fobListLabel = $('#fobListLable'),
 			obj_fobListTr = $('#fobList .j_fobListLable');
 		// 终端状态
@@ -455,7 +456,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 			for ( var fob in arr_fob_list ) {
 				var str_fob = arr_fob_list[fob];
 				if ( fob == 0 ) {
-					$('#firstFob').html(str_fob);
+					obj_firstFob.html(str_fob);
 				} else {
 					str_html += '<tr class="j_fob"><td>'+ str_fob +'</td></tr>';
 				}
@@ -465,7 +466,8 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 			obj_fobListTr.after(str_html);
 		} else {
 			// 显示-
-			$('#firstFob').html('-');
+			obj_firstFob.html('-');
+			$('#fobList').attr('title', '无挂件');
 			obj_fobListLabel.attr('rowspan', 1);
 		}
 	}
@@ -603,7 +605,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 				break;
 			}
 		}
-		$('#power').css('background-image', str_return).attr('title', '剩余电量：' + str_val );
+		$('#power').css('background-image', str_return).attr('title', '剩余电量：' + str_val + '%' );
 	} else if ( str_key == 'degree' ) {
 		var arr_degree = [355,5,40,50,85,95,130,140,175,185,220,230,265,275,310,320,355],
 			arr_desc  = ['正北','北偏东','东北','东偏北','正东','东偏南','东南','南偏东','正南','南偏西','西南','西偏南','正西','西偏北','西北','北偏西','正北'];
@@ -774,10 +776,10 @@ window.dlf.fn_onInputBlur = function() {
 					if ( n_valLength == 0 ) {
 						str_msg = '';
 					} else if ( n_valLength > 14 || n_valLength < 11 ) {
-						str_msg = '您设置的车主号码不正确，请输入正确的手机号！'
+						str_msg = '您设置的白名单不正确，请输入正确的手机号！'
 					} else {
 						if ( !reg.test(str_val) ) {
-							str_msg = '您设置的车主号码不正确，请输入正确的手机号！';
+							str_msg = '您设置的白名单不正确，请输入正确的手机号！';
 						}
 					}
 					if ( str_msg != '' ) {
