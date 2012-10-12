@@ -290,7 +290,7 @@ body {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;
 }
 .updateTime {
-	width: 225px;
+	width: 227px;
 	height: 32px;
 	line-height: 32px;
 	background-color: #fbfcfc;
@@ -526,7 +526,7 @@ body {
     left: -25px;
     line-height:2;
     position: relative;
-    top: 21px;
+    top: 26px;
 	font-style: normal;
 	font-size: 14px;
 	color: #317bae;

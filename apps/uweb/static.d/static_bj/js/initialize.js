@@ -436,6 +436,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 			n_gps = obj_carInfo.gps,	// gps 值
 			str_gps = dlf.fn_changeData('gps', n_gps),	// gps信号
 			obj_firstFob = $('#firstFob'),
+			obj_fobList = $('#fobList'),
 			obj_fobListLabel = $('#fobListLable'),
 			obj_fobListTr = $('#fobList .j_fobListLable');
 		// 终端状态
@@ -461,13 +462,14 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 					str_html += '<tr class="j_fob"><td>'+ str_fob +'</td></tr>';
 				}
 			}
+			obj_fobList.removeAttr('title');
 			obj_fobListLabel.attr('rowspan', n_fobListLength);
 			// 追加
 			obj_fobListTr.after(str_html);
 		} else {
 			// 显示-
 			obj_firstFob.html('-');
-			$('#fobList').attr('title', '无挂件');
+			obj_fobList.attr('title', '无挂件');
 			obj_fobListLabel.attr('rowspan', 1);
 		}
 	}
@@ -780,6 +782,10 @@ window.dlf.fn_onInputBlur = function() {
 					} else {
 						if ( !reg.test(str_val) ) {
 							str_msg = '您设置的白名单不正确，请输入正确的手机号！';
+						} else {
+							if ( str_whitelist1 == str_val ) {
+								 str_msg = '白名单不能和车主号码相同！';
+							}
 						}
 					}
 					if ( str_msg != '' ) {
@@ -922,7 +928,25 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_updateAlias();
 					// 修改保存成功的原始值
 					for(var param in obj_data) {
-						$('#' + param ).attr('t_val', obj_data[param]);
+						var str_val = obj_data[param];
+						// 白名单特殊处理
+						if ( param == 'white_list' ) {
+							var n_length = obj_data[param].length;
+							if ( n_length > 1 ) {
+								for ( var x = 0; x < n_length; x++ ) {
+								var str_name = param  + '_' + (x+1),
+									obj_whitelist = $('#t_' + str_name),
+									obj_oriWhitelist = $('#' + str_name),
+									str_value = str_val[x];
+								obj_whitelist.val(str_value);	// whitelist
+								obj_oriWhitelist.attr('t_val', str_value);	// save original value
+								}
+							} else {
+								$('#white_list_2').attr('t_val', '');
+							}							
+						} else {
+							$('#' + param ).attr('t_val', str_val);
+						}
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else if ( str_who == 'whitelistPop' ) {
