@@ -5,9 +5,9 @@ import re
 
 _sql_injection_pattern ='|'.join((r"\b(select|update|insert|delete|drop|create|alter|truncate|rename)\b",
                                   r"\b(execute|prepare|call|start|lock|change|use)\b",
-                                  r"\b(where|from|join|and|or|not|like)\b",
+                                  r"\b(where|from|join|like)\b",
                                   r"--|#",
-                                  r";|&|\\|\'|\"|\*|\?|\^|\(|\)|\%|\_|\$"))
+                                  r";|&|\\|\*|\^|\(|\)|\%|\$|\>|\<"))
 
 SQL_INJECTION_CHECKER = re.compile(_sql_injection_pattern, re.I)
 
