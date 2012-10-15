@@ -295,10 +295,10 @@ $(function () {
 			dlf.fn_personalSave();
 		}
 	});
-	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
-	$('#txtAddress').formValidator().inputValidator({max: 20, onError: '地址最大长度是20个汉字或字符！'});
-	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '您输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '您输入的邮箱格式不正确！'});
-	$('#remark').formValidator().inputValidator({max: 20, onError: '备注最大长度是20个汉字或字符！'});
+		$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
+	$('#txtAddress').formValidator().inputValidator({max: 100, onError: '地址最大长度是100个汉字或字符！'});
+	$('#email').formValidator({empty:true}).inputValidator({max: 100, onError: 'email最大长度是100个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '您输入的邮箱格式不正确！'});
+	$('#remark').formValidator().inputValidator({max: 100, onError: '备注最大长度是100个汉字或字符！'});
 	// 密码进行验证
 	$.formValidator.initConfig({
 		formID: 'pwdForm', //指定from的ID 编号

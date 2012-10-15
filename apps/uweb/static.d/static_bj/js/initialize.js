@@ -803,7 +803,7 @@ window.dlf.fn_onInputBlur = function() {
 					if ( n_valLength == 0 ) {
 						str_msg = '';
 					} else if ( n_valLength > n_maxLength ) {
-						str_msg = '邮箱的最大长度是255个字符！'
+						str_msg = 'email最大长度是100个字符！'
 					} else {
 						if ( !reg.test(str_val) ) {
 							str_msg = '您输入的邮箱格式不正确！';

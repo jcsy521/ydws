@@ -13,6 +13,7 @@ $(function() {
 	$.formValidator.initConfig({
 		formID: 'feedbackForm', //指定from的ID 编号
 		debug: true, // 指定调试模式,不提交form
+		wideWord: false,
 		submitButtonID: 'btnSubmit', // 指定本form的submit按钮
 		onError: function(msg) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
@@ -36,5 +37,5 @@ $(function() {
 	}
 	$('#contact').formValidator({empty:true}).inputValidator(); // 区分大小写
 	$('#email').formValidator().inputValidator({max: 50, onError: '邮箱地址的最大长度是50个字符'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "请输入正确的邮箱地址."});  // 别名
-	$('#content').formValidator().inputValidator({min: 10, max: 300, onError: '您的反馈内容最少10个字符，最大输入300个字符'}); // 区分大小写
+	$('#content').formValidator().inputValidator({min: 10, max: 300, onError: '您的反馈内容最小长度为10，最大长度是300！'}); // 区分大小写
 });
