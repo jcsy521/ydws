@@ -57,6 +57,7 @@ class LeHandler(BaseHandler):
                                        lon=0))
         try:
             data = DotDict(json_decode(self.request.body))
+            logging.info('[LE] request:\n %s', data)
             url = ConfHelper.LBMP_CONF.le_url
             request = self.composer(data.lac, data.cid, data.mcc, data.mnc)
         except Exception as e:
@@ -74,6 +75,7 @@ class LeHandler(BaseHandler):
                     ret.position.lat = int(json_data["location"]["latitude"] * 3600000)
                     ret.position.lon = int(json_data["location"]["longitude"] * 3600000)
                     ret.success = ErrorCode.SUCCESS 
+                    ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                     logging.info("[LE] get lat=%s, lon=%s  through lac=%s, cid=%s", 
                                        ret.position.lat, ret.position.lon, data.lac, data.cid)
             except Exception as e:

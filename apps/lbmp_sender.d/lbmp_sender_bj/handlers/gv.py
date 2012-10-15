@@ -31,7 +31,7 @@ class GvHandler(BaseHandler):
                     address="")
         try:
             data = DotDict(json_decode(self.request.body))
-            status = ErrorCode.SUCCESS
+            logging.info('[GV] request:\n %s', data)
             url = ConfHelper.LBMP_CONF.gv_url_baidu % (data.lat, data.lon)
         except Exception as e:
             logging.exception("[GV] get address failed. Exception: %s", e.args)
@@ -42,12 +42,12 @@ class GvHandler(BaseHandler):
         def _on_finish():
             try:
                 response, content = self.http.request(url)       
-                logging.info("[GV] response:\n %s", "Too many words, DUMMY response instead.")
+                logging.info("[GV] response:\n %s", content)
                 json_data = json_decode(content)
                 if json_data['status'] == 'OK':
-                    #ret.address = json_data['results'][0]['formatted_address']
                     ret.address = json_data['result']['formatted_address']
                     ret.success = ErrorCode.SUCCESS 
+                    ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                     logging.info("[GV] get address=%s through lat=%s, lon=%s",
                                  ret.address, data.lat, data.lon)
             except Exception as e:

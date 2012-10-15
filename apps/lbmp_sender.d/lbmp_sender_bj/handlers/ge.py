@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import base64
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
@@ -26,13 +27,13 @@ class GeHandler(BaseHandler):
                                    clon=degree * 3600000}
                         }
         """
-        import base64
         ret=DotDict(success=ErrorCode.LOCATION_OFFSET_FAILED,
                     info=ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_OFFSET_FAILED],
                     position=DotDict(clat=0,
                                      clon=0))
         try:
             data = DotDict(json_decode(self.request.body))
+            logging.info('[GE] request:\n %s', data)
             # x: lon, y: lat
             url = ConfHelper.LBMP_CONF.ge_url_baidu % (data.lat/3600000.0, data.lon/3600000.0)
         except Exception as e:
@@ -44,16 +45,17 @@ class GeHandler(BaseHandler):
         def _on_finish():
 
             response, content = self.http.request(url)
+            logging.info('[GE] response:\n %s', content)
             json_data = json_decode(content)
             if json_data['error'] == 0:
                 lon = base64.b64decode(json_data['x'])
                 lat = base64.b64decode(json_data['y'])
                 ret.position.clat = int(float(lat) * 3600000)
                 ret.position.clon = int(float(lon) * 3600000)
-
                 logging.info("[GE] get clat=%s, clon=%s through lat=%s, lon=%s", 
                                 lat, lon, data.lat, data.lon)
                 ret.success = ErrorCode.SUCCESS 
+                ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
 
             self.write(ret)
             IOLoop.instance().add_callback(self.finish)
