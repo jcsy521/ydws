@@ -29,13 +29,15 @@ class SMSCode(object):
     SMS_RETRIEVE_PASSWORD = u"尊敬的车主,您刚才使用了爱车保网站的密码找回功能，新的登陆密码为：%s，请妥善保管。如需修改密码，请登录爱车保网站修改密码操作。" 
     SMS_REG = u"尊敬的车主,您刚才使用了爱车保激活功能，验证码为：%s，请5分钟内进行激活。若非您本人或授权操作，请联系爱车保客服。" 
 
-    SMS_JH_SUCCESS = u"您的爱车保%s激活成功，平台网址：%s，用户名：%s，密码：%s。"
+    SMS_JH_SUCCESS = u"您的爱车保%s激活成功，平台网址：%s，用户名：%s，密码：%s"
     SMS_JH_FAILED = u"激活失败，请确认手机号是否正确，或联系爱车保客服。"
     SMS_TERMINAL_HK = u"您的爱车保%s已经换卡，请发送换卡短信指令：‘HK+新爱车保号码+平台登录密码’到新爱车保号码。例如：HK 13900000000 111111"
-    SMS_USER_HK_SUCCESS = u"车主号码换卡成功，新卡号码：%s，平台网址：%s，用户名：%s，密码：%s。"
-    SMS_TERMINAL_HK_SUCCESS = u"您的爱车保%s换卡成功，新卡号码：%s！"
+    SMS_USER_HK_SUCCESS = u"车主号码换卡成功，新卡号码：%s，平台网址：%s，用户名：%s，密码：%s"
+    SMS_TERMINAL_HK_SUCCESS = u"您的爱车保%s换卡成功，新卡号码：%s"
     SMS_USER_ADD_TERMINAL = u"您的号码绑定了新的爱车保号码%s。请登录平台网址：%s查看。"
     SMS_PSD_WRONG = u"密码错误，请重新确认！"
+    SMS_TID_EXIST = u"该终端序列号%s冲突，请联系爱车保客服。"
+    SMS_TID_NOT_EXIST = u"该终端未激活，请执行激活短信指令：‘JH+爱车保号码’到爱车保号码。例如：JH 13900000000"
 
 
     SMS_DOWNLOAD_REMIND = u"尊敬的车主，您可以通过访问 %s 下载爱车保的Android客户端。"

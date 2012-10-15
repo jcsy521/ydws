@@ -376,6 +376,18 @@ class MyGWServer(object):
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", t_info['dev_id'])
             if t_info['psd']:
+                # check terminal exist or not when HK
+                if not terminal:
+                    args.success = GATEWAY.LOGIN_STATUS.UNREGISTER
+                    sms = SMSCode.SMS_TID_NOT_EXIST
+                    SMSHelper.send(t_info['u_msisdn'], sms)
+                    lc = LoginRespComposer(args)
+                    request = DotDict(packet=lc.buf,
+                                      address=address)
+                    self.append_gw_request(request, connection, channel)
+                    logging.error("[GW] Login failed! Terminal %s execute HK, but tid is not exist",
+                                  t_info['dev_id'])
+                    return
                 # HK, change terminal mobile or owner mobile
                 logging.info("[GW] Checking password. Terminal: %s",
                              t_info['dev_id'])
@@ -463,8 +475,15 @@ class MyGWServer(object):
                 # login or JH
                 if terminal:
                     # login
-                    logging.info("[GW] Terminal: %s Normal login started!",
-                                 t_info['dev_id']) 
+                    # check tid conflict
+                    if terminal.mobile != t_info['t_msisdn']:
+                        args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                        sms = SMSCode.SMS_TID_EXIST % t_info['dev_id']
+                        logging.error("[GW] Login failed! Terminal: %s already bound by %s, new mobile: %s",
+                                      t_info['dev_id'], terminal.mobile, t_info['t_msisdn'])
+                    else:
+                        logging.info("[GW] Terminal: %s Normal login started!",
+                                     t_info['dev_id']) 
                 else:
                     # SMS JH or admin JH or change new dev JH
                     logging.info("[GW] Terminal: %s JH started.", t_info['dev_id'])
