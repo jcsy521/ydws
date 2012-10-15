@@ -284,6 +284,7 @@ $(function () {
 	$.formValidator.initConfig({
 		formID: 'personalForm', //指定from的ID 编号
 		debug: true, // 指定调试模式,不提交form
+		wideWord: false,
 		submitButtonID: 'personalSave', // 指定本form的submit按钮
 		onError: function(msg) { 
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
@@ -292,11 +293,10 @@ $(function () {
 			dlf.fn_personalSave();
 		}
 	});
-	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名的最大长度是20个字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
-	$('#txtAddress').formValidator().inputValidator({max: 255, onError: '地址过长，请重新输入！'});
+	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
+	$('#txtAddress').formValidator().inputValidator({max: 20, onError: '地址最大长度是20个汉字或字符！'});
 	$('#email').formValidator({empty:true}).inputValidator({max: 255, onError: '您输入的邮箱长度非法,请确认！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '您输入的邮箱格式不正确！'});
-	$('#corporation').formValidator().inputValidator({max: 255, onError: '公司名称过长，请重新输入！'});
-	$('#remark').formValidator().inputValidator({max: 255, onError: '备注过长，请重新输入！'});
+	$('#remark').formValidator().inputValidator({max: 20, onError: '备注最大长度是20个汉字或字符！'});
 	// 密码进行验证
 	$.formValidator.initConfig({
 		formID: 'pwdForm', //指定from的ID 编号
@@ -322,6 +322,7 @@ $(function () {
 		formID: 'terminalForm', //指定from的ID 编号
 		debug: true, // 指定调试模式,不提交form
 		validatorGroup: '3', // 指定本form组编码,默认为1, 多个验证组时使用
+		wideWord: false,
 		submitButtonID: 'terminalSave', // 指定本form的submit按钮
 		onError: function(msg) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
@@ -334,8 +335,8 @@ $(function () {
 	//$('#t_pulse').formValidator({validatorGroup: '3'}).inputValidator({max: 4, onError: '心跳时间最大长度为4位数字！'}).regexValidator({regExp: 'pulse', dataType: 'enum', onError: '您设置的终端的心跳时间不正确，范围(1-1800秒)！'});;
 	
 	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的白名单不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list_1', operateor: '!=', datatype: 'string', onError: '白名单不能和车主号码相同！'});
-	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号长度不能超过20个字符！'}); // 区分大小写
-	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名长度不能超过20个字符！'});  // 别名
+	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}); // 区分大小写
+	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度是20个汉字或字符！'});  // 别名
 	//$('#t_vibchk0').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
 	//$('#t_vibchk1').formValidator({validatorGroup: '3'}).inputValidator().regexValidator({regExp: 'vibchk', dataType: 'enum', onError: '配置在 X 秒时间内产生了Y次震动，才产生震动告警，范围(1:1--30:30)！'}); // 区分大小写
 	// 如果没有车辆信息,提示用户
