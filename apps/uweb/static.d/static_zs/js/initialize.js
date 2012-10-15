@@ -18,19 +18,28 @@ if ( !window.dlf ) { window.dlf = {}; }
 window.dlf.fn_loadMap = function() { 
 	// 设置地图初始化参数对象
 	mapObj = new BMap.Map('mapObj'); // 创建地图实例
-	markerPoint = new BMap.Point(116.39825820922851 ,39.904600759441024); // 创建点坐标
-	mapObj.centerAndZoom(markerPoint, 15); // 初始化地图，设置中心点坐标和地图级别 
-	mapObj.enableScrollWheelZoom();  // 启用滚轮放大缩小。
-	mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
-	viewControl = new BMap.OverviewMapControl({isOpen: true});
-	mapObj.addControl(viewControl); //添加缩略地图控件
-	mapObj.addControl(new BMap.MapTypeControl({
-												mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], 
-												offset: new BMap.Size(100, 10)
-												}));	// 地图类型 自定义显示 普通地图和卫星地图
-	mapObj.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
-	mapObj.addControl(new BMapLib.TrafficControl({anchor: BMAP_ANCHOR_TOP_RIGHT})); //添加路况信息控件
-}	
+	//markerPoint = new BMap.Point(116.39825820922851 ,39.904600759441024); // 创建点坐标
+	//mapObj.centerAndZoom(markerPoint, 15); // 初始化地图，设置中心点坐标和地图级别 
+	var localCity = new BMap.LocalCity();
+	localCity.get(function(r) { // get到当前位置后会调用此匿名函数，否则不调用
+		// 此方法正常可以拿到城市的名称,出错情况无法测试, 拿 不到城市名称时的情况待测试
+		if ( r ) {
+			mapObj.centerAndZoom(r.center, r.level);
+		} else {
+			mapObj.centerAndZoom('Beijing', 15);  // 初始化地图，设置中心点坐标和地图级别 
+		}
+		mapObj.enableScrollWheelZoom();  // 启用滚轮放大缩小。
+		mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
+		viewControl = new BMap.OverviewMapControl({isOpen: true});
+		mapObj.addControl(viewControl); //添加缩略地图控件
+		mapObj.addControl(new BMap.MapTypeControl({
+													mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], 
+													offset: new BMap.Size(100, 10)
+													}));	// 地图类型 自定义显示 普通地图和卫星地图
+		mapObj.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+		mapObj.addControl(new BMapLib.TrafficControl({anchor: BMAP_ANCHOR_TOP_RIGHT})); //添加路况信息控件
+	});
+}
 // 窗口关闭事件
 window.dlf.fn_closeWrapper = function() {
 	// 弹出框的关闭按钮事件 
