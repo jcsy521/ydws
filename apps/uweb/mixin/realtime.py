@@ -31,6 +31,17 @@ class RealtimeMixin(BaseMixin):
             self.db.execute("UPDATE T_TERMINAL_INFO SET " + set_clause + " WHERE tid = %s", 
                             location.dev_id)
     
+    def update_location(self, location):
+        self.db.execute("UPDATE T_LOCATION"
+                        "  SET name = %s,"
+                        "      latitude = %s,"
+                        "      longitude = %s,"
+                        "      clatitude = %s,"
+                        "      clongitude = %s"
+                        "  WHERE id = %s",
+                        location.name, location.lat, location.lon,
+                        location.cLat, location.cLon, location.id)
+
     def insert_location(self, location):
         """Insert the location into mysql and keep it in memcached.
         """
@@ -147,14 +158,17 @@ class RealtimeMixin(BaseMixin):
                 callback(ret)
         else:
             if query.locate_flag == UWEB.LOCATE_FLAG.CELLID:
-                loc = self.db.get("SELECT cellid, degree, speed"
+                loc = self.db.get("SELECT id, cellid, degree, speed"
                                   "  FROM T_LOCATION WHERE tid = %s"
                                   "  AND cellid IS NOT NULL "
                                   "  AND cellid <> '' "
+                                  "  AND clongitude = 0"
+                                  "  AND clatitude = 0"
                                   "  ORDER BY timestamp DESC"
                                   "  LIMIT 1",self.current_user.tid)
 
-                location = DotDict(valid=GATEWAY.LOCATION_STATUS.FAILED,
+                location = DotDict(id=loc.id,
+                                   valid=GATEWAY.LOCATION_STATUS.FAILED,
                                    t=EVENTER.INFO_TYPE.POSITION, 
                                    dev_id=self.current_user.tid,
                                    lat=0,
@@ -172,7 +186,6 @@ class RealtimeMixin(BaseMixin):
                                            cellid=True,
                                            db=self.db)
 
-                self.insert_location(location)
                 if location.get('cLat') and location.get('cLon'):
                     ret.location = DotDict()
                     ret.location.latitude = location.lat
@@ -185,6 +198,7 @@ class RealtimeMixin(BaseMixin):
                     ret.location.type = location.type
                     ret.location.tid = self.current_user.tid
                     ret.location.degree = float(location.degree)
+                    self.update_location(location)
                 else:
                     ret.status = ErrorCode.LOCATION_CELLID_FAILED 
                     ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
@@ -205,6 +219,7 @@ class RealtimeMixin(BaseMixin):
                                                    cellid=False,
                                                    db=self.db)
 
+                        self.insert_location(location)
                         if location.get('cLat') and location.get('cLon'):
                             ret.location = DotDict()
                             ret.location.latitude = location.lat
@@ -217,7 +232,6 @@ class RealtimeMixin(BaseMixin):
                             ret.location.type = location.type
                             ret.location.tid = self.current_user.tid
                             ret.location.degree = float(location.degree)
-                            self.insert_location(location)
                             self.update_terminal_status(location)
                     else:
                         if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
