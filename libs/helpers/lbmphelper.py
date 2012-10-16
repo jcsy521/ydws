@@ -12,56 +12,79 @@ from utils.dotdict import DotDict
 from constants import EVENTER, GATEWAY, UWEB
 from constants.MEMCACHED import ALIVED
 
-def get_clocation_from_ge(location):
-    response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GE, location)
-    response = json_decode(response)
-    if response['success'] == 0:
-        location.cLat = response['position']['clat']
-        location.cLon = response['position']['clon']
-    else:
-        logging.info("Get clocation from GE error: %s, location: %s",
-                     response['info'], location)
-        location.cLat = 0 
-        location.cLon = 0 
-
-    return location.cLat, location.cLon
-
-def get_latlon_from_cellid(location):
-    if location.cellid:
-        try:
-            cellid_info = [int(item) for item in location.cellid.split(":")]
-            args = dict(mcc=cellid_info[0], mnc=cellid_info[1],
-                        lac=cellid_info[2], cid=cellid_info[3])
-            response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.LE, args)
-            response = json_decode(response) 
-            if response['success'] == 0:
-                location.lat = response['position']['lat']
-                location.lon = response['position']['lon']
-            else:
-                logging.info("Get clocation from GE error: %s, locaton: %s",
-                             response['info'], location)
-        except:
-            logging.exception("Parse cellid: %s error.", location.cellid)
-
-    return location
-
-def get_location_name(location, redis):
-    key = get_location_cache_key(int(location.cLon), int(location.cLat))
-    location.name = redis.getvalue(key)
-    if not location.name:
-        args = dict(lon=(float(location.cLon)/3600000),
-                    lat=(float(location.cLat)/3600000))
-        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GV, args)
+def get_clocation_from_ge(lat, lon):
+    """@params: lat, degree*3600000
+                lon, degree*3600000
+       @return: clat, degree
+                clon, degree
+    """
+    clat = 0 
+    clon = 0 
+    try: 
+        args = DotDict(lat=lat,
+                       lon=lon)
+        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GE, args)
         response = json_decode(response)
         if response['success'] == 0:
-            location.name = response.get('address')
-            if location.name:
-                redis.setvalue(key, location.name, EVENTER.LOCATION_NAME_EXPIRY)
+            clat = response['position']['clat']
+            clon = response['position']['clon']
         else:
-            logging.error("Get location name error: %s, %s",
-                          response.get('info'), location.dev_id)
+            logging.info("Get clocation from GE failed, response: %s, args: %s",
+                         response['info'], args)
+    except Exception as e:
+        logging.exception("Get latlon from GE failed. Exception: %s", e.args)
+    return clat, clon
 
-    return location.name 
+def get_latlon_from_cellid(mcc, mnc, lac, cid):
+    """@params: mcc, mobile country code 
+                mnc, mobile network code 
+                lac, location area code 
+                cid, cellid
+       @return: lat, degree
+                lon, degree
+    """
+    lat = 0
+    lon = 0
+    try:
+        args = dict(mcc=mcc, mnc=mnc,
+                    lac=lac, cid=cid)
+        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.LE, args)
+        response = json_decode(response) 
+        if response['success'] == 0:
+            lat = response['position']['lat']
+            lon = response['position']['lon']
+        else:
+            logging.info("Get latlon from LE failed, response: %s, args: %s",
+                         response['info'], args)
+    except Exception as e:
+        logging.exception("Get latlon from LE failed. Exception: %s", e.args)
+    return lat, lon 
+
+def get_location_name(clat, clon, redis):
+    """@params: clat, degree*3600000
+                clon, degree*3600000
+                redis
+       @return: name
+    """
+    name = ''
+    try: 
+        key = get_location_cache_key(int(clon), int(clat))
+        name = redis.getvalue(key)
+        if not name:
+            args = dict(lon=(float(clon)/3600000),
+                        lat=(float(clat)/3600000))
+            response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GV, args)
+            response = json_decode(response)
+            if response['success'] == 0:
+                name = response.get('address')
+                if name:
+                    redis.setvalue(key, name, EVENTER.LOCATION_NAME_EXPIRY)
+            else:
+                logging.error("Get location name failed, response: %s, args: %s",
+                              response.get('info'), args)
+    except Exception as e:
+        logging.exception("Get location name from GV failed. Exception: %s", e.args)
+    return name 
 
 def get_last_degree(location, redis, db):
     # if the car is still(speed < min_speed) or location is cellid, the degree is suspect.
@@ -109,17 +132,19 @@ def handle_location(location, redis, cellid=False, db=None):
             location.degree = get_last_degree(location, redis, db)
         if cellid:
             location.type = 1
-            location = get_latlon_from_cellid(location)
+            if location.cellid:
+                cellid_info = [int(item) for item in location.cellid.split(":")]
+                location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3])
             #if location.lat and location.lon:
             #    location = filter_location(location, memcached)
 
 
     if location and location.lat and location.lon:
-        location.cLat, location.cLon = get_clocation_from_ge(location)
+        location.cLat, location.cLon = get_clocation_from_ge(location.lat, location.lon)
         #if (location['t'] == EVENTER.INFO_TYPE.REPORT or
         #    location['command'] == GATEWAY.T_MESSAGE_TYPE.LOCATIONDESC):
         # NOTE: change it temporarily: in platform get loction name of all
-        location.name = get_location_name(location, redis)
+        location.name = get_location_name(location.cLat, location.cLon, redis)
 
     if location['t'] == EVENTER.INFO_TYPE.POSITION:
         location.category = EVENTER.CATEGORY.REALTIME
