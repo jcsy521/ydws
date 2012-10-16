@@ -226,8 +226,8 @@ class MyGWServer(object):
         try:
             message = json.loads(body)
             message = DotDict(message)
-            self.socket.sendto(message.packet, tuple(message.address))
             logging.info("[GW] send: %s to %s", message.packet, message.address)
+            self.socket.sendto(message.packet, tuple(message.address))
         except socket.error as e:
             logging.exception("[GW]sock send error: %s", e.args)
         except Exception as e:
@@ -842,7 +842,7 @@ class MyGWServer(object):
                               location.speed, location.degree,
                               location.cellid)
         is_alived = self.redis.getvalue('is_alived')
-        if (is_alived == ALIVED and location.valid == GATEWAY.LOCATION_STATUS.SUCCESS):
+        if (is_alived == ALIVED and location.cLat and location.cLon):
             mem_location = DotDict({'id':lid,
                                     'latitude':location.lat,
                                     'longitude':location.lon,

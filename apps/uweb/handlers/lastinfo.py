@@ -41,7 +41,7 @@ class LastInfoHandler(BaseHandler):
                                            "  FROM T_TERMINAL_INFO as ti "
                                            "  WHERE ti.tid = %s"
                                            "  LIMIT 1",
-                                          tid)
+                                           tid)
                     if not terminal:
                         status = ErrorCode.LOGIN_AGAIN
                         logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
@@ -60,7 +60,7 @@ class LastInfoHandler(BaseHandler):
 
 
                 # 2: get location 
-                location_key = get_location_key(str(self.current_user.tid))
+                location_key = get_location_key(str(tid))
                 location = self.redis.getvalue(location_key)
                 if not location:
                     location = self.db.get("SELECT speed, timestamp, category, name,"

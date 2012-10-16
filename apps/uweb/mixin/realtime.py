@@ -55,7 +55,7 @@ class RealtimeMixin(BaseMixin):
                               location.type, location.speed,
                               location.degree, location.cellid)
         is_alived = self.redis.getvalue('is_alived')
-        if (is_alived == ALIVED and location.valid == GATEWAY.LOCATION_STATUS.SUCCESS):
+        if (is_alived == ALIVED and location.cLat and location.cLon):
             mem_location = DotDict({'id':lid,
                                     'latitude':location.lat,
                                     'longitude':location.lon,
