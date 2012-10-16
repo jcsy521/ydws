@@ -37,7 +37,6 @@ def get_latlon_from_cellid(location):
             if response['success'] == 0:
                 location.lat = response['position']['lat']
                 location.lon = response['position']['lon']
-                location.valid = GATEWAY.LOCATION_STATUS.SUCCESS 
             else:
                 logging.info("Get clocation from GE error: %s, locaton: %s",
                              response['info'], location)

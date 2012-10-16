@@ -118,10 +118,10 @@ class PacketTask(object):
         if location.Tid == EVENTER.TRIGGERID.CALL:
             # get available location from lbmphelper
             location = lbmphelper.handle_location(location, self.redis,
-                                                  cellid=False, db=self.db) 
+                                                  cellid=True, db=self.db) 
             location.category = EVENTER.CATEGORY.REALTIME
             self.update_terminal_info(location)
-            if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
+            if location.get('cLat') and location.get('cLon'):
                 self.realtime_location_hook(location)
         elif location.Tid == EVENTER.TRIGGERID.PVT:
             pass
