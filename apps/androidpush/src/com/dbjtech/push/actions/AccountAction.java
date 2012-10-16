@@ -38,7 +38,7 @@ public class AccountAction extends ActionSupport {
 	@Action(value = "accountCreate")
 	public String create() {
 		DPUser user = dPUserDao.findFirstByProperty("username", uid);
-
+		logger.info("[PUSH] create account request: user: "+uid );
 		if (user != null) {
 			status = 1;
 			message = "Has been registered!";
@@ -61,7 +61,7 @@ public class AccountAction extends ActionSupport {
 				key = "";
 			}
 		}
-		logger.info("User: " + uid + " create account. Response: " + message);
+		logger.info("[PUSH] create account response: user: "+uid +", message: "+message);
 		return SUCCESS;
 	}
 

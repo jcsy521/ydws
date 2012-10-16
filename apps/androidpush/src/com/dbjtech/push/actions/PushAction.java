@@ -38,6 +38,7 @@ public class PushAction extends ActionSupport {
 	@Action(value = "push")
 	public String execute() {
 		DPUser user = dPUserDao.findFirstByProperty("username", uid);
+		logger.info("[PUSH] push request: user: "+uid +", content: \n"+body);
 		if (user == null) {
 			status = 1;
 			message = "uid does not exist!";
@@ -47,7 +48,7 @@ public class PushAction extends ActionSupport {
 		} else {
 			pusher.sentMessage(uid, body);
 		}
-		logger.info("User: "+uid + " push message. Response: " + message);
+		logger.info("[PUSH] push response: user: "+uid +", message: "+message);
 		return SUCCESS;
 	}
 
