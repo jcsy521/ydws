@@ -16,9 +16,9 @@ class BaseMixin(object):
         lq_sms_key = get_lq_sms_key(self.current_user.tid) 
         # keep the interval_key for interval
         lq_interval_key = get_lq_interval_key(self.current_user.tid) 
-        self.redis.setvalue(lq_interval_key, True, interval*60)
+        self.redis.setvalue(lq_interval_key, True, interval*60 - 40)
         if not self.redis.getvalue(lq_sms_key): 
             sms = SMSCode.SMS_LQ % interval 
             SMSHelper.send_to_terminal(sim, sms) 
             logging.info("Send %s to Sim: %s", sms, sim) 
-            self.redis.setvalue(lq_sms_key, True, SMS.LQ_INTERVAL - 40)
+            self.redis.setvalue(lq_sms_key, True, SMS.LQ_INTERVAL)
