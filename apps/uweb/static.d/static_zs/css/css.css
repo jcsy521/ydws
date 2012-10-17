@@ -121,8 +121,12 @@ body {
     position: relative;
 }
 #fobListLable {
-	width: 64px;
+	padding-left: 3px;
+	width: 61px;
 	height: auto;
+}
+#firstFob {
+	padding-left: 1px;
 }
 #fobList tr {
 	line-height: 18px;
@@ -136,6 +140,7 @@ body {
 }
 #cInfo .tLeft {
 	width: 40px;
+	padding-left: 1px;
 }
 #cInfo tr, #cInfo td {
 	border: 0px;
@@ -280,11 +285,16 @@ body {
     width: 30px;
 }
 .tInfoWord {   
+	padding-left: 1px;
 	text-align: left;
-    width: 63px;
+    width: 61px;
+}
+#gsm .tInfoWord, #gps .tInfoWord {
+	padding: 0px;
 }
 .tInfoWord label {
-	letter-spacing: 2px;
+	width: 25px;
+	float: left;
 }
 #gsm {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;

@@ -121,8 +121,6 @@ function fn_currentRequest(obj_pd) {
 												}
 											} else if ( n_getCallbackStatus == 201 ) {	// 业务变更
 												dlf.fn_showBusinessTip();
-											} else if ( n_getCallbackStatus == 301 || n_getCallbackStatus == 800 || n_getCallbackStatus == 801 ) {	// 301: gps信号弱 800: 终端不在线 801: 终端连接超时 发起基站定位
-												fn_startCell(str_flagVal, n_cellstatus);
 											} else { // 与后台连接失败 重新开启lastinfo
 												dlf.fn_clearInterval(CURRENT_TIMMER);
 												fn_openLastinfo(str_errorMsg);

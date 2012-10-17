@@ -125,6 +125,9 @@ body {
 	width: 61px;
 	height: auto;
 }
+#firstFob {
+	padding-left: 1px;
+}
 #fobList tr {
 	line-height: 18px;
 	vertical-align: top;
@@ -290,7 +293,7 @@ body {
 	width: 25px;
 	float: left;
 }
-#gsm span, #gps span {
+#gsm .tInfoWord, #gps .tInfoWord {
 	padding: 0px;
 }
 #gsm {
