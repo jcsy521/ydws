@@ -94,13 +94,13 @@
 								</tr>
 								<tr>
 									<td class="terminalTdL">终端别名:</td>
-									<td id="alias" class="j_ListVal"  t_val="">
+									<td id="alias" class="j_ListVal j_input"  t_val="">
 										<input id="t_alias" type="text" terminalkey="t_alias" class="text_mouseOut j_onInputBlur" msg="终端别名最大长度是20个汉字或字符！" max = "20"  who="validateLength"  parent="terminalWrapper"  />
 									</td>
 								</tr>
 								<tr>
 									<td class="terminalTdL">车牌号:</td>
-									<td id="cnum" class="j_ListVal"  t_val="">
+									<td id="cnum" class="j_ListVal j_input"  t_val="">
 										<input type="text" id="t_cnum" terminalkey="cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
 									</td>
 								</tr>
@@ -113,13 +113,13 @@
 								</tr>
 								<tr>
 									<td class="terminalTdL" ></td>
-									<td id="white_list_2"  class="j_ListVal j_whitelist j_white_list"  t_val="">
-										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists"  type="text"  max="14"  msg="您设置的车主号码不正确，请输入正确的手机号！" who="mobile" parent="terminalWrapper"   />
+									<td id="white_list_2"  class="j_ListVal j_whitelist j_white_list j_input"  t_val="">
+										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的车主号码不正确，请输入正确的手机号！" who="mobile" parent="terminalWrapper"   />
 									</td>
 								</tr>
 								<tr>
 									<td class="terminalTdL">振动灵敏度:</td>
-									<td id="vibl" class="j_ListVal j_vibl"  t_val="0">
+									<td id="vibl" class="j_ListVal j_select"  t_val="0">
 										<!--<div  class="viblslider">
 											<div id="viblSlider" title="1"></div>
 										</div>
@@ -134,7 +134,7 @@
 								</tr>
 								<tr>
 									<td class="terminalTdL">振动频率:</td>
-									<td id="vibchk" class="j_ListVal j_vibchk"  t_val="0">
+									<td id="vibchk" class="j_ListVal j_select"  t_val="0">
 										<!--<input id="t_vibchk0"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk j_onkeyup" type="text"  maxlength="2" /><label class="lblVibchk">秒内振动</label>
 										<!--<input id="t_vibchk1"  terminalkey="vibchk"  class="bListR_text_mouseOut vibchk j_onkeyup" type="text"  maxlength="2" />次-->
 										<select id="t_vibchk" >
@@ -148,7 +148,7 @@
 								</tr>
 								<tr>
 									<td class="terminalTdL">轨迹上报:</td>
-									<td id="trace"  class="j_ListVal" t_val="">
+									<td id="trace"  class="j_ListVal j_radio" t_val="">
 										<input id="tr_trace1" type="radio" value="1" name="trStatus"  class="j_trace" />
 										<label id="tRadioLable1" for="tr_trace1">开启</label>
 										<input id="tr_trace0" type="radio" value="0" name="trStatus"   class="j_trace" />
@@ -157,7 +157,7 @@
 								</tr>
 								<tr>
 									<td class="terminalTdL">上报间隔:</td>
-									<td id="freq" class="j_ListVal j_freq"  t_val="0">
+									<td id="freq" class="j_ListVal j_select"  t_val="0">
 										<!--<input id="t_freq"  terminalkey="freq"  class="bListR_text_mouseOut j_onkeyup" type="text"  maxlength="4" /><label class="lblVibchk">秒</label>-->
 										<select id="t_freq" >
 											<option value="0">智能上报</option>
@@ -171,7 +171,7 @@
 								</tr>
 								<tr>
 									<td class="terminalTdL">基站定位:</td>
-									<td id="cellid_status" class="j_ListVal"  t_val="">
+									<td id="cellid_status" class="j_ListVal j_radio"  t_val="">
 										<input id="tr_cellid_status1" type="radio" value="1" name="tcStatus" />
 										<label id="tcsLable1" for="tr_cellid_status1">开启</label>
 										<input id="tr_cellid_status0" type="radio" value="0" name="tcStatus" />

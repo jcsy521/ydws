@@ -1,36 +1,44 @@
 /*
 *轨迹查询相关操作方法
 */
+
 /**
 *开始动态效果
 *timerId : 动态时间控制器
 *counter : 动态运行次数
 *str_actionState : 暂停操作的状态
+*n_speed: 默认播放速度
+*f_trackMsgStatus: 动态marker的吹出框是否显示
 */
-var timerId = null, counter = 0, str_actionState = 0,n_speed = 200, f_trackMsgStatus = false;
-// 初始化轨迹显示页面
+var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, f_trackMsgStatus = false;
+/**
+* 初始化轨迹显示页面
+*/
 window.dlf.fn_initTrack = function() {
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询
-	dlf.fn_clearInterval(currentLastInfo); // lastinfo关闭
-	dlf.fn_clearInterval(timerId);//计时器关闭
+	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
+	dlf.fn_clearInterval(timerId); // 清除动态播放轨迹计时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	//$('#carList a[class*=currentCar]').removeData('selfmarker');	// 清除marker
-	//$('#carList .currentCar').removeAttr('actiontrack');	// 移除 开始追踪
-	// 查询条件初始化
-	$('.j_tBtnhover, .trackSpeed').hide();	
+	$('.j_tBtnhover, .trackSpeed').hide();	// 播放速度、播放按钮隐藏
 	$('#trackHeader').show();	// 轨迹查询条件显示
 }
-// 关闭轨迹显示页面
+
+/**
+* 关闭轨迹显示页面
+*/
 window.dlf.fn_closeTrackWindow = function() {
-	dlf.fn_clearInterval(timerId);
+	dlf.fn_clearInterval(timerId);	// 清除动态播放轨迹计时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	$('#trackHeader').hide();
-	// 清除存储数据
+	$('#trackHeader').hide();	// 轨迹查询条件隐藏
+	/**
+	* 清除地图后要清除车辆列表的marker存储数据
+	*/
 	var obj_cars = $('#carList a'),
 		obj_selfMarker = null,
 		obj_li = $('#carList li'),
-		obj_carInfo = null; //obj_li.data('')
+		obj_carInfo = null; 
+		
 	$.each(obj_cars, function(index, dom) {
 		var obj_currentCar = $(dom);
 		obj_selfMarker = obj_currentCar.data('selfmarker');
@@ -45,24 +53,26 @@ window.dlf.fn_closeTrackWindow = function() {
 			obj_currentLi.removeData('carData');
 		}
 	});
-	// 重新请求lastinfo
-	dlf.fn_getCarData();
-	// 动态更新终端相关数据
-	dlf.fn_updateLastInfo($($('#carList a[class*=currentCar]')).attr('tid'));
+	
+	dlf.fn_getCarData();	// 重新请求lastinfo
+	dlf.fn_updateLastInfo($($('#carList a[class*=currentCar]')).attr('tid'));	// 动态更新终端相关数据
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 }
-// 轨迹查询操作
+
+/**
+* 轨迹查询操作
+*/
 function trackQuery() {
-	$('.j_tBtnhover').hide();
-	dlf.fn_clearInterval(currentLastInfo); // 清除定时器
-	dlf.fn_clearMapComponent(); // 清除页面图形
-	str_actionState = 0;
 	var str_beginTime = $('#trackBeginTime').val(), 
 		str_endTime = $('#trackEndTime').val(), 
-	    obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime), 
-						'end_time': dlf.fn_changeDateStringToNum(str_endTime)}; //$('#trackHeader').attr('tid')};
+		obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime), 
+						'end_time': dlf.fn_changeDateStringToNum(str_endTime)};
 	
-	dlf.fn_jNotifyMessage('行踪查询中...<img src="/static/images/blue-wait.gif" />', 'message', true);
+	$('.j_tBtnhover').hide();	// 播放按钮隐藏
+	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
+	dlf.fn_clearMapComponent(); // 清除页面图形
+	str_actionState = 0;	
+	dlf.fn_jNotifyMessage('行踪查询中' + WAITIMG , 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
 	$('.j_trackbody').data('layer', true);
 	dlf.fn_lockScreen();
@@ -85,18 +95,20 @@ function trackQuery() {
 				n_tempMax = 0, 
 				obj_tempMaxPoint = arr_locations[0];
 				var obj_firstPoint = new BMap.Point(arr_locations[0].clongitude/NUMLNGLAT, arr_locations[0].clatitude/NUMLNGLAT);
+				
 				for (var i = 0; i < locLength; i++) {
 					var obj_itemLoc = arr_locations[i], 
 						obj_tempPoint = new BMap.Point(obj_itemLoc.clongitude/NUMLNGLAT, obj_itemLoc.clatitude/NUMLNGLAT);
+						
 					fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
 					arr_dataArr[i] = obj_itemLoc;
 				}
-				mapObj.setViewport([obj_firstPoint, obj_tempMaxPoint]);
+				mapObj.setViewport([obj_firstPoint, obj_tempMaxPoint]);	// 根据对角点计算比例尺进行显示
 				fn_startDrawLineStatic(arr_dataArr);
 			}
-		} else if ( data.status == 201 ) { // 查询状态不正确,错误提示
+		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
-		} else {
+		} else { // 查询状态不正确,错误提示
 			dlf.fn_jNotifyMessage(data.message, 'message');
 		}
 		dlf.fn_unLockScreen(); // 清除页面遮罩
@@ -104,7 +116,9 @@ function trackQuery() {
 	});
 }
 
-//  两点距离计算
+/**
+*  两点距离比较
+*/
 function fn_tempDist(startXY, endXY) {
 	var n_pointDist = fn_forMarkerDistance(startXY, endXY);
 	if ( n_pointDist > n_tempMax ) {
@@ -113,7 +127,9 @@ function fn_tempDist(startXY, endXY) {
 	}
 }
 
-// 根据经纬度求两点间距离
+/**
+* 根据经纬度求两点间距离
+*/
 function fn_forMarkerDistance(firstPoint, secondPoint) {
 	var EarthRadiusKm = 6378137.0; // 取WGS84标准参考椭球中的地球长半径(单位:m)
 	var dLat1InRad = firstPoint.lat/NUMLNGLAT * (Math.PI / 180);
@@ -130,51 +146,62 @@ function fn_forMarkerDistance(firstPoint, secondPoint) {
 	return n_Distance;
 }
 
-// 添加轨迹线和轨迹点
+/**
+* 添加轨迹线和轨迹点
+*/
 function fn_startDrawLineStatic(arr_dataArr) {
 	$('#tPlay, #trackSpeed').css('display', 'inline-block');
 	var arr = new Array(); //经纬度坐标数组 
+	
 	for (var i = 0; i < arr_dataArr.length; i++) {
 		arr.push(new BMap.Point(arr_dataArr[i].clongitude/NUMLNGLAT, arr_dataArr[i].clatitude/NUMLNGLAT));
-		//dlf.fn_addMarker(arr_dataArr[i]); // 添加标记
 	}
-	var polyline = new BMap.Polyline(arr);//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
-	mapObj.addOverlay(polyline);//向地图添加覆盖物 
-	// 添加开始和结束点标记
-	dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 'draw', 0); // 添加标记
-	dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, 'draw', arr_dataArr.length - 1); // 添加标记
+	var polyline = new BMap.Polyline(arr);	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	
+	mapObj.addOverlay(polyline);//向地图添加覆盖物 
+	dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
+	dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
 }
 
-// 动态标记显示
+/**
+* 动态标记显示
+*/
 function fn_markerAction() { 
 	$('#tPlay').unbind('mousedown');
-	//fn_stopDraw();
-	window.setTimeout(fn_drawMarker, 100);
-	timerId = window.setInterval(fn_drawMarker, n_speed);
+	window.setTimeout(fn_drawMarker, 100);	// 先添加第一个点的marker
+	timerId = window.setInterval(fn_drawMarker, n_speed);	// 按照设置播放速度播放轨迹点
 }
 
-// 轨迹查询暂停播放动画操作
+/**
+* 轨迹查询暂停播放动画操作
+*/
 function trackQueryPause() {
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };
 	str_actionState = counter;
 }
 
-// 绑定播放按钮的事件
+/**
+* 绑定播放按钮的事件
+*/
 function fn_bindPlay() {
 	$('#tPlay').unbind('mousedown').bind('mousedown', fn_markerAction);
 }
 
-// 停止动态效果
+/** 
+* 停止动态效果
+*/
 function fn_stopDraw() {
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };
 	counter = 0;
 	mapObj.removeOverlay(actionMarker);
 }
 
-// 动态标记移动方法
+/**
+* 动态标记移动方法
+*/
 function fn_drawMarker() {
 	var n_len = arr_dataArr.length;
+	
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;
 		str_actionState = 0;
@@ -184,7 +211,7 @@ function fn_drawMarker() {
 			f_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();
 			mapObj.removeOverlay(actionMarker);
 		}
-		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, 'draw', counter); // 添加标记
+		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, counter); // 添加标记
 		if ( f_trackMsgStatus ) {
 			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框
 		}
@@ -197,9 +224,13 @@ function fn_drawMarker() {
 		$('#tPlay').css('display', 'inline-block');
 	}
 }
+
+/**
+* 初始化时间控件
+*/
 window.dlf.fn_initTrackDatepicker = function() {
-	// 初始化时间
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');	// 当前时间前两个小时
+	
 	$('#trackBeginTime').unbind('click').click(function() {
 		WdatePicker({el:'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}'});
 	}).val(str_nowDate + ' ' + dlf.fn_changeNumToDateString(new Date()-7200000, 'sfm'));
@@ -207,11 +238,16 @@ window.dlf.fn_initTrackDatepicker = function() {
 		WdatePicker({el:'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}'});
 	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date(), 'sfm'));
 }
-// 页面加载完成后进行加载地图
+
+/**
+* 页面加载完成后进行加载地图
+*/
 $(function () {	
 	
-	dlf.fn_initTrackDatepicker();
-	// 按钮变色
+	dlf.fn_initTrackDatepicker();	// 初始化时间控件
+	/**
+	* 按钮变色
+	*/
 	$('.j_tBtnhover, #trackSearch, #trackClose').mouseover(function(event) {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
@@ -226,7 +262,7 @@ $(function () {
 		} else {
 			str_imgUrl = 'close_default.png';
 		}
-		$(this).css('background-image', 'url("/static/images/'+str_imgUrl+'")');
+		$(this).css('background-image', 'url("'+ BASEIMGURL + str_imgUrl+'")');
 	}).mouseout(function(event){
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
@@ -241,14 +277,13 @@ $(function () {
 		} else {
 			str_imgUrl = 'close_default.png';
 		}
-		$(this).css('background-image', 'url("/static/images/'+str_imgUrl+'")');
+		$(this).css('background-image', 'url("'+ BASEIMGURL + str_imgUrl+'")');
 	}).click(function(event) {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) { // 轨迹查询
 			trackQuery();
 			fn_stopDraw();
-			//fn_bindPlay();
 		} else if ( str_id == 'tPlay' ) { // 播放
 			fn_stopDraw();
 			fn_markerAction();
@@ -256,21 +291,16 @@ $(function () {
 			$('#tPause').css('display', 'inline-block');
 		} else if ( str_id == 'tPause' ) { // 暂停
 			trackQueryPause();
-			//fn_bindPlay();
 			$(this).hide();
 			$('#tPlay').css('display', 'inline-block');
 		} else {
 			dlf.fn_closeTrackWindow();
 		}
-		/*else if ( str_id == 'tStop' ) { // 停止
-			str_actionState = 0;
-			fn_stopDraw();
-			fn_bindPlay();
-			$('#tPause').hide();
-			$('#tPlay').css('display', 'inline-block');
-		}*/
 	});
-	// 初始化速度滑块
+	
+	/**
+	* 初始化速度滑块
+	*/
 	var arr_slide = [1000, 500, 200, 100], 
 		arr_slideTitle = ['慢速', '一般速度', '比较快', '极速'];
 	
@@ -289,10 +319,6 @@ $(function () {
 			if ( str_ishidden ) {	// 如果播放按钮不可用
 				fn_markerAction();
 			}
-			//$('#tPlay').hide();
-			//$('#tPause').css('display', 'inline-block');
-			//
 		}
 	}).slider('option', 'value', 2);
-	
 })
