@@ -7,4 +7,4 @@ METHOD = DotDict(DELETE="DELETE",
                  PUT="PUT",
                  GET="GET")
 
-ASYNC_REUEST_TIMEOUT = 45 
+ASYNC_REQUEST_TIMEOUT = 45 

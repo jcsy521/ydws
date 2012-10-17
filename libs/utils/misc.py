@@ -118,9 +118,9 @@ def get_sessionID():
 
 def get_psd():
     psd = ''
-    base_str = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    base_str = 'abcdefghjkmnpqrstuvwxyz23456789'
     for i in range(6):
-        index = random.randint(0, 35)
+        index = random.randint(0, 30)
         psd += base_str[index]
 
     return psd 
