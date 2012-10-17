@@ -166,7 +166,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			} else if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' )  {
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'draw\','+ n_index +');">获取位置</a>'; 
 			} else {
-				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',event,"'+str_tid+'");">获取位置</a>'; 
+				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',"'+str_tid+',event");">获取位置</a>'; 
 			}
 		}
 	} else {	// 判断是否是当前车辆
