@@ -9,7 +9,7 @@ from utils.dotdict import DotDict
 from utils.misc import get_terminal_info_key, get_location_key
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
-from constants import UWEB
+from constants import UWEB, EVENTER
 from constants.MEMCACHED import ALIVED
 from base import BaseHandler, authenticated
 
@@ -63,14 +63,28 @@ class LastInfoHandler(BaseHandler):
                 location_key = get_location_key(str(tid))
                 location = self.redis.getvalue(location_key)
                 if not location:
-                    location = self.db.get("SELECT speed, timestamp, category, name,"
-                                           "  degree, type, latitude, longitude, clatitude, clongitude"
+                    location = self.db.get("SELECT id, speed, timestamp, category, name,"
+                                           "  degree, type, latitude, longitude, clatitude, clongitude, timestamp"
                                            "  FROM T_LOCATION"
                                            "  WHERE tid = %s"
                                            "    AND NOT (clatitude = 0 AND clongitude = 0)"
                                            "    ORDER BY timestamp DESC"
                                            "    LIMIT 1",
                                            tid)
+                    if location:
+                        mem_location = DotDict({'id':location.id,
+                                                'latitude':location.latitude,
+                                                'longitude':location.longitude,
+                                                'type':location.type,
+                                                'clatitude':location.clatitude,
+                                                'clongitude':location.clongitude,
+                                                'timestamp':location.timestamp,
+                                                'name':location.name,
+                                                'degree':float(location.degree),
+                                                'speed':float(location.speed)})
+
+                        self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+
                 if location and location['name'] is None:
                     location['name'] = ''
 

@@ -21,27 +21,35 @@ class LoginMixin(BaseMixin):
         user = self.db.get("SELECT uid, mobile"
                            "  FROM T_USER"
                            "    WHERE uid = %s"
-                           "      AND password = password(%s)"
                            "      LIMIT 1", 
-                           username, password)
+                           username)
+        if not user:
+            return None, None, None, ErrorCode.USER_NOT_ORDERED
 
-        return self.__internal_check(username, user)
+        return self.__internal_check(username, password)
 
-    def __internal_check(self, mobile, user):
+    def __internal_check(self, username, password):
         """
         @return uid, tid, sim, status 
         """
         status = ErrorCode.SUCCESS
+
+        user = self.db.get("SELECT uid, mobile"
+                           "  FROM T_USER"
+                           "    WHERE uid = %s"
+                           "      AND password = password(%s)"
+                           "      LIMIT 1", 
+                           username, password)
         if not user:
-            status = ErrorCode.PARENT_NOT_ORDERED
-            logging.info("%s login failed. Message: %s", mobile, ErrorCode.ERROR_MESSAGE[status])
+            status = ErrorCode.LOGIN_FAILED
+            logging.info("username: %s, password: %s login failed. Message: %s", username, password,  ErrorCode.ERROR_MESSAGE[status])
             return None, None, None, status 
         else:    
             terminals = self.db.query("SELECT id, tid, mobile FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
                                       "    AND owner_mobile = %s"
                                       "    AND (%s BETWEEN begintime AND endtime)",
-                                      UWEB.SERVICE_STATUS.ON, user.mobile, int(time.time()))
+                                      UWEB.SERVICE_STATUS.ON, username, int(time.time()))
             if not terminals: 
                 status = ErrorCode.TERMINAL_NOT_ORDERED
                 return None, None, None, status 

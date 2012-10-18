@@ -1,9 +1,9 @@
 <download>
     <android>
-        <versioncode>3</versioncode>
-        <versionname>1.0.2</versionname>
-        <versioninfo>1.新增修改密码;2.新增意见反馈反馈;3.新增自动更新;4.新增帮助</versioninfo>
-        <updatetime>2012-09-18</updatetime>
-        <filesize>3.71M</filesize>
+        <versioncode>5</versioncode>
+        <versionname>1.0.5</versionname>
+        <versioninfo>1.更新了帮助图片的文字说明;2.更新了提示信息的显示时间;3.优化了轨迹播放效果;4.修复了实时定位;5.修复了对一些设置的输入校验</versioninfo>
+        <updatetime>2012-10-17</updatetime>
+        <filesize>4.11M</filesize>
     </android>
 </download>

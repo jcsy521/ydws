@@ -83,7 +83,7 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                     logging.error("[UWEB] uid: %s retrieve password failed.", mobile)
             else:
                 logging.error("[UWEB] uid: %s does not exist, retrieve password failed.", mobile)
-                status = ErrorCode.USER_NOT_ORDER
+                status = ErrorCode.USER_NOT_ORDERED
             self.write_ret(status)
             
         except Exception as e:

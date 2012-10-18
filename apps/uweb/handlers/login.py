@@ -89,8 +89,8 @@ class LoginHandler(BaseHandler, LoginMixin):
         else:
             logging.info("[UWEB] uid: %s login failed, message: %s", uid, ErrorCode.ERROR_MESSAGE[status])
             self.render("login.html",
-                        username='',
-                        password='',
+                        username=username,
+                        password=password,
                         message_captcha=None,
                         message=ErrorCode.ERROR_MESSAGE[status])
 

@@ -32,12 +32,10 @@ class ErrorCode(object):
     TERMINAL_TID_EXIST = 210
     USER_NOT_EXIST = 211
     USER_EXCESS = 212
-    USER_NOT_ORDER = 213
-
-    PARENT_NOT_ORDERED = 214
-    TERMINAL_NOT_ORDERED = 215
-    TERMINAL_ORDERED = 216
-    TERMINAL_SET_FAILED= 217
+    USER_NOT_ORDERED = 213 
+    TERMINAL_NOT_ORDERED = 214
+    TERMINAL_ORDERED = 215
+    TERMINAL_SET_FAILED= 216
 
     LOCATION_NAME_NONE = 300
     LOCATION_GPS_FAILED = 301
@@ -91,7 +89,7 @@ class ErrorCode(object):
         TERMINAL_MOBILE_EXIST:         u"爱车保号码已被关联。",
         TERMINAL_TID_EXIST:            u"爱车保已被关联。",
         USER_NOT_EXIST:                u"用户不存在。",
-        USER_NOT_ORDER:                u"该手机号未订购爱车保业务。",
+        USER_NOT_ORDERED:              u'对不起, 该号码尚未订购爱车保业务。',
         USER_EXCESS:                   u'用户已达到定位器的上限，不能再订购新的定位器。', 
         NO_TERMINAL:                   u"您尚未关联车辆。",
         SERVER_ERROR:                  u"服务器错误。",
@@ -99,25 +97,24 @@ class ErrorCode(object):
         ADDITION_EXCESS:               u'该功能设置已超过上限，本次操作失败。',
         EVENT_QUERY_INTERVAL_EXCESS:   u'对不起，只能查询一个星期之内的记录！',
         TRACK_QUERY_INTERVAL_EXCESS:   u'对不起，只能查询一个月之内的记录！',
-        PARENT_NOT_ORDERED:            u'您输入的用户名或密码有误，请重新输入！',
-        TERMINAL_NOT_ORDERED:          u'对不起，该号码尚未订购"爱车保"业务！',
+        TERMINAL_NOT_ORDERED:          u'对不起，该号码尚未绑定爱车保终端。',
         LOCATION_NAME_NONE:            u"无法解析经纬度对应的地址",
         LOCATION_GPS_FAILED:           u"爱车保GPS信号较弱，请稍后重试。",
         LOCATION_CELLID_FAILED:        u"爱车保基站定位失败，请稍后重试。",
         LOCATION_OFFSET_FAILED :       u"经纬度偏转失败，请稍后重试。",
-        TERMINAL_OFFLINE:              u'您的爱车保不在线。',
-        TERMINAL_TIME_OUT:          u'爱车保响应超时，请稍后重试。',
-        TERMINAL_OTHER_ERRORS:      u'连接爱车保失败，请稍后重试。',
-        TERMINAL_ORDERED:           u'终端手机已被注册，请检查确认后再重试！',
-        TERMINAL_SET_FAILED:        u'终端参数设置失败，请稍后重试。',
-        UNKNOWN_COMMAND:            u"您好，你输入的指令爱车保系统不识别，请输入标准指令。",
-        CREATE_USER_FAILURE:        u"添加用户失败。",
-        SELECT_CONDITION_ILLEGAL:   u"您输入的查询条件非法。",
-        SEARCH_BUSINESS_FAILURE:    u"查询普通用户业务失败。",
-        EDIT_CONDITION_ILLEGAL:     u"您输入的编辑内容非法。",
-        CREATE_CONDITION_ILLEGAL:   u"您输入的创建内容非法。",
-        EDIT_USER_FAILURE:          u"编辑普通用户业务失败。",
-        DOWNLOAD_FAILED:            u'对不起，下载失败，请稍后重试。',
-        FEEDBACK_FAILED:            u'对不起，添加反馈失败，请稍后重试。',
-        REGISTER_FAILED:            u'对不起，注册失败，请稍后重试。',
+        TERMINAL_OFFLINE:              u"您的爱车保不在线。",
+        TERMINAL_TIME_OUT:             u"爱车保响应超时，请稍后重试。",
+        TERMINAL_OTHER_ERRORS:         u"连接爱车保失败，请稍后重试。",
+        TERMINAL_ORDERED:              u"终端手机已被注册，请检查确认后再重试！",
+        TERMINAL_SET_FAILED:           u"终端参数设置失败，请稍后重试。",
+        UNKNOWN_COMMAND:               u"您好，你输入的指令爱车保系统不识别，请输入标准指令。",
+        CREATE_USER_FAILURE:           u"添加用户失败。",
+        SELECT_CONDITION_ILLEGAL:      u"您输入的查询条件非法。",
+        SEARCH_BUSINESS_FAILURE:       u"查询普通用户业务失败。",
+        EDIT_CONDITION_ILLEGAL:        u"您输入的编辑内容非法。",
+        CREATE_CONDITION_ILLEGAL:      u"您输入的创建内容非法。",
+        EDIT_USER_FAILURE:             u"编辑普通用户业务失败。",
+        DOWNLOAD_FAILED:               u"对不起，下载失败，请稍后重试。",
+        FEEDBACK_FAILED:               u"对不起，添加反馈失败，请稍后重试。",
+        REGISTER_FAILED:               u"对不起，注册失败，请稍后重试。",
     }

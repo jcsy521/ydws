@@ -166,40 +166,44 @@ class RealtimeMixin(BaseMixin):
                                   "  AND clatitude = 0"
                                   "  ORDER BY timestamp DESC"
                                   "  LIMIT 1",self.current_user.tid)
+                if loc:
+                    location = DotDict(id=loc.id,
+                                       valid=GATEWAY.LOCATION_STATUS.FAILED,
+                                       t=EVENTER.INFO_TYPE.POSITION, 
+                                       dev_id=self.current_user.tid,
+                                       lat=0,
+                                       lon=0,
+                                       cLat=0,
+                                       cLon=0,
+                                       gps_time=int(time.time()),
+                                       type=1,
+                                       speed=float(loc.speed) if loc else 0.0,
+                                       degree=float(loc.degree) if loc else 0.0,
+                                       name='',
+                                       cellid=loc.cellid if loc else None)
 
-                location = DotDict(id=loc.id,
-                                   valid=GATEWAY.LOCATION_STATUS.FAILED,
-                                   t=EVENTER.INFO_TYPE.POSITION, 
-                                   dev_id=self.current_user.tid,
-                                   lat=0,
-                                   lon=0,
-                                   cLat=0,
-                                   cLon=0,
-                                   gps_time=int(time.time()),
-                                   type=1,
-                                   speed=float(loc.speed) if loc else 0.0,
-                                   degree=float(loc.degree) if loc else 0.0,
-                                   name='',
-                                   cellid=loc.cellid if loc else None)
+                    location = handle_location(location, self.redis,
+                                               cellid=True,
+                                               db=self.db)
 
-                location = handle_location(location, self.redis,
-                                           cellid=True,
-                                           db=self.db)
-
-                if location.get('cLat') and location.get('cLon'):
-                    ret.location = DotDict()
-                    ret.location.latitude = location.lat
-                    ret.location.longitude = location.lon
-                    ret.location.clongitude = location.cLon
-                    ret.location.clatitude = location.cLat
-                    ret.location.timestamp = location.gps_time
-                    ret.location.name = location.name if location.name else ''
-                    ret.location.speed = location.speed
-                    ret.location.type = location.type
-                    ret.location.tid = self.current_user.tid
-                    ret.location.degree = float(location.degree)
-                    self.update_location(location)
+                    if location.get('cLat') and location.get('cLon'):
+                        ret.location = DotDict()
+                        ret.location.latitude = location.lat
+                        ret.location.longitude = location.lon
+                        ret.location.clongitude = location.cLon
+                        ret.location.clatitude = location.cLat
+                        ret.location.timestamp = location.gps_time
+                        ret.location.name = location.name if location.name else ''
+                        ret.location.speed = location.speed
+                        ret.location.type = location.type
+                        ret.location.tid = self.current_user.tid
+                        ret.location.degree = float(location.degree)
+                        self.update_location(location)
+                    else:
+                        ret.status = ErrorCode.LOCATION_CELLID_FAILED 
+                        ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
                 else:
+                    logging.info("[UWEB] do not find any cellid info from db. tid: %s", self.current_user.tid)
                     ret.status = ErrorCode.LOCATION_CELLID_FAILED 
                     ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
 
