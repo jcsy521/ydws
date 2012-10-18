@@ -116,9 +116,15 @@ class PacketTask(object):
     def handle_position_info(self, location):
         location = DotDict(location)
         if location.Tid == EVENTER.TRIGGERID.CALL:
+            terminal = self.db.get("SELECT cellid_status FROM T_TERMINAL_INFO WHERE tid = %s", location.dev_id)
+            if terminal.cellid_status == 1:
+                cellid = True
+            else:
+                cellid = False
             # get available location from lbmphelper
             location = lbmphelper.handle_location(location, self.redis,
-                                                  cellid=True, db=self.db) 
+                                                  cellid=cellid,
+                                                  db=self.db) 
             location.category = EVENTER.CATEGORY.REALTIME
             self.update_terminal_info(location)
             if location.get('cLat') and location.get('cLon'):
