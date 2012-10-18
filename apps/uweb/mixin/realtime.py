@@ -242,7 +242,7 @@ class RealtimeMixin(BaseMixin):
                             self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
                         ret.status = response['success']
                         ret.message = response['info']
-                        logging.error("[UWEB] realtime failed. status: %s, message: %s", ret.status, ret.message)
+                        logging.error("[UWEB] realtime failed. tid: %s, status: %s, message: %s", self.current_user.tid, ret.status, ret.message)
                     
                     if callback:
                         callback(ret)
