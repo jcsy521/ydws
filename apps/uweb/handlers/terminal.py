@@ -29,7 +29,9 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         try:
             car_sets = DotDict() 
             # 1: terminal 
-            terminal = self.db.get("SELECT freq, alias, trace, cellid_status, vibchk, tid as sn, mobile, vibl, white_pop"
+            terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
+                                   "       vibchk, tid as sn, mobile, vibl,"
+                                   "       white_pop, push_status"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "  LIMIT 1",
@@ -100,7 +102,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 IOLoop.instance().add_callback(self.finish)
                 return
    
-            DB_FIELDS = ['alias', 'cnum', 'cellid_status', 'white_pop']
+            DB_FIELDS = ['alias', 'cnum', 'cellid_status', 'white_pop', 'push_status']
 
 
             # sql injection 
@@ -160,7 +162,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
 
             if args.params:
                 GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
-                                                  _on_finish)
+                                             _on_finish)
             else: 
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
