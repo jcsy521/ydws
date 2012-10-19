@@ -150,6 +150,7 @@ window.dlf.fn_baseSave = function() {
 				if ( str_class.search('j_whitelist') != -1 ) {	// 白名单 [车主手机号,白名单1,白名单2,...]
 					var str_whitelist1 = $('#t_white_list_1').val();	// 车主手机号
 						
+					str_key = 'white_list';
 					if ( str_newVal != '' ) { // 如果有白名单
 						str_newVal = [str_whitelist1, str_newVal];
 					} else {
