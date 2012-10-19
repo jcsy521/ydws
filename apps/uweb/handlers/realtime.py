@@ -63,7 +63,6 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
 
         current_query = DotDict() 
         current_query.timestamp = int(time())
-        terminal = self.db.get("SELECT cellid_status FROM T_TERMINAL_INFO WHERE tid = %s", self.current_user.tid)
 
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
@@ -77,7 +76,7 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         logging.debug("Realtime query: %s", current_query)
         
         def _on_finish(realtime):
-            realtime['cellid_status'] = terminal.cellid_status
+            realtime['cellid_status'] = 1 
             self.set_header(*self.JSON_HEADER)
             self.write(json_encode(realtime))
             self.finish()

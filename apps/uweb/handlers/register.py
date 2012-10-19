@@ -82,6 +82,7 @@ class RegisterHandler(BaseHandler):
                     logging.error("umobile:%s regist failed. captcha:%s, captcha_old:%s", umobile, captcha, captcha_old)
                     status = ErrorCode.WRONG_CAPTCHA
             else:
+                logging.error("umobile:%s regist failed. captcha:%s, captcha_old is none", umobile, captcha)
                 status = ErrorCode.NO_CAPTCHA
             self.write_ret(status)
         except Exception as e:

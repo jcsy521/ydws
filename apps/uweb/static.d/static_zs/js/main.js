@@ -159,7 +159,7 @@ window.onresize = function () {
 		var n_windowHeight = $(window).height(), 
 			n_windowWidth = $(window).width(),
 			n_mapHeight = n_windowHeight - 161,
-			n_trackLeft = ( n_windowWidth - 1028 )/2,
+			n_trackLeft = ( n_windowWidth - 1000 )/2,
 			n_banner = n_windowWidth - 249,
 			n_mainContent = n_windowHeight - 104;
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
@@ -203,7 +203,7 @@ $(function () {
 		n_windowWidth = $(window).width(),
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
-		n_trackLeft = ( n_windowWidth - 1028 )/2,
+		n_trackLeft = ( n_windowWidth - 1000 )/2,
 		n_banner = n_windowWidth - 249,
 		obj_track = $('#trackHeader');
 		

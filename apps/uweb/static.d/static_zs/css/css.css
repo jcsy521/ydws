@@ -679,7 +679,7 @@ body {
 	height: 499px;
 }
 #terminalWrapper .terminalContent {
-	height: 499px;	/* 400px*/
+	height: 400px;	/* 400px*/
 	width: 448px;
 }
 #terminalWrapper .titleName {
@@ -929,8 +929,15 @@ body {
 	display: inline-block;
     height: 36px;
 	line-height: 36px;
-    width: 401px;
+    width: 514px;
 	float: left;
+}
+.trackPos #ceillid_flag {
+	position: absolute;
+	top: 10px;
+}
+.trackPos label {
+	padding-left: 17px;
 }
 #trackSlide {
     display: inline-block;
@@ -1539,5 +1546,11 @@ body {
 	line-height: 31px;
 	letter-spacing: 2px;
 	text-indent: 20px;
+}
+.errorBody p{
+	padding-left: 15px;
+}
+.error {
+	margin: 50px 0px 10px 0px;
 }
 /*web css end*/

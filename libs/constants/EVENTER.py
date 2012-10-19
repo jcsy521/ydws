@@ -45,3 +45,6 @@ LOCATION_NAME_EXPIRY = 60*60*24*7
 
 # location of target keep 60 minutes 
 LOCATION_EXPIRY = 60 * 60 
+
+# tinyurl keep 3 days
+TINYURL_EXPIRY = 3 * 24 * 60 * 60

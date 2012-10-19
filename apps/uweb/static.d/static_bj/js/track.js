@@ -21,6 +21,7 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_clearInterval(timerId); // 清除动态播放轨迹计时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	$('.j_tBtnhover, .trackSpeed').hide();	// 播放速度、播放按钮隐藏
+	$('#ceillid_flag').removeAttr('checked');
 	$('#trackHeader').show();	// 轨迹查询条件显示
 }
 
@@ -28,8 +29,8 @@ window.dlf.fn_initTrack = function() {
 * 关闭轨迹显示页面
 */
 window.dlf.fn_closeTrackWindow = function() {
-	dlf.fn_clearInterval(timerId);	// 清除动态播放轨迹计时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	fn_clearTrack();	// 清除数据
 	$('#trackHeader').hide();	// 轨迹查询条件隐藏
 	/**
 	* 清除地图后要清除车辆列表的marker存储数据
@@ -62,11 +63,13 @@ window.dlf.fn_closeTrackWindow = function() {
 /**
 * 轨迹查询操作
 */
-function trackQuery() {
+function fn_trackQuery() {
 	var str_beginTime = $('#trackBeginTime').val(), 
-		str_endTime = $('#trackEndTime').val(), 
+		str_endTime = $('#trackEndTime').val(),
+		n_cellid_flag = $('#ceillid_flag').attr('checked') == 'checked' ? 1 : 0,
 		obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime), 
-						'end_time': dlf.fn_changeDateStringToNum(str_endTime)};
+						'end_time': dlf.fn_changeDateStringToNum(str_endTime),
+						'cellid_flag': n_cellid_flag};
 	
 	$('.j_tBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
@@ -175,7 +178,7 @@ function fn_markerAction() {
 /**
 * 轨迹查询暂停播放动画操作
 */
-function trackQueryPause() {
+function fn_trackQueryPause() {
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };
 	str_actionState = counter;
 }
@@ -187,21 +190,11 @@ function fn_bindPlay() {
 	$('#tPlay').unbind('mousedown').bind('mousedown', fn_markerAction);
 }
 
-/** 
-* 停止动态效果
-*/
-function fn_stopDraw() {
-	if ( timerId ) { dlf.fn_clearInterval(timerId) };
-	counter = 0;
-	mapObj.removeOverlay(actionMarker);
-}
-
 /**
 * 动态标记移动方法
 */
 function fn_drawMarker() {
 	var n_len = arr_dataArr.length;
-	
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;
 		str_actionState = 0;
@@ -216,13 +209,21 @@ function fn_drawMarker() {
 			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框
 		}
 		counter ++;
-	} else {
-		str_actionState = 0;
-		fn_stopDraw();
+	} else {	// 播放完成后
+		fn_clearTrack();	// 清除数据
 		mapObj.removeOverlay(actionMarker);
 		$('#tPause').hide();
 		$('#tPlay').css('display', 'inline-block');
 	}
+}
+
+/**
+* 关闭轨迹清除数据
+*/
+function fn_clearTrack () {
+	if ( timerId ) { dlf.fn_clearInterval(timerId) };	// 清除计时器
+	str_actionState = 0;
+	counter = 0;
 }
 
 /**
@@ -282,15 +283,13 @@ $(function () {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) { // 轨迹查询
-			trackQuery();
-			fn_stopDraw();
+			fn_trackQuery();
 		} else if ( str_id == 'tPlay' ) { // 播放
-			fn_stopDraw();
 			fn_markerAction();
 			$(this).hide();
 			$('#tPause').css('display', 'inline-block');
 		} else if ( str_id == 'tPause' ) { // 暂停
-			trackQueryPause();
+			fn_trackQueryPause();
 			$(this).hide();
 			$('#tPlay').css('display', 'inline-block');
 		} else {

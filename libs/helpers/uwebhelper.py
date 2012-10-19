@@ -26,7 +26,7 @@ class UWebHelper(object):
     # return this if the sender breaks
     DUMMY_RESPONSE = json_encode(dict(success=-1))
 
-    URLS = DotDict(FLUSHCONFIGS=r"/flushconfigs",
+    URLS = DotDict(TINYURL=r"/tl",
                    DELEGATION=r"/delegation/5Luj5a6i5pON5L2c")
 
     __SECRET = "5ZOl5Lus77yM5L2g5piv5YaF6YOo5pyN5Yqh5Yi35paw55qE5ZCX77yf"

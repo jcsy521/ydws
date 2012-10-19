@@ -10,6 +10,7 @@ from helpers import lbmphelper
 from helpers.notifyhelper import NotifyHelper
 from helpers.urlhelper import URLHelper
 from helpers.confhelper import ConfHelper
+from helpers.uwebhelper import UWebHelper
 
 from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key 
@@ -116,14 +117,9 @@ class PacketTask(object):
     def handle_position_info(self, location):
         location = DotDict(location)
         if location.Tid == EVENTER.TRIGGERID.CALL:
-            terminal = self.db.get("SELECT cellid_status FROM T_TERMINAL_INFO WHERE tid = %s", location.dev_id)
-            if terminal.cellid_status == 1:
-                cellid = True
-            else:
-                cellid = False
             # get available location from lbmphelper
             location = lbmphelper.handle_location(location, self.redis,
-                                                  cellid=cellid,
+                                                  cellid=True,
                                                   db=self.db) 
             location.category = EVENTER.CATEGORY.REALTIME
             self.update_terminal_info(location)
@@ -207,9 +203,12 @@ class PacketTask(object):
                 #          '&width=320&height=480&zoom=17&markers=' +\
                 #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
                 url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + str(report.cLon/3600000.0) + '&clat=' + str(report.cLat/3600000.0)
-                tiny_url = URLHelper.get_tinyurl(url)
-                if tiny_url:
+                tiny_id = URLHelper.get_tinyid(url)
+                if tiny_id:
+                    base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                    tiny_url = base_url + '/' + tiny_id
                     logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
+                    self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
                     sms += u"点击" + tiny_url + u" 查看车辆位置" 
                 else:
                     logging.info("[EVENTER] get tiny url failed.")

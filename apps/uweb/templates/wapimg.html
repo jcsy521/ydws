@@ -1,12 +1,30 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-		<title>爱车保</title>
-	</head>
-	<body>
-		<img src="http://api.map.baidu.com/staticimage?center={{clon}},{{clat}}&width=320&height=480&zoom=17&markers={{clon}},{{clat}}" /><br/>
-		爱车保官网：<a href="{{home_url}}">{{home_url}}</a><br/>
-		Android客户端下载：<a href='{{android_download}}'>进入下载</a>
-	</body>
-</html>
+<!DOCTYPE html> 
+<html>   
+<head>   
+	<title>爱车保</title>   
+	<link rel="stylesheet" type="text/css" href="/static/css/jquery.mobile-1.1.0.css" />   
+	<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>   
+	<script type="text/javascript" src="/static/js/jquery.mobile-1.1.0.min.js"></script> 
+</head> 
+<body>   
+	<div data-role="page" id="home">    
+		<div data-role="header">     
+			爱车保  
+		</div>     
+		<div data-role="content">    
+			<div>
+				<img src="http://api.map.baidu.com/staticimage?center={{clon}},{{clat}}&width=320&height=240&zoom=17&markers={{clon}},{{clat}}" />
+			</div>  
+			<div>
+				爱车保官网：<a href="{{home_url}}">{{home_url}}</a>
+			</div>
+			<div>
+				Android客户端下载：<a href='{{android_download}}'>进入下载</a>
+			</div>
+		</div>  
+		<div data-role="footer">    
+			©2012 珠海徳百祺科技有限公司  
+		</div>
+	</div>  
+</body> 
+</html> 

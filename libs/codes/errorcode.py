@@ -64,6 +64,7 @@ class ErrorCode(object):
     FEEDBACK_FAILED = 907
 
     REGISTER_FAILED = 908
+    TINYURL_EXPIRED = 909
 
     ERROR_MESSAGE  = {
         SUCCESS:                       u"操作成功。",
@@ -117,4 +118,5 @@ class ErrorCode(object):
         DOWNLOAD_FAILED:               u"对不起，下载失败，请稍后重试。",
         FEEDBACK_FAILED:               u"对不起，添加反馈失败，请稍后重试。",
         REGISTER_FAILED:               u"对不起，注册失败，请稍后重试。",
+        TINYURL_EXPIRED:               u"对不起，该链接已失效。",
     }

@@ -45,7 +45,7 @@ window.dlf.fn_initTerminalWR = function () {
 				var str_val = obj_data[param];
 				
 				if ( param ) {
-					if ( param == 'trace' || param == 'cellid_status' || param == 'push_status' ) {	// 单选按钮: 轨迹上报、基站定位、PUSH告警
+					if ( param == 'trace' || param == 'push_status' ) {	// 单选按钮: 轨迹上报、PUSH告警
 						if ( param == 'trace' ) {	// 如果轨迹上报为关闭状态  上报间隔不可编辑
 							if ( str_val == 0 ) {
 								$('#t_freq').attr('disabled', true);
@@ -66,7 +66,7 @@ window.dlf.fn_initTerminalWR = function () {
 							obj_whitelist.val(str_value);
 							obj_oriWhitelist.attr('t_val', str_value);					
 						}
-					} else if ( param == 'vibl' || param == 'freq' || param == 'vibchk' ) {		// 下拉列表：震动灵敏度、振动频率、上报间隔
+					} else if ( param == 'freq' ) {		// 下拉列表：上报间隔
 						$('#t_' + param).val(str_val);
 					} else {
 						if ( param == 'alias' || param == 'cnum' ) {	// 终端别名、车牌号
