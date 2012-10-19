@@ -725,11 +725,14 @@ body {
 	display: inline-block;
 	width: 250px;
 }
-#bListR input, #bListR label {
+#bListR input {
 	margin-left: 10px;
 	padding: 5px;
 }
-#bListR label {
+#t_mobile, #t_sn {
+	margin-left: 8px;
+}
+#tRadioLable1, #tRadioLable0, #tpsLable1, #tpsLable0  {
 	margin: 0px;
 	padding: 0px;
 }
