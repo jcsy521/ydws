@@ -64,6 +64,7 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         current_query = DotDict() 
         current_query.timestamp = int(time())
 
+        terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO WHERE tid = %s", self.current_user.tid) 
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
