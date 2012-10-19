@@ -47,6 +47,11 @@ class TerminalMixin(BaseMixin):
                                 "  SET white_pop = %s"
                                 "  WHERE tid = %s",
                                 value, self.current_user.tid)
+            elif key == 'push_status':
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET push_status = %s"
+                                "  WHERE tid = %s",
+                                value, self.current_user.tid)
 
     def update_terminal_info(self, car_sets, car_sets_res):
         """Update T_TERMINAL_INFO.

@@ -709,7 +709,7 @@ body {
 	margin: 0px;
 	padding: 0px;
 	text-align: left;
-	line-height: 35px;
+	line-height: 34px;
 }
 #bListR .terminalTdL {
 	width: 87px;
@@ -729,7 +729,7 @@ body {
 	margin-left: 10px;
 	padding: 5px;
 }
-#trace label, #cellid_status label {
+#bListR label {
 	margin: 0px;
 	padding: 0px;
 }

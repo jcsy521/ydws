@@ -495,7 +495,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 				if ( fob == 0 ) {
 					obj_firstFob.html(str_fob);
 				} else {
-					str_html += '<tr class="j_fob"  class="fontColor"><td>'+ str_fob +'</td></tr>';
+					str_html += '<tr class="j_fob"><td class="fontColor">'+ str_fob +'</td></tr>';
 				}
 			}
 			obj_fobList.removeAttr('title');

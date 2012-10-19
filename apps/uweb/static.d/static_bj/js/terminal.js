@@ -45,7 +45,7 @@ window.dlf.fn_initTerminalWR = function () {
 				var str_val = obj_data[param];
 				
 				if ( param ) {
-					if ( param == 'trace' || param == 'cellid_status' ) {	// 单选按钮: 轨迹上报、基站定位
+					if ( param == 'trace' || param == 'cellid_status' || param == 'push_status' ) {	// 单选按钮: 轨迹上报、基站定位、PUSH告警
 						if ( param == 'trace' ) {	// 如果轨迹上报为关闭状态  上报间隔不可编辑
 							if ( str_val == 0 ) {
 								$('#t_freq').attr('disabled', true);

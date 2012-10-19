@@ -215,7 +215,10 @@ class PacketTask(object):
                     logging.info("[EVENTER] get tiny url failed.")
             self.sms_to_user(report.dev_id, sms, user)
 
-        self.notify_to_parents(report.category, report.dev_id, report)
+        terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
+                               "  WHERE tid = %s", report.dev_id)
+        if terminal and terminal.push_status == 1:
+            self.notify_to_parents(report.category, report.dev_id, report)
 
 
     def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):

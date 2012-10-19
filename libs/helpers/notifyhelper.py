@@ -46,7 +46,7 @@ class NotifyHelper(object):
                       clongitude=location.cLon,
                       clatitude=location.cLat,
                       name=location.name if location.name else '',
-                      timestamp=location.timestamp,
+                      timestamp=location.gps_time,
                       speed=float(location.speed),
                       degree=float(location.degree),
                       type=location.type,
