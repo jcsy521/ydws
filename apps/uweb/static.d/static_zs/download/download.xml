@@ -1,9 +1,9 @@
 <download>
     <android>
-        <versioncode>6</versioncode>
-        <versionname>1.0.5.1</versionname>
+        <versioncode>9</versioncode>
+        <versionname>1.0.9</versionname>
         <versioninfo>1.更新了帮助图片的文字说明;2.更新了提示信息的显示时间;3.优化了轨迹播放效果;4.修复了实时定位;5.修复了对一些设置的输入校验;6.个人设置改为个人资料;</versioninfo>
-        <updatetime>2012-10-18</updatetime>
-        <filesize>4.11M</filesize>
+        <updatetime>2012-10-20</updatetime>
+        <filesize>4.15M</filesize>
     </android>
 </download>
