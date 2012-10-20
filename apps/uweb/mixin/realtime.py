@@ -37,10 +37,13 @@ class RealtimeMixin(BaseMixin):
                         "      latitude = %s,"
                         "      longitude = %s,"
                         "      clatitude = %s,"
-                        "      clongitude = %s"
-                        "  WHERE id = %s",
+                        "      clongitude = %s,"
+                        "      type = %s,"
+                        "      gps_time = %s"
+                        "  WHERE id = %s",	
                         location.name, location.lat, location.lon,
-                        location.cLat, location.cLon, location.id)
+                        location.cLat, location.cLon, location.type,
+                        location.gps_time, location.id)
 
     def insert_location(self, location):
         """Insert the location into mysql and keep it in memcached.

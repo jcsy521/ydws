@@ -170,6 +170,7 @@ class PacketTask(object):
 
             report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
             sms = None
+            sms_white = None
             if isinstance(report_name, str):
                 report_name = report_name.decode('utf-8')
                 report_name = unicode(report_name)
@@ -190,7 +191,6 @@ class PacketTask(object):
                     white_str = ','.join(white['mobile'] for white in whitelist) 
                     sms = SMSCode.SMS_SOS_OWNER % (name, white_str, report_name, terminal_time)
                     sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
-                    self.sms_to_whitelist(sms_white, whitelist)
                 else:
                     sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
             else:
@@ -210,6 +210,9 @@ class PacketTask(object):
                     logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
                     self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
                     sms += u"点击" + tiny_url + u" 查看车辆位置" 
+                    if sms_white:
+                        sms_white += u"点击" + tiny_url + u" 查看车辆位置"
+                        self.sms_to_whitelist(sms_white, whitelist)
                 else:
                     logging.info("[EVENTER] get tiny url failed.")
             self.sms_to_user(report.dev_id, sms, user)
