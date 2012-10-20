@@ -176,7 +176,7 @@ class PacketTask(object):
                 report_name = unicode(report_name)
 
             if report.rName == EVENTER.RNAME.POWEROFF:
-                report.login = GATEWAY.TERMINAL_LOGIN.LOGIN
+                report.login = GATEWAY.TERMINAL_LOGIN.UNLOGIN
                 sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.POWERLOW:
                 if report.terminal_type == "1":
