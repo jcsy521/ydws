@@ -39,7 +39,7 @@ class RealtimeMixin(BaseMixin):
                         "      clatitude = %s,"
                         "      clongitude = %s,"
                         "      type = %s,"
-                        "      gps_time = %s"
+                        "      timestamp = %s"
                         "  WHERE id = %s",	
                         location.name, location.lat, location.lon,
                         location.cLat, location.cLon, location.type,

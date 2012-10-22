@@ -115,6 +115,7 @@ class LastInfoHandler(BaseHandler):
                            dict_=DotDict(cars_info=cars_info))
 
         except Exception as e:
-            logging.exception("[UWEB] uid:%s, tid:%s get lastinfo failed. Exception: %s", e.args) 
+            logging.exception("[UWEB] uid:%s, tids:%s get lastinfo failed. Exception: %s", 
+                              self.current_user.uid, data.tids, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
