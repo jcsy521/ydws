@@ -7,6 +7,16 @@ $(function(){
 	var obj_captchaImg= $('#captchaimg'),	// 验证码图片存放对象
 		n_bannerIndex = 0,	// 当前banner的编号
 		currentAd = null;	// 图片轮换的计时器
+		
+	/**
+	* input 的change事件 不能输入汉字
+	*/
+	$('.j_replace').unbind('change').bind('change', function() {
+		var obj_this = $(this),
+			str_val = obj_this.val();
+			
+		obj_this.val(str_val.replace(/[^\w|chun]/g,''));
+	});
 	
 	/**
 	* 验证码图片及hash值得设置

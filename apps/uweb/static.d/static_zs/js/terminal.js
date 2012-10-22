@@ -9,7 +9,7 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 */
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('#terminalWrapper').css({'left': '40%', 'top': '20%'}).show(); // 显示终端设置dialog	
+	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示终端设置dialog	
 	dlf.fn_initTerminalWR(); // 初始化加载参数
 	dlf.fn_onInputBlur();	// input的blur事件初始化
 	

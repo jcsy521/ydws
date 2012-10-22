@@ -223,7 +223,7 @@ window.dlf.fn_jNotifyMessage = function(messages, types, f_permanent, showTime) 
 
 	$('#jNotifyMessage').css({
 		'display': 'block',
-        'left': '40%'
+        'left': pf
     }).jnotifyAddMessage({
 		text: messages,
 		permanent: f_perMan_type,
@@ -791,7 +791,7 @@ window.dlf.fn_showBusinessTip = function(str_type) {
 	}
 	// 遮罩
 	dlf.fn_lockScreen(); 
-	$('#businessWrapper').css({'left': '38%', 'top': '22%'}).show();
+	dlf.fn_dialogPosition($('#businessWrapper'));
 	$('#businessBtn').click(function() {
 		window.location.replace('/logout');
 	});
@@ -830,13 +830,13 @@ window.dlf.fn_onInputBlur = function() {
 					if ( n_valLength == 0 ) {	// 手机号验证长度
 						str_msg = '';
 					} else if ( n_valLength > 14 || n_valLength < 11 ) {
-						str_msg = '您设置的白名单不正确，请输入正确的手机号！'
+						str_msg = '您设置的紧急联系人号码不正确，请输入正确的手机号！'
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
-							str_msg = '您设置的白名单不正确，请输入正确的手机号！';
+							str_msg = '您设置的紧急联系人号码不正确，请输入正确的手机号！';
 						} else {
 							if ( str_whitelist1 == str_val ) {	// 白名单不能和车主手机号相同
-								 str_msg = '白名单不能和车主号码相同！';
+								 str_msg = '紧急联系人不能和车主号码相同！';
 							}
 						}
 					}
@@ -887,6 +887,17 @@ window.dlf.fn_onInputBlur = function() {
  	});
  }
  
+/**
+* dialog弹出框的位置计算并显示
+* obj_wrapper: 弹出框对象
+*/ 
+dlf.fn_dialogPosition = function ( obj_wrapper ) {
+	var n_wrapperWidth = obj_wrapper.width(),
+		n_width = ($(window).width() - n_wrapperWidth)/2;
+	
+	obj_wrapper.css({left: n_width}).show();
+}
+
 /**
 *POST方法的整合 defend
 *url: 要请求的URL地址

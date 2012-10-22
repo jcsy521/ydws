@@ -7,7 +7,7 @@
 */
 window.dlf.fn_personalData = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('#personalWrapper').css({'left': '40%', 'top': '22%'}).show();	// 我的资料dialog显示
+	dlf.fn_dialogPosition($('#personalWrapper')); // 我的资料dialog显示
 	dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('用户信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
@@ -83,7 +83,7 @@ window.dlf.fn_personalSave = function() {
 */
 window.dlf.fn_changePwd = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('#pwdWrapper').css({'left': '38%', 'top': '22%'}).show();
+	dlf.fn_dialogPosition($('#pwdWrapper'));
 	$('#pwdWrapper input[type=password]').val('');// 清除文本框数据
 }
 
@@ -92,7 +92,7 @@ window.dlf.fn_changePwd = function() {
 */
 window.dlf.fn_initSMSParams = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('#smsWrapper').css({'left': '38%', 'top': '22%'}).show();
+	dlf.fn_dialogPosition($('#smsWrapper'));
 	$.get_(SMS_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.sms_options;
@@ -361,7 +361,7 @@ $(function () {
 		}
 	});
 	
-	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的白名单不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list_1', operateor: '!=', datatype: 'string', onError: '白名单不能和车主号码相同！'});
+	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的紧急联系人号码不正确，请输入正确的手机号！'}).compareValidator({desID: 't_white_list_1', operateor: '!=', datatype: 'string', onError: '紧急联系人不能和车主号码相同！'});
 	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}); // 区分大小写
 	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度是20个汉字或字符！'});  // 别名
 	

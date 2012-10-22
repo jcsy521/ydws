@@ -638,7 +638,7 @@ body {
 }
 	/* smsoption dialog */
 #smsWrapper {
-	width: 448px;
+	width: 357px;
 	height: 200px;
 }
 #smsWrapper #smsContent {
@@ -679,7 +679,7 @@ body {
 	height: 499px;
 }
 #terminalWrapper .terminalContent {
-	height: 400px;	/* 400px*/
+	height: 360px;	/* 400px*/
 	width: 448px;
 }
 #terminalWrapper .titleName {

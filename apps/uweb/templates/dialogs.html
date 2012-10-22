@@ -102,16 +102,16 @@
 										<input type="text" id="t_cnum" terminalkey="cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
 									</td>
 								</tr>
-								<tr>
-									<td class="terminalTdL" >定位白名单:</td>
+								<tr class="hide">
+									<td class="terminalTdL" ></td>
 									<td id="white_list_1" class="j_white_list" t_val="">
-										<input id="t_white_list_1" terminalkey="owner_mobile"  class="textDisabled text_mouseOut" type="text"  disabled />
+										<input id="t_white_list_1" terminalkey="owner_mobile"  class="textDisabled text_mouseOut" type="text" />
 									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL" ></td>
+									<td class="terminalTdL" >紧急联系人:</td>
 									<td id="white_list_2"  class="j_ListVal j_whitelist j_white_list j_input"  t_val="">
-										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的车主号码不正确，请输入正确的手机号！" who="mobile" parent="terminalWrapper"   />
+										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的紧急联系人号码不正确，请输入正确的手机号！" who="mobile" parent="terminalWrapper"   />
 									</td>
 								</tr>
 								<tr>
@@ -162,7 +162,7 @@
 	<!-- 白名单设置提醒 -->
 	<div id="whitelistPopWrapper" class="hide wrapper">
 		<p class="noticeClose" title="关闭"></p>
-		<p class="noticeMsg">请您设置白名单</p>
+		<p class="noticeMsg">请您设置紧急联系人</p>
 		<p class="noticeRemeber" title="我知道了">我知道了</p>
 	</div>
 	<!-- 短信参数设置 -->

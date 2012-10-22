@@ -9,7 +9,7 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 */
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('#terminalWrapper').css({'left': '40%', 'top': '20%'}).show(); // 显示终端设置dialog	
+	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示终端设置dialog	
 	dlf.fn_initTerminalWR(); // 初始化加载参数
 	dlf.fn_onInputBlur();	// input的blur事件初始化
 	
@@ -149,7 +149,7 @@ window.dlf.fn_baseSave = function() {
 			if ( str_class.search('j_input') != -1 ) {	// 终端别名、车牌号、白名单
 				if ( str_class.search('j_whitelist') != -1 ) {	// 白名单 [车主手机号,白名单1,白名单2,...]
 					var str_whitelist1 = $('#t_white_list_1').val();	// 车主手机号
-					
+						
 					str_key = 'white_list';
 					if ( str_newVal != '' ) { // 如果有白名单
 						str_newVal = [str_whitelist1, str_newVal];

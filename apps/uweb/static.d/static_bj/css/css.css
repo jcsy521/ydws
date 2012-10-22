@@ -289,12 +289,12 @@ body {
 	text-align: left;
     width: 61px;
 }
+#gsm .tInfoWord, #gps .tInfoWord {
+	padding: 0px;
+}
 .tInfoWord label {
 	width: 25px;
 	float: left;
-}
-#gsm .tInfoWord, #gps .tInfoWord {
-	padding: 0px;
 }
 #gsm {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;
@@ -609,7 +609,7 @@ body {
 	resize: none;
     width: 310px;
 	height: 60px;
-	font-size: 12px;
+	font-size: 12px;    
 	background-color: #F3F9FA;
     border: 1px solid #CDCDCD;
 	padding: 5px;
@@ -638,7 +638,7 @@ body {
 }
 	/* smsoption dialog */
 #smsWrapper {
-	width: 448px;
+	width: 357px;
 	height: 200px;
 }
 #smsWrapper #smsContent {
@@ -679,7 +679,7 @@ body {
 	height: 499px;
 }
 #terminalWrapper .terminalContent {
-	height: 400px;	/* 400px*/
+	height: 360px;	/* 400px*/
 	width: 448px;
 }
 #terminalWrapper .titleName {

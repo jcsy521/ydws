@@ -9,7 +9,7 @@
 window.dlf.fn_currentQuery = function() {
 	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位参数设置
 	
-	$('#currentWrapper').show();	// current dialog显示
+	dlf.fn_dialogPosition($('#currentWrapper'));	// 设置dialog的位置
 	fn_currentRequest(obj_pd);	// 发起定位请求
 	$('#currentBtn').unbind('click').click(function() {	// 窗口关闭事件
 		dlf.fn_closeDialog(); 
@@ -178,7 +178,7 @@ window.dlf.fn_defendQuery = function() {
 				obj_defendBtn = $('#defendBtn');	// 设防撤防的按钮
 				
 			dlf.fn_lockScreen();	//添加页面遮罩
-			obj_wrapper.css({'left':'38%','top':'22%'}).show();
+			dlf.fn_dialogPosition(obj_wrapper);	// 设置dialog的位置
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defendStatus = DEFEND_OFF;
 				str_tip = '您的爱车保当前已设防。';
