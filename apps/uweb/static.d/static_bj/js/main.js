@@ -272,7 +272,7 @@ $(function () {
 				obj_whitePop = $('#whitelistPopWrapper'),
 				f_warpperStatus = !obj_whitePop.is(':hidden'),
 				n_left = ui.position.left + 380,
-				n_top = ui.position.top + 200;
+				n_top = ui.position.top + 160;
 				
 			if ( f_conStatus ) {
 				dlf.fn_lockContent($($(this).children().eq(1)));

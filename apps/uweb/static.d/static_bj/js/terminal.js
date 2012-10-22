@@ -181,7 +181,7 @@ window.dlf.fn_resizeWhitePop = function() {
 		obj_whitePop = $('#whitelistPopWrapper'),
 		f_warpperStatus = !obj_whitePop.is(':hidden'),
 		n_left = obj_terminalWrapperOffset.left + 380,
-		n_top =  obj_terminalWrapperOffset.top + 200 ;
+		n_top =  obj_terminalWrapperOffset.top + 160 ;
 		
 	if ( f_warpperStatus ) {
 		obj_whitePop.css({left: n_left, top: n_top});
