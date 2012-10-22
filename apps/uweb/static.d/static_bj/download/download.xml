@@ -1,9 +1,9 @@
 <download>
     <android>
-        <versioncode>3</versioncode>
-        <versionname>1.0.2</versionname>
+        <versioncode>10</versioncode>
+        <versionname>1.0.10</versionname>
         <versioninfo>1.新增修改密码;2.新增意见反馈反馈;3.新增自动更新;4.新增帮助</versioninfo>
-        <updatetime>2012-09-18</updatetime>
-        <filesize>3.71M</filesize>
+        <updatetime>2012-10-22</updatetime>
+        <filesize>4.17M</filesize>
     </android>
 </download>
