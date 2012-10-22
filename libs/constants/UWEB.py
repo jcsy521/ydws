@@ -9,6 +9,7 @@ SPEED_DIFF = 3 # if speed < 3km/h, be considered as still point.
 
 
 REALTIME_VALID_INTERVAL = 60 # 1 minutes. in seconds.
+LOCATION_VALID_INTERVAL = 5 * 60 # 5 mins
 
 SMS_CAPTCHA_INTERVAL = 60*5 # 5 minutes. in seconds.
 
