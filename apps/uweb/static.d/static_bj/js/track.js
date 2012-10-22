@@ -71,10 +71,10 @@ function fn_trackQuery() {
 						'end_time': dlf.fn_changeDateStringToNum(str_endTime),
 						'cellid_flag': n_cellid_flag};
 	
+	fn_clearTrack();	// 清除数据
 	$('.j_tBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	str_actionState = 0;	
 	dlf.fn_jNotifyMessage('行踪查询中' + WAITIMG , 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
 	$('.j_trackbody').data('layer', true);
@@ -88,9 +88,15 @@ function fn_trackQuery() {
 			   * obj_tempMaxPoint 存储与每一点最大距离的数据
 			*/
 			var arr_locations = data.track;// data.track, 
-				locLength = arr_locations.length;
+				locLength = arr_locations.length,
+				str_msg = '';
 			if ( locLength <= 0) {
-				dlf.fn_jNotifyMessage('该时间段没有行踪数据，请选择其它时间段！', 'message', false, 3000);
+				if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
+					str_msg = '该时间段没有数据，请尝试勾选“显示基站定位”！';
+				} else {
+					str_msg = '该时间段没有数据，请选择其它时间段！';
+				}
+				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 				$('#trackSpeed').hide();	// 速度滑块隐藏
 			} else {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
@@ -229,14 +235,40 @@ function fn_clearTrack () {
 /**
 * 初始化时间控件
 */
-window.dlf.fn_initTrackDatepicker = function() {
-	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');	// 当前时间前两个小时
-	
-	$('#trackBeginTime').unbind('click').click(function() {
-		WdatePicker({el:'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}'});
+window.dlf.fn_initTrackDatepicker = function() {	
+	/**
+	* 初始化轨迹查询选择时间
+	*/
+	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd'), 
+		obj_stTime = $('#trackBeginTime'), 
+		obj_endTime = $('#trackEndTime');
+		
+	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联
+		WdatePicker({el: 'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}', qsEnabled: false, 
+			onpicked: function() {
+				var obj_endDate = $dp.$D('trackEndTime'), 
+					str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
+					str_endTime = dlf.fn_changeDateStringToNum(str_endString), 
+					str_beginTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
+				if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
+					obj_endTime.val(dlf.fn_changeNumToDateString(str_beginTime + WEEKMILISECONDS));
+				}
+			}
+		});
 	}).val(str_nowDate + ' ' + dlf.fn_changeNumToDateString(new Date()-7200000, 'sfm'));
-	$('#trackEndTime').unbind('click').click(function() {
-		WdatePicker({el:'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}'});
+	
+	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
+		WdatePicker({el: 'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}', qsEnabled: false, 
+			onpicked: function() {
+				var obj_beginDate = $dp.$D('trackBeginTime'), 
+					str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
+					str_beginTime = dlf.fn_changeDateStringToNum(str_beginString), 
+					str_endTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
+				if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
+					obj_stTime.val(dlf.fn_changeNumToDateString(str_endTime - WEEKMILISECONDS));
+				}
+			}
+		});
 	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date(), 'sfm'));
 }
 

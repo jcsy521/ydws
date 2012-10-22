@@ -830,10 +830,10 @@ window.dlf.fn_onInputBlur = function() {
 					if ( n_valLength == 0 ) {	// 手机号验证长度
 						str_msg = '';
 					} else if ( n_valLength > 14 || n_valLength < 11 ) {
-						str_msg = '您设置的紧急联系人号码不正确，请输入正确的手机号！'
+						str_msg = '您设置的紧急联系人号码不合法，请重新输入！'
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
-							str_msg = '您设置的紧急联系人号码不正确，请输入正确的手机号！';
+							str_msg = '您设置的紧急联系人号码不合法，请重新输入！';
 						} else {
 							if ( str_whitelist1 == str_val ) {	// 白名单不能和车主手机号相同
 								 str_msg = '紧急联系人不能和车主号码相同！';
