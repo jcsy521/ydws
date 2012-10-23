@@ -40,4 +40,4 @@ class SMSCode(object):
     SMS_TID_NOT_EXIST = u"该终端未激活，请执行激活短信指令：‘JH+爱车保号码’到爱车保号码。例如：JH 13900000000"
 
 
-    SMS_DOWNLOAD_REMIND = u"尊敬的车主，您可以通过访问 %s 下载爱车保的Android客户端。"
+    SMS_DOWNLOAD_REMIND = u"尊敬的车主，您可以通过访问 %s 下载爱车保的 Android 客户端。"
