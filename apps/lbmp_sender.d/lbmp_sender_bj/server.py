@@ -101,7 +101,7 @@ def main():
     except KeyboardInterrupt:
         logging.error("Ctrl-C is pressed.")
     except:
-        logging.exception("[uweb] Exit Exception")
+        logging.exception("[lbmp] Exit Exception")
     finally:
         logging.warn("[lbmp] shutdown...")
         shutdown(worker_pool, http_server)

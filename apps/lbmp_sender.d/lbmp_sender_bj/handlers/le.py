@@ -9,7 +9,7 @@ from tornado.ioloop import IOLoop
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import LBMP 
+from constants import LBMP, HTTP
 from helpers.confhelper import ConfHelper
 
 from base import BaseHandler
@@ -58,7 +58,6 @@ class LeHandler(BaseHandler):
         try:
             data = DotDict(json_decode(self.request.body))
             logging.info('[LE] request:\n %s', data)
-            url = ConfHelper.LBMP_CONF.le_url
             request = self.composer(data.lac, data.cid, data.mcc, data.mnc)
         except Exception as e:
             logging.exception("[LE] get latlon failed. Exception: %s", e.args)
@@ -68,19 +67,21 @@ class LeHandler(BaseHandler):
 
         def _on_finish():
             try:
-                response, content = self.http.request(url, "POST", request, self.JSON_HEADER)
-                logging.info('[LE] response:\n %s', content)
-                json_data = json_decode(content)
+                response = self.send(ConfHelper.LBMP_CONF.le_host, 
+                                     ConfHelper.LBMP_CONF.le_url, 
+                                     request,
+                                     HTTP.METHOD.POST)
+                logging.info('[LE] response:\n %s', response)
+                json_data = json_decode(response)
                 if json_data.get("location"):
                     ret.position.lat = int(json_data["location"]["latitude"] * 3600000)
                     ret.position.lon = int(json_data["location"]["longitude"] * 3600000)
                     ret.success = ErrorCode.SUCCESS 
                     ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                     logging.info("[LE] get lat=%s, lon=%s  through lac=%s, cid=%s", 
-                                       ret.position.lat, ret.position.lon, data.lac, data.cid)
+                                 ret.position.lat, ret.position.lon, data.lac, data.cid)
             except Exception as e:
                 logging.exception("[LE] get latlon failed. Exception: %s", e.args)
-                ret.info = "LE get latlon failed"
             self.write(ret)
             IOLoop.instance().add_callback(self.finish)
 
