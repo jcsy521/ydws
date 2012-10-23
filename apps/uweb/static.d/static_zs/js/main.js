@@ -361,7 +361,7 @@ $(function () {
 		}
 	});
 	
-	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的紧急联系人号码不合法，请重新输入！'}).compareValidator({desID: 't_white_list_1', operateor: '!=', datatype: 'string', onError: '紧急联系人不能和车主号码相同！'});
+	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的紧急联系人号码不合法，请重新输入！'});
 	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}); // 区分大小写
 	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度是20个汉字或字符！'});  // 别名
 	

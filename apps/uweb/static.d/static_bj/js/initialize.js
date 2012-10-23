@@ -834,10 +834,6 @@ window.dlf.fn_onInputBlur = function() {
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
 							str_msg = '您设置的紧急联系人号码不合法，请重新输入！';
-						} else {
-							if ( str_whitelist1 == str_val ) {	// 白名单不能和车主手机号相同
-								 str_msg = '紧急联系人不能和车主号码相同！';
-							}
 						}
 					}
 					if ( str_msg != '' ) {
