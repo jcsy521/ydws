@@ -86,6 +86,7 @@ function fn_trackQuery() {
 			   * 获取最大和最小的差值
 			   * n_tempMax 暂时存储与第一点的最大距离
 			   * obj_tempMaxPoint 存储与每一点最大距离的数据
+			   * obj_tempFirstPoint 存储与每最远点的数据
 			*/
 			var arr_locations = data.track;// data.track, 
 				locLength = arr_locations.length,
@@ -100,20 +101,30 @@ function fn_trackQuery() {
 				$('#trackSpeed').hide();	// 速度滑块隐藏
 			} else {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-				arr_dataArr = [], 
+				arr_dataArr = arr_locations, 
 				n_tempMax = 0, 
 				obj_tempMaxPoint = arr_locations[0];
-				var obj_firstPoint = new BMap.Point(arr_locations[0].clongitude/NUMLNGLAT, arr_locations[0].clatitude/NUMLNGLAT);
+				obj_tempFirstPoint = arr_locations[0];
 				
 				for (var i = 0; i < locLength; i++) {
-					var obj_itemLoc = arr_locations[i], 
-						obj_tempPoint = new BMap.Point(obj_itemLoc.clongitude/NUMLNGLAT, obj_itemLoc.clatitude/NUMLNGLAT);
+					var obj_currentLoc = arr_locations[i], 
+						obj_firstPoint = new BMap.Point(obj_currentLoc.clongitude/NUMLNGLAT, obj_currentLoc.clatitude/NUMLNGLAT);
 						
-					fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
-					arr_dataArr[i] = obj_itemLoc;
+					for ( var j = i + 1; j < locLength; j++ ) {
+						var obj_itemLoc = arr_locations[j], 
+							obj_tempPoint = new BMap.Point(obj_itemLoc.clongitude/NUMLNGLAT, obj_itemLoc.clatitude/NUMLNGLAT);
+							
+						fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
+					}
 				}
-				mapObj.setViewport([obj_firstPoint, obj_tempMaxPoint]);	// 根据对角点计算比例尺进行显示
-				fn_startDrawLineStatic(arr_dataArr);
+				if ( n_tempMax <= 0 ) {
+					mapObj.setZoom(18);
+					mapObj.setCenter(new BMap.Point(obj_tempFirstPoint.clongitude/NUMLNGLAT, obj_tempFirstPoint.clatitude/NUMLNGLAT)); 
+				} else {
+					mapObj.setViewport([obj_tempFirstPoint, obj_tempMaxPoint]);	// 根据对角点计算比例尺进行显示
+					mapObj.zoomOut();	// 地图缩小1级
+				}
+				fn_startDrawLineStatic(arr_locations);
 			}
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -132,6 +143,7 @@ function fn_tempDist(startXY, endXY) {
 	var n_pointDist = fn_forMarkerDistance(startXY, endXY);
 	if ( n_pointDist > n_tempMax ) {
 		n_tempMax = n_pointDist;
+		obj_tempFirstPoint = startXY;
 		obj_tempMaxPoint = endXY;
 	}
 }
