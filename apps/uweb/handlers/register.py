@@ -70,7 +70,7 @@ class RegisterHandler(BaseHandler):
                     terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db) 
                     if terminal:
                         status = ErrorCode.TERMINAL_ORDERED
-                        logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s", umobile, tmobile, ErorCode.ERROR_MESSAGE[status])
+                        logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s", umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
                     else:
                         register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
                         ret = SMSHelper.send_to_terminal(tmobile, register_sms)
