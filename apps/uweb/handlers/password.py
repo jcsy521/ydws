@@ -29,6 +29,13 @@ class PasswordHandler(BaseHandler, PasswordMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] modify password request: %s, uid: %s, tid: %s", data, self.current_user.uid, self.current_user.tid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+
+        try:
             old_password = data.old_password
             new_password = data.new_password
 
@@ -54,13 +61,14 @@ class PasswordHandler(BaseHandler, PasswordMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            mobile = data.mobile
+            logging.info("[UWEB] retrieve password request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
             return 
 
         try:
+            mobile = data.mobile
             user = self.db.get("SELECT mobile"
                                "  FROM T_USER"
                                "  WHERE mobile = %s"

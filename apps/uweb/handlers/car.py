@@ -24,6 +24,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
     @tornado.web.removeslash
     def get(self, tid):
         status = ErrorCode.SUCCESS
+        logging.info("[UWEB] switchcar request: %s", tid)
         try:
             terminal = self.db.get("SELECT ti.tid, ti.mobile as sim,"
                                   "  ti.login, ti.defend_status "

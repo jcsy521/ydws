@@ -83,6 +83,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)

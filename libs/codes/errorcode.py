@@ -50,8 +50,7 @@ class ErrorCode(object):
     EDIT_USER_FAILURE = 405
 
     ADDITION_EXCESS = 700
-    TRACK_QUERY_INTERVAL_EXCESS = 701
-    EVENT_QUERY_INTERVAL_EXCESS = 702
+    QUERY_INTERVAL_EXCESS = 701
 
     TERMINAL_OFFLINE = 800
     TERMINAL_OTHER_ERRORS = 802
@@ -96,14 +95,13 @@ class ErrorCode(object):
         SERVER_ERROR:                  u"服务器错误。",
         SERVER_BUSY:                   u"服务器忙，请稍后重试。",
         ADDITION_EXCESS:               u'该功能设置已超过上限，本次操作失败。',
-        EVENT_QUERY_INTERVAL_EXCESS:   u'对不起，只能查询一个星期之内的记录！',
-        TRACK_QUERY_INTERVAL_EXCESS:   u'对不起，只能查询一个月之内的记录！',
+        QUERY_INTERVAL_EXCESS:         u'对不起，只能查询一个星期之内的记录！',
         TERMINAL_NOT_ORDERED:          u'对不起，该号码尚未绑定爱车保终端。',
         LOCATION_NAME_NONE:            u"无法解析经纬度对应的地址",
         LOCATION_GPS_FAILED:           u"爱车保GPS信号较弱，请稍后重试。",
         LOCATION_CELLID_FAILED:        u"爱车保基站定位失败，请稍后重试。",
         LOCATION_OFFSET_FAILED :       u"经纬度偏转失败，请稍后重试。",
-        TERMINAL_OFFLINE:              u"您的爱车保不在线。",
+        TERMINAL_OFFLINE:              u"您的爱车保不在线，请稍后重试。",
         TERMINAL_TIME_OUT:             u"爱车保响应超时，请稍后重试。",
         TERMINAL_OTHER_ERRORS:         u"连接爱车保失败，请稍后重试。",
         TERMINAL_ORDERED:              u"终端手机已被注册，请检查确认后再重试！",

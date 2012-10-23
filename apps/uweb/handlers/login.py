@@ -37,6 +37,8 @@ class LoginHandler(BaseHandler, LoginMixin):
         captcha = self.get_argument("captcha", "")
         captchahash = self.get_argument("captchahash", "")
 
+        logging.info("[UWEB] Browser login request, username: %s, password: %s", username, password)
+
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
             self.render("login.html",
@@ -100,6 +102,7 @@ class IOSHandler(BaseHandler, LoginMixin):
     def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
+        logging.info("[UWEB] Android login request, username: %s, password: %s", username, password)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
@@ -141,6 +144,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
     def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
+        logging.info("[UWEB] IOS login request, username: %s, password: %s", username, password)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED

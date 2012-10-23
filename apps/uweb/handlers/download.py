@@ -48,6 +48,7 @@ class DownloadSmsHandler(BaseHandler):
         """Send sms to user's mobile."""
         status = ErrorCode.SUCCESS
         data = DotDict(json_decode(self.request.body))
+        logging.info("[UWEB] downloadsms request: %s", data)
 
         mobile = data.mobile 
         captcha_sms = data.captcha_sms 
@@ -59,6 +60,7 @@ class DownloadSmsHandler(BaseHandler):
         hash_ = m.hexdigest()
         if  hash_.lower() != captchahash_sms.lower():
             status = ErrorCode.WRONG_CAPTCHA
+            logging.info("[UWEB] downloadsms failed. Message: %s", ErrorCode.ERROR_MESSAGE[status])
         else:
             version_info = get_version_info('android')
             downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
