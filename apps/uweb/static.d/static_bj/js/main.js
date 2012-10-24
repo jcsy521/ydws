@@ -15,11 +15,15 @@ window.dlf.fn_personalData = function() {
 		if ( data.status == 0 ) {
 			var obj_data = data.profile,
 				str_name = obj_data.name,
-				str_newName = str_name;
-				str_phone = obj_data.mobile,
+				str_newName = str_name,
+				str_cnum = obj_data.cnum,
+				str_phone = obj_data.mobile;
+			/* 
+			* 2012-10-23 14:58 暂时不显示用户地址、email、备注信息
 				str_address = obj_data.address,
 				str_email = obj_data.email,
 				str_remark = obj_data.remark;
+			*/
 				
 			$('#name').val(str_name).data('name', str_name);
 			if ( str_name.length > 4 ) {	// 姓名长度大于4显示...
@@ -27,9 +31,13 @@ window.dlf.fn_personalData = function() {
 			}
 			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_name);	// 更新主页用户名
 			$('#phone').html(str_phone).data('phone', str_phone);
+			$('#cnum').val(str_cnum).data('cnum', str_cnum);
+		/* 
+		* 2012-10-23 14:58 暂时不显示用户地址、email、备注信息
 			$('#txtAddress').val(str_address).data('txtAddress', str_address);
 			$('#email').val(str_email).data('email', str_email);
 			$('#remark').val(str_remark).data('remark', str_remark);
+		*/
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -57,13 +65,16 @@ window.dlf.fn_personalSave = function() {
 			str_val = obj_input.val(),
 			str_id = obj_input.attr('id'),
 			str_data = $('#'+str_id).data(str_id);
-			
+		
 		if ( str_val != str_data ) {
+		/* 
+		* 2012-10-23 14:58 暂时不显示用户地址、email、备注信息
 			if ( str_id == 'txtAddress' ) {
 				obj_personalData.address = str_val;
 			} else {
+		*/
 				obj_personalData[str_id] = str_val;
-			}
+			//}
 		}
 	});
 	
@@ -144,9 +155,33 @@ window.dlf.fn_saveSMSOption = function() {
 * 用户点击退出按钮 
 */
 window.dlf.fn_exit = function() {
-	if ( confirm('您确定退出本系统吗？') ) {
-		window.location.href = '/logout'; 
+	var str_msg = '您确定退出本系统吗？',
+		str_defendContent = $('#defendContent').html(),
+		obj_exitMsg = $('#exitMsg'),
+		obj_btnSure = $('#btnSure'),
+		obj_btnCancel = $('#btnCancel');
+	
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	if ( str_defendContent != '已设防' ) {
+		str_msg = '追踪器当前状态为撤防，是否设防！';
+		obj_btnSure.unbind('click').bind('click', function () {
+			var obj_defend = {'defend_status': 1};
+			dlf.fn_jsonPost(DEFEND_URL, obj_defend, 'exit', '爱车保状态保存中');
+		}).val('设防');
+		obj_btnCancel.unbind('click').bind('click', function () {
+			window.location.href = '/logout';
+		}).val('退出');
+	} else {
+		obj_btnSure.unbind('click').bind('click', function () {
+			window.location.href = '/logout';
+		}).val('确定');
+		obj_btnCancel.unbind('click').bind('click', function () {
+			dlf.fn_unLockScreen(); // 清除内容区域的遮罩
+			$('#exitWrapper').hide();
+		}).val('取消');
 	}
+	obj_exitMsg.html(str_msg);
+	dlf.fn_dialogPosition($('#exitWrapper'));
 }
 })();
 
@@ -272,7 +307,7 @@ $(function () {
 				obj_whitePop = $('#whitelistPopWrapper'),
 				f_warpperStatus = !obj_whitePop.is(':hidden'),
 				n_left = ui.position.left + 380,
-				n_top = ui.position.top + 160;
+				n_top = ui.position.top + 60;
 				
 			if ( f_conStatus ) {
 				dlf.fn_lockContent($($(this).children().eq(1)));
@@ -316,9 +351,12 @@ $(function () {
 	});
 	
 	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
+	$('#t_cnum').formValidator({empty:true}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}); // 区分大小写
+	/*  2012-10-23 14:58 暂时不显示用户地址、email、备注信息
 	$('#txtAddress').formValidator().inputValidator({max: 100, onError: '地址最大长度是100个汉字或字符！'});
 	$('#email').formValidator({empty:true}).inputValidator({max: 100, onError: 'email最大长度是100个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '您输入的邮箱格式不正确！'});
 	$('#remark').formValidator().inputValidator({max: 100, onError: '备注最大长度是100个汉字或字符！'});
+	*/
 	
 	/**
 	* 密码进行验证
@@ -361,9 +399,11 @@ $(function () {
 		}
 	});
 	
-	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的紧急联系人号码不合法，请重新输入！'});
+	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的SOS联系人号码不合法，请重新输入！'});
+	/* 2012-10-23 18:11 终端参数中的车牌号和终端别名暂时隐藏
 	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}); // 区分大小写
 	$('#t_alias').formValidator({empty:false, validatorGroup: '3'}).inputValidator({max: 20, onError: '终端别名最大长度是20个汉字或字符！'});  // 别名
+	*/
 	
 	/**
 	* 加载完成后，第一次发送switchcar请求

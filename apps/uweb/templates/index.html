@@ -41,12 +41,18 @@
 							</a>
 							<div class="green j_currentCar">{{car.alias}}</div>
 							<div class="green">(在线)</div>
-						{% else %}
+						{% elif car.login == 0 %}
 							<a href="#" title="{{car.alias}}" class="carlogout"  keys_num="{{car.keys_num}}"  tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" >
 								<img src="../static/images/carout1.png" />
 							</a>
 							<div class="gray j_currentCar">{{car.alias}}</div>
 							<div class="gray">(离线)</div>
+						{% elif car.login == 2 %}
+							<a href="#" title="{{car.alias}}" class="carlogout"  keys_num="{{car.keys_num}}"  tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" >
+								<img src="../static/images/carout1.png" />
+							</a>
+							<div class="gray j_currentCar">{{car.alias}}</div>
+							<div class="gray">(休眠中)</div>
 						{% end %}
 					</li>
 				{% end  %}
@@ -79,8 +85,9 @@
 						<span class="tInfoWord"><label>GPS</label>信号：</span><span class="fontColor" id="gpsContent"></span>
 					</li>
 					<li id="tmobile">
-						<span class="tInfoWord">终端号码：</span><span class="fontColor" id="tmobileContent"></span>
+						<span class="tInfoWord">追踪器号码：</span><span class="fontColor" id="tmobileContent"></span>
 					</li>
+					<!--暂时隐藏挂件编号
 					<li id="fobList">
 						<table>
 							<tr class="j_fobListLable">
@@ -89,6 +96,7 @@
 							</tr>
 						</table>
 					</li>
+					-->
 				</ul>
 			</div>
 			<div class="updateTime"></div>

@@ -24,8 +24,8 @@
 			<div class="defendText">
 				<em id="defendMsg"></em>
 			</div>
-			<div class="msgLine"></div>
-			<a id="defendBtn" class="confirmBtn"></a>
+			<div class="msgLine j_defend"></div>
+			<a id="defendBtn" class="confirmBtn j_defend"></a>
 		</div>
 	</div>
 	
@@ -37,13 +37,29 @@
 		<div class="wrapperContent personalContent">
 			<form id="personalForm" >
 				<table class="personalList">
-					<tr><td><label>车主姓名：</label><input type="text" name="name" id="name"  class="text_mouseOut j_personal j_onInputBlur" max="20" who="name" msg="车主姓名只能是由数字、英文、下划线或中文组成！"  parent="personalWrapper" /></td>
+					<tr>
+						<td>
+							<label>车主电话：</label><font  id="phone"></font>
+						</td>
 					</tr>
-					<tr><td><label>车主电话：</label><font  id="phone"></font></td>
+					<tr>
+						<td>
+							<label>车主姓名：</label>
+							<input type="text" name="name" id="name"  class="text_mouseOut j_personal j_onInputBlur" max="20" who="name" msg="车主姓名只能是由数字、英文、下划线或中文组成！"  parent="personalWrapper" />
+						</td>
 					</tr>
+					<tr>
+						<td>
+							<label>车牌号码：</label>
+							<input type="text" id="cnum" class="text_mouseOut j_personal j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="personalWrapper"   />
+						</td>
+					</tr>
+					
+					<!-- 2012-10-23 18:14 暂时隐藏个人资料的地址、email、备注信息 并添加车牌号
 					<tr><td><label>地址：</label><input type="text" name="txtAddress" id="txtAddress"  class="text_mouseOut j_personal j_onInputBlur"  parent="personalWrapper" max="100" who="validateLength" msg="地址最大长度是100个汉字或字符！"   /></td></tr>
 					<tr><td><label>E-MAIL：</label><input type="text" name="email" id="email" class="text_mouseOut j_personal j_onInputBlur"  parent="personalWrapper" msg="您输入的邮箱格式不正确！" max = "100"  who="email"  /></td></tr>
 					<tr><td><label>备注：</label><textarea name="remark" id="remark" class="remark j_personal j_onInputBlur" max="100"  parent="personalWrapper" who="validateLength" msg="备注最大长度是100个汉字或字符！"  ></textarea></td></tr>
+					-->
 				</table>
 				<input type="submit" value="" id="personalSave" class="personalButton j_save j_onInputBlur" />
 			</form>
@@ -79,11 +95,12 @@
 						<table id="bListR">
 							<tbody>
 								<tr>
-									<td class="terminalTdL">终端手机号:</td>
+									<td class="terminalTdL">追踪器手机号:</td>
 									<td id="mobile"  t_val="0">
 										<label id="t_mobile" terminalkey="mobile"></label>
 									</td>
 								</tr>
+								<!-- 2012-10-23 18:13 暂时隐藏 终端序列号，终端别名，车牌号（移动到个人资料）
 								<tr>
 									<td class="terminalTdL">终端序列号:</td>
 									<td id="sn" t_val="0">
@@ -101,7 +118,7 @@
 									<td id="cnum" class="j_ListVal j_input"  t_val="">
 										<input type="text" id="t_cnum" terminalkey="cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
 									</td>
-								</tr>
+								</tr>-->
 								<tr class="hide">
 									<td class="terminalTdL" ></td>
 									<td id="white_list_1" class="j_white_list" t_val="">
@@ -109,9 +126,18 @@
 									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL" >紧急联系人:</td>
+									<td class="terminalTdL" >SOS联系人:</td>
 									<td id="white_list_2"  class="j_ListVal j_whitelist j_white_list j_input"  t_val="">
-										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的紧急联系人号码不合法，请重新输入！" who="mobile" parent="terminalWrapper"   />
+										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的SOS联系人号码不合法，请重新输入！" who="mobile" parent="terminalWrapper"   />
+									</td>
+								</tr>
+								<tr>
+									<td class="terminalTdL">客户端通知:</td>
+									<td id="push_status" class="j_ListVal j_radio"  t_val="">
+										<input id="tr_push_status1" type="radio" value="1" name="tpStatus" />
+										<label id="tpsLable1" for="tr_push_status1">开启</label>
+										<input id="tr_push_status0" type="radio" value="0" name="tpStatus" />
+										<label id="tpsLable0" for="tr_push_status0">关闭</label>
 									</td>
 								</tr>
 								<tr>
@@ -123,7 +149,7 @@
 										<label id="tRadioLable0" for="tr_trace0">关闭</label>
 									</td>
 								</tr>
-								<tr>
+								<tr id="trFreq">
 									<td class="terminalTdL">上报间隔:</td>
 									<td id="freq" class="j_ListVal j_select"  t_val="0">
 										<select id="t_freq" >
@@ -134,15 +160,6 @@
 											<option value="600">10分钟</option>
 											<option value="1800">30分钟</option>
 										</select>
-									</td>
-								</tr>
-								<tr>
-									<td class="terminalTdL">PUSH信息:</td>
-									<td id="push_status" class="j_ListVal j_radio"  t_val="">
-										<input id="tr_push_status1" type="radio" value="1" name="tpStatus" />
-										<label id="tpsLable1" for="tr_push_status1">开启</label>
-										<input id="tr_push_status0" type="radio" value="0" name="tpStatus" />
-										<label id="tpsLable0" for="tr_push_status0">关闭</label>
 									</td>
 								</tr>
 							</tbody>
@@ -162,7 +179,7 @@
 	<!-- 白名单设置提醒 -->
 	<div id="whitelistPopWrapper" class="hide wrapper">
 		<p class="noticeClose" title="关闭"></p>
-		<p class="noticeMsg">请您设置紧急联系人</p>
+		<p class="noticeMsg">请您设置SOS联系人</p>
 		<p class="noticeRemeber" title="我知道了">我知道了</p>
 	</div>
 	<!-- 短信参数设置 -->
@@ -176,14 +193,17 @@
 					<li>
 						<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">低电告警</label> 
 					</li>
-					<li>
+					<!--<li>
 						<input type="checkbox" id="poweroff" class="j_checkbox" title="断电" /><label for="poweroff">断电告警</label> 
-					</li>
+					</li>-->
 					<li>
 						<input type="checkbox" id="sos" class="j_checkbox" title="SOS" /><label for="sos">SOS告警</label> 
 					</li>
 					<li>
 						<input type="checkbox" id="illegalmove" class="j_checkbox" title="非法移动" /><label for="illegalmove">非法移动告警</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="illegalshake" class="j_checkbox" title="非法震动" /><label for="illegalshake">非法震动告警</label> 
 					</li>
 					<li>
 						<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">平台登录提醒</label> 
@@ -192,7 +212,7 @@
 						<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="通讯异常" /><label for="heartbeat_lost">通讯异常提醒</label>
 					</li>
 					<li>
-						<input type="checkbox" id="charge" class="j_checkbox" title="卡号余额" /><label for="charge">终端余额提醒</label> 
+						<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">剩余流量提醒</label> 
 					</li>
 				</ul>
 				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
@@ -260,5 +280,19 @@
 			<div class="msgLine businessLine"></div>
 			<a id="businessBtn" class="businessBtn"></a>
 		</div>
+	</div>
+	<!-- 退出提示 -->
+	<div id="exitWrapper" class="hide wrapper">
+		<div id="exitMsg"></div>
+		<div class="exitButtons">
+			<input type="button" id="btnSure" value="确定" />
+			<input type="button" id="btnCancel" value="取消" />
+		</div>
+	</div>
+	
+	<!-- 唤醒提示信息 -->
+	<div id="wakeupWrapper" class="hide">
+		<span id="wakeupMsg"></span>
+		<span class="hide" id="wakeupTimer">0</span>
 	</div>
 </div>

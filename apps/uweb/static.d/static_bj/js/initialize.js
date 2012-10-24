@@ -401,12 +401,17 @@ window.dlf.fn_getCarData = function() {
 						obj_img.attr('src', BASEIMGURL + 'car1.png');
 						obj_child1.removeClass('gray').addClass('green');
 						obj_child2.removeClass('gray').addClass('green').html('(在线)');
-					} else {
+					} else if ( str_loginst == LOGINOUT ) {	// 离线
 						obj_carA.removeClass('carlogin').addClass('carlogout');
 						obj_img.attr('src', BASEIMGURL + 'carout1.png');
 						obj_child1.removeClass('green').addClass('gray');
 						obj_child2.removeClass('green').addClass('gray').html('(离线)');
-					}
+					} else if ( str_loginst == LOGINWAKEUP ) {	// 休眠中 todo 
+						obj_carA.removeClass('carlogout').addClass('carlogin');
+						obj_img.attr('src', BASEIMGURL + 'car1.png');
+						obj_child1.removeClass('gray').addClass('blue');
+						obj_child2.removeClass('gray').addClass('blue').html('(休眠中)');
+					} 
 					obj_carA.attr('clogin', str_loginst);
 					if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
 						dlf.fn_updateTerminalInfo(obj_carInfo);
@@ -445,9 +450,11 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 		str_clon = '',
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
-		str_clat = '',	// 经纬度
+		str_clat = '';	// 经纬度
+		/* 2012-10-23 15:32 暂时隐藏挂件编号
 		arr_fob_list = obj_carInfo.fob_list,	// 挂件编号集合
 		n_fobListLength = 0;	// 挂件数量 
+		*/
 		
 	if ( n_clat == 0 || n_clon == 0 ) {	// 经纬度为0 不显示位置信息
 		str_address = '-';
@@ -469,11 +476,13 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 			n_gsm = obj_carInfo.gsm,	// gsm 值
 			str_gsm = dlf.fn_changeData('gsm', n_gsm),	// gsm信号
 			n_gps = obj_carInfo.gps,	// gps 值
-			str_gps = dlf.fn_changeData('gps', n_gps),	// gps信号
+			str_gps = dlf.fn_changeData('gps', n_gps);	// gps信号
+			/* 2012-10-23 15:32 暂时隐藏挂件编号
 			obj_firstFob = $('#firstFob'),
 			obj_fobList = $('#fobList'),
 			obj_fobListLabel = $('#fobListLable'),
 			obj_fobListTr = $('#fobList .j_fobListLable');
+			*/
 			
 		$('#powerContent').html(str_power);// 电池电量填充
 		$('#gsmContent').html(str_gsm);	// gsm 
@@ -482,7 +491,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#defendStatus').css('background-image', 'url("' + BASEIMGURL + str_dImg + '")').attr('title', str_dStatusTitle);
 		$('#tmobile').attr('title', '终端号码：' + str_tmobile );	// 终端手机号
 		$('#tmobileContent').html(str_tmobile);	
-		
+		/* 2012-10-23 15:32 暂时隐藏挂件编号
 		n_fobListLength = arr_fob_list.length;
 		// 更新挂件
 		$('.j_fob').remove();
@@ -506,6 +515,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 			obj_fobList.attr('title', '无挂件');
 			obj_fobListLabel.attr('rowspan', 1);
 		}
+		*/
 	}
 	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
 	$('#address').html(str_address); // 最后一次定们地址
@@ -708,7 +718,7 @@ window.dlf.fn_eventText = function(n_eventNum) {
 			str_text = '低电';
 			break;
 		case 3:
-			str_text = '关机';
+			str_text = '非法震动';
 			break;
 		case 4:
 			str_text = '非法移动';
@@ -830,10 +840,10 @@ window.dlf.fn_onInputBlur = function() {
 					if ( n_valLength == 0 ) {	// 手机号验证长度
 						str_msg = '';
 					} else if ( n_valLength > 14 || n_valLength < 11 ) {
-						str_msg = '您设置的紧急联系人号码不合法，请重新输入！'
+						str_msg = '您设置的SOS联系人号码不合法，请重新输入！'
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
-							str_msg = '您设置的紧急联系人号码不合法，请重新输入！';
+							str_msg = '您设置的SOS联系人号码不合法，请重新输入！';
 						}
 					}
 					if ( str_msg != '' ) {
@@ -904,20 +914,21 @@ dlf.fn_dialogPosition = function ( obj_wrapper ) {
 window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 	var obj_cWrapper = $('#'+str_who+'Wrapper'), 
 		obj_content = $('.'+str_who+'Content');
-
-	dlf.fn_jNotifyMessage(str_msg + WAITIMG, 'message', true);
-	dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩
 	
+	dlf.fn_jNotifyMessage(str_msg + WAITIMG, 'message', true);
+	if ( obj_content.length > 0 ) {
+		dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩	
+	}
 	$.post_(url, JSON.stringify(obj_data), function (data) {
 		var f_warpperStatus = !obj_cWrapper.is(':hidden');
 		if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,不进行后续操作
 			if ( data.status == 0 ) {
-				if ( str_who == 'defend' ) {	// 如果是设防撤防操作
+				if ( str_who == 'defend' || str_who == 'exit' ) {	// 如果是设防撤防操作
 					var str_defendStatus = $('#defendContent').data('defend'),
-						str_html = '',
-						str_dImg = '',
-						n_defendStatus = 0;
-						
+					str_html = '',
+					str_dImg = '',
+					n_defendStatus = 0;
+					
 					if ( str_defendStatus == DEFEND_OFF ) { 
 						n_defendStatus = 1;
 						str_html = '已设防';
@@ -932,6 +943,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 				}
 				dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+				$('#exitWrapper').hide();	// 退出dialog隐藏
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();
 			} else {
@@ -983,7 +995,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else if ( str_who == 'terminal' ) {	// 终端参数设置修改
-					dlf.fn_updateAlias();	// 修改终端别名
+					//dlf.fn_updateAlias();	// 修改终端别名
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						var str_val = obj_data[param];
 						

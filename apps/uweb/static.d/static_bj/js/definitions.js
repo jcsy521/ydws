@@ -16,6 +16,7 @@ var TERMINALLIST_URL = '/terminallist'; //终端列表
 var LASTINFO_URL = '/lastinfo'; //动态更新当前终端数据
 var LOGIN_URL = '/login'; // 登录
 var SMS_URL = '/smsoption'; // 短信告警参数
+var WAKEUP_URL = '/wakeup'; // 唤醒追踪器
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒
 var CHECK_PERIOD = 60000; // 总共执行的时间
@@ -25,10 +26,14 @@ var GPS_TYPE = 0; /*GPS*/
 var CELLID_TYPE = 1; /*基站*/
 var DEFEND_OFF = 0; // 未设防
 var DEFEND_ON = 1; // 已设防
+var FOB_ON = 1;	// 挂件在附近
+var FOB_OFF = 0;	// 挂件不在附近
 var EVENT_NO = 0; // 无报警
 var LOCK_ON = 1; // 车被锁定
 var LOCK_OFF = 0; // 车未被锁定
 var LOGINST = 1; //终端连接到平台
+var LOGINOUT = 0; //终端连接到平台
+var LOGINWAKEUP = 2; //终端连接到平台
 var NUMLNGLAT = 3600000; /*int->lnglat num值*/ 
 var WEEKMILISECONDS = 24*60*60*6; // 一个星期的毫秒数
 var WAITIMG = '...<img src="/static/images/blue-wait.gif" />';	// 正在查询中 图标

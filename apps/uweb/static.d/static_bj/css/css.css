@@ -251,6 +251,12 @@ body {
 	word-break: break-all;
     word-wrap: break-word
 }
+.blue {
+	clear: both;
+	color: blue;
+	word-break: break-all;
+    word-wrap: break-word
+}
 #carList span {
 	line-height: 22px;
 	text-align: left;
@@ -287,7 +293,7 @@ body {
 .tInfoWord {   
 	padding-left: 1px;
 	text-align: left;
-    width: 61px;
+    width: 72px;
 }
 #gsm .tInfoWord, #gps .tInfoWord {
 	padding: 0px;
@@ -414,7 +420,7 @@ body {
 	z-index: 1000;
 }
 .wrapper {
-	height: 335px;
+	height: 210px;
 	left: 38%;
 	width: 448px;
 	position: absolute;
@@ -529,11 +535,11 @@ body {
 }
 .defendText {
     height: 84px;
-	width: 320px;
+	/*width: 320px;*/
 	text-align: center;
 }
 #defendMsg {
-    left: -25px;
+    left: -76px;
     line-height:2;
     position: relative;
     top: 26px;
@@ -548,6 +554,21 @@ body {
 	position: absolute;
 	top: 45px;
 	left: 300px;
+}
+#wakeupWrapper {
+	position: absolute;
+	bottom: 100px;
+	background-color: #000;
+	opacity: 0.5;
+	filter:alpha(opacity=50);
+	border-radius: 6px;
+	width: 400px;
+	height: 36px;
+	line-height: 36px;
+	color: white;
+	text-align: center;
+	font-size: 14px;
+	z-index: 1000;
 }
 	/* bussiness change dialog */
 #businessWrapper {
@@ -588,11 +609,10 @@ body {
 	padding-top: 10px;
 }
 .personalContent {
-	height: 285px;
+	height: 166px;
 	padding-top: 10px;
 }
 .personalList {
-	height: 190px;
 	margin-left: 23px;
 }
 .personalList tr, .pwdList tr {
@@ -679,7 +699,7 @@ body {
 	height: 499px;
 }
 #terminalWrapper .terminalContent {
-	height: 360px;	/* 400px*/
+	height: 253px;	/* 400px*/
 	width: 448px;
 }
 #terminalWrapper .titleName {
@@ -1555,5 +1575,28 @@ body {
 }
 .error {
 	margin: 50px 0px 10px 0px;
+}
+
+/* exit div css */
+#exitWrapper {
+	width: 290px;
+	height: 128px;
+	background-color: white;
+	text-align: center;
+	border: 1px solid #ADAAAA;
+}
+.exitButtons {
+	background-color: #F0F0F0;
+	height: 46px;
+	line-height: 46px;
+}
+#exitMsg {
+	height: 82px;
+	line-height: 82px;
+	font-size: 12px;
+}
+.exitButtons input {
+	margin-left: 20px;
+	width: 50px;
 }
 /*web css end*/

@@ -10,7 +10,7 @@
 *n_speed: 默认播放速度
 *f_trackMsgStatus: 动态marker的吹出框是否显示
 */
-var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, f_trackMsgStatus = false;
+var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, f_trackMsgStatus = false,obj_drawLine = null, arr_drawLine = [];
 /**
 * 初始化轨迹显示页面
 */
@@ -182,6 +182,7 @@ function fn_startDrawLineStatic(arr_dataArr) {
 	mapObj.addOverlay(polyline);//向地图添加覆盖物 
 	dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
 	dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
+	fn_createDrawLine();
 }
 
 /**
@@ -223,6 +224,9 @@ function fn_drawMarker() {
 			mapObj.removeOverlay(actionMarker);
 		}
 		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, counter); // 添加标记
+			// 将播放过的点放到数组中
+			arr_drawLine.push(new BMap.Point(arr_dataArr[counter].clongitude/NUMLNGLAT, arr_dataArr[counter].clatitude/NUMLNGLAT));
+			obj_drawLine.setPath(arr_drawLine);
 		if ( f_trackMsgStatus ) {
 			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框
 		}
@@ -236,12 +240,22 @@ function fn_drawMarker() {
 }
 
 /**
+* 初始化播放过的线对象
+*/
+function fn_createDrawLine () {
+	obj_drawLine = new BMap.Polyline(arr_drawLine, {'strokeColor': 'red'});
+	mapObj.addOverlay(obj_drawLine);
+}
+
+/**
 * 关闭轨迹清除数据
 */
 function fn_clearTrack () {
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };	// 清除计时器
 	str_actionState = 0;
 	counter = 0;
+	obj_drawLine = null;
+	arr_drawLine = [];
 }
 
 /**

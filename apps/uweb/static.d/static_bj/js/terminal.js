@@ -22,9 +22,11 @@ window.dlf.fn_initTerminal = function() {
 		if ( str_val == 0 ) {
 			str_oldVal = str_oldVal=='0'?'':str_oldVal;
 			obj_freq.val(str_oldVal);
-			obj_freq.attr('disabled', true);
+			//obj_freq.attr('disabled', true);
+			$('#trFreq').addClass('hide');
 		} else {
-			$('#t_freq').attr('disabled', false);
+			//$('#t_freq').attr('disabled', false);
+			$('#trFreq').removeClass('hide');
 		}
 	});
 }
@@ -48,9 +50,11 @@ window.dlf.fn_initTerminalWR = function () {
 					if ( param == 'trace' || param == 'push_status' ) {	// 单选按钮: 轨迹上报、PUSH告警
 						if ( param == 'trace' ) {	// 如果轨迹上报为关闭状态  上报间隔不可编辑
 							if ( str_val == 0 ) {
-								$('#t_freq').attr('disabled', true);
+								//$('#t_freq').attr('disabled', true);
+								$('#trFreq').addClass('hide');
 							} else {
-								$('#t_freq').attr('disabled', false);
+								//$('#t_freq').attr('disabled', false);
+								$('#trFreq').removeClass('hide');
 							}
 						}
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
@@ -85,7 +89,7 @@ window.dlf.fn_initTerminalWR = function () {
 			} else {
 				$('#whitelistPopWrapper').hide();
 			}
-			dlf.fn_updateAlias();	// 更新最新的终端别名
+			//dlf.fn_updateAlias();	// 更新最新的终端别名
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -166,7 +170,7 @@ window.dlf.fn_baseSave = function() {
 	}
 	
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
-		dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中');
+		dlf.fn_terminalOnLine(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中...');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改！', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
@@ -181,7 +185,7 @@ window.dlf.fn_resizeWhitePop = function() {
 		obj_whitePop = $('#whitelistPopWrapper'),
 		f_warpperStatus = !obj_whitePop.is(':hidden'),
 		n_left = obj_terminalWrapperOffset.left + 380,
-		n_top =  obj_terminalWrapperOffset.top + 160 ;
+		n_top =  obj_terminalWrapperOffset.top + 60 ;
 		
 	if ( f_warpperStatus ) {
 		obj_whitePop.css({left: n_left, top: n_top});
