@@ -153,9 +153,9 @@ class MyGWServer(object):
         self.redis.delete(terminal_sessionID_key)
         # 2. offline
         self.online_terminals.remove(dev_id)
-        # 3. db set unlogin
+        # 3. db set offline 
         info = DotDict(dev_id=dev_id,
-                       login=GATEWAY.TERMINAL_LOGIN.UNLOGIN)
+                       login=GATEWAY.TERMINAL_LOGIN.OFFLINE)
         self.update_terminal_info(info)
 
     def __start_check_heartbeat_thread(self):
@@ -172,10 +172,10 @@ class MyGWServer(object):
         redis = MyRedis()
         online_terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
                                     "  WHERE login = %s",
-                                    GATEWAY.TERMINAL_LOGIN.LOGIN)
+                                    GATEWAY.TERMINAL_LOGIN.ONLINE)
         for terminal in online_terminals:
             info = DotDict(dev_id=terminal.tid,
-                           login=GATEWAY.TERMINAL_LOGIN.UNLOGIN)
+                           login=GATEWAY.TERMINAL_LOGIN.OFFLINE)
             self.update_terminal_info(info)
             terminal_status_key = get_terminal_address_key(terminal.tid)
             terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
@@ -189,7 +189,7 @@ class MyGWServer(object):
             #    db.execute("UPDATE T_TERMINAL_INFO"
             #               "  SET login = %s"
             #               "  WHERE tid = %s",
-            #               GATEWAY.TERMINAL_LOGIN.UNLOGIN, terminal.tid)
+            #               GATEWAY.TERMINAL_LOGIN.OFFLINE, terminal.tid)
             #    terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
             #    self.redis.delete(terminal_sessionID_key)
 
@@ -317,11 +317,17 @@ class MyGWServer(object):
                     logging.info("[GW] Recv query config packet:\n%s", packet)
                     self.handle_config(clw, address, connection, channel)
                 elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
-                    logging.info("[GW] Recv defendstatus packet:\n%s", packet)
-                    self.handle_defendstatus(clw, address, connection, channel)
+                    logging.info("[GW] Recv defend status packet:\n%s", packet)
+                    self.handle_defend_status(clw, address, connection, channel)
                 elif command == T_MESSAGE_TYPE.FOBINFO:
-                    logging.info("[GW] Recv fobinfo packet:\n%s", packet)
-                    self.handle_fobinfo(clw, address, connection, channel)
+                    logging.info("[GW] Recv fob info packet:\n%s", packet)
+                    self.handle_fob_info(clw, address, connection, channel)
+                elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
+                    logging.info("[GW] Recv sleep status packet:\n%s", packet)
+                    self.handle_terminal_sleep_status(clw, address, connection, channel)
+                elif command == T_MESSAGE_TYPE.FOBSTATUS:
+                    logging.info("[GW] Recv fob status packet:\n%s", packet)
+                    self.handle_fob_status(clw, address, connection, channel)
                 else:
                     logging.info("[GW] Recv packet from terminal:\n%s", packet)
                     self.foward_packet_to_si(clw, packet, address, connection, channel)
@@ -593,7 +599,7 @@ class MyGWServer(object):
                 if not t_info["dev_id"] in self.online_terminals:
                     self.online_terminals.append(t_info["dev_id"])
                 # set login
-                info = DotDict(login=GATEWAY.TERMINAL_LOGIN.LOGIN,
+                info = DotDict(login=GATEWAY.TERMINAL_LOGIN.ONLINE,
                                mobile=t_info['t_msisdn'],
                                keys_num=t_info['keys_num'],
                                dev_id=t_info["dev_id"])
@@ -627,6 +633,14 @@ class MyGWServer(object):
             else:
                 hp = HeartbeatParser(body, head)
                 heartbeat_info = hp.ret 
+                if heartbeat_info['sleep_status'] == '0':
+                    heartbeat_info['login'] = GATEWAY.TERMINAL_LOGIN.SLEEP
+                elif heartbeat_info['sleep_status'] == '1':
+                    heartbeat_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+                else:
+                    logging.info("[GW] Recv wrong sleep status: %s", heartbeat_info)
+                del heartbeat_info['sleep_status']
+
                 self.update_terminal_status(head.dev_id, address)
                 self.update_terminal_info(heartbeat_info)
 
@@ -711,7 +725,7 @@ class MyGWServer(object):
         except:
             logging.exception("[GW] Hand query config exception.")
 
-    def handle_defendstatus(self, info, address, connection, channel):
+    def handle_defend_status(self, info, address, connection, channel):
         """
         defend status report packet
         0: success, then record new terminal's address
@@ -736,11 +750,11 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand defendstatus report exception.")
+            logging.exception("[GW] Hand defend status report exception.")
 
-    def handle_fobinfo(self, info, address, connection, channel):
+    def handle_fob_info(self, info, address, connection, channel):
         """
-        fobinfo packet: add or remove fob
+        fob info packet: add or remove fob
         0: success, then record new terminal's address
         1: invalid SessionID
         """
@@ -762,7 +776,71 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand fobinfo report exception.")
+            logging.exception("[GW] Hand fob info report exception.")
+
+    def handle_terminal_sleep_status(self, info, address, connection, channel):
+        """
+        sleep status packet: 0-sleep, 1-LQ
+        0: success, then record new terminal's address
+        1: invalid SessionID
+        """
+        try:
+            head = info.head
+            body = info.body
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           command=head.command)
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID:
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
+            else:
+                hp = AsyncParser(body, head)
+                sleep_info = hp.ret 
+                if sleep_info['sleep_status'] == '0':
+                    sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.SLEEP
+                elif sleep_info['sleep_status'] == '1':
+                    sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+                else:
+                    logging.info("[GW] Recv wrong sleep status: %s", sleep_info)
+                del sleep_info['sleep_status']
+
+                self.update_terminal_status(head.dev_id, address)
+                self.update_terminal_info(sleep_info)
+
+            hc = AsyncRespComposer(args)
+            request = DotDict(packet=hc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Hand sleep status report exception.")
+
+    def handle_fob_status(self, info, address, connection, channel):
+        """
+        fob status packet: 0-no fob near, 1-have fob near
+        0: success, then record new terminal's address
+        1: invalid SessionID
+        """
+        try:
+            head = info.head
+            body = info.body
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           command=head.command)
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID:
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
+            else:
+                hp = AsyncParser(body, head)
+                fob_info = hp.ret 
+                self.update_terminal_status(head.dev_id, address)
+                info = DotDict(fob_status=fob_info['fob_status'],
+                               dev_id=fob_info['dev_id'])
+                self.update_terminal_info(fob_info)
+
+            hc = AsyncRespComposer(args)
+            request = DotDict(packet=hc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Hand fob status report exception.")
 
     def foward_packet_to_si(self, info, packet, address, connection, channel):
         """
@@ -790,7 +868,7 @@ class MyGWServer(object):
 
             if head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
                                 T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
-                                T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.POWEROFF,
+                                T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.ILLEGALSHAKE,
                                 T_MESSAGE_TYPE.EMERGENCY):
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
@@ -930,7 +1008,8 @@ class MyGWServer(object):
     def update_terminal_info(self, t_info):
         # db
         fields = []
-        keys = ['mobile', 'gps', 'gsm', 'pbat', 'defend_status', 'login', 'keys_num']
+        keys = ['mobile', 'gps', 'gsm', 'pbat', 'defend_status', 'login',
+                'keys_num', 'fob_status']
         for key in keys:
             if t_info.get(key, None) is not None:
                 fields.append(key + " = " + str(t_info[key]))

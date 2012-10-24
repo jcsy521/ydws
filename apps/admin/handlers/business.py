@@ -44,7 +44,7 @@ class BusinessMixin(BaseMixin):
         """ 
         sms_status = 0
         terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db)
-        if terminal.login == GATEWAY.TERMINAL_LOGIN.LOGIN:
+        if terminal.login == GATEWAY.TERMINAL_LOGIN.ONLINE:
             sms_status = 3
         elif terminal.msgid:
             sms_status = 1

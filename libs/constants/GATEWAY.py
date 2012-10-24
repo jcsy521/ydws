@@ -16,12 +16,14 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          CHARGE="T12",
                          ILLEGALMOVE="T13",
                          POWERLOW="T14",
-                         POWEROFF="T15",
+                         ILLEGALSHAKE="T15",
                          EMERGENCY="T16",
                          CONFIG="T17",
                          DEFENDSTATUS="T18",
                          FOBINFO="T19",
                          FOBOPERATE="T20",
+                         SLEEPSTATUS="T21",
+                         FOBSTATUS="T22",
                          AGPS="T100"
                          )
 
@@ -39,12 +41,14 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          CHARGE="S12",
                          ILLEGALMOVE="S13",
                          POWERLOW="S14",
-                         POWEROFF="S15",
+                         ILLEGALSHAKE="S15",
                          EMERGENCY="S16",
                          CONFIG="S17",
                          DEFENDSTATUS="S18",
                          FOBINFO="S19",
                          FOBOPERATE="S20",
+                         SLEEPSTATUS="S21",
+                         FOBSTATUS="S22",
                          AGPS="S100"
                          )
 
@@ -77,8 +81,10 @@ SERVICE_STATUS = DotDict(ON=1,
 DEFEND_STATUS = DotDict(SUCCESS="0",
                         FAILED="1")
 
-TERMINAL_LOGIN = DotDict(LOGIN=1,
-                         UNLOGIN=0)
+TERMINAL_LOGIN = DotDict(OFFLINE=0,
+                         ONLINE=1,
+                         SLEEP=2,
+                         WAKEUP=3)
 
 FOB_OPERATE = DotDict(ADD=0,
                       REMOVE=1)

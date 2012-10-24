@@ -30,7 +30,11 @@ class AsyncParser(object):
             ret['t'] = EVENTER.INFO_TYPE.CHARGE
             info = self.get_charge_info(packet)
         elif ret.command == 'T18':
-            info = self.get_status_info(packet)
+            info = self.get_defend_info(packet)
+        elif ret.command == 'T21':
+            info = self.get_sleep_info(packet)
+        elif ret.command == 'T22':
+            info = self.get_fob_info(packet)
         else:
             return info 
 
@@ -48,7 +52,7 @@ class AsyncParser(object):
         elif command == "T14":
             tid = EVENTER.RNAME.POWERLOW
         elif command == "T15":
-            tid = EVENTER.RNAME.POWEROFF
+            tid = EVENTER.RNAME.ILLEGALSHAKE
         elif command == "T16":
             tid = EVENTER.RNAME.EMERGENCY
         else:
@@ -82,9 +86,21 @@ class AsyncParser(object):
 
         return info
 
-    def get_status_info(self, packet):
+    def get_defend_info(self, packet):
         defend_status = packet[0]
         info = {'defend_status': defend_status}
+
+        return info
+
+    def get_sleep_info(self, packet):
+        sleep_status = packet[0]
+        info = {'sleep_status': sleep_status}
+
+        return info
+
+    def get_fob_info(self, packet):
+        fob_status = packet[0]
+        info = {'fob_status': fob_status}
 
         return info
 
@@ -138,7 +154,7 @@ class AsyncParser(object):
 
     def get_report_info(self, packet):
         """Get the location report information. Location is classified as the 
-        following categories: POWEROFF, POWERLOW, EMERGENCY, ILLEGALMOVE 
+        following categories: ILLEGALSHAKE, POWERLOW, EMERGENCY, ILLEGALMOVE 
         """
 
         keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed', 'degree',

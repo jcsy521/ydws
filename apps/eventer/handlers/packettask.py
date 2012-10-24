@@ -143,6 +143,7 @@ class PacketTask(object):
         POWERLOW
         POWEROFF
         ILLEGALMOVE
+        ILLEGALSHAKE
         HEARTBEAT_LOST
         EMERGENCY
 
@@ -176,7 +177,7 @@ class PacketTask(object):
                 report_name = unicode(report_name)
 
             if report.rName == EVENTER.RNAME.POWEROFF:
-                report.login = GATEWAY.TERMINAL_LOGIN.UNLOGIN
+                report.login = GATEWAY.TERMINAL_LOGIN.OFFLINE
                 sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.POWERLOW:
                 if report.terminal_type == "1":
@@ -185,6 +186,8 @@ class PacketTask(object):
                     sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, int(report.pbat), report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
                 sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
+            elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
+                sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.EMERGENCY:
                 whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
                 if whitelist:

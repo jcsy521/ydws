@@ -175,7 +175,7 @@ class MySIServer():
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET login = %s"
                                 "  WHERE id = %s",
-                                TERMINAL_LOGIN.UNLOGIN, terminal.id)
+                                TERMINAL_LOGIN.OFFLINE, terminal.id)
                 terminal_sessionID_key = get_terminal_sessionID_key(terminal_id)
                 terminal_status_key = get_terminal_address_key(terminal_id)
                 keys = [terminal_sessionID_key, terminal_status_key]
