@@ -93,9 +93,9 @@ function fn_trackQuery() {
 				str_msg = '';
 			if ( locLength <= 0) {
 				if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
-					str_msg = '该时间段没有数据，请尝试勾选“显示基站定位”！';
+					str_msg = '该时间段没有数据，请尝试勾选“显示基站定位”。';
 				} else {
-					str_msg = '该时间段没有数据，请选择其它时间段！';
+					str_msg = '该时间段没有数据，请选择其它时间段。';
 				}
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 				$('#trackSpeed').hide();	// 速度滑块隐藏

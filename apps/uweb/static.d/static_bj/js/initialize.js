@@ -399,18 +399,18 @@ window.dlf.fn_getCarData = function() {
 					if ( str_loginst == LOGINST) {
 						obj_carA.removeClass('carlogout').addClass('carlogin');
 						obj_img.attr('src', BASEIMGURL + 'car1.png');
-						obj_child1.removeClass('gray').addClass('green');
-						obj_child2.removeClass('gray').addClass('green').html('(在线)');
+						obj_child1.removeClass('gray').removeClass('blue').addClass('green');
+						obj_child2.removeClass('gray').removeClass('blue').addClass('green').html('(在线)');
 					} else if ( str_loginst == LOGINOUT ) {	// 离线
 						obj_carA.removeClass('carlogin').addClass('carlogout');
 						obj_img.attr('src', BASEIMGURL + 'carout1.png');
-						obj_child1.removeClass('green').addClass('gray');
-						obj_child2.removeClass('green').addClass('gray').html('(离线)');
+						obj_child1.removeClass('green').removeClass('blue').addClass('gray');
+						obj_child2.removeClass('green').removeClass('blue').addClass('gray').html('(离线)');
 					} else if ( str_loginst == LOGINWAKEUP ) {	// 休眠中 todo 
 						obj_carA.removeClass('carlogout').addClass('carlogin');
 						obj_img.attr('src', BASEIMGURL + 'car1.png');
-						obj_child1.removeClass('gray').addClass('blue');
-						obj_child2.removeClass('gray').addClass('blue').html('(休眠中)');
+						obj_child1.removeClass('gray').removeClass('green').addClass('blue');
+						obj_child2.removeClass('gray').removeClass('green').addClass('blue').html('(休眠中)');
 					} 
 					obj_carA.attr('clogin', str_loginst);
 					if ( str_currentTid == str_tid ) {	// 更新当前车辆信息

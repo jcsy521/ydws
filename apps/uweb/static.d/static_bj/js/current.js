@@ -260,7 +260,11 @@ window.dlf.fn_terminalOnLine = function(str_url, obj_data, str_operation, str_ti
 			str_msg = '追踪器正在唤醒中，请稍后再试！';
 			dlf.fn_jNotifyMessage(str_msg, 'message', false, 5000);
 		} else {
-			str_msg = '追踪器不在线，是否唤醒追踪器？';
+			if ( n_login == LOGINOUT ) {
+				str_msg = '追踪器不在线，是否唤醒追踪器？';
+			} else if ( n_login == LOGINWAKEUP ) {
+				str_msg = '追踪器在休眠中，是否唤醒追踪器？';
+			}
 			if ( str_operation == 'defend' ) {
 				obj_defendMsg.html(str_msg);
 				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('hx', 'hx2'));	// 设置鼠标滑过唤醒的样式
@@ -301,7 +305,7 @@ function fn_wakeupTerminal() {
 					obj_wakeupTimer = $('#wakeupTimer'),	// 追踪器提示框计时器容器
 					n_timer = parseInt(obj_wakeupTimer.html()),
 					wakeupInterval = null;
-					n_left = ($(window).width()-300)/2;
+					n_left = ($(window).width()-400)/2;
 				
 				//dlf.fn_closeDialog();
 				// 关闭jNotityMessage

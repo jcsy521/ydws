@@ -253,7 +253,7 @@ body {
 }
 .blue {
 	clear: both;
-	color: blue;
+	color: #3e6c9b;
 	word-break: break-all;
     word-wrap: break-word
 }
@@ -569,6 +569,10 @@ body {
 	text-align: center;
 	font-size: 14px;
 	z-index: 1000;
+}
+#wakeupMsg img {
+	position: absolute;
+	top: 10px;
 }
 	/* bussiness change dialog */
 #businessWrapper {
