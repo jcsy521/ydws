@@ -40,7 +40,6 @@ class MainHandler(BaseHandler):
             for terminal in terminals:
                 if not terminal['alias']:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db) 
-                    terminal['login'] = QueryHelper.get_login_status_by_tid(tid, self.redis, self.db)
 
         self.render("index.html",
                     status=status,
