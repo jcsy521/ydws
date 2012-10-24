@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
-from utils.misc import get_terminal_info_key
+from utils.misc import get_terminal_info_key, get_lq_sms_key
 from utils.dotdict import DotDict
+from constants import GATEWAY
 
 class QueryHelper(object):
     """A bunch of samll functions to get one attribute from another
@@ -11,7 +12,7 @@ class QueryHelper(object):
     def get_terminal_by_tid(tid, db):
         """Get terminal's info throught tid.
         """
-        terminal = db.get("SELECT mobile, alias"
+        terminal = db.get("SELECT mobile, alias, login"
                           "  FROM T_TERMINAL_INFO"
                           "  WHERE tid = %s LIMIT 1",
                           tid) 
@@ -158,10 +159,11 @@ class QueryHelper(object):
 
     @staticmethod
     def get_fob_list_by_tid(tid, db):
-        """Get fob list throught tid.
+        """Get fob list through tid.
         """
         foblist = db.query("SELECT fobid"
                            "  FROM T_FOB"
                            "  WHERE tid = %s",
                            tid) 
         return foblist
+  

@@ -28,7 +28,7 @@ class SMSOptionHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
-            sms_options = self.db.get("SELECT login, powerlow, poweroff,"
+            sms_options = self.db.get("SELECT login, powerlow, illegalshake,"
                                       "       illegalmove, sos, heartbeat_lost, charge"
                                       "  FROM T_SMS_OPTION"
                                       "  WHERE uid = %s"
@@ -64,7 +64,7 @@ class SMSOptionHandler(BaseHandler):
         try:
             fields = DotDict(login="login = %s",
                              powerlow="powerlow = %s",
-                             poweroff="poweroff = %s",
+                             illegalshake="illegalshake = %s",
                              illegalmove="illegalmove = %s",
                              sos="sos = %s",
                              heartbeat_lost="heartbeat_lost = %s",

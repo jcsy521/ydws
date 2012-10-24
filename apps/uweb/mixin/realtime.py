@@ -248,7 +248,7 @@ class RealtimeMixin(BaseMixin):
                             self.update_terminal_status(location)
                     else:
                         if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                            self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
+                            self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
                         ret.status = response['success']
                         ret.message = response['info']
                         logging.error("[UWEB] realtime failed. tid: %s, status: %s, message: %s", self.current_user.tid, ret.status, ret.message)

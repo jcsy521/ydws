@@ -14,7 +14,7 @@ from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
 from mixin.base import BaseMixin
 from codes.errorcode import ErrorCode
-from constants import SMS
+from constants import SMS, GATEWAY
 
 
 class DefendHandler(BaseHandler, BaseMixin):
@@ -24,7 +24,7 @@ class DefendHandler(BaseHandler, BaseMixin):
     def get(self):
         status = ErrorCode.SUCCESS
         try:
-            terminal = self.db.get("SELECT defend_status"
+            terminal = self.db.get("SELECT defend_status, fob_status"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s",
                                    self.current_user.tid)
@@ -34,7 +34,9 @@ class DefendHandler(BaseHandler, BaseMixin):
                 self.write_ret(status)
                 return
 
-            self.write_ret(status,dict_=DotDict(defend_status=terminal.defend_status))
+            self.write_ret(status,
+                           dict_=DotDict(defend_status=terminal.defend_status, 
+                                         fob_status=terminal.fob_status))
         except Exception as e:
             logging.exception("[UWEB] uid:%s tid:%s get defed status failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
@@ -74,7 +76,7 @@ class DefendHandler(BaseHandler, BaseMixin):
                              self.current_user.uid,  self.current_user.tid, data.defend_status)
             else:
                 if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                    self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
+                    self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
 
                 status = response['success'] 
                 logging.error('[UWEB] uid:%s tid:%s set defend status to %s failed, message: %s', 
@@ -90,6 +92,7 @@ class DefendHandler(BaseHandler, BaseMixin):
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
 
+            self.keep_waking(self.current_user.sim, self.current_user.tid)
             args = DotDict(seq=SeqGenerator.next(self.db),
                            tid=self.current_user.tid,
                            defend_status=data.defend_status)

@@ -129,7 +129,6 @@ class IOSHandler(BaseHandler, LoginMixin):
             for terminal in terminals:
                 if not terminal.alias:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
-            
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name, 
                                          cars=terminals))

@@ -50,6 +50,9 @@ TERMINAL_CATEGORY = DotDict(ESPECIAL_GPS_TERMINAL=1,
 # the interval of query event, track, event: one week. in seconds.
 QUERY_INTERVAL = 7 * 24 * 60 * 60
 
+# the interval of wake up, 5 minutes, in seconds.
+WAKEUP_INTERVAL = 5 * 60
+
 
 REMOTE_EVENT_COMMAND = DotDict(REBOOT='REBOOT', 
                                LOCK='LOCK')

@@ -24,7 +24,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
     @tornado.web.removeslash
     def get(self, tid):
         status = ErrorCode.SUCCESS
-        logging.info("[UWEB] switchcar request: %s", tid)
+        logging.info("[UWEB] switch car request: %s", tid)
         try:
             terminal = self.db.get("SELECT ti.tid, ti.mobile as sim,"
                                   "  ti.login, ti.defend_status "
@@ -33,7 +33,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                                   "  LIMIT 1",
                                   tid)
             if terminal: 
-                self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
+                self.send_lq_sms(terminal.sim, tid, SMS.LQ.WEB)
                 self.bookkeep(dict(uid=self.current_user.uid,
                                    tid=tid,
                                    sim=terminal.sim))
@@ -92,7 +92,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                 status = ErrorCode.LOGIN_AGAIN
             self.write_ret(status) 
         except Exception as e:
-            logging.exception("[UWEB] uid: %s switchcar to tid:%s failed.  Exception: %s", 
+            logging.exception("[UWEB] uid: %s switch car to tid: %s failed. Exception: %s", 
                               self.current_user.uid, tid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

@@ -5,19 +5,36 @@ from base import BaseMixin
 from constants import UWEB 
 from utils.misc import get_terminal_info_key
 from helpers.queryhelper import QueryHelper 
+from utils.dotdict import DotDict
 
 class TerminalMixin(BaseMixin):
     """Mix-in for terminal related functions."""
     
     def update_terminal_db(self, car_sets):
-        """For cellid_status, alias, cnum, just update database.
+        """Update database.
         """
+        terminal_keys = ['cellid_status','white_pop','trace','freq', 'vibchk', 'vibl','push_status']
+        terminal_fields = []
+        
         for key, value in car_sets.iteritems():
-            if key == 'cellid_status':
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET cellid_status = %s"
-                                "  WHERE tid = %s",
-                                value, self.current_user.tid)
+            if key in terminal_keys: 
+                if car_sets.get(key, None) is not None:
+                    terminal_fields.append(key + ' = ' + str(value))
+            elif key == 'white_list':
+                white_list = car_sets[key].split(':')
+                if len(car_sets['white_list']) < 1:
+                    pass
+                else:
+                    self.db.execute("DELETE FROM T_WHITELIST WHERE tid = %s", 
+                                    self.current_user.tid)
+                    for white in white_list[1:]:
+                        self.db.execute("INSERT INTO T_WHITELIST"
+                                        "  VALUES(NULL, %s, %s)"
+                                        "  ON DUPLICATE KEY"
+                                        "  UPDATE tid = VALUES(tid),"
+                                        "    mobile = VALUES(mobile)",
+                                        self.current_user.tid, white)
+
             elif key == 'alias':
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET alias = %s"
@@ -28,7 +45,6 @@ class TerminalMixin(BaseMixin):
                 terminal_info = self.redis.getvalue(terminal_info_key)
                 terminal_info[key] = value 
                 self.redis.setvalue(terminal_info_key, terminal_info)
-
 
             elif key == 'cnum':
                 self.db.execute("UPDATE T_CAR"
@@ -42,16 +58,12 @@ class TerminalMixin(BaseMixin):
                     terminal_info['alias'] = value if value else self.current_user.sim
                     self.redis.setvalue(terminal_info_key, terminal_info)
 
-            elif key == 'white_pop':
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET white_pop = %s"
-                                "  WHERE tid = %s",
-                                value, self.current_user.tid)
-            elif key == 'push_status':
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET push_status = %s"
-                                "  WHERE tid = %s",
-                                value, self.current_user.tid)
+        terminal_clause = ','.join(terminal_fields)        
+        if terminal_clause:
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET " + terminal_clause + 
+                            "  WHERE tid = %s ",
+                            self.current_user.tid)
 
     def update_terminal_info(self, car_sets, car_sets_res):
         """Update T_TERMINAL_INFO.
@@ -63,7 +75,6 @@ class TerminalMixin(BaseMixin):
         for key, value in cars_sets:
             if success:
                 s_keys.append(key)
-                car_sets[key] = new value
             else:
                 f_keys.append(key)
         update car_sets to database
@@ -72,32 +83,15 @@ class TerminalMixin(BaseMixin):
         f_keys = []
         for key, value in car_sets_res.iteritems():
             if value == "0":
-                if key.lower() == 'white_list' :
-                    white_list = car_sets[key.lower()].split(':')
-                    if len(car_sets['white_list']) < 1:
-                        pass
-                    else:
-                        self.db.execute("DELETE FROM T_WHITELIST WHERE tid = %s", 
-                                        self.current_user.tid)
-                        for white in white_list[1:]:
-                            self.db.execute("INSERT INTO T_WHITELIST"
-                                            "  VALUES(NULL, %s, %s)"
-                                            "  ON DUPLICATE KEY"
-                                            "  UPDATE tid = VALUES(tid),"
-                                            "    mobile = VALUES(mobile)",
-                                            self.current_user.tid, white)
-
-                    continue 
-                car_sets_res[key] = car_sets[key.lower()]
                 s_keys.append(key)
             else: 
                 f_keys.append(key)
-       
-        set_clause = ""
+        
         if not s_keys:
             pass
-        for key in s_keys:
-            set_clause = set_clause + key.lower() + " = '" + str(car_sets[key.lower()])+  "',"
-        if set_clause:
-            sql_cmd = "UPDATE T_TERMINAL_INFO SET " + set_clause[0:-1] + " WHERE tid = %s" 
-            self.db.execute(sql_cmd, self.current_user.tid)
+        else:   
+            car_sets_res = DotDict()
+            for key in s_keys:
+                car_sets_res[key.lower()] = car_sets[key.lower()]
+            if car_sets_res:
+                self.update_terminal_db(car_sets_res)

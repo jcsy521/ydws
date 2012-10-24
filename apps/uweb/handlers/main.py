@@ -35,10 +35,12 @@ class MainHandler(BaseHandler):
                                       "  FROM T_TERMINAL_INFO as ti"
                                       "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
                                       user_info.mobile)
+
             #if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 if not terminal['alias']:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db) 
+                    terminal['login'] = QueryHelper.get_login_status_by_tid(tid, self.redis, self.db)
 
         self.render("index.html",
                     status=status,

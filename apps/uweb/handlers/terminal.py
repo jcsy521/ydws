@@ -13,7 +13,7 @@ from utils.dotdict import DotDict
 from utils.checker import check_sql_injection
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
-from constants import UWEB, SMS
+from constants import UWEB, SMS, GATEWAY
 from helpers.queryhelper import QueryHelper  
 from mixin.terminal import TerminalMixin 
 
@@ -70,7 +70,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                            dict_=dict(car_sets=car_sets))
         except Exception as e: 
             status = ErrorCode.SERVER_BUSY
-            logging.exception("[UWEB] uid:%s tid:%s Get terminal failed. Exception: %s", 
+            logging.exception("[UWEB] uid: %s tid: %s get terminal failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args) 
             self.write_ret(status)
 
@@ -96,6 +96,13 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                            tid=self.current_user.tid)
 
             # check the data. some be sent to terminal, some just be modified in db 
+            terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+            if not terminal:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+                self.write_ret(status)
+                return
+
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if not user:
                 status = ErrorCode.LOGIN_AGAIN
@@ -103,9 +110,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
                 return
-   
-            DB_FIELDS = ['alias', 'cnum', 'cellid_status', 'white_pop', 'push_status']
-
 
             # sql injection 
             if data.has_key('alias')  and not check_sql_injection(data.alias):
@@ -128,11 +132,13 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                     IOLoop.instance().add_callback(self.finish)
                     return
 
+
             gf_params = DotDict()
             db_params = DotDict()
+            DB_FIELDS = ['alias', 'cnum', 'cellid_status', 'white_pop', 'push_status']
             for key, value in data.iteritems():
                 if key in DB_FIELDS:
-                    db_params[key]=value
+                    db_params[key] = value
                 else:
                     if key == 'white_list':
                         gf_params[key]=":".join(value)
@@ -155,7 +161,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                     self.update_terminal_info(gf_params, response['params'])
                 else:
                     if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                        self.send_lq_sms(self.current_user.sim, SMS.LQ.WEB)
+                        self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
                     status = response['success'] 
                     logging.error("[UWEB] uid:%s tid: %s set terminal failed, message: %s", 
                                    self.current_user.uid, self.current_user.tid, ErrorCode.ERROR_MESSAGE[status] )
@@ -163,6 +169,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 IOLoop.instance().add_callback(self.finish)
 
             if args.params:
+                self.keep_waking(self.current_user.sim, self.current_user.tid)
                 GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
                                              _on_finish)
             else: 

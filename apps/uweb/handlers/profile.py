@@ -22,6 +22,8 @@ class ProfileHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
+            profile = DotDict()
+            # 1: user
             user = self.db.get("SELECT name, mobile, address, email, remark"
                                "  FROM T_USER"
                                "  WHERE uid = %s"
@@ -32,8 +34,16 @@ class ProfileHandler(BaseHandler):
                 logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
                 self.write_ret(status)
                 return
+            
+            # 2: car
+            car = self.db.get("SELECT cnum FROM T_CAR"
+                              "  WHERE tid = %s",
+                              self.current_user.tid)
+            
+            profile.update(user)
+            profile.update(car)
             self.write_ret(status,
-                           dict_=dict(profile=user))
+                           dict_=dict(profile=profile))
         except Exception as e:
             logging.exception("[UWEB] uid:%s tid:%s get profile failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args) 
@@ -76,6 +86,11 @@ class ProfileHandler(BaseHandler):
                 self.write_ret(status)
                 return
 
+            if data.has_key('cnum')  and not check_sql_injection(data.cnum):
+                status = ErrorCode.ILLEGAL_CNUM 
+                self.write_ret(status)
+                return
+
             fields_ = DotDict()
             fields = DotDict(name="name = '%s'",
                              mobile="mobile = '%s'",
@@ -83,7 +98,14 @@ class ProfileHandler(BaseHandler):
                              email="email = '%s'",
                              remark="remark = '%s'")
             for key, value in data.iteritems():
-                fields_.setdefault(key, fields[key] % value) 
+                if key != 'cnum':
+                    fields_.setdefault(key, fields[key] % value) 
+                else:
+                    self.db.execute("UPDATE T_CAR"
+                                    "  SET cnum = %s"
+                                    "  WHERE tid = %s",
+                                    value, self.current_user.tid)
+
             set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
             if set_clause:
                 self.db.execute("UPDATE T_USER SET " + set_clause +

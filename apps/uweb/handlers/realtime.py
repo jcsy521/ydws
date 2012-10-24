@@ -12,7 +12,6 @@ from constants import UWEB
 from base import BaseHandler, authenticated
 from mixin.realtime import RealtimeMixin
 
-
 class RealtimeHandler(BaseHandler, RealtimeMixin):
     """Play with realtime location query."""
 
@@ -74,6 +73,7 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             self.finish()
             return
 
+        self.keep_waking(self.current_user.sim, self.current_user.tid)
         current_query.locate_flag = data.locate_flag
         
         def _on_finish(realtime):

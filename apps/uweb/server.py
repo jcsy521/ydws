@@ -34,6 +34,7 @@ from constants.MEMCACHED import ALIVED
 from handlers.captcha import CaptchaHandler, CaptchaSmsHandler
 from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandler
 from handlers.car import SwitchCarHandler
+from handlers.wakeup import WakeupHandler
 from handlers.register import RegisterHandler
 from handlers.lastinfo import LastInfoHandler
 from handlers.worker import WorkerPool
@@ -70,6 +71,7 @@ class Application(tornado.web.Application):
             (r"/captchasms", CaptchaSmsHandler),
             (r"/logout/*", LogoutHandler),
             (r"/switchcar/(\S+)/*", SwitchCarHandler),
+            (r"/wakeup/*", WakeupHandler),
             (r"/lastinfo/*", LastInfoHandler),
             (r"/track/*", TrackHandler),
             (r"/event/*", EventHandler),
