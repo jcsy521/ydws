@@ -48,9 +48,7 @@ class QueryHelper(object):
         if alias exists in redis:
             return alias 
         else:
-            if alias in db:
-                alias = alias 
-            elif cnum in db:
+            if cnum in db:
                 alias = cnum 
             else: 
                 alias = sim
@@ -72,17 +70,15 @@ class QueryHelper(object):
                                     alias=None,
                                     keys_num=None,
                                     fob_list=[]) 
-        terminal = QueryHelper.get_terminal_by_tid(tid, db)
-        if terminal.alias:
-            alias = terminal.alias
+        car = db.get("SELECT cnum FROM T_CAR"
+                     "  WHERE tid = %s LIMIT 1",
+                     tid)
+        if car and car.cnum:
+           alias = car.cnum
         else:
-            car = db.get("SELECT cnum FROM T_CAR"
-                         "  WHERE tid = %s LIMIT 1",
-                         tid)
-            if car.cnum:
-               alias = car.cnum
-            else:
-               alias = terminal.mobile
+           terminal = QueryHelper.get_terminal_by_tid(tid, db)
+           alias = terminal.mobile
+
         terminal_info['alias'] = alias
         redis.setvalue(terminal_info_key, terminal_info)
         return alias

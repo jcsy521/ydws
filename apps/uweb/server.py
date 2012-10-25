@@ -33,6 +33,7 @@ from constants.MEMCACHED import ALIVED
 
 from handlers.captcha import CaptchaHandler, CaptchaSmsHandler
 from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandler
+from handlers.checkupdate import CheckUpdateHandler
 from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
 from handlers.register import RegisterHandler
@@ -67,6 +68,7 @@ class Application(tornado.web.Application):
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
             (r"/login/*", LoginHandler),
+            (r"/checkupdate/*", CheckUpdateHandler),
             (r"/captcha", CaptchaHandler),
             (r"/captchasms", CaptchaSmsHandler),
             (r"/logout/*", LogoutHandler),

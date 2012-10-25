@@ -5,7 +5,7 @@ import logging
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
-from utils.misc import get_today_last_month
+from utils.misc import get_today_last_month, get_terminal_info_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection
 
@@ -105,6 +105,10 @@ class ProfileHandler(BaseHandler):
                                     "  SET cnum = %s"
                                     "  WHERE tid = %s",
                                     value, self.current_user.tid)
+                    terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                    terminal_info = self.redis.getvalue(terminal_info_key)
+                    terminal_info['alias'] = value 
+                    self.redis.setvalue(terminal_info_key, terminal_info)
 
             set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
             if set_clause:
