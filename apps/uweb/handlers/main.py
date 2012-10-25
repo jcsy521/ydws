@@ -31,15 +31,17 @@ class MainHandler(BaseHandler):
                             status=status)
                 return
 
-            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.login, ti.keys_num"
-                                      "  FROM T_TERMINAL_INFO as ti"
-                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
+            terminals = self.db.query("SELECT ti.tid, ti.mobile, ti.login, ti.keys_num, tc.cnum AS alias"
+                                      "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
+                                      "  WHERE ti.owner_mobile = %s"
+                                      "    AND ti.tid = tc.tid"
+                                      "    ORDER BY LOGIN DESC",
                                       user_info.mobile)
 
             #if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 if not terminal['alias']:
-                    terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db) 
+                    terminal['alias'] = terminal.mobile
 
         self.render("index.html",
                     status=status,
