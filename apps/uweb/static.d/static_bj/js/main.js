@@ -26,6 +26,8 @@ window.dlf.fn_personalData = function() {
 			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_name);	// 更新主页用户名
 			$('#phone').html(str_phone).data('phone', str_phone);
 			$('#cnum').val(str_cnum).data('cnum', str_cnum);
+			
+			dlf.fn_updateAlias();	// 修改追踪器别名
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -145,15 +147,19 @@ window.dlf.fn_exit = function() {
 	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	if ( str_defendContent != '已设防' ) {
-		str_msg = '追踪器当前状态为撤防，是否设防！';
-		obj_btnSure.unbind('click').bind('click', function () {
-			var obj_defend = {'defend_status': 1};
-			dlf.fn_jsonPost(DEFEND_URL, obj_defend, 'exit', '爱车保状态保存中');
+		str_msg = '追踪器当前状态为撤防，是否设防？';
+		$('#btnSure').unbind('click').bind('click', function () {
+			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '爱车保设防状态保存中...', true);
 		}).val('设防');
 		obj_btnCancel.unbind('click').bind('click', function () {
 			window.location.href = '/logout';
 		}).val('退出');
+		$('#exitClose').unbind('click').bind('click', function () {
+			dlf.fn_unLockScreen(); // 清除内容区域的遮罩
+			$('#exitWrapper').hide();
+		}).removeClass('hide');
 	} else {
+		$('#exitClose').addClass('hide');
 		obj_btnSure.unbind('click').bind('click', function () {
 			window.location.href = '/logout';
 		}).val('确定');

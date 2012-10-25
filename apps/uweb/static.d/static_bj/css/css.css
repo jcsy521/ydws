@@ -1588,7 +1588,7 @@ body {
 /* exit div css */
 #exitWrapper {
 	width: 290px;
-	height: 128px;
+	height: auto;
 	background-color: white;
 	text-align: center;
 	border: 1px solid #ADAAAA;
@@ -1598,13 +1598,46 @@ body {
 	height: 46px;
 	line-height: 46px;
 }
+#exitClose {
+	left: 131px;
+    top: 5px;
+}
 #exitMsg {
 	height: 82px;
 	line-height: 82px;
 	font-size: 12px;
 }
 .exitButtons input {
-	margin-left: 20px;
-	width: 50px;
+	height: 27px;
+    margin-left: 20px;
+    width: 71px;
+}
+
+/* about page css */
+#webBody {
+	background-color: white;
+}
+.aboutBox {
+	margin: 0 auto;
+	background-color: #F7F8FB;
+	width: 700px;
+	height: 315px;
+	border-radius: 6px;
+	margin-top: 100px;
+}
+.aboutBox p {
+	padding: 20px;
+}
+.aboutBox .title {
+	font-size: 16px;
+	font-weight: bold;
+}
+.aboutBox .content {
+	padding-top: 0px;
+	line-height: 34px;
+	text-indent: 2em;
+}
+.copyright {
+	text-align: center;
 }
 /*web css end*/

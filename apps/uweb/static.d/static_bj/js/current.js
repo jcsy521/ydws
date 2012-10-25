@@ -181,8 +181,6 @@ window.dlf.fn_defendQuery = function() {
 				
 			
 			n_fob_status = data.fob_status;
-			// todo 模拟挂件
-			n_fob_status = 0;
 			dlf.fn_lockScreen();	//添加页面遮罩
 			dlf.fn_dialogPosition(obj_wrapper);	// 设置dialog的位置
 			if ( str_defendStatus == DEFEND_ON ) {
@@ -226,7 +224,6 @@ window.dlf.fn_defendQuery = function() {
 			f_warpperStatus = !$('#wakeupWrapper').is(':hidden'),	// 容器是否显示
 			obj_this = $(this);
 				
-		n_fobStatus = 0;	// todo 模拟 挂件不在附近
 		if ( f_warpperStatus ) {
 			dlf.fn_jNotifyMessage('追踪器正在唤醒中，请稍后再试！', 'message', false, 4000);
 		} else {
@@ -248,12 +245,13 @@ window.dlf.fn_defendQuery = function() {
 * 1、不在线(休眠中): 提示用户是否唤醒终端？
 * 2、如果正在唤醒中，提示用户正在唤醒请稍后再试!
 */
-window.dlf.fn_terminalOnLine = function(str_url, obj_data, str_operation, str_tips) {
+window.dlf.fn_terminalOnLine = function(str_url, obj_data, str_operation, str_tips, isExit) {
 	var n_login = parseInt($('#carList .currentCar').eq(0).attr('clogin')),	// 当前车辆的在线状态
 		f_warpperStatus = !$('#wakeupWrapper').is(':hidden'),	// 容器是否显示
 		obj_defendMsg = $('#defendMsg'),	// 提示框容器
 		obj_defendBtn = $('#defendBtn'),	// 设防操作按钮
 		str_msg = '';
+	
 	
 	if ( n_login != LOGINST ) {	// 终端不在线
 		// 判断"追踪器正在唤醒"提示是否显示
@@ -272,6 +270,11 @@ window.dlf.fn_terminalOnLine = function(str_url, obj_data, str_operation, str_ti
 				obj_defendBtn.unbind('click').bind('click', function() {
 					fn_wakeupTerminal();
 				});
+			} else if ( str_operation == 'exit' ) {
+				$('#exitMsg').html(str_msg);
+				$('#btnSure').unbind('click').bind('click', function () {
+					fn_wakeupTerminal(isExit);
+				}).val('唤醒');
 			} else if ( str_operation == 'terminal' ) {
 				if ( confirm(str_msg) ) {
 					fn_wakeupTerminal();
@@ -299,7 +302,7 @@ window.dlf.fn_clearWakeup = function() {
 /**
 * 唤醒追踪器
 */
-function fn_wakeupTerminal() {
+function fn_wakeupTerminal(isExit) {
 	var f_warpperStatus = !$('#wakeupWrapper').is(':hidden');	// 容器是否显示
 	
 	// 判断"追踪器正在唤醒"提示是否显示
@@ -318,7 +321,11 @@ function fn_wakeupTerminal() {
 					
 				// 关闭jNotityMessage
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); 
-				
+				if ( isExit ) {
+					// 关闭
+					dlf.fn_unLockScreen(); // 清除内容区域的遮罩
+					$('#exitWrapper').hide();
+				}
 				/**
 				* 100秒 提示唤醒中 期间如果追踪器在线则隐藏
 				*/
