@@ -185,18 +185,18 @@ window.dlf.fn_defendQuery = function() {
 			dlf.fn_dialogPosition(obj_wrapper);	// 设置dialog的位置
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defendStatus = DEFEND_OFF;
-				str_tip = '您的爱车保当前已设防。';
+				str_tip = '您的移动车卫士当前已设防。';
 				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2'));	// 设置鼠标滑过设防或撤防按钮的样式
 				str_html = '已设防';
 				str_dImg = 'defend_status1.png';
 			} else {
 				if ( n_keyNum > 0 && n_fob_status == FOB_ON ) {	// 如果 有挂件 && 挂件在附近 && 目前终端是撤防
-					str_tip = '您的爱车保当前未设防,因检测挂件在附近，无法进行设防操作！';
+					str_tip = '您的移动车卫士当前未设防,因检测挂件在附近，无法进行设防操作！';
 					$('.j_defend').addClass('hide');	// 隐藏按钮和分割线
 					obj_dMsg.css('left', '0px');	// 设置提示信息的css
 				} else {
 					n_defendStatus = DEFEND_ON;
-					str_tip = '您的爱车保当前未设防。';
+					str_tip = '您的移动车卫士当前未设防。';
 					dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2'));	// 设置鼠标滑过设防或撤防按钮的样式
 				}
 				str_html = '未设防';
@@ -231,10 +231,10 @@ window.dlf.fn_defendQuery = function() {
 				obj_dMsg.html('挂件不在附近，是否继续撤防？');
 				dlf.fn_setItemMouseStatus(obj_this, 'pointer', new Array('jx', 'jx2')); // 设置鼠标滑过继续按钮的样式		
 				obj_this.unbind('click').bind('click', function() {
-					dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', '爱车保设防状态保存中...');
+					dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', '移动车卫士设防状态保存中...');
 				});
 			} else {
-				dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', '爱车保设防状态保存中...');
+				dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', '移动车卫士设防状态保存中...');
 			}
 		}
 	}); 

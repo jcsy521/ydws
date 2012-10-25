@@ -149,7 +149,7 @@ window.dlf.fn_exit = function() {
 	if ( str_defendContent != '已设防' ) {
 		str_msg = '追踪器当前状态为撤防，是否设防？';
 		$('#btnSure').unbind('click').bind('click', function () {
-			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '爱车保设防状态保存中...', true);
+			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '移动车卫士设防状态保存中...', true);
 		}).val('设防');
 		obj_btnCancel.unbind('click').bind('click', function () {
 			window.location.href = '/logout';
