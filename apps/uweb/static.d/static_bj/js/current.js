@@ -166,17 +166,19 @@ function fn_displayCurrentMarker(obj_location) {
 window.dlf.fn_defendQuery = function() {
 	var n_defendStatus = 0,	// 设防撤防状态
 		n_fob_status = 0,	// 挂件是否在附近 1: 在附近 0: 没在附近
-		obj_defend = {};	// 向后台传递设防撤防数据
+		obj_defend = {},	// 向后台传递设防撤防数据
+		obj_dMsg = $('#defendMsg'),	// 设防撤防状态的提示信息容器
+		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num'));	// 当前车辆的挂件数量
 		
 	$.get_(DEFEND_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var str_defendStatus = data.defend_status,  // 从后台获取到最新的设防撤防状态
-				obj_dMsg = $('#defendMsg'),	// 设防撤防状态的提示信息容器
 				obj_wrapper = $('#defendWrapper'),	// 设防撤防容器
 				str_html = '',	// 页面上显示的设防状态
 				str_tip = '',	// 设防撤防中的提示信息
 				str_dImg = '',	// 页面上显示的设防撤防图标
 				obj_defendBtn = $('#defendBtn');	// 设防撤防的按钮
+				
 			
 			n_fob_status = data.fob_status;
 			// todo 模拟挂件
@@ -190,10 +192,10 @@ window.dlf.fn_defendQuery = function() {
 				str_html = '已设防';
 				str_dImg = 'defend_status1.png';
 			} else {
-				if ( n_fob_status == FOB_ON ) {	// 如果挂件在附近 && 目前终端是撤防
+				if ( n_keyNum > 0 && n_fob_status == FOB_ON ) {	// 如果 有挂件 && 挂件在附近 && 目前终端是撤防
 					str_tip = '您的爱车保当前未设防,因检测挂件在附近，无法进行设防操作！';
 					$('.j_defend').addClass('hide');	// 隐藏按钮和分割线
-					$('#defendMsg').css('left', '0px');	// 设置提示信息的css
+					obj_dMsg.css('left', '0px');	// 设置提示信息的css
 				} else {
 					n_defendStatus = DEFEND_ON;
 					str_tip = '您的爱车保当前未设防。';
@@ -220,8 +222,7 @@ window.dlf.fn_defendQuery = function() {
 		* 1、挂件不在附近时如果defend_status 是0 jNoityMessage提示“挂件不在附近，确定要撤防吗？”
 		*/
 		var n_defendStatus = obj_defend.defend_status,	// 设防撤防状态
-			n_fobStatus = obj_defend.fob_status,	// 挂件是否在附近
-			obj_defendMsg = $('#defendMsg'),			
+			n_fobStatus = obj_defend.fob_status,	// 挂件是否在附近			
 			f_warpperStatus = !$('#wakeupWrapper').is(':hidden'),	// 容器是否显示
 			obj_this = $(this);
 				
@@ -229,8 +230,8 @@ window.dlf.fn_defendQuery = function() {
 		if ( f_warpperStatus ) {
 			dlf.fn_jNotifyMessage('追踪器正在唤醒中，请稍后再试！', 'message', false, 4000);
 		} else {
-			if ( n_fobStatus == FOB_OFF && n_defendStatus == DEFEND_OFF ) {	// 挂件不在附近,如果要撤防提示"确定要撤防吗？"
-				$('#defendMsg').html('挂件不在附近，是否继续撤防？');
+			if ( n_keyNum > 0 && n_fobStatus == FOB_OFF && n_defendStatus == DEFEND_OFF ) {	// 有挂件 &&  挂件不在附近,如果要撤防提示"确定要撤防吗？"
+				obj_dMsg.html('挂件不在附近，是否继续撤防？');
 				dlf.fn_setItemMouseStatus(obj_this, 'pointer', new Array('jx', 'jx2')); // 设置鼠标滑过继续按钮的样式		
 				obj_this.unbind('click').bind('click', function() {
 					dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', '爱车保设防状态保存中...');
@@ -287,6 +288,15 @@ window.dlf.fn_terminalOnLine = function(str_url, obj_data, str_operation, str_ti
 }
 
 /**
+* 重置唤醒追踪器 
+*/
+window.dlf.fn_clearWakeup = function() {
+	dlf.fn_clearInterval(wakeupInterval);
+	$('#wakeupTimer').html('0');
+	$('#wakeupWrapper').hide();
+}
+
+/**
 * 唤醒追踪器
 */
 function fn_wakeupTerminal() {
@@ -304,10 +314,8 @@ function fn_wakeupTerminal() {
 					obj_wakeupWrapper = $('#wakeupWrapper'),	// 追踪器唤醒提示容器
 					obj_wakeupTimer = $('#wakeupTimer'),	// 追踪器提示框计时器容器
 					n_timer = parseInt(obj_wakeupTimer.html()),
-					wakeupInterval = null;
 					n_left = ($(window).width()-400)/2;
-				
-				//dlf.fn_closeDialog();
+					
 				// 关闭jNotityMessage
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); 
 				
@@ -320,14 +328,10 @@ function fn_wakeupTerminal() {
 					var n_login = parseInt($('#carList .currentCar').eq(0).attr('clogin'));	// 判断当前追踪器状态
 					if ( n_timer < 100 ) {
 						if ( n_login == LOGINST ) {	// 如果在线，关闭提示框、清计时器
-							dlf.fn_clearInterval(wakeupInterval);
-							obj_wakeupTimer.html('0');
-							obj_wakeupWrapper.hide();
+							dlf.fn_clearWakeup();
 						}
 					} else {
-						dlf.fn_clearInterval(wakeupInterval);
-						obj_wakeupTimer.html('0');
-						obj_wakeupWrapper.hide();
+						dlf.fn_clearWakeup();
 						dlf.fn_jNotifyMessage('追踪器唤醒失败，请检查追踪器是否关机或欠费！', 'message', false, 5000);
 					}
 					n_timer++;

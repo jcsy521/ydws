@@ -22,10 +22,8 @@ window.dlf.fn_initTerminal = function() {
 		if ( str_val == 0 ) {
 			str_oldVal = str_oldVal=='0'?'':str_oldVal;
 			obj_freq.val(str_oldVal);
-			//obj_freq.attr('disabled', true);
 			$('#trFreq').addClass('hide');
 		} else {
-			//$('#t_freq').attr('disabled', false);
 			$('#trFreq').removeClass('hide');
 		}
 	});
@@ -50,10 +48,8 @@ window.dlf.fn_initTerminalWR = function () {
 					if ( param == 'trace' || param == 'push_status' ) {	// 单选按钮: 轨迹上报、PUSH告警
 						if ( param == 'trace' ) {	// 如果轨迹上报为关闭状态  上报间隔不可编辑
 							if ( str_val == 0 ) {
-								//$('#t_freq').attr('disabled', true);
 								$('#trFreq').addClass('hide');
 							} else {
-								//$('#t_freq').attr('disabled', false);
 								$('#trFreq').removeClass('hide');
 							}
 						}
@@ -89,7 +85,6 @@ window.dlf.fn_initTerminalWR = function () {
 			} else {
 				$('#whitelistPopWrapper').hide();
 			}
-			//dlf.fn_updateAlias();	// 更新最新的终端别名
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();

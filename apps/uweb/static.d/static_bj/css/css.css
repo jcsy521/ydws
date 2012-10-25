@@ -315,6 +315,10 @@ body {
 	float: left;
 	padding-left: 20px;
 }
+.updateTime .tInfoWord {
+	display: inline-block;
+	float: left;
+}
 /*left end*/
 /* right start */
 #navi {

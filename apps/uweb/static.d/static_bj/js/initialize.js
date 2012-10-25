@@ -10,6 +10,7 @@
 * arr_infoPoint: 通过动态更新获取到的车辆数据进行轨迹显示
 * f_infoWindowStatus: 吹出框是否显示
 * obj_localSearch: 周边查询对象 
+* wakeupInterval： 唤醒追踪器计时器
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -17,7 +18,8 @@ var mapObj = null,
 	currentLastInfo = null,
 	arr_infoPoint = [],
 	f_infoWindowStatus = true,
-	obj_localSearch = null;
+	obj_localSearch = null,
+	wakeupInterval = null;
 if ( !window.dlf ) { window.dlf = {}; }
 
 (function () {
@@ -325,6 +327,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				}
 			}, 500);
 			
+			dlf.fn_clearWakeup();	// 重置唤醒追踪器
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			dlf.fn_updateLastInfo(); // 动态更新终端相关数据
 		} else if ( data.status == 201 ) {	// 业务变更
@@ -376,6 +379,7 @@ window.dlf.fn_getCarData = function() {
 						str_tid = param,
 						str_alias = obj_carInfo.alias,
 						str_loginst = obj_carInfo.login,
+						n_keyNum = obj_carInfo.keys_num,	// 挂件数量
 						obj_carA = $('#carList a[tid='+str_tid+']'),
 						obj_img = obj_carA.children().eq(0),	// 在线离线图
 						obj_carLi = obj_carA.parent(),
@@ -399,20 +403,20 @@ window.dlf.fn_getCarData = function() {
 					if ( str_loginst == LOGINST) {
 						obj_carA.removeClass('carlogout').addClass('carlogin');
 						obj_img.attr('src', BASEIMGURL + 'car1.png');
-						obj_child1.removeClass('gray').removeClass('blue').addClass('green');
-						obj_child2.removeClass('gray').removeClass('blue').addClass('green').html('(在线)');
+						obj_child1.removeClass('gray blue').addClass('green');
+						obj_child2.removeClass('gray blue').addClass('green').html('(在线)');
 					} else if ( str_loginst == LOGINOUT ) {	// 离线
 						obj_carA.removeClass('carlogin').addClass('carlogout');
 						obj_img.attr('src', BASEIMGURL + 'carout1.png');
-						obj_child1.removeClass('green').removeClass('blue').addClass('gray');
-						obj_child2.removeClass('green').removeClass('blue').addClass('gray').html('(离线)');
+						obj_child1.removeClass('green blue').addClass('gray');
+						obj_child2.removeClass('green blue').addClass('gray').html('(离线)');
 					} else if ( str_loginst == LOGINWAKEUP ) {	// 休眠中 todo 
 						obj_carA.removeClass('carlogout').addClass('carlogin');
 						obj_img.attr('src', BASEIMGURL + 'car1.png');
-						obj_child1.removeClass('gray').removeClass('green').addClass('blue');
-						obj_child2.removeClass('gray').removeClass('green').addClass('blue').html('(休眠中)');
+						obj_child1.removeClass('gray green').addClass('blue');
+						obj_child2.removeClass('gray green').addClass('blue').html('(休眠中)');
 					} 
-					obj_carA.attr('clogin', str_loginst);
+					obj_carA.attr('clogin', str_loginst).attr('keys_num', n_keyNum);
 					if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
 						dlf.fn_updateTerminalInfo(obj_carInfo);
 					}
@@ -451,10 +455,6 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_clon = '',
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		str_clat = '';	// 经纬度
-		/* 2012-10-23 15:32 暂时隐藏挂件编号
-		arr_fob_list = obj_carInfo.fob_list,	// 挂件编号集合
-		n_fobListLength = 0;	// 挂件数量 
-		*/
 		
 	if ( n_clat == 0 || n_clon == 0 ) {	// 经纬度为0 不显示位置信息
 		str_address = '-';
@@ -477,12 +477,6 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 			str_gsm = dlf.fn_changeData('gsm', n_gsm),	// gsm信号
 			n_gps = obj_carInfo.gps,	// gps 值
 			str_gps = dlf.fn_changeData('gps', n_gps);	// gps信号
-			/* 2012-10-23 15:32 暂时隐藏挂件编号
-			obj_firstFob = $('#firstFob'),
-			obj_fobList = $('#fobList'),
-			obj_fobListLabel = $('#fobListLable'),
-			obj_fobListTr = $('#fobList .j_fobListLable');
-			*/
 			
 		$('#powerContent').html(str_power);// 电池电量填充
 		$('#gsmContent').html(str_gsm);	// gsm 
@@ -491,33 +485,8 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#defendStatus').css('background-image', 'url("' + BASEIMGURL + str_dImg + '")').attr('title', str_dStatusTitle);
 		$('#tmobile').attr('title', '终端号码：' + str_tmobile );	// 终端手机号
 		$('#tmobileContent').html(str_tmobile);	
-		/* 2012-10-23 15:32 暂时隐藏挂件编号
-		n_fobListLength = arr_fob_list.length;
-		// 更新挂件
-		$('.j_fob').remove();
-		if ( n_fobListLength > 0 ) {
-			var str_html = '';
-				
-			for ( var fob in arr_fob_list ) {	// 动态显示挂件编号
-				var str_fob = arr_fob_list[fob];
-				
-				if ( fob == 0 ) {
-					obj_firstFob.html(str_fob);
-				} else {
-					str_html += '<tr class="j_fob"><td class="fontColor">'+ str_fob +'</td></tr>';
-				}
-			}
-			obj_fobList.removeAttr('title');
-			obj_fobListLabel.attr('rowspan', n_fobListLength);
-			obj_fobListTr.after(str_html);	// 追加挂件编号
-		} else {	// 无挂件显示-			
-			obj_firstFob.html('-');
-			obj_fobList.attr('title', '无挂件');
-			obj_fobListLabel.attr('rowspan', 1);
-		}
-		*/
 	}
-	$('.updateTime').html('更新时间： ' + str_time); // 最后一次定位时间
+	$('#locationTime').html(str_time); // 最后一次定位时间
 	$('#address').html(str_address); // 最后一次定们地址
 	$('#degree').html(str_degree).attr('title', str_degreeTip);
 	$('#type').html(str_type); // 车辆定位类型
@@ -852,25 +821,6 @@ window.dlf.fn_onInputBlur = function() {
 						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
 					break;
-				case 'email':
-					var reg =  /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
-						str_msg = '';
-					
-					if ( n_valLength == 0 ) {	// email验证长度
-						str_msg = '';
-					} else if ( n_valLength > n_maxLength ) {
-						str_msg = 'email最大长度是100个字符！'
-					} else {
-						if ( !reg.test(str_val) ) {
-							str_msg = '您输入的邮箱格式不正确！';
-						}
-					}
-					if ( str_msg != '' ) {
-						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
-					} else {
-						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
-					}
-					break;
 				case 'name':
 					var reg =  /^[a-zA-Z0-9_\u4e00-\u9fa5 ]+$/,
 						str_msg = '';
@@ -987,15 +937,13 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 						$('#spanWelcome').html('欢迎您，'+ str_newName).attr('title', str_name);
 					}
 					for(var param in obj_data) {	// 修改保存成功的原始值
-						if ( param == 'address' ) {
-							$('#txtAddress').data('txtAddress', obj_data[param]);
-						} else {
-							$('#' + param ).data(param, obj_data[param]);
+						if ( param == 'cnum' ) {
+							dlf.fn_updateAlias();
 						}
+						$('#' + param ).data(param, obj_data[param]);
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else if ( str_who == 'terminal' ) {	// 终端参数设置修改
-					//dlf.fn_updateAlias();	// 修改终端别名
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						var str_val = obj_data[param];
 						
@@ -1053,16 +1001,13 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 * 如果别名为空则显示车牌号，如果车牌号为空则显示终端手机号
 */
 window.dlf.fn_updateAlias = function() {
-	var alias = $('#t_alias').val(),		// 终端别名
-		cnum = $('#t_cnum').val(),	// 车牌号
-		tmobile = $('#t_mobile').html(),
+	var	cnum = $('#cnum').val(),	// 车牌号
+		tmobile = $('#tmobileContent').html(),
 		obj_car = $('#carList .currentCar'),
 		obj_selfMarker = obj_car.data('selfmarker'),
 		str_alias = '';
 		
-	if ( alias != '' ) {
-		str_alias = alias;
-	} else if ( cnum != '' ) {
+	if ( cnum != '' ) {
 		str_alias = cnum;
 	} else {
 		str_alias = tmobile;
