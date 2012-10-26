@@ -73,11 +73,14 @@ class LeHandler(BaseHandler):
             try:
                 zs_response = self.zsle_request(data['sim'])
                 zlp = ZsLeParser(zs_response.replace('GBK', 'UTF-8'))
-                logging.info("[LE] Zsle response after parser, errorcode:%s, info:%s", zlp.success, zlp.info)
                 if zlp.success == "0":
+                     ret.success = ErrorCode.SUCCESS
                      ret.position = zlp.get_position()
+                     ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
+                     logging.info("[LE] Zsle response position: %s", ret.position)
                 else:
-                    logging.info("[LE] Zsle request failed, google le started...")
+                    logging.info("[LE] Zsle request failed, errorcode: %s, info: %s, google le started...",
+                                 zlp.success, zlp.info)
                     logging.info('[LE] Google request:\n %s', request)
                     response = self.send(ConfHelper.LBMP_CONF.le_host, 
                                          ConfHelper.LBMP_CONF.le_url, 
