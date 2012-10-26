@@ -1,9 +1,9 @@
 <download>
     <android>
-        <versioncode>11</versioncode>
-        <versionname>1.0.11</versionname>
-        <versioninfo>1.新增修改密码;2.新增意见反馈反馈;3.新增自动更新;4.新增帮助</versioninfo>
-        <updatetime>2012-10-22</updatetime>
-        <filesize>4.16M</filesize>
+        <versioncode>100</versioncode>
+        <versionname>1.1.0</versionname>
+        <versioninfo>1.紧急联系人改成SOS联系人 2.个人资料里email,地址，备注不要 3.终端序列号，挂件编号，终端别名删除，只留车牌号 4.所有“终端”都改成“追踪器” 5.轨迹上报开启，显示上报间隔，否则，隐藏上报间隔 6.终端余额提醒改为剩余流量提醒 7.告警类型中"断电告警"隐藏（包括告警查询和短信设置） 8.车牌号放到个人资料里 9.“push信息“改成“客户端通知” 10.挂件不在终端附近，客户端撤防要有提示 11.挂件在终端附近，客户端不可以操作撤防状态 12.客户端上的小图标底下需要增加文字说明，跟踪按钮为一支笔，定位按钮为一辆车 13.设防或撤防成功需要添加简短提示，目前提示在屏幕下方，要求改到设防按钮下方，图标增加闪烁 14.轨迹播放和暂停键合二为一 15.已经播放的和未播放的轨迹要用不同的颜色区分，比如已播放的为红色 16.客户端退出如果为撤防状态要提示是否需要设防 17.关于要对功能略作简介 18.程序更新要提示更新内容 19.菜单添加检查更新和退出两项 20.bug修证</versioninfo>
+        <updatetime>2012-10-25</updatetime>
+        <filesize>4.15M</filesize>
     </android>
 </download>
