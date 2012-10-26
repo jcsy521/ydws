@@ -412,7 +412,7 @@ window.dlf.fn_getCarData = function() {
 						obj_child2.removeClass('green blue').addClass('gray').html('(离线)');
 					} else if ( str_loginst == LOGINWAKEUP ) {	// 休眠中 todo 
 						obj_carA.removeClass('carlogout').addClass('carlogin');
-						obj_img.attr('src', BASEIMGURL + 'car1.png');
+						obj_img.attr('src', BASEIMGURL + 'carwakeup.png');
 						obj_child1.removeClass('gray green').addClass('blue');
 						obj_child2.removeClass('gray green').addClass('blue').html('(休眠中)');
 					} 
