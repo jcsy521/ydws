@@ -132,7 +132,7 @@ window.dlf.fn_saveSMSOption = function() {
 			obj_smsData[str_id] = str_nowVal;
 		}
 	});
-	dlf.fn_jsonPut(SMS_URL, obj_smsData, 'sms', '短信告警参数保存中...');
+	dlf.fn_jsonPut(SMS_URL, obj_smsData, 'sms', '短信告警参数保存中');
 }
 
 /**
