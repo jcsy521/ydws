@@ -254,7 +254,6 @@ function fn_clearTrack () {
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };	// 清除计时器
 	str_actionState = 0;
 	counter = 0;
-	obj_drawLine = null;
 	arr_drawLine = [];
 }
 
