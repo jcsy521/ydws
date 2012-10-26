@@ -4,26 +4,27 @@ import re
 import logging
 
 from xml.dom import minidom
-from constants.LBMP import DUMMY, ERRORCODE
+from constants.LBMP import DUMMY
+from codes.errorcode import ErrorCode
 
 class BaseParser(object):
 
     def __init__(self, message):
         
-       self.message = re.sub("GB(2312|K)", "UTF-8", message).encode("utf-8", 'ignore')
-       self.success = 0
-       self.info = ERRORCODE.SUCCESS 
+       self.message = message 
+       self.success = ErrorCode.SUCCESS 
+       self.info = ErrorCode.ERROR_MESSAGE[ErrorCode.SUCCESS] 
        self.xml = self.__check()
 
     def __check(self):
    
        if not self.message:
-           self.success = -1
-           self.info = ERRORCODE.MESSAGE_ERROR
+           self.success = ErrorCode.FAILED 
+           self.info = ErrorCode.ERROR_MESSAGE[ErrorCode.FAILED] 
            return None
        if self.message == DUMMY:
-           self.success = -1
-           self.info = ERRORCODE.SERVER_ERROR
+           self.success = ErrorCode.FAILED 
+           self.info = ErrorCode.ERROR_MESSAGE[ErrorCode.FAILED] 
            return None
      
        try:

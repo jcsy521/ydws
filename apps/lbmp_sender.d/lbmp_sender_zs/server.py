@@ -30,6 +30,7 @@ options['logging'].set('debug')
 
 from handlers.main import MainHandler
 from handlers.le import LeHandler
+from handlers.subscription import SubscriptionHandler
 from handlers.ge import GeHandler
 from handlers.gv import GvHandler
 from handlers.worker import WorkerPool
@@ -43,6 +44,7 @@ class Application(tornado.web.Application):
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
             (r"/le/*", LeHandler),
+            (r"/subscription/*", SubscriptionHandler),
             (r"/ge/*", GeHandler),
             (r"/gv/*", GvHandler),
         ]
@@ -101,7 +103,7 @@ def main():
     except KeyboardInterrupt:
         logging.error("Ctrl-C is pressed.")
     except:
-        logging.exception("[uweb] Exit Exception")
+        logging.exception("[lbmp] Exit Exception")
     finally:
         logging.warn("[lbmp] shutdown...")
         shutdown(worker_pool, http_server)

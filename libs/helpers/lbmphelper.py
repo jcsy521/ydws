@@ -7,6 +7,7 @@ import time
 from tornado.escape import json_decode
 
 from helpers.lbmpsenderhelper import LbmpSenderHelper
+from helpers.queryhelper import QueryHelper
 from utils.misc import get_location_cache_key, get_location_key
 from utils.dotdict import DotDict
 from constants import EVENTER, GATEWAY, UWEB
@@ -35,7 +36,7 @@ def get_clocation_from_ge(lat, lon):
         logging.exception("Get latlon from GE failed. Exception: %s", e.args)
     return clat, clon
 
-def get_latlon_from_cellid(mcc, mnc, lac, cid):
+def get_latlon_from_cellid(mcc, mnc, lac, cid, sim):
     """@params: mcc, mobile country code 
                 mnc, mobile network code 
                 lac, location area code 
@@ -47,7 +48,7 @@ def get_latlon_from_cellid(mcc, mnc, lac, cid):
     lon = 0
     try:
         args = dict(mcc=mcc, mnc=mnc,
-                    lac=lac, cid=cid)
+                    lac=lac, cid=cid, sim=sim)
         response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.LE, args)
         response = json_decode(response) 
         if response['success'] == 0:
@@ -134,7 +135,8 @@ def handle_location(location, redis, cellid=False, db=None):
             location.type = 1
             if location.cellid:
                 cellid_info = [int(item) for item in location.cellid.split(":")]
-                location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3])
+                sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
+                location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
             #if location.lat and location.lon:
             #    location = filter_location(location, memcached)
 

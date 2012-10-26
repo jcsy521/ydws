@@ -9,7 +9,7 @@ from tornado.ioloop import IOLoop
 
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
-from constants import LBMP 
+from constants import LBMP, HTTP
 from helpers.confhelper import ConfHelper
 from base import BaseHandler
 
@@ -34,8 +34,6 @@ class GeHandler(BaseHandler):
         try:
             data = DotDict(json_decode(self.request.body))
             logging.info('[GE] request:\n %s', data)
-            # x: lon, y: lat
-            url = ConfHelper.LBMP_CONF.ge_url_baidu % (data.lat/3600000.0, data.lon/3600000.0)
         except Exception as e:
             logging.exception("[GE] get latlng_offset failed. Exception: %s", e.args)
             self.write(ret)
@@ -43,19 +41,25 @@ class GeHandler(BaseHandler):
             return
              
         def _on_finish():
+            try:
+                response = self.send(ConfHelper.LBMP_CONF.ge_host,
+                                     ConfHelper.LBMP_CONF.ge_url % (data.lat/3600000.0, data.lon/3600000.0),
+                                     None, 
+                                     HTTP.METHOD.GET)
+                logging.info('[GE] response:\n %s', response)
+                json_data = json_decode(response)
+                if json_data['error'] == 0:
+                    lon = base64.b64decode(json_data['x'])
+                    lat = base64.b64decode(json_data['y'])
+                    ret.position.clat = int(float(lat) * 3600000)
+                    ret.position.clon = int(float(lon) * 3600000)
+                    logging.info("[GE] get clat=%s, clon=%s through lat=%s, lon=%s", 
+                                    lat, lon, data.lat, data.lon)
+                    ret.success = ErrorCode.SUCCESS 
+                    ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
 
-            response, content = self.http.request(url)
-            logging.info('[GE] response:\n %s', content)
-            json_data = json_decode(content)
-            if json_data['error'] == 0:
-                lon = base64.b64decode(json_data['x'])
-                lat = base64.b64decode(json_data['y'])
-                ret.position.clat = int(float(lat) * 3600000)
-                ret.position.clon = int(float(lon) * 3600000)
-                logging.info("[GE] get clat=%s, clon=%s through lat=%s, lon=%s", 
-                                lat, lon, data.lat, data.lon)
-                ret.success = ErrorCode.SUCCESS 
-                ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
+            except Exception as e:
+                logging.exception("[GE] get latlon_offset failed. Exception: %s", e.args)
 
             self.write(ret)
             IOLoop.instance().add_callback(self.finish)
