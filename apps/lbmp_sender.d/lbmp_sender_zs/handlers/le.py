@@ -77,7 +77,7 @@ class LeHandler(BaseHandler):
                      ret.success = ErrorCode.SUCCESS
                      ret.position = zlp.get_position()
                      ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
-                     logging.info("[LE] Zsle response position: %s", ret.position)
+                     logging.info("[LE] Zsle response position: %s, sim:%s", ret.position, data['sim'])
                 else:
                     logging.info("[LE] Zsle request failed, errorcode: %s, info: %s, google le started...",
                                  zlp.success, zlp.info)
