@@ -26,6 +26,7 @@ class LbmpSenderHelper(object):
                                       info=ErrorCode.ERROR_MESSAGE[ErrorCode.SERVER_ERROR]))
 
     URLS = DotDict(LE=r"/le",
+                   SUBSCRIPTION=r"/subscription",
                    GV=r"/gv",
                    GV_QUERY=r"/gv_query",
                    GE=r"/ge")

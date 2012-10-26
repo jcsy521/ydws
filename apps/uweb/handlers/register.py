@@ -70,22 +70,27 @@ class RegisterHandler(BaseHandler):
                     terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db) 
                     if terminal:
                         status = ErrorCode.TERMINAL_ORDERED
-                        logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s", umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                        logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
+                                     umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
                     else:
                         register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
                         ret = SMSHelper.send_to_terminal(tmobile, register_sms)
                         ret = DotDict(json_decode(ret))
                         if ret.status == ErrorCode.SUCCESS:
-                            logging.info("[UWEB] umobile: %s, tmobile: %s regist successfully.", umobile, tmobile)
+                            logging.info("[UWEB] umobile: %s, tmobile: %s regist successfully.",
+                                         umobile, tmobile)
                         else:
                             status = ErrorCode.REGISTER_FAILED
-                            logging.error("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s", umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                            logging.error("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
+                                          umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
                 else:
                     status = ErrorCode.WRONG_CAPTCHA
-                    logging.error("umobile: %s regist failed. captcha: %s, captcha_old: %s, Message: %s", umobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
+                    logging.error("umobile: %s regist failed. captcha: %s, captcha_old: %s, Message: %s",
+                                  umobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
             else:
                 status = ErrorCode.NO_CAPTCHA
-                logging.error("umobile: %s regist failed. captcha: %s, Message: %s", umobile, captcha, ErrorCode.ERROR_MESSAGE[status])
+                logging.error("umobile: %s regist failed. captcha: %s, Message: %s",
+                              umobile, captcha, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] umobile: %s tmobile: %s register failed, Exception: %s", 

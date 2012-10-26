@@ -6,13 +6,14 @@ import time
 from time import sleep
 import datetime
 from dateutil.relativedelta import relativedelta
-import Queue
 import base64
 import pika
 from pika.adapters import *
 from pika.exceptions import AMQPConnectionError, AMQPChannelError
 import json
 from functools import partial
+
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
@@ -25,13 +26,14 @@ from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
-from constants import EVENTER, GATEWAY, UWEB 
+from constants import EVENTER, GATEWAY, UWEB
 from codes.smscode import SMSCode
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.confhelper import ConfHelper
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
+from helpers.lbmphelper import LbmpSenderHelper
 from helpers import lbmphelper
   
 from clw.packet.parser.codecheck import T_CLWCheck 
@@ -441,6 +443,17 @@ class MyGWServer(object):
                                             t_info['t_msisdn'],
                                             t_info['imsi'], terminal.id)
                             sms = SMSCode.SMS_TERMINAL_HK_SUCCESS % (terminal.mobile, t_info['t_msisdn'])
+                            # subscription le for new sim
+                            data = DotDict(sim=t_info['t_msisdn'],
+                                           action="A")
+                            response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data)
+                            response = json_decode(response) 
+                            if response['success'] == '000': 
+                                logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
+                                             t_info['dev_id'], t_info['t_msisdn'])
+                            else:
+                                logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
+                                             t_info['dev_id'], t_info['t_msisdn'], response)
                             logging.info("[GW] Terminal: %s HK success!", t_info['dev_id'])
 
                         if terminal.owner_mobile != t_info['u_msisdn']:
@@ -587,6 +600,18 @@ class MyGWServer(object):
                                         "  VALUES(%s)",
                                         t_info['dev_id'])
                         logging.info("[GW] Terminal %s by SMS JH success!", t_info['dev_id'])
+
+                    # subscription LE for new sim
+                    data = DotDict(sim=t_info['t_msisdn'],
+                                   action="A")
+                    response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data)
+                    response = json_decode(response) 
+                    if response['success'] == '000': 
+                        logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
+                                     t_info['dev_id'], t_info['t_msisdn'])
+                    else:
+                        logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
+                                     t_info['dev_id'], t_info['t_msisdn'], response)
 
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
                 # get SessionID
