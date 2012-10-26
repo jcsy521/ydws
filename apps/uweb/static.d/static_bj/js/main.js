@@ -67,7 +67,7 @@ window.dlf.fn_personalSave = function() {
 	if ( n_num != 0 ) {	// 我的资料中如果有修改内容 ，向后台发送post请求，否则提示未做任何修改
 		dlf.fn_jsonPut(PERSON_URL, obj_personalData, 'personal', '个人资料保存中');
 	} else {
-		dlf.fn_jNotifyMessage('您未做任何修改！', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
 }
@@ -149,7 +149,7 @@ window.dlf.fn_exit = function() {
 	if ( str_defendContent != '已设防' ) {
 		str_msg = '追踪器当前状态为撤防，是否设防？';
 		$('#btnSure').unbind('click').bind('click', function () {
-			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '移动车卫士设防状态保存中...', true);
+			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '移动车卫士设防中...', true);
 		}).val('设防');
 		obj_btnCancel.unbind('click').bind('click', function () {
 			window.location.href = '/logout';

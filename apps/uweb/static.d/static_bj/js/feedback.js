@@ -30,8 +30,8 @@ $(function() {
 		}
 	});
 	$('#contact').formValidator({empty:true}).inputValidator(); // 区分大小写
-	$('#email').formValidator().inputValidator({max: 50, onError: '邮箱地址的最大长度是50个字符'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "请输入正确的邮箱地址."});  // 邮箱验证
-	$('#content').formValidator().inputValidator({min: 10, max: 300, onError: '您的反馈内容最小长度为10，最大长度是300！'}); // 区分大小写	
+	$('#email').formValidator().inputValidator({max: 50, onError: '邮箱地址的最大长度是50个字符。'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "请输入正确的邮箱地址。"});  // 邮箱验证
+	$('#content').formValidator().inputValidator({min: 10, max: 300, onError: '您的反馈内容最小长度为10，最大长度是300。'}); // 区分大小写	
 });
 
 /**
@@ -45,7 +45,7 @@ function fn_fbsave() {
 		
 	$.post_('feedback', JSON.stringify(obj_feedback), function(data) {
 		if ( data.status == 0 ) {
-			dlf.fn_jNotifyMessage('你的反馈内容已经提交成功.', 'message', false, 5000); 
+			dlf.fn_jNotifyMessage('您的反馈内容已经提交成功。', 'message', false, 5000); 
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); 
 		}

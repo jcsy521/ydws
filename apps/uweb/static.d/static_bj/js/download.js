@@ -38,12 +38,12 @@ function fn_sendBtn() {
 		obj_msg = $('.j_smsMsg');
 		
 	if ( str_mobile == '' || str_mobile == null ) {	// 验证手机号的输入格式
-		obj_msg.html('请输入手机号码！');
+		obj_msg.html('请输入手机号码。');
 		return;
 	} else {
 		var mobileReg = MOBILEREG;	// 手机号正则表达式
 		if ( !mobileReg.test(str_mobile) ) {	// 验证手机号合法性
-			obj_msg.html('请输入合法的手机号码！');
+			obj_msg.html('请输入合法的手机号码。');
 			return;
 		} else {
 			obj_msg.html('');
@@ -55,7 +55,7 @@ function fn_sendBtn() {
 					if ( data.status == 0 ) {	// 发送成功后发送按钮操作状态不可用，验证码清空
 						obj_sendBtn.addClass('btnDisabled').unbind('click');
 						obj_captcha.val('');
-						obj_msg.html('<font color="green">短信发送成功！</font>');
+						obj_msg.html('<font color="green">短信发送成功。</font>');
 					} else {
 						obj_msg.html(data.message);
 					}

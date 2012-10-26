@@ -57,14 +57,14 @@ $(function(){
 			
 		
 		if ( str_val == '' || str_val == null ) {	// 车主手机号不为空验证格式
-			dlf.fn_jNotifyMessage('车主号码不能为空！', 'message', false, 3000);
+			dlf.fn_jNotifyMessage('车主号码不能为空。', 'message', false, 3000);
 			return;
 		} else {
 			var reg = MOBILEREG,
 				n_seconds = parseInt($('#flashTimeText').html());
 				
 			if ( !reg.test(str_val) ) {	// 车主手机号合法性验证
-				dlf.fn_jNotifyMessage('请填写正确的手机号！', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('请填写正确的手机号。', 'message', false, 3000);
 				return;
 			}
 			if ( n_seconds < 60 ) {	// 如果小于60 秒 不能发送
@@ -76,7 +76,7 @@ $(function(){
 				if ( data.status == 0 ) { 
 					fn_resetUpdateTime();	// 重新读秒操作
 					$('#btnGetPwd').attr('disabled',true);
-					str_msg = '您的密码已发送成功，请注意查收';
+					str_msg = '您的密码已发送成功，请注意查收。';
 				} else {
 					str_msg = data.message;
 				}

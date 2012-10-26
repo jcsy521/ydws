@@ -167,7 +167,7 @@ window.dlf.fn_baseSave = function() {
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
 		dlf.fn_terminalOnLine(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中...');
 	} else {
-		dlf.fn_jNotifyMessage('您未做任何修改！', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
 }
