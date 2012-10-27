@@ -18,7 +18,7 @@ class SMSCode(object):
     SMS_REGION_OUT = u"您的追踪器%s越界，地址：%s，时间：%s。"
     SMS_SPEED_OUT= u"您的追踪器%s超速，地址：%s，时间：%s。"
     SMS_ILLEGALMOVE = u"您的车辆%s非法移动，地址：%s，时间：%s。如需取消短信提醒，请撤防。"
-    SMS_ILLEGALSHAKE= u"您的车辆%s可能发生非法移动，请关注。地址：%s，时间：%s。"
+    SMS_ILLEGALSHAKE= u"您的车辆%s发生非法震动，请关注。地址：%s，时间：%s。如需取消短信提醒，请撤防。"
     SMS_HEARTBEAT_LOST = u"车主您好，您的追踪器%s与平台通讯可能出现异常，请检查，时间：%s。"
     SMS_SOS = u"您的追踪器%s发起的应急救援请求，【移动车卫士】平台已收到，地址：%s，时间：%s。"
     SMS_SOS_OWNER = u"您的追踪器%s发起应急救援请求，已通知%s，当前所在位置：%s，时间：%s。"
