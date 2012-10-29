@@ -127,14 +127,14 @@ class PacketTask(object):
             if location.get('cLat') and location.get('cLon'):
                 self.realtime_location_hook(location)
         elif location.Tid == EVENTER.TRIGGERID.PVT:
-            pass
-            #for pvt in location['pvts']:
-            #    # get available location from lbmphelper
-            #    pvt['dev_id'] = location['dev_id']
-            #    location = lbmphelper.handle_location(pvt, self.redis,
-            #                                          cellid=False, db=self.db) 
-            #    location.category = EVENTER.CATEGORY.REALTIME
-            #    self.insert_location(location)
+            for pvt in location['pvts']:
+                # get available location from lbmphelper
+                pvt['dev_id'] = location['dev_id']
+                location = lbmphelper.handle_location(pvt, self.redis,
+                                                      cellid=False, db=self.db) 
+                location.category = EVENTER.CATEGORY.REALTIME
+                if location.get('cLat') and location.get('cLon'): 
+                    self.insert_location(location)
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)
