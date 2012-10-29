@@ -29,7 +29,7 @@ from codes.errorcode import ErrorCode
 from helpers.seqgenerator import SeqGenerator 
 from helpers.confhelper import ConfHelper 
 from helpers.gfmessagehelper import GFMessageHelper
-from helpers.gfsenderhelper import GFSenderHelper
+
 
 class LoginException(Exception):
     pass
