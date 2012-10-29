@@ -142,7 +142,6 @@ class PacketTask(object):
     def handle_report_info(self, info):
         """These reports should be handled here:
         POWERLOW
-        POWEROFF
         ILLEGALMOVE
         ILLEGALSHAKE
         HEARTBEAT_LOST
@@ -155,10 +154,9 @@ class PacketTask(object):
                                             cellid=True, db=self.db)
         # save into database
         lid = self.insert_location(report)
-        fobid = report.get('fobid', None)
-        if fobid is not None:
+        if report.terminal_type == "1":
             self.update_terminal_info(report)
-        self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, fobid)
+        self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, report.get('fobid'))
             
         user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
         if not user:
@@ -177,10 +175,7 @@ class PacketTask(object):
                 report_name = report_name.decode('utf-8')
                 report_name = unicode(report_name)
 
-            if report.rName == EVENTER.RNAME.POWEROFF:
-                report.login = GATEWAY.TERMINAL_LOGIN.OFFLINE
-                sms = SMSCode.SMS_POWEROFF % (name, report_name, terminal_time)
-            elif report.rName == EVENTER.RNAME.POWERLOW:
+            if report.rName == EVENTER.RNAME.POWERLOW:
                 if report.terminal_type == "1":
                     sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
                 else:

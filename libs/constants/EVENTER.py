@@ -15,8 +15,7 @@ TRIGGERID = DotDict(CALL="CALL",
                     UNKNOWN="UNKNOWN")
 
 # report info
-RNAME = DotDict(POWEROFF="POWEROFF",
-                POWERLOW="POWERLOW",
+RNAME = DotDict(POWERLOW="POWERLOW",
                 ILLEGALMOVE="ILLEGALMOVE",
                 ILLEGALSHAKE="ILLEGALSHAKE",
                 EMERGENCY="EMERGENCY",
@@ -25,7 +24,6 @@ RNAME = DotDict(POWEROFF="POWEROFF",
 
 # sms option 
 SMS_CATEGORY = DotDict(LOGIN="LOGIN",
-                       POWEROFF="POWEROFF",
                        POWERLOW="POWERLOW",
                        ILLEGALMOVE="ILLEGALMOVE",
                        ILLEGALSHAKE="ILLEGALSHAKE",
@@ -40,8 +38,8 @@ CATEGORY = DotDict(UNKNOWN=0,
                    ILLEGALSHAKE=3,
                    ILLEGALMOVE=4,
                    EMERGENCY=5,
-                   HEARTBEAT_LOST=6,
-                   POWEROFF=7)
+                   HEARTBEAT_LOST=6)
+                   
 
 # The location name will be cached for 7 days
 LOCATION_NAME_EXPIRY = 60*60*24*7
