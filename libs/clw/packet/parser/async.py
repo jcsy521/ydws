@@ -120,7 +120,7 @@ class AsyncParser(object):
             position['speed'] = float(position['speed'])
             position['degree'] = float(position['degree'])
             position['gps_time'] = int(position['gps_time'])
-            position['valid'] = GATEWAY.LOCATION_STATUS.UNREALTIME
+            position['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS 
             positions.append(position)
         info = {'pvts': positions}
 
