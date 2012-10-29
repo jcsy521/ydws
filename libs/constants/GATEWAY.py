@@ -89,7 +89,7 @@ TERMINAL_LOGIN = DotDict(OFFLINE=0,
 FOB_OPERATE = DotDict(ADD=0,
                       REMOVE=1)
 
-# 10 second 
+# 30 second 
 HEARTBEAT_INTERVAL = 30 
 # 30 min 
 SLEEP_HEARTBEAT_INTERVAL = 30 * 60

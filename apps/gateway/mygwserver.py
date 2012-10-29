@@ -975,7 +975,11 @@ class MyGWServer(object):
         lq_interval_key = get_lq_interval_key(dev_id)
         is_lq = self.redis.getvalue(lq_interval_key)
         logging.info("[TEST] is_lq:%s, is_sleep:%s", is_lq, is_sleep)
-        if is_lq and not is_sleep:
+        if is_sleep:
+            self.redis.delete(lq_interval_key)
+            is_lq = False
+
+        if is_lq:
             logging.info("[TEST] keep alived.")
             self.redis.setvalue(terminal_status_key, address, 3 * HEARTBEAT_INTERVAL)
         else:
