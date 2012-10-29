@@ -203,7 +203,7 @@ window.dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
 		return hours +':'+ min +':'+ seconds;
 	} else if ( str_isYear == 'date' ) {
 		return new Date(year, month - 1, day);
-	} if ( str_isYear == 'ymd' ) {
+	} else if ( str_isYear == 'ymd' ) {
 		return year +'-'+ month +'-'+ day;
 	} else {
 		return year +'-'+ month +'-'+ day +' '+ hours +':'+ min +':'+ seconds;
