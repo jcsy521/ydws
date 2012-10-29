@@ -146,7 +146,8 @@ def handle_location(location, redis, cellid=False, db=None):
         #if (location['t'] == EVENTER.INFO_TYPE.REPORT or
         #    location['command'] == GATEWAY.T_MESSAGE_TYPE.LOCATIONDESC):
         # NOTE: change it temporarily: in platform get loction name of all
-        location.name = get_location_name(location.cLat, location.cLon, redis)
+        if location.cLat and location.cLon:
+            location.name = get_location_name(location.cLat, location.cLon, redis)
 
     if location['t'] == EVENTER.INFO_TYPE.POSITION:
         location.category = EVENTER.CATEGORY.REALTIME
