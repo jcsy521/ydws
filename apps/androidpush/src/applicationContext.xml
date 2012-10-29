@@ -14,12 +14,12 @@
     http://www.springframework.org/schema/context   
     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-    <!-- database setting -->
+    <!-- database setting !!! -->
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
 		destroy-method="close">
 		<property name="driverClass" value="com.mysql.jdbc.Driver" />
 		<property name="jdbcUrl"
-			value="jdbc:mysql://drone-008:3306/DB_PUSH?useUnicode=true&amp;characterEncoding=UTF-8" />
+			value="jdbc:mysql://192.168.1.6:3306/DB_PUSH?useUnicode=true&amp;characterEncoding=UTF-8" />
 		<property name="user" value="pabb" />
 		<property name="password" value="pabb" />
 		<property name="minPoolSize" value="2" />

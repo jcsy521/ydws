@@ -31,18 +31,20 @@ public class AccountAction extends ActionSupport {
 
 	private int status = 0;
 	private String message = "Registrate success!";
-	// NOTE: here, use a default key
+
+	// NOTE: now, all user use the same key: "e11e7e3e21180fd"
 	private String key = "e11e7e3e21180fd";
 	private String uid = "";
 
 	@Action(value = "accountCreate")
 	public String create() {
 		DPUser user = dPUserDao.findFirstByProperty("username", uid);
-		logger.info("[PUSH] create account request: user: "+uid );
+		logger.info("[PUSH] create account request: user: " + uid);
 		if (user != null) {
 			status = 1;
 			message = "Has been registered!";
-			key = user.getPassword();
+			key = "e11e7e3e21180fd";
+			logger.info("[PUSH] user: " + uid + " has been registered");
 		} else {
 			// key = MD5Util.getMD5(
 			// String.valueOf(System.currentTimeMillis())
@@ -50,18 +52,24 @@ public class AccountAction extends ActionSupport {
 			// .nextInt(Integer.MAX_VALUE))).substring(0,
 			// 10);
 			if (OpenfireAdaptor.createAccount(uid, key)) {
-				user = new DPUser();
-				user.setUsername(uid);
-				user.setPassword(key);
-
-				dPUserDao.save(user);
+				status = 0;
+				message = "Registrate success!";
+				key = "e11e7e3e21180fd";
+				logger.info("[PUSH] user: " + uid + ", register success");
+				// user = new DPUser();
+				// user.setUsername(uid);
+				// user.setPassword(key);
+				// dPUserDao.save(user);
 			} else {
 				status = 2;
-				message = "Registrate failed!";
+				message = "Register failed!";
 				key = "";
+				logger.error("[PUSH] user: " + uid + ", register failed");
 			}
 		}
-		logger.info("[PUSH] create account response: user: "+uid +", message: "+message);
+		logger.info("[PUSH] create account response: user: " + uid
+				+ ", message: " + message);
+
 		return SUCCESS;
 	}
 

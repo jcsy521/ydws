@@ -15,13 +15,12 @@ import com.dbjtech.push.db.entities.DPUser;
 import com.opensymphony.xwork2.ActionSupport;
 
 @ParentPackage("json-default")
-@Results({ @Result(name = "success", type = "json") })
+@Results( { @Result(name = "success", type = "json") })
 @Controller
 public class PushAction extends ActionSupport {
 	private static final long serialVersionUID = 4507089270367724545L;
-	public static Logger logger = Logger.getLogger(PushAction.class
-			.getName());
-	
+	public static Logger logger = Logger.getLogger(PushAction.class.getName());
+
 	@Autowired
 	private Pusher pusher;
 
@@ -30,7 +29,7 @@ public class PushAction extends ActionSupport {
 
 	private int status = 0;
 	private String uid = "";
-	private String key = "";
+	private String key = "e11e7e3e21180fd";
 	private String message = "Send success!";
 	private String body = "";
 
@@ -38,17 +37,22 @@ public class PushAction extends ActionSupport {
 	@Action(value = "push")
 	public String execute() {
 		DPUser user = dPUserDao.findFirstByProperty("username", uid);
-		logger.info("[PUSH] push request: user: "+uid +", content: \n"+body);
+
+		logger.info("[PUSH] push request: user: " + uid + ", content: \n"
+				+ body);
 		if (user == null) {
 			status = 1;
 			message = "uid does not exist!";
-		} else if (!user.getPassword().equals(key)) {
-			status = 2;
-			message = "Key is error!";
+			logger.error("[PUSH] user: " + uid + ", does not exist!");
+			// } else if (!user.getPassword().equals(key)) {
+			// status = 2;
+			// message = "Key is error!";
 		} else {
 			pusher.sentMessage(uid, body);
+			logger.info("[PUSH] user: " + uid + ", send message!");
 		}
-		logger.info("[PUSH] push response: user: "+uid +", message: "+message);
+		logger.info("[PUSH] push response: user: " + uid + ", message: "
+				+ message);
 		return SUCCESS;
 	}
 
