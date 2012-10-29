@@ -144,6 +144,7 @@ class MyGWServer(object):
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
         if user:
             sms_option = QueryHelper.get_sms_option_by_uid(user.owner_mobile, 'heartbeat_lost', self.db)
+            logging.info("sms option: %s of %s", sms_option, user.owner_mobile)
             if sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
                 current_time = get_terminal_time(timestamp) 
                 tname = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
@@ -815,6 +816,7 @@ class MyGWServer(object):
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
             sessionID = self.get_terminal_sessionID(head.dev_id)
+            is_sleep = False
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
@@ -822,13 +824,14 @@ class MyGWServer(object):
                 sleep_info = hp.ret 
                 if sleep_info['sleep_status'] == '0':
                     sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.SLEEP
+                    is_sleep = True
                 elif sleep_info['sleep_status'] == '1':
                     sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
                 else:
                     logging.info("[GW] Recv wrong sleep status: %s", sleep_info)
                 del sleep_info['sleep_status']
 
-                self.update_terminal_status(head.dev_id, address)
+                self.update_terminal_status(head.dev_id, address, is_sleep)
                 self.update_terminal_info(sleep_info)
 
             hc = AsyncRespComposer(args)
@@ -967,13 +970,16 @@ class MyGWServer(object):
 
         return sessionID
 
-    def update_terminal_status(self, dev_id, address):
+    def update_terminal_status(self, dev_id, address, is_sleep=False):
         terminal_status_key = get_terminal_address_key(dev_id)
         lq_interval_key = get_lq_interval_key(dev_id)
         is_lq = self.redis.getvalue(lq_interval_key)
-        if is_lq:
+        logging.info("[TEST] is_lq:%s, is_sleep:%s", is_lq, is_sleep)
+        if is_lq and not is_sleep:
+            logging.info("[TEST] keep alived.")
             self.redis.setvalue(terminal_status_key, address, 3 * HEARTBEAT_INTERVAL)
         else:
+            logging.info("[TEST] keep sleep.")
             self.redis.setvalue(terminal_status_key, address, 3 * SLEEP_HEARTBEAT_INTERVAL)
 
     def update_fob_info(self, fobinfo):
@@ -1049,6 +1055,7 @@ class MyGWServer(object):
         terminal_info = self.redis.getvalue(terminal_info_key)
         if not terminal_info:
             terminal_info = DotDict(defend_status=None,
+                                    fob_status=None,
                                     mobile=None,
                                     login=None,
                                     gps=None,
