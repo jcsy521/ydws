@@ -165,16 +165,16 @@ class RealtimeMixin(BaseMixin):
                                   "  FROM T_LOCATION WHERE tid = %s"
                                   "  AND cellid IS NOT NULL "
                                   "  AND cellid <> '' "
-                                  "  AND clongitude = 0"
-                                  "  AND clatitude = 0"
-                                  "  AND (%s BETWEEN timestamp - %s"
-                                  "              AND timestamp + %s)"
+                                  #"  AND clongitude = 0"
+                                  #"  AND clatitude = 0"
+                                  #"  AND (%s BETWEEN timestamp - %s"
+                                  #"              AND timestamp + %s)"
                                   "  ORDER BY timestamp DESC"
                                   "  LIMIT 1",
-                                  self.current_user.tid,
-                                  query.timestamp,
-                                  UWEB.LOCATION_VALID_INTERVAL,
-                                  UWEB.LOCATION_VALID_INTERVAL)
+                                  self.current_user.tid)
+                                  #query.timestamp,
+                                  #UWEB.LOCATION_VALID_INTERVAL,
+                                  #UWEB.LOCATION_VALID_INTERVAL)
                 if loc:
                     location = DotDict(id=loc.id,
                                        valid=GATEWAY.LOCATION_STATUS.FAILED,

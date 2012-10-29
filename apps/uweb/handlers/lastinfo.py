@@ -35,7 +35,7 @@ class LastInfoHandler(BaseHandler):
                 terminal_info_key = get_terminal_info_key(tid)
                 terminal = self.redis.getvalue(terminal_info_key)
                 if not terminal:
-                    terminal = self.db.get("SELECT ti.login, ti.mobile, ti.defend_status, ti.pbat,"
+                    terminal = self.db.get("SELECT ti.login, ti.mobile, ti.defend_status, ti.fob_status,ti.pbat,"
                                            "    ti.gps, ti.gsm, ti.keys_num, tc.cnum as alias"
                                            "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
                                            "  WHERE ti.tid = %s"
@@ -90,6 +90,7 @@ class LastInfoHandler(BaseHandler):
 
                 car_dct = {}
                 car_info=DotDict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 0,
+                                 fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
                                  timestamp=location['timestamp'] if location else 0,
                                  speed=location.speed if location else 0,
                                  # NOTE: degree's type is Decimal, float() it before json_encode
