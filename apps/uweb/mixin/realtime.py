@@ -44,6 +44,20 @@ class RealtimeMixin(BaseMixin):
                         location.name, location.lat, location.lon,
                         location.cLat, location.cLon, location.type,
                         location.gps_time, location.id)
+        is_alived = self.redis.getvalue('is_alived')
+        if (is_alived == ALIVED and location.cLat and location.cLon):
+            mem_location = DotDict({'id':location.id,
+                                    'latitude':location.lat,
+                                    'longitude':location.lon,
+                                    'type':location.type,
+                                    'clatitude':location.cLat,
+                                    'clongitude':location.cLon,
+                                    'timestamp':location.gps_time,
+                                    'name':location.name,
+                                    'degree':location.degree,
+                                    'speed':location.speed})
+            location_key = get_location_key(str(location.dev_id))
+            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
     def insert_location(self, location):
         """Insert the location into mysql and keep it in memcached.
