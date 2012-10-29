@@ -27,13 +27,15 @@ class QueryHelper(object):
                 return terminal_info.mobile 
         else:
             terminal_info = DotDict(defend_status=None,
+                                    fob_status=None,
                                     mobile=None,
                                     login=None,
                                     gps=None,
                                     gsm=None,
                                     pbat=None,
                                     alias=None,
-                                    keys_num=None) 
+                                    keys_num=None,
+                                    fob_list=[]) 
 
         terminal = QueryHelper.get_terminal_by_tid(tid, db)
         terminal_info['mobile'] = terminal.mobile 
@@ -62,6 +64,7 @@ class QueryHelper(object):
                 return terminal_info.alias 
         else:
             terminal_info = DotDict(defend_status=None,
+                                    fob_status=None,
                                     mobile=None,
                                     login=None,
                                     gps=None,

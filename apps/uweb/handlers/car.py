@@ -69,6 +69,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                             terminal_info = self.redis.getvalue(terminal_info_key)
                             if not terminal_info:
                                 terminal_info = DotDict(defend_status=None,
+                                                        fob_status=None,
                                                         mobile=None,
                                                         login=None,
                                                         gps=None,
