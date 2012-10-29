@@ -1,8 +1,8 @@
 <download>
     <android>
-        <versioncode>101</versioncode>
-        <versionname>1.1.1</versionname>
-        <versioninfo>1.增加检测用户的GPRS或wifi有没有打开，若没有则提示;2.休眠时用户操作提示改为：终端已休眠，正在唤醒中，请稍后重试;3.更新查看位置地图时显示的返回按钮;4.自动播放完毕，再次点击播放按钮重新开始播放;5.挂件在附近时退出客户端，无需询问用户是否设防;6.休眠时进行设防、撤防操作成功，客户端状态同步为在线状态;</versioninfo>
+        <versioncode>102</versioncode>
+        <versionname>1.1.2</versionname>
+        <versioninfo>1.做新的轨迹查询的时候，先把之前的轨迹查询结果清除；2.客户端通知栏单独显示；</versioninfo>
         <updatetime>2012-10-29</updatetime>
         <filesize>4.75M</filesize>
     </android>
