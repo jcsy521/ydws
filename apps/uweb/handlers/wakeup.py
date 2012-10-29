@@ -34,7 +34,7 @@ class WakeupHandler(BaseHandler, BaseMixin):
 
                 lq_interval_key = get_lq_interval_key(self.current_user.tid) 
                 self.redis.setvalue(lq_interval_key, int(time.time()), (SMS.LQ.WEB*60 - 160))
-                logging.info("Wake up, send %s to Sim: %s", sms, self.current_user.sim) 
+                logging.info("[UWEB] wake up, send %s to Sim: %s", sms, self.current_user.sim) 
             else:
                 status = ErrorCode.LOGIN_AGAIN
             self.write_ret(status) 
