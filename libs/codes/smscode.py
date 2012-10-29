@@ -24,7 +24,7 @@ class SMSCode(object):
     SMS_SOS_OWNER = u"您的追踪器“%s”发起应急救援请求，已通知%s，当前所在位置：%s，时间：%s。"
     SMS_SOS_WHITE = u"您的追踪器“%s”发起应急救援请求，当前所在位置：%s，时间：%s。"
     SMS_REALTIME_RESULT = u"实时定位结果：您的车辆“%s”在：%s，时间：%s"
-    SMS_LOGIN_REMIND = u"车主您好，您于%s通过%s登陆【移动车卫士】平台，车主号码为%s，所关联的追踪器为%s。"
+    SMS_LOGIN_REMIND = u"车主您好，您于%s通过%s登陆【移动车卫士】平台，车主号码为%s，所关联的追踪器为“%s”。"
     SMS_CHARGE = u"追踪器“%s”剩余流量信息：%s"
     SMS_SERVICE_STOP = u"车主您好，您的追踪器“%s”已经停止服务。"
     SMS_RETRIEVE_PASSWORD = u"车主您好，您刚才使用了【移动车卫士】密码找回功能，新的登陆密码为：%s，请妥善保管。如需修改密码，请登录【移动车卫士】网站进行修改。" 

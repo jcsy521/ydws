@@ -64,6 +64,6 @@ class LoginMixin(BaseMixin):
         if sms_option.login == 1:
             login_time = time.strftime("%Y-%m-%d %H:%M:%S")
             login_method = UWEB.LOGIN_WAY[login] 
-            terminal_mobile = u'，'.join(terminal.alias for terminal in terminals)
+            terminal_mobile = u'”，“'.join(terminal.alias for terminal in terminals)
             remind_sms = SMSCode.SMS_LOGIN_REMIND % (login_time, login_method, owner_mobile, terminal_mobile) 
             SMSHelper.send(owner_mobile, remind_sms)
