@@ -102,6 +102,7 @@ class PacketTask(object):
         if not terminal_info:
             terminal_info = DotDict(defend_status=None,
                                     fob_status=None,
+                                    mobile=None,
                                     login=None,
                                     gps=None,
                                     gsm=None,

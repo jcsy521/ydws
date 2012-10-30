@@ -659,15 +659,18 @@ class MyGWServer(object):
             else:
                 hp = HeartbeatParser(body, head)
                 heartbeat_info = hp.ret 
+                is_sleep = False
                 if heartbeat_info['sleep_status'] == '0':
                     heartbeat_info['login'] = GATEWAY.TERMINAL_LOGIN.SLEEP
+                    is_sleep = True
                 elif heartbeat_info['sleep_status'] == '1':
                     heartbeat_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+                    is_sleep = False
                 else:
                     logging.info("[GW] Recv wrong sleep status: %s", heartbeat_info)
                 del heartbeat_info['sleep_status']
 
-                self.update_terminal_status(head.dev_id, address)
+                self.update_terminal_status(head.dev_id, address, is_sleep)
                 self.update_terminal_info(heartbeat_info)
 
             hc = HeartbeatRespComposer(args)
@@ -979,7 +982,7 @@ class MyGWServer(object):
             self.redis.delete(lq_interval_key)
             is_lq = False
 
-        if is_lq:
+        if is_lq and not is_sleep:
             logging.info("[TEST] keep alived.")
             self.redis.setvalue(terminal_status_key, address, 3 * HEARTBEAT_INTERVAL)
         else:

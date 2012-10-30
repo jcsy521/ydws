@@ -41,4 +41,4 @@ class SMSCode(object):
     SMS_TID_NOT_EXIST = u"该追踪器未激活，请执行激活短信指令：‘JH+追踪器号码’到追踪器号码。例如：JH 13900000000"
 
 
-    SMS_DOWNLOAD_REMIND = u"车主您好，您可以通过访问 %s 下载【移动车卫士】 Android 客户端。"
+    SMS_DOWNLOAD_REMIND = u"车主您好，您可以通过访问%s 下载【移动车卫士】Android客户端。"
