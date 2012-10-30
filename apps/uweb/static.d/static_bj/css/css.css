@@ -296,7 +296,7 @@ body {
     width: 72px;
 }
 #gsm .tInfoWord, #gps .tInfoWord {
-	padding: 0px;
+	/*padding: 0px;*/
 }
 .tInfoWord label {
 	width: 25px;
