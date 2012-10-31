@@ -22,11 +22,11 @@ from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
-     get_terminal_time, get_sessionID, safe_unicode, get_psd
+     get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
-from constants import EVENTER, GATEWAY, UWEB
+from constants import EVENTER, GATEWAY, UWEB, SMS
 from codes.smscode import SMSCode
 
 from helpers.seqgenerator import SeqGenerator
@@ -126,10 +126,29 @@ class MyGWServer(object):
             if is_alived == ALIVED:
                 for dev_id in self.online_terminals:
                     status = self.get_terminal_status(dev_id)
+                    offline_lq_key = get_offline_lq_key(dev_id)
+                    offline_lq_time = self.redis.getvalue(offline_lq_key)
                     if not status:
-                        self.heartbeat_lost_report(dev_id)
+                        if not offline_lq_time:
+                            self.send_lq_sms(dev_id)
+                            self.redis.setvalue(offline_lq_key, int(time.time()), 5*60)
+                        elif (time.time() - offline_lq_time) > 2 * 60:
+                            self.heartbeat_lost_report(dev_id)
+                            self.redis.delete(offline_lq_key)
+                        else:
+                            pass
         except:
             logging.exception("[GW] Check gateway heartbeat exception.")
+
+    def send_lq_sms(self, dev_id):
+        sim = QueryHelper.get_tmobile_by_tid(dev_id, self.redis, self.db)
+        if sim:
+            interval = SMS.LQ.WEB
+            sms = SMSCode.SMS_LQ % interval 
+            SMSHelper.send_to_terminal(sim, sms)
+            lq_interval_key = get_lq_interval_key(dev_id)
+            self.redis.setvalue(lq_interval_key, int(time.time()), (interval*60 - 160))
+            logging.info("Send offline LQ: '%s' to Sim: %s", sms, sim)
                 
     def heartbeat_lost_report(self, dev_id):
         timestamp = int(time.time())
@@ -984,7 +1003,7 @@ class MyGWServer(object):
 
         if is_lq and not is_sleep:
             logging.info("[TEST] keep alived.")
-            self.redis.setvalue(terminal_status_key, address, 3 * HEARTBEAT_INTERVAL)
+            self.redis.setvalue(terminal_status_key, address, 10 * HEARTBEAT_INTERVAL)
         else:
             logging.info("[TEST] keep sleep.")
             self.redis.setvalue(terminal_status_key, address, 3 * SLEEP_HEARTBEAT_INTERVAL)
