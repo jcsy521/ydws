@@ -225,6 +225,7 @@ class MyGWServer(object):
             self.check_heartbeat_thread = None
 
     def consume(self, host):
+        logging.info("[GW] consume process started...")
         consume_connection, consume_channel = self.__connect_rabbitmq(host)
         try:
             while (consume_connection and consume_connection.is_open):
@@ -256,6 +257,7 @@ class MyGWServer(object):
             logging.exception("[GW]unknown send Exception:%s", e.args)
 
     def publish(self, host):
+        logging.info("[GW] publish process started...")
         publish_connection, publish_channel = self.__connect_rabbitmq(host)
         try:
             if publish_connection and publish_connection.is_open:
@@ -697,7 +699,7 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand heartbeat exception.")
+            logging.error("[GW] Hand heartbeat exception.")
 
     def handle_locationdesc(self, info, address, connection, channel):
         """
