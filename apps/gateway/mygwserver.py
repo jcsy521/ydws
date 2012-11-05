@@ -168,7 +168,7 @@ class MyGWServer(object):
                 current_time = get_terminal_time(timestamp) 
                 tname = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
                 sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
-                SMSHelper.send(user.owner_mobile, sms)
+                #SMSHelper.send(user.owner_mobile, sms)
         logging.warn("[GW] Terminal %s Heartbeat lost!!!", dev_id)
         # 1. memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
@@ -848,6 +848,8 @@ class MyGWServer(object):
                 sleep_info = hp.ret 
                 if sleep_info['sleep_status'] == '0':
                     sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.SLEEP
+                    self.send_lq_sms(head.dev_id)
+                    logging.info("[GW] Recv sleep packet, LQ it: %s", head.dev_id)
                     is_sleep = True
                 elif sleep_info['sleep_status'] == '1':
                     sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
