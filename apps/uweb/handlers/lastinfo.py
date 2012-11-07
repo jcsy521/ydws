@@ -49,7 +49,7 @@ class LastInfoHandler(BaseHandler):
                         return
 
                     foblist = QueryHelper.get_fob_list_by_tid(tid, self.db)
-                    terminal['fob_list'] = [fob['fobid'] for fob in foblist] 
+                    terminal['fob_list'] = [fob['fobid'] for fob in foblist]
                     self.redis.setvalue(terminal_info_key, DotDict(terminal))
 
                 if not terminal['alias']:
@@ -108,7 +108,7 @@ class LastInfoHandler(BaseHandler):
                                  mobile=terminal['mobile'],
                                  alias=terminal['alias'],
                                  keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
-                                 fob_list=terminal['fob_list'])
+                                 fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)

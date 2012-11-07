@@ -38,7 +38,7 @@ class QueryHelper(object):
                                     fob_list=[]) 
 
         terminal = QueryHelper.get_terminal_by_tid(tid, db)
-        terminal_info['mobile'] = terminal.mobile 
+        terminal_info['mobile'] = terminal.mobile if terminal else None 
         redis.setvalue(terminal_info_key, terminal_info)
 
         return terminal_info['mobile'] 

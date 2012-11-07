@@ -13,6 +13,8 @@ site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 # interrupts always go to the main thread.)
 #     -- http://docs.python.org/library/thread.html#module-thread
 import signal
+import time
+import thread
 import logging
 from Queue import PriorityQueue
 
@@ -56,6 +58,7 @@ from handlers.servicesterms import ServicesTermsHandler
 from handlers.helper import HelperHandler 
 from handlers.wapimg import WapImgHandler
 from handlers.tinyurl import TinyURLHandler
+from handlers.lqterminals import LqterminalHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -147,6 +150,16 @@ def shutdown(pool, server):
 def usage():
     print "python26 server.py --conf=/path/to/conf_file --port=port_num"
 
+def lq_terminals_thread():
+    logging.info("[UWEB] Lq terminals thread start...")
+    lth = LqterminalHandler()
+    try:
+        while True:
+            time.sleep(60)
+            lth.check_sleep_terminal()
+    except Exception as e:
+        logging.exception("Start lq terminal thread failed: %s", e.args)
+
 def main():
     tornado.options.parse_command_line()
     if not ('port' in options and 'conf' in options):
@@ -169,6 +182,7 @@ def main():
 
         http_server = tornado.httpserver.HTTPServer(app, xheaders=True)
         http_server.listen(options.port)
+        thread.start_new_thread(lq_terminals_thread, ())
         logging.warn("[uweb] running on: localhost:%d", options.port)
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
