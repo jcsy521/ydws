@@ -163,52 +163,89 @@ class RealtimeMixin(BaseMixin):
                       location=None)
 
         if (location and location.clatitude and location.clongitude):
-
             if location.has_key('id'):
                 del location['id']
             
             location['degree'] = float(location.degree)
             location['tid'] = self.current_user.tid
             ret.location = location
+            if callback:
+                callback(ret)
+                #NOTE: after callback(ret), callback must be setted as null, and do not callback again.
+                callback=None
+
+        if query.locate_flag == UWEB.LOCATE_FLAG.CELLID:
+            loc = self.db.get("SELECT id, cellid, degree, speed"
+                              "  FROM T_LOCATION WHERE tid = %s"
+                              "  AND cellid IS NOT NULL "
+                              "  AND cellid <> '' "
+                              #"  AND clongitude = 0"
+                              #"  AND clatitude = 0"
+                              #"  AND (%s BETWEEN timestamp - %s"
+                              #"              AND timestamp + %s)"
+                              "  ORDER BY timestamp DESC"
+                              "  LIMIT 1",
+                              self.current_user.tid)
+                              #query.timestamp,
+                              #UWEB.LOCATION_VALID_INTERVAL,
+                              #UWEB.LOCATION_VALID_INTERVAL)
+            if loc:
+                location = DotDict(id=loc.id,
+                                   valid=GATEWAY.LOCATION_STATUS.FAILED,
+                                   t=EVENTER.INFO_TYPE.POSITION, 
+                                   dev_id=self.current_user.tid,
+                                   lat=0,
+                                   lon=0,
+                                   cLat=0,
+                                   cLon=0,
+                                   gps_time=int(time.time()),
+                                   type=1,
+                                   speed=float(loc.speed) if loc else 0.0,
+                                   degree=float(loc.degree) if loc else 0.0,
+                                   name='',
+                                   cellid=loc.cellid if loc else None)
+
+                location = handle_location(location, self.redis,
+                                           cellid=True,
+                                           db=self.db)
+
+                if location.get('cLat') and location.get('cLon'):
+                    ret.location = DotDict()
+                    ret.location.latitude = location.lat
+                    ret.location.longitude = location.lon
+                    ret.location.clongitude = location.cLon
+                    ret.location.clatitude = location.cLat
+                    ret.location.timestamp = location.gps_time
+                    ret.location.name = location.name if location.name else ''
+                    ret.location.speed = location.speed
+                    ret.location.type = location.type
+                    ret.location.tid = self.current_user.tid
+                    ret.location.degree = float(location.degree)
+                    self.update_location(location)
+                else:
+                    ret.status = ErrorCode.LOCATION_CELLID_FAILED 
+                    ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
+            else:
+                logging.info("[UWEB] do not find any cellid info from db. tid: %s", self.current_user.tid)
+                ret.status = ErrorCode.LOCATION_CELLID_FAILED 
+                ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
 
             if callback:
                 callback(ret)
-        else:
-            if query.locate_flag == UWEB.LOCATE_FLAG.CELLID:
-                loc = self.db.get("SELECT id, cellid, degree, speed"
-                                  "  FROM T_LOCATION WHERE tid = %s"
-                                  "  AND cellid IS NOT NULL "
-                                  "  AND cellid <> '' "
-                                  #"  AND clongitude = 0"
-                                  #"  AND clatitude = 0"
-                                  #"  AND (%s BETWEEN timestamp - %s"
-                                  #"              AND timestamp + %s)"
-                                  "  ORDER BY timestamp DESC"
-                                  "  LIMIT 1",
-                                  self.current_user.tid)
-                                  #query.timestamp,
-                                  #UWEB.LOCATION_VALID_INTERVAL,
-                                  #UWEB.LOCATION_VALID_INTERVAL)
-                if loc:
-                    location = DotDict(id=loc.id,
-                                       valid=GATEWAY.LOCATION_STATUS.FAILED,
-                                       t=EVENTER.INFO_TYPE.POSITION, 
-                                       dev_id=self.current_user.tid,
-                                       lat=0,
-                                       lon=0,
-                                       cLat=0,
-                                       cLon=0,
-                                       gps_time=int(time.time()),
-                                       type=1,
-                                       speed=float(loc.speed) if loc else 0.0,
-                                       degree=float(loc.degree) if loc else 0.0,
-                                       name='',
-                                       cellid=loc.cellid if loc else None)
+        else: 
+            def _on_finish(response):
+                ret = DotDict(status=ErrorCode.SUCCESS,
+                              message='',
+                              location=None)
+                response = json_decode(response)
+                if response['success'] == ErrorCode.SUCCESS:
+                    location = DotDict(response['position'])
 
                     location = handle_location(location, self.redis,
-                                               cellid=True,
+                                               cellid=False,
                                                db=self.db)
 
+                    self.insert_location(location)
                     if location.get('cLat') and location.get('cLon'):
                         ret.location = DotDict()
                         ret.location.latitude = location.lat
@@ -221,57 +258,18 @@ class RealtimeMixin(BaseMixin):
                         ret.location.type = location.type
                         ret.location.tid = self.current_user.tid
                         ret.location.degree = float(location.degree)
-                        self.update_location(location)
-                    else:
-                        ret.status = ErrorCode.LOCATION_CELLID_FAILED 
-                        ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
+                        self.update_terminal_status(location)
                 else:
-                    logging.info("[UWEB] do not find any cellid info from db. tid: %s", self.current_user.tid)
-                    ret.status = ErrorCode.LOCATION_CELLID_FAILED 
-                    ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
-
+                    if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+                        self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
+                    ret.status = response['success']
+                    ret.message = response['info']
+                    logging.error("[UWEB] realtime failed. tid: %s, status: %s, message: %s", self.current_user.tid, ret.status, ret.message)
+                
                 if callback:
                     callback(ret)
-            else: 
-                def _on_finish(response):
-                    ret = DotDict(status=ErrorCode.SUCCESS,
-                                  message='',
-                                  location=None)
-                    response = json_decode(response)
 
-                    if response['success'] == ErrorCode.SUCCESS:
-                        location = DotDict(response['position'])
-
-                        location = handle_location(location, self.redis,
-                                                   cellid=False,
-                                                   db=self.db)
-
-                        self.insert_location(location)
-                        if location.get('cLat') and location.get('cLon'):
-                            ret.location = DotDict()
-                            ret.location.latitude = location.lat
-                            ret.location.longitude = location.lon
-                            ret.location.clongitude = location.cLon
-                            ret.location.clatitude = location.cLat
-                            ret.location.timestamp = location.gps_time
-                            ret.location.name = location.name if location.name else ''
-                            ret.location.speed = location.speed
-                            ret.location.type = location.type
-                            ret.location.tid = self.current_user.tid
-                            ret.location.degree = float(location.degree)
-                            self.update_terminal_status(location)
-                    else:
-                        if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                            self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
-                        ret.status = response['success']
-                        ret.message = response['info']
-                        logging.error("[UWEB] realtime failed. tid: %s, status: %s, message: %s", self.current_user.tid, ret.status, ret.message)
-                    
-                    if callback:
-                        callback(ret)
-
-                args = DotDict(seq=SeqGenerator.next(self.db),
-                               tid=self.current_user.tid)
-                GFSenderHelper.async_forward(GFSenderHelper.URLS.REALTIME, args,
-                                             _on_finish)
-        return ret
+            args = DotDict(seq=SeqGenerator.next(self.db),
+                           tid=self.current_user.tid)
+            GFSenderHelper.async_forward(GFSenderHelper.URLS.REALTIME, args,
+                                         _on_finish)
