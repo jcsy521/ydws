@@ -35,6 +35,8 @@ class AsyncParser(object):
             info = self.get_sleep_info(packet)
         elif ret.command == 'T22':
             info = self.get_fob_info(packet)
+        elif ret.command == 'T23':
+            info = self.get_runtime_info(packet)
         else:
             return info 
 
@@ -103,6 +105,17 @@ class AsyncParser(object):
         info = {'fob_status': fob_status}
 
         return info
+
+    def get_runtime_info(self, packet):
+        runtime_info = {} 
+        runtime_info['login'] = packet[0]
+        runtime_info['defend_status'] = packet[1]
+        runtime_status = packet[2]
+        keys = ['gps', 'gsm', 'pbat']
+        ggp = runtime_status.split(':')
+        for i, key in enumerate(keys):
+            runtime_info[key] = ggp[i]
+        return runtime_info
 
     def get_pvt_info(self, packet):
         positions = []

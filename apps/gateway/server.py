@@ -105,6 +105,10 @@ def main():
             p.join()
 
     except KeyboardInterrupt:
+        try:
+            thread.exit()
+        except SystemExit:
+            logging.info("[GW] Threads stop...")
         logging.error("Ctrl-C is pressed.")
     except:
         logging.exception("[gateway] Exit Exception")

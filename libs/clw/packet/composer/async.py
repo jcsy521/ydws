@@ -33,6 +33,8 @@ class AsyncRespComposer(BaseComposer):
             args.command = S_MESSAGE_TYPE.SLEEPSTATUS
         elif args.command == T_MESSAGE_TYPE.FOBSTATUS:
             args.command = S_MESSAGE_TYPE.FOBSTATUS
+        elif args.command == T_MESSAGE_TYPE.RUNTIMESTATUS:
+            args.command = S_MESSAGE_TYPE.RUNTIMESTATUS
         else:
             args.command = None
         

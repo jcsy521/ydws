@@ -24,6 +24,7 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          FOBOPERATE="T20",
                          SLEEPSTATUS="T21",
                          FOBSTATUS="T22",
+                         RUNTIMESTATUS="T23",
                          AGPS="T100"
                          )
 
@@ -49,6 +50,7 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          FOBOPERATE="S20",
                          SLEEPSTATUS="S21",
                          FOBSTATUS="S22",
+                         RUNTIMESTATUS="S23",
                          AGPS="S100"
                          )
 

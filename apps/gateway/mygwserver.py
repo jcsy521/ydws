@@ -352,6 +352,9 @@ class MyGWServer(object):
                 elif command == T_MESSAGE_TYPE.FOBSTATUS:
                     logging.info("[GW] Recv fob status packet:\n%s", packet)
                     self.handle_fob_status(clw, address, connection, channel)
+                elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
+                    logging.info("[GW] Recv runtime status packet:\n%s", packet)
+                    self.handle_runtime_status(clw, address, connection, channel)
                 else:
                     logging.info("[GW] Recv packet from terminal:\n%s", packet)
                     self.foward_packet_to_si(clw, packet, address, connection, channel)
@@ -385,6 +388,20 @@ class MyGWServer(object):
                 logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, dev_id: %s",
                               t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
                 return
+
+            t_status = self.db.get("SELECT service_status"
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE mobile = %s",
+                                   t_info['t_msisdn'])
+            if t_status and t_status.service_status != GATEWAY.SERVICE_STATUS.ON:
+                args.success = GATEWAY.LOGIN_STATUS.EXPIRED
+                lc = LoginRespComposer(args)
+                request = DotDict(packet=lc.buf,
+                                  address=address)
+                self.append_gw_request(request, connection, channel)
+                logging.error("[GW] Login failed! terminal service expired! mobile: %s, dev_id: %s", t_info['t_msisdn'], t_info['dev_id'])
+                return
+ 
 
             logging.info("[GW] Checking imsi: %s and mobile: %s, Terminal: %s",
                          t_info['imsi'], t_info['t_msisdn'], t_info['dev_id'])
@@ -895,6 +912,39 @@ class MyGWServer(object):
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand fob status report exception.")
+
+    def handle_runtime_status(self, info, address, connection, channel):
+        """
+        runtime status packet: {login [0:login | 1:unlogin],
+                                defend_status [0:defend | 1:undefend],
+                                gps:gsm:pbat [0-100:0-9:0-100]} 
+        0: success, then record new terminal's address
+        1: invalid SessionID
+        """
+        try:
+            head = info.head
+            body = info.body
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           command=head.command)
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID:
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
+            else:
+                hp = AsyncParser(body, head)
+                runtime_info = hp.ret 
+                self.update_terminal_status(head.dev_id, address)
+                self.update_terminal_info(runtime_info)
+                self.db.execute("INSERT INTO T_RUNTIME_STATUS"
+                                "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s)",
+                                head.dev_id, runtime_info['login'], runtime_info['defend_status'],
+                                runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'], head.timestamp)
+            hc = AsyncRespComposer(args)
+            request = DotDict(packet=hc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Handle runtime status report exception.")
+
 
     def foward_packet_to_si(self, info, packet, address, connection, channel):
         """
