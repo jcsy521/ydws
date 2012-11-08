@@ -915,8 +915,8 @@ class MyGWServer(object):
 
     def handle_runtime_status(self, info, address, connection, channel):
         """
-        runtime status packet: {login [0:login | 1:unlogin],
-                                defend_status [0:defend | 1:undefend],
+        runtime status packet: {login [0:unlogin | 1:login],
+                                defend_status [0:undefend | 1:defend],
                                 gps:gsm:pbat [0-100:0-9:0-100]} 
         0: success, then record new terminal's address
         1: invalid SessionID
