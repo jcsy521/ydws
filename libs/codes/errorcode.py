@@ -22,7 +22,8 @@ class ErrorCode(object):
     LOGIN_AGAIN = 201
     WRONG_CAPTCHA = 202
     WRONG_PASSWORD = 203 
-    NO_CAPTCHA = 204
+    WRONG_OLD_PASSWORD = 204
+    NO_CAPTCHA = 205
 
     USER_NOT_ORDERED = 213 
     TERMINAL_NOT_ORDERED = 214
@@ -65,12 +66,13 @@ class ErrorCode(object):
         ILLEGAL_ADDRESS:               u"地址中含有非法字符，请重新输入。",
         ILLEGAL_EMAIL:                 u"E-MAIL中含有非法字符，请重新输入。",
         ILLEGAL_REMARK:                u"备注内容中含有非法字符，请重新输入。",
-        ILLEGAL_PASSWORD:              u"密码中含有非法字符，请重新输入。",
+        ILLEGAL_PASSWORD:              u"密码中含有非法字符，密码为不少于6位的字母或数字组成，请重新输入。",
         ILLEGAL_CONTENT:               u"反馈内容中含有非法字符，请重新输入。",
-        WRONG_CAPTCHA:                 u"验证码错误。",
-        WRONG_PASSWORD:                u"原始密码错误，请重新输入。",
-        NO_CAPTCHA:                    u"验证码失效，请重新获取。",
-        LOGIN_FAILED:                  u"用户名或密码错误。",
+        WRONG_CAPTCHA:                 u"验证码输入错误。",
+        WRONG_PASSWORD:                u"密码错误，请重新输入。",
+        WRONG_OLD_PASSWORD:            u"原始密码错误，请重新输入。",
+        NO_CAPTCHA:                    u"验证码已失效，请重新获取。",
+        LOGIN_FAILED:                  u"用户名或密码输入错误。",
         LOGIN_AGAIN:                   u"业务信息发生变更，请重新登录。",
         USER_NOT_ORDERED:              u"对不起, 该号码尚未订购移动车卫士业务。",
         SERVER_ERROR:                  u"服务器错误。",
@@ -80,10 +82,10 @@ class ErrorCode(object):
         LOCATION_NAME_NONE:            u"无法解析经纬度对应的地址",
         LOCATION_CELLID_FAILED:        u"追踪器基站定位失败，请稍后重试。",
         LOCATION_OFFSET_FAILED :       u"经纬度偏转失败，请稍后重试。",
-        TERMINAL_OFFLINE:              u"追踪器不在线，请稍后重试。",
+        TERMINAL_OFFLINE:              u"追踪器不在线，请确认追踪器处于开机状态。",
         TERMINAL_TIME_OUT:             u"追踪器响应超时，请稍后重试。",
         TERMINAL_OTHER_ERRORS:         u"连接追踪器失败，请稍后重试。",
-        TERMINAL_ORDERED:              u"追踪器手机号已被注册，请检查确认后再重试！",
+        TERMINAL_ORDERED:              u"追踪器手机号已被注册，请检查确认后重试！",
         TERMINAL_SET_FAILED:           u"追踪器参数设置失败，请稍后重试。",
         UNKNOWN_COMMAND:               u"您好，你输入的指令系统不识别，请输入标准指令。",
         CREATE_USER_FAILURE:           u"添加用户失败。",

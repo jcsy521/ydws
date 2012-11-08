@@ -48,5 +48,3 @@ class MainHandler(BaseHandler):
                     uid=self.current_user.uid,
                     name=user_info.name,
                     cars=terminals)
-
-

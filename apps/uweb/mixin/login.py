@@ -41,7 +41,7 @@ class LoginMixin(BaseMixin):
                            "      LIMIT 1", 
                            username, password)
         if not user:
-            status = ErrorCode.LOGIN_FAILED
+            status = ErrorCode.WRONG_PASSWORD
             logging.info("username: %s, password: %s login failed. Message: %s", username, password,  ErrorCode.ERROR_MESSAGE[status])
             return None, None, None, status 
         else:    

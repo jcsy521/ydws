@@ -95,5 +95,5 @@ class RegisterHandler(BaseHandler):
         except Exception as e:
             logging.exception("[UWEB] umobile: %s tmobile: %s register failed, Exception: %s", 
                               umobile, tmobile, e.args)
-            status = ErrorCode.SERVER_BUSY
+            status = ErrorCode.REGISTER_FAILED
             self.write_ret(status)

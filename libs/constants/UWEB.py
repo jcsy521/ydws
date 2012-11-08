@@ -13,10 +13,10 @@ LOCATION_VALID_INTERVAL = 5 * 60 # 5 mins
 
 SMS_CAPTCHA_INTERVAL = 60*5 # 5 minutes. in seconds.
 
-LOGIN_WAY=DotDict(WEB=u"web",
-                  WAP=u"wap",
-                  ANDROID=u"android客户端",
-                  IOS=u"ios客户端")
+LOGIN_WAY=DotDict(WEB=u"WEB",
+                  WAP=u"WAP",
+                  ANDROID=u"Android客户端",
+                  IOS=u"IOS客户端")
 
 LIMIT=DotDict(PAGE_SIZE=10, # you can have up to 10 records in one page
               TERMINAL=2) # one user have 2 terminal at most.
