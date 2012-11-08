@@ -7,6 +7,8 @@ import site
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
+import thread
+import time
 import signal
 import logging
 import multiprocessing
@@ -26,6 +28,8 @@ from db_.mysql import DBConnection
 from helpers.confhelper import ConfHelper
 
 from mygwserver import MyGWServer
+from checkpofftimeout import CheckpofftimeoutHandler
+from lqterminals import LqterminalHandler
 
 def shutdown(gwserver, processes):
     try:
@@ -40,6 +44,26 @@ def shutdown(gwserver, processes):
 
 def usage():
     print "python26 server.py --conf=/path/to/conf_file"
+
+def check_poweroff_timeout_thread():
+    logging.info("[GW] Check terminals poweroff timeout thread start...")
+    cpt = CheckpofftimeoutHandler() 
+    try:
+        while True:
+            time.sleep(60)
+            cpt.check_poweroff_timeout()
+    except Exception as e:
+        logging.exception("[GW] Start check terminals poweroff timeout thread failed.")
+
+def lq_terminals_thread():
+    logging.info("[GW] Lq terminals thread start...")
+    lth = LqterminalHandler()
+    try:
+        while True:
+            time.sleep(60)
+            lth.lq_terminals()
+    except Exception as e:
+        logging.exception("[GW] Start lq terminal thread failed.")
 
 def main():
     tornado.options.parse_command_line()
@@ -71,6 +95,8 @@ def main():
                           target=gwserver.publish,
                           args=(ConfHelper.RABBITMQ_CONF.host,))
         processes = (gw_send, gw_recv,)
+        thread.start_new_thread(lq_terminals_thread, ())
+        thread.start_new_thread(check_poweroff_timeout_thread, ())
         for p in processes:
             p.start()
         for p in processes:

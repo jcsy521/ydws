@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import time
 
 from tornado.escape import json_decode
 
@@ -178,7 +179,7 @@ class PacketTask(object):
 
             if report.rName == EVENTER.RNAME.POWERLOW:
                 if report.terminal_type == "1":
-                    sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
+                    sms = self.handle_power_status(report, name, report_name, terminal_time)
                 else:
                     sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, int(report.pbat), report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
@@ -279,3 +280,21 @@ class PacketTask(object):
             name = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
             push_key = NotifyHelper.get_push_key(user.owner_mobile, self.redis) 
             NotifyHelper.push_to_android(category, user.owner_mobile, dev_id, name, location, push_key)      
+
+    def handle_power_status(self, report, name, report_name, terminal_time):
+        sms = None
+        if int(report.pbat) == 100:
+            sms = SMSCode.SMS_POWERFULL % name
+        elif int(report.pbat) <= 3:
+            t_time = int(time.time())
+            self.db.execute("INSERT INTO T_POWEROFF_TIMEOUT"
+                            "  VALUES(NULL, %s, %s, %s)"
+                            "  ON DUPLICATE KEY"
+                            "  UPDATE tid = VALUES(tid),"
+                            "         sms_flag = VALUES(sms_flag),"
+                            "         timestamp = VALUES(timestamp)",
+                            report.dev_id, GATEWAY.POWEROFF_TIMEOUT_SMS.UNSEND, t_time)
+            sms = SMSCode.SMS_POWERLOW_OFF % (name, report_name, terminal_time)
+        else:
+            sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
+        return sms

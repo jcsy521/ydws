@@ -18,7 +18,7 @@ class LqterminalHandler(object):
     def __init__(self):
         self.db = DBConnection().db
 
-    def check_sleep_terminal(self):
+    def lq_terminals(self):
         try:
             terminals = self.db.query("SELECT mobile"
                                       "  FROM T_TERMINAL_INFO"
@@ -27,6 +27,6 @@ class LqterminalHandler(object):
                 interval = SMS.LQ.WEB
                 sms = SMSCode.SMS_LQ % interval
                 SMSHelper.send_to_terminal(terminal.mobile, sms)
-                logging.info("[UWEB] Lq sleep terminal:%s", terminal.mobile)
+                logging.info("[GW] Lq sleep terminal:%s", terminal.mobile)
         except Exception as e:
-            logging.exception("Lq terminals exception.")
+            logging.exception("[GW] Lq terminals exception.")

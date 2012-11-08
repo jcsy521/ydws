@@ -11,8 +11,8 @@ from base import BaseParser
 
 class Terminal(object):
 
-    login_mg = "[%s,,1,1.0.0,B123,T1,13688888888,15901258591,888823615223538,8888889008722099,CLW,0,]"
-    heartbeat_mg = "[%s,%s,1,1.0.0,B123,T2,23:9:95]"
+    login_mg = "[%s,,1,1.0.0,B123,T1,13688888888,18810496308,888823615223538,8888889008722099,CLW,0,]"
+    heartbeat_mg = "[%s,%s,1,1.0.0,B123,T2,23:9:95,0,0]"
     realtime_mg = "[%s,%s,1,1.0.0,B123,T4,1,E,113.252432,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
 
     location_mg = "[%s,%s,1,1.0.0,B123,T3,0,E,113.25,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
@@ -24,9 +24,9 @@ class Terminal(object):
     locationdesc_mg = "[%s,%s,1,1.0.0,B123,T10,E,113.252432,N,22.564152,0,460:0:4489:25196]"
     pvt_mg = "[%s,%s,1,1.0.0,B123,T11,{E,113.252432,N,22.564152,120.3,270.5,1343278800},{E,114.252432,N,23.564152,130.3,280.5,1343279800}]"
     charge_mg = "[%s,%s,1,1.0.0,B123,T12,%s]"
-    move_report_mg = "[%s,%s,1,1.0.0,B123,T13,2,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]"
-    poweroff_report_mg = "[%s,%s,1,1.0.0,B123,T15,1,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]"
-    powerlow_report_mg = "[%s,%s,1,1.0.0,B123,T14,0,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:20,%s,1]"
+    move_report_mg = "[%s,%s,1,1.0.0,B123,T13,2,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,]"
+    poweroff_report_mg = "[%s,%s,1,1.0.0,B123,T15,1,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,]"
+    powerlow_report_mg = "[%s,%s,1,1.0.0,B123,T14,0,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:2,%s,1,]"
     sos_report_mg = "[%s,%s,1,1.0.0,B123,T16,2,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1]" 
     #speed_report_mg = "[%s,1,V1.0.0,A123045612AA123487,T15,1,E,113.2524,N,22.5641,120.3,270.5,1, 460:00:16662:40953]"
     #mileage_count_mg = "[%s, , ,A123045612AA123487,T16,2000]"
@@ -62,7 +62,7 @@ class Terminal(object):
 
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.connect(('192.168.1.8', 9909))
+        self.socket.connect(('192.168.1.27', 10024))
         self.logging = self.initlog() 
 
     def login(self):
@@ -126,14 +126,15 @@ class Terminal(object):
 
     def report_mg(self):
         time.sleep(10)
-        report_mgs = [self.move_report_mg, self.poweroff_report_mg, self.powerlow_report_mg, self.sos_report_mg]
+        # report_mgs = [self.move_report_mg, self.poweroff_report_mg, self.powerlow_report_mg, self.sos_report_mg]
+        report_mgs = [self.powerlow_report_mg,]
         while True:
             for report_mg in report_mgs:
                 t_time = int(time.time())
                 msg = report_mg % (t_time, self.sessionID, t_time)
                 self.logging.info("Send report mg:\n%s", msg)
                 self.socket.send(msg)
-                time.sleep(60)
+                time.sleep(50)
 
     def query_args(self, bp):
         t_time = int(time.time())
@@ -208,7 +209,7 @@ class Terminal(object):
         thread.start_new_thread(self.heartbeat, ())
         thread.start_new_thread(self.upload_position, ())
         thread.start_new_thread(self.report_mg, ())
-        thread.start_new_thread(self.report_once_mg, ())
+        # thread.start_new_thread(self.report_once_mg, ())
 
 
     def handle_recv(self, bp):
@@ -240,7 +241,7 @@ class Terminal(object):
         elif bp.type in ("S13, S14, S15, S16"):
             self.async()
         elif bp.type == "S17":
-            self.config()
+            self.config(bp)
         elif bp.type == "S18":
             self.defend_status()
     

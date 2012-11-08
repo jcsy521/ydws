@@ -94,3 +94,6 @@ HEARTBEAT_INTERVAL = 30
 # 30 min 
 SLEEP_HEARTBEAT_INTERVAL = 30 * 60
 DUMMY_FD = "-1"
+
+POWEROFF_TIMEOUT_SMS = DotDict(SEND=1,
+                               UNSEND=0)
