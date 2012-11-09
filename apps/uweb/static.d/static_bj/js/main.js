@@ -143,10 +143,12 @@ window.dlf.fn_exit = function() {
 		str_defendContent = $('#defendContent').html(),
 		obj_exitMsg = $('#exitMsg'),
 		obj_btnSure = $('#btnSure'),
+		n_fob_status = $('.currentCar').attr('fob_status'),	// 挂件是否在附近
+		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num'));	// 当前车辆的挂件数量
 		obj_btnCancel = $('#btnCancel');
 	
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	if ( str_defendContent != '已设防' ) {
+	if ( str_defendContent != '已设防' && n_keyNum > 0 && n_fob_status == FOB_OFF ) {
 		str_msg = '追踪器当前状态为撤防，是否设防？';
 		$('#btnSure').unbind('click').bind('click', function () {
 			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '移动车卫士设防中', true);

@@ -184,6 +184,7 @@ window.dlf.fn_defendQuery = function() {
 				
 			
 			n_fob_status = data.fob_status;
+			$('.currentCar').attr('fob_status', n_fob_status);	// 更新最新的 挂件状态  ：是否在附近
 			dlf.fn_lockScreen();	//添加页面遮罩
 			dlf.fn_dialogPosition(obj_wrapper);	// 设置dialog的位置
 			if ( str_defendStatus == DEFEND_ON ) {

@@ -380,6 +380,7 @@ window.dlf.fn_getCarData = function() {
 						str_alias = obj_carInfo.alias,
 						str_loginst = obj_carInfo.login,
 						n_keyNum = obj_carInfo.keys_num,	// 挂件数量
+						n_fob_status = obj_carInfo.fob_status,	// 挂件是否在附件
 						obj_carA = $('#carList a[tid='+str_tid+']'),
 						obj_img = obj_carA.children().eq(0),	// 在线离线图
 						obj_carLi = obj_carA.parent(),
@@ -416,7 +417,7 @@ window.dlf.fn_getCarData = function() {
 						obj_child1.removeClass('gray green').addClass('blue');
 						obj_child2.removeClass('gray green').addClass('blue').html('(休眠中)');
 					} 
-					obj_carA.attr('clogin', str_loginst).attr('keys_num', n_keyNum);
+					obj_carA.attr('clogin', str_loginst).attr('keys_num', n_keyNum).attr('fob_status', n_fob_status);
 					if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
 						dlf.fn_updateTerminalInfo(obj_carInfo);
 					}
@@ -874,7 +875,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 		if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,不进行后续操作
 			if ( data.status == 0 ) {
 				if ( str_who == 'defend' || str_who == 'exit' ) {	// 如果是设防撤防操作
-					var str_defendStatus = $('#defendContent').data('defend'),
+					var str_defendStatus = parseInt($('#defendContent').data('defend')),
 						str_html = '',
 						str_dImg = '',
 						str_successMsg = '',
