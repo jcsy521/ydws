@@ -230,7 +230,7 @@ window.dlf.fn_defendQuery = function() {
 		if ( f_warpperStatus ) {
 			dlf.fn_jNotifyMessage('追踪器正在唤醒中，请稍后再试。', 'message', false, 4000);
 		} else {
-			if ( n_keyNum > 0 && n_fobStatus == FOB_OFF && n_defendStatus == DEFEND_OFF ) {	// 有挂件 &&  挂件不在附近,如果要撤防提示"确定要撤防吗？"
+			if ( n_keyNum > 0 && n_fobStatus == FOB_OFF && n_defendStatus == DEFEND_ON ) {	// 有挂件 &&  挂件不在附近,如果要撤防提示"确定要撤防吗？"
 				obj_dMsg.html('您的追踪器没有检测到挂件，是否继续撤防？');
 				dlf.fn_setItemMouseStatus(obj_this, 'pointer', new Array('jx', 'jx2')); // 设置鼠标滑过继续按钮的样式		
 				obj_this.unbind('click').bind('click', function() {
