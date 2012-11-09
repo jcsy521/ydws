@@ -239,9 +239,9 @@ window.dlf.fn_defendQuery = function() {
 			} else {
 				var str_tip = '';
 				if ( n_defendStatus == DEFEND_OFF ) {
-					str_tip = '撤防中' + WAITIMG;
+					str_tip = '撤防中';
 				} else {
-					str_tip = '设防中' + WAITIMG;
+					str_tip = '设防中';
 				}
 				dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', str_tip);
 			}
@@ -261,8 +261,7 @@ window.dlf.fn_terminalOnLine = function(str_url, obj_data, str_operation, str_ti
 		obj_defendBtn = $('#defendBtn'),	// 设防操作按钮
 		str_msg = '';
 	
-	
-	if ( n_login != LOGINST ) {	// 终端不在线
+	if ( n_login == LOGINWAKEUP ) {	// 终端不在线
 		// 判断"追踪器正在唤醒"提示是否显示
 		if ( f_warpperStatus ) {	// 如果显示：正在唤醒中...请稍后
 			str_msg = '追踪器正在唤醒中，请稍后再试。';

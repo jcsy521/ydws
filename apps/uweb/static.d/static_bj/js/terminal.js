@@ -163,12 +163,20 @@ window.dlf.fn_baseSave = function() {
 			obj_terminalData[str_key] = str_newVal;
 		}	
 	});
+	var n_terminalNum = 0;
 	for(var param in obj_terminalData) {	// 修改项的数目
+		if ( param == 'white_list' ) {
+			n_terminalNum++;
+		}
 		n_num = n_num +1;
 	}
 	
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
-		dlf.fn_terminalOnLine(TERMINAL_URL, obj_terminalData, 'terminal', '追踪器参数保存中');
+		if ( n_terminalNum > 0 ) {
+			dlf.fn_terminalOnLine(TERMINAL_URL, obj_terminalData, 'terminal', '追踪器参数保存中');
+		} else {
+			dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '追踪器参数保存中');
+		}
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩

@@ -218,7 +218,7 @@ window.dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
 	* showTime: 消息显示时间
 */
 window.dlf.fn_jNotifyMessage = function(messages, types, f_permanent, showTime) {
-	var pf = ($(window).width()-400)/2,
+	var pf = ($(window).width()-447)/2,
         displayTime = 6000,
         f_perMan_type = f_permanent ? f_permanent : false,
 	    displayTime = showTime ? showTime : displayTime;

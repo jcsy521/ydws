@@ -704,10 +704,10 @@ body {
 }
 	/* terminal dialog */
 #terminalWrapper {
-	height: 499px;
+	height: 250px;
 }
 #terminalWrapper .terminalContent {
-	height: 211px;	/* 400px*/
+	height: 215px;	/* 400px*/
 	width: 448px;
 }
 #terminalWrapper .titleName {
@@ -799,7 +799,8 @@ body {
 	height: 34px;	
 }
 #tmnTable {
-	height: 30px;
+	height: 55px;
+	margin-top: 10px;
 	width: 420px;
 }
 #whitelistPopWrapper {    
@@ -1227,7 +1228,7 @@ body {
 	position: absolute;
 	text-align: center;
 	top: 103px;
-    width: 400px;
+    width: 447px;
 	z-index: 100001;
 }
 .jnotify-item {
@@ -1639,7 +1640,11 @@ body {
 .copyright {
 	text-align: center;
 }
-#popTips {
-	text-align: center;
+.popTips {
+	color: #F96635;
+    margin-top: 10px;
+    padding-left: 27px;
+    text-align: center;
+    width: 402px;
 }
 /*web css end*/
