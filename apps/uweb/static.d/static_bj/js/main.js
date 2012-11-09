@@ -361,9 +361,9 @@ $(function () {
 		}
 	});
 	
-	$('#oldPwd').formValidator({validatorGroup: '2'}).inputValidator({min: 6, onError: '密码最小长度不能小于6位！'});
-	$('#newPwd').formValidator({validatorGroup: '2'}).inputValidator({min: 6, onError: '新密码最小长度不能小于6位！'}).regexValidator({regExp: 'password', dataType: 'enum', onError: '新密码为不少于6位的字母或数字组成！！'});
-	$('#newPwd2').formValidator({validatorGroup: '2'}).inputValidator({min: 6, onError: '重复密码不能为空，请重新输入！'}).compareValidator({desID: 'newPwd', operateor: '=', datatype: 'number', onError: '两次密码不一致，请重新输入！'});
+	$('#oldPwd').formValidator({validatorGroup: '2'}).inputValidator({min: 6, onError: '密码最小长度不能小于6位！'}).regexValidator({regExp: 'password', dataType: 'enum', onError: '密码为不少于6位的字母或数字组成！'});
+	$('#newPwd').formValidator({validatorGroup: '2'}).inputValidator({min: 6, onError: '密码最小长度不能小于6位！'}).regexValidator({regExp: 'password', dataType: 'enum', onError: '密码为不少于6位的字母或数字组成！'});
+	$('#newPwd2').formValidator({validatorGroup: '2'}).compareValidator({desID: 'newPwd', operateor: '=', datatype: 'number', onError: '两次密码不一致，请重新输入！'});
 	
 	/** 
 	* 终端参数的验证
