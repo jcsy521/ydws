@@ -63,8 +63,8 @@ class DownloadSmsHandler(BaseHandler):
             logging.info("[UWEB] downloadsms failed. Message: %s", ErrorCode.ERROR_MESSAGE[status])
         else:
             version_info = get_version_info('android')
-            downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
-            download_remind = SMSCode.SMS_DOWNLOAD_REMIND % downloadurl 
+            # downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
+            download_remind = SMSCode.SMS_DOWNLOAD_REMIND 
             SMSHelper.send(mobile, download_remind)
    
         self.write_ret(status)
