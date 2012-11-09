@@ -94,7 +94,7 @@ function fn_trackQuery() {
 				str_msg = '';
 			if ( locLength <= 0) {
 				if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
-					str_msg = '该时间段没有轨迹记录，请尝试选择“GPS和基站定位”。';
+					str_msg = '该时间段没有轨迹记录，请尝试选择“显示基站定位”。';
 				} else {
 					str_msg = '该时间段没有轨迹记录，请选择其它时间段。';
 				}

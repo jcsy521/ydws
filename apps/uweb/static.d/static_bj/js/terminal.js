@@ -69,6 +69,8 @@ window.dlf.fn_initTerminalWR = function () {
 							obj_whitelist.val(str_value);
 							obj_oriWhitelist.attr('t_val', str_value);					
 						}
+					} else if ( param == 'push_status' ) {
+						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
 					} else {
 						if ( param == 'alias' || param == 'cnum' ) {	// 终端别名、车牌号
 							$('#t_' + param ).val(str_val);
