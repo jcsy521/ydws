@@ -707,7 +707,7 @@ body {
 	height: 499px;
 }
 #terminalWrapper .terminalContent {
-	height: 253px;	/* 400px*/
+	height: 211px;	/* 400px*/
 	width: 448px;
 }
 #terminalWrapper .titleName {
@@ -736,7 +736,6 @@ body {
 #bListR, #bListR td{
 	margin: 0px;
 	padding: 0px;
-	text-align: left;
 	line-height: 34px;
 }
 #bListR .terminalTdL {
@@ -1638,6 +1637,9 @@ body {
 	text-indent: 2em;
 }
 .copyright {
+	text-align: center;
+}
+#popTips {
 	text-align: center;
 }
 /*web css end*/

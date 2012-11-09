@@ -875,24 +875,30 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 			if ( data.status == 0 ) {
 				if ( str_who == 'defend' || str_who == 'exit' ) {	// 如果是设防撤防操作
 					var str_defendStatus = $('#defendContent').data('defend'),
-					str_html = '',
-					str_dImg = '',
-					n_defendStatus = 0;
+						str_html = '',
+						str_dImg = '',
+						str_successMsg = '',
+						n_defendStatus = 0;
 					
 					if ( str_defendStatus == DEFEND_OFF ) { 
 						n_defendStatus = 1;
 						str_html = '已设防';
+						str_successMsg = '设防成功';
 						str_dImg= 'defend_status1.png';						
 					} else {
 						n_defendStatus = 0;
 						str_html = '未设防';
+						str_successMsg = '撤防成功';
 						str_dImg=  'defend_status0.png';
 					}
 					$('#defendContent').html(str_html).data('defend', n_defendStatus);
 					$('#defendStatus').css('background-image', 'url("'+ BASEIMGURL + str_dImg + '")').attr('title', str_html);
+					
+					dlf.fn_jNotifyMessage(str_successMsg, 'message', false, 3000);
+				} else {
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}
 				dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				$('#exitWrapper').hide();	// 退出dialog隐藏
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();

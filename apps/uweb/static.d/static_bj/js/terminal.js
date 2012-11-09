@@ -13,7 +13,7 @@ window.dlf.fn_initTerminal = function() {
 	dlf.fn_initTerminalWR(); // 初始化加载参数
 	dlf.fn_onInputBlur();	// input的blur事件初始化
 	
-	$('.j_trace').unbind('click').bind('click', function() {	// 轨迹上报开启状态：可以编辑上报间隔  反之不能编辑
+	/*$('.j_trace').unbind('click').bind('click', function() {	// 轨迹上报开启状态：可以编辑上报间隔  反之不能编辑
 		var obj_this = $(this),
 			obj_freq = $('#t_freq'),
 			str_val = obj_this.val(),
@@ -26,7 +26,7 @@ window.dlf.fn_initTerminal = function() {
 		} else {
 			$('#trFreq').removeClass('hide');
 		}
-	});
+	});*/
 }
 
 /**
@@ -34,7 +34,7 @@ window.dlf.fn_initTerminal = function() {
 */
 window.dlf.fn_initTerminalWR = function () {
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
-	dlf.fn_jNotifyMessage('终端设置查询中' + WAITIMG , 'message', true); 
+	dlf.fn_jNotifyMessage('追踪器设置查询中' + WAITIMG , 'message', true); 
 	$.get_(TERMINAL_URL, '', function (data) {  
 		if (data.status == 0) {	
 			var obj_data = data.car_sets,
@@ -45,7 +45,7 @@ window.dlf.fn_initTerminalWR = function () {
 				var str_val = obj_data[param];
 				
 				if ( param ) {
-					if ( param == 'trace' || param == 'push_status' ) {	// 单选按钮: 轨迹上报、PUSH告警
+					/*if ( param == 'trace' || param == 'push_status' ) {	// 单选按钮: 轨迹上报、PUSH告警
 						if ( param == 'trace' ) {	// 如果轨迹上报为关闭状态  上报间隔不可编辑
 							if ( str_val == 0 ) {
 								$('#trFreq').addClass('hide');
@@ -54,7 +54,10 @@ window.dlf.fn_initTerminalWR = function () {
 							}
 						}
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
-					} else if ( param == 'white_list' ) {	// 白名单
+					} else if ( param == 'freq' ) {		// 下拉列表：上报间隔
+						$('#t_' + param).val(str_val);
+					} else */
+					if ( param == 'white_list' ) {	// 白名单
 						n_whitelistLenth = str_val.length;
 						$('.j_white_list input[type=text]').val('');	// 先清空白名单
 						$('.j_white_list').attr('t_val', '');
@@ -66,8 +69,6 @@ window.dlf.fn_initTerminalWR = function () {
 							obj_whitelist.val(str_value);
 							obj_oriWhitelist.attr('t_val', str_value);					
 						}
-					} else if ( param == 'freq' ) {		// 下拉列表：上报间隔
-						$('#t_' + param).val(str_val);
 					} else {
 						if ( param == 'alias' || param == 'cnum' ) {	// 终端别名、车牌号
 							$('#t_' + param ).val(str_val);
@@ -80,11 +81,11 @@ window.dlf.fn_initTerminalWR = function () {
 					$('#' + param ).attr('t_val', str_val);	// 将每个终端参数对应值保存在t_val中
 				}
 			}
-			if ( n_whitelistLenth <= 1 && n_whitelistTip == 0 ) {	// 白名单提示 没有设置白名单一直提示
+			/*if ( n_whitelistLenth <= 1 && n_whitelistTip == 0 ) {	// 白名单提示 没有设置白名单一直提示
 				dlf.fn_showNotice();
 			} else {
 				$('#whitelistPopWrapper').hide();
-			}
+			}*/
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -165,7 +166,7 @@ window.dlf.fn_baseSave = function() {
 	}
 	
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
-		dlf.fn_terminalOnLine(TERMINAL_URL, obj_terminalData, 'terminal', '终端参数保存中...');
+		dlf.fn_terminalOnLine(TERMINAL_URL, obj_terminalData, 'terminal', '追踪器参数保存中');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩

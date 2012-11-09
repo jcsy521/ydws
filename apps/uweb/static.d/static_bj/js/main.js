@@ -149,7 +149,7 @@ window.dlf.fn_exit = function() {
 	if ( str_defendContent != '已设防' ) {
 		str_msg = '追踪器当前状态为撤防，是否设防？';
 		$('#btnSure').unbind('click').bind('click', function () {
-			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '移动车卫士设防中...', true);
+			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '移动车卫士设防中', true);
 		}).val('设防');
 		obj_btnCancel.unbind('click').bind('click', function () {
 			window.location.href = '/logout';
@@ -361,9 +361,9 @@ $(function () {
 		}
 	});
 	
-	$('#oldPwd').formValidator({validatorGroup: '2'}).inputValidator({min: 1, onError: '密码不能为空，请重新输入！'});
-	$('#newPwd').formValidator({validatorGroup: '2'}).inputValidator({min: 1, onError: '密码不能为空，请重新输入！'});
-	$('#newPwd2').formValidator({validatorGroup: '2'}).inputValidator({min: 1, onError: '重复密码不能为空，请重新输入！'}).compareValidator({desID: 'newPwd', operateor: '=', datatype: 'number', onError: '两次密码不一致，请重新输入！'});
+	$('#oldPwd').formValidator({validatorGroup: '2'}).inputValidator({min: 6, onError: '密码最小长度不能小于6位！'});
+	$('#newPwd').formValidator({validatorGroup: '2'}).inputValidator({min: 6, onError: '新密码最小长度不能小于6位！'}).regexValidator({regExp: 'password', dataType: 'enum', onError: '新密码为不少于6位的字母或数字组成！！'});
+	$('#newPwd2').formValidator({validatorGroup: '2'}).inputValidator({min: 6, onError: '重复密码不能为空，请重新输入！'}).compareValidator({desID: 'newPwd', operateor: '=', datatype: 'number', onError: '两次密码不一致，请重新输入！'});
 	
 	/** 
 	* 终端参数的验证

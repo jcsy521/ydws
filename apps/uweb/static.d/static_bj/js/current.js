@@ -25,14 +25,16 @@ function fn_startCell(n_locateFlag, n_cellstatus) {
 	var obj_msg = $('#currentMsg'),
 		obj_pd = {'locate_flag': CELLID_TYPE },	// 发起基站定位时向后台传送的数据
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
-		str_errorMsg = '无法获取车辆位置，请稍候重试。';
+		str_errorMsg = '信号弱，暂时无法定位，请稍候重试。';	//'无法获取车辆位置，请稍候重试。';
 	
 	if ( n_locateFlag == GPS_TYPE ) {	// 上次请求是否是GPS定位，如果是则发起基站定位请求
 		if ( n_cellstatus == 1 ) {
-			obj_msg.html('GPS信号弱，切换到基站定位 ' + str_img);
+			/*obj_msg.html('GPS信号弱，切换到基站定位 ' + str_img);
 			setTimeout(function () {
 				fn_currentRequest(obj_pd);	// 上次是GPS定位，本次发起基站定位请求
-			}, 3000);
+			}, 3000);*/
+			
+			fn_currentRequest(obj_pd);	// 上次是GPS定位，本次发起基站定位请求
 		} else {
 			obj_msg.html(str_errorMsg);
 		}										
@@ -60,20 +62,21 @@ function fn_openLastinfo(str_msg) {
 function fn_currentRequest(obj_pd) {
 	var obj_cWrapper = $('#currentWrapper'),
 		obj_msg = $('#currentMsg'), 
-		str_errorMsg = '无法获取车辆位置，请稍候重试。',
+		str_errorMsg =  '信号弱，暂时无法定位，请稍候重试。',		//'无法获取车辆位置，请稍候重试。',
 		str_flagVal = obj_pd.locate_flag, 
 		str_carCurrent = $('.currentCar').next().html(), // 当前车辆的别名
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
-		str_msg = '车辆<b> '+ str_carCurrent +' </b>'
+		//str_msg = '车辆<b> '+ str_carCurrent +' </b>'
+		str_msg = '车辆定位中，请等待',
 		f_warpperStatus = !obj_cWrapper.is(':hidden');
 	
 	if ( f_warpperStatus ) {	// 判断current dialog弹出框是否已经关闭，如果关闭:不进行任何操作
-		if ( str_flagVal == CELLID_TYPE) {	// 根据定位类型设置提示信息
+		/*if ( str_flagVal == CELLID_TYPE) {	// 根据定位类型设置提示信息
 			str_msg += '基站定位进行中...';
 		} else {
 			str_msg += 'GPS定位进行中...';
-		}
-		obj_msg.html( str_msg + str_img );
+		}*/
+		obj_msg.html( str_msg + WAITIMG );
 		dlf.fn_lockScreen(); // 添加页面遮罩
 		dlf.fn_clearInterval(currentLastInfo);  // lastinfo停止计时
 		$.post_(REALTIME_URL, JSON.stringify(obj_pd), function (postData) { // 发起post定位请求
@@ -228,17 +231,17 @@ window.dlf.fn_defendQuery = function() {
 			dlf.fn_jNotifyMessage('追踪器正在唤醒中，请稍后再试。', 'message', false, 4000);
 		} else {
 			if ( n_keyNum > 0 && n_fobStatus == FOB_OFF && n_defendStatus == DEFEND_OFF ) {	// 有挂件 &&  挂件不在附近,如果要撤防提示"确定要撤防吗？"
-				obj_dMsg.html('挂件不在附近，是否继续撤防？');
+				obj_dMsg.html('您的追踪器没有检测到挂件，是否继续撤防？');
 				dlf.fn_setItemMouseStatus(obj_this, 'pointer', new Array('jx', 'jx2')); // 设置鼠标滑过继续按钮的样式		
 				obj_this.unbind('click').bind('click', function() {
-					dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', '移动车卫士设防中...');
+					dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', '设防中');
 				});
 			} else {
 				var str_tip = '';
 				if ( n_defendStatus == DEFEND_OFF ) {
-					str_tip = '移动车卫士撤防中...';
+					str_tip = '撤防中' + WAITIMG;
 				} else {
-					str_tip = '移动车卫士设防中...';
+					str_tip = '设防中' + WAITIMG;
 				}
 				dlf.fn_terminalOnLine(DEFEND_URL, obj_defend, 'defend', str_tip);
 			}
@@ -266,9 +269,9 @@ window.dlf.fn_terminalOnLine = function(str_url, obj_data, str_operation, str_ti
 			dlf.fn_jNotifyMessage(str_msg, 'message', false, 5000);
 		} else {
 			if ( n_login == LOGINOUT ) {
-				str_msg = '追踪器不在线，是否唤醒追踪器？';
+				str_msg = '追踪器不在线，请确认追踪器处于开机状态。';
 			} else if ( n_login == LOGINWAKEUP ) {
-				str_msg = '追踪器在休眠中，是否唤醒追踪器？';
+				str_msg = '追踪器正在休眠，请待唤醒后再试！';
 			}
 			if ( str_operation == 'defend' ) {
 				obj_defendMsg.html(str_msg);
@@ -318,7 +321,7 @@ function fn_wakeupTerminal(isExit) {
 	} else {
 		$.get_(WAKEUP_URL, '', function (data) {	// 唤醒追踪器请求
 			if ( data.status == 0 ) {	// 成功下发唤醒短信，提示用户"追踪器正在唤醒中...."
-				var str_wakeupMsg = '追踪器正在唤醒中' + WAITIMG,
+				var str_wakeupMsg = '追踪器正在唤醒中...' + WAITIMG,
 					obj_wakeupMsg = $('#wakeupMsg'),
 					obj_wakeupWrapper = $('#wakeupWrapper'),	// 追踪器唤醒提示容器
 					obj_wakeupTimer = $('#wakeupTimer'),	// 追踪器提示框计时器容器

@@ -75,7 +75,8 @@ function fn_trackQuery() {
 	$('.j_tBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	dlf.fn_jNotifyMessage('行踪查询中' + WAITIMG , 'message', true);
+	//dlf.fn_jNotifyMessage('行踪查询中' + WAITIMG , 'message', true);
+	dlf.fn_jNotifyMessage('车辆轨迹查询中' + WAITIMG, 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
 	$('.j_trackbody').data('layer', true);
 	dlf.fn_lockScreen();
@@ -93,9 +94,9 @@ function fn_trackQuery() {
 				str_msg = '';
 			if ( locLength <= 0) {
 				if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
-					str_msg = '该时间段没有数据，请尝试勾选“显示基站定位”。';
+					str_msg = '该时间段没有轨迹记录，请尝试选择“GPS和基站定位”。';
 				} else {
-					str_msg = '该时间段没有数据，请选择其它时间段。';
+					str_msg = '该时间段没有轨迹记录，请选择其它时间段。';
 				}
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 				$('#trackSpeed').hide();	// 速度滑块隐藏
@@ -140,7 +141,7 @@ function fn_trackQuery() {
 *  两点距离比较
 */
 function fn_tempDist(startXY, endXY) {
-	var n_pointDist = fn_forMarkerDistance(startXY, endXY);
+	var n_pointDist = dlf.fn_forMarkerDistance(startXY, endXY);
 	if ( n_pointDist > n_tempMax ) {
 		n_tempMax = n_pointDist;
 		obj_tempFirstPoint = startXY;
@@ -150,7 +151,7 @@ function fn_tempDist(startXY, endXY) {
 
 /**
 * 根据经纬度求两点间距离
-*/
+
 function fn_forMarkerDistance(firstPoint, secondPoint) {
 	var EarthRadiusKm = 6378137.0; // 取WGS84标准参考椭球中的地球长半径(单位:m)
 	var dLat1InRad = firstPoint.lat/NUMLNGLAT * (Math.PI / 180);
@@ -165,6 +166,74 @@ function fn_forMarkerDistance(firstPoint, secondPoint) {
 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 	var n_Distance = EarthRadiusKm * c;
 	return n_Distance;
+}
+*/
+
+/**
+* 根据经纬度求两点间距离
+*/
+window.dlf.fn_forMarkerDistance = function (point1, point2) {
+	var EARTHRADIUS = 6370996.81; // 取WGS84标准参考椭球中的地球长半径(单位:m)
+	//判断类型
+	if(!(point1 instanceof BMap.Point) ||
+		!(point2 instanceof BMap.Point)){
+		return 0;
+	}
+
+	point1.lng = fn_getLoop(point1.lng, -180, 180);
+	point1.lat = fn_getRange(point1.lat, -74, 74);
+	point2.lng = fn_getLoop(point2.lng, -180, 180);
+	point2.lat = fn_getRange(point2.lat, -74, 74);
+	
+	var x1, x2, y1, y2;
+	x1 = dlf.degreeToRad(point1.lng);
+	y1 = dlf.degreeToRad(point1.lat);
+	x2 = dlf.degreeToRad(point2.lng);
+	y2 = dlf.degreeToRad(point2.lat);
+
+	return EARTHRADIUS * Math.acos((Math.sin(y1) * Math.sin(y2) + Math.cos(y1) * Math.cos(y2) * Math.cos(x2 - x1)));    
+}
+
+/**
+ * 将度转化为弧度
+ * @param {degree} Number 度     
+ * @returns {Number} 弧度
+ */
+window.dlf.degreeToRad =  function(degree){
+	return Math.PI * degree/180;    
+}
+/**
+ * 将弧度转化为度
+ * @param {radian} Number 弧度     
+ * @returns {Number} 度
+ */
+window.dlf.radToDegree = function(rad){
+	return (180 * rad) / Math.PI;       
+}
+/**
+ * 将v值限定在a,b之间，纬度使用
+ */
+function fn_getRange(v, a, b){
+	if(a != null){
+	  v = Math.max(v, a);
+	}
+	if(b != null){
+	  v = Math.min(v, b);
+	}
+	return v;
+}
+
+/**
+ * 将v值限定在a,b之间，经度使用
+ */
+function fn_getLoop(v, a, b){
+	while( v > b){
+	  v -= b - a
+	}
+	while(v < a){
+	  v += b - a
+	}
+	return v;
 }
 
 /**
