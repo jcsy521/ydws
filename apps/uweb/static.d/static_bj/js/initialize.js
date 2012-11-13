@@ -685,7 +685,7 @@ window.dlf.fn_eventText = function(n_eventNum) {
 	
 	switch (n_eventNum) {
 		case 2:
-			str_text = '低电';
+			str_text = '电量告警';
 			break;
 		case 3:
 			str_text = '非法震动';

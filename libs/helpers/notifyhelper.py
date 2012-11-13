@@ -50,7 +50,9 @@ class NotifyHelper(object):
                       speed=float(location.speed),
                       degree=float(location.degree),
                       type=location.type,
-                      alias=t_alias)
+                      alias=t_alias,
+                      pbat=location.pbat,
+                      comment=location.comment)
     
         msg=str(json_encode(ret)) 
         #url = "http://www.android-push.com/api/send/?secret=%s&app_key=%s&client_ids=&alias=%s&msg=%s" % (push_info.secret, push_info.app_key, alias, msg)

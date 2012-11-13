@@ -33,6 +33,10 @@ class ErrorCode(object):
     LOCATION_NAME_NONE = 300
     LOCATION_CELLID_FAILED = 302
     LOCATION_OFFSET_FAILED = 303
+    TRACKER_POWER_FULL = 304
+    TRACKER_POWER_LOW = 305
+    TRACKER_POWER_OFF = 306
+    FOB_POWER_LOW = 307
     
     CREATE_USER_FAILURE = 400
     SELECT_CONDITION_ILLEGAL = 401
@@ -82,6 +86,10 @@ class ErrorCode(object):
         LOCATION_NAME_NONE:            u"无法解析经纬度对应的地址",
         LOCATION_CELLID_FAILED:        u"追踪器基站定位失败，请稍后重试。",
         LOCATION_OFFSET_FAILED :       u"经纬度偏转失败，请稍后重试。",
+        TRACKER_POWER_FULL:            u"追踪器电池充满，剩余电量100%",
+        TRACKER_POWER_LOW:             u"追踪器电量低，剩余电量%s%%",
+        TRACKER_POWER_OFF:             u"追踪器电量低于3%，自动关机",
+        FOB_POWER_LOW:                 u"追踪器挂件“%s”电量低",
         TERMINAL_OFFLINE:              u"追踪器不在线，请确认追踪器处于开机状态。",
         TERMINAL_TIME_OUT:             u"追踪器响应超时，请稍后重试。",
         TERMINAL_OTHER_ERRORS:         u"连接追踪器失败，请稍后重试。",

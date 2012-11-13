@@ -64,6 +64,7 @@ function fn_initEventSearch(n_num) {
 						n_lng = obj_location.clongitude,
 						n_lat = obj_location.clatitude,
 						str_location = obj_location.name, 
+						str_comment = obj_location.comment,	// 电量备注
 						str_text = '';	//地址
 					
 					/**
@@ -81,6 +82,7 @@ function fn_initEventSearch(n_num) {
 							str_tbodyText+= '<td><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem">'+str_location+'</a></td>';	//详细地址
 						}
 					}
+					str_tbodyText+= '<td>'+ str_comment +'</td>';
 					str_tbodyText+= '</tr>';
 				}
 				$('#eventTableHeader').after(str_tbodyText);

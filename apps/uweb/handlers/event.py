@@ -13,7 +13,7 @@ from helpers.queryhelper import QueryHelper
 from utils.misc import DUMMY_IDS, get_today_last_month
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import UWEB 
+from constants import UWEB, EVENTER 
 from base import BaseHandler, authenticated
 
 class EventHandler(BaseHandler):
@@ -81,7 +81,8 @@ class EventHandler(BaseHandler):
                     page_count = (d + 1) if m else d
 
                 events = self.db.query("SELECT latitude, longitude, clatitude, clongitude," 
-                                       "  timestamp, name, type, speed, degree, category"  
+                                       "  timestamp, name, type, speed, degree,"
+                                       "  category, pbat, terminal_type, fobid"  
                                        "  FROM V_EVENT"
                                        "  WHERE tid = %s"
                                        "    AND (timestamp BETWEEN %s AND %s)"
@@ -101,7 +102,8 @@ class EventHandler(BaseHandler):
                     page_count = (d + 1) if m else d
 
                 events = self.db.query("SELECT latitude, longitude, clatitude, clongitude," 
-                                       "  timestamp, name, type, speed, degree, category"  
+                                       "  timestamp, name, type, speed, degree,"
+                                       "  category, pbat, terminal_type, fobid"  
                                        "  FROM V_EVENT"
                                        "  WHERE tid = %s"
                                        "    AND (timestamp BETWEEN %s AND %s)"
@@ -115,6 +117,17 @@ class EventHandler(BaseHandler):
             for event in events:
                 event['degree'] = float(event['degree'])
                 event['speed'] = float(event['speed'])
+                event['comment'] = ''
+                if event['category'] == EVENTER.CATEGORY.POWERLOW:
+                    if event['terminal_type'] == '1':
+                        if int(event['pbat']) == 100:
+                            event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_FULL] 
+                        elif int(event['pbat']) <= 3:
+                            event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF] 
+                        else:
+                            event['comment'] = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % event['pbat']
+                    else:
+                        event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % event['fobid']
                 
             self.write_ret(status,
                            dict_=DotDict(events=events,

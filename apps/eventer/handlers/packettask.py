@@ -181,7 +181,7 @@ class PacketTask(object):
                 if report.terminal_type == "1":
                     sms = self.handle_power_status(report, name, report_name, terminal_time)
                 else:
-                    sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, int(report.pbat), report_name, terminal_time)
+                    sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
                 sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
@@ -221,7 +221,17 @@ class PacketTask(object):
         terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
                                "  WHERE tid = %s", report.dev_id)
         if terminal and terminal.push_status == 1:
-            self.notify_to_parents(report.category, report.dev_id, report)
+            report.comment = ''
+            if report.terminal_type == "1":
+                if int(report.pbat) == 100:
+                    report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_FULL] 
+                elif int(report.pbat) <= 3:
+                    report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF]
+                else:
+                    report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
+            else:
+                report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
+            self.notify_to_parents(report.category, report.dev_id, report) 
 
 
     def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):
@@ -284,7 +294,7 @@ class PacketTask(object):
     def handle_power_status(self, report, name, report_name, terminal_time):
         sms = None
         if int(report.pbat) == 100:
-            sms = SMSCode.SMS_POWERFULL % name
+            sms = SMSCode.SMS_POWERFULL % name 
         elif int(report.pbat) <= 3:
             t_time = int(time.time())
             self.db.execute("INSERT INTO T_POWEROFF_TIMEOUT"
