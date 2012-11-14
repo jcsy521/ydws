@@ -14,7 +14,7 @@ class SMSCode(object):
     # TO user
     SMS_TRACKER_POWERLOW = u"尊敬的客户：您的追踪器“%s”电量不足，当前电量为%d%%，地址：%s，时间：%s。"
     SMS_FOB_POWERLOW = u"尊敬的客户：您的追踪器挂件“%s”电量不足，当前电量为20%%，时间：%s。"
-    SMS_POWEROFF_TIMEOUT = u"尊敬的客户：您的追踪器“%s”已经关机超过2小时，为了安全请及时充电并保持开机状态。"
+    SMS_POWEROFF_TIMEOUT = u"尊敬的客户：您的追踪器“%s”已经关机，为了安全请及时充电并保持开机状态。"
     SMS_POWERLOW_OFF = u"尊敬的客户：您的追踪器“%s”电量过低，即将关机，为了安全请及时充电并保持开机状态。地址：%s，时间：%s。"
     SMS_POWERFULL = u"尊敬的客户：您的追踪器“%s”已经充电完成，请拔下电源。"
     SMS_ILLEGALMOVE = u"尊敬的客户：您的车辆“%s”非法移动，地址：%s，时间：%s。如需取消短信提醒，请执行撤防操作。"
