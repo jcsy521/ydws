@@ -120,53 +120,51 @@ class DelegationLogHandler(BaseHandler):
                       + " T_DELEGATION_LOG.timestamp, T_TERMINAL_INFO.mobile as tmobile," \
                       + " T_USER.name as user_name "
         
-        administrator = self.db.get("SELECT type"
-                                    "  FROM T_ADMINISTRATOR"
-                                    "  WHERE id = %s"
-                                    "  LIMIT 1",
-                                    self.current_user.id)
+        #administrator = self.db.get("SELECT type"
+        #                            "  FROM T_ADMINISTRATOR"
+        #                            "  WHERE id = %s"
+        #                            "  LIMIT 1",
+        #                            self.current_user.id)
         # judge administrator type, super : 0, usually : 1, city : 2
-        if administrator.type == "1":
-            pass
-            #from_table_clause = " FROM T_DELEGATION_LOG, T_ADMINISTRATOR, T_XXT_TARGET, T_XXT_USER "
-            #
-            #where_clause = " WHERE T_DELEGATION_LOG.timestamp BETWEEN %s AND %s" \
-            #             + " AND T_DELEGATION_LOG.administrator_id = T_ADMINISTRATOR.id" \
-            #             + " AND T_DELEGATION_LOG.xxt_uid = T_XXT_USER.xxt_uid" \
-            #             + " AND T_DELEGATION_LOG.xxt_tid = T_XXT_TARGET.xxt_tid" \
-            #             + " AND T_ADMINISTRATOR.id = %s"
-            #where_clause = where_clause % (start_time, end_time, self.current_user.id,)
-            
-        elif administrator.type == "2":
-            pass
-            #area_ids = self.db.query("SELECT area_id"
-            #                         "  FROM T_AREA_PRIVILEGE"
-            #                         "  WHERE administrator_id = %s",
-            #                         self.current_user.id)
-            #area_ids = [str(area_id["area_id"]) for area_id in area_ids]
-            #
-            #from_table_clause = " FROM T_DELEGATION_LOG, T_ADMINISTRATOR, T_XXT_TARGET, T_XXT_USER, T_AREA_PRIVILEGE "
-            #
-            #where_clause = " WHERE T_DELEGATION_LOG.timestamp BETWEEN %s AND %s" \
-            #             + " AND T_AREA_PRIVILEGE.administrator_id = T_ADMINISTRATOR.id" \
-            #             + " AND T_DELEGATION_LOG.administrator_id = T_AREA_PRIVILEGE.administrator_id" \
-            #             + " AND T_DELEGATION_LOG.xxt_uid = T_XXT_USER.xxt_uid" \
-            #             + " AND T_DELEGATION_LOG.xxt_tid = T_XXT_TARGET.xxt_tid" \
-            #             + " AND T_ADMINISTRATOR.type != 0" \
-            #             + " AND T_AREA_PRIVILEGE.area_id in %s"
-            #where_clause = where_clause % (start_time, end_time, tuple(area_ids + DUMMY_IDS))
+        #if administrator.type == "1":
+        #    from_table_clause = " FROM T_DELEGATION_LOG, T_ADMINISTRATOR, T_XXT_TARGET, T_XXT_USER "
+        #    
+        #    where_clause = " WHERE T_DELEGATION_LOG.timestamp BETWEEN %s AND %s" \
+        #                 + " AND T_DELEGATION_LOG.administrator_id = T_ADMINISTRATOR.id" \
+        #                 + " AND T_DELEGATION_LOG.xxt_uid = T_XXT_USER.xxt_uid" \
+        #                 + " AND T_DELEGATION_LOG.xxt_tid = T_XXT_TARGET.xxt_tid" \
+        #                 + " AND T_ADMINISTRATOR.id = %s"
+        #    where_clause = where_clause % (start_time, end_time, self.current_user.id,)
+        #    
+        #elif administrator.type == "2":
+        #    area_ids = self.db.query("SELECT area_id"
+        #                             "  FROM T_AREA_PRIVILEGE"
+        #                             "  WHERE administrator_id = %s",
+        #                             self.current_user.id)
+        #    area_ids = [str(area_id["area_id"]) for area_id in area_ids]
+        #    
+        #    from_table_clause = " FROM T_DELEGATION_LOG, T_ADMINISTRATOR, T_XXT_TARGET, T_XXT_USER, T_AREA_PRIVILEGE "
+        #    
+        #    where_clause = " WHERE T_DELEGATION_LOG.timestamp BETWEEN %s AND %s" \
+        #                 + " AND T_AREA_PRIVILEGE.administrator_id = T_ADMINISTRATOR.id" \
+        #                 + " AND T_DELEGATION_LOG.administrator_id = T_AREA_PRIVILEGE.administrator_id" \
+        #                 + " AND T_DELEGATION_LOG.xxt_uid = T_XXT_USER.xxt_uid" \
+        #                 + " AND T_DELEGATION_LOG.xxt_tid = T_XXT_TARGET.xxt_tid" \
+        #                 + " AND T_ADMINISTRATOR.type != 0" \
+        #                 + " AND T_AREA_PRIVILEGE.area_id in %s"
+        #    where_clause = where_clause % (start_time, end_time, tuple(area_ids + DUMMY_IDS))
+        #
+        #elif administrator.type == "0":
+        from_table_clause = " FROM T_DELEGATION_LOG, T_ADMINISTRATOR, T_TERMINAL_INFO, T_USER "
         
-        elif administrator.type == "0":
-            from_table_clause = " FROM T_DELEGATION_LOG, T_ADMINISTRATOR, T_TERMINAL_INFO, T_USER "
+        where_clause = " WHERE T_DELEGATION_LOG.timestamp BETWEEN %s AND %s" \
+                     + " AND T_DELEGATION_LOG.administrator_id = T_ADMINISTRATOR.id" \
+                     + " AND T_DELEGATION_LOG.uid = T_USER.uid" \
+                     + " AND T_DELEGATION_LOG.tid = T_TERMINAL_INFO.tid"
+        where_clause = where_clause % (start_time, end_time,)
             
-            where_clause = " WHERE T_DELEGATION_LOG.timestamp BETWEEN %s AND %s" \
-                         + " AND T_DELEGATION_LOG.administrator_id = T_ADMINISTRATOR.id" \
-                         + " AND T_DELEGATION_LOG.uid = T_USER.uid" \
-                         + " AND T_DELEGATION_LOG.tid = T_TERMINAL_INFO.tid"
-            where_clause = where_clause % (start_time, end_time,)
-            
-        else:
-            pass
+        #else:
+        #    pass
 
         fields = DotDict(administrator="T_ADMINISTRATOR.name LIKE '%%%%%s%%%%'",
                          login="T_ADMINISTRATOR.login LIKE '%%%%%s%%%%'",
