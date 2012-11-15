@@ -8,7 +8,7 @@ function showMsgAndSendMsg() {
 	getChildName();
 	if ( flag ) {
 		var name = $('#parentName strong').text();
-		if (confirm('系统将会向家长发送代理操作信息，请点击"确定"按钮。')) {
+		if (confirm('系统将会向车主发送代理操作信息，请点击"确定"按钮。')) {
 			return true;
 		}
 	} 
@@ -16,14 +16,16 @@ function showMsgAndSendMsg() {
 }
 //验证合法性
 function getChildName() {
-	var $mobile = $('#targetmobile'),
+	var $mobile = $('#tmobile'),
 		str_mobile = '',
 		rules = $.validationEngineLanguage.allRules, 
 		regex = '';
+		
 	if ( $mobile ) {
 		str_mobile = $.trim($mobile.val());
 		regex = eval(rules.mobile.regex);
 		alertText = rules.mobile.alertText;
+
 		if ( str_mobile != '' ) {
 			if(!regex.test(str_mobile)) {
 				alert(alertText);

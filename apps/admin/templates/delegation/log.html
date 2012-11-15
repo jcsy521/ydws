@@ -31,27 +31,28 @@
 			<tr>
 				<td align="right">登录名：</td>
 				<td align="left"> 
-                    <input type="text" name="login" id="logina" class="validate[sp_char,length[20]]" onKeyUp="fn_textKeyUp(this, 'user')" />
+                    <input type="text" name="login" id="logina" onKeyUp="fn_textKeyUp(this, 'user')" />
                 </td>
 			</tr>
             <tr>
-				<td align="right">家长姓名：</td>
+				<td align="right">车主姓名：</td>
 				<td align="left"> 
-                    <input type="text" name="user_name" id="user_name" 
-                       class="validate[sp_char_space,length[40]]" onKeyUp="fn_textKeyUp(this, 'text')" />
+                    <input type="text" name="user_name" id="user_name" onKeyUp="fn_textKeyUp(this, 'text')" />
                 </td>
 			</tr>
             <tr>
-				<td align="right">操作员姓名：</td>
+				<!--<td align="right">操作员姓名：</td>
 				<td align="left">
                     <input type="text" name="administrator" id="administrator" 
                        class="validate[sp_char_space,length[40]]" onKeyUp="fn_textKeyUp(this, 'text')" />
-                </td>
+                </td>-->
+				<td>追踪器手机号：</td>
+				<td><input type="text" name="tmobile" id ="tmobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" /></td>
 			</tr>
 		</table>
 		<table>
             <tr>
-				<td align="right">家长手机号：</td>
+				<td align="right">车主手机号：</td>
 				<td align="left"> 
                     <input type="text" name="mobile" id ="mobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
                 </td>
@@ -73,7 +74,7 @@
 					<input type="hidden" id="start_time" name="start_time" value="" />
 					<input type="hidden" id="end_time" name="end_time" value="" />
 					<input type="submit" value="查询" 
-                        onclick="fn_PushData('logina,user_name,administrator,mobile','delegLog');" 
+                        onclick="fn_PushData('logina,user_name,tmobile,mobile','delegLog');" 
                         class="ui-button ui-widget ui-state-default ui-corner-all" role="button" 
                         aria-disabled="false" />
 				</td>
@@ -85,7 +86,7 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>操作员姓名</th><th>登陆名</th><th>家长姓名</th><th>儿童姓名</th><th>查询时间</th>
+            <th>序号</th><th>操作员姓名</th><th>登陆名</th><th>车主姓名</th><th>追踪器手机号</th><th>操作时间</th>
         </tr>
     </thead>
     <tbody>
@@ -94,8 +95,8 @@
 			<td>{{log['id']}}</td>
 			<td>{{log.administrator}}</td>
 			<td>{{log.login}}</td>
-			<td>{{log.parent_name}} </td>
-			<td>{{log.child_name}} </td>
+			<td>{{log.user_name}} </td>
+			<td>{{log.tmobile}} </td>
 			{% if log.timestamp %}
 				<td><script>document.write(toHumanDate({{log.timestamp}}, 'yes'));</script></td>
 			{% else %}

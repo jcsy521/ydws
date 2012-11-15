@@ -56,6 +56,7 @@ from handlers.servicesterms import ServicesTermsHandler
 from handlers.helper import HelperHandler 
 from handlers.wapimg import WapImgHandler
 from handlers.tinyurl import TinyURLHandler
+from handlers.delegation import DelegationHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -112,6 +113,10 @@ class Application(tornado.web.Application):
 
             # tinyurl
             (r"/tl/(\S+)/*", TinyURLHandler),
+
+            # a secret url for delegation: uid/tid/sim, sign is provided via
+            # ?s=xxxx
+            (r"/delegation/5Luj5a6i5pON5L2c/(.*)/(.*)/(.*)/*", DelegationHandler)
 
         ]
 

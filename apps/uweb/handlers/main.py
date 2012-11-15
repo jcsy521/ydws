@@ -19,18 +19,23 @@ class MainHandler(BaseHandler):
       
         status=ErrorCode.SUCCESS
         from_ = self.get_argument('from', '').lower()
+
+        user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+        if not user_info:
+            status = ErrorCode.LOGIN_AGAIN
+            logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
+            self.render("index.html",
+                        status=status)
+            return
+
         if from_ == "delegation":
-            pass
+            terminals = self.db.query("SELECT ti.tid, ti.mobile, ti.login, ti.keys_num, tc.cnum AS alias"
+                                      "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
+                                      "  WHERE ti.tid = %s"
+                                      "    AND ti.tid = tc.tid",
+                                      self.current_user.tid)
 
         else:
-            user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
-            if not user_info:
-                status = ErrorCode.LOGIN_AGAIN
-                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
-                self.render("index.html",
-                            status=status)
-                return
-
             terminals = self.db.query("SELECT ti.tid, ti.mobile, ti.login, ti.keys_num, tc.cnum AS alias"
                                       "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
                                       "  WHERE ti.owner_mobile = %s"
@@ -38,10 +43,10 @@ class MainHandler(BaseHandler):
                                       "    ORDER BY LOGIN DESC",
                                       user_info.mobile)
 
-            #if alias is null, provide cnum or sim instead
-            for terminal in terminals:
-                if not terminal['alias']:
-                    terminal['alias'] = terminal.mobile
+        #if alias is null, provide cnum or sim instead
+        for terminal in terminals:
+            if not terminal['alias']:
+                terminal['alias'] = terminal.mobile
 
         self.render("index.html",
                     status=status,
