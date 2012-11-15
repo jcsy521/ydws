@@ -82,6 +82,7 @@ class LoginHandler(BaseHandler, LoginMixin):
                                       user_info.mobile)
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
+                terminal['keys_num'] = 0
                 if not terminal.alias:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             
@@ -127,6 +128,7 @@ class IOSHandler(BaseHandler, LoginMixin):
                                       user_info.mobile)
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
+                terminal['keys_num'] = 0
                 if not terminal.alias:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             self.write_ret(status,
@@ -169,6 +171,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
                                       user_info.mobile)
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
+                terminal['keys_num'] = 0
                 if not terminal.alias:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             

@@ -45,6 +45,7 @@ class MainHandler(BaseHandler):
 
         #if alias is null, provide cnum or sim instead
         for terminal in terminals:
+            terminal['keys_num'] = 0
             if not terminal['alias']:
                 terminal['alias'] = terminal.mobile
 

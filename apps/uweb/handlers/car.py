@@ -79,6 +79,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                                                         keys_num=None,
                                                         fob_list=[])
                             terminal_info['fob_list'] = new_fobids
+                            terminal_info['keys_num'] = len(new_fobids)
                             self.redis.setvalue(terminal_info_key, terminal_info)
                 # send S5 for querying fobs 3 minutes later
                 args = DotDict(seq=SeqGenerator.next(self.db),

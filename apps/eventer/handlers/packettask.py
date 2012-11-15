@@ -262,7 +262,7 @@ class PacketTask(object):
             name = QueryHelper.get_alias_by_tid(info.dev_id, self.redis, self.db)
             terminal_time = get_terminal_time(int(info.timestamp))
             sms = SMSCode.SMS_CHARGE % (name, info.content)
-            self.sms_to_user(info.dev_id, sms, user)
+            #self.sms_to_user(info.dev_id, sms, user)
 
     def sms_to_user(self, dev_id, sms, user=None):
         if not sms:

@@ -107,7 +107,8 @@ class LastInfoHandler(BaseHandler):
                                  pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
                                  mobile=terminal['mobile'],
                                  alias=terminal['alias'],
-                                 keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                                 #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                                 keys_num=0,
                                  fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 car_dct[tid]=car_info

@@ -33,7 +33,7 @@ class LbmpSenderHelper(object):
 
     _CONTENT_TYPE = {"Content-type": "application/json; charset=utf-8"}
 
-    ASYNC_CLIENT = AsyncHTTPClient()
+    ASYNC_CLIENT = AsyncHTTPClient(max_clients=500)
 
     @classmethod
     def forward(cls, url, args, method=HTTP.METHOD.POST):
