@@ -52,7 +52,7 @@ def str_to_list(str_, delimiter=','):
 
 def get_captcha_key(umobile):
     """for the captcha of umobile"""
-    return str("captcha:%s" % umobile)
+    return str("register_captcha:%s" % umobile)
 
 def get_location_key(dev_id):
     """for the newest location of dev"""
