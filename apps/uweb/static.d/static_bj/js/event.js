@@ -82,7 +82,11 @@ function fn_initEventSearch(n_num) {
 							str_tbodyText+= '<td><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem">'+str_location+'</a></td>';	//详细地址
 						}
 					}
-					str_tbodyText+= '<td>'+ str_comment +'</td>';
+					if ( str_comment == '' ) {
+						str_tbodyText+= '<td>&nbsp;</td>';
+					} else {
+						str_tbodyText+= '<td>'+ str_comment +'</td>';
+					}					
 					str_tbodyText+= '</tr>';
 				}
 				$('#eventTableHeader').after(str_tbodyText);
