@@ -355,6 +355,9 @@ class MyGWServer(object):
                 elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
                     logging.info("[GW] Recv runtime status packet:\n%s", packet)
                     self.handle_runtime_status(clw, address, connection, channel)
+                elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
+                    logging.info("[GW] Recv unbind status packet:\n%s", packet)
+                    self.handle_unbind_status(clw, address, connection, channel)
                 else:
                     logging.info("[GW] Recv packet from terminal:\n%s", packet)
                     self.foward_packet_to_si(clw, packet, address, connection, channel)
@@ -945,6 +948,34 @@ class MyGWServer(object):
         except:
             logging.exception("[GW] Handle runtime status report exception.")
 
+    def handle_unbind_status(self, info, address, connection, channel):
+        """
+        unbind status report packet
+        0: success, then record new terminal's address
+        1: invalid SessionID 
+        """
+        try:
+            head = info.head
+            body = info.body
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           command=head.command)
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID:
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
+            else:
+                #hp = AsyncParser(body, head)
+                #unbind_info = hp.ret 
+                # unbind, need not to record terminal address
+                #self.update_terminal_status(head.dev_id, address)
+                self.delete_terminal(head.dev_id)
+
+            hc = AsyncRespComposer(args)
+            request = DotDict(packet=hc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Hand defend status report exception.")
+
 
     def foward_packet_to_si(self, info, packet, address, connection, channel):
         """
@@ -1039,6 +1070,29 @@ class MyGWServer(object):
             self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
         return lid
+
+    def delete_terminal(self, dev_id):
+        # clear db
+        user = QueryHelper.get_user_by_tid(dev_id, self.db)
+        self.db.execute("DELETE FROM T_TERMINAL_INFO"
+                        "  WHERE tid = %s", 
+                        dev_id) 
+        terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                  "  WHERE owner_mobile = %s",
+                                  user.owner_mobile)
+        if len(terminals) == 0:
+            self.db.execute("DELETE FROM T_USER"
+                            "  WHERE mobile = %s",
+                            user.owner_mobile)
+        # clear redis
+        sessionID_key = get_terminal_sessionID_key(dev_id)
+        address_key = get_terminal_address_key(dev_id)
+        info_key = get_terminal_info_key(dev_id)
+        lq_sms_key = get_lq_sms_key(dev_id)
+        lq_interval_key = get_lq_interval_key(dev_id)
+        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+        self.redis.delete(*keys)
+        logging.info("[GW] Delete Terminal: %s", dev_id)
         
     def get_terminal_sessionID(self, dev_id):
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id) 

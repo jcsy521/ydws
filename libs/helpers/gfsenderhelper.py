@@ -35,6 +35,7 @@ class GFSenderHelper(object):
                    REBOOT=r"/reboot",
                    DEFEND=r"/defend",
                    QUERY=r"/query",
+                   UNBIND=r"/unbind",
                    )
 
     _CONTENT_TYPE = {"Content-type": "application/json; charset=utf-8"}

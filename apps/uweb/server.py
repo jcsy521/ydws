@@ -48,6 +48,7 @@ from handlers.terminal import TerminalHandler
 from handlers.password import PasswordHandler
 from handlers.profile import ProfileHandler 
 from handlers.smsoption import SMSOptionHandler
+from handlers.unbind import UNBindHandler
 from handlers.feedback import FeedBackHandler
 from handlers.download import DownloadHandler, DownloadSmsHandler
 from handlers.about import AboutHandler
@@ -84,6 +85,7 @@ class Application(tornado.web.Application):
             (r"/password/*", PasswordHandler),
             (r"/profile/*", ProfileHandler),
             (r"/smsoption/*", SMSOptionHandler),
+            (r"/unbind/*", UNBindHandler),
 
             (r"/about/*", AboutHandler),
 

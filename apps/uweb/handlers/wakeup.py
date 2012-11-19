@@ -10,10 +10,10 @@ from codes.smscode import SMSCode
 from constants import SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
+from utils.misc import get_lq_sms_key, get_lq_interval_key
 
 from mixin.base import  BaseMixin
 from base import BaseHandler, authenticated
-from utils.misc import get_lq_sms_key, get_lq_interval_key
        
 class WakeupHandler(BaseHandler, BaseMixin):
     """Wake up the terminal.

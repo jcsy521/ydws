@@ -31,6 +31,7 @@ from handlers.realtime import RealtimeHandler
 from handlers.terminal import TerminalHandler
 from handlers.defend import DefendHandler
 from handlers.query import QueryHandler
+from handlers.unbind import UNBindHandler
 
 class Application(tornado.web.Application):
 
@@ -42,6 +43,7 @@ class Application(tornado.web.Application):
             (r"/terminal/*", TerminalHandler),
             (r"/defend/*", DefendHandler),
             (r"/query/*", QueryHandler),
+            (r"/unbind/*", UNBindHandler),
         ]
 
         settings = dict(

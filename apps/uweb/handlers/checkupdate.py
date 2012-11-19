@@ -5,10 +5,9 @@ import logging
 import tornado.web
 
 from helpers.downloadhelper import get_version_info 
-from helpers.queryhelper import QueryHelper
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from base import BaseHandler, authenticated
+from base import BaseHandler
 
 class CheckUpdateHandler(BaseHandler):
 
@@ -16,7 +15,6 @@ class CheckUpdateHandler(BaseHandler):
     def get(self):
         status = ErrorCode.SUCCESS
         try:
-            version_info = None
             version_info = get_version_info("android")
             self.write_ret(status,
                            dict_=DotDict(version_info=version_info)) 

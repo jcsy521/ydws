@@ -37,6 +37,8 @@ class AsyncParser(object):
             info = self.get_fob_info(packet)
         elif ret.command == 'T23':
             info = self.get_runtime_info(packet)
+        elif ret.command == 'T25':
+            pass
         else:
             return info 
 

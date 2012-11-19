@@ -10,15 +10,13 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
 from helpers.downloadhelper import get_version_info,\
-     get_download_count, update_download_count
+     update_download_count
 from helpers.smshelper import SMSHelper
 from helpers.confhelper import ConfHelper
 from constants import DOWNLOAD
-from errors.updateerror import UpdateException, DataBaseException
 
 from base import BaseHandler, authenticated
 

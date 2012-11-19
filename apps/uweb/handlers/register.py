@@ -32,7 +32,8 @@ class RegisterHandler(BaseHandler):
             ret = SMSHelper.send(umobile, captcha_sms)
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:
-                logging.info("[UWEB] umobile: %s get sms captcha successfully", umobile)
+                logging.info("[UWEB] umobile: %s get sms captcha: %s successfully",
+                             umobile, psd)
                 captcha_key = get_captcha_key(umobile)
                 self.redis.setvalue(captcha_key, psd, UWEB.SMS_CAPTCHA_INTERVAL)
             else:

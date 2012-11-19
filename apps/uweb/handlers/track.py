@@ -8,9 +8,9 @@ import tornado.web
 from utils.dotdict import DotDict
 from constants import UWEB
 from helpers.queryhelper import QueryHelper
+from codes.errorcode import ErrorCode
 
 from base import BaseHandler, authenticated
-from codes.errorcode import ErrorCode
 
 class TrackHandler(BaseHandler):
 

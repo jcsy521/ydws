@@ -45,7 +45,8 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                 return
 
             if not self.check_user_by_password(old_password, self.current_user.uid): 
-                logging.error("[UWEB] uid: %s change password failed. old passwrod: %s, new passwrod: %s", self.current_user.uid, old_password, new_password)
+                logging.error("[UWEB] uid: %s change password failed. old passwrod: %s, new passwrod: %s",
+                              self.current_user.uid, old_password, new_password)
                 status = ErrorCode.WRONG_OLD_PASSWORD
             else:    
                 self.update_password(new_password, self.current_user.uid)

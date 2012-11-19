@@ -35,6 +35,8 @@ class AsyncRespComposer(BaseComposer):
             args.command = S_MESSAGE_TYPE.FOBSTATUS
         elif args.command == T_MESSAGE_TYPE.RUNTIMESTATUS:
             args.command = S_MESSAGE_TYPE.RUNTIMESTATUS
+        elif args.command == T_MESSAGE_TYPE.UNBINDSTATUS:
+            args.command = S_MESSAGE_TYPE.UNBINDSTATUS
         else:
             args.command = None
         

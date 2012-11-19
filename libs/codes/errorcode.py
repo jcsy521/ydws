@@ -29,6 +29,7 @@ class ErrorCode(object):
     TERMINAL_NOT_ORDERED = 214
     TERMINAL_ORDERED = 215
     TERMINAL_SET_FAILED= 216
+    TERMINAL_NOT_EXISTED = 217
 
     LOCATION_NAME_NONE = 300
     LOCATION_CELLID_FAILED = 302
@@ -83,6 +84,7 @@ class ErrorCode(object):
         SERVER_BUSY:                   u"服务器忙，请稍后重试。",
         QUERY_INTERVAL_EXCESS:         u"对不起，只能查询一个星期之内的记录！",
         TERMINAL_NOT_ORDERED:          u"对不起，该号码尚未绑定追踪器。",
+        TERMINAL_NOT_EXISTED:          u"对不起，该终端不存在。",
         LOCATION_NAME_NONE:            u"无法解析经纬度对应的地址",
         LOCATION_CELLID_FAILED:        u"追踪器基站定位失败，请稍后重试。",
         LOCATION_OFFSET_FAILED :       u"经纬度偏转失败，请稍后重试。",

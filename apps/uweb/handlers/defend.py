@@ -11,10 +11,11 @@ from helpers.gfsenderhelper import GFSenderHelper
 from helpers.queryhelper import QueryHelper
 from utils.misc import get_terminal_info_key 
 from utils.dotdict import DotDict
+from codes.errorcode import ErrorCode
+from constants import SMS
+
 from base import BaseHandler, authenticated
 from mixin.base import BaseMixin
-from codes.errorcode import ErrorCode
-from constants import SMS, GATEWAY
 
 
 class DefendHandler(BaseHandler, BaseMixin):
@@ -91,6 +92,7 @@ class DefendHandler(BaseHandler, BaseMixin):
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
+                return
 
             self.keep_waking(self.current_user.sim, self.current_user.tid)
             args = DotDict(seq=SeqGenerator.next(self.db),

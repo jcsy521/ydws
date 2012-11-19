@@ -25,6 +25,8 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          SLEEPSTATUS="T21",
                          FOBSTATUS="T22",
                          RUNTIMESTATUS="T23",
+                         UNBIND="T24",
+                         UNBINDSTATUS="T25",
                          AGPS="T100"
                          )
 
@@ -51,6 +53,8 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          SLEEPSTATUS="S21",
                          FOBSTATUS="S22",
                          RUNTIMESTATUS="S23",
+                         UNBIND="S24",
+                         UNBINDSTATUS="S25",
                          AGPS="S100"
                          )
 
@@ -90,6 +94,9 @@ TERMINAL_LOGIN = DotDict(OFFLINE=0,
 
 FOB_OPERATE = DotDict(ADD=0,
                       REMOVE=1)
+
+STATUS = DotDict(SUCCESS="0",
+                 FAILED="1")
 
 # 30 second 
 HEARTBEAT_INTERVAL = 30 

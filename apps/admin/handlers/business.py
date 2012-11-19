@@ -457,6 +457,12 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             self.db.execute("DELETE FROM T_TERMINAL_INFO"
                             "  WHERE id = %s",
                             terminal.id)
+            # unbind terminal
+            args = DotDict(seq=SeqGenerator.next(self.db),
+                           tid=terminal.tid)
+            response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args) 
+            logging.info("UNBind terminal: %s, response: %s", terminal.tid, response)
+
             # clear redis
             sessionID_key = get_terminal_sessionID_key(terminal.tid)
             address_key = get_terminal_address_key(terminal.tid)
@@ -465,14 +471,15 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             lq_interval_key = get_lq_interval_key(terminal.tid)
             keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
             self.redis.delete(*keys)
-            terminal = self.db.query("SELECT mobile"
-                                     "  FROM T_TERMINAL_INFO"
-                                     "  WHERE owner_mobile = %s",
-                                     pmobile)
-            if len(terminal) == 0:
+            terminals = self.db.query("SELECT mobile"
+                                      "  FROM T_TERMINAL_INFO"
+                                      "  WHERE owner_mobile = %s",
+                                      pmobile)
+            if len(terminals) == 0:
                 self.db.execute("DELETE FROM T_USER"
                                 "  WHERE mobile = %s",
                                 pmobile)
+
             
         except Exception as e:
             status = ErrorCode.FAILED
