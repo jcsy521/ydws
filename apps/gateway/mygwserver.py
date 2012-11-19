@@ -1077,13 +1077,16 @@ class MyGWServer(object):
         self.db.execute("DELETE FROM T_TERMINAL_INFO"
                         "  WHERE tid = %s", 
                         dev_id) 
-        terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                  "  WHERE owner_mobile = %s",
-                                  user.owner_mobile)
-        if len(terminals) == 0:
-            self.db.execute("DELETE FROM T_USER"
-                            "  WHERE mobile = %s",
-                            user.owner_mobile)
+        if user:
+            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                      "  WHERE owner_mobile = %s",
+                                      user.owner_mobile)
+            if len(terminals) == 0:
+                self.db.execute("DELETE FROM T_USER"
+                                "  WHERE mobile = %s",
+                                user.owner_mobile)
+        else:
+            logging.info("[GW] User of %s already not exist.", dev_id)
         # clear redis
         sessionID_key = get_terminal_sessionID_key(dev_id)
         address_key = get_terminal_address_key(dev_id)
