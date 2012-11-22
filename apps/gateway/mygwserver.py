@@ -1095,6 +1095,9 @@ class MyGWServer(object):
         lq_interval_key = get_lq_interval_key(dev_id)
         keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
         self.redis.delete(*keys)
+        # offline
+        if dev_id in self.online_terminals:
+            self.online_terminals.remove(dev_id)
         logging.info("[GW] Delete Terminal: %s", dev_id)
         
     def get_terminal_sessionID(self, dev_id):
