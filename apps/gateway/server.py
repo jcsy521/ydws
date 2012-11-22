@@ -46,7 +46,7 @@ def usage():
     print "python26 server.py --conf=/path/to/conf_file"
 
 def check_poweroff_timeout_thread():
-    logging.info("[GW] Check terminals poweroff timeout thread start...")
+    logging.info("[GW] Check terminals poweroff timeout thread started...")
     cpt = CheckpofftimeoutHandler() 
     try:
         while True:
@@ -56,7 +56,7 @@ def check_poweroff_timeout_thread():
         logging.exception("[GW] Start check terminals poweroff timeout thread failed.")
 
 def lq_terminals_thread():
-    logging.info("[GW] Lq terminals thread start...")
+    logging.info("[GW] Lq terminals thread started...")
     lth = LqterminalHandler()
     try:
         while True:

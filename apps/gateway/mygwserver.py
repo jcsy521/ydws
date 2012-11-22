@@ -186,7 +186,7 @@ class MyGWServer(object):
         self.check_heartbeat_thread = RepeatedTimer(ConfHelper.GW_SERVER_CONF.check_heartbeat_interval,
                                                     self.check_heartbeat)
         self.check_heartbeat_thread.start()
-        logging.info("[GW] Check heartbeat thread is running...")
+        logging.info("[GW] Check heartbeat thread started...")
 
     def __restore_online_terminals(self):
         """
@@ -327,7 +327,7 @@ class MyGWServer(object):
         - other, forward it to si.
         """
         try:
-            logging.info("[GW] Handle recv packet thread start...")
+            logging.info("[GW] Handle recv packet thread started...")
             while True:
                 if queue.qsize() != 0:
                     item  = queue.get(False)
