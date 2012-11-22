@@ -10,6 +10,7 @@ import pika
 from pika.adapters import *
 from pika.exceptions import AMQPConnectionError
 from functools import partial
+import time
 
 from constants import GF 
 from constants.GATEWAY import DUMMY_FD, TERMINAL_LOGIN
@@ -121,7 +122,8 @@ class MySIServer():
         return listen_fd, epoll_fd
 
     def activetest(self, fd):
-        args = DotDict(seq=SeqGenerator.next(self.db),
+        seq = str(int(time.time()*1000))[-4:]
+        args = DotDict(seq=seq,
                        status=GFCode.SUCCESS)
         atc = ActiveTestComposer(args)
         logging.debug("[SI]-->%s:%s Active_test: %r",

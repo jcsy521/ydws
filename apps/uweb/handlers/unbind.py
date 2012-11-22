@@ -82,9 +82,9 @@ class UNBindHandler(BaseHandler, BaseMixin):
                 IOLoop.instance().add_callback(self.finish)
                 return
 
-            args = DotDict(seq=SeqGenerator.next(self.db),
+            seq = str(int(time.time()*1000))[-4:]
+            args = DotDict(seq=seq,
                            tid=tid)
-
             GFSenderHelper.async_forward(GFSenderHelper.URLS.UNBIND, args, _on_finish)
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s unbind failed. Exception: %s", 

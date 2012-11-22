@@ -29,6 +29,7 @@ class CheckpofftimeoutHandler(object):
                                       "  WHERE tti.tid = tpt.tid"
                                       "  AND tti.login = %s"
                                       "  AND tpt.sms_flag = %s"
+                                      "  AND tti.pbat < 3"
                                       "  AND tpt.timestamp < %s",
                                       GATEWAY.TERMINAL_LOGIN.OFFLINE, GATEWAY.POWEROFF_TIMEOUT_SMS.UNSEND, (time.time() - 2*60*60))
             for terminal in terminals:

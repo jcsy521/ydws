@@ -264,12 +264,14 @@ class RealtimeMixin(BaseMixin):
                         self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
                     ret.status = response['success']
                     ret.message = response['info']
-                    logging.error("[UWEB] realtime failed. tid: %s, status: %s, message: %s", self.current_user.tid, ret.status, ret.message)
+                    logging.error("[UWEB] realtime failed. tid: %s, status: %s, message: %s",
+                                  self.current_user.tid, ret.status, ret.message)
                 
                 if callback:
                     callback(ret)
 
-            args = DotDict(seq=SeqGenerator.next(self.db),
+            seq = str(int(time.time()*1000))[-4:]
+            args = DotDict(seq=seq,
                            tid=self.current_user.tid)
             GFSenderHelper.async_forward(GFSenderHelper.URLS.REALTIME, args,
                                          _on_finish)

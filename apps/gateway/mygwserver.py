@@ -12,6 +12,8 @@ from pika.adapters import *
 from pika.exceptions import AMQPConnectionError, AMQPChannelError
 import json
 from functools import partial
+from Queue import Queue
+import thread
 
 from tornado.escape import json_decode
 
@@ -258,30 +260,31 @@ class MyGWServer(object):
 
     def publish(self, host):
         logging.info("[GW] publish process started...")
+        queue = Queue()
         publish_connection, publish_channel = self.__connect_rabbitmq(host)
         try:
             if publish_connection and publish_connection.is_open:
                 #NOTE: self.online_terminals, this process will change it!
                 self.__restore_online_terminals()
                 self.__start_check_heartbeat_thread()
-
-                self.recv(publish_connection, publish_channel)
+                thread.start_new_thread(self.handle_packet_from_terminal,
+                                        (publish_connection,publish_channel,queue))
+                self.recv(queue)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
             self.__close_rabbitmq(publish_connection, publish_channel)
         except Exception as e:
             logging.exception("[GW] Unknow Exception:%s", e.args)
 
-    def recv(self, connection, channel):
+    def recv(self, queue):
         try:
             while True:
                 response, address = self.socket.recvfrom(1024)
                 logging.info("[GW] recv: %s from %s", response, address)
                 if response:
-                    self.handle_packet_from_terminal(response,
-                                                     address,
-                                                     connection,
-                                                     channel)
+                    item = dict(response=response,
+                                address=address)
+                    queue.put(item)
         except socket.error as e:
             logging.exception("[GW]sock recv error: %s", e.args)
         except Exception as e:
@@ -315,7 +318,7 @@ class MyGWServer(object):
 
         return valid_packets
         
-    def handle_packet_from_terminal(self, packets, address, connection, channel):
+    def handle_packet_from_terminal(self, connection, channel, queue):
         """
         handle packet recv from terminal:
         - login
@@ -324,43 +327,50 @@ class MyGWServer(object):
         - other, forward it to si.
         """
         try:
-            packets = self.divide_packets(packets)
-            for packet in packets:
-                clw = T_CLWCheck(packet)
-                command = clw.head.command
-                if command == T_MESSAGE_TYPE.LOGIN:
-                    logging.info("[GW] Recv login packet:\n%s", packet)
-                    self.handle_login(clw, address, connection, channel) 
-                elif command == T_MESSAGE_TYPE.HEARTBEAT:
-                    logging.info("[GW] Recv heartbeat packet:\n%s", packet)
-                    self.handle_heartbeat(clw, address, connection, channel)
-                elif command == T_MESSAGE_TYPE.LOCATIONDESC:
-                    logging.info("[GW] Recv locationdesc packet:\n%s", packet)
-                    self.handle_locationdesc(clw, address, connection, channel)
-                elif command == T_MESSAGE_TYPE.CONFIG:
-                    logging.info("[GW] Recv query config packet:\n%s", packet)
-                    self.handle_config(clw, address, connection, channel)
-                elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
-                    logging.info("[GW] Recv defend status packet:\n%s", packet)
-                    self.handle_defend_status(clw, address, connection, channel)
-                elif command == T_MESSAGE_TYPE.FOBINFO:
-                    logging.info("[GW] Recv fob info packet:\n%s", packet)
-                    self.handle_fob_info(clw, address, connection, channel)
-                elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
-                    logging.info("[GW] Recv sleep status packet:\n%s", packet)
-                    self.handle_terminal_sleep_status(clw, address, connection, channel)
-                elif command == T_MESSAGE_TYPE.FOBSTATUS:
-                    logging.info("[GW] Recv fob status packet:\n%s", packet)
-                    self.handle_fob_status(clw, address, connection, channel)
-                elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
-                    logging.info("[GW] Recv runtime status packet:\n%s", packet)
-                    self.handle_runtime_status(clw, address, connection, channel)
-                elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
-                    logging.info("[GW] Recv unbind status packet:\n%s", packet)
-                    self.handle_unbind_status(clw, address, connection, channel)
+            while True:
+                if queue.qsize() != 0:
+                    item  = queue.get(False)
+                    packets = item.get('response')
+                    address = item.get('address')
+                    packets = self.divide_packets(packets)
+                    for packet in packets:
+                        clw = T_CLWCheck(packet)
+                        command = clw.head.command
+                        if command == T_MESSAGE_TYPE.LOGIN:
+                            logging.info("[GW] Recv login packet:\n%s", packet)
+                            self.handle_login(clw, address, connection, channel) 
+                        elif command == T_MESSAGE_TYPE.HEARTBEAT:
+                            logging.info("[GW] Recv heartbeat packet:\n%s", packet)
+                            self.handle_heartbeat(clw, address, connection, channel)
+                        elif command == T_MESSAGE_TYPE.LOCATIONDESC:
+                            logging.info("[GW] Recv locationdesc packet:\n%s", packet)
+                            self.handle_locationdesc(clw, address, connection, channel)
+                        elif command == T_MESSAGE_TYPE.CONFIG:
+                            logging.info("[GW] Recv query config packet:\n%s", packet)
+                            self.handle_config(clw, address, connection, channel)
+                        elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
+                            logging.info("[GW] Recv defend status packet:\n%s", packet)
+                            self.handle_defend_status(clw, address, connection, channel)
+                        elif command == T_MESSAGE_TYPE.FOBINFO:
+                            logging.info("[GW] Recv fob info packet:\n%s", packet)
+                            self.handle_fob_info(clw, address, connection, channel)
+                        elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
+                            logging.info("[GW] Recv sleep status packet:\n%s", packet)
+                            self.handle_terminal_sleep_status(clw, address, connection, channel)
+                        elif command == T_MESSAGE_TYPE.FOBSTATUS:
+                            logging.info("[GW] Recv fob status packet:\n%s", packet)
+                            self.handle_fob_status(clw, address, connection, channel)
+                        elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
+                            logging.info("[GW] Recv runtime status packet:\n%s", packet)
+                            self.handle_runtime_status(clw, address, connection, channel)
+                        elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
+                            logging.info("[GW] Recv unbind status packet:\n%s", packet)
+                            self.handle_unbind_status(clw, address, connection, channel)
+                        else:
+                            logging.info("[GW] Recv packet from terminal:\n%s", packet)
+                            self.foward_packet_to_si(clw, packet, address, connection, channel)
                 else:
-                    logging.info("[GW] Recv packet from terminal:\n%s", packet)
-                    self.foward_packet_to_si(clw, packet, address, connection, channel)
+                    sleep(0.1)
         except:
             logging.exception("[GW] Recv Exception.")
 
@@ -993,7 +1003,8 @@ class MyGWServer(object):
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
                 logging.error("[GW] Invalid sessionID, Terminal: %s", dev_id)
             else:
-                uargs = DotDict(seq=SeqGenerator.next(self.db),
+                seq = str(int(time.time() * 1000))[-4:]
+                uargs = DotDict(seq=seq,
                                 dev_id=dev_id,
                                 content=packet)
                 content = UploadDataComposer(uargs).buf
@@ -1178,20 +1189,6 @@ class MyGWServer(object):
 
 
     def update_terminal_info(self, t_info):
-        # db
-        fields = []
-        keys = ['mobile', 'gps', 'gsm', 'pbat', 'defend_status', 'login',
-                'keys_num', 'fob_status']
-        for key in keys:
-            if t_info.get(key, None) is not None:
-                fields.append(key + " = " + str(t_info[key]))
-        set_clause = ','.join(fields)
-        if set_clause:
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET " + set_clause + 
-                            "  WHERE tid = %s",
-                            t_info['dev_id'])
-        # redis
         terminal_info_key = get_terminal_info_key(t_info['dev_id'])
         terminal_info = self.redis.getvalue(terminal_info_key)
         if not terminal_info:
@@ -1205,6 +1202,21 @@ class MyGWServer(object):
                                     alias=None,
                                     keys_num=None,
                                     fob_list=[])
+        # db
+        fields = []
+        # gps, gsm, pbat, changed by position report
+        keys = ['mobile', 'defend_status', 'login', 'keys_num', 'fob_status']
+        for key in keys:
+            value = t_info.get(key, None)
+            if value is not None and value != terminal_info[key]:
+                fields.append(key + " = " + str(t_info[key]))
+        set_clause = ','.join(fields)
+        if set_clause:
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET " + set_clause + 
+                            "  WHERE tid = %s",
+                            t_info['dev_id'])
+        # redis
         for key in terminal_info:
             value = t_info.get(key, None)
             if value is not None:

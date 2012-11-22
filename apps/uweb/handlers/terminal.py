@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import time
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
@@ -92,7 +93,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             return 
         
         try:
-            args = DotDict(seq=SeqGenerator.next(self.db),
+            seq = str(int(time.time()*1000))[-4:]
+            args = DotDict(seq=seq,
                            tid=self.current_user.tid)
 
             # check the data. some be sent to terminal, some just be modified in db 

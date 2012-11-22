@@ -458,7 +458,8 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                             "  WHERE id = %s",
                             terminal.id)
             # unbind terminal
-            args = DotDict(seq=SeqGenerator.next(self.db),
+            seq = str(int(time.time()*1000))[-4:]
+            args = DotDict(seq=seq,
                            tid=terminal.tid)
             response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args) 
             logging.info("UNBind terminal: %s, response: %s", terminal.tid, response)

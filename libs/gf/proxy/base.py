@@ -354,7 +354,7 @@ class GFBase(object):
             # if true, recv response as much as possible.(recv response is high priority)
             try:
                 while(True):
-                    infds, _, _ = select.select([self.__sock], [], [], 1)
+                    infds, _, _ = select.select([self.__sock], [], [], 0.1)
                     if len(infds) > 0:
                         response = self.recv_response()
                         logging.info('[GF] Recv whole packet: %s', response)

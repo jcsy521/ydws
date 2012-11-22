@@ -82,7 +82,8 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                             terminal_info['keys_num'] = len(new_fobids)
                             self.redis.setvalue(terminal_info_key, terminal_info)
                 # send S5 for querying fobs 3 minutes later
-                args = DotDict(seq=SeqGenerator.next(self.db),
+                seq = str(int(time.time()*1000))[-4:]
+                args = DotDict(seq=seq,
                                tid=tid,
                                params=['fobs',])
                 IOLoop.instance().add_timeout(int(time.time()) + 180,
