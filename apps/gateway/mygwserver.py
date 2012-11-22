@@ -495,6 +495,15 @@ class MyGWServer(object):
                                             "  WHERE id = %s",
                                             t_info['t_msisdn'],
                                             t_info['imsi'], terminal.id)
+                            # clear redis
+                            sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
+                            address_key = get_terminal_address_key(t_info['dev_id'])
+                            info_key = get_terminal_info_key(t_info['dev_id'])
+                            lq_sms_key = get_lq_sms_key(t_info['dev_id'])
+                            lq_interval_key = get_lq_interval_key(t_info['dev_id'])
+                            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                            self.redis.delete(*keys)
+                            # HK sms
                             sms = SMSCode.SMS_TERMINAL_HK_SUCCESS % (terminal.mobile, t_info['t_msisdn'])
                             # subscription le for new sim
                             data = DotDict(sim=t_info['t_msisdn'],
