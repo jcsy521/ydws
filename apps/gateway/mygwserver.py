@@ -327,6 +327,7 @@ class MyGWServer(object):
         - other, forward it to si.
         """
         try:
+            logging.info("[GW] Handle recv packet thread start...")
             while True:
                 if queue.qsize() != 0:
                     item  = queue.get(False)
