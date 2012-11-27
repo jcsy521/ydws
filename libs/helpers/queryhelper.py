@@ -26,7 +26,7 @@ class QueryHelper(object):
             if terminal_info.mobile:
                 return terminal_info.mobile 
         else:
-            terminal_info = DotDict(defend_status=None,
+            terminal_info = DotDict(defend_status=0,
                                     fob_status=None,
                                     mobile=None,
                                     login=None,
@@ -63,7 +63,7 @@ class QueryHelper(object):
             if terminal_info.alias:
                 return terminal_info.alias 
         else:
-            terminal_info = DotDict(defend_status=None,
+            terminal_info = DotDict(defend_status=0,
                                     fob_status=None,
                                     mobile=None,
                                     login=None,

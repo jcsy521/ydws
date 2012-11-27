@@ -1147,7 +1147,7 @@ class MyGWServer(object):
         terminal_info_key = get_terminal_info_key(fobinfo['dev_id'])
         terminal_info = self.redis.getvalue(terminal_info_key)
         if not terminal_info:
-            terminal_info = DotDict(defend_status=None,
+            terminal_info = DotDict(defend_status=0,
                                     fob_status=None,
                                     mobile=None,
                                     login=None,
@@ -1202,7 +1202,7 @@ class MyGWServer(object):
         terminal_info_key = get_terminal_info_key(t_info['dev_id'])
         terminal_info = self.redis.getvalue(terminal_info_key)
         if not terminal_info:
-            terminal_info = DotDict(defend_status=None,
+            terminal_info = DotDict(defend_status=0,
                                     fob_status=None,
                                     mobile=None,
                                     login=None,
