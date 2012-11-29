@@ -1307,6 +1307,8 @@ body {
 	display: inline-block;
 	text-align: left;
 	width: 190px;
+	position: absolute;
+	line-height: 15px;
 }
 /*marker css end*/
 .top10 {
