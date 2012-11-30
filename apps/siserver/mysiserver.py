@@ -182,6 +182,10 @@ class MySIServer():
                 terminal_status_key = get_terminal_address_key(terminal_id)
                 keys = [terminal_sessionID_key, terminal_status_key]
                 self.redis.delete(*keys)
+                terminal_info_key = get_terminal_info_key(terminal_id)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                if terminal_info:
+                    terminal_info['login'] = TERMINAL_LOGIN.OFFLINE
             else:
                 status = GFCode.GF_NOT_ORDERED 
                     
