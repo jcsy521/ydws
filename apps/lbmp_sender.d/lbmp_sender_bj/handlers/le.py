@@ -20,18 +20,18 @@ class LeHandler(BaseHandler):
         """Compose a message for goole to get latitude and lontitude through
         cellid information.
         """
-        request = {"version":"1.1.0", 
-                   "host":"maps.google.com", 
-                   "home_mobile_country_code":mcc, 
-                   "home_mobile_network_code":mnc, 
-                   "address_language":"zh_CN", 
+        request = {"homeMobileCountryCode":mcc, 
+                   "homeMobileNetworkCode":mnc, 
                    "radio_type":"gsm", 
-                   "request_address":True, 
-                   "cell_towers":
+                   "cellTowers":
                     [ 
-                     {"cell_id":cid,
-                      "location_area_code":lac, 
-                      "mobile_country_code":mcc
+                     {"cellId":cid,
+                      "locationAreaCode":lac, 
+                      "homeMobileCountryCode":mcc, 
+                      "homeMobileNetworkCode":mnc, 
+                      "age": 0, 
+                      "signalStrength": -60,
+                      "timingAdvance": 5555
                      }, 
                     ] 
                   }
@@ -67,15 +67,12 @@ class LeHandler(BaseHandler):
 
         def _on_finish():
             try:
-                response = self.send(ConfHelper.LBMP_CONF.le_host, 
-                                     ConfHelper.LBMP_CONF.le_url, 
-                                     request,
-                                     HTTP.METHOD.POST)
-                logging.info('[LE] response:\n %s', response)
-                json_data = json_decode(response)
+                response, content = self.http.request(ConfHelper.LBMP_CONF.le_full_path, HTTP.METHOD.POST, request)
+                logging.info('[LE] response:\n %s, \ncontent:\n %s', response, content)
+                json_data = json_decode(content)
                 if json_data.get("location"):
-                    ret.position.lat = int(json_data["location"]["latitude"] * 3600000)
-                    ret.position.lon = int(json_data["location"]["longitude"] * 3600000)
+                    ret.position.lat = int(json_data["location"]["lat"] * 3600000)
+                    ret.position.lon = int(json_data["location"]["lng"] * 3600000)
                     ret.success = ErrorCode.SUCCESS 
                     ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                     logging.info("[LE] get lat=%s, lon=%s  through lac=%s, cid=%s", 
