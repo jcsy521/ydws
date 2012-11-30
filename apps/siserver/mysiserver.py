@@ -18,7 +18,8 @@ from codes.gfcode import GFCode
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
 from db_.mysql import get_connection
-from utils.misc import get_terminal_address_key, get_terminal_sessionID_key
+from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
+                       get_terminal_info_key
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.confhelper import ConfHelper
