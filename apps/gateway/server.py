@@ -95,7 +95,7 @@ def main():
                           target=gwserver.publish,
                           args=(ConfHelper.RABBITMQ_CONF.host,))
         processes = (gw_send, gw_recv,)
-        thread.start_new_thread(lq_terminals_thread, ())
+        # thread.start_new_thread(lq_terminals_thread, ())
         thread.start_new_thread(check_poweroff_timeout_thread, ())
         for p in processes:
             p.start()
