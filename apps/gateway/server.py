@@ -3,6 +3,7 @@
 
 import os.path
 import site
+import os
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
@@ -84,7 +85,7 @@ def main():
     gwserver = None
     processes = None
     try:
-        logging.warn("[gateway] running on: localhost")
+        logging.warn("[gateway] running on: localhost. Parent process: %s", os.getpid())
         gwserver = MyGWServer(options.conf)
         gwserver.redis = redis
         gwserver.db = db

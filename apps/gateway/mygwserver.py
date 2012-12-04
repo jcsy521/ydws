@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import socket, select, errno 
+import os
 import logging
 import time
 from time import sleep
@@ -227,7 +228,7 @@ class MyGWServer(object):
             self.check_heartbeat_thread = None
 
     def consume(self, host):
-        logging.info("[GW] consume process started...")
+        logging.info("[GW] consume process: %s started...", os.getpid())
         consume_connection, consume_channel = self.__connect_rabbitmq(host)
         try:
             while (consume_connection and consume_connection.is_open):
@@ -259,7 +260,7 @@ class MyGWServer(object):
             logging.exception("[GW]unknown send Exception:%s", e.args)
 
     def publish(self, host):
-        logging.info("[GW] publish process started...")
+        logging.info("[GW] publish process: %s started...", os.getpid())
         queue = Queue()
         publish_connection, publish_channel = self.__connect_rabbitmq(host)
         try:
