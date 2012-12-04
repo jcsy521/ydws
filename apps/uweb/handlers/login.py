@@ -11,6 +11,7 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
+from constants import GATEWAY
 from base import BaseHandler, authenticated
 from helpers.notifyhelper import NotifyHelper
 from helpers.queryhelper import QueryHelper 
@@ -129,6 +130,8 @@ class IOSHandler(BaseHandler, LoginMixin):
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 terminal['keys_num'] = 0
+                if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
+                    terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
                 if not terminal.alias:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             self.write_ret(status,
@@ -172,6 +175,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 terminal['keys_num'] = 0
+                if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
+                    terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
                 if not terminal.alias:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             

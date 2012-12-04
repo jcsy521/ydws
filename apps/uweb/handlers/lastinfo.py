@@ -9,7 +9,7 @@ from utils.dotdict import DotDict
 from utils.misc import get_terminal_info_key, get_location_key
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
-from constants import UWEB, EVENTER
+from constants import UWEB, EVENTER, GATEWAY
 from constants.MEMCACHED import ALIVED
 from base import BaseHandler, authenticated
 
@@ -57,7 +57,8 @@ class LastInfoHandler(BaseHandler):
 
                 if not terminal['mobile']:
                    terminal['mobile'] = QueryHelper.get_tmobile_by_tid(tid, self.redis, self.db) 
-
+                if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
+                    terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
 
                 # 2: get location 
                 location_key = get_location_key(str(tid))

@@ -7,7 +7,7 @@ from tornado.escape import json_encode
 
 from base import BaseHandler, authenticated
 from helpers.queryhelper import QueryHelper
-from constants import UWEB 
+from constants import UWEB, GATEWAY
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
 
@@ -46,6 +46,8 @@ class MainHandler(BaseHandler):
         #if alias is null, provide cnum or sim instead
         for terminal in terminals:
             terminal['keys_num'] = 0
+            if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
+                terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
             if not terminal['alias']:
                 terminal['alias'] = terminal.mobile
 
