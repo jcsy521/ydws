@@ -41,26 +41,26 @@ class UNBindHandler(BaseHandler, BaseMixin):
             status = ErrorCode.SUCCESS
             response = json_decode(response)
             if response['success'] == ErrorCode.SUCCESS:
-                user = QueryHelper.get_user_by_tid(tid, self.db)
-                self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                                "  WHERE tid = %s",
-                                tid)
-                # clear redis
-                sessionID_key = get_terminal_sessionID_key(tid)
-                address_key = get_terminal_address_key(tid)
-                info_key = get_terminal_info_key(tid)
-                lq_sms_key = get_lq_sms_key(tid)
-                lq_interval_key = get_lq_interval_key(tid)
-                keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                self.redis.delete(*keys)
-                terminals = self.db.query("SELECT id"
-                                          "  FROM T_TERMINAL_INFO"
-                                          "  WHERE owner_mobile = %s",
-                                          user.owner_mobile)
-                if len(terminals) == 0:
-                    self.db.execute("DELETE FROM T_USER"
-                                    "  WHERE mobile = %s",
-                                    user.owner_mobile)
+                #user = QueryHelper.get_user_by_tid(tid, self.db)
+                #self.db.execute("DELETE FROM T_TERMINAL_INFO"
+                #                "  WHERE tid = %s",
+                #                tid)
+                ## clear redis
+                #sessionID_key = get_terminal_sessionID_key(tid)
+                #address_key = get_terminal_address_key(tid)
+                #info_key = get_terminal_info_key(tid)
+                #lq_sms_key = get_lq_sms_key(tid)
+                #lq_interval_key = get_lq_interval_key(tid)
+                #keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                #self.redis.delete(*keys)
+                #terminals = self.db.query("SELECT id"
+                #                          "  FROM T_TERMINAL_INFO"
+                #                          "  WHERE owner_mobile = %s",
+                #                          user.owner_mobile)
+                #if len(terminals) == 0:
+                #    self.db.execute("DELETE FROM T_USER"
+                #                    "  WHERE mobile = %s",
+                #                    user.owner_mobile)
                 logging.info("[UWEB] uid:%s, tid:%s unbind successfully", 
                              self.current_user.uid, tid)
             else:

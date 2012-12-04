@@ -46,6 +46,7 @@ from clw.packet.parser.async import AsyncParser
 from clw.packet.parser.config import ConfigParser
 from clw.packet.parser.fobinfo import FobInfoParser
 from clw.packet.parser.locationdesc import LocationDescParser
+from clw.packet.parser.unbind import UNBindParser
 from clw.packet.composer.login import LoginRespComposer
 from clw.packet.composer.heartbeat import HeartbeatRespComposer
 from clw.packet.composer.async import AsyncRespComposer
@@ -889,8 +890,8 @@ class MyGWServer(object):
                 sleep_info = hp.ret 
                 if sleep_info['sleep_status'] == '0':
                     sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.SLEEP
-                    self.send_lq_sms(head.dev_id)
-                    logging.info("[GW] Recv sleep packet, LQ it: %s", head.dev_id)
+                    #self.send_lq_sms(head.dev_id)
+                    #logging.info("[GW] Recv sleep packet, LQ it: %s", head.dev_id)
                     is_sleep = True
                 elif sleep_info['sleep_status'] == '1':
                     sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
@@ -1031,6 +1032,11 @@ class MyGWServer(object):
                 request = DotDict(packet=rc.buf,
                                   address=address)
                 self.append_gw_request(request, connection, channel)
+            elif head.command == GATEWAY.T_MESSAGE_TYPE.UNBIND:
+                up = UNBindParser(info.body, info.head)
+                status = up.ret['status']
+                if status == GATEWAY.STATUS.SUCCESS:
+                    self.delete_terminal(dev_id)
         except:
             logging.exception("[GW] Handle SI message exception.")
 
