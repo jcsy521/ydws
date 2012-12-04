@@ -283,7 +283,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				obj_selfMarkers = $('#carList a'),
 				n_len = obj_selfMarkers.length;
 				
-			dlf.fn_clearMapComponent(); // 清除页面图形
+			// dlf.fn_clearMapComponent(); // 清除页面图形 2012-12-04 如果清除地图上图形,追踪轨迹线会消失todo
 			$('#carList a').removeClass('currentCar');	// 其他车辆移除样式
 			obj_currentItem.addClass('currentCar');	// 当前车添加样式
 			
@@ -292,15 +292,16 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			} else {
 				dlf.fn_getCarData(); // 启动动态获取数据
 			}
-			$.each(obj_selfMarkers, function(index, dom) {	// 查找所有的selfmarker 如果存在的话添加marker到地图
-				var obj_selfMarker = $(dom).data('selfmarker'),
-					obj_label = $(dom).data('selfLable');
+			// 2012-12-04 todo
+			// $.each(obj_selfMarkers, function(index, dom) {	// 查找所有的selfmarker 如果存在的话添加marker到地图
+				// var obj_selfMarker = $(dom).data('selfmarker'),
+					// obj_label = $(dom).data('selfLable');
 					
-				if ( obj_selfMarker ) {
-					obj_selfMarker.setLabel(obj_label);
-					mapObj.addOverlay(obj_selfMarker);//向地图添加覆盖物 
-				}
-			});
+				// if ( obj_selfMarker ) {
+					// obj_selfMarker.setLabel(obj_label);
+					// mapObj.addOverlay(obj_selfMarker);//向地图添加覆盖物 
+				// }
+			// });
 			
 			/**
 			* 查找到当前车辆的信息  更新marker信息
