@@ -83,6 +83,9 @@ def get_offline_lq_key(dev_id):
 def get_agps_data_key(key):
     return str("agps_data:%s" % key)
 
+def get_resend_key(dev_id, timestamp, command):
+    return str("resend:%s%s%s" % (dev_id, timestamp, command))
+
 def get_terminal_time(timestamp):
     terminal_time = ""
     try:

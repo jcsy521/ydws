@@ -25,7 +25,8 @@ from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
-     get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key
+     get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
+     get_resend_key
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -1010,6 +1011,8 @@ class MyGWServer(object):
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
             dev_id = head.dev_id
+            resend_key = get_resend_key(dev_id, head.timestamp, head.command)
+            resend_flag = self.redis.getvalue(resend_key)
             sessionID = self.get_terminal_sessionID(dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
@@ -1021,7 +1024,10 @@ class MyGWServer(object):
                                 content=packet)
                 content = UploadDataComposer(uargs).buf
                 logging.info("[GW] Forward message to SI:\n%s", content)
-                self.append_si_request(content, connection, channel)
+                if resend_flag:
+                    logging.warn("[GW] Recv resend packet: %s, and drop it!", packet)
+                else:
+                    self.append_si_request(content, connection, channel)
                 self.update_terminal_status(dev_id, address)
 
             if head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
@@ -1032,6 +1038,9 @@ class MyGWServer(object):
                 request = DotDict(packet=rc.buf,
                                   address=address)
                 self.append_gw_request(request, connection, channel)
+                # resend flag
+                if not resend_flag:
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
             elif head.command == GATEWAY.T_MESSAGE_TYPE.UNBIND:
                 up = UNBindParser(info.body, info.head)
                 status = up.ret['status']
