@@ -106,3 +106,6 @@ DUMMY_FD = "-1"
 
 POWEROFF_TIMEOUT_SMS = DotDict(SEND=1,
                                UNSEND=0)
+
+# check report resend
+RESEND_EXPIRY = 2 * 60
