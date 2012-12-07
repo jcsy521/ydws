@@ -261,7 +261,10 @@
                 methods._validateFormWithAjax(form, options);
                 return false;
             };
-
+			//这是要修改的地方
+            if (r && !methods._checkAjaxStatus(options)) {
+                return false;
+            }
             if(options.onValidationComplete) {
                 options.onValidationComplete(form, r);
                 return false;
