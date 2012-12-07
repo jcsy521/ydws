@@ -154,7 +154,7 @@ class PacketTask(object):
             logging.error("[EVENTER] Cannot find USER of terminal: %s", report.dev_id)
             return
             
-        mannual_status = UWEB.DEFEND_STATUS.YES:
+        mannual_status = UWEB.DEFEND_STATUS.YES
         if report.rName in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
             mannual_status = QueryHelper.get_mannual_status_by_tid(report.dev_id, self.db)
 

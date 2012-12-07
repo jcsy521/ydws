@@ -268,7 +268,7 @@ class MyGWServer(object):
         try:
             if publish_connection and publish_connection.is_open:
                 #NOTE: self.online_terminals, this process will change it!
-                #self.__restore_online_terminals()
+                self.__restore_online_terminals()
                 self.__start_check_heartbeat_thread()
                 thread.start_new_thread(self.handle_packet_from_terminal,
                                         (publish_connection,publish_channel,queue))
