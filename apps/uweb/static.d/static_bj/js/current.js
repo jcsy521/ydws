@@ -175,7 +175,7 @@ window.dlf.fn_defendQuery = function() {
 		
 	$.get_(DEFEND_URL, '', function(data) {
 		if ( data.status == 0 ) {
-			var str_defendStatus = data.defend_status,  // 从后台获取到最新的设防撤防状态
+			var str_defendStatus = data.mannual_status,  // 从后台获取到最新的设防撤防状态
 				obj_wrapper = $('#defendWrapper'),	// 设防撤防容器
 				str_html = '',	// 页面上显示的设防状态
 				str_tip = '',	// 设防撤防中的提示信息
@@ -206,7 +206,7 @@ window.dlf.fn_defendQuery = function() {
 				str_html = '未设防';
 				str_dImg = 'defend_status0.png';
 			}
-			obj_defend['defend_status'] = n_defendStatus;
+			obj_defend['mannual_status'] = n_defendStatus;
 			obj_dMsg.html(str_tip);
 			// 主页面设防状态
 			$('#defendContent').html(str_html).data('defend', str_defendStatus);	
@@ -223,7 +223,7 @@ window.dlf.fn_defendQuery = function() {
 		* 判断设防撤防时挂件状态和终端在线状态
 		* 1、挂件不在附近时如果defend_status 是0 jNoityMessage提示“挂件不在附近，确定要撤防吗？”
 		*/
-		var n_defendStatus = obj_defend['defend_status'],	// 设防撤防状态
+		var n_defendStatus = obj_defend['mannual_status'],	// 设防撤防状态
 			n_fobStatus = n_fob_status,	// 挂件是否在附近			
 			f_warpperStatus = !$('#wakeupWrapper').is(':hidden'),	// 容器是否显示
 			obj_this = $(this);

@@ -43,8 +43,9 @@ class TerminalMixin(BaseMixin):
 
                 terminal_info_key = get_terminal_info_key(self.current_user.tid)
                 terminal_info = self.redis.getvalue(terminal_info_key)
-                terminal_info[key] = value 
-                self.redis.setvalue(terminal_info_key, terminal_info)
+                if terminal_info:
+                    terminal_info[key] = value 
+                    self.redis.setvalue(terminal_info_key, terminal_info)
 
             elif key == 'cnum':
                 self.db.execute("UPDATE T_CAR"
@@ -55,8 +56,9 @@ class TerminalMixin(BaseMixin):
                 if not terminal.alias:
                     terminal_info_key = get_terminal_info_key(self.current_user.tid)
                     terminal_info = self.redis.getvalue(terminal_info_key)
-                    terminal_info['alias'] = value if value else self.current_user.sim
-                    self.redis.setvalue(terminal_info_key, terminal_info)
+                    if terminal_info:
+                        terminal_info['alias'] = value if value else self.current_user.sim
+                        self.redis.setvalue(terminal_info_key, terminal_info)
 
         terminal_clause = ','.join(terminal_fields)        
         if terminal_clause:

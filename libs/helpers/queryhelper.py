@@ -25,21 +25,9 @@ class QueryHelper(object):
         if terminal_info:
             if terminal_info.mobile:
                 return terminal_info.mobile 
-        else:
-            terminal_info = DotDict(defend_status=0,
-                                    fob_status=None,
-                                    mobile=None,
-                                    login=None,
-                                    gps=None,
-                                    gsm=None,
-                                    pbat=None,
-                                    alias=None,
-                                    keys_num=None,
-                                    fob_list=[]) 
 
         terminal = QueryHelper.get_terminal_by_tid(tid, db)
         terminal_info['mobile'] = terminal.mobile if terminal else None 
-        redis.setvalue(terminal_info_key, terminal_info)
 
         return terminal_info['mobile'] 
 
@@ -54,7 +42,6 @@ class QueryHelper(object):
                 alias = cnum 
             else: 
                 alias = sim
-        keep alias in redis     
         return alias 
         """
         terminal_info_key = get_terminal_info_key(tid)
@@ -62,17 +49,7 @@ class QueryHelper(object):
         if terminal_info:
             if terminal_info.alias:
                 return terminal_info.alias 
-        else:
-            terminal_info = DotDict(defend_status=0,
-                                    fob_status=None,
-                                    mobile=None,
-                                    login=None,
-                                    gps=None,
-                                    gsm=None,
-                                    pbat=None,
-                                    alias=None,
-                                    keys_num=None,
-                                    fob_list=[]) 
+
         car = db.get("SELECT cnum FROM T_CAR"
                      "  WHERE tid = %s LIMIT 1",
                      tid)
@@ -82,8 +59,6 @@ class QueryHelper(object):
            terminal = QueryHelper.get_terminal_by_tid(tid, db)
            alias = terminal.mobile
 
-        terminal_info['alias'] = alias
-        redis.setvalue(terminal_info_key, terminal_info)
         return alias
 
     @staticmethod
@@ -166,3 +141,16 @@ class QueryHelper(object):
                            tid) 
         return foblist
   
+    @staticmethod
+    def get_mannual_status_by_tid(tid, db):
+        """Get mannual status through bid.
+        """
+        mannual_status = None
+        t = db.get("SELECT mannual_status"
+                   "  FROM T_TERMINAL_INFO"
+                   "  WHERE tid = %s",
+                   tid)
+        if t:
+            mannual_status = t['mannual_status']
+
+        return mannual_status

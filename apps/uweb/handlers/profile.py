@@ -107,8 +107,9 @@ class ProfileHandler(BaseHandler):
                                     value, self.current_user.tid)
                     terminal_info_key = get_terminal_info_key(self.current_user.tid)
                     terminal_info = self.redis.getvalue(terminal_info_key)
-                    terminal_info['alias'] = value 
-                    self.redis.setvalue(terminal_info_key, terminal_info)
+                    if terminal_info:
+                        terminal_info['alias'] = value 
+                        self.redis.setvalue(terminal_info_key, terminal_info)
 
             set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
             if set_clause:

@@ -67,20 +67,10 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                             # redis
                             terminal_info_key = get_terminal_info_key(tid)
                             terminal_info = self.redis.getvalue(terminal_info_key)
-                            if not terminal_info:
-                                terminal_info = DotDict(defend_status=0,
-                                                        fob_status=None,
-                                                        mobile=None,
-                                                        login=None,
-                                                        gps=None,
-                                                        gsm=None,
-                                                        pbat=None,
-                                                        alias=None,
-                                                        keys_num=None,
-                                                        fob_list=[])
-                            terminal_info['fob_list'] = new_fobids
-                            terminal_info['keys_num'] = len(new_fobids)
-                            self.redis.setvalue(terminal_info_key, terminal_info)
+                            if terminal_info:
+                                terminal_info['fob_list'] = new_fobids
+                                terminal_info['keys_num'] = len(new_fobids)
+                                self.redis.setvalue(terminal_info_key, terminal_info)
                 # send S5 for querying fobs 3 minutes later
                 seq = str(int(time.time()*1000))[-4:]
                 args = DotDict(seq=seq,

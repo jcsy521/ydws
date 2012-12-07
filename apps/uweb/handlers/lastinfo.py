@@ -35,28 +35,28 @@ class LastInfoHandler(BaseHandler):
                 terminal_info_key = get_terminal_info_key(tid)
                 terminal = self.redis.getvalue(terminal_info_key)
                 if not terminal:
-                    terminal = self.db.get("SELECT ti.login, ti.mobile, ti.defend_status, ti.fob_status, ti.pbat,"
-                                           "    ti.gps, ti.gsm, ti.keys_num, tc.cnum as alias"
-                                           "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
-                                           "  WHERE ti.tid = %s"
-                                           "    AND tc.tid = ti.tid"
-                                           "  LIMIT 1",
-                                           tid)
+                    terminal = self.db.get("SELECT mannual_status, defend_status,"
+                                           "  fob_status, mobile, login, gps, gsm,"
+                                           "  pbat, keys_num"
+                                           "  FROM T_TERMINAL_INFO"
+                                           "  WHERE tid = %s", tid)
+
                     if not terminal:
                         status = ErrorCode.LOGIN_AGAIN
                         logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
                         self.write_ret(status)
                         return
 
-                    foblist = QueryHelper.get_fob_list_by_tid(tid, self.db)
-                    terminal['fob_list'] = [fob['fobid'] for fob in foblist]
+                    car = self.db.get("SELECT cnum FROM T_CAR"
+                                      "  WHERE tid = %s", tid)
+                    fobs = self.db.query("SELECT fobid FROM T_FOB"
+                                         "  WHERE tid = %s", tid)
+                    terminal = DotDict(terminal)
+                    terminal['alias'] = car.cnum if car.cnum else terminal.mobile
+                    terminal['fob_list'] = [fob.fobid for fob in fobs]
+
                     self.redis.setvalue(terminal_info_key, DotDict(terminal))
 
-                if not terminal['alias']:
-                   terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db) 
-
-                if not terminal['mobile']:
-                   terminal['mobile'] = QueryHelper.get_tmobile_by_tid(tid, self.redis, self.db) 
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
 
@@ -90,7 +90,8 @@ class LastInfoHandler(BaseHandler):
                     location['name'] = ''
 
                 car_dct = {}
-                car_info=DotDict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 0,
+                car_info=DotDict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                                 mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
                                  fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
                                  timestamp=location['timestamp'] if location else 0,
                                  speed=location.speed if location else 0,

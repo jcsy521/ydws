@@ -92,7 +92,9 @@ class AsyncParser(object):
 
     def get_defend_info(self, packet):
         defend_status = packet[0]
-        info = {'defend_status': defend_status}
+        defend_source = packet[1]
+        info = {'defend_status': defend_status,
+                'defend_source': defend_source}
 
         return info
 

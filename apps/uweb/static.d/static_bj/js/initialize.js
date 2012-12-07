@@ -436,7 +436,7 @@ window.dlf.fn_getCarData = function() {
 */
 window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	var str_tmobile = obj_carInfo.mobile,
-		n_defendStatus = obj_carInfo.defend_status, 
+		n_defendStatus = obj_carInfo.mannual_status, 
 		str_dStatus = n_defendStatus == DEFEND_ON ? '已设防' : '未设防', 
 		str_dStatusTitle =  n_defendStatus == DEFEND_ON ? '设防状态：已设防' : '设防状态：未设防',
 		str_dImg= n_defendStatus == DEFEND_ON ? 'defend_status1.png' : 'defend_status0.png',

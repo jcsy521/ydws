@@ -268,7 +268,7 @@ class MyGWServer(object):
         try:
             if publish_connection and publish_connection.is_open:
                 #NOTE: self.online_terminals, this process will change it!
-                self.__restore_online_terminals()
+                #self.__restore_online_terminals()
                 self.__start_check_heartbeat_thread()
                 thread.start_new_thread(self.handle_packet_from_terminal,
                                         (publish_connection,publish_channel,queue))
@@ -827,6 +827,10 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            # old version is compatible
+            if len(body) == 1:
+                body.append('0')
+                logging.info("[GW] old version is compatible, append mannual status 0")
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
             sessionID = self.get_terminal_sessionID(head.dev_id)
@@ -835,6 +839,11 @@ class MyGWServer(object):
             else:
                 hp = AsyncParser(body, head)
                 defend_info = hp.ret 
+                defend_info['mannual_status'] = defend_info['defend_status']
+                if defend_info['defend_source'] != 0:
+                    # come from sms or web 
+                    del defend_info['defend_status']
+                del defend_info['defend_source']
                 self.update_terminal_status(head.dev_id, address)
                 self.update_terminal_info(defend_info)
 
@@ -1147,32 +1156,32 @@ class MyGWServer(object):
         terminal_status_key = get_terminal_address_key(dev_id)
         lq_interval_key = get_lq_interval_key(dev_id)
         is_lq = self.redis.getvalue(lq_interval_key)
-        logging.info("[TEST] is_lq:%s, is_sleep:%s", is_lq, is_sleep)
         if is_sleep:
             self.redis.delete(lq_interval_key)
             is_lq = False
 
         if is_lq and not is_sleep:
-            logging.info("[TEST] keep alived.")
             self.redis.setvalue(terminal_status_key, address, 10 * HEARTBEAT_INTERVAL)
         else:
-            logging.info("[TEST] keep sleep.")
             self.redis.setvalue(terminal_status_key, address, 3 * SLEEP_HEARTBEAT_INTERVAL)
 
     def update_fob_info(self, fobinfo):
         terminal_info_key = get_terminal_info_key(fobinfo['dev_id'])
         terminal_info = self.redis.getvalue(terminal_info_key)
         if not terminal_info:
-            terminal_info = DotDict(defend_status=0,
-                                    fob_status=None,
-                                    mobile=None,
-                                    login=None,
-                                    gps=None,
-                                    gsm=None,
-                                    pbat=None,
-                                    alias=None,
-                                    keys_num=None,
-                                    fob_list=[])
+            terminal_info = self.db.get("SELECT mannual_status, defend_status,"
+                                        "  fob_status, mobile, login, gps, gsm,"
+                                        "  pbat, keys_num"
+                                        "  FROM T_TERMINAL_INFO"
+                                        "  WHERE tid = %s", fobinfo['dev_id'])
+            car = self.db.get("SELECT cnum FROM T_CAR"
+                              "  WHERE tid = %s", fobinfo['dev_id'])
+            fobs = self.db.query("SELECT fobid FROM T_FOB"
+                                 "  WHERE tid = %s", fobinfo['dev_id'])
+            terminal_info = DotDict(terminal_info)
+            terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
+            terminal_info['fob_list'] = [fob.fobid for fob in fobs]
+
         if int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.ADD:
             self.db.execute("INSERT INTO T_FOB(tid, fobid)"
                             "  VALUES(%s, %s)"
@@ -1218,20 +1227,23 @@ class MyGWServer(object):
         terminal_info_key = get_terminal_info_key(t_info['dev_id'])
         terminal_info = self.redis.getvalue(terminal_info_key)
         if not terminal_info:
-            terminal_info = DotDict(defend_status=0,
-                                    fob_status=None,
-                                    mobile=None,
-                                    login=None,
-                                    gps=None,
-                                    gsm=None,
-                                    pbat=None,
-                                    alias=None,
-                                    keys_num=None,
-                                    fob_list=[])
+            terminal_info = self.db.get("SELECT mannual_status, defend_status,"
+                                        "  fob_status, mobile, login, gps, gsm,"
+                                        "  pbat, keys_num"
+                                        "  FROM T_TERMINAL_INFO"
+                                        "  WHERE tid = %s", t_info['dev_id'])
+            car = self.db.get("SELECT cnum FROM T_CAR"
+                              "  WHERE tid = %s", t_info['dev_id'])
+            fobs = self.db.query("SELECT fobid FROM T_FOB"
+                                 "  WHERE tid = %s", t_info['dev_id'])
+            terminal_info = DotDict(terminal_info)
+            terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
+            terminal_info['fob_list'] = [fob.fobid for fob in fobs]
+
         # db
         fields = []
         # gps, gsm, pbat, changed by position report
-        keys = ['mobile', 'defend_status', 'login', 'keys_num', 'fob_status']
+        keys = ['mobile', 'defend_status', 'login', 'keys_num', 'fob_status', 'mannual_status']
         for key in keys:
             value = t_info.get(key, None)
             if value is not None and value != terminal_info[key]:

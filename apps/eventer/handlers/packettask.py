@@ -100,22 +100,12 @@ class PacketTask(object):
         # redis
         terminal_info_key = get_terminal_info_key(location.dev_id)
         terminal_info = self.redis.getvalue(terminal_info_key)
-        if not terminal_info:
-            terminal_info = DotDict(defend_status=0,
-                                    fob_status=None,
-                                    mobile=None,
-                                    login=None,
-                                    gps=None,
-                                    gsm=None,
-                                    pbat=None,
-                                    alias=None,
-                                    keys_num=None,
-                                    fob_list=[])
-        for key in terminal_info:
-            value = location.get(key, None)
-            if value is not None:
-                terminal_info[key] = value
-        self.redis.setvalue(terminal_info_key, terminal_info)
+        if terminal_info:
+            for key in terminal_info:
+                value = location.get(key, None)
+                if value is not None:
+                    terminal_info[key] = value
+            self.redis.setvalue(terminal_info_key, terminal_info)
     
     def handle_position_info(self, location):
         location = DotDict(location)
@@ -156,8 +146,7 @@ class PacketTask(object):
                                             cellid=True, db=self.db)
         # save into database
         lid = self.insert_location(report)
-        if report.terminal_type == "1":
-            self.update_terminal_info(report)
+        self.update_terminal_info(report)
         self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, report.get('fobid'))
             
         user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
@@ -165,6 +154,10 @@ class PacketTask(object):
             logging.error("[EVENTER] Cannot find USER of terminal: %s", report.dev_id)
             return
             
+        mannual_status = UWEB.DEFEND_STATUS.YES:
+        if report.rName in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
+            mannual_status = QueryHelper.get_mannual_status_by_tid(report.dev_id, self.db)
+
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
         if sms_option == UWEB.SMS_OPTION.SEND:
             name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
@@ -183,9 +176,15 @@ class PacketTask(object):
                 else:
                     sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
-                sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
+                if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+                    sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
+                else:
+                    logging.info("[EVENTER] %s mannual_status is undefend, drop illegal move sms.", report.dev_id)
             elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
-                sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
+                if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+                    sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
+                else:
+                    logging.info("[EVENTER] %s mannual_status is undefend, drop illegal shake sms.", report.dev_id)
             elif report.rName == EVENTER.RNAME.EMERGENCY:
                 whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
                 if whitelist:
@@ -221,17 +220,22 @@ class PacketTask(object):
         terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
                                "  WHERE tid = %s", report.dev_id)
         if terminal and terminal.push_status == 1:
-            report.comment = ''
-            if report.terminal_type == "1":
-                if int(report.pbat) == 100:
-                    report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_FULL] 
-                elif int(report.pbat) <= 3:
-                    report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF]
-                else:
-                    report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
+            if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+                report.comment = ''
+                if report.rName == EVENTER.RNAME.POWERLOW:
+                    if report.terminal_type == "1":
+                        if int(report.pbat) == 100:
+                            report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_FULL] 
+                        elif int(report.pbat) <= 3:
+                            report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF]
+                        else:
+                            report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
+                    else:
+                        report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
+
+                self.notify_to_parents(report.category, report.dev_id, report) 
             else:
-                report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
-            self.notify_to_parents(report.category, report.dev_id, report) 
+                logging.info("[EVENTER] %s mannual_status is undefend, drop push.", report.dev_id)
 
 
     def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):
