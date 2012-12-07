@@ -26,7 +26,7 @@ class DefendHandler(BaseHandler, BaseMixin):
     def get(self):
         status = ErrorCode.SUCCESS
         try:
-            terminal = self.db.get("SELECT defend_status, fob_status"
+            terminal = self.db.get("SELECT fob_status, mannual_status, defend_status"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s",
                                    self.current_user.tid)
@@ -38,9 +38,10 @@ class DefendHandler(BaseHandler, BaseMixin):
 
             self.write_ret(status,
                            dict_=DotDict(defend_status=terminal.defend_status, 
+                                         mannual_status=terminal.mannual_status,
                                          fob_status=terminal.fob_status))
         except Exception as e:
-            logging.exception("[UWEB] uid:%s tid:%s get defed status failed. Exception: %s", 
+            logging.exception("[UWEB] uid:%s tid:%s get defend status failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -48,7 +49,6 @@ class DefendHandler(BaseHandler, BaseMixin):
 
     @authenticated
     @tornado.web.removeslash
-    @tornado.web.asynchronous
     def post(self):
         status = ErrorCode.SUCCESS
         try:
@@ -58,33 +58,7 @@ class DefendHandler(BaseHandler, BaseMixin):
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
-            IOLoop.instance().add_callback(self.finish)
             return 
-
-        def _on_finish(response):
-            status = ErrorCode.SUCCESS
-            response = json_decode(response)
-            if response['success'] == ErrorCode.SUCCESS:
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET defend_status = %s"
-                                "  WHERE tid = %s",
-                                data.defend_status, self.current_user.tid)
-
-                terminal_info_key = get_terminal_info_key(self.current_user.tid)
-                terminal_info = self.redis.getvalue(terminal_info_key)
-                terminal_info['defend_status'] = data.defend_status
-                self.redis.setvalue(terminal_info_key, terminal_info)
-                logging.info("[UWEB] uid:%s, tid:%s  set defend status to %s successfully", 
-                             self.current_user.uid,  self.current_user.tid, data.defend_status)
-            else:
-                if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                    self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
-
-                status = response['success'] 
-                logging.error('[UWEB] uid:%s tid:%s set defend status to %s failed, message: %s', 
-                              self.current_user.uid, self.current_user.tid, data.defend_status, ErrorCode.ERROR_MESSAGE[status])
-            self.write_ret(status)
-            IOLoop.instance().add_callback(self.finish)
 
         try:
             terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
@@ -92,19 +66,25 @@ class DefendHandler(BaseHandler, BaseMixin):
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
-                IOLoop.instance().add_callback(self.finish)
                 return
 
             self.keep_waking(self.current_user.sim, self.current_user.tid)
-            seq = str(int(time.time()*1000))[-4:]
-            args = DotDict(seq=seq,
-                           tid=self.current_user.tid,
-                           defend_status=data.defend_status)
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET mannual_status = %s"
+                            "  WHERE tid = %s",
+                            data.mannual_status, self.current_user.tid)
 
-            GFSenderHelper.async_forward(GFSenderHelper.URLS.DEFEND, args, _on_finish)
+            terminal_info_key = get_terminal_info_key(self.current_user.tid)
+            terminal_info = self.redis.getvalue(terminal_info_key)
+            if terminal_info:
+                terminal_info['mannual_status'] = data.mannual_status
+                self.redis.setvalue(terminal_info_key, terminal_info)
+            logging.info("[UWEB] uid:%s, tid:%s set mannual status to %s successfully", 
+                         self.current_user.uid, self.current_user.tid,
+                         data.mannual_status)
+            self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid:%s, tid:%s set defend status to %s failed. Exception: %s", 
-                              self.current_user.uid, self.current_user.tid, data.defend_status, e.args)
+            logging.exception("[UWEB] uid:%s, tid:%s set mannual status to %s failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, data.mannual_status, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-            IOLoop.instance().add_callback(self.finish)
