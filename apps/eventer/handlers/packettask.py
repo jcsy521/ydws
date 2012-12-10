@@ -195,32 +195,34 @@ class PacketTask(object):
                     sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
             else:
                 pass
-            if report.cLon and report.cLat:
-                #wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s%26width=800%26height=800%26zoom=17%26markers=%s,%s'
-                #wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
-                #wap_url = 'http://api.map.baidu.com/staticimage?center=' +\
-                #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
-                #          '&width=320&height=480&zoom=17&markers=' +\
-                #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
-                url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + str(report.cLon/3600000.0) + '&clat=' + str(report.cLat/3600000.0)
-                tiny_id = URLHelper.get_tinyid(url)
-                if tiny_id:
-                    base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
-                    tiny_url = base_url + '/' + tiny_id
-                    logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
-                    self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                    sms += u"点击" + tiny_url + u" 查看车辆位置" 
-                    if sms_white:
-                        sms_white += u"点击" + tiny_url + u" 查看车辆位置"
-                        self.sms_to_whitelist(sms_white, whitelist)
-                else:
-                    logging.info("[EVENTER] get tiny url failed.")
+
+            if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+                if report.cLon and report.cLat:
+                    #wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s%26width=800%26height=800%26zoom=17%26markers=%s,%s'
+                    #wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
+                    #wap_url = 'http://api.map.baidu.com/staticimage?center=' +\
+                    #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
+                    #          '&width=320&height=480&zoom=17&markers=' +\
+                    #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
+                    url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + str(report.cLon/3600000.0) + '&clat=' + str(report.cLat/3600000.0)
+                    tiny_id = URLHelper.get_tinyid(url)
+                    if tiny_id:
+                        base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                        tiny_url = base_url + '/' + tiny_id
+                        logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
+                        self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
+                        sms += u"点击" + tiny_url + u" 查看车辆位置" 
+                        if sms_white:
+                            sms_white += u"点击" + tiny_url + u" 查看车辆位置"
+                            self.sms_to_whitelist(sms_white, whitelist)
+                    else:
+                        logging.info("[EVENTER] get tiny url failed.")
             self.sms_to_user(report.dev_id, sms, user)
 
-        terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
-                               "  WHERE tid = %s", report.dev_id)
-        if terminal and terminal.push_status == 1:
-            if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+        if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+            terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s", report.dev_id)
+            if terminal and terminal.push_status == 1:
                 report.comment = ''
                 if report.rName == EVENTER.RNAME.POWERLOW:
                     if report.terminal_type == "1":
@@ -234,8 +236,8 @@ class PacketTask(object):
                         report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
 
                 self.notify_to_parents(report.category, report.dev_id, report) 
-            else:
-                logging.info("[EVENTER] %s mannual_status is undefend, drop push.", report.dev_id)
+        else:
+            logging.info("[EVENTER] %s mannual_status is undefend, drop push.", report.dev_id)
 
 
     def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):
