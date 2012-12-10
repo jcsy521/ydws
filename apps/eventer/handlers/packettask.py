@@ -149,54 +149,48 @@ class PacketTask(object):
         self.update_terminal_info(report)
         self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, report.get('fobid'))
             
-        user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
-        if not user:
-            logging.error("[EVENTER] Cannot find USER of terminal: %s", report.dev_id)
-            return
-            
         mannual_status = UWEB.DEFEND_STATUS.YES
         if report.rName in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
             mannual_status = QueryHelper.get_mannual_status_by_tid(report.dev_id, self.db)
 
-        sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
-        if sms_option == UWEB.SMS_OPTION.SEND:
-            name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
-            terminal_time = get_terminal_time(int(report.gps_time))
+        if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+            user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
+            if not user:
+                logging.error("[EVENTER] Cannot find USER of terminal: %s", report.dev_id)
+                return
+            
+            sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
+            if sms_option == UWEB.SMS_OPTION.SEND:
+                name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
+                terminal_time = get_terminal_time(int(report.gps_time))
 
-            report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
-            sms = '' 
-            sms_white = '' 
-            if isinstance(report_name, str):
-                report_name = report_name.decode('utf-8')
-                report_name = unicode(report_name)
+                report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
+                sms = '' 
+                sms_white = '' 
+                if isinstance(report_name, str):
+                    report_name = report_name.decode('utf-8')
+                    report_name = unicode(report_name)
 
-            if report.rName == EVENTER.RNAME.POWERLOW:
-                if report.terminal_type == "1":
-                    sms = self.handle_power_status(report, name, report_name, terminal_time)
-                else:
-                    sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
-            elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
-                if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+                if report.rName == EVENTER.RNAME.POWERLOW:
+                    if report.terminal_type == "1":
+                        sms = self.handle_power_status(report, name, report_name, terminal_time)
+                    else:
+                        sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
+                elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
                     sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
-                else:
-                    logging.info("[EVENTER] %s mannual_status is undefend, drop illegal move sms.", report.dev_id)
-            elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
-                if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
+                elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
                     sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
+                elif report.rName == EVENTER.RNAME.EMERGENCY:
+                    whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
+                    if whitelist:
+                        white_str = ','.join(white['mobile'] for white in whitelist) 
+                        sms = SMSCode.SMS_SOS_OWNER % (name, white_str, report_name, terminal_time)
+                        sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
+                    else:
+                        sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
                 else:
-                    logging.info("[EVENTER] %s mannual_status is undefend, drop illegal shake sms.", report.dev_id)
-            elif report.rName == EVENTER.RNAME.EMERGENCY:
-                whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
-                if whitelist:
-                    white_str = ','.join(white['mobile'] for white in whitelist) 
-                    sms = SMSCode.SMS_SOS_OWNER % (name, white_str, report_name, terminal_time)
-                    sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
-                else:
-                    sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
-            else:
-                pass
+                    pass
 
-            if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
                 if report.cLon and report.cLat:
                     #wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s%26width=800%26height=800%26zoom=17%26markers=%s,%s'
                     #wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
@@ -217,9 +211,8 @@ class PacketTask(object):
                             self.sms_to_whitelist(sms_white, whitelist)
                     else:
                         logging.info("[EVENTER] get tiny url failed.")
-            self.sms_to_user(report.dev_id, sms, user)
+                self.sms_to_user(report.dev_id, sms, user)
 
-        if int(mannual_status) == UWEB.DEFEND_STATUS.YES:
             terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", report.dev_id)
             if terminal and terminal.push_status == 1:
@@ -237,7 +230,7 @@ class PacketTask(object):
 
                 self.notify_to_parents(report.category, report.dev_id, report) 
         else:
-            logging.info("[EVENTER] %s mannual_status is undefend, drop push.", report.dev_id)
+            logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.", EVENTER.RNAME.POWERLOW)
 
 
     def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):
