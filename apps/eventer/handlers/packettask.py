@@ -164,8 +164,8 @@ class PacketTask(object):
             terminal_time = get_terminal_time(int(report.gps_time))
 
             report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
-            sms = None
-            sms_white = None
+            sms = '' 
+            sms_white = '' 
             if isinstance(report_name, str):
                 report_name = report_name.decode('utf-8')
                 report_name = unicode(report_name)
