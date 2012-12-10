@@ -51,6 +51,7 @@ from clw.packet.parser.unbind import UNBindParser
 from clw.packet.composer.login import LoginRespComposer
 from clw.packet.composer.heartbeat import HeartbeatRespComposer
 from clw.packet.composer.async import AsyncRespComposer
+from clw.packet.composer.runtime import RuntimeRespComposer
 from clw.packet.composer.locationdesc import LocationDescRespComposer
 from clw.packet.composer.config import ConfigRespComposer
 from clw.packet.composer.fobinfo import FobInfoRespComposer
@@ -960,7 +961,8 @@ class MyGWServer(object):
             head = info.head
             body = info.body
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
-                           command=head.command)
+                           command=head.command,
+                           mannual_status='')
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
@@ -968,13 +970,14 @@ class MyGWServer(object):
                 hp = AsyncParser(body, head)
                 runtime_info = hp.ret 
                 self.update_terminal_status(head.dev_id, address)
-                self.update_terminal_info(runtime_info)
+                terminal_info = self.update_terminal_info(runtime_info)
+                args.mannual_status = terminal_info['mannual_status']
                 self.db.execute("INSERT INTO T_RUNTIME_STATUS"
                                 "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s)",
                                 head.dev_id, runtime_info['login'], runtime_info['defend_status'],
                                 runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'], head.timestamp)
-            hc = AsyncRespComposer(args)
-            request = DotDict(packet=hc.buf,
+            rc = RuntimeRespComposer(args)
+            request = DotDict(packet=rc.buf,
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
@@ -1260,6 +1263,8 @@ class MyGWServer(object):
             if value is not None:
                 terminal_info[key] = value
         self.redis.setvalue(terminal_info_key, terminal_info)
+
+        return terminal_info
 
     def get_terminal_status(self, dev_id):
         terminal_status_key = get_terminal_address_key(dev_id)

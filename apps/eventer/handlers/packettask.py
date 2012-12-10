@@ -228,9 +228,10 @@ class PacketTask(object):
                     else:
                         report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
 
-                self.notify_to_parents(report.category, report.dev_id, report) 
+                self.notify_to_parents(report.category, report.dev_id, report, user) 
         else:
-            logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.", EVENTER.RNAME.POWERLOW)
+            logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
+                         report.dev_id, report.rName)
 
 
     def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):
@@ -282,9 +283,11 @@ class PacketTask(object):
                 SMSHelper.send(white['mobile'], sms)
 
 
-    def notify_to_parents(self, category, dev_id, location):
+    def notify_to_parents(self, category, dev_id, location, user=None):
         # NOTE: if user is not null, notify android
-        user = QueryHelper.get_user_by_tid(dev_id, self.db)
+        if not user:
+            user = QueryHelper.get_user_by_tid(dev_id, self.db)
+
         if user:
             name = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
             push_key = NotifyHelper.get_push_key(user.owner_mobile, self.redis) 
