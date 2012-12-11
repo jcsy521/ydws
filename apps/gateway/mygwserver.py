@@ -174,7 +174,7 @@ class MyGWServer(object):
                 current_time = get_terminal_time(timestamp) 
                 tname = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
                 sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
-                #SMSHelper.send(user.owner_mobile, sms)
+                SMSHelper.send(user.owner_mobile, sms)
         logging.warn("[GW] Terminal %s Heartbeat lost!!!", dev_id)
         # 1. memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
