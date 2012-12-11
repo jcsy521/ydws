@@ -14,7 +14,8 @@ from helpers.confhelper import ConfHelper
 from helpers.uwebhelper import UWebHelper
 
 from utils.dotdict import DotDict
-from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key 
+from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key, get_ios_id_key
+
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
 from constants import EVENTER, GATEWAY, UWEB 
@@ -292,6 +293,9 @@ class PacketTask(object):
             name = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
             push_key = NotifyHelper.get_push_key(user.owner_mobile, self.redis) 
             NotifyHelper.push_to_android(category, user.owner_mobile, dev_id, name, location, push_key)      
+            ios_id, ios_badge = NotifyHelper.get_iosinfo(user.owner_mobile, self.redis)
+            if ios_id:
+                NotifyHelper.push_to_ios(category, user.owner_mobile, dev_id, name, location, ios_id, ios_badge)      
 
     def handle_power_status(self, report, name, report_name, terminal_time):
         sms = None

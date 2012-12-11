@@ -9,13 +9,15 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
+from utils.misc import get_ios_id_key, get_ios_badge_key
 from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
-from constants import GATEWAY
+from constants import GATEWAY, UWEB
 from base import BaseHandler, authenticated
 from helpers.notifyhelper import NotifyHelper
 from helpers.queryhelper import QueryHelper 
 from helpers.downloadhelper import get_version_info 
+
 from mixin.login import LoginMixin
 
 class LoginHandler(BaseHandler, LoginMixin):
@@ -104,7 +106,8 @@ class IOSHandler(BaseHandler, LoginMixin):
     def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
-        logging.info("[UWEB] IOS login request, username: %s, password: %s", username, password)
+        iosid = self.get_argument("iosid")
+        logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s", username, password, iosid)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
@@ -134,6 +137,12 @@ class IOSHandler(BaseHandler, LoginMixin):
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
                 if not terminal.alias:
                     terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
+
+            ios_id_key = get_ios_id_key(username)
+            self.redis.setvalue(ios_id_key, iosid, UWEB.IOS_ID_INTERVAL)
+            ios_badge_key = get_ios_badge_key(username)
+            self.redis.setvalue(ios_badge_key, 0, UWEB.IOS_ID_INTERVAL)
+            
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name, 
                                          cars=terminals))
