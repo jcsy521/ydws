@@ -209,7 +209,8 @@ window.dlf.fn_defendQuery = function() {
 			obj_defend['mannual_status'] = n_defendStatus;
 			obj_dMsg.html(str_tip);
 			// 主页面设防状态
-			$('#defendContent').html(str_html).data('defend', str_defendStatus);	
+			$('#defendContent').html(str_html).data('defend', str_defendStatus);
+			$('.currentCar').parent().data('carData').mannual_status = str_defendStatus;	// 改变缓存中的设防撤防状态
 			$('#defendStatus').css('background-image', 'url("'+ BASEIMGURL + str_dImg +'")').attr('title', str_html);
 		} else if ( data.status == 201 ) {
 			dlf.fn_showBusinessTip();

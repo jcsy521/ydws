@@ -889,6 +889,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						str_dImg=  'defend_status0.png';
 					}
 					$('#defendContent').html(str_html).data('defend', n_defendStatus);
+					$('.currentCar').parent().data('carData').mannual_status = n_defendStatus;	// 改变缓存中的设防撤防状态
 					$('#defendStatus').css('background-image', 'url("'+ BASEIMGURL + str_dImg + '")').attr('title', str_html);
 					
 					dlf.fn_jNotifyMessage(str_successMsg, 'message', false, 3000);
