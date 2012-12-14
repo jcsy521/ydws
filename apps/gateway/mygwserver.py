@@ -70,10 +70,18 @@ class MyGWServer(object):
         self.redis = None 
         self.db = None
         self.exchange = 'acb_exchange'
-        self.gw_queue = 'gw_requests_queue'
-        self.si_queue = 'si_requests_queue'
-        self.gw_binding = 'gw_requests_binding'
-        self.si_binding = 'si_requests_binding'
+        self.gw_queue = 'gw_requests_queue@' +\
+                        ConfHelper.GW_SERVER_CONF.host + ':' +\
+                        str(ConfHelper.GW_SERVER_CONF.port)
+        self.si_queue = 'si_requests_queue@' +\
+                        ConfHelper.SI_SERVER_CONF.host + ':' +\
+                        str(ConfHelper.SI_SERVER_CONF.port)
+        self.gw_binding = 'gw_requests_binding@' +\
+                          ConfHelper.GW_SERVER_CONF.host + ':' +\
+                          str(ConfHelper.GW_SERVER_CONF.port)
+        self.si_binding = 'si_requests_binding@' +\
+                          ConfHelper.SI_SERVER_CONF.host + ':' +\
+                          str(ConfHelper.SI_SERVER_CONF.port)
 
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -101,6 +109,10 @@ class MyGWServer(object):
             channel.queue_bind(exchange=self.exchange,
                                queue=self.gw_queue,
                                routing_key=self.gw_binding)
+            logging.info("[GW] Create GW request queue: %s, binding: %s",
+                         self.gw_queue, self.gw_binding)
+            logging.info("[GW] Create SI request queue: %s, binding: %s",
+                         self.si_queue, self.si_binding)
         except:
             logging.exception("[GW] Connect Rabbitmq-server Error!")
 
@@ -394,6 +406,15 @@ class MyGWServer(object):
                            sessionID='')
             lp = LoginParser(info.body, info.head)
             t_info = lp.ret
+
+            if not t_info['dev_id']:
+                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_DEVID
+                lc = LoginRespComposer(args)
+                request = DotDict(packet=lc.buf,
+                                  address=address)
+                self.append_gw_request(request, connection, channel)
+                logging.error("[GW] Login failed! Invalid terminal dev_id: %s", t_info['dev_id'])
+                return
 
             logging.info("[GW] Checking terminal mobile: %s and owner mobile: %s, Terminal: %s",
                          t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
@@ -828,6 +849,9 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
+            resend_flag = self.redis.getvalue(resend_key)
+
             # old version is compatible
             if len(body) == 1:
                 body.append('0')
@@ -838,15 +862,20 @@ class MyGWServer(object):
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
-                hp = AsyncParser(body, head)
-                defend_info = hp.ret 
-                defend_info['mannual_status'] = defend_info['defend_status']
-                if defend_info['defend_source'] != 0:
-                    # come from sms or web 
-                    del defend_info['defend_status']
-                del defend_info['defend_source']
+                if resend_flag:
+                    logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
+                                 info.head, info.body)
+                else: 
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                    hp = AsyncParser(body, head)
+                    defend_info = hp.ret 
+                    defend_info['mannual_status'] = defend_info['defend_status']
+                    if defend_info['defend_source'] != 0:
+                        # come from sms or web 
+                        del defend_info['defend_status']
+                    del defend_info['defend_source']
+                    self.update_terminal_info(defend_info)
                 self.update_terminal_status(head.dev_id, address)
-                self.update_terminal_info(defend_info)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
@@ -890,6 +919,9 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
+            resend_flag = self.redis.getvalue(resend_key)
+
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
             sessionID = self.get_terminal_sessionID(head.dev_id)
@@ -897,21 +929,26 @@ class MyGWServer(object):
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
-                hp = AsyncParser(body, head)
-                sleep_info = hp.ret 
-                if sleep_info['sleep_status'] == '0':
-                    sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.SLEEP
-                    #self.send_lq_sms(head.dev_id)
-                    #logging.info("[GW] Recv sleep packet, LQ it: %s", head.dev_id)
-                    is_sleep = True
-                elif sleep_info['sleep_status'] == '1':
-                    sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
-                else:
-                    logging.info("[GW] Recv wrong sleep status: %s", sleep_info)
-                del sleep_info['sleep_status']
+                if resend_flag:
+                    logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
+                                 info.head, info.body)
+                else: 
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                    hp = AsyncParser(body, head)
+                    sleep_info = hp.ret 
+                    if sleep_info['sleep_status'] == '0':
+                        sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.SLEEP
+                        #self.send_lq_sms(head.dev_id)
+                        #logging.info("[GW] Recv sleep packet, LQ it: %s", head.dev_id)
+                        is_sleep = True
+                    elif sleep_info['sleep_status'] == '1':
+                        sleep_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+                    else:
+                        logging.info("[GW] Recv wrong sleep status: %s", sleep_info)
+                    del sleep_info['sleep_status']
+                    self.update_terminal_info(sleep_info)
 
                 self.update_terminal_status(head.dev_id, address, is_sleep)
-                self.update_terminal_info(sleep_info)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
@@ -929,18 +966,26 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
+            resend_flag = self.redis.getvalue(resend_key)
+
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
-                hp = AsyncParser(body, head)
-                fob_info = hp.ret 
+                if resend_flag:
+                    logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
+                                 info.head, info.body)
+                else: 
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                    hp = AsyncParser(body, head)
+                    fob_info = hp.ret 
+                    info = DotDict(fob_status=fob_info['fob_status'],
+                                   dev_id=fob_info['dev_id'])
+                    self.update_terminal_info(fob_info)
                 self.update_terminal_status(head.dev_id, address)
-                info = DotDict(fob_status=fob_info['fob_status'],
-                               dev_id=fob_info['dev_id'])
-                self.update_terminal_info(fob_info)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
@@ -992,17 +1037,21 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
+            resend_flag = self.redis.getvalue(resend_key)
+
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
-                #hp = AsyncParser(body, head)
-                #unbind_info = hp.ret 
-                # unbind, need not to record terminal address
-                #self.update_terminal_status(head.dev_id, address)
-                self.delete_terminal(head.dev_id)
+                if resend_flag:
+                    logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
+                                 info.head, info.body)
+                else: 
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                    self.delete_terminal(head.dev_id)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,

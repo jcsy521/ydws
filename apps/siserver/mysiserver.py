@@ -50,10 +50,18 @@ class MySIServer():
         self.rabbitmq_connection = None
         self.rabbitmq_channel = None
         self.exchange = 'acb_exchange'
-        self.gw_queue = 'gw_requests_queue'
-        self.si_queue = 'si_requests_queue'
-        self.gw_binding = 'gw_requests_binding'
-        self.si_binding = 'si_requests_binding'
+        self.gw_queue = 'gw_requests_queue@' +\
+                        ConfHelper.GW_SERVER_CONF.host + ':' +\
+                        str(ConfHelper.GW_SERVER_CONF.port)
+        self.si_queue = 'si_requests_queue@' +\
+                        ConfHelper.SI_SERVER_CONF.host + ':' +\
+                        str(ConfHelper.SI_SERVER_CONF.port)
+        self.gw_binding = 'gw_requests_binding@' +\
+                          ConfHelper.GW_SERVER_CONF.host + ':' +\
+                          str(ConfHelper.GW_SERVER_CONF.port)
+        self.si_binding = 'si_requests_binding@' +\
+                          ConfHelper.SI_SERVER_CONF.host + ':' +\
+                          str(ConfHelper.SI_SERVER_CONF.port)
 
         self.heart_beat_queues = {} 
         self.heartbeat_threads = {} 
@@ -83,6 +91,8 @@ class MySIServer():
             channel.queue_bind(exchange=self.exchange,
                                queue=self.si_queue,
                                routing_key=self.si_binding)
+            logging.info("[SI] Create SI request queue: %s, binding: %s",
+                         self.si_queue, self.si_binding)
 
         except:
             logging.exception("[SI] Connect Rabbitmq-server Error!")
@@ -122,7 +132,7 @@ class MySIServer():
         
         return listen_fd, epoll_fd
 
-    def activetest(self, fd):
+    def activetest(self, fd, connection, channel):
         seq = str(int(time.time()*1000))[-4:]
         args = DotDict(seq=seq,
                        status=GFCode.SUCCESS)
@@ -131,24 +141,16 @@ class MySIServer():
                       self.addresses[fd][0], self.addresses[fd][1], atc.buf)
         request = DotDict(packet=atc.buf,
                           category='H')
+        self.append_si_request(request)
+
+    def __start_heartbeat_thread(self, fd):
         try:
             connection, channel = self.__connect_rabbitmq(host=ConfHelper.RABBITMQ_CONF.host)
-            message = json.dumps(request)
-            # make message not persistent
-            properties = pika.BasicProperties(delivery_mode=1,)
-            channel.basic_publish(exchange=self.exchange,
-                                  routing_key=self.si_binding,
-                                  body=message,
-                                  properties=properties)
-            connection.close()
         except AMQPConnectionError as e:
             logging.exception("[SI] Rabbitmq publish error: %s", e.args)
 
-    def __start_heartbeat_thread(self, fd):
-        # why this thread can use self.db, not need to get a new connection
-        # maybe because it's the first thread to use db
         heartbeat_thread = RepeatedTimer(15, self.activetest,
-                                         args=(fd,))
+                                         args=(fd, connection, channel))
         self.heartbeat_threads[fd] = heartbeat_thread
         heartbeat_thread.start()
         logging.info("[SI]%s:%s Heartbeat thread is running...",
