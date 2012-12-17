@@ -106,7 +106,7 @@ class IOSHandler(BaseHandler, LoginMixin):
     def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
-        iosid = self.get_argument("iosid")
+        iosid = self.get_argument("iosid",'')
         logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s", username, password, iosid)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
