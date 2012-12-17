@@ -151,7 +151,7 @@ window.dlf.fn_exit = function() {
 	if ( str_defendContent != '已设防' && n_keyNum > 0 && n_fob_status == FOB_OFF ) {
 		str_msg = '追踪器当前状态为撤防，是否设防？';
 		$('#btnSure').unbind('click').bind('click', function () {
-			dlf.fn_terminalOnLine(DEFEND_URL, {'defend_status': 1}, 'exit', '移动车卫士设防中', true);
+			dlf.fn_terminalOnLine(DEFEND_URL, {'mannual_status': 1}, 'exit', '移动车卫士设防中', true);
 		}).val('设防');
 		obj_btnCancel.unbind('click').bind('click', function () {
 			window.location.href = '/logout';
