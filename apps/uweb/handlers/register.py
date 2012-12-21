@@ -65,7 +65,7 @@ class RegisterHandler(BaseHandler):
             tmobile = data.tmobile            
             captcha = data.captcha         
             captcha_key = get_captcha_key(umobile)
-            captcha_old = self.redis.getvalue(captcha_key)
+            captcha_old = self.redis.get(captcha_key)
             if captcha_old:
                 if captcha == str(captcha_old):
                     terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db) 
