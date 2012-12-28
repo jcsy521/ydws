@@ -40,7 +40,7 @@ from handlers.register import RegisterHandler
 from handlers.lastinfo import LastInfoHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
-from handlers.track import TrackHandler
+from handlers.track import TrackHandler, TrackLQHandler
 from handlers.event import EventHandler
 from handlers.realtime import RealtimeHandler
 from handlers.defend import DefendHandler
@@ -78,6 +78,7 @@ class Application(tornado.web.Application):
             (r"/wakeup/*", WakeupHandler),
             (r"/lastinfo/*", LastInfoHandler),
             (r"/track/*", TrackHandler),
+            (r"/tracklq/*", TrackLQHandler),
             (r"/event/*", EventHandler),
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),

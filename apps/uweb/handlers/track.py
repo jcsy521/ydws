@@ -8,9 +8,39 @@ import tornado.web
 from utils.dotdict import DotDict
 from constants import UWEB
 from helpers.queryhelper import QueryHelper
+from helpers.smshelper import SMSHelper
 from codes.errorcode import ErrorCode
+from codes.smscode import SMSCode
 
 from base import BaseHandler, authenticated
+from mixin.base import  BaseMixin
+
+class TrackLQHandler(BaseHandler, BaseMixin):
+
+    @authenticated
+    @tornado.web.removeslash
+    def post(self):
+        """Turn on tracing."""
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] track LQ request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+
+        try:
+            interval = data.interval
+            sms = SMSCode.SMS_LQGZ % interval 
+            SMSHelper.send_to_terminal(self.current_user.sim, sms) 
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] uid: %s, tid: %s send lqgz failed. Exception: %s. ", 
+                              self.current_user.uid, self.current_user.tid, e.args )
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
 
 class TrackHandler(BaseHandler):
 
@@ -19,6 +49,7 @@ class TrackHandler(BaseHandler):
     @tornado.web.removeslash
     def post(self):
         """Get track through tid in some period."""
+        status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
             logging.info("[UWEB] track request: %s, uid: %s, tid: %s", 
@@ -64,7 +95,7 @@ class TrackHandler(BaseHandler):
                 if item.name is None:
                     item['name'] = ''
                 
-            self.write_ret(ErrorCode.SUCCESS,
+            self.write_ret(status,
                            dict_=DotDict(track=track))
         except Exception as e:
             logging.exception("[UWEB] uid: %s, tid: %s get track failed. Exception: %s. ", 

@@ -10,6 +10,7 @@ class SMSCode(object):
     SMS_REGISTER = u":SIM %s:%s" 
     SMS_CF = u":CF"
     SMS_SF = u":SF"
+    SMS_LQGZ = u":LQGZ %s"
 
     # TO user
     SMS_TRACKER_POWERLOW = u"尊敬的客户：您的追踪器“%s”电量不足，当前电量为%d%%，地址：%s，时间：%s。"
