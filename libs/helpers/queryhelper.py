@@ -27,9 +27,9 @@ class QueryHelper(object):
                 return terminal_info.mobile 
 
         terminal = QueryHelper.get_terminal_by_tid(tid, db)
-        terminal_info['mobile'] = terminal.mobile if terminal else None 
+        mobile = terminal.mobile if terminal else None 
 
-        return terminal_info['mobile'] 
+        return mobile 
 
     @staticmethod
     def get_alias_by_tid(tid, redis, db):

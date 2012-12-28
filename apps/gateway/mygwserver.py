@@ -209,18 +209,19 @@ class MyGWServer(object):
         if restart gatewayserver, record online terminals again.
         """
         db = DBConnection().db
-        redis = MyRedis()
+        #redis = MyRedis()
         online_terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                    "  WHERE login = %s",
-                                    GATEWAY.TERMINAL_LOGIN.ONLINE)
-        for terminal in online_terminals:
-            info = DotDict(dev_id=terminal.tid,
-                           login=GATEWAY.TERMINAL_LOGIN.OFFLINE)
-            self.update_terminal_info(info)
-            terminal_status_key = get_terminal_address_key(terminal.tid)
-            terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
-            keys = [terminal_status_key, terminal_sessionID_key]
-            self.redis.delete(*keys)
+                                    "  WHERE login != %s",
+                                    GATEWAY.TERMINAL_LOGIN.OFFLINE)
+        self.online_terminals = [t.tid for t in online_terminals]
+        #for terminal in online_terminals:
+        #    info = DotDict(dev_id=terminal.tid,
+        #                   login=GATEWAY.TERMINAL_LOGIN.OFFLINE)
+        #    self.update_terminal_info(info)
+        #    terminal_status_key = get_terminal_address_key(terminal.tid)
+        #    terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
+        #    keys = [terminal_status_key, terminal_sessionID_key]
+        #    self.redis.delete(*keys)
             #terminal_status_key = get_terminal_address_key(terminal.tid)
             #terminal_status = redis.getvalue(terminal_status_key)
             #if terminal_status:
@@ -1005,6 +1006,8 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            if len(body) == 3:
+                body.append('-1')
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command,
                            mannual_status='')
@@ -1018,9 +1021,10 @@ class MyGWServer(object):
                 terminal_info = self.update_terminal_info(runtime_info)
                 args.mannual_status = terminal_info['mannual_status']
                 self.db.execute("INSERT INTO T_RUNTIME_STATUS"
-                                "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s)",
+                                "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 head.dev_id, runtime_info['login'], runtime_info['defend_status'],
-                                runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'], head.timestamp)
+                                runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'],
+                                runtime_info['fob_pbat'], head.timestamp)
             rc = RuntimeRespComposer(args)
             request = DotDict(packet=rc.buf,
                               address=address)
