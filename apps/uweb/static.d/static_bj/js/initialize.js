@@ -19,7 +19,8 @@ var mapObj = null,
 	arr_infoPoint = [],
 	f_infoWindowStatus = true,
 	obj_localSearch = null,
-	wakeupInterval = null;
+	wakeupInterval = null,
+	trackInterval  = null;
 if ( !window.dlf ) { window.dlf = {}; }
 
 (function () {
@@ -742,10 +743,14 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 		str_tempAction = 'no';
 		str_tempMsg = '开始跟踪';
 		str_tempOldMsg = '取消跟踪';
+		// 手动取消追踪清空计时器
+		dlf.fn_clearTrack();
 	} else {
 		str_tempAction = 'yes';
 		str_tempMsg = '取消跟踪';
 		str_tempOldMsg = '开始跟踪';
+		// 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪 todo
+		dlf.fn_openTrack(str_tid, selfItem);
 	}
 	
 	str_content = str_content.replace(str_tempOldMsg, str_tempMsg);
@@ -753,6 +758,65 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 	obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;
 	obj_carLi.attr('actiontrack', str_tempAction).data('selfmarker', obj_selfMarker);
 	$(selfItem).html(str_tempMsg);
+}
+
+
+/**
+* 追踪器开启追踪倒计时初始化 
+*/
+window.dlf.fn_clearTrack = function() {
+	dlf.fn_clearInterval(trackInterval);
+	$('#trackTimer').html('0');
+	$('#trackWrapper').hide();
+}
+
+/**
+* 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪
+*/
+window.dlf.fn_openTrack = function(str_tid, selfItem) {
+	// 向后台发送开启追踪请求
+	var obj_param = {'interval': 10};
+	
+	$.post_(BEGINTRACK_URL, JSON.stringify(obj_param), function(data) {
+		if ( data.status == 0 ) {
+			var obj_trackMsg = $('#trackMsg'),
+				obj_trackWrapper = $('#trackWrapper'),	// 追踪器唤醒提示容器
+				obj_trackTimer = $('#trackTimer'),	// 追踪器提示框计时器容器
+				n_timer = parseInt(obj_trackTimer.html()),
+				n_left = ($(window).width()-400)/2;
+				
+			// 关闭jNotityMessage,dialog
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); 
+			dlf.fn_closeDialog();
+			
+			/**
+			* 5分钟
+			*/
+			obj_trackMsg.html('追踪器已开启追踪10分钟后将自动取消追踪。');
+			obj_trackWrapper.css('left', n_left + 'px').show();
+			setTimeout(function() {
+				obj_trackWrapper.hide();
+			}, 4000);
+			
+			trackInterval = setInterval(function() {
+				var n_login = parseInt($('#carList .currentCar').eq(0).attr('clogin'));	// 判断当前追踪器状态
+				if ( n_timer > 6000 ) {
+					dlf.fn_clearInterval(trackInterval);
+					obj_trackWrapper.show();
+					obj_trackMsg.html('追踪器追踪时间已到，将取消追踪。');
+					setTimeout(function() {
+						dlf.fn_clearTrack();
+						dlf.setTrack(str_tid, selfItem);
+					}, 3000);
+				}
+				n_timer++;
+			}, 1000);
+			
+		} else {
+			dlf.setTrack(str_tid, selfItem);
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 4000);
+		}
+	});
 }
            
 /**

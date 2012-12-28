@@ -1588,6 +1588,25 @@ body {
 	margin: 50px 0px 10px 0px;
 }
 
+#trackWrapper {
+	position: absolute;
+	bottom: 100px;
+	background-color: #000;
+	opacity: 0.5;
+	filter:alpha(opacity=50);
+	border-radius: 6px;
+	width: 400px;
+	height: 36px;
+	line-height: 36px;
+	color: white;
+	text-align: center;
+	font-size: 14px;
+	z-index: 1000;
+}
+#trackpMsg img {
+	position: absolute;
+	top: 10px;
+}
 /* exit div css */
 #exitWrapper {
 	width: 290px;
