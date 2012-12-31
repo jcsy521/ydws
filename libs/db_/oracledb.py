@@ -25,7 +25,7 @@ class Connection(object):
     Cursors are hidden by the implementation, but other than that, the methods
     are very similar to the DB-API.
     """
-    def __init__(self, host="192.168.1.3:1521", database_sid="DBACBNEW", user="scott", password="tiger"):
+    def __init__(self, host="192.168.1.3:1521", database_sid="DBACBNEW", user="pabb", password="pabb"):
         pair = host.split(":")
         if len(pair) == 2:
             self.host = pair[0]
@@ -66,7 +66,9 @@ class Connection(object):
         cursor = self._cursor()
         try:
             self._execute(cursor, query, parameters)
-            column_names = [d[0] for d in cursor.description]
+            # column names lower case 
+            print cursor
+            column_names = [d[0].lower() for d in cursor.description]
             return [Row(itertools.izip(column_names, row)) for row in cursor]
         except Exception as e:
             logging.exception("oracledb query() exception")
@@ -87,12 +89,36 @@ class Connection(object):
             return rows[0]
 
     def execute(self, query, *parameters):
-        """Executes the given query, returning the lastrowid from the query."""
+        """Executes the given query, if insert return id, else returning the lastrowid from the query."""
         cursor = self._cursor()
         try:
-            print parameters
-            self._execute(cursor, query, parameters)
-            return cursor.rowcount
+            print '替换insert id之前：' + query
+            # if insert data 
+            if re.search('insert|INSERT', query) and re.search('null|NULL', query):
+                if re.search('into', query):
+                    start_index = query.find('into')
+                elif re.search('INTO', query):
+                    start_index = query.find('INTO')
+                if re.search('\\(', query):
+                    end_index = query.find('(')
+                table_start_index = start_index + 4
+                table_end_index = end_index
+                print table_start_index
+                print table_end_index
+                
+                table_name = query[table_start_index:table_end_index].strip().upper()
+                insert_id = str(self.get_id(table_name))
+                query = re.sub("null|NULL", insert_id, query)
+                
+                print query
+                print parameters
+                self._execute(cursor, query, parameters)
+                return insert_id
+            else:
+                print query
+                print parameters
+                self._execute(cursor, query, parameters)
+                return cursor.rowcount
         except Exception as e:
             logging.exception("oracledb execute() exception")
 #            cursor.close()
@@ -100,9 +126,12 @@ class Connection(object):
         finally:
             cursor.close()
 
-    def get_id(self, query):
+    def get_id(self, table):
         cursor = self._cursor()
         try:
+            query_seq_templete = "SELECT %s_SEQ.NEXTVAL FROM DUAL"
+            query = query_seq_templete % table
+            print query
             cursor.execute(query)
             return cursor.fetchone()[0]
         except Exception as e:
@@ -133,7 +162,7 @@ class Connection(object):
             raise
         
 def get_query(query_temple, parameters):
-    # shield Oracle keywords, well tried ,the following method is ture !!!
+    """ shield Oracle keywords, well tried ,the following method is ture !!!"""
     if re.search('ID|id', query_temple):
         query_temple = re.sub("ID|id", "\"ID\"", query_temple)
     if re.search("(u|U)\"ID\"", query_temple):
@@ -157,7 +186,7 @@ class Row(dict):
 
 if __name__ == "__main__":
     db = Connection()
-    print db.query("select * from emp")
+#    print db.query("select * from emp")
 #    rs = db.get("select * from emp where empno = 7876")
 #    print rs
 #    print rs["ENAME"]
@@ -167,12 +196,21 @@ if __name__ == "__main__":
 #    
 #    db.execute("update emp set SAL = %s where EMPNO = %s", 60000, 8888)
     
-#    id = db.get_id("SELECT T_USER_SEQ.NEXTVAL FROM DUAL")
+#    id = db.get_id("T_USER")
 #    print id 
-#    db.execute("insert into t_user(id, uid, password, name, mobile, address, email, remark) "
-#               "  values(%s, %s, %s, %s, %s, %s, %s, %s)",
-#               id, 15010958888, 111111, '刘时嘉', 15010958888, '硅谷亮城', 'xxx@gmail.com', 'xxx')
-#    db.execute("delete from emp where EMPNO = %s", 8888)
+    id = db.execute("INSERT INTO T_USER (id, uid, password, name, mobile, address, email, remark) "
+                    "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s)",
+                    15010958888, 111111, '刘时嘉', 15010958888, '硅谷亮城', 'xxx@gmail.com', 'xxx')
+    print id 
+    num = db.execute("UPDATE T_USER"
+                     "    SET name = %s"
+                     "    WHERE id = %s",
+                     '鼎立方', id)
+    print num
+    rs = db.get("SELECT * FROM T_USER")
+    print rs["name"]
+    num = db.execute("DELETE FROM T_USER WHERE id = %s", id)
+    print num
 #    num = db.execute("insert into emp(EMPNO, ENAME, JOB, MGR, SAL, COMM, DEPTNO)"
 #                     " values('%s', '%s', '%s', '%s', '%s', '%s', '%s')",
 #                     8888, "liu", "MANAGER", 7698, 2000, 500, 20)
