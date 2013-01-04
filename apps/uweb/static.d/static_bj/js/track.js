@@ -23,6 +23,7 @@ window.dlf.fn_initTrack = function() {
 	$('.j_tBtnhover, .trackSpeed').hide();	// 播放速度、播放按钮隐藏
 	$('#ceillid_flag').removeAttr('checked');
 	$('#trackHeader').show();	// 轨迹查询条件显示
+	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 }
 
 /**
@@ -37,27 +38,26 @@ window.dlf.fn_closeTrackWindow = function() {
 	*/
 	var obj_cars = $('#carList a'),
 		obj_selfMarker = null,
-		obj_li = $('#carList li'),
 		obj_carInfo = null; 
 		
 	$.each(obj_cars, function(index, dom) {
 		var obj_currentCar = $(dom);
+		
+		obj_carInfo = obj_currentCar.data('carData');
 		obj_selfMarker = obj_currentCar.data('selfmarker');
+		
 		if ( obj_selfMarker ) {	
 			obj_currentCar.removeData('selfmarker');
 		}
-	});
-	$.each(obj_li, function(index, dom) {
-		var obj_currentLi = $(dom);
-		obj_carInfo = obj_currentLi.data('carData');
 		if ( obj_carInfo ) {
-			obj_currentLi.removeData('carData');
+			obj_currentCar.removeData('carData');
 		}
 	});
 	
 	dlf.fn_getCarData();	// 重新请求lastinfo
 	dlf.fn_updateLastInfo($($('#carList a[class*=currentCar]')).attr('tid'));	// 动态更新终端相关数据
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+	dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
 
 /**
@@ -75,7 +75,6 @@ function fn_trackQuery() {
 	$('.j_tBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	//dlf.fn_jNotifyMessage('行踪查询中' + WAITIMG , 'message', true);
 	dlf.fn_jNotifyMessage('车辆轨迹查询中' + WAITIMG, 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
 	$('.j_trackbody').data('layer', true);
@@ -109,21 +108,19 @@ function fn_trackQuery() {
 				
 				for (var i = 0; i < locLength; i++) {
 					var obj_currentLoc = arr_locations[i], 
-						obj_firstPoint = new BMap.Point(obj_currentLoc.clongitude/NUMLNGLAT, obj_currentLoc.clatitude/NUMLNGLAT);
+						obj_firstPoint = dlf.fn_createMapPoint(obj_currentLoc.clongitude, obj_currentLoc.clatitude);
 						
 					for ( var j = i + 1; j < locLength; j++ ) {
 						var obj_itemLoc = arr_locations[j], 
-							obj_tempPoint = new BMap.Point(obj_itemLoc.clongitude/NUMLNGLAT, obj_itemLoc.clatitude/NUMLNGLAT);
+							obj_tempPoint = dlf.fn_createMapPoint(obj_itemLoc.clongitude, obj_itemLoc.clatitude);
 							
 						fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
 					}
 				}
 				if ( n_tempMax <= 0 ) {
-					mapObj.setZoom(18);
-					mapObj.setCenter(new BMap.Point(obj_tempFirstPoint.clongitude/NUMLNGLAT, obj_tempFirstPoint.clatitude/NUMLNGLAT)); 
+					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
 				} else {
-					mapObj.setViewport([obj_tempFirstPoint, obj_tempMaxPoint]);	// 根据对角点计算比例尺进行显示
-					mapObj.zoomOut();	// 地图缩小1级
+					dlf.fn_setOptionsByType('viewport', [obj_tempFirstPoint, obj_tempMaxPoint]);
 				}
 				fn_startDrawLineStatic(arr_locations);
 			}
@@ -244,13 +241,13 @@ function fn_startDrawLineStatic(arr_dataArr) {
 	var arr = new Array(); //经纬度坐标数组 
 	
 	for (var i = 0; i < arr_dataArr.length; i++) {
-		arr.push(new BMap.Point(arr_dataArr[i].clongitude/NUMLNGLAT, arr_dataArr[i].clatitude/NUMLNGLAT));
+		arr.push(dlf.fn_createMapPoint(arr_dataArr[i].clongitude, arr_dataArr[i].clatitude));
 	}
-	var polyline = new BMap.Polyline(arr);	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
+	var polyline = dlf.fn_createPolyline(arr);	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	
-	mapObj.addOverlay(polyline);//向地图添加覆盖物 
 	dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
 	dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
+	arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[0].clongitude, arr_dataArr[0].clatitude));
 	fn_createDrawLine();
 }
 
@@ -290,19 +287,20 @@ function fn_drawMarker() {
 	if ( counter <= n_len-1 ) {
 		if ( actionMarker ) {
 			f_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();
-			mapObj.removeOverlay(actionMarker);
+			dlf.fn_clearMapComponent(actionMarker);
 		}
 		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, counter); // 添加标记
-			// 将播放过的点放到数组中
-			arr_drawLine.push(new BMap.Point(arr_dataArr[counter].clongitude/NUMLNGLAT, arr_dataArr[counter].clatitude/NUMLNGLAT));
-			obj_drawLine.setPath(arr_drawLine);
+		// 将播放过的点放到数组中
+		arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[counter].clongitude, arr_dataArr[counter].clatitude));
+		obj_drawLine.setPath(arr_drawLine);
+		
 		if ( f_trackMsgStatus ) {
 			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框
 		}
 		counter ++;
 	} else {	// 播放完成后
 		fn_clearTrack();	// 清除数据
-		mapObj.removeOverlay(actionMarker);
+		dlf.fn_clearMapComponent(actionMarker);
 		$('#tPause').hide();
 		$('#tPlay').css('display', 'inline-block');
 	}
@@ -312,8 +310,7 @@ function fn_drawMarker() {
 * 初始化播放过的线对象
 */
 function fn_createDrawLine () {
-	obj_drawLine = new BMap.Polyline(arr_drawLine, {'strokeColor': 'red'});
-	mapObj.addOverlay(obj_drawLine);
+	obj_drawLine = dlf.fn_createPolyline(arr_drawLine, {'color': 'red'});
 }
 
 /**

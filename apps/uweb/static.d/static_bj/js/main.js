@@ -139,39 +139,9 @@ window.dlf.fn_saveSMSOption = function() {
 * 用户点击退出按钮 
 */
 window.dlf.fn_exit = function() {
-	var str_msg = '您确定退出本系统吗？',
-		str_defendContent = $('#defendContent').html(),
-		obj_exitMsg = $('#exitMsg'),
-		obj_btnSure = $('#btnSure'),
-		n_fob_status = $('.currentCar').attr('fob_status'),	// 挂件是否在附近
-		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num'));	// 当前车辆的挂件数量
-		obj_btnCancel = $('#btnCancel');
-	
-	dlf.fn_lockScreen(); // 添加页面遮罩
-	if ( str_defendContent != '已设防' && n_keyNum > 0 && n_fob_status == FOB_OFF ) {
-		str_msg = '追踪器当前状态为撤防，是否设防？';
-		$('#btnSure').unbind('click').bind('click', function () {
-			dlf.fn_terminalOnLine(DEFEND_URL, {'mannual_status': 1}, 'exit', '移动车卫士设防中', true);
-		}).val('设防');
-		obj_btnCancel.unbind('click').bind('click', function () {
-			window.location.href = '/logout';
-		}).val('退出');
-		$('#exitClose').unbind('click').bind('click', function () {
-			dlf.fn_unLockScreen(); // 清除内容区域的遮罩
-			$('#exitWrapper').hide();
-		}).removeClass('hide');
-	} else {
-		$('#exitClose').addClass('hide');
-		obj_btnSure.unbind('click').bind('click', function () {
-			window.location.href = '/logout';
-		}).val('确定');
-		obj_btnCancel.unbind('click').bind('click', function () {
-			dlf.fn_unLockScreen(); // 清除内容区域的遮罩
-			$('#exitWrapper').hide();
-		}).val('取消');
+	if ( confirm('您确定退出本系统吗？') ) {
+		window.location.href = '/logout';
 	}
-	obj_exitMsg.html(str_msg);
-	dlf.fn_dialogPosition($('#exitWrapper'));
 }
 })();
 

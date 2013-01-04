@@ -1122,11 +1122,10 @@ body {
 	text-align: center;
 }
 .dataTable a,.dataTable a:link{
-	color: 	black;
+	color: 	#4876FF;
 	text-decoration: none;
 }
 .dataTable a:hover {
-	color: #4876FF;
 	font-weight: bold;
 	text-decoration: underline;
 }

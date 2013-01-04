@@ -28,11 +28,10 @@ ul, li {
     float: right;
     height: 301px;
     position: relative;
-    right: -5px;
     top: 15px;
 	_top: -10px;
 	*top: 15px;
-    width: 360px;
+    width: 355px;
 }
 .tab {
 	list-style: none;

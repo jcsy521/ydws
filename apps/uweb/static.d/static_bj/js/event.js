@@ -61,8 +61,8 @@ function fn_initEventSearch(n_num) {
 				for(var i = 0; i < n_eventDataLen; i++) {
 					var obj_location = arr_eventData[i], 
 						str_type = obj_location.category,	//类型
-						n_lng = obj_location.clongitude,
-						n_lat = obj_location.clatitude,
+						n_lng = obj_location.clongitude/NUMLNGLAT,
+						n_lat = obj_location.clatitude/NUMLNGLAT,
 						str_location = obj_location.name, 
 						str_comment = obj_location.comment,	// 电量备注
 						str_text = '';	//地址
@@ -77,7 +77,7 @@ function fn_initEventSearch(n_num) {
 						str_tbodyText+= '<td>无</td>';	
 					} else {
 						if ( str_location == '' || str_location == null ) {
-							str_tbodyText+= '<td><a href="#"   onclick="dlf.fn_getAddressByLngLat('+n_lng+', '+n_lat+',this);">获取位置</a></td>';
+							str_tbodyText+= '<td><a href="#"   onclick=dlf.fn_getAddressByLngLat('+n_lng+','+n_lat+','+ i +',"event") >获取位置</a></td>';
 						} else {
 							str_tbodyText+= '<td><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem">'+str_location+'</a></td>';	//详细地址
 						}
@@ -99,29 +99,7 @@ function fn_initEventSearch(n_num) {
 				}).mouseout(function() {
 					$(this).css('background-color', '');
 				});
-				
-				/**
-				* 用户点击位置进行地图显示
-				*/
-				$('.j_eventItem').click(function(event) {
-					dlf.fn_clearMapComponent();
-					$('.eventMapContent').css({	// 小地图显示位置
-						'left': event.clientX+20, 
-						'top': event.clientY		
-					}).show();
-					/**
-					* 根据行编号拿到数据，在地图上做标记显示
-					*/
-					var n_tempIndex = $(this).parent().parent().index()-1,
-						obj_tempData = arr_eventData[n_tempIndex];
-					
-						obj_tempData.alias = $('.eventbody').attr('alias');
-						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
-						setTimeout (function () {
-							var obj_centerPointer = new BMap.Point(obj_tempData.clongitude/NUMLNGLAT, obj_tempData.clatitude/NUMLNGLAT);
-							mapObj.centerAndZoom(obj_centerPointer, 17);
-						}, 100);
-				});
+				dlf.fn_showMarkerOnEvent();			
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			} else {
 				$('#pagerContainer').hide(); //显示分页
@@ -137,6 +115,34 @@ function fn_initEventSearch(n_num) {
 	},
 	function(XMLHttpRequest, textStatus, errorThrown) {
 		dlf.fn_serverError(XMLHttpRequest);
+	});
+}
+
+/**
+* 告警查询 查看小地图 
+*/
+window.dlf.fn_showMarkerOnEvent = function() {
+	/**
+	* 用户点击位置进行地图显示
+	*/
+	$('.j_eventItem').click(function(event) {
+		dlf.fn_clearMapComponent();
+		$('.eventMapContent').css({	// 小地图显示位置
+			'left': event.clientX+20, 
+			'top': event.clientY		
+		}).show();
+		/**
+		* 根据行编号拿到数据，在地图上做标记显示
+		*/
+		var n_tempIndex = $(this).parent().parent().index()-1,
+			obj_tempData = arr_eventData[n_tempIndex];
+		
+			obj_tempData.alias = $('.eventbody').attr('alias');
+			dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
+			setTimeout (function () {
+				var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude, obj_tempData.clatitude);
+				dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
+			}, 100);
 	});
 }
 
@@ -205,7 +211,7 @@ $(function () {
 
 	dlf.fn_closeWrapper(); //关闭地图位置显示框事件
 	
-	$('.eventMapContent').draggable({cursor:'move', containment: 'body', stop: function(event, ui) {	// 弹出的地图可以拖动
+	$('.eventMapContent').draggable({handle: '.j_draggable', cursor:'move', containment: 'body', stop: function(event, ui) {	// 弹出的地图可以拖动
 		if ( ui.position.top < 0 ) {
 			$(this).css('top', 0);
 		}

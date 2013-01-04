@@ -1,8 +1,156 @@
 /*
-*地图相关操作方法
+* 地图相关操作方法
+* postAddress: 逆地址编码获取位置描述
+* mapObj: 地图对象
+* obj_NavigationControl: 比例尺缩放对象
+* obj_MapTypeControl: 地图类型对象
+* obj_trafficControl: 路况信息对象
 */
-var postAddress = null;
+var postAddress = null,
+	mapObj = null,
+	obj_NavigationControl = null,
+	obj_MapTypeControl = null,
+	obj_trafficControl = null;
 (function () {
+
+/**
+* 加载百度MAP
+*/
+window.dlf.fn_loadMap = function() {                  	
+	mapObj = new BMap.Map('mapObj'); // 创建地图实例
+	markerPoint = new BMap.Point(116.39825820922851 ,39.904600759441024); // 创建点坐标
+	mapObj.centerAndZoom(markerPoint, 15); // 初始化地图，设置中心点坐标和地图级别 
+	mapObj.enableScrollWheelZoom();  // 启用滚轮放大缩小。
+
+	viewControl = new BMap.OverviewMapControl({isOpen: true});
+	obj_NavigationControl = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT});
+	
+	mapObj.addControl(obj_NavigationControl);	// 比例尺缩放
+	mapObj.addControl(viewControl); //添加缩略地图控件
+	mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
+	dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
+}
+
+/**
+* 设置地图上地图类型,实时路况的位置
+* n_NumTop: 相对于地图上侧做的偏移值 
+*/
+window.dlf.fn_setMapControl = function(n_NumTop) {
+	/*移除相应的地图控件及服务对象*/
+	mapObj.removeControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
+	mapObj.removeControl(obj_trafficControl); //添加路况信息控件
+	
+	/*重新声明相应的地图控件及服务对象*/
+	obj_MapTypeControl = new BMap.MapTypeControl({mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], offset: new BMap.Size(100, n_NumTop)});
+	obj_trafficControl = new BMapLib.TrafficControl(new BMap.Size(10, n_NumTop));
+
+	/*添加相应的地图控件及服务对象*/
+	mapObj.addControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
+	mapObj.addControl(obj_trafficControl); //添加路况信息控件
+}
+/**
+* 百度地图生成点
+*/
+window.dlf.fn_createMapPoint = function(n_lon, n_lat) {
+	if ( n_lon == 0 || n_lat == 0 ) { 
+		return '-';
+	} else {
+		return new BMap.Point(n_lon/NUMLNGLAT, n_lat/NUMLNGLAT);
+	}
+}
+
+/**
+* 生成线
+* arr_drawLine: 轨迹线的点集合
+* options: 轨迹线的属性
+*/
+window.dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
+	var obj_polyLine = null;
+	if ( arr_drawLine.length > 0 ) {
+		obj_polyLine = new BMap.Polyline(arr_drawLine);
+		if ( obj_options ) {
+			obj_polyLine.setStrokeColor(obj_options.color);
+		}
+		dlf.fn_addOverlay(obj_polyLine);
+	}
+	return obj_polyLine;
+}
+
+/**
+* 中心点移动方法、中心点及比例尺设置、viewport设置
+* type: center(中心点)、zoom(地图级别)、centerAndZoom(设置中心点和比例尺)、viewport(根据对角点计算比例尺进行显示)
+* centers: point对象
+* zoom: 地图级别值
+*/
+window.dlf.fn_setOptionsByType = function(type, centers, zoom) {
+	switch (type) {
+		case 'center':	// 设置中心点
+			mapObj.setCenter(centers);
+			break;
+		case 'zoom': 
+			mapObj.setZoom(zoom);
+			break;
+		case 'centerAndZoom':
+			mapObj.centerAndZoom(centers, zoom);
+			break;
+		case 'viewport':
+			mapObj.setViewport(centers);
+			mapObj.zoomOut();
+			break;
+	}
+}
+/**
+* 百度地图添加图层
+* obj_overlay: 要添加的图层对象
+*/
+window.dlf.fn_addOverlay = function(obj_overlay) {
+	mapObj.addOverlay(obj_overlay);
+}
+
+/**
+* 清除页面上的地图图形数据
+* obj_overlays: 要删除的图层对象,如果没有则清除地图上所有图层
+*/
+window.dlf.fn_clearMapComponent = function(obj_overlays) {
+	if ( obj_overlays ) {
+		mapObj.removeOverlay(obj_overlays);
+	} else {
+		mapObj.clearOverlays();
+	}
+}
+
+/**
+* 周边查询
+* obj_keywords: 关键字
+* n_clon：经度
+* n_clat: 纬度
+*/
+window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
+	var str_keywords = '',
+		n_bounds = parseInt($('#txtBounds').val()),
+		obj_kw = $('#txtKeywords');
+		
+	if ( obj_keywords !='' ) {
+		str_keywords = obj_keywords.html();
+		obj_kw.val(str_keywords); // 填充关键字文本框
+	} else {
+		str_keywords = obj_kw.val();
+		if ( str_keywords == '查找其他关键词' ) {
+			$('#keywordsTip').html('请输入关键词'); return;
+		} else {
+			$('#keywordsTip').html('');
+		}
+	}
+	if ( !obj_localSearch ) { 
+		obj_localSearch = new BMap.LocalSearch(mapObj, {
+				renderOptions:{map: mapObj} // 查询结果显示在地图容器
+		}); 
+	}
+	obj_localSearch.searchNearby(str_keywords, new BMap.Point(n_clon, n_clat), n_bounds);
+	obj_localSearch.disableFirstResultSelection();	// 禁用自动选择第一个检索结果
+	obj_localSearch.disableAutoViewport();	// 禁用根据结果自动调整地图层级
+}
+
 /**
 *添加标记
 * obj_location: 位置信息
@@ -33,11 +181,11 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	* 设置marker图标
 	*/
 	if ( str_iconType == 'start' ) {	// 轨迹起点图标
-		str_imgUrl = 'green_MarkerA';
+		myIcon.imageUrl = BASEIMGURL + 'green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {	// 轨迹终点图标
-		str_imgUrl = 'green_MarkerB';
+		myIcon.imageUrl = BASEIMGURL + 'green_MarkerB.png';
 	}
-	myIcon.imageUrl = BASEIMGURL + str_imgUrl + '.png';
+	
 	marker= new BMap.Marker(mPoint, {icon: myIcon}); 
 	marker.setOffset(new BMap.Size(0, 0));
 	marker.selfInfoWindow = infoWindow;
@@ -50,6 +198,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		
 		obj_carItem.data('selfmarker', marker);
 		obj_carItem.data('selfLable', marker.getLabel());
+		dlf.fn_setOptionsByType('center', mPoint);
 	} else if ( str_iconType == 'start' || str_iconType == 'end' ) {
 		marker.setOffset(new BMap.Size(-1, -14));
 	}
@@ -135,7 +284,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				* 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
 				*/
 				var obj_currentLi = $('#carList a[tid='+str_tid+']'),
-					obj_oldCarData = obj_currentLi.parent().data('carData'),
+					obj_oldCarData = obj_currentLi.data('carData'),
 					obj_selfmarker = obj_currentLi.data('selfmarker'),
 					str_oldClon = obj_oldCarData.clongitude,
 					str_oldClat = obj_oldCarData.clatitude,
@@ -203,12 +352,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	str_html += '</ul></div>';
 	return str_html;
 } 
-/**
-* 清除页面上的地图图形数据
-*/
-window.dlf.fn_clearMapComponent = function() {
-	mapObj.clearOverlays();
-}
+
 
 /**
 ** 将获取到的name更新到marker或label上
@@ -242,6 +386,10 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index) {
 			}
 			obj_selfmarker.selfInfoWindow.setContent(str_content);
 		}
+	} else if ( str_type == 'event' ) {
+		$('#eventResult tr').eq(tid+1).find('a').html(str_result).addClass('j_eventItem');
+		arr_eventData[tid].name = str_result;
+		dlf.fn_showMarkerOnEvent();
 	} else {
 		if ( n_index >= 0 ) {
 			arr_dataArr[n_index].name = str_result;

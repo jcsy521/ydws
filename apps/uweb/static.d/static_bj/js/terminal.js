@@ -12,21 +12,6 @@ window.dlf.fn_initTerminal = function() {
 	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示终端设置dialog	
 	dlf.fn_initTerminalWR(); // 初始化加载参数
 	dlf.fn_onInputBlur();	// input的blur事件初始化
-	
-	/*$('.j_trace').unbind('click').bind('click', function() {	// 轨迹上报开启状态：可以编辑上报间隔  反之不能编辑
-		var obj_this = $(this),
-			obj_freq = $('#t_freq'),
-			str_val = obj_this.val(),
-			str_oldVal = $('#freq').attr('t_val');
-			
-		if ( str_val == 0 ) {
-			str_oldVal = str_oldVal=='0'?'':str_oldVal;
-			obj_freq.val(str_oldVal);
-			$('#trFreq').addClass('hide');
-		} else {
-			$('#trFreq').removeClass('hide');
-		}
-	});*/
 }
 
 /**
@@ -45,18 +30,6 @@ window.dlf.fn_initTerminalWR = function () {
 				var str_val = obj_data[param];
 				
 				if ( param ) {
-					/*if ( param == 'trace' || param == 'push_status' ) {	// 单选按钮: 轨迹上报、PUSH告警
-						if ( param == 'trace' ) {	// 如果轨迹上报为关闭状态  上报间隔不可编辑
-							if ( str_val == 0 ) {
-								$('#trFreq').addClass('hide');
-							} else {
-								$('#trFreq').removeClass('hide');
-							}
-						}
-						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
-					} else if ( param == 'freq' ) {		// 下拉列表：上报间隔
-						$('#t_' + param).val(str_val);
-					} else */
 					if ( param == 'white_list' ) {	// 白名单
 						n_whitelistLenth = str_val.length;
 						$('.j_white_list input[type=text]').val('');	// 先清空白名单
