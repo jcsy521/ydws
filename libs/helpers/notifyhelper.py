@@ -157,8 +157,8 @@ class NotifyHelper(object):
             
             # 1: format alert 
             CATEGORY = {2:u'电量告警',
-                        3:u'非法震动',
-                        4:u'非法移动',
+                        3:u'震动告警',
+                        4:u'移动告警',
                         5:u'SOS',
                         6:u'通讯异常'}
 
