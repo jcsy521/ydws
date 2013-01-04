@@ -1,9 +1,0 @@
-<download>
-    <android>
-        <versioncode>102</versioncode>
-        <versionname>1.1.2</versionname>
-        <versioninfo>1.做新的轨迹查询的时候，先把之前的轨迹查询结果清除;2.客户端通知栏单独显示;</versioninfo>
-        <updatetime>2012-10-29</updatetime>
-        <filesize>4.75M</filesize>
-    </android>
-</download>
