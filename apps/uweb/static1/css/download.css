@@ -1,0 +1,244 @@
+body {
+	font-family: "宋体","Times New Roman","Arial";
+	font-size: 12px;
+	margin: 0 auto;
+	background-color: #fff;
+}
+.content {
+	background-color: #FFFFFF;
+    border: 1px solid #D4D4D4;
+    height: 950px;
+    margin-bottom: 40px;
+    margin-top: 30px;
+    overflow: hidden;
+    width: 750px;
+}
+/*download infomessage*/
+.softInfo {
+	border-bottom: 1px solid #EBEBEB;
+    height: 180px;
+    margin: 0 20px 0 15px;
+    padding-top: 30px;
+}
+.infoSign {
+	position: relative;
+    top: 26px;
+}
+.infoL {
+	float: left;
+}
+.infoText {
+	color: #666666;
+    margin-left: 30px;
+    position: relative;
+    top: 26px;
+    width: 370px;
+}
+.infoText ul {
+	margin: 0;
+	padding: 0;
+}
+.infoText ul li {
+	list-style: none;
+	margin-bottom: 10px;
+	text-align: left;
+}
+.infoText ul li span {
+	display: inline-block;
+    overflow: hidden;
+    width: 170px;
+}
+.infoTextTitle {
+	display: inline-block;
+    float: left;
+    font-size: 14px;
+    margin: 0;
+    padding-right: 10px;
+}
+.infoGrCode {
+	width: 160px;
+}
+.infoGrCode img { 
+	border: 1px solid #999999;
+	display: block;
+	height: 120px;
+	width: 120px;
+}
+.barCode {
+	
+}
+.infoBtn {
+	background: url("/static/images/btncommon.png") repeat scroll 98px 0 transparent;
+	color: #00b6ff;
+	font-weight: bold;
+    display: block;
+    font-size: 16px;
+    height: 31px;
+    line-height: 28px;
+    margin-right: 10px;
+    text-align: center;
+	text-decoration: none;
+    width: 98px;
+}
+.infoBtn:hover {
+	background-position: 98px 32px;
+	text-decoration: underline;
+	color: #FFFFFF;
+}
+.smsBtn {
+	left: 100px;
+    position: relative;
+    top: -31px;
+}
+/*product detail css*/
+.softDesc {
+	height: 675px;
+	margin: 0 14px 0 15px;
+	text-align: left;
+}
+.softDesc h1 {
+	color: #00b6ff;
+    font-size: 14px;
+	margin-top: 10px;
+}
+.descProfess {
+	text-indent: 25px;
+	line-height: 20px;
+}
+.descText {
+	margin: 10px 0 0 25px;
+    padding: 0;
+	line-height: 20px;
+}
+.descText li {
+	list-style: none;
+	margin-bottom: 8px;
+}
+
+/*desc img*/
+.descImg {
+	height: 330px;
+    margin: 0;
+    overflow-x: auto;
+    width: 675px;
+}
+.descImg ul {
+	margin: 0;
+	overflow-y: hidden;
+}
+.descImg ul li {
+	display: inline;
+	float: left;
+    height: 300px;
+	list-style: none;
+    width: 210px
+}
+.descImg ul li img {
+	float: left;
+	height: 300px;
+	width: 200px;
+	margin: 10px 0px 0px 20px;
+}
+/*sms download css*/
+#downloadLayer {
+	display: none;
+}
+#smsUploadWrapper {
+    height: 230px;
+    left: 39%;
+    top: 35%;
+    width: 400px;
+	text-align: left;
+}
+#smsCenter {
+	width: 390px;
+}
+#smsClose {
+	left: 372px;
+	*left: 372px;
+}
+#SMSWrapper h2 {
+	cursor: default;
+	margin: 0;
+}
+.smsUploadContent div, .smsUploadContent .capPanel .capText {
+    margin: 0 0 10px 26px;
+	display: inline-block;
+	float: left;
+}
+.smsUploadContent .mobiles {
+	padding-top: 26px;
+}
+.smsUploadContent {
+	height: 190px;
+}
+.smsUploadContent input {
+	border: 1px solid #CCCCCC;
+	height: 20px;
+	line-height: 20px;
+	width: 100px;
+}
+.downMobileTip {
+	color: #666666;
+    margin: 6px 0 0 51px;
+    width: 229px;
+}
+#smsCaptcha {
+	width: 84px;
+}
+.smsUploadContent .btnSend {
+	background: none repeat scroll 0 0 #3dc7ff;
+    border: 1px solid #10A6A6;
+    border-radius: 3px 3px 3px 3px;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 14px;
+	height: 35px;
+    line-height: 20px;
+	margin-left: 50px;
+    padding: 5px 9px;
+	width: 76px;
+	float: left;
+	font-weight: bold;
+}
+.smsUploadContent .msgPanel {
+	font-size: 14px;
+    height: 25px;
+	padding-left: 20px;
+	float: left;
+	color: red;
+}
+#smsMsg {
+	font-style: normal;
+}
+.smsUploadContent .capPanel {
+	height: 50px;
+	margin: 0;
+	padding-top: 0;
+}
+.smsUploadContent .capPanel div {
+	display: inline-block;
+	float: left;
+    margin: 0;
+}
+.capText input {
+	width: 100px;
+}
+.smsUploadContent .btnDisabled {
+	background-color: gray;
+	cursor: default;
+}
+.iLayer {
+	position: absolute;
+    background: none repeat scroll 0 0 #000000;
+    left: 0;
+    opacity: 0.3;
+	filter: alpha(opacity=30);
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+/*browser download start*/
+
+/*browser download end*/
