@@ -1,9 +1,0 @@
-<download>
-    <android>
-        <versioncode>103</versioncode>
-        <versionname>1.1.3</versionname>
-        <versioninfo>1.修正了部分UI显示问题；&#x0A;2.修正了操作追踪器时挂件判断问题,没有挂件不判断是否在附近；&#x0A;3.添加了追踪器离线唤醒。 </versioninfo>
-        <updatetime>2012-10-30</updatetime>
-        <filesize>4.74M</filesize>
-    </android>
-</download>
