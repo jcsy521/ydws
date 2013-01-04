@@ -260,9 +260,11 @@ class MyGWServer(object):
                     consume_connection, consume_channel = self.__reconnect_rabbitmq(consume_connection, host)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
-            self.__close_rabbitmq(consume_connection, consume_channel)
         except Exception as e:
             logging.exception("[GW] Unknow Exception:%s", e.args)
+        finally:
+            logging.info("[GW] Rabbitmq consume connection close...")
+            self.__close_rabbitmq(consume_connection, consume_channel)
 
     def send(self, body):
         try:
@@ -289,9 +291,11 @@ class MyGWServer(object):
                 self.recv(queue)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
-            self.__close_rabbitmq(publish_connection, publish_channel)
         except Exception as e:
             logging.exception("[GW] Unknow Exception:%s", e.args)
+        finally:
+            logging.info("[GW] Rabbitmq publish connection close...")
+            self.__close_rabbitmq(publish_connection, publish_channel)
 
     def recv(self, queue):
         try:
