@@ -25,7 +25,7 @@ class Connection(object):
     Cursors are hidden by the implementation, but other than that, the methods
     are very similar to the DB-API.
     """
-    def __init__(self, host="192.168.1.3:1521", database_sid="DBACBNEW", user="pabb", password="pabb"):
+    def __init__(self, host="192.168.1.3:1521", database="DBACBNEW", user="pabb", password="pabb"):
         pair = host.split(":")
         if len(pair) == 2:
             self.host = pair[0]
@@ -35,14 +35,14 @@ class Connection(object):
             self.host = host
             self.port = 1521
             
-        self.database = database_sid
+        self.database_sid = database
         self.user = user
         self.password = password
         self._db = None
         try:
             self.connect()
         except:
-            logging.error("Cannot connect to Oracle database : %s", self.database,
+            logging.error("Cannot connect to Oracle database : %s", self.database_sid,
                           exc_info=True)
 
     def __del__(self):
@@ -57,7 +57,7 @@ class Connection(object):
     def connect(self):
         """Closes the existing database connection and re-opens it."""
         self.close()
-        tns = cx_Oracle.makedsn(self.host, self.port, self.database)
+        tns = cx_Oracle.makedsn(self.host, self.port, self.database_sid)
         self._db = cx_Oracle.connect(self.user, self.password, tns)
         self._db.autocommit = 1
 
