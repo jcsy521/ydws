@@ -163,10 +163,10 @@ class Connection(object):
         
 def get_query(query_temple, parameters):
     """ shield Oracle keywords, well tried ,the following method is ture !!!"""
-    if re.search('ID|id', query_temple):
-        query_temple = re.sub("ID|id", "\"ID\"", query_temple)
-    if re.search("(u|U)\"ID\"", query_temple):
-        query_temple = re.sub("(u|U)\"ID\"", "\"UID\"", query_temple)
+    if re.search('ID', query_temple):
+        query_temple = re.sub("ID", "\"ID\"", query_temple)
+    if re.search("U\"ID\"", query_temple):
+        query_temple = re.sub("U\"ID\"", "\"UID\"", query_temple)
         
     if re.search('%%%%%s%%%%', query_temple):
         query_temple = re.sub("%%%%%s%%%%", "'%%%%%s%%%%'", query_temple)
