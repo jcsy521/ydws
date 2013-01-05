@@ -142,11 +142,10 @@ class IOSHandler(BaseHandler, LoginMixin):
             self.redis.setvalue(ios_id_key, iosid, UWEB.IOS_ID_INTERVAL)
             ios_badge_key = get_ios_badge_key(username)
             self.redis.setvalue(ios_badge_key, 0, UWEB.IOS_ID_INTERVAL)
-            
+            self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name, 
                                          cars=terminals))
-            self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
         else:
             logging.info("[UWEB] uid: %s login failed, message: %s", uid, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
@@ -194,7 +193,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
             version_info = get_version_info("android")
             self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
             self.write_ret(status,
-                           dict_=DotDict(app_key=push_info.app_key,
+                           dict_=DotDict(push_id=uid,
+                                         app_key=push_info.app_key,
                                          push_key=push_key,
                                          name=user_info.name, 
                                          cars=terminals,
