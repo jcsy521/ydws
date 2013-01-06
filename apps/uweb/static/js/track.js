@@ -346,7 +346,7 @@ window.dlf.fn_initTrackDatepicker = function() {
 				}
 			}
 		});
-	}).val(str_nowDate + ' ' + dlf.fn_changeNumToDateString(new Date()-7200000, 'sfm'));
+	}).val(dlf.fn_changeNumToDateString((new Date()-7200000)/1000));
 	
 	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
 		WdatePicker({el: 'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}', qsEnabled: false, 
@@ -360,7 +360,7 @@ window.dlf.fn_initTrackDatepicker = function() {
 				}
 			}
 		});
-	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(new Date(), 'sfm'));
+	}).val(dlf.fn_changeNumToDateString(new Date()/1000));
 }
 
 /**
