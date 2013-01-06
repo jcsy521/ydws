@@ -9,7 +9,7 @@
 * arr_infoPoint: 通过动态更新获取到的车辆数据进行轨迹显示
 * f_infoWindowStatus: 吹出框是否显示
 * obj_localSearch: 周边查询对象 
-* wakeupInterval： 唤醒追踪器计时器
+* wakeupInterval： 唤醒定位器计时器
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -740,7 +740,7 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 
 
 /**
-* 追踪器开启追踪倒计时初始化 
+* 定位器开启追踪倒计时初始化 
 */
 window.dlf.fn_clearTrack = function() {
 	dlf.fn_clearInterval(trackInterval);
@@ -758,8 +758,8 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 	$.post_(BEGINTRACK_URL, JSON.stringify(obj_param), function(data) {
 		if ( data.status == 0 ) {
 			var obj_trackMsg = $('#trackMsg'),
-				obj_trackWrapper = $('#trackWrapper'),	// 追踪器唤醒提示容器
-				obj_trackTimer = $('#trackTimer'),	// 追踪器提示框计时器容器
+				obj_trackWrapper = $('#trackWrapper'),	// 定位器唤醒提示容器
+				obj_trackTimer = $('#trackTimer'),	// 定位器提示框计时器容器
 				n_timer = parseInt(obj_trackTimer.html()),
 				n_left = ($(window).width()-400)/2;
 				
@@ -770,18 +770,18 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 			/**
 			* 5分钟
 			*/
-			obj_trackMsg.html('追踪器已开启追踪10分钟后将自动取消追踪。');
+			obj_trackMsg.html('定位器已开启追踪10分钟后将自动取消追踪。');
 			obj_trackWrapper.css('left', n_left + 'px').show();
 			setTimeout(function() {
 				obj_trackWrapper.hide();
 			}, 4000);
 			
 			trackInterval = setInterval(function() {
-				var n_login = parseInt($('#carList .currentCar').eq(0).attr('clogin'));	// 判断当前追踪器状态
+				var n_login = parseInt($('#carList .currentCar').eq(0).attr('clogin'));	// 判断当前定位器状态
 				if ( n_timer > 6000 ) {
 					dlf.fn_clearInterval(trackInterval);
 					obj_trackWrapper.show();
-					obj_trackMsg.html('追踪器追踪时间已到，将取消追踪。');
+					obj_trackMsg.html('定位器追踪时间已到，将取消追踪。');
 					setTimeout(function() {
 						dlf.fn_clearTrack();
 						dlf.setTrack(str_tid, selfItem);

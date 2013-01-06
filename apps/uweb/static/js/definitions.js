@@ -16,7 +16,7 @@ var TERMINALLIST_URL = '/terminallist'; //终端列表
 var LASTINFO_URL = '/lastinfo'; //动态更新当前终端数据
 var LOGIN_URL = '/login'; // 登录
 var SMS_URL = '/smsoption'; // 短信告警参数
-var WAKEUP_URL = '/wakeup'; // 唤醒追踪器
+var WAKEUP_URL = '/wakeup'; // 唤醒定位器
 var BEGINTRACK_URL = '/tracklq';        // 开启追踪 
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒

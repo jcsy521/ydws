@@ -27,7 +27,7 @@ window.dlf.fn_personalData = function() {
 			$('#phone').html(str_phone).data('phone', str_phone);
 			$('#cnum').val(str_cnum).data('cnum', str_cnum);
 			
-			dlf.fn_updateAlias();	// 修改追踪器别名
+			dlf.fn_updateAlias();	// 修改定位器别名
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
