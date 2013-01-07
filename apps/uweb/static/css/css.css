@@ -1409,7 +1409,6 @@ body {
 /*service terms start */
 .services {
 	margin-top: 30px;
-	padding: 0 217px;
 }
 #serviceTitle {
 	text-align: center;
@@ -1432,9 +1431,7 @@ body {
 	text-indent: 2em;
 	font-size: 14px;
 }
-.headdl {
-	float: left;
-}
+
 .subtitle {
 	text-indent: 4em;
 }
@@ -1445,8 +1442,7 @@ body {
 	padding: 0px;
 	margin: 0 auto;
 	background-color: #f7f8fb;
-	width: 100%;
-	min-width: 1038px;
+	width: 1024px;
 }
 .commonBody .top {    
 	float: left;
@@ -1667,5 +1663,12 @@ body {
     padding-left: 27px;
     text-align: center;
     width: 402px;
+}
+.serviceHeader {
+	text-indent: 20px;
+	margin-bottom: 15px;
+}
+.childrenUl {
+	text-indent: 35px;
 }
 /*web css end*/
