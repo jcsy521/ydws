@@ -112,9 +112,7 @@ table, .ui-widget-header {
     border: none;
     margin-left: 3px;
 }
-#login form {
-	margin-top: 37px;
-}
+
 #login form table {
     height: 150px;
 }
@@ -303,7 +301,7 @@ table, .ui-widget-header {
 .cUlItem {
     margin: 0;
     padding: 0;
-  /*  width: 110px;*/
+	width: 100px;
     list-style-position: inside;
 }
 .privilegesMsg {

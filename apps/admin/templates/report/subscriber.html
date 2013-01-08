@@ -74,7 +74,6 @@
     <thead>
         <tr>
             <th>序号</th><th>城市</th><th>集团数量</th><th>成员总数</th>
-            <th>15元套餐</th><th>20元套餐</th><th>25元套餐</th>
         </tr>
     </thead>
     <tbody>
@@ -84,9 +83,6 @@
 	            <td>{{result['city']}}</td>
                 <td>{{result['group']}}</td>
                 <td>{{result['target']}}</td>
-                <td>{{result['plan1']}}</td>
-                <td>{{result['plan2']}}</td>
-                <td>{{result['plan3']}} </td>
             </tr>
         {% end %}
     </tbody>
@@ -96,9 +92,6 @@
 			<td colspan="2">合计：</td>
 			<td>{{counts['group']}}</td>
 			<td>{{counts['target']}}</td>
-			<td>{{counts['plan1']}}</td>
-			<td>{{counts['plan2']}}</td>
-			<td>{{counts['plan3']}}</td>
 		</tr>
 		{% end %}
 	</tfoot>

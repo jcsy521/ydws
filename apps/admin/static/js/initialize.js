@@ -45,7 +45,7 @@ $(document).ready(function () {
     $('#adminUser').click(function () {
         $('#toggle').toggle('fast');
     });
-	$('#adminUserSearch').click(function () {
+	$('#CorprationUser').click(function () {
         $('#toggle1').toggle('fast');
     });
 	

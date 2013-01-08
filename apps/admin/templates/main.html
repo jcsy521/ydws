@@ -29,6 +29,14 @@
 			  <div id="loginUser" style="display: inline;"></div>
 			</div>
 			<div id="accordion">
+				<h3><a href="#">登录历史</a></h3>
+				<div>
+					<ul class="cUlItem">
+						<li onclick="fn_CreateIframeSrc('/loginhistory');">
+							<a href="#">登录历史</a>
+						</li>
+					</ul>
+				</div>
 				<h3><a href="#">个人信息</a></h3>
 				<div>
 					<ul class="cUlItem">
@@ -37,6 +45,28 @@
 						</li>
 						<li onclick="fn_CreateIframeSrc('/administrator/password/me');">
 							<a href="#">修改密码</a>
+						</li>
+					</ul>
+				</div>
+				<h3><a href="#">系统管理</a></h3>
+				<div>
+					<ul class="cUlItem">
+						<li class="ultoggle">
+							<span id="adminUser">后台用户管理</span>
+							<ul class="hideul" id="toggle">
+								<li onclick="fn_CreateIframeSrc('/administrator/search');">
+									<a href="#">查询后台用户</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/administrator/create');">
+									<a id="a_creatPerson" href="#">新增后台用户</a>
+								</li>
+							</ul>
+						</li>
+						<li onclick="fn_CreateIframeSrc('/privgroup/list');">
+							<a href="#">权限组管理</a>
+						</li>
+						<li onclick="fn_CreateIframeSrc('/administrator/password/other');">
+							<a href="#">密码管理</a>
 						</li>
 					</ul>
 				</div>
@@ -57,57 +87,49 @@
 						<li onclick="fn_CreateIframeSrc('/business/create');">
 							<a href="#">个人用户</a>
 						</li>
-						<li onclick="fn_CreateIframeSrc('/ecbusiness/ec');">
-							<a id="a_creatPerson" href="#">集团用户</a>
+						<li class="ultoggle">
+							<span id="CorprationUser">集团用户</span>
+							<ul class="hideul" id="toggle1">
+								<li onclick="onclick=fn_CreateIframeSrc('/ecbusiness/ec');">
+									<a href="#">新增集团</a>
+								</li>
+								<li >
+									<a href="#">新增终端</a>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</div>
 				<h3><a href="#">业务查询</a></h3>
 				<div>
 					<ul class="cUlItem">
-						<li class="ultoggle">
-							<span id="adminUserSearch">业务查询</span>
-							<ul class="hideul" id="toggle1">
-								<li onclick="fn_CreateIframeSrc('/business/search');">
-									<a href="#">个人用户查询</a>
-								</li>
-								<li onclick="fn_CreateIframeSrc('/ecbusiness/search');">
-									<a id="a_creatPerson" href="#">集团用户查询</a>
-								</li>
-							</ul>
+						<li onclick="fn_CreateIframeSrc('/business/search');">
+							<a href="#">个人用户查询</a>
 						</li>
-						<li class="ultoggle">
-							<span id="adminUser">告警查询</span>
-							<ul class="hideul" id="toggle">
-								<li>
-									<a href="#">非法移动</a>
-								</li>
-								<li>
-									<a href="#">SOS告警</a>
-								</li>
-							</ul>
+						<li onclick="fn_CreateIframeSrc('/ecbusiness/search');">
+							<a id="a_creatPerson" href="#">集团用户查询</a>
 						</li>
 					</ul>
 				</div>
 				<h3><a href="#">业务统计</a></h3>
 				<div>
 					<ul class="cUlItem">
-						<li>
-							<a href="#">用户统计</a>
+						<li onclick="fn_CreateIframeSrc('/report/subscriber');">
+							<a href="#">地市用户统计</a>
 						</li>
-						<li>
-							<a href="#">告警统计</a>
+						<li onclick="fn_CreateIframeSrc('/report/group');">
+							<a href="#">集团用户统计</a>
 						</li>
 					</ul>
 				</div>
 				<h3><a href="#">日报月报</a></h3>
 				<div>
 					<ul class="cUlItem">
-						<li>
-							<a href="#">用户日报</a>
+						<li onclick="fn_CreateIframeSrc('/report/daily');"">
+							<a href="#">业务日报</a>
 						</li>
-						<li>
-							<a href="#">用户月报</a>
+						<li onclick="fn_CreateIframeSrc('/report/monthly');">
+							<a href="#">业务月报</a>
 						</li>
 					</ul>
 				</div>

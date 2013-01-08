@@ -24,72 +24,69 @@
 {% block body %}
 {% if status == 0 %}
 <fieldset class="ui-widget ui-widget-content ui-corner-all">
-<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-	<span class="ui-button-text">集团用户查询</span>
-</legend>
-<form id="formID" method="post"  action=""  onsubmit="return formSubmit('businessSearch');">
-    <table class="searchTable" align="left">
-        <tr>
-            <td align="right">集团名称：</td>
-            <td align="left">
-                <input type="text" name="ecname" id="ecname"  onKeyUp="fn_textKeyUp(this, 'text')" />
-            </td>
-        </tr>
-		 <tr>
-            <td align="right">集团管理员手机号：</td>
-            <td align="left">
-                <input type="text" name="ecmobile" id="ecmobile"  onKeyUp="fn_textKeyUp(this, 'tel')" />
-            </td>
-        </tr>
-        <tr>
-            <td align="right">车主手机号：</td>
-            <td align="left">
-                <input type="text" name="mobile" id="mobile" maxlength="11"   maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
-            </td>
-        </tr>
-        <tr>
-            <td align="right">终端手机号：</td>
-            <td align="left">
-                <input type="text" name="tmobile" id="tmobile"   maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
-            </td>
-        </tr>
-    </table>
-    <table class="searchTable" align="left">
-		 <tr>
-            <td align="right">姓名：</td>
-            <td align="left">
-                <input type="text" name="name" id="name"  onKeyUp="fn_textKeyUp(this, 'text')" />
-            </td>
-        </tr>
-	    <tr>
-            <td align="right">车牌号：</td>
-            <td align="left">
-                <input type="text" name="cnum" id="cnum"  maxlength="8" onKeyUp="fn_textKeyUp(this, 'text')" />
-            </td>
-        </tr>
-        <tr>
-            <td align="right">开通日期：</td>
-            <td align="left">
-				<input type="text" name="begintime0" id="begintime0" readonly="true" maxlength="40" />
-			</td>
-        </tr>
-        <tr>
-            <td align="right">截止日期：</td>
-            <td align="left">
-				<input type="text" name="endtime0" id="endtime0" readonly="true" maxlength="40" />
-            </td>
-        </tr>
-        <tr>
-            <td align="center" colspan="2">
-				<input type="hidden" id="begintime" name="begintime" value="" />
-				<input type="hidden" id="endtime" name="endtime" value="" />
-				<input type="submit" value="查询" 
-                    onclick="fn_PushData('name,mobile,tmobile,cnum,ecmobile,ecname,service_status','business');" 
-                    class="ui-button ui-widget ui-state-default ui-corner-all" role="button" aria-disabled="false" />
-			</td>
-        </tr>
-    </table>
-</form>
+	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+		<span class="ui-button-text">集团用户查询</span>
+	</legend>
+	<form method="post" action="" id="formID" onsubmit="return formSubmit('search');">
+		<table id="searchTable0" class="searchTable0">
+			 <tr>
+				<td align="right">所在城市：</td>
+				<td align="left">
+				{% if  type == '0' or type == '2' %}	
+					
+					<select id="cities" name="cities" onchange="fn_changeSchool();">
+					<option value="0">--全部--</option>
+					{% for city in cities %}
+						<option value="{{city.city_id}}">{{city.city_name}}</option>
+					{% end %}
+					</select>
+					<input type="hidden" id="citiesId" name="citiesId" value="" />
+				{% else %}
+					<label id="city" >{{cities[0].city_name}}</label>
+					<input type="hidden" id="citiesId" name="citiesId" value="{{cities[0].city_id}}"/>
+				{% end %}
+				<input type="hidden" id="type" name="type" value="{{type}}" />
+				</td>
+			</tr>
+			<tr id="d_groups" >
+				<td align="right">集团名称：</td>
+				<td align="left">
+				{% if  type == '0' or type == '2' %}
+					<select name="group" id="group" class="userSelect j_userSelect" >
+						<option value="0">--请选择集团--</option>
+					</select>
+				{% else %}
+					<select name="group" id="group" class="userSelect j_userSelect" onmouseover="clickGroup();" >
+						<option value="0">--请选择集团--</option>
+					</select>
+				{% end %}
+				</td>
+			</tr>
+		</table>
+		<table class="searchTable0">
+			<tr>
+				<td align="right">开始时间：</td>
+				<td align="left"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
+			</tr>
+			<tr>
+				<td align="right">结束时间：</td>
+				<td><input type="text" name="end_time1" id="end_time1" readonly="true" /></td>
+			</tr>
+		</table>
+		<table id="searchButton">
+			<tr>
+				<td colspan="2" align="right">
+					<input type="hidden" id="start_time" name="start_time" value="" />
+					<input type="hidden" id="end_time" name="end_time" value="" />
+					<input type="submit" value="查询" 
+						onclick="fn_PushData('citiesId,group,type,cities','usersear');" 
+						class="ui-button ui-widget ui-state-default ui-corner-all" 
+						role="button" aria-disabled="false" />
+				</td>
+			</tr>
+		</table>
+		
+	</form>
 </fieldset>
 <h3>查询结果</h3>
 <table id="rDataTables" class="display">
