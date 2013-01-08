@@ -62,6 +62,12 @@
 				{% end %}
 				</td>
 			</tr>
+			<tr>
+				<td align="right">集团手机号：</td>
+				<td align="left">
+					<input type="text" name="ecmobile" id="ecmobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
+				</td>
+			</tr>
 		</table>
 		<table class="searchTable0">
 			<tr>
@@ -79,7 +85,7 @@
 					<input type="hidden" id="start_time" name="start_time" value="" />
 					<input type="hidden" id="end_time" name="end_time" value="" />
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('citiesId,group,type,cities','usersear');" 
+						onclick="fn_PushData('citiesId,group,type,cities','ecbusinesssear');" 
 						class="ui-button ui-widget ui-state-default ui-corner-all" 
 						role="button" aria-disabled="false" />
 				</td>

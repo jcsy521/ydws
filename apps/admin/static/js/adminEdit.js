@@ -63,7 +63,7 @@ function businessStop(tmobile, seq, tempType) {
 		str_status = status == '0' ? '1' : '0',
 		str_html = status == '0' ? '停用' : '启用',
 		str_msg = '', 
-		str_url = '/business/stop/' + tmobile + '/' + str_status;
+		str_url = '/business/service/' + tmobile + '/' + str_status;
 	
 	if ( status == '0' ) {
 		str_msg = '是否启用该用户？';
@@ -71,7 +71,7 @@ function businessStop(tmobile, seq, tempType) {
 		str_msg = '是否停用该用户？';
 	}
 	if ( tempType == 'ec' ) {
-		str_url = '/ecbusiness/stop/' + tmobile + '/' + str_status;
+		str_url = '/ecbusiness/service/' + tmobile + '/' + str_status;
 	}
 	
 	if ( confirm(str_msg) ) {

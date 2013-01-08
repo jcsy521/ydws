@@ -322,6 +322,7 @@ table, .ui-widget-header {
     border: none;
     padding: 0;
     text-align: center;
+	margin-top: 50px;
 }
 .cDelegUL li {
     list-style: none;
@@ -377,7 +378,7 @@ table, .ui-widget-header {
 }
 .privList {
 	float: left;
-	width: 120px;
+	width: 125px;
 	list-style: none;
 }
 .priviBtn {

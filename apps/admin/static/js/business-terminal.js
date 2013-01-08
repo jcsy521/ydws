@@ -11,7 +11,7 @@ $(function () {
 	obj_submitBtn.hide();
 	
 	// 表单验证, 
-	$('#businessFormID1, #businessFormID2, #businessFormID').validationEngine();
+	$('#businessFormID1, #businessFormID2, #businessFormID3, #businessFormID4, #businessFormID').validationEngine();
 	
 	// 初次加载上页隐藏
 	obj_prevBtn.hide();
@@ -39,10 +39,10 @@ $(function () {
 				break;
 			case 'nextBtn':
 				var f_validate = $('#businessFormID'+n_cNum).validationEngine('validate');
-				if ( n_cNum < 3 ) {
+				if ( n_cNum < 4 ) {
 					n_tempNum = ++n_cNum;
 				} else {
-					n_tempNum = 3;
+					n_tempNum = 4;
 				}
 				// 点击下一页按钮时进行表单的再次验证
 				if ( !f_validate ) {
@@ -58,7 +58,7 @@ $(function () {
 				fn_fillUserData(n_tempNum - 1);
 				break;
 			case 'submitBtn':
-				n_tempNum = 3;
+				n_tempNum = 4;
 				fn_fillUserData(n_tempNum);
 				$('#ecFormID').submit();
 				break;
@@ -76,7 +76,7 @@ $(function () {
 			
 		$('#stepContent' + n_tempNum).addClass('carCurrent');
 		
-		if ( n_tempNum == 3 ) {
+		if ( n_tempNum == 4 ) {
 			// 隐藏下页按钮, 显示提交按钮
 			obj_nextBtn.hide();
 			obj_submitBtn.show();
@@ -173,28 +173,41 @@ function fn_fillUserData(n_tempNav) {
 	switch( n_tempNav) {
 		case 1: 
 			var str_gName = $('#ecName').val();
-			
+			//todo 取集团ID
 			$('#ecname').val(str_gName);
 			
 			$('#tdEcname').html(str_gName);
 			break;
 		case 2: 
-			var str_cLink = $('#ecLink').val(), 
-				str_cMobile = $('#ecMobile').val(), 
-				str_cAddress = $('#userAddress').val(), 
-				str_cEmail = $('#userEmail').val();
+			var str_cId = $('#carId').val(), 
+				str_cType = $('#carType').val(), 
+				str_cColor = $('#carColor').val(), 
+				str_cBrand = $('#carBrand').val();
 			
-			$('#linkman').val(str_cLink);
-			$('#ecmobile').val(str_cMobile);
-			$('#address').val(str_cAddress);
-			$('#email').val(str_cEmail);
+			$('#cnum').val(str_cId);
+			$('#type').val(str_cType);
+			$('#color').val(str_cColor);
+			$('#brand').val(str_cBrand);
 			
-			$('#tdEcLink').html(str_cLink);
-			$('#tdEcMobile').html(str_cMobile);
-			$('#tdEcUserAddress').html(str_cAddress);
-			$('#tdEcUserEmail').html(str_cEmail);
+			$('#tdCnum').html(str_cId);
+			$('#tdType').html(fn_carTypeName(str_cType));
+			$('#tdColor').html(str_cColor);
+			$('#tdBrand').html(str_cBrand);
 			break;
-		case 3: 
+		case 3:
+			var str_Tmobile = $('#terminalMobile').val(), 
+				str_stTime = $('#start_time1').val(),
+				str_endTime = $('#end_time1').val();
+				
+			$('#tmobile').val(str_Tmobile);
+			$('#begintime1').val(toEpochDate(str_stTime+' 00:00:00'));
+			$('#endtime1').val(toEpochDate(str_endTime+' 00:00:00'));
+			
+			$('#tdTmobile').html(str_Tmobile);
+			$('#tdBeginTime').html(str_stTime);
+			$('#tdEndtime').html(str_endTime);
+			break;
+		case 4: 
 			n_panelHeight = 600, 
 			n_contentHeight = 480;
 			
@@ -205,3 +218,8 @@ function fn_fillUserData(n_tempNav) {
 	$('#businessPanel').css('height', n_panelHeight);
 	$('#businessPanel .ecPcontent').css('height', n_contentHeight);
 } 
+// 通过车辆类型编号获取车辆类型名称 
+function fn_carTypeName(str_cType) {
+	var arr_carType = ['','小汽车', '小货车', '大巴车', '摩托车'];
+	return arr_carType[parseInt(str_cType)];
+}

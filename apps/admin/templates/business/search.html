@@ -29,37 +29,16 @@
 	</legend>
 	<form method="post" action="" id="formID" onsubmit="return formSubmit('search');">
 		<table id="searchTable0" class="searchTable0">
-			 <tr>
-				<td align="right">所在城市：</td>
+			<tr>
+				<td align="right">车主手机号：</td>
 				<td align="left">
-				{% if  type == '0' or type == '2' %}	
-					
-					<select id="cities" name="cities" onchange="fn_changeSchool();">
-					<option value="0">--全部--</option>
-					{% for city in cities %}
-						<option value="{{city.city_id}}">{{city.city_name}}</option>
-					{% end %}
-					</select>
-					<input type="hidden" id="citiesId" name="citiesId" value="" />
-				{% else %}
-					<label id="city" >{{cities[0].city_name}}</label>
-					<input type="hidden" id="citiesId" name="citiesId" value="{{cities[0].city_id}}"/>
-				{% end %}
-				<input type="hidden" id="type" name="type" value="{{type}}" />
+					<input type="text" name="umobile" id="umobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
 				</td>
 			</tr>
-			<tr id="d_groups" >
-				<td align="right">集团名称：</td>
+			<tr>
+				<td align="right">追踪器手机号：</td>
 				<td align="left">
-				{% if  type == '0' or type == '2' %}
-					<select name="group" id="group" class="userSelect j_userSelect" >
-						<option value="0">--请选择集团--</option>
-					</select>
-				{% else %}
-					<select name="group" id="group" class="userSelect j_userSelect" onmouseover="clickGroup();" >
-						<option value="0">--请选择集团--</option>
-					</select>
-				{% end %}
+					<input type="text" name="tmobile" id="tmobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
 				</td>
 			</tr>
 		</table>
@@ -79,7 +58,7 @@
 					<input type="hidden" id="start_time" name="start_time" value="" />
 					<input type="hidden" id="end_time" name="end_time" value="" />
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('citiesId,group,type,cities','usersear');" 
+						onclick="fn_PushData('umobile,tmobile','businesssear');" 
 						class="ui-button ui-widget ui-state-default ui-corner-all" 
 						role="button" aria-disabled="false" />
 				</td>
@@ -93,8 +72,8 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>车主名</th><th>车主手机</th><th>终端手机</th><th>车牌号</th>
-            <th>受理状态</th><th>编辑</th><th>删除</th><th>终端启用/停用</th><th>详细信息</th>
+            <th>序号</th><th>车主姓名</th><th>车主手机</th><th>追踪器手机</th><th>车牌号</th>
+            <th>受理状态</th><th>编辑</th><th>删除</th><th>追踪器启用/停用</th><th>详细信息</th>
         </tr>
     </thead>
 		
@@ -117,7 +96,7 @@
 					{% elif business['sms_status'] == 2 %}
 						<label class="sms_status2">短信发送成功</label>
 					{% elif business['sms_status'] == 3 %}
-						<label class="sms_status3">终端登陆成功</label>
+						<label class="sms_status3">追踪器登陆成功</label>
 					{% end %}
 				</td>
                 <td>
