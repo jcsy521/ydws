@@ -201,7 +201,7 @@ brand:12位字符以内
 **********
 
 ** 显示权限组
-URL: /privgroup
+URL: /privgroup/list
 template: privgroup/list.html
 
 页面显示：
@@ -375,7 +375,7 @@ POST 返回：
 ** 业务开通异步校验
 
 校验集团手机号：
-GET 请求：/ecbusiness/checkecmobile/
+GET 请求：/ec/mobile/
 
 GET 返回结果：
 
@@ -398,12 +398,12 @@ GET 返回结果：
 
 POST 请求：
 ｛
-      'ecname': x_str, //集团名称
-      'eclink': x_str, //集团联系人
-      'ecmobile': x_str, //联系人手机号
+      'name': x_str, //集团名称
+      'linkman': x_str, //集团联系人
+      'mobile': x_str, //联系人手机号
+      'password': x_str, //登录平台密码
 	  'address': x_str, //联系人地址
 	  'email': x_str, //联系人邮箱
-      'password': x_str, //登录平台密码
  ｝
  
 POST 返回：
@@ -437,6 +437,15 @@ GET 返回结果：
 ** 业务开通
 
 URL：/ecbusiness/createterminal
+
+** 业务开通异步请求集团列表
+GET 请求：/corplist/
+
+GET 返回结果：
+[
+    'id': x_str, //集团id
+    'name': x_str, //集团name
+]
 
 GET 请求：/ecbusiness/createterminal
 
@@ -500,10 +509,11 @@ POST 返回：
 {	
     'seq': x_str, //序列号
     'uname': x_str, //车主姓名
-    'cnum': x_str, //车牌号
     'umobile': x_str, //车主手机号
     'tmobile': x_str, //追踪器手机号
-    'corp_name': x_str, //集团名称
+    'cnum': x_str, //车牌号
+    'sms_status': x_str,
+    'service_status': x_str,
     'begintime':开通日期
     'endtime': 截止日期
 }
@@ -614,9 +624,9 @@ POST 返回：
 {	
     'seq': x_str, //序列号
     'uname': x_str, //车主姓名
-    'cnum': x_str, //车牌号
     'umobile': x_str, //车主手机号
     'tmobile': x_str, //追踪器手机号
+    'cnum': x_str, //车牌号
     'corp_name': x_str, //集团名称
     'begintime':开通日期
     'endtime': 截止日期
@@ -661,12 +671,12 @@ POST 返回：
 
 ** 集团用户统计
 
-URL：/report/corporation/*
+URL：/report/ecsubscriber/*
 
 GET 请求：
-/report/corporation/*
+/report/ecsubscriber/*
 
-GET 返回：report/corporation.html
+GET 返回：report/ecsubscriber.html
 页面显示搜索字段：
   'city_name': 所在城市 
 

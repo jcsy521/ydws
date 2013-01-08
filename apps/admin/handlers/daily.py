@@ -37,8 +37,6 @@ class DailyMixin(BaseMixin):
         city = self.get_argument('cities', 0)
         start_time = int(self.get_argument('start_time', None))
         end_time = int(self.get_argument('end_time', None))
-        s_time = time.strftime("%Y%m%d%H%M%S0000", time.localtime(start_time/1000))
-        e_time = time.strftime("%Y%m%d%H%M%S0000", time.localtime(end_time/1000))
         # the result of today is inavaliable
         d = datetime.datetime.fromtimestamp(time.time())
         t = datetime.datetime.combine(datetime.date(d.year,d.month, d.day), datetime.time(0, 0, 0))
@@ -47,52 +45,36 @@ class DailyMixin(BaseMixin):
             return [], [start_time, end_time]
 
         results = []
-        counts = DotDict(total_groups=0,
-                         total_targets=0,
-                         new_targets=0)
-
         if int(city) == 0:
             cities = [city.city_id for city in self.cities]
         else:
             cities = [city,]
 
         cities = [int(c) for c in cities]
-        optype_status = (XXT.OPER_TYPE.CREATE,
-                         XXT.OPER_TYPE.RESUME,
-                         XXT.OPER_TYPE.UPDATE)
         for i, city in enumerate(cities):
             c = self.db.get("SELECT city_name, region_code FROM T_HLR_CITY"
                             "  WHERE city_id = %s",
                             city)
-            total_groups = self.db.query("SELECT xxt_id FROM T_XXT_GROUP"
-                                         "  WHERE city_id = %s"
-                                         "    AND timestamp <= %s",
-                                         c.region_code, e_time)
-            group_ids = [int(group.xxt_id) for group in total_groups]
-            total_targets = self.db.get("SELECT count(*) AS count FROM T_XXT_TARGET"
-                                        "  WHERE group_id IN %s"
-                                        "    AND optype IN %s"
-                                        "    AND timestamp <= %s",
-                                        tuple(group_ids + DUMMY_IDS),
-                                        optype_status, e_time)
-            new_targets = self.db.get("SELECT count(*) AS count FROM T_XXT_TARGET"
-                                      "  WHERE group_id IN %s"
-                                      "    AND optype = %s"
-                                      "    AND timestamp BETWEEN %s AND %s",
-                                      tuple(group_ids + DUMMY_IDS),
-                                      XXT.OPER_TYPE.CREATE, s_time, e_time)
-            result = DotDict(id=i+1,
+            total_corps = self.db.query("SELECT id FROM T_XXT_CORP")
+            new_corps = self.db.query("SELECT id FROM T_XXT_CORP"
+                                      "  WHERE AND timestamp <= %s",
+                                      e_time)
+            
+            total_terminals = self.db.get("SELECT id FROM T_TERMINAL_INFO")
+            new_terminals = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                                        "  WHERE begintime <= %s",
+                                        e_time)
+            result = DotDict(seq=i+1,
                              city=c.city_name,
-                             total_groups=len(total_groups),
-                             total_targets=total_targets.count,
-                             new_targets=new_targets.count)
+                             new_corps=len(new_corps),
+                             total_corps=len(total_corps),
+                             new_terminals=len(new_terminals),
+                             total_terminals=len(total_terminals))
             results.append(result)
-            for key in counts:
-                counts[key] += result[key]
 
-        self.redis.setvalue(mem_key,(results, counts, [start_time,]), 
+        self.redis.setvalue(mem_key,(results, [start_time,]), 
                             time=self.MEMCACHE_EXPIRY)
-        return results, counts, [start_time,]
+        return results, [start_time,]
 
 
 class DailyHandler(BaseHandler, DailyMixin):
@@ -122,7 +104,6 @@ class DailyHandler(BaseHandler, DailyMixin):
                     results=[],
                     cities=self.cities,
                     interval=[],
-                    counts={},
                     hash_=None)
 
     @authenticated
@@ -134,11 +115,10 @@ class DailyHandler(BaseHandler, DailyMixin):
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
-        results, counts, interval = self.prepare_data(hash_)
+        results, interval = self.prepare_data(hash_)
 
         self.render('report/daily.html',
                     results=results,
-                    counts=counts,
                     cities=self.cities,
                     interval=interval,
                     hash_=hash_)

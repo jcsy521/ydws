@@ -71,7 +71,7 @@ class BusinessMixin(BaseMixin):
                                "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
                                "  WHERE  tu.mobile = tt.owner_mobile "
                                "    AND tt.tid = tc.tid "
-                               "    AND tc.group_id = 0"
+                               "    AND tc.group_id = -1"
                                "    AND tt.mobile = %s"
                                "    LIMIT 1",
                                tmobile)
@@ -85,49 +85,10 @@ class BusinessMixin(BaseMixin):
             return None
 
 
-# abandon
-class BusinessCheckMobileHandler(BaseHandler, BusinessMixin):
-
-    @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
-    @tornado.web.removeslash
-    def get(self, mobile):
-        """Check whether the owner_mobile can order a new terminal.     
-        if the ower has two terminal, retrun True, give a message and do not allow continue.
-        if not, return False, let the business go ahead.
-        """
-        status = True 
-        res = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                            "  WHERE owner_mobile = %s",
-                            mobile)
-        if not res:
-            status = False 
-        self.write_ret(status)
-
-
-class BusinessCheckTMobileHandler(BaseHandler, BusinessMixin):
-
-    @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
-    @tornado.web.removeslash
-    def get(self, tmobile):
-        """Check whether the terminal can be ordered by a new owner.
-        if terminal exist, return True, give a message and do not allow continue. 
-        if not, return False, let the business go ahead.
-        """
-        status = True 
-        res = self.db.get("SELECT id FROM T_TERMINAL_INFO"
-                          "  WHERE mobile = %s"
-                          "  LIMIT 1",
-                          tmobile)
-        if not res:
-            status = False 
-        self.write_ret(status)
-
 class BusinessCreateHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @check_privileges([PRIVILEGES.CREATE_BUSINESS])
     @tornado.web.removeslash
     def get(self):
         """Just to create.html.
@@ -137,23 +98,24 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                     message='')
 
     @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @check_privileges([PRIVILEGES.CREATE_BUSINESS])
     @tornado.web.removeslash
     def post(self):
         """Create business for a couple of users.
         """
-        fields = DotDict(name="",
-                         mobile="",
-                         tmobile="",
-                         password="",
+        fields = DotDict(group_id="",
                          cnum="",
-                         address="",
-                         email="",
-                         type="",
+                         ctype="",
+                         ccolor="",
+                         cbrand="",
+                         tmobile="",
                          begintime="",
                          endtime="",
-                         color="",
-                         brand="")
+                         uname="",
+                         umobile="",
+                         password="",
+                         address="",
+                         email="")
         for key in fields.iterkeys():
                 fields[key] = self.get_argument(key,'')
                 if not check_sql_injection(fields[key]):
@@ -161,48 +123,42 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                     self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_CONDITION_ILLEGAL])
                     return
-                
+
         try:
             # 1: add user
-            self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
-                            "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)"
-                            "  ON DUPLICATE KEY"
-                            "  UPDATE uid = VALUES(uid),"
-                            "         password = VALUES(password),"
-                            "         name = VALUES(name), "
-                            "         mobile = VALUES(mobile), "
-                            "         address = VALUES(address), "
-                            "         email = VALUES(email)",
-                            fields.mobile, fields.password,
-                            fields.name, fields.mobile,
-                            fields.address, fields.email)
+            if fields.umobile:
+                user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", fields.umobile)
+                if not user:
+                    self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
+                                    "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
+                                    fields.umobile, fields.password,
+                                    fields.uname, fields.umobile,
+                                    fields.address, fields.email)
+                    self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                    "  VALUES(%s)",
+                                    fields.umobile)
+                    self.db.execute("INSERT INTO T_EMAIL_OPTION(uid)"
+                                    "  VALUES(%s)",
+                                    fields.umobile)
             
             # 2: add terminal
-            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
-                            "  alias, begintime, endtime)"
+            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
+                            "  begintime, endtime)"
                             "  VALUES (%s, %s, %s, %s, %s, %s)",
-                            fields.tmobile, fields.tmobile,
-                            fields.mobile, fields.cnum, 
+                            fields.tmobile, fields.group_id,
+                            fields.tmobile, fields.umobile, 
                             fields.begintime, fields.endtime)
     
             # 3: add car tnum --> cnum
-            self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand, group_id)"
+            self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
                             "  VALUES(%s, %s, %s, %s, %s, DEFAULT)",
                             fields.tmobile, fields.cnum, 
-                            fields.type, fields.color, fields.brand)
+                            fields.ctype, fields.ccolor, fields.cbrand)
             
-            # 4: add default sms report value
-            sms_option = self.db.get("SELECT id FROM T_SMS_OPTION WHERE uid = %s", fields.mobile)
-            if not sms_option:
-                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                "  VALUES(%s)",
-                                fields.mobile)
-            
-            # 5: send message to terminal
+            # 4: send message to terminal
             register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
             ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
             ret = DotDict(json_decode(ret))
-            #ret = DotDict(status=0, msgid=1111)
             sms_status = 0
             if ret.status == ErrorCode.SUCCESS:
                 self.db.execute("UPDATE T_TERMINAL_INFO"
@@ -230,7 +186,7 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
 class BusinessSearchHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @check_privileges([PRIVILEGES.QUERY_BUSINESS])
     @tornado.web.removeslash
     def get(self):
         self.render('business/search.html',
@@ -241,7 +197,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
 
 
     @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @check_privileges([PRIVILEGES.QUERY_BUSINESS])
     @tornado.web.removeslash
     def post(self):
         """Query businesses according to the given params.
@@ -250,9 +206,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
         endtime = int(self.get_argument('endtime',0))
         interval=[begintime, endtime]
 
-        fields = DotDict(cnum="tc.cnum LIKE '%%%%%s%%%%'",
-                         name="tu.name LIKE '%%%%%s%%%%'",
-                         mobile="tu.mobile LIKE '%%%%%s%%%%'",
+        fields = DotDict(umobile="tu.mobile LIKE '%%%%%s%%%%'",
                          tmobile="tt.mobile LIKE '%%%%%s%%%%'",
                          begintime="tt.begintime >= %s",
                          endtime="tt.endtime <= %s")
@@ -273,26 +227,19 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
         where_clause = ' AND '.join([v for v in fields.itervalues()
                                      if v is not None])
         try:
+            sql = ("SELECT tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile, tt.begintime, tt.endtime,"
+                   "  tt.service_status, tc.cnum"
+                   "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
+                   "  WHERE tu.mobile = tt.owner_mobile "
+                   "    AND tt.group_id = -1"
+                   "    AND tt.tid = tc.tid ")
             if where_clause:
-                sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
-                       "  tt.mobile as tmobile, tt.service_status, tc.cnum"
-                       "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
-                       "  WHERE  tu.mobile = tt.owner_mobile "
-                       "    AND tt.tid = tc.tid "
-                       "    AND tc.group_id = 0"
-                       "    AND ") + where_clause
-                businesses = self.db.query(sql)
-            else:
-                sql = ("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
-                       "  tt.mobile as tmobile, tt.service_status, tc.cnum"
-                       "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
-                       "  WHERE  tu.mobile = tt.owner_mobile "
-                       "    AND tc.group_id = 0"
-                       "    AND tt.tid = tc.tid ")
-                businesses = self.db.query(sql)
+                sql += ' AND ' + where_clause
+            businesses = self.db.query(sql)
             for i, business in enumerate(businesses):
                 business['seq'] = i + 1
                 business['sms_status'] = self.get_sms_status(business['tmobile'])
+                business['corp_name'] = ''
                 for key in business:
                     if business[key] is None:
                         business[key] = ''
@@ -310,7 +257,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
 class BusinessListHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @check_privileges([PRIVILEGES.LIST_BUSINESS])
     @tornado.web.removeslash
     def get(self, tmobile):
         """Show the info in detail for the given business.
@@ -326,7 +273,7 @@ class BusinessListHandler(BaseHandler, BusinessMixin):
 class BusinessEditHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @check_privileges([PRIVILEGES.EDIT_BUSINESS])
     @tornado.web.removeslash
     def get(self, tmobile):
         """Jump to edit.html.
@@ -338,13 +285,12 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                     message='')
 
     @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @check_privileges([PRIVILEGES.EDIT_BUSINESS])
     @tornado.web.removeslash
     def post(self, tmobile):
         """Modify a business."""
         
-        fields = DotDict(name="",
-                         mobile="",
+        fields = DotDict(umobile="",
                          tmobile="",
                          cnum="",
                          color="",
@@ -372,7 +318,7 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                             "  email = %s "
                             "  WHERE mobile = %s",
                             fields.name, fields.address, 
-                            fields.email, fields.mobile)
+                            fields.email, fields.umobile)
             
             self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET begintime = %s,"
@@ -395,12 +341,10 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                             "  WHERE tid = %s",
                             fields.cnum, fields.type, 
                             fields.color, fields.brand, terminal.tid)
-            t = QueryHelper.get_terminal_by_tid(terminal.tid, self.db)
-            if not t.alias:
-                terminal_info_key = get_terminal_info_key(terminal.tid)
-                terminal_info = self.redis.getvalue(terminal_info_key)
-                terminal_info['alias'] = fields.cnum if fields.cnum else fields.tmobile
-                self.redis.setvalue(terminal_info_key, terminal_info)
+            terminal_info_key = get_terminal_info_key(terminal.tid)
+            terminal_info = self.redis.getvalue(terminal_info_key)
+            terminal_info['alias'] = fields.cnum if fields.cnum else fields.tmobile
+            self.redis.setvalue(terminal_info_key, terminal_info)
             
             fields.sms_status = self.get_sms_status(fields.tmobile)
             self.render('business/list.html',
@@ -413,40 +357,11 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.EDIT_USER_FAILURE])
         
         
-class BusinessStopHandler(BaseHandler, BusinessMixin):
-
-    @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
-    @tornado.web.removeslash
-    #@tornado.web.asynchronous  
-    def post(self, tmobile, service_status):
-        status = ErrorCode.SUCCESS
-        try: 
-            terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
-                                   "  WHERE mobile = %s",
-                                   tmobile)
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET service_status = %s"
-                            "  WHERE id = %s",
-                            service_status, terminal.id)
-            sessionID_key = get_terminal_sessionID_key(terminal.tid)
-            address_key = get_terminal_address_key(terminal.tid)
-            info_key = get_terminal_info_key(terminal.tid)
-            lq_sms_key = get_lq_sms_key(terminal.tid)
-            lq_interval_key = get_lq_interval_key(terminal.tid)
-            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-            self.redis.delete(*keys)
-        except Exception as e:
-            status = ErrorCode.FAILED
-            logging.exception("Set service status to %s failed. tmobile: %s", service_status, mobile)
-
-        self.write_ret(status)
-        
         
 class BusinessDeleteHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.BUSINESS_STATISTIC])
+    @check_privileges([PRIVILEGES.DELETE_BUSINESS])
     @tornado.web.removeslash
     def post(self, tmobile, pmobile):
         status = ErrorCode.SUCCESS
@@ -480,7 +395,8 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                 self.db.execute("DELETE FROM T_USER"
                                 "  WHERE mobile = %s",
                                 pmobile)
-
+                language_key = get_language_key(pmobile)
+                self.redis.delete(language_key)
             
         except Exception as e:
             status = ErrorCode.FAILED

@@ -29,9 +29,9 @@ from base import BaseHandler, authenticated
 from mongodb.msubscriber import MSubscriber, MSubscriberMixin
 
 
-class SubscriberMixin(BaseMixin):
+class ECSubscriberMixin(BaseMixin):
 
-    KEY_TEMPLATE = "subscriber_report_%s_%s"
+    KEY_TEMPLATE = "ecsubscriber_report_%s_%s"
     
 
     def prepare_data(self, hash_):
@@ -42,29 +42,39 @@ class SubscriberMixin(BaseMixin):
         if data:
             return data
 
-        city = self.get_argument('city_id', 0)
+        results = []
+        cities = self.get_argument('cities', 0)
         start_time = int(self.get_argument('start_time'))
         end_time = int(self.get_argument('end_time'))
         interval = [start_time, end_time]
 
-        corps = self.db.query("SELECT id FROM T_CORP")
-        #groups = self.db.query("SELECT id FROM T_GROUP")
-        #group_ids = [group.id for group in groups]
+        for i, city in enumerate(cities):
+            c = self.db.get("SELECT city_name FROM T_CITY WHERE city_id = %s", city)
+            corps = self.db.query("SELECT id, name FROM T_CORP")
+            for corp in corps:
+                groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", corp.id)
+                group_ids = [group.id for group in groups]
+                terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                          "  WHERE timestamp BETWEEN %s AND %s"
+                                          "    AND group_id IN %s",
+                                          start_time, end_time,
+                                          tuple(group_ids + DUMMY_IDS))
+                result = DotDict(city_name=c.city_name,
+                                 corp_name=corp.name,
+                                 total_terminals=len(terminals))
+                results.append(result)
 
-        terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                  "  WHERE timestamp BETWEEN %s AND %s",
-                                  start_time, end_time)
-        results = DotDict(total_corps=len(corps),
-                          total_terminals=len(terminals))
+        for i, result in enumerate(results):
+            result.seq = i+1
         self.redis.setvalue(mem_key, (results, interval), time=self.MEMCACHE_EXPIRY)
 
         return results, interval
 
 
-class SubscriberHandler(BaseHandler, SubscriberMixin):
+class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
+    @check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
     @tornado.web.removeslash
     def prepare(self):
         key = self.get_area_memcache_key(self.current_user.id)
@@ -78,7 +88,7 @@ class SubscriberHandler(BaseHandler, SubscriberMixin):
         self.type = res.type
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
+    @check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
     @tornado.web.removeslash
     def get(self):
         self.render("report/subscriber.html",
@@ -88,7 +98,7 @@ class SubscriberHandler(BaseHandler, SubscriberMixin):
                     hash_=None)
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
+    @check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
     @tornado.web.removeslash
     def post(self):
         m = hashlib.md5()
@@ -96,14 +106,14 @@ class SubscriberHandler(BaseHandler, SubscriberMixin):
         hash_ = m.hexdigest()
         results, interval = self.prepare_data(hash_)
 
-        self.render("report/subscriber.html",
+        self.render("report/ecsubscriber.html",
                     results=results,
                     cities=self.cities,
                     interval=interval,
                     hash_=hash_)
 
  
-class SubscriberDownloadHandler(BaseHandler, SubscriberMixin):
+class ECSubscriberDownloadHandler(BaseHandler, ECSubscriberMixin):
 
     @authenticated
     @tornado.web.removeslash

@@ -8,108 +8,7 @@ from utils.misc import safe_unicode, DUMMY_IDS
 
 from base import BaseHandler, authenticated
 from mixin import BaseMixin
-from constants import XXT
 
-
-class AreaHandler(BaseHandler, BaseMixin):
-
-    @authenticated
-    @tornado.web.removeslash
-    def get(self):
-       """
-       return privilege_area include provinces and cities
-       """
-       key = self.get_area_memcache_key(self.current_user.id)
-       areas = self.redis.getvalue(key)
-       if not areas:
-           areas = self.get_privilege_area(self.current_user.id)
-           self.redis.setvalue(key, areas)
-
-       self.set_header(*self.JSON_HEADER)
-       self.write(json_encode(areas))
-
-
-class ProvinceListHandler(BaseHandler, BaseMixin):
-
-    @authenticated
-    @tornado.web.removeslash
-    def get(self):
-        """
-        return the list of provinces.
-        """
-
-        #provinces = self.db.query("SELECT * FROM T_HLR_PROVINCE")
-        provinces = []
-        key = self.get_area_memcache_key(self.current_user.id)
-        areas = self.redis.getvalue(key)
-        if not areas:
-            areas = self.get_privilege_area(self.current_user.id)
-            self.redis.setvalue(key, areas)
-        for area in areas:
-            province = DotDict(id=area.pid,
-                               name=area.pname)
-            provinces.append(province)
-
-        self.set_header(*self.JSON_HEADER)
-        self.write(json_encode(provinces))
-
-
-class ProvinceHandler(BaseHandler, BaseMixin):
-
-    @authenticated
-    @tornado.web.removeslash
-    def get(self, province_id):
-        """
-        return cities of the province.
-        """
-        
-        #rs = self.db.query("SELECT region_code, city_name"
-        #                   "  FROM T_HLR_CITY"
-        #                   "  WHERE province_id = %s",
-        #                   province_id)
-        key = self.get_area_memcache_key(self.current_user.id)
-        areas = self.redis.getvalue(key)
-        if not areas:
-            areas = self.get_privilege_area(self.current_user.id)
-            self.redis.setvalue(key, areas)
-        for area in areas:
-            if area.pid == int(province_id):
-                rs = area.city
-                break
-
-        self.set_header(*self.JSON_HEADER)
-        self.write(json_encode(rs))
-
-
-class GroupListHandler(BaseHandler):
-    
-    @authenticated
-    @tornado.web.removeslash
-    def post(self):
-        """
-        return groups of city.
-        """
-
-        data = json_decode(self.request.body)
-        cities = data['city']
-        if int(data['type']) == 1:
-            groups = self.db.query("SELECT txg.xxt_id as id, txg.name"
-                                   "  FROM T_XXT_GROUP AS txg,"
-                                   "       T_ADMINISTRATOR AS ta"
-                                   "  WHERE ta.login = txg.phonenum"
-                                   "    AND ta.id = %s",
-                                   self.current_user.id)
-        else:
-            groups = self.db.query("SELECT DISTINCT xxt_id as id, txg.name"
-                                   "  FROM T_XXT_GROUP AS txg,"
-                                   "       T_HLR_CITY AS thc"
-                                   "  WHERE thc.city_id in %s"
-                                   "    AND txg.city_id = thc.region_code",
-                                   [item for item in cities] + DUMMY_IDS)
-
-        self.set_header(*self.JSON_HEADER)
-        self.write(json_encode(groups))
-    
 
 class AdministratorStatusHandler(BaseHandler):
     
@@ -192,6 +91,42 @@ class AreaPrivilegeHandler(BaseHandler):
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(areas))
 
+class CorpListHandler(BaseHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """
+        """
+
+        corps = self.db.query("SELECT id, name FROM T_CORP")
+            
+        self.set_header(*self.JSON_HEADER)
+        self.write(json_encode(corps))
+        
+
+class ECMobileHandler(BaseHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self, mobile):
+        """
+        """
+
+        ret = DotDict(status=ErrorCode.SUCCESS,
+                      message=None)
+        corp = self.db.get("SELECT id"
+                           "  FROM T_CORP"
+                           "  WHERE mobile = %s"
+                           "   LIMIT 1",
+                           mobile)
+        if corp:
+            ret.status = ErrorCode.EC_MOBILE_EXISTED
+            ret.message = ErrorCode.ERROR_MESSAGE[status]
+            
+        self.set_header(*self.JSON_HEADER)
+        self.write(json_encode(ret))
+        
 
 class UserInfoHandler(BaseHandler):
 

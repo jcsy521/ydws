@@ -22,8 +22,6 @@ options['logging'].set('warning')
 
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
-#from db_.mongodb import MongoDBConnection
-#from db_.exceptions import MongoDBException
 from utils.myredis import MyRedis
 
 from utils.dotdict import DotDict
@@ -32,39 +30,22 @@ from handlers.main import MainHandler
 from handlers.captcha import CaptchaHandler
 from handlers.login import LoginHandler, LoginHistoryHandler
 from handlers.logout import LogoutHandler
-
 from handlers.administrator import AdministratorSearchHandler
 from handlers.administrator import AdministratorListHandler
 from handlers.administrator import AdministratorEditHandler
 from handlers.administrator import AdministratorSelfEditHandler
 from handlers.administrator import AdministratorCreateHandler
 from handlers.administrator import AdministratorDeleteHandler
-
-from handlers.privgroup import PrivGroupListHandler
-from handlers.privgroup import PrivGroupEditHandler
-from handlers.privgroup import PrivGroupCreateHandler
-from handlers.privgroup import PrivGroupDeleteHandler
-
+from handlers.privgroup import * 
 from handlers.password import MyPasswordHandler, OtherPasswordHandler
-
 from handlers.delegate import DelegationHandler, DelegationLogHandler
-
-from handlers.user import UserHandler, UserDownloadHandler
-
-#from handlers.location import LocationHandler, LocationDownloadHandler
-from handlers.subscription import SubscriptionHandler, SubscriptionDownloadHandler
-from handlers.business import BusinessCreateHandler, BusinessCheckMobileHandler, \
-     BusinessCheckTMobileHandler, BusinessSearchHandler, BusinessListHandler,\
-     BusinessEditHandler, BusinessStopHandler, BusinessDeleteHandler
-
-from handlers.ecbusiness import ECBusinessHandler, ECBusinessCreateHandler, \
-        ECBusinessListHandler, ECBusinessSearchHandler, ECBusinessEditHandler, \
-        ECBusinessStopHandler, ECBusinessDeleteHandler, ECBusinessCheckMobileHandler, \
-        ECBusinessCheckTMobileHandler, ECBusinessAsyncFillHandler
-#from handlers.sms import SMSHandler, SMSDownloadHandler
-
-
+from handlers.subscriber import SubscriberHandler
+from handlers.ecsubscriber import ECSubscriberHandler 
+from handlers.business import * 
+from handlers.ecbusiness import * 
 from handlers.misc import *
+from handlers.daily import DailyHandler
+from handlers.monthly import MonthlyHandler
 
 
 class Application(tornado.web.Application):
@@ -89,69 +70,45 @@ class Application(tornado.web.Application):
             (r"/administrator/password/me/*", MyPasswordHandler),
             (r"/administrator/password/other/*", OtherPasswordHandler),
 
-            # business 
-            (r"/business/create/*", BusinessCreateHandler),
-            (r"/business/checkmobile/(\S+)/*", BusinessCheckMobileHandler),
-            (r"/business/checktmobile/(\S+)/*", BusinessCheckTMobileHandler),
-            (r"/business/search/*", BusinessSearchHandler),
-            (r"/business/list/(\S+)/*", BusinessListHandler),
-            (r"/business/edit/(\S+)/*", BusinessEditHandler), 
-            (r"/business/stop/(\S+)/(\S+)/*", BusinessStopHandler),
-            (r"/business/delete/(\S+)/(\S+)/*", BusinessDeleteHandler),
-            
-            # EC business
-            (r"/ecbusiness/ec/*", ECBusinessHandler),
-            (r"/ecbusiness/createec/*", ECBusinessCreateHandler),
-            (r"/ecbusiness/list/(\S+)/*", ECBusinessListHandler),
-            (r"/ecbusiness/search/*", ECBusinessSearchHandler),
-            (r"/ecbusiness/edit/(\S+)/*", ECBusinessEditHandler),
-            (r"/ecbusiness/stop/(\S+)/(\S+)/*", ECBusinessStopHandler),
-            (r"/ecbusiness/delete/(\S+)/(\S+)/*", ECBusinessDeleteHandler),
-            (r"/ecbusiness/checkmobile/(\S+)/*", ECBusinessCheckMobileHandler),
-            (r"/ecbusiness/checktmobile/(\S+)/*", ECBusinessCheckTMobileHandler),
-            (r"/ecbusiness/asyncfill/*", ECBusinessAsyncFillHandler),
-
             # privilege group
             (r"/privgroup/list/*", PrivGroupListHandler),
             (r"/privgroup/create/*", PrivGroupCreateHandler),
             (r"/privgroup/edit/(\d+)/*", PrivGroupEditHandler),
             (r"/privgroup/delete/(\d+)/*", PrivGroupDeleteHandler),
 
+            # delegation
             (r"/delegation/*", DelegationHandler),
             (r"/delegation/log/*", DelegationLogHandler),
+
+            # business 
+            (r"/business/search/*", BusinessSearchHandler),
+            (r"/business/create/*", BusinessCreateHandler),
+            (r"/business/list/(\S+)/*", BusinessListHandler),
+            (r"/business/edit/(\S+)/*", BusinessEditHandler), 
+            (r"/business/delete/(\S+)/(\S+)/*", BusinessDeleteHandler),
+            
+            # EC business
+            (r"/ecbusiness/search/*", ECBusinessSearchHandler),
+            (r"/ecbusiness/createec/*", ECBusinessCreateHandler),
+            (r"/ecbusiness/createterminal/*", ECBusinessCreateTerminalHandler),
+            (r"/ecbusiness/list/(\S+)/*", ECBusinessListHandler),
+            (r"/ecbusiness/edit/(\S+)/*", ECBusinessEditHandler),
+            (r"/ecbusiness/delete/(\S+)/(\S+)/*", ECBusinessDeleteHandler),
 
             # misc
             (r"/administrator/checkloginname/(.*)/*", AdministratorLoginnameHandler),
             (r"/administrator/checkprivilegegroupname/(.*)/*", PrivilegeGroupNameHandler),
-            #(r"/administrator/(\d+)/status/*", AdministratorStatusHandler),
-            #(r"/administrator/(\d+)/area/*", AreaPrivilegeHandler),
-            #(r"/province/(\d+)/city/(\d+)/group/*", CityHandler),
-            #(r"/province/(\d+)/city/*", ProvinceHandler),
-            #(r"/province/*", ProvinceListHandler),
-            (r"/user/mobile/(\d+)/*", UserInfoHandler),
-            (r"/monitor/(\d+)/(\d+)/*", MonitorHandler),
-            (r"/groups/*", GroupListHandler),
-            (r"/privileges/(\d+)/*", PrivilegeSetHandler),
-
-            # subscription log query
-            #(r"/subscription/log/*", SubscriptionHandler),
-
-            # user query
-            (r"/user/search/*", UserHandler),
-            (r"/user/subscription/*", SubscriptionHandler),
-            (r"/download/user/(.*)/*", UserDownloadHandler),
-            (r"/download/subscription/(.*)/*", SubscriptionDownloadHandler),
+            (r"/ec/mobile/(\d+)/*", ECMobileHandler),
+            #(r"/user/mobile/(\d+)/*", UserInfoHandler),
+            #(r"/terminal/mobile/(\d+)/*", TerminalHandler),
+            (r"/corplist/*", CorpListHandler),
 
             # statistic report
-            #(r"/report/location/*", LocationHandler),
-            #(r"/report/business/*", BusinessHandler),
-            #(r"/report/sms/*", SMSHandler),
+            (r"/report/subscriber/*", SubscriberHandler),
+            (r"/report/ecsubscriber/*", ECSubscriberHandler),
+            (r"/report/daily/*", DailyHandler),
+            (r"/report/monthly/*", MonthlyHandler),
 
-            # download the report
-            #(r"/download/subscription/(.*)/*", SubscriptionDownloadHandler),
-            #(r"/download/location/(.*)/*", LocationDownloadHandler),
-            #(r"/download/business/(.*)/*", BusinessDownloadHandler),
-            #(r"/download/sms/(.*)/*", SMSDownloadHandler),
         ]
 
         settings = dict(
