@@ -44,12 +44,14 @@
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/org.springframework.orm-3.1.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/org.springframework.transaction-3.1.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/org.springframework.web-3.1.0.RELEASE.jar"/>
-	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/smack.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/smack.jar" sourcepath="C:/Users/hh/.m2/repository/org/igniterealtime/smack/smack/3.2.1/smack-3.2.1-sources.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/smackx.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/struts2-convention-plugin-2.3.1.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/struts2-core-2.3.1.jar" sourcepath="C:/Users/hh/.m2/repository/org/apache/struts/struts2-core/2.3.1/struts2-core-2.3.1-sources.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/struts2-json-plugin-2.3.1.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/struts2-spring-plugin-2.3.1.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/xwork-core-2.3.1.jar" sourcepath="C:/Users/hh/.m2/repository/org/apache/struts/xwork/xwork-core/2.3.1/xwork-core-2.3.1-sources.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/bcprov-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="output" path="WebRoot/WEB-INF/classes"/>
 </classpath>
