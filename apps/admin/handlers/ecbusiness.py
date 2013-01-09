@@ -284,7 +284,9 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
         fields = DotDict(name="",
                          mobile="",
                          password="",
-                         linkman="")
+                         linkman="",
+                         address="",
+                         email="")
 
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'').strip()
