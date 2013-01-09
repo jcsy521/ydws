@@ -1,0 +1,141 @@
+<script type="text/javascript" src="/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet"type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/static/js/dateChoose.js"></script>
+<script type="text/javascript" src="/static/js/initStyle.js"></script>
+{% block body %}
+{% if status == 0 %}
+	<h3>集团用户详情</h3>
+	<table class="tableStyle j_business">
+		<tr>
+			<td	class="tLeft">集团名称：
+			<td align="left">
+				{{business.ecname}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">集团管理员手机号：
+			<td align="left">
+				{{business.ecmobile}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">车主姓名：
+			<td align="left">
+				{{business.name}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">车主手机号：
+			<td align="left">
+				{{business.mobile}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">终端手机号：
+			<td align="left">
+				{{business.tmobile}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">车牌号：</td>
+			<td	align="left">
+				{{business.cnum}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">联系地址：</td>
+			<td	align="left">
+				{{business.address}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">电子邮件：</td>
+			<td	align="left">
+				{{business.email}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">车辆类型：</td>
+			<td	align="left">
+				<script>
+					document.write(fn_setCarType({{business.type}}));
+				</script>
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">车辆颜色：</td>
+			<td	align="left">
+				{{business.color}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">车辆品牌：</td>
+			<td	align="left">
+				{{business.brand}}
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">开通日期：</td>
+			<td	align="left">
+				<label id="bt" class="j_timestamp">{{business.begintime}}</label>
+			</td>
+		</tr>
+		<tr>
+			<td	class="tLeft">截止日期：</td>
+			<td	align="left">
+				<label id="et" class="j_timestamp">{{business.endtime}}</label>
+			</td>
+		</tr>
+		<tr>
+			<td class="tLeft">终端状态：</td>
+			<td>
+				{% if business.service_status == 0 %}
+					停用
+				{% else %}
+					启用
+				{% end %}
+			</td>
+		</tr>
+		<tr>
+			<td class="tLeft">受理状态：</td>
+			<td>
+				{% if business.sms_status == 0 %}
+					<label class="sms_status0">短信发送失败</label>
+				{% elif business.sms_status == 1 %}
+					<label class="sms_status1">短信已发送</label>
+				{% elif business.sms_status == 2 %}
+					<label class="sms_status2">短信发送成功</label>
+				{% elif business.sms_status == 3 %}
+					<label class="sms_status3">终端登陆成功</label>
+				{% end %}
+			</td>
+		</tr>
+		<tr>
+			<td align="center" colspan="2">
+				<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+						href="/ecbusiness/edit/{{business.tmobile}}">
+						<span class="ui-button-text">修改</span>
+				</a>
+				<!--<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
+						href="/ecbusiness/search">
+						<span class="ui-button-text">返回列表</span>
+				</a>-->
+			</td>
+		</tr>
+    </table>
+{% else %}
+	<div class="ui-widget" align="center">
+		<div class="errorbox ui-state-error ui-corner-all">
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-left: 1em; margin-right: .5em;"></span>
+			<strong style="float: left;">操作错误：</strong>
+			<br />
+			<br />
+			{{ message }}
+		</div>
+		<br />
+		<a class="button" href="javascript:history.back(document.referrer);">返回</a>
+	</div>
+{% end %}
+{% end %}
