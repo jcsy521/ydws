@@ -2,6 +2,7 @@
 
 import hashlib
 import logging
+import time
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
@@ -289,11 +290,12 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
             fields[key] = self.get_argument(key,'').strip()
 
         corpid = self.db.execute("INSERT INTO T_CORP(name, mobile, password,"
-                                 "  linkman, address, email)"
-                                 "  VALUES(%s, %s, %s, %s, %s, %s)",
+                                 "  linkman, address, email, timestamp)"
+                                 "  VALUES(%s, %s, password(%s), %s, %s, %s)",
                                  fields.name, fields.mobile,
-                                 password(fields.password), fields.linkman,
-                                 fields.address, fields.email)
+                                 fields.password, fields.linkman,
+                                 fields.address, fields.email,
+                                 time.time())
         group = self.db.execute("INSERT INTO T_GROUP(corp_id, name)"
                                 "  VALUES(%s, %s)",
                                 corp_id, u'未分组')
@@ -568,7 +570,9 @@ class ECBusinessCreateTerminalHandler(BaseHandler, ECBusinessMixin):
     def get(self):
         """Just to create.html.
         """
+        corplist = self.db.query("SELECT id, name FROM T_CORP")
         self.render('ecbusiness/createterminal.html',
+                    corplist=corplist,
                     status=ErrorCode.SUCCESS,
                     message='')
 
