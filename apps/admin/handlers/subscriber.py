@@ -42,23 +42,38 @@ class SubscriberMixin(BaseMixin):
         if data:
             return data
 
-        city = self.get_argument('city_id', 0)
+        cities = self.get_argument('cities', 0)
         start_time = int(self.get_argument('start_time'))
         end_time = int(self.get_argument('end_time'))
         interval = [start_time, end_time]
+        if int(cities) == 0:
+            cities = [city.city_id for city in self.cities]
+        else:
+            cities = [city,] 
 
-        corps = self.db.query("SELECT id FROM T_CORP")
-        #groups = self.db.query("SELECT id FROM T_GROUP")
-        #group_ids = [group.id for group in groups]
-
-        terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+        results = [] 
+        counts = DotDict(total_corps=0,
+                         total_terminals=0)
+        cities = [int(c) for c in cities]
+        for city in cities:
+            c = self.db.get("SELECT city_name FROM T_CITY WHERE city_id = %s", city)
+            corps = self.db.query("SELECT id FROM T_CORP"
                                   "  WHERE timestamp BETWEEN %s AND %s",
                                   start_time, end_time)
-        results = DotDict(total_corps=len(corps),
-                          total_terminals=len(terminals))
-        self.redis.setvalue(mem_key, (results, interval), time=self.MEMCACHE_EXPIRY)
+            #groups = self.db.query("SELECT id FROM T_GROUP")
+            #group_ids = [group.id for group in groups]
 
-        return results, interval
+            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                      "  WHERE begintime BETWEEN %s AND %s",
+                                      start_time, end_time)
+            result = DotDict(total_corps=len(corps),
+                             total_terminals=len(terminals))
+            results.append(result)
+            for key in counts:
+                counts[key] += result[key]
+        self.redis.setvalue(mem_key, (results, counts, interval), time=self.MEMCACHE_EXPIRY)
+
+        return results, counts, interval
 
 
 class SubscriberHandler(BaseHandler, SubscriberMixin):
@@ -83,6 +98,7 @@ class SubscriberHandler(BaseHandler, SubscriberMixin):
     def get(self):
         self.render("report/subscriber.html",
                     results=[],
+                    counts={},
                     cities=self.cities, 
                     interval=[],
                     hash_=None)
@@ -94,10 +110,11 @@ class SubscriberHandler(BaseHandler, SubscriberMixin):
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
-        results, interval = self.prepare_data(hash_)
+        results, counts, interval = self.prepare_data(hash_)
 
         self.render("report/subscriber.html",
                     results=results,
+                    counts=counts,
                     cities=self.cities,
                     interval=interval,
                     hash_=hash_)

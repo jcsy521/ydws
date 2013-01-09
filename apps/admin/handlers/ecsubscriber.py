@@ -43,12 +43,20 @@ class ECSubscriberMixin(BaseMixin):
             return data
 
         results = []
+        counts = DotDict(total_corps=0,
+                         total_terminals=0)
         cities = self.get_argument('cities', 0)
         start_time = int(self.get_argument('start_time'))
         end_time = int(self.get_argument('end_time'))
         interval = [start_time, end_time]
 
-        for i, city in enumerate(cities):
+        if int(cities) == 0:
+            cities = [city.city_id for city in self.cities]
+        else:
+            cities = [city,] 
+
+        cities = [int(c) for c in cities]
+        for city in enumerate(cities):
             c = self.db.get("SELECT city_name FROM T_CITY WHERE city_id = %s", city)
             corps = self.db.query("SELECT id, name FROM T_CORP")
             for corp in corps:
@@ -63,12 +71,14 @@ class ECSubscriberMixin(BaseMixin):
                                  corp_name=corp.name,
                                  total_terminals=len(terminals))
                 results.append(result)
+                counts.total_corps += 1
+                counts.total_terminals += len(terminals)
 
         for i, result in enumerate(results):
             result.seq = i+1
-        self.redis.setvalue(mem_key, (results, interval), time=self.MEMCACHE_EXPIRY)
+        self.redis.setvalue(mem_key, (results, counts, interval), time=self.MEMCACHE_EXPIRY)
 
-        return results, interval
+        return results, counts, interval
 
 
 class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
@@ -93,6 +103,7 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
     def get(self):
         self.render("report/subscriber.html",
                     results=[],
+                    counts={},
                     cities=self.cities, 
                     interval=[],
                     hash_=None)
@@ -104,10 +115,11 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
-        results, interval = self.prepare_data(hash_)
+        results, counts, interval = self.prepare_data(hash_)
 
         self.render("report/ecsubscriber.html",
                     results=results,
+                    counts=counts,
                     cities=self.cities,
                     interval=interval,
                     hash_=hash_)

@@ -104,8 +104,30 @@ class CorpListHandler(BaseHandler):
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(corps))
         
+class CheckTMobileHandler(BaseHandler):
 
-class ECMobileHandler(BaseHandler):
+    @authenticated
+    @tornado.web.removeslash
+    def get(self, mobile):
+        """
+        """
+
+        ret = DotDict(status=ErrorCode.SUCCESS,
+                      message=None)
+        corp = self.db.get("SELECT id"
+                           "  FROM T_TERMINAL_INFO"
+                           "  WHERE mobile = %s"
+                           "   LIMIT 1",
+                           mobile)
+        if corp:
+            ret.status = ErrorCode.TERMINAL_ORDERED
+            ret.message = ErrorCode.ERROR_MESSAGE[status]
+            
+        self.set_header(*self.JSON_HEADER)
+        self.write(json_encode(ret))
+        
+
+class CheckECMobileHandler(BaseHandler):
 
     @authenticated
     @tornado.web.removeslash

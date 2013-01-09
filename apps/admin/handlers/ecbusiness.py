@@ -291,8 +291,8 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
         corpid = self.db.execute("INSERT INTO T_CORP(name, mobile, password,"
                                  "  linkman, address, email)"
                                  "  VALUES(%s, %s, %s, %s, %s, %s)",
-                                 fileds.name, fileds.mobile,
-                                 password(fileds.password), fileds.linkman,
+                                 fields.name, fields.mobile,
+                                 password(fields.password), fields.linkman,
                                  fields.address, fields.email)
         group = self.db.execute("INSERT INTO T_GROUP(corp_id, name)"
                                 "  VALUES(%s, %s)",
@@ -325,6 +325,7 @@ class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
         self.render('ecbusiness/search.html',
                     interval=[], 
                     businesses=[],
+                    cities=[],
                     status=ErrorCode.SUCCESS,
                     message='')    
         
@@ -341,6 +342,7 @@ class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
         self.render('ecbusiness/search.html',
                     interval=interval, 
                     businesses=businesses,
+                    cities=[],
                     status=ErrorCode.SUCCESS,
                     message='')
         

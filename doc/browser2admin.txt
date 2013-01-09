@@ -666,7 +666,7 @@ POST 返回：
     'seq': 序号
     'city_name': 城市
 	'total_corps': 集团数量
-	'total_terminal': 成员数量
+	'total_terminals': 成员数量
 }
 
 ** 集团用户统计
@@ -691,7 +691,7 @@ POST 返回：
     'seq': 序号
     'city_name': 城市
 	'corp_name': 集团名称
-	'terminal_count': 成员数量
+	'total_terminals': 成员数量
 }
 
 
@@ -718,7 +718,7 @@ template: /report/daily.html
    'province': 省份
    'city': 城市、
    'new_corps': 新增集团数、
-   'total_groups': 总集团数、
+   'total_corps': 总集团数、
    'new_terminals': 新增终端数、
    'total_terminals': 总终端数。
   ], ...
@@ -744,10 +744,10 @@ template: /report/monthly.html
 {[
    province: 省份、
    city: 城市、
-   new_groups: 新增集团数、
-   total_groups: 总集团数、
-   new_children: 新增终端数、
-   total_children: 总终端数。
+   new_corps: 新增集团数、
+   total_corps: 总集团数、
+   new_terminals: 新增终端数、
+   total_terminals: 总终端数。
   ], ...
 }
 

@@ -98,10 +98,11 @@ class Application(tornado.web.Application):
             # misc
             (r"/administrator/checkloginname/(.*)/*", AdministratorLoginnameHandler),
             (r"/administrator/checkprivilegegroupname/(.*)/*", PrivilegeGroupNameHandler),
-            (r"/ec/mobile/(\d+)/*", ECMobileHandler),
             #(r"/user/mobile/(\d+)/*", UserInfoHandler),
             #(r"/terminal/mobile/(\d+)/*", TerminalHandler),
             (r"/corplist/*", CorpListHandler),
+            (r"/checkecmobile/(\d+)/*", CheckECMobileHandler),
+            (r"/checktmobile/(\d+)/*", CheckTMobileHandler),
 
             # statistic report
             (r"/report/subscriber/*", SubscriberHandler),

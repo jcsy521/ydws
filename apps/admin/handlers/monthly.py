@@ -45,6 +45,10 @@ class MonthlyMixin(BaseMixin):
             return [], start_time
 
         results = []
+        counts = DotDict(new_corps=0,
+                         total_corps=0,
+                         new_terminals=0,
+                         total_terminas=0)
         if int(city) == 0:
             cities = [city.city_id for city in self.cities]
         else:
@@ -71,10 +75,12 @@ class MonthlyMixin(BaseMixin):
                              new_terminals=len(new_terminals),
                              total_terminals=len(total_terminals))
             results.append(result)
+            for key in counts:
+                counts[key] += result[key]
 
-        self.redis.setvalue(mem_key, (results, start_time), 
+        self.redis.setvalue(mem_key, (results, counts, start_time), 
                            time=self.MEMCACHE_EXPIRY)
-        return results, start_time
+        return results, counts, start_time
 
 
 class MonthlyHandler(BaseHandler, MonthlyMixin):
@@ -102,6 +108,7 @@ class MonthlyHandler(BaseHandler, MonthlyMixin):
 
         self.render('report/monthly.html',
                     results=[],
+                    counts={},
                     cities=self.cities,
                     interval=[],
                     type=self.type,
@@ -120,6 +127,7 @@ class MonthlyHandler(BaseHandler, MonthlyMixin):
 
         self.render('report/monthly.html',
                     results=results,
+                    counts=counts,
                     cities=self.cities,
                     interval=[timestamp],
                     type=self.type,

@@ -45,6 +45,10 @@ class DailyMixin(BaseMixin):
             return [], [start_time, end_time]
 
         results = []
+        counts = DotDict(new_corps=0,
+                         total_corps=0,
+                         new_terminals=0,
+                         total_terminas=0)
         if int(city) == 0:
             cities = [city.city_id for city in self.cities]
         else:
@@ -71,10 +75,12 @@ class DailyMixin(BaseMixin):
                              new_terminals=len(new_terminals),
                              total_terminals=len(total_terminals))
             results.append(result)
+            for key in counts:
+                counts[key] += result[key]
 
-        self.redis.setvalue(mem_key,(results, [start_time,]), 
+        self.redis.setvalue(mem_key,(results, counts, [start_time,]), 
                             time=self.MEMCACHE_EXPIRY)
-        return results, [start_time,]
+        return results, counts, [start_time,]
 
 
 class DailyHandler(BaseHandler, DailyMixin):
@@ -102,6 +108,7 @@ class DailyHandler(BaseHandler, DailyMixin):
 
         self.render('report/daily.html',
                     results=[],
+                    count={},
                     cities=self.cities,
                     interval=[],
                     hash_=None)
@@ -115,10 +122,11 @@ class DailyHandler(BaseHandler, DailyMixin):
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
-        results, interval = self.prepare_data(hash_)
+        results, counts, interval = self.prepare_data(hash_)
 
         self.render('report/daily.html',
                     results=results,
+                    counts=counts,
                     cities=self.cities,
                     interval=interval,
                     hash_=hash_)
