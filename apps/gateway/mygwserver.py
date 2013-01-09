@@ -802,11 +802,18 @@ class MyGWServer(object):
                 location.name = location.get('name') if location.get('name') else ""
                 location.name = safe_unicode(location.name)
                 locationdesc = location.name.encode("utf-8", 'ignore')
-                args.locationdesc = base64.b64encode(locationdesc)
-                args.ew = location.ew
-                args.ns = location.ns
-                args.lon = location.lon / 3600000.0
-                args.lat = location.lat / 3600000.0
+                user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
+                tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
+                dw_method = u'GPS' if not cellid else u'基站'
+                if locationdesc:
+                    if user:
+                        current_time = get_terminal_time(int(time.time()))
+                        sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method, location.lon / 3600000.0, location.lat / 3600000.0, unicode(locationdesc, 'utf-8'), current_time) 
+                        SMSHelper.send(user.owner_mobile, sms)
+                else:
+                    if user:
+                        sms = SMSCode.SMS_DW_FAILED % (tname, dw_method)
+                        SMSHelper.send(user.owner_mobile, sms)
                 if not (location.lat and location.lon):
                     args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
                 else:
