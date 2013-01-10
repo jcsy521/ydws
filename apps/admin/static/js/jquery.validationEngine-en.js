@@ -118,6 +118,11 @@
 					"regex": /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
 					"alertText":"* 只能是数字下划线和中文"
 				},
+				"ajaxUser":{
+					"url":"/administrator/checkloginname/",
+					"alertTextOk":"可以使用.",	
+					"alertTextLoad":"请稍候...",
+					"alertText":"已存在"},	
 				"ajaxMobile":{
 					"url":"/business/checkmobile/",
 					"alertTextOk":"可以使用.",	

@@ -133,12 +133,12 @@ function adminSubmit(is_self) {
 				alert('必须为用户选择一项权限！');
 				return false;
 			}
-			if (cities != '') {
+			/* if (cities != '') {
 				return true;
 			} else {
 				alert('请选择您要操作的市。');
 				return false;
-			}
+			} */
 		} else {
 			return false;
 		}

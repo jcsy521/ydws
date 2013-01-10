@@ -38,8 +38,8 @@
         <tr>
             <td align="right">密码：</td>
             <td align="left">
-                <input type="password" name="password" id="password" 
-                   class="validate[required,funcCall[fn_lengthBetween[pwd]]],onsubmit" 
+                <input type="password" name="password" id="password" maxlength="64" minlength="6"
+                   class="validate[required],onsubmit" 
 				   onKeyUp="fn_textKeyUp(this, 'text')" />
 				<span class="required">*</span>
             </td>
@@ -48,7 +48,7 @@
             <td align="right">确认密码：</td>
             <td align="left">
                 <input type="password" id="password2" 
-                    class="validate[required,confirm[password]],onsubmit" />
+                    class="validate[required,equals[password]],onsubmit" />
 				<span class="required">*</span>
             </td>
         </tr>
@@ -113,7 +113,7 @@
                 <input type="hidden" id="privi_s" name="privileges" />
             </td>
         </tr>
-        <tr id="city">
+        <!-- <tr id="city">
             <td align="right">管理城市：</td>
             <td align="left">
 			 <div id="msgBox" class="ui-state-highlight"></div>
@@ -133,16 +133,16 @@
 			 </div>
 			  <input type="hidden" id="cities" name="cities" value="" />
 			 <input type="text" id="citiesNames" class="noBorderTxt"  onclick="_ajaxGetData('#getCities');" class ="validate[required]" readonly="true" value=""/>
-               <!-- <div class="ckList">
+                <div class="ckList">
 					{% for city in cities %}
 						<input id="checkbox{{city.city_id}}" type="checkbox" class="j_cities" value="{{city.city_id}}" name="cities" />
 						<span id="span{{city.city_id}}">{{city.city_name}}</span>
 					{% end %}
 				</div>
-				-->
+				
 				
             </td>
-        </tr>
+        </tr> -->
         <tr>
             <td colspan="2" align="center">
                 <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
