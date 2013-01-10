@@ -18,10 +18,28 @@ class PasswordMixin(BaseMixin):
 
         return True if res else False 
 
+    def check_corp_by_password(self, password, cid):
+        """Check the password whether be avaliable.
+        """
+        res = self.db.get("SELECT id FROM T_CORP"
+                          "  WHERE password = password(%s)"
+                          "    AND cid = %s"
+                          "    LIMIT 1",
+                          password, cid)
+
+        return True if res else False 
+
     def update_password(self, password, uid):
         self.db.execute("UPDATE T_USER "
                         "  SET password = password(%s)"
                         "  WHERE uid = %s",
                         password, uid)
+
+    def update_corp_password(self, password, cid):
+        self.db.execute("UPDATE T_CORP "
+                        "  SET password = password(%s)"
+                        "  WHERE cid = %s",
+                        password, cid)
+
 
  

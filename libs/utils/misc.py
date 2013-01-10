@@ -13,7 +13,8 @@ from dotdict import DotDict
 # therefore, if there were only on or none ids in the request, the SQL
 # will be illegal (e.g., tuple([1]) --> (1,), which is wrong for SQL
 # IN (1,). I set the dummy_ids to be appended with all ids to make it safe. 
-DUMMY_IDS = [-1, -1]
+DUMMY_IDS = [-2, -2]
+DUMMY_IDS_STR = ['-2', '-2']
 
 def log_time(method):
     """This decorator prints the runnting time of method."""

@@ -9,11 +9,13 @@ from tornado.ioloop import IOLoop
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
-from utils.misc import get_today_last_month
+from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, str_to_list, DUMMY_IDS
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
+from codes.smscode import SMSCode 
 from constants import UWEB, SMS, GATEWAY
 from helpers.queryhelper import QueryHelper  
 from mixin.terminal import TerminalMixin 
@@ -183,4 +185,190 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
+
+
+class TerminalCorpHandler(BaseHandler, TerminalMixin):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """Add a terminal.
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            tid = self.get_argument('tid','')
+            terminal = self.db.get("select tid, mobile, group_id, owner_mobile, begintime, endtime"
+                                   "  from T_TERMINAL_INFO"
+                                   "  where tid = %s",tid)
+            car = self.db.get("select cnum, type, color, brand"
+                              "  from T_CAR"
+                              "  where tid = %s", tid)
+            res = DotDict(tmobile=terminal.mobile,
+                          group_id=terminal.group_id,
+                          umobile=terminal.owner_mobile,
+                          begintime=terminal.begintime,
+                          endtime=terminal.endtime,
+                          cnum=car.cnum,
+                          ctype=car.type,
+                          ccolor=car.color, 
+                          cbrand=car.brand)
+            self.write_ret(status,
+                           dict_=dict(res=res))
+        except Exception as e:
+            logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
+
+    @authenticated
+    @tornado.web.removeslash
+    def post(self):
+        """Add a terminal.
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+        
+        try:
+            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
+                            "  begintime, endtime)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s)",
+                            data.tmobile, data.group_id,
+                            data.tmobile, data.umobile, 
+                            data.begintime, data.endtime)
+    
+            # 3: add car tnum --> cnum
+            self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
+                            "  VALUES(%s, %s, %s, %s, %s)",
+                            data.tmobile, data.cnum, 
+                            data.ctype, data.ccolor, data.cbrand)
+            
+            # 4: send message to terminal
+            # TODO:
+            #register_sms = SMSCode.SMS_REGISTER % (data.mobile, data.tmobile) 
+            #ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
+            #ret = DotDict(json_decode(ret))
+            #sms_status = 0
+            #if ret.status == ErrorCode.SUCCESS:
+            #    self.db.execute("UPDATE T_TERMINAL_INFO"
+            #                    "  SET msgid = %s"
+            #                    "  WHERE mobile = %s",
+            #                    ret['msgid'], data.tmobile)
+            #    sms_status = 1
+            #else:
+            #    sms_status = 0
+            #    logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
+    @authenticated
+    @tornado.web.removeslash
+    def put(self):
+        """modify a terminal.
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+        
+        try:
+            tid = data.tid
+
+            fields_car = DotDict()
+            fields_terminal = DotDict()
+
+            FIELDS_CAR = DotDict(cnum="cnum = '%s'",
+                                 ctype="type = '%s'",
+                                 ccolor="color = '%s'",
+                                 cbrand="cbrand = '%s'")
+
+            FIELDS_TERMINAL = DotDict(begintime="begintime = '%s'",
+                                      endtime="endtime = '%s'")
+
+            for key, value in data.iteritems():
+                if key == u'tid':
+                    pass
+                elif key in ['begintime', 'endtime']:
+                    fields_terminal.setdefault(key, FIELDS_TERMINAL[key] % value) 
+                elif key == u'cnum':
+                    self.db.execute("UPDATE T_CAR"
+                                    "  SET cnum = %s"
+                                    "  WHERE tid = %s",
+                                    value, self.current_user.tid)
+                    terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                    terminal_info = self.redis.getvalue(terminal_info_key)
+                    if terminal_info:
+                        terminal_info['alias'] = value if value else self.current_user.sim 
+                        self.redis.setvalue(terminal_info_key, terminal_info)
+                else:
+                    fields_car.setdefault(key, FIELDS_CAR[key] % value) 
+
+            set_clause_car = ','.join([v for v in fields_car.itervalues() if v is not None])
+            if set_clause_car:
+                self.db.execute("UPDATE T_CAR SET " + set_clause_car +
+                                "  WHERE tid = %s",
+                                tid)
+
+            set_clause_terminal = ','.join([v for v in fields_terminal.itervalues() if v is not None])
+            if set_clause_terminal:
+                self.db.execute("UPDATE T_TERMINAL_INFO SET " + set_clause_terminal +
+                                "  WHERE tid = %s",
+                                tid)
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
+    @authenticated
+    @tornado.web.removeslash
+    def delete(self):
+        """Delete a terminal.
+        """
+        try:
+            status = ErrorCode.SUCCESS
+            delete_ids = map(int, str_to_list(self.get_argument('ids', None)))
+            for tid in delete_ids:
+                # unbind terminal
+                seq = str(int(time.time()*1000))[-4:]
+                args = DotDict(seq=seq,
+                               tid=tid)
+                response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args) 
+                logging.info("UNBind terminal: %s, response: %s", tid, response)
+    
+                # clear redis
+                sessionID_key = get_terminal_sessionID_key(tid)
+                address_key = get_terminal_address_key(tid)
+                info_key = get_terminal_info_key(tid)
+                lq_sms_key = get_lq_sms_key(tid)
+                lq_interval_key = get_lq_interval_key(tid)
+                keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                self.redis.delete(*keys)
+
+            self.db.execute("DELETE from T_TERMINAL_INFO WHERE tid IN %s",
+                            tuple(delete_ids+DUMMY_IDS)) 
+
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] uid: %s  delete failed. Exception: %s", 
+                              self.current_user.uid, e.args) 
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
 

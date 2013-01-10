@@ -45,7 +45,7 @@ class ProfileHandler(BaseHandler):
             self.write_ret(status,
                            dict_=dict(profile=profile))
         except Exception as e:
-            logging.exception("[UWEB] uid:%s tid:%s get profile failed. Exception: %s", 
+            logging.exception("[UWEB] uid:%s tid:%s get user profile failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -58,7 +58,7 @@ class ProfileHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] profile request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] profile user request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -119,6 +119,89 @@ class ProfileHandler(BaseHandler):
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid:%s tid:%s update profile failed.  Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
+class ProfileCorpHandler(BaseHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """Display profile of current corp.
+        """
+        status = ErrorCode.SUCCESS
+        try: 
+            profile = DotDict()
+            # 1: user
+            corp = self.db.get("SELECT name c_name, mobile c_mobile, address c_address, email c_email, linkman c_linkman"
+                               "  FROM T_CORP"
+                               "  WHERE cid = %s"
+                               "  LIMIT 1",
+                               self.current_user.cid) 
+            if not corp:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
+                self.write_ret(status)
+                return
+            
+            profile.update(corp)
+            self.write_ret(status,
+                           dict_=dict(profile=profile))
+        except Exception as e:
+            logging.exception("[UWEB] uid:%s tid:%s get corp profile failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, e.args) 
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
+    @authenticated
+    @tornado.web.removeslash
+    def put(self):
+        """Modify profile of current corp. 
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] profile corp request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+
+        try:
+            if data.has_key('name')  and not check_sql_injection(data.name):
+                status = ErrorCode.ILLEGAL_NAME 
+                self.write_ret(status)
+                return
+
+            if data.has_key('address')  and not check_sql_injection(data.address):
+                status = ErrorCode.ILLEGAL_ADDRESS
+                self.write_ret(status)
+                return
+
+            if data.has_key('email')  and not check_sql_injection(data.email):
+                status = ErrorCode.ILLEGAL_EMAIL 
+                self.write_ret(status)
+                return
+
+
+            fields_ = DotDict()
+            fields = DotDict(c_name="name = '%s'",
+                             c_mobile="mobile = '%s'",
+                             c_address="address = '%s'",
+                             c_linkman="linkman = '%s'",
+                             c_email="email = '%s'")
+            for key, value in data.iteritems():
+                fields_.setdefault(key, fields[key] % value) 
+            set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
+            if set_clause:
+                self.db.execute("UPDATE T_CORP SET " + set_clause +
+                                "  WHERE cid = %s",
+                                self.current_user.cid)
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] uid:%s tid:%s update corp profile failed.  Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

@@ -123,3 +123,128 @@ class LastInfoHandler(BaseHandler):
                               self.current_user.uid, data.tids, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
+class LastInfoCorpHandler(BaseHandler):
+    """Get the newest info of terminal from database.
+    NOTE:It just retrieves data from db, not get info from terminal. 
+    """
+    @authenticated
+    @tornado.web.removeslash
+    def post(self):
+
+        try:
+            status = ErrorCode.SUCCESS
+            corp = self.db.get("SELECT cid, name, mobile FROM T_CORP WHERE cid = %s", self.current_user.cid)
+            groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
+            res = DotDict(name=corp.name,
+                          cid=corp.cid,
+                          online=0,
+                          offline=0,
+                          groups=[])
+            for group in groups:
+                group['cars'] = []
+                terminals = self.db.query("select * from T_TERMINAL_INFO where group_id = %s", group.gid)
+                tids = [str(terminal.tid) for terminal in terminals]
+
+                #cars_info = DotDict() 
+                #for tid in data.tids:
+                for tid in tids:
+                    # 1: get terminal info 
+                    terminal_info_key = get_terminal_info_key(tid)
+                    terminal = self.redis.getvalue(terminal_info_key)
+                    if not terminal:
+                        terminal = self.db.get("SELECT mannual_status, defend_status,"
+                                               "  fob_status, mobile, login, gps, gsm,"
+                                               "  pbat, keys_num"
+                                               "  FROM T_TERMINAL_INFO"
+                                               "  WHERE tid = %s", tid)
+
+                        if not terminal:
+                            status = ErrorCode.LOGIN_AGAIN
+                            logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
+                            self.write_ret(status)
+                            return
+
+                        car = self.db.get("SELECT cnum FROM T_CAR"
+                                          "  WHERE tid = %s", tid)
+
+                        a = ("SELECT cnum FROM T_CAR"
+                                          "  WHERE tid = %s") %  tid
+                        fobs = self.db.query("SELECT fobid FROM T_FOB"
+                                             "  WHERE tid = %s", tid)
+                        terminal = DotDict(terminal)
+                        terminal['alias'] = car.cnum if car.cnum else terminal.mobile
+                        terminal['fob_list'] = [fob.fobid for fob in fobs]
+
+                        self.redis.setvalue(terminal_info_key, DotDict(terminal))
+
+                    if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
+                        terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+
+                    if terminal['login'] == GATEWAY.TERMINAL_LOGIN.ONLINE:
+                        res['online'] +=1
+                    else:
+                        res['offline'] +=1
+                    # 2: get location 
+                    location_key = get_location_key(str(tid))
+                    location = self.redis.getvalue(location_key)
+                    if not location:
+                        location = self.db.get("SELECT id, speed, timestamp, category, name,"
+                                               "  degree, type, latitude, longitude, clatitude, clongitude, timestamp"
+                                               "  FROM T_LOCATION"
+                                               "  WHERE tid = %s"
+                                               "    AND NOT (clatitude = 0 AND clongitude = 0)"
+                                               "    ORDER BY timestamp DESC"
+                                               "    LIMIT 1",
+                                               tid)
+                        if location:
+                            mem_location = DotDict({'id':location.id,
+                                                    'latitude':location.latitude,
+                                                    'longitude':location.longitude,
+                                                    'type':location.type,
+                                                    'clatitude':location.clatitude,
+                                                    'clongitude':location.clongitude,
+                                                    'timestamp':location.timestamp,
+                                                    'name':location.name,
+                                                    'degree':float(location.degree),
+                                                    'speed':float(location.speed)})
+
+                            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+
+                    if location and location['name'] is None:
+                        location['name'] = ''
+
+                    car_info=DotDict(tid=tid,
+                                     defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                                     mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
+                                     fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
+                                     timestamp=location['timestamp'] if location else 0,
+                                     speed=location.speed if location else 0,
+                                     # NOTE: degree's type is Decimal, float() it before json_encode
+                                     degree=float(location.degree) if location else 0.00,
+                                     name=location.name if location else '',
+                                     type=location.type if location else 1,
+                                     latitude=location['latitude'] if location else 0,
+                                     longitude=location['longitude'] if location else 0, 
+                                     clatitude=location['clatitude'] if location else 0,
+                                     clongitude=location['clongitude'] if location else 0, 
+                                     login=terminal['login'] if terminal['login'] is not None else 0,
+                                     gps=terminal['gps'] if terminal['gps'] is not None else 0,
+                                     gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
+                                     pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
+                                     mobile=terminal['mobile'],
+                                     alias=terminal['alias'],
+                                     #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                                     keys_num=0,
+                                     fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
+                    group['cars'].append(car_info)
+                res.groups.append(group)
+
+            self.write_ret(status, 
+                           dict_=DotDict(res=res))
+
+        except Exception as e:
+            logging.exception("[UWEB] uid: %s get lastinfo failed. Exception: %s", 
+                              self.current_user.uid,  e.args) 
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)

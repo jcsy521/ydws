@@ -80,6 +80,14 @@ class QueryHelper(object):
         return user
 
     @staticmethod
+    def get_corp_by_cid(cid, db):
+        corp = db.get("SELECT mobile, name, linkman"
+                      "  FROM T_CORP"
+                      "  WHERE cid= %s LIMIT 1",
+                      cid) 
+        return corp 
+
+    @staticmethod
     def get_user_by_tmobile(tmobile, db):
         """Get user info throught tmobile.
         """

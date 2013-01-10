@@ -16,11 +16,16 @@ class MainHandler(BaseHandler):
     # BIG NOTE: never add removeslash decorator here!
     @authenticated
     def get(self):
-      
         status=ErrorCode.SUCCESS
         from_ = self.get_argument('from', '').lower()
-
-        user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+        index_html = "index.html"
+        if self.current_user.cid != UWEB.DUMMY_CID:
+            index_html = "index_corp.html"
+            user_info = QueryHelper.get_corp_by_cid(self.current_user.cid, self.db)
+            name = user_info.linkman if user_info else u''
+        else:
+            user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+            name = user_info.name if user_info else u''
         if not user_info:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
@@ -51,8 +56,7 @@ class MainHandler(BaseHandler):
             if not terminal['alias']:
                 terminal['alias'] = terminal.mobile
 
-        self.render("index.html",
+        self.render(index_html,
                     status=status,
-                    uid=self.current_user.uid,
-                    name=user_info.name,
+                    name=name,
                     cars=terminals)

@@ -34,7 +34,8 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                                   tid)
             if terminal: 
                 self.send_lq_sms(terminal.sim, tid, SMS.LQ.WEB)
-                self.bookkeep(dict(uid=self.current_user.uid,
+                self.bookkeep(dict(cid=self.current_user.cid,
+                                   uid=self.current_user.uid,
                                    tid=tid,
                                    sim=terminal.sim))
                 def _on_finish(response):

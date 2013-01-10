@@ -38,6 +38,7 @@ class LoginHandler(BaseHandler, LoginMixin):
         username = self.get_argument("username", "")
         password = self.get_argument("password", "")
         captcha = self.get_argument("captcha", "")
+        user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
         captchahash = self.get_argument("captchahash", "")
 
         logging.info("[UWEB] Browser login request, username: %s, password: %s", username, password)
@@ -71,12 +72,13 @@ class LoginHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        uid, tid, sim, status = self.login_passwd_auth(username, password)
+        cid, uid, tid, sim, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
-            self.bookkeep(dict(uid=uid,
+            self.bookkeep(dict(cid=cid,
+                               uid=uid,
                                tid=tid,
                                sim=sim))
-
+           
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
             terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
                                       "  ti.login, ti.keys_num"
