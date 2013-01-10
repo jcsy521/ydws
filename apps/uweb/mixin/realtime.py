@@ -155,7 +155,7 @@ class RealtimeMixin(BaseMixin):
                                    "  LIMIT 1",
                                    self.current_user.tid, query.timestamp,
                                    UWEB.REALTIME_VALID_INTERVAL, UWEB.REALTIME_VALID_INTERVAL)
-            if not location.name:
+            if (location and not location.name):
                 location.name = ''
                 
         ret = DotDict(status=ErrorCode.SUCCESS,
