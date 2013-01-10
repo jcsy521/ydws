@@ -152,8 +152,10 @@ class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
     @check_privileges([PRIVILEGES.QUERY_ECBUSINESS])
     @tornado.web.removeslash
     def get(self):
+        corplist = self.db.query("SELECT id, name FROM T_CORP")
         self.render('ecbusiness/search.html',
                     interval=[], 
+                    corplist=corplist,
                     ecbusinesses=[],
                     status=ErrorCode.SUCCESS,
                     message='')    
@@ -168,9 +170,11 @@ class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
         m.update(self.request.body)
         hash_ = m.hexdigest() 
         ecbusinesses, interval = self.prepare_data(hash_)
+        corplist = self.db.query("SELECT id, name FROM T_CORP")
         self.render('ecbusiness/search.html',
                     interval=interval, 
                     ecbusinesses=ecbusinesses,
+                    corplist=corplist,
                     status=ErrorCode.SUCCESS,
                     message='')
         

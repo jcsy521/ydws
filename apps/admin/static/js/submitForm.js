@@ -121,8 +121,8 @@ function adminSubmit(is_self) {
 		if ( fn_validateForm() ) {
 			var privs = '';
 			var cities = '';
-			$('#ulCheckbox li >input').each(function () {
-				if ($(this).attr('checked') == true) {
+			$('#ulCheckbox .j_privcheck').each(function () {
+				if ($(this).attr('checked') == 'checked') {
 					privs = privs + $(this).val() + ","
 				} 
 			});

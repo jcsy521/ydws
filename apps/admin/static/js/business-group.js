@@ -24,7 +24,7 @@ $(function () {
 		
 		// 根据页面不同所占区域大小不同
 		$('#businessPanel').css('height', 300);
-		$('#businessPanel #panelContent').css('height', 165);
+		$('#businessPanel #panelContent').css('height', 190);
 	
 		switch (str_id) {
 			case 'prevBtn':

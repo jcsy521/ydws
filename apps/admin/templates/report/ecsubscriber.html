@@ -31,19 +31,16 @@
 		<tr>
 			<td align="right">集团名称：</td>
 			<td align="left">
-			{% if  type == '0' or type == '2' %}
-				<select name="corps" id="corps" class="userSelect j_userSelect" >
-					<option value="0">--请选择集团--</option>
+				<select name="corps" id="corps" class="userSelect j_userSelect">
+					<option value="">--请选择集团--</option>
+					{% for corp in corplist %}
+							<option value="{{corp.id}}">{{corp.name}}</option>
+					{% end %}
 				</select>
-			{% else %}
-				<select name="corps" id="corps" class="userSelect j_userSelect" onmouseover="clickGroup();" >
-					<option value="0">--请选择集团--</option>
-				</select>
-			{% end %}
 			</td>
 			<td align="right" colspan="2" class="searchbtn">
 				<input type="submit" value="查询" 
-					onclick="fn_PushData('corps','reportGroup');" 
+					onclick="fn_PushData('corps','reportEcsubscriber');" 
 					class="ui-button ui-widget ui-state-default ui-corner-all ui-state-focus" 
 					role="button" aria-disabled="false" />
 			</td>
@@ -61,7 +58,7 @@
 <table id="reportDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>成员总数</th>
+            <th>序号</th><th>集团名称</th><th>终端总数</th>
         </tr>
     </thead>
     <tbody>
@@ -84,6 +81,6 @@
 	</tfoot>
 </table>
 <script type="text/javascript">
-    fn_PopData('reportGroup');
+    fn_PopData('reportEcsubscriber');
 </script>
 {% end %}

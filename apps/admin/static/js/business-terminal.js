@@ -88,8 +88,8 @@ $(function () {
 });
 // 填充数据 
 function fn_fillUserData(n_tempNav) {
-	var n_panelHeight = 370, 
-		n_contentHeight = 270;
+	var n_panelHeight = 300, 
+		n_contentHeight = 190;
 	
 	switch( n_tempNav) {
 		case 1: 
@@ -131,11 +131,9 @@ function fn_fillUserData(n_tempNav) {
 			$('#tdUmobile').html(str_Umobile);
 			$('#tdBeginTime').html(str_stTime);
 			$('#tdEndtime').html(str_endTime);
-			break;
-		case 4: 
-			n_panelHeight = 600, 
-			n_contentHeight = 480;
 			
+			n_panelHeight = 370, 
+			n_contentHeight = 270;
 			break;
 	}
 	
@@ -145,6 +143,6 @@ function fn_fillUserData(n_tempNav) {
 } 
 // 通过车辆类型编号获取车辆类型名称 
 function fn_carTypeName(str_cType) {
-	var arr_carType = ['','小汽车', '小货车', '大巴车', '摩托车'];
+	var arr_carType = ['','小汽车', '小货车', '大巴车', '摩托车', '其他'];
 	return arr_carType[parseInt(str_cType)];
 }

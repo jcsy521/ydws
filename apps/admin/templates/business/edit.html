@@ -26,9 +26,9 @@
 				</td>
 			</tr>
 			<tr>
-				<td	class="tLeft"><span class="signColor">*</span>车主姓名：</td>
+				<td	class="tLeft">车主姓名：</td>
 				<td	  align="left">
-					<input type="text" name="uname" id="uname" class="validate[required,custom[t_name],minSize[2],maxSize[16]]"  value="{{business.uname}}" />
+					<input type="text" name="uname" id="uname" class="validate[custom[t_name],minSize[2],maxSize[16]]"  value="{{business.uname}}" />
 				</td>
 			</tr>
 			<tr>
@@ -69,10 +69,12 @@
 				<td	class="tLeft">车辆类型：</td>
 				<td class="tdText">
 					<select id="ctype" name="ctype" cartype={{business.ctype}}>
+						<option value="">请选择车辆类型</option>
 						<option value="1">小汽车</option>
 						<option value="2">小货车</option>
 						<option value="3">大巴车</option>
 						<option value="4">摩托车</option>
+						<option value="5">其他</option>
 					</select>
 				</td>
 			</tr>

@@ -34,24 +34,20 @@
 						<tr>
 							<td	class="tLeft">车牌号码：</td>
 							<td class="tdText">
-								<input type="text" id="carId" name="carId" class="validate[required,custom[cnum]]" />
-								<span class="redColor">*</span>
+								<input type="text" id="carId" name="carId" class="validate[custom[cnum]]" />
 							</td>	
-							<td>
-							</td>
 						</tr>
 						<tr>
 							<td	class="tLeft">车辆类型：</td>
 							<td class="tdText">
 								<select id="carType">
+									<option value="">请选择车辆类型</option>
 									<option value="1">小汽车</option>
 									<option value="2">小货车</option>
 									<option value="3">大巴车</option>
 									<option value="4">摩托车</option>
+									<option value="5">其他</option>
 								</select>
-								<span class="redColor">*</span>
-							</td>
-							<td>
 							</td>
 						</tr>
 						<tr>
@@ -59,16 +55,12 @@
 							<td class="tdText">
 								<input type="text" id="carColor" class="validate[optional,custom[sp_char]]" maxlength="6" />
 							</td>	
-							<td>
-							</td>
 						</tr>
 						<tr>
 							<td	class="tLeft">车辆品牌：</td>
 							<td class="tdText">
 								<input type="text" id="carBrand" class="validate[optional,custom[sp_char]]" maxlength="12" />
 							</td>	
-							<td>
-							</td>
 						</tr>
 					</table>
 				</form>
@@ -81,8 +73,6 @@
 							<td class="tdText">
 								<input type="text" id="terminalMobile" class="validate[required,custom[mobile],ajax[ajaxTMobile]]" maxlength="11" />
 								<span class="redColor">*</span>
-							</td>	
-							<td>
 							</td>
 						</tr>
 						<tr>
@@ -91,16 +81,12 @@
 								<input type="text" id="begintime1" class=""readonly="true" />
 								<span class="redColor">*</span>
 							</td>
-							<td>
-							</td>
 						</tr>
 						<tr>
 							<td	class="tLeft">截止日期：</td>
 							<td class="tdText">
 								<input type="text" id="endtime1" class="" readonly="true" />
 								<span class="redColor">*</span>
-							</td>
-							<td>
 							</td>
 						</tr>
 					</table>
@@ -112,11 +98,8 @@
 						<tr>
 							<td	class="tLeft">车主姓名：</td>
 							<td class="tdText">
-								<input type="text" id="userName" class="validate[required,minSize[2],maxSize[16]]" />
-								<span class="redColor">*</span>
+								<input type="text" id="userName" class="validate[minSize[2],maxSize[16]]" />
 							</td>
-							<td>
-							</td>	
 						</tr>
 						<tr>
 							<td	class="tLeft">车主手机号：</td>
@@ -124,24 +107,18 @@
 								<input type="text" id="userMobile" class="validate[required,custom[mobile]]" maxlength="11" />
 								<span class="redColor">*</span>
 							</td>
-							<td>
-							</td>	
 						</tr>
 						<tr>
 							<td	class="tLeft">车主地址：</td>
 							<td class="tdText">
 								<input type="text" id="userAddress" class="validate[optional,custom[sp_char]]" />
 							</td>
-							<td>
-							</td>	
 						</tr>
 						<tr>
 							<td	class="tLeft">车主邮箱：</td>
 							<td class="tdText">
 								<input type="text" id="userEmail" class="validate[optional,custom[email]]" />
 							</td>
-							<td>
-							</td>	
 						</tr>
 					</table>
 				</form>

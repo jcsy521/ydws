@@ -143,7 +143,7 @@ table, .ui-widget-header {
 #left {
 	margin: 20px 5px 0px 0px;
 	float: left;
-	width: 150px;
+	width: 160px;
 }
 #right {
 	margin-top: 20px;
@@ -618,11 +618,14 @@ tfoot {
 }
 
 #businessPanel .ecPcontent {
-	height: 165px;
+	height: 190px;
 	padding-left: 22px;
 }
 .businessPanel .carCurrent {
 	padding-left: 55px;
+}
+.businessTerminalPanel {
+	height: 300px;
 }
 .businessTerminalPanel .carCurrent {
 	padding-left: 75px;

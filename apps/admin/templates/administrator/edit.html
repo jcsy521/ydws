@@ -100,12 +100,12 @@
                     {% for p in administrator.privileges %}
                         {% if p.valid == 1 %}
                             <li style="width:140px;" onmouseover="selectPrivileges({{p.id}}, this)" onmouseout="fn_closeMsgBox()">
-                                <input id="check{{p.id}}" type="checkbox" value="{{p.id}}" name="privileges" checked="checked" />
+                                <input id="check{{p.id}}" type="checkbox" class="j_privcheck" value="{{p.id}}" name="privileges" checked="checked" />
                                 <span id="s{{p.id}}">{{p.name}}</span>
                             </li>
                         {% else %}
                             <li style="width:140px;" onmouseover="selectPrivileges({{p.id}}, this)" onmouseout="fn_closeMsgBox()">
-                                <input id="check{{p.id}}" type="checkbox" value="{{p.id}}" name="privileges" />
+                                <input id="check{{p.id}}" type="checkbox" class="j_privcheck" value="{{p.id}}" name="privileges" />
                                 <span id="s{{p.id}}">{{p.name}}</span>
                             </li>
                         {% end %}

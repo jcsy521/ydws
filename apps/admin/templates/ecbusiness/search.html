@@ -34,15 +34,12 @@
 			<tr id="d_groups" >
 				<td align="right">集团名称：</td>
 				<td align="left">
-				{% if  type == '0' or type == '2' %}
-					<select name="corps" id="corps" class="userSelect j_userSelect" >
-						<option value="0">--请选择集团--</option>
-					</select>
-				{% else %}
-					<select name="corps" id="corps" class="userSelect j_userSelect" onmouseover="clickGroup();" >
-						<option value="0">--请选择集团--</option>
-					</select>
-				{% end %}
+					<select name="corps" id="corps" class="userSelect j_userSelect">
+						<option value="">--请选择集团--</option>
+						{% for corp in corplist %}
+								<option value="{{corp.id}}">{{corp.name}}</option>
+						{% end %}
+					</select>				
 				</td>
 			</tr>
 			<tr>
@@ -68,7 +65,7 @@
 					<input type="hidden" id="begintime" name="begintime" value="" />
 					<input type="hidden" id="endtime" name="endtime" value="" />
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('ecmobile','ecbusiness');" 
+						onclick="fn_PushData('ecmobile,corps','ecbusiness');" 
 						class="ui-button ui-widget ui-state-default ui-corner-all" 
 						role="button" aria-disabled="false" />
 				</td>

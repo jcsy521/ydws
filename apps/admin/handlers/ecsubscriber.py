@@ -90,6 +90,7 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
     @check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
     @tornado.web.removeslash
     def prepare(self):
+        self.corplist = self.db.query("SELECT id, name FROM T_CORP")
         key = self.get_area_memcache_key(self.current_user.id)
         cities = self.redis.getvalue(key)
         if not cities:
@@ -108,6 +109,7 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
                     results=[],
                     counts={},
                     cities=self.cities, 
+                    corplist=self.corplist,
                     hash_=None)
 
     @authenticated
@@ -123,6 +125,7 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
                     results=results,
                     counts=counts,
                     cities=self.cities,
+                    corplist=self.corplist,
                     hash_=hash_)
 
 

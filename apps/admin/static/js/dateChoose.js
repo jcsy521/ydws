@@ -103,7 +103,7 @@ function fn_InitChooseDate() {
 	if (dateTemp == 'monthly') {
 		var myDate = new Date();
 		var year = myDate.getFullYear();
-		var month = (myDate.getMonth()); // 当前月 0-11 
+		var month = myDate.getMonth() + 1; // 当前月 0-11 
 		if (month < 10) {
 		    month = '0' + month;
 		}

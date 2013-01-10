@@ -53,13 +53,13 @@ $(document).ready(function () {
 	var n_width = $(window).width() - 20;
 	$('#logo').width(n_width-15);
 	$('#content').width(n_width);
-	$('#right').width(n_width - 170);
+	$('#right').width(n_width - 180);
 
 	$(window).resize(function() {
 		var n_width = $(window).width() - 20;
 		$('#logo').width(n_width-15);
 		$('#content').width(n_width);
-		$('#right').width(n_width - 170);
+		$('#right').width(n_width - 180);
 	});
 });
 /*

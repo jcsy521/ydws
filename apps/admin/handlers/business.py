@@ -187,9 +187,11 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
     @check_privileges([PRIVILEGES.QUERY_BUSINESS])
     @tornado.web.removeslash
     def get(self):
+        corplist = self.db.query("SELECT id, name FROM T_CORP")
         self.render('business/search.html',
                     interval=[], 
                     businesses=[],
+                    corplist=corplist,
                     status=ErrorCode.SUCCESS,
                     message='')
 
@@ -200,6 +202,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
     def post(self):
         """Query businesses according to the given params.
         """
+        corplist = self.db.query("SELECT id, name FROM T_CORP")
         corps = self.get_argument('corps', 0)
         begintime = int(self.get_argument('begintime',0))
         endtime = int(self.get_argument('endtime',0))
@@ -239,12 +242,11 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
         try:
             sql = ("SELECT tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile, tt.begintime, tt.endtime,"
                    "  tt.service_status, tc.cnum, tcorp.name as ecname"
-                   "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile,"
-                   "       T_CAR as tc, T_GROUP as tg, T_CORP as tcorp"
-                   "  WHERE tt.group_id IN %s"
-                   "    AND tt.group_id = tg.id"
-                   "    AND tg.corp_id = tcorp.cid"
-                   "    AND tt.tid = tc.tid ") % (tuple(groups + DUMMY_IDS),)
+                   "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_CAR as tc ON tt.tid = tc.tid"
+                   "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"
+                   "                             LEFT JOIN T_GROUP as tg ON tt.group_id = tg.id"
+                   "                             LEFT JOIN T_CORP as tcorp ON tg.corp_id = tcorp.cid"
+                   "  WHERE tt.group_id IN %s ") % (tuple(groups + DUMMY_IDS),)
             if where_clause:
                 sql += ' AND ' + where_clause
             businesses = self.db.query(sql)
@@ -259,6 +261,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
             self.render('business/search.html',
                         interval=interval, 
                         businesses=businesses,
+                        corplist=corplist,
                         status=ErrorCode.SUCCESS,
                         message='')
         except Exception as e:

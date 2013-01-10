@@ -25,7 +25,6 @@ $(function () {
 		// 根据页面不同所占区域大小不同
 		$('#businessPanel').css('height', 270);
 		$('#businessPanel #panelContent').css('height', 165);
-		
 		switch (str_id) {
 			case 'prevBtn': 
 				// 如果在第二页点上一页,隐藏上页操作
@@ -47,13 +46,14 @@ $(function () {
 				// 点击下一页按钮时进行表单的再次验证
 				if ( !f_validate ) {
 					return;
+				} else {
+					// 表单验证通过隐藏表单提示层
+					$('.formError').remove();
 				}
 				// 在第一页点击下一页,显示上一页按钮
 				if ( n_cNum == 2 ) {
 					obj_prevBtn.show();
 				}
-				// 表单验证通过隐藏表单提示层
-				$('#businessFormID'+ (n_cNum-1)).validationEngine('hide');
 				// 取得页面数据进行填充
 				fn_fillUserData(n_tempNum - 1);
 				break;
@@ -110,8 +110,8 @@ function fn_fillUserData(n_tempNav) {
 			break;
 		case 2: 
 			var str_Tmobile = $('#terminalMobile').val(), 
-				str_stTime = $('#start_time1').val(),
-				str_endTime = $('#end_time1').val();
+				str_stTime = $('#begintime1').val(),
+				str_endTime = $('#endtime1').val();
 				
 			$('#tmobile').val(str_Tmobile);
 			$('#tbegintime').val(toEpochDate(str_stTime+' 00:00:00'));
@@ -152,6 +152,6 @@ function fn_fillUserData(n_tempNav) {
 } 
 // 通过车辆类型编号获取车辆类型名称 
 function fn_carTypeName(str_cType) {
-	var arr_carType = ['','小汽车', '小货车', '大巴车', '摩托车'];
+	var arr_carType = ['','小汽车', '小货车', '大巴车', '摩托车', '其他'];
 	return arr_carType[parseInt(str_cType)];
 }

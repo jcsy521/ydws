@@ -104,7 +104,7 @@
                 <ul id="ulCheckbox" class="ulCheckbox" style="width:300px;">
                     {% for p in privilege_groups %}
                         <li style="width:140px;" onmouseover="selectPrivileges({{p['id']}}, this)" onmouseout="fn_closeMsgBox()">
-                            <input id="check{{p['id']}}" type="checkbox" value="{{p['id']}}" name="privileges" />
+                            <input id="check{{p['id']}}" class="j_privcheck" type="checkbox" value="{{p['id']}}" name="privileges" />
                             <span id="s{{p['id']}}">{{p['name']}}</span>
                         </li>
                     {% end %}
