@@ -24,7 +24,7 @@ from utils.misc import str_to_list, DUMMY_IDS
 from myutils import city_list, start_of_month, end_of_month, start_end_of_month
 
 from mixin import BaseMixin
-from excelheaders import SUBSCRIBER_HEADER, SUBSCRIBER_SHEET, SUBSCRIBER_FILE_NAME
+from excelheaders import ECSUBSCRIBER_HEADER, ECSUBSCRIBER_SHEET, ECSUBSCRIBER_FILE_NAME
 from base import BaseHandler, authenticated
 from mongodb.msubscriber import MSubscriber, MSubscriberMixin
 
@@ -43,42 +43,45 @@ class ECSubscriberMixin(BaseMixin):
             return data
 
         results = []
-        counts = DotDict(total_corps=0,
-                         total_terminals=0)
-        cities = self.get_argument('cities', 0)
-        start_time = int(self.get_argument('start_time'))
-        end_time = int(self.get_argument('end_time'))
-        interval = [start_time, end_time]
+        counts = dict(total_corps=0,
+                      total_terminals=0)
+        #cities = self.get_argument('cities', 0)
+        #start_time = int(self.get_argument('start_time'))
+        #end_time = int(self.get_argument('end_time'))
+        #interval = [start_time, end_time]
 
-        if int(cities) == 0:
-            cities = [city.city_id for city in self.cities]
+        #if int(cities) == 0:
+        #    cities = [city.city_id for city in self.cities]
+        #else:
+        #    cities = [city,] 
+
+        #cities = [int(c) for c in cities]
+        #for city in enumerate(cities):
+        #    c = self.db.get("SELECT city_name FROM T_CITY WHERE city_id = %s", city)
+        corps = self.get_argument('corps', 0)
+        if int(corps) == 0:
+            corps = self.db.query("SELECT id FROM T_CORP")
+            corps = [corp.id for corp in corps]
         else:
-            cities = [city,] 
-
-        cities = [int(c) for c in cities]
-        for city in enumerate(cities):
-            c = self.db.get("SELECT city_name FROM T_CITY WHERE city_id = %s", city)
-            corps = self.db.query("SELECT id, name FROM T_CORP")
-            for corp in corps:
-                groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", corp.id)
-                group_ids = [group.id for group in groups]
-                terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                          "  WHERE timestamp BETWEEN %s AND %s"
-                                          "    AND group_id IN %s",
-                                          start_time, end_time,
-                                          tuple(group_ids + DUMMY_IDS))
-                result = DotDict(city_name=c.city_name,
-                                 corp_name=corp.name,
-                                 total_terminals=len(terminals))
-                results.append(result)
-                counts.total_corps += 1
-                counts.total_terminals += len(terminals)
+            corps = [corps,]
+        for corp in corps:
+            c = self.db.get("SELECT name, cid FROM T_CORP WHERE id = %s", corp)
+            groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", c.cid)
+            group_ids = [group.id for group in groups]
+            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                      "  WHERE group_id IN %s",
+                                      tuple(group_ids + DUMMY_IDS))
+            result = dict(ecname=c.name,
+                          total_terminals=len(terminals))
+            results.append(result)
+            counts['total_corps'] += 1
+            counts['total_terminals'] += len(terminals)
 
         for i, result in enumerate(results):
-            result.seq = i+1
-        self.redis.setvalue(mem_key, (results, counts, interval), time=self.MEMCACHE_EXPIRY)
+            result['seq'] = i+1
+        self.redis.setvalue(mem_key, (results, counts), time=self.MEMCACHE_EXPIRY)
 
-        return results, counts, interval
+        return results, counts
 
 
 class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
@@ -101,11 +104,10 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
     @check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
     @tornado.web.removeslash
     def get(self):
-        self.render("report/subscriber.html",
+        self.render("report/ecsubscriber.html",
                     results=[],
                     counts={},
                     cities=self.cities, 
-                    interval=[],
                     hash_=None)
 
     @authenticated
@@ -115,16 +117,15 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
-        results, counts, interval = self.prepare_data(hash_)
+        results, counts = self.prepare_data(hash_)
 
         self.render("report/ecsubscriber.html",
                     results=results,
                     counts=counts,
                     cities=self.cities,
-                    interval=interval,
                     hash_=hash_)
 
- 
+
 class ECSubscriberDownloadHandler(BaseHandler, ECSubscriberMixin):
 
     @authenticated
@@ -140,30 +141,24 @@ class ECSubscriberDownloadHandler(BaseHandler, ECSubscriberMixin):
         import xlwt
         from cStringIO import StringIO
 
-        filename = SUBSCRIBER_FILE_NAME
+        filename = ECSUBSCRIBER_FILE_NAME
 
         wb = xlwt.Workbook()
-        ws = wb.add_sheet(SUBSCRIBER_SHEET)
+        ws = wb.add_sheet(ECSUBSCRIBER_SHEET)
 
         start_line = 0
-        for i, head in enumerate(SUBSCRIBER_HEADER):
+        for i, head in enumerate(ECSUBSCRIBER_HEADER):
             ws.write(0, i, head)
 
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line + 1), results):
-            ws.write(i, 0, result['city'])
-            ws.write(i, 1, result['group'])
-            ws.write(i, 2, result['target'])
-            ws.write(i, 3, result['plan1'])
-            ws.write(i, 4, result['plan2'])
-            ws.write(i, 5, result['plan3'])
+            ws.write(i, 0, result['seq'])
+            ws.write(i, 1, result['ecname'])
+            ws.write(i, 2, result['total_terminals'])
         last_row = len(results) + start_line
         ws.write(last_row, 0, u'合计')
-        ws.write(last_row, 1, counts.group)
-        ws.write(last_row, 2, counts.target)
-        ws.write(last_row, 3, counts.plan1)
-        ws.write(last_row, 4, counts.plan2)
-        ws.write(last_row, 5, counts.plan3)
+        ws.write(last_row, 1, counts['total_corps'])
+        ws.write(last_row, 2, counts['total_terminals'])
 
        
         _tmp_file = StringIO()

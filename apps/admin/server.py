@@ -39,13 +39,13 @@ from handlers.administrator import AdministratorDeleteHandler
 from handlers.privgroup import * 
 from handlers.password import MyPasswordHandler, OtherPasswordHandler
 from handlers.delegate import DelegationHandler, DelegationLogHandler
-from handlers.subscriber import SubscriberHandler
-from handlers.ecsubscriber import ECSubscriberHandler 
 from handlers.business import * 
 from handlers.ecbusiness import * 
+from handlers.subscriber import SubscriberHandler, SubscriberDownloadHandler
+from handlers.ecsubscriber import ECSubscriberHandler, ECSubscriberDownloadHandler
+from handlers.daily import DailyHandler, DailyDownloadHandler
+from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
 from handlers.misc import *
-from handlers.daily import DailyHandler
-from handlers.monthly import MonthlyHandler
 
 
 class Application(tornado.web.Application):
@@ -86,14 +86,15 @@ class Application(tornado.web.Application):
             (r"/business/list/(\S+)/*", BusinessListHandler),
             (r"/business/edit/(\S+)/*", BusinessEditHandler), 
             (r"/business/delete/(\S+)/(\S+)/*", BusinessDeleteHandler),
+            (r"/business/service/(\S+)/(\S+)/*", BusinessServiceHandler),
             
             # EC business
             (r"/ecbusiness/search/*", ECBusinessSearchHandler),
             (r"/ecbusiness/createec/*", ECBusinessCreateHandler),
-            (r"/ecbusiness/createterminal/*", ECBusinessCreateTerminalHandler),
+            (r"/ecbusiness/addterminal/*", ECBusinessAddTerminalHandler),
             (r"/ecbusiness/list/(\S+)/*", ECBusinessListHandler),
             (r"/ecbusiness/edit/(\S+)/*", ECBusinessEditHandler),
-            (r"/ecbusiness/delete/(\S+)/(\S+)/*", ECBusinessDeleteHandler),
+            (r"/ecbusiness/delete/(\S+)/*", ECBusinessDeleteHandler),
 
             # misc
             (r"/administrator/checkloginname/(.*)/*", AdministratorLoginnameHandler),
@@ -102,6 +103,7 @@ class Application(tornado.web.Application):
             #(r"/terminal/mobile/(\d+)/*", TerminalHandler),
             (r"/corplist/*", CorpListHandler),
             (r"/checkecmobile/(\d+)/*", CheckECMobileHandler),
+            (r"/checkecname/(\S+)/*", CheckECNameHandler),
             (r"/checktmobile/(\d+)/*", CheckTMobileHandler),
 
             # statistic report
@@ -110,6 +112,11 @@ class Application(tornado.web.Application):
             (r"/report/daily/*", DailyHandler),
             (r"/report/monthly/*", MonthlyHandler),
 
+            # download the report
+            (r"/download/subscriber/(.*)/*", SubscriberDownloadHandler),
+            (r"/download/ecsubscriber/(.*)/*", ECSubscriberDownloadHandler),
+            (r"/download/daily/(.*)/*", DailyDownloadHandler),
+            (r"/download/monthly/(.*)/*", MonthlyDownloadHandler),
         ]
 
         settings = dict(
@@ -125,10 +132,6 @@ class Application(tornado.web.Application):
 
         self.db = DBConnection().db
         self.redis = MyRedis()
-        #try:
-        #    self.mongodb = MongoDBConnection().db
-        #except MongoDBException as e:
-        #    logging.error("Error: %s", e.args[0])
 
 
 def shutdown(server):

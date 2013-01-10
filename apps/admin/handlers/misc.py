@@ -5,6 +5,7 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import safe_unicode, DUMMY_IDS
+from codes.errorcode import ErrorCode
 
 from base import BaseHandler, authenticated
 from mixin import BaseMixin
@@ -121,7 +122,7 @@ class CheckTMobileHandler(BaseHandler):
                            mobile)
         if corp:
             ret.status = ErrorCode.TERMINAL_ORDERED
-            ret.message = ErrorCode.ERROR_MESSAGE[status]
+            ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
             
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))
@@ -144,11 +145,34 @@ class CheckECMobileHandler(BaseHandler):
                            mobile)
         if corp:
             ret.status = ErrorCode.EC_MOBILE_EXISTED
-            ret.message = ErrorCode.ERROR_MESSAGE[status]
+            ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
             
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))
         
+class CheckECNameHandler(BaseHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self, name):
+        """
+        """
+
+        ret = DotDict(status=ErrorCode.SUCCESS,
+                      message=None)
+        corp = self.db.get("SELECT id"
+                           "  FROM T_CORP"
+                           "  WHERE name = %s"
+                           "   LIMIT 1",
+                           name)
+        if corp:
+            ret.status = ErrorCode.EC_NAME_EXISTED
+            ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
+            
+        self.set_header(*self.JSON_HEADER)
+        self.write(json_encode(ret))
+        
+
 
 class UserInfoHandler(BaseHandler):
 

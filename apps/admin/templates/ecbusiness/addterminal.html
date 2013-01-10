@@ -8,6 +8,7 @@
 <script type="text/javascript" src="/static/js/jquery.validationEngine.js"></script>
 <script type="text/javascript" src="/static/js/initStyle.js"></script>
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
+<script type="text/javascript" src="/static/js/groupChoose.js"></script>
 <script type="text/javascript" src="/static/js/formValue.js"></script>
 <script type="text/javascript" src="/static/js/submitForm.js"></script>
 <script type="text/javascript" src="/static/js/business-terminal.js"></script>
@@ -16,7 +17,7 @@
 {% if status == 0 %}
 	<h3>新增追踪器</h3>
 	<!--分步创建用户信息-->
-	<div id="businessPanel" class="businessPanel ecbPanel">
+	<div id="businessPanel" class="businessPanel businessTerminalPanel">
 		<!--step nav-->
 		<div id="panelNav">
 			<ul>
@@ -24,7 +25,6 @@
 				<li class="ecStep2"></li>
 				<li class="ecStep3"></li>
 				<li class="ecStep4"></li>
-				<li class="ecStep5"></li>
 			</ul>
 		</div>
 		<!--step content-->
@@ -35,8 +35,11 @@
 						<tr>
 							<td	class="tLeft">集团名称：</td>
 							<td class="tdText">
-								<input type="text" id="ecName" class="validate[required]" />
-								<span class="redColor">*</span>
+								<select name="corps" id="corps" class="userSelect j_userSelect">
+									{% for corp in corplist %}
+											<option value="{{corp.id}}">{{corp.name}}</option>
+									{% end %}
+								</select>
 							</td>	
 							<td>
 							</td>
@@ -95,7 +98,16 @@
 						<tr>
 							<td	class="tLeft">追踪器手机号：</td>
 							<td class="tdText">
-								<input type="text" id="terminalMobile" class="validate[required,custom[mobile],ajax[ajaxEcTMobile]]" maxlength="11" />
+								<input type="text" id="terminalMobile" class="validate[required,custom[mobile],ajax[ajaxTMobile]]" maxlength="11" />
+								<span class="redColor">*</span>
+							</td>	
+							<td>
+							</td>
+						</tr>
+						<tr>
+							<td	class="tLeft">车主手机号：</td>
+							<td class="tdText">
+								<input type="text" id="userMobile" class="validate[custom[mobile]]" maxlength="11" />
 								<span class="redColor">*</span>
 							</td>	
 							<td>
@@ -104,7 +116,7 @@
 						<tr>
 							<td	class="tLeft">开通日期：</td>
 							<td class="tdText">
-								<input type="text" id="start_time1"  class=""readonly="true" />
+								<input type="text" id="begintime1"  class=""readonly="true" />
 								<span class="redColor">*</span>
 							</td>
 							<td>
@@ -113,7 +125,7 @@
 						<tr>
 							<td	class="tLeft">截止日期：</td>
 							<td class="tdText">
-								<input type="text" id="end_time1"  class="" readonly="true" />
+								<input type="text" id="endtime1"  class="" readonly="true" />
 								<span class="redColor">*</span>
 							</td>
 							<td>
@@ -149,6 +161,10 @@
 						<td class="tdText" id="tdTmobile"></td>	
 					</tr>
 					<tr>
+						<td	class="tLeft">车主手机号：</td>
+						<td class="tdText" id="tdUmobile"></td>	
+					</tr>
+					<tr>
 						<td	class="tLeft">开通日期：</td>
 						<td class="tdText" id="tdBeginTime"></td>	
 					</tr>
@@ -165,15 +181,16 @@
 			<span id="nextBtn"></span>
 			<span id="submitBtn"></span>
 		</div>
-		<form method="post" id="ecFormID" action="/ecbusiness/createec" class="businessFrom">
-			<input type="hidden" id="ecname" name="ecname" value="" />
+		<form method="post" id="ecFormID" action="/ecbusiness/addterminal" class="businessFrom">
+			<input type="hidden" id="ecid" name="ecid" value="" />
 			<input type="hidden" id="cnum" name="cnum" value="" />
-			<input type="hidden" id="type" name="type" value="" />
-			<input type="hidden" id="color" name="color" value="" />
-			<input type="hidden" id="brand" name="brand" value="" />
+			<input type="hidden" id="ctype" name="ctype" value="" />
+			<input type="hidden" id="ccolor" name="ccolor" value="" />
+			<input type="hidden" id="cbrand" name="cbrand" value="" />
 			<input type="hidden" id="tmobile" name="tmobile" value="" />
-			<input type="hidden" id="begintime1" name="begintime" value="" />
-			<input type="hidden" id="endtime1" name="endtime" value="" />
+			<input type="hidden" id="umobile" name="umobile" value="" />
+			<input type="hidden" id="tbegintime" name="begintime" value="" />
+			<input type="hidden" id="tendtime" name="endtime" value="" />
 		</form>
 	</div>
 {% else %}

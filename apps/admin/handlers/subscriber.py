@@ -42,36 +42,36 @@ class SubscriberMixin(BaseMixin):
         if data:
             return data
 
-        cities = self.get_argument('cities', 0)
+        #cities = self.get_argument('cities', 0)
         start_time = int(self.get_argument('start_time'))
         end_time = int(self.get_argument('end_time'))
         interval = [start_time, end_time]
-        if int(cities) == 0:
-            cities = [city.city_id for city in self.cities]
-        else:
-            cities = [city,] 
+        #if int(cities) == 0:
+        #    cities = [city.city_id for city in self.cities]
+        #else:
+        #    cities = [city,] 
 
         results = [] 
-        counts = DotDict(total_corps=0,
-                         total_terminals=0)
-        cities = [int(c) for c in cities]
-        for city in cities:
-            c = self.db.get("SELECT city_name FROM T_CITY WHERE city_id = %s", city)
-            corps = self.db.query("SELECT id FROM T_CORP"
-                                  "  WHERE timestamp BETWEEN %s AND %s",
-                                  start_time, end_time)
-            #groups = self.db.query("SELECT id FROM T_GROUP")
-            #group_ids = [group.id for group in groups]
+        counts = dict(total_corps=0,
+                      total_terminals=0)
+        #cities = [int(c) for c in cities]
+        #for city in cities:
+        #    c = self.db.get("SELECT city_name FROM T_CITY WHERE city_id = %s", city)
+        corps = self.db.query("SELECT id FROM T_CORP"
+                              "  WHERE timestamp BETWEEN %s AND %s",
+                              start_time, end_time)
 
-            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                      "  WHERE begintime BETWEEN %s AND %s",
-                                      start_time, end_time)
-            result = DotDict(total_corps=len(corps),
-                             total_terminals=len(terminals))
-            results.append(result)
-            for key in counts:
-                counts[key] += result[key]
+        terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                  "  WHERE begintime BETWEEN %s AND %s",
+                                  start_time, end_time)
+        result = dict(seq=1,
+                      total_corps=len(corps),
+                      total_terminals=len(terminals))
+        results.append(result)
+        for key in counts:
+            counts[key] += result[key]
         self.redis.setvalue(mem_key, (results, counts, interval), time=self.MEMCACHE_EXPIRY)
+        r = self.redis.getvalue(mem_key)
 
         return results, counts, interval
 
@@ -146,19 +146,13 @@ class SubscriberDownloadHandler(BaseHandler, SubscriberMixin):
 
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line + 1), results):
-            ws.write(i, 0, result['city'])
-            ws.write(i, 1, result['group'])
-            ws.write(i, 2, result['target'])
-            ws.write(i, 3, result['plan1'])
-            ws.write(i, 4, result['plan2'])
-            ws.write(i, 5, result['plan3'])
+            ws.write(i, 0, result['seq'])
+            ws.write(i, 1, result['total_corps'])
+            ws.write(i, 2, result['total_terminals'])
         last_row = len(results) + start_line
         ws.write(last_row, 0, u'合计')
-        ws.write(last_row, 1, counts.group)
-        ws.write(last_row, 2, counts.target)
-        ws.write(last_row, 3, counts.plan1)
-        ws.write(last_row, 4, counts.plan2)
-        ws.write(last_row, 5, counts.plan3)
+        ws.write(last_row, 1, counts['total_corps'])
+        ws.write(last_row, 2, counts['total_terminals'])
 
        
         _tmp_file = StringIO()

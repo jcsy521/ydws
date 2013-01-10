@@ -33,11 +33,11 @@ def end_of_month(timestamp):
 
     @return the first utc of the next month
     """
-    current_day = datetime.datetime.fromtimestamp(timestamp/1000)
+    current_day = datetime.datetime.fromtimestamp(timestamp)
     # make sure the first second of the next month.
     day_ = current_day + relativedelta(months=1,
                                        day=1, hour=0, minute=0, second=0)
-    epoch = (int(time.mktime(day_.timetuple())) - 1) * 1000
+    epoch = int(time.mktime(day_.timetuple())) - 1
     return epoch
 
 def start_of_month(timestamp):
@@ -49,11 +49,11 @@ def start_of_month(timestamp):
 
     @return the first utc of the next month
     """
-    current_day = datetime.datetime.fromtimestamp(timestamp/1000)
+    current_day = datetime.datetime.fromtimestamp(timestamp)
     # make sure the first second of the next month.
     day_ = current_day + relativedelta(months=0,
                                        day=1, hour=0, minute=0, second=0)
-    epoch = (int(time.mktime(day_.timetuple()))) * 1000
+    epoch = int(time.mktime(day_.timetuple()))
     return epoch
 
 def start_end_of_month():

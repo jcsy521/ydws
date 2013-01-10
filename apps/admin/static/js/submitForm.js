@@ -8,52 +8,26 @@ $(function () {
 });
 //formSubmit start end 
 function formSubmit(option) {
-	var starttime = $('#start_time1').val(),
-		endtime = $('#end_time1').val(),
+	var starttime = $('#start_time1').val()+' 00:00:00',
+		endtime = $('#end_time1').val()+' 23:59:59',
 		dailytime = $('#daily_time').val(), // daily
-		begintime1 = $('#begintime1').val(), // business begintime
-		endtime1 = $('#endtime1').val(),	// business endtime
-		begintime0 = $('#begintime0').val(), // business begintime
-		endtime0 = $('#endtime0').val(),	// business endtime
-		begintime2 = $('#begintime2').val(), // business begintime
-		endtime2 = $('#endtime2').val(),	// business endtime
+		begintime1 = $('#begintime1').val()+' 00:00:00', 
+		endtime1 = $('#endtime1').val()+' 23:59:59',
 		mobile = $('#mobile').val();
+	
 	if (starttime && endtime) {
-		var et = toEpochDate(endtime + ' 23:59:59');
+		var et = toEpochDate(endtime);
 		$('#end_time').val(et);
-		$('#start_time').val(toEpochDate(starttime + ' 00:00:00'));
+		$('#start_time').val(toEpochDate(starttime));
 		if (starttime > endtime) {
 			alert('开始时间不能大于结束时间！请重新操作。');
 			return false;
 		}
 	}
-	// business
-	if ( option == 'business' ) {
-		var et = toEpochDate(endtime1 + ' 23:59:59'),
-			bt = toEpochDate(begintime1 + ' 00:00:00');
-		$('#endtime').val(et);
-		$('#begintime').val(bt);
-		return true;
-	}
-	// business edit
-	if ( option == 'businessEdit' ) {
-		var et = toEpochDate(endtime2 + ' 23:59:59'),
-			bt = toEpochDate(begintime2 + ' 00:00:00');
-		
-		$('#endtime').val(et);
-		$('#begintime').val(bt);
-		/*
-		if ( $('.j_tips').is(':hidden') ) {
-			return true;
-		} else {
-			return false;	
-		}*/
-		return true;
-	}
-	// business search
-	if ( option == 'businessSearch' ) {	
-		var et = endtime0 == '' ? '' : toEpochDate(endtime0 + ' 23:59:59'),
-			bt = begintime0 == '' ? '' : toEpochDate(begintime0 + ' 00:00:00');
+	// business business edit
+	if ( option == 'business' || option == 'businessEdit') {
+		var et = toEpochDate(endtime),
+			bt = toEpochDate(starttime);
 		$('#endtime').val(et);
 		$('#begintime').val(bt);
 		return true;

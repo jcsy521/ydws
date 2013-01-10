@@ -436,7 +436,7 @@ GET 返回结果：
 
 ** 业务开通
 
-URL：/ecbusiness/createterminal
+URL：/ecbusiness/addterminal
 
 ** 业务开通异步请求集团列表
 GET 请求：/corplist/
@@ -447,11 +447,11 @@ GET 返回结果：
     'name': x_str, //集团name
 ]
 
-GET 请求：/ecbusiness/createterminal
+GET 请求：/ecbusiness/addterminal
 
 GET 返回结果：
 {	
-	url: ecbusiness/createterminal.html // 跳转到新增终端界面
+	url: ecbusiness/addterminal.html // 跳转到新增终端界面
 
 ｝
 
@@ -627,7 +627,8 @@ POST 返回：
     'umobile': x_str, //车主手机号
     'tmobile': x_str, //追踪器手机号
     'cnum': x_str, //车牌号
-    'corp_name': x_str, //集团名称
+    'ecname': x_str, //集团名称
+    'ecmobile': x_str, //集团手机号
     'begintime':开通日期
     'endtime': 截止日期
 }

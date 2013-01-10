@@ -125,16 +125,22 @@
 					"alertText":"已存在"
 				},
 				"ajaxTMobile":{
-					"url":"/business/checktmobile/",
+					"url":"/checktmobile/",
 					"alertTextOk":"可以使用.",	
 					"alertTextLoad":"请稍候...",
 					"alertText":"终端已注册"
 				},
 				"ajaxEcTMobile":{
-					"url":"/ecbusiness/checktmobile/",
+					"url":"/checkecmobile/",
 					"alertTextOk":"可以使用.",	
 					"alertTextLoad":"请稍候...",
-					"alertText":"终端已注册"
+					"alertText":"联系人手机号已注册"
+				},
+				"ajaxEcName":{
+					"url":"/checkecname/",
+					"alertTextOk":"可以使用.",	
+					"alertTextLoad":"请稍候...",
+					"alertText":"集团名称已注册"
 				},
                 "date": {                    
                     //	Check if date is valid by leap year

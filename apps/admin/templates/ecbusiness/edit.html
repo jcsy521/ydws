@@ -29,128 +29,46 @@
 			<tr>
 				<td	class="tLeft"><span class="signColor">*</span>集团姓名：</td>
 				<td	  align="left">
-					{{business.ecname}}
+					{{ecbusiness.ecname}}
+					<input type="hidden" id="ecname" name="ecname" value="{{ecbusiness.ecname}}" />
+				</td>
+			</tr>
+			<tr>
+				<td	class="tLeft">联系人：</td>
+				<td	align="left">
+					{{ecbusiness.linkman}}
+					<input type="hidden" id="linkman" name="linkman" value="{{ecbusiness.linkman}}" />
 				</td>
 			</tr>
 			<tr>
 				<td	class="tLeft"><span class="signColor">*</span>集团手机号：</td>
 				<td align="left">
-					{{business.ecmobile}}
-				</td>
-			</tr>
-			<tr>
-				<td	class="tLeft"><span class="signColor">*</span>车主姓名：</td>
-				<td	  align="left">
-					<input type="text" name="name" id="name" class="validate[required,custom[t_name],minSize[2],maxSize[16]]"  value="{{business.name}}" />
-				</td>
-			</tr>
-			<tr>
-				<td	class="tLeft"><span class="signColor">*</span>车主手机号：</td>
-				<td align="left">
-					<!--
-					<input type="text" name="new_mobile" id="mobile"
-						class="validate[required,custom[mobile]]" onchange="fn_checkMobile('mobile')"  mobile="{{business.mobile}}" value="{{business.mobile}}" />
-					-->
-					{{business.mobile}}
-					<input type="hidden" id="mobile" name="mobile" value="{{business.mobile}}" />
-				</td>
-			</tr>
-			<tr>
-				<td	class="tLeft"><span class="signColor">*</span>终端手机号：</td>
-				<td  align="left">
-					<!--
-					<input type="text" name="new_tmobile" id="tmobile"
-						class="validate[required,custom[mobile]]" onblur="fn_checkMobile('tmobile')" mobile="{{business.tmobile}}"  maxlength="11" value="{{business.tmobile}}" />
-					<span class="tips j_tips"></span>-->
-					{{business.tmobile}}
-					<input type="hidden" id="tmobile" name="tmobile" value="{{business.tmobile}}" />
-				</td>
-			</tr>
-			<tr>
-				<td	class="tLeft">车牌号：</td>
-				<td	  align="left">
-					<input type="text" name="cnum" id="cnum" class="validate[optional,custom[cnum]]"
-					   maxlength="8"  value="{{business.cnum}}" /> 
+					{{ecbusiness.ecmobile}}
+					<input type="hidden" id="ecmobile" name="ecmobile" value="{{ecbusiness.ecmobile}}" />
 				</td>
 			</tr>
 			<tr>
 				<td	class="tLeft">联系地址：</td>
 				<td	  align="left">
-					<input type="text" name="address" id="address" class="validate[optional,custom[sp_char]]" value="{{business.address}}" />
+					<input type="text" name="address" id="address" class="validate[optional,custom[sp_char]]" value="{{ecbusiness.address}}" />
 				</td>
 			</tr>
 			<tr>
 				<td	class="tLeft">电子邮件：</td>
 				<td	  align="left">
-					<input type="text" name="email" id="email" class="validate[optional,custom[email]]" value="{{business.email}}" />
+					<input type="text" name="email" id="email" class="validate[optional,custom[email]]" value="{{ecbusiness.email}}" />
 				</td> 
 			</tr>
 			<tr>
-			<tr>
-				<td	class="tLeft">车辆类型：</td>
-				<td class="tdText">
-					<select id="type" name="type" cartype={{business.type}}>
-						<option value="1">小汽车</option>
-						<option value="2">小货车</option>
-						<option value="3">大巴车</option>
-						<option value="4">摩托车</option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td	class="tLeft">车辆颜色：</td>
-				<td class="tdText">
-					<input type="text" id="color" name="color" value="{{business.color}}" class="validate[optional,custom[sp_char]]" maxlength="6" />
-				</td>
-			</tr>
-			<tr>
-				<td	class="tLeft">车辆品牌：</td>
-				<td class="tdText">
-					<input type="text" id="brand" name="brand" value="{{business.brand}}"class="validate[optional,custom[sp_char]]" maxlength="12" />
-				</td>	
-			</tr>
-			<tr>
-				<td align="right">终端状态：</td>
-				<td align="left">
-					{% if  business.service_status == 1 %}
-						<input type="radio" name="service_status" checked="true" value="1" />启用
-						<input type="radio" name="service_status" value="0" />停用
-					{% else %}
-						<input type="radio" name="service_status" value="1" />启用
-						<input type="radio" name="service_status" checked="true" value="0" />停用
-					{% end %}
-				</td>
-        </tr>
-			<tr>
-				<td	class="tLeft">开通日期：</td>
-				<td	  align="left">
-					<input type="text" name="begintime2" id="begintime2" readonly="true"
-					   maxlength="40"  value="" /> 
-				</td>
-			</tr>
-			<tr>
-				<td	class="tLeft">截止日期：</td>
-				<td	  align="left">
-					<input type="text" name="endtime2" id="endtime2"  readonly="true"
-					   maxlength="40" value="" />
-				</td>
-			</tr>
-			<tr>
 				<td colspan="2" align="center">
-				<input type="hidden" id="begintime" name="begintime" value="" />
-				<input type="hidden" id="endtime" name="endtime" value="" />
 				<input class="ui-widget ui-button ui-corner-all ui-state-default" type="submit" value="确定"  /> 
 				<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 
-						href="/ecbusiness/list/{{business.tmobile}}">
+						href="/ecbusiness/list/{{ecbusiness.ecmobile}}">
 						<span class="ui-button-text">取消</span>
 				</a>
 				</td>
 			</tr>
     </table>
-<div style="display:none">
-	<input type="text" id="start_temp" value="{{business.begintime}}"/>
-	<input type="text" id="end_temp" value="{{business.endtime}}"/>
-</div>
 </form>
 {% else %}
 	<div class="ui-widget" align="center">

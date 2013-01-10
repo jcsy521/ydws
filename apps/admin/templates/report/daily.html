@@ -27,18 +27,6 @@
 	</legend>
 	<form method="post" action="" onsubmit="return formSubmit('day');" id="formID">
 		<table >
-			<tr>
-				<td align="right">所在城市：</td>
-				<td align="left">
-                    <select id="cities" name="cities">
-						<option value="0">--全部--</option>
-					{% for city in cities %}
-						<option value="{{city.city_id}}">{{city.city_name}}</option>
-					{% end %}
-					</select>
-				</td>
-				<td></td>
-			</tr>
 			<tr>	
 				<td align="right">查询时间：</td>
 				<td align="left">
@@ -66,35 +54,34 @@
 <table id="reportDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>地市</th><th>新增集团数</th><th>集团到达数</th><th>新增用户数</th><th>用户到达数</th>
+            <th>序号</th><th>新增集团数</th><th>总集团数</th><th>新增终端数</th><th>总终端数</th>
         </tr>
     </thead>
     <tbody>
         {% for result in results %}
 		<tr>
-			<td>{{result['id']}}</td>
-			<td>{{result['city']}}</td>				<!--地市-->	
-			<td>{{result['new_groups']}}</td>		<!--新增集团数-->	
-			<td>{{result['total_groups']}}</td>		<!--集团到达数-->
-			<td>{{result['new_targets']}}</td>		<!--用户到达数-->		
-			<td>{{result['total_targets']}}</td>		<!--新增用户数-->	
+			<td>{{result['seq']}}</td>		
+			<td>{{result['new_corps']}}</td>		
+			<td>{{result['total_corps']}}</td>		
+			<td>{{result['new_terminals']}}</td>			
+			<td>{{result['total_terminals']}}</td>		
 		</tr>
         {% end %}
     </tbody>
 	<tfoot id="tfoot">
-	<!-- {% if counts %}
+	{% if counts %}
 		<tr>
-			<td colspan="2">合计：</td>
-			<td>{{counts['new_groups']}}</td>	
-			<td>{{counts['total_groups']}}</td>		
-			<td>{{counts['new_targets']}}</td>	
-			<td>{{counts['total_targets']}}</td>
+			<td>合计：</td>
+			<td>{{counts['new_corps']}}</td>	
+			<td>{{counts['total_corps']}}</td>		
+			<td>{{counts['new_terminals']}}</td>	
+			<td>{{counts['total_terminals']}}</td>
 		</tr>
-	{% end %} -->
+	{% end %}
 	</tfoot>
 </table>
 <div style="display:none">
-    <input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'daily_time'}}" />
+    <input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'daily'}}" />
 </div>
 <script type="text/javascript">
     fn_PopData('daily');

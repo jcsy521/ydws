@@ -88,15 +88,17 @@ function businessStop(tmobile, seq, tempType) {
 // delete business 
 function businessDelete(tmobile, mobile, tempType) {
 	var str_id = 'business' + tmobile, 
-		str_url = '/business/delete/' + tmobile + '/' + mobile;
+		str_url = '/business/delete/' + tmobile + '/' + mobile, 
+		str_msg = '是否删除该用户？';
 		
 	if ( tempType == 'ec' ) {
 		str_id = 'ecbusiness' + tmobile, 
-		str_url = '/ecbusiness/delete/' + tmobile + '/' + mobile;
+		str_url = '/ecbusiness/delete/' + tmobile;
+		str_msg = '是否删除该集团？';
 	}
 	var obj_pos = oTable.fnGetPosition(document.getElementById(str_id));
 	
-	if ( confirm('是否删除该用户？') ) {
+	if ( confirm(str_msg) ) {
 		
 		$.post(str_url, function (data) {
 			if ( data.success == 0 ) {

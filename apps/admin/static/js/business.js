@@ -99,9 +99,9 @@ function fn_fillUserData(n_tempNav) {
 				str_cBrand = $('#carBrand').val();
 			
 			$('#cnum').val(str_cId);
-			$('#type').val(str_cType);
-			$('#color').val(str_cColor);
-			$('#brand').val(str_cBrand);
+			$('#ctype').val(str_cType);
+			$('#ccolor').val(str_cColor);
+			$('#cbrand').val(str_cBrand);
 			
 			$('#tdCnum').html(str_cId);
 			$('#tdType').html(fn_carTypeName(str_cType));
@@ -114,8 +114,8 @@ function fn_fillUserData(n_tempNav) {
 				str_endTime = $('#end_time1').val();
 				
 			$('#tmobile').val(str_Tmobile);
-			$('#begintime').val(toEpochDate(str_stTime+' 00:00:00'));
-			$('#endtime').val(toEpochDate(str_endTime+' 00:00:00'));
+			$('#tbegintime').val(toEpochDate(str_stTime+' 00:00:00'));
+			$('#tendtime').val(toEpochDate(str_endTime+' 00:00:00'));
 			
 			$('#tdTmobile').html(str_Tmobile);
 			$('#tdBeginTime').html(str_stTime);
@@ -127,8 +127,8 @@ function fn_fillUserData(n_tempNav) {
 				str_uAddress = $('#userAddress').val(),
 				str_uEmail = $('#userEmail').val();
 			
-			$('#name').val(str_uName);
-			$('#mobile').val(str_uMobile);
+			$('#uname').val(str_uName);
+			$('#umobile').val(str_uMobile);
 			$('#address').val(str_uAddress);
 			$('#email').val(str_uEmail);
 			

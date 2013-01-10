@@ -29,22 +29,21 @@
 <form id="formID" method="post" action="" onsubmit="return formSubmit();">
 	<table>
 		<tr>
-			<td align="right">所在城市：</td>
+			<td align="right">集团名称：</td>
 			<td align="left">
-				{% if  type == '0' or type == '2' %}
-					<select id="cities" name="cities">
-						<option value="0">--全部--</option>
-					{% for city in cities %}
-						<option value="{{city.city_id}}">{{city.city_name}}</option>
-					{% end %}
-					</select>
-				{% else %}
-					<label id="city" >{{cities[0].city_name}}</label>
-				{% end %}
+			{% if  type == '0' or type == '2' %}
+				<select name="corps" id="corps" class="userSelect j_userSelect" >
+					<option value="0">--请选择集团--</option>
+				</select>
+			{% else %}
+				<select name="corps" id="corps" class="userSelect j_userSelect" onmouseover="clickGroup();" >
+					<option value="0">--请选择集团--</option>
+				</select>
+			{% end %}
 			</td>
 			<td align="right" colspan="2" class="searchbtn">
 				<input type="submit" value="查询" 
-					onclick="fn_PushData('cities','reportGroup');" 
+					onclick="fn_PushData('corps','reportGroup');" 
 					class="ui-button ui-widget ui-state-default ui-corner-all ui-state-focus" 
 					role="button" aria-disabled="false" />
 			</td>
@@ -54,7 +53,7 @@
 </fieldset>
 <div class="resultQuery">
     <h3>查询结果</h3>
-    <a id="exportData" href="/download/group/{{hash_}}" 
+    <a id="exportData" href="/download/ecsubscriber/{{hash_}}" 
        class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
        <span class="ui-button-text">导出Excel</span>
     </a>
@@ -62,27 +61,26 @@
 <table id="reportDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>城市</th><th>集团名称</th><th>成员总数</th>
+            <th>序号</th><th>集团名称</th><th>成员总数</th>
         </tr>
     </thead>
     <tbody>
     {% for result in results %}
         <tr>
-			<td>{{result['id']}}</td>
-            <td>{{result['city']}}</td>
-            <td>{{result['group_name']}}</td>
-			<td>{{result['targets']}}</td>
+			<td>{{result['seq']}}</td>
+            <td>{{result['ecname']}}</td>
+			<td>{{result['total_terminals']}}</td>
         </tr>
      {% end %}
     </tbody>
 	<tfoot id="tfoot">
-	<!-- {% if counts %}
+	{% if counts %}
 		<tr>
-			<td colspan="2">合计：</td>
-			<td>{{counts['group']}}</td>
-			<td>{{counts['target']}}</td>
+			<td>合计：</td>
+			<td>{{counts['total_corps']}}</td>
+			<td>{{counts['total_terminals']}}</td>
 		</tr>
-	{% end %} -->
+	{% end %}
 	</tfoot>
 </table>
 <script type="text/javascript">

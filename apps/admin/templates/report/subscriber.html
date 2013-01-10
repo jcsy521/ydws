@@ -29,17 +29,7 @@
 	</legend>
     <form method="post" action="" id="formID" onsubmit="return formSubmit();">
         <table  class="searchTable0">
-            <tr>
-                <td align="right">所在城市：</td>
-                <td align="left">
-                    <select id="cities" name="cities">
-						<option value="0">--全部--</option>
-					{% for city in cities %}
-						<option value="{{city.city_id}}">{{city.city_name}}</option>
-					{% end %}
-					</select>
-				</td>
-            </tr>
+          
 			<tr>
 				<td align="right">开始时间：</td>
 				<td align="left"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
@@ -73,27 +63,26 @@
 <table id="reportDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>城市</th><th>集团数量</th><th>成员总数</th>
+            <th>序号</th><th>集团数量</th><th>成员总数</th>
         </tr>
     </thead>
     <tbody>
 		{% for result in results%}
             <tr>
-				<td>{{result['id']}}</td>
-	            <td>{{result['city']}}</td>
-                <td>{{result['group']}}</td>
-                <td>{{result['target']}}</td>
+				<td>{{result['seq']}}</td>
+                <td>{{result['total_corps']}}</td>
+                <td>{{result['total_terminals']}}</td>
             </tr>
         {% end %}
     </tbody>
 	<tfoot id="tfoot">
-	<!-- {% if counts %}
+	{% if counts %}
 		<tr>
-			<td colspan="2">合计：</td>
-			<td>{{counts['group']}}</td>
-			<td>{{counts['target']}}</td>
+			<td>合计：</td>
+			<td>{{counts['total_corps']}}</td>
+			<td>{{counts['total_terminals']}}</td>
 		</tr>
-		{% end %} -->
+	{% end %}
 	</tfoot>
 </table>
 <div style="display:none">

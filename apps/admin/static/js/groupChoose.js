@@ -17,22 +17,18 @@ function fn_changeSchool() {
 }
 function fn_loadSchool () {
 	var citiesId = $('#citiesId').val(), // 选中的cityid
-		group = $('#group'),
+		group = $('#corps'),
 		cityTemp = [],
 		typeTemp = [], // 集团
 		type = $('#type').val();
 	if ( citiesId != '0' && citiesId != '') { // 如果有选择城市的话 加载集团信息
 		cityTemp[0] = parseInt(citiesId, 10);
-		var pd = {
-				"city": cityTemp,
-				"type": parseInt(type, 10)
-				}, 
-			element = parent.document.getElementById('cacheDatas'), // 外层数据
+		var element = parent.document.getElementById('cacheDatas'), // 外层数据
 			str_groupVal = '';
 		if ( $(element).children().length > 0 ) {
 			str_groupVal = $(element).children('li[id=group]').first().html(); // 保存的group的值
 		}
-		$.post('/groups', JSON.stringify(pd), function (data) {
+		$.get('/corplist', '', function (data) {
 			group.empty();
 			var groupHtml = '';
 			if (data && data.length > 0) {

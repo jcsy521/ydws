@@ -18,6 +18,7 @@
 <script type="text/javascript" src="/static/js/dataTable.js"></script>
 <script type="text/javascript" src="/static/js/adminEdit.js"></script>
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
+<script type="text/javascript" src="/static/js/groupChoose.js"></script>
 <script type="text/javascript" src="/static/js/formValue.js"></script>
 <script type="text/javascript" src="/static/js/cacheQueryValues.js"></script>
 <script type="text/javascript" src="/static/js/json2.js"></script>
@@ -27,8 +28,22 @@
 	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
 		<span class="ui-button-text">个人用户查询</span>
 	</legend>
-	<form method="post" action="" id="formID" onsubmit="return formSubmit('search');">
+	<form method="post" action="" id="formID" onsubmit="return formSubmit('business');">
 		<table id="searchTable0" class="searchTable0">
+			<tr id="d_groups" >
+				<td align="right">集团名称：</td>
+				<td align="left">
+				{% if  type == '0' or type == '2' %}
+					<select name="corps" id="corps" class="userSelect j_userSelect" >
+						<option value="0">--请选择集团--</option>
+					</select>
+				{% else %}
+					<select name="corps" id="corps" class="userSelect j_userSelect" onmouseover="clickGroup();" >
+						<option value="0">--请选择集团--</option>
+					</select>
+				{% end %}
+				</td>
+			</tr>
 			<tr>
 				<td align="right">车主手机号：</td>
 				<td align="left">
@@ -55,10 +70,10 @@
 		<table id="searchButton">
 			<tr>
 				<td colspan="2" align="right">
-					<input type="hidden" id="start_time" name="start_time" value="" />
-					<input type="hidden" id="end_time" name="end_time" value="" />
+					<input type="hidden" id="begintime" name="begintime" value="" />
+					<input type="hidden" id="endtime" name="endtime" value="" />
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('umobile,tmobile','businesssear');" 
+						onclick="fn_PushData('umobile,tmobile','business');" 
 						class="ui-button ui-widget ui-state-default ui-corner-all" 
 						role="button" aria-disabled="false" />
 				</td>
@@ -72,7 +87,7 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>车主姓名</th><th>车主手机</th><th>追踪器手机</th><th>车牌号</th>
+            <th>序号</th><th>集团名称</th><th>车主姓名</th><th>车主手机</th><th>追踪器手机</th><th>车牌号</th>
             <th>受理状态</th><th>编辑</th><th>删除</th><th>追踪器启用/停用</th><th>详细信息</th>
         </tr>
     </thead>
@@ -81,15 +96,16 @@
 	{% for business in businesses %}
             <tr id="business{{business['tmobile']}}" >
 				<td>{{ business['seq'] }}</td>
-	            <td>{{ business['name'] }}</td>
-                <td>{{ business['mobile'] }}</td>
+				<td>{{ business['ecname'] }}</td>
+	            <td>{{ business['uname'] }}</td>
+                <td>{{ business['umobile'] }}</td>
                 <td>{{ business['tmobile']}}</td>
                 <td>{{ business['cnum'] }} </td>
 				<td>
 					{% if business['sms_status'] == 0 %}
 						<label class="sms_status0">
 							<!--短信发送失败-->
-							<a href="#" class="resetSms" onclick="fn_smsReset({{business['tmobile']}}, {{ business['mobile'] }}, this)">短信发送失败,点击重发短信</a>
+							<a href="#" class="resetSms" onclick="fn_smsReset({{business['tmobile']}}, {{ business['umobile'] }}, this)">短信发送失败,点击重发短信</a>
 						</label>
 					{% elif business['sms_status'] == 1 %}
 						<label class="sms_status1">短信已发送</label>
@@ -103,7 +119,7 @@
                     <a href="/business/edit/{{business['tmobile']}}">编辑</a>
                 </td>
 				<td>
-                    <a href="#" onclick="businessDelete({{business['tmobile']}}, {{ business['mobile'] }})">删除</a>
+                    <a href="#" onclick="businessDelete({{business['tmobile']}}, {{ business['umobile'] }})">删除</a>
                 </td>
                 <td>
 					{% if business['service_status'] == 0 %}

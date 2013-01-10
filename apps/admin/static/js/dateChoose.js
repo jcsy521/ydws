@@ -71,7 +71,7 @@ function toEpochDate(dateString) { // 将正常时区时间转为UTC时间
 		return myEpoch;
 	}
 }
-function fn_InitChooseDate() {
+function fn_InitChooseDate() { 
     var startTemp = $('#start_temp').val(),
 		endTemp = $('#end_temp').val(),
 		dateTemp = $('#date_temp').val();
@@ -79,28 +79,24 @@ function fn_InitChooseDate() {
 	//设置开始时间
 	if (startTemp == 'start' || startTemp == '') {
 		$('#start_time1').val(toTodayDate()); 
-	} else if ( startTemp == 'user_start' ) { // 集团订购查询 默认开始时间显示月初
+	} else if ( startTemp == 'user_start' ) { // 地市用户统计 默认开始时间显示月初
 		$('#start_time1').val(getFirstDayOfMonth());
-	} else if ( startTemp == 'daily_time' ) { // 日报
+	} else if ( startTemp == 'daily' ) { // 日报
 		$('#daily_time').val(getYesterday());
-	}else if ( startTemp == 'business_begin' || startTemp == '0' ) {
-		$('#begintime0').val();	// search business init beigntime is null 
-		$('#begintime2').val(toTodayDate());	// edit business init beigntime is today 
-	} else {
-		$('#start_time1').val(toHumanDate(startTemp, 'no')); 	//业务查询 等, #begintime0
-		$('#begintime0, #begintime2').val(toHumanDate(startTemp, 'no')); 
+	}else if ( startTemp == 'business_begin' || startTemp == '0' ) { // 个人用户查询,集团查询
+		$('#start_time1').val(getFirstDayOfMonth()); 
+	} else { 
+		$('#start_time1').val(toHumanDate(startTemp, 'no')); 	//  
 		$('#daily_time').val(toHumanDate(startTemp, 'no')); // 日报 
 		$('#begintime1').val(toTodayDate());	// create business 
 	}
 	//设置结束时间
 	if (endTemp == 'end' || endTemp == '') {
 		$('#end_time1').val(toTodayDate()); 
-	} else if ( endTemp == 'business_end' || endTemp == '0' ) {
-		$('#endtime0').val(); // search business init endtime is null
-		$('#endtime2').val(fn_getNextYearToday()); // edit business init endtime 
+	} else if ( endTemp == 'business_end' || endTemp == '0' ) {// 个人用户查询,集团查询
+		$('#end_time1').val(toTodayDate()); 
 	} else {
 		$('#end_time1').val(toHumanDate(endTemp, 'no')); 	
-		$('#endtime0, #endtime2').val(toHumanDate(endTemp, 'no'));
 		$('#endtime1').val(fn_getNextYearToday());	// create business 
 	}
 	//对月份进行设置
@@ -114,7 +110,7 @@ function fn_InitChooseDate() {
 		$('#yeartemp').attr('value', year);
 		$('#monthtemp').attr('value', month);
 	} else {
-		var myDate = new Date(Number(dateTemp));
+		var myDate = new Date(Number(dateTemp)*1000);
 		var year = myDate.getFullYear();
 		var month = myDate.getMonth() + 1;
 		if (month < 10) {
@@ -161,6 +157,7 @@ function fn_getNextYearToday() {
 function getYesterday() {
 	var dd = new Date();
 	dd.setDate(dd.getDate()-1);	
+
 	var year = dd.getFullYear(),
         month = dd.getMonth()+1, //获取当前月份的日期
 		day = dd.getDate();

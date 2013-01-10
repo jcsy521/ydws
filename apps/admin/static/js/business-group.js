@@ -24,7 +24,7 @@ $(function () {
 		
 		// 根据页面不同所占区域大小不同
 		$('#businessPanel').css('height', 300);
-		$('#businessPanel #panelContent').css('height', 190);
+		$('#businessPanel #panelContent').css('height', 165);
 	
 		switch (str_id) {
 			case 'prevBtn':
@@ -68,11 +68,11 @@ $(function () {
 		
 		// 导航标题样式更改为默认
 		for ( var i = 1; i < 6; i++ ) {
-			$('.ecStep' + i ).css('background-image', 'url("/static/image/busImage/g'+ i +'2.png")');
+			$('.cropStep' + i ).css('background-image', 'url("/static/image/busImage/crop'+ i +'2.png")');
 		}
 		
 		// 当前内容标题导航更换为当前样式
-		$('.ecStep' + n_tempNum ).css('background-image', 'url("/static/image/busImage/g'+ n_tempNum +'1.png")');
+		$('.cropStep' + n_tempNum ).css('background-image', 'url("/static/image/busImage/crop'+ n_tempNum +'1.png")');
 			
 		$('#stepContent' + n_tempNum).addClass('carCurrent');
 		
@@ -85,85 +85,6 @@ $(function () {
 			obj_submitBtn.hide();
 		}
 	});
-	// 动态加载集团信息
-	var cache = [];
-	
-	$('#ecName').keyup(function(event) {
-			if ( event.keyCode === $.ui.keyCode.TAB && $(this).data('autocomplete').menu.active ) {
-				event.preventDefault();
-			}
-			var str_text = '<input type="text" class="validate[required,custom[mobile]] text_blur" maxlength="11" id="ecMobile" style="width: 120px;"><span class="redColor">*</span>';
-			
-			$('#ecMobilePanel').html(str_text);
-			
-			$('#ecName').autocomplete('search');
-		}).blur(function(event) {
-			var str_nameVal = $('#ecName').val();
-			if ( obj_busGrounp ) { 
-				for ( var i = 0; i < obj_busGrounp.length; i++ ) {
-					var obj_tempData = obj_busGrounp[i], 
-						str_dataName = obj_tempData.ec_name;
-					
-					if ( str_dataName == str_nameVal ) {
-						var str_text = '<label class="text_label" id="ecMobile" value="'+ obj_tempData.mobile +'">'+ obj_tempData.mobile +'</label><span class="redColor">*</span>'
-						$('#ecMobilePanel').html(str_text);
-					}
-				}
-			}
-		}).autocomplete({
-			source: function(request, response) { 
-				var term = request.term;
-
-				if ( term in cache ) {
-					response( $.map(cache[ term ], function(item) {
-							var str_ecName = item.ec_name, 
-								str_inputText = $('#ecName').val();
-							
-							if ( str_ecName.search(str_inputText) != -1 ) {
-								return {
-									label: item.ec_name,
-									value: item.ec_name, 
-									value2: item.mobile
-								}
-							}
-						}));
-					return;
-				}
-
-				$.ajax({
-					url: '/ecbusiness/asyncfill',
-					dataType: 'json',
-					async: true, 
-					success: function(data) { 
-						cache[term] = data;
-						obj_busGrounp = data;
-						
-						response( $.map(data, function(item) {
-							var str_ecName = item.ec_name, 
-								str_inputText = $('#ecName').val();
-							
-							if ( str_ecName.search(str_inputText) != -1 ) {
-								return {
-									label: item.ec_name,
-									value: item.ec_name, 
-									value2: item.mobile
-								}
-							}
-						}));
-					}
-				});
-			},
-			select: function(event, ui) { 
-				var str_text = '<label class="text_label" id="ecMobile" value="'+ ui.item.value2 +'">'+ ui.item.value2 +'</label><span class="redColor">*</span>'
-				$('#ecMobilePanel').html(str_text);
-			},
-			open: function() { 
-				$( this ).removeClass('ui-corner-all').addClass('ui-corner-top');
-			},
-			close: function() { 
-				$( this ).removeClass('ui-corner-top').addClass('ui-corner-all');
-			}
-		});
 });
 // 填充数据 
 function fn_fillUserData(n_tempNav) {

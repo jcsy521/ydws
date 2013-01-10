@@ -367,7 +367,7 @@ table, .ui-widget-header {
     height: 26px;
 }
 .tLeft {
-    width: 100px;
+    width: 108px;
 	text-align: right;
 }
 #loginhistory {
@@ -614,13 +614,21 @@ tfoot {
 /*ecbusiness*/
 .ecbPanel {
 	height: 300px;
-    width: 844px;
+	width: 520px;
 }
+
 #businessPanel .ecPcontent {
-	height: 190px;
+	height: 165px;
+	padding-left: 22px;
 }
-#businessPanel .carCurrent {
-	padding-left: 113px;
+.businessPanel .carCurrent {
+	padding-left: 55px;
+}
+.businessTerminalPanel .carCurrent {
+	padding-left: 75px;
+}
+.ecbPanel .carCurrent {
+	padding-left: 10px;
 }
 .ecStep1 {
 	background: url('/static/image/busImage/g11.png') no-repeat;
@@ -631,14 +639,23 @@ tfoot {
 .ecStep3 {
 	background: url('/static/image/busImage/g32.png') no-repeat;
 }
-.ecStep4 {
+#panelNav ul .ecStep4 {
 	background: url('/static/image/busImage/g42.png') no-repeat;
+	width: 154px;
 }
 #panelNav ul .ecStep5 {
 	background: url('/static/image/busImage/g52.png') no-repeat;
 	width: 154px;
 }
-
+.cropStep1 {
+	background: url('/static/image/busImage/crop11.png') no-repeat;
+}
+.cropStep2 {
+	background: url('/static/image/busImage/crop22.png') no-repeat;
+}
+.cropStep3 {
+	background: url('/static/image/busImage/crop32.png') no-repeat;
+}
 /*business end*/
 .resetSms {
 	color: red;

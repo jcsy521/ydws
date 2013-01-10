@@ -21,7 +21,7 @@
 		$(this).removeClass('text_focus').addClass('text_blur');		
 	});
     $('select').css({'width':'120px'});
-	$('.j_userSelect').css({'width': '260px'});
+	$('.j_userSelect').css({'width': '122px'});
     $('#showOrHideSearch').toggle(function () {
         $('#searchTable').show();
         $('#showOrHideSearch').text('-');
@@ -44,15 +44,10 @@
 	//添加控件
 	$('#start_time1,#end_time1').datepicker();
 	$('#start_time1,#end_time1').datepicker('option', 'maxDate', '0d');
+	$('#start_time1,#end_time1').datepicker('option', 'setDate', new Date());
 	// 日报时间控件 默认昨天
 	$('#daily_time').datepicker();
 	$('#daily_time').datepicker('option', 'maxDate', '-1d');
-	
-	// 业务查询 时间控件
-	$('#begintime0, #begintime2').datepicker({
-        onSelect: function(dateText, inst) {	// dateText：当前选中日期  inst: 当前日期插件实例
-			$('#endtime0, #endtime2').datepicker('option', 'minDate', dateText);	// set minDate is today
-	}});
 	
 	// open business date and close date init
 	$('#begintime1').datepicker({
@@ -61,8 +56,7 @@
 	}});
 	$('#begintime1').datepicker('option', 'minDate', new Date());	// set minDate is today
 	$('#endtime1').datepicker('option', 'minDate', new Date());	// set minDate is today
-	
-	$('#begintime0, #endtime0, #begintime2, #endtime2, #begintime1, #endtime1').datepicker();
+	$('#begintime1, #endtime1').datepicker();
     /*
         *初始化地图页面的大小
         *初始化右侧iframe大小

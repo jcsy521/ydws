@@ -34,7 +34,7 @@ class DailyMixin(BaseMixin):
         if data:
             return data
 
-        city = self.get_argument('cities', 0)
+        #city = self.get_argument('cities', 0)
         start_time = int(self.get_argument('start_time', None))
         end_time = int(self.get_argument('end_time', None))
         # the result of today is inavaliable
@@ -45,38 +45,38 @@ class DailyMixin(BaseMixin):
             return [], [start_time, end_time]
 
         results = []
-        counts = DotDict(new_corps=0,
-                         total_corps=0,
-                         new_terminals=0,
-                         total_terminas=0)
-        if int(city) == 0:
-            cities = [city.city_id for city in self.cities]
-        else:
-            cities = [city,]
+        counts = dict(new_corps=0,
+                      total_corps=0,
+                      new_terminals=0,
+                      total_terminals=0)
+        #if int(city) == 0:
+        #    cities = [city.city_id for city in self.cities]
+        #else:
+        #    cities = [city,]
 
-        cities = [int(c) for c in cities]
-        for i, city in enumerate(cities):
-            c = self.db.get("SELECT city_name, region_code FROM T_HLR_CITY"
-                            "  WHERE city_id = %s",
-                            city)
-            total_corps = self.db.query("SELECT id FROM T_XXT_CORP")
-            new_corps = self.db.query("SELECT id FROM T_XXT_CORP"
-                                      "  WHERE AND timestamp <= %s",
-                                      e_time)
-            
-            total_terminals = self.db.get("SELECT id FROM T_TERMINAL_INFO")
-            new_terminals = self.db.get("SELECT id FROM T_TERMINAL_INFO"
-                                        "  WHERE begintime <= %s",
-                                        e_time)
-            result = DotDict(seq=i+1,
-                             city=c.city_name,
-                             new_corps=len(new_corps),
-                             total_corps=len(total_corps),
-                             new_terminals=len(new_terminals),
-                             total_terminals=len(total_terminals))
-            results.append(result)
-            for key in counts:
-                counts[key] += result[key]
+        #cities = [int(c) for c in cities]
+        #for i, city in enumerate(cities):
+        #    c = self.db.get("SELECT city_name, region_code FROM T_HLR_CITY"
+        #                    "  WHERE city_id = %s",
+        #                    city)
+        total_corps = self.db.query("SELECT id FROM T_CORP WHERE timestamp <= %s", end_time)
+        new_corps = self.db.query("SELECT id FROM T_CORP"
+                                  "  WHERE timestamp BETWEEN %s AND %s",
+                                  start_time, end_time)
+        
+        total_terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO WHERE begintime <= %s", end_time)
+        new_terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                      "  WHERE begintime BETWEEN %s AND %s",
+                                      start_time, end_time)
+        result = dict(seq=1,
+                      #city=c.city_name,
+                      new_corps=len(new_corps),
+                      total_corps=len(total_corps),
+                      new_terminals=len(new_terminals),
+                      total_terminals=len(total_terminals))
+        results.append(result)
+        for key in counts:
+            counts[key] += result[key]
 
         self.redis.setvalue(mem_key,(results, counts, [start_time,]), 
                             time=self.MEMCACHE_EXPIRY)
@@ -108,7 +108,7 @@ class DailyHandler(BaseHandler, DailyMixin):
 
         self.render('report/daily.html',
                     results=[],
-                    count={},
+                    counts={},
                     cities=self.cities,
                     interval=[],
                     hash_=None)
@@ -162,15 +162,17 @@ class DailyDownloadHandler(BaseHandler, DailyMixin):
 
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line), results):
-            ws.write(i, 0, result['city'])
-            ws.write(i, 1, result['total_groups'])
-            ws.write(i, 2, result['total_targets'])
-            ws.write(i, 3, result['new_targets'])
+            ws.write(i, 0, result['seq'])
+            ws.write(i, 1, result['new_corps'])
+            ws.write(i, 2, result['total_corps'])
+            ws.write(i, 3, result['new_terminals'])
+            ws.write(i, 4, result['total_terminals'])
         last_row = len(results) + start_line
         ws.write(last_row, 0, u'合计')
-        ws.write(last_row, 1, counts['total_groups']) 
-        ws.write(last_row, 2, counts['total_targets']) 
-        ws.write(last_row, 3, counts['new_targets'])
+        ws.write(last_row, 1, counts['new_corps']) 
+        ws.write(last_row, 2, counts['total_corps']) 
+        ws.write(last_row, 3, counts['new_terminals']) 
+        ws.write(last_row, 4, counts['total_terminals'])
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)

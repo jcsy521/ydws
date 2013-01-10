@@ -13,7 +13,6 @@ from constants import LOCATION, XXT
 from utils.dotdict import DotDict
 
 from mixin import BaseMixin
-from excelheaders import BUSINESS_HEADER, BUSINESS_SHEET, BUSINESS_FILE_NAME
 from base import BaseHandler, authenticated
 
 from checker import check_areas, check_privileges 
@@ -61,17 +60,20 @@ class BusinessMixin(BaseMixin):
                 sms_status = 2
             elif sms.send_status == 0:
                 sms_status = 1
+
         return sms_status
            
     def get_business_info(self, tmobile):
         """Get business info in detail throught tmobile.
         """
-        business = self.db.get("SELECT tu.name, tu.mobile, tu.address, tu.email, tt.begintime, tt.endtime,"
-                               "  tt.mobile as tmobile, tt.service_status, tc.cnum, tc.type, tc.color, tc.brand"
-                               "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
-                               "  WHERE  tu.mobile = tt.owner_mobile "
+        business = self.db.get("SELECT tu.name as uname, tu.mobile as umobile, tu.address, tu.email, tt.mobile as tmobile,"
+                               "  tt.service_status, tt.begintime, tt.endtime, tc.cnum, tc.type as ctype, tc.color as ccolor,"
+                               "  tc.brand as cbrand, tcorp.name as ecname"
+                               "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc, T_GROUP as tg, T_CORP as tcorp"
+                               "  WHERE tu.mobile = tt.owner_mobile "
                                "    AND tt.tid = tc.tid "
-                               "    AND tc.group_id = -1"
+                               "    AND tt.group_id = tg.id"
+                               "    AND tg.corp_id = tcorp.cid"
                                "    AND tt.mobile = %s"
                                "    LIMIT 1",
                                tmobile)
@@ -117,46 +119,42 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                          address="",
                          email="")
         for key in fields.iterkeys():
-                fields[key] = self.get_argument(key,'')
-                if not check_sql_injection(fields[key]):
-                    logging.error("Create business condition contain SQL inject. %s : %s", key, fields[key])
-                    self.render('errors/error.html',
-                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_CONDITION_ILLEGAL])
-                    return
+            fields[key] = self.get_argument(key,'')
+            if not check_sql_injection(fields[key]):
+                logging.error("Create business condition contain SQL inject. %s : %s", key, fields[key])
+                self.render('errors/error.html',
+                    message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_CONDITION_ILLEGAL])
+                return
 
         try:
             # 1: add user
-            if fields.umobile:
-                user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", fields.umobile)
-                if not user:
-                    self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
-                                    "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
-                                    fields.umobile, fields.password,
-                                    fields.uname, fields.umobile,
-                                    fields.address, fields.email)
-                    self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                    "  VALUES(%s)",
-                                    fields.umobile)
-                    self.db.execute("INSERT INTO T_EMAIL_OPTION(uid)"
-                                    "  VALUES(%s)",
-                                    fields.umobile)
+            user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", fields.umobile)
+            if not user:
+                self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
+                                "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
+                                fields.umobile, fields.password,
+                                fields.uname, fields.umobile,
+                                fields.address, fields.email)
+                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                "  VALUES(%s)",
+                                fields.umobile)
             
             # 2: add terminal
-            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
+            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                             "  begintime, endtime)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s)",
-                            fields.tmobile, fields.group_id,
+                            "  VALUES (%s, %s, %s, %s, %s)",
+                            fields.tmobile, 
                             fields.tmobile, fields.umobile, 
                             fields.begintime, fields.endtime)
     
             # 3: add car tnum --> cnum
             self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
-                            "  VALUES(%s, %s, %s, %s, %s, DEFAULT)",
+                            "  VALUES(%s, %s, %s, %s, %s)",
                             fields.tmobile, fields.cnum, 
                             fields.ctype, fields.ccolor, fields.cbrand)
             
             # 4: send message to terminal
-            register_sms = SMSCode.SMS_REGISTER % (fields.mobile, fields.tmobile) 
+            register_sms = SMSCode.SMS_REGISTER % (fields.umobile, fields.tmobile) 
             ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
             ret = DotDict(json_decode(ret))
             sms_status = 0
@@ -178,7 +176,7 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                         status=ErrorCode.SUCCESS,
                         message='')
         except Exception as e:
-            logging.exception("Create business failed. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
+            logging.exception("Create business failed.")
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_USER_FAILURE])
 
@@ -202,14 +200,26 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
     def post(self):
         """Query businesses according to the given params.
         """
+        corps = self.get_argument('corps', 0)
         begintime = int(self.get_argument('begintime',0))
         endtime = int(self.get_argument('endtime',0))
         interval=[begintime, endtime]
+        if int(corps) == 0:
+            corps = self.db.query("SELECT cid FROM T_CORP")
+            corps = [str(corp.cid) for corp in corps]
+            sql = "SELECT id FROM T_GROUP WHERE corp_id IN %s" % (tuple(corps + DUMMY_IDS),)
+            groups = self.db.query(sql)
+            groups = [str(group.id) for group in groups] + [-1,]
+        else:
+            corps = self.db.get("SELECT cid FROM T_CORP"
+                                "  WHERE id = %s", corps)
+            groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", corps.cid) 
+            groups = [str(group.id) for group in groups]
 
         fields = DotDict(umobile="tu.mobile LIKE '%%%%%s%%%%'",
                          tmobile="tt.mobile LIKE '%%%%%s%%%%'",
                          begintime="tt.begintime >= %s",
-                         endtime="tt.endtime <= %s")
+                         endtime="tt.begintime <= %s")
         
         for key in fields.iterkeys():
             v = self.get_argument(key, None)
@@ -228,11 +238,13 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                                      if v is not None])
         try:
             sql = ("SELECT tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile, tt.begintime, tt.endtime,"
-                   "  tt.service_status, tc.cnum"
-                   "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc"
-                   "  WHERE tu.mobile = tt.owner_mobile "
-                   "    AND tt.group_id = -1"
-                   "    AND tt.tid = tc.tid ")
+                   "  tt.service_status, tc.cnum, tcorp.name as ecname"
+                   "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile,"
+                   "       T_CAR as tc, T_GROUP as tg, T_CORP as tcorp"
+                   "  WHERE tt.group_id IN %s"
+                   "    AND tt.group_id = tg.id"
+                   "    AND tg.corp_id = tcorp.cid"
+                   "    AND tt.tid = tc.tid ") % (tuple(groups + DUMMY_IDS),)
             if where_clause:
                 sql += ' AND ' + where_clause
             businesses = self.db.query(sql)
@@ -243,6 +255,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                 for key in business:
                     if business[key] is None:
                         business[key] = ''
+
             self.render('business/search.html',
                         interval=interval, 
                         businesses=businesses,
@@ -290,11 +303,16 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
     def post(self, tmobile):
         """Modify a business."""
         
-        fields = DotDict(umobile="",
+        fields = DotDict(cnum="",
+                         ctype="",
+                         ccolor="",
+                         cbrand="",
+                         uname="",
+                         umobile="",
                          tmobile="",
-                         cnum="",
-                         color="",
-                         brand="",
+                         service_status="",
+                         begintime="",
+                         endtime="",
                          address="",
                          email="")
         
@@ -307,23 +325,19 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.EDIT_CONDITION_ILLEGAL])
                     return
                 
-        fields.begintime = int(self.get_argument('begintime',0))
-        fields.endtime = int(self.get_argument('endtime',0))
-        fields.type = int(self.get_argument('type',0))
-        fields.service_status = int(self.get_argument('service_status',0))
         try:
             self.db.execute("UPDATE T_USER"
                             "  SET name = %s,"
-                            "  address = %s,"
-                            "  email = %s "
+                            "      address = %s,"
+                            "      email = %s "
                             "  WHERE mobile = %s",
-                            fields.name, fields.address, 
+                            fields.uname, fields.address, 
                             fields.email, fields.umobile)
             
             self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET begintime = %s,"
-                            "  endtime = %s,"
-                            "  service_status = %s "
+                            "      endtime = %s,"
+                            "      service_status = %s "
                             "  WHERE mobile = %s",
                             fields.begintime, fields.endtime, 
                             fields.service_status, fields.tmobile)
@@ -335,16 +349,17 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
             
             self.db.execute("UPDATE T_CAR"
                             "  SET cnum = %s,"
-                            "  type = %s,"
-                            "  color = %s,"
-                            "  brand = %s "
+                            "      type = %s,"
+                            "      color = %s,"
+                            "      brand = %s "
                             "  WHERE tid = %s",
-                            fields.cnum, fields.type, 
-                            fields.color, fields.brand, terminal.tid)
+                            fields.cnum, fields.ctype, 
+                            fields.ccolor, fields.cbrand, terminal.tid)
             terminal_info_key = get_terminal_info_key(terminal.tid)
             terminal_info = self.redis.getvalue(terminal_info_key)
-            terminal_info['alias'] = fields.cnum if fields.cnum else fields.tmobile
-            self.redis.setvalue(terminal_info_key, terminal_info)
+            if terminal_info:
+                terminal_info['alias'] = fields.cnum if fields.cnum else fields.tmobile
+                self.redis.setvalue(terminal_info_key, terminal_info)
             
             fields.sms_status = self.get_sms_status(fields.tmobile)
             self.render('business/list.html',
@@ -352,7 +367,8 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                         status=ErrorCode.SUCCESS,
                         message='')
         except Exception as e:
-            logging.exception("Edit business failed.Terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
+            logging.exception("Edit business failed.Terminal mobile: %s, owner mobile: %s",
+                              tmobile)
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.EDIT_USER_FAILURE])
         
@@ -369,16 +385,15 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s",
                                    tmobile)
-            self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                            "  WHERE id = %s",
-                            terminal.id)
             # unbind terminal
             seq = str(int(time.time()*1000))[-4:]
             args = DotDict(seq=seq,
                            tid=terminal.tid)
-            response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args) 
-            logging.info("UNBind terminal: %s, response: %s", terminal.tid, response)
-
+            GFSenderHelper.async_forward(GFSenderHelper.URLS.UNBIND, args)
+            # clear db 
+            self.db.execute("DELETE FROM T_TERMINAL_INFO"
+                            "  WHERE id = %s",
+                            terminal.id)
             # clear redis
             sessionID_key = get_terminal_sessionID_key(terminal.tid)
             address_key = get_terminal_address_key(terminal.tid)
@@ -395,11 +410,36 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                 self.db.execute("DELETE FROM T_USER"
                                 "  WHERE mobile = %s",
                                 pmobile)
-                language_key = get_language_key(pmobile)
-                self.redis.delete(language_key)
-            
         except Exception as e:
             status = ErrorCode.FAILED
             logging.exception("Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)
+        self.write_ret(status)
+            
+class BusinessServiceHandler(BaseHandler, BusinessMixin):
+
+    @authenticated
+    @check_privileges([PRIVILEGES.EDIT_BUSINESS])
+    @tornado.web.removeslash
+    def post(self, tmobile, service_status):
+        status = ErrorCode.SUCCESS
+        try:
+            terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+                                   "  WHERE mobile = %s",
+                                   tmobile)
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET service_status = %s"
+                            "  WHERE id = %s",
+                            service_status, terminal.id)
+            # clear redis
+            sessionID_key = get_terminal_sessionID_key(terminal.tid)
+            address_key = get_terminal_address_key(terminal.tid)
+            info_key = get_terminal_info_key(terminal.tid)
+            lq_sms_key = get_lq_sms_key(terminal.tid)
+            lq_interval_key = get_lq_interval_key(terminal.tid)
+            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+            self.redis.delete(*keys)
+        except Exception as e:
+            status = ErrorCode.FAILED
+            logging.exception("Update service_status to %s failed. tmobile: %s", service_status, tmobile)
         self.write_ret(status)
             

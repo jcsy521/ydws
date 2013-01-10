@@ -19,44 +19,27 @@
 <script type="text/javascript" src="/static/js/adminEdit.js"></script>
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
 <script type="text/javascript" src="/static/js/formValue.js"></script>
+<script type="text/javascript" src="/static/js/groupChoose.js"></script>
 <script type="text/javascript" src="/static/js/cacheQueryValues.js"></script>
 <script type="text/javascript" src="/static/js/json2.js"></script>
 {% block body %}
 {% if status == 0 %}
 <fieldset class="ui-widget ui-widget-content ui-corner-all">
 	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-		<span class="ui-button-text">集团用户查询</span>
+		<span class="ui-button-text">集团查询</span>
 	</legend>
-	<form method="post" action="" id="formID" onsubmit="return formSubmit('search');">
+	<form method="post" action="" id="formID" onsubmit="return formSubmit('business');">
 		<table id="searchTable0" class="searchTable0">
-			 <tr>
-				<td align="right">所在城市：</td>
-				<td align="left">
-				{% if  type == '0' or type == '2' %}	
-					
-					<select id="cities" name="cities" onchange="fn_changeSchool();">
-					<option value="0">--全部--</option>
-					{% for city in cities %}
-						<option value="{{city.city_id}}">{{city.city_name}}</option>
-					{% end %}
-					</select>
-					<input type="hidden" id="citiesId" name="citiesId" value="" />
-				{% else %}
-					<label id="city" >{{cities[0].city_name}}</label>
-					<input type="hidden" id="citiesId" name="citiesId" value="{{cities[0].city_id}}"/>
-				{% end %}
-				<input type="hidden" id="type" name="type" value="{{type}}" />
-				</td>
-			</tr>
+
 			<tr id="d_groups" >
 				<td align="right">集团名称：</td>
 				<td align="left">
 				{% if  type == '0' or type == '2' %}
-					<select name="group" id="group" class="userSelect j_userSelect" >
+					<select name="corps" id="corps" class="userSelect j_userSelect" >
 						<option value="0">--请选择集团--</option>
 					</select>
 				{% else %}
-					<select name="group" id="group" class="userSelect j_userSelect" onmouseover="clickGroup();" >
+					<select name="corps" id="corps" class="userSelect j_userSelect" onmouseover="clickGroup();" >
 						<option value="0">--请选择集团--</option>
 					</select>
 				{% end %}
@@ -82,10 +65,10 @@
 		<table id="searchButton">
 			<tr>
 				<td colspan="2" align="right">
-					<input type="hidden" id="start_time" name="start_time" value="" />
-					<input type="hidden" id="end_time" name="end_time" value="" />
+					<input type="hidden" id="begintime" name="begintime" value="" />
+					<input type="hidden" id="endtime" name="endtime" value="" />
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('citiesId,group,type,cities','ecbusinesssear');" 
+						onclick="fn_PushData('ecmobile','ecbusiness');" 
 						class="ui-button ui-widget ui-state-default ui-corner-all" 
 						role="button" aria-disabled="false" />
 				</td>
@@ -98,51 +81,27 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>集团管理员手机号</th><th>车主名</th><th>车主手机</th><th>终端手机</th><th>车牌号</th>
-            <th>受理状态</th><th>编辑</th><th>删除</th><th>终端启用/停用</th><th>详细信息</th>
+            <th>序号</th><th>集团名称</th><th>集团管理员手机号</th><th>地址</th><th>邮箱</th><th>编辑</th><th>删除</th><th>详细信息</th>
         </tr>
     </thead>
 		
     <tbody id="adminTbody">
-	{% for business in businesses %}
-            <tr id="ecbusiness{{business['tmobile']}}" >
+	{% for business in ecbusinesses %}
+            <tr id="ecbusiness{{business['ecmobile']}}" >
 				<td>{{ business['seq'] }}</td>
 				<td>{{ business['ecname'] }}</td>
 	            <td>{{ business['ecmobile'] }}</td>
-	            <td>{{ business['name'] }}</td>
-                <td>{{ business['mobile'] }}</td>
-                <td>{{ business['tmobile']}}</td>
-                <td>{{ business['cnum'] }} </td>
-				<td>
-					{% if business['sms_status'] == 0 %}
-						<label class="sms_status0">
-							<!--短信发送失败-->
-							<a href="#" class="resetSms" onclick="fn_smsReset({{business['tmobile']}}, {{ business['mobile'] }}, this)">短信发送失败,点击重发短信</a>
-						</label>
-					{% elif business['sms_status'] == 1 %}
-						<label class="sms_status1">短信已发送</label>
-					{% elif business['sms_status'] == 2 %}
-						<label class="sms_status2">短信发送成功</label>
-					{% elif business['sms_status'] == 3 %}
-						<label class="sms_status3">终端登陆成功</label>
-					{% end %}
-				</td>
-				{% if business['mobile'] != '' %}
+	            <td>{{ business['address'] }}</td>
+                <td>{{ business['email'] }}</td>
+				{% if business['ecmobile'] != '' %}
                 <td>
-                    <a href="/ecbusiness/edit/{{business['tmobile']}}">编辑</a>
+                    <a href="/ecbusiness/edit/{{business['ecmobile']}}">编辑</a>
                 </td>
 				<td>
-                    <a href="#" onclick="businessDelete({{business['tmobile']}}, {{business['mobile']}}, 'ec')">删除</a>
+                    <a href="#" onclick="businessDelete({{business['ecmobile']}}, '', 'ec')">删除</a>
                 </td>
                 <td>
-					{% if business['service_status'] == 0 %}
-						 <a href="#" onclick="businessStop({{business['tmobile']}}, {{business['seq']}}, 'ec');" service_status="{{business['service_status']}}" id="service_status{{business['seq']}}">启用</a>
-					{% else %}
-						 <a href="#" onclick="businessStop({{business['tmobile']}}, {{business['seq']}}, 'ec');" service_status="{{business['service_status']}}"  id="service_status{{business['seq']}}">停用</a>
-					{% end %}
-                </td>
-                <td>
-                    <a href="/ecbusiness/eclist/{{business['tmobile']}}">详细信息</a>
+                    <a href="/ecbusiness/list/{{business['ecmobile']}}">详细信息</a>
                 </td>
 				{% else %}
 					<td></td><td></td><td></td><td></td>
@@ -156,7 +115,7 @@
 	<input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'business_end'}}"/>
 </div>
 <script type="text/javascript">
-    fn_PopData('business');
+    fn_PopData('ecbusiness');
 </script>
 {% else %}
 	<div class="ui-widget" align="center">

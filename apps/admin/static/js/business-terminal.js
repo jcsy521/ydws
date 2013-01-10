@@ -85,96 +85,18 @@ $(function () {
 			obj_submitBtn.hide();
 		}
 	});
-	// 动态加载集团信息
-	var cache = [];
-	
-	$('#ecName').keyup(function(event) {
-			if ( event.keyCode === $.ui.keyCode.TAB && $(this).data('autocomplete').menu.active ) {
-				event.preventDefault();
-			}
-			var str_text = '<input type="text" class="validate[required,custom[mobile]] text_blur" maxlength="11" id="ecMobile" style="width: 120px;"><span class="redColor">*</span>';
-			
-			$('#ecMobilePanel').html(str_text);
-			
-			$('#ecName').autocomplete('search');
-		}).blur(function(event) {
-			var str_nameVal = $('#ecName').val();
-			if ( obj_busGrounp ) { 
-				for ( var i = 0; i < obj_busGrounp.length; i++ ) {
-					var obj_tempData = obj_busGrounp[i], 
-						str_dataName = obj_tempData.ec_name;
-					
-					if ( str_dataName == str_nameVal ) {
-						var str_text = '<label class="text_label" id="ecMobile" value="'+ obj_tempData.mobile +'">'+ obj_tempData.mobile +'</label><span class="redColor">*</span>'
-						$('#ecMobilePanel').html(str_text);
-					}
-				}
-			}
-		}).autocomplete({
-			source: function(request, response) { 
-				var term = request.term;
-
-				if ( term in cache ) {
-					response( $.map(cache[ term ], function(item) {
-							var str_ecName = item.ec_name, 
-								str_inputText = $('#ecName').val();
-							
-							if ( str_ecName.search(str_inputText) != -1 ) {
-								return {
-									label: item.ec_name,
-									value: item.ec_name, 
-									value2: item.mobile
-								}
-							}
-						}));
-					return;
-				}
-
-				$.ajax({
-					url: '/ecbusiness/asyncfill',
-					dataType: 'json',
-					async: true, 
-					success: function(data) { 
-						cache[term] = data;
-						obj_busGrounp = data;
-						
-						response( $.map(data, function(item) {
-							var str_ecName = item.ec_name, 
-								str_inputText = $('#ecName').val();
-							
-							if ( str_ecName.search(str_inputText) != -1 ) {
-								return {
-									label: item.ec_name,
-									value: item.ec_name, 
-									value2: item.mobile
-								}
-							}
-						}));
-					}
-				});
-			},
-			select: function(event, ui) { 
-				var str_text = '<label class="text_label" id="ecMobile" value="'+ ui.item.value2 +'">'+ ui.item.value2 +'</label><span class="redColor">*</span>'
-				$('#ecMobilePanel').html(str_text);
-			},
-			open: function() { 
-				$( this ).removeClass('ui-corner-all').addClass('ui-corner-top');
-			},
-			close: function() { 
-				$( this ).removeClass('ui-corner-top').addClass('ui-corner-all');
-			}
-		});
 });
 // 填充数据 
 function fn_fillUserData(n_tempNav) {
-	var n_panelHeight = 300, 
-		n_contentHeight = 190;
+	var n_panelHeight = 370, 
+		n_contentHeight = 270;
 	
 	switch( n_tempNav) {
 		case 1: 
-			var str_gName = $('#ecName').val();
-			//todo 取集团ID
-			$('#ecname').val(str_gName);
+			var str_gName = $('#corps').find('option:selected').text(), 
+				str_gNameId = $('#corps').val();
+			
+			$('#ecid').val(str_gNameId);
 			
 			$('#tdEcname').html(str_gName);
 			break;
@@ -185,9 +107,9 @@ function fn_fillUserData(n_tempNav) {
 				str_cBrand = $('#carBrand').val();
 			
 			$('#cnum').val(str_cId);
-			$('#type').val(str_cType);
-			$('#color').val(str_cColor);
-			$('#brand').val(str_cBrand);
+			$('#ctype').val(str_cType);
+			$('#ccolor').val(str_cColor);
+			$('#cbrand').val(str_cBrand);
 			
 			$('#tdCnum').html(str_cId);
 			$('#tdType').html(fn_carTypeName(str_cType));
@@ -196,14 +118,17 @@ function fn_fillUserData(n_tempNav) {
 			break;
 		case 3:
 			var str_Tmobile = $('#terminalMobile').val(), 
-				str_stTime = $('#start_time1').val(),
-				str_endTime = $('#end_time1').val();
+				str_Umobile = $('#userMobile').val(), 
+				str_stTime = $('#begintime1').val(),
+				str_endTime = $('#endtime1').val();
 				
 			$('#tmobile').val(str_Tmobile);
-			$('#begintime1').val(toEpochDate(str_stTime+' 00:00:00'));
-			$('#endtime1').val(toEpochDate(str_endTime+' 00:00:00'));
+			$('#umobile').val(str_Umobile);
+			$('#tbegintime').val(toEpochDate(str_stTime+' 00:00:00'));
+			$('#tendtime').val(toEpochDate(str_endTime+' 00:00:00'));
 			
 			$('#tdTmobile').html(str_Tmobile);
+			$('#tdUmobile').html(str_Umobile);
 			$('#tdBeginTime').html(str_stTime);
 			$('#tdEndtime').html(str_endTime);
 			break;

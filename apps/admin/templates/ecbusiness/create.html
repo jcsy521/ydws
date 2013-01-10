@@ -20,9 +20,9 @@
 		<!--step nav-->
 		<div id="panelNav">
 			<ul>
-				<li class="ecStep1"></li>
-				<li class="ecStep2"></li>
-				<li class="ecStep3"></li>
+				<li class="cropStep1"></li>
+				<li class="cropStep2"></li>
+				<li class="cropStep3"></li>
 			</ul>
 		</div>
 		<!--step content-->
@@ -33,7 +33,7 @@
 						<tr>
 							<td	class="tLeft">集团名称：</td>
 							<td class="tdText">
-								<input type="text" id="ecName" class="validate[required]" />
+								<input type="text" id="ecName" class="validate[required,ajax[ajaxEcName]]" />
 								<span class="redColor">*</span>
 							</td>	
 							<td>
@@ -57,7 +57,7 @@
 						<tr>
 							<td	class="tLeft">联系人手机号：</td>
 							<td class="tdText" id="ecMobilePanel">
-								<input type="text" id="ecMobile" class="validate[required,custom[mobile]]" maxlength="11" />
+								<input type="text" id="ecMobile" class="validate[required,custom[mobile],ajax[ajaxEcTMobile]]" maxlength="11" />
 								<span class="redColor">*</span>
 							</td>	
 							<td>

@@ -1068,7 +1068,7 @@
                         var errorField = $($("#" + errorFieldId)[0]);
                         // make sure we found the element
                         if (errorField.length == 1) {
-                            var status = json.success;
+                            var status = json.message;
                             if (status) { 
                                 // Houston we got a problem - display an red prompt
                                 options.ajaxValidCache[errorFieldId] = false;
