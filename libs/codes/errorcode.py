@@ -32,6 +32,7 @@ class ErrorCode(object):
     TERMINAL_NOT_EXISTED = 217
     EC_MOBILE_EXISTED = 218
     EC_NAME_EXISTED = 219
+    CNUM_EXISTED = 220
 
     LOCATION_NAME_NONE = 300
     LOCATION_CELLID_FAILED = 302
@@ -100,6 +101,7 @@ class ErrorCode(object):
         TERMINAL_ORDERED:              u"定位器手机号已被注册，请检查确认后重试！",
         EC_MOBILE_EXISTED:             u"集团手机号已被注册，请检查确认后重试！",
         EC_NAME_EXISTED:               u"该集团已被注册，请检查确认后重试！",
+        CNUM_EXISTED:                  u"该车牌号已被使用！",
         TERMINAL_SET_FAILED:           u"定位器参数设置失败，请稍后重试。",
         UNKNOWN_COMMAND:               u"您好，你输入的指令系统不识别，请输入标准指令。",
         CREATE_USER_FAILURE:           u"添加用户失败。",

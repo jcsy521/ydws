@@ -103,6 +103,7 @@ class Application(tornado.web.Application):
             (r"/checkecmobile/(\d+)/*", CheckECMobileHandler),
             (r"/checkecname/(\S+)/*", CheckECNameHandler),
             (r"/checktmobile/(\d+)/*", CheckTMobileHandler),
+            (r"/checkcnum/(\S+)/*", CheckCNumHandler),
             (r"/privileges/(\d+)/*", PrivilegeSetHandler),
 
             # statistic report

@@ -128,6 +128,30 @@ class CheckTMobileHandler(BaseHandler):
         self.write(json_encode(ret))
         
 
+class CheckCNumHandler(BaseHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self, cnum):
+        """
+        """
+
+        ret = DotDict(status=ErrorCode.SUCCESS,
+                      message=None)
+        if cnum:
+            car = self.db.get("SELECT id"
+                              "  FROM T_CAR"
+                              "  WHERE cnum = %s"
+                              "   LIMIT 1",
+                              cnum)
+            if car:
+                ret.status = ErrorCode.CNUM_EXISTED
+                ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
+            
+        self.set_header(*self.JSON_HEADER)
+        self.write(json_encode(ret))
+        
+
 class CheckECMobileHandler(BaseHandler):
 
     @authenticated
