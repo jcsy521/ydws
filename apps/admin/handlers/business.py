@@ -69,14 +69,11 @@ class BusinessMixin(BaseMixin):
         business = self.db.get("SELECT tu.name as uname, tu.mobile as umobile, tu.address, tu.email, tt.mobile as tmobile,"
                                "  tt.service_status, tt.begintime, tt.endtime, tc.cnum, tc.type as ctype, tc.color as ccolor,"
                                "  tc.brand as cbrand, tcorp.name as ecname"
-                               "  FROM T_USER as tu, T_TERMINAL_INFO as tt, T_CAR as tc, T_GROUP as tg, T_CORP as tcorp"
-                               "  WHERE tu.mobile = tt.owner_mobile "
-                               "    AND tt.tid = tc.tid "
-                               "    AND tt.group_id = tg.id"
-                               "    AND tg.corp_id = tcorp.cid"
-                               "    AND tt.mobile = %s"
-                               "    LIMIT 1",
-                               tmobile)
+                               "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_CAR as tc ON tt.tid = tc.tid"
+                               "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"
+                               "                             LEFT JOIN T_GROUP as tg ON tt.group_id = tg.id"
+                               "                             LEFT JOIN T_CORP as tcorp ON tg.corp_id = tcorp.cid"
+                               "  WHERE tt.mobile = %s", tmobile)
         if business:
             business['sms_status'] = self.get_sms_status(tmobile)
             for key in business.iterkeys():
@@ -392,7 +389,8 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             seq = str(int(time.time()*1000))[-4:]
             args = DotDict(seq=seq,
                            tid=terminal.tid)
-            GFSenderHelper.async_forward(GFSenderHelper.URLS.UNBIND, args)
+            response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args, None)
+            logging.info("Unbind terminal: %s response: %s", terminal.tid, response)
             # clear db 
             self.db.execute("DELETE FROM T_TERMINAL_INFO"
                             "  WHERE id = %s",

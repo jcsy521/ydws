@@ -97,7 +97,7 @@
 		}
 	});
 	// 业务用户编辑设置车型
-	var obj_carType = $('#type');
+	var obj_carType = $('#ctype');
 	
 	obj_carType.val(obj_carType.attr('cartype'));
 });
@@ -125,6 +125,7 @@ function fn_getNumber(str) {
 } 
 // 通过车辆类型标记返回相应的车辆类型文字
 function fn_setCarType(n_carType) {
+	console.log('xxx:  ',n_carType);
 	switch (n_carType) {
 		case 1: 
 			return '小汽车';
@@ -137,6 +138,9 @@ function fn_setCarType(n_carType) {
 			break;
 		case 4: 
 			return '摩托车';
+			break;
+		default: 
+			return '';
 			break;
 	}
 }

@@ -25,9 +25,17 @@ function formSubmit(option) {
 		}
 	}
 	// business business edit
-	if ( option == 'business' || option == 'businessEdit') {
+	if ( option == 'business') {
 		var et = toEpochDate(endtime),
 			bt = toEpochDate(starttime);
+		$('#endtime').val(et);
+		$('#begintime').val(bt);
+		return true;
+	}
+	//  businessEdit
+	if ( option == 'businessEdit') {
+		var et = toEpochDate(endtime1),
+			bt = toEpochDate(begintime1);
 		$('#endtime').val(et);
 		$('#begintime').val(bt);
 		return true;

@@ -147,6 +147,12 @@
 					"alertTextLoad":"请稍候...",
 					"alertText":"集团名称已注册"
 				},
+				"ajaxCnum":{
+					"url":"/checkcnum/",
+					"alertTextOk":"可以使用.",	
+					"alertTextLoad":"请稍候...",
+					"alertText":"车牌号已注册"
+				},
                 "date": {                    
                     //	Check if date is valid by leap year
 			"func": function (field) {
