@@ -305,4 +305,221 @@
 		<span id="trackMsg"></span>
 		<span class="hide" id="trackTimer">0</span>
 	</div>
+	
+	
+	<!--集团资料框-->
+	<div id="corpWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle corpPersonalTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div class="wrapperContent corpContent">
+			<form id="corpForm" >
+				<table class="personalList">
+					<tr>
+						<td>
+							<label>集团名称：</label>
+							<input type="text" name="c_name" id="c_name"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="集团名称只能是由数字、英文、下划线或中文组成！"  parent="corpPersonalWrapper" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>联系人：</label>
+							<input type="text" name="c_linkman" id="c_linkman"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="联系人只能是由数字、英文、下划线或中文组成！"  parent="corpPersonalWrapper" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>联系电话：</label>
+							<input type="text" name="c_mobile" id="c_mobile"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="mobile" msg="请输入正确的手机号！"  parent="corpPersonalWrapper" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>地址：</label>
+							<input type="text" id="c_address" name="c_address" class="text_mouseOut j_corpData1 j_onInputBlur"  msg="地址最大长度是100个汉字或字符！" max="100"  who="validateLength" parent="corpPersonalWrapper"   />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>E-MAIL：</label>
+							<input type="text" name="c_email" id="c_email" class="text_mouseOut j_corpData1 j_onInputBlur"  parent="corpPersonalWrapper" msg="您输入的邮箱格式不正确！" max = "100"  who="email"  />
+						</td>
+					</tr>
+				</table>
+				<input type="hidden" id="hidCName"  value="" />
+				<input type="submit" value="" id="corpSave" class="personalButton j_save" />
+			</form>
+		</div>
+	</div><!--集团资料框end-->
+	<!-- 新增终端 -->
+	<div id="cTerminalWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle cTerminalTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div class="wrapperContent cTerminalContent">
+			<form id="cTerminalForm" >
+				<table class="cTerminalList">
+					<tr>
+						<td>
+							<label>终端手机号：</label>
+							<input type="text" name="c_tmobile" id="c_tmobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="cMobile" msg="终端手机号格式不正确！"  parent="cTerminalWrapper" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车主手机号：</label>
+							<input type="text" name="c_umobile" id="c_umobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="uMobile" msg="车主手机号格式不正确！"  parent="cTerminalWrapper" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>开始时间：</label>
+							<input type="text" name="c_begintime" id="c_begintime"  class="time" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>结束时间：</label>
+							<input type="text" name="c_endtime" id="c_endtime"  class="time" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车牌号码：</label>
+							<input type="text" id="c_cnum" name="c_cnum" class="text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车辆类型：</label>
+							<select id="c_type" name="c_type" style="width: 120px;">
+								<option value="1">小汽车</option>
+								<option value="2">小货车</option>
+								<option value="3">大巴车</option>
+								<option value="4">摩托车</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车辆颜色：</label>
+							<input type="text" id="c_color" name="c_color" class="text_mouseOut j_corpData j_onInputBlur"  msg="车辆颜色最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车辆品牌：</label>
+							<input type="text" id="c_brand" name="c_brand" class="text_mouseOut j_corpData j_onInputBlur"  msg="车辆品牌最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+				</table>
+				<input type="hidden" id="hidGroupId"  value="" />
+				<input type="hidden" id="hidTMobile"  value="" />
+				<input type="submit" value="" id="cTerminalSave" class="personalButton j_save" />
+			</form>
+		</div>
+	</div>
+	
+	<!-- 编辑终端 -->
+	<div id="cTerminalEditWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle cTerminalEditTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div class="wrapperContent cTerminalEditContent">
+			<form id="cTerminalEditForm" >
+				<table class="cTerminalList">
+					<tr>
+						<td>
+							<label>终端手机号：</label>
+							<span class="j_tmobile"></span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车主手机号：</label>
+							<span class="j_umobile"></span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>开始时间：</label>
+							<input type="text" id="c_editbegintime"  class="time j_cterminalEdit" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>结束时间：</label>
+							<input type="text" id="c_editendtime"  class="time j_cterminalEdit" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车牌号码：</label>
+							<input type="text" id="c_editcnum" class="text_mouseOut j_cterminalEdit j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车辆类型：</label>
+							<select id="c_editctype" class="j_cterminalEdit" style="width: 120px;">
+								<option value="1">小汽车</option>
+								<option value="2">小货车</option>
+								<option value="3">大巴车</option>
+								<option value="4">摩托车</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车辆颜色：</label>
+							<input type="text" id="c_editccolor" class="text_mouseOut j_cterminalEdit j_onInputBlur"  msg="车辆颜色最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>车辆品牌：</label>
+							<input type="text" id="c_editcbrand" class="text_mouseOut j_cterminalEdit j_onInputBlur"  msg="车辆品牌最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+				</table>
+				<input type="hidden" id="hidTid"  value="" />
+				<input type="submit" value="" id="cTerminalEditSave" class="personalButton j_save" />
+			</form>
+		</div>
+	</div>
+	<!-- 统计 -->
+	<div id="staticsWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle staticsTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div class="wrapperContent staticsTitleContent">
+			<table class="staticsCondition">
+				<tr>
+					<td>
+						开始时间：<input type="text" id="c_eventbegintime"  class="time" />
+						结束时间：<input type="text" id="c_eventendtime"  class="time" />
+					</td>
+					<td><span id="staticsBtn" class="staticsBtn j_tBtnhover" title="搜索"></span></td>
+				</tr>
+			</table>
+			<table class="dataTable staticsTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="staticsTableHeader">
+						<th>终端手机号</th>
+						<th>移动</th>
+						<th>SOS</th>
+						<th>震动</th>
+						<th>通讯异常</th>
+						<th>电量告警</th>
+					</tr>
+				</tbody>
+			</table>
+			<!-- 分页 -->
+			<div id="staticsPage" class="hide">
+				<span id="prevPage" class="prevBtn j_pBtnHover"></span>
+				<span id="pageNums"><label id="currentPage"></label>/<label id="pageCount"></label></span>
+				<span id="nextPage" class="nextBtn j_pBtnHover"></span>
+			</div>
+		</div>
+	</div>
 </div>

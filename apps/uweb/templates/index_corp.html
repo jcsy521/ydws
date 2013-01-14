@@ -1,22 +1,22 @@
 {% extends "base.html" %}
-{% block include %}
-	<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
-	<script type="text/javascript" src="/static/js/formValidator-4.1.1.js"></script>		
-	<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
-	<script type="text/javascript" src="/static/js/formValidatorRegex.js"></script>
-	<script type="text/javascript" src="/static/js/terminal.js"></script>
-	<script type="text/javascript" src="/static/js/main.js"></script>
-	<script type="text/javascript" src="/static/js/current.js"></script>
-	<script type="text/javascript" src="/static/js/track.js"></script>
+{% block include %}	
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/formValidator-4.1.1.js"></script>		
+<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+<script type="text/javascript" src="/static/js/formValidatorRegex.js"></script>
+<script type="text/javascript" src="/static/js/terminal.js"></script>
+<script type="text/javascript" src="/static/js/main.js"></script>
+<script type="text/javascript" src="/static/js/current.js"></script>
+<script type="text/javascript" src="/static/js/track.js"></script>
+<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/static/js/jquery.jstree.js"></script>
+<script type="text/javascript" src="/static/js/corp_main.js"></script>
 {% end %}
 {% block body %}
 <body class="j_body mainBody">
 	{% if status == 0 %}
 	<!-- top -->
 	<div id="top">
-		<!--<div id="logo">
-			<img src="../static/images/logo.png" alt="移动车卫士" />
-		</div>-->
 		<div id="ads" title="移动车卫士">
 			<img src="/static/images/bannerAd.png" />
 		</div>
@@ -28,41 +28,49 @@
 	<div id="main">
 		<!-- carInfo -->
 		<div id="left">
-			<div id="cars">
-				<div class="carsTitle"></div>
-				<ul id="carList" class="j_carList">
-				{% for car in cars %}
-					<li keys_num = '{{car.keys_num}}'>
-						{% if car.login == 0 %} 
-							<a href="#" title="{{car.alias}}" class="carlogout j_terminal"  keys_num="{{car.keys_num}}"  tid="{{car.tid}}" fob_status=""  cLogin="{{car.login}}" actiontrack="no" >
-								<img src="../static/images/carout1.png" />
-							</a>
-							<div class="gray">{{car.alias}}</div>
-							<div class="gray">(离线)</div>
-						{% else %}
-							<a href="#" title="{{car.alias}}" class="carlogin j_terminal"  keys_num="{{car.keys_num}}" fob_status=""  tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" >
-								<img src="../static/images/car1.png" />
-							</a>
-							<div class="green">{{car.alias}}</div>
-							<div class="green">(在线)</div>
-						{% end %}
-					</li>
-				{% end  %}
-				</ul>
+			<div id="cars" class="corpLeft">
+				<div class="corpCarSearch">
+					<input type="text" id="txtautoComplete" class="searchText" />
+					<a href="#" id="autoSearch" class="autoSearch" title="搜索"></a>
+				</div>
+				<div id="corpTree" class="corpTree j_carList">
+					<div class="j_terminal loadTree">
+						正在加载数据...<img src="/static/images/blue-wait.gif" />
+					</div>
+					<!--<ul>
+						<li class="j_corp">
+							<a href="#" class="corpNode" corpId="1" title="集团1">集团1</a>
+							<ul>
+								<li class="j_group">
+									<a href="#" class="groupNode" groupId="1" title="部门1">部门1</a>
+									<ul>
+										<li class="j_leafNode">
+											<a href="#" class="terminalNode j_terminal" title="alias"  keys_num="key_num"  tid="tid" fob_status=""  cLogin="1" actiontrack="no" >终端1</a>
+										</li>
+										<li class="j_leafNode">
+											<a href="#"  class="terminalNode j_terminal" title="alias"  keys_num="key_num"  tid="tid" fob_status=""  cLogin="1" actiontrack="no" >终端2</a>
+										</li>
+									</ul>
+								</li>
+								<li class="j_group">
+									<a href="#" class="groupNode">部门2</a>
+								</li>
+							</ul>
+						</li>
+					</ul>-->
+				</div>
+				<div class="hide j_selfMarks" ></div><!-- 用来存储所有的marker -->
 			</div>
-			<div id="carInfo">
-				<div class="carsInfoTitle"></div>
-				<table id="cInfo">
-					<tr><td class="tLeft">速度：   </td><td><label  id="speed"></label></td></tr>
-					<tr><td class="tLeft">方向：   </td><td><label  id="degree"></label></td></tr>
-					<tr><td class="tLeft">经度：   </td><td><label  id="lng"></label></td></tr>
-					<tr><td class="tLeft">纬度：   </td><td><label  id="lat"></label></td></tr>
-					<tr><td class="tLeft">类型：   </td><td><label  id="type"></label></td></tr>
-					<tr><td class="tLeft">位置：   </td><td><label  id="address"></label></td></tr>
-				</table>
-			</div>
-			<div id="terminalInfo">
-				<div class="terminalInfoTitle"></div>
+			<div id="terminalInfo" class="corpLeft">
+				<div class="staticsBox">
+					<table>
+						<tr>
+							<td><label class="carCount">123</label>(全部)</td>
+							<td><label class="onlineCount">123</label>(在线)</td>
+							<td><label class="offlineCount">123</label>(离线)</td>
+						</tr>
+					</table>
+				</div>
 				<ul id="tInfo">
 					<li id="defendStatus">
 						<span class="tInfoWord">设防状态：</span><span class="fontColor" id="defendContent"></span>
@@ -77,13 +85,9 @@
 						<span class="tInfoWord"><label>GPS</label>信号：</span><span class="fontColor" id="gpsContent"></span>
 					</li>
 					<li id="tmobile">
-						<span class="tInfoWord">定位器号码：</span><span class="fontColor" id="tmobileContent"></span>
+						<span class="tInfoWord">更新时间：</span><span class="fontColor" id="locationTime"></span>
 					</li>
 				</ul>
-			</div>
-			<div class="updateTime">
-				<span class="tInfoWord">更新时间：</span>
-				<span class="fontColor" id="locationTime"></span>
 			</div>
 		</div>
 		<!-- menu and map-->
@@ -92,14 +96,14 @@
 				<ul class="menu">
 					<li><a href="#" id="realtime" class="realtime j_click"></a></li>
 					<li><a href="#" id="track" class="track j_click"></a></li>
-					<li><a href="/event" id="warnEvent" target="event.html" class="event j_click"></a></li>
 					<li><a href="#" id="defend" class="defend j_click"></a></li>
 					<li><a href="#" id="terminal" class="terminal j_click"></a></li>
 					<li><a href="#" id="smsoption" class="smsOption j_click"></a></li>
+					<li><a href="#" id="statics" class="statics j_click"></a></li>
 				</ul>
 				<ul class="selfList">
 					<li><a class="help" title="显示帮助文档" href="/helper" target="_blank">帮助</a></li>
-					<li><a href="#" id="personalData" class="j_click" title="个人资料">个人资料</a></li>
+					<li><a href="#" id="corpData" class="j_click" title="集团资料">集团资料</a></li>
 					<li><a href="#" id="changePwd" class="j_click" title="修改密码">修改密码</a></li>
 					<li><a href="#" id="logout" onclick="dlf.fn_exit()" title="退出">退出</a></li>
 				</ul>
@@ -140,6 +144,6 @@
 	<!--辅助元素begin-->
 	{% include dialogs.html %}
 	<!--辅助元素end-->
-	<input type="hidden" id="userType" value="0" />
+	<input type="hidden" id="userType" value="1" />
 </body>
 {% end %}
