@@ -25,8 +25,9 @@ body {
 }
 /*navigation css start*/
 #top {
+	background: url('/static/images/banner.png') repeat-x;
 	height: 123px;
-	min-width: 1277px;
+	min-width: 1407px;
 	float: left;
 }
 #top img {
@@ -72,7 +73,7 @@ body {
 }*/
 /*main content start*/
 #main {
-	min-width: 1277px;
+	min-width: 1407px;
 	min-height: 601px;
 	background: #e7eeef;
 	float: left;
@@ -87,7 +88,7 @@ body {
 	border-right: 1px solid #c5c5c4;
 }
 #right {
-	min-width: 1028px;
+	min-width: 1158px;
 }
 #left .title {
 	font-size: 14px;
@@ -232,7 +233,7 @@ body {
 	height: 76px;
 	/*color: #435871;*/
 }
-.currentCar {
+.currentCarCss {
 	/*border: 2px solid #89c0e2;*/
 	background: url('/static/images/carCurrentBg.png') no-repeat 0px 0px;
 	width: 99px;
@@ -281,7 +282,7 @@ body {
 	color: #126393;
 	padding-left: 3px;
 }
-#defendStatus, #power, #gps{
+#defendStatus, #power, #gps, #gsm{
 	background-repeat: no-repeat;
 	background-position: 168px center;
 }
@@ -302,9 +303,10 @@ body {
 	width: 25px;
 	float: left;
 }
+/*
 #gsm {
 	background: url('/static/images/gsm1.png') no-repeat 168px center;
-}
+}*/
 .updateTime {
 	width: 227px;
 	height: 32px;
@@ -324,13 +326,13 @@ body {
 #navi {
 	background: url('/static/images/menuBg.png') repeat-x;
 	height: 38px;
-	min-width: 1028px;
+	min-width: 1158px;
 }
 .menu, .menu li {
 	float: left;
 }
 #mapObj {
-	min-width: 1028px;
+	min-width: 1158px;
 	min-height: 566px;
 }
 .menu a {
@@ -376,6 +378,12 @@ body {
 .menu .smsOption:hover {
 	background-position: 0px -396px;
 }
+.menu .statics {
+	background-position: 0px -432px;
+}
+.menu .statics:hover {
+	background-position: 0px -468px;
+}
 .selfList {
 	float:right;
 	margin-right: 20px;
@@ -407,7 +415,7 @@ body {
 /*main content end*/
 
 /*dialogs wrapper start*/
-#currentMsg, #defendMsg, #bListR .terminalTdL, .personalList label, .pwdList label, .smsTip {
+#currentMsg, #defendMsg, #bListR .terminalTdL, .personalList label, .pwdList label, .smsTip, .cTerminalList label {
 	color: #126393
 }
 .timeout {
@@ -462,6 +470,22 @@ body {
 .smsUploadTitle {
 	width: 400px;
 	background-position: 0px -238px;
+}
+.corpPersonalTitle {
+	background-position: 0px -272px;
+}
+.cTerminalTitle {
+	background-position: 0px -306px;
+}
+.cTerminalEditTitle {
+	background-position: 0px -340px;
+}
+.staticsTitle {
+	background-position: 0px -374px;
+	width: 600px;
+}
+.staticsTitle .close {
+	left: 571px;
 }
 .wrapperContent {
 	height: 249px;
@@ -620,17 +644,24 @@ body {
 	height: 166px;
 	padding-top: 10px;
 }
-.personalList {
+.corpContent {
+	height: 247px;
+	padding-top: 10px;
+}
+.personalList, .cTerminalList {
 	margin-left: 23px;
 }
-.personalList tr, .pwdList tr {
+.personalList tr, .pwdList tr, .cTerminalList tr {
 	height: 27px;
 	line-height: 27px;
 }
 .personalList input {
 	width: 310px;
 }
-.personalList input, .pwdList input {
+.cTerminalList input {
+	width: 210px;
+}
+.personalList input, .pwdList input, .cTerminalList input {
 	padding: 5px;
 }
 .remark {
@@ -642,12 +673,15 @@ body {
     border: 1px solid #CDCDCD;
 	padding: 5px;
 }
-.personalList label, .pwdList label {
+.personalList label, .pwdList label, .cTerminalList label {
 	display: inline-block;
     float: left;
     margin-right: 20px;
     text-align: right;
     width: 60px;
+}
+.cTerminalList label {
+	width: 100px;
 }
 .pwdList {
 	height: 144px;
@@ -792,7 +826,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-#personalSave, #pwdSave, #terminalSave, #smsNoticeSave {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
@@ -1094,6 +1128,13 @@ body {
 	_top: 27px;
 	width: 92px;
 }
+.staticsBtn {
+	background: url('/static/images/cx.png') no-repeat;
+	cursor: pointer;
+	display: inline-block;
+	height: 34px;
+	width: 92px;
+}
 .dataTable {
 	border: 0px;
 	margin-top: 8px;
@@ -1159,7 +1200,7 @@ body {
 	+top: 3px;
 	_top: 20px; /*ie6*/
 }
-#pagerContainer {
+#pagerContainer, #staticsPage {
 	width: 850px;
 	height: 34px;
 	line-height: 34px;
@@ -1316,7 +1357,7 @@ body {
 }
 /* index ads */
 #ads {
-	width: 799px;
+	width: 1178px;
 	height: 123px;
 	float: left;
 }
@@ -1378,7 +1419,7 @@ body {
 	font-weight: bold;
 }
 #tab_pwd {
-	width: 500px;
+	width: 540px;
 	margin: 0 auto;
 }
 #pwdBox p {
@@ -1670,5 +1711,138 @@ body {
 }
 .childrenUl {
 	text-indent: 35px;
+}
+/*corp css*/
+.corpCarSearch {
+	background: url("/static/images/corpImages/searchBox.png") no-repeat scroll 3px 0 transparent;
+    border-bottom: 1px solid #C0CBD2;
+    height: 42px;
+    margin-bottom: 5px;
+    width: 247px;
+}
+.searchText {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 0 none;
+    display: inline-block;
+    float: left;
+    height: 16px;
+    left: 24px;
+    margin-top: 8px;
+    padding: 1px 3px;
+    position: absolute;
+    width: 150px;
+}
+.autoSearch {
+	background: url('/static/images/corpImages/defaultSearch.png') no-repeat scroll 0 0 transparent;
+    border: medium none;
+    cursor: pointer;
+    float: left;
+    height: 16px;
+    left: 212px;
+    margin-top: 9px;
+    position: absolute;
+    width: 16px;
+}
+.autoSearch:hover {
+	background: url('/static/images/corpImages/activeSearch.png') no-repeat;
+}
+.corpTree {
+	width: 247px;
+	min-height: 400px;
+}
+.corpTree .jstree-icon  {
+	width: 20px;
+	height: 15px;
+}
+.corpNode .jstree-icon {
+	background: url('/static/images/corpImages/corp.png') no-repeat scroll center center transparent;
+}
+.groupNode .jstree-icon {
+	background: url('/static/images/corpImages/gorup.png') no-repeat scroll center center transparent;
+}
+.terminalNode .jstree-icon {
+	background: url('/static/images/corpImages/offline.png') no-repeat scroll center center transparent;
+}
+.corpCarlogin {
+	background: url('/static/images/corpImages/online.png') no-repeat scroll center center transparent;
+}
+.staticsBox {
+	width: 247px;
+	background: url('/static/images/corpImages/staticsBg.png') repeat-x;
+	height: 28px;
+	line-height: 28px;
+	text-align: center;
+}
+.staticsBox table {
+	width: 240px;
+}
+.carCount {
+	color: #44a7e5;
+}
+.onlineCount {
+	color: #28ad09;
+}
+.offlineCount {
+	color: #000;
+}
+.corpLeft  {
+	background-color: #fff;
+}
+.loadTree {
+	margin: 10px 0px;
+	text-align: center;
+	width: 140px;
+}
+#cTerminalWrapper, #cTerminalEditWrapper {
+	width: 448px;
+	height: 406px;
+}
+.cTerminalContent, .cTerminalEditContent {
+	padding-top: 10px;
+	height: 360px;
+}
+.staticsTitleContent {
+	width: 600px;
+	height: 460px;
+}
+#c_begintime, #c_endtime, #c_editbegintime, #c_editendtime {
+	padding: 0 0 0 22px;
+	width: 187px;
+}
+#c_eventbegintime, #c_eventendtime {
+	padding: 0 0 0 22px;
+	width: 140px;
+	height: 28px;
+	line-height: 28px;
+}
+#staticsWrapper {
+	width: 600px;
+	height: 500px;
+}
+.staticsCondition {
+	padding-top: 10px;
+	margin-left: 19px;
+	width: 580px;
+}
+.staticsTable {
+	border: 0 none;
+	border-collapse: collapse;
+    margin-left: 10px;
+    margin-top: 8px;
+    width: 580px;
+}
+.staticsTable tr {
+	border: 1px solid #c1d2e5;
+}
+.staticsTable td, .staticsTable th {
+	border: 0px;
+	height: 25px;
+	width: 65px;
+	line-height: 25px;
+	text-align: center;
+	border: 1px solid #c1d2e5;
+}
+#staticsPage {
+	width: 580px;
 }
 /*web css end*/

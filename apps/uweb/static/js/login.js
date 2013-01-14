@@ -6,8 +6,51 @@ $(function(){
 	$.ajaxSetup({ cache: false }); // 不保存缓存
 	var obj_captchaImg= $('#captchaimg'),	// 验证码图片存放对象
 		n_bannerIndex = 0,	// 当前banner的编号
-		currentAd = null;	// 图片轮换的计时器
+		currentAd = null,	// 图片轮换的计时器
+		str_type = $('#user_type').val(),
+		obj_tabs = $('.tabs li'),
+		obj_first = obj_tabs.eq(0),
+		obj_sed = obj_tabs.eq(1),
+		obj_userGetPwd = $('#getPwd'),
+		obj_corpGetPwd = $('#corpGetPwd');
 		
+	if ( str_type == 'individual' ) {	// 个人用户
+		obj_sed.removeClass('current').addClass('other');
+		obj_first.removeClass('other').addClass('current');
+		obj_userGetPwd.show();
+		obj_corpGetPwd.hide();
+	} else {
+		obj_sed.removeClass('other').addClass('current');
+		obj_first.removeClass('current').addClass('other');
+		obj_userGetPwd.hide();
+		obj_corpGetPwd.show();
+	}
+	
+	/**
+	* tab 选项卡
+	*/
+	$('.tabs li').unbind('click').bind('click', function() {
+		var obj_this = $(this),
+			str_userType = obj_this.attr('userType'),
+			b_current = obj_this.hasClass('current'),
+			obj_userType = $('#user_type'),
+			obj_userGetPwd = $('#getPwd'),
+			obj_corpGetPwd = $('#corpGetPwd');
+		
+		obj_userType.val(str_userType);
+		if ( !b_current ) {
+			obj_this.siblings().removeClass('current').addClass('other');
+			obj_this.removeClass('other').addClass('current');
+		}
+		if ( str_userType == 'individual' ) {
+			obj_userGetPwd.show();
+			obj_corpGetPwd.hide();
+		} else {
+			obj_userGetPwd.hide();
+			obj_corpGetPwd.show();
+		}
+	});
+	
 	/**
 	* input 的change事件 不能输入汉字
 	*/
@@ -53,11 +96,16 @@ $(function(){
 	$('#btnGetPwd').click(function() {
 		var str_val = $('#mobile').val(),
 			str_msg = '',
-			obj_param = {'mobile': str_val};
+			obj_param = {'mobile': str_val},
+			str_userType = $('#userType').val(),
+			str_url = PWD_URL;
 			
+		if ( str_userType == '1' ) {
+			str_url = CORPPWD_URL;
+		}
 		
 		if ( str_val == '' || str_val == null ) {	// 车主手机号不为空验证格式
-			dlf.fn_jNotifyMessage('车主号码不能为空。', 'message', false, 3000);
+			dlf.fn_jNotifyMessage('手机号码不能为空。', 'message', false, 3000);
 			return;
 		} else {
 			var reg = MOBILEREG,
@@ -72,7 +120,7 @@ $(function(){
 			} else {
 				$('#btnGetPwd').removeAttr('disabled');
 			}
-			$.post_(PWD_URL, JSON.stringify(obj_param) , function(data) {
+			$.post_(str_url, JSON.stringify(obj_param) , function(data) {
 				if ( data.status == 0 ) { 
 					fn_resetUpdateTime();	// 重新读秒操作
 					$('#btnGetPwd').attr('disabled',true);

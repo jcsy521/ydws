@@ -36,26 +36,21 @@ window.dlf.fn_closeTrackWindow = function() {
 	/**
 	* 清除地图后要清除车辆列表的marker存储数据
 	*/
-	var obj_cars = $('#carList a'),
+	var obj_cars = $('.j_carList .j_terminal'),
 		obj_selfMarker = null,
 		obj_carInfo = null; 
-		
-	$.each(obj_cars, function(index, dom) {
-		var obj_currentCar = $(dom);
-		
-		obj_carInfo = obj_currentCar.data('carData');
-		obj_selfMarker = obj_currentCar.data('selfmarker');
-		
-		if ( obj_selfMarker ) {	
-			obj_currentCar.removeData('selfmarker');
-		}
-		if ( obj_carInfo ) {
-			obj_currentCar.removeData('carData');
-		}
-	});
 	
-	dlf.fn_getCarData();	// 重新请求lastinfo
-	dlf.fn_updateLastInfo($($('#carList a[class*=currentCar]')).attr('tid'));	// 动态更新终端相关数据
+	$('.j_carList').removeData('carsData');
+	obj_carsData = {};
+	obj_selfmarkers = {};
+	
+	if ( !dlf.fn_userType() ) {
+		dlf.fn_getCarData();	// 重新请求lastinfo
+		dlf.fn_updateLastInfo();	// 动态更新终端相关数据
+	} else {
+		dlf.fn_corpGetCarData();
+		dlf.fn_switchCar($('.j_currentCar').attr('tid'), $('.j_currentCar'));
+	}	
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 	dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
@@ -116,6 +111,7 @@ function fn_trackQuery() {
 							
 						fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
 					}
+					arr_dataArr[i].alias = $('.j_currentCar').text();
 				}
 				if ( n_tempMax <= 0 ) {
 					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
