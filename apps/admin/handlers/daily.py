@@ -178,7 +178,7 @@ class DailyDownloadHandler(BaseHandler, DailyMixin):
         wb.save(_tmp_file)
         filename = self.generate_file_name(DAILY_FILE_NAME)
         if start_time:
-            s_time = time.strftime("%Y%m%d", time.localtime(start_time/1000))
+            s_time = time.strftime("%Y%m%d", time.localtime(start_time))
             filename = s_time[:4] + u'年' + s_time[4:6] + u'月' + s_time[6:] + u'日' + filename
 
         

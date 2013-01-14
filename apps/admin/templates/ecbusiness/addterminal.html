@@ -15,7 +15,7 @@
 {% block body %}
 
 {% if status == 0 %}
-	<h3>新增追踪器</h3>
+	<h3>新增终端</h3>
 	<!--分步创建用户信息-->
 	<div id="businessPanel" class="businessPanel businessTerminalPanel">
 		<!--step nav-->
@@ -87,7 +87,7 @@
 				<form method="post" id="businessFormID3" action="">
 					<table cellspacing="0" cellpadding="0" border="0" class="tableStyle">
 						<tr>
-							<td	class="tLeft">追踪器手机号：</td>
+							<td	class="tLeft">终端手机号：</td>
 							<td class="tdText">
 								<input type="text" id="terminalMobile" class="validate[required,custom[mobile],ajax[ajaxTMobile]]" maxlength="11" />
 								<span class="redColor">*</span>
@@ -140,7 +140,7 @@
 						<td class="tdText" id="tdBrand"></td>	
 					</tr>
 					<tr>
-						<td	class="tLeft">追踪器手机号：</td>
+						<td	class="tLeft">终端手机号：</td>
 						<td class="tdText" id="tdTmobile"></td>	
 					</tr>
 					<tr>

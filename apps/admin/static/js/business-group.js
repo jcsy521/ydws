@@ -47,13 +47,14 @@ $(function () {
 				// 点击下一页按钮时进行表单的再次验证
 				if ( !f_validate ) {
 					return;
+				} else {
+					// 表单验证通过隐藏表单提示层
+					$('.formError').remove();
 				}
 				// 在第一页点击下一页,显示上一页按钮
 				if ( n_cNum == 2 ) {
 					obj_prevBtn.show();
 				}
-				// 表单验证通过隐藏表单提示层
-				$('#businessFormID'+ (n_cNum-1)).validationEngine('hide');
 				// 取得页面数据进行填充
 				fn_fillUserData(n_tempNum - 1);
 				break;

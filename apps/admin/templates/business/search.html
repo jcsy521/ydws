@@ -48,7 +48,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td align="right">追踪器手机号：</td>
+				<td align="right">终端手机号：</td>
 				<td align="left">
 					<input type="text" name="tmobile" id="tmobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
 				</td>
@@ -84,8 +84,8 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>车主姓名</th><th>车主手机</th><th>追踪器手机</th><th>车牌号</th>
-            <th>受理状态</th><th>编辑</th><th>删除</th><th>追踪器启用/停用</th><th>详细信息</th>
+            <th>序号</th><th>集团名称</th><th>车主姓名</th><th>车主手机</th><th>终端手机</th><th>车牌号</th>
+            <th>受理状态</th><th>编辑</th><th>删除</th><th>终端启用/停用</th><th>详细信息</th>
         </tr>
     </thead>
 		
@@ -109,7 +109,7 @@
 					{% elif business['sms_status'] == 2 %}
 						<label class="sms_status2">短信发送成功</label>
 					{% elif business['sms_status'] == 3 %}
-						<label class="sms_status3">追踪器登陆成功</label>
+						<label class="sms_status3">终端登陆成功</label>
 					{% end %}
 				</td>
                 <td>

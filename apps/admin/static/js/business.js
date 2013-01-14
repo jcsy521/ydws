@@ -32,7 +32,7 @@ $(function () {
 					obj_prevBtn.hide();
 				}
 				if ( n_cNum > 1 ) {
-					obj_form.validationEngine('hide');
+					$('.formError').remove();
 					n_tempNum = --n_cNum;
 				}
 				break;
