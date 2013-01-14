@@ -41,7 +41,7 @@ class LoginHandler(BaseHandler, LoginMixin):
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
         captchahash = self.get_argument("captchahash", "")
 
-        logging.info("[UWEB] Browser login request, username: %s, password: %s", username, password)
+        logging.info("[UWEB] Browser login request, username: %s, password: %s, user_type: %s", username, password, user_type)
 
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
@@ -95,7 +95,7 @@ class LoginHandler(BaseHandler, LoginMixin):
             self.clear_cookie('captchahash')
             self.redirect(self.get_argument("next","/"))
         else:
-            logging.info("[UWEB] uid: %s login failed, message: %s", uid, ErrorCode.ERROR_MESSAGE[status])
+            logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.render("login.html",
                         username=username,
                         password=password,
@@ -109,7 +109,8 @@ class IOSHandler(BaseHandler, LoginMixin):
         username = self.get_argument("username")
         password = self.get_argument("password")
         iosid = self.get_argument("iosid",'')
-        logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s", username, password, iosid)
+        user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
+        logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s, user_type: %s", username, password, iosid, user_type)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
@@ -121,9 +122,10 @@ class IOSHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        uid, tid, sim, status = self.login_passwd_auth(username, password)
+        cid, uid, tid, sim, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
-            self.bookkeep(dict(uid=uid,
+            self.bookkeep(dict(cid=cid,
+                               uid=uid,
                                tid=tid,
                                sim=sim))
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
@@ -149,7 +151,7 @@ class IOSHandler(BaseHandler, LoginMixin):
                            dict_=DotDict(name=user_info.name, 
                                          cars=terminals))
         else:
-            logging.info("[UWEB] uid: %s login failed, message: %s", uid, ErrorCode.ERROR_MESSAGE[status])
+            logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
 
 class AndroidHandler(BaseHandler, LoginMixin):
@@ -158,7 +160,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
     def post(self):
         username = self.get_argument("username")
         password = self.get_argument("password")
-        logging.info("[UWEB] Android login request, username: %s, password: %s", username, password)
+        user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
+        logging.info("[UWEB] Android login request, username: %s, password: %s, user_type: %s", username, password, user_type)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
@@ -170,9 +173,10 @@ class AndroidHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        uid, tid, sim, status = self.login_passwd_auth(username, password)
+        cid, uid, tid, sim, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
-            self.bookkeep(dict(uid=uid,
+            self.bookkeep(dict(cid=cid,
+                               uid=uid,
                                tid=tid,
                                sim=sim))
 
@@ -202,7 +206,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
                                          cars=terminals,
                                          version_info=version_info))
         else:
-            logging.info("[UWEB] uid: %s login failed, message: %s", uid, ErrorCode.ERROR_MESSAGE[status])
+            logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
 
 class LogoutHandler(BaseHandler):

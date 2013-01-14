@@ -131,7 +131,6 @@ class LastInfoCorpHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def post(self):
-
         try:
             status = ErrorCode.SUCCESS
             corp = self.db.get("SELECT cid, name, mobile FROM T_CORP WHERE cid = %s", self.current_user.cid)
@@ -143,11 +142,9 @@ class LastInfoCorpHandler(BaseHandler):
                           groups=[])
             for group in groups:
                 group['cars'] = []
-                terminals = self.db.query("select * from T_TERMINAL_INFO where group_id = %s", group.gid)
+                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO WHERE group_id = %s", group.gid)
                 tids = [str(terminal.tid) for terminal in terminals]
 
-                #cars_info = DotDict() 
-                #for tid in data.tids:
                 for tid in tids:
                     # 1: get terminal info 
                     terminal_info_key = get_terminal_info_key(tid)
@@ -168,8 +165,6 @@ class LastInfoCorpHandler(BaseHandler):
                         car = self.db.get("SELECT cnum FROM T_CAR"
                                           "  WHERE tid = %s", tid)
 
-                        a = ("SELECT cnum FROM T_CAR"
-                                          "  WHERE tid = %s") %  tid
                         fobs = self.db.query("SELECT fobid FROM T_FOB"
                                              "  WHERE tid = %s", tid)
                         terminal = DotDict(terminal)
@@ -239,12 +234,10 @@ class LastInfoCorpHandler(BaseHandler):
                                      fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
                     group['cars'].append(car_info)
                 res.groups.append(group)
-
             self.write_ret(status, 
                            dict_=DotDict(res=res))
-
         except Exception as e:
-            logging.exception("[UWEB] uid: %s get lastinfo failed. Exception: %s", 
+            logging.exception("[UWEB] uid: %s get corp lastinfo failed. Exception: %s", 
                               self.current_user.uid,  e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

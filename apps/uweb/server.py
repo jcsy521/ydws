@@ -37,16 +37,19 @@ from handlers.checkupdate import CheckUpdateHandler
 from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
 from handlers.register import RegisterHandler
-from handlers.lastinfo import LastInfoHandler
+from handlers.lastinfo import LastInfoHandler, LastInfoCorpHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
 from handlers.track import TrackHandler, TrackLQHandler
 from handlers.event import EventHandler
 from handlers.realtime import RealtimeHandler
 from handlers.defend import DefendHandler
-from handlers.terminal import TerminalHandler
-from handlers.password import PasswordHandler
-from handlers.profile import ProfileHandler 
+from handlers.group import GroupHandler, GroupTransferHandler
+from handlers.corp import CorpHandler
+from handlers.terminal import TerminalHandler, TerminalCorpHandler
+from handlers.statistic import StatisticHandler
+from handlers.password import PasswordHandler, PasswordCorpHandler
+from handlers.profile import ProfileHandler, ProfileCorpHandler
 from handlers.smsoption import SMSOptionHandler
 from handlers.unbind import UNBindHandler
 from handlers.feedback import FeedBackHandler
@@ -58,6 +61,7 @@ from handlers.helper import HelperHandler
 from handlers.wapimg import WapImgHandler
 from handlers.tinyurl import TinyURLHandler
 from handlers.delegation import DelegationHandler
+from handlers.checker import CheckTMobileHandler, CheckCNumHandler, CheckCNameHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -76,15 +80,23 @@ class Application(tornado.web.Application):
             (r"/logout/*", LogoutHandler),
             (r"/switchcar/(\S+)/*", SwitchCarHandler),
             (r"/wakeup/*", WakeupHandler),
+            (r"/lastinfo/corp/*", LastInfoCorpHandler),
             (r"/lastinfo/*", LastInfoHandler),
             (r"/track/*", TrackHandler),
             (r"/tracklq/*", TrackLQHandler),
             (r"/event/*", EventHandler),
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),
+            (r"/group/*", GroupHandler),
+            (r"/group/transfer*", GroupTransferHandler),
+            (r"/corp/*", CorpHandler),
             (r"/terminal/*", TerminalHandler),
+            (r"/statistic/*", StatisticHandler),
+            (r"/terminal/corp/*", TerminalCorpHandler),
             (r"/password/*", PasswordHandler),
+            (r"/password/corp/*", PasswordCorpHandler),
             (r"/profile/*", ProfileHandler),
+            (r"/profile/corp/*", ProfileCorpHandler),
             (r"/smsoption/*", SMSOptionHandler),
             (r"/unbind/*", UNBindHandler),
 
@@ -119,7 +131,11 @@ class Application(tornado.web.Application):
 
             # a secret url for delegation: uid/tid/sim, sign is provided via
             # ?s=xxxx
-            (r"/delegation/5Luj5a6i5pON5L2c/(.*)/(.*)/(.*)/*", DelegationHandler)
+            (r"/delegation/5Luj5a6i5pON5L2c/(.*)/(.*)/(.*)/*", DelegationHandler),
+            
+            (r"/checktmobile/(\d+)/*", CheckTMobileHandler),
+            (r"/checkcnum/(\S+)/*", CheckCNumHandler),
+            (r"/checkcname/(\S+)/*", CheckCNameHandler),
 
         ]
 

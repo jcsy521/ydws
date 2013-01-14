@@ -63,6 +63,7 @@ class GroupHandler(BaseHandler):
                             "  set name = %s"
                             "  where id = %s",
                             name, gid)
+            self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s modify group failed. Exception: %s", 
                               self.current_user.uid, e.args) 

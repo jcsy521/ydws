@@ -63,6 +63,7 @@ class StatisticHandler(BaseHandler):
                 res_item = DotDict()
                 res_item['tmobile'] = terminal.mobile
                 tid = terminal.tid
+                res_item['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                 for key, category in CATEGORY_DCT.iteritems():
                      item = self.db.get("SELECT COUNT(*) as count FROM V_EVENT"
                                       "  WHERE tid = %s"

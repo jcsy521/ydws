@@ -7,8 +7,6 @@ import tornado.web
 from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
-from helpers.seqgenerator import SeqGenerator
-from helpers.gfsenderhelper import GFSenderHelper
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, str_to_list, DUMMY_IDS
 from utils.dotdict import DotDict
@@ -17,7 +15,12 @@ from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
 from constants import UWEB, SMS, GATEWAY
+
 from helpers.queryhelper import QueryHelper  
+from helpers.seqgenerator import SeqGenerator
+from helpers.gfsenderhelper import GFSenderHelper
+from helpers.smshelper import SMSHelper
+
 from mixin.terminal import TerminalMixin 
 
 
@@ -192,7 +195,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Add a terminal.
+        """Show information of a terminal.
         """
         status = ErrorCode.SUCCESS
         try:
@@ -237,6 +240,19 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             return 
         
         try:
+            # 1: add user
+            user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", data.umobile)
+            if not user:
+                self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
+                                "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
+                                data.umobile, '11111',
+                                data.uname, data.umobile,
+                                data.address, data.email)
+                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                "  VALUES(%s)",
+                                data.umobile) 
+
+            # 2: add terminal
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  begintime, endtime)"
                             "  VALUES (%s, %s, %s, %s, %s, %s)",
@@ -244,27 +260,26 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                             data.tmobile, data.umobile, 
                             data.begintime, data.endtime)
     
-            # 3: add car tnum --> cnum
+            # 3: add car 
             self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
                             "  VALUES(%s, %s, %s, %s, %s)",
                             data.tmobile, data.cnum, 
                             data.ctype, data.ccolor, data.cbrand)
             
             # 4: send message to terminal
-            # TODO:
-            #register_sms = SMSCode.SMS_REGISTER % (data.mobile, data.tmobile) 
-            #ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
-            #ret = DotDict(json_decode(ret))
-            #sms_status = 0
-            #if ret.status == ErrorCode.SUCCESS:
-            #    self.db.execute("UPDATE T_TERMINAL_INFO"
-            #                    "  SET msgid = %s"
-            #                    "  WHERE mobile = %s",
-            #                    ret['msgid'], data.tmobile)
-            #    sms_status = 1
-            #else:
-            #    sms_status = 0
-            #    logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
+            register_sms = SMSCode.SMS_REGISTER % (data.umobile, data.tmobile) 
+            ret = SMSHelper.send_to_terminal(data.tmobile, register_sms)
+            ret = DotDict(json_decode(ret))
+            sms_status = 0
+            if ret.status == ErrorCode.SUCCESS:
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET msgid = %s"
+                                "  WHERE mobile = %s",
+                                ret['msgid'], data.tmobile)
+                sms_status = 1
+            else:
+                sms_status = 0
+                logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
@@ -296,7 +311,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             FIELDS_CAR = DotDict(cnum="cnum = '%s'",
                                  ctype="type = '%s'",
                                  ccolor="color = '%s'",
-                                 cbrand="cbrand = '%s'")
+                                 cbrand="brand = '%s'")
 
             FIELDS_TERMINAL = DotDict(begintime="begintime = '%s'",
                                       endtime="endtime = '%s'")
