@@ -235,7 +235,8 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
             ec = self.get_ecbusiness_info(ecmobile)
             groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", ec.cid)
             groups = [group.id for group in groups]
-            terminals = self.db.query("SELECT id, tid, owner_mobile FROM T_TERMINAL_INFO WHERE group_id IN %s", tuple(groups + DUMMY_IDS))
+            terminals = self.db.query("SELECT id, tid, owner_mobile FROM T_TERMINAL_INFO WHERE group_id IN %s",
+                                      tuple(groups + DUMMY_IDS))
             for terminal in terminals:
                 self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id) 
                 # clear redis
@@ -253,6 +254,7 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
                     self.db.execute("DELETE FROM T_USER"
                                     "  WHERE mobile = %s",
                                     user)
+            self.db.execute("DELETE FROM T_CORP WHERE cid = %s", ec.cid)
             
         except Exception as e:
             status = ErrorCode.FAILED

@@ -53,7 +53,7 @@ class DelegationHandler(BaseHandler):
                                tmobile, UWEB.SERVICE_STATUS.ON,
                                int(time.time()))
         if not terminal:
-            message = ErrorCode.TERMINAL_NOT_ORDERED 
+            message = ErrorCode.TERMINAL_NOT_FOUND
             self.render("delegation/delegation.html", message=message, url=url)
         else:
             user = self.db.get("SELECT uid"
