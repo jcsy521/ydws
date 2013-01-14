@@ -10,7 +10,8 @@ var postAddress = null,
 	mapObj = null,
 	obj_NavigationControl = null,
 	obj_MapTypeControl = null,
-	obj_trafficControl = null;
+	obj_trafficControl = null,
+	obj_selfMarkers = {};
 (function () {
 
 /**
@@ -160,7 +161,7 @@ window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 * n_index: 轨迹点的索引值，根据其值获取对应的位置
 * n_counter : draw 时根据值修改数组中点的位置描述  下次就不用重新获取位置
 */
-window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenWin, n_index) {
+window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenWin, n_index) { 
 	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
 		str_imgUrl = n_degree, 
 		myIcon = new BMap.Icon(BASEIMGURL + str_imgUrl + '.png', new BMap.Size(34, 34)),
@@ -168,9 +169,10 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_iconType, n_index)),  // 创建信息窗口对象;
 		marker = null,
 		str_alias = obj_location.alias,
-		obj_carA = $('#carList a[tid='+obj_location.tid+']'),
+		str_tid = obj_location.tid,
+		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null; 
-		
+
 	if ( !str_alias ) {	// 实时定位无alias，则根据tid获取对应终端别名
 		str_alias = obj_carA.next().html();
 	}
@@ -194,15 +196,14 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		marker.setIcon(marker.getIcon().setImageUrl( BASEIMGURL + n_degree+'.png' ));
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
 		marker.setLabel(label);
-		var obj_carItem = $('#carList a').eq(n_carNum);
-		
-		obj_carItem.data('selfmarker', marker);
-		obj_carItem.data('selfLable', marker.getLabel());
+		var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum);
+		obj_selfmarkers[str_tid] = marker;
+		//obj_carItem.data('selfmarker', marker);
+		//obj_carItem.data('selfLable', marker.getLabel());
 		dlf.fn_setOptionsByType('center', mPoint);
 	} else if ( str_iconType == 'start' || str_iconType == 'end' ) {
 		marker.setOffset(new BMap.Size(-1, -14));
 	}
-	
 	mapObj.addOverlay(marker);	//向地图添加覆盖物 
 	if ( isOpenWin ) {
 		marker.openInfoWindow(infoWindow);
@@ -213,15 +214,19 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	*/
 	marker.addEventListener('click', function(){
 	   if ( str_iconType == 'actiontrack' ) { // 主页车辆点击与左侧车辆列表同步
-			var obj_carItem = $('#carList a').eq(n_carNum),
+			var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum),
 				str_className = obj_carItem.attr('class'), 
 				str_tid = obj_carItem.attr('tid');
 				
-			
-			if ( str_className.search('currentCar') != -1 ) { // 如果是当前车的话就直接打开吹出框，否则switchcar中打开infoWindow
+			if ( str_className.search('j_currentCar') != -1 ) { // 如果是当前车的话就直接打开吹出框，否则switchcar中打开infoWindow
 				this.openInfoWindow(this.selfInfoWindow); 
 				return;
-			}
+			} else {
+				if ( dlf.fn_userType() ) {
+					$('.jstree-clicked').removeClass('jstree-clicked');
+					$('.j_leafNode a[tid='+ str_tid +']').addClass('jstree-default jstree-clicked');
+				}
+			}			
 			dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
 		} else {
 			var str_name = obj_location.name,
@@ -266,14 +271,14 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_alias = obj_location.alias,
 		str_title = '车辆：',
 		str_tempMsg = '开始跟踪',
-		str_actionTrack =$('#carList a[tid='+str_tid+']').attr('actiontrack'),
+		str_actionTrack = obj_actionTrack[str_tid],	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
 		
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
 	}
 	if (str_tid == '' || str_tid == 'undefined' || str_tid == null ) { 
-		str_tid = $('#carList a[class*=currentCar]').attr('tid');
+		str_tid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 	}
 	if ( address == '' || address == null ) {
 		if ( str_clon == 0 || str_clat == 0 ) {
@@ -283,9 +288,9 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				/** 
 				* 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
 				*/
-				var obj_currentLi = $('#carList a[tid='+str_tid+']'),
+				var obj_currentLi = $('.j_carList a[tid='+str_tid+']'),
 					obj_oldCarData = obj_currentLi.data('carData'),
-					obj_selfmarker = obj_currentLi.data('selfmarker'),
+					obj_selfmarker = obj_selfmarkers[str_tid],	// obj_currentLi.data('selfmarker'),
 					str_oldClon = obj_oldCarData.clongitude,
 					str_oldClat = obj_oldCarData.clatitude,
 					str_newClon = obj_location.clongitude,
@@ -319,13 +324,13 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			}
 		}
 	} else {	// 判断是否是当前车辆
-		var str_currenttid = $('#carList .currentCar').attr('tid');
+		var str_currenttid = $('.j_carList .j_currentCar').attr('tid');
 		
 		if ( str_tid == str_currenttid && str_iconType == 'actiontrack' ) {
 			$('#address').html(address);
 		}
 	}
-	$('#carList a[tid='+ str_tid +']').data('address', address);	// 临时存储每辆车的位置描述
+	$('.j_carList a[tid='+ str_tid +']').data('address', address);	// 临时存储每辆车的位置描述
 	
 	if (speed == '' || speed == 'undefined' || speed == null || speed == ' undefined' || typeof speed == 'undefined') { 
 		speed = '0'; 
@@ -335,7 +340,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	if ( str_alias ) { // 如果是轨迹回放 
 		str_title += str_alias;
 	} else {
-		str_title += $('#carList a[tid='+str_tid+']').next().html();
+		str_title += $('.j_carList a[tid='+str_tid+']').next().html();
 	}
 	str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 				'<li><label>速度： '+ speed+' km/h</label>'+
@@ -362,11 +367,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 */
 window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index) {
 	var str_result = str_result,
-		obj_selfmarker = $('#carList a[tid='+tid+']').data('selfmarker'),
+		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
 		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
 		
 	if ( str_type == 'realtime' || str_type == 'lastinfo' ) {
-		var str_currentTid = $('#carList a[class*=currentCar]').attr('tid');
+		var str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 		// 左侧 位置描述填充
 		if ( str_currentTid == tid ) {
 			obj_addressLi.html('').html('位置：<lable class="lblAddress">' + str_result + '</label>');	// 替换marker上的位置描述

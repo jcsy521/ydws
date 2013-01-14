@@ -181,8 +181,8 @@ window.dlf.fn_defendQuery = function() {
 				str_tip = '',	// 设防撤防中的提示信息
 				str_dImg = '',	// 页面上显示的设防撤防图标
 				obj_defendBtn = $('#defendBtn'),	// 设防撤防的按钮
-				obj_currentCar = $('.currentCar'),
-				obj_carData = obj_currentCar.data('carData');				
+				str_cTid = $('.j_currentCar').attr('tid'),
+				obj_carData = $('.j_carList').data('carsData')[str_cTid];				
 			
 			n_fob_status = data.fob_status;
 			$('.currentCar').attr('fob_status', n_fob_status);	// 更新最新的 挂件状态  ：是否在附近
@@ -208,7 +208,8 @@ window.dlf.fn_defendQuery = function() {
 			if ( obj_carData ) {
 				obj_carData.mannual_status = str_defendStatus;	// 改变缓存中的设防撤防状态
 			}
-			obj_currentCar.data('carData', obj_carData);
+			$('.j_carList').data('carsData')[str_cTid] = obj_carData;
+			console.log(obj_carData);
 			$('#defendStatus').css('background-image', 'url("'+ BASEIMGURL + str_dImg +'")').attr('title', str_html);
 		} else if ( data.status == 201 ) {
 			dlf.fn_showBusinessTip();

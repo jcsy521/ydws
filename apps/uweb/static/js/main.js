@@ -143,6 +143,92 @@ window.dlf.fn_exit = function() {
 		window.location.href = '/logout';
 	}
 }
+
+/**
+* 初始化集团资料
+*/
+window.dlf.fn_initCorpData = function() {
+	$('#hidCName').val('');
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	dlf.fn_dialogPosition($('#corpWrapper')); // 我的资料dialog显示
+	dlf.fn_onInputBlur();	// input的鼠标样式
+	dlf.fn_jNotifyMessage('集团信息查询中' + WAITIMG, 'message', true); 
+	dlf.fn_lockContent($('.corpContent')); // 添加内容区域的遮罩
+	$('#c_name').unbind('blur').bind('blur', function() {
+		var obj_this = $(this),
+			str_old = obj_this.data('c_name'),
+			str_new = obj_this.val();
+			
+		if ( str_old != str_new ) {
+			dlf.fn_checkCName($(this).val());
+		} else {
+			$('#hidCName').val('');
+		}
+	});
+	$.get_(CORPPERSON_URL, '', function (data) {	// 获取最新的集团资料数据
+		if ( data.status == 0 ) {
+			var obj_data = data.profile,
+				str_name = obj_data.c_name, 		// 集团名称
+				str_address = obj_data.c_address,	// 集团地址
+				str_email = obj_data.c_email,		// 集团email
+				str_linkMan = obj_data.c_linkman,	// 集团联系人
+				str_newName = str_linkMan,			
+				str_mobile = obj_data.c_mobile;		// 集团联系人手机号
+				
+			if ( str_linkMan.length > 4 ) {	// 姓名长度大于4显示...
+				str_newName = str_linkMan.substr(0,4)+'...';
+			}
+			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_linkMan);	// 更新主页用户名
+			// todo 集团名称修改的话左侧树根节点也修改
+			$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_name);
+			$('#c_name').val(str_name).data('c_name', str_name);
+			$('#c_address').val(str_address).data('c_address', str_address);
+			$('#c_email').val(str_email).data('c_email', str_email);
+			$('#c_mobile').val(str_mobile).data('c_mobile', str_mobile);
+			$('#c_linkman').val(str_linkMan).data('c_linkman', str_linkMan);
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+		} else if ( data.status == 201 ) {	// 业务变更
+			dlf.fn_showBusinessTip();
+		} else {
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
+		}
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
+	},
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
+	});
+}
+
+/**
+* 保存集团资料修改
+*/
+window.dlf.fn_corpSave = function() {
+	dlf.fn_lockContent($('.corpContent')); // 添加内容区域的遮罩	
+	var f_warpperStatus = !$('#corpWrapper').is(':hidden'),
+		n_num = 0,
+		obj_corpData = {};
+		
+	$('.j_corpData1').each(function(index, dom) {
+		var obj_input = $(dom),
+			str_val = obj_input.val(),
+			str_id = obj_input.attr('id'),
+			str_data = $('#'+str_id).data(str_id);
+	
+		if ( str_val != str_data ) {
+			obj_corpData[str_id] = str_val;
+		}
+	});
+	
+	for(var param in obj_corpData) {	// 我的资料中修改项的个数
+		n_num = n_num +1;
+	}
+	if ( n_num != 0 ) {	// 我的资料中如果有修改内容 ，向后台发送post请求，否则提示未做任何修改
+		dlf.fn_jsonPut(CORPPERSON_URL, obj_corpData, 'corp', '个人资料保存中');
+	} else {
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	}
+}
 })();
 
 /**
@@ -155,12 +241,8 @@ window.onresize = function () {
 			n_windowWidth = $(window).width(),
 			n_mapHeight = n_windowHeight - 161,
 			n_trackLeft = ( n_windowWidth - 1000 )/2,
-			n_banner = n_windowWidth - 249,
 			n_mainContent = n_windowHeight - 104;
-		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-			n_banner = n_windowWidth - 249;
-		}
-		$('#banner').css('width', n_banner); // banner宽度设置
+			
 		$('#top, #main').css('width', n_windowWidth);
 		$('#main').css('height', n_windowHeight - 123 );
 		$('#left, #right').css('height', n_windowHeight - 123 );	// 左右栏高度
@@ -199,14 +281,11 @@ $(function () {
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = ( n_windowWidth - 1000 )/2,
-		n_banner = n_windowWidth - 249,
 		obj_track = $('#trackHeader');
 		
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-		n_banner = n_windowWidth - 249;
 		n_right = n_windowWidth - 249;
 	}
-	$('#banner').css('width',  n_banner); // banner width
 	$('#top, #main').css('width', n_windowWidth);
 	$('#main').css('height', n_windowHeight - 123); // 内容域的高度
 	$('#left, #right').css('height', n_windowHeight - 123 );	// 左右栏高度
@@ -234,6 +313,9 @@ $(function () {
 			case 'personalData': //  个人资料 
 				dlf.fn_personalData();
 				break;
+			case 'corpData':	// 集团资料
+				dlf.fn_initCorpData();	
+				break;
 			case 'changePwd': // 修改密码
 				dlf.fn_changePwd();
 				break;
@@ -251,6 +333,9 @@ $(function () {
 				break;
 			case 'smsoption': // 短信设置
 				dlf.fn_initSMSParams();
+				break;
+			case 'statics': // 短信设置
+				dlf.fn_initStatics();
 				break;
 		}
 	});
@@ -312,7 +397,7 @@ $(function () {
 	
 	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、下划线或中文组成！"});  // 别名;
 	$('#cnum').formValidator({empty:true}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}); // 区分大小写
-	
+
 	/**
 	* 密码进行验证
 	*/
@@ -327,9 +412,13 @@ $(function () {
 		onSuccess: function() { 
 			var obj_pwd = {'old_password' : $("#oldPwd").val(), 
 						   'new_password' : $("#newPwd").val() 
-						  }; 
+						  },
+				str_url = PWD_URL;
 			//提交服务器
-			dlf.fn_jsonPut(PWD_URL, obj_pwd, 'pwd', '密码保存中');
+			if ( dlf.fn_userType() ) {
+				str_url = CORPPWD_URL;
+			}
+			dlf.fn_jsonPut(str_url, obj_pwd, 'pwd', '密码保存中');
 		}
 	});
 	
@@ -354,14 +443,96 @@ $(function () {
 		}
 	});
 	
-	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 14, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的SOS联系人号码不合法，请重新输入！'});
+	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的SOS联系人号码不合法，请重新输入！'});
 	
+	/**
+	* 集团信息的验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'corpForm', //指定from的ID 编号
+		validatorGroup: '4', // 指定本form组编码,默认为1, 多个验证组时使用
+		debug: true, // 指定调试模式,不提交form
+		wideWord: false,	// 一个汉字当一个字节
+		submitButtonID: 'corpSave', // 指定本form的submit按钮
+		onError: function(msg) { 
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000);
+			return;
+		}, 
+		onSuccess: function() {
+			if ( $('#hidCName').val() != '' ) {
+				dlf.fn_jNotifyMessage('集团名称已存在。', 'message', false, 5000);
+				return;
+			} else {
+				dlf.fn_corpSave();
+			}
+		}
+	});
+	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "名只能是由数字、英文、下划线或中文组成！"});  //集团名
+	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人姓名只能是由数字、英文、下划线或中文组成！"});  // 联系人姓名
+	$('#c_mobile').formValidator({validatorGroup: '4'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人手机号输入不合法，请重新输入！"});  // 联系人手机号	
+	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	
+	/**
+	* 新建终端验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'cTerminalForm', //指定from的ID 编号
+		validatorGroup: '5', // 指定本form组编码,默认为1, 多个验证组时使用
+		debug: true, // 指定调试模式,不提交form
+		wideWord: false,	// 一个汉字当一个字节
+		submitButtonID: 'cTerminalSave', // 指定本form的submit按钮
+		onError: function(msg) { 
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000);
+			return;
+		}, 
+		onSuccess: function() {
+			if ( $('#hidTMobile').val()!= '' ) {
+				dlf.fn_jNotifyMessage('终端手机号已存在。', 'message', false, 5000);
+				return;
+			} else {
+				dlf.fn_cTerminalSave();
+			}
+		}
+	});
+	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "终端手机号输入不合法，请重新输入！"});  // 别名;
+	$('#c_umobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "车主手机号输入不合法，请重新输入！"});  // 别名;
+	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
+	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
+	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
+	
+	/**
+	* 编辑终端验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'cTerminalEditForm', //指定from的ID 编号
+		validatorGroup: '6', // 指定本form组编码,默认为1, 多个验证组时使用
+		debug: true, // 指定调试模式,不提交form
+		wideWord: false,	// 一个汉字当一个字节
+		submitButtonID: 'cTerminalEditSave', // 指定本form的submit按钮
+		onError: function(msg) { 
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000);
+			return;
+		}, 
+		onSuccess: function() {
+			dlf.fn_cEditTerminalSave();
+		}
+	});
+	$('#c_editcnum').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
+	$('#c_editccolor').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
+	$('#c_editcbrand').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
+		
 	/**
 	* 加载完成后，第一次发送switchcar请求
 	*/
-	var n_carNum = $('#carList li').length;
-	if ( n_carNum > 0 ) {
-		dlf.fn_switchCar($('#carList a').eq(0).attr('tid'), $($('#carList a')[0])); // 登录成功, 车辆列表切换
-		dlf.fn_bindCarListItem();
+	if ( !dlf.fn_userType() ) {
+		var n_carNum = $('.j_carList .j_terminal').length;
+		if ( n_carNum > 0 ) {
+			dlf.fn_switchCar($('.j_carList .j_terminal').eq(0).attr('tid'), $($('.j_carList .j_terminal')[0])); // 登录成功, 车辆列表切换
+			dlf.fn_bindCarListItem();
+		}
+	} else {
+		dlf.fn_corpGetCarData();
 	}
+	
+	$('#txtautoComplete').val('');	// 清空autocomplete搜索框
 })
