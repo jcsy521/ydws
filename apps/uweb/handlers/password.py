@@ -156,14 +156,14 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
             mobile = data.mobile
             user = self.db.get("SELECT mobile"
                                "  FROM T_CORP"
-                               "  WHERE mobile = %s"
+                               "  WHERE cid = %s"
                                "  LIMIT 1",
                                mobile)
             if user:
                 psd = get_psd()                        
                 self.db.execute("UPDATE T_CORP"
                                 "  SET password = password(%s)"
-                                "  WHERE mobile = %s",
+                                "  WHERE cid = %s",
                                 psd, mobile)
                         
                 retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (psd) 

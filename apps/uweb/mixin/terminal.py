@@ -21,7 +21,7 @@ class TerminalMixin(BaseMixin):
                 if car_sets.get(key, None) is not None:
                     terminal_fields.append(key + ' = ' + str(value))
             elif key == 'white_list':
-                white_list = car_sets[key].split(':')
+                white_list = car_sets[key]
                 if len(car_sets['white_list']) < 1:
                     pass
                 else:
@@ -67,33 +67,33 @@ class TerminalMixin(BaseMixin):
                             "  WHERE tid = %s ",
                             self.current_user.tid)
 
-    def update_terminal_info(self, car_sets, car_sets_res):
-        """Update T_TERMINAL_INFO.
-        When set terminal info,get 0 or 1 from terminal, recomposer car_sets
-        and keep it in database.
-        @params: car_sets, DotDict, the terminal sets  
-                 car_sets_res, DotDict, the response of terminal's set
-        workflow:
-        for key, value in cars_sets:
-            if success:
-                s_keys.append(key)
-            else:
-                f_keys.append(key)
-        update car_sets to database
-        """
-        s_keys = [] 
-        f_keys = []
-        for key, value in car_sets_res.iteritems():
-            if value == "0":
-                s_keys.append(key)
-            else: 
-                f_keys.append(key)
-        
-        if not s_keys:
-            pass
-        else:   
-            car_sets_res = DotDict()
-            for key in s_keys:
-                car_sets_res[key.lower()] = car_sets[key.lower()]
-            if car_sets_res:
-                self.update_terminal_db(car_sets_res)
+    #def update_terminal_info(self, car_sets, car_sets_res):
+    #    """Update T_TERMINAL_INFO.
+    #    When set terminal info,get 0 or 1 from terminal, recomposer car_sets
+    #    and keep it in database.
+    #    @params: car_sets, DotDict, the terminal sets  
+    #             car_sets_res, DotDict, the response of terminal's set
+    #    workflow:
+    #    for key, value in cars_sets:
+    #        if success:
+    #            s_keys.append(key)
+    #        else:
+    #            f_keys.append(key)
+    #    update car_sets to database
+    #    """
+    #    s_keys = [] 
+    #    f_keys = []
+    #    for key, value in car_sets_res.iteritems():
+    #        if value == "0":
+    #            s_keys.append(key)
+    #        else: 
+    #            f_keys.append(key)
+    #    
+    #    if not s_keys:
+    #        pass
+    #    else:   
+    #        car_sets_res = DotDict()
+    #        for key in s_keys:
+    #            car_sets_res[key.lower()] = car_sets[key.lower()]
+    #        if car_sets_res:
+    #            self.update_terminal_db(car_sets_res)

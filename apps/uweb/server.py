@@ -88,7 +88,7 @@ class Application(tornado.web.Application):
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),
             (r"/group/*", GroupHandler),
-            (r"/group/transfer*", GroupTransferHandler),
+            (r"/changegroup/*", GroupTransferHandler),
             (r"/corp/*", CorpHandler),
             (r"/terminal/*", TerminalHandler),
             (r"/statistic/*", StatisticHandler),

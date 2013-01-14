@@ -82,7 +82,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
 
     @authenticated
     @tornado.web.removeslash
-    @tornado.web.asynchronous
     def put(self):
         """Update the params of terminal.
         """
@@ -94,13 +93,12 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
-            IOLoop.instance().add_callback(self.finish)
             return 
         
         try:
-            seq = str(int(time.time()*1000))[-4:]
-            args = DotDict(seq=seq,
-                           tid=self.current_user.tid)
+            #seq = str(int(time.time()*1000))[-4:]
+            #args = DotDict(seq=seq,
+            #               tid=self.current_user.tid)
 
             # check the data. some be sent to terminal, some just be modified in db 
             terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
@@ -115,20 +113,17 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
                 self.write_ret(status)
-                IOLoop.instance().add_callback(self.finish)
                 return
 
             # sql injection 
             if data.has_key('alias')  and not check_sql_injection(data.alias):
                 status = ErrorCode.ILLEGAL_ALIAS 
                 self.write_ret(status)
-                IOLoop.instance().add_callback(self.finish)
                 return
 
             if data.has_key('cnum')  and not check_sql_injection(data.cnum):
                 status = ErrorCode.ILLEGAL_CNUM 
                 self.write_ret(status)
-                IOLoop.instance().add_callback(self.finish)
                 return
 
             if data.has_key('white_list'):
@@ -136,58 +131,58 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 if not check_sql_injection(white_list):
                     status = ErrorCode.ILLEGAL_WHITELIST 
                     self.write_ret(status)
-                    IOLoop.instance().add_callback(self.finish)
                     return
 
 
-            gf_params = DotDict()
-            db_params = DotDict()
-            DB_FIELDS = ['alias', 'cnum', 'cellid_status', 'white_pop', 'push_status']
-            for key, value in data.iteritems():
-                if key in DB_FIELDS:
-                    db_params[key] = value
-                else:
-                    if key == 'white_list':
-                        gf_params[key]=":".join(value)
-                    else:
-                        gf_params[key]=value
-                   
-            self.update_terminal_db(db_params) 
-            args.params = gf_params 
+            #gf_params = DotDict()
+            #db_params = DotDict()
+            #DB_FIELDS = ['alias', 'cnum', 'cellid_status', 'white_pop', 'push_status']
+            #for key, value in data.iteritems():
+            #    if key in DB_FIELDS:
+            #        db_params[key] = value
+            #    else:
+            #        if key == 'white_list':
+            #            gf_params[key]=":".join(value)
+            #        else:
+            #            gf_params[key]=value
+            #       
+            self.update_terminal_db(data) 
+            #args.params = gf_params 
 
-            def _on_finish(response):
-                status = ErrorCode.SUCCESS
-                response = json_decode(response)
-                if response['success'] == ErrorCode.SUCCESS:
-                    for key, value in response['params'].iteritems():
-                        if value != "0":
-                            status = ErrorCode.TERMINAL_SET_FAILED
-                            logging.error("[UWEB] uid:%s, tid:%s set terminal %s faileds",
-                                          self.current_user.uid, self.current_user.tid, key) 
-                            break
-                    self.update_terminal_info(gf_params, response['params'])
-                else:
-                    if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                        self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
-                    status = response['success'] 
-                    logging.error("[UWEB] uid:%s tid: %s set terminal failed, message: %s", 
-                                   self.current_user.uid, self.current_user.tid, ErrorCode.ERROR_MESSAGE[status] )
-                self.write_ret(status)
-                IOLoop.instance().add_callback(self.finish)
+            #def _on_finish(response):
+            #    status = ErrorCode.SUCCESS
+            #    response = json_decode(response)
+            #    if response['success'] == ErrorCode.SUCCESS:
+            #        for key, value in response['params'].iteritems():
+            #            if value != "0":
+            #                status = ErrorCode.TERMINAL_SET_FAILED
+            #                logging.error("[UWEB] uid:%s, tid:%s set terminal %s faileds",
+            #                              self.current_user.uid, self.current_user.tid, key) 
+            #                break
+            #        self.update_terminal_info(gf_params, response['params'])
+            #    else:
+            #        if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
+            #            self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
+            #        status = response['success'] 
+            #        logging.error("[UWEB] uid:%s tid: %s set terminal failed, message: %s", 
+            #                       self.current_user.uid, self.current_user.tid, ErrorCode.ERROR_MESSAGE[status] )
+            #    self.write_ret(status)
+            #    IOLoop.instance().add_callback(self.finish)
 
-            if args.params:
-                self.keep_waking(self.current_user.sim, self.current_user.tid)
-                GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
-                                             _on_finish)
-            else: 
-                self.write_ret(status)
-                IOLoop.instance().add_callback(self.finish)
+            #if args.params:
+            #    self.keep_waking(self.current_user.sim, self.current_user.tid)
+            #    GFSenderHelper.async_forward(GFSenderHelper.URLS.TERMINAL, args,
+            #                                 _on_finish)
+            #else: 
+            #    self.write_ret(status)
+            #    IOLoop.instance().add_callback(self.finish)
+
+            self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-            IOLoop.instance().add_callback(self.finish)
 
 
 class TerminalCorpHandler(BaseHandler, TerminalMixin):

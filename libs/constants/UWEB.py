@@ -18,8 +18,8 @@ IOS_ID_INTERVAL = 7 * 24 * 60 * 60 # one week. in seconds.
 
 IOS_MAX_SIZE = 180 # in bytes. 
 
-USER_TYPE=DotDict(CORP='corp',
-                  PERSON='person')
+USER_TYPE=DotDict(PERSON='individual',
+                  CORP='enterprise')
 
 LOGIN_WAY=DotDict(WEB=u"WEB",
                   WAP=u"WAP",

@@ -27,6 +27,7 @@ class LoginHandler(BaseHandler, LoginMixin):
         self.render("login.html",
                     username='',
                     password='',
+                    user_type=UWEB.USER_TYPE.PERSON,
                     message=None,
                     message_captcha=None)
 
@@ -48,6 +49,7 @@ class LoginHandler(BaseHandler, LoginMixin):
             self.render("login.html",
                         username='',
                         password='',
+                        user_type=user_type,
                         message_captcha=None,
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
             return
@@ -56,6 +58,7 @@ class LoginHandler(BaseHandler, LoginMixin):
             self.render("login.html",
                         username="",
                         password="",
+                        user_type=user_type,
                         message_captcha=None,
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
             return
@@ -67,6 +70,7 @@ class LoginHandler(BaseHandler, LoginMixin):
             self.render("login.html",
                         username=username,
                         password=password,
+                        user_type=user_type,
                         message=None,
                         message_captcha=ErrorCode.ERROR_MESSAGE[ErrorCode.WRONG_CAPTCHA])
             return
@@ -99,6 +103,7 @@ class LoginHandler(BaseHandler, LoginMixin):
             self.render("login.html",
                         username=username,
                         password=password,
+                        user_type=user_type,
                         message_captcha=None,
                         message=ErrorCode.ERROR_MESSAGE[status])
 
