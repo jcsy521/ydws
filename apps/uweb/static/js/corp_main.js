@@ -124,6 +124,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId,str_html) {
 			'select_node': true
 		},
 		'ui': {
+			'themes': 'apple',
 			'initially_select': str_checkedNodeId
 		},
 		"crrm" : {

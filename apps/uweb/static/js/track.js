@@ -48,9 +48,10 @@ window.dlf.fn_closeTrackWindow = function() {
 		dlf.fn_getCarData();	// 重新请求lastinfo
 		dlf.fn_updateLastInfo();	// 动态更新终端相关数据
 	} else {
+		obj_oldData = {'gids': '', 'tids': '', 'n_gLen': 0};
 		dlf.fn_corpGetCarData();
 		dlf.fn_switchCar($('.j_currentCar').attr('tid'), $('.j_currentCar'));
-	}	
+	}
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 	dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
