@@ -47,7 +47,7 @@ class TerminalMixin(BaseMixin):
                     terminal_info[key] = value 
                     self.redis.setvalue(terminal_info_key, terminal_info)
 
-            elif key == 'cnum':
+            elif key == 'corp_cnum':
                 self.db.execute("UPDATE T_CAR"
                                 "  SET cnum = %s"
                                 "  WHERE tid = %s",

@@ -6,7 +6,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, get_terminal_info_key, get_location_key, str_to_list
+from utils.misc import DUMMY_IDS, DUMMY_IDS_STR, get_terminal_info_key, get_location_key, str_to_list
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from constants import UWEB, EVENTER, GATEWAY
@@ -78,6 +78,8 @@ class GroupHandler(BaseHandler):
         try:
             status = ErrorCode.SUCCESS
             delete_ids = map(int, str_to_list(self.get_argument('ids', None)))
+            logging.info("[UWEB] group delete request: %s, uid: %s, tid: %s", 
+                         delete_ids, self.current_user.uid, self.current_user.tid)
             self.db.execute("DELETE from T_GROUP WHERE id IN %s",
                             tuple(delete_ids+DUMMY_IDS)) 
             self.write_ret(status)
@@ -96,22 +98,24 @@ class GroupTransferHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] change group request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
         except:
             self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
             return
 
         try:
             status = ErrorCode.SUCCESS
-            tids = [int(tid) for tid in data.tids]
+            tids = [str(tid) for tid in data.tids]
             gid = data.gid
+            sql_cmd  = ("UPDATE T_TERMINAL_INFO"
+                        "  SET group_id = %s"
+                        "  WHERE tid IN %s") % (gid, tuple(tids+DUMMY_IDS))
+            self.db.execute(sql_cmd)
 
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET group_id = %s"
-                            "  WHERE tid IN %s",
-                            gid, tuple(tids+DUMMY_IDS))
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s, tids: %s get lastinfo failed. Exception: %s", 
-                              self.current_user.uid, tids, e.args) 
+            logging.exception("[UWEB] uid: %s, cid: %s get lastinfo failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

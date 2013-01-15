@@ -61,7 +61,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                                       self.current_user.tid)
 
             # 3: car
-            car = self.db.get("SELECT cnum FROM T_CAR"
+            car = self.db.get("SELECT cnum corp_cnum FROM T_CAR"
                               "  WHERE tid = %s",
                               self.current_user.tid)
 
@@ -121,7 +121,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 return
 
-            if data.has_key('cnum')  and not check_sql_injection(data.cnum):
+            if data.has_key('corp_cnum')  and not check_sql_injection(data.corp_cnum):
                 status = ErrorCode.ILLEGAL_CNUM 
                 self.write_ret(status)
                 return
@@ -195,12 +195,13 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             tid = self.get_argument('tid','')
-            terminal = self.db.get("select tid, mobile, group_id, owner_mobile, begintime, endtime"
-                                   "  from T_TERMINAL_INFO"
-                                   "  where tid = %s",tid)
-            car = self.db.get("select cnum, type, color, brand"
-                              "  from T_CAR"
-                              "  where tid = %s", tid)
+            logging.info("[UWEB] corp terminal request: %s", tid)
+            terminal = self.db.get("SELECT tid, mobile, group_id, owner_mobile, begintime, endtime"
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s",tid)
+            car = self.db.get("SELECT cnum, type, color, brand"
+                              "  FROM T_CAR"
+                              "  WHERE tid = %s", tid)
             res = DotDict(tmobile=terminal.mobile,
                           group_id=terminal.group_id,
                           umobile=terminal.owner_mobile,
@@ -213,7 +214,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             self.write_ret(status,
                            dict_=dict(res=res))
         except Exception as e:
-            logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
+            logging.exception("[UWEB] uid:%s, tid:%s get terminal info failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -227,7 +228,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] corp terminal request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -290,7 +291,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] corp terminal request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -354,7 +355,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         """
         try:
             status = ErrorCode.SUCCESS
-            delete_ids = map(int, str_to_list(self.get_argument('ids', None)))
+            delete_ids = map(str, str_to_list(self.get_argument('ids', None)))
+            logging.info("[UWEB] corp terminal delete request: %s, uid: %s, tid: %s", 
+                         delete_ids, self.current_user.uid, self.current_user.tid)
             for tid in delete_ids:
                 # unbind terminal
                 seq = str(int(time.time()*1000))[-4:]
@@ -372,8 +375,10 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
                 self.redis.delete(*keys)
 
-            self.db.execute("DELETE from T_TERMINAL_INFO WHERE tid IN %s",
-                            tuple(delete_ids+DUMMY_IDS)) 
+
+            sql_cmd = ("DELETE from T_TERMINAL_INFO WHERE tid IN %s") % (tuple(delete_ids+DUMMY_IDS),) 
+
+            self.db.execute(sql_cmd)
 
             self.write_ret(status)
         except Exception as e:
