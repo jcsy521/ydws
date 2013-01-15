@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# svn
+sudo apt-get install -y subversion
+
 # easy_install
 sudo apt-get install -y python-setuptools
 
@@ -19,8 +22,8 @@ sudo apt-get update
 # MySQL
 sudo apt-get install mysql-server
 sudo apt-get install mysql-client
-mysql -uroot --default-character-set=utf8 -e 'GRANT ALL PRIVILEGES ON *.* TO pabb@"%" IDENTIFIED BY "pabb"'
-mysql -upabb -ppabb --default-character-set=utf8 -e 'CREATE DATABASE DB_WPZZ'         //仅仅限于数据库服务器
+# mysql -uroot --default-character-set=utf8 -e 'GRANT ALL PRIVILEGES ON *.* TO pabb@"%" IDENTIFIED BY "pabb"'
+# mysql -upabb -ppabb --default-character-set=utf8 -e 'CREATE DATABASE DB_ACB' 
 
 # install MySQL-python
 sudo aptitude install -y libmysqlclient-dev
@@ -34,10 +37,6 @@ python setup.py build
 sudo python setup.py install
 cd ../
 
-# svn
-sudo apt-get install -y subversion
-
-# redis
 wget -q -O - http://www.dotdeb.org/dotdeb.gpg | sudo apt-key add
 sudo aptitude install -y redis-server
 sudo easy_install redis
@@ -58,29 +57,29 @@ cd ../
 # rabbitmq
 wget http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
 sudo apt-key add rabbitmq-signing-key-public.asc
-sudo apt-get install -y rabbitmq-server
+sudo apt-get install -y --force-yes rabbitmq-server
 sudo easy_install 'pika==0.9.5'
 
 # supervisor
 sudo apt-get install -y supervisor
 
-# nginx 仅仅限于nginx服务器
+# nginx
 # http://wiki.nginx.org/Install
 sudo apt-get install -y python-software-properties
 sudo add-apt-repository ppa:nginx/stable
 sudo apt-get install -y nginx
+sudo apt-get install -y --force-yes nginx
 
-# jdk仅限于push服务器
+# jdk just for push server
 sudo apt-get install sun-java6-jdk 
 
 # openfire
-wget http://www.igniterealtime.org/downloads/download-landing.jsp?file=openfire/openfire_3_7_1.tar.gz
-mv downloadServlet?filename=openfire%2Fopenfire_3_7_1.tar.gz openfire_3_7_1.tar.gz
-sudo cp –r openfire_3_7_1 /opt/openfire
+wget http://ichebao.net/openfire/openfire_3_7_1.tar.gz 
+tar zxvf openfire_3_7_1.tar.gz
+sudo cp -r openfire /opt/
 cd /opt/openfire/bin
 sudo ./openfire start
-cd –
 
-# keepalived
+keepalived
 sudo aptitude install -y keepalived
 
