@@ -47,7 +47,13 @@ function toHumanDate(myEpoch, flag) { // 将UTC时间转为正常时区时间
 	if (seconds < 10) {
 		seconds = '0' + seconds;
 	}
-	if (flag == 'no') {
+	if ( flag == 'year' ) {
+		return year;
+	} else if ( flag == 'month' ) {
+		return month;
+	} else if ( flag == 'day' ) {
+		return day;
+	}else if (flag == 'no') {
 		return year + '-' + month + '-' + day;//2010-09-10 z
 	} else {
 		return year + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + seconds;
@@ -74,7 +80,12 @@ function toEpochDate(dateString) { // 将正常时区时间转为UTC时间
 function fn_InitChooseDate() { 
     var startTemp = $('#start_temp').val(),
 		endTemp = $('#end_temp').val(),
-		dateTemp = $('#date_temp').val();
+		dateTemp = $('#date_temp').val(), 
+		dateTemp2 = $('#date_temp2').val(),
+		str_dateRole = $('#date_role').val(),
+		myDate =  new Date()/1000, 
+		str_year =  toHumanDate(myDate, 'year'),
+		str_month = toHumanDate(myDate, 'month');
 	
 	//设置开始时间
 	if (startTemp == 'start' || startTemp == '') {
@@ -100,24 +111,46 @@ function fn_InitChooseDate() {
 		$('#endtime1').val(fn_getNextYearToday());	// create business 
 	}
 	//对月份进行设置
-	if (dateTemp == 'monthly') {
-		var myDate = new Date();
-		var year = myDate.getFullYear();
-		var month = myDate.getMonth() + 1; // 当前月 0-11 
-		if (month < 10) {
-		    month = '0' + month;
+	var obj_year = $('#yeartemp'),
+		obj_month = $('#monthtemp'), 
+		obj_chart = $('#chartData');
+	
+	obj_chart.hide(); 
+	if ( str_dateRole == 'monthly' ) { 
+		if (dateTemp == 'monthly') {
+			obj_year.html(fn_createYearOrMonthOptions('year')).val(str_year);
+			obj_month.html(fn_createYearOrMonthOptions('month')).val(str_month);
+		} else { 
+			if ( str_year != dateTemp ) {
+				obj_month.html(fn_createYearOrMonthOptions('month', 'year'));
+			} else {
+				obj_month.html(fn_createYearOrMonthOptions('month'));
+			}
+			obj_year.html(fn_createYearOrMonthOptions('year')).attr('value', dateTemp);
+			obj_month.attr('value', dateTemp2);
+			// 对查询到的数据进行统计初始化
+			fn_initChartData();
 		}
-		$('#yeartemp').attr('value', year);
-		$('#monthtemp').attr('value', month);
-	} else {
-		var myDate = new Date(Number(dateTemp)*1000);
-		var year = myDate.getFullYear();
-		var month = myDate.getMonth() + 1;
-		if (month < 10) {
-			month = '0' + month;
+		obj_year.unbind('change').change(function() {
+			var str_selectData = $(this).val();
+			
+			if ( str_year != str_selectData ) {
+				obj_month.html(fn_createYearOrMonthOptions('month', 'year')).attr('value', '1');
+			} else {
+				obj_month.html(fn_createYearOrMonthOptions('month'));
+			}
+		});
+	} else if ( str_dateRole == 'yearly' ) { 
+		//  对年份进行设置
+		if (dateTemp == 'yearly') {
+			var str_year =  toHumanDate(myDate, 'year');
+			
+			obj_year.html(fn_createYearOrMonthOptions('year')).val(str_year);
+		} else {
+			obj_year.html(fn_createYearOrMonthOptions('year')).attr('value', dateTemp);
+			// 对查询到的数据进行统计初始化
+			fn_initChartData();
 		}
-		$('#yeartemp').attr('value', year);
-		$('#monthtemp').attr('value', month);
 	}
 }
 // test: 201203071708255231

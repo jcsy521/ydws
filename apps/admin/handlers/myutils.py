@@ -56,23 +56,17 @@ def start_of_month(timestamp):
     epoch = int(time.mktime(day_.timetuple()))
     return epoch
 
-def start_end_of_month():
+def start_end_of_month(year, month):
+    """Get start and end time of the month which is in the year.
     """
-    get start and end time of the month which last day is within
+    timestamp = int(time.mktime(time.strptime("%s-%s"%(year,month),"%Y-%m")))    
+    current_day = datetime.datetime.fromtimestamp(timestamp)    
+    s = current_day + relativedelta(months=0, day=1, hour=0, minute=0, second=0)    
+    e = current_day + relativedelta(months=1, day=1, hour=0, minute=0, second=0)
+    s_epoch = int(time.mktime(s.timetuple()))
+    e_epoch = int(time.mktime(e.timetuple())-1)
 
-    @return the start_time and end_time of the month
-    """
-    # snippet is executed after 0:00:00
-    # get yesterday 23:59:59
-    d = datetime.datetime.fromtimestamp(time.time())
-    daydelta = datetime.date(d.year, d.month, d.day) - datetime.timedelta(days=1)
-    t = datetime.datetime.combine(daydelta, datetime.time(23, 59, 59))
-    end_time = int(time.mktime(t.timetuple())) * 1000
-    #get the first day of the month 
-    d = datetime.datetime.fromtimestamp(end_time/1000)
-    t = datetime.datetime.combine(datetime.date(d.year,d.month, 1), datetime.time(0, 0))
-    start_time = int(time.mktime(t.timetuple())) * 1000
-    return start_time, end_time
+    return s_epoch, e_epoch
 
 def city_info(city_list, db):
     """
@@ -92,3 +86,14 @@ def city_info(city_list, db):
             c = DotDict({'id':r.id, 'name':r.name, 'p_id':r.p_id, 'p_name':r.p_name})
             cities.append(c)
     return cities
+ 
+def days_of_month(year="2012",month="11"):
+    """Get the number of days which is in the year and month.
+    """
+    timestamp = int(time.mktime(time.strptime("%s-%s"%(year,month),"%Y-%m")))    
+    current_day = datetime.datetime.fromtimestamp(timestamp)    
+    e = current_day + relativedelta(months=1, day=1, hour=0, minute=0, second=0)
+    e_epoch = int(time.mktime(e.timetuple())-1)
+    days = datetime.datetime.fromtimestamp(e_epoch).day
+
+    return days

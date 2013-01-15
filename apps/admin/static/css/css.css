@@ -139,6 +139,7 @@ table, .ui-widget-header {
 #content {
 	float: left;
 	min-width: 1200px;
+	height: 820px;
 }
 #left {
 	margin: 20px 5px 0px 0px;
@@ -671,4 +672,56 @@ tfoot {
     line-height: 25px;
     margin-right: 2px;
     width: 120px;
+}
+
+/*text content css*/
+.hide {
+	display: none;
+}
+.wrapper {
+    height: 627px;
+    width: 618px;
+    z-index: 1001;
+}
+.wrapperTitle {
+	background: url("/static/image/dialogTitle.png") no-repeat scroll 0 0 transparent;
+    color: #3A80AF;
+    font-size: 16px;
+    font-weight: bold;
+    height: 26px;
+    padding: 3px 0 0 31px;
+    width: 586px;
+}
+.wrapperContent {
+	left: -6px;
+	width: 613px;
+    position: relative;
+    top: 15px;
+}
+#chartContainerWrapper {
+	background-color: #F3FAFA;
+    border: 1px solid gray;
+    height: 465px;
+    left: 20%;
+    position: absolute;
+    top: 23px;
+    z-index: 1001;
+}
+#chartContainerContent {
+	left: 4px;
+}
+#chartContainerClose {
+	display: block;
+    left: 564px;
+    top: -15px;
+}
+.close {
+    background: url("/static/image/close_default.png") no-repeat;
+    height: 20px;
+    left: 378px;
+    position: relative;
+    top: -6px;
+    _top: -4px;
+    width: 20px;
+	cursor: pointer;
 }

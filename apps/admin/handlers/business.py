@@ -389,7 +389,7 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             seq = str(int(time.time()*1000))[-4:]
             args = DotDict(seq=seq,
                            tid=terminal.tid)
-            response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args, None)
+            response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args)
             logging.info("Unbind terminal: %s response: %s", terminal.tid, response)
             # clear db 
             self.db.execute("DELETE FROM T_TERMINAL_INFO"

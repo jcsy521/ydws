@@ -43,7 +43,7 @@ from handlers.business import *
 from handlers.ecbusiness import * 
 from handlers.subscriber import SubscriberHandler, SubscriberDownloadHandler
 from handlers.ecsubscriber import ECSubscriberHandler, ECSubscriberDownloadHandler
-from handlers.daily import DailyHandler, DailyDownloadHandler
+from handlers.yearly import YearlyHandler, YearlyDownloadHandler
 from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
 from handlers.misc import *
 
@@ -109,13 +109,13 @@ class Application(tornado.web.Application):
             # statistic report
             (r"/report/subscriber/*", SubscriberHandler),
             (r"/report/ecsubscriber/*", ECSubscriberHandler),
-            (r"/report/daily/*", DailyHandler),
+            (r"/report/yearly/*", YearlyHandler),
             (r"/report/monthly/*", MonthlyHandler),
 
             # download the report
             (r"/download/subscriber/(.*)/*", SubscriberDownloadHandler),
             (r"/download/ecsubscriber/(.*)/*", ECSubscriberDownloadHandler),
-            (r"/download/daily/(.*)/*", DailyDownloadHandler),
+            (r"/download/yearly/(.*)/*", YearlyDownloadHandler),
             (r"/download/monthly/(.*)/*", MonthlyDownloadHandler),
         ]
 

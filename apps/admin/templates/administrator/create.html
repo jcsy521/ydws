@@ -77,7 +77,7 @@
             <td align="right">公司类型：</td>
             <td align="left">
 				<select name ="source_id" id="source_id">
-					<option value=" ">--请选择公司类型--</option>
+					<option value="">--请选择公司类型--</option>
                     {% for s in sources %}
                         <option value="{{s['id']}}">{{s['name']}}</option>
                     {% end %}

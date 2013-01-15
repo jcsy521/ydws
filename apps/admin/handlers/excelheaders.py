@@ -46,3 +46,10 @@ MONTHLY_HEADER = (u"序号",
                   u"新增终端数",
                   u"终端到达数")
 
+YEARLY_FILE_NAME = u"业务年报"
+YEARLY_SHEET = u"年报"
+YEARLY_HEADER = (u"序号", 
+                 u"新增集团数", 
+                 u"集团到达数", 
+                 u"新增终端数",
+                 u"终端到达数")

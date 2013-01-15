@@ -1,4 +1,6 @@
-﻿$(function () {
+﻿var chart = null; // 统计图对象
+
+$(function () {
 
     //将页面查询到的时间进行转换
 	 var timeta= $(".j_timestamp");
@@ -75,7 +77,7 @@
 	}
 	$('#frameMap').css({'height': (frameHeight-90)+'px'});
 	$('#contantIframe').css({
-        'height' : (frameHeight-80)+'px'
+        'height' : (frameHeight-52)+'px'
     }); 
 	$('.juser_type').click(function () {
 		$domRadio = $(this), str_radioVal = $domRadio.val(), $plan = $('.planType');
@@ -100,6 +102,10 @@
 	var obj_carType = $('#ctype');
 	
 	obj_carType.val(obj_carType.attr('cartype'));
+	// 统计图的关闭按钮事件绑定
+	$('.j_close').click(function() {
+		fn_closeWrapper();
+	});
 });
 //to clear the password for message
 function clearSpan() {
@@ -125,7 +131,6 @@ function fn_getNumber(str) {
 } 
 // 通过车辆类型标记返回相应的车辆类型文字
 function fn_setCarType(n_carType) {
-	console.log('xxx:  ',n_carType);
 	switch (n_carType) {
 		case 1: 
 			return '小汽车';
@@ -143,4 +148,127 @@ function fn_setCarType(n_carType) {
 			return '';
 			break;
 	}
+}
+
+/**
+* 根据类型生成年或月的下拉列表选项
+* str_type: year or month
+* str_dataType: year
+*/
+function fn_createYearOrMonthOptions(str_type, str_dataType) {
+	var obj_date = new Date(),
+		n_year = obj_date.getFullYear(),
+		n_month = obj_date.getMonth() + 1,
+		str_options = '';
+	
+	if ( str_dataType == 'year' ) {
+		n_month = 12;
+	}
+	switch (str_type) {
+		case 'year':
+			for ( var x = n_year - 10; x <= n_year; x++ ) {
+				str_options += '<option value='+ x +'>'+ x +'年</option>';
+			}
+			break;
+		case 'month':
+			for ( var x = 1 ; x <= n_month; x++ ) {
+				str_options += '<option value='+ x +'>'+ x +'月</option>';
+			}
+			break;
+	}
+	return str_options;
+}
+/*
+* 初始化统计图数据及事件
+*/
+function fn_initChartData() { 
+	var obj_chart = $('#chartData'), 
+		obj_bodyData = $('#reportDataTables tbody tr'), 
+		str_charTitle = $('#lengendTitle').html();
+		n_bodyLen = obj_bodyData.length,
+		n_count = 0,
+		arr_series = [],
+		arr_categories = [],
+		str_chartTitle = '',
+		arr_newCorp = [],
+		arr_totalCorp = [],
+		arr_newTerminal = [],
+		arr_totalTerminal = [];
+	
+	for ( var i = 0; i < n_bodyLen; i++ ) {
+		var obj_tempTr = $(obj_bodyData[i]).children(),
+			obj_newCorps = $(obj_tempTr[1]),
+			obj_totalCorps = $(obj_tempTr[2]),
+			obj_newTerminals = $(obj_tempTr[3]),
+			obj_totalTerminals = $(obj_tempTr[4]);
+		
+		arr_newCorp[n_count] = parseInt(obj_newCorps.html());
+		arr_totalCorp[n_count] = parseInt(obj_totalCorps.html());
+		arr_newTerminal[n_count] = parseInt(obj_newTerminals.html());
+		arr_totalTerminal[n_count] = parseInt(obj_totalTerminals.html());	
+		arr_categories[n_count] = i + 1;
+		n_count ++;
+	} 
+	arr_series = [
+					{name: '新增集团数', data: arr_newCorp}, 
+					{name: '总集团数', data: arr_totalCorp},
+					{name: '新增终端数', data: arr_newTerminal},
+					{name: '总终端数', data: arr_newTerminal}
+					
+				];
+	
+	str_chartTitle = str_charTitle+'统计图';
+	
+	fn_xdwInitChart(arr_series, arr_categories, str_chartTitle);
+	obj_chart.click(function(event) {
+		$('#chartContainerWrapper').show();
+	}).show();
+}
+/*
+*初始化统计图对象
+*/
+function fn_xdwInitChart(arr_series, arr_categories, str_chartTitle) {
+	chart = new Highcharts.Chart({
+				chart: {
+					renderTo: 'chartContainerContent',
+					defaultSeriesType: 'line'
+				},
+				title: {
+					text: str_chartTitle,
+					style: {
+						margin: '10px 100px 0 0' // center it
+					}
+				},
+				xAxis: {
+					categories: arr_categories,
+					title: {
+						text: '时间'
+					}
+				},
+				yAxis: {
+					title: {
+						text: '总数'
+					},
+					plotLines: [{
+						value: 0,
+						width: 1,
+						color: '#808080'
+					}]
+				},
+				tooltip: {
+					formatter: function() {
+							return '<b>'+ this.series.name +'</b><br/>'+
+							this.x +': '+ this.y;
+					}
+				},
+				series: arr_series
+			});
+	$('svg text').last().remove();	// 移除 网址 
+}
+
+/**
+* 窗口关闭事件
+*/
+function fn_closeWrapper() {
+	$('.wrapper').hide();
 }

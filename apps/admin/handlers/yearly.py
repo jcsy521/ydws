@@ -4,7 +4,6 @@ import logging
 import hashlib
 from os import SEEK_SET
 import time
-import datetime
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
@@ -13,19 +12,19 @@ from constants import LOCATION, XXT, ADMIN
 from utils.dotdict import DotDict
 
 from mixin import BaseMixin
-from excelheaders import MONTHLY_HEADER, MONTHLY_FILE_NAME, MONTHLY_SHEET
+from excelheaders import YEARLY_HEADER, YEARLY_FILE_NAME, YEARLY_SHEET
 from base import BaseHandler, authenticated
 
 from checker import check_areas, check_privileges
 from constants import PRIVILEGES, SMS
 from utils.misc import str_to_list, DUMMY_IDS
-from myutils import city_list, start_of_month, days_of_month, start_end_of_month
+from myutils import city_list, start_of_month, end_of_month, start_end_of_month
 from mongodb.mmonthly import MMonthly, MMonthlyMixin
 
 
-class MonthlyMixin(BaseMixin):
+class YearlyMixin(BaseMixin):
 
-    KEY_TEMPLATE = "monthly_report_%s_%s"
+    KEY_TEMPLATE = "yearly_report_%s_%s"
 
     def prepare_data(self, hash_):
 
@@ -35,38 +34,19 @@ class MonthlyMixin(BaseMixin):
         if data:
             return data
 
-        #city = self.get_argument('cities', 0)
         year = int(self.get_argument('year'))
-        month = int(self.get_argument('month'))
-        timestamp = [year, month]
-
-        #s_time = start_of_month(int(time.time()))
-        #if start_time >= s_time:
-        #    return [], {}, start_time
+        timestamp = [year,]
 
         results = []
         counts = dict(new_corps=0,
                       total_corps=0,
                       new_terminals=0,
                       total_terminals=0)
-        #if int(city) == 0:
-        #    cities = [city.city_id for city in self.cities]
-        #else:
-        #    cities = [city,]
 
-        #cities = [int(c) for c in cities]
-        #for i, city in enumerate(cities):
-        #    c = self.db.get("SELECT city_name, region_code FROM T_HLR_CITY"
-        #                    "  WHERE city_id = %s",
-        #                    city)
-        days = days_of_month(year, month)
-        t = datetime.datetime.combine(datetime.date(year, month, 1), datetime.time(0, 0))
-        s_time = int(time.mktime(t.timetuple()))
         current_time = int(time.time())
-        for day in range(days):
-            start_time = int(s_time) + day * 86400 
-            end_time = start_time + 86399 
-            if start_time >= current_time:
+        for month in range(12):
+            start_time, end_time = start_end_of_month(year=year, month=str(month+1))
+            if start_time > current_time:
                 break
             total_corps = self.db.query("SELECT id FROM T_CORP WHERE timestamp <= %s", end_time)
             new_corps = self.db.query("SELECT id FROM T_CORP"
@@ -77,7 +57,7 @@ class MonthlyMixin(BaseMixin):
             new_terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
                                           "  WHERE begintime BETWEEN %s AND %s",
                                           start_time, end_time)
-            result = dict(seq=day+1,
+            result = dict(seq=month+1,
                           new_corps=len(new_corps),
                           total_corps=len(total_corps),
                           new_terminals=len(new_terminals),
@@ -94,10 +74,10 @@ class MonthlyMixin(BaseMixin):
         return results, counts, timestamp 
 
 
-class MonthlyHandler(BaseHandler, MonthlyMixin):
+class YearlyHandler(BaseHandler, YearlyMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.MONTHLY_STATISTIC])
+    @check_privileges([PRIVILEGES.YEARLY_STATISTIC])
     @tornado.web.removeslash
     def prepare(self):
 
@@ -113,11 +93,11 @@ class MonthlyHandler(BaseHandler, MonthlyMixin):
 
 
     @authenticated
-    @check_privileges([PRIVILEGES.MONTHLY_STATISTIC])
+    @check_privileges([PRIVILEGES.YEARLY_STATISTIC])
     @tornado.web.removeslash
     def get(self):
 
-        self.render('report/monthly.html',
+        self.render('report/yearly.html',
                     results=[],
                     counts={},
                     cities=self.cities,
@@ -126,7 +106,7 @@ class MonthlyHandler(BaseHandler, MonthlyMixin):
                     hash_=None)
 
     @authenticated
-    @check_privileges([PRIVILEGES.MONTHLY_STATISTIC])
+    @check_privileges([PRIVILEGES.YEARLY_STATISTIC])
     #@check_areas()
     @tornado.web.removeslash
     def post(self):
@@ -136,7 +116,7 @@ class MonthlyHandler(BaseHandler, MonthlyMixin):
         hash_ = m.hexdigest()
         results, counts, timestamp = self.prepare_data(hash_)
 
-        self.render('report/monthly.html',
+        self.render('report/yearly.html',
                     results=results,
                     counts=counts,
                     cities=self.cities,
@@ -145,7 +125,7 @@ class MonthlyHandler(BaseHandler, MonthlyMixin):
                     hash_=hash_)
  
 
-class MonthlyDownloadHandler(BaseHandler, MonthlyMixin):
+class YearlyDownloadHandler(BaseHandler, YearlyMixin):
 
     @authenticated
     @tornado.web.removeslash
@@ -163,17 +143,17 @@ class MonthlyDownloadHandler(BaseHandler, MonthlyMixin):
         import xlwt
         from cStringIO import StringIO
 
-        filename = MONTHLY_FILE_NAME
+        filename = YEARLY_FILE_NAME
 
         if timestamp:
-            filename = str(timestamp[0]) + u'年' + str(timestamp[1]) + u'月份' + filename
+            filename = str(timestamp[0]) + u'年' + filename
 
         date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         wb = xlwt.Workbook()
-        ws = wb.add_sheet(MONTHLY_SHEET)
+        ws = wb.add_sheet(YEARLY_SHEET)
 
         start_line = 0
-        for i, head in enumerate(MONTHLY_HEADER):
+        for i, head in enumerate(YEARLY_HEADER):
             ws.write(0, i, head)
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line), results):

@@ -305,7 +305,7 @@ class AdministratorCreateHandler(BaseHandler, BaseMixin):
     @tornado.web.removeslash
     def get(self):
         self.privilege_groups = self.db.query("SELECT * FROM T_PRIVILEGE_GROUP")
-        self.sources = self.db.query("SELECT * FROM T_ADMINISTRATOR_SOURCE")
+        self.sources = self.db.query("SELECT * FROM T_ADMINISTRATOR_SOURCE order by id")
         key = self.get_area_memcache_key(self.current_user.id)
         areas = self.redis.getvalue(key)
         if not areas:

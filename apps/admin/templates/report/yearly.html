@@ -24,21 +24,14 @@
 {% block body %}
 <fieldset class="ui-widget ui-widget-content ui-corner-all">
 	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-		<span class="ui-button-text" id="lengendTitle">业务月报查询</span>
+		<span class="ui-button-text" id="lengendTitle">业务年报查询</span>
 	</legend>
-	<form id="formID" method="post" action="">
+	<form id="formID" method="post" action="" >
 		<table>
 			<tr>	
 				<td align="right">年份：</td>
 				<td align="left">
 					<select name="year" id="yeartemp">
-					</select>
-				</td>
-			</tr>
-			<tr>	
-				<td align="right">月份：</td>
-				<td align="left">
-					<select name="month" id="monthtemp">
 					</select>
 				</td>
 			</tr>
@@ -55,7 +48,7 @@
 </fieldset>
 <div class="resultQuery">
     <div class="resultTitle"><h3>查询结果</h3></div>
-    <a id="exportData" href="/download/monthly/{{hash_}}" 
+    <a id="exportData" href="/download/yearly/{{hash_}}" 
        class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
        <span class="ui-button-text">导出Excel</span>
     </a>
@@ -80,7 +73,7 @@
 			<td>{{result['total_terminals']}}</td>		
 		</tr>
         {% end %}
-    </tbody> 
+    </tbody>
 	<tfoot id="tfoot">
 		{% if counts %}
 		<tr>
@@ -94,10 +87,10 @@
 	</tfoot>
 </table>
 <div style="display:none">
-    <input type="text" id="date_temp" value="{{timestamp[0] if len(timestamp) != 0 else 'monthly'}}" />
-	<input type="text" id="date_temp2" value="{{timestamp[1] if len(timestamp) != 0 else 'monthly'}}" />
-	<input type="text" id="date_role" value="monthly" />
+    <input type="text" id="date_temp" value="{{timestamp[0] if len(timestamp) != 0 else 'yearly'}}" />
+	<input type="text" id="date_role" value="yearly" />
 </div>
+
 <div id="chartContainerWrapper" class="wrapper j_wrapper hide" title="统计图">
 	<div id="chartContainerTitle" class="wrapperTitle">
 		统计图
