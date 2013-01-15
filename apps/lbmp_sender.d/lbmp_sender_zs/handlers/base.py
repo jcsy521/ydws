@@ -12,7 +12,7 @@ from utils.dotdict import DotDict
 class BaseHandler(tornado.web.RequestHandler):
     
     # override the attribute
-    SUPPORTED_METHODS = ("POST",)
+    SUPPORTED_METHODS = ("POST", "GET")
 
     JSON_HEADER = {"Content-Type": "application/json; charset=utf-8"} 
 
