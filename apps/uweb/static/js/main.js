@@ -531,6 +531,26 @@ $(function () {
 			dlf.fn_bindCarListItem();
 		}
 	} else {
+		// 点击查询按钮触发自动搜索功能	
+		$('#autoSearch').unbind('click').click(function() {
+			$('#txtautoComplete').autocomplete('search');
+		});
+		
+		$('#txtautoComplete').unbind('blur').bind('blur', function() {
+			var obj_this = $('#txtautoComplete'),
+				str_val = obj_this.val();
+				
+			if ( str_val == '' ) {
+				obj_this.val('请输入车牌号');
+			}
+		}).unbind('focus').bind('focus', function() {	// 获得焦点 隐藏tip
+			var obj_this = $('#txtautoComplete'),
+				str_val = obj_this.val();
+				
+			if ( str_val == '请输入车牌号' ) {
+				obj_this.val('');
+			}
+		});
 		dlf.fn_corpGetCarData();
 	}
 	

@@ -9,7 +9,19 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 */
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示终端设置dialog	
+	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示终端设置dialog
+	var obj_cnum = $('.j_cnum'),
+		obj_input = $('.j_input input'),
+		obj_terminalContent = $('.terminalContent');
+	
+	obj_input.val('');
+	if ( dlf.fn_userType() ) {	// 集团用户 显示车牌号
+		obj_cnum.show();
+		obj_terminalContent.css('height', '262px');
+	} else {	// 个人用户不显示车牌号
+		obj_cnum.hide();
+		obj_terminalContent.css('height', '230px');
+	}
 	dlf.fn_initTerminalWR(); // 初始化加载参数
 	dlf.fn_onInputBlur();	// input的blur事件初始化
 }
@@ -45,7 +57,7 @@ window.dlf.fn_initTerminalWR = function () {
 					} else if ( param == 'push_status' ) {
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
 					} else {
-						if ( param == 'alias' || param == 'cnum' ) {	// 终端别名、车牌号
+						if ( param == 'alias' || param == 'corp_cnum' ) {	// 终端别名、车牌号
 							$('#t_' + param ).val(str_val);
 						} else if ( param == 'white_pop' ) {	// 白名单弹出框
 							n_whitelistTip = str_val;

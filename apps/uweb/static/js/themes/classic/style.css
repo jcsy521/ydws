@@ -13,9 +13,9 @@
 .jstree-classic .jstree-leaf > ins { background-position:-36px 0; }
 
 .jstree-classic .jstree-hovered { background:#e7f4f9; border:1px solid #e7f4f9; padding:0 2px 0 1px; }
-.jstree-classic .jstree-clicked { background:navy; border:1px solid navy; padding:0 2px 0 1px; color:white; }
-.jstree-classic a .jstree-icon { background-position:-56px -19px; }
-.jstree-classic .jstree-open > a .jstree-icon { background-position:-56px -36px; }
+.jstree-classic .jstree-clicked { background:#beebff; border:1px solid #99defd; padding:0 2px 0 1px; } /*todo*/
+.jstree-classic a .jstree-icon { background-position: 0px; } /*todo*/
+.jstree-classic .jstree-open > a .jstree-icon { background-position: 0px; } /*todo*/
 .jstree-classic a.jstree-loading .jstree-icon { background:url("throbber.gif") center center no-repeat !important; }
 
 .jstree-classic.jstree-focused { background:white; }

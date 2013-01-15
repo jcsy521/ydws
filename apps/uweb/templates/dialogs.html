@@ -140,6 +140,12 @@
 										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的SOS联系人号码不合法，请重新输入！" who="mobile" parent="terminalWrapper"   />
 									</td>
 								</tr>
+								<tr class="j_cnum">
+									<td class="terminalTdL" >车牌号码:</td>
+									<td id="corp_cnum"  class="j_ListVal j_input"  t_val="">
+										<input type="text" id="t_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
+									</td>
+								</tr>
 								<!--
 								<tr>
 									<td colspan="2" id="popTips">
@@ -299,14 +305,11 @@
 			<input type="button" id="btnCancel" value="取消" />
 		</div>
 	</div>
-	
 	<!-- 唤醒提示信息 -->
 	<div id="trackWrapper" class="hide">
 		<span id="trackMsg"></span>
 		<span class="hide" id="trackTimer">0</span>
 	</div>
-	
-	
 	<!--集团资料框-->
 	<div id="corpWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle corpPersonalTitle">
@@ -392,7 +395,7 @@
 					<tr>
 						<td>
 							<label>车辆类型：</label>
-							<select id="c_type" name="c_type" style="width: 120px;">
+							<select id="c_type" name="c_type"  class="c_select">
 								<option value="1">小汽车</option>
 								<option value="2">小货车</option>
 								<option value="3">大巴车</option>
@@ -403,7 +406,16 @@
 					<tr>
 						<td>
 							<label>车辆颜色：</label>
-							<input type="text" id="c_color" name="c_color" class="text_mouseOut j_corpData j_onInputBlur"  msg="车辆颜色最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+							<select id="c_color" name="c_color" class="c_select" >
+								<option value="1">黑色</option>
+								<option value="2">白色</option>
+								<option value="3">银色</option>
+								<option value="4">红色</option>
+								<option value="5">黄色</option>
+								<option value="6">灰色</option>
+								<option value="7">其他</option>
+							</select>
+							<!--<input type="text" id="c_color" name="c_color" class="text_mouseOut j_corpData j_onInputBlur"  msg="车辆颜色最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />-->
 						</td>
 					</tr>
 					<tr>
@@ -419,9 +431,8 @@
 			</form>
 		</div>
 	</div>
-	
 	<!-- 编辑终端 -->
-	<div id="cTerminalEditWrapper" class="wrapper hide j_drag">
+	<!--<div id="cTerminalEditWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle cTerminalEditTitle">
 			<span class="close j_close" title="关闭窗口"></span>
 		</div>
@@ -460,8 +471,14 @@
 					</tr>
 					<tr>
 						<td>
+							<label>车辆品牌：</label>
+							<input type="text" id="c_editcbrand" class="text_mouseOut j_cterminalEdit j_onInputBlur"  msg="车辆品牌最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+					<tr>
+						<td>
 							<label>车辆类型：</label>
-							<select id="c_editctype" class="j_cterminalEdit" style="width: 120px;">
+							<select id="c_editctype" class="j_cterminalEdit c_select">
 								<option value="1">小汽车</option>
 								<option value="2">小货车</option>
 								<option value="3">大巴车</option>
@@ -472,13 +489,15 @@
 					<tr>
 						<td>
 							<label>车辆颜色：</label>
-							<input type="text" id="c_editccolor" class="text_mouseOut j_cterminalEdit j_onInputBlur"  msg="车辆颜色最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>车辆品牌：</label>
-							<input type="text" id="c_editcbrand" class="text_mouseOut j_cterminalEdit j_onInputBlur"  msg="车辆品牌最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+							<select id="c_editccolor" class="j_cterminalEdit c_select" >
+								<option value="1">黑色</option>
+								<option value="2">白色</option>
+								<option value="3">银色</option>
+								<option value="4">红色</option>
+								<option value="5">黄色</option>
+								<option value="6">灰色</option>
+								<option value="7">其他</option>
+							</select>
 						</td>
 					</tr>
 				</table>
@@ -487,6 +506,7 @@
 			</form>
 		</div>
 	</div>
+	-->
 	<!-- 统计 -->
 	<div id="staticsWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle staticsTitle">
@@ -496,8 +516,8 @@
 			<table class="staticsCondition">
 				<tr>
 					<td>
-						开始时间：<input type="text" id="c_eventbegintime"  class="time" />
-						结束时间：<input type="text" id="c_eventendtime"  class="time" />
+						查询时间：<input type="text" id="c_eventbegintime"  class="time" />
+						至 <input type="text" id="c_eventendtime"  class="time" />
 					</td>
 					<td><span id="staticsBtn" class="staticsBtn j_tBtnhover" title="搜索"></span></td>
 				</tr>
@@ -505,10 +525,10 @@
 			<table class="dataTable staticsTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="staticsTableHeader">
-						<th>终端手机号</th>
-						<th>移动</th>
-						<th>SOS</th>
-						<th>震动</th>
+						<th>车牌号</th>
+						<th>移动告警</th>
+						<th>SOS告警</th>
+						<th>震动告警</th>
 						<th>通讯异常</th>
 						<th>电量告警</th>
 					</tr>

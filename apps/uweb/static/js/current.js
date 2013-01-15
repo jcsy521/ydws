@@ -209,8 +209,7 @@ window.dlf.fn_defendQuery = function() {
 				obj_carData.mannual_status = str_defendStatus;	// 改变缓存中的设防撤防状态
 			}
 			$('.j_carList').data('carsData')[str_cTid] = obj_carData;
-			console.log(obj_carData);
-			$('#defendStatus').css('background-image', 'url("'+ BASEIMGURL + str_dImg +'")').attr('title', str_html);
+			$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg +'")').attr('title', str_html);
 		} else if ( data.status == 201 ) {
 			dlf.fn_showBusinessTip();
 		} else {

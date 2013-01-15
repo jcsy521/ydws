@@ -30,9 +30,9 @@ function customMenu(node) {
 		createLable = '新建分组';
 		deleteLable = '删除集团';
 	} else if (obj_node.hasClass('j_group')) {	// 组右键菜单
-		renameLabel = '重命名组名';
+		renameLabel = '重命名组';
 		deleteLable = '删除分组';
-		createLable = '新建终端';
+		createLable = '添加终端';
 	} else {									// 终端右键菜单
 		renameLabel = '编辑终端';
 		deleteLable = '删除终端';
@@ -56,7 +56,7 @@ function customMenu(node) {
 				var obj_this = $(obj).eq(0);
 				
 				if ( obj_this.hasClass('j_leafNode') ) {	// 编辑终端
-					fn_initEditTerminal(obj_this.children('a').eq(0).attr('tid'));
+					//fn_initEditTerminal(obj_this.children('a').eq(0).attr('tid'));
 					return false;
 				}
 				this.rename(obj);
@@ -95,7 +95,8 @@ function customMenu(node) {
 	};
    //If node is a folder do not show the "delete" menu item
    if ( obj_node.hasClass('j_leafNode') ) {
-	  delete items.create;
+		delete items.create;
+		delete items.rename;
    }
    if ( obj_node.hasClass('j_corp')  ) {
 		delete items.remove;
@@ -123,8 +124,12 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId,str_html) {
 			'items': customMenu,
 			'select_node': true
 		},
+		'themes': {
+			'theme': 'classic',
+			'icons' : false
+			/*"dots" : false*/
+		},
 		'ui': {
-			'themes': 'apple',
 			'initially_select': str_checkedNodeId
 		},
 		"crrm" : {
@@ -175,8 +180,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId,str_html) {
 			fn_renameGroup(obj_current.attr('groupid'), str_newName, data.rlbk);
 		} else if ( obj_currentNode.hasClass('j_corp') ) {	// 重命名集团
 			fn_renameCorp(obj_current.attr('corpid'), str_newName, data.rlbk)
-		} else if ( b_flag ) {	// 编辑终端
-			//fn_initEditTerminal(obj_current.attr('tid'));
 		}
 	}).bind('remove.jstree', function(e, data) {	// 删除节点
 		var obj_rslt = data.rslt,
@@ -251,6 +254,16 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId,str_html) {
 		} else {
 			return false;
 		}
+	}).bind('dblclick.jstree', function(event, data) {
+		
+		var obj_target = $(event.target),
+			b_class = obj_target.hasClass('j_terminal')
+
+		if ( b_class ) {	// 双击终端
+			dlf.fn_initTerminal();
+		} else {
+			return false;
+		}
 	});
 }
 
@@ -279,7 +292,7 @@ window.dlf.fn_corpGetCarData = function() {
 					obj_newData = {};
 				
 				if ( str_corpId && str_corpName ) {
-					str_html += '<li class="j_corp"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_corpName +'</a>';
+					str_html += '<li class="j_corp"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#"><img src="'+ CORPIMGURL + 'corp.png' +'" />'+ str_corpName +'</a>';
 				}
 				
 				arr_autoCompleteData = [];
@@ -298,11 +311,11 @@ window.dlf.fn_corpGetCarData = function() {
 							n_carsLength = arr_cars.length;
 							//arr_tids = [];
 							
-						str_html += '<li class="j_group"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_groupName +'</a>';
+						str_html += '<li class="j_group"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'"><img src="'+ CORPIMGURL + 'gorup.png' +'" />'+ str_groupName +'</a>';
 						
 						if ( n_carsLength > 0 ) {
 							str_html += '<ul>';
-							str_tempFirstTid = 'leaf_' + arr_cars[0].tid;
+							str_tempFirstTid = 'leaf_' + arr_groups[0].cars[0].tid;	// 第一个分组的第一个终端 id
 							for ( var x = 0; x < n_carsLength; x++) {	// 添加组下面的终端
 								var obj_car = arr_cars[x],
 									str_tid = obj_car.tid,
@@ -313,9 +326,9 @@ window.dlf.fn_corpGetCarData = function() {
 								//arr_tids.push(str_tid);	// 填充tid
 								str_tids += str_tid + ','; //tid组string 串
 								if ( str_login == LOGINOUT ) {
-									str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_alias +'" class="terminalNode j_terminal" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';
+									str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_alias +'" class="terminalNode j_terminal" href="#" id="leaf_'+ str_tid +'"><img src="'+ CORPIMGURL + 'offline.png' +'" />'+ str_alias +'</a></li>';
 								} else {
-									str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_alias +'" class="terminalNode j_terminal" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';
+									str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_alias +'" class="terminalNode j_terminal" href="#" id="leaf_'+ str_tid +'"><img src="'+ CORPIMGURL + 'online.png' +'" />'+ str_alias +'</a></li>';
 								}
 								/** 
 								* 自动完成数据填充:根据旅客姓名和手机号进行搜索
@@ -345,31 +358,36 @@ window.dlf.fn_corpGetCarData = function() {
 				} else {
 					str_tempNodeId = str_checkedNodeId;
 				}
-				if ( fn_lastinfoCompare(obj_newData) ) {
+				if ( fn_lastinfoCompare(obj_newData) ) {	// 对比上次lastinfo 是否需要重新加载树节点
 					obj_oldData = obj_newData;
 					dlf.fn_loadJsTree(str_tempNodeId, str_html);
-				}
-				// autocomplete
-				$('#txtautoComplete').autocomplete({
-					source: arr_autoCompleteData,
-					select: function(event, ui) {
-						var str_tid = ui.item.value,
-							obj_itemLi = $('.j_carList a[tid='+ str_tid +']'),
-							str_crntTid = $('.j_leafNode a[class*=jstree-clicked]').attr('tid');
+					var obj_compelete = $('#txtautoComplete'),
+						str_val = obj_compelete.val();
+					
+					if ( str_val == '' ) {
+						str_val = '请输入车牌号';
+					}
+					// autocomplete	自动完成 初始化
+					obj_compelete.autocomplete({
+						source: arr_autoCompleteData,
+						select: function(event, ui) {
+							var str_tid = ui.item.value,
+								obj_itemLi = $('.j_carList a[tid='+ str_tid +']'),
+								str_crntTid = $('.j_leafNode a[class*=jstree-clicked]').attr('tid');
 
-						$('#txtautoComplete').val( ui.item.label);
-						if ( str_crntTid == str_tid ) {
+							$('#txtautoComplete').val( ui.item.label);
+							if ( str_crntTid == str_tid ) {
+								return false;
+							}
+							dlf.fn_loadJsTree(obj_itemLi.attr('id'), str_html);
+							dlf.fn_switchCar(str_tid, obj_itemLi);
 							return false;
 						}
-						dlf.fn_loadJsTree(obj_itemLi.attr('id'), str_html);
-						dlf.fn_switchCar(str_tid, obj_itemLi);
-						return false;
-					}
-				});	// 自动完成 初始化
-				// 点击查询按钮触发自动搜索功能
-				$('#autoSearch').unbind('click').click(function() {
-					$('#txtautoComplete').autocomplete('search');
-				});				
+					});
+				} else {
+					// 更新组名和集团名还有 在线离线状态
+					fn_updateTreeNode(obj_corp);
+				}
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();
 			} else {
@@ -380,6 +398,46 @@ window.dlf.fn_corpGetCarData = function() {
 			dlf.fn_serverError(XMLHttpRequest);
 		});
 }
+
+// 更新树节点的数据
+function fn_updateTreeNode(obj_corp) {
+	var arr_groups = obj_corp.groups,	// all groups 
+		n_groupLength = arr_groups.length,	// group length
+		str_corpName = obj_corp.name,	// corp name
+		str_corpId = obj_corp.cid;		// corp id
+	
+	$('.j_corp a[corpId='+ str_corpId +']').html('<ins class="jstree-icon">&nbsp;</ins><img src="/static/images/corpImages/corp.png">' + str_corpName).attr('title', str_corpName);	// 更新集团名
+	
+	for ( var gIndex in arr_groups ) {
+		var obj_group = arr_groups[gIndex],
+			str_groupName = obj_group.name,
+			arr_cars = obj_group.cars,
+			n_carLength = arr_cars.length;
+
+		$('#group_'+ obj_group.gid).html('<ins class="jstree-icon">&nbsp;</ins><img src="/static/images/corpImages/gorup.png">' + str_groupName).attr('title', str_groupName);	// 更新组名
+		
+		if ( n_carLength > 0 ) {
+			for ( var x = 0; x < arr_cars.length; x++ ) {
+			
+				var obj_car = arr_cars[x],
+					str_tid = obj_car.tid,
+					n_login = obj_car.login,
+					str_alias = obj_car.alias,
+					obj_leaf = $('#leaf_' + str_tid),
+					obj_img = obj_leaf.children('img'),
+					str_imgUrl = '';
+				
+				if ( n_login == LOGINOUT ) {
+					str_imgUrl = 'offline.png';
+				} else {
+					str_imgUrl = 'online.png';
+				}
+				obj_leaf.html('<ins class="jstree-icon">&nbsp;</ins><img src="/static/images/corpImages/'+ str_imgUrl +'">' + str_alias).attr('title', str_alias);	// 更新终端名
+			}
+		}
+	}
+}
+
 /**
 * 对比两次lastinfo的数据是否一致，不一致重新加载树
 */
@@ -564,7 +622,7 @@ function fn_getNextYear(str_nowDate) {
 }
 
 /**
-* 修改终端
+* 修改终端 todo delete
 */
 function fn_initEditTerminal(str_tid) {
 	dlf.fn_lockScreen(); // 添加页面遮罩
@@ -612,7 +670,7 @@ function fn_initEditTerminal(str_tid) {
 }
 
 /**
-* 编辑保存终端
+* 编辑保存终端 todo delete
 */
 window.dlf.fn_cEditTerminalSave = function() {
 	var n_num = 0,

@@ -475,7 +475,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#gsmContent').html(str_gsm);	// gsm 
 		$('#gpsContent').html(str_gps);	// gps
 		$('#defendContent').html(str_dStatus).data('defend', n_defendStatus);	// defend status
-		$('#defendStatus').css('background-image', 'url("' + BASEIMGURL + str_dImg + '")').attr('title', str_dStatusTitle);
+		$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")').attr('title', str_dStatusTitle);
 		$('#tmobile').attr('title', '终端号码：' + str_tmobile );	// 终端手机号
 		$('#tmobileContent').html(str_tmobile);
 	}
@@ -592,7 +592,8 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		}
 	} else if ( str_key == 'gps' ) {	// gps 
 		var str_gpsImg = '',
-			obj_gps = $('#gps');
+			obj_gps = $('#gps'),
+			str_imgUrl = ''
 			
 		if ( str_val >= 0 && str_val < 10 ) {
 			str_return = '弱';
@@ -607,8 +608,9 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			str_return = '强';
 			str_gpsImg = 'gps3.png';
 		}
+		str_imgUrl = dlf.fn_getImgUrl() + str_gpsImg;
 		if ( obj_gps ) {
-			obj_gps.css('background-image', 'url("'+ BASEIMGURL + str_gpsImg +'")').attr('title', 'GPS信号：' + str_val);
+			obj_gps.css('background-image', 'url("'+ str_imgUrl +'")').attr('title', 'GPS信号：' + str_val);
 		}
 	} else if ( str_key == 'power' ) {	// 电池电量
 		var arr_powers = [0,10,20,30,40,50,60,70,80,90,100],
@@ -642,6 +644,14 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		}
 	}
 	return str_return;
+}
+
+window.dlf.fn_getImgUrl = function() {
+	if ( dlf.fn_userType() ) {
+		return CORPIMGURL;
+	} else {
+		return BASEIMGURL;
+	}
 }
 
 /**
@@ -1004,7 +1014,8 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						obj_currentCar = $('.j_currentCar'),
 						str_tid = obj_currentCar.attr('tid'),
 						obj_carList = $('.j_carList'),	
-						obj_carData = obj_carList.data('carsData');
+						obj_carData = obj_carList.data('carsData'),
+						str_imgUrl = '';
 					
 					if ( str_defendStatus == DEFEND_OFF ) { 
 						n_defendStatus = 1;
@@ -1018,11 +1029,13 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						str_dImg=  'defend_status0.png';
 					}
 					$('#defendContent').html(str_html).data('defend', n_defendStatus);
-					if ( obj_carData.length > 0 ) {
-						obj_carData[str_tid].mannual_status = n_defendStatus;	// 改变缓存中的设防撤防状态
+					for ( var param in obj_carData ) {
+						if ( param == str_tid ) {
+							obj_carData[str_tid].mannual_status = n_defendStatus;	// 改变缓存中的设防撤防状态
+						}
 					}
 					obj_carList.data('carData', obj_carData);
-					$('#defendStatus').css('background-image', 'url("'+ BASEIMGURL + str_dImg + '")').attr('title', str_html);
+					$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")').attr('title', str_html);
 					
 					dlf.fn_jNotifyMessage(str_successMsg, 'message', false, 3000);
 				} else if ( str_who == 'cTerminal' ) {	// 新增终端
@@ -1112,7 +1125,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				} else if ( str_who == 'terminal' ) {	// 终端参数设置修改
+				} else if ( str_who == 'terminal' ) {	// 终端参数设置修改					
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						var str_val = obj_data[param];
 						
@@ -1131,8 +1144,11 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 								}
 							} else {
 								$('#white_list_2').attr('t_val', '');
-							}					
+							}
 						} else {
+							if ( param == 'corp_cnum' ) {
+								$('.j_currentCar').html('<ins class="jstree-icon">&nbsp;</ins>' + obj_data[param]);
+							}
 							$('#' + param ).attr('t_val', str_val);
 						}
 					}

@@ -49,4 +49,5 @@ var NUMLNGLAT = 3600000; /*int->lnglat num值*/
 var WEEKMILISECONDS = 24*60*60*6; // 一个星期的毫秒数
 var WAITIMG = '...<img src="/static/images/blue-wait.gif" />';	// 正在查询中 图标
 var BASEIMGURL = '/static/images/';	// 图片的默认路径
+var CORPIMGURL = BASEIMGURL + 'corpImages/';	// 集团默认图片路径
 var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// 手机号正则表达
