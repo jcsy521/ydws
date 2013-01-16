@@ -8,6 +8,9 @@ PRIORITY = DotDict(SMS=40, )
 SPEED_DIFF = 3 # if speed < 3km/h, be considered as still point.
 
 DUMMY_CID = u'dummy_cid'
+DUMMY_UID = u'dummy_uid'
+DUMMY_TID = u'dummy_tid'
+DUMMY_MOBILE = u'dummy_mobile'
 
 REALTIME_VALID_INTERVAL = 60 * 60 * 12 # 12 hours. in seconds.
 LOCATION_VALID_INTERVAL = 5 * 60 # 5 mins
@@ -20,6 +23,9 @@ IOS_MAX_SIZE = 180 # in bytes.
 
 USER_TYPE=DotDict(PERSON='individual',
                   CORP='enterprise')
+
+GROUP_TYPE=DotDict(BUILTIN=0,
+                   NEW=1)
 
 LOGIN_WAY=DotDict(WEB=u"WEB",
                   WAP=u"WAP",

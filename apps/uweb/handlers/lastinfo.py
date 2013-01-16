@@ -172,7 +172,6 @@ class LastInfoCorpHandler(BaseHandler):
                         terminal['fob_list'] = [fob.fobid for fob in fobs]
 
                         self.redis.setvalue(terminal_info_key, DotDict(terminal))
-
                     if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                         terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
 
@@ -180,6 +179,7 @@ class LastInfoCorpHandler(BaseHandler):
                         res['online'] +=1
                     else:
                         res['offline'] +=1
+
                     # 2: get location 
                     location_key = get_location_key(str(tid))
                     location = self.redis.getvalue(location_key)
@@ -237,7 +237,7 @@ class LastInfoCorpHandler(BaseHandler):
             self.write_ret(status, 
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[UWEB] uid: %s get corp lastinfo failed. Exception: %s", 
-                              self.current_user.uid,  e.args) 
+            logging.exception("[UWEB] cid: %s get corp lastinfo failed. Exception: %s", 
+                              self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

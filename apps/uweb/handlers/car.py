@@ -26,7 +26,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
         status = ErrorCode.SUCCESS
         logging.info("[UWEB] switch car request: %s", tid)
         try:
-            terminal = self.db.get("SELECT ti.tid, ti.mobile as sim,"
+            terminal = self.db.get("SELECT ti.tid, ti.mobile as sim, owner_mobile,"
                                   "  ti.login, ti.defend_status "
                                   "  FROM T_TERMINAL_INFO as ti "
                                   "  WHERE ti.tid = %s"
@@ -35,7 +35,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
             if terminal: 
                 self.send_lq_sms(terminal.sim, tid, SMS.LQ.WEB)
                 self.bookkeep(dict(cid=self.current_user.cid,
-                                   uid=self.current_user.uid,
+                                   uid=terminal.owner_mobile,
                                    tid=tid,
                                    sim=terminal.sim))
                 def _on_finish(response):

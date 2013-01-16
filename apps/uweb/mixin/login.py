@@ -69,6 +69,15 @@ class LoginMixin(BaseMixin):
                                           UWEB.SERVICE_STATUS.ON, username, int(time.time()))
                 #NOTE: provide a dummy_cid for user
                 cid = UWEB.DUMMY_CID 
+
+                if not terminals: 
+                    status = ErrorCode.TERMINAL_NOT_ORDERED
+                    return None, None, None, None, status 
+                else:
+                    # provide a valid terminal
+                    terminal = terminals[0]  
+                    user = QueryHelper.get_user_by_tid(terminal.tid, self.db)
+                    uid = user.owner_mobile
             else:
                 cid = user.cid 
                 groups = self.db.query("SELECT id, corp_id FROM T_GROUP WHERE corp_id = %s",
@@ -80,14 +89,13 @@ class LoginMixin(BaseMixin):
                            "    AND group_id IN %s"
                            "    AND (%s BETWEEN begintime AND endtime) ") % (UWEB.SERVICE_STATUS.ON, str(tuple(group_ids+DUMMY_IDS_STR)), int(time.time()))
                 terminals = self.db.query(sql_cmd)
-            if not terminals: 
-                status = ErrorCode.TERMINAL_NOT_ORDERED
-                return None, None, None, None, status 
-            else:
-                # provide a valid terminal
-                terminal = terminals[0]  
-                user = QueryHelper.get_user_by_tid(terminal.tid, self.db)
-                uid = user.owner_mobile
+                if not terminals: 
+                    return str(cid), UWEB.DUMMY_UID, UWEB.DUMMY_TID, UWEB.DUMMY_MOBILE, status 
+                else:
+                    # provide a valid terminal
+                    terminal = terminals[0]  
+                    user = QueryHelper.get_user_by_tid(terminal.tid, self.db)
+                    uid = user.owner_mobile
                  
         return str(cid), str(uid), str(terminal.tid), str(terminal.mobile), status
 

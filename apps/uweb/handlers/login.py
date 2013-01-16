@@ -82,20 +82,23 @@ class LoginHandler(BaseHandler, LoginMixin):
                                uid=uid,
                                tid=tid,
                                sim=sim))
-           
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
-            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
-                                      "  ti.login, ti.keys_num"
-                                      "  FROM T_TERMINAL_INFO as ti"
-                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
-                                      user_info.mobile)
-            #NOTE: if alias is null, provide cnum or sim instead
-            for terminal in terminals:
-                terminal['keys_num'] = 0
-                if not terminal.alias:
-                    terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
-            
-            self.login_sms_remind(uid, user_info.mobile, terminals, login="WEB")
+            #NOTE: if corp has no user and terminal, allow it log in without sms.  
+            if user_info: 
+                terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
+                                          "  ti.login, ti.keys_num"
+                                          "  FROM T_TERMINAL_INFO as ti"
+                                          "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
+                                          user_info.mobile)
+                #NOTE: if alias is null, provide cnum or sim instead
+                for terminal in terminals:
+                    terminal['keys_num'] = 0
+                    if not terminal.alias:
+                        terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
+                
+                self.login_sms_remind(uid, user_info.mobile, terminals, login="WEB")
+            else: 
+                pass
             self.clear_cookie('captchahash')
             self.redirect(self.get_argument("next","/"))
         else:

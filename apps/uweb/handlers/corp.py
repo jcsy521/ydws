@@ -23,8 +23,11 @@ class CorpHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
-        except:
-            self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
+            logging.info("[UWEB] modify corp request: %s, cid: %s", 
+                         data, self.current_user.cid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
             return
 
         try:
@@ -37,8 +40,8 @@ class CorpHandler(BaseHandler):
                             name, cid)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s update corp failed. Exception: %s", 
-                              self.current_user.uid, e.args) 
+            logging.exception("[UWEB] cid: %s modify corp failed. Exception: %s", 
+                              self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 

@@ -23,17 +23,20 @@ class GroupHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
-        except:
-            self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
+            logging.info("[UWEB] add group request: %s, cid: %s", 
+                         data, self.current_user.cid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
             return
 
         try:
             status = ErrorCode.SUCCESS
             cid = data.cid
             name = data.name
-            gid = self.db.execute("INSERT T_GROUP(id, corp_id, name)"
-                                  "  VALUES(NULL, %s, %s)",
-                                  cid, name)
+            gid = self.db.execute("INSERT T_GROUP(id, corp_id, name, type)"
+                                  "  VALUES(NULL, %s, %s, %s)",
+                                  cid, name, UWEB.GROUP_TYPE.NEW)
             self.write_ret(status,
                            dict_=dict(gid=gid,
                                       cid=cid,
@@ -51,8 +54,12 @@ class GroupHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
-        except:
-            self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
+            logging.info("[UWEB] modify group request: %s, cid: %s", 
+                         data, self.current_user.cid)
+
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
             return
 
         try:
@@ -60,13 +67,13 @@ class GroupHandler(BaseHandler):
             gid = data.gid
             name = data.name
             self.db.execute("UPDATE T_GROUP"
-                            "  set name = %s"
-                            "  where id = %s",
+                            "  SET name = %s"
+                            "  WHERE id = %s",
                             name, gid)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s modify group failed. Exception: %s", 
-                              self.current_user.uid, e.args) 
+            logging.exception("[UWEB] cid: %s modify group failed. Exception: %s", 
+                              self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -80,12 +87,12 @@ class GroupHandler(BaseHandler):
             delete_ids = map(int, str_to_list(self.get_argument('ids', None)))
             logging.info("[UWEB] group delete request: %s, uid: %s, tid: %s", 
                          delete_ids, self.current_user.uid, self.current_user.tid)
-            self.db.execute("DELETE from T_GROUP WHERE id IN %s",
+            self.db.execute("DELETE FROM T_GROUP WHERE id IN %s",
                             tuple(delete_ids+DUMMY_IDS)) 
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s delete group failed. Exception: %s", 
-                              self.current_user.uid, e.args) 
+            logging.exception("[UWEB] cid: %s delete group failed. Exception: %s", 
+                              self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -98,10 +105,11 @@ class GroupTransferHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] change group request: %s, uid: %s, tid: %s", 
-                         data, self.current_user.uid, self.current_user.tid)
-        except:
-            self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
+            logging.info("[UWEB] change group request: %s, cid: %s", 
+                         data, self.current_user.cid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
             return
 
         try:
@@ -115,7 +123,7 @@ class GroupTransferHandler(BaseHandler):
 
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s, cid: %s get lastinfo failed. Exception: %s", 
-                              self.current_user.uid, self.current_user.cid, e.args) 
+            logging.exception("[UWEB] cid: %s change group failed. Exception: %s", 
+                              self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
