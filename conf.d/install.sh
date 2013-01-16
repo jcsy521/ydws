@@ -80,6 +80,9 @@ sudo cp -r openfire /opt/
 cd /opt/openfire/bin
 sudo ./openfire start
 
-keepalived
+# keepalived
 sudo aptitude install -y keepalived
+
+# pyDes for sms
+sudo easy_install pyDes
 
