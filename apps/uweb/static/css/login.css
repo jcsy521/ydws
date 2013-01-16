@@ -299,8 +299,10 @@ table, tr, td {
 .blinks a{
 	outline: none;
 	display: inline-block;
-	padding-right: 10px;
 	color: #17557c;
+}
+.login_linkLine {
+	margin: 0 5px;
 }
 .bottom p { 
 	color: #394f5c;

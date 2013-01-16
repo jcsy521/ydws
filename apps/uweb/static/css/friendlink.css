@@ -1,0 +1,51 @@
+body {
+	font-family: "微软雅黑","宋体";
+	font-size: 14px;
+	margin: 0 auto;
+	color: #676767;
+	background-color: #fff;
+	width: 886px;
+}
+* {
+	outline: medium none;
+}
+.fl_title {
+	background: url("/static/images/friendlink/fl_title.png") no-repeat;
+    height: 76px;
+    width: 885px;
+	margin-top: 25px;
+}
+.fl_content {
+	margin-top: 25px;
+	width: 885px;
+	height: 520px;
+}
+.fl_content_title {
+	background: url("/static/images/friendlink/fl_nav_bg.png") no-repeat scroll 0 0 transparent;
+    height: 32px;
+    padding: 13px 0 0 28px;
+    width: 858px;
+	font-weight: bold;
+}
+.fl_content_main {
+	border: 1px solid #d7d7d7;
+	background-color: #f8f8f8;
+	height: 475px;
+	width: 884px;
+}
+.fl_flList li {
+	list-style: none;
+	width: 130px;
+	float: left;
+}
+.fl_listIcon {
+	display: inline-block;
+    height: 33px;
+    width: 117px;
+}
+.fl_gdzsyd {
+	background: url("/static/images/friendlink/fl_zsyd.png") no-repeat scroll 0 0 transparent;
+}
+.fl_25pp {
+	background: url("/static/images/friendlink/fl_25pp.png") no-repeat scroll 0 0 transparent;
+}
