@@ -125,8 +125,8 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
                                  fields.address, fields.email,
                                  int(time.time()))
         group = self.db.execute("INSERT INTO T_GROUP(corp_id, name)"
-                                "  VALUES(%s, %s)",
-                                fields.ecmobile, u'未分组')
+                                "  VALUES(%s, default)",
+                                fields.ecmobile)
 
         self.redirect("/ecbusiness/list/%s" % fields.ecmobile)
         
