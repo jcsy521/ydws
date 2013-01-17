@@ -3,6 +3,7 @@
 import tornado.web
 
 from helpers.uwebhelper import UWebHelper
+from constants import UWEB
 
 from base import BaseHandler
 
@@ -18,6 +19,7 @@ class DelegationHandler(BaseHandler):
 
         self.bookkeep(dict(uid=uid, 
                            tid=tid, 
-                           sim=sim))
+                           sim=sim,
+                           cid=UWEB.DUMMY_CID))
         self.set_header("P3P", "CP=CAO PSA OUR")
         self.redirect("/?from=delegation")
