@@ -21,7 +21,7 @@ body {
 }
 .mainBody {
 	float: left;
-	min-height: 724px;
+	min-height: 624px;
 }
 /*navigation css start*/
 #top {
@@ -74,13 +74,13 @@ body {
 /*main content start*/
 #main {
 	min-width: 1407px;
-	min-height: 600px;
+	min-height: 500px;
 	background: #e7eeef;
 	float: left;
 }
 #left, #right {
 	float: left;
-	min-height: 600px;
+	min-height: 500px;
 	background-color: #e7eeef;
 }
 #left {
@@ -333,7 +333,7 @@ body {
 }
 #mapObj {
 	min-width: 1158px;
-	min-height: 563px;
+	min-height: 463px;
 }
 .menu a {
 	display: inline-block;
@@ -1772,7 +1772,7 @@ body {
 }
 .corpTree {
 	width: 247px;
-	min-height: 350px;
+	min-height: 250px;
 }
 .j_corp>a {
 	color: green;
@@ -1825,7 +1825,7 @@ body {
 	background-color: #fff;
 }
 .corpLeftTree {
-	min-height: 394px;
+	min-height: 294px;
 }
 .loadTree {
 	margin: 10px 0px;
