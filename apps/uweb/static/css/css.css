@@ -1773,6 +1773,8 @@ body {
 .corpTree {
 	width: 247px;
 	min-height: 250px;
+	overflow-y: scroll;
+	overflow-x: hidden;
 }
 .j_corp>a {
 	color: green;
