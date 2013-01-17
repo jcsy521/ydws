@@ -89,7 +89,12 @@ sudo cp -r openfire /opt/
 cd /opt/openfire/bin
 sudo ./openfire start
 
-keepalived
+# jetty_acb
+cd ~ 
+wget http://ichebao.net/jetty_acb/jetty_acb.tar.gz
+tar -zxvf jetty_acb.tar.gz
+
+# keepalived
 sudo aptitude install -y keepalived
 
 sudo easy_install pyDes
