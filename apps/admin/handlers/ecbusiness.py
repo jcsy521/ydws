@@ -124,8 +124,8 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
                                  fields.password, fields.linkman,
                                  fields.address, fields.email,
                                  int(time.time()))
-        group = self.db.execute("INSERT INTO T_GROUP(corp_id, name)"
-                                "  VALUES(%s, default)",
+        group = self.db.execute("INSERT INTO T_GROUP(corp_id, name, type)"
+                                "  VALUES(%s, default, default)",
                                 fields.ecmobile)
 
         self.redirect("/ecbusiness/list/%s" % fields.ecmobile)
@@ -320,10 +320,17 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
             # 2: add terminal
             corp = self.db.get("SELECT cid FROM T_CORP WHERE id = %s", fields.ecid)
             group = self.db.get("SELECT id FROM T_GROUP WHERE corp_id = %s AND type = 0 LIMIT 1", corp.cid) 
+            if not group:
+                gid= self.db.execute("INSERT INTO T_GROUP(corp_id, name, type)"
+                                     "  VALUES(%s, default, default)",
+                                     corp.cid)
+            else:
+                gid = group.id
+
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  begintime, endtime)"
                             "  VALUES (%s, %s, %s, %s, %s, %s)",
-                            fields.tmobile, group.id,
+                            fields.tmobile, gid,
                             fields.tmobile, fields.umobile, 
                             fields.begintime, fields.endtime)
     
