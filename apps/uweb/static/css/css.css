@@ -84,11 +84,11 @@ body {
 	background-color: #e7eeef;
 }
 #left {
-	width: 247px;
+	width: 243px;
 	border-right: 1px solid #c5c5c4;
 }
 #right {
-	min-width: 1158px;
+	min-width: 1161px;
 }
 #left .title {
 	font-size: 14px;
@@ -326,13 +326,13 @@ body {
 #navi {
 	background: url('/static/images/menuBg.png') repeat-x;
 	height: 38px;
-	min-width: 1158px;
+	min-width: 1161px;
 }
 .menu, .menu li {
 	float: left;
 }
 #mapObj {
-	min-width: 1158px;
+	min-width: 1161px;
 	min-height: 563px;
 }
 .menu a {
@@ -1731,11 +1731,11 @@ body {
 }
 /*corp css*/
 .corpCarSearch {
-	background: url("/static/images/corpImages/searchBox.png") no-repeat scroll 2px 0 transparent;
-    border-bottom: 1px solid #C0CBD2;
-    height: 38px;
+	background: url("/static/images/corpImages/searchBox.png") no-repeat scroll 0 0 transparent;
+    height: 36px;
     margin-bottom: 5px;
-    width: 246px;
+    margin-top: 3px;
+    width: 244px;
 }
 .searchText {
     background: none repeat scroll 0 0 #FFFFFF;
@@ -1771,7 +1771,7 @@ body {
 	background: url('/static/images/corpImages/activeSearch.png') no-repeat;
 }
 .corpTree {
-	width: 247px;
+	width: 243px;
 	min-height: 350px;
 }
 .j_corp>a {
