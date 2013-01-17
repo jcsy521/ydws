@@ -1112,7 +1112,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 						}
 						$('#spanWelcome').html('欢迎您，'+ str_newName).attr('title', str_linkman);
 					}
-					$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_cName);
+					$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_cName).children('ins').css('background', 'url("/static/images/corpImages/corp.png")');;
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						if ( param == 'cnum' ) {
 							dlf.fn_updateAlias();

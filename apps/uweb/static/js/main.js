@@ -180,7 +180,7 @@ window.dlf.fn_initCorpData = function() {
 			}
 			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_linkMan);	// 更新主页用户名
 			// todo 集团名称修改的话左侧树根节点也修改
-			$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_name);
+			$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_name).children('ins').css('background', 'url("/static/images/corpImages/corp.png")');
 			$('#c_name').val(str_name).data('c_name', str_name);
 			$('#c_address').val(str_address).data('c_address', str_address);
 			$('#c_email').val(str_email).data('c_email', str_email);

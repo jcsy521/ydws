@@ -14,7 +14,7 @@
 
 .jstree-classic .jstree-hovered { background:#e7f4f9; border:1px solid #e7f4f9; padding:0 2px 0 1px; }
 .jstree-classic .jstree-clicked { background:#beebff; border:1px solid #99defd; padding:0 2px 0 1px; } /*todo*/
-.jstree-classic a .jstree-icon { background-position: -56px -19px; *background-position: -56px -22px;  } /*todo*/
+.jstree-classic a .jstree-icon { background-position: -56px -19px; *padding-bottom: 4px; } /*todo*/
 .jstree-classic .jstree-open > a .jstree-icon { background-position: -56px -36px; } /*todo*/
 .jstree-classic a.jstree-loading .jstree-icon { background:url("throbber.gif") center center no-repeat !important; }
 
