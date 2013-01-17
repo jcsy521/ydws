@@ -105,7 +105,7 @@ function fn_fillUserData(n_tempNav) {
 			
 			$('#tdCnum').html(str_cId);
 			$('#tdType').html(fn_carTypeName(str_cType));
-			$('#tdCcolor').html(str_cColor);
+			$('#tdCcolor').html(fn_carColorName(str_cColor));
 			$('#tdBrand').html(str_cBrand);
 			break;
 		case 2: 
@@ -154,4 +154,9 @@ function fn_fillUserData(n_tempNav) {
 function fn_carTypeName(str_cType) {
 	var arr_carType = ['','小汽车', '小货车', '大巴车', '摩托车', '其他'];
 	return arr_carType[parseInt(str_cType)];
+}
+// 通过车辆颜色编号获取车辆颜色 
+function fn_carColorName(str_cColor) {
+	var arr_carColor = ['','黑色', '白色', '银色', '红色', '黄色', '灰色', '其他'];
+	return arr_carColor[parseInt(str_cColor)];
 }

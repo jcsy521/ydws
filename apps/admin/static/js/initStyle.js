@@ -98,10 +98,12 @@ $(function () {
 			return false;
 		}
 	});
-	// 业务用户编辑设置车型
-	var obj_carType = $('#ctype');
+	// 业务用户编辑设置车型,及颜色
+	var obj_carType = $('#ctype'), 
+		obj_carColor = $('#carcolor');
 	
 	obj_carType.val(obj_carType.attr('cartype'));
+	obj_carColor.val(obj_carColor.attr('carcolor'));
 	// 统计图的关闭按钮事件绑定
 	$('.j_close').click(function() {
 		fn_closeWrapper();
@@ -149,7 +151,35 @@ function fn_setCarType(n_carType) {
 			break;
 	}
 }
-
+// 通过车辆颜色编号获取车辆颜色
+function fn_setCarColor(n_carColor) {
+	switch (n_carColor) {
+		case 1: 
+			return '黑色';
+			break;
+		case 2: 
+			return '白色';
+			break;
+		case 3: 
+			return '银色';
+			break;
+		case 4: 
+			return '红色';
+			break;
+		case 5: 
+			return '黄色';
+			break;
+		case 6: 
+			return '灰色';
+			break;
+		case 7: 
+			return '其他';
+			break;
+		default: 
+			return '';
+			break;
+	}
+}
 /**
 * 根据类型生成年或月的下拉列表选项
 * str_type: year or month
