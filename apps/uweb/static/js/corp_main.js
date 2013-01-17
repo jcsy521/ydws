@@ -386,7 +386,11 @@ window.dlf.fn_corpGetCarData = function() {
 								/** 
 								* 自动完成数据填充:根据旅客姓名和手机号进行搜索
 								*/
-								arr_autoCompleteData.push({label: str_alias + ' ' + str_mobile, value: str_tid});
+								var str_tempLabel = str_mobile;
+								if ( str_alias != str_mobile ) {
+									str_tempLabel = str_alias + ' ' + str_mobile;
+								}
+								arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
 								/*if ( str_alias != str_mobile ) {
 									arr_autoCompleteData.push({label: str_mobile, value: str_tid});
 								}*/
