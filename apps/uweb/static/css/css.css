@@ -80,14 +80,19 @@ body {
 }
 #left, #right {
 	float: left;
+	min-height: 601px;
+	background-color: #e7eeef;
+}
+#corpLeft, #corpRight {
+	float: left;
 	min-height: 500px;
 	background-color: #e7eeef;
 }
-#left {
+#left, #corpLeft {
 	width: 247px;
 	border-right: 1px solid #c5c5c4;
 }
-#right {
+#right, #corpRight {
 	min-width: 1158px;
 }
 #left .title {
@@ -316,6 +321,7 @@ body {
 	border-bottom: 1px solid #afafaf;
 	float: left;
 	padding-left: 20px;
+	margin-bottom: 10px;
 }
 .updateTime .tInfoWord {
 	display: inline-block;
@@ -331,9 +337,13 @@ body {
 .menu, .menu li {
 	float: left;
 }
-#mapObj {
+.corpMapObj {
 	min-width: 1158px;
 	min-height: 463px;
+}
+.mapObj {
+	min-width: 1028px;
+	min-height: 566px;
 }
 .menu a {
 	display: inline-block;
@@ -1772,7 +1782,7 @@ body {
 }
 .corpTree {
 	width: 247px;
-	min-height: 250px;
+	min-height: 240px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 }
@@ -1827,7 +1837,7 @@ body {
 	background-color: #fff;
 }
 .corpLeftTree {
-	min-height: 294px;
+	min-height: 284px;
 }
 .loadTree {
 	margin: 10px 0px;

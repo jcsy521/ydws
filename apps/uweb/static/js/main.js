@@ -244,7 +244,7 @@ window.onresize = function () {
 			n_trackLeft = ( n_windowWidth - 1000 )/2,
 			n_mainContent = n_windowHeight - 104,
 			n_mainHeight = n_windowHeight - 123,
-			n_corpTreeContainerHeight = n_mainHeight-210,
+			n_corpTreeContainerHeight = n_mainHeight-220,
 			n_treeHeight = n_corpTreeContainerHeight - 45,
 			obj_tree = $('#corpTree');
 		
@@ -252,15 +252,17 @@ window.onresize = function () {
 		$('#top, #main').css('width', n_windowWidth);
 		$('#main, #left, #right').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-		if ( n_treeHeight < 249 ) {
+		if ( n_treeHeight < 239 ) {
 			obj_tree.css('overflow-y', 'scroll')
 		} else {
 			obj_tree.css('overflow', 'hidden')
 		}
 		obj_tree.height(n_treeHeight);
 		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 249);	// 右侧宽度
+		$('.j_map').css('width', n_windowWidth - 249);	// 右侧宽度
+		$('.j_corpMap').css('width', n_windowWidth - 249);	// 右侧宽度
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-		$('#mapObj').css('height', n_mapHeight);
+		$('.corpMapObj, .mapObj').css('height', n_mapHeight);
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
 		
 		var f_layer = $('.j_body').data('layer');
@@ -296,7 +298,7 @@ $(function () {
 		n_trackLeft = ( n_windowWidth - 1000 )/2,
 		obj_track = $('#trackHeader'),
 		n_mainHeight = n_windowHeight - 123,
-		n_corpTreeContainerHeight = n_mainHeight-210,
+		n_corpTreeContainerHeight = n_mainHeight-220,
 		n_treeHeight = n_corpTreeContainerHeight - 45,
 		obj_tree = $('#corpTree');
 		
@@ -307,7 +309,7 @@ $(function () {
 	$('#top, #main').css('width', n_windowWidth);
 	$('#main, #left, #right').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-	if ( n_treeHeight < 249 ) {
+	if ( n_treeHeight < 239 ) {
 		obj_tree.css('overflow-y', 'scroll')
 	} else {
 		obj_tree.css('overflow', 'hidden')
@@ -569,6 +571,7 @@ $(function () {
 			dlf.fn_bindCarListItem();
 		}
 	} else {
+		$('.j_corpLeft').css('background-color', '#fff')
 		// 点击查询按钮触发自动搜索功能	
 		$('#autoSearch').unbind('click').click(function() {
 			$('#txtautoComplete').autocomplete('search');
