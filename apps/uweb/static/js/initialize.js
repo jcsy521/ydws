@@ -251,7 +251,7 @@ window.dlf.fn_bindCarListItem = function() {
 
 /**
 * 车辆列表的切换方法
-* n_tid: 终端序列号
+* n_tid: 定位器序列号
 * obj_currentItem: 当前车辆对象
 */
 window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
@@ -285,6 +285,8 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 					dlf.fn_getCarData();
 				}
 			} else {
+				obj_terminals.removeClass('jstree-clicked');
+				obj_currentItem.addClass('jstree-clicked');
 				str_currentTid = n_tid;
 				if ( obj_carDatas ) {
 					dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
@@ -332,7 +334,7 @@ window.dlf.fn_moveMarker = function(n_tid) {
 }
 
 /**
-*动态更新终端相关数据
+*动态更新定位器相关数据
 */
 window.dlf.fn_updateLastInfo = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除定时器
@@ -426,7 +428,7 @@ window.dlf.fn_getCarData = function() {
 }
 
 /**
-* 对终端的最新数据进行页面填充
+* 对定位器的最新数据进行页面填充
 * obj_carInfo: 车辆的信息
 * type: 是否是实时定位
 */
@@ -462,7 +464,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_clat += 'N ' + Math.round(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
 	}
 	
-	if ( !type ) {	// lastinfo: 更新车辆信息和终端信息  realtime: 只更新位置信息
+	if ( !type ) {	// lastinfo: 更新车辆信息和定位器信息  realtime: 只更新位置信息
 		var n_power = parseInt(obj_carInfo.pbat),
 			str_power =  n_power + '%',	// 电池电量 0-100
 			str_pImg = dlf.fn_changeData('power', n_power), // 电量图标
@@ -476,16 +478,17 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#gpsContent').html(str_gps);	// gps
 		$('#defendContent').html(str_dStatus).data('defend', n_defendStatus);	// defend status
 		$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")').attr('title', str_dStatusTitle);
-		$('#tmobile').attr('title', '终端号码：' + str_tmobile );	// 终端手机号
+		$('#tmobile').attr('title', '定位器号码：' + str_tmobile );	// 定位器手机号
 		$('#tmobileContent').html(str_tmobile);
 	}
+	$('.j_updateTime').attr('title', str_time)
 	$('#locationTime').html(str_time); // 最后一次定位时间
 	$('#address').html(str_address); // 最后一次定们地址
 	$('#degree').html(str_degree).attr('title', str_degreeTip);
 	$('#type').html(str_type); // 车辆定位类型
 	$('#lng').html(str_clon); // 车辆经度
 	$('#lat').html(str_clat);	// 车辆纬度
-	$('#speed').html(str_speed); // 终端最后一次定位速度
+	$('#speed').html(str_speed); // 定位器最后一次定位速度
 }
 
 /**
@@ -495,7 +498,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 */
 window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	var obj_tempData = [], 
-		str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid'),	// 当前车终端编号
+		str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid'),	// 当前车定位器编号
 		str_tid = str_type == 'current' ? str_currentTid : obj_carInfo.tid,
 		str_alias = obj_carInfo.alias,
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
@@ -656,7 +659,7 @@ window.dlf.fn_getImgUrl = function() {
 
 /**
 * 查找相应tid下的数据
-* str_tid: 终端序列号
+* str_tid: 定位器序列号
 */
 window.dlf.fn_checkCarVal = function(str_tid) {
 	var len = arr_infoPoint.length;
@@ -924,10 +927,10 @@ window.dlf.fn_onInputBlur = function(str_wrapper) {
 					var str_msg = '';
 					
 					if ( n_valLength > 14 || n_valLength < 11 ) {
-						str_msg = '终端手机号输入不合法，请重新输入！'
+						str_msg = '定位器手机号输入不合法，请重新输入！'
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
-							str_msg = '终端手机号输入不合法，请重新输入';
+							str_msg = '定位器手机号输入不合法，请重新输入';
 						}
 					}
 					if ( str_msg != '' ) {
@@ -942,9 +945,7 @@ window.dlf.fn_onInputBlur = function(str_wrapper) {
 				case 'uMobile': 
 					var str_msg = '';
 					
-					if ( n_valLength == 0 ) {
-						str_msg = '';
-					} else if ( n_valLength > 14 || n_valLength < 11 ) {
+					if ( n_valLength > 14 || n_valLength < 11 ) {
 						str_msg = '车主手机号输入不合法，请重新输入！'
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
@@ -1038,12 +1039,14 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")').attr('title', str_html);
 					
 					dlf.fn_jNotifyMessage(str_successMsg, 'message', false, 3000);
-				} else if ( str_who == 'cTerminal' ) {	// 新增终端
+				} else if ( str_who == 'cTerminal' ) {	// 新增定位器
 					// todo 添加节点到对应group上    或者重新加载lastinfo
 					$('#corpTree').jstree("create", $('#group_'+ obj_data.group_id), 'first', obj_data.tmobile); 
-					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 					dlf.fn_corpGetCarData();
+					str_currentTid = obj_data.tmobile;
+					b_createTerminal = true;	// 标记 是新增定位器操作 以便switchcar到新增车辆
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}
@@ -1118,14 +1121,15 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else if ( str_who == 'cTerminalEdit' ) {
-					var str_cnum = obj_data.cnum;
+					var str_cnum = obj_data.corp_cnum;
 					
 					if ( str_cnum ) {
-						$('#leaf_' + obj_data.tid).html('<ins class="jstree-icon">&nbsp;</ins>' + str_cnum);
+						console.log($('#leaf_' + obj_data.tid).children('ins').css('background-image'));
+						$('#leaf_' + obj_data.tid).html('<ins class="jstree-icon" style="background: '+ $('#leaf_' + obj_data.tid).children('ins').css('background-image') +'">&nbsp;</ins>' + str_cnum);
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				} else if ( str_who == 'terminal' ) {	// 终端参数设置修改					
+				} else if ( str_who == 'terminal' ) {	// 定位器参数设置修改					
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						var str_val = obj_data[param];
 						
@@ -1147,7 +1151,10 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 							}
 						} else {
 							if ( param == 'corp_cnum' ) {
-								$('.j_currentCar').html('<ins class="jstree-icon">&nbsp;</ins>' + obj_data[param]);
+								var obj_current = $('.j_currentCar');
+								
+								obj_current.html('<ins class="jstree-icon">&nbsp;</ins>' + obj_data[param]);
+								dlf.fn_updateTerminalLogin(obj_current);
 							}
 							$('#' + param ).attr('t_val', str_val);
 						}
@@ -1182,8 +1189,8 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 }
 
 /**  
-* 更新终端别名 terminal get和put的时候  
-* 如果别名为空则显示车牌号，如果车牌号为空则显示终端手机号
+* 更新定位器别名 terminal get和put的时候  
+* 如果别名为空则显示车牌号，如果车牌号为空则显示定位器手机号
 */
 window.dlf.fn_updateAlias = function() {
 	var	cnum = $('#cnum').val(),	// 车牌号

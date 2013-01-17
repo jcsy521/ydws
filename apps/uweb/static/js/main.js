@@ -241,11 +241,13 @@ window.onresize = function () {
 			n_windowWidth = $(window).width(),
 			n_mapHeight = n_windowHeight - 161,
 			n_trackLeft = ( n_windowWidth - 1000 )/2,
-			n_mainContent = n_windowHeight - 104;
-			
+			n_mainContent = n_windowHeight - 104,
+			n_mainHeight = n_windowHeight - 123;
+		
+		$('.mainBody').height(n_windowHeight);
 		$('#top, #main').css('width', n_windowWidth);
-		$('#main').css('height', n_windowHeight - 123 );
-		$('#left, #right').css('height', n_windowHeight - 123 );	// 左右栏高度
+		$('#main, #left, #right').css('height', n_mainHeight );	// 左右栏高度
+		$('.j_corpCarInfo').css('height', n_mainHeight-207);	// 集团用户左侧树的高度
 		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 249);	// 右侧宽度
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		$('#mapObj').css('height', n_mapHeight);
@@ -281,14 +283,16 @@ $(function () {
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = ( n_windowWidth - 1000 )/2,
-		obj_track = $('#trackHeader');
+		obj_track = $('#trackHeader'),
+		n_mainHeight = n_windowHeight - 123;
 		
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 		n_right = n_windowWidth - 249;
 	}
+	$('.mainBody').height(n_windowHeight);
 	$('#top, #main').css('width', n_windowWidth);
-	$('#main').css('height', n_windowHeight - 123); // 内容域的高度
-	$('#left, #right').css('height', n_windowHeight - 123 );	// 左右栏高度
+	$('#main, #left, #right').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
+	$('.j_corpCarInfo').css('height', n_mainHeight-207);	// 集团用户左侧树的高度
 	$('#right, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight);
@@ -308,6 +312,20 @@ $(function () {
 				return;
 			}
 			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
+		}
+		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' ) {
+			if ( $('.j_terminal').length <= 0 ) {
+				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
+				return;
+			} else {
+				var obj_currentNode = $('.jstree-clicked'),
+					b_class = obj_currentNode.hasClass('groupNode');
+				
+				if ( b_class && ( str_currentTid == undefined || str_currentTid == '' ) ) {
+					dlf.fn_jNotifyMessage('当前组下没有可用终端，请选择其他组下的终端。', 'message', false, 5000); // 查询状态不正确,错误提示
+					return;
+				}
+			}
 		}
 		switch (str_id) {
 			case 'personalData': //  个人资料 
@@ -358,7 +376,7 @@ $(function () {
 				dlf.fn_lockContent($($(this).children().eq(1)));
 			}
 			
-			if ( str_currentId == 'terminalWrapper' && f_warpperStatus ) {	// 终端设置dialog拖动时，白名单未填提示框跟着拖动
+			if ( str_currentId == 'terminalWrapper' && f_warpperStatus ) {	// 定位器设置dialog拖动时，白名单未填提示框跟着拖动
 				obj_whitePop.css({left: n_left, top: n_top});
 			}
 		},
@@ -369,7 +387,7 @@ $(function () {
 	}});
 	
 	/**
-	* 终端设置、个人资料、修改 input的焦点事件
+	* 定位器设置、个人资料、修改 input的焦点事件
 	*/
 	$('#bListR input[type=text], .personalList input, .pwdList input, #remark').focus(function() {
 		$(this).addClass('bListR_text_mouseFocus');
@@ -427,7 +445,7 @@ $(function () {
 	$('#newPwd2').formValidator({validatorGroup: '2'}).compareValidator({desID: 'newPwd', operateor: '=', datatype: 'number', onError: '两次密码不一致，请重新输入！'});
 	
 	/** 
-	* 终端参数的验证
+	* 定位器参数的验证
 	*/
 	$.formValidator.initConfig({
 		formID: 'terminalForm', //指定from的ID 编号
@@ -473,7 +491,7 @@ $(function () {
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
-	* 新建终端验证
+	* 新建定位器验证
 	*/
 	$.formValidator.initConfig({
 		formID: 'cTerminalForm', //指定from的ID 编号
@@ -487,21 +505,21 @@ $(function () {
 		}, 
 		onSuccess: function() {
 			if ( $('#hidTMobile').val()!= '' ) {
-				dlf.fn_jNotifyMessage('终端手机号已存在。', 'message', false, 5000);
+				dlf.fn_jNotifyMessage('定位器手机号已存在。', 'message', false, 5000);
 				return;
 			} else {
 				dlf.fn_cTerminalSave();
 			}
 		}
 	});
-	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "终端手机号输入不合法，请重新输入！"});  // 别名;
+	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_umobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "车主手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
 	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
 	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
 	
 	/**
-	* 编辑终端验证
+	* 编辑定位器验证
 	*/
 	$.formValidator.initConfig({
 		formID: 'cTerminalEditForm', //指定from的ID 编号
@@ -541,14 +559,14 @@ $(function () {
 				str_val = obj_this.val();
 				
 			if ( str_val == '' ) {
-				obj_this.val('请输入车牌号');
+				obj_this.val('请输入车牌号或定位器号码').addClass('gray');
 			}
 		}).unbind('focus').bind('focus', function() {	// 获得焦点 隐藏tip
 			var obj_this = $('#txtautoComplete'),
 				str_val = obj_this.val();
 				
-			if ( str_val == '请输入车牌号' ) {
-				obj_this.val('');
+			if ( str_val == '请输入车牌号或定位器号码' ) {
+				obj_this.val('').removeClass('gray');
 			}
 		});
 		dlf.fn_corpGetCarData();

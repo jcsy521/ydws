@@ -38,6 +38,10 @@ $(function(){
 			obj_corpGetPwd = $('#corpGetPwd');
 		
 		obj_userType.val(str_userType);
+		$('#username').val('');
+		$('#password').val('');
+		$('#captcha').val('');
+		$('.txtColor').html('');
 		if ( !b_current ) {
 			obj_this.siblings().removeClass('current').addClass('other');
 			obj_this.removeClass('other').addClass('current');

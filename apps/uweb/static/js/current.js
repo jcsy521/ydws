@@ -51,7 +51,7 @@ function fn_openLastinfo(str_msg) {
 	var obj_msg = $('#currentMsg');
 	
 	obj_msg.html(str_msg);
-	dlf.fn_updateLastInfo();	// 动态更新终端相关数据
+	dlf.fn_updateLastInfo();	// 动态更新定位器相关数据
 }
 
 /** 
@@ -138,7 +138,7 @@ function fn_currentRequest(obj_pd) {
 					}
 				} else if ( n_callbackStatus == 201 ) {	// 业务变更
 					dlf.fn_showBusinessTip();
-				} else if ( n_callbackStatus == 301 || n_callbackStatus == 800 || n_callbackStatus == 801 )  {	// 301: gps信号弱 800: 终端不在线 801: 终端连接超时 发起基站定位
+				} else if ( n_callbackStatus == 301 || n_callbackStatus == 800 || n_callbackStatus == 801 )  {	// 301: gps信号弱 800: 定位器不在线 801: 定位器连接超时 发起基站定位
 					fn_startCell(str_flagVal, n_cellstatus);
 				} else { // 与后台连接失败  重新开启lastinfo
 					fn_openLastinfo(postData.message);
@@ -157,7 +157,7 @@ function fn_currentRequest(obj_pd) {
 */
 function fn_displayCurrentMarker(obj_location) {
 	dlf.fn_closeDialog();
-	dlf.fn_updateLastInfo();	// 动态更新终端相关数据
+	dlf.fn_updateLastInfo();	// 动态更新定位器相关数据
 	mapObj.setCenter(new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT));	// 标记显示及中心点移动
 	dlf.fn_updateInfoData(obj_location, 'current');	// 对当前车的位置信息进行更新
 	dlf.fn_updateTerminalInfo(obj_location, 'realtime');	// 对当前车的车辆信息进行更新
@@ -219,7 +219,7 @@ window.dlf.fn_defendQuery = function() {
 	
 	$('#defendBtn').unbind('click').click(function() {	//设防撤防 业务保存	
 		/**
-		* 判断设防撤防时挂件状态和终端在线状态
+		* 判断设防撤防时挂件状态和定位器在线状态
 		* 1、挂件不在附近时如果defend_status 是0 jNoityMessage提示“挂件不在附近，确定要撤防吗？”
 		*/
 		var n_defendStatus = obj_defend['mannual_status'],	// 设防撤防状态

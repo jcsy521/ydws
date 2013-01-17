@@ -73,9 +73,9 @@
 		<div class="pwdContent wrapperContent">
 			<form id="pwdForm" >
 				<table class="pwdList">
-					<tr><td><label>原密码：</label><input type="password" id="oldPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
-					<tr><td><label>新密码：</label><input type="password" id="newPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
-					<tr><td><label>确认密码：</label><input type="password" id="newPwd2" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
+					<tr><td><label><font class="txtColor">* </font>原密码：</label><input type="password" id="oldPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
+					<tr><td><label><font class="txtColor">* </font>新密码：</label><input type="password" id="newPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
+					<tr><td><label><font class="txtColor">* </font>确认密码：</label><input type="password" id="newPwd2" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
 				</table>
 				<input type="submit" value="" id="pwdSave" class="pwdButton j_save" />
 			</form>
@@ -95,9 +95,15 @@
 						<table id="bListR">
 							<tbody>
 								<tr>
-									<td class="terminalTdL">定位器手机号:</td>
-									<td id="mobile"  t_val="0">
-										<label id="t_mobile" terminalkey="mobile"></label>
+									<td class="terminalTdL">定位器号码:</td>
+									<td id="mobile"  t_val="">
+										<label id="t_mobile"></label>
+									</td>
+								</tr>
+								<tr class="j_corp_terminal">
+									<td class="terminalTdL">车主号码:</td>
+									<td id="t_c_umobile"  t_val="">
+										<label id="t_umobile"></label>
 									</td>
 								</tr>
 								<!-- 2012-10-23 18:13 暂时隐藏 定位器序列号，定位器别名，车牌号（移动到个人资料）
@@ -140,7 +146,7 @@
 										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的SOS联系人号码不合法，请重新输入！" who="mobile" parent="terminalWrapper"   />
 									</td>
 								</tr>
-								<tr class="j_cnum">
+								<tr class="j_corp_terminal">
 									<td class="terminalTdL" >车牌号码:</td>
 									<td id="corp_cnum"  class="j_ListVal j_input"  t_val="">
 										<input type="text" id="t_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
@@ -320,19 +326,19 @@
 				<table class="personalList">
 					<tr>
 						<td>
-							<label>集团名称：</label>
+							<label><font class="txtColor">* </font>集团名称：</label>
 							<input type="text" name="c_name" id="c_name"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="集团名称只能是由数字、英文、下划线或中文组成！"  parent="corpPersonalWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<label>联系人：</label>
+							<label><font class="txtColor">* </font>联系人：</label>
 							<input type="text" name="c_linkman" id="c_linkman"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="联系人只能是由数字、英文、下划线或中文组成！"  parent="corpPersonalWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<label>联系电话：</label>
+							<label><font class="txtColor">* </font>联系电话：</label>
 							<input type="text" name="c_mobile" id="c_mobile"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="mobile" msg="请输入正确的手机号！"  parent="corpPersonalWrapper" />
 						</td>
 					</tr>
@@ -364,17 +370,23 @@
 				<table class="cTerminalList">
 					<tr>
 						<td>
-							<label>终端手机号：</label>
+							<label><font class="txtColor">* </font>终端手机号：</label>
 							<input type="text" name="c_tmobile" id="c_tmobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="cMobile" msg="终端手机号格式不正确！"  parent="cTerminalWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<label>车主手机号：</label>
+							<label><font class="txtColor">* </font>车主手机号：</label>
 							<input type="text" name="c_umobile" id="c_umobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="uMobile" msg="车主手机号格式不正确！"  parent="cTerminalWrapper" />
 						</td>
 					</tr>
 					<tr>
+						<td>
+							<label>车牌号码：</label>
+							<input type="text" id="c_cnum" name="c_cnum" class="text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+					<!--<tr>
 						<td>
 							<label>开始时间：</label>
 							<input type="text" name="c_begintime" id="c_begintime"  class="time" />
@@ -386,12 +398,7 @@
 							<input type="text" name="c_endtime" id="c_endtime"  class="time" />
 						</td>
 					</tr>
-					<tr>
-						<td>
-							<label>车牌号码：</label>
-							<input type="text" id="c_cnum" name="c_cnum" class="text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
-						</td>
-					</tr>
+					
 					<tr>
 						<td>
 							<label>车辆类型：</label>
@@ -415,7 +422,6 @@
 								<option value="6">灰色</option>
 								<option value="7">其他</option>
 							</select>
-							<!--<input type="text" id="c_color" name="c_color" class="text_mouseOut j_corpData j_onInputBlur"  msg="车辆颜色最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />-->
 						</td>
 					</tr>
 					<tr>
@@ -423,7 +429,7 @@
 							<label>车辆品牌：</label>
 							<input type="text" id="c_brand" name="c_brand" class="text_mouseOut j_corpData j_onInputBlur"  msg="车辆品牌最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
 						</td>
-					</tr>
+					</tr>-->
 				</table>
 				<input type="hidden" id="hidGroupId"  value="" />
 				<input type="hidden" id="hidTMobile"  value="" />
@@ -540,6 +546,23 @@
 				<span id="pageNums"><label id="currentPage"></label>/<label id="pageCount"></label></span>
 				<span id="nextPage" class="nextBtn j_pBtnHover"></span>
 			</div>
+		</div>
+	</div>
+	<div id="createGroupWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle createGroupTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div class="createGroupContent wrapperContent">
+			<table class="createGTable">
+				<tr>
+					<td>
+						分组名称：<input type="text" id="txt_groupName" class="text_mouseOut j_onInputBlur"   />
+					</td>
+					<td>
+						<input type="button" class="createGroupButton j_save" id="createGroupSave" value="" />
+					</td>
+				</tr>
+			</table>
 		</div>
 	</div>
 </div>

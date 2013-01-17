@@ -1,23 +1,23 @@
 /*
-*终端设置相关操作方法
+*定位器设置相关操作方法
 */
 var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 (function () {
 
 /**
-* 终端参数设置初始化
+* 定位器参数设置初始化
 */
 window.dlf.fn_initTerminal = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示终端设置dialog
-	var obj_cnum = $('.j_cnum'),
+	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示定位器设置dialog
+	var obj_cnum = $('.j_corp_terminal'),
 		obj_input = $('.j_input input'),
 		obj_terminalContent = $('.terminalContent');
 	
 	obj_input.val('');
 	if ( dlf.fn_userType() ) {	// 集团用户 显示车牌号
 		obj_cnum.show();
-		obj_terminalContent.css('height', '262px');
+		obj_terminalContent.css('height', '293px');
 	} else {	// 个人用户不显示车牌号
 		obj_cnum.hide();
 		obj_terminalContent.css('height', '230px');
@@ -27,7 +27,7 @@ window.dlf.fn_initTerminal = function() {
 }
 
 /**
-* 查询最新终端参数
+* 查询最新定位器参数
 */
 window.dlf.fn_initTerminalWR = function () {
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
@@ -54,10 +54,15 @@ window.dlf.fn_initTerminalWR = function () {
 							obj_whitelist.val(str_value);
 							obj_oriWhitelist.attr('t_val', str_value);					
 						}
+						// 集团用户 车主号码显示
+						var str_umobile = str_val[0];
+						
+						$('#t_umobile').html(str_umobile);
+						$('#t_c_umobile').attr('t_val', str_umobile);
 					} else if ( param == 'push_status' ) {
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
 					} else {
-						if ( param == 'alias' || param == 'corp_cnum' ) {	// 终端别名、车牌号
+						if ( param == 'alias' || param == 'corp_cnum' ) {	// 定位器别名、车牌号
 							$('#t_' + param ).val(str_val);
 						} else if ( param == 'white_pop' ) {	// 白名单弹出框
 							n_whitelistTip = str_val;
@@ -65,7 +70,7 @@ window.dlf.fn_initTerminalWR = function () {
 							$('#t_' + param ).html(str_val);
 						}
 					}
-					$('#' + param ).attr('t_val', str_val);	// 将每个终端参数对应值保存在t_val中
+					$('#' + param ).attr('t_val', str_val);	// 将每个定位器参数对应值保存在t_val中
 				}
 			}
 			/*if ( n_whitelistLenth <= 1 && n_whitelistTip == 0 ) {	// 白名单提示 没有设置白名单一直提示
@@ -109,7 +114,7 @@ window.dlf.fn_showNotice = function() {
 }
 
 /**
-* 保存终端参数操作
+* 保存定位器参数操作
 */
 window.dlf.fn_baseSave = function() {
 	var str_key = $('#bListSet').attr('terminalkey'), 
@@ -133,7 +138,7 @@ window.dlf.fn_baseSave = function() {
 		}
 			
 		if ( str_newVal != str_oldVal ) {	// 判断参数是否有修改
-			if ( str_class.search('j_input') != -1 ) {	// 终端别名、车牌号、白名单
+			if ( str_class.search('j_input') != -1 ) {	// 定位器别名、车牌号、白名单
 				if ( str_class.search('j_whitelist') != -1 ) {	// 白名单 [车主手机号,白名单1,白名单2,...]
 					var str_whitelist1 = $('#t_white_list_1').val();	// 车主手机号
 						

@@ -173,7 +173,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null; 
 
-	if ( !str_alias ) {	// 实时定位无alias，则根据tid获取对应终端别名
+	if ( !str_alias ) {	// 实时定位无alias，则根据tid获取对应定位器别名
 		str_alias = obj_carA.next().html();
 	}
 	label = new BMap.Label(str_alias, {offset:new BMap.Size(31, 22)});

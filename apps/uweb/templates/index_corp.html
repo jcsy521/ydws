@@ -28,7 +28,7 @@
 	<div id="main">
 		<!-- carInfo -->
 		<div id="left">
-			<div id="cars" class="corpLeft">
+			<div class="corpLeft corpLeftTree j_corpCarInfo">
 				<div class="corpCarSearch">
 					<input type="text" id="txtautoComplete" class="searchText" />
 					<a href="#" id="autoSearch" class="autoSearch" title="搜索"></a>
@@ -37,27 +37,6 @@
 					<div class="j_terminal loadTree">
 						正在加载数据...<img src="/static/images/blue-wait.gif" />
 					</div>
-					<!--<ul>
-						<li class="j_corp">
-							<a href="#" class="corpNode" corpId="1" title="集团1">集团1</a>
-							<ul>
-								<li class="j_group">
-									<a href="#" class="groupNode" groupId="1" title="部门1">部门1</a>
-									<ul>
-										<li class="j_leafNode">
-											<a href="#" class="terminalNode j_terminal" title="alias"  keys_num="key_num"  tid="tid" fob_status=""  cLogin="1" actiontrack="no" >终端1</a>
-										</li>
-										<li class="j_leafNode">
-											<a href="#"  class="terminalNode j_terminal" title="alias"  keys_num="key_num"  tid="tid" fob_status=""  cLogin="1" actiontrack="no" >终端2</a>
-										</li>
-									</ul>
-								</li>
-								<li class="j_group">
-									<a href="#" class="groupNode">部门2</a>
-								</li>
-							</ul>
-						</li>
-					</ul>-->
 				</div>
 				<div class="hide j_selfMarks" ></div><!-- 用来存储所有的marker -->
 			</div>
@@ -65,9 +44,9 @@
 				<div class="staticsBox">
 					<table>
 						<tr>
-							<td><label class="carCount">123</label>(全部)</td>
-							<td><label class="onlineCount">123</label>(在线)</td>
-							<td><label class="offlineCount">123</label>(离线)</td>
+							<td><label class="carCount"></label></td>
+							<td><label class="onlineCount"></label></td>
+							<td><label class="offlineCount"></label></td>
 						</tr>
 					</table>
 				</div>
@@ -85,9 +64,13 @@
 						<span class="tInfoWord"><label>GPS</label>信号：</span><span class="fontColor" id="gpsContent"></span>
 					</li>
 					<li id="tmobile">
-						<span class="tInfoWord">更新时间：</span><span class="fontColor" id="locationTime"></span>
+						<span class="tInfoWord">定位器号码：</span><span class="fontColor" id="tmobileContent"></span>
 					</li>
 				</ul>
+			</div>
+			<div class="updateTime j_updateTime">
+				<span class="tInfoWord">更新时间：</span>
+				<span class="fontColor" id="locationTime"></span>
 			</div>
 		</div>
 		<!-- menu and map-->
