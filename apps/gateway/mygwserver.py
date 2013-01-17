@@ -94,10 +94,10 @@ class MyGWServer(object):
             parameters = pika.ConnectionParameters(host=host)
             connection = BlockingConnection(parameters)
             # default 10, maybe make it bigger.
-            connection.set_backpressure_multiplier(10)
+            connection.set_backpressure_multiplier(50)
             # Write buffer exceeded warning threshold
-            reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, *(connection, host))
-            connection.add_backpressure_callback(reconnect_rabbitmq)
+            #reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, *(connection, host))
+            #connection.add_backpressure_callback(reconnect_rabbitmq)
             channel = connection.channel()
             channel.exchange_declare(exchange=self.exchange,
                                      durable=False,
@@ -128,13 +128,24 @@ class MyGWServer(object):
         if connection and connection.is_open:
             connection.close()
 
+        def __wait():
+            interval = int(ConfHelper.GW_SERVER_CONF.retry_interval)
+            logging.error("Retry connect in %d seconds.", interval)
+            sleep(interval)
+
         connection = None
         channel = None
-        try:
-            connection, channel = self.__connect_rabbitmq(host)
-            logging.info("[GW] Rabbitmq reconnected!")
-        except:
-            logging.exception("[GW] Connect rabbitmq error.")
+        for retry in xrange(int(ConfHelper.GW_SERVER_CONF.retry_count)):
+            try:
+                connection, channel = self.__connect_rabbitmq(host)
+                if connection and connection.is_open:
+                    logging.info("[GW] Rabbitmq reconnected!")
+                    break
+                else:
+                    __wait()
+            except:
+                logging.exception("[GW] Connect rabbitmq error.")
+                __wait()
 
         return connection, channel
 
@@ -247,7 +258,7 @@ class MyGWServer(object):
         logging.info("[GW] consume process: %s started...", os.getpid())
         consume_connection, consume_channel = self.__connect_rabbitmq(host)
         try:
-            while (consume_connection and consume_connection.is_open):
+            while True:
                 try:
                     method, header, body = consume_channel.basic_get(queue=self.gw_queue)
                     if method.NAME == 'Basic.GetEmpty':
@@ -258,6 +269,7 @@ class MyGWServer(object):
                 except AMQPConnectionError as e:
                     logging.exception("[GW] Rabbitmq consume error: %s", e.args)
                     consume_connection, consume_channel = self.__reconnect_rabbitmq(consume_connection, host)
+                    continue 
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
         except Exception as e:
@@ -280,22 +292,17 @@ class MyGWServer(object):
     def publish(self, host):
         logging.info("[GW] publish process: %s started...", os.getpid())
         queue = Queue()
-        publish_connection, publish_channel = self.__connect_rabbitmq(host)
         try:
-            if publish_connection and publish_connection.is_open:
-                #NOTE: self.online_terminals, this process will change it!
-                self.__restore_online_terminals()
-                self.__start_check_heartbeat_thread()
-                thread.start_new_thread(self.handle_packet_from_terminal,
-                                        (publish_connection,publish_channel,queue))
-                self.recv(queue)
+            #NOTE: self.online_terminals, this process will change it!
+            self.__restore_online_terminals()
+            self.__start_check_heartbeat_thread()
+            thread.start_new_thread(self.handle_packet_from_terminal,
+                                    (queue, host))
+            self.recv(queue)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
         except Exception as e:
             logging.exception("[GW] Unknow Exception:%s", e.args)
-        finally:
-            logging.info("[GW] Rabbitmq publish connection close...")
-            self.__close_rabbitmq(publish_connection, publish_channel)
 
     def recv(self, queue):
         try:
@@ -339,7 +346,7 @@ class MyGWServer(object):
 
         return valid_packets
         
-    def handle_packet_from_terminal(self, connection, channel, queue):
+    def handle_packet_from_terminal(self, queue, host):
         """
         handle packet recv from terminal:
         - login
@@ -349,50 +356,55 @@ class MyGWServer(object):
         """
         try:
             logging.info("[GW] Handle recv packet thread started...")
+            connection, channel = self.__connect_rabbitmq(host)
             while True:
-                if queue.qsize() != 0:
-                    item  = queue.get(False)
-                    packets = item.get('response')
-                    address = item.get('address')
-                    packets = self.divide_packets(packets)
-                    for packet in packets:
-                        clw = T_CLWCheck(packet)
-                        command = clw.head.command
-                        if command == T_MESSAGE_TYPE.LOGIN:
-                            logging.info("[GW] Recv login packet:\n%s", packet)
-                            self.handle_login(clw, address, connection, channel) 
-                        elif command == T_MESSAGE_TYPE.HEARTBEAT:
-                            logging.info("[GW] Recv heartbeat packet:\n%s", packet)
-                            self.handle_heartbeat(clw, address, connection, channel)
-                        elif command == T_MESSAGE_TYPE.LOCATIONDESC:
-                            logging.info("[GW] Recv locationdesc packet:\n%s", packet)
-                            self.handle_locationdesc(clw, address, connection, channel)
-                        elif command == T_MESSAGE_TYPE.CONFIG:
-                            logging.info("[GW] Recv query config packet:\n%s", packet)
-                            self.handle_config(clw, address, connection, channel)
-                        elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
-                            logging.info("[GW] Recv defend status packet:\n%s", packet)
-                            self.handle_defend_status(clw, address, connection, channel)
-                        elif command == T_MESSAGE_TYPE.FOBINFO:
-                            logging.info("[GW] Recv fob info packet:\n%s", packet)
-                            self.handle_fob_info(clw, address, connection, channel)
-                        elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
-                            logging.info("[GW] Recv sleep status packet:\n%s", packet)
-                            self.handle_terminal_sleep_status(clw, address, connection, channel)
-                        elif command == T_MESSAGE_TYPE.FOBSTATUS:
-                            logging.info("[GW] Recv fob status packet:\n%s", packet)
-                            self.handle_fob_status(clw, address, connection, channel)
-                        elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
-                            logging.info("[GW] Recv runtime status packet:\n%s", packet)
-                            self.handle_runtime_status(clw, address, connection, channel)
-                        elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
-                            logging.info("[GW] Recv unbind status packet:\n%s", packet)
-                            self.handle_unbind_status(clw, address, connection, channel)
-                        else:
-                            logging.info("[GW] Recv packet from terminal:\n%s", packet)
-                            self.foward_packet_to_si(clw, packet, address, connection, channel)
+                if not connection.is_open:
+                    connection, channel = self.__reconnect_rabbitmq(connection, host)
+                    continue
                 else:
-                    sleep(0.1)
+                    if queue.qsize() != 0:
+                        item  = queue.get(False)
+                        packets = item.get('response')
+                        address = item.get('address')
+                        packets = self.divide_packets(packets)
+                        for packet in packets:
+                            clw = T_CLWCheck(packet)
+                            command = clw.head.command
+                            if command == T_MESSAGE_TYPE.LOGIN:
+                                logging.info("[GW] Recv login packet:\n%s", packet)
+                                self.handle_login(clw, address, connection, channel) 
+                            elif command == T_MESSAGE_TYPE.HEARTBEAT:
+                                logging.info("[GW] Recv heartbeat packet:\n%s", packet)
+                                self.handle_heartbeat(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.LOCATIONDESC:
+                                logging.info("[GW] Recv locationdesc packet:\n%s", packet)
+                                self.handle_locationdesc(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.CONFIG:
+                                logging.info("[GW] Recv query config packet:\n%s", packet)
+                                self.handle_config(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
+                                logging.info("[GW] Recv defend status packet:\n%s", packet)
+                                self.handle_defend_status(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.FOBINFO:
+                                logging.info("[GW] Recv fob info packet:\n%s", packet)
+                                self.handle_fob_info(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
+                                logging.info("[GW] Recv sleep status packet:\n%s", packet)
+                                self.handle_terminal_sleep_status(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.FOBSTATUS:
+                                logging.info("[GW] Recv fob status packet:\n%s", packet)
+                                self.handle_fob_status(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
+                                logging.info("[GW] Recv runtime status packet:\n%s", packet)
+                                self.handle_runtime_status(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
+                                logging.info("[GW] Recv unbind status packet:\n%s", packet)
+                                self.handle_unbind_status(clw, address, connection, channel)
+                            else:
+                                logging.info("[GW] Recv packet from terminal:\n%s", packet)
+                                self.foward_packet_to_si(clw, packet, address, connection, channel)
+                    else:
+                        sleep(0.1)
         except:
             logging.exception("[GW] Recv Exception.")
 
@@ -1136,7 +1148,6 @@ class MyGWServer(object):
                                   properties=properties)
         except AMQPConnectionError as e:
             logging.exception("[GW] Rabbitmq publish into gw_queue error: %s", e.args)
-            self.__reconnect_rabbitmq(connection, host)
         except Exception as e:
             logging.exception("[GW] Unknown publish error: %s", e.args)
 
@@ -1152,7 +1163,6 @@ class MyGWServer(object):
                                   properties=properties)
         except AMQPConnectionError as e:
             logging.exception("[GW] Rabbitmq publish into si_queue error: %s", e.args)
-            self.__reconnect_rabbitmq(connection, host)
         except Exception as e:
             logging.exception("[GW] Unknown publish error: %s", e.args)
 
