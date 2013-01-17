@@ -3,12 +3,16 @@
 * obj_carsData: 存储lastinfo中所有定位器的信息
 * str_currentTid: 上次lastinfo的选中定位器tid
 * arr_autoCompleteData: autocomplete 查询数据
+* arr_staticsData： 告警统计查询数据
+* pagecnt：告警统计总条数
+* n_pageNum： 告警统计页码
 * b_createTerminal： 标记是新增定位器操作 方便switchcar到该新增车辆
+* n_onlineCnt：在线终端总数
+* n_offlineCnt：离线终端总数
 */
 var obj_carsData = {},
 	str_currentTid = '',
 	arr_autoCompleteData = [],
-	str_checkedNodeId = '',
 	arr_staticsData = [],	// 后台查询到的报警记录数据
 	pagecnt = -1,	// 查询到数据的总页数,默认-1
 	n_pageNum = 0,	// 当前所在页数
@@ -40,29 +44,24 @@ function customMenu(node) {
 		renameLabel = '编辑定位器';
 		deleteLable = '删除定位器';
 	}
-	
+	// 右键菜单执行的操作
 	items = {
 		"create" : {
 			"label" : createLable,
 			"action" : function (obj) {
 				var obj_this = $(obj).eq(0);
-				if ( obj_this.hasClass('j_group') ) {
+				
+				if ( obj_this.hasClass('j_group') ) {	// 新增定位器
 					fn_initCreateTerminal('', obj_this.children('a').eq(0).attr('groupId'));
 					return false;
-				} else if ( obj_this.hasClass('j_corp') ) {
+				} else if ( obj_this.hasClass('j_corp') ) {	// 新增分组
 					this.create();
 				}
 			}
 		},
 		"rename" : {
-			"label" : renameLabel,   //Different label (defined above) will be shown depending on node type
+			"label" : renameLabel,
 			"action" : function(obj) {
-				var obj_this = $(obj).eq(0);
-				
-				if ( obj_this.hasClass('j_leafNode') ) {	// 编辑定位器
-					//fn_initEditTerminal(obj_this.children('a').eq(0).attr('tid'));
-					return false;
-				}
 				this.rename(obj);
 			}
 		},
@@ -71,15 +70,13 @@ function customMenu(node) {
 			"action" : function (obj) {
 				var obj_this = $(obj).eq(0);
 				
-				if ( obj_this.hasClass('j_corp') ) {	//  删除集团
-					alert('集团不能删除。');
-					return;
-				} else if ( obj_this.hasClass('j_group') ) {	// 删除组
-					// todo 判断是否有定位器 
+				if ( obj_this.hasClass('j_group') ) {	// 删除组
+					// 判断是否有定位器 
 					var n_terminalLength = obj_this.children('ul').length,
 						str_gid = obj_this.children('a').attr('groupid');
 						
 					if ( n_terminalLength > 0 ) {
+						$('#vakata-contextmenu').hide();	// 隐藏右键菜单
 						alert('该分组下有定位器不能删除.');
 						return;
 					} else {
@@ -93,28 +90,32 @@ function customMenu(node) {
 			}
 		}
 	};
-   //If node is a folder do not show the "delete" menu item
+	// 终端右键菜单删除“新增”和“重命名”菜单
    if ( obj_node.hasClass('j_leafNode') ) {
 		delete items.create;
 		delete items.rename;
    }
+   // 集团右键菜单删除 “删除”菜单
    if ( obj_node.hasClass('j_corp')  ) {
 		delete items.remove;
    }
-   if ( obj_node.hasClass('j_group') && obj_node.children('a').attr('title') == '默认组' ) {
+   /*if ( obj_node.hasClass('j_group') && obj_node.children('a').attr('title') == '默认组' ) {
 		delete items.remove;
 		delete items.rename;
-   }
+   }*/
    return items;
 }
 	
 /*
+* jstree初始化，右键菜单事件处理、树加载完成事件处理、节点单击事件处理、双击事件处理
+* str_checkedNodeId：默认要选中的节点id
+* str_html：动态生成的树的html
 * dnd: drag
 * contextmenu: right-menu
 * types: node icon
 * crrm: create、remove、rename等
 */
-window.dlf.fn_loadJsTree = function(str_checkedNodeId,str_html) {
+window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 	$('#corpTree').jstree({
 		"plugins": [ "themes", "html_data", "ui", "contextmenu",'crrm', "types", 'dnd' ],
 		'html_data': {
@@ -127,16 +128,15 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId,str_html) {
 		'themes': {
 			'theme': 'classic',
 			'icons' : true
-			/*"dots" : false*/
 		},
 		'ui': {
-			'initially_select': str_checkedNodeId
+			'initially_select': str_checkedNodeId	// 设置默认选中的节点
 		},
 		"crrm" : {
 			"move": {
 				"check_move" : function (m) {
 					var obj_currentNode = m.o,
-						p = this._get_parent(obj_currentNode);	// get  parent of the node
+						p = this._get_parent(obj_currentNode);
 					
 					if ( !p ) {
 						return false;
@@ -158,8 +158,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId,str_html) {
 						arr_tids = [];
 					
 					if ( str_parent && str_target ) {
-						//arr_tids.push(str_tid);
-						//fn_moveGroup(arr_tids, str_targetGroupId);
 						return true;
 					}
 					return false;
@@ -388,10 +386,10 @@ window.dlf.fn_corpGetCarData = function() {
 								/** 
 								* 自动完成数据填充:根据旅客姓名和手机号进行搜索
 								*/
-								arr_autoCompleteData.push({label: str_alias, value: str_tid});
-								if ( str_alias != str_mobile ) {
+								arr_autoCompleteData.push({label: str_alias + ' ' + str_mobile, value: str_tid});
+								/*if ( str_alias != str_mobile ) {
 									arr_autoCompleteData.push({label: str_mobile, value: str_tid});
-								}
+								}*/
 							}
 							str_html += '</li></ul>';
 							// 填充本次数据 为了与下次lastinfo进行比较
@@ -428,28 +426,8 @@ window.dlf.fn_corpGetCarData = function() {
 				
 				if ( fn_lastinfoCompare(obj_newData) ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
 					dlf.fn_loadJsTree(str_tempNodeId, str_html);
-					var obj_compelete = $('#txtautoComplete'),
-						str_val = obj_compelete.val();
-					
-					if ( str_val == '' ) {
-						str_val = '请输入车牌号';
-					}
-					// autocomplete	自动完成 初始化
-					obj_compelete.autocomplete({
-						source: arr_autoCompleteData,
-						select: function(event, ui) {
-							var str_tid = ui.item.value,
-								obj_itemLi = $('.j_carList a[tid='+ str_tid +']'),
-								str_crntTid = $('.j_leafNode a[class*=jstree-clicked]').attr('tid');
-
-							$('#txtautoComplete').val( ui.item.label);
-							if ( str_crntTid == str_tid ) {
-								return false;
-							}
-							dlf.fn_switchCar(str_tid, obj_itemLi);
-							return false;
-						}
-					}).val('请输入车牌号或定位器号码').addClass('gray');
+					dlf.fn_initAutoComplete();
+					$('#txtautoComplete').val('请输入车牌号或定位器号码').addClass('gray');
 				} else {
 					// 更新组名和集团名还有 在线离线状态
 					fn_updateTreeNode(obj_corp);
@@ -463,6 +441,34 @@ window.dlf.fn_corpGetCarData = function() {
 		function (XMLHttpRequest, textStatus, errorThrown) {
 			dlf.fn_serverError(XMLHttpRequest);
 		});
+}
+
+/*
+* 初始化autocomplete
+*/
+window.dlf.fn_initAutoComplete = function() {
+	var obj_compelete = $('#txtautoComplete'),
+		str_val = obj_compelete.val();
+	
+	if ( str_val == '' ) {
+		str_val = '请输入车牌号';
+	}
+	// autocomplete	自动完成 初始化
+	obj_compelete.autocomplete({
+		source: arr_autoCompleteData,
+		select: function(event, ui) {
+			var str_tid = ui.item.value,
+				obj_itemLi = $('.j_carList a[tid='+ str_tid +']'),
+				str_crntTid = $('.j_leafNode a[class*=jstree-clicked]').attr('tid');
+
+			$('#txtautoComplete').val( ui.item.label);
+			if ( str_crntTid == str_tid ) {
+				return false;
+			}
+			dlf.fn_switchCar(str_tid, obj_itemLi);
+			return false;
+		}
+	});
 }
 
 // 更新树节点的数据
