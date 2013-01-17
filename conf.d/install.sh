@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# svn
-sudo apt-get install -y subversion
+# # svn
+# sudo apt-get install -y subversion
 
 # easy_install
 sudo apt-get install -y python-setuptools
@@ -22,11 +22,13 @@ sudo apt-get update
 # MySQL
 sudo apt-get install mysql-server
 sudo apt-get install mysql-client
-# mysql -uroot --default-character-set=utf8 -e 'GRANT ALL PRIVILEGES ON *.* TO pabb@"%" IDENTIFIED BY "pabb"'
-# mysql -upabb -ppabb --default-character-set=utf8 -e 'CREATE DATABASE DB_ACB' 
+mysql -uroot --default-character-set=utf8 -e 'GRANT ALL PRIVILEGES ON *.* TO pabb@"%" IDENTIFIED BY "pabb"'
+# TODO
+# config MySQL, then dump data from BJ 
 
 # install MySQL-python
 sudo aptitude install -y libmysqlclient-dev
+sudo easy_install -U distribute
 sudo easy_install MySQL-python
 
 # tornado
@@ -44,7 +46,14 @@ sudo easy_install redis
 # install utilities
 sudo aptitude install -y python-dev
 sudo aptitude install -y libjpeg62-dev libfreetype6-dev
-sudo easy_install pil
+wget http://effbot.org/downloads/Imaging-1.1.7.tar.gz
+tar zxvf Imaging-1.1.7.tar.gz
+cd Imaging-1.1.7
+sed -i 's/ZLIB_ROOT = None/ZLIB_ROOT = "\/usr\/lib\/x86_64-linux-gnu"/g' setup.py
+sed -i 's/FREETYPE_ROOT = None/FREETYPE_ROOT = "\/usr\/lib\/x86_64-linux-gnu"/g' setup.py
+python setup.py build
+sudo python setup.py install
+# sudo easy_install pil
 
 # python-dateutil for timestamp
 wget http://pypi.python.org/packages/source/p/python-dateutil/python-dateutil-2.1.tar.gz
@@ -80,9 +89,7 @@ sudo cp -r openfire /opt/
 cd /opt/openfire/bin
 sudo ./openfire start
 
-# keepalived
+keepalived
 sudo aptitude install -y keepalived
 
-# pyDes for sms
 sudo easy_install pyDes
-
