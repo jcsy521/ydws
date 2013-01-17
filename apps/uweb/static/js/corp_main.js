@@ -388,8 +388,10 @@ window.dlf.fn_corpGetCarData = function() {
 								/** 
 								* 自动完成数据填充:根据旅客姓名和手机号进行搜索
 								*/
-								arr_autoCompleteData.push({label: str_alias + ' ' + str_mobile, value: str_tid});
-								
+								arr_autoCompleteData.push({label: str_alias, value: str_tid});
+								if ( str_alias != str_mobile ) {
+									arr_autoCompleteData.push({label: str_mobile, value: str_tid});
+								}
 							}
 							str_html += '</li></ul>';
 							// 填充本次数据 为了与下次lastinfo进行比较
