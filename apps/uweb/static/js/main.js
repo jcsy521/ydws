@@ -239,6 +239,7 @@ window.onresize = function () {
 		// 调整页面大小
 		var n_windowHeight = $(window).height(), 
 			n_windowWidth = $(window).width(),
+			//n_windowWidth = n_windowWidth > 1407 ? n_windowWidth - 17 : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
 			n_trackLeft = ( n_windowWidth - 1000 )/2,
 			n_mainContent = n_windowHeight - 104,
@@ -247,8 +248,8 @@ window.onresize = function () {
 		$('.mainBody').height(n_windowHeight);
 		$('#top, #main').css('width', n_windowWidth);
 		$('#main, #left, #right').css('height', n_mainHeight );	// 左右栏高度
-		$('.j_corpCarInfo').css('height', n_mainHeight-207);	// 集团用户左侧树的高度
-		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 245);	// 右侧宽度
+		$('.j_corpCarInfo').css('height', n_mainHeight-210);	// 集团用户左侧树的高度
+		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 249);	// 右侧宽度
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		$('#mapObj').css('height', n_mapHeight);
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
@@ -257,7 +258,7 @@ window.onresize = function () {
 		if ( f_layer ) {
 			dlf.fn_lockScreen();
 		}
-	}, 25);
+	}, 100);
 }
 
 /**
@@ -280,19 +281,20 @@ $(function () {
 	*/
 	var n_windowHeight = $(window).height(),
 		n_windowWidth = $(window).width(),
+		//n_windowWidth = n_windowWidth > 1407 ? n_windowWidth - 17 : n_windowWidth,
 		n_mapHeight = n_windowHeight - 166,
-		n_right = n_windowWidth - 245,
+		n_right = n_windowWidth - 249,
 		n_trackLeft = ( n_windowWidth - 1000 )/2,
 		obj_track = $('#trackHeader'),
 		n_mainHeight = n_windowHeight - 123;
 		
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-		n_right = n_windowWidth - 245;
+		n_right = n_windowWidth - 249;
 	}
 	$('.mainBody').height(n_windowHeight);
 	$('#top, #main').css('width', n_windowWidth);
 	$('#main, #left, #right').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
-	$('.j_corpCarInfo').css('height', n_mainHeight-207);	// 集团用户左侧树的高度
+	$('.j_corpCarInfo').css('height', n_mainHeight-210);	// 集团用户左侧树的高度
 	$('#right, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight);
