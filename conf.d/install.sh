@@ -53,6 +53,7 @@ sed -i 's/ZLIB_ROOT = None/ZLIB_ROOT = "\/usr\/lib\/x86_64-linux-gnu"/g' setup.p
 sed -i 's/FREETYPE_ROOT = None/FREETYPE_ROOT = "\/usr\/lib\/x86_64-linux-gnu"/g' setup.py
 python setup.py build
 sudo python setup.py install
+cd ../
 # sudo easy_install pil
 
 # python-dateutil for timestamp
