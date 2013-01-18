@@ -99,10 +99,11 @@ function businessDelete(tmobile, mobile, tempType) {
 	var obj_pos = oTable.fnGetPosition(document.getElementById(str_id));
 	
 	if ( confirm(str_msg) ) {
-		
+		fn_lockScreen('删除操作进行中...');
 		$.post(str_url, function (data) {
+			fn_unLockScreen();
 			if ( data.success == 0 ) {
-				 oTable.fnDeleteRow(obj_pos);
+				oTable.fnDeleteRow(obj_pos);
 			} else {
 				alert("删除失败。");
 			}

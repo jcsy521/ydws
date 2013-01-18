@@ -44,9 +44,9 @@ class ECBusinessMixin(BaseMixin):
         else:
             corps = [str(corp),]
             
-        fields = DotDict(ecmobile="mobile LIKE '%%%%%s%%%%'",
-                         begintime="timestamp >= %s",
-                         endtime="timestamp <= %s") 
+        fields = DotDict(ecmobile="mobile LIKE '%%%%%s%%%%'")
+                         #begintime="timestamp >= %s",
+                         #endtime="timestamp <= %s") 
 
         for key in fields.iterkeys():
             v = self.get_argument(key, None)

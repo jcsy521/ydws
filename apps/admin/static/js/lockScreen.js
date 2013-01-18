@@ -1,20 +1,25 @@
 // 添加遮罩
-function fn_lockScreen() { 
-	// 拿到遮罩层
-	var str_mask = parent.document.getElementById('maskLayer'), 
-		str_msg = parent.document.getElementById('msg'); 
-	str_mask.style.height = parent.document.documentElement.clientHeight+'px';
-	str_mask.style.display = 'block';
-	str_msg.style.display = 'block';
+// 拿到遮罩层
+	var obj_adminMask = parent.document.getElementById('maskLayer'), 
+		obj_adminMsgPanel = parent.document.getElementById('msg'), 
+		obj_adminMsgContent = parent.document.getElementById('layerMsgContent');
+	
+function fn_lockScreen(str_layerMsg) { 
+	
+	obj_adminMask.style.height = parent.document.documentElement.clientHeight+'px';
+	obj_adminMask.style.display = 'block';
+	obj_adminMsgPanel.style.display = 'block';
 	$('#maskLayer').data('lock', true);
+	
+	if ( str_layerMsg )  {
+		obj_adminMsgContent.innerHTML = str_layerMsg;
+	}
 }
 
 // 去掉遮罩
 function fn_unLockScreen() { 
-	var str_mask = parent.document.getElementById('maskLayer'), 
-		str_msg = parent.document.getElementById('msg');
-	str_mask.style.display = 'none';
-	str_msg.style.display = 'none';
+	obj_adminMask.style.display = 'none';
+	obj_adminMsgPanel.style.display = 'none';
 	
 	$('#maskLayer').data('lock', false);
 }
