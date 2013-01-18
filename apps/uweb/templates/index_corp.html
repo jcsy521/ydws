@@ -18,15 +18,12 @@
 	<!-- top -->
 	<div id="top">
 		<div id="ads" title="移动车卫士">
-			<!--<img src="/static/images/bannerAd.png" />-->
 		</div>
 		<div class="welcome" title="{{name}}">
 			<span id="spanWelcome">欢迎您，{{name if len(name)<=4 else name[:4]+"..."}}</span>
 		</div>
 	</div>
-	<!-- main  -->
 	<div id="main">
-		<!-- carInfo -->
 		<div id="corpLeft" class="j_corpLeft">
 			<div class="corpLeft corpLeftTree j_corpCarInfo">
 				<div class="corpCarSearch">
@@ -38,7 +35,6 @@
 						正在加载数据...<img src="/static/images/blue-wait.gif" />
 					</div>
 				</div>
-				<div class="hide j_selfMarks" ></div><!-- 用来存储所有的marker -->
 			</div>
 			<div id="terminalInfo" class="corpCarInfo">
 				<div class="staticsBox">
@@ -73,7 +69,6 @@
 				<span class="fontColor" id="locationTime"></span>
 			</div>
 		</div>
-		<!-- menu and map-->
 		<div id="corpRight">
 			<div id="navi">
 				<ul class="menu">
@@ -91,9 +86,7 @@
 					<li><a href="#" id="logout" onclick="dlf.fn_exit()" title="退出">退出</a></li>
 				</ul>
 			</div>
-			<!--轨迹查询条件-->
 			<div class="trackHeader hide" id="trackHeader">
-				<!--时间选择-->
 				<span class="trackPos">
 					<span class="timeTip">时间范围:</span>
 					<span class="trackTime">
@@ -103,13 +96,11 @@
 					</span>
 					<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">显示基站定位</label>
 				</span>
-				<!--按钮-->
 				<span class="trackBtn">
 					<span id="trackSearch" class="tSearch"></span>
 					<span id="tPlay" class="tPlay hide j_tBtnhover"></span>
 					<span id="tPause" class="tPause hide j_tBtnhover"></span>
 				</span>
-				<!--关闭按钮-->
 				<span id="trackClose" class="tClose"></span>
 				<span id="trackSpeed" class="trackSpeed hide">
 					<span>播放速度：</span>
@@ -124,9 +115,7 @@
 	{% elif status == 201 %}
 		<div id="errormsg"></div>
 	{% end %}
-	<!--辅助元素begin-->
 	{% include dialogs.html %}
-	<!--辅助元素end-->
 	<input type="hidden" id="userType" value="1" />
 </body>
 {% end %}

@@ -43,7 +43,7 @@ body {
 	background: url('/static/images/banner.png') repeat-x;
 	height: 123px;
 	float: left;
-	min-width: 1028px;
+	width: 1028px;
 }
 .welcome {
 	background: url('/static/images/userIcon.png') no-repeat 0px center;
@@ -54,9 +54,10 @@ body {
 	color: #0aa0fb;
 	font-size: 14px;
 	margin-top: 70px;
-	margin-right: 29px;
 	height: 44px;
 	width: 137px;
+	position: relative;
+	right: 30px;
 }
 #spanWelcome {
 	display: inline-block;

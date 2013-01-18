@@ -238,9 +238,10 @@ window.dlf.fn_corpSave = function() {
 window.onresize = function () {
 	setTimeout (function () {
 		// 调整页面大小
-		var n_windowHeight = $(window).height(), 
+		var  n_windowHeight = $(window).height(),
+			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
-			//n_windowWidth = n_windowWidth > 1407 ? n_windowWidth - 17 : n_windowWidth,
+			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1407 ? 1407 : n_windowWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
 			n_trackLeft = ( n_windowWidth - 1000 )/2,
 			n_mainContent = n_windowHeight - 104,
@@ -292,8 +293,9 @@ $(function () {
 	* 调整页面大小
 	*/
 	var n_windowHeight = $(window).height(),
+		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 		n_windowWidth = $(window).width(),
-		//n_windowWidth = n_windowWidth > 1407 ? n_windowWidth - 17 : n_windowWidth,
+		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1407 ? 1407 : n_windowWidth : n_windowWidth,
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = ( n_windowWidth - 1000 )/2,
@@ -308,7 +310,7 @@ $(function () {
 	}
 	$('.mainBody').height(n_windowHeight);
 	$('#top, #main').css('width', n_windowWidth);
-	$('#main, #left, #right').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
+	$('#main, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	if ( n_treeHeight < 239 ) {
 		obj_tree.css('overflow-y', 'scroll')
@@ -316,10 +318,10 @@ $(function () {
 		obj_tree.css('overflow', 'hidden')
 	}
 	obj_tree.height(n_treeHeight);
-	$('#right, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
+	$('#right, #corpRight, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight);
-	
+
 	dlf.fn_loadMap();	// 加载百度map
 	
 	/**
