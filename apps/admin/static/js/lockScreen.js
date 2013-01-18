@@ -13,6 +13,8 @@ function fn_lockScreen(str_layerMsg) {
 	
 	if ( str_layerMsg )  {
 		obj_adminMsgContent.innerHTML = str_layerMsg;
+	} else {
+		obj_adminMsgContent.innerHTML = '页面数据正在加载中...';
 	}
 }
 
