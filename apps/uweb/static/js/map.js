@@ -178,7 +178,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	}
 	label = new BMap.Label(str_alias, {offset:new BMap.Size(31, 22)});
 	label.setStyle({'backgroundColor': '#000000', 'fontSize': '13px', 'height': '20px','borderWidth':'0px','borderColor': '#000',
-	'opacity': '0.55','filter': 'alpha(opacity=50)','lineHeight': '20px','behavior': 'url("static/css/PIE.htc")','borderRadius': '6px','paddingLeft': '5px','paddingRight': '5px', 'color': '#ffffff'});	// 设置label样式
+	'opacity': '0.55','filter': 'alpha(opacity=50)','lineHeight': '20px','borderRadius': '6px','paddingLeft': '5px','paddingRight': '5px', 'color': '#ffffff'});	// 设置label样式
 	/**
 	* 设置marker图标
 	*/

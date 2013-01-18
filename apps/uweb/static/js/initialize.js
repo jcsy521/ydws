@@ -276,9 +276,6 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 							dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
 							dlf.fn_moveMarker(n_tid);
 							return;
-						} else {
-							dlf.fn_getCarData();
-							break;
 						}
 					}
 				} else {
@@ -387,9 +384,10 @@ window.dlf.fn_getCarData = function() {
 						n_clat = obj_carInfo.clatitude/NUMLNGLAT;
 						
 					obj_carInfo.tid = str_tid; 
+					
+					obj_tempData[str_tid] = obj_carInfo;
 					if ( n_clon != 0 && n_clat != 0 ) {					
 						if ( obj_carInfo ) {
-							obj_tempData[str_tid] = obj_carInfo;
 							//obj_carA.data('carData', obj_carInfo);
 							dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据
 						}

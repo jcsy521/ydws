@@ -118,6 +118,11 @@ function customMenu(node) {
 window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 	$('#corpTree').jstree({
 		"plugins": [ "themes", "html_data", "ui", "contextmenu",'crrm', "types", 'dnd' ],
+		'core': {
+			'strings': {
+				'new_node': '新建组'
+			}
+		},
 		'html_data': {
 			'data': str_html
 		},
@@ -178,7 +183,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		var obj_rslt = data.rslt,
 			obj_rollBack = data.rlbk,
 			str_newName = obj_rslt.name;
-		console.log($(obj_rslt.parent).children('a').attr('corpid'), data, obj_rslt.obj);
+			
 		fn_createGroup($(obj_rslt.parent).children('a').attr('corpid'), str_newName, obj_rollBack, obj_rslt.obj);
 	}).bind('rename.jstree', function(e, data) {	// 重命名
 		var	obj_rslt = data.rslt,
@@ -196,7 +201,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			fn_renameCorp(obj_current.attr('corpid'), str_newName, data.rlbk)
 		}
 	}).bind('loaded.jstree', function(e, data) {	// 树节点加载完成事件
-		$('.corpNode ins').css('backgroundPosition', '0px');
+		 data.inst.open_all(-1);	// 默认展开所有的节点
+		dlf.fn_setCorpIconDiffBrowser();
 		// 更新定位器总数
 		fn_updateTerminalCount();
 		// 循环所有定位器 找到当前定位器并更新车辆信息
@@ -372,7 +378,6 @@ window.dlf.fn_corpGetCarData = function() {
 									str_login = obj_car.login;
 									
 								obj_carsData[str_tid] =  obj_car;
-								//arr_tids.push(str_tid);	// 填充tid
 								arr_tempTids.push(str_tid); //tid组string 串
 								if ( str_login == LOGINOUT ) {
 									str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';
@@ -391,25 +396,24 @@ window.dlf.fn_corpGetCarData = function() {
 									str_tempLabel = str_alias + ' ' + str_mobile;
 								}
 								arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
-								/*if ( str_alias != str_mobile ) {
-									arr_autoCompleteData.push({label: str_mobile, value: str_tid});
-								}*/
 							}
-							str_html += '</li></ul>';
+							str_html += '</ul>';
 							// 填充本次数据 为了与下次lastinfo进行比较
 							
 							arr_tids[str_groupId] = arr_tempTids;
 						} else {
 							arr_tids[str_groupId] = [];
 						}
+						str_html += '</li>';
 						arr_groupIds.push(str_groupId);
 					}
+					str_html += '</ul>';
 					// 存储 gids , tids
 					obj_newData = {'gids': arr_groupIds, 'tids': arr_tids, 'n_gLen': n_groupLength};
 				}
 				$('.j_carList').data('carsData', obj_carsData);	// 存储所有定位器信息
 				str_html += '</li></ul>';
-				
+				//console.log(str_html);
 				var str_tempNodeId = '';
 				/**
 				* 设置jstree默认选中的节点
@@ -522,7 +526,16 @@ function fn_updateTreeNode(obj_corp) {
 		}
 	}
 	fn_updateAllTerminalLogin();
-	$('.corpNode ins').css('backgroundPosition', '0px');
+	dlf.fn_setCorpIconDiffBrowser();
+}
+
+window.dlf.fn_setCorpIconDiffBrowser = function () {
+	/*if ( $.browser.msie && ($.browser.version == "7.0") ) {
+		$('.corpNode ins').css('backgroundPosition', '0px 0px');
+	} else {
+		$('.corpNode ins').css('backgroundPosition', '0px');
+	}*/
+	$('.corpNode ins').css('backgroundPosition', '0px 0px');
 }
 
 // 更新车辆状态
@@ -535,7 +548,8 @@ function fn_updateAllTerminalLogin() {
 window.dlf.fn_updateTerminalLogin = function(obj_this) {
 	var	str_login = obj_this.attr('clogin'),
 		str_imgUrl = '',
-		str_color = '';
+		str_color = '',
+		obj_ins = obj_this.children('ins');
 	
 	if ( str_login == LOGINOUT ) {
 		str_imgUrl = 'offline.png';
@@ -545,7 +559,18 @@ window.dlf.fn_updateTerminalLogin = function(obj_this) {
 		str_color = '#24d317';
 	}
 	obj_this.css('color', str_color);
-	obj_this.children('ins').css('background', 'url("/static/images/corpImages/'+ str_imgUrl +'") 0px 2px');
+	obj_ins.css('background', 'url("/static/images/corpImages/'+ str_imgUrl +'") no-repeat');
+	if ( $.browser.msie ) {
+		if ( $.browser.version == "7.0" ) {
+			obj_ins.css('backgroundPostion', '0px -1px');
+		} else if ( $.browser.version == "6.0"  ) {
+			obj_ins.css('backgroundPostion', '0px -1px');
+		} else {
+			obj_ins.css('backgroundPostion', '0px 2px');
+		}
+	} else {
+		obj_ins.css('backgroundPostion', '0px 2px');
+	}
 }
 
 

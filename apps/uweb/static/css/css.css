@@ -1018,10 +1018,13 @@ body {
 }
 .trackPos #ceillid_flag {
 	position: absolute;
-	top: 10px;
+	top: 11px;
+	*top: 8px;
 }
 .trackPos label {
-	padding-left: 17px;
+	padding-left: 19px;
+	*position: relative;
+	*top: -4px;
 }
 #trackSlide {
     display: inline-block;
@@ -1153,6 +1156,9 @@ body {
 	display: inline-block;
 	height: 34px;
 	width: 92px;
+	*position: absolute;
+	*top: 45px;
+	*right: 20px;
 }
 .dataTable {
 	border: 0px;
@@ -1753,9 +1759,11 @@ body {
     display: inline-block;
     float: left;
     height: 16px;
+    *height: 12px;
     left: 24px;
     margin-top: 8px;
     padding: 1px 3px;
+	*padding-top: 4px;
     position: absolute;
     width: 150px;
 }
@@ -1789,13 +1797,6 @@ body {
 .j_corp>a {
 	color: green;
 }
-.corpNode img, .groupNode img, .terminalNode img {
-	position: relative;
-	top: 3px;
-}
-.terminalNode img {
-	top: 2px;
-}
 /**/
 .corpTree .jstree-icon  {
 	width: 20px;
@@ -1809,7 +1810,9 @@ body {
 	background: url('/static/images/corpImages/gorup.png') no-repeat scroll center center transparent;
 }*/
 .terminalNode .jstree-icon {
-	background: url('/static/images/corpImages/offline.png') no-repeat scroll center center transparent;
+	background: url('/static/images/corpImages/offline.png') no-repeat;
+	*background-position: 10px 10px;
+	_background-position: 10px 10px;
 }
 .corpCarlogin {
 	background: url('/static/images/corpImages/online.png') no-repeat scroll center center transparent;
@@ -1868,21 +1871,23 @@ body {
     line-height: 27px;
     padding: 2px 0 0 29px;
     width: 140px;
+	*top: 4px;
 }
 #staticsWrapper {
 	width: 600px;
 	height: 500px;
 }
 .staticsCondition {
-	padding-top: 10px;
+	height: 50px;
+	line-height: 40px;
 	margin-left: 19px;
 	width: 580px;
+	vertical-align: middle;
 }
 .staticsTable {
 	border: 0 none;
     border-collapse: collapse;
     margin-left: 32px;
-    margin-top: 15px;
     width: 529px;
 }
 .staticsTable tr {
