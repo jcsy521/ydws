@@ -1836,6 +1836,9 @@ body {
 .corpLeft  {
 	background-color: #fff;
 }
+.corpCarInfo {
+	background-color: #fefdfd;
+}
 .corpLeftTree {
 	min-height: 284px;
 }
