@@ -61,7 +61,7 @@ class ECBusinessMixin(BaseMixin):
         where_clause = ' AND '.join([v for v in fields.itervalues()
                                      if v is not None])
 
-        sql = ("SELECT name as ecname, mobile as ecmobile, address, email" 
+        sql = ("SELECT cid, name as ecname, mobile as ecmobile, address, email" 
                "  FROM T_CORP"
                "  WHERE id IN %s ") % (tuple(corps + DUMMY_IDS),)
         if where_clause:
@@ -69,6 +69,12 @@ class ECBusinessMixin(BaseMixin):
         businesses = self.db.query(sql)
         for i, business in enumerate(businesses):
             business['seq'] = i + 1
+            groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", business.cid)
+            groups = [g.id for g in groups] 
+            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                      "  WHERE group_id IN %s",
+                                      tuple(groups + DUMMY_IDS))
+            business['total_terminals'] = len(terminals)
             for key in business:
                 if business[key] is None:
                     business[key] = ''

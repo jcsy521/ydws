@@ -95,6 +95,13 @@ function businessDelete(tmobile, mobile, tempType) {
 		str_id = 'ecbusiness' + tmobile, 
 		str_url = '/ecbusiness/delete/' + tmobile;
 		str_msg = '是否删除该集团？';
+		// 判断要删除的集团下是否还有终端 ,如果有则不能进行集团删除 并提示
+		var n_ecTerminals = parseInt($('#ec'+tmobile).html());
+		
+		if ( n_ecTerminals != 0) {
+			alert('该集团下有终端，无法删除集团！');
+			return;
+		}
 	}
 	var obj_pos = oTable.fnGetPosition(document.getElementById(str_id));
 	

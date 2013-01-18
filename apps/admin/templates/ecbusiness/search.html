@@ -78,7 +78,7 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>集团管理员手机号</th><th>地址</th><th>邮箱</th><th>编辑</th><th>删除</th><th>详细信息</th>
+            <th>序号</th><th>集团名称</th><th>集团管理员手机号</th><th>地址</th><th>邮箱</th><th>终端总数</th><th>编辑</th><th>删除</th><th>详细信息</th>
         </tr>
     </thead>
 		
@@ -90,6 +90,7 @@
 	            <td>{{ business['ecmobile'] }}</td>
 	            <td>{{ business['address'] }}</td>
                 <td>{{ business['email'] }}</td>
+				<td id="ec{{ business['ecmobile'] }}">{{ business['total_terminals'] }}</td>
 				{% if business['ecmobile'] != '' %}
                 <td>
                     <a href="/ecbusiness/edit/{{business['ecmobile']}}">编辑</a>
