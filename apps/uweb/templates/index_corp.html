@@ -23,7 +23,7 @@
 			<span id="spanWelcome">欢迎您，{{name if len(name)<=4 else name[:4]+"..."}}</span>
 		</div>
 	</div>
-	<div id="main">
+	<div id="corpMain">
 		<div id="corpLeft" class="j_corpLeft">
 			<div class="corpLeft corpLeftTree j_corpCarInfo">
 				<div class="corpCarSearch">
@@ -80,7 +80,7 @@
 					<li><a href="#" id="statics" class="statics j_click"></a></li>
 				</ul>
 				<ul class="selfList">
-					<li><a class="help" title="显示帮助文档" href="/helper" target="_blank">帮助</a></li>
+					<li><a class="help" title="显示帮助文档" href="/helper?user_type=enterprise" target="_blank">帮助</a></li>
 					<li><a href="#" id="corpData" class="j_click" title="集团资料">集团资料</a></li>
 					<li><a href="#" id="changePwd" class="j_click" title="修改密码">修改密码</a></li>
 					<li><a href="#" id="logout" onclick="dlf.fn_exit()" title="退出">退出</a></li>
@@ -108,7 +108,7 @@
 				</span>
 			</div>
 			
-			<div id="mapObj" class="corpMapObj j_corpMap"></div>
+			<div id="mapObj" class="corpMapObj"></div>
 		</div> 
 	</div>
 	<div id="maskLayer" class="hide"></div>

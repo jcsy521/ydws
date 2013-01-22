@@ -562,14 +562,14 @@ window.dlf.fn_updateTerminalLogin = function(obj_this) {
 	obj_ins.css('background', 'url("/static/images/corpImages/'+ str_imgUrl +'") no-repeat');
 	if ( $.browser.msie ) {
 		if ( $.browser.version == "7.0" ) {
-			obj_ins.css('backgroundPostion', '0px -1px');
+			obj_ins.css('backgroundPosition', '0px -1px');
 		} else if ( $.browser.version == "6.0"  ) {
-			obj_ins.css('backgroundPostion', '0px -1px');
+			obj_ins.css('backgroundPosition', '0px 25px');
 		} else {
-			obj_ins.css('backgroundPostion', '0px 2px');
+			obj_ins.css('backgroundPosition', '0px 2px');
 		}
 	} else {
-		obj_ins.css('backgroundPostion', '0px 2px');
+		obj_ins.css('backgroundPosition', '0px 2px');
 	}
 }
 

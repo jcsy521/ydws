@@ -83,7 +83,7 @@ function fn_trackQuery() {
 			   * obj_tempMaxPoint 存储与每一点最大距离的数据
 			   * obj_tempFirstPoint 存储与每最远点的数据
 			*/
-			var arr_locations = data.track;// data.track, 
+			var arr_locations =	 data.track;// data.track, 
 				locLength = arr_locations.length,
 				str_msg = '';
 			if ( locLength <= 0) {
@@ -111,7 +111,7 @@ function fn_trackQuery() {
 							
 						fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
 					}
-					arr_dataArr[i].alias = $('.j_currentCar').text();
+					arr_dataArr[i].alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html();
 				}
 				if ( n_tempMax <= 0 ) {
 					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);

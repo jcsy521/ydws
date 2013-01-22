@@ -27,7 +27,7 @@ body {
 #top {
 	background: url('/static/images/banner.png') repeat-x;
 	height: 123px;
-	min-width: 1407px;
+	min-width: 1400px;
 	float: left;
 }
 #top img {
@@ -73,11 +73,15 @@ body {
 	padding-top: 1px;
 }*/
 /*main content start*/
-#main {
-	min-width: 1407px;
+#main, #corpMain {
+	/*min-width: 1407px;*/
+	min-width: 1400px;
 	min-height: 500px;
 	background: #e7eeef;
 	float: left;
+}
+#main {
+	min-height: 602px;
 }
 #left, #right {
 	float: left;
@@ -94,7 +98,7 @@ body {
 	border-right: 1px solid #c5c5c4;
 }
 #right, #corpRight {
-	min-width: 1158px;
+	min-width: 1151spx;
 }
 #left .title {
 	font-size: 14px;
@@ -333,17 +337,17 @@ body {
 #navi {
 	background: url('/static/images/menuBg.png') repeat-x;
 	height: 38px;
-	min-width: 1158px;
+	min-width: 1151px;
 }
 .menu, .menu li {
 	float: left;
 }
 .corpMapObj {
-	min-width: 1158px;
+	min-width: 1151px;
 	min-height: 463px;
 }
 .mapObj {
-	min-width: 1028px;
+	min-width: 1151px;
 	min-height: 566px;
 }
 .menu a {
@@ -1005,7 +1009,7 @@ body {
     height: 36px;
 	line-height: 32px;
 	float: left;
-	min-width: 1028px;
+	min-width: 1151px;
 	position: absolute;
 	z-index: 1000;
 	top: 158px;
@@ -1777,6 +1781,8 @@ body {
 }
 .autoSearch {
 	background: url('/static/images/corpImages/defaultSearch.png') no-repeat scroll 0 0 transparent;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/corpImages/defaultSearch.png',sizingMethod='scale');
     border: medium none;
     cursor: pointer;
     float: left;
@@ -1788,6 +1794,8 @@ body {
 }
 .autoSearch:hover {
 	background: url('/static/images/corpImages/activeSearch.png') no-repeat;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/corpImages/activeSearch.png',sizingMethod='scale');
 }
 .corpTree {
 	width: 247px;
@@ -1804,7 +1812,9 @@ body {
 	height: 15px;
 }
 .corpNode .jstree-icon {
-	background: url('/static/images/corpImages/corp.png') no-repeat scroll center center transparent;
+	background: url('/static/images/corpImages/corp.png') no-repeat scroll 0px 0px transparent;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/corpImages/corp.png',sizingMethod='scale');
 }
 /*
 .groupNode .jstree-icon {
@@ -1812,11 +1822,15 @@ body {
 }*/
 .terminalNode .jstree-icon {
 	background: url('/static/images/corpImages/offline.png') no-repeat;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/corpImages/offline.png',sizingMethod='scale');
 	*background-position: 10px 10px;
 	_background-position: 10px 10px;
 }
 .corpCarlogin {
 	background: url('/static/images/corpImages/online.png') no-repeat scroll center center transparent;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/corpImages/online.png',sizingMethod='scale');
 }
 .staticsBox {
 	width: 247px;

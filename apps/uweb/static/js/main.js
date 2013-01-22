@@ -239,10 +239,13 @@ window.onresize = function () {
 	setTimeout (function () {
 		// 调整页面大小
 		var  n_windowHeight = $(window).height(),
-			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
+			n_tempHeight = n_windowHeight <= 624 ? 624 : n_windowHeight,
+			n_windowHeight = $.browser.version == '6.0' ? n_tempHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
-			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1407 ? 1407 : n_windowWidth : n_windowWidth,
+			n_tempWidth = n_windowWidth <= 1400 ? 1400 : n_windowWidth,
+			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
+			n_right = n_windowWidth - 249,
 			n_trackLeft = ( n_windowWidth - 1000 )/2,
 			n_mainContent = n_windowHeight - 104,
 			n_mainHeight = n_windowHeight - 123,
@@ -250,9 +253,13 @@ window.onresize = function () {
 			n_treeHeight = n_corpTreeContainerHeight - 45,
 			obj_tree = $('#corpTree');
 		
+		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
+			n_right = n_windowWidth - 249;
+		}
+		
 		$('.mainBody').height(n_windowHeight);
-		$('#top, #main').css('width', n_windowWidth);
-		$('#main, #left, #right').css('height', n_mainHeight );	// 左右栏高度
+		$('#top, #main, #corpMain').css('width', n_windowWidth);
+		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 		if ( n_treeHeight < 239 ) {
 			obj_tree.css('overflow-y', 'scroll')
@@ -260,11 +267,9 @@ window.onresize = function () {
 			obj_tree.css('overflow', 'hidden')
 		}
 		obj_tree.height(n_treeHeight);
-		$('#right, #navi, #mapObj, #trackHeader').css('width', n_windowWidth - 249);	// 右侧宽度
-		$('.j_map').css('width', n_windowWidth - 249);	// 右侧宽度
-		$('.j_corpMap').css('width', n_windowWidth - 249);	// 右侧宽度
+		$('#right, #corpRight, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-		$('.corpMapObj, .mapObj').css('height', n_mapHeight);
+		$('#mapObj').css('height', n_mapHeight);
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
 		
 		var f_layer = $('.j_body').data('layer');
@@ -295,7 +300,7 @@ $(function () {
 	var n_windowHeight = $(window).height(),
 		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 		n_windowWidth = $(window).width(),
-		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1407 ? 1407 : n_windowWidth : n_windowWidth,
+		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = ( n_windowWidth - 1000 )/2,
@@ -304,13 +309,13 @@ $(function () {
 		n_corpTreeContainerHeight = n_mainHeight-220,
 		n_treeHeight = n_corpTreeContainerHeight - 45,
 		obj_tree = $('#corpTree');
-		
+	
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 		n_right = n_windowWidth - 249;
 	}
 	$('.mainBody').height(n_windowHeight);
-	$('#top, #main').css('width', n_windowWidth);
-	$('#main, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
+	$('#top, #main, #corpMain').css('width', n_windowWidth);
+	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	if ( n_treeHeight < 239 ) {
 		obj_tree.css('overflow-y', 'scroll')
