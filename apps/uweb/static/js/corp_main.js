@@ -462,7 +462,12 @@ window.dlf.fn_initAutoComplete = function() {
 		str_val = '请输入车牌号';
 	}
 	// autocomplete	自动完成 初始化
-	obj_compelete.autocomplete({
+	obj_compelete.keyup(function(event) {
+		if ( event.keyCode === $.ui.keyCode.TAB && $(this).data('autocomplete').menu.active ) {
+			event.preventDefault();
+		}
+		$(this).autocomplete('search');
+	}).autocomplete({
 		source: arr_autoCompleteData,
 		select: function(event, ui) {
 			var str_tid = ui.item.value,
