@@ -38,6 +38,7 @@ def shutdown(gwserver, processes):
             if process and process.is_alive():
                 process.join()
             logging.warn("Process: %s ", process)
+            process.terminate()
         gwserver.stop()
 
     except:

@@ -38,6 +38,8 @@ from helpers.confhelper import ConfHelper
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
 from helpers.lbmphelper import LbmpSenderHelper
+from helpers.urlhelper import URLHelper
+from helpers.uwebhelper import UWebHelper
 from helpers import lbmphelper
   
 from clw.packet.parser.codecheck import T_CLWCheck 
@@ -817,10 +819,23 @@ class MyGWServer(object):
                 user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
                 tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
                 dw_method = u'GPS' if not cellid else u'基站'
-                if locationdesc:
+                if location.cLat and location.cLon:
                     if user:
                         current_time = get_terminal_time(int(time.time()))
-                        sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method, location.lon / 3600000.0, location.lat / 3600000.0, unicode(locationdesc, 'utf-8'), current_time) 
+                        sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method,
+                                                        unicode(locationdesc, 'utf-8'), 
+                                                        current_time) 
+                        url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' +\
+                              str(location.cLon/3600000.0) + '&clat=' + str(location.cLat/3600000.0)
+                        tiny_id = URLHelper.get_tinyid(url)
+                        if tiny_id:
+                            base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                            tiny_url = base_url + '/' + tiny_id
+                            logging.info("[GW] get tiny url successfully. tiny_url:%s", tiny_url)
+                            self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
+                            sms += u"点击 " + tiny_url + u" 查看车辆位置" 
+                        else:
+                            logging.info("[GW] get tiny url failed.")
                         SMSHelper.send(user.owner_mobile, sms)
                 else:
                     if user:
