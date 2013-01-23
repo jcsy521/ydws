@@ -413,7 +413,6 @@ window.dlf.fn_corpGetCarData = function() {
 				}
 				$('.j_carList').data('carsData', obj_carsData);	// 存储所有定位器信息
 				str_html += '</li></ul>';
-				//console.log(str_html);
 				var str_tempNodeId = '';
 				/**
 				* 设置jstree默认选中的节点

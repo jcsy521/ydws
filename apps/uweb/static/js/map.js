@@ -289,7 +289,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				* 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
 				*/
 				var obj_currentLi = $('.j_carList a[tid='+str_tid+']'),
-					obj_oldCarData = obj_currentLi.data('carData'),
+					obj_oldCarData = $('.j_carList').data('carsData')[str_tid]	// obj_currentLi.data('carData'),
 					obj_selfmarker = obj_selfmarkers[str_tid],	// obj_currentLi.data('selfmarker'),
 					str_oldClon = obj_oldCarData.clongitude,
 					str_oldClat = obj_oldCarData.clatitude,
@@ -350,6 +350,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				'<li>类型： '+ str_type +'</li>'+
 				'<li>时间： '+ date +'</li>' + 
 				'<li>位置： <lable class="lblAddress">'+ address +'</label></li>';
+
 	if ( str_iconType == 'actiontrack' ) {
 		str_html+='<li class="top10"><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
 			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹查询</a><a href="#" id="poiSearch" onclick="dlf.fn_POISearch('+ str_clon +', '+ str_clat +');" >周边查询</a></li>';
