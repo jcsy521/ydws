@@ -139,6 +139,41 @@ body {
 	width: 200px;
 	margin: 10px 0px 0px 20px;
 }
+.iosContent .infoSign {
+	top: 3px;
+}
+.iosContent .infoText {
+	top: -22px;
+	width: 510px;
+}
+.iosContent .descImg ul li img {
+	margin-left: 5px;
+}
+.iosContent .iosDownLoadUrl ul {
+	margin: 0;
+	overflow-y: hidden;
+	float: left;
+	padding: 0;
+}
+.iosContent .iosDownLoadUrl {
+	position: relative;
+    top: -18px;
+	left: 125px;
+}
+.iosContent .iosDownLoadUrl ul li {
+	display: inline;
+	list-style: none;
+}
+.iosContent .iosDownLoadUrl ul li  a {
+	color: blue;
+}
+.iosDownloadLabel {
+	float: left;
+}
+.iosDownloadul li {
+	float: left;
+    padding-right: 11px;
+}
 /*sms download css*/
 #downloadLayer {
 	display: none;
