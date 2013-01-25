@@ -43,7 +43,9 @@ class SubscriptionHandler(BaseHandler):
             try:
                 sc = SubscriptionComposer(args)
                 logging.debug("Subscription request:\n%s", sc.get_request())
-                response = self.send("pinganbb.net", "/subscription", sc.get_request())
+                response = self.send(ConfHelper.LBMP_CONF.zs_host,
+                                     ConfHelper.LBMP_CONF.zs_subscription_url,
+                                     sc.get_request())
                 logging.debug("Subscription response:\n%s", response.decode('utf-8'))
                 sp = SubscriptionParser(response)
                 ret.success = sp.success

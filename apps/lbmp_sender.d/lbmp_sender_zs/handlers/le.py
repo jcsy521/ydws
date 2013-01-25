@@ -3,10 +3,12 @@
 import logging
 import re
 import httplib
+import time
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
+from functools import partial
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
@@ -15,6 +17,8 @@ from helpers.confhelper import ConfHelper
 
 from lbmp.packet.composer.zsle_composer import ZsLeComposer
 from lbmp.packet.parser.zsle_parser import ZsLeParser
+from lbmp.packet.composer.subscription_composer import SubscriptionComposer
+from lbmp.packet.parser.subscription_parser import SubscriptionParser
 
 from base import BaseHandler
 
@@ -79,6 +83,9 @@ class LeHandler(BaseHandler):
                      ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                      logging.info("[LE] Zsle response position: %s, sim:%s", ret.position, data['sim'])
                 else:
+                    if zlp.success == "9999228":
+                        callback = partial(self.re_subscription, data['sim'])
+                        IOLoop.instance().add_timeout(int(time.time()) + 5, callback)
                     logging.info("[LE] Zsle request failed, errorcode: %s, info: %s, google le started...",
                                  zlp.success, zlp.info)
                     logging.info('[LE] Google request:\n %s', request)
@@ -105,10 +112,40 @@ class LeHandler(BaseHandler):
         zs_request = ZsLeComposer(args).get_request()
         logging.info("[LE] Zs request:%s", zs_request)
         headers = {"Content-type": "application/xml; charset=utf-8"}
-        conn = httplib.HTTPConnection("pinganbb.net", timeout=30)
-        conn.request("POST", "/le", zs_request, headers)
+        conn = httplib.HTTPConnection(ConfHelper.LBMP_CONF.zs_host, timeout=30)
+        conn.request("POST", ConfHelper.LBMP_CONF.zs_le_url, zs_request, headers)
         response = conn.getresponse()
         data = response.read()
         # logging.info("[LE] Zs response:%s", data)
         conn.close()
         return data
+
+    def re_subscription(self, sim):
+        logging.info("[LBMP] Terminal: %s not reply sms, Re_subscription it.", sim)
+        args = dict(id="ZSCLGZ",
+                    pwd="ZSCLGZ20120920",
+                    serviceid="ZSCLGZ",
+                    appName="ACB",
+                    area="0760")
+        args['phoneNum'] = sim
+        args['action'] = "D" 
+        sc = SubscriptionComposer(args)
+        response = self.send(ConfHelper.LBMP_CONF.zs_host,
+                             ConfHelper.LBMP_CONF.zs_subscription_url,
+                             sc.get_request())
+        sp = SubscriptionParser(response)
+        if sp.success == '000':
+            logging.info("[LBMP] Cancel Subscription mobile: %s success!", sim)
+            logging.info("[LBMP] Re_Subscription mobile: %s start...", sim)
+            args['action'] = "A"
+            sc = SubscriptionComposer(args)
+            response = self.send(ConfHelper.LBMP_CONF.zs_host,
+                                 ConfHelper.LBMP_CONF.zs_subscription_url,
+                                 sc.get_request())
+            sp = SubscriptionParser(response)
+            if sp.success == '000':
+                logging.info("[LBMP] Re_Subscription mobile: %s success!", sim)
+            else:
+                logging.info("[LBMP] Re_Subscription mobile: %s faild!", sim)
+        else:
+            logging.info("[LBMP] Cancel Subscription mobile: %s faild!", sim)
