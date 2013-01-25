@@ -1233,7 +1233,7 @@ window.dlf.fn_updateAlias = function() {
 			str_content = str_content.replace(str_oldname, str_alias);
 					
 		obj_selfMarker.getLabel().setContent(str_alias);
-		$('.cMsgWindow h4[tid='+str_tid+']').html('车辆：' + str_alias);
+		//$('.cMsgWindow h4[tid='+str_tid+']').html('车辆：' + str_alias);
 		obj_selfMarker.selfInfoWindow.setContent(str_content);
 	}
 	obj_car.attr('title', str_alias);	// 
