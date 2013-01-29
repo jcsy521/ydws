@@ -911,6 +911,13 @@ class MyGWServer(object):
                     defend_info['mannual_status'] = defend_info['defend_status']
                     if defend_info['defend_source'] != 0:
                         # come from sms or web 
+                        if defend_info['defend_source'] == "1":
+                            _status = u"设防" if defend_info['defend_status'] == "1" else u"撤防"
+                            tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
+                            sms = SMSCode.SMS_DEFEND_SUCCESS % (tname, _status) 
+                            user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
+                            if user:
+                                SMSHelper.send(user.owner_mobile, sms)
                         del defend_info['defend_status']
                     del defend_info['defend_source']
                     self.update_terminal_info(defend_info)
