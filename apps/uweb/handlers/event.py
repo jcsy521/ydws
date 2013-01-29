@@ -86,6 +86,7 @@ class EventHandler(BaseHandler):
                                        "  FROM V_EVENT"
                                        "  WHERE tid = %s"
                                        "    AND (timestamp BETWEEN %s AND %s)"
+                                       "    AND category != 5"
                                        "  ORDER BY timestamp DESC"
                                        "  LIMIT %s, %s",
                                        self.current_user.tid, start_time, end_time,

@@ -1043,7 +1043,7 @@ function fn_searchStatics(n_num) {
 					str_tbodyText+= '<tr>';
 					str_tbodyText+= '<td>'+ str_alias +'</td>';	// 定位器
 					str_tbodyText+= '<td>'+ str_illegalmove +'</td>';	// 告警详情
-					str_tbodyText+= '<td>'+ str_sos +'</td>';	// 告警详情		
+					/*str_tbodyText+= '<td>'+ str_sos +'</td>';	// 告警详情	暂不显示	*/
 					str_tbodyText+= '<td>'+ str_illegashake +'</td>';	// 告警详情		
 					str_tbodyText+= '<td>'+ str_heartbeat_lost +'</td>';	// 告警详情		
 					str_tbodyText+= '<td>'+ str_powerlow +'</td>';	// 告警详情				

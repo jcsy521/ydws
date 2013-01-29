@@ -12,15 +12,18 @@ window.dlf.fn_initTerminal = function() {
 	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示定位器设置dialog
 	var obj_cnum = $('.j_corp_terminal'),
 		obj_input = $('.j_input input'),
-		obj_terminalContent = $('.terminalContent');
+		obj_terminalContent = $('.terminalContent'), 
+		obj_terminalTableR = $('#bListR');
 	
 	obj_input.val('');
 	if ( dlf.fn_userType() ) {	// 集团用户 显示车牌号
 		obj_cnum.show();
-		obj_terminalContent.css('height', '293px');
+		// obj_terminalContent.css('height', '293px');// todo 没什么用吧?
+		obj_terminalTableR.css('width', '420px');
 	} else {	// 个人用户不显示车牌号
 		obj_cnum.hide();
-		obj_terminalContent.css('height', '230px');
+		obj_terminalContent.css('height', '162px');
+		obj_terminalTableR.css('width', '268px');
 	}
 	dlf.fn_initTerminalWR(); // 初始化加载参数
 	dlf.fn_onInputBlur();	// input的blur事件初始化
