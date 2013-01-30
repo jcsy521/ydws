@@ -475,14 +475,14 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#gsmContent').html(str_gsm);	// gsm 
 		$('#gpsContent').html(str_gps);	// gps
 		$('#defendContent').html(str_dStatus).data('defend', n_defendStatus);	// defend status
-		$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")').attr('title', str_dStatusTitle);
-		$('#tmobile').attr('title', '定位器号码：' + str_tmobile );	// 定位器手机号
+		//$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")').attr('title', str_dStatusTitle);
+		//$('#tmobile').attr('title', '定位器号码：' + str_tmobile );	// 定位器手机号
 		$('#tmobileContent').html(str_tmobile);
 	}
-	$('.j_updateTime').attr('title', str_time)
+	//$('.j_updateTime').attr('title', str_time)
 	$('#locationTime').html(str_time); // 最后一次定位时间
 	$('#address').html(str_address); // 最后一次定们地址
-	$('#degree').html(str_degree).attr('title', str_degreeTip);
+	$('#degree').html(str_degree);	// .attr('title', str_degreeTip);
 	$('#type').html(str_type); // 车辆定位类型
 	$('#lng').html(str_clon); // 车辆经度
 	$('#lat').html(str_clat);	// 车辆纬度
@@ -589,7 +589,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			str_gsmImg = 'gsm3.png';
 		}
 		if ( obj_gsm ) {
-			obj_gsm.css('background-image', 'url("'+ BASEIMGURL + str_gsmImg +'")').attr('title', 'GSM 信号强度：' + str_val);;
+			//obj_gsm.css('background-image', 'url("'+ BASEIMGURL + str_gsmImg +'")').attr('title', 'GSM 信号强度：' + str_val);;
 		}
 	} else if ( str_key == 'gps' ) {	// gps 
 		var str_gpsImg = '',
@@ -611,7 +611,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 		}
 		str_imgUrl = dlf.fn_getImgUrl() + str_gpsImg;
 		if ( obj_gps ) {
-			obj_gps.css('background-image', 'url("'+ str_imgUrl +'")').attr('title', 'GPS信号：' + str_val);
+			//obj_gps.css('background-image', 'url("'+ str_imgUrl +'")').attr('title', 'GPS信号：' + str_val);
 		}
 	} else if ( str_key == 'power' ) {	// 电池电量
 		var arr_powers = [0,10,20,30,40,50,60,70,80,90,100],
@@ -629,7 +629,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 				break;
 			}
 		}
-		$('#power').css('background-image', 'url("'+ BASEIMGURL + str_return +'")').attr('title', '剩余电量：' + str_val + '%' );
+		//$('#power').css('background-image', 'url("'+ BASEIMGURL + str_return +'")').attr('title', '剩余电量：' + str_val + '%' );
 	} else if ( str_key == 'degree' ) {	// 方向角
 		var arr_degree = [355,5,40,50,85,95,130,140,175,185,220,230,265,275,310,320,355],
 			arr_desc  = ['正北','北偏东','东北','东偏北','正东','东偏南','东南','南偏东','正南','南偏西','西南','西偏南','正西','西偏北','西北','北偏西','正北'];
