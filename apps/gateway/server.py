@@ -108,6 +108,8 @@ def main():
 
     except KeyboardInterrupt:
         try:
+            for p in processes:
+                p.terminate()
             thread.exit()
         except SystemExit:
             logging.info("[GW] Threads stop...")
