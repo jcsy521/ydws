@@ -20,7 +20,8 @@ function fn_initEventSearch(n_num) {
 	
 	dlf.fn_closeDialog(); // 小地图提示窗口关闭
 	//dlf.fn_jNotifyMessage('告警记录查询中' + WAITIMG, 'message', true);
-	dlf.fn_jNotifyMessage('告警记录查询中...', 'message', true);		
+	dlf.fn_jNotifyMessage('告警记录查询中...'+ WAITIMG, 'message', true);		
+
 	dlf.fn_lockScreen('eventbody'); // 添加页面遮罩
 	$('.eventbody').data('layer', true);	// 查询中时如果窗口改变大小，遮罩层也做相应修改
 	
