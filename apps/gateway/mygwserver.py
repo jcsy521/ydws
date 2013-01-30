@@ -794,6 +794,8 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
+            resend_flag = self.redis.getvalue(resend_key)
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            locationdesc="",
                            ew="E",
@@ -805,46 +807,51 @@ class MyGWServer(object):
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
                 logging.error("[GW] Invalid sessionID, terminal: %s", head.dev_id)
             else:
-                ldp = LocationDescParser(body, head)
-                location = ldp.ret
-                location['t'] = EVENTER.INFO_TYPE.POSITION
-                if location['valid'] != GATEWAY.LOCATION_STATUS.SUCCESS:
-                    cellid = True
+                if resend_flag:
+                    logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
+                                 info.head, info.body)
                 else:
-                    cellid = False
-                location = lbmphelper.handle_location(location, self.redis, cellid=cellid)
-                location.name = location.get('name') if location.get('name') else ""
-                location.name = safe_unicode(location.name)
-                locationdesc = location.name.encode("utf-8", 'ignore')
-                user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
-                tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
-                dw_method = u'GPS' if not cellid else u'基站'
-                if location.cLat and location.cLon:
-                    if user:
-                        current_time = get_terminal_time(int(time.time()))
-                        sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method,
-                                                        unicode(locationdesc, 'utf-8'), 
-                                                        current_time) 
-                        url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' +\
-                              str(location.cLon/3600000.0) + '&clat=' + str(location.cLat/3600000.0)
-                        tiny_id = URLHelper.get_tinyid(url)
-                        if tiny_id:
-                            base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
-                            tiny_url = base_url + '/' + tiny_id
-                            logging.info("[GW] get tiny url successfully. tiny_url:%s", tiny_url)
-                            self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                            sms += u"点击 " + tiny_url + u" 查看车辆位置" 
-                        else:
-                            logging.info("[GW] get tiny url failed.")
-                        SMSHelper.send(user.owner_mobile, sms)
-                else:
-                    if user:
-                        sms = SMSCode.SMS_DW_FAILED % (tname, dw_method)
-                        SMSHelper.send(user.owner_mobile, sms)
-                if not (location.lat and location.lon):
-                    args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
-                else:
-                    self.insert_location(location)
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                    ldp = LocationDescParser(body, head)
+                    location = ldp.ret
+                    location['t'] = EVENTER.INFO_TYPE.POSITION
+                    if location['valid'] != GATEWAY.LOCATION_STATUS.SUCCESS:
+                        cellid = True
+                    else:
+                        cellid = False
+                    location = lbmphelper.handle_location(location, self.redis, cellid=cellid)
+                    location.name = location.get('name') if location.get('name') else ""
+                    location.name = safe_unicode(location.name)
+                    locationdesc = location.name.encode("utf-8", 'ignore')
+                    user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
+                    tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
+                    dw_method = u'GPS' if not cellid else u'基站'
+                    if location.cLat and location.cLon:
+                        if user:
+                            current_time = get_terminal_time(int(time.time()))
+                            sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method,
+                                                            unicode(locationdesc, 'utf-8'), 
+                                                            current_time) 
+                            url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' +\
+                                  str(location.cLon/3600000.0) + '&clat=' + str(location.cLat/3600000.0)
+                            tiny_id = URLHelper.get_tinyid(url)
+                            if tiny_id:
+                                base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                                tiny_url = base_url + '/' + tiny_id
+                                logging.info("[GW] get tiny url successfully. tiny_url:%s", tiny_url)
+                                self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
+                                sms += u"点击 " + tiny_url + u" 查看车辆位置" 
+                            else:
+                                logging.info("[GW] get tiny url failed.")
+                            SMSHelper.send(user.owner_mobile, sms)
+                    else:
+                        if user:
+                            sms = SMSCode.SMS_DW_FAILED % (tname, dw_method)
+                            SMSHelper.send(user.owner_mobile, sms)
+                    if not (location.lat and location.lon):
+                        args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
+                    else:
+                        self.insert_location(location)
                 self.update_terminal_status(head.dev_id, address)
 
             lc = LocationDescRespComposer(args)
@@ -1051,6 +1058,8 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
+            resend_flag = self.redis.getvalue(resend_key)
             if len(body) == 3:
                 body.append('-1')
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
@@ -1060,16 +1069,24 @@ class MyGWServer(object):
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
-                hp = AsyncParser(body, head)
-                runtime_info = hp.ret 
+                if resend_flag:
+                    logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
+                                 info.head, info.body)
+                    terminal_info = self.get_terminal_info(head.dev_id)
+                    args.mannual_status = terminal_info['mannual_status']
+                else:
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                    hp = AsyncParser(body, head)
+                    runtime_info = hp.ret 
+                    self.update_terminal_status(head.dev_id, address)
+                    terminal_info = self.update_terminal_info(runtime_info)
+                    args.mannual_status = terminal_info['mannual_status']
+                    self.db.execute("INSERT INTO T_RUNTIME_STATUS"
+                                    "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                    head.dev_id, runtime_info['login'], runtime_info['defend_status'],
+                                    runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'],
+                                    runtime_info['fob_pbat'], head.timestamp)
                 self.update_terminal_status(head.dev_id, address)
-                terminal_info = self.update_terminal_info(runtime_info)
-                args.mannual_status = terminal_info['mannual_status']
-                self.db.execute("INSERT INTO T_RUNTIME_STATUS"
-                                "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                head.dev_id, runtime_info['login'], runtime_info['defend_status'],
-                                runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'],
-                                runtime_info['fob_pbat'], head.timestamp)
             rc = RuntimeRespComposer(args)
             request = DotDict(packet=rc.buf,
                               address=address)
@@ -1321,6 +1338,24 @@ class MyGWServer(object):
         else:
             pass
 
+    def get_terminal_info(self, dev_id):
+        terminal_info_key = get_terminal_info_key(dev_id)
+        terminal_info = self.redis.getvalue(terminal_info_key)
+        if not terminal_info:
+            terminal_info = self.db.get("SELECT mannual_status, defend_status,"
+                                        "  fob_status, mobile, login, gps, gsm,"
+                                        "  pbat, keys_num"
+                                        "  FROM T_TERMINAL_INFO"
+                                        "  WHERE tid = %s", dev_id)
+            car = self.db.get("SELECT cnum FROM T_CAR"
+                              "  WHERE tid = %s", dev_id)
+            fobs = self.db.query("SELECT fobid FROM T_FOB"
+                                 "  WHERE tid = %s", dev_id)
+            terminal_info = DotDict(terminal_info)
+            terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
+            terminal_info['fob_list'] = [fob.fobid for fob in fobs]
+            self.redis.setvalue(terminal_info_key, terminal_info)
+        return terminal_info
 
     def update_terminal_info(self, t_info):
         terminal_info_key = get_terminal_info_key(t_info['dev_id'])
