@@ -1,0 +1,265 @@
+* {
+    padding: 0; 
+}
+body {
+    padding: 10pt;
+    font-family: 'Microsoft YaHei', Arial, Helvetica, Verdana, sans-serif; 
+    font-size: 11pt;
+    margin: auto;
+	width: 99%;
+}
+h3 {
+    margin: 5px 0;
+    border-left: 5px solid #cd0a0a;
+    color: #416F29;
+    background: url('/static/images/bg_all.gif') repeat;
+    line-height: 2.3;
+    text-indent: 0.5em;
+    font-size: 18px;
+}
+.resultQuery h3 {
+    float: left;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+}
+.resultQuery {
+    border-left: 5px solid #cd0a0a;
+    color: #416F29;
+    background: url('/static/images/bg_all.gif') repeat;  
+    height: 40px;
+    margin: 8px 0;
+}
+a {
+    color: blue;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+.legend {
+	text-align: left;
+}
+.legend-button {
+	cursor: pointer;
+	display: inline-block;
+	margin-right: 0.1em;
+	overflow: visible;
+	padding: 0;
+	text-decoration: none !important;
+   
+}
+.legend-text {
+	display: block;
+}
+fieldset {
+    padding: 10px;
+}
+#logo {
+    padding: 10px 5px 10px 10px;
+    font-size: 2em;
+    font-weight: bold;
+    height: 40px;
+}
+.cThemeSwitcher {
+    float: right;
+    margin: 0px!important;
+    margin-top: -40px;
+    padding: 0;
+}
+#footer {
+    margin-top: 10px;
+    border-top: 1px dashed #ccc;
+    padding-top: 10px;
+    text-align: center;
+}
+b {
+	color: #aaa;
+	cursor: pointer;
+	width: 10px;
+}
+table, .ui-widget-header {
+    font-size: 13px;
+}
+.txt {
+    width: 90px;
+    border: 1px solid yellow;
+}
+.cLogin {
+    height: 250px;
+    width: 500px;
+    text-align: center;
+	margin-top: 100px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: #bed3ee;
+	padding: 20px 0 0 0;
+	color: #0d449f;
+}
+.cbtns {
+    width: 70px;
+    height: 32px;
+    padding: 3px 0 0 0;
+    border: none;
+    margin-left: 3px;
+}
+#login form {
+	margin-top: 20px;
+}
+#login form table {
+    height: 150px;
+}
+.error {
+    text-align: center;
+	padding: 10px 0 10px 0;
+    color: #cd0a0a;
+}
+.errorbox {
+	padding: 10px 0 10px 0;
+	width: 400px;
+	margin-top: 100px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.resultQuery .download {
+    display: block;
+    width: 90px;
+    font-size: 12px;
+    float: right;
+    margin-top: 6px;
+}
+#left {
+	width: 16%; 
+	margin: 20px 5px 0 0;
+	float: left;
+}
+#right {
+	width: 82%;
+	margin-top: 20px;
+	float: left;
+	border-left: 1px solid #ccc; 
+	border-right: 1px solid #ccc;
+	padding-left: 5pt;
+	padding-right: 5pt;
+	position: relative;
+}
+.hideLeft {
+	position: absolute;
+	top: 300px;
+	left: -10px;
+}
+.showLeft {
+	position: absolute;
+	top: 300px;
+	left: 0;
+}
+
+#accordion div ul li {
+	padding-bottom: 5px;
+}
+#accordion div ul li a {
+	text-decoration: none;
+}
+#accordion div ul li a:hover {
+	font-weight: bold;
+}
+#accordion div ul li span:hover {
+	font-weight: bold;
+}
+.ui-widget {
+	font-size: 0.9em; 
+}
+/*-------------*/
+.hideul {
+    display: none;
+    width: 120px;
+    margin: 8px 0 0 10px;
+    padding: 0;
+}
+.hideSearchTable {
+    display: none;
+}
+#showOrHideSearch {
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.clear {
+    clear: both;
+}
+.noBorderTxt {
+    border: none;
+    background-color: #c1d2d1;
+}
+.highlight {
+    background-color: #6f9cd6;
+    border-top: 1px dashed #3b7ed4;
+    border-bottom: 1px dashed #3b7ed4;
+    color: white;
+}
+
+
+.cUlItem {
+    margin: 0;
+    padding: 0;
+    width: 135px;
+    list-style-position: inside;
+}
+
+
+
+.cTxt {
+    font-size: 12px;
+    color: blue;
+}
+
+
+.tableStyle {
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.tableStyle td {
+    background-color: #EFEFEF;
+    border: 1px dashed #AAAAAA;
+    padding: 5px 15px 5px 5px;
+    height: 20px;
+}
+.tLeft {
+    width: 100px;
+}
+#loghistory {
+    text-align: center;
+}
+
+
+.passwordForms {
+    margin: 0;
+}
+
+.planType {
+	display: none;
+}
+.right_title {
+	font-weight: bold;
+	left: 1240px;
+	margin-bottom: 12px;
+	position: relative;
+	width: 182px;
+}
+
+.username {
+	color: red;
+	margin-right: 10px;
+}
+#logout {
+	color: #573C32;
+	margin-left: 10px;
+}
+.tdStyle {
+	margin-right: 10px;
+}
+.logContent {
+	text-align: left;
+}

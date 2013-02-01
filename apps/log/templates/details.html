@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<title>日志详细内容</title>
+		<link type="text/css" href="/static/css/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
+		<link href="./static/css/css.css" rel="stylesheet" type="text/css"/>
+		<link href="./static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+		<link href="./static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+		
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+		<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+		<h3>详细信息</h3>
+		<table class="tableStyle">
+			{% for info in allinfo %}
+			<tr>
+				<td class="tLeft">时间:</td>
+				<td align="left">{{info.time}}</td>
+			</tr>
+			<tr>
+				<td class="tLeft">报错等级:</td>
+				<td align="left">{{info.level}}</td>
+			</tr>
+			<tr>
+				<td class="tLeft">来源:</td>
+				<td align="left">{{info.servername}}</td>
+			</tr>
+			<tr>
+				<td class="tLeft">简明报错信息:</td>
+				<td align="left">{{info.details}}</td>
+			</tr>
+			{% end %}
+			<tr>
+				<td class="tLeft">详细报错信息:</td>
+				<td align="left">
+					{% for error in errorinfo %}
+						{{escape(error.details)}}<br />
+					{% end %}
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
