@@ -15,10 +15,8 @@ from calendar import monthrange
 import time, datetime
 
 import tornado
-import pymongo
 
 from db_.mysql import DBConnection
-from db_.mongodb import MongoDBConnection
 from constants import LOCATION
 from utils.dotdict import DotDict
 from myutils import city_info, start_end_of_month
@@ -81,7 +79,6 @@ class MLocation(MLocationMixin):
     def __init__(self):
         MLocationMixin.__init__(self)
         try:
-            self.mongodb_db = MongoDBConnection().db
             self.collection = self.mongodb_db.location
             self.collection.ensure_index([('city_id', pymongo.ASCENDING),
                                           ('year', pymongo.DESCENDING),

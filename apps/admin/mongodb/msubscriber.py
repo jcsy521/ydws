@@ -14,10 +14,7 @@ site.addsitedir(TOP_DIR_)
 import time, datetime
 from calendar import monthrange
 
-import pymongo
-
 from db_.mysql import DBConnection
-from db_.mongodb import MongoDBConnection
 from constants import XXT
 from utils.dotdict import DotDict
 from myutils import city_info, start_end_of_month
@@ -116,7 +113,6 @@ class MSubscriber(MSubscriberMixin):
     def __init__(self):
         MSubscriberMixin.__init__(self)
         try:
-            self.mongodb_db = MongoDBConnection().db
             self.collection = self.mongodb_db.subscriber
             self.collection.ensure_index([('city_id', pymongo.ASCENDING),
                                           ('year', pymongo.DESCENDING),

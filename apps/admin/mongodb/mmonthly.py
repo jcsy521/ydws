@@ -14,10 +14,7 @@ site.addsitedir(TOP_DIR_)
 from calendar import monthrange
 import time, datetime
 
-import pymongo
-
 from db_.mysql import DBConnection
-from db_.mongodb import MongoDBConnection
 from constants import LOCATION, XXT, PRIVILEGES, SMS
 from myutils import city_info, start_end_of_month
 from utils.dotdict import DotDict
@@ -300,7 +297,6 @@ class MMonthly(MMonthlyMixin):
     def __init__(self):
         MMonthlyMixin.__init__(self)
         try:
-            self.mongodb_db = MongoDBConnection().db 
             self.collection = self.mongodb_db.monthly
             self.collection.ensure_index([('city_id', pymongo.ASCENDING),
                                           ('year', pymongo.DESCENDING),

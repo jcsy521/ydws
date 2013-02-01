@@ -11,10 +11,7 @@ site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../handlers"))
 site.addsitedir(TOP_DIR_)
 
-import pymongo
-
 from db_.mysql import DBConnection
-from db_.mongodb import MongoDBConnection
 from constants import XXT
 from utils.dotdict import DotDict
 
@@ -75,7 +72,6 @@ class MGroup(MGroupMixin):
     def __init__(self):
         MGroupMixin.__init__(self)
         try:
-            self.mongodb_db = MongoDBConnection().db
             self.collection = self.mongodb_db.groups
             self.collection.ensure_index([('city_id', pymongo.ASCENDING),
                                           ('group_id', pymongo.ASCENDING),

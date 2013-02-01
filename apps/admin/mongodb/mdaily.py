@@ -15,10 +15,7 @@ from calendar import monthrange
 import time, datetime
 from dateutil.relativedelta import relativedelta
 
-import pymongo
-
 from db_.mysql import DBConnection
-from db_.mongodb import MongoDBConnection
 from constants import LOCATION, XXT, SMS
 from utils.dotdict import DotDict
 from myutils import city_info
@@ -31,7 +28,6 @@ class MDailyMixin(object):
 
     def __init__(self):
         self.mysql_db = DBConnection().db
-        self.mongodb_db = MongoDBConnection().db 
         self.collection = self.mongodb_db.daily
 
     def retrieve_mixin(self, city_list=None, end_time=None):
