@@ -62,8 +62,8 @@ class FileSyncer(object):
 
     def __init__(self, debug=False):
         # in milliseconds. 30 minutes.
-        self.interval = 1000 * 60 * 1
-        #self.interval = 1000 * 60 * 30
+        #self.interval = 1000 * 60 * 1
+        self.interval = 1000 * 60 * 30
 
     def start(self):
         self.__call__()
