@@ -28,9 +28,16 @@ class UNBindHandler(BaseHandler, BaseMixin):
     @tornado.web.asynchronous
     def post(self):
         status = ErrorCode.SUCCESS
-        tid  = self.get_argument('tid')
-        logging.info("[UWEB] unbind tid: %s, uid: %s", 
-                     tid, self.current_user.uid)
+        try:
+            tid  = self.get_argument('tid')
+            logging.info("[UWEB] unbind tid: %s, uid: %s", 
+                         tid, self.current_user.uid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            IOLoop.instance().add_callback(self.finish)
+            return 
+
         if not tid:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)

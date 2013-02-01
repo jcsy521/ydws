@@ -45,24 +45,35 @@ class DownloadSmsHandler(BaseHandler):
     def post(self):
         """Send sms to user's mobile."""
         status = ErrorCode.SUCCESS
-        data = DotDict(json_decode(self.request.body))
-        logging.info("[UWEB] downloadsms request: %s", data)
+        try:
+            data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] downloadsms request: %s", data)
 
-        mobile = data.mobile 
-        captcha_sms = data.captcha_sms 
-        captchahash_sms = data.captchahash_sms 
-        category = data.category 
+            mobile = data.mobile 
+            captcha_sms = data.captcha_sms 
+            captchahash_sms = data.captchahash_sms 
+            category = data.category 
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
 
-        m = hashlib.md5()
-        m.update(captcha_sms.lower())
-        hash_ = m.hexdigest()
-        if  hash_.lower() != captchahash_sms.lower():
-            status = ErrorCode.WRONG_CAPTCHA
-            logging.info("[UWEB] downloadsms failed. Message: %s", ErrorCode.ERROR_MESSAGE[status])
-        else:
-            version_info = get_version_info('android')
-            # downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
-            download_remind = SMSCode.SMS_DOWNLOAD_REMIND 
-            SMSHelper.send(mobile, download_remind)
-   
-        self.write_ret(status)
+        try:
+            m = hashlib.md5()
+            m.update(captcha_sms.lower())
+            hash_ = m.hexdigest()
+            if  hash_.lower() != captchahash_sms.lower():
+                status = ErrorCode.WRONG_CAPTCHA
+                logging.info("[UWEB] downloadsms failed. Message: %s", ErrorCode.ERROR_MESSAGE[status])
+            else:
+                version_info = get_version_info('android')
+                # downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
+                download_remind = SMSCode.SMS_DOWNLOAD_REMIND 
+                SMSHelper.send(mobile, download_remind)
+       
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] smsdownload failed. Exception: %s. ", 
+                              e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
