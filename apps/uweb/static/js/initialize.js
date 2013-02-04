@@ -475,11 +475,11 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#gsmContent').html(str_gsm);	// gsm 
 		$('#gpsContent').html(str_gps);	// gps
 		$('#defendContent').html(str_dStatus).data('defend', n_defendStatus);	// defend status
-		$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")').attr('title', str_dStatusTitle);
-		$('#tmobile').attr('title', '定位器号码：' + str_tmobile );	// 定位器手机号
+		$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_dStatusTitle);
+		//$('#tmobile').attr('title', '定位器号码：' + str_tmobile );	// 定位器手机号
 		$('#tmobileContent').html(str_tmobile);
 	}
-	$('.j_updateTime').attr('title', str_time)
+	//$('.j_updateTime').attr('title', str_time)
 	$('#locationTime').html(str_time); // 最后一次定位时间
 	$('#address').html(str_address); // 最后一次定们地址
 	$('#degree').html(str_degree);	// .attr('title', str_degreeTip);
@@ -629,7 +629,7 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 				break;
 			}
 		}
-		$('#power').css('background-image', 'url("'+ BASEIMGURL + str_return +'")').attr('title', '剩余电量：' + str_val + '%' );
+		$('#power').css('background-image', 'url("'+ BASEIMGURL + str_return +'")');	//.attr('title', '剩余电量：' + str_val + '%' );
 	} else if ( str_key == 'degree' ) {	// 方向角
 		var arr_degree = [355,5,40,50,85,95,130,140,175,185,220,230,265,275,310,320,355],
 			arr_desc  = ['正北','北偏东','东北','东偏北','正东','东偏南','东南','南偏东','正南','南偏西','西南','西偏南','正西','西偏北','西北','北偏西','正北'];
@@ -1034,7 +1034,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						}
 					}
 					obj_carList.data('carData', obj_carData);
-					$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")').attr('title', str_html);
+					$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_html);
 					
 					dlf.fn_jNotifyMessage(str_successMsg, 'message', false, 3000);
 				} else if ( str_who == 'cTerminal' ) {	// 新增定位器
