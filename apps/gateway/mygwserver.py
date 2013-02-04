@@ -1279,7 +1279,7 @@ class MyGWServer(object):
         if is_lq and not is_sleep:
             self.redis.setvalue(terminal_status_key, address, 10 * HEARTBEAT_INTERVAL)
         else:
-            self.redis.setvalue(terminal_status_key, address, 3 * SLEEP_HEARTBEAT_INTERVAL)
+            self.redis.setvalue(terminal_status_key, address, (1 * SLEEP_HEARTBEAT_INTERVAL + 300))
 
     def update_fob_info(self, fobinfo):
         terminal_info_key = get_terminal_info_key(fobinfo['dev_id'])
