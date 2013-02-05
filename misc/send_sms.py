@@ -28,7 +28,7 @@ def send_all(content):
         send(content, terminal.mobile)
 
 def usage():
-    print "Usage: python26 send_sms.py --send=[all|one] [--mobile=15942361934]"
+    print "Usage: python2.6 send_sms.py --send=[all|one] [--mobile=15942361934]"
 
 def main():
     ConfHelper.load('../conf/global.conf')
@@ -37,7 +37,13 @@ def main():
         usage()
         exit(1)
 
-    content = ':DOMAIN %s' % ConfHelper.GW_SERVER_CONF.domain
+    #content = ':DOMAIN %s' % ConfHelper.GW_SERVER_CONF.domain
+    content = ':DOMAIN 211.139.215.236:10025'
+    # content = ':LQ 1080'
+    #content = ':CQ'
+    #content = ':SIM 13702350003:13703041584'
+    #content = ':SIM 13809878883:13703041442'
+    
     if options.send.lower() == 'all':
         send_all(content)
     elif options.send.lower() == 'one':
