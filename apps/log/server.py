@@ -8,6 +8,8 @@ TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
 import logging
+import thread
+import time
 
 import tornado.httpserver
 import tornado.web
@@ -57,21 +59,18 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.redirect("/login")
 
-class FileSyncer(object):
-    #NOTE: there must are __call__ and __init__
-
-    def __init__(self, debug=False):
-        # in milliseconds. 30 minutes.
-        #self.interval = 1000 * 60 * 1
-        self.interval = 1000 * 60 * 30
+class LogSyncer(object):
+    # in second. 30 minutes
+    INTERVAL = 60 * 30
 
     def start(self):
-        self.__call__()
-
-    def __call__(self):
-        logging.info("[LOG] begin to sync logs")
-        df = DoFile()
-        df.dofile() 
+        while True:
+            try:
+                df = DoFile()
+                df.dofile() 
+                time.sleep(self.INTERVAL)
+            except Exception as e:
+                logging.error("[LOG] log syncer failed. exception: %s", e.args)
 
 def shutdown(server):
     try:
@@ -82,11 +81,10 @@ def shutdown(server):
     except:
         pass
 
-def _start_agency_syncer():
-    file_syncer = FileSyncer()
-    task = tornado.ioloop.PeriodicCallback(file_syncer,
-                                           file_syncer.interval) 
-    task.start()
+def start_log_syncer():
+    logging.info("[LOG] begin to sync logs")
+    log_syncer = LogSyncer() 
+    log_syncer.start()
 
 def main():
     tornado.options.parse_command_line()
@@ -100,7 +98,7 @@ def main():
         ConfHelper.load(options.conf)
         http_server = tornado.httpserver.HTTPServer(Application(debug=True), xheaders=True)
         http_server.listen(options.port)
-        _start_agency_syncer()
+        thread.start_new_thread(start_log_syncer, ())
         logging.warn("[log_monitor] running on: localhost:%d", options.port)
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt: # todo: SystemExit?

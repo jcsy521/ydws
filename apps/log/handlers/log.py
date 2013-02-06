@@ -34,9 +34,6 @@ class Log(BaseHandler):
         pagecnt = log.get("pagecnt")
         pagenum = log.get("pagenum")
         level = log.get("level")
-        print 'begindata', beginDate
-        print 'endndata', endDate
-        print 'level', level
         if level:
             if  beginDate:
                 try: 
