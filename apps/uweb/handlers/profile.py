@@ -71,20 +71,20 @@ class ProfileHandler(BaseHandler):
                 self.write_ret(status)
                 return
 
-            if data.has_key('address')  and not check_sql_injection(data.address):
-                status = ErrorCode.ILLEGAL_ADDRESS
-                self.write_ret(status)
-                return
+            #if data.has_key('address')  and not check_sql_injection(data.address):
+            #    status = ErrorCode.ILLEGAL_ADDRESS
+            #    self.write_ret(status)
+            #    return
 
-            if data.has_key('email')  and not check_sql_injection(data.email):
-                status = ErrorCode.ILLEGAL_EMAIL 
-                self.write_ret(status)
-                return
+            #if data.has_key('email')  and not check_sql_injection(data.email):
+            #    status = ErrorCode.ILLEGAL_EMAIL 
+            #    self.write_ret(status)
+            #    return
 
-            if data.has_key('remark')  and not check_sql_injection(data.remark):
-                status = ErrorCode.ILLEGAL_REMARK 
-                self.write_ret(status)
-                return
+            #if data.has_key('remark')  and not check_sql_injection(data.remark):
+            #    status = ErrorCode.ILLEGAL_REMARK 
+            #    self.write_ret(status)
+            #    return
 
             if data.has_key('cnum')  and not check_sql_injection(data.cnum):
                 status = ErrorCode.ILLEGAL_CNUM 
@@ -92,15 +92,15 @@ class ProfileHandler(BaseHandler):
                 return
 
             fields_ = DotDict()
-            fields = DotDict(name="name = '%s'",
-                             mobile="mobile = '%s'",
-                             address="address = '%s'",
-                             email="email = '%s'",
-                             remark="remark = '%s'")
+            fields = DotDict(name="name = '%s'")
+                             #mobile="mobile = '%s'",
+                             #address="address = '%s'",
+                             #email="email = '%s'",
+                             #remark="remark = '%s'")
             for key, value in data.iteritems():
-                if key != 'cnum':
+                if key == 'name':
                     fields_.setdefault(key, fields[key] % value) 
-                else:
+                elif key == 'cnum':
                     self.db.execute("UPDATE T_CAR"
                                     "  SET cnum = %s"
                                     "  WHERE tid = %s",
@@ -110,6 +110,9 @@ class ProfileHandler(BaseHandler):
                     if terminal_info:
                         terminal_info['alias'] = value if value else self.current_user.sim 
                         self.redis.setvalue(terminal_info_key, terminal_info)
+                else:
+                    logging.error("[UWEB] invaid field: %s, drop it!", key)
+                    pass
 
             set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
             if set_clause:
