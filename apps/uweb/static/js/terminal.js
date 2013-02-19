@@ -69,6 +69,8 @@ window.dlf.fn_initTerminalWR = function () {
 							$('#t_' + param ).val(str_val);
 						} else if ( param == 'white_pop' ) {	// 白名单弹出框
 							n_whitelistTip = str_val;
+						} else if ( param == 'freq' ) {
+							$('#t_' + param ).val(str_val);
 						} else {
 							$('#t_' + param ).html(str_val);
 						}
@@ -153,8 +155,11 @@ window.dlf.fn_baseSave = function() {
 					}
 				}
 			}
+			if ( str_key == 'freq' ) {
+				str_newVal = parseInt(str_newVal);
+			}
 			obj_terminalData[str_key] = str_newVal;
-		}	
+		}
 	});
 	var n_terminalNum = 0;
 	for(var param in obj_terminalData) {	// 修改项的数目

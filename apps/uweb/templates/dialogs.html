@@ -73,9 +73,9 @@
 		<div class="pwdContent wrapperContent">
 			<form id="pwdForm" >
 				<table class="pwdList">
-					<tr><td><label><font class="txtColor">* </font>原密码：</label><input type="password" id="oldPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
+					<tr><td><label><font class="txtColor">* </font>当前密码：</label><input type="password" id="oldPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
 					<tr><td><label><font class="txtColor">* </font>新密码：</label><input type="password" id="newPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
-					<tr><td><label><font class="txtColor">* </font>确认密码：</label><input type="password" id="newPwd2" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
+					<tr><td><label><font class="txtColor">* </font>确认新密码：</label><input type="password" id="newPwd2" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
 				</table>
 				<input type="submit" value="" id="pwdSave" class="pwdButton j_save" />
 			</form>
@@ -146,6 +146,18 @@
 										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的SOS联系人号码不合法，请重新输入！" who="mobile" parent="terminalWrapper"   />
 									</td>
 								</tr>-->
+								<tr class="j_corp_terminal">
+									<td class="terminalTdL" >上报频率:</td>
+									<td id="freq"  class="j_ListVal j_input"  t_val="">
+										<select id="t_freq" terminalkey="freq">
+											<option value="0">智能上报</option>
+											<option value="60">1分钟</option>
+											<option value="300">5分钟</option>
+											<option value="600">10分钟</option>
+											<option value="1800">30分钟</option>
+										</select>
+									</td>
+								</tr>
 								<tr class="j_corp_terminal">
 									<td class="terminalTdL" >车牌号码:</td>
 									<td id="corp_cnum"  class="j_ListVal j_input"  t_val="">
