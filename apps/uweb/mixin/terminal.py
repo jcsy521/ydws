@@ -3,7 +3,7 @@
 
 from base import BaseMixin
 from constants import UWEB 
-from utils.misc import get_terminal_info_key
+from utils.misc import get_terminal_info_key, get_terminal_sessionID_key
 from helpers.queryhelper import QueryHelper 
 from utils.dotdict import DotDict
 
@@ -66,6 +66,11 @@ class TerminalMixin(BaseMixin):
                             "  SET " + terminal_clause + 
                             "  WHERE tid = %s ",
                             self.current_user.tid)
+
+        if car_sets.has_key('freq'):
+            # clear sessionID
+            terminal_sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
+            self.redis.delete(terminal_sessionID_key)
 
     #def update_terminal_info(self, car_sets, car_sets_res):
     #    """Update T_TERMINAL_INFO.

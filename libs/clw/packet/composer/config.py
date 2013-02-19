@@ -15,7 +15,7 @@ class ConfigRespComposer(BaseComposer):
         """
         packet = "%s,%s,%s" % (self.time, S_MESSAGE_TYPE.CONFIG,
                                args['success']) 
-        for key in ['domain', ]:
+        for key in ['domain', 'freq', 'trace']:
             packet += ",%s=%s" % (key.upper(), args[key])
         request = self.format_packet(packet)
         

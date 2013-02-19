@@ -457,7 +457,8 @@ class MyGWServer(object):
                 request = DotDict(packet=lc.buf,
                                   address=address)
                 self.append_gw_request(request, connection, channel)
-                logging.error("[GW] Login failed! terminal service expired! mobile: %s, dev_id: %s", t_info['t_msisdn'], t_info['dev_id'])
+                logging.error("[GW] Login failed! terminal service expired! mobile: %s, dev_id: %s",
+                              t_info['t_msisdn'], t_info['dev_id'])
                 return
  
 
@@ -878,6 +879,10 @@ class MyGWServer(object):
             else:
                 self.update_terminal_status(head.dev_id, address)
                 args.domain = ConfHelper.GW_SERVER_CONF.domain 
+                terminal = self.db.get("SELECT freq, trace FROM T_TERMINAL_INFO"
+                                       "  WHERE tid = %s", head.dev_id)
+                args.freq = terminal.freq
+                args.trace = terminal.trace
 
             hc = ConfigRespComposer(args)
             request = DotDict(packet=hc.buf,
