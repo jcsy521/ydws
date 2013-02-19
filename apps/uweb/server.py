@@ -32,7 +32,7 @@ from utils.myredis import MyRedis
 from constants.MEMCACHED import ALIVED
 
 from handlers.captcha import CaptchaHandler, CaptchaSmsHandler
-from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandler
+from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandler, IOSLogoutHandler, AndroidLogoutHandler
 from handlers.checkupdate import CheckUpdateHandler
 from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
@@ -120,9 +120,11 @@ class Application(tornado.web.Application):
 
             # for android 
             (r"/android/*", AndroidHandler),
+            (r"/logout/android/*", AndroidLogoutHandler),
 
             # for ios
             (r"/ios/*", IOSHandler),
+            (r"/logout/ios/*", IOSLogoutHandler),
 
             (r"/register/*", RegisterHandler),
             

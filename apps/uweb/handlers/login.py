@@ -226,3 +226,23 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie(self.app_name)
         self.redirect(self.get_argument("next", "/"))
 
+class IOSLogoutHandler(BaseHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """Clear the cookie, ios_id and ios_badge. """
+        ios_id_key = get_ios_id_key(self.current_user.uid)
+        ios_badge_key = get_ios_badge_key(self.current_user.uid)
+        keys = [ios_id_key, ios_badge_key]
+        self.redis.delete(*keys)
+        self.clear_cookie(self.app_name)
+
+class AndroidLogoutHandler(BaseHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """Clear the cookie ."""
+        self.clear_cookie(self.app_name)
+
