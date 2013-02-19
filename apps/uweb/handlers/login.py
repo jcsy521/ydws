@@ -211,8 +211,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
                                          app_key=push_info.app_key,
                                          push_key=push_key,
                                          name=user_info.name, 
-                                         cars=terminals,
-                                         version_info=version_info))
+                                         cars=terminals))
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
