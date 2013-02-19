@@ -1650,6 +1650,15 @@ body {
 	padding: 10px 20px 0px 0px;
 	text-align: left;
 }
+#webBody .aboutBox a{
+	border: medium none;
+    display: inline;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+    width: auto
+}
 .orders {
 	line-height: 31px;
 	letter-spacing: 2px;
