@@ -116,6 +116,9 @@ class EventHandler(BaseHandler):
 
             # change the type form decimal to float.
             for event in events:
+                event['pbat'] = event['pbat'] if event['pbat'] is not None else 0
+                event['fobid'] = event['fobid'] if event['fobid'] is not None else u''
+                event['name'] = event['name'] if event['name'] is not None else u''
                 event['degree'] = float(event['degree'])
                 event['speed'] = float(event['speed'])
                 event['comment'] = ''
