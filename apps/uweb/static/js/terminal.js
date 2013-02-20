@@ -65,12 +65,13 @@ window.dlf.fn_initTerminalWR = function () {
 					} else if ( param == 'push_status' ) {
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
 					} else {
-						if ( param == 'alias' || param == 'corp_cnum' ) {	// 定位器别名、车牌号
+						if ( param == 'alias' || param == 'freq' ) {	// 定位器别名、上报频率
 							$('#t_' + param ).val(str_val);
 						} else if ( param == 'white_pop' ) {	// 白名单弹出框
 							n_whitelistTip = str_val;
-						} else if ( param == 'freq' ) {
+						} else if ( param == 'corp_cnum' ) {	// 车牌号
 							$('#t_' + param ).val(str_val);
+							dlf.fn_updateCorpCnum(str_val);	// 更新最新的车牌号
 						} else {
 							$('#t_' + param ).html(str_val);
 						}

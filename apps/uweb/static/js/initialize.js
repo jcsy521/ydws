@@ -1148,33 +1148,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 							}
 						} else {
 							if ( param == 'corp_cnum' ) {
-								var obj_current = $('.j_currentCar'),
-									str_cnum = obj_data[param],
-									str_tmobile = obj_current.attr('title'),
-									str_tempAlias = str_cnum,
-									str_tid = str_currentTid;
-								
-								if ( str_cnum == '' ) {
-									str_tempAlias = str_tmobile;
-								}
-								obj_current.html('<ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias);
-								dlf.fn_updateTerminalLogin(obj_current);
-								for ( var index in arr_autoCompleteData ) {
-									var obj_terminal = arr_autoCompleteData[index],
-										str_newLabel = '',
-										str_tempTid = obj_terminal.value,	// tid
-										str_label = obj_terminal.label;	// alias 或 tmobile
-									// 当前终端的、alias不是tmobile
-									if ( str_tempTid == str_tid ) {
-										if ( str_cnum == '' || str_cnum ==  str_tmobile ) {
-											str_newLabel = str_tmobile;
-										} else {
-											str_newLabel = str_cnum + ' ' + str_tmobile;
-										}
-										obj_terminal.label = str_newLabel;
-										dlf.fn_initAutoComplete();
-									}
-								}
+								dlf.fn_updateCorpCnum(obj_data[param]);
 							}
 							$('#' + param ).attr('t_val', str_val);
 						}

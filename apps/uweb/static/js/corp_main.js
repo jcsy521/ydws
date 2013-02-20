@@ -577,6 +577,38 @@ window.dlf.fn_updateTerminalLogin = function(obj_this) {
 	}
 }
 
+/**
+* 集团用户 /terminal get和put的时候更新最新的定位器别名
+*/
+window.dlf.fn_updateCorpCnum = function(cnum) {
+	var obj_current = $('.j_currentCar'),
+		str_cnum = cnum['corp_cnum'] == undefined ? cnum : cnum['corp_cnum'],
+		str_tmobile = obj_current.attr('title'),
+		str_tempAlias = str_cnum,
+		str_tid = str_currentTid;
+	
+	if ( str_cnum == '' ) {
+		str_tempAlias = str_tmobile;
+	}
+	obj_current.html('<ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias);
+	dlf.fn_updateTerminalLogin(obj_current);
+	for ( var index in arr_autoCompleteData ) {
+		var obj_terminal = arr_autoCompleteData[index],
+			str_newLabel = '',
+			str_tempTid = obj_terminal.value,	// tid
+			str_label = obj_terminal.label;	// alias 或 tmobile
+		// 当前终端的、alias不是tmobile
+		if ( str_tempTid == str_tid ) {
+			if ( str_cnum == '' || str_cnum ==  str_tmobile ) {
+				str_newLabel = str_tmobile;
+			} else {
+				str_newLabel = str_cnum + ' ' + str_tmobile;
+			}
+			obj_terminal.label = str_newLabel;
+			dlf.fn_initAutoComplete();
+		}
+	}
+}
 
 /**
 * 对比两次lastinfo的数据是否一致，不一致重新加载树
