@@ -35,6 +35,7 @@ class ErrorCode(object):
     CNUM_EXISTED = 220
 
     LOCATION_NAME_NONE = 300
+    LOCATION_FAILED = 301
     LOCATION_CELLID_FAILED = 302
     LOCATION_OFFSET_FAILED = 303
     TRACKER_POWER_FULL = 304
@@ -89,6 +90,7 @@ class ErrorCode(object):
         TERMINAL_NOT_ORDERED:          u"对不起，该号码尚未绑定定位器。",
         TERMINAL_NOT_EXISTED:          u"对不起，该终端不存在。",
         LOCATION_NAME_NONE:            u"无法解析经纬度对应的地址",
+        LOCATION_FAILED:               u"定位不成功",
         LOCATION_CELLID_FAILED:        u"定位器基站定位失败，请稍后重试。",
         LOCATION_OFFSET_FAILED :       u"经纬度偏转失败，请稍后重试。",
         TRACKER_POWER_FULL:            u"定位器电池充满，剩余电量100%",

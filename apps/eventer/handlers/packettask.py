@@ -166,7 +166,12 @@ class PacketTask(object):
             name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
             terminal_time = get_terminal_time(int(report.gps_time))
 
-            report_name = report.name or ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
+            report_name = report.name
+            if not report_name:
+                if report.cLon and report.cLat:
+                    report_name = ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
+                else:
+                    report_name = ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]
             sms = '' 
             sms_white = '' 
             if isinstance(report_name, str):
@@ -199,19 +204,22 @@ class PacketTask(object):
             #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
             #          '&width=320&height=480&zoom=17&markers=' +\
             #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
-            url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + str(report.cLon/3600000.0) + '&clat=' + str(report.cLat/3600000.0)
-            tiny_id = URLHelper.get_tinyid(url)
-            if tiny_id:
-                base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
-                tiny_url = base_url + '/' + tiny_id
-                logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
-                self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                sms += u"点击" + tiny_url + u" 查看车辆位置" 
-                if sms_white:
-                    sms_white += u"点击" + tiny_url + u" 查看车辆位置"
-                    self.sms_to_whitelist(sms_white, whitelist)
+            if report.cLon and report.cLat:
+                url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + str(report.cLon/3600000.0) + '&clat=' + str(report.cLat/3600000.0)
+                tiny_id = URLHelper.get_tinyid(url)
+                if tiny_id:
+                    base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                    tiny_url = base_url + '/' + tiny_id
+                    logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
+                    self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
+                    sms += u"点击" + tiny_url + u" 查看车辆位置" 
+                    if sms_white:
+                        sms_white += u"点击" + tiny_url + u" 查看车辆位置"
+                        self.sms_to_whitelist(sms_white, whitelist)
+                else:
+                    logging.info("[EVENTER] get tiny url failed.")
             else:
-                logging.info("[EVENTER] get tiny url failed.")
+                logging.info("[EVENTER] location failed.")
             self.sms_to_user(report.dev_id, sms, user)
 
         terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
