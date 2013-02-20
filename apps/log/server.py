@@ -49,7 +49,7 @@ class Application(tornado.web.Application):
             cookie_secret="s3g2gVxKOiQoZptLRi2nSuXmiK4sThYJJBSHIUHnqoUw=",
             login_url="/login",
             debug=debug,
-            app_name="LOGSYSTEM",
+            app_name="ACBLOGSYSTEM",
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)
