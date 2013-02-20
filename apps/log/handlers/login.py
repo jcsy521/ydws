@@ -29,9 +29,6 @@ class Login(BaseHandler):
         login = self.get_argument('username', '')
         password = self.get_argument('password', '')
 
-        print 'login', login
-        print 'password', password 
-
         captcha = self.get_argument('captcha', '')
         captchahash = self.get_argument('captchahash', '')
         m = hashlib.md5()
