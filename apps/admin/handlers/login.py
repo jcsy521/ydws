@@ -45,7 +45,7 @@ class LoginHandler(BaseHandler, BaseMixin):
         captchahash = self.get_argument('captchahash', '')
 
         # must check username and password avoid sql injection.
-        if not (login.isalnum() and password.isalnum()):
+        if not login.isalnum():
             self.render("login.html",
                         username="",
                         password="",
