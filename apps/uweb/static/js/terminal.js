@@ -69,7 +69,7 @@ window.dlf.fn_initTerminalWR = function () {
 							$('#t_' + param ).val(str_val);
 						} else if ( param == 'white_pop' ) {	// 白名单弹出框
 							n_whitelistTip = str_val;
-						} else if ( param == 'corp_cnum' ) {	// 车牌号
+						} else if ( param == 'corp_cnum' && dlf.fn_userType() ) {	// 车牌号
 							$('#t_' + param ).val(str_val);
 							dlf.fn_updateCorpCnum(str_val);	// 更新最新的车牌号
 						} else {
