@@ -329,125 +329,125 @@ window.dlf.fn_corpGetCarData = function() {
 	str_currentTid = obj_current.attr('tid');	// load.jstree时更新选中的车
 
 	$.post_(CORP_LASTINFO_URL, '', function (data) {	// 向后台发起lastinfo请求
-			if ( data.status == 0 ) {
-				var obj_corp = data.res,
-					arr_groups = obj_corp.groups,	// all groups 
-					n_groupLength = arr_groups.length,	// group length
-					str_corpName = obj_corp.name,	// corp name
-					str_corpId = obj_corp.cid,		// corp id
-					str_html = '<ul>',
-					arr_groupIds = [], // 组ID组
-					arr_tids = [], 	// 组下的tid组
-					str_tempFirstTid = '',	// 默认第一个tid
-					str_groupFirstId = '',	// 默认第一个groupid
-					obj_newData = {};
-					
-				n_onlineCnt = obj_corp.online,		// online count
-				n_offlineCnt = obj_corp.offline;	// offline count
+		if ( data.status == 0 ) {
+			var obj_corp = data.res,
+				arr_groups = obj_corp.groups,	// all groups 
+				n_groupLength = arr_groups.length,	// group length
+				str_corpName = obj_corp.name,	// corp name
+				str_corpId = obj_corp.cid,		// corp id
+				str_html = '<ul>',
+				arr_groupIds = [], // 组ID组
+				arr_tids = [], 	// 组下的tid组
+				str_tempFirstTid = '',	// 默认第一个tid
+				str_groupFirstId = '',	// 默认第一个groupid
+				obj_newData = {};
 				
-				if ( str_corpId && str_corpName ) {
-					str_html += '<li class="j_corp"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_corpName +'</a>';
-				}
-				
-				arr_autoCompleteData = [];
-				if ( n_groupLength > 0 ) {
-					str_html += '<ul>';
-					str_groupFirstId = 'group_' + arr_groups[0].gid;
-					
-					for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
-						var obj_group = arr_groups[i],
-							str_groupName = obj_group.name,
-							str_groupId = obj_group.gid,
-							arr_cars = obj_group.cars,
-							arr_tempTids = [], //tid组
-							n_carsLength = arr_cars.length;
-							//arr_tids = [];
-							
-						str_html += '<li class="j_group"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_groupName +'</a>';
-						
-						if ( n_carsLength > 0 ) {
-							str_html += '<ul>';
-							if ( str_tempFirstTid == '' ) {
-								str_tempFirstTid = 'leaf_' + arr_groups[i].cars[0].tid;	// 第一个分组的第一个定位器 id
-							}
-							for ( var x = 0; x < n_carsLength; x++) {	// 添加组下面的定位器
-								var obj_car = arr_cars[x],
-									str_tid = obj_car.tid,
-									str_alias= obj_car.alias,
-									str_mobile = obj_car.mobile,
-									str_login = obj_car.login;
-									
-								obj_carsData[str_tid] =  obj_car;
-								arr_tempTids.push(str_tid); //tid组string 串
-								if ( str_login == LOGINOUT ) {
-									str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';
-								} else {
-									str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';	
-								}
-								
-								if ( str_tempTid != '' && str_tempTid == str_tid ) {
-									b_flg = true;
-								}
-								/** 
-								* 自动完成数据填充:根据旅客姓名和手机号进行搜索
-								*/
-								var str_tempLabel = str_mobile;
-								if ( str_alias != str_mobile ) {
-									str_tempLabel = str_alias + ' ' + str_mobile;
-								}
-								arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
-							}
-							str_html += '</ul>';
-							// 填充本次数据 为了与下次lastinfo进行比较
-							
-							arr_tids[str_groupId] = arr_tempTids;
-						} else {
-							arr_tids[str_groupId] = [];
-						}
-						str_html += '</li>';
-						arr_groupIds.push(str_groupId);
-					}
-					str_html += '</ul>';
-					// 存储 gids , tids
-					obj_newData = {'gids': arr_groupIds, 'tids': arr_tids, 'n_gLen': n_groupLength};
-				}
-				$('.j_carList').data('carsData', obj_carsData);	// 存储所有定位器信息
-				str_html += '</li></ul>';
-				var str_tempNodeId = '';
-				/**
-				* 设置jstree默认选中的节点
-				*/
-				if ( str_checkedNodeId == '' || str_checkedNodeId == 'leaf_' || str_checkedNodeId == ' leaf_undefined'  ) {		// 上次没有选中---第一次加载
-					if ( str_tempFirstTid != '' ) {	// 拿第一个定位器
-						str_tempNodeId = str_tempFirstTid;
-					} else {
-						str_tempNodeId = str_groupFirstId;
-					}
-				} else {
-					if ( b_flg ) {
-						str_tempNodeId = str_checkedNodeId;
-					} else {
-						str_tempNodeId = str_tempFirstTid == '' ? str_groupFirstId : str_tempFirstTid;
-					}
-				}
-				
-				if ( fn_lastinfoCompare(obj_newData) ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
-					dlf.fn_loadJsTree(str_tempNodeId, str_html);
-					dlf.fn_initAutoComplete();
-					$('#txtautoComplete').val('请输入车牌号或定位器号码').addClass('gray');
-				} else {
-					// 更新组名和集团名还有 在线离线状态
-					fn_updateTreeNode(obj_corp);
-				}
-			} else if ( data.status == 201 ) {	// 业务变更
-				dlf.fn_showBusinessTip();
-			} else {
-				dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
+			n_onlineCnt = obj_corp.online,		// online count
+			n_offlineCnt = obj_corp.offline;	// offline count
+			
+			if ( str_corpId && str_corpName ) {
+				str_html += '<li class="j_corp"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_corpName +'</a>';
 			}
-		},
-		function (XMLHttpRequest, textStatus, errorThrown) {
-			dlf.fn_serverError(XMLHttpRequest);
-		});
+			
+			arr_autoCompleteData = [];
+			if ( n_groupLength > 0 ) {
+				str_html += '<ul>';
+				str_groupFirstId = 'group_' + arr_groups[0].gid;
+				
+				for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
+					var obj_group = arr_groups[i],
+						str_groupName = obj_group.name,
+						str_groupId = obj_group.gid,
+						arr_cars = obj_group.cars,
+						arr_tempTids = [], //tid组
+						n_carsLength = arr_cars.length;
+						//arr_tids = [];
+						
+					str_html += '<li class="j_group"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_groupName +'</a>';
+					
+					if ( n_carsLength > 0 ) {
+						str_html += '<ul>';
+						if ( str_tempFirstTid == '' ) {
+							str_tempFirstTid = 'leaf_' + arr_groups[i].cars[0].tid;	// 第一个分组的第一个定位器 id
+						}
+						for ( var x = 0; x < n_carsLength; x++) {	// 添加组下面的定位器
+							var obj_car = arr_cars[x],
+								str_tid = obj_car.tid,
+								str_alias= obj_car.alias,
+								str_mobile = obj_car.mobile,
+								str_login = obj_car.login;
+								
+							obj_carsData[str_tid] =  obj_car;
+							arr_tempTids.push(str_tid); //tid组string 串
+							if ( str_login == LOGINOUT ) {
+								str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';
+							} else {
+								str_html += '<li class="jstree-leaf j_leafNode"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';	
+							}
+							
+							if ( str_tempTid != '' && str_tempTid == str_tid ) {
+								b_flg = true;
+							}
+							/** 
+							* 自动完成数据填充:根据旅客姓名和手机号进行搜索
+							*/
+							var str_tempLabel = str_mobile;
+							if ( str_alias != str_mobile ) {
+								str_tempLabel = str_alias + ' ' + str_mobile;
+							}
+							arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
+						}
+						str_html += '</ul>';
+						// 填充本次数据 为了与下次lastinfo进行比较
+						
+						arr_tids[str_groupId] = arr_tempTids;
+					} else {
+						arr_tids[str_groupId] = [];
+					}
+					str_html += '</li>';
+					arr_groupIds.push(str_groupId);
+				}
+				str_html += '</ul>';
+				// 存储 gids , tids
+				obj_newData = {'gids': arr_groupIds, 'tids': arr_tids, 'n_gLen': n_groupLength};
+			}
+			$('.j_carList').data('carsData', obj_carsData);	// 存储所有定位器信息
+			str_html += '</li></ul>';
+			var str_tempNodeId = '';
+			/**
+			* 设置jstree默认选中的节点
+			*/
+			if ( str_checkedNodeId == '' || str_checkedNodeId == 'leaf_' || str_checkedNodeId == ' leaf_undefined'  ) {		// 上次没有选中---第一次加载
+				if ( str_tempFirstTid != '' ) {	// 拿第一个定位器
+					str_tempNodeId = str_tempFirstTid;
+				} else {
+					str_tempNodeId = str_groupFirstId;
+				}
+			} else {
+				if ( b_flg ) {
+					str_tempNodeId = str_checkedNodeId;
+				} else {
+					str_tempNodeId = str_tempFirstTid == '' ? str_groupFirstId : str_tempFirstTid;
+				}
+			}
+			
+			if ( fn_lastinfoCompare(obj_newData) ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
+				dlf.fn_loadJsTree(str_tempNodeId, str_html);
+				dlf.fn_initAutoComplete();
+				$('#txtautoComplete').val('请输入车牌号或定位器号码').addClass('gray');
+			} else {
+				// 更新组名和集团名还有 在线离线状态
+				fn_updateTreeNode(obj_corp);
+			}
+		} else if ( data.status == 201 ) {	// 业务变更
+			dlf.fn_showBusinessTip();
+		} else {
+			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
+		}
+	},
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
+	});
 }
 
 /*
