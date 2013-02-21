@@ -368,13 +368,6 @@ window.dlf.fn_getCarData = function(str_flag) {
 					obj_tempData = {};
 				
 				for(var param in obj_cars) {
-					if ( param == 'J123' ) {
-						obj_cars[param].clongitude = '418974741';
-						obj_cars[param].clatitude = '144244127';
-						// longitude":418929044,"clongitude":418974741,"latitude":144217173,"clatitude":144244127
-					}
-				
-				
 					var obj_carInfo = obj_cars[param], 
 						str_tid = param,
 						str_alias = obj_carInfo.alias,
