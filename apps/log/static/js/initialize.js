@@ -117,7 +117,7 @@ function fn_getLogData() {
 }
 function fn_validCookie() {
 	// 验证cookie是否超时
-	if(!$.cookie('LOGSYSTEM_N')) {
+	if(!$.cookie('ACBLOGSYSTEM')) {
 		window.location.replace('/'); // redirect to the index.
 		return true;
 	}
