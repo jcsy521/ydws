@@ -18,9 +18,7 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
-	dlf.fn_clearInterval(timerId); // 清除动态播放轨迹计时器
-	dlf.fn_clearMapComponent(); // 清除页面图形
-	$('.j_tBtnhover, .trackSpeed').hide();	// 播放速度、播放按钮隐藏
+	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
 	$('#ceillid_flag').removeAttr('checked');
 	$('#trackHeader').show();	// 轨迹查询条件显示
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
@@ -31,7 +29,7 @@ window.dlf.fn_initTrack = function() {
 */
 window.dlf.fn_closeTrackWindow = function() {
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	fn_clearTrack();	// 清除数据
+	dlf.fn_clearTrack();	// 清除数据
 	$('#trackHeader').hide();	// 轨迹查询条件隐藏
 	/**
 	* 清除地图后要清除车辆列表的marker存储数据
@@ -66,7 +64,7 @@ function fn_trackQuery() {
 						'end_time': dlf.fn_changeDateStringToNum(str_endTime),
 						'cellid_flag': n_cellid_flag};
 	
-	fn_clearTrack();	// 清除数据
+	dlf.fn_clearTrack();	// 清除数据
 	$('.j_tBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
@@ -83,7 +81,7 @@ function fn_trackQuery() {
 			   * obj_tempMaxPoint 存储与每一点最大距离的数据
 			   * obj_tempFirstPoint 存储与每最远点的数据
 			*/
-			var arr_locations =	 data.track;// data.track, 
+			var arr_locations =	data.track, 
 				locLength = arr_locations.length,
 				str_msg = '';
 			if ( locLength <= 0) {
@@ -295,7 +293,7 @@ function fn_drawMarker() {
 		}
 		counter ++;
 	} else {	// 播放完成后
-		fn_clearTrack();	// 清除数据
+		dlf.fn_clearTrack();	// 清除数据
 		dlf.fn_clearMapComponent(actionMarker);
 		$('#tPause').hide();
 		$('#tPlay').css('display', 'inline-block');
@@ -312,11 +310,15 @@ function fn_createDrawLine () {
 /**
 * 关闭轨迹清除数据
 */
-function fn_clearTrack () {
+window.dlf.fn_clearTrack = function(clearType) {
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };	// 清除计时器
 	str_actionState = 0;
 	counter = 0;
 	arr_drawLine = [];
+	if ( clearType == 'inittrack' ) {
+		$('.j_tBtnhover, .trackSpeed').hide();	// 播放速度、播放按钮隐藏
+		dlf.fn_clearMapComponent(); // 清除页面图形
+	}
 }
 
 /**

@@ -286,7 +286,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				str_currentTid = n_tid;
 				if ( obj_carDatas ) {
 					dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
-				} 
+				}
 				dlf.fn_moveMarker(n_tid);
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
@@ -303,29 +303,35 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 }
 
 window.dlf.fn_moveMarker = function(n_tid) {
-	/**
-	* 查找到当前车辆的信息  更新marker信息
-	*/
-	var obj_tempMarker = obj_selfmarkers[n_tid],	//obj_currentItem.data('selfmarker'),
-		obj_infoWindow = '',
-		arr_overlays = $('.j_carList .j_terminal');
-		
-	if ( obj_tempMarker ) {
-		obj_infoWindow = obj_tempMarker.selfInfoWindow;
-		mapObj.panTo(obj_tempMarker.getPosition());
-		
-		for ( var i = 0; i < arr_overlays.length; i++ ) {
-			var obj_marker = obj_selfmarkers[$(arr_overlays[i]).attr('tid')];
+	var str_trackStatus = $('#trackHeader').css('display');
+	
+	if ( str_trackStatus == 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	
+		/**
+		* 查找到当前车辆的信息  更新marker信息
+		*/
+		var obj_tempMarker = obj_selfmarkers[n_tid],	//obj_currentItem.data('selfmarker'),
+			obj_infoWindow = '',
+			arr_overlays = $('.j_carList .j_terminal');
 			
-			if ( obj_marker ) {
-				obj_marker.setTop(false);
+		if ( obj_tempMarker ) {
+			obj_infoWindow = obj_tempMarker.selfInfoWindow;
+			mapObj.setCenter(obj_tempMarker.getPosition());
+			
+			for ( var i = 0; i < arr_overlays.length; i++ ) {
+				var obj_marker = obj_selfmarkers[$(arr_overlays[i]).attr('tid')];
+				
+				if ( obj_marker ) {
+					obj_marker.setTop(false);
+				}
 			}
+			obj_tempMarker.setTop(true);
+			obj_tempMarker.openInfoWindow(obj_infoWindow); // 显示吹出框
+		} else {
+			// 关闭所有的marker
+			mapObj.closeInfoWindow();
 		}
-		obj_tempMarker.setTop(true);
-		obj_tempMarker.openInfoWindow(obj_infoWindow); // 显示吹出框
 	} else {
-		// 关闭所有的marker
-		mapObj.closeInfoWindow();
+		dlf.fn_clearTrack('inittrack');	// 初始化清除数据
 	}
 }
 
@@ -349,11 +355,15 @@ window.dlf.fn_updateLastInfo = function() {
 window.dlf.fn_getCarData = function(str_flag) {
 	var str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),	//当前车tid
 		obj_carListLi = $('.j_carList li'), 
+		str_trackStatus = $('#trackHeader').css('display');
 		n_length = obj_carListLi.length, 	//车辆总数
 		n_count = 0, 
 		arr_tids = [], 
 		obj_tids= {'tids': [str_currentTid]};	//所有车的tid集合
-		
+	
+	if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	
+		return;
+	}
 	for( var i = 0; i < n_length; i++ ) {	//遍历每辆车获取tid
 		var str_tempTid = obj_carListLi.eq(i).children().attr('tid');	
 		if ( str_tempTid ) {

@@ -321,9 +321,13 @@ function fn_initCarInfo() {
 window.dlf.fn_corpGetCarData = function() {
 	var obj_current = $('.j_leafNode a[class*=jstree-clicked]'),
 		str_checkedNodeId = obj_current.attr('id'),	// 上一次选中车辆的id
+		str_trackStatus = $('#trackHeader').css('display'),
 		str_tempTid = '',
 		b_flg = false;
 	
+	if ( str_trackStatus != 'none' ) {	//如果当前正在进行轨迹操作,不进行lastinfo操作
+		return;
+	}
 	str_checkedNodeId = str_checkedNodeId == undefined ? 'leaf_' + str_currentTid : str_checkedNodeId;
 	str_tempTid = str_checkedNodeId.substr(5, str_checkedNodeId.length);
 	str_currentTid = obj_current.attr('tid');	// load.jstree时更新选中的车
