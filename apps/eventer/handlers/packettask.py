@@ -221,6 +221,9 @@ class PacketTask(object):
             else:
                 logging.info("[EVENTER] location failed.")
             self.sms_to_user(report.dev_id, sms, user)
+        else:
+            logging.info("[EVENTER] Remind option of %s is closed. Terminal: %s",
+                         report.rName, report.dev_id)
 
         terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
                                "  WHERE tid = %s", report.dev_id)
@@ -238,6 +241,9 @@ class PacketTask(object):
                     report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
 
             self.notify_to_parents(report.category, report.dev_id, report, user) 
+        else:
+            logging.info("[EVENTER] Push option of %s is closed. Terminal: %s",
+                         report.rName, report.dev_id)
 
 
     def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):
