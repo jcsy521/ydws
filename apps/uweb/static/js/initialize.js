@@ -467,8 +467,8 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_speed = '-';
 	} else {
 		str_address = $('.j_carList a[tid='+ obj_carInfo.tid +']').data('address');
-		str_clon += 'E ' + Math.round(obj_carInfo.clongitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
-		str_clat += 'N ' + Math.round(obj_carInfo.clatitude/NUMLNGLAT*CHECK_INTERVAL)/CHECK_INTERVAL;
+		str_clon += 'E ' + Math.round(obj_carInfo.clongitude/NUMLNGLAT*CHECK_ROUNDNUM)/CHECK_ROUNDNUM;
+		str_clat += 'N ' + Math.round(obj_carInfo.clatitude/NUMLNGLAT*CHECK_ROUNDNUM)/CHECK_ROUNDNUM;
 	}
 	
 	if ( !type ) {	// lastinfo: 更新车辆信息和定位器信息  realtime: 只更新位置信息
