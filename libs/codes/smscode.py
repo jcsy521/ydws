@@ -8,6 +8,7 @@ class SMSCode(object):
     SMS_DOMAIN = u":DOMAIN %s"
     SMS_LQ = u":LQ %s"
     SMS_REGISTER = u":SIM %s:%s" 
+    SMS_UNBIND = u":JB" 
     SMS_CF = u":CF"
     SMS_SF = u":SF"
     SMS_LQGZ = u":LQGZ %s"
