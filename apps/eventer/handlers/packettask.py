@@ -205,7 +205,9 @@ class PacketTask(object):
             #          '&width=320&height=480&zoom=17&markers=' +\
             #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
             if report.cLon and report.cLat:
-                url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + str(report.cLon/3600000.0) + '&clat=' + str(report.cLat/3600000.0)
+                clon = '%0.3f' % (report.cLon/3600000.0) 
+                clat = '%0.3f' % (report.cLat/3600000.0)
+                url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + clon + '&clat=' + clat 
                 tiny_id = URLHelper.get_tinyid(url)
                 if tiny_id:
                     base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
