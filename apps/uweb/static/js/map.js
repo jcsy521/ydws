@@ -345,8 +345,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 				'<li><label>速度： '+ speed+' km/h</label>'+
 				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
-				'<li><label>经度： E '+Math.round(str_clon*CHECK_ROUNDNUM)/CHECK_ROUNDNUM+'</label>'+
-				'<label class="labelRight">纬度： N '+Math.round(str_clat*CHECK_ROUNDNUM)/CHECK_ROUNDNUM+'</label></li>'+
+				'<li><label>经度： E '+str_clon.toFixed(CHECK_ROUNDNUM)+'</label>'+
+				'<label class="labelRight">纬度： N '+str_clat.toFixed(CHECK_ROUNDNUM)+'</label></li>'+
 				'<li>类型： '+ str_type +'</li>'+
 				'<li>时间： '+ date +'</li>' + 
 				'<li>位置： <lable class="lblAddress">'+ address +'</label></li>';

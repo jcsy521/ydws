@@ -30,7 +30,7 @@ var CHECKCNAME_URL = '/checkcname';	// 验证集团名
 var CORPPWD_URL = '/password/corp';	// 集团密码
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒
-var CHECK_ROUNDNUM = 1000; // 经纬度显示小数位截取
+var CHECK_ROUNDNUM = 3; // 经纬度显示小数位截取
 var CHECK_PERIOD = 60000; // 总共执行的时间
 var INFOTIME = 15000; //动态更新的时间
 var CURRENT_TIMMER = null; // 定时器对象 
