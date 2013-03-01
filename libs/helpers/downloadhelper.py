@@ -3,26 +3,25 @@
 import os.path
 DOWNLOAD_DIR_ = os.path.abspath(os.path.join(__file__, "../../../apps/uweb/static/download/"))
 
-from  xml.dom import minidom
+from xml.dom import minidom
 from utils.dotdict import DotDict
 
 
-def get_version_info(category):
+def get_version_info(tag):
     """Get info about version.
     """
-    # NOTE: here, just hande android
     xml = minidom.parse(os.path.join(DOWNLOAD_DIR_,"download.xml"))
-    android = xml.getElementsByTagName(category)
-    android_code = android[0].getElementsByTagName('versioncode') 
-    android_name = android[0].getElementsByTagName('versionname')
-    android_info = android[0].getElementsByTagName('versioninfo')
-    android_updatetime = android[0].getElementsByTagName('updatetime')
-    android_filesize = android[0].getElementsByTagName('filesize')
-    versioncode = android_code[0].firstChild.data
-    versionname = android_name[0].firstChild.data
-    versioninfo = android_info[0].firstChild.data
-    updatetime = android_updatetime[0].firstChild.data
-    filesize = android_filesize[0].firstChild.data
+    version = xml.getElementsByTagName(tag)
+    version_code = version[0].getElementsByTagName('versioncode') 
+    version_name = version[0].getElementsByTagName('versionname')
+    version_info = version[0].getElementsByTagName('versioninfo')
+    version_updatetime = version[0].getElementsByTagName('updatetime')
+    version_filesize = version[0].getElementsByTagName('filesize')
+    versioncode = version_code[0].firstChild.data if version_code[0].firstChild else ''
+    versionname = version_name[0].firstChild.data if version_name[0].firstChild else '' 
+    versioninfo = version_info[0].firstChild.data if version_info[0].firstChild else '' 
+    updatetime = version_updatetime[0].firstChild.data if version_updatetime[0].firstChild else '' 
+    filesize = version_filesize[0].firstChild.data if version_filesize[0].firstChild else '' 
 
     return DotDict(versioncode=versioncode,
                    versionname=versionname,

@@ -9,7 +9,7 @@ from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from base import BaseHandler
 
-class CheckUpdateHandler(BaseHandler):
+class CheckUpdateAndroidHandler(BaseHandler):
 
     @tornado.web.removeslash
     def get(self):
@@ -20,5 +20,19 @@ class CheckUpdateHandler(BaseHandler):
                            dict_=DotDict(version_info=version_info)) 
         except Exception as e:
             logging.exception("[UWEB] Android check update failed. Exception: %s", e.args) 
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
+class CheckUpdateIOSHandler(BaseHandler):
+
+    @tornado.web.removeslash
+    def get(self):
+        status = ErrorCode.SUCCESS
+        try:
+            version_info = get_version_info("ios")
+            self.write_ret(status,
+                           dict_=DotDict(version_info=version_info)) 
+        except Exception as e:
+            logging.exception("[UWEB] IOS check update failed. Exception: %s", e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

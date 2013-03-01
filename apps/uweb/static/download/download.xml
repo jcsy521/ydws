@@ -6,4 +6,11 @@
         <updatetime>2012-10-30</updatetime>
         <filesize>4.74M</filesize>
     </android>
+    <ios>
+        <versioncode></versioncode>
+        <versionname>2.0.1</versionname>
+        <versioninfo></versioninfo>
+        <updatetime></updatetime>
+        <filesize></filesize>
+    </ios>
 </download>
