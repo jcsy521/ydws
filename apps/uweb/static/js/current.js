@@ -8,7 +8,6 @@
 */
 window.dlf.fn_currentQuery = function() {
 	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位参数设置
-	
 	dlf.fn_dialogPosition($('#currentWrapper'));	// 设置dialog的位置
 	fn_currentRequest(obj_pd);	// 发起定位请求
 	$('#currentBtn').unbind('click').click(function() {	// 窗口关闭事件
@@ -158,7 +157,7 @@ function fn_currentRequest(obj_pd) {
 function fn_displayCurrentMarker(obj_location) {
 	dlf.fn_closeDialog();
 	dlf.fn_updateLastInfo();	// 动态更新定位器相关数据
-	mapObj.setCenter(new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT));	// 标记显示及中心点移动
+	mapObj.setCenter(dlf.fn_createMapPoint(obj_location.clongitude, obj_location.clatitude));	// 标记显示及中心点移动
 	dlf.fn_updateInfoData(obj_location, 'current');	// 对当前车的位置信息进行更新
 	dlf.fn_updateTerminalInfo(obj_location, 'realtime');	// 对当前车的车辆信息进行更新
 }

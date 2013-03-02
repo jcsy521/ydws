@@ -1959,4 +1959,24 @@ body {
 	height: 24px;
 	line-height: 24px;
 }
+/*gaodemap control for traffic and satellite*/
+#mapTileLayer {
+	background: none repeat scroll 0 0 white;
+    height: 20px;
+    position: absolute;
+    right: 38px;
+    top: 177px;
+    width: 174px;
+    z-index: 1000;
+}
+#mapTileLayer ul li {
+	border: 1px solid #000000;
+    cursor: pointer;
+    float: left;
+    font-size: 14px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    width: 85px;
+}
 /*web css end*/

@@ -168,8 +168,7 @@ window.onresize = function () {
 */
 $(function () {
 	dlf.fn_loadMap();	// 加载MAP
-	mapObj.removeControl(viewControl);  //隐藏鹰眼
-	
+	//obj_overview.hide();	 //隐藏鹰眼
 	$('.eventbody').css({	// 调整BODY高度
 		'height': $(window).height() - 10,
 		'width': $(window).width()

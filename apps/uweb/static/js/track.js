@@ -21,7 +21,7 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
 	$('#ceillid_flag').removeAttr('checked');
 	$('#trackHeader').show();	// 轨迹查询条件显示
-	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
+	//dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 }
 
 /**
@@ -50,7 +50,7 @@ window.dlf.fn_closeTrackWindow = function() {
 	}
 	dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-	dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
+	//dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
 
 /**
@@ -81,7 +81,7 @@ function fn_trackQuery() {
 			   * obj_tempMaxPoint 存储与每一点最大距离的数据
 			   * obj_tempFirstPoint 存储与每最远点的数据
 			*/
-			var arr_locations =	data.track, 
+			var arr_locations = data.track, 
 				locLength = arr_locations.length,
 				str_msg = '';
 			if ( locLength <= 0) {
@@ -166,11 +166,10 @@ function fn_forMarkerDistance(firstPoint, secondPoint) {
 window.dlf.fn_forMarkerDistance = function (point1, point2) {
 	var EARTHRADIUS = 6370996.81; // 取WGS84标准参考椭球中的地球长半径(单位:m)
 	//判断类型
-	if(!(point1 instanceof BMap.Point) ||
+	/*if(!(point1 instanceof BMap.Point) ||
 		!(point2 instanceof BMap.Point)){
 		return 0;
-	}
-
+	}*/
 	point1.lng = fn_getLoop(point1.lng, -180, 180);
 	point1.lat = fn_getRange(point1.lat, -74, 74);
 	point2.lng = fn_getLoop(point2.lng, -180, 180);
@@ -242,6 +241,7 @@ function fn_startDrawLineStatic(arr_dataArr) {
 	dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
 	dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
 	arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[0].clongitude, arr_dataArr[0].clatitude));
+
 	fn_createDrawLine();
 }
 
@@ -280,7 +280,7 @@ function fn_drawMarker() {
 	}
 	if ( counter <= n_len-1 ) {
 		if ( actionMarker ) {
-			f_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();
+			f_trackMsgStatus = actionMarker.selfInfoWindow.getIsOpen();
 			dlf.fn_clearMapComponent(actionMarker);
 		}
 		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, counter); // 添加标记
@@ -289,7 +289,7 @@ function fn_drawMarker() {
 		obj_drawLine.setPath(arr_drawLine);
 		
 		if ( f_trackMsgStatus ) {
-			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框
+			actionMarker.selfInfoWindow.open(mapObj, actionMarker.getPosition()); // 显示吹出框
 		}
 		counter ++;
 	} else {	// 播放完成后

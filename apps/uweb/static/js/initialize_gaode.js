@@ -311,24 +311,31 @@ window.dlf.fn_moveMarker = function(n_tid) {
 		*/
 		var obj_tempMarker = obj_selfmarkers[n_tid],	//obj_currentItem.data('selfmarker'),
 			obj_infoWindow = '',
-			arr_overlays = $('.j_carList .j_terminal');
+			arr_overlays = $('.j_carList .j_terminal'),
+			obj_position = null;
 			
-		if ( obj_tempMarker ) {
+		if ( obj_tempMarker && obj_tempMarker != undefined ) {
+			obj_position = obj_tempMarker.getPosition();
 			obj_infoWindow = obj_tempMarker.selfInfoWindow;
-			mapObj.setCenter(obj_tempMarker.getPosition());
+			mapObj.setCenter(obj_position);
 			
 			for ( var i = 0; i < arr_overlays.length; i++ ) {
 				var obj_marker = obj_selfmarkers[$(arr_overlays[i]).attr('tid')];
 				
 				if ( obj_marker ) {
-					obj_marker.setTop(false);
+					obj_marker.setzIndex(0);	// 设置当前marker置顶
 				}
 			}
-			obj_tempMarker.setTop(true);
-			obj_tempMarker.openInfoWindow(obj_infoWindow); // 显示吹出框
+			obj_tempMarker.setzIndex(10);
+			obj_infoWindow.open(mapObj, obj_position);	// 显示吹出框
 		} else {
-			// 关闭所有的marker
-			mapObj.closeInfoWindow();
+			for ( var index in obj_selfmarkers ) {
+				var infowindow = obj_selfmarkers[index].selfInfoWindow;
+				
+				if ( infowindow.getIsOpen() ) {
+					infowindow.close();	// 关闭所有的infowindow
+				}
+			}
 		}
 	} else {
 		dlf.fn_clearTrack('inittrack');	// 初始化清除数据
@@ -397,7 +404,6 @@ window.dlf.fn_getCarData = function(str_flag) {
 					obj_tempData[str_tid] = obj_carInfo;
 					if ( n_clon != 0 && n_clat != 0 ) {					
 						if ( obj_carInfo ) {
-							//obj_carA.data('carData', obj_carInfo);
 							dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
 						}
 					}
@@ -512,7 +518,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		n_degree = obj_carInfo.degree,
 		obj_tempVal = dlf.fn_checkCarVal(str_tid), // 查询缓存中是否有当前车辆信息
-		obj_tempPoint = new BMap.Point(n_clon, n_clat),
+		obj_tempPoint = new MMap.LngLat(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
 		actionPolyline = null, // 轨迹线对象
 		str_actionTrack = obj_actionTrack[str_tid],		// obj_carA.attr('actiontrack'), 
@@ -542,20 +548,18 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		arr_infoPoint.push(obj_tempData);
 	}
 	
-	actionPolyline = dlf.fn_createPolyline(obj_tempData.val); 
+	actionPolyline = dlf.fn_createPolyline(obj_tempData.val, {color: 'blue'}, str_tid); 
 	dlf.fn_addOverlay(actionPolyline);	//向地图添加覆盖物 
 	obj_polylines[str_tid] = actionPolyline;	// 存储开启追踪轨迹
-	//obj_carA.data('selfpolyline', actionPolyline);
 	
 	if ( obj_selfMarker ) {
-		obj_selfMarker.setLabel(obj_selfMarker.getLabel());	// 设置label  obj_carA.data('selfLable')
-		obj_selfMarker.getLabel().setContent(str_alias);	// label上的alias值
+		/*obj_selfMarker.setLabel(obj_selfMarker.getLabel());	// 设置label  obj_carA.data('selfLable')
+		obj_selfMarker.getLabel().setContent(str_alias);	// label上的alias值*/
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
-		obj_selfMarker.setIcon(new BMap.Icon(BASEIMGURL +n_imgDegree+'.png', new BMap.Size(34, 34)));	// 设置方向角图片
-		//obj_carA.data('selfmarker', obj_selfMarker);
+		obj_selfMarker.setIcon(new MMap.Icon({image: BASEIMGURL +n_imgDegree+'.png', size: new MMap.Size(34, 34)}));	// 设置方向角图片
 		obj_selfmarkers[str_tid] = obj_selfMarker;
-	} else { 
+	} else {
 		if ( dlf.fn_userType() ) {
 			n_carIndex = $('.j_terminal').index(obj_carA);
 		}
@@ -568,7 +572,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if (( str_currentTid == str_tid ) ) {
 			if ( str_type == 'current' ) {	// 查找到当前车辆的信息
 				if ( obj_tempMarker ) {
-					obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
+					obj_tempMarker.selfInfoWindow.open(mapObj, obj_tempMarker.getPosition());	// 打开infowindow
 				}
 			} else if ( str_type == 'first' ) {	// 如果第一次lastinfo 移到中心点 打开吹出框
 				dlf.fn_moveMarker(str_currentTid);				
@@ -780,10 +784,9 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 	}
 	
 	str_content = str_content.replace(str_tempOldMsg, str_tempMsg);
-	obj_selfInfoWindow.setContent(str_content);
+	obj_selfInfoWindow.setContent(str_content);		// todo
 	obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;
 	obj_actionTrack[str_tid] = str_tempAction;
-	//obj_carLi.data('selfmarker', obj_selfMarker);
 	obj_selfmarkers[str_tid] = obj_selfMarker;
 	$(selfItem).html(str_tempMsg);
 }
@@ -1218,9 +1221,9 @@ window.dlf.fn_updateAlias = function() {
 			str_oldname = str_content.substring(n_beginNum, n_endNum),
 			str_content = str_content.replace(str_oldname, str_alias);
 					
-		obj_selfMarker.getLabel().setContent(str_alias);
+		//obj_selfMarker.getLabel().setContent(str_alias);	// todo
 		//$('.cMsgWindow h4[tid='+str_tid+']').html('车辆：' + str_alias);
-		obj_selfMarker.selfInfoWindow.setContent(str_content);
+		obj_selfMarker.selfInfoWindow.setContent(str_content);	// todo
 	}
 	obj_car.attr('title', str_alias);	// 
 	obj_car.next().html(str_alias).attr('title', str_alias);
