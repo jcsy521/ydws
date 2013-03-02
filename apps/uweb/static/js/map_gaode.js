@@ -102,17 +102,20 @@ window.dlf.fn_removeTileLayer = function(tilelayer) {
 * n_NumTop: 相对于地图上侧做的偏移值 
 */
 window.dlf.fn_setMapControl = function(n_NumTop) {
-	/*移除相应的地图控件及服务对象*/
-	mapObj.removeControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
-	mapObj.removeControl(obj_trafficControl); //添加路况信息控件
+	var track_display = $('#trackHeader').is(':hidden'),	
+		obj_toolBar = $('.tool_mapabc').parent(),
+		obj_tileLayers = $('#mapTileLayer'),
+		n_tileLayerTop = obj_tileLayers.offset().top;
 	
-	/*重新声明相应的地图控件及服务对象*/
-	obj_MapTypeControl = new BMap.MapTypeControl({mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], offset: new BMap.Size(100, n_NumTop)});
-	obj_trafficControl = new BMapLib.TrafficControl(new BMap.Size(10, n_NumTop));
-
-	/*添加相应的地图控件及服务对象*/
-	mapObj.addControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
-	mapObj.addControl(obj_trafficControl); //添加路况信息控件
+	if ( track_display ) {
+		obj_toolBar.css('top', n_NumTop);
+		$('.tool_mapabc').siblings('div').css('top', 28);
+		obj_tileLayers.css('top', n_tileLayerTop - 30);
+	} else {
+		obj_toolBar.css('top', n_NumTop);
+		$('.tool_mapabc').siblings('div').css('top', 28);
+		obj_tileLayers.css('top', n_tileLayerTop + 30);
+	}
 }
 
 /**
@@ -375,13 +378,18 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				* 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
 				*/
 				var obj_currentLi = $('.j_carList a[tid='+str_tid+']'),
-					obj_oldCarData = $('.j_carList').data('carsData')[str_tid]	// obj_currentLi.data('carData'),
-					obj_selfmarker = obj_selfmarkers[str_tid],	// obj_currentLi.data('selfmarker'),
-					str_oldClon = obj_oldCarData.clongitude,
-					str_oldClat = obj_oldCarData.clatitude,
+					obj_oldCarData = null,	
+					obj_selfmarker = obj_selfmarkers[str_tid],
+					str_oldClon = 0,
+					str_oldClat = 0,
 					str_newClon = obj_location.clongitude,
 					str_newClat = obj_location.clatitude;
-					
+				
+				if ( $('.j_carList').data('carsData') != undefined ) {
+					obj_oldCarData = $('.j_carList').data('carsData')[str_tid];
+					str_oldClon = obj_oldCarData.clongitude;
+					str_oldClat = obj_oldCarData.clatitude;
+				}
 				
 				if ( obj_selfmarker ) {	// 第一次加载 没有selfmarker 
 					if ( Math.abs(str_oldClon-str_newClon) < 100 || Math.abs(str_oldClat-str_newClat) < 100 ) {	// 判断和上次经纬度的差是否在100之内，在的话认为是同一个点
@@ -499,8 +507,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index) {
 */
 
 window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index) {
-	var gc = new BMap.Geocoder(),
-		str_result = '',
+	var str_result = '',
 		obj_point = new MMap.LngLat(n_lon, n_lat),
 		GeocoderOption = { 
             range: 100, //范围 

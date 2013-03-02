@@ -21,7 +21,8 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
 	$('#ceillid_flag').removeAttr('checked');
 	$('#trackHeader').show();	// 轨迹查询条件显示
-	//dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
+	// 调整工具条和
+	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 }
 
 /**
@@ -50,7 +51,7 @@ window.dlf.fn_closeTrackWindow = function() {
 	}
 	dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-	//dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
+	dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
 
 /**

@@ -289,13 +289,18 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				* 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
 				*/
 				var obj_currentLi = $('.j_carList a[tid='+str_tid+']'),
-					obj_oldCarData = $('.j_carList').data('carsData')[str_tid]	// obj_currentLi.data('carData'),
-					obj_selfmarker = obj_selfmarkers[str_tid],	// obj_currentLi.data('selfmarker'),
-					str_oldClon = obj_oldCarData.clongitude,
-					str_oldClat = obj_oldCarData.clatitude,
+					obj_oldCarData = null,	
+					obj_selfmarker = obj_selfmarkers[str_tid],
+					str_oldClon = 0,
+					str_oldClat = 0,
 					str_newClon = obj_location.clongitude,
 					str_newClat = obj_location.clatitude;
-					
+				
+				if ( $('.j_carList').data('carsData') != undefined ) {
+					obj_oldCarData = $('.j_carList').data('carsData')[str_tid];
+					str_oldClon = obj_oldCarData.clongitude;
+					str_oldClat = obj_oldCarData.clatitude;
+				}
 				
 				if ( obj_selfmarker ) {	// 第一次加载 没有selfmarker 
 					if ( Math.abs(str_oldClon-str_newClon) < 100 || Math.abs(str_oldClat-str_newClat) < 100 ) {	// 判断和上次经纬度的差是否在100之内，在的话认为是同一个点
