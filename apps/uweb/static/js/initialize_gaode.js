@@ -13,6 +13,7 @@
 * obj_polylines： 保存所有的开启追踪轨迹
 * obj_actionTrack：保存开启追踪
 * obj_selfmarkers：所有车辆的marker对象
+*检测是否有吹出框的关闭按钮
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -23,6 +24,7 @@ var mapObj = null,
 	obj_localSearch = null,
 	wakeupInterval = null,
 	trackInterval  = null,
+	obj_CheckInfoWindowClose = null,
 	obj_polylines = {},
 	obj_actionTrack = {},
 	obj_selfmarkers = {};
@@ -300,6 +302,16 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 	function (XMLHttpRequest, textStatus, errorThrown) {
 		dlf.fn_serverError(XMLHttpRequest);
 	});
+	if ( !obj_CheckInfoWindowClose ) {
+		obj_CheckInfoWindowClose = setInterval(function () { 
+			var obj_closeImage = $($('#markerWindowtitle').parent().parent().children().last()), 
+				n_closeImageLen = obj_closeImage.length;
+				
+				if ( n_closeImageLen != 0 ) {
+					obj_closeImage.attr({src: '', alt: ''});
+				}
+		}, 500); 
+	}
 }
 
 window.dlf.fn_moveMarker = function(n_tid) {
