@@ -134,12 +134,14 @@
 		</div> 
 	</div>
 	<div id="maskLayer" class="hide"></div>
+	{% if map_type == '2' %}
 	<div id="mapTileLayer" >
 		<ul>
 			<li id="layerForTraffic">实时路况</li>
 			<li id="layerForSatellite">卫星地图</li>
 		</ul>
 	</div>
+	{% end %}
 	{% elif status == 201 %}
 		<div id="errormsg"></div>
 	{% end %}

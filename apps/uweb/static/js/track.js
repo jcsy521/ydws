@@ -24,7 +24,7 @@ window.dlf.fn_initTrack = function() {
 	// 调整工具条和
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	
-	if ( $('#mapType').val() != '1' ) {
+	if ( $('#map_type').val() != '1' ) {
 		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
 	}
 }
@@ -34,7 +34,7 @@ window.dlf.fn_initTrack = function() {
 */
 window.dlf.fn_closeTrackWindow = function() {
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	if ( $('#mapType').val() != '1' ) {
+	if ( $('#map_type').val() != '1' ) {
 		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
 	}
 	dlf.fn_clearTrack();	// 清除数据
@@ -282,7 +282,7 @@ function fn_bindPlay() {
 */
 function fn_drawMarker() {
 	var n_len = arr_dataArr.length,
-		n_mapType = $('#mapType').val();
+		n_mapType = $('#map_type').val();
 		
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;
