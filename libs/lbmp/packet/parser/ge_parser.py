@@ -39,3 +39,32 @@ class GeParser(BaseParser):
                 for node in resultNode[0].childNodes:
                     if node.nodeType == Node.TEXT_NODE:             
                         self.info = node.data
+class GdGeParser(BaseParser):
+
+    def __init__(self, message):
+        BaseParser.__init__(self, message)
+        self.is_success()
+
+    def get_position(self):
+    
+       position = dict(clon='',
+                       clat='')
+       try:
+           if self.xml:
+               lonNode = self.xml.getElementsByTagName("x")
+               latNode = self.xml.getElementsByTagName("y")
+               position['clon'] = lonNode[0].childNodes[0].data
+               position['clat'] = latNode[0].childNodes[0].data
+       except Exception as e:
+           logging.exception("GE: Parse ge position exception:%s", e.args[0]) 
+       return position
+
+    def is_success(self):
+        
+        if self.xml:
+            messageNode = self.xml.getElementsByTagName('Message')
+            errorcodeNode = self.xml.getElementsByTagName('ErrorCode')
+            if messageNode:
+                self.info = messageNode[0].childNodes[0].data
+            if errorcodeNode:
+                self.success = errorcodeNode[0].childNodes[0].data

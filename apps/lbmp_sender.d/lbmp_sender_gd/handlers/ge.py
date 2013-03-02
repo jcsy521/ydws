@@ -13,6 +13,8 @@ from constants import LBMP, HTTP
 from helpers.confhelper import ConfHelper
 from base import BaseHandler
 
+from lbmp.packet.parser.ge_parser import GdGeParser
+
 class GeHandler(BaseHandler):
     
     @tornado.web.removeslash
@@ -42,22 +44,27 @@ class GeHandler(BaseHandler):
              
         def _on_finish():
             try:
-                response = self.send(ConfHelper.LBMP_CONF.ge_host,
-                                     ConfHelper.LBMP_CONF.ge_url % (data.lat/3600000.0, data.lon/3600000.0),
+                response = self.send(ConfHelper.LBMP_CONF.gd_host,
+                                     ConfHelper.LBMP_CONF.gd_ge_url % (float(data.lon)/3600000.0, 
+                                                                       float(data.lat)/3600000.0, 
+                                                                       ConfHelper.LBMP_CONF.gd_key),
                                      None, 
                                      HTTP.METHOD.GET)
+                response = response.decode("GB2312")
                 logging.info('[GE] response:\n %s', response)
-                json_data = json_decode(response)
-                if json_data['error'] == 0:
-                    lon = base64.b64decode(json_data['x'])
-                    lat = base64.b64decode(json_data['y'])
-                    ret.position.clat = int(float(lat) * 3600000)
-                    ret.position.clon = int(float(lon) * 3600000)
+                ggp = GdGeParser(response)
+                if ggp.success == ErrorCode.SUCCESS: 
+                    position = ggp.get_position()
+                    ret.position.clat = int(float(position['clat']) * 3600000)
+                    ret.position.clon = int(float(position['clon']) * 3600000)
                     logging.info("[GE] get clat=%s, clon=%s through lat=%s, lon=%s", 
-                                    lat, lon, data.lat, data.lon)
+                                       ret.position.clat, ret.position.clon, data.lat, data.lon)
                     ret.success = ErrorCode.SUCCESS 
                     ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
-
+                else:
+                    ret.success = ggp.success
+                    ret.info = ggp.info
+                    logging.error("[GE] Get ge info error:%s, errorcode:%s", ret.info, ret.success)
             except Exception as e:
                 logging.exception("[GE] get latlon_offset failed. Exception: %s", e.args)
 

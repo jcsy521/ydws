@@ -40,20 +40,19 @@ class GvHandler(BaseHandler):
              
         def _on_finish():
             try:
-                response = self.send(ConfHelper.LBMP_CONF.gv_host, 
-                                     ConfHelper.LBMP_CONF.gv_url % (data.lat, data.lon),
-                                     None, HTTP.METHOD.GET)       
-                logging.info("[GV] response:\n %s", "Too many words, DUMMY response instead.")
-                json_data = json_decode(response)
-                if json_data['status'] == 'OK':
-                    ret.address = json_data['result']['formatted_address']
+                response = self.send(ConfHelper.LBMP_CONF.gd_host, 
+                                     ConfHelper.LBMP_CONF.gd_gv_url % (data.lon, data.lat, ConfHelper.LBMP_CONF.gd_key),
+                                     None, HTTP.METHOD.GET)
+                address = response.decode("GB2312")
+                logging.info("[GV] response:%s", address)
+                if len(address) > 5:
+                    ret.address = address 
                     ret.success = ErrorCode.SUCCESS 
                     ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                     logging.info("[GV] get address=%s through lat=%s, lon=%s",
                                  ret.address, data.lat, data.lon)
                 else:
-                    logging.error("[GV] get address failed. response:\n %s", response)
-                    
+                    logging.error("[GV] get address failed. response:\n %s", address)
             except Exception as e:
                 logging.exception("[GV] get address failed. Exception: %s", e.args)
             self.write(ret)

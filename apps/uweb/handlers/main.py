@@ -7,6 +7,7 @@ from tornado.escape import json_encode
 
 from base import BaseHandler, authenticated
 from helpers.queryhelper import QueryHelper
+from helpers.confhelper import ConfHelper
 from constants import UWEB, GATEWAY
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
@@ -57,6 +58,7 @@ class MainHandler(BaseHandler):
                 terminal['alias'] = terminal.mobile
 
         self.render(index_html,
+                    map_type=ConfHelper.LBMP_CONF.map_type,
                     status=status,
                     name=name,
                     cars=terminals)

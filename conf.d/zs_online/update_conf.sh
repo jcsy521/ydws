@@ -9,10 +9,7 @@ cd ../../../
 sed -i -e "s/--logging=warning/--mode=debug --logging=DEBUG/" ./conf/supervisord/services-available/*.conf
 
 cd ./apps/
-rm -f uweb/templates/base.html
 rm -rf lbmp_sender
-ln -s lbmp_sender.d/lbmp_sender_zs lbmp_sender
+ln -s lbmp_sender.d/lbmp_sender_gd lbmp_sender
 cd uweb/
-cd templates/
-ln -s base_bj.html base.html
-cd ../../../
+cd ../../
