@@ -1399,7 +1399,11 @@ body {
 	position: absolute;
 	line-height: 15px;
 	padding-left: 5px;
-	margin-top: -5px;	/*gaode*/
+}
+.waitImg {
+	display: inline-block;
+    position: absolute;
+	top: -2px;
 }
 /*marker css end*/
 .top10 {
