@@ -15,7 +15,12 @@
 		</div>     
 		<div data-role="content">    
 			<div>
-				<img src="http://api.map.baidu.com/staticimage?center={{clon}},{{clat}}&width=320&height=240&zoom=17&markers={{clon}},{{clat}}" />
+				{% if map_type == 1 %}
+					<img src="http://api.map.baidu.com/staticimage?center={{clon}},{{clat}}&width=320&height=240&zoom=17&markers={{clon}},{{clat}}" />
+				{% else %}
+					<img src="http://map.wxcsgd.com:8082/sisserver?config=WMAP&xs={{clon}}&ys={{clat}}&width=320&height=240&maplevel=1&content=map&a_k=36ca6fd5215a6f6897721371ec5f294bab3a64202a7541babb57434e5631ffa2b5639e24f8ce84fc" />
+				{% end %}	
+				
 			</div>  
 			<div>
 				移动车卫士官网：<a href="{{home_url}}">{{home_url}}</a>
