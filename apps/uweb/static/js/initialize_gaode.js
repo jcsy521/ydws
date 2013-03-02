@@ -13,7 +13,6 @@
 * obj_polylines： 保存所有的开启追踪轨迹
 * obj_actionTrack：保存开启追踪
 * obj_selfmarkers：所有车辆的marker对象
-*检测是否有吹出框的关闭按钮
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -24,7 +23,6 @@ var mapObj = null,
 	obj_localSearch = null,
 	wakeupInterval = null,
 	trackInterval  = null,
-	obj_CheckInfoWindowClose = null,
 	obj_polylines = {},
 	obj_actionTrack = {},
 	obj_selfmarkers = {};
@@ -302,16 +300,6 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 	function (XMLHttpRequest, textStatus, errorThrown) {
 		dlf.fn_serverError(XMLHttpRequest);
 	});
-	if ( !obj_CheckInfoWindowClose ) {
-		obj_CheckInfoWindowClose = setInterval(function () { 
-			var obj_closeImage = $($('#markerWindowtitle').parent().parent().children().last()), 
-				n_closeImageLen = obj_closeImage.length;
-				
-				if ( n_closeImageLen != 0 ) {
-					obj_closeImage.attr({src: '', alt: ''});
-				}
-		}, 500); 
-	}
 }
 
 window.dlf.fn_moveMarker = function(n_tid) {
@@ -365,7 +353,7 @@ window.dlf.fn_updateLastInfo = function() {
 		} else {
 			dlf.fn_corpGetCarData();
 		}		
-	}, INFOTIME); 
+	}, INFOTIME);
 }
 
 /**
@@ -390,7 +378,6 @@ window.dlf.fn_getCarData = function(str_flag) {
 		}
 	}
 	obj_tids.tids = arr_tids;
-	
 	$.post_(LASTINFO_URL, JSON.stringify(obj_tids), function (data) {	// 向后台发起lastinfo请求
 			if ( data.status == 0 ) {
 				var obj_cars = data.cars_info,
@@ -578,20 +565,20 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		dlf.fn_addMarker(obj_carInfo, 'actiontrack', n_carIndex, false); // 添加标记
 	}
 	
-	var obj_toWindowInterval = setInterval(function() {
-		var obj_tempMarker = obj_selfmarkers[str_tid];	// obj_carA.data('selfmarker');
-		
-		if (( str_currentTid == str_tid ) ) {
-			if ( str_type == 'current' ) {	// 查找到当前车辆的信息
-				if ( obj_tempMarker ) {
-					obj_tempMarker.selfInfoWindow.open(mapObj, obj_tempMarker.getPosition());	// 打开infowindow
+	if (( str_currentTid == str_tid ) ) {
+		var obj_toWindowInterval = setInterval(function() {
+			var obj_tempMarker = obj_selfmarkers[str_tid];	// obj_carA.data('selfmarker');
+			
+				if ( str_type == 'current' ) {	// 查找到当前车辆的信息
+					if ( obj_tempMarker ) {
+						obj_tempMarker.selfInfoWindow.open(mapObj, obj_tempMarker.getPosition());	// 打开infowindow
+					}
+				} else if ( str_type == 'first' ) {	// 如果第一次lastinfo 移到中心点 打开吹出框
+					dlf.fn_moveMarker(str_currentTid);				
 				}
-			} else if ( str_type == 'first' ) {	// 如果第一次lastinfo 移到中心点 打开吹出框
-				dlf.fn_moveMarker(str_currentTid);				
-			}
-			clearInterval(obj_toWindowInterval);
-		}
-	}, 500);
+				clearInterval(obj_toWindowInterval);
+		}, 500);
+	}
 }
 
 /** 

@@ -23,6 +23,10 @@ window.dlf.fn_initTrack = function() {
 	$('#trackHeader').show();	// 轨迹查询条件显示
 	// 调整工具条和
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
+	
+	if ( $('#mapType').val() != '1' ) {
+		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
+	}
 }
 
 /**
@@ -30,6 +34,9 @@ window.dlf.fn_initTrack = function() {
 */
 window.dlf.fn_closeTrackWindow = function() {
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	if ( $('#mapType').val() != '1' ) {
+		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
+	}
 	dlf.fn_clearTrack();	// 清除数据
 	$('#trackHeader').hide();	// 轨迹查询条件隐藏
 	/**

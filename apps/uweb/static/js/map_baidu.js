@@ -430,7 +430,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 			if ( str_result == '' ) {
 				if ( postAddress != null ) {	// 第一次如果未获取位置则重新获取一次,如果还未获得则显示"无法获取"
 					clearTimeout(postAddress);
-					str_result = '无法获取位置';
+					str_result = '-';
 					dlf.fn_updateAddress(str_type, tid, str_result, n_index);
 				} else {	// 如果未获取到位置描述  5秒后重新获取					
 					str_result = '正在获取位置描述' + WAITIMG;

@@ -140,9 +140,9 @@ window.dlf.fn_createPolyline = function(arr_drawLine, obj_options, str_tid) {
 		var polyOption = { 
 			id: 'polyline',
             path: arr_drawLine,    
-            strokeColor: "blue", //线颜色  
-            strokeOpacity: 0.4, //线透明度   
-            strokeWeight: 3, //线宽     
+            strokeColor: "#0251ED", //线颜色  
+            strokeOpacity: 0.45, //线透明度   
+            strokeWeight: 4, //线宽     
             strokeStyle: "solid", //线样式   
             strokeDasharray: [10,5] //补充线样式  
 		};
@@ -152,6 +152,7 @@ window.dlf.fn_createPolyline = function(arr_drawLine, obj_options, str_tid) {
 				polyOption.id = 'polyline' + str_tid;
 			} else {	// 动态轨迹
 				polyOption.strokeColor = obj_options.color;
+				polyOption.strokeOpacity = 0.8;
 				polyOption.id = 'polyline_draw';
 			}
 		}
@@ -206,7 +207,6 @@ window.dlf.fn_clearMapComponent = function(obj_overlays) {
 	} else {
 		mapObj.clearOverlays();
 	}
-	mapObj.clearInfoWindow();	// 关闭所有infowindow
 }
 
 /**
@@ -537,7 +537,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 			if ( str_result == '' ) {
 				if ( postAddress != null ) {	// 第一次如果未获取位置则重新获取一次,如果还未获得则显示"无法获取"
 					clearTimeout(postAddress);
-					str_result = '无法获取位置';
+					str_result = '-';
 					dlf.fn_updateAddress(str_type, tid, str_result, n_index);
 				} else {	// 如果未获取到位置描述  5秒后重新获取					
 					str_result = '正在获取位置描述' + WAITIMG;
