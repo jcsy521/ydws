@@ -8,6 +8,7 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection
+from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
 from base import BaseHandler
 
@@ -19,7 +20,8 @@ class FeedBackHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Jump to feedback.html."""
-        self.render('feedback.html')
+        self.render('feedback.html',
+                    map_type=ConfHelper.LBMP_CONF.map_type)
 
     @tornado.web.removeslash
     def post(self):

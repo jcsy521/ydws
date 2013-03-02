@@ -15,12 +15,13 @@ from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
+from helpers.confhelper import ConfHelper
 
 class PasswordHandler(BaseHandler, PasswordMixin):
     
     @tornado.web.removeslash
     def get(self):
-        self.render('password.html', message='')
+        self.render('password.html', message='', map_type=ConfHelper.LBMP_CONF.map_type)
     
     @authenticated
     @tornado.web.removeslash

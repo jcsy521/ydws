@@ -10,6 +10,7 @@ import tornado.web
 
 from helpers.seqgenerator import SeqGenerator
 from helpers.queryhelper import QueryHelper 
+from helpers.confhelper import ConfHelper
 from utils.misc import DUMMY_IDS, get_today_last_month
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
@@ -27,12 +28,14 @@ class EventHandler(BaseHandler):
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
-            self.render("event.html",
+            self.render("login.html",
+                        map_type=ConfHelper.LBMP_CONF.map_type,
                         alias='')
             return
         
         alias = QueryHelper.get_alias_by_tid(self.current_user.tid, self.redis, self.db)
         self.render("event.html",
+                    map_type=ConfHelper.LBMP_CONF.map_type,
                     alias=alias)
 
     @authenticated

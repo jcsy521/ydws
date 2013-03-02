@@ -18,6 +18,7 @@ class WapImgHandler(BaseHandler):
         self.render('wapimg.html',
                     clon=clon,
                     clat=clat,
+                    map_type=ConfHelper.LBMP_CONF.map_type,
                     home_url=ConfHelper.UWEB_CONF.url_out,
                     android_download=ConfHelper.UWEB_CONF.url_out + '/instruction/android')
 
