@@ -459,11 +459,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 * str_result: 获取到的位置
 * n_index: 如果是轨迹则根据索引获取name
 */
-window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index) {
+window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat) {
 	var str_result = str_result,
 		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
 		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
-		
+
 	if ( str_type == 'realtime' || str_type == 'lastinfo' ) {
 		var str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 		// 左侧 位置描述填充
@@ -486,9 +486,15 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index) {
 			obj_selfmarker.selfInfoWindow.setContent(str_content);
 		}
 	} else if ( str_type == 'event' ) {
-		$('#eventResult tr').eq(tid+1).find('a').html(str_result).addClass('j_eventItem');
-		arr_eventData[tid].name = str_result;
-		dlf.fn_showMarkerOnEvent();
+		if ( n_lon != 'none' ) {
+			var str_tempAddress = str_result.length >= 30 ? str_result.substr(0,30) + '...':str_result;
+		
+			$('#eventResult tr').eq(tid+1).find('.j_getPosition').parent().html('<label href="#" title="'+ str_result +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lon+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a>');
+			arr_eventData[tid].name = str_result;
+			dlf.fn_showMarkerOnEvent();
+		} else {
+			$('#eventResult tr').eq(tid+1).find('a').html(str_result).addClass('j_eventItem');
+		}
 	} else {
 		if ( n_index >= 0 ) {
 			arr_dataArr[n_index].name = str_result;
@@ -541,13 +547,13 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 					dlf.fn_updateAddress(str_type, tid, str_result, n_index);
 				} else {	// 如果未获取到位置描述  5秒后重新获取					
 					str_result = '正在获取位置描述' + WAITIMG;
-					dlf.fn_updateAddress(str_type, tid, str_result, n_index);
+					dlf.fn_updateAddress(str_type, tid, str_result, n_index, 'none');
 					postAddress = setTimeout(function() {
 						dlf.fn_getAddressByLngLat(n_lon, n_lat, tid, str_type, n_index);
 					}, 5000);
 				}
 			} else {
-				dlf.fn_updateAddress(str_type, tid, str_result, n_index);
+				dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
 			}
 		});
 	}

@@ -65,6 +65,7 @@ function fn_initEventSearch(n_num) {
 						n_lng = obj_location.clongitude/NUMLNGLAT,
 						n_lat = obj_location.clatitude/NUMLNGLAT,
 						str_location = obj_location.name, 
+						str_tempAddress = str_location.length >= 30 ? str_location.substr(0,30) + '...':str_location,
 						str_comment = obj_location.comment,	// 电量备注
 						str_text = '';	//地址
 					
@@ -78,9 +79,9 @@ function fn_initEventSearch(n_num) {
 						str_tbodyText+= '<td>无</td>';	
 					} else {
 						if ( str_location == '' || str_location == null ) {
-							str_tbodyText+= '<td><a href="#"   onclick=dlf.fn_getAddressByLngLat('+n_lng+','+n_lat+','+ i +',"event") >获取位置</a></td>';
+							str_tbodyText+= '<td><a href="#"   onclick=dlf.fn_getAddressByLngLat('+n_lng+','+n_lat+','+ i +',"event") class="j_getPosition getPositionCss">获取位置</a></td>';
 						} else {
-							str_tbodyText+= '<td><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem">'+str_location+'</a></td>';	//详细地址
+							str_tbodyText+= '<td><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
 						}
 					}
 					if ( str_comment == '' ) {
