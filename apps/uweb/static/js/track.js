@@ -274,14 +274,20 @@ function fn_bindPlay() {
 * 动态标记移动方法
 */
 function fn_drawMarker() {
-	var n_len = arr_dataArr.length;
+	var n_len = arr_dataArr.length,
+		n_mapType = $('#mapType').val();
+		
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;
 		str_actionState = 0;
 	}
 	if ( counter <= n_len-1 ) {
 		if ( actionMarker ) {
-			f_trackMsgStatus = actionMarker.selfInfoWindow.getIsOpen();
+			if ( n_mapType == 1 ) {
+				f_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
+			} else {
+				f_trackMsgStatus = actionMarker.selfInfoWindow.getIsOpen();	// 高德获取infowindow的状态
+			}
 			dlf.fn_clearMapComponent(actionMarker);
 		}
 		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, counter); // 添加标记
@@ -290,7 +296,11 @@ function fn_drawMarker() {
 		obj_drawLine.setPath(arr_drawLine);
 		
 		if ( f_trackMsgStatus ) {
-			actionMarker.selfInfoWindow.open(mapObj, actionMarker.getPosition()); // 显示吹出框
+			if ( n_mapType == 1 ) {
+				actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框 
+			} else {
+				actionMarker.selfInfoWindow.open(mapObj, actionMarker.getPosition()); // 显示吹出框
+			}
 		}
 		counter ++;
 	} else {	// 播放完成后

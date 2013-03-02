@@ -243,6 +243,7 @@ window.onresize = function () {
 			n_windowHeight = $.browser.version == '6.0' ? n_tempHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
 			n_tempWidth = n_windowWidth <= 1400 ? 1400 : n_windowWidth,
+			n_tilelayerLeft = n_windowWidth <= 1400 ? 1400 - 288 : n_windowWidth - 188,
 			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
 			n_right = n_windowWidth - 249,
@@ -276,6 +277,10 @@ window.onresize = function () {
 		if ( f_layer ) {
 			dlf.fn_lockScreen();
 		}
+		if ( $('#map_type').val() != '1' ) {	// 高德地图
+			$('#mapTileLayer').css('left', n_tilelayerLeft);
+		}
+		
 	}, 100);
 }
 
@@ -301,6 +306,7 @@ $(function () {
 		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 		n_windowWidth = $(window).width(),
 		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
+		n_tilelayerLeft = n_windowWidth <= 1400 ? 1400 - 188 : n_windowWidth - 188,
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = ( n_windowWidth - 1000 )/2,
@@ -326,7 +332,11 @@ $(function () {
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight);
-
+	
+	if ( $('#map_type').val() != '1' ) {	// 高德地图初始化tilelayer的位置
+		$('#mapTileLayer').css('left', n_tilelayerLeft);
+	}
+		
 	dlf.fn_loadMap();	// 加载百度map
 	
 	/**
