@@ -11,7 +11,7 @@ class BaseParser(object):
 
     def __init__(self, message):
         
-       self.message = message 
+       self.message = message.replace("GBK", "utf-8") 
        self.success = ErrorCode.SUCCESS 
        self.info = ErrorCode.ERROR_MESSAGE[ErrorCode.SUCCESS] 
        self.xml = self.__check()
