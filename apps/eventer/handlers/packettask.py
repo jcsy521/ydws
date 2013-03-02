@@ -314,7 +314,7 @@ class PacketTask(object):
         sms = None
         if int(report.pbat) == 100:
             sms = SMSCode.SMS_POWERFULL % name 
-        elif int(report.pbat) <= 3:
+        elif int(report.pbat) <= 5:
             t_time = int(time.time())
             self.db.execute("INSERT INTO T_POWEROFF_TIMEOUT"
                             "  VALUES(NULL, %s, %s, %s)"
