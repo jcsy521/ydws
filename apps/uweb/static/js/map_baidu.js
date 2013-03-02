@@ -371,7 +371,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 * str_result: 获取到的位置
 * n_index: 如果是轨迹则根据索引获取name
 */
-window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index) {
+window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat) {
 	var str_result = str_result,
 		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
 		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
