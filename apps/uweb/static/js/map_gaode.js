@@ -6,6 +6,7 @@
 * obj_MapTypeControl: 地图类型对象
 * obj_trafficControl: 路况信息对象
 * obj_satellite : 卫星信息对象
+* markers：
 */
 var postAddress = null,
 	mapObj = null,
@@ -14,6 +15,8 @@ var postAddress = null,
 	obj_overview = null,
 	obj_trafficControl = null,
 	obj_satellite = null,
+	arr_opiMarkers=[],
+	infos=[],
 	obj_selfMarkers = {};
 (function () {
 
@@ -177,6 +180,7 @@ window.dlf.fn_setOptionsByType = function(type, centers, zoom) {
 			mapObj.setZoom(zoom);
 			break;
 		case 'centerAndZoom':
+			mapObj.setZoomAndCenter(zoom, centers);//同时设置地图的中心点及zoom级别 
 			mapObj.setZoomAndCenter(zoom, centers);
 			break;
 		case 'viewport':	// todo
@@ -216,9 +220,27 @@ window.dlf.fn_clearMapComponent = function(obj_overlays) {
 * n_clat: 纬度
 */
 window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
+	// 清空上次查询结果
+	for ( var i = 0; i < arr_opiMarkers.length; i++ ) {
+		var infowindow = arr_opiMarkers[i].selfInfoWindow;
+		
+		if ( infowindow.getIsOpen() ) {
+			infowindow.close();
+		}
+		dlf.fn_clearMapComponent(arr_opiMarkers[i]);
+		
+	}
 	var str_keywords = '',
 		n_bounds = parseInt($('#txtBounds').val()),
-		obj_kw = $('#txtKeywords');
+		obj_kw = $('#txtKeywords'),
+		obj_poiSearchOption = { 
+			srctype: "POI", //数据来源 
+			type: "", //数据类别 
+			number: 100, //每页数量,默认10 
+			batch: 1, //请求页数，默认1 
+			range: n_bounds, //查询范围，默认3000米 
+			ext:"" //扩展字段 
+		};
 		
 	if ( obj_keywords !='' ) {
 		str_keywords = obj_keywords.html();
@@ -231,15 +253,51 @@ window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 			$('#keywordsTip').html('');
 		}
 	}
+	
 	if ( !obj_localSearch ) { 
-		obj_localSearch = new BMap.LocalSearch(mapObj, {
-				renderOptions:{map: mapObj} // 查询结果显示在地图容器
-		}); 
+		obj_localSearch =  new MMap.PoiSearch(obj_poiSearchOption);	// 初始化POI查询对象
 	}
-	obj_localSearch.searchNearby(str_keywords, new MMap.LngLat(n_clon, n_clat), n_bounds);
-	obj_localSearch.disableFirstResultSelection();	// 禁用自动选择第一个检索结果
-	obj_localSearch.disableAutoViewport();	// 禁用根据结果自动调整地图层级
+	obj_localSearch.byCenPoi(new MMap.LngLat(n_clon, n_clat), str_keywords, function(data) {
+		if( data.status == 'E0' ) {
+			var infos = [];
+
+			arr_opiMarkers = [];	// 清空数组			
+			for( var i = 0,l = data.list.length; i < l; i++ ) {
+				var marker = new MMap.Marker({ 
+					icon:"http://code.mapabc.com/images/lan_1.png", position: new MMap.LngLat(data.list[i].x,data.list[i].y), id: 'marker'+i, offset: new MMap.Pixel(-15,-24)
+				}),
+				obj_infowindow = new MMap.InfoWindow({
+					content:'<b>'+data.list[i].name+'</b><hr/>'+TipContents(data.list[i].type,data.list[i].address,data.list[i].tel),autoMove:true 
+				});
+				marker.selfInfoWindow = obj_infowindow;
+				arr_opiMarkers.push(marker); 
+				mapObj.addOverlays(arr_opiMarkers[i]);
+				
+				infos.push(obj_infowindow);
+				
+				mapObj.bind(arr_opiMarkers[i], 'click', function(){
+					var index = this.obj.id.substring(6);
+					
+					infos[index].open(mapObj, this.obj.getPosition())
+				});
+			}
+		}
+	});
 }
+
+function TipContents(type,address,tel){ 
+    if (type == "" || type == "undefined" || type == null || type == " undefined" || typeof type == "undefined") { 
+        type = "暂无";  
+    }  
+    if (address == "" || address == "undefined" || address == null || address == " undefined" || typeof address == "undefined") { 
+        address = "暂无";  
+    }  
+    if (tel == "" || tel == "undefined" || tel == null || tel == " undefined" || typeof address == "tel") { 
+        tel = "暂无";   
+    }
+    var str ="地址：" + address + "<br/>电话：" + tel + " <br/>类型："+type; 
+    return str; 
+} 
 
 /**
 *添加标记
@@ -301,7 +359,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	/**
 	* marker click事件
 	*/
-	mapObj.bind(marker, "click", function(e){
+	mapObj.bind(marker, "click", function(e) {
 		if ( str_iconType == 'actiontrack' ) { // 主页车辆点击与左侧车辆列表同步
 				var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum),
 					str_className = obj_carItem.attr('class'), 
@@ -325,19 +383,30 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 					address = '';
 					
 				if ( str_name != '' ) {
-					var str_content = infoWindow.getContent();
-					if ( str_content.search('<a') != -1 ) {
+					var str_content = infoWindow.getContent(),
+						obj_infowindowLi = $('#markerWindowtitle ul li').eq(4);
+						
+					obj_infowindowLi.html('').html('位置：<lable class="lblAddress">' + str_name + '</label>');	// 替换marker上的位置描述
+					/*if ( str_content.search('<a') != -1 ) {
 						n_beginNum = str_content.indexOf('位置：');
 						n_endNum = str_content.indexOf('</a></label>') + 12;
 						str_address = str_content.substring(n_beginNum, n_endNum),
 						address = '位置： <lable class="lblAddress">'+ str_name +'</label>';
 						str_content = str_content.replace(str_address, address);
 						marker.selfInfoWindow.setContent(str_content);
-					}
+					}*/
 				}
 				marker.selfInfoWindow.open(mapObj, marker.getPosition());
 			}
-    });  
+    });	
+}
+
+/**
+* 手动在吹出框添加了关闭按钮  关闭按钮的事件above
+* 要关闭的吹出框tid
+*/
+window.dlf.fn_closeWindow = function (str_tid) {
+	obj_selfmarkers[str_tid].selfInfoWindow.close();
 }
 
 /**
@@ -348,6 +417,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 */
 window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) { 
 	var	address = obj_location.name, 
+		str_tempAddress = address.length >= 28 ? address.substr(0,28) + '...':address,
 		speed = obj_location.speed,
 		date = dlf.fn_changeNumToDateString(obj_location.timestamp),
 		n_degree = obj_location.degree, 
@@ -362,16 +432,18 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_tempMsg = '开始跟踪',
 		str_actionTrack = obj_actionTrack[str_tid],	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
-		
+	
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
 	}
 	if (str_tid == '' || str_tid == 'undefined' || str_tid == null ) { 
 		str_tid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 	}
+	str_html += '<a href="#" class="closeWindow" tid="'+ str_tid +'" onclick="dlf.fn_closeWindow(\''+ str_tid +'\')"></a>';
 	if ( address == '' || address == null ) {
 		if ( str_clon == 0 || str_clat == 0 ) {
 			address = '-';
+			str_tempAddress = '-';
 		} else {
 			if ( str_iconType == 'actiontrack' ) {
 				/** 
@@ -402,19 +474,24 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 								str_address = str_content.substring(n_beginNum, n_endNum);
 								
 							address = str_address;
+							str_tempAddress = address;
 						}
-					} else {	// 否则重新获取						
+					} else {	// 否则重新获取
 						address = '正在获取位置描述' + WAITIMG; 
+						str_tempAddress = address;
 						dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
 					}
 				} else {
-					address = '正在获取位置描述' + WAITIMG; 
+					address = '正在获取位置描述' + WAITIMG;
+					str_tempAddress = address; 
 					dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
 				}
 			} else if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' )  {
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'draw\','+ n_index +');">获取位置</a>'; 
+				str_tempAddress = address; 
 			} else {
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',"'+str_tid+',event");">获取位置</a>'; 
+				str_tempAddress = address; 
 			}
 		}
 	} else {	// 判断是否是当前车辆
@@ -423,6 +500,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		if ( str_tid == str_currenttid && str_iconType == 'actiontrack' ) {
 			$('#address').html(address);
 		}
+		str_tempAddress = address.length >= 28 ? address.substr(0,28) + '...':address;
 	}
 	$('.j_carList a[tid='+ str_tid +']').data('address', address);	// 临时存储每辆车的位置描述
 	
@@ -441,9 +519,9 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
 				'<li><label>经度： E '+str_clon.toFixed(CHECK_ROUNDNUM)+'</label>'+
 				'<label class="labelRight">纬度： N '+str_clat.toFixed(CHECK_ROUNDNUM)+'</label></li>'+
-				'<li>类型： '+ str_type +'</li>'+
-				'<li>时间： '+ date +'</li>' + 
-				'<li>位置： <lable class="lblAddress">'+ address +'</label></li>';
+				'<li><label>类型： '+ str_type +'</label></li>'+
+				'<li><label>时间： '+ date +'</label></li>' + 
+				'<li>位置： <lable class="lblAddress">'+ str_tempAddress +'</label></li>';
 
 	if ( str_iconType == 'actiontrack' ) {
 		str_html+='<li class="top10"><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
@@ -461,6 +539,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 */
 window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat) {
 	var str_result = str_result,
+		str_tempResult = str_result.length >= 28 ? str_result.substr(0,28) + '...':str_result,
 		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
 		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
 
@@ -468,7 +547,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		var str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 		// 左侧 位置描述填充
 		if ( str_currentTid == tid ) {
-			obj_addressLi.html('').html('位置：<lable class="lblAddress">' + str_result + '</label>');	// 替换marker上的位置描述
+			obj_addressLi.html('').html('位置：<lable class="lblAddress">' + str_tempResult + '</label>');	// 替换marker上的位置描述
 			$('#address').html(str_result);
 		}
 		if ( obj_selfmarker && obj_selfmarker != null ) {
@@ -481,8 +560,9 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 				n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
 				n_endNum = str_content.indexOf('</label></li><li class="top10">'),
 				str_address = str_content.substring(n_beginNum, n_endNum);
-				str_content = str_content.replace(str_address, str_result);
+				str_content = str_content.replace(str_address, str_tempResult);
 			}
+			$('.j_carList a[tid='+ tid +']').data('address', str_result);
 			obj_selfmarker.selfInfoWindow.setContent(str_content);
 		}
 	} else if ( str_type == 'event' ) {

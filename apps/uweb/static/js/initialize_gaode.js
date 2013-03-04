@@ -563,10 +563,29 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	dlf.fn_addOverlay(actionPolyline);	//向地图添加覆盖物 
 	obj_polylines[str_tid] = actionPolyline;	// 存储开启追踪轨迹
 	
+	// 如果有周边查询结果的话，infowindow如果打开就保持状态
+	for ( var x = 0; x < arr_opiMarkers.length; x++ ) {
+		var marker = arr_opiMarkers[x],
+			infowindow = marker.selfInfoWindow,
+			b_status = infowindow.getIsOpen();
+		
+		if ( b_status ) {
+			marker.selfInfoWindow.open(mapObj, marker.getPosition());
+			break;
+		}
+	}
+
 	if ( obj_selfMarker ) {
 		/*obj_selfMarker.setLabel(obj_selfMarker.getLabel());	// 设置label  obj_carA.data('selfLable')
 		obj_selfMarker.getLabel().setContent(str_alias);	// label上的alias值*/
+		var b_openStatus = obj_selfMarker.selfInfoWindow.getIsOpen();	// 记住上次状态
+
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
+		if ( str_currentTid == obj_carInfo.tid ) {
+			if ( !b_openStatus ) {
+				obj_selfMarker.selfInfoWindow.close();
+			}
+		}
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_selfMarker.setIcon(new MMap.Icon({image: BASEIMGURL +n_imgDegree+'.png', size: new MMap.Size(34, 34)}));	// 设置方向角图片
 		obj_selfmarkers[str_tid] = obj_selfMarker;
@@ -1244,6 +1263,7 @@ window.dlf.fn_updateAlias = function() {
 * 周边查询事件绑定
 */
 window.dlf.fn_POISearch = function(n_clon, n_clat) {
+	$('#txtBounds').val('3000');
 	// 文本框获取/失去焦点
 	$('.j_blur').blur(function() {
 		var obj_this = $(this),

@@ -23,7 +23,13 @@ window.dlf.fn_initTrack = function() {
 	$('#trackHeader').show();	// 轨迹查询条件显示
 	// 调整工具条和
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
-	
+	fn_closeAllInfoWindow();	
+}
+
+/**
+* 高德关闭所有的吹出框
+*/
+function fn_closeAllInfoWindow() {
 	if ( $('#map_type').val() != '1' ) {
 		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
 	}
@@ -34,9 +40,7 @@ window.dlf.fn_initTrack = function() {
 */
 window.dlf.fn_closeTrackWindow = function() {
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	if ( $('#map_type').val() != '1' ) {
-		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
-	}
+	fn_closeAllInfoWindow();
 	dlf.fn_clearTrack();	// 清除数据
 	$('#trackHeader').hide();	// 轨迹查询条件隐藏
 	/**
@@ -76,6 +80,7 @@ function fn_trackQuery() {
 	$('.j_tBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	fn_closeAllInfoWindow();
 	dlf.fn_jNotifyMessage('车辆轨迹查询中' + WAITIMG, 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
 	$('.j_trackbody').data('layer', true);
