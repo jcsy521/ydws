@@ -568,14 +568,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( obj_selfMarker ) {
 		/*obj_selfMarker.setLabel(obj_selfMarker.getLabel());	// 设置label  obj_carA.data('selfLable')
 		obj_selfMarker.getLabel().setContent(str_alias);	// label上的alias值*/
-		var b_openStatus = obj_selfMarker.selfInfoWindow.getIsOpen();	// 记住上次状态
+		var obj_infowindow = obj_selfMarker.selfInfoWindow;
 
-		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
-		if ( str_currentTid == obj_carInfo.tid ) {
-			if ( !b_openStatus ) {
-				obj_selfMarker.selfInfoWindow.close();
-			}
-		}
+		obj_infowindow = new MMap.InfoWindow(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));	// 重新创建infowindow 避免吹出框打开
 		obj_selfMarker.setPosition(obj_tempPoint);
 		obj_selfMarker.setIcon(new MMap.Icon({image: BASEIMGURL +n_imgDegree+'.png', size: new MMap.Size(34, 34)}));	// 设置方向角图片
 		obj_selfmarkers[str_tid] = obj_selfMarker;
