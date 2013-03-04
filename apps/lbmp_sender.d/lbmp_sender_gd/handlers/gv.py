@@ -46,7 +46,7 @@ class GvHandler(BaseHandler):
                 address = response.decode("GB2312")
                 logging.info("[GV] response:%s", address)
                 if len(address) > 5:
-                    ret.address = address 
+                    ret.address = address.rstrip()
                     ret.success = ErrorCode.SUCCESS 
                     ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                     logging.info("[GV] get address=%s through lat=%s, lon=%s",
