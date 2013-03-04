@@ -189,13 +189,13 @@ window.dlf.fn_defendQuery = function() {
 			dlf.fn_dialogPosition(obj_wrapper);	// 设置dialog的位置
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defendStatus = DEFEND_OFF;
-				str_tip = '您的爱车保当前已设防。';
+				str_tip = '您的定位器当前已设防。';
 				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2'));	// 设置鼠标滑过设防或撤防按钮的样式
 				str_html = '已设防';
 				str_dImg = 'defend_status1.png';
 			} else {
 				n_defendStatus = DEFEND_ON;
-				str_tip = '您的爱车保当前未设防。';
+				str_tip = '您的定位器当前未设防。';
 				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2'));	// 设置鼠标滑过设防或撤防按钮的样式
 				str_html = '未设防';
 				str_dImg = 'defend_status0.png';
