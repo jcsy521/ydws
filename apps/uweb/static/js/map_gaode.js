@@ -350,6 +350,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		dlf.fn_setOptionsByType('center', mPoint);
 	} else if ( str_iconType == 'start' || str_iconType == 'end' ) {
 		marker.offset = new MMap.Pixel(-15, -10);
+	} else if ( str_iconType == 'eventSurround' ) {
+		obj_selfmarkers['eventSurround'] = marker;
 	}
 	mapObj.addOverlays(marker);	//向地图添加覆盖物 
 	
@@ -439,7 +441,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	if (str_tid == '' || str_tid == 'undefined' || str_tid == null ) { 
 		str_tid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 	}
-	str_html += '<a href="#" class="closeWindow" tid="'+ str_tid +'" onclick="dlf.fn_closeWindow(\''+ str_tid +'\')"></a>';
+	/*
+	 *如果 是高德的事件关闭按钮 事件,则不传tid传
+	*/
+	
+	str_html += '<a href="#" class="closeWindow" tid="'+ str_tid +'" onclick="dlf.fn_closeWindow(\''+ (str_tid || 'eventSurround')  +'\')"></a>';
 	if ( address == '' || address == null ) {
 		if ( str_clon == 0 || str_clat == 0 ) {
 			address = '-';
@@ -448,7 +454,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			if ( str_iconType == 'actiontrack' ) {
 				/** 
 				* 判断经纬度是否和上一次经纬度相同   如果相同直接拿上一次获取位置
-				*/
+				*/ 
 				var obj_currentLi = $('.j_carList a[tid='+str_tid+']'),
 					obj_oldCarData = null,	
 					obj_selfmarker = obj_selfmarkers[str_tid],

@@ -302,16 +302,6 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 	function (XMLHttpRequest, textStatus, errorThrown) {
 		dlf.fn_serverError(XMLHttpRequest);
 	});
-	if ( !obj_CheckInfoWindowClose ) { 
-		obj_CheckInfoWindowClose = setInterval(function () {  
-				var obj_closeImage = $($('#markerWindowtitle').parent().parent().children().last()),  
-					n_closeImageLen = obj_closeImage.length; 
-					 
-						if ( n_closeImageLen != 0 ) { 
-								obj_closeImage.attr({src: '', alt: ''}); 
-						} 
-		}, 500);  
-	} 
 }
 
 window.dlf.fn_moveMarker = function(n_tid) {

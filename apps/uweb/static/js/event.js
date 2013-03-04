@@ -129,6 +129,11 @@ window.dlf.fn_showMarkerOnEvent = function() {
 	*/
 	$('.j_eventItem').click(function(event) {
 		dlf.fn_clearMapComponent();
+		/*
+		* 为让高德的地图显示车在中心点,做如下修改
+		*/
+		mapObj.height = 340;
+		mapObj.width = 390;
 		$('.eventMapContent').css({	// 小地图显示位置
 			'left': event.clientX+20, 
 			'top': event.clientY		
@@ -169,7 +174,17 @@ window.onresize = function () {
 */
 $(function () {
 	dlf.fn_loadMap();	// 加载MAP
-	//obj_overview.hide();	 //隐藏鹰眼
+	if ( $('#map_type').val() != '1' ) {
+		obj_CheckviewControl = setInterval(function () {  
+				if ( viewControl ) {
+					mapObj.removeControl(viewControl);  // 隐藏鹰眼
+					
+					clearInterval(obj_CheckviewControl);
+				}
+		}, 500);  
+	} else {
+		viewControl.hide();	 //隐藏鹰眼
+	}
 	$('.eventbody').css({	// 调整BODY高度
 		'height': $(window).height() - 10,
 		'width': $(window).width()
