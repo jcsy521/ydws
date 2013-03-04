@@ -801,7 +801,7 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 	str_content = str_content.replace(str_tempOldMsg, str_tempMsg);
 	obj_selfMarker.selfInfoWindow = new MMap.InfoWindow({content: str_content});
 	//obj_selfInfoWindow.setContent(str_content);		// todo
-	obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;
+	obj_selfMarker.selfInfoWindow = obj_selfMarker.selfInfoWindow;
 	obj_actionTrack[str_tid] = str_tempAction;
 	obj_selfmarkers[str_tid] = obj_selfMarker;
 	$(selfItem).html(str_tempMsg);
