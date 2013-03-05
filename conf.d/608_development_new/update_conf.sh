@@ -12,6 +12,6 @@ cd ./apps/
 rm -rf sms
 rm -rf lbmp_sender
 ln -s sms.d/sms_zs sms
-ln -s lbmp_sender.d/lbmp_sender_gd lbmp_sender
+ln -s lbmp_sender.d/lbmp_sender_zs lbmp_sender
 cd uweb/
 cd ../../
