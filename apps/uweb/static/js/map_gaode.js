@@ -338,7 +338,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		str_markerId = 'marker_end';
 	}
 	marker = new MMap.Marker({position: mPoint, icon: myIcon, id: str_markerId});
-	marker.offset = new MMap.Pixel(-23, -10);
+	marker.offset = new MMap.Pixel(-15, -18);
 	marker.selfInfoWindow = infoWindow;
 	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
 		marker.id = 'marker_draw';
