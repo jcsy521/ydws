@@ -35,7 +35,7 @@ class MainHandler(BaseHandler):
             return
 
         if from_ == "delegation":
-            terminals = self.db.query("SELECT ti.tid, ti.login, ti.keys_num, tc.cnum AS alias"
+            terminals = self.db.query("SELECT ti.tid, ti.login, ti.keys_num, tc.cnum AS alias, ti.mobile"
                                       "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
                                       "  WHERE ti.tid = %s"
                                       "    AND ti.tid = tc.tid"
@@ -44,7 +44,7 @@ class MainHandler(BaseHandler):
                                       UWEB.SERVICE_STATUS.ON)
 
         else:
-            terminals = self.db.query("SELECT ti.tid, ti.login, ti.keys_num, tc.cnum AS alias"
+            terminals = self.db.query("SELECT ti.tid, ti.login, ti.keys_num, tc.cnum AS alias, ti.mobile"
                                       "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
                                       "  WHERE ti.owner_mobile = %s"
                                       "    AND ti.tid = tc.tid"
