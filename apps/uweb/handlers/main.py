@@ -35,19 +35,23 @@ class MainHandler(BaseHandler):
             return
 
         if from_ == "delegation":
-            terminals = self.db.query("SELECT ti.tid, ti.mobile, ti.login, ti.keys_num, tc.cnum AS alias"
+            terminals = self.db.query("SELECT ti.tid, ti.login, ti.keys_num, tc.cnum AS alias"
                                       "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
                                       "  WHERE ti.tid = %s"
-                                      "    AND ti.tid = tc.tid",
-                                      self.current_user.tid)
+                                      "    AND ti.tid = tc.tid"
+                                      "    AND ti.service_status = %s",
+                                      self.current_user.tid,
+                                      UWEB.SERVICE_STATUS.ON)
 
         else:
-            terminals = self.db.query("SELECT ti.tid, ti.mobile, ti.login, ti.keys_num, tc.cnum AS alias"
+            terminals = self.db.query("SELECT ti.tid, ti.login, ti.keys_num, tc.cnum AS alias"
                                       "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
                                       "  WHERE ti.owner_mobile = %s"
                                       "    AND ti.tid = tc.tid"
+                                      "    AND ti.service_status = %s"
                                       "    ORDER BY LOGIN DESC",
-                                      user_info.mobile)
+                                      user_info.mobile,
+                                      UWEB.SERVICE_STATUS.ON)
 
         #if alias is null, provide cnum or sim instead
         for terminal in terminals:

@@ -451,7 +451,7 @@ class MyGWServer(object):
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s",
                                    t_info['t_msisdn'])
-            if t_status and t_status.service_status != GATEWAY.SERVICE_STATUS.ON:
+            if t_status and t_status.service_status == GATEWAY.SERVICE_STATUS.OFF:
                 args.success = GATEWAY.LOGIN_STATUS.EXPIRED
                 lc = LoginRespComposer(args)
                 request = DotDict(packet=lc.buf,

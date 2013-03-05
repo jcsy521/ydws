@@ -24,9 +24,12 @@ class WakeupHandler(BaseHandler, BaseMixin):
     def get(self):
         status = ErrorCode.SUCCESS
         try:
-            terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s"
+                                   "    AND service_status = %s",
+                                   self.current_user.tid,
+                                   UWEB.SERVICE_STATUS.ON)
             if terminal: 
-
                 lq_sms_key = get_lq_sms_key(self.current_user.tid) 
                 sms = SMSCode.SMS_LQ % SMS.LQ.WEB 
                 SMSHelper.send_to_terminal(self.current_user.sim, sms) 

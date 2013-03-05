@@ -13,7 +13,7 @@ from helpers.queryhelper import QueryHelper
 from utils.misc import get_terminal_info_key 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import SMS
+from constants import UWEB 
 
 from base import BaseHandler, authenticated
 from mixin.base import BaseMixin
@@ -28,8 +28,10 @@ class DefendHandler(BaseHandler, BaseMixin):
         try:
             terminal = self.db.get("SELECT fob_status, mannual_status, defend_status"
                                    "  FROM T_TERMINAL_INFO"
-                                   "  WHERE tid = %s",
-                                   self.current_user.tid)
+                                   "  WHERE tid = %s"
+                                   "    AND service_status = %s",
+                                   self.current_user.tid,
+                                   UWEB.SERVICE_STATUS.ON)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
@@ -61,7 +63,11 @@ class DefendHandler(BaseHandler, BaseMixin):
             return 
 
         try:
-            terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s"
+                                   "    AND service_status = %s",
+                                   self.current_user.tid,
+                                   UWEB.SERVICE_STATUS.ON)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)

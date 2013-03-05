@@ -21,8 +21,11 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         """Get the latest usagle.
         """
         try: 
-            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO WHERE tid = %s", self.current_user.tid)
-
+            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s"
+                                   "    AND service_status = %s",
+                                   self.current_user.tid,
+                                   UWEB.SERVICE_STATUS.ON)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s is noexist, redirect to login.html", self.current_user.tid)
@@ -65,7 +68,11 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         current_query = DotDict() 
         current_query.timestamp = int(time())
 
-        terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO WHERE tid = %s", self.current_user.tid) 
+        terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                               "  WHERE tid = %s"
+                               "    AND service_status = %s",
+                               self.current_user.tid,
+                               UWEB.SERVICE_STATUS.ON)
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)

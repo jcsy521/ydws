@@ -24,7 +24,11 @@ class EventHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Jump to event.html, provide alias """ 
-        terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+        terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                               "  WHERE tid = %s"
+                               "    AND service_status = %s",
+                               self.current_user.tid,
+                               UWEB.SERVICE_STATUS.ON)
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
@@ -54,7 +58,11 @@ class EventHandler(BaseHandler):
             return
 
         try:
-            terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
+            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s"
+                                   "    AND service_status = %s",
+                                   self.current_user.tid,
+                                   UWEB.SERVICE_STATUS.ON)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)

@@ -10,7 +10,7 @@ from tornado.ioloop import IOLoop
 from utils.dotdict import DotDict
 from utils.misc import get_terminal_info_key
 from codes.errorcode import ErrorCode
-from constants import SMS
+from constants import SMS, UWEB
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 
@@ -30,8 +30,9 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                                   "  ti.login, ti.defend_status "
                                   "  FROM T_TERMINAL_INFO as ti "
                                   "  WHERE ti.tid = %s"
+                                  "    AND service_status = %s"
                                   "  LIMIT 1",
-                                  tid)
+                                  tid, UWEB.SERVICE_STATUS.ON)
             if terminal: 
                 self.send_lq_sms(terminal.sim, tid, SMS.LQ.WEB)
                 self.bookkeep(dict(cid=self.current_user.cid,

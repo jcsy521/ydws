@@ -39,7 +39,9 @@ class LastInfoHandler(BaseHandler):
                                            "  fob_status, mobile, login, gps, gsm,"
                                            "  pbat, keys_num"
                                            "  FROM T_TERMINAL_INFO"
-                                           "  WHERE tid = %s", tid)
+                                           "  WHERE tid = %s"
+                                           "    AND service_status = %s",
+                                           tid, UWEB.SERVICE_STATUS.ON)
 
                     if not terminal:
                         status = ErrorCode.LOGIN_AGAIN

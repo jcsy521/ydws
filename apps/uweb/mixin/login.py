@@ -32,13 +32,13 @@ class LoginMixin(BaseMixin):
                                "      LIMIT 1", 
                                username)
         if not user:
-            return None, None, None, None, ErrorCode.USER_NOT_ORDERED
+            return None, None, None, ErrorCode.USER_NOT_ORDERED
 
         return self.__internal_check(username, password, user_type)
 
     def __internal_check(self, username, password, user_type):
         """
-        @return uid, tid, sim, status 
+        @return cid, uid, terminals, status 
         """
         status = ErrorCode.SUCCESS
 
@@ -58,11 +58,13 @@ class LoginMixin(BaseMixin):
                                username, password)
         if not user:
             status = ErrorCode.WRONG_PASSWORD
-            logging.info("username: %s, password: %s login failed. Message: %s", username, password,  ErrorCode.ERROR_MESSAGE[status])
-            return None, None,  None, None, status 
+            logging.info("username: %s, password: %s login failed. Message: %s",
+                         username, password, ErrorCode.ERROR_MESSAGE[status])
+            return None, None, None, status 
         else:    
             if user_type == UWEB.USER_TYPE.PERSON:
-                terminals = self.db.query("SELECT id, tid, mobile FROM T_TERMINAL_INFO"
+                terminals = self.db.query("SELECT id, tid, mobile as sim, login, keys_num"
+                                          "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND owner_mobile = %s"
                                           "    AND (%s BETWEEN begintime AND endtime)",
@@ -72,34 +74,32 @@ class LoginMixin(BaseMixin):
 
                 if not terminals: 
                     status = ErrorCode.TERMINAL_NOT_ORDERED
-                    return None, None, None, None, status 
+                    return None, None, None, status 
                 else:
-                    # provide a valid terminal
-                    terminal = terminals[0]  
-                    user = QueryHelper.get_user_by_tid(terminal.tid, self.db)
-                    uid = user.owner_mobile
+                    uid = user.uid
             else:
                 cid = user.cid 
                 groups = self.db.query("SELECT id, corp_id FROM T_GROUP WHERE corp_id = %s",
                                        user.cid)
                 group_ids = [str(group.id) for group in groups]
 
-                sql_cmd = ("SELECT id, tid, mobile FROM T_TERMINAL_INFO"
+                sql_cmd = ("SELECT id, tid, mobile as sim, login, keys_num, owner_mobile"
+                           "  FROM T_TERMINAL_INFO"
                            "  WHERE service_status = %s"
                            "    AND group_id IN %s"
-                           "    AND (%s BETWEEN begintime AND endtime) ") % (UWEB.SERVICE_STATUS.ON, str(tuple(group_ids+DUMMY_IDS_STR)), int(time.time()))
+                           "    AND (%s BETWEEN begintime AND endtime) ") %\
+                           (UWEB.SERVICE_STATUS.ON, str(tuple(group_ids+DUMMY_IDS_STR)), int(time.time()))
                 terminals = self.db.query(sql_cmd)
                 if not terminals: 
-                    return str(cid), UWEB.DUMMY_UID, UWEB.DUMMY_TID, UWEB.DUMMY_MOBILE, status 
+                    terminal = DotDict(tid=UWEB.DUMMY_TID,
+                                       mobile=UWEB.DUMMY_MOBILE)
+                    return str(cid), UWEB.DUMMY_UID, [terminal,], status 
                 else:
-                    # provide a valid terminal
-                    terminal = terminals[0]  
-                    user = QueryHelper.get_user_by_tid(terminal.tid, self.db)
-                    uid = user.owner_mobile
+                    uid = terminals[0].owner_mobile 
                  
-        return str(cid), str(uid), str(terminal.tid), str(terminal.mobile), status
+        return str(cid), str(uid), terminals, status
 
-    def login_sms_remind(self, uid,  owner_mobile, terminals, login="WEB"):
+    def login_sms_remind(self, uid, owner_mobile, terminals, login="WEB"):
 
         sms_option = QueryHelper.get_sms_option_by_uid(uid, 'login', self.db)
         if sms_option.login == 1:

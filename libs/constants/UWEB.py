@@ -49,7 +49,8 @@ LOCATE_FLAG=DotDict(GPS=0,
                     CELLID=1)
 
 SERVICE_STATUS=DotDict(OFF=0,
-                       ON=1)
+                       ON=1,
+                       TO_BE_UNBIND=2)
 
 
 TERMINAL_INFO_CATEGORY=DotDict(R=u'r',

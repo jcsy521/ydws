@@ -76,29 +76,22 @@ class LoginHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        cid, uid, tid, sim, status = self.login_passwd_auth(username, password, user_type)
+        cid, uid, terminals, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
             self.bookkeep(dict(cid=cid,
                                uid=uid,
-                               tid=tid,
-                               sim=sim))
+                               tid=terminals[0].tid,
+                               sim=terminals[0].sim))
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
-            #NOTE: if corp has no user and terminal, allow it log in without sms.  
-            if user_info: 
-                terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
-                                          "  ti.login, ti.keys_num"
-                                          "  FROM T_TERMINAL_INFO as ti"
-                                          "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
-                                          user_info.mobile)
+            if user_info:
                 #NOTE: if alias is null, provide cnum or sim instead
                 for terminal in terminals:
-                    terminal['keys_num'] = 0
-                    if not terminal.alias:
-                        terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
-                
+                    terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
                 self.login_sms_remind(uid, user_info.mobile, terminals, login="WEB")
-            else: 
+            else:
+                # corp have no user maybe
                 pass
+
             self.clear_cookie('captchahash')
             self.redirect(self.get_argument("next","/"))
         else:
@@ -130,25 +123,19 @@ class IOSHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        cid, uid, tid, sim, status = self.login_passwd_auth(username, password, user_type)
+        cid, uid, terminals, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
             self.bookkeep(dict(cid=cid,
                                uid=uid,
-                               tid=tid,
-                               sim=sim))
+                               tid=terminals[0].tid,
+                               sim=terminals[0].sim))
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
-            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
-                                      "  ti.login, ti.keys_num"
-                                      "  FROM T_TERMINAL_INFO as ti"
-                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
-                                      user_info.mobile)
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 terminal['keys_num'] = 0
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
-                if not terminal.alias:
-                    terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
+                terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
 
             ios_id_key = get_ios_id_key(username)
             self.redis.setvalue(ios_id_key, iosid, UWEB.IOS_ID_INTERVAL)
@@ -181,26 +168,20 @@ class AndroidHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        cid, uid, tid, sim, status = self.login_passwd_auth(username, password, user_type)
+        cid, uid, terminals, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
             self.bookkeep(dict(cid=cid,
                                uid=uid,
-                               tid=tid,
-                               sim=sim))
+                               tid=terminals[0].tid,
+                               sim=terminals[0].sim))
 
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
-            terminals = self.db.query("SELECT ti.tid, ti.alias, ti.mobile as sim,"
-                                      "  ti.login, ti.keys_num"
-                                      "  FROM T_TERMINAL_INFO as ti"
-                                      "  WHERE ti.owner_mobile = %s ORDER BY LOGIN DESC",
-                                      user_info.mobile)
             #NOTE: if alias is null, provide cnum or sim instead
             for terminal in terminals:
                 terminal['keys_num'] = 0
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
-                if not terminal.alias:
-                    terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
+                terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
             
             push_info = NotifyHelper.get_push_info()
             push_key = NotifyHelper.get_push_key(uid, self.redis)

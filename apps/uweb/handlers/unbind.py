@@ -15,7 +15,7 @@ from helpers.gfsenderhelper import GFSenderHelper
 from utils.dotdict import DotDict
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
-from constants import SMS, GATEWAY
+from constants import UWEB, GATEWAY
 
 from base import BaseHandler, authenticated
 from mixin.base import BaseMixin
@@ -39,7 +39,11 @@ class UNBindHandler(BaseHandler, BaseMixin):
         try:
             tmobile = data.tmobile
 
-            terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db)
+            terminal = self.db.get("SELECT id, login FROM T_TERMINAL_INFO"
+                                   "  WHERE mobile = %s"
+                                   "    AND service_status = %s",
+                                   tmobile, 
+                                   UWEB.SERVICE_STATUS.ON)
             if not terminal:
                 status = ErrorCode.TERMINAL_NOT_EXISTED
                 logging.error("The terminal with tmobile: %s does not exist!", tmobile)
@@ -55,6 +59,11 @@ class UNBindHandler(BaseHandler, BaseMixin):
             ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET service_status = %s"
+                                "  WHERE id = %s",
+                                UWEB.SERVICE_STATUS.TO_BE_UNBIND,
+                                terminal.id)
                 logging.info("[UWEB] tmobile: %s unbind successfully.",
                              tmobile)
             else:

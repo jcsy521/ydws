@@ -34,8 +34,10 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             terminal = self.db.get("SELECT white_pop as sos_pop, push_status"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
+                                   "    AND service_status = %s"
                                    "  LIMIT 1",
-                                   self.current_user.tid)
+                                   self.current_user.tid,
+                                   UWEB.SERVICE_STATUS.ON)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
