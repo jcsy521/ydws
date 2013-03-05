@@ -568,10 +568,22 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( obj_selfMarker ) {
 		/*obj_selfMarker.setLabel(obj_selfMarker.getLabel());	// 设置label  obj_carA.data('selfLable')
 		obj_selfMarker.getLabel().setContent(str_alias);	// label上的alias值*/
-		var obj_infowindow = obj_selfMarker.selfInfoWindow;
-
-		obj_infowindow = new MMap.InfoWindow(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));	// 重新创建infowindow 避免吹出框打开
+		var obj_infowindow = obj_selfMarker.selfInfoWindow, 
+			f_infoWindowStatus = obj_infowindow.getIsOpen();
+			
+		obj_infowindow = new MMap.InfoWindow({content: dlf.fn_tipContents(obj_carInfo, 'actiontrack')});	
+		obj_infowindow.isOpen = f_infoWindowStatus;
+		obj_selfMarker.selfInfoWindow = obj_infowindow;
+		//重新创建infowindow 避免吹出框打开
 		obj_selfMarker.setPosition(obj_tempPoint);
+
+		if (( str_currentTid == str_tid ) ) {
+			if ( obj_selfMarker ) {
+				if ( obj_selfMarker.selfInfoWindow.isOpen ) {
+					obj_selfMarker.selfInfoWindow.open(mapObj, obj_selfMarker.getPosition());
+				}
+			}
+		}
 		obj_selfMarker.setIcon(new MMap.Icon({image: BASEIMGURL +n_imgDegree+'.png', size: new MMap.Size(34, 34)}));	// 设置方向角图片
 		obj_selfmarkers[str_tid] = obj_selfMarker;
 	} else {
@@ -586,7 +598,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 			var obj_tempMarker = obj_selfmarkers[str_tid];	// obj_carA.data('selfmarker');
 			
 				if ( str_type == 'current' ) {	// 查找到当前车辆的信息
-					if ( obj_tempMarker ) {
+					if ( obj_tempMarker ) { 
 						obj_tempMarker.selfInfoWindow.open(mapObj, obj_tempMarker.getPosition());	// 打开infowindow
 					}
 				} else if ( str_type == 'first' ) {	// 如果第一次lastinfo 移到中心点 打开吹出框
@@ -801,7 +813,7 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 	str_content = str_content.replace(str_tempOldMsg, str_tempMsg);
 	obj_selfMarker.selfInfoWindow = new MMap.InfoWindow({content: str_content});
 	//obj_selfInfoWindow.setContent(str_content);		// todo
-	obj_selfMarker.selfInfoWindow = obj_selfMarker.selfInfoWindow;
+	obj_selfMarker.selfInfoWindow.open(mapObj, obj_selfMarker.getPosition());
 	obj_actionTrack[str_tid] = str_tempAction;
 	obj_selfmarkers[str_tid] = obj_selfMarker;
 	$(selfItem).html(str_tempMsg);
