@@ -86,20 +86,20 @@ class LeHandler(BaseHandler):
                     if zlp.success == "9999228":
                         callback = partial(self.re_subscription, data['sim'])
                         IOLoop.instance().add_timeout(int(time.time()) + 5, callback)
-                    logging.info("[LE] Zsle request failed, errorcode: %s, info: %s, google le started...",
+                    logging.info("[LE] Zsle request failed, errorcode: %s, info: %s",
                                  zlp.success, zlp.info)
-                    logging.info('[LE] Google request:\n %s', request)
-                    response = self.send(ConfHelper.LBMP_CONF.le_host, 
-                                         ConfHelper.LBMP_CONF.le_url, 
-                                         request,
-                                         HTTP.METHOD.POST)
-                    logging.info('[LE] Google response:\n %s', response.decode('utf8'))
-                    json_data = json_decode(response)
-                    if json_data.get("location"):
-                        ret.position.lat = int(json_data["location"]["latitude"] * 3600000)
-                        ret.position.lon = int(json_data["location"]["longitude"] * 3600000)
-                        ret.success = ErrorCode.SUCCESS 
-                        ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
+                    # logging.info('[LE] Google request:\n %s', request)
+                    # response = self.send(ConfHelper.LBMP_CONF.le_host, 
+                    #                      ConfHelper.LBMP_CONF.le_url, 
+                    #                      request,
+                    #                      HTTP.METHOD.POST)
+                    # logging.info('[LE] Google response:\n %s', response.decode('utf8'))
+                    # json_data = json_decode(response)
+                    # if json_data.get("location"):
+                    #     ret.position.lat = int(json_data["location"]["latitude"] * 3600000)
+                    #     ret.position.lon = int(json_data["location"]["longitude"] * 3600000)
+                    #     ret.success = ErrorCode.SUCCESS 
+                    #     ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
             except Exception as e:
                 logging.exception("[LE] Get latlon failed. Exception: %s", e.args)
             self.write(ret)
