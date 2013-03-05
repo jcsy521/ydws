@@ -1422,11 +1422,13 @@ body {
 }
 .lblAddress {
 	display: inline-block;
-    left: 57px;
+    /*left: 57px;
 	*left: 100px;
+    top: 95px; gaode map*/
+	left: 49px;
+	top: 88px;
     line-height: 15px;
     position: absolute;
-    top: 95px;
     width: 190px;
 }
 .waitImg {
