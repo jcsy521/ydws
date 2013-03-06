@@ -1396,6 +1396,7 @@ body {
 #markerWindowtitle h4 {
 	margin: 0px 0 5px 8px;
 	font-size: 12px;
+	width: 224px;
 }
 #markerWindowtitle ul {
 	margin-left: 8px;
@@ -1426,7 +1427,7 @@ body {
 	*left: 100px;
     top: 95px; gaode map*/
 	left: 49px;
-	top: 87px;
+	/*top: 87px;*/
     line-height: 15px;
     position: absolute;
     width: 190px;
