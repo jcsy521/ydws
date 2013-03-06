@@ -179,9 +179,9 @@ class PacketTask(object):
                 report_name = unicode(report_name)
 
             if report.rName == EVENTER.RNAME.POWERLOW:
-                if report.terminal_type == "1":
+                if report.terminal_type == "1": # type: terminal
                     sms = self.handle_power_status(report, name, report_name, terminal_time)
-                else:
+                else: # type: fob
                     sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
                 sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
@@ -311,6 +311,11 @@ class PacketTask(object):
                 NotifyHelper.push_to_ios(category, user.owner_mobile, dev_id, name, location, ios_id, ios_badge)      
 
     def handle_power_status(self, report, name, report_name, terminal_time):
+        """
+        1: 100 --> power_full
+        2: (5,100) --> power_low
+        3: [0,5] --> power_off
+        """
         sms = None
         if int(report.pbat) == 100:
             sms = SMSCode.SMS_POWERFULL % name 
