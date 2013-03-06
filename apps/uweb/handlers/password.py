@@ -105,7 +105,7 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
     
     @tornado.web.removeslash
     def get(self):
-        self.render('password_corp.html', message='')
+        self.render('password_corp.html', message='', map_type=ConfHelper.LBMP_CONF.map_type)
     
     @authenticated
     @tornado.web.removeslash
