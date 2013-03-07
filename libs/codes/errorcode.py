@@ -95,7 +95,7 @@ class ErrorCode(object):
         LOCATION_OFFSET_FAILED :       u"经纬度偏转失败，请稍后重试。",
         TRACKER_POWER_FULL:            u"定位器电池充满，剩余电量100%",
         TRACKER_POWER_LOW:             u"定位器电量低，剩余电量%s%%",
-        TRACKER_POWER_OFF:             u"定位器电量低于3%，自动关机",
+        TRACKER_POWER_OFF:             u"定位器电量低于5%，即将关机",
         FOB_POWER_LOW:                 u"定位器挂件“%s”电量低",
         TERMINAL_OFFLINE:              u"定位器不在线，请确认定位器处于开机状态。",
         TERMINAL_TIME_OUT:             u"定位器响应超时，请稍后重试。",

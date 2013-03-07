@@ -137,7 +137,7 @@ class EventHandler(BaseHandler):
                     if event['terminal_type'] == '1':
                         if int(event['pbat']) == 100:
                             event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_FULL] 
-                        elif int(event['pbat']) <= 3:
+                        elif int(event['pbat']) <= 5:
                             event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF] 
                         else:
                             event['comment'] = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % event['pbat']
