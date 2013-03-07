@@ -7,7 +7,7 @@ import tornado.web
 
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
-from constants import SMS
+from constants import SMS, UWEB
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
 from utils.misc import get_lq_sms_key, get_lq_interval_key
