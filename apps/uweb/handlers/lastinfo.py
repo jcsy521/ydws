@@ -23,9 +23,12 @@ class LastInfoHandler(BaseHandler):
     def post(self):
         try:
             data = DotDict(json_decode(self.request.body))
-        except:
-            self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
-            return
+            logging.info("[UWEB] lastinfo request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
 
         try:
             cars_info = DotDict() 

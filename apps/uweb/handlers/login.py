@@ -224,6 +224,8 @@ class IOSLogoutHandler(BaseHandler):
         """Clear the cookie and set defend."""
         try:
             data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] logout request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
         except:
             self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
             logging.error("[UWEB] illegal format, body:%s", self.request.body)
@@ -256,6 +258,7 @@ class IOSLogoutHandler(BaseHandler):
             keys = [ios_id_key, ios_badge_key]
             self.redis.delete(*keys)
             self.clear_cookie(self.app_name)
+            self.write_ret(ErrorCode.SUCCESS)
 
 
 class AndroidLogoutHandler(BaseHandler):
@@ -272,6 +275,8 @@ class AndroidLogoutHandler(BaseHandler):
         """Clear the cookie and set defend."""
         try:
             data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] logout request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
         except:
             self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
             logging.error("[UWEB] illegal format, body:%s", self.request.body)
@@ -300,3 +305,4 @@ class AndroidLogoutHandler(BaseHandler):
         finally:
             #2: clear cookie
             self.clear_cookie(self.app_name)
+            self.write_ret(ErrorCode.SUCCESS)
