@@ -14,7 +14,8 @@ from helpers.confhelper import ConfHelper
 from helpers.uwebhelper import UWebHelper
 
 from utils.dotdict import DotDict
-from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key, get_ios_id_key
+from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
+     get_ios_id_key, get_power_full_key
 
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
@@ -147,6 +148,15 @@ class PacketTask(object):
                 logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
                              info['dev_id'], info['rName'])
                 return
+
+        if (info['rName'] == EVENTER.RNAME.POWERLOW) and (int(info['pbat']) == 100):
+            power_full_key = get_power_full_key(info['dev_id'])
+            power_full_flag = self.redis.get(power_full_key)
+            if power_full_flag:
+                logging.info("[EVENTER] Report power full again, tid: %s", info['dev_id'])
+                return
+            else:
+                self.redis.setvalue(power_full_key, True, 12 * 60 * 60)
 
         # get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
@@ -331,4 +341,5 @@ class PacketTask(object):
             sms = SMSCode.SMS_POWERLOW_OFF % (name, report_name, terminal_time)
         else:
             sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
+
         return sms

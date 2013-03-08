@@ -39,6 +39,7 @@ class MainHandler(BaseHandler):
                                       "  FROM T_TERMINAL_INFO as ti, T_CAR as tc"
                                       "  WHERE ti.tid = %s"
                                       "    AND ti.tid = tc.tid"
+                                      "    AND ti.group_id = -1"
                                       "    AND ti.service_status = %s",
                                       self.current_user.tid,
                                       UWEB.SERVICE_STATUS.ON)
@@ -49,6 +50,7 @@ class MainHandler(BaseHandler):
                                       "  WHERE ti.owner_mobile = %s"
                                       "    AND ti.tid = tc.tid"
                                       "    AND ti.service_status = %s"
+                                      "    AND ti.group_id = -1"
                                       "    ORDER BY LOGIN DESC",
                                       user_info.mobile,
                                       UWEB.SERVICE_STATUS.ON)

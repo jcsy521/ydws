@@ -95,6 +95,9 @@ def get_agps_data_key(key):
 def get_resend_key(dev_id, timestamp, command):
     return str("resend:%s%s%s" % (dev_id, timestamp, command))
 
+def get_power_full_key(dev_id):
+    return str("power_full:%s" % dev_id)
+
 def get_terminal_time(timestamp):
     terminal_time = ""
     try:
