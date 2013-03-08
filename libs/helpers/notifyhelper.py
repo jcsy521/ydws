@@ -162,7 +162,7 @@ class NotifyHelper(object):
                         5:u'SOS',
                         6:u'通讯异常'}
 
-            alert = CATEGORY[category]
+            alert = u"您的爱车 “%s” 产生了%s" % (t_alias, CATEGORY[category])
 
             # 2: format body 
             ret = DotDict(tid=tid,
