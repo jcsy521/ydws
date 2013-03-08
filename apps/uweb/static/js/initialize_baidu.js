@@ -688,7 +688,9 @@ window.dlf.fn_checkCarVal = function(str_tid) {
 * 清除定时器
 */
 window.dlf.fn_clearInterval = function(obj_interval) {
-	clearInterval(obj_interval); 
+	if ( obj_interval ) {
+		clearInterval(obj_interval); 
+	}
 }
 
 /**
@@ -771,7 +773,7 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 		str_tempMsg = '开始跟踪';
 		str_tempOldMsg = '取消跟踪';
 		// 手动取消追踪清空计时器
-		dlf.fn_clearTrack();
+		dlf.fn_clearRealtimeTrack(str_tid);
 	} else {
 		str_tempAction = 'yes';
 		str_tempMsg = '取消跟踪';
@@ -793,10 +795,23 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 /**
 * 定位器开启追踪倒计时初始化 
 */
-window.dlf.fn_clearTrack = function() {
-	dlf.fn_clearInterval(trackInterval);
+window.dlf.fn_clearRealtimeTrack = function(str_tid) { 
 	$('#trackTimer').html('0');
 	$('#trackWrapper').hide();
+	if ( str_tid ) { 
+		var obj_carLi = $('.j_carList a[tid='+str_tid+']'),
+			obj_carTrackInterval = obj_carLi.data('selfTrackInterval');
+		
+		dlf.fn_clearInterval(obj_carTrackInterval);
+	} else { 
+		$('.j_carList a').each(function(e){
+			var obj_tempTrackInterval = $(this).data('trackInterval'), 
+				str_tempTid = $(this).attr('tid');
+			
+			dlf.fn_clearInterval(obj_tempTrackInterval);
+			obj_actionTrack[str_tempTid] = 'yes';
+		});
+	}
 }
 
 /**
@@ -808,7 +823,8 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 	
 	$.post_(BEGINTRACK_URL, JSON.stringify(obj_param), function(data) {
 		if ( data.status == 0 ) {
-			var obj_trackMsg = $('#trackMsg'),
+			var obj_carLi = $('.j_carList a[tid='+str_tid+']'),
+				obj_trackMsg = $('#trackMsg'),
 				obj_trackWrapper = $('#trackWrapper'),	// 定位器唤醒提示容器
 				obj_trackTimer = $('#trackTimer'),	// 定位器提示框计时器容器
 				n_timer = parseInt(obj_trackTimer.html()),
@@ -828,19 +844,17 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 			}, 4000);
 			
 			trackInterval = setInterval(function() {
-				var n_login = parseInt($('.j_carList .j_currentCar').eq(0).attr('clogin'));	// 判断当前定位器状态
-				if ( n_timer > 6000 ) {
-					dlf.fn_clearInterval(trackInterval);
+				if ( n_timer > 600 ) {
+					dlf.fn_clearInterval(obj_carLi.data('selfTrackInterval'));
 					obj_trackWrapper.show();
 					obj_trackMsg.html('定位器追踪时间已到，将取消追踪。');
-					setTimeout(function() {
-						dlf.fn_clearTrack();
+					setTimeout(function() { 
 						dlf.setTrack(str_tid, selfItem);
 					}, 3000);
 				}
 				n_timer++;
 			}, 1000);
-			
+			obj_carLi.data('selfTrackInterval', trackInterval);
 		} else {
 			dlf.setTrack(str_tid, selfItem);
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 4000);
