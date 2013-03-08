@@ -34,42 +34,46 @@ public class IOSPushAction extends ActionSupport {
 	private String password = "dbjtech";
 	private String keystore = "pushkey.p12";
 	private String keystore_dev = "pushkey_dev.p12";
-	
+
 	@Override
 	@Action(value = "iospush")
 	public String execute() {
 
-		logger.info("[IOSPUSH] push request: user: " + uid + " , alert: " + alert + " , language: " + language
-				+ " , badge: " + badge + ", body: \n" + body);
+		logger.info("[IOSPUSH] push request: user: " + uid + " , alert: "
+				+ alert + " , language: " + language + " , badge: " + badge
+				+ ", body: \n" + body);
 
 		try {
-			if (language.equals("zh_CN")){
-				 keystore = "pushkey_cn.p12";
-				 keystore_dev = "pushkey_cn_dev.p12";				 
-				 logger.info("[IOSPUSH] use pushkey_cn.p12 ");
-			}else if (language.equals("en_US")){
-				 keystore = "pushkey_en.p12";	
-				 keystore_dev = "pushkey_en_dev.p12";	
-				 logger.info("[IOSPUSH] use pushkey_en.p12 ");
-			} else{				
-				 keystore = "pushkey.p12";
-				 keystore_dev = "pushkey_dev.p12";
-				 logger.info("[IOSPUSH] use pushkey.p12 ");
-			}	
-			
+			if (language.equals("zh_CN")) {
+				keystore = "pushkey_cn.p12";
+				keystore_dev = "pushkey_cn_dev.p12";
+				logger.info("[IOSPUSH] use pushkey_cn.p12 ");
+			} else if (language.equals("en_US")) {
+				keystore = "pushkey_en.p12";
+				keystore_dev = "pushkey_en_dev.p12";
+				logger.info("[IOSPUSH] use pushkey_en.p12 ");
+			} else {
+				keystore = "pushkey.p12";
+				keystore_dev = "pushkey_dev.p12";
+				logger.info("[IOSPUSH] use pushkey.p12 ");
+			}
+
 			PushNotificationPayload sendDate = new PushNotificationPayload();
 			sendDate.addAlert(alert);
 			sendDate.addBadge(Integer.parseInt(badge));
-			sendDate.addCustomDictionary("acb", body);		
-		
-			// NOTE: just test for dev!!! some day, it will be removed. 
+			sendDate.addCustomDictionary("acb", body);
+
+			// NOTE: just test for dev!!! some day, it will be removed.
 			pushAlert_test(sendDate, keystore_dev, password, uid);
-			
+
 			pushAlert(sendDate, keystore, password, uid);
-			
+
 		} catch (JSONException e) {
 			e.printStackTrace();
-     		message = "iospush failed!";
+			message = "iospush failed!";
+		} catch (Exception e) {
+			e.printStackTrace();
+			message = "iospush failed!";
 		}
 		logger.info("[IOSPUSH] push response: user: " + uid + ", message: "
 				+ message);
@@ -87,6 +91,8 @@ public class IOSPushAction extends ActionSupport {
 			e.printStackTrace();
 		} catch (KeystoreException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -96,14 +102,14 @@ public class IOSPushAction extends ActionSupport {
 			logger.info("[IOSPUSH] push for dev");
 			// true: product
 			// false: dev
-			Push.payload(data, keystore, password, false, uid);	
+			Push.payload(data, keystore, password, false, uid);
 		} catch (CommunicationException e) {
 			e.printStackTrace();
 		} catch (KeystoreException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public int getStatus() {
 		return status;
 	}
