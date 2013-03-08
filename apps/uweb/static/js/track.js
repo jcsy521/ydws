@@ -18,7 +18,6 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
-	dlf.fn_clearRealtimeTrack(); // 轨迹打开时清除开始追踪相当操作
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
 	$('#ceillid_flag').removeAttr('checked');
 	$('#trackHeader').show();	// 轨迹查询条件显示
