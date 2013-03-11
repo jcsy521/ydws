@@ -224,9 +224,9 @@ class PacketTask(object):
                     tiny_url = base_url + '/' + tiny_id
                     logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
                     self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                    sms += u"点击" + tiny_url + u" 查看车辆位置" 
+                    sms += u"点击" + tiny_url + u" 查看车辆位置。" 
                     if sms_white:
-                        sms_white += u"点击" + tiny_url + u" 查看车辆位置"
+                        sms_white += u"点击" + tiny_url + u" 查看车辆位置。"
                         self.sms_to_whitelist(sms_white, whitelist)
                 else:
                     logging.info("[EVENTER] get tiny url failed.")
