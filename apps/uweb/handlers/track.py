@@ -32,7 +32,8 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             return 
 
         try:
-            interval = data.interval
+            # in mill second
+            interval = int(data.interval) * 60 * 1000
             sms = SMSCode.SMS_LQGZ % interval 
             SMSHelper.send_to_terminal(self.current_user.sim, sms) 
             self.write_ret(status)
