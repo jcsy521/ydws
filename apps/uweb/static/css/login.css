@@ -256,6 +256,10 @@ table, tr, td {
 	float: left;
 	display: inline-block;
 }
+.adImg img {
+	height: 126px;
+	*height: 124px;
+}
 #contents p {
 	display: inline-block;
 	width: 350px;
