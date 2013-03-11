@@ -93,7 +93,7 @@ class LoginMixin(BaseMixin):
                 terminals = self.db.query(sql_cmd)
                 if not terminals: 
                     terminal = DotDict(tid=UWEB.DUMMY_TID,
-                                       mobile=UWEB.DUMMY_MOBILE)
+                                       sim=UWEB.DUMMY_MOBILE)
                     return str(cid), UWEB.DUMMY_UID, [terminal,], status 
                 else:
                     uid = terminals[0].owner_mobile 
