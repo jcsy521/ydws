@@ -63,6 +63,10 @@ def get_ios_badge_key(umobile):
     """for the ios badge of ios."""
     return str("ios_badge:%s" % umobile)
 
+def get_lastinfo_key(umobile):
+    """for the newest lastinfo of owner"""
+    return str("lastinfo:%s" % umobile)
+
 def get_location_key(dev_id):
     """for the newest location of dev"""
     return str("location:%s" % dev_id)
