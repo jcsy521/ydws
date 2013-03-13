@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import time
 
 import tornado.web
 from tornado.escape import json_encode, json_decode
@@ -31,16 +32,22 @@ class LastInfoHandler(BaseHandler):
 
         try:
             cars_info = {} 
+            usable = 0 # nothing is modified, the cars_info is no use, use the data last time
             status = ErrorCode.SUCCESS
             
+            terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                      "  WHERE service_status = %s"
+                                      "    AND owner_mobile = %s",
+                                      UWEB.SERVICE_STATUS.ON, self.current_user.uid)
+            tids = [terminal.tid for terminal in terminals]
+
             #NOTE: if no tids in request, inqury all tids belong to the owner
-            if data.get('tids',None):
-                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                          "  WHERE owner_mobile = %s",
-                                          self.current_user.uid)
-                tids = [terminal.tid for terminal in terminals]
-            else: 
-                tids = data.tids
+            if data.get('tids',None): # has tids
+                if tids != data.tids:
+                    usable = 1
+                    logging.info("[UWEB] the terminals belongs to the user have been changed, set modified as 1 and provie whole data in cars_info")
+            else:  # no tids
+                pass
 
             # 1 inquere data     
             for tid in tids:
@@ -63,12 +70,10 @@ class LastInfoHandler(BaseHandler):
                         self.write_ret(status)
                         return
 
-                    car = self.db.get("SELECT cnum FROM T_CAR"
-                                      "  WHERE tid = %s", tid)
+                    terminal = DotDict(terminal)
+                    terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                     fobs = self.db.query("SELECT fobid FROM T_FOB"
                                          "  WHERE tid = %s", tid)
-                    terminal = DotDict(terminal)
-                    terminal['alias'] = car.cnum if car.cnum else terminal.mobile
                     terminal['fob_list'] = [fob.fobid for fob in fobs]
 
                     self.redis.setvalue(terminal_info_key, DotDict(terminal))
@@ -142,11 +147,14 @@ class LastInfoHandler(BaseHandler):
                     cars_info = {}
                     logging.info("[UWEB] the lastinfo in cache is same as last time, just return a empty cars_info.")
                 else: 
+                    usable = 1
                     pass
             else: 
+                usable = 1
                 pass
             self.write_ret(status, 
-                           dict_=DotDict(cars_info=cars_info))
+                           dict_=DotDict(cars_info=cars_info,
+                                         usable=usable))
 
         except Exception as e:
             logging.exception("[UWEB] uid: %s, data: %s get lastinfo failed. Exception: %s", 
