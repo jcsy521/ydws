@@ -26,7 +26,7 @@ from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
-     get_resend_key
+     get_resend_key, get_lastinfo_key
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -1252,6 +1252,9 @@ class MyGWServer(object):
                 self.db.execute("DELETE FROM T_USER"
                                 "  WHERE mobile = %s",
                                 user.owner_mobile)
+
+                lastinfo_key = get_lastinfo_key(user.owner_mobile)
+                self.redis.delete(lastinfo_key)
         else:
             logging.info("[GW] User of %s already not exist.", dev_id)
         # clear redis

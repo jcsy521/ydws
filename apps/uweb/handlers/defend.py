@@ -37,6 +37,13 @@ class DefendHandler(BaseHandler, BaseMixin):
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
+            else:
+                terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                if terminal['mannual_status'] != terminal_info['mannual_status']:
+                    terminal_info['mannual_status'] = terminal['mannual_status'] 
+                    self.redis.setvalue(terminal_info_key, terminal_info)
+                    logging.error("[UWEB] the mannual_status in redis is not same as in database, update it")
 
             self.write_ret(status,
                            dict_=DotDict(defend_status=terminal.defend_status, 

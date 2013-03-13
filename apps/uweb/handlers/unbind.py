@@ -39,7 +39,7 @@ class UNBindHandler(BaseHandler, BaseMixin):
         try:
             tmobile = data.tmobile
 
-            terminal = self.db.get("SELECT id, login FROM T_TERMINAL_INFO"
+            terminal = self.db.get("SELECT id, login, owner_mobile FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s"
                                    "    AND service_status = %s",
                                    tmobile, 
@@ -64,12 +64,12 @@ class UNBindHandler(BaseHandler, BaseMixin):
                                 "  WHERE id = %s",
                                 UWEB.SERVICE_STATUS.TO_BE_UNBIND,
                                 terminal.id)
-                logging.info("[UWEB] tmobile: %s unbind successfully.",
-                             tmobile)
+                logging.info("[UWEB] umobile: %s, tmobile: %s unbind successfully.",
+                             terminal.owner_mobile, tmobile)
             else:
                 status = ErrorCode.UNBIND_FAILED
-                logging.error("[UWEB] tmobile: %s unbind failed. Message: %s",
-                              tmobile, ErrorCode.ERROR_MESSAGE[status])
+                logging.error("[UWEB] umobile: %s, tmobile: %s unbind failed. Message: %s",
+                              terminal.owner_mobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] tmobile:%s unbind failed. Exception: %s", 

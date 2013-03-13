@@ -6,7 +6,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_info_key, get_location_key
+from utils.misc import get_terminal_info_key, get_location_key, get_lastinfo_key
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from constants import UWEB, EVENTER, GATEWAY
@@ -18,6 +18,7 @@ class LastInfoHandler(BaseHandler):
     """Get the newest info of terminal from database.
     NOTE:It just retrieves data from db, not get info from terminal. 
     """
+
     @authenticated
     @tornado.web.removeslash
     def post(self):
@@ -29,12 +30,24 @@ class LastInfoHandler(BaseHandler):
             return 
 
         try:
-            cars_info = DotDict() 
+            cars_info = {} 
             status = ErrorCode.SUCCESS
-            for tid in data.tids:
+            
+            #NOTE: if no tids in request, inqury all tids belong to the owner
+            if data.get('tids',None):
+                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                          "  WHERE owner_mobile = %s",
+                                          self.current_user.uid)
+                tids = [terminal.tid for terminal in terminals]
+            else: 
+                tids = data.tids
+
+            # 1 inquere data     
+            for tid in tids:
                 # 1: get terminal info 
                 terminal_info_key = get_terminal_info_key(tid)
                 terminal = self.redis.getvalue(terminal_info_key)
+                # test
                 if not terminal:
                     terminal = self.db.get("SELECT mannual_status, defend_status,"
                                            "  fob_status, mobile, login, gps, gsm,"
@@ -93,37 +106,51 @@ class LastInfoHandler(BaseHandler):
                     location['name'] = ''
 
                 car_dct = {}
-                car_info=DotDict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
-                                 mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
-                                 fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
-                                 timestamp=location['timestamp'] if location else 0,
-                                 speed=location.speed if location else 0,
-                                 # NOTE: degree's type is Decimal, float() it before json_encode
-                                 degree=float(location.degree) if location else 0.00,
-                                 name=location.name if location else '',
-                                 type=location.type if location else 1,
-                                 latitude=location['latitude'] if location else 0,
-                                 longitude=location['longitude'] if location else 0, 
-                                 clatitude=location['clatitude'] if location else 0,
-                                 clongitude=location['clongitude'] if location else 0, 
-                                 login=terminal['login'] if terminal['login'] is not None else 0,
-                                 gps=terminal['gps'] if terminal['gps'] is not None else 0,
-                                 gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
-                                 pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
-                                 mobile=terminal['mobile'],
-                                 alias=terminal['alias'],
-                                 #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
-                                 keys_num=0,
-                                 fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
+                car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                              mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
+                              fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
+                              timestamp=location['timestamp'] if location else 0,
+                              speed=location.speed if location else 0,
+                              # NOTE: degree's type is Decimal, float() it before json_encode
+                              degree=float(location.degree) if location else 0.00,
+                              name=location.name if location else '',
+                              type=location.type if location else 1,
+                              latitude=location['latitude'] if location else 0,
+                              longitude=location['longitude'] if location else 0, 
+                              clatitude=location['clatitude'] if location else 0,
+                              clongitude=location['clongitude'] if location else 0, 
+                              login=terminal['login'] if terminal['login'] is not None else 0,
+                              gps=terminal['gps'] if terminal['gps'] is not None else 0,
+                              gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
+                              pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
+                              mobile=terminal['mobile'],
+                              alias=terminal['alias'],
+                              #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                              keys_num=0,
+                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)
+            
+            lastinfo_key = get_lastinfo_key(self.current_user.uid)
+            lastinfo = self.redis.getvalue(lastinfo_key)
+            self.redis.setvalue(lastinfo_key, cars_info)
+            
+            # 2 check whether use the  
+            if data.get('cache', None):  # use cache
+                if lastinfo == cars_info:
+                    cars_info = {}
+                    logging.info("[UWEB] the lastinfo in cache is same as last time, just return a empty cars_info.")
+                else: 
+                    pass
+            else: 
+                pass
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info))
 
         except Exception as e:
-            logging.exception("[UWEB] uid: %s, tids: %s get lastinfo failed. Exception: %s", 
-                              self.current_user.uid, data.tids, e.args) 
+            logging.exception("[UWEB] uid: %s, data: %s get lastinfo failed. Exception: %s", 
+                              self.current_user.uid, data, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
