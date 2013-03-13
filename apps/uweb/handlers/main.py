@@ -27,10 +27,12 @@ class MainHandler(BaseHandler):
         else:
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             name = user_info.name if user_info else u''
+
         if not user_info:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
             self.render("index.html",
+                        map_type=ConfHelper.LBMP_CONF.map_type,
                         status=status)
             return
 
