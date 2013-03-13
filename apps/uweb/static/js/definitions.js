@@ -48,7 +48,7 @@ var LOGINOUT = 0; //终端连接到平台
 var LOGINWAKEUP = 2; //终端连接到平台
 var NUMLNGLAT = 3600000; /*int->lnglat num值*/ 
 var WEEKMILISECONDS = 24*60*60*6; // 一个星期的毫秒数
-var CACHE = 0;	// 0: 首次访问lastinfo  1: 不是首次访问
+var LASTINFOCACHE = 0;	// 0: 首次访问lastinfo  1: 不是首次访问
 var WAITIMG = '...<img src="/static/images/blue-wait.gif" width="12px" />';	// 正在查询中 图标
 var BASEIMGURL = '/static/images/';	// 图片的默认路径
 var CORPIMGURL = BASEIMGURL + 'corpImages/';	// 集团默认图片路径

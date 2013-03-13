@@ -395,6 +395,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 				str_address = str_content.substring(n_beginNum, n_endNum);
 				str_content = str_content.replace(str_address, str_result);
 			}
+			$('.j_carList a[tid='+ tid +']').data('address', str_result);	// 存储最新从百度获取到的位置描述以便更新页面左侧位置信息
 			obj_selfmarker.selfInfoWindow.setContent(str_content);
 		}
 	} else if ( str_type == 'event' ) {
