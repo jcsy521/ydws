@@ -1268,7 +1268,8 @@ class MyGWServer(object):
         # offline
         if dev_id in self.online_terminals:
             self.online_terminals.remove(dev_id)
-        logging.info("[GW] Delete Terminal: %s", dev_id)
+        logging.info("[GW] Delete Terminal: %s, umobile: %s",
+                     dev_id, (user.owner_mobile if user else None))
         
     def get_terminal_sessionID(self, dev_id):
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id) 
