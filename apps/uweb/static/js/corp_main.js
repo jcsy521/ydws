@@ -331,7 +331,7 @@ window.dlf.fn_corpGetCarData = function() {
 	str_checkedNodeId = str_checkedNodeId == undefined ? 'leaf_' + str_currentTid : str_checkedNodeId;
 	str_tempTid = str_checkedNodeId.substr(5, str_checkedNodeId.length);
 	str_currentTid = obj_current.attr('tid');	// load.jstree时更新选中的车
-
+	
 	$.post_(CORP_LASTINFO_URL, '', function (data) {	// 向后台发起lastinfo请求
 		if ( data.status == 0 ) {
 			var obj_corp = data.res,
@@ -345,7 +345,10 @@ window.dlf.fn_corpGetCarData = function() {
 				str_tempFirstTid = '',	// 默认第一个tid
 				str_groupFirstId = '',	// 默认第一个groupid
 				obj_newData = {};
-				
+			
+			/*if ( !dlf.fn_isEmptyObj(obj_corp) ) {
+				return;
+			}*/			
 			n_onlineCnt = obj_corp.online,		// online count
 			n_offlineCnt = obj_corp.offline;	// offline count
 			

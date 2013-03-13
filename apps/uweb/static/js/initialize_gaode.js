@@ -13,7 +13,6 @@
 * obj_polylines： 保存所有的开启追踪轨迹
 * obj_actionTrack：保存开启追踪
 * obj_selfmarkers：所有车辆的marker对象
-* obj_CheckInfoWindowClose 检测是否有吹出框的关闭按钮 
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -25,7 +24,6 @@ var mapObj = null,
 	wakeupInterval = null,
 	trackInterval  = null,
 	obj_polylines = {},
-	obj_CheckInfoWindowClose = null,
 	obj_actionTrack = {},
 	obj_selfmarkers = {};
 	
@@ -380,10 +378,24 @@ window.dlf.fn_getCarData = function(str_flag) {
 		}
 	}
 	obj_tids.tids = arr_tids;
+	
+	/**
+	* 判断是否是第一次请求lastinfo
+	*/
+	if ( CACHE == 0 ) {
+		CACHE = 1;
+	} else {
+		obj_tids.cache = 1;
+	}
+	
 	$.post_(LASTINFO_URL, JSON.stringify(obj_tids), function (data) {	// 向后台发起lastinfo请求
 			if ( data.status == 0 ) {
 				var obj_cars = data.cars_info,
 					obj_tempData = {};
+				
+				if ( !dlf.fn_isEmptyObj(obj_cars) ) {
+					return;
+				}
 				
 				for(var param in obj_cars) {
 					var obj_carInfo = obj_cars[param], 

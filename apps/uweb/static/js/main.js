@@ -285,6 +285,13 @@ window.onresize = function () {
 }
 
 /**
+* 判断object对象是否有属性
+*/
+window.dlf.fn_isEmptyObj = function (obj){
+    return ((function(){for(var k in obj)return k})()!=null?true:false)
+}
+
+/**
 * 页面加载完成后进行加载地图
 */
 $(function () {

@@ -359,7 +359,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 		n_length = obj_carListLi.length, 	//车辆总数
 		n_count = 0, 
 		arr_tids = [], 
-		obj_tids= {'tids': [str_currentTid]};	//所有车的tid集合
+		obj_tids= {'tids': [str_currentTid], 'cache': 0};	//所有车的tid集合、是否是第一次lastinfo
 	
 	if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	
 		return;
@@ -371,12 +371,23 @@ window.dlf.fn_getCarData = function(str_flag) {
 		}
 	}
 	obj_tids.tids = arr_tids;
+	/**
+	* 判断是否是第一次请求lastinfo
+	*/
+	if ( CACHE == 0 ) {
+		CACHE = 1;
+	} else {
+		obj_tids.cache = 1;
+	}
 	
 	$.post_(LASTINFO_URL, JSON.stringify(obj_tids), function (data) {	// 向后台发起lastinfo请求
 			if ( data.status == 0 ) {
 				var obj_cars = data.cars_info,
 					obj_tempData = {};
 				
+				if ( !dlf.fn_isEmptyObj(obj_cars) ) {
+					return;
+				}
 				for(var param in obj_cars) {
 					var obj_carInfo = obj_cars[param], 
 						str_tid = param,
@@ -1353,7 +1364,7 @@ jQuery.extend({
     },
 	get_: function(url, data, callback, errorCallback) {
         return _ajax_request(url, data, callback, errorCallback, 'GET');
-    } 
+    }
 });
 
 /**
