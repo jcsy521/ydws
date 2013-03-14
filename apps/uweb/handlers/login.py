@@ -12,7 +12,7 @@ from utils.dotdict import DotDict
 from utils.misc import get_ios_id_key, get_ios_badge_key, get_terminal_info_key, get_location_key
 from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
-from constants import GATEWAY, UWEB
+from constants import UWEB, EVENTER, GATEWAY
 from base import BaseHandler, authenticated
 from helpers.notifyhelper import NotifyHelper
 from helpers.queryhelper import QueryHelper 
