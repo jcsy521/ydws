@@ -43,7 +43,9 @@ class LastInfoHandler(BaseHandler):
 
             #NOTE: if no tids in request, inqury all tids belong to the owner
             if data.get('tids',None): # has tids
-                if tids != data.tids:
+                print 'tids', tids
+                print 'data.tids', data.tids
+                if set(tids) != set(data.tids):
                     status = ErrorCode.LOGIN_AGAIN
                     usable = 1
                     logging.info("[UWEB] the terminals belongs to the user have been changed, set modified as 1 and provie whole data in cars_info")
