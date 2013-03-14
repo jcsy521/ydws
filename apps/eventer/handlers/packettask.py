@@ -245,7 +245,7 @@ class PacketTask(object):
                 if report.terminal_type == "1":
                     if int(report.pbat) == 100:
                         report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_FULL] 
-                    elif int(report.pbat) <= 3:
+                    elif int(report.pbat) <= 5:
                         report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF]
                     else:
                         report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
