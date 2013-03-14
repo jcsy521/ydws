@@ -44,6 +44,7 @@ class LastInfoHandler(BaseHandler):
             #NOTE: if no tids in request, inqury all tids belong to the owner
             if data.get('tids',None): # has tids
                 if tids != data.tids:
+                    status = ErrorCode.LOGIN_AGAIN
                     usable = 1
                     logging.info("[UWEB] the terminals belongs to the user have been changed, set modified as 1 and provie whole data in cars_info")
             else:  # no tids
@@ -64,6 +65,7 @@ class LastInfoHandler(BaseHandler):
                                            "    AND service_status = %s",
                                            tid, UWEB.SERVICE_STATUS.ON)
 
+                    # NOTE: because tids comes from database, so terminal  must be no-null.and the code here is no used.
                     if not terminal:
                         status = ErrorCode.LOGIN_AGAIN
                         logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
