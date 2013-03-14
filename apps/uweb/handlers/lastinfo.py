@@ -16,8 +16,8 @@ from base import BaseHandler, authenticated
 
        
 class LastInfoHandler(BaseHandler):
-    """Get the newest info of terminal from database.
-    NOTE:It just retrieves data from db, not get info from terminal. 
+    """Get the newest information of terminal from redis or database.
+    NOTE:It just retrieves data from db, not issue a locate and get info from terminal. 
     """
 
     @authenticated
@@ -46,7 +46,8 @@ class LastInfoHandler(BaseHandler):
                 if set(tids) != set(data.tids):
                     status = ErrorCode.LOGIN_AGAIN
                     usable = 1
-                    logging.info("[UWEB] the terminals belongs to the user have been changed, set usable as 1 and provie the whole data in cars_info")
+                    logging.info("[UWEB] uid: %s, business changed, request tids: %s, db tids:%s",
+                                 self.current_user.uid, data.tids, tids)
             else:  # no tids
                 pass
 
@@ -68,7 +69,7 @@ class LastInfoHandler(BaseHandler):
                     # NOTE: because tids comes from database, so terminal  must be no-null.and the code here is no used.
                     if not terminal:
                         status = ErrorCode.LOGIN_AGAIN
-                        logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
+                        logging.error("The terminal with uid: %s, tid: %s, does not exist, redirect to login.html", self.current_user.uid, tid)
                         self.write_ret(status)
                         return
 
@@ -147,7 +148,9 @@ class LastInfoHandler(BaseHandler):
             if data.get('cache', None):  # use cache
                 if lastinfo == cars_info:
                     cars_info = {}
-                    logging.info("[UWEB] the lastinfo in cache is same as last time, just return a empty cars_info.")
+                    usable = 0
+                    #logging.info("[UWEB] The lastinfo with uid: %s in cache is same as last time, just return a empty cars_info.", 
+                    #             self.current_user.uid)
                 else: 
                     usable = 1
                     pass
