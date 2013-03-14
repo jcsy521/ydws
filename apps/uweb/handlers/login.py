@@ -153,6 +153,7 @@ class IOSHandler(BaseHandler, LoginMixin):
                 fobs = self.db.query("SELECT fobid FROM T_FOB"
                                      "  WHERE tid = %s", tid)
                 terminal['fob_list'] = [fob.fobid for fob in fobs]
+                terminal['sim'] = terminal['mobile'] 
 
                 # 2: get location
                 location_key = get_location_key(str(tid))
@@ -274,6 +275,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
                 fobs = self.db.query("SELECT fobid FROM T_FOB"
                                      "  WHERE tid = %s", tid)
                 terminal['fob_list'] = [fob.fobid for fob in fobs]
+                terminal['sim'] = terminal['mobile'] 
 
                 # 2: get location
                 location_key = get_location_key(str(tid))
