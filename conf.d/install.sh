@@ -49,6 +49,9 @@ sudo aptitude install -y libjpeg62-dev libfreetype6-dev
 wget http://effbot.org/downloads/Imaging-1.1.7.tar.gz
 tar zxvf Imaging-1.1.7.tar.gz
 cd Imaging-1.1.7
+# http://www.cnblogs.com/free--coder/archive/2012/09/12/2681361.html
+# NOTE: \/usr\/lib\/x86_64-linux-gnu, This Path need check with command 
+# sudo pkg-config --variable=libdir zlib && sudo pkg-config --variable=libdir freetype2
 sed -i 's/ZLIB_ROOT = None/ZLIB_ROOT = "\/usr\/lib\/x86_64-linux-gnu"/g' setup.py
 sed -i 's/FREETYPE_ROOT = None/FREETYPE_ROOT = "\/usr\/lib\/x86_64-linux-gnu"/g' setup.py
 python setup.py build
