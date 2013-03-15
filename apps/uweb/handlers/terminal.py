@@ -182,6 +182,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             #else: 
             #    self.write_ret(status)
             #    IOLoop.instance().add_callback(self.finish)
+            self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
 
             self.write_ret(status)
         except Exception as e:
@@ -348,6 +349,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.db.execute("UPDATE T_TERMINAL_INFO SET " + set_clause_terminal +
                                 "  WHERE tid = %s",
                                 tid)
+            self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 

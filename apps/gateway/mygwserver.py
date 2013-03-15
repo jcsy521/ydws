@@ -872,17 +872,29 @@ class MyGWServer(object):
             head = info.head
             body = info.body
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
-                           domain="")
+                           domain="",
+                           freq="",
+                           trace="",
+                           static_val="",
+                           move_val="",
+                           trace_para="",
+                           vibl="")
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
                 self.update_terminal_status(head.dev_id, address)
                 args.domain = ConfHelper.GW_SERVER_CONF.domain 
-                terminal = self.db.get("SELECT freq, trace FROM T_TERMINAL_INFO"
+                terminal = self.db.get("SELECT freq, trace, static_val,"
+                                       "       move_val, trace_para, vibl"
+                                       "  FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s", head.dev_id)
                 args.freq = terminal.freq
                 args.trace = terminal.trace
+                args.static_val = terminal.static_val
+                args.move_val = terminal.move_val
+                args.trace_para = terminal.trace_para
+                args.vibl = terminal.vibl
 
             hc = ConfigRespComposer(args)
             request = DotDict(packet=hc.buf,
