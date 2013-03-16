@@ -33,6 +33,10 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         """
         status = ErrorCode.SUCCESS
         try:
+            tid = self.get_argument('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
+          
             car_sets = DotDict() 
             # 1: terminal 
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
@@ -90,6 +94,9 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tid = data.get('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
             logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:

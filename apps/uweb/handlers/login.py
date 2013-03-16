@@ -9,7 +9,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import get_ios_id_key, get_ios_badge_key, get_terminal_info_key, get_location_key
+from utils.misc import get_ios_id_key, get_ios_badge_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key
 from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER, GATEWAY
@@ -337,12 +337,17 @@ class AndroidHandler(BaseHandler, LoginMixin):
             push_key = NotifyHelper.get_push_key(uid, self.redis)
             version_info = get_version_info("android")
             self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
+
+            lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
+            lastinfo_time = self.redis.getvalue(lastinfo_time_key)
+
             self.write_ret(status,
                            dict_=DotDict(push_id=uid,
                                          app_key=push_info.app_key,
                                          push_key=push_key,
                                          name=user_info.name, 
                                          cars_info=cars_info,
+                                         lastinfo_time=lastinfo_time,
                                          cars=terminals))
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
@@ -375,8 +380,8 @@ class IOSLogoutHandler(BaseHandler):
         """Clear the cookie and set defend."""
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] logout request: %s, uid: %s, tid: %s", 
-                         data, self.current_user.uid, self.current_user.tid)
+            logging.info("[UWEB] logout request: %s, uid: %s", 
+                         data, self.current_user.uid)
         except:
             self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
             logging.error("[UWEB] illegal format, body:%s", self.request.body)
@@ -426,8 +431,8 @@ class AndroidLogoutHandler(BaseHandler):
         """Clear the cookie and set defend."""
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] logout request: %s, uid: %s, tid: %s", 
-                         data, self.current_user.uid, self.current_user.tid)
+            logging.info("[UWEB] logout request: %s, uid: %s", 
+                         data, self.current_user.uid)
         except:
             self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
             logging.error("[UWEB] illegal format, body:%s", self.request.body)

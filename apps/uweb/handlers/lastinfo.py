@@ -7,7 +7,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_info_key, get_location_key, get_lastinfo_key
+from utils.misc import get_terminal_info_key, get_location_key, get_lastinfo_key, get_lastinfo_time_key
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from constants import UWEB, EVENTER, GATEWAY
@@ -142,10 +142,16 @@ class LastInfoHandler(BaseHandler):
             
             lastinfo_key = get_lastinfo_key(self.current_user.uid)
             lastinfo = self.redis.getvalue(lastinfo_key)
-            self.redis.setvalue(lastinfo_key, cars_info)
+            lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
+            lastinfo_time = self.redis.getvalue(lastinfo_time_key)
+            self.redis.setvalue(lastinfo_time_key, int(time.time()))
             
             # 2 check whether use the  
             if data.get('cache', None):  # use cache
+                if lastinfo_time == data.get('time',None):
+                    cars_info = {}
+                    usable = 0
+                
                 if lastinfo == cars_info:
                     cars_info = {}
                     usable = 0
@@ -159,7 +165,8 @@ class LastInfoHandler(BaseHandler):
                 pass
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info,
-                                         usable=usable))
+                                         usable=usable,
+                                         lastinfo_time=lastinfo_time))
 
         except Exception as e:
             logging.exception("[UWEB] uid: %s, data: %s get lastinfo failed. Exception: %s", 

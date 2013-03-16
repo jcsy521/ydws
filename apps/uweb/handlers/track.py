@@ -24,6 +24,9 @@ class TrackLQHandler(BaseHandler, BaseMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tid = data.get('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
             logging.info("[UWEB] track LQ request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
@@ -53,6 +56,9 @@ class TrackHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tid = data.get('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
             logging.info("[UWEB] track request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:

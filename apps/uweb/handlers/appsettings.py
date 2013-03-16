@@ -28,6 +28,10 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
         """
         status = ErrorCode.SUCCESS
         try:
+            tid = self.get_argument('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
+  
             ## part 1: terminal
             tracker = DotDict() 
             # 1: terminal 

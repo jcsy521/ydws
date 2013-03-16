@@ -22,6 +22,10 @@ class ProfileHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
+            tid = self.get_argument('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
+
             profile = DotDict()
             # 1: user
             user = self.db.get("SELECT name, mobile, address, email, remark"
@@ -58,6 +62,9 @@ class ProfileHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tid = data.get('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
             logging.info("[UWEB] profile user request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:

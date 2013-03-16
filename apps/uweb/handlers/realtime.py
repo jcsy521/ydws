@@ -9,6 +9,7 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB
+
 from base import BaseHandler, authenticated
 from mixin.realtime import RealtimeMixin
 
@@ -21,6 +22,10 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         """Get the latest usagle.
         """
         try: 
+            tid = self.get_argument('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
+            
             terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s",
@@ -57,6 +62,9 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tid = data.get('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid, finish=True)
             logging.info("[UWEB] realtime request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:

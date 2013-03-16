@@ -24,6 +24,10 @@ class EventHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Jump to event.html, provide alias """ 
+        tid = self.get_argument('tid',None) 
+        # check tid whether exist in request and update current_user
+        self.check_tid(tid)
+          
         terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                "  WHERE tid = %s"
                                "    AND service_status = %s",
@@ -50,6 +54,9 @@ class EventHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tid = data.get('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
             logging.info("[UWEB] event request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:

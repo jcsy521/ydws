@@ -12,7 +12,7 @@ class QueryHelper(object):
     def get_terminal_by_tid(tid, db):
         """Get terminal's info throught tid.
         """
-        terminal = db.get("SELECT mobile, alias, login"
+        terminal = db.get("SELECT mobile, tid, owner_mobile, alias, login"
                           "  FROM T_TERMINAL_INFO"
                           "  WHERE tid = %s LIMIT 1",
                           tid) 

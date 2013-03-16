@@ -24,6 +24,10 @@ class WakeupHandler(BaseHandler, BaseMixin):
     def get(self):
         status = ErrorCode.SUCCESS
         try:
+            tid = self.get_argument('tid',None) 
+            # check tid whether exist in request and update current_user
+            self.check_tid(tid)
+
             terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s",

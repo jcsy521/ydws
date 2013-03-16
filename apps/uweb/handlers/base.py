@@ -9,6 +9,7 @@ import tornado.web
 from tornado.escape import json_encode
 
 from utils.dotdict import DotDict
+from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode
 
 # cookie expire periods, in minutes. one week.
@@ -107,3 +108,20 @@ class BaseHandler(tornado.web.RequestHandler):
             ret.update(dict_)
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))
+
+    def check_tid(self, tid, finish=False):
+        """
+        check tid whether exists in request and modify the current_user.
+        """
+        if tid:
+            terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
+            if not terminal:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The terminal with uid: %s, tid: %s does not exist, login again", self.current_user.uid, tid)
+                self.write_ret(status)
+                if finish:
+                    self.finish()
+                return
+  
+            self.current_user.tid=terminal.tid
+            self.current_user.sim=terminal.mobile
