@@ -338,7 +338,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
             version_info = get_version_info("android")
             self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
 
-            lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
+            lastinfo_time_key = get_lastinfo_time_key(uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
 
             self.write_ret(status,
