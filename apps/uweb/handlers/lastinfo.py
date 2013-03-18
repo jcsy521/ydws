@@ -142,26 +142,38 @@ class LastInfoHandler(BaseHandler):
             
             lastinfo_key = get_lastinfo_key(self.current_user.uid)
             lastinfo = self.redis.getvalue(lastinfo_key)
-            self.redis.setvalue(lastinfo_key, cars_info) 
 
             lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
-            self.redis.setvalue(lastinfo_time_key, int(time.time()))
             
-            # 2 check whether use the  
+            # 2 check whether provide usable data   
             if data.get('cache', None):  # use cache
-                if lastinfo_time == data.get('time',None):
-                    cars_info = {}
-                    usable = 0
-                
-                if lastinfo == cars_info:
-                    cars_info = {}
-                    usable = 0
-                    #logging.info("[UWEB] The lastinfo with uid: %s in cache is same as last time, just return a empty cars_info.", 
-                    #             self.current_user.uid)
-                else: 
-                    usable = 1
+                if data.get('time', None) is not None: # use time
+                    if lastinfo_time == data.get('time'):
+                        cars_info = {}
+                        usable = 0
+                        #logging.info("[UWEB] The lastinfo with uid: %s in cache is same as last time, just return a empty cars_info.", 
+                        #             self.current_user.uid)
+                    else: 
+                        usable = 1
+                        if lastinfo == cars_info:  
+                            pass
+                        else:
+                            self.redis.setvalue(lastinfo_key, cars_info) 
+                            self.redis.setvalue(lastinfo_time_key, int(time.time()))
+                else: # no time
+                    if lastinfo == cars_info:  # no time
+                        cars_info = {}
+                        usable = 0
+                        #logging.info("[UWEB] The lastinfo with uid: %s in cache is same as last time, just return a empty cars_info.", 
+                        #             self.current_user.uid)
+                    else: 
+                        self.redis.setvalue(lastinfo_key, cars_info) 
+                        self.redis.setvalue(lastinfo_time_key, int(time.time()))
+                        usable = 1
             else: 
+                self.redis.setvalue(lastinfo_key, cars_info) 
+                self.redis.setvalue(lastinfo_time_key, int(time.time()))
                 usable = 1
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info,
