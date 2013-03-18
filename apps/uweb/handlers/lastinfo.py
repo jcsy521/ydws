@@ -142,6 +142,8 @@ class LastInfoHandler(BaseHandler):
             
             lastinfo_key = get_lastinfo_key(self.current_user.uid)
             lastinfo = self.redis.getvalue(lastinfo_key)
+            self.redis.setvalue(lastinfo_key, cars_info) 
+
             lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
             self.redis.setvalue(lastinfo_time_key, int(time.time()))
@@ -159,10 +161,8 @@ class LastInfoHandler(BaseHandler):
                     #             self.current_user.uid)
                 else: 
                     usable = 1
-                    pass
             else: 
                 usable = 1
-                pass
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info,
                                          usable=usable,
