@@ -159,8 +159,9 @@ class LastInfoHandler(BaseHandler):
                         if lastinfo == cars_info:  
                             pass
                         else:
+                            lastinfo_time = int(time.time())
                             self.redis.setvalue(lastinfo_key, cars_info) 
-                            self.redis.setvalue(lastinfo_time_key, int(time.time()))
+                            self.redis.setvalue(lastinfo_time_key, lastinfo_time)
                 else: # no time
                     if lastinfo == cars_info:  # no time
                         cars_info = {}
@@ -168,18 +169,19 @@ class LastInfoHandler(BaseHandler):
                         #logging.info("[UWEB] The lastinfo with uid: %s in cache is same as last time, just return a empty cars_info.", 
                         #             self.current_user.uid)
                     else: 
+                        lastinfo_time = int(time.time())
                         self.redis.setvalue(lastinfo_key, cars_info) 
-                        self.redis.setvalue(lastinfo_time_key, int(time.time()))
+                        self.redis.setvalue(lastinfo_time_key, lastinfo_time)
                         usable = 1
             else: 
+                lastinfo_time = int(time.time())
                 self.redis.setvalue(lastinfo_key, cars_info) 
-                self.redis.setvalue(lastinfo_time_key, int(time.time()))
+                self.redis.setvalue(lastinfo_time_key, lastinfo_time)
                 usable = 1
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info,
                                          usable=usable,
-                                         lastinfo_time=lastinfo_time))
-
+                                         lastinfo_time=lastinfo_time)) 
         except Exception as e:
             logging.exception("[UWEB] uid: %s, data: %s get lastinfo failed. Exception: %s", 
                               self.current_user.uid, data, e.args) 
