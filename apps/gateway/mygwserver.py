@@ -20,7 +20,7 @@ from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
-from utils.checker import check_phone
+from utils.checker import check_phone, check_zs_phone
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
@@ -433,6 +433,20 @@ class MyGWServer(object):
                                   address=address)
                 self.append_gw_request(request, connection, channel)
                 logging.error("[GW] Login failed! Invalid terminal dev_id: %s", t_info['dev_id'])
+                return
+
+            logging.info("[GW] Checking whitelist, terminal mobile: %s, Terminal: %s",
+                         t_info['t_msisdn'], t_info['dev_id'])
+            if not check_zs_phone(t_info['t_msisdn'], self.db):
+                args.success = GATEWAY.LOGIN_STATUS.NOT_WHITELIST 
+                lc = LoginRespComposer(args)
+                request = DotDict(packet=lc.buf,
+                                  address=address)
+                self.append_gw_request(request, connection, channel)
+                sms = SMSCode.SMS_MOBILE_NOT_WHITELIST % t_info['t_msisdn']
+                SMSHelper.send(t_info['u_msisdn'], sms)
+                logging.error("[GW] Login failed! terminal mobile: %s not whitelist, dev_id: %s",
+                              t_info['t_msisdn'], t_info['dev_id'])
                 return
 
             logging.info("[GW] Checking terminal mobile: %s and owner mobile: %s, Terminal: %s",

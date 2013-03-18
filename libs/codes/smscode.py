@@ -44,6 +44,7 @@ class SMSCode(object):
     SMS_PSD_WRONG = u"尊敬的客户：您输入的密码错误，请重新确认！"
     SMS_TID_EXIST = u"尊敬的客户：该定位器序列号%s冲突，请联系【移动车卫士】客服。"
     SMS_TID_NOT_EXIST = u"尊敬的客户：该定位器未激活，请执行激活短信指令：‘JH(空格)定位器号码’到定位器号码。例如：JH 13900000000"
+    SMS_MOBILE_NOT_WHITELIST = u"尊敬的客户：您的终端号码%s不合法，不是指定移动车卫士号码，请联系【移动车卫士】客服。"
 
 
     SMS_DOWNLOAD_REMIND = u"尊敬的客户：请手机登录中山无线城市手机网站 gd.wxcs.cn/zs 进入‘下载’-‘移动车卫士’ 下载安装【移动车卫士】客户端。"
