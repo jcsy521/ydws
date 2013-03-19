@@ -163,7 +163,7 @@ class EventHandler(BaseHandler):
                         event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % event['fobid']
                 
             self.write_ret(status,
-                           dict_=DotDict(res=events,
+                           dict_=DotDict(events=events,
                                          pagecnt=page_count))
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s get alarm info failed. Exception: %s",
