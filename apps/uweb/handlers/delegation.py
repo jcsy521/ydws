@@ -20,6 +20,7 @@ class DelegationHandler(BaseHandler):
         self.bookkeep(dict(uid=uid, 
                            tid=tid, 
                            sim=sim,
-                           cid=UWEB.DUMMY_CID))
+                           cid=UWEB.DUMMY_CID,
+                           oid=UWEB.DUMMY_OID))
         self.set_header("P3P", "CP=CAO PSA OUR")
         self.redirect("/?from=delegation")

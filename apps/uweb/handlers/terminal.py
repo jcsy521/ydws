@@ -216,7 +216,15 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             logging.info("[UWEB] corp terminal request: %s, cid: %s", tid, self.current_user.cid)
             terminal = self.db.get("SELECT tid, mobile, group_id, owner_mobile, begintime, endtime"
                                    "  FROM T_TERMINAL_INFO"
-                                   "  WHERE tid = %s",tid)
+                                   "  WHERE tid = %s"
+                                   "    AND service_status = %s",
+                                   tid, UWEB.SERVICE_STATUS.ON)
+
+            if not terminal:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
+                self.write_ret(status)
+                return
             car = self.db.get("SELECT cnum, type, color, brand"
                               "  FROM T_CAR"
                               "  WHERE tid = %s", tid)
@@ -259,20 +267,16 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             # 1 year
             endtime = begintime + 31556926 * 1
             # 1: add user
-            if data.umobile:
-                umobile = data.umobile
-                user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
-                if not user:
-                    self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
-                                    "  VALUES(NULL, %s, password(%s), %s, %s )",
-                                    umobile, '111111',
-                                    u'', umobile)
-                    self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                    "  VALUES(%s)",
-                                    umobile) 
-            else:
-                umobile =self.current_user.cid
-
+            umobile = data.umobile if data.umobile else self.current_user.cid
+            user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
+            if not user:
+                self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
+                                "  VALUES(NULL, %s, password(%s), %s, %s )",
+                                umobile, '111111',
+                                u'', umobile)
+                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                "  VALUES(%s)",
+                                umobile) 
             # 2: add terminal
             terminal = self.db.get("SELECT id, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
                                    data.tmobile)

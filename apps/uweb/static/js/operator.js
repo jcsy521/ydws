@@ -5,7 +5,9 @@ window.dlf.fn_saveOperator = function() {
 		str_groupName = $('#txt_operatorGroup').find('option:selected').text(),
 		str_name = $('#txt_operatorName').val(),
 		str_mobile = $('#txt_operatorMobile').val(),
-		obj_operatorData = {'id': '', 'group_id': str_groupId, 'group_name': str_groupName, 'name': str_name, 'mobile': str_mobile};
+		str_address = $('#txt_operatorAddress').val(),
+		str_email = $('#txt_operatorEmail').val(),
+		obj_operatorData = {'id': '', 'group_id': str_groupId, 'group_name': str_groupName, 'name': str_name, 'mobile': str_mobile, 'address': str_address, 'email': str_email};
 	
 	if ( str_id ) {
 		obj_operatorData.id = parseInt(str_id);
@@ -25,11 +27,15 @@ window.dlf.fn_editOperator = function(n_id) {
 				obj_currentOperatorItemTds = obj_currentOperatorItem.children(), 
 				str_currentGroupId = $(obj_currentOperatorItemTds.eq(0)).attr('groupId'),
 				str_currentName = $(obj_currentOperatorItemTds.eq(1)).html(),
-				str_currentMobile = $(obj_currentOperatorItemTds.eq(2)).html();
+				str_currentMobile = $(obj_currentOperatorItemTds.eq(2)).html(),
+				str_currentAddress = $(obj_currentOperatorItemTds.eq(3)).html(),
+				str_currentEmail = $(obj_currentOperatorItemTds.eq(4)).html();
 			
 			$('#hidOperatorId').val(n_id);
 			$('#txt_operatorName').val(str_currentName);
 			$('#txt_operatorMobile').val(str_currentMobile).data('oldmobile', str_currentMobile);
+			$('#txt_operatorAddress').val(str_currentAddress);
+			$('#txt_operatorEmail').val(str_currentEmail);
 			$('#txt_operatorGroup').html(fn_getGroupData());
 			$('#txt_operatorGroup').val(str_currentGroupId); 
 			

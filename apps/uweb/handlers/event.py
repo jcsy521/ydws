@@ -99,10 +99,8 @@ class EventHandler(BaseHandler):
                           "  WHERE tid IN %s" +\
                           "    AND (timestamp BETWEEN %s AND %s)")\
                           % (tuple(tids + DUMMY_IDS), start_time, end_time)
-                    print 'sql=', sql
                     res = self.db.get(sql)
                     event_count = res.count
-                    print 'count: ', res.count
                     d, m = divmod(event_count, page_size)
                     page_count = (d + 1) if m else d
 
@@ -125,7 +123,6 @@ class EventHandler(BaseHandler):
                            "    AND (timestamp BETWEEN %s AND %s)"
                            "    AND category = %s") %\
                            (tuple(tids + DUMMY_IDS), start_time, end_time, category)
-                    print 'sql = ', sql
                     res = self.db.get(sql)
                     event_count = res.count
                     d, m = divmod(event_count, page_size)

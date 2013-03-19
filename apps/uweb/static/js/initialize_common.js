@@ -973,6 +973,8 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						n_operatorId = data.id ,
 						str_name = obj_data.name, 
 						str_mobile = obj_data.mobile,
+						str_address = obj_data.address, 
+						str_email = obj_data.email, 
 						str_groupId = obj_data.group_id,
 						str_groupName = obj_data.group_name;
 					
@@ -980,6 +982,8 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 										'<td groupId ='+ str_groupId +'>'+ str_groupName +'</td>'+
 										'<td>' + str_name + '</td>' + 
 										'<td>' + str_mobile + '</td>' + 
+										'<td>' + str_address + '</td>' + 
+										'<td>' + str_email + '</td>' + 
 										'<td><a href="#" onclick=dlf.fn_editOperator('+ n_operatorId +')>编辑</a></td>' +
 										'<td><a href="#" onclick=dlf.fn_deleteOperator('+ n_operatorId +')>删除</a></td>' +
 										'</tr>'); 
@@ -1112,7 +1116,9 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 				} else if ( str_who == 'operator' ) {
 					var n_operatorId = obj_data.id ,
 						str_name = obj_data.name, 
-						str_mobile = obj_data.mobile, 
+						str_mobile = obj_data.mobile,
+						str_address = obj_data.address, 
+						str_email = obj_data.email, 
 						str_groupId = obj_data.group_id,
 						str_groupName = obj_data.group_name;
 					
@@ -1120,6 +1126,8 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 										'<td groupId ='+ str_groupId +'>'+ str_groupName +'</td>'+
 										'<td>' + str_name + '</td>' + 
 										'<td>' + str_mobile + '</td>' + 
+										'<td>' + str_address + '</td>' + 
+										'<td>' + str_email + '</td>' + 
 										'<td><a href="#" onclick=dlf.fn_editOperator('+ n_operatorId +') class="blacklistLink">编辑</a></td>' +
 										'<td><a href="#" onclick=dlf.fn_deleteOperator('+ n_operatorId +') class="blacklistLink">删除</a></td>'
 										);

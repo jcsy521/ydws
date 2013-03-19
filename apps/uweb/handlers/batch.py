@@ -212,7 +212,7 @@ class BatchJHHandler(BaseHandler):
             res = []
             for item in mobiles:
                 tmobile = item['tmobile']
-                umobile = item['umobile']
+                umobile = item['umobile'] if item['umobile'] else self.current_user.cid
                 r = DotDict(tmobile=tmobile,
                             status=ErrorCode.SUCCESS)
                 # 1. add user

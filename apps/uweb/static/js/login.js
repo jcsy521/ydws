@@ -101,7 +101,7 @@ $(function(){
 		var str_val = $('#mobile').val(),
 			str_msg = '',
 			obj_param = {'mobile': str_val},
-			str_userType = $('#userType').val(),
+			str_userType = $('#userRoleType').val(),
 			str_url = PWD_URL;
 			
 		if ( str_userType == 'enterprise' ) {

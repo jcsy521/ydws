@@ -308,6 +308,8 @@
 							<th>组名</th>
 							<th>姓名</th>
 							<th>手机号</th>
+							<th>地址</th>
+							<th>email</th>
 							<th class="j_opertion">编辑</th>
 							<th class="j_opertion">删除</th>
 						</tr>
@@ -338,6 +340,18 @@
 						<td><label for="txt_operatorMobile">手机号：</label></td>
 						<td>
 							<input type="text" name="txt_operatorMobile" id="txt_operatorMobile" class="text ui-widget-content ui-corner-all j_onInputBlur" max="11" who="operatorMobile" msg="操作员号码格式不正确！" parent="addOperatorDialog" />
+						</td>
+					</tr>
+					<tr>
+						<td><label for="txt_operatorMobile">地址：</label></td>
+						<td>
+							<input type="text" name="txt_operatorAddress" id="txt_operatorAddress" class="text ui-widget-content ui-corner-all j_onInputBlur" parent="addOperatorDialog" />
+						</td>
+					</tr>
+					<tr>
+						<td><label for="txt_operatorMobile">email：</label></td>
+						<td>
+							<input type="text" name="txt_operatorEmail" id="txt_operatorEmail" class="text ui-widget-content ui-corner-all j_onInputBlur" max="100" who="email" msg="您输入的邮箱格式不正确！" parent="addOperatorDialog" />
 						</td>
 					</tr>
 					<tr>
@@ -445,31 +459,31 @@
 					<tr>
 						<td>
 							<label><font class="txtColor">* </font>集团名称：</label>
-							<input type="text" name="c_name" id="c_name"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="集团名称只能是由数字、英文、下划线或中文组成！"  parent="corpPersonalWrapper" />
+							<input type="text" name="c_name" id="c_name"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="集团名称只能是由数字、英文、下划线或中文组成！"  parent="corpWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
 							<label><font class="txtColor">* </font>联系人：</label>
-							<input type="text" name="c_linkman" id="c_linkman"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="联系人只能是由数字、英文、下划线或中文组成！"  parent="corpPersonalWrapper" />
+							<input type="text" name="c_linkman" id="c_linkman"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="联系人只能是由数字、英文、下划线或中文组成！"  parent="corpWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
 							<label><font class="txtColor">* </font>联系电话：</label>
-							<input type="text" name="c_mobile" id="c_mobile"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="mobile" msg="请输入正确的手机号！"  parent="corpPersonalWrapper" />
+							<input type="text" name="c_mobile" id="c_mobile"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="mobile" msg="请输入正确的手机号！"  parent="corpWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
 							<label>地址：</label>
-							<input type="text" id="c_address" name="c_address" class="text_mouseOut j_corpData1 j_onInputBlur"  msg="地址最大长度是100个汉字或字符！" max="100"  who="validateLength" parent="corpPersonalWrapper"   />
+							<input type="text" id="c_address" name="c_address" class="text_mouseOut j_corpData1 j_onInputBlur"  msg="地址最大长度是100个汉字或字符！" max="100"  who="validateLength" parent="corpWrapper"   />
 						</td>
 					</tr>
 					<tr>
 						<td>
 							<label>E-MAIL：</label>
-							<input type="text" name="c_email" id="c_email" class="text_mouseOut j_corpData1 j_onInputBlur"  parent="corpPersonalWrapper" msg="您输入的邮箱格式不正确！" max = "100"  who="email"  />
+							<input type="text" name="c_email" id="c_email" class="text_mouseOut j_corpData1 j_onInputBlur"  parent="corpWrapper" msg="您输入的邮箱格式不正确！" max = "100"  who="email"  />
 						</td>
 					</tr>
 				</table>
@@ -478,6 +492,51 @@
 			</form>
 		</div>
 	</div><!--集团资料框end-->
+	
+	<!--操作员资料框-->
+	<div id="operatorDataWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle corpPersonalTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div class="wrapperContent operatorContent">
+			<form id="operatorForm" >
+				<table class="personalList">
+					<tr>
+						<td>
+							<label><font class="txtColor">* </font>集团名称：</label>
+							<span id="span_operCName"></span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><font class="txtColor">* </font>操作员姓名：</label>
+							<span id="span_operName"></span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><font class="txtColor">* </font>联系电话：</label>
+							<span id="span_operMobile"></span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>地址：</label>
+							<input type="text" id="txt_operAddress" name="txt_operAddress" class="text_mouseOut j_operatorData j_onInputBlur"  msg="地址最大长度是100个汉字或字符！" max="100"  who="validateLength" parent="operatorDataWrapper"   />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>E-MAIL：</label>
+							<input type="text" name="txt_operEmail" id="txt_operEmail" class="text_mouseOut j_operatorData j_onInputBlur"  parent="operatorDataWrapper" msg="您输入的邮箱格式不正确！" max = "100"  who="email"  />
+						</td>
+					</tr>
+				</table>
+				<input type="submit" value="" id="operatorDataSave" class="personalButton j_save" />
+			</form>
+		</div>
+	</div><!--操作员资料框end-->
+	
 	<!-- 新增终端 -->
 	<div id="cTerminalWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle cTerminalTitle">

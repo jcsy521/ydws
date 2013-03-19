@@ -307,6 +307,8 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td groupId ='+ obj_tempData.group_id +'>'+ obj_tempData.group_name +'</td>';	//组名
 				str_tbodyText+= '<td>'+ obj_tempData.name +'</td>';	// 操作员姓名
 				str_tbodyText+= '<td>'+ obj_tempData.mobile +'</td>';	//操作员手机号
+				str_tbodyText+= '<td>'+ obj_tempData.address +'</td>';	// 操作员地址
+				str_tbodyText+= '<td>'+ obj_tempData.email +'</td>';	//操作员email
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_editOperator('+ str_id +')>编辑</a></td>';	// 
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteOperator('+ str_id +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';

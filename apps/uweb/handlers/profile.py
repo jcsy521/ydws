@@ -215,3 +215,86 @@ class ProfileCorpHandler(BaseHandler):
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
+
+class ProfileOperHandler(BaseHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """Display profile of current corp.
+        """
+        status = ErrorCode.SUCCESS
+        try: 
+            profile = DotDict()
+            # 1: user
+            oper = self.db.get("SELECT name, mobile, address, email"
+                               "  FROM T_OPERATOR"
+                               "  WHERE oid = %s"
+                               "  LIMIT 1",
+                               self.current_user.oid) 
+            if not oper:
+                status = ErrorCode.LOGIN_AGAIN
+                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.oid)
+                self.write_ret(status)
+                return
+            
+            profile.update(oper)
+            for key in profile.keys():
+                profile[key] = profile[key] if profile[key] else ''
+            self.write_ret(status,
+                           dict_=dict(profile=profile))
+        except Exception as e:
+            logging.exception("[UWEB] uid:%s tid:%s get corp profile failed. Exception: %s", 
+                              self.current_user.uid, self.current_user.tid, e.args) 
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
+    @authenticated
+    @tornado.web.removeslash
+    def put(self):
+        """Modify profile of current corp. 
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] profile corp request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+
+        try:
+            #if data.has_key('name')  and not check_sql_injection(data.name):
+            #    status = ErrorCode.ILLEGAL_NAME 
+            #    self.write_ret(status)
+            #    return
+
+            if data.has_key('address')  and not check_sql_injection(data.address):
+                status = ErrorCode.ILLEGAL_ADDRESS
+                self.write_ret(status)
+                return
+
+            if data.has_key('email')  and not check_sql_injection(data.email):
+                status = ErrorCode.ILLEGAL_EMAIL 
+                self.write_ret(status)
+                return
+
+
+            fields_ = DotDict()
+            fields = DotDict(address="address = '%s'",
+                             email="email = '%s'")
+            for key, value in data.iteritems():
+                fields_.setdefault(key, fields[key] % value) 
+            set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
+            if set_clause:
+                self.db.execute("UPDATE T_OPERATOR SET " + set_clause +
+                                "  WHERE oid = %s",
+                                self.current_user.oid)
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] oid:%s update oper profile failed. Exception: %s", 
+                              self.current_user.oid, e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)

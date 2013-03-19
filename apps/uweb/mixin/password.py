@@ -29,6 +29,17 @@ class PasswordMixin(BaseMixin):
 
         return True if res else False 
 
+    def check_oper_by_password(self, password, oid):
+        """Check the password whether be avaliable.
+        """
+        res = self.db.get("SELECT id FROM T_OPERATOR"
+                          "  WHERE password = password(%s)"
+                          "    AND oid = %s"
+                          "    LIMIT 1",
+                          password, oid)
+
+        return True if res else False 
+
     def update_password(self, password, uid):
         self.db.execute("UPDATE T_USER "
                         "  SET password = password(%s)"
@@ -40,6 +51,12 @@ class PasswordMixin(BaseMixin):
                         "  SET password = password(%s)"
                         "  WHERE cid = %s",
                         password, cid)
+
+    def update_oper_password(self, password, oid):
+        self.db.execute("UPDATE T_OPERATOR"
+                        "  SET password = password(%s)"
+                        "  WHERE oid = %s",
+                        password, oid)
 
 
  

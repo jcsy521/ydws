@@ -40,6 +40,7 @@ class MainHandler(BaseHandler):
             logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
             self.render("index.html",
                         map_type=ConfHelper.LBMP_CONF.map_type,
+                        user_type=user_type,
                         status=status)
             return
 

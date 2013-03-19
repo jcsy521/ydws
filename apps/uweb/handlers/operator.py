@@ -50,13 +50,12 @@ class OperatorHandler(BaseHandler):
                 sql = "SELECT count(id) as count FROM T_OPERATOR" + \
                       "  WHERE 1=1 " + where_clause
                 sql += " AND corp_id = %s" % (self.current_user.cid,)
-                print '??', sql
                 res = self.db.get(sql) 
                 count = res.count
                 d, m = divmod(count, page_size)
                 page_count = (d + 1) if m else d
 
-            sql = "SELECT id, oid, name, mobile FROM T_OPERATOR" +\
+            sql = "SELECT id, oid, name, mobile, email, address FROM T_OPERATOR" +\
                   "  WHERE 1=1 " + where_clause
             sql += " AND corp_id = %s LIMIT %s, %s" % (self.current_user.cid, page_number * page_size, page_size)
             operators = self.db.query(sql)
@@ -73,6 +72,8 @@ class OperatorHandler(BaseHandler):
                                     operator.oid)
                 operator['group_id'] = group.id if group else ''
                 operator['group_name'] = group.name if group else u''
+                for key in operator.keys():
+                    operator[key] = operator[key] if operator[key] else ''
             self.write_ret(status,
                            dict_=DotDict(res=operators,
                                          pagecnt=page_count))
@@ -101,10 +102,13 @@ class OperatorHandler(BaseHandler):
             status = ErrorCode.SUCCESS
             mobile = data.mobile
             name = data.name
+            email = data.email
+            address = data.address
             group_id = data.group_id
-            oid = self.db.execute("INSERT T_OPERATOR(id, oid, mobile, password, name, corp_id)"
-                                  "  VALUES(NULL, %s, %s, password(%s), %s, %s)",
-                                  mobile, mobile, '111111', name, self.current_user.cid)
+            oid = self.db.execute("INSERT T_OPERATOR(id, oid, mobile, password, name, corp_id, email, address)"
+                                  "  VALUES(NULL, %s, %s, password(%s), %s, %s, %s, %s)",
+                                  mobile, mobile, '111111', name, self.current_user.cid,
+                                  email, address)
             group = self.db.get("SELECT name FROM T_GROUP WHERE id = %s", group_id)
             self.db.execute("INSERT INTO T_GROUP_OPERATOR(id, group_id, oper_id)"
                             "  VALUES(NULL, %s, %s)", group_id, mobile)
@@ -135,13 +139,17 @@ class OperatorHandler(BaseHandler):
             oid = data.id
             name = data.name
             mobile = data.mobile
+            email = data.email
+            address = data.address
             group_id = data.group_id
             self.db.execute("UPDATE T_OPERATOR"
                             "  SET name = %s,"
                             "      mobile = %s,"
-                            "      oid = %s"
+                            "      oid = %s,"
+                            "      email = %s,"
+                            "      address = %s"
                             "  WHERE id = %s",
-                            name, mobile, mobile, oid)
+                            name, mobile, mobile, email, address, oid)
             self.db.execute("UPDATE T_GROUP_OPERATOR"
                             "  SET group_id = %s"
                             "  WHERE oper_id = %s",

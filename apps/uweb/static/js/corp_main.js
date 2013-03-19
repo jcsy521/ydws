@@ -208,6 +208,7 @@ function customMenu(node) {
 		delete items.moveTo;
 		delete items.event;	
 		delete items.rename;
+		delete items.terminalSetting;
    }
    return items;
 }

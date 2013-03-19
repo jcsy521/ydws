@@ -85,7 +85,6 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                                                           args,
                                                           _on_finish))
             else:
-                print 'car login again....', tid
                 status = ErrorCode.LOGIN_AGAIN
             self.write_ret(status) 
         except Exception as e:

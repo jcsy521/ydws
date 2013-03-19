@@ -241,6 +241,78 @@ window.dlf.fn_corpSave = function() {
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
 }
+
+/**
+* 初始化操作员个人资料
+*/
+window.dlf.fn_initOperatorData = function() {
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	dlf.fn_dialogPosition($('#operatorDataWrapper')); // 我的资料dialog显示
+	dlf.fn_onInputBlur();	// input的鼠标样式
+	dlf.fn_jNotifyMessage('操作员信息查询中' + WAITIMG, 'message', true); 
+	dlf.fn_lockContent($('.operatorContent')); // 添加内容区域的遮罩
+	$.get_(OPERATORPERSON_URL, '', function (data) {	// 获取最新的集团资料数据
+		if ( data.status == 0 ) {
+			var obj_data = data.profile,
+				str_name = $('.corpNode').text().replace(/(^\s*)/g, ""), 		// 集团名称
+				str_address = obj_data.address,	// 操作员地址
+				str_email = obj_data.email,		// 操作员email
+				str_linkMan = obj_data.name,	// 操作员联系人
+				str_newName = str_linkMan,			
+				str_mobile = obj_data.mobile;		// 操作员手机号
+				
+			if ( str_linkMan.length > 4 ) {	// 姓名长度大于4显示...
+				str_newName = str_linkMan.substr(0,4)+'...';
+			}
+			$('#span_operCName').html(str_name);
+			$('#span_operName').html(str_linkMan);
+			$('#span_operMobile').html(str_mobile);
+			$('#txt_operAddress').val(str_address).data('address', str_address);
+			$('#txt_operEmail').val(str_email).data('email', str_email);
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+		} else if ( data.status == 201 ) {	// 业务变更
+			dlf.fn_showBusinessTip();
+		} else {
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
+		}
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
+	},
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
+	});
+}
+
+/**
+* 保存操作员个人资料修改
+*/
+window.dlf.fn_operatorDataSave = function() {
+	dlf.fn_lockContent($('.operatorContent')); // 添加内容区域的遮罩	
+	var f_warpperStatus = !$('#operatorDataWrapper').is(':hidden'),
+		n_num = 0,
+		obj_corpData = {},
+		obj_address = $('#txt_operAddress'),
+		str_newAddress = obj_address.val(),
+		str_oldAddress = obj_address.data('address'),
+		obj_email = $('#txt_operEmail'),
+		str_newEmail = obj_email.val(),
+		str_oldEmail = obj_email.data('email');
+	
+	if ( str_oldAddress != str_newAddress ) {
+		obj_corpData['address'] = str_newAddress;
+		n_num = n_num + 1;
+	}
+	if ( str_oldEmail != str_newEmail ) {
+		obj_corpData['email'] = str_newEmail;
+		n_num = n_num + 1;
+	}
+	if ( n_num != 0 ) {	// 我的资料中如果有修改内容 ，向后台发送post请求，否则提示未做任何修改
+		dlf.fn_jsonPut(OPERATORPERSON_URL, obj_corpData, 'operatorData', '个人资料保存中');
+	} else {
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	}
+}
+
 })();
 
 /**
@@ -390,6 +462,9 @@ $(function () {
 			case 'corpData':	// 集团资料
 				dlf.fn_initCorpData();	
 				break;
+			case 'operatorData':	// 操作员资料
+				dlf.fn_initOperatorData();	
+				break;
 			case 'changePwd': // 修改密码
 				dlf.fn_changePwd();
 				break;
@@ -502,10 +577,13 @@ $(function () {
 			var obj_pwd = {'old_password' : $("#oldPwd").val(), 
 						   'new_password' : $("#newPwd").val() 
 						  },
-				str_url = PWD_URL;
+				str_url = PWD_URL,
+				str_userType = $('#user_type').val();
 			//提交服务器
-			if ( dlf.fn_userType() ) {
+			if ( str_userType == USER_CORP ) {
 				str_url = CORPPWD_URL;
+			} else if ( str_userType == USER_OPERATOR ) {
+				str_url = OPERATORPWD_URL;
 			}
 			dlf.fn_jsonPut(str_url, obj_pwd, 'pwd', '密码保存中');
 		}
@@ -559,6 +637,25 @@ $(function () {
 	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人姓名只能是由数字、英文、下划线或中文组成！"});  // 联系人姓名
 	$('#c_mobile').formValidator({validatorGroup: '4'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人手机号输入不合法，请重新输入！"});  // 联系人手机号	
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	
+	/**
+	* 操作员个人信息的验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'operatorForm', //指定from的ID 编号
+		validatorGroup: '9', // 指定本form组编码,默认为1, 多个验证组时使用
+		debug: true, // 指定调试模式,不提交form
+		wideWord: false,	// 一个汉字当一个字节
+		submitButtonID: 'operatorDataSave', // 指定本form的submit按钮
+		onError: function(msg) { 
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
+		}, 
+		onSuccess: function() { 
+			dlf.fn_operatorDataSave();
+		}
+	});
+	
+	$('#txt_operEmail').formValidator({empty:true, validatorGroup: '9'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
 	* 新建定位器验证
@@ -633,7 +730,7 @@ $(function () {
 	});
 	$('#txt_operatorName').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '操作员姓名不正确！'});
 	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号不正确！'});
-
+	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '9'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
 	* 加载完成后，第一次发送switchcar请求
@@ -684,7 +781,7 @@ $(function () {
 	// 新增初始化dialog
 	$('#addOperatorDialog').dialog({
 		autoOpen: false,
-		height: 200,
+		height: 300,
 		width: 400,
 		modal: true,
 		resizable: false
