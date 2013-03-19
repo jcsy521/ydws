@@ -274,6 +274,17 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 umobile =self.current_user.cid
 
             # 2: add terminal
+            terminal = self.db.get("SELECT id, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
+                                   data.tmobile)
+            if terminal:
+                if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+                    self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s",
+                                    terminal.id)
+                else:
+                    logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
+                    status = ErrorCode.TERMINAL_ORDERED
+                    self.write_ret(status)
+                    return
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  begintime, endtime)"
                             "  VALUES (%s, %s, %s, %s, %s, %s)",
@@ -411,8 +422,12 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                    tid, 
                                    UWEB.SERVICE_STATUS.ON)
             if not terminal:
-                logging.error("The terminal with tmobile: %s does not exist!", tid)
+                logging.error("The terminal with tmobile: %s does not exist!", terminal.mobile)
                 return
+            elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
+                self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id)
+                logging.error("The terminal with tmobile:%s is offline and delete it!", terminal.mobile)
+
             # unbind terminal
             seq = str(int(time.time()*1000))[-4:]
             args = DotDict(seq=seq,

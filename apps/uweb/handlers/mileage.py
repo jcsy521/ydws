@@ -65,6 +65,8 @@ class MileageHandler(BaseHandler):
                        points[i+1].longitude and points[i+1].latitude:
                         distance += get_distance(points[i].longitude, points[i].latitude,
                                                  points[i+1].longitude, points[i+1].latitude) 
+                # meter --> km
+                distance = '%0.1f' % (distance/1000,)
                 alias = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                 dct = DotDict(tid=tid,
                               alias=alias,

@@ -64,6 +64,7 @@ from handlers.wapimg import WapImgHandler
 from handlers.tinyurl import TinyURLHandler
 from handlers.delegation import DelegationHandler
 from handlers.checker import CheckTMobileHandler, CheckCNumHandler, CheckCNameHandler
+from handlers.checker import CheckOperMobileHandler
 from handlers.friendlink import FriendLinkHandler
 from handlers.batch import BatchImportHandler
 from handlers.batch import BatchDeleteHandler
@@ -145,6 +146,7 @@ class Application(tornado.web.Application):
             (r"/checktmobile/(\d+)/*", CheckTMobileHandler),
             (r"/checkcnum/(\S+)/*", CheckCNumHandler),
             (r"/checkcname/(\S+)/*", CheckCNameHandler),
+            (r"/checkopermobile/(\d+)/*", CheckOperMobileHandler),
 
             (r"/friendlink/*", FriendLinkHandler),
 

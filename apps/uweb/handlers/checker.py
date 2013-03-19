@@ -25,8 +25,9 @@ class CheckTMobileHandler(BaseHandler):
             res = self.db.get("SELECT id"
                               "  FROM T_TERMINAL_INFO"
                               "  WHERE mobile = %s"
+                              "    AND service_status != %s" 
                               "   LIMIT 1",
-                              tmobile)
+                              tmobile, UWEB.SERVICE_STATUS.TO_BE_UNBIND)
             if res:
                 #TODO: the status is ugly, maybe should be replaced on someday.
                 status = ErrorCode.SERVER_BUSY
@@ -82,3 +83,28 @@ class CheckCNumHandler(BaseHandler):
                               self.current_user.uid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
+
+class CheckOperMobileHandler(BaseHandler):
+
+    @tornado.web.removeslash
+    def get(self, omobile):
+        """Check tmobile whether exists in T_TERMINAL_INFO.
+        """
+        try:
+            status = ErrorCode.SUCCESS
+            res = self.db.get("SELECT id"
+                              "  FROM T_OPERATOR"
+                              "  WHERE mobile = %s"
+                              "   LIMIT 1",
+                              omobile)
+            if res:
+                #TODO: the status is ugly, maybe should be replaced on someday.
+                status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 
+                              self.current_user.uid, e.args) 
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+

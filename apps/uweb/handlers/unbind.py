@@ -52,12 +52,10 @@ class UNBindHandler(BaseHandler, BaseMixin):
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
                 return
-            #elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
-            #    status = ErrorCode.TERMINAL_OFFLINE
-            #    logging.error("The terminal with tmobile:%s is offline!", tmobile)
-            #    self.write_ret(status)
-            #    IOLoop.instance().add_callback(self.finish)
-            #    return
+            elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
+                # delete terminal
+                self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id)
+                logging.error("The terminal with tmobile:%s is offline and delete it!", tmobile)
 
             def _on_finish(response):
                 status = ErrorCode.SUCCESS

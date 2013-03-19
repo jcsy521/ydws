@@ -191,14 +191,6 @@ class PacketTask(object):
             if report.rName == EVENTER.RNAME.POWERLOW:
                 if report.terminal_type == "1": # type: terminal
                     sms = self.handle_power_status(report, name, report_name, terminal_time)
-                    corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
-                                       "  WHERE T_TERMINAL_INFO.tid = %s"
-                                       "    AND T_TERMINAL_INFO.group_id != -1"
-                                       "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
-                                       "    AND T_GROUP.corp_id = T_CORP.cid",
-                                       report.dev_id)
-                    if corp.mobile != user.owner_mobile:
-                        SMSHelper.send(corp.mobile, sms)
                 else: # type: fob
                     sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
@@ -241,6 +233,15 @@ class PacketTask(object):
             else:
                 logging.info("[EVENTER] location failed.")
             self.sms_to_user(report.dev_id, sms, user)
+            if report.rName == EVENTER.RNAME.POWERLOW:
+                corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
+                                   "  WHERE T_TERMINAL_INFO.tid = %s"
+                                   "    AND T_TERMINAL_INFO.group_id != -1"
+                                   "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
+                                   "    AND T_GROUP.corp_id = T_CORP.cid",
+                                   report.dev_id)
+                if corp.mobile != user.owner_mobile:
+                    SMSHelper.send(corp.mobile, sms)
         else:
             logging.info("[EVENTER] Remind option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)

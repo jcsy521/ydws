@@ -139,15 +139,13 @@ class BatchDeleteHandler(BaseHandler):
                                        tid, 
                                        UWEB.SERVICE_STATUS.ON)
                 if not terminal:
-                    r.status = ErrorCode.SUCESS
+                    r.status = ErrorCode.SUCCESS
                     res.append(r)
-                    logging.error("The terminal with tmobile: %s does not exist!", tid)
+                    logging.error("The terminal with tmobile: %s does not exist!", terminal.mobile)
                     continue 
-                #elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
-                #    r.status = ErrorCode.FAILED
-                #    res.append(r)
-                #    logging.error("The terminal with tmobile:%s is offline!", tid)
-                #    continue 
+                elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
+                    self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id)
+                    logging.error("The terminal with tmobile:%s is offline and delete it!", terminal.mobile)
 
                 seq = str(int(time.time()*1000))[-4:]
                 args = DotDict(seq=seq,
@@ -165,7 +163,6 @@ class BatchDeleteHandler(BaseHandler):
                     unbind_sms = SMSCode.SMS_UNBIND  
                     ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
                     ret = DotDict(json_decode(ret))
-                    status = ret.status
                     if ret.status == ErrorCode.SUCCESS:
                         res.append(r)
                         self.db.execute("UPDATE T_TERMINAL_INFO"
