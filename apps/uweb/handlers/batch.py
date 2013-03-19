@@ -58,7 +58,7 @@ class BatchImportHandler(BaseHandler):
             # write into tmp file
             fname = ''.join(random.choice(string.ascii_lowercase + string.digits) for x in range(6))
             final_filename= fname + extension
-            file_path = "uploads/" + final_filename
+            file_path = final_filename
             output_file = open(file_path, 'w')
             output_file.write(upload_file['body'])
             output_file.close()
