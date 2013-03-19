@@ -8,6 +8,7 @@ PRIORITY = DotDict(SMS=40, )
 SPEED_DIFF = 3 # if speed < 3km/h, be considered as still point.
 
 DUMMY_CID = u'dummy_cid'
+DUMMY_OID = u'dummy_oid'
 DUMMY_UID = u'dummy_uid'
 DUMMY_TID = u'dummy_tid'
 DUMMY_MOBILE = u'dummy_mobile'
@@ -22,7 +23,8 @@ IOS_ID_INTERVAL = 7 * 24 * 60 * 60 # one week. in seconds.
 IOS_MAX_SIZE = 180 # in bytes. 
 
 USER_TYPE=DotDict(PERSON='individual',
-                  CORP='enterprise')
+                  CORP='enterprise',
+                  OPERATOR='operator')
 
 GROUP_TYPE=DotDict(BUILTIN=0,
                    NEW=1)
@@ -74,4 +76,9 @@ REMOTE_EVENT_COMMAND = DotDict(REBOOT='REBOOT',
 
 SMS_OPTION = DotDict(SEND=1,
                      UNSEND=0)
+
+TERMINAL_STATUS = DotDict(JHING=0,
+                          UNJH=1,
+                          EXISTED=2,
+                          INVALID=3)
 

@@ -375,7 +375,7 @@ POST 返回：
 ** 业务开通异步校验
 
 校验集团手机号：
-GET 请求：/ec/mobile/
+GET 请求：/checkecmobile/[mobile]
 
 GET 返回结果：
 
@@ -393,17 +393,19 @@ GET 请求：/ecbusiness/createec
 GET 返回结果：
 {	
 	url: ecbusiness/create.html // 跳转到新增集团界面
+        bizlist: list // 业务类型列表
 
 ｝
 
 POST 请求：
 ｛
       'name': x_str, //集团名称
+      'bizcode': x_str, //业务类型
       'linkman': x_str, //集团联系人
       'mobile': x_str, //联系人手机号
       'password': x_str, //登录平台密码
-	  'address': x_str, //联系人地址
-	  'email': x_str, //联系人邮箱
+      'address': x_str, //联系人地址
+      'email': x_str, //联系人邮箱
  ｝
  
 POST 返回：
@@ -424,8 +426,8 @@ POST 返回：
 
 ** 业务开通异步校验
 
-校验集团手机号：
-GET 请求：/business/checktmobile/
+校验终端手机号：
+GET 请求：/checktmobile/
 
 GET 返回结果：
 

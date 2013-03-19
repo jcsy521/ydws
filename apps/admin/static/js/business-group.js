@@ -104,8 +104,13 @@ function fn_fillUserData(n_tempNav) {
 			var str_cLink = $('#ecLink').val(), 
 				str_cMobile = $('#ecMobile').val(), 
 				str_cAddress = $('#userAddress').val(), 
-				str_cEmail = $('#userEmail').val();
+				str_cEmail = $('#userEmail').val(),
+				obj_bizcode = $('#ecBizcode'),
+				str_bizname = obj_bizcode.find('option:selected').text(), 
+				str_bizcode = obj_bizcode.val();
 			
+			$('#bizcode').val(str_bizcode);
+			$('#tdEcBizCode').html(str_bizname);
 			$('#linkman').val(str_cLink);
 			$('#ecmobile').val(str_cMobile);
 			$('#address').val(str_cAddress);

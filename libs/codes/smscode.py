@@ -48,3 +48,5 @@ class SMSCode(object):
 
 
     SMS_DOWNLOAD_REMIND = u"尊敬的客户：请手机登录中山无线城市手机网站 gd.wxcs.cn/zs 进入‘下载’-‘移动车卫士’ 下载安装【移动车卫士】客户端。"
+
+    SMS_NEW_OPERATOR = u"尊敬的客户：您已经成为移动车卫士集团用户管理员，平台网址：%s，用户名：%s，密码：%s"

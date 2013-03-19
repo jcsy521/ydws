@@ -132,7 +132,18 @@ window.dlf.fn_saveSMSOption = function() {
 			obj_smsData[str_id] = str_nowVal;
 		}
 	});
-	dlf.fn_jsonPut(SMS_URL, obj_smsData, 'sms', '短信告警参数保存中');
+	/**
+	* 只保存有修改的数据
+	*/
+	for(var param in obj_smsData) {	// 修改项的数目
+		n_num = n_num + 1;
+	}
+	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
+		dlf.fn_jsonPut(SMS_URL, obj_smsData, 'sms', '短信告警参数保存中');
+	} else {
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	}
 }
 
 /**
@@ -285,13 +296,6 @@ window.onresize = function () {
 }
 
 /**
-* 判断object对象是否有属性
-*/
-window.dlf.fn_isEmptyObj = function (obj){
-    return ((function(){for(var k in obj)return k})()!=null?true:false)
-}
-
-/**
 * 页面加载完成后进行加载地图
 */
 $(function () {
@@ -349,6 +353,7 @@ $(function () {
 	/**
 	* 页面的点击事件分流处理
 	*/
+	var str_userType = $('#user_type').val();
 	$('.j_click').click(function(event) {
 		var str_id = event.currentTarget.id, 
 			n_carNum = $('#carList li').length,
@@ -360,19 +365,23 @@ $(function () {
 			}
 			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
 		}
-		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' ) {
+		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'event' ) {
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
 			} else {
 				var obj_currentNode = $('.jstree-clicked'),
-					b_class = obj_currentNode.hasClass('groupNode');
+					b_class = obj_currentNode.hasClass('groupNode'), 
+					n_currentGroupUlLen = $($('.jstree-clicked').next('ul')).length;
 				
-				if ( b_class && ( str_currentTid == undefined || str_currentTid == '' ) ) {
+				if ( b_class && n_currentGroupUlLen == 0 ) {
 					dlf.fn_jNotifyMessage('当前组下没有可用终端，请选择其他组下的终端。', 'message', false, 5000); // 查询状态不正确,错误提示
 					return;
 				}
 			}
+		}
+		if ( str_userType !=  USER_PERSON ) {
+			dlf.fn_secondNavValid();
 		}
 		switch (str_id) {
 			case 'personalData': //  个人资料 
@@ -387,6 +396,9 @@ $(function () {
 			case 'terminal': // 参数设置
 				dlf.fn_initTerminal();
 				break;
+			case 'corpTerminal': // 集团参数设置
+				dlf.fn_initCorpTerminal();
+				break;
 			case 'realtime': // 实时查询
 				dlf.fn_currentQuery();
 				break;
@@ -399,12 +411,24 @@ $(function () {
 			case 'smsoption': // 短信设置
 				dlf.fn_initSMSParams();
 				break;
-			case 'statics': // 短信设置
-				dlf.fn_initStatics();
+			case 'event': // 告警查询
+				dlf.fn_initRecordSearch('event');
+				break;
+			case 'operator': // 操作员查询
+				dlf.fn_initRecordSearch('operator');
 				break;
 		}
 	});
-	
+	/*鼠标滑动显示统计二级菜单*/
+	$('.j_countRecord').mouseover(function(event) { 
+		dlf.fn_fillNavItem();
+	})
+	/*点击页面其他地方,二级菜单关闭*/
+	$('.j_body').click(function(event) { 
+		if ( str_userType !=  USER_PERSON ) {
+			dlf.fn_secondNavValid();
+		}
+	});
 	dlf.fn_closeWrapper(); //吹出框关闭事件
 	
 	/**
@@ -507,7 +531,6 @@ $(function () {
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	
 	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的SOS联系人号码不合法，请重新输入！'});
 	
 	/**
@@ -560,7 +583,7 @@ $(function () {
 		}
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
-	$('#c_umobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "车主手机号输入不合法，请重新输入！"});  // 别名;
+	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "车主手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
 	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
 	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
@@ -585,7 +608,28 @@ $(function () {
 	$('#c_editcnum').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
 	$('#c_editccolor').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
 	$('#c_editcbrand').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
-		
+	
+	
+	/**
+	* 操作员进行验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'addOperatorForm', //指定from的ID 编号
+		debug: true, // 指定调试模式,不提交form
+		validatorGroup: '8', // 指定本form组编码,默认为1, 多个验证组时使用
+		submitButtonID: 'operatorSave', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000, 'dw');
+			return;
+		}, 
+		onSuccess: function() { 
+			dlf.fn_saveOperator();
+		}
+	});
+	$('#txt_operatorName').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '操作员姓名不正确！'});
+	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号不正确！'});
+
+	
 	/**
 	* 加载完成后，第一次发送switchcar请求
 	*/
@@ -621,4 +665,21 @@ $(function () {
 	}
 	
 	$('#txtautoComplete').val('');	// 清空autocomplete搜索框
+	/*=====================================*/
+	var obj_addOperator = $('#addOperator');
+	// 新增操作员 单击事件
+	obj_addOperator.unbind('click').bind('click', function() {
+		$('.operatorfieldset input, textarea').val('');
+		$('#hidOperatorId').val('');
+		$('#txt_operatorGroup').html(fn_getGroupData());
+		$('#addOperatorDialog').removeData('resource').attr('title', '新增操作员').dialog('option', 'title', '新增操作员').dialog( "open" );
+	});
+	// 新增初始化dialog
+	$('#addOperatorDialog').dialog({
+		autoOpen: false,
+		height: 200,
+		width: 400,
+		modal: true,
+		resizable: false
+	});
 })

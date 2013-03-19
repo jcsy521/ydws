@@ -17,6 +17,8 @@ class ErrorCode(object):
     ILLEGAL_REMARK = 127
     ILLEGAL_PASSWORD = 128
     ILLEGAL_CONTENT = 129
+    ILLEGAL_EXCEL_FILE = 130
+    ILLEGAL_MOBILE = 131
 
     LOGIN_FAILED = 200
     LOGIN_AGAIN = 201
@@ -77,6 +79,8 @@ class ErrorCode(object):
         ILLEGAL_REMARK:                u"备注内容中含有非法字符，请重新输入。",
         ILLEGAL_PASSWORD:              u"密码中含有非法字符，密码为不少于6位的字母或数字组成，请重新输入。",
         ILLEGAL_CONTENT:               u"反馈内容中含有非法字符，请重新输入。",
+        ILLEGAL_EXCEL_FILE:            u"非法的文件，请选择excel表。",
+        ILLEGAL_MOBILE:                u"非法的手机号。",
         WRONG_CAPTCHA:                 u"验证码输入错误。",
         WRONG_PASSWORD:                u"密码错误，请重新输入。",
         WRONG_OLD_PASSWORD:            u"原始密码错误，请重新输入。",

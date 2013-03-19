@@ -7,7 +7,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_info_key, get_location_key, get_lastinfo_key, get_lastinfo_time_key
+from utils.misc import get_terminal_info_key, get_location_key, get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from constants import UWEB, EVENTER, GATEWAY
@@ -198,7 +198,12 @@ class LastInfoCorpHandler(BaseHandler):
         try:
             status = ErrorCode.SUCCESS
             corp = self.db.get("SELECT cid, name, mobile FROM T_CORP WHERE cid = %s", self.current_user.cid)
-            groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
+            if self.current_user.oid == UWEB.DUMMY_OID:
+                groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
+            else:
+                groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
+                gids = [g.group_id for g in groups]
+                groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE id IN %s", tuple(DUMMY_IDS + gids))
             res = DotDict(name=corp.name,
                           cid=corp.cid,
                           online=0,
@@ -206,7 +211,10 @@ class LastInfoCorpHandler(BaseHandler):
                           groups=[])
             for group in groups:
                 group['cars'] = []
-                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO WHERE group_id = %s", group.gid)
+                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                          "  WHERE group_id = %s"
+                                          "    AND service_status = %s",
+                                          group.gid, UWEB.SERVICE_STATUS.ON)
                 tids = [str(terminal.tid) for terminal in terminals]
 
                 for tid in tids:

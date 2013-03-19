@@ -88,6 +88,15 @@ class QueryHelper(object):
         return corp 
 
     @staticmethod
+    def get_operator_by_oid(oid, db):
+        operator = db.get("SELECT mobile, name"
+                          "  FROM T_OPERATOR"
+                          "  WHERE oid = %s LIMIT 1",
+                          oid)
+
+        return operator
+
+    @staticmethod
     def get_user_by_tmobile(tmobile, db):
         """Get user info throught tmobile.
         """

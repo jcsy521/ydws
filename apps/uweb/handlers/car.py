@@ -36,7 +36,8 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
             if terminal: 
                 self.send_lq_sms(terminal.sim, tid, SMS.LQ.WEB)
                 self.bookkeep(dict(cid=self.current_user.cid,
-                                   uid=terminal.owner_mobile,
+                                   oid=self.current_user.oid,
+                                   uid=terminal.owner_mobile if terminal.owner_mobile else self.current_user.cid,
                                    tid=tid,
                                    sim=terminal.sim))
                 def _on_finish(response):
@@ -84,6 +85,7 @@ class SwitchCarHandler(BaseHandler, BaseMixin):
                                                           args,
                                                           _on_finish))
             else:
+                print 'car login again....', tid
                 status = ErrorCode.LOGIN_AGAIN
             self.write_ret(status) 
         except Exception as e:

@@ -29,7 +29,7 @@ class BaseMixin(object):
 
         if not self.redis.getvalue(lq_sms_key): 
             sms = SMSCode.SMS_LQ % interval 
-            SMSHelper.send_to_terminal(sim, sms) 
+#            SMSHelper.send_to_terminal(sim, sms) 
             logging.info("[UWEB] send %s to Sim: %s", sms, sim) 
             self.redis.setvalue(lq_sms_key, True, SMS.LQ_INTERVAL)
 

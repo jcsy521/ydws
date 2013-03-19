@@ -7,7 +7,7 @@ $(function(){
 	var obj_captchaImg= $('#captchaimg'),	// 验证码图片存放对象
 		n_bannerIndex = 0,	// 当前banner的编号
 		currentAd = null,	// 图片轮换的计时器
-		str_type = $('#user_type').val(),
+		str_type = $('#userRoleType').val(),
 		obj_tabs = $('.tabs li'),
 		obj_first = obj_tabs.eq(0),
 		obj_sed = obj_tabs.eq(1),
@@ -33,7 +33,7 @@ $(function(){
 		var obj_this = $(this),
 			str_userType = obj_this.attr('userType'),
 			b_current = obj_this.hasClass('current'),
-			obj_userType = $('#user_type'),
+			obj_userType = $('#userRoleType'),
 			obj_userGetPwd = $('#getPwd'),
 			obj_corpGetPwd = $('#corpGetPwd');
 		
@@ -104,7 +104,7 @@ $(function(){
 			str_userType = $('#userType').val(),
 			str_url = PWD_URL;
 			
-		if ( str_userType == '1' ) {
+		if ( str_userType == 'enterprise' ) {
 			str_url = CORPPWD_URL;
 		}
 		

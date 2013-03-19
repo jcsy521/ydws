@@ -28,6 +28,11 @@ var STATICS_URL = '/statistic';	// 告警统计
 var CHECKMOBILE_URL = '/checktmobile';	// 终端手机号验证
 var CHECKCNAME_URL = '/checkcname';	// 验证集团名
 var CORPPWD_URL = '/password/corp';	// 集团密码
+var BATCHIMPORT_URL = '/batch/import';	// 批量操作定位器
+var BATCHDELETE_URL = '/batch/delete';	// 批量删除
+var BATCHJH_URL = '/batch/JH';	// 批量激活
+var OPERATOR_URL = '/operator';	// 操作员管理
+var MILEAGE_URL = '/mileage';	// 里程统计
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒
 var CHECK_ROUNDNUM = 3; // 经纬度显示小数位截取
@@ -47,9 +52,12 @@ var LOGINST = 1; //终端连接到平台
 var LOGINOUT = 0; //终端连接到平台
 var LOGINWAKEUP = 2; //终端连接到平台
 var NUMLNGLAT = 3600000; /*int->lnglat num值*/ 
-var WEEKMILISECONDS = 24*60*60*6; // 一个星期的毫秒数
+var WEEKMILISECONDS = 24*60*60*7; // 一个星期的毫秒数
 var LASTINFOCACHE = 0;	// 0: 首次访问lastinfo  1: 不是首次访问
 var WAITIMG = '...<img src="/static/images/blue-wait.gif" width="12px" />';	// 正在查询中 图标
 var BASEIMGURL = '/static/images/';	// 图片的默认路径
 var CORPIMGURL = BASEIMGURL + 'corpImages/';	// 集团默认图片路径
 var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// 手机号正则表达
+var USER_PERSON = 'individual'; // 个人用户
+var USER_CORP = 'enterprise'; // 集团管理员
+var USER_OPERATOR = 'operator'; // 集团 操作员

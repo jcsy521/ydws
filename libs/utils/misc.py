@@ -150,3 +150,14 @@ def get_psd():
         psd += base_str[index]
 
     return psd 
+
+def days_of_month(year="2012",month="11"):
+    """Get the number of days which is in the year and month.
+    """
+    timestamp = int(time.mktime(time.strptime("%s-%s"%(year,month),"%Y-%m")))    
+    current_day = datetime.datetime.fromtimestamp(timestamp)    
+    e = current_day + relativedelta(months=1, day=1, hour=0, minute=0, second=0)
+    e_epoch = int(time.mktime(e.timetuple())-1)
+    days = datetime.datetime.fromtimestamp(e_epoch).day
+
+    return days

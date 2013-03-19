@@ -203,6 +203,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		dlf.fn_setOptionsByType('center', mPoint);
 	} else if ( str_iconType == 'start' || str_iconType == 'end' ) {
 		marker.setOffset(new BMap.Size(-1, -14));
+	} else if ( str_iconType == 'eventSurround' ) {
+		marker.setLabel(label);
 	}
 	mapObj.addOverlay(marker);	//向地图添加覆盖物 
 	if ( isOpenWin ) {

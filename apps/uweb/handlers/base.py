@@ -47,8 +47,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
     SUPPORTED_METHODS = ("GET", "POST", "DELETE", "PUT")
 
-    COOKIE_PATTERN = re.compile(r"C=(?P<cid>.*):U=(?P<uid>.*):T=(?P<tid>.*):TT=(?P<sim>.*)")
-    COOKIE_FORMAT = "C=%(cid)s:U=%(uid)s:T=%(tid)s:TT=%(sim)s"
+    COOKIE_PATTERN = re.compile(r"C=(?P<cid>.*):O=(?P<oid>.*):U=(?P<uid>.*):T=(?P<tid>.*):TT=(?P<sim>.*)")
+    COOKIE_FORMAT = "C=%(cid)s:O=%(oid)s:U=%(uid)s:T=%(tid)s:TT=%(sim)s"
  
     JSON_HEADER = ("Content-Type", "application/json; charset=utf-8")
 

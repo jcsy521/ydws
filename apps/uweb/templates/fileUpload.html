@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
+		<link type="text/css" href="/static/css/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
+		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery.jnotify.js"></script>
+		<script type="text/javascript" src="/static/js/initialize_common.js"></script>
+		<script type="text/javascript" src="/static/js/fileupload.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				var n_gid = parent.document.getElementById('hidGid').value,
+					str_gname = parent.document.getElementById('hidGName').value;
+				
+				$('#gid').val(n_gid);
+				$('.j_thead').html(str_gname);
+				
+				// 文件上传
+				$("input.fileUpload").filestyle({ 
+					image: "/static/images/file.png",
+					imageheight : 33,
+					imagewidth : 85,
+					width : 220
+				});
+				$('.j_active').unbind('click').bind('click', function() {
+					var obj_notActive = $('.j_notActived'),
+						obj_resultTab = $('#fileUploadTable'),
+						arr_mobiles = [],
+						obj_param = {'gid': n_gid, 'mobiles': []};
+					
+					$.each(obj_notActive, function() {
+						var obj_this = $(this),
+							str_tmobile = obj_this.attr('tmobile'),
+							str_umobile = obj_this.attr('umobile');
+							
+						arr_mobiles.push({'tmobile': str_tmobile, 'umobile': str_umobile});
+					});
+					
+					if ( arr_mobiles.length > 0 ) {
+						obj_param.mobiles = arr_mobiles;
+						$.post_('/batch/JH', JSON.stringify(obj_param),function(data) {
+							if ( data.status == 0 ) {
+								var arr_datas = data.res;
+								
+								for ( var x = 0; x < arr_datas.length; x++ ) {
+									var obj_result = arr_datas[x],
+										n_status = obj_result.status,
+										str_msg = n_status == 0 ? '激活指令已下发' : '激活失败',	// 返回的状态
+										str_tmobile = obj_result.tmobile;
+									
+									$('.j_notActived[tmobile='+ str_tmobile +']').children('td').eq(2).html(str_msg);
+								}
+								$(this).val('返回').unbind('click').bind('click', function() {
+									location.reload();
+								});
+								parent.dlf.fn_corpGetCarData();
+							} else {
+								dlf.fn_jNotifyMessage('定位器激活失败，请重新激活。', 'message', false, 4000);
+								return;
+							}
+						});
+					} else {
+						dlf.fn_jNotifyMessage('上传数据格式错误。', 'message', false, 4000);
+						return;
+					}
+				});
+			});
+		</script>
+		<title>文件上传</title>
+	</head>
+	<body>
+		{% if status is None %}
+		<form id="fileUploadForm" name="fileUploadForm" method="POST" target="fileUploadIframe"  enctype="multipart/form-data" action="/batch/import">
+			<input type="hidden" id="gid" name="gid" value="" />
+			<input type="file" name="upload_file" id="upload_file" class="fileUpload"  multiple="">
+			<!--<input type="submit" class="operationBtn j_startUpload" value="开始上传"  />-->
+			<table class="fileInfoTable"></table>
+			<p class="errorMsg j_uploadError">
+			</p>
+		</form>
+		{% elif status == 0 %}
+			<table class="dataTable excelInfoTable" id="fileUploadTable">
+				<thead>
+					<tr><th colspan="3" class="j_thead"></th></tr>
+				</thead>
+				<tr><td>定位器号码</td><td>车主号码</td><td>状态</td></tr>
+				{% for r in res %}
+					{% if r.status == 1 %}
+						<tr class="j_notActived" tmobile="{{r.tmobile}}" umobile="{{r.umobile}}">
+							<td>{{r.tmobile}}</td>
+							<td>{{r.umobile}}</td>
+							<td class="fileStatus1">未激活</td>
+						</tr>
+					{% elif r.status == 2 %}
+						<tr>
+							<td>{{r.tmobile}}</td>
+							<td>{{r.umobile}}</td>
+							<td tmobile="{{r.tmobile}}" class="fileStatus2">定位器号码已存在</td>
+						</tr>
+					{% elif r.status == 3 %}
+						<tr>
+							<td>{{r.tmobile}}</td>
+							<td>{{r.umobile}}</td>
+							<td tmobile="{{r.tmobile}}" class="fileStatus3">手机号码格式错误</td>
+						</tr>
+					{% end %}
+				{% end %}
+				<tfoot class="">
+					<tr>
+						<td colspan="3" align="right">
+							<input type="button" class="operationBtn j_active" value="批量激活"  />
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		{% else %}
+			<span class="txtColor">{{message}}</span>
+		{% end %}
+	</body>
+</html>

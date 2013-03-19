@@ -44,6 +44,18 @@
 				<form method="post" id="businessFormID2" action="">
 					<table cellspacing="0" cellpadding="0" border="0" class="tableStyle">
 						<tr>
+							<td	class="tLeft">集团业务类型：</td>
+							<td class="tdText" id="ecBizList">
+								<select id="ecBizcode" name="ecBizcode" class="userSelect j_userSelect validate[required]">
+									<option value="">请选择业务类型</option>
+									{% for biz in bizlist %}
+									<option value="{{biz.bizcode}}">{{biz.bizname}}</option>
+									{% end %}
+								</select>
+								<span class="redColor">*</span>
+							</td>
+						</tr>
+						<tr>
 							<td	class="tLeft">集团联系人：</td>
 							<td class="tdText" id="ecLinkPanel">
 								<input type="text" id="ecLink" class="validate[required]" />
@@ -79,6 +91,10 @@
 						<td class="tdText" id="tdEcname"></td>	
 					</tr>
 					<tr>
+						<td	class="tLeft">集团业务类型：</td>
+						<td class="tdText" id="tdEcBizCode"></td>	
+					</tr>
+					<tr>
 						<td	class="tLeft">集团联系人：</td>
 						<td class="tdText" id="tdEcLink"></td>	
 					</tr>
@@ -105,6 +121,7 @@
 		</div>
 		<form method="post" id="ecFormID" action="/ecbusiness/createec" class="businessFrom">
 			<input type="hidden" id="ecname" name="ecname" value="" />
+			<input type="hidden" id="bizcode" name="bizcode" value="" />
 			<input type="hidden" id="ecmobile" name="ecmobile" value="" />
 			<input type="hidden" id="linkman" name="linkman" value="" />
 			<input type="hidden" id="address" name="address" value="" />

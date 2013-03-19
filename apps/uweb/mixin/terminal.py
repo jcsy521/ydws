@@ -3,8 +3,10 @@
 
 from base import BaseMixin
 from constants import UWEB 
+from codes.smscode import SMSCode
 from utils.misc import get_terminal_info_key, get_terminal_sessionID_key
 from helpers.queryhelper import QueryHelper 
+from helpers.smshelper import SMSHelper
 from utils.dotdict import DotDict
 
 class TerminalMixin(BaseMixin):
@@ -59,6 +61,27 @@ class TerminalMixin(BaseMixin):
                     if terminal_info:
                         terminal_info['alias'] = value if value else self.current_user.sim
                         self.redis.setvalue(terminal_info_key, terminal_info)
+            elif key == 'owner_mobile':
+                if value is not None:
+                    umobile = value
+                    user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
+                    if not user:
+                        self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
+                                        "  VALUES(NULL, %s, password(%s), %s, %s )",
+                                        umobile, '111111',
+                                        u'', umobile)
+                        self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                        "  VALUES(%s)",
+                                        umobile)
+                terminal = self.db.get("SELECT id, mobile FROM T_TERMINAL_INFO"
+                                       "  WHERE tid = %s", self.current_user.tid)
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET owner_mobile = %s"
+                                "  WHERE id = %s",
+                                value, terminal.id)
+                umobile = value if value else self.current_user.cid
+                register_sms = SMSCode.SMS_REGISTER % (umobile, terminal.mobile)
+                SMSHelper.send_to_terminal(terminal.mobile, register_sms)
 
         terminal_clause = ','.join(terminal_fields)        
         if terminal_clause:

@@ -4,13 +4,16 @@
 <script type="text/javascript" src="/static/js/formValidator-4.1.1.js"></script>		
 <script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
 <script type="text/javascript" src="/static/js/formValidatorRegex.js"></script>
-<script type="text/javascript" src="/static/js/terminal.js"></script>
+<script type="text/javascript" src="/static/js/corp_terminal.js"></script>
 <script type="text/javascript" src="/static/js/main.js"></script>
 <script type="text/javascript" src="/static/js/current.js"></script>
 <script type="text/javascript" src="/static/js/track.js"></script>
 <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/jquery.jstree.js"></script>
 <script type="text/javascript" src="/static/js/corp_main.js"></script>
+<script type="text/javascript" src="/static/js/operator.js"></script>
+<script type="text/javascript" src="/static/js/searchRecord.js"></script>
+<script type="text/javascript" src="/static/js/fileupload.js"></script>
 {% end %}
 {% block body %}
 <body class="j_body mainBody">
@@ -75,9 +78,12 @@
 					<li><a href="#" id="realtime" class="realtime j_click"></a></li>
 					<li><a href="#" id="track" class="track j_click"></a></li>
 					<li><a href="#" id="defend" class="defend j_click"></a></li>
-					<li><a href="#" id="terminal" class="terminal j_click"></a></li>
-					<li><a href="#" id="smsoption" class="smsOption j_click"></a></li>
-					<li><a href="#" id="statics" class="statics j_click"></a></li>
+					<li><a href="#" id="corpTerminal" class="corpTerminal j_click"></a></li>
+					<li><a href="#" id="event" class="event j_click"></a></li>
+					<li><a href="#" id="recordCount" class="recordCount j_countRecord"></a></li>
+					{% if user_type != 'operator' %}
+					<li><a href="#" id="operator" class="corpOperator j_click"></a></li>
+					{% end %}
 				</ul>
 				<ul class="selfList">
 					<li><a class="help" title="显示帮助文档" href="/helper?user_type=enterprise" target="_blank">帮助</a></li>
@@ -98,8 +104,8 @@
 				</span>
 				<span class="trackBtn">
 					<span id="trackSearch" class="tSearch"></span>
-					<span id="tPlay" class="tPlay hide j_tBtnhover"></span>
-					<span id="tPause" class="tPause hide j_tBtnhover"></span>
+					<span id="tPlay" class="tPlay hide j_trackBtnhover"></span>
+					<span id="tPause" class="tPause hide j_trackBtnhover"></span>
 				</span>
 				<span id="trackClose" class="tClose"></span>
 				<span id="trackSpeed" class="trackSpeed hide">
@@ -124,7 +130,7 @@
 		<div id="errormsg"></div>
 	{% end %}
 	{% include dialogs.html %}
-	<input type="hidden" id="userType" value="1" />
+	<input type="hidden" id="user_type" value="{{user_type}}" />
 	<input type="hidden" id="map_type" value="{{map_type}}" />
 </body>
 {% end %}

@@ -11,7 +11,8 @@ import tornado.web
 from helpers.seqgenerator import SeqGenerator
 from helpers.queryhelper import QueryHelper 
 from helpers.confhelper import ConfHelper
-from utils.misc import DUMMY_IDS, get_today_last_month
+from utils.misc import DUMMY_IDS, get_today_last_month, str_to_list,\
+                       get_terminal_info_key
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER 
@@ -54,11 +55,12 @@ class EventHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            tid = data.get('tid',None) 
+            tid = data.get('tid', None) 
+            tids = data.get('tids', None)
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            logging.info("[UWEB] event request: %s, uid: %s, tid: %s", 
-                         data, self.current_user.uid, self.current_user.tid)
+            logging.info("[UWEB] event request: %s, uid: %s, tid: %s, tids: %s", 
+                         data, self.current_user.uid, self.current_user.tid, tids)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
@@ -82,6 +84,9 @@ class EventHandler(BaseHandler):
             page_count = int(data.pagecnt)
             start_time = data.start_time
             end_time = data.end_time
+            tids = str_to_list(tids)
+            tids = tids if tids else [self.current_user.tid, ]
+            tids = [str(tid) for tid in tids]
             # the interval between start_time and end_time is one week
             if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                 self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
@@ -90,50 +95,63 @@ class EventHandler(BaseHandler):
             if category == -1:
                 # we need return the event count to GUI at first time query
                 if page_count == -1:
-                    res = self.db.get("SELECT COUNT(*) as count FROM V_EVENT"
-                                      "  WHERE tid = %s"
-                                      "    AND (timestamp BETWEEN %s AND %s)",
-                                      self.current_user.tid, start_time, end_time)
+                    sql = ("SELECT COUNT(*) as count FROM V_EVENT" +\
+                          "  WHERE tid IN %s" +\
+                          "    AND (timestamp BETWEEN %s AND %s)")\
+                          % (tuple(tids + DUMMY_IDS), start_time, end_time)
+                    print 'sql=', sql
+                    res = self.db.get(sql)
                     event_count = res.count
+                    print 'count: ', res.count
                     d, m = divmod(event_count, page_size)
                     page_count = (d + 1) if m else d
 
-                events = self.db.query("SELECT latitude, longitude, clatitude, clongitude," 
-                                       "  timestamp, name, type, speed, degree,"
-                                       "  category, pbat, terminal_type, fobid"  
-                                       "  FROM V_EVENT"
-                                       "  WHERE tid = %s"
-                                       "    AND (timestamp BETWEEN %s AND %s)"
-                                       "    AND category != 5"
-                                       "  ORDER BY timestamp DESC"
-                                       "  LIMIT %s, %s",
-                                       self.current_user.tid, start_time, end_time,
-                                       page_number * page_size, page_size)
+                sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
+                      "  timestamp, name, type, speed, degree,"
+                      "  category, pbat, terminal_type, fobid"  
+                      "  FROM V_EVENT"
+                      "  WHERE tid IN %s"
+                      "    AND (timestamp BETWEEN %s AND %s)"
+                      "    AND category != 5"
+                      "  ORDER BY timestamp DESC"
+                      "  LIMIT %s, %s") %\
+                      (tuple(tids + DUMMY_IDS), start_time, end_time,
+                       page_number * page_size, page_size)
+                events = self.db.query(sql)
             else: 
                 if page_count == -1:
-                    res = self.db.get("SELECT COUNT(*) as count FROM V_EVENT"
-                                      "  WHERE tid = %s"
-                                      "    AND (timestamp BETWEEN %s AND %s)"
-                                      "    AND category = %s",
-                                      self.current_user.tid, start_time, end_time, category)
+                    sql = ("SELECT COUNT(*) as count FROM V_EVENT"
+                           "  WHERE tid IN %s"
+                           "    AND (timestamp BETWEEN %s AND %s)"
+                           "    AND category = %s") %\
+                           (tuple(tids + DUMMY_IDS), start_time, end_time, category)
+                    print 'sql = ', sql
+                    res = self.db.get(sql)
                     event_count = res.count
                     d, m = divmod(event_count, page_size)
                     page_count = (d + 1) if m else d
 
-                events = self.db.query("SELECT latitude, longitude, clatitude, clongitude," 
-                                       "  timestamp, name, type, speed, degree,"
-                                       "  category, pbat, terminal_type, fobid"  
-                                       "  FROM V_EVENT"
-                                       "  WHERE tid = %s"
-                                       "    AND (timestamp BETWEEN %s AND %s)"
-                                       "    AND category = %s"
-                                       "  ORDER BY timestamp DESC"
-                                       "  LIMIT %s, %s",
-                                       self.current_user.tid, start_time, end_time, category,
-                                       page_number * page_size, page_size)
+                sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
+                       "  timestamp, name, type, speed, degree,"
+                       "  category, pbat, terminal_type, fobid"  
+                       "  FROM V_EVENT"
+                       "  WHERE tid IN %s"
+                       "    AND (timestamp BETWEEN %s AND %s)"
+                       "    AND category = %s"
+                       "  ORDER BY timestamp DESC"
+                       "  LIMIT %s, %s") %\
+                       (tuple(tids + DUMMY_IDS), start_time, end_time, category, page_number * page_size, page_size)
 
+                events = self.db.query(sql)
+
+            alias_dict = {}
+            for tid in tids:
+                terminal_info_key = get_terminal_info_key(tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                alias_dict[tid] = terminal_info['alias'] if terminal_info['alias'] else terminal_info['mobile']
             # change the type form decimal to float.
             for event in events:
+                event['alias'] = alias_dict[event['tid']] 
                 event['pbat'] = event['pbat'] if event['pbat'] is not None else 0
                 event['fobid'] = event['fobid'] if event['fobid'] is not None else u''
                 event['name'] = event['name'] if event['name'] is not None else u''
@@ -152,10 +170,12 @@ class EventHandler(BaseHandler):
                         event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % event['fobid']
                 
             self.write_ret(status,
-                           dict_=DotDict(events=events,
+                           dict_=DotDict(res=events,
                                          pagecnt=page_count))
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s get alarm info failed. Exception: %s",
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
+

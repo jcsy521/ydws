@@ -7,6 +7,7 @@
 	<script type="text/javascript" src="/static/js/terminal.js"></script>
 	<script type="text/javascript" src="/static/js/main.js"></script>
 	<script type="text/javascript" src="/static/js/current.js"></script>
+	<script type="text/javascript" src="/static/js/searchRecord.js"></script>
 	<script type="text/javascript" src="/static/js/track.js"></script>
 {% end %}
 {% block body %}
@@ -92,7 +93,7 @@
 				<ul class="menu">
 					<li><a href="#" id="realtime" class="realtime j_click"></a></li>
 					<li><a href="#" id="track" class="track j_click"></a></li>
-					<li><a href="/event" id="warnEvent" target="event.html" class="event j_click"></a></li>
+					<li><a href="#" id="event" class="event j_click"></a></li>
 					<li><a href="#" id="defend" class="defend j_click"></a></li>
 					<li><a href="#" id="terminal" class="terminal j_click"></a></li>
 					<li><a href="#" id="smsoption" class="smsOption j_click"></a></li>
@@ -119,8 +120,8 @@
 				<!--按钮-->
 				<span class="trackBtn">
 					<span id="trackSearch" class="tSearch"></span>
-					<span id="tPlay" class="tPlay hide j_tBtnhover"></span>
-					<span id="tPause" class="tPause hide j_tBtnhover"></span>
+					<span id="tPlay" class="tPlay hide j_trackBtnhover"></span>
+					<span id="tPause" class="tPause hide j_trackBtnhover"></span>
 				</span>
 				<!--关闭按钮-->
 				<span id="trackClose" class="tClose"></span>
@@ -148,7 +149,7 @@
 	<!--辅助元素begin-->
 	{% include dialogs.html %}
 	<!--辅助元素end-->
-	<input type="hidden" id="userType" value="0" />
+	<input type="hidden" id="user_type" value="{{user_type}}" />
 	<input type="hidden" id="map_type" value="{{map_type}}" />
 </body>
 {% end %}

@@ -65,6 +65,7 @@
 			</form>
 		</div>
 	</div><!--个人资料框end-->
+	
 	<!--密码修改框-->
 	<div id="pwdWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle PWDTitle">
@@ -92,7 +93,7 @@
 				<div id="terminalList0" class="j_terminalcontent">
 					<!-- 可查询参数列表 -->
 					<form id="terminalForm" >
-						<table id="bListR">
+						<table class="bListR">
 							<tbody>
 								<tr>
 									<td class="terminalTdL">定位器号码:</td>
@@ -106,25 +107,6 @@
 										<label id="t_umobile"></label>
 									</td>
 								</tr>
-								<!-- 2012-10-23 18:13 暂时隐藏 定位器序列号，定位器别名，车牌号（移动到个人资料）
-								<tr>
-									<td class="terminalTdL">定位器序列号:</td>
-									<td id="sn" t_val="0">
-										<label id="t_sn" terminalkey="sn"></label>
-									</td>
-								</tr>
-								<tr>
-									<td class="terminalTdL">定位器别名:</td>
-									<td id="alias" class="j_ListVal j_input"  t_val="">
-										<input id="t_alias" type="text" terminalkey="t_alias" class="text_mouseOut j_onInputBlur" msg="定位器别名最大长度是20个汉字或字符！" max = "20"  who="validateLength"  parent="terminalWrapper"  />
-									</td>
-								</tr>
-								<tr>
-									<td class="terminalTdL">车牌号:</td>
-									<td id="cnum" class="j_ListVal j_input"  t_val="">
-										<input type="text" id="t_cnum" terminalkey="cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
-									</td>
-								</tr>-->
 								<tr class="hide">
 									<td class="terminalTdL" ></td>
 									<td id="white_list_1" class="j_white_list" t_val="">
@@ -140,12 +122,6 @@
 										<label id="tpsLable0" for="tr_push_status0">关闭</label>
 									</td>
 								</tr>
-								<!--<tr>
-									<td class="terminalTdL" >SOS联系人:</td>
-									<td id="white_list_2"  class="j_ListVal j_whitelist j_white_list j_input"  t_val="">
-										<input id="t_white_list_2"  terminalkey="owner_mobile" class="text_mouseOut j_onInputBlur j_whiteLists "  type="text"  max="14"  msg="您设置的SOS联系人号码不合法，请重新输入！" who="mobile" parent="terminalWrapper"   />
-									</td>
-								</tr>-->
 								<tr class="j_corp_terminal">
 									<td class="terminalTdL" >上报频率:</td>
 									<td id="freq"  class="j_ListVal j_input"  t_val="">
@@ -164,39 +140,8 @@
 										<input type="text" id="t_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
 									</td>
 								</tr>
-								<!--
-								<tr>
-									<td colspan="2" id="popTips">
-										* SOS联系人为紧急情况的联系人，建议填写亲人或好友的手机号码。
-									</td>
-								</tr>
-								<tr>
-									<td class="terminalTdL">轨迹上报:</td>
-									<td id="trace"  class="j_ListVal j_radio" t_val="">
-										<input id="tr_trace1" type="radio" value="1" name="trStatus"  class="j_trace" />
-										<label id="tRadioLable1" for="tr_trace1">开启</label>
-										<input id="tr_trace0" type="radio" value="0" name="trStatus"   class="j_trace" />
-										<label id="tRadioLable0" for="tr_trace0">关闭</label>
-									</td>
-								</tr>
-								<tr id="trFreq">
-									<td class="terminalTdL">上报间隔:</td>
-									<td id="freq" class="j_ListVal j_select"  t_val="0">
-										<select id="t_freq" >
-											<option value="0">智能上报</option>
-											<option value="30">30秒</option>
-											<option value="60">1分钟</option>
-											<option value="300">5分钟</option>
-											<option value="600">10分钟</option>
-											<option value="1800">30分钟</option>
-										</select>
-									</td>
-								</tr>-->
 							</tbody>
 						</table>
-						<!--<div class="popTips">
-							* SOS联系人为紧急情况的联系人，建议填写亲人或好友的手机号码。
-						</div>-->
 						<table id="tmnTable" >
 							<tr>
 								<td align="right">
@@ -251,6 +196,166 @@
 				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
 		</div>
 	</div>
+
+	<!-- 集团用户的参数设置 -->
+	<div id="corpTerminalWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle corpTerminalTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div id="corpTerminalContent" class="corpTerminalContent wrapperContent">
+			<form id="corp_terminalForm" >
+			<fieldset>
+				<legend class="legendTerminal">定位器设置：</legend>
+				<table class="bListR">
+					<tbody>
+						<tr>
+							<td class="terminalTdL">定位器号码:</td>
+							<td id="corp_mobile"  t_val="">
+								<label id="t_corp_mobile"></label>
+							</td>
+						</tr>
+						<tr class="j_corp_terminal">
+							<td class="terminalTdL">车主号码:</td>
+							<td id="t_corp_c_umobile" class="j_corp_ListVal j_input j_white_list"  t_val="">
+								<!--<label id="t_corp_umobile"></label>-->
+								<input id="t_corp_owner_mobile" terminalkey="owner_mobile"  class="text_mouseOut" type="text" />
+							</td>
+						</tr>
+						<tr>
+							<td class="terminalTdL">客户端通知:</td>
+							<td id="corp_push_status" class="j_corp_ListVal j_radio"  t_val="">
+								<input id="tr_corp_push_status1" type="radio" value="1" name="corp_tpStatus" />
+								<label id="corp_tpsLable1" for="tr_corp_push_status1">开启</label>
+								<input id="tr_corp_push_status0" type="radio" value="0" name="corp_tpStatus" />
+								<label id="corp_tpsLable0" for="tr_corp_push_status0">关闭</label>
+							</td>
+						</tr>
+						<tr class="j_corp_terminal">
+							<td class="terminalTdL" >上报频率:</td>
+							<td id="corp_freq"  class="j_corp_ListVal j_input"  t_val="">
+								<select id="t_corp_freq" terminalkey="freq">
+									<option value="0">智能上报</option>
+									<option value="60">1分钟</option>
+									<option value="300">5分钟</option>
+									<option value="600">10分钟</option>
+									<option value="1800">30分钟</option>
+								</select>
+							</td>
+						</tr>
+						<tr class="j_corp_terminal">
+							<td class="terminalTdL" >车牌号码:</td>
+							<td id="corp_corp_cnum"  class="j_corp_ListVal j_input"  t_val="">
+								<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+			<fieldset class="corpFieldSet">
+				<legend>短信通知项：</legend>
+					<ul class="corp_smsList">
+						<li>
+							<input type="checkbox" id="corp_powerlow" class="j_corp_checkbox" title="低电" /><label for="corp_powerlow">电量告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_illegalmove" class="j_corp_checkbox" title="移动" /><label for="corp_illegalmove">移动告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_illegalshake" class="j_corp_checkbox" title="震动" /><label for="corp_illegalshake">震动告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_login" class="j_corp_checkbox" title="车主登录" /><label for="corp_login">平台登录提醒</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_heartbeat_lost" class="j_corp_checkbox" title="通讯异常" /><label for="corp_heartbeat_lost">通讯异常提醒</label>
+						</li>
+						<li>
+							<input type="checkbox" id="corp_charge" class="j_corp_checkbox" title="剩余流量" /><label for="corp_charge">剩余流量提醒</label> 
+						</li>
+					</ul>
+					<input type="submit" value="" id="corp_terminalSave" class="corp_terminalButton j_save" />
+			</fieldset>
+			</form>				
+		</div>
+	</div>
+
+	<!-- 操作员管理 -->
+	<div id="operatorWrapper" class="hide wrapper j_drag">
+		<div class="wrapperTitle operatorTitle">
+			<span class="close j_close" title="关闭窗口" id="j_record"></span>
+		</div>
+		<div id="operatorContent" class="j_dialogContent">
+			<div class="dateChoose">
+				<table class="conditions">
+					<tr>
+						<td>
+							姓名：<input type="text" id="txt_oprName" maxlength="20" />
+						
+							手机号：<input type="text" id="txt_oprMobile" maxlength="11" />
+						</td>
+						<td>
+							<!--按钮-->
+							<span id="operator_searchBtn" class="recordBtn" title="搜索"></span>
+							<a href="#" id="addOperator">新增操作员</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div>
+				<table class="dataTable" id="operatorTable" cellspacing="0" border="1" align="center">
+					<tbody>
+						<tr id="operatorTableHeader">
+							<th>组名</th>
+							<th>姓名</th>
+							<th>手机号</th>
+							<th class="j_opertion">编辑</th>
+							<th class="j_opertion">删除</th>
+						</tr>
+					</tbody>
+				</table>
+				<!-- 分页 -->
+				<div id="operatorPage" class="hide">
+					<span id="operatorPrevBtn" class="prevBtn j_pBtnHover"></span>
+					<span id="operatorPageNums" class="pageNums"><label id="operatorCurrentPage"></label>/<label id="operatorPageCount"></label></span>
+					<span id="operatorNextBtn" class="nextBtn j_pBtnHover"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 新增操作员 -->
+	<div id="addOperatorDialog" title="新增操作员" class="hide">
+		<form id="addOperatorForm">
+			<fieldset class="operatorfieldset">
+				<input type="hidden" id="hidOperatorId" />
+				<table>
+					<tr>
+						<td><label for="oprName">姓名：</label></td>
+						<td>
+							<input type="text" name="oprName" id="txt_operatorName" class="text ui-widget-content ui-corner-all j_oprName" />
+						</td>
+					</tr>
+					<tr>
+						<td><label for="txt_operatorMobile">手机号：</label></td>
+						<td>
+							<input type="text" name="txt_operatorMobile" id="txt_operatorMobile" class="text ui-widget-content ui-corner-all j_blackName" />
+						</td>
+					</tr>
+					<tr>
+						<td><label for="txt_operatorGroup">组名：</label></td>
+						<td>
+							<select id="txt_operatorGroup" name="txt_operatorGroup"  class="c_select">
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" align="center">
+							<input type="submit" width="100" value="" id="operatorSave" />
+						</td>
+					</tr>
+				</table>
+			</fieldset>
+		</form>
+	</div>	
 	<!-- 周边查询 -->
 	<div id="POISearchWrapper" class="POISearchWrapper hide j_drag">
 		<h2 class="PWrapperTitle">
@@ -382,14 +487,14 @@
 				<table class="cTerminalList">
 					<tr>
 						<td>
-							<label><font class="txtColor">* </font>终端手机号：</label>
-							<input type="text" name="c_tmobile" id="c_tmobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="cMobile" msg="终端手机号格式不正确！"  parent="cTerminalWrapper" />
+							<label><font class="txtColor">* </font>定位器号码：</label>
+							<input type="text" name="c_tmobile" id="c_tmobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="cMobile" msg="定位器号码格式不正确！"  parent="cTerminalWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<label><font class="txtColor">* </font>车主手机号：</label>
-							<input type="text" name="c_umobile" id="c_umobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="uMobile" msg="车主手机号格式不正确！"  parent="cTerminalWrapper" />
+							<label><font class="txtColor">* </font>车主号码：</label>
+							<input type="text" name="c_umobile" id="c_umobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="uMobile" msg="车主号码格式不正确！"  parent="cTerminalWrapper" />
 						</td>
 					</tr>
 					<tr>
@@ -534,16 +639,16 @@
 			<table class="staticsCondition">
 				<tr>
 					<td>
-						查询时间：<input type="text" id="c_eventbegintime"  class="time" />
-						至 <input type="text" id="c_eventendtime"  class="time" />
+						查询时间：<input type="text" id="staticsStartTime"  class="time" />
+						至 <input type="text" id="staticsEndTime"  class="time" />
 					</td>
-					<td><span id="staticsBtn" class="staticsBtn j_tBtnhover" title="搜索"></span></td>
+					<td><span id="statics_searchBtn" class="staticsBtn j_tBtnhover" title="搜索"></span></td>
 				</tr>
 			</table>
 			<table class="dataTable staticsTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="staticsTableHeader">
-						<th>车牌号</th>
+						<th>定位器</th>
 						<th>移动告警</th>
 						<!--<th>SOS告警</th>-->
 						<th>震动告警</th>
@@ -554,9 +659,9 @@
 			</table>
 			<!-- 分页 -->
 			<div id="staticsPage" class="hide">
-				<span id="prevPage" class="prevBtn j_pBtnHover"></span>
-				<span id="pageNums"><label id="currentPage"></label>/<label id="pageCount"></label></span>
-				<span id="nextPage" class="nextBtn j_pBtnHover"></span>
+				<span id="staticsPrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="staticsPageNums" class="pageNums"><label id="staticsCurrentPage"></label>/<label id="staticsPageCount"></label></span>
+				<span id="staticsNextBtn" class="nextBtn j_pBtnHover"></span>
 			</div>
 		</div>
 	</div>
@@ -577,4 +682,121 @@
 			</table>
 		</div>
 	</div>
+	<!-- 文件上传 -->
+	<div id="fileUploadDialog" title="批量文件上传" class="hide">
+		<input type="hidden" id="hidGid" />
+		<input type="hidden" id="hidGName" />
+		<iframe scrolling="auto" width=580 height=460 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
+	</div>
+	<!-- 告警查询 -->
+	<div id="eventWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle eventTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div class="wrapperContent eventContent">
+			<table class="eventCondition">
+				<tr>
+					<td>
+						查询时间：<input type="text" id="eventStartTime"  class="time" />
+						至 <input type="text" id="eventEndTime"  class="time" />
+					</td>
+					<td>
+						<span class="eventPos">
+							<span class="timeTip">告警类型:</span>
+							<select class="cEventType" id="eventCategory">
+								<option value="-1">全部</option>
+								<!--<option value="5">SOS</option>-->
+								<option value="2">电量告警</option>
+								<option value="6">通讯异常</option>
+								<option value="3">震动</option>
+								<option value="4">移动</option>
+							</select>
+						</span>
+					</td>
+					<td><span id="event_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
+				</tr>
+			</table>
+			<table class="dataTable eventTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="eventTableHeader">
+						<th class="eventAlias">定位器</th>
+						<th class="eventTime">时间</th>
+						<th class="eventType">告警类型</th>
+						<th class="eventLocation">位置详情</th>
+						<th class="eventLocation">备注</th>
+					</tr>
+				</tbody>
+			</table>
+			<!-- 分页 -->
+			<div id="eventPage" class="hide">
+				<span id="eventPrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="eventPageNums" class="pageNums"><label id="eventCurrentPage"></label>/<label id="eventPageCount"></label></span>
+				<span id="eventNextBtn" class="nextBtn j_pBtnHover"></span>
+			</div>
+		</div>
+	</div>
+	<!-- 统计报表-->
+	<div id="mileageWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle mileageTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<div class="wrapperContent mileageContent">
+			<table class="mileageCondition">
+				<tr>
+					<td>
+						查询时间：<input type="text" id="mileageStartTime"  class="time" />
+						至 <input type="text" id="mileageEndTime"  class="time" />
+					</td>
+					<td><span id="mileage_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
+				</tr>
+			</table>
+			<table class="dataTable mileageTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="mileageTableHeader">
+						<th class="mileageAlias">定位器</th>
+						<th class="mileageDist">里程</th>
+					</tr>
+				</tbody>
+			</table>
+			<!-- 分页 -->
+			<div id="mileagePage" class="hide">
+				<span id="mileagePrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="mileagePageNums" class="pageNums"><label id="mileageCurrentPage"></label>/<label id="mileagePageCount"></label></span>
+				<span id="mileageNextBtn" class="nextBtn j_pBtnHover"></span>
+			</div>
+		</div>
+	</div>
+	<!-- 批量删除数据回显 -->
+	<div class="hide" id="batchDeleteDialog">
+		<table class="dataTable batchDeleteTable">
+			<thead>
+				<tr>
+					<th colspan="3" class="j_batchDeleteHead"></th>
+				</tr>
+				<tr>
+					<td>车牌号</td>
+					<td>定位器号码</td>
+					<td>状态</td>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="3">
+						<input type="button" class="operationBtn j_batchDelete" value="批量删除"  />
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+	<!--统计 列表-->
+	<ul id="countSecondList" class="hide j_countNavItem countUlIetm">
+		<li>
+			<a href="#" id="statics" class="statics j_click"></a>
+		</li>
+		<li>
+			<a href="#" id="mileage" class="mileage j_click"></a>
+		</li>
+	</ul>
 </div>

@@ -1,0 +1,71 @@
+// 操作员保存
+window.dlf.fn_saveOperator = function() {
+	var	str_id = $('#hidOperatorId').val(),
+		str_groupId = $('#txt_operatorGroup').val(),
+		str_groupName = $('#txt_operatorGroup').find('option:selected').text(),
+		str_name = $('#txt_operatorName').val(),
+		str_mobile = $('#txt_operatorMobile').val(),
+		obj_operatorData = {'id': '', 'group_id': str_groupId, 'group_name': str_groupName, 'name': str_name, 'mobile': str_mobile};
+	
+	if ( str_id ) {
+		obj_operatorData.id = parseInt(str_id);
+		dlf.fn_jsonPut(OPERATOR_URL, obj_operatorData, 'operator', '操作员数据保存中');
+	} else {
+		dlf.fn_jsonPost(OPERATOR_URL, obj_operatorData, 'operator', '操作员数据保存中');
+	}
+}
+/**
+* 编辑操作员
+*/
+window.dlf.fn_editOperator = function(n_id) {
+	$('#addOperatorForm input').css('color', '#000000');
+	if ( n_id ) {
+			var obj_currentOperatorItem = $('#operatorTable tr[id='+ n_id +']'), 
+				obj_currentOperatorItemTds = obj_currentOperatorItem.children(), 
+				str_currentGroupId = $(obj_currentOperatorItemTds.eq(0)).attr('groupId'),
+				str_currentName = $(obj_currentOperatorItemTds.eq(1)).html(),
+				str_currentMobile = $(obj_currentOperatorItemTds.eq(2)).html();
+			
+			$('#hidOperatorId').val(n_id);
+			$('#txt_operatorName').val(str_currentName);
+			$('#txt_operatorMobile').val(str_currentMobile);
+			$('#txt_operatorGroup').html(fn_getGroupData());
+			$('#txt_operatorGroup').val(str_currentGroupId); 
+			
+		$('#addOperatorDialog').dialog('open').removeData('resource').attr('title', '编辑操作员').dialog('option', 'title', '编辑操作员');
+	}
+}
+
+/**
+* 删除操作员
+*/
+window.dlf.fn_deleteOperator = function(n_id) {
+	if ( n_id ) {
+		if ( confirm('确定要删除该操作员吗？') ) {
+			$.delete_(OPERATOR_URL+'?ids='+n_id, '', function(data) {
+				if ( data.status == 0 ) {
+					$('#operatorTable tr[id='+ n_id +']').remove();
+				} else {
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000, 'dw');
+					return;
+				}
+			});
+		}
+	}
+}
+/*
+* 操作员获取组信息
+*/
+function fn_getGroupData() {
+	var str_groupSelect = '';
+	
+	$('.j_group').children('a').each(function(e){
+		var str_tempTitle= $(this).attr('title'),
+			str_tempGid = $(this).attr('groupid');
+		str_groupSelect += '<option value="' +str_tempGid+ '">' +str_tempTitle+ '</option>';
+	});
+	return str_groupSelect;
+}
+
+
+

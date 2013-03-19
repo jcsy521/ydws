@@ -669,3 +669,103 @@ POST返回结果：
     		'id': int // 数据库中主键id   		
     	}
   }  
+
+
+***********
+集团业务群组操作员操作
+***********
+
+URL: /operator
+Table: T_OPERATOR
+
+
+GET返回结果
+{
+  'status': int //0表示成功,非0表示获取数据失败,message提示失败信息
+  'message': str  //失败信息, status为非0时，才有内容，否则为空
+  'operator_list':{
+      'operators': [
+               {
+                 'id':  n_int, 
+                 'name': 'name_str', // length: 40 char
+                 'mobile': 'phone_str', // length: 20 char
+               }
+               , ...
+             ]
+  }
+}
+
+POST、PUT提交内容：
+[ 
+  {
+    'id':  n_int, // POST时可忽略 
+    'name': 'name_str', // length: 40 char
+    'mobile': 'phone_str', // length: 20 char
+  }
+  , ...
+]
+
+DELETE请求
+URL: /operator?ids=id1,id2,id3[,...]
+
+POST、PUT、DELETE 返回结果：
+{
+  'status': n_int, // 0: success; non-zero: error
+  'message': 'msg_str' // 如果status不为0，表示错误消息
+  'ids':[{'status': n_int //status为0，表示成功
+          'id': n_int
+         }, ...
+        ]         //status为0时,返回新添加的id, 如果status为非0, ids为空
+}
+
+
+
+***********
+批量操作（导入删除）
+***********
+
+URL: /batch
+Table: T_TERMINAL_INFO
+
+
+POST提交内容：
+excel文件
+
+DELETE请求
+{'tids':[xxx,xxx,...]}
+
+DELETE 返回结果：
+{
+  'status': n_int, // 0: success; non-zero: error
+  'message': 'msg_str' // 如果status不为0，表示错误消息
+  'ids':[{'success': n_int //status为0，表示成功
+          'id': n_int
+         }, ...
+        ]       
+}
+
+
+**********
+月报统计
+**********
+
+URL：/monthly
+Table: T_LOCATION
+
+POST提交内容：
+{
+  'year': n_int,
+  'month': n_int
+}
+
+POST返回结果：
+{
+  'status': n_int, // 0: success; non-zero: error
+  'message': 'msg_str' // 如果status不为0，表示错误消息
+  'dict_':{[
+            {'day': n_int,
+             'distance': float // 每天车辆所行驶距离，单位：米
+            }, ...
+           ]
+          }
+}

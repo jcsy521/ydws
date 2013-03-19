@@ -351,7 +351,7 @@ body {
 	min-width: 1151px;
 	min-height: 566px;
 }
-.menu a {
+.menu a, #countSecondList a {
 	display: inline-block;
 	height: 36px;
 	width: 104px;
@@ -388,6 +388,12 @@ body {
 .menu .terminal:hover {
 	background-position: 0px -324px;
 }
+.menu .corpTerminal {
+	background-position: 0px -576px;
+}
+.menu .corpTerminal:hover {
+	background-position: 0px -612px;
+}
 .menu .smsOption {
 	background-position: 0px -360px;
 }
@@ -399,6 +405,18 @@ body {
 }
 .menu .statics:hover {
 	background-position: 0px -468px;
+}
+.menu .corpOperator {
+	background-position: 0px -648px;
+}
+.menu .corpOperator:hover {
+	background-position: 0px -685px;
+}
+.menu .recordCount {
+	background-position: 0px -504px;
+}
+.menu .recordCount:hover {
+	background-position: 0px -539px;
 }
 .selfList {
 	float:right;
@@ -431,7 +449,7 @@ body {
 /*main content end*/
 
 /*dialogs wrapper start*/
-#currentMsg, #defendMsg, #bListR .terminalTdL, .personalList label, .pwdList label, .smsTip, .cTerminalList label {
+#currentMsg, #defendMsg, .bListR .terminalTdL, .personalList label, .pwdList label, .smsTip, .cTerminalList label {
 	color: #126393
 }
 .timeout {
@@ -501,11 +519,42 @@ body {
 	width: 600px;
 }
 .staticsTitle .close {
-	left: 571px;
+	left: 574px;
+	_left: 572px;
 }
 .createGroupTitle {
 	background-position: 0px -408px;
 	width: 448px;
+}
+.corpTerminalTitle {
+	background-position: 0px -442px;
+	width: 487px;
+}
+.corpTerminalTitle .close {
+	left: 460px;
+	_left: 458px;
+}
+.operatorTitle {
+	background-position: 0px -476px;
+	width: 800px;
+}
+.operatorTitle .close {
+	left: 772px;
+	_left: 770px;
+}
+.mileageTitle {
+	background-position: 0px -510px;
+}
+.mileageTitle .close {
+	left: 776px;
+	_left: 774px;
+}
+.eventTitle {
+	background-position: 0 -544px;
+}
+.eventTitle .close {
+	left: 774px;
+	_left: 772px;
 }
 .wrapperContent {
 	height: 249px;
@@ -520,7 +569,6 @@ body {
     cursor: pointer;
 	display: inline-block;
     height: 17px;
-    left: 168px;
     position: relative;
 	left: 422px;
 	_left: 420px;
@@ -780,20 +828,24 @@ body {
 	padding: 10px 10px 0px 10px;
 	display: inline-block;
 }
-#bListR {
+
+.bListR {
 	width: 420px;
 	border: 1px;
 }
-#bListR tr{
+#corp_terminalForm .bListR {
+	width: 380px;
+}
+.bListR tr{
 	height: 30px;
 	line-height: 30px;
 }
-#bListR, #bListR td{
+.bListR, .bListR td{
 	margin: 0px;
 	padding: 0px;
 	line-height: 34px;
 }
-#bListR .terminalTdL {
+.bListR .terminalTdL {
 	width: 87px;
 	text-align: right;
 }
@@ -803,7 +855,7 @@ body {
 	border: 1px solid #cdcdcd;
     width: 152px;
 }
-#t_freq {
+#t_freq, #t_corp_freq {
 	background: none repeat scroll 0 0 #FFFFFF;
     border: 1px solid #cdcdcd;
     height: 24px;
@@ -817,7 +869,7 @@ body {
 	height: 22px;
 	padding-top: 1px;
 }
-#bListR span {
+.bListR span {
 	display: inline-block;
 	width: 250px;
 }
@@ -825,11 +877,11 @@ body {
 	padding: 0px;
 	margin: 0px;
 }
-#bListR input {
+.bListR input {
 	margin-left: 10px;
 	padding: 5px;
 }
-#t_mobile, #t_sn, #t_umobile {
+#t_mobile, #t_sn, #t_umobile, #t_corp_mobile, #t_corp_umobile {
 	margin-left: 8px;
 }
 #tRadioLable1, #tRadioLable0, #tpsLable1, #tpsLable0  {
@@ -865,11 +917,12 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
-	height: 34px;	
+	height: 34px;
+	cursor: pointer;
 }
 #tmnTable {
 	height: 55px;
@@ -1063,9 +1116,7 @@ body {
 	_top: 3px;
 	background-position:  right -3px;
 }
-#eventStartTime, #eventEndTime {
-	background-position:  right 0px;
-}
+
 .time {
 	background: url("/static/images/datePicker.png") no-repeat scroll #FFFFFF;
 	border: 1px solid #cccccc;
@@ -1195,7 +1246,7 @@ body {
 	text-align: center;
 	border: 1px solid #c1d2e5;
 }
-#eventTableHeader, #staticsTableHeader {
+#eventTableHeader, #staticsTableHeader, #mileageTableHeader {
 	background: url('/static/images/eventTH.png') repeat-x;
 	height: 38px;
 	border: 1px solid #dce7f2;
@@ -1230,7 +1281,7 @@ body {
 	font-weight: bold;
 	text-decoration: underline;
 }
-#eventTableHeader th, #staticsTableHeader th {
+#eventTableHeader th, #staticsTableHeader th, #mileageTableHeader th  {
     font-size: 16px; 
 	color: #154781;
 	border: 1px solid #dce7f2;
@@ -1238,14 +1289,17 @@ body {
 #staticsTableHeader th {
 	font-size: 14px;
 }
-.eventTime {
-	width: 200px;
-}
-.eventType {
+.eventAlias {
 	width: 150px;
 }
+.eventTime {
+	width: 150px;
+}
+.eventType {
+	width: 100px;
+}
 .eventLocation {
-	width: 500px;
+	width: 175px;
 }
 .eventPos input {
 	display: inline-block;
@@ -1263,7 +1317,7 @@ body {
 	+top: 3px;
 	_top: 20px; /*ie6*/
 }
-#pagerContainer, #staticsPage {
+#pagerContainer, #staticsPage, #operatorPage, #mileagePage {
 	width: 850px;
 	height: 34px;
 	line-height: 34px;
@@ -1271,7 +1325,7 @@ body {
 	margin:0 auto;
 	text-align: center;
 }
-#pageNums {
+.pageNums {
 	font-size: 12px;
 	margin-left: 30px;
 }
@@ -1664,7 +1718,7 @@ body {
 .smsList input {
 	padding-right: 10px;
 }
-.smsList label {
+.smsList label, .corp_smsList label {
 	padding-left: 10px;
 	display: inline-block;
 }
@@ -1942,7 +1996,7 @@ body {
 	padding: 0 0 0 29px;
 	width: 191px;
 }
-#c_eventbegintime, #c_eventendtime {
+#staticsStartTime, #staticsEndTime, #eventStartTime, #eventEndTime, #mileageStartTime, #mileageEndTime {
 	height: 26px;
     line-height: 27px;
     padding: 2px 0 0 29px;
@@ -1969,7 +2023,7 @@ body {
 .staticsTable tr {
 	border: 1px solid #c1d2e5;
 }
-.staticsTable td, .staticsTable th {
+.staticsTable td, .staticsTable th, .mileageTable th {
 	border: 0px;
 	height: 25px;
 	width: 65px;
@@ -2016,5 +2070,289 @@ body {
     line-height: 18px;
     text-align: center;
     width: 85px;
+}
+/*corp terminal css start*/
+fieldset {
+	border: 1px dotted #11619E;
+    margin: 0 21px;
+    width: 425px;
+}
+.corpFieldSet {
+	height: 185px
+}
+legend {
+	display:block;
+	border: 0px;
+	font-size: 13px;
+	padding-left: 10px;
+	margin-top: 10px;
+	background: #FFF;
+	height: 24px;
+	line-height: 24px;
+}
+#corpTerminalWrapper .corpTerminalContent {
+	height: 510px;	/* 400px*/
+	width: 487px;
+}
+.corp_smsList {
+	padding: 7px 18px 0px 40px;
+	display: inline;
+	float: left;
+	width: 295px;
+	line-height: 37px;
+    list-style: none outside none;
+}
+.corp_smsList li {
+	float: left;
+	padding: 0px 10px 10px 0px;
+	height: 22px;
+	line-height: 22px;
+	width: 135px;
+}
+.corp_terminalButton {
+    left: 340px;
+    position: absolute;
+    top: 480px;
+}
+/*corp terminal css end*/
+#operatorWrapper {
+	background: none repeat scroll 0 0 #F7F8F8;
+	width: 800px;
+	height: 600px;
+}
+.operatorContent {
+	
+}
+#addOperatorDialog {
+	width: 500px;
+	height: 350px;
+}
+#addOperatorDialog input, #addOperatorDialog label {
+	display:block;
+}
+#addOperatorDialog input.text {
+	margin-bottom:5px;
+	width:200px; 
+	padding: 0.4em;
+}
+.operatorfieldset { 
+	padding:0; 
+	border:0; 
+	margin-top:3px; 
+	width: auto;
+}
+.conditions {
+	margin: 10px 0px 10px 60px;
+}
+.conditions td {
+	padding-left: 10px;
+	height: 26px;
+	line-height: 26px;
+}
+.conditions input {
+	border: 1px solid #CCCCCC;
+	background-color: #fff;
+	height: 24px;
+	line-height: 24px;
+	padding: 2px 4px;
+	width: 135px;
+}
+.recordBtn {
+	background: url('/static/images/cx.png') no-repeat;
+	cursor: pointer;
+	display: inline-block;
+	height: 34px;
+	width: 92px;
+	position: relative;
+	top: 5px;
+}
+#addOperatorLink, #addOperatorLink:hover {
+	color: #4290cb;
+}
+#operatorTable{
+	width: 750px;
+}
+#operatorTableHeader {
+	background: url('/static/images/eventTH.png') repeat-x;
+	height: 38px;
+	border: 1px solid #dce7f2;
+}
+#operatorTableHeader td {
+	background-color: #5aabff;
+	border: 1px solid #ececec;
+	height: 30px;
+	color: #FFFFFF;
+	text-align: center;
+}
+#operatorTableHeader th {
+    font-size: 14px; 
+	color: #69b2e9;
+	border: 1px solid #dce7f2;
+}
+.PageNums {
+	font-size: 12px;
+	margin-left: 30px;
+}
+.operatorNextBtn, .operatorPrevBtn {
+	cursor: pointer;
+	display: inline-block;
+	height: 34px;
+	margin-left: 30px;
+	position: relative;
+	top: 8px;
+	width: 92px;
+}
+.operatorPrevBtn {
+	background: url('/static/images/prevPage0.png') no-repeat;
+}
+.operatorNextBtn {
+	background: url('/static/images/nextPage0.png') no-repeat;
+}
+/* file upload css start */
+.operationBtn {
+	background: url("/static/images/fileUploadBg.png") no-repeat scroll 0 0 transparent;
+    border: 0 none;
+    color: #FFFFFF;
+    height: 33px;
+   /* left: 130px;*/
+    line-height: 33px;
+	top: 2px;
+    position: relative;
+    width: 85px;
+	cursor: pointer;
+}
+.btn_delete {
+	background: url("/static/images/grayBg.png") no-repeat scroll 0 0 transparent;
+	border: 0 none;
+    height: 33px;
+    line-height: 33px;
+    width: 85px;
+	cursor: pointer;
+}
+.fileUpload {
+	position: absolute;
+}
+.fileStatus1 {
+	color: blue;
+}
+.fileStatus2 {
+	color: #F3AE22;
+}
+.fileStatus3 {
+	color: red;
+}
+.errorMsg {
+	position: relative;
+	top: 30px;
+}
+.fileInfoTable, .excelInfoTable, .batchDeleteTable {
+	border-collapse: collapse;
+    border-color: gray;
+    border-spacing: 2px;
+    left: 10px;
+    position: relative;
+	top: 52px;
+    width: 560px;
+}
+.excelInfoTable {
+	top: 12px;
+}
+.fileInfoTable td, .excelInfoTable td, .batchDeleteTable td {
+	background: #FCFCFC;
+	text-align: center;
+	border-top: 1px solid #DDD;
+	border-bottom: 1px solid #DDD;
+	height: 38px;
+}
+.excelInfoTable tfoot td, .batchDeleteTable tfoot td {
+	text-align: right;
+	padding-right: 15px;
+}
+.excelInfoTable th, .batchDeleteTable th {
+	background-color: #FFFFE1;
+	height: 30px;
+}
+.batchDeleteTable {
+	width: 550px;
+	top: 0px;
+	margin: 10px 0px;
+}
+/* file upload css end */
+/*================*/
+#eventWrapper {
+	height: 620px;
+}
+#eventWrapper, .eventTitle , .eventContent {
+	width: 800px;
+}
+.eventContent {
+	height: 586px;
+}
+.eventContent .dataTable {
+	width: 770px;
+}
+.eventCondition, .mileageCondition {
+	margin-left: 22px;
+}
+.eventBtn {
+	background: url('/static/images/cx.png') no-repeat;
+	cursor: pointer;
+	display: inline-block;
+	height: 34px;
+	margin-left: 30px;
+	position: relative;
+	top: 4px;
+	_top: 1px;
+	width: 92px;
+}
+#eventPage {
+	height: 34px;
+    line-height: 34px;
+    margin: 0 auto;
+    text-align: center;
+    width: 850px;
+}
+/*-------报表统计---*/
+#mileageWrapper, .mileageTitle {
+	width: 800px;
+}
+.mileageContent {
+	width: 800px;
+	height: 500px;
+}
+.mileageTable {
+	width: 755px;
+}
+/*报表统计二级菜单*/
+.countUlIetm {
+	width: 115px;
+	height: 90px;
+	padding-top: 14px;
+    position: absolute;
+    top: 143px;
+}
+.countUlIetm li a{
+    padding-left: 20px;
+}
+
+.countUlIetm .countUlItemHover {
+	background: url("/static/images/countUlItemHover.png") repeat;
+	font-weight: bold;
+	cursor: pointer;
+}
+#countSecondList .statics {
+	background-position: 0px -432px;
+}
+#countSecondList .statics:hover {
+	background-position: 0px -468px;
+}
+#countSecondList .mileage {
+	background-position: 0px -721px;
+}
+#countSecondList .mileage:hover {
+	background-position: 0px -757px;
+}
+#countSecondList li {
+	padding-left: 5px;
 }
 /*web css end*/

@@ -48,6 +48,7 @@ from handlers.group import GroupHandler, GroupTransferHandler
 from handlers.corp import CorpHandler
 from handlers.terminal import TerminalHandler, TerminalCorpHandler
 from handlers.statistic import StatisticHandler
+from handlers.mileage import MileageHandler
 from handlers.password import PasswordHandler, PasswordCorpHandler
 from handlers.profile import ProfileHandler, ProfileCorpHandler
 from handlers.smsoption import SMSOptionHandler
@@ -64,6 +65,10 @@ from handlers.tinyurl import TinyURLHandler
 from handlers.delegation import DelegationHandler
 from handlers.checker import CheckTMobileHandler, CheckCNumHandler, CheckCNameHandler
 from handlers.friendlink import FriendLinkHandler
+from handlers.batch import BatchImportHandler
+from handlers.batch import BatchDeleteHandler
+from handlers.batch import BatchJHHandler
+from handlers.operator import OperatorHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -90,11 +95,9 @@ class Application(tornado.web.Application):
             (r"/event/*", EventHandler),
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),
-            (r"/group/*", GroupHandler),
-            (r"/changegroup/*", GroupTransferHandler),
-            (r"/corp/*", CorpHandler),
             (r"/terminal/*", TerminalHandler),
             (r"/statistic/*", StatisticHandler),
+             (r"/mileage/*", MileageHandler),
             (r"/terminal/corp/*", TerminalCorpHandler),
             (r"/password/*", PasswordHandler),
             (r"/password/corp/*", PasswordCorpHandler),
@@ -145,6 +148,14 @@ class Application(tornado.web.Application):
 
             (r"/friendlink/*", FriendLinkHandler),
 
+            # for corp
+            (r"/group/*", GroupHandler),
+            (r"/changegroup/*", GroupTransferHandler),
+            (r"/corp/*", CorpHandler),
+            (r"/batch/import/*", BatchImportHandler),
+            (r"/batch/delete/*", BatchDeleteHandler),
+            (r"/batch/JH/*", BatchJHHandler),
+            (r"/operator/*", OperatorHandler),
         ]
 
         settings = dict(

@@ -41,7 +41,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             # 1: terminal 
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
                                    "       vibchk, tid as sn, mobile, vibl,"
-                                   "       white_pop, push_status"
+                                   "       white_pop, push_status, owner_mobile"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s"
@@ -129,13 +129,18 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 return
 
             # sql injection 
-            if data.has_key('alias')  and not check_sql_injection(data.alias):
+            if data.has_key('alias') and not check_sql_injection(data.alias):
                 status = ErrorCode.ILLEGAL_ALIAS 
                 self.write_ret(status)
                 return
 
-            if data.has_key('corp_cnum')  and not check_sql_injection(data.corp_cnum):
+            if data.has_key('corp_cnum') and not check_sql_injection(data.corp_cnum):
                 status = ErrorCode.ILLEGAL_CNUM 
+                self.write_ret(status)
+                return
+
+            if data.has_key('owner_mobile') and not check_sql_injection(data.owner_mobile):
+                status = ErrorCode.ILLEGAL_MOBILE
                 self.write_ret(status)
                 return
 
@@ -145,7 +150,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                     status = ErrorCode.ILLEGAL_WHITELIST 
                     self.write_ret(status)
                     return
-
 
             #gf_params = DotDict()
             #db_params = DotDict()
@@ -216,9 +220,10 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             car = self.db.get("SELECT cnum, type, color, brand"
                               "  FROM T_CAR"
                               "  WHERE tid = %s", tid)
+            umobile = terminal.owner_mobile if terminal.owner_mobile != self.current_user.cid else ''
             res = DotDict(tmobile=terminal.mobile,
                           group_id=terminal.group_id,
-                          umobile=terminal.owner_mobile,
+                          umobile=umobile,
                           begintime=terminal.begintime,
                           endtime=terminal.endtime,
                           cnum=car.cnum,
@@ -254,22 +259,26 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             # 1 year
             endtime = begintime + 31556926 * 1
             # 1: add user
-            user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", data.umobile)
-            if not user:
-                self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
-                                "  VALUES(NULL, %s, password(%s), %s, %s )",
-                                data.umobile, '11111',
-                                u'', data.umobile)
-                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                "  VALUES(%s)",
-                                data.umobile) 
+            if data.umobile:
+                umobile = data.umobile
+                user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
+                if not user:
+                    self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
+                                    "  VALUES(NULL, %s, password(%s), %s, %s )",
+                                    umobile, '111111',
+                                    u'', umobile)
+                    self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                    "  VALUES(%s)",
+                                    umobile) 
+            else:
+                umobile =self.current_user.cid
 
             # 2: add terminal
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  begintime, endtime)"
                             "  VALUES (%s, %s, %s, %s, %s, %s)",
                             data.tmobile, data.group_id,
-                            data.tmobile, data.umobile, 
+                            data.tmobile, umobile, 
                             begintime, endtime)
     
             # 3: add car 
@@ -278,7 +287,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                             data.tmobile, data.cnum )
             
             # 4: send message to terminal
-            register_sms = SMSCode.SMS_REGISTER % (data.umobile, data.tmobile) 
+            register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
             ret = SMSHelper.send_to_terminal(data.tmobile, register_sms)
             ret = DotDict(json_decode(ret))
             sms_status = 0
@@ -325,7 +334,8 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                  cbrand="brand = '%s'")
 
             FIELDS_TERMINAL = DotDict(begintime="begintime = '%s'",
-                                      endtime="endtime = '%s'")
+                                      endtime="endtime = '%s'",
+                                      owner_mobile="owner_mobile = '%s'")
 
             for key, value in data.iteritems():
                 if key == u'tid':
@@ -342,6 +352,27 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     if terminal_info:
                         terminal_info['alias'] = value if value else self.current_user.sim 
                         self.redis.setvalue(terminal_info_key, terminal_info)
+                elif key == u'owner_mobile':
+                    if not data['owner_mobile']:
+                        umobile = self.current_user.cid
+                    else:
+                        umobile = value 
+                        user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
+                        if not user:
+                            self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
+                                            "  VALUES(NULL, %s, password(%s), %s, %s )",
+                                            umobile, '111111',
+                                            u'', umobile)
+                            self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                            "  VALUES(%s)",
+                                            umobile) 
+                    fields_terminal.setdefault(key, FIELDS_TERMINAL[key] % umobile)
+                    # TODO:need to send JH SMS?
+                    #register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile)
+                    #SMSHelper.send_to_terminal(tmobile, register_sms)
+                    # clear redis, terminal login again
+                    sessionID_key = get_terminal_sessionID_key(tid)
+                    self.redis.delete(sessionID_key)
                 else:
                     fields_car.setdefault(key, FIELDS_CAR[key] % value) 
 
@@ -371,29 +402,45 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         """
         try:
             status = ErrorCode.SUCCESS
-            delete_ids = map(str, str_to_list(self.get_argument('ids', None)))
+            tid = self.get_argument('tid', None)
             logging.info("[UWEB] corp delete terminal request: %s, cid: %s", 
-                         delete_ids, self.current_user.cid)
-            for tid in delete_ids:
-                # unbind terminal
-                seq = str(int(time.time()*1000))[-4:]
-                args = DotDict(seq=seq,
-                               tid=tid)
-                response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args) 
-                logging.info("UNBind terminal: %s, response: %s", tid, response)
-    
-                # clear redis
-                sessionID_key = get_terminal_sessionID_key(tid)
-                address_key = get_terminal_address_key(tid)
-                info_key = get_terminal_info_key(tid)
-                lq_sms_key = get_lq_sms_key(tid)
-                lq_interval_key = get_lq_interval_key(tid)
-                keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                self.redis.delete(*keys)
-
-            sql_cmd = ("DELETE from T_TERMINAL_INFO WHERE tid IN %s") % (tuple(delete_ids+DUMMY_IDS),) 
-
-            self.db.execute(sql_cmd)
+                         tid, self.current_user.cid)
+            terminal = self.db.get("SELECT id, mobile, login FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s"
+                                   "    AND service_status = %s",
+                                   tid, 
+                                   UWEB.SERVICE_STATUS.ON)
+            if not terminal:
+                logging.error("The terminal with tmobile: %s does not exist!", tid)
+                return
+            # unbind terminal
+            seq = str(int(time.time()*1000))[-4:]
+            args = DotDict(seq=seq,
+                           tid=tid)
+            response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args) 
+            response = json_decode(response)
+            logging.info("UNBind terminal: %s, response: %s", tid, response)
+            if response['success'] == ErrorCode.SUCCESS:
+                logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
+                             self.current_user.uid, tid, terminal.mobile)
+            else:
+                logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
+                              self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
+                unbind_sms = SMSCode.SMS_UNBIND  
+                ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
+                ret = DotDict(json_decode(ret))
+                status = ret.status
+                if ret.status == ErrorCode.SUCCESS:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET service_status = %s"
+                                    "  WHERE id = %s",
+                                    UWEB.SERVICE_STATUS.TO_BE_UNBIND,
+                                    terminal.id)
+                    logging.info("[UWEB] uid: %s, tid: %s, tmobile: %s SMS unbind successfully.",
+                                 self.current_user.uid, tid, terminal.mobile)
+                else:
+                    logging.error("[UWEB] uid: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
+                                  self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
 
             self.write_ret(status)
         except Exception as e:

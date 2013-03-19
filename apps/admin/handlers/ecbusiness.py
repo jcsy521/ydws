@@ -103,7 +103,10 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
     @check_privileges([PRIVILEGES.CREATE_ECBUSINESS])
     @tornado.web.removeslash
     def get(self):
+        bizlist = self.db.query("SELECT bizcode, bizname FROM T_BUSINESS")
+            
         self.render('ecbusiness/create.html',
+                    bizlist=bizlist,
                     status=ErrorCode.SUCCESS,
                     message='')
 
@@ -118,18 +121,19 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
                          password="",
                          linkman="",
                          address="",
-                         email="")
+                         email="",
+                         bizcode="")
 
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'').strip()
 
         corpid = self.db.execute("INSERT INTO T_CORP(cid, name, mobile, password,"
-                                 "  linkman, address, email, timestamp)"
-                                 "  VALUES(%s, %s, %s, password(%s), %s, %s, %s, %s)",
+                                 "  linkman, address, email, timestamp, bizcode)"
+                                 "  VALUES(%s, %s, %s, password(%s), %s, %s, %s, %s, %s)",
                                  fields.ecmobile, fields.ecname, fields.ecmobile,
                                  fields.password, fields.linkman,
                                  fields.address, fields.email,
-                                 int(time.time()))
+                                 int(time.time()), fields.bizcode)
         group = self.db.execute("INSERT INTO T_GROUP(corp_id, name, type)"
                                 "  VALUES(%s, default, default)",
                                 fields.ecmobile)
@@ -209,7 +213,8 @@ class ECBusinessEditHandler(BaseHandler, ECBusinessMixin):
                          ecmobile=" mobile = '%s'",
                          linkman="linkman = '%s'",
                          address="address = '%s'",
-                         email="email = '%s'")
+                         email="email = '%s'",
+                         bizcode="bizcode = '%s'")
 
         for key in fields:
             v = self.get_argument(key, None)

@@ -39,6 +39,10 @@ window.dlf.fn_closeWrapper = function() {
 	obj_close.click(function() {
 		dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		dlf.fn_closeDialog(); // 窗口关闭
+		
+		if ( $($(this).parent().parent()).attr('id') == 'eventWrapper' ) { 
+			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
+		}
 	});
 }
 
@@ -317,7 +321,7 @@ window.dlf.fn_updateLastInfo = function() {
 /**
 * 每隔15秒获取数据
 */
-window.dlf.fn_getCarData = function(str_flag) {
+window.dlf.fn_getCarData = function(str_flag) { 
 	var str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),	//当前车tid
 		obj_carListLi = $('.j_carList li'), 
 		str_trackStatus = $('#trackHeader').css('display');
@@ -598,6 +602,13 @@ window.dlf.fn_processDegree = function(n_degree) {
 }
 
 /**
+* 判断object对象是否有属性
+*/
+window.dlf.fn_isEmptyObj = function (obj){
+    return ((function(){for(var k in obj)return k})()!=null?true:false)
+}
+
+/**
 * 根据相应的报警状态码显示相应的报警提示
 */
 window.dlf.fn_eventText = function(n_eventNum) {
@@ -827,17 +838,19 @@ window.dlf.fn_onInputBlur = function(str_wrapper) {
 				case 'uMobile': 
 					var str_msg = '';
 					
-					if ( n_valLength > 14 || n_valLength < 11 ) {
-						str_msg = '车主手机号输入不合法，请重新输入！'
-					} else {
-						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
-							str_msg = '车主手机号输入不合法，请重新输入！';
+					if ( n_valLength > 0 ) {
+						if ( n_valLength > 14 || n_valLength < 11 ) {
+							str_msg = '车主手机号输入不合法，请重新输入！'
+						} else {
+							if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
+								str_msg = '车主手机号输入不合法，请重新输入！';
+							}
 						}
-					}
-					if ( str_msg != '' ) {
-						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
-					} else {
-						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+						if ( str_msg != '' ) {
+							dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+						} else {
+							dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+						}
 					}
 					break;
 			}
@@ -860,11 +873,11 @@ dlf.fn_dialogPosition = function ( obj_wrapper ) {
 * 判断是个人用户还是集团用户
 */
 window.dlf.fn_userType = function() {
-	var str_flag = $('#userType').val();
+	var str_flag = $('#user_type').val();
 	
-	if ( str_flag == '1' ) {	// 集团用户
+	if ( str_flag == USER_CORP || str_flag == USER_OPERATOR ) {	// 集团用户  操作员
 		return true;
-	} else {
+	} else { // 个人用户
 		return false;
 	}
 }
@@ -878,12 +891,14 @@ window.dlf.fn_userType = function() {
 */
 window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 	var obj_cWrapper = $('#'+str_who+'Wrapper'), 
-		obj_content = $('.'+str_who+'Content');
-	
+		obj_content = $('.'+str_who+'Content'), 
+		f_closeWrapper = true;
+		
 	dlf.fn_jNotifyMessage(str_msg + WAITIMG, 'message', true);
 	if ( obj_content.length > 0 ) {
 		dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩	
 	}
+	
 	$.post_(url, JSON.stringify(obj_data), function (data) {
 		var f_warpperStatus = !obj_cWrapper.is(':hidden');
 		if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,不进行后续操作
@@ -929,11 +944,32 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					str_currentTid = obj_data.tmobile;
 					b_createTerminal = true;	// 标记 是新增定位器操作 以便switchcar到新增车辆
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+				} else if ( str_who == 'operator' ) {
+					var obj_header = $('#operatorTableHeader'), 
+						n_operatorId = data.id ,
+						str_name = obj_data.name, 
+						str_mobile = obj_data.mobile,
+						str_groupId = obj_data.group_id,
+						str_groupName = obj_data.group_name;
+					
+					obj_header.after('<tr id='+ n_operatorId +'>' +
+										'<td groupId ='+ str_groupId +'>'+ str_groupName +'</td>'+
+										'<td>' + str_name + '</td>' + 
+										'<td>' + str_mobile + '</td>' + 
+										'<td><a href="#" onclick=dlf.fn_editOperator('+ n_operatorId +')>编辑</a></td>' +
+										'<td><a href="#" onclick=dlf.fn_deleteOperator('+ n_operatorId +')>删除</a></td>' +
+										'</tr>'); 
+					
+					$('#addOperatorDialog').dialog("close");	// 关闭dialog
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
+					f_closeWrapper = false; //操作员管理不关闭弹出框 
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}
-				dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				$('#exitWrapper').hide();	// 退出dialog隐藏
+				if ( f_closeWrapper ) {
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+					$('#exitWrapper').hide();	// 退出dialog隐藏
+				}
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();
 			} else {
@@ -957,10 +993,12 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 	var obj_cWrapper = $('#'+str_who+'Wrapper'), 
 		obj_content = $('.'+str_who+'Content');
-		
+	
 	if ( str_who != 'whitelistPop' ) {
 		dlf.fn_jNotifyMessage(str_msg + WAITIMG, 'message', true);
-		dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩
+		if ( obj_content.length > 0 ) {
+			dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩	
+		}
 	}
 	$.put_(url, JSON.stringify(obj_data), function (data) {
 		var f_warpperStatus = !obj_cWrapper.is(':hidden');
@@ -1046,6 +1084,22 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 						
 						$('#' + param).attr('t_checked', str_val).attr('t_val', str_val);
 					}
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+				} else if ( str_who == 'operator' ) {
+					var n_operatorId = obj_data.id ,
+						str_name = obj_data.name, 
+						str_mobile = obj_data.mobile, 
+						str_groupId = obj_data.group_id,
+						str_groupName = obj_data.group_name;
+					
+					$('tr[id='+ n_operatorId +']').empty().append(
+										'<td groupId ='+ str_groupId +'>'+ str_groupName +'</td>'+
+										'<td>' + str_name + '</td>' + 
+										'<td>' + str_mobile + '</td>' + 
+										'<td><a href="#" onclick=dlf.fn_editOperator('+ n_operatorId +') class="blacklistLink">编辑</a></td>' +
+										'<td><a href="#" onclick=dlf.fn_deleteOperator('+ n_operatorId +') class="blacklistLink">删除</a></td>'
+										);
+					$('#addOperatorDialog').dialog("close");	// 关闭dialog
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);

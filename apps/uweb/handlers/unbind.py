@@ -52,12 +52,12 @@ class UNBindHandler(BaseHandler, BaseMixin):
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
                 return
-            elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
-                status = ErrorCode.TERMINAL_OFFLINE
-                logging.error("The terminal with tmobile:%s is offline!", tmobile)
-                self.write_ret(status)
-                IOLoop.instance().add_callback(self.finish)
-                return
+            #elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
+            #    status = ErrorCode.TERMINAL_OFFLINE
+            #    logging.error("The terminal with tmobile:%s is offline!", tmobile)
+            #    self.write_ret(status)
+            #    IOLoop.instance().add_callback(self.finish)
+            #    return
 
             def _on_finish(response):
                 status = ErrorCode.SUCCESS
@@ -66,12 +66,13 @@ class UNBindHandler(BaseHandler, BaseMixin):
                     logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
                                  self.current_user.uid, terminal.tid, tmobile)
                 else:
-                    status = response['success']
+                    #status = response['success']
                     logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                                   self.current_user.uid, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
                     unbind_sms = SMSCode.SMS_UNBIND  
                     ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
                     ret = DotDict(json_decode(ret))
+                    status = ret.status
                     if ret.status == ErrorCode.SUCCESS:
                         status = ErrorCode.SUCCESS 
                         self.db.execute("UPDATE T_TERMINAL_INFO"

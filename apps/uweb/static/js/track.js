@@ -54,6 +54,8 @@ window.dlf.fn_closeTrackWindow = function() {
 	obj_carsData = {};
 	obj_selfmarkers = {};
 	
+	LASTINFOCACHE = 0; //轨迹查询后重新获取终端数据
+	
 	if ( !dlf.fn_userType() ) {
 		dlf.fn_getCarData();	// 重新请求lastinfo
 	} else {
@@ -77,7 +79,7 @@ function fn_trackQuery() {
 						'cellid_flag': n_cellid_flag};
 	
 	dlf.fn_clearTrack();	// 清除数据
-	$('.j_tBtnhover').hide();	// 播放按钮隐藏
+	$('.j_trackBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_closeAllInfoWindow();
@@ -339,7 +341,7 @@ window.dlf.fn_clearTrack = function(clearType) {
 	counter = 0;
 	arr_drawLine = [];
 	if ( clearType == 'inittrack' ) {
-		$('.j_tBtnhover, .trackSpeed').hide();	// 播放速度、播放按钮隐藏
+		$('.j_trackBtnhover, .trackSpeed').hide();	// 播放速度、播放按钮隐藏
 		dlf.fn_clearMapComponent(); // 清除页面图形
 	}
 }
@@ -393,7 +395,7 @@ $(function () {
 	/**
 	* 按钮变色
 	*/
-	$('.j_tBtnhover, #trackSearch, #trackClose').mouseover(function(event) {
+	$('.j_trackBtnhover, #trackSearch, #trackClose').mouseover(function(event) {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) {

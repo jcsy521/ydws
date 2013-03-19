@@ -76,10 +76,11 @@ class LoginHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        cid, uid, terminals, status = self.login_passwd_auth(username, password, user_type)
+        cid, oid, uid, terminals, user_type, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
             self.bookkeep(dict(cid=cid,
-                               uid=uid,
+                               oid=oid,
+                               uid=uid if uid else cid,
                                tid=terminals[0].tid,
                                sim=terminals[0].sim))
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
@@ -111,7 +112,8 @@ class IOSHandler(BaseHandler, LoginMixin):
         password = self.get_argument("password")
         iosid = self.get_argument("iosid",'')
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
-        logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s, user_type: %s", username, password, iosid, user_type)
+        logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s, user_type: %s",
+                     username, password, iosid, user_type)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
@@ -123,9 +125,10 @@ class IOSHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        cid, uid, terminals, status = self.login_passwd_auth(username, password, user_type)
+        cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
             self.bookkeep(dict(cid=cid,
+                               oid=oid,
                                uid=uid,
                                tid=terminals[0].tid,
                                sim=terminals[0].sim))
@@ -243,9 +246,10 @@ class AndroidHandler(BaseHandler, LoginMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        cid, uid, terminals, status = self.login_passwd_auth(username, password, user_type)
+        cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
             self.bookkeep(dict(cid=cid,
+                               oid=oid,
                                uid=uid,
                                tid=terminals[0].tid,
                                sim=terminals[0].sim))
