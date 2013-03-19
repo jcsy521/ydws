@@ -850,6 +850,7 @@ function fn_createGroup(cid, str_newName, obj_rollBack, obj_newNode) {
 				if ( data.status == 0 ) {
 					var n_gid = data.gid;
 					obj_newNode.addClass('j_group').children('a').attr('groupId', n_gid).addClass('groupNode').attr('id', 'group_' + n_gid).css('color', '#000000');
+					dlf.fn_corpGetCarData();	// 重新加载树
 				} else {
 					$.jstree.rollback(obj_rollBack);
 				}
@@ -883,7 +884,9 @@ function fn_renameGroup(gid, str_name, node) {
 	var obj_param = {'name': str_name, 'gid': gid};
 	if ( !fn_checkGroupName(str_name, node, gid) ) {
 		$.put_(GROUPS_URL, JSON.stringify(obj_param), function (data) {
-			if ( data.status != 0 ) {
+			if ( data.status == 0 ) {
+				dlf.fn_corpGetCarData();	// 重新加载树
+			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 				return false;
 			}
@@ -901,7 +904,8 @@ function fn_removeGroup(node) {
 	if ( confirm('确定要删除该分组吗？') ) {
 		$.delete_(GROUPS_URL + '?ids=' + str_param, '', function (data) {
 			if ( data.status == 0 ) {
-				$("#corpTree").jstree('remove'); 
+				$("#corpTree").jstree('remove');
+				dlf.fn_corpGetCarData();	// 重新加载树
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 				return false;
@@ -921,7 +925,9 @@ function fn_moveGroup(arr_tids, n_newGroupId, obj_rlbk, node_id) {
 		$('#corpTree').jstree('move_node', '#' + node_id, '#groupNode_' + n_newGroupId);
 	} else {
 		$.post_(GROUPTRANSFER_URL, JSON.stringify(obj_param), function (data) {
-			if ( data.status != 0 ) {
+			if ( data.status == 0 ) {
+				dlf.fn_corpGetCarData();	// 重新加载树
+			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 执行操作失败，提示错误消息
 				$.jstree.rollback(obj_rlbk);
 			}
@@ -1219,6 +1225,7 @@ function fn_initBatchDeleteData(obj_params) {
 	});
 	
 }
+
 /**
 * 批量删除定位器
 */
@@ -1252,6 +1259,7 @@ window.dlf.fn_fillNavItem = function() {
 		obj_navItemUl.hide();
 	});
 }
+
 /*
 * 判断二级菜单是否显示,如果显示进行隐藏
 */
@@ -1268,6 +1276,7 @@ window.dlf.fn_secondNavValid = function() {
 		}
 	}
 }
+
 /**
 * 验证定位器手机号
 */

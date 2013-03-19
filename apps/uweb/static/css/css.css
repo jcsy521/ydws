@@ -2249,7 +2249,7 @@ legend {
 	border-collapse: collapse;
     border-color: gray;
     border-spacing: 2px;
-    left: 10px;
+    left: 7px;
     position: relative;
 	top: 52px;
     width: 560px;
@@ -2273,7 +2273,7 @@ legend {
 	height: 30px;
 }
 .batchDeleteTable {
-	width: 550px;
+	width: 560px;
 	top: 0px;
 	margin: 10px 0px;
 }
