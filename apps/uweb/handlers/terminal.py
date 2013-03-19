@@ -422,7 +422,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                    tid, 
                                    UWEB.SERVICE_STATUS.ON)
             if not terminal:
-                logging.error("The terminal with tmobile: %s does not exist!", terminal.mobile)
+                logging.error("The terminal with tid: %s does not exist!", tid)
                 return
             elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
                 self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id)
