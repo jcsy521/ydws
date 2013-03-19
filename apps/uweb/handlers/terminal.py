@@ -7,8 +7,8 @@ import tornado.web
 from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
-from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, str_to_list, DUMMY_IDS
+from utils.misc import get_terminal_sessionID_key,\
+     get_terminal_info_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection
 from base import BaseHandler, authenticated

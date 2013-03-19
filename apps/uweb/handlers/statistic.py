@@ -8,7 +8,6 @@ from dateutil.relativedelta import relativedelta
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
-from helpers.seqgenerator import SeqGenerator
 from helpers.queryhelper import QueryHelper 
 from utils.misc import DUMMY_IDS, str_to_list 
 from utils.dotdict import DotDict
@@ -51,14 +50,6 @@ class StatisticHandler(BaseHandler):
                                    illegalmove=EVENTER.CATEGORY.ILLEGALMOVE,
                                    sos=EVENTER.CATEGORY.EMERGENCY,
                                    heartbeat_lost=EVENTER.CATEGORY.HEARTBEAT_LOST)
-
-            #corp = self.db.get("SELECT cid, name, mobile FROM T_CORP WHERE cid = %s", self.current_user.cid)
-            #groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
-
-            #group_ids = [int(group.gid) for group in groups]
-
-            #terminals = self.db.query("SELECT tid, mobile FROM T_TERMINAL_INFO WHERE group_id IN %s",
-            #            tuple(group_ids+DUMMY_IDS))
 
             if page_count == -1:
                 count = len(tids)

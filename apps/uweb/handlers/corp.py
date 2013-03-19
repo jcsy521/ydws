@@ -6,11 +6,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, get_terminal_info_key, get_location_key, str_to_list
 from codes.errorcode import ErrorCode
-from helpers.queryhelper import QueryHelper
-from constants import UWEB, EVENTER, GATEWAY
-from constants.MEMCACHED import ALIVED
 from base import BaseHandler, authenticated
 
        

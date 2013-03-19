@@ -73,15 +73,13 @@ class TerminalMixin(BaseMixin):
                         self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
                                         "  VALUES(%s)",
                                         umobile)
-                terminal = self.db.get("SELECT id, mobile FROM T_TERMINAL_INFO"
-                                       "  WHERE tid = %s", self.current_user.tid)
+                umobile = value if value else self.current_user.cid
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET owner_mobile = %s"
-                                "  WHERE id = %s",
-                                value, terminal.id)
-                umobile = value if value else self.current_user.cid
-                register_sms = SMSCode.SMS_REGISTER % (umobile, terminal.mobile)
-                SMSHelper.send_to_terminal(terminal.mobile, register_sms)
+                                "  WHERE tid = %s",
+                                value, self.current_user.tid)
+                register_sms = SMSCode.SMS_REGISTER % (umobile, self.current_user.sim)
+                SMSHelper.send_to_terminal(self.current_user.sim, register_sms)
 
         terminal_clause = ','.join(terminal_fields)        
         if terminal_clause:

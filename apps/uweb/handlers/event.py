@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import datetime
-import time
-from dateutil.relativedelta import relativedelta
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
-from helpers.seqgenerator import SeqGenerator
 from helpers.queryhelper import QueryHelper 
 from helpers.confhelper import ConfHelper
-from utils.misc import DUMMY_IDS, get_today_last_month, str_to_list,\
+from utils.misc import DUMMY_IDS_STR, str_to_list,\
                        get_terminal_info_key
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
@@ -98,7 +94,7 @@ class EventHandler(BaseHandler):
                     sql = ("SELECT COUNT(*) as count FROM V_EVENT" +\
                           "  WHERE tid IN %s" +\
                           "    AND (timestamp BETWEEN %s AND %s)")\
-                          % (tuple(tids + DUMMY_IDS), start_time, end_time)
+                          % (tuple(tids + DUMMY_IDS_STR), start_time, end_time)
                     res = self.db.get(sql)
                     event_count = res.count
                     d, m = divmod(event_count, page_size)
@@ -113,7 +109,7 @@ class EventHandler(BaseHandler):
                       "    AND category != 5"
                       "  ORDER BY timestamp DESC"
                       "  LIMIT %s, %s") %\
-                      (tuple(tids + DUMMY_IDS), start_time, end_time,
+                      (tuple(tids + DUMMY_IDS_STR), start_time, end_time,
                        page_number * page_size, page_size)
                 events = self.db.query(sql)
             else: 
@@ -122,7 +118,7 @@ class EventHandler(BaseHandler):
                            "  WHERE tid IN %s"
                            "    AND (timestamp BETWEEN %s AND %s)"
                            "    AND category = %s") %\
-                           (tuple(tids + DUMMY_IDS), start_time, end_time, category)
+                           (tuple(tids + DUMMY_IDS_STR), start_time, end_time, category)
                     res = self.db.get(sql)
                     event_count = res.count
                     d, m = divmod(event_count, page_size)
@@ -137,7 +133,7 @@ class EventHandler(BaseHandler):
                        "    AND category = %s"
                        "  ORDER BY timestamp DESC"
                        "  LIMIT %s, %s") %\
-                       (tuple(tids + DUMMY_IDS), start_time, end_time, category, page_number * page_size, page_size)
+                       (tuple(tids + DUMMY_IDS_STR), start_time, end_time, category, page_number * page_size, page_size)
 
                 events = self.db.query(sql)
 
