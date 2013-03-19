@@ -53,9 +53,8 @@
 									
 									$('.j_notActived[tmobile='+ str_tmobile +']').children('td').eq(2).html(str_msg);
 								}
-								$(this).val('返回').unbind('click').bind('click', function() {
-									location.reload();
-								});
+								$('.j_active').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);
+								
 								parent.dlf.fn_corpGetCarData();
 							} else {
 								dlf.fn_jNotifyMessage('定位器激活失败，请重新激活。', 'message', false, 4000);

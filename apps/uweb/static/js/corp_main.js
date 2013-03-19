@@ -1184,6 +1184,7 @@ function fn_initBatchDeleteData(obj_params) {
 					}
 					n_successLen = arr_success.length;	// 成功删除的终端个数
 					fn_updateTerminalCount('sub', n_successLen);
+					$('.j_batchDelete').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);	// 批量删除按钮变成灰色并且不可用
 					/**
 					* 删除节点
 					*/
