@@ -206,7 +206,7 @@ class MyGWServer(object):
                                    "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
                                    "    AND T_GROUP.corp_id = T_CORP.cid",
                                    dev_id)
-                if corp.mobile != user.owner_mobile:
+                if (corp and corp.mobile != user.owner_mobile):
                     SMSHelper.send(corp.mobile, sms)
         logging.warn("[GW] Terminal %s Heartbeat lost!!!", dev_id)
         # 1. memcached clear sessionID
