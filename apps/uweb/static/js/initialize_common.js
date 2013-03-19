@@ -751,7 +751,7 @@ window.dlf.fn_showBusinessTip = function(str_type) {
 /**
 * 文本框获得焦点事件
 */
-window.dlf.fn_onInputBlur = function(str_wrapper) {
+window.dlf.fn_onInputBlur = function() {
 	$('.j_onInputBlur').unbind('blur').bind('blur', function() {
 		var $this = $(this),
 			obj_wrapper = $('#' + $this.attr('parent')),
@@ -851,6 +851,30 @@ window.dlf.fn_onInputBlur = function(str_wrapper) {
 						} else {
 							dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 						}
+					}
+					break;
+				case 'operatorMobile': // 操作员手机号验证
+					var str_msg = '', 
+						str_oldOperatorMobile = $(this).data('oldmobile');
+					
+					if ( str_oldOperatorMobile && str_oldOperatorMobile == str_val ) {
+						$('#hidOperatorMobile').val('');
+						return; // 如果操作员手机号编辑时没有修改
+					}
+					if ( n_valLength > 14 || n_valLength < 11 ) {
+						str_msg = '操作员手机号输入不合法，请重新输入！'
+					} else {
+						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
+							str_msg = '操作员手机号输入不合法，请重新输入';
+						}
+					}
+					if ( str_msg != '' ) {
+						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+					} else {
+						if ( $this.attr('id') == 'txt_operatorMobile' ) {
+							dlf.fn_checkOperatorMobile(str_val);
+						}
+						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
 					break;
 			}

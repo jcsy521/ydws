@@ -27,7 +27,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	
 	//dlf.fn_showOrHideSelect(str_who);	// IE6 select显示
 	
-	if ( str_who == 'event' || str_who == 'mileage' ) { // 告警查询  里程 统计
+	if ( str_who == 'event' || str_who == 'mileage' || str_who == 'statics' ) { // 告警查询 里程统计 告警统计 
 		$('#POISearchWrapper').hide();  // 关闭周边查询
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
@@ -40,8 +40,6 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
-	} else if ( str_who == 'statics' ) {
-		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 	}
 	dlf.fn_setSearchRecord(str_who); //  绑定查询的事件,查询,上下翻页
 }
@@ -99,6 +97,7 @@ window.dlf.fn_dwSearchData = function (str_who) {
 		arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
 		n_tidsNums = arr_leafNodes.length;
 	
+	$('#'+str_who+'TableHeader').nextAll().remove();	//清除页面数据
 	switch (str_who) {
 		case 'operator': //  操作员查询
 			
@@ -109,8 +108,6 @@ window.dlf.fn_dwSearchData = function (str_who) {
 			if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
 				dlf.fn_jNotifyMessage('您输入的手机号格式错误!', 'message', false);
 			}
-
-
 				
 			break;
 		case 'event': //  告警查询
@@ -139,7 +136,7 @@ window.dlf.fn_dwSearchData = function (str_who) {
 				obj_conditionData.tid = $('.j_currentCar').attr('tid');
 			} else {
 				if ( n_tidsNums <= 0 ) {
-					dlf.fn_jNotifyMessage('当前没有选中追踪器', 'message', false, 6000);
+					dlf.fn_jNotifyMessage('请在左侧选择定位器。', 'message', false, 6000);
 					return;	
 				}
 				obj_conditionData.tids = dlf.fn_searchCheckTerminal();
@@ -162,8 +159,8 @@ window.dlf.fn_dwSearchData = function (str_who) {
 							'tids': ''
 						};	
 			if ( n_tidsNums <= 0 ) {
-					dlf.fn_jNotifyMessage('当前没有选中追踪器', 'message', false, 6000);
-					return;	
+				dlf.fn_jNotifyMessage('请在左侧选择定位器。', 'message', false, 6000);
+				return;	
 			}
 			obj_conditionData.tids = dlf.fn_searchCheckTerminal();
 			break;
@@ -174,15 +171,23 @@ window.dlf.fn_dwSearchData = function (str_who) {
 				n_endTime = $('#staticsEndTime').val(), // 用户选择时间
 				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime); //结束时间
-				
-			obj_conditionData = {'start_time': n_bgTime, 'end_time': n_finishTime, 
-				'pagenum': n_dwRecordPageNum, 'pagecnt': n_dwRecordPageCnt};
+			
+			if ( n_tidsNums <= 0 ) {
+				dlf.fn_jNotifyMessage('请在左侧选择定位器。', 'message', false, 6000);
+				return;	
+			}
+			obj_conditionData = {
+						'start_time': n_bgTime, 
+						'end_time': n_finishTime, 
+						'pagenum': n_dwRecordPageNum, 
+						'pagecnt': n_dwRecordPageCnt, 
+						'tids': dlf.fn_searchCheckTerminal()
+					};
 			break;
 	}			
 	
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
 	
-	$('#'+str_who+'TableHeader').nextAll().remove();	//清除页面数据
 	if ( str_who == 'operator' ) {
 		$.get_(str_getDataUrl, '', function(data) {	
 			dlf.fn_bindSearchRecord(str_who, data);
@@ -273,7 +278,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else {
 			obj_pagination.hide(); //显示分页
-			dlf.fn_jNotifyMessage('没有查询到记录', 'message', false, 6000, 'dw');
+			dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000, 'dw');
 		}
 	} else if ( obj_resdata.status == 201 ) {	// 业务变更
 		dlf.fn_showBusinessTip('event');
@@ -341,7 +346,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			case 'mileage': // 里程 统计
 				str_tbodyText+= '<tr>';
 				str_tbodyText+= '<td>'+ obj_tempData.alias +'</td>';	// 车牌号
-				str_tbodyText+= '<td>'+ obj_tempData.distance +'米</td>';	//里程 
+				str_tbodyText+= '<td>'+ obj_tempData.distance +'</td>';	//里程 
 				str_tbodyText+= '</tr>';
 				break;
 			case 'statics': // 告警 统计
@@ -428,56 +433,3 @@ window.dlf.fn_searchCheckTerminal = function() {
 	str_tids = str_tids.substr(0,str_tids.length - 1);
 	return str_tids;
 }
-
-/**
-* 初始化 统计图
-*/
-function fn_initChart(arr_series, arr_categories) {
-	var str_title = $('#animalStatistics_timeYear').val();
-	
-	if ( !$('#animalStatistics_timeMonth').is(':hidden') ) {
-		str_title += '年'+ $('#animalStatistics_timeMonth').val() +'月份动物分类统计图' 
-	} else {
-		str_title += '年动物分类统计图' 
-	}
-	// 初始化统计图对象
-	chart = new Highcharts.Chart({
-				chart: {
-					renderTo: 'chartContainerWrapper',
-					defaultSeriesType: 'line'
-				},
-				title: {
-					text: str_title,
-					style: {
-						margin: '10px 100px 0 0' // center it
-					}
-				},
-				xAxis: {
-					categories: arr_categories,
-					title: {
-						text: '时间'
-					}
-				},
-				yAxis: {
-					min: 0,                
-					allowDecimals: false,
-					title: {
-						text: '总数(只)'
-					},
-					plotLines: [{
-						value: 0,
-						width: 1,
-						color: '#808080'
-					}]
-				},
-				tooltip: {
-					formatter: function() {
-							return '<b>'+ this.series.name +'</b><br/>'+
-							this.x +': '+ this.y +'只';
-					}
-				},
-				series: arr_series
-			});
-	$('svg text').last().remove();	// 移除 网址
-}
-

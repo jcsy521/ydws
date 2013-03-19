@@ -361,61 +361,61 @@ body {
 .menu .realtime {
 	background-position: 0px 0px;
 }
-.menu .realtime:hover {
+.menu .realtime:hover, .menu .realtimeHover {
 	background-position: 0px -36px;
 }
 .menu .track {
 	background-position: 0px -72px;
 }
-.menu .track:hover {
+.menu .track:hover, .menu .trackHover {
 	background-position: 0px -108px;
 }
 .menu .event {
 	background-position: 0px -144px;
 }
-.menu .event:hover {
+.menu .event:hover, .menu .eventHover {
 	background-position: 0px -180px;
 }
 .menu .defend {
 	background-position: 0px -216px;
 }
-.menu .defend:hover {
+.menu .defend:hover, .menu .defendHover {
 	background-position: 0px -252px;
 }
 .menu .terminal {
 	background-position: 0px -288px;
 }
-.menu .terminal:hover {
+.menu .terminal:hover, .menu .terminalHover {
 	background-position: 0px -324px;
 }
 .menu .corpTerminal {
 	background-position: 0px -576px;
 }
-.menu .corpTerminal:hover {
+.menu .corpTerminal:hover, .menu .corpTerminalHover {
 	background-position: 0px -612px;
 }
 .menu .smsOption {
 	background-position: 0px -360px;
 }
-.menu .smsOption:hover {
+.menu .smsOption:hover, .menu .smsOptionHover {
 	background-position: 0px -396px;
 }
 .menu .statics {
 	background-position: 0px -432px;
 }
-.menu .statics:hover {
+.menu .statics:hover, .menu .staticsHover {
 	background-position: 0px -468px;
 }
 .menu .corpOperator {
 	background-position: 0px -648px;
 }
-.menu .corpOperator:hover {
+.menu .corpOperator:hover, .menu .corpOperatorHover {
 	background-position: 0px -685px;
 }
 .menu .recordCount {
 	background-position: 0px -504px;
 }
-.menu .recordCount:hover {
+.menu .recordCount:hover, .menu .recordCountHover {
 	background-position: 0px -539px;
 }
 .selfList {
@@ -2330,6 +2330,7 @@ legend {
 	padding-top: 14px;
     position: absolute;
     top: 143px;
+	z-index: 1000;
 }
 .countUlIetm li a{
     padding-left: 20px;

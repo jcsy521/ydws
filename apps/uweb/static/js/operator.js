@@ -18,6 +18,7 @@ window.dlf.fn_saveOperator = function() {
 * 编辑操作员
 */
 window.dlf.fn_editOperator = function(n_id) {
+	dlf.fn_onInputBlur();	// 操作员手机号事件侦听
 	$('#addOperatorForm input').css('color', '#000000');
 	if ( n_id ) {
 			var obj_currentOperatorItem = $('#operatorTable tr[id='+ n_id +']'), 
@@ -28,7 +29,7 @@ window.dlf.fn_editOperator = function(n_id) {
 			
 			$('#hidOperatorId').val(n_id);
 			$('#txt_operatorName').val(str_currentName);
-			$('#txt_operatorMobile').val(str_currentMobile);
+			$('#txt_operatorMobile').val(str_currentMobile).data('oldmobile', str_currentMobile);
 			$('#txt_operatorGroup').html(fn_getGroupData());
 			$('#txt_operatorGroup').val(str_currentGroupId); 
 			

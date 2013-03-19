@@ -26,6 +26,7 @@ var CORPPERSON_URL = '/profile/corp';	// 集团资料
 var TERMINALCORP_URL = '/terminal/corp';	// 集团终端
 var STATICS_URL = '/statistic';	// 告警统计
 var CHECKMOBILE_URL = '/checktmobile';	// 终端手机号验证
+var CHECKOPERATORMOBILE_URL = '/checkopermobile';	// 操作员手机号验证
 var CHECKCNAME_URL = '/checkcname';	// 验证集团名
 var CORPPWD_URL = '/password/corp';	// 集团密码
 var BATCHIMPORT_URL = '/batch/import';	// 批量操作定位器

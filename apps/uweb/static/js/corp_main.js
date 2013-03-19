@@ -1255,6 +1255,7 @@ window.dlf.fn_fillNavItem = function() {
 	}).mousedown(function(event) {
 		var str_id = event.currentTarget.id;
 		
+		 dlf.fn_closeTrackWindow();      // 关闭轨迹查询
 		dlf.fn_initRecordSearch(str_id);
 		obj_navItemUl.hide();
 	});
@@ -1288,6 +1289,20 @@ window.dlf.fn_checkTMobile = function(str_tmobile) {
 			return;
 		} else {
 			$('#hidTMobile').val('');
+		}
+	});
+}
+/**
+* 验证定位器手机号
+*/
+window.dlf.fn_checkOperatorMobile = function(str_tmobile) {
+	$.get_(CHECKOPERATORMOBILE_URL + '/' + str_tmobile, '', function(data){
+		if ( data.status != 0 ) {
+			dlf.fn_jNotifyMessage('操作员手机号已存在。', 'message', false, 5000);
+			$('#hidOperatorMobile').val('1');
+			return;
+		} else {
+			$('#hidOperatorMobile').val('');
 		}
 	});
 }

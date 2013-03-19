@@ -331,13 +331,13 @@
 					<tr>
 						<td><label for="oprName">姓名：</label></td>
 						<td>
-							<input type="text" name="oprName" id="txt_operatorName" class="text ui-widget-content ui-corner-all j_oprName" />
+							<input type="text" name="oprName" id="txt_operatorName" class="text ui-widget-content ui-corner-all j_oprName" max="20" />
 						</td>
 					</tr>
 					<tr>
 						<td><label for="txt_operatorMobile">手机号：</label></td>
 						<td>
-							<input type="text" name="txt_operatorMobile" id="txt_operatorMobile" class="text ui-widget-content ui-corner-all j_blackName" />
+							<input type="text" name="txt_operatorMobile" id="txt_operatorMobile" class="text ui-widget-content ui-corner-all j_onInputBlur" max="11" who="operatorMobile" msg="操作员号码格式不正确！" parent="addOperatorDialog" />
 						</td>
 					</tr>
 					<tr>
@@ -346,6 +346,7 @@
 							<select id="txt_operatorGroup" name="txt_operatorGroup"  class="c_select">
 							</select>
 						</td>
+						<input type="hidden" id="hidOperatorMobile"  value="" />
 					</tr>
 					<tr>
 						<td colspan="2" align="center">
@@ -754,7 +755,7 @@
 				<tbody>
 					<tr id="mileageTableHeader">
 						<th class="mileageAlias">定位器</th>
-						<th class="mileageDist">里程</th>
+						<th class="mileageDist">里程（公里）</th>
 					</tr>
 				</tbody>
 			</table>

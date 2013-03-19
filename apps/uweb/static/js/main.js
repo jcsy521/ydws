@@ -354,8 +354,8 @@ $(function () {
 	* 页面的点击事件分流处理
 	*/
 	var str_userType = $('#user_type').val();
-	$('.j_click').click(function(event) {
-		var str_id = event.currentTarget.id, 
+	$('.j_click').click(function(e) {
+		var str_id = e.currentTarget.id, 
 			n_carNum = $('#carList li').length,
 			str_trackStatus = $('#trackHeader').css('display');		
 			
@@ -365,7 +365,7 @@ $(function () {
 			}
 			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
 		}
-		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'event' ) {
+		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'eventSearch' ) {
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
@@ -411,7 +411,7 @@ $(function () {
 			case 'smsoption': // 短信设置
 				dlf.fn_initSMSParams();
 				break;
-			case 'event': // 告警查询
+			case 'eventSearch': // 告警查询
 				dlf.fn_initRecordSearch('event');
 				break;
 			case 'operator': // 操作员查询
@@ -623,7 +623,12 @@ $(function () {
 			return;
 		}, 
 		onSuccess: function() { 
-			dlf.fn_saveOperator();
+			if ( $('#hidOperatorMobile').val() != '' ) {
+				dlf.fn_jNotifyMessage('操作员手机号已存在。', 'message', false, 5000);
+				return;
+			} else {
+				dlf.fn_saveOperator();
+			}
 		}
 	});
 	$('#txt_operatorName').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '操作员姓名不正确！'});
@@ -670,8 +675,10 @@ $(function () {
 	// 新增操作员 单击事件
 	obj_addOperator.unbind('click').bind('click', function() {
 		$('.operatorfieldset input, textarea').val('');
+		$('#txt_operatorMobile').removeData('oldmobile');
 		$('#hidOperatorId').val('');
 		$('#txt_operatorGroup').html(fn_getGroupData());
+		dlf.fn_onInputBlur();	// 操作员手机号事件侦听
 		$('#addOperatorDialog').removeData('resource').attr('title', '新增操作员').dialog('option', 'title', '新增操作员').dialog( "open" );
 	});
 	// 新增初始化dialog
