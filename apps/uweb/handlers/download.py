@@ -27,7 +27,7 @@ class DownloadHandler(BaseHandler):
     #@authenticated
     @tornado.web.removeslash
     def get(self):
-        """Delete existing items."""
+        """Download apk for android."""
         status = ErrorCode.SUCCESS
         # TODO: here, just handle android
         version_info = get_version_info('android')
@@ -36,6 +36,14 @@ class DownloadHandler(BaseHandler):
         update_download_count(category, self.db)
 
         url = "/static/download/ACB_"+versionname+".apk"
+        self.redirect(url)
+
+class DownloadTerminalHandler(BaseHandler):
+
+    @tornado.web.removeslash
+    def get(self):
+        """Download test.apk for terminal."""
+        url = "/static/terminal/test.apk"
         self.redirect(url)
 
 class DownloadSmsHandler(BaseHandler):
