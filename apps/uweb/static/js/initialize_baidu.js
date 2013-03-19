@@ -3,7 +3,7 @@
 * 设置marker的中心移动
 * n_tid: 要设置的终端tid
 */
-window.dlf.fn_moveMarker = function(n_tid) {
+window.dlf.fn_moveMarker = function(n_tid) { 
 	var str_trackStatus = $('#trackHeader').css('display');
 	
 	if ( str_trackStatus == 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	

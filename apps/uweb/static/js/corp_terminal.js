@@ -8,8 +8,8 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 * 定位器参数设置初始化
 */
 window.dlf.fn_initCorpTerminal = function() {
+	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#corpTerminalWrapper'));  // 显示定位器设置dialog	
 	$('.j_input input').val('');
 	dlf.fn_initTerminalWR(); // 初始化加载参数
 	fn_initCorpSMS();	// 初始化SMS通知

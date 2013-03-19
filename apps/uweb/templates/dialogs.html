@@ -2,9 +2,9 @@
 	<div id="jNotifyMessage" class="hide"></div> <!--消息提示框-->
 	<div id="jContentLock" class="readonly_overlay hide"></div> <!--消息提示框-->
 	<!--实时查询-->
-	<div id="currentWrapper" class="wrapper hide j_drag">
+	<div id="realtimeWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle currentTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close" title="关闭窗口" who="realtime"></span>
 		</div>
 		<div class="currentContent">
 			<div class="currentText">
@@ -18,7 +18,7 @@
 	<!--撤防/设防-->
 	<div id="defendWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle defendTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close" title="关闭窗口" who="defend"></span>
 		</div>
 		<div class="defendContent">
 			<div class="defendText">
@@ -86,7 +86,7 @@
 	<!--定位器参数设置-->
 	<div id="terminalWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle terminalTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close" title="关闭窗口" who="terminal"></span>
 		</div>
 		<div class="terminalContent wrapperContent">
 			<div class="j_terminalList">
@@ -161,9 +161,9 @@
 		<p class="noticeRemeber" title="我知道了">我知道了</p>
 	</div>
 	<!-- 短信参数设置 -->
-	<div id="smsWrapper" class="wrapper hide j_drag">
+	<div id="smsOptionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle smsTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close" title="关闭窗口" who="smsOption"></span>
 		</div>
 		<div id="smsContent" class="smsContent j_terminalcontent wrapperContent">
 			<span class="smsTip">请选择想要的短信通知项：</span>
@@ -200,7 +200,7 @@
 	<!-- 集团用户的参数设置 -->
 	<div id="corpTerminalWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle corpTerminalTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close" title="关闭窗口" who="corpTerminal"></span>
 		</div>
 		<div id="corpTerminalContent" class="corpTerminalContent wrapperContent">
 			<form id="corp_terminalForm" >
@@ -282,7 +282,7 @@
 	<!-- 操作员管理 -->
 	<div id="operatorWrapper" class="hide wrapper j_drag">
 		<div class="wrapperTitle operatorTitle">
-			<span class="close j_close" title="关闭窗口" id="j_record"></span>
+			<span class="close j_close" title="关闭窗口" id="j_record" who="operator"></span>
 		</div>
 		<div id="operatorContent" class="j_dialogContent">
 			<div class="dateChoose">
@@ -339,7 +339,7 @@
 					<tr>
 						<td><label for="txt_operatorMobile">手机号：</label></td>
 						<td>
-							<input type="text" name="txt_operatorMobile" id="txt_operatorMobile" class="text ui-widget-content ui-corner-all j_onInputBlur" max="11" who="operatorMobile" msg="操作员号码格式不正确！" parent="addOperatorDialog" />
+							<input type="text" name="txt_operatorMobile" id="txt_operatorMobile" class="text ui-widget-content ui-corner-all j_onInputBlur" max="11" maxlength="11" who="operatorMobile" msg="操作员号码格式不正确！" parent="addOperatorDialog" />
 						</td>
 					</tr>
 					<tr>
@@ -693,7 +693,7 @@
 	<!-- 统计 -->
 	<div id="staticsWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle staticsTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close" title="关闭窗口" who="statics"></span>
 		</div>
 		<div class="wrapperContent staticsTitleContent">
 			<table class="staticsCondition">
@@ -749,21 +749,21 @@
 		<iframe scrolling="auto" width=580 height=460 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
 	</div>
 	<!-- 告警查询 -->
-	<div id="eventWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle eventTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+	<div id="eventSearchWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle eventSearchTitle">
+			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
 		</div>
-		<div class="wrapperContent eventContent">
-			<table class="eventCondition">
+		<div class="wrapperContent eventSearchContent">
+			<table class="eventSearchCondition">
 				<tr>
 					<td>
-						查询时间：<input type="text" id="eventStartTime"  class="time" />
-						至 <input type="text" id="eventEndTime"  class="time" />
+						查询时间：<input type="text" id="eventSearchStartTime"  class="time" />
+						至 <input type="text" id="eventSearchEndTime"  class="time" />
 					</td>
 					<td>
-						<span class="eventPos">
+						<span class="eventSearchPos">
 							<span class="timeTip">告警类型:</span>
-							<select class="cEventType" id="eventCategory">
+							<select class="cEventType" id="eventSearchCategory">
 								<option value="-1">全部</option>
 								<!--<option value="5">SOS</option>-->
 								<option value="2">电量告警</option>
@@ -773,12 +773,12 @@
 							</select>
 						</span>
 					</td>
-					<td><span id="event_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
+					<td><span id="eventSearch_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
 				</tr>
 			</table>
-			<table class="dataTable eventTable"  cellspacing="0" border="1" borderColor="red" align="center">
+			<table class="dataTable eventSearchTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
-					<tr id="eventTableHeader">
+					<tr id="eventSearchTableHeader">
 						<th class="eventAlias">定位器</th>
 						<th class="eventTime">时间</th>
 						<th class="eventType">告警类型</th>
@@ -788,17 +788,17 @@
 				</tbody>
 			</table>
 			<!-- 分页 -->
-			<div id="eventPage" class="hide">
-				<span id="eventPrevBtn" class="prevBtn j_pBtnHover"></span>
-				<span id="eventPageNums" class="pageNums"><label id="eventCurrentPage"></label>/<label id="eventPageCount"></label></span>
-				<span id="eventNextBtn" class="nextBtn j_pBtnHover"></span>
+			<div id="eventSearchPage" class="hide">
+				<span id="eventSearchPrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="eventSearchPageNums" class="pageNums"><label id="eventCurrentPage"></label>/<label id="eventSearchPageCount"></label></span>
+				<span id="eventSearchNextBtn" class="nextBtn j_pBtnHover"></span>
 			</div>
 		</div>
 	</div>
-	<!-- 统计报表-->
+	<!-- 里程 统计-->
 	<div id="mileageWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle mileageTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close" title="关闭窗口" who="mileage"></span>
 		</div>
 		<div class="wrapperContent mileageContent">
 			<table class="mileageCondition">

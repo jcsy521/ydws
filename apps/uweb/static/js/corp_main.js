@@ -1257,7 +1257,7 @@ window.dlf.fn_fillNavItem = function() {
 	}).mousedown(function(event) {
 		var str_id = event.currentTarget.id;
 		
-		 dlf.fn_closeTrackWindow();      // 关闭轨迹查询
+		 dlf.fn_closeTrackWindow(true);      // 关闭轨迹查询
 		dlf.fn_initRecordSearch(str_id);
 		obj_navItemUl.hide();
 	});

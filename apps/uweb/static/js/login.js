@@ -7,23 +7,23 @@ $(function(){
 	var obj_captchaImg= $('#captchaimg'),	// 验证码图片存放对象
 		n_bannerIndex = 0,	// 当前banner的编号
 		currentAd = null,	// 图片轮换的计时器
-		str_type = $('#userRoleType').val(),
+		str_type = $.cookie('USERCURRENTROLE'),
 		obj_tabs = $('.tabs li'),
 		obj_first = obj_tabs.eq(0),
 		obj_sed = obj_tabs.eq(1),
 		obj_userGetPwd = $('#getPwd'),
 		obj_corpGetPwd = $('#corpGetPwd');
-		
-	if ( str_type == 'individual' ) {	// 个人用户
-		obj_sed.removeClass('current').addClass('other');
-		obj_first.removeClass('other').addClass('current');
-		obj_userGetPwd.show();
-		obj_corpGetPwd.hide();
-	} else {
+	
+	if ( str_type == 'enterprise' ) {	// 集团用户
 		obj_sed.removeClass('other').addClass('current');
 		obj_first.removeClass('current').addClass('other');
 		obj_userGetPwd.hide();
 		obj_corpGetPwd.show();
+	} else {
+		obj_sed.removeClass('current').addClass('other');
+		obj_first.removeClass('other').addClass('current');
+		obj_userGetPwd.show();
+		obj_corpGetPwd.hide();
 	}
 	
 	/**
@@ -53,6 +53,7 @@ $(function(){
 			obj_userGetPwd.hide();
 			obj_corpGetPwd.show();
 		}
+		$.cookie('USERCURRENTROLE', str_userType, {expires:365});
 	});
 	
 	/**

@@ -37,12 +37,15 @@ window.dlf.fn_closeWrapper = function() {
 	var obj_close = $('.j_close');
 	
 	obj_close.click(function() {
+		var str_whoDialog = $(this).attr('who');
+		
+		if ( str_whoDialog == 'statics' || str_whoDialog == 'mileage' ) {
+			dlf.fn_clearNavStatus('recordCount');
+		} else {
+			dlf.fn_clearNavStatus(str_whoDialog);
+		}
 		dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		dlf.fn_closeDialog(); // 窗口关闭
-		
-		if ( $($(this).parent().parent()).attr('id') == 'eventWrapper' ) { 
-			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
-		}
 	});
 }
 
@@ -50,9 +53,28 @@ window.dlf.fn_closeWrapper = function() {
 * 主动关闭窗口
 */
 window.dlf.fn_closeDialog = function() {
+	var f_eventSearchWpST = $('#eventSearchWrapper').is(':visible'),  //告警窗口是否在打开状态
+		f_staticsWpST = $('#staticsWrapper').is(':visible'),  //告警统计窗口是否在打开状态
+		f_mileageWpST = $('#mileageWrapper').is(':visible'),  //里程统计窗口是否在打开状态
+		str_trackClass = $('#track').attr('class');; // 轨迹的样式
+	
+	if ( f_eventSearchWpST || f_staticsWpST || f_mileageWpST ) { 
+		if ( str_trackClass.search('trackHover') != -1 ) {
+			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询 不操作lastinfo
+		} else {
+			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
+		}
+	} 
 	$('.wrapper').hide();
 	dlf.fn_unLockScreen(); // 去除页面遮罩
 	dlf.fn_unLockContent(); // 清除内容区域的遮罩
+}
+/*
+* 清除导航功能的选中状态
+* str_who: 要清除的导航ID
+*/
+window.dlf.fn_clearNavStatus = function(str_who) {
+	$('#'+ str_who).removeClass(str_who +'Hover'); 
 }
 
 /**
@@ -742,7 +764,7 @@ window.dlf.fn_showBusinessTip = function(str_type) {
 	}
 	// 遮罩
 	dlf.fn_lockScreen(); 
-	dlf.fn_dialogPosition($('#businessWrapper'));
+	dlf.fn_dialogPosition('business');
 	$('#businessBtn').click(function() {
 		window.location.replace('/logout');
 	});
@@ -884,11 +906,23 @@ window.dlf.fn_onInputBlur = function() {
  
 /**
 * dialog弹出框的位置计算并显示
-* obj_wrapper: 弹出框对象
+* str_wrapperId: 弹出框对象的ID
 */ 
-dlf.fn_dialogPosition = function ( obj_wrapper ) {
-	var n_wrapperWidth = obj_wrapper.width(),
+dlf.fn_dialogPosition = function ( str_wrapperId ) { 
+	var obj_wrapper = $('#'+ str_wrapperId+'Wrapper'), 
+		n_wrapperWidth = obj_wrapper.width(),
 		n_width = ($(window).width() - n_wrapperWidth)/2;
+	
+	if ( str_wrapperId == 'statics' || str_wrapperId == 'mileage' ) {
+		str_wrapperId = 'recordCount';
+	} else {
+		dlf.fn_clearNavStatus('recordCount'); // 移除统计导航操作中的样式
+	}
+	$('#'+ str_wrapperId).addClass(str_wrapperId +'Hover');
+	if ( str_wrapperId != 'eventSearch' ) {
+		dlf.fn_closeDialog();
+		dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
+	}
 	
 	obj_wrapper.css({left: n_width}).show();
 }
@@ -958,7 +992,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					}
 					obj_carList.data('carData', obj_carData);
 					$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_html);
-					
+					dlf.fn_clearNavStatus('defend');
 					dlf.fn_jNotifyMessage(str_successMsg, 'message', false, 3000);
 				} else if ( str_who == 'cTerminal' ) {	// 新增定位器
 					// todo 添加节点到对应group上    或者重新加载lastinfo
@@ -1076,7 +1110,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				} else if ( str_who == 'terminal' ) {	// 定位器参数设置修改					
+				} else if ( str_who == 'terminal' ) {	// 定位器参数设置修改
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						var str_val = obj_data[param];
 						
@@ -1131,9 +1165,12 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 										'<td><a href="#" onclick=dlf.fn_editOperator('+ n_operatorId +') class="blacklistLink">编辑</a></td>' +
 										'<td><a href="#" onclick=dlf.fn_deleteOperator('+ n_operatorId +') class="blacklistLink">删除</a></td>'
 										);
-					$('#addOperatorDialog').dialog("close");	// 关闭dialog
+					$('#addOperatorDialog').dialog('close');	// 关闭dialog
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else {
+					if ( str_who == 'corpTerminal' ) {
+						dlf.fn_clearNavStatus('corpTerminal');
+					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				}

@@ -8,8 +8,8 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 * 定位器参数设置初始化
 */
 window.dlf.fn_initTerminal = function() {
+	dlf.fn_dialogPosition('terminal');  // 显示定位器设置dialog
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#terminalWrapper'));  // 显示定位器设置dialog
 	var obj_cnum = $('.j_corp_terminal'),
 		obj_input = $('.j_input input'),
 		obj_terminalContent = $('.terminalContent'), 

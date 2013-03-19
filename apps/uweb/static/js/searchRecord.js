@@ -13,9 +13,8 @@ var arr_dwRecordData = [],	// 后台查询到的报警记录数据
 /**
 * 初始化查询条件
 */
-window.dlf.fn_initRecordSearch = function(str_who) {
-	var obj_searchWrapper = $('#' + str_who + 'Wrapper');
-	
+window.dlf.fn_initRecordSearch = function(str_who) {	
+	dlf.fn_dialogPosition(str_who);	// 设置dialog的位置并显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#cursor').hide();
 	/* 初始化条件和数据 */
@@ -27,7 +26,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	
 	//dlf.fn_showOrHideSelect(str_who);	// IE6 select显示
 	
-	if ( str_who == 'event' || str_who == 'mileage' || str_who == 'statics' ) { // 告警查询 里程统计 告警统计 
+	if ( str_who == 'eventSearch' || str_who == 'mileage' || str_who == 'statics' ) { // 告警查询 里程统计 告警统计 
 		$('#POISearchWrapper').hide();  // 关闭周边查询
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
@@ -41,6 +40,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	}
+	
 	dlf.fn_setSearchRecord(str_who); //  绑定查询的事件,查询,上下翻页
 }
 
@@ -83,8 +83,6 @@ window.dlf.fn_setSearchRecord = function(str_who) {
 		n_dwRecordPageNum = 0;
 		dlf.fn_dwSearchData(str_who);
 	});
-	
-	dlf.fn_dialogPosition($('#' + str_who + 'Wrapper'));	// 设置dialog的位置并显示
 }
 
 /**
@@ -110,15 +108,15 @@ window.dlf.fn_dwSearchData = function (str_who) {
 			}
 				
 			break;
-		case 'event': //  告警查询
+		case 'eventSearch': //  告警查询
 			str_getDataUrl = EVENT_URL;
 			dlf.fn_clearMapComponent(); // 清除页面图形
 			
-			var n_startTime = $('#eventStartTime').val(), // 用户选择时间
-				n_endTime = $('#eventEndTime').val(), // 用户选择时间
+			var n_startTime = $('#eventSearchStartTime').val(), // 用户选择时间
+				n_endTime = $('#eventSearchEndTime').val(), // 用户选择时间
 				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
-				n_category = $('#eventCategory').val(), 
+				n_category = $('#eventSearchCategory').val(), 
 				str_tids = '',
 				str_userType = $('#user_type').val();
 			
@@ -218,7 +216,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			str_tbodyText = '';
 			
 		n_dwRecordPageCnt = obj_resdata.pagecnt;
-		arr_dwRecordData = obj_resdata.res;
+		arr_dwRecordData = str_who == 'eventSearch' ? obj_resdata.events : obj_resdata.res, 
 		n_eventDataLen = arr_dwRecordData.length; 	//记录数
 		
 		if ( n_eventDataLen > 0 ) {	// 如果查询到数据
@@ -256,7 +254,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				$(this).css('background-color', '');
 			});
 			//告警查询,添加点击显示上地图事件,并做数据存储
-			if ( str_who == 'event' ) {
+			if ( str_who == 'eventSearch' ) {
 				/**
 				* 用户点击位置进行地图显示
 				*/
@@ -281,7 +279,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000, 'dw');
 		}
 	} else if ( obj_resdata.status == 201 ) {	// 业务变更
-		dlf.fn_showBusinessTip('event');
+		dlf.fn_showBusinessTip('eventSearch');
 	} else {
 		dlf.fn_jNotifyMessage(obj_resdata.message, 'message', false, 3000, 'dw');	
 	}
@@ -290,7 +288,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 * 根据数据和页面不同生成相应的table域内容
 */
 window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
-	var obj_searchData = obj_reaData.res, 
+	var obj_searchData = str_who == 'eventSearch' ? obj_reaData.events : obj_reaData.res, 
 		n_searchLen = obj_searchData.length,
 		obj_searchHeader = $('#'+str_who+'TableHeader'), 
 		arr_graphic = obj_reaData.graphics,	// 统计图结果
@@ -313,7 +311,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteOperator('+ str_id +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';
 				break;
-			case 'event': // 告警查询
+			case 'eventSearch': // 告警查询
 				var str_type = obj_tempData.category,	//类型
 					n_lng = obj_tempData.clongitude/NUMLNGLAT,
 					n_lat = obj_tempData.clatitude/NUMLNGLAT,

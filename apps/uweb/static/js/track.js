@@ -15,6 +15,9 @@ var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, f_trackMsgS
 * 初始化轨迹显示页面
 */
 window.dlf.fn_initTrack = function() {
+	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
+	$('#track').addClass('trackHover'); // 导航显示操作中的样式 
+	dlf.fn_closeDialog();
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
@@ -37,8 +40,10 @@ function fn_closeAllInfoWindow() {
 
 /**
 * 关闭轨迹显示页面
+* f_ifLastInfo: 清除规矩相关的时候是否要发起lastinfo
 */
-window.dlf.fn_closeTrackWindow = function() {
+window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) { 
+	dlf.fn_clearNavStatus('track'); // 移除导航操作中的样式
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_closeAllInfoWindow();
 	dlf.fn_clearTrack();	// 清除数据
@@ -50,19 +55,20 @@ window.dlf.fn_closeTrackWindow = function() {
 		obj_selfMarker = null,
 		obj_carInfo = null; 
 	
-	$('.j_carList').removeData('carsData');
-	obj_carsData = {};
-	obj_selfmarkers = {};
-	
-	LASTINFOCACHE = 0; //轨迹查询后重新获取终端数据
-	
-	if ( !dlf.fn_userType() ) {
-		dlf.fn_getCarData();	// 重新请求lastinfo
-	} else {
-		obj_oldData = {'gids': '', 'tids': '', 'n_gLen': 0};
-		dlf.fn_corpGetCarData();
+	if ( f_ifLastInfo ) {
+		$('.j_carList').removeData('carsData');
+		obj_carsData = {};
+		obj_selfmarkers = {};
+		
+		LASTINFOCACHE = 0; //轨迹查询后重新获取终端数据
+		if ( !dlf.fn_userType() ) {
+			dlf.fn_getCarData('first');	// 重新请求lastinfo
+		} else {
+			obj_oldData = {'gids': '', 'tids': '', 'n_gLen': 0};
+			dlf.fn_corpGetCarData();
+		}
+		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	}
-	dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 	dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
@@ -335,7 +341,7 @@ function fn_createDrawLine () {
 /**
 * 关闭轨迹清除数据
 */
-window.dlf.fn_clearTrack = function(clearType) {
+window.dlf.fn_clearTrack = function(clearType) { 
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };	// 清除计时器
 	str_actionState = 0;
 	counter = 0;
@@ -439,7 +445,7 @@ $(function () {
 			$(this).hide();
 			$('#tPlay').css('display', 'inline-block');
 		} else {
-			dlf.fn_closeTrackWindow();
+			dlf.fn_closeTrackWindow(true);
 		}
 	});
 	

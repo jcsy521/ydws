@@ -8,10 +8,12 @@
 */
 window.dlf.fn_currentQuery = function() {
 	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位参数设置
-	dlf.fn_dialogPosition($('#currentWrapper'));	// 设置dialog的位置
+	
+	dlf.fn_dialogPosition('realtime');	// 设置dialog的位置
 	fn_currentRequest(obj_pd);	// 发起定位请求
 	$('#currentBtn').unbind('click').click(function() {	// 窗口关闭事件
 		dlf.fn_closeDialog(); 
+		dlf.fn_clearNavStatus('realtime');
 	});
 }
 
@@ -155,6 +157,7 @@ function fn_currentRequest(obj_pd) {
 * obj_location: 定位成功时的位置信息
 */
 function fn_displayCurrentMarker(obj_location) {
+	dlf.fn_clearNavStatus('realtime');  // 移除导航操作中的样式
 	dlf.fn_closeDialog();
 	dlf.fn_updateLastInfo();	// 动态更新定位器相关数据
 	mapObj.setCenter(dlf.fn_createMapPoint(obj_location.clongitude, obj_location.clatitude));	// 标记显示及中心点移动
@@ -171,7 +174,9 @@ window.dlf.fn_defendQuery = function() {
 		obj_defend = {},	// 向后台传递设防撤防数据
 		obj_dMsg = $('#defendMsg'),	// 设防撤防状态的提示信息容器
 		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num'));	// 当前车辆的挂件数量
-		
+	
+	dlf.fn_dialogPosition('defend');	// 设置dialog的位置
+	dlf.fn_lockScreen();	//添加页面遮罩	
 	$.get_(DEFEND_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var str_defendStatus = data.mannual_status,  // 从后台获取到最新的设防撤防状态
@@ -185,8 +190,6 @@ window.dlf.fn_defendQuery = function() {
 			
 			n_fob_status = data.fob_status;
 			$('.currentCar').attr('fob_status', n_fob_status);	// 更新最新的 挂件状态  ：是否在附近
-			dlf.fn_lockScreen();	//添加页面遮罩
-			dlf.fn_dialogPosition(obj_wrapper);	// 设置dialog的位置
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defendStatus = DEFEND_OFF;
 				str_tip = '您的定位器当前已设防。';

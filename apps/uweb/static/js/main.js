@@ -6,8 +6,8 @@
 * 我的资料初始化 
 */
 window.dlf.fn_personalData = function() {
+	dlf.fn_dialogPosition('personal'); // 我的资料dialog显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#personalWrapper')); // 我的资料dialog显示
 	dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('用户信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
@@ -76,8 +76,8 @@ window.dlf.fn_personalSave = function() {
 * 修改密码初始化
 */
 window.dlf.fn_changePwd = function() {
+	dlf.fn_dialogPosition('pwd');
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#pwdWrapper'));
 	$('#pwdWrapper input[type=password]').val('');// 清除文本框数据
 }
 
@@ -85,8 +85,8 @@ window.dlf.fn_changePwd = function() {
 * 短息通知
 */
 window.dlf.fn_initSMSParams = function() {
+	dlf.fn_dialogPosition('smsOption');
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#smsWrapper'));
 	$.get_(SMS_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.sms_options;
@@ -120,6 +120,7 @@ window.dlf.fn_initSMSParams = function() {
 */
 window.dlf.fn_saveSMSOption = function() {
 	var obj_checkbox = $('.j_checkbox'),
+		n_num = 0,
 		obj_smsData = {};
 		
 	$.each(obj_checkbox, function(index, dom) {
@@ -160,8 +161,8 @@ window.dlf.fn_exit = function() {
 */
 window.dlf.fn_initCorpData = function() {
 	$('#hidCName').val('');
+	dlf.fn_dialogPosition('corp'); // 我的资料dialog显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#corpWrapper')); // 我的资料dialog显示
 	dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('集团信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.corpContent')); // 添加内容区域的遮罩
@@ -429,13 +430,16 @@ $(function () {
 	$('.j_click').click(function(e) {
 		var str_id = e.currentTarget.id, 
 			n_carNum = $('#carList li').length,
-			str_trackStatus = $('#trackHeader').css('display');		
-			
+			str_trackStatus = $('#trackHeader').css('display');	
+		
 		if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
 			if ( str_id == 'track' ) {
 				return;
+			} else if ( str_id == 'statics' || str_id == 'mileage' || str_id == 'eventSearch' ) {
+				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
+			} else { 
+				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 			}
-			dlf.fn_closeTrackWindow();	// 关闭轨迹查询
 		}
 		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'eventSearch' ) {
 			if ( $('.j_terminal').length <= 0 ) {
@@ -483,11 +487,11 @@ $(function () {
 			case 'track': // 轨迹查询
 				dlf.fn_initTrack();
 				break;
-			case 'smsoption': // 短信设置
+			case 'smsOption': // 短信设置
 				dlf.fn_initSMSParams();
 				break;
 			case 'eventSearch': // 告警查询
-				dlf.fn_initRecordSearch('event');
+				dlf.fn_initRecordSearch('eventSearch');
 				break;
 			case 'operator': // 操作员查询
 				dlf.fn_initRecordSearch('operator');
