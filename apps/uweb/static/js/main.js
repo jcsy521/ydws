@@ -583,7 +583,7 @@ $(function () {
 		}
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
-	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "车主手机号输入不合法，请重新输入！"});  // 别名;
+	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "短信接收号码输入不合法，请重新输入！"});  // 别名;
 	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
 	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
 	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});

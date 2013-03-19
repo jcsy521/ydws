@@ -840,10 +840,10 @@ window.dlf.fn_onInputBlur = function() {
 					
 					if ( n_valLength > 0 ) {
 						if ( n_valLength > 14 || n_valLength < 11 ) {
-							str_msg = '车主手机号输入不合法，请重新输入！'
+							str_msg = '短信接收号码输入不合法，请重新输入！'
 						} else {
 							if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
-								str_msg = '车主手机号输入不合法，请重新输入！';
+								str_msg = '短信接收号码输入不合法，请重新输入！';
 							}
 						}
 						if ( str_msg != '' ) {
