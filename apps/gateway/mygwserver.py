@@ -57,7 +57,9 @@ from clw.packet.composer.runtime import RuntimeRespComposer
 from clw.packet.composer.locationdesc import LocationDescRespComposer
 from clw.packet.composer.config import ConfigRespComposer
 from clw.packet.composer.fobinfo import FobInfoRespComposer
+from clw.packet.composer.unbind import UNBindComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
+
 
 class MyGWServer(object):
     """
@@ -768,6 +770,17 @@ class MyGWServer(object):
                     
             if sms:
                 SMSHelper.send(t_info['u_msisdn'], sms)
+
+            # unbind terminal of to_be_unbind
+            if t_status and t_status.service_status == GATEWAY.SERVICE_STATUS.TO_BE_UNBIND:
+                logging.info("[GW] Terminal: %s is unbinded, send unbind packet.", t_info["dev_id"])            
+                seq = str(int(time.time()*1000))[-4:]
+                args = DotDict(seq=seq,
+                               tid=t_info["dev_id"])
+                ubc = UNBindComposer(args)
+                request = DotDict(packet=ubc.buf,
+                                  address=address)
+                self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand login exception.")
         

@@ -17,31 +17,31 @@ from base import BaseHandler, authenticated
 class EventHandler(BaseHandler):
     """Offer various events for web request."""
 
-    @authenticated
-    @tornado.web.removeslash
-    def get(self):
-        """Jump to event.html, provide alias """ 
-        tid = self.get_argument('tid',None) 
-        # check tid whether exist in request and update current_user
-        self.check_tid(tid)
-          
-        terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
-                               "  WHERE tid = %s"
-                               "    AND service_status = %s",
-                               self.current_user.tid,
-                               UWEB.SERVICE_STATUS.ON)
-        if not terminal:
-            status = ErrorCode.LOGIN_AGAIN
-            logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
-            self.render("login.html",
-                        map_type=ConfHelper.LBMP_CONF.map_type,
-                        alias='')
-            return
-        
-        alias = QueryHelper.get_alias_by_tid(self.current_user.tid, self.redis, self.db)
-        self.render("event.html",
-                    map_type=ConfHelper.LBMP_CONF.map_type,
-                    alias=alias)
+    #@authenticated
+    #@tornado.web.removeslash
+    #def get(self):
+    #    """Jump to event.html, provide alias """ 
+    #    tid = self.get_argument('tid',None) 
+    #    # check tid whether exist in request and update current_user
+    #    self.check_tid(tid)
+    #      
+    #    terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+    #                           "  WHERE tid = %s"
+    #                           "    AND service_status = %s",
+    #                           self.current_user.tid,
+    #                           UWEB.SERVICE_STATUS.ON)
+    #    if not terminal:
+    #        status = ErrorCode.LOGIN_AGAIN
+    #        logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+    #        self.render("login.html",
+    #                    map_type=ConfHelper.LBMP_CONF.map_type,
+    #                    alias='')
+    #        return
+    #    
+    #    alias = QueryHelper.get_alias_by_tid(self.current_user.tid, self.redis, self.db)
+    #    self.render("event.html",
+    #                map_type=ConfHelper.LBMP_CONF.map_type,
+    #                alias=alias)
 
     @authenticated
     @tornado.web.removeslash

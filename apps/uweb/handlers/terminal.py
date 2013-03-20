@@ -2,13 +2,15 @@
 
 import logging
 import time
+import datetime
+from dateutil.relativedelta import relativedelta
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
-from utils.misc import get_terminal_sessionID_key,\
-     get_terminal_info_key
+from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection
 from base import BaseHandler, authenticated
@@ -205,46 +207,46 @@ class TerminalHandler(BaseHandler, TerminalMixin):
 
 class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
-    @authenticated
-    @tornado.web.removeslash
-    def get(self):
-        """Show information of a terminal.
-        """
-        status = ErrorCode.SUCCESS
-        try:
-            tid = self.get_argument('tid','')
-            logging.info("[UWEB] corp terminal request: %s, cid: %s", tid, self.current_user.cid)
-            terminal = self.db.get("SELECT tid, mobile, group_id, owner_mobile, begintime, endtime"
-                                   "  FROM T_TERMINAL_INFO"
-                                   "  WHERE tid = %s"
-                                   "    AND service_status = %s",
-                                   tid, UWEB.SERVICE_STATUS.ON)
+    #@authenticated
+    #@tornado.web.removeslash
+    #def get(self):
+    #    """Show information of a terminal.
+    #    """
+    #    status = ErrorCode.SUCCESS
+    #    try:
+    #        tid = self.get_argument('tid','')
+    #        logging.info("[UWEB] corp terminal request: %s, cid: %s", tid, self.current_user.cid)
+    #        terminal = self.db.get("SELECT tid, mobile, group_id, owner_mobile, begintime, endtime"
+    #                               "  FROM T_TERMINAL_INFO"
+    #                               "  WHERE tid = %s"
+    #                               "    AND service_status = %s",
+    #                               tid, UWEB.SERVICE_STATUS.ON)
 
-            if not terminal:
-                status = ErrorCode.LOGIN_AGAIN
-                logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
-                self.write_ret(status)
-                return
-            car = self.db.get("SELECT cnum, type, color, brand"
-                              "  FROM T_CAR"
-                              "  WHERE tid = %s", tid)
-            umobile = terminal.owner_mobile if terminal.owner_mobile != self.current_user.cid else ''
-            res = DotDict(tmobile=terminal.mobile,
-                          group_id=terminal.group_id,
-                          umobile=umobile,
-                          begintime=terminal.begintime,
-                          endtime=terminal.endtime,
-                          cnum=car.cnum,
-                          ctype=car.type,
-                          ccolor=car.color, 
-                          cbrand=car.brand)
-            self.write_ret(status,
-                           dict_=dict(res=res))
-        except Exception as e:
-            logging.exception("[UWEB] cid:%s, tid:%s get terminal info failed. Exception: %s", 
-                              self.current_user.cid, tid, e.args)
-            status = ErrorCode.SERVER_BUSY
-            self.write_ret(status)
+    #        if not terminal:
+    #            status = ErrorCode.LOGIN_AGAIN
+    #            logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
+    #            self.write_ret(status)
+    #            return
+    #        car = self.db.get("SELECT cnum, type, color, brand"
+    #                          "  FROM T_CAR"
+    #                          "  WHERE tid = %s", tid)
+    #        umobile = terminal.owner_mobile if terminal.owner_mobile != self.current_user.cid else ''
+    #        res = DotDict(tmobile=terminal.mobile,
+    #                      group_id=terminal.group_id,
+    #                      umobile=umobile,
+    #                      begintime=terminal.begintime,
+    #                      endtime=terminal.endtime,
+    #                      cnum=car.cnum,
+    #                      ctype=car.type,
+    #                      ccolor=car.color, 
+    #                      cbrand=car.brand)
+    #        self.write_ret(status,
+    #                       dict_=dict(res=res))
+    #    except Exception as e:
+    #        logging.exception("[UWEB] cid:%s, tid:%s get terminal info failed. Exception: %s", 
+    #                          self.current_user.cid, tid, e.args)
+    #        status = ErrorCode.SERVER_BUSY
+    #        self.write_ret(status)
 
 
     @authenticated
@@ -263,11 +265,56 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             return 
         
         try:
-            begintime = int(time.time())
             # 1 year
-            endtime = begintime + 31556926 * 1
-            # 1: add user
+            begintime = int(time.time())
+            now_ = datetime.datetime.now()
+            endtime = now_ + relativedelta(years=1)
+            endtime = int(time.mktime(endtime.timetuple()))
+            # 1: add terminal
             umobile = data.umobile if data.umobile else self.current_user.cid
+            terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
+                                   data.tmobile)
+            if terminal:
+                if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+                    # clear db
+                    self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s",
+                                    terminal.id)
+                    tid = terminal.tid
+                    user = QueryHelper.get_user_by_tid(tid, self.db)
+                    if user:
+                        terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                                  "  WHERE owner_mobile = %s",
+                                                  user.owner_mobile)
+                        if len(terminals) == 0:
+                            self.db.execute("DELETE FROM T_USER"
+                                            "  WHERE mobile = %s",
+                                            user.owner_mobile)
+
+                            lastinfo_key = get_lastinfo_key(user.owner_mobile)
+                            self.redis.delete(lastinfo_key)
+                    else:
+                        logging.info("[GW] User of %s already not exist.", tid)
+                    # clear redis
+                    sessionID_key = get_terminal_sessionID_key(tid)
+                    address_key = get_terminal_address_key(tid)
+                    info_key = get_terminal_info_key(tid)
+                    lq_sms_key = get_lq_sms_key(tid)
+                    lq_interval_key = get_lq_interval_key(tid)
+                    keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                    self.redis.delete(*keys)
+                else:
+                    logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
+                    status = ErrorCode.TERMINAL_ORDERED
+                    self.write_ret(status)
+                    return
+            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
+                            "  defend_status, mannual_status, begintime, endtime)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                            data.tmobile, data.group_id,
+                            data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
+                            UWEB.DEFEND_STATUS.NO, begintime, endtime)
+    
+            # 1: add user
             user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
             if not user:
                 self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
@@ -277,25 +324,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
                                 "  VALUES(%s)",
                                 umobile) 
-            # 2: add terminal
-            terminal = self.db.get("SELECT id, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
-                                   data.tmobile)
-            if terminal:
-                if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                    self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s",
-                                    terminal.id)
-                else:
-                    logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
-                    status = ErrorCode.TERMINAL_ORDERED
-                    self.write_ret(status)
-                    return
-            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  begintime, endtime)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s)",
-                            data.tmobile, data.group_id,
-                            data.tmobile, umobile, 
-                            begintime, endtime)
-    
             # 3: add car 
             self.db.execute("INSERT INTO T_CAR(tid, cnum)"
                             "  VALUES(%s, %s)",
@@ -322,93 +350,93 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
-    @authenticated
-    @tornado.web.removeslash
-    def put(self):
-        """modify a terminal.
-        """
-        status = ErrorCode.SUCCESS
-        try:
-            data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] corp modify terminal request: %s, cid: %s", 
-                         data, self.current_user.cid)
-        except Exception as e:
-            status = ErrorCode.ILLEGAL_DATA_FORMAT
-            self.write_ret(status)
-            return 
-        
-        try:
-            tid = data.tid
+    #@authenticated
+    #@tornado.web.removeslash
+    #def put(self):
+    #    """modify a terminal.
+    #    """
+    #    status = ErrorCode.SUCCESS
+    #    try:
+    #        data = DotDict(json_decode(self.request.body))
+    #        logging.info("[UWEB] corp modify terminal request: %s, cid: %s", 
+    #                     data, self.current_user.cid)
+    #    except Exception as e:
+    #        status = ErrorCode.ILLEGAL_DATA_FORMAT
+    #        self.write_ret(status)
+    #        return 
+    #    
+    #    try:
+    #        tid = data.tid
 
-            fields_car = DotDict()
-            fields_terminal = DotDict()
+    #        fields_car = DotDict()
+    #        fields_terminal = DotDict()
 
-            FIELDS_CAR = DotDict(cnum="cnum = '%s'",
-                                 ctype="type = '%s'",
-                                 ccolor="color = '%s'",
-                                 cbrand="brand = '%s'")
+    #        FIELDS_CAR = DotDict(cnum="cnum = '%s'",
+    #                             ctype="type = '%s'",
+    #                             ccolor="color = '%s'",
+    #                             cbrand="brand = '%s'")
 
-            FIELDS_TERMINAL = DotDict(begintime="begintime = '%s'",
-                                      endtime="endtime = '%s'",
-                                      owner_mobile="owner_mobile = '%s'")
+    #        FIELDS_TERMINAL = DotDict(begintime="begintime = '%s'",
+    #                                  endtime="endtime = '%s'",
+    #                                  owner_mobile="owner_mobile = '%s'")
 
-            for key, value in data.iteritems():
-                if key == u'tid':
-                    pass
-                elif key in ['begintime', 'endtime']:
-                    fields_terminal.setdefault(key, FIELDS_TERMINAL[key] % value) 
-                elif key == u'cnum':
-                    self.db.execute("UPDATE T_CAR"
-                                    "  SET cnum = %s"
-                                    "  WHERE tid = %s",
-                                    value, self.current_user.tid)
-                    terminal_info_key = get_terminal_info_key(self.current_user.tid)
-                    terminal_info = self.redis.getvalue(terminal_info_key)
-                    if terminal_info:
-                        terminal_info['alias'] = value if value else self.current_user.sim 
-                        self.redis.setvalue(terminal_info_key, terminal_info)
-                elif key == u'owner_mobile':
-                    if not data['owner_mobile']:
-                        umobile = self.current_user.cid
-                    else:
-                        umobile = value 
-                        user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
-                        if not user:
-                            self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
-                                            "  VALUES(NULL, %s, password(%s), %s, %s )",
-                                            umobile, '111111',
-                                            u'', umobile)
-                            self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                            "  VALUES(%s)",
-                                            umobile) 
-                    fields_terminal.setdefault(key, FIELDS_TERMINAL[key] % umobile)
-                    # TODO:need to send JH SMS?
-                    #register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile)
-                    #SMSHelper.send_to_terminal(tmobile, register_sms)
-                    # clear redis, terminal login again
-                    sessionID_key = get_terminal_sessionID_key(tid)
-                    self.redis.delete(sessionID_key)
-                else:
-                    fields_car.setdefault(key, FIELDS_CAR[key] % value) 
+    #        for key, value in data.iteritems():
+    #            if key == u'tid':
+    #                pass
+    #            elif key in ['begintime', 'endtime']:
+    #                fields_terminal.setdefault(key, FIELDS_TERMINAL[key] % value) 
+    #            elif key == u'cnum':
+    #                self.db.execute("UPDATE T_CAR"
+    #                                "  SET cnum = %s"
+    #                                "  WHERE tid = %s",
+    #                                value, self.current_user.tid)
+    #                terminal_info_key = get_terminal_info_key(self.current_user.tid)
+    #                terminal_info = self.redis.getvalue(terminal_info_key)
+    #                if terminal_info:
+    #                    terminal_info['alias'] = value if value else self.current_user.sim 
+    #                    self.redis.setvalue(terminal_info_key, terminal_info)
+    #            elif key == u'owner_mobile':
+    #                if not data['owner_mobile']:
+    #                    umobile = self.current_user.cid
+    #                else:
+    #                    umobile = value 
+    #                    user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
+    #                    if not user:
+    #                        self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
+    #                                        "  VALUES(NULL, %s, password(%s), %s, %s )",
+    #                                        umobile, '111111',
+    #                                        u'', umobile)
+    #                        self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+    #                                        "  VALUES(%s)",
+    #                                        umobile) 
+    #                fields_terminal.setdefault(key, FIELDS_TERMINAL[key] % umobile)
+    #                # TODO:need to send JH SMS?
+    #                #register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile)
+    #                #SMSHelper.send_to_terminal(tmobile, register_sms)
+    #                # clear redis, terminal login again
+    #                sessionID_key = get_terminal_sessionID_key(tid)
+    #                self.redis.delete(sessionID_key)
+    #            else:
+    #                fields_car.setdefault(key, FIELDS_CAR[key] % value) 
 
-            set_clause_car = ','.join([v for v in fields_car.itervalues() if v is not None])
-            if set_clause_car:
-                self.db.execute("UPDATE T_CAR SET " + set_clause_car +
-                                "  WHERE tid = %s",
-                                tid)
+    #        set_clause_car = ','.join([v for v in fields_car.itervalues() if v is not None])
+    #        if set_clause_car:
+    #            self.db.execute("UPDATE T_CAR SET " + set_clause_car +
+    #                            "  WHERE tid = %s",
+    #                            tid)
 
-            set_clause_terminal = ','.join([v for v in fields_terminal.itervalues() if v is not None])
-            if set_clause_terminal:
-                self.db.execute("UPDATE T_TERMINAL_INFO SET " + set_clause_terminal +
-                                "  WHERE tid = %s",
-                                tid)
-            self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
-            self.write_ret(status)
-        except Exception as e:
-            logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 
-                              self.current_user.cid, e.args)
-            status = ErrorCode.SERVER_BUSY
-            self.write_ret(status)
+    #        set_clause_terminal = ','.join([v for v in fields_terminal.itervalues() if v is not None])
+    #        if set_clause_terminal:
+    #            self.db.execute("UPDATE T_TERMINAL_INFO SET " + set_clause_terminal +
+    #                            "  WHERE tid = %s",
+    #                            tid)
+    #        self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
+    #        self.write_ret(status)
+    #    except Exception as e:
+    #        logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 
+    #                          self.current_user.cid, e.args)
+    #        status = ErrorCode.SERVER_BUSY
+    #        self.write_ret(status)
 
     @authenticated
     @tornado.web.removeslash
@@ -428,9 +456,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             if not terminal:
                 logging.error("The terminal with tid: %s does not exist!", tid)
                 return
-            elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
-                self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id)
-                logging.error("The terminal with tmobile:%s is offline and delete it!", terminal.mobile)
 
             # unbind terminal
             seq = str(int(time.time()*1000))[-4:]
@@ -443,6 +468,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
                              self.current_user.uid, tid, terminal.mobile)
             else:
+                # unbind failed. clear sessionID for relogin, then unbind it again
+                sessionID_key = get_terminal_sessionID_key(tid)
+                self.redis.delete(sessionID_key)
                 logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                               self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
                 unbind_sms = SMSCode.SMS_UNBIND  

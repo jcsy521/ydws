@@ -13,8 +13,7 @@ from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 from helpers.gfsenderhelper import GFSenderHelper
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
+from utils.misc import get_terminal_sessionID_key
 from constants import UWEB, GATEWAY
 
 from base import BaseHandler, authenticated
@@ -52,10 +51,6 @@ class UNBindHandler(BaseHandler, BaseMixin):
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
                 return
-            elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
-                # delete terminal
-                self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id)
-                logging.error("The terminal with tmobile:%s is offline and delete it!", tmobile)
 
             def _on_finish(response):
                 status = ErrorCode.SUCCESS
@@ -64,7 +59,9 @@ class UNBindHandler(BaseHandler, BaseMixin):
                     logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
                                  self.current_user.uid, terminal.tid, tmobile)
                 else:
-                    #status = response['success']
+                    # unbind failed. clear sessionID for relogin, then unbind it again
+                    sessionID_key = get_terminal_sessionID_key(terminal.tid)
+                    self.redis.delete(sessionID_key)
                     logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                                   self.current_user.uid, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
                     unbind_sms = SMSCode.SMS_UNBIND  

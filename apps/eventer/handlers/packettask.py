@@ -240,7 +240,7 @@ class PacketTask(object):
                                    "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
                                    "    AND T_GROUP.corp_id = T_CORP.cid",
                                    report.dev_id)
-                if corp.mobile != user.owner_mobile:
+                if (corp and corp.mobile != user.owner_mobile):
                     SMSHelper.send(corp.mobile, sms)
         else:
             logging.info("[EVENTER] Remind option of %s is closed. Terminal: %s",

@@ -3,6 +3,7 @@
 import logging
 from math import sin, cos, pi, acos 
 import time
+import random
 
 from tornado.escape import json_decode
 
@@ -133,6 +134,8 @@ def handle_location(location, redis, cellid=False, db=None):
             location.degree = get_last_degree(location, redis, db)
         if cellid:
             location.type = 1
+            random_degree = random.randint(-15,15)
+            location.degree = location.degree + random_degree
             if location.cellid:
                 cellid_info = [int(item) for item in location.cellid.split(":")]
                 sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)

@@ -8,6 +8,8 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.misc import get_today_last_month, get_captcha_key
+from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from utils.dotdict import DotDict
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
@@ -70,20 +72,49 @@ class RegisterHandler(BaseHandler):
                 if captcha == str(captcha_old):
                     terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db) 
                     if terminal:
-                        status = ErrorCode.TERMINAL_ORDERED
-                        logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
-                                     umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
-                    else:
-                        register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
-                        ret = SMSHelper.send_to_terminal(tmobile, register_sms)
-                        ret = DotDict(json_decode(ret))
-                        if ret.status == ErrorCode.SUCCESS:
-                            logging.info("[UWEB] umobile: %s, tmobile: %s regist successfully.",
-                                         umobile, tmobile)
+                        if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+                            # delete to_be_unbind terminal!
+                            # clear db
+                            self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE mobile = %s", tmobile)
+                            tid = terminal.tid
+                            user = QueryHelper.get_user_by_tid(tid, self.db)
+                            if user:
+                                terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                                          "  WHERE owner_mobile = %s",
+                                                          user.owner_mobile)
+                                if len(terminals) == 0:
+                                    self.db.execute("DELETE FROM T_USER"
+                                                    "  WHERE mobile = %s",
+                                                    user.owner_mobile)
+
+                                    lastinfo_key = get_lastinfo_key(user.owner_mobile)
+                                    self.redis.delete(lastinfo_key)
+                            else:
+                                logging.info("[GW] User of %s already not exist.", tid)
+                            # clear redis
+                            sessionID_key = get_terminal_sessionID_key(tid)
+                            address_key = get_terminal_address_key(tid)
+                            info_key = get_terminal_info_key(tid)
+                            lq_sms_key = get_lq_sms_key(tid)
+                            lq_interval_key = get_lq_interval_key(tid)
+                            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                            self.redis.delete(*keys)
                         else:
-                            status = ErrorCode.REGISTER_FAILED
-                            logging.error("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
-                                          umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                            status = ErrorCode.TERMINAL_ORDERED
+                            logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
+                                         umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                            return
+
+                    register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
+                    ret = SMSHelper.send_to_terminal(tmobile, register_sms)
+                    ret = DotDict(json_decode(ret))
+                    if ret.status == ErrorCode.SUCCESS:
+                        logging.info("[UWEB] umobile: %s, tmobile: %s regist successfully.",
+                                     umobile, tmobile)
+                    else:
+                        status = ErrorCode.REGISTER_FAILED
+                        logging.error("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
+                                      umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
                 else:
                     status = ErrorCode.WRONG_CAPTCHA
                     logging.error("umobile: %s regist failed. captcha: %s, captcha_old: %s, Message: %s",

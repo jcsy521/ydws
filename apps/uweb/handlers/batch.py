@@ -13,6 +13,8 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
+from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from constants import UWEB, GATEWAY
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.smshelper import SMSHelper
@@ -143,9 +145,6 @@ class BatchDeleteHandler(BaseHandler):
                     res.append(r)
                     logging.error("The terminal with tid: %s does not exist!", tid)
                     continue 
-                elif terminal.login == GATEWAY.TERMINAL_LOGIN.OFFLINE:
-                    self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id)
-                    logging.error("The terminal with tmobile:%s is offline and delete it!", terminal.mobile)
 
                 seq = str(int(time.time()*1000))[-4:]
                 args = DotDict(seq=seq,
@@ -157,7 +156,9 @@ class BatchDeleteHandler(BaseHandler):
                                  self.current_user.uid, tid, terminal.mobile)
                     res.append(r)
                 else:
-                    #status = response['success']
+                    # unbind failed. clear sessionID for relogin, then unbind it again
+                    sessionID_key = get_terminal_sessionID_key(tid)
+                    self.redis.delete(sessionID_key)
                     logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                                   self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
                     unbind_sms = SMSCode.SMS_UNBIND  
@@ -215,27 +216,64 @@ class BatchJHHandler(BaseHandler):
                 umobile = item['umobile'] if item['umobile'] else self.current_user.cid
                 r = DotDict(tmobile=tmobile,
                             status=ErrorCode.SUCCESS)
-                # 1. add user
-                if umobile:
-                    existed_user = self.db.get("SELECT id FROM T_USER"
-                                               " WHERE mobile = %s", umobile)
-                    if existed_user:
-                        pass
-                    else:
-                        self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
-                                        "  VALUES (NULL, %s, password(%s), %s, %s)",
-                                        umobile, '111111', umobile, umobile)
-                        self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                        "  VALUES(%s)",
-                                        umobile)
-                # 2. add terminal
+                # 1. add terminal
                 umobile = umobile if umobile else self.current_user.cid
-                tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id, owner_mobile, begintime, endtime)"
-                                      "  VALUES (NULL, %s, %s, %s, %s, %s, %s)",
-                                      tmobile, tmobile, gid, umobile, begintime, endtime)
+                terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
+                                       tmobile)
+                if terminal:
+                    if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+                        # clear db
+                        self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s",
+                                        terminal.id)
+                        tid = terminal.tid
+                        user = QueryHelper.get_user_by_tid(tid, self.db)
+                        if user:
+                            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                                      "  WHERE owner_mobile = %s",
+                                                      user.owner_mobile)
+                            if len(terminals) == 0:
+                                self.db.execute("DELETE FROM T_USER"
+                                                "  WHERE mobile = %s",
+                                                user.owner_mobile)
+
+                                lastinfo_key = get_lastinfo_key(user.owner_mobile)
+                                self.redis.delete(lastinfo_key)
+                        else:
+                            logging.info("[GW] User of %s already not exist.", tid)
+                        # clear redis
+                        sessionID_key = get_terminal_sessionID_key(tid)
+                        address_key = get_terminal_address_key(tid)
+                        info_key = get_terminal_info_key(tid)
+                        lq_sms_key = get_lq_sms_key(tid)
+                        lq_interval_key = get_lq_interval_key(tid)
+                        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                        self.redis.delete(*keys)
+                    else:
+                        logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
+                        r['status'] = ErrorCode.TERMINAL_ORDERED
+                        continue 
+
+                tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
+                                      "  owner_mobile, defend_status, mannual_status, begintime, endtime)"
+                                      "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                      tmobile, tmobile, gid, umobile, 
+                                      UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
+                                      begintime, endtime)
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
                                 tmobile)
+                # 2. add user
+                existed_user = self.db.get("SELECT id FROM T_USER"
+                                           " WHERE mobile = %s", umobile)
+                if existed_user:
+                    pass
+                else:
+                    self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
+                                    "  VALUES (NULL, %s, password(%s), %s, %s)",
+                                    umobile, '111111', umobile, umobile)
+                    self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                    "  VALUES(%s)",
+                                    umobile)
                 # 3: send JH message to terminal
                 register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
                 ret = SMSHelper.send_to_terminal(tmobile, register_sms)

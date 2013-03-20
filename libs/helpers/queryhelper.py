@@ -140,7 +140,7 @@ class QueryHelper(object):
     def get_terminal_by_tmobile(tmobile, db):
         """Get terminal info throught tmobile.
         """
-        terminal = db.get("SELECT tid, login, msgid"
+        terminal = db.get("SELECT tid, login, msgid, service_status"
                           "  FROM T_TERMINAL_INFO"
                           "  WHERE mobile = %s LIMIT 1",
                           tmobile) 
