@@ -81,10 +81,19 @@ class QueryHelper(object):
 
     @staticmethod
     def get_corp_by_cid(cid, db):
-        corp = db.get("SELECT mobile, name, linkman"
+        corp = db.get("SELECT mobile, name, linkman, bizcode"
                       "  FROM T_CORP"
                       "  WHERE cid= %s LIMIT 1",
                       cid) 
+        return corp 
+
+    @staticmethod
+    def get_corp_by_oid(oid, db):
+        corp = db.get("SELECT tc.mobile, tc.name, tc.linkman, tc.bizcode"
+                      "  FROM T_CORP AS tc, T_OPERATOR AS toper"
+                      "  WHERE toper.oid= %s"
+                      "    AND toper.corp_id = tc.cid",
+                      oid) 
         return corp 
 
     @staticmethod

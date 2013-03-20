@@ -20,16 +20,20 @@ class MainHandler(BaseHandler):
         status=ErrorCode.SUCCESS
         from_ = self.get_argument('from', '').lower()
         index_html = "index.html"
+        bizcode = None
         if self.current_user.oid != UWEB.DUMMY_OID:
             index_html = "index_corp.html"
             user_info = QueryHelper.get_operator_by_oid(self.current_user.oid, self.db)
+            corp_info = QueryHelper.get_corp_by_oid(self.current_user.oid, self.db)
             name = user_info.name if user_info else u''
             user_type = UWEB.USER_TYPE.OPERATOR
+            bizcode = corp_info.bizcode
         elif self.current_user.cid != UWEB.DUMMY_CID:
             index_html = "index_corp.html"
             user_info = QueryHelper.get_corp_by_cid(self.current_user.cid, self.db)
             name = user_info.linkman if user_info else u''
             user_type = UWEB.USER_TYPE.CORP
+            bizcode = user_info.bizcode
         else:
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             name = user_info.name if user_info else u''
@@ -76,6 +80,7 @@ class MainHandler(BaseHandler):
         self.render(index_html,
                     map_type=ConfHelper.LBMP_CONF.map_type,
                     user_type=user_type,
+                    bizcode=bizcode,
                     status=status,
                     name=name,
                     cars=terminals)
