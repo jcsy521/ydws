@@ -772,7 +772,7 @@ class MyGWServer(object):
                 SMSHelper.send(t_info['u_msisdn'], sms)
 
             # unbind terminal of to_be_unbind
-            if t_status and t_status.service_status == GATEWAY.SERVICE_STATUS.TO_BE_UNBIND:
+            if t_status and t_status.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
                 logging.info("[GW] Terminal: %s is unbinded, send unbind packet.", t_info["dev_id"])            
                 seq = str(int(time.time()*1000))[-4:]
                 args = DotDict(seq=seq,
