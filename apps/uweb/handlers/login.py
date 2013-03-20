@@ -412,11 +412,11 @@ class IOSLogoutHandler(BaseHandler):
                 logging.info("[UWEB] uid:%s, tid:%s set mannual status  successfully", 
                              self.current_user.uid, tid)
         finally:
-            #2: clear cookie
-            ios_id_key = get_ios_id_key(self.current_user.uid)
-            ios_badge_key = get_ios_badge_key(self.current_user.uid)
-            keys = [ios_id_key, ios_badge_key]
-            self.redis.delete(*keys)
+            #2: clear cookie, 
+            #ios_id_key = get_ios_id_key(self.current_user.uid)
+            #ios_badge_key = get_ios_badge_key(self.current_user.uid)
+            #keys = [ios_id_key, ios_badge_key]
+            #self.redis.delete(*keys)
             self.clear_cookie(self.app_name)
             self.write_ret(ErrorCode.SUCCESS)
 

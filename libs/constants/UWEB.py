@@ -18,9 +18,9 @@ LOCATION_VALID_INTERVAL = 5 * 60 # 5 mins
 
 SMS_CAPTCHA_INTERVAL = 60*5 # 5 minutes. in seconds.
 
-IOS_ID_INTERVAL = 7 * 24 * 60 * 60 # one week. in seconds.
+IOS_ID_INTERVAL = 30 * 24 * 60 * 60 # one month. in seconds.
 
-IOS_MAX_SIZE = 180 # in bytes. 
+IOS_MAX_SIZE = 160 # in bytes. 
 
 USER_TYPE=DotDict(PERSON='individual',
                   CORP='enterprise',
