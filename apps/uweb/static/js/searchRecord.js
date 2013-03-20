@@ -268,7 +268,9 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 					
 						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
 						setTimeout (function () {
-							var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude, obj_tempData.clatitude);
+							// 为了正常显示暂时给告警的点加部分偏移进行显示:)
+							var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude-10000, obj_tempData.clatitude);
+							
 							dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
 						}, 100);
 				});

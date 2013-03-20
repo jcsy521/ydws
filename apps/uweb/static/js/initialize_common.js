@@ -283,7 +283,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 	var obj_carA = $('.j_carList a[tid='+n_tid+']');
 	
 	$.get_(SWITCHCAR_URL + '/' + n_tid, '', function (data) {	// 向后台发送切换请求
-		if ( data.status == 0 ) {
+		if ( data.status == 0 ) { 
 			// 更新当前车辆的详细信息显示
 			var	obj_carDatas = $('.j_carList').data('carsData'),
 				obj_terminals = $('.j_carList .j_terminal'),
@@ -312,6 +312,14 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 					dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
 				}
 				dlf.fn_moveMarker(n_tid);
+				/*集团用户切换变换轨迹要显示的终端 并清除地图*/
+				var str_trackStatus = $('#trackHeader').is(':visible'),  
+					str_currentCarAlias = $('.j_currentCar').text().substr(2, 11);
+	
+				if ( str_trackStatus ) {	
+					dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
+					$('#trackTerminalAliasLabel').html(str_currentCarAlias);
+				}
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			dlf.fn_updateLastInfo();
@@ -922,6 +930,8 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	if ( str_wrapperId != 'eventSearch' ) {
 		dlf.fn_closeDialog();
 		dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
+	} else { //如果是告警查询窗口,改变告警窗口位置以便显示告警位置图标
+		n_width -= 250;
 	}
 	
 	obj_wrapper.css({left: n_width}).show();

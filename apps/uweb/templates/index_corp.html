@@ -20,8 +20,11 @@
 	{% if status == 0 %}
 	<!-- top -->
 	<div id="top">
-		<div id="ads" title="移动车卫士">
-		</div>
+		{% if bizcode == 'ydxf' %}
+			<div id="ads" class="adsYDXF" title="移动车卫士"></div>
+		{% else %}		
+			<div id="ads" title="移动车卫士"></div>
+		{% end %}	
 		<div class="welcome" title="{{name}}">
 			<span id="spanWelcome">欢迎您，{{name if len(name)<=4 else name[:4]+"..."}}</span>
 		</div>
@@ -98,6 +101,10 @@
 			</div>
 			<div class="trackHeader hide" id="trackHeader">
 				<span class="trackPos">
+					<span id="trackTerminalAlias"> 
+						定位器名称：
+						<label id="trackTerminalAliasLabel"></label>
+					</span>
 					<span class="timeTip">时间范围:</span>
 					<span class="trackTime">
 						<input type="text" class="time" id="trackBeginTime" />

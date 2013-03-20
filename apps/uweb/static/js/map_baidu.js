@@ -112,7 +112,7 @@ window.dlf.fn_addOverlay = function(obj_overlay) {
 * 清除页面上的地图图形数据
 * obj_overlays: 要删除的图层对象,如果没有则清除地图上所有图层
 */
-window.dlf.fn_clearMapComponent = function(obj_overlays) {
+window.dlf.fn_clearMapComponent = function(obj_overlays) { 
 	if ( obj_overlays ) {
 		mapObj.removeOverlay(obj_overlays);
 	} else {

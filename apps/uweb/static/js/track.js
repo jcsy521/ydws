@@ -27,6 +27,12 @@ window.dlf.fn_initTrack = function() {
 	// 调整工具条和
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	fn_closeAllInfoWindow();	
+	
+	var str_currentCarAlias = $('.j_currentCar').text().substr(2, 11);
+	
+	if ( dlf.fn_userType() ) {
+		$('#trackTerminalAliasLabel').html(str_currentCarAlias);
+	}
 }
 
 /**

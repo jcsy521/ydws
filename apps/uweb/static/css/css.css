@@ -1069,11 +1069,19 @@ body {
 	z-index: 1000;
 	top: 158px;
 }
+#trackTerminalAlias {
+	display: inline-block;
+    height: 36px;
+    left: -35px;
+    line-height: 36px;
+    position: relative;
+	width: 150px;
+}
 .trackPos {
 	display: inline-block;
     height: 36px;
 	line-height: 36px;
-    width: 514px;
+    width: 660px;
 	float: left;
 }
 .trackPos #ceillid_flag {
@@ -1085,6 +1093,10 @@ body {
 	padding-left: 19px;
 	*position: relative;
 	*top: -4px;
+}
+.trackPos #trackTerminalAliasLabel {
+	color: #119DED;
+	padding: 0px;
 }
 #trackSlide {
     display: inline-block;
@@ -1263,7 +1275,7 @@ body {
 	_top: 20px; /*ie6*/
 }
 #pagerContainer, #staticsPage, #operatorPage, #mileagePage {
-	width: 850px;
+	width: 750px;
 	height: 34px;
 	line-height: 34px;
 	margin:0 auto;
@@ -1449,6 +1461,11 @@ body {
 	background: url('/static/images/bannerAd.png') no-repeat;
 	_background-image: none;
 	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/bannerAd.png',sizingMethod='scale');
+}
+#top .adsYDXF {
+	background: url('/static/images/bannerAdYDXF.png') no-repeat;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/s.png',sizingMethod='scale');
 }
 /* getpassword start */
 .bdpwd {
@@ -2255,7 +2272,7 @@ legend {
     line-height: 34px;
     margin: 0 auto;
     text-align: center;
-    width: 850px;
+    width: 750px;
 }
 /*-------报表统计---*/
 #mileageWrapper, .mileageTitle {
