@@ -1002,15 +1002,15 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 									n_defendStatus = 0,
 									str_imgUrl = '';
 								if ( str_defendStatus == DEFEND_OFF ) { 
-									n_defendStatus = 1;
-									str_html = '已设防';
-									str_successMsg = '设防成功';
-									str_dImg= 'defend_status1.png';						
-								} else {
 									n_defendStatus = 0;
 									str_html = '未设防';
 									str_successMsg = '撤防成功';
-									str_dImg=  'defend_status0.png';
+									str_dImg=  'defend_status0.png';			
+								} else {
+									n_defendStatus = 1;
+									str_html = '已设防';
+									str_successMsg = '设防成功';
+									str_dImg= 'defend_status1.png';	
 								}
 								$('#defendContent').html(str_html).data('defend', n_defendStatus);
 								$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_html);
