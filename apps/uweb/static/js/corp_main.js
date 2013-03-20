@@ -1087,6 +1087,7 @@ function fn_removeTerminal(node) {
 	$('#vakata-contextmenu').hide();	// 右键菜单隐藏
 	
 	if ( confirm('确定要删除该定位器吗？') ) {
+		dlf.fn_jNotifyMessage('定位器正在删除中' + WAITIMG, 'message', true);
 		$.delete_(TERMINALCORP_URL + '?tid=' + str_param, '', function (data) {
 			if ( data.status == 0 ) {
 				fn_updateTerminalCount('sub', 1);				
@@ -1110,6 +1111,7 @@ function fn_removeTerminal(node) {
 				} else {
 					fn_initCarInfo();
 				}
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 				return false;
@@ -1129,7 +1131,7 @@ function fn_initBatchDeleteData(obj_params) {
 	
 	$('.j_batchDelete').unbind('click').bind('click', function() {
 		if ( confirm('确定要删除以上定位器吗？') ) {
-			dlf.fn_jNotifyMessage('定位器正在删除中' +　WAITIMG, 'message', false, 3000); // 查询状态不正确,错误提示
+			dlf.fn_jNotifyMessage('定位器正在删除中' +　WAITIMG, 'message', true); // 查询状态不正确,错误提示
 			$.post_(BATCHDELETE_URL, JSON.stringify(obj_param), function (data) {
 				var arr_res = data.res,	
 					arr_success = [],
@@ -1190,6 +1192,7 @@ function fn_initBatchDeleteData(obj_params) {
 					} else {
 						fn_initCarInfo();
 					}
+					dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 					return false;

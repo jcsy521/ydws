@@ -40,7 +40,7 @@
 					});
 					
 					if ( arr_mobiles.length > 0 ) {
-						dlf.fn_jNotifyMessage('定位器正在激活中...<img src="/static/images/blue-wait.gif" width="12px" />', 'message', false, 4000);
+						dlf.fn_jNotifyMessage('定位器正在激活中...<img src="/static/images/blue-wait.gif" width="12px" />', 'message', true);
 						obj_param.mobiles = arr_mobiles;
 						$.post_('/batch/JH', JSON.stringify(obj_param),function(data) {
 							if ( data.status == 0 ) {
@@ -62,6 +62,7 @@
 								$('.j_active').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);
 								
 								parent.dlf.fn_corpGetCarData();
+								dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 							} else {
 								dlf.fn_jNotifyMessage('定位器激活失败，请重新激活。', 'message', false, 4000);
 								return;
