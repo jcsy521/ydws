@@ -532,7 +532,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 
 	if ( str_iconType == 'actiontrack' ) {
 		str_html+='<li class="top10"><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
-			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹查询</a><a href="#" id="poiSearch" onclick="dlf.fn_POISearch('+ str_clon +', '+ str_clat +');" >周边查询</a></li>';
+			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹查询</a></li>';
 	}
 	str_html += '</ul></div>';
 	return str_html;

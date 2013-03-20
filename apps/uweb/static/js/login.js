@@ -14,6 +14,7 @@ $(function(){
 		obj_userGetPwd = $('#getPwd'),
 		obj_corpGetPwd = $('#corpGetPwd');
 	
+	$('#userRoleType').val(str_type);
 	if ( str_type == 'enterprise' ) {	// 集团用户
 		obj_sed.removeClass('other').addClass('current');
 		obj_first.removeClass('current').addClass('other');
