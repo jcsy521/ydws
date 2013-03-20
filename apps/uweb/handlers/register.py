@@ -92,13 +92,14 @@ class RegisterHandler(BaseHandler):
                             else:
                                 logging.info("[GW] User of %s already not exist.", tid)
                             # clear redis
-                            sessionID_key = get_terminal_sessionID_key(tid)
-                            address_key = get_terminal_address_key(tid)
-                            info_key = get_terminal_info_key(tid)
-                            lq_sms_key = get_lq_sms_key(tid)
-                            lq_interval_key = get_lq_interval_key(tid)
-                            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                            self.redis.delete(*keys)
+                            for item in [tid, tmobile]:
+                                sessionID_key = get_terminal_sessionID_key(item)
+                                address_key = get_terminal_address_key(item)
+                                info_key = get_terminal_info_key(item)
+                                lq_sms_key = get_lq_sms_key(item)
+                                lq_interval_key = get_lq_interval_key(item)
+                                keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                                self.redis.delete(*keys)
                         else:
                             status = ErrorCode.TERMINAL_ORDERED
                             logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",

@@ -59,6 +59,7 @@ class UNBindHandler(BaseHandler, BaseMixin):
                     logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
                                  self.current_user.uid, terminal.tid, tmobile)
                 else:
+                    status = response['success']
                     # unbind failed. clear sessionID for relogin, then unbind it again
                     sessionID_key = get_terminal_sessionID_key(terminal.tid)
                     self.redis.delete(sessionID_key)
@@ -69,7 +70,6 @@ class UNBindHandler(BaseHandler, BaseMixin):
                     ret = DotDict(json_decode(ret))
                     status = ret.status
                     if ret.status == ErrorCode.SUCCESS:
-                        status = ErrorCode.SUCCESS 
                         self.db.execute("UPDATE T_TERMINAL_INFO"
                                         "  SET service_status = %s"
                                         "  WHERE id = %s",
@@ -78,7 +78,6 @@ class UNBindHandler(BaseHandler, BaseMixin):
                         logging.info("[UWEB] uid: %s, tid: %s, tmobile: %s SMS unbind successfully.",
                                      self.current_user.uid, terminal.tid, tmobile)
                     else:
-                        status = ErrorCode.UNBIND_FAILED
                         logging.error("[UWEB] uid: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
                                       self.current_user.uid, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
                 self.write_ret(status)

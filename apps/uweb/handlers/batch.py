@@ -160,7 +160,7 @@ class BatchDeleteHandler(BaseHandler):
                     sessionID_key = get_terminal_sessionID_key(tid)
                     self.redis.delete(sessionID_key)
                     logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
-                                  self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
+                                  self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[response['success']])
                     unbind_sms = SMSCode.SMS_UNBIND  
                     ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
                     ret = DotDict(json_decode(ret))
@@ -241,13 +241,14 @@ class BatchJHHandler(BaseHandler):
                         else:
                             logging.info("[GW] User of %s already not exist.", tid)
                         # clear redis
-                        sessionID_key = get_terminal_sessionID_key(tid)
-                        address_key = get_terminal_address_key(tid)
-                        info_key = get_terminal_info_key(tid)
-                        lq_sms_key = get_lq_sms_key(tid)
-                        lq_interval_key = get_lq_interval_key(tid)
-                        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                        self.redis.delete(*keys)
+                        for item in [tid, tmobile]:
+                            sessionID_key = get_terminal_sessionID_key(item)
+                            address_key = get_terminal_address_key(item)
+                            info_key = get_terminal_info_key(item)
+                            lq_sms_key = get_lq_sms_key(item)
+                            lq_interval_key = get_lq_interval_key(item)
+                            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                            self.redis.delete(*keys)
                     else:
                         logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
                         r['status'] = ErrorCode.TERMINAL_ORDERED

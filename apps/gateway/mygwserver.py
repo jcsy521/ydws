@@ -1288,6 +1288,8 @@ class MyGWServer(object):
     def delete_terminal(self, dev_id):
         # clear db
         user = QueryHelper.get_user_by_tid(dev_id, self.db)
+        terminal = self.db.get("SELECT mobile FROM T_TERMINAL_INFO"
+                               "  WHERE tid = %s", dev_id)
         self.db.execute("DELETE FROM T_TERMINAL_INFO"
                         "  WHERE tid = %s", 
                         dev_id) 
@@ -1305,13 +1307,15 @@ class MyGWServer(object):
         else:
             logging.info("[GW] User of %s already not exist.", dev_id)
         # clear redis
-        sessionID_key = get_terminal_sessionID_key(dev_id)
-        address_key = get_terminal_address_key(dev_id)
-        info_key = get_terminal_info_key(dev_id)
-        lq_sms_key = get_lq_sms_key(dev_id)
-        lq_interval_key = get_lq_interval_key(dev_id)
-        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-        self.redis.delete(*keys)
+        tmobile = terminal.mobile if terminal else ""
+        for item in [dev_id, tmobile]:
+            sessionID_key = get_terminal_sessionID_key(item)
+            address_key = get_terminal_address_key(item)
+            info_key = get_terminal_info_key(item)
+            lq_sms_key = get_lq_sms_key(item)
+            lq_interval_key = get_lq_interval_key(item)
+            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+            self.redis.delete(*keys)
         # offline
         if dev_id in self.online_terminals:
             self.online_terminals.remove(dev_id)

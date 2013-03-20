@@ -295,13 +295,14 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     else:
                         logging.info("[GW] User of %s already not exist.", tid)
                     # clear redis
-                    sessionID_key = get_terminal_sessionID_key(tid)
-                    address_key = get_terminal_address_key(tid)
-                    info_key = get_terminal_info_key(tid)
-                    lq_sms_key = get_lq_sms_key(tid)
-                    lq_interval_key = get_lq_interval_key(tid)
-                    keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                    self.redis.delete(*keys)
+                    for item in [tid, data.tmobile]:
+                        sessionID_key = get_terminal_sessionID_key(item)
+                        address_key = get_terminal_address_key(item)
+                        info_key = get_terminal_info_key(item)
+                        lq_sms_key = get_lq_sms_key(item)
+                        lq_interval_key = get_lq_interval_key(item)
+                        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
+                        self.redis.delete(*keys)
                 else:
                     logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
                     status = ErrorCode.TERMINAL_ORDERED
@@ -468,6 +469,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
                              self.current_user.uid, tid, terminal.mobile)
             else:
+                status = response['success']
                 # unbind failed. clear sessionID for relogin, then unbind it again
                 sessionID_key = get_terminal_sessionID_key(tid)
                 self.redis.delete(sessionID_key)
