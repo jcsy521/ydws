@@ -28,10 +28,14 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	fn_closeAllInfoWindow();	
 	
-	var str_currentCarAlias = $('.j_currentCar').text().substr(2, 11);
+	var str_currentCarAlias = $('.j_currentCar').text().substr(2, 11), 
+		obj_trackPos = $('.trackPos');
 	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias);
+		obj_trackPos.css('width', 660);
+	} else {
+		obj_trackPos.css('width', 530);
 	}
 }
 
