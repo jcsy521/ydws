@@ -429,7 +429,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				$('#corpTree').jstree('check_node', arr_treeNodeChecked[i]);
 			}
 			arr_treeNodeChecked = [];
-		}		
+		}	
 	}).bind('contextmenu.jstree', function(event, data) {	// 右键除当前定位器外其余都不被选中
 		var obj_current = fn_nodeCurrentNode(event.target);					
 		
@@ -457,7 +457,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
 		} else {	// 集团或组	如果选中集团或组的话没有被选中的样式、上一次选中的定位器还被选中			
 			$('.j_terminal[tid='+ str_currentTid +']').addClass(JSTREECLICKED);
-			obj_current.removeClass(JSTREECLICKED);
+			$('.groupCss').removeClass('groupCss');
+			obj_current.removeClass(JSTREECLICKED).addClass('groupCss');
 			return false;
 		}
 	}).bind('dblclick.jstree', function(event, data) {
