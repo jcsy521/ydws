@@ -168,13 +168,20 @@ function fn_displayCurrentMarker(obj_location) {
 /**
 * 设防撤防初始化
 */
-window.dlf.fn_defendQuery = function() {
+window.dlf.fn_defendQuery = function(str_alias) {
 	var n_defendStatus = 0,	// 设防撤防状态
 		n_fob_status = 0,	// 挂件是否在附近 1: 在附近 0: 没在附近
 		obj_defend = {},	// 向后台传递设防撤防数据
 		obj_dMsg = $('#defendMsg'),	// 设防撤防状态的提示信息容器
-		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num'));	// 当前车辆的挂件数量
+		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num')),	// 当前车辆的挂件数量
+		obj_currentCar = $('.j_currentCar'),
+		str_tempAlias = '';
 	
+	if ( dlf.fn_userType() ) {
+		str_tempAlias = str_alias || obj_currentCar.text().substr(2);
+	} else {
+		str_tempAlias = obj_currentCar.siblings(0).html();
+	}
 	dlf.fn_dialogPosition('defend');	// 设置dialog的位置
 	dlf.fn_lockScreen();	//添加页面遮罩	
 	$.get_(DEFEND_URL, '', function(data) {
@@ -192,18 +199,19 @@ window.dlf.fn_defendQuery = function() {
 			$('.currentCar').attr('fob_status', n_fob_status);	// 更新最新的 挂件状态  ：是否在附近
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defendStatus = DEFEND_OFF;
-				str_tip = '您的定位器当前已设防。';
+				str_tip = '您的定位器'+ str_tempAlias +'当前已设防。';
 				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2'));	// 设置鼠标滑过设防或撤防按钮的样式
 				str_html = '已设防';
 				str_dImg = 'defend_status1.png';
 			} else {
 				n_defendStatus = DEFEND_ON;
-				str_tip = '您的定位器当前未设防。';
+				str_tip = '您的定位器'+ str_tempAlias +'当前未设防。';
 				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2'));	// 设置鼠标滑过设防或撤防按钮的样式
 				str_html = '未设防';
 				str_dImg = 'defend_status0.png';
 			}
 			obj_defend['mannual_status'] = n_defendStatus;
+			obj_defend['tids'] = str_cTid;
 			obj_dMsg.html(str_tip);
 			// 主页面设防状态
 			$('#defendContent').html(str_html).data('defend', str_defendStatus);
@@ -224,15 +232,39 @@ window.dlf.fn_defendQuery = function() {
 		* 判断设防撤防时挂件状态和定位器在线状态
 		* 1、挂件不在附近时如果defend_status 是0 jNoityMessage提示“挂件不在附近，确定要撤防吗？”
 		*/
-		var n_defendStatus = obj_defend['mannual_status'],	// 设防撤防状态
-			str_tip = '';
-			
-		if ( n_defendStatus == DEFEND_OFF ) {
-			str_tip = '撤防中';
-		} else {
-			str_tip = '设防中';
-		}
-		dlf.fn_jsonPost(DEFEND_URL, obj_defend, 'defend', str_tip);
+		fn_saveDefend(obj_defend);
 	}); 
+}
+
+function fn_saveDefend(obj_defend, b_corp) {
+	var n_defendStatus = obj_defend['mannual_status'],	// 设防撤防状态
+		str_tip = '',
+		str_wrapper = b_corp == true ? 'batchDefend' : 'defend';
+		
+	if ( n_defendStatus == DEFEND_OFF ) {
+		str_tip = '撤防中';
+	} else {
+		str_tip = '设防中';
+	}
+	
+	dlf.fn_jsonPost(DEFEND_URL, obj_defend, str_wrapper, str_tip);
+}
+
+/**
+* 批量设防撤防
+*/
+window.dlf.fn_initBatchDefend = function(str_defend, obj_param) {
+	$('#batchDefendWrapper').attr('title', '批量'+ str_defend +'定位器').dialog('option', 'title', '批量'+ str_defend +'定位器').dialog("open");
+	dlf.fn_echoData('batchDefendTable', obj_param, str_defend);
+	var obj_defend = {},
+		n_defendStatus = str_defend == '设防' ? DEFEND_ON : DEFEND_OFF;
+	
+	$('.j_batchDefend').removeClass('btn_delete').addClass('operationBtn').attr('disabled', false);	// 批量按钮变成灰色并且不可用
+	$('.j_batchDefend').val('批量' + str_defend).unbind('click').bind('click', function() {
+		obj_defend['mannual_status'] = n_defendStatus;
+		obj_defend['tids'] = obj_param['tids'].join(',');
+		
+		fn_saveDefend(obj_defend, true);
+	});
 }
 })();

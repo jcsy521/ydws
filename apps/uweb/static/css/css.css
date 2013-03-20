@@ -753,7 +753,7 @@ body {
     width: 84px;
 }
 .cTerminalList label {
-	width: 84px;
+	width: 96px;
 }
 .pwdList {
 	height: 144px;
@@ -2203,11 +2203,14 @@ legend {
 .fileStatus3 {
 	color: red;
 }
+.fileStatus4 {
+	color: #70CF24;
+}
 .errorMsg {
 	position: relative;
 	top: 30px;
 }
-.fileInfoTable, .excelInfoTable, .batchDeleteTable {
+.fileInfoTable, .excelInfoTable, .batchDeleteTable, .batchDefendTable {
 	border-collapse: collapse;
     border-color: gray;
     border-spacing: 2px;
@@ -2219,22 +2222,22 @@ legend {
 .excelInfoTable {
 	top: 12px;
 }
-.fileInfoTable td, .excelInfoTable td, .batchDeleteTable td {
+.fileInfoTable td, .excelInfoTable td, .batchDeleteTable td, .batchDefendTable td {
 	background: #FCFCFC;
 	text-align: center;
 	border-top: 1px solid #DDD;
 	border-bottom: 1px solid #DDD;
 	height: 38px;
 }
-.excelInfoTable tfoot td, .batchDeleteTable tfoot td {
+.excelInfoTable tfoot td, .batchDeleteTable tfoot td, .batchDefendTable tfoot td {
 	text-align: right;
 	padding-right: 15px;
 }
-.excelInfoTable th, .batchDeleteTable th {
+.excelInfoTable th, .batchDeleteTable th, .batchDefendTable th {
 	background-color: #FFFFE1;
 	height: 30px;
 }
-.batchDeleteTable {
+.batchDeleteTable, .batchDefendTable {
 	width: 560px;
 	top: 0px;
 	margin: 10px 0px;

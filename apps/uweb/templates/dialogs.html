@@ -553,7 +553,7 @@
 					</tr>
 					<tr>
 						<td>
-							<label><font class="txtColor"></font>短信接收号码：</label>
+							<label><font class="txtColor">* </font>短信接收号码：</label>
 							<input type="text" name="c_umobile" id="c_umobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="uMobile" msg="短信接收号码格式不正确！"  parent="cTerminalWrapper" />
 						</td>
 					</tr>
@@ -859,4 +859,29 @@
 			<a href="#" id="mileage" class="mileage j_click"></a>
 		</li>
 	</ul>
+	<!-- 批量设防撤防数据回显 -->
+	<div class="hide" id="batchDefendWrapper">
+		<table class="dataTable batchDefendTable">
+			<thead>
+				<tr>
+					<th colspan="4"></th>
+				</tr>
+				<tr>
+					<td>车牌号</td>
+					<td>定位器号码</td>
+					<td>设防状态</td>
+					<td>操作</td>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="4">
+						<input type="button" class="operationBtn j_batchDefend" value="批量"  />
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
 </div>

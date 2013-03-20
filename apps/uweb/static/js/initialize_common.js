@@ -266,7 +266,7 @@ window.dlf.fn_bindCarListItem = function() {
 			n_mouseWhick = event.which;
 			
 		if (n_mouseWhick == 1 ) {
-			if ( str_className.search('j_currentCar') != -1 || str_className.search('jstree-clicked') != -1 ) { // 如果用户点击当前车辆不做操作
+			if ( str_className.search('j_currentCar') != -1 || str_className.search(JSTREECLICKED) != -1 ) { // 如果用户点击当前车辆不做操作
 				return;
 			}
 			dlf.fn_switchCar(n_tid, obj_currentCar); // 车辆列表切换
@@ -305,8 +305,11 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 					dlf.fn_getCarData('first');
 				}
 			} else {
-				obj_terminals.removeClass('jstree-clicked');
-				obj_currentItem.addClass('jstree-clicked');
+				obj_terminals.removeClass(JSTREECLICKED);
+				obj_currentItem.addClass(JSTREECLICKED);
+				
+				str_checkedNodeId = '#leafNode_' + n_tid;
+				$('#corpTree').jstree('check_node', str_checkedNodeId);	  // 单击同时选中定位器
 				str_currentTid = n_tid;
 				if ( obj_carDatas ) {
 					dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
@@ -374,9 +377,9 @@ window.dlf.fn_getCarData = function(str_flag) {
 	* 判断是否是第一次请求lastinfo
 	*/
 	if ( LASTINFOCACHE == 0 ) {
-		LASTINFOCACHE = 1;
+		LASTINFOCACHE = 0;
 	} else {
-		obj_tids.cache = 1;
+		obj_tids.cache = 0;
 	}
 	
 	$.post_(LASTINFO_URL, JSON.stringify(obj_tids), function (data) {	// 向后台发起lastinfo请求
@@ -969,41 +972,73 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 	
 	$.post_(url, JSON.stringify(obj_data), function (data) {
 		var f_warpperStatus = !obj_cWrapper.is(':hidden');
+		
 		if ( f_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,不进行后续操作
 			if ( data.status == 0 ) {
-				if ( str_who == 'defend' ) {	// 如果是设防撤防操作
-					var str_defendStatus = parseInt($('#defendContent').data('defend')),
-						str_html = '',
-						str_dImg = '',
-						str_successMsg = '',
-						n_defendStatus = 0,
+				if ( str_who == 'defend' || str_who == 'batchDefend' ) {	// 如果是设防撤防操作					
+					dlf.fn_jNotifyMessage(str_successMsg, 'message', false, 3000);
+					var arr_tids = obj_data.tids.split(','),
+						n_length = arr_tids.length,
+						obj_carList = $('.j_carList'),
+						obj_carsData = obj_carList.data('carsData'),
 						obj_currentCar = $('.j_currentCar'),
 						str_tid = obj_currentCar.attr('tid'),
-						obj_carList = $('.j_carList'),	
-						obj_carData = obj_carList.data('carsData'),
-						str_imgUrl = '';
+						n_status = obj_data.mannual_status,
+						str_defendMsg = n_status == 1 ? '已设防' : '未设防',
+						str_poDefendMsg = n_status == 0 ? '已设防' : '未设防',
+						arr_datas = data.res;
 					
-					if ( str_defendStatus == DEFEND_OFF ) { 
-						n_defendStatus = 1;
-						str_html = '已设防';
-						str_successMsg = '设防成功';
-						str_dImg= 'defend_status1.png';						
-					} else {
-						n_defendStatus = 0;
-						str_html = '未设防';
-						str_successMsg = '撤防成功';
-						str_dImg=  'defend_status0.png';
-					}
-					$('#defendContent').html(str_html).data('defend', n_defendStatus);
-					for ( var param in obj_carData ) {
-						if ( param == str_tid ) {
-							obj_carData[str_tid].mannual_status = n_defendStatus;	// 改变缓存中的设防撤防状态
+					if ( n_length > 0 ) {	// 批量设防撤防
+						for ( var i in arr_tids ) {
+							var str_tempTid = arr_tids[i];
+							
+							obj_carsData[str_tempTid].mannual_status = n_status;
+							if ( str_tid == str_tempTid ) {	// 如果批量中有当前定位器
+								// todo 如果是集团用户 1、修改cardata里的数据  2、批量设防撤防如果有当前定位器要修改页面状态
+								var str_defendStatus = parseInt(n_status),
+									str_html = '',
+									str_dImg = '',
+									str_successMsg = '',
+									n_defendStatus = 0,
+									str_imgUrl = '';
+								if ( str_defendStatus == DEFEND_OFF ) { 
+									n_defendStatus = 1;
+									str_html = '已设防';
+									str_successMsg = '设防成功';
+									str_dImg= 'defend_status1.png';						
+								} else {
+									n_defendStatus = 0;
+									str_html = '未设防';
+									str_successMsg = '撤防成功';
+									str_dImg=  'defend_status0.png';
+								}
+								$('#defendContent').html(str_html).data('defend', n_defendStatus);
+								$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_html);
+							}
 						}
+						if ( str_who == 'batchDefend' ) {	// 如果是批量设防撤防
+							for ( var x = 0; x < arr_datas.length; x++ ) {
+								var obj_result = arr_datas[x],
+									n_resultStatus = obj_result.status,
+									str_resTid = obj_result.tid,
+									obj_updateStatusTd = $('.batchDefendTable tbody td[tid='+ str_resTid +']'),
+									str_msg = '',
+									obj_updateDefendTd = obj_updateStatusTd.prev();
+								
+								if ( n_resultStatus == 0 ) {
+									obj_updateStatusTd.html('操作成功').addClass('fileStatus4');
+									obj_updateDefendTd.html(str_defendMsg);
+								} else {
+									obj_updateStatusTd.html('操作失败').addClass('fileStatus3');
+									obj_updateDefendTd.html(str_poDefendMsg);
+								}
+							}
+						}				
+						obj_carList.data('carData', obj_carsData);
+						dlf.fn_clearNavStatus('defend');
+						$('.j_batchDefend').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);	// 批量按钮变成灰色并且不可用
+						dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 					}
-					obj_carList.data('carData', obj_carData);
-					$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_html);
-					dlf.fn_clearNavStatus('defend');
-					dlf.fn_jNotifyMessage(str_successMsg, 'message', false, 3000);
 				} else if ( str_who == 'cTerminal' ) {	// 新增定位器
 					// todo 添加节点到对应group上    或者重新加载lastinfo
 					$('#corpTree').jstree("create", $('#group_'+ obj_data.group_id), 'first', obj_data.tmobile); 

@@ -17,7 +17,7 @@
 				
 				$('#gid').val(n_gid);
 				$('.j_thead').html(str_gname);
-				
+				$('.j_active').removeClass('btn_delete').addClass('operationBtn').attr('disabled', false);
 				// 文件上传
 				$("input.fileUpload").filestyle({ 
 					image: "/static/images/file.png",
@@ -40,18 +40,24 @@
 					});
 					
 					if ( arr_mobiles.length > 0 ) {
+						dlf.fn_jNotifyMessage('定位器正在激活中...<img src="/static/images/blue-wait.gif" width="12px" />', 'message', false, 4000);
 						obj_param.mobiles = arr_mobiles;
 						$.post_('/batch/JH', JSON.stringify(obj_param),function(data) {
 							if ( data.status == 0 ) {
 								var arr_datas = data.res;
 								
+								dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 								for ( var x = 0; x < arr_datas.length; x++ ) {
 									var obj_result = arr_datas[x],
 										n_status = obj_result.status,
-										str_msg = n_status == 0 ? '激活指令已下发' : '激活失败',	// 返回的状态
-										str_tmobile = obj_result.tmobile;
+										str_tmobile = obj_result.tmobile,
+										obj_updateTd = $('.j_notActived[tmobile='+ str_tmobile +']').children('td').eq(2);
 									
-									$('.j_notActived[tmobile='+ str_tmobile +']').children('td').eq(2).html(str_msg);
+									if ( n_status == 0 ) {
+										obj_updateTd.html('激活指令已下发').addClass('fileStatus4');
+									} else {
+										obj_updateTd.html('激活失败').addClass('fileStatus3');
+									}
 								}
 								$('.j_active').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);
 								
