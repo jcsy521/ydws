@@ -308,8 +308,10 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				obj_terminals.removeClass(JSTREECLICKED);
 				obj_currentItem.addClass(JSTREECLICKED);
 				
+				/* 
 				str_checkedNodeId = '#leafNode_' + n_tid;
 				$('#corpTree').jstree('check_node', str_checkedNodeId);	  // 单击同时选中定位器
+				*/
 				str_currentTid = n_tid;
 				if ( obj_carDatas ) {
 					dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
