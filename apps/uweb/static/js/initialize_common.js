@@ -59,10 +59,10 @@ window.dlf.fn_closeDialog = function() {
 	var f_eventSearchWpST = $('#eventSearchWrapper').is(':visible'),  //告警窗口是否在打开状态
 		f_staticsWpST = $('#staticsWrapper').is(':visible'),  //告警统计窗口是否在打开状态
 		f_mileageWpST = $('#mileageWrapper').is(':visible'),  //里程统计窗口是否在打开状态
-		str_trackClass = $('#track').attr('class');; // 轨迹的样式
+		b_trackClass = $('#trackHeader').is(':hidden'); // 轨迹的样式
 	
 	if ( f_eventSearchWpST || f_staticsWpST || f_mileageWpST ) { 
-		if ( str_trackClass.search('trackHover') != -1 ) {
+		if ( !b_trackClass ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询 不操作lastinfo
 		} else {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
@@ -981,7 +981,7 @@ window.dlf.fn_onInputBlur = function() {
 * dialog弹出框的位置计算并显示
 * str_wrapperId: 弹出框对象的ID
 */ 
-dlf.fn_dialogPosition = function ( str_wrapperId ) { 
+dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	var obj_wrapper = $('#'+ str_wrapperId+'Wrapper'), 
 		n_wrapperWidth = obj_wrapper.width(),
 		n_width = ($(window).width() - n_wrapperWidth)/2;

@@ -16,7 +16,7 @@ var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, f_trackMsgS
 */
 window.dlf.fn_initTrack = function() {
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
-	$('#track').addClass('trackHover'); // 导航显示操作中的样式 
+	// $('#track').addClass('trackHover'); // 导航显示操作中的样式 
 	dlf.fn_closeDialog();
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询

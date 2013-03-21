@@ -40,7 +40,9 @@ function customMenu(node) {
 		terminalLabel = '',	// 参数设置
 		deleteLabel = '',	// 删除lable
 		batchDefendLabel = '',	// 批量设防*撤防
-		singleDefendLabel = '';	// 单个定位器设防撤防
+		singleDefendLabel = '',	// 单个定位器设防撤防
+		realtimeLabel = '',	// 单个定位器设防撤防
+		trackLabel = '';	// 单个定位器设防撤防
 	
 	if ( obj_node.hasClass('j_corp') ) {		// 集团右键菜单
 		renameLabel = '重命名集团';
@@ -56,6 +58,8 @@ function customMenu(node) {
 	} else {									// 定位器右键菜单
 		terminalLabel = '参数设置';
 		deleteLabel = '删除定位器';
+		realtimeLabel = '实时定位';
+		trackLabel = '轨迹查询';
 		eventLabel = '告警查询';
 		moveToLabel = '移动定位器';
 		singleDefendLabel = '设防/撤防';
@@ -86,11 +90,22 @@ function customMenu(node) {
 				}
 			}
 		},
+		"realtime": {
+			"label" : realtimeLabel,
+			"action" : function(obj) {	// 实时定位初始化				
+				dlf.fn_currentQuery();
+			}
+		},
+		"track": {
+			"label" : trackLabel,
+			"action" : function(obj) {	// 轨迹查询初始化				
+				dlf.fn_initTrack();
+			}
+		},
 		"event": {
 			"label" : eventLabel,
-			"action" : function(obj) {
-				// todo 告警查询初始化
-				dlf.fn_initRecordSearch('event');
+			"action" : function(obj) {	// 告警查询初始化
+				dlf.fn_initRecordSearch('eventSearch');
 			}
 		},
 		"terminalSetting": {	// 参数设置
@@ -193,12 +208,16 @@ function customMenu(node) {
 		delete items.terminalSetting;
 		delete items.batchDefend;
 		delete items.defend;
+		delete items.realtime;
+		delete items.track;
    }
    if ( obj_node.hasClass('j_group') ) {
 		delete items.moveTo;
 		delete items.event;
 		delete items.terminalSetting;
 		delete items.defend;
+		delete items.realtime;
+		delete items.track;
    }
    if ( $('#u_type').val() == USER_OPERATOR ) {	// 操作员屏蔽右键
 		delete items.create;
@@ -386,7 +405,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				var obj_car = obj_carsData[param],
 					n_clon = obj_car.clongitude/NUMLNGLAT,	
 					n_clat = obj_car.clatitude/NUMLNGLAT;
-					
+				
 				if ( n_clon != 0 && n_clat != 0 ) {
 					dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
 				}

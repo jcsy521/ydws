@@ -1058,7 +1058,6 @@ body {
 .hide, .trackBtn .hide {
 	display: none;
 }
-
 .trackHeader {
 	background: url('/static/images/menuBg.png') repeat-x;
     height: 36px;
