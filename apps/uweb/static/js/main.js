@@ -331,12 +331,13 @@ window.onresize = function () {
 			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
 			n_right = n_windowWidth - 249,
-			n_trackLeft = ( n_windowWidth - 1300 )/2,
+			n_trackLeft = 0,
 			n_mainContent = n_windowHeight - 104,
 			n_mainHeight = n_windowHeight - 123,
 			n_corpTreeContainerHeight = n_mainHeight-220,
 			n_treeHeight = n_corpTreeContainerHeight - 45,
-			obj_tree = $('#corpTree');
+			obj_tree = $('#corpTree'),
+			obj_track = $('#trackHeader');
 		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 249;
@@ -353,6 +354,9 @@ window.onresize = function () {
 		}
 		obj_tree.height(n_treeHeight);
 		$('#right, #corpRight, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
+		
+		n_trackLeft = ( obj_track.width() ) / 4;
+		
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		$('#mapObj').css('height', n_mapHeight);
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
@@ -393,7 +397,7 @@ $(function () {
 		n_tilelayerLeft = n_windowWidth <= 1400 ? 1400 - 188 : n_windowWidth - 188,
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
-		n_trackLeft = ( n_windowWidth - 1300 )/2,
+		n_trackLeft = 0,
 		obj_track = $('#trackHeader'),
 		n_mainHeight = n_windowHeight - 123,
 		n_corpTreeContainerHeight = n_mainHeight-220,
@@ -414,6 +418,9 @@ $(function () {
 	}
 	obj_tree.height(n_treeHeight);
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
+	
+	n_trackLeft = ( obj_track.width() ) / 4;
+	
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight);
 	

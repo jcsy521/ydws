@@ -6,6 +6,7 @@
 * mapObj: 地图对象
 * actionMarker: 轨迹的动态marker 
 * currentLastInfo: 动态更新的定时器对象
+* str_currentPersonalTid: 上次lastinfo的选中个人用户定位器tid
 * arr_infoPoint: 通过动态更新获取到的车辆数据进行轨迹显示
 * f_infoWindowStatus: 吹出框是否显示
 * obj_localSearch: 周边查询对象 
@@ -23,9 +24,11 @@ var mapObj = null,
 	obj_localSearch = null,
 	wakeupInterval = null,
 	trackInterval  = null,
+	str_currentPersonalTid = '',
 	obj_polylines = {},
 	obj_actionTrack = {},
 	obj_selfmarkers = {};
+	
 	
 if ( !window.dlf ) { window.dlf = {}; }
 
@@ -304,6 +307,8 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				} else {
 					dlf.fn_getCarData('first');
 				}
+				// 个人用户操作成功保存当前车tid 
+				str_currentPersonalTid = n_tid;
 			} else {
 				obj_terminals.removeClass(JSTREECLICKED);
 				obj_currentItem.addClass(JSTREECLICKED);
@@ -350,7 +355,7 @@ window.dlf.fn_updateLastInfo = function() {
 		} else {
 			dlf.fn_corpGetCarData();
 		}		
-	}, INFOTIME); 
+	}, 10000); 
 }
 
 /**
@@ -375,14 +380,6 @@ window.dlf.fn_getCarData = function(str_flag) {
 		}
 	}
 	obj_tids.tids = arr_tids;
-	/**
-	* 判断是否是第一次请求lastinfo
-	*/
-	if ( LASTINFOCACHE == 0 ) {
-		LASTINFOCACHE = 0;
-	} else {
-		obj_tids.cache = 0;
-	}
 	
 	$.post_(LASTINFO_URL, JSON.stringify(obj_tids), function (data) {	// 向后台发起lastinfo请求
 			if ( data.status == 0 ) {
@@ -392,47 +389,26 @@ window.dlf.fn_getCarData = function(str_flag) {
 				if ( !dlf.fn_isEmptyObj(obj_cars) ) {
 					return;
 				}
+				
+				// 重新生成终端列表
+				fn_createTerminalList(obj_cars);
 				for(var param in obj_cars) {
 					var obj_carInfo = obj_cars[param], 
 						str_tid = param,
-						str_alias = obj_carInfo.alias,
-						str_loginst = obj_carInfo.login,
-						n_keyNum = obj_carInfo.keys_num,	// 挂件数量
-						n_fob_status = obj_carInfo.fob_status,	// 挂件是否在附件
-						obj_carA = $('.j_carList a[tid='+str_tid+']'),
-						obj_img = obj_carA.children().eq(0),	// 在线离线图
-						obj_carLi = obj_carA.parent(),
-						obj_child2 = obj_carLi.children().eq(2), 
-						obj_child1 = obj_carLi.children().eq(1),
 						n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 						n_clat = obj_carInfo.clatitude/NUMLNGLAT;
 						
 					obj_carInfo.tid = str_tid; 
 					obj_carInfo.name = '';
 					obj_tempData[str_tid] = obj_carInfo;
+					
 					if ( n_clon != 0 && n_clat != 0 ) {					
 						if ( obj_carInfo ) {
 							//obj_carA.data('carData', obj_carInfo);
 							dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
 						}
 					}
-					obj_child1.html(str_alias).attr('title', str_alias);	// 修改别名
 					
-					/**
-					* 动态修改车辆当前连接状态
-					*/
-					if ( str_loginst == LOGINOUT ) {	// 离线
-						obj_carA.removeClass('carlogin').addClass('carlogout');
-						obj_img.attr('src', BASEIMGURL + 'carout1.png');
-						obj_child1.removeClass('green blue').addClass('gray');
-						obj_child2.removeClass('green blue').addClass('gray').html('(离线)');
-					} else {	// 除离线外都是在线
-						obj_carA.removeClass('carlogout').addClass('carlogin');
-						obj_img.attr('src', BASEIMGURL + 'car1.png');
-						obj_child1.removeClass('gray blue').addClass('green');
-						obj_child2.removeClass('gray blue').addClass('green').html('(在线)');
-					}
-					obj_carA.attr('clogin', str_loginst).attr('keys_num', n_keyNum).attr('fob_status', n_fob_status);
 					if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
 						dlf.fn_updateTerminalInfo(obj_carInfo);
 					}
@@ -511,7 +487,69 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	$('#lat').html(str_clat);	// 车辆纬度
 	$('#speed').html(str_speed); // 定位器最后一次定位速度
 }
-
+/*
+* 重新生成终端列表
+* obj_carDatas: 终端数据
+*/
+function fn_createTerminalList(obj_carDatas) {
+	var str_carListHtml = '', 
+		obj_carListUl = $('.j_carList'), 
+		obj_tempSelfMarker = {};
+	
+	for(var param in obj_carDatas) {
+		var obj_carInfo = obj_carDatas[param], 
+			str_tid = param, // 终端 tid
+			str_loginStatus = obj_carInfo.login, //终端状态
+			str_alias = obj_carInfo.alias, // 终端车牌号
+			str_carLoginClass = 'carlogin ', 
+			str_carLoginImg = 'car1',
+			str_carLoginColor = 'green',
+			str_carLoginText = '在线', 
+			str_carClass = 'j_terminal', 
+			obj_currentSelfMarker = obj_selfmarkers[str_tid];
+		
+		if ( str_loginStatus == LOGINOUT ) { // 终端离线
+			str_carLoginClass = 'carlogout ';
+			str_carLoginImg = 'carout1';
+			str_carLoginColor = 'gray',
+			str_carLoginText = '离线';
+		}
+		if ( str_currentPersonalTid == str_tid ) { // 如果是当前终端
+			str_carClass = ' j_currentCar currentCarCss ' + str_carClass;
+		} 
+		str_carListHtml += '<li>'
+						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="'+ str_alias +'" href="#"><img src="/static/images/'+ str_carLoginImg +'.png"></a>'
+						+'<div class="'+ str_carLoginColor +'" title="'+ str_alias +'">'+ str_alias +'</div>'
+						+'<div class="'+ str_carLoginColor +'">('+ str_carLoginText +')</div></li>';
+						
+						
+		if ( obj_currentSelfMarker ) {
+			obj_tempSelfMarker[str_tid] = obj_currentSelfMarker; 
+			obj_selfmarkers[str_tid] = undefined;
+		} else {
+			obj_actionTrack[str_tid] = {'status': '', 'interval': ''}
+		}
+	}
+	
+	obj_carListUl.html(str_carListHtml); // 将新生成的终端列表进行填充到页面上
+	
+	// 将不使用的终端的marker信息并从地图上清除
+	for ( var param in  obj_selfmarkers ) {
+		var str_tempTSelfMarker = obj_selfmarkers[param];
+		
+		if ( str_tempTSelfMarker ) {
+			dlf.fn_clearMapComponent(str_tempTSelfMarker);
+			if ( param == str_currentPersonalTid ) { // 如果当前车被 删除 
+				var obj_tempCurrentCar = $('#carList a ').eq(0),
+					str_tempTid = obj_tempCurrentCar.attr('tid');
+					
+				dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar); // 车辆列表切换
+			}
+		}
+	}
+	obj_selfmarkers = obj_tempSelfMarker;
+	dlf.fn_bindCarListItem(); //绑定终端 点击事件
+}
 /** 
 * 转换GPS,GSM,power,degree 为相应的值
 * str_key: gsm、gps、power、degree
@@ -642,6 +680,18 @@ window.dlf.fn_processDegree = function(n_degree) {
 window.dlf.fn_isEmptyObj = function (obj){
     return ((function(){for(var k in obj)return k})()!=null?true:false)
 }
+/**
+* 判断object对象有数据属性的个数
+*/
+window.dlf.fn_getObjNums = function (obj){
+	var n_nums = 0;
+	for(var k in obj) {
+		if ( obj[k] ) {
+			n_nums ++;
+		}
+	}
+	return n_nums;
+}
 
 /**
 * 根据相应的报警状态码显示相应的报警提示
@@ -712,7 +762,7 @@ window.dlf.fn_clearRealtimeTrack = function(str_tid) {
 				str_tempTid = $(this).attr('tid');
 			
 			dlf.fn_clearInterval(obj_tempTrackInterval);
-			obj_actionTrack[str_tempTid] = 'yes';
+			obj_actionTrack[str_tempTid].status = 'yes';
 		});
 	}
 }
@@ -726,8 +776,7 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 	
 	$.post_(BEGINTRACK_URL, JSON.stringify(obj_param), function(data) {
 		if ( data.status == 0 ) {
-			var obj_carLi = $('.j_carList a[tid='+str_tid+']'),
-				obj_trackMsg = $('#trackMsg'),
+			var obj_trackMsg = $('#trackMsg'),
 				obj_trackWrapper = $('#trackWrapper'),	// 定位器唤醒提示容器
 				obj_trackTimer = $('#trackTimer'),	// 定位器提示框计时器容器
 				n_timer = parseInt(obj_trackTimer.html()),
@@ -748,7 +797,7 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 			
 			trackInterval = setInterval(function() {
 				if ( n_timer > 600 ) {
-					dlf.fn_clearInterval(obj_carLi.data('selfTrackInterval'));
+					dlf.fn_clearInterval(obj_actionTrack[str_tid].interval);
 					obj_trackWrapper.show();
 					obj_trackMsg.html('定位器追踪时间已到，将取消追踪。');
 					setTimeout(function() { 
@@ -757,14 +806,25 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 				}
 				n_timer++;
 			}, 1000);
-			obj_carLi.data('selfTrackInterval', trackInterval);
+			obj_actionTrack[str_tid].interval = trackInterval;
 		} else {
 			dlf.setTrack(str_tid, selfItem);
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 4000);
 		}
 	});
 }
-           
+/*
+* 通过tid取得当前tid的actiontrack状态
+*/      
+window.dlf.fn_getActionTrackStatus = function(str_tid) {
+	var obj_tempActionTrack = obj_actionTrack[str_tid];
+	
+	if ( obj_tempActionTrack ) {
+		return 	obj_tempActionTrack.status;
+	} else {
+		return 'no';
+	}
+}
 /**
 * 业务变更提示 
 * str_type: event

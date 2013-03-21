@@ -60,7 +60,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_tempPoint = new MMap.LngLat(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
 		actionPolyline = null, // 轨迹线对象
-		str_actionTrack = obj_actionTrack[str_tid],		// obj_carA.attr('actiontrack'), 
+		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),		// obj_carA.attr('actiontrack'), 
 		obj_selfMarker = obj_selfmarkers[str_tid],		// obj_carA.data('selfmarker'), 
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
 		obj_selfPolyline = 	obj_polylines[str_tid],		// obj_carA.data('selfpolyline'),
@@ -152,7 +152,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 */
 window.dlf.setTrack = function(str_tid, selfItem) {
 	var obj_carLi = $('.j_carList a[tid='+str_tid+']'), 
-		str_actionTrack = obj_actionTrack[str_tid],	// obj_carLi.attr('actiontrack'),
+		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// obj_carLi.attr('actiontrack'),
 		obj_selfMarker = obj_selfmarkers[str_tid],	// obj_carLi.data('selfmarker'), 
 		obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,  // 获取吹出框
 		str_content = obj_selfInfoWindow.getContent(), // 吹出框内容
@@ -178,7 +178,7 @@ window.dlf.setTrack = function(str_tid, selfItem) {
 	obj_selfMarker.selfInfoWindow = new MMap.InfoWindow({content: str_content});
 	//obj_selfInfoWindow.setContent(str_content);		// todo
 	obj_selfMarker.selfInfoWindow.open(mapObj, obj_selfMarker.getPosition());
-	obj_actionTrack[str_tid] = str_tempAction;
+	obj_actionTrack[str_tid].status = str_tempAction;
 	obj_selfmarkers[str_tid] = obj_selfMarker;
 	$(selfItem).html(str_tempMsg);
 }

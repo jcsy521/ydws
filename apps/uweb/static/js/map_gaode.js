@@ -433,7 +433,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_alias = obj_location.alias,
 		str_title = '车辆：',
 		str_tempMsg = '开始跟踪',
-		str_actionTrack = obj_actionTrack[str_tid],	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
+		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
 	
 	if ( str_actionTrack == 'yes' ) {
