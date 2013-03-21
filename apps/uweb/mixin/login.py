@@ -90,7 +90,7 @@ class LoginMixin(BaseMixin):
 
                 if not terminals: 
                     status = ErrorCode.TERMINAL_NOT_ORDERED
-                    return None, None, None, None, None, user_type, status 
+                    return None, None, None, None, user_type, status 
                 else:
                     uid = user.uid
             else:
