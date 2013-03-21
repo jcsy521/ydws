@@ -1096,8 +1096,9 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 *obj_data: 需要向后台发送的数据
 *str_who: 发起此次操作的源头
 *msg: 发送中的消息提示
+*str_tid: 集团用户的右键菜单参数设置
 */
-window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
+window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 	var obj_cWrapper = $('#'+str_who+'Wrapper'), 
 		obj_content = $('.'+str_who+'Content');
 	
@@ -1155,7 +1156,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				} else if ( str_who == 'terminal' ) {	// 定位器参数设置修改
+				} else if ( str_who == 'terminal' || str_who == 'corpTerminal' ) {	// 定位器参数设置修改
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						var str_val = obj_data[param];
 						
@@ -1179,7 +1180,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg) {
 							if ( param == 'corp_cnum' ) {
 								dlf.fn_updateCorpCnum(obj_data[param]);
 							}
-							$('#' + param ).attr('t_val', str_val);
+							$('#corp_corp_cnum' ).attr('t_val', str_val);
 						}
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);

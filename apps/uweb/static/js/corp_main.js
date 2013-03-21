@@ -369,7 +369,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			fn_renameCorp(obj_current.attr('corpid'), str_newName, data.rlbk)
 		}
 	}).bind('loaded.jstree', function(e, data) {	// 树节点加载完成事件
-		 data.inst.open_all(-1);	// 默认展开所有的节点
+		data.inst.open_all(-1);	// 默认展开所有的节点
 		dlf.fn_setCorpIconDiffBrowser();
 		// 更新定位器总数
 		fn_updateTerminalCount();
@@ -431,17 +431,18 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			arr_treeNodeChecked = [];
 		}	
 	}).bind('contextmenu.jstree', function(event, data) {	// 右键除当前定位器外其余都不被选中
-		var obj_current = fn_nodeCurrentNode(event.target);					
+		var obj_current = fn_nodeCurrentNode(event.target),
+			obj_currentCarParent = $('.j_terminal[tid='+ str_currentTid +']').parent();
 		
-		$('.j_terminal[tid='+ str_currentTid +']').addClass(JSTREECLICKED);
 		if ( obj_current.b_terminalClass ) {	// 如果选中的是定位器
 			var str_tid = obj_current.attr('tid');
 			
 			if ( str_currentTid == str_tid ) {	// 如果是同辆车则不switchcar
 				return;
-			} else {
-				obj_current.removeClass(JSTREECLICKED);
 			}
+			$('#corpTree').jstree('uncheck_node.jstree', 'leafNode_'+ str_currentTid);
+			// obj_currentCarParent.removeClass('jstree-checked');
+			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
 		} else {
 			obj_current.removeClass(JSTREECLICKED);
 		}
@@ -836,13 +837,15 @@ window.dlf.fn_updateTerminalLogin = function(obj_this) {
 /**
 * 集团用户 /terminal get和put的时候更新最新的定位器别名
 * cnum: 要更新的定位器别名
+* str_tid: 集团用户右键参数设置中修改车牌号
 */
 window.dlf.fn_updateCorpCnum = function(cnum) {
 	var obj_current = $('.j_currentCar'),
 		str_cnum = cnum['corp_cnum'] == undefined ? cnum : cnum['corp_cnum'],
 		str_tmobile = obj_current.attr('title'),
 		str_tempAlias = str_cnum,
-		str_tid = str_currentTid;
+		str_tid = str_currentTid,
+		obj_selfMarker = obj_selfmarkers[str_tid];
 	
 	if ( str_cnum == '' ) {
 		str_tempAlias = str_tmobile;
@@ -863,7 +866,18 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 			}
 			obj_terminal.label = str_newLabel;
 			dlf.fn_initAutoComplete();
+			// todo 修改marker上的车牌号和label的车牌号
 		}
+	}
+	if ( obj_selfMarker ) {	// 修改 marker label 别名
+		var	str_content = obj_selfMarker.selfInfoWindow.getContent(),
+			n_beginNum = str_content.indexOf('车辆：')+3,
+			n_endNum = str_content.indexOf('</h4>'),
+			str_oldname = str_content.substring(n_beginNum, n_endNum),
+			str_content = str_content.replace(str_oldname, str_tempAlias);
+					
+		obj_selfMarker.getLabel().setContent(str_tempAlias);	// todo
+		obj_selfMarker.selfInfoWindow.setContent(str_content);	// todo
 	}
 }
 
@@ -1100,7 +1114,7 @@ function fn_removeTerminal(node) {
 				var obj_current = $('.' + JSTREECLICKED),
 					b_class = obj_current.hasClass('groupNode'),
 					str_tid = obj_current.attr('tid') || $('.j_terminal').eq(0).attr('tid');
-						
+				
 				if ( str_tid != undefined ) {
 					if ( b_class ) {
 						obj_current = $('.j_terminal').eq(0);
