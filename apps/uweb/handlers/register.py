@@ -104,6 +104,8 @@ class RegisterHandler(BaseHandler):
                             status = ErrorCode.TERMINAL_ORDERED
                             logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
                                          umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
+
+                            self.write_ret(status)
                             return
 
                     register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
