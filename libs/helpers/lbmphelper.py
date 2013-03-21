@@ -130,12 +130,11 @@ def handle_location(location, redis, cellid=False, db=None):
         location.cLon = 0
         location.type = 0
         location.gps_time = int(time.time()) 
-        if db:
-            location.degree = get_last_degree(location, redis, db)
+        #if db:
+        #    location.degree = get_last_degree(location, redis, db)
         if cellid:
             location.type = 1
-            random_degree = random.randint(-15,15)
-            location.degree = location.degree + random_degree
+            location.degree = random.randint(0, 360)
             if location.cellid:
                 cellid_info = [int(item) for item in location.cellid.split(":")]
                 sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
