@@ -37,7 +37,8 @@ class LastInfoHandler(BaseHandler):
             
             terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
-                                      "    AND owner_mobile = %s",
+                                      "    AND owner_mobile = %s"
+                                      "    AND group_id = -1",
                                       UWEB.SERVICE_STATUS.ON, self.current_user.uid)
             tids = [terminal.tid for terminal in terminals]
 
@@ -62,9 +63,8 @@ class LastInfoHandler(BaseHandler):
                                            "  fob_status, mobile, login, gps, gsm,"
                                            "  pbat, keys_num"
                                            "  FROM T_TERMINAL_INFO"
-                                           "  WHERE tid = %s"
-                                           "    AND service_status = %s",
-                                           tid, UWEB.SERVICE_STATUS.ON)
+                                           "  WHERE tid = %s",
+                                           tid)
 
                     ## NOTE: because tids comes from database, so terminal  must be no-null, and the code here is no use.
                     #if not terminal:

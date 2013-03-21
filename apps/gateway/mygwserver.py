@@ -164,8 +164,8 @@ class MyGWServer(object):
                     if not status:
                         if not offline_lq_time:
                             self.send_lq_sms(dev_id)
-                            self.redis.setvalue(offline_lq_key, int(time.time()), 5*60)
-                        elif (time.time() - offline_lq_time) > 2 * 60:
+                            self.redis.setvalue(offline_lq_key, int(time.time()), 15*60)
+                        elif (time.time() - offline_lq_time) > 10 * 60:
                             self.heartbeat_lost_report(dev_id)
                             self.redis.delete(offline_lq_key)
                         else:
