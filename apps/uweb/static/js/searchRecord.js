@@ -95,7 +95,6 @@ window.dlf.fn_dwSearchData = function (str_who) {
 		arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
 		n_tidsNums = arr_leafNodes.length;
 	
-	$('#'+str_who+'TableHeader').nextAll().remove();	//清除页面数据
 	switch (str_who) {
 		case 'operator': //  操作员查询
 			
@@ -214,7 +213,8 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
 			str_tbodyText = '';
-			
+		
+		obj_searchHeader.nextAll().remove();	//清除页面数据	
 		n_dwRecordPageCnt = obj_resdata.pagecnt;
 		arr_dwRecordData = str_who == 'eventSearch' ? obj_resdata.events : obj_resdata.res, 
 		n_eventDataLen = arr_dwRecordData.length; 	//记录数
