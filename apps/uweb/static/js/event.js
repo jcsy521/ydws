@@ -174,7 +174,7 @@ window.onresize = function () {
 */
 $(function () {
 	dlf.fn_loadMap();	// 加载MAP
-	if ( $('#map_type').val() != '1' ) {
+	if ( $('.j_body').attr('mapType') != '1' ) {
 		obj_CheckviewControl = setInterval(function () {  
 				if ( viewControl ) {
 					mapObj.removeControl(viewControl);  // 隐藏鹰眼

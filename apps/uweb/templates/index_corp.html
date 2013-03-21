@@ -16,7 +16,7 @@
 <script type="text/javascript" src="/static/js/fileupload.js"></script>
 {% end %}
 {% block body %}
-<body class="j_body mainBody">
+<body class="j_body mainBody" userType="{{user_type}}" mapType="{{map_type}}">
 	{% if status == 0 %}
 	<!-- top -->
 	<div id="top">
@@ -141,7 +141,5 @@
 		<div id="errormsg"></div>
 	{% end %}
 	{% include dialogs.html %}
-	<input type="hidden" id="user_type" value="{{user_type}}" />
-	<input type="hidden" id="map_type" value="{{map_type}}" />
 </body>
 {% end %}

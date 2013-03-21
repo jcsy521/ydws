@@ -59,10 +59,10 @@ window.dlf.fn_closeDialog = function() {
 	var f_eventSearchWpST = $('#eventSearchWrapper').is(':visible'),  //告警窗口是否在打开状态
 		f_staticsWpST = $('#staticsWrapper').is(':visible'),  //告警统计窗口是否在打开状态
 		f_mileageWpST = $('#mileageWrapper').is(':visible'),  //里程统计窗口是否在打开状态
-		b_trackClass = $('#trackHeader').is(':hidden'); // 轨迹的样式
+		b_trackClass = $('#trackHeader').is(':visible'); // 轨迹的样式
 	
 	if ( f_eventSearchWpST || f_staticsWpST || f_mileageWpST ) { 
-		if ( !b_trackClass ) {
+		if ( b_trackClass ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询 不操作lastinfo
 		} else {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
@@ -355,7 +355,7 @@ window.dlf.fn_updateLastInfo = function() {
 		} else {
 			dlf.fn_corpGetCarData();
 		}		
-	}, 10000); 
+	}, INFOTIME); 
 }
 
 /**
@@ -364,13 +364,16 @@ window.dlf.fn_updateLastInfo = function() {
 window.dlf.fn_getCarData = function(str_flag) { 
 	var str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),	//当前车tid
 		obj_carListLi = $('.j_carList li'), 
-		str_trackStatus = $('#trackHeader').css('display');
+		f_trackSt = $('#trackHeader').is(':visible'), 
+		f_eventSearchWpST = $('#eventSearchWrapper ').is(':visible'),
+		f_milleageWpST = $('#mileageWrapper').is(':visible'),
+		f_staticWpSt = $('#staticsWrapper').is(':visible'),
 		n_length = obj_carListLi.length, 	//车辆总数
 		n_count = 0, 
 		arr_tids = [], 
 		obj_tids= {'tids': [str_currentTid], 'cache': 0};	//所有车的tid集合、是否是第一次lastinfo
 	
-	if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	
+	if ( f_trackSt || f_eventSearchWpST || f_milleageWpST || f_staticWpSt ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 		return;
 	}
 	for( var i = 0; i < n_length; i++ ) {	//遍历每辆车获取tid
@@ -526,9 +529,8 @@ function fn_createTerminalList(obj_carDatas) {
 		if ( obj_currentSelfMarker ) {
 			obj_tempSelfMarker[str_tid] = obj_currentSelfMarker; 
 			obj_selfmarkers[str_tid] = undefined;
-		} else {
-			obj_actionTrack[str_tid] = {'status': '', 'interval': ''}
 		}
+		dlf.fn_checkTrackDatas(str_tid);
 	}
 	
 	obj_carListUl.html(str_carListHtml); // 将新生成的终端列表进行填充到页面上
@@ -549,6 +551,16 @@ function fn_createTerminalList(obj_carDatas) {
 	}
 	obj_selfmarkers = obj_tempSelfMarker;
 	dlf.fn_bindCarListItem(); //绑定终端 点击事件
+}
+/*
+* 追踪效果的数据存储判断
+*/
+window.dlf.fn_checkTrackDatas = function (str_tid) {
+	var obj_tempTrack = obj_actionTrack[str_tid];
+
+	if ( !obj_tempTrack ) {
+		obj_actionTrack[str_tid] = {'status': '', 'interval': ''}
+	}
 }
 /** 
 * 转换GPS,GSM,power,degree 为相应的值
@@ -1006,13 +1018,12 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 * 判断是个人用户还是集团用户
 */
 window.dlf.fn_userType = function() {
-	var str_flag = $('#user_type').val();
+	var str_flag = $('.j_body').attr('userType');
 	
-	if ( str_flag == USER_CORP || str_flag == USER_OPERATOR ) {	// 集团用户  操作员
-		return true;
-	} else { // 个人用户
+	if ( str_flag == USER_PERSON ) { // 个人用户
 		return false;
 	}
+	return true;
 }
 
 /**

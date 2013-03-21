@@ -43,7 +43,7 @@ window.dlf.fn_initTrack = function() {
 * 高德关闭所有的吹出框
 */
 function fn_closeAllInfoWindow() {
-	if ( $('#map_type').val() != '1' ) {
+	if ( $('.j_body').attr('mapType') != '1' ) {
 		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
 	}
 }
@@ -305,7 +305,7 @@ function fn_bindPlay() {
 */
 function fn_drawMarker() {
 	var n_len = arr_dataArr.length,
-		n_mapType = $('#map_type').val();
+		n_mapType = $('.j_body').attr('mapType');
 		
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;

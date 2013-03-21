@@ -365,7 +365,7 @@ window.onresize = function () {
 		if ( f_layer ) {
 			dlf.fn_lockScreen();
 		}
-		if ( $('#map_type').val() != '1' ) {	// 高德地图
+		if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
 		}
 		
@@ -424,7 +424,7 @@ $(function () {
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj').css('height', n_mapHeight);
 	
-	if ( $('#map_type').val() != '1' ) {	// 高德地图初始化tilelayer的位置
+	if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图初始化tilelayer的位置
 		$('#mapTileLayer').css('left', n_tilelayerLeft);
 	}
 		
@@ -433,7 +433,7 @@ $(function () {
 	/**
 	* 页面的点击事件分流处理
 	*/
-	var str_userType = $('#user_type').val();
+	var str_userType = $('.j_body').attr('userType');
 	$('.j_click').click(function(e) {
 		var str_id = e.currentTarget.id, 
 			n_carNum = $('#carList li').length,
@@ -589,7 +589,7 @@ $(function () {
 						   'new_password' : $("#newPwd").val() 
 						  },
 				str_url = PWD_URL,
-				str_userType = $('#user_type').val();
+				str_userType = $('.j_body').attr('userType');
 			//提交服务器
 			if ( str_userType == USER_CORP ) {
 				str_url = CORPPWD_URL;

@@ -117,7 +117,7 @@ window.dlf.fn_dwSearchData = function (str_who) {
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
 				n_category = $('#eventSearchCategory').val(), 
 				str_tids = '',
-				str_userType = $('#user_type').val();
+				str_userType = $('.j_body').attr('userType');
 			
 			obj_conditionData = {
 								'start_time': n_bgTime, 

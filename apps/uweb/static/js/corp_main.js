@@ -642,6 +642,7 @@ window.dlf.fn_corpGetCarData = function() {
 								str_tempLabel = str_alias + ' ' + str_mobile;
 							}
 							arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
+							dlf.fn_checkTrackDatas(str_tid);
 						}
 						str_html += '</ul>';
 						// 填充本次数据 为了与下次lastinfo进行比较
