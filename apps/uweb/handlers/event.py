@@ -84,7 +84,9 @@ class EventHandler(BaseHandler):
             tids = tids if tids else [self.current_user.tid, ]
             tids = [str(tid) for tid in tids]
             # the interval between start_time and end_time is one week
-            if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
+            if self.current_user.cid != UWEB.DUMMY_CID: # no checks for enterprise
+                pass
+            elif (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                 self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
                 return
 

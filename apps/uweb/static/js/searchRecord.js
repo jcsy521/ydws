@@ -392,6 +392,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联
 		WdatePicker({el: str_inputStartTime, dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}', qsEnabled: false,
 		onpicked: function() {
+			/*
 			var obj_endDate = $dp.$D(str_inputEndTime), 
 				str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
 				str_endTime = dlf.fn_changeDateStringToNum(str_endString), 
@@ -399,12 +400,14 @@ window.dlf.fn_initTimeControl = function(str_who) {
 			if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
 				obj_endTime.val(dlf.fn_changeNumToDateString(str_beginTime + WEEKMILISECONDS));
 			}
+			*/
 		}});
 	}).val(str_nowDate+' 00:00:00');
 	
 	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
 		WdatePicker({el: str_inputEndTime, dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', qsEnabled: false, 
 			onpicked: function() {
+				/*
 				var obj_beginDate = $dp.$D(str_inputStartTime), 
 					str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
 					str_beginTime = dlf.fn_changeDateStringToNum(str_beginString), 
@@ -412,6 +415,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 				if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
 					obj_stTime.val(dlf.fn_changeNumToDateString(str_endTime - WEEKMILISECONDS));
 				}
+				*/
 			}
 		});
 	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(n_currentDate, 'sfm'));

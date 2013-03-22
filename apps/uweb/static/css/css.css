@@ -546,8 +546,8 @@ body {
 	background-position: 0px -510px;
 }
 .mileageTitle .close {
-	left: 776px;
-	_left: 774px;
+	left: 576px;
+	_left: 574px;
 }
 .eventSearchTitle {
 	background-position: 0 -544px;
@@ -1978,8 +1978,7 @@ body {
 .staticsTable {
 	border: 0 none;
     border-collapse: collapse;
-    margin-left: 32px;
-    width: 529px;
+    width: 569px;
 }
 .staticsTable tr {
 	border: 1px solid #c1d2e5;
@@ -2278,14 +2277,14 @@ legend {
 }
 /*-------报表统计---*/
 #mileageWrapper, .mileageTitle {
-	width: 800px;
+	width: 600px;
 }
 .mileageContent {
-	width: 800px;
+	width: 600px;
 	height: 500px;
 }
 .mileageTable {
-	width: 755px;
+	width: 555px;
 }
 /*报表统计二级菜单*/
 .countUlIetm {
