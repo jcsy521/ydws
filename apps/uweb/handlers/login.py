@@ -139,7 +139,8 @@ class IOSHandler(BaseHandler, LoginMixin):
                                       "    mannual_status, fob_status"
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
-                                      "    AND owner_mobile = %s",
+                                      "    AND owner_mobile = %s"
+                                      "    AND group_id = -1",
                                       UWEB.SERVICE_STATUS.ON, username)
  
 
@@ -262,7 +263,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
                                       "    mannual_status, fob_status"
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
-                                      "    AND owner_mobile = %s",
+                                      "    AND owner_mobile = %s"
+                                      "    AND group_id = -1",
                                       UWEB.SERVICE_STATUS.ON, username)
  
 
