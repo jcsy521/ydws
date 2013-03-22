@@ -437,12 +437,13 @@ $(function () {
 	$('.j_click').click(function(e) {
 		var str_id = e.currentTarget.id, 
 			n_carNum = $('#carList li').length,
-			str_trackStatus = $('#trackHeader').css('display');	
+			str_trackStatus = $('#trackHeader').css('display'), 
+			obj_navItemUl = $('.j_countNavItem');	
 		
 		if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
 			if ( str_id == 'track' ) {
 				return;
-			} else if ( str_id == 'statics' || str_id == 'mileage' || str_id == 'eventSearch' ) {
+			} else if ( str_id == 'eventSearch' ) {
 				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 			} else { 
 				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
@@ -502,6 +503,14 @@ $(function () {
 				break;
 			case 'operator': // 操作员查询
 				dlf.fn_initRecordSearch('operator');
+				break;
+			case 'statics': // 告警统计
+				dlf.fn_initRecordSearch('statics');
+				obj_navItemUl.hide();
+				break;
+			case 'mileage': // 里程统计
+				dlf.fn_initRecordSearch('mileage');
+				obj_navItemUl.hide();
 				break;
 		}
 	});

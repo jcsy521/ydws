@@ -1264,12 +1264,6 @@ window.dlf.fn_fillNavItem = function() {
 	}).mouseover(function(event) { 
 		$(this).addClass('countUlItemHover');
 		obj_navItemUl.show();
-	}).mousedown(function(event) {
-		var str_id = event.currentTarget.id;
-		
-		 dlf.fn_closeTrackWindow(true);      // 关闭轨迹查询
-		dlf.fn_initRecordSearch(str_id);
-		obj_navItemUl.hide();
 	});
 }
 

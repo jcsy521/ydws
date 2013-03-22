@@ -26,7 +26,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	
 	//dlf.fn_showOrHideSelect(str_who);	// IE6 select显示
 	
-	if ( str_who == 'eventSearch' || str_who == 'mileage' || str_who == 'statics' ) { // 告警查询 里程统计 告警统计 
+	if ( str_who == 'eventSearch' ) { // 告警查询 
 		$('#POISearchWrapper').hide();  // 关闭周边查询
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
@@ -38,6 +38,9 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
+		dlf.fn_unLockScreen(); // 去除页面遮罩
+	} else if ( str_who == 'mileage' || str_who == 'statics' ) { // 里程统计 告警统计 
+		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	}
 	

@@ -15,7 +15,11 @@ var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, f_trackMsgS
 * 初始化轨迹显示页面
 */
 window.dlf.fn_initTrack = function() {
+	var obj_trackHeader =  $('#trackHeader');
+	
+	obj_trackHeader.data('trackST', true);
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
+	dlf.fn_clearNavStatus('recordCount'); // 移除统计导航操作中的样式
 	// $('#track').addClass('trackHover'); // 导航显示操作中的样式 
 	dlf.fn_closeDialog();
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
@@ -23,7 +27,7 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
 	$('#ceillid_flag').removeAttr('checked');
-	$('#trackHeader').show();	// 轨迹查询条件显示
+	obj_trackHeader.show().data('trackST', true);	// 轨迹查询条件显示
 	// 调整工具条和
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	fn_closeAllInfoWindow();	
@@ -57,7 +61,7 @@ window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) {
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_closeAllInfoWindow();
 	dlf.fn_clearTrack();	// 清除数据
-	$('#trackHeader').hide();	// 轨迹查询条件隐藏
+	$('#trackHeader').hide().data('trackST', false);	// 轨迹查询条件隐藏
 	/**
 	* 清除地图后要清除车辆列表的marker存储数据
 	*/

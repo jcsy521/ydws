@@ -1281,6 +1281,9 @@ body {
 	margin:0 auto;
 	text-align: center;
 }
+#mileagePage {
+	width: 550px;
+}
 .pageNums {
 	font-size: 12px;
 	margin-left: 30px;

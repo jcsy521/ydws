@@ -57,11 +57,9 @@ window.dlf.fn_closeWrapper = function() {
 */
 window.dlf.fn_closeDialog = function() {
 	var f_eventSearchWpST = $('#eventSearchWrapper').is(':visible'),  //告警窗口是否在打开状态
-		f_staticsWpST = $('#staticsWrapper').is(':visible'),  //告警统计窗口是否在打开状态
-		f_mileageWpST = $('#mileageWrapper').is(':visible'),  //里程统计窗口是否在打开状态
-		b_trackClass = $('#trackHeader').is(':visible'); // 轨迹的样式
+		b_trackClass = $('#trackHeader').data('trackST'); // 轨迹是否有操作
 	
-	if ( f_eventSearchWpST || f_staticsWpST || f_mileageWpST ) { 
+	if ( f_eventSearchWpST ) { 
 		if ( b_trackClass ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询 不操作lastinfo
 		} else {
@@ -1010,9 +1008,9 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	} else {
 		dlf.fn_clearNavStatus('recordCount'); // 移除统计导航操作中的样式
 	}
+	dlf.fn_closeDialog();
 	$('#'+ str_wrapperId).addClass(str_wrapperId +'Hover');
 	if ( str_wrapperId != 'eventSearch' ) {
-		dlf.fn_closeDialog();
 		dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
 	} else { //如果是告警查询窗口,改变告警窗口位置以便显示告警位置图标
 		n_width -= 250;
