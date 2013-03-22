@@ -764,17 +764,19 @@ window.dlf.fn_clearRealtimeTrack = function(str_tid) {
 	$('#trackTimer').html('0');
 	$('#trackWrapper').hide();
 	if ( str_tid ) { 
-		var obj_carLi = $('.j_carList a[tid='+str_tid+']'),
-			obj_carTrackInterval = obj_carLi.data('selfTrackInterval');
+		var obj_carTrackInterval = obj_actionTrack[str_tid].interval;
 		
 		dlf.fn_clearInterval(obj_carTrackInterval);
 	} else { 
 		$('.j_carList a').each(function(e){
-			var obj_tempTrackInterval = $(this).data('trackInterval'), 
-				str_tempTid = $(this).attr('tid');
+			var obj_tempActionTrack = obj_actionTrack[str_tid];
 			
-			dlf.fn_clearInterval(obj_tempTrackInterval);
-			obj_actionTrack[str_tempTid].status = 'yes';
+			if ( obj_tempActionTrack ) {
+				var str_tempTid = $(this).attr('tid');
+				
+				dlf.fn_clearInterval(obj_tempActionTrack.interval);
+				obj_actionTrack[str_tempTid].status = 'yes';
+			}
 		});
 	}
 }
@@ -792,26 +794,31 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 				obj_trackWrapper = $('#trackWrapper'),	// 定位器唤醒提示容器
 				obj_trackTimer = $('#trackTimer'),	// 定位器提示框计时器容器
 				n_timer = parseInt(obj_trackTimer.html()),
-				n_left = ($(window).width()-400)/2;
+				n_left = ($(window).width()-400)/2, 
+				str_terminalAlias = '',
+				f_userType = dlf.fn_userType();
 				
 			// 关闭jNotityMessage,dialog
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); 
 			dlf.fn_closeDialog();
-			
+			if ( f_userType ) { //根据角色不同取不同位置的终端别名
+				str_terminalAlias = $('.leat_'+ str_tid).text();
+			} else {
+				str_terminalAlias = $('#carList a[tid='+ str_tid +']').next().text();
+			}
 			/**
-			* 5分钟
+			* 10分钟
 			*/
-			obj_trackMsg.html('定位器已开启追踪10分钟后将自动取消追踪。');
+			obj_trackMsg.html('定位器：'+ str_terminalAlias +' 已开启追踪，10分钟后将自动取消追踪。');
 			obj_trackWrapper.css('left', n_left + 'px').show();
 			setTimeout(function() {
 				obj_trackWrapper.hide();
 			}, 4000);
-			
 			trackInterval = setInterval(function() {
 				if ( n_timer > 600 ) {
 					dlf.fn_clearInterval(obj_actionTrack[str_tid].interval);
 					obj_trackWrapper.show();
-					obj_trackMsg.html('定位器追踪时间已到，将取消追踪。');
+					obj_trackMsg.html('定位器：'+ str_terminalAlias +'，追踪时间已到，将取消追踪。');
 					setTimeout(function() { 
 						dlf.setTrack(str_tid, selfItem);
 					}, 3000);
