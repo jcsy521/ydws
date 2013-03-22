@@ -9,6 +9,7 @@ LQ = DotDict(WEB=5, # 5min
              SMS=5) # 5min 
 
 LQ_INTERVAL = 3 * 60 # 3mins
+LQGZ_INTERVAL = 3* 60 # 3mins
 
 #modify
 CATEGORY = DotDict(MO=1,

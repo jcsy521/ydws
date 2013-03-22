@@ -6,7 +6,8 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from constants import UWEB
+from utils.misc import get_lqgz_key
+from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
 from codes.errorcode import ErrorCode
@@ -35,10 +36,14 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             return 
 
         try:
-            # in mill second
-            interval = int(data.interval) * 60 * 1000
-            sms = SMSCode.SMS_LQGZ % interval 
-            SMSHelper.send_to_terminal(self.current_user.sim, sms) 
+            lqgz_key = get_lqgz_key(self.current_user.tid)
+            lqgz_value = self.redis.getvalue(lqgz_key)
+            if not lqgz_value:
+                # in mill second
+                interval = int(data.interval) * 60 * 1000
+                sms = SMSCode.SMS_LQGZ % interval 
+                SMSHelper.send_to_terminal(self.current_user.sim, sms) 
+                self.redis.setvalue(lqgz_key, True, SMS.LQGZ_INTERVAL)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s, tid: %s send lqgz failed. Exception: %s. ", 
