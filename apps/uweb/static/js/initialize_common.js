@@ -1234,7 +1234,32 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-				} else if ( str_who == 'terminal' || str_who == 'corpTerminal' ) {	// 定位器参数设置修改
+				} else if ( str_who == 'terminal' ) {	// 定位器参数设置修改
+					for(var param in obj_data) {	// 修改保存成功的原始值
+						var str_val = obj_data[param];
+						
+						if ( param == 'white_list' ) { // 白名单特殊处理
+							var n_length = obj_data[param].length;
+							
+							if ( n_length > 1 ) {
+								for ( var x = 0; x < n_length; x++ ) {
+									var str_name = param  + '_' + (x+1),
+										obj_whitelist = $('#t_' + str_name),
+										obj_oriWhitelist = $('#' + str_name),
+										str_value = str_val[x];
+										
+									obj_whitelist.val(str_value);	
+									obj_oriWhitelist.attr('t_val', str_value);	
+								}
+							} else {
+								$('#white_list_2').attr('t_val', '');
+							}
+						} else {
+							$('#' + param ).attr('t_val', str_val);
+						}
+					}
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+				} else if ( str_who == 'corpTerminal' ) {	// 定位器参数设置修改
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						var str_val = obj_data[param];
 						
@@ -1257,8 +1282,9 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						} else {
 							if ( param == 'corp_cnum' ) {
 								dlf.fn_updateCorpCnum(obj_data[param]);
+								$('#corp_corp_cnum' ).attr('t_val', str_val);
 							}
-							$('#corp_corp_cnum' ).attr('t_val', str_val);
+							$('#corp_' + param ).attr('t_val', str_val);
 						}
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
