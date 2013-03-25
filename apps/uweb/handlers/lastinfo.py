@@ -145,23 +145,30 @@ class LastInfoHandler(BaseHandler):
 
             lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
+
+            if lastinfo == cars_info:  
+                pass
+            else:
+                lastinfo_time = int(time.time())
+                self.redis.setvalue(lastinfo_key, cars_info) 
+                self.redis.setvalue(lastinfo_time_key, lastinfo_time)
             
             # 2 check whether provide usable data   
             if data.get('cache', None):  # use cache
                 if data.get('time', None) is not None: # use time
-                    if lastinfo_time == data.get('time'):
+                    if int(data.get('time')) <= lastinfo_time:
                         cars_info = {}
                         usable = 0
                         #logging.info("[UWEB] The lastinfo with uid: %s in cache is same as last time, just return a empty cars_info.", 
                         #             self.current_user.uid)
                     else: 
                         usable = 1
-                        if lastinfo == cars_info:  
-                            pass
-                        else:
-                            lastinfo_time = int(time.time())
-                            self.redis.setvalue(lastinfo_key, cars_info) 
-                            self.redis.setvalue(lastinfo_time_key, lastinfo_time)
+                        #if lastinfo == cars_info:  
+                        #    pass
+                        #else:
+                        #    lastinfo_time = int(time.time())
+                        #    self.redis.setvalue(lastinfo_key, cars_info) 
+                        #    self.redis.setvalue(lastinfo_time_key, lastinfo_time)
                 else: # no time
                     if lastinfo == cars_info: 
                         cars_info = {}
@@ -170,17 +177,17 @@ class LastInfoHandler(BaseHandler):
                         #             self.current_user.uid)
                     else: 
                         usable = 1
-                        lastinfo_time = int(time.time())
-                        self.redis.setvalue(lastinfo_key, cars_info) 
-                        self.redis.setvalue(lastinfo_time_key, lastinfo_time)
+                        #lastinfo_time = int(time.time())
+                        #self.redis.setvalue(lastinfo_key, cars_info) 
+                        #self.redis.setvalue(lastinfo_time_key, lastinfo_time)
             else: 
                 usable = 1
-                if lastinfo == cars_info:  
-                    pass
-                else:
-                    lastinfo_time = int(time.time())
-                    self.redis.setvalue(lastinfo_key, cars_info) 
-                    self.redis.setvalue(lastinfo_time_key, lastinfo_time)
+                #if lastinfo == cars_info:  
+                #    pass
+                #else:
+                #    lastinfo_time = int(time.time())
+                #    self.redis.setvalue(lastinfo_key, cars_info) 
+                #    self.redis.setvalue(lastinfo_time_key, lastinfo_time)
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info,
                                          usable=usable,
