@@ -40,7 +40,8 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             lqgz_value = self.redis.getvalue(lqgz_key)
             if not lqgz_value:
                 # in mill second
-                interval = int(data.interval) * 60 * 1000
+                #interval = int(data.interval) * 60 * 1000
+                interval = int(data.interval)
                 sms = SMSCode.SMS_LQGZ % interval 
                 SMSHelper.send_to_terminal(self.current_user.sim, sms) 
                 self.redis.setvalue(lqgz_key, True, SMS.LQGZ_INTERVAL)
