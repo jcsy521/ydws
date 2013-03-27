@@ -4,6 +4,7 @@ import functools
 import urlparse
 import urllib
 import re
+import logging
 
 import tornado.web
 from tornado.escape import json_encode
@@ -117,7 +118,7 @@ class BaseHandler(tornado.web.RequestHandler):
             terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The terminal with uid: %s, tid: %s does not exist, login again", self.current_user.uid, tid)
+                logging.error("[UWEB] The terminal with uid: %s, tid: %s does not exist, login again", self.current_user.uid, tid)
                 self.write_ret(status)
                 if finish:
                     self.finish()

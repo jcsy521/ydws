@@ -42,22 +42,11 @@ class LastInfoHandler(BaseHandler):
                                       UWEB.SERVICE_STATUS.ON, self.current_user.uid)
             tids = [terminal.tid for terminal in terminals]
 
-            #NOTE: if no tids in request, inqury all tids belong to the owner
-            #if data.get('tids',None): # has tids
-            #    if set(tids) != set(data.tids):
-            #        #status = ErrorCode.LOGIN_AGAIN
-            #        usable = 1
-            #        logging.info("[UWEB] uid: %s, business changed, request tids: %s, db tids:%s",
-            #                     self.current_user.uid, data.tids, tids)
-            #else:  # no tids
-            #    pass
-
-            # 1 inquere data     
+            # 1 inquery data     
             for tid in tids:
                 # 1: get terminal info 
                 terminal_info_key = get_terminal_info_key(tid)
                 terminal = self.redis.getvalue(terminal_info_key)
-                # test
                 if not terminal:
                     terminal = self.db.get("SELECT mannual_status, defend_status,"
                                            "  fob_status, mobile, login, gps, gsm,"
@@ -65,13 +54,6 @@ class LastInfoHandler(BaseHandler):
                                            "  FROM T_TERMINAL_INFO"
                                            "  WHERE tid = %s",
                                            tid)
-
-                    ## NOTE: because tids comes from database, so terminal  must be no-null, and the code here is no use.
-                    #if not terminal:
-                    #    status = ErrorCode.LOGIN_AGAIN
-                    #    logging.error("The terminal with uid: %s, tid: %s, does not exist, redirect to login.html", self.current_user.uid, tid)
-                    #    self.write_ret(status)
-                    #    return
 
                     terminal = DotDict(terminal)
                     terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
@@ -145,6 +127,7 @@ class LastInfoHandler(BaseHandler):
 
             lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
+            lastinfo_time_old = lastinfo_time 
 
             if lastinfo == cars_info:  
                 pass
@@ -156,38 +139,19 @@ class LastInfoHandler(BaseHandler):
             # 2 check whether provide usable data   
             if data.get('cache', None):  # use cache
                 if data.get('time', None) is not None: # use time
-                    if int(data.get('time')) <= lastinfo_time:
+                    if int(data.get('time')) != lastinfo_time_old:
+                        usable = 1
+                    else: 
                         cars_info = {}
                         usable = 0
-                        #logging.info("[UWEB] The lastinfo with uid: %s in cache is same as last time, just return a empty cars_info.", 
-                        #             self.current_user.uid)
-                    else: 
-                        usable = 1
-                        #if lastinfo == cars_info:  
-                        #    pass
-                        #else:
-                        #    lastinfo_time = int(time.time())
-                        #    self.redis.setvalue(lastinfo_key, cars_info) 
-                        #    self.redis.setvalue(lastinfo_time_key, lastinfo_time)
                 else: # no time
                     if lastinfo == cars_info: 
                         cars_info = {}
                         usable = 0
-                        #logging.info("[UWEB] The lastinfo with uid: %s in cache is same as last time, just return a empty cars_info.", 
-                        #             self.current_user.uid)
                     else: 
                         usable = 1
-                        #lastinfo_time = int(time.time())
-                        #self.redis.setvalue(lastinfo_key, cars_info) 
-                        #self.redis.setvalue(lastinfo_time_key, lastinfo_time)
             else: 
                 usable = 1
-                #if lastinfo == cars_info:  
-                #    pass
-                #else:
-                #    lastinfo_time = int(time.time())
-                #    self.redis.setvalue(lastinfo_key, cars_info) 
-                #    self.redis.setvalue(lastinfo_time_key, lastinfo_time)
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info,
                                          usable=usable,
@@ -214,8 +178,8 @@ class LastInfoCorpHandler(BaseHandler):
                 groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
                 gids = [g.group_id for g in groups]
                 groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE id IN %s", tuple(DUMMY_IDS + gids))
-            res = DotDict(name=corp.name,
-                          cid=corp.cid,
+            res = DotDict(name=corp.name if corp else '',
+                          cid=corp.cid if corp else '',
                           online=0,
                           offline=0,
                           groups=[])
