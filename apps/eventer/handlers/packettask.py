@@ -149,15 +149,6 @@ class PacketTask(object):
                              info['dev_id'], info['rName'])
                 return
 
-        if (info['rName'] == EVENTER.RNAME.POWERLOW) and (int(info['pbat']) == 100):
-            power_full_key = get_power_full_key(info['dev_id'])
-            power_full_flag = self.redis.get(power_full_key)
-            if power_full_flag:
-                logging.info("[EVENTER] Report power full again, tid: %s", info['dev_id'])
-                return
-            else:
-                self.redis.setvalue(power_full_key, True, 12 * 60 * 60)
-
         # get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
