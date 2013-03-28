@@ -154,6 +154,55 @@ def get_psd():
 
     return psd 
 
+def start_end_of_year(year="2011"):
+    """Get start and end time of the year.
+    """
+    timestamp = int(time.mktime(time.strptime("%s"%year,"%Y")))    
+    current_day = datetime.datetime.fromtimestamp(timestamp)    
+    s = current_day + relativedelta(months=0, day=1, hour=0, minute=0, second=0)    
+    e = current_day + relativedelta(months=12, day=1, hour=0, minute=0, second=0)
+    s_epoch = int(time.mktime(s.timetuple()))
+    e_epoch = int(time.mktime(e.timetuple())-1)
+    return s_epoch, e_epoch
+
+def start_end_of_month(year="2012",month="11"):
+    """Get start and end time of the month which is in the year.
+    """
+    timestamp = int(time.mktime(time.strptime("%s-%s"%(year,month),"%Y-%m")))    
+    current_day = datetime.datetime.fromtimestamp(timestamp)    
+    s = current_day + relativedelta(months=0, day=1, hour=0, minute=0, second=0)    
+    e = current_day + relativedelta(months=1, day=1, hour=0, minute=0, second=0)
+    s_epoch = int(time.mktime(s.timetuple()))
+    e_epoch = int(time.mktime(e.timetuple())-1)
+    return s_epoch, e_epoch
+
+def start_end_of_day(year="2012",month="11",day="1"):
+    """Get start and end time of the day which is in the year, month and day.
+    """
+    timestamp = int(time.mktime(time.strptime("%s-%s-%s"%(year,month,day),"%Y-%m-%d")))    
+    current_day = datetime.datetime.fromtimestamp(timestamp)    
+    s = current_day + relativedelta(months=0, day=0, hour=0, minute=0, second=0)    
+    s_epoch = int(time.mktime(s.timetuple()))
+    e_epoch = s_epoch + 24*60*60 - 1
+    return s_epoch, e_epoch
+
+def start_end_of_quarter(year="2012",quarter="1"):
+    """Get start and end time of the quarter which is in the year.
+    """
+    months = {'1':[1,3],
+              '2':[4,6],
+              '3':[7,9],
+              '4':[10,12]}
+    month = months[quarter]
+    s_epoch = int(time.mktime(time.strptime("%s-%s"%(year,month[0]),"%Y-%m")))
+
+    e_epoch = int(time.mktime(time.strptime("%s-%s"%(year,month[1]),"%Y-%m")))
+    current_day = datetime.datetime.fromtimestamp(e_epoch)
+    day_ = current_day + relativedelta(months=1,
+                                       day=1, hour=0, minute=0, second=0)
+    e_epoch = (int(time.mktime(day_.timetuple())) - 1)    
+    return s_epoch, e_epoch
+
 def days_of_month(year="2012",month="11"):
     """Get the number of days which is in the year and month.
     """
@@ -162,5 +211,4 @@ def days_of_month(year="2012",month="11"):
     e = current_day + relativedelta(months=1, day=1, hour=0, minute=0, second=0)
     e_epoch = int(time.mktime(e.timetuple())-1)
     days = datetime.datetime.fromtimestamp(e_epoch).day
-
     return days

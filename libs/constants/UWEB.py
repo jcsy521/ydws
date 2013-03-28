@@ -16,6 +16,10 @@ DUMMY_MOBILE = u'dummy_mobile'
 REALTIME_VALID_INTERVAL = 60 * 60 * 12 # 12 hours. in seconds.
 LOCATION_VALID_INTERVAL = 5 * 60 # 5 mins
 
+STATISTIC_INTERVAL = 10 * 60 # 10 mins
+
+MILEAGE_STATISTIC_INTERVAL = 10 * 60 # 10 mins
+
 SMS_CAPTCHA_INTERVAL = 60*5 # 5 minutes. in seconds.
 
 IOS_ID_INTERVAL = 30 * 24 * 60 * 60 # one month. in seconds.
@@ -29,12 +33,17 @@ USER_TYPE=DotDict(PERSON='individual',
 GROUP_TYPE=DotDict(BUILTIN=0,
                    NEW=1)
 
+STATISTICS_TYPE=DotDict(YEAR=1,
+                        MONTH=2,
+                        QUARTER=3)
+
 LOGIN_WAY=DotDict(WEB=u"WEB",
                   WAP=u"WAP",
                   ANDROID=u"Android客户端",
                   IOS=u"IOS客户端")
 
 LIMIT=DotDict(PAGE_SIZE=10, # you can have up to 10 records in one page
+              PAGE_SIZE_STATISTICS=16, # you can have up to 16 records in statistics page
               TERMINAL=2) # one user have 2 terminal at most.
 
 CATEGORY=DotDict(UNKNOWN=0,

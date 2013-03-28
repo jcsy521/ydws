@@ -47,8 +47,8 @@ from handlers.defend import DefendHandler
 from handlers.group import GroupHandler, GroupTransferHandler
 from handlers.corp import CorpHandler
 from handlers.terminal import TerminalHandler, TerminalCorpHandler
-from handlers.statistic import StatisticHandler
-from handlers.mileage import MileageHandler
+from handlers.statistic import StatisticHandler, StatisticDownloadHandler, StatisticSingleHandler, StatisticSingleDownloadHandler
+from handlers.mileage import MileageHandler, MileageDownloadHandler, MileageSingleHandler, MileageSingleDownloadHandler
 from handlers.password import PasswordHandler, PasswordCorpHandler, PasswordOperHandler
 from handlers.profile import ProfileHandler, ProfileCorpHandler, ProfileOperHandler
 from handlers.smsoption import SMSOptionHandler
@@ -97,8 +97,18 @@ class Application(tornado.web.Application):
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),
             (r"/terminal/*", TerminalHandler),
+
+            (r"/statistic/single/*", StatisticSingleHandler),
+            (r"/download/statistic/single/*", StatisticSingleDownloadHandler),
+
+            (r"/mileage/single/*", MileageSingleHandler),
+            (r"/download/mileage/single/*", MileageSingleDownloadHandler),
+
             (r"/statistic/*", StatisticHandler),
+            (r"/download/statistic/*", StatisticDownloadHandler),
             (r"/mileage/*", MileageHandler),
+            (r"/downlaod/mileage/*", MileageDownloadHandler),
+
             (r"/terminal/corp/*", TerminalCorpHandler),
             (r"/password/*", PasswordHandler),
             (r"/password/corp/*", PasswordCorpHandler),

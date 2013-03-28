@@ -5,11 +5,13 @@ import urlparse
 import urllib
 import re
 import logging
+from time import strftime
 
 import tornado.web
 from tornado.escape import json_encode
 
 from utils.dotdict import DotDict
+from utils.misc import safe_utf8
 from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode
 
@@ -126,3 +128,11 @@ class BaseHandler(tornado.web.RequestHandler):
   
             self.current_user.tid=terminal.tid
             self.current_user.sim=terminal.mobile
+
+    def generate_file_name(self, file_name):
+        # NOTE: special handlings for IE.
+        if "MSIE" in self.request.headers['User-Agent']:
+            file_name = urllib.quote(safe_utf8(file_name))
+        return '-'.join((file_name, strftime("%Y%m%d")))
+
+
