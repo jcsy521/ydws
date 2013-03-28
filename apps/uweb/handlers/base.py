@@ -118,16 +118,16 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         if tid:
             terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
-            if not terminal:
-                status = ErrorCode.LOGIN_AGAIN
-                logging.error("[UWEB] The terminal with uid: %s, tid: %s does not exist, login again", self.current_user.uid, tid)
-                self.write_ret(status)
-                if finish:
-                    self.finish()
-                return
+            #if not terminal:
+            #    status = ErrorCode.LOGIN_AGAIN
+            #    logging.error("[UWEB] The terminal with uid: %s, tid: %s does not exist, login again", self.current_user.uid, tid)
+            #    self.write_ret(status)
+            #    if finish:
+            #        self.finish()
+            #    return
   
-            self.current_user.tid=terminal.tid
-            self.current_user.sim=terminal.mobile
+            self.current_user.tid=terminal.tid if terminal else tid
+            self.current_user.sim=terminal.mobile if terminal else ''
 
     def generate_file_name(self, file_name):
         # NOTE: special handlings for IE.
