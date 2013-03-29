@@ -199,7 +199,7 @@ class StatisticSingleHandler(BaseHandler):
                                    #sos=EVENTER.CATEGORY.EMERGENCY,
                                    heartbeat_lost=EVENTER.CATEGORY.HEARTBEAT_LOST)
 
-            CATEGORY_KEY = ['powerlow', 'illegashake', 'illegalmove','heartbeat_lost'] 
+            CATEGORY_KEY = ['illegalmove','illegashake', 'heartbeat_lost', 'powerlow' ] 
 
             for key in CATEGORY_KEY:
                 counts_dct[key] = 0 

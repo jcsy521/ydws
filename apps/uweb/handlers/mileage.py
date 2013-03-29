@@ -210,7 +210,7 @@ class MileageSingleHandler(BaseHandler):
                     re = {} 
                     re['name'] = str(month)
                     distance = 0
-                    points = self.db.query(sql_cmd, tid, start_time, end_time)
+                    points = self.db.query(sql_cmd, tid, start_time_, end_time_)
                     for i in range(len(points)-1):
                         if points[i].longitude and points[i].latitude and \
                            points[i+1].longitude and points[i+1].latitude:
@@ -238,7 +238,7 @@ class MileageSingleHandler(BaseHandler):
                     re = {} 
                     re['name'] = str(day)
                     distance = 0
-                    points = self.db.query(sql_cmd, tid, start_time, end_time)
+                    points = self.db.query(sql_cmd, tid, start_time_, end_time_)
                     for i in range(len(points)-1):
                         if points[i].longitude and points[i].latitude and \
                            points[i+1].longitude and points[i+1].latitude:
