@@ -58,7 +58,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		obj_searchYear.html(fn_generateSelectOption('year'));	// 填充年份
 		obj_searchMonth.html(fn_generateSelectOption('month', obj_searchYear.val()));	// 填充月份
 		obj_theadTH.html('日期');
-		obj_content.css('height', '400px');
+		obj_content.css('height', '520px');
 		obj_searchType.unbind('change').bind('change', function() {	// 当改变查询类型
 			var str_val = $(this).val();
 			
@@ -576,7 +576,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			arr_categories = ['1月', '2月', '3月', '4月', '5月', '6月', 
 				'7月', '8月', '9月', '10月', '11月', '12月'];
 			
-			obj_content.css('height', '400px');
+			obj_content.css('height', '520px');
 			str_th = '月份';
 		} else if ( n_type == 2 ) {
 			arr_categories = [];
