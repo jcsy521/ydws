@@ -216,7 +216,16 @@ class IOSHandler(BaseHandler, LoginMixin):
                 cars_info.update(car_dct)
 
             ios_id_key = get_ios_id_key(username)
+           
+            # NOTE: check the iosid whether has been linked to a user, if
+            # ture, clean it
+            ios_id_key_old = self.redis.getvalue(iosid)
+            if ios_id_key_old:
+                self.redis.delete(iosid, ios_id_key_old)
+            # follow up, we must keep iosid -> user and user -> iosid
             self.redis.setvalue(ios_id_key, iosid, UWEB.IOS_ID_INTERVAL)
+            self.redis.setvalue(iosid, ios_id_key, UWEB.IOS_ID_INTERVAL)
+
             ios_badge_key = get_ios_badge_key(username)
             self.redis.setvalue(ios_badge_key, 0, UWEB.IOS_ID_INTERVAL)
             self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
