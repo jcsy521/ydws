@@ -529,6 +529,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			obj_chart = {'name': str_alias, 'data': arr_graphic}, 
 			str_tfoot = '<tr><td>总计：</td>',
 			arr_categories = [],
+			str_unit = '次',
 			str_container = 'singleEventChart',
 			str_th = '日期',
 			arr_series = [];	// 统计数据
@@ -556,6 +557,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td>'+ n_mileage +'</td>';	// 里程数
 				str_tbodyText+= '</tr>';
 			}
+			str_unit = '公里';
 			str_container = 'singleMileageChart';
 		}
 		obj_searchHeader.after(str_tbodyText);	// 填充数据
@@ -564,7 +566,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			obj_tfoot.empty();
 		} else {
 			for ( var j = 0; j < obj_counts.length; j++ ) {
-				str_tfoot += '<td>'+ obj_counts[j] +'</td>';
+				str_tfoot += '<td>'+ obj_counts[j] + '</td>';
 			}
 			str_tfoot += '</tr>';
 			obj_tfoot.empty().append(str_tfoot);
@@ -586,7 +588,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		}
 		obj_theadTH.html(str_th);
 		arr_series.push(obj_chart);
-		fn_initChart(arr_series, arr_categories, str_container, str_who);	// 初始化chart图
+		fn_initChart(arr_series, arr_categories, str_container, str_unit, str_who);	// 初始化chart图
 	}
 	$('#' + str_who + 'Wrapper').data('hash', str_hash);	// 存储hash值
 }
@@ -685,13 +687,14 @@ function fn_generateSelectOption(str_type, n_searchYear) {
 /**
 * 初始化 统计图
 */
-function fn_initChart(arr_series, arr_categories, str_container, str_who) {
-	var str_title = $('#'+ str_who +'Year').val();
+function fn_initChart(arr_series, arr_categories, str_container, str_unit, str_who) {
+	var str_title = $('#'+ str_who +'Year').val(),
+		str_name = str_who == 'singleEvent' ? '告警' : '里程';
 	
 	if ( !$('#'+ str_who +'Month').is(':hidden') ) {
-		str_title += '年'+ $('#'+ str_who +'Month').val() +'月份告警统计图' 
+		str_title += '年'+ $('#'+ str_who +'Month').val() +'月份'+ str_name +'统计图' 
 	} else {
-		str_title += '年告警统计图' 
+		str_title += '年'+ str_name +'统计图' 
 	}
 	// 初始化统计图对象
 	chart = new Highcharts.Chart({
@@ -715,7 +718,7 @@ function fn_initChart(arr_series, arr_categories, str_container, str_who) {
 					min: 0,                
 					allowDecimals: false,
 					title: {
-						text: '总数(次)'
+						text: '总数('+ str_unit +')'
 					},
 					plotLines: [{
 						value: 0,
@@ -726,7 +729,7 @@ function fn_initChart(arr_series, arr_categories, str_container, str_who) {
 				tooltip: {
 					formatter: function() {
 							return '<b>'+ this.series.name +'</b><br/>'+
-							this.x +': '+ this.y +'次';
+							this.x +': '+ this.y + str_unit;
 					}
 				},
 				series: arr_series
