@@ -7,6 +7,7 @@ import hashlib
 from os import SEEK_SET
 import xlwt
 from cStringIO import StringIO
+from decimal import Decimal
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
@@ -193,8 +194,7 @@ class MileageSingleHandler(BaseHandler):
                        "    AND type = 0"
                        "  ORDER BY timestamp asc")
 
-            distance = 0
-            dis_sum = 0
+            dis_sum = Decimal() 
             
             current_time = int(time.time()) 
 
@@ -217,14 +217,15 @@ class MileageSingleHandler(BaseHandler):
                             distance += get_distance(points[i].longitude, points[i].latitude,
                                                      points[i+1].longitude, points[i+1].latitude) 
                     # meter --> km
-                    dis_sum += distance
-                    graphics.append(distance)
                     distance = '%0.1f' % (distance/1000,)      
                         
+                    graphics.append(float(distance))
+                    dis_sum += Decimal(distance)
+
                     re['mileage'] = distance 
                     res.append(re)
 
-                counts = [dis_sum,]
+                counts = [float(dis_sum),]
 
             elif statistics_type == UWEB.STATISTICS_TYPE.MONTH:
                 label = data.year + u'年' + data.month + u'月'
@@ -245,14 +246,17 @@ class MileageSingleHandler(BaseHandler):
                             distance += get_distance(points[i].longitude, points[i].latitude,
                                                      points[i+1].longitude, points[i+1].latitude) 
                     # meter --> km
-                    dis_sum += distance
-                    graphics.append(distance)
+                    #dis_sum += distance
+                    #graphics.append(distance)
                     distance = '%0.1f' % (distance/1000,)      
+
+                    graphics.append(float(distance))
+                    dis_sum += Decimal(distance)
                         
                     re['mileage'] = distance 
                     res.append(re)
 
-                counts = [dis_sum,]
+                counts = [float(dis_sum),]
 
             else:
                 logging.error("[UWEB] Error statistics type: %s", statistics_type)
