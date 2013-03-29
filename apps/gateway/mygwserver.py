@@ -1176,7 +1176,7 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand defend status report exception.")
+            logging.exception("[GW] Hand unbind status report exception.")
 
 
     def foward_packet_to_si(self, info, packet, address, connection, channel):

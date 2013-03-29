@@ -141,17 +141,19 @@ class PacketTask(object):
         EMERGENCY
 
         """
-        mannual_status = QueryHelper.get_mannual_status_by_tid(info['dev_id'], self.db)
+        # get available location from lbmphelper 
+        report = lbmphelper.handle_location(info, self.redis,
+                                            cellid=True, db=self.db)
+        # if undefend, just save location into db
         if info['rName'] in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
             mannual_status = QueryHelper.get_mannual_status_by_tid(info['dev_id'], self.db)
             if int(mannual_status) == UWEB.DEFEND_STATUS.NO:
+                report['category'] = EVENTER.CATEGORY.REALTIME
+                self.insert_location(report)
                 logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
                              info['dev_id'], info['rName'])
                 return
 
-        # get available location from lbmphelper 
-        report = lbmphelper.handle_location(info, self.redis,
-                                            cellid=True, db=self.db)
         # save into database
         lid = self.insert_location(report)
         self.update_terminal_info(report)
