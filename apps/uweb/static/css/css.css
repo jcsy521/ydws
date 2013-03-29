@@ -516,11 +516,11 @@ body {
 }
 .staticsTitle {
 	background-position: 0px -374px;
-	width: 600px;
+	width: 800px;
 }
 .staticsTitle .close {
-	left: 574px;
-	_left: 572px;
+	left: 774px;
+	_left: 772px;
 }
 .createGroupTitle {
 	background-position: 0px -408px;
@@ -546,8 +546,8 @@ body {
 	background-position: 0px -510px;
 }
 .mileageTitle .close {
-	left: 576px;
-	_left: 574px;
+	left: 776px;
+	_left: 774px;
 }
 .eventSearchTitle {
 	background-position: 0 -544px;
@@ -555,6 +555,30 @@ body {
 .eventSearchTitle .close {
 	left: 774px;
 	_left: 772px;
+}
+.fileUploadTitle {
+	background-position: 0px -578px;
+	width: 600px;
+}
+.fileUploadTitle .close{
+	left: 574px;
+	_left: 572px;
+}
+.batchDeleteTitle {
+	background-position: 0 -613px;
+	width: 600px;
+}
+.batchDeleteTitle .close {
+	left: 576px;
+	_left: 574px;
+}
+.batchDefendTitle {
+	background-position: 0 -647px;
+	width: 600px;
+}
+.batchDefendTitle .close {
+	left: 576px;
+	_left: 574px;
 }
 .wrapperContent {
 	height: 249px;
@@ -1183,14 +1207,20 @@ body {
 	display: inline-block;
 	height: 34px;
 	width: 92px;
-	*position: absolute;
-	*top: 45px;
-	*right: 20px;
+}
+.donwuploadBtn, .chartBtn {
+	color: #4876FF;
+	display: inline-block;
+}
+.singleDownloadBtn {
+	position: relative;
+	top: -10px;
 }
 .dataTable {
 	border: 0px;
 	margin-top: 8px;
 	width: 850px;
+	border-collapse: collapse;
 }
 .dataTable tr {
 	border: 1px solid #c1d2e5;
@@ -1202,12 +1232,12 @@ body {
 	text-align: center;
 	border: 1px solid #c1d2e5;
 }
-#eventSearchTableHeader, #staticsTableHeader, #mileageTableHeader {
+#eventSearchTableHeader, #staticsTableHeader, #mileageTableHeader, #singleEventTableHeader, #singleMileageTableHeader {
 	background: url('/static/images/eventTH.png') repeat-x;
 	height: 38px;
 	border: 1px solid #dce7f2;
 }
-#eventSearchTableHeader td, #staticsTableHeader td {
+#eventSearchTableHeader td, #staticsTableHeader td , #singleEventTableHeader td, #singleMileageTableHeader td{
 	background-color: #5aabff;
 	border: 1px solid #ececec;
 	height: 30px;
@@ -1237,9 +1267,9 @@ body {
 	font-weight: bold;
 	text-decoration: underline;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th  {
-    font-size: 16px; 
-	color: #154781;
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th {
+    font-size: 14px; 
+	color: #69B2E9;
 	border: 1px solid #dce7f2;
 }
 #staticsTableHeader th {
@@ -1952,9 +1982,9 @@ body {
 	padding-top: 10px;
 	height: 189px;
 }
-.staticsTitleContent {
-	width: 600px;
-	height: 460px;
+.staticsContent {
+	width: 800px;
+	height: 560px;
 }
 #c_begintime, #c_endtime, #c_editbegintime, #c_editendtime {
 	padding: 0 0 0 29px;
@@ -1968,30 +1998,21 @@ body {
 	*top: 4px;
 }
 #staticsWrapper {
-	width: 600px;
+	width: 800px;
 	height: 500px;
 }
 .staticsCondition {
 	height: 50px;
 	line-height: 40px;
 	margin-left: 19px;
-	width: 580px;
 	vertical-align: middle;
 }
 .staticsTable {
 	border: 0 none;
     border-collapse: collapse;
-    width: 569px;
+    width: 755px;
 }
 .staticsTable tr {
-	border: 1px solid #c1d2e5;
-}
-.staticsTable td, .staticsTable th, .mileageTable th {
-	border: 0px;
-	height: 25px;
-	width: 65px;
-	line-height: 25px;
-	text-align: center;
 	border: 1px solid #c1d2e5;
 }
 #staticsPage {
@@ -2105,7 +2126,7 @@ legend {
 	width: auto;
 }
 .conditions {
-	margin: 10px 0px 10px 60px;
+	margin: 10px 0px 10px 12px;
 }
 .conditions td {
 	padding-left: 10px;
@@ -2172,28 +2193,49 @@ legend {
 	background: url('/static/images/nextPage0.png') no-repeat;
 }
 /* file upload css start */
-.operationBtn {
-	background: url("/static/images/fileUploadBg.png") no-repeat scroll 0 0 transparent;
+#fileUploadWrapper {
+	width: 600px;
+}
+.activeBtn, .batchDeleteBtn, .batchDefendBtn {
+	background: url("/static/images/file.png") no-repeat scroll 0 0 transparent;
     border: 0 none;
-    color: #FFFFFF;
-    height: 33px;
-   /* left: 130px;*/
-    line-height: 33px;
-	top: 2px;
+    height: 30px;
     position: relative;
-    width: 85px;
+    width: 92px;
 	cursor: pointer;
 }
-.btn_delete {
-	background: url("/static/images/grayBg.png") no-repeat scroll 0 0 transparent;
-	border: 0 none;
-    height: 33px;
-    line-height: 33px;
-    width: 85px;
-	cursor: pointer;
+.file-box{
+	left: 20px;
+    position: relative;
+    top: 20px;
+	width: 485px;
 }
-.fileUpload {
-	position: absolute;
+.txtFile{ 
+	height: 24px;
+	line-height: 24px;
+	border: 1px solid #cdcdcd;
+	width: 280px;
+	background-color: #FFF;
+}
+.uploadTip {
+	color: #000000;
+    height: 22px;
+    line-height: 38px;
+    padding-left: 18px;
+}
+.btnFileUpload{
+	height: 27px;
+    text-align: center;
+    width: 70px;
+}
+.file{
+	position:absolute;
+	top:0;
+	left: 0px;
+	height:24px;
+	filter:alpha(opacity:0);
+	opacity: 0;
+	width: 357px;
 }
 .fileStatus1 {
 	color: blue;
@@ -2210,55 +2252,89 @@ legend {
 .errorMsg {
 	position: relative;
 	top: 30px;
+	color: red;
+	left: 21px;
 }
 .fileInfoTable, .excelInfoTable, .batchDeleteTable, .batchDefendTable {
 	border-collapse: collapse;
     border-color: gray;
     border-spacing: 2px;
-    left: 7px;
-    position: relative;
-	top: 52px;
-    width: 560px;
+    margin-left: 24px;
+    margin-top: 84px;
+    width: 550px;
+}
+.batchThead {
+	background: url('/static/images/eventTH.png') repeat-x;
+	height: 38px;
+	border: 1px solid #dce7f2;
+}
+.batchThead th {
+    font-size: 14px; 
+	color: #69b2e9;
+	border: 1px solid #dce7f2;
+}
+.theadTitle {
+	background-color: #FFFACD;
 }
 .excelInfoTable {
-	top: 12px;
-}
-.fileInfoTable td, .excelInfoTable td, .batchDeleteTable td, .batchDefendTable td {
-	background: #FCFCFC;
-	text-align: center;
-	border-top: 1px solid #DDD;
-	border-bottom: 1px solid #DDD;
-	height: 38px;
-}
-.excelInfoTable tfoot td, .batchDeleteTable tfoot td, .batchDefendTable tfoot td {
-	text-align: right;
-	padding-right: 15px;
-}
-.excelInfoTable th, .batchDeleteTable th, .batchDefendTable th {
-	background-color: #FFFFE1;
-	height: 30px;
+	margin: 20px 10px 10px 20px;
 }
 .batchDeleteTable, .batchDefendTable {
-	width: 560px;
-	top: 0px;
-	margin: 10px 0px;
+	margin: 30px 20px;
+    width: 560px;
+}
+.batchDeleteContent, .batchDefendContent {
+	width: 600px;
+	height: 500px;
+	float: left;
+}
+.tfootCss {
+	height: 45px;
 }
 /* file upload css end */
 /*================*/
-#eventSearchWrapper {
+#eventSearchWrapper, #singleEventWrapper {
 	height: 620px;
 }
-#eventSearchWrapper, .eventSearchTitle , .eventSearchContent {
+#eventSearchWrapper, .eventSearchTitle , .eventSearchContent, #singleEventWrapper {
 	width: 800px;
 }
 .eventSearchContent {
-	height: 586px;
+	padding-top: 10px;
+	height: 700px;
+}
+.eventSearchContent td, .singleMileageTable td {
+	height: 22px;
+	line-height: 22px;
 }
 .eventSearchContent .dataTable {
 	width: 770px;
 }
-.eventSearchCondition, .mileageCondition {
+.singleEventSearchTable .dataTable {
+	width: 750px;
+}
+.singleMileageSearchTable .dataTable {
+	width: 750px;
+} 
+.singleEventTitle, .singleMileageTitle {
+	color: #205B86;
+    font-size: 14px;
+    font-weight: bold;
+    left: 90px;
+    line-height: 34px;
+    position: absolute;
+}
+.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition {
+	padding-top: 10px;
 	margin-left: 22px;
+}
+.singleEventCondition, .singleMileageCondition {
+	width: 92%;
+}
+.eventSearchCondition select, .mileageCondition select, .singleEventCondition select, .singleMileageCondition select {	/* search conditions */
+	height: 24px;
+    padding-top: 2px;
+    width: 146px;
 }
 .eventBtn {
 	background: url('/static/images/cx.png') no-repeat;
@@ -2267,11 +2343,11 @@ legend {
 	height: 34px;
 	margin-left: 30px;
 	position: relative;
-	top: 4px;
+	top: 1px;
 	_top: 1px;
 	width: 92px;
 }
-#eventSearchPage {
+#eventSearchPage, #singleEventPage, #singleMileagePage, #singleMileagePage {
 	height: 34px;
     line-height: 34px;
     margin: 0 auto;
@@ -2280,14 +2356,18 @@ legend {
 }
 /*-------报表统计---*/
 #mileageWrapper, .mileageTitle {
-	width: 600px;
+	width: 800px;
 }
 .mileageContent {
-	width: 600px;
-	height: 500px;
+	width: 800px;
+	height: 600px;
 }
 .mileageTable {
-	width: 555px;
+	width: 755px;
+}
+.singleMileageContent {
+	width: 800px;
+	height: 700px;
 }
 /*报表统计二级菜单*/
 .countUlIetm {

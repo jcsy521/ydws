@@ -59,13 +59,13 @@ window.dlf.fn_closeDialog = function() {
 	var f_eventSearchWpST = $('#eventSearchWrapper').is(':visible'),  //告警窗口是否在打开状态
 		b_trackClass = $('#trackHeader').data('trackST'); // 轨迹是否有操作
 	
-	if ( f_eventSearchWpST ) { 
+	if ( f_eventSearchWpST ) {
 		if ( b_trackClass ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询 不操作lastinfo
 		} else {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 		}
-	} 
+	}
 	$('.wrapper').hide();
 	dlf.fn_unLockScreen(); // 去除页面遮罩
 	dlf.fn_unLockContent(); // 清除内容区域的遮罩
@@ -288,6 +288,8 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			// 更新当前车辆的详细信息显示
 			var	obj_carDatas = $('.j_carList').data('carsData'),
 				obj_terminals = $('.j_carList .j_terminal'),
+				f_trackSt = $('#trackHeader').is(':visible'), 
+				f_eventSearchWpST = $('#eventSearchWrapper ').is(':visible'),
 				n_len = obj_terminals.length;
 
 			obj_terminals.removeClass('j_currentCar');	// 其他车辆移除样式
@@ -296,14 +298,19 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			if ( !dlf.fn_userType() ) {	// 如果是个人用户添加当前车样式
 				obj_terminals.removeClass('currentCarCss');	// 其他车辆移除样式
 				obj_currentItem.addClass('currentCarCss');	// 当前车添加样式
-				if ( obj_carDatas ) {
-					var obj_currentCarData = obj_carDatas[n_tid];
-					if ( obj_currentCarData ) {
-						dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
-					}
-					dlf.fn_moveMarker(n_tid);
+				
+				if ( f_trackSt || f_eventSearchWpST  ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
+					return;
 				} else {
-					dlf.fn_getCarData('first');
+					if ( obj_carDatas ) {
+						var obj_currentCarData = obj_carDatas[n_tid];
+						if ( obj_currentCarData ) {
+							dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
+						}
+						dlf.fn_moveMarker(n_tid);
+					} else {
+						dlf.fn_getCarData('first');
+					}
 				}
 				// 个人用户操作成功保存当前车tid 
 				str_currentPersonalTid = n_tid;
@@ -353,7 +360,7 @@ window.dlf.fn_updateLastInfo = function() {
 		} else {
 			dlf.fn_corpGetCarData();
 		}		
-	}, INFOTIME); 
+	}, INFOTIME);
 }
 
 /**
@@ -361,19 +368,12 @@ window.dlf.fn_updateLastInfo = function() {
 */
 window.dlf.fn_getCarData = function(str_flag) { 
 	var str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),	//当前车tid
-		obj_carListLi = $('.j_carList li'), 
-		f_trackSt = $('#trackHeader').is(':visible'), 
-		f_eventSearchWpST = $('#eventSearchWrapper ').is(':visible'),
-		f_milleageWpST = $('#mileageWrapper').is(':visible'),
-		f_staticWpSt = $('#staticsWrapper').is(':visible'),
+		obj_carListLi = $('.j_carList li'),
 		n_length = obj_carListLi.length, 	//车辆总数
 		n_count = 0, 
 		arr_tids = [], 
 		obj_tids= {'tids': [str_currentTid], 'cache': 0};	//所有车的tid集合、是否是第一次lastinfo
 	
-	if ( f_trackSt || f_eventSearchWpST || f_milleageWpST || f_staticWpSt ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
-		return;
-	}
 	for( var i = 0; i < n_length; i++ ) {	//遍历每辆车获取tid
 		var str_tempTid = obj_carListLi.eq(i).children().attr('tid');	
 		if ( str_tempTid ) {

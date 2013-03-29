@@ -9,90 +9,32 @@
 		<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
 		<script type="text/javascript" src="/static/js/jquery.jnotify.js"></script>
 		<script type="text/javascript" src="/static/js/initialize_common.js"></script>
+		<script type="text/javascript" src="/static/js/json2.js"></script>
 		<script type="text/javascript" src="/static/js/fileupload.js"></script>
-		<script type="text/javascript">
-			$(function() {
-				var n_gid = parent.document.getElementById('hidGid').value,
-					str_gname = parent.document.getElementById('hidGName').value;
-				
-				$('#gid').val(n_gid);
-				$('.j_thead').html(str_gname);
-				$('.j_active').removeClass('btn_delete').addClass('operationBtn').attr('disabled', false);
-				// 文件上传
-				$("input.fileUpload").filestyle({ 
-					image: "/static/images/file.png",
-					imageheight : 33,
-					imagewidth : 85,
-					width : 220
-				});
-				$('.j_active').unbind('click').bind('click', function() {
-					var obj_notActive = $('.j_notActived'),
-						obj_resultTab = $('#fileUploadTable'),
-						arr_mobiles = [],
-						obj_param = {'gid': n_gid, 'mobiles': []};
-					
-					$.each(obj_notActive, function() {
-						var obj_this = $(this),
-							str_tmobile = obj_this.attr('tmobile'),
-							str_umobile = obj_this.attr('umobile');
-							
-						arr_mobiles.push({'tmobile': str_tmobile, 'umobile': str_umobile});
-					});
-					
-					if ( arr_mobiles.length > 0 ) {
-						dlf.fn_jNotifyMessage('定位器正在激活中...<img src="/static/images/blue-wait.gif" width="12px" />', 'message', true);
-						obj_param.mobiles = arr_mobiles;
-						$.post_('/batch/JH', JSON.stringify(obj_param),function(data) {
-							if ( data.status == 0 ) {
-								var arr_datas = data.res;
-								
-								dlf.fn_closeJNotifyMsg('#jNotifyMessage');
-								for ( var x = 0; x < arr_datas.length; x++ ) {
-									var obj_result = arr_datas[x],
-										n_status = obj_result.status,
-										str_tmobile = obj_result.tmobile,
-										obj_updateTd = $('.j_notActived[tmobile='+ str_tmobile +']').children('td').eq(2);
-									
-									if ( n_status == 0 ) {
-										obj_updateTd.html('激活指令已下发').addClass('fileStatus4');
-									} else {
-										obj_updateTd.html('激活失败').addClass('fileStatus3');
-									}
-								}
-								$('.j_active').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);
-								
-								parent.dlf.fn_corpGetCarData();
-								dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
-							} else {
-								dlf.fn_jNotifyMessage('定位器激活失败，请重新激活。', 'message', false, 4000);
-								return;
-							}
-						});
-					} else {
-						dlf.fn_jNotifyMessage('上传数据格式错误。', 'message', false, 4000);
-						return;
-					}
-				});
-			});
-		</script>
 		<title>文件上传</title>
 	</head>
-	<body>
+	<body style="background-color: #FFF;">
 		{% if status is None %}
 		<form id="fileUploadForm" name="fileUploadForm" method="POST" target="fileUploadIframe"  enctype="multipart/form-data" action="/batch/import">
+			<p class="uploadTip">
+				请选择后缀名为xls或xlsx的Excel文件
+			</p>
 			<input type="hidden" id="gid" name="gid" value="" />
-			<input type="file" name="upload_file" id="upload_file" class="fileUpload"  multiple="">
-			<!--<input type="submit" class="operationBtn j_startUpload" value="开始上传"  />-->
-			<table class="fileInfoTable"></table>
+			<div class="file-box">				
+				<input type='text' name='txtFile' id='txtFile' class='txtFile' />  
+				<input type='button' class='btnFileUpload' id="btnFileUpload" value='浏览...' />
+				<input type="file" name="upload_file" class="file" id="upload_file" size="28" onchange="document.getElementById('txtFile').value=this.value" />
+				<input type="submit" href="#" title="开始上传" class="btnFileUpload j_startUpload hide" value="开始上传" />
+			</div>
 			<p class="errorMsg j_uploadError">
 			</p>
 		</form>
 		{% elif status == 0 %}
 			<table class="dataTable excelInfoTable" id="fileUploadTable">
 				<thead>
-					<tr><th colspan="3" class="j_thead"></th></tr>
+					<tr class="batchThead"><th colspan="3" class="j_thead"></th></tr>
+					<tr class="theadTitle"><td>定位器号码</td><td>车主号码</td><td>状态</td></tr>
 				</thead>
-				<tr><td>定位器号码</td><td>车主号码</td><td>状态</td></tr>
 				{% for r in res %}
 					{% if r.status == 1 %}
 						<tr class="j_notActived" tmobile="{{r.tmobile}}" umobile="{{r.umobile}}">
@@ -114,14 +56,15 @@
 						</tr>
 					{% end %}
 				{% end %}
-				<tfoot class="">
-					<tr>
+				<tfoot class="tfootCss">
+					<tr rowspan="2">
 						<td colspan="3" align="right">
-							<input type="button" class="operationBtn j_active" value="批量激活"  />
+							<input type="button" class="activeBtn j_active" value="批量激活" />
 						</td>
 					</tr>
 				</tfoot>
 			</table>
+			<div id="jNotifyMessage"></div> <!--消息提示框-->
 		{% else %}
 			<span class="txtColor">{{message}}</span>
 		{% end %}

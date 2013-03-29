@@ -46,16 +46,68 @@
 .jstree-classic a.jstree-search { color:aqua; }
 .jstree-classic .jstree-locked a { color:silver; cursor:default; }
 
-#vakata-contextmenu.jstree-classic-context, 
-#vakata-contextmenu.jstree-classic-context li ul { background:#f0f0f0; border:1px solid #979797; -moz-box-shadow: 1px 1px 2px #999; -webkit-box-shadow: 1px 1px 2px #999; box-shadow: 1px 1px 2px #999; }
+#vakata-contextmenu,
+#vakata-contextmenu.jstree-classic-context li ul { /* kjj update  old css is {background:#f0f0f0; border:1px solid #979797; -moz-box-shadow: 1px 1px 2px #999; -webkit-box-shadow: 1px 1px 2px #999; box-shadow: 1px 1px 2px #999; }*/
+	background-color: #ffffff;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	*border-right-width: 2px;
+	*border-bottom-width: 2px;
+    border-radius: 6px;
+	-webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	-webkit-background-clip: padding-box;
+    -moz-background-clip: padding;
+    background-clip: padding-box;
+	behavior: url(/static/js/themes/classic/PIE.htc);
+}
 #vakata-contextmenu.jstree-classic-context li { }
-#vakata-contextmenu.jstree-classic-context a { color:black; }
+#vakata-contextmenu.jstree-classic-context a { /* kjj update old css is color: black; */
+	display: block;
+	padding: 3px 20px;
+	font-weight: normal;
+	line-height: 20px;
+	color: #333;
+	white-space: nowrap;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	behavior: url(/static/js/themes/classic/PIE.htc);
+}
 #vakata-contextmenu.jstree-classic-context a:hover, 
-#vakata-contextmenu.jstree-classic-context .vakata-hover > a { padding:0 5px; background:#e8eff7; border:1px solid #aecff7; color:black; -moz-border-radius:2px; -webkit-border-radius:2px; border-radius:2px; }
+#vakata-contextmenu.jstree-classic-context .vakata-hover > a {/*kjj update old css is {-moz-border-radius:2px;-webkit-border-radius:2px; border-radius:2px; padding:0 5px; background:#e8eff7; border:1px solid #aecff7; color:black; -moz-border-radius:2px; -webkit-border-radius:2px; border-radius:2px;}*/
+	color: #ffffff;	
+	padding: 3px 20px;
+	background: #0081c2; 
+	background-image: -moz-linear-gradient(top, #0088cc, #0077b3);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0077b3));
+	background-image: -webkit-linear-gradient(top, #0088cc, #0077b3);
+	background-image: -o-linear-gradient(top, #0088cc, #0077b3);
+	background-image: linear-gradient(to bottom, #0088cc, #0077b3);
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	behavior: url(/static/js/themes/classic/PIE.htc);
+}
 #vakata-contextmenu.jstree-classic-context li.jstree-contextmenu-disabled a, 
-#vakata-contextmenu.jstree-classic-context li.jstree-contextmenu-disabled a:hover { color:silver; background:transparent; border:0; padding:1px 4px; }
+#vakata-contextmenu.jstree-classic-context li.jstree-contextmenu-disabled a:hover { /*color:silver; background:transparent; border:0; padding:1px 4px;*/
+	color: #ffffff;
+	text-decoration: none;
+	background-color: #0081c2;
+	background-image: -moz-linear-gradient(top, #0088cc, #0077b3);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0077b3));
+	background-image: -webkit-linear-gradient(top, #0088cc, #0077b3);
+	background-image: -o-linear-gradient(top, #0088cc, #0077b3);
+	background-image: linear-gradient(to bottom, #0088cc, #0077b3);
+	background-repeat: repeat-x;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0077b3', GradientType=0);
+	behavior: url(../PIE.htc);
+}
 #vakata-contextmenu.jstree-classic-context li.vakata-separator { background:white; border-top:1px solid #e0e0e0; margin:0; }
-#vakata-contextmenu.jstree-classic-context li ul { margin-left:-4px; }
+#vakata-contextmenu.jstree-classic-context li ul { margin-left:-2px; _margin-left: 2px;}
 
 /* IE6 BEGIN */
 .jstree-classic li, 
@@ -74,4 +126,10 @@
 .jstree-classic .jstree-undetermined a .jstree-checkbox { _background-position:-20px -19px; }
 .jstree-classic .jstree-checked a .jstree-checkbox { _background-position:-38px -19px; }
 .jstree-classic .jstree-unchecked a .jstree-checkbox { _background-position:-2px -19px; }
+
+/*kjj add css*/
+.separator {
+	height: 30px;
+	border-bottom: 1px solid #E5E5E5;
+}
 /* IE6 END */

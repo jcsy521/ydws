@@ -529,14 +529,19 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
 				'<li><label>经度： E '+str_clon.toFixed(CHECK_ROUNDNUM)+'</label>'+
 				'<label class="labelRight">纬度： N '+str_clat.toFixed(CHECK_ROUNDNUM)+'</label></li>'+
-				'<li><label>类型： '+ str_type +'</label></li>'+
-				'<li><label>时间： '+ date +'</label></li>' + 
-				'<li>位置： <lable class="lblAddress">'+ str_tempAddress +'</label></li>';
+				'<li>类型： '+ str_type +'</li>'+
+				'<li>时间： '+ date +'</li>' + 
+				'<li>位置： <lable class="lblAddress">'+ address +'</label></li>';
 
 	if ( str_iconType == 'actiontrack' ) {
-		str_html+='<li class="top10"><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a>'+
-			'<a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹查询</a></li>';
-	}
+		str_html+='<li class="top10"><a href="#" id="realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
+		if ( dlf.fn_userType() ) {	// 如果是集团用户的话 定位、轨迹、设防撤防、参数设置放在marker上
+			str_html+='<a href="#" id="corpTerminal"  onclick="dlf.fn_initCorpTerminal();">设置</a>';
+		} else {	// 如果是个人用户
+			str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
+		}
+		str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+	}	
 	str_html += '</ul></div>';
 	return str_html;
 } 

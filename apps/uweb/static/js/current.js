@@ -254,7 +254,7 @@ function fn_saveDefend(obj_defend, b_corp) {
 * 批量设防撤防
 */
 window.dlf.fn_initBatchDefend = function(str_defend, obj_param) {
-	$('#batchDefendWrapper').attr('title', '批量'+ str_defend +'定位器').dialog('option', 'title', '批量'+ str_defend +'定位器').dialog("open");
+	dlf.fn_dialogPosition('batchDefend');	// 设置dialog的位置
 	dlf.fn_echoData('batchDefendTable', obj_param, str_defend);
 	var obj_defend = {},
 		n_defendStatus = str_defend == '设防' ? DEFEND_ON : DEFEND_OFF;

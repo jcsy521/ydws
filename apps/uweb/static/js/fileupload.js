@@ -1,101 +1,79 @@
-/*
- * Style File - jQuery plugin for styling file input elements
- *  
- * Copyright (c) 2007-2008 Mika Tuupola
- *
- * Licensed under the MIT license:
- *   http://www.opensource.org/licenses/mit-license.php
- *
- * Based on work by Shaun Inman
- *   http://www.shauninman.com/archive/2007/09/10/styling_file_inputs_with_css_and_the_dom
- *
- * Revision: $Id: jquery.filestyle.js 303 2008-01-30 13:53:24Z tuupola $
- *
- */
-
-(function($) {
-    
-    $.fn.filestyle = function(options) {
-                
-        /* TODO: This should not override CSS. */
-        var settings = {
-            width : 250
-        };
-                
-        if(options) {
-            $.extend(settings, options);
-        };
-                        
-        return this.each(function() {
-            
-            var self = this;
-            var wrapper = $("<div>")
-                            .css({
-                                "width": (settings.imagewidth + 200) + "px",
-                                "height": settings.imageheight + "px",
-                                "background": "url(" + settings.image + ") 0 0 no-repeat #EEEEEE",
-                                "background-position": "left",
-                                "display": "block",
-                                "position": "absolute",
-                                "overflow": "hidden"
-                            });
-                            
-            var filename = $('<input class="file">')
-                             .addClass($(self).attr("class"))
-                             .css({
-                                 "display": "inline",
-                                 "width": settings.width + "px"
-                             });
-
-            $(self).before(filename);
-            $(self).wrap(wrapper);
-
-            $(self).css({
-                        "position": "relative",
-                        "height": settings.imageheight + "px",
-                        "width": ( settings.width ) + "px",
-                        "display": "inline",
-                        "cursor": "pointer",
-                        "opacity": "0.0"
-                    });
-
-            if ($.browser.mozilla) {
-                if (/Win/.test(navigator.platform)) {
-                    $(self).css("margin-left", "-81px");                    
-                } else {
-                    $(self).css("margin-left", "-168px");                    
-                };
-            } else {
-                $(self).css("margin-left", settings.imagewidth - settings.width + "px");                
-            };
-
-            $(self).bind("change", function() {
-				var obj_this = $(self),
-					obj_msg = $('.j_uploadError'),
-					obj_resultTab = $('.fileInfoTable'),
-					str_val = obj_this.val();
-				
-				obj_msg.html('');
-				var str  = str_val.substr(str_val.lastIndexOf('.') + 1, str_val.length);
-				// 上传文件后判断后缀名
-				if ( str != 'xlsx' && str != 'xls' ) {
-					obj_msg.html('上传文件格式错误，请重新上传。');
-					obj_this.val('');
-				} else {
-					str_result = '<tr><td>'+ str_val +'</td><td><input type="submit" class="operationBtn j_startUpload" value="开始上传"  /></td></tr>';
-					obj_resultTab.html(str_result);
-				}
-				
-				// 取消上传文件
-				/*$('.j_delete').unbind('click').bind('click', function() {
-					var obj_currentTr = $(this).parent().parent();
-					
-					obj_currentTr.remove();
-				});*/
-                filename.val($(self).val());
-				
-            });
-        });
-	};
+$(function() {
+	var n_gid = parent.document.getElementById('hidGid').value,
+		str_gname = parent.document.getElementById('hidGName').value,
+		obj_gid = $('#gid');
 	
-})(jQuery);
+	obj_gid.val(n_gid);
+	$('.j_thead').html(str_gname);
+	$('.j_active').attr('disabled', false);
+	// 选择文本框和浏览按钮实现file的click事件
+	$('#btnFileUpload, #txtFile').click(function() {	
+		$('#upload_file').click();
+	});
+	// file 的change事件
+	$('#upload_file').unbind('change').bind("change", function() {	
+		var obj_this = $(this),
+			obj_msg = $('.j_uploadError'),
+			str_val = obj_this.val();
+		
+		obj_msg.html('');
+		$('#txtFile').val(str_val);
+		var str  = str_val.substr(str_val.lastIndexOf('.') + 1, str_val.length);
+		// 上传文件后判断后缀名
+		if ( str != 'xlsx' && str != 'xls' ) {
+			obj_msg.html('上传文件格式错误，请重新上传。');
+			obj_this.val('');
+		} else {
+			$('.j_startUpload').show();
+		}
+	});				
+	// 批量激活事件
+	$('.j_active').unbind('click').bind('click', function() {
+		var obj_notActive = $('.j_notActived'),
+			obj_resultTab = $('#fileUploadTable'),
+			arr_mobiles = [],
+			obj_param = {'gid': n_gid, 'mobiles': []};
+		
+		$.each(obj_notActive, function() {
+			var obj_this = $(this),
+				str_tmobile = obj_this.attr('tmobile'),
+				str_umobile = obj_this.attr('umobile');
+				
+			arr_mobiles.push({'tmobile': str_tmobile, 'umobile': str_umobile});
+		});
+		
+		if ( arr_mobiles.length > 0 ) {
+			dlf.fn_jNotifyMessage('定位器正在激活中...<img src="/static/images/blue-wait.gif" width="12px" />', 'message', true);
+			obj_param.mobiles = arr_mobiles;
+			$.post_('/batch/JH', JSON.stringify(obj_param),function(data) {
+				if ( data.status == 0 ) {
+					var arr_datas = data.res;
+					
+					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+					for ( var x = 0; x < arr_datas.length; x++ ) {
+						var obj_result = arr_datas[x],
+							n_status = obj_result.status,
+							str_tmobile = obj_result.tmobile,
+							obj_updateTd = $('.j_notActived[tmobile='+ str_tmobile +']').children('td').eq(2);
+						
+						if ( n_status == 0 ) {
+							obj_updateTd.html('激活指令已下发').addClass('fileStatus4');
+						} else {
+							obj_updateTd.html('激活失败').addClass('fileStatus3');
+						}
+					}
+					$('.j_active').removeClass('beginUploadBtn').addClass('btn_delete').attr('disabled', true);
+					
+					parent.dlf.fn_corpGetCarData();
+					dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
+				} else {
+					dlf.fn_jNotifyMessage('定位器激活失败，请重新激活。', 'message', false, 3000);
+					return;
+				}
+			});
+		} else {
+			dlf.fn_jNotifyMessage('上传数据格式错误。', 'message', false, 3000);
+			return;
+		}
+	});
+});

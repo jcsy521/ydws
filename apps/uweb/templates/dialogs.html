@@ -1,4 +1,6 @@
 <div id="dialogsWrapper">
+	<iframe scrolling="no" frameborder="0" style="position:absolute; z-index:1002; filter:alpha(opacity=0); opacity: 0;" class="hide j_iframe"> 
+	</iframe>
 	<div id="jNotifyMessage" class="hide"></div> <!--消息提示框-->
 	<div id="jContentLock" class="readonly_overlay hide"></div> <!--消息提示框-->
 	<!--实时查询-->
@@ -563,50 +565,6 @@
 							<input type="text" id="c_cnum" name="c_cnum" class="text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
 						</td>
 					</tr>
-					<!--<tr>
-						<td>
-							<label>开始时间：</label>
-							<input type="text" name="c_begintime" id="c_begintime"  class="time" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>结束时间：</label>
-							<input type="text" name="c_endtime" id="c_endtime"  class="time" />
-						</td>
-					</tr>
-					
-					<tr>
-						<td>
-							<label>车辆类型：</label>
-							<select id="c_type" name="c_type"  class="c_select">
-								<option value="1">小汽车</option>
-								<option value="2">小货车</option>
-								<option value="3">大巴车</option>
-								<option value="4">摩托车</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>车辆颜色：</label>
-							<select id="c_color" name="c_color" class="c_select" >
-								<option value="1">黑色</option>
-								<option value="2">白色</option>
-								<option value="3">银色</option>
-								<option value="4">红色</option>
-								<option value="5">黄色</option>
-								<option value="6">灰色</option>
-								<option value="7">其他</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>车辆品牌：</label>
-							<input type="text" id="c_brand" name="c_brand" class="text_mouseOut j_corpData j_onInputBlur"  msg="车辆品牌最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
-						</td>
-					</tr>-->
 				</table>
 				<input type="hidden" id="hidGroupId"  value="" />
 				<input type="hidden" id="hidTMobile"  value="" />
@@ -614,95 +572,24 @@
 			</form>
 		</div>
 	</div>
-	<!-- 编辑终端 -->
-	<!--<div id="cTerminalEditWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle cTerminalEditTitle">
-			<span class="close j_close" title="关闭窗口"></span>
-		</div>
-		<div class="wrapperContent cTerminalEditContent">
-			<form id="cTerminalEditForm" >
-				<table class="cTerminalList">
-					<tr>
-						<td>
-							<label>终端手机号：</label>
-							<span class="j_tmobile"></span>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>车主手机号：</label>
-							<span class="j_umobile"></span>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>开始时间：</label>
-							<input type="text" id="c_editbegintime"  class="time j_cterminalEdit" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>结束时间：</label>
-							<input type="text" id="c_editendtime"  class="time j_cterminalEdit" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>车牌号码：</label>
-							<input type="text" id="c_editcnum" class="text_mouseOut j_cterminalEdit j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>车辆品牌：</label>
-							<input type="text" id="c_editcbrand" class="text_mouseOut j_cterminalEdit j_onInputBlur"  msg="车辆品牌最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>车辆类型：</label>
-							<select id="c_editctype" class="j_cterminalEdit c_select">
-								<option value="1">小汽车</option>
-								<option value="2">小货车</option>
-								<option value="3">大巴车</option>
-								<option value="4">摩托车</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>车辆颜色：</label>
-							<select id="c_editccolor" class="j_cterminalEdit c_select" >
-								<option value="1">黑色</option>
-								<option value="2">白色</option>
-								<option value="3">银色</option>
-								<option value="4">红色</option>
-								<option value="5">黄色</option>
-								<option value="6">灰色</option>
-								<option value="7">其他</option>
-							</select>
-						</td>
-					</tr>
-				</table>
-				<input type="hidden" id="hidTid"  value="" />
-				<input type="submit" value="" id="cTerminalEditSave" class="personalButton j_save" />
-			</form>
-		</div>
-	</div>
-	-->
 	<!-- 统计 -->
 	<div id="staticsWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle staticsTitle">
 			<span class="close j_close" title="关闭窗口" who="statics"></span>
 		</div>
-		<div class="wrapperContent staticsTitleContent">
+		<div class="wrapperContent staticsContent">
 			<table class="staticsCondition">
 				<tr>
 					<td>
 						查询时间：<input type="text" id="staticsStartTime"  class="time" />
 						至 <input type="text" id="staticsEndTime"  class="time" />
 					</td>
-					<td><span id="statics_searchBtn" class="staticsBtn j_tBtnhover" title="搜索"></span></td>
+					<td>
+						<span id="statics_searchBtn" class="staticsBtn j_tBtnhover" title="搜索"></span>
+					</td>
+					<td>
+						<a id="statics_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
+					</td>
 				</tr>
 			</table>
 			<table class="dataTable staticsTable"  cellspacing="0" border="1" borderColor="red" align="center">
@@ -743,12 +630,15 @@
 		</div>
 	</div>
 	<!-- 文件上传 -->
-	<div id="fileUploadDialog" title="批量文件上传" class="hide">
+	<div id="fileUploadWrapper" class="wrapper hide j_drag">
 		<input type="hidden" id="hidGid" />
 		<input type="hidden" id="hidGName" />
-		<iframe scrolling="auto" width=580 height=460 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
+		<div class="wrapperTitle fileUploadTitle">
+			<span class="close j_close" title="关闭窗口"></span>
+		</div>
+		<iframe scrolling="auto" width=600 height=500 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
 	</div>
-	<!-- 告警查询 -->
+	<!-- 个人告警查询 -->
 	<div id="eventSearchWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle eventSearchTitle">
 			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
@@ -794,7 +684,60 @@
 				<span id="eventSearchNextBtn" class="nextBtn j_pBtnHover"></span>
 			</div>
 		</div>
+	</div>	
+	<!-- 单个定位器告警查询 -->
+	<div id="singleEventWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle staticsTitle">
+			<span class="singleEventTitle j_singleEventTitle"></span>
+			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
+		</div>
+		<div class="wrapperContent eventSearchContent j_singleEventContent">
+			<table class="singleEventCondition">
+				<tr>
+					<td width="500px" colspan="3">
+						查询类型：
+						<select id="singleEventType" style="display: inline-block;">
+							<option value="1">年报</option>
+							<option value="2">月报</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="484px">
+						查询时间：
+						<select id="singleEventYear"></select>
+						<select id="singleEventMonth" >
+						</select>
+						<a class="j_chart hide chartBtn" href="#">点击查看统计图</a>
+					</td>
+					<td>
+						<span id="singleEvent_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span>
+						<a id="singleEvent_uploadBtn" class="donwuploadBtn singleDownloadBtn j_downloadBtnhover"  href="#" >导出数据</a>
+					</td>
+				</tr>
+			</table>
+			<table class="dataTable singleEventSearchTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="singleEventTableHeader">
+						<th class="j_singleEventTH">时间</th>
+						<th>移动告警</th>
+						<th>震动告警</th>
+						<th>通讯异常</th>
+						<th>电量告警</th>
+					</tr>
+				</tbody>
+				<tfoot class="j_singleEventFoot">
+				</tfoot>
+			</table>
+			<!-- 分页 -->
+			<div id="singleEventPage" class="hide">
+				<span id="singleEventPrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="singleEventPageNums" class="pageNums"><label id="singleEventCurrentPage"></label>/<label id="singleEventPageCount"></label></span>
+				<span id="singleEventNextBtn" class="nextBtn j_pBtnHover"></span>
+			</div>
+		</div>
 	</div>
+	<div id="singleEventChart" class="hide" title="告警统计图"></div>
 	<!-- 里程 统计-->
 	<div id="mileageWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle mileageTitle">
@@ -808,6 +751,9 @@
 						至 <input type="text" id="mileageEndTime"  class="time" />
 					</td>
 					<td><span id="mileage_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
+					<td>
+						<a id="mileage_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
+					</td>
 				</tr>
 			</table>
 			<table class="dataTable mileageTable"  cellspacing="0" border="1" borderColor="red" align="center">
@@ -826,29 +772,87 @@
 			</div>
 		</div>
 	</div>
-	<!-- 批量删除数据回显 -->
-	<div class="hide" id="batchDeleteDialog">
-		<table class="dataTable batchDeleteTable">
-			<thead>
+	<!-- 单个定位器 里程统计 查询 -->
+	<div id="singleMileageWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle mileageTitle">
+			<span class="singleMileageTitle j_singleMileageTitle"></span>
+			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
+		</div>
+		<div class="wrapperContent singleMileageContent j_singleMileageContent">
+			<table class="singleMileageCondition">
 				<tr>
-					<th colspan="3" class="j_batchDeleteHead"></th>
+					<td width="500px">
+						查询类型：
+						<select id="singleMileageType" style="display: inline-block;">
+							<option value="1">年报</option>
+							<option value="2">月报</option>
+						</select>
+					</td>
+					
 				</tr>
 				<tr>
-					<td>车牌号</td>
-					<td>定位器号码</td>
-					<td>状态</td>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="3">
-						<input type="button" class="operationBtn j_batchDelete" value="批量删除"  />
+					<td>
+						查询时间：
+						<select id="singleMileageYear"></select>
+						<select id="singleMileageMonth" >
+						</select>
+						<a class="j_chart hide chartBtn" href="#">点击查看统计图</a>
+					</td>
+					<td>
+						<span id="singleMileage_searchBtn" class="eventBtn j_tBtnhover" title="查询"></span>
+						
+						<a id="singleMileage_uploadBtn" class="donwuploadBtn singleDownloadBtn j_downloadBtnhover"  href="#" >导出数据</a>
 					</td>
 				</tr>
-			</tfoot>
-		</table>
+			</table>
+			<table class="dataTable mileageTable singleMileageTable"  cellspacing="0" border="1"  align="center">
+				<tbody>
+					<tr id="singleMileageTableHeader">
+						<th class="j_singleMileageTH">时间</th>
+						<th>里程（公里）</th>
+					</tr>
+				</tbody>
+				<tfoot class="j_singleMileageFoot">
+				</tfoot>
+			</table>
+			<!-- 分页 -->
+			<div id="singleMileagePage" class="hide">
+				<span id="singleMileagePrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="singleMileagePageNums" class="pageNums"><label id="singleMileageCurrentPage"></label>/<label id="singleMileagePageCount"></label></span>
+				<span id="singleMileageNextBtn" class="nextBtn j_pBtnHover"></span>
+			</div>
+		</div>
+	</div>
+	<div id="singleMileageChart" class="hide" title="里程统计图"></div>
+	
+	<!-- 批量删除数据回显 -->
+	<div class="wrapper hide j_drag" id="batchDeleteWrapper">
+		<div class="wrapperTitle batchDeleteTitle">
+			<span class="close j_close" title="关闭窗口" who="mileage"></span>
+		</div>
+		<div class="wrapperContent batchDeleteContent">
+			<table class="dataTable batchDeleteTable">
+				<thead>
+					<tr class="batchThead">
+						<th colspan="3" class="j_batchDeleteHead"></th>
+					</tr>
+					<tr class="theadTitle">
+						<td>车牌号</td>
+						<td>定位器号码</td>
+						<td>状态</td>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+				<tfoot class="tfootCss">
+					<tr>
+						<td colspan="3">
+							<input type="button" class="batchDeleteBtn j_batchDelete" value="批量删除"  />
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
 	</div>
 	<!--统计 列表-->
 	<ul id="countSecondList" class="hide j_countNavItem countUlIetm">
@@ -860,28 +864,33 @@
 		</li>
 	</ul>
 	<!-- 批量设防撤防数据回显 -->
-	<div class="hide" id="batchDefendWrapper">
-		<table class="dataTable batchDefendTable">
-			<thead>
-				<tr>
-					<th colspan="4"></th>
-				</tr>
-				<tr>
-					<td>车牌号</td>
-					<td>定位器号码</td>
-					<td>设防状态</td>
-					<td>操作</td>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="4">
-						<input type="button" class="operationBtn j_batchDefend" value="批量"  />
-					</td>
-				</tr>
-			</tfoot>
-		</table>
+	<div class="wrapper hide j_drag" id="batchDefendWrapper">
+		<div class="wrapperTitle batchDefendTitle">
+			<span class="close j_close" title="关闭窗口" who="mileage"></span>
+		</div>
+		<div class="wrapperContent batchDefendContent">
+			<table class="dataTable batchDefendTable">
+				<thead>
+					<tr class="batchThead">
+						<th colspan="4"></th>
+					</tr>
+					<tr class="theadTitle">
+						<td>车牌号</td>
+						<td>定位器号码</td>
+						<td>设防状态</td>
+						<td>操作</td>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+				<tfoot class="tfootCss">
+					<tr>
+						<td colspan="4">
+							<input type="button" class="batchDefendBtn j_batchDefend" value="批量"  />
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
 	</div>
 </div>

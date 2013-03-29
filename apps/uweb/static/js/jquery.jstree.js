@@ -3539,17 +3539,16 @@
 				$.vakata.context.cnt
 					.one("mouseleave", function(e) { $.vakata.context.hide(); });
 			}
-
 			h = $.vakata.context.cnt.height();
 			w = $.vakata.context.cnt.width();
-			if(x + w > $(document).width()) { 
+			/*if(x + w > $(document).width()) { 
 				x = $(document).width() - (w + 5); 
 				$.vakata.context.cnt.find("li > ul").addClass("right"); 
 			}
 			if(y + h > $(document).height()) { 
 				y = y - (h + t[0].offsetHeight); 
 				$.vakata.context.cnt.find("li > ul").addClass("bottom"); 
-			}
+			}*/
 
 			$.vakata.context.cnt
 				.css({ "left" : x, "top" : y })
@@ -3588,7 +3587,12 @@
 					str += "<li class='vakata-separator vakata-separator-before'></li>";
 				}
 				was_sep = false;
-				str += "<li class='" + (val._class || "") + (val._disabled ? " jstree-contextmenu-disabled " : "") + "'><ins ";
+				var str_tempClass = val._class || '';
+				
+				if ( i == 'event' || i == 'statics' || i == 'singleCreate' || i == 'batchDefend' || i == 'defend' || i == 'singleDelete' ) {
+					str_tempClass = 'separator'
+				}
+				str += "<li class='" + (str_tempClass) + (val._disabled ? " jstree-contextmenu-disabled " : "") + "'><ins ";
 				if(val.icon && val.icon.indexOf("/") === -1) { str += " class='" + val.icon + "' "; }
 				if(val.icon && val.icon.indexOf("/") !== -1) { str += " style='background:url(" + val.icon + ") center center no-repeat;' "; }
 				str += ">&#160;</ins><a href='#' rel='" + i + "'>";
@@ -3781,8 +3785,8 @@
 				}
 				if(s.show_at_node || typeof x === "undefined" || typeof y === "undefined") {
 					o = a.offset();
-					x = o.left;
-					y = o.top + this.data.core.li_height;
+					/*x = o.left; update the position of contextmenu 
+					y = o.top + this.data.core.li_height;*/
 				}
 				i = obj.data("jstree") && obj.data("jstree").contextmenu ? obj.data("jstree").contextmenu : s.items;
 				if($.isFunction(i)) { i = i.call(this, obj); }

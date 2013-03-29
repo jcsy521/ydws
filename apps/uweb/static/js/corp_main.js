@@ -33,16 +33,19 @@ function customMenu(node) {
 		subDefendItems = {},	// 批量设防撤防二级菜单
 		renameLabel = '',	// 重命名lable
 		createLabel = '',	// 新建lable
-		batchImportLabel = '',	// 批量导入
+		batchImportDeleteLabel = '',	// 批量导入
 		batchDeleteLabel = '',	// 批量删除
 		moveToLabel = '',	// 移动至
 		eventLabel = '',	// 告警查询
 		terminalLabel = '',	// 参数设置
 		deleteLabel = '',	// 删除lable
 		batchDefendLabel = '',	// 批量设防*撤防
+		singleDeleteLabel = '',	// 删除单个定位器
+		singleCreateLabel = '',	// 单个定位器的添加
 		singleDefendLabel = '',	// 单个定位器设防撤防
-		realtimeLabel = '',	// 单个定位器设防撤防
-		trackLabel = '';	// 单个定位器设防撤防
+		realtimeLabel = '',	// 单个定位器实时定位
+		trackLabel = '',	// 单个定位器轨迹查询
+		staticsLabel = '';	// 单个定位器统计报表
 	
 	if ( obj_node.hasClass('j_corp') ) {		// 集团右键菜单
 		renameLabel = '重命名集团';
@@ -51,18 +54,19 @@ function customMenu(node) {
 	} else if (obj_node.hasClass('j_group')) {	// 组右键菜单
 		renameLabel = '重命名组';
 		deleteLabel = '删除分组';
-		createLabel = '添加单个定位器';
-		batchImportLabel = '批量导入定位器';
+		singleCreateLabel = '添加单个定位器';
+		batchImportDeleteLabel = '批量导入/删除';
 		batchDeleteLabel = '批量删除定位器';
 		batchDefendLabel = '批量设防/撤防';
-	} else {									// 定位器右键菜单
+	} else {						// 定位器右键菜单
 		terminalLabel = '参数设置';
-		deleteLabel = '删除定位器';
+		singleDeleteLabel = '删除定位器';
 		realtimeLabel = '实时定位';
 		trackLabel = '轨迹查询';
 		eventLabel = '告警查询';
 		moveToLabel = '移动定位器';
 		singleDefendLabel = '设防/撤防';
+		staticsLabel = '统计报表';
 	}
 	// 定位器的移动至菜单项
 	
@@ -77,17 +81,25 @@ function customMenu(node) {
 	}
 	// 右键菜单执行的操作
 	items = {
-		"create" : {
+		"create" : {		// 新增分组
 			"label" : createLabel,
 			"action" : function (obj) {
 				var obj_this = $(obj).eq(0);
 				
-				if ( obj_this.hasClass('j_group') ) {	// 新增定位器
-					fn_initCreateTerminal('', obj_this.children('a').eq(0).attr('groupId'));
-					return false;
-				} else if ( obj_this.hasClass('j_corp') ) {	// 新增分组
+				if ( obj_this.hasClass('j_corp') ) {
 					this.create();
-				}
+				} else {
+					return false;
+				}	
+			}
+		},
+		"singleCreate": {		// 单个定位器添加
+			"label": singleCreateLabel,
+			"action": function(obj) {
+				var obj_this = $(obj).eq(0);
+				
+				fn_initCreateTerminal('', obj_this.children('a').eq(0).attr('groupId'));
+				return false;
 			}
 		},
 		"realtime": {
@@ -121,21 +133,27 @@ function customMenu(node) {
 				dlf.fn_defendQuery(obj.children('a').text().substr(2));
 			}
 		},
-		"batchImport": {	// 批量导入定位器操作菜单
-			"label" : batchImportLabel,
-			"action" : function (obj) {
-				// todo 批量导入定位器操作
-				var obj_batch = obj.children('a'),
-					n_gid = obj_batch.attr('groupid'),
-					str_gname = obj_batch.attr('title');
-				fn_initBatchImport(n_gid, str_gname);
-				return false;
-			}
-		},
-		"batchDelete": {	// 批量删除选中定位器操作菜单
-			"label" : batchDeleteLabel,
-			"action" : function (obj) {
-				fn_batchOperateValidate(obj, '删除');
+		"batchImportDelete": {	// 批量导入定位器操作菜单
+			"label" : batchImportDeleteLabel,
+			"submenu": {
+				'batchImport': {
+					"label" : "批量导入定位器",
+					"action" : function (obj) {
+						// todo 批量导入定位器操作
+						var obj_batch = obj.children('a'),
+							n_gid = obj_batch.attr('groupid'),
+							str_gname = obj_batch.attr('title');
+							
+						fn_initBatchImport(n_gid, str_gname);
+						return false;
+					}
+				},
+				'batchDelete': {
+					"label" : "批量删除定位器",
+					"action" : function (obj) {
+						fn_batchOperateValidate(obj, '删除');
+					}
+				}
 			}
 		},
 		"batchDefend" : {
@@ -183,9 +201,30 @@ function customMenu(node) {
 						fn_removeGroup(obj);
 						return false;
 					}
-				} else {	// 删除定位器
-					fn_removeTerminal(obj);
-					return false;
+				}
+			}
+		},
+		"singleDelete" : {
+			"label" : singleDeleteLabel,
+			"action" : function (obj) {
+				fn_removeTerminal(obj);
+				return false;
+			}
+		},
+		"statics": {
+			"label": staticsLabel,
+			"submenu": {
+				'eventStatics': {
+					"label" : "告警统计",
+					"action" : function (obj) {
+						dlf.fn_initRecordSearch('singleEvent');
+					}
+				},
+				'mileageStatics': {
+					"label" : "里程统计",
+					"action" : function (obj) {
+						dlf.fn_initRecordSearch('singleMileage');
+					}
 				}
 			}
 		}
@@ -193,36 +232,42 @@ function customMenu(node) {
 	// 终端右键菜单菜单
    if ( obj_node.hasClass('j_leafNode') ) {
 		delete items.create;
-		delete items.batchImport;
-		delete items.batchDelete;
+		delete items.singleCreate;
+		delete items.batchImportDelete;
 		delete items.rename;
 		delete items.batchDefend;
+		delete items.remove;
    }
    // 集团右键菜单删除菜单
    if ( obj_node.hasClass('j_corp')  ) {
+		delete items.singleCreate;
 		delete items.remove;
-		delete items.batchImport;
+		delete items.batchImportDelete;
 		delete items.moveTo;	
-		delete items.event;	
-		delete items.batchDelete;
+		delete items.event;
 		delete items.terminalSetting;
 		delete items.batchDefend;
 		delete items.defend;
 		delete items.realtime;
 		delete items.track;
+		delete items.statics;
+		delete items.singleDelete;
    }
    if ( obj_node.hasClass('j_group') ) {
+		delete items.create;
 		delete items.moveTo;
 		delete items.event;
 		delete items.terminalSetting;
 		delete items.defend;
 		delete items.realtime;
 		delete items.track;
+		delete items.statics;
+		delete items.singleDelete;
    }
    if ( $('#u_type').val() == USER_OPERATOR ) {	// 操作员屏蔽右键
 		delete items.create;
-		delete items.batchImport;
-		delete items.batchDelete;
+		delete items.singleCreate;
+		delete items.batchImportDelete;
 		delete items.remove;
 		delete items.moveTo;
 		delete items.event;	
@@ -230,6 +275,8 @@ function customMenu(node) {
 		delete items.terminalSetting;
 		delete items.batchDefend;
 		delete items.defend;
+		delete items.statics;
+		delete items.singleDelete;
    }
    return items;
 }
@@ -558,11 +605,14 @@ function fn_initCarInfo() {
 window.dlf.fn_corpGetCarData = function() {
 	var obj_current = $('.j_leafNode a[class*='+ JSTREECLICKED +']'),
 		str_checkedNodeId = obj_current.attr('id'),	// 上一次选中车辆的id
-		str_trackStatus = $('#trackHeader').css('display'),
 		str_tempTid = '',
+		f_trackSt = $('#trackHeader').is(':visible'), 
+		f_eventSearchWpST = $('#eventSearchWrapper ').is(':visible'),
+		f_milleageWpST = $('#mileageWrapper').is(':visible'),
+		f_staticWpSt = $('#staticsWrapper').is(':visible'),
 		b_flg = false;
-	
-	if ( str_trackStatus != 'none' ) {	//如果当前正在进行轨迹操作,不进行lastinfo操作
+
+	if ( f_trackSt || f_eventSearchWpST || f_milleageWpST || f_staticWpSt ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 		return;
 	}
 	str_checkedNodeId = str_checkedNodeId == undefined ? 'leaf_' + str_currentTid : str_checkedNodeId;
@@ -1193,7 +1243,7 @@ function fn_initBatchDeleteData(obj_params) {
 					}
 					n_successLen = arr_success.length;	// 成功删除的终端个数
 					fn_updateTerminalCount('sub', n_successLen);
-					$('.j_batchDelete').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);	// 批量删除按钮变成灰色并且不可用
+					$('.j_batchDelete').attr('disabled', true);	// 批量删除按钮变成灰色并且不可用
 					/**
 					* 删除节点
 					*/
@@ -1242,9 +1292,9 @@ function fn_initBatchDeleteData(obj_params) {
 */
 function fn_batchRemoveTerminals(obj_params) {
 	$('#vakata-contextmenu').hide();	// 右键菜单隐藏
-	$('#batchDeleteDialog').attr('title', '批量删除定位器').dialog('option', 'title', '批量删除定位器').dialog("open");
+	dlf.fn_dialogPosition('batchDelete');	// 设置dialog的位置
 	// 数据回显
-	$('.j_batchDelete').removeClass('btn_delete').addClass('operationBtn').attr('disabled', false);	// 批量删除按钮变成绿色并且可用
+	$('.j_batchDelete').attr('disabled', false);	// 批量删除按钮变成绿色并且可用
 	fn_initBatchDeleteData(obj_params);
 }
 
@@ -1334,8 +1384,12 @@ window.dlf.fn_checkCName = function(str_cname) {
 */
 function fn_initBatchImport(gid, gname) {
 	$('.fileInfoTable').html('');
-	$('#fileUploadTable').html('');
-	$('#fileUploadDialog').removeData('resource').attr('title', '批量导入文件').dialog('option', 'title', '批量导入文件').dialog("open");
+	var obj_upfile = window.frames['fileUploadIframe'].document.getElementById('fileUploadTable'),
+		obj_msg = window.frames['fileUploadIframe'].document.getElementById('jNotifyMessage');
+		
+	$(obj_upfile).remove().html('');
+	$(obj_msg).html('');
+	dlf.fn_dialogPosition('fileUpload');	// 设置dialog的位置
 	$('#hidGid').val(gid);
 	$('#hidGName').val(gname);
 	$('#fileUploadIframe').attr('src', BATCHIMPORT_URL);
@@ -1366,14 +1420,3 @@ window.dlf.fn_echoData = function(str_tableName, obj_params, str_msg) {
 	obj_head.html(obj_params.gname);	// 表头显示组名
 }
 })();
-
-$(function() {
-	// 批量导入、批量删除数据回显文件、批量设防撤防数据回显 初始化dialog
-	$('#fileUploadDialog, #batchDeleteDialog, #batchDefendWrapper').dialog({
-		autoOpen: false,
-		height: 500,
-		width: 600,
-		modal: true,
-		resizable: false
-	});
-});
