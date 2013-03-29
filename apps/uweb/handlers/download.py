@@ -5,6 +5,8 @@ DOWNLOAD_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/download"))
 
 import logging
 import hashlib
+import random
+import string
 
 import tornado.web
 from tornado.escape import json_encode, json_decode
@@ -43,8 +45,43 @@ class DownloadTerminalHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Download test.apk for terminal."""
-        url = "/static/terminal/test.apk"
+        url = "/static/terminal/script.luac"
         self.redirect(url)
+
+class UploadTerminalHandler(BaseHandler):
+
+    @tornado.web.removeslash
+    def post(self):
+        try:
+            upload_file = self.request.files['fileUpload'][0]
+        except Exception as e:
+            logging.info("exception:%s", e.args)
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return
+
+        try:
+            status = ErrorCode.SUCCESS
+            filename = upload_file['filename']
+
+            # write into tmp file
+            if filename == "script.luac":
+                file_path = "/home/ydcws/acb/trunk/apps/uweb/static/terminal/" + filename
+                output_file = open(file_path, 'w')
+                output_file.write(upload_file['body'])
+                output_file.close()
+            else:
+                logging.error("Upload file %s not assign file type.", filename)
+                self.write("上传的非指定文件类型")
+                return
+        except Exception as e:
+            logging.info("Upload terminal file fail:%s", e.args)
+        else:
+            logging.info("Upload file %s success!", filename)
+            self.write("上传成功!")
+            return
+
+
 
 class DownloadSmsHandler(BaseHandler):
     """Send download_url to user's mobile."""

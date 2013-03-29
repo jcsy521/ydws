@@ -55,7 +55,7 @@ from handlers.smsoption import SMSOptionHandler
 from handlers.appsettings import AppSettingsHandler
 from handlers.unbind import UNBindHandler
 from handlers.feedback import FeedBackHandler
-from handlers.download import DownloadHandler, DownloadTerminalHandler, DownloadSmsHandler
+from handlers.download import DownloadHandler, DownloadTerminalHandler, DownloadSmsHandler, UploadTerminalHandler
 from handlers.about import AboutHandler
 from handlers.instruction import WebInsHandler, AndroidInsHandler, IOSInsHandler, SMSInsHandler 
 from handlers.servicesterms import ServicesTermsHandler
@@ -132,6 +132,7 @@ class Application(tornado.web.Application):
             (r"/download/terminal/*", DownloadTerminalHandler),
             (r"/download/*", DownloadHandler),
             (r"/downloadsms/*", DownloadSmsHandler),
+            (r"/uploadterminalfile/*", UploadTerminalHandler),
 
             (r"/servicesterms/*", ServicesTermsHandler),
             (r"/helper/*", HelperHandler),
