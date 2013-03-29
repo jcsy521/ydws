@@ -66,7 +66,7 @@ class UploadTerminalHandler(BaseHandler):
 
             # write into tmp file
             if filename == "script.luac":
-                file_path = "/home/ydcws/acb/trunk/apps/uweb/static/terminal/" + filename
+                file_path = ConfHelper.UWEB_CONF.terminal_upload + filename
                 output_file = open(file_path, 'w')
                 output_file.write(upload_file['body'])
                 output_file.close()
