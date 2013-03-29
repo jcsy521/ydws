@@ -529,7 +529,6 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			obj_chart = {'name': str_alias, 'data': arr_graphic}, 
 			str_tfoot = '<tr><td>总计：</td>',
 			arr_categories = [],
-			str_unit = '次',
 			str_container = 'singleEventChart',
 			str_th = '日期',
 			arr_series = [];	// 统计数据
@@ -557,7 +556,6 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td>'+ n_mileage +'</td>';	// 里程数
 				str_tbodyText+= '</tr>';
 			}
-			str_unit = '公里';
 			str_container = 'singleMileageChart';
 		}
 		obj_searchHeader.after(str_tbodyText);	// 填充数据
@@ -566,7 +564,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			obj_tfoot.empty();
 		} else {
 			for ( var j = 0; j < obj_counts.length; j++ ) {
-				str_tfoot += '<td>'+ obj_counts[j] + str_unit + '</td>';
+				str_tfoot += '<td>'+ obj_counts[j] +'</td>';
 			}
 			str_tfoot += '</tr>';
 			obj_tfoot.empty().append(str_tfoot);
