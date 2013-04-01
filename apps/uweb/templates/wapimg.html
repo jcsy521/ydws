@@ -1,37 +1,33 @@
 <!DOCTYPE html> 
 <html>   
 <head>   
-	<title>移动车卫士</title>   
-<!--
-	<link rel="stylesheet" type="text/css" href="/static/css/jquery.mobile-1.1.0.css" />   
-	<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>   
-	<script type="text/javascript" src="/static/js/jquery.mobile-1.1.0.min.js"></script> 
--->
+	<title>移动车卫士</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/wapimg.css" />
 </head> 
 <body>   
-	<div data-role="page" id="home">    
-		<div data-role="header">     
-			移动车卫士  
+	<div id="home">    
+		<div class="wapimgTitle">     
+			移动车卫士
 		</div>     
-		<div data-role="content">    
-			<div>
-				{% if map_type == '1' %}
-					<img src="http://api.map.baidu.com/staticimage?center={{clon}},{{clat}}&width=320&height=240&zoom=17&markers={{clon}},{{clat}}" />
-				{% else %}
-					<img src="http://map.wxcsgd.com:8082/sisserver?config=WMAP&xs={{clon}}&ys={{clat}}&width=320&height=240&maplevel=1&content=map&a_k=36ca6fd5215a6f6897721371ec5f294bab3a64202a7541babb57434e5631ffa2b5639e24f8ce84fc" />
-				{% end %}	
-				
-			</div>  
-			<div>
-				移动车卫士官网：<a href="{{home_url}}">{{home_url}}</a>
-			</div>
-			<div>
-				Android客户端下载：<a href='{{android_download}}'>进入下载</a>
-			</div>
+		<div class="panel_map">
+			{% if map_type == '1' %}
+				<img src="http://api.map.baidu.com/staticimage?center={{clon}},{{clat}}&width=440&height=430&zoom=17&markers={{clon}},{{clat}}" />
+			{% else %}
+				<img src="http://map.wxcsgd.com:8082/sisserver?config=WMAP&xs={{clon}}&ys={{clat}}&width=320&height=240&maplevel=1&content=map&a_k=36ca6fd5215a6f6897721371ec5f294bab3a64202a7541babb57434e5631ffa2b5639e24f8ce84fc" />
+			{% end %}	
 		</div>  
-		<div data-role="footer">    
-			© <script>document.write(new Date().getFullYear());</script> 中国移动通信集团广东有限公司中山分公司  
-		</div>
+		<div class="content">
+			<div class="panel_homeUrl">
+				移动车卫士官网：<br />
+				<a href="{{home_url}}" class="homeUrl">{{home_url}}</a>
+			</div>
+			<div class="panel_download">
+				Android客户端下载：<a href='{{android_download}}' class="download_btn">进入下载</a>
+			</div>
+			<div class="content_footer">    
+				© <script>document.write(new Date().getFullYear());</script> 中国移动通信集团广东有限公司中山分公司  
+			</div>
+		</div> 
 	</div>  
 </body> 
 </html> 

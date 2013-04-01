@@ -1,0 +1,65 @@
+@charset "utf-8";
+/**
+*acb wapimg css v1.0
+*2013-4-1
+*/
+html, body, a, input, ul, ol, li, p {
+	font-family: "微软雅黑","Times New Roman","Arial";
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+}
+body {
+	background-color: #F0F0F0;
+	height: 800px;
+	width: 440px;
+	min-width: 440px;
+}
+#home {
+	height: 800px;
+}
+.wapimgTitle {
+	background: url("/static/images/wapimg_title.png") repeat scroll 0 0 transparent;
+    color: #FFFFFF;
+    font-size: 39px;
+    height: 67px;
+    padding-top: 10px;
+	margin-bottom: 2px;
+    text-align: center;
+}
+.wapimgTitle h1 {
+	margin: 0;
+    padding: 0;
+}
+.content {
+	background: url("/static/images/wapimg_bg.png") repeat-x scroll 0 0 transparent;
+	height: 220px;
+}
+.panel_homeUrl, .panel_download, .content_footer {
+	padding: 20px 0px 0px 20px;
+	font-weight: bold;
+}
+.panel_homeUrl {
+	color: #1C6F9A;
+    font-size: 28px;
+}
+.homeUrl {
+	color: #0697F1;
+	font-size: 28px;
+}
+.panel_download {
+	color: #0E6694;
+    font-size: 24px;
+}
+.download_btn {
+	background-color: #2B7EB8;
+    border-radius: 5px 5px 5px 5px;
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: normal;
+    padding: 7px 15px;
+    text-decoration: none;
+}
+.content_footer {
+	color: #788081;
+}
