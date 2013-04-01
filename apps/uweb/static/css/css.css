@@ -90,7 +90,7 @@ body {
 }
 #corpLeft, #corpRight {
 	float: left;
-	min-height: 500px;
+	min-height: 600px;
 	background-color: #e7eeef;
 }
 #left, #corpLeft {
@@ -343,20 +343,27 @@ body {
 .menu, .menu li {
 	float: left;
 }
-.corpMapObj {
+.corpMapObj, .eventSearchContent {
 	min-width: 1151px;
-	min-height: 463px;
+	/*min-height: 463px;*/
+	min-height: 566px;
 }
 .mapObj {
 	min-width: 1151px;
 	min-height: 566px;
 }
-.menu a, #countSecondList a {
+.menu a {	/* , #countSecondList a */
 	display: inline-block;
 	height: 36px;
 	width: 104px;
 	float: left;
 	background: url('/static/images/acb-menus.png') no-repeat;
+}
+.menu .home {
+	background-position: 0px -792px;
+}
+.menu .home:hover, .menu .homeHover {
+	background-position: 0px -828px;
 }
 .menu .realtime {
 	background-position: 0px 0px;
@@ -417,6 +424,12 @@ body {
 }
 .menu .recordCount:hover, .menu .recordCountHover {
 	background-position: 0px -540px;
+}
+.menu .mileage {
+	background-position: 0px -720px;
+}
+.menu .mileage:hover, .menu .mileageHover  {
+	background-position: 0px -757px;
 }
 .selfList {
 	float:right;
@@ -1201,6 +1214,44 @@ body {
 }
 /*track css end*/
 
+
+/*event css start*/
+.eventbody {
+	background-color: #fff;
+	min-height: 470px;
+}
+.eventHeader {
+	min-width: 0px;
+}
+.eventMapClose {
+    background: url("/static/images/close_default.png") no-repeat;
+    height: 20px;
+    left: 378px;
+    position: relative;
+    top: -6px;
+    _top: -4px;
+    width: 20px;
+	cursor: pointer;
+}
+.eventMapContent {
+	background-color: #FFFFFF;
+    border: 1px solid #BBBBBB;
+    height: 370px;
+    padding: 11px;
+    width: 390px;
+}
+.eventMapContent h2 {
+	margin: 0;
+	cursor: move;
+}
+.eventMapContent  #mapObj {
+	min-width: 0px;
+}
+.eventMapContent .eventDragTitle {
+	cursor: move;
+}
+
+
 .staticsBtn {
 	background: url('/static/images/cx.png') no-repeat;
 	cursor: pointer;
@@ -1232,10 +1283,13 @@ body {
 	text-align: center;
 	border: 1px solid #c1d2e5;
 }
-#eventSearchTableHeader, #staticsTableHeader, #mileageTableHeader, #singleEventTableHeader, #singleMileageTableHeader {
+#staticsTableHeader, #mileageTableHeader, #singleEventTableHeader, #singleMileageTableHeader {
 	background: url('/static/images/eventTH.png') repeat-x;
 	height: 38px;
 	border: 1px solid #dce7f2;
+}
+#eventSearchTableHeader {
+	height: 38px;
 }
 #eventSearchTableHeader td, #staticsTableHeader td , #singleEventTableHeader td, #singleMileageTableHeader td{
 	background-color: #5aabff;
@@ -1693,7 +1747,7 @@ body {
 }
 .fbSubmit {
 	cursor:pointer;
-	margin: 30px 0px;
+	margin: 20px 0px;
 	border: 0px;
 	background: url('/static/images/fbsubmit.png') no-repeat;
 	width: 138px;
@@ -1705,6 +1759,10 @@ body {
 	background: url('/static/images/fbqx.png') no-repeat;
 	width: 138px;
 	height: 39px;
+}
+#suggestions a {
+	color: blue;
+	text-decoration: none;
 }
 /*feedback end*/
 
@@ -1836,11 +1894,30 @@ body {
 .aboutBox .title {
 	font-size: 16px;
 	font-weight: bold;
+	padding: 20px;
+}
+.aboutBox .chargetPara {
+	height: 22px;
+	text-indent: 2em;
 }
 .aboutBox .content {
 	padding-top: 0px;
 	line-height: 34px;
 	text-indent: 2em;
+}
+.chargerBox {
+	height: 464px;
+}
+.chargerBox p {
+	padding: 10px;
+	text-indent: 2em;
+}
+.chargerBox .serviceDetail, .chargerBox .note {
+	text-indent: 3em;
+	padding: 0px;
+}
+.chargerBox .note {
+	color: blue;
 }
 .copyright {
 	text-align: center;
@@ -1908,7 +1985,7 @@ body {
 }
 .corpTree {
 	width: 247px;
-	min-height: 240px;
+	min-height: 340px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 }
@@ -1967,7 +2044,7 @@ body {
 	background-color: #fefdfd;
 }
 .corpLeftTree {
-	min-height: 284px;
+	min-height: 384px;
 }
 .loadTree {
 	margin: 10px 0px;
@@ -2293,22 +2370,30 @@ legend {
 }
 /* file upload css end */
 /*================*/
-#eventSearchWrapper, #singleEventWrapper {
+#singleEventWrapper {
 	height: 620px;
 }
-#eventSearchWrapper, .eventSearchTitle , .eventSearchContent, #singleEventWrapper {
+#eventSearchWrapper {
+	position: absolute;
+	left: 248px;
+	top: 160px;
+}
+.eventSearchTitle , .eventSearchContent, #singleEventWrapper {
 	width: 800px;
 }
-.eventSearchContent {
-	padding-top: 10px;
-	height: 700px;
+.eventSearchContent td {
+	height: 40px;
 }
-.eventSearchContent td, .singleMileageTable td {
+.singleMileageTable td, .singleEventContent td{
 	height: 22px;
 	line-height: 22px;
 }
-.eventSearchContent .dataTable {
+.eventSearchContent .dataTable, .singleEventContent .dataTable {
 	width: 770px;
+}
+.singleEventContent {
+	padding-top: 10px;
+	height: 700px;
 }
 .singleEventSearchTable .dataTable {
 	width: 750px;
@@ -2327,6 +2412,9 @@ legend {
 .eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition {
 	padding-top: 10px;
 	margin-left: 22px;
+}
+.eventSearchCondition {
+	margin: 0 auto;
 }
 .singleEventCondition, .singleMileageCondition {
 	width: 92%;
@@ -2392,12 +2480,6 @@ legend {
 }
 #countSecondList .statics:hover {
 	background-position: 0px -468px;
-}
-#countSecondList .mileage {
-	background-position: 0px -721px;
-}
-#countSecondList .mileage:hover {
-	background-position: 0px -757px;
 }
 #countSecondList li {
 	padding-left: 5px;

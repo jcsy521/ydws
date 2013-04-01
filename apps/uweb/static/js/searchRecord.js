@@ -13,7 +13,15 @@ var arr_dwRecordData = [],	// 后台查询到的报警记录数据
 /**
 * 初始化查询条件
 */
-window.dlf.fn_initRecordSearch = function(str_who) {	
+window.dlf.fn_initRecordSearch = function(str_who) {
+	var obj_currentWrapper = $('#' + str_who + 'Wrapper'),
+		b_status  = obj_currentWrapper.is(':visible');
+	
+	if ( b_status ) {	// 如果当前dialog打开又点击打开，不进行操作
+		return;
+	}
+
+	dlf.fn_clearNavStatus(str_who);
 	dlf.fn_dialogPosition(str_who);	// 设置dialog的位置并显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#cursor').hide();
@@ -27,8 +35,10 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	
 	//dlf.fn_showOrHideSelect(str_who);	// IE6 select显示
 	$('#' + str_who + '_uploadBtn').hide();	// 隐藏下载按钮
-	if ( str_who == 'eventSearch' ) { // 告警查询 
+	if ( str_who == 'eventSearch' ) { // 告警查询
 		$('#POISearchWrapper').hide();  // 关闭周边查询
+		$('#eventSearchTableHeader').hide();
+		$('.eventMapContent').hide();
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
 		dlf.fn_clearMapComponent(); // 清除页面图形
@@ -37,7 +47,12 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		fn_closeAllInfoWindow();	
 		
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
-
+		$('.eventMapContent').draggable({handle: '.j_draggable', cursor:'move', containment: 'body', stop: function(event, ui) {	// 弹出的地图可以拖动
+			if ( ui.position.top < 0 ) {
+				$(this).css('top', 0);
+			}
+		}});
+		dlf.fn_loadMap('eventMapObj');	// 加载MAP
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'mileage' || str_who == 'statics' ) { // 里程统计 告警统计 
@@ -217,6 +232,7 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'eventSearch': //  告警查询
 			str_getDataUrl = EVENT_URL;
 			dlf.fn_clearMapComponent(); // 清除页面图形
+			$('.eventMapContent').hide();
 			
 			var n_startTime = $('#eventSearchStartTime').val(), // 用户选择时间
 				n_endTime = $('#eventSearchEndTime').val(), // 用户选择时间
@@ -395,25 +411,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			});
 			//告警查询,添加点击显示上地图事件,并做数据存储
 			if ( str_who == 'eventSearch' ) {
-				/**
-				* 用户点击位置进行地图显示
-				*/
-				$('.j_eventItem').click(function(event) {
-					dlf.fn_clearMapComponent();
-					/**
-					* 根据行编号拿到数据，在地图上做标记显示
-					*/
-					var n_tempIndex = $(this).parent().parent().index()-1,
-						obj_tempData = arr_dwRecordData[n_tempIndex];
-					
-						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
-						setTimeout (function () {
-							// 为了正常显示暂时给告警的点加部分偏移进行显示:)
-							var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude-10000, obj_tempData.clatitude);
-							
-							dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
-						}, 100);
-				});
+				dlf.fn_showMarkerOnEvent(arr_dwRecordData);
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else {
@@ -425,6 +423,41 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 	} else {
 		dlf.fn_jNotifyMessage(obj_resdata.message, 'message', false, 3000, 'dw');	
 	}
+}
+
+/**
+* 告警查询 查看小地图 
+*/
+window.dlf.fn_showMarkerOnEvent = function(arr_eventData) {
+	/**
+	* 用户点击位置进行地图显示
+	*/
+	$('.j_eventItem').click(function(event) {
+		dlf.fn_clearMapComponent();
+		/**
+		* 为让高德的地图显示车在中心点,做如下修改
+		*/
+		mapObj.height = 300;
+		mapObj.width = 390;
+		$('.eventMapContent').css({	// 小地图显示位置
+			'left': event.pageX - 247, 
+			'top': event.pageY - 164
+		}).show();
+		/**
+		* 根据行编号拿到数据，在地图上做标记显示
+		*/
+		var n_tempIndex = $(this).parent().parent().index()-1,
+			obj_tempData = arr_eventData[n_tempIndex];
+		
+			dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
+			setTimeout (function () {
+				var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude, obj_tempData.clatitude);
+				dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
+			}, 100);
+	});
+	$('#mapClose').unbind('click').bind('click',function() {
+		$('.eventMapContent').hide();
+	});
 }
 
 /**
@@ -456,6 +489,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '</tr>';
 				break;
 			case 'eventSearch': // 告警查询
+				$('#eventSearchTableHeader').show();
 				var str_type = obj_tempData.category,	//类型
 					n_lng = obj_tempData.clongitude/NUMLNGLAT,
 					n_lat = obj_tempData.clatitude/NUMLNGLAT,

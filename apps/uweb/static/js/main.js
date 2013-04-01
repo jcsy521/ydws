@@ -353,12 +353,12 @@ window.onresize = function () {
 			obj_tree.css('overflow', 'hidden')
 		}
 		obj_tree.height(n_treeHeight);
-		$('#right, #corpRight, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
+		$('#right, #corpRight, #navi, #mapObj, #trackHeader, .eventSearchContent').css('width', n_right);	// 右侧宽度
 		
 		n_trackLeft = ( obj_track.width() ) / 4;
 		
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-		$('#mapObj').css('height', n_mapHeight);
+		$('#mapObj, .eventSearchContent').css('height', n_windowHeight - 161);
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
 		
 		var f_layer = $('.j_body').data('layer');
@@ -418,17 +418,18 @@ $(function () {
 	}
 	obj_tree.height(n_treeHeight);
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
+	$('.eventSearchContent').css('width', n_right);	// 右侧宽度
 	
 	n_trackLeft = ( obj_track.width() ) / 4;
 	
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-	$('#mapObj').css('height', n_mapHeight);
+	$('#mapObj, .eventSearchContent').css('height', n_mapHeight);
 	
 	if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图初始化tilelayer的位置
 		$('#mapTileLayer').css('left', n_tilelayerLeft);
 	}
 		
-	dlf.fn_loadMap();	// 加载百度map
+	dlf.fn_loadMap('mapObj');	// 加载百度map
 	
 	/**
 	* 页面的点击事件分流处理
@@ -438,6 +439,9 @@ $(function () {
 		var str_id = e.currentTarget.id, 
 			n_carNum = $('#carList li').length,
 			str_trackStatus = $('#trackHeader').css('display'), 
+			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询是否显示
+			b_operatorStatus = $('#operateorWrapper').is(':visible'),	// 操作员是否显示
+			b_mileageStatus = $('#mileageWrapper').is(':visible'),	// 里程统计是否显示
 			obj_navItemUl = $('.j_countNavItem');	
 		
 		if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
@@ -468,6 +472,14 @@ $(function () {
 			dlf.fn_secondNavValid();
 		}
 		switch (str_id) {
+			case 'home': // 主页
+				$('.wrapper').hide();
+				$('#mapObj').show();
+				if ( b_eventSearchStatus ) {	// 如果打开的是告警
+					$('#eventSearch').removeClass('eventSearchHover');
+					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
+				}
+				break;
 			case 'personalData': //  个人资料 
 				dlf.fn_personalData();
 				break;
@@ -510,7 +522,7 @@ $(function () {
 				break;
 			case 'mileage': // 里程统计
 				dlf.fn_initRecordSearch('mileage');
-				obj_navItemUl.hide();
+				// obj_navItemUl.hide();
 				break;
 		}
 	});

@@ -639,10 +639,10 @@
 		<iframe scrolling="auto" width=600 height=500 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
 	</div>
 	<!-- 个人告警查询 -->
-	<div id="eventSearchWrapper" class="wrapper hide j_drag">
-		<div class="wrapperTitle eventSearchTitle">
+	<div id="eventSearchWrapper" class="wrapper hide">
+		<!--<div class="wrapperTitle eventSearchTitle">
 			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
-		</div>
+		</div>-->
 		<div class="wrapperContent eventSearchContent">
 			<table class="eventSearchCondition">
 				<tr>
@@ -684,6 +684,13 @@
 				<span id="eventSearchNextBtn" class="nextBtn j_pBtnHover"></span>
 			</div>
 		</div>
+		<!--地图显示-->
+		<div class="eventMapContent hide wrapper" >
+			<div class="j_draggable eventDragTitle">
+				<div class="eventMapClose j_close" id="mapClose" title="关闭窗口"></div>
+			</div>
+			<div id="eventMapObj" style="width:390px; height:340px; min-height: 0px"></div> 
+		</div>
 	</div>	
 	<!-- 单个定位器告警查询 -->
 	<div id="singleEventWrapper" class="wrapper hide j_drag">
@@ -691,7 +698,7 @@
 			<span class="singleEventTitle j_singleEventTitle"></span>
 			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
 		</div>
-		<div class="wrapperContent eventSearchContent j_singleEventContent">
+		<div class="wrapperContent singleEventContent j_singleEventContent">
 			<table class="singleEventCondition">
 				<tr>
 					<td width="500px" colspan="3">
@@ -854,7 +861,7 @@
 			</table>
 		</div>
 	</div>
-	<!--统计 列表-->
+	<!--统计 
 	<ul id="countSecondList" class="hide j_countNavItem countUlIetm">
 		<li>
 			<a href="#" id="statics" class="statics j_click"></a>
@@ -862,7 +869,7 @@
 		<li>
 			<a href="#" id="mileage" class="mileage j_click"></a>
 		</li>
-	</ul>
+	</ul>列表-->
 	<!-- 批量设防撤防数据回显 -->
 	<div class="wrapper hide j_drag" id="batchDefendWrapper">
 		<div class="wrapperTitle batchDefendTitle">

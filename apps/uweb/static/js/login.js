@@ -151,7 +151,7 @@ function fn_timer() {
 		obj_adNum = null,
 		obj_content = null;
 		
-	if ( n_nums >= 6 ) {
+	if ( n_nums >= 4 ) {
 		n_nums = 0;
 	}	
 	obj_adNum = $('#adNums li').eq(n_nums);

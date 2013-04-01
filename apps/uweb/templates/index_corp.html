@@ -83,8 +83,10 @@
 					<li><a href="#" id="track" class="track j_click"></a></li>
 					<li><a href="#" id="defend" class="defend j_click"></a></li>
 					<li><a href="#" id="corpTerminal" class="corpTerminal j_click"></a></li>-->
+					<li><a href="#" id="home" class="homeHover home j_click"></a></li>
 					<li><a href="#" id="eventSearch" class="eventSearch j_click"></a></li>
-					<li><a href="#" id="recordCount" class="recordCount j_countRecord"></a></li>
+					<!--<li><a href="#" id="recordCount" class="recordCount j_countRecord"></a></li>-->
+					<li><a href="#" id="mileage" class="mileage j_click"></a></li>
 					{% if user_type != 'operator' %}
 					<li><a href="#" id="operator" class="operator j_click"></a></li>
 					{% end %}
@@ -103,7 +105,7 @@
 			<div class="trackHeader hide" id="trackHeader">
 				<span class="trackPos">
 					<span id="trackTerminalAlias"> 
-						定位器名称：
+						追踪器名称：
 						<label id="trackTerminalAliasLabel"></label>
 					</span>
 					<span class="timeTip">时间范围:</span>
@@ -124,8 +126,7 @@
 					<span>播放速度：</span>
 					<span id="trackSlide" title="比较快"></span>
 				</span>
-			</div>
-			
+			</div>			
 			<div id="mapObj" class="corpMapObj"></div>
 		</div> 
 	</div>

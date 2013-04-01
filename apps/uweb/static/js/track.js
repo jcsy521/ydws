@@ -17,6 +17,7 @@ var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, f_trackMsgS
 window.dlf.fn_initTrack = function() {
 	var obj_trackHeader =  $('#trackHeader');
 	
+	$('#track').addClass('trackHover');
 	obj_trackHeader.data('trackST', true);
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
 	dlf.fn_clearNavStatus('recordCount'); // 移除统计导航操作中的样式
@@ -29,7 +30,7 @@ window.dlf.fn_initTrack = function() {
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show().data('trackST', true);	// 轨迹查询条件显示
 	// 调整工具条和
-	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
+	// dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	fn_closeAllInfoWindow();	
 	
 	var str_currentCarAlias = $('.j_currentCar').text().substr(2, 11), 
@@ -57,6 +58,7 @@ function fn_closeAllInfoWindow() {
 * f_ifLastInfo: 清除规矩相关的时候是否要发起lastinfo
 */
 window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) { 
+	$('#mapObj').show();
 	dlf.fn_clearNavStatus('track'); // 移除导航操作中的样式
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_closeAllInfoWindow();
@@ -84,7 +86,7 @@ window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) {
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	}
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-	dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
+	// dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
 
 /**

@@ -42,11 +42,12 @@ window.dlf.fn_closeWrapper = function() {
 	obj_close.click(function() {
 		var str_whoDialog = $(this).attr('who');
 		
-		if ( str_whoDialog == 'statics' || str_whoDialog == 'mileage' ) {
+		/* if ( str_whoDialog == 'statics' || str_whoDialog == 'mileage' ) {
 			dlf.fn_clearNavStatus('recordCount');
 		} else {
+		*/
 			dlf.fn_clearNavStatus(str_whoDialog);
-		}
+		//}
 		dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		dlf.fn_closeDialog(); // 窗口关闭
 	});
@@ -1001,22 +1002,31 @@ window.dlf.fn_onInputBlur = function() {
 dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	var obj_wrapper = $('#'+ str_wrapperId+'Wrapper'), 
 		n_wrapperWidth = obj_wrapper.width(),
-		n_width = ($(window).width() - n_wrapperWidth)/2;
+		n_width = ($(window).width() - n_wrapperWidth)/2,
+		obj_map = $('#mapObj'),
+		b_mapStatus = obj_map.is(':visible');
 	
 	if ( str_wrapperId == 'statics' || str_wrapperId == 'mileage' ) {
-		str_wrapperId = 'recordCount';
+		// str_wrapperId = 'recordCount';
 	} else {
 		dlf.fn_clearNavStatus('recordCount'); // 移除统计导航操作中的样式
 	}
 	dlf.fn_closeDialog();
 	$('#'+ str_wrapperId).addClass(str_wrapperId +'Hover');
+	dlf.fn_clearNavStatus('home');	// 移除车辆位置的样式
+	
 	if ( str_wrapperId != 'eventSearch' ) {
 		dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
-	} else { //如果是告警查询窗口,改变告警窗口位置以便显示告警位置图标
-		n_width -= 250;
 	}
-	
-	obj_wrapper.css({left: n_width}).show();
+	if ( str_wrapperId == 'eventSearch' ) {
+		obj_map.hide();
+	} else {
+		if ( !b_mapStatus ) {
+			obj_map.show();
+		}
+		obj_wrapper.css({left: n_width});
+	}
+	obj_wrapper.show();
 }
 
 /**

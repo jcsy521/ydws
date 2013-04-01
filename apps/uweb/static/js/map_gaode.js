@@ -23,7 +23,7 @@ var postAddress = null,
 /**
 * 加载百度MAP
 */
-window.dlf.fn_loadMap = function() {       
+window.dlf.fn_loadMap = function()mapContainer {       
 	var opt = { 
 		level: 15,	//初始地图视野级别 
 		center: new MMap.LngLat(116.39825820922851,39.904600759441024),//设置地图中心点
@@ -31,7 +31,7 @@ window.dlf.fn_loadMap = function() {
 		scrollwheel: true	//鼠标滚轮缩放地图 
     };
   
-    mapObj = new MMap.Map("mapObj",opt);
+    mapObj = new MMap.Map(mapContainer,opt);
 	mapObj.plugin(["MMap.ToolBar","MMap.OverView","MMap.Scale"],function() {
 		toolbar = new MMap.ToolBar();
 		toolbar.autoPosition=false; //加载工具条  
