@@ -12,8 +12,6 @@ html, body, a, input, ul, ol, li, p {
 body {
 	background-color: #F0F0F0;
 	height: 800px;
-	width: 440px;
-	min-width: 440px;
 }
 #home {
 	height: 800px;
