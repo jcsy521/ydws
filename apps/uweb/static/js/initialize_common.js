@@ -300,7 +300,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				obj_terminals.removeClass('currentCarCss');	// 其他车辆移除样式
 				obj_currentItem.addClass('currentCarCss');	// 当前车添加样式
 				
-				if ( f_trackSt || f_eventSearchWpST  ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
+				if ( f_trackSt  ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 					return;
 				} else {
 					if ( obj_carDatas ) {

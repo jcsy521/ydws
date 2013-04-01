@@ -29,7 +29,9 @@ window.dlf.fn_loadMap = function(mapContainer) {
 	mapObj.addControl(obj_NavigationControl);	// 比例尺缩放
 	mapObj.addControl(viewControl); //添加缩略地图控件
 	mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
-	// dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
+	if ( mapContainer == 'mapObj' ) {
+		// dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
+	}
 }
 
 /**

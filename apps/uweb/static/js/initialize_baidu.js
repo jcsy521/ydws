@@ -106,7 +106,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if (( str_currentTid == str_tid ) ) {
 			if ( str_type == 'current' ) {	// 查找到当前车辆的信息
 				if ( obj_tempMarker ) {
-					obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
+					mapObj.setCenter(obj_tempMarker.getPosition());
 				}
 			} else if ( str_type == 'first' ) {	// 如果第一次lastinfo 移到中心点 打开吹出框
 				dlf.fn_moveMarker(str_currentTid);				

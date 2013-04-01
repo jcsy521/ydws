@@ -30,7 +30,7 @@ window.dlf.fn_initTrack = function() {
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show().data('trackST', true);	// 轨迹查询条件显示
 	// 调整工具条和
-	// dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
+	//dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	fn_closeAllInfoWindow();	
 	
 	var str_currentCarAlias = $('.j_currentCar').text().substr(2, 11), 
@@ -86,7 +86,7 @@ window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) {
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	}
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-	// dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
+	//dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
 
 /**

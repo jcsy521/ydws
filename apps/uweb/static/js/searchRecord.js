@@ -39,13 +39,12 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		$('#POISearchWrapper').hide();  // 关闭周边查询
 		$('#eventSearchTableHeader').hide();
 		$('.eventMapContent').hide();
-		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
+		/* dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
 		dlf.fn_clearMapComponent(); // 清除页面图形
 		// 调整工具条和
-		dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
-		fn_closeAllInfoWindow();	
-		
+		// dlf.fn_setMapControl(10); // 调整相应的地图控件及服务对象
+		*/
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		$('.eventMapContent').draggable({handle: '.j_draggable', cursor:'move', containment: 'body', stop: function(event, ui) {	// 弹出的地图可以拖动
 			if ( ui.position.top < 0 ) {
