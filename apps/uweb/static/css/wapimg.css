@@ -10,7 +10,7 @@ html, body, a, input, ul, ol, li, p {
     padding: 0;
 }
 body {
-	background-color: #F0F0F0;
+	background-color: #f5f5f5;
 	height: 800px;
 }
 #home {
@@ -30,8 +30,10 @@ body {
     padding: 0;
 }
 .content {
-	background: url("/static/images/wapimg_bg.png") repeat-x scroll 0 0 transparent;
 	height: 220px;
+	left: 30%;
+    position: relative;
+    width: 480px;
 }
 .panel_map {
 	text-align: center;
