@@ -31,9 +31,10 @@ class CaptchaHandler(BaseHandler):
         im = Image.new('RGB', size, (255, 255, 255))
         draw = ImageDraw.Draw(im)
 
-        str_show = string.letters + string.digits
-        str_remove = '0oOil1'
-        str_show = str_show.translate(None, str_remove) 
+        #str_show = string.letters + string.digits
+        str_show = string.digits
+        #str_remove = '0oOil1'
+        #str_show = str_show.translate(None, str_remove) 
 
         rand_str = ''.join(random.choice(str_show) for x in range(4))
         
@@ -106,9 +107,10 @@ class CaptchaSmsHandler(BaseHandler):
         im = Image.new('RGB', size, (255, 255, 255))
         draw = ImageDraw.Draw(im)
 
-        str_show = string.letters + string.digits
-        str_remove = '0oOil1'
-        str_show = str_show.translate(None, str_remove) 
+        #str_show = string.letters + string.digits
+        str_show = string.digits
+        #str_remove = '0oOil1'
+        #str_show = str_show.translate(None, str_remove) 
 
         rand_str = ''.join(random.choice(str_show) for x in range(4))
 
