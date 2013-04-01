@@ -33,6 +33,9 @@ body {
 	background: url("/static/images/wapimg_bg.png") repeat-x scroll 0 0 transparent;
 	height: 220px;
 }
+.panel_map {
+	text-align: center;
+}
 .panel_homeUrl, .panel_download, .content_footer {
 	padding: 20px 0px 0px 20px;
 	font-weight: bold;
