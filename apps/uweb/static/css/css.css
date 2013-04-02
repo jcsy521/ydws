@@ -343,7 +343,7 @@ body {
 .menu, .menu li {
 	float: left;
 }
-.corpMapObj, .eventSearchContent {
+.corpMapObj, #eventSearchContent, .mileageContent {
 	min-width: 1151px;
 	/*min-height: 463px;*/
 	min-height: 566px;
@@ -1226,32 +1226,29 @@ body {
 .eventMapClose {
     background: url("/static/images/close_default.png") no-repeat;
     height: 20px;
-    left: 378px;
+    left: 355px;
     position: relative;
     top: -6px;
     _top: -4px;
     width: 20px;
 	cursor: pointer;
+	z_index: 100000;
 }
-.eventMapContent {
-	background-color: #FFFFFF;
+.mapContainer {
+	position: relative;
+	/* background-color: #FFFFFF;
     border: 1px solid #BBBBBB;
     height: 370px;
     padding: 11px;
-    width: 390px;
+    width: 390px;*/
 }
-.eventMapContent h2 {
+.mapContainer h2 {
 	margin: 0;
 	cursor: move;
 }
-.eventMapContent  #mapObj {
-	min-width: 0px;
-}
-.eventMapContent .eventDragTitle {
+.mapContainer .mapDragTitle {
 	cursor: move;
 }
-
-
 .staticsBtn {
 	background: url('/static/images/cx.png') no-repeat;
 	cursor: pointer;
@@ -1259,7 +1256,7 @@ body {
 	height: 34px;
 	width: 92px;
 }
-.donwuploadBtn, .chartBtn {
+.donwuploadBtn, .chartBtn, .addOperatorBtn {
 	color: #4876FF;
 	display: inline-block;
 }
@@ -1283,7 +1280,7 @@ body {
 	text-align: center;
 	border: 1px solid #c1d2e5;
 }
-#staticsTableHeader, #mileageTableHeader, #singleEventTableHeader, #singleMileageTableHeader {
+#staticsTableHeader, #singleEventTableHeader, #singleMileageTableHeader {
 	background: url('/static/images/eventTH.png') repeat-x;
 	height: 38px;
 	border: 1px solid #dce7f2;
@@ -1321,7 +1318,9 @@ body {
 	font-weight: bold;
 	text-decoration: underline;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th {
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th {
+	height: 38px;
+	line-height: 38px;
     font-size: 14px; 
 	color: #69B2E9;
 	border: 1px solid #dce7f2;
@@ -2067,7 +2066,7 @@ body {
 	padding: 0 0 0 29px;
 	width: 191px;
 }
-#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime {
+#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .operatorConditions input {
 	height: 26px;
     line-height: 27px;
     padding: 2px 0 0 29px;
@@ -2177,9 +2176,11 @@ legend {
 }
 /*corp terminal css end*/
 #operatorWrapper {
+	/*
 	background: none repeat scroll 0 0 #F7F8F8;
 	width: 800px;
 	height: 600px;
+	*/
 }
 .operatorContent {
 	
@@ -2202,22 +2203,6 @@ legend {
 	margin-top:3px; 
 	width: auto;
 }
-.conditions {
-	margin: 10px 0px 10px 12px;
-}
-.conditions td {
-	padding-left: 10px;
-	height: 26px;
-	line-height: 26px;
-}
-.conditions input {
-	border: 1px solid #CCCCCC;
-	background-color: #fff;
-	height: 24px;
-	line-height: 24px;
-	padding: 2px 4px;
-	width: 135px;
-}
 .recordBtn {
 	background: url('/static/images/cx.png') no-repeat;
 	cursor: pointer;
@@ -2234,7 +2219,6 @@ legend {
 	width: 750px;
 }
 #operatorTableHeader {
-	background: url('/static/images/eventTH.png') repeat-x;
 	height: 38px;
 	border: 1px solid #dce7f2;
 }
@@ -2244,11 +2228,6 @@ legend {
 	height: 30px;
 	color: #FFFFFF;
 	text-align: center;
-}
-#operatorTableHeader th {
-    font-size: 14px; 
-	color: #69b2e9;
-	border: 1px solid #dce7f2;
 }
 .PageNums {
 	font-size: 12px;
@@ -2373,7 +2352,7 @@ legend {
 #singleEventWrapper {
 	height: 620px;
 }
-#eventSearchWrapper {
+#eventSearchWrapper, #mileageWrapper, #operatorWrapper {
 	position: absolute;
 	left: 248px;
 	top: 160px;
@@ -2381,7 +2360,7 @@ legend {
 .eventSearchTitle , .eventSearchContent, #singleEventWrapper {
 	width: 800px;
 }
-.eventSearchContent td {
+.eventSearchContent td, .mileageContent td, .operatorContent td {
 	height: 40px;
 }
 .singleMileageTable td, .singleEventContent td{
@@ -2409,12 +2388,15 @@ legend {
     line-height: 34px;
     position: absolute;
 }
-.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition {
+.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition, .operatorConditions {
 	padding-top: 10px;
 	margin-left: 22px;
 }
-.eventSearchCondition {
+.eventSearchCondition, .mileageCondition, .operatorConditions {
 	margin: 0 auto;
+}
+.mileageCondition, .operatorConditions {
+	width: 754px;
 }
 .singleEventCondition, .singleMileageCondition {
 	width: 92%;

@@ -337,7 +337,8 @@ window.onresize = function () {
 			n_corpTreeContainerHeight = n_mainHeight-220,
 			n_treeHeight = n_corpTreeContainerHeight - 45,
 			obj_tree = $('#corpTree'),
-			obj_track = $('#trackHeader');
+			obj_track = $('#trackHeader'),
+			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible');	// 告警查询打开状态
 		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 249;
@@ -353,12 +354,18 @@ window.onresize = function () {
 			obj_tree.css('overflow', 'hidden')
 		}
 		obj_tree.height(n_treeHeight);
-		$('#right, #corpRight, #navi, #mapObj, #trackHeader, .eventSearchContent').css('width', n_right);	// 右侧宽度
+		$('#right, #corpRight, #navi, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent').css('width', n_right);	// 右侧宽度
 		
 		n_trackLeft = ( obj_track.width() ) / 4;
 		
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-		$('#mapObj, .eventSearchContent').css('height', n_windowHeight - 161);
+		$('.eventSearchContent, .mileageContent, .operatorContent').css('height', n_mapHeight);
+		
+		if ( b_eventSearchStatus ) {
+			n_mapHeight = 340;
+			n_right = 370;
+		}
+		$('#mapObj').css({'width': n_right, 'height': n_mapHeight});	// 右侧宽度
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
 		
 		var f_layer = $('.j_body').data('layer');
@@ -417,13 +424,12 @@ $(function () {
 		obj_tree.css('overflow', 'hidden')
 	}
 	obj_tree.height(n_treeHeight);
-	$('#right, #corpRight, #navi, #mapObj, #trackHeader').css('width', n_right);	// 右侧宽度
-	$('.eventSearchContent').css('width', n_right);	// 右侧宽度
+	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent').css('width', n_right);	// 右侧宽度
 	
 	n_trackLeft = ( obj_track.width() ) / 4;
 	
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-	$('#mapObj, .eventSearchContent').css('height', n_mapHeight);
+	$('#mapObj, .eventSearchContent, .mileageContent, .operatorContent').css('height', n_mapHeight);
 	
 	if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图初始化tilelayer的位置
 		$('#mapTileLayer').css('left', n_tilelayerLeft);
@@ -475,7 +481,10 @@ $(function () {
 			case 'home': // 主页
 				$('.wrapper').hide();
 				$('#mapObj').show();
+				dlf.fn_clearAllMenu();
+				$('#home').addClass('homeHover');
 				if ( b_eventSearchStatus ) {	// 如果打开的是告警
+					dlf.fn_setMapPosition(false);	// 还原地图
 					$('#eventSearch').removeClass('eventSearchHover');
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				}

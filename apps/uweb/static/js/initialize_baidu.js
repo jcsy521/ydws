@@ -13,11 +13,9 @@ window.dlf.fn_moveMarker = function(n_tid) {
 		var obj_tempMarker = obj_selfmarkers[n_tid],	//obj_currentItem.data('selfmarker'),
 			obj_infoWindow = '',
 			arr_overlays = $('.j_carList .j_terminal');
-			
 		if ( obj_tempMarker ) {
 			obj_infoWindow = obj_tempMarker.selfInfoWindow;
 			mapObj.setCenter(obj_tempMarker.getPosition());
-			
 			for ( var i = 0; i < arr_overlays.length; i++ ) {
 				var obj_marker = obj_selfmarkers[$(arr_overlays[i]).attr('tid')];
 				
@@ -99,14 +97,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		}
 		dlf.fn_addMarker(obj_carInfo, 'actiontrack', n_carIndex, false); // 添加标记
 	}
-	
 	var obj_toWindowInterval = setInterval(function() {
 		var obj_tempMarker = obj_selfmarkers[str_tid];	// obj_carA.data('selfmarker');
 		
 		if (( str_currentTid == str_tid ) ) {
 			if ( str_type == 'current' ) {	// 查找到当前车辆的信息
 				if ( obj_tempMarker ) {
-					mapObj.setCenter(obj_tempMarker.getPosition());
+					obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
 				}
 			} else if ( str_type == 'first' ) {	// 如果第一次lastinfo 移到中心点 打开吹出框
 				dlf.fn_moveMarker(str_currentTid);				

@@ -122,3 +122,11 @@ class DownloadSmsHandler(BaseHandler):
                               e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
+class DownloadInstructionsHandler(BaseHandler):
+    """download PPT instructions"""
+
+    @tornado.web.removeslash
+    def get(self):
+        url = "/static/download/移动车卫士使用手册.ppt"
+        self.redirect(url)

@@ -56,22 +56,43 @@ window.dlf.fn_closeWrapper = function() {
 /**
 * 主动关闭窗口
 */
+var b_eventSearchStatus = false;
+
 window.dlf.fn_closeDialog = function() {
 	var f_eventSearchWpST = $('#eventSearchWrapper').is(':visible'),  //告警窗口是否在打开状态
+		b_trackStatus = $('#trackHeader').is(':visible'), // 轨迹是否打开
 		b_trackClass = $('#trackHeader').data('trackST'); // 轨迹是否有操作
-	
+
+	b_eventSearchStatus = f_eventSearchWpST;
 	if ( f_eventSearchWpST ) {
 		if ( b_trackClass ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询 不操作lastinfo
+			dlf.fn_setMapContainerZIndex(0);
 		} else {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 		}
+	} else {
+		if ( b_trackStatus ) {
+			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
+		}
+		dlf.fn_unLockScreen(); // 去除页面遮罩
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
+	dlf.fn_clearAllMenu();
 	$('.wrapper').hide();
-	dlf.fn_unLockScreen(); // 去除页面遮罩
-	dlf.fn_unLockContent(); // 清除内容区域的遮罩
 }
-/*
+
+// 清除所有的menu的操作样式
+window.dlf.fn_clearAllMenu = function() {
+	$('.menu a').each(function() {
+		var obj_this = $(this),
+			str_id = obj_this.attr('id');
+			
+		dlf.fn_clearNavStatus(str_id);
+	});
+}
+
+/**
 * 清除导航功能的选中状态
 * str_who: 要清除的导航ID
 */
@@ -79,6 +100,9 @@ window.dlf.fn_clearNavStatus = function(str_who) {
 	$('#'+ str_who).removeClass(str_who +'Hover'); 
 }
 
+window.dlf.fn_setMapContainerZIndex = function(n_num) {
+	$('.mapContainer').css('zIndex', n_num);
+}
 /**
 * 处理请求服务器错误
 */
@@ -300,21 +324,24 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				obj_terminals.removeClass('currentCarCss');	// 其他车辆移除样式
 				obj_currentItem.addClass('currentCarCss');	// 当前车添加样式
 				
-				if ( f_trackSt  ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
-					return;
-				} else {
-					if ( obj_carDatas ) {
-						var obj_currentCarData = obj_carDatas[n_tid];
-						if ( obj_currentCarData ) {
-							dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
-						}
+				// 个人用户操作成功保存当前车tid 
+				str_currentPersonalTid = n_tid;
+				if ( obj_carDatas ) {
+					var obj_currentCarData = obj_carDatas[n_tid];
+					if ( obj_currentCarData ) {
+						dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
 						dlf.fn_moveMarker(n_tid);
+					}
+					if ( f_trackSt || f_eventSearchWpST  ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
+						return;
+					}
+				} else {
+					if ( f_trackSt || f_eventSearchWpST  ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
+						return;
 					} else {
 						dlf.fn_getCarData('first');
 					}
 				}
-				// 个人用户操作成功保存当前车tid 
-				str_currentPersonalTid = n_tid;
 			} else {
 				obj_terminals.removeClass(JSTREECLICKED);
 				obj_currentItem.addClass(JSTREECLICKED);
@@ -361,13 +388,13 @@ window.dlf.fn_updateLastInfo = function() {
 		} else {
 			dlf.fn_corpGetCarData();
 		}		
-	}, INFOTIME);
+	}, 5000);	// INFOTIME
 }
 
 /**
 * 每隔15秒获取数据
 */
-window.dlf.fn_getCarData = function(str_flag) { 
+window.dlf.fn_getCarData = function(str_flag) {
 	var str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),	//当前车tid
 		obj_carListLi = $('.j_carList li'),
 		n_length = obj_carListLi.length, 	//车辆总数
@@ -382,11 +409,12 @@ window.dlf.fn_getCarData = function(str_flag) {
 		}
 	}
 	obj_tids.tids = arr_tids;
-	
 	$.post_(LASTINFO_URL, JSON.stringify(obj_tids), function (data) {	// 向后台发起lastinfo请求
 			if ( data.status == 0 ) {
 				var obj_cars = data.cars_info,
-					obj_tempData = {};
+					obj_tempData = {},
+					arr_locations = [],
+					n_pointNum = 0;
 				
 				if ( !dlf.fn_isEmptyObj(obj_cars) ) {
 					return;
@@ -394,17 +422,21 @@ window.dlf.fn_getCarData = function(str_flag) {
 				
 				// 重新生成终端列表
 				fn_createTerminalList(obj_cars);
-				for(var param in obj_cars) {
+				for ( var param in obj_cars ) {
 					var obj_carInfo = obj_cars[param], 
 						str_tid = param,
-						n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
-						n_clat = obj_carInfo.clatitude/NUMLNGLAT;
+						n_enClon = obj_carInfo.clongitude,
+						n_enClat = obj_carInfo.clatitude,
+						n_clon = n_enClon/NUMLNGLAT,	
+						n_clat = n_enClat/NUMLNGLAT;
 						
 					obj_carInfo.tid = str_tid; 
 					obj_carInfo.name = '';
 					obj_tempData[str_tid] = obj_carInfo;
 					
-					if ( n_clon != 0 && n_clat != 0 ) {					
+					if ( n_clon != 0 && n_clat != 0 ) {
+						n_pointNum ++;
+						arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
 						if ( obj_carInfo ) {
 							//obj_carA.data('carData', obj_carInfo);
 							dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
@@ -415,7 +447,14 @@ window.dlf.fn_getCarData = function(str_flag) {
 						dlf.fn_updateTerminalInfo(obj_carInfo);
 					}
 				}
+				if ( str_flag == 'first' && arr_locations.length > 0 ) {
+					dlf.fn_caculateBox(arr_locations);
+				}
 				$('.j_carList').data('carsData', obj_tempData);
+				// 如果无终端或终端都无位置  地图设置为全国地图
+				if ( n_pointNum <= 0 ) {
+					mapObj.setZoom(5);
+				}
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();
 			} else {
@@ -426,6 +465,36 @@ window.dlf.fn_getCarData = function(str_flag) {
 			dlf.fn_serverError(XMLHttpRequest);
 		});
 }
+
+/**
+* lastinfo第一次 计算最大点和最小点 让所有点放在一个盒子中
+* arr_locations: 所有点数组
+*/
+window.dlf.fn_caculateBox = function (arr_locations) {
+	n_tempMax = 0;
+	obj_tempMaxPoint = arr_locations[0];
+	obj_tempFirstPoint = arr_locations[0];
+	
+	var	n_locLength = arr_locations.length;
+	
+	for (var i = 0; i < n_locLength; i++) {
+		var obj_currentLoc = arr_locations[i], 
+			obj_firstPoint = dlf.fn_createMapPoint(obj_currentLoc.clongitude, obj_currentLoc.clatitude);
+			
+		for ( var j = i + 1; j < n_locLength; j++ ) {
+			var obj_itemLoc = arr_locations[j], 
+				obj_tempPoint = dlf.fn_createMapPoint(obj_itemLoc.clongitude, obj_itemLoc.clatitude);
+				
+			dlf.fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
+		}
+	}
+	if ( n_tempMax <= 0 ) {
+		dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
+	} else {
+		dlf.fn_setOptionsByType('viewport', [obj_tempFirstPoint, obj_tempMaxPoint]);
+	}
+}
+
 
 /**
 * 对定位器的最新数据进行页面填充
@@ -1002,31 +1071,45 @@ window.dlf.fn_onInputBlur = function() {
 dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	var obj_wrapper = $('#'+ str_wrapperId+'Wrapper'), 
 		n_wrapperWidth = obj_wrapper.width(),
-		n_width = ($(window).width() - n_wrapperWidth)/2,
-		obj_map = $('#mapObj'),
-		b_mapStatus = obj_map.is(':visible');
-	
-	if ( str_wrapperId == 'statics' || str_wrapperId == 'mileage' ) {
-		// str_wrapperId = 'recordCount';
-	} else {
-		dlf.fn_clearNavStatus('recordCount'); // 移除统计导航操作中的样式
-	}
-	dlf.fn_closeDialog();
+		n_width = ($(window).width() - n_wrapperWidth)/2;
+
+	dlf.fn_closeDialog();	// 关闭所有dialog
 	$('#'+ str_wrapperId).addClass(str_wrapperId +'Hover');
-	dlf.fn_clearNavStatus('home');	// 移除车辆位置的样式
+	dlf.fn_clearNavStatus('home');	// 移除菜单车辆位置的样式
 	
-	if ( str_wrapperId != 'eventSearch' ) {
-		dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
-	}
 	if ( str_wrapperId == 'eventSearch' ) {
-		obj_map.hide();
+		dlf.fn_setMapPosition(true);	// 如果打开的是告警查询  设置地图位置
 	} else {
-		if ( !b_mapStatus ) {
-			obj_map.show();
+		if ( str_wrapperId != 'mileage' && str_wrapperId != 'operator' ) {
+			dlf.fn_showOrHideMap(true);
+			if ( b_eventSearchStatus ) {	// 如果选择的非告警查询 并且告警查询打开着  则初始化地图
+				dlf.fn_setMapPosition(false);
+				b_eventSearchStatus = false;
+			}
+			dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
+			obj_wrapper.css({left: n_width});
+		} else {
+			// 隐藏地图
+			dlf.fn_showOrHideMap(false);
 		}
-		obj_wrapper.css({left: n_width});
+		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
 	obj_wrapper.show();
+}
+
+/**
+* 设置地图的显示状态
+* b_flag: true: 显示  false: 隐藏
+*/
+window.dlf.fn_showOrHideMap = function(b_flag) {
+	var obj_map = $('#mapObj'),
+		b_mapStatus = obj_map.is(':hidden'),
+		str_display  = 'none';
+	
+	if ( b_flag ) {
+		str_display = 'inline-block';
+	}
+	obj_map.css('display', str_display);
 }
 
 /**

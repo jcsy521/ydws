@@ -22,7 +22,7 @@
 	<!-- top -->
 	<div id="top">
 		{% if bizcode == 'ydxf' %}
-			<div id="ads" class="adsYDXF" title="移动车卫士"></div>
+			<div id="ads" class="adsYDXF" title="移动巡防"></div>
 		{% else %}		
 			<div id="ads" title="移动车卫士"></div>
 		{% end %}	
@@ -126,8 +126,13 @@
 					<span>播放速度：</span>
 					<span id="trackSlide" title="比较快"></span>
 				</span>
-			</div>			
-			<div id="mapObj" class="corpMapObj"></div>
+			</div>
+			<div class="mapContainer">
+				<div class="j_draggable mapDragTitle hide">
+					<div class="eventMapClose j_close" id="mapClose" title="关闭窗口"></div>
+				</div>
+				<div id="mapObj" class="corpMapObj"></div>
+			</div>
 		</div> 
 	</div>
 	<div id="maskLayer" class="hide"></div>

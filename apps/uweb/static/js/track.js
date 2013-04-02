@@ -20,9 +20,8 @@ window.dlf.fn_initTrack = function() {
 	$('#track').addClass('trackHover');
 	obj_trackHeader.data('trackST', true);
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
-	dlf.fn_clearNavStatus('recordCount'); // 移除统计导航操作中的样式
-	// $('#track').addClass('trackHover'); // 导航显示操作中的样式 
-	dlf.fn_closeDialog();
+	dlf.fn_closeDialog(); // 关闭所有dialog
+	dlf.fn_setMapPosition(false);
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
@@ -30,7 +29,7 @@ window.dlf.fn_initTrack = function() {
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show().data('trackST', true);	// 轨迹查询条件显示
 	// 调整工具条和
-	//dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
+	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	fn_closeAllInfoWindow();	
 	
 	var str_currentCarAlias = $('.j_currentCar').text().substr(2, 11), 
@@ -86,7 +85,7 @@ window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) {
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	}
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-	//dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
+	dlf.fn_setMapControl(10); /*调整相应的地图控件及服务对象*/
 }
 
 /**
@@ -144,7 +143,7 @@ function fn_trackQuery() {
 						var obj_itemLoc = arr_locations[j], 
 							obj_tempPoint = dlf.fn_createMapPoint(obj_itemLoc.clongitude, obj_itemLoc.clatitude);
 							
-						fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
+						dlf.fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
 					}
 					arr_dataArr[i].alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html();
 				}
@@ -168,7 +167,7 @@ function fn_trackQuery() {
 /**
 *  两点距离比较
 */
-function fn_tempDist(startXY, endXY) {
+window.dlf.fn_tempDist = function (startXY, endXY) {
 	var n_pointDist = dlf.fn_forMarkerDistance(startXY, endXY);
 	if ( n_pointDist > n_tempMax ) {
 		n_tempMax = n_pointDist;

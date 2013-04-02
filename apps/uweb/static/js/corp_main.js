@@ -441,7 +441,9 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		fn_updateTerminalCount();
 		// 循环所有定位器 找到当前定位器并更新车辆信息
 		var b_loop = true,
-			n_num = 0;
+			n_num = 0,
+			n_pointNum = 0,
+			arr_locations = [];
 			
 		for ( var index in obj_carsData ) {
 			n_num ++;
@@ -450,13 +452,18 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		if ( n_num > 0 ) {
 			for ( var param in obj_carsData ) {
 				var obj_car = obj_carsData[param],
-					n_clon = obj_car.clongitude/NUMLNGLAT,	
-					n_clat = obj_car.clatitude/NUMLNGLAT;
+					n_enClon = obj_car.clongitude,
+					n_enClat = obj_car.clatitude,
+					n_clon = n_enClon/NUMLNGLAT,	
+					n_clat = n_enClat/NUMLNGLAT;
 				
 				if ( n_clon != 0 && n_clat != 0 ) {
+					n_pointNum ++;
+					arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
 					dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
 				}
 			}
+			
 			if ( str_currentTid != undefined && str_currentTid != '') {
 				if ( b_createTerminal ) {	// 如果是新建终端 发起switchCar
 					var obj_newTerminal = $('#leaf_' + str_currentTid);
@@ -476,7 +483,9 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				}
 			} else {	// 第一次发起switchCar启动lastinfo
 				var obj_current = $('#' + data.inst.data.ui.to_select);
-					
+				if ( arr_locations.length > 0 ) {
+					dlf.fn_caculateBox(arr_locations);
+				}
 				str_currentTid = str_checkedNodeId.substr(5, str_checkedNodeId.length);
 				dlf.fn_switchCar(str_currentTid, obj_current);
 			}
@@ -486,6 +495,10 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		} else {	// 无终端 启动lastinfo
 			dlf.fn_updateLastInfo();
 			fn_initCarInfo();
+		}
+		// 如果无终端或终端都无位置  地图设置为全国地图
+		if ( n_pointNum <= 0 ) {
+			mapObj.setZoom(5);
 		}
 		// 将之前的checked状态填充 
 		var n_treeNodeCheckLen = arr_treeNodeChecked.length;

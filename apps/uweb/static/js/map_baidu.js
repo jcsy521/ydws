@@ -5,12 +5,14 @@
 * obj_NavigationControl: 比例尺缩放对象
 * obj_MapTypeControl: 地图类型对象
 * obj_trafficControl: 路况信息对象
+* obj_viewControl: 小地图
 */
 var postAddress = null,
 	mapObj = null,
 	obj_NavigationControl = null,
 	obj_MapTypeControl = null,
 	obj_trafficControl = null,
+	obj_viewControl = null,
 	obj_selfMarkers = {};
 (function () {
 
@@ -20,18 +22,41 @@ var postAddress = null,
 window.dlf.fn_loadMap = function(mapContainer) {                  	
 	mapObj = new BMap.Map(mapContainer); // 创建地图实例
 	markerPoint = new BMap.Point(116.39825820922851 ,39.904600759441024); // 创建点坐标
-	mapObj.centerAndZoom(markerPoint, 15); // 初始化地图，设置中心点坐标和地图级别 
+	mapObj.centerAndZoom(markerPoint, 12); // 初始化地图，设置中心点坐标和地图级别 
 	mapObj.enableScrollWheelZoom();  // 启用滚轮放大缩小。
 
-	viewControl = new BMap.OverviewMapControl({isOpen: true});
+	
 	obj_NavigationControl = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT});
 	
 	mapObj.addControl(obj_NavigationControl);	// 比例尺缩放
-	mapObj.addControl(viewControl); //添加缩略地图控件
 	mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
 	if ( mapContainer == 'mapObj' ) {
-		// dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
+		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
 	}
+}
+
+/**
+* 设置地图控件的显示隐藏
+* b_menu: true: 显示 false: 隐藏
+*/
+window.dlf.fn_showOrHideControl = function(b_menu) {
+	if ( b_menu ) {
+		dlf.fn_setMapControl(10);
+	} else {
+		/*移除相应的地图控件及服务对象*/
+		if ( obj_MapTypeControl ) {
+			mapObj.removeControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
+			obj_MapTypeControl = null;
+		}
+		if ( obj_trafficControl != null ) {
+			mapObj.removeControl(obj_trafficControl); //移除路况信息控件
+			obj_trafficControl = null;
+		}
+		if ( obj_viewControl ) {
+			mapObj.removeControl(obj_viewControl); //移除小地图控件
+			obj_viewControl = null;
+		}
+	}	
 }
 
 /**
@@ -44,16 +69,20 @@ window.dlf.fn_setMapControl = function(n_NumTop) {
 		mapObj.removeControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
 	}
 	if ( obj_trafficControl ) {
-		mapObj.removeControl(obj_trafficControl); //添加路况信息控件
+		mapObj.removeControl(obj_trafficControl); //移除路况信息控件
 	}
-	
+	if ( obj_viewControl ) {
+		mapObj.removeControl(obj_viewControl); //移除小地图控件
+	}
 	/*重新声明相应的地图控件及服务对象*/
 	obj_MapTypeControl = new BMap.MapTypeControl({mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], offset: new BMap.Size(100, n_NumTop)});
 	obj_trafficControl = new BMapLib.TrafficControl(new BMap.Size(10, n_NumTop));
-
+	obj_viewControl = new BMap.OverviewMapControl({isOpen: true});
+	
 	/*添加相应的地图控件及服务对象*/
 	mapObj.addControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
 	mapObj.addControl(obj_trafficControl); //添加路况信息控件
+	mapObj.addControl(obj_viewControl); //添加缩略地图控件
 }
 /**
 * 百度地图生成点
