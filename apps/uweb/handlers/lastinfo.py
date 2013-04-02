@@ -127,7 +127,6 @@ class LastInfoHandler(BaseHandler):
 
             lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
-            lastinfo_time_old = lastinfo_time 
 
             if lastinfo == cars_info:  
                 pass
@@ -135,12 +134,31 @@ class LastInfoHandler(BaseHandler):
                 lastinfo_time = int(time.time())
                 self.redis.setvalue(lastinfo_key, cars_info) 
                 self.redis.setvalue(lastinfo_time_key, lastinfo_time)
+
+            track_tid = data.get('track_tid', None)  # use cache
+            track_info = []
+            query_time = data.get('time', None) 
             
             # 2 check whether provide usable data   
             if data.get('cache', None):  # use cache
-                if data.get('time', None) is not None: # use time
-                    if int(data.get('time')) != lastinfo_time_old:
+                if query_time is not None: # use time
+                    if int(query_time) < lastinfo_time:
                         usable = 1
+                        if track_tid:
+                            if int(query_time) == -1:
+                                pass
+                            elif lastinfo_time - query_time > 30 * 2: # every 30 second, ternimal generate a location 
+                                track  = self.db.query("SELECT clatitude, clongitude"
+                                                       "  FROM T_LOCATION"
+                                                       "  WHERE tid = %s"
+                                                       "    AND NOT (latitude = 0 OR longitude = 0)"
+                                                       "    AND (timestamp BETWEEN %s AND %s)"
+                                                       "    AND type = 0"
+                                                       "    ORDER BY timestamp",
+                                                       track_tid, int(query_time)-1, int(lastinfo_time)-1)
+                                for item in track:
+                                    track_info.append(item['clatitude'])
+                                    track_info.append(item['clongitude'])
                     else: 
                         cars_info = {}
                         usable = 0
@@ -154,6 +172,7 @@ class LastInfoHandler(BaseHandler):
                 usable = 1
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info,
+                                         track_info=track_info,
                                          usable=usable,
                                          lastinfo_time=lastinfo_time)) 
         except Exception as e:
