@@ -3,6 +3,7 @@
 <head>   
 	<title>移动车卫士</title>
 	<link rel="stylesheet" type="text/css" href="/static/css/wapimg.css" />
+	<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
 </head> 
 <body>   
 	<div id="home">    
@@ -10,11 +11,18 @@
 			移动车卫士
 		</div>     
 		<div class="panel_map">
-			{% if map_type == '1' %}
-				<img src="http://api.map.baidu.com/staticimage?center={{clon}},{{clat}}&width=780&height=550&zoom=17&markers={{clon}},{{clat}}" />
-			{% else %}
-				<img src="http://map.wxcsgd.com:8082/sisserver?config=WMAP&xs={{clon}}&ys={{clat}}&width=780&height=550&maplevel=1&content=map&a_k=36ca6fd5215a6f6897721371ec5f294bab3a64202a7541babb57434e5631ffa2b5639e24f8ce84fc" />
-			{% end %}	
+			<script type="text/javascript">
+				var n_staticMapWidth = $(window).width();
+				
+				if ( n_staticMapWidth > 1024 ) {
+					n_staticMapWidth = 1024;
+				}
+				{% if map_type == '1' %}
+					document.write('<img src="http://api.map.baidu.com/staticimage?center={{clon}},{{clat}}&width='+ n_staticMapWidth +'&height=550&zoom=17&markers={{clon}},{{clat}}" />');
+				{% else %}
+					document.write('<img src="http://map.wxcsgd.com:8082/sisserver?config=WMAP&xs={{clon}}&ys={{clat}}&width='+ n_staticMapWidth +'&height=550&maplevel=1&content=map&a_k=36ca6fd5215a6f6897721371ec5f294bab3a64202a7541babb57434e5631ffa2b5639e24f8ce84fc" />');
+				{% end %}	
+			</script>
 		</div>  
 		<div class="content">
 			<div class="panel_homeUrl">
