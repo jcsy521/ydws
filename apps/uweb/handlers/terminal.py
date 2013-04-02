@@ -270,6 +270,16 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             now_ = datetime.datetime.now()
             endtime = now_ + relativedelta(years=1)
             endtime = int(time.mktime(endtime.timetuple()))
+            # 0. check tmobile is whitelist or not
+            white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST"
+                                     "  WHERE mobile = %s LIMIT 1", data.tmobile)
+            if not white_list:
+                logging.error("[UWEB] mobile: %s is not whitelist.", data.tmobile)
+                status = ErrorCode.MOBILE_NOT_ORDERED
+                message = ErrorCode.ERROR_MESSAGE[status] % data.tmobile
+                self.write_ret(status, message=message)
+                return
+
             # 1: add terminal
             umobile = data.umobile if data.umobile else self.current_user.cid
             terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",

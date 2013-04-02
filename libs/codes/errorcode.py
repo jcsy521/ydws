@@ -35,6 +35,7 @@ class ErrorCode(object):
     EC_MOBILE_EXISTED = 218
     EC_NAME_EXISTED = 219
     CNUM_EXISTED = 220
+    MOBILE_NOT_ORDERED = 221
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -94,6 +95,7 @@ class ErrorCode(object):
         SERVER_BUSY:                   u"服务器忙，请稍后重试。",
         QUERY_INTERVAL_EXCESS:         u"对不起，只能查询一个星期之内的记录！",
         TERMINAL_NOT_ORDERED:          u"对不起，该号码尚未绑定定位器。",
+        MOBILE_NOT_ORDERED:            u"%s未开通移动车卫士业务，请联系客服。",
         TERMINAL_NOT_EXISTED:          u"对不起，该终端不存在。",
         LOCATION_NAME_NONE:            u"无法解析经纬度对应的地址",
         LOCATION_FAILED:               u"定位不成功",

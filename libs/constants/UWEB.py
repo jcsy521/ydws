@@ -89,5 +89,6 @@ SMS_OPTION = DotDict(SEND=1,
 TERMINAL_STATUS = DotDict(JHING=0,
                           UNJH=1,
                           EXISTED=2,
-                          INVALID=3)
+                          INVALID=3,
+                          MOBILE_NOT_ORDERED=4)
 

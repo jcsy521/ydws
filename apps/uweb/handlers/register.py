@@ -66,6 +66,17 @@ class RegisterHandler(BaseHandler):
             umobile = data.umobile            
             tmobile = data.tmobile            
             captcha = data.captcha         
+
+            # check tmobile is whitelist or not
+            white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST"
+                                     "  WHERE mobile = %s LIMIT 1", tmobile)
+            if not white_list:
+                logging.info("[UWEB] %s is not whitelist", tmobile)
+                status = ErrorCode.MOBILE_NOT_ORDERED
+                message = ErrorCode.ERROR_MESSAGE[status] % tmobile
+                self.write_ret(status, message=message)
+                return
+
             captcha_key = get_captcha_key(umobile)
             captcha_old = self.redis.get(captcha_key)
             if captcha_old:

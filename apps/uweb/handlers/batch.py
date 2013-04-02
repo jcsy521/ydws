@@ -86,6 +86,15 @@ class BatchImportHandler(BaseHandler):
                         res.append(r)
                         continue 
 
+                    # check tmobile is whitelist or not
+                    white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST"
+                                             "  WHERE mobile = %s LIMIT 1", tmobile)
+                    if not white_list:
+                        logging.error("[UWEB] mobile: %s is not whitelist.", tmobile)
+                        r['status'] = UWEB.TERMINAL_STATUS.MOBILE_NOT_ORDERED 
+                        res.append(r)
+                        continue 
+
                     existed_terminal = self.db.get("SELECT id, service_status FROM T_TERMINAL_INFO"
                                                    "  WHERE mobile = %s", tmobile)
                     if existed_terminal:
@@ -250,7 +259,7 @@ class BatchJHHandler(BaseHandler):
                             keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
                             self.redis.delete(*keys)
                     else:
-                        logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
+                        logging.error("[UWEB] mobile: %s already existed.", tmobile)
                         r['status'] = ErrorCode.TERMINAL_ORDERED
                         continue 
 
