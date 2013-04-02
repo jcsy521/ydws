@@ -54,6 +54,12 @@
 							<td>{{r.umobile}}</td>
 							<td tmobile="{{r.tmobile}}" class="fileStatus3">手机号码格式错误</td>
 						</tr>
+					{% elif r.status == 4 %}
+						<tr>
+							<td>{{r.tmobile}}</td>
+							<td>{{r.umobile}}</td>
+							<td tmobile="{{r.tmobile}}" class="fileStatus3">未开通业务</td>
+						</tr>
 					{% end %}
 				{% end %}
 				<tfoot class="tfootCss">
