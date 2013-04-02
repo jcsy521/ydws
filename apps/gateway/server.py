@@ -31,6 +31,7 @@ from helpers.confhelper import ConfHelper
 from mygwserver import MyGWServer
 from checkpofftimeout import CheckpofftimeoutHandler
 from lqterminals import LqterminalHandler
+from terminal import Terminal, Check_service
 
 def shutdown(gwserver, processes):
     try:
@@ -67,6 +68,23 @@ def lq_terminals_thread():
     except Exception as e:
         logging.exception("[GW] Start lq terminal thread failed.")
 
+def simulator_terminal_thread():
+    logging.info("[GW] Simulator terminal thread started...")
+    time.sleep(10) 
+    ttt = Terminal()
+    try:
+        ttt.udp_client()
+    except Exception as e:
+        logging.exception("[GW] Start simulator terminal thread failed.")
+
+def check_service_thread():
+    logging.info("[GW] Check service thread started...")
+    cst = Check_service()
+    try:
+        cst.check_service()
+    except Exception as e:
+        logging.exception("[GW] Start check service thread failed.")
+   
 def main():
     tornado.options.parse_command_line()
     if not ('conf' in options):
@@ -99,6 +117,8 @@ def main():
         processes = (gw_send, gw_recv,)
         # thread.start_new_thread(lq_terminals_thread, ())
         thread.start_new_thread(check_poweroff_timeout_thread, ())
+        thread.start_new_thread(simulator_terminal_thread, ())
+        thread.start_new_thread(check_service_thread, ())
         for p in processes:
             p.start()
         for p in processes:
