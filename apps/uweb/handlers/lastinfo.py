@@ -147,15 +147,15 @@ class LastInfoHandler(BaseHandler):
                         if track_tid:
                             if int(query_time) == -1:
                                 pass
-                            elif lastinfo_time - query_time > 30 * 2: # every 30 second, ternimal generate a location 
+                            elif lastinfo_time - query_time > 1: # every 30 second, ternimal generate a location 
                                 track  = self.db.query("SELECT clatitude, clongitude"
                                                        "  FROM T_LOCATION"
                                                        "  WHERE tid = %s"
                                                        "    AND NOT (latitude = 0 OR longitude = 0)"
                                                        "    AND (timestamp BETWEEN %s AND %s)"
-                                                       "    AND type = 0"
+                                                       #"    AND type = 0"
                                                        "    ORDER BY timestamp",
-                                                       track_tid, int(query_time)-1, int(lastinfo_time)-1)
+                                                       track_tid, int(query_time)+1, int(lastinfo_time)+1)
                                 for item in track:
                                     track_info.append(item['clatitude'])
                                     track_info.append(item['clongitude'])
