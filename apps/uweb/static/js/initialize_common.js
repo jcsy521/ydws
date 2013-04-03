@@ -388,7 +388,7 @@ window.dlf.fn_updateLastInfo = function() {
 		} else {
 			dlf.fn_corpGetCarData();
 		}		
-	}, 5000);	// INFOTIME
+	}, INFOTIME);
 }
 
 /**
