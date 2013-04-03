@@ -20,7 +20,7 @@ from constants import GATEWAY
 from constants import SMS
 from codes.smscode import SMSCode
 
-class Terminal(object):
+class SimulatorTerminal(object):
     
     def __init__(self):
         self.tid = 'B123SIMULATOR' 
@@ -40,7 +40,7 @@ class Terminal(object):
     def login(self):
         t_time = int(time.time())
         login_mg = self.login_mg % (t_time, self.tid, self.tmobile, self.imsi, self.imei)
-        logging.info("[SIMULATOR] Send login message:\n%s", login_mg) 
+        logging.info("[CK] Send login message:\n%s", login_mg) 
         self.socket.send(login_mg)
         time.sleep(1)
   
@@ -48,44 +48,44 @@ class Terminal(object):
         if packet_info[2] == "0":
             self.sessionID = packet_info[3]
             self.start_each_thread()
-            logging.info("[SIMULATOR] Login success!")
+            logging.info("[CK] Login success!")
         else:
-            logging.info("[SIMULATOR] Login faild, login agin...")
+            logging.info("[CK] Login faild, login agin...")
             time.sleep(5)
             self.login()
 
     def heartbeat_response(self, packet_info):
         if packet_info[2] == "0":
-            logging.info("[SIMULATOR] Heartbeat send success!")
+            logging.info("[CK] Heartbeat send success!")
         else:
-            logging.info("[SIMULATOR] Login faild, login agin...")
+            logging.info("[CK] Login faild, login agin...")
             time.sleep(5)
             self.login()
 
     def upload_response(self, packet_info):
         if packet_info[2] == "0":
-            logging.info("[SIMULATOR] Location upload success!")
+            logging.info("[CK] Location upload success!")
         else:
-            logging.info("[SIMULATOR] Login faild, login agin...")
+            logging.info("[CK] Login faild, login agin...")
             time.sleep(5)
             self.login()
 
     def heartbeat(self):
         time.sleep(10)
-        logging.info("[SIMULATOR] Simulator terminal heartbeat thread start...")
+        logging.info("[CK] Simulator terminal heartbeat thread start...")
         while True:
             heartbeat_mg = self.heartbeat_mg % (int(time.time()), self.sessionID, self.tid)
-            logging.info("[SIMULATOR] Send heartbeat:\n%s", heartbeat_mg)
+            logging.info("[CK] Send heartbeat:\n%s", heartbeat_mg)
             self.socket.send(heartbeat_mg)
             time.sleep(300)
 
     def upload_position(self):
         time.sleep(60)
-        logging.info("[SIMULATOR] Simulator terminal upload position thread start...")
+        logging.info("[CK] Simulator terminal upload position thread start...")
         while True:
             t_time = int(time.time())
             msg = self.location_mg % (t_time, self.sessionID, self.tid, t_time)
-            logging.info("[SIMULATOR] Upload location:\n%s", msg)
+            logging.info("[CK] Upload location:\n%s", msg)
             self.socket.send(msg)
             time.sleep(300)
  
@@ -111,11 +111,13 @@ class Terminal(object):
                 infds, _, _ = select.select([self.socket], [], [], 1)
                 if len(infds) > 0:
                     dat = self.socket.recv(1024)
-                    logging.info("[SIMULATOR] Recv data: %s", dat)
+                    logging.info("[CK] Recv data: %s", dat)
                     packet_info = self.pase_packet(dat)
                     self.handle_recv(packet_info)
+        except KeyboardInterrupt:
+            logging.error("Ctrl-C is pressed.")
         except Exception as e:
-            logging.error("[SIMULATOR] What's wrong, reconnect it.%s", e.args)
+            logging.error("[CK] What's wrong, reconnect it.%s", e.args)
         finally:
             self.socket.close()
 
@@ -124,41 +126,3 @@ class Terminal(object):
         return packet_info
         
 
-class Check_service(object):
-    def __init__(self):
-        self.db = DBConnection().db
-        self.tid = 'B123SIMULATOR'
-        self.mobiles = [13693675352, 15901258591]
-        self.emails = ['boliang.guan@dbjtech.com', 'zhaoxia.guo@dbjtech.com']
-        
-    def check_service(self):
-        try:
-            base_id = self.get_lid_by_tid(self.tid)
-            while True:
-                time.sleep(300)
-                new_lid = self.get_lid_by_tid(self.tid) 
-                logging.info("[CHECK_SERVICE] simulator terminal location base_id:%s, new_lid:%s", base_id, new_lid)
-                if new_lid > base_id:
-                    base_id = new_lid
-                else:
-                    for mobile in self.mobiles:
-                        sms = SMSCode.SMS_SERVICE_EXCEPTION_REPORT
-                        SMSHelper.send(mobile, sms)
-                        logging.info("[CHECK_SERVICE] Notify Administrator:%s By SMS, service exception!", mobile)
-                    for email in self.emails:
-                        content = SMSCode.SMS_SERVICE_EXCEPTION_REPORT
-                        EmailHelper.send(email, content) 
-                        logging.info("[CHECK_SERVICE] Notify Administrator:%s By EMAIL, service exception!", email)
-        except Exception as e:
-            logging.exception("[CHECK_SERVICE] Check service exception.")
-
-    def get_lid_by_tid(self, tid):
-        location = self.db.get("SELECT id"
-                               "  FROM T_LOCATION"
-                               "  WHERE tid = %s"
-                               "  ORDER BY id DESC LIMIT 1", 
-                               tid)
-        if location: 
-            return location.id
-        else:
-            return 0

@@ -29,9 +29,6 @@ from db_.mysql import DBConnection
 from helpers.confhelper import ConfHelper
 
 from mygwserver import MyGWServer
-from checkpofftimeout import CheckpofftimeoutHandler
-from lqterminals import LqterminalHandler
-from terminal import Terminal, Check_service
 
 def shutdown(gwserver, processes):
     try:
@@ -48,43 +45,6 @@ def shutdown(gwserver, processes):
 def usage():
     print "python26 server.py --conf=/path/to/conf_file"
 
-def check_poweroff_timeout_thread():
-    logging.info("[GW] Check terminals poweroff timeout thread started...")
-    cpt = CheckpofftimeoutHandler() 
-    try:
-        while True:
-            time.sleep(60)
-            cpt.check_poweroff_timeout()
-    except Exception as e:
-        logging.exception("[GW] Start check terminals poweroff timeout thread failed.")
-
-def lq_terminals_thread():
-    logging.info("[GW] Lq terminals thread started...")
-    lth = LqterminalHandler()
-    try:
-        while True:
-            time.sleep(60)
-            lth.lq_terminals()
-    except Exception as e:
-        logging.exception("[GW] Start lq terminal thread failed.")
-
-def simulator_terminal_thread():
-    logging.info("[GW] Simulator terminal thread started...")
-    time.sleep(10) 
-    ttt = Terminal()
-    try:
-        ttt.udp_client()
-    except Exception as e:
-        logging.exception("[GW] Start simulator terminal thread failed.")
-
-def check_service_thread():
-    logging.info("[GW] Check service thread started...")
-    cst = Check_service()
-    try:
-        cst.check_service()
-    except Exception as e:
-        logging.exception("[GW] Start check service thread failed.")
-   
 def main():
     tornado.options.parse_command_line()
     if not ('conf' in options):
@@ -115,10 +75,6 @@ def main():
                           target=gwserver.publish,
                           args=(ConfHelper.RABBITMQ_CONF.host,))
         processes = (gw_send, gw_recv,)
-        # thread.start_new_thread(lq_terminals_thread, ())
-        thread.start_new_thread(check_poweroff_timeout_thread, ())
-        thread.start_new_thread(simulator_terminal_thread, ())
-        thread.start_new_thread(check_service_thread, ())
         for p in processes:
             p.start()
         for p in processes:

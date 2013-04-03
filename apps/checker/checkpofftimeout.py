@@ -17,7 +17,7 @@ from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 
-class CheckpofftimeoutHandler(object):
+class Checkpofftimeout(object):
     def __init__(self):
         self.db = DBConnection().db
         self.redis = MyRedis()
@@ -38,9 +38,11 @@ class CheckpofftimeoutHandler(object):
                 sms = SMSCode.SMS_POWEROFF_TIMEOUT % t_name 
                 SMSHelper.send(user.owner_mobile, sms)
                 self.update_sms_flag(terminal.tid)
-                logging.info("[GW] Send poweroff timeout sms to user:%s, tid:%s", user.owner_mobile, terminal.tid)
+                logging.info("[CK] Send poweroff timeout sms to user:%s, tid:%s", user.owner_mobile, terminal.tid)
+        except KeyboardInterrupt:
+            logging.error("Ctrl-C is pressed.")
         except Exception as e:
-            logging.exception("[GW] Check terminal poweroff timeout exception.")
+            logging.exception("[CK] Check terminal poweroff timeout exception.")
 
     def update_sms_flag(self, tid):
         self.db.execute("UPDATE T_POWEROFF_TIMEOUT"

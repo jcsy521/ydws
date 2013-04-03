@@ -70,7 +70,6 @@ class MyGWServer(object):
         for i in ('port', 'count', 'check_heartbeat_interval'):
             ConfHelper.GW_SERVER_CONF[i] = int(ConfHelper.GW_SERVER_CONF[i])
         self.check_heartbeat_thread = None
-        self.online_terminals = [] 
         self.redis = None 
         self.db = None
         self.exchange = 'acb_exchange'
@@ -153,119 +152,6 @@ class MyGWServer(object):
 
         return connection, channel
 
-    def check_heartbeat(self):
-        try:
-            is_alived = self.redis.getvalue("is_alived")
-            if is_alived == ALIVED:
-                for dev_id in self.online_terminals:
-                    status = self.get_terminal_status(dev_id)
-                    offline_lq_key = get_offline_lq_key(dev_id)
-                    offline_lq_time = self.redis.getvalue(offline_lq_key)
-                    if not status:
-                        if not offline_lq_time:
-                            self.send_lq_sms(dev_id)
-                            self.redis.setvalue(offline_lq_key, int(time.time()), 15*60)
-                        elif (time.time() - offline_lq_time) > 10 * 60:
-                            self.heartbeat_lost_report(dev_id)
-                            self.redis.delete(offline_lq_key)
-                        else:
-                            pass
-        except:
-            logging.exception("[GW] Check gateway heartbeat exception.")
-
-    def send_lq_sms(self, dev_id):
-        sim = QueryHelper.get_tmobile_by_tid(dev_id, self.redis, self.db)
-        if sim:
-            interval = SMS.LQ.WEB
-            sms = SMSCode.SMS_LQ % interval 
-            SMSHelper.send_to_terminal(sim, sms)
-            lq_interval_key = get_lq_interval_key(dev_id)
-            self.redis.setvalue(lq_interval_key, int(time.time()), (interval*60 - 160))
-            logging.info("Send offline LQ: '%s' to Sim: %s", sms, sim)
-                
-    def heartbeat_lost_report(self, dev_id):
-        timestamp = int(time.time())
-        rname = EVENTER.RNAME.HEARTBEAT_LOST
-        category = EVENTER.CATEGORY[rname]
-        lid = self.db.execute("INSERT INTO T_LOCATION(tid, timestamp, category, type)"
-                              "  VALUES(%s, %s, %s, %s)",
-                              dev_id, timestamp, category, 1)
-        self.db.execute("INSERT INTO T_EVENT(tid, lid, category)"
-                        "  VALUES (%s, %s, %s)",
-                        dev_id, lid, category)
-        user = QueryHelper.get_user_by_tid(dev_id, self.db)
-        if user:
-            sms_option = QueryHelper.get_sms_option_by_uid(user.owner_mobile, 'heartbeat_lost', self.db)
-            logging.info("sms option: %s of %s", sms_option, user.owner_mobile)
-            if sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
-                current_time = get_terminal_time(timestamp) 
-                tname = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
-                sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
-                SMSHelper.send(user.owner_mobile, sms)
-                corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
-                                   "  WHERE T_TERMINAL_INFO.tid = %s"
-                                   "    AND T_TERMINAL_INFO.group_id != -1"
-                                   "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
-                                   "    AND T_GROUP.corp_id = T_CORP.cid",
-                                   dev_id)
-                if (corp and corp.mobile != user.owner_mobile):
-                    SMSHelper.send(corp.mobile, sms)
-        logging.warn("[GW] Terminal %s Heartbeat lost!!!", dev_id)
-        # 1. memcached clear sessionID
-        terminal_sessionID_key = get_terminal_sessionID_key(dev_id)
-        self.redis.delete(terminal_sessionID_key)
-        # 2. offline
-        self.online_terminals.remove(dev_id)
-        # 3. db set offline 
-        info = DotDict(dev_id=dev_id,
-                       login=GATEWAY.TERMINAL_LOGIN.OFFLINE)
-        self.update_terminal_info(info)
-
-    def __start_check_heartbeat_thread(self):
-        self.check_heartbeat_thread = RepeatedTimer(ConfHelper.GW_SERVER_CONF.check_heartbeat_interval,
-                                                    self.check_heartbeat)
-        self.check_heartbeat_thread.start()
-        logging.info("[GW] Check heartbeat thread started...")
-
-    def __restore_online_terminals(self):
-        """
-        if restart gatewayserver, record online terminals again.
-        """
-        db = DBConnection().db
-        #redis = MyRedis()
-        online_terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                    "  WHERE login != %s",
-                                    GATEWAY.TERMINAL_LOGIN.OFFLINE)
-        self.online_terminals = [t.tid for t in online_terminals]
-        #for terminal in online_terminals:
-        #    info = DotDict(dev_id=terminal.tid,
-        #                   login=GATEWAY.TERMINAL_LOGIN.OFFLINE)
-        #    self.update_terminal_info(info)
-        #    terminal_status_key = get_terminal_address_key(terminal.tid)
-        #    terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
-        #    keys = [terminal_status_key, terminal_sessionID_key]
-        #    self.redis.delete(*keys)
-            #terminal_status_key = get_terminal_address_key(terminal.tid)
-            #terminal_status = redis.getvalue(terminal_status_key)
-            #if terminal_status:
-            #    self.online_terminals.append(terminal.tid)
-            #else:
-            #    db.execute("UPDATE T_TERMINAL_INFO"
-            #               "  SET login = %s"
-            #               "  WHERE tid = %s",
-            #               GATEWAY.TERMINAL_LOGIN.OFFLINE, terminal.tid)
-            #    terminal_sessionID_key = get_terminal_sessionID_key(terminal.tid)
-            #    self.redis.delete(terminal_sessionID_key)
-
-        db.close()
-        
-    def __stop_check_heartbeat_thread(self):
-        if self.check_heartbeat_thread is not None:
-            self.check_heartbeat_thread.cancel()
-            self.check_heartbeat_thread.join()
-            logging.info("[GW] Check heartbeat stop.")
-            self.check_heartbeat_thread = None
-
     def consume(self, host):
         logging.info("[GW] consume process: %s started...", os.getpid())
         consume_connection, consume_channel = self.__connect_rabbitmq(host)
@@ -305,9 +191,6 @@ class MyGWServer(object):
         logging.info("[GW] publish process: %s started...", os.getpid())
         queue = Queue()
         try:
-            #NOTE: self.online_terminals, this process will change it!
-            self.__restore_online_terminals()
-            self.__start_check_heartbeat_thread()
             thread.start_new_thread(self.handle_packet_from_terminal,
                                     (queue, host))
             self.recv(queue)
@@ -705,9 +588,6 @@ class MyGWServer(object):
                             lq_interval_key = get_lq_interval_key(exist_terminal.tid)
                             keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
                             self.redis.delete(*keys)
-                            # remove old online dev
-                            if exist_terminal.tid in self.online_terminals:
-                                self.online_terminals.remove(exist_terminal.tid)
                             logging.info("[GW] Terminal %s change dev, old dev: %s!",
                                          t_info['dev_id'], exist_terminal.tid)
 
@@ -751,9 +631,6 @@ class MyGWServer(object):
                 self.redis.setvalue(terminal_sessionID_key, args.sessionID)
                 # record terminal address
                 self.update_terminal_status(t_info["dev_id"], address)
-                # append into online terminals
-                if not t_info["dev_id"] in self.online_terminals:
-                    self.online_terminals.append(t_info["dev_id"])
                 # set login
                 info = DotDict(login=GATEWAY.TERMINAL_LOGIN.ONLINE,
                                mobile=t_info['t_msisdn'],
@@ -1316,9 +1193,6 @@ class MyGWServer(object):
             lq_interval_key = get_lq_interval_key(item)
             keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
             self.redis.delete(*keys)
-        # offline
-        if dev_id in self.online_terminals:
-            self.online_terminals.remove(dev_id)
         logging.info("[GW] Delete Terminal: %s, umobile: %s",
                      dev_id, (user.owner_mobile if user else None))
         
@@ -1480,7 +1354,6 @@ class MyGWServer(object):
 
     def stop(self):
         self.__close_socket()
-        self.__stop_check_heartbeat_thread()
         self.__clear_memcached()
 
     def __del__(self):
