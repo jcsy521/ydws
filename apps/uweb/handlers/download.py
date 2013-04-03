@@ -66,7 +66,8 @@ class UploadTerminalHandler(BaseHandler):
 
             # write into tmp file
             if filename == "script.luac":
-                file_path = ConfHelper.UWEB_CONF.terminal_upload + filename
+                file_path = self.application.settings['server_path'] +\
+                            self.application.settings['terminal_path'] + filename
                 output_file = open(file_path, 'w')
                 output_file.write(upload_file['body'])
                 output_file.close()
