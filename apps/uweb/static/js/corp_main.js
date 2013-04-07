@@ -66,7 +66,7 @@ function customMenu(node) {
 		eventLabel = '告警查询';
 		moveToLabel = '移动定位器';
 		singleDefendLabel = '设防/撤防';
-		staticsLabel = '统计报表';
+		staticsLabel = '里程报表';
 	}
 	// 定位器的移动至菜单项
 	
@@ -213,19 +213,8 @@ function customMenu(node) {
 		},
 		"statics": {
 			"label": staticsLabel,
-			"submenu": {
-				'eventStatics': {
-					"label" : "告警统计",
-					"action" : function (obj) {
-						dlf.fn_initRecordSearch('singleEvent');
-					}
-				},
-				'mileageStatics': {
-					"label" : "里程统计",
-					"action" : function (obj) {
-						dlf.fn_initRecordSearch('singleMileage');
-					}
-				}
+			"action" : function (obj) {
+				dlf.fn_initRecordSearch('singleMileage');
 			}
 		}
 	};
