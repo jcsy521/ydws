@@ -100,7 +100,7 @@ def main():
         thread.start_new_thread(check_poweroff_timeout, ())
         thread.start_new_thread(check_terminal_status, ())
         thread.start_new_thread(check_service, ())
-        thread.start_new_thread(charge_remind, ())
+        #thread.start_new_thread(charge_remind, ())
         thread.start_new_thread(simulator_terminal, ())
         while True:
             time.sleep(60)
