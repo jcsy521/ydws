@@ -133,44 +133,36 @@ class IOSHandler(BaseHandler, LoginMixin):
                                tid=terminals[0].tid,
                                sim=terminals[0].sim))
             user_info = QueryHelper.get_user_by_uid(uid, self.db) 
-            #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
-            #terminals = self.db.query("SELECT tid, mobile, login, keys_num"
-            #                          #"    gsm, gps, pbat, login, defend_status,"
-            #                          #"    mannual_status, fob_status"
-            #                          "  FROM T_TERMINAL_INFO"
-            #                          "  WHERE service_status = %s"
-            #                          "    AND owner_mobile = %s"
-            #                          "    AND group_id = -1",
-            #                          UWEB.SERVICE_STATUS.ON, username)
- 
 
             # NOTE: add cars_info, it's same as lastinfo
             cars_info = {} 
 
-            for terminal in terminals:
-                terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
-            self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
+            #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
+            terminals = self.db.query("SELECT tid, mobile, login, keys_num"
+                                      "    gsm, gps, pbat, login, defend_status,"
+                                      "    mannual_status, fob_status"
+                                      "  FROM T_TERMINAL_INFO"
+                                      "  WHERE service_status = %s"
+                                      "    AND owner_mobile = %s"
+                                      "    AND group_id = -1",
+                                      UWEB.SERVICE_STATUS.ON, username)
 
             for terminal in terminals:
                 # 1: get terminal
                 tid = terminal.tid
 
                 terminal_info_key = get_terminal_info_key(tid)
-                terminal = self.redis.getvalue(terminal_info_key)
-                if not terminal:
-                    terminals = self.db.query("SELECT tid, mobile, login, keys_num"
-                                              "    gsm, gps, pbat, login, defend_status,"
-                                              "    mannual_status, fob_status"
-                                              "  FROM T_TERMINAL_INFO"
-                                              "  WHERE tid = %s",
-                                              tid)
-
+                terminal_cache = self.redis.getvalue(terminal_info_key)
+                if terminal_cache:
+                    terminal['gps'] =  terminal_cache['gps']
+                    terminal['gsm'] =  terminal_cache['gsm']
+                    terminal['pbat'] =  terminal_cache['pbat']
 
                 terminal['keys_num'] = 0
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
                 #NOTE: if alias is null, provide cnum or sim instead
-                terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
+                terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                 fobs = self.db.query("SELECT fobid FROM T_FOB"
                                      "  WHERE tid = %s", tid)
                 terminal['fob_list'] = [fob.fobid for fob in fobs]
@@ -245,6 +237,7 @@ class IOSHandler(BaseHandler, LoginMixin):
 
             ios_badge_key = get_ios_badge_key(username)
             self.redis.setvalue(ios_badge_key, 0, UWEB.IOS_ID_INTERVAL)
+            self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name, 
                                          cars_info=cars_info,
@@ -282,6 +275,9 @@ class AndroidHandler(BaseHandler, LoginMixin):
 
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
 
+            # NOTE: add cars_info, it's same as lastinfo
+            cars_info = {} 
+
             #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
             terminals = self.db.query("SELECT tid, mobile, login, keys_num"
                                       "    gsm, gps, pbat, login, defend_status,"
@@ -291,28 +287,17 @@ class AndroidHandler(BaseHandler, LoginMixin):
                                       "    AND owner_mobile = %s"
                                       "    AND group_id = -1",
                                       UWEB.SERVICE_STATUS.ON, username)
- 
-
-            # NOTE: add cars_info, it's same as lastinfo
-            cars_info = {} 
-            for terminal in terminals:
-                terminal['alias'] = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
-
-            self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
 
             for terminal in terminals:
                 # 1: get terminal
                 tid = terminal.tid
 
                 terminal_info_key = get_terminal_info_key(tid)
-                terminal = self.redis.getvalue(terminal_info_key)
-                if not terminal:
-                    terminal = self.db.query("SELECT tid, mobile, login, keys_num"
-                                             "    gsm, gps, pbat, login, defend_status,"
-                                             "    mannual_status, fob_status, alias"
-                                             "  FROM T_TERMINAL_INFO"
-                                             "  WHERE tid = %s",
-                                             tid)
+                terminal_cache = self.redis.getvalue(terminal_info_key)
+                if terminal_cache:
+                    terminal['gps'] =  terminal_cache['gps']
+                    terminal['gsm'] =  terminal_cache['gsm']
+                    terminal['pbat'] =  terminal_cache['pbat']
 
                 terminal['keys_num'] = 0
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
@@ -384,10 +369,10 @@ class AndroidHandler(BaseHandler, LoginMixin):
             push_info = NotifyHelper.get_push_info()
             push_key = NotifyHelper.get_push_key(uid, self.redis)
             version_info = get_version_info("android")
-
             lastinfo_time_key = get_lastinfo_time_key(uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
 
+            self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
             self.write_ret(status,
                            dict_=DotDict(push_id=uid,
                                          app_key=push_info.app_key,
