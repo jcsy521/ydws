@@ -139,6 +139,17 @@ def handle_location(location, redis, cellid=False, db=None):
                 cellid_info = [int(item) for item in location.cellid.split(":")]
                 sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
                 location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
+                location_key = get_location_key(location.dev_id)
+                old_location = redis.getvalue(location_key)
+                if old_location:
+                    distance = get_distance(location.lon,
+                                            location.lat,
+                                            old_location.longitude,
+                                            old_location.latitude)
+                    if distance > 10000:
+                        location.lat, location.lon = (old_location.latitude,old_location.longitude)
+                        logging.info("[LBMPHELPER] drop odd location, new location: %s, old location: %s, distance: %s",
+                                     location, old_location, distance)
             #if location.lat and location.lon:
             #    location = filter_location(location, memcached)
 
