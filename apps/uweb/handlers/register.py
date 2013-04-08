@@ -10,6 +10,7 @@ import tornado.web
 from utils.misc import get_today_last_month, get_captcha_key
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
+from utils.checker import check_zs_phone
 from utils.dotdict import DotDict
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
@@ -68,8 +69,7 @@ class RegisterHandler(BaseHandler):
             captcha = data.captcha         
 
             # check tmobile is whitelist or not
-            white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST"
-                                     "  WHERE mobile = %s LIMIT 1", tmobile)
+            white_list = check_zs_phone(tmobile, self.db)
             if not white_list:
                 logging.info("[UWEB] %s is not whitelist", tmobile)
                 status = ErrorCode.MOBILE_NOT_ORDERED
