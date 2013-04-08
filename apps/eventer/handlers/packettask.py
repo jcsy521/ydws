@@ -150,6 +150,7 @@ class PacketTask(object):
             if int(mannual_status) == UWEB.DEFEND_STATUS.NO:
                 report['category'] = EVENTER.CATEGORY.REALTIME
                 self.insert_location(report)
+                self.update_terminal_info(report)
                 logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
                              info['dev_id'], info['rName'])
                 return
