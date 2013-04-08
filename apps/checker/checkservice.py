@@ -12,6 +12,7 @@ import time
 from db_.mysql import DBConnection
 from helpers.smshelper import SMSHelper
 from helpers.emailhelper import EmailHelper 
+from helpers.confhelper import ConfHelper
 from codes.smscode import SMSCode
 
 
@@ -20,24 +21,24 @@ class CheckService(object):
         self.db = DBConnection().db
         self.tid = 'B123SIMULATOR'
         self.mobiles = [13693675352, 15901258591]
-        self.emails = ['boliang.guan@dbjtech.com', 'zhaoxia.guo@dbjtech.com']
+        self.emails = ['boliang.guan@dbjtech.com', 'zhaoxia.guo@dbjtech.com', 'xiaolei.jia@dbjtech.com']
         
     def check_service(self):
         try:
             base_id = self.get_lid_by_tid(self.tid)
             while True:
-                time.sleep(300)
+                time.sleep(600)
                 new_lid = self.get_lid_by_tid(self.tid) 
                 logging.info("[CK] simulator terminal location base_id:%s, new_lid:%s", base_id, new_lid)
                 if new_lid > base_id:
                     base_id = new_lid
                 else:
                     for mobile in self.mobiles:
-                        sms = SMSCode.SMS_SERVICE_EXCEPTION_REPORT
+                        sms = SMSCode.SMS_SERVICE_EXCEPTION_REPORT % ConfHelper.UWEB_CONF.url_out 
                         SMSHelper.send(mobile, sms)
                         logging.info("[CK] Notify Administrator:%s By SMS, service exception!", mobile)
                     for email in self.emails:
-                        content = SMSCode.SMS_SERVICE_EXCEPTION_REPORT
+                        content = SMSCode.SMS_SERVICE_EXCEPTION_REPORT % ConfHelper.UWEB_CONF.url_out
                         EmailHelper.send(email, content) 
                         logging.info("[CK] Notify Administrator:%s By EMAIL, service exception!", email)
         except KeyboardInterrupt:
