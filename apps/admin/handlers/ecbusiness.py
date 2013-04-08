@@ -13,9 +13,10 @@ from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
 from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
 from checker import check_privileges 
-from constants import PRIVILEGES, GATEWAY, SMS
+from constants import PRIVILEGES, GATEWAY, SMS, UWEB
 from mixin import BaseMixin
 from helpers.queryhelper import QueryHelper
+from helpers.gfsenderhelper import GFSenderHelper
 from codes.smscode import SMSCode 
 from helpers.smshelper import SMSHelper
 from codes.errorcode import ErrorCode 
@@ -72,8 +73,10 @@ class ECBusinessMixin(BaseMixin):
             groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", business.cid)
             groups = [g.id for g in groups] 
             terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                      "  WHERE group_id IN %s",
-                                      tuple(groups + DUMMY_IDS))
+                                      "  WHERE group_id IN %s"
+                                      "    AND service_status = %s",
+                                      tuple(groups + DUMMY_IDS),
+                                      UWEB.SERVICE_STATUS.ON)
             business['total_terminals'] = len(terminals)
             for key in business:
                 if business[key] is None:
@@ -246,25 +249,45 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
             ec = self.get_ecbusiness_info(ecmobile)
             groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", ec.cid)
             groups = [group.id for group in groups]
-            terminals = self.db.query("SELECT id, tid, owner_mobile FROM T_TERMINAL_INFO WHERE group_id IN %s",
+            terminals = self.db.query("SELECT id, tid, mobile, owner_mobile FROM T_TERMINAL_INFO WHERE group_id IN %s",
                                       tuple(groups + DUMMY_IDS))
             for terminal in terminals:
-                self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s", terminal.id) 
-                # clear redis
-                sessionID_key = get_terminal_sessionID_key(terminal.tid)
-                address_key = get_terminal_address_key(terminal.tid)
-                info_key = get_terminal_info_key(terminal.tid)
-                lq_sms_key = get_lq_sms_key(terminal.tid)
-                lq_interval_key = get_lq_interval_key(terminal.tid)
-                keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                self.redis.delete(*keys)
-            users = list(set([t.owner_mobile for t in terminals]))
-            for user in users:
-                t = self.db.query("SELECT id FROM T_TERMINAL_INFO WHERE owner_mobile = %s", user) 
-                if len(t) == 0:
-                    self.db.execute("DELETE FROM T_USER"
-                                    "  WHERE mobile = %s",
-                                    user)
+                # unbind terminal
+                seq = str(int(time.time()*1000))[-4:]
+                args = DotDict(seq=seq,
+                               tid=terminal.tid)
+                response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args)
+                response = json_decode(response)
+                if response['success'] == ErrorCode.SUCCESS:
+                    logging.info("[UWEB] umobile: %s, tid: %s, tmobile:%s GPRS unbind successfully", 
+                                 terminal.owner_mobile, terminal.tid,
+                                 terminal.mobile)
+                else:
+                    status = response['success']
+                    # unbind failed. clear sessionID for relogin, then unbind it again
+                    sessionID_key = get_terminal_sessionID_key(terminal.tid)
+                    self.redis.delete(sessionID_key)
+                    logging.error('[UWEB] umobile:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
+                                  terminal.owner_mobile, terminal.tid,
+                                  terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
+                    unbind_sms = SMSCode.SMS_UNBIND  
+                    ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
+                    ret = DotDict(json_decode(ret))
+                    status = ret.status
+                    if ret.status == ErrorCode.SUCCESS:
+                        self.db.execute("UPDATE T_TERMINAL_INFO"
+                                        "  SET service_status = %s"
+                                        "  WHERE id = %s",
+                                        UWEB.SERVICE_STATUS.TO_BE_UNBIND,
+                                        terminal.id)
+                        logging.info("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind successfully.",
+                                     terminal.owner_mobile, terminal.tid,
+                                     terminal.mobile)
+                    else:
+                        logging.error("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
+                                      terminal.owner_mobile, terminal.tid,
+                                      terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
+
             self.db.execute("DELETE FROM T_CORP WHERE cid = %s", ec.cid)
             
         except Exception as e:

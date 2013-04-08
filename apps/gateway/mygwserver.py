@@ -1037,16 +1037,12 @@ class MyGWServer(object):
 
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
-            sessionID = self.get_terminal_sessionID(head.dev_id)
-            if sessionID != head.sessionID:
-                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
-            else:
-                if resend_flag:
-                    logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
-                                 info.head, info.body)
-                else: 
-                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-                    self.delete_terminal(head.dev_id)
+            if resend_flag:
+                logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
+                             info.head, info.body)
+            else: 
+                self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                self.delete_terminal(head.dev_id)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,

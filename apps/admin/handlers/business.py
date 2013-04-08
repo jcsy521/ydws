@@ -390,27 +390,32 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             args = DotDict(seq=seq,
                            tid=terminal.tid)
             response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args)
-            logging.info("Unbind terminal: %s response: %s", terminal.tid, response)
-            # clear db 
-            self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                            "  WHERE id = %s",
-                            terminal.id)
-            # clear redis
-            sessionID_key = get_terminal_sessionID_key(terminal.tid)
-            address_key = get_terminal_address_key(terminal.tid)
-            info_key = get_terminal_info_key(terminal.tid)
-            lq_sms_key = get_lq_sms_key(terminal.tid)
-            lq_interval_key = get_lq_interval_key(terminal.tid)
-            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-            self.redis.delete(*keys)
-            terminals = self.db.query("SELECT mobile"
-                                      "  FROM T_TERMINAL_INFO"
-                                      "  WHERE owner_mobile = %s",
-                                      pmobile)
-            if len(terminals) == 0:
-                self.db.execute("DELETE FROM T_USER"
-                                "  WHERE mobile = %s",
-                                pmobile)
+            response = json_decode(response)
+            if response['success'] == ErrorCode.SUCCESS:
+                logging.info("[UWEB] umobile: %s, tid: %s, tmobile:%s GPRS unbind successfully", 
+                             pmobile, terminal.tid, tmobile)
+            else:
+                status = response['success']
+                # unbind failed. clear sessionID for relogin, then unbind it again
+                sessionID_key = get_terminal_sessionID_key(terminal.tid)
+                self.redis.delete(sessionID_key)
+                logging.error('[UWEB] umobile:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
+                              pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                unbind_sms = SMSCode.SMS_UNBIND  
+                ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
+                ret = DotDict(json_decode(ret))
+                status = ret.status
+                if ret.status == ErrorCode.SUCCESS:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET service_status = %s"
+                                    "  WHERE id = %s",
+                                    UWEB.SERVICE_STATUS.TO_BE_UNBIND,
+                                    terminal.id)
+                    logging.info("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind successfully.",
+                                 pmobile, terminal.tid, tmobile)
+                else:
+                    logging.error("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
+                                  pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
         except Exception as e:
             status = ErrorCode.FAILED
             logging.exception("Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)
