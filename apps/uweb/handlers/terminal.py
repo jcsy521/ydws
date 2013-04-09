@@ -12,7 +12,7 @@ from tornado.ioloop import IOLoop
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection
+from utils.checker import check_sql_injection, check_zs_phone
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
@@ -271,8 +271,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             endtime = now_ + relativedelta(years=1)
             endtime = int(time.mktime(endtime.timetuple()))
             # 0. check tmobile is whitelist or not
-            white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST"
-                                     "  WHERE mobile = %s LIMIT 1", data.tmobile)
+            white_list = check_zs_phone(data.tmobile, self.db) 
             if not white_list:
                 logging.error("[UWEB] mobile: %s is not whitelist.", data.tmobile)
                 status = ErrorCode.MOBILE_NOT_ORDERED
