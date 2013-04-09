@@ -40,7 +40,7 @@ class UNBindHandler(BaseHandler, BaseMixin):
 
         try:
             tmobile = data.tmobile
-            terminal = self.db.get("SELECT id, tid, login FROM T_TERMINAL_INFO"
+            terminal = self.db.get("SELECT id, tid, owner_mobile, login FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s"
                                    "    AND service_status = %s",
                                    tmobile, 
@@ -48,6 +48,11 @@ class UNBindHandler(BaseHandler, BaseMixin):
             if not terminal:
                 status = ErrorCode.TERMINAL_NOT_EXISTED
                 logging.error("The terminal with tmobile: %s does not exist!", tmobile)
+                self.write_ret(status)
+                IOLoop.instance().add_callback(self.finish)
+                return
+            elif terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+                status = self.send_jb_sms(tmobile, terminal.owner_mobile, terminal.tid)
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
                 return
@@ -65,21 +70,7 @@ class UNBindHandler(BaseHandler, BaseMixin):
                     self.redis.delete(sessionID_key)
                     logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                                   self.current_user.uid, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
-                    unbind_sms = SMSCode.SMS_UNBIND  
-                    ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
-                    ret = DotDict(json_decode(ret))
-                    status = ret.status
-                    if ret.status == ErrorCode.SUCCESS:
-                        self.db.execute("UPDATE T_TERMINAL_INFO"
-                                        "  SET service_status = %s"
-                                        "  WHERE id = %s",
-                                        UWEB.SERVICE_STATUS.TO_BE_UNBIND,
-                                        terminal.id)
-                        logging.info("[UWEB] uid: %s, tid: %s, tmobile: %s SMS unbind successfully.",
-                                     self.current_user.uid, terminal.tid, tmobile)
-                    else:
-                        logging.error("[UWEB] uid: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
-                                      self.current_user.uid, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                    status = self.send_jb_sms(tmobile, terminal.owner_mobile, terminal.tid)
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
 

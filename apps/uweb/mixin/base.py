@@ -3,12 +3,14 @@
 import logging
 import time
 
+from tornado.escape import json_decode
 
 from utils.misc import get_lq_sms_key, get_lq_interval_key
 from helpers.smshelper import SMSHelper
-
 from constants import SMS, UWEB
 from codes.smscode import SMSCode
+from codes.errorcode import ErrorCode
+
 
 class BaseMixin(object):
 
@@ -50,3 +52,22 @@ class BaseMixin(object):
         else:
             if abs(int(time.time()) - lq_time) < UWEB.WAKEUP_INTERVAL:
                 self.send_lq_sms(sim, tid, SMS.LQ.WEB)
+
+    def send_jb_sms(self, tmobile, umobile, tid):
+        unbind_sms = SMSCode.SMS_UNBIND  
+        ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
+        ret = json_decode(ret)
+        status = ret['status']
+        if status == ErrorCode.SUCCESS:
+            self.db.execute("UPDATE T_TERMINAL_INFO"
+                            "  SET service_status = %s"
+                            "  WHERE mobile = %s",
+                            UWEB.SERVICE_STATUS.TO_BE_UNBIND,
+                            tmobile)
+            logging.info("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind successfully.",
+                         umobile, tid, tmobile)
+        else:
+            logging.error("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
+                          umobile, tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
+
+        return status

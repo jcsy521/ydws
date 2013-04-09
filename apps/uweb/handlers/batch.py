@@ -21,7 +21,9 @@ from helpers.smshelper import SMSHelper
 from utils.checker import check_phone
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
+
 from base import BaseHandler, authenticated
+from mixin.base import BaseMixin
 
 class BatchImportHandler(BaseHandler):
     """batch."""
@@ -120,7 +122,7 @@ class BatchImportHandler(BaseHandler):
             self.write_ret(status)
 
 
-class BatchDeleteHandler(BaseHandler):
+class BatchDeleteHandler(BaseHandler, BaseMixin):
     """batch delete."""
 
     @authenticated
@@ -144,7 +146,7 @@ class BatchDeleteHandler(BaseHandler):
             for tid in tids:
                 r = DotDict(tid=tid,
                             status=ErrorCode.SUCCESS)
-                terminal = self.db.get("SELECT id, mobile, login FROM T_TERMINAL_INFO"
+                terminal = self.db.get("SELECT id, mobile, owner_mobile, login FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s"
                                        "    AND service_status = %s",
                                        tid, 
@@ -153,6 +155,10 @@ class BatchDeleteHandler(BaseHandler):
                     r.status = ErrorCode.SUCCESS
                     res.append(r)
                     logging.error("The terminal with tid: %s does not exist!", tid)
+                    continue 
+                elif terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+                    r.status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                    res.append(r)
                     continue 
 
                 seq = str(int(time.time()*1000))[-4:]

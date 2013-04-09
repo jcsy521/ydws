@@ -356,8 +356,8 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 logging.error("[UWEB] Send %s to terminal %s failed.", register_sms, data.tmobile)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] gid:%s update terminal info failed. Exception: %s", 
-                              self.current_user.gid, e.args)
+            logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 
+                              self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -459,13 +459,19 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             tid = self.get_argument('tid', None)
             logging.info("[UWEB] corp delete terminal request: %s, cid: %s", 
                          tid, self.current_user.cid)
-            terminal = self.db.get("SELECT id, mobile, login FROM T_TERMINAL_INFO"
+            terminal = self.db.get("SELECT id, mobile, owner_mobile, login FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s",
                                    tid, 
                                    UWEB.SERVICE_STATUS.ON)
             if not terminal:
                 logging.error("The terminal with tid: %s does not exist!", tid)
+                status = ErrorCode.TERMINAL_NOT_EXISTED
+                self.write_ret(status)
+                return
+            elif terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+                status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                self.write_ret(status)
                 return
 
             # unbind terminal
@@ -485,21 +491,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.redis.delete(sessionID_key)
                 logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                               self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
-                unbind_sms = SMSCode.SMS_UNBIND  
-                ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
-                ret = DotDict(json_decode(ret))
-                status = ret.status
-                if ret.status == ErrorCode.SUCCESS:
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
-                                    "  SET service_status = %s"
-                                    "  WHERE id = %s",
-                                    UWEB.SERVICE_STATUS.TO_BE_UNBIND,
-                                    terminal.id)
-                    logging.info("[UWEB] uid: %s, tid: %s, tmobile: %s SMS unbind successfully.",
-                                 self.current_user.uid, tid, terminal.mobile)
-                else:
-                    logging.error("[UWEB] uid: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
-                                  self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
+                status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
 
             self.write_ret(status)
         except Exception as e:
