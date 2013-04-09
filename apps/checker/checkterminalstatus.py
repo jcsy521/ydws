@@ -119,6 +119,10 @@ class CheckTerminalStatus(object):
                         "  WHERE tid = %s",
                         info['login'], info['tid'])
         # redis
+        logging.info("[CK] %s before set redis login: %s, login: %s",
+                     info['tid'], terminal_info['login'], info['login'])
         terminal_info['login'] = info['login'] 
         self.redis.setvalue(terminal_info_key, terminal_info)
+        terminal_info = self.redis.getvalue(terminal_info_key)
+        logging.info("[CK] %s after set redis login: %s", info['tid'], terminal_info['login'])
 
