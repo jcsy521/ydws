@@ -1318,7 +1318,7 @@ body {
 	font-weight: bold;
 	text-decoration: underline;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th {
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th {
 	height: 38px;
 	line-height: 38px;
     font-size: 14px; 
@@ -1905,18 +1905,84 @@ body {
 	text-indent: 2em;
 }
 .chargerBox {
-	height: 464px;
+	margin: 30px auto;
+	overflow: hidden;
+	word-wrap: break-word;
+	padding: 20px 30px;
+	background: white;
+	width: 709px;
+	line-height: 21px;
+	height: auto;
+}
+.chargerBox h1 {
+	font-weight: 800;
+	padding: 0 0 10px;
+	border-bottom: 1px solid #E5E5E5;
+	font-size: 16px;
+}
+.chargerBox h2 {
+	font-weight: 800;
+	padding: 6px;
+	background: #EEF4F8;
+	color: #353735;
+	font-size: 14px;
+}
+.chargerBox h4 {
+	font-weight: 800;
+	font-size: 12px;
+	color: #333;
+	line-height: 2em;
+	margin-top: 15px;
+}
+.chargerBox .mcatalog {
+	color: #08C;
+	border: 1px solid #E4E4E4;
+	padding: 10px 20px;
+	margin: 20px 0;
+	overflow: hidden;
+}
+.chargerBox a, .chargerBox a:hover {
+	text-decoration: none;
+	color: #08C;
+}
+.list-img {
+	vertical-align: text-bottom;
+	margin-right: 5px;
+	cursor: pointer;
+}
+.mcsub-menu {
+	padding-left: 12px;
+}
+.chargerBox ol li {
+	margin-left: 8px;
+	line-height: 21px;
+}
+.chargerBox .mcatalog li {
+	margin: 6px 0;
+	list-style: none;
 }
 .chargerBox p {
-	padding: 10px;
-	text-indent: 2em;
+	padding: 0px;
+	margin: 6px 0;
 }
-.chargerBox .serviceDetail, .chargerBox .note {
+.chargerBox .serviceDetail {
 	text-indent: 3em;
 	padding: 0px;
 }
 .chargerBox .note {
-	color: blue;
+	color: #0088CC;
+}
+.chargerBox .highlight {
+	color: #000;
+}
+.chargerBox .questionTable ul li {
+	list-style-type: disc;
+    margin-left: 40px;
+    text-align: left;
+	line-height: 26px;
+}
+.questionTable {
+	width: 700px;
 }
 .copyright {
 	text-align: center;
