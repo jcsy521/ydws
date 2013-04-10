@@ -5,7 +5,7 @@
 		<title>移动车卫士-常见问题及咨询</title>
 		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
 		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>	
-		<script type="">
+		<script type="text/javascript">
 			$(function() {
 				$('.j_clickImg').unbind('click').bind('click', function() {
 					var obj_this = $(this),
@@ -14,7 +14,6 @@
 						str_tempName = '',
 						obj_secondeMenu = obj_this.parent().next();
 					
-						console.log(obj_secondeMenu, str_src);
 					if ( str_name == 'add.jpg' ) {
 						str_tempName = 'plus.jpg';
 						obj_secondeMenu.show();
