@@ -72,7 +72,7 @@ $(function() {
 				}
 			});
 		} else {
-			dlf.fn_jNotifyMessage('上传数据格式错误。', 'message', false, 3000);
+			dlf.fn_jNotifyMessage('定位器号码不合法，请确认后重试。', 'message', false, 3000);
 			return;
 		}
 	});

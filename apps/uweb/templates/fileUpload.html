@@ -40,7 +40,7 @@
 						<tr class="j_notActived" tmobile="{{r.tmobile}}" umobile="{{r.umobile}}">
 							<td>{{r.tmobile}}</td>
 							<td>{{r.umobile}}</td>
-							<td class="fileStatus1">未激活</td>
+							<td class="fileStatus1">等待激活</td>
 						</tr>
 					{% elif r.status == 2 %}
 						<tr>
@@ -58,7 +58,7 @@
 						<tr>
 							<td>{{r.tmobile}}</td>
 							<td>{{r.umobile}}</td>
-							<td tmobile="{{r.tmobile}}" class="fileStatus3">未开通业务</td>
+							<td tmobile="{{r.tmobile}}" class="fileStatus3">非白名单号码</td>
 						</tr>
 					{% end %}
 				{% end %}
