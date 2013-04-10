@@ -17,7 +17,7 @@ from base import BaseHandler, authenticated
 
 from checker import check_areas, check_privileges 
 from codes.errorcode import ErrorCode 
-from utils.checker import check_sql_injection
+from utils.checker import check_sql_injection, check_zs_phone
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from helpers.smshelper import SMSHelper
@@ -122,6 +122,13 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                 self.render('errors/error.html',
                     message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_CONDITION_ILLEGAL])
                 return
+
+        white_list = check_zs_phone(fields.tmobile, self.db)
+        if not white_list:
+            logging.error("Create business error, %s is not whitelist", fields.tmobile)
+            self.render('errors/error.html',
+                message=ErrorCode.ERROR_MESSAGE[ErrorCode.MOBILE_NOT_ORDERED])
+            return
 
         try:
             # 1: add user

@@ -18,7 +18,7 @@ from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
 from constants import UWEB, GATEWAY
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.smshelper import SMSHelper
-from utils.checker import check_phone
+from utils.checker import check_phone, check_zs_phone
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
 
@@ -89,8 +89,7 @@ class BatchImportHandler(BaseHandler):
                         continue 
 
                     # check tmobile is whitelist or not
-                    white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST"
-                                             "  WHERE mobile = %s LIMIT 1", tmobile)
+                    white_list = check_zs_phone(tmobile, self.db)
                     if not white_list:
                         logging.error("[UWEB] mobile: %s is not whitelist.", tmobile)
                         r['status'] = UWEB.TERMINAL_STATUS.MOBILE_NOT_ORDERED 
