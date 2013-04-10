@@ -92,13 +92,17 @@ window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) {
 * 轨迹查询操作
 */
 function fn_trackQuery() {
-	var str_beginTime = $('#trackBeginTime').val(), 
-		str_endTime = $('#trackEndTime').val(),
+	var str_beginTime = dlf.fn_changeDateStringToNum($('#trackBeginTime').val()), 
+		str_endTime = dlf.fn_changeDateStringToNum($('#trackEndTime').val()),
 		n_cellid_flag = $('#ceillid_flag').attr('checked') == 'checked' ? 1 : 0,
-		obj_locusDate = {'start_time': dlf.fn_changeDateStringToNum(str_beginTime), 
-						'end_time': dlf.fn_changeDateStringToNum(str_endTime),
+		obj_locusDate = {'start_time': str_beginTime, 
+						'end_time': str_endTime,
 						'cellid_flag': n_cellid_flag};
 	
+	if ( str_beginTime >= str_endTime ) {
+		dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+		return;
+	}
 	dlf.fn_clearTrack();	// 清除数据
 	$('.j_trackBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
@@ -378,8 +382,8 @@ window.dlf.fn_initTrackDatepicker = function() {
 		obj_stTime = $('#trackBeginTime'), 
 		obj_endTime = $('#trackEndTime');
 		
-	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联
-		WdatePicker({el: 'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\'trackEndTime\')}', qsEnabled: false, 
+	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联   maxDate: '#F{$dp.$D(\'trackEndTime\')}',   minDate:'#F{$dp.$D(\'trackBeginTime\')}', // delete in 2013.04.10
+		WdatePicker({el: 'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, 
 			onpicked: function() {
 				var obj_endDate = $dp.$D('trackEndTime'), 
 					str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
@@ -393,7 +397,7 @@ window.dlf.fn_initTrackDatepicker = function() {
 	}).val(dlf.fn_changeNumToDateString((new Date()-7200000)/1000));
 	
 	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
-		WdatePicker({el: 'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate:'#F{$dp.$D(\'trackBeginTime\')}', qsEnabled: false, 
+		WdatePicker({el: 'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, 
 			onpicked: function() {
 				var obj_beginDate = $dp.$D('trackBeginTime'), 
 					str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,

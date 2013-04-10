@@ -242,7 +242,11 @@ window.dlf.fn_searchData = function (str_who) {
 								'tid': '',
 								'tids': ''
 							};
-				
+			
+			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择其他时间段。', 'message', false, 3000);
+				return;
+			}	
 			if ( str_userType ==  USER_PERSON ) {
 				obj_conditionData.tid = $('.j_currentCar').attr('tid');
 			} else {
@@ -269,6 +273,10 @@ window.dlf.fn_searchData = function (str_who) {
 							'pagecnt': n_dwRecordPageCnt, 
 							'tids': ''
 						};	
+			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+				return;
+			}
 			if ( n_tidsNums <= 0 ) {
 				dlf.fn_jNotifyMessage('请在左侧勾选定位器。', 'message', false, 6000);
 				return;	
@@ -641,8 +649,8 @@ window.dlf.fn_initTimeControl = function(str_who) {
 		obj_stTime = $('#'+str_inputStartTime), 
 		obj_endTime = $('#'+str_inputEndTime);
 	
-	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联
-		WdatePicker({el: str_inputStartTime, dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}', qsEnabled: false,
+	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
+		WdatePicker({el: str_inputStartTime, dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false,  qsEnabled: false,
 		onpicked: function() {
 			if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 				var obj_endDate = $dp.$D(str_inputEndTime), 
@@ -657,7 +665,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 	}).val(str_nowDate+' 00:00:00');
 	
 	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
-		WdatePicker({el: str_inputEndTime, dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', qsEnabled: false, 
+		WdatePicker({el: str_inputEndTime, dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, 
 			onpicked: function() {
 				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 					var obj_beginDate = $dp.$D(str_inputStartTime), 

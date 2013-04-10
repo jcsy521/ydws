@@ -28,7 +28,7 @@
 	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
 		<span class="ui-button-text">用户查询</span>
 	</legend>
-	<form method="post" action="" id="formID">
+	<form method="post" action="" id="formID" onsubmit="return formSubmit('business');">
 		<table id="searchTable0" class="searchTable0">
 			<tr id="d_groups" >
 				<td align="right">集团名称：</td>
@@ -54,7 +54,7 @@
 				</td>
 			</tr>
 		</table>
-		<!--<table class="searchTable0">
+		<table class="searchTable0">
 			<tr>
 				<td align="right">开始时间：</td>
 				<td align="left"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
@@ -63,20 +63,17 @@
 				<td align="right">结束时间：</td>
 				<td><input type="text" name="end_time1" id="end_time1" readonly="true" /></td>
 			</tr>
-		</table>-->
-		<table id="searchButton">
 			<tr>
 				<td colspan="2" align="right">
 					<input type="hidden" id="begintime" name="begintime" value="" />
 					<input type="hidden" id="endtime" name="endtime" value="" />
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('umobile,tmobile,corps','business');" 
+						onclick="fn_PushData('umobile,tmobile,corps','business','start_time1','end_time1');" 
 						class="ui-button ui-widget ui-state-default ui-corner-all" 
 						role="button" aria-disabled="false" />
 				</td>
 			</tr>
-		</table>
-		
+		</table>		
 	</form>
 
 </fieldset>
@@ -85,7 +82,7 @@
     <thead>
         <tr>
             <th>序号</th><th>集团名称</th><th>车主姓名</th><th>车主手机</th><th>终端手机</th><th>车牌号</th>
-            <th>受理状态</th><th>编辑</th><th>删除</th><th>终端启用/停用</th><th>详细信息</th>
+            <th>开通时间</th> <th>受理状态</th><th>编辑</th><th>删除</th><th>终端启用/停用</th><th>详细信息</th>
         </tr>
     </thead>
 		
@@ -98,6 +95,7 @@
                 <td>{{ business['umobile'] }}</td>
                 <td>{{ business['tmobile']}}</td>
                 <td>{{ business['cnum'] }} </td>
+				<td><script>document.write(toHumanDate({{business.begintime}}, 'yes'));</script></td>
 				<td>
 					{% if business['sms_status'] == 0 %}
 						<label class="sms_status0">

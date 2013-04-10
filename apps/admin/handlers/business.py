@@ -224,9 +224,9 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
             groups = [str(group.id) for group in groups]
 
         fields = DotDict(umobile="tu.mobile LIKE '%%%%%s%%%%'",
-                         tmobile="tt.mobile LIKE '%%%%%s%%%%'")
-                         #begintime="tt.begintime >= %s",
-                         #endtime="tt.begintime <= %s")
+                         tmobile="tt.mobile LIKE '%%%%%s%%%%'",
+                         begintime="tt.begintime >= %s",
+                         endtime="tt.begintime <= %s")
         
         for key in fields.iterkeys():
             v = self.get_argument(key, None)
