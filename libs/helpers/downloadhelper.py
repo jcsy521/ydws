@@ -22,12 +22,16 @@ def get_version_info(tag):
     versioninfo = version_info[0].firstChild.data if version_info[0].firstChild else '' 
     updatetime = version_updatetime[0].firstChild.data if version_updatetime[0].firstChild else '' 
     filesize = version_filesize[0].firstChild.data if version_filesize[0].firstChild else '' 
+    filepath = "/static/download/"
+    if tag == 'android':
+        filepath=os.path.join(filepath, "ACB_"+versionname+'.apk')
 
     return DotDict(versioncode=versioncode,
                    versionname=versionname,
                    versioninfo=versioninfo,
                    updatetime=updatetime,
-                   filesize=filesize)
+                   filesize=filesize,
+                   filepath=filepath)
 
 def get_download_count(category, db):
     """Get the last times of downloading.
