@@ -1125,10 +1125,8 @@
          * @param {Object} transport
          */
         _ajaxError: function(data, transport) {
-            if(data.status == 0 && transport == null)
-                alert("The page is not served from a server! ajax call failed");
-            else if(typeof console != "undefined")
-                console.log("Ajax error: " + data.status + " " + transport);
+			alert('本次登陆已经超时，系统将重新进入登陆页面。');
+			parent.window.location.replace('/');
         },
         /**
          * date -> string
