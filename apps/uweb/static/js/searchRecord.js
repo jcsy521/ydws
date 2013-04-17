@@ -463,12 +463,16 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 								n_category = obj_tempData.category,
 								n_rid = obj_tempData.rid;
 							
-							dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
+							//dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17); // 2013.4.17
 							// 如果是进出围栏告警则显示电子围栏
 							if ( n_category == 7 || n_category == 8 ) {
 								$.get_(GETREGIONDATA_URL +'?rid='+ n_rid, '', function (data) {  
 									if ( data.status == 0 ) {
-										dlf.fn_displayCircle(data);	// 调用地图显示圆形
+										var obj_circleData = data.region,
+											obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
+										
+										dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
+										dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
 									} else if ( data.status == 201 ) {	// 业务变更
 										dlf.fn_showBusinessTip();
 									} else { // 查询状态不正确,错误提示
