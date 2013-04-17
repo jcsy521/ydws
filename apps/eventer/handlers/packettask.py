@@ -47,7 +47,6 @@ class PacketTask(object):
     def check_region_event(self, location): 
         """ check enter or out region """
         #1.select the terminal's all regions and compare it
-        location = DotDict(location)
         regions = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name, "
                                 "       tr.longitude AS region_longitude, tr.latitude AS region_latitude, "
                                 "       tr.radius AS region_radius" 
@@ -75,8 +74,14 @@ class PacketTask(object):
                 region_status = EVENTER.CATEGORY.REGION_ENTER
                 rname = EVENTER.RNAME.REGION_ENTER
             
-                
-            if old_region_status and region_status != old_region_status:
+            self.redis.setvalue(old_region_status_key, region_status)
+            logging.info("rname:%s, old status:%s, current status:%s, tid:%s", region.region_name, old_region_status, region_status, location['dev_id'])    
+
+            if not old_region_status:
+                # skip the first region event
+                return
+
+            if region_status != old_region_status:
                 location['category']=region_status
                 location['t'] = EVENTER.INFO_TYPE.REPORT
                 location['rName'] = rname
@@ -203,6 +208,8 @@ class PacketTask(object):
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
 
+        # check region evnent
+        self.check_region_event(report)
 
         # if undefend, just save location into db
         if info['rName'] in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
@@ -220,9 +227,6 @@ class PacketTask(object):
         self.update_terminal_info(report)
         self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, report.get('fobid'))
 
-        # check region evnent
-        self.check_region_event(info)
-            
         user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
         if not user:
             logging.error("[EVENTER] Cannot find USER of terminal: %s", report.dev_id)
