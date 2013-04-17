@@ -429,7 +429,13 @@ body {
 	background-position: 0px -720px;
 }
 .menu .mileage:hover, .menu .mileageHover  {
-	background-position: 0px -757px;
+	background-position: 0px -756px;
+}
+.menu .region {
+	background-position: 0px -1080px;
+}
+.menu .region:hover, .menu .regionHover  {
+	background-position: 0px -1116px;
 }
 .selfList {
 	float:right;
@@ -1280,7 +1286,7 @@ body {
 	text-align: center;
 	border: 1px solid #c1d2e5;
 }
-#staticsTableHeader, #singleEventTableHeader, #singleMileageTableHeader {
+#staticsTableHeader, #singleEventTableHeader, #singleMileageTableHeader  {
 	background: url('/static/images/eventTH.png') repeat-x;
 	height: 38px;
 	border: 1px solid #dce7f2;
@@ -1288,7 +1294,7 @@ body {
 #eventSearchTableHeader {
 	height: 38px;
 }
-#eventSearchTableHeader td, #staticsTableHeader td , #singleEventTableHeader td, #singleMileageTableHeader td{
+#eventSearchTableHeader td, #staticsTableHeader td , #singleEventTableHeader td, #singleMileageTableHeader td {
 	background-color: #5aabff;
 	border: 1px solid #ececec;
 	height: 30px;
@@ -1318,7 +1324,7 @@ body {
 	font-weight: bold;
 	text-decoration: underline;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th {
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th  {
 	height: 38px;
 	line-height: 38px;
     font-size: 14px; 
@@ -2534,5 +2540,126 @@ legend {
 }
 .groupCss {
 	background-color: #F2F3F3;
+}
+/**==================*/
+#regionWrapper {
+	background: none repeat scroll 0 0 #F7F8F8;
+	width: 510px;
+	height: 0px;
+}
+
+.regionContent {
+	height: 458px
+}
+.routeLineTable {
+	width: 760px;
+	margin-top: 20px;
+}
+#regionCreateBtn {
+	color: #4876FF;
+	display: inline-block;
+    cursor: pointer;
+    height: 23px;
+    left: 436px;
+    position: relative;
+    top: 14px;
+}
+/*routeline add panel*/
+.regionCreateBtnPanel a {
+	border: 1px solid gray;
+    border-radius: 5px 5px 5px 5px;
+    padding: 5px;
+	color: #FFF;
+	text-decoration: none;
+}
+.regionCreateBtnPanel a:hover {
+	background-color: #FFF;
+	color: #000;
+}
+#regionCreate_clickMap:hover {
+	
+}
+.regionNamePanel {
+	display: inline;
+}
+.regionNamePanel input {
+	padding: 5px;
+    position: relative;
+    top: -2px;
+    width: 79px;
+}
+.hideOrShowContent {
+	background: url("/static/images/ui-icons_228ef1_256x240.png") no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+    display: inline-block;
+    height: 20px;
+    overflow: hidden;
+    position: absolute;
+    right: 30px;
+    top: 10px;
+    width: 20px;
+}
+
+.max {
+    background-position: -64px 0;
+}
+.min {
+	background-position: 0 0;
+}
+.regionTitle {
+	background-position: 0 -816px;
+    width: 510px;
+}
+.regionTitle .close {
+	left: 486px;
+}
+.regionTable {
+	width: 460px;
+	margin-top: 20px;
+}
+#regionCreateWrapper  {
+	position: absolute;
+	bottom: 100px;
+	background-color: #000;
+	opacity: 0.45;
+	filter:alpha(opacity=45);
+	border-radius: 6px;
+	width: 450px;
+	height: 36px;
+	line-height: 36px;
+	color: white;
+	text-align: center;
+	font-size: 14px;
+	z-index: 1000;
+}
+/*bind regions */
+.bindRegionTitle {
+	background-position: 0px -850px;
+	width: 530px;
+}
+.bindRegionTitle .close, .bindBatchRegionTitle .close {
+	left: 505px;
+}
+.bindRegionContent, .bindBatchRegionContent {
+	height: 450px;
+	width: 530px;
+	padding-top: 20px;
+}
+.bindRegionTable, .bindBatchRegionTable {
+	width: 410px;
+	margin: 0px auto;
+}
+.bindRegionSave, .bindBatchRegionSave {
+	border: 0 none;
+    height: 34px;
+    left: 340px;
+    position: relative;
+    top: 20px;
+    width: 92px;
+}
+/* bind batch regions */
+.bindBatchRegionTitle {
+	background-position: 0px -884px;
+	width: 530px;
 }
 /*web css end*/
