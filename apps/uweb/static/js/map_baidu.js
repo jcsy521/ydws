@@ -498,4 +498,90 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	}
 	return str_result;
 }
+/*
+* 初始化画圆及事件绑定
+*/
+window.dlf.fn_initCreateCircle = function() {
+	//实例化鼠标绘制工具
+	obj_drawingManager = new BMapLib.DrawingManager(mapObj, {
+		isOpen: false, //是否开启绘制模式
+		enableDrawingTool: false, //是否显示工具栏
+		circleOptions: {//圆的样式
+			strokeColor: '#5ca0ff',    //边线颜色。
+			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
+			strokeWeight: 0.5,       //边线的宽度，以像素为单位。
+			strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+			fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
+			strokeStyle: 'solid' //边线的样式，solid或dashed。
+		} 
+	});
+	obj_drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
+	//添加鼠标绘制工具监听事件，用于获取绘制结果
+	obj_drawingManager.addEventListener('overlaycomplete', function(e){
+		obj_circle = e.overlay;
+		var n_radius = obj_circle.getRadius();
+		
+		if ( n_radius < 500 ) {
+			dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
+		}
+		
+	});
+	mapObj.addEventListener('rightclick', dlf.fn_mapRightClickFun);
+}
+/*
+* 地图的右击事件
+*/
+window.dlf.fn_mapRightClickFun = function() { 
+	if ( obj_circle ) {
+		dlf.fn_clearMapComponent(obj_circle); // 清除页面图形
+		dlf.fn_clearMapComponent(obj_circleLabel); // 清除页面图形
+	}
+	dlf.fn_mapStopDrawCirlce();
+}
+/*
+* 地图的右击事件移除
+*/
+window.dlf.fn_mapRightClickRemoveFun = function() { 
+	mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
+}
+/*
+* 地图开始画圆
+*/
+window.dlf.fn_mapStartDrawCirlce = function() { 
+	obj_drawingManager.open();
+}
+/*
+* 地图停止画圆
+*/
+window.dlf.fn_mapStopDrawCirlce = function() {
+	obj_drawingManager.close();
+}
+/*
+* 获取圆数据
+*/
+window.dlf.fn_getCirlceData = function() {
+	if ( obj_circle ) {
+		var obj_circleCenter = obj_circle.getCenter();
+		
+		return {'radius': obj_circle.getRadius(), 'longitude': obj_circleCenter.lng*NUMLNGLAT, 'latitude': obj_circleCenter.lat*NUMLNGLAT};
+	}
+}
+/*
+* 显示圆
+*/
+window.dlf.fn_displayCircle = function(obj_circleData) {
+	var circleOptions = {//圆的样式
+			strokeColor: '#5ca0ff',    //边线颜色。
+			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
+			strokeWeight: 0.5,       //边线的宽度，以像素为单位。
+			strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+			fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
+			strokeStyle: 'solid' //边线的样式，solid或dashed。
+		},
+		centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude), 
+		obj_circle = new BMap.Circle(centerPoint, obj_circleData.radius, circleOptions);
+		
+	mapObj.setCenter(centerPoint);
+	mapObj.addOverlay(obj_circle);	
+}
 })();

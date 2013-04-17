@@ -533,6 +533,9 @@ $(function () {
 				dlf.fn_initRecordSearch('mileage');
 				// obj_navItemUl.hide();
 				break;
+			case 'region': // 围栏管理
+				dlf.fn_initRegion();
+				break;
 		}
 	});
 	/*鼠标滑动显示统计二级菜单*/
@@ -827,4 +830,18 @@ $(function () {
 		modal: true,
 		resizable: false
 	});
+	
+	//窗口最大最小化事件声明
+    $('.j_hosBtn').unbind('click').click(function (event) {
+        var obj_elem = $(this), 
+			obj_content = $(this).parent().next();
+		
+        if ( obj_elem.hasClass('min') ) {
+            obj_elem.removeClass('min').addClass('max').attr('title', '展开');
+            obj_content.hide();
+        } else if ( obj_elem.hasClass('max') ) {
+            obj_elem.removeClass('max').addClass('min').attr('title', '收起');
+            obj_content.show();
+        }
+    });
 })

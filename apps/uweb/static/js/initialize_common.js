@@ -14,6 +14,9 @@
 * obj_polylines： 保存所有的开启追踪轨迹
 * obj_actionTrack：保存开启追踪
 * obj_selfmarkers：所有车辆的marker对象
+* obj_drawingManager: 鼠标绘制对象
+* obj_circle: 鼠标绘制圆形对象
+* obj_circleLabel : 圆的标签对象
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -27,7 +30,10 @@ var mapObj = null,
 	str_currentPersonalTid = '',
 	obj_polylines = {},
 	obj_actionTrack = {},
-	obj_selfmarkers = {};
+	obj_selfmarkers = {},
+	obj_drawingManager = null,
+	obj_circle = null,
+	obj_circleLabel = null;
 	
 	
 if ( !window.dlf ) { window.dlf = {}; }
@@ -48,6 +54,13 @@ window.dlf.fn_closeWrapper = function() {
 		*/
 			dlf.fn_clearNavStatus(str_whoDialog);
 		//}
+		if ( str_whoDialog == 'region' || str_whoDialog == 'bindRegion' || str_whoDialog == 'bindBatchRegion') { // 围栏管理关闭的时候显示地图上的车辆图标
+			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
+			dlf.fn_setMapContainerZIndex(0);
+			dlf.fn_clearAllMenu();
+			$('#'+ str_whoDialog +'Wrapper').hide();
+			return;
+		}
 		dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		dlf.fn_closeDialog(); // 窗口关闭
 	});
@@ -315,6 +328,10 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				obj_terminals = $('.j_carList .j_terminal'),
 				f_trackSt = $('#trackHeader').is(':visible'), 
 				f_eventSearchWpST = $('#eventSearchWrapper ').is(':visible'),
+				f_regionWpST = $('#regionWrapper').is(':visible'),
+				f_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
+				f_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
+				f_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
 				n_len = obj_terminals.length;
 
 			obj_terminals.removeClass('j_currentCar');	// 其他车辆移除样式
@@ -332,11 +349,11 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 						dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
 						dlf.fn_moveMarker(n_tid);
 					}
-					if ( f_trackSt || f_eventSearchWpST  ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
+					if ( f_trackSt || f_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 						return;
 					}
 				} else {
-					if ( f_trackSt || f_eventSearchWpST  ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
+					if ( f_trackSt || f_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 						return;
 					} else {
 						dlf.fn_getCarData('first');
@@ -362,6 +379,9 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				if ( str_trackStatus ) {	
 					dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
 					$('#trackTerminalAliasLabel').html(str_currentCarAlias);
+				}
+				if ( f_trackSt || f_eventSearchWpST || f_regionWpST || f_bindRegionWpST || f_bindBatchRegionWpST || f_regionCreateWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
+					return;
 				}
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
@@ -795,6 +815,12 @@ window.dlf.fn_eventText = function(n_eventNum) {
 		case 6:
 			str_text = '通讯异常';
 			break;
+		case 7:
+			str_text = '进围栏';
+			break;
+		case 8:
+			str_text = '出围栏';
+			break;
 	}
 	return str_text;
 }
@@ -1087,7 +1113,11 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 				b_eventSearchStatus = false;
 			}
 			dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
-			obj_wrapper.css({left: n_width});
+			if ( str_wrapperId == 'region' || str_wrapperId == 'bindRegion' || str_wrapperId == 'bindBatchRegion') {
+				obj_wrapper.css({'left': '250px', 'top': '160px'});
+			} else {
+				obj_wrapper.css({left: n_width});
+			}
 		} else {
 			// 隐藏地图
 			dlf.fn_showOrHideMap(false);
@@ -1241,6 +1271,10 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					$('#addOperatorDialog').dialog("close");	// 关闭dialog
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 					f_closeWrapper = false; //操作员管理不关闭弹出框 
+				} else if ( str_who == 'regionCreate' ) { // 围栏管理
+					dlf.fn_initRegion(); // 重新显示围栏管理 
+					mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
+					f_closeWrapper = false;
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}

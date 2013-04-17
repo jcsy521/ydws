@@ -43,7 +43,9 @@ var BATCHIMPORT_URL = '/batch/import';	// 批量操作定位器
 var BATCHDELETE_URL = '/batch/delete';	// 批量删除
 var BATCHJH_URL = '/batch/JH';	// 批量激活
 var OPERATOR_URL = '/operator';	// 操作员管理
-
+var REGION_URL = '/region';	// 围栏管理
+var BINDREGION_URL = '/bindregion'; // 围栏绑定
+var GETREGIONDATA_URL = '/getregionevent';//获取告警围栏信息
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒
 var CHECK_ROUNDNUM = 3; // 经纬度显示小数位截取

@@ -40,12 +40,14 @@ function customMenu(node) {
 		terminalLabel = '',	// 参数设置
 		deleteLabel = '',	// 删除lable
 		batchDefendLabel = '',	// 批量设防*撤防
+		batchRegionLabel = '',	// 批量设置电子围栏
 		singleDeleteLabel = '',	// 删除单个定位器
 		singleCreateLabel = '',	// 单个定位器的添加
 		singleDefendLabel = '',	// 单个定位器设防撤防
 		realtimeLabel = '',	// 单个定位器实时定位
 		trackLabel = '',	// 单个定位器轨迹查询
-		staticsLabel = '';	// 单个定位器统计报表
+		staticsLabel = '',	// 单个定位器统计报表
+		bindRegionLabel = ''; // 绑定围栏
 	
 	if ( obj_node.hasClass('j_corp') ) {		// 集团右键菜单
 		renameLabel = '重命名集团';
@@ -58,6 +60,7 @@ function customMenu(node) {
 		batchImportDeleteLabel = '批量导入/删除';
 		batchDeleteLabel = '批量删除定位器';
 		batchDefendLabel = '批量设防/撤防';
+		batchRegionLabel = '批量设置电子围栏';
 	} else {						// 定位器右键菜单
 		terminalLabel = '参数设置';
 		singleDeleteLabel = '删除定位器';
@@ -67,6 +70,7 @@ function customMenu(node) {
 		moveToLabel = '移动定位器';
 		singleDefendLabel = '设防/撤防';
 		staticsLabel = '里程报表';
+		bindRegionLabel = '绑定围栏';
 	}
 	// 定位器的移动至菜单项
 	
@@ -118,6 +122,12 @@ function customMenu(node) {
 			"label" : eventLabel,
 			"action" : function(obj) {	// 告警查询初始化
 				dlf.fn_initRecordSearch('eventSearch');
+			}
+		},
+		"bindRegion": {
+			"label" : bindRegionLabel,
+			"action" : function(obj) {	// todo 
+				dlf.fn_initBindRegion();
 			}
 		},
 		"terminalSetting": {	// 参数设置
@@ -173,6 +183,12 @@ function customMenu(node) {
 				}
 			}
 		},
+		"batchRegion" : {
+			"label" : batchRegionLabel,
+			"action": function (obj) { // 批量设置电子围栏
+				dlf.fn_initBatchRegions(obj);
+			}
+		},
 		"rename" : {
 			"label" : renameLabel,
 			"action" : function(obj) {
@@ -225,6 +241,7 @@ function customMenu(node) {
 		delete items.batchImportDelete;
 		delete items.rename;
 		delete items.batchDefend;
+		delete items.batchRegion;
 		delete items.remove;
    }
    // 集团右键菜单删除菜单
@@ -236,11 +253,13 @@ function customMenu(node) {
 		delete items.event;
 		delete items.terminalSetting;
 		delete items.batchDefend;
+		delete items.batchRegion;
 		delete items.defend;
 		delete items.realtime;
 		delete items.track;
 		delete items.statics;
 		delete items.singleDelete;
+		delete items.bindRegion;
    }
    if ( obj_node.hasClass('j_group') ) {
 		delete items.create;
@@ -252,6 +271,7 @@ function customMenu(node) {
 		delete items.track;
 		delete items.statics;
 		delete items.singleDelete;
+		delete items.bindRegion;
    }
    if ( $('#u_type').val() == USER_OPERATOR ) {	// 操作员屏蔽右键
 		delete items.create;
@@ -263,9 +283,11 @@ function customMenu(node) {
 		delete items.rename;
 		delete items.terminalSetting;
 		delete items.batchDefend;
+		delete items.batchRegion;
 		delete items.defend;
 		delete items.statics;
 		delete items.singleDelete;
+		delete items.bindRegion;
    }
    return items;
 }

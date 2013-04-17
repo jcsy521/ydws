@@ -331,11 +331,18 @@ window.dlf.fn_searchData = function (str_who) {
 				obj_conditionData.month = $('#'+ str_who +'Month').val();
 			}
 			break;
+		
+		case 'bindRegion': // 绑定围栏管理查询
+		case 'bindBatchRegion': // 批量绑定围栏管理查询
+		case 'region': // 围栏管理查询
+			str_getDataUrl = REGION_URL;
+			$('#regionTable').removeData('regions');
+			break;
 	}
 	
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
 	
-	if ( str_who == 'operator' ) {
+	if ( str_who == 'operator' || str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 		$.get_(str_getDataUrl, '', function(data) {	
 			dlf.fn_bindSearchRecord(str_who, data);
 		},
@@ -371,9 +378,15 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		obj_searchHeader.nextAll().remove();	//清除页面数据
 		$('.j_'+ str_who +'Foot').empty();	// 清空foot数据
 		n_dwRecordPageCnt = obj_resdata.pagecnt;
-		arr_dwRecordData = str_who == 'eventSearch' ? obj_resdata.events : obj_resdata.res, 
-		n_eventDataLen = arr_dwRecordData.length; 	//记录数
+		arr_dwRecordData = obj_resdata.res; 
 		
+		if ( str_who == 'eventSearch' ) {
+			arr_dwRecordData = obj_resdata.events;
+		} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+			arr_dwRecordData = obj_resdata.regions;
+		}
+		
+		n_eventDataLen = arr_dwRecordData.length; 	//记录数
 		if ( n_eventDataLen > 0 ) {	// 如果查询到数据
 			obj_pagination.show(); //显示分页
 			if ( n_dwRecordPageCnt > 1 ) {	// 总页数大于1 
@@ -446,9 +459,27 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
 						setTimeout (function () {
 							// 为了正常显示暂时给告警的点加部分偏移进行显示:)
-							var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude-10000, obj_tempData.clatitude);
+							var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude-10000, obj_tempData.clatitude),
+								n_category = obj_tempData.category,
+								n_rid = obj_tempData.rid;
 							
 							dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
+							// 如果是进出围栏告警则显示电子围栏
+							if ( n_category == 7 || n_category == 8 ) {
+								$.get_(GETREGIONDATA_URL +'?rid='+ n_rid, '', function (data) {  
+									if ( data.status == 0 ) {
+										dlf.fn_displayCircle(data);	// 调用地图显示圆形
+									} else if ( data.status == 201 ) {	// 业务变更
+										dlf.fn_showBusinessTip();
+									} else { // 查询状态不正确,错误提示
+										dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
+									}
+								}, 
+								function (XMLHttpRequest, textStatus, errorThrown) {
+									dlf.fn_serverError(XMLHttpRequest);
+								});
+							}
+							
 						}, 100);
 				});
 				// 关闭小地图
@@ -474,8 +505,16 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 * 根据数据和页面不同生成相应的table域内容
 */
 window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
-	var obj_searchData = str_who == 'eventSearch' ? obj_reaData.events : obj_reaData.res, 
-		n_searchLen = obj_searchData.length,
+	var obj_searchData = obj_reaData.res;
+	
+	if ( str_who == 'eventSearch' ) {
+		obj_searchData = obj_reaData.events;
+	}else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+		obj_searchData = obj_reaData.regions;
+		$('#regionTable').data('regions', obj_searchData); //围栏存储数据以便显示详细信息
+	}
+
+	var n_searchLen = obj_searchData.length,
 		obj_searchHeader = $('#'+str_who+'TableHeader'), 
 		arr_graphic = obj_reaData.graphics,	// 统计图结果
 		obj_counts = obj_reaData.counts,	// 每个种类的总数结果;
@@ -558,6 +597,33 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td>'+ str_powerlow +'</td>';	// 告警详情				
 				str_tbodyText+= '</tr>';
 				break;
+			case 'region': // 电子围栏
+				//todo
+				var str_regionId = obj_tempData.region_id,
+					arr_regionName = obj_tempData.region_name;
+			
+				str_tbodyText+= '<tr id='+ str_regionId +'>';
+				str_tbodyText+= '<td>'+ (i+1) +'</td>';	// 围栏序列
+				str_tbodyText+= '<td>'+ arr_regionName +'</td>';	// 围栏名称
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详细</a></td>';	// 
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteRegion('+ str_regionId +')>删除</a></td>';	
+				str_tbodyText+= '</tr>';
+				
+				break;
+			case 'bindRegion': // 电子围栏绑定
+			case 'bindBatchRegion': // 电子围栏批量绑定
+				var str_regionId = obj_tempData.region_id,
+					arr_regionName = obj_tempData.region_name,
+					str_checkboxId = str_who+'Ck_' + str_regionId;
+				
+				str_tbodyText+= '<tr id='+ str_regionId +'>';
+				str_tbodyText+= '<td>'+'<input type="checkbox" id="'+ str_checkboxId +'" name="'+ str_who +'_check" value="'+ str_regionId +'" /></td>';	// 围栏选择
+				str_tbodyText+= '<td>'+ (i+1) +'</td>';	// 围栏序列
+				str_tbodyText+= '<td>'+ arr_regionName +'</td>';	// 围栏名称
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详细</a></td>';
+				str_tbodyText+= '</tr>';
+				
+				break;
 		}
 	}
 	obj_searchHeader.after(str_tbodyText);
@@ -633,6 +699,8 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		obj_theadTH.html(str_th);
 		arr_series.push(obj_chart);
 		fn_initChart(arr_series, arr_categories, str_container, str_unit, str_who);	// 初始化chart图
+	} else if ( str_who == 'bindRegion' ) { // 当前终端所绑定的围栏进行显示
+		dlf.fn_getCurrentRegions();
 	}
 	$('#' + str_who + 'Wrapper').data('hash', str_hash);	// 存储hash值
 }
