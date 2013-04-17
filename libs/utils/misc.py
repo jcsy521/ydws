@@ -75,6 +75,10 @@ def get_location_key(dev_id):
     """for the newest location of dev"""
     return str("location:%s" % dev_id)
 
+def get_region_status_key(dev_id, region_id):
+    """for the newest region status of dev"""
+    return str("region_status:%s%s" % (dev_id, region_id))
+
 def get_terminal_sessionID_key(dev_id):
     return str("sessionID:%s" % dev_id)
 

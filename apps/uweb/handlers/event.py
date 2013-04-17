@@ -104,7 +104,7 @@ class EventHandler(BaseHandler):
 
                 sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
                       "  timestamp, name, type, speed, degree,"
-                      "  category, pbat, terminal_type, fobid"  
+                      "  category, pbat, terminal_type, fobid, rid"  
                       "  FROM V_EVENT"
                       "  WHERE tid IN %s"
                       "    AND (timestamp BETWEEN %s AND %s)"
@@ -128,7 +128,7 @@ class EventHandler(BaseHandler):
 
                 sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
                        "  timestamp, name, type, speed, degree,"
-                       "  category, pbat, terminal_type, fobid"  
+                       "  category, pbat, terminal_type, fobid, rid"  
                        "  FROM V_EVENT"
                        "  WHERE tid IN %s"
                        "    AND (timestamp BETWEEN %s AND %s)"

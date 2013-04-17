@@ -15,7 +15,7 @@ from helpers.uwebhelper import UWebHelper
 
 from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
-     get_ios_id_key, get_power_full_key
+     get_ios_id_key, get_power_full_key, get_region_status_key
 
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
@@ -37,13 +37,69 @@ class PacketTask(object):
         
         if info['t'] == EVENTER.INFO_TYPE.POSITION: # positioninfo:
             self.handle_position_info(info)
+            self.check_region_event(info)
         elif info['t'] == EVENTER.INFO_TYPE.REPORT: # reportinfo:
             self.handle_report_info(info)
+            self.check_region_event(info)
         elif info['t'] == EVENTER.INFO_TYPE.CHARGE: # chargeinfo:
             self.handle_charge_info(info)
         else:
-            pass       
-
+            pass     
+        
+    def check_region_event(self, location): 
+        """ check enter or out region """
+        #1.select the terminal's all regions and compare it
+        regions = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name, "
+                                "       tr.longitude AS region_longitude, tr.latitude AS region_latitude, "
+                                "       tr.radius AS region_radius" 
+                                "  FROM T_REGION tr, T_REGION_TERMINAL trt "
+                                "  WHERE tr.id = trt.rid"
+                                "  AND trt.tid = %s",
+                                location.dev_id)
+        if regions is None or len(regions) == 0:
+            return
+        location = lbmphelper.handle_location(location, self.redis, db=self.db)
+        if location.cLon is None or location.cLat is None:
+            return
+        terminal = lbmphelper.get_terminal_by_tid(location.dev_id)
+        for region in regions:
+            old_region_status_key = get_region_status_key(location.dev_id, region.region_id)
+            old_region_status = self.redis.getvalue(old_region_status_key)
+            #2.get distance that now location and the centre of the region 
+            distance = lbmphelper.get_distance(region.region_longitude,
+                                               region.region_latitude,
+                                               location.cLon, 
+                                               location.cLat)
+            
+            if distance >= radius:
+                region_status = EVENTER.CATEGORY.REGION_OUT
+                rname = EVENTER.RNAME.REGION_OUT
+            else:
+                region_status = EVENTER.CATEGORY.REGION_ENTER
+                rname = EVENTER.RNAME.REGION_ENTER
+            
+                
+            if region_status != old_region_status:
+                location['category']=region_status
+                location['t'] = EVENTER.INFO_TYPE.REPORT
+                location['rName'] = rname
+                lid = self.insert_location(location)
+                self.event_hook(region_status, location.dev_id, location.terminal_type, lid, location.pbat, None, region.id)
+                self.redis.setvalue(old_region_status_key, region_status)
+                corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
+                                   "  WHERE T_TERMINAL_INFO.tid = %s"
+                                   "    AND T_TERMINAL_INFO.group_id != -1"
+                                   "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
+                                   "    AND T_GROUP.corp_id = T_CORP.cid",
+                                   location.dev_id)
+                if corp and corp.mobile:
+                    terminal_time = get_terminal_time(int(location.gps_time))
+                    if region_status == EVENTER.CATEGORY.REGION_OUT:
+                        sms = SMSCode.SMS_REGION_OUT % (terminal.mobile, region.region_name, location.name, terminal_time)
+                    else:
+                        sms = SMSCode.SMS_REGION_ENTER % (terminal.mobile, region.region_name, location.name, terminal_time)
+                    SMSHelper.send(corp.mobile, sms)
+                
     def get_tname(self, dev_id):
         t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
                         "  WHERE tid = %s", dev_id)
@@ -261,10 +317,10 @@ class PacketTask(object):
                          report.rName, report.dev_id)
 
 
-    def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None):
-        self.db.execute("INSERT INTO T_EVENT(tid, terminal_type, fobid, lid, pbat, category)"
-                        "  VALUES (%s, %s, %s, %s, %s, %s)",
-                        dev_id, terminal_type, fobid, lid, pbat, category)
+    def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None , rid=None):
+        self.db.execute("INSERT INTO T_EVENT(tid, terminal_type, fobid, lid, pbat, category, rid)"
+                        "  VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                        dev_id, terminal_type, fobid, lid, pbat, category, rid)
 
     def get_sms_option(self, uid, category):
         sms_option = self.db.get("SELECT " + category +

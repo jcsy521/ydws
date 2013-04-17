@@ -72,6 +72,8 @@ from handlers.batch import BatchImportHandler
 from handlers.batch import BatchDeleteHandler
 from handlers.batch import BatchJHHandler
 from handlers.operator import OperatorHandler
+from handlers.region import RegionHandler, RegionEventHandler
+from handlers.bindregion import BindRegionHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -176,6 +178,9 @@ class Application(tornado.web.Application):
             (r"/batch/delete/*", BatchDeleteHandler),
             (r"/batch/JH/*", BatchJHHandler),
             (r"/operator/*", OperatorHandler),
+            (r"/region/*", RegionHandler),
+            (r"/bindregion/*", BindRegionHandler),
+            (r"/getregionevent/*", RegionEventHandler),
         ]
 
         settings = dict(
