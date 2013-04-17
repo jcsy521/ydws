@@ -138,15 +138,19 @@ window.dlf.fn_initBindRegion = function() {
 		var obj_bindRegionData = {
 								'tids': [str_tid], 
 								'region_ids': fn_getRegionDatas(str_bindRegion)},
-			obj_regionDatas = $('#regionTable').data('regions'),
-			n_regionLen = obj_regionDatas.length;
+			obj_regionDatas = $('#regionTable').data('regions');
 		
-		// 当前没有创建电子围栏
-		if ( n_regionLen == 0 ) {
+		if ( obj_regionDatas ) {
+			var n_regionLen = obj_regionDatas.length;
+			// 当前没有创建电子围栏
+			if ( n_regionLen == 0 ) {
+				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
+				return;
+			}
+			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindRegion, '车辆与电子围栏绑定中');
+		} else {
 			dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
-			return;
 		}
-		dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindRegion, '车辆与电子围栏绑定中');
 	});
 }
 //=========================批量电子围栏操作============================
@@ -183,20 +187,24 @@ window.dlf.fn_initBatchRegions = function(obj_group){
 								'tids': arr_terminalIds, 
 								'region_ids': fn_getRegionDatas(str_bindBatchRegion)},
 			obj_regionDatas = $('#regionTable').data('regions'),
-			n_regionLen = obj_regionDatas.length, 
 			n_tids = arr_terminalIds.length;
 		
-		// 当前没有创建电子围栏
-		if ( n_regionLen == 0 ) {
+		if ( obj_regionDatas ) {
+			var n_regionLen = obj_regionDatas.length;
+			// 当前没有创建电子围栏
+			if ( n_regionLen == 0 ) {
+				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
+				return;
+			}
+			// 当前组下没有终端 
+			if ( n_tids == 0 ) {
+				dlf.fn_jNotifyMessage('当前组下没有定位器！', 'message', false, 5000);
+				return;
+			}
+			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindBatchRegion, '车辆与电子围栏绑定中');
+		} else {
 			dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
-			return;
 		}
-		// 当前组下没有终端 
-		if ( n_tids == 0 ) {
-			dlf.fn_jNotifyMessage('当前组下没有定位器！', 'message', false, 5000);
-			return;
-		}
-		dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindBatchRegion, '车辆与电子围栏绑定中');
 	});
 }
 //=========================获取及绑定围栏操作方法========================
