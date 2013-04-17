@@ -658,6 +658,8 @@
 								<!--<option value="5">SOS</option>-->
 								<option value="2">电量告警</option>
 								<option value="6">通讯异常</option>
+								<option value="7">进围栏</option>
+								<option value="8">出围栏</option>
 								<option value="3">震动</option>
 								<option value="4">移动</option>
 							</select>
@@ -891,6 +893,76 @@
 					</tr>
 				</tfoot>
 			</table>
+		</div>
+	</div>
+	<!-- 围栏管理展示页面 -->
+	<div id="regionWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle regionTitle">
+			<span class="close j_close" title="关闭窗口" who="region"></span>
+			<span title="收起" class="hideOrShowContent min j_hosBtn" id="region_hos"></span>
+		</div>
+		<div id="regionContent" class="wrapperContent regionContent">
+			<a id="regionCreateBtn" href="#">新增围栏</a>
+			<table id="regionTable" class="dataTable regionTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="regionTableHeader">
+						<th>序号</th>
+						<th>围栏名称</th>
+						<th>查看详情</th>
+						<th>删除</th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<!-- 围栏新增服务功能条-->
+	<div id="regionCreateWrapper" class="wrapper hide j_drag">
+		<span id="regionCreateBtnPanel" class="regionCreateBtnPanel">
+			<div class="regionNamePanel">
+				围栏名称：
+				<input type="text" id="createRegionName" />
+			</div>
+			<a id="regionCreate_save" href="#" class="regionCreate_save">提交围栏</a>
+			<a id="regionCreate_clickMap" href="#" class="regionCreate_clickMap">绘制围栏</a>
+		</span>
+		<a id="regionCreateClose" class="tClose" title="关闭"></a>
+	</div>
+	<!-- 围栏与终端绑定 -->
+	<div id="bindRegionWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle bindRegionTitle">
+			<span class="close j_close" title="关闭窗口" who="bindRegion"></span>
+		</div>
+		<div class="wrapperContent bindRegionContent">
+			<table id="bindRegionTable" class="dataTable bindRegionTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="bindRegionTableHeader">
+						<th></th>
+						<th>序号</th>
+						<th>围栏名称</th>
+						<th>查看详情</th>
+					</tr>
+				</tbody>
+			</table>
+			<input type="button" id="bindRegionSave" class="bindRegionSave j_save" />
+		</div>
+	</div>
+	<!-- 批量围栏与终端绑定 -->
+	<div id="bindBatchRegionWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle bindBatchRegionTitle">
+			<span class="close j_close" title="关闭窗口" who="bindBatchRegion"></span>
+		</div>
+		<div class="wrapperContent bindBatchRegionContent">
+			<table id="bindBatchRegionTable" class="dataTable bindBatchRegionTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="bindBatchRegionTableHeader">
+						<th></th>
+						<th>序号</th>
+						<th>围栏名称</th>
+						<th>查看详情</th>
+					</tr>
+				</tbody>
+			</table>
+			<input type="button" id="bindBatchRegionSave" class="bindRegionSave j_save" />
 		</div>
 	</div>
 </div>
