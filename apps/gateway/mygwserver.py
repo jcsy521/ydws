@@ -468,6 +468,7 @@ class MyGWServer(object):
                             else:
                                 logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
                                              t_info['dev_id'], t_info['t_msisdn'], response)
+                            self.request_location(t_info['dev_id'])
                             logging.info("[GW] Terminal: %s HK success!", t_info['dev_id'])
 
                         if terminal.owner_mobile != t_info['u_msisdn']:
@@ -623,6 +624,7 @@ class MyGWServer(object):
                     else:
                         logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
                                      t_info['dev_id'], t_info['t_msisdn'], response)
+                    self.request_location(t_info['dev_id'])
 
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
                 # get SessionID
@@ -1285,6 +1287,7 @@ class MyGWServer(object):
             terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
             terminal_info['fob_list'] = [fob.fobid for fob in fobs]
             self.redis.setvalue(terminal_info_key, terminal_info)
+
         return terminal_info
 
     def update_terminal_info(self, t_info):
@@ -1330,6 +1333,26 @@ class MyGWServer(object):
     def get_terminal_status(self, dev_id):
         terminal_status_key = get_terminal_address_key(dev_id)
         return self.redis.getvalue(terminal_status_key)
+
+    def request_location(self, dev_id):
+        location = DotDict({'dev_id':dev_id,
+                            'valid':GATEWAY.LOCATION_STATUS.FAILED,
+                            't':EVENTER.INFO_TYPE.POSITION,
+                            'lat':None,
+                            'lon':None,
+                            'alt':0,
+                            'cLat':None,
+                            'cLon':None,
+                            'gps_time':None,
+                            'type':1,
+                            'name':'',
+                            'degree':0,
+                            'speed':0.0,
+                            'cellid':'0:0:0:0'})
+        location = lbmphelper.handle_location(location, self.redis,
+                                              cellid=True, db=self.db)
+        if location.cLat and location.cLon:
+            self.insert_location(location)
 
     def __close_rabbitmq(self, connection=None, channel=None):
         if connection and connection.is_open:
