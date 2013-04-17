@@ -138,14 +138,6 @@ class EventHandler(BaseHandler):
                        (tuple(tids + DUMMY_IDS_STR), start_time, end_time, category, page_number * page_size, page_size)
                 events = self.db.query(sql)
                 
-            for event in events:
-                if event.rid:
-                    region = self.db.get("SELECT name AS region_name"
-                                         "  FROM T_REGION"
-                                         "  WHERE id = %s",
-                                         event.rid)
-                    event["comment"] = u'围栏名：'+ region.region_name
-                
             alias_dict = {}
             for tid in tids:
                 terminal_info_key = get_terminal_info_key(tid)
@@ -170,6 +162,13 @@ class EventHandler(BaseHandler):
                             event['comment'] = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % event['pbat']
                     else:
                         event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % event['fobid']
+
+                if event.rid:
+                    region = self.db.get("SELECT name AS region_name"
+                                         "  FROM T_REGION"
+                                         "  WHERE id = %s",
+                                         event.rid)
+                    event['comment'] = u'围栏名：'+ region.region_name
                 
             self.write_ret(status,
                            dict_=DotDict(events=events,
