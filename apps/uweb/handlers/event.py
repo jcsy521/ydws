@@ -136,9 +136,16 @@ class EventHandler(BaseHandler):
                        "  ORDER BY timestamp DESC"
                        "  LIMIT %s, %s") %\
                        (tuple(tids + DUMMY_IDS_STR), start_time, end_time, category, page_number * page_size, page_size)
-
                 events = self.db.query(sql)
-
+                
+            for event in events:
+                if event.rid:
+                    region = self.db.get("SELECT name AS region_name"
+                                         "  FROM T_REGION"
+                                         "  WHERE id = %s",
+                                         event.rid)
+                    event["comment"] = u'围栏名：'+ region.region_name
+                
             alias_dict = {}
             for tid in tids:
                 terminal_info_key = get_terminal_info_key(tid)
