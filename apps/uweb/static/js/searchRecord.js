@@ -492,7 +492,11 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else {
 			obj_pagination.hide(); //显示分页
-			dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000, 'dw');
+			if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+			} else {
+				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000, 'dw');
+			}
 		}
 	} else if ( obj_resdata.status == 201 ) {	// 业务变更
 		dlf.fn_showBusinessTip('eventSearch');

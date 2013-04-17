@@ -2633,6 +2633,9 @@ legend {
 	z-index: 1000;
 }
 /*bind regions */
+.regionCheckTh {
+	width: 40px;
+}
 .bindRegionTitle {
 	background-position: 0px -850px;
 	width: 530px;
