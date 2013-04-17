@@ -79,7 +79,7 @@ class PacketTask(object):
 
             if not old_region_status:
                 # skip the first region event
-                return
+                continue
 
             if region_status != old_region_status:
                 location['category']=region_status
