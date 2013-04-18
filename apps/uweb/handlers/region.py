@@ -6,7 +6,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, str_to_list
+from utils.misc import DUMMY_IDS, str_to_list, get_region_status_key
 from utils.checker import check_sql_injection
 from constants import UWEB
 from codes.errorcode import ErrorCode
@@ -103,7 +103,7 @@ class RegionHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def delete(self):
-        """Delete a line.
+        """Delete region.
         """
         try:
             delete_ids = map(int, str_to_list(self.get_argument('ids', None)))
@@ -116,6 +116,17 @@ class RegionHandler(BaseHandler):
 
         try:
             status = ErrorCode.SUCCESS
+            # delete redis region status
+            for region_id in delete_ids:
+                terminals = self.db.query("SELECT tid"
+                                          "  FROM T_REGION_TERMINAL"
+                                          "  WHERE rid = %s",
+                                          region_id)
+                for terminal in terminals:
+                    region_status_key = get_region_status_key(terminal.tid, region_id)
+                    self.redis.delete(region_status_key)
+            
+            # delete region, region event and region terminal relation
             self.db.execute("DELETE FROM T_REGION WHERE id IN %s",
                             tuple(delete_ids + DUMMY_IDS)) 
 
@@ -124,7 +135,8 @@ class RegionHandler(BaseHandler):
 
             self.db.execute("DELETE FROM T_REGION_TERMINAL WHERE rid IN %s",
                             tuple(delete_ids + DUMMY_IDS))
-
+            
+            
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete region failed. Exception: %s", 
