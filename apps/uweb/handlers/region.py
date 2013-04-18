@@ -119,6 +119,12 @@ class RegionHandler(BaseHandler):
             self.db.execute("DELETE FROM T_REGION WHERE id IN %s",
                             tuple(delete_ids + DUMMY_IDS)) 
 
+            self.db.execute("DELETE FROM T_EVENT WHERE rid IN %s",
+                            tuple(delete_ids + DUMMY_IDS))
+
+            self.db.execute("DELETE FROM T_REGION_TERMINAL WHERE rid IN %s",
+                            tuple(delete_ids + DUMMY_IDS))
+
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete region failed. Exception: %s", 
