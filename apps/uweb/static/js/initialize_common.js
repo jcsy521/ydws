@@ -1275,6 +1275,10 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_initRegion(); // 重新显示围栏管理 
 					mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
 					f_closeWrapper = false;
+				} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
+					dlf.fn_setMapContainerZIndex(0);
+					dlf.fn_clearAllMenu();
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}
