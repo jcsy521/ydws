@@ -938,14 +938,24 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
             map          = this._map,
             mask         = this._mask,
             circle       = null,
+			labelPoint   = null, //鼠标停止点
             centerPoint  = null; //圆的中心点
 
         /**
          * 开始绘制圆形
          */
         var startAction = function (e) {
-			if ( e.button != 0 ) {//不适合项目,暂时屏蔽2013.4.16
-				return;
+			var b_ie = $.browser.msie, 
+				obj_startEventBtn = e.button;
+			
+			if ( b_ie ) { // 如果是IE
+				if ( obj_startEventBtn != 1 ) {
+					return;
+				}
+			} else {
+				if ( obj_startEventBtn != 0 ) {//不适合项目,暂时屏蔽2013.4.16
+					return;
+				}
 			}
 			// 清除地图上图形 todo 
 			if ( obj_circle ) {
@@ -963,7 +973,8 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
         /**
          * 绘制圆形过程中，鼠标移动过程的事件
          */
-        var moveAction = function(e) {
+        var moveAction = function(e) { 
+			labelPoint = e.point;
             circle.setRadius(me._map.getDistance(centerPoint, e.point));
         }
 
@@ -971,13 +982,24 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
          * 绘制圆形结束
          */
         var endAction = function (e) { 
-			if ( e.button != 0 ) { //不适合项目,暂时屏蔽2013.4.16
-				return;
+			var b_ie = $.browser.msie,
+				str_ieVersion = $.browser.version,
+				obj_startEventBtn = e.button;
+			
+			if ( b_ie && str_ieVersion != '9.0' ) { // 如果是ie6 7 8 
+				if ( obj_startEventBtn != 1 ) {
+					return;
+				}
+			} else { 
+				if ( obj_startEventBtn != 0 ) {//不适合项目,暂时屏蔽2013.4.16
+					return;
+				}
 			}
+			
             var point = e.point,
 				calculate = me._calculate(circle, point);
 			
-			obj_circleLabel = new BMap.Label('半径：'+Math.round(circle.getRadius())+'米', {position: point});
+			obj_circleLabel = new BMap.Label('半径：'+Math.round(circle.getRadius())+'米', {position: labelPoint});
             me._dispatchOverlayComplete(circle, calculate);
             centerPoint = null;
             mask.disableEdgeMove();

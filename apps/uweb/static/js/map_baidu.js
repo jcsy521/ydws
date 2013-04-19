@@ -523,6 +523,8 @@ window.dlf.fn_initCreateCircle = function() {
 		
 		if ( n_radius < 500 ) {
 			dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
+		} else {
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 		}
 		
 	});
