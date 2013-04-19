@@ -431,7 +431,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				$('.j_eventItem').click(function(event) {
 					dlf.fn_clearMapComponent();
 					// 设置地图父容器 小地图显示 地图title显示
-					fn_ShowOrHideMiniMap(true);
+					fn_ShowOrHideMiniMap(true, event);
 					dlf.fn_showOrHideControl(false);
 					// 根据行编号拿到数据，在地图上做标记显示
 					var n_tempIndex = $(this).parent().parent().index()-1,
@@ -884,7 +884,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 /*
 * 告警查询关闭小地图
 */
-function fn_ShowOrHideMiniMap(b_isShow) {
+function fn_ShowOrHideMiniMap(b_isShow, event) {
 	var obj_mapContainer = $('.mapContainer'), 
 		obj_mapPanel = $('#mapObj'), 
 		obj_mapConTitle = $('.mapDragTitle');
