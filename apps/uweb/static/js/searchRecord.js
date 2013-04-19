@@ -459,11 +459,10 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
 						setTimeout (function () {
 							// 为了正常显示暂时给告警的点加部分偏移进行显示:)
-							var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude-10000, obj_tempData.clatitude),
+							var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude, obj_tempData.clatitude),
 								n_category = obj_tempData.category,
 								n_rid = obj_tempData.rid;
 							
-							//dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17); // 2013.4.17
 							// 如果是进出围栏告警则显示电子围栏
 							if ( n_category == 7 || n_category == 8 ) {
 								$.get_(GETREGIONDATA_URL +'?rid='+ n_rid, '', function (data) {  
@@ -482,8 +481,9 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 								function (XMLHttpRequest, textStatus, errorThrown) {
 									dlf.fn_serverError(XMLHttpRequest);
 								});
+							} else {
+								dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
 							}
-							
 						}, 100);
 				});
 				// 关闭小地图
