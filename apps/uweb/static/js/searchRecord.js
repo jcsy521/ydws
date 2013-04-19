@@ -223,7 +223,8 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'eventSearch': //  告警查询
 			str_getDataUrl = EVENT_URL;
 			dlf.fn_clearMapComponent(); // 清除页面图形
-			$('.eventMapContent').hide();
+			// 设置地图父容器 小地图  地图title隐藏
+			fn_ShowOrHideMiniMap(false);
 			
 			var n_startTime = $('#eventSearchStartTime').val(), // 用户选择时间
 				n_endTime = $('#eventSearchEndTime').val(), // 用户选择时间
@@ -426,32 +427,12 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				/**
 				* 用户点击位置进行地图显示
 				*/
-				var obj_mapContainer = $('.mapContainer');
 				
 				$('.j_eventItem').click(function(event) {
 					dlf.fn_clearMapComponent();
-					// 设置地图父容器的样式
-					obj_mapContainer.css({	
-						'left': event.clientX - 247, 
-						'top': event.clientY - 161,
-						'backgroundColor': '#FFFFFF',
-						'border': '1px solid #BBBBBB',
-						'height': '370px',
-						'width': '370px',
-						'padding': '10px',
-						'zIndex': 10000
-					});
-					// 设置并显示小地图的样式
-					$('#mapObj').css({
-						'width': 370,
-						'height': 340,
-						'minWidth': 370,
-						'minHeight': 340,
-						'zIndex': 10000
-					}).show();
+					// 设置地图父容器 小地图显示 地图title显示
+					fn_ShowOrHideMiniMap(true);
 					dlf.fn_showOrHideControl(false);
-					// 地图title显示
-					$('.mapDragTitle').show();
 					// 根据行编号拿到数据，在地图上做标记显示
 					var n_tempIndex = $(this).parent().parent().index()-1,
 						obj_tempData = arr_dwRecordData[n_tempIndex];
@@ -488,9 +469,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				});
 				// 关闭小地图
 				$('.eventMapClose').unbind('click').bind('click', function() {
-					$(this).parent().hide();
-					$('#mapObj').hide();
-					obj_mapContainer.removeAttr('style');
+					fn_ShowOrHideMiniMap(false);
 				});
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
@@ -900,5 +879,41 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
+	}
+}
+/*
+* 告警查询关闭小地图
+*/
+function fn_ShowOrHideMiniMap(b_isShow) {
+	var obj_mapContainer = $('.mapContainer'), 
+		obj_mapPanel = $('#mapObj'), 
+		obj_mapConTitle = $('.mapDragTitle');
+	
+	if ( b_isShow ) {
+		// 设置地图父容器的样式
+		obj_mapContainer.css({	
+			'left': event.clientX - 247, 
+			'top': event.clientY - 161,
+			'backgroundColor': '#FFFFFF',
+			'border': '1px solid #BBBBBB',
+			'height': '370px',
+			'width': '370px',
+			'padding': '10px',
+			'zIndex': 10000
+		});
+		// 设置并显示小地图的样式
+		obj_mapPanel.css({
+			'width': 370,
+			'height': 340,
+			'minWidth': 370,
+			'minHeight': 340,
+			'zIndex': 10000
+		}).show();
+		// 地图title显示
+		obj_mapConTitle.show();
+	} else {
+		obj_mapConTitle.hide();
+		obj_mapPanel.hide();
+		obj_mapContainer.removeAttr('style');
 	}
 }
