@@ -22,8 +22,7 @@ class SMSHelper:
     # the final mark (NULL now)
     TAIL_LEN = 0
 
-    # 0xACB2012
-    SMS_KEY = 181084178 
+    SEND_KEY = int(ConfHelper.SMS_CONF.send_key, 16) 
 
     @classmethod
     def sms_encode(cls, content):
@@ -47,11 +46,12 @@ class SMSHelper:
         @param content: original sms content
         authentic content: xxx sign timestamp
             - xxx: original sms content
-            - sign: (last 8 nums of tmobile) ^ SMS_KEY ^ timestamp
+            - sign: (last 8 nums of tmobile) ^ SEND_KEY ^ timestamp
             - timestamp: unix time
         """
+        send_key = int(ConfHelper.SMS_CONF.send_key, 16)
         timestamp = int(time.time())
-        sign = int(str(tmobile)[-8:]) ^ (cls.SMS_KEY) ^ timestamp
+        sign = int(str(tmobile)[-8:]) ^ (send_key) ^ timestamp
         content = ' '.join([content, str(sign), str(timestamp)])
         response = cls.send(tmobile, content)
 

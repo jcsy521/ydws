@@ -144,7 +144,8 @@ class IOSHandler(BaseHandler, LoginMixin):
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
                                       "    AND owner_mobile = %s"
-                                      "    AND group_id = -1",
+                                      "    AND group_id = -1"
+                                      "    ORDER BY LOGIN DESC",
                                       UWEB.SERVICE_STATUS.ON, username)
 
             for terminal in terminals:
@@ -285,7 +286,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
                                       "    AND owner_mobile = %s"
-                                      "    AND group_id = -1",
+                                      "    AND group_id = -1"
+                                      "    ORDER BY LOGIN DESC",
                                       UWEB.SERVICE_STATUS.ON, username)
 
             for terminal in terminals:

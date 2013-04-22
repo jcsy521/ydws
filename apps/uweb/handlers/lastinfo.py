@@ -7,6 +7,7 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
+from utils.ordereddict import OrderedDict
 from utils.misc import get_terminal_info_key, get_location_key, get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
@@ -31,14 +32,15 @@ class LastInfoHandler(BaseHandler):
             return 
 
         try:
-            cars_info = {} 
+            cars_info = OrderedDict() 
             usable = 0 # nothing is modified, the cars_info is no use, use the data last time
             status = ErrorCode.SUCCESS
             
             terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
                                       "    AND owner_mobile = %s"
-                                      "    AND group_id = -1",
+                                      "    AND group_id = -1"
+                                      "    ORDER BY LOGIN DESC",
                                       UWEB.SERVICE_STATUS.ON, self.current_user.uid)
             tids = [terminal.tid for terminal in terminals]
 
