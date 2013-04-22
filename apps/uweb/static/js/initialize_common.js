@@ -17,6 +17,7 @@
 * obj_drawingManager: 鼠标绘制对象
 * obj_circle: 鼠标绘制圆形对象
 * obj_circleLabel : 圆的标签对象
+* obj_circleMarker : 圆的标记对象
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -33,7 +34,8 @@ var mapObj = null,
 	obj_selfmarkers = {},
 	obj_drawingManager = null,
 	obj_circle = null,
-	obj_circleLabel = null;
+	obj_circleLabel = null,
+	obj_circleMarker = null;
 	
 	
 if ( !window.dlf ) { window.dlf = {}; }
@@ -1274,6 +1276,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 				} else if ( str_who == 'regionCreate' ) { // 围栏管理
 					dlf.fn_initRegion(); // 重新显示围栏管理 
 					mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
+					$('#regionContent').data('iscreate',  true);// 存储新增成功数据
 					f_closeWrapper = false;
 				} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo

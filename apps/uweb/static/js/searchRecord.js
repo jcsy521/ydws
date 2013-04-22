@@ -473,18 +473,25 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				});
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+			// 如果是围栏新增成功后,给用户提示绑定
+			var obj_regionContent = $('#regionContent'),
+				b_regionCreate = obj_regionContent.data('iscreate');
+			if ( b_regionCreate ) {
+				obj_regionContent.removeData('iscreate');
+				dlf.fn_jNotifyMessage('添加成功，右键点击车辆绑定围栏。', 'message', false, 6000);
+			}
 		} else {
 			obj_pagination.hide(); //显示分页
 			if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			} else {
-				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000, 'dw');
+				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000);
 			}
 		}
 	} else if ( obj_resdata.status == 201 ) {	// 业务变更
 		dlf.fn_showBusinessTip('eventSearch');
 	} else {
-		dlf.fn_jNotifyMessage(obj_resdata.message, 'message', false, 3000, 'dw');	
+		dlf.fn_jNotifyMessage(obj_resdata.message, 'message', false, 3000);	
 	}
 }
 

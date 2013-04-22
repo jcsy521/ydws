@@ -53,7 +53,7 @@ window.dlf.fn_deleteOperator = function(n_id) {
 				if ( data.status == 0 ) {
 					$('#operatorTable tr[id='+ n_id +']').remove();
 				} else {
-					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000, 'dw');
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;
 				}
 			});

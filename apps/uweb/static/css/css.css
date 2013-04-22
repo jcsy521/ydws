@@ -2551,10 +2551,6 @@ legend {
 .regionContent {
 	height: 458px
 }
-.routeLineTable {
-	width: 760px;
-	margin-top: 20px;
-}
 #regionCreateBtn {
 	color: #4876FF;
 	display: inline-block;
@@ -2564,19 +2560,33 @@ legend {
     position: relative;
     top: 14px;
 }
-/*routeline add panel*/
+/*regionCreate add panel todo  */
 .regionCreateBtnPanel a {
-	border: 1px solid gray;
+	background-position: 5px 6px;
+    border: 1px solid gray;
     border-radius: 5px 5px 5px 5px;
-    padding: 5px;
-	color: #FFF;
-	text-decoration: none;
-	*position: relative;
-	*top: -2px;
+    color: #FFFFFF;
+    display: inline-block;
+    height: 31px;
+    line-height: 32px;
+    padding-right: 5px;
+    text-align: right;
+    text-decoration: none;
+    width: 74px;
 }
-.regionCreateBtnPanel a:hover {
+.regionCreateBtnPanel a:hover, .regionCreateBtnPanel .regionCreateBtnCurrent {
 	background-color: #FFF;
 	color: #000;
+}
+.regionCreate_dragMap {
+	background: url("/static/images/region_drag.png") no-repeat;
+	margin-right: 14px;
+}
+.regionCreate_clickMap {
+	background: url("/static/images/region_circle.png") no-repeat;
+}
+#regionCreateBtnPanel {
+	margin-left: 15px;
 }
 .regionNamePanel {
 	display: inline;
@@ -2588,6 +2598,30 @@ legend {
 	*top: 2px;
     width: 79px;
 }
+/* circle infowindow css*/
+.clickWindowPanel {
+	position: relative;
+    top: 14px;
+}
+#createRegionName {
+	padding: 5px;
+}
+
+.clickWindowPanel a {
+	background-color: #000000;
+    border: 1px solid gray;
+    border-radius: 5px 5px 5px 5px;
+    color: #FFFFFF;
+    margin: 0px 10px;
+    opacity: 0.45;
+    padding: 7px;
+    text-decoration: none;
+}
+.clickWindowPanel a:hover {
+	background-color: #FFFFFF;
+	color: #000000;
+}
+
 .hideOrShowContent {
 	background: url("/static/images/ui-icons_228ef1_256x240.png") no-repeat scroll 0 0 transparent;
     cursor: pointer;
@@ -2624,11 +2658,10 @@ legend {
 	opacity: 0.45;
 	filter:alpha(opacity=45);
 	border-radius: 6px;
-	width: 450px;
-	height: 36px;
-	line-height: 36px;
+	width: 250px;
+	height: 40px;
+	line-height: 40px;
 	color: white;
-	text-align: center;
 	font-size: 14px;
 	z-index: 1000;
 }

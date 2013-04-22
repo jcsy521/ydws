@@ -12,6 +12,8 @@ window.dlf.fn_initRegion = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	fn_displayCars(); // 显示车辆信息数据
+	
 	//获取围栏数据 
 	dlf.fn_setSearchRecord(str_region);
 	dlf.fn_searchData(str_region);
@@ -19,11 +21,12 @@ window.dlf.fn_initRegion = function() {
 	$('#regionCreateBtn').unbind('click').click(function(event){
 	
 		obj_regionWapper.hide();
-		dlf.fn_clearMapComponent(); // 清除页面图形
-		obj_regionAddWapper.css({'left': '250px', 'top': '160px'}).show();
+		dlf.fn_clearMapComponent(obj_circle); // 清除页面图形
+		obj_regionAddWapper.css({'left': '305px', 'top': '160px'}).show();
 		// 初始化画圆事件,并添加画圆事件
 		dlf.fn_initCreateCircle();
 		$('#createRegionName').val('');
+		fn_displayCars(); // 显示车辆信息数据
 		obj_circle =  null;
 	});
 	//关闭新增围栏窗口
@@ -31,53 +34,78 @@ window.dlf.fn_initRegion = function() {
 		dlf.fn_initRegion(); // 重新显示围栏管理 
 		dlf.fn_mapRightClickRemoveFun();
 	});
-	// 给保存围栏,点击地图绑定事件
-	$('#regionCreateBtnPanel a').unbind('click').click(function(event){
-		var str_id = event.currentTarget.id;
-		
-		if ( str_id == 'regionCreate_save' ) { // 保存围栏
-			dlf.fn_mapStopDrawCirlce();
-			var str_regionName = $.trim($('#createRegionName').val()), 
-				n_radius = 0, 
-				obj_regions = $('#regionTable').data('regions'),
-				n_circleNum = 0, 
-				obj_regionData = {};
-				
-			if ( obj_regions ) {
-				n_circleNum = obj_regions.length;
-			
-				if ( n_circleNum > 10 ) { //最多只能有十个电子围栏
-					dlf.fn_jNotifyMessage('电子围栏最多只能创建10个。', 'message', false, 3000);
-					return;
-				}
-			}
-			if ( !obj_circle ) { 
-				dlf.fn_jNotifyMessage('您还没有创建电子围栏。', 'message', false, 3000);
-				return;
-			}
-			if ( str_regionName == '' ) {
-				dlf.fn_jNotifyMessage('您还没有填写围栏名称。', 'message', false, 3000);
-				return;
-			}
-			
-			obj_regionData = dlf.fn_getCirlceData();
-			obj_regionData.region_name = str_regionName;
-			n_radius = obj_regionData.radius;
-			
-			if ( n_radius < 500 ) {
-				dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
-				return;
-			}
-			// 发送线请求数据
-			dlf.fn_jsonPost(REGION_URL, obj_regionData, 'regionCreate', '电子围栏数据保存中');
-		} else if ( str_id == 'regionCreate_clickMap' ) { // 点击地图
-			dlf.fn_mapStartDrawCirlce();
-		}
+	//默认样式初始化
+	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+	// 给绘制地图绑定事件
+	$('#regionCreate_clickMap').unbind('click').click(function(event){
+		dlf.fn_mapStartDrawCirlce();
+		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+		$(this).addClass('regionCreateBtnCurrent');
 	});
-	
-	
+	// 给拖动地图绑定事件
+	$('#regionCreate_dragMap').unbind('click').click(function(event){
+		dlf.fn_mapRightClickFun();
+		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+		$(this).addClass('regionCreateBtnCurrent');
+	});
 }
-
+// 操作围栏不清除车辆
+function fn_displayCars () {
+	// 显示车辆信息数据
+	var obj_carDatas = $('.j_carList').data('carsData');
+	
+	for ( var param in obj_carDatas ) {
+		var obj_carInfo = obj_carDatas[param];
+		
+		dlf.fn_addMarker(obj_carInfo, 'actiontrack', 0, false); // 添加标记
+	}
+}
+/*
+* 重新绘制围栏
+*/
+window.dlf.fn_resetRegion = function() {
+	dlf.fn_mapRightClickFun();
+	obj_drawingManager.open();
+}
+/*
+* 围栏保存操作
+*/
+window.dlf.fn_saveReginon = function() {
+	dlf.fn_mapStopDrawCirlce();
+	var str_regionName = $.trim($('#createRegionName').val()), 
+		n_radius = 0, 
+		obj_regions = $('#regionTable').data('regions'),
+		n_circleNum = 0, 
+		obj_regionData = {};
+		
+	if ( obj_regions ) {
+		n_circleNum = obj_regions.length;
+	
+		if ( n_circleNum > 10 ) { //最多只能有十个电子围栏
+			dlf.fn_jNotifyMessage('电子围栏最多只能创建10个。', 'message', false, 3000);
+			return;
+		}
+	}
+	if ( !obj_circle ) { 
+		dlf.fn_jNotifyMessage('您还没有创建电子围栏。', 'message', false, 3000);
+		return;
+	}
+	if ( str_regionName == '' ) {
+		dlf.fn_jNotifyMessage('您还没有填写围栏名称。', 'message', false, 3000);
+		return;
+	}
+	
+	obj_regionData = dlf.fn_getCirlceData();
+	obj_regionData.region_name = str_regionName;
+	n_radius = obj_regionData.radius;
+	
+	if ( n_radius < 500 ) {
+		dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
+		return;
+	}
+	// 发送线请求数据
+	dlf.fn_jsonPost(REGION_URL, obj_regionData, 'regionCreate', '电子围栏数据保存中');
+}
 /*
 * 查看围栏的详细信息
 */
@@ -91,8 +119,7 @@ window.dlf.fn_detailRegion = function(n_seq) {
 		obj_centerPoint = dlf.fn_createMapPoint(n_lng, n_lat),
 		obj_otherPoint = dlf.fn_createMapPoint(n_otherLng, n_lat),
 	
-	// $('#region_hos').click(); // 窗口最小化
-	dlf.fn_clearMapComponent(); // 清除页面图形
+	fn_clearCircleRegion();
 	// 调用地图显示圆形
 	dlf.fn_displayCircle(obj_circleData);
 	// 计算bound显示 
@@ -109,13 +136,21 @@ window.dlf.fn_deleteRegion = function(n_id) {
 			$.delete_(REGION_URL+'?ids='+n_id, '', function(data) {
 				if ( data.status == 0 ) {
 					$('#regionTable tr[id='+ n_id +']').remove();
-					dlf.fn_clearMapComponent(); // 清除页面图形
+					fn_clearCircleRegion();
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;
 				}
 			});
 		}
+	}
+}
+/*
+* 清除地图上显示的围栏图形 
+*/
+function fn_clearCircleRegion () {
+	if ( obj_circle ) {
+		dlf.fn_clearMapComponent(obj_circle); // 清除页面图形
 	}
 }
 //--------------bind regions----------------
@@ -131,6 +166,7 @@ window.dlf.fn_initBindRegion = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	fn_displayCars(); // 显示车辆信息数据
 	//获取围栏数据 
 	dlf.fn_searchData(str_bindRegion);
 	// 绑定围栏保存
@@ -165,6 +201,7 @@ window.dlf.fn_initBatchRegions = function(obj_group){
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	fn_displayCars(); // 显示车辆信息数据
 	//获取围栏数据 
 	dlf.fn_searchData(str_bindBatchRegion);
 	// 获取组下的所有终端TID

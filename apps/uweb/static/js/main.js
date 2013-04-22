@@ -448,6 +448,10 @@ $(function () {
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询是否显示
 			b_operatorStatus = $('#operateorWrapper').is(':visible'),	// 操作员是否显示
 			b_mileageStatus = $('#mileageWrapper').is(':visible'),	// 里程统计是否显示
+			b_regionStatus = $('#regionWrapper').is(':visible'),	// 围栏显示是否显示
+			b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
+			b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 围栏批量绑定是否显示
+			b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
 			obj_navItemUl = $('.j_countNavItem');	
 		
 		if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
@@ -459,7 +463,7 @@ $(function () {
 				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 			}
 		}
-		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'eventSearch' ) {
+		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'eventSearch' && str_id != 'b_bindRegionStatus' && str_id != 'b_bindBatchRegionStatus' ) {
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
@@ -486,8 +490,8 @@ $(function () {
 				if ( b_eventSearchStatus ) {	// 如果打开的是告警
 					dlf.fn_setMapPosition(false);	// 还原地图
 					$('#eventSearch').removeClass('eventSearchHover');
-					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				}
+				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				break;
 			case 'personalData': //  个人资料 
 				dlf.fn_personalData();
