@@ -55,9 +55,12 @@ function fn_displayCars () {
 	var obj_carDatas = $('.j_carList').data('carsData');
 	
 	for ( var param in obj_carDatas ) {
-		var obj_carInfo = obj_carDatas[param];
+		var obj_carInfo = obj_carDatas[param],
+			str_tid = obj_carInfo.tid,
+			obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
+			n_carIndex = $('.j_terminal').index(obj_carA);
 		
-		dlf.fn_addMarker(obj_carInfo, 'actiontrack', 0, false); // 添加标记
+		dlf.fn_addMarker(obj_carInfo, 'actiontrack', n_carIndex, false); // 添加标记
 	}
 }
 /*

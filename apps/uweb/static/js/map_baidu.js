@@ -249,21 +249,23 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	/**
 	* marker click事件
 	*/
-	marker.addEventListener('click', function(){
+	marker.addEventListener('click', function(){ 
 	   if ( str_iconType == 'actiontrack' ) { // 主页车辆点击与左侧车辆列表同步
 			var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum),
 				str_className = obj_carItem.attr('class'), 
 				str_tid = obj_carItem.attr('tid');
-				
+			
 			if ( str_className.search('j_currentCar') != -1 ) { // 如果是当前车的话就直接打开吹出框，否则switchcar中打开infoWindow
 				this.openInfoWindow(this.selfInfoWindow); 
+				fn_infoWindowCloseShow();
 				return;
 			} else {
 				if ( dlf.fn_userType() ) {
 					$('.jstree-clicked').removeClass('jstree-clicked');
 					$('.j_leafNode a[tid='+ str_tid +']').addClass('jstree-default jstree-clicked');
 				}
-			}			
+			}
+			fn_infoWindowCloseShow();
 			dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
 		} else {
 			var str_name = obj_location.name,
@@ -287,7 +289,12 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		}
 	});
 }
-
+/*
+* 吹出框的关闭按钮显示
+*/
+function fn_infoWindowCloseShow() {
+	$('#markerWindowtitle').parent().parent().next().show();//显示关闭按钮
+}
 /**
 * 吹出框内容更新
 * obj_location: 位置信息
