@@ -22,8 +22,6 @@ class SMSHelper:
     # the final mark (NULL now)
     TAIL_LEN = 0
 
-    SEND_KEY = int(ConfHelper.SMS_CONF.send_key, 16) 
-
     @classmethod
     def sms_encode(cls, content):
         assert isinstance(content, unicode)
@@ -49,6 +47,7 @@ class SMSHelper:
             - sign: (last 8 nums of tmobile) ^ SEND_KEY ^ timestamp
             - timestamp: unix time
         """
+
         send_key = int(ConfHelper.SMS_CONF.send_key, 16)
         timestamp = int(time.time())
         sign = int(str(tmobile)[-8:]) ^ (send_key) ^ timestamp
