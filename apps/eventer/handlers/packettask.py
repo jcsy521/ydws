@@ -209,7 +209,7 @@ class PacketTask(object):
                                             cellid=True, db=self.db)
 
         # check region evnent
-        self.check_region_event(report)
+        #self.check_region_event(report)
 
         # if undefend, just save location into db
         if info['rName'] in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
