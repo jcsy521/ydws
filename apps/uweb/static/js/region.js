@@ -28,6 +28,11 @@ window.dlf.fn_initRegion = function() {
 		$('#createRegionName').val('');
 		fn_displayCars(); // 显示车辆信息数据
 		obj_circle =  null;
+		
+		// 启动画围栏事件
+		dlf.fn_mapStartDrawCirlce();
+		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+		$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
 	});
 	//关闭新增围栏窗口
 	$('#regionCreateClose').unbind('click').click(function(event){
@@ -69,6 +74,9 @@ function fn_displayCars () {
 window.dlf.fn_resetRegion = function() {
 	dlf.fn_mapRightClickFun();
 	obj_drawingManager.open();
+	
+	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+	$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
 }
 /*
 * 围栏保存操作

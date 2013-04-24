@@ -2612,7 +2612,7 @@ legend {
     border: 1px solid gray;
     border-radius: 5px 5px 5px 5px;
     color: #FFFFFF;
-    margin: 0px 10px;
+    margin: 0px 5px;
     opacity: 0.45;
     padding: 7px;
     text-decoration: none;
@@ -2655,8 +2655,8 @@ legend {
 	position: absolute;
 	bottom: 100px;
 	background-color: #000;
-	opacity: 0.45;
-	filter:alpha(opacity=45);
+	opacity: 0.6;
+	filter:alpha(opacity=60);
 	border-radius: 6px;
 	width: 250px;
 	height: 40px;
@@ -2697,5 +2697,17 @@ legend {
 .bindBatchRegionTitle {
 	background-position: 0px -884px;
 	width: 530px;
+}
+.errorCircleInfo {
+	top: 22px;
+}
+.errorCircle {
+	background: url("/static/images/ui-icons_ef8c08_256x240.png") no-repeat scroll 0 -147px transparent;
+	width: 16px;
+	display: inline-block;
+	float: left;
+	height: 11px;
+	position: relative;
+	top: 2px;
 }
 /*web css end*/

@@ -981,7 +981,6 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			mapObj.removeOverlay(obj_circleLabel);// 2013.4.22
 			
             circle.setRadius(me._map.getDistance(centerPoint, e.point));
-			obj_circle = circle; // 圆形数据保存
 			obj_circleLabel = new BMap.Label('半径：'+Math.round(circle.getRadius())+'米', {position: labelPoint});
 			//todo 2013.4.22
 			mapObj.addOverlay(obj_circleLabel);	
@@ -994,8 +993,11 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			var b_ie = $.browser.msie,
 				str_ieVersion = $.browser.version,
 				obj_startEventBtn = e.button, 
-				n_radius = circle.getRadius();
+				n_radius = circle.getRadius(),
+				str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>',
+				obj_clickInfoWindow = null;  // 创建信息窗口对象
 			
+			obj_circle = circle; // 圆形数据保存
 			if ( b_ie && str_ieVersion != '9.0' ) { // 如果是ie6 7 8 
 				if ( obj_startEventBtn != 1 ) {
 					return;
@@ -1006,12 +1008,8 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				}
 			} 
 			if ( n_radius < 500 ) { 
-				dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
+				str_infoWindowText = '<div class="clickWindowPanel errorCircleInfo"><span class="errorCircle"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
 				dlf.fn_mapStopDrawCirlce();
-				baidu.un(document, 'mouseup', endAction);
-				return;
-			} else {
-				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			}
 		
 			// 2013.4.22 绘画完圆后显示圆心点吹出框,提示用户保存或重绘
@@ -1021,12 +1019,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			
 			mapObj.addOverlay(obj_circleMarker);	//向地图添加覆盖物 
 
-			/**
-			* obj_circleMarker click事件
-			*/
-			var str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>',
-				obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
-			
+			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);
 			obj_circleMarker.openInfoWindow(obj_clickInfoWindow);
 			$('.clickWindowPanel').parent().parent().next().hide();//隐藏关闭按钮
 			//==========================================

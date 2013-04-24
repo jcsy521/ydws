@@ -506,6 +506,63 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	return str_result;
 }
 /*
+* 点击地图添加标记
+*/
+window.dlf.fn_clickMapToAddMarker = function() {
+	mapObj.addEventListener('click', dlf.fn_mapClickFunction);
+}
+window.dlf.fn_mapClickFunction = function(event) { 
+	var obj_clickPoint = event.point;
+		obj_clickMarker = new BMap.Marker(obj_clickPoint), 
+		str_markerGuid = obj_clickMarker.guid;
+		
+	mapObj.addOverlay(obj_clickMarker);	//向地图添加覆盖物 
+	obj_routeLineMarker[str_markerGuid] = {'marker': obj_clickMarker, 'stationname': ''};
+	
+	// 吹出框显示
+	var str_infoWindowText = '<div class="regionWindow"><label 				     class="clickWindowPolder">请输入站点名称</label><input type="text" id="clickMarkerWindowText" value="站点" /><input type="button" onclick="dlf.fn_saveClickWindowText(\''+ str_markerGuid +'\', this);" value="保存" /><input type="button" onclick="dlf.fn_delClickWindowText(\''+ str_markerGuid +'\');" value="删除" /></div>',
+		obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
+	
+	obj_clickMarker.openInfoWindow(obj_clickInfoWindow);
+	/**
+	* obj_clickMarker click事件
+	*/
+	obj_clickMarker.addEventListener('click', function(){ 
+		var obj_markerPanel = obj_routeLineMarker[str_tempgid],
+			str_stationName = obj_markerPanel.stationname;
+		
+		mapObj.removeEventListener('click', dlf.fn_mapClickFunction);
+		this.openInfoWindow(obj_clickInfoWindow);
+		
+		$('#clickMarkerWindowText').val(str_stationName || '站点');
+		setTimeout( function() {
+			dlf.fn_clickMapToAddMarker();
+		}, 100);
+	});
+}
+
+/*
+* 添加线路的标记
+*/
+window.dlf.fn_addRouteLineMarker = function(obj_stations){ 
+	var str_stationName = obj_stations.name,
+		obj_stationPoint = dlf.fn_createMapPoint(obj_stations.longitude, obj_stations.latitude),
+		obj_stationMarker = new BMap.Marker(obj_stationPoint); 
+	
+	mapObj.addOverlay(obj_stationMarker);	//向地图添加覆盖物 
+
+	/**
+	* obj_stationMarker click事件
+	*/
+	obj_stationMarker.addEventListener('click', function(){ 
+		var str_infoWindowText = '<label class="clickWindowPolder">站点名称：'+ str_stationName +'</label>',
+			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
+		
+		this.openInfoWindow(obj_clickInfoWindow);
+		
+	});
+}
+/*
 * 初始化画圆及事件绑定
 */
 window.dlf.fn_initCreateCircle = function() {
@@ -564,7 +621,8 @@ window.dlf.fn_mapStartDrawCirlce = function() {
 * 地图停止画圆
 */
 window.dlf.fn_mapStopDrawCirlce = function() {
-	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent currentCircle currentDrag');
+	$('#regionCreate_dragMap').addClass('regionCreateBtnCurrent');
 	obj_drawingManager.close();
 }
 /*
