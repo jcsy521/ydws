@@ -1287,7 +1287,6 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 				}
 				if ( f_closeWrapper ) {
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-					$('#exitWrapper').hide();	// 退出dialog隐藏
 				}
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();

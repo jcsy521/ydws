@@ -2562,7 +2562,7 @@ legend {
 }
 /*regionCreate add panel todo  */
 .regionCreateBtnPanel a {
-	background-position: 5px 6px;
+	background-position: 5px 5px;
     border: 1px solid gray;
     border-radius: 5px 5px 5px 5px;
     color: #FFFFFF;
@@ -2576,6 +2576,7 @@ legend {
 }
 .regionCreateBtnPanel a:hover, .regionCreateBtnPanel .regionCreateBtnCurrent {
 	background-color: #FFF;
+	background-position: 5px -25px;
 	color: #000;
 }
 .regionCreate_dragMap {
