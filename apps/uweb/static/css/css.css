@@ -1432,7 +1432,7 @@ body {
 	opacity: 0.9;
 	position: absolute;
 	text-align: center;
-	top: 103px;
+	top: 250px;
     width: 447px;
 	z-index: 100001;
 }
@@ -2549,7 +2549,7 @@ legend {
 }
 
 .regionContent {
-	height: 458px
+	height: 470px
 }
 #regionCreateBtn {
 	color: #4876FF;
@@ -2559,6 +2559,12 @@ legend {
     left: 436px;
     position: relative;
     top: 14px;
+}
+#regionNote {
+	color: red;
+    left: 30px;
+    position: relative;
+    top: -50px;
 }
 /*regionCreate add panel todo  */
 .regionCreateBtnPanel a {

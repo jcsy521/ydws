@@ -22,6 +22,7 @@ window.dlf.fn_initRegion = function() {
 	
 		obj_regionWapper.hide();
 		dlf.fn_clearMapComponent(obj_circle); // 清除页面图形
+		
 		obj_regionAddWapper.css({'left': '305px', 'top': '160px'}).show();
 		// 初始化画圆事件,并添加画圆事件
 		dlf.fn_initCreateCircle();

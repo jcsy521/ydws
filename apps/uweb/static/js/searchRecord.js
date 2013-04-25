@@ -478,7 +478,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				b_regionCreate = obj_regionContent.data('iscreate');
 			if ( b_regionCreate ) {
 				obj_regionContent.removeData('iscreate');
-				dlf.fn_jNotifyMessage('添加成功，右键点击车辆绑定围栏。', 'message', false, 6000);
+				dlf.fn_jNotifyMessage('创建成功，请绑定围栏。', 'message', false, 6000);
 			}
 		} else {
 			obj_pagination.hide(); //显示分页
