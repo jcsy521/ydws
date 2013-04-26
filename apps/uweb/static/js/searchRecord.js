@@ -871,13 +871,18 @@ window.dlf.fn_setMapPosition = function(b_status) {
 				$(this).css('top', 0);
 			}
 		}}).css('zIndex', 10000);
+		
+		//存储当前的中心点及比例尺数据,以便切换回来的时候显示 
+		$('.j_body').data({'mapcenter': mapObj.getCenter(), 'mapsize': mapObj.getZoom()});
 	} else {
 		var n_windowHeight = $(window).height(),
 			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
 			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 166,
-			n_right = n_windowWidth - 249;
+			n_right = n_windowWidth - 249,
+			obj_mapCenter = $('.j_body').data('mapcenter'),
+			obj_mapSize = $('.j_body').data('mapsize');
 		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 249;
@@ -886,6 +891,15 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
+		
+	//设置地图默认属性
+	if ( obj_mapCenter ) {
+		setTimeout (function () {
+			mapObj.setCenter(obj_mapCenter);
+			mapObj.setZoom(obj_mapSize);
+			$('.j_body').removeData();
+		}, 300);
+	}
 	}
 }
 /*
