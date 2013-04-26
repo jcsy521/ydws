@@ -2611,6 +2611,7 @@ legend {
     top: 14px;
 }
 #createRegionName {
+	width: 100px;
 	padding: 5px;
 }
 
