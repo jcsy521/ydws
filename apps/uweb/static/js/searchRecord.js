@@ -897,7 +897,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		setTimeout (function () {
 			mapObj.setCenter(obj_mapCenter);
 			mapObj.setZoom(obj_mapSize);
-			$('.j_body').removeData();
+			$('.j_body').removeData('mapcenter mapsize');
 		}, 300);
 	}
 	}
