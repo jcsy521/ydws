@@ -53,6 +53,7 @@ class ErrorCode(object):
     CREATE_CONDITION_ILLEGAL = 404
     EDIT_USER_FAILURE = 405
 
+    QUERY_TRACK_FORBID = 700
     QUERY_INTERVAL_EXCESS = 701
 
     TERMINAL_OFFLINE = 800
@@ -93,6 +94,7 @@ class ErrorCode(object):
         USER_NOT_ORDERED:              u"对不起, 该号码尚未订购移动车卫士业务。",
         SERVER_ERROR:                  u"服务器错误。",
         SERVER_BUSY:                   u"服务器忙，请稍后重试。",
+        QUERY_TRACK_FORBID:            u"您使用的是简易版移动车卫士，不支持轨迹查询功能。",
         QUERY_INTERVAL_EXCESS:         u"对不起，只能查询一个星期之内的记录！",
         TERMINAL_NOT_ORDERED:          u"对不起，该号码尚未绑定定位器。",
         MOBILE_NOT_ORDERED:            u"%s不是移动车卫士白名单号码，请联系客服。",

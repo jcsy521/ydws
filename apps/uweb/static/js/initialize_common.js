@@ -823,6 +823,9 @@ window.dlf.fn_eventText = function(n_eventNum) {
 		case 8:
 			str_text = '出围栏';
 			break;
+		case 9:
+			str_text = '断电';
+			break;
 	}
 	return str_text;
 }

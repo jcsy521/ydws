@@ -31,7 +31,9 @@ def get_clocation_from_ge(lat, lon):
             clat = response['position']['clat']
             clon = response['position']['clon']
         else:
-            logging.info("Get clocation from GE failed, response: %s, args: %s",
+            clat = lat
+            clon = lon
+            logging.info("Get clocation from GE failed, used lat and lon for clat and clon, response: %s, args: %s",
                          response['info'], args)
     except Exception as e:
         logging.exception("Get latlon from GE failed. Exception: %s", e.args)

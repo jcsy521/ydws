@@ -160,7 +160,8 @@ class NotifyHelper(object):
                         3:u'震动告警',
                         4:u'移动告警',
                         5:u'SOS',
-                        6:u'通讯异常'}
+                        6:u'通讯异常',
+                        9:u'断电'}
             t_alias= t_alias if len(t_alias)<=11 else t_alias[:8]+u'...'
             alert = u"您的爱车 “%s” 产生了%s" % (t_alias, CATEGORY[category])
 

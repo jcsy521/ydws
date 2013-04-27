@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import re
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
@@ -73,6 +74,13 @@ class TrackHandler(BaseHandler):
             return 
 
         try:
+            # 1477874**** cannot query track
+            r = re.compile(UWEB.SIMPLE_YDCWS_PATTERN)
+            if r.match(self.current_user.sim):
+                status = ErrorCode.QUERY_TRACK_FORBID
+                self.write_ret(status)
+                return
+
             start_time = data.start_time
             end_time = data.end_time
             cellid_flag = data.get('cellid_flag')

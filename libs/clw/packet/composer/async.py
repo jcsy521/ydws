@@ -23,6 +23,8 @@ class AsyncRespComposer(BaseComposer):
             args.command = S_MESSAGE_TYPE.ILLEGALMOVE
         elif args.command == T_MESSAGE_TYPE.POWERLOW:
             args.command = S_MESSAGE_TYPE.POWERLOW
+        elif args.command == T_MESSAGE_TYPE.POWERDOWN:
+            args.command = S_MESSAGE_TYPE.POWERDOWN
         elif args.command == T_MESSAGE_TYPE.ILLEGALSHAKE:
             args.command = S_MESSAGE_TYPE.ILLEGALSHAKE
         elif args.command == T_MESSAGE_TYPE.EMERGENCY:

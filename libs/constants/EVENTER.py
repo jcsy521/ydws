@@ -22,6 +22,7 @@ RNAME = DotDict(POWERLOW="POWERLOW",
                 HEARTBEAT_LOST="HEARTBEAT_LOST",
                 REGION_ENTER="REGION_ENTER",
                 REGION_OUT="REGION_OUT",
+                POWERDOWN="POWERDOWN",
                 UNKNOWN="UNKNOWN")
 
 # sms option 
@@ -33,7 +34,8 @@ SMS_CATEGORY = DotDict(LOGIN="LOGIN",
                        HEARTBEAT_LOST="HEARTBEAT_LOST",
                        CHARGE="CHARGE",
                        REGION_ENTER="REGION_ENTER",
-                       REGION_OUT="REGION_OUT")
+                       REGION_OUT="REGION_OUT",
+                       POWERDOWN="POWERDOWN")
 
 # match definitions in db.
 CATEGORY = DotDict(UNKNOWN=0,
@@ -44,7 +46,8 @@ CATEGORY = DotDict(UNKNOWN=0,
                    EMERGENCY=5,
                    HEARTBEAT_LOST=6,
                    REGION_ENTER=7,
-                   REGION_OUT=8)
+                   REGION_OUT=8,
+                   POWERDOWN=9)
                    
 
 # The location name will be cached for 7 days

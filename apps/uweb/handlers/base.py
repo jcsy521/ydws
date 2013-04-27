@@ -15,8 +15,8 @@ from utils.misc import safe_utf8
 from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode
 
-# cookie expire periods, in minutes. one week.
-EXPIRES_MINUTES = 7 * 24 * 60 
+# cookie expire periods, in minutes. 12hours 
+EXPIRES_MINUTES = 12 * 60 
 
 
 class _DBDescriptor(object):

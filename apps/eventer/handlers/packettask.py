@@ -75,7 +75,8 @@ class PacketTask(object):
                 rname = EVENTER.RNAME.REGION_ENTER
             
             self.redis.setvalue(old_region_status_key, region_status)
-            logging.info("rname:%s, old status:%s, current status:%s, tid:%s", region.region_name, old_region_status, region_status, location['dev_id'])    
+            logging.info("rname:%s, old status:%s, current status:%s, tid:%s",
+                         region.region_name, old_region_status, region_status, location['dev_id'])    
 
             if not old_region_status:
                 # skip the first region event
@@ -97,9 +98,26 @@ class PacketTask(object):
                 if corp and corp.mobile:
                     terminal_time = get_terminal_time(int(location.gps_time))
                     if region_status == EVENTER.CATEGORY.REGION_OUT:
-                         sms = SMSCode.SMS_REGION_OUT % (terminal.mobile, safe_unicode(region.region_name), safe_unicode(location.name), terminal_time)
+                         sms = SMSCode.SMS_REGION_OUT % (terminal.mobile,
+                                                         safe_unicode(region.region_name),
+                                                         safe_unicode(location.name), terminal_time)
                     else:
-                         sms = SMSCode.SMS_REGION_ENTER % (terminal.mobile, safe_unicode(region.region_name), safe_unicode(location.name), terminal_time)
+                         sms = SMSCode.SMS_REGION_ENTER % (terminal.mobile,
+                                                           safe_unicode(region.region_name),
+                                                           safe_unicode(location.name), terminal_time)
+                    if location.cLon and location.cLat:
+                        clon = '%0.3f' % (location.cLon/3600000.0) 
+                        clat = '%0.3f' % (location.cLat/3600000.0)
+                        url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + clon + '&clat=' + clat 
+                        tiny_id = URLHelper.get_tinyid(url)
+                        if tiny_id:
+                            base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                            tiny_url = base_url + '/' + tiny_id
+                            logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
+                            self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
+                            sms += u"点击" + tiny_url + u" 查看车辆位置。" 
+                        else:
+                            logging.info("[EVENTER] get tiny url failed.")
                     SMSHelper.send(corp.mobile, sms)
                 
     def get_tname(self, dev_id):
@@ -198,7 +216,7 @@ class PacketTask(object):
 
     def handle_report_info(self, info):
         """These reports should be handled here:
-        POWERLOW/POWERFULL/POWEROFF 
+        POWERLOW/POWERFULL/POWEROFF/POWERDOWN 
         ILLEGALMOVE
         ILLEGALSHAKE
         EMERGENCY
@@ -266,6 +284,8 @@ class PacketTask(object):
                     sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
                 else:
                     sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
+            elif report.rName == EVENTER.RNAME.POWERDOWN:
+                sms = SMSCode.SMS_POWERDOWN % (name, report_name, terminal_time)
             else:
                 pass
 

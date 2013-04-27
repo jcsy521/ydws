@@ -19,6 +19,7 @@ class SMSCode(object):
     SMS_POWEROFF_TIMEOUT = u"尊敬的客户：您的定位器“%s”已经关机，为了安全请及时充电并保持开机状态。"
     SMS_POWERLOW_OFF = u"尊敬的客户：您的定位器“%s”电量过低，即将关机，为了安全请及时充电并保持开机状态。地址：%s，时间：%s。"
     SMS_POWERFULL = u"尊敬的客户：您的定位器“%s”已经充电完成，请拔下电源。"
+    SMS_POWERDOWN = u"尊敬的客户：您的定位器“%s”检测到电动车蓄电池断电。地址：%s，时间：%s。"
     SMS_ILLEGALMOVE = u"尊敬的客户：您的车辆“%s”发生移动，地址：%s，时间：%s。如需取消短信提醒，请执行撤防操作。"
     SMS_ILLEGALSHAKE= u"尊敬的客户：您的车辆“%s”发生震动，请关注车辆状态，地址：%s，时间：%s。如需取消短信提醒，请执行撤防操作。"
     SMS_HEARTBEAT_LOST = u"尊敬的客户：您的定位器“%s”与平台通讯可能出现异常，请检查定位器是否处于正常状态，时间：%s。"
@@ -52,6 +53,7 @@ class SMSCode(object):
 
     SMS_NEW_OPERATOR = u"尊敬的客户：您已经成为移动车卫士集团用户管理员，平台网址：%s，用户名：%s，密码：%s"
     SMS_SERVICE_EXCEPTION_REPORT = u"管理员你好，平台%s，不能检测到模拟终端的位置更新，服务可能发生异常，请检查！！！"
+    SMS_EVENTER_QUEUE_REPORT = u"管理员你好，平台%s，检测到EVENTER模块队列长度超过上限，服务可能发生异常，请检查！！！"
     
-    SMS_REGION_ENTER = u"尊敬的客户：您的定位器%s已进入电子围栏“%s”，位置在：%s，时间：%s"
-    SMS_REGION_OUT = u"尊敬的客户：您的定位器%s已离开电子围栏“%s”，位置在：%s，时间：%s"
+    SMS_REGION_ENTER = u"尊敬的客户：您的定位器“%s”已进入电子围栏“%s”，位置在：%s，时间：%s。"
+    SMS_REGION_OUT = u"尊敬的客户：您的定位器“%s”已离开电子围栏“%s”，位置在：%s，时间：%s。"

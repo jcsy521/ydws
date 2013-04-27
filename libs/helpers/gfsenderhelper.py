@@ -90,6 +90,6 @@ class GFSenderHelper(object):
                               method=HTTP.METHOD.POST,
                               headers=cls._CONTENT_TYPE,
                               body=json_encode(args),
-                              connect_timeout=HTTP.ASYNC_REQUEST_TIMEOUT,
+                              connect_timeout=HTTP.CONNECT_TIMEOUT,
                               request_timeout=HTTP.ASYNC_REQUEST_TIMEOUT)
             cls.ASYNC_CLIENT.fetch(req, _callback)

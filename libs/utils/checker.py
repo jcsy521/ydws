@@ -15,7 +15,7 @@ _phone_pattern = r"^(1\d{10}|0\d{8,11})$"
 
 PHONE_CHECKER = re.compile(_phone_pattern)
 
-_zs_phone_pattern = r"^(1477847\d{4})$"
+_zs_phone_pattern = r"^(1477847\d{4}|1477874\d{4})$"
 
 ZS_PHONE_CHECKER = re.compile(_zs_phone_pattern)
 

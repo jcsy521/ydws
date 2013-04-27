@@ -7,6 +7,10 @@ import logging
 
 from db_.mysql import get_connection
 from utils.myredis import MyRedis
+from codes.smscode import SMSCode
+from helpers.confhelper import ConfHelper
+from helpers.smshelper import SMSHelper
+from helpers.emailhelper import EmailHelper
 
 from packettask import PacketTask
 
@@ -24,6 +28,11 @@ class Worker(object):
         self.thread = None
         self.db = None
         self.is_alive = False
+        self.mobiles = [13693675352, 15901258591]
+        self.emails = ['boliang.guan@dbjtech.com',
+                       'zhaoxia.guo@dbjtech.com',
+                       'xiaolei.jia@dbjtech.com']
+
     
     def start(self):
         self.db = get_connection()
@@ -57,6 +66,14 @@ class Worker(object):
         while self.is_alive: # TODO: and not self.queue.empty()?
             try:
                 packet = self.queue.get(True, self.BLOCK_TIMEOUT)
+                queue_len = self.queue.qsize()
+                if queue_len >= 30:
+                    content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
+                    for mobile in self.mobiles:
+                        SMSHelper.send(mobile, content)
+                    for email in self.emails:
+                        EmailHelper.send(email, content) 
+                    logging.info("[EVENTER] Notify EVENTER queue exception to administrator!")
             except Queue.Empty:
                 pass
             else:

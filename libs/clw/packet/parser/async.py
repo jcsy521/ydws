@@ -22,7 +22,7 @@ class AsyncParser(object):
             ret['t'] = EVENTER.INFO_TYPE.POSITION
             ret['Tid'] = self.get_tid(ret.command)
             info = self.get_pvt_info(packet)
-        elif ret.command in ('T13', 'T14', 'T15', 'T16'):
+        elif ret.command in ('T13', 'T14', 'T15', 'T16', 'T26'):
             ret['t'] = EVENTER.INFO_TYPE.REPORT
             ret['rName'] = self.get_tid(ret.command) 
             info = self.get_report_info(packet)
@@ -59,6 +59,8 @@ class AsyncParser(object):
             tid = EVENTER.RNAME.ILLEGALSHAKE
         elif command == "T16":
             tid = EVENTER.RNAME.EMERGENCY
+        elif command == "T26":
+            tid = EVENTER.RNAME.POWERDOWN
         else:
             tid = None
 

@@ -111,6 +111,8 @@ class RegisterHandler(BaseHandler):
                                 lq_interval_key = get_lq_interval_key(item)
                                 keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
                                 self.redis.delete(*keys)
+                            logging.info("[UWEB] delete unbind terminal: %s, user: %s",
+                                         tid, user.owner_mobile if user else "")
                         else:
                             status = ErrorCode.TERMINAL_ORDERED
                             logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",

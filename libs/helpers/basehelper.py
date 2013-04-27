@@ -32,7 +32,7 @@ class BaseHelper(object):
 
         try:
             connection = httplib.HTTPConnection(cls.HOST,
-                                                timeout=HTTP.ASYNC_REQUEST_TIMEOUT)
+                                                timeout=HTTP.CONNECT_TIMEOUT)
             params = json_encode(args)
             headers = {"Content-type": "application/json; charset=utf-8"}
             full_path = cls.PATH + url if url else cls.PATH
