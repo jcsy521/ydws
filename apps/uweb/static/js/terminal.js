@@ -45,45 +45,14 @@ window.dlf.fn_initTerminalWR = function () {
 				var str_val = obj_data[param];
 				
 				if ( param ) {
-					if ( param == 'white_list' ) {	// 白名单
-						n_whitelistLenth = str_val.length;
-						$('.j_white_list input[type=text]').val('');	// 先清空白名单
-						$('.j_white_list').attr('t_val', '');
-						for ( var x = 0; x < n_whitelistLenth; x++ ) {	// 遍历所有白名单并填充数据
-							var str_name = param  + '_' + (x+1),
-								obj_whitelist = $('#t_' + str_name),
-								obj_oriWhitelist = $('#' + str_name),
-								str_value = str_val[x];
-							obj_whitelist.val(str_value);
-							obj_oriWhitelist.attr('t_val', str_value);					
-						}
-						// 集团用户 车主号码显示
-						var str_umobile = str_val[0];
-						
-						$('#t_umobile').html(str_umobile);
-						$('#t_c_umobile').attr('t_val', str_umobile);
-					} else if ( param == 'push_status' ) {
+					if ( param == 'push_status' ) {	// 客户端通知
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
-					} else {
-						if ( param == 'alias' || param == 'freq' ) {	// 定位器别名、上报频率
-							$('#t_' + param ).val(str_val);
-						} else if ( param == 'white_pop' ) {	// 白名单弹出框
-							n_whitelistTip = str_val;
-						} else if ( param == 'corp_cnum' && dlf.fn_userType() ) {	// 车牌号
-							$('#t_' + param ).val(str_val);
-							dlf.fn_updateCorpCnum(str_val);	// 更新最新的车牌号
-						} else {
-							$('#t_' + param ).html(str_val);
-						}
+					} else if ( param == 'mobile' ) {	// 定位器号码
+						$('#t_mobile').html(str_val);
 					}
 					$('#' + param ).attr('t_val', str_val);	// 将每个定位器参数对应值保存在t_val中
 				}
 			}
-			/*if ( n_whitelistLenth <= 1 && n_whitelistTip == 0 ) {	// 白名单提示 没有设置白名单一直提示
-				dlf.fn_showNotice();
-			} else {
-				$('#whitelistPopWrapper').hide();
-			}*/
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -142,7 +111,7 @@ window.dlf.fn_baseSave = function() {
 		if ( str_class.search('j_radio') != -1 ) {	// 上报间隔、基站定位
 			str_newVal = parseInt($(this).children('input:checked').val());
 		}
-			
+		
 		if ( str_newVal != str_oldVal ) {	// 判断参数是否有修改
 			if ( str_class.search('j_input') != -1 ) {	// 定位器别名、车牌号、白名单
 				if ( str_class.search('j_whitelist') != -1 ) {	// 白名单 [车主手机号,白名单1,白名单2,...]

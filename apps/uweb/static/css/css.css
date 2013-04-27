@@ -512,6 +512,10 @@ body {
 }
 .terminalTitle {
 	background-position: 0px 0px;
+	width: 410px;
+}
+.terminalTitle .close {
+	left: 382px;
 }
 .PWDTitle {
 	background-position: 0px -204px;
@@ -689,6 +693,8 @@ body {
 	font-style: normal;
 	font-size: 14px;
 	color: #317bae;
+	display: inline-block;
+	width: 290px;
 }
 .msgLine {
 	background: url('/static/images/msgLine.png') no-repeat;
@@ -853,7 +859,7 @@ body {
 	/* terminal dialog */
 #terminalWrapper .terminalContent {
 	height: 274px;	/* 400px*/
-	width: 448px;
+	width: 410px;
 }
 #terminalWrapper .titleName {
 	width: 154px;
@@ -888,7 +894,7 @@ body {
 	line-height: 34px;
 }
 .bListR .terminalTdL {
-	width: 87px;
+	width: 30px;
 	text-align: right;
 }
 .freqDiv {
@@ -969,7 +975,7 @@ body {
 #tmnTable {
 	height: 55px;
 	margin-top: 10px;
-	width: 420px;
+	width: 383px;
 }
 #whitelistPopWrapper {    
 	background: url("/static/images/notice.png") no-repeat scroll 0 0 transparent;
