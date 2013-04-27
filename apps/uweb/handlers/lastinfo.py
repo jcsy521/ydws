@@ -140,6 +140,7 @@ class LastInfoHandler(BaseHandler):
             track_tid = data.get('track_tid', None)  # use cache
             track_info = []
             query_time = data.get('time', None) 
+            track_time = data.get('track_time', query_time) 
             
             # 2 check whether provide usable data   
             if data.get('cache', None):  # use cache
@@ -157,7 +158,7 @@ class LastInfoHandler(BaseHandler):
                                                        "    AND (timestamp BETWEEN %s AND %s)"
                                                        #"    AND type = 0"
                                                        "    ORDER BY timestamp",
-                                                       track_tid, int(query_time)+1, int(lastinfo_time)+1)
+                                                       track_tid, int(track_time)+1, int(lastinfo_time)-1)
                                 for item in track:
                                     track_info.append(item['clatitude'])
                                     track_info.append(item['clongitude'])
@@ -172,6 +173,7 @@ class LastInfoHandler(BaseHandler):
                         usable = 1
             else: 
                 usable = 1
+
             self.write_ret(status, 
                            dict_=DotDict(cars_info=cars_info,
                                          track_info=track_info,
