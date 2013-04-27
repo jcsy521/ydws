@@ -177,26 +177,28 @@ class MySIServer():
         
         address_key = get_terminal_address_key(terminal_id)
         terminal_fd = self.redis.getvalue(address_key)
-        if (not terminal_fd or terminal_fd == DUMMY_FD):
-            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
-                                   "  WHERE tid = %s",
-                                   terminal_id) 
-            if terminal:
-                status = GFCode.TERMINAL_OFFLINE 
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET login = %s"
-                                "  WHERE id = %s",
-                                TERMINAL_LOGIN.OFFLINE, terminal.id)
-                terminal_sessionID_key = get_terminal_sessionID_key(terminal_id)
-                terminal_status_key = get_terminal_address_key(terminal_id)
-                keys = [terminal_sessionID_key, terminal_status_key]
-                self.redis.delete(*keys)
-                terminal_info_key = get_terminal_info_key(terminal_id)
-                terminal_info = self.redis.getvalue(terminal_info_key)
-                if terminal_info:
-                    terminal_info['login'] = TERMINAL_LOGIN.OFFLINE
-            else:
-                status = GFCode.GF_NOT_ORDERED 
+        #if (not terminal_fd or terminal_fd == DUMMY_FD):
+        #    terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
+        #                           "  WHERE tid = %s",
+        #                           terminal_id) 
+        #    if terminal:
+        #        status = GFCode.TERMINAL_OFFLINE 
+        #        self.db.execute("UPDATE T_TERMINAL_INFO"
+        #                        "  SET login = %s"
+        #                        "  WHERE id = %s",
+        #                        TERMINAL_LOGIN.OFFLINE, terminal.id)
+        #        terminal_sessionID_key = get_terminal_sessionID_key(terminal_id)
+        #        terminal_status_key = get_terminal_address_key(terminal_id)
+        #        keys = [terminal_sessionID_key, terminal_status_key]
+        #        self.redis.delete(*keys)
+        #        terminal_info_key = get_terminal_info_key(terminal_id)
+        #        terminal_info = self.redis.getvalue(terminal_info_key)
+        #        if terminal_info:
+        #            terminal_info['login'] = TERMINAL_LOGIN.OFFLINE
+        #            terminal_info = dict(terminal_info)
+        #            self.redis.set(terminal_info_key, terminal_info)
+        #    else:
+        #        status = GFCode.GF_NOT_ORDERED 
                     
         return terminal_fd, status
                         
