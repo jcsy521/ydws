@@ -1087,7 +1087,7 @@ class MyGWServer(object):
             if head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
                                 T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
                                 T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.ILLEGALSHAKE,
-                                T_MESSAGE_TYPE.EMERGENCY):
+                                T_MESSAGE_TYPE.EMERGENCY, T_MESSAGE_TYPE.POWERDOWN):
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
                                   address=address)
