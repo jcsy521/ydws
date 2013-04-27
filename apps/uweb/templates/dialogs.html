@@ -658,8 +658,10 @@
 								<!--<option value="5">SOS</option>-->
 								<option value="2">电量告警</option>
 								<option value="6">通讯异常</option>
+								{% if user_type != 'individual' %}
 								<option value="7">进围栏</option>
 								<option value="8">出围栏</option>
+								{% end %}
 								<option value="3">震动</option>
 								<option value="4">移动</option>
 								<option value="9">断电</option>
