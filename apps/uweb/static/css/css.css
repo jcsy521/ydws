@@ -508,7 +508,7 @@ body {
 }
 .smsTitle {
 	background-position: 0px -34px;
-	width: 357px;
+	width: 440px;
 }
 .terminalTitle {
 	background-position: 0px 0px;
@@ -819,14 +819,13 @@ body {
 	height: 200px;
 }
 #smsOptionWrapper #smsContent {
-	height: 400px;	/* 400px*/
-	width: 357px;
+	height: 300px;	/* 400px*/
+	width: 440px;
 }
 .smsList {
 	padding: 7px 18px 0px 53px;
 	display: inline;
 	float: left;
-	width: 256px;
 	line-height: 37px;
     list-style: none outside none;
 }
@@ -835,12 +834,12 @@ body {
 	padding: 0px 10px 10px 0px;
 	height: 22px;
 	line-height: 22px;
-	width: 200px;
+	width: 165px;
 }
 .smsButton {
-    left: 243px;
+    left: 324px;
     position: absolute;
-    top: 347px;
+    top: 247px;
 }
 .smsTip {
 	display: inline-block;
@@ -849,7 +848,7 @@ body {
     text-align: left;
 }
 #smsOptionWrapper .close {
-	left: 333px;
+	left: 418px;
 }
 	/* terminal dialog */
 #terminalWrapper .terminalContent {
