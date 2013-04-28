@@ -1171,7 +1171,7 @@ class MyGWServer(object):
         if user:
             terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
                                       "  WHERE owner_mobile = %s"
-                                      "    AND group_id == -1",
+                                      "    AND group_id = -1",
                                       user.owner_mobile)
             if len(terminals) == 0:
                 self.db.execute("DELETE FROM T_USER"
