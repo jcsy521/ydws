@@ -969,6 +969,7 @@ window.dlf.fn_onInputBlur = function() {
 		var $this = $(this),
 			obj_wrapper = $('#' + $this.attr('parent')),
 			str_status = obj_wrapper.is(':hidden'),
+			str_jNotifMsg = $('#jNotifyMessage').html(), 
 			str_val = $this.val(),
 			str_msg = $this.attr('msg'),
 			n_maxLength = $this.attr('max'),
@@ -981,8 +982,12 @@ window.dlf.fn_onInputBlur = function() {
 			if ( str_val == '' ) {
 				$this.val('请输入手机号').css({'color': '#888'});
 			}
-		}*/		
-		if ( str_status ) {
+		}*/	
+		// 如果错误消息已经验证显示,则不进行二次验证显示 2013.5.2
+		if ( str_jNotifMsg != '' ) {
+			return;
+		}
+		if ( str_status ) { 
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else {
 			switch (str_who) {
@@ -1015,7 +1020,7 @@ window.dlf.fn_onInputBlur = function() {
 				case 'name':
 					var reg =  /^[a-zA-Z0-9_\u4e00-\u9fa5 ]+$/,
 						str_msg = '';
-						
+					
 					if ( n_valLength > n_maxLength ) {	// 车主姓名验证长度
 						str_msg = '车主姓名最大长度是20个汉字或字符！'
 					} else {
