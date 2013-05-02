@@ -2723,4 +2723,47 @@ legend {
 	position: relative;
 	top: 2px;
 }
+
+/* del temrinal clear Data div css */
+#clearDataWrapper {
+	width: 290px;
+	height: auto;
+	top: 180px;
+	background-color: #f0f0f0;
+	text-align: center;
+	border: 1px solid #adaaaa;
+	z-index: 1003;
+}
+.clearDataButtons {
+	background-color: #f0f0f0;
+	height: 46px;
+	line-height: 46px;
+}
+.clearDataCkPanel {
+	line-height: 0;
+    position: relative;
+    top: 9px;
+}
+#clearDataCk {
+	position: relative;
+    top: 2px;
+	left: -6px;
+}
+.errorIcon {
+	left: 68px;
+	top: 4px;
+}
+#clearDataMsg {
+	background-color: #FFFFFF;
+    font-size: 12px;
+    height: 52px;
+    margin-top: 20px;
+    padding-top: 10px;
+}
+.clearDataButtons input {
+	height: 27px;
+    margin-left: 20px;
+    width: 71px;
+}
+
 /*web css end*/

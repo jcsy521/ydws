@@ -113,6 +113,9 @@ def get_resend_key(dev_id, timestamp, command):
 def get_power_full_key(dev_id):
     return str("power_full:%s" % dev_id)
 
+def get_del_data_key(dev_id):
+    return str("del_data:%s" % dev_id)
+
 def get_terminal_time(timestamp):
     terminal_time = ""
     try:
@@ -216,3 +219,5 @@ def days_of_month(year="2012",month="11"):
     e_epoch = int(time.mktime(e.timetuple())-1)
     days = datetime.datetime.fromtimestamp(e_epoch).day
     return days
+
+    

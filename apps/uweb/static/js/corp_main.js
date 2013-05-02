@@ -1191,12 +1191,25 @@ function fn_getNextYear(str_nowDate) {
 function fn_removeTerminal(node) {
 	var obj_target = node.children('a'),
 		str_login = obj_target.attr('clogin'),
-		str_param = obj_target.attr('tid');
+		str_param = obj_target.attr('tid'),
+		obj_clearDataWp = $('#clearDataWrapper'), 
+		obj_ck = $('#clearDataCk');
+		
 	$('#vakata-contextmenu').hide();	// 右键菜单隐藏
 	
-	if ( confirm('确定要删除该定位器吗？') ) {
+	obj_clearDataWp.css({'left': '40%'}).show();
+	obj_ck.removeAttr('checked');
+	$('#clearDataMsgCon').html('确定要删除该定位器吗？');
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	
+	
+	$('#clearDataSure').unbind('click').click(function(e) {
+		obj_clearDataWp.hide();
+		var n_clearFlag = obj_ck.attr('checked') ? 1 : 0,
+			str_delTerminalUrl = TERMINALCORP_URL+'?tid='+ str_param +'&flag='+ n_clearFlag;
+			
 		dlf.fn_jNotifyMessage('定位器正在删除中' + WAITIMG, 'message', true);
-		$.delete_(TERMINALCORP_URL + '?tid=' + str_param, '', function (data) {
+		$.delete_(str_delTerminalUrl, '', function (data) {
 			if ( data.status == 0 ) {
 				fn_updateTerminalCount('sub', 1);				
 				$("#corpTree").jstree('remove');				
@@ -1222,24 +1235,41 @@ function fn_removeTerminal(node) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
-				return false;
 			}
+			dlf.fn_unLockScreen(); // 去除页面遮罩
 		});
-	}
+	});
+	$('#clearDataCancel').unbind('click').click(function(e) {
+		obj_clearDataWp.hide();
+		dlf.fn_unLockScreen(); // 去除页面遮罩
+	});
 }
 
 /**
 * 批量删除数据回显
 */
 function fn_initBatchDeleteData(obj_params) {
-	var obj_param = {'tids': obj_params.tids};
+	var obj_param = {'tids': obj_params.tids, 'flag': 0},
+		obj_clearDataWp = $('#clearDataWrapper'), 
+		obj_maskLayer = $('#maskLayer'), 
+		obj_ck = $('#clearDataCk');
 	
 	dlf.fn_echoData('batchDeleteTable', obj_params, '删除');
 	$('.j_batchDeleteHead').html(obj_params.gname);	// 表头显示组名
-	
+		
 	$('.j_batchDelete').unbind('click').bind('click', function() {
-		if ( confirm('确定要删除以上定位器吗？') ) {
-			dlf.fn_jNotifyMessage('定位器正在删除中' +　WAITIMG, 'message', true); // 查询状态不正确,错误提示
+		dlf.fn_lockScreen(); // 添加页面遮罩
+		obj_clearDataWp.css({'left': '40%'}).show();
+		obj_ck.removeAttr('checked');
+		$('#clearDataMsgCon').html('确定要删除以上定位器吗？');
+		obj_maskLayer.css('z-index', 1002);
+		
+		$('#clearDataSure').unbind('click').click(function(e) {
+			obj_clearDataWp.hide();
+			obj_param.flag = obj_ck.attr('checked') ? 1 : 0;
+			
+			dlf.fn_jNotifyMessage('定位器正在删除中' + WAITIMG, 'message', true);
+			
 			$.post_(BATCHDELETE_URL, JSON.stringify(obj_param), function (data) {
 				var arr_res = data.res,	
 					arr_success = [],
@@ -1303,10 +1333,16 @@ function fn_initBatchDeleteData(obj_params) {
 					dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
-					return false;
-				}
+				} 
+				dlf.fn_unLockScreen(); // 添加页面遮罩
+				obj_maskLayer.css('z-index', 1000);
 			});
-		}
+		});
+		$('#clearDataCancel').unbind('click').click(function(e) {
+			obj_clearDataWp.hide();
+			dlf.fn_unLockScreen(); // 去除页面遮罩
+			obj_maskLayer.css('z-index', 1000);
+		});
 	});
 	
 }

@@ -13,7 +13,7 @@ from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 from helpers.gfsenderhelper import GFSenderHelper
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_sessionID_key
+from utils.misc import get_terminal_sessionID_key, get_del_data_key
 from constants import UWEB, GATEWAY
 
 from base import BaseHandler, authenticated
@@ -31,6 +31,8 @@ class UNBindHandler(BaseHandler, BaseMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tmobile = data.tmobile
+            flag = data.get('flag', 0)
             logging.info("[UWEB] unbind request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -39,7 +41,6 @@ class UNBindHandler(BaseHandler, BaseMixin):
             return 
 
         try:
-            tmobile = data.tmobile
             terminal = self.db.get("SELECT id, tid, owner_mobile, login FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s"
                                    "    AND service_status = %s",
@@ -51,7 +52,10 @@ class UNBindHandler(BaseHandler, BaseMixin):
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
                 return
-            elif terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+
+            key = get_del_data_key(terminal.tid)
+            self.redis.set(key, flag)
+            if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
                 status = self.send_jb_sms(tmobile, terminal.owner_mobile, terminal.tid)
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)

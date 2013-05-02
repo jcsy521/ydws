@@ -10,7 +10,7 @@ from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone
 from base import BaseHandler, authenticated
@@ -456,8 +456,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         try:
             status = ErrorCode.SUCCESS
             tid = self.get_argument('tid', None)
-            logging.info("[UWEB] corp delete terminal request: %s, cid: %s", 
-                         tid, self.current_user.cid)
+            flag = self.get_argument('flag', 0)
+            logging.info("[UWEB] corp delete terminal tid: %s, flag: %s, cid: %s", 
+                         tid, flag, self.current_user.cid)
             terminal = self.db.get("SELECT id, mobile, owner_mobile, login FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s",
@@ -468,7 +469,10 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 status = ErrorCode.TERMINAL_NOT_EXISTED
                 self.write_ret(status)
                 return
-            elif terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+
+            key = get_del_data_key(tid)
+            self.redis.set(key, flag)
+            if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
                 status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
                 self.write_ret(status)
                 return

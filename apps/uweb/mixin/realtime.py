@@ -12,6 +12,7 @@ from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
 from helpers.lbmphelper import handle_location
 from utils.misc import get_location_key 
+from utils.public import insert_location
 from constants import UWEB, EVENTER, GATEWAY, SMS
 from constants.MEMCACHED import ALIVED
 from base import BaseMixin
@@ -47,33 +48,6 @@ class RealtimeMixin(BaseMixin):
         is_alived = self.redis.getvalue('is_alived')
         if (is_alived == ALIVED and location.cLat and location.cLon):
             mem_location = DotDict({'id':location.id,
-                                    'latitude':location.lat,
-                                    'longitude':location.lon,
-                                    'type':location.type,
-                                    'clatitude':location.cLat,
-                                    'clongitude':location.cLon,
-                                    'timestamp':location.gps_time,
-                                    'name':location.name,
-                                    'degree':location.degree,
-                                    'speed':location.speed})
-            location_key = get_location_key(str(location.dev_id))
-            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
-
-    def insert_location(self, location):
-        """Insert the location into mysql and keep it in memcached.
-        """
-        lid = self.db.execute("INSERT INTO T_LOCATION"
-                              "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s,"
-                              "          %s, %s, %s, %s, %s, %s)",
-                              location.dev_id, location.lat, location.lon, 
-                              0, location.cLat, location.cLon,
-                              location.gps_time, location.name,
-                              EVENTER.CATEGORY.REALTIME,
-                              location.type, location.speed,
-                              location.degree, location.cellid)
-        is_alived = self.redis.getvalue('is_alived')
-        if (is_alived == ALIVED and location.cLat and location.cLon):
-            mem_location = DotDict({'id':lid,
                                     'latitude':location.lat,
                                     'longitude':location.lon,
                                     'type':location.type,
@@ -245,7 +219,7 @@ class RealtimeMixin(BaseMixin):
                                                cellid=False,
                                                db=self.db)
 
-                    self.insert_location(location)
+                    insert_location(location, self.db, self.redis)
                     if location.get('cLat') and location.get('cLon'):
                         ret.location = DotDict()
                         ret.location.latitude = location.lat

@@ -27,6 +27,7 @@ from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
      get_resend_key, get_lastinfo_key
+from utils.public import insert_location, delete_terminal
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -766,7 +767,7 @@ class MyGWServer(object):
                     if not (location.lat and location.lon):
                         args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
                     else:
-                        self.insert_location(location)
+                        insert_location(location, self.db, self.redis)
                 self.update_terminal_status(head.dev_id, address)
 
             lc = LocationDescRespComposer(args)
@@ -1044,7 +1045,7 @@ class MyGWServer(object):
                              info.head, info.body)
             else: 
                 self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-                self.delete_terminal(head.dev_id)
+                delete_terminal(head.dev_id, self.db, self.redis)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
@@ -1099,7 +1100,7 @@ class MyGWServer(object):
                 up = UNBindParser(info.body, info.head)
                 status = up.ret['status']
                 if status == GATEWAY.STATUS.SUCCESS:
-                    self.delete_terminal(dev_id)
+                    delete_terminal(dev_id, self.db, self.redis)
         except:
             logging.exception("[GW] Handle SI message exception.")
 
@@ -1132,69 +1133,6 @@ class MyGWServer(object):
         except Exception as e:
             logging.exception("[GW] Unknown publish error: %s", e.args)
 
-    def insert_location(self, location):
-        # insert data into T_LOCATION
-        lid = self.db.execute("INSERT INTO T_LOCATION"
-                              "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s,"
-                              "          %s, %s, %s, %s, %s, %s)",
-                              location.dev_id, location.lat, location.lon, 
-                              location.alt, location.cLat, location.cLon,
-                              location.gps_time, location.name,
-                              location.category, location.type,
-                              location.speed, location.degree,
-                              location.cellid)
-        is_alived = self.redis.getvalue('is_alived')
-        if (is_alived == ALIVED and location.cLat and location.cLon):
-            mem_location = DotDict({'id':lid,
-                                    'latitude':location.lat,
-                                    'longitude':location.lon,
-                                    'type':location.type,
-                                    'clatitude':location.cLat,
-                                    'clongitude':location.cLon,
-                                    'timestamp':location.gps_time,
-                                    'name':location.name,
-                                    'degree':location.degree,
-                                    'speed':location.speed})
-            location_key = get_location_key(location.dev_id)
-            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
-
-        return lid
-
-    def delete_terminal(self, dev_id):
-        # clear db
-        user = QueryHelper.get_user_by_tid(dev_id, self.db)
-        terminal = self.db.get("SELECT mobile FROM T_TERMINAL_INFO"
-                               "  WHERE tid = %s", dev_id)
-        self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                        "  WHERE tid = %s", 
-                        dev_id) 
-        if user:
-            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                      "  WHERE owner_mobile = %s"
-                                      "    AND group_id = -1",
-                                      user.owner_mobile)
-            if len(terminals) == 0:
-                self.db.execute("DELETE FROM T_USER"
-                                "  WHERE mobile = %s",
-                                user.owner_mobile)
-
-                lastinfo_key = get_lastinfo_key(user.owner_mobile)
-                self.redis.delete(lastinfo_key)
-        else:
-            logging.info("[GW] User of %s already not exist.", dev_id)
-        # clear redis
-        tmobile = terminal.mobile if terminal else ""
-        for item in [dev_id, tmobile]:
-            sessionID_key = get_terminal_sessionID_key(item)
-            address_key = get_terminal_address_key(item)
-            info_key = get_terminal_info_key(item)
-            lq_sms_key = get_lq_sms_key(item)
-            lq_interval_key = get_lq_interval_key(item)
-            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-            self.redis.delete(*keys)
-        logging.info("[GW] Delete Terminal: %s, umobile: %s",
-                     dev_id, (user.owner_mobile if user else None))
-        
     def get_terminal_sessionID(self, dev_id):
         terminal_sessionID_key = get_terminal_sessionID_key(dev_id) 
         sessionID = self.redis.getvalue(terminal_sessionID_key)
@@ -1353,7 +1291,7 @@ class MyGWServer(object):
         location = lbmphelper.handle_location(location, self.redis,
                                               cellid=True, db=self.db)
         if location.cLat and location.cLon:
-            self.insert_location(location)
+            insert_location(location, self.db, self.redis)
 
     def __close_rabbitmq(self, connection=None, channel=None):
         if connection and connection.is_open:

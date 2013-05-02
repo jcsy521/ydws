@@ -12,6 +12,7 @@ from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from utils.checker import check_zs_phone
 from utils.dotdict import DotDict
+from utils.public import delete_terminal
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 
@@ -85,34 +86,7 @@ class RegisterHandler(BaseHandler):
                     if terminal:
                         if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
                             # delete to_be_unbind terminal!
-                            # clear db
-                            self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE mobile = %s", tmobile)
-                            tid = terminal.tid
-                            user = QueryHelper.get_user_by_tid(tid, self.db)
-                            if user:
-                                terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                                          "  WHERE owner_mobile = %s",
-                                                          user.owner_mobile)
-                                if len(terminals) == 0:
-                                    self.db.execute("DELETE FROM T_USER"
-                                                    "  WHERE mobile = %s",
-                                                    user.owner_mobile)
-
-                                    lastinfo_key = get_lastinfo_key(user.owner_mobile)
-                                    self.redis.delete(lastinfo_key)
-                            else:
-                                logging.info("[GW] User of %s already not exist.", tid)
-                            # clear redis
-                            for item in [tid, tmobile]:
-                                sessionID_key = get_terminal_sessionID_key(item)
-                                address_key = get_terminal_address_key(item)
-                                info_key = get_terminal_info_key(item)
-                                lq_sms_key = get_lq_sms_key(item)
-                                lq_interval_key = get_lq_interval_key(item)
-                                keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                                self.redis.delete(*keys)
-                            logging.info("[UWEB] delete unbind terminal: %s, user: %s",
-                                         tid, user.owner_mobile if user else "")
+                            delete_terminal(terminal.tid, self.db, self.redis)
                         else:
                             status = ErrorCode.TERMINAL_ORDERED
                             logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",

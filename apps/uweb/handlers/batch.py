@@ -14,7 +14,7 @@ import tornado.web
 
 from utils.dotdict import DotDict
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from constants import UWEB, GATEWAY
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.smshelper import SMSHelper
@@ -141,6 +141,7 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
         try:
             status = ErrorCode.SUCCESS
             tids = list(data.tids)
+            flag = data.flag
             res = []
             for tid in tids:
                 r = DotDict(tid=tid,
@@ -155,7 +156,10 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
                     res.append(r)
                     logging.error("The terminal with tid: %s does not exist!", tid)
                     continue 
-                elif terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+
+                key = get_del_data_key(tid)
+                self.redis.set(key, flag)
+                if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
                     r.status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
                     res.append(r)
                     continue 

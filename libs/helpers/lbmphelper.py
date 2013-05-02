@@ -135,6 +135,7 @@ def handle_location(location, redis, cellid=False, db=None):
         #if db:
         #    location.degree = get_last_degree(location, redis, db)
         if cellid:
+            location.gps = 0
             location.type = 1
             location.degree = random.randint(0, 360)
             if location.cellid:

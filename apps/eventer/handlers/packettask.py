@@ -16,6 +16,7 @@ from helpers.uwebhelper import UWebHelper
 from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
      get_ios_id_key, get_power_full_key, get_region_status_key, safe_utf8, safe_unicode
+from utils.public import insert_location
 
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
@@ -86,7 +87,7 @@ class PacketTask(object):
                 location['category']=region_status
                 location['t'] = EVENTER.INFO_TYPE.REPORT
                 location['rName'] = rname
-                lid = self.insert_location(location)
+                lid = insert_location(location, self.db, self.redis)
                 self.event_hook(region_status, location['dev_id'], 1, lid, location.pbat, None, region.region_id)
                 self.redis.setvalue(old_region_status_key, region_status)
                 corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
@@ -129,35 +130,8 @@ class PacketTask(object):
 
         return name
 
-    def insert_location(self, location):
-        # insert data into T_LOCATION
-        lid = self.db.execute("INSERT INTO T_LOCATION"
-                              "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s,"
-                              "          %s, %s, %s, %s, %s, %s)",
-                              location.dev_id, location.lat, location.lon, 
-                              location.alt, location.cLat, location.cLon,
-                              location.gps_time, location.name,
-                              location.category, location.type,
-                              location.speed, location.degree,
-                              location.cellid)
-        is_alived = self.redis.getvalue('is_alived')
-        if (is_alived == ALIVED and location.cLat and location.cLon):
-            mem_location = DotDict({'id':lid,
-                                    'latitude':location.lat,
-                                    'longitude':location.lon,
-                                    'type':location.type,
-                                    'clatitude':location.cLat,
-                                    'clongitude':location.cLon,
-                                    'timestamp':location.gps_time,
-                                    'name':location.name,
-                                    'degree':location.degree,
-                                    'speed':location.speed})
-            location_key = get_location_key(location.dev_id)
-            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
-        return lid
-        
     def realtime_location_hook(self, location):
-        self.insert_location(location)
+        insert_location(location, self.db, self.redis)
 
     def unknown_location_hook(self, location):
         pass
@@ -207,7 +181,7 @@ class PacketTask(object):
                                                       cellid=False, db=self.db) 
                 location.category = EVENTER.CATEGORY.REALTIME
                 if location.get('cLat') and location.get('cLon'): 
-                    self.insert_location(location)
+                    insert_location(location, self.db, self.redis)
 
                 self.check_region_event(location)
         else:
@@ -234,14 +208,14 @@ class PacketTask(object):
             mannual_status = QueryHelper.get_mannual_status_by_tid(info['dev_id'], self.db)
             if int(mannual_status) == UWEB.DEFEND_STATUS.NO:
                 report['category'] = EVENTER.CATEGORY.REALTIME
-                self.insert_location(report)
+                insert_location(report, self.db, self.redis)
                 self.update_terminal_info(report)
                 logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
                              info['dev_id'], info['rName'])
                 return
 
         # save into database
-        lid = self.insert_location(report)
+        lid = insert_location(report, self.db, self.redis)
         self.update_terminal_info(report)
         self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, report.get('fobid'))
 
