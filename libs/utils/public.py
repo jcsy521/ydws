@@ -65,9 +65,7 @@ def delete_terminal(tid, db, redis):
             lastinfo_time_key = get_lastinfo_time_key(user.owner_mobile)
             ios_id_key = get_ios_id_key(user.owner_mobile)
             ios_badge_key = get_ios_badge_key(user.owner_mobile)
-            timezone_key = get_timezone_key(user.owner_mobile)
-            keys = [lastinfo_key, lastinfo_time_key, ios_id_key,
-                    ios_badge_key, timezone_key]
+            keys = [lastinfo_key, lastinfo_time_key, ios_id_key, ios_badge_key]
             redis.delete(*keys)
     else:
         logging.info("[GW] User of %s already not exist.", tid)
