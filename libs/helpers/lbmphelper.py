@@ -64,6 +64,38 @@ def get_latlon_from_cellid(mcc, mnc, lac, cid, sim):
         logging.exception("Get latlon from LE failed. Exception: %s", e.args)
     return lat, lon 
 
+def handle_latlon_from_cellid(lat, lon, tid, redis, db):
+    """Check the laton from cellid whether varied widely from the latlon from gps. 
+       If the distance between them is less than a constant, modify the
+       latlon of cellid to the latlon of last credible latlon of gps
+
+       @params: lat, degree * 3600000
+                lon, degree * 3600000
+       @return: lat, degree * 3600000
+                lon, degree * 3600000
+    """
+    distance = 0
+    location_key = get_location_key(tid)
+    location = redis.getvalue(location_key)
+    if location and location.get('type',None) == UWEB.LOCATE_FLAG.GPS: 
+        distance = get_distance(int(lon), int(lat), int(location.clongitude), int(location.clatitude))
+    else: 
+        location = db.get("SELECT clatitude, clongitude FROM T_LOCATION"
+                          "  WHERE tid = %s AND type = %s"
+                          "    AND NOT (clatitude = 0 AND clongitude = 0)" 
+                          " ORDER BY timestamp DESC" 
+                          " LIMIT 1",
+                          tid, UWEB.LOCATE_FLAG.GPS)
+        if location: 
+            distance = get_distance(int(lon), int(lat), int(location.clongitude), int(location.clatitude))
+
+    if 0 < distance < UWEB.CELLID_MAX_OFFSET: 
+        lon, lat = location.clongitude, location.clatitude
+        logging.info("The distance: %s beteen cellid-latlon(%s, %s) and gps-latlon(%s, %s) is "
+                     "lesser than %s, so change the cellid-latlon to gps-latlon",
+                     distance, lat, lon, location.clongitude, location.clatitude, UWEB.CELLID_MAX_OFFSET)
+    return lat, lon 
+
 def get_location_name(clat, clon, redis):
     """@params: clat, degree*3600000
                 clon, degree*3600000
@@ -139,9 +171,12 @@ def handle_location(location, redis, cellid=False, db=None):
             location.type = 1
             location.degree = random.randint(0, 360)
             if location.cellid:
+                # 1: get latlon through cellid
                 cellid_info = [int(item) for item in location.cellid.split(":")]
                 sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
                 location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
+
+                # 2: check the location whether is odd 
                 location_key = get_location_key(location.dev_id)
                 old_location = redis.getvalue(location_key)
                 if old_location:
@@ -150,9 +185,13 @@ def handle_location(location, redis, cellid=False, db=None):
                                             old_location.longitude,
                                             old_location.latitude)
                     if distance > 10000:
-                        location.lat, location.lon = (old_location.latitude,old_location.longitude)
+                        location.lat, location.lon = (old_location.latitude, old_location.longitude)
                         logging.info("[LBMPHELPER] drop odd location, new location: %s, old location: %s, distance: %s",
                                      location, old_location, distance)
+
+                # 3: if there is a close gps-latlon, modify the cdllid-latlon
+                location.lat, location.lon = handle_latlon_from_cellid(location.lat, location.lon, location.dev_id, redis, db)
+
             #if location.lat and location.lon:
             #    location = filter_location(location, memcached)
 

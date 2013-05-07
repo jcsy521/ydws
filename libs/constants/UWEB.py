@@ -26,6 +26,8 @@ IOS_ID_INTERVAL = 30 * 24 * 60 * 60 # one month. in seconds.
 
 IOS_MAX_SIZE = 160 # in bytes. 
 
+CELLID_MAX_OFFSET = 500 # in metre
+
 USER_TYPE=DotDict(PERSON='individual',
                   CORP='enterprise',
                   OPERATOR='operator')
