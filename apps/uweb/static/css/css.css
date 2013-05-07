@@ -897,6 +897,9 @@ body {
 	width: 30px;
 	text-align: right;
 }
+.bListR .corp_terminalTdL {
+	text-align: right;
+}
 .freqDiv {
 	height: 24px;
 	padding: 3px 0px;
