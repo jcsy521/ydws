@@ -93,9 +93,19 @@ window.dlf.fn_saveReginon = function() {
 	if ( obj_regions ) {
 		n_circleNum = obj_regions.length;
 	
-		if ( n_circleNum > 10 ) { //最多只能有十个电子围栏
+		if ( n_circleNum >= 10 ) { //最多只能有十个电子围栏
 			dlf.fn_jNotifyMessage('电子围栏最多只能创建10个。', 'message', false, 3000);
 			return;
+		}
+		// 围栏名称 重复性校验
+		for ( var i = 0; i < n_circleNum; i++ ) {
+			var obj_tempRegion = obj_regions[i], 
+				str_tempRegionName = obj_tempRegion.region_name;
+				
+			if ( str_regionName == str_tempRegionName ) {
+				dlf.fn_jNotifyMessage('围栏名称与第'+ (i+1) +'个重复。', 'message', false, 3000);
+				return;
+			}		
 		}
 	}
 	if ( !obj_circle ) { 
