@@ -80,7 +80,7 @@ def handle_latlon_from_cellid(lat, lon, tid, redis, db):
     if location and location.get('type',None) == UWEB.LOCATE_FLAG.GPS: 
         distance = get_distance(int(lon), int(lat), int(location.clongitude), int(location.clatitude))
     else: 
-        location = db.get("SELECT clatitude, clongitude FROM T_LOCATION"
+        location = db.get("SELECT latitude, longitude, clatitude, clongitude FROM T_LOCATION"
                           "  WHERE tid = %s AND type = %s"
                           "    AND NOT (clatitude = 0 AND clongitude = 0)" 
                           " ORDER BY timestamp DESC" 
@@ -89,11 +89,12 @@ def handle_latlon_from_cellid(lat, lon, tid, redis, db):
         if location: 
             distance = get_distance(int(lon), int(lat), int(location.clongitude), int(location.clatitude))
 
+    logging.info("The distance :%s, tid:%s", distance, tid)
     if 0 < distance < UWEB.CELLID_MAX_OFFSET: 
-        lon, lat = location.clongitude, location.clatitude
+        lon, lat = location.longitude, location.latitude
         logging.info("The distance: %s beteen cellid-latlon(%s, %s) and gps-latlon(%s, %s) is "
                      "lesser than %s, so change the cellid-latlon to gps-latlon",
-                     distance, lat, lon, location.clongitude, location.clatitude, UWEB.CELLID_MAX_OFFSET)
+                     distance, lat, lon, location.longitude, location.latitude, UWEB.CELLID_MAX_OFFSET)
     return lat, lon 
 
 def get_location_name(clat, clon, redis):
