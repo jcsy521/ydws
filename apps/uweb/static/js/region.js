@@ -38,7 +38,7 @@ window.dlf.fn_initRegion = function() {
 	//关闭新增围栏窗口
 	$('#regionCreateClose').unbind('click').click(function(event){
 		dlf.fn_initRegion(); // 重新显示围栏管理 
-		dlf.fn_mapRightClickRemoveFun();
+		dlf.fn_mapRightClickFun();
 	});
 	//默认样式初始化
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
@@ -146,6 +146,7 @@ window.dlf.fn_detailRegion = function(n_seq) {
 		obj_otherPoint = dlf.fn_createMapPoint(n_otherLng, n_lat),
 	
 	fn_clearCircleRegion();
+	mapObj.closeInfoWindow();// 关闭吹出框 已显示圆
 	// 调用地图显示圆形
 	dlf.fn_displayCircle(obj_circleData);
 	// 计算bound显示 

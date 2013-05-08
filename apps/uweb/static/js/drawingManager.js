@@ -1021,7 +1021,10 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 
 			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);
 			obj_circleMarker.openInfoWindow(obj_clickInfoWindow);
-			$('.clickWindowPanel').parent().parent().next().hide();//隐藏关闭按钮
+			
+			setTimeout(function(){  
+				$('.clickWindowPanel').parent().parent().next().hide();//隐藏关闭按钮
+			}, 300);
 			//==========================================
             var point = e.point,
 				calculate = me._calculate(circle, point);
