@@ -28,6 +28,7 @@ function customMenu(node) {
 		obj_currentGroup = obj_node.parent().siblings('a'),
 		str_currentGroupName = obj_currentGroup.attr('title'),	// 当前定位器所在组名
 		str_groupId = obj_currentGroup.attr('groupId'),	// 当前所在组的组ID
+		str_userType = $('.j_body').attr('userType'),	// 用户类型
 		items = null,		// 菜单的操作方法
 		submenuItems = {},	// 二级菜单
 		subDefendItems = {},	// 批量设防撤防二级菜单
@@ -273,8 +274,8 @@ function customMenu(node) {
 		delete items.singleDelete;
 		delete items.bindRegion;
    }
-   if ( $('#u_type').val() == USER_OPERATOR ) {	// 操作员屏蔽右键
-		delete items.create;
+   if ( str_userType == USER_OPERATOR ) {	// 操作员屏蔽右键	
+		/*delete items.create;
 		delete items.singleCreate;
 		delete items.batchImportDelete;
 		delete items.remove;
@@ -287,7 +288,7 @@ function customMenu(node) {
 		delete items.defend;
 		delete items.statics;
 		delete items.singleDelete;
-		delete items.bindRegion;
+		delete items.bindRegion;*/
    }
    return items;
 }

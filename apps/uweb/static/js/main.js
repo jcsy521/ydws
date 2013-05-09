@@ -248,7 +248,7 @@ window.dlf.fn_corpSave = function() {
 */
 window.dlf.fn_initOperatorData = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_dialogPosition($('#operatorDataWrapper')); // 我的资料dialog显示
+	dlf.fn_dialogPosition('operatorData'); // 我的资料dialog显示
 	dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('操作员信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.operatorContent')); // 添加内容区域的遮罩

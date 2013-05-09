@@ -611,6 +611,10 @@ body {
 	height: 85px;
     width: 448px;
 }
+.operatorDataContent {
+	width: 448px;
+	height: 300px;
+}
 .close {
     background: url("/static/images/close_default.png") no-repeat;
     cursor: pointer;
