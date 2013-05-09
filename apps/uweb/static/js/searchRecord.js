@@ -599,7 +599,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<tr id='+ str_regionId +'>';
 				str_tbodyText+= '<td>'+ (i+1) +'</td>';	// 围栏序列
 				str_tbodyText+= '<td>'+ arr_regionName +'</td>';	// 围栏名称
-				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详细</a></td>';	// 
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';	// 
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteRegion('+ str_regionId +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';
 				
@@ -614,7 +614,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td>'+'<input type="checkbox" id="'+ str_checkboxId +'" name="'+ str_who +'_check" value="'+ str_regionId +'" /></td>';	// 围栏选择
 				str_tbodyText+= '<td>'+ (i+1) +'</td>';	// 围栏序列
 				str_tbodyText+= '<td>'+ arr_regionName +'</td>';	// 围栏名称
-				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详细</a></td>';
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';
 				str_tbodyText+= '</tr>';
 				
 				break;
