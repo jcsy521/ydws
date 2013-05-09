@@ -64,6 +64,7 @@ class MileageHandler(BaseHandler):
                 page_count = (d + 1) if m else d
 
             reports = []
+            interval = [start_time, end_time]
             for tid in tids:
                 distance = 0
                 points = self.db.query("SELECT longitude, latitude FROM T_LOCATION"
@@ -91,7 +92,8 @@ class MileageHandler(BaseHandler):
             hash_ = m.hexdigest()
             mem_key = self.KEY_TEMPLATE % (self.current_user.uid, hash_)
             
-            self.redis.setvalue(mem_key, reports, time=UWEB.STATISTIC_INTERVAL)
+            res = [reports, interval]
+            self.redis.setvalue(mem_key, res, time=UWEB.STATISTIC_INTERVAL)
 
             reports= reports[(page_number * page_size):((page_number+1) * page_size)]
 
@@ -118,7 +120,7 @@ class MileageDownloadHandler(MileageHandler):
 
             mem_key = self.KEY_TEMPLATE % (self.current_user.uid, hash_)
 
-            results = self.redis.getvalue(mem_key)
+            results, interval = self.redis.getvalue(mem_key)
             if not results:
                 logging.exception("[UWEB] mileage statistic export excel failed, find no res by hash_:%s", hash_)
                 self.render("error.html",
@@ -134,6 +136,7 @@ class MileageDownloadHandler(MileageHandler):
             start_line = 0
             for i, head in enumerate(EXCEL.MILEAGE_STATISTIC_HEADER):
                 ws.write(0, i, head)
+                ws.col(0).width = 4000
 
             start_line += 1
             for i, result in zip(range(start_line, len(results) + start_line), results):
@@ -274,7 +277,7 @@ class MileageSingleHandler(BaseHandler):
             hash_ = m.hexdigest()
             mem_key = self.KEY_TEMPLATE % (self.current_user.uid, hash_)
             
-            self.redis.setvalue(mem_key, (res, counts, label), time=UWEB.STATISTIC_INTERVAL)
+            self.redis.setvalue(mem_key, (res, counts, label, statistics_type), time=UWEB.STATISTIC_INTERVAL)
 
             res= res[page_number*page_size:(page_number+1)*page_size]
 
@@ -310,7 +313,7 @@ class MileageSingleDownloadHandler(MileageSingleHandler):
                             message=ErrorCode.ERROR_MESSAGE[ERRORCODE.EXPORT_FAILED],
                             home_url=ConfHelper.UWEB_CONF.url_out)
                 return 
-            results, counts, label = res
+            results, counts, label, statistics_type = res
 
             date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
             
@@ -318,8 +321,12 @@ class MileageSingleDownloadHandler(MileageSingleHandler):
             ws = wb.add_sheet(EXCEL.MILEAGE_STATISTIC_SHEET)
 
             start_line = 0
-            for i, head in enumerate(EXCEL.MILEAGE_STATISTIC_HEADER):
-                ws.write(0, i, head)
+            if statistics_type == UWEB.STATISTICS_TYPE.YEAR:
+                for i, head in enumerate(EXCEL.MILEAGE_SINGLE_YEARLY_STATISTIC_HEADER):
+                    ws.write(0, i, head)
+            elif statistics_type == UWEB.STATISTICS_TYPE.MONTH:
+                for i, head in enumerate(EXCEL.MILEAGE_SINGLE_MONTHLY_STATISTIC_HEADER):
+                    ws.write(0, i, head)
 
             start_line += 1
             for i, result in zip(range(start_line, len(results) + start_line), results):

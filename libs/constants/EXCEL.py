@@ -20,10 +20,15 @@ EVENT_SINGLE_STATISTIC_HEADER = (u"时间",
 
 MILEAGE_STATISTIC_FILE_NAME = u'里程统计'
 MILEAGE_STATISTIC_SHEET = u'里程统计'
-MILEAGE_STATISTIC_HEADER = (u"时间", 
-                            u"里程")
+MILEAGE_STATISTIC_HEADER = (u"定位器", 
+                            u"里程（公里）")
 
-MILEAGE_SINGLE_STATISTIC_FILE_NAME = u'里程统计'
-MILEAGE_SINGLE_STATISTIC_SHEET = u'里程统计'
-MILEAGE_SINGLE_STATISTIC_HEADER = (u"时间", 
-                                   u"里程")
+MILEAGE_SINGLE_MONTHLY_STATISTIC_FILE_NAME = u'里程统计'
+MILEAGE_SINGLE_MONTHLY_STATISTIC_SHEET = u'里程统计'
+MILEAGE_SINGLE_MONTHLY_STATISTIC_HEADER = (u"日期", 
+                                           u"里程（公里）")
+
+MILEAGE_SINGLE_YEARLY_STATISTIC_FILE_NAME = u'里程统计'
+MILEAGE_SINGLE_YEARLY_STATISTIC_SHEET = u'里程统计'
+MILEAGE_SINGLE_YEARLY_STATISTIC_HEADER = (u"月份", 
+                                          u"里程（公里）")
