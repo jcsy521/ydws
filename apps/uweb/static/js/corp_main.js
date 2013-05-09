@@ -275,16 +275,17 @@ function customMenu(node) {
 		delete items.bindRegion;
    }
    if ( str_userType == USER_OPERATOR ) {	// 操作员屏蔽右键	
-		/*delete items.create;
+		delete items.create;
 		delete items.singleCreate;
 		delete items.batchImportDelete;
 		delete items.remove;
-		delete items.moveTo;
-		delete items.event;	
 		delete items.rename;
-		delete items.terminalSetting;
 		delete items.batchDefend;
 		delete items.batchRegion;
+		
+		/*delete items.moveTo;
+		delete items.event;	
+		delete items.terminalSetting;
 		delete items.defend;
 		delete items.statics;
 		delete items.singleDelete;
