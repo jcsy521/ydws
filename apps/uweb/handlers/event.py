@@ -168,7 +168,9 @@ class EventHandler(BaseHandler):
                                          "  FROM T_REGION"
                                          "  WHERE id = %s",
                                          event.rid)
-                    event['comment'] = u'围栏名：'+ region.region_name
+                    
+                    region_name = region.region_name if region else u''
+                    event['comment'] = u'围栏名：'+ region_name
                 
             self.write_ret(status,
                            dict_=DotDict(events=events,
