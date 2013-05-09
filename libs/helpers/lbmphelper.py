@@ -75,10 +75,12 @@ def handle_latlon_from_cellid(lat, lon, tid, redis, db):
                 lon, degree * 3600000
     """
     distance = 0
+
+    clat, clon = get_clocation_from_ge(lat, lon)
     location_key = get_location_key(tid)
     location = redis.getvalue(location_key)
     if location and location.get('type',None) == UWEB.LOCATE_FLAG.GPS: 
-        distance = get_distance(int(lon), int(lat), int(location.clongitude), int(location.clatitude))
+        distance = get_distance(int(clon), int(clat), int(location.clongitude), int(location.clatitude))
     else: 
         location = db.get("SELECT latitude, longitude, clatitude, clongitude FROM T_LOCATION"
                           "  WHERE tid = %s AND type = %s"
@@ -87,7 +89,7 @@ def handle_latlon_from_cellid(lat, lon, tid, redis, db):
                           " LIMIT 1",
                           tid, UWEB.LOCATE_FLAG.GPS)
         if location: 
-            distance = get_distance(int(lon), int(lat), int(location.clongitude), int(location.clatitude))
+            distance = get_distance(int(clon), int(clat), int(location.clongitude), int(location.clatitude))
 
     logging.info("The distance :%s, tid:%s", distance, tid)
     if 0 < distance < UWEB.CELLID_MAX_OFFSET: 
