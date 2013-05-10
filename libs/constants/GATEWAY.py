@@ -78,7 +78,10 @@ LOGIN_STATUS = DotDict(SUCCESS="0",
 
 LOCATION_STATUS = DotDict(FAILED="0",
                           SUCCESS="1",
-                          UNREALTIME="2")
+                          UNREALTIME="2",
+                          REALTIME_RESP="3",
+                          UNMOVE="4",
+                          MOVE="5")
 
 RESPONSE_STATUS = DotDict(SUCCESS="0",
                           INVALID_SESSIONID="1",

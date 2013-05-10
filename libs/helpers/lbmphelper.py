@@ -148,6 +148,18 @@ def get_last_degree(location, redis, db):
 
     return float(location.degree)
 
+def issue_cellid(location, db, redis):
+    logging.info("%s Issue cellid...", location.dev_id)
+    location.gps = 0
+    location.type = 1
+    location.degree = random.randint(0, 360)
+    # 1: get latlon through cellid
+    cellid_info = [int(item) for item in location.cellid.split(":")]
+    sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
+    location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
+
+    return location
+
 def handle_location(location, redis, cellid=False, db=None):
     """
     @param location: position/report/locationdesc/pvt
@@ -160,6 +172,39 @@ def handle_location(location, redis, cellid=False, db=None):
         location.type = 0
         if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
             location.degree = get_last_degree(location, redis, db)
+    elif location.valid == GATEWAY.LOCATION_STATUS.UNMOVE:
+        location_key = get_location_key(location.dev_id)
+        last_location = redis.getvalue(location_key)
+        if last_location:
+            location.lat = last_location.latitude
+            location.lon = last_location.longitude
+            location.cLat = last_location.clatitude
+            location.cLon = last_location.clongitude
+            location.type = 1
+            location.gps_time = int(time.time())
+            location.gps = 0
+        else:
+            location.lat = 0
+            location.lon = 0
+            location.cLat = 0
+            location.cLon = 0
+            location.type = 0
+            location.gps_time = int(time.time()) 
+            location.degree = 0.00
+            location.gps = 0
+            if cellid:
+                location = issue_cellid(location, db, redis)
+    elif location.valid == GATEWAY.LOCATION_STATUS.MOVE:
+        location.lat = 0
+        location.lon = 0
+        location.cLat = 0
+        location.cLon = 0
+        location.type = 0
+        location.gps_time = int(time.time()) 
+        location.degree = 0.00
+        location.gps = 0
+        if cellid:
+            location = issue_cellid(location, db, redis)
     else:
         location.lat = 0
         location.lon = 0
@@ -167,18 +212,14 @@ def handle_location(location, redis, cellid=False, db=None):
         location.cLon = 0
         location.type = 0
         location.gps_time = int(time.time()) 
+        location.degree = 0.00
         #if db:
         #    location.degree = get_last_degree(location, redis, db)
+        location.gps = 0
         if cellid:
-            location.gps = 0
-            location.type = 1
-            location.degree = random.randint(0, 360)
-            if location.cellid:
-                # 1: get latlon through cellid
-                cellid_info = [int(item) for item in location.cellid.split(":")]
-                sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
-                location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
-
+            # 1: issue cellid
+            location = issue_cellid(location, db, redis)
+            if location.lon and location.lat:
                 # 2: check the location whether is odd 
                 location_key = get_location_key(location.dev_id)
                 old_location = redis.getvalue(location_key)
@@ -192,11 +233,11 @@ def handle_location(location, redis, cellid=False, db=None):
                         logging.info("[LBMPHELPER] drop odd location, new location: %s, old location: %s, distance: %s",
                                      location, old_location, distance)
 
-                # 3: if there is a close gps-latlon, modify the cdllid-latlon
+                # 3: if there is a close gps-latlon, modify the cellid-latlon
                 location.lat, location.lon = handle_latlon_from_cellid(location.lat, location.lon, location.dev_id, redis, db)
 
-            #if location.lat and location.lon:
-            #    location = filter_location(location, memcached)
+                #if location.lat and location.lon:
+                #    location = filter_location(location, memcached)
 
 
     if location and location.lat and location.lon:
