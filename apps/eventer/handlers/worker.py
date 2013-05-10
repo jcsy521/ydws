@@ -73,7 +73,7 @@ class Worker(object):
                         SMSHelper.send(mobile, content)
                     for email in self.emails:
                         EmailHelper.send(email, content) 
-                    logging.info("[EVENTER] Notify EVENTER queue exception to administrator!")
+                    logging.info("[EVENTER] Notify EVENTER queue: %s exception to administrator!", queue_len)
             except Queue.Empty:
                 pass
             else:
