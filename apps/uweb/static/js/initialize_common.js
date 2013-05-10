@@ -1421,11 +1421,19 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 								$('#white_list_2').attr('t_val', '');
 							}
 						} else {
-							if ( param == 'corp_cnum' ) {
-								dlf.fn_updateCorpCnum(obj_data[param]);
-								$('#corp_corp_cnum' ).attr('t_val', str_val);
-							}
-							$('#corp_' + param ).attr('t_val', str_val);
+							if ( url == '/smsoption' ) {
+								for ( var param in obj_data ) {
+									var str_val = obj_data[param];
+									
+									$('#corp_' + param).attr('t_checked', str_val);
+								}
+							} else {
+								if ( param == 'corp_cnum' ) {
+									dlf.fn_updateCorpCnum(obj_data[param]);
+									$('#corp_corp_cnum' ).attr('t_val', str_val);
+								}
+								$('#corp_' + param ).attr('t_val', str_val);
+							}							
 						}
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
