@@ -623,7 +623,9 @@ window.dlf.fn_mapStartDrawCirlce = function() {
 window.dlf.fn_mapStopDrawCirlce = function() {
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent currentCircle currentDrag');
 	$('#regionCreate_dragMap').addClass('regionCreateBtnCurrent');
-	obj_drawingManager.close();
+	if ( obj_drawingManager ) {	
+		obj_drawingManager.close();
+	}
 }
 /*
 * 获取圆数据

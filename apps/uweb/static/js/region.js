@@ -9,6 +9,7 @@ window.dlf.fn_initRegion = function() {
 		obj_regionAddWapper = $('#regionCreateWrapper');
 	
 	dlf.fn_dialogPosition(str_region);	// 设置dialog的位置并显示
+	dlf.fn_mapRightClickFun(); //清除地图画围栏事件及状态 
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
 	dlf.fn_clearMapComponent(); // 清除页面图形
@@ -19,7 +20,17 @@ window.dlf.fn_initRegion = function() {
 	dlf.fn_searchData(str_region);
 	// 新增围栏事件侦听
 	$('#regionCreateBtn').unbind('click').click(function(event){
-	
+		var obj_regions = $('#regionTable').data('regions'),
+				n_circleNum = 0;
+			
+		if ( obj_regions ) {
+			n_circleNum = obj_regions.length;
+		
+			if ( n_circleNum >= 10 ) { //最多只能有十个电子围栏
+				dlf.fn_jNotifyMessage('电子围栏最多只能创建10个。', 'message', false, 3000);
+				return;
+			}
+		}
 		obj_regionWapper.hide();
 		dlf.fn_clearMapComponent(obj_circle); // 清除页面图形
 		
@@ -38,7 +49,6 @@ window.dlf.fn_initRegion = function() {
 	//关闭新增围栏窗口
 	$('#regionCreateClose').unbind('click').click(function(event){
 		dlf.fn_initRegion(); // 重新显示围栏管理 
-		dlf.fn_mapRightClickFun();
 	});
 	//默认样式初始化
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
