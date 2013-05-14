@@ -1222,7 +1222,7 @@ body {
 .disPanelCon {
 	position: absolute;
 	top: 72px;
-	right: 263px;
+	right: 400px;
 	width: 18px;
 	height: 68px;
 	background: url('/static/images/arrowIcon.png');
@@ -1246,7 +1246,7 @@ body {
 	position: absolute;
 	right: 0px;
 	top: 72px;
-	width: 263px;
+	width: 400px;
 }
 .delayTable {
 	overflow: scroll;
@@ -1258,7 +1258,7 @@ body {
 .delayTable td {
 	border: 1px solid #C1D2E5;
     height: 23px;
-    line-height: 34px;
+    line-height: 23px;
 }
 .delayTable img {
 	position: relative;

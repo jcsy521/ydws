@@ -38,6 +38,8 @@ window.dlf.fn_initTrack = function() {
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias);
 		obj_trackPos.css('width', 660);
+		$('.j_disPanelCon, .j_delayPanel').hide();
+		$('.delayTable').html('');
 	} else {
 		obj_trackPos.css('width', 530);
 	}
@@ -306,7 +308,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 			
 			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, 0);
 			
-			str_html += '<tr><td><img src="../static/images/delay_Marker.png" width="25px" />停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</td><td>'+ obj_point.name +'</td></tr>';
+			str_html += '<tr><td width="136px"><img src="../static/images/delay_Marker.png" width="25px" />停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</td><td width="264px">'+ obj_point.name +'</td></tr>';
 			arr_markers.push(obj_tempMarker);
 		}
 	}
@@ -324,6 +326,14 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 			n_index = $(this).index(),
 			obj_tempMarker = arr_markerList[n_index];
 		
+		for ( var i = 0; i < arr_markerList.length; i++ ) {
+			var obj_marker = arr_markerList[i];
+			
+			if ( obj_marker ) {
+				obj_marker.setTop(false);
+			}
+		}
+		obj_tempMarker.setTop(true);
 		obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
 		mapObj.setCenter(obj_tempMarker.getPosition());
 	});
@@ -527,7 +537,7 @@ $(function () {
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
-			obj_arrowCon.css({'right': '263px'});
+			obj_arrowCon.css({'right': '400px'});
 			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		}
 	});
