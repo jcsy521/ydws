@@ -180,3 +180,24 @@ class QueryHelper(object):
             mannual_status = t['mannual_status']
 
         return mannual_status
+
+    @staticmethod
+    def get_terminal_info(tid, db, redis):
+        terminal_info_key = get_terminal_info_key(tid)
+        terminal_info = redis.getvalue(terminal_info_key)
+        if not terminal_info:
+            terminal_info = db.get("SELECT mannual_status, defend_status,"
+                                   "  fob_status, mobile, login, gps, gsm,"
+                                   "  pbat, keys_num"
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE tid = %s", tid)
+            car = db.get("SELECT cnum FROM T_CAR"
+                         "  WHERE tid = %s", tid)
+            fobs = db.query("SELECT fobid FROM T_FOB"
+                            "  WHERE tid = %s", tid)
+            terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
+            terminal_info['fob_list'] = [fob.fobid for fob in fobs]
+            redis.setvalue(terminal_info_key, terminal_info)
+
+        return terminal_info
+

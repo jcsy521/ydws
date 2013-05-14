@@ -150,9 +150,10 @@ class PacketTask(object):
                             "  WHERE tid = %s",
                             location.dev_id)
         # redis
-        terminal_info_key = get_terminal_info_key(location.dev_id)
-        terminal_info = self.redis.getvalue(terminal_info_key)
+        terminal_info = QueryHelper.get_terminal_info(location.dev_id,
+                                                      self.db, self.redis)
         if terminal_info:
+            terminal_info_key = get_terminal_info_key(location.dev_id)
             for key in terminal_info:
                 value = location.get(key, None)
                 if value is not None:

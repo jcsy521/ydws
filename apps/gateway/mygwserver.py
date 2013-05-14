@@ -319,6 +319,8 @@ class MyGWServer(object):
                            sessionID='')
             lp = LoginParser(info.body, info.head)
             t_info = lp.ret
+            resend_key = get_resend_key(t_info.dev_id, t_info.timestamp, t_info.command)
+            resend_flag = self.redis.getvalue(resend_key)
 
             if not t_info['dev_id']:
                 args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_DEVID
@@ -629,9 +631,14 @@ class MyGWServer(object):
 
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
                 # get SessionID
-                args.sessionID = get_sessionID()
-                terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
-                self.redis.setvalue(terminal_sessionID_key, args.sessionID)
+                if resend_flag:
+                    logging.warn("[GW] Recv resend login packet: %s and use old sessionID!", t_info) 
+                    args.sessionID = self.get_terminal_sessionID(t_info['dev_id'])
+                else:
+                    args.sessionID = get_sessionID()
+                    terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
+                    self.redis.setvalue(terminal_sessionID_key, args.sessionID)
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
                 # record terminal address
                 self.update_terminal_status(t_info["dev_id"], address)
                 # set login
@@ -712,6 +719,7 @@ class MyGWServer(object):
             body = info.body
             resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
             resend_flag = self.redis.getvalue(resend_key)
+            go_ahead = False 
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            locationdesc="",
                            ew="E",
@@ -727,53 +735,57 @@ class MyGWServer(object):
                     logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
                                  info.head, info.body)
                 else:
-                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-                    ldp = LocationDescParser(body, head)
-                    location = ldp.ret
-                    location['t'] = EVENTER.INFO_TYPE.POSITION
-                    if location['valid'] != GATEWAY.LOCATION_STATUS.SUCCESS:
-                        cellid = True
-                    else:
-                        cellid = False
-                    location = lbmphelper.handle_location(location, self.redis, cellid=cellid)
-                    location.name = location.get('name') if location.get('name') else ""
-                    location.name = safe_unicode(location.name)
-                    locationdesc = location.name.encode("utf-8", 'ignore')
-                    user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
-                    tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
-                    dw_method = u'GPS' if not cellid else u'基站'
-                    if location.cLat and location.cLon:
-                        if user:
-                            current_time = get_terminal_time(int(time.time()))
-                            sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method,
-                                                            unicode(locationdesc, 'utf-8'), 
-                                                            current_time) 
-                            url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' +\
-                                  str(location.cLon/3600000.0) + '&clat=' + str(location.cLat/3600000.0)
-                            tiny_id = URLHelper.get_tinyid(url)
-                            if tiny_id:
-                                base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
-                                tiny_url = base_url + '/' + tiny_id
-                                logging.info("[GW] get tiny url successfully. tiny_url:%s", tiny_url)
-                                self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                                sms += u"点击 " + tiny_url + u" 查看车辆位置。" 
-                            else:
-                                logging.info("[GW] get tiny url failed.")
-                            SMSHelper.send(user.owner_mobile, sms)
-                    else:
-                        if user:
-                            sms = SMSCode.SMS_DW_FAILED % (tname, dw_method)
-                            SMSHelper.send(user.owner_mobile, sms)
-                    if not (location.lat and location.lon):
-                        args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
-                    else:
-                        insert_location(location, self.db, self.redis)
-                self.update_terminal_status(head.dev_id, address)
+                    go_ahead = True
 
             lc = LocationDescRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address)
             self.append_gw_request(request, connection, channel)
+            self.update_terminal_status(head.dev_id, address)
+
+            if go_ahead:
+                self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                ldp = LocationDescParser(body, head)
+                location = ldp.ret
+                location['t'] = EVENTER.INFO_TYPE.POSITION
+                if location['valid'] != GATEWAY.LOCATION_STATUS.SUCCESS:
+                    cellid = True
+                else:
+                    cellid = False
+                location = lbmphelper.handle_location(location, self.redis, cellid=cellid)
+                location.name = location.get('name') if location.get('name') else ""
+                location.name = safe_unicode(location.name)
+                locationdesc = location.name.encode("utf-8", 'ignore')
+                user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
+                tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
+                dw_method = u'GPS' if not cellid else u'基站'
+                if location.cLat and location.cLon:
+                    if user:
+                        current_time = get_terminal_time(int(time.time()))
+                        sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method,
+                                                        unicode(locationdesc, 'utf-8'), 
+                                                        current_time) 
+                        url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' +\
+                              str(location.cLon/3600000.0) + '&clat=' + str(location.cLat/3600000.0)
+                        tiny_id = URLHelper.get_tinyid(url)
+                        if tiny_id:
+                            base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                            tiny_url = base_url + '/' + tiny_id
+                            logging.info("[GW] get tiny url successfully. tiny_url:%s", tiny_url)
+                            self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
+                            sms += u"点击 " + tiny_url + u" 查看车辆位置。" 
+                        else:
+                            logging.info("[GW] get tiny url failed.")
+                        SMSHelper.send(user.owner_mobile, sms)
+                else:
+                    if user:
+                        sms = SMSCode.SMS_DW_FAILED % (tname, dw_method)
+                        SMSHelper.send(user.owner_mobile, sms)
+                if not (location.lat and location.lon):
+                    args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
+                else:
+                    insert_location(location, self.db, self.redis)
+
         except:
             logging.exception("[GW] Handle locationdesc exception.")
 
@@ -1004,7 +1016,8 @@ class MyGWServer(object):
                 if resend_flag:
                     logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
                                  info.head, info.body)
-                    terminal_info = self.get_terminal_info(head.dev_id)
+                    terminal_info = QueryHelper.get_terminal_info(head.dev_id, self.db,
+                                                                  self.redis)
                     args.mannual_status = terminal_info['mannual_status']
                 else:
                     self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
@@ -1154,20 +1167,8 @@ class MyGWServer(object):
 
     def update_fob_info(self, fobinfo):
         terminal_info_key = get_terminal_info_key(fobinfo['dev_id'])
-        terminal_info = self.redis.getvalue(terminal_info_key)
-        if not terminal_info:
-            terminal_info = self.db.get("SELECT mannual_status, defend_status,"
-                                        "  fob_status, mobile, login, gps, gsm,"
-                                        "  pbat, keys_num"
-                                        "  FROM T_TERMINAL_INFO"
-                                        "  WHERE tid = %s", fobinfo['dev_id'])
-            car = self.db.get("SELECT cnum FROM T_CAR"
-                              "  WHERE tid = %s", fobinfo['dev_id'])
-            fobs = self.db.query("SELECT fobid FROM T_FOB"
-                                 "  WHERE tid = %s", fobinfo['dev_id'])
-            terminal_info = DotDict(terminal_info)
-            terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
-            terminal_info['fob_list'] = [fob.fobid for fob in fobs]
+        terminal_info = QueryHelper.get_terminal_info(fobinfo['dev_id'],
+                                                      self.db, self.redis)
 
         if int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.ADD:
             self.db.execute("INSERT INTO T_FOB(tid, fobid)"
@@ -1209,42 +1210,10 @@ class MyGWServer(object):
         else:
             pass
 
-    def get_terminal_info(self, dev_id):
-        terminal_info_key = get_terminal_info_key(dev_id)
-        terminal_info = self.redis.getvalue(terminal_info_key)
-        if not terminal_info:
-            terminal_info = self.db.get("SELECT mannual_status, defend_status,"
-                                        "  fob_status, mobile, login, gps, gsm,"
-                                        "  pbat, keys_num"
-                                        "  FROM T_TERMINAL_INFO"
-                                        "  WHERE tid = %s", dev_id)
-            car = self.db.get("SELECT cnum FROM T_CAR"
-                              "  WHERE tid = %s", dev_id)
-            fobs = self.db.query("SELECT fobid FROM T_FOB"
-                                 "  WHERE tid = %s", dev_id)
-            terminal_info = DotDict(terminal_info)
-            terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
-            terminal_info['fob_list'] = [fob.fobid for fob in fobs]
-            self.redis.setvalue(terminal_info_key, terminal_info)
-
-        return terminal_info
-
     def update_terminal_info(self, t_info):
         terminal_info_key = get_terminal_info_key(t_info['dev_id'])
-        terminal_info = self.redis.getvalue(terminal_info_key)
-        if not terminal_info:
-            terminal_info = self.db.get("SELECT mannual_status, defend_status,"
-                                        "  fob_status, mobile, login, gps, gsm,"
-                                        "  pbat, keys_num"
-                                        "  FROM T_TERMINAL_INFO"
-                                        "  WHERE tid = %s", t_info['dev_id'])
-            car = self.db.get("SELECT cnum FROM T_CAR"
-                              "  WHERE tid = %s", t_info['dev_id'])
-            fobs = self.db.query("SELECT fobid FROM T_FOB"
-                                 "  WHERE tid = %s", t_info['dev_id'])
-            terminal_info = DotDict(terminal_info)
-            terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
-            terminal_info['fob_list'] = [fob.fobid for fob in fobs]
+        terminal_info = QueryHelper.get_terminal_info(t_info['dev_id'],
+                                                      self.db, self.redis)
 
         # db
         fields = []
