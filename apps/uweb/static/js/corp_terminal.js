@@ -10,7 +10,7 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 window.dlf.fn_initCorpTerminal = function() {
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('.j_input input').val('');
+	$('.j_input input[type=text]').val('');
 	dlf.fn_initTerminalWR(); // 初始化加载参数
 	fn_initCorpSMS();	// 初始化SMS通知
 	dlf.fn_onInputBlur();	// input的blur事件初始化
@@ -37,6 +37,8 @@ window.dlf.fn_initTerminalWR = function () {
 						$('#t_corp_c_umobile').attr('t_val', str_val);
 					} else if ( param == 'push_status' ) {
 						$('#tr_corp_' + param + str_val ).attr('checked', 'checked'); 
+					} else if ( param == 'icon_type' ) {	// 图标
+						$('#icon_type' + str_val).attr('checked', true);
 					} else {
 						if ( param == 'alias' || param == 'freq' ) {	// 定位器别名、上报频率
 							$('#t_corp_' + param ).val(str_val);
@@ -140,7 +142,7 @@ window.dlf.fn_corpBaseSave = function() {
 			obj_text = obj_this.children(),
 			str_newVal = obj_text.val(); 	// text of value
 		
-		if ( str_class.search('j_radio') != -1 ) {	// 上报间隔、基站定位
+		if ( str_class.search('j_radio') != -1 ) {	// 上报间隔、基站定位、图标
 			str_newVal = parseInt($(this).children('input:checked').val());
 		}
 		if ( str_newVal != str_oldVal ) {	// 判断参数是否有修改
@@ -153,6 +155,8 @@ window.dlf.fn_corpBaseSave = function() {
 				str_key = 'push_status';
 			} else if ( str_key == 'corp_corp_cnum' ) {
 				str_key = 'corp_cnum';
+			} else if ( str_key == 'corp_icon_type' ) {
+				str_key = 'icon_type';
 			}
 			obj_terminalData[str_key] = str_newVal;
 		}

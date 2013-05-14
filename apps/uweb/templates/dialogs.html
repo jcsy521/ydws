@@ -247,6 +247,19 @@
 								<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
 							</td>
 						</tr>
+						<tr class="j_corp_terminal">
+							<td class="corp_terminalTdL" >图标:</td>
+							<td id="corp_icon_type"  class="corp_radio j_corp_ListVal j_radio"  t_val="">
+								<input type="radio" id="icon_type0"  name="icon_type" value="0" />
+								<label for="icon_type0" title="汽车"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
+								<input type="radio" id="icon_type1"  name="icon_type" value="1"  />
+								<label for="icon_type1" title="摩托车"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
+								<input type="radio" id="icon_type2"  name="icon_type" value="2"  />
+								<label for="icon_type2" title="人"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
+								<input type="radio" id="icon_type3"  name="icon_type" value="3"  />
+								<label for="icon_type3" title="其他"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon" /></label>
+							</td>
+						</tr>
 					</tbody>
 				</table>
 			</fieldset>
@@ -549,20 +562,33 @@
 				<table class="cTerminalList">
 					<tr>
 						<td>
-							<label><font class="txtColor">* </font>定位器号码：</label>
-							<input type="text" name="c_tmobile" id="c_tmobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="cMobile" msg="定位器号码格式不正确！"  parent="cTerminalWrapper" />
+							<label class="cTerminalLabel"><font class="txtColor">* </font>定位器号码：</label>
+							<input type="text" name="c_tmobile" id="c_tmobile"  class="cTermninalInput text_mouseOut j_corpData j_onInputBlur" max="11" who="cMobile" msg="定位器号码格式不正确！"  parent="cTerminalWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<label><!--<font class="txtColor">* </font>-->短信接收号码：</label>
-							<input type="text" name="c_umobile" id="c_umobile"  class="text_mouseOut j_corpData j_onInputBlur" max="11" who="uMobile" msg="短信接收号码格式不正确！"  parent="cTerminalWrapper" />
+							<label class="cTerminalLabel"><!--<font class="txtColor">* </font>-->短信接收号码：</label>
+							<input type="text" name="c_umobile" id="c_umobile"  class="cTermninalInput text_mouseOut j_corpData j_onInputBlur" max="11" who="uMobile" msg="短信接收号码格式不正确！"  parent="cTerminalWrapper" />
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<label>车牌号：</label>
-							<input type="text" id="c_cnum" name="c_cnum" class="text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+							<label class="cTerminalLabel">车牌号：</label>
+							<input type="text" id="c_cnum" name="c_cnum" class="cTermninalInput text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+						</td>
+					</tr>
+					<tr>
+						<td class="corp_radio">
+							<label class="cTerminalLabel">图标：</label>
+							<input type="radio" id="c_icon_type0"  name="c_icon_type" value="0" />
+							<label for="c_icon_type0" title="汽车"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
+							<input type="radio" id="c_icon_type1"  name="c_icon_type" value="1"  />
+							<label for="c_icon_type1" title="摩托车"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
+							<input type="radio" id="c_icon_type2"  name="c_icon_type" value="2"  />
+							<label for="c_icon_type2" title="人"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
+							<input type="radio" id="c_icon_type3"  name="c_icon_type" value="3" checked  />
+							<label for="c_icon_type3" title="其他"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon"  /></label>
 						</td>
 					</tr>
 				</table>

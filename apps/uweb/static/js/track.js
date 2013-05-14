@@ -92,7 +92,11 @@ window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) {
 * 轨迹查询操作
 */
 function fn_trackQuery() {
-	var str_beginTime = dlf.fn_changeDateStringToNum($('#trackBeginTime').val()), 
+	var obj_trackHeader = $('#trackHeader'),
+		arr_delayPoints = [],
+		obj_delayCon = $('.j_disPanelCon'),
+		obj_delayPanel = $('.j_delayPanel'),
+		str_beginTime = dlf.fn_changeDateStringToNum($('#trackBeginTime').val()), 
 		str_endTime = dlf.fn_changeDateStringToNum($('#trackEndTime').val()),
 		n_cellid_flag = $('#ceillid_flag').attr('checked') == 'checked' ? 1 : 0,
 		obj_locusDate = {'start_time': str_beginTime, 
@@ -113,8 +117,13 @@ function fn_trackQuery() {
 	$('.j_trackbody').data('layer', true);
 	dlf.fn_lockScreen();
 	
+	obj_trackHeader.removeData('delayPoints');	// 清除停留点缓存数据
+	// 集团用户显示查询结果面板
+	obj_delayCon.hide();
+	obj_delayPanel.hide();
+	
 	$.post_(TRACK_URL, JSON.stringify(obj_locusDate), function (data) {
-		if ( data.status == 0 ) {
+		if ( data.status == 0 ) {			
 			/**
 			   * 获取最大和最小的差值
 			   * n_tempMax 暂时存储与第一点的最大距离
@@ -133,14 +142,18 @@ function fn_trackQuery() {
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 				$('#trackSpeed').hide();	// 速度滑块隐藏
 			} else {
+				// 集团用户显示查询结果面板
+				obj_delayCon.show();
+				obj_delayPanel.show();
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 				arr_dataArr = arr_locations, 
 				n_tempMax = 0, 
 				obj_tempMaxPoint = arr_locations[0];
 				obj_tempFirstPoint = arr_locations[0];
+				//str_alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
 				
 				for (var i = 0; i < locLength; i++) {
-					var obj_currentLoc = arr_locations[i], 
+					var obj_currentLoc = arr_locations[i],
 						obj_firstPoint = dlf.fn_createMapPoint(obj_currentLoc.clongitude, obj_currentLoc.clatitude);
 						
 					for ( var j = i + 1; j < locLength; j++ ) {
@@ -149,8 +162,10 @@ function fn_trackQuery() {
 							
 						dlf.fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
 					}
-					arr_dataArr[i].alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html();
+					//arr_dataArr[i].alias = str_alias;
 				}
+				// 存储停留点信息
+				obj_trackHeader.data('delayPoints', data.idle_points);
 				if ( n_tempMax <= 0 ) {
 					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
 				} else {
@@ -267,19 +282,81 @@ function fn_getLoop(v, a, b){
 }
 
 /**
+* 显示停留点数据信息
+*/
+function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
+	var n_delayLength = arr_delayPoints.length,
+		obj_table = $('.delayTable'),
+		arr_markers = [];
+		str_html = '';
+	
+	if ( n_delayLength > 0 ) {
+		var obj_first = arr_delayPoints[0],
+			obj_second = arr_delayPoints[1];
+		
+		arr_markers.push(obj_firstMarker);
+		arr_markers.push(obj_endMarker);
+		str_html += '<tr><td><img src="../static/images/green_MarkerA.png" width="25px" />起点</td><td>'+ obj_first.name +'</td></tr>';
+		str_html += '<tr><td><img src="../static/images/green_MarkerB.png" width="25px" />终点</td><td>'+ obj_second.name +'</td></tr>';
+		for ( var x = 2; x < n_delayLength; x++ ) {
+			var obj_point = arr_delayPoints[x],
+				obj_tempMarker = {};
+			
+			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, 0);
+			
+			str_html += '<tr><td><img src="../static/images/delay_Marker.png" width="25px" />停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</td><td>'+ obj_point.name +'</td></tr>';
+			arr_markers.push(obj_tempMarker);
+		}
+	}
+	obj_table.html(str_html).data('markers', arr_markers);
+
+	/** 
+	* 初始化奇偶行
+	*/
+	$('.delayTable tr').mouseover(function() {
+		$(this).css({'background-color': '#FFFACD', 'cursor': 'pointer'});
+	}).mouseout(function() {
+		$(this).css('background-color', '');
+	}).click(function() {
+		var arr_markerList = $('.delayTable').data('markers'),
+			n_index = $(this).index(),
+			obj_tempMarker = arr_markerList[n_index];
+		
+		obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
+	});
+	
+}
+
+/**
 * 添加轨迹线和轨迹点
 */
 function fn_startDrawLineStatic(arr_dataArr) {
 	$('#tPlay, #trackSpeed').css('display', 'inline-block');
-	var arr = new Array(); //经纬度坐标数组 
+	var arr = new Array(), //经纬度坐标数组 
+		obj_firstMarker = {},
+		obj_endMarker = {};
 	
 	for (var i = 0; i < arr_dataArr.length; i++) {
 		arr.push(dlf.fn_createMapPoint(arr_dataArr[i].clongitude, arr_dataArr[i].clatitude));
 	}
 	var polyline = dlf.fn_createPolyline(arr);	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	
-	dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
-	dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
+	obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
+	obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
+	
+	// 如果是集团用户的轨迹查询 显示停留点数据信息
+	if ( dlf.fn_userType() ) {
+		// 添加停留点marker
+		var arr_delayPoints = $('#trackHeader').data('delayPoints'),
+			arr_tempDelay = [];
+		
+		arr_tempDelay.push(arr_dataArr[0]);
+		arr_tempDelay.push(arr_dataArr[arr_dataArr.length - 1]);
+		for ( var x = 0; x < arr_delayPoints.length; x++ ) {
+			arr_tempDelay.push(arr_delayPoints[x]);
+		}
+		fn_printDelayDatas(arr_tempDelay, obj_firstMarker, obj_endMarker);	// 显示停留数据
+	}
 	arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[0].clongitude, arr_dataArr[0].clatitude));
 
 	fn_createDrawLine();
@@ -417,6 +494,40 @@ window.dlf.fn_initTrackDatepicker = function() {
 $(function () {	
 	
 	dlf.fn_initTrackDatepicker();	// 初始化时间控件
+	$('.j_disPanelCon').unbind('mouseover mouseout click').bind('mouseover', function() {
+		var b_panel = $('.j_delayPanel').is(':visible'),
+			obj_arrowIcon = $('.j_arrowClick');
+		
+		if ( b_panel ) {
+			obj_arrowIcon.css('backgroundPosition', '-21px -29px');
+		} else {	// 关闭面板 鼠标移上去效果
+			obj_arrowIcon.css('backgroundPosition', '-37px -29px');
+		}
+	}).bind('mouseout', function() {
+		var b_panel = $('.j_delayPanel').is(':visible'),
+			obj_arrowIcon = $('.j_arrowClick');
+		
+		if ( b_panel ) {
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+		} else {
+			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+		}
+	}).bind('click', function() {
+		var obj_panel = $('.j_delayPanel'),
+			obj_arrowCon = $('.j_disPanelCon'),
+			obj_arrowIcon = $('.j_arrowClick'),
+			b_panel = obj_panel.is(':visible');
+		
+		if ( b_panel ) {
+			obj_panel.hide();
+			obj_arrowCon.css({'right': '0px'});
+			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+		} else {
+			obj_panel.show();
+			obj_arrowCon.css({'right': '263px'});
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+		}
+	});
 	/**
 	* 按钮变色
 	*/

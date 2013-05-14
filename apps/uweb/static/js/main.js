@@ -356,8 +356,13 @@ window.onresize = function () {
 		obj_tree.height(n_treeHeight);
 		$('#right, #corpRight, #navi, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent').css('width', n_right);	// 右侧宽度
 		
-		n_trackLeft = ( obj_track.width() ) / 4;
 		
+		
+		if ( dlf.fn_userType() ) {	// 集团用户
+			n_trackLeft = ( obj_track.width() ) / 5;
+		} else {
+			n_trackLeft = ( obj_track.width() ) / 4;
+		}
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		$('.eventSearchContent, .mileageContent, .operatorContent').css('height', n_mapHeight);
 		

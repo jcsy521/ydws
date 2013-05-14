@@ -265,6 +265,29 @@ window.dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
 	}
 }
 
+window.dlf.fn_changeTimestampToString = function(n_timestamp) {
+	var n_tempMinute = Math.round(n_timestamp/60),
+		n_minute = n_tempMinute,
+		n_hour = 0,
+		n_day = 0,
+		str_time = '';
+		
+	if ( n_tempMinute >= 60 ) {
+		n_minute = n_tempMinute%60;
+		n_hour = Math.floor(n_tempMinute/60);
+		
+		if ( n_hour >= 12 ) {
+			n_hour = n_hour%12;
+			n_day = Math.floor(n_hour/12);
+			
+			str_time += n_day + '天 ';	
+		}
+		str_time += n_hour + '时';	
+	}
+	str_time += n_minute + '分 ';
+	return str_time;
+}
+
 /**
 	* 页面显示提示信息,替代alert
 	* messages:要显示的消息内容
@@ -1420,6 +1443,16 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 							} else {
 								$('#white_list_2').attr('t_val', '');
 							}
+						} else if ( param == 'icon_type' ) {
+							var obj_current = $('.j_currentCar'),
+								str_tid = obj_current.attr('tid'),
+								n_imgDegree = obj_current.attr('degree'),
+								str_iconUrl = dlf.fn_setMarkerIconType(dlf.fn_processDegree(n_imgDegree), str_val);
+							
+							obj_current.attr('icon_type', str_val);
+							obj_selfmarkers[str_tid].setIcon(new BMap.Icon(str_iconUrl, new BMap.Size(34, 34)));
+							dlf.fn_updateTerminalLogin(obj_current);	
+							$('#corp_' + param ).attr('t_val', str_val);
 						} else {
 							if ( url == '/smsoption' ) {
 								for ( var param in obj_data ) {

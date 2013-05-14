@@ -282,13 +282,13 @@ function customMenu(node) {
 		delete items.rename;
 		delete items.batchDefend;
 		delete items.batchRegion;
+		delete items.singleDelete;
 		
 		/*delete items.moveTo;
 		delete items.event;	
 		delete items.terminalSetting;
 		delete items.defend;
 		delete items.statics;
-		delete items.singleDelete;
 		delete items.bindRegion;*/
    }
    return items;
@@ -696,15 +696,17 @@ window.dlf.fn_corpGetCarData = function() {
 							var obj_car = arr_cars[x],
 								str_tid = obj_car.tid,
 								str_alias= obj_car.alias,
+								n_degree = obj_car.degree,	// icon_type
+								n_iconType = obj_car.icon_type,	// icon_type
 								str_mobile = obj_car.mobile,	// 车主手机号
 								str_login = obj_car.login;
 								
 							obj_carsData[str_tid] =  obj_car;
 							arr_tempTids.push(str_tid); //tid组string 串
 							if ( str_login == LOGINOUT ) {
-								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';
+								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';
 							} else {
-								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';	
+								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';	
 							}
 							
 							if ( str_tempTid != '' && str_tempTid == str_tid ) {
@@ -902,21 +904,47 @@ function fn_updateAllTerminalLogin() {
 	});
 }
 
+/**
+* 设置定位器的图标
+* n_iconType: 图标类型
+* n_login:  在线状态
+*/
+function fn_setIconType(n_iconType, n_login) {
+	var str_tempImgUrl = '';
+	
+	if ( n_iconType == 0 ) {	// 车或摩托车
+		str_tempImgUrl = 'icon_car';
+	} else if ( n_iconType == 1  ) {
+		str_tempImgUrl = 'icon_moto';
+	} else if ( n_iconType == 2 ) {	// 人
+		str_tempImgUrl = 'icon_person';
+	} else if ( n_iconType == 3 ) {
+		str_tempImgUrl = 'icon_default';
+	}
+	return str_tempImgUrl + n_login + '.png';
+}
+
+/**
+* obj_this: 要更新的定位器对象
+* 更新定位器在线离线图标
+*/
 window.dlf.fn_updateTerminalLogin = function(obj_this) {
 	var	str_login = obj_this.attr('clogin'),
+		n_iconType = obj_this.attr('icon_type'),	// icon_type
 		str_imgUrl = '',
 		str_color = '',
 		obj_ins = obj_this.children('ins[class=jstree-icon]');	// todo
 	
 	if ( str_login == LOGINOUT ) {
-		str_imgUrl = 'offline.png';
+		// str_imgUrl = 'offline.png';
 		str_color = 'gray';
 	} else {
-		str_imgUrl = 'online.png';
+		// str_imgUrl = 'online.png';
 		str_color = '#24d317';
 	}
+	str_imgUrl = fn_setIconType(n_iconType, str_login);	// 设置图标url
 	obj_this.css('color', str_color);
-	obj_ins.css('background', 'url("/static/images/corpImages/'+ str_imgUrl +'") no-repeat');
+	obj_ins.css('background', 'url("/static/images/corpImages/terminalIcons/'+ str_imgUrl +'") no-repeat');
 	if ( $.browser.msie ) {
 		if ( $.browser.version == "7.0" ) {
 			obj_ins.css('backgroundPosition', '0px -1px');
@@ -1168,6 +1196,7 @@ window.dlf.fn_cTerminalSave = function() {
 	var str_tmobile = $('#c_tmobile').val(),
 		str_umobile = $('#c_umobile').val(),
 		str_cnum = $('#c_cnum').val(),
+		n_iconType = parseInt($('.cTerminalList input:checked').val());
 		n_groupId = parseInt($('#hidGroupId').val()),
 		obj_corpData = {};
 		
@@ -1175,6 +1204,7 @@ window.dlf.fn_cTerminalSave = function() {
 	obj_corpData['group_id'] = n_groupId;
 	obj_corpData['umobile'] = str_umobile;
 	obj_corpData['cnum'] = str_cnum;
+	obj_corpData['icon_type'] = n_iconType;
 	dlf.fn_jsonPost(TERMINALCORP_URL, obj_corpData, 'cTerminal', '定位器信息保存中');
 }
 

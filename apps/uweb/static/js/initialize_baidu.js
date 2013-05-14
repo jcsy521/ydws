@@ -47,6 +47,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		n_degree = obj_carInfo.degree,
+		n_iconType = obj_carInfo.icon_type,	// icon_type
 		obj_tempVal = dlf.fn_checkCarVal(str_tid), // 查询缓存中是否有当前车辆信息
 		obj_tempPoint = new BMap.Point(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
@@ -55,7 +56,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_selfMarker = obj_selfmarkers[str_tid],		// obj_carA.data('selfmarker'), 
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
 		obj_selfPolyline = 	obj_polylines[str_tid],		// obj_carA.data('selfpolyline'),
-		n_carIndex = obj_carA.parent().index();	// 个人用户车辆索引
+		n_carIndex = obj_carA.parent().index(),	// 个人用户车辆索引
+		str_iconUrl = '';
 
 	if ( !str_alias ) {	// 如果无alias ，从车辆列表获取
 		str_alias = obj_carA.next().html() || obj_carA.text();
@@ -88,7 +90,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_selfMarker.getLabel().setContent(str_alias);	// label上的alias值
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
-		obj_selfMarker.setIcon(new BMap.Icon(BASEIMGURL +n_imgDegree+'.png', new BMap.Size(34, 34)));	// 设置方向角图片
+		
+		if ( dlf.fn_userType() ) {
+			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType);
+		} else {
+			str_iconUrl = BASEIMGURL + n_imgDegree + '.png';
+		}
+		obj_selfMarker.setIcon(new BMap.Icon(str_iconUrl, new BMap.Size(34, 34)));	// 设置方向角图片
 		//obj_carA.data('selfmarker', obj_selfMarker);
 		obj_selfmarkers[str_tid] = obj_selfMarker;
 	} else { 
@@ -111,6 +119,28 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 			clearInterval(obj_toWindowInterval);
 		}
 	}, 500);
+}
+
+/**
+* 设置地图marker的icon图标=
+*/
+window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType) {
+	// 集团用户icon_type icon显示不同图标
+		var str_tempImgUrl = '',
+			str_dir = CORPIMGURL + 'terminalIcons/';
+		
+		if ( n_iconType == 0 ) {	// 车或摩托车
+			str_tempImgUrl = n_degree;
+			str_dir = BASEIMGURL;
+		} else if ( n_iconType == 1 ) {
+			str_tempImgUrl = 'moto';
+		} else if ( n_iconType == 2 ) {	// 人
+			str_tempImgUrl = 'person';
+		} else if ( n_iconType == 3 ) {
+			str_tempImgUrl = 'default';
+		}
+		
+	return str_dir + str_tempImgUrl + '.png';
 }
 
 /**

@@ -8,6 +8,7 @@
 var arr_dwRecordData = [],	// 后台查询到的报警记录数据
 	n_dwRecordPageCnt = -1,	// 查询到数据的总页数,默认-1
 	n_dwRecordPageNum = 0,	// 当前所在页数
+	arr_eventData = [],	// 后台查询到的报警记录数据
 	chart = null;
 	
 /**
@@ -47,6 +48,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'mileage' || str_who == 'operator' ) { // 里程统计 告警统计 
+		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'singleEvent'|| str_who == 'singleMileage' ) {
@@ -424,49 +426,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			});
 			//告警查询,添加点击显示上地图事件,并做数据存储
 			if ( str_who == 'eventSearch' ) {
-				/**
-				* 用户点击位置进行地图显示
-				*/
-				
-				$('.j_eventItem').click(function(event) {
-					dlf.fn_clearMapComponent();
-					// 设置地图父容器 小地图显示 地图title显示
-					fn_ShowOrHideMiniMap(true, event);
-					dlf.fn_showOrHideControl(false);
-					// 根据行编号拿到数据，在地图上做标记显示
-					var n_tempIndex = $(this).parent().parent().index()-1,
-						obj_tempData = arr_dwRecordData[n_tempIndex];
-					
-						dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true); // 添加标记
-						setTimeout (function () {
-							// 为了正常显示暂时给告警的点加部分偏移进行显示:)
-							var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude, obj_tempData.clatitude),
-								n_category = obj_tempData.category,
-								n_rid = obj_tempData.rid;
-							
-							// 如果是进出围栏告警则显示电子围栏
-							if ( n_category == 7 || n_category == 8 ) {
-								$.get_(GETREGIONDATA_URL +'?rid='+ n_rid, '', function (data) {  
-									if ( data.status == 0 ) {
-										var obj_circleData = data.region,
-											obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
-										
-										dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
-										dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
-									} else if ( data.status == 201 ) {	// 业务变更
-										dlf.fn_showBusinessTip();
-									} else { // 查询状态不正确,错误提示
-										dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
-									}
-								}, 
-								function (XMLHttpRequest, textStatus, errorThrown) {
-									dlf.fn_serverError(XMLHttpRequest);
-								});
-							} else {
-								dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
-							}
-						}, 100);
-				});
+				dlf.fn_showMarkerOnEvent();
 				// 关闭小地图
 				$('.eventMapClose').unbind('click').bind('click', function() {
 					fn_ShowOrHideMiniMap(false);
@@ -495,6 +455,52 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 	}
 }
 
+window.dlf.fn_showMarkerOnEvent = function() {
+	/**
+	* 用户点击位置进行地图显示
+	*/
+	
+	$('.j_eventItem').click(function(event) {
+		dlf.fn_clearMapComponent();
+		// 设置地图父容器 小地图显示 地图title显示
+		fn_ShowOrHideMiniMap(true, event);
+		dlf.fn_showOrHideControl(false);
+		// 根据行编号拿到数据，在地图上做标记显示
+		var n_tempIndex = $(this).parent().parent().index()-1,
+			obj_tempData = arr_dwRecordData[n_tempIndex];
+
+			dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true, n_tempIndex); // 添加标记
+			setTimeout (function () {
+				// 为了正常显示暂时给告警的点加部分偏移进行显示:)
+				var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude, obj_tempData.clatitude),
+					n_category = obj_tempData.category,
+					n_rid = obj_tempData.rid;
+				
+				// 如果是进出围栏告警则显示电子围栏
+				if ( n_category == 7 || n_category == 8 ) {
+					$.get_(GETREGIONDATA_URL +'?rid='+ n_rid, '', function (data) {  
+						if ( data.status == 0 ) {
+							var obj_circleData = data.region,
+								obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
+							
+							dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
+							dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
+						} else if ( data.status == 201 ) {	// 业务变更
+							dlf.fn_showBusinessTip();
+						} else { // 查询状态不正确,错误提示
+							dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
+						}
+					}, 
+					function (XMLHttpRequest, textStatus, errorThrown) {
+						dlf.fn_serverError(XMLHttpRequest);
+					});
+				} else {
+					dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
+				}
+			}, 100);
+	});
+}
+
 /**
 * 根据数据和页面不同生成相应的table域内容
 */
@@ -503,6 +509,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	
 	if ( str_who == 'eventSearch' ) {
 		obj_searchData = obj_reaData.events;
+		arr_eventData = obj_searchData;
 	}else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 		obj_searchData = obj_reaData.regions;
 		$('#regionTable').data('regions', obj_searchData); //围栏存储数据以便显示详细信息
@@ -521,6 +528,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		
 		switch (str_who) {
 			case 'operator': // 操作员查询
+				$('#'+ str_who +'TableHeader').show();
 				str_tbodyText+= '<tr id='+ str_id +'>';
 				str_tbodyText+= '<td groupId ='+ obj_tempData.group_id +'>'+ obj_tempData.group_name +'</td>';	//组名
 				str_tbodyText+= '<td>'+ obj_tempData.name +'</td>';	// 操作员姓名
@@ -552,7 +560,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 						str_tbodyText+= '<td>无</td>';	
 					} else {
 						if ( str_location == '' || str_location == null ) {
-							str_tbodyText+= '<td><a href="#"   onclick=dlf.fn_getAddressByLngLat('+n_lng+','+n_lat+','+ i +',"event") class="j_getPosition getPositionCss">获取位置</a></td>';
+							str_tbodyText+= '<td><a href="#" onclick="dlf.fn_getAddressByLngLat(\"'+n_lng+'\",\"'+n_lat+'\",'+i+',"event")" class="j_getPosition getPositionCss">获取位置</a></td>';
 						} else {
 							str_tbodyText+= '<td><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
 						}
@@ -565,6 +573,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_tbodyText+= '</tr>';
 				break;
 			case 'mileage': // 里程 统计
+				$('#'+ str_who +'TableHeader').show();
 				str_tbodyText+= '<tr>';
 				str_tbodyText+= '<td>'+ obj_tempData.alias +'</td>';	// 车牌号
 				str_tbodyText+= '<td>'+ obj_tempData.distance +'</td>';	//里程 

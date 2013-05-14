@@ -205,6 +205,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		marker = null,
 		str_alias = obj_location.alias,
 		str_tid = obj_location.tid,
+		n_iconType = obj_location.icon_type || $('#leaf_' + str_tid).attr('icon_type'),	// icon_type 
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null; 
 
@@ -217,10 +218,15 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	/**
 	* 设置marker图标
 	*/
+	if ( dlf.fn_userType() ) {	// 集团用户修改图标
+		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType);	// 集团用户设置marker的图标
+	}
 	if ( str_iconType == 'start' ) {	// 轨迹起点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {	// 轨迹终点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerB.png';
+	} else if ( str_iconType == 'delay' ) {	// 停留点图标
+		myIcon.imageUrl = BASEIMGURL + 'delay_Marker.png';
 	}
 	
 	marker= new BMap.Marker(mPoint, {icon: myIcon}); 
@@ -236,7 +242,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		//obj_carItem.data('selfmarker', marker);
 		//obj_carItem.data('selfLable', marker.getLabel());
 		dlf.fn_setOptionsByType('center', mPoint);
-	} else if ( str_iconType == 'start' || str_iconType == 'end' ) {
+	} else if ( str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'delay' ) {
 		marker.setOffset(new BMap.Size(-1, -14));
 	} else if ( str_iconType == 'eventSurround' ) {
 		marker.setLabel(label);
@@ -288,6 +294,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 			this.openInfoWindow(infoWindow);
 		}
 	});
+	
+	return marker;
 }
 /*
 * 吹出框的关闭按钮显示
@@ -313,6 +321,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_clat = obj_location.clatitude/NUMLNGLAT,
 		str_type = obj_location.type == GPS_TYPE ? 'GPS定位' : '基站定位',
 		str_alias = obj_location.alias,
+		str_delayTime = obj_location.idle_time,
 		str_title = '车辆：',
 		str_tempMsg = '开始跟踪',
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
@@ -369,10 +378,10 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 					address = '正在获取位置描述' + WAITIMG; 
 					dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
 				}
-			} else if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' )  {
+			} else if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'delay' )  {
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'draw\','+ n_index +');">获取位置</a>'; 
 			} else {
-				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',"'+str_tid+',event");">获取位置</a>'; 
+				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'event\','+ n_index +');">获取位置</a>'; 
 			}
 		}
 	} else {	// 判断是否是当前车辆
@@ -392,26 +401,38 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	if ( str_alias ) { // 如果是轨迹回放 
 		str_title += str_alias;
 	} else {
-		str_title += $('.j_carList a[tid='+str_tid+']').next().html();
-	}
-	str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
-				'<li><label>速度： '+ speed+' km/h</label>'+
-				'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
-				'<li><label>经度： E '+str_clon.toFixed(CHECK_ROUNDNUM)+'</label>'+
-				'<label class="labelRight">纬度： N '+str_clat.toFixed(CHECK_ROUNDNUM)+'</label></li>'+
-				'<li>类型： '+ str_type +'</li>'+
-				'<li>时间： '+ date +'</li>' + 
-				'<li>位置： <lable class="lblAddress">'+ address +'</label></li>';
-
-	if ( str_iconType == 'actiontrack' ) {
-		str_html+='<li class="top10"><a href="#" id="realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
-		if ( dlf.fn_userType() ) {	// 如果是集团用户的话 定位、轨迹、设防撤防、参数设置放在marker上
-			str_html+='<a href="#" id="corpTerminal"  onclick="dlf.fn_initCorpTerminal();">设置</a>';
-		} else {	// 如果是个人用户
-			str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
+		if ( dlf.fn_userType() ) {
+			str_title += $('.j_carList a[id=leaf_'+ str_tid +']').text().substr(2); 
+		} else {
+			str_title += $('.j_carList a[tid='+str_tid+']').next().html();
 		}
-		str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
-	}	
+	}
+	if ( str_iconType == 'delay' ) {	// 如果是轨迹播放的停留点 infowindow显示内容不同
+		str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
+					'<li><label>停留：  '+ dlf.fn_changeTimestampToString(str_delayTime) +'</label>'+
+					'<li><label>开始：  '+ dlf.fn_changeNumToDateString(obj_location.start_time) +'</label>'+
+					'<li><label>结束：  '+ dlf.fn_changeNumToDateString(obj_location.end_time) +'</label></li>' + 
+					'<li>位置： <lable class="lblAddress">'+ address +'</label></li>';	
+	} else {
+		str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
+					'<li><label>速度： '+ speed+' km/h</label>'+
+					'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
+					'<li><label>经度： E '+str_clon.toFixed(CHECK_ROUNDNUM)+'</label>'+
+					'<label class="labelRight">纬度： N '+str_clat.toFixed(CHECK_ROUNDNUM)+'</label></li>'+
+					'<li>类型： '+ str_type +'</li>'+
+					'<li>时间： '+ date +'</li>' + 
+					'<li>位置： <lable class="lblAddress">'+ address +'</label></li>';
+
+		if ( str_iconType == 'actiontrack' ) {
+			str_html+='<li class="top10"><a href="#" id="realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
+			if ( dlf.fn_userType() ) {	// 如果是集团用户的话 定位、轨迹、设防撤防、参数设置放在marker上
+				str_html+='<a href="#" id="corpTerminal"  onclick="dlf.fn_initCorpTerminal();">设置</a>';
+			} else {	// 如果是个人用户
+				str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
+			}
+			str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+		}	
+	}
 	str_html += '</ul></div>';
 	return str_html;
 }
@@ -453,18 +474,18 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 	} else if ( str_type == 'event' ) {
 		if ( n_lon != 'none' ) {
 			var str_tempAddress = str_result.length >= 30 ? str_result.substr(0,30) + '...':str_result;
-		
-			$('#eventResult tr').eq(tid+1).find('.j_getPosition').parent().html('<label href="#" title="'+ str_result +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lon+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a>');
-			arr_eventData[tid].name = str_result;
-			dlf.fn_showMarkerOnEvent();
-		} else {
-			$('#eventResult tr').eq(tid+1).find('a').html(str_result).addClass('j_eventItem');
+			
+			$('.eventSearchTable tr').eq(n_index+1).find('.j_getPosition').parent().html('<label href="#" title="'+ str_result +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lon+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a>');
+			
+			$('#markerWindowtitle ul li').eq(4).html('位置： ' + str_result);	// 替换marker上的位置描述
+			
+			dlf.fn_showMarkerOnEvent();	// 初始化查看地图事件
 		}
 	} else {
 		if ( n_index >= 0 ) {
 			arr_dataArr[n_index].name = str_result;
 		}
-		obj_addressLi.html('位置：' + str_result);	// 替换marker上的位置描述
+		$('#markerWindowtitle ul li').eq(4).html('位置： ' + str_result);	// 替换marker上的位置描述
 	}
 }
 

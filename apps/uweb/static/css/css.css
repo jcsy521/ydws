@@ -783,8 +783,19 @@ body {
 .personalList input {
 	width: 282px;
 }
-.cTerminalList input {
+.cTerminalList .cTermninalInput {
 	width: 210px;
+}
+.cTerminalList .icon, .bListR .icon {
+	position: relative;
+    top: 3px;
+}
+.corp_radio {
+	position: relative;
+	top: 2px;
+}
+.corp_radio label {
+	margin-right: 10px;
 }
 .personalList input, .pwdList input, .cTerminalList input {
 	padding: 5px;
@@ -798,14 +809,14 @@ body {
     border: 1px solid #CDCDCD;
 	padding: 5px;
 }
-.personalList label, .pwdList label, .cTerminalList label {
+.personalList label, .pwdList label, .cTerminalList .cTerminalLabel {
 	display: inline-block;
     float: left;
     margin-right: 20px;
     text-align: right;
     width: 84px;
 }
-.cTerminalList label {
+.cTerminalList .cTerminalLabel {
 	width: 102px;
 }
 .pwdList {
@@ -1191,7 +1202,6 @@ body {
     text-align: left;
     top: 5px;
     width: 166px;
-	float: left;
 	padding-left: 10px;
 }
 .trackSpeed {
@@ -1208,6 +1218,46 @@ body {
 	display: inline-block;
 	height: 25px;
 	padding-left: 10px;
+}
+.disPanelCon {
+	position: absolute;
+	top: 72px;
+	right: 263px;
+	width: 18px;
+	height: 68px;
+	background: url('/static/images/arrowIcon.png');
+	cursor: pointer;
+}
+.disPanel {
+	position: absolute;
+	width: 5px;
+	height: 10px;
+	margin: 29px 0 0 7px;
+	background: url('/static/images/arrowIcon.png') no-repeat -29px -29px;
+	cursor: pointer;
+	overflow: hidden;
+}
+.delayPanel {
+	position: absolute;
+	right: 0px;
+	top: 72px;
+	background-color: #F0F4F9;
+	border: 1px solid #A0AFD4;
+	width: 263px;
+}
+.delayTable {
+	width: 100%;
+	border: 0px;
+	border-collapse: collapse;
+}
+.delayTable td {
+	border: 1px solid #C1D2E5;
+    height: 23px;
+    line-height: 34px;
+}
+.delayTable img {
+	position: relative;
+    top: 5px;
 }
 .tSearch {
 	background: url('/static/images/trackcx1.png') no-repeat;
@@ -1288,7 +1338,7 @@ body {
 	width: 850px;
 	border-collapse: collapse;
 }
-.dataTable tr {
+.dataTable tr, .delayTable tr {
 	border: 1px solid #c1d2e5;
 }
 .dataTable td{
@@ -2140,7 +2190,7 @@ body {
 }
 .cTerminalContent, .cTerminalEditContent {
 	padding-top: 10px;
-	height: 189px;
+	height: 212px;
 }
 .staticsContent {
 	width: 800px;
@@ -2222,7 +2272,7 @@ fieldset {
     width: 425px;
 }
 .corpFieldSet {
-	height: 185px
+	height: 153px
 }
 legend {
 	display:block;
@@ -2235,7 +2285,7 @@ legend {
 	line-height: 24px;
 }
 #corpTerminalWrapper .corpTerminalContent {
-	height: 510px;	/* 400px*/
+	height: 500px;	/* 400px*/
 	width: 487px;
 }
 .corp_smsList {
