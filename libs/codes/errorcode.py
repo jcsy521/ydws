@@ -55,6 +55,7 @@ class ErrorCode(object):
 
     QUERY_TRACK_FORBID = 700
     QUERY_INTERVAL_EXCESS = 701
+    REGION_ADDITION_EXCESS = 702
 
     TERMINAL_OFFLINE = 800
     TERMINAL_OTHER_ERRORS = 802
@@ -96,6 +97,7 @@ class ErrorCode(object):
         SERVER_BUSY:                   u"服务器忙，请稍后重试。",
         QUERY_TRACK_FORBID:            u"您使用的是简易版移动车卫士，不支持轨迹查询功能。",
         QUERY_INTERVAL_EXCESS:         u"对不起，只能查询一个星期之内的记录！",
+        REGION_ADDITION_EXCESS:        u"对不起，电子围栏数已超过上限。",
         TERMINAL_NOT_ORDERED:          u"对不起，该号码尚未绑定定位器。",
         MOBILE_NOT_ORDERED:            u"%s不是移动车卫士白名单号码，请联系客服。",
         TERMINAL_NOT_EXISTED:          u"对不起，该终端不存在。",

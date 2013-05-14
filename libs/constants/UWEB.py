@@ -49,7 +49,9 @@ LOGIN_WAY=DotDict(WEB=u"WEB",
 
 LIMIT=DotDict(PAGE_SIZE=10, # you can have up to 10 records in one page
               PAGE_SIZE_STATISTICS=16, # you can have up to 16 records in statistics page
-              TERMINAL=2) # one user have 2 terminal at most.
+              TERMINAL=2,# one user have 2 terminal at most.
+              REGION=10,# a terminal has up to 10 regions.
+              ) 
 
 CATEGORY=DotDict(UNKNOWN=0,
                  WEB=10,

@@ -82,6 +82,17 @@ class RegionHandler(BaseHandler):
             return
 
         try:
+            regions = self.db.query("SELECT id"
+                                    "  FROM T_REGION"
+                                    "  WHERE cid = %s",
+                                    self.current_user.cid)
+            if len(regions) > UWEB.LIMIT.REGION - 1:
+                status = ErrorCode.REGION_ADDITION_EXCESS
+                logging.info("[UWEB] add region reach max limit number %s, cid: %s", 
+                             UWEB.LIMIT.REGION, self.current_user.cid)
+                self.write_ret(status)
+                return
+                
             status = ErrorCode.SUCCESS
             region_name = data.region_name
             longitude = data.longitude
