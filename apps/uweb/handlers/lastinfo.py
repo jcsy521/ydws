@@ -52,7 +52,7 @@ class LastInfoHandler(BaseHandler):
                 if not terminal:
                     terminal = self.db.get("SELECT mannual_status, defend_status,"
                                            "  fob_status, mobile, login, gps, gsm,"
-                                           "  pbat, keys_num"
+                                           "  pbat, keys_num, icon_type"
                                            "  FROM T_TERMINAL_INFO"
                                            "  WHERE tid = %s",
                                            tid)
@@ -221,7 +221,7 @@ class LastInfoCorpHandler(BaseHandler):
                     if not terminal:
                         terminal = self.db.get("SELECT mannual_status, defend_status,"
                                                "  fob_status, mobile, login, gps, gsm,"
-                                               "  pbat, keys_num"
+                                               "  pbat, keys_num, icon_type"
                                                "  FROM T_TERMINAL_INFO"
                                                "  WHERE tid = %s", tid)
 
@@ -300,6 +300,7 @@ class LastInfoCorpHandler(BaseHandler):
                                      alias=terminal['alias'],
                                      #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                                      keys_num=0,
+                                     icon_type=terminal['icon_type'] if terminal.get('icon_type', None) is not None else 0,
                                      fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
                     group['cars'].append(car_info)
                 res.groups.append(group)

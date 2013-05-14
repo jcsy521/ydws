@@ -11,6 +11,7 @@ from utils.misc import get_lqgz_key
 from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
+from helpers.lbmphelper import get_distance 
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
 
@@ -110,14 +111,42 @@ class TrackHandler(BaseHandler):
                                       "    AND type = 0"
                                       "    ORDER BY timestamp",
                                       self.current_user.tid, start_time, end_time)
+
+            # add idle_points  
+            # track1, track2, track3,...
+            # when the distance between two points is larger than 10 meters and the interval is less than 5 minutes, 
+            # they are regarded as idle_points
+            idle_lst = []
+            idle_points = []
+            for i, item_start in enumerate(track):
+               is_idle = False 
+               if i in idle_lst:
+                   continue
+               for j in range(i+1,len(track)):
+                   item_end = track[j]
+                   distance = get_distance(item_start.clongitude, item_start.clatitude, item_end.clongitude, item_end.clatitude) 
+                   if distance >= UWEB.IDLE_DISTANCE:
+                       break
+                   else:
+                       idle_time = item_end['timestamp'] - item_start['timestamp']
+                       item_start['idle_time'] = idle_time
+                       item_start['start_time'] = item_start['timestamp']
+                       item_start['end_time'] = item_end['timestamp']
+                       idle_lst.append(j)
+                       is_idle = True
+               if is_idle and item_start['idle_time'] > UWEB.IDLE_INTERVAL: 
+                   idle_points.append(item_start)
+
+            # modify name & degere 
             terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
             for item in track:
                 item['degree'] = float(item['degree'])
                 if item.name is None:
                     item['name'] = ''
-                
+
             self.write_ret(status,
-                           dict_=DotDict(track=track))
+                           dict_=DotDict(track=track,
+                                         idle_points=idle_points))
         except Exception as e:
             logging.exception("[UWEB] uid: %s, tid: %s get track failed. Exception: %s. ", 
                               self.current_user.uid, self.current_user.tid, e.args )

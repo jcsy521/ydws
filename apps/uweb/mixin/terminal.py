@@ -15,6 +15,7 @@ class TerminalMixin(BaseMixin):
     def update_terminal_db(self, car_sets):
         """Update database.
         """
+        # these fileds just need to be modified in db
         terminal_keys = ['cellid_status','white_pop','trace','freq', 'vibchk', 'vibl','push_status']
         terminal_fields = []
         
@@ -48,7 +49,17 @@ class TerminalMixin(BaseMixin):
                 if terminal_info:
                     terminal_info[key] = value 
                     self.redis.setvalue(terminal_info_key, terminal_info)
+            elif key == 'icon_type':
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET icon_type = %s"
+                                "  WHERE tid = %s",
+                                value, self.current_user.tid)
 
+                terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                if terminal_info:
+                    terminal_info[key] = value 
+                    self.redis.setvalue(terminal_info_key, terminal_info)
             elif key == 'corp_cnum':
                 self.db.execute("UPDATE T_CAR"
                                 "  SET cnum = %s"
