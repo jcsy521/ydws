@@ -205,7 +205,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		marker = null,
 		str_alias = obj_location.alias,
 		str_tid = obj_location.tid,
-		n_iconType = obj_location.icon_type || $('#leaf_' + str_tid).attr('icon_type'),	// icon_type 
+		n_iconType = obj_location.icon_type,	// icon_type 
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null; 
 
@@ -234,7 +234,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	marker.selfInfoWindow = infoWindow;
 	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
 		actionMarker = marker;
-		marker.setIcon(marker.getIcon().setImageUrl( BASEIMGURL + n_degree+'.png' ));
+		marker.setIcon(marker.getIcon().setImageUrl( dlf.fn_setMarkerIconType(n_degree, n_iconType)));
+		// marker.setIcon(marker.getIcon().setImageUrl( BASEIMGURL + n_degree+'.png' ));
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
 		marker.setLabel(label);
 		var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum);

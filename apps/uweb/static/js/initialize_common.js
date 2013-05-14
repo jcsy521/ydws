@@ -276,9 +276,9 @@ window.dlf.fn_changeTimestampToString = function(n_timestamp) {
 		n_minute = n_tempMinute%60;
 		n_hour = Math.floor(n_tempMinute/60);
 		
-		if ( n_hour >= 12 ) {
-			n_hour = n_hour%12;
-			n_day = Math.floor(n_hour/12);
+		if ( n_hour >= 24 ) {
+			n_hour = n_hour%24;
+			n_day = Math.floor(n_hour/24);
 			
 			str_time += n_day + '天 ';	
 		}

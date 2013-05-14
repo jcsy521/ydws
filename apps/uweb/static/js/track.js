@@ -154,6 +154,7 @@ function fn_trackQuery() {
 				
 				for (var i = 0; i < locLength; i++) {
 					var obj_currentLoc = arr_locations[i],
+						str_tid = obj_currentLoc.tid,
 						obj_firstPoint = dlf.fn_createMapPoint(obj_currentLoc.clongitude, obj_currentLoc.clatitude);
 						
 					for ( var j = i + 1; j < locLength; j++ ) {
@@ -162,6 +163,7 @@ function fn_trackQuery() {
 							
 						dlf.fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
 					}
+					arr_locations[i].icon_type = $('.j_currentCar').attr('icon_type');
 					//arr_dataArr[i].alias = str_alias;
 				}
 				// 存储停留点信息
@@ -323,6 +325,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 			obj_tempMarker = arr_markerList[n_index];
 		
 		obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
+		mapObj.setCenter(obj_tempMarker.getPosition());
 	});
 	
 }

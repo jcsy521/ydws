@@ -1237,15 +1237,20 @@ body {
 	cursor: pointer;
 	overflow: hidden;
 }
+.delayDiv {
+	max-height: 400px;
+	overflow-x: hidden;
+    overflow-y: scroll;
+}
 .delayPanel {
 	position: absolute;
 	right: 0px;
 	top: 72px;
-	background-color: #F0F4F9;
-	border: 1px solid #A0AFD4;
 	width: 263px;
 }
 .delayTable {
+	overflow: scroll;
+	background-color: #F0F4F9;
 	width: 100%;
 	border: 0px;
 	border-collapse: collapse;

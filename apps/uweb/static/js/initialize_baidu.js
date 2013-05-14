@@ -139,7 +139,7 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType) {
 		} else if ( n_iconType == 3 ) {
 			str_tempImgUrl = 'default';
 		}
-		
+	
 	return str_dir + str_tempImgUrl + '.png';
 }
 
