@@ -47,52 +47,13 @@ class LastInfoHandler(BaseHandler):
             # 1 inquery data     
             for tid in tids:
                 # 1: get terminal info 
-                terminal_info_key = get_terminal_info_key(tid)
-                terminal = self.redis.getvalue(terminal_info_key)
-                if not terminal:
-                    terminal = self.db.get("SELECT mannual_status, defend_status,"
-                                           "  fob_status, mobile, login, gps, gsm,"
-                                           "  pbat, keys_num, icon_type"
-                                           "  FROM T_TERMINAL_INFO"
-                                           "  WHERE tid = %s",
-                                           tid)
-
-                    terminal = DotDict(terminal)
-                    terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
-                    fobs = self.db.query("SELECT fobid FROM T_FOB"
-                                         "  WHERE tid = %s", tid)
-                    terminal['fob_list'] = [fob.fobid for fob in fobs]
-
-                    self.redis.setvalue(terminal_info_key, DotDict(terminal))
+                terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
 
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
 
                 # 2: get location 
-                location_key = get_location_key(str(tid))
-                location = self.redis.getvalue(location_key)
-                if not location:
-                    location = self.db.get("SELECT id, speed, timestamp, category, name,"
-                                           "  degree, type, latitude, longitude, clatitude, clongitude, timestamp"
-                                           "  FROM T_LOCATION"
-                                           "  WHERE tid = %s"
-                                           "    AND NOT (clatitude = 0 AND clongitude = 0)"
-                                           "    ORDER BY timestamp DESC"
-                                           "    LIMIT 1",
-                                           tid)
-                    if location:
-                        mem_location = DotDict({'id':location.id,
-                                                'latitude':location.latitude,
-                                                'longitude':location.longitude,
-                                                'type':location.type,
-                                                'clatitude':location.clatitude,
-                                                'clongitude':location.clongitude,
-                                                'timestamp':location.timestamp,
-                                                'name':location.name,
-                                                'degree':float(location.degree),
-                                                'speed':float(location.speed)})
-
-                        self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+                location = QueryHelper.get_location_info(tid, self.db, self.redis)
 
                 if location and location['name'] is None:
                     location['name'] = ''
@@ -216,31 +177,7 @@ class LastInfoCorpHandler(BaseHandler):
 
                 for tid in tids:
                     # 1: get terminal info 
-                    terminal_info_key = get_terminal_info_key(tid)
-                    terminal = self.redis.getvalue(terminal_info_key)
-                    if not terminal:
-                        terminal = self.db.get("SELECT mannual_status, defend_status,"
-                                               "  fob_status, mobile, login, gps, gsm,"
-                                               "  pbat, keys_num, icon_type"
-                                               "  FROM T_TERMINAL_INFO"
-                                               "  WHERE tid = %s", tid)
-
-                        if not terminal:
-                            status = ErrorCode.LOGIN_AGAIN
-                            logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
-                            self.write_ret(status)
-                            return
-
-                        car = self.db.get("SELECT cnum FROM T_CAR"
-                                          "  WHERE tid = %s", tid)
-
-                        fobs = self.db.query("SELECT fobid FROM T_FOB"
-                                             "  WHERE tid = %s", tid)
-                        terminal = DotDict(terminal)
-                        terminal['alias'] = car.cnum if car.cnum else terminal.mobile
-                        terminal['fob_list'] = [fob.fobid for fob in fobs]
-
-                        self.redis.setvalue(terminal_info_key, DotDict(terminal))
+                    terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
                     if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                         terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
 
@@ -250,30 +187,7 @@ class LastInfoCorpHandler(BaseHandler):
                         res['offline'] +=1
 
                     # 2: get location 
-                    location_key = get_location_key(str(tid))
-                    location = self.redis.getvalue(location_key)
-                    if not location:
-                        location = self.db.get("SELECT id, speed, timestamp, category, name,"
-                                               "  degree, type, latitude, longitude, clatitude, clongitude, timestamp"
-                                               "  FROM T_LOCATION"
-                                               "  WHERE tid = %s"
-                                               "    AND NOT (clatitude = 0 AND clongitude = 0)"
-                                               "    ORDER BY timestamp DESC"
-                                               "    LIMIT 1",
-                                               tid)
-                        if location:
-                            mem_location = DotDict({'id':location.id,
-                                                    'latitude':location.latitude,
-                                                    'longitude':location.longitude,
-                                                    'type':location.type,
-                                                    'clatitude':location.clatitude,
-                                                    'clongitude':location.clongitude,
-                                                    'timestamp':location.timestamp,
-                                                    'name':location.name,
-                                                    'degree':float(location.degree),
-                                                    'speed':float(location.speed)})
-
-                            self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+                    location = QueryHelper.get_location_info(tid, self.db, self.redis)
 
                     if location and location['name'] is None:
                         location['name'] = ''

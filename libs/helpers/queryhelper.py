@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
-from utils.misc import get_terminal_info_key, get_lq_sms_key
+from utils.misc import get_terminal_info_key, get_lq_sms_key, get_location_key
 from utils.dotdict import DotDict
-from constants import GATEWAY
+from constants import GATEWAY, EVENTER
 
 class QueryHelper(object):
     """A bunch of samll functions to get one attribute from another
@@ -188,7 +188,7 @@ class QueryHelper(object):
         if not terminal_info:
             terminal_info = db.get("SELECT mannual_status, defend_status,"
                                    "  fob_status, mobile, login, gps, gsm,"
-                                   "  pbat, keys_num"
+                                   "  pbat, keys_num, icon_type"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", tid)
             car = db.get("SELECT cnum FROM T_CAR"
@@ -200,4 +200,32 @@ class QueryHelper(object):
             redis.setvalue(terminal_info_key, terminal_info)
 
         return terminal_info
+
+    @staticmethod
+    def get_location_info(tid, db, redis):
+        location_key = get_location_key(str(tid))
+        location = redis.getvalue(location_key)
+        if not location:
+            location = db.get("SELECT id, speed, timestamp, category, name,"
+                              "  degree, type, latitude, longitude, clatitude, clongitude, timestamp"
+                              "  FROM T_LOCATION"
+                              "  WHERE tid = %s"
+                              "    AND NOT (clatitude = 0 AND clongitude = 0)"
+                              "    ORDER BY timestamp DESC"
+                              "    LIMIT 1",
+                              tid)
+            if location:
+                mem_location = DotDict({'id':location.id,
+                                        'latitude':location.latitude,
+                                        'longitude':location.longitude,
+                                        'type':location.type,
+                                        'clatitude':location.clatitude,
+                                        'clongitude':location.clongitude,
+                                        'timestamp':location.timestamp,
+                                        'name':location.name,
+                                        'degree':float(location.degree),
+                                        'speed':float(location.speed)})
+
+                redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+        return location
 
