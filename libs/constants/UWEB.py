@@ -29,7 +29,7 @@ IOS_MAX_SIZE = 160 # in bytes.
 CELLID_MAX_OFFSET = 1000 # in metre
 
 IDLE_INTERVAL = 5 * 60 # 5 minutes, in second. 
-IDLE_DISTANCE  = 10 # in metre 
+IDLE_DISTANCE  = 100 # in metre 
 
 USER_TYPE=DotDict(PERSON='individual',
                   CORP='enterprise',
