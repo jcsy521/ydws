@@ -228,7 +228,7 @@ def handle_location(location, redis, cellid=False, db=None):
                                             location.lat,
                                             old_location.longitude,
                                             old_location.latitude)
-                    if distance > 10000:
+                    if distance > 10000 and (location.gps_time - old_location.timestamp <= 60*60):
                         location.lat, location.lon = (old_location.latitude, old_location.longitude)
                         logging.info("[LBMPHELPER] drop odd location, new location: %s, old location: %s, distance: %s",
                                      location, old_location, distance)
