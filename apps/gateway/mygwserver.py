@@ -752,7 +752,7 @@ class MyGWServer(object):
                     cellid = True
                 else:
                     cellid = False
-                location = lbmphelper.handle_location(location, self.redis, cellid=cellid)
+                location = lbmphelper.handle_location(location, self.redis, cellid=cellid, db=self.db)
                 location.name = location.get('name') if location.get('name') else ""
                 location.name = safe_unicode(location.name)
                 locationdesc = location.name.encode("utf-8", 'ignore')
