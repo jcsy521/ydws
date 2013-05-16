@@ -134,7 +134,15 @@ class QueryHelper(object):
                       mobile) 
         return user
 
-
+    @staticmethod
+    def get_biz_by_mobile(mobile, db):
+        """Get user info throught tmobile.
+        """
+        biz = db.get("SELECT biz_type"
+                      "  FROM T_BIZ_WHITELIST"
+                      "  WHERE mobile = %s LIMIT 1",
+                      mobile) 
+        return biz 
 
     @staticmethod
     def get_terminal_by_tmobile(tmobile, db):
