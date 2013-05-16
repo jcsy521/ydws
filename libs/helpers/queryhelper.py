@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
-from utils.misc import get_terminal_info_key, get_lq_sms_key, get_location_key
+
+from utils.misc import get_terminal_info_key, get_lq_sms_key,\
+     get_location_key, get_login_time_key
 from utils.dotdict import DotDict
 from constants import GATEWAY, EVENTER
 
@@ -208,6 +210,19 @@ class QueryHelper(object):
             redis.setvalue(terminal_info_key, terminal_info)
 
         return terminal_info
+
+    @staticmethod
+    def get_login_time_by_tid(tid, db, redis):
+        login_time_key = get_login_time_key(tid)
+        login_time = redis.get(login_time_key)
+        if not login_time:
+            t = db.get("SELECT login_time FROM T_TERMINAL_INFO"
+                       "  WHERE tid = %s LIMIT 1",
+                       tid)
+            login_time = t.login_time
+            redis.set(login_time_key, login_time)
+
+        return login_time
 
     @staticmethod
     def get_location_info(tid, db, redis):

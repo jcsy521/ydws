@@ -228,10 +228,14 @@ def handle_location(location, redis, cellid=False, db=None):
                                             location.lat,
                                             old_location.longitude,
                                             old_location.latitude)
-                    if distance > 10000 and (location.gps_time - old_location.timestamp <= 60*60):
-                        location.lat, location.lon = (old_location.latitude, old_location.longitude)
-                        logging.info("[LBMPHELPER] drop odd location, new location: %s, old location: %s, distance: %s",
-                                     location, old_location, distance)
+                    if distance > 10000: 
+                        login_time = QueryHelper.get_login_time_by_tid(location.dev_id, db, redis)
+                        if old_location.timestamp <= login_time:
+                            pass
+                        else:
+                            location.lat, location.lon = (old_location.latitude, old_location.longitude)
+                            logging.info("[LBMPHELPER] drop odd location, new location: %s, old location: %s, distance: %s",
+                                         location, old_location, distance)
 
                 # 3: if there is a close gps-latlon, modify the cellid-latlon
                 location.lat, location.lon = handle_latlon_from_cellid(location.lat, location.lon, location.dev_id, redis, db)

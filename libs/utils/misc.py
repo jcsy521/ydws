@@ -116,6 +116,9 @@ def get_power_full_key(dev_id):
 def get_del_data_key(dev_id):
     return str("del_data:%s" % dev_id)
 
+def get_login_time_key(dev_id):
+    return str("login_time:%s" % dev_id)
+
 def get_terminal_time(timestamp):
     terminal_time = ""
     try:

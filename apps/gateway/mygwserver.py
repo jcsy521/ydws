@@ -26,7 +26,7 @@ from utils.myredis import MyRedis
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
-     get_resend_key, get_lastinfo_key
+     get_resend_key, get_lastinfo_key, get_login_time_key
 from utils.public import insert_location, delete_terminal
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
@@ -378,7 +378,7 @@ class MyGWServer(object):
                                   "  WHERE mobile = %s", t_info['t_msisdn'])
             if tmobile and tmobile.imsi and tmobile.imsi != t_info['imsi']:
                 args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                sms = SMSCode.SMS_TERMINAL_HK % (t_info['t_msisdn'])
+                sms = SMSCode.SMS_TERMINAL_HK % (t_info['dev_id'])
                 SMSHelper.send(t_info['u_msisdn'], sms)
                 lc = LoginRespComposer(args)
                 request = DotDict(packet=lc.buf,
@@ -388,9 +388,41 @@ class MyGWServer(object):
                               t_info['t_msisdn'], t_info['dev_id'])
                 return
 
-            terminal = self.db.get("SELECT id, mobile, owner_mobile"
+            terminal = self.db.get("SELECT id, mobile, owner_mobile, service_status"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", t_info['dev_id'])
+            if terminal:
+                if terminal.mobile != t_info['t_msisdn']:
+                    logging.info("[GW] Terminal: %s changed mobile, old mobile: %s, new mobile: %s",
+                                 t_info['dev_id'], terminal.mobile,
+                                 t_info['t_msisdn'])
+                    if (terminal.owner_mobile == t_info['u_msisdn'] or
+                        terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND):
+                        # delete old terminal!
+                        logging.info("[GW] Delete old tid bind relation. tid: %s, owner_mobile: %s, service_status: %s",
+                                     t_info['dev_id'], t_info['u_msisdn'],
+                                     terminal.service_status)
+                        delete_terminal(t_info['dev_id'], self.db, self.redis, del_user=False)
+                        exist = self.db.get("SELECT tid FROM T_TERMINAL_INFO"
+                                            "  WHERE mobile = %s LIMIT 1",
+                                            t_info['t_msisdn'])
+                        if exist:
+                            logging.info("[GW] Delete old tmobile bind relation. tid: %s, mobile: %s",
+                                         exist.tid, t_info['t_msisdn'])
+                            delete_terminal(exist.tid, self.db, self.redis, del_user=False)
+                        terminal = None
+                    else:
+                        args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                        sms = SMSCode.SMS_TID_EXIST % t_info['dev_id']
+                        SMSHelper.send(t_info['u_msisdn'], sms)
+                        lc = LoginRespComposer(args)
+                        request = DotDict(packet=lc.buf,
+                                          address=address)
+                        self.append_gw_request(request, connection, channel)
+                        logging.error("[GW] Login failed! Terminal: %s already bound by %s, new mobile: %s",
+                                      t_info['dev_id'], terminal.mobile, t_info['t_msisdn'])
+                        return
+
             if t_info['psd']:
                 # check terminal exist or not when HK
                 if not terminal:
@@ -471,7 +503,7 @@ class MyGWServer(object):
                             else:
                                 logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
                                              t_info['dev_id'], t_info['t_msisdn'], response)
-                            self.request_location(t_info['dev_id'])
+                            #self.request_location(t_info['dev_id'])
                             logging.info("[GW] Terminal: %s HK success!", t_info['dev_id'])
 
                         if terminal.owner_mobile != t_info['u_msisdn']:
@@ -512,18 +544,12 @@ class MyGWServer(object):
                 # login or JH
                 if terminal:
                     # login
-                    # check tid conflict
-                    if terminal.mobile != t_info['t_msisdn']:
-                        args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                        sms = SMSCode.SMS_TID_EXIST % t_info['dev_id']
-                        logging.error("[GW] Login failed! Terminal: %s already bound by %s, new mobile: %s",
-                                      t_info['dev_id'], terminal.mobile, t_info['t_msisdn'])
-                    else:
-                        logging.info("[GW] Terminal: %s Normal login started!",
-                                     t_info['dev_id']) 
+                    logging.info("[GW] Terminal: %s Normal login started!",
+                                 t_info['dev_id']) 
                 else:
                     # SMS JH or admin JH or change new dev JH
-                    logging.info("[GW] Terminal: %s JH started.", t_info['dev_id'])
+                    logging.info("[GW] Terminal: %s, mobile: %s JH started.",
+                                 t_info['dev_id'], t_info['t_msisdn'])
                     exist = self.db.get("SELECT id FROM T_USER"
                                         "  WHERE mobile = %s",
                                         t_info['u_msisdn'])
@@ -627,7 +653,7 @@ class MyGWServer(object):
                     else:
                         logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
                                      t_info['dev_id'], t_info['t_msisdn'], response)
-                    self.request_location(t_info['dev_id'])
+                    #self.request_location(t_info['dev_id'])
 
             if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
                 # get SessionID
@@ -645,6 +671,7 @@ class MyGWServer(object):
                 info = DotDict(login=GATEWAY.TERMINAL_LOGIN.ONLINE,
                                mobile=t_info['t_msisdn'],
                                keys_num=t_info['keys_num'],
+                               login_time=int(time.time()),
                                dev_id=t_info["dev_id"])
                 self.update_terminal_info(info)
                 logging.info("[GW] Terminal %s login success! SIM: %s",
@@ -1223,6 +1250,10 @@ class MyGWServer(object):
             value = t_info.get(key, None)
             if value is not None and value != terminal_info[key]:
                 fields.append(key + " = " + str(t_info[key]))
+        if 'login_time' in t_info:
+            fields.append('login_time' + " = " + str(t_info['login_time']))
+            login_time_key = get_login_time_key(t_info['dev_id'])
+            self.redis.setvalue(login_time_key, t_info['login_time'])
         set_clause = ','.join(fields)
         if set_clause:
             self.db.execute("UPDATE T_TERMINAL_INFO"

@@ -7,10 +7,12 @@ from misc import *
 from constants import EVENTER
 
 
-def delete_terminal(tid, db, redis):
-    user = QueryHelper.get_user_by_tid(tid, db)
-    terminal = db.get("SELECT mobile FROM T_TERMINAL_INFO"
+def delete_terminal(tid, db, redis, del_user=True):
+    terminal = db.get("SELECT mobile, owner_mobile FROM T_TERMINAL_INFO"
                       "  WHERE tid = %s", tid)
+    user = db.get("SELECT id FROM T_USER"
+                  "  WHERE mobile = %s",
+                  terminal.owner_mobile)
     # clear history data
     key = get_del_data_key(tid)
     flag = redis.get(key)
@@ -51,26 +53,28 @@ def delete_terminal(tid, db, redis):
                "  WHERE tid = %s", 
                tid) 
     if user:
-        terminals = db.query("SELECT id FROM T_TERMINAL_INFO"
-                             "  WHERE owner_mobile = %s"
-                             "    AND group_id = -1",
-                             user.owner_mobile)
-        # clear user
-        if len(terminals) == 0:
-            db.execute("DELETE FROM T_USER"
-                       "  WHERE mobile = %s",
-                       user.owner_mobile)
+        if del_user:
+            terminals = db.query("SELECT id FROM T_TERMINAL_INFO"
+                                 "  WHERE owner_mobile = %s"
+                                 "    AND group_id = -1",
+                                 terminal.owner_mobile)
+            # clear user
+            if len(terminals) == 0:
+                db.execute("DELETE FROM T_USER"
+                           "  WHERE mobile = %s",
+                           terminal.owner_mobile)
 
-            lastinfo_key = get_lastinfo_key(user.owner_mobile)
-            lastinfo_time_key = get_lastinfo_time_key(user.owner_mobile)
-            ios_id_key = get_ios_id_key(user.owner_mobile)
-            ios_badge_key = get_ios_badge_key(user.owner_mobile)
-            keys = [lastinfo_key, lastinfo_time_key, ios_id_key, ios_badge_key]
-            redis.delete(*keys)
+                lastinfo_key = get_lastinfo_key(terminal.owner_mobile)
+                lastinfo_time_key = get_lastinfo_time_key(terminal.owner_mobile)
+                ios_id_key = get_ios_id_key(terminal.owner_mobile)
+                ios_badge_key = get_ios_badge_key(terminal.owner_mobile)
+                keys = [lastinfo_key, lastinfo_time_key, ios_id_key, ios_badge_key]
+                redis.delete(*keys)
+                logging.info("[GW] Delete User: %s", terminal.owner_mobile)
     else:
-        logging.info("[GW] User of %s already not exist.", tid)
-    logging.info("[GW] Delete Terminal: %s, umobile: %s",
-                 tid, (user.owner_mobile if user else None))
+        logging.info("[GW] User of %s: %s already not exist.", tid, terminal.owner_mobile)
+    logging.info("[GW] Delete Terminal: %s, tmobile: %s, umobile: %s",
+                 tid, tmobile, (terminal.owner_mobile if user else None))
 
 def insert_location(location, db, redis):
     # insert data into T_LOCATION
