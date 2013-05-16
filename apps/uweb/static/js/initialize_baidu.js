@@ -129,15 +129,18 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType) {
 		var str_tempImgUrl = '',
 			str_dir = CORPIMGURL + 'terminalIcons/';
 		
-		if ( n_iconType == 0 ) {	// 车或摩托车
+		if ( n_iconType == 0 ) {	// 车
 			str_tempImgUrl = n_degree;
 			str_dir = BASEIMGURL;
-		} else if ( n_iconType == 1 ) {
+		} else if ( n_iconType == 1 ) {	// 摩托车
 			str_tempImgUrl = 'moto';
 		} else if ( n_iconType == 2 ) {	// 人
 			str_tempImgUrl = 'person';
-		} else if ( n_iconType == 3 ) {
+		} else if ( n_iconType == 3 ) {	// 图标
 			str_tempImgUrl = 'default';
+		} else {
+			str_tempImgUrl = n_degree;
+			str_dir = BASEIMGURL;
 		}
 	
 	return str_dir + str_tempImgUrl + '.png';
