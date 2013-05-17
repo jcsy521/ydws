@@ -29,6 +29,7 @@ from checkterminalstatus import CheckTerminalStatus
 from chargeremind import ChargeRemind
 from terminal import SimulatorTerminal
 from checkservice import CheckService
+from statistic import TerminalStatistic
 
 
 def usage():
@@ -81,6 +82,27 @@ def check_service():
     except Exception as e:
         logging.exception("[CK] Start check service failed.")
 
+def run_statistic_thread():
+    logging.info("[CK] statistic thread started...")
+    INTERVAL = 0
+    ONE_DAY = 60 * 60 * 24
+    ONE_HOUR = 60 * 60
+    ts = TerminalStatistic() 
+    try:
+        while True:
+            epoch_time = time.time()
+            current_time = time.strftime("%Y%m%d%H%M%S", time.localtime(epoch_time))
+            hour = current_time[8:10]
+            if hour == '12':
+                ts.statistic_online_terminal(epoch_time)
+                INTERVAL = ONE_DAY
+            else:
+                INTERVAL = ONE_HOUR
+            time.sleep(INTERVAL)
+            
+    except Exception as e:
+        logging.exception("[CK] Start statistic thread failed.")
+
 def main():
     tornado.options.parse_command_line()
     if not ('conf' in options):
@@ -102,6 +124,7 @@ def main():
         thread.start_new_thread(check_service, ())
         #thread.start_new_thread(charge_remind, ())
         thread.start_new_thread(simulator_terminal, ())
+        thread.start_new_thread(run_statistic_thread, ())
         while True:
             time.sleep(60)
          

@@ -74,6 +74,7 @@ from handlers.batch import BatchJHHandler
 from handlers.operator import OperatorHandler
 from handlers.region import RegionHandler, RegionEventHandler
 from handlers.bindregion import BindRegionHandler
+from handlers.online import OnlineHandler, OnlineDownloadHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -111,7 +112,7 @@ class Application(tornado.web.Application):
             (r"/statistic/*", StatisticHandler),
             (r"/download/statistic/*", StatisticDownloadHandler),
             (r"/mileage/*", MileageHandler),
-            (r"/downlaod/mileage/*", MileageDownloadHandler),
+            (r"/download/mileage/*", MileageDownloadHandler),
 
             (r"/terminal/corp/*", TerminalCorpHandler),
             (r"/password/*", PasswordHandler),
@@ -133,8 +134,8 @@ class Application(tornado.web.Application):
             (r"/instruction/ios/*", IOSInsHandler),
             (r"/instruction/sms/*", SMSInsHandler),
 
+            (r"/download/online/*", OnlineDownloadHandler),
             (r"/download/terminal/*", DownloadTerminalHandler),
-            (r"/download/*", DownloadHandler),
             (r"/downloadsms/*", DownloadSmsHandler),
             (r"/uploadterminalfile/*", UploadTerminalHandler),
             (r"/download/instructions/*", DownloadInstructionsHandler),
@@ -181,6 +182,9 @@ class Application(tornado.web.Application):
             (r"/region/*", RegionHandler),
             (r"/bindregion/*", BindRegionHandler),
             (r"/getregionevent/*", RegionEventHandler),
+            (r"/report/online/*", OnlineHandler),
+            (r"/download/*", DownloadHandler),
+            
         ]
 
         settings = dict(

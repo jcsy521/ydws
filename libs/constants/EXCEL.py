@@ -32,3 +32,10 @@ MILEAGE_SINGLE_YEARLY_STATISTIC_FILE_NAME = u'里程统计'
 MILEAGE_SINGLE_YEARLY_STATISTIC_SHEET = u'里程统计'
 MILEAGE_SINGLE_YEARLY_STATISTIC_HEADER = (u"月份", 
                                           u"里程（公里）")
+
+OLINE_FILE_NAME = u"在线统计表"
+OLINE_SHEET = u"在线统计"
+OLINE_HEADER = (u"时间", 
+                u"在线数", 
+                u"离线数",
+                u"定位器总数")

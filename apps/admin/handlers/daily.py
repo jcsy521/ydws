@@ -34,53 +34,34 @@ class DailyMixin(BaseMixin):
         if data:
             return data
 
-        #city = self.get_argument('cities', 0)
         start_time = int(self.get_argument('start_time', None))
-        end_time = int(self.get_argument('end_time', None))
-        # the result of today is inavaliable
-        d = datetime.datetime.fromtimestamp(time.time())
-        t = datetime.datetime.combine(datetime.date(d.year,d.month, d.day), datetime.time(0, 0, 0))
-        today_ = int(time.mktime(t.timetuple())) * 1000
-        if start_time >= today_ or end_time >= today_:
-            return [], [start_time, end_time]
-
-        results = []
-        counts = dict(new_corps=0,
-                      total_corps=0,
-                      new_terminals=0,
-                      total_terminals=0)
-        #if int(city) == 0:
-        #    cities = [city.city_id for city in self.cities]
-        #else:
-        #    cities = [city,]
-
-        #cities = [int(c) for c in cities]
-        #for i, city in enumerate(cities):
-        #    c = self.db.get("SELECT city_name, region_code FROM T_HLR_CITY"
-        #                    "  WHERE city_id = %s",
-        #                    city)
-        total_corps = self.db.query("SELECT id FROM T_CORP WHERE timestamp <= %s", end_time)
-        new_corps = self.db.query("SELECT id FROM T_CORP"
-                                  "  WHERE timestamp BETWEEN %s AND %s",
-                                  start_time, end_time)
+        end_time = start_time + 60 * 60 * 24
         
-        total_terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO WHERE begintime <= %s", end_time)
-        new_terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                      "  WHERE begintime BETWEEN %s AND %s",
-                                      start_time, end_time)
-        result = dict(seq=1,
-                      #city=c.city_name,
-                      new_corps=len(new_corps),
-                      total_corps=len(total_corps),
-                      new_terminals=len(new_terminals),
-                      total_terminals=len(total_terminals))
-        results.append(result)
-        for key in counts:
-            counts[key] += result[key]
-
-        self.redis.setvalue(mem_key,(results, counts, [start_time,]), 
-                            time=self.MEMCACHE_EXPIRY)
-        return results, counts, [start_time,]
+        businesses = self.db.query("SELECT tc.name AS corp_name, tti.owner_mobile AS umobile, tti.mobile AS tmobile, tti.begintime"
+                                   "  FROM T_CORP tc, T_GROUP tg, T_TERMINAL_INFO tti"
+                                   "  WHERE tti.group_id = tg.id"
+                                   "  AND tg.corp_id = tc.cid"
+                                   "  AND tti.begintime BETWEEN %s AND %s",
+                                   start_time, end_time)
+        
+        result = self.db.get("SELECT count(tti.id) AS counts"
+                             "  FROM T_CORP tc, T_GROUP tg, T_TERMINAL_INFO tti"
+                             "  WHERE tti.group_id = tg.id"
+                             "  AND tg.corp_id = tc.cid"
+                             "  AND tti.begintime BETWEEN %s AND %s",
+                             start_time, end_time)
+        if result and result.counts:
+            for i, business in enumerate(businesses):
+                business['seq'] = i + 1
+                for key in business:
+                    if business[key] is None:
+                        business[key] = ''
+        
+            self.redis.setvalue(mem_key,(businesses, result.counts, [start_time,]), 
+                                time=self.MEMCACHE_EXPIRY)
+            return businesses, result.counts, [start_time,]
+        else:
+            return [], 0, [start_time,]
 
 
 class DailyHandler(BaseHandler, DailyMixin):
@@ -107,9 +88,8 @@ class DailyHandler(BaseHandler, DailyMixin):
     def get(self):
 
         self.render('report/daily.html',
-                    results=[],
-                    counts={},
-                    cities=self.cities,
+                    businesses=[],
+                    counts=0,
                     interval=[],
                     hash_=None)
 
@@ -122,13 +102,12 @@ class DailyHandler(BaseHandler, DailyMixin):
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
-        results, counts, interval = self.prepare_data(hash_)
-
+        businesses, counts, interval = self.prepare_data(hash_)
+        
         self.render('report/daily.html',
-                    results=results,
+                    interval=interval, 
+                    businesses=businesses,
                     counts=counts,
-                    cities=self.cities,
-                    interval=interval,
                     hash_=hash_)
 
 
@@ -142,8 +121,7 @@ class DailyDownloadHandler(BaseHandler, DailyMixin):
 
         r = self.redis.getvalue(mem_key)
         if r:
-            results, counts = r[0], r[1]
-            start_time = r[2][0]
+            results, counts, start_time = r[0], r[1], r[2][0]
         else:
             self.render("errors/download.html")
             return
@@ -163,16 +141,16 @@ class DailyDownloadHandler(BaseHandler, DailyMixin):
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line), results):
             ws.write(i, 0, result['seq'])
-            ws.write(i, 1, result['new_corps'])
-            ws.write(i, 2, result['total_corps'])
-            ws.write(i, 3, result['new_terminals'])
-            ws.write(i, 4, result['total_terminals'])
+            ws.write(i, 1, result['corp_name'])
+            ws.write(i, 2, result['umobile'])
+            ws.write(i, 3, result['tmobile'])
+            
+            b_time = time.strftime("%Y%m%d%H%M%S", time.localtime(result['begintime']))
+            begintime = b_time[:4] + u'年' + b_time[4:6] + u'月' + b_time[6:8] + u'日 ' + b_time[8:10] + u'时' + b_time[10:12] + u'分' + b_time[12:14] + u'秒' 
+            ws.write(i, 4, begintime)
         last_row = len(results) + start_line
         ws.write(last_row, 0, u'合计')
-        ws.write(last_row, 1, counts['new_corps']) 
-        ws.write(last_row, 2, counts['total_corps']) 
-        ws.write(last_row, 3, counts['new_terminals']) 
-        ws.write(last_row, 4, counts['total_terminals'])
+        ws.write(last_row, 1, counts) 
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)
@@ -181,7 +159,6 @@ class DailyDownloadHandler(BaseHandler, DailyMixin):
             s_time = time.strftime("%Y%m%d", time.localtime(start_time))
             filename = s_time[:4] + u'年' + s_time[4:6] + u'月' + s_time[6:] + u'日' + filename
 
-        
         self.set_header('Content-Type', 'application/force-download')
         self.set_header('Content-Disposition', 'attachment; filename=%s.xls' % (filename,))
 

@@ -112,7 +112,7 @@ class MileageDownloadHandler(MileageHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Provie some statistics about terminals.
+        """Provide some statistics about terminals.
         """
         status = ErrorCode.SUCCESS
         try:
@@ -168,7 +168,7 @@ class MileageSingleHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        """Provie some statistics about terminals.
+        """Provide some statistics about terminals.
         """
         status = ErrorCode.SUCCESS
         try:
@@ -298,7 +298,7 @@ class MileageSingleDownloadHandler(MileageSingleHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Provie some statistics about terminals.
+        """Provide some statistics about terminals.
         """
         status = ErrorCode.SUCCESS
         try:

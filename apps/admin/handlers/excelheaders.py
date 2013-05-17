@@ -33,10 +33,10 @@ ECSUBSCRIBER_HEADER = (u"序号",
 DAILY_SHEET = u"日报"
 DAILY_FILE_NAME = u"业务日报"
 DAILY_HEADER = (u"序号", 
-                u"新增集团数", 
-                u"集团到达数", 
-                u"新增终端数",
-                u"终端到达数")
+                u"集团名称", 
+                u"车主手机", 
+                u"终端手机",
+                u"受理时间")
 
 MONTHLY_FILE_NAME = u"业务月报"
 MONTHLY_SHEET = u"月报"
@@ -53,3 +53,10 @@ YEARLY_HEADER = (u"序号",
                  u"集团到达数", 
                  u"新增终端数",
                  u"终端到达数")
+
+OLINE_SHEET = u"在线统计"
+OLINE_FILE_NAME = u"在线统计表"
+OLINE_HEADER = (u"时间", 
+                u"在线数", 
+                u"离线数",
+                u"定位器总数")

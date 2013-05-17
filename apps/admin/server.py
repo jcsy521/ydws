@@ -45,6 +45,8 @@ from handlers.subscriber import SubscriberHandler, SubscriberDownloadHandler
 from handlers.ecsubscriber import ECSubscriberHandler, ECSubscriberDownloadHandler
 from handlers.yearly import YearlyHandler, YearlyDownloadHandler
 from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
+from handlers.daily import DailyHandler, DailyDownloadHandler
+from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.misc import *
 
 
@@ -111,12 +113,16 @@ class Application(tornado.web.Application):
             (r"/report/ecsubscriber/*", ECSubscriberHandler),
             (r"/report/yearly/*", YearlyHandler),
             (r"/report/monthly/*", MonthlyHandler),
+            (r"/report/daily/*", DailyHandler),
+            (r"/report/online/*", OnlineHandler),
 
             # download the report
             (r"/download/subscriber/(.*)/*", SubscriberDownloadHandler),
             (r"/download/ecsubscriber/(.*)/*", ECSubscriberDownloadHandler),
             (r"/download/yearly/(.*)/*", YearlyDownloadHandler),
             (r"/download/monthly/(.*)/*", MonthlyDownloadHandler),
+            (r"/download/daily/(.*)/*", DailyDownloadHandler),
+            (r"/download/online/(.*)/*", OnlineDownloadHandler),
         ]
 
         settings = dict(
