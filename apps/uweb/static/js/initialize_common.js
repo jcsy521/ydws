@@ -400,7 +400,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 				/*集团用户切换变换轨迹要显示的终端 并清除地图*/
 				var str_trackStatus = $('#trackHeader').is(':visible'),  
 					str_currentCarAlias = $('.j_currentCar').text().substr(2, 11);
-	
+
 				if ( str_trackStatus ) {	
 					dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
 					$('#trackTerminalAliasLabel').html(str_currentCarAlias);
@@ -411,7 +411,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			dlf.fn_updateLastInfo();
-		} else if ( data.status == 201 ) {	// 业务变更
+	} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
@@ -744,10 +744,10 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 			arr_desc  = ['正北','北偏东','东北','东偏北','正东','东偏南','东南','南偏东','正南','南偏西','西南','西偏南','正西','西偏北','西北','北偏西','正北'];
 			
 		for ( var i = 0; i < arr_degree.length; i++ ) {
-			if ( str_val >= 355 || str_val <= 5 ) {
+			if ( str_val >= 355 || str_val < 5 ) {
 				str_return = '正北';
 				break;
-			} else if ( str_val >= arr_degree[i] && str_val <= arr_degree[i+1] ) {
+			} else if ( str_val >= arr_degree[i] && str_val < arr_degree[i+1] ) {
 				str_return = arr_desc[i];
 				break;
 			}	
@@ -1129,17 +1129,21 @@ window.dlf.fn_onInputBlur = function() {
 */ 
 dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	var obj_wrapper = $('#'+ str_wrapperId+'Wrapper'), 
+		str_tempWrapperId = str_wrapperId,
 		n_wrapperWidth = obj_wrapper.width(),
 		n_width = ($(window).width() - n_wrapperWidth)/2;
 
 	dlf.fn_closeDialog();	// 关闭所有dialog
-	$('#'+ str_wrapperId).addClass(str_wrapperId +'Hover');
+	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
+		str_tempWrapperId = 'recordCount';
+	}
+	$('#'+ str_tempWrapperId).addClass(str_tempWrapperId +'Hover');
 	dlf.fn_clearNavStatus('home');	// 移除菜单车辆位置的样式
 	
 	if ( str_wrapperId == 'eventSearch' ) {
 		dlf.fn_setMapPosition(true);	// 如果打开的是告警查询  设置地图位置
 	} else {
-		if ( str_wrapperId != 'mileage' && str_wrapperId != 'operator' ) {
+		if ( str_wrapperId != 'mileage' && str_wrapperId != 'operator' && str_wrapperId != 'onlineStatics' ) {
 			dlf.fn_showOrHideMap(true);
 			if ( b_eventSearchStatus ) {	// 如果选择的非告警查询 并且告警查询打开着  则初始化地图
 				dlf.fn_setMapPosition(false);

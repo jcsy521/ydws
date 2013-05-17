@@ -87,8 +87,18 @@
 					<li><a href="#" id="home" class="homeHover home j_click"></a></li>
 					<li><a href="#" id="region" class="region j_click"></a></li>
 					<li><a href="#" id="eventSearch" class="eventSearch j_click"></a></li>
-					<!--<li><a href="#" id="recordCount" class="recordCount j_countRecord"></a></li>-->
-					<li><a href="#" id="mileage" class="mileage j_click"></a></li>
+					<li>
+						<a href="#" id="recordCount" class="recordCount j_countRecord"></a>
+						<ul id="countSecondList" class="hide j_countNavItem countUlIetm">
+							<li>
+								<a href="#" id="onlineStatics" class="onlineStatics j_click"></a>
+							</li>
+							<li>
+								<a href="#" id="mileage" class="mileage j_click"></a>
+							</li>
+						</ul>
+					</li>
+					<!--<li><a href="#" id="mileage" class="mileage j_click"></a></li>-->
 					{% if user_type != 'operator' %}
 					<li><a href="#" id="operator" class="operator j_click"></a></li>
 					{% end %}

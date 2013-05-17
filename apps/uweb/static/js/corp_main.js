@@ -134,7 +134,7 @@ function customMenu(node) {
 		"terminalSetting": {	// 参数设置
 			"label" : terminalLabel,
 			"action" : function (obj) {
-				dlf.fn_initCorpTerminal();
+				dlf.fn_initCorpTerminal($(obj).children('a').eq(0).attr('tid'));
 				return false;
 			}
 		},
@@ -429,9 +429,10 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 	}).bind('create.jstree', function(e, data) {
 		var obj_rslt = data.rslt,
 			obj_rollBack = data.rlbk,
-			str_newName = obj_rslt.name;
+			str_newName = obj_rslt.name,
+			str_cid = $(obj_rslt.parent).children('a').attr('corpid') || $('.j_body').attr('cid');
 		
-		fn_createGroup($(obj_rslt.parent).children('a').attr('corpid'), str_newName, obj_rollBack, obj_rslt.obj);
+		fn_createGroup(str_cid, str_newName, obj_rollBack, obj_rslt.obj);
 	}).bind('rename.jstree', function(e, data) {	// 重命名
 		var	obj_rslt = data.rslt,
 			obj_currentNode = $(obj_rslt.obj[0]),
@@ -445,7 +446,9 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		if ( obj_currentNode.hasClass('j_group') ) {	// 重命名组	
 			fn_renameGroup(obj_current.attr('groupid'), str_newName, data.rlbk);
 		} else if ( obj_currentNode.hasClass('j_corp') ) {	// 重命名集团
-			fn_renameCorp(obj_current.attr('corpid'), str_newName, data.rlbk)
+			var str_cid = obj_current.attr('corpid') || $('.j_body').attr('cid');
+			
+			fn_renameCorp(str_cid, str_newName, data.rlbk)
 		}
 	}).bind('loaded.jstree', function(e, data) {	// 树节点加载完成事件
 		data.inst.open_all(-1);	// 默认展开所有的节点
@@ -557,10 +560,11 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 	}).bind('dblclick.jstree', function(event, data) {
 		
 		var obj_target = $(event.target),
-			b_class = obj_target.hasClass('j_terminal')
+			b_class = obj_target.hasClass('j_terminal'),
+			str_tid = obj_target.attr('tid');
 
 		if ( b_class ) {	// 双击定位器
-			dlf.fn_initCorpTerminal();
+			dlf.fn_initCorpTerminal(str_tid);
 		} else {
 			return false;
 		}
@@ -659,9 +663,7 @@ window.dlf.fn_corpGetCarData = function() {
 				str_groupFirstId = '',	// 默认第一个groupid
 				obj_newData = {};
 			
-			/*if ( !dlf.fn_isEmptyObj(obj_corp) ) {
-				return;
-			}*/			
+			$('.j_body').attr('cid', str_corpId);	//  存储集团id防止树节点更新时 操作组 丢失cid	
 			n_onlineCnt = obj_corp.online,		// online count
 			n_offlineCnt = obj_corp.offline;	// offline count
 			
@@ -1395,17 +1397,21 @@ function fn_batchRemoveTerminals(obj_params) {
 */
 window.dlf.fn_fillNavItem = function() {
 	var obj_navItemUl = $('.j_countNavItem'),
+		b_status = obj_navItemUl.is(':visible'),
 		obj_navOffset = $('#recordCount').offset();
-		
-	obj_navItemUl.css('left',obj_navOffset.left - 5).show(); // 二级单显示
 	
+	obj_navItemUl.css('left',obj_navOffset.left - 5).show(); // 二级单显示
 	/*二级菜单的滑过样式*/
-	$('.j_countNavItem li a').unbind('mousedown mouseover mouseout').mouseout(function(event) { 
-		$(this).removeClass('countUlItemHover');
+	$('.j_countNavItem li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
+		// $(this).removeClass('countUlItemHover');
 		obj_navItemUl.hide();
-	}).mouseover(function(event) { 
-		$(this).addClass('countUlItemHover');
+		$('.j_countRecord').bind('mouseover', function() {
+			dlf.fn_fillNavItem();
+		});
+	}).mouseover(function(event) {
+		// $(this).addClass('countUlItemHover');
 		obj_navItemUl.show();
+		$('.j_countRecord').unbind('mouseover');
 	});
 }
 
@@ -1413,16 +1419,11 @@ window.dlf.fn_fillNavItem = function() {
 * 判断二级菜单是否显示,如果显示进行隐藏
 */
 window.dlf.fn_secondNavValid = function() { 
-	var obj_navItem = $('.j_countNavItem'),
-		n_item = obj_navItem.length;
+	var obj_navItem = $('.j_countNavItem'), 
+		f_hidden = obj_navItem.is(':hidden');
 	
-	for ( var i = 0; i < n_item; i++ ) {
-		var obj_tempNavItem = $(obj_navItem[i]), 
-			f_hidden = obj_tempNavItem.is(':hidden');
-		
-		if ( !f_hidden ) {
-			obj_tempNavItem.hide();
-		}
+	if ( !f_hidden ) {
+		obj_navItem.hide();
 	}
 }
 

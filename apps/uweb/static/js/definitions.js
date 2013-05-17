@@ -26,12 +26,14 @@ var CORPPERSON_URL = '/profile/corp';	// 集团资料
 var TERMINALCORP_URL = '/terminal/corp';	// 集团终端
 var STATICS_URL = '/statistic';	// 告警统计
 var MILEAGE_URL = '/mileage';	// 里程统计
+var ONLINE_URL = '/report/online';			// 在线统计
 var SINGLESTATICS_URL = '/statistic/single';	// 单个定位器的告警统计
 var SINGLEMILEAGE_URL = '/mileage/single';	// 单个定位器的里程统计
 var SINGLESTATICSDOWNLOAD_URL = '/download/statistic/single';	// 单个定位器告警统计下载数据
 var SINGLEMILEAGEDOWNLOAD_URL = '/download/mileage/single';	// 单个定位器里程统计下载数据
 var STATICSDOWNLOAD_URL = '/download/statistic';	// 多个定位器告警统计下载数据
-var MILEAGEDOWNLOAD_URL = '/downlaod/mileage';		// 多个定位器里程统计数据下载
+var MILEAGEDOWNLOAD_URL = '/download/mileage';		// 多个定位器里程统计数据下载
+var ONLINEDOWNLOAD_URL = '/download/online';		// 多个定位器里程统计数据下载
 
 var CHECKMOBILE_URL = '/checktmobile';	// 终端手机号验证
 var CHECKOPERATORMOBILE_URL = '/checkopermobile';	// 操作员手机号验证

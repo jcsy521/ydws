@@ -770,12 +770,17 @@
 	</div>
 	<div id="singleEventChart" class="hide" title="告警统计图"></div>
 	<!-- 里程 统计-->
-	<div id="mileageWrapper" class="wrapper hide j_drag">
+	<div id="mileageWrapper" class="wrapper hide">
 		<!--<div class="wrapperTitle mileageTitle">
 			<span class="close j_close" title="关闭窗口" who="mileage"></span>
 		</div>-->
 		<div class="wrapperContent mileageContent">
 			<table class="mileageCondition">
+				<tr>
+					<td colspan="3" class="title">
+						里程统计查询
+					</td>
+				</tr>
 				<tr>
 					<td width="442px">
 						查询时间：<input type="text" id="mileageStartTime"  class="time" />
@@ -885,7 +890,50 @@
 			</table>
 		</div>
 	</div>
-	<!--统计 
+	
+	<!-- 在线 统计-->
+	<div id="onlineStaticsWrapper" class="wrapper hide">
+		<!--<div class="wrapperTitle mileageTitle">
+			<span class="close j_close" title="关闭窗口" who="mileage"></span>
+		</div>-->
+		<div class="wrapperContent onlineStaticsContent">
+			<table class="onlineStaticsCondition">
+				<tr>
+					<td colspan="3" class="title">
+						定位器在线统计查询
+					</td>
+				</tr>
+				<tr>
+					<td width="442px">
+						查询时间：<input type="text" id="onlineStaticsStartTime"  class="time" />
+						至 <input type="text" id="onlineStaticsEndTime"  class="time" />
+					</td>
+					<td width="150px"><span id="onlineStatics_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
+					<td>
+						<a id="onlineStatics_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
+					</td>
+				</tr>
+			</table>
+			<table class="dataTable onlineStaticsTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="onlineStaticsTableHeader">
+						<th class="onlineStaticsAlias">统计时间</th>
+						<th class="onlineStaticsDist">在线数</th>
+						<th class="onlineStaticsDist">离线数</th>
+						<th>定位器总数</th>
+					</tr>
+				</tbody>
+			</table>
+			<!-- 分页 -->
+			<div id="onlineStaticsPage" class="hide">
+				<span id="onlineStaticsPrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="onlineStaticsPageNums" class="pageNums"><label id="onlineStaticsCurrentPage"></label>/<label id="onlineStaticsPageCount"></label></span>
+				<span id="onlineStaticsNextBtn" class="nextBtn j_pBtnHover"></span>
+			</div>
+		</div>
+	</div>
+	
+	<!--统计 列表
 	<ul id="countSecondList" class="hide j_countNavItem countUlIetm">
 		<li>
 			<a href="#" id="statics" class="statics j_click"></a>
@@ -893,7 +941,7 @@
 		<li>
 			<a href="#" id="mileage" class="mileage j_click"></a>
 		</li>
-	</ul>列表-->
+	</ul>-->
 	<!-- 批量设防撤防数据回显 -->
 	<div class="wrapper hide j_drag" id="batchDefendWrapper">
 		<div class="wrapperTitle batchDefendTitle">

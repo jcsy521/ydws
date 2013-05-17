@@ -256,7 +256,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	/**
 	* marker click事件
 	*/
-	marker.addEventListener('click', function(){ 
+	marker.addEventListener('click', function() { 
 	   if ( str_iconType == 'actiontrack' ) { // 主页车辆点击与左侧车辆列表同步
 			var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum),
 				str_className = obj_carItem.attr('class'), 

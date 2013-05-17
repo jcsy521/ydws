@@ -7,21 +7,22 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 /**
 * 定位器参数设置初始化
 */
-window.dlf.fn_initCorpTerminal = function() {
+window.dlf.fn_initCorpTerminal = function(str_tid) {
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('.j_input input[type=text]').val('');
-	dlf.fn_initTerminalWR(); // 初始化加载参数
-	fn_initCorpSMS();	// 初始化SMS通知
+	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
+	fn_initCorpSMS(str_tid);	// 初始化SMS通知
 	dlf.fn_onInputBlur();	// input的blur事件初始化
 }
 
 /**
 * 查询最新定位器参数
 */
-window.dlf.fn_initTerminalWR = function () {
+window.dlf.fn_initTerminalWR = function (str_tid) {
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	dlf.fn_jNotifyMessage('定位器设置查询中' + WAITIMG , 'message', true); 
+	// todo  + '?tid=' + str_tid
 	$.get_(TERMINAL_URL, '', function (data) {  
 		if (data.status == 0) {	
 			var obj_data = data.car_sets,
@@ -76,7 +77,8 @@ window.dlf.fn_initTerminalWR = function () {
 /**
 * 初始化SMS通知
 */
-function fn_initCorpSMS() {
+function fn_initCorpSMS(str_tid) {
+	// todo  + '?tid=' + str_tid
 	$.get_(SMS_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.sms_options;

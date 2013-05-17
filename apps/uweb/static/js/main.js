@@ -354,7 +354,7 @@ window.onresize = function () {
 			obj_tree.css('overflow', 'hidden')
 		}
 		obj_tree.height(n_treeHeight);
-		$('#right, #corpRight, #navi, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent').css('width', n_right);	// 右侧宽度
+		$('#right, #corpRight, #navi, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
 		
 		
@@ -364,7 +364,7 @@ window.onresize = function () {
 			n_trackLeft = ( obj_track.width() ) / 4;
 		}
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-		$('.eventSearchContent, .mileageContent, .operatorContent').css('height', n_mapHeight);
+		$('.eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
 		
 		if ( b_eventSearchStatus ) {
 			n_mapHeight = 340;
@@ -429,12 +429,12 @@ $(function () {
 		obj_tree.css('overflow', 'hidden')
 	}
 	obj_tree.height(n_treeHeight);
-	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent').css('width', n_right);	// 右侧宽度
+	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	n_trackLeft = ( obj_track.width() ) / 4;
 	
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-	$('#mapObj, .eventSearchContent, .mileageContent, .operatorContent').css('height', n_mapHeight);
+	$('#mapObj, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
 	
 	if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图初始化tilelayer的位置
 		$('#mapTileLayer').css('left', n_tilelayerLeft);
@@ -446,7 +446,7 @@ $(function () {
 	* 页面的点击事件分流处理
 	*/
 	var str_userType = $('.j_body').attr('userType');
-	$('.j_click').click(function(e) {
+	$('.j_click').click(function(e) { 
 		var str_id = e.currentTarget.id, 
 			n_carNum = $('#carList li').length,
 			str_trackStatus = $('#trackHeader').css('display'), 
@@ -483,7 +483,7 @@ $(function () {
 				}
 			}
 		}
-		if ( str_userType !=  USER_PERSON ) {
+		if ( str_userType !=  USER_PERSON ) { 
 			dlf.fn_secondNavValid();
 		}
 		switch (str_id) {
@@ -545,18 +545,23 @@ $(function () {
 			case 'region': // 围栏管理
 				dlf.fn_initRegion();
 				break;
+			case 'onlineStatics': // 在线统计
+				dlf.fn_initRecordSearch('onlineStatics');
+				break;
 		}
 	});
 	/*鼠标滑动显示统计二级菜单*/
-	$('.j_countRecord').mouseover(function(event) { 
+	$('.j_countRecord').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
 		dlf.fn_fillNavItem();
-	})
-	/*点击页面其他地方,二级菜单关闭*/
-	$('.j_body').click(function(event) { 
-		if ( str_userType !=  USER_PERSON ) {
-			dlf.fn_secondNavValid();
-		}
+	}).unbind('mouseout').bind('mouseout', function() { 
+		dlf.fn_secondNavValid();
 	});
+	/*点击页面其他地方,二级菜单关闭*/
+	/* $('.j_body').click(function(event) { 
+		if ( str_userType !=  USER_PERSON ) {
+			//dlf.fn_secondNavValid();
+		}
+	}); */
 	dlf.fn_closeWrapper(); //吹出框关闭事件
 	
 	/**

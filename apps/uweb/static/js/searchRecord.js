@@ -47,7 +47,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
-	} else if ( str_who == 'mileage' || str_who == 'operator' ) { // 里程统计 告警统计 
+	} else if ( str_who == 'mileage' || str_who == 'operator' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
 		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
@@ -186,6 +186,8 @@ window.dlf.fn_downloadData = function(str_who) {
 		case 'singleMileage':
 			str_downloadUrl = SINGLEMILEAGEDOWNLOAD_URL;			
 			break;
+		case 'onlineStatics':
+			str_downloadUrl = ONLINEDOWNLOAD_URL;
 	}
 	dlf.fn_jNotifyMessage('正在下载中' + WAITIMG, 'message', true);
 	
@@ -263,8 +265,8 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'mileage': // 里程统计
 			str_getDataUrl = MILEAGE_URL;
 			
-			var n_startTime = $('#mileageStartTime').val(), // 用户选择时间
-				n_endTime = $('#mileageEndTime').val(), // 用户选择时间
+			var n_startTime = $('#mileageStartTime').val() + ' 00:00:00', // 用户选择时间
+				n_endTime = $('#mileageEndTime').val() + ' 23:59:59', // 用户选择时间
 				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
 				str_tids = '';
@@ -285,6 +287,26 @@ window.dlf.fn_searchData = function (str_who) {
 				return;	
 			}
 			obj_conditionData.tids = dlf.fn_searchCheckTerminal();
+			break;
+		case 'onlineStatics': // 在线统计
+			str_getDataUrl = ONLINE_URL;
+			
+			var n_startTime = $('#onlineStaticsStartTime').val() + ' 00:00:00', // 用户选择开始时间
+				n_endTime = $('#onlineStaticsEndTime').val() + ' 23:59:59', // 用户选择结束时间
+				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), 	// 开始时间
+				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime);	 //结束时间
+			
+			obj_conditionData = {
+							'start_time': n_bgTime, 
+							'end_time': n_finishTime, 
+							'pagenum': n_dwRecordPageNum, 
+							'pagecnt': n_dwRecordPageCnt
+						};
+
+			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+				return;
+			}
 			break;
 		case 'statics': // 告警统计
 			str_getDataUrl = STATICS_URL;
@@ -374,8 +396,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
 			str_tbodyText = '';
-		
-		obj_download.show();					// 下载按钮显示
+							// 下载按钮显示
 		$('#'+ str_who +'Wrapper .j_chart').css('display', 'inline-block'); // 显示查看统计图连接
 		
 		obj_searchHeader.nextAll().remove();	//清除页面数据
@@ -391,6 +412,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		
 		n_eventDataLen = arr_dwRecordData.length; 	//记录数
 		if ( n_eventDataLen > 0 ) {	// 如果查询到数据
+			obj_download.show();
 			obj_pagination.show(); //显示分页
 			if ( n_dwRecordPageCnt > 1 ) {	// 总页数大于1 
 				if ( n_dwRecordPageNum > 0 && n_dwRecordPageNum < n_dwRecordPageCnt-1 ) {  //上下页都可用
@@ -441,6 +463,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				dlf.fn_jNotifyMessage('创建成功，请绑定围栏。', 'message', false, 6000);
 			}
 		} else {
+			obj_download.hide();
 			obj_pagination.hide(); //显示分页
 			if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
@@ -455,11 +478,10 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 	}
 }
 
+/**
+* 告警查询：用户点击位置进行地图显示
+*/
 window.dlf.fn_showMarkerOnEvent = function() {
-	/**
-	* 用户点击位置进行地图显示
-	*/
-	
 	$('.j_eventItem').click(function(event) {
 		dlf.fn_clearMapComponent();
 		// 设置地图父容器 小地图显示 地图title显示
@@ -510,7 +532,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	if ( str_who == 'eventSearch' ) {
 		obj_searchData = obj_reaData.events;
 		arr_eventData = obj_searchData;
-	}else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+	} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 		obj_searchData = obj_reaData.regions;
 		$('#regionTable').data('regions', obj_searchData); //围栏存储数据以便显示详细信息
 	}
@@ -519,7 +541,9 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		obj_searchHeader = $('#'+str_who+'TableHeader'), 
 		arr_graphic = obj_reaData.graphics,	// 统计图结果
 		obj_counts = obj_reaData.counts,	// 每个种类的总数结果;
+		n_pagecnt = obj_reaData.pagecnt,	
 		str_tbodyText = '',
+		str_tfoot = '<tr><td>总计：</td>',
 		str_hash = obj_reaData.hash_;	// 下载用的参数
 	
 	for( var i = 0; i < n_searchLen; i++ ) {	
@@ -577,6 +601,15 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<tr>';
 				str_tbodyText+= '<td>'+ obj_tempData.alias +'</td>';	// 车牌号
 				str_tbodyText+= '<td>'+ obj_tempData.distance +'</td>';	//里程 
+				str_tbodyText+= '</tr>';
+				break;
+			case 'onlineStatics':	// 在线统计
+				$('#'+ str_who +'TableHeader').show();
+				str_tbodyText+= '<tr>';
+				str_tbodyText+= '<td>'+ dlf.fn_changeNumToDateString(obj_tempData.time*1000, 'ymd') +'</td>';	// 开通时间
+				str_tbodyText+= '<td>'+ obj_tempData.online_num +'</td>';	// 在线数
+				str_tbodyText+= '<td>'+ obj_tempData.offline_num +'</td>';	// 离线数
+				str_tbodyText+= '<td>'+ obj_tempData.total_num +'</td>';	// 在线数
 				str_tbodyText+= '</tr>';
 				break;
 			case 'statics': // 告警 统计
@@ -640,11 +673,11 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			b_month = obj_month.is(':hidden'),
 			str_alias = $('.j_currentCar').text().substr(2),	// 当前定位器名称
 			obj_chart = {'name': str_alias, 'data': arr_graphic}, 
-			str_tfoot = '<tr><td>总计：</td>',
 			arr_categories = [],
 			str_unit = '次',
 			str_container = 'singleEventChart',
 			str_th = '日期',
+			b_isLastPage = n_dwRecordPageNum != n_pagecnt-1,
 			arr_series = [];	// 统计数据
 				
 		if ( str_who == 'singleEvent' ) {	// 单个定位器告警统计		
@@ -675,7 +708,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		}
 		obj_searchHeader.after(str_tbodyText);	// 填充数据
 		
-		if ( !b_month && n_dwRecordPageNum != obj_reaData.pagecnt-1 ) {	// 如果是月报 &查询的是第一页：显示foot						
+		if ( !b_month && b_isLastPage ) {	// 如果是月报 &查询的是第一页  或者是 //todo : ) || ( str_who == 'onlineStatics' && n_pagecnt <= 1 && b_isLastPage ) 在线统计的foot						
 			obj_tfoot.empty();
 		} else {
 			for ( var j = 0; j < obj_counts.length; j++ ) {
@@ -717,11 +750,19 @@ window.dlf.fn_initTimeControl = function(str_who) {
 		str_nowDate = dlf.fn_changeNumToDateString(n_currentDate, 'ymd'), 
 		str_inputStartTime = str_who+'StartTime', 
 		str_inputEndTime = str_who+'EndTime',
+		str_tempBeginTime = str_nowDate+' 00:00:00',
+		str_tempEndTime = str_nowDate+' '+dlf.fn_changeNumToDateString(n_currentDate, 'sfm'),
+		str_timepickerFormat = 'yyyy-MM-dd HH:mm:ss',
 		obj_stTime = $('#'+str_inputStartTime), 
 		obj_endTime = $('#'+str_inputEndTime);
 	
+	if ( str_who == 'onlineStatics' || str_who == 'mileage' ) {
+		str_tempEndTime = str_tempBeginTime = str_nowDate;
+		str_timepickerFormat = 'yyyy-MM-dd';
+	}
+	
 	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
-		WdatePicker({el: str_inputStartTime, dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false,  qsEnabled: false,
+		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false,  qsEnabled: false,
 		onpicked: function() {
 			if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 				var obj_endDate = $dp.$D(str_inputEndTime), 
@@ -733,10 +774,10 @@ window.dlf.fn_initTimeControl = function(str_who) {
 				}
 			}
 		}});
-	}).val(str_nowDate+' 00:00:00');
+	}).val(str_tempBeginTime);
 	
 	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
-		WdatePicker({el: str_inputEndTime, dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, 
+		WdatePicker({el: str_inputEndTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false, qsEnabled: false, 
 			onpicked: function() {
 				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 					var obj_beginDate = $dp.$D(str_inputStartTime), 
@@ -749,7 +790,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 				}
 			}
 		});
-	}).val(str_nowDate+' '+dlf.fn_changeNumToDateString(n_currentDate, 'sfm'));
+	}).val(str_tempEndTime);
 	
 }
 

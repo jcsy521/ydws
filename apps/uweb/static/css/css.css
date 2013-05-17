@@ -343,7 +343,7 @@ body {
 .menu, .menu li {
 	float: left;
 }
-.corpMapObj, #eventSearchContent, .mileageContent {
+.corpMapObj, #eventSearchContent, .mileageContent, .onlineStaticsContent {
 	min-width: 1151px;
 	/*min-height: 463px;*/
 	min-height: 566px;
@@ -352,7 +352,7 @@ body {
 	min-width: 1151px;
 	min-height: 566px;
 }
-.menu a {	/* , #countSecondList a */
+.menu a, .countUlIetm a {	/* , #countSecondList a */
 	display: inline-block;
 	height: 36px;
 	width: 104px;
@@ -436,6 +436,12 @@ body {
 }
 .menu .region:hover, .menu .regionHover  {
 	background-position: 0px -1116px;
+}
+.menu .onlineStatics {
+	background-position: 0px -1152px;
+}
+.menu .onlineStatics:hover, .menu .onlineStaticsHover {
+	background-position: 0px -1188px;
 }
 .selfList {
 	float:right;
@@ -1391,7 +1397,10 @@ body {
 	font-weight: bold;
 	text-decoration: underline;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th  {
+.onlineStaticsTable {
+	width: 750px;
+}
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th  {
 	height: 38px;
 	line-height: 38px;
     font-size: 14px; 
@@ -1429,7 +1438,7 @@ body {
 	+top: 3px;
 	_top: 20px; /*ie6*/
 }
-#pagerContainer, #staticsPage, #operatorPage, #mileagePage {
+#pagerContainer, #staticsPage, #operatorPage, #mileagePage, #onlineStaticsPage {
 	width: 750px;
 	height: 34px;
 	line-height: 34px;
@@ -1437,7 +1446,7 @@ body {
 	margin:0 auto;
 	text-align: center;
 }
-#mileagePage {
+#mileagePage, #onlineStaticsPage {
 	width: 550px;
 }
 .pageNums {
@@ -2205,7 +2214,7 @@ body {
 	padding: 0 0 0 29px;
 	width: 191px;
 }
-#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .operatorConditions input {
+#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .operatorConditions input, .onlineStaticsCondition input {
 	height: 26px;
     line-height: 27px;
     padding: 2px 0 0 29px;
@@ -2491,7 +2500,7 @@ legend {
 #singleEventWrapper {
 	height: 620px;
 }
-#eventSearchWrapper, #mileageWrapper, #operatorWrapper {
+#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #onlineStaticsWrapper {
 	position: absolute;
 	left: 248px;
 	top: 160px;
@@ -2499,10 +2508,10 @@ legend {
 .eventSearchTitle , .eventSearchContent, #singleEventWrapper {
 	width: 800px;
 }
-.eventSearchContent td, .mileageContent td, .operatorContent td {
+.eventSearchContent td, .mileageContent td, .operatorContent td, .onlineStaticsContent td {
 	height: 40px;
 }
-.singleMileageTable td, .singleEventContent td{
+.singleMileageTable td, .singleEventContent td {
 	height: 22px;
 	line-height: 22px;
 }
@@ -2527,22 +2536,29 @@ legend {
     line-height: 34px;
     position: absolute;
 }
-.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition, .operatorConditions {
+.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition, .operatorConditions, .onlineStaticsCondition {
 	padding-top: 10px;
 	margin-left: 22px;
 }
-.eventSearchCondition, .mileageCondition, .operatorConditions {
+.eventSearchCondition, .mileageCondition, .operatorConditions, .onlineStaticsCondition {
 	margin: 0 auto;
 }
-.mileageCondition, .operatorConditions {
+.mileageCondition, .operatorCondition, .onlineStaticsCondition {
 	width: 754px;
+}
+.onlineStaticsCondition .title, .mileageCondition .title {
+	color: #69B2E9;
+    font-size: 18px;
+    font-weight: bold;
+    padding-right: 148px;
+    text-align: center;
 }
 .singleEventCondition, .singleMileageCondition {
 	width: 92%;
 }
 .eventSearchCondition select, .mileageCondition select, .singleEventCondition select, .singleMileageCondition select {	/* search conditions */
 	height: 24px;
-    padding-top: 2px;
+	height: 21px;
     width: 146px;
 }
 .eventBtn {
@@ -2581,20 +2597,12 @@ legend {
 /*报表统计二级菜单*/
 .countUlIetm {
 	width: 115px;
-	height: 90px;
-	padding-top: 14px;
     position: absolute;
-    top: 143px;
-	z-index: 1000;
+    top: 157px;
+	z-index: 1002;
 }
 .countUlIetm li a{
     padding-left: 20px;
-}
-
-.countUlIetm .countUlItemHover {
-	background: url("/static/images/countUlItemHover.png") repeat;
-	font-weight: bold;
-	cursor: pointer;
 }
 #countSecondList .statics {
 	background-position: 0px -432px;
