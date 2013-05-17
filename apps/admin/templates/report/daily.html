@@ -1,3 +1,6 @@
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery.min.js"></script>
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet" type="text/css"/>
 <script src="/static/js/lockScreen.js"></script>
 <script type="text/javascript">
 	fn_lockScreen();
@@ -25,7 +28,7 @@
 	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
 		<span class="ui-button-text">业务日报查询</span>
 	</legend>
-	<form method="post" action="" onsubmit="return formSubmit('day');" id="formID">
+	<form method="post" action=""  onsubmit="return formSubmit('daily');" id="formID">
 		<table >
 			<tr>	
 				<td align="right">查询时间：</td>
@@ -34,11 +37,10 @@
                 </td>
 				<td align="right" colspan="2">
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('cities','daily');" 
+						onclick="fn_PushData('daily_time','daily');" 
                         class="ui-button ui-widget ui-state-default ui-corner-all" 
                         role="button" aria-disabled="false" />
 				    <input type="hidden" id="start_time" name="start_time" value="" />
-				    <input type="hidden" id="end_time" name="end_time" value="" />
                 </td>
 			</tr>
 		</table>
@@ -52,30 +54,31 @@
     </a>
 </div>
 <table id="reportDataTables" class="display">
-    <thead>
+     <thead>
         <tr>
-            <th>序号</th><th>新增集团数</th><th>总集团数</th><th>新增终端数</th><th>总终端数</th>
+            <th>序号</th>
+			<th>集团名称</th>
+			<th>车主手机</th>
+			<th>终端手机</th>
+			<th>受理时间</th>
         </tr>
-    </thead>
-    <tbody>
-        {% for result in results %}
-		<tr>
-			<td>{{result['seq']}}</td>		
-			<td>{{result['new_corps']}}</td>		
-			<td>{{result['total_corps']}}</td>		
-			<td>{{result['new_terminals']}}</td>			
-			<td>{{result['total_terminals']}}</td>		
+    </thead>		
+    <tbody id="adminTbody">
+	{% for business in businesses %}
+		<tr id="business{{business['seq']}}" >
+			<td>{{ business['seq'] }}</td>
+			<td>{{ business['corp_name'] }}</td>
+			<td>{{ business['umobile'] }}</td>
+			<td>{{ business['tmobile']}}</td>
+			<td><script>document.write(toHumanDate({{business['begintime']}}, 'yes'));</script></td>
 		</tr>
-        {% end %}
-    </tbody>
+	{% end %}
+	</tbody>
 	<tfoot id="tfoot">
 	{% if counts %}
 		<tr>
-			<td>合计：</td>
-			<td>{{counts['new_corps']}}</td>	
-			<td>{{counts['total_corps']}}</td>		
-			<td>{{counts['new_terminals']}}</td>	
-			<td>{{counts['total_terminals']}}</td>
+			<td>合计：</td>	
+			<td colspan="4">{{counts}}</td>
 		</tr>
 	{% end %}
 	</tfoot>

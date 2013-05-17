@@ -49,7 +49,7 @@ $(function () {
 	$('#start_time1,#end_time1').datepicker('option', 'setDate', new Date());
 	// 日报时间控件 默认昨天
 	$('#daily_time').datepicker();
-	$('#daily_time').datepicker('option', 'maxDate', '-1d');
+	$('#daily_time').datepicker('option', 'maxDate', '0d');
 	
 	// open business date and close date init
 	$('#begintime1').datepicker({

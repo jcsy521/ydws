@@ -25,7 +25,7 @@ function formSubmit(option) {
 		}
 	}
 	// business business edit
-	if ( option == 'business') {
+	if ( option == 'business' || option == 'online' ) {
 		var et = toEpochDate(endtime),
 			bt = toEpochDate(starttime);
 		$('#endtime').val(et);
@@ -41,10 +41,10 @@ function formSubmit(option) {
 		return true;
 	}
 	// 日报
-	if ( option == 'day' ) {
+	if ( option == 'daily' ) {
 		if ( dailytime ) {
-			var et = toEpochDate(dailytime + ' 23:59:59');
-			$('#end_time').val(et);
+			/*var et = toEpochDate(dailytime + ' 23:59:59');
+			$('#end_time').val(et);*/
 			$('#start_time').val(toEpochDate(dailytime + ' 00:00:00'));
 		}
 	}

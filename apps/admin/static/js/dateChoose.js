@@ -77,7 +77,7 @@ function toEpochDate(dateString) { // 将正常时区时间转为UTC时间
 		return myEpoch;
 	}
 }
-function fn_InitChooseDate() { 
+function fn_InitChooseDate() {
     var startTemp = $('#start_temp').val(),
 		endTemp = $('#end_temp').val(),
 		dateTemp = $('#date_temp').val(), 
@@ -93,7 +93,7 @@ function fn_InitChooseDate() {
 	} else if ( startTemp == 'user_start' ) { // 地市用户统计 默认开始时间显示月初
 		$('#start_time1').val(getFirstDayOfMonth());
 	} else if ( startTemp == 'daily' ) { // 日报
-		$('#daily_time').val(getYesterday());
+		$('#daily_time').val(toTodayDate());
 	}else if ( startTemp == 'business_begin' || startTemp == '0' ) { // 个人用户查询,集团查询
 		$('#start_time1').val(getFirstDayOfMonth()); 
 	} else { 
