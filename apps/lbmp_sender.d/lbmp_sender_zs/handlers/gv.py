@@ -44,13 +44,16 @@ class GvHandler(BaseHandler):
                                      ConfHelper.LBMP_CONF.gv_url % (data.lat, data.lon),
                                      None, HTTP.METHOD.GET)       
                 logging.info("[GV] response:\n %s", "Too many words, DUMMY response instead.")
-                json_data = json_decode(response)
-                if json_data['status'] == 'OK':
-                    ret.address = json_data['result']['formatted_address']
-                    ret.success = ErrorCode.SUCCESS 
-                    ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
-                    logging.info("[GV] get address=%s through lat=%s, lon=%s",
-                                 ret.address, data.lat, data.lon)
+                if response:
+                    json_data = json_decode(response)
+                    if json_data['status'] == 'OK':
+                        ret.address = json_data['result']['formatted_address']
+                        ret.success = ErrorCode.SUCCESS 
+                        ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
+                        logging.info("[GV] get address=%s through lat=%s, lon=%s",
+                                     ret.address, data.lat, data.lon)
+                    else:
+                        logging.error("[GV] get address failed. response:\n %s", response)
                 else:
                     logging.error("[GV] get address failed. response:\n %s", response)
                     

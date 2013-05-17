@@ -46,17 +46,26 @@ class GeHandler(BaseHandler):
                                      ConfHelper.LBMP_CONF.ge_url % (data.lat/3600000.0, data.lon/3600000.0),
                                      None, 
                                      HTTP.METHOD.GET)
+                # NOTE: the response may be 
+                # {"error":0,"x":"MTEzLjM5Njg3ODY3ODcx","y":"MjIuNTE0NjQ1MDk0NzE="}  or {'error':2,'x':'MA==','y':'MA=='} 
+                # so here change ' to "
+                response = response.replace("'",'"')
                 logging.info('[GE] response:\n %s', response)
-                json_data = json_decode(response)
-                if json_data['error'] == 0:
-                    lon = base64.b64decode(json_data['x'])
-                    lat = base64.b64decode(json_data['y'])
-                    ret.position.clat = int(float(lat) * 3600000)
-                    ret.position.clon = int(float(lon) * 3600000)
-                    logging.info("[GE] get clat=%s, clon=%s through lat=%s, lon=%s", 
-                                    lat, lon, data.lat, data.lon)
-                    ret.success = ErrorCode.SUCCESS 
-                    ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
+                if response:
+                    json_data = json_decode(response)
+                    if json_data['error'] == 0:
+                        lon = base64.b64decode(json_data['x'])
+                        lat = base64.b64decode(json_data['y'])
+                        ret.position.clat = int(float(lat) * 3600000)
+                        ret.position.clon = int(float(lon) * 3600000)
+                        logging.info("[GE] get clat=%s, clon=%s through lat=%s, lon=%s", 
+                                        lat, lon, data.lat, data.lon)
+                        ret.success = ErrorCode.SUCCESS 
+                        ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
+                    else:
+                        logging.error("[GV] get latlon_offset failed. response:\n %s", response)
+                else:
+                    logging.error("[GV] get latlon_offset failed. response:\n %s", response)
 
             except Exception as e:
                 logging.exception("[GE] get latlon_offset failed. Exception: %s", e.args)
