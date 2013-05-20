@@ -361,7 +361,7 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'bindBatchRegion': // 批量绑定围栏管理查询
 		case 'region': // 围栏管理查询
 			str_getDataUrl = REGION_URL;
-			$('#regionTable').removeData('regions');
+			$('#regionTable').removeData();
 			break;
 	}
 	
@@ -534,7 +534,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		arr_eventData = obj_searchData;
 	} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 		obj_searchData = obj_reaData.regions;
-		$('#regionTable').data('regions', obj_searchData); //围栏存储数据以便显示详细信息
+		$('#regionTable').data({'regions': obj_searchData, 'regionnum': obj_searchData.length}); //围栏存储数据以便显示详细信息
 	}
 
 	var n_searchLen = obj_searchData.length,

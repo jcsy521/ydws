@@ -20,12 +20,9 @@ window.dlf.fn_initRegion = function() {
 	dlf.fn_searchData(str_region);
 	// 新增围栏事件侦听
 	$('#regionCreateBtn').unbind('click').click(function(event){
-		var obj_regions = $('#regionTable').data('regions'),
-				n_circleNum = 0;
+		var n_circleNum = $('#regionTable').data('regionnum');
 			
-		if ( obj_regions ) {
-			n_circleNum = obj_regions.length;
-		
+		if ( n_circleNum ) {
 			if ( n_circleNum >= 10 ) { //最多只能有十个电子围栏
 				dlf.fn_jNotifyMessage('电子围栏最多只能创建10个。', 'message', false, 3000);
 				return;
@@ -101,12 +98,10 @@ window.dlf.fn_saveReginon = function() {
 	var str_regionName = $.trim($('#createRegionName').val()), 
 		n_radius = 0, 
 		obj_regions = $('#regionTable').data('regions'),
-		n_circleNum = 0, 
+		n_circleNum = $('#regionTable').data('regionnum'),
 		obj_regionData = {};
 		
-	if ( obj_regions ) {
-		n_circleNum = obj_regions.length;
-	
+	if ( n_circleNum ) {
 		if ( n_circleNum >= 10 ) { //最多只能有十个电子围栏
 			dlf.fn_jNotifyMessage('电子围栏最多只能创建10个。', 'message', false, 3000);
 			return;
@@ -172,7 +167,12 @@ window.dlf.fn_deleteRegion = function(n_id) {
 		if ( confirm('确定要删除该围栏吗？') ) {
 			$.delete_(REGION_URL+'?ids='+n_id, '', function(data) {
 				if ( data.status == 0 ) {
-					$('#regionTable tr[id='+ n_id +']').remove();
+					var obj_regionTable = $('#regionTable'),
+						n_regionNums = obj_regionTable.data('regionnum'),
+						obj_currentRegionTr = $('#regionTable tr[id='+ n_id +']');
+			
+					obj_currentRegionTr.remove();
+					obj_regionTable.data('regionnum', n_regionNums - 1);
 					fn_clearCircleRegion();
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
