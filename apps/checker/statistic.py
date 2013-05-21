@@ -18,13 +18,37 @@ class TerminalStatistic(object):
         
     def statistic_online_terminal(self, epoch_time):
         try:
-            self.db.execute("INSERT INTO T_ONLINE_STATISTIC(online_num, offline_num, time, cid) "
-                            "  SELECT sum(tti.login), count(tti.tid) - sum(tti.login), %s, tc.cid "
-                            "    FROM T_TERMINAL_INFO tti, T_GROUP tg, T_CORP tc"
-                            "    WHERE tti.group_id = tg.id"
-                            "    AND tg.corp_id = tc.cid"
-                            "    GROUP BY tc.cid",
-                            int(epoch_time))
+            corps = self.db.query("SELECT cid FROM T_CORP")
+            for corp in corps:
+                if corp:
+                    online_count = self.db.get("SELECT COUNT(tti.tid) AS num"
+                                               "  FROM T_CORP tc, T_GROUP tg, T_TERMINAL_INFO tti" 
+                                               "  WHERE tc.cid = tg.corp_id"
+                                               "  AND tg.id = tti.group_id"
+                                               "  AND tti.service_status = 1"
+                                               "  AND tti.login != 0"
+                                               "  AND  tc.cid = %s",
+                                               corp.cid)
+                    offline_count = self.db.get("SELECT COUNT(tti.tid) AS num"
+                                                "  FROM T_CORP tc, T_GROUP tg, T_TERMINAL_INFO tti" 
+                                                "  WHERE tc.cid = tg.corp_id"
+                                                "  AND tg.id = tti.group_id"
+                                                "  AND tti.service_status = 1"
+                                                "  AND tti.login = 0"
+                                                "  AND  tc.cid = %s",
+                                                corp.cid)
+                    if online_count:
+                        online_num = online_count.num
+                    else:
+                        online_num = 0
+                    if offline_count:
+                        offline_num = offline_count.num
+                    else:
+                        offline_num = 0
+                    
+                    self.db.execute("INSERT INTO T_ONLINE_STATISTIC(online_num, offline_num, time, cid) "
+                                    "  VALUES(%s, %s, %s, %s)",
+                                    online_num, offline_num, int(epoch_time), corp.cid)
             convert_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(epoch_time)) 
             logging.info("[CK] %s statistic online terminal finish", convert_time)
         except KeyboardInterrupt:
