@@ -95,7 +95,30 @@ class CheckOperMobileHandler(BaseHandler):
                               omobile)
             if res:
                 #TODO: the status is ugly, maybe should be replaced on someday.
-                status = ErrorCode.SERVER_BUSY
+                status = ErrorCode.DATA_EXIST
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 
+                              self.current_user.uid, e.args) 
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+            
+            
+class CheckPassengerMobileHandler(BaseHandler):
+
+    @tornado.web.removeslash
+    def get(self, mobile):
+        """one corp one passenger, one passenger one corp.
+        """
+        try:
+            status = ErrorCode.SUCCESS
+            res = self.db.get("SELECT id"
+                              "  FROM T_PASSENGER"
+                              "  WHERE mobile = %s"
+                              "  AND cid = %s",
+                              mobile, self.current_user.cid)
+            if res:
+                status = ErrorCode.DATA_EXIST
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 

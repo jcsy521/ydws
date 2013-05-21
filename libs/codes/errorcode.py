@@ -70,6 +70,9 @@ class ErrorCode(object):
     TINYURL_EXPIRED = 909
 
     EXPORT_FAILED = 910
+    
+    DATA_EXIST = 911
+    PASSENGER_EXIST = 912
 
     ERROR_MESSAGE  = {
         SUCCESS:                       u"操作成功。",
@@ -128,4 +131,6 @@ class ErrorCode(object):
         REGISTER_FAILED:               u"对不起，注册失败，请稍后重试。",
         TINYURL_EXPIRED:               u"对不起，该链接已失效。",
         EXPORT_FAILED:                 u"导出数据失败，请稍后重试。", 
+        DATA_EXIST:                    u"数据已存在。",
+        PASSENGER_EXIST:               u"乘客已存在。",
     }

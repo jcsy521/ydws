@@ -66,7 +66,7 @@ from handlers.wapimg import WapImgHandler
 from handlers.tinyurl import TinyURLHandler
 from handlers.delegation import DelegationHandler
 from handlers.checker import CheckTMobileHandler, CheckCNumHandler, CheckCNameHandler
-from handlers.checker import CheckOperMobileHandler
+from handlers.checker import CheckOperMobileHandler, CheckPassengerMobileHandler
 from handlers.friendlink import FriendLinkHandler
 from handlers.batch import BatchImportHandler
 from handlers.batch import BatchDeleteHandler
@@ -75,6 +75,20 @@ from handlers.operator import OperatorHandler
 from handlers.region import RegionHandler, RegionEventHandler
 from handlers.bindregion import BindRegionHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
+
+#znbc uweb handler
+from handlers.passenger import PassengerHandler
+from handlers.line import LineHandler
+from handlers.information import InformationHandler
+from handlers.bindline import LinesGetHandler, BindlineHandler
+
+#znbc client handler
+from handlers.clientcorpsearch import CorpSearchHandler
+from handlers.clientcar import FocusCarHandler, UnbindCarHandler
+from handlers.clientpush import PushHandler
+from handlers.clientmap import MAPHandler
+from handlers.clientbindmobile import ClientCaptchaHandler, BindMobileHandler
+from handlers.clientsync import SyncHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -151,8 +165,17 @@ class Application(tornado.web.Application):
             # for ios
             (r"/ios/*", IOSHandler),
             (r"/logout/ios/*", IOSLogoutHandler),
-
             (r"/register/*", RegisterHandler),
+           
+            #znbc client handler
+            (r"/ios/corpsearch/*", CorpSearchHandler),
+            (r"/ios/focuscar/*", FocusCarHandler),
+            (r"/ios/abandoncar/*", UnbindCarHandler),
+            (r"/ios/push/*", PushHandler),
+            (r"/ios/map/*", MAPHandler),
+            (r"/ios/captcha/*", ClientCaptchaHandler),
+            (r"/ios/bindmobile/*", BindMobileHandler),
+            (r"/ios/sync/*", SyncHandler),
             
             # for wap
             (r"/wapimg/*", WapImgHandler),
@@ -185,6 +208,14 @@ class Application(tornado.web.Application):
             (r"/report/online/*", OnlineHandler),
             (r"/download/*", DownloadHandler),
             
+            #znbc server handler
+            (r"/passenger/*", PassengerHandler),
+            (r"/line/*", LineHandler),
+            (r"/pushinfo/*", InformationHandler),
+            (r"/getlines/*", LinesGetHandler),
+            (r"/bindline/*", BindlineHandler),
+            (r"/checkpassengermobile/(\d+)/*", CheckPassengerMobileHandler),
+
         ]
 
         settings = dict(

@@ -92,7 +92,7 @@ class ECBusinessMixin(BaseMixin):
         """Get business info in detail throught tmobile.
         """
         business = self.db.get("SELECT cid, name as ecname, mobile as ecmobile,"
-                               "       linkman, address, email, timestamp" 
+                               "       linkman, address, email, timestamp, bizcode, type" 
                                "  FROM T_CORP" 
                                "  WHERE mobile = %s" 
                                "    LIMIT 1",
@@ -125,18 +125,19 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
                          linkman="",
                          address="",
                          email="",
-                         bizcode="")
+                         bizcode="",
+                         type="")
 
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'').strip()
 
         corpid = self.db.execute("INSERT INTO T_CORP(cid, name, mobile, password,"
-                                 "  linkman, address, email, timestamp, bizcode)"
-                                 "  VALUES(%s, %s, %s, password(%s), %s, %s, %s, %s, %s)",
+                                 "  linkman, address, email, timestamp, bizcode, type)"
+                                 "  VALUES(%s, %s, %s, password(%s), %s, %s, %s, %s, %s, %s)",
                                  fields.ecmobile, fields.ecname, fields.ecmobile,
                                  fields.password, fields.linkman,
                                  fields.address, fields.email,
-                                 int(time.time()), fields.bizcode)
+                                 int(time.time()), fields.bizcode, fields.type)
         group = self.db.execute("INSERT INTO T_GROUP(corp_id, name, type)"
                                 "  VALUES(%s, default, default)",
                                 fields.ecmobile)
@@ -217,7 +218,8 @@ class ECBusinessEditHandler(BaseHandler, ECBusinessMixin):
                          linkman="linkman = '%s'",
                          address="address = '%s'",
                          email="email = '%s'",
-                         bizcode="bizcode = '%s'")
+                         bizcode="bizcode = '%s'",
+                         type="type = '%s'")
 
         for key in fields:
             v = self.get_argument(key, None)

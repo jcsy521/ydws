@@ -71,6 +71,14 @@ def get_lastinfo_time_key(umobile):
     """for the newest lastinfo of owner"""
     return str("lastinfo_time:%s" % umobile)
 
+def get_lastinfo_line_key(line_id):
+    """for the newest lastinfo of line"""
+    return str("lastinfo_line:%s" % line_id)
+
+def get_lastinfo_line_time_key(line_id):
+    """for the newest lastinfo of line"""
+    return str("lastinfo_line_time:%s" % line_id)
+
 def get_location_key(dev_id):
     """for the newest location of dev"""
     return str("location:%s" % dev_id)
