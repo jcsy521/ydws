@@ -177,7 +177,7 @@ def send_sms(mobiles, message):
             return status
     except Exception as e:
             logging.exception("[UWEB] Send sms to sms server failed. Exception: %s", 
-                              self.current_user.cid, e.args) 
+                              e.args) 
             status = ErrorCode.SERVER_BUSY
             return status
 
