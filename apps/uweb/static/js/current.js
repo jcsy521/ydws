@@ -69,9 +69,9 @@ function fn_currentRequest(obj_pd) {
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
 		//str_msg = '车辆<b> '+ str_carCurrent +' </b>'
 		str_msg = '车辆定位中，请等待',
-		f_warpperStatus = !obj_cWrapper.is(':hidden');
+		b_warpperStatus = !obj_cWrapper.is(':hidden');
 	
-	if ( f_warpperStatus ) {	// 判断current dialog弹出框是否已经关闭，如果关闭:不进行任何操作
+	if ( b_warpperStatus ) {	// 判断current dialog弹出框是否已经关闭，如果关闭:不进行任何操作
 		/*if ( str_flagVal == CELLID_TYPE) {	// 根据定位类型设置提示信息
 			str_msg += '基站定位进行中...';
 		} else {

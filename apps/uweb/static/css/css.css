@@ -343,7 +343,7 @@ body {
 .menu, .menu li {
 	float: left;
 }
-.corpMapObj, #eventSearchContent, .mileageContent, .onlineStaticsContent {
+.corpMapObj, #eventSearchContent, .operatorContent .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent {
 	min-width: 1151px;
 	/*min-height: 463px;*/
 	min-height: 566px;
@@ -419,11 +419,29 @@ body {
 .menu .operator:hover, .menu .operatorHover {
 	background-position: 0px -684px;
 }
+.menu .passenger {
+	background-position: 0px -864px;
+}
+.menu .passenger:hover, .menu .passengerHover {
+	background-position: 0px -900px;
+}
 .menu .recordCount {
 	background-position: 0px -504px;
 }
 .menu .recordCount:hover, .menu .recordCountHover {
 	background-position: 0px -540px;
+}
+.menu .infoPush {
+	background-position: 0px -1008px;
+}
+.menu .infoPush:hover, .menu .infoPushHover {
+	background-position: 0px -1044px;
+}
+.menu .routeLine {
+	background-position: 0px -936px;
+}
+.menu .routeLine:hover, .menu .routeLineHover {
+	background-position: 0px -972px;
 }
 .menu .mileage {
 	background-position: 0px -720px;
@@ -547,7 +565,11 @@ body {
 	background-position: 0px -374px;
 	width: 800px;
 }
-.staticsTitle .close {
+.routeLineTitle {
+	background-position: 0px -748px;
+	width: 800px;
+}
+.staticsTitle .close, .routeLineTitle .close {
 	left: 774px;
 	_left: 772px;
 }
@@ -563,11 +585,17 @@ body {
 	left: 460px;
 	_left: 458px;
 }
-.operatorTitle {
+.operatorTitle, .passengerTitle, .infoPushTitle {
 	background-position: 0px -476px;
 	width: 800px;
 }
-.operatorTitle .close {
+.passengerTitle {
+	background-position: 0px -680px;
+}
+.infoPushTitle {
+	background-position: 0px -714px;
+}
+.operatorTitle .close, .passengerTitle .close, .infoPushTitle .close  {
 	left: 772px;
 	_left: 770px;
 }
@@ -989,7 +1017,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave  {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
@@ -1285,6 +1313,9 @@ body {
 	right: 10px;
 	top: 10px;
 }
+.tClose:hover {
+	background: url('/static/images/close_default1.png') no-repeat;
+}
 .tPlay {
 	background: url('/static/images/bf1.png') no-repeat;
 }
@@ -1335,7 +1366,7 @@ body {
 	height: 34px;
 	width: 92px;
 }
-.donwuploadBtn, .chartBtn, .addOperatorBtn {
+.donwuploadBtn, .chartBtn, .addOperatorBtn, .addPassenger {
 	color: #4876FF;
 	display: inline-block;
 }
@@ -1389,7 +1420,7 @@ body {
 	display: block;
 	color: #000;
 }
-.dataTable a,.dataTable a:link{
+.dataTable a,.dataTable a:link, .infoPushContent a, .infoPushContent a:link {
 	color: 	#4876FF;
 	text-decoration: none;
 }
@@ -1438,7 +1469,7 @@ body {
 	+top: 3px;
 	_top: 20px; /*ie6*/
 }
-#pagerContainer, #staticsPage, #operatorPage, #mileagePage, #onlineStaticsPage {
+#pagerContainer, #staticsPage, #operatorPage, #mileagePage, #onlineStaticsPage, #passengerPage {
 	width: 750px;
 	height: 34px;
 	line-height: 34px;
@@ -1632,7 +1663,12 @@ body {
 #top .adsYDXF {
 	background: url('/static/images/bannerAdYDXF.png') no-repeat;
 	_background-image: none;
-	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/s.png',sizingMethod='scale');
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/bannerAdYDXF.png',sizingMethod='scale');
+}
+#top .adsZNBC {
+	background: url('/static/images/bannerAdZNBC.png') no-repeat;
+	_background-image: none;
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/bannerAdZNBC.png',sizingMethod='scale');
 }
 /* getpassword start */
 .bdpwd {
@@ -1910,12 +1946,12 @@ body {
 	margin: 50px 0px 10px 0px;
 }
 
-#trackWrapper {
+#trackWrapper, #routeLineCreateWrapper  {
 	position: absolute;
 	bottom: 100px;
 	background-color: #000;
-	opacity: 0.5;
-	filter:alpha(opacity=50);
+	opacity: 0.45;
+	filter:alpha(opacity=45);
 	border-radius: 6px;
 	width: 400px;
 	height: 36px;
@@ -1986,6 +2022,7 @@ body {
 	line-height: 34px;
 	text-indent: 2em;
 }
+
 .chargerBox {
 	margin: 30px auto;
 	overflow: hidden;
@@ -2214,7 +2251,7 @@ body {
 	padding: 0 0 0 29px;
 	width: 191px;
 }
-#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .operatorConditions input, .onlineStaticsCondition input {
+#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .operatorConditions input, .onlineStaticsCondition input, #passengerContent input {
 	height: 26px;
     line-height: 27px;
     padding: 2px 0 0 29px;
@@ -2286,7 +2323,8 @@ fieldset {
     width: 425px;
 }
 .corpFieldSet {
-	height: 153px
+	height: 125px
+	/*height: 153px*/
 }
 legend {
 	display:block;
@@ -2323,29 +2361,19 @@ legend {
     top: 480px;
 }
 /*corp terminal css end*/
-#operatorWrapper {
-	/*
-	background: none repeat scroll 0 0 #F7F8F8;
-	width: 800px;
-	height: 600px;
-	*/
-}
-.operatorContent {
-	
-}
-#addOperatorDialog {
+#addOperatorDialog, #addPassengerDialog {
 	width: 500px;
 	height: 350px;
 }
-#addOperatorDialog input, #addOperatorDialog label {
+#addOperatorDialog input, #addOperatorDialog label, #addPassengerDialog input, #addPassengerDialog label {
 	display:block;
 }
-#addOperatorDialog input.text {
+#addOperatorDialog input.text, #addPassengerDialog input.text {
 	margin-bottom:5px;
 	width:200px; 
 	padding: 0.4em;
 }
-.operatorfieldset { 
+.operatorfieldset, .passengerfieldset { 
 	padding:0; 
 	border:0; 
 	margin-top:3px; 
@@ -2358,30 +2386,35 @@ legend {
 	height: 34px;
 	width: 92px;
 	position: relative;
-	top: 5px;
+	top: 1px;
 }
-#addOperatorLink, #addOperatorLink:hover {
+#addOperatorLink, #addOperatorLink:hover, #addPassengerLink, #addPassengerLink:hover {
 	color: #4290cb;
 }
-#operatorTable{
+#operatorTable, #passengerTable {
 	width: 750px;
 }
-#operatorTableHeader {
+#operatorTableHeader, #passengerTableHeader, #routeLineTableHeader {
 	height: 38px;
 	border: 1px solid #dce7f2;
 }
-#operatorTableHeader td {
+#operatorTableHeader td, #passengerTableHeader td, #routeLineTableHeader td {
 	background-color: #5aabff;
 	border: 1px solid #ececec;
 	height: 30px;
 	color: #FFFFFF;
 	text-align: center;
 }
+#operatorTableHeader th, #passengerTableHeader th, #routeLineTableHeader th {
+    font-size: 14px; 
+	color: #69b2e9;
+	border: 1px solid #dce7f2;
+}
 .PageNums {
 	font-size: 12px;
 	margin-left: 30px;
 }
-.operatorNextBtn, .operatorPrevBtn {
+.operatorNextBtn, .operatorPrevBtn, .passengerNextBtn, .passengerPrevBtn {
 	cursor: pointer;
 	display: inline-block;
 	height: 34px;
@@ -2390,10 +2423,10 @@ legend {
 	top: 8px;
 	width: 92px;
 }
-.operatorPrevBtn {
+.operatorPrevBtn, .passengerPrevBtn {
 	background: url('/static/images/prevPage0.png') no-repeat;
 }
-.operatorNextBtn {
+.operatorNextBtn, .passengerNextBtn {
 	background: url('/static/images/nextPage0.png') no-repeat;
 }
 /* file upload css start */
@@ -2500,7 +2533,7 @@ legend {
 #singleEventWrapper {
 	height: 620px;
 }
-#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #onlineStaticsWrapper {
+#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #onlineStaticsWrapper, #passengerWrapper, #infoPushWrapper {
 	position: absolute;
 	left: 248px;
 	top: 160px;
@@ -2536,14 +2569,14 @@ legend {
     line-height: 34px;
     position: absolute;
 }
-.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition, .operatorConditions, .onlineStaticsCondition {
+.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition, .operatorConditions, .onlineStaticsCondition .passengerConditions {
 	padding-top: 10px;
 	margin-left: 22px;
 }
-.eventSearchCondition, .mileageCondition, .operatorConditions, .onlineStaticsCondition {
+.eventSearchCondition, .mileageCondition, .operatorConditions, .onlineStaticsCondition, .passengerConditions {
 	margin: 0 auto;
 }
-.mileageCondition, .operatorCondition, .onlineStaticsCondition {
+.mileageCondition, .operatorCondition, .onlineStaticsCondition, .passengerConditions {
 	width: 754px;
 }
 .onlineStaticsCondition .title, .mileageCondition .title {
@@ -2572,7 +2605,7 @@ legend {
 	_top: 1px;
 	width: 92px;
 }
-#eventSearchPage, #singleEventPage, #singleMileagePage, #singleMileagePage {
+#eventSearchPage, #singleEventPage, #singleMileagePage, #singleMileagePage, #routeLinePage {
 	height: 34px;
     line-height: 34px;
     margin: 0 auto;
@@ -2616,22 +2649,136 @@ legend {
 .groupCss {
 	background-color: #F2F3F3;
 }
-/**==================*/
-#regionWrapper {
+/*info push*/
+#infoPushWrapper {
+	height: 470px;
+}
+#text_infoPush {
+	height: 81px;
+    width: 674px;
+	resize: none;
+	font-size: 12px;    
+	background-color: #F3F9FA;
+    border: 1px solid #CDCDCD;
+	padding: 5px;
+} 
+.infoPushChecksLabel {
+	position: relative;
+    top: 136px;
+    width: 100px;
+}
+.text_infoPushLabel {
+	left: -6px;
+    margin-right: 45px;
+    position: relative;
+    top: -35px;
+}
+#infoPushForm {
+	margin: 0 auto;
+    width: 800px;
+}
+#infoPushContent {
+	font-size: 13px;
+}
+.panel_infoMsg {
+	text-align: center;
+	padding: 20px 0px;
+}
+.panel_passengerContent {
+	height: 272px;
+}
+.panel_passenger {
+	border: 1px solid gray;
+    height: 210px;
+    left: 110px;
+    padding: 17px;
+    position: relative;
+    width: 650px;
+}
+.infoPushChecks {
+    height: 120px;
+    width: 656px;
+	height: 163px;
+}
+#infoPushPage {
+	float: right;
+	margin-right: 10px;
+}
+#infoPushPage span {
+	margin: 0px;
+	height: 20px;
+    margin: 0;
+    top: 6px;
+    width: 54px;
+}
+.panel_infoBtn {
+	margin-right: 30px;
+	text-align: right;
+}
+#infoPush_allCheckedPanel {
+	padding-left: 10px;
+}
+.infoPushCheckPanel {
+	display: inline-block;
+    overflow: hidden;
+    width: 100px;
+	line-height: 26px;
+	padding-left: 10px;
+}
+.infoPushCheckPanel input, #infoPush_smsWay, #infoPush_pushWay  {
+	margin-right: 5px;
+}
+.passengerUnBind {
+	
+}
+/*bindline wp*/
+.corp_routeLineList {
+	padding-left: 37px;
+}
+.bindLineTitle {
+	background-position: 0px -782px;
+}
+.bindLineContent {
+	padding-left: 70px;
+	height: 150px;
+}
+.bindLineList {
+	display: inline;
+    line-height: 37px;
+    list-style: none outside none;
+    width: 256px;
+}
+.bindLineSave {
+	border: 0 none;
+    float: right;
+    height: 34px;
+    position: relative;
+    right: 50px;
+    top: 20px;
+    width: 92px;
+}
+#bindLine_lineData {
+	height: 24px;
+    line-height: 24px;
+    margin-left: 10px;
+    padding: 3px 2px;
+    width: 130px;
+}
+/*===routeline===*/
+#routeLineWrapper {
 	background: none repeat scroll 0 0 #F7F8F8;
-	width: 510px;
+	width: 800px;
 	height: 0px;
 }
-
-.regionContent {
+.routeLineContent {
 	height: 470px
 }
-#regionCreateBtn {
+#routeLineCreateBtn {
 	color: #4876FF;
 	display: inline-block;
     cursor: pointer;
     height: 23px;
-    left: 436px;
+    left: 717px;
     position: relative;
     top: 14px;
 }
@@ -2639,26 +2786,13 @@ legend {
 	color: red;
     left: 30px;
     position: relative;
-    top: -50px;
+    top: -30px;
 }
-/*regionCreate add panel todo  */
-.regionCreateBtnPanel a {
-	background-position: 5px 5px;
-    border: 1px solid gray;
-    border-radius: 5px 5px 5px 5px;
-    color: #FFFFFF;
-    display: inline-block;
-    height: 31px;
-    line-height: 32px;
-    padding-right: 5px;
-    text-align: right;
-    text-decoration: none;
-    width: 74px;
-}
-.regionCreateBtnPanel a:hover, .regionCreateBtnPanel .regionCreateBtnCurrent {
-	background-color: #FFF;
-	background-position: 5px -25px;
-	color: #000;
+
+#clickMarkerWindowText {
+	height: 20px;
+    margin: 0px 6px;
+    width: 100px;
 }
 .regionCreate_dragMap {
 	background: url("/static/images/region_drag.png") no-repeat;
@@ -2673,13 +2807,7 @@ legend {
 .regionNamePanel {
 	display: inline;
 }
-.regionNamePanel input {
-	padding: 5px;
-    position: relative;
-    top: -2px;
-	*top: 2px;
-    width: 79px;
-}
+
 /* circle infowindow css*/
 .clickWindowPanel {
 	position: relative;
@@ -2690,38 +2818,54 @@ legend {
 	padding: 5px;
 }
 
-.clickWindowPanel a {
-	background-color: #000000;
+/**==================*/
+#regionWrapper {
+	background: none repeat scroll 0 0 #F7F8F8;
+	width: 510px;
+	height: 0px;
+}
+
+.regionContent {
+	height: 458px
+}
+#regionCreateBtn {
+	color: #4876FF;
+	display: inline-block;
+    cursor: pointer;
+    height: 23px;
+    left: 436px;
+    position: relative;
+    top: 14px;
+}
+/*routeline add panel*/
+.regionCreateBtnPanel a {
+	background-position: 5px 5px;
     border: 1px solid gray;
     border-radius: 5px 5px 5px 5px;
     color: #FFFFFF;
-    margin: 0px 5px;
-    opacity: 0.45;
-    padding: 7px;
-    text-decoration: none;
-}
-.clickWindowPanel a:hover {
-	background-color: #FFFFFF;
-	color: #000000;
-}
-
-.hideOrShowContent {
-	background: url("/static/images/ui-icons_228ef1_256x240.png") no-repeat scroll 0 0 transparent;
-    cursor: pointer;
     display: inline-block;
-    height: 20px;
-    overflow: hidden;
-    position: absolute;
-    right: 30px;
-    top: 10px;
-    width: 20px;
+    height: 31px;
+    line-height: 32px;
+    padding-right: 5px;
+    text-align: right;
+    text-decoration: none;
+    width: 74px;
 }
-
-.max {
-    background-position: -64px 0;
+.regionCreateBtnPanel a:hover {
+	background-color: #FFF;
+	color: #000;
 }
-.min {
-	background-position: 0 0;
+#regionCreate_clickMap:hover {
+	
+}
+.regionNamePanel {
+	display: inline;
+}
+.regionNamePanel input {
+	padding: 5px;
+    position: relative;
+    top: -2px;
+    width: 79px;
 }
 .regionTitle {
 	background-position: 0 -816px;
@@ -2748,6 +2892,80 @@ legend {
 	font-size: 14px;
 	z-index: 1000;
 }
+.clickWindowPanel a, .routeLineWindow a {
+	background-color: #000000;
+    border: 1px solid gray;
+    border-radius: 5px 5px 5px 5px;
+    color: #FFFFFF;
+    margin: 0px 5px;
+    opacity: 0.45;
+	filter:alpha(opacity=45);
+    padding: 7px;
+    text-decoration: none;
+}
+.clickWindowPanel a:hover, .routeLineWindow a:hover {
+	background-color: #FFFFFF;
+	color: #000000;
+}
+/*regionCreate add panel todo  */
+.routeLineCreateBtnPanel a {
+	background-position: 5px 5px;
+    border: 1px solid gray;
+    border-radius: 5px 5px 5px 5px;
+    color: #FFFFFF;
+    display: inline-block;
+    height: 31px;
+    line-height: 32px;
+    text-decoration: none;
+    width: 60px;
+}
+.routeLineCreateBtnPanel a:hover, .regionCreateBtnPanel a:hover, .routeLineCreateBtnPanel .routeLineBtnCurrent, .regionCreateBtnPanel .regionCreateBtnCurrent {
+	background-color: #FFFFFF;
+	background-position: 5px -25px;
+	color: #000000;
+}
+.routeLineNamePanel {
+	display: inline-block;
+	position: relative;
+	left: -20px;
+}
+.routeLineNamePanel input {
+	padding: 5px;
+    position: relative;
+    top: -2px;
+	*top: 2px;
+    width: 130px;
+}
+#routeLineCreateWrapper {
+	width: 450px;
+}
+
+.routeLineTable {
+	width: 760px;
+	margin-top: 20px;
+}
+.routeLineWindow {
+	margin-top: 20px;
+}
+.hideOrShowContent {
+	background: url("/static/images/ui-icons_228ef1_256x240.png") no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+    display: inline-block;
+    height: 20px;
+    overflow: hidden;
+    position: absolute;
+    right: 30px;
+    top: 10px;
+    width: 20px;
+}
+
+.max {
+    background-position: -64px 0;
+}
+.min {
+	background-position: 0 0;
+}
+
 /*bind regions */
 .regionCheckTh {
 	width: 40px;

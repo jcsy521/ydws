@@ -153,11 +153,11 @@ window.dlf.fn_baseSave = function() {
 window.dlf.fn_resizeWhitePop = function() {
 	var obj_terminalWrapperOffset = $('#terminalWrapper').offset(),
 		obj_whitePop = $('#whitelistPopWrapper'),
-		f_warpperStatus = !obj_whitePop.is(':hidden'),
+		b_warpperStatus = !obj_whitePop.is(':hidden'),
 		n_left = obj_terminalWrapperOffset.left + 380,
 		n_top =  obj_terminalWrapperOffset.top + 60 ;
 		
-	if ( f_warpperStatus ) {
+	if ( b_warpperStatus ) {
 		obj_whitePop.css({left: n_left, top: n_top});
 	}
 }

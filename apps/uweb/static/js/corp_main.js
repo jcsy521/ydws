@@ -48,7 +48,9 @@ function customMenu(node) {
 		realtimeLabel = '',	// 单个定位器实时定位
 		trackLabel = '',	// 单个定位器轨迹查询
 		staticsLabel = '',	// 单个定位器统计报表
+		bindLineLabel = '', // 绑定线路
 		bindRegionLabel = ''; // 绑定围栏
+		str_bizCode = $('#hidBizCode').val();	// 当前的业务
 	
 	if ( obj_node.hasClass('j_corp') ) {		// 集团右键菜单
 		renameLabel = '重命名集团';
@@ -70,7 +72,8 @@ function customMenu(node) {
 		eventLabel = '告警查询';
 		moveToLabel = '移动定位器';
 		singleDefendLabel = '设防/撤防';
-		staticsLabel = '里程报表';
+		staticsLabel = '里程统计';
+		bindLineLabel = '绑定/解绑线路';
 		bindRegionLabel = '绑定围栏';
 	}
 	// 定位器的移动至菜单项
@@ -123,6 +126,12 @@ function customMenu(node) {
 			"label" : eventLabel,
 			"action" : function(obj) {	// 告警查询初始化
 				dlf.fn_initRecordSearch('eventSearch');
+			}
+		},
+		"bindLine": {
+			"label" : bindLineLabel,
+			"action" : function(obj) {	// todo 
+				dlf.fn_routeLineBindEvent();
 			}
 		},
 		"bindRegion": {
@@ -260,6 +269,7 @@ function customMenu(node) {
 		delete items.track;
 		delete items.statics;
 		delete items.singleDelete;
+		delete items.bindLine;
 		delete items.bindRegion;
    }
    if ( obj_node.hasClass('j_group') ) {
@@ -272,6 +282,7 @@ function customMenu(node) {
 		delete items.track;
 		delete items.statics;
 		delete items.singleDelete;
+		delete items.bindLine;
 		delete items.bindRegion;
    }
    if ( str_userType == USER_OPERATOR ) {	// 操作员屏蔽右键	
@@ -282,6 +293,7 @@ function customMenu(node) {
 		delete items.rename;
 		delete items.batchDefend;
 		delete items.batchRegion;
+		delete items.bindLine;
 		delete items.singleDelete;
 		
 		/*delete items.moveTo;
@@ -289,7 +301,11 @@ function customMenu(node) {
 		delete items.terminalSetting;
 		delete items.defend;
 		delete items.statics;
+		delete items.bindRegion;
 		delete items.bindRegion;*/
+   }
+   if ( str_bizCode != 'znbc' ) {	// 如果集团业务不是智能班车业务的话  没有绑定线路功能
+		delete items.bindLine;
    }
    return items;
 }
@@ -636,15 +652,8 @@ window.dlf.fn_corpGetCarData = function() {
 	var obj_current = $('.j_leafNode a[class*='+ JSTREECLICKED +']'),
 		str_checkedNodeId = obj_current.attr('id'),	// 上一次选中车辆的id
 		str_tempTid = '',
-		f_trackSt = $('#trackHeader').is(':visible'), 
-		f_eventSearchWpST = $('#eventSearchWrapper ').is(':visible'),
-		f_milleageWpST = $('#mileageWrapper').is(':visible'),
-		f_staticWpSt = $('#staticsWrapper').is(':visible'),
 		b_flg = false;
 
-	if ( f_trackSt || f_eventSearchWpST || f_milleageWpST || f_staticWpSt ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
-		return;
-	}
 	str_checkedNodeId = str_checkedNodeId == undefined ? 'leaf_' + str_currentTid : str_checkedNodeId;
 	str_tempTid = str_checkedNodeId.substr(5, str_checkedNodeId.length);
 	str_currentTid = obj_current.attr('tid');	// load.jstree时更新选中的车
@@ -1079,7 +1088,7 @@ function fn_createGroup(cid, str_newName, obj_rollBack, obj_newNode) {
 				if ( data.status == 0 ) {
 					var n_gid = data.gid;
 					obj_newNode.addClass('j_group').children('a').attr('groupId', n_gid).addClass('groupNode').attr('id', 'group_' + n_gid).css('color', '#000000');
-					dlf.fn_corpGetCarData();	// 重新加载树
+					//dlf.fn_corpGetCarData();	// 重新加载树 2013.4.10
 				} else {
 					$.jstree.rollback(obj_rollBack);
 				}
@@ -1114,7 +1123,7 @@ function fn_renameGroup(gid, str_name, node) {
 	if ( !fn_checkGroupName(str_name, node, gid) ) {
 		$.put_(GROUPS_URL, JSON.stringify(obj_param), function (data) {
 			if ( data.status == 0 ) {
-				dlf.fn_corpGetCarData();	// 重新加载树
+				//dlf.fn_corpGetCarData();	// 重新加载树2013.4.10
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 				return false;
@@ -1134,7 +1143,7 @@ function fn_removeGroup(node) {
 		$.delete_(GROUPS_URL + '?ids=' + str_param, '', function (data) {
 			if ( data.status == 0 ) {
 				$("#corpTree").jstree('remove');
-				dlf.fn_corpGetCarData();	// 重新加载树
+				//dlf.fn_corpGetCarData();	// 重新加载树2013.4.10
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 				return false;
@@ -1154,7 +1163,7 @@ function fn_moveGroup(arr_tids, n_newGroupId, obj_rlbk, node_id) {
 	} else {
 		$.post_(GROUPTRANSFER_URL, JSON.stringify(obj_param), function (data) {
 			if ( data.status == 0 ) {
-				dlf.fn_corpGetCarData();	// 重新加载树
+				//dlf.fn_corpGetCarData();	// 重新加载树2013.4.10
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 执行操作失败，提示错误消息
 				$.jstree.rollback(obj_rlbk);
@@ -1443,7 +1452,7 @@ window.dlf.fn_checkTMobile = function(str_tmobile) {
 }
 
 /**
-* 验证定位器手机号
+* 操作员手机号已存在。
 */
 window.dlf.fn_checkOperatorMobile = function(str_tmobile) {
 	$.get_(CHECKOPERATORMOBILE_URL + '/' + str_tmobile, '', function(data){
@@ -1456,7 +1465,20 @@ window.dlf.fn_checkOperatorMobile = function(str_tmobile) {
 		}
 	});
 }
-
+/**
+* 验证乘客手机号
+*/
+window.dlf.fn_checkPassengerMobile = function(str_tmobile) {
+	$.get_(CHECKPASSENGERMOBILE_URL + '/' + str_tmobile, '', function(data){
+		if ( data.status != 0 ) {
+			dlf.fn_jNotifyMessage('乘客手机号已存在。', 'message', false, 5000);
+			$('#hidPassengerMobile').val('1');
+			return;
+		} else {
+			$('#hidPassengerMobile').val('');
+		}
+	});
+}
 /**
 * 验证集团名是否重复
 */

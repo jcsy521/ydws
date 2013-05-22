@@ -14,6 +14,18 @@
 				{{ecbusiness.ecname}}
 			</td>
 		</tr>
+		{% if ecbusiness.bizcode == 'znbc' %}
+			<tr">
+				<td	class="tLeft"><span class="signColor">*</span>集团种类：</td>
+				<td align="left">
+					{% if ecbusiness.type == 0 %}
+						公共集团
+					{% else %}
+						私有集团
+					{% end %}
+				</td>
+			</tr>
+			{% end %}
 		<tr>
 			<td	class="tLeft">联系人：</td>
 			<td	align="left">

@@ -10,14 +10,15 @@ var arr_dwRecordData = [],	// 后台查询到的报警记录数据
 	n_dwRecordPageNum = 0,	// 当前所在页数
 	arr_eventData = [],	// 后台查询到的报警记录数据
 	chart = null;
-	
+
 /**
 * 初始化查询条件
 */
 window.dlf.fn_initRecordSearch = function(str_who) {
 	var obj_currentWrapper = $('#' + str_who + 'Wrapper'),
-		b_status  = obj_currentWrapper.is(':visible');
-	
+		b_status  = obj_currentWrapper.is(':visible'),
+		obj_tableHeader = $('#'+ str_who +'TableHeader');	// 查询结果表头
+	 
 	if ( b_status ) {	// 如果当前dialog打开又点击打开，不进行操作
 		return;
 	}
@@ -36,18 +37,20 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	$('#' + str_who + '_uploadBtn').hide();	// 隐藏下载按钮
 	
 	if ( str_who == 'eventSearch' ) { // 告警查询
-		$('#POISearchWrapper').hide();  // 关闭周边查询
-		$('#eventSearchTableHeader').hide();
+		obj_tableHeader.hide();
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
 		dlf.fn_clearMapComponent(); // 清除页面图形
+		mapObj.removeEventListener('click', dlf.fn_mapClickFunction); // 取消地图的click事件
 		// 调整工具条和
 		// dlf.fn_setMapControl(10); // 调整相应的地图控件及服务对象
 		
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
+
 	} else if ( str_who == 'mileage' || str_who == 'operator' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
+		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
@@ -79,6 +82,9 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		obj_searchYear.unbind('change').bind('change', function() {	// 当改变年份的时候顺便改变月份
 			obj_searchMonth.html(fn_generateSelectOption('month', $(this).val()));
 		});
+	} else if ( str_who == 'operator' || str_who == 'passenger' ) {
+		obj_tableHeader.hide();
+		dlf.fn_unLockScreen(); // 去除页面遮罩
 	}
 	dlf.fn_setSearchRecord(str_who); //  绑定查询的事件,查询,上下翻页
 }
@@ -216,13 +222,29 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'operator': //  操作员查询
 			
 			var str_mobile = $('#txt_oprMobile').val(),
-				str_name = $('#txt_oprName').val(), 
-				str_getDataUrl = OPERATOR_URL+'?name='+ str_name +'&mobile='+ str_mobile +'&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
+				str_name = $('#txt_oprName').val(); 
+			
+			str_getDataUrl = OPERATOR_URL+'?name='+ str_name +'&mobile='+ str_mobile +'&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
 			
 			if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
 				dlf.fn_jNotifyMessage('您输入的手机号格式错误!', 'message', false);
 			}
 				
+			break;
+		case 'passenger': //  乘客查询
+			
+			var str_mobile = $('#txt_passenMobile').val(),
+				str_name = $('#txt_passenName').val();
+				
+			str_getDataUrl = PASSENGER_URL+'?name='+ str_name +'&mobile='+ str_mobile +'&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
+			
+			if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
+				dlf.fn_jNotifyMessage('您输入的手机号格式错误!', 'message', false);
+			}
+				
+			break;
+		case 'infoPush': //  消息推送获取乘客信息
+			str_getDataUrl = PUSHINFO_URL+'?name=&mobile=&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
 			break;
 		case 'eventSearch': //  告警查询
 			str_getDataUrl = EVENT_URL;
@@ -356,7 +378,9 @@ window.dlf.fn_searchData = function (str_who) {
 				obj_conditionData.month = $('#'+ str_who +'Month').val();
 			}
 			break;
-		
+		case 'routeLine': // 线路管理查询
+			str_getDataUrl = ROUTELINE_URL+'?pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
+			break;
 		case 'bindRegion': // 绑定围栏管理查询
 		case 'bindBatchRegion': // 批量绑定围栏管理查询
 		case 'region': // 围栏管理查询
@@ -367,7 +391,7 @@ window.dlf.fn_searchData = function (str_who) {
 	
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
 	
-	if ( str_who == 'operator' || str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+	if ( str_who == 'operator' || str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' ) {
 		$.get_(str_getDataUrl, '', function(data) {	
 			dlf.fn_bindSearchRecord(str_who, data);
 		},
@@ -391,8 +415,14 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		obj_nextPage = $('#'+ str_who +'NextBtn'), 	// 下一页按钮
 		obj_pagination = $('#'+ str_who +'Page'), 	// 分页容器
 		obj_searchHeader = $('#'+str_who+'TableHeader'),	// 数据表头
-		obj_download = $('#' + str_who + '_uploadBtn');	// 下载数据按钮
-		
+		obj_download = $('#' + str_who + '_uploadBtn'),	// 下载数据按钮
+		arr_btnPrevArray = new Array('prevPage0', 'prevPage1'), // 上一页按钮样式
+		arr_btnNextArray = new Array('nextPage0', 'nextPage1'), //下一页按钮样式
+		str_btnPrevDefault = 'prevPage2', // 上一页按钮默认样式
+		str_btnNextDefault = 'nextPage2', // 下一页按钮默认样式
+		str_enableColor = '#4876FF',
+		str_disableColor = '#8E9090';
+			
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
 			str_tbodyText = '';
@@ -406,7 +436,11 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		
 		if ( str_who == 'eventSearch' ) {
 			arr_dwRecordData = obj_resdata.events;
-		} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+		} else if ( str_who == 'passenger' || str_who == 'infoPush' ) {
+			arr_dwRecordData = obj_resdata.passengers;
+		} else if ( str_who == 'routeLine' ) {
+			arr_dwRecordData = obj_resdata.lines;
+		}else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 			arr_dwRecordData = obj_resdata.regions;
 		}
 		
@@ -416,36 +450,46 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			obj_pagination.show(); //显示分页
 			if ( n_dwRecordPageCnt > 1 ) {	// 总页数大于1 
 				if ( n_dwRecordPageNum > 0 && n_dwRecordPageNum < n_dwRecordPageCnt-1 ) {  //上下页都可用
-					dlf.fn_setItemMouseStatus(obj_prevPage, 'pointer', new Array('prevPage0', 'prevPage1'));
-					dlf.fn_setItemMouseStatus(obj_nextPage, 'pointer', new Array('nextPage0', 'nextPage1'));
-				} else if ( n_dwRecordPageNum >= n_dwRecordPageCnt-1 ) {	//下一页不可用				
-					dlf.fn_setItemMouseStatus(obj_prevPage, 'pointer', new Array('prevPage0', 'prevPage1'));
-					dlf.fn_setItemMouseStatus(obj_nextPage, 'default', 'nextPage2');
+					if ( str_who != 'infoPush' ) {
+						
+					} else {
+						dlf.fn_setItemMouseStatus(obj_prevPage, 'pointer', arr_btnPrevArray);
+						dlf.fn_setItemMouseStatus(obj_nextPage, 'pointer', arr_btnNextArray);
+					}
+				} else if ( n_dwRecordPageNum >= n_dwRecordPageCnt-1 ) {	//下一页不可用	
+					if ( str_who == 'infoPush' ) {
+						obj_prevPage.css('color', str_enableColor);
+						obj_nextPage.css('color', str_disableColor);
+					} else {
+						dlf.fn_setItemMouseStatus(obj_prevPage, 'pointer', arr_btnPrevArray);
+						dlf.fn_setItemMouseStatus(obj_nextPage, 'default', str_btnNextDefault);
+					}
 				} else {	//上一页不可用
-					dlf.fn_setItemMouseStatus(obj_prevPage, 'default', 'prevPage2');
-					dlf.fn_setItemMouseStatus(obj_nextPage, 'pointer', new Array('nextPage0', 'nextPage1'));
+					if ( str_who == 'infoPush' ) {
+						obj_prevPage.css('color', str_disableColor);
+						obj_nextPage.css('color', str_enableColor);
+					} else {
+						dlf.fn_setItemMouseStatus(obj_prevPage, 'default', str_btnPrevDefault);
+						dlf.fn_setItemMouseStatus(obj_nextPage, 'pointer', arr_btnNextArray);
+					}
 				}
 			} else {	//总页数小于1  上下页都不可用
-				dlf.fn_setItemMouseStatus(obj_prevPage, 'default', 'prevPage2');
-				dlf.fn_setItemMouseStatus(obj_nextPage, 'default', 'nextPage2');
+				if ( str_who == 'infoPush' ) {
+						obj_prevPage.css('color', str_disableColor);
+						obj_nextPage.css('color', str_disableColor);
+				} else {
+					dlf.fn_setItemMouseStatus(obj_prevPage, 'default', str_btnPrevDefault);
+					dlf.fn_setItemMouseStatus(obj_nextPage, 'default', str_btnNextDefault);
+				}
 			}
 			
 			if ( n_dwRecordPageNum == 0 ) {	// 只有在点击查询按钮时才重新显示总页数
 				$('#'+ str_who +'PageCount').html(obj_resdata.pagecnt); //总页数
 				$('#'+ str_who +'CurrentPage').html('1');	//当前页数
 			}
+			dlf.fn_productTableContent(str_who, obj_resdata);	// 根据页面的不同生成相应的table表格
+			dlf.fn_changeTableBackgroundColor();	// 数据行背景色改变
 			
-			// 根据页面的不同生成相应的table表格
-			dlf.fn_productTableContent(str_who, obj_resdata);
-			
-			/** 
-			* 初始化奇偶行
-			*/
-			$('.dataTable tr').mouseover(function() {
-				$(this).css('background-color', '#FFFACD');
-			}).mouseout(function() {
-				$(this).css('background-color', '');
-			});
 			//告警查询,添加点击显示上地图事件,并做数据存储
 			if ( str_who == 'eventSearch' ) {
 				dlf.fn_showMarkerOnEvent();
@@ -476,6 +520,10 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 	} else {
 		dlf.fn_jNotifyMessage(obj_resdata.message, 'message', false, 3000);	
 	}
+}
+
+String.prototype.len=function() {              
+	return this.replace(/[^\x00-\xff]/g,"rr").length;          
 }
 
 /**
@@ -522,7 +570,6 @@ window.dlf.fn_showMarkerOnEvent = function() {
 			}, 100);
 	});
 }
-
 /**
 * 根据数据和页面不同生成相应的table域内容
 */
@@ -531,18 +578,24 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	
 	if ( str_who == 'eventSearch' ) {
 		obj_searchData = obj_reaData.events;
-		arr_eventData = obj_searchData;
+	} else if ( str_who == 'passenger' || str_who == 'infoPush') {
+		obj_searchData = obj_reaData.passengers;
+	} else if ( str_who == 'routeLine' ) {
+		obj_searchData = obj_reaData.lines;
 	} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 		obj_searchData = obj_reaData.regions;
 		$('#regionTable').data({'regions': obj_searchData, 'regionnum': obj_searchData.length}); //围栏存储数据以便显示详细信息
 	}
 
+	arr_eventData = obj_searchData;
+		
 	var n_searchLen = obj_searchData.length,
 		obj_searchHeader = $('#'+str_who+'TableHeader'), 
 		arr_graphic = obj_reaData.graphics,	// 统计图结果
 		obj_counts = obj_reaData.counts,	// 每个种类的总数结果;
 		n_pagecnt = obj_reaData.pagecnt,	
 		str_tbodyText = '',
+		obj_tableHeader = $('#'+ str_who +'TableHeader'),	// 查询结果表头
 		str_tfoot = '<tr><td>总计：</td>',
 		str_hash = obj_reaData.hash_;	// 下载用的参数
 	
@@ -552,7 +605,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		
 		switch (str_who) {
 			case 'operator': // 操作员查询
-				$('#'+ str_who +'TableHeader').show();
+				obj_tableHeader.show();
 				str_tbodyText+= '<tr id='+ str_id +'>';
 				str_tbodyText+= '<td groupId ='+ obj_tempData.group_id +'>'+ obj_tempData.group_name +'</td>';	//组名
 				str_tbodyText+= '<td>'+ obj_tempData.name +'</td>';	// 操作员姓名
@@ -563,8 +616,48 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteOperator('+ str_id +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';
 				break;
+			case 'passenger': // 乘客查询
+				obj_tableHeader.show();
+				str_tbodyText+= '<tr id='+ str_id +'>';
+				str_tbodyText+= '<td>'+ obj_tempData.name +'</td>';	// 操作员姓名
+				str_tbodyText+= '<td>'+ obj_tempData.mobile +'</td>';	//操作员手机号
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_editPassenger('+ str_id +')>编辑</a></td>';	// 
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deletePassenger('+ str_id +')>删除</a></td>';	
+				str_tbodyText+= '</tr>';
+				break;
+			case 'infoPush': // 消息推送
+				var str_tempPid = obj_tempData.pid, 
+					str_tempId = obj_tempData.id,
+					str_pName = obj_tempData.name, 
+					str_mobile =  obj_tempData.mobile,
+					str_newPName = str_pName,
+					str_checkText = '',
+					b_checked = obj_infoPushChecks[str_tempId],
+					n_pNameLen = str_newPName.lenth,
+					str_grayClass = '',
+					str_checkboxId = 'ck_' + str_tempPid,
+					b_allChecked = $('#infoPush_allChecked').attr('checked');
+				
+				//todo中文和英文的长度验证及截取
+				if ( n_pNameLen > 10 ) {
+					str_newPName = str_pName.substr(0, 10) + '...';
+				}
+				// if ( str_tempPid == '' ) { // 是否有PID,是否已绑定手机
+					// str_checkText = '<label class="passengerUnBind">(未绑定)</label>';
+					// str_grayClass = 'gray';
+				// } else {
+					if ( b_checked || b_allChecked) {
+						str_checkText = '<input type="checkbox" id="'+ str_checkboxId +'" checked="checked" name="infoPush_check" value="'+ str_tempPid +'" userid="'+ str_tempId +'" usermobile="' + str_mobile +'" />';
+						obj_infoPushChecks[str_tempId] = str_tempPid || ''; //如果没有pid则设置为空
+						obj_infoPushMobiles[str_tempId] = str_mobile || '';
+					} else {
+						str_checkText = '<input type="checkbox" id="'+ str_checkboxId +'" name="infoPush_check" value="'+ str_tempPid +'" userid="'+ str_tempId +'" usermobile="' + str_mobile +'" />';
+					}
+				//}
+				str_tbodyText += '<label class="infoPushCheckPanel '+ str_grayClass +'" for="'+ str_checkboxId +'" title="'+ str_pName +'">'+ str_checkText + str_newPName +'</label>';
+				break;
 			case 'eventSearch': // 告警查询
-				$('#eventSearchTableHeader').show();
+				obj_tableHeader.show();
 				var str_type = obj_tempData.category,	//类型
 					n_lng = obj_tempData.clongitude/NUMLNGLAT,
 					n_lat = obj_tempData.clatitude/NUMLNGLAT,
@@ -597,7 +690,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_tbodyText+= '</tr>';
 				break;
 			case 'mileage': // 里程 统计
-				$('#'+ str_who +'TableHeader').show();
+				obj_tableHeader.show();
 				str_tbodyText+= '<tr>';
 				str_tbodyText+= '<td>'+ obj_tempData.alias +'</td>';	// 车牌号
 				str_tbodyText+= '<td>'+ obj_tempData.distance +'</td>';	//里程 
@@ -632,6 +725,21 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td>'+ str_heartbeat_lost +'</td>';	// 告警详情		
 				str_tbodyText+= '<td>'+ str_powerlow +'</td>';	// 告警详情				
 				str_tbodyText+= '</tr>';
+				break;
+			case 'routeLine': // 线路管理
+				var str_lineId = obj_tempData.line_id,
+					arr_stations = obj_tempData.stations,
+					n_stationNum = arr_stations ? arr_stations.length : 0;
+			
+				str_tbodyText+= '<tr id='+ str_lineId +'>';
+				str_tbodyText+= '<td>'+ (i+1) +'</td>';	// 线路序号
+				str_tbodyText+= '<td>'+ obj_tempData.line_name +'</td>';	// 线路名称
+				str_tbodyText+= '<td>'+ n_stationNum +'</td>';	// 站点数量
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRouteLine('+ str_lineId +')>查看详细</a></td>';	// 
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteRouteLine('+ str_lineId +')>删除</a></td>';	
+				str_tbodyText+= '</tr>';
+				
+				obj_routeLines[str_lineId] = obj_tempData; // 存储线信息以信显示线路详情
 				break;
 			case 'region': // 电子围栏
 				//todo
@@ -735,6 +843,25 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		obj_theadTH.html(str_th);
 		arr_series.push(obj_chart);
 		fn_initChart(arr_series, arr_categories, str_container, str_unit, str_who);	// 初始化chart图
+	} else if ( str_who == 'infoPush' ) {
+		$('.j_infoPushChecks').html(str_tbodyText);
+		
+		// 绑定勾选框事件
+		$('.j_infoPushChecks :checkbox[name="infoPush_check"]').unbind('click').click(function(event) {
+			var str_isCheck = $(this).attr('checked'), 
+				str_checkPid = $(this).val(),
+				str_userid = $(this).attr('userid'), 
+				str_mobile = $(this).attr('usermobile');
+				
+			if ( str_isCheck ) {
+				obj_infoPushChecks[str_userid] = str_checkPid || ''; //如果没有pid则设置为空
+				obj_infoPushMobiles[str_userid] = str_mobile || '';
+			} else {
+				obj_infoPushChecks[str_userid] = null;
+				obj_infoPushMobiles[str_userid] = null;
+				$('#infoPush_allChecked').removeAttr('checked');
+			}
+		});
 	} else if ( str_who == 'bindRegion' ) { // 当前终端所绑定的围栏进行显示
 		dlf.fn_getCurrentRegions();
 	}

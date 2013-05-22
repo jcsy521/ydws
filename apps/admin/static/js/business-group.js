@@ -23,8 +23,8 @@ $(function () {
 			n_tempNum = 1;
 		
 		// 根据页面不同所占区域大小不同
-		$('#businessPanel').css('height', 300);
-		$('#businessPanel #panelContent').css('height', 190);
+		$('#businessPanel').css('height', 340);
+		$('#businessPanel #panelContent').css('height', 240);
 	
 		switch (str_id) {
 			case 'prevBtn':
@@ -54,6 +54,17 @@ $(function () {
 				// 在第一页点击下一页,显示上一页按钮
 				if ( n_cNum == 2 ) {
 					obj_prevBtn.show();
+					// 绑定集团类型事件
+					$('#ecBizcode').unbind('change').change(function(event) {
+						var str_checkVal = $(this).val(), 
+							obj_bizTypeTr = $('#ecBizeTypeTr');
+						
+						if ( str_checkVal == 'znbc' ) {
+							obj_bizTypeTr.show();
+						} else {
+							obj_bizTypeTr.hide();
+						}
+					});
 				}
 				// 取得页面数据进行填充
 				fn_fillUserData(n_tempNum - 1);
@@ -89,8 +100,8 @@ $(function () {
 });
 // 填充数据 
 function fn_fillUserData(n_tempNav) {
-	var n_panelHeight = 300, 
-		n_contentHeight = 190;
+	var n_panelHeight = 340, 
+		n_contentHeight = 240;
 	
 	switch( n_tempNav) {
 		case 1: 
@@ -106,16 +117,28 @@ function fn_fillUserData(n_tempNav) {
 				str_cAddress = $('#userAddress').val(), 
 				str_cEmail = $('#userEmail').val(),
 				obj_bizcode = $('#ecBizcode'),
+				obj_bizType = $('#ecBizType'), 
+				obj_bizTypeCallback = $('#ecBizTypeCallBack'), 
 				str_bizname = obj_bizcode.find('option:selected').text(), 
-				str_bizcode = obj_bizcode.val();
+				str_bizcode = obj_bizcode.val(), 
+				str_bizTypeName = '公共集团',
+				str_bizType = 0;
 			
+			obj_bizTypeCallback.hide();
+			if ( str_bizcode == 'znbc' ) {
+				str_bizTypeName = obj_bizType.find('option:selected').text();
+				str_bizType = obj_bizType.val();
+				obj_bizTypeCallback.show();
+			} 
 			$('#bizcode').val(str_bizcode);
-			$('#tdEcBizCode').html(str_bizname);
+			$('#biztype').val(str_bizType);
 			$('#linkman').val(str_cLink);
 			$('#ecmobile').val(str_cMobile);
 			$('#address').val(str_cAddress);
 			$('#email').val(str_cEmail);
 			
+			$('#tdEcBizCode').html(str_bizname);
+			$('#tdEcBizType').html(str_bizTypeName);
 			$('#tdEcLink').html(str_cLink);
 			$('#tdEcMobile').html(str_cMobile);
 			$('#tdEcUserAddress').html(str_cAddress);

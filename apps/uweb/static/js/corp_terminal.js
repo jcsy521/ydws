@@ -8,11 +8,14 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 * 定位器参数设置初始化
 */
 window.dlf.fn_initCorpTerminal = function(str_tid) {
+	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
+	
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('.j_input input[type=text]').val('');
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	fn_initCorpSMS(str_tid);	// 初始化SMS通知
+	dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
 	dlf.fn_onInputBlur();	// input的blur事件初始化
 }
 
@@ -209,11 +212,11 @@ window.dlf.fn_corpBaseSave = function() {
 window.dlf.fn_resizeWhitePop = function() {
 	var obj_terminalWrapperOffset = $('#terminalWrapper').offset(),
 		obj_whitePop = $('#whitelistPopWrapper'),
-		f_warpperStatus = !obj_whitePop.is(':hidden'),
+		b_warpperStatus = !obj_whitePop.is(':hidden'),
 		n_left = obj_terminalWrapperOffset.left + 380,
 		n_top =  obj_terminalWrapperOffset.top + 60 ;
 		
-	if ( f_warpperStatus ) {
+	if ( b_warpperStatus ) {
 		obj_whitePop.css({left: n_left, top: n_top});
 	}
 }

@@ -55,6 +55,16 @@
 								<span class="redColor">*</span>
 							</td>
 						</tr>
+						<tr id="ecBizeTypeTr" class="hide">
+							<td	class="tLeft">集团种类：</td>
+							<td class="tdText" id="ecBizTypeList">
+								<select id="ecBizType" name="ecBizType">
+									<option value="0">公共集团</option>
+									<option value="1">私有集团</option>
+								</select>
+								<span class="redColor">*</span>
+							</td>
+						</tr>
 						<tr>
 							<td	class="tLeft">集团联系人：</td>
 							<td class="tdText" id="ecLinkPanel">
@@ -94,6 +104,10 @@
 						<td	class="tLeft">集团业务类型：</td>
 						<td class="tdText" id="tdEcBizCode"></td>	
 					</tr>
+					<tr id="ecBizTypeCallBack" class="hide">
+						<td	class="tLeft">集团种类：</td>
+						<td class="tdText" id="tdEcBizType"></td>	
+					</tr>
 					<tr>
 						<td	class="tLeft">集团联系人：</td>
 						<td class="tdText" id="tdEcLink"></td>	
@@ -123,6 +137,7 @@
 			<input type="hidden" id="ecname" name="ecname" value="" />
 			<input type="hidden" id="bizcode" name="bizcode" value="" />
 			<input type="hidden" id="ecmobile" name="ecmobile" value="" />
+			<input type="hidden" id="biztype" name="type" value="" />
 			<input type="hidden" id="linkman" name="linkman" value="" />
 			<input type="hidden" id="address" name="address" value="" />
 			<input type="hidden" id="email" name="email" value="" />

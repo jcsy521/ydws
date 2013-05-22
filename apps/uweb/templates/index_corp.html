@@ -12,6 +12,8 @@
 <script type="text/javascript" src="/static/js/jquery.jstree.js"></script>
 <script type="text/javascript" src="/static/js/corp_main.js"></script>
 <script type="text/javascript" src="/static/js/operator.js"></script>
+<script type="text/javascript" src="/static/js/passenger.js"></script>
+<script type="text/javascript" src="/static/js/routeline.js"></script>
 <script type="text/javascript" src="/static/js/region.js"></script>
 <script type="text/javascript" src="/static/js/searchRecord.js"></script>
 <script type="text/javascript" src="/static/js/fileupload.js"></script>
@@ -29,6 +31,8 @@
 		</div>
 		{% if bizcode == 'ydxf' %}
 			<div id="ads" class="adsYDXF" title="移动巡防"></div>
+		{% elif bizcode == 'znbc' %}
+			<div id="ads" class="adsZNBC" title="智能班车"></div>
 		{% else %}		
 			<div id="ads" title="移动车卫士"></div>
 		{% end %}	
@@ -107,6 +111,12 @@
 					{% if user_type != 'operator' %}
 					<li><a href="#" id="operator" class="operator j_click"></a></li>
 					{% end %}
+					<!--znbc-->
+					{% if bizcode == 'znbc' %}
+					<li><a href="#" id="passenger" class="passenger j_click"></a></li>
+					<li><a href="#" id="infoPush" class="infoPush j_click"></a></li>
+					<li><a href="#" id="routeLine" class="routeLine j_click"></a></li>
+					{% end %}
 				</ul>
 				<ul class="selfList">
 					<li><a class="help" title="显示帮助文档" href="/helper?user_type=enterprise" target="_blank">帮助</a></li>
@@ -162,6 +172,7 @@
 		</div> 
 	</div>
 	<div id="maskLayer" class="hide"></div>
+	<input type="hidden" id="hidBizCode" value="{{bizcode}}" />
 	{% if map_type == '2' %}
 	<div id="mapTileLayer" >
 		<ul>

@@ -225,7 +225,7 @@ table, .ui-widget-header {
 .hideul li {
 	width: 100px;
 }
-.hideSearchTable {
+.hideSearchTable, .hide {
     display: none;
 }
 #showOrHideSearch {

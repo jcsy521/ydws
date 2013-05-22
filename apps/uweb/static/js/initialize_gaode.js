@@ -107,10 +107,10 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		/*obj_selfMarker.setLabel(obj_selfMarker.getLabel());	// 设置label  obj_carA.data('selfLable')
 		obj_selfMarker.getLabel().setContent(str_alias);	// label上的alias值*/
 		var obj_infowindow = obj_selfMarker.selfInfoWindow, 
-			f_infoWindowStatus = obj_infowindow.getIsOpen();
+			b_infoWindowStatus = obj_infowindow.getIsOpen();
 			
 		obj_infowindow = new MMap.InfoWindow({content: dlf.fn_tipContents(obj_carInfo, 'actiontrack')});	
-		obj_infowindow.isOpen = f_infoWindowStatus;
+		obj_infowindow.isOpen = b_infoWindowStatus;
 		obj_selfMarker.selfInfoWindow = obj_infowindow;
 		//重新创建infowindow 避免吹出框打开
 		obj_selfMarker.setPosition(obj_tempPoint);

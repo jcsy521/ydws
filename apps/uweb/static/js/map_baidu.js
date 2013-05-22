@@ -527,40 +527,18 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	}
 	return str_result;
 }
+
 /*
 * 点击地图添加标记
 */
 window.dlf.fn_clickMapToAddMarker = function() {
-	mapObj.addEventListener('click', dlf.fn_mapClickFunction);
-}
-window.dlf.fn_mapClickFunction = function(event) { 
-	var obj_clickPoint = event.point;
-		obj_clickMarker = new BMap.Marker(obj_clickPoint), 
-		str_markerGuid = obj_clickMarker.guid;
-		
-	mapObj.addOverlay(obj_clickMarker);	//向地图添加覆盖物 
-	obj_routeLineMarker[str_markerGuid] = {'marker': obj_clickMarker, 'stationname': ''};
-	
-	// 吹出框显示
-	var str_infoWindowText = '<div class="regionWindow"><label 				     class="clickWindowPolder">请输入站点名称</label><input type="text" id="clickMarkerWindowText" value="站点" /><input type="button" onclick="dlf.fn_saveClickWindowText(\''+ str_markerGuid +'\', this);" value="保存" /><input type="button" onclick="dlf.fn_delClickWindowText(\''+ str_markerGuid +'\');" value="删除" /></div>',
-		obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
-	
-	obj_clickMarker.openInfoWindow(obj_clickInfoWindow);
-	/**
-	* obj_clickMarker click事件
-	*/
-	obj_clickMarker.addEventListener('click', function(){ 
-		var obj_markerPanel = obj_routeLineMarker[str_tempgid],
-			str_stationName = obj_markerPanel.stationname;
-		
-		mapObj.removeEventListener('click', dlf.fn_mapClickFunction);
-		this.openInfoWindow(obj_clickInfoWindow);
-		
-		$('#clickMarkerWindowText').val(str_stationName || '站点');
-		setTimeout( function() {
-			dlf.fn_clickMapToAddMarker();
-		}, 100);
+	//实例化鼠标绘制工具
+	obj_drawingManager = new BMapLib.DrawingManager(mapObj, {
+		isOpen: false, //是否开启绘制模式
+		enableDrawingTool: false //是否显示工具栏
 	});
+	obj_drawingManager.setDrawingMode(BMAP_DRAWING_MARKER);
+	//mapObj.addEventListener('click', dlf.fn_mapClickFunction);
 }
 
 /*
@@ -581,9 +559,10 @@ window.dlf.fn_addRouteLineMarker = function(obj_stations){
 			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
 		
 		this.openInfoWindow(obj_clickInfoWindow);
-		
+		return;
 	});
 }
+
 /*
 * 初始化画圆及事件绑定
 */
@@ -615,6 +594,7 @@ window.dlf.fn_initCreateCircle = function() {
 	});*/
 	mapObj.addEventListener('rightclick', dlf.fn_mapRightClickFun);
 }
+
 /*
 * 地图的右击事件
 */
@@ -624,31 +604,35 @@ window.dlf.fn_mapRightClickFun = function() {
 		dlf.fn_clearMapComponent(obj_circleLabel); // 清除地图上的半径提示
 		dlf.fn_clearMapComponent(obj_circleMarker);// 清除地图上的圆心标记
 	}
-	dlf.fn_mapStopDrawCirlce();
+	dlf.fn_mapStopDraw();
 	obj_circle = null;
 }
+
 /*
 * 地图的右击事件移除
 */
 window.dlf.fn_mapRightClickRemoveFun = function() { 
 	mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
 }
+
 /*
-* 地图开始画圆
+* 地图开始画圆或者加点
 */
-window.dlf.fn_mapStartDrawCirlce = function() { 
+window.dlf.fn_mapStartDraw = function() { 
 	obj_drawingManager.open();
 }
+
 /*
-* 地图停止画圆
+* 地图停止画图或者加点
 */
-window.dlf.fn_mapStopDrawCirlce = function() {
+window.dlf.fn_mapStopDraw = function() {
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent currentCircle currentDrag');
 	$('#regionCreate_dragMap').addClass('regionCreateBtnCurrent');
 	if ( obj_drawingManager ) {	
 		obj_drawingManager.close();
 	}
 }
+
 /*
 * 获取圆数据
 */
@@ -659,6 +643,7 @@ window.dlf.fn_getCirlceData = function() {
 		return {'radius': obj_circle.getRadius(), 'longitude': obj_circleCenter.lng*NUMLNGLAT, 'latitude': obj_circleCenter.lat*NUMLNGLAT};
 	}
 }
+
 /*
 * 显示圆
 */
@@ -677,4 +662,5 @@ window.dlf.fn_displayCircle = function(obj_circleData) {
 	mapObj.setCenter(centerPoint);
 	mapObj.addOverlay(obj_circle);	
 }
+
 })();

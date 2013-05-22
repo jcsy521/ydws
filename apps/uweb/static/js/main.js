@@ -46,7 +46,7 @@ window.dlf.fn_personalData = function() {
 */
 window.dlf.fn_personalSave = function() { 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩	
-	var f_warpperStatus = !$('#personalWrapper').is(':hidden'),
+	var b_warpperStatus = !$('#personalWrapper').is(':hidden'),
 		n_num = 0,
 		obj_personalData = {};
 		
@@ -217,7 +217,7 @@ window.dlf.fn_initCorpData = function() {
 */
 window.dlf.fn_corpSave = function() {
 	dlf.fn_lockContent($('.corpContent')); // 添加内容区域的遮罩	
-	var f_warpperStatus = !$('#corpWrapper').is(':hidden'),
+	var b_warpperStatus = !$('#corpWrapper').is(':hidden'),
 		n_num = 0,
 		obj_corpData = {};
 		
@@ -288,7 +288,7 @@ window.dlf.fn_initOperatorData = function() {
 */
 window.dlf.fn_operatorDataSave = function() {
 	dlf.fn_lockContent($('.operatorContent')); // 添加内容区域的遮罩	
-	var f_warpperStatus = !$('#operatorDataWrapper').is(':hidden'),
+	var b_warpperStatus = !$('#operatorDataWrapper').is(':hidden'),
 		n_num = 0,
 		obj_corpData = {},
 		obj_address = $('#txt_operAddress'),
@@ -354,9 +354,7 @@ window.onresize = function () {
 			obj_tree.css('overflow', 'hidden')
 		}
 		obj_tree.height(n_treeHeight);
-		$('#right, #corpRight, #navi, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
-		
-		
+		$('#right, #corpRight, #navi, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 5;
@@ -364,7 +362,7 @@ window.onresize = function () {
 			n_trackLeft = ( obj_track.width() ) / 4;
 		}
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-		$('.eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
+		$('.eventSearchContent, .j_wrapperContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
 		
 		if ( b_eventSearchStatus ) {
 			n_mapHeight = 340;
@@ -373,8 +371,8 @@ window.onresize = function () {
 		$('#mapObj').css({'width': n_right, 'height': n_mapHeight});	// 右侧宽度
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
 		
-		var f_layer = $('.j_body').data('layer');
-		if ( f_layer ) {
+		var b_layer = $('.j_body').data('layer');
+		if ( b_layer ) {
 			dlf.fn_lockScreen();
 		}
 		if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图
@@ -429,12 +427,12 @@ $(function () {
 		obj_tree.css('overflow', 'hidden')
 	}
 	obj_tree.height(n_treeHeight);
-	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
+	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	n_trackLeft = ( obj_track.width() ) / 4;
 	
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-	$('#mapObj, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
+	$('#mapObj, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
 	
 	if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图初始化tilelayer的位置
 		$('#mapTileLayer').css('left', n_tilelayerLeft);
@@ -451,24 +449,24 @@ $(function () {
 			n_carNum = $('#carList li').length,
 			str_trackStatus = $('#trackHeader').css('display'), 
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询是否显示
+			b_routeLineWpST = $('#routeLineWrapper').is(':visible'), //线路展示窗口是否打开
 			b_operatorStatus = $('#operateorWrapper').is(':visible'),	// 操作员是否显示
 			b_mileageStatus = $('#mileageWrapper').is(':visible'),	// 里程统计是否显示
+			b_addLineRoute = $('#routeLineCreateWrapper').is(':visible');	// 添加站点是否显示
 			b_regionStatus = $('#regionWrapper').is(':visible'),	// 围栏显示是否显示
 			b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
 			b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 围栏批量绑定是否显示
 			b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
-			obj_navItemUl = $('.j_countNavItem');	
+			obj_navItemUl = $('.j_countNavItem');
 		
 		if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
 			if ( str_id == 'track' ) {
 				return;
-			} else if ( str_id == 'eventSearch' ) {
-				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
-			} else { 
-				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 			}
 		}
-		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'eventSearch' && str_id != 'b_bindRegionStatus' && str_id != 'b_bindBatchRegionStatus' ) {
+		// 除了对多个定位器操作外
+		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'b_bindRegionStatus' && str_id != 'b_bindBatchRegionStatus' ) {
+
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
@@ -483,6 +481,10 @@ $(function () {
 				}
 			}
 		}
+		// 是否清除地图及lastinfo
+		if ( str_id == 'eventSearch' || str_id == 'routeLine' ) {
+			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
+		}
 		if ( str_userType !=  USER_PERSON ) { 
 			dlf.fn_secondNavValid();
 		}
@@ -490,12 +492,15 @@ $(function () {
 			case 'home': // 主页
 				$('.wrapper').hide();
 				$('#mapObj').show();
-				dlf.fn_clearAllMenu();
 				$('#home').addClass('homeHover');
-				if ( b_eventSearchStatus ) {	// 如果打开的是告警
+				
+				if ( b_eventSearchStatus || b_routeLineWpST || b_addLineRoute ) {	// 如果打开的是告警、线路、添加站点则还原地图开启lastinfo  同时移除地图的click事件
 					dlf.fn_setMapPosition(false);	// 还原地图
 					$('#eventSearch').removeClass('eventSearchHover');
+					dlf.fn_closeTrackWindow(true);	// 开启lastinfo
+					mapObj.removeEventListener('click', dlf.fn_mapClickFunction); // 取消地图的click事件
 				}
+				dlf.fn_clearAllMenu();
 				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				break;
 			case 'personalData': //  个人资料 
@@ -542,6 +547,15 @@ $(function () {
 				dlf.fn_initRecordSearch('mileage');
 				// obj_navItemUl.hide();
 				break;
+			case 'passenger': // 乘客查询
+				dlf.fn_initRecordSearch('passenger');
+				break;
+			case 'infoPush': // 信息推送
+				dlf.fn_initInfoPush();
+				break;
+			case 'routeLine': // 线路管理
+				dlf.fn_initRouteLine();
+				break;
 			case 'region': // 围栏管理
 				dlf.fn_initRegion();
 				break;
@@ -556,31 +570,25 @@ $(function () {
 	}).unbind('mouseout').bind('mouseout', function() { 
 		dlf.fn_secondNavValid();
 	});
-	/*点击页面其他地方,二级菜单关闭*/
-	/* $('.j_body').click(function(event) { 
-		if ( str_userType !=  USER_PERSON ) {
-			//dlf.fn_secondNavValid();
-		}
-	}); */
 	dlf.fn_closeWrapper(); //吹出框关闭事件
 	
 	/**
 	* dialogs 的拖动效果
 	*/
-	$('.j_drag').draggable({handle: '.wrapperTitle', containment: 'body',
+	$('.j_drag').draggable({handle: '.wrapperTitle', containment: 'body', cursor:'move',
 		drag: function(event, ui) {
-			var f_conStatus = !$('#jContentLock').is(':hidden'),
+			var b_conStatus = !$('#jContentLock').is(':hidden'),
 				str_currentId = event.target.id,
 				obj_whitePop = $('#whitelistPopWrapper'),
-				f_warpperStatus = !obj_whitePop.is(':hidden'),
+				b_warpperStatus = !obj_whitePop.is(':hidden'),
 				n_left = ui.position.left + 380,
 				n_top = ui.position.top + 60;
 				
-			if ( f_conStatus ) {
+			if ( b_conStatus ) {
 				dlf.fn_lockContent($($(this).children().eq(1)));
 			}
 			
-			if ( str_currentId == 'terminalWrapper' && f_warpperStatus ) {	// 定位器设置dialog拖动时，白名单未填提示框跟着拖动
+			if ( str_currentId == 'terminalWrapper' && b_warpperStatus ) {	// 定位器设置dialog拖动时，白名单未填提示框跟着拖动
 				obj_whitePop.css({left: n_left, top: n_top});
 			}
 		},
@@ -791,6 +799,47 @@ $(function () {
 	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '9'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
+	* 乘客进行验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'addPassengerForm', //指定from的ID 编号
+		debug: true, // 指定调试模式,不提交form
+		validatorGroup: '10', // 指定本form组编码,默认为1, 多个验证组时使用
+		submitButtonID: 'passengerSave', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000, 'dw');
+			return;
+		}, 
+		onSuccess: function() { 
+			if ( $('#hidPassengerMobile').val() != '' ) {
+				dlf.fn_jNotifyMessage('乘客手机号已存在。', 'message', false, 5000);
+				return;
+			} else {
+				dlf.fn_savePassenger();
+			}
+		}
+	});
+	$('#txt_passengerName').formValidator({validatorGroup: '10'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '乘客姓名不正确！'});
+	$('#txt_passengerMobile').formValidator({validatorGroup: '10'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '乘客手机号不正确！'});
+	
+	/**
+	* 消息推送进行验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'infoPushForm', //指定from的ID 编号
+		debug: true, // 指定调试模式,不提交form
+		validatorGroup: '11', // 指定本form组编码,默认为1, 多个验证组时使用
+		submitButtonID: 'infoPushSave', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000, 'dw');
+			return;
+		}, 
+		onSuccess: function() { 
+			dlf.fn_saveInfoPush();
+		}
+	});
+	$('#text_infoPush').formValidator({validatorGroup: '11'}).inputValidator({min: 1, max: 256, onError: '消息内容最大长度是128个汉字！'});
+	/**
 	* 加载完成后，第一次发送switchcar请求
 	*/
 	if ( !dlf.fn_userType() ) {
@@ -834,7 +883,7 @@ $(function () {
 		$('#hidOperatorId').val('');
 		$('#txt_operatorGroup').html(fn_getGroupData());
 		dlf.fn_onInputBlur();	// 操作员手机号事件侦听
-		$('#addOperatorDialog').removeData('resource').attr('title', '新增操作员').dialog('option', 'title', '新增操作员').dialog( "open" );
+		$('#addOperatorDialog').attr('title', '新增操作员').dialog('option', 'title', '新增操作员').dialog( "open" );
 	});
 	// 新增初始化dialog
 	$('#addOperatorDialog').dialog({
@@ -844,7 +893,24 @@ $(function () {
 		modal: true,
 		resizable: false
 	});
-	
+	/*================================*/
+	var obj_addPassenger = $('#addPassenger');
+	// 新增乘客 单击事件
+	obj_addPassenger.unbind('click').bind('click', function() {
+		$('.passengerfieldset input, textarea').val('');
+		$('#txt_passengerMobile').removeData('oldmobile');
+		$('#hidPassengerId').val('');
+		dlf.fn_onInputBlur();	// 乘客手机号事件侦听
+		$('#addPassengerDialog').attr('title', '新增乘客').dialog('option', 'title', '新增乘客').dialog( "open" );
+	});
+	// 新增初始化dialog
+	$('#addPassengerDialog').dialog({
+		autoOpen: false,
+		height: 300,
+		width: 400,
+		modal: true,
+		resizable: false
+	});
 	//窗口最大最小化事件声明
     $('.j_hosBtn').unbind('click').click(function (event) {
         var obj_elem = $(this), 

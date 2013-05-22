@@ -7,8 +7,13 @@ window.dlf.fn_saveOperator = function() {
 		str_mobile = $('#txt_operatorMobile').val(),
 		str_address = $('#txt_operatorAddress').val(),
 		str_email = $('#txt_operatorEmail').val(),
-		obj_operatorData = {'id': '', 'group_id': str_groupId, 'group_name': str_groupName, 'name': str_name, 'mobile': str_mobile, 'address': str_address, 'email': str_email};
-	
+		obj_operatorData = {'id': '', 'group_id': str_groupId, 'group_name': str_groupName, 'name': str_name, 'mobile': str_mobile, 'address': str_address, 'email': str_email},
+		obj_header = $('#operatorTableHeader'),
+		b_header = obj_header.is(':hidden');
+		
+	if ( b_header ) {	// 判断表头是否显示
+		obj_header.show();
+	}
 	if ( str_id ) {
 		obj_operatorData.id = parseInt(str_id);
 		dlf.fn_jsonPut(OPERATOR_URL, obj_operatorData, 'operator', '操作员数据保存中');
@@ -39,7 +44,7 @@ window.dlf.fn_editOperator = function(n_id) {
 			$('#txt_operatorGroup').html(fn_getGroupData());
 			$('#txt_operatorGroup').val(str_currentGroupId); 
 			
-		$('#addOperatorDialog').dialog('open').removeData('resource').attr('title', '编辑操作员').dialog('option', 'title', '编辑操作员');
+		$('#addOperatorDialog').dialog('open').attr('title', '编辑操作员').dialog('option', 'title', '编辑操作员');
 	}
 }
 

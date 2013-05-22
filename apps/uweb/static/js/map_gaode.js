@@ -654,4 +654,65 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	}
 	return str_result;
 }
+// todo记得要修改的:)2013.4.15
+/*
+* 点击地图添加标记
+*/
+window.dlf.fn_clickMapToAddMarker = function() {
+	mapObj.addEventListener('click', dlf.fn_mapClickFunction);
+}
+window.dlf.fn_mapClickFunction = function(event) { 
+	var obj_clickPoint = event.point;
+		obj_clickMarker = new BMap.Marker(obj_clickPoint), 
+		str_markerGuid = obj_clickMarker.guid;
+		
+	mapObj.addOverlay(obj_clickMarker);	//向地图添加覆盖物 
+	obj_routeLineMarker[str_markerGuid] = {'marker': obj_clickMarker, 'stationname': ''};
+	
+	// 吹出框显示
+	var str_infoWindowText = '<div class="clickWindowPanel"><label 				     class="clickWindowPolder">请输入站点名称</label><input type="text" id="clickMarkerWindowText" value="站点" /><input type="button" onclick="dlf.fn_saveClickWindowText(\''+ str_markerGuid +'\', this);" value="保存" /><input type="button" onclick="dlf.fn_delClickWindowText(\''+ str_markerGuid +'\');" value="删除" /></div>',
+		obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
+	
+	obj_clickMarker.openInfoWindow(obj_clickInfoWindow);
+	/**
+	* obj_clickMarker click事件
+	*/
+	obj_clickMarker.addEventListener('click', function(){ 
+		var str_tempgid = this.guid, 
+			obj_markerPanel = obj_routeLineMarker[str_tempgid],
+			str_stationName = obj_markerPanel.stationname,
+			str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">请输入站点名称</label><input type="text" id="clickMarkerWindowText" /><input type="button" onclick="dlf.fn_saveClickWindowText(\''+ str_tempgid +'\', this);" value="保存" /><input type="button" onclick="dlf.fn_delClickWindowText(\''+ str_tempgid +'\');" value="删除" /></div>',
+			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
+		
+		mapObj.removeEventListener('click', dlf.fn_mapClickFunction);
+		this.openInfoWindow(obj_clickInfoWindow);
+		
+		$('#clickMarkerWindowText').val(str_stationName || '站点');
+		setTimeout( function() {
+			dlf.fn_clickMapToAddMarker();
+		}, 100);
+	});
+}
+
+/*
+* 添加线路的标记
+*/
+window.dlf.fn_addRouteLineMarker = function(obj_stations){ 
+	var str_stationName = obj_stations.name,
+		obj_stationPoint = dlf.fn_createMapPoint(obj_stations.longitude, obj_stations.latitude),
+		obj_stationMarker = new BMap.Marker(obj_stationPoint); 
+	
+	mapObj.addOverlay(obj_stationMarker);	//向地图添加覆盖物 
+
+	/**
+	* obj_stationMarker click事件
+	*/
+	obj_stationMarker.addEventListener('click', function(){ 
+		var str_infoWindowText = '<label class="clickWindowPolder">站点名称：'+ str_stationName +'</label>',
+			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
+		
+		this.openInfoWindow(obj_clickInfoWindow);
+		
+	});
+}
 })();

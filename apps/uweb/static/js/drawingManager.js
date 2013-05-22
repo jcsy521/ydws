@@ -921,9 +921,31 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
          */
         var clickAction = function (e) {
             // 往地图上添加marker
-            var marker = new BMap.Marker(e.point, me.markerOptions);
-            map.addOverlay(marker);
-            me._dispatchOverlayComplete(marker);
+            var marker = new BMap.Marker(e.point, me.markerOptions),
+				str_markerGuid = marker.guid, 
+				str_infoWindowText = '<div class="routeLineWindow"><label class="clickWindowPolder">站点名称</label><input type="text" id="clickMarkerWindowText" value="" /><a href="#" onclick="dlf.fn_saveClickWindowText(\''+ str_markerGuid +'\', this);">保存</a><a href="#" onclick="dlf.fn_delClickWindowText(\''+ str_markerGuid +'\');">删除</a></div>',
+				obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
+			
+			mapObj.addOverlay(marker);
+			me._dispatchOverlayComplete(marker);
+	
+			marker.openInfoWindow(obj_clickInfoWindow);
+		
+			obj_routeLineMarker[str_markerGuid] = {'marker': marker, 'stationname': ''};
+			/**
+			* marker click事件
+			*/
+			marker.addEventListener('click', function(e){ 
+				var obj_markerPanel = obj_routeLineMarker[this.guid],
+					str_stationName = obj_markerPanel.stationname;
+				
+				this.openInfoWindow(obj_clickInfoWindow);
+				
+				$('#clickMarkerWindowText').val(str_stationName);
+			});
+			dlf.fn_mapStopDraw();
+			$('#routeLineCreate_clickMap').removeClass('routeLineBtnCurrent');
+			$('#routeLineCreate_clickMap').html('添加站点');
         }
 
         mask.addEventListener('click', clickAction);
@@ -999,7 +1021,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			
 			obj_circle = circle; // 圆形数据保存
 			if ( b_ie && str_ieVersion != '9.0' ) { // 如果是ie6 7 8 
-				if ( obj_startEventBtn != 1 ) {
+				if ( str_ieVersion != '10.0' &&  obj_startEventBtn != 1 ) {
 					return;
 				}
 			} else { 

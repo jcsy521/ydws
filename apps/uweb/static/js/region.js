@@ -39,7 +39,7 @@ window.dlf.fn_initRegion = function() {
 		obj_circle =  null;
 		
 		// 启动画围栏事件
-		dlf.fn_mapStartDrawCirlce();
+		dlf.fn_mapStartDraw();
 		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 		$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
 	});
@@ -51,7 +51,7 @@ window.dlf.fn_initRegion = function() {
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 	// 给绘制地图绑定事件
 	$('#regionCreate_clickMap').unbind('click').click(function(event){
-		dlf.fn_mapStartDrawCirlce();
+		dlf.fn_mapStartDraw();
 		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 		$(this).addClass('regionCreateBtnCurrent');
 	});

@@ -8,9 +8,9 @@
 *counter : 动态运行次数
 *str_actionState : 暂停操作的状态
 *n_speed: 默认播放速度
-*f_trackMsgStatus: 动态marker的吹出框是否显示
+*b_trackMsgStatus: 动态marker的吹出框是否显示
 */
-var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, f_trackMsgStatus = false,obj_drawLine = null, arr_drawLine = [];
+var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, b_trackMsgStatus = false,obj_drawLine = null, arr_drawLine = [];
 /**
 * 初始化轨迹显示页面
 */
@@ -18,7 +18,6 @@ window.dlf.fn_initTrack = function() {
 	var obj_trackHeader =  $('#trackHeader');
 	
 	$('#track').addClass('trackHover');
-	obj_trackHeader.data('trackST', true);
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
 	dlf.fn_closeDialog(); // 关闭所有dialog
 	dlf.fn_setMapPosition(false);
@@ -26,8 +25,9 @@ window.dlf.fn_initTrack = function() {
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
+	mapObj.removeEventListener('click', dlf.fn_mapClickFunction); // 取消地图的click事件
 	$('#ceillid_flag').removeAttr('checked');
-	obj_trackHeader.show().data('trackST', true);	// 轨迹查询条件显示
+	obj_trackHeader.show();	// 轨迹查询条件显示
 	// 调整工具条和
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	fn_closeAllInfoWindow();	
@@ -56,23 +56,24 @@ function fn_closeAllInfoWindow() {
 
 /**
 * 关闭轨迹显示页面
-* f_ifLastInfo: 清除规矩相关的时候是否要发起lastinfo
+* b_ifLastInfo: 清除规矩相关的时候是否要发起lastinfo
 */
-window.dlf.fn_closeTrackWindow = function(f_ifLastInfo) { 
+window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) { 
 	$('#mapObj').show();
 	dlf.fn_clearNavStatus('track'); // 移除导航操作中的样式
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_closeAllInfoWindow();
 	dlf.fn_clearTrack();	// 清除数据
-	$('#trackHeader').hide().data('trackST', false);	// 轨迹查询条件隐藏
+	$('#trackHeader').hide();	// 轨迹查询条件隐藏
 	/**
 	* 清除地图后要清除车辆列表的marker存储数据
 	*/
 	var obj_cars = $('.j_carList .j_terminal'),
 		obj_selfMarker = null,
 		obj_carInfo = null; 
-	
-	if ( f_ifLastInfo ) {
+		
+	n_currentLastInfoNum = 0;
+	if ( b_ifLastInfo ) {
 		$('.j_carList').removeData('carsData');
 		obj_carsData = {};
 		obj_selfmarkers = {};
@@ -154,7 +155,7 @@ function fn_trackQuery() {
 				obj_tempFirstPoint = arr_locations[0];
 				//str_alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
 				
-				for (var i = 0; i < locLength; i++) {
+				/* for (var i = 0; i < locLength; i++) {
 					var obj_currentLoc = arr_locations[i],
 						str_tid = obj_currentLoc.tid,
 						obj_firstPoint = dlf.fn_createMapPoint(obj_currentLoc.clongitude, obj_currentLoc.clatitude);
@@ -174,7 +175,8 @@ function fn_trackQuery() {
 					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
 				} else {
 					dlf.fn_setOptionsByType('viewport', [obj_tempFirstPoint, obj_tempMaxPoint]);
-				}
+				} */
+				dlf.fn_caculateBox(arr_locations);
 				fn_startDrawLineStatic(arr_locations);
 			}
 		} else if ( data.status == 201 ) {	// 业务变更
@@ -413,9 +415,9 @@ function fn_drawMarker() {
 	if ( counter <= n_len-1 ) {
 		if ( actionMarker ) {
 			if ( n_mapType == 1 ) {
-				f_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
+				b_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
 			} else {
-				f_trackMsgStatus = actionMarker.selfInfoWindow.getIsOpen();	// 高德获取infowindow的状态
+				b_trackMsgStatus = actionMarker.selfInfoWindow.getIsOpen();	// 高德获取infowindow的状态
 			}
 			dlf.fn_clearMapComponent(actionMarker);
 		}
@@ -424,7 +426,7 @@ function fn_drawMarker() {
 		arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[counter].clongitude, arr_dataArr[counter].clatitude));
 		obj_drawLine.setPath(arr_drawLine);
 		
-		if ( f_trackMsgStatus ) {
+		if ( b_trackMsgStatus ) {
 			if ( n_mapType == 1 ) {
 				actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框 
 			} else {
