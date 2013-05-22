@@ -8,11 +8,15 @@
 		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
 		<script type="text/javascript" src="/static/js/definitions.js"></script>
 		<script type="text/javascript" src="/static/js/login.js"></script>
+		<script type="text/javascript" src="/static/js/announcement.js"></script>
 		<title>移动车卫士--登录</title>
 	</head>
-	<body>
+	<body  onload="Run();">
 		<div class="loginBody">
 			<div class="top">
+				<div class="announcementPanel">
+					<span type="text" class="announcement" id="announcement" ></span>
+				</div>
 				<div class="loginFormContent">
 				<form action="/login" method="post">
 					<ul class="tabs">

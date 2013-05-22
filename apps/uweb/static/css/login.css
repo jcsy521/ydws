@@ -318,3 +318,18 @@ table, tr, td {
     text-align: center;
     width: 100%;
 }
+.announcementPanel {
+	width: 950px;
+	position: absolute;
+	top: 30px;
+	text-align: right;
+}
+.announcement {
+	margin-right: 50px;
+	width: 700px;
+	background: #edf8ff;
+	border: 0px;
+	height: 30px;
+	text-align: right;
+	color: red;
+}

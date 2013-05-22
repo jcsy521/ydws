@@ -2835,5 +2835,21 @@ legend {
     margin-left: 20px;
     width: 71px;
 }
-
+.announcementPanel {
+	position: absolute;
+    text-align: right;
+    top: 134px;
+    right: 195px;
+}
+.announcementPanel img {
+	margin-right: 10px;
+	margin-top: -2px;
+}
+.announcement {
+	margin-right: 50px;
+	width: 700px;
+	height: 30px;
+	text-align: right;
+	color: red;
+}
 /*web css end*/
