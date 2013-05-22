@@ -289,7 +289,7 @@
 						</li>
 					</ul>
 				</fieldset>
-
+				{% if bizcode == 'znbc' %}
 				<fieldset class="corpRouteLineFieldSet">
 					<legend>车辆绑定线路：</legend>
 						<ul class="corp_routeLineList">
@@ -297,6 +297,7 @@
 							<label id="corp_routeLineName"></label>
 						</ul>
 				</fieldset>
+				{% end %}
 				<input type="submit" value="" id="corp_terminalSave" class="corp_terminalButton j_save" />
 			</form>				
 		</div>
