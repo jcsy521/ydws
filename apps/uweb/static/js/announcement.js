@@ -9,7 +9,7 @@ var time,
 	n_interval = 0;
 
 function Run() {
-	var str_annoucement = '通知：由于服务器今晚10-12点升级，升级期间暂停服务，请广大用户悉知。【移动车卫士】',
+	var str_annoucement = '移动车卫士业务将于2013年5月22日晚22点-24点进行升级维护，期间将暂停服务。。。',
 		n_timeout = 450;
 	
 	$('#announcement').html(str_annoucement.substring(possion-50,possion));
