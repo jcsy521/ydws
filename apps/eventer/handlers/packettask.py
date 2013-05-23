@@ -99,13 +99,23 @@ class PacketTask(object):
                 if corp and corp.mobile:
                     terminal_time = get_terminal_time(int(location.gps_time))
                     if region_status == EVENTER.CATEGORY.REGION_OUT:
-                         sms = SMSCode.SMS_REGION_OUT % (terminal.mobile,
-                                                         safe_unicode(region.region_name),
-                                                         safe_unicode(location.name if location.name else ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]), terminal_time)
+                        if location.name:
+                            sms = SMSCode.SMS_REGION_OUT % (terminal.mobile,
+                                                            safe_unicode(region.region_name),
+                                                            safe_unicode(location.name), terminal_time)
+                        else:
+                            sms = SMSCode.SMS_REGION_ENTER_NO_ADDRESS % (terminal.mobile,
+                                                                         safe_unicode(region.region_name),
+                                                                         terminal_time)
                     else:
-                         sms = SMSCode.SMS_REGION_ENTER % (terminal.mobile,
-                                                           safe_unicode(region.region_name),
-                                                           safe_unicode(location.name if location.name else ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]), terminal_time)
+                        if location.name:
+                            sms = SMSCode.SMS_REGION_ENTER % (terminal.mobile,
+                                                              safe_unicode(region.region_name),
+                                                              safe_unicode(location.name), terminal_time)
+                        else:
+                            sms = SMSCode.SMS_REGION_OUT_NO_ADDRESS % (terminal.mobile,
+                                                                       safe_unicode(region.region_name),
+                                                                       terminal_time)
                     if location.cLon and location.cLat:
                         clon = '%0.3f' % (location.cLon/3600000.0) 
                         clat = '%0.3f' % (location.cLat/3600000.0)
