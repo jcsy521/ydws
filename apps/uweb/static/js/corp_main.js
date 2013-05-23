@@ -1010,8 +1010,13 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 			n_endNum = str_content.indexOf('</h4>'),
 			str_oldname = str_content.substring(n_beginNum, n_endNum),
 			str_content = str_content.replace(str_oldname, str_tempAlias);
-					
-		obj_selfMarker.getLabel().setContent(str_tempAlias);	// todo
+		
+
+		var obj_selfLabel = obj_selfMarker.selfLable;
+		
+		obj_selfLabel.setContent(str_tempAlias);	// label上的alias值
+		obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
+		
 		obj_selfMarker.selfInfoWindow.setContent(str_content);	// todo
 	}
 }

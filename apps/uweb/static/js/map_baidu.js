@@ -231,6 +231,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	
 	marker= new BMap.Marker(mPoint, {icon: myIcon}); 
 	marker.setOffset(new BMap.Size(0, 0));
+	marker.selfLable = label;
 	marker.selfInfoWindow = infoWindow;
 	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
 		actionMarker = marker;
