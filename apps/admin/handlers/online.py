@@ -32,7 +32,8 @@ class OlineMixin(BaseMixin):
         
         data = self.redis.getvalue(mem_key)
         if data:
-            data = eval(data)
+            if isinstance(data, str):
+                data = eval(data)
             return data[0], data[1]
 
         cid = self.get_argument('cid', None)
@@ -123,7 +124,8 @@ class OnlineDownloadHandler(BaseHandler, OlineMixin):
 
         r = self.redis.getvalue(mem_key)
         if r:
-            r = eval(r)
+            if isinstance(r, str):
+                r = eval(r)
             results, start_time, end_time = r[0], r[1][0], r[1][1]
         else:
             self.render("errors/download.html")
