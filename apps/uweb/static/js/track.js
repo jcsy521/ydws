@@ -37,7 +37,7 @@ window.dlf.fn_initTrack = function() {
 	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias);
-		obj_trackPos.css('width', 660);
+		obj_trackPos.css('width', 680);
 		$('.j_disPanelCon, .j_delayPanel').hide();
 		$('.delayTable').html('');
 	} else {
@@ -365,12 +365,14 @@ function fn_startDrawLineStatic(arr_dataArr) {
 		var arr_delayPoints = $('#trackHeader').data('delayPoints'),
 			arr_tempDelay = [];
 		
-		arr_tempDelay.push(arr_dataArr[0]);
-		arr_tempDelay.push(arr_dataArr[arr_dataArr.length - 1]);
-		for ( var x = 0; x < arr_delayPoints.length; x++ ) {
-			arr_tempDelay.push(arr_delayPoints[x]);
+		if ( arr_delayPoints ) { // 如果有停留点,进行显示
+			arr_tempDelay.push(arr_dataArr[0]);
+			arr_tempDelay.push(arr_dataArr[arr_dataArr.length - 1]);
+			for ( var x = 0; x < arr_delayPoints.length; x++ ) {
+				arr_tempDelay.push(arr_delayPoints[x]);
+			}
+			fn_printDelayDatas(arr_tempDelay, obj_firstMarker, obj_endMarker);	// 显示停留数据
 		}
-		fn_printDelayDatas(arr_tempDelay, obj_firstMarker, obj_endMarker);	// 显示停留数据
 	}
 	arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[0].clongitude, arr_dataArr[0].clatitude));
 

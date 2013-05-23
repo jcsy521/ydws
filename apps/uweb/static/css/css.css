@@ -1169,11 +1169,11 @@ body {
 	top: 158px;
 }
 #trackTerminalAlias {
-	display: inline-block;
     height: 36px;
     left: -35px;
     line-height: 36px;
-    position: relative;
+    position: relative; 
+	overflow: hidden;
 	width: 150px;
 }
 .trackPos {
