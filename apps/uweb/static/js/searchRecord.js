@@ -41,7 +41,6 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
 		dlf.fn_clearMapComponent(); // 清除页面图形
-		mapObj.removeEventListener('click', dlf.fn_mapClickFunction); // 取消地图的click事件
 		// 调整工具条和
 		// dlf.fn_setMapControl(10); // 调整相应的地图控件及服务对象
 		

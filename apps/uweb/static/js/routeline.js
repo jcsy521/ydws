@@ -131,7 +131,6 @@ window.dlf.fn_initRouteLine = function() {
 	//关闭新增窗口
 	$('#routeLineCreateClose').unbind('click').click(function(event){
 		dlf.fn_initRouteLine(); // 重新显示线路
-		// mapObj.removeEventListener('click', dlf.fn_mapClickFunction); // 取消地图的click事件
 	});
 	// 给保存线路,点击地图绑定事件
 	$('#routeLineCreateBtnPanel a').unbind('click').click(function(event){

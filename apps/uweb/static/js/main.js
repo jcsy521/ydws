@@ -498,7 +498,6 @@ $(function () {
 					dlf.fn_setMapPosition(false);	// 还原地图
 					$('#eventSearch').removeClass('eventSearchHover');
 					dlf.fn_closeTrackWindow(true);	// 开启lastinfo
-					mapObj.removeEventListener('click', dlf.fn_mapClickFunction); // 取消地图的click事件
 				}
 				dlf.fn_clearAllMenu();
 				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo

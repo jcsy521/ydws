@@ -1186,7 +1186,6 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 			dlf.fn_closeTrackWindow(true);
 		}
 	}
-	mapObj.removeEventListener('click', dlf.fn_mapClickFunction); // 取消地图的click事件
 	obj_wrapper.show();
 }
 

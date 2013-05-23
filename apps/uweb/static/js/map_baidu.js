@@ -538,7 +538,6 @@ window.dlf.fn_clickMapToAddMarker = function() {
 		enableDrawingTool: false //是否显示工具栏
 	});
 	obj_drawingManager.setDrawingMode(BMAP_DRAWING_MARKER);
-	//mapObj.addEventListener('click', dlf.fn_mapClickFunction);
 }
 
 /*

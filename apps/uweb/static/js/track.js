@@ -25,7 +25,6 @@ window.dlf.fn_initTrack = function() {
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
-	mapObj.removeEventListener('click', dlf.fn_mapClickFunction); // 取消地图的click事件
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show();	// 轨迹查询条件显示
 	// 调整工具条和
@@ -153,9 +152,9 @@ function fn_trackQuery() {
 				n_tempMax = 0, 
 				obj_tempMaxPoint = arr_locations[0];
 				obj_tempFirstPoint = arr_locations[0];
-				//str_alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
+				str_alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
 				
-				/* for (var i = 0; i < locLength; i++) {
+				for (var i = 0; i < locLength; i++) {
 					var obj_currentLoc = arr_locations[i],
 						str_tid = obj_currentLoc.tid,
 						obj_firstPoint = dlf.fn_createMapPoint(obj_currentLoc.clongitude, obj_currentLoc.clatitude);
@@ -175,7 +174,7 @@ function fn_trackQuery() {
 					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
 				} else {
 					dlf.fn_setOptionsByType('viewport', [obj_tempFirstPoint, obj_tempMaxPoint]);
-				} */
+				}
 				dlf.fn_caculateBox(arr_locations);
 				fn_startDrawLineStatic(arr_locations);
 			}
