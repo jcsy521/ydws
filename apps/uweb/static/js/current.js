@@ -171,10 +171,12 @@ function fn_displayCurrentMarker(obj_location) {
 window.dlf.fn_defendQuery = function(str_alias) {
 	var n_defendStatus = 0,	// 设防撤防状态
 		n_fob_status = 0,	// 挂件是否在附近 1: 在附近 0: 没在附近
-		obj_defend = {},	// 向后台传递设防撤防数据
+		str_cTid = $('.j_currentCar').attr('tid'),
+		obj_defend = {'mannual_status': n_defendStatus, 'tids': str_cTid},	// 向后台传递设防撤防数据
 		obj_dMsg = $('#defendMsg'),	// 设防撤防状态的提示信息容器
 		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num')),	// 当前车辆的挂件数量
 		obj_currentCar = $('.j_currentCar'),
+		obj_defendBtn = $('#defendBtn'),	// 设防撤防的按钮
 		str_tempAlias = '';
 	
 	if ( dlf.fn_userType() ) {
@@ -182,6 +184,7 @@ window.dlf.fn_defendQuery = function(str_alias) {
 	} else {
 		str_tempAlias = obj_currentCar.siblings(0).html();
 	}
+	obj_defendBtn.hide();
 	dlf.fn_dialogPosition('defend');	// 设置dialog的位置
 	dlf.fn_lockScreen();	//添加页面遮罩	
 	$.get_(DEFEND_URL, '', function(data) {
@@ -191,11 +194,10 @@ window.dlf.fn_defendQuery = function(str_alias) {
 				str_html = '',	// 页面上显示的设防状态
 				str_tip = '',	// 设防撤防中的提示信息
 				str_dImg = '',	// 页面上显示的设防撤防图标
-				obj_defendBtn = $('#defendBtn'),	// 设防撤防的按钮
-				str_cTid = $('.j_currentCar').attr('tid'),
 				obj_carData = $('.j_carList').data('carsData')[str_cTid];				
 			
 			n_fob_status = data.fob_status;
+			obj_defendBtn.show();
 			$('.currentCar').attr('fob_status', n_fob_status);	// 更新最新的 挂件状态  ：是否在附近
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defendStatus = DEFEND_OFF;
