@@ -94,7 +94,7 @@ window.dlf.fn_resetRegion = function() {
 * 围栏保存操作
 */
 window.dlf.fn_saveReginon = function() {
-	dlf.fn_mapStopDrawCirlce();
+	dlf.fn_mapStopDraw();
 	var str_regionName = $.trim($('#createRegionName').val()), 
 		n_radius = 0, 
 		obj_regions = $('#regionTable').data('regions'),

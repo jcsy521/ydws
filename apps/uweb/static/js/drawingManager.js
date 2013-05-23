@@ -1031,7 +1031,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			} 
 			if ( n_radius < 500 ) { 
 				str_infoWindowText = '<div class="clickWindowPanel errorCircleInfo"><span class="errorCircle"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
-				dlf.fn_mapStopDrawCirlce();
+				dlf.fn_mapStopDraw();
 			}
 		
 			// 2013.4.22 绘画完圆后显示圆心点吹出框,提示用户保存或重绘
