@@ -37,6 +37,7 @@ window.dlf.fn_editOperator = function(n_id) {
 				str_currentEmail = $(obj_currentOperatorItemTds.eq(4)).html();
 			
 			$('#hidOperatorId').val(n_id);
+			$('#hidOperatorMobile').val('');
 			$('#txt_operatorName').val(str_currentName);
 			$('#txt_operatorMobile').val(str_currentMobile).data('oldmobile', str_currentMobile);
 			$('#txt_operatorAddress').val(str_currentAddress);
