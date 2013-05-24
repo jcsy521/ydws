@@ -4,6 +4,7 @@ from threading import Thread
 from collections import deque 
 import Queue
 import logging
+import time
 
 from db_.mysql import get_connection
 from utils.myredis import MyRedis
@@ -63,11 +64,14 @@ class Worker(object):
         logging.error("Exception in callback %r", callback, exc_info=True)
 
     def run(self):
+        send_time = int(time.time()) 
         while self.is_alive: # TODO: and not self.queue.empty()?
             try:
                 packet = self.queue.get(True, self.BLOCK_TIMEOUT)
                 queue_len = self.queue.qsize()
-                if queue_len >= 30:
+                logging.info("[EVENTER] current queue size :%s", queue_len)
+                if queue_len >= 30 and (int(time.time()) > send_time):
+                    send_time = int(time.time()) + 60*3
                     content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
                     for mobile in self.mobiles:
                         SMSHelper.send(mobile, content)
