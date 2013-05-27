@@ -54,7 +54,6 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_tempPoint = new BMap.Point(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
 		actionPolyline = null, // 轨迹线对象
-		b_isCorpUser = dlf.fn_userType(),
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),		// obj_carA.attr('actiontrack'), 
 		obj_selfMarker = obj_selfmarkers[str_tid],		// obj_carA.data('selfmarker'), 
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
@@ -72,9 +71,23 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		str_alias = obj_carA.next().html() || obj_carA.text();
 	}
 	obj_carInfo.alias = str_alias;
+	
 	if ( b_isCorpUser && str_type == 'current' ) {	// 如果是集团用户 && 实时定位
 		n_iconType = str_iconType;
 	}
+	
+	if ( arr_tracePoints ) {	// trace_info如果有数据就甩尾，如果没有就显示basic_info的点
+		var n_trackLength = arr_tracePoints.length;
+		
+		if ( n_trackLength > 0 ) {
+			for ( var x = 0; x < arr_tracePoints.length; x=x+2 ) {
+				arr_tempTracePoints.push(dlf.fn_createMapPoint(arr_tracePoints[x+1], arr_tracePoints[x]));
+			}
+		} else {
+			arr_tempTracePoints.push(obj_tempPoint);
+		}
+	}
+	
 	/**
 	* 存储车辆信息
 	*/
@@ -134,6 +147,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_selfMarker.setIcon(new BMap.Icon(str_iconUrl, new BMap.Size(34, 34)));	// 设置方向角图片
 		//obj_carA.data('selfmarker', obj_selfMarker);
 		obj_selfmarkers[str_tid] = obj_selfMarker;
+		var str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
+		
+		if ( str_actionTrack == 'yes' ) {
+			dlf.fn_updateOpenTrackStatusColor(str_tid);
+		}
 	} else { 
 		if ( b_isCorpUser ) {
 			n_carIndex = $('.j_terminal').index(obj_carA);
@@ -231,7 +249,7 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 		obj_selfmarkers[str_tid] = obj_selfMarker;
 		obj_selfItem.html(str_tempMsg);
 		
-		var str_color = '';
+		/*var str_color = '';
 		
 		if ( str_actionTrack == 'yes' ) {
 			str_color = 'blue';
@@ -239,6 +257,8 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 			str_color = '#F0960F';
 		}
 		$('.j_openTrack').css('color', str_color);
+		*/
+		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	}
 	if ( arr_openTids.length > 0 )  {
 		dlf.fn_openTrack(arr_openTids.join(), selfItem);
@@ -249,14 +269,22 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 * kjj 2013-05-27 
 * 修改吹出框上开启追踪的颜色
 */
-window.dlf.fn_updateOpenTrackStatusColor = function(str_tid) {
+window.dlf.fn_updateOpenTrackStatusColor = function(str_tid, str_order) {
 	var str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),
 		str_color = '';
-	
-	if ( str_actionTrack == 'yes' ) {
-		str_color = '#F0960F';
+
+	if ( str_order == 'after' ) {
+		if ( str_actionTrack == 'yes' ) {
+			str_color = 'blue';
+		} else {
+			str_color = '#F0960F';
+		}
 	} else {
-		str_color = 'blue';
+		if ( str_actionTrack == 'yes' ) {
+			str_color = '#F0960F';
+		} else {
+			str_color = 'blue';
+		}
 	}
 	$('.j_openTrack').css('color', str_color);
 }
