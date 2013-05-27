@@ -54,6 +54,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_tempPoint = new BMap.Point(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
 		actionPolyline = null, // 轨迹线对象
+		b_isCorpUser = dlf.fn_userType(),
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),		// obj_carA.attr('actiontrack'), 
 		obj_selfMarker = obj_selfmarkers[str_tid],		// obj_carA.data('selfmarker'), 
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
