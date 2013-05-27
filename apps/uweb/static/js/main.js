@@ -447,7 +447,7 @@ $(function () {
 	$('.j_click').click(function(e) { 
 		var str_id = e.currentTarget.id, 
 			n_carNum = $('#carList li').length,
-			str_trackStatus = $('#trackHeader').css('display'), 
+			b_trackStatus = $('#trackHeader').is(':visible'), 
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询是否显示
 			b_routeLineWpST = $('#routeLineWrapper').is(':visible'), //线路展示窗口是否打开
 			b_operatorStatus = $('#operateorWrapper').is(':visible'),	// 操作员是否显示
@@ -457,9 +457,10 @@ $(function () {
 			b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
 			b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 围栏批量绑定是否显示
 			b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
-			obj_navItemUl = $('.j_countNavItem');
+			obj_navItemUl = $('.j_countNavItem'),
+			obj_alarm = $('.j_alarm');
 		
-		if ( str_trackStatus != 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
+		if ( b_trackStatus ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
 			if ( str_id == 'track' ) {
 				return;
 			}
@@ -483,6 +484,8 @@ $(function () {
 		}
 		// 是否清除地图及lastinfo
 		if ( str_id == 'eventSearch' || str_id == 'routeLine' ) {
+			obj_alarm.hide();
+			dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
 		if ( str_userType !=  USER_PERSON ) { 
@@ -492,14 +495,13 @@ $(function () {
 			case 'home': // 主页
 				$('.wrapper').hide();
 				$('#mapObj').show();
-				$('#home').addClass('homeHover');
 				
 				if ( b_eventSearchStatus || b_routeLineWpST || b_addLineRoute ) {	// 如果打开的是告警、线路、添加站点则还原地图开启lastinfo  同时移除地图的click事件
 					dlf.fn_setMapPosition(false);	// 还原地图
 					$('#eventSearch').removeClass('eventSearchHover');
-					dlf.fn_closeTrackWindow(true);	// 开启lastinfo
 				}
 				dlf.fn_clearAllMenu();
+				$('#home').addClass('homeHover');
 				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				break;
 			case 'personalData': //  个人资料 
@@ -527,6 +529,8 @@ $(function () {
 				dlf.fn_defendQuery();
 				break;
 			case 'track': // 轨迹查询
+				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				obj_alarm.hide();
 				dlf.fn_initTrack();
 				break;
 			case 'smsOption': // 短信设置
@@ -553,9 +557,18 @@ $(function () {
 				dlf.fn_initInfoPush();
 				break;
 			case 'routeLine': // 线路管理
+				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				if ( b_eventSearchStatus ) {
+					dlf.fn_setMapPosition(false);	// 还原地图
+				}
 				dlf.fn_initRouteLine();
 				break;
 			case 'region': // 围栏管理
+				obj_alarm.hide();
+				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				if ( b_eventSearchStatus ) {
+					dlf.fn_setMapPosition(false);	// 还原地图
+				}
 				dlf.fn_initRegion();
 				break;
 			case 'onlineStatics': // 在线统计
@@ -923,4 +936,44 @@ $(function () {
             obj_content.show();
         }
     });
+	// 轨迹查询停留点图标事件、告警提示列表图标事件
+	$('.j_alarmPanelCon').unbind('mouseover mouseout click').bind('mouseover', function() {
+		var b_panel = $('.j_alarmPanel').is(':visible'),
+			obj_arrowIcon = $('.j_alarmArrowClick');
+		
+		if ( b_panel ) {
+			obj_arrowIcon.css('backgroundPosition', '-21px -29px').attr('title', '隐藏');
+		} else {	// 关闭面板 鼠标移上去效果
+			obj_arrowIcon.css('backgroundPosition', '-37px -29px').attr('title', '显示');
+		}
+	}).bind('mouseout', function() {
+		var b_panel = $('.j_alarmPanel').is(':visible'),
+			obj_arrowIcon = $('.j_alarmArrowClick');
+		
+		if ( b_panel ) {
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+		} else {
+			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+		}
+	}).bind('click', function() {
+		var obj_panel = $('.j_alarmPanel'),
+			obj_arrowCon = $('.j_alarmPanelCon, .j_closeAlarm'),
+			obj_arrowIcon = $('.j_alarmArrowClick'),
+			obj_closeAlarm = $('.j_closeAlarm'),
+			b_panel = obj_panel.is(':visible');
+		
+		if ( b_panel ) {
+			obj_panel.hide();
+			obj_arrowCon.css({'right': '0px'});
+			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+		} else {
+			obj_panel.show();
+			obj_arrowCon.css({'right': '400px'});
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+		}
+	});
+	// 告警信息提示的关闭按钮
+	$('.j_closeAlarm').unbind('click').bind('click', function() {
+		dlf.fn_closeAlarmPanel();
+	});
 })

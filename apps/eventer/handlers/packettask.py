@@ -15,7 +15,8 @@ from helpers.uwebhelper import UWebHelper
 
 from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
-     get_ios_id_key, get_power_full_key, get_region_status_key, safe_utf8, safe_unicode
+     get_ios_id_key, get_power_full_key, get_region_status_key, get_alarm_info_key,\
+     safe_utf8, safe_unicode
 from utils.public import insert_location
 
 from codes.smscode import SMSCode
@@ -84,6 +85,22 @@ class PacketTask(object):
                 continue
 
             if region_status != old_region_status:
+                alarm = dict(tid=location['dev_id'],
+                             category=region_status,
+                             timestamp=location.get('gps_time',0),
+                             latitude=location.get('lat',0),
+                             longitude=location.get('lon',0),
+                             clatitude=location.get('cLat',0),
+                             clongitude=location.get('cLon',0),
+                             name=location['name'] if location.get('name',None) is not None else '',
+                             degree=location.get('degree',0),
+                             speed=location.get('speed',0),
+                             #3# for regions
+                             region_id=region.region_id,
+                             region_radius=region.region_radius,
+                             bounds=[region.region_latitude, region.region_longitude]
+                             )
+                self.record_alarm_info(alarm)
                 location['category']=region_status
                 location['t'] = EVENTER.INFO_TYPE.REPORT
                 location['rName'] = rname
@@ -207,14 +224,28 @@ class PacketTask(object):
         EMERGENCY
 
         """
-        # get available location from lbmphelper 
+        # 1: get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
+
+        print '-----------report', report
+        alarm = dict(tid=report['dev_id'],
+                     category=report['category'], 
+                     latitude=report['lat'], 
+                     longitude=report['lon'], 
+                     clatitude=report['cLat'], 
+                     clongitude=report['cLon'], 
+                     timestamp=report['gps_time'], 
+                     name=report['name'] if report.get('name',None) is not None else '',
+                     degree=report['degree'], 
+                     speed=report['speed'])
+
+        self.record_alarm_info(alarm)
 
         # check region evnent
         #self.check_region_event(report)
 
-        # if undefend, just save location into db
+        #NOTE: if undefend, just save location into db
         if info['rName'] in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
             mannual_status = QueryHelper.get_mannual_status_by_tid(info['dev_id'], self.db)
             if int(mannual_status) == UWEB.DEFEND_STATUS.NO:
@@ -225,11 +256,12 @@ class PacketTask(object):
                              info['dev_id'], info['rName'])
                 return
 
-        # save into database
+        # 2:  save into database. T_LOCATION, T_EVENT
         lid = insert_location(report, self.db, self.redis)
         self.update_terminal_info(report)
         self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, report.get('fobid'))
 
+        # 3: notify the owner 
         user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
         if not user:
             logging.error("[EVENTER] Cannot find USER of terminal: %s", report.dev_id)
@@ -418,3 +450,32 @@ class PacketTask(object):
             sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
 
         return sms
+
+    def record_alarm_info(self, alarm):
+        """Record the alarm info in the redis.
+        tid --> alarm_info:[
+                             {
+                               category,
+                               latitude,
+                               longitude, 
+                               clatitude,
+                               clongitude,
+                               timestamp,
+                               name,
+                               degree, 
+                               speed,
+                               # for regions
+                               region_name,
+                               region_radius,
+                               bounds,
+                             },
+                             ...
+                           ]
+        alarm_info is a list with one or many alarms.
+        """
+        alarm_info_key = get_alarm_info_key(alarm['tid'])
+        alarm_info = self.redis.getvalue(alarm_info_key)
+        alarm_info = alarm_info if alarm_info else []
+        alarm_info.append(alarm)
+        #logging.info("[EVENTER] keep alarm_info_key: %s,  alarm_info: %s in redis.", alarm_info_key,  alarm_info)
+        self.redis.setvalue(alarm_info_key, alarm_info, EVENTER.ALARM_EXPIRY)

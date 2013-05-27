@@ -7,7 +7,7 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.misc import get_lqgz_key
+from utils.misc import get_lqgz_key, str_to_list
 from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
@@ -28,25 +28,33 @@ class TrackLQHandler(BaseHandler, BaseMixin):
         try:
             data = DotDict(json_decode(self.request.body))
             tid = data.get('tid',None) 
+            tids = data.get('tids', None)
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            logging.info("[UWEB] track LQ request: %s, uid: %s, tid: %s", 
-                         data, self.current_user.uid, self.current_user.tid)
+            logging.info("[UWEB] track LQ request: %s, uid: %s, tid: %s, tids: %s", 
+                         data, self.current_user.uid, tid, tids)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
             return 
 
         try:
-            lqgz_key = get_lqgz_key(self.current_user.tid)
-            lqgz_value = self.redis.getvalue(lqgz_key)
-            if not lqgz_value:
-                # in mill second
-                #interval = int(data.interval) * 60 * 1000
-                interval = int(data.interval)
-                sms = SMSCode.SMS_LQGZ % interval 
-                SMSHelper.send_to_terminal(self.current_user.sim, sms) 
-                self.redis.setvalue(lqgz_key, True, SMS.LQGZ_INTERVAL)
+
+            tids = str_to_list(tids)
+            tids = tids if tids else [self.current_user.tid, ]
+            tids = [str(tid) for tid in tids]
+
+            for tid in tids:
+                terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
+                lqgz_key = get_lqgz_key(tid)
+                lqgz_value = self.redis.getvalue(lqgz_key)
+                if not lqgz_value:
+                    # in mill second
+                    #interval = int(data.interval) * 60 * 1000
+                    interval = int(data.interval)
+                    sms = SMSCode.SMS_LQGZ % interval 
+                    SMSHelper.send_to_terminal(terminal.mobile, sms) 
+                    self.redis.setvalue(lqgz_key, True, SMS.LQGZ_INTERVAL)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s, tid: %s send lqgz failed. Exception: %s. ", 

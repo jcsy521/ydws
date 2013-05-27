@@ -71,6 +71,7 @@ window.dlf.fn_closeWrapper = function() {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
 			dlf.fn_setMapContainerZIndex(0);
 			dlf.fn_clearAllMenu();
+			dlf.fn_setMapPosition(false);	// 还原地图
 			$('#'+ str_whoDialog +'Wrapper').hide();
 			return;
 		}
@@ -471,8 +472,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 						n_clon = n_enClon/NUMLNGLAT,	
 						n_clat = n_enClat/NUMLNGLAT;
 						
-					obj_carInfo.tid = str_tid; 
-					obj_carInfo.name = '';
+					obj_carInfo.tid = str_tid;
 					obj_tempData[str_tid] = obj_carInfo;
 					
 					if ( n_clon != 0 && n_clat != 0 ) {
@@ -671,6 +671,20 @@ window.dlf.fn_checkTrackDatas = function (str_tid) {
 		obj_actionTrack[str_tid] = {'status': '', 'interval': ''}
 	}
 }
+
+/**
+* kjj 2013-05-23 
+* 清除开启追踪的轨迹线
+*/
+window.dlf.fn_clearOpenTrackData = function() {
+	$('.j_terminal').each(function(e){
+		var str_tid = $(this).attr('tid');
+		
+		obj_actionTrack[str_tid].status = '';
+		dlf.fn_clearInterval(obj_actionTrack[str_tid].interval);
+	});
+}
+
 /** 
 * 转换GPS,GSM,power,degree 为相应的值
 * str_key: gsm、gps、power、degree
@@ -764,13 +778,22 @@ window.dlf.fn_getImgUrl = function() {
 * 查找相应tid下的数据
 * str_tid: 定位器序列号
 */
-window.dlf.fn_checkCarVal = function(str_tid) {
-	var len = arr_infoPoint.length;
+window.dlf.fn_checkCarVal = function(str_tid, str_type) {
+	var len = 0,
+		arr_tempPoint = [];
+		
+	if ( str_type == 'tracklq' ) {	// 开启追踪
+		len = arr_infoPoint.length;
+		arr_tempPoint = arr_infoPoint;
+	} else if ( str_type == 'trace' ) {	// 甩尾
+		len = arr_tracePoints.length;
+		arr_tempPoint = arr_tracePoints;
+	}	
 	for ( var i = 0; i < len; i++ ) {
-		var str_tempKey = arr_infoPoint[i].key;
+		var str_tempKey = arr_tempPoint[i].key;
 		if ( str_tempKey == str_tid ) {
-			arr_infoPoint[i].cNum = i;
-			return arr_infoPoint[i];
+			arr_tempPoint[i].cNum = i;
+			return arr_tempPoint[i];
 		}
 	}
 	return null;
@@ -822,7 +845,7 @@ window.dlf.fn_eventText = function(n_eventNum) {
 	
 	switch (n_eventNum) {
 		case 2:
-			str_text = '电量告警';
+			str_text = '电量';	// 告警
 			break;
 		case 3:
 			str_text = '震动';
@@ -883,7 +906,7 @@ window.dlf.fn_clearRealtimeTrack = function(str_tid) {
 	$('#trackWrapper').hide();
 	if ( str_tid ) { 
 		var obj_carTrackInterval = obj_actionTrack[str_tid].interval;
-		
+		// todo 清除开启追踪的轨迹
 		dlf.fn_clearInterval(obj_carTrackInterval);
 	} else { 
 		$('.j_carList a').each(function(e){
@@ -902,9 +925,9 @@ window.dlf.fn_clearRealtimeTrack = function(str_tid) {
 /**
 * 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪
 */
-window.dlf.fn_openTrack = function(str_tid, selfItem) {
+window.dlf.fn_openTrack = function(arr_openTids, selfItem) {
 	// 向后台发送开启追踪请求
-	var obj_param = {'interval': 10};
+	var obj_param = {'interval': 10, 'tids': arr_openTids};
 	
 	$.post_(BEGINTRACK_URL, JSON.stringify(obj_param), function(data) {
 		if ( data.status == 0 ) {
@@ -914,38 +937,53 @@ window.dlf.fn_openTrack = function(str_tid, selfItem) {
 				n_timer = parseInt(obj_trackTimer.html()),
 				n_left = ($(window).width()-400)/2, 
 				str_terminalAlias = '',
-				b_userType = dlf.fn_userType();
+				b_userType = dlf.fn_userType(),
+				arr_tempTids = arr_openTids.split(',');
+
+			for ( var i = 0; i < arr_tempTids.length; i++ ) {
+				var str_tid = arr_tempTids[i],
+					obj_traceLine = obj_polylines[str_tid];
 				
+				if ( b_userType ) { //根据角色不同取不同位置的终端别名
+					str_terminalAlias += $('#leaf_'+ str_tid).text() + ' ';
+				} else {
+					str_terminalAlias = $('#carList a[tid='+ str_tid +']').next().text();
+				}
+				if ( obj_traceLine ) {
+					dlf.fn_clearMapComponent(obj_traceLine); // 删除相应轨迹线
+				}
+			}
 			// 关闭jNotityMessage,dialog
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); 
 			dlf.fn_closeDialog();
-			if ( b_userType ) { //根据角色不同取不同位置的终端别名
-				str_terminalAlias = $('.leat_'+ str_tid).text();
-			} else {
-				str_terminalAlias = $('#carList a[tid='+ str_tid +']').next().text();
-			}
+			
 			/**
 			* 10分钟
 			*/
-			obj_trackMsg.html('定位器：'+ str_terminalAlias +' 已开启追踪，10分钟后将自动取消追踪。');
+			obj_trackMsg.html('定位器：'+ str_terminalAlias +' 已开启追踪。');	// ，10分钟后将自动取消追踪
 			obj_trackWrapper.css('left', n_left + 'px').show();
 			setTimeout(function() {
 				obj_trackWrapper.hide();
 			}, 4000);
-			trackInterval = setInterval(function() {
-				if ( n_timer > 600 ) {
-					dlf.fn_clearInterval(obj_actionTrack[str_tid].interval);
+			/*trackInterval = setInterval(function() {
+				if ( n_timer > 600 ) {	// 600
+					for ( var i = 0; i < arr_tempTids.length; i++ ) {
+						dlf.fn_clearInterval(obj_actionTrack[arr_tempTids[i]].interval);	// 清除定时器
+					}
 					obj_trackWrapper.show();
 					obj_trackMsg.html('定位器：'+ str_terminalAlias +'，追踪时间已到，将取消追踪。');
 					setTimeout(function() { 
-						dlf.setTrack(str_tid, selfItem);
+						dlf.setTrack(arr_tempTids, selfItem);
 					}, 3000);
 				}
 				n_timer++;
 			}, 1000);
-			obj_actionTrack[str_tid].interval = trackInterval;
+			*/
+			for ( var i = 0; i < arr_tempTids.length; i++ ) {
+				obj_actionTrack[arr_tempTids[i]].interval = '';	// trackInterval
+			}
 		} else {
-			dlf.setTrack(str_tid, selfItem);
+			dlf.setTrack(arr_tempTids, selfItem);
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 4000);
 		}
 	});
@@ -1181,7 +1219,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
-	if ( str_wrapperId != 'eventSearch' && str_wrapperId != 'routeLine' ) { 
+	if ( str_wrapperId != 'eventSearch' && str_wrapperId != 'routeLine' && str_wrapperId != 'bindBatchRegion' && str_wrapperId != 'region' ) { 
 		if ( n_currentLastInfoNum != currentLastInfo ) {
 			dlf.fn_closeTrackWindow(true);
 		}

@@ -50,7 +50,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		n_degree = obj_carInfo.degree,
 		n_iconType = obj_carInfo.icon_type,	// icon_type
-		obj_tempVal = dlf.fn_checkCarVal(str_tid), // 查询缓存中是否有当前车辆信息
+		obj_tempVal = dlf.fn_checkCarVal(str_tid, 'tracklq'), // 查询缓存中是否有当前车辆信息
 		obj_tempPoint = new BMap.Point(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
 		actionPolyline = null, // 轨迹线对象
@@ -60,7 +60,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
 		obj_selfPolyline = 	obj_polylines[str_tid],		// obj_carA.data('selfpolyline'),
 		n_carIndex = obj_carA.parent().index(),	// 个人用户车辆索引
-		str_iconUrl = '';
+		str_iconUrl = '',
+		b_isCorpUser = dlf.fn_userType(),
+		obj_polylineOptions = {'color': '#1AF18D', 'style': 'dashed', 'weight': 4},
+		arr_tracePoints = obj_carInfo.trace_info,	// 集团用户甩尾的点数据
+		arr_trackPoints = obj_carInfo.track_info,	// 集团用户开启追踪的点数据
+		arr_tempTrackPoints = [],	// 临时存储开启追踪的点数组
+		arr_tempTracePoints = [];	// 临时存储甩尾的点数组
 
 	if ( !str_alias ) {	// 如果无alias ，从车辆列表获取
 		str_alias = obj_carA.next().html() || obj_carA.text();
@@ -73,31 +79,54 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	* 存储车辆信息
 	*/
 	if ( obj_tempVal ) { // 追加
-		if ( str_actionTrack == 'yes' ) { 
-			obj_tempVal.val.push(obj_tempPoint);
-		} else { 
+		if ( str_actionTrack == 'yes' ) {
+			// obj_tempVal.val = obj_tempVal.val[0];	// 如果是开启追踪的第一次lastinfo
+			var n_firstTrack = obj_selfMarker.track;
+			
+			if ( b_isCorpUser ) {	// 如果是集团开启追踪后  显示track_info的点数据
+				if ( n_firstTrack ) {
+					obj_tempVal.val = [];
+					obj_selfmarkers[str_tid].track = 0;
+				}
+				if ( arr_trackPoints ) {	//  开启追踪后的track点
+					var n_trackLength = arr_trackPoints.length;
+					
+					if ( n_trackLength > 0 ) {
+						for ( var x = 0; x < n_trackLength; x=x+2 ) {
+							obj_tempVal.val.push(dlf.fn_createMapPoint(arr_trackPoints[x+1], arr_trackPoints[x]));
+						}
+					}
+				}
+				obj_tempVal.val.push(obj_tempPoint);
+			} else {	// 如果是个人开启追踪后 显示carinfo中的点
+				obj_tempVal.val.push(obj_tempPoint);
+			}
+			obj_polylineOptions = {'color': '#2610F1', 'weight': 4} ;
+		} else {
+			arr_tempTracePoints.push(obj_tempPoint);
 			obj_tempVal.val = [];
-			obj_tempVal.val[0] = obj_tempPoint;
+			obj_tempVal.val = arr_tempTracePoints;
 		}
 		obj_tempData = obj_tempVal;
 		dlf.fn_clearMapComponent(obj_selfPolyline); // 删除相应轨迹线
-	} else { // 新增
-		obj_tempData = {'key': str_tid, 'val': [obj_tempPoint]};
+	} else {
+		arr_tempTracePoints.push(obj_tempPoint);
+		obj_tempData = {'key': str_tid, 'val': arr_tempTracePoints};
 		arr_infoPoint.push(obj_tempData);
 	}
-	
-	actionPolyline = dlf.fn_createPolyline(obj_tempData.val); 
+	actionPolyline = dlf.fn_createPolyline(obj_tempData.val, obj_polylineOptions); 
 	dlf.fn_addOverlay(actionPolyline);	//向地图添加覆盖物 
 	obj_polylines[str_tid] = actionPolyline;	// 存储开启追踪轨迹
-	//obj_carA.data('selfpolyline', actionPolyline);
 	
-	if ( obj_selfMarker ) { 
-		obj_selfMarker.setLabel(obj_selfMarker.getLabel());	// 设置label  obj_carA.data('selfLable')
-		obj_selfMarker.getLabel().setContent(str_alias);	// label上的alias值
+	if ( obj_selfMarker ) {
+		var obj_selfLabel = obj_selfMarker.selfLable;
+		
+		obj_selfLabel.setContent(str_alias);	// label上的alias值
+		obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
 		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		
-		if ( dlf.fn_userType() ) {
+		if ( b_isCorpUser ) {
 			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType);
 		} else {
 			str_iconUrl = BASEIMGURL + n_imgDegree + '.png';
@@ -106,7 +135,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		//obj_carA.data('selfmarker', obj_selfMarker);
 		obj_selfmarkers[str_tid] = obj_selfMarker;
 	} else { 
-		if ( dlf.fn_userType() ) {
+		if ( b_isCorpUser ) {
 			n_carIndex = $('.j_terminal').index(obj_carA);
 		}
 		dlf.fn_addMarker(obj_carInfo, 'actiontrack', n_carIndex, false); // 添加标记
@@ -155,37 +184,82 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType) {
 /**
 * 设置是否要启动追踪效果
 */
-window.dlf.setTrack = function(str_tid, selfItem) {
-	var str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// obj_carLi.attr('actiontrack'),
-		obj_selfMarker = obj_selfmarkers[str_tid],	// obj_carLi.data('selfmarker'), 
-		obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,  // 获取吹出框
-		str_content = obj_selfInfoWindow.getContent(), // 吹出框内容
-		str_tempAction = 'yes';
-		str_tempOldMsg = '',
-		str_tempMsg = '取消跟踪';
-	
-	if ( str_actionTrack == 'yes' ) {
-		str_tempAction = 'no';
-		str_tempMsg = '开始跟踪';
-		str_tempOldMsg = '取消跟踪';
-		// 手动取消追踪清空计时器
-		dlf.fn_clearRealtimeTrack(str_tid);
-	} else {
-		str_tempAction = 'yes';
-		str_tempMsg = '取消跟踪';
-		str_tempOldMsg = '开始跟踪';
-		// 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪 todo
-		dlf.fn_openTrack(str_tid, selfItem);
+window.dlf.setTrack = function(arr_tempTids, selfItem) {
+	var str_type = typeof(arr_tempTids),
+		arr_tids = [],
+		arr_openTids = [];
+
+	if ( str_type == 'string' ) {	// 单个定位器的开启追踪
+		arr_tids.push(arr_tempTids);
+	} else {	// 批量开启追踪
+		arr_tids = arr_tempTids;
 	}
-	
-	str_content = str_content.replace(str_tempOldMsg, str_tempMsg);
-	obj_selfInfoWindow.setContent(str_content);		// todo
-	obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;
-	obj_actionTrack[str_tid].status = str_tempAction;
-	obj_selfmarkers[str_tid] = obj_selfMarker;
-	$(selfItem).html(str_tempMsg);
+	for ( var i = 0; i < arr_tids.length; i++ ) {
+		var str_tid = arr_tids[i],
+			str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// obj_carLi.attr('actiontrack'),
+			obj_selfMarker = obj_selfmarkers[str_tid],	// obj_carLi.data('selfmarker'), 
+			obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,  // 获取吹出框
+			str_content = obj_selfInfoWindow.getContent(), // 吹出框内容
+			str_tempAction = 'yes';
+			str_tempOldMsg = '',
+			obj_selfItem = $(selfItem),
+			str_tempMsg = '取消跟踪';
+		
+		if ( str_actionTrack == 'yes' ) {
+			str_tempAction = 'no';
+			str_tempMsg = '开始跟踪';
+			str_tempOldMsg = '取消跟踪';
+			// 手动取消追踪清空计时器
+			obj_selfMarker.track = 0;	// 移除存储第一次开启追踪
+			dlf.fn_clearRealtimeTrack(str_tid);
+			
+			// 关闭jNotityMessage,dialog
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); 
+			dlf.fn_closeDialog();
+		} else {
+			str_tempAction = 'yes';
+			str_tempMsg = '取消跟踪';
+			str_tempOldMsg = '开始跟踪';
+			obj_selfMarker.track = 1;	// 存储第一次开启追踪
+			// 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪 todo
+			arr_openTids.push(str_tid);
+		}
+		str_content = str_content.replace(str_tempOldMsg, str_tempMsg);
+		obj_selfInfoWindow.setContent(str_content);		// todo
+		obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;
+		obj_actionTrack[str_tid].status = str_tempAction;
+		obj_selfmarkers[str_tid] = obj_selfMarker;
+		obj_selfItem.html(str_tempMsg);
+		
+		var str_color = '';
+		
+		if ( str_actionTrack == 'yes' ) {
+			str_color = 'blue';
+		} else {
+			str_color = '#F0960F';
+		}
+		$('.j_openTrack').css('color', str_color);
+	}
+	if ( arr_openTids.length > 0 )  {
+		dlf.fn_openTrack(arr_openTids.join(), selfItem);
+	}
 }
 
+/**
+* kjj 2013-05-27 
+* 修改吹出框上开启追踪的颜色
+*/
+window.dlf.fn_updateOpenTrackStatusColor = function(str_tid) {
+	var str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),
+		str_color = '';
+	
+	if ( str_actionTrack == 'yes' ) {
+		str_color = '#F0960F';
+	} else {
+		str_color = 'blue';
+	}
+	$('.j_openTrack').css('color', str_color);
+}
 
 /**  
 * 更新定位器别名 terminal get和put的时候  

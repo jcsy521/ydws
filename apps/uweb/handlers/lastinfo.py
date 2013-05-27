@@ -8,7 +8,7 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
-from utils.misc import get_terminal_info_key, get_location_key, get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
+from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key, get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from constants import UWEB, EVENTER, GATEWAY
@@ -28,6 +28,8 @@ class LastInfoHandler(BaseHandler):
             data = DotDict(json_decode(self.request.body))
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.info("[UWEB] lastfinfo failed, message: %s, request: \n%s", 
+                         ErrorCode.ERROR_MESSAGE[status], self.request.body)
             self.write_ret(status)
             return 
 
@@ -86,12 +88,14 @@ class LastInfoHandler(BaseHandler):
                 cars_info.update(car_dct)
             
             lastinfo_key = get_lastinfo_key(self.current_user.uid)
-            lastinfo = self.redis.getvalue(lastinfo_key)
+
+            # BIG NOTE: here, compare lastinfo and cars_info as str
+            lastinfo = self.redis.get(lastinfo_key)
 
             lastinfo_time_key = get_lastinfo_time_key(self.current_user.uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
 
-            if lastinfo == cars_info:  
+            if lastinfo == str(cars_info):  
                 pass
             else:
                 lastinfo_time = int(time.time())
@@ -154,6 +158,21 @@ class LastInfoCorpHandler(BaseHandler):
     @tornado.web.removeslash
     def post(self):
         try:
+            data = DotDict(json_decode(self.request.body))
+            track_lst = data.get('track_list', None)
+            current_time = int(time.time()) 
+            lastinfo_time = data.get('lastinfo_time') 
+            #NOTE: first time, lastinfo_time = -1, set the lsstinfo_time as current_time - 10(minutes) 
+            if lastinfo_time == -1:
+                lastinfo_time = current_time - 60*10
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.info("[UWEB] lastfinfo for corp failed, message: %s, Exception: %s, request: \n%s", 
+                         ErrorCode.ERROR_MESSAGE[status], e.args, self.request.body)
+            self.write_ret(status)
+            return 
+
+        try:
             status = ErrorCode.SUCCESS
             corp = self.db.get("SELECT cid, name, mobile FROM T_CORP WHERE cid = %s", self.current_user.cid)
             if self.current_user.oid == UWEB.DUMMY_OID:
@@ -162,13 +181,19 @@ class LastInfoCorpHandler(BaseHandler):
                 groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
                 gids = [g.group_id for g in groups]
                 groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE id IN %s", tuple(DUMMY_IDS + gids))
+ 
+            track_tids = []
+            if track_lst:
+                track_tids = [track['track_tid'] for track in track_lst]
+
             res = DotDict(name=corp.name if corp else '',
                           cid=corp.cid if corp else '',
                           online=0,
                           offline=0,
-                          groups=[])
+                          groups=[],
+                          lastinfo_time=current_time)
             for group in groups:
-                group['cars'] = []
+                group['trackers'] = {} 
                 terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                           "  WHERE group_id = %s"
                                           "    AND service_status = %s",
@@ -176,6 +201,7 @@ class LastInfoCorpHandler(BaseHandler):
                 tids = [str(terminal.tid) for terminal in terminals]
 
                 for tid in tids:
+                    group['trackers'][tid] = {} 
                     # 1: get terminal info 
                     terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
                     if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
@@ -192,8 +218,8 @@ class LastInfoCorpHandler(BaseHandler):
                     if location and location['name'] is None:
                         location['name'] = ''
 
-                    car_info=DotDict(tid=tid,
-                                     defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                    #1: build the basic_info
+                    basic_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                                      mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
                                      fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
                                      timestamp=location['timestamp'] if location else 0,
@@ -216,7 +242,61 @@ class LastInfoCorpHandler(BaseHandler):
                                      keys_num=0,
                                      icon_type=terminal['icon_type'] if terminal.get('icon_type', None) is not None else 0,
                                      fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
-                    group['cars'].append(car_info)
+
+                    #2: build track_info
+                    track_info = []
+                    if tid in track_tids:
+                        points_track = self.db.query("SELECT clatitude, clongitude"
+                                                     "  FROM T_LOCATION"
+                                                     "  WHERE tid = %s"
+                                                     "    AND NOT (clatitude = 0 OR clongitude = 0)"
+                                                     "    AND (timestamp BETWEEN %s AND %s)"
+                                                     #"    AND type = 0"
+                                                     "    ORDER BY timestamp",
+                                                     tid, int(track_lst[tid]['track_time'])+1, int(current_time)-1)
+
+                        for point in points_track: 
+                            track_info.append(point['clatitude'])
+                            track_info.append(point['clongitude'])
+
+                    #3: build trace_info
+                    trace_info = []
+                    points_trace = self.db.query("SELECT distinct clatitude, clongitude"
+                                                 "  FROM T_LOCATION"
+                                                 "  WHERE tid = %s"
+                                                 "    AND NOT (clatitude = 0 OR clongitude = 0)"
+                                                 "    AND (timestamp  between %s and %s)"
+                                                 #"    AND type = 0"
+                                                 "    ORDER BY timestamp"
+                                                 "    LIMIT 5",
+                                                 tid, int(current_time)-60*5, int(current_time))
+                    for point in points_trace: 
+                        trace_info.append(point['clatitude'])
+                        trace_info.append(point['clongitude'])
+
+                    #4: build alert_info
+                    alarm_info_key = get_alarm_info_key(tid)
+                    alarm_info_all = self.redis.getvalue(alarm_info_key)
+                    alarm_info_all  = alarm_info_all if alarm_info_all else []
+                    alarm_info = []
+                    
+                    if alarm_info_all:
+                        for alarm in alarm_info_all:
+                            if alarm['timestamp'] >= lastinfo_time:
+                               alarm_info.append(alarm)
+                        
+                    if alarm_info:
+                        # NOTE: here, do not remove alarm_info, it will automagically disappear after 1 day 
+                        #self.redis.delete(alarm_info_key)
+                        logging.info("[UWEB] alarm_info_key: %s, alarm_info: %s", alarm_info_key, alarm_info)
+
+                    for alarm in alarm_info:
+                        alarm['alias'] = terminal['alias']
+
+                    group['trackers'][tid]['basic_info'] = basic_info
+                    group['trackers'][tid]['track_info'] = track_info 
+                    group['trackers'][tid]['trace_info'] = trace_info
+                    group['trackers'][tid]['alarm_info'] = alarm_info
                 res.groups.append(group)
             self.write_ret(status, 
                            dict_=DotDict(res=res))

@@ -3589,7 +3589,7 @@
 				was_sep = false;
 				var str_tempClass = val._class || '';
 				
-				if ( i == 'event' || i == 'statics' || i == 'singleCreate' || i == 'batchRegion' || i == 'defend' || i == 'singleDelete' || i == 'bindRegion' ) {
+				if ( i == 'event' || i == 'statics' || i == 'singleCreate' || i == 'batchTrack' || i == 'defend' || i == 'singleDelete' || i == 'bindRegion' ) {
 					str_tempClass = 'separator'
 				}
 				str += "<li class='" + (str_tempClass) + (val._disabled ? " jstree-contextmenu-disabled " : "") + "'><ins ";

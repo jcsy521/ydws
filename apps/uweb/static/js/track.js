@@ -81,6 +81,8 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 		if ( !dlf.fn_userType() ) {
 			dlf.fn_getCarData('first');	// 重新请求lastinfo
 		} else {
+			arr_infoPoint = [];
+			arr_tracePoints = [];
 			obj_oldData = {'gids': '', 'tids': '', 'n_gLen': 0};
 			dlf.fn_corpGetCarData();
 		}

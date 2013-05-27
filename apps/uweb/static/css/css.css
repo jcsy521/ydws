@@ -633,7 +633,12 @@ body {
 	background-position: 0 -647px;
 	width: 600px;
 }
-.batchDefendTitle .close {
+.batchTrackTitle {
+	background-position: 0 -920px;
+	width: 600px;
+	height: 32px;
+}
+.batchDefendTitle .close, .batchTrackTitle .close {
 	left: 576px;
 	_left: 574px;
 }
@@ -1253,16 +1258,42 @@ body {
 	height: 25px;
 	padding-left: 10px;
 }
-.disPanelCon {
+.disPanelCon, .alarmPanelCon {
 	position: absolute;
 	top: 72px;
-	right: 400px;
+	right: 399px;
 	width: 18px;
 	height: 68px;
 	background: url('/static/images/arrowIcon.png');
 	cursor: pointer;
 }
-.disPanel {
+.alarmTitle {
+	text-align: center;
+	display: inline-block;
+	width: 400px;
+	margin: 10px 0 5px;
+}
+.alarmTitle span {
+	display: inline-block;
+	height: 24px;
+	line-height: 24px;
+	color: #74BBF9;
+	font-size: 14px;
+}
+.closeAlarm {
+	background: url('/static/images/close_default.png');
+	height: 17px;
+	width: 16px;
+	color: blue;
+    display: inline-block;
+    left: 156px;
+    position: relative;
+	cursor: pointer;
+}
+.closeAlarm:hover {
+	color: #0FB5F6;
+}
+.disPanel, .alarmIcon {
 	position: absolute;
 	width: 5px;
 	height: 10px;
@@ -1271,16 +1302,19 @@ body {
 	cursor: pointer;
 	overflow: hidden;
 }
-.delayDiv {
+.delayDiv, .alarmDiv {
+	background-color: #FEFDFD;
 	max-height: 400px;
-	overflow-x: hidden;
-    overflow-y: scroll;
+	min-height: 120px;
 }
-.delayPanel {
+.delayPanel, .alarmPanel {
 	position: absolute;
 	right: 0px;
 	top: 72px;
 	width: 400px;
+}
+.alarmPanel, .alarmPanelCon {
+	top: 207px;
 }
 .delayTable {
 	overflow: scroll;
@@ -1288,6 +1322,18 @@ body {
 	width: 100%;
 	border: 0px;
 	border-collapse: collapse;
+}
+.alarmTable {
+	min-height: 120px;
+	max-height: 345px;
+	overflow-x: hidden;
+    overflow-y: scroll;
+}
+.alarmTable li {
+	height: 29px;
+    line-height: 29px;
+    padding:2px 0px 2px 15px;
+	border-bottom: 1px dashed #cdcdcd;
 }
 .delayTable td {
 	border: 1px solid #C1D2E5;
@@ -1297,6 +1343,18 @@ body {
 .delayTable img {
 	position: relative;
     top: 5px;
+}
+.colorRed {
+	color: red;
+}
+.colorBlue {
+	color: #276DC3;
+}
+#markerWindowtitle .colorF0960F {
+	color: red;/*#F0960F;*/
+}
+.clickedBg {
+	background-color: #9CCAF4;
 }
 .tSearch {
 	background: url('/static/images/trackcx1.png') no-repeat;
@@ -2337,7 +2395,7 @@ legend {
 	line-height: 24px;
 }
 #corpTerminalWrapper .corpTerminalContent {
-	height: 500px;	/* 400px*/
+	height: 530px;	/* 400px*/
 	width: 487px;
 }
 .corp_smsList {
@@ -2358,7 +2416,7 @@ legend {
 .corp_terminalButton {
     left: 340px;
     position: absolute;
-    top: 480px;
+    top: 516px;
 }
 /*corp terminal css end*/
 #addOperatorDialog, #addPassengerDialog {
@@ -2433,7 +2491,7 @@ legend {
 #fileUploadWrapper {
 	width: 600px;
 }
-.activeBtn, .batchDeleteBtn, .batchDefendBtn {
+.activeBtn, .batchDeleteBtn, .batchDefendBtn, .batchTrackBtn {
 	background: url("/static/images/file.png") no-repeat scroll 0 0 transparent;
     border: 0 none;
     height: 30px;
@@ -2492,7 +2550,7 @@ legend {
 	color: red;
 	left: 21px;
 }
-.fileInfoTable, .excelInfoTable, .batchDeleteTable, .batchDefendTable {
+.fileInfoTable, .excelInfoTable, .batchDeleteTable, .batchDefendTable, .batchTrackTable {
 	border-collapse: collapse;
     border-color: gray;
     border-spacing: 2px;
@@ -2516,11 +2574,11 @@ legend {
 .excelInfoTable {
 	margin: 20px 10px 10px 20px;
 }
-.batchDeleteTable, .batchDefendTable {
+.batchDeleteTable, .batchDefendTable, .batchTrackTable {
 	margin: 30px 20px;
     width: 560px;
 }
-.batchDeleteContent, .batchDefendContent {
+.batchDeleteContent, .batchDefendContent, .batchTrackContent {
 	width: 600px;
 	height: 500px;
 	float: left;

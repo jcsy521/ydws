@@ -1104,6 +1104,37 @@
 			</table>
 		</div>
 	</div>
+	
+	<!-- 批量开启追踪数据回显 -->
+	<div class="wrapper hide j_drag" id="batchTrackWrapper">
+		<div class="wrapperTitle batchTrackTitle">
+			<span class="close j_close" title="关闭窗口" who="mileage"></span>
+		</div>
+		<div class="wrapperContent batchTrackContent">
+			<table class="dataTable batchTrackTable">
+				<thead>
+					<tr class="batchThead">
+						<th colspan="4"></th>
+					</tr>
+					<tr class="theadTitle">
+						<td>车牌号</td>
+						<td>定位器号码</td>
+						<td>追踪状态</td>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+				<tfoot class="tfootCss">
+					<tr>
+						<td colspan="4">
+							<input type="button" class="batchTrackBtn j_batchTrack" value="批量"  />
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+	
 	<!-- 线路与终端绑定 -->
 	<div id="bindLineWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle bindLineTitle">
@@ -1249,5 +1280,22 @@
 			<input type="button" id="clearDataSure" value="确定" />
 			<input type="button" id="clearDataCancel" value="取消" />
 		</div>
+	</div>
+	
+	<!-- 集团用户告警提示 -->
+	<div class="j_alarm hide">
+		<span class="alarmPanelCon j_alarmPanelCon">
+			<a class="alarmIcon j_alarmArrowClick" href="#"></a>
+		</span>
+		<span class="alarmPanel j_alarmPanel">
+			<div class="alarmDiv">
+				<span class="alarmTitle">
+					<span>告警列表</span>
+					<a class="closeAlarm j_closeAlarm" title="关闭"></a>
+				</span>
+				<ul class="alarmTable j_alarmTable">
+				</ul>
+			</div>
+		</span>
 	</div>
 </div>

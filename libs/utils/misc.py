@@ -100,6 +100,9 @@ def get_location_cache_key(lon, lat):
 def get_terminal_info_key(dev_id):
     return str("terminal_info:%s" % (dev_id))
 
+def get_alarm_info_key(dev_id):
+    return str("alarm_info:%s" % (dev_id))
+
 def get_lqgz_key(dev_id):
     return str("lqgz:%s" % dev_id)
 

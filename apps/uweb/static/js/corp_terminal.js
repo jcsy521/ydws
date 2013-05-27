@@ -15,7 +15,9 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	$('.j_input input[type=text]').val('');
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	fn_initCorpSMS(str_tid);	// 初始化SMS通知
-	dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
+	if ( $('#hidBizCode').val() == 'znbc' ) {
+		dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
+	}
 	dlf.fn_onInputBlur();	// input的blur事件初始化
 }
 
@@ -50,6 +52,9 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 							n_whitelistTip = str_val;
 						} else if ( param == 'corp_cnum' && dlf.fn_userType() ) {	// 车牌号
 							$('#t_corp_' + param ).val(str_val);
+							if ( str_val == '' ) {
+								str_val = obj_data['mobile'];
+							}
 							dlf.fn_updateCorpCnum(str_val);	// 更新最新的车牌号
 						} else {
 							$('#t_corp_' + param ).html(str_val);

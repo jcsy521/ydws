@@ -104,10 +104,22 @@ window.dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
 	var obj_polyLine = null;
 	if ( arr_drawLine.length > 0 ) {
 		obj_polyLine = new BMap.Polyline(arr_drawLine);
-		if ( obj_options ) {
-			obj_polyLine.setStrokeColor(obj_options.color);
-		}
 		dlf.fn_addOverlay(obj_polyLine);
+		if ( obj_options ) {
+			var str_color = obj_options.color,
+				str_style = obj_options.style,
+				n_weight = obj_options.weight;
+			
+			if ( str_color ) {
+				obj_polyLine.setStrokeColor(str_color);
+			}
+			if ( str_style ) {
+				obj_polyLine.setStrokeStyle(str_style);
+			}
+			if ( n_weight ) {
+				obj_polyLine.setStrokeWeight(n_weight);
+			}
+		}
 	}
 	return obj_polyLine;
 }
@@ -147,7 +159,7 @@ window.dlf.fn_addOverlay = function(obj_overlay) {
 * 清除页面上的地图图形数据
 * obj_overlays: 要删除的图层对象,如果没有则清除地图上所有图层
 */
-window.dlf.fn_clearMapComponent = function(obj_overlays) { 
+window.dlf.fn_clearMapComponent = function(obj_overlays) {
 	if ( obj_overlays ) {
 		mapObj.removeOverlay(obj_overlays);
 	} else {
@@ -227,12 +239,16 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerB.png';
 	} else if ( str_iconType == 'delay' ) {	// 停留点图标
 		myIcon.imageUrl = BASEIMGURL + 'delay_Marker.png';
+	} else if ( str_iconType == 'alarmInfo' ) {
+		myIcon.imageUrl = BASEIMGURL + 'alarmsign.gif';
 	}
 	
 	marker= new BMap.Marker(mPoint, {icon: myIcon}); 
 	marker.setOffset(new BMap.Size(0, 0));
 	marker.selfLable = label;
 	marker.selfInfoWindow = infoWindow;
+	marker.selfLable = label;
+	
 	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
 		actionMarker = marker;
 		marker.setIcon(marker.getIcon().setImageUrl( dlf.fn_setMarkerIconType(n_degree, n_iconType)));
@@ -248,12 +264,16 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		marker.setOffset(new BMap.Size(-1, -14));
 	} else if ( str_iconType == 'eventSurround' ) {
 		marker.setLabel(label);
+	} else if ( str_iconType ==	'alarmInfo' ) {
+		marker.getIcon().imageOffset = new BMap.Size(5, 5);
 	}
 	mapObj.addOverlay(marker);	//向地图添加覆盖物 
 	if ( isOpenWin ) {
 		marker.openInfoWindow(infoWindow);
 	}
-	
+	infoWindow.addEventListener('open', function() {	// 吹出框打开时判断是否开启追踪 然后改变对应的文字颜色
+		dlf.fn_updateOpenTrackStatusColor(str_tid);
+	});
 	/**
 	* marker click事件
 	*/
@@ -296,6 +316,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 			this.openInfoWindow(infoWindow);
 		}
 	});
+	
 	
 	return marker;
 }
@@ -382,6 +403,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				}
 			} else if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'delay' )  {
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'draw\','+ n_index +');">获取位置</a>'; 
+			} else if ( str_iconType == 'alarmInfo' ) {	// kjj 2013-05-22 如果是告警提示信息
+				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'alarmInfo\','+ n_index +');">获取位置</a>'; 
 			} else {
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\'event\','+ n_index +');">获取位置</a>'; 
 			}
@@ -432,8 +455,10 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			} else {	// 如果是个人用户
 				str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
 			}
-			str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
-		}	
+			str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+		} else if ( str_iconType == 'alarmInfo' ) {
+			str_html += '<li>告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
+		}
 	}
 	str_html += '</ul></div>';
 	return str_html;
@@ -483,6 +508,9 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			
 			dlf.fn_showMarkerOnEvent();	// 初始化查看地图事件
 		}
+	} else if ( str_type == 'alarmInfo' ) {
+		$('.j_alarmTable').data('markers')[n_index].name = str_result;
+		$('#markerWindowtitle ul li').eq(4).html('位置： ' + str_result);	// 替换marker上的位置描述
 	} else {
 		if ( n_index >= 0 ) {
 			arr_dataArr[n_index].name = str_result;
@@ -660,7 +688,8 @@ window.dlf.fn_displayCircle = function(obj_circleData) {
 		
 	obj_circle = new BMap.Circle(centerPoint, obj_circleData.radius, circleOptions);
 	mapObj.setCenter(centerPoint);
-	mapObj.addOverlay(obj_circle);	
+	mapObj.addOverlay(obj_circle);
+	return obj_circle;
 }
 
 })();
