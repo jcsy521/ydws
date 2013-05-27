@@ -41,7 +41,9 @@ window.dlf.fn_moveMarker = function(n_tid) {
 */
 window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	var obj_tempData = [], 
-		str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid'),	// 当前车定位器编号
+		obj_currentCar = $('.j_carList a[class*=j_currentCar]'),
+		str_currentTid = obj_currentCar.attr('tid'),	// 当前车定位器编号
+		str_iconType = obj_currentCar.attr('icon_type'),	// icon_type
 		str_tid = str_type == 'current' ? str_currentTid : obj_carInfo.tid,
 		str_alias = obj_carInfo.alias,
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
@@ -63,6 +65,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		str_alias = obj_carA.next().html() || obj_carA.text();
 	}
 	obj_carInfo.alias = str_alias;
+	if ( b_isCorpUser && str_type == 'current' ) {	// 如果是集团用户 && 实时定位
+		n_iconType = str_iconType;
+	}
 	/**
 	* 存储车辆信息
 	*/
