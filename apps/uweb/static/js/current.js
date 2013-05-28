@@ -7,6 +7,7 @@
 * 实时定位初始化方法
 */
 window.dlf.fn_currentQuery = function() {
+	dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
 	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位参数设置
 	
 	dlf.fn_dialogPosition('realtime');	// 设置dialog的位置

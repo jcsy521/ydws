@@ -25,7 +25,6 @@ window.dlf.fn_loadMap = function(mapContainer) {
 	mapObj.centerAndZoom(markerPoint, 12); // 初始化地图，设置中心点坐标和地图级别 
 	mapObj.enableScrollWheelZoom();  // 启用滚轮放大缩小。
 
-	
 	obj_NavigationControl = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT});
 	
 	mapObj.addControl(obj_NavigationControl);	// 比例尺缩放
