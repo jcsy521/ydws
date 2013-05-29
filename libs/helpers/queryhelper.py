@@ -222,7 +222,7 @@ class QueryHelper(object):
             login_time = t.login_time
             redis.set(login_time_key, login_time)
 
-        return login_time
+        return int(login_time)
 
     @staticmethod
     def get_location_info(tid, db, redis):

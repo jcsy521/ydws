@@ -231,7 +231,8 @@ def handle_location(location, redis, cellid=False, db=None):
                     if distance > 10000: 
                         login_time = QueryHelper.get_login_time_by_tid(location.dev_id, db, redis)
                         if old_location.timestamp <= login_time:
-                            pass
+                            logging.info("[LBMPHELPER] terminal: %s relogin time: %s, after last location timestamp: %s",
+                                         location.dev_id, login_time, old_location.timestamp) 
                         else:
                             location.lat, location.lon = (old_location.latitude, old_location.longitude)
                             logging.info("[LBMPHELPER] drop odd location, new location: %s, old location: %s, distance: %s",
