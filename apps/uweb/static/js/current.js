@@ -62,7 +62,7 @@ function fn_openLastinfo(str_msg) {
 * obj_pd: 向后台发送的定位类型 GPS_TYPE or CELLID_TYPE
 */
 function fn_currentRequest(obj_pd) {
-	var obj_cWrapper = $('#currentWrapper'),
+	var obj_cWrapper = $('#realtimeWrapper'),
 		obj_msg = $('#currentMsg'), 
 		str_errorMsg =  '信号弱，暂时无法定位，请稍候重试。',		//'无法获取车辆位置，请稍候重试。',
 		str_flagVal = obj_pd.locate_flag, 
@@ -70,7 +70,7 @@ function fn_currentRequest(obj_pd) {
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
 		//str_msg = '车辆<b> '+ str_carCurrent +' </b>'
 		str_msg = '车辆定位中，请等待',
-		b_warpperStatus = !obj_cWrapper.is(':hidden');
+		b_warpperStatus = obj_cWrapper.is(':visible');
 	
 	if ( b_warpperStatus ) {	// 判断current dialog弹出框是否已经关闭，如果关闭:不进行任何操作
 		/*if ( str_flagVal == CELLID_TYPE) {	// 根据定位类型设置提示信息
@@ -82,7 +82,7 @@ function fn_currentRequest(obj_pd) {
 		dlf.fn_lockScreen(); // 添加页面遮罩
 		dlf.fn_clearInterval(currentLastInfo);  // lastinfo停止计时
 		$.post_(REALTIME_URL, JSON.stringify(obj_pd), function (postData) { // 发起post定位请求
-			var p_warpperStatus = !obj_cWrapper.is(':hidden');
+			var p_warpperStatus = obj_cWrapper.is(':visible');
 			
 			if ( p_warpperStatus ) {	// 判断弹出框是否已经关闭，如果关闭:不进行任何操作
 				var n_cellstatus = postData.cellid_status,	// 是否开启基站定位

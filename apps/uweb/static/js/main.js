@@ -507,6 +507,10 @@ $(function () {
 		}
 		if ( str_userType !=  USER_PERSON ) { 
 			dlf.fn_secondNavValid();
+		} else {	// 个人用户如果告警查询后显示小地图  再操作其他有关地图的功能要还原地图
+			if ( b_eventSearchStatus ) {
+				dlf.fn_setMapPosition(false);	// 还原地图
+			}
 		}
 		switch (str_id) {
 			case 'home': // 主页
