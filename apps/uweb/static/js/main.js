@@ -358,8 +358,15 @@ window.onresize = function () {
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 5;
+			
+			if ( n_windowWidth < 1500 ) {
+				n_trackLeft = 80;
+			}
 		} else {
 			n_trackLeft = ( obj_track.width() ) / 4;
+			if ( n_windowWidth < 1500 ) {
+				n_trackLeft = 230;
+			}
 		}
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		$('.eventSearchContent, .j_wrapperContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
@@ -429,8 +436,18 @@ $(function () {
 	obj_tree.height(n_treeHeight);
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
-	n_trackLeft = ( obj_track.width() ) / 4;
-	
+	if ( dlf.fn_userType() ) {	// 集团用户
+		n_trackLeft = ( obj_track.width() ) / 5;
+		
+		if ( n_windowWidth < 1500 ) {
+			n_trackLeft = 80;
+		}
+	} else {
+		n_trackLeft = ( obj_track.width() ) / 4;
+		if ( n_windowWidth < 1500 ) {
+			n_trackLeft = 230;
+		}
+	}
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
 	
