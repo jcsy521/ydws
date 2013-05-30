@@ -115,11 +115,14 @@ def statistic_thread():
             epoch_time = time.time()
             current_time = time.strftime("%Y%m%d%H%M%S", time.localtime(epoch_time))
             hour = current_time[8:10]
-            if hour == '11':
-                ts.statistic_terminal(epoch_time)
-                INTERVAL = ONE_HOUR
-            else:
-                INTERVAL = QUARTER_HOUR
+            #if hour == '11':
+            #    ts.statistic_terminal(epoch_time)
+            #    INTERVAL = ONE_HOUR
+            #else:
+            #    INTERVAL = QUARTER_HOUR
+
+            ts.statistic_terminal(epoch_time)
+            INTERVAL = ONE_HOUR
             time.sleep(INTERVAL)
             
     except Exception as e:
@@ -143,11 +146,11 @@ def main():
 
     try:
         logging.warn("[CK] running on: localhost. Parent process: %s", os.getpid())
-        #thread.start_new_thread(check_poweroff_timeout, ())
-        #thread.start_new_thread(check_terminal_status, ())
-        #thread.start_new_thread(check_service, ())
-        #thread.start_new_thread(charge_remind, ())
-        #thread.start_new_thread(simulator_terminal, ())
+        thread.start_new_thread(check_poweroff_timeout, ())
+        thread.start_new_thread(check_terminal_status, ())
+        thread.start_new_thread(check_service, ())
+        thread.start_new_thread(charge_remind, ())
+        thread.start_new_thread(simulator_terminal, ())
         #thread.start_new_thread(run_statistic_thread, ())
         thread.start_new_thread(statistic_thread, ())
         while True:
