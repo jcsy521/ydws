@@ -51,6 +51,7 @@
 		</table>
 	</form>
 </fieldset>
+{% if len(res) > 0 %}
 <div class="resultQuery">
     <div class="resultTitle"><h3>查询结果</h3></div>
     <a id="exportData" href="/download/individual/{{hash_}}" 
@@ -58,6 +59,7 @@
         <span class="ui-button-text">导出Excel</span>
     </a>
 </div>
+{% end %}
 <table id="reportDataTables" class="display j_reportTable">
 	{% if len(res) > 0 %}
 		<thead>
