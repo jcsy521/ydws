@@ -7,6 +7,7 @@ import logging
 import hashlib
 import random
 import string
+import time
 
 import tornado.web
 from tornado.escape import json_encode, json_decode
@@ -44,44 +45,76 @@ class DownloadTerminalHandler(BaseHandler):
 
     @tornado.web.removeslash
     def get(self):
-        """Download test.apk for terminal."""
-        url = "/static/terminal/script.luac"
-        self.redirect(url)
+        """
+        Download script for terminal, and keep the info in T_SCRIPT_DOWNLOAD.
+        """
+        status = ErrorCode.SUCCESS
+        versionname = self.get_argument('v', '')
+        tid  = self.get_argument('sn', '')
+        version = self.db.get("SELECT filename FROM T_SCRIPT"
+                               " WHERE version = %s", versionname)
+        if not version:
+            logging.info("[UWEB] versionname: %s is not found, please check it again.", versionname)
+            url = self.application.settings['terminal_path'] + 'dummy_file'
+            self.redirect(url)
+        else:
+            filename = version['filename'] if version.get('filename', None) is not None else ''
+            downloadtime = int(time.time())
+            self.db.execute("INSERT INTO T_SCRIPT_DOWNLOAD(tid, versionname, timestamp)"
+                            " VALUES(%s, %s, %s)",
+                            tid, versionname, downloadtime)
+            url = self.application.settings['terminal_path'] + filename
+            logging.info("[UWEB] Terminal download path: %s", url)
+            self.redirect(url)
+
 
 class UploadTerminalHandler(BaseHandler):
 
     @tornado.web.removeslash
+    def get(self):
+        """
+        Show the upload page for eventer.
+        """
+        self.render("fileupload.html")
+
+    @tornado.web.removeslash
     def post(self):
+        """
+        Upload the script for terminal, and keep the info in T_SCRIPT.
+        """
         try:
             upload_file = self.request.files['fileUpload'][0]
         except Exception as e:
-            logging.info("exception:%s", e.args)
+            logging.info("[UWEB] script upload failed, exception:%s", e.args)
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
             return
 
         try:
             status = ErrorCode.SUCCESS
-            filename = upload_file['filename']
+            versionname = self.get_argument('versionname', '')
+            filename = 'cloudhawk_'+versionname
+            timestamp = int(time.time())
+            self.db.execute("INSERT INTO T_SCRIPT(version, filename, timestamp)"
+                            "  VALUES(%s, %s, %s)"
+                            "    ON DUPLICATE KEY"
+                            "    UPDATE version = VALUES(version),"
+                            "           filename = VALUES(filename),"
+                            "           timestamp = VALUES(timestamp)",
+                            versionname, filename, timestamp)
+            file_path = self.application.settings['server_path'] +\
+                        self.application.settings['terminal_path'] + filename
 
-            # write into tmp file
-            if filename == "script.luac":
-                file_path = self.application.settings['server_path'] +\
-                            self.application.settings['terminal_path'] + filename
-                output_file = open(file_path, 'w')
-                output_file.write(upload_file['body'])
-                output_file.close()
-            else:
-                logging.error("Upload file %s not assign file type.", filename)
-                self.write("上传的非指定文件类型")
-                return
+            logging.info("[UWEB] Upload path: %s", file_path)
+            output_file = open(file_path, 'w')
+            output_file.write(upload_file['body'])
+            output_file.close()
         except Exception as e:
             logging.info("Upload terminal file fail:%s", e.args)
+            status = ErrorCode.FAILED
         else:
             logging.info("Upload file %s success!", filename)
-            self.write("上传成功!")
-            return
-
+        self.write_ret(status)
 
 
 class DownloadSmsHandler(BaseHandler):

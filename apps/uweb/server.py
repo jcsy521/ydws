@@ -154,6 +154,11 @@ class Application(tornado.web.Application):
             (r"/uploadterminalfile/*", UploadTerminalHandler),
             (r"/download/instructions/*", DownloadInstructionsHandler),
 
+
+            # for terminal lua    
+            (r"/upload/terminal/*", UploadTerminalHandler),
+            (r"/download/terminal/*", DownloadTerminalHandler),
+
             (r"/servicesterms/*", ServicesTermsHandler),
             (r"/helper/*", HelperHandler),
             (r"/charge/*", ChargeHandler),

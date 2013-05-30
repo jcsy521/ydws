@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>fileupload</title>
+	</head>
+	<body>
+		<form id="fileUploadForm" name="fileUploadForm" method="POST" enctype="multipart/form-data" action="/upload/terminal">
+			<input type="file" name="fileUpload" id="fileUpload" multiple="" /><br />
+			文件版本号:<input type="text" name="versionname" id="versionname" /><br />
+			<!--语言类型：<input type="radio" name="language" id="language_zh" value="1" />
+				<input type="radio" name="language" id="language_en" value="0" /><br />
+                        -->
+			<input type="submit" value="上传"  />
+		</form>
+	</body>
+</html>

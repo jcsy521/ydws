@@ -78,6 +78,25 @@ class LoginHandler(BaseHandler, LoginMixin):
         # check the user, return uid, tid, sim and status
         cid, oid, uid, terminals, user_type, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
+            ## role: 0: person; 1: operator; 2: enterprise
+            ## method 0: web; 1: android; 2: ios 
+            role = None
+            user_id = None
+            if user_type == UWEB.USER_TYPE.PERSON:
+                role = 0
+                user_id = uid
+            elif user_type == UWEB.USER_TYPE.OPERATOR:
+                role = 1
+                user_id = oid
+            elif user_type == UWEB.USER_TYPE.CORP:
+                role = 2
+                user_id = cid
+            else:
+                logging.error("[UWEB] invalid user_type: %s", user_type)
+                pass
+            if (role is not None) and (user_id is not None):
+                self.login_log(user_id, role, 0)
+
             self.bookkeep(dict(cid=cid,
                                oid=oid,
                                uid=uid if uid else cid,
@@ -127,6 +146,8 @@ class IOSHandler(BaseHandler, LoginMixin):
         # check the user, return uid, tid, sim and status
         cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
+
+            self.login_log(uid, 0, 2)
             self.bookkeep(dict(cid=cid,
                                oid=oid,
                                uid=uid,
@@ -245,6 +266,10 @@ class AndroidHandler(BaseHandler, LoginMixin):
         # check the user, return uid, tid, sim and status
         cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
+            ## role: 0: person; 1: operator; 2: enterprise
+            ## method 0: web; 1: android; 2: ios 
+            self.login_log(uid, 0, 1)
+
             self.bookkeep(dict(cid=cid,
                                oid=oid,
                                uid=uid,

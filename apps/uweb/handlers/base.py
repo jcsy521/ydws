@@ -5,7 +5,7 @@ import urlparse
 import urllib
 import re
 import logging
-from time import strftime
+from time import strftime, time
 
 import tornado.web
 from tornado.escape import json_encode
@@ -135,4 +135,7 @@ class BaseHandler(tornado.web.RequestHandler):
             file_name = urllib.quote(safe_utf8(file_name))
         return '-'.join((file_name, strftime("%Y%m%d")))
 
-
+    def login_log(self, uid, role, method):
+        self.db.execute("INSERT INTO T_LOGIN_LOG(uid, role, method, timestamp)"
+                        "  values(%s, %s, %s, %s)",
+                        uid, role, method, int(time()))
