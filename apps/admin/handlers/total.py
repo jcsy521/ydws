@@ -91,6 +91,10 @@ class TotalMixin(BaseMixin):
                         type=2
                        )
             res.append(_res)
+
+        if res:
+            res.reverse()
+
         self.redis.setvalue(mem_key, (res, interval), 
                             time=self.MEMCACHE_EXPIRY)
         return res, interval 

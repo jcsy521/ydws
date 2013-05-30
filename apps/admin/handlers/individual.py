@@ -94,6 +94,10 @@ class IndividualMixin(BaseMixin):
                         type=0
                        )
             res.append(_res)
+
+        if res:
+            res.reverse()
+            
         self.redis.setvalue(mem_key, (res, interval), 
                             time=self.MEMCACHE_EXPIRY)
 
