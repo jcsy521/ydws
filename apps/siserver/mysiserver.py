@@ -400,6 +400,7 @@ class MySIServer():
             method, header, body = self.rabbitmq_channel.basic_get(queue=self.si_queue)
             if method.NAME == 'Basic.GetEmpty':
                 #print "demo_get: Empty Basic.Get Response (Basic.GetEmpty)"
+                time.sleep(0.1)
                 return
             self.rabbitmq_channel.basic_ack(delivery_tag=method.delivery_tag)
             request = json.loads(body)
