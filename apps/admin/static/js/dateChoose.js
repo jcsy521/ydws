@@ -1,5 +1,7 @@
 ﻿$(function() {
 	fn_InitChooseDate();
+	
+	$('#reportThead th').removeAttr('style');
 });
 function toTodayDate() { // 返回当天的日期的UTC表示:例如2010-11-05 只判断日期
 	var myDate = new Date();
@@ -84,30 +86,39 @@ function fn_InitChooseDate() {
 		dateTemp2 = $('#date_temp2').val(),
 		str_dateRole = $('#date_role').val(),
 		myDate =  new Date()/1000, 
+		obj_startTime = $('#start_time1'),
+		obj_dailyTime = $('#daily_time'),
+		obj_endTime = $('#end_time1'),
+		str_yesterday = getYesterday(),
+		str_today = toTodayDate(),
 		str_year =  toHumanDate(myDate, 'year'),
 		str_month = toHumanDate(myDate, 'month');
-	
+
 	//设置开始时间
 	if (startTemp == 'start' || startTemp == '') {
-		$('#start_time1').val(toTodayDate()); 
+		obj_startTime.val(str_today); 
 	} else if ( startTemp == 'user_start' ) { // 地市用户统计 默认开始时间显示月初
-		$('#start_time1').val(getFirstDayOfMonth());
+		obj_startTime.val(getFirstDayOfMonth());
 	} else if ( startTemp == 'daily' ) { // 日报
-		$('#daily_time').val(toTodayDate());
-	}else if ( startTemp == 'business_begin' || startTemp == '0' ) { // 个人用户查询,集团查询
-		$('#start_time1').val(getFirstDayOfMonth()); 
-	} else { 
-		$('#start_time1').val(toHumanDate(startTemp, 'no')); 	//  
-		$('#daily_time').val(toHumanDate(startTemp, 'no')); // 日报 
-		$('#begintime1').val(toTodayDate());	// create business 
+		obj_dailyTime.val(str_today);
+	} else if ( startTemp == 'business_begin' || startTemp == '0' ) { // 个人用户查询,集团查询
+		obj_startTime.val(getFirstDayOfMonth()); 
+	} else if ( startTemp == 'userReport_start' ) {	// 个人用户统计、集团用户统计、所有用户统计
+		obj_startTime.val(str_today); 	//  
+	} else {
+		obj_startTime.val(toHumanDate(startTemp, 'no')); 	//  
+		obj_dailyTime.val(toHumanDate(startTemp, 'no')); // 日报 
+		$('#begintime1').val(str_today);	// create business 
 	}
 	//设置结束时间
 	if (endTemp == 'end' || endTemp == '') {
-		$('#end_time1').val(toTodayDate()); 
+		obj_endTime.val(str_today); 
 	} else if ( endTemp == 'business_end' || endTemp == '0' ) {// 个人用户查询,集团查询
-		$('#end_time1').val(toTodayDate()); 
+		obj_endTime.val(str_today); 
+	} else if ( endTemp == 'userReport_end' ) {
+		obj_endTime.val(str_today);
 	} else {
-		$('#end_time1').val(toHumanDate(endTemp, 'no')); 	
+		obj_endTime.val(toHumanDate(endTemp, 'no')); 	
 		$('#endtime1').val(fn_getNextYearToday());	// create business 
 	}
 	//对月份进行设置

@@ -25,11 +25,11 @@ function formSubmit(option) {
 		}
 	}
 	// business business edit
-	if ( option == 'business' || option == 'online' ) {
+	if ( option == 'business' || option == 'online' || option == 'individual' ) {
 		var et = toEpochDate(endtime),
 			bt = toEpochDate(starttime);
-		$('#endtime').val(et);
-		$('#begintime').val(bt);
+		$('#endtime, #end_time').val(et);
+		$('#begintime, #start_time').val(bt);
 		return true;
 	}
 	//  businessEdit

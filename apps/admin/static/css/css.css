@@ -419,6 +419,13 @@ table, .ui-widget-header {
     text-align: center;
 	font-size: 12px;
 }
+#colspanTH th {
+	background: url("../image/ui-bg_glass_80_d7ebf9_1x400.png") repeat-x scroll 50% 50% #D7EBF9;
+    border: 1px solid #AED0EA;
+    color: #2779AA;
+    font-weight: bold;
+	font-size: 15px;
+}
 #reportDataTables th {
 	padding:3px 0px 3px 5px;
 }
@@ -440,6 +447,9 @@ table, .ui-widget-header {
 }
 .failed {
 	color: red;
+}
+.lblOnline {
+	color: #14DE32;
 }
 .iLayer {
 	display: none;

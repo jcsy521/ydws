@@ -56,15 +56,23 @@
 		</table>
 		<table class="searchTable0">
 			<tr>
+				<td align="right">在线/离线：</td>
+				<td align="left" colspan="2">
+					<select id="login" name="login">
+						<option value="">全部</option>
+						<option value="1">在线</option>
+						<option value="0">离线</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
 				<td align="right">开始时间：</td>
-				<td align="left"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
+				<td align="left" colspan="2"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
 			</tr>
 			<tr>
 				<td align="right">结束时间：</td>
 				<td><input type="text" name="end_time1" id="end_time1" readonly="true" /></td>
-			</tr>
-			<tr>
-				<td colspan="2" align="right">
+				<td align="right">
 					<input type="hidden" id="begintime" name="begintime" value="" />
 					<input type="hidden" id="endtime" name="endtime" value="" />
 					<input type="submit" value="查询" 
@@ -73,16 +81,15 @@
 						role="button" aria-disabled="false" />
 				</td>
 			</tr>
-		</table>		
+		</table>
 	</form>
-
 </fieldset>
 <h3>查询结果</h3>
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>车主姓名</th><th>车主手机</th><th>终端手机</th><th>车牌号</th>
-            <th>开通时间</th> <th>受理状态</th><th>编辑</th><th>删除</th><th>终端启用/停用</th><th>详细信息</th>
+            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>在线/离线</th><th>电量</th><th>办理版本</th>
+            <th>开通时间</th><th>删除</th><th>终端启用/停用</th>
         </tr>
     </thead>
 		
@@ -90,29 +97,27 @@
 	{% for business in businesses %}
             <tr id="business{{business['tmobile']}}" >
 				<td>{{ business['seq'] }}</td>
-				<td>{{ business['ecname'] }}</td>
-	            <td>{{ business['uname'] }}</td>
-                <td>{{ business['umobile'] }}</td>
+				<td>{{ business['ecname']}}</td>
+                <td>{{ business['umobile']}}</td>
                 <td>{{ business['tmobile']}}</td>
-                <td>{{ business['cnum'] }} </td>
-				<td><script>document.write(toHumanDate({{business.begintime}}, 'yes'));</script></td>
-				<td>
-					{% if business['sms_status'] == 0 %}
-						<label class="sms_status0">
-							<!--短信发送失败-->
-							<a href="#" class="resetSms" onclick="fn_smsReset({{business['tmobile']}}, {{ business['umobile'] }}, this)">短信发送失败,点击重发短信</a>
-						</label>
-					{% elif business['sms_status'] == 1 %}
-						<label class="sms_status1">短信已发送</label>
-					{% elif business['sms_status'] == 2 %}
-						<label class="sms_status2">短信发送成功</label>
-					{% elif business['sms_status'] == 3 %}
-						<label class="sms_status3">终端登陆成功</label>
+                <td>
+					{% if business['login'] == 0 %}
+						离线
+					{% else %}
+						<label class="lblOnline">在线</label>
 					{% end %}
 				</td>
+				<td>
+					{{business.pbat}}%
+				</td>
                 <td>
-                    <a href="/business/edit/{{business['tmobile']}}">编辑</a>
-                </td>
+					{% if business['biz_type'] == 0 %}
+						电动车版
+					{% elif business['biz_type'] == 1 %}
+						汽车版
+					{% end %}
+				</td>
+				<td><script>document.write(toHumanDate({{business.begintime}}, 'yes'));</script></td>
 				<td>
                     <a href="#" onclick="businessDelete({{business['tmobile']}}, {{ business['umobile'] }})">删除</a>
                 </td>
@@ -122,9 +127,6 @@
 					{% else %}
 						 <a href="#" onclick="businessStop({{business['tmobile']}}, {{business['seq']}});" service_status="{{business['service_status']}}"  id="service_status{{business['seq']}}">停用</a>
 					{% end %}
-                </td>
-                <td>
-                    <a href="/business/list/{{business['tmobile']}}">详细信息</a>
                 </td>
             </tr>
     {% end %}

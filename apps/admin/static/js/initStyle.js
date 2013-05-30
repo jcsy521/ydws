@@ -59,6 +59,10 @@ $(function () {
 	$('#begintime1').datepicker('option', 'minDate', new Date());	// set minDate is today
 	$('#endtime1').datepicker('option', 'minDate', new Date());	// set minDate is today
 	$('#begintime1, #endtime1').datepicker();
+	
+	// 报表统计时间控件
+	
+	$('#report #start_time1, #report #end_time1').datepicker('option', 'maxDate', '0d');
     /*
         *初始化地图页面的大小
         *初始化右侧iframe大小

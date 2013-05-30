@@ -10,6 +10,8 @@ import logging
 import time
 
 from db_.mysql import DBConnection
+from utils.misc import start_end_of_day, start_end_of_month, start_end_of_year
+from utils.dotdict import DotDict
 
 
 class TerminalStatistic(object):
@@ -51,6 +53,177 @@ class TerminalStatistic(object):
                                     online_num, offline_num, int(epoch_time), corp.cid)
             convert_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(epoch_time)) 
             logging.info("[CK] %s statistic online terminal finish", convert_time)
+        except KeyboardInterrupt:
+            logging.error("Ctrl-C is pressed.")
+        except Exception as e:
+            logging.exception("[CHECKER] statistic online terminal exception.")
+
+    def statistic_terminal(self, epoch_time):
+        try:
+            # NOTE: here, just static the info current day
+            # instance, this day is 2013-05-28, we get data in 2013-05-28
+            # NOTE: epoch_time, 
+
+            start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
+            logging.info("[CK] %s statistic terminal started.", start_time)
+
+            current_day = time.localtime(epoch_time)
+            day_start_time, day_end_time = start_end_of_day(current_day.tm_year, current_day.tm_mon, current_day.tm_mday)
+            month_start_time, month_end_time = start_end_of_month(current_day.tm_year, current_day.tm_mon)
+            year_start_time, year_end_time = start_end_of_year(current_day.tm_year)
+
+            sql_terminal_add = ("SELECT COUNT(tid) AS num"
+                                "  FROM T_TERMINAL_INFO"
+                                "  WHERE (begintime BETWEEN %s AND %s)")
+
+            sql_corp_add = ("SELECT COUNT(id) as num"
+                            "  FROM T_CORP"
+                            "  WHERE timestamp BETWEEN %s AND %s")
+
+            sql_login = ("SELECT COUNT(id) AS num"
+                        "   FROM T_LOGIN_LOG"
+                        "   WHERE (timestamp BETWEEN %s AND %s)") 
+
+            sql_terminal_line_count = ("SELECT COUNT(tid) AS num"
+                                       " FROM T_TERMINAL_INFO ")
+
+            sql_in_active = ("SELECT COUNT(tmp.uid) AS num"
+                         " FROM"
+                         " (SELECT uid "
+                         " FROM T_LOGIN_LOG"
+                         " WHERE (timestamp BETWEEN %s AND %s)"
+                         " AND role = 0 " 
+                         "  GROUP BY uid"
+                         "  HAVING count(id) >3) tmp")
+
+            sql_en_active = ("SELECT COUNT(tmp.uid) AS num"
+                         " FROM"
+                         " (SELECT uid "
+                         " FROM T_LOGIN_LOG"
+                         " WHERE (timestamp BETWEEN %s AND %s)"
+                         " AND role != 0 " 
+                         "  GROUP BY uid"
+                         "  HAVING count(id) >3) tmp")
+
+            sql_kept = ("INSERT INTO T_STATISTIC(corp_add_day, corp_add_month, corp_add_year,"
+                        "  terminal_add_day, terminal_add_month, terminal_add_year,"
+                        "  login_day, login_month, login_year, active, deactive,"
+                        "  terminal_online, terminal_offline, timestamp, type)"
+                        "  VALUES (%s,%s,%s,"
+                        "  %s, %s, %s,"
+                        "  %s, %s, %s, %s, %s,"
+                        "  %s, %s, %s, %s)"
+                        "  ON DUPLICATE KEY"
+                        "  UPDATE corp_add_day=values(corp_add_day),"
+                        "        corp_add_month=values(corp_add_month), "
+                        "        corp_add_year=values(corp_add_year),"
+                        "        terminal_add_day=values(terminal_add_day),"
+                        "        terminal_add_month=values(terminal_add_month),"
+                        "        terminal_add_year=values(terminal_add_year),"
+                        "        login_day=values(login_day),"
+                        "        login_month=values(login_month),"
+                        "        login_year=values(login_year),"
+                        "        active=values(active),"
+                        "        deactive=values(deactive),"
+                        "        terminal_online=values(terminal_online)")
+
+            #1 persional
+            p_terminal_add_day = self.db.get(sql_terminal_add + " AND group_id = -1 ",
+                                             day_start_time, day_end_time)
+            
+            p_terminal_add_month = self.db.get(sql_terminal_add + " AND group_id = -1 ",
+                                               month_start_time, day_end_time)
+
+            p_terminal_add_year= self.db.get(sql_terminal_add + " AND group_id = -1 ",
+                                             year_start_time, day_end_time)
+
+            p_login_day = self.db.get(sql_login + " AND role = 0",
+                                      day_start_time, day_end_time )
+
+            p_login_month = self.db.get(sql_login + " AND role = 0",
+                                        month_start_time, day_end_time)
+
+            p_login_year = self.db.get(sql_login  + " AND role = 0",
+                                       year_start_time, day_end_time)
+
+            p_active = self.db.get(sql_in_active, 
+                                   month_start_time, day_end_time)
+            individual = self.db.get("SELECT count(id) as num"
+                                     "  FROM T_USER") 
+            p_deactive = DotDict(num=individual.num-p_active.num)
+
+            p_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE group_id = -1 AND login != 0")
+
+            p_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE group_id = -1 AND login = 0")
+
+            self.db.execute(sql_kept,
+                            0, 0, 0,p_terminal_add_day.num, p_terminal_add_month.num, p_terminal_add_year.num,
+                            p_login_day.num, p_login_month.num, p_login_year.num, p_active.num, p_deactive.num,
+                            p_terminal_online_count.num, p_terminal_offline_count.num, day_end_time, 0)
+            #2: enterprise
+            e_corp_add_day = self.db.get(sql_corp_add,
+                                         day_start_time, day_end_time )
+
+            e_corp_add_month = self.db.get(sql_corp_add,
+                                           month_start_time, day_end_time )
+
+            e_corp_add_year = self.db.get(sql_corp_add,
+                                          year_start_time, day_end_time )
+
+            e_terminal_add_day = self.db.get(sql_terminal_add + " AND group_id != -1",
+                                            day_start_time, day_end_time)
+
+            e_terminal_add_month = self.db.get(sql_terminal_add + " AND group_id != -1",
+                                               month_start_time, day_end_time )
+
+            e_terminal_add_year= self.db.get(sql_terminal_add + " AND group_id != -1",
+                                           year_start_time, day_end_time )
+
+            e_login_day = self.db.get(sql_login + " AND role != 0" ,
+                                      day_start_time, day_end_time )
+
+            e_login_month = self.db.get(sql_login + " AND role != 0" ,
+                                        month_start_time, day_end_time )
+
+            e_login_year = self.db.get(sql_login + " AND role != 0" ,
+                                       year_start_time, day_end_time )
+
+            e_active = self.db.get(sql_en_active, 
+                                   month_start_time, day_end_time)
+
+            oper = self.db.get("SELECT count(id) as num"
+                               "  FROM T_OPERATOR") 
+
+            enterprise = self.db.get("SELECT count(id) as num"
+                                     "  FROM T_CORP") 
+
+            e_deactive = DotDict(num=enterprise.num+oper.num-e_active.num) 
+
+            e_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE group_id != -1  AND login != 0")
+
+            e_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE group_id != -1 AND login = 0")
+
+            self.db.execute(sql_kept,
+                            e_corp_add_day.num, e_corp_add_month.num, e_corp_add_year.num,
+                            e_terminal_add_day.num, e_terminal_add_month.num, e_terminal_add_year.num,
+                            e_login_day.num, e_login_month.num, e_login_year.num, e_active.num, e_deactive.num,
+                            e_terminal_online_count.num, e_terminal_offline_count.num, day_end_time, 1)
+ 
+            # 3 total 
+            self.db.execute(sql_kept,
+                            e_corp_add_day.num, e_corp_add_month.num, e_corp_add_year.num,
+                            p_terminal_add_day.num + e_terminal_add_day.num,
+                            p_terminal_add_month.num + e_terminal_add_month.num, 
+                            p_terminal_add_year.num + e_terminal_add_year.num,
+                            p_login_day.num+ e_login_day.num,
+                            p_login_month.num + e_login_month.num,
+                            p_login_year.num + e_login_year.num, 
+                            p_active.num+e_active.num, p_deactive.num+e_deactive.num,
+                            p_terminal_online_count.num+e_terminal_online_count.num,
+                            p_terminal_offline_count.num+e_terminal_offline_count.num, day_end_time, 2)
+
+            end_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
+            logging.info("[CK] %s statistic terminal finished", end_time)
         except KeyboardInterrupt:
             logging.error("Ctrl-C is pressed.")
         except Exception as e:

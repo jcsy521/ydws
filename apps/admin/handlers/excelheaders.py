@@ -60,3 +60,65 @@ OLINE_HEADER = (u"时间",
                 u"在线数", 
                 u"离线数",
                 u"定位器总数")
+
+TOTAL_SHEET = u"所有用户统计"
+TOTAL_FILE_NAME = u"所有用户统计表"
+TOTAL_HEADER_TOP = (u"新增激活终端", 
+                    u"用户登录情况", 
+                    u"活跃情况",
+                    u"终端情况",
+                    u"统计时间")
+TOTAL_HEADER = (u"日激活", 
+                u"月累计", 
+                u"年累计", 
+                u"日登陆", 
+                u"月累计", 
+                u"年累计", 
+                u"活跃用户", 
+                u"沉默用户", 
+                u"在线终端", 
+                u"离线终端", 
+                u"年月日")
+
+INDIVIDUAL_SHEET = u"个人用户统计"
+INDIVIDUAL_FILE_NAME = u"个人用户统计表"
+INDIVIDUAL_HEADER_TOP = (u"新增激活终端", 
+                         u"用户登录情况", 
+                         u"活跃情况",
+                         u"终端情况",
+                         u"统计时间")
+
+INDIVIDUAL_HEADER = (u"日激活", 
+                     u"月累计", 
+                     u"年累计", 
+                     u"日登陆", 
+                     u"月累计", 
+                     u"年累计", 
+                     u"活跃用户", 
+                     u"沉默用户", 
+                     u"在线终端", 
+                     u"离线终端", 
+                     u"年月日")
+
+ENTERPRISE_SHEET = u"集团用户统计"
+ENTERPRISE_FILE_NAME = u"集团用户统计表"
+ENTERPRISE_HEADER_TOP = (u"新增激活集团", 
+                         u"新增激活终端", 
+                         u"用户登录情况", 
+                         u"活跃情况",
+                         u"终端情况",
+                         u"统计时间")
+ENTERPRISE_HEADER = (u"日激活", 
+                     u"月累计", 
+                     u"年累计", 
+                     u"日激活", 
+                     u"月累计", 
+                     u"年累计", 
+                     u"日登陆", 
+                     u"月累计", 
+                     u"年累计", 
+                     u"活跃用户", 
+                     u"沉默用户", 
+                     u"在线终端", 
+                     u"离线终端", 
+                     u"年月日")

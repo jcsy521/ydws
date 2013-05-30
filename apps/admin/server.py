@@ -47,6 +47,9 @@ from handlers.yearly import YearlyHandler, YearlyDownloadHandler
 from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
 from handlers.daily import DailyHandler, DailyDownloadHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
+from handlers.individual import IndividualHandler, IndividualDownloadHandler
+from handlers.enterprise import EnterpriseHandler, EnterpriseDownloadHandler
+from handlers.total import TotalHandler, TotalDownloadHandler
 from handlers.misc import *
 
 
@@ -115,6 +118,12 @@ class Application(tornado.web.Application):
             (r"/report/monthly/*", MonthlyHandler),
             (r"/report/daily/*", DailyHandler),
             (r"/report/online/*", OnlineHandler),
+            
+            # new statistic report
+            (r"/report/individual/*", IndividualHandler),
+            (r"/report/enterprise/*", EnterpriseHandler),
+            (r"/report/total/*", TotalHandler),
+
 
             # download the report
             (r"/download/subscriber/(.*)/*", SubscriberDownloadHandler),
@@ -123,6 +132,10 @@ class Application(tornado.web.Application):
             (r"/download/monthly/(.*)/*", MonthlyDownloadHandler),
             (r"/download/daily/(.*)/*", DailyDownloadHandler),
             (r"/download/online/(.*)/*", OnlineDownloadHandler),
+
+            (r"/download/individual/(.*)/*", IndividualDownloadHandler),
+            (r"/download/enterprise/(.*)/*", EnterpriseDownloadHandler),
+            (r"/download/total/(.*)/*", TotalDownloadHandler),
         ]
 
         settings = dict(

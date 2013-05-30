@@ -226,9 +226,15 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
         fields = DotDict(umobile="tu.mobile LIKE '%%%%%s%%%%'",
                          tmobile="tt.mobile LIKE '%%%%%s%%%%'",
                          begintime="tt.begintime >= %s",
-                         endtime="tt.begintime <= %s")
+                         endtime="tt.begintime <= %s",
+                         login="tt.login = %s")
         
         for key in fields.iterkeys():
+            #BIG NOTE: if online is to be got, "tt.login != 0" is good
+            if key == 'login' and self.get_argument(key, None) == '1':
+                fields[key] = "tt.login != 0"
+                continue
+
             v = self.get_argument(key, None)
             if v:
                 if not check_sql_injection(v):
@@ -244,7 +250,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
         where_clause = ' AND '.join([v for v in fields.itervalues()
                                      if v is not None])
         try:
-            sql = ("SELECT tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile, tt.begintime, tt.endtime,"
+            sql = ("SELECT tt.tid, tt.login, tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile, tt.begintime, tt.endtime,"
                    "  tt.service_status, tc.cnum, tcorp.name as ecname"
                    "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_CAR as tc ON tt.tid = tc.tid"
                    "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"
@@ -253,11 +259,21 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                    "  WHERE tt.group_id IN %s ") % (tuple(groups + DUMMY_IDS),)
             if where_clause:
                 sql += ' AND ' + where_clause
+
             businesses = self.db.query(sql)
+
             for i, business in enumerate(businesses):
                 business['seq'] = i + 1
                 business['sms_status'] = self.get_sms_status(business['tmobile'])
                 business['corp_name'] = ''
+                #NOTE: if login !=0(offline), set login as 1(online)
+                business['login'] = business['login'] if business['login']==0 else 1
+                biz = QueryHelper.get_biz_by_mobile(business['tmobile'], self.db)
+                business['biz_type'] = biz['biz_type'] if biz else 1
+                terminal = QueryHelper.get_terminal_info(business['tid'], self.db, self.redis)
+                business['pbat'] = terminal['pbat'] if terminal.get('pbat', None) is not None else 0 
+                
+
                 for key in business:
                     if business[key] is None:
                         business[key] = ''
