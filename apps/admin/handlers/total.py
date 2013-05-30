@@ -126,7 +126,6 @@ class TotalHandler(BaseHandler, TotalMixin):
         m.update(self.request.body)
         hash_ = m.hexdigest()
         res, interval= self.prepare_data(hash_)
-        print 'res', res
 
         self.render('report/total.html',
                     status=ErrorCode.SUCCESS,
@@ -170,21 +169,17 @@ class TotalDownloadHandler(BaseHandler, TotalMixin):
             ws.write(start_line, i, head)
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line), results):
-
-            ws.write(i, 0, result['corp_add_day'])
-            ws.write(i, 1, result['corp_add_month'])
-            ws.write(i, 2, result['corp_add_month'])
-            ws.write(i, 3, result['terminal_add_day'])
-            ws.write(i, 4, result['terminal_add_month'])
-            ws.write(i, 5, result['terminal_add_month'])
-            ws.write(i, 6, result['login_day'])
-            ws.write(i, 7, result['login_month'])
-            ws.write(i, 8, result['login_year'])
-            ws.write(i, 9, result['active'])
-            ws.write(i, 10, result['deactive'])
-            ws.write(i, 11, result['terminal_online'])
-            ws.write(i, 12, result['terminal_offline'])
-            ws.write(i, 13, time.strftime("%Y-%m-%d",time.localtime(result['timestamp'])))
+            ws.write(i, 0, result['terminal_add_day'])
+            ws.write(i, 1, result['terminal_add_month'])
+            ws.write(i, 2, result['terminal_add_month'])
+            ws.write(i, 3, result['login_day'])
+            ws.write(i, 4, result['login_month'])
+            ws.write(i, 5, result['login_year'])
+            ws.write(i, 6, result['active'])
+            ws.write(i, 7, result['deactive'])
+            ws.write(i, 8, result['terminal_online'])
+            ws.write(i, 9, result['terminal_offline'])
+            ws.write(i, 10, time.strftime("%Y-%m-%d",time.localtime(result['timestamp'])))
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)
