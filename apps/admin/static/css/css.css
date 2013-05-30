@@ -405,14 +405,14 @@ table, .ui-widget-header {
 .planType {
 	display: none;
 }
-#rDataTables {
+#rDataTables, #staticsTables {
     text-align: center;
 	font-size: 12px;
 }
-#rDataTables th {
+#rDataTables th, #staticsTables th {
 	padding:3px 0px 3px 5px;
 }
-#rDataTables td {
+#rDataTables td, #staticsTables td {
 	border: 1px solid #cdcdcd;
 }
 #reportDataTables {
@@ -431,6 +431,13 @@ table, .ui-widget-header {
 }
 #reportDataTables td {
 	border: 1px solid #cdcdcd;
+}
+.reportFields>li {
+	height: 22px;
+	line-height: 22px;
+	list-style: inside;
+	color: #C32945;
+	padding-left: 10px;
 }
 .menus {
 	width: 150px;

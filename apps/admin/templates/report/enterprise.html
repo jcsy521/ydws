@@ -60,7 +60,7 @@
     </a>
 </div>
 {% end %}
-<table id="reportDataTables" class="display">
+<table id="staticsTables" class="display">
 	{% if len(res) > 0 %}
 		<thead>
 			<tr id="colspanTH">
@@ -110,6 +110,28 @@
 		</tbody>
 	{% end %}
 </table>
+{% if len(res) > 0 %}
+<ul class="reportFields">
+	<li>
+		新增激活集团：每天新开户的集团数；
+	</li>
+	<li>
+		新增激活终端：用户开通移动车卫士专用卡，激活终端数；
+	</li>
+	<li>
+		用户登录情况：用户使用集团帐号登录平台（包含Android、IOS、网页登录）的次数；
+	</li>
+	<li>
+		活跃情况：某个集团账号每月登录次数大于3次，则认为是活跃用户，否则为沉默用户；
+	</li>
+	<li>
+		终端情况：每隔1小时统计一次终端在线和离线情况；
+	</li>
+	<li>
+		统计时间：统计数据的日期；
+	</li>
+</ul>
+{% end %}
 <div style="display:none">
     <input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'userReport_start'}}" />
     <input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'userReport_end'}}" />

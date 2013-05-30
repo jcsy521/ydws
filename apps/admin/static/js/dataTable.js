@@ -1,5 +1,6 @@
 ﻿var oTable,
-	rTable; 
+	rTable,
+	sTable;
 $(function () {
 	oTable = $('#rDataTables').dataTable({
 		"bScrollCollapse": true,
@@ -41,4 +42,25 @@ $(function () {
 			$(this).children().removeAttr('style');
 		});
 
+	// 报表统计
+	sTable = $('#staticsTables').dataTable({
+			"bScrollCollapse": true,
+			'aaSorting':[], // 默认不排序
+			"bJQueryUI": true,
+			"bProcessing": true,
+			"sPaginationType": "full_numbers",  
+			"aLengthMenu": [10, 15, 20, 50, 100], //每页显示可调
+			"iDisplayLength": 15,//默认每页10条记录
+			"oLanguage": {
+				"sUrl":"/static/js/dataTables.zh_CN.txt"
+			}
+		});
+		$('#staticsTables tr').hover(function(){
+			$(this).children().css({
+				'background-color' : '#87CEFF'
+			});
+		},
+		function(){
+			$(this).children().removeAttr('style');
+		});
 });
