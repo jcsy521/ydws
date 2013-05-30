@@ -91,6 +91,7 @@ function fn_InitChooseDate() {
 		obj_endTime = $('#end_time1'),
 		str_yesterday = getYesterday(),
 		str_today = toTodayDate(),
+		str_firstDayOfMonth = getFirstDayOfMonth(),
 		str_year =  toHumanDate(myDate, 'year'),
 		str_month = toHumanDate(myDate, 'month');
 
@@ -98,13 +99,13 @@ function fn_InitChooseDate() {
 	if (startTemp == 'start' || startTemp == '') {
 		obj_startTime.val(str_today); 
 	} else if ( startTemp == 'user_start' ) { // 地市用户统计 默认开始时间显示月初
-		obj_startTime.val(getFirstDayOfMonth());
+		obj_startTime.val(str_firstDayOfMonth);
 	} else if ( startTemp == 'daily' ) { // 日报
 		obj_dailyTime.val(str_today);
 	} else if ( startTemp == 'business_begin' || startTemp == '0' ) { // 个人用户查询,集团查询
-		obj_startTime.val(getFirstDayOfMonth()); 
+		obj_startTime.val(str_firstDayOfMonth); 
 	} else if ( startTemp == 'userReport_start' ) {	// 个人用户统计、集团用户统计、所有用户统计
-		obj_startTime.val(str_today); 	//  
+		obj_startTime.val(str_firstDayOfMonth); 	//  
 	} else {
 		obj_startTime.val(toHumanDate(startTemp, 'no')); 	//  
 		obj_dailyTime.val(toHumanDate(startTemp, 'no')); // 日报 
