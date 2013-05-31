@@ -29,16 +29,16 @@ class Checkpofftimeout(object):
                                       "  WHERE tti.tid = tpt.tid"
                                       "  AND tti.login = %s"
                                       "  AND tpt.sms_flag = %s"
-                                      "  AND tti.pbat < 5"
                                       "  AND tpt.timestamp < %s",
                                       GATEWAY.TERMINAL_LOGIN.OFFLINE, GATEWAY.POWEROFF_TIMEOUT_SMS.UNSEND, (time.time() - 2*60*60))
             for terminal in terminals:
-                t_name = QueryHelper.get_alias_by_tid(terminal.tid, self.redis, self.db)
-                user = QueryHelper.get_user_by_tid(terminal.tid, self.db)
-                sms = SMSCode.SMS_POWEROFF_TIMEOUT % t_name 
-                SMSHelper.send(user.owner_mobile, sms)
-                self.update_sms_flag(terminal.tid)
-                logging.info("[CK] Send poweroff timeout sms to user:%s, tid:%s", user.owner_mobile, terminal.tid)
+                terminal_info = QueryHelper.get_terminal_info(terminal.tid, self.db, self.redis)
+                if int(terminal_info['pbat']) < 5:
+                    user = QueryHelper.get_user_by_tid(terminal.tid, self.db)
+                    sms = SMSCode.SMS_POWEROFF_TIMEOUT % terminal_info['alias'] 
+                    SMSHelper.send(user.owner_mobile, sms)
+                    self.update_sms_flag(terminal.tid)
+                    logging.info("[CK] Send poweroff timeout sms to user:%s, tid:%s", user.owner_mobile, terminal.tid)
         except KeyboardInterrupt:
             logging.error("Ctrl-C is pressed.")
         except Exception as e:
