@@ -71,6 +71,9 @@ class TerminalStatistic(object):
             day_start_time, day_end_time = start_end_of_day(current_day.tm_year, current_day.tm_mon, current_day.tm_mday)
             month_start_time, month_end_time = start_end_of_month(current_day.tm_year, current_day.tm_mon)
             year_start_time, year_end_time = start_end_of_year(current_day.tm_year)
+            logging.info("[CK] day_start_time: %s, day_end_time: %s, month_start_time: %s, month_end_time: %s, year_start_time: %s, year_end_time: %s.", 
+                        day_start_time, day_end_time, month_start_time, month_end_time, year_start_time, year_end_time)
+            
 
             sql_terminal_add = ("SELECT COUNT(tid) AS num"
                                 "  FROM T_TERMINAL_INFO"
@@ -229,3 +232,21 @@ class TerminalStatistic(object):
         except Exception as e:
             logging.exception("[CK] statistic online terminal exception.")
 
+
+if __name__ == '__main__':
+    
+    from tornado.options import define, options, parse_command_line
+    from helpers.confhelper import ConfHelper
+    define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+
+    ConfHelper.load(options.conf)
+    parse_command_line()
+
+    year = '2013'
+    month = '05'
+    day =  '29'
+    timestamp = int(time.mktime(time.strptime("%s-%s-%s"%(year,month,day),"%Y-%m-%d")))
+    logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
+
+    ts = TerminalStatistic()
+    ts.statistic_terminal(timestamp)
