@@ -164,7 +164,8 @@ class LastInfoCorpHandler(BaseHandler):
             lastinfo_time = data.get('lastinfo_time') 
             #NOTE: first time, lastinfo_time = -1, set the lsstinfo_time as current_time - 10(minutes) 
             if lastinfo_time == -1:
-                lastinfo_time = current_time - 60*10
+                lastinfo_time = current_time - 60*60*24*10
+                #lastinfo_time = current_time - 60*10
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             logging.info("[UWEB] lastfinfo for corp failed, message: %s, Exception: %s, request: \n%s", 

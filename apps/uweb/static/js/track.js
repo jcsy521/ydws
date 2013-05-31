@@ -149,7 +149,14 @@ function fn_trackQuery() {
 				$('#trackSpeed').hide();	// 速度滑块隐藏
 			} else {
 				// 集团用户显示查询结果面板
-				obj_delayCon.show();
+				var arr_idlePoints = data.idle_points;
+				
+				if ( arr_idlePoints.length > 0 ) {
+					obj_delayCon.show();
+					// 存储停留点信息
+					obj_trackHeader.data('delayPoints', arr_idlePoints);
+				}
+				
 				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 				arr_dataArr = arr_locations, 
@@ -172,8 +179,6 @@ function fn_trackQuery() {
 					arr_locations[i].icon_type = $('.j_currentCar').attr('icon_type');
 					//arr_dataArr[i].alias = str_alias;
 				}*/
-				// 存储停留点信息
-				obj_trackHeader.data('delayPoints', data.idle_points);
 				if ( n_tempMax <= 0 ) {
 					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
 				} else {

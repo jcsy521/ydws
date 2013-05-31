@@ -57,6 +57,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 return
             # 2: whitelist
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+            print '--uid', self.current_user.uid
+            print '--', user
             if not user:
                 logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
                 self.clear_cookie(self.app_name)
@@ -317,6 +319,11 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     status = ErrorCode.TERMINAL_ORDERED
                     self.write_ret(status)
                     return
+            # record the subscription log 
+            self.db.execute("INSERT INTO T_SUBSCRIPTION_LOG(tmobile, group_id, activate_time, activate_status)" 
+                            " VALUES(%s, %s, %s, %s)", 
+                            data.tmobile, data.group_id, begintime, 1)
+
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  defend_status, mannual_status, begintime, endtime, icon_type)"
                             "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
