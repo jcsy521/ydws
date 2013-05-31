@@ -86,7 +86,7 @@ class MileageHandler(BaseHandler):
                            distance=distance)
                 reports.append(dct)
 
-            # store resutl in redis
+            # orgnize and store the data to be downloaded 
             m = hashlib.md5()
             m.update(self.request.body)
             hash_ = m.hexdigest()

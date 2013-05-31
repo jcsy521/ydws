@@ -516,7 +516,8 @@ window.dlf.fn_caculateBox = function (arr_locations) {
 	obj_tempMaxPoint = arr_locations[0];
 	obj_tempFirstPoint = arr_locations[0];
 	
-	var	n_locLength = arr_locations.length;
+	var	n_locLength = arr_locations.length,
+		arr_points = [];
 	
 	for (var i = 0; i < n_locLength; i++) {
 		var obj_currentLoc = arr_locations[i], 
@@ -528,7 +529,10 @@ window.dlf.fn_caculateBox = function (arr_locations) {
 				
 			dlf.fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
 		}
+		arr_locations[i].icon_type = $('.j_currentCar').attr('icon_type');
+		arr_points.push(obj_firstPoint);
 	}
+	$('#trackHeader').data('points', arr_points);	// 轨迹查询的所有点数据
 	if ( n_tempMax <= 0 ) {
 		dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
 	} else {
@@ -1191,6 +1195,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		n_wrapperWidth = obj_wrapper.width(),
 		n_width = ($(window).width() - n_wrapperWidth)/2;
 
+	$('.j_delay').hide();
 	dlf.fn_closeDialog();	// 关闭所有dialog
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
@@ -1252,6 +1257,22 @@ window.dlf.fn_userType = function() {
 		return false;
 	}
 	return true;
+}
+
+/**
+* kjj 2013-05-29
+* 随机生成颜色值
+*/
+window.dlf.fn_randomColor = function() {
+	var colorvalue=["0","2","3","4","5","6","7","8","9","a","b","c","d","e","f"],
+		colorprefix="#",
+		index;
+		
+	for( var i = 0; i < 6; i++ ){
+		index = Math.round(Math.random()*14);
+		colorprefix += colorvalue[index];
+	}
+	return colorprefix;
 }
 
 /**

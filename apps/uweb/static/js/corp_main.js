@@ -57,7 +57,7 @@ function customMenu(node) {
 		batchTrackLabel = '',	// 开启追踪
 		batchCancleTrack = '',	// 取消追踪
 		str_bizCode = $('#hidBizCode').val(),	// 当前的业务
-		obj_alarm = $('.j_alarm');
+		obj_alarmAndDelay = $('.j_alarm, .j_delay');
 	
 	if ( obj_node.hasClass('j_corp') ) {		// 集团右键菜单
 		renameLabel = '重命名集团';
@@ -129,7 +129,7 @@ function customMenu(node) {
 			"label" : trackLabel,
 			"action" : function(obj) {	// 轨迹查询初始化
 				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
-				obj_alarm.hide();				
+				obj_alarmAndDelay.hide();				
 				dlf.fn_initTrack();
 			}
 		},
@@ -149,7 +149,7 @@ function customMenu(node) {
 			"label" : bindRegionLabel,
 			"action" : function(obj) {	// todo 
 				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
-				obj_alarm.hide();
+				obj_alarmAndDelay.hide();
 				dlf.fn_initBindRegion();
 			}
 		},
@@ -210,7 +210,7 @@ function customMenu(node) {
 			"label" : batchRegionLabel,
 			"action": function (obj) { // 批量设置电子围栏
 				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
-				obj_alarm.hide();
+				obj_alarmAndDelay.hide();
 				dlf.fn_initBatchRegions(obj);
 			}
 		},

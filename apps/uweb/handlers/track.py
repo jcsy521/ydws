@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import datetime
 import re
+import hashlib
+from os import SEEK_SET
+import xlwt
+from cStringIO import StringIO
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.misc import get_lqgz_key, str_to_list
+from utils.misc import get_lqgz_key, str_to_list, utc_to_date, seconds_to_label
 from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
 from helpers.lbmphelper import get_distance 
+from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
+from constants import UWEB, EXCEL
 
 from base import BaseHandler, authenticated
 from mixin.base import  BaseMixin
@@ -63,6 +70,8 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             self.write_ret(status)
 
 class TrackHandler(BaseHandler):
+
+    KEY_TEMPLATE = "track_%s_%s"
 
     @authenticated
     @tornado.web.removeslash
@@ -163,11 +172,109 @@ class TrackHandler(BaseHandler):
                 if item.name is None:
                     item['name'] = ''
 
+            # orgnize and store the data to be downloaded 
+            m = hashlib.md5()
+            m.update(self.request.body)
+            hash_ = m.hexdigest()
+            mem_key = self.KEY_TEMPLATE % (self.current_user.uid, hash_)
+            
+            # todo: 
+            res =  []
+            if idle_lst:
+
+                point_begin = dict(label=u'起点',
+                                   start_time=utc_to_date(track[0]['timestamp']),
+                                   end_time='',
+                                   name=track[0]['name'])
+                # TODO:
+                point_idle = []
+                for idle_point in idle_points:
+                    idle_label =  seconds_to_label(idle_point['idle_time'])
+                    label = u'停留' + idle_label
+                    point = dict(label=label,
+                                 start_time=utc_to_date(idle_point['start_time']),
+                                 end_time=utc_to_date(idle_point['end_time']),
+                                 name=idle_point['name'])
+                    point_idle.append(point)
+                point_end = dict(label=u'终点',
+                                 start_time=utc_to_date(track[-1]['timestamp']),
+                                 end_time='',
+                                 name=track[-1]['name'])
+                res.append(point_begin)
+                res.append(point_end)
+                res.extend(point_idle)
+
+                self.redis.setvalue(mem_key, res, time=UWEB.STATISTIC_INTERVAL)
+
+
             self.write_ret(status,
                            dict_=DotDict(track=track,
-                                         idle_points=idle_points))
+                                         idle_points=idle_points,
+                                         hash_=hash_))
         except Exception as e:
             logging.exception("[UWEB] uid: %s, tid: %s get track failed. Exception: %s. ", 
                               self.current_user.uid, self.current_user.tid, e.args )
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
+class TrackDownloadHandler(TrackHandler):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """Provide some report about track.
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            hash_ = self.get_argument('hash_', None)
+
+            mem_key = self.KEY_TEMPLATE % (self.current_user.uid, hash_)
+
+            results = self.redis.getvalue(mem_key)
+
+            if not results:
+                logging.exception("[UWEB] mileage statistic export excel failed, find no res by hash_:%s", hash_)
+                self.render("error.html",
+                            message=ErrorCode.ERROR_MESSAGE[ErrorCode.EXPORT_FAILED],
+                            home_url=ConfHelper.UWEB_CONF.url_out)
+                return
+
+            date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
+            
+            wb = xlwt.Workbook()
+            ws = wb.add_sheet(EXCEL.TRACK_SHEET)
+
+            start_line = 0
+            for i, head in enumerate(EXCEL.TRACK_HEADER):
+                ws.write(0, i, head)
+                #ws.col(0).width = 4000
+            ws.col(0).width = 4000 * 2
+            ws.col(1).width = 4000 * 2
+            ws.col(2).width = 4000 * 2
+            ws.col(3).width = 4000 * 3
+            start_line += 1
+            for i, result in zip(range(start_line, len(results) + start_line), results):
+                ws.write(i, 0, result['label'])
+                ws.write(i, 1, result['start_time'])
+                ws.write(i, 2, result['end_time'])
+                ws.write(i, 3, result['name'])
+
+            _tmp_file = StringIO()
+            wb.save(_tmp_file)
+            filename = self.generate_file_name(EXCEL.TRACK_FILE_NAME)
+            
+            self.set_header('Content-Type', 'application/force-download')
+            self.set_header('Content-Disposition', 'attachment; filename=%s.xls' % (filename,))
+
+            # move the the begging. 
+            _tmp_file.seek(0, SEEK_SET)
+            self.write(_tmp_file.read())
+            _tmp_file.close()
+ 
+        except Exception as e:
+            logging.exception("[UWEB] track report export excel failed, Exception: %s", e.args)
+            self.render("error.html",
+                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.EXPORT_FAILED],
+                        home_url=ConfHelper.UWEB_CONF.url_out)
+
+

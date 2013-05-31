@@ -65,7 +65,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		arr_tracePoints = obj_carInfo.trace_info,	// 集团用户甩尾的点数据
 		arr_trackPoints = obj_carInfo.track_info,	// 集团用户开启追踪的点数据
 		arr_tempTrackPoints = [],	// 临时存储开启追踪的点数组
-		arr_tempTracePoints = [];	// 临时存储甩尾的点数组
+		arr_tempTracePoints = [],	// 临时存储甩尾的点数组
+		str_randomColor = dlf.fn_randomColor();	// 随机生成的颜色值
 
 	if ( !str_alias ) {	// 如果无alias ，从车辆列表获取
 		str_alias = obj_carA.next().html() || obj_carA.text();
@@ -94,7 +95,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( obj_tempVal ) { // 追加
 		if ( str_actionTrack == 'yes' ) {
 			// obj_tempVal.val = obj_tempVal.val[0];	// 如果是开启追踪的第一次lastinfo
-			var n_firstTrack = obj_selfMarker.track;
+			var n_firstTrack = obj_selfMarker.track,
+				str_tempOldColor = obj_actionTrack[str_tid].color;
 			
 			if ( b_isCorpUser ) {	// 如果是集团开启追踪后  显示track_info的点数据
 				if ( n_firstTrack ) {
@@ -114,7 +116,10 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 			} else {	// 如果是个人开启追踪后 显示carinfo中的点
 				obj_tempVal.val.push(obj_tempPoint);
 			}
-			obj_polylineOptions = {'color': '#2610F1', 'weight': 4} ;
+			if ( str_tempOldColor ) {
+				str_randomColor = str_tempOldColor;
+			}
+			obj_polylineOptions = {'color': str_randomColor, 'weight': 4} ;
 		} else {
 			arr_tempTracePoints.push(obj_tempPoint);
 			obj_tempVal.val = [];

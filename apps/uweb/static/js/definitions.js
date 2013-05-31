@@ -34,6 +34,7 @@ var SINGLEMILEAGEDOWNLOAD_URL = '/download/mileage/single';	// 单个定位器�
 var STATICSDOWNLOAD_URL = '/download/statistic';	// 多个定位器告警统计下载数据
 var MILEAGEDOWNLOAD_URL = '/download/mileage';		// 多个定位器里程统计数据下载
 var ONLINEDOWNLOAD_URL = '/download/online';		// 多个定位器里程统计数据下载
+var TRACKDOWNLOAD_URL = '/download/track';			// 轨迹查询停留点数据下载
 
 var CHECKMOBILE_URL = '/checktmobile';	// 终端手机号验证
 var CHECKOPERATORMOBILE_URL = '/checkopermobile';	// 操作员手机号验证

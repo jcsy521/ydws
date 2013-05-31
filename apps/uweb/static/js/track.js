@@ -37,8 +37,8 @@ window.dlf.fn_initTrack = function() {
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias);
 		obj_trackPos.css('width', 680);
-		$('.j_disPanelCon, .j_delayPanel').hide();
-		$('.delayTable').html('');
+		$('.j_delay').hide();
+		$('.j_delayTbody').html('');
 	} else {
 		obj_trackPos.css('width', 530);
 	}
@@ -98,8 +98,7 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 function fn_trackQuery() {
 	var obj_trackHeader = $('#trackHeader'),
 		arr_delayPoints = [],
-		obj_delayCon = $('.j_disPanelCon'),
-		obj_delayPanel = $('.j_delayPanel'),
+		obj_delayCon = $('.j_delay'),
 		str_beginTime = dlf.fn_changeDateStringToNum($('#trackBeginTime').val()), 
 		str_endTime = dlf.fn_changeDateStringToNum($('#trackEndTime').val()),
 		n_cellid_flag = $('#ceillid_flag').attr('checked') == 'checked' ? 1 : 0,
@@ -124,10 +123,11 @@ function fn_trackQuery() {
 	obj_trackHeader.removeData('delayPoints');	// 清除停留点缓存数据
 	// 集团用户显示查询结果面板
 	obj_delayCon.hide();
-	obj_delayPanel.hide();
 	
 	$.post_(TRACK_URL, JSON.stringify(obj_locusDate), function (data) {
-		if ( data.status == 0 ) {			
+		
+		
+		if ( data.status == 0 ) {
 			/**
 			   * 获取最大和最小的差值
 			   * n_tempMax 暂时存储与第一点的最大距离
@@ -136,7 +136,9 @@ function fn_trackQuery() {
 			*/
 			var arr_locations = data.track, 
 				locLength = arr_locations.length,
+				str_downloadHash = data.hash_,	// 下载停留点的hash参数
 				str_msg = '';
+				
 			if ( locLength <= 0) {
 				if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
 					str_msg = '该时间段没有轨迹记录，请尝试选择“显示基站定位”。';
@@ -148,7 +150,7 @@ function fn_trackQuery() {
 			} else {
 				// 集团用户显示查询结果面板
 				obj_delayCon.show();
-				obj_delayPanel.show();
+				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 				arr_dataArr = arr_locations, 
 				n_tempMax = 0, 
@@ -156,7 +158,7 @@ function fn_trackQuery() {
 				obj_tempFirstPoint = arr_locations[0];
 				str_alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
 				
-				for (var i = 0; i < locLength; i++) {
+				/*for (var i = 0; i < locLength; i++) {
 					var obj_currentLoc = arr_locations[i],
 						str_tid = obj_currentLoc.tid,
 						obj_firstPoint = dlf.fn_createMapPoint(obj_currentLoc.clongitude, obj_currentLoc.clatitude);
@@ -169,7 +171,7 @@ function fn_trackQuery() {
 					}
 					arr_locations[i].icon_type = $('.j_currentCar').attr('icon_type');
 					//arr_dataArr[i].alias = str_alias;
-				}
+				}*/
 				// 存储停留点信息
 				obj_trackHeader.data('delayPoints', data.idle_points);
 				if ( n_tempMax <= 0 ) {
@@ -232,10 +234,12 @@ window.dlf.fn_forMarkerDistance = function (point1, point2) {
 		!(point2 instanceof BMap.Point)){
 		return 0;
 	}*/
-	point1.lng = fn_getLoop(point1.lng, -180, 180);
+	
+	/*point1.lng = fn_getLoop(point1.lng, -180, 180);
 	point1.lat = fn_getRange(point1.lat, -74, 74);
 	point2.lng = fn_getLoop(point2.lng, -180, 180);
 	point2.lat = fn_getRange(point2.lat, -74, 74);
+	*/
 	
 	var x1, x2, y1, y2;
 	x1 = dlf.degreeToRad(point1.lng);
@@ -303,30 +307,37 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 		
 		arr_markers.push(obj_firstMarker);
 		arr_markers.push(obj_endMarker);
-		str_html += '<tr><td><img src="../static/images/green_MarkerA.png" width="25px" />起点</td><td>'+ obj_first.name +'</td></tr>';
-		str_html += '<tr><td><img src="../static/images/green_MarkerB.png" width="25px" />终点</td><td>'+ obj_second.name +'</td></tr>';
+		// str_html += '<thead><tr><td>事件</td><td class="delayCenterTd">时间(开始)</td><td class="delayCenterTd">位置</td></tr></thead>';
+		
+		str_html += '<tr><td><img src="../static/images/green_MarkerA.png" width="25px" />起点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_first.timestamp)+'</td><td class="delayCenterTd">'+ obj_first.name +'</td></tr>';
+		
+		str_html += '<tr><td><img src="../static/images/green_MarkerB.png" width="25px" />终点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_second.timestamp) +'</td><td class="delayCenterTd">'+ obj_second.name +'</td></tr>';
+		
 		for ( var x = 2; x < n_delayLength; x++ ) {
 			var obj_point = arr_delayPoints[x],
 				obj_tempMarker = {};
 			
 			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, 0);
 			
-			str_html += '<tr><td width="136px"><img src="../static/images/delay_Marker.png" width="25px" />停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</td><td width="264px">'+ obj_point.name +'</td></tr>';
+			str_html += '<tr><td><img src="../static/images/delay_Marker.png" width="25px" /><label>停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</label></td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_point.start_time) +'</td><td width="264px" class="delayCenterTd">'+ obj_point.name +'</td></tr>';
 			arr_markers.push(obj_tempMarker);
+			
 		}
 	}
-	obj_table.html(str_html).data('markers', arr_markers);
+	obj_table.data('markers', arr_markers);
+	$('.j_delayTbody').html(str_html);
 
 	/** 
 	* 初始化奇偶行
 	*/
-	$('.delayTable tr').mouseover(function() {
+	$('.delayTable tbody tr').mouseover(function() {
 		$(this).css({'background-color': '#FFFACD', 'cursor': 'pointer'});
 	}).mouseout(function() {
 		$(this).css('background-color', '');
 	}).click(function() {
 		var arr_markerList = $('.delayTable').data('markers'),
-			n_index = $(this).index(),
+			obj_this = $(this),
+			n_index = obj_this.index(),
 			obj_tempMarker = arr_markerList[n_index];
 		
 		for ( var i = 0; i < arr_markerList.length; i++ ) {
@@ -339,6 +350,8 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 		obj_tempMarker.setTop(true);
 		obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
 		mapObj.setCenter(obj_tempMarker.getPosition());
+		
+		obj_this.addClass('clickedBg').siblings('tr').removeClass('clickedBg');	// 添加背景色
 	});
 	
 }
@@ -352,10 +365,11 @@ function fn_startDrawLineStatic(arr_dataArr) {
 		obj_firstMarker = {},
 		obj_endMarker = {};
 	
-	for (var i = 0; i < arr_dataArr.length; i++) {
+	/*for (var i = 0; i < arr_dataArr.length; i++) {
 		arr.push(dlf.fn_createMapPoint(arr_dataArr[i].clongitude, arr_dataArr[i].clatitude));
-	}
-	var polyline = dlf.fn_createPolyline(arr);	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
+	}*/
+	
+	var polyline = dlf.fn_createPolyline($('#trackHeader').data('points'));	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	
 	obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
 	obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
@@ -542,7 +556,7 @@ $(function () {
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
-			obj_arrowCon.css({'right': '400px'});
+			obj_arrowCon.css({'right': '529px'});
 			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		}
 	});

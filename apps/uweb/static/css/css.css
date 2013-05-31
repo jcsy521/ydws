@@ -1267,6 +1267,10 @@ body {
 	background: url('/static/images/arrowIcon.png');
 	cursor: pointer;
 }
+.disPanelCon {
+	right: 529px;
+	top: 236px;
+}
 .alarmTitle {
 	text-align: center;
 	display: inline-block;
@@ -1280,7 +1284,7 @@ body {
 	color: #74BBF9;
 	font-size: 14px;
 }
-.closeAlarm {
+.closeAlarm, .exportDelay {
 	background: url('/static/images/close_default.png');
 	height: 17px;
 	width: 16px;
@@ -1289,9 +1293,19 @@ body {
     left: 156px;
     position: relative;
 	cursor: pointer;
+	text-decoration: none;
 }
-.closeAlarm:hover {
+.closeAlarm:hover, .exportDelay:hover {
 	color: #0FB5F6;
+}
+.exportDelay {
+	background: none repeat scroll 0 0 #9BE2EC;
+    color: #FFFFFF;
+    display: inline-block;
+    height: 22px;
+    left: 237px;
+    line-height: 24px;
+    width: 69px;
 }
 .disPanel, .alarmIcon {
 	position: absolute;
@@ -1305,7 +1319,7 @@ body {
 .delayDiv, .alarmDiv {
 	background-color: #FEFDFD;
 	max-height: 400px;
-	min-height: 120px;
+	padding-bottom: 10px;
 }
 .delayPanel, .alarmPanel {
 	position: absolute;
@@ -1313,15 +1327,12 @@ body {
 	top: 72px;
 	width: 400px;
 }
+.delayPanel {
+	width: 530px;
+	top: 236px;
+}
 .alarmPanel, .alarmPanelCon {
 	top: 207px;
-}
-.delayTable {
-	overflow: scroll;
-	background-color: #F0F4F9;
-	width: 100%;
-	border: 0px;
-	border-collapse: collapse;
 }
 .alarmTable {
 	min-height: 120px;
@@ -1335,10 +1346,31 @@ body {
     padding:2px 0px 2px 15px;
 	border-bottom: 1px dashed #cdcdcd;
 }
+.delayTable {
+	display: inline-block;
+	width: 500px;
+	margin-left: 20px;
+	border: 0px;
+	border-collapse: collapse;
+	min-height: 120px;
+	max-height: 345px;
+	overflow-x: hidden;
+    overflow-y: scroll;
+}
 .delayTable td {
-	border: 1px solid #C1D2E5;
+	border-bottom: 1px dashed #C1D2E5;
     height: 23px;
     line-height: 23px;
+}
+.delayTable thead td {
+	color: #69B2E9;
+}
+.delayCenterTd {
+	text-align: center;
+}
+.delayTable td label {
+	position: relative;
+	top: -5px;
 }
 .delayTable img {
 	position: relative;
@@ -1438,7 +1470,7 @@ body {
 	width: 850px;
 	border-collapse: collapse;
 }
-.dataTable tr, .delayTable tr {
+.dataTable tr {
 	border: 1px solid #c1d2e5;
 }
 .dataTable td{

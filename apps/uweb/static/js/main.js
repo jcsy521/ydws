@@ -475,11 +475,14 @@ $(function () {
 			b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 围栏批量绑定是否显示
 			b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
 			obj_navItemUl = $('.j_countNavItem'),
-			obj_alarm = $('.j_alarm');
+			obj_alarm = $('.j_alarm'),
+			obj_delay = $('.j_delay');
 		
 		if ( b_trackStatus ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
 			if ( str_id == 'track' ) {
 				return;
+			} else {
+				obj_delay.hide();
 			}
 		}
 		// 除了对多个定位器操作外
