@@ -449,7 +449,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			obj_pagination.show(); //显示分页
 			if ( n_dwRecordPageCnt > 1 ) {	// 总页数大于1 
 				if ( n_dwRecordPageNum > 0 && n_dwRecordPageNum < n_dwRecordPageCnt-1 ) {  //上下页都可用
-					if ( str_who != 'infoPush' ) {
+					if ( str_who == 'infoPush' ) {
 						
 					} else {
 						dlf.fn_setItemMouseStatus(obj_prevPage, 'pointer', arr_btnPrevArray);
