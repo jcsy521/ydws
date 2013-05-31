@@ -39,3 +39,12 @@ OLINE_HEADER = (u"时间",
                 u"在线数", 
                 u"离线数",
                 u"定位器总数")
+
+TRACK_FILE_NAME = u'停留点列表'
+TRACK_SHEET = u'停留点列表'
+TRACK_HEADER = (u'事件', 
+                 u'时间（开始）',
+                 u'时间(结束)',
+                 u'位置')
+
+

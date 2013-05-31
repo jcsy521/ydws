@@ -5,6 +5,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import functools
 import random
+import math
 
 # import some modules for VG
 from dotdict import DotDict
@@ -157,6 +158,29 @@ def list_to_str(list):
 
     return s
 
+def utc_to_date(timestamp):
+    if not timestamp:
+        return ''
+    else:
+        return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(timestamp))
+
+def seconds_to_label(seconds):
+    label = ''
+    if not seconds:
+        pass
+    else:
+        _minute = int(round(float(seconds)/60))
+        if _minute >= 60:
+            _hour = int(math.floor(float(_minute)/60))
+            _minute = _minute % 60
+            if _hour >= 24: 
+                _day = int(math.floor(float(_hour)/24))
+                _hour = _hour % 24 
+                label += u'%s天' % _day
+            label += u'%s时' % _hour
+        label += u'%s分' % _minute
+    return label
+
 def get_sessionID():
     sessionID = ''
     base_str = 'abcdefghijklmnopqrstuvwxyz0123456789'
@@ -234,4 +258,3 @@ def days_of_month(year="2012",month="11"):
     days = datetime.datetime.fromtimestamp(e_epoch).day
     return days
 
-    
