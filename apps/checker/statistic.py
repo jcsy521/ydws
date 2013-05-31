@@ -128,7 +128,8 @@ class TerminalStatistic(object):
                         "        login_year=values(login_year),"
                         "        active=values(active),"
                         "        deactive=values(deactive),"
-                        "        terminal_online=values(terminal_online)")
+                        "        terminal_online=values(terminal_online),"
+                        "        terminal_offline=values(terminal_offline)")
 
             #1 persional
             p_terminal_add_day = self.db.get(sql_terminal_add + " AND group_id = -1 ",
