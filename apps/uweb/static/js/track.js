@@ -104,7 +104,8 @@ function fn_trackQuery() {
 		n_cellid_flag = $('#ceillid_flag').attr('checked') == 'checked' ? 1 : 0,
 		obj_locusDate = {'start_time': str_beginTime, 
 						'end_time': str_endTime,
-						'cellid_flag': n_cellid_flag};
+						'cellid_flag': n_cellid_flag},
+		b_userType = dlf.fn_userType();	// 个人用户或者集团用户
 	
 	if ( str_beginTime >= str_endTime ) {
 		dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
@@ -151,10 +152,12 @@ function fn_trackQuery() {
 				// 集团用户显示查询结果面板
 				var arr_idlePoints = data.idle_points;
 				
-				if ( arr_idlePoints.length > 0 ) {
-					obj_delayCon.show();
-					// 存储停留点信息
-					obj_trackHeader.data('delayPoints', arr_idlePoints);
+				if ( b_userType ) {
+					if ( arr_idlePoints.length > 0 ) {
+						obj_delayCon.show();
+						// 存储停留点信息
+						obj_trackHeader.data('delayPoints', arr_idlePoints);
+					}
 				}
 				
 				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
@@ -163,7 +166,7 @@ function fn_trackQuery() {
 				n_tempMax = 0, 
 				obj_tempMaxPoint = arr_locations[0];
 				obj_tempFirstPoint = arr_locations[0];
-				str_alias = dlf.fn_userType() ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
+				str_alias = b_userType ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
 				
 				/*for (var i = 0; i < locLength; i++) {
 					var obj_currentLoc = arr_locations[i],
