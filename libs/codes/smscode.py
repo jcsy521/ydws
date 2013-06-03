@@ -12,6 +12,7 @@ class SMSCode(object):
     SMS_CF = u":CF"
     SMS_SF = u":SF"
     SMS_LQGZ = u":LQGZ %s"
+    SMS_CQ = u":CQ"
 
     # TO user
     SMS_TRACKER_POWERLOW = u"尊敬的客户：您的定位器“%s”电量不足，当前电量为%d%%，地址：%s，时间：%s。"

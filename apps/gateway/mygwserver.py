@@ -838,11 +838,11 @@ class MyGWServer(object):
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
                 self.update_terminal_status(head.dev_id, address)
-                args.domain = ConfHelper.GW_SERVER_CONF.domain 
                 terminal = self.db.get("SELECT freq, trace, static_val,"
-                                       "       move_val, trace_para, vibl"
+                                       "       move_val, trace_para, vibl, domain"
                                        "  FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s", head.dev_id)
+                args.domain = terminal.domain
                 args.freq = terminal.freq
                 args.trace = terminal.trace
                 args.static_val = terminal.static_val

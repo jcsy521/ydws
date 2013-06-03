@@ -25,10 +25,11 @@ class CheckTerminalStatus(object):
     def __init__(self):
         self.db = DBConnection().db
         self.redis = MyRedis()
+        self.domain_ip = '211.139.215.236:10025'
 
     def check_terminal_status(self):
         try:
-            terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+            terminals = self.db.query("SELECT tid, domain FROM T_TERMINAL_INFO"
                                       "  WHERE login != %s",
                                       GATEWAY.TERMINAL_LOGIN.OFFLINE)
             for terminal in terminals:
@@ -38,7 +39,7 @@ class CheckTerminalStatus(object):
                 offline_lq_time = self.redis.getvalue(offline_lq_key)
                 if not status:
                     if not offline_lq_time:
-                        self.send_lq_sms(terminal.tid)
+                        self.send_cq_sms(terminal.tid, terminal.domain)
                         self.redis.setvalue(offline_lq_key, int(time.time()), 15*60)
                     elif (time.time() - offline_lq_time) > 10 * 60:
                         self.heartbeat_lost_report(terminal.tid)
@@ -49,6 +50,19 @@ class CheckTerminalStatus(object):
             logging.error("Ctrl-C is pressed.")
         except:
             logging.exception("[CK] Check terminal status exception.")
+
+    def send_cq_sms(self, tid, domain):
+        terminal_info = QueryHelper.get_terminal_info(tid, self.db, self.redis)
+        if (terminal_info['pbat']) >= 5 and (domain != self.domain_ip):
+            sms_cq = SMSCode.SMS_CQ
+            sms_domain = SMSCode.SMS_DOMAIN % self.domain_ip 
+            mobile = terminal_info['mobile']
+            SMSHelper.send_to_terminal(mobile, sms_cq)
+            SMSHelper.send_to_terminal(mobile, sms_domain)
+            self.db.execute("UPDATE T_TERMINAL_INFO SET domain = %s"
+                            "  WHERE tid = %s",
+                            self.domain_ip, tid)
+            logging.info("[CK] Send cq and domain sms to mobile: %s", mobile)
 
     def send_lq_sms(self, tid):
         sim = QueryHelper.get_tmobile_by_tid(tid, self.redis, self.db)
@@ -93,7 +107,8 @@ class CheckTerminalStatus(object):
         self.redis.delete(terminal_sessionID_key)
         # db set offline 
         info = DotDict(tid=tid,
-                       login=GATEWAY.TERMINAL_LOGIN.OFFLINE)
+                       login=GATEWAY.TERMINAL_LOGIN.OFFLINE,
+                       offline_time=timestamp)
         self.update_terminal_status(info)
 
     def update_terminal_status(self, info):
@@ -115,9 +130,10 @@ class CheckTerminalStatus(object):
 
         # db
         self.db.execute("UPDATE T_TERMINAL_INFO"
-                        "  SET login = %s" 
+                        "  SET login = %s," 
+                        "      offline_time = %s"
                         "  WHERE tid = %s",
-                        info['login'], info['tid'])
+                        info['login'], info['offline_time'], info['tid'])
         # redis
         logging.info("[CK] %s before set redis login: %s, login: %s",
                      info['tid'], terminal_info['login'], info['login'])
