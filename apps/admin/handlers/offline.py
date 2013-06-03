@@ -60,7 +60,7 @@ class OfflineMixin(BaseMixin):
         
         res = self.db.query("SELECT id, umobile, tmobile, offline_time, offline_period, offline_cause, pbat, remark"
                             "  FROM T_OFFLINE_STATISTIC"
-                            "  WHERE offline_time between %s and %s" + where_clause,
+                            "  WHERE offline_time between %s and %s AND tmobile like '14778%%'" + where_clause,
                             start_time, end_time)
         for item in res:
             item['remark'] = safe_unicode(item['remark'])
