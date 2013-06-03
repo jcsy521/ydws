@@ -228,19 +228,6 @@ class PacketTask(object):
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
 
-        print '-----------report', report
-        alarm = dict(tid=report['dev_id'],
-                     category=report['category'], 
-                     latitude=report['lat'], 
-                     longitude=report['lon'], 
-                     clatitude=report['cLat'], 
-                     clongitude=report['cLon'], 
-                     timestamp=report['gps_time'], 
-                     name=report['name'] if report.get('name',None) is not None else '',
-                     degree=report['degree'], 
-                     speed=report['speed'])
-
-        self.record_alarm_info(alarm)
 
         # check region evnent
         #self.check_region_event(report)
@@ -255,6 +242,19 @@ class PacketTask(object):
                 logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
                              info['dev_id'], info['rName'])
                 return
+
+        alarm = dict(tid=report['dev_id'],
+                     category=report['category'], 
+                     latitude=report['lat'], 
+                     longitude=report['lon'], 
+                     clatitude=report['cLat'], 
+                     clongitude=report['cLon'], 
+                     timestamp=report['gps_time'], 
+                     name=report['name'] if report.get('name',None) is not None else '',
+                     degree=report['degree'], 
+                     speed=report['speed'])
+
+        self.record_alarm_info(alarm)
 
         # 2:  save into database. T_LOCATION, T_EVENT
         lid = insert_location(report, self.db, self.redis)
