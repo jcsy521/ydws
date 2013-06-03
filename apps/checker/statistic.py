@@ -226,7 +226,7 @@ class TerminalStatistic(object):
                             p_terminal_online_count.num+e_terminal_online_count.num,
                             p_terminal_offline_count.num+e_terminal_offline_count.num, day_end_time, 2)
 
-            terminals_offline = self.db.query("select tid, mobile as tmobile, owner_mobile as umobile, offline_time, pbat  from T_TERMINAL_INFO where offline_time != 0 AND mobile like '14778%'")
+            terminals_offline = self.db.query("select tid, mobile as tmobile, owner_mobile as umobile, offline_time, pbat  from T_TERMINAL_INFO where offline_time != 0 AND mobile like '14778%%'")
             for terminal in terminals_offline:
                 #NOTE: if pbat < 5, set it as 'power low'
                 offline_cause = 2 if terminal.pbat < 5 else 1
