@@ -1717,6 +1717,7 @@ body {
 }
 #markerWindowtitle a {
 	margin-right: 10px;
+	color: blue;
 }
 #markerWindowtitle a:visited {
 	color: #0000ff;
