@@ -122,3 +122,13 @@ ENTERPRISE_HEADER = (u"日激活",
                      u"在线终端", 
                      u"离线终端", 
                      u"年月日")
+
+OFFLINE_SHEET = u"离线用户统计"
+OFFLINE_FILE_NAME = u"离线用户统计表"
+OFFLINE_HEADER = (u"车主号", 
+                  u"终端号", 
+                  u"电量", 
+                  u"离线时间",
+                  u"累计离线时间",
+                  u"离线原因",
+                  u"备注")

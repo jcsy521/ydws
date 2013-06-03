@@ -56,11 +56,9 @@ class BaseMixin(object):
     def send_jb_sms(self, tmobile, umobile, tid):
         unbind_sms = SMSCode.SMS_UNBIND  
         ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
-        print 'ret', ret
         ret = json_decode(ret)
         status = ret['status']
-        if True: 
-        #if status == ErrorCode.SUCCESS:
+        if status == ErrorCode.SUCCESS:
             self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET service_status = %s"
                             "  WHERE mobile = %s",

@@ -50,6 +50,7 @@ from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.individual import IndividualHandler, IndividualDownloadHandler
 from handlers.enterprise import EnterpriseHandler, EnterpriseDownloadHandler
 from handlers.total import TotalHandler, TotalDownloadHandler
+from handlers.offline import OfflineHandler, OfflineDownloadHandler
 from handlers.misc import *
 
 
@@ -123,6 +124,7 @@ class Application(tornado.web.Application):
             (r"/report/individual/*", IndividualHandler),
             (r"/report/enterprise/*", EnterpriseHandler),
             (r"/report/total/*", TotalHandler),
+            (r"/report/offline/*", OfflineHandler),
 
 
             # download the report
@@ -136,6 +138,7 @@ class Application(tornado.web.Application):
             (r"/download/individual/(.*)/*", IndividualDownloadHandler),
             (r"/download/enterprise/(.*)/*", EnterpriseDownloadHandler),
             (r"/download/total/(.*)/*", TotalDownloadHandler),
+            (r"/download/offline/(.*)/*", OfflineDownloadHandler),
         ]
 
         settings = dict(

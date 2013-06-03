@@ -37,7 +37,7 @@ def authenticated(method):
 
 class BaseHandler(tornado.web.RequestHandler):
 
-    SUPPORTED_METHODS = ("GET", "POST")
+    SUPPORTED_METHODS = ("GET", "POST", "PUT")
     
     COOKIE_PATTERN = re.compile(r"ID=(?P<id>.+):SID=(?P<session_id>.+)")
     COOKIE_FORMAT = "ID=%(id)s:SID=%(session_id)s"
