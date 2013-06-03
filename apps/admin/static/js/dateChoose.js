@@ -220,3 +220,32 @@ function fn_getLastDayOfCurrentMonth() {
 	var nextDate = new Date(year, month+1, 1); // 下个月的第一天
 	return new Date(nextDate.getTime()-1000*60*60*24).getDate();
 }
+
+/** 
+* kjj 2013-06-03 create
+* 秒转化成 xx天xx时xx秒
+*/
+function fn_changeTimestampToString(n_timestamp) {
+	var n_tempMinute = Math.round(n_timestamp/60),
+		n_minute = n_tempMinute,
+		n_hour = 0,
+		n_tempHour = 0,
+		n_day = 0,
+		str_time = '';
+		
+	if ( n_tempMinute >= 60 ) {
+		n_minute = n_tempMinute%60;
+		n_hour = Math.floor(n_tempMinute/60);
+		
+		if ( n_hour >= 24 ) {
+			n_tempHour = n_hour;
+			n_hour = n_hour%24;
+			n_day = Math.floor(n_tempHour/24);
+			
+			str_time += n_day + '天 ';	
+		}
+		str_time += n_hour + '时';	
+	}
+	str_time += n_minute + '分 ';
+	return str_time;
+}

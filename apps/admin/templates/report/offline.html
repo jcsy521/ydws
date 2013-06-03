@@ -1,0 +1,139 @@
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery.min.js"></script>
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet" type="text/css"/>
+<script src="/static/js/lockScreen.js"></script>
+<script type="text/javascript">
+	fn_lockScreen();
+</script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/jquery.ui.datepicker-zh-CN.js"></script>
+<script src="/static/js/jquery.validationEngine-en.js"></script>
+<script src="/static/js/jquery.validationEngine.js"></script>
+<script src="/static/js/initStyle.js"></script>
+<script src="/static/js/submitForm.js"></script>
+<script src="/static/js/dataTable.js"></script>
+<script src="/static/js/provAndCity.js"></script>
+<script src="/static/js/dateChoose.js"></script>
+<script src="/static/js/cacheQueryValues.js"></script>
+<script src="/static/js/report.js"></script>
+{% block body %}
+<fieldset class="ui-widget ui-widget-content ui-corner-all">
+	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+		<span class="ui-button-text">离线用户统计查询</span>
+	</legend>
+	<form method="post" action="" onsubmit="return formSubmit('individual');" id="formID">
+		<table class="searchTable0" id="report">
+			<tr>
+				<td align="right">开始时间：</td>
+				<td align="left">
+					<input type="text" name="start_time1" id="start_time1" readonly="true" />
+				</td>
+				<td align="right">结束时间：</td>
+				<td align="left">
+					<input type="text" name="end_time1" id="end_time1" readonly="true" />
+				</td>
+				<td align="right">离线原因：</td>
+				<td align="left">
+					<select id="offline_cause" name="offline_cause">
+						<option value="">全部</option>
+						<option value="1">通讯异常</option>
+						<option value="2">低电关机</option>
+					</select>
+				</td>
+				<td align="right">累计离线时间：</td>
+				<td align="left">
+					<select id="offline_period" name="offline_period">
+						<option value="">全部</option>
+						<option value="86400">1天以上</option>
+						<option value="172800">2天以上</option>
+						<option value="259200">3天以上</option>
+					</select>
+				</td>
+				<td colspan="2" align="right">
+					<input type="hidden" id="start_time" name="start_time" value="" />
+					<input type="hidden" id="end_time" name="end_time" value="" />
+					<input type="submit" value="查询" 
+						onclick="fn_PushData('start_time1,end_time1,offline_cause,offline_period','individual');" 
+						class="ui-button ui-widget ui-state-default ui-corner-all" 
+						role="button" aria-disabled="false" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</fieldset>
+{% if len(res) > 0 %}
+<div class="resultQuery">
+    <div class="resultTitle"><h3>查询结果</h3></div>
+    <a id="exportData" href="/download/offline/{{hash_}}" 
+        class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+        <span class="ui-button-text">导出Excel</span>
+    </a>
+</div>
+{% end %}
+<table id="staticsTables" class="display j_reportTable">
+	{% if len(res) > 0 %}
+		<thead>
+			<tr>
+				<th>车主号</th>
+				<th>终端号</th>
+				<th>离线时间</th>
+				<th>累计离线时间</th>
+				<th>离线原因</th>
+				<th>电量</th>
+				<th>添加备注</th>
+			</tr>
+		</thead>
+		<tbody id="adminTbody">
+		{% for r in res %}
+			<tr>
+				<td>{{r['umobile']}}</td>
+				<td>{{r['tmobile']}}</td>
+				<td><script>document.write(toHumanDate({{r['offline_time']}}));</script></td>
+				<td>
+					{% if r['offline_period'] >= 172800 %}
+						<label class="warnCss">
+					{% elif r['offline_period'] >= 259200 %}
+						<label class="failed">
+					{% end %}
+						<script>document.write(fn_changeTimestampToString({{r['offline_period']}}));</script>
+					</label>
+				</td>
+				<td>
+					{% if r['offline_cause'] == 1 %}
+						<label class="color1435F0">通讯异常</label>
+					{% else %}
+						<label class="colorF50F1E">低电关机</label>
+					{% end %}
+				</td>
+				<td>{{r['pbat']}}%</td>
+				<td width="300px">
+					<input type="text" class="remarkBlurCss j_remark" title="{{r['remark']}}" value="{{r['remark'] if len(r['remark'])<=20 else r['remark'][:20]+"..."}}"  val="{{r['remark']}}" remarkId = {{r['id']}}  />
+					<!--<a href="#" class="j_addRemark" >编辑</a>-->
+				</td>
+			</tr>
+		{% end %}
+	</tbody>
+	{% end %}
+</table>
+{% if len(res) > 0 %}
+<ul class="reportFields">
+	<!--<li>
+		新增激活终端：用户开通移动车卫士专用卡，激活终端数；
+	</li>-->
+</ul>
+{% end %}
+<div style="display:none">
+    <input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'userReport_start'}}" />
+    <input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'userReport_end'}}" />
+</div>
+<script type="text/javascript">
+    fn_PopData('individual');
+</script>
+{% end %}

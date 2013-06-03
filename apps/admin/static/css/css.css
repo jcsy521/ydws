@@ -742,3 +742,25 @@ tfoot {
     width: 20px;
 	cursor: pointer;
 }
+.remarkBlurCss {
+	border: 0px;
+	background: none;
+	color: #000;
+}
+.remarkFocusCss {
+	border: 1px solid #cdcdcd;
+	background: #FFF;
+	color: #000;
+}
+.remarkTd {
+	
+}
+.color1435F0 {
+	color: #1435F0;
+}
+.colorF50F1E {
+	color: #F50F1E;
+}
+.warnCss {
+	color: #D5971B;
+}
