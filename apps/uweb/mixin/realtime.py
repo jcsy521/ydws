@@ -212,6 +212,7 @@ class RealtimeMixin(BaseMixin):
                               message='',
                               location=None)
                 response = json_decode(response)
+                print '------------gf', response
                 if response['success'] == ErrorCode.SUCCESS:
                     location = DotDict(response['position'])
 

@@ -254,15 +254,6 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 		obj_selfmarkers[str_tid] = obj_selfMarker;
 		obj_selfItem.html(str_tempMsg);
 		
-		/*var str_color = '';
-		
-		if ( str_actionTrack == 'yes' ) {
-			str_color = 'blue';
-		} else {
-			str_color = '#F0960F';
-		}
-		$('.j_openTrack').css('color', str_color);
-		*/
 		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	}
 	if ( arr_openTids.length > 0 )  {
@@ -278,20 +269,22 @@ window.dlf.fn_updateOpenTrackStatusColor = function(str_tid, str_order) {
 	var str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),
 		str_color = '';
 
-	if ( str_order == 'after' ) {
-		if ( str_actionTrack == 'yes' ) {
-			str_color = 'blue';
+	if ( str_tid == $('.j_currentCar').attr('tid') ) {
+		if ( str_order == 'after' ) {
+			if ( str_actionTrack == 'yes' ) {
+				str_color = 'blue';
+			} else {
+				str_color = '#F0960F';
+			}
 		} else {
-			str_color = '#F0960F';
+			if ( str_actionTrack == 'yes' ) {
+				str_color = '#F0960F';
+			} else {
+				str_color = 'blue';
+			}
 		}
-	} else {
-		if ( str_actionTrack == 'yes' ) {
-			str_color = '#F0960F';
-		} else {
-			str_color = 'blue';
-		}
+		$('.j_openTrack').css('color', str_color);
 	}
-	$('.j_openTrack').css('color', str_color);
 }
 
 /**  
