@@ -477,5 +477,14 @@ class PacketTask(object):
         alarm_info = self.redis.getvalue(alarm_info_key)
         alarm_info = alarm_info if alarm_info else []
         alarm_info.append(alarm)
+
+        #NOTE: only store the alarm during past 10 minutes.
+        alarm_info_new = []
+        for alarm in alarm_info:
+            if alarm['timestamp'] + 60*10 < int(time.time()):
+                pass
+            else:
+                alarm_info_new.append(alarm)
+
         #logging.info("[EVENTER] keep alarm_info_key: %s,  alarm_info: %s in redis.", alarm_info_key,  alarm_info)
-        self.redis.setvalue(alarm_info_key, alarm_info, EVENTER.ALARM_EXPIRY)
+        self.redis.setvalue(alarm_info_key, alarm_info_new, EVENTER.ALARM_EXPIRY)
