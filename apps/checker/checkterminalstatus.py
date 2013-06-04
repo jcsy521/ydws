@@ -53,16 +53,19 @@ class CheckTerminalStatus(object):
 
     def send_cq_sms(self, tid, domain):
         terminal_info = QueryHelper.get_terminal_info(tid, self.db, self.redis)
-        if (terminal_info['pbat']) >= 5 and (domain != self.domain_ip):
-            sms_cq = SMSCode.SMS_CQ
-            sms_domain = SMSCode.SMS_DOMAIN % self.domain_ip 
+        if terminal_info['pbat'] >= 5:
             mobile = terminal_info['mobile']
+            sms_cq = SMSCode.SMS_CQ
             SMSHelper.send_to_terminal(mobile, sms_cq)
-            SMSHelper.send_to_terminal(mobile, sms_domain)
-            self.db.execute("UPDATE T_TERMINAL_INFO SET domain = %s"
-                            "  WHERE tid = %s",
-                            self.domain_ip, tid)
-            logging.info("[CK] Send cq and domain sms to mobile: %s", mobile)
+            if domain != self.domain_ip:
+                sms_domain = SMSCode.SMS_DOMAIN % self.domain_ip 
+                SMSHelper.send_to_terminal(mobile, sms_domain)
+                self.db.execute("UPDATE T_TERMINAL_INFO SET domain = %s"
+                                "  WHERE tid = %s",
+                                self.domain_ip, tid)
+                logging.info("[CK] Send domain sms: %s to mobile: %s",
+                             sms_domain, mobile)
+            logging.info("[CK] Send cq sms to mobile: %s", mobile)
 
     def send_lq_sms(self, tid):
         sim = QueryHelper.get_tmobile_by_tid(tid, self.redis, self.db)
