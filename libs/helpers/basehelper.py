@@ -2,6 +2,7 @@
 
 import httplib
 import urlparse
+import logging
 
 from tornado.escape import json_encode
 
@@ -43,9 +44,11 @@ class BaseHelper(object):
                 ret = response.read()
             else:
                 ret = cls.DUMMY_RESPONSE
+                logging.error("Get error response: %s", response)
             connection.close()
-        except:
+        except Exception as e:
             # can not communicate with sender. mimic the error return
             # from sender.
             ret = cls.DUMMY_RESPONSE
+            logging.exception("Forward Exception: %s", e.args)
         return ret

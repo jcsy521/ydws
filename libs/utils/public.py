@@ -10,6 +10,10 @@ from constants import EVENTER
 def delete_terminal(tid, db, redis, del_user=True):
     terminal = db.get("SELECT mobile, owner_mobile FROM T_TERMINAL_INFO"
                       "  WHERE tid = %s", tid)
+    if not terminal:
+        logging.info("Terminal: %s already not existed.", tid)
+        return
+        
     user = db.get("SELECT id FROM T_USER"
                   "  WHERE mobile = %s",
                   terminal.owner_mobile)
