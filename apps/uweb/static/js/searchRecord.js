@@ -676,7 +676,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 						str_tbodyText+= '<td>无</td>';	
 					} else {
 						if ( str_location == '' || str_location == null ) {
-							str_tbodyText+= '<td><a href="#" onclick="dlf.fn_getAddressByLngLat(\"'+n_lng+'\",\"'+n_lat+'\",'+i+',"event")" class="j_getPosition getPositionCss">获取位置</a></td>';
+							str_tbodyText+= '<td><a href="#" onclick="dlf.fn_getAddressByLngLat(\''+n_lng+'\',\''+n_lat+'\',\'\',\'event\','+i+')" class="j_getPosition getPositionCss">获取位置</a></td>';
 						} else {
 							str_tbodyText+= '<td><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
 						}

@@ -347,8 +347,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_title = '车辆：',
 		str_tempMsg = '开始跟踪',
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
-		str_html = '<div id="markerWindowtitle" class="cMsgWindow">';
+		str_html = str_iconType == 'actiontrack' ? '<div id="markerWindowtitle" class="cMsgWindow height135">' : '<div id="markerWindowtitle" class="cMsgWindow height110">';
 		
+	if ( str_iconType == 'delay' ) {
+		str_html = '<div id="markerWindowtitle" class="cMsgWindow height90">'
+	}
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
 	}
@@ -502,7 +505,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			var str_tempAddress = str_result.length >= 30 ? str_result.substr(0,30) + '...':str_result;
 			
 			$('.eventSearchTable tr').eq(n_index+1).find('.j_getPosition').parent().html('<label href="#" title="'+ str_result +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lon+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a>');
-			
+			arr_dwRecordData[n_index].name = str_tempAddress;
 			$('#markerWindowtitle ul li').eq(4).html('位置： ' + str_result);	// 替换marker上的位置描述
 			
 			dlf.fn_showMarkerOnEvent();	// 初始化查看地图事件
@@ -536,6 +539,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	} else {
 		gc.getLocation(obj_point, function(result){
 			str_result = result.address;
+			
 			if ( str_result == '' ) {
 				if ( postAddress != null ) {	// 第一次如果未获取位置则重新获取一次,如果还未获得则显示"无法获取"
 					clearTimeout(postAddress);
@@ -691,4 +695,17 @@ window.dlf.fn_displayCircle = function(obj_circleData) {
 	return obj_circle;
 }
 
+/***
+* kjj 2013-06-05
+* 计算点是否超出地图，如果超出设置地图中心点为当前点
+*/
+window.dlf.fn_boundContainsPoint = function(obj_tempPoint) {
+	// 是否进行中心点移动操作 如果当前播放点在屏幕外则,设置当前点为中心点
+	var obj_mapBounds = mapObj.getBounds(), 
+		b_isInbound = obj_mapBounds.containsPoint(obj_tempPoint);
+	
+	if ( !b_isInbound ) {
+		dlf.fn_setOptionsByType('center', obj_tempPoint);
+	}
+}
 })();

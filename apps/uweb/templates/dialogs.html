@@ -285,8 +285,14 @@
 							<input type="checkbox" id="corp_heartbeat_lost" class="j_corp_checkbox" title="通讯异常" /><label for="corp_heartbeat_lost">通讯异常提醒</label>
 						</li>
 						<li>
-							<input type="checkbox" id="corp_charge" class="j_corp_checkbox" title="剩余流量" /><label for="corp_charge">剩余流量提醒</label> 
+							<input type="checkbox" id="corp_charge" class="j_corp_checkbox" title="余额提醒" /><label for="corp_charge">余额提醒</label> 
 						</li>
+						<!--<li>
+							<input type="checkbox" id="corp_region_enter" class="j_corp_checkbox" title="进围栏告警" /><label for="corp_region_enter">进围栏告警</label>
+						</li>
+						<li>
+							<input type="checkbox" id="corp_region_out" class="j_corp_checkbox" title="出围栏告警" /><label for="corp_region_out">出围栏告警</label> 
+						</li>-->
 					</ul>
 				</fieldset>
 				{% if bizcode == 'znbc' %}
@@ -641,11 +647,11 @@
 	</div><!--集团资料框end-->
 	
 	<!--操作员资料框-->
-	<div id="operatorDataWrapper" class="wrapper hide">
+	<div id="operatorDataWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle corpPersonalTitle">
 			<span class="close j_close" title="关闭窗口"></span>
 		</div>
-		<div class="wrapperContent operatorDataContent j_wrapperContent">
+		<div class="wrapperContent operatorDataContent">
 			<form id="operatorForm" >
 				<table class="personalList">
 					<tr>

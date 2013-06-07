@@ -264,6 +264,7 @@ window.dlf.fn_changeTimestampToString = function(n_timestamp) {
 	var n_tempMinute = Math.round(n_timestamp/60),
 		n_minute = n_tempMinute,
 		n_hour = 0,
+		n_tempHour = 0,
 		n_day = 0,
 		str_time = '';
 		
@@ -272,8 +273,9 @@ window.dlf.fn_changeTimestampToString = function(n_timestamp) {
 		n_hour = Math.floor(n_tempMinute/60);
 		
 		if ( n_hour >= 24 ) {
+			n_tempHour = n_hour;
 			n_hour = n_hour%24;
-			n_day = Math.floor(n_hour/24);
+			n_day = Math.floor(n_tempHour/24);
 			
 			str_time += n_day + '天 ';	
 		}
@@ -399,6 +401,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 
 				if ( b_trackSt ) {	
 					dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
+					$('.j_delay').hide();
 					$('#trackTerminalAliasLabel').html(str_currentCarAlias);
 				}
 				if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindRegionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
@@ -609,7 +612,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 */
 function fn_createTerminalList(obj_carDatas) {
 	var str_carListHtml = '', 
-		obj_carListUl = $('.j_carList'), 
+		obj_carListUl = $('.j_carList'),
 		obj_tempSelfMarker = {};
 	
 	for(var param in obj_carDatas) {
@@ -634,45 +637,73 @@ function fn_createTerminalList(obj_carDatas) {
 			str_carClass = ' j_currentCar currentCarCss ' + str_carClass;
 		} 
 		str_carListHtml += '<li>'
-						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="'+ str_alias +'" href="#"><img src="/static/images/'+ str_carLoginImg +'.png"></a>'
+						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="'+ str_alias +'" href="#"><img src="/static/images/'+ str_carLoginImg +'.png" /></a>'
 						+'<div class="'+ str_carLoginColor +'" title="'+ str_alias +'">'+ str_alias +'</div>'
 						+'<div class="'+ str_carLoginColor +'">('+ str_carLoginText +')</div></li>';
-						
-						
+			
 		if ( obj_currentSelfMarker ) {
 			obj_tempSelfMarker[str_tid] = obj_currentSelfMarker; 
 			obj_selfmarkers[str_tid] = undefined;
 		}
-		dlf.fn_checkTrackDatas(str_tid);
+		dlf.fn_checkTrackDatas(param);	// 初始化开启追踪数据
 	}
 	
 	obj_carListUl.html(str_carListHtml); // 将新生成的终端列表进行填充到页面上
 	
-	// 将不使用的终端的marker信息并从地图上清除
-	for ( var param in  obj_selfmarkers ) {
-		var str_tempTSelfMarker = obj_selfmarkers[param];
-		
-		if ( str_tempTSelfMarker ) {
-			dlf.fn_clearMapComponent(str_tempTSelfMarker);
-			if ( param == str_currentPersonalTid ) { // 如果当前车被 删除 
-				var obj_tempCurrentCar = $('#carList a ').eq(0),
-					str_tempTid = obj_tempCurrentCar.attr('tid');
-					
-				dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar); // 车辆列表切换
-			}
-		}
-	}
+	dlf.fn_createTerminalListClearLayer(obj_selfmarkers, obj_carDatas);
 	obj_selfmarkers = obj_tempSelfMarker;
 	dlf.fn_bindCarListItem(); //绑定终端 点击事件
 }
+
+/**
+* kjj 2013-06-04
+* 重新添加终端后 清除marker和track轨迹
+*/
+window.dlf.fn_createTerminalListClearLayer = function(obj_tempMarkers, obj_carDatas) {
+	var b_userType = dlf.fn_userType(),// 集团用户 、个人用户
+		n_num = 0;
+	
+	// 将不使用的终端的marker信息并从地图上清除
+	for ( var param in  obj_tempMarkers ) {
+		var str_tempTSelfMarker = obj_tempMarkers[param],
+			obj_selfPolyline = 	obj_polylines[param];
+
+		if ( str_tempTSelfMarker ) {
+			// 如果开启追踪的话清除轨迹线  置空status和color
+			dlf.fn_checkTrackDatas(param, true);
+			dlf.fn_clearMapComponent(str_tempTSelfMarker);
+			delete obj_carsData[param];	// 集团用户清除obj_carsData对应数据
+		}
+	}
+	
+	if ( !b_userType ) {
+		//是否进行切车操作
+		var obj_currentCarDatas = obj_carDatas[str_currentPersonalTid];
+		
+		if ( !obj_currentCarDatas ) {
+			var obj_tempCurrentCar = $('#carList a ').eq(0),
+				str_tempTid = obj_tempCurrentCar.attr('tid');
+				
+			dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar); // 车辆列表切换
+		}	
+	}
+}
+
 /*
 * 追踪效果的数据存储判断
 */
-window.dlf.fn_checkTrackDatas = function (str_tid) {
+window.dlf.fn_checkTrackDatas = function (str_tid, b_deleteTrack) {
 	var obj_tempTrack = obj_actionTrack[str_tid];
 
 	if ( !obj_tempTrack ) {
-		obj_actionTrack[str_tid] = {'status': '', 'interval': ''}
+		obj_actionTrack[str_tid] = {'status': '', 'interval': '', 'color': ''}
+	}
+	if ( b_deleteTrack ) {
+		var obj_selfPolyline = 	obj_polylines[str_tid];
+		
+		if ( obj_selfPolyline ) {
+			dlf.fn_clearMapComponent(obj_selfPolyline); // 删除相应轨迹线
+		}
 	}
 }
 
@@ -683,9 +714,10 @@ window.dlf.fn_checkTrackDatas = function (str_tid) {
 window.dlf.fn_clearOpenTrackData = function() {
 	$('.j_terminal').each(function(e){
 		var str_tid = $(this).attr('tid');
-		
+			
 		obj_actionTrack[str_tid].status = '';
-		dlf.fn_clearInterval(obj_actionTrack[str_tid].interval);
+		obj_actionTrack[str_tid].color = '';
+		dlf.fn_clearInterval(obj_actionTrack[str_tid].interval);	
 	});
 }
 
@@ -1193,7 +1225,8 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	var obj_wrapper = $('#'+ str_wrapperId+'Wrapper'), 
 		str_tempWrapperId = str_wrapperId,
 		n_wrapperWidth = obj_wrapper.width(),
-		n_width = ($(window).width() - n_wrapperWidth)/2;
+		n_width = ($(window).width() - n_wrapperWidth)/2,
+		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
 
 	$('.j_delay').hide();
 	dlf.fn_closeDialog();	// 关闭所有dialog
@@ -1207,11 +1240,8 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		dlf.fn_setMapPosition(true);	// 如果打开的是告警查询  设置地图位置
 	} else {
 		if ( str_wrapperId != 'mileage' && str_wrapperId != 'operator' && str_wrapperId != 'onlineStatics' && str_wrapperId != 'passenger' && str_wrapperId != 'infoPush' ) {
-			dlf.fn_showOrHideMap(true);
-			if ( b_eventSearchStatus ) {	// 如果选择的非告警查询 并且告警查询打开着  则初始化地图
-				dlf.fn_setMapPosition(false);
-				b_eventSearchStatus = false;
-			}
+			dlf.fn_showOrHideMap(true);	// 显示地图
+			dlf.fn_setMapPosition(false);	// 设置地图最大化
 			dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
 			if ( str_wrapperId == 'region' || str_wrapperId == 'bindRegion' || str_wrapperId == 'bindBatchRegion') {
 				obj_wrapper.css({'left': '250px', 'top': '160px'});
@@ -1224,10 +1254,17 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
-	if ( str_wrapperId != 'eventSearch' && str_wrapperId != 'routeLine' && str_wrapperId != 'bindBatchRegion' && str_wrapperId != 'region' ) { 
+	if ( str_wrapperId != 'eventSearch' && str_wrapperId != 'routeLine' && str_wrapperId != 'bindBatchRegion' && str_wrapperId != 'region' && str_wrapperId != 'bindRegion' ) {
 		if ( n_currentLastInfoNum != currentLastInfo ) {
 			dlf.fn_closeTrackWindow(true);
 		}
+	}
+	if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo	
+		if ( str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' ) {
+			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
+		} else if ( str_wrapperId == 'bindBatchRegion' ) {
+			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
+		}		
 	}
 	obj_wrapper.show();
 }
@@ -1497,7 +1534,10 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						}
 						$('#spanWelcome').html('欢迎您，'+ str_newName).attr('title', str_linkman);
 					}
-					$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_cName).children('ins').css('background', 'url("/static/images/corpImages/corp.png")');;
+					if ( str_cName ) {
+						$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_cName).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');;
+					}
+					//$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_cName).children('ins').css('background', 'url("/static/images/corpImages/corp.png")');;
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						if ( param == 'cnum' ) {
 							dlf.fn_updateAlias();

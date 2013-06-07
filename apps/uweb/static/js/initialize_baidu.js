@@ -116,10 +116,12 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 			} else {	// 如果是个人开启追踪后 显示carinfo中的点
 				obj_tempVal.val.push(obj_tempPoint);
 			}
-			if ( str_tempOldColor ) {
-				str_randomColor = str_tempOldColor;
+			if ( str_tempOldColor == '' ) {
+				str_tempOldColor = str_randomColor;
+				obj_actionTrack[str_tid].color = str_tempOldColor;
 			}
-			obj_polylineOptions = {'color': str_randomColor, 'weight': 4} ;
+			obj_polylineOptions = {'color': str_tempOldColor, 'weight': 4} ;
+			dlf.fn_boundContainsPoint(obj_tempPoint);	// 开启追踪是否超出地图
 		} else {
 			arr_tempTracePoints.push(obj_tempPoint);
 			obj_tempVal.val = [];
@@ -141,7 +143,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		
 		obj_selfLabel.setContent(str_alias);	// label上的alias值
 		obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
-		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
+		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'))
 		obj_selfMarker.setPosition(obj_tempPoint);
 		
 		if ( b_isCorpUser ) {
@@ -235,7 +237,7 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 			// 手动取消追踪清空计时器
 			obj_selfMarker.track = 0;	// 移除存储第一次开启追踪
 			dlf.fn_clearRealtimeTrack(str_tid);
-			
+			obj_actionTrack[str_tid].color = '';
 			// 关闭jNotityMessage,dialog
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); 
 			dlf.fn_closeDialog();

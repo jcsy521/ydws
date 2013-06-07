@@ -8,11 +8,16 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 * 定位器参数设置初始化
 */
 window.dlf.fn_initCorpTerminal = function(str_tid) {
-	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
+	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
+		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
 	
+	if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
+		dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
+	}
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('.j_input input[type=text]').val('');
+	$('.j_input input[type=text]').blur().css('color', '#000').val('');
+	$('#t_corp_mobile').focus();
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	fn_initCorpSMS(str_tid);	// 初始化SMS通知
 	if ( $('#hidBizCode').val() == 'znbc' ) {

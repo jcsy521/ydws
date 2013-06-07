@@ -1261,14 +1261,12 @@ body {
 .disPanelCon, .alarmPanelCon {
 	position: absolute;
 	top: 72px;
-	right: 399px;
 	width: 18px;
 	height: 68px;
 	background: url('/static/images/arrowIcon.png');
 	cursor: pointer;
 }
 .disPanelCon {
-	right: 529px;
 	top: 236px;
 }
 .alarmTitle {
@@ -1348,14 +1346,17 @@ body {
 }
 .delayTable {
 	display: inline-block;
-	width: 500px;
-	margin-left: 20px;
+	width: 520px;
+	margin-left: 10px;
 	border: 0px;
 	border-collapse: collapse;
 	min-height: 120px;
 	max-height: 345px;
 	overflow-x: hidden;
     overflow-y: scroll;
+}
+.delayTable tr {
+	width: 520px;
 }
 .delayTable td {
 	border-bottom: 1px dashed #C1D2E5;
@@ -1384,6 +1385,15 @@ body {
 }
 #markerWindowtitle .colorF0960F {
 	color: red;/*#F0960F;*/
+}
+.height110 {
+	height: 110px;
+}
+.height135 {
+	height: 135px;
+}
+.height90 {
+	height: 90px;
 }
 .clickedBg {
 	background-color: #9CCAF4;
@@ -1484,6 +1494,9 @@ body {
 	background: url('/static/images/eventTH.png') repeat-x;
 	height: 38px;
 	border: 1px solid #dce7f2;
+}
+#singleMileageTableHeader {
+	background: none;
 }
 #eventSearchTableHeader {
 	height: 38px;
@@ -2414,8 +2427,7 @@ fieldset {
     width: 425px;
 }
 .corpFieldSet {
-	height: 125px
-	/*height: 153px*/
+	height: 156px
 }
 legend {
 	display:block;
@@ -2428,7 +2440,7 @@ legend {
 	line-height: 24px;
 }
 #corpTerminalWrapper .corpTerminalContent {
-	height: 530px;	/* 400px*/
+	height: 574px;	/* 400px*/
 	width: 487px;
 }
 .corp_smsList {
@@ -2449,7 +2461,7 @@ legend {
 .corp_terminalButton {
     left: 340px;
     position: absolute;
-    top: 516px;
+    top: 559px;
 }
 /*corp terminal css end*/
 #addOperatorDialog, #addPassengerDialog {
@@ -2660,7 +2672,7 @@ legend {
     line-height: 34px;
     position: absolute;
 }
-.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition, .operatorConditions, .onlineStaticsCondition .passengerConditions {
+.eventSearchCondition, .mileageCondition, .singleEventCondition, .singleMileageCondition, .operatorConditions, .onlineStaticsCondition .passengerConditions, .onlineStaticsCondition, .passengerConditions {
 	padding-top: 10px;
 	margin-left: 22px;
 }

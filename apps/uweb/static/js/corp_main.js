@@ -57,7 +57,8 @@ function customMenu(node) {
 		batchTrackLabel = '',	// 开启追踪
 		batchCancleTrack = '',	// 取消追踪
 		str_bizCode = $('#hidBizCode').val(),	// 当前的业务
-		obj_alarmAndDelay = $('.j_alarm, .j_delay');
+		obj_alarmAndDelay = $('.j_alarm, .j_delay'),
+		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
 	
 	if ( obj_node.hasClass('j_corp') ) {		// 集团右键菜单
 		renameLabel = '重命名集团';
@@ -128,8 +129,11 @@ function customMenu(node) {
 		"track": {
 			"label" : trackLabel,
 			"action" : function(obj) {	// 轨迹查询初始化
+				if ( b_trackStatus ) {
+					return;
+				}
 				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
-				obj_alarmAndDelay.hide();				
+				obj_alarmAndDelay.hide();	
 				dlf.fn_initTrack();
 			}
 		},
@@ -141,7 +145,10 @@ function customMenu(node) {
 		},
 		"bindLine": {
 			"label" : bindLineLabel,
-			"action" : function(obj) {	// todo 
+			"action" : function(obj) {	// 绑定线路	
+				if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
+					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
+				}
 				dlf.fn_routeLineBindEvent();
 			}
 		},
@@ -250,7 +257,11 @@ function customMenu(node) {
 				this.rename(obj);
 			}
 		},
-		"moveTo": {
+		/*"moveTo": {
+			"label" : moveToLabel,
+			"submenu": submenuItems
+		},*/
+		"moveTerminal": {
 			"label" : moveToLabel,
 			"submenu": submenuItems
 		},
@@ -305,7 +316,8 @@ function customMenu(node) {
 		delete items.singleCreate;
 		delete items.remove;
 		delete items.batchImportDelete;
-		delete items.moveTo;	
+		// delete items.moveTo;	
+		delete items.moveTerminal;
 		delete items.event;
 		delete items.terminalSetting;
 		delete items.batchDefend;
@@ -321,7 +333,8 @@ function customMenu(node) {
    }
    if ( obj_node.hasClass('j_group') ) {
 		delete items.create;
-		delete items.moveTo;
+		//delete items.moveTo;
+		delete items.moveTerminal;
 		delete items.event;
 		delete items.terminalSetting;
 		delete items.defend;
@@ -342,6 +355,7 @@ function customMenu(node) {
 		delete items.batchRegion;
 		delete items.bindLine;
 		delete items.singleDelete;
+		delete items.moveTerminal;	// 暂时隐藏操作员的移动至功能
 		
 		/*delete items.moveTo;
 		delete items.event;	
@@ -635,7 +649,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					}
 				}
 			}
-			
+
 			if ( str_currentTid != undefined && str_currentTid != '') {
 				if ( b_createTerminal ) {	// 如果是新建终端 发起switchCar
 					var obj_newTerminal = $('#leaf_' + str_currentTid);
@@ -830,7 +844,8 @@ window.dlf.fn_corpGetCarData = function() {
 				str_tempFirstTid = '',	// 默认第一个tid
 				str_groupFirstId = '',	// 默认第一个groupid
 				b_isHasTerminal = true,	// 是否有终端
-				obj_newData = {};
+				obj_newData = {},
+				obj_tempSelfMarker = {};	// 临时存储最新的marker数据
 				
 			// $('.j_alarmTable').removeData('num');
 			$('.j_body').attr('cid', str_corpId);	//  存储集团id防止树节点更新时 操作组 丢失cid	
@@ -883,7 +898,8 @@ window.dlf.fn_corpGetCarData = function() {
 								n_degree = obj_car.degree,	// icon_type
 								n_iconType = obj_car.icon_type,	// icon_type
 								str_mobile = obj_car.mobile,	// 车主手机号
-								str_login = obj_car.login;
+								str_login = obj_car.login,
+								obj_currentSelfMarker = obj_selfmarkers[str_tid];
 							
 							obj_car.trace_info = obj_trace;
 							obj_car.track_info = obj_track;
@@ -907,8 +923,12 @@ window.dlf.fn_corpGetCarData = function() {
 								str_tempLabel = str_alias + ' ' + str_mobile;
 							}
 							arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
-							dlf.fn_checkTrackDatas(str_tid);
-							
+							// 存储最新的marker信息
+							if ( obj_currentSelfMarker ) {
+								obj_tempSelfMarker[str_tid] = obj_currentSelfMarker;
+								obj_selfmarkers[str_tid] = undefined;
+							}
+							dlf.fn_checkTrackDatas(str_tid);	// 清除开启追踪后的轨迹线数据
 							// 显示告警提示列表
 							fn_updateAlarmList(arr_alarm);
 							b_isHasTerminal = true;
@@ -926,7 +946,10 @@ window.dlf.fn_corpGetCarData = function() {
 				str_html += '</ul>';
 				// 存储 gids , tids
 				obj_newData = {'gids': arr_groupIds, 'tids': arr_tids, 'n_gLen': n_groupLength};
+				// 清除被删除的marker
+				dlf.fn_createTerminalListClearLayer(obj_selfmarkers);
 			}
+			obj_selfmarkers = obj_tempSelfMarker;
 			if ( !b_isHasTerminal ) {
 				obj_carsData = {};
 				// 显示告警提示列表
@@ -1583,6 +1606,8 @@ function fn_removeTerminal(node) {
 				if ( obj_selfmarkers[str_param] ) {
 					mapObj.removeOverlay(obj_selfmarkers[str_param]);
 					delete obj_selfmarkers[str_param];
+					delete obj_carsData[str_param];
+					dlf.fn_checkTrackDatas(str_param, true);	// 删除开启追踪的轨迹线
 				}
 				var obj_current = $('.' + JSTREECLICKED),
 					b_class = obj_current.hasClass('groupNode'),

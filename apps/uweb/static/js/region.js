@@ -197,12 +197,16 @@ function fn_clearCircleRegion () {
 window.dlf.fn_initBindRegion = function() {
 	var str_bindRegion = 'bindRegion',
 		obj_currentCar = $($('.j_carList a[class*=j_currentCar]')),
-		str_tid = obj_currentCar.attr('tid');
-	
+		str_tid = obj_currentCar.attr('tid'),
+		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
+		
+	if ( b_trackStatus ) {
+		dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
+	}
 	dlf.fn_dialogPosition(str_bindRegion);	// 设置dialog的位置并显示
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
-	dlf.fn_clearMapComponent(); // 清除页面图形
+	// dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_displayCars(); // 显示车辆信息数据
 	//获取围栏数据 
 	dlf.fn_searchData(str_bindRegion);

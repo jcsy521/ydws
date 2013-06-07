@@ -192,7 +192,7 @@ window.dlf.fn_initCorpData = function() {
 			}
 			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_linkMan);	// 更新主页用户名
 			// todo 集团名称修改的话左侧树根节点也修改
-			$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_name).children('ins').css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');
+			$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_name).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');
 			dlf.fn_setCorpIconDiffBrowser();
 			$('#c_name').val(str_name).data('c_name', str_name);
 			$('#c_address').val(str_address).data('c_address', str_address);
@@ -338,6 +338,8 @@ window.onresize = function () {
 			n_treeHeight = n_corpTreeContainerHeight - 45,
 			obj_tree = $('#corpTree'),
 			obj_track = $('#trackHeader'),
+			n_delayLeft = n_windowWidth - 530,
+			n_delayIconLeft = n_delayLeft - 18,
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible');	// 告警查询打开状态
 		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
@@ -361,6 +363,8 @@ window.onresize = function () {
 			
 			if ( n_windowWidth < 1500 ) {
 				n_trackLeft = 80;
+				n_delayLeft = 870;
+				n_delayIconLeft = 853;
 			}
 		} else {
 			n_trackLeft = ( obj_track.width() ) / 4;
@@ -385,7 +389,8 @@ window.onresize = function () {
 		if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
 		}
-		
+		$('.j_delayPanel').css({'left': n_delayLeft});
+		$('.j_disPanelCon').css({'left': n_delayIconLeft});
 	}, 100);
 }
 
@@ -419,6 +424,8 @@ $(function () {
 		n_mainHeight = n_windowHeight - 123,
 		n_corpTreeContainerHeight = n_mainHeight-220,
 		n_treeHeight = n_corpTreeContainerHeight - 45,
+		n_delayLeft = n_windowWidth - 530,
+		n_delayIconLeft = n_delayLeft - 18,
 		obj_tree = $('#corpTree');
 	
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
@@ -441,6 +448,8 @@ $(function () {
 		
 		if ( n_windowWidth < 1500 ) {
 			n_trackLeft = 80;
+			n_delayLeft = 870;
+			n_delayIconLeft = 853;
 		}
 	} else {
 		n_trackLeft = ( obj_track.width() ) / 4;
@@ -454,7 +463,9 @@ $(function () {
 	if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图初始化tilelayer的位置
 		$('#mapTileLayer').css('left', n_tilelayerLeft);
 	}
-		
+	// 设置停留点列表的位置
+	$('.j_delayPanel').css({'left': n_delayLeft});
+	$('.j_disPanelCon').css({'left': n_delayIconLeft});
 	dlf.fn_loadMap('mapObj');	// 加载百度map
 	
 	/**
@@ -487,7 +498,6 @@ $(function () {
 		}
 		// 除了对多个定位器操作外
 		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'b_bindRegionStatus' && str_id != 'b_bindBatchRegionStatus' ) {
-
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
@@ -508,7 +518,7 @@ $(function () {
 			dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
-		if ( str_userType !=  USER_PERSON ) { 
+		if ( str_userType !=  USER_PERSON ) {
 			dlf.fn_secondNavValid();
 		} else {	// 个人用户如果告警查询后显示小地图  再操作其他有关地图的功能要还原地图
 			if ( b_eventSearchStatus ) {
@@ -526,7 +536,10 @@ $(function () {
 				}
 				dlf.fn_clearAllMenu();
 				$('#home').addClass('homeHover');
-				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
+				// 如果上次操作的是 轨迹、告警查询、线路管理、添加线路、围栏管理、绑定围栏、批量绑定围栏、创建围栏 操作的话 点击“车辆位置” 清除所有数据重新发起lastinfo请求
+				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
+					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
+				}				
 				break;
 			case 'personalData': //  个人资料 
 				dlf.fn_personalData();
@@ -590,6 +603,7 @@ $(function () {
 			case 'region': // 围栏管理
 				obj_alarm.hide();
 				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 				if ( b_eventSearchStatus ) {
 					dlf.fn_setMapPosition(false);	// 还原地图
 				}
