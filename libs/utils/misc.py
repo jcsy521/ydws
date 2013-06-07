@@ -168,6 +168,8 @@ def seconds_to_label(seconds):
     label = ''
     if not seconds:
         pass
+    elif int(seconds) < 0:
+        pass
     else:
         _minute = int(round(float(seconds)/60))
         if _minute >= 60:

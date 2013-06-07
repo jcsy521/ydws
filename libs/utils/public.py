@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import time 
 
 from helpers.queryhelper import QueryHelper
 from misc import *
-from constants import EVENTER
+from constants import EVENTER, UWEB
 
+def record_terminal_subscription(db, tmobile, group_id, begintime, add_time, op_type):
+
+    db.execute("INSERT INTO T_SUBSCRIPTION_LOG(tmobile, group_id, begintime, add_time, op_type)" 
+               "   VALUES(%s, %s, %s, %s, %s)" 
+               " ON DUPLICATE KEY" 
+               " UPDATE add_time=values(add_time)," 
+               " group_id=values(group_id)," 
+               " op_type=values(op_type)", 
+               tmobile, group_id, begintime, add_time, op_type)
 
 def delete_terminal(tid, db, redis, del_user=True):
     terminal = db.get("SELECT mobile, owner_mobile FROM T_TERMINAL_INFO"
@@ -52,7 +62,12 @@ def delete_terminal(tid, db, redis, del_user=True):
             region_status_key = get_region_status_key(item, rid)
             keys.append(region_status_key)
         redis.delete(*keys)
+
     # clear db
+    db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s"
+               "  WHERE tmobile = %s ", 
+               int(time.time()), UWEB.OP_TYPE.DEL, terminal.mobile)
+
     db.execute("DELETE FROM T_TERMINAL_INFO"
                "  WHERE tid = %s", 
                tid) 

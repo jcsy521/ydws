@@ -56,26 +56,31 @@ class IndividualMixin(BaseMixin):
         for day in range(days):
             _start_time = start_time + day*60*60*24 
             _end_time =  _start_time  + 60*60*24 - 1
-            # NOTE:
-            ret = self.db.get("select corp_add_day, corp_add_month, corp_add_year,"
+            ret = self.db.get("SELECT corp_add_day, corp_add_month, corp_add_year,"
                               "  terminal_add_day, terminal_add_month, terminal_add_year,"
+                              "  terminal_del_day, terminal_del_month, terminal_del_year,"
                               "  login_day, login_month, login_year,"
                               "  active, deactive, terminal_online, terminal_offline, timestamp"
-                              "  from T_STATISTIC"
-                              "  where type= %s"
-                              "  and (timestamp between %s and %s) limit 1",
+                              "  FROM T_STATISTIC"
+                              "  WHERE type= %s"
+                              "  AND (timestamp BETWEEN %s AND %s)",
                               0,_start_time, _end_time)
             if not ret:
                 ret = {}
-            _res = dict(# corp
+            _res = dict(# corp add
                         corp_add_day=ret['corp_add_day'] if ret.get('corp_add_day', None) is not None else 0,
                         corp_add_month=ret['corp_add_month'] if ret.get('corp_add_month', None) is not None else 0,
                         corp_add_year=ret['corp_add_year'] if ret.get('corp_add_year', None) is not None else 0,
 
-                        # terminal
+                        # terminal add
                         terminal_add_day=ret['terminal_add_day'] if ret.get('terminal_add_day', None) is not None else 0,
                         terminal_add_month=ret['terminal_add_month'] if ret.get('terminal_add_month', None) is not None else 0,
                         terminal_add_year=ret['terminal_add_year'] if ret.get('terminal_add_year', None) is not None else 0,
+
+                        # terminal del
+                        terminal_del_day=ret['terminal_del_day'] if ret.get('terminal_del_day', None) is not None else 0,
+                        terminal_del_month=ret['terminal_del_month'] if ret.get('terminal_del_month', None) is not None else 0,
+                        terminal_del_year=ret['terminal_del_year'] if ret.get('terminal_del_year', None) is not None else 0,
 
                         # login
                         login_day=ret['login_day'] if ret.get('login_day', None) is not None else 0,
@@ -173,9 +178,10 @@ class IndividualDownloadHandler(BaseHandler, IndividualMixin):
         start_line = 0
         ws.write_merge(0,0,0,0+2,INDIVIDUAL_HEADER_TOP[0])
         ws.write_merge(0,0,3,3+2,INDIVIDUAL_HEADER_TOP[1])
-        ws.write_merge(0,0,6,6+1,INDIVIDUAL_HEADER_TOP[2])
-        ws.write_merge(0,0,8,8+1,INDIVIDUAL_HEADER_TOP[3])
-        ws.write_merge(0,0,10,10+0,INDIVIDUAL_HEADER_TOP[4])
+        ws.write_merge(0,0,6,6+2,INDIVIDUAL_HEADER_TOP[2])
+        ws.write_merge(0,0,9,9+1,INDIVIDUAL_HEADER_TOP[3])
+        ws.write_merge(0,0,11,11+1,INDIVIDUAL_HEADER_TOP[4])
+        ws.write_merge(0,0,13,13+0,INDIVIDUAL_HEADER_TOP[5])
         start_line += 1
 
         for i, head in enumerate(INDIVIDUAL_HEADER):
@@ -185,14 +191,17 @@ class IndividualDownloadHandler(BaseHandler, IndividualMixin):
             ws.write(i, 0, result['terminal_add_day'])
             ws.write(i, 1, result['terminal_add_month'])
             ws.write(i, 2, result['terminal_add_month'])
-            ws.write(i, 3, result['login_day'])
-            ws.write(i, 4, result['login_month'])
-            ws.write(i, 5, result['login_year'])
-            ws.write(i, 6, result['active'])
-            ws.write(i, 7, result['deactive'])
-            ws.write(i, 8, result['terminal_online'])
-            ws.write(i, 9, result['terminal_offline'])
-            ws.write(i, 10, time.strftime("%Y-%m-%d",time.localtime(result['timestamp'])))
+            ws.write(i, 3, result['terminal_del_day'])
+            ws.write(i, 4, result['terminal_del_month'])
+            ws.write(i, 5, result['terminal_del_year'])
+            ws.write(i, 6, result['login_day'])
+            ws.write(i, 7, result['login_month'])
+            ws.write(i, 8, result['login_year'])
+            ws.write(i, 9, result['active'])
+            ws.write(i, 10, result['deactive'])
+            ws.write(i, 11, result['terminal_online'])
+            ws.write(i, 12, result['terminal_offline'])
+            ws.write(i, 13, time.strftime("%Y-%m-%d",time.localtime(result['timestamp'])))
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)

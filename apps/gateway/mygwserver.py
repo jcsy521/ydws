@@ -27,7 +27,7 @@ from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
      get_resend_key, get_lastinfo_key, get_login_time_key
-from utils.public import insert_location, delete_terminal
+from utils.public import insert_location, delete_terminal, record_terminal_subscription
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
 from constants.MEMCACHED import ALIVED
@@ -625,10 +625,15 @@ class MyGWServer(object):
                         # is one year.
                         begintime = datetime.datetime.now() 
                         endtime = begintime + relativedelta(years=1)
+                        record_terminal_subscription(self.db, t_info['t_msisdn'], -1, 
+                                                     int(time.mktime(begintime.timetuple())), 
+                                                     int(time.mktime(begintime.timetuple())), 
+                                                     UWEB.OP_TYPE.ADD)
+
                         self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
                                         "  owner_mobile, imsi, imei, factory_name, softversion,"
-                                        "  keys_num, login, service_status, begintime, endtime)"
-                                        "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s)",
+                                        "  keys_num, login, service_status, begintime, endtime, offline_time)"
+                                        "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s)",
                                         t_info['dev_id'], t_info['dev_type'],
                                         t_info['t_msisdn'], t_info['u_msisdn'],
                                         t_info['imsi'], t_info['imei'],
@@ -636,7 +641,8 @@ class MyGWServer(object):
                                         t_info['softversion'], t_info['keys_num'], 
                                         GATEWAY.SERVICE_STATUS.ON,
                                         int(time.mktime(begintime.timetuple())),
-                                        int(time.mktime(endtime.timetuple())))
+                                        int(time.mktime(endtime.timetuple())),
+                                        int(time.mktime(begintime.timetuple())))
                         self.db.execute("INSERT INTO T_CAR(tid)"
                                         "  VALUES(%s)",
                                         t_info['dev_id'])

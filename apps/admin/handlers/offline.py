@@ -38,37 +38,50 @@ class OfflineMixin(BaseMixin):
                 data = eval(data)
             return data[0], data[1]
 
-        start_time = int(self.get_argument('start_time', None))
-        end_time = int(self.get_argument('end_time', None))
+        start_time = int(self.get_argument('start_time', 0))
+        end_time = int(self.get_argument('end_time', 0))
 
-        fields = DotDict(offline_cause="offline_cause=%s",
-                         offline_period="offline_period>%s")
-        for key in fields.iterkeys(): 
-            v = self.get_argument(key, None) 
-            if v: 
-                if not check_sql_injection(v): 
-                    self.get() 
-                    return  
-                fields[key] = fields[key] % (v,) 
-            else: 
-                fields[key] = None 
+        res_ = self.db.query("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
+                             "  FROM T_TERMINAL_INFO"
+                             "  WHERE service_status = 1 AND login =0 and mobile like '14778%%' order by offline_time, pbat")
 
-        where_clause = ' AND '.join([v for v in fields.itervalues() if v is not None])
-        if where_clause:
-            where_clause = ' AND ' + where_clause
-            
-        
-        res = self.db.query("SELECT id, umobile, tmobile, offline_time, offline_period, offline_cause, pbat, remark"
-                            "  FROM T_OFFLINE_STATISTIC"
-                            "  WHERE offline_time between %s and %s AND tmobile like '14778%%'" + where_clause,
-                            start_time, end_time)
-        for item in res:
+        for item in res_:
+            offline_period = int(time.time()) - item['offline_time']
+            item['offline_period'] = offline_period if offline_period > 0 else 0 
+            item['offline_cause'] =  2 if item['pbat'] < 5 else 1
             item['remark'] = safe_unicode(item['remark'])
         
+        res = res_[:]
+
+        offline_cause = self.get_argument('offline_cause', None) 
+        if offline_cause is not None:
+            for item in res_:
+                if item['offline_cause'] != int(offline_cause):
+                    res.remove(item)
+
+        offline_period = self.get_argument('offline_period', None) 
+        if offline_period is not None:
+            for item in res_:
+                if offline_period == '1':
+                    if item['offline_period'] >60*60*24:
+                        if item in res: 
+                            res.remove(item)
+                elif offline_period == '2':
+                    if item['offline_period'] <60*60*24*1:
+                        if item in res: 
+                            res.remove(item)
+                elif offline_period == '3':
+                    if item['offline_period'] <60*60*24*2:
+                        if item in res: 
+                            res.remove(item)
+                elif offline_period == '4':
+                    if item['offline_period'] <60*60*24*3:
+                        if item in res: 
+                            res.remove(item)
+
         self.redis.setvalue(mem_key,(res, [start_time, end_time]), 
                             time=self.MEMCACHE_EXPIRY)
         return res, [start_time, end_time]
-
 
 class OfflineHandler(BaseHandler, OfflineMixin):
 
@@ -114,7 +127,7 @@ class OfflineHandler(BaseHandler, OfflineMixin):
             data = DotDict(json_decode(self.request.body))
             id = data.id 
             remark = data.remark
-            self.db.execute("UPDATE T_OFFLINE_STATISTIC"
+            self.db.execute("UPDATE T_TERMINAL_INFO"
                             "  SET remark = %s"
                             "  WHERE id = %s",
                             remark, id)
@@ -167,7 +180,7 @@ class OfflineDownloadHandler(BaseHandler, OfflineMixin):
             ws.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])))
             ws.write(i, 4, seconds_to_label(result['offline_period']))
             ws.write(i, 5, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
-            terminal_offline = self.db.get("SELECT remark FROM T_OFFLINE_STATISTIC where id = %s", result['id'])
+            terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
             ws.write(i, 6, safe_unicode(terminal_offline['remark']))
 
             

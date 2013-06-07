@@ -38,6 +38,14 @@ USER_TYPE=DotDict(PERSON='individual',
 GROUP_TYPE=DotDict(BUILTIN=0,
                    NEW=1)
 
+OP_TYPE=DotDict(ADD=1,
+                DEL=2)
+
+STATISTIC_USER_TYPE=DotDict(INDIVIDUAL=0,
+                            ENTERPRISE=1,
+                            TOTAL=2)
+
+
 STATISTICS_TYPE=DotDict(YEAR=1,
                         MONTH=2,
                         QUARTER=3)

@@ -11,6 +11,7 @@ from utils.misc import DUMMY_IDS
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from utils.dotdict import DotDict
+from utils.public import record_terminal_subscription
 from base import BaseHandler, authenticated
 from checker import check_privileges 
 from constants import PRIVILEGES, GATEWAY, SMS, UWEB
@@ -370,12 +371,18 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
             else:
                 gid = group.id
 
+
+            record_terminal_subscription(self.db, fields.tmobile, gid,
+                                         fields.begintime,
+                                         fields.begintime,
+                                         UWEB.OP_TYPE.ADD)
+
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  begintime, endtime)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s)",
+                            "  begintime, endtime, offline_time)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s, %s)",
                             fields.tmobile, gid,
                             fields.tmobile, fields.umobile, 
-                            fields.begintime, fields.endtime)
+                            fields.begintime, fields.endtime, fields.begintime)
     
             # 3: add car tnum --> cnum
             self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"

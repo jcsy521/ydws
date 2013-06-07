@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 from os import SEEK_SET
 import datetime, time
@@ -11,6 +10,7 @@ from tornado.ioloop import IOLoop
 
 from constants import LOCATION, XXT
 from utils.dotdict import DotDict
+from utils.public import record_terminal_subscription
 
 from mixin import BaseMixin
 from base import BaseHandler, authenticated
@@ -143,13 +143,17 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                                 "  VALUES(%s)",
                                 fields.umobile)
             
+            record_terminal_subscription(self.db, fields.tmobile, -1,
+                                         fields.begintime,
+                                         fields.begintime,
+                                         UWEB.OP_TYPE.ADD)
             # 2: add terminal
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
-                            "  begintime, endtime)"
-                            "  VALUES (%s, %s, %s, %s, %s)",
+                            "  begintime, endtime, offline_time)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s)",
                             fields.tmobile, 
                             fields.tmobile, fields.umobile, 
-                            fields.begintime, fields.endtime)
+                            fields.begintime, fields.endtime, fields.begintime)
     
             # 3: add car tnum --> cnum
             self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
@@ -170,7 +174,6 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
             #convert front desk need format 
                 sms_status = 1
             else:
-                
                 sms_status = 0
                 logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.mobile)
             fields.sms_status = sms_status
@@ -256,7 +259,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                    "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"
                    "                             LEFT JOIN T_GROUP as tg ON tt.group_id = tg.id"
                    "                             LEFT JOIN T_CORP as tcorp ON tg.corp_id = tcorp.cid"
-                   "  WHERE tt.group_id IN %s ") % (tuple(groups + DUMMY_IDS),)
+                   "  WHERE tt.service_status=1 AND tt.group_id IN %s ") % (tuple(groups + DUMMY_IDS),)
             if where_clause:
                 sql += ' AND ' + where_clause
 
@@ -439,6 +442,10 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                 else:
                     logging.error("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
                                   pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                # record the del action 
+                self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
+                                "  WHERE tmobile = %s ", 
+                                int(time.time()), UWEB.OP_TYPE.DEL, tmobile)
         except Exception as e:
             status = ErrorCode.FAILED
             logging.exception("Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)

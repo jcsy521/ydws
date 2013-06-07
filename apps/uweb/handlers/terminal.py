@@ -13,6 +13,7 @@ from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone
+from utils.public import record_terminal_subscription
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
@@ -318,12 +319,15 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     self.write_ret(status)
                     return
 
+            record_terminal_subscription(self.db, data.tmobile, 
+                                         data.group_id, begintime, begintime, UWEB.OP_TYPE.ADD)
+
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  defend_status, mannual_status, begintime, endtime, icon_type)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            "  defend_status, mannual_status, begintime, endtime, offline_time, icon_type)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                             data.tmobile, data.group_id,
                             data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                            UWEB.DEFEND_STATUS.NO, begintime, endtime, data.icon_type)
+                            UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.icon_type)
     
             # 1: add user
             user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
@@ -471,6 +475,11 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 return
 
+            # record the del action  
+            self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
+                            "  WHERE tmobile = %s ", 
+                            int(time.time()), UWEB.OP_TYPE.DEL, terminal.mobile)
+
             key = get_del_data_key(tid)
             self.redis.set(key, flag)
             if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
@@ -488,6 +497,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             if response['success'] == ErrorCode.SUCCESS:
                 logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
                              self.current_user.uid, tid, terminal.mobile)
+
             else:
                 status = response['success']
                 # unbind failed. clear sessionID for relogin, then unbind it again
@@ -496,6 +506,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                               self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
                 status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+
 
             self.write_ret(status)
         except Exception as e:

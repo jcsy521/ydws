@@ -10,8 +10,10 @@ import logging
 import time
 
 from db_.mysql import DBConnection
-from utils.misc import start_end_of_day, start_end_of_month, start_end_of_year
+from utils.misc import start_end_of_day, start_end_of_month, start_end_of_year, safe_unicode, str_to_list, safe_utf8, seconds_to_label, DUMMY_IDS
 from utils.dotdict import DotDict
+from utils.public import record_terminal_subscription 
+from constants import UWEB 
 
 
 class TerminalStatistic(object):
@@ -74,97 +76,147 @@ class TerminalStatistic(object):
             logging.info("[CK] day_start_time: %s, day_end_time: %s, month_start_time: %s, month_end_time: %s, year_start_time: %s, year_end_time: %s.", 
                         day_start_time, day_end_time, month_start_time, month_end_time, year_start_time, year_end_time)
             
+            sql_terminal_add = ("SELECT tsl.tmobile, tsl.begintime, tsl.add_time, tsl.del_time from T_SUBSCRIPTION_LOG as tsl, T_TERMINAL_INFO as tti"
+                                "  WHERE tsl.tmobile = tti.mobile AND tti.service_status=1 AND tsl.op_type = 1 AND tsl.tmobile like '14778%%' AND (tsl.add_time BETWEEN %s AND %s)")
 
-            sql_terminal_add = ("SELECT COUNT(tid) AS num"
-                                "  FROM T_TERMINAL_INFO"
-                                "  WHERE (begintime BETWEEN %s AND %s)")
+            sql_terminal_del = ("SELECT COUNT(id) AS num from T_SUBSCRIPTION_LOG "
+                                "  WHERE op_type = 2 AND tmobile like '14778%%' AND (del_time BETWEEN %s AND %s)")
 
             sql_corp_add = ("SELECT COUNT(id) as num"
                             "  FROM T_CORP"
                             "  WHERE timestamp BETWEEN %s AND %s")
 
-            sql_login = ("SELECT COUNT(id) AS num"
-                        "   FROM T_LOGIN_LOG"
-                        "   WHERE (timestamp BETWEEN %s AND %s)") 
+            sql_in_login = ("SELECT COUNT(distinct tll.uid) AS num"
+                              "   FROM T_LOGIN_LOG as tll, T_TERMINAL_INFO as tti"
+                              "   WHERE tll.uid = tti.owner_mobile AND tti.mobile like '14778%%' "
+                              "       AND tll.role =0 AND (tll.timestamp BETWEEN %s AND %s)") 
+
+            sql_en_login = ("SELECT COUNT(distinct uid) AS num"
+                            "   FROM T_LOGIN_LOG" 
+                            "   WHERE role != 0 AND (timestamp BETWEEN %s AND %s)")
 
             sql_terminal_line_count = ("SELECT COUNT(tid) AS num"
                                        " FROM T_TERMINAL_INFO ")
 
             sql_in_active = ("SELECT COUNT(tmp.uid) AS num"
-                         " FROM"
-                         " (SELECT uid "
-                         " FROM T_LOGIN_LOG"
-                         " WHERE (timestamp BETWEEN %s AND %s)"
-                         " AND role = 0 " 
-                         "  GROUP BY uid"
-                         "  HAVING count(id) >3) tmp")
+                             " FROM"
+                             " (SELECT uid "
+                             " FROM T_LOGIN_LOG as tll, T_TERMINAL_INFO as tti"
+                             " WHERE tll.uid = tti.owner_mobile AND tti.mobile like '14778%%' "
+                             "     AND  (tll.timestamp BETWEEN %s AND %s)"
+                             "     AND tll.role = 0 " 
+                             "  GROUP BY tll.uid"
+                             "  HAVING count(tll.id) >3) tmp")
 
-            sql_en_active = ("SELECT COUNT(tmp.uid) AS num"
-                         " FROM"
-                         " (SELECT uid "
-                         " FROM T_LOGIN_LOG"
-                         " WHERE (timestamp BETWEEN %s AND %s)"
-                         " AND role != 0 " 
-                         "  GROUP BY uid"
-                         "  HAVING count(id) >3) tmp")
+            sql_en_active = ("SELECT COUNT(tmp.uid) AS num" 
+                             " FROM" 
+                             " (SELECT uid " 
+                             " FROM T_LOGIN_LOG" 
+                             " WHERE (timestamp BETWEEN %s AND %s)" 
+                             " AND role != 0 " 
+                             " GROUP BY uid" 
+                             " HAVING count(id) >3) tmp")
+
 
             sql_kept = ("INSERT INTO T_STATISTIC(corp_add_day, corp_add_month, corp_add_year,"
                         "  terminal_add_day, terminal_add_month, terminal_add_year,"
+                        "  terminal_del_day, terminal_del_month, terminal_del_year,"
                         "  login_day, login_month, login_year, active, deactive,"
                         "  terminal_online, terminal_offline, timestamp, type)"
                         "  VALUES (%s,%s,%s,"
+                        "  %s, %s, %s,"
                         "  %s, %s, %s,"
                         "  %s, %s, %s, %s, %s,"
                         "  %s, %s, %s, %s)"
                         "  ON DUPLICATE KEY"
                         "  UPDATE corp_add_day=values(corp_add_day),"
-                        "        corp_add_month=values(corp_add_month), "
-                        "        corp_add_year=values(corp_add_year),"
-                        "        terminal_add_day=values(terminal_add_day),"
-                        "        terminal_add_month=values(terminal_add_month),"
-                        "        terminal_add_year=values(terminal_add_year),"
-                        "        login_day=values(login_day),"
-                        "        login_month=values(login_month),"
-                        "        login_year=values(login_year),"
-                        "        active=values(active),"
-                        "        deactive=values(deactive),"
-                        "        terminal_online=values(terminal_online),"
-                        "        terminal_offline=values(terminal_offline)")
+                        "         corp_add_month=values(corp_add_month), "
+                        "         corp_add_year=values(corp_add_year),"
+                        "         terminal_add_day=values(terminal_add_day),"
+                        "         terminal_add_month=values(terminal_add_month),"
+                        "         terminal_add_year=values(terminal_add_year),"
+                        "         terminal_del_day=values(terminal_del_day),"
+                        "         terminal_del_month=values(terminal_del_month),"
+                        "         terminal_del_year=values(terminal_del_year),"
+                        "         login_day=values(login_day),"
+                        "         login_month=values(login_month),"
+                        "         login_year=values(login_year),"
+                        "         active=values(active),"
+                        "         deactive=values(deactive),"
+                        "         terminal_online=values(terminal_online),"
+                        "         terminal_offline=values(terminal_offline)")
 
-            #1 persional
-            p_terminal_add_day = self.db.get(sql_terminal_add + " AND group_id = -1 ",
-                                             day_start_time, day_end_time)
-            
-            p_terminal_add_month = self.db.get(sql_terminal_add + " AND group_id = -1 ",
+
+            def handle_terminal_add(data):
+                """Check the terminal is del or not.
+                """
+                res  = DotDict(num=0)
+                if data is None:
+                    pass
+                else:
+                    for item in data:
+                        deltime = time.localtime(int(item['del_time']))
+                        addtime = time.localtime(int(item['add_time']))
+                        if (int(item['del_time']) != 0) and (deltime.tm_year+deltime.tm_mon+deltime.tm_mday == addtime.tm_year+addtime.tm_mon+addtime.tm_mday):
+                            logging.info("[CK] tmobile: %s, add and del in the same day, add_time: %s, del_time: %s ", item['tmobile'], addtime, deltime)
+                            pass
+                        else:
+                            res.num += 1
+                return res
+
+            #1 individual statistic 
+            in_terminal_add_day = self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
+                                                day_start_time, day_end_time)
+            in_terminal_add_day = handle_terminal_add(in_terminal_add_day)
+                
+            in_terminal_add_month = self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
                                                month_start_time, day_end_time)
+            in_terminal_add_month = handle_terminal_add(in_terminal_add_month)
 
-            p_terminal_add_year= self.db.get(sql_terminal_add + " AND group_id = -1 ",
+            in_terminal_add_year= self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
                                              year_start_time, day_end_time)
 
-            p_login_day = self.db.get(sql_login + " AND role = 0",
+            in_terminal_add_year = handle_terminal_add(in_terminal_add_year)
+
+            in_terminal_del_day = self.db.get(sql_terminal_del + " AND group_id = -1 ",
+                                             day_start_time, day_end_time)
+            
+            in_terminal_del_month = self.db.get(sql_terminal_del + " AND group_id = -1 ",
+                                               month_start_time, day_end_time)
+
+            in_terminal_del_year= self.db.get(sql_terminal_del + " AND group_id = -1 ",
+                                             year_start_time, day_end_time)
+
+            in_login_day = self.db.get(sql_in_login,
                                       day_start_time, day_end_time )
 
-            p_login_month = self.db.get(sql_login + " AND role = 0",
+            in_login_month = self.db.get(sql_in_login,
                                         month_start_time, day_end_time)
 
-            p_login_year = self.db.get(sql_login  + " AND role = 0",
+            in_login_year = self.db.get(sql_in_login,
                                        year_start_time, day_end_time)
 
-            p_active = self.db.get(sql_in_active, 
+            in_active = self.db.get(sql_in_active, 
                                    month_start_time, day_end_time)
-            individual = self.db.get("SELECT count(id) as num"
-                                     "  FROM T_USER") 
-            p_deactive = DotDict(num=individual.num-p_active.num)
 
-            p_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE group_id = -1 AND login != 0")
+            individuals = self.db.get("SELECT COUNT(tu.id) AS num"
+                                     "  FROM T_USER as tu, T_TERMINAL_INFO as tti"
+                                     "  WHERE tu.uid = tti.owner_mobile and tti.mobile like '14778%%'") 
+            in_deactive = DotDict(num=individuals.num-in_active.num)
 
-            p_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE group_id = -1 AND login = 0")
+            in_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id=-1 AND login != 0 AND mobile like '14778%%'")
+
+            in_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id=-1 AND login=0  AND mobile like '14778%%'")
 
             self.db.execute(sql_kept,
-                            0, 0, 0,p_terminal_add_day.num, p_terminal_add_month.num, p_terminal_add_year.num,
-                            p_login_day.num, p_login_month.num, p_login_year.num, p_active.num, p_deactive.num,
-                            p_terminal_online_count.num, p_terminal_offline_count.num, day_end_time, 0)
-            #2: enterprise
+                            0, 0, 0,in_terminal_add_day.num, in_terminal_add_month.num, in_terminal_add_year.num,
+                            in_terminal_del_day.num, in_terminal_del_month.num, in_terminal_del_year.num,
+                            in_login_day.num, in_login_month.num, in_login_year.num, in_active.num, in_deactive.num,
+                            in_terminal_online_count.num,
+                            in_terminal_offline_count.num, day_end_time,
+                            UWEB.STATISTIC_USER_TYPE.INDIVIDUAL)
+
+            #2: enterprise stattis
             e_corp_add_day = self.db.get(sql_corp_add,
                                          day_start_time, day_end_time )
 
@@ -174,22 +226,34 @@ class TerminalStatistic(object):
             e_corp_add_year = self.db.get(sql_corp_add,
                                           year_start_time, day_end_time )
 
-            e_terminal_add_day = self.db.get(sql_terminal_add + " AND group_id != -1",
+            e_terminal_add_day = self.db.query(sql_terminal_add + " AND tsl.group_id != -1",
+                                            day_start_time, day_end_time)
+            e_terminal_add_day = handle_terminal_add(e_terminal_add_day)
+
+            e_terminal_add_month = self.db.query(sql_terminal_add + " AND tsl.group_id != -1",
+                                               month_start_time, day_end_time )
+            e_terminal_add_month = handle_terminal_add(e_terminal_add_month)
+
+            e_terminal_add_year= self.db.query(sql_terminal_add + " AND tsl.group_id != -1",
+                                           year_start_time, day_end_time )
+            e_terminal_add_year = handle_terminal_add(e_terminal_add_year)
+
+            e_terminal_del_day = self.db.get(sql_terminal_del + " AND group_id != -1",
                                             day_start_time, day_end_time)
 
-            e_terminal_add_month = self.db.get(sql_terminal_add + " AND group_id != -1",
+            e_terminal_del_month = self.db.get(sql_terminal_del + " AND group_id != -1",
                                                month_start_time, day_end_time )
 
-            e_terminal_add_year= self.db.get(sql_terminal_add + " AND group_id != -1",
+            e_terminal_del_year= self.db.get(sql_terminal_del + " AND group_id != -1",
                                            year_start_time, day_end_time )
 
-            e_login_day = self.db.get(sql_login + " AND role != 0" ,
+            e_login_day = self.db.get(sql_en_login,
                                       day_start_time, day_end_time )
 
-            e_login_month = self.db.get(sql_login + " AND role != 0" ,
+            e_login_month = self.db.get(sql_en_login,
                                         month_start_time, day_end_time )
 
-            e_login_year = self.db.get(sql_login + " AND role != 0" ,
+            e_login_year = self.db.get(sql_en_login,
                                        year_start_time, day_end_time )
 
             e_active = self.db.get(sql_en_active, 
@@ -203,47 +267,40 @@ class TerminalStatistic(object):
 
             e_deactive = DotDict(num=enterprise.num+oper.num-e_active.num) 
 
-            e_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE group_id != -1  AND login != 0")
+            e_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id != -1  AND login != 0 AND mobile like '14778%%'")
 
-            e_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE group_id != -1 AND login = 0")
+            e_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id != -1 AND login = 0 and mobile like '14778%%'")
 
             self.db.execute(sql_kept,
                             e_corp_add_day.num, e_corp_add_month.num, e_corp_add_year.num,
                             e_terminal_add_day.num, e_terminal_add_month.num, e_terminal_add_year.num,
+                            e_terminal_del_day.num, e_terminal_del_month.num, e_terminal_del_year.num,
                             e_login_day.num, e_login_month.num, e_login_year.num, e_active.num, e_deactive.num,
-                            e_terminal_online_count.num, e_terminal_offline_count.num, day_end_time, 1)
+                            e_terminal_online_count.num, e_terminal_offline_count.num, day_end_time,
+                            UWEB.STATISTIC_USER_TYPE.ENTERPRISE)
  
-            # 3 total 
+            # 3 total statistic
             self.db.execute(sql_kept,
                             e_corp_add_day.num, e_corp_add_month.num, e_corp_add_year.num,
-                            p_terminal_add_day.num + e_terminal_add_day.num,
-                            p_terminal_add_month.num + e_terminal_add_month.num, 
-                            p_terminal_add_year.num + e_terminal_add_year.num,
-                            p_login_day.num+ e_login_day.num,
-                            p_login_month.num + e_login_month.num,
-                            p_login_year.num + e_login_year.num, 
-                            p_active.num+e_active.num, p_deactive.num+e_deactive.num,
-                            p_terminal_online_count.num+e_terminal_online_count.num,
-                            p_terminal_offline_count.num+e_terminal_offline_count.num, day_end_time, 2)
+                            in_terminal_add_day.num + e_terminal_add_day.num,
+                            in_terminal_add_month.num + e_terminal_add_month.num, 
+                            in_terminal_add_year.num + e_terminal_add_year.num,
 
-            terminals_offline = self.db.query("select tid, mobile as tmobile, owner_mobile as umobile, offline_time, pbat  from T_TERMINAL_INFO where offline_time != 0")
-            for terminal in terminals_offline:
-                #NOTE: if pbat < 5, set it as 'power low'
-                offline_cause = 2 if terminal.pbat < 5 else 1
-                self.db.execute("INSERT INTO T_OFFLINE_STATISTIC(tid, umobile, tmobile, offline_time, offline_period, offline_cause, pbat)"
-                                "  values(%s, %s, %s, %s, %s, %s, %s)"
-                                "  on duplicate key"
-                                "  update tid=values(tid),"
-                                "         umobile=values(umobile),"
-                                "         tmobile=values(tmobile),"
-                                "         offline_time=values(offline_time),"
-                                "         offline_cause=values(offline_cause),"
-                                "         pbat=values(pbat)",
-                                terminal.tid, terminal.umobile,
-                                terminal.tmobile, terminal.offline_time,
-                                int(time.time())-terminal.offline_time,
-                                offline_cause, terminal.pbat)
-           
+                            in_terminal_del_day.num + e_terminal_del_day.num,
+                            in_terminal_del_month.num + e_terminal_del_month.num, 
+                            in_terminal_del_year.num + e_terminal_del_year.num,
+
+                            in_login_day.num+ e_login_day.num,
+                            in_login_month.num + e_login_month.num,
+                            in_login_year.num + e_login_year.num, 
+                            in_active.num+e_active.num, in_deactive.num+e_deactive.num,
+                            in_terminal_online_count.num+e_terminal_online_count.num,
+                            in_terminal_offline_count.num+e_terminal_offline_count.num, day_end_time, 
+                            UWEB.STATISTIC_USER_TYPE.TOTAL)
+
+            # 4: export offline 
+            self.export_to_excel(day_start_time, epoch_time)
+
             end_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
             logging.info("[CK] %s statistic terminal finished", end_time)
         except KeyboardInterrupt:
@@ -251,6 +308,121 @@ class TerminalStatistic(object):
         except Exception as e:
             logging.exception("[CK] statistic online terminal exception.")
 
+
+    def export_to_excel(self, day_start_time, epoch_time):
+        """Export data into excel file.
+        """
+        from xlwt import Workbook 
+
+        # NOTE: chinese filename cannot download successfully, so here use
+        # english filename. wish one day chinese can work well 
+        OFFLINE_FILE_NAME = u"terminals_offline"
+        #OFFLINE_FILE_NAME = u"离线用户统计表"
+        OFFLINE_HEADER = (u"车主号",
+                          u"终端号", 
+                          u"电量", 
+                          u"离线时间", 
+                          u"累计离线时间", 
+                          u"离线原因", 
+                          u"备注")
+
+        total_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
+                         "  FROM T_TERMINAL_INFO"
+                         "  WHERE service_status = 1 AND login =0 "
+                         "  AND mobile like '14778%%' AND offline_time < %s ORDER BY pbat")
+
+        current_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
+                           "  FROM T_TERMINAL_INFO"
+                           "  WHERE service_status = 1 AND login =0 "
+                           "  AND mobile like '14778%%' "
+                           "  AND offline_time between %s and %s ORDER BY pbat")
+
+        total_res = self.db.query(total_sql_cmd, epoch_time)
+        current_res = self.db.query(current_sql_cmd, day_start_time, epoch_time)
+        a = current_sql_cmd % ( day_start_time, epoch_time)
+
+        for item in total_res:
+            item['offline_period'] = int(time.time()) - item['offline_time']
+            item['offline_cause'] =  2 if item['pbat'] < 5 else 1
+            item['remark'] = safe_unicode(item['remark'])
+
+        for item in current_res:
+            item['offline_period'] = int(time.time()) - item['offline_time']
+            item['offline_cause'] =  2 if item['pbat'] < 5 else 1
+            item['remark'] = safe_unicode(item['remark'])
+
+        #date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
+        wb = Workbook()
+        ws = wb.add_sheet(u'新增离线')
+        ws_total = wb.add_sheet(u'累计离线')
+
+        #1: the offline current day
+        results = current_res
+        start_line = 0
+        for i, head in enumerate(OFFLINE_HEADER):
+            ws.write(0, i, head)
+
+        ws.col(0).width = 4000  
+        ws.col(1).width = 4000 
+        ws.col(3).width = 4000 * 2 
+        ws.col(4).width = 4000 * 2
+        ws.col(6).width = 4000 * 4
+
+        start_line += 1
+
+        for i, result in zip(range(start_line, len(results) + start_line), results):
+            ws.write(i, 0, result['umobile'])
+            ws.write(i, 1, result['tmobile'])
+            ws.write(i, 2, str(result['pbat'])+'%')
+            ws.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])))
+            ws.write(i, 4, seconds_to_label(result['offline_period']))
+            ws.write(i, 5, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
+            terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
+            ws.write(i, 6, safe_unicode(terminal_offline['remark']))
+
+        #2: the offline till this day 
+        results = total_res
+        start_line = 0
+        for i, head in enumerate(OFFLINE_HEADER):
+            ws_total.write(0, i, head)
+
+        ws_total.col(0).width = 4000  
+        ws_total.col(1).width = 4000 
+        ws_total.col(3).width = 4000 * 2 
+        ws_total.col(4).width = 4000 * 2
+        ws_total.col(6).width = 4000 * 4
+
+        start_line += 1
+
+        for i, result in zip(range(start_line, len(results) + start_line), results):
+            ws_total.write(i, 0, result['umobile'])
+            ws_total.write(i, 1, result['tmobile'])
+            ws_total.write(i, 2, str(result['pbat'])+'%')
+            ws_total.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])))
+            ws_total.write(i, 4, seconds_to_label(result['offline_period']))
+            ws_total.write(i, 5, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
+            terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
+            ws_total.write(i, 6, safe_unicode(terminal_offline['remark']))
+
+        file_name = '-'.join((OFFLINE_FILE_NAME, time.strftime("%Y%m%d")))
+        file_path = os.path.join(TOP_DIR_,'apps/checker',file_name)+'.xls'
+        wb.save(file_path)
+        logging.info("[CK] export offline excel, file path: %s", file_path)
+
+    def add_terminal_to_subscription(self):
+        """Handle the old data.
+        """
+        self.db.execute("truncate T_SUBSCRIPTION_LOG")
+        self.db.execute("truncate T_STATISTIC")
+        terminals = self.db.query("select id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO")
+        for terminal in terminals: 
+            # 1: record to T_SUBSCRIPTION
+            record_terminal_subscription(self.db, terminal['mobile'], terminal['group_id'], terminal['begintime'], terminal['begintime'],1) 
+            # 2: modify the offline_time
+            if terminal['offline_time'] == 0:
+                self.db.execute("update T_TERMINAL_INFO set offline_time = %s where id = %s ", 
+                                terminal['begintime'], terminal['id'])
+        
 
 if __name__ == '__main__':
     
@@ -262,10 +434,11 @@ if __name__ == '__main__':
     parse_command_line()
 
     year = '2013'
-    month = '05'
-    day =  '29'
+    month = '06'
+    day =  '07'
     timestamp = int(time.mktime(time.strptime("%s-%s-%s"%(year,month,day),"%Y-%m-%d")))
     logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
 
     ts = TerminalStatistic()
     ts.statistic_terminal(timestamp)
+    #ts.add_terminal_to_subscription()
