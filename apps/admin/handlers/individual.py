@@ -190,7 +190,7 @@ class IndividualDownloadHandler(BaseHandler, IndividualMixin):
         for i, result in zip(range(start_line, len(results) + start_line), results):
             ws.write(i, 0, result['terminal_add_day'])
             ws.write(i, 1, result['terminal_add_month'])
-            ws.write(i, 2, result['terminal_add_month'])
+            ws.write(i, 2, result['terminal_add_year'])
             ws.write(i, 3, result['terminal_del_day'])
             ws.write(i, 4, result['terminal_del_month'])
             ws.write(i, 5, result['terminal_del_year'])
