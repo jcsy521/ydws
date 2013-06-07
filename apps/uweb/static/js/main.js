@@ -1007,12 +1007,11 @@ $(function () {
 		}
 	}).bind('click', function() {
 		var obj_panel = $('.j_alarmPanel'),
-			obj_arrowCon = $('.j_alarmPanelCon, .j_closeAlarm'),
+			obj_arrowCon = $('.j_alarmPanelCon'),
 			obj_arrowIcon = $('.j_alarmArrowClick'),
-			obj_closeAlarm = $('.j_closeAlarm'),
 			b_panel = obj_panel.is(':visible'),
 			n_windowWidth = $(window).width(),
-			n_alarmIconLeft = n_alarmLeft - 417;
+			n_alarmIconLeft = n_windowWidth - 417;
 		
 		if ( n_windowWidth < 1500 ) {
 			n_windowWidth = 1400;
@@ -1024,7 +1023,6 @@ $(function () {
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
-			obj_arrowCon.css({'right': '400px'});
 			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		}
 		obj_arrowCon.css({'left': n_alarmIconLeft});
