@@ -339,7 +339,9 @@ window.onresize = function () {
 			obj_tree = $('#corpTree'),
 			obj_track = $('#trackHeader'),
 			n_delayLeft = n_windowWidth - 530,
-			n_delayIconLeft = n_delayLeft - 18,
+			n_delayIconLeft = n_delayLeft - 17,
+			n_alarmLeft = n_windowWidth - 400,
+			n_alarmIconLeft = n_alarmLeft - 17,
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible');	// 告警查询打开状态
 		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
@@ -365,6 +367,8 @@ window.onresize = function () {
 				n_trackLeft = 80;
 				n_delayLeft = 870;
 				n_delayIconLeft = 853;
+				n_alarmLeft = 1000;
+				n_alarmIconLeft = 982;
 			}
 		} else {
 			n_trackLeft = ( obj_track.width() ) / 4;
@@ -391,6 +395,8 @@ window.onresize = function () {
 		}
 		$('.j_delayPanel').css({'left': n_delayLeft});
 		$('.j_disPanelCon').css({'left': n_delayIconLeft});
+		$('.j_alarmPanel').css({'left': n_alarmLeft});
+		$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 	}, 100);
 }
 
@@ -425,7 +431,9 @@ $(function () {
 		n_corpTreeContainerHeight = n_mainHeight-220,
 		n_treeHeight = n_corpTreeContainerHeight - 45,
 		n_delayLeft = n_windowWidth - 530,
-		n_delayIconLeft = n_delayLeft - 18,
+		n_delayIconLeft = n_delayLeft - 17,
+		n_alarmLeft = n_windowWidth - 400,
+		n_alarmIconLeft = n_alarmLeft - 17,
 		obj_tree = $('#corpTree');
 	
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
@@ -450,6 +458,8 @@ $(function () {
 			n_trackLeft = 80;
 			n_delayLeft = 870;
 			n_delayIconLeft = 853;
+			n_alarmLeft = 1000;
+			n_alarmIconLeft = 982;
 		}
 	} else {
 		n_trackLeft = ( obj_track.width() ) / 4;
@@ -466,6 +476,8 @@ $(function () {
 	// 设置停留点列表的位置
 	$('.j_delayPanel').css({'left': n_delayLeft});
 	$('.j_disPanelCon').css({'left': n_delayIconLeft});
+	$('.j_alarmPanel').css({'left': n_alarmLeft});
+	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 	dlf.fn_loadMap('mapObj');	// 加载百度map
 	
 	/**
@@ -998,17 +1010,24 @@ $(function () {
 			obj_arrowCon = $('.j_alarmPanelCon, .j_closeAlarm'),
 			obj_arrowIcon = $('.j_alarmArrowClick'),
 			obj_closeAlarm = $('.j_closeAlarm'),
-			b_panel = obj_panel.is(':visible');
+			b_panel = obj_panel.is(':visible'),
+			n_windowWidth = $(window).width(),
+			n_alarmIconLeft = n_alarmLeft - 417;
 		
+		if ( n_windowWidth < 1500 ) {
+			n_windowWidth = 1400;
+			n_alarmIconLeft = 982;
+		}
 		if ( b_panel ) {
 			obj_panel.hide();
-			obj_arrowCon.css({'right': '0px'});
+			n_alarmIconLeft = n_windowWidth - 17;
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
 			obj_arrowCon.css({'right': '400px'});
 			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		}
+		obj_arrowCon.css({'left': n_alarmIconLeft});
 	});
 	// 告警信息提示的关闭按钮
 	$('.j_closeAlarm').unbind('click').bind('click', function() {

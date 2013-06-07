@@ -351,13 +351,15 @@ function customMenu(node) {
 		delete items.batchImportDelete;
 		delete items.remove;
 		delete items.rename;
-		delete items.batchDefend;
-		delete items.batchRegion;
+		
 		delete items.bindLine;
 		delete items.singleDelete;
 		delete items.moveTerminal;	// 暂时隐藏操作员的移动至功能
 		
-		/*delete items.moveTo;
+		/*
+		delete items.batchRegion;
+		delete items.batchDefend;
+		delete items.moveTo;
 		delete items.event;	
 		delete items.terminalSetting;
 		delete items.defend;
@@ -801,8 +803,9 @@ function fn_initCarInfo() {
 
 /**
 * 集团用户 lastinfo
+* b_deleteTerminal: 移动终端到其他组的时候重新加载树
 */
-window.dlf.fn_corpGetCarData = function() {
+window.dlf.fn_corpGetCarData = function(b_moveTerminal) {
 	var obj_current = $('.j_leafNode a[class*='+ JSTREECLICKED +']'),
 		str_checkedNodeId = obj_current.attr('id'),	// 上一次选中车辆的id
 		str_tempTid = '',
@@ -974,7 +977,12 @@ window.dlf.fn_corpGetCarData = function() {
 					str_tempNodeId = str_tempFirstTid == '' ? str_groupFirstId : str_tempFirstTid;
 				}
 			}
-			if ( fn_lastinfoCompare(obj_newData) ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
+			var b_isDifferentData = fn_lastinfoCompare(obj_newData);
+			
+			if ( b_moveTerminal ) {
+				b_isDifferentData = true;
+			}
+			if ( b_isDifferentData ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
 				/**
 				* 判断车辆是否选中
 				*/
@@ -1509,7 +1517,7 @@ function fn_moveGroup(arr_tids, n_newGroupId, obj_rlbk, node_id) {
 	} else {
 		$.post_(GROUPTRANSFER_URL, JSON.stringify(obj_param), function (data) {
 			if ( data.status == 0 ) {
-				//dlf.fn_corpGetCarData();	// 重新加载树2013.4.10
+				dlf.fn_corpGetCarData(true);	// 重新加载树2013.4.10
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 执行操作失败，提示错误消息
 				$.jstree.rollback(obj_rlbk);

@@ -544,13 +544,11 @@ $(function () {
 			obj_arrowIcon = $('.j_arrowClick'),
 			b_panel = obj_panel.is(':visible'),
 			n_windowWidth = $(window).width(),
-			n_delayLeft = n_windowWidth - 530,
-			n_delayIconLeft = n_delayLeft - 18;
+			n_delayIconLeft = n_windowWidth - 547;
 		
 		
 		if ( n_windowWidth < 1500 ) {
 			n_windowWidth = 1400;
-			n_delayLeft = 870;
 			n_delayIconLeft = 853;
 		}
 		if ( b_panel ) {
