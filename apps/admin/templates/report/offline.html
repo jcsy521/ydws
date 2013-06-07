@@ -88,9 +88,6 @@
 				<td>{{r['tmobile']}}</td>
 				<td>
 					<script>document.write(toHumanDate({{r['offline_time']}}));</script>
-					{% if r['offline_time'] == r['begintime'] %}
-						<label class="failed">(从未登录)</label>
-					{% end %}
 				</td>
 				<td>
 					{% if r['offline_period'] >= 172800 %}
