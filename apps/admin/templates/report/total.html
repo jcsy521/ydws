@@ -65,6 +65,7 @@
 		<thead>
 			<tr id="colspanTH">
 				<th colspan="3">新增激活终端</th>
+				<th colspan="3">流失终端</th>
 				<th colspan="3">用户登录情况</th>
 				<th colspan="2">活跃情况</th>
 				<th colspan="2">终端情况</th>
@@ -72,6 +73,9 @@
 			</tr>
 			<tr id="reportThead">
 				<th>日激活</th>
+				<th>月累计</th>
+				<th>年累计</th>
+				<th>日累计</th>
 				<th>月累计</th>
 				<th>年累计</th>
 				<th>日登录</th>
@@ -90,6 +94,9 @@
 				<td>{{r['terminal_add_day']}}</td>
 				<td>{{r['terminal_add_month']}}</td>
 				<td>{{r['terminal_add_year']}}</td>
+				<td>{{r['terminal_del_day']}}</td>
+				<td>{{r['terminal_del_month']}}</td>
+				<td>{{r['terminal_del_year']}}</td>
 				<td>{{r['login_day']}}</td>
 				<td>{{r['login_month']}}</td>
 				<td>{{r['login_year']}}</td>

@@ -31,14 +31,6 @@
 	<form method="post" action="" onsubmit="return formSubmit('individual');" id="formID">
 		<table class="searchTable0" id="report">
 			<tr>
-				<td align="right">开始时间：</td>
-				<td align="left">
-					<input type="text" name="start_time1" id="start_time1" readonly="true" />
-				</td>
-				<td align="right">结束时间：</td>
-				<td align="left">
-					<input type="text" name="end_time1" id="end_time1" readonly="true" />
-				</td>
 				<td align="right">离线原因：</td>
 				<td align="left">
 					<select id="offline_cause" name="offline_cause">
@@ -51,16 +43,15 @@
 				<td align="left">
 					<select id="offline_period" name="offline_period">
 						<option value="">全部</option>
-						<option value="86400">1天以上</option>
-						<option value="172800">2天以上</option>
-						<option value="259200">3天以上</option>
+						<option value="1">1天以内</option>
+						<option value="2">1天以上</option>
+						<option value="3">2天以上</option>
+						<option value="4">3天以上</option>
 					</select>
 				</td>
 				<td colspan="2" align="right">
-					<input type="hidden" id="start_time" name="start_time" value="" />
-					<input type="hidden" id="end_time" name="end_time" value="" />
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('start_time1,end_time1,offline_cause,offline_period','individual');" 
+						onclick="fn_PushData('offline_cause,offline_period','individual');" 
 						class="ui-button ui-widget ui-state-default ui-corner-all" 
 						role="button" aria-disabled="false" />
 				</td>
@@ -95,7 +86,12 @@
 			<tr>
 				<td>{{r['umobile']}}</td>
 				<td>{{r['tmobile']}}</td>
-				<td><script>document.write(toHumanDate({{r['offline_time']}}));</script></td>
+				<td>
+					<script>document.write(toHumanDate({{r['offline_time']}}));</script>
+					{% if r['offline_time'] == r['begintime'] %}
+						<label class="failed">(从未登录)</label>
+					{% end %}
+				</td>
 				<td>
 					{% if r['offline_period'] >= 172800 %}
 						<label class="warnCss">
@@ -129,10 +125,6 @@
 	</li>-->
 </ul>
 {% end %}
-<div style="display:none">
-    <input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'userReport_start'}}" />
-    <input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'userReport_end'}}" />
-</div>
 <script type="text/javascript">
     fn_PopData('individual');
 </script>
