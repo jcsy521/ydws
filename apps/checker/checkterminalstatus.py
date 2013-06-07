@@ -20,12 +20,14 @@ from constants import GATEWAY, EVENTER, UWEB, SMS
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
+from helpers.confhelper import ConfHelper
+
 
 class CheckTerminalStatus(object):
     def __init__(self):
         self.db = DBConnection().db
         self.redis = MyRedis()
-        self.domain_ip = '211.139.215.236:10025'
+        self.domain_ip = ConfHelper.GW_SERVER_CONF.domain_ip 
 
     def check_terminal_status(self):
         try:
