@@ -1034,7 +1034,7 @@ $(function () {
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
-			n_alarmIconLeft = n_windowWidth - 17;
+			n_alarmIconLeft = n_windowWidth - 18;
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
