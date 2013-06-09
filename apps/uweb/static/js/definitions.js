@@ -83,4 +83,4 @@ var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// �
 var USER_PERSON = 'individual'; // 个人用户
 var USER_CORP = 'enterprise'; // 集团管理员
 var USER_OPERATOR = 'operator'; // 集团 操作员
-var JSTREECLICKED = 'jstree-clicked';	// jstree节点被选中的样式 
+var JSTREECLICKED = 'jstree-checked';	// jstree节点被选中的样式 

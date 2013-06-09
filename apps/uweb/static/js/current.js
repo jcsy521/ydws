@@ -72,6 +72,8 @@ function fn_currentRequest(obj_pd) {
 		str_msg = '车辆定位中，请等待',
 		b_warpperStatus = obj_cWrapper.is(':visible');
 	
+	obj_pd.tid = dlf.fn_getCurrentTid();
+	
 	if ( b_warpperStatus ) {	// 判断current dialog弹出框是否已经关闭，如果关闭:不进行任何操作
 		/*if ( str_flagVal == CELLID_TYPE) {	// 根据定位类型设置提示信息
 			str_msg += '基站定位进行中...';
@@ -172,7 +174,7 @@ function fn_displayCurrentMarker(obj_location) {
 window.dlf.fn_defendQuery = function(str_alias) {
 	var n_defendStatus = 0,	// 设防撤防状态
 		n_fob_status = 0,	// 挂件是否在附近 1: 在附近 0: 没在附近
-		str_cTid = $('.j_currentCar').attr('tid'),
+		str_cTid = dlf.fn_getCurrentTid(),
 		obj_defend = {'mannual_status': n_defendStatus, 'tids': str_cTid},	// 向后台传递设防撤防数据
 		obj_dMsg = $('#defendMsg'),	// 设防撤防状态的提示信息容器
 		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num')),	// 当前车辆的挂件数量
@@ -188,7 +190,7 @@ window.dlf.fn_defendQuery = function(str_alias) {
 	obj_defendBtn.hide();
 	dlf.fn_dialogPosition('defend');	// 设置dialog的位置
 	dlf.fn_lockScreen();	//添加页面遮罩	
-	$.get_(DEFEND_URL, '', function(data) {
+	$.get_(DEFEND_URL + '?tid=' + str_cTid, '', function(data) {
 		if ( data.status == 0 ) {
 			var str_defendStatus = data.mannual_status,  // 从后台获取到最新的设防撤防状态
 				obj_wrapper = $('#defendWrapper'),	// 设防撤防容器

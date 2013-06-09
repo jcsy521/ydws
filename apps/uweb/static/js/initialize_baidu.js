@@ -13,6 +13,7 @@ window.dlf.fn_moveMarker = function(n_tid) {
 		var obj_tempMarker = obj_selfmarkers[n_tid],	//obj_currentItem.data('selfmarker'),
 			obj_infoWindow = '',
 			arr_overlays = $('.j_carList .j_terminal');
+			
 		if ( obj_tempMarker ) {
 			obj_infoWindow = obj_tempMarker.selfInfoWindow;
 			mapObj.setCenter(obj_tempMarker.getPosition());
@@ -121,7 +122,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 				obj_actionTrack[str_tid].color = str_tempOldColor;
 			}
 			obj_polylineOptions = {'color': str_tempOldColor, 'weight': 4} ;
-			dlf.fn_boundContainsPoint(obj_tempPoint);	// 开启追踪是否超出地图
+			if ( str_tid == str_currentTid ) {	// 只移动当前终端到地图中心
+				dlf.fn_boundContainsPoint(obj_tempPoint);	// 开启追踪是否超出地图
+			}
 		} else {
 			arr_tempTracePoints.push(obj_tempPoint);
 			obj_tempVal.val = [];
@@ -139,11 +142,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	obj_polylines[str_tid] = actionPolyline;	// 存储开启追踪轨迹
 	
 	if ( obj_selfMarker ) {
-		var obj_selfLabel = obj_selfMarker.selfLable;
+		var obj_selfLabel = obj_selfMarker.selfLable,
+			obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,
+			b_isOpen = obj_selfInfoWindow.isOpen();
 		
 		obj_selfLabel.setContent(str_alias);	// label上的alias值
 		obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
-		obj_selfMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'))
+		obj_selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'))
 		obj_selfMarker.setPosition(obj_tempPoint);
 		
 		if ( b_isCorpUser ) {
@@ -159,11 +164,14 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if ( str_actionTrack == 'yes' ) {
 			dlf.fn_updateOpenTrackStatusColor(str_tid);
 		}
-	} else { 
-		if ( b_isCorpUser ) {
-			n_carIndex = $('.j_terminal').index(obj_carA);
+		if ( b_isOpen ) {
+			obj_selfMarker.openInfoWindow(obj_selfMarker.selfInfoWindow);
 		}
-		dlf.fn_addMarker(obj_carInfo, 'actiontrack', n_carIndex, false); // 添加标记
+	} else { 
+		/*if ( b_isCorpUser ) {
+			n_carIndex = $('.j_terminal').index(obj_carA);
+		}*/
+		dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid, false); // 添加标记
 	}
 	var obj_toWindowInterval = setInterval(function() {
 		var obj_tempMarker = obj_selfmarkers[str_tid];	// obj_carA.data('selfmarker');

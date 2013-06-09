@@ -343,7 +343,7 @@ body {
 .menu, .menu li {
 	float: left;
 }
-.corpMapObj, #eventSearchContent, .operatorContent .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent {
+.corpMapObj, #eventSearchContent, .operatorContent .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent {
 	min-width: 1151px;
 	/*min-height: 463px;*/
 	min-height: 566px;
@@ -1174,12 +1174,13 @@ body {
 	top: 158px;
 }
 #trackTerminalAlias {
+    display: inline-block;
+    float: left;
     height: 36px;
     left: -35px;
     line-height: 36px;
-    position: relative; 
-	overflow: hidden;
-	width: 150px;
+    overflow: hidden;
+    position: relative;
 }
 .trackPos {
 	display: inline-block;
@@ -2355,12 +2356,15 @@ body {
 	padding: 0 0 0 29px;
 	width: 191px;
 }
-#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .operatorConditions input, .onlineStaticsCondition input, #passengerContent input {
+#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .onlineStaticsCondition input, .operatorConditions input, #passengerContent input {
 	height: 26px;
     line-height: 27px;
     padding: 2px 0 0 29px;
     width: 140px;
 	*top: 4px;
+}
+.operatorConditions input {
+	padding-left: 10px;
 }
 #staticsWrapper {
 	width: 800px;
@@ -2885,7 +2889,7 @@ legend {
     position: relative;
     top: 14px;
 }
-#regionNote {
+#regionNote, .bindLineNote {
 	color: red;
     left: 30px;
     position: relative;

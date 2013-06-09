@@ -9,7 +9,10 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 */
 window.dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
-		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
+		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
+		str_bizType = $('#hidBizCode').val(),
+		n_height = 508,
+		n_btnTop = 489;
 	
 	if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
 		dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
@@ -20,9 +23,13 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	$('#t_corp_mobile').focus();
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	fn_initCorpSMS(str_tid);	// 初始化SMS通知
-	if ( $('#hidBizCode').val() == 'znbc' ) {
+	if ( str_bizType == 'znbc' ) {
 		dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
+		n_height = 574;
+		n_btnTop = 559;
 	}
+	$('.corpTerminalContent').css('height', n_height);
+	$('#corp_terminalSave').css('top', n_btnTop);
 	dlf.fn_onInputBlur();	// input的blur事件初始化
 }
 
@@ -33,7 +40,7 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	dlf.fn_jNotifyMessage('定位器设置查询中' + WAITIMG , 'message', true); 
 	// todo  + '?tid=' + str_tid
-	$.get_(TERMINAL_URL, '', function (data) {  
+	$.get_(TERMINAL_URL + '?tid=' + dlf.fn_getCurrentTid(), '', function (data) {  
 		if (data.status == 0) {	
 			var obj_data = data.car_sets,
 				n_whitelistLenth = 0,
@@ -57,6 +64,7 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 							n_whitelistTip = str_val;
 						} else if ( param == 'corp_cnum' && dlf.fn_userType() ) {	// 车牌号
 							$('#t_corp_' + param ).val(str_val);
+							$('#corp_' + param ).attr('t_val', str_val);	// 将每个定位器参数对应值保存在t_val中
 							if ( str_val == '' ) {
 								str_val = obj_data['mobile'];
 							}
@@ -65,7 +73,9 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 							$('#t_corp_' + param ).html(str_val);
 						}
 					}
-					$('#corp_' + param ).attr('t_val', str_val);	// 将每个定位器参数对应值保存在t_val中
+					if ( param != 'corp_cnum' ) {
+						$('#corp_' + param ).attr('t_val', str_val);	// 将每个定位器参数对应值保存在t_val中
+					}
 				}
 			}
 			/*if ( n_whitelistLenth <= 1 && n_whitelistTip == 0 ) {	// 白名单提示 没有设置白名单一直提示
@@ -181,6 +191,7 @@ window.dlf.fn_corpBaseSave = function() {
 		n_num = n_num +1;
 	}
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
+		obj_terminalData.tid = dlf.fn_getCurrentTid();
 		dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'corpTerminal', '定位器参数保存中');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示

@@ -31,12 +31,13 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	fn_closeAllInfoWindow();	
 	
-	var str_currentCarAlias = $('.j_currentCar').text().substr(2, 11), 
+	var str_tempAlias = $('.j_currentCar').attr('alias'),
+		str_currentCarAlias = dlf.fn_dealAlias(str_tempAlias), 
 		obj_trackPos = $('.trackPos');
 	
 	if ( dlf.fn_userType() ) {
-		$('#trackTerminalAliasLabel').html(str_currentCarAlias);
-		obj_trackPos.css('width', 680);
+		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+		obj_trackPos.css('width', 700);
 		$('.j_delay').hide();
 		$('.j_delayTbody').html('');
 	} else {
@@ -57,7 +58,7 @@ function fn_closeAllInfoWindow() {
 * 关闭轨迹显示页面
 * b_ifLastInfo: 清除规矩相关的时候是否要发起lastinfo
 */
-window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) { 
+window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 	$('#mapObj').show();
 	dlf.fn_clearNavStatus('track'); // 移除导航操作中的样式
 	dlf.fn_clearMapComponent(); // 清除页面图形
@@ -74,18 +75,19 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 		
 	n_currentLastInfoNum = 0;
 	if ( b_ifLastInfo ) {
-		$('.j_carList').removeData('carsData');
+		
 		obj_carsData = {};
 		obj_selfmarkers = {};
 		
 		LASTINFOCACHE = 0; //轨迹查询后重新获取终端数据
 		if ( !dlf.fn_userType() ) {
+			$('.j_carList').removeData('carsData');
 			dlf.fn_getCarData('first');	// 重新请求lastinfo
 		} else {
 			arr_infoPoint = [];
 			arr_tracePoints = [];
 			obj_oldData = {'gids': '', 'tids': '', 'n_gLen': 0};
-			dlf.fn_corpGetCarData();
+			dlf.fn_corpGetCarData(true);
 		}
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	}
@@ -125,7 +127,7 @@ function fn_trackQuery() {
 	obj_trackHeader.removeData('delayPoints');	// 清除停留点缓存数据
 	// 集团用户显示查询结果面板
 	obj_delayCon.hide();
-	
+	obj_locusDate.tid = dlf.fn_getCurrentTid();
 	$.post_(TRACK_URL, JSON.stringify(obj_locusDate), function (data) {
 		if ( data.status == 0 ) {
 			/**

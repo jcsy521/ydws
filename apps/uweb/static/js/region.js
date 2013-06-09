@@ -70,13 +70,13 @@ function fn_displayCars () {
 	for ( var param in obj_carDatas ) {
 		var obj_carInfo = obj_carDatas[param],
 			str_tid = obj_carInfo.tid,
-			obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
-			n_carIndex = $('.j_terminal').index(obj_carA), 
+			/*obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
+			n_carIndex = $('.j_terminal').index(obj_carA), */
 			n_clon = obj_carInfo.clongitude,
 			n_clat = obj_carInfo.clatitude;
 		
 		if ( n_clon != 0 && n_clat != 0 ) {
-			dlf.fn_addMarker(obj_carInfo, 'actiontrack', n_carIndex, false); // 添加标记
+			dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid, false); // 添加标记
 		}
 	}
 }
@@ -129,7 +129,7 @@ window.dlf.fn_saveReginon = function() {
 	obj_regionData = dlf.fn_getCirlceData();
 	obj_regionData.region_name = str_regionName;
 	n_radius = obj_regionData.radius;
-	
+
 	if ( n_radius < 500 ) {
 		dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
 		return;

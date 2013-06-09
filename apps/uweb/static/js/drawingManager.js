@@ -1015,7 +1015,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			var b_ie = $.browser.msie,
 				str_ieVersion = $.browser.version,
 				obj_startEventBtn = e.button, 
-				n_radius = circle.getRadius(),
+				n_radius = Math.round(circle.getRadius()),
 				str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>',
 				obj_clickInfoWindow = null;  // 创建信息窗口对象
 			
@@ -1028,7 +1028,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				if ( obj_startEventBtn != 0 ) {//不适合项目,暂时屏蔽2013.4.16
 					return;
 				}
-			} 
+			}
 			if ( n_radius < 500 ) { 
 				str_infoWindowText = '<div class="clickWindowPanel errorCircleInfo"><span class="errorCircle"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
 				dlf.fn_mapStopDraw();

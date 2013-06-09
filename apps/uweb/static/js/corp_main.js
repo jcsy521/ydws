@@ -140,6 +140,17 @@ function customMenu(node) {
 		"event": {
 			"label" : eventLabel,
 			"action" : function(obj) {	// 告警查询初始化
+				// 查询单个终端告警
+				dlf.fn_eachCheckedNode('.j_leafNode');
+				// 将之前的checked状态填充 
+				var n_treeNodeCheckLen = arr_treeNodeChecked.length;
+				
+				if ( n_treeNodeCheckLen > 0 ) {
+					for ( var i = 0; i < n_treeNodeCheckLen; i++ ) {
+						$('#corpTree').jstree('uncheck_node', arr_treeNodeChecked[i]);
+					}
+				}
+				$('#corpTree').jstree('check_node', $(obj).eq(0));
 				dlf.fn_initRecordSearch('eventSearch');
 			}
 		},
@@ -170,7 +181,7 @@ function customMenu(node) {
 		"defend": {	// 单个定位器设防撤防
 			"label" : singleDefendLabel,
 			"action" : function (obj) {
-				dlf.fn_defendQuery(obj.children('a').text().substr(2));
+				dlf.fn_defendQuery(obj.children('a').attr('alias'));
 			}
 		},
 		"batchImportDelete": {	// 批量导入定位器操作菜单
@@ -397,9 +408,9 @@ function fn_batchOperateValidate(obj, str_msg) {
 				obj_terminalALink = obj_checkedTerminal.children('a'),
 				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
 				str_tid = obj_terminalALink.attr('tid'),
-				str_alias = obj_terminalALink.text(),	// tnum
-				str_tmobile = obj_terminalALink.attr('title'),	// tmobile
-				obj_carsData = $('.j_carList').data('carsData');
+				str_alias = obj_terminalALink.attr('alias'),	// tnum
+				str_tmobile = obj_terminalALink.attr('title');	// tmobile
+				//obj_carsData = $('.j_carList').data('carsData');	// todo 
 			
 			if ( b_isChecked ) {
 				arr_tids.push(str_tid);
@@ -696,7 +707,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				$('#corpTree').jstree('check_node', arr_treeNodeChecked[i]);
 			}
 			arr_treeNodeChecked = [];
-		}	
+		}
 	}).bind('contextmenu.jstree', function(event, data) {	// 右键除当前定位器外其余都不被选中
 		var obj_current = fn_nodeCurrentNode(event.target),
 			obj_currentCarParent = $('.j_terminal[tid='+ str_currentTid +']').parent();
@@ -803,9 +814,9 @@ function fn_initCarInfo() {
 
 /**
 * 集团用户 lastinfo
-* b_deleteTerminal: 移动终端到其他组的时候重新加载树
+* b_isOpenInfowindow
 */
-window.dlf.fn_corpGetCarData = function(b_moveTerminal) {
+window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 	var obj_current = $('.j_leafNode a[class*='+ JSTREECLICKED +']'),
 		str_checkedNodeId = obj_current.attr('id'),	// 上一次选中车辆的id
 		str_tempTid = '',
@@ -897,7 +908,8 @@ window.dlf.fn_corpGetCarData = function(b_moveTerminal) {
 								obj_track = obj_infoes.track_info,	//  开启追踪后的点数据
 								arr_alarm = obj_infoes.alarm_info,	// 告警提示列表
 								str_tid = param,
-								str_alias= obj_car.alias,
+								str_oldAlias = obj_car.alias,
+								str_alias = dlf.fn_dealAlias(str_oldAlias),
 								n_degree = obj_car.degree,	// icon_type
 								n_iconType = obj_car.icon_type,	// icon_type
 								str_mobile = obj_car.mobile,	// 车主手机号
@@ -910,9 +922,9 @@ window.dlf.fn_corpGetCarData = function(b_moveTerminal) {
 							obj_carsData[str_tid] =  obj_car;
 							arr_tempTids.push(str_tid); //tid组string 串
 							if ( str_login == LOGINOUT ) {
-								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';
+								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_oldAlias +'">'+ str_alias +'</a></li>';
 							} else {
-								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'">'+ str_alias +'</a></li>';	
+								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_oldAlias +'">'+ str_alias +'</a></li>';	
 							}
 							
 							if ( str_tempTid != '' && str_tempTid == str_tid ) {
@@ -979,9 +991,6 @@ window.dlf.fn_corpGetCarData = function(b_moveTerminal) {
 			}
 			var b_isDifferentData = fn_lastinfoCompare(obj_newData);
 			
-			if ( b_moveTerminal ) {
-				b_isDifferentData = true;
-			}
 			if ( b_isDifferentData ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
 				/**
 				* 判断车辆是否选中
@@ -1000,6 +1009,12 @@ window.dlf.fn_corpGetCarData = function(b_moveTerminal) {
 			} else {
 				// 更新组名和集团名还有 在线离线状态
 				fn_updateTreeNode(obj_corp);
+			}
+			if ( b_isCloseTrackInfowindow ) {
+				var obj_carItem = $('.j_carList .j_currentCar'),
+					str_tid = obj_carItem.attr('tid');
+					
+				dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
 			}
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -1032,11 +1047,12 @@ function fn_updateAlarmList(arr_alarm) {
 		//str_html+= '<li class="closeAlarm"></li>';
 		for ( var x = 0; x < n_alarmLength; x++ ) {
 			var obj_alarm = arr_alarm[x],
-				str_alias = obj_alarm.alias,
+				str_oldAlias = obj_alarm.alias,
+				str_alias = dlf.fn_dealAlias(str_oldAlias),
 				str_date = dlf.fn_changeNumToDateString(obj_alarm.timestamp),
 				n_categroy = obj_alarm.category;
 				
-			str_html+= '<li><label class="colorBlue">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
+			str_html+= '<li><label class="colorBlue" title="'+ str_oldAlias +'">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
 			
 			arr_markers.push(obj_alarm);	// 存储所有的告警数据
 		}
@@ -1071,7 +1087,7 @@ function fn_updateAlarmList(arr_alarm) {
 		
 		if ( n_lng != 0 && n_lat != 0 ) {	// 如果有经纬度则添加marker
 			obj_alarmTable.data('num', n_index);
-			obj_marker = dlf.fn_addMarker(obj_alarm, 'alarmInfo', 0, true, n_index); // 添加标记
+			obj_marker = dlf.fn_addMarker(obj_alarm, 'alarmInfo', $('.j_currentCar').attr('tid'), true, n_index); // 添加标记
 			dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 16);
 			obj_this.data('marker', obj_marker);
 			
@@ -1145,8 +1161,8 @@ window.dlf.fn_eachCheckedNode = function(str_eachNode) {
 	$(str_eachNode).each(function(leafEvent) { 
 		var str_tempLeafClass = $(this).attr('class'), 
 			str_tempLeafId = '#' + $(this).attr('id');
-	
-		if ( str_tempLeafClass.search(JSTREECLICKED) != -1){
+
+		if ( str_tempLeafClass.search(JSTREECLICKED) != -1) {
 			arr_treeNodeChecked.push(str_tempLeafId);
 		}
 	});
@@ -1214,6 +1230,7 @@ function fn_updateTreeNode(obj_corp) {
 					n_login = obj_car.login,
 					str_tmobile = obj_car.mobile,
 					str_alias = obj_car.alias,
+					str_tempAlias = dlf.fn_dealAlias(str_alias),
 					obj_leaf = $('#leaf_' + str_tid),
 					str_imgUrl = '',
 					n_clon = obj_car.clongitude/NUMLNGLAT,	
@@ -1225,7 +1242,7 @@ function fn_updateTreeNode(obj_corp) {
 				} else {
 					str_imgUrl = 'online.png';
 				}
-				obj_leaf.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_alias).attr('title', str_tmobile).attr('clogin', n_login);	// 更新定位器名<img src="/static/images/corpImages/'+ str_imgUrl +'">
+				obj_leaf.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', str_tmobile).attr('clogin', n_login).attr('alias', str_alias);	// 更新定位器名<img src="/static/images/corpImages/'+ str_imgUrl +'">
 				
 				if ( str_currentTid == str_tid  ) {
 					dlf.fn_updateTerminalInfo(obj_car);
@@ -1517,7 +1534,7 @@ function fn_moveGroup(arr_tids, n_newGroupId, obj_rlbk, node_id) {
 	} else {
 		$.post_(GROUPTRANSFER_URL, JSON.stringify(obj_param), function (data) {
 			if ( data.status == 0 ) {
-				dlf.fn_corpGetCarData(true);	// 重新加载树2013.4.10
+				//dlf.fn_corpGetCarData(true);	// 重新加载树2013.4.10
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 执行操作失败，提示错误消息
 				$.jstree.rollback(obj_rlbk);

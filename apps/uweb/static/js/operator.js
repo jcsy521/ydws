@@ -10,11 +10,11 @@ window.dlf.fn_saveOperator = function() {
 		obj_operatorData = {'id': '', 'group_id': str_groupId, 'group_name': str_groupName, 'name': str_name, 'mobile': str_mobile, 'address': str_address, 'email': str_email},
 		obj_header = $('#operatorTableHeader'),
 		b_header = obj_header.is(':hidden');
-		
-	if ( b_header ) {	// 判断表头是否显示
-		obj_header.show();
-	}
+
 	if ( str_id ) {
+		if ( b_header ) {	// 判断表头是否显示
+			obj_header.show();
+		}
 		obj_operatorData.id = parseInt(str_id);
 		dlf.fn_jsonPut(OPERATOR_URL, obj_operatorData, 'operator', '操作员数据保存中');
 	} else {
@@ -58,6 +58,12 @@ window.dlf.fn_deleteOperator = function(n_id) {
 			$.delete_(OPERATOR_URL+'?ids='+n_id, '', function(data) {
 				if ( data.status == 0 ) {
 					$('#operatorTable tr[id='+ n_id +']').remove();
+					var n_trNum = $('#operatorTable tr').length;
+					
+					if ( n_trNum == 1 ) {
+						n_dwRecordPageNum = 0;
+						dlf.fn_searchData('operator');
+					}
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;

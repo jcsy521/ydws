@@ -207,7 +207,7 @@ window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 * n_index: 轨迹点的索引值，根据其值获取对应的位置
 * n_counter : draw 时根据值修改数组中点的位置描述  下次就不用重新获取位置
 */
-window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenWin, n_index) { 
+window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOpenWin, n_index) { 
 	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
 		str_imgUrl = n_degree, 
 		myIcon = new BMap.Icon(BASEIMGURL + str_imgUrl + '.png', new BMap.Size(34, 34)),
@@ -254,12 +254,15 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 		// marker.setIcon(marker.getIcon().setImageUrl( BASEIMGURL + n_degree+'.png' ));
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
 		marker.setLabel(label);
-		var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum);
+		//var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum);
 		obj_selfmarkers[str_tid] = marker;
 		//obj_carItem.data('selfmarker', marker);
 		//obj_carItem.data('selfLable', marker.getLabel());
 		dlf.fn_setOptionsByType('center', mPoint);
 	} else if ( str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'delay' ) {
+		if ( str_iconType != 'delay' ) {
+			marker.setTop(true);
+		}
 		marker.setOffset(new BMap.Size(-1, -14));
 	} else if ( str_iconType == 'eventSurround' ) {
 		marker.setLabel(label);
@@ -276,11 +279,11 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, n_carNum, isOpenW
 	/**
 	* marker click事件
 	*/
-	marker.addEventListener('click', function() { 
+	marker.addEventListener('click', function() {
 	   if ( str_iconType == 'actiontrack' ) { // 主页车辆点击与左侧车辆列表同步
-			var obj_carItem = $('.j_carList .j_terminal').eq(n_carNum),
+			var obj_carItem = $('.j_carList .j_terminal[tid='+ str_tempTid +']'),				
 				str_className = obj_carItem.attr('class'), 
-				str_tid = obj_carItem.attr('tid');
+				str_tid = str_tempTid;
 			
 			if ( str_className.search('j_currentCar') != -1 ) { // 如果是当前车的话就直接打开吹出框，否则switchcar中打开infoWindow
 				this.openInfoWindow(this.selfInfoWindow); 
@@ -372,8 +375,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 					str_oldClon = 0,
 					str_oldClat = 0,
 					str_newClon = obj_location.clongitude,
-					str_newClat = obj_location.clatitude,
-					obj_carsData = $('.j_carList').data('carsData');
+					str_newClat = obj_location.clatitude;
+					//obj_carsData = $('.j_carList').data('carsData');
 				
 				if ( obj_carsData != undefined ) {
 					obj_oldCarData = obj_carsData[str_tid];

@@ -35,7 +35,9 @@ window.dlf.fn_initTerminal = function() {
 window.dlf.fn_initTerminalWR = function () {
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	dlf.fn_jNotifyMessage('定位器设置查询中' + WAITIMG , 'message', true); 
-	$.get_(TERMINAL_URL, '', function (data) {  
+	var str_cTid = dlf.fn_getCurrentTid();
+	
+	$.get_(TERMINAL_URL + '?tid=' + str_cTid , '', function (data) {  
 		if (data.status == 0) {	
 			var obj_data = data.car_sets,
 				n_whitelistLenth = 0,
@@ -140,6 +142,7 @@ window.dlf.fn_baseSave = function() {
 	}
 	
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
+		obj_terminalData.tid = dlf.fn_getCurrentTid();
 		dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'terminal', '定位器参数保存中');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示

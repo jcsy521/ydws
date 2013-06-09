@@ -287,12 +287,12 @@
 						<li>
 							<input type="checkbox" id="corp_charge" class="j_corp_checkbox" title="余额提醒" /><label for="corp_charge">余额提醒</label> 
 						</li>
-						<!--<li>
+						<li>
 							<input type="checkbox" id="corp_region_enter" class="j_corp_checkbox" title="进围栏告警" /><label for="corp_region_enter">进围栏告警</label>
 						</li>
 						<li>
 							<input type="checkbox" id="corp_region_out" class="j_corp_checkbox" title="出围栏告警" /><label for="corp_region_out">出围栏告警</label> 
-						</li>-->
+						</li>
 					</ul>
 				</fieldset>
 				{% if bizcode == 'znbc' %}
@@ -1272,6 +1272,7 @@
 			</table>
 			<input type="button" id="bindBatchRegionSave" class="bindRegionSave j_save" />
 		</div>
+		<span class="bindLineNote">注意：批量绑定围栏会覆盖选中定位器的围栏信息。</span>
 	</div>
 	<!-- 删除提示 -->
 	<div id="clearDataWrapper" class="hide wrapper">

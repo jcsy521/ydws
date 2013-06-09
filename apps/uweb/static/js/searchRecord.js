@@ -37,6 +37,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	$('#' + str_who + '_uploadBtn').hide();	// 隐藏下载按钮
 	
 	if ( str_who == 'eventSearch' ) { // 告警查询
+		$('#eventSearchCategory').val(-1);
 		obj_tableHeader.hide();
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
@@ -48,10 +49,15 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 
-	} else if ( str_who == 'mileage' || str_who == 'operator' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
+	} else if ( str_who == 'mileage' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
+		dlf.fn_unLockScreen(); // 去除页面遮罩
+	} else if ( str_who == 'operator' ) {
+		obj_tableHeader.hide();
+		$('#txt_oprName, #txt_oprMobile').val('');	// 清空条件框
+		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'singleEvent'|| str_who == 'singleMileage' ) {
 		// 初始化条件
@@ -60,13 +66,16 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 			obj_searchType = $('#' + str_who + 'Type'),
 			obj_theadTH = $('.j_' + str_who + 'TH'),
 			obj_content = $('.j_' + str_who + 'Content'),	// 内容区域
+			obj_date = new Date(),	
+			n_year = obj_date.getFullYear(),	// 当前年
+			n_month = obj_date.getMonth() + 1,	// 当前月份
 			str_alias = $('.j_currentCar').text().substr(2);
 		
 		$('#'+ str_who +'Wrapper .j_chart').hide();	// 查看统计图链接隐藏
 		$('.j_singleEventTitle, .j_singleMileageTitle').html(' - ' + str_alias);	// dialog的title显示当前定位器名称
 		// obj_searchMonth.hide();	// 月份默认隐藏
 		obj_searchYear.html(fn_generateSelectOption('year'));	// 填充年份
-		obj_searchMonth.html(fn_generateSelectOption('month', obj_searchYear.val()));	// 填充月份
+		obj_searchMonth.html(fn_generateSelectOption('month', obj_searchYear.val())).val(n_month).show();	// 填充月份
 		obj_theadTH.html('日期');
 		obj_content.css('height', '520px');
 		obj_searchType.unbind('change').bind('change', function() {	// 当改变查询类型
@@ -78,8 +87,14 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 				obj_searchMonth.show();
 			}
 		}).val('2');
+		
 		obj_searchYear.unbind('change').bind('change', function() {	// 当改变年份的时候顺便改变月份
-			obj_searchMonth.html(fn_generateSelectOption('month', $(this).val()));
+			var n_tempMonth = n_month;
+			
+			if ( n_year != $(this).val() ) {
+				n_tempMonth = 1;
+			}
+			obj_searchMonth.html(fn_generateSelectOption('month', $(this).val())).val(n_tempMonth);
 		});
 	} else if ( str_who == 'operator' || str_who == 'passenger' ) {
 		obj_tableHeader.hide();
@@ -439,7 +454,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			arr_dwRecordData = obj_resdata.passengers;
 		} else if ( str_who == 'routeLine' ) {
 			arr_dwRecordData = obj_resdata.lines;
-		}else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+		} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 			arr_dwRecordData = obj_resdata.regions;
 		}
 		
@@ -506,6 +521,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				dlf.fn_jNotifyMessage('创建成功，请绑定围栏。', 'message', false, 6000);
 			}
 		} else {
+			$('#'+ str_who +'TableHeader').hide();
 			obj_download.hide();
 			obj_pagination.hide(); //显示分页
 			if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
@@ -946,7 +962,8 @@ function fn_generateSelectOption(str_type, n_searchYear) {
 	var str_options = '',
 		obj_date = new Date(),
 		n_year = obj_date.getFullYear(),	// 当前年
-		n_month = obj_date.getMonth() + 1;		// 当前月份
+		n_currentMonth = obj_date.getMonth(),
+		n_month = n_currentMonth + 1;		// 当前月份
 	
 	switch (str_type) {
 		case 'year':
@@ -959,7 +976,7 @@ function fn_generateSelectOption(str_type, n_searchYear) {
 				n_month = 12;
 			}
 			for ( var m = 1; m <= n_month; m++ ) {
-				str_options += '<option value="'+ m +'">'+ m +'月</options>';
+				str_options += '<option value="'+ m +'"> '+ m +'月</options>';
 			}
 			break;
 	}
@@ -1087,10 +1104,15 @@ function fn_ShowOrHideMiniMap(b_isShow, event) {
 		obj_mapConTitle = $('.mapDragTitle');
 	
 	if ( b_isShow ) {
+		var n_top = event.clientY - 161;
+		
+		if ( n_top > 352) {
+			n_top = event.clientY - 540;
+		}
 		// 设置地图父容器的样式
 		obj_mapContainer.css({	
-			'left': event.clientX - 247, 
-			'top': event.clientY - 161,
+			'left': event.clientX - 200, 
+			'top': n_top,
 			'backgroundColor': '#FFFFFF',
 			'border': '1px solid #BBBBBB',
 			'height': '370px',

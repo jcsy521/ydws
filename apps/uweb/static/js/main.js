@@ -361,7 +361,7 @@ window.onresize = function () {
 		$('#right, #corpRight, #navi, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
-			n_trackLeft = ( obj_track.width() ) / 5;
+			n_trackLeft = ( obj_track.width() ) / 6;
 			
 			if ( n_windowWidth < 1500 ) {
 				n_trackLeft = 80;
@@ -452,7 +452,7 @@ $(function () {
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	if ( dlf.fn_userType() ) {	// 集团用户
-		n_trackLeft = ( obj_track.width() ) / 5;
+		n_trackLeft = ( obj_track.width() ) / 7;
 		
 		if ( n_windowWidth < 1500 ) {
 			n_trackLeft = 80;
@@ -509,7 +509,7 @@ $(function () {
 			}
 		}
 		// 除了对多个定位器操作外
-		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'b_bindRegionStatus' && str_id != 'b_bindBatchRegionStatus' ) {
+		if ( str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'b_bindRegionStatus' && str_id != 'b_bindBatchRegionStatus' && str_id != 'operatorData' ) {
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
@@ -551,7 +551,12 @@ $(function () {
 				// 如果上次操作的是 轨迹、告警查询、线路管理、添加线路、围栏管理、绑定围栏、批量绑定围栏、创建围栏 操作的话 点击“车辆位置” 清除所有数据重新发起lastinfo请求
 				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
-				}				
+				} else {
+					var obj_carItem = $('.j_carList .j_currentCar'),
+						str_tid = obj_carItem.attr('tid');
+					
+					dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
+				}
 				break;
 			case 'personalData': //  个人资料 
 				dlf.fn_personalData();
@@ -976,12 +981,15 @@ $(function () {
 	//窗口最大最小化事件声明
     $('.j_hosBtn').unbind('click').click(function (event) {
         var obj_elem = $(this), 
+			obj_regionNote = $('#regionNote'),
 			obj_content = $(this).parent().next();
 		
         if ( obj_elem.hasClass('min') ) {
+			obj_regionNote.hide();
             obj_elem.removeClass('min').addClass('max').attr('title', '展开');
             obj_content.hide();
         } else if ( obj_elem.hasClass('max') ) {
+			obj_regionNote.show();
             obj_elem.removeClass('max').addClass('min').attr('title', '收起');
             obj_content.show();
         }
