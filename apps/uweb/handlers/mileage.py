@@ -197,6 +197,18 @@ class MileageSingleHandler(BaseHandler):
                        "    AND type = 0"
                        "  ORDER BY timestamp asc")
 
+            last_cmd = ("SELECT timestamp FROM T_LOCATION"
+                        "  WHERE tid = %s"
+                        "    AND (timestamp BETWEEN %s AND %s)"
+                        "    AND type = 0"
+                        "  ORDER BY timestamp desc limit 1")
+
+            next_cmd = ("SELECT timestamp FROM T_LOCATION"
+                        "  WHERE tid = %s"
+                        "    AND (timestamp BETWEEN %s AND %s)"
+                        "    AND type = 0"
+                        "  ORDER BY timestamp asc limit 1")
+
             dis_sum = Decimal() 
             
             current_time = int(time.time()) 
@@ -212,13 +224,14 @@ class MileageSingleHandler(BaseHandler):
 
                     re = {} 
                     re['name'] = str(month)
-                    distance = 0
+                    distance = Decimal() 
                     points = self.db.query(sql_cmd, tid, start_time_, end_time_)
                     for i in range(len(points)-1):
                         if points[i].longitude and points[i].latitude and \
                            points[i+1].longitude and points[i+1].latitude:
-                            distance += get_distance(points[i].longitude, points[i].latitude,
-                                                     points[i+1].longitude, points[i+1].latitude) 
+                            dis = get_distance(points[i].longitude, points[i].latitude,
+                                               points[i+1].longitude, points[i+1].latitude) 
+                            distance += Decimal(str(dis)) 
                     # meter --> km
                     distance = '%0.1f' % (distance/1000,)      
                         
@@ -234,27 +247,44 @@ class MileageSingleHandler(BaseHandler):
                 label = data.year + u'年' + data.month + u'月'
                 start_time, end_time = start_end_of_month(year=data.year, month=data.month)
                 days = days_of_month(year=data.year, month=data.month)
+
+                distance = Decimal() 
+                points_ = self.db.query(sql_cmd, tid, start_time, end_time)
+                for i in range(len(points_)-1):
+                    if points_[i].longitude and points_[i].latitude and \
+                        points_[i+1].longitude and points_[i+1].latitude:
+                        dis = get_distance(points_[i].longitude, points_[i].latitude, 
+                            points_[i+1].longitude, points_[i+1].latitude)
+                        dis=Decimal(str(dis))
+                        distance += dis
+
+                distance = '%0.1f' % (distance/1000,)
+                dis_sum = distance
+
                 for day in range(1,days+1):
                     start_time_, end_time_ = start_end_of_day(year=data.year, month=data.month, day=str(day))
                     if start_time_ > current_time:
                         break
 
+                    last_point = self.db.get(last_cmd, tid, start_time_-60*60*24, start_time_,)
+                    next_point = self.db.get(next_cmd, tid, end_time_, end_time_+60*60*24)
+                    start_time_ = last_point['timestamp'] if last_point else start_time_
+                    end_time_ = next_point['timestamp'] if next_point else end_time_
+
                     re = {} 
                     re['name'] = str(day)
-                    distance = 0
+                    distance = Decimal() 
                     points = self.db.query(sql_cmd, tid, start_time_, end_time_)
                     for i in range(len(points)-1):
                         if points[i].longitude and points[i].latitude and \
                            points[i+1].longitude and points[i+1].latitude:
-                            distance += get_distance(points[i].longitude, points[i].latitude,
-                                                     points[i+1].longitude, points[i+1].latitude) 
+                            dis = get_distance(points[i].longitude, points[i].latitude,
+                                               points[i+1].longitude, points[i+1].latitude) 
+                            distance += Decimal(str(dis)) 
                     # meter --> km
-                    #dis_sum += distance
-                    #graphics.append(distance)
                     distance = '%0.1f' % (distance/1000,)      
 
                     graphics.append(float(distance))
-                    dis_sum += Decimal(distance)
                         
                     re['mileage'] = distance 
                     res.append(re)
