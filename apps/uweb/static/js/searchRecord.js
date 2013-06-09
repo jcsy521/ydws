@@ -18,9 +18,11 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	var obj_currentWrapper = $('#' + str_who + 'Wrapper'),
 		b_status  = obj_currentWrapper.is(':visible'),
 		obj_tableHeader = $('#'+ str_who +'TableHeader');	// 查询结果表头
-	 
-	if ( b_status ) {	// 如果当前dialog打开又点击打开，不进行操作
-		return;
+	
+	if( str_who != 'eventSearch' ) {
+		if ( b_status ) {	// 如果当前dialog打开又点击打开，不进行操作
+			return;
+		}
 	}
 	dlf.fn_clearNavStatus(str_who);
 	dlf.fn_dialogPosition(str_who);	// 设置dialog的位置并显示
@@ -30,10 +32,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	$('.conditions input[type=text]').val('');
 	$('#'+ str_who +'TableHeader').nextAll().remove();	// 清空tr数据
 	$('#'+ str_who +'Page').hide();
-	$('#'+ str_who +'CurrentPage').html('');
-	$('#'+ str_who +'PageCount').html('');
-	$('.j_' + str_who + 'Foot').html('');	// 表格foot清空数据
-
+	$('#'+ str_who +'CurrentPage', '#'+ str_who +'PageCount', '.j_' + str_who + 'Foot', '#' + str_who + 'Table').html('');
 	$('#' + str_who + '_uploadBtn').hide();	// 隐藏下载按钮
 	
 	if ( str_who == 'eventSearch' ) { // 告警查询

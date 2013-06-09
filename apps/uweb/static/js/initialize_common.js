@@ -410,7 +410,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 		}
 	}
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
-	//dlf.fn_updateLastInfo();
+	dlf.fn_updateLastInfo();
 	/*} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
 		} else {
