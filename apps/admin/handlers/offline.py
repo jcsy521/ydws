@@ -43,7 +43,8 @@ class OfflineMixin(BaseMixin):
 
         res_ = self.db.query("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
                              "  FROM T_TERMINAL_INFO"
-                             "  WHERE service_status = 1 AND login =0 and mobile like '14778%%' order by offline_time, pbat")
+                             "  WHERE service_status = 1 AND login =0 AND mobile like '14778%%'"
+                             "  ORDER BY offline_time DESC, pbat")
 
         for item in res_:
             offline_period = int(time.time()) - item['offline_time']
