@@ -93,7 +93,7 @@
 					<script>document.write(toHumanDate({{r['offline_time']}}));</script>
 				</td>
 				<td>
-					{% if r['offline_period'] < 172800 and r['offline_period'] > 0 %}
+					{% if r['offline_period'] >= 86400 and r['offline_period'] < 172800 %}
 						<label class="color37ABF8">
 					{% elif r['offline_period'] >= 172800 and r['offline_period'] < 259200 %}
 						<label class="warnCss">

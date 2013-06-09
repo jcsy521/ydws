@@ -117,7 +117,7 @@ function fn_InitChooseDate() {
 	} else if ( endTemp == 'business_end' || endTemp == '0' ) {// 个人用户查询,集团查询
 		obj_endTime.val(str_today); 
 	} else if ( endTemp == 'userReport_end' ) {
-		obj_endTime.val(str_today);
+		obj_endTime.val(str_yesterday);
 	} else {
 		obj_endTime.val(toHumanDate(endTemp, 'no')); 	
 		$('#endtime1').val(fn_getNextYearToday());	// create business 

@@ -62,7 +62,7 @@ $(function () {
 	
 	// 报表统计时间控件
 	
-	$('#report #start_time1, #report #end_time1').datepicker('option', 'maxDate', '0d');
+	$('#report #start_time1, #report #end_time1').datepicker('option', 'maxDate', '-1d');
     /*
         *初始化地图页面的大小
         *初始化右侧iframe大小
