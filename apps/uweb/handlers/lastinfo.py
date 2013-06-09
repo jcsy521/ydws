@@ -267,12 +267,14 @@ class LastInfoCorpHandler(BaseHandler):
                                                  "    AND NOT (clatitude = 0 OR clongitude = 0)"
                                                  "    AND (timestamp  between %s and %s)"
                                                  #"    AND type = 0"
-                                                 "    ORDER BY timestamp"
-                                                 "    LIMIT 5",
+                                                 "    ORDER BY timestamp",
                                                  tid, int(current_time)-60*5, int(current_time))
-                    for point in points_trace: 
-                        trace_info.append(point['clatitude'])
-                        trace_info.append(point['clongitude'])
+
+                    if points_trace:
+                        points_trace = points_trace[-5:]
+                        for point in points_trace: 
+                            trace_info.append(point['clatitude'])
+                            trace_info.append(point['clongitude'])
 
                     #4: build alert_info
                     alarm_info_key = get_alarm_info_key(tid)
