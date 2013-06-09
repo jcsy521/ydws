@@ -388,10 +388,6 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 		obj_terminals.removeClass(JSTREECLICKED);
 		obj_currentItem.addClass(JSTREECLICKED);
 		
-		/* 
-		str_checkedNodeId = '#leafNode_' + n_tid;
-		$('#corpTree').jstree('check_node', str_checkedNodeId);	  // 单击同时选中定位器
-		*/
 		str_currentTid = n_tid;
 		if ( obj_carDatas ) {
 			dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
@@ -414,7 +410,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 		}
 	}
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
-	dlf.fn_updateLastInfo();
+	//dlf.fn_updateLastInfo();
 	/*} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
 		} else {
@@ -1083,7 +1079,8 @@ window.dlf.fn_dealAlias = function (str_alias) {
 * str_type: event
 */
 window.dlf.fn_showBusinessTip = function(str_type) {
-	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
+	window.location.reload();
+	/*dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 	if ( !str_type ) {
 		dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
@@ -1093,7 +1090,7 @@ window.dlf.fn_showBusinessTip = function(str_type) {
 	dlf.fn_dialogPosition('business');
 	$('#businessBtn').click(function() {
 		window.location.replace('/logout');
-	});
+	});*/
 }
 
 /**

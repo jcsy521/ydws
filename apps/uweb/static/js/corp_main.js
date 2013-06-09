@@ -1639,9 +1639,7 @@ function fn_removeTerminal(node) {
 					str_tid = obj_current.attr('tid') || $('.j_terminal').eq(0).attr('tid');
 				
 				if ( str_tid != undefined ) {
-					if ( b_class ) {
-						obj_current = $('.j_terminal').eq(0);
-					}
+					obj_current = $('.j_terminal').eq(0);
 					$('.' + JSTREECLICKED).removeClass(JSTREECLICKED);
 					obj_current.addClass(JSTREECLICKED);
 					dlf.fn_switchCar(str_tid, obj_current);
