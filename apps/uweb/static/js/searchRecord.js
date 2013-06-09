@@ -32,7 +32,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	$('.conditions input[type=text]').val('');
 	$('#'+ str_who +'TableHeader').nextAll().remove();	// 清空tr数据
 	$('#'+ str_who +'Page').hide();
-	$('#'+ str_who +'CurrentPage', '#'+ str_who +'PageCount', '.j_' + str_who + 'Foot', '#' + str_who + 'Table').html('');
+	$('#'+ str_who +'CurrentPage', '#'+ str_who +'PageCount', '.j_' + str_who + 'Foot').html('');
 	$('#' + str_who + '_uploadBtn').hide();	// 隐藏下载按钮
 	
 	if ( str_who == 'eventSearch' ) { // 告警查询
@@ -70,6 +70,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 			n_month = obj_date.getMonth() + 1,	// 当前月份
 			str_alias = $('.j_currentCar').text().substr(2);
 		
+		$('.' + str_who + 'Table').hide();
 		$('#'+ str_who +'Wrapper .j_chart').hide();	// 查看统计图链接隐藏
 		$('.j_singleEventTitle, .j_singleMileageTitle').html(' - ' + str_alias);	// dialog的title显示当前定位器名称
 		// obj_searchMonth.hide();	// 月份默认隐藏
@@ -459,6 +460,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		
 		n_eventDataLen = arr_dwRecordData.length; 	//记录数
 		if ( n_eventDataLen > 0 ) {	// 如果查询到数据
+			$('.' + str_who + 'Table').show();
 			obj_download.show();
 			obj_pagination.show(); //显示分页
 			if ( n_dwRecordPageCnt > 1 ) {	// 总页数大于1 

@@ -392,7 +392,6 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 		if ( obj_carDatas ) {
 			dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
 		}
-		dlf.fn_moveMarker(n_tid);
 		/*集团用户切换变换轨迹要显示的终端 并清除地图*/
 		var str_tempAlias = $('.j_currentCar').attr('alias');
 			str_currentCarAlias = '';
@@ -405,6 +404,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			$('.j_delay').hide();
 			$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
 		}
+		dlf.fn_moveMarker(n_tid);
 		if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindRegionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
 			return;
 		}

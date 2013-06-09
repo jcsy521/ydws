@@ -1357,6 +1357,7 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 	if ( str_cnum == '' ) {
 		str_tempAlias = str_tmobile;
 	}
+	str_tempAlias = dlf.fn_dealAlias(str_tempAlias);
 	obj_current.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias);
 	dlf.fn_updateTerminalLogin(obj_current);
 	for ( var index in arr_autoCompleteData ) {

@@ -552,10 +552,17 @@ $(function () {
 				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				} else {
-					var obj_carItem = $('.j_carList .j_currentCar'),
+					/*var obj_carItem = $('.j_carList .j_currentCar'),
 						str_tid = obj_carItem.attr('tid');
 					
-					dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
+					dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换*/
+					var obj_current = obj_selfmarkers[$('.j_carList .j_currentCar').attr('tid')];
+					
+					if ( obj_current ) {
+						setTimeout(function() {
+							mapObj.setCenter(obj_current.getPosition());
+						}, 300);
+					}
 				}
 				break;
 			case 'personalData': //  个人资料 
