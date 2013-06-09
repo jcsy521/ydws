@@ -70,9 +70,10 @@ function fn_currentRequest(obj_pd) {
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
 		//str_msg = '车辆<b> '+ str_carCurrent +' </b>'
 		str_msg = '车辆定位中，请等待',
-		b_warpperStatus = obj_cWrapper.is(':visible');
+		b_warpperStatus = obj_cWrapper.is(':visible'),
+		str_tid = dlf.fn_getCurrentTid();
 	
-	obj_pd.tid = dlf.fn_getCurrentTid();
+	obj_pd.tid = str_tid;
 	
 	if ( b_warpperStatus ) {	// 判断current dialog弹出框是否已经关闭，如果关闭:不进行任何操作
 		/*if ( str_flagVal == CELLID_TYPE) {	// 根据定位类型设置提示信息
@@ -110,7 +111,7 @@ function fn_currentRequest(obj_pd) {
 								var t_warpperStatus = !obj_cWrapper.is(':hidden');
 								
 								if ( t_warpperStatus ) { // 判断弹出框是否已经关闭，如果关闭:不进行任何操作
-									$.get_(REALTIME_URL, '', function (getData) { // 通过get方法查询位置信息
+									$.get_(REALTIME_URL + '?tid=' + str_tid, '', function (getData) { // 通过get方法查询位置信息
 										var g_warpperStatus = !obj_cWrapper.is(':hidden');
 										
 										if ( g_warpperStatus ) { // 判断弹出框是否已经关闭，如果关闭:不进行任何操作
