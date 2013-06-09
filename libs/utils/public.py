@@ -17,6 +17,21 @@ def record_terminal_subscription(db, tmobile, group_id, begintime, add_time, op_
                " op_type=values(op_type)", 
                tmobile, group_id, begintime, add_time, op_type)
 
+def clear_data(tid, db):
+    db.execute("DELETE FROM T_LOCATION"
+               "  WHERE tid = %s",
+               tid)
+    db.execute("DELETE FROM T_EVENT"
+               " WHERE tid = %s",
+               tid)
+    db.execute("DELETE FROM T_CHARGE"
+               " WHERE tid = %s",
+               tid)
+    db.execute("DELETE FROM T_REGION_TERMINAL"
+               "  WHERE tid = %s",
+               tid)
+    logging.info("Clear db data of terminal: %s", tid)
+
 def delete_terminal(tid, db, redis, del_user=True):
     terminal = db.get("SELECT mobile, owner_mobile FROM T_TERMINAL_INFO"
                       "  WHERE tid = %s", tid)
@@ -27,23 +42,6 @@ def delete_terminal(tid, db, redis, del_user=True):
     user = db.get("SELECT id FROM T_USER"
                   "  WHERE mobile = %s",
                   terminal.owner_mobile)
-    # clear history data
-    key = get_del_data_key(tid)
-    flag = redis.get(key)
-    if flag and int(flag) == 1:
-        db.execute("DELETE FROM T_LOCATION"
-                   "  WHERE tid = %s",
-                   tid)
-        db.execute("DELETE FROM T_EVENT"
-                   " WHERE tid = %s",
-                   tid)
-        db.execute("DELETE FROM T_CHARGE"
-                   " WHERE tid = %s",
-                   tid)
-        db.execute("DELETE FROM T_REGION_TERMINAL"
-                   "  WHERE tid = %s",
-                   tid)
-        logging.info("Delete db data of terminal: %s", tid)
     # clear redis
     rids = db.query("SELECT rid FROM T_REGION_TERMINAL"
                     "  WHERE tid = %s", tid)
@@ -62,6 +60,24 @@ def delete_terminal(tid, db, redis, del_user=True):
             region_status_key = get_region_status_key(item, rid)
             keys.append(region_status_key)
         redis.delete(*keys)
+
+    # clear history data
+    key = get_del_data_key(tid)
+    flag = redis.get(key)
+    if flag and int(flag) == 1:
+        db.execute("DELETE FROM T_LOCATION"
+                   "  WHERE tid = %s",
+                   tid)
+        db.execute("DELETE FROM T_EVENT"
+                   " WHERE tid = %s",
+                   tid)
+        db.execute("DELETE FROM T_CHARGE"
+                   " WHERE tid = %s",
+                   tid)
+        db.execute("DELETE FROM T_REGION_TERMINAL"
+                   "  WHERE tid = %s",
+                   tid)
+        logging.info("Delete db data of terminal: %s", tid)
 
     # clear db
     db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s"
@@ -92,6 +108,7 @@ def delete_terminal(tid, db, redis, del_user=True):
                 logging.info("[GW] Delete User: %s", terminal.owner_mobile)
     else:
         logging.info("[GW] User of %s: %s already not exist.", tid, terminal.owner_mobile)
+
     logging.info("[GW] Delete Terminal: %s, tmobile: %s, umobile: %s",
                  tid, tmobile, (terminal.owner_mobile if user else None))
 

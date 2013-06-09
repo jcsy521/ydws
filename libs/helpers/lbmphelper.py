@@ -92,7 +92,7 @@ def handle_latlon_from_cellid(lat, lon, tid, redis, db):
             distance = get_distance(int(clon), int(clat), int(location.clongitude), int(location.clatitude))
 
     logging.info("The distance :%s, tid:%s", distance, tid)
-    if 0 < distance < UWEB.CELLID_MAX_OFFSET: 
+    if 0 < distance < 2000: 
         lon, lat = location.longitude, location.latitude
         logging.info("The distance: %s beteen cellid-latlon(%s, %s) and gps-latlon(%s, %s) is "
                      "lesser than %s, so change the cellid-latlon to gps-latlon",
@@ -168,11 +168,11 @@ def handle_location(location, redis, cellid=False, db=None):
     @return location
     """
     location = DotDict(location)
-    if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS:
+    if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS: # 1
         location.type = 0
         if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
             location.degree = get_last_degree(location, redis, db)
-    elif location.valid == GATEWAY.LOCATION_STATUS.UNMOVE:
+    elif location.valid == GATEWAY.LOCATION_STATUS.UNMOVE: # 4
         location_key = get_location_key(location.dev_id)
         last_location = redis.getvalue(location_key)
         if last_location:
@@ -194,7 +194,7 @@ def handle_location(location, redis, cellid=False, db=None):
             location.gps = 0
             if cellid:
                 location = issue_cellid(location, db, redis)
-    elif location.valid == GATEWAY.LOCATION_STATUS.MOVE:
+    elif location.valid == GATEWAY.LOCATION_STATUS.MOVE: # 6
         location.lat = 0
         location.lon = 0
         location.cLat = 0
@@ -205,7 +205,7 @@ def handle_location(location, redis, cellid=False, db=None):
         location.gps = 0
         if cellid:
             location = issue_cellid(location, db, redis)
-    else:
+    else: # 0,2,5
         location.lat = 0
         location.lon = 0
         location.cLat = 0
@@ -228,7 +228,7 @@ def handle_location(location, redis, cellid=False, db=None):
                                             location.lat,
                                             old_location.longitude,
                                             old_location.latitude)
-                    if distance > 10000: 
+                    if distance > 5000: 
                         login_time = QueryHelper.get_login_time_by_tid(location.dev_id, db, redis)
                         if old_location.timestamp <= login_time:
                             logging.info("[LBMPHELPER] terminal: %s relogin time: %s, after last location timestamp: %s",

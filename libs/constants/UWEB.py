@@ -26,7 +26,7 @@ IOS_ID_INTERVAL = 30 * 24 * 60 * 60 # one month. in seconds.
 
 IOS_MAX_SIZE = 160 # in bytes. 
 
-CELLID_MAX_OFFSET = 1000 # in metre
+CELLID_MAX_OFFSET = 2000 # in metre
 
 IDLE_INTERVAL = 5 * 60 # 5 minutes, in second. 
 IDLE_DISTANCE  = 200 # in metre 

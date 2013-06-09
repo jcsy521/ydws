@@ -81,7 +81,8 @@ LOCATION_STATUS = DotDict(FAILED="0",
                           UNREALTIME="2",
                           REALTIME_RESP="3",
                           UNMOVE="4",
-                          MOVE="5")
+                          MOVE_OR_NOT="5", # old version, can not ensure it is move
+                          MOVE="6")
 
 RESPONSE_STATUS = DotDict(SUCCESS="0",
                           INVALID_SESSIONID="1",

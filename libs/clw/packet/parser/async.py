@@ -38,7 +38,7 @@ class AsyncParser(object):
         elif ret.command == 'T23':
             info = self.get_runtime_info(packet)
         elif ret.command == 'T25':
-            pass
+            info = self.get_unbind_info(packet) 
         else:
             return info 
 
@@ -123,6 +123,12 @@ class AsyncParser(object):
         for i, key in enumerate(keys):
             runtime_info[key] = ggp[i]
         return runtime_info
+
+    def get_unbind_info(self, packet):
+        flag = packet[0] 
+        info = {'flag':flag}
+
+        return info
 
     def get_pvt_info(self, packet):
         positions = []

@@ -49,6 +49,7 @@ class SMSCode(object):
     SMS_TMOBILE_EXIST = u"尊敬的客户：卡号%s已被使用，请先执行解绑操作。"
     SMS_TID_NOT_EXIST = u"尊敬的客户：该定位器未激活，请执行激活短信指令：‘JH(空格)定位器号码’到定位器号码。例如：JH 13900000000"
     SMS_MOBILE_NOT_WHITELIST = u"尊敬的客户：您的终端号码%s不合法，不是指定移动车卫士号码，请联系【移动车卫士】客服。"
+    SMS_DELETE_TERMINAL = u"尊敬的客户：您的定位器号码%s已经解绑。如非本人操作，请联系【移动车卫士】客服。"
 
 
     SMS_DOWNLOAD_REMIND = u"尊敬的客户：请手机登录中山无线城市手机网站 gd.wxcs.cn/zs 进入‘下载’-‘移动车卫士’ 下载安装【移动车卫士】客户端。"
