@@ -398,9 +398,12 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 		}
 		dlf.fn_moveMarker(n_tid);
 		/*集团用户切换变换轨迹要显示的终端 并清除地图*/
-		var str_tempAlias = $('.j_currentCar').attr('alias'),
+		var str_tempAlias = $('.j_currentCar').attr('alias');
+			str_currentCarAlias = '';
+			
+		if ( str_tempAlias ) {
 			str_currentCarAlias = dlf.fn_dealAlias(str_tempAlias); 
-
+		}
 		if ( b_trackSt ) {	
 			dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
 			$('.j_delay').hide();
