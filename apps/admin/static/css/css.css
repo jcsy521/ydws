@@ -48,8 +48,14 @@ h3 {
     margin: 8px 0;
 }
 .resultTitle {
-	width: 90px;
 	float: left;
+}
+.resultTitle .titleSortTips {
+	color: red;
+    display: inline-block;
+    height: 40px;
+    line-height: 42px;
+    margin-left: 30px;
 }
 a {
     color: blue;
@@ -763,4 +769,10 @@ tfoot {
 }
 .warnCss {
 	color: #D5971B;
+}
+.color37ABF8 {
+	color: #37ABF8;
+}
+.color000 {
+	color: #000;
 }

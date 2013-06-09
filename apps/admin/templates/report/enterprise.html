@@ -53,7 +53,10 @@
 </fieldset>
 {% if len(res) > 0 %}
 <div class="resultQuery">
-    <div class="resultTitle"><h3>查询结果</h3></div>
+    <div class="resultTitle">
+		<h3>查询结果</h3>		
+		<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
+	</div>
     <a id="exportData" href="/download/enterprise/{{hash_}}" 
         class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
         <span class="ui-button-text">导出Excel</span>
@@ -123,19 +126,22 @@
 		新增激活集团：每天新开户的集团数；
 	</li>
 	<li>
-		新增激活终端：用户开通移动车卫士专用卡，激活终端数；
+		流失终端：每天解绑的终端(去重)；
 	</li>
 	<li>
-		用户登录情况：用户使用集团帐号登录平台（包含Android、IOS、网页登录）的次数；
+		新增激活终端：用户开通移动车卫士专用卡，激活终端数(去重)；
 	</li>
 	<li>
-		活跃情况：某个集团账号每月登录次数大于3次，则认为是活跃用户，否则为沉默用户；
+		用户登录情况：用户使用集团帐号登录平台（包含Android、IOS、网页登录）的次数(去重)；
 	</li>
 	<li>
-		终端情况：每隔1小时统计一次终端在线和离线情况；
+		活跃情况：某个集团账号每月登录次数大于3次，则认为是活跃用户，否则为沉默用户(去重)；
 	</li>
 	<li>
-		统计时间：统计数据的日期；
+		终端情况：每天晚上12点终端在线和离线数量；
+	</li>
+	<li>
+		统计时间：统计数据的日期，当日的统计数据需到下一日查询；
 	</li>
 </ul>
 {% end %}
