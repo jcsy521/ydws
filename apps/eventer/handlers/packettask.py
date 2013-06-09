@@ -85,6 +85,8 @@ class PacketTask(object):
                 continue
 
             if region_status != old_region_status:
+                
+                # keep the region alarm 
                 alarm = dict(tid=location['dev_id'],
                              category=region_status,
                              timestamp=location.get('gps_time',0),
@@ -455,6 +457,7 @@ class PacketTask(object):
         """Record the alarm info in the redis.
         tid --> alarm_info:[
                              {
+                               keeptime // keep alarm's keeptime when kept in reids, not timestamp alarm occurs
                                category,
                                latitude,
                                longitude, 
@@ -476,12 +479,16 @@ class PacketTask(object):
         alarm_info_key = get_alarm_info_key(alarm['tid'])
         alarm_info = self.redis.getvalue(alarm_info_key)
         alarm_info = alarm_info if alarm_info else []
+        alarm['keeptime'] = int(time.time())
         alarm_info.append(alarm)
 
         #NOTE: only store the alarm during past 10 minutes.
         alarm_info_new = []
         for alarm in alarm_info:
-            if alarm['timestamp'] + 60*10 < int(time.time()):
+            if alarm.get('keeptime', None) is None:
+                alarm['keeptime'] = alarm['timestamp']
+
+            if alarm['keeptime'] + 60*10 < int(time.time()):
                 pass
             else:
                 alarm_info_new.append(alarm)

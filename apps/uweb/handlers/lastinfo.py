@@ -282,7 +282,10 @@ class LastInfoCorpHandler(BaseHandler):
                     
                     if alarm_info_all:
                         for alarm in alarm_info_all:
-                            if alarm['timestamp'] >= lastinfo_time:
+                            #NOTE: here, check alarm's keeptime when kept in reids, not timestamp alarm occurs
+                            if alarm.get('keeptime', None) is None: 
+                                alarm['keeptime'] = alarm['timestamp']
+                            if alarm['keeptime'] >= lastinfo_time:
                                alarm_info.append(alarm)
                         
                     if alarm_info:
