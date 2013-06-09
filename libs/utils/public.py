@@ -42,25 +42,8 @@ def delete_terminal(tid, db, redis, del_user=True):
     user = db.get("SELECT id FROM T_USER"
                   "  WHERE mobile = %s",
                   terminal.owner_mobile)
-    # clear redis
     rids = db.query("SELECT rid FROM T_REGION_TERMINAL"
                     "  WHERE tid = %s", tid)
-    tmobile = terminal.mobile if terminal else ""
-    for item in [tid, tmobile]:
-        sessionID_key = get_terminal_sessionID_key(item)
-        address_key = get_terminal_address_key(item)
-        info_key = get_terminal_info_key(item)
-        lq_sms_key = get_lq_sms_key(item)
-        lq_interval_key = get_lq_interval_key(item)
-        location_key = get_location_key(item)
-        del_data_key = get_del_data_key(item)
-        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key,
-                location_key, del_data_key]
-        for rid in rids:
-            region_status_key = get_region_status_key(item, rid)
-            keys.append(region_status_key)
-        redis.delete(*keys)
-
     # clear history data
     key = get_del_data_key(tid)
     flag = redis.get(key)
@@ -78,6 +61,23 @@ def delete_terminal(tid, db, redis, del_user=True):
                    "  WHERE tid = %s",
                    tid)
         logging.info("Delete db data of terminal: %s", tid)
+
+    # clear redis
+    tmobile = terminal.mobile if terminal else ""
+    for item in [tid, tmobile]:
+        sessionID_key = get_terminal_sessionID_key(item)
+        address_key = get_terminal_address_key(item)
+        info_key = get_terminal_info_key(item)
+        lq_sms_key = get_lq_sms_key(item)
+        lq_interval_key = get_lq_interval_key(item)
+        location_key = get_location_key(item)
+        del_data_key = get_del_data_key(item)
+        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key,
+                location_key, del_data_key]
+        for rid in rids:
+            region_status_key = get_region_status_key(item, rid)
+            keys.append(region_status_key)
+        redis.delete(*keys)
 
     # clear db
     db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s"
