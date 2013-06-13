@@ -375,8 +375,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 					str_oldClon = 0,
 					str_oldClat = 0,
 					str_newClon = obj_location.clongitude,
-					str_newClat = obj_location.clatitude;
-					//obj_carsData = $('.j_carList').data('carsData');
+					str_newClat = obj_location.clatitude,
+					obj_carsData = $('.j_carList').data('carsData');
 				
 				if ( obj_carsData != undefined ) {
 					obj_oldCarData = obj_carsData[str_tid];
