@@ -326,31 +326,20 @@ class MyGWServer(object):
                 logging.error("[GW] Login failed! Invalid terminal dev_id: %s", t_info['dev_id'])
                 return
 
-            logging.info("[GW] Checking terminal mobile: %s and owner mobile: %s, Terminal: %s",
-                         t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
-            if not (check_phone(t_info['u_msisdn']) and check_phone(t_info['t_msisdn'])):
-                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                lc = LoginRespComposer(args)
-                request = DotDict(packet=lc.buf,
-                                  address=address)
-                self.append_gw_request(request, connection, channel)
-                logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, dev_id: %s",
-                              t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
-                return
-
-            logging.info("[GW] Checking whitelist, terminal mobile: %s, Terminal: %s",
-                         t_info['t_msisdn'], t_info['dev_id'])
-            if not check_zs_phone(t_info['t_msisdn'], self.db):
-                args.success = GATEWAY.LOGIN_STATUS.NOT_WHITELIST 
-                lc = LoginRespComposer(args)
-                request = DotDict(packet=lc.buf,
-                                  address=address)
-                self.append_gw_request(request, connection, channel)
-                sms = SMSCode.SMS_MOBILE_NOT_WHITELIST % t_info['t_msisdn']
-                SMSHelper.send(t_info['u_msisdn'], sms)
-                logging.error("[GW] Login failed! terminal mobile: %s not whitelist, dev_id: %s",
-                              t_info['t_msisdn'], t_info['dev_id'])
-                return
+            if t_info['t_msisdn']:
+                logging.info("[GW] Checking whitelist, terminal mobile: %s, Terminal: %s",
+                             t_info['t_msisdn'], t_info['dev_id'])
+                if not check_zs_phone(t_info['t_msisdn'], self.db):
+                    args.success = GATEWAY.LOGIN_STATUS.NOT_WHITELIST 
+                    lc = LoginRespComposer(args)
+                    request = DotDict(packet=lc.buf,
+                                      address=address)
+                    self.append_gw_request(request, connection, channel)
+                    sms = SMSCode.SMS_MOBILE_NOT_WHITELIST % t_info['t_msisdn']
+                    SMSHelper.send(t_info['u_msisdn'], sms)
+                    logging.error("[GW] Login failed! terminal mobile: %s not whitelist, dev_id: %s",
+                                  t_info['t_msisdn'], t_info['dev_id'])
+                    return
 
             softversion = t_info['softversion']
             item = softversion.split(".")
@@ -418,7 +407,13 @@ class MyGWServer(object):
         if flag != "1":
             # login
             if terminal:
-                if terminal['mobile'] != t_info['t_msisdn']:
+                if not t_info['t_msisdn']:
+                    args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                    sms_ = SMSCode.SMS_NOT_JH % t_info['t_msisdn']
+                    SMSHelper.send(terminal.owner_mobile, sms_)
+                    logging.warn("[GW] terminal: %s is refurbishment, and login at first time.",
+                                 t_info['dev_id'])
+                elif terminal['mobile'] != t_info['t_msisdn']:
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                     sms = SMSCode.SMS_TERMINAL_HK % t_info['dev_id']
                     logging.warn("[GW] Terminal %s mobile is wrong, old: %s, new: %s",
@@ -449,8 +444,8 @@ class MyGWServer(object):
                    (terminal['owner_mobile'] == t_info['u_msisdn']):
                     # SCN: Refurbishment, JH it again.
                     is_refurbishment = True
-                    sms_ = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
-                                                            ConfHelper.UWEB_CONF.url_out)
+                    sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
+                                                           ConfHelper.UWEB_CONF.url_out)
                     logging.info("[GW] terminal: %s is refurbishment.", t_info['dev_id'])
                 else:     
                     # [PHONE,IMSI,USER] is not matching of dev_id, delete
@@ -590,6 +585,18 @@ class MyGWServer(object):
                        sessionID='')
         resend_key = get_resend_key(t_info.dev_id, t_info.timestamp, t_info.command)
         resend_flag = self.redis.getvalue(resend_key)
+
+        logging.info("[GW] Checking terminal mobile: %s and owner mobile: %s, Terminal: %s",
+                     t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
+        if not (check_phone(t_info['u_msisdn']) and check_phone(t_info['t_msisdn'])):
+            args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+            lc = LoginRespComposer(args)
+            request = DotDict(packet=lc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+            logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, dev_id: %s",
+                          t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
+            return
 
         t_status = self.db.get("SELECT service_status"
                                "  FROM T_TERMINAL_INFO"
