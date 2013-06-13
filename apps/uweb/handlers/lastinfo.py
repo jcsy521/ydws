@@ -251,7 +251,7 @@ class LastInfoCorpHandler(BaseHandler):
                                                      "  WHERE tid = %s"
                                                      "    AND NOT (clatitude = 0 OR clongitude = 0)"
                                                      "    AND (timestamp BETWEEN %s AND %s)"
-                                                     #"    AND type = 0"
+                                                     "    AND type = 0"
                                                      "    ORDER BY timestamp",
                                                      tid, int(track_lst[tid]['track_time'])+1, int(current_time)-1)
 
@@ -266,7 +266,7 @@ class LastInfoCorpHandler(BaseHandler):
                                                  "  WHERE tid = %s"
                                                  "    AND NOT (clatitude = 0 OR clongitude = 0)"
                                                  "    AND (timestamp  between %s and %s)"
-                                                 #"    AND type = 0"
+                                                 "    AND type = 0"
                                                  "    ORDER BY timestamp",
                                                  tid, int(current_time)-60*5, int(current_time))
 

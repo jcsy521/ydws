@@ -14,6 +14,19 @@ from utils.dotdict import DotDict
 from constants import EVENTER, GATEWAY, UWEB
 from constants.MEMCACHED import ALIVED
 
+def get_last_location(tid, redis, db):
+    location_key = get_location_key(tid)
+    location = redis.getvalue(location_key)
+    if not location:
+        location = db.get("SELECT latitude, longitude, clatitude, clongitude FROM T_LOCATION"
+                          "  WHERE tid = %s"
+                          "    AND NOT (clatitude = 0 AND clongitude = 0)"
+                          " ORDER BY timestamp DESC"
+                          " LIMIT 1",
+                          tid)
+    return location
+
+
 def get_clocation_from_ge(lat, lon):
     """@params: lat, degree*3600000
                 lon, degree*3600000
@@ -157,6 +170,7 @@ def issue_cellid(location, db, redis):
     cellid_info = [int(item) for item in location.cellid.split(":")]
     sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
     location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
+    logging.info("%s cellid result, lat:%s, lon:%s", location.dev_id, location.lat, location.lon)
 
     return location
 
@@ -173,8 +187,8 @@ def handle_location(location, redis, cellid=False, db=None):
         if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
             location.degree = get_last_degree(location, redis, db)
     elif location.valid == GATEWAY.LOCATION_STATUS.UNMOVE: # 4
-        location_key = get_location_key(location.dev_id)
-        last_location = redis.getvalue(location_key)
+        logging.info("tid:%s gps locate flag :%s", location.dev_id, location.valid)
+        last_location = get_last_location(location.dev_id, redis, db)
         if last_location:
             location.lat = last_location.latitude
             location.lon = last_location.longitude
@@ -195,6 +209,7 @@ def handle_location(location, redis, cellid=False, db=None):
             if cellid:
                 location = issue_cellid(location, db, redis)
     elif location.valid == GATEWAY.LOCATION_STATUS.MOVE: # 6
+        logging.info("tid:%s gps locate flag :%s", location.dev_id, location.valid)
         location.lat = 0
         location.lon = 0
         location.cLat = 0
@@ -206,6 +221,7 @@ def handle_location(location, redis, cellid=False, db=None):
         if cellid:
             location = issue_cellid(location, db, redis)
     else: # 0,2,5
+        logging.info("tid:%s gps locate flag :%s", location.dev_id, location.valid)
         location.lat = 0
         location.lon = 0
         location.cLat = 0
@@ -221,29 +237,28 @@ def handle_location(location, redis, cellid=False, db=None):
             location = issue_cellid(location, db, redis)
             if location.lon and location.lat:
                 # 2: check the location whether is odd 
-                location_key = get_location_key(location.dev_id)
-                old_location = redis.getvalue(location_key)
-                if old_location:
+                last_location = get_last_location(location.dev_id, redis, db)
+                if last_location:
                     distance = get_distance(location.lon,
                                             location.lat,
-                                            old_location.longitude,
-                                            old_location.latitude)
+                                            last_location.longitude,
+                                            last_location.latitude)
                     if distance > 5000: 
                         login_time = QueryHelper.get_login_time_by_tid(location.dev_id, db, redis)
-                        if old_location.timestamp <= login_time:
-                            logging.info("[LBMPHELPER] terminal: %s relogin time: %s, after last location timestamp: %s",
-                                         location.dev_id, login_time, old_location.timestamp) 
+                        if last_location.timestamp < login_time:
+                            logging.info("[LBMPHELPER] tid: %s distance:%s > 5000m, and last login time: %s, after last location timestamp: %s, use cellid location.",
+                                         location.dev_id, distance, login_time, last_location.timestamp) 
                         else:
-                            location.lat, location.lon = (old_location.latitude, old_location.longitude)
-                            logging.info("[LBMPHELPER] drop odd location, new location: %s, old location: %s, distance: %s",
-                                         location, old_location, distance)
-
-                # 3: if there is a close gps-latlon, modify the cellid-latlon
-                location.lat, location.lon = handle_latlon_from_cellid(location.lat, location.lon, location.dev_id, redis, db)
-
-                #if location.lat and location.lon:
-                #    location = filter_location(location, memcached)
-
+                            location.lat, location.lon = (last_location.latitude, last_location.longitude)
+                            logging.info("[LBMPHELPER] tid:%s, distance:%s > 5000m, use last location: %s ",
+                                         location.dev_id, distance, last_location)
+                    elif distance < 2000:
+                        location.lat, location.lon = (last_location.latitude, last_location.longitude)
+                        logging.info("[LBMPHELPER] tid:%s distance:%s < 2000m, use last location:%s", location.dev_id, distance, last_location)
+                    else:
+                        logging.info("[LBMPHELPER] tid:%s 2000m < distance:%s < 5000m, use cellid location", location.dev_id, distance)
+                else:
+                    logging.info("[LBMPHELPER] tid:%s last location is none, use cellid location", location.dev_id)
 
     if location and location.lat and location.lon:
         location.cLat, location.cLon = get_clocation_from_ge(location.lat, location.lon)

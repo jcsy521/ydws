@@ -93,7 +93,7 @@ class CheckTerminalStatus(object):
         if user:
             sms_option = QueryHelper.get_sms_option_by_uid(user.owner_mobile, 'heartbeat_lost', self.db)
             logging.info("sms option: %s of %s", sms_option, user.owner_mobile)
-            if sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
+            if sms_option and sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
                 current_time = get_terminal_time(timestamp) 
                 tname = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                 sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
