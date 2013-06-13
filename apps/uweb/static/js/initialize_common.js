@@ -1063,9 +1063,8 @@ window.dlf.fn_getCurrentTid = function() {
 * kjj 2013-06-08 create
 * 处理alias过长问题
 */
-window.dlf.fn_dealAlias = function (str_alias) {
-	var str_tempAlias = str_alias.replace(/[^\x00-\xff]/g, str_alias),
-		b_isChinese = /.*[\u4e00-\u9fa5]+.*$/.test(str_tempAlias),
+window.dlf.fn_dealAlias = function (str_tempAlias) { 
+	var b_isChinese = /.*[\u4e00-\u9fa5]+.*$/.test(str_tempAlias),
 		str_newAlias = str_tempAlias;
 		
 	if ( b_isChinese ) {
