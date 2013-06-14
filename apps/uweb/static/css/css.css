@@ -2276,6 +2276,7 @@ body {
 	width: 247px;
 	height: 340px;
 	min-height: 340px;
+	max-height: 535px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 }
@@ -2296,6 +2297,9 @@ body {
 .groupNode .jstree-icon {
 	background: url('/static/images/corpImages/gorup.png') no-repeat scroll center center transparent;
 }*/
+#corpTree .jstree-checkbox {
+	*padding-top: 3px;
+}
 .terminalNode .jstree-icon {
 	background: url('/static/images/corpImages/offline.png') no-repeat;
 	_background-image: none;
@@ -2335,6 +2339,7 @@ body {
 }
 .corpLeftTree {
 	min-height: 384px;
+	max-height: 580px;
 }
 .loadTree {
 	margin: 10px 0px;

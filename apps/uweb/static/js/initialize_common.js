@@ -654,7 +654,7 @@ function fn_createTerminalList(obj_carDatas) {
 		}
 		if ( str_currentPersonalTid == str_tid ) { // 如果是当前终端
 			str_carClass = ' j_currentCar currentCarCss ' + str_carClass;
-		} 
+		}
 		str_carListHtml += '<li>'
 						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="'+ str_alias +'" href="#" alias="'+ str_alias +'"><img src="/static/images/'+ str_carLoginImg +'.png" /></a>'
 						+'<div class="'+ str_carLoginColor +'" title="'+ str_alias +'">'+ str_alias +'</div>'
@@ -1455,11 +1455,11 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					}
 				} else if ( str_who == 'cTerminal' ) {	// 新增定位器
 					// todo 添加节点到对应group上    或者重新加载lastinfo
-					$('#corpTree').jstree("create", $('#group_'+ obj_data.group_id), 'first', obj_data.tmobile); 
+					// $('#corpTree').jstree("create", $('#group_'+ obj_data.group_id), 'first', obj_data.tmobile);
+					//str_currentTid = obj_data.tmobile;
+					b_createTerminal = true;	// 标记 是新增定位器操作 以便switchcar到新增车辆
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 					dlf.fn_corpGetCarData();
-					str_currentTid = obj_data.tmobile;
-					b_createTerminal = true;	// 标记 是新增定位器操作 以便switchcar到新增车辆
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else if ( str_who == 'operator' ) {
 					/*var obj_header = $('#operatorTableHeader'), 

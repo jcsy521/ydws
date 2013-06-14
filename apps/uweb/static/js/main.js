@@ -336,6 +336,7 @@ window.onresize = function () {
 			n_mainHeight = n_windowHeight - 123,
 			n_corpTreeContainerHeight = n_mainHeight-220,
 			n_treeHeight = n_corpTreeContainerHeight - 45,
+			n_tempTreeHight = $('#corpTree ul').height(),
 			obj_tree = $('#corpTree'),
 			obj_track = $('#trackHeader'),
 			n_delayLeft = n_windowWidth - 530,
@@ -352,10 +353,16 @@ window.onresize = function () {
 		$('#top, #main, #corpMain').css('width', n_windowWidth);
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-		if ( n_treeHeight <= 340 ) {
-			obj_tree.css('overflow-y', 'scroll')
+		/*if ( n_treeHeight <= 345 ) {
+			obj_tree.css('overflow-y', 'scroll');
+		} else if ( n_treeHeight >= 535 ) {
+			obj_tree.css('overflow-y', 'scroll');
+			n_treeHeight = 535;
 		} else {
-			obj_tree.css('overflow', 'hidden')
+			obj_tree.css('overflow', 'hidden');
+		}*/
+		if ( n_tempTreeHight > n_treeHeight ) {
+			obj_tree.css('overflow-y', 'scroll');
 		}
 		obj_tree.height(n_treeHeight);
 		$('#right, #corpRight, #navi, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
@@ -430,6 +437,7 @@ $(function () {
 		n_mainHeight = n_windowHeight - 123,
 		n_corpTreeContainerHeight = n_mainHeight-220,
 		n_treeHeight = n_corpTreeContainerHeight - 45,
+		n_tempTreeHight = $('#corpTree ul').height(),
 		n_delayLeft = n_windowWidth - 530,
 		n_delayIconLeft = n_delayLeft - 17,
 		n_alarmLeft = n_windowWidth - 400,
@@ -443,13 +451,19 @@ $(function () {
 	$('#top, #main, #corpMain').css('width', n_windowWidth);
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-	if ( n_treeHeight <= 340 ) {
-		obj_tree.css('overflow-y', 'scroll')
+	
+	/*if ( n_treeHeight <= 345 ) {
+		obj_tree.css('overflow-y', 'scroll');
+	} else if ( n_treeHeight >= 535 ) {
+		obj_tree.css('overflow-y', 'scroll');
+		n_treeHeight = 535;
 	} else {
-		obj_tree.css('overflow', 'hidden')
+		obj_tree.css('overflow', 'hidden');
+	}*/
+	if ( n_tempTreeHight > n_treeHeight ) {
+		obj_tree.css('overflow-y', 'scroll');
 	}
 	obj_tree.height(n_treeHeight);
-	/**/
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	if ( dlf.fn_userType() ) {	// 集团用户
@@ -922,6 +936,8 @@ $(function () {
 		if ( n_carNum > 0 ) {
 			dlf.fn_switchCar($('.j_carList .j_terminal').eq(0).attr('tid'), $($('.j_carList .j_terminal')[0])); // 登录成功, 车辆列表切换
 			dlf.fn_bindCarListItem();
+		} else {
+			dlf.fn_getCarData();
 		}
 	} else {
 		$('.j_corpLeft').css('background-color', '#fff')

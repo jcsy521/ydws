@@ -705,8 +705,11 @@ window.dlf.fn_displayCircle = function(obj_circleData) {
 window.dlf.fn_boundContainsPoint = function(obj_tempPoint) {
 	// 是否进行中心点移动操作 如果当前播放点在屏幕外则,设置当前点为中心点
 	var obj_mapBounds = mapObj.getBounds(), 
-		b_isInbound = obj_mapBounds.containsPoint(obj_tempPoint);
+		b_isInbound = null;
 	
+	if ( obj_mapBounds ) {
+		b_isInbound = obj_mapBounds.containsPoint(obj_tempPoint);
+	}
 	if ( !b_isInbound ) {
 		dlf.fn_setOptionsByType('center', obj_tempPoint);
 	}
