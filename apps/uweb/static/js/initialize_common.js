@@ -461,13 +461,14 @@ window.dlf.fn_getCarData = function(str_flag) {
 					obj_tempData = {},
 					arr_locations = [],
 					n_pointNum = 0;
-				
+					
+				// 重新生成终端列表
+				fn_createTerminalList(obj_cars);
 				if ( !dlf.fn_isEmptyObj(obj_cars) ) {
+					dlf.fn_initCarInfo();
 					return;
 				}
 				
-				// 重新生成终端列表
-				fn_createTerminalList(obj_cars);
 				for ( var param in obj_cars ) {
 					var obj_carInfo = obj_cars[param], 
 						str_tid = param,
@@ -607,7 +608,24 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	$('#lat').html(str_clat);	// 车辆纬度
 	$('#speed').html(str_speed); // 定位器最后一次定位速度
 }
-/*
+
+/**
+* 无终端时车辆信息栏显示-
+*/
+window.dlf.fn_initCarInfo = function () {
+	$('#defendContent').html('-').attr('title', '');
+	$('#defendStatus').css('background-image', '');
+	$('#gpsContent').html('-').attr('title', '').css('background', 'inherit');
+	$('#power').css('background-image', '');
+	$('#powerContent').html('-').attr('title', '').css('background', 'inherit');
+	$('#gsm').css('background-image', '');
+	$('#gsmContent').html('-').attr('title', '').css('background', 'inherit');
+	$('#gps').css('background-image', '');
+	$('#locationTime').html('-');
+	$('#tmobileContent').html('-').attr('title', '');
+}
+
+/**
 * 重新生成终端列表
 * obj_carDatas: 终端数据
 */
@@ -648,7 +666,6 @@ function fn_createTerminalList(obj_carDatas) {
 		}
 		dlf.fn_checkTrackDatas(param);	// 初始化开启追踪数据
 	}
-	
 	obj_carListUl.html(str_carListHtml); // 将新生成的终端列表进行填充到页面上
 	
 	dlf.fn_createTerminalListClearLayer(obj_selfmarkers, obj_carDatas);

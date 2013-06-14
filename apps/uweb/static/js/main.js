@@ -352,7 +352,7 @@ window.onresize = function () {
 		$('#top, #main, #corpMain').css('width', n_windowWidth);
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-		if ( n_treeHeight < 239 ) {
+		if ( n_treeHeight <= 340 ) {
 			obj_tree.css('overflow-y', 'scroll')
 		} else {
 			obj_tree.css('overflow', 'hidden')
@@ -443,12 +443,13 @@ $(function () {
 	$('#top, #main, #corpMain').css('width', n_windowWidth);
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-	if ( n_treeHeight < 239 ) {
+	if ( n_treeHeight <= 340 ) {
 		obj_tree.css('overflow-y', 'scroll')
 	} else {
 		obj_tree.css('overflow', 'hidden')
 	}
 	obj_tree.height(n_treeHeight);
+	/**/
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	if ( dlf.fn_userType() ) {	// 集团用户

@@ -192,9 +192,10 @@ window.dlf.fn_corpBaseSave = function() {
 	}
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
 		obj_terminalData.tid = dlf.fn_getCurrentTid();
+		$('#corp_terminalForm').data('modifyCount', n_num);
 		dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'corpTerminal', '定位器参数保存中');
 	} else {
-		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		//dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
 	//判断短信通知是否要提交
@@ -221,10 +222,11 @@ window.dlf.fn_corpBaseSave = function() {
 	if ( n_smsNum != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
 		dlf.fn_jsonPut(SMS_URL, obj_smsData, 'corpTerminal', '短信告警参数保存中');
 	} else {
-		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		if ( n_num == 0 ) {
+			dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
-	
 }
 
 /**

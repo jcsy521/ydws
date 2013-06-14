@@ -693,7 +693,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			
 		} else {	// 无终端 启动lastinfo
 			dlf.fn_updateLastInfo();
-			fn_initCarInfo();
+			dlf.fn_initCarInfo();
 		}
 		// 如果无终端或终端都无位置  地图设置为全国地图
 		if ( n_pointNum <= 0 ) {
@@ -794,22 +794,6 @@ function fn_updateTerminalCount(str_operation, num) {
 	$('.onlineCount').html(n_onlineCnt + '(在线)');
 	$('.offlineCount').html(n_offlineCnt + '(离线)');
 		
-}
-
-/**
-* 无终端时车辆信息栏显示-
-*/
-function fn_initCarInfo() {
-	$('#defendContent').html('-').attr('title', '');
-	$('#defendStatus').css('background-image', '');
-	$('#gpsContent').html('-').attr('title', '').css('background', 'inherit');
-	$('#power').css('background-image', '');
-	$('#powerContent').html('-').attr('title', '').css('background', 'inherit');
-	$('#gsm').css('background-image', '');
-	$('#gsmContent').html('-').attr('title', '').css('background', 'inherit');
-	$('#gps').css('background-image', '');
-	$('#locationTime').html('-');
-	$('#tmobileContent').html('-').attr('title', '');
 }
 
 /**
@@ -1651,7 +1635,7 @@ function fn_removeTerminal(node) {
 					obj_current.addClass(JSTREECLICKED);
 					dlf.fn_switchCar(str_tid, obj_current);
 				} else {
-					fn_initCarInfo();
+					dlf.fn_initCarInfo();
 				}
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			} else {
@@ -1749,7 +1733,7 @@ function fn_initBatchDeleteData(obj_params) {
 						obj_current.addClass(JSTREECLICKED);
 						dlf.fn_switchCar(str_tid, obj_current);
 					} else {
-						fn_initCarInfo();
+						dlf.fn_initCarInfo();
 					}
 					dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 				} else {
