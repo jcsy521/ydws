@@ -2274,6 +2274,7 @@ body {
 }
 .corpTree {
 	width: 247px;
+	height: 340px;
 	min-height: 340px;
 	overflow-y: scroll;
 	overflow-x: hidden;
