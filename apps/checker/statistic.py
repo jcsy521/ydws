@@ -180,6 +180,7 @@ class TerminalStatistic(object):
 
             in_terminal_del_day = self.db.get(sql_terminal_del + " AND group_id = -1 ",
                                              day_start_time, day_end_time)
+
             
             in_terminal_del_month = self.db.get(sql_terminal_del + " AND group_id = -1 ",
                                                month_start_time, day_end_time)
@@ -312,108 +313,162 @@ class TerminalStatistic(object):
     def export_to_excel(self, day_start_time, epoch_time):
         """Export data into excel file.
         """
-        from xlwt import Workbook 
 
+        import xlwt 
+        import xlrd
+
+        BASE_PATH = '/var/ydcws/reports/' 
         # NOTE: chinese filename cannot download successfully, so here use
-        # english filename. wish one day chinese can work well 
+        # english filename. wish one day chinese words can work well 
         OFFLINE_FILE_NAME = u"terminals_offline"
         #OFFLINE_FILE_NAME = u"离线用户统计表"
+        cur_path = time.strftime("%Y%m%d",time.localtime(epoch_time) ) 
+        pre_path = time.strftime("%Y%m%d",time.localtime(epoch_time-60*60*24)) 
+        PRE_PATH = BASE_PATH + OFFLINE_FILE_NAME + '-' + pre_path + '.xls'
+        CUR_PATH = BASE_PATH + OFFLINE_FILE_NAME + '-' + cur_path + '.xls'
+
         OFFLINE_HEADER = (u"车主号",
                           u"终端号", 
                           u"电量", 
                           u"离线时间", 
                           u"累计离线时间", 
                           u"离线原因", 
+                          u"唤醒指令下发频次", 
+                          u"今日新增", 
+                          u"当前状态", 
                           u"备注")
 
-        total_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
-                         "  FROM T_TERMINAL_INFO"
-                         "  WHERE service_status = 1 AND login =0 "
-                         "  AND mobile like '14778%%' AND offline_time < %s ORDER BY pbat")
+        cur_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
+                       "  FROM T_TERMINAL_INFO"
+                       "  WHERE service_status = 1 AND login =0 "
+                       "  AND mobile like '14778%%' "
+                       "  AND offline_time BETWEEN %s AND %s ORDER BY pbat")
 
-        current_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
-                           "  FROM T_TERMINAL_INFO"
-                           "  WHERE service_status = 1 AND login =0 "
-                           "  AND mobile like '14778%%' "
-                           "  AND offline_time between %s and %s ORDER BY pbat")
+        terminal_sql_cmd = "SELECT login, remark, offline_time FROM T_TERMINAL_INFO WHERE mobile = %s LIMIT 1"
 
-        total_res = self.db.query(total_sql_cmd, epoch_time)
-        current_res = self.db.query(current_sql_cmd, day_start_time, epoch_time)
-        a = current_sql_cmd % ( day_start_time, epoch_time)
+        cur_res = self.db.query(cur_sql_cmd, day_start_time, epoch_time)
 
-        for item in total_res:
+        for item in cur_res:
             item['offline_period'] = int(time.time()) - item['offline_time']
             item['offline_cause'] =  2 if item['pbat'] < 5 else 1
             item['remark'] = safe_unicode(item['remark'])
 
-        for item in current_res:
-            item['offline_period'] = int(time.time()) - item['offline_time']
-            item['offline_cause'] =  2 if item['pbat'] < 5 else 1
-            item['remark'] = safe_unicode(item['remark'])
+        pre_res = [] 
+        if not os.path.isfile(PRE_PATH):
+            logging.info("[CK] pre_path: %s cannot be found.", PRE_PATH)
+        else:
+            wb=xlrd.open_workbook(PRE_PATH)
+            sh=wb.sheet_by_name(u'离线汇总分析')
+            for rownum in range(1,sh.nrows): # get records from the second row
+                row = sh.row_values(rownum)
+                #if row[7] == u'新增':
+                #    continue
+                if row[8] == u'在线':
+                    continue
 
+                tmobile = row[1]
+
+                terminal = self.db.get(terminal_sql_cmd, tmobile) 
+
+                current_status = u'离线'
+                if not terminal:
+                    current_status = u'已解绑'
+                    row[8] = current_status
+                else:
+                    if terminal['login'] !=0:
+                        current_status = u'在线'
+                        row[8] = current_status
+
+                    offline_period = int(time.time()) - terminal['offline_time']
+                    row[4] = seconds_to_label(offline_period)
+                    d,m = divmod(offline_period,60*60)
+                    count = d+1 if m else d
+                    row[6] = count
+
+                row[9] = safe_unicode(terminal['remark'])
+                pre_res.append(row)
+            logging.info('[CK] the records to be dealed with: %s', pre_res)
+
+        # some styles
         #date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
-        wb = Workbook()
-        ws = wb.add_sheet(u'新增离线')
-        ws_total = wb.add_sheet(u'累计离线')
+        title_style = xlwt.easyxf('pattern: pattern solid, fore_colour ocean_blue; font: bold off; align: wrap on, vert centre, horiz center;' "borders: top double, bottom double, left double, right double;")
+        abnormal_style = xlwt.easyxf('font: colour_index red, bold off; align: wrap on, vert centre, horiz center;')
+        add_style = xlwt.easyxf('font: colour_index blue, bold off; align: wrap on, vert centre, horiz center;')
+        powerlow_style = xlwt.easyxf('font: colour_index dark_yellow, bold off; align: wrap on, vert centre, horiz center;') 
+        online_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;')
+        offline_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
+        center_style  = xlwt.easyxf('align: wrap on, vert centre, horiz center;')
 
-        #1: the offline current day
-        results = current_res
+
+
+        wb = xlwt.Workbook()
+        ws = wb.add_sheet(u'离线汇总分析')
+
         start_line = 0
         for i, head in enumerate(OFFLINE_HEADER):
-            ws.write(0, i, head)
+            ws.write(0, i, head, title_style)
 
-        ws.col(0).width = 4000  
-        ws.col(1).width = 4000 
-        ws.col(3).width = 4000 * 2 
-        ws.col(4).width = 4000 * 2
-        ws.col(6).width = 4000 * 4
+        ws.col(0).width = 4000 # umobile 
+        ws.col(1).width = 4000 # tmobile 
+        ws.col(3).width = 4000 * 2  # offline_time
+        ws.col(4).width = 4000 * 2  # offline_period
+        ws.col(6).width = 4000      # lq count
+        ws.col(9).width = 4000 * 4 # remark
 
         start_line += 1
 
+        results = cur_res
         for i, result in zip(range(start_line, len(results) + start_line), results):
-            ws.write(i, 0, result['umobile'])
-            ws.write(i, 1, result['tmobile'])
-            ws.write(i, 2, str(result['pbat'])+'%')
-            ws.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])))
-            ws.write(i, 4, seconds_to_label(result['offline_period']))
-            ws.write(i, 5, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
-            terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
-            ws.write(i, 6, safe_unicode(terminal_offline['remark']))
+            ws.write(i, 0, result['umobile'], center_style)
+            ws.write(i, 1, result['tmobile'], center_style)
+            ws.write(i, 2, str(result['pbat'])+'%', center_style)
+            ws.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])), center_style)
+            ws.write(i, 4, seconds_to_label(result['offline_period']), center_style)
 
-        #2: the offline till this day 
-        results = total_res
-        start_line = 0
-        for i, head in enumerate(OFFLINE_HEADER):
-            ws_total.write(0, i, head)
+            if result['offline_cause'] == 2: 
+                offline_cause =  u'低电关机' 
+                ws.write(i, 5, offline_cause, powerlow_style)
+            else:
+                offline_cause =  u'通讯异常'
+                ws.write(i, 5, offline_cause, abnormal_style)
+            d,m = divmod(result['offline_period'],60*60)
+            count = d+1 if m else d
+            ws.write(i, 6, count)
+            terminal = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
 
-        ws_total.col(0).width = 4000  
-        ws_total.col(1).width = 4000 
-        ws_total.col(3).width = 4000 * 2 
-        ws_total.col(4).width = 4000 * 2
-        ws_total.col(6).width = 4000 * 4
+            ws.write(i, 7, u'新增', add_style)
+            ws.write(i, 9, safe_unicode(terminal['remark']), center_style)
+            start_line += 1
 
-        start_line += 1
-
+        results = pre_res
         for i, result in zip(range(start_line, len(results) + start_line), results):
-            ws_total.write(i, 0, result['umobile'])
-            ws_total.write(i, 1, result['tmobile'])
-            ws_total.write(i, 2, str(result['pbat'])+'%')
-            ws_total.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])))
-            ws_total.write(i, 4, seconds_to_label(result['offline_period']))
-            ws_total.write(i, 5, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
-            terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
-            ws_total.write(i, 6, safe_unicode(terminal_offline['remark']))
+            #for j in range(len(OFFLINE_HEADER)):
+            #    ws.write(i, j, result[j])
+            ws.write(i, 0, result[0], center_style)
+            ws.write(i, 1, result[1], center_style)
+            ws.write(i, 2, result[2], center_style)
+            ws.write(i, 3, result[3], center_style)
+            ws.write(i, 4, result[4], center_style)
+            if result[5] == u'低电关机':
+                ws.write(i, 5, u'低电关机', powerlow_style)
+            else:
+                ws.write(i, 5, u'通讯异常', abnormal_style)
+            ws.write(i, 6, result[6])
+            if result[8] == u'在线':
+                ws.write(i, 8, u'在线', online_style)
+            else:
+                ws.write(i, 8, u'离线', offline_style)
+            #ws.write(i, 8, result[8])
+            ws.write(i, 9, result[9], center_style)
 
-        file_name = '-'.join((OFFLINE_FILE_NAME, time.strftime("%Y%m%d")))
-        file_path = os.path.join(TOP_DIR_,'apps/checker',file_name)+'.xls'
-        wb.save(file_path)
-        logging.info("[CK] export offline excel, file path: %s", file_path)
+        wb.save(CUR_PATH)
+        logging.info("[CK] export excel finished. cur_path: %s", CUR_PATH)
 
     def add_terminal_to_subscription(self):
         """Handle the old data.
         """
-        self.db.execute("truncate T_SUBSCRIPTION_LOG")
-        self.db.execute("truncate T_STATISTIC")
+        #self.db.execute("truncate T_SUBSCRIPTION_LOG")
+        #self.db.execute("truncate T_STATISTIC")
         terminals = self.db.query("select id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO")
         for terminal in terminals: 
             # 1: record to T_SUBSCRIPTION
@@ -435,10 +490,11 @@ if __name__ == '__main__':
 
     year = '2013'
     month = '06'
-    day =  '07'
+    day =  '6'
     timestamp = int(time.mktime(time.strptime("%s-%s-%s"%(year,month,day),"%Y-%m-%d")))
     logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
 
     ts = TerminalStatistic()
+    #timestamp = int(time.time())
     ts.statistic_terminal(timestamp)
     #ts.add_terminal_to_subscription()
