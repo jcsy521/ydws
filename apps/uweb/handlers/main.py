@@ -42,10 +42,12 @@ class MainHandler(BaseHandler):
         if not user_info:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
-            self.render("index.html",
-                        map_type=ConfHelper.LBMP_CONF.map_type,
-                        user_type=user_type,
-                        status=status)
+            self.render("login.html",
+                        username='',
+                        password='',
+                        user_type=UWEB.USER_TYPE.PERSON,
+                        message=None,
+                        message_captcha=None)
             return
 
         if from_ == "delegation":
