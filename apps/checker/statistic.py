@@ -352,6 +352,7 @@ class TerminalStatistic(object):
             item['offline_period'] = int(time.time()) - item['offline_time']
             item['offline_cause'] =  2 if item['pbat'] < 5 else 1
             item['remark'] = safe_unicode(item['remark'])
+        logging.info('[CK] the currentrecords to be dealed with, counts: %s, cur_res: %s', len(cur_res), cur_res)
 
         pre_res = [] 
         if not os.path.isfile(PRE_PATH):
@@ -387,7 +388,7 @@ class TerminalStatistic(object):
 
                 row[9] = safe_unicode(terminal['remark'])
                 pre_res.append(row)
-            logging.info('[CK] the records to be dealed with: %s', pre_res)
+            logging.info('[CK] the previous records to be dealed with, counts: %s, pre_res: %s', len(pre_res), pre_res)
 
         # some styles
         #date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
@@ -490,9 +491,10 @@ if __name__ == '__main__':
 
     year = '2013'
     month = '06'
-    day =  '6'
+    day =  '14'
     timestamp = int(time.mktime(time.strptime("%s-%s-%s"%(year,month,day),"%Y-%m-%d")))
     logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
+    timestamp = int(time.time())
 
     ts = TerminalStatistic()
     #timestamp = int(time.time())
