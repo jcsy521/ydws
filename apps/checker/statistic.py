@@ -348,7 +348,9 @@ class TerminalStatistic(object):
 
         cur_res = self.db.query(cur_sql_cmd, day_start_time, epoch_time)
 
+        tmobile_lst = []
         for item in cur_res:
+            tmobile_lst.append(item['tmobile'])
             item['offline_period'] = int(time.time()) - item['offline_time']
             item['offline_cause'] =  2 if item['pbat'] < 5 else 1
             item['remark'] = safe_unicode(item['remark'])
@@ -361,9 +363,13 @@ class TerminalStatistic(object):
             wb=xlrd.open_workbook(PRE_PATH)
             sh=wb.sheet_by_name(u'离线汇总分析')
             for rownum in range(1,sh.nrows): # get records from the second row
+
                 row = sh.row_values(rownum)
                 #if row[7] == u'新增':
                 #    continue
+
+                if row[1] in tmobile_lst:
+                    continue
                 if row[8] == u'在线':
                     continue
 
@@ -441,10 +447,14 @@ class TerminalStatistic(object):
             ws.write(i, 9, safe_unicode(terminal['remark']), center_style)
             start_line += 1
 
+        logging.info('[CK] counts: %s, tmobile_lst: %s', len(tmobile_lst), tmobile_lst)
         results = pre_res
         for i, result in zip(range(start_line, len(results) + start_line), results):
             #for j in range(len(OFFLINE_HEADER)):
             #    ws.write(i, j, result[j])
+            #if result[1] in tmobile_lst:
+            #    continue
+
             ws.write(i, 0, result[0], center_style)
             ws.write(i, 1, result[1], center_style)
             ws.write(i, 2, result[2], center_style)
@@ -458,7 +468,8 @@ class TerminalStatistic(object):
             if result[8] == u'在线':
                 ws.write(i, 8, u'在线', online_style)
             else:
-                ws.write(i, 8, u'离线', offline_style)
+                pass
+                #ws.write(i, 8, u'离线', offline_style)
             #ws.write(i, 8, result[8])
             ws.write(i, 9, result[9], center_style)
 
@@ -492,9 +503,9 @@ if __name__ == '__main__':
     year = '2013'
     month = '06'
     day =  '14'
-    timestamp = int(time.mktime(time.strptime("%s-%s-%s"%(year,month,day),"%Y-%m-%d")))
+    timestamp = int(time.mktime(time.strptime("%s-%s-%s-23-59"%(year,month,day),"%Y-%m-%d-%H-%M")))
     logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
-    timestamp = int(time.time())
+    ##imestamp = int(time.time())
 
     ts = TerminalStatistic()
     #timestamp = int(time.time())
