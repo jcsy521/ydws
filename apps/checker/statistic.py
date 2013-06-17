@@ -13,12 +13,15 @@ from db_.mysql import DBConnection
 from utils.misc import start_end_of_day, start_end_of_month, start_end_of_year, safe_unicode, str_to_list, safe_utf8, seconds_to_label, DUMMY_IDS
 from utils.dotdict import DotDict
 from utils.public import record_terminal_subscription 
+from helpers.emailhelper import EmailHelper 
 from constants import UWEB 
 
 
 class TerminalStatistic(object):
     def __init__(self):
         self.db = DBConnection().db
+        self.to_emails = ['boliang.guan@dbjtech.com']
+        self.cc_emails = ['xiaolei.jia@dbjtech.com', 'zhaoxia.guo@dbjtech.com']
         
     def statistic_online_terminal(self, epoch_time):
         try:
@@ -474,6 +477,9 @@ class TerminalStatistic(object):
             ws.write(i, 9, result[9], center_style)
 
         wb.save(CUR_PATH)
+
+        content = u'附件是 %s 的离线报表统计，请查收' %  cur_path
+        EmailHelper.send(self.to_emails, content, self.cc_emails, files=[CUR_PATH]) 
         logging.info("[CK] export excel finished. cur_path: %s", CUR_PATH)
 
     def add_terminal_to_subscription(self):
