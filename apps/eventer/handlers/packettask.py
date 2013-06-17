@@ -392,10 +392,11 @@ class PacketTask(object):
             
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY.CHARGE.lower())
         if sms_option == UWEB.SMS_OPTION.SEND:
-            name = QueryHelper.get_alias_by_tid(info.dev_id, self.redis, self.db)
-            terminal_time = get_terminal_time(int(info.timestamp))
-            sms = SMSCode.SMS_CHARGE % (name, info.content)
-            self.sms_to_user(info.dev_id, sms, user)
+            logging.error("[EVENTER] do not send charge sms temporarily")
+            #name = QueryHelper.get_alias_by_tid(info.dev_id, self.redis, self.db)
+            #terminal_time = get_terminal_time(int(info.timestamp))
+            #sms = SMSCode.SMS_CHARGE % (name, info.content)
+            #self.sms_to_user(info.dev_id, sms, user)
 
     def sms_to_user(self, dev_id, sms, user=None):
         if not sms:
