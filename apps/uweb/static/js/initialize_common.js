@@ -1658,10 +1658,13 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 							var obj_current = $('.j_currentCar'),
 								str_tid = obj_current.attr('tid'),
 								n_imgDegree = obj_current.attr('degree'),
+								obj_currentMarker = obj_selfmarkers[str_tid],
 								str_iconUrl = dlf.fn_setMarkerIconType(dlf.fn_processDegree(n_imgDegree), str_val);
 							
 							obj_current.attr('icon_type', str_val);
-							obj_selfmarkers[str_tid].setIcon(new BMap.Icon(str_iconUrl, new BMap.Size(34, 34)));
+							if ( obj_currentMarker ) {
+								obj_currentMarker.setIcon(new BMap.Icon(str_iconUrl, new BMap.Size(34, 34)));
+							}
 							dlf.fn_updateTerminalLogin(obj_current);	
 							$('#corp_' + param ).attr('t_val', str_val);
 						} else {
