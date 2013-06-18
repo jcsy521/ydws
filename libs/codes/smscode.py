@@ -49,7 +49,7 @@ class SMSCode(object):
     SMS_TID_EXIST = u"尊敬的客户：该定位器序列号%s冲突，请联系【移动车卫士】客服。"
     SMS_TMOBILE_EXIST = u"尊敬的客户：卡号%s已被使用，请先执行解绑操作。"
     SMS_TID_NOT_EXIST = u"尊敬的客户：该定位器未激活，请执行激活短信指令：‘JH(空格)定位器号码’到定位器号码。例如：JH 13900000000"
-    SMS_MOBILE_NOT_WHITELIST = u"尊敬的客户：您的定位器号码%s不合法，不是指定移动车卫士号码，请联系【移动车卫士】客服。"
+    SMS_MOBILE_NOT_WHITELIST = u"尊敬的客户：您的定位器号码%s不是指定移动车卫士号码，请联系【移动车卫士】客服。"
     SMS_DELETE_TERMINAL = u"尊敬的客户：您的定位器号码%s已经解绑。如非本人操作，请联系【移动车卫士】客服。"
     SMS_UNUSUAL_ACTIVATE = u"尊敬的客户：该定位器%s已经被使用，原车主解绑后方可使用。"
 

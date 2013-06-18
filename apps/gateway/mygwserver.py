@@ -462,33 +462,33 @@ class MyGWServer(object):
                                          terminal['tid']) 
                         else:
                             # send message to old user of dev_id
-                            sms_ = SMSCode.SMS_DELETE_TERMINAL % t_info['t_msisdn'] 
+                            sms_ = SMSCode.SMS_DELETE_TERMINAL % terminal['mobile'] 
                             SMSHelper.send(terminal['owner_mobile'], sms_)
                             logging.info("[GW] Send delete terminal message: %s to user: %s",
                                          sms_, terminal['owner_mobile'])
 
             if not is_refurbishment:
-                imsi_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
-                                            "  FROM T_TERMINAL_INFO"
-                                            "  WHERE imsi = %s LIMIT 1",
-                                            t_info['imsi'])
-                if imsi_terminal:
-                   # [PHONE,IMSI,USER] is not matching of imsi, delete old bind
-                   # relation of imsi.
+                t_msisdn_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
+                                                "  FROM T_TERMINAL_INFO"
+                                                "  WHERE mobile = %s LIMIT 1",
+                                                t_info['t_msisdn'])
+                if t_msisdn_terminal:
+                   # [PHONE,IMSI,USER] is not matching of PHONE, delete old bind
+                   # relation of PHONE.
                    del_user = True
-                   if imsi_terminal['owner_mobile'] == t_info['u_msisdn']: 
+                   if t_msisdn_terminal['owner_mobile'] == t_info['u_msisdn']: 
                        del_user = False
-                   delete_terminal(imsi_terminal['tid'], self.db, self.redis, del_user=del_user) 
-                   if imsi_terminal['owner_mobile'] != t_info['u_msisdn']:
-                       if imsi_terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                           logging.info("[GW] Terminal: %s of imsi: %s is to_be_unbind, delete it.",
-                                        imsi_terminal['tid'], t_info['imsi'])
+                   delete_terminal(t_msisdn_terminal['tid'], self.db, self.redis, del_user=del_user) 
+                   if t_msisdn_terminal['owner_mobile'] != t_info['u_msisdn']:
+                       if t_msisdn_terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+                           logging.info("[GW] Terminal: %s of mobile: %s is to_be_unbind, delete it.",
+                                        t_msisdn_terminal['tid'], t_info['t_msisdn'])
                        else:
-                           # send mesage to old user of imsi
-                           sms_ = SMSCode.SMS_DELETE_TERMINAL % imsi_terminal['mobile'] 
-                           SMSHelper.send(imsi_terminal['owner_mobile'], sms_)
+                           # send mesage to old user of PHONE 
+                           sms_ = SMSCode.SMS_DELETE_TERMINAL % t_msisdn_terminal['mobile'] 
+                           SMSHelper.send(t_msisdn_terminal['owner_mobile'], sms_)
                            logging.info("[GW] Send delete terminal message: %s to user: %s",
-                                        sms_, imsi_terminal['owner_mobile'])
+                                        sms_, t_msisdn_terminal['owner_mobile'])
                    
                 # 1. add user info
                 exist = self.db.get("SELECT id FROM T_USER"
@@ -539,6 +539,18 @@ class MyGWServer(object):
                                 "  VALUES(%s)",
                                 t_info['dev_id'])
                 logging.info("[GW] Terminal %s by SMS JH success!", t_info['dev_id'])
+                # subscription LE for new sim
+                data = DotDict(sim=t_info['t_msisdn'],
+                               action="A")
+                response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data)
+                response = json_decode(response) 
+                if response['success'] == '000': 
+                    logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
+                                 t_info['dev_id'], t_info['t_msisdn'])
+                else:
+                    logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
+                                 t_info['dev_id'], t_info['t_msisdn'], response)
+                #self.request_location(t_info['dev_id'])
 
         if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
             # get SessionID
