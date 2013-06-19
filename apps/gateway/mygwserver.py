@@ -17,6 +17,7 @@ from Queue import Queue
 import thread
 
 from tornado.escape import json_decode
+from tornado.ioloop import IOLoop
 
 from utils.dotdict import DotDict
 from utils.repeatedtimer import RepeatedTimer
@@ -39,7 +40,7 @@ from helpers.seqgenerator import SeqGenerator
 from helpers.confhelper import ConfHelper
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
-from helpers.lbmphelper import LbmpSenderHelper
+from helpers.lbmpsenderhelper import LbmpSenderHelper
 from helpers.urlhelper import URLHelper
 from helpers.uwebhelper import UWebHelper
 from helpers import lbmphelper
@@ -398,6 +399,7 @@ class MyGWServer(object):
         resend_flag = self.redis.getvalue(resend_key)
 
         sms = ''
+        t_status = None
         # new softversion, new meaning, 1: active; othter: normal login
         flag = t_info['psd'] 
         terminal = self.db.get("SELECT tid, mobile, imsi, owner_mobile, service_status"
@@ -428,6 +430,9 @@ class MyGWServer(object):
                     sms = SMSCode.SMS_TERMINAL_HK % t_info['dev_id']
                     logging.warn("[GW] Terminal %s owner_mobile is wrong, old: %s, new: %s",
                                  t_info['dev_id'], terminal['owner_mobile'], t_info['u_msisdn'])
+                elif terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+                    t_status = UWEB.SERVICE_STATUS.TO_BE_UNBIND
+                    logging.warn("[GW] Terminal: %s is unbinded.", t_info["dev_id"])            
                 else:
                     logging.info("[GW] Terminal %s normal login successfully.", t_info['dev_id'])
             else:
@@ -540,16 +545,7 @@ class MyGWServer(object):
                                 t_info['dev_id'])
                 logging.info("[GW] Terminal %s by SMS JH success!", t_info['dev_id'])
                 # subscription LE for new sim
-                data = DotDict(sim=t_info['t_msisdn'],
-                               action="A")
-                response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data)
-                response = json_decode(response) 
-                if response['success'] == '000': 
-                    logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
-                                 t_info['dev_id'], t_info['t_msisdn'])
-                else:
-                    logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
-                                 t_info['dev_id'], t_info['t_msisdn'], response)
+                thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
                 #self.request_location(t_info['dev_id'])
 
         if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
@@ -580,6 +576,29 @@ class MyGWServer(object):
         request = DotDict(packet=lc.buf,
                           address=address)
         self.append_gw_request(request, connection, channel)
+
+        if t_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+            seq = str(int(time.time()*1000))[-4:]
+            args_ = DotDict(seq=seq,
+                            tid=t_info["dev_id"])
+            ubc = UNBindComposer(args_)
+            request = DotDict(packet=ubc.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+            logging.warn("[GW] Terminal: %s is unbinded, send unbind packet.", t_info["dev_id"])            
+
+    def subscription_lbmp(self, t_info):
+        # subscription LE for new sim
+        data = DotDict(sim=t_info['t_msisdn'],
+                       action="A")
+        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data) 
+        response = json_decode(response) 
+        if response['success'] == '000': 
+            logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
+                         t_info['dev_id'], t_info['t_msisdn'])
+        else:
+            logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
+                         t_info['dev_id'], t_info['t_msisdn'], response)
 
     def handle_old_login(self, t_info, address, connection, channel):
         """
@@ -753,17 +772,8 @@ class MyGWServer(object):
                         self.redis.delete(*keys)
                         # HK sms
                         sms = SMSCode.SMS_TERMINAL_HK_SUCCESS % (terminal.mobile, t_info['t_msisdn'])
-                        # subscription le for new sim
-                        data = DotDict(sim=t_info['t_msisdn'],
-                                       action="A")
-                        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data)
-                        response = json_decode(response) 
-                        if response['success'] == '000': 
-                            logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
-                                         t_info['dev_id'], t_info['t_msisdn'])
-                        else:
-                            logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
-                                         t_info['dev_id'], t_info['t_msisdn'], response)
+                        # subscription LE for new sim
+                        thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
                         #self.request_location(t_info['dev_id'])
                         logging.info("[GW] Terminal: %s HK success!", t_info['dev_id'])
 
@@ -910,16 +920,7 @@ class MyGWServer(object):
                     logging.info("[GW] Terminal %s by SMS JH success!", t_info['dev_id'])
 
                 # subscription LE for new sim
-                data = DotDict(sim=t_info['t_msisdn'],
-                               action="A")
-                response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data)
-                response = json_decode(response) 
-                if response['success'] == '000': 
-                    logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
-                                 t_info['dev_id'], t_info['t_msisdn'])
-                else:
-                    logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
-                                 t_info['dev_id'], t_info['t_msisdn'], response)
+                thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
                 #self.request_location(t_info['dev_id'])
 
         if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
@@ -1389,8 +1390,14 @@ class MyGWServer(object):
                 self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
                 uap = UnusualActivateParser(body, head)
                 t_info = uap.ret
-                sms = SMSCode.SMS_UNUSUAL_ACTIVATE % t_info['t_msisdn']
-                SMSHelper.send(t_info['u_msisdn'], sms)
+                terminal = self.db.get("SELECT mobile FROM T_TERMINAL_INFO"
+                                       "  WHERE tid = %s LIMIT 1",
+                                       t_info['dev_id'])
+                if terminal:
+                    sms = SMSCode.SMS_UNUSUAL_ACTIVATE % terminal['mobile'] 
+                    SMSHelper.send(t_info['u_msisdn'], sms)
+                else:
+                    logging.error("[GW] Terminal: %s is not existent, what's up?", t_info['dev_id'])
 
             uac = UnusualActivateComposer(args)
             request = DotDict(packet=uac.buf,
