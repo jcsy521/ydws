@@ -437,11 +437,26 @@ class MyGWServer(object):
                     logging.info("[GW] Terminal %s normal login successfully.", t_info['dev_id'])
             else:
                 args.success = GATEWAY.LOGIN_STATUS.UNREGISTER
-                logging.error("[GW] Terminal %s normal login failed.", t_info['dev_id'])
+                logging.error("[GW] Terminal %s login failed, unregister.", t_info['dev_id'])
         else:
             # SMS JH 
             logging.info("[GW] Terminal: %s, mobile: %s JH started.",
                          t_info['dev_id'], t_info['t_msisdn'])
+            logging.info("[GW] Checking terminal mobile: %s and owner mobile: %s, Terminal: %s",
+                         t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
+            if not (check_phone(t_info['u_msisdn']) and check_phone(t_info['t_msisdn'])):
+                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                lc = LoginRespComposer(args)
+                request = DotDict(packet=lc.buf,
+                                  address=address)
+                self.append_gw_request(request, connection, channel)
+                if t_info['u_msisdn']:
+                    sms = SMSCode.SMS_JH_FAILED
+                    SMSHelper.send(t_info['u_msisdn'], sms)
+                logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, dev_id: %s",
+                              t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
+                return
+
             is_refurbishment = False
             if terminal:
                 if (terminal['mobile'] == t_info['t_msisdn']) and \
