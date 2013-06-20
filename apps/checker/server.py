@@ -24,9 +24,7 @@ from utils.myredis import MyRedis
 from db_.mysql import DBConnection
 from helpers.confhelper import ConfHelper
 
-from checkpofftimeout import Checkpofftimeout
 from checkterminalstatus import CheckTerminalStatus
-from chargeremind import ChargeRemind
 from terminal import SimulatorTerminal
 from checkservice import CheckService
 from statistic import TerminalStatistic
@@ -55,16 +53,6 @@ def check_terminal_status():
     except Exception as e:
         logging.exception("[CK] Start check terminals status failed.")
 
-def charge_remind():
-    logging.info("[CK] charge remind thread started...")
-    ccr = ChargeRemind() 
-    try:
-        while True:
-            time.sleep(86400)
-            ccr.check_charge_remind()
-    except Exception as e:
-        logging.exception("[CK] Start check charge remind failed.")
-
 def simulator_terminal():
     logging.info("[CK] simulator terminal thread started...")
     st = SimulatorTerminal() 
@@ -82,43 +70,6 @@ def check_service():
     except Exception as e:
         logging.exception("[CK] Start check service failed.")
 
-def run_statistic_thread():
-    logging.info("[CK] statistic thread started...")
-    INTERVAL = 0
-    ONE_DAY = 60 * 60 * 24
-    ONE_HOUR = 60 * 60
-    ts = TerminalStatistic() 
-    try:
-        while True:
-            epoch_time = time.time()
-            current_time = time.strftime("%Y%m%d%H%M%S", time.localtime(epoch_time))
-            hour = current_time[8:10]
-            if hour == '12':
-                ts.statistic_online_terminal(epoch_time)
-                INTERVAL = ONE_DAY
-            else:
-                INTERVAL = ONE_HOUR
-            time.sleep(INTERVAL)
-            
-    except Exception as e:
-        logging.exception("[CK] Start statistic thread failed.")
-
-def statistic_thread():
-    logging.info("[CK] statistic thread started...")
-    INTERVAL = 30 # in second 
-    ts = TerminalStatistic() 
-    try:
-        while True:
-            epoch_time = time.time()
-
-            current_day = time.localtime(epoch_time)
-            if current_day.tm_hour == 23 and current_day.tm_min == 59:
-                ts.statistic_terminal(epoch_time)
-            time.sleep(INTERVAL)
-            
-    except Exception as e:
-        logging.exception("[CK] Start statistic thread failed.")
-
 def main():
     tornado.options.parse_command_line()
     if not ('conf' in options):
@@ -135,13 +86,9 @@ def main():
 
     try:
         logging.warn("[CK] running on: localhost. Parent process: %s", os.getpid())
-        thread.start_new_thread(check_poweroff_timeout, ())
         thread.start_new_thread(check_terminal_status, ())
         thread.start_new_thread(check_service, ())
-        #thread.start_new_thread(charge_remind, ())
         thread.start_new_thread(simulator_terminal, ())
-        thread.start_new_thread(run_statistic_thread, ())
-        thread.start_new_thread(statistic_thread, ())
         while True:
             time.sleep(60)
          

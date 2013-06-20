@@ -15,15 +15,22 @@ from utils.dotdict import DotDict
 from utils.public import record_terminal_subscription 
 from helpers.emailhelper import EmailHelper 
 from constants import UWEB 
+from tornado.options import define, options, parse_command_line
+from helpers.confhelper import ConfHelper
 
+if not 'conf' in options:
+    define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 
 class TerminalStatistic(object):
+
     def __init__(self):
         self.db = DBConnection().db
         self.to_emails = ['boliang.guan@dbjtech.com']
         self.cc_emails = ['xiaolei.jia@dbjtech.com', 'zhaoxia.guo@dbjtech.com']
         
     def statistic_online_terminal(self, epoch_time):
+        start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
+        logging.info("[CELERY] %s statistic_online_terminal started.", start_time)
         try:
             corps = self.db.query("SELECT cid FROM T_CORP")
             for corp in corps:
@@ -57,26 +64,21 @@ class TerminalStatistic(object):
                                     "  VALUES(%s, %s, %s, %s)",
                                     online_num, offline_num, int(epoch_time), corp.cid)
             convert_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(epoch_time)) 
-            logging.info("[CK] %s statistic online terminal finish", convert_time)
-        except KeyboardInterrupt:
-            logging.error("Ctrl-C is pressed.")
+            logging.info("[CELERY] %s statistic_online_terminal finish.", convert_time)
         except Exception as e:
-            logging.exception("[CHECKER] statistic online terminal exception.")
+            logging.exception("[CHECKER] statistic_online_terminal failed, exception: %s", e.args)
 
-    def statistic_terminal(self, epoch_time):
+    def statistic_user(self, epoch_time):
         try:
-            # NOTE: here, just static the info current day
-            # instance, this day is 2013-05-28, we get data in 2013-05-28
-            # NOTE: epoch_time, 
-
             start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
-            logging.info("[CK] %s statistic terminal started.", start_time)
+            logging.info("[CELERY] %s statistic_user started.", start_time)
 
             current_day = time.localtime(epoch_time)
             day_start_time, day_end_time = start_end_of_day(current_day.tm_year, current_day.tm_mon, current_day.tm_mday)
             month_start_time, month_end_time = start_end_of_month(current_day.tm_year, current_day.tm_mon)
             year_start_time, year_end_time = start_end_of_year(current_day.tm_year)
-            logging.info("[CK] day_start_time: %s, day_end_time: %s, month_start_time: %s, month_end_time: %s, year_start_time: %s, year_end_time: %s.", 
+
+            logging.info("[CELERY] day_start_time: %s, day_end_time: %s, month_start_time: %s, month_end_time: %s, year_start_time: %s, year_end_time: %s.", 
                         day_start_time, day_end_time, month_start_time, month_end_time, year_start_time, year_end_time)
             
             sql_terminal_add = ("SELECT tsl.tmobile, tsl.begintime, tsl.add_time, tsl.del_time from T_SUBSCRIPTION_LOG as tsl, T_TERMINAL_INFO as tti"
@@ -90,9 +92,9 @@ class TerminalStatistic(object):
                             "  WHERE timestamp BETWEEN %s AND %s")
 
             sql_in_login = ("SELECT COUNT(distinct tll.uid) AS num"
-                              "   FROM T_LOGIN_LOG as tll, T_TERMINAL_INFO as tti"
-                              "   WHERE tll.uid = tti.owner_mobile AND tti.mobile like '14778%%' "
-                              "       AND tll.role =0 AND (tll.timestamp BETWEEN %s AND %s)") 
+                            "   FROM T_LOGIN_LOG as tll, T_TERMINAL_INFO as tti"
+                            "   WHERE tll.uid = tti.owner_mobile AND tti.mobile like '14778%%' "
+                            "       AND tll.role =0 AND (tll.timestamp BETWEEN %s AND %s)") 
 
             sql_en_login = ("SELECT COUNT(distinct uid) AS num"
                             "   FROM T_LOGIN_LOG" 
@@ -161,7 +163,7 @@ class TerminalStatistic(object):
                         deltime = time.localtime(int(item['del_time']))
                         addtime = time.localtime(int(item['add_time']))
                         if (int(item['del_time']) != 0) and (deltime.tm_year+deltime.tm_mon+deltime.tm_mday == addtime.tm_year+addtime.tm_mon+addtime.tm_mday):
-                            logging.info("[CK] tmobile: %s, add and del in the same day, add_time: %s, del_time: %s ", item['tmobile'], addtime, deltime)
+                            logging.info("[CELERY] tmobile: %s, add and del in the same day, add_time: %s, del_time: %s ", item['tmobile'], addtime, deltime)
                             pass
                         else:
                             res.num += 1
@@ -204,8 +206,8 @@ class TerminalStatistic(object):
                                    month_start_time, day_end_time)
 
             individuals = self.db.get("SELECT COUNT(tu.id) AS num"
-                                     "  FROM T_USER as tu, T_TERMINAL_INFO as tti"
-                                     "  WHERE tu.uid = tti.owner_mobile and tti.mobile like '14778%%'") 
+                                      "  FROM T_USER as tu, T_TERMINAL_INFO as tti"
+                                      "  WHERE tu.uid = tti.owner_mobile and tti.mobile like '14778%%'") 
             in_deactive = DotDict(num=individuals.num-in_active.num)
 
             in_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id=-1 AND login != 0 AND mobile like '14778%%'")
@@ -302,20 +304,25 @@ class TerminalStatistic(object):
                             in_terminal_offline_count.num+e_terminal_offline_count.num, day_end_time, 
                             UWEB.STATISTIC_USER_TYPE.TOTAL)
 
-            # 4: export offline 
-            self.export_to_excel(day_start_time, epoch_time)
-
             end_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
-            logging.info("[CK] %s statistic terminal finished", end_time)
-        except KeyboardInterrupt:
-            logging.error("Ctrl-C is pressed.")
+            logging.info("[CELERY] %s statistic_user finished", end_time)
         except Exception as e:
-            logging.exception("[CK] statistic online terminal exception.")
+            logging.exception("[CELERY] statistic_user terminal exception.")
 
 
-    def export_to_excel(self, day_start_time, epoch_time):
+    def statistic_offline_terminal(self, epoch_time):
         """Export data into excel file.
-        """
+        """ 
+        start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
+        logging.info("[CELERY] %s statistic_offline_terminal started.", start_time)
+
+        current_day = time.localtime(epoch_time)
+        day_start_time, day_end_time = start_end_of_day(current_day.tm_year, current_day.tm_mon, current_day.tm_mday)
+        month_start_time, month_end_time = start_end_of_month(current_day.tm_year, current_day.tm_mon)
+        year_start_time, year_end_time = start_end_of_year(current_day.tm_year)
+
+        logging.info("[CELERY] day_start_time: %s, day_end_time: %s, month_start_time: %s, month_end_time: %s, year_start_time: %s, year_end_time: %s.", 
+                    day_start_time, day_end_time, month_start_time, month_end_time, year_start_time, year_end_time)
 
         import xlwt 
         import xlrd
@@ -357,11 +364,11 @@ class TerminalStatistic(object):
             item['offline_period'] = int(time.time()) - item['offline_time']
             item['offline_cause'] =  2 if item['pbat'] < 5 else 1
             item['remark'] = safe_unicode(item['remark'])
-        logging.info('[CK] the currentrecords to be dealed with, counts: %s, cur_res: %s', len(cur_res), cur_res)
+        logging.info('[CELERY] the currentrecords to be dealed with, counts: %s, cur_res: %s', len(cur_res), cur_res)
 
         pre_res = [] 
         if not os.path.isfile(PRE_PATH):
-            logging.info("[CK] pre_path: %s cannot be found.", PRE_PATH)
+            logging.info("[CELERY] pre_path: %s cannot be found.", PRE_PATH)
         else:
             wb=xlrd.open_workbook(PRE_PATH)
             sh=wb.sheet_by_name(u'离线汇总分析')
@@ -397,7 +404,7 @@ class TerminalStatistic(object):
 
                 row[9] = safe_unicode(terminal['remark'])
                 pre_res.append(row)
-            logging.info('[CK] the previous records to be dealed with, counts: %s, pre_res: %s', len(pre_res), pre_res)
+            logging.info('[CELERY] the previous records to be dealed with, counts: %s, pre_res: %s', len(pre_res), pre_res)
 
         # some styles
         #date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
@@ -408,7 +415,6 @@ class TerminalStatistic(object):
         online_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;')
         offline_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
         center_style  = xlwt.easyxf('align: wrap on, vert centre, horiz center;')
-
 
 
         wb = xlwt.Workbook()
@@ -450,14 +456,13 @@ class TerminalStatistic(object):
             ws.write(i, 9, safe_unicode(terminal['remark']), center_style)
             start_line += 1
 
-        logging.info('[CK] counts: %s, tmobile_lst: %s', len(tmobile_lst), tmobile_lst)
+        logging.info('[CELERY] counts: %s, tmobile_lst: %s', len(tmobile_lst), tmobile_lst)
         results = pre_res
         for i, result in zip(range(start_line, len(results) + start_line), results):
             #for j in range(len(OFFLINE_HEADER)):
             #    ws.write(i, j, result[j])
             #if result[1] in tmobile_lst:
             #    continue
-
             ws.write(i, 0, result[0], center_style)
             ws.write(i, 1, result[1], center_style)
             ws.write(i, 2, result[2], center_style)
@@ -472,17 +477,15 @@ class TerminalStatistic(object):
                 ws.write(i, 8, u'在线', online_style)
             else:
                 pass
-                #ws.write(i, 8, u'离线', offline_style)
-            #ws.write(i, 8, result[8])
             ws.write(i, 9, result[9], center_style)
 
         wb.save(CUR_PATH)
 
-        content = u'附件是 %s 的离线报表统计，请查收' %  cur_path
+        content = u'附件是 %s 的离线报表统计，请查收! 详情请看：%s ' % (cur_path,ConfHelper.ADMIN_CONF.url)
         EmailHelper.send(self.to_emails, content, self.cc_emails, files=[CUR_PATH]) 
-        logging.info("[CK] export excel finished. cur_path: %s", CUR_PATH)
+        logging.info("[CELERY] statistic_offline_terminal finished, cur_path: %s", CUR_PATH)
 
-    def add_terminal_to_subscription(self):
+    def prepare_statistic(self):
         """Handle the old data.
         """
         #self.db.execute("truncate T_SUBSCRIPTION_LOG")
@@ -493,27 +496,44 @@ class TerminalStatistic(object):
             record_terminal_subscription(self.db, terminal['mobile'], terminal['group_id'], terminal['begintime'], terminal['begintime'],1) 
             # 2: modify the offline_time
             if terminal['offline_time'] == 0:
-                self.db.execute("update T_TERMINAL_INFO set offline_time = %s where id = %s ", 
+                self.db.execute("UPDATE T_TERMINAL_INFO set offline_time = %s where id = %s ", 
                                 terminal['begintime'], terminal['id'])
         
+def statistic_offline_terminal():
+    ts = TerminalStatistic()
+    ts.statistic_offline_terminal(int(time.time()))
+
+def statistic_online_terminal():
+    ts = TerminalStatistic()
+    ts.statistic_online_terminal(int(time.time()))
+
+def statistic_user():
+    ts = TerminalStatistic()
+    ts.statistic_user(int(time.time()))
+ 
+def statistic_misc():
+    ts = TerminalStatistic()
+    ts.prepare_statistic()
 
 if __name__ == '__main__':
-    
-    from tornado.options import define, options, parse_command_line
-    from helpers.confhelper import ConfHelper
-    define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
-
     ConfHelper.load(options.conf)
     parse_command_line()
-
+    #NOTE: here, you can name the date to be statisticed.
     year = '2013'
-    month = '06'
+    month = '01'
     day =  '14'
     timestamp = int(time.mktime(time.strptime("%s-%s-%s-23-59"%(year,month,day),"%Y-%m-%d-%H-%M")))
     logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
-    ##imestamp = int(time.time())
-
     ts = TerminalStatistic()
-    #timestamp = int(time.time())
-    ts.statistic_terminal(timestamp)
-    #ts.add_terminal_to_subscription()
+    #ts.statistic_online_terminal(timestamp) 
+    #ts.statistic_offline_terminal(timestamp) 
+    #ts.statistic_misc() 
+else: 
+    try: 
+        from celery.decorators import task 
+        statistic_offline_terminal = task(ignore_result=True)(statistic_offline_terminal) 
+        statistic_online_terminal = task(ignore_result=True)(statistic_online_terminal) 
+        statistic_user = task(ignore_result=True)(statistic_user) 
+    except Exception as e: 
+        logging.exception("[CELERY] admintask statistic failed. Exception: %s", e.args)
+
