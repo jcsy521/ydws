@@ -436,7 +436,7 @@ class MyGWServer(object):
                 else:
                     logging.info("[GW] Terminal %s normal login successfully.", t_info['dev_id'])
             else:
-                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                args.success = GATEWAY.LOGIN_STATUS.UNREGISTER
                 logging.error("[GW] Terminal %s normal login failed.", t_info['dev_id'])
         else:
             # SMS JH 
