@@ -76,12 +76,12 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 	n_currentLastInfoNum = 0;
 	if ( b_ifLastInfo ) {
 		
-		obj_carsData = {};
+		// obj_carsData = {};
 		obj_selfmarkers = {};
 		
 		LASTINFOCACHE = 0; //轨迹查询后重新获取终端数据
 		if ( !dlf.fn_userType() ) {
-			$('.j_carList').removeData('carsData');
+			// $('.j_carList').removeData('carsData');
 			dlf.fn_getCarData('first');	// 重新请求lastinfo
 		} else {
 			arr_infoPoint = [];

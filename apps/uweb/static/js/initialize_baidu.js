@@ -96,10 +96,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( obj_tempVal ) { // 追加
 		if ( str_actionTrack == 'yes' ) {
 			// obj_tempVal.val = obj_tempVal.val[0];	// 如果是开启追踪的第一次lastinfo
-			var n_firstTrack = obj_selfMarker.track,
-				str_tempOldColor = obj_actionTrack[str_tid].color;
+			var str_tempOldColor = obj_actionTrack[str_tid].color;
 			
 			if ( b_isCorpUser ) {	// 如果是集团开启追踪后  显示track_info的点数据
+				var n_firstTrack = obj_selfMarker.track;
+				
 				if ( n_firstTrack ) {
 					obj_tempVal.val = [];
 					obj_selfmarkers[str_tid].track = 0;
@@ -231,11 +232,12 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 		var str_tid = arr_tids[i],
 			str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// obj_carLi.attr('actiontrack'),
 			obj_selfMarker = obj_selfmarkers[str_tid],	// obj_carLi.data('selfmarker'), 
-			obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,  // 获取吹出框
-			str_content = obj_selfInfoWindow.getContent(), // 吹出框内容
+			obj_selfInfoWindow = '', // obj_selfMarker.selfInfoWindow,  // 获取吹出框
+			str_content = '', // obj_selfInfoWindow.getContent(), // 吹出框内容
 			str_tempAction = 'yes';
 			str_tempOldMsg = '',
 			obj_selfItem = $(selfItem),
+			n_track = 0,
 			str_tempMsg = '取消跟踪';
 		
 		if ( str_actionTrack == 'yes' ) {
@@ -243,7 +245,6 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 			str_tempMsg = '开始跟踪';
 			str_tempOldMsg = '取消跟踪';
 			// 手动取消追踪清空计时器
-			obj_selfMarker.track = 0;	// 移除存储第一次开启追踪
 			dlf.fn_clearRealtimeTrack(str_tid);
 			obj_actionTrack[str_tid].color = '';
 			// 关闭jNotityMessage,dialog
@@ -253,17 +254,22 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 			str_tempAction = 'yes';
 			str_tempMsg = '取消跟踪';
 			str_tempOldMsg = '开始跟踪';
-			obj_selfMarker.track = 1;	// 存储第一次开启追踪
+			n_track = 1;
 			// 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪 todo
 			arr_openTids.push(str_tid);
 		}
-		str_content = str_content.replace(str_tempOldMsg, str_tempMsg);
-		obj_selfInfoWindow.setContent(str_content);		// todo
-		obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;
-		obj_actionTrack[str_tid].status = str_tempAction;
-		obj_selfmarkers[str_tid] = obj_selfMarker;
+		if ( obj_selfMarker ) {
+			obj_selfMarker.track = n_track;	// 存储第一次开启追踪、移除存储第一次开启追踪
+			obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,  // 获取吹出框
+			str_content = obj_selfInfoWindow.getContent(); // 吹出框内容
+			
+			str_content = str_content.replace(str_tempOldMsg, str_tempMsg);
+			obj_selfInfoWindow.setContent(str_content);		// todo
+			obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;
+			obj_selfmarkers[str_tid] = obj_selfMarker;
+		}
 		obj_selfItem.html(str_tempMsg);
-		
+		obj_actionTrack[str_tid].status = str_tempAction;
 		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	}
 	if ( arr_openTids.length > 0 )  {

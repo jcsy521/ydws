@@ -12,8 +12,8 @@ var postAddress = null,
 	obj_NavigationControl = null,
 	obj_MapTypeControl = null,
 	obj_trafficControl = null,
-	obj_viewControl = null,
-	obj_selfMarkers = {};
+	obj_viewControl = null;
+	
 (function () {
 
 /**

@@ -132,7 +132,7 @@ function customMenu(node) {
 				if ( b_trackStatus ) {
 					return;
 				}
-				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				obj_alarmAndDelay.hide();	
 				dlf.fn_initTrack();
 			}
@@ -166,7 +166,7 @@ function customMenu(node) {
 		"bindRegion": {
 			"label" : bindRegionLabel,
 			"action" : function(obj) {	// todo 
-				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				obj_alarmAndDelay.hide();
 				dlf.fn_initBindRegion();
 			}
@@ -227,7 +227,7 @@ function customMenu(node) {
 		"batchRegion" : {
 			"label" : batchRegionLabel,
 			"action": function (obj) { // 批量设置电子围栏
-				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				obj_alarmAndDelay.hide();
 				dlf.fn_initBatchRegions(obj);
 			}
@@ -450,14 +450,15 @@ function fn_batchOpenTrack(obj, str_operation) {
 				obj_terminalALink = obj_checkedTerminal.children('a'),
 				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
 				str_tid = obj_terminalALink.attr('tid'),
+				obj_currentMarker = obj_selfmarkers[str_tid],
 				str_alias = obj_terminalALink.text(),	// tnum
 				str_tmobile = obj_terminalALink.attr('title'),	// tmobile
 				str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
 			
 			if ( b_isChecked ) {
-				if ( str_operation == 'open' && str_actionTrack != 'yes' ) {	// 选中终端没有开启追踪
+				if ( str_operation == 'open' && str_actionTrack != 'yes' && obj_currentMarker ) {	// 选中终端没有开启追踪
 					arr_tids.push(str_tid);
-				} else if ( str_operation == 'close' && str_actionTrack != 'no' && str_actionTrack != '' ) {	// 选中终端 取消追踪
+				} else if ( str_operation == 'close' && str_actionTrack != 'no' && str_actionTrack != '' && obj_currentMarker ) {	// 选中终端 取消追踪
 					arr_tids.push(str_tid);
 				}
 				arr_dataes.push({'alias': str_alias, 'tmobile': str_tmobile, 'tid': str_tid, 'track': str_actionTrack});
@@ -919,7 +920,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 							*/
 							var str_tempLabel = str_mobile;
 							if ( str_alias != str_mobile ) {
-								str_tempLabel = str_alias + ' ' + str_mobile;
+								str_tempLabel = str_oldAlias + ' ' + str_mobile;
 							}
 							arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
 							// 存储最新的marker信息
@@ -1619,6 +1620,7 @@ function fn_removeTerminal(node) {
 				fn_updateTerminalCount('sub', 1);				
 				$("#corpTree").jstree('remove');				
 				// 删除地图marker
+				obj_actionTrack[str_param].status = '';
 				if ( obj_selfmarkers[str_param] ) {
 					mapObj.removeOverlay(obj_selfmarkers[str_param]);
 					delete obj_selfmarkers[str_param];

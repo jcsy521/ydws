@@ -20,6 +20,9 @@ window.dlf.fn_personalData = function() {
 				str_phone = obj_data.mobile;
 				
 			$('#name').val(str_name).data('name', str_name);
+			if ( str_name == '' ) {
+				str_name = str_phone;
+			}
 			if ( str_name.length > 4 ) {	// 姓名长度大于4显示...
 				str_newName = str_name.substr(0,4)+'...';
 			}
@@ -353,18 +356,12 @@ window.onresize = function () {
 		$('#top, #main, #corpMain').css('width', n_windowWidth);
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-		/*if ( n_treeHeight <= 345 ) {
-			obj_tree.css('overflow-y', 'scroll');
-		} else if ( n_treeHeight >= 535 ) {
-			obj_tree.css('overflow-y', 'scroll');
-			n_treeHeight = 535;
-		} else {
-			obj_tree.css('overflow', 'hidden');
-		}*/
-		if ( n_tempTreeHight > n_treeHeight ) {
+
+		/*if ( n_tempTreeHight > n_treeHeight ) {
 			obj_tree.css('overflow-y', 'scroll');
 		}
 		obj_tree.height(n_treeHeight);
+		*/
 		$('#right, #corpRight, #navi, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
@@ -452,18 +449,11 @@ $(function () {
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	
-	/*if ( n_treeHeight <= 345 ) {
-		obj_tree.css('overflow-y', 'scroll');
-	} else if ( n_treeHeight >= 535 ) {
-		obj_tree.css('overflow-y', 'scroll');
-		n_treeHeight = 535;
-	} else {
-		obj_tree.css('overflow', 'hidden');
-	}*/
-	if ( n_tempTreeHight > n_treeHeight ) {
+	/*if ( n_tempTreeHight > n_treeHeight ) {
 		obj_tree.css('overflow-y', 'scroll');
 	}
 	obj_tree.height(n_treeHeight);
+	*/
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	if ( dlf.fn_userType() ) {	// 集团用户
@@ -515,7 +505,7 @@ $(function () {
 			obj_navItemUl = $('.j_countNavItem'),
 			obj_alarm = $('.j_alarm'),
 			obj_delay = $('.j_delay');
-		
+
 		if ( b_trackStatus ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
 			if ( str_id == 'track' ) {
 				return;
@@ -542,7 +532,7 @@ $(function () {
 		// 是否清除地图及lastinfo
 		if ( str_id == 'eventSearch' || str_id == 'routeLine' ) {
 			obj_alarm.hide();
-			dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+			// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
 		if ( str_userType !=  USER_PERSON ) {
@@ -605,7 +595,7 @@ $(function () {
 				dlf.fn_defendQuery();
 				break;
 			case 'track': // 轨迹查询
-				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				obj_alarm.hide();
 				dlf.fn_initTrack();
 				break;
@@ -633,7 +623,7 @@ $(function () {
 				dlf.fn_initInfoPush();
 				break;
 			case 'routeLine': // 线路管理
-				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				if ( b_eventSearchStatus ) {
 					dlf.fn_setMapPosition(false);	// 还原地图
 				}
@@ -641,7 +631,7 @@ $(function () {
 				break;
 			case 'region': // 围栏管理
 				obj_alarm.hide();
-				dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 				if ( b_eventSearchStatus ) {
 					dlf.fn_setMapPosition(false);	// 还原地图

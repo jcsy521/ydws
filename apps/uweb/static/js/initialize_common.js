@@ -41,14 +41,13 @@ var mapObj = null,
 	obj_routeLines = {}, 
 	obj_infoPushChecks = {},
 	obj_infoPushMobiles = {},
-	n_currentLastInfoNum = 0;
-	obj_selfmarkers = {},
+	n_currentLastInfoNum = 0,
 	obj_drawingManager = null,
 	obj_circle = null,
 	obj_circleLabel = null,
-	obj_circleMarker = null;
-	
-	
+	obj_circleMarker = null,
+	obj_carsData = null;
+		
 if ( !window.dlf ) { window.dlf = {}; }
 
 (function () {
@@ -328,6 +327,12 @@ window.dlf.fn_bindCarListItem = function() {
 			
 		if (n_mouseWhick == 1 ) {
 			if ( str_className.search('j_currentCar') != -1 || str_className.search(JSTREECLICKED) != -1 ) { // 如果用户点击当前车辆不做操作
+				var obj_currentMarker = obj_selfmarkers[n_tid];
+				
+				if ( obj_currentMarker ) {
+					obj_currentMarker.openInfoWindow(obj_currentMarker.selfInfoWindow);
+					mapObj.setCenter(obj_currentMarker.getPosition());
+				}
 				return;
 			}
 			dlf.fn_switchCar(n_tid, obj_currentCar); // 车辆列表切换
@@ -623,6 +628,8 @@ window.dlf.fn_initCarInfo = function () {
 	$('#gps').css('background-image', '');
 	$('#locationTime').html('-');
 	$('#tmobileContent').html('-').attr('title', '');
+	
+	$('#speed, #degree, #lng, #lat, #type, #address').html('-');
 }
 
 /**
@@ -690,7 +697,11 @@ window.dlf.fn_createTerminalListClearLayer = function(obj_tempMarkers, obj_carDa
 			// 如果开启追踪的话清除轨迹线  置空status和color
 			dlf.fn_checkTrackDatas(param, true);
 			dlf.fn_clearMapComponent(str_tempTSelfMarker);
-			delete obj_carsData[param];	// 集团用户清除obj_carsData对应数据
+			if ( b_userType ) {	// 如果是集团用户  清除obj_carsData数据
+				delete obj_carsData[param];	
+			} else {	// 个人用户清除carsData对应数据
+				delete $('.j_carList').data('carsData')[param];
+			}
 		}
 	}
 	
@@ -714,10 +725,12 @@ window.dlf.fn_checkTrackDatas = function (str_tid, b_deleteTrack) {
 	var obj_tempTrack = obj_actionTrack[str_tid];
 
 	if ( !obj_tempTrack ) {
-		obj_actionTrack[str_tid] = {'status': '', 'interval': '', 'color': ''}
+		obj_actionTrack[str_tid] = {'status': '', 'interval': '', 'color': '', 'track': 0};
 	}
 	if ( b_deleteTrack ) {
 		var obj_selfPolyline = 	obj_polylines[str_tid];
+		
+		obj_actionTrack[str_tid] = {'status': '', 'interval': '', 'color': '', 'track': 0};
 		
 		if ( obj_selfPolyline ) {
 			dlf.fn_clearMapComponent(obj_selfPolyline); // 删除相应轨迹线
@@ -735,6 +748,7 @@ window.dlf.fn_clearOpenTrackData = function() {
 			
 		obj_actionTrack[str_tid].status = '';
 		obj_actionTrack[str_tid].color = '';
+		obj_actionTrack[str_tid].track = 0;
 		dlf.fn_clearInterval(obj_actionTrack[str_tid].interval);	
 	});
 }
@@ -1315,7 +1329,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 	}
 	if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo	
-		if ( str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' ) {
+		if ( str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
 		} else if ( str_wrapperId == 'bindBatchRegion' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
@@ -1448,7 +1462,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 								}
 							}
 						}				
-						obj_carList.data('carData', obj_carsData);
+						obj_carList.data('carsData', obj_carsData);
 						dlf.fn_clearNavStatus('defend');
 						$('.j_batchDefend').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);	// 批量按钮变成灰色并且不可用
 						dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
@@ -1567,6 +1581,9 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						str_newName = str_name;
 						
 					if ( str_name ) {	// 用户名回填
+						if ( str_name == '' ) {
+							str_name = $('#phone').html();
+						}
 						if ( str_name.length > 4 ) {
 							str_newName = str_name.substr(0,4)+'...';
 						}
