@@ -73,6 +73,17 @@ sudo apt-key add rabbitmq-signing-key-public.asc
 sudo apt-get install -y --force-yes rabbitmq-server
 sudo easy_install 'pika==0.9.5'
 
+# celery
+wget http://pypi.python.org/packages/source/c/celery/celery-2.2.5.tar.gz#md5=d523c914a7c2761c70a4cc9058fdd6e8
+tar xvfz celery-2.2.5.tar.gz 
+cd celery-2.2.5
+python setup.py build
+python setup.py install 
+
+sudo rabbitmqctl add_user celery celery
+sudo rabbitmqctl add_vhost celeryhost
+sudo rabbitmqctl set_permissions -p celeryhost celery ".*" ".*" ".*"
+
 # supervisor
 sudo apt-get install -y supervisor
 
