@@ -124,17 +124,26 @@ def insert_location(location, db, redis):
                      location.speed, location.degree,
                      location.cellid)
     if location.cLat and location.cLon:
-        mem_location = {'id':lid,
-                        'latitude':location.lat,
-                        'longitude':location.lon,
-                        'type':location.type,
-                        'clatitude':location.cLat,
-                        'clongitude':location.cLon,
-                        'timestamp':location.gps_time,
-                        'name':location.name,
-                        'degree':location.degree,
-                        'speed':location.speed}
+        lqgz_interval_key = get_lqgz_interval_key(location.dev_id)
+        lqgz = redis.getvalue(lqgz_interval_key)
+        if lqgz and (int(location.type) != 0):
+            return lid
+
         location_key = get_location_key(location.dev_id)
-        redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+        last_location = redis.getvalue(location_key)
+        if (last_location and (location.gps_time > last_location['timestamp'])) or\
+            not last_location:
+            mem_location = {'id':lid,
+                            'latitude':location.lat,
+                            'longitude':location.lon,
+                            'type':location.type,
+                            'clatitude':location.cLat,
+                            'clongitude':location.cLon,
+                            'timestamp':location.gps_time,
+                            'name':location.name,
+                            'degree':location.degree,
+                            'speed':location.speed}
+            location_key = get_location_key(location.dev_id)
+            redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
     return lid

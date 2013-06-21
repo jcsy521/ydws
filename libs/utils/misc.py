@@ -107,6 +107,9 @@ def get_alarm_info_key(dev_id):
 def get_lqgz_key(dev_id):
     return str("lqgz:%s" % dev_id)
 
+def get_lqgz_interval_key(dev_id):
+    return str("lqgz_interval:%s" % dev_id)
+
 def get_lq_sms_key(dev_id):
     return str("lq:%s" % dev_id)
 
