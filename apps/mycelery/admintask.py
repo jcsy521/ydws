@@ -162,7 +162,7 @@ class TerminalStatistic(object):
                     for item in data:
                         deltime = time.localtime(int(item['del_time']))
                         addtime = time.localtime(int(item['add_time']))
-                        if (int(item['del_time']) != 0) and (deltime.tm_year+deltime.tm_mon+deltime.tm_mday == addtime.tm_year+addtime.tm_mon+addtime.tm_mday):
+                        if (int(item['del_time']) != 0) and ((deltime.tm_year,deltime.tm_mon,deltime.tm_mday) == (addtime.tm_year,addtime.tm_mon,addtime.tm_mday)):
                             logging.info("[CELERY] tmobile: %s, add and del in the same day, add_time: %s, del_time: %s ", item['tmobile'], addtime, deltime)
                             pass
                         else:
@@ -176,12 +176,11 @@ class TerminalStatistic(object):
                 
             in_terminal_add_month = self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
                                                month_start_time, day_end_time)
-            in_terminal_add_month = handle_terminal_add(in_terminal_add_month)
+            in_terminal_add_month = DotDict(num=len(in_terminal_add_month))
 
             in_terminal_add_year= self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
                                              year_start_time, day_end_time)
-
-            in_terminal_add_year = handle_terminal_add(in_terminal_add_year)
+            in_terminal_add_year = DotDict(num=len(in_terminal_add_year))
 
             in_terminal_del_day = self.db.get(sql_terminal_del + " AND group_id = -1 ",
                                              day_start_time, day_end_time)
@@ -238,11 +237,11 @@ class TerminalStatistic(object):
 
             e_terminal_add_month = self.db.query(sql_terminal_add + " AND tsl.group_id != -1",
                                                month_start_time, day_end_time )
-            e_terminal_add_month = handle_terminal_add(e_terminal_add_month)
+            e_terminal_add_month = DotDict(num=len(e_terminal_add_month))
 
             e_terminal_add_year= self.db.query(sql_terminal_add + " AND tsl.group_id != -1",
                                            year_start_time, day_end_time )
-            e_terminal_add_year = handle_terminal_add(e_terminal_add_year)
+            e_terminal_add_year = DotDict(num=len(e_terminal_add_year))
 
             e_terminal_del_day = self.db.get(sql_terminal_del + " AND group_id != -1",
                                             day_start_time, day_end_time)
@@ -401,8 +400,7 @@ class TerminalStatistic(object):
                     d,m = divmod(offline_period,60*60)
                     count = d+1 if m else d
                     row[6] = count
-
-                row[9] = safe_unicode(terminal['remark'])
+                    row[9] = safe_unicode(terminal['remark'])
                 pre_res.append(row)
             logging.info('[CELERY] the previous records to be dealed with, counts: %s, pre_res: %s', len(pre_res), pre_res)
 

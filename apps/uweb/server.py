@@ -51,7 +51,7 @@ from handlers.statistic import StatisticHandler, StatisticDownloadHandler, Stati
 from handlers.mileage import MileageHandler, MileageDownloadHandler, MileageSingleHandler, MileageSingleDownloadHandler
 from handlers.password import PasswordHandler, PasswordCorpHandler, PasswordOperHandler
 from handlers.profile import ProfileHandler, ProfileCorpHandler, ProfileOperHandler
-from handlers.smsoption import SMSOptionHandler
+from handlers.smsoption import SMSOptionHandler, SMSOptionCorpHandler
 from handlers.appsettings import AppSettingsHandler
 from handlers.unbind import UNBindHandler
 from handlers.feedback import FeedBackHandler
@@ -138,6 +138,7 @@ class Application(tornado.web.Application):
             (r"/profile/*", ProfileHandler),
             (r"/profile/corp/*", ProfileCorpHandler),
             (r"/profile/oper/*", ProfileOperHandler),
+            (r"/smsoption/corp/*", SMSOptionCorpHandler),
             (r"/smsoption/*", SMSOptionHandler),
             (r"/appsettings/*", AppSettingsHandler),
             (r"/unbind/*", UNBindHandler),
