@@ -11,8 +11,8 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
-		n_height = 508,
-		n_btnTop = 489;
+		n_height = 350,
+		n_btnTop = 330;
 	
 	if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
 		dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
@@ -22,15 +22,23 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	$('.j_input input[type=text]').blur().css('color', '#000').val('');
 	$('#t_corp_mobile').focus();
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
-	fn_initCorpSMS(str_tid);	// 初始化SMS通知
 	if ( str_bizType == 'znbc' ) {
 		dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
-		n_height = 574;
-		n_btnTop = 559;
+		n_height = 417;
+		n_btnTop = 390;
 	}
 	$('.corpTerminalContent').css('height', n_height);
 	$('#corp_terminalSave').css('top', n_btnTop);
 	dlf.fn_onInputBlur();	// input的blur事件初始化
+}
+
+/**
+* 集团用户短信设置初始化
+*/
+window.dlf.fn_initSMSOption = function() {
+	dlf.fn_dialogPosition('corpSMSOption');  // 显示短信设置dialog	
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	fn_initCorpSMS();	// 初始化SMS通知
 }
 
 /**
@@ -100,22 +108,36 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 /**
 * 初始化SMS通知
 */
-function fn_initCorpSMS(str_tid) {
-	// todo  + '?tid=' + str_tid
-	$.get_(SMS_URL, '', function(data) {
+function fn_initCorpSMS() {
+	// 短信接收号码 change事件 加载对应的短信通知项
+	$('#smsOwerMobile').unbind('change').bind('change', function() {
+		var str_val = $(this).val(),
+			obj_smsOptions = $('#smsOwerMobile option[value='+ str_val +']').data('smsList');
+		
+		fn_changeSMSCheckbox(obj_smsOptions);
+	});
+	
+	$.get_(CORP_SMS_URL, '', function(data) {
 		if ( data.status == 0 ) {
-			var obj_data = data.sms_options;
-			
-			for(var param in obj_data) {	// 获取短信设置项的数据，进行更新
-				var n_val = obj_data[param],
-					obj_param = $('#corp_' + param);
-					
-				obj_param.attr('t_checked', n_val);
-				if ( n_val == 1 ) {
-					obj_param.attr('checked', true)
-				} else {
-					obj_param.attr('checked', false)
+			var obj_data = data.sms_options,
+				obj_smsOwerMobile = $('#smsOwerMobile'),
+				str_selectOptions = '',
+				b_selected = false,
+				n_num = 0,
+				str_currentMobile = '';
+				
+			obj_smsOwerMobile.html('');
+			for( var param in obj_data ) {	// 获取短信设置项的数据，进行更新
+				n_num ++;
+				var obj_smsData = obj_data[param];
+				
+				if ( n_num == 1 ) {	// 默认加载第一个号码的短信设置项
+					fn_changeSMSCheckbox(obj_smsData);
+					str_currentMobile = param;
 				}
+				obj_smsOwerMobile.append('<option value="'+ param +'">'+ param +'</option>');
+				$('#smsOwerMobile option[value='+ param +']').data('smsList', obj_smsData);// 临时存储短信设置数据  下拉列表change时获取数据
+				
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
@@ -126,6 +148,25 @@ function fn_initCorpSMS(str_tid) {
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
 	});
 }
+
+/**
+* 改变对应车主号码 checkbox的选中状态
+* obj_data: 各短信设置项
+*/
+function fn_changeSMSCheckbox(obj_data) {
+	for(var param in obj_data) {	// 获取短信设置项的数据，进行更新
+		var n_val = obj_data[param],
+			obj_param = $('#corp_' + param);
+			
+		obj_param.attr('t_checked', n_val);
+		if ( n_val == 1 ) {
+			obj_param.attr('checked', true)
+		} else {
+			obj_param.attr('checked', false)
+		}
+	}
+}
+
 /**
 * 显示白名单提示框
 */
@@ -153,7 +194,6 @@ window.dlf.fn_showNotice = function() {
 window.dlf.fn_corpBaseSave = function() {
 	var obj_terminalData = {},
 		n_num = 0,
-		n_smsNum = 0,
 		obj_listVal = $('.j_corp_ListVal');
 		
 	/**
@@ -192,16 +232,23 @@ window.dlf.fn_corpBaseSave = function() {
 	}
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
 		obj_terminalData.tid = dlf.fn_getCurrentTid();
-		$('#corp_terminalForm').data('modifyCount', n_num);
 		dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'corpTerminal', '定位器参数保存中');
 	} else {
-		//dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
+}
+
+/**
+* 短信设置保存
+*/
+window.dlf.fn_smsOptionSave = function() {
+	
 	//判断短信通知是否要提交
 	
 	var obj_checkbox = $('.j_corp_checkbox'),
-		obj_smsData = {};
+		obj_smsData = {},
+		n_smsNum = 0;
 		
 	$.each(obj_checkbox, function(index, dom) {
 		var obj_this = $(dom),
@@ -220,11 +267,10 @@ window.dlf.fn_corpBaseSave = function() {
 		n_smsNum = n_smsNum + 1;
 	}
 	if ( n_smsNum != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
-		dlf.fn_jsonPut(SMS_URL, obj_smsData, 'corpTerminal', '短信告警参数保存中');
+		obj_smsData.owner_mobile = $('#smsOwerMobile').val();
+		dlf.fn_jsonPut(CORP_SMS_URL, obj_smsData, 'corpSMSOption', '短信告警参数保存中');
 	} else {
-		if ( n_num == 0 ) {
-			dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
-		}
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
 }
@@ -264,4 +310,22 @@ $(function() {
 	});
 	$('#t_corp_owner_mobile').formValidator({validatorGroup: '7'}).inputValidator({max: 11, onError: '短信接收号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '短信接收号码不合法，请重新输入！'});
 	$('#t_corp_corp_cnum').formValidator({empty:true, validatorGroup: '7'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
+	
+	/** 
+	* 短息设置的验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'corp_smsOptionForm', //指定from的ID 编号
+		debug: true, // 指定调试模式,不提交form
+		validatorGroup: '12', // 指定本form组编码,默认为1, 多个验证组时使用
+		wideWord: false, // 一个汉字当一个字节
+		submitButtonID: 'corp_smsOptionSave', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+		}, 
+		onSuccess: function() { 
+			dlf.fn_smsOptionSave();	// put请求
+		}
+	});
+	
 })

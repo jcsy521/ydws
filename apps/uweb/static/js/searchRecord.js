@@ -435,7 +435,9 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		str_btnPrevDefault = 'prevPage2', // 上一页按钮默认样式
 		str_btnNextDefault = 'nextPage2', // 下一页按钮默认样式
 		str_enableColor = '#4876FF',
-		str_disableColor = '#8E9090';
+		str_disableColor = '#8E9090',
+		obj_infoPushEle = $('#infoPush_allCheckedPanel, #infoPushSave'),
+		obj_infoPushTipsEle = $('.j_infoPushTips, #infoPushDisabledBtn');
 			
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
@@ -461,6 +463,8 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		n_eventDataLen = arr_dwRecordData.length; 	//记录数
 		if ( n_eventDataLen > 0 ) {	// 如果查询到数据
 			$('.' + str_who + 'Table').show();
+			obj_infoPushEle.show();
+			obj_infoPushTipsEle.hide();	// infoPush没有查询到乘客信息提示框隐藏
 			obj_download.show();
 			obj_pagination.show(); //显示分页
 			if ( n_dwRecordPageCnt > 1 ) {	// 总页数大于1 
@@ -522,11 +526,22 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				dlf.fn_jNotifyMessage('创建成功，请绑定围栏。', 'message', false, 6000);
 			}
 		} else {
-			$('#'+ str_who +'TableHeader').hide();
 			obj_download.hide();
 			obj_pagination.hide(); //显示分页
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+			if ( str_who == 'routeLine' ) {
+				obj_searchHeader.after('<tr><td colspan="5" class="colorRed">没有查询到线路，请先创建。</td></tr>');
+				return;
+			} else if ( str_who == 'infoPush' ) {
+				$('.j_infoPushChecks').html('');
+				obj_infoPushEle.hide();
+				obj_infoPushTipsEle.show();	// infoPush没有查询到乘客信息提示框隐藏
+				return;
+			} else {
+				obj_searchHeader.hide();
+			}
 			if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
-				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				// dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			} else {
 				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000);
 			}

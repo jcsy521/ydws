@@ -641,6 +641,9 @@ $(function () {
 			case 'onlineStatics': // 在线统计
 				dlf.fn_initRecordSearch('onlineStatics');
 				break;
+			case 'corpSMSOption': 
+				dlf.fn_initSMSOption();
+				break;
 		}
 	});
 	/*鼠标滑动显示统计二级菜单*/
@@ -978,6 +981,7 @@ $(function () {
 	var obj_addPassenger = $('#addPassenger');
 	// 新增乘客 单击事件
 	obj_addPassenger.unbind('click').bind('click', function() {
+		dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		$('.passengerfieldset input, textarea').val('');
 		$('#txt_passengerMobile').removeData('oldmobile');
 		$('#hidPassengerId').val('');

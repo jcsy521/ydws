@@ -464,6 +464,12 @@ body {
 .menu .onlineStatics:hover, .menu .onlineStaticsHover {
 	background-position: 0px -1188px;
 }
+.menu .corpSMSOption {
+	background-position: 0px -1224px;
+}
+.menu .corpSMSOption:hover, .menu .corpSMSOptionHover {
+	background-position: 0px -1260px;
+}
 .selfList {
 	float:right;
 	margin-right: 20px;
@@ -584,7 +590,11 @@ body {
 	background-position: 0px -442px;
 	width: 487px;
 }
-.corpTerminalTitle .close {
+.corpSMSOptionTitle {
+	background-position: 0 -952px;
+	width: 487px;
+}
+.corpTerminalTitle .close, .corpSMSOptionTitle .close {
 	left: 460px;
 	_left: 458px;
 }
@@ -1027,12 +1037,15 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave  {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn  {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
 	height: 34px;
 	cursor: pointer;
+}
+#infoPushDisabledBtn {
+	background: url('/static/images/fs0.png') no-repeat;
 }
 #tmnTable {
 	height: 55px;
@@ -2440,7 +2453,7 @@ fieldset {
     width: 425px;
 }
 .corpFieldSet {
-	height: 156px
+	height: 197px
 }
 legend {
 	display:block;
@@ -2460,7 +2473,7 @@ legend {
 	padding: 7px 18px 0px 40px;
 	display: inline;
 	float: left;
-	width: 295px;
+	width: 357px;
 	line-height: 37px;
     list-style: none outside none;
 }
@@ -2471,10 +2484,23 @@ legend {
 	line-height: 22px;
 	width: 135px;
 }
+.smsMobileDiv {
+	float: left;
+	padding: 20px 0px 10px 10px;
+}
+.corpSMSOptionContent {
+	width: 487px;
+	height: 295px;
+}
 .corp_terminalButton {
     left: 340px;
     position: absolute;
     top: 559px;
+}
+.corp_smsOptionButton {
+    position: absolute;
+	top: 266px;
+    left: 340px;
 }
 /*corp terminal css end*/
 #addOperatorDialog, #addPassengerDialog {
@@ -2929,6 +2955,9 @@ legend {
 .clickWindowPanel {
 	position: relative;
     top: 14px;
+}
+.height50 {
+	height: 50px;
 }
 #createRegionName {
 	width: 100px;

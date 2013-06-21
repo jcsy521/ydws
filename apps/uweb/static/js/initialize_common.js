@@ -1298,6 +1298,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
 
 	$('.j_delay').hide();
+	dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 	dlf.fn_closeDialog();	// 关闭所有dialog
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
@@ -1684,22 +1685,24 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 							}
 							dlf.fn_updateTerminalLogin(obj_current);	
 							$('#corp_' + param ).attr('t_val', str_val);
-						} else {
-							if ( url == '/smsoption' ) {
-								for ( var param in obj_data ) {
-									var str_val = obj_data[param];
-									
-									$('#corp_' + param).attr('t_checked', str_val);
-								}
-							} else {
-								if ( param == 'corp_cnum' ) {
-									dlf.fn_updateCorpCnum(obj_data[param]);
-									$('#corp_corp_cnum' ).attr('t_val', str_val);
-								}
-								$('#corp_' + param ).attr('t_val', str_val);
-							}							
 						}
 					}
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+				} else if ( str_who == 'corpSMSOption' ) {
+					var str_mobile = obj_data.owner_mobile;
+					
+					
+					if ( str_mobile ) {
+						delete obj_data.ower_mobile;
+					}
+					for ( var param in obj_data ) {
+						var str_val = obj_data[param];
+						
+						$('#smsOwerMobile option[value='+ str_mobile +']').data('smsList').param = str_val;
+						$('#corp_' + param).attr('t_checked', str_val);
+					}
+					$('#corp_' + param ).attr('t_val', str_val);
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else if ( str_who == 'whitelistPop' ) {	// 白名单提示框

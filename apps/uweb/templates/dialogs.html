@@ -263,6 +263,26 @@
 						</tbody>
 					</table>
 				</fieldset>
+				{% if bizcode == 'znbc' %}
+				<fieldset class="corpRouteLineFieldSet">
+					<legend>车辆绑定线路：</legend>
+						<ul class="corp_routeLineList">
+							<label>绑定线路：</label>
+							<label id="corp_routeLineName"></label>
+						</ul>
+				</fieldset>
+				{% end %}
+				<input type="submit" value="" id="corp_terminalSave" class="corp_terminalButton j_save" />
+			</form>				
+		</div>
+	</div>
+	
+	<div id="corpSMSOptionWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle corpSMSOptionTitle">
+			<span class="close j_close" title="关闭窗口" who="corpSMSOption"></span>
+		</div>
+		<div id="corpSMSOptionContent" class="corpSMSOptionContent wrapperContent">
+			<form id="corp_smsOptionForm" >
 				<fieldset class="corpFieldSet">
 					<legend>短信通知项：</legend>
 					<ul class="corp_smsList">
@@ -294,21 +314,17 @@
 							<input type="checkbox" id="corp_region_out" class="j_corp_checkbox" title="出围栏告警" /><label for="corp_region_out">出围栏告警</label> 
 						</li>-->
 					</ul>
+					<div class="smsMobileDiv">
+						短信接收号码：
+						<select id="smsOwerMobile">
+						</select>
+					</div>
 				</fieldset>
-				{% if bizcode == 'znbc' %}
-				<fieldset class="corpRouteLineFieldSet">
-					<legend>车辆绑定线路：</legend>
-						<ul class="corp_routeLineList">
-							<label>绑定线路：</label>
-							<label id="corp_routeLineName"></label>
-						</ul>
-				</fieldset>
-				{% end %}
-				<input type="submit" value="" id="corp_terminalSave" class="corp_terminalButton j_save" />
-			</form>				
+				<input type="submit" value="" id="corp_smsOptionSave" class="corp_smsOptionButton j_save" />
+			</form>
 		</div>
 	</div>
-
+	
 	<!-- 操作员管理 -->
 	<div id="operatorWrapper" class="hide wrapper">
 		<!--<div class="wrapperTitle operatorTitle">
@@ -488,7 +504,8 @@
 						乘客列表：
 					</label>
 					<div class="panel_passenger">
-						<span id="infoPush_allCheckedPanel">
+						<label class="colorRed hide j_infoPushTips">没有查询到乘客信息。</label>
+						<span id="infoPush_allCheckedPanel" class="hide">
 							<input type="checkbox" id="infoPush_allChecked" />
 							<label for="infoPush_allChecked">全选</label>
 						</span>
@@ -519,7 +536,8 @@
 					<textarea name="text_infoPush" id="text_infoPush"></textarea>
 				</div>
 				<div class="panel_infoBtn">
-					<input type="submit" width="100" value="" id="infoPushSave" />
+					<input type="submit" width="100" value="" id="infoPushSave"  />
+					<input type="button" width="100" value="" id="infoPushDisabledBtn"  />
 				</div>
 			</form>
 		</div>

@@ -8,7 +8,8 @@ window.dlf.fn_initBindLine = function( str_tid, str_who ) {
 	$.get_(str_getLineUrl, '', function (data) {  
 		if (data.status == 0) {
 			var obj_line = data.line,
-				obj_bindSelect = $('#bindLine_lineData');
+				obj_bindSelect = $('#bindLine_lineData'),
+				obj_routLineName = $('#corp_routeLineName');
 			
 			if ( obj_line != '' ) {
 				var str_lineName = obj_line.line_name, 
@@ -17,9 +18,10 @@ window.dlf.fn_initBindLine = function( str_tid, str_who ) {
 				if ( str_who == 'bindLine' ) {
 					obj_bindSelect.val(str_lineId).data('lineid', str_lineId);
 				} else {
-					$('#corp_routeLineName').html(str_lineName);
+					obj_routLineName.html(str_lineName).css('color', '#000');
 				}
 			} else {
+				obj_routLineName.html('暂无创建线路。').css('color', 'red');
 				obj_bindSelect.removeData('lineid');
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
@@ -269,6 +271,12 @@ window.dlf.fn_deleteRouteLine = function(n_id) {
 			$.delete_(ROUTELINE_URL+'?ids='+n_id, '', function(data) {
 				if ( data.status == 0 ) {
 					$('#routeLineTable tr[id='+ n_id +']').remove();
+					var n_trLength = $('#routeLineTable tr').length;
+
+					if ( n_trLength <= 1 ) {
+						$('#routeLinePage').hide();
+						$('#routeLineTableHeader').after('<tr><td colspan="5" class="colorRed">没有查询到线路，请先创建。</td></tr>');
+					}
 					dlf.fn_clearMapComponent(); // 清除页面图形
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
