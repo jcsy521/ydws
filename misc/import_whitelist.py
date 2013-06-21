@@ -37,7 +37,7 @@ def batch_import(file_path):
         print '%s sucessfully.' % mobile
 
 def usage():
-    print "Usage: python2.6 send_sms.py --excel=file_path"
+    print "Usage: python import_whitelist.py --excel=file_path"
 
 def main():
     ConfHelper.load('../conf/global.conf')
