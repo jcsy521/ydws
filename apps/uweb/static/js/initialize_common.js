@@ -993,9 +993,9 @@ window.dlf.fn_clearRealtimeTrack = function(str_tid) {
 /**
 * 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪
 */
-window.dlf.fn_openTrack = function(arr_openTids, selfItem) {
+window.dlf.fn_openTrack = function(arr_openTids, selfItem, n_isOpen) {
 	// 向后台发送开启追踪请求
-	var obj_param = {'interval': 10, 'tids': arr_openTids};
+	var obj_param = {'tids': arr_openTids, 'flag': n_isOpen};	// 'interval': 10, 
 	
 	$.post_(BEGINTRACK_URL, JSON.stringify(obj_param), function(data) {
 		if ( data.status == 0 ) {
@@ -1006,7 +1006,8 @@ window.dlf.fn_openTrack = function(arr_openTids, selfItem) {
 				n_left = ($(window).width()-400)/2, 
 				str_terminalAlias = '',
 				b_userType = dlf.fn_userType(),
-				arr_tempTids = arr_openTids.split(',');
+				arr_tempTids = arr_openTids.split(','),
+				str_tips = '您选择的定位器已开启追踪。';
 
 			for ( var i = 0; i < arr_tempTids.length; i++ ) {
 				var str_tid = arr_tempTids[i],
@@ -1028,7 +1029,10 @@ window.dlf.fn_openTrack = function(arr_openTids, selfItem) {
 			/**
 			* 10分钟
 			*/
-			obj_trackMsg.html('您选择的定位器已开启追踪。');	//'定位器：'+ str_terminalAlias +'  ，10分钟后将自动取消追踪
+			if ( n_isOpen == 0 ) {
+				str_tips = '您选择的定位器已关闭追踪。';
+			}
+			obj_trackMsg.html(str_tips);	//'定位器：'+ str_terminalAlias +'  ，10分钟后将自动取消追踪
 			obj_trackWrapper.css('left', n_left + 'px').show();
 			setTimeout(function() {
 				obj_trackWrapper.hide();
@@ -1051,7 +1055,6 @@ window.dlf.fn_openTrack = function(arr_openTids, selfItem) {
 				obj_actionTrack[arr_tempTids[i]].interval = '';	// trackInterval
 			}
 		} else {
-			dlf.setTrack(arr_tempTids, selfItem);
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 4000);
 		}
 	});

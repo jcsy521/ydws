@@ -55,7 +55,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_tempPoint = new BMap.Point(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
 		actionPolyline = null, // 轨迹线对象
-		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),		// obj_carA.attr('actiontrack'), 
+		str_actionTrack = '',
 		obj_selfMarker = obj_selfmarkers[str_tid],		// obj_carA.data('selfmarker'), 
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
 		obj_selfPolyline = 	obj_polylines[str_tid],		// obj_carA.data('selfpolyline'),
@@ -67,8 +67,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		arr_trackPoints = obj_carInfo.track_info,	// 集团用户开启追踪的点数据
 		arr_tempTrackPoints = [],	// 临时存储开启追踪的点数组
 		arr_tempTracePoints = [],	// 临时存储甩尾的点数组
-		str_randomColor = dlf.fn_randomColor();	// 随机生成的颜色值
+		str_randomColor = dlf.fn_randomColor(),	// 随机生成的颜色值
+		n_track = obj_carInfo.track,	// 是否开启追踪 0: 取消追踪 1: 开启追踪
+		str_track = n_track == 1 ? 'yes' : 'no';
 
+	obj_actionTrack[str_tid].status = str_track;
+	str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
+	
 	if ( !str_alias ) {	// 如果无alias ，从车辆列表获取
 		str_alias = obj_carA.next().html() || obj_carA.text();
 	}
@@ -221,7 +226,8 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType) {
 window.dlf.setTrack = function(arr_tempTids, selfItem) {
 	var str_type = typeof(arr_tempTids),
 		arr_tids = [],
-		arr_openTids = [];
+		arr_openTids = [],
+		n_isOpen = 0;
 
 	if ( str_type == 'string' ) {	// 单个定位器的开启追踪
 		arr_tids.push(arr_tempTids);
@@ -251,13 +257,14 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); 
 			dlf.fn_closeDialog();
 		} else {
+			n_isOpen = 1;
 			str_tempAction = 'yes';
 			str_tempMsg = '取消跟踪';
 			str_tempOldMsg = '开始跟踪';
 			n_track = 1;
-			// 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪 todo
-			arr_openTids.push(str_tid);
 		}
+		// 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪 todo
+		arr_openTids.push(str_tid);
 		if ( obj_selfMarker ) {
 			obj_selfMarker.track = n_track;	// 存储第一次开启追踪、移除存储第一次开启追踪
 			obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,  // 获取吹出框
@@ -273,7 +280,7 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	}
 	if ( arr_openTids.length > 0 )  {
-		dlf.fn_openTrack(arr_openTids.join(), selfItem);
+		dlf.fn_openTrack(arr_openTids.join(), selfItem, n_isOpen);
 	}
 }
 
