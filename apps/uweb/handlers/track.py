@@ -13,7 +13,7 @@ import tornado.web
 
 from utils.dotdict import DotDict
 from utils.misc import get_lqgz_key, str_to_list, utc_to_date, seconds_to_label,\
-     get_lqgz_interval_key
+     get_lqgz_interval_key, get_terminal_info_key, get_terminal_sessionID_key
 from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
@@ -37,10 +37,11 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             data = DotDict(json_decode(self.request.body))
             tid = data.get('tid',None) 
             tids = data.get('tids', None)
+            flag = int(data.get('flag', 0))
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            logging.info("[UWEB] track LQ request: %s, uid: %s, tid: %s, tids: %s", 
-                         data, self.current_user.uid, tid, tids)
+            logging.info("[UWEB] track LQ request: %s, uid: %s, tid: %s, tids: %s, flag: %s", 
+                         data, self.current_user.uid, tid, tids, flag)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
@@ -53,18 +54,27 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             tids = [str(tid) for tid in tids]
 
             for tid in tids:
-                terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
-                lqgz_key = get_lqgz_key(tid)
-                lqgz_value = self.redis.getvalue(lqgz_key)
-                lqgz_interval_key = get_lqgz_interval_key(tid)
-                if not lqgz_value:
-                    # in mill second
-                    #interval = int(data.interval) * 60 * 1000
-                    interval = int(data.interval)
-                    sms = SMSCode.SMS_LQGZ % interval 
-                    SMSHelper.send_to_terminal(terminal.mobile, sms) 
-                    self.redis.setvalue(lqgz_key, True, SMS.LQGZ_SMS_INTERVAL)
-                    self.redis.setvalue(lqgz_interval_key, True, SMS.LQGZ_INTERVAL * 2)
+                self.db.execute("UPDATE T_TERMINAL_INFO SET track = %s"
+                                "  WHERE tid = %s",
+                                flag, tid)
+                terminal_info_key = get_terminal_info_key(tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                terminal_info['track'] = flag
+                self.redis.setvalue(terminal_info_key, terminal_info)
+                sessionID_key = get_terminal_sessionID_key(tid)
+                self.redis.delete(sessionID_key)
+                #terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
+                #lqgz_key = get_lqgz_key(tid)
+                #lqgz_value = self.redis.getvalue(lqgz_key)
+                #lqgz_interval_key = get_lqgz_interval_key(tid)
+                #if not lqgz_value:
+                #    # in mill second
+                #    #interval = int(data.interval) * 60 * 1000
+                #    interval = int(data.interval)
+                #    sms = SMSCode.SMS_LQGZ % interval 
+                #    SMSHelper.send_to_terminal(terminal.mobile, sms) 
+                #    self.redis.setvalue(lqgz_key, True, SMS.LQGZ_SMS_INTERVAL)
+                #    self.redis.setvalue(lqgz_interval_key, True, SMS.LQGZ_INTERVAL * 2)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s, tid: %s send lqgz failed. Exception: %s. ", 

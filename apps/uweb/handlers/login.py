@@ -161,7 +161,7 @@ class IOSHandler(BaseHandler, LoginMixin):
             #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
             terminals = self.db.query("SELECT tid, mobile, login, keys_num"
                                       "    gsm, gps, pbat, login, defend_status,"
-                                      "    mannual_status, fob_status"
+                                      "    mannual_status, fob_status, track"
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
                                       "    AND owner_mobile = %s"
@@ -218,7 +218,8 @@ class IOSHandler(BaseHandler, LoginMixin):
                               alias=terminal['alias'],
                               #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                               keys_num=0,
-                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
+                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
+                              track=terminal['track'] if terminal.get('track',None) is not None else 0)
 
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)
@@ -284,7 +285,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
             #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
             terminals = self.db.query("SELECT tid, mobile, login, keys_num"
                                       "    gsm, gps, pbat, login, defend_status,"
-                                      "    mannual_status, fob_status"
+                                      "    mannual_status, fob_status, track"
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
                                       "    AND owner_mobile = %s"
@@ -341,7 +342,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
                               alias=terminal['alias'],
                               #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                               keys_num=0,
-                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
+                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
+                              track=terminal['track'] if terminal.get('track',None) is not None else 0)
 
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)
