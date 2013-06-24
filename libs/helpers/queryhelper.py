@@ -198,7 +198,7 @@ class QueryHelper(object):
         if not terminal_info:
             terminal_info = db.get("SELECT mannual_status, defend_status,"
                                    "  fob_status, mobile, login, gps, gsm,"
-                                   "  pbat, keys_num, icon_type"
+                                   "  pbat, keys_num, icon_type, track"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", tid)
             car = db.get("SELECT cnum FROM T_CAR"
