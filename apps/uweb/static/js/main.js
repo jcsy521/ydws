@@ -11,7 +11,9 @@ window.dlf.fn_personalData = function() {
 	dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('用户信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
-	$.get_(PERSON_URL, '', function (data) {	// 获取最新的个人资料数据
+	var str_tid = dlf.fn_getCurrentTid();
+	
+	$.get_(PERSON_URL + '?tid='+ str_tid, '', function (data) {	// 获取最新的个人资料数据
 		if ( data.status == 0 ) {
 			var obj_data = data.profile,
 				str_name = obj_data.name,
@@ -68,6 +70,7 @@ window.dlf.fn_personalSave = function() {
 		n_num = n_num +1;
 	}
 	if ( n_num != 0 ) {	// 我的资料中如果有修改内容 ，向后台发送post请求，否则提示未做任何修改
+		obj_personalData.tid = dlf.fn_getCurrentTid();
 		dlf.fn_jsonPut(PERSON_URL, obj_personalData, 'personal', '个人资料保存中');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
