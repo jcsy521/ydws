@@ -59,6 +59,8 @@ class CheckTerminalStatus(object):
         if terminal_info['pbat'] >= 5:
             mobile = terminal_info['mobile']
             sms_cq = SMSCode.SMS_CQ
+            if len(mobile) != 11:
+                return
             SMSHelper.send_to_terminal(mobile, sms_cq)
             if domain != self.domain_ip:
                 sms_domain = SMSCode.SMS_DOMAIN % self.domain_ip 
