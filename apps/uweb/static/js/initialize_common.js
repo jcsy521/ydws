@@ -707,14 +707,16 @@ window.dlf.fn_createTerminalListClearLayer = function(obj_tempMarkers, obj_carDa
 	
 	if ( !b_userType ) {
 		//是否进行切车操作
-		var obj_currentCarDatas = obj_carDatas[str_currentPersonalTid];
-		
-		if ( !obj_currentCarDatas ) {
-			var obj_tempCurrentCar = $('#carList a ').eq(0),
-				str_tempTid = obj_tempCurrentCar.attr('tid');
-				
-			dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar); // 车辆列表切换
-		}	
+		if ( str_currentPersonalTid ) {
+			var obj_currentCarDatas = obj_carDatas[str_currentPersonalTid];
+			
+			if ( !obj_currentCarDatas ) {
+				var obj_tempCurrentCar = $('#carList a ').eq(0),
+					str_tempTid = obj_tempCurrentCar.attr('tid');
+
+				dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar); // 车辆列表切换
+			}	
+		}
 	}
 }
 
