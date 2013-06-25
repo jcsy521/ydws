@@ -32,7 +32,8 @@ class CheckTerminalStatus(object):
     def check_terminal_status(self):
         try:
             terminals = self.db.query("SELECT tid, domain FROM T_TERMINAL_INFO"
-                                      "  WHERE login != %s",
+                                      "  WHERE login != %s"
+                                      "    AND service_status = 1",
                                       GATEWAY.TERMINAL_LOGIN.OFFLINE)
             for terminal in terminals:
                 terminal_status_key = get_terminal_address_key(terminal.tid)
