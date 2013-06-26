@@ -1221,6 +1221,7 @@ function fn_updateTreeNode(obj_corp) {
 					n_login = obj_car.login,
 					str_tmobile = obj_car.mobile,
 					str_alias = obj_car.alias,
+					n_iconType = obj_car.icon_type,	
 					str_tempAlias = dlf.fn_dealAlias(str_alias),
 					obj_leaf = $('#leaf_' + str_tid),
 					str_imgUrl = '',
@@ -1233,7 +1234,7 @@ function fn_updateTreeNode(obj_corp) {
 				} else {
 					str_imgUrl = 'online.png';
 				}
-				obj_leaf.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', str_tmobile).attr('clogin', n_login).attr('alias', str_alias);	// 更新定位器名<img src="/static/images/corpImages/'+ str_imgUrl +'">
+				obj_leaf.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', str_tmobile).attr('clogin', n_login).attr('alias', str_alias).attr('icon_type', n_iconType);	
 				
 				if ( str_currentTid == str_tid  ) {
 					dlf.fn_updateTerminalInfo(obj_car);
@@ -1552,6 +1553,8 @@ function fn_renameCorp(cid, str_name, node) {
 * 添加单个定位器
 */
 function fn_initCreateTerminal(obj_node, str_groupId) {
+	$('.cTerminalList input[type=text]').val();
+	$('#c_icon_type0').attr('checked', true);
 	dlf.fn_dialogPosition('cTerminal'); // 新增定位器dialog显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_onInputBlur();	// input的鼠标样式

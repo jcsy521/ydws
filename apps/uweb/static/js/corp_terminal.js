@@ -65,6 +65,10 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 						$('#tr_corp_' + param + str_val ).attr('checked', 'checked'); 
 					} else if ( param == 'icon_type' ) {	// 图标
 						$('#icon_type' + str_val).attr('checked', true);
+						var obj_currentCar = $('.j_currentCar');
+						
+						obj_currentCar.attr('icon_type', str_val);
+						dlf.fn_updateTerminalLogin(obj_currentCar);
 					} else {
 						if ( param == 'alias' || param == 'freq' ) {	// 定位器别名、上报频率
 							$('#t_corp_' + param ).val(str_val);
