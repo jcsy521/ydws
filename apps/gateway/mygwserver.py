@@ -553,8 +553,7 @@ class MyGWServer(object):
                         logging.info("[GW] Corp terminal: %s login first. Tmobile: %s",
                                      t_info['dev_id'], terminal.mobile)
                         info_key = get_terminal_info_key(terminal.mobile)
-                        lq_sms_key = get_lq_sms_key(terminal.mobile)
-                        lq_interval_key = get_lq_interval_key(terminal.mobile)
+                        self.redis.delete(info_key)
                         # subscription LE for new sim
                         thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
                         #self.request_location(t_info['dev_id'])

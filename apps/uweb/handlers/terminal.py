@@ -13,7 +13,7 @@ from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone
-from utils.public import record_terminal_subscription
+from utils.public import record_terminal_subscription, delete_terminal
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
@@ -196,7 +196,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             #else: 
             #    self.write_ret(status)
             #    IOLoop.instance().add_callback(self.finish)
-            self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
 
             self.write_ret(status)
         except Exception as e:
@@ -286,33 +285,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                    data.tmobile)
             if terminal:
                 if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                    # clear db
-                    self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s",
-                                    terminal.id)
-                    tid = terminal.tid
-                    user = QueryHelper.get_user_by_tid(tid, self.db)
-                    if user:
-                        terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                                  "  WHERE owner_mobile = %s",
-                                                  user.owner_mobile)
-                        if len(terminals) == 0:
-                            self.db.execute("DELETE FROM T_USER"
-                                            "  WHERE mobile = %s",
-                                            user.owner_mobile)
-
-                            lastinfo_key = get_lastinfo_key(user.owner_mobile)
-                            self.redis.delete(lastinfo_key)
-                    else:
-                        logging.info("[GW] User of %s already not exist.", tid)
-                    # clear redis
-                    for item in [tid, data.tmobile]:
-                        sessionID_key = get_terminal_sessionID_key(item)
-                        address_key = get_terminal_address_key(item)
-                        info_key = get_terminal_info_key(item)
-                        lq_sms_key = get_lq_sms_key(item)
-                        lq_interval_key = get_lq_interval_key(item)
-                        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                        self.redis.delete(*keys)
+                    delete_terminal(terminal.tid, self.db, self.redis)
                 else:
                     logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
                     status = ErrorCode.TERMINAL_ORDERED
@@ -483,7 +456,10 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             key = get_del_data_key(tid)
             self.redis.set(key, flag)
             if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
-                status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                if terminal.mobile == tid:
+                    delete_terminal(tid, self.db, self.redis)
+                else:
+                    status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
                 self.write_ret(status)
                 return
 

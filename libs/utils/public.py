@@ -91,8 +91,10 @@ def delete_terminal(tid, db, redis, del_user=True):
         if del_user:
             terminals = db.query("SELECT id FROM T_TERMINAL_INFO"
                                  "  WHERE owner_mobile = %s"
-                                 "    AND group_id = -1",
-                                 terminal.owner_mobile)
+                                 #"    AND group_id = -1",
+                                 "    AND service_status = %s",
+                                 terminal.owner_mobile,
+                                 UWEB.SERVICE_STATUS.ON)
             # clear user
             if len(terminals) == 0:
                 db.execute("DELETE FROM T_USER"

@@ -13,7 +13,7 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.public import record_terminal_subscription
+from utils.public import record_terminal_subscription, delete_terminal
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from constants import UWEB, GATEWAY
@@ -97,12 +97,11 @@ class BatchImportHandler(BaseHandler):
                         res.append(r)
                         continue 
 
-                    existed_terminal = self.db.get("SELECT id, service_status FROM T_TERMINAL_INFO"
+                    existed_terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO"
                                                    "  WHERE mobile = %s", tmobile)
                     if existed_terminal:
                         if existed_terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                            self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s",
-                                            existed_terminal.id)
+                            delete_terminal(existed_terminal.tid, self.db, self.redis)
                             res.append(r)
                         else:
                             r.status = UWEB.TERMINAL_STATUS.EXISTED 
@@ -161,10 +160,12 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
                 key = get_del_data_key(tid)
                 self.redis.set(key, flag)
                 if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
-                    r.status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                    if terminal.mobile == tid:
+                        delete_terminal(tid, self.db, self.redis)
+                    else:
+                        r.status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
                     res.append(r)
                     continue 
-
                 
                 # record the del action  
                 self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
@@ -247,39 +248,11 @@ class BatchJHHandler(BaseHandler):
                                        tmobile)
                 if terminal:
                     if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                        # clear db
-                        self.db.execute("DELETE FROM T_TERMINAL_INFO WHERE id = %s",
-                                        terminal.id)
-                        tid = terminal.tid
-                        user = QueryHelper.get_user_by_tid(tid, self.db)
-                        if user:
-                            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
-                                                      "  WHERE owner_mobile = %s",
-                                                      user.owner_mobile)
-                            if len(terminals) == 0:
-                                self.db.execute("DELETE FROM T_USER"
-                                                "  WHERE mobile = %s",
-                                                user.owner_mobile)
-
-                                lastinfo_key = get_lastinfo_key(user.owner_mobile)
-                                self.redis.delete(lastinfo_key)
-                        else:
-                            logging.info("[GW] User of %s already not exist.", tid)
-                        # clear redis
-                        for item in [tid, tmobile]:
-                            sessionID_key = get_terminal_sessionID_key(item)
-                            address_key = get_terminal_address_key(item)
-                            info_key = get_terminal_info_key(item)
-                            lq_sms_key = get_lq_sms_key(item)
-                            lq_interval_key = get_lq_interval_key(item)
-                            keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key]
-                            self.redis.delete(*keys)
+                        delete_terminal(terminal.tid, self.db, self.redis)
                     else:
                         logging.error("[UWEB] mobile: %s already existed.", tmobile)
                         r['status'] = ErrorCode.TERMINAL_ORDERED
                         continue 
-
-                
 
                 record_terminal_subscription(self.db, tmobile, gid, begintime, begintime, UWEB.OP_TYPE.ADD)
 

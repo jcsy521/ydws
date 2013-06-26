@@ -5,7 +5,9 @@ import time
 
 from tornado.escape import json_decode
 
-from utils.misc import get_lq_sms_key, get_lq_interval_key
+from utils.misc import get_lq_sms_key, get_lq_interval_key,\
+     get_lastinfo_key, get_lastinfo_time_key, get_ios_id_key,\
+     get_ios_badge_key
 from helpers.smshelper import SMSHelper
 from constants import SMS, UWEB
 from codes.smscode import SMSCode
@@ -64,6 +66,23 @@ class BaseMixin(object):
                             "  WHERE mobile = %s",
                             UWEB.SERVICE_STATUS.TO_BE_UNBIND,
                             tmobile)
+            terminals = self.db.query("SELECT id FROM T_TERMINAL_INFO"
+                                      "  WHERE owner_mobile = %s"
+                                      "    AND service_status = %s",
+                                      umobile, UWEB.SERVICE_STATUS.ON)
+            # clear user
+            if len(terminals) == 0:
+                self.db.execute("DELETE FROM T_USER"
+                                "  WHERE mobile = %s",
+                                umobile)
+
+                lastinfo_key = get_lastinfo_key(umobile)
+                lastinfo_time_key = get_lastinfo_time_key(umobile)
+                ios_id_key = get_ios_id_key(umobile)
+                ios_badge_key = get_ios_badge_key(umobile)
+                keys = [lastinfo_key, lastinfo_time_key, ios_id_key, ios_badge_key]
+                self.redis.delete(*keys)
+                logging.info("[UWEB] Delete User: %s", umobile)
             logging.info("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind successfully.",
                          umobile, tid, tmobile)
         else:
