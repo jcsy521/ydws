@@ -388,6 +388,7 @@ class MyGWServer(object):
 
         login response packet:
         0 - success, then get a sessionID for terminal and record terminal's address
+        1 - unregister, terminal login first.
         3 - illegal sim, a mismatch between [SN,PHONE,IMSI,USER] 
         6 - not whitelist
 
@@ -548,6 +549,15 @@ class MyGWServer(object):
                                     t_info['dev_id'], t_info['t_msisdn'])
                     logging.info("[GW] Tmobile: %s existed, old tid: %s, new tid: %s JH again success!",
                                  terminal.mobile, terminal.tid, t_info['dev_id'])
+                    if terminal.tid == terminal.mobile:
+                        logging.info("[GW] Corp terminal: %s login first. Tmobile: %s",
+                                     t_info['dev_id'], terminal.mobile)
+                        info_key = get_terminal_info_key(terminal.mobile)
+                        lq_sms_key = get_lq_sms_key(terminal.mobile)
+                        lq_interval_key = get_lq_interval_key(terminal.mobile)
+                        # subscription LE for new sim
+                        thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
+                        #self.request_location(t_info['dev_id'])
             else:
                 # 5. jh new tmobile
                 tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"

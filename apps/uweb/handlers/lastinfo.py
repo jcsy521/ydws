@@ -220,29 +220,29 @@ class LastInfoCorpHandler(BaseHandler):
 
                     #1: build the basic_info
                     basic_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
-                                     mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
-                                     fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
-                                     timestamp=location['timestamp'] if location else 0,
-                                     speed=location.speed if location else 0,
-                                     # NOTE: degree's type is Decimal, float() it before json_encode
-                                     degree=float(location.degree) if location else 0.00,
-                                     name=location.name if location else '',
-                                     type=location.type if location else 1,
-                                     latitude=location['latitude'] if location else 0,
-                                     longitude=location['longitude'] if location else 0, 
-                                     clatitude=location['clatitude'] if location else 0,
-                                     clongitude=location['clongitude'] if location else 0, 
-                                     login=terminal['login'] if terminal['login'] is not None else 0,
-                                     gps=terminal['gps'] if terminal['gps'] is not None else 0,
-                                     gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
-                                     pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
-                                     mobile=terminal['mobile'],
-                                     alias=terminal['alias'],
-                                     #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
-                                     keys_num=0,
-                                     icon_type=terminal['icon_type'] if terminal.get('icon_type', None) is not None else 0,
-                                     fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
-                                     track=terminal['track'] if terminal.get('track',None) is not None else 0)
+                                    mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
+                                    fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
+                                    timestamp=location['timestamp'] if location else 0,
+                                    speed=location.speed if location else 0,
+                                    # NOTE: degree's type is Decimal, float() it before json_encode
+                                    degree=float(location.degree) if location else 0.00,
+                                    name=location.name if location else '',
+                                    type=location.type if location else 1,
+                                    latitude=location['latitude'] if location else 0,
+                                    longitude=location['longitude'] if location else 0, 
+                                    clatitude=location['clatitude'] if location else 0,
+                                    clongitude=location['clongitude'] if location else 0, 
+                                    login=terminal['login'] if terminal['login'] is not None else 0,
+                                    gps=terminal['gps'] if terminal['gps'] is not None else 0,
+                                    gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
+                                    pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
+                                    mobile=terminal['mobile'],
+                                    alias=terminal['alias'],
+                                    #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                                    keys_num=0,
+                                    icon_type=terminal['icon_type'] if terminal.get('icon_type', None) is not None else 0,
+                                    fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
+                                    track=terminal['track'] if terminal.get('track',None) is not None else 0)
 
                     #2: build track_info
                     track_info = []
