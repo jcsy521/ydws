@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import tornado.database
-
+import logging
 from base import authenticated,BaseHandler
 
 
@@ -12,19 +12,19 @@ class Detail(BaseHandler):
     def get(self):
         id = self.get_argument("id",'')
         if id:
-            try:
+           try:
                 allinfo = self.db.query("SELECT * FROM T_LOG_DETAILS"
                                         "  where id = %s", id)
                 errorinfo = self.db.query("SELECT * FROM T_LOG_ERROR"
                                           "  where about = %s", id)
-                self.render("details.html",
+                self.render("log/details.html",
                             allinfo = allinfo,
-                            errorinfo = errorinfo,)
+                            errorinfo = errorinfo)
                 return
-            except:
-                logging.error("Details select failed!")
+           except:
+               logging.exception("Details select failed!")
         else:
-            self.render("details.html",
+            self.render("log/details.html",
                         allinfo = '',
                         errorinfo = '',)
             return

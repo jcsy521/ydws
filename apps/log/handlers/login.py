@@ -13,7 +13,7 @@ from base import BaseHandler
 from fileconf import FileConf
 
 
-class Login(BaseHandler):
+class LoginHandler(BaseHandler):
     
     @tornado.web.removeslash
     def get(self):
@@ -34,6 +34,7 @@ class Login(BaseHandler):
         m = hashlib.md5()
         m.update(captcha.lower())
         hash_ = m.hexdigest()
+        #self.write_ret(hash_)
         if hash_.lower() != captchahash.lower():
             self.render("login.html",
                         username=login,
@@ -47,11 +48,16 @@ class Login(BaseHandler):
                             "    WHERE name = %s"
                             "      AND password = password(%s)",
                             login, password)
+            role = self.db.get("select role from T_LOG_ADMIN where name = %s", login)
             if r:
                 self.bookkeep(dict(id=r.id, 
                                    session_id=uuid.uuid4().hex),
                                    quote(safe_utf8(r.name)))
-                self.redirect("/systemlog")    
+
+                if role.role==0:
+                    self.redirect("/systemlog")
+                else:
+                    self.redirect("/packet")
             else:
                 self.render("login.html", 
                             username=login,

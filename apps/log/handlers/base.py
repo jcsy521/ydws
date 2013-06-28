@@ -9,7 +9,10 @@ from tornado.escape import json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
+from codes.errorcode import ErrorCode
+from mysql import DBAcbConnection
 from db import DBConnection
+
 # expires period for cookie, it's 2 hours now.
 EXPIRES_MINUTES = 120
 
@@ -32,9 +35,13 @@ def authenticated(method):
         return method(self, *args, **kwargs)
     return wrapper
 
+def log_file_path():
+    log_file_path = '/var/log/supervisor/gateway_new/'
+    return log_file_path
+
 class BaseHandler(tornado.web.RequestHandler):
 
-    SUPPORTED_METHODS = ("GET", "POST")
+    SUPPORTED_METHODS = ("GET", "POST","PUT")
     
     COOKIE_PATTERN = re.compile(r"ID=(?P<id>.+):SID=(?P<session_id>.+)")
     COOKIE_FORMAT = "ID=%(id)s:SID=%(session_id)s"
@@ -60,8 +67,19 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def db(self):
         log_db = DBConnection().db 
+        #print 'mydb---', log_db
         return log_db
         
+    @property
+    def acbdb(self):
+        acbdb = DBAcbConnection().db 
+        return acbdb
+
+    @property
+    def redis(self):
+        redis = self.application.redis
+        return redis
+
     @property
     def app_name(self):
         return self.application.settings.get('app_name')
@@ -78,7 +96,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def write_ret(self, status, message=None, dict_=None):
         ret = DotDict(status=status)
         if message is None:
-            pass
+            ret.message = ErrorCode.ERROR_MESSAGE[status]
         else:
             ret.message = message
         if isinstance(dict_, dict):

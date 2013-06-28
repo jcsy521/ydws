@@ -1,11 +1,13 @@
 # -*- coding: UTF-8 -*-
 
+import logging
+
 import tornado.web
 from tornado.escape import  json_decode  
 
 from utils.dotdict import DotDict
+from codes.errorcode import ErrorCode
 from base import authenticated,BaseHandler
- 
 
 class Log(BaseHandler):
     
@@ -13,125 +15,104 @@ class Log(BaseHandler):
     def get(self):
 
         username = self.get_current_user()
-        self.render("log.html",
-                     allLog={},
-                     pagecnt=-1,
-                     pagenum=0,
-                     beginDate="",
-                     endDate="",
-                     plan_id="",
-                     level="",
-                     username=username,)
+        n_role = self.db.get("select role from T_LOG_ADMIN where name = %s", username)
+        self.render("log/log.html",
+                     username=username,
+					 role = "")
         return
 
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        log = json_decode(self.request.body)                     
-        beginDate = log.get("beginDate")
-        endDate = log.get("endDate")
-        plan_id = log.get("plan_id")
-        pagecnt = log.get("pagecnt")
-        pagenum = log.get("pagenum")
-        level = log.get("level")
+        try:
+            data = json_decode(self.request.body)
+            start_time = data.get("start_time")
+            end_time = data.get("end_time")
+            plan_id = data.get("plan_id")
+            level = data.get("level")
+        except Exception as e:
+            #TODO: 
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return
+
         if level:
-            if  beginDate:
-                try: 
+            if  start_time:
+                try:
                     if plan_id:
-                        if pagecnt == -1:
-                            allNum = self.db.get("SELECT COUNT(*) AS num FROM T_LOG_DETAILS"
-                                                 "  WHERE servername = %s"
-                                                 "  AND time BETWEEN %s AND %s"
-                                                 "  AND level = %s", 
-                                                 plan_id, beginDate, endDate, level)
-                            pagecnt = (allNum.num-1)/20+1
-                            #pagecnt = (int(allNum.get("count(*)"))-1)/20+1
                         allLog = self.db.query("SELECT id, level, servername, details,"
                                                "  DATE_FORMAT(time, '%%Y-%%m-%%d %%H:%%i:%%s')"
                                                "  AS  time FROM T_LOG_DETAILS"
                                                "    WHERE servername = %s"
-                                               "      AND time BETWEEN %s AND %s" 
-                                               "      AND level = %s"
-                                               "    ORDER BY time DESC LIMIT %s, 20", 
-                                               plan_id, beginDate, endDate, level, pagenum*20)
-                        self.write_ret(0, message=None, 
-                                       dict_=DotDict(loglist=allLog, pagecnt=pagecnt))
+                                               "      AND time BETWEEN %s AND %s"
+                                               "      AND level = %s",
+                                               plan_id, start_time, end_time, level)
+                        self.write_ret(ErrorCode.SUCCESS,
+                                       dict_=DotDict(log_list=allLog))
                     else:
-                        if pagecnt == -1:
-                            allNum = self.db.get("SELECT COUNT(*) AS num FROM T_LOG_DETAILS"
-                                                 "  WHERE time BETWEEN %s AND %s"
-                                                 "  AND level = %s", 
-                                                 beginDate, endDate, level)
-
-                            pagecnt = (allNum.num-1)/20+1
-                            #pagecnt = (int(allNum.get("count(*)"))-1)/20+1
                         allLog = self.db.query("SELECT id, level, servername, details,"
                                                "  DATE_FORMAT(time,'%%Y-%%m-%%d %%H:%%i:%%s')"
                                                "  AS time FROM T_LOG_DETAILS"
-                                               "    WHERE time BETWEEN %s AND %s" 
-                                               "    AND level = %s"
-                                               "    ORDER BY time DESC LIMIT %s, 20", 
-                                               beginDate, endDate, level, pagenum*20)
-                        self.write_ret(0, message=None, 
-                                       dict_=DotDict(loglist=allLog, pagecnt=pagecnt))
-                except:
-                    self.write_ret(500, message=u"查询错误", dict_=None)
+                                               "    WHERE time BETWEEN %s AND %s"
+                                               "    AND level = %s",
+                                               start_time, end_time, level)
+                        self.write_ret(ErrorCode.SUCCESS,
+                                       dict_=DotDict(log_list=allLog))
+                except Exception as e:
+                    # TODO: remvoe unwanted dict_
+                    logging.exception("[LOG] Log's inquiry failed. Inquiry condition:"
+                                      "start_time: %s"
+                                      "end_time: %s"
+                                      "plan_id: %s"
+                                      "level: %s"
+                                      "Exception: %s",
+                                      start_time, end_time, plan_id, level, e.args)
+                    self.write_ret(ErrorCode.FAILED)
             else:#if time is null
-                self.render("log.html",
+                self.render("log/log.html",
                             allLog={},
-                            pagecnt=-1,
-                            nowpage=1,
-                            beginDate="",
-                            endDate="",
+                            start_time="",
+                            end_time="",
                             plan_id="",
                             level="",
                             username=None,)
                 return
-        else:   
-            if  beginDate:#have time's value
-                try: 
+        else:
+            if  start_time:#have time's value
+                try:
                     if plan_id:#have the plan_id value  try:    except
-                        if pagecnt==-1:
-                            allNum = self.db.get("SELECT COUNT(*) AS num FROM T_LOG_DETAILS "
-                                                 "  WHERE servername = %s" 
-                                                 "  AND time BETWEEN %s AND %s", 
-                                                 plan_id, beginDate, endDate)
-                            pagecnt = (allNum.num-1)/20+1
-                            #pagecnt = (int(allNum.get("count(*)"))-1)/20+1
                         allLog = self.db.query("SELECT id, level, servername, details,"
                                                "  DATE_FORMAT(time,'%%Y-%%m-%%d %%H:%%i:%%s')"
-                                               "  AS time FROM T_LOG_DETAILS" 
+                                               "  AS time FROM T_LOG_DETAILS"
                                                "    where servername=%s"
-                                               "    AND time BETWEEN %s AND %s" 
-                                               "    ORDER BY time DESC LIMIT %s, 20 ", 
-                                               plan_id, beginDate, endDate, pagenum*20)
-                        self.write_ret(0, message=None,
-                                       dict_=DotDict(loglist=allLog, pagecnt=pagecnt))
+                                               "    AND time BETWEEN %s AND %s",
+                                               plan_id, start_time, end_time)
+                        self.write_ret(ErrorCode.SUCCESS,
+                                       dict_=DotDict(log_list=allLog))
                     else:
-                        if pagecnt==-1:
-                            allNum = self.db.get("SELECT COUNT(*) AS num FROM T_LOG_DETAILS "
-                                                 "  WHERE time BETWEEN %s AND %s", 
-                                                 beginDate, endDate)
-                            #pagecnt = (int(allNum.get("count(*)"))-1)/20+1
-                            pagecnt = (allNum.num-1)/20+1
                         allLog = self.db.query("SELECT id, level, servername, details,"
                                                "  DATE_FORMAT(time,'%%Y-%%m-%%d %%H:%%i:%%s')"
                                                "  AS time FROM T_LOG_DETAILS "
-                                               "    WHERE time BETWEEN %s AND %s "
-                                               "    ORDER BY time DESC LIMIT %s, 20", 
-                                               beginDate, endDate, pagenum*20)
-                        self.write_ret(0, message=None, 
-                                       dict_=DotDict(loglist=allLog, pagecnt=pagecnt))
-                except:
-                    self.write_ret(500, message=u"查询错误", dict_=None)
+                                               "    WHERE time BETWEEN %s AND %s ",
+                                               start_time, end_time)
+                        self.write_ret(ErrorCode.SUCCESS, 
+                                       dict_=DotDict(log_list=allLog))
+                except Exception as e:
+                    #TODO: 
+                    logging.exception("[LOG] Log's inquiry failed. Inquiry condition:"
+                                      "start_time: %s"
+                                      "end_time: %s"
+                                      "plan_id: %s"
+                                      "level: %s"
+                                      "Exception: %s",
+                                      start_time, end_time, plan_id, level, e.args)
+                    self.write_ret(ErrorCode.FAILED)
             else:
-                self.render("log.html",
+                # TODO: remove unwanted return
+                self.render("log/log.html",
                             allLog={},
-                            pagecnt=-1,
-                            nowpage=1,
-                            beginDate="",
-                            endDate="",
+                            start_time="",
+                            end_time="",
                             plan_id="",
                             level="",
                             username=None,)
-                return

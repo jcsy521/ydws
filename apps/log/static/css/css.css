@@ -1,12 +1,14 @@
+@charset "utf-8";
 * {
     padding: 0; 
+	
 }
-body {
-    padding: 10pt;
+body {	
     font-family: 'Microsoft YaHei', Arial, Helvetica, Verdana, sans-serif; 
     font-size: 11pt;
-    margin: auto;
 	width: 99%;
+	min-width: 800px;
+	margin: 20px 0 0 0;
 }
 h3 {
     margin: 5px 0;
@@ -16,6 +18,9 @@ h3 {
     line-height: 2.3;
     text-indent: 0.5em;
     font-size: 18px;
+}
+ul {
+	list-style: none;
 }
 .resultQuery h3 {
     float: left;
@@ -180,6 +185,9 @@ table, .ui-widget-header {
 .hideSearchTable {
     display: none;
 }
+.log_tip_title {
+	color: blue;
+}
 #showOrHideSearch {
     cursor: pointer;
     font-size: 18px;
@@ -242,11 +250,10 @@ table, .ui-widget-header {
 	display: none;
 }
 .right_title {
-	font-weight: bold;
-	left: 1240px;
-	margin-bottom: 12px;
-	position: relative;
-	width: 182px;
+	float: right;
+    font-weight: bold;
+    width: 250px;
+	margin-top: 4px;
 }
 
 .username {
@@ -254,7 +261,7 @@ table, .ui-widget-header {
 	margin-right: 10px;
 }
 #logout {
-	color: #573C32;
+	color: red;
 	margin-left: 10px;
 }
 .tdStyle {
@@ -263,3 +270,165 @@ table, .ui-widget-header {
 .logContent {
 	text-align: left;
 }
+/* lognav css */
+.logHeader {
+	background-color: #d7ebf9;
+    color: #2779aa;
+    height: 30px;
+    margin-bottom: 15px;
+}
+.logNavPanel {
+    left: 7px;
+    margin: 0;
+    position: relative;
+    top: 5px;
+}
+.logNavPanel .logNavItem {
+	border-right: 1px solid;
+    cursor: pointer;
+    float: left;
+    font-weight: bold;
+    height: 20px;
+    margin-top: 1px;
+    text-align: center;
+    width: 80px;
+}
+.logNavItem a {
+	color: #2779AA;
+}
+.logNavItem .logCurrentItem a, .logNavPanel .currentHoverItem a, .logNavPanel .logCurrentItem a {
+	color: green;
+}
+.hide {
+	display: none;
+}
+.ui-log-panel div {
+	height: 25px;
+}
+.sorting_1 {
+	background-color: #E2E4FF;
+}
+.iLayer {
+	display: none;
+    background-color: #999999;
+	filter: alpha(opacity=20);
+	left: 0px;
+	opacity: 0.2;
+    position: absolute;
+	top: 0px;
+    width: 100%;
+    z-index: 99999;
+}
+.msg {
+	background-color: #D3D6FF;
+	display: none;
+	height: 54px;
+	left: 45%;
+	position: absolute;
+	top: 50%;
+	width: 284px;
+}
+.msgContent {
+	left: 60px;
+    position: relative;
+    top: 19px;
+}
+.resultQuery h3 {
+    float: left;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+}
+.resultQuery {
+    border-left: 5px solid #cd0a0a;
+    color: #416F29;
+    background: url('/static/images/bg_all.gif') repeat;  
+    height: 40px;
+    margin: 8px 0;
+}
+.resultTitle {
+	float: left;
+}
+.resultTitle .titleSortTips {
+	color: red;
+    display: inline-block;
+    height: 40px;
+    line-height: 42px;
+    margin-left: 30px;
+}
+#search_table td {
+    border: 1px solid #CDCDCD;
+}
+.timeTh {
+	width: 150px;
+}
+.typeTh {
+	width: 90px;
+}
+.table_left_class {
+	text-align: left;
+}
+/* packet css */
+.packetTypeTitle {
+	display: inline-block;
+    margin-bottom: 5px;
+    margin-right: 33px;
+}
+.packetTypePanel {
+	display: inline-block;
+	margin: 0px;
+	padding: 0px;
+}
+.packetTypePanel li {
+	float: left;
+	width: 60px;
+}
+.packetTypePanel .x_checkbox {
+	margin-left: 10px;
+}
+.packetTypePanel .x_label{
+	left: -4px;
+    position: relative;
+    top: -1px;
+}
+.packetTypeConTitle {
+    position: relative;
+    top: -5px;
+}
+.packetTypeForOther {
+	margin-right: 25px;
+}
+#packetTypes {
+	height: 80px;
+	margin-top: 5px;
+}
+/* whitelist css */
+#addWhitelistDialog tr, #modifyWhitelistDialog tr {
+	height: 40px;
+}
+#txt_whitelistMobile {
+	height: 30px;
+	padding: 5px;
+}
+/* battery css */
+#exportData {
+	float: right;
+}
+#search_table {
+	text-align: center;
+}
+#batteryChart {
+	min-width: 400px; 
+	height: 400px; 
+	margin: 0 auto;
+}
+#battery_chart_link {
+	color: blue;
+	text-decoration: underline;
+}
+.width_batteryTime {
+	width: 50%;
+}
+
+

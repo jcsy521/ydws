@@ -69,7 +69,7 @@
 .ui-widget-content {
     background: url("/static/images/ui-bg_highlight-hard_100_f2f5f7_1x100.png") repeat-x scroll 50% top #F2F5F7;
     border: 1px solid #DDDDDD;
-    color: #362B36;
+    color: blue;
 }
 .ui-widget-content a {
     color: #362B36;
@@ -707,7 +707,7 @@
     border-bottom-right-radius: 6px;
 }
 .ui-widget-overlay {
-    background: url("/static/images/ui-bg_diagonals-thick_90_eeeeee_40x40.png") repeat scroll 50% 50% #EEEEEE;
+    background: 50% 50% #EEEEEE;
     opacity: 0.8;
 }
 .ui-widget-shadow {
