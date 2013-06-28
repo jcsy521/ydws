@@ -7,8 +7,7 @@ import tornado.web
 
 from helpers.queryhelper import QueryHelper 
 from helpers.confhelper import ConfHelper
-from utils.misc import DUMMY_IDS_STR, str_to_list,\
-                       get_terminal_info_key
+from utils.misc import DUMMY_IDS_STR, DUMMY_IDS, str_to_list, get_terminal_info_key
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER 
@@ -83,9 +82,15 @@ class EventHandler(BaseHandler):
             tids = str_to_list(tids)
             tids = tids if tids else [self.current_user.tid, ]
             tids = [str(tid) for tid in tids]
-            # the interval between start_time and end_time is one week
-            if self.current_user.cid != UWEB.DUMMY_CID: # no checks for enterprise
-                pass
+
+            # NOTE: for individual, do not show events about 5,7,8; for
+            # enterprise, do not show events about 5
+            hide_lst = [5,7,8] # 5: sos, 7: enter bound, 8: out bound
+
+            #NOTE: for individual, the interval between start_time and end_time is one week;
+            # for enterprise, no checks
+            if self.current_user.cid != UWEB.DUMMY_CID: 
+                hide_lst = [5]
             elif (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                 self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
                 return
@@ -93,10 +98,11 @@ class EventHandler(BaseHandler):
             if category == -1:
                 # we need return the event count to GUI at first time query
                 if page_count == -1:
-                    sql = ("SELECT COUNT(*) as count FROM V_EVENT" +\
-                          "  WHERE tid IN %s" +\
+                    sql = ("SELECT COUNT(*) as count FROM V_EVENT" \
+                          "  WHERE tid IN %s " +\
+                          "  AND category NOT IN %s" +\
                           "    AND (timestamp BETWEEN %s AND %s)")\
-                          % (tuple(tids + DUMMY_IDS_STR), start_time, end_time)
+                          % (tuple(tids + DUMMY_IDS_STR), tuple(hide_lst+DUMMY_IDS), start_time, end_time)
                     res = self.db.get(sql)
                     event_count = res.count
                     d, m = divmod(event_count, page_size)
@@ -108,11 +114,11 @@ class EventHandler(BaseHandler):
                       "  FROM V_EVENT"
                       "  WHERE tid IN %s"
                       "    AND (timestamp BETWEEN %s AND %s)"
-                      "    AND category != 5"
+                      "    AND category NOT IN %s"
                       "  ORDER BY timestamp DESC"
                       "  LIMIT %s, %s") %\
                       (tuple(tids + DUMMY_IDS_STR), start_time, end_time,
-                       page_number * page_size, page_size)
+                       tuple(hide_lst+DUMMY_IDS),  page_number * page_size, page_size)
                 events = self.db.query(sql)
             else: 
                 if page_count == -1:
