@@ -410,13 +410,14 @@ class MyGWServer(object):
         if flag != "1":
             # login
             if not t_info['t_msisdn']:
+                # login first.
                 tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
                                            " FROM T_TERMINAL_INFO"
                                            " WHERE tid = %s LIMIT 1", t_info['dev_id'])
                 args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                 sms_ = SMSCode.SMS_NOT_JH % tid_terminal.mobile 
                 SMSHelper.send(tid_terminal.owner_mobile, sms_)
-                logging.warn("[GW] terminal: %s is refurbishment, and login at first time.",
+                logging.warn("[GW] terminal: %s login at first time.",
                              t_info['dev_id'])
             elif terminal:
                 if terminal['tid'] != t_info['dev_id']:
