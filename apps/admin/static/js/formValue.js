@@ -89,3 +89,26 @@ function fn_checkMobile(id) {
 		});
 	}
 }
+
+
+/*
+* 验证手机号是否合法
+*/
+function fn_validMobile(str_mobile, str_msgTitle) {
+	var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/,
+		str_alertMsg = '终端';
+	
+	if ( str_msgTitle ) {
+		str_alertMsg = str_msgTitle;
+	}
+	if ( str_mobile == '' ) {
+		alert('请输入'+ str_alertMsg +'手机号！');
+		return false;
+	}
+	
+	if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
+		alert('您输入的'+ str_alertMsg +'手机号不合法，请重新输入！');
+		return false;
+	}
+	return true;
+}

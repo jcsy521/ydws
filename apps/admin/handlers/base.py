@@ -95,10 +95,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         ret = DotDict(success=status)
         if message is None:
-            if status in (True, False):
-                ret.message = "" 
-            else:
-                ret.message = ErrorCode.ERROR_MESSAGE[status]
+            ret.message = ErrorCode.ERROR_MESSAGE[status]
         else:
             ret.message = message
         if isinstance(dict_, dict):

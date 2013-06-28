@@ -23,6 +23,10 @@
 			<td align="left">{{administrator.phone}}</td>
 		</tr>
 		<tr>
+			<td class="tLeft">电子邮件</td>
+			<td align="left">{{administrator.email}}</td>
+		</tr>
+		<tr>
 			<td class="tLeft">登录名</td>
 			<td align="left">{{administrator.login}}</td>
 		</tr>
@@ -37,7 +41,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="tLeft">所属公司</td>
+			<td class="tLeft">公司名称</td>
 			<td align="left">{{administrator.corporation}}</td>
 		</tr>
 		<tr>
@@ -50,14 +54,14 @@
 				{% end %}
 			</td>
 		</tr>
-		<tr>
+		<!--<tr>
 			<td class="tLeft">城市</td>
 			<td align="left">
 				{% for city in administrator.cities %}
 					{{city['city_name']}}
 				{% end %}
 			</td>
-		</tr>
+		</tr>-->
 		<tr>
 			<td align="center" colspan="2">
 				<a class="button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" 

@@ -776,3 +776,19 @@ tfoot {
 .color000 {
 	color: #000;
 }
+
+/* whitelist css */
+#addWhitelistDialog tr, #modifyWhitelistDialog tr {
+	height: 40px;
+}
+#txt_whitelistMobile {
+	height: 30px;
+	padding: 5px;
+}
+#search_table td {
+    border: 1px solid #CDCDCD;
+	text-align: center;
+}
+.sorting_1 {
+	background-color: #E2E4FF;
+}
