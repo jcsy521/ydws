@@ -403,24 +403,27 @@ class MyGWServer(object):
         t_status = None
         # new softversion, new meaning, 1: active; othter: normal login
         flag = t_info['psd'] 
-        terminal = self.db.get("SELECT tid, mobile, imsi, owner_mobile, service_status"
+        terminal = self.db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status"
                                "  FROM T_TERMINAL_INFO"
                                "  WHERE mobile = %s LIMIT 1",
                                t_info['t_msisdn']) 
         if flag != "1":
             # login
-            if terminal:
-                if not t_info['t_msisdn']:
-                    args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    sms_ = SMSCode.SMS_NOT_JH % t_info['t_msisdn']
-                    SMSHelper.send(terminal.owner_mobile, sms_)
-                    logging.warn("[GW] terminal: %s is refurbishment, and login at first time.",
-                                 t_info['dev_id'])
-                elif terminal['mobile'] != t_info['t_msisdn']:
+            if not t_info['t_msisdn']:
+                tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
+                                           " FROM T_TERMINAL_INFO"
+                                           " WHERE tid = %s LIMIT 1", t_info['dev_id'])
+                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                sms_ = SMSCode.SMS_NOT_JH % tid_terminal.mobile 
+                SMSHelper.send(tid_terminal.owner_mobile, sms_)
+                logging.warn("[GW] terminal: %s is refurbishment, and login at first time.",
+                             t_info['dev_id'])
+            elif terminal:
+                if terminal['tid'] != t_info['dev_id']:
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                     sms = SMSCode.SMS_TERMINAL_HK % t_info['dev_id']
-                    logging.warn("[GW] Terminal %s mobile is wrong, old: %s, new: %s",
-                                 t_info['dev_id'], terminal['mobile'], t_info['t_msisdn'])
+                    logging.warn("[GW] Tmobile: %s changed dev, old: %s, new: %s",
+                                 t_info['t_msisdn'], terminal['tid'], t_info['dev_id'])
                 elif terminal['imsi'] != t_info['imsi']:
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                     sms = SMSCode.SMS_TERMINAL_HK % t_info['dev_id']
@@ -443,6 +446,9 @@ class MyGWServer(object):
             # SMS JH 
             logging.info("[GW] Terminal: %s, mobile: %s JH started.",
                          t_info['dev_id'], t_info['t_msisdn'])
+            # 0. Initialize 
+            group_id = -1
+
             # 1. check data validation
             logging.info("[GW] Checking terminal mobile: %s and owner mobile: %s, Terminal: %s",
                          t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
@@ -488,8 +494,9 @@ class MyGWServer(object):
                                                 t_info['u_msisdn'],
                                                 psd)
 
+            # 4. jh existed tmobile
+            is_refurbishment = False
             if terminal:
-                # 4. jh existed tmobile
                 if (terminal['tid'] == t_info['dev_id']) and \
                    (terminal['imsi'] == t_info['imsi']) and \
                    (terminal['owner_mobile'] == t_info['u_msisdn']):
@@ -499,77 +506,37 @@ class MyGWServer(object):
                                                            ConfHelper.UWEB_CONF.url_out)
                     logging.info("[GW] terminal: %s is refurbishment.", t_info['dev_id'])
                 else:     
-                    # 4.2 delete existed tid
-                    tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
-                                               "  FROM T_TERMINAL_INFO"
-                                               "  WHERE tid = %s LIMIT 1",
-                                               t_info['dev_id'])
-                    if tid_terminal:
-                        logging.info("[GW] Delete existed tid: %s while JH mobile: %s.",
-                                     tid_terminal['tid'], t_info['t_msisdn'])
-                        del_user = True
-                        if tid_terminal['owner_mobile'] != t_info['u_msisdn']:
-                            # user changed, must clear history data of dev_id
-                            if tid_terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                                logging.info("[GW] Terminal: %s is to_be_unbind, delete it.",
-                                             tid_terminal['tid']) 
-                            else:
-                                # send message to old user of dev_id
-                                sms_ = SMSCode.SMS_DELETE_TERMINAL % tid_terminal['mobile'] 
-                                SMSHelper.send(tid_terminal['owner_mobile'], sms_)
-                                logging.info("[GW] Send delete terminal message: %s to user: %s",
-                                             sms_, tid_terminal['owner_mobile'])
-                            clear_data(tid_terminal['tid'], self.db)
-                        else:
-                            del_user = False
-                        delete_terminal(tid_terminal['tid'], self.db, self.redis, del_user=del_user)
-
-                    # 4.3 update terminal info
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
-                                    "  SET tid = %s,"
-                                    "      dev_type = %s,"
-                                    "      owner_mobile = %s,"
-                                    "      imsi = %s,"
-                                    "      imei = %s,"
-                                    "      factory_name = %s,"
-                                    "      keys_num = %s,"
-                                    "      softversion = %s"
-                                    "  WHERE mobile = %s",
-                                    t_info['dev_id'],
-                                    t_info['dev_type'],
-                                    t_info['u_msisdn'],
-                                    t_info['imsi'],
-                                    t_info['imei'],
-                                    t_info['factory_name'],
-                                    t_info['keys_num'],
-                                    t_info['softversion'],
-                                    terminal.mobile)
-                    self.db.execute("UPDATE T_CAR SET tid = %s"
-                                    "  WHERE tid = %s",
-                                    t_info['dev_id'], t_info['t_msisdn'])
-                    logging.info("[GW] Tmobile: %s existed, old tid: %s, new tid: %s JH again success!",
-                                 terminal.mobile, terminal.tid, t_info['dev_id'])
+                    # 4.2 existed tmobile changed dev or corp terminal login first
+                    group_id = terminal.group_id
                     if terminal.tid == terminal.mobile:
-                        logging.info("[GW] Corp terminal: %s login first. Tmobile: %s",
-                                     t_info['dev_id'], terminal.mobile)
-                        info_key = get_terminal_info_key(terminal.mobile)
-                        self.redis.delete(info_key)
-                        # subscription LE for new sim
-                        thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
-                        #self.request_location(t_info['dev_id'])
-            else:
-                # 5. jh new tmobile
+                        # corp terminal login first, keep corp info
+                        logging.info("[GW] Corp terminal: %s login first, tmobile: %s.",
+                                     t_info['dev_id'], t_info['t_msisdn'])
+                    else:
+                        logging.info("[GW] Tmobile: %s changed dev, new: %s, delete old: %s.",
+                                     t_info['t_msisdn'], t_info['dev_id'], terminal.tid)
+                    del_user = True
+                    if terminal.owner_mobile != t_info['u_msisdn']:
+                        # send message to old user of dev_id
+                        sms_ = SMSCode.SMS_DELETE_TERMINAL % terminal.mobile 
+                        SMSHelper.send(terminal.owner_mobile, sms_)
+                        logging.info("[GW] Send delete terminal message: %s to user: %s",
+                                     sms_, terminal.owner_mobile)
+                    else:
+                        del_user = False
+                    delete_terminal(terminal.tid, self.db, self.redis, del_user=del_user)
+
+            if not is_refurbishment:
+                # 5. delete existed tid
                 tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
                                            "  FROM T_TERMINAL_INFO"
                                            "  WHERE tid = %s LIMIT 1",
                                            t_info['dev_id'])
                 if tid_terminal:
-                    # 5.1 delete existed tid
-                    logging.info("[GW] Delete existed tid: %s while JH new mobile: %s",
-                                 t_info['dev_id'], t_info['t_msisdn'])
+                    logging.info("[GW] Delete existed tid: %s while JH mobile: %s.",
+                                 tid_terminal['tid'], t_info['t_msisdn'])
                     del_user = True
                     if tid_terminal['owner_mobile'] != t_info['u_msisdn']:
-                        # user changed, must clear history data of dev_id
                         if tid_terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
                             logging.info("[GW] Terminal: %s is to_be_unbind, delete it.",
                                          tid_terminal['tid']) 
@@ -579,12 +546,13 @@ class MyGWServer(object):
                             SMSHelper.send(tid_terminal['owner_mobile'], sms_)
                             logging.info("[GW] Send delete terminal message: %s to user: %s",
                                          sms_, tid_terminal['owner_mobile'])
+                        # user changed, must clear history data of dev_id
                         clear_data(tid_terminal['tid'], self.db)
                     else:
-                       del_user = False
-                    delete_terminal(tid_terminal['tid'], self.db, self.redis, del_user=del_user) 
+                        del_user = False
+                    delete_terminal(tid_terminal['tid'], self.db, self.redis, del_user=del_user)
 
-                # 5.3 add terminal info
+                # 6 add terminal info
                 # send JH sms to terminal. default active time is one year.
                 begintime = datetime.datetime.now() 
                 endtime = begintime + relativedelta(years=1)
@@ -593,11 +561,11 @@ class MyGWServer(object):
                                              int(time.mktime(begintime.timetuple())), 
                                              UWEB.OP_TYPE.ADD)
 
-                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
+                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, begintime, endtime, offline_time)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s)",
-                                t_info['dev_id'], t_info['dev_type'],
+                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s)",
+                                t_info['dev_id'], group_id, t_info['dev_type'],
                                 t_info['t_msisdn'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'],
                                 t_info['factory_name'],
@@ -609,7 +577,7 @@ class MyGWServer(object):
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
                                 t_info['dev_id'])
-                logging.info("[GW] New tmobile: %s with tid: %s JH success!",
+                logging.info("[GW] Tmobile: %s with tid: %s JH success!",
                              t_info['t_msisdn'], t_info['dev_id'])
                 # subscription LE for new sim
                 thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
