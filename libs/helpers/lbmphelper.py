@@ -14,18 +14,17 @@ from utils.dotdict import DotDict
 from constants import EVENTER, GATEWAY, UWEB
 from constants.MEMCACHED import ALIVED
 
-def get_last_location(tid, redis, db):
-    location_key = get_location_key(tid)
-    location = redis.getvalue(location_key)
-    if not location:
-        location = db.get("SELECT latitude, longitude, clatitude, clongitude FROM T_LOCATION"
-                          "  WHERE tid = %s"
-                          "    AND NOT (clatitude = 0 AND clongitude = 0)"
-                          " ORDER BY timestamp DESC"
-                          " LIMIT 1",
-                          tid)
-    return location
-
+#def get_last_location(tid, redis, db):
+#    location_key = get_location_key(tid)
+#    location = redis.getvalue(location_key)
+#    if not location:
+#        location = db.get("SELECT latitude, longitude, clatitude, clongitude FROM T_LOCATION"
+#                          "  WHERE tid = %s"
+#                          "    AND NOT (clatitude = 0 AND clongitude = 0)"
+#                          " ORDER BY timestamp DESC"
+#                          " LIMIT 1",
+#                          tid)
+#    return location
 
 def get_clocation_from_ge(lat, lon):
     """@params: lat, degree*3600000
@@ -186,7 +185,7 @@ def handle_location(location, redis, cellid=False, db=None):
             location.degree = get_last_degree(location, redis, db)
     elif location.valid == GATEWAY.LOCATION_STATUS.UNMOVE: # 4
         logging.info("tid:%s gps locate flag :%s", location.dev_id, location.valid)
-        last_location = get_last_location(location.dev_id, redis, db)
+        last_location = QueryHelper.get_location_info(location.dev_id, db, redis)
         if last_location:
             location.lat = last_location.latitude
             location.lon = last_location.longitude
@@ -235,7 +234,7 @@ def handle_location(location, redis, cellid=False, db=None):
             location = issue_cellid(location, db, redis)
             if location.lon and location.lat:
                 # 2: check the location whether is odd 
-                last_location = get_last_location(location.dev_id, redis, db)
+                last_location = QueryHelper.get_location_info(location.dev_id, db, redis)
                 if last_location:
                     distance = get_distance(location.lon,
                                             location.lat,
