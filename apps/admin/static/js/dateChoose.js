@@ -85,11 +85,13 @@ function fn_InitChooseDate() {
 		dateTemp = $('#date_temp').val(), 
 		dateTemp2 = $('#date_temp2').val(),
 		str_dateRole = $('#date_role').val(),
-		myDate =  new Date()/1000, 
+		obj_currrentDate = new Date(),
+		myDate = obj_currrentDate /1000, 
 		obj_startTime = $('#start_time1'),
 		obj_dailyTime = $('#daily_time'),
 		obj_endTime = $('#end_time1'),
 		str_yesterday = getYesterday(),
+		n_currentDay = obj_currrentDate.getDate(),	// 今天
 		str_today = toTodayDate(),
 		str_firstDayOfMonth = getFirstDayOfMonth(),
 		str_year =  toHumanDate(myDate, 'year'),
@@ -105,6 +107,9 @@ function fn_InitChooseDate() {
 	} else if ( startTemp == 'business_begin' || startTemp == '0' ) { // 个人用户查询,集团查询
 		obj_startTime.val(str_firstDayOfMonth); 
 	} else if ( startTemp == 'userReport_start' ) {	// 个人用户统计、集团用户统计、所有用户统计
+		if ( n_currentDay == 1 ) {
+			str_firstDayOfMonth = getFirstDayOfMonth(new Date(str_yesterday));  // console.log(new Date(str_yesterday).getMonth()+1);
+		}
 		obj_startTime.val(str_firstDayOfMonth); 	//  
 	} else {
 		obj_startTime.val(toHumanDate(startTemp, 'no')); 	//  
@@ -178,11 +183,18 @@ function toDateIntToString(str_time) { // 返回当天的日期的UTC表示:例�
 	return year + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + seconds;
 }
 // test: 2012-06-01  2012-05-01
-function getFirstDayOfMonth() {
-	var date = new Date(),
-		year = date.getFullYear(),
+function getFirstDayOfMonth(obj_date) {
+	
+	var date = new Date();
+	
+	if ( obj_date ) {
+		date = obj_date;
+	}
+	var	year = date.getFullYear(),
 		month = date.getMonth() +1,
 		day = '01';
+	
+	
 	if ( month < 10 ) {
 		month = '0' + month;
 	}
