@@ -778,6 +778,9 @@ tfoot {
 }
 
 /* whitelist css */
+#addWhitelistDialog table, #modifyWhitelistDialog table {
+	height: 200px;
+}
 #addWhitelistDialog tr, #modifyWhitelistDialog tr {
 	height: 40px;
 }
