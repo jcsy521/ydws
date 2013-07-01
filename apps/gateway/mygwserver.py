@@ -415,8 +415,9 @@ class MyGWServer(object):
                                            " FROM T_TERMINAL_INFO"
                                            " WHERE tid = %s LIMIT 1", t_info['dev_id'])
                 args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                sms_ = SMSCode.SMS_NOT_JH % tid_terminal.mobile 
-                SMSHelper.send(tid_terminal.owner_mobile, sms_)
+                if tid_terminal:
+                    sms_ = SMSCode.SMS_NOT_JH % tid_terminal.mobile 
+                    SMSHelper.send(tid_terminal.owner_mobile, sms_)
                 logging.warn("[GW] terminal: %s login at first time.",
                              t_info['dev_id'])
             elif terminal:
