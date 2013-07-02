@@ -81,7 +81,7 @@ class RealtimeMixin(BaseMixin):
         else:
             query_time = int(time.time())
             # we should eventually search location from T_LOCATION
-            location = self.db.get("SELECT clatitude, clongitude, latitude,"
+            location = self.db.get("SELECT id, clatitude, clongitude, latitude,"
                                    "       longitude, name, timestamp, type, degree"
                                    "  FROM T_LOCATION"
                                    "  WHERE tid = %s"
@@ -92,6 +92,11 @@ class RealtimeMixin(BaseMixin):
                                    "  LIMIT 1",
                                    self.current_user.tid, query_time,
                                    UWEB.REALTIME_VALID_INTERVAL, UWEB.REALTIME_VALID_INTERVAL)
+
+        locations = [location,] 
+        locations = get_locations_with_clatlon(locations, self.db) 
+        location = locations[0]
+
         if (location and location.clatitude and location.clongitude):
             if not location.name:
                 location.name = ''
@@ -118,7 +123,7 @@ class RealtimeMixin(BaseMixin):
                 location = None
         else:
             # we should eventually search location from T_LOCATION
-            location = self.db.get("SELECT clatitude, clongitude, latitude,"
+            location = self.db.get("SELECT id, clatitude, clongitude, latitude,"
                                    "       longitude, name, timestamp, type, degree"
                                    "  FROM T_LOCATION"
                                    "  WHERE tid = %s"
@@ -131,10 +136,15 @@ class RealtimeMixin(BaseMixin):
                                    UWEB.REALTIME_VALID_INTERVAL, UWEB.REALTIME_VALID_INTERVAL)
             if (location and not location.name):
                 location.name = ''
+
                 
         ret = DotDict(status=ErrorCode.SUCCESS,
                       message='',
                       location=None)
+
+        locations = [location,] 
+        locations = get_locations_with_clatlon(locations, self.db) 
+        location = locations[0]
 
         if (location and location.clatitude and location.clongitude):
             if location.has_key('id'):

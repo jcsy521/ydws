@@ -64,6 +64,14 @@ def get_ios_badge_key(umobile):
     """for the ios badge of ios."""
     return str("ios_badge:%s" % umobile)
 
+def get_ios_push_list_key(uid): 
+    """for the iosid_lst of IOS"""
+    return str("ios_push_list:%s" % uid)  
+
+def get_android_push_list_key(uid): 
+    """for the devid_lst of Android."""
+    return str("android_push_list:%s" % uid) 
+
 def get_lastinfo_key(umobile):
     """for the newest lastinfo of owner"""
     return str("lastinfo:%s" % umobile)

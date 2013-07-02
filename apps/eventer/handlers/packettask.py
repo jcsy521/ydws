@@ -46,8 +46,8 @@ class PacketTask(object):
         else:
             pass     
         
-    def check_region_event(self, location): 
-        """ check enter or out region """
+    def get_regions(self, tid): 
+        """Get all regions associated with the tid."""
         #1.select the terminal's all regions and compare it
         regions = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name, "
                                 "       tr.longitude AS region_longitude, tr.latitude AS region_latitude, "
@@ -57,7 +57,13 @@ class PacketTask(object):
                                 "  AND trt.tid = %s",
                                 location['dev_id'])
         if regions is None or len(regions) == 0:
-            return
+            return []
+        else:
+            return regions
+
+    def check_region_event(self, location, regions): 
+        """check enter or out region """
+        #1.select the terminal's all regions and compare it
         location['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS
         terminal = QueryHelper.get_terminal_by_tid(location['dev_id'], self.db)
         for region in regions:
@@ -192,28 +198,35 @@ class PacketTask(object):
     def handle_position_info(self, location):
         location = DotDict(location)
         if location.Tid == EVENTER.TRIGGERID.CALL:
-            # get available location from lbmphelper
-            location = lbmphelper.handle_location(location, self.redis,
-                                                  cellid=True,
-                                                  db=self.db) 
+            #location = lbmphelper.handle_location(location, self.redis,
+            #                                      cellid=True, db=self.db) 
+            regions = get_regions(location['dev_id'])
+            if regions:
+                location = lbmphelper.handle_location(location, self.redis,
+                                                      cellid=True, db=self.db) 
+                self.check_region_event(location, regions)
             location.category = EVENTER.CATEGORY.REALTIME
             self.update_terminal_info(location)
-            if location.get('cLat') and location.get('cLon'):
+            if location.get('lat') and location.get('lon'):
                 self.realtime_location_hook(location)
-
-            self.check_region_event(location)
 
         elif location.Tid == EVENTER.TRIGGERID.PVT:
             for pvt in location['pvts']:
                 # get available location from lbmphelper
                 pvt['dev_id'] = location['dev_id']
-                location = lbmphelper.handle_location(pvt, self.redis,
-                                                      cellid=False, db=self.db) 
-                location.category = EVENTER.CATEGORY.REALTIME
-                if location.get('cLat') and location.get('cLon'): 
-                    insert_location(location, self.db, self.redis)
 
-                self.check_region_event(location)
+                regions = get_regions(pvt['dev_id'])
+                if regions:
+                    pvt = lbmphelper.handle_location(pvt, self.redis,
+                                                          cellid=True, db=self.db) 
+                    self.check_region_event(pvt, regions)
+                # NOTE: not offset it
+                #location = lbmphelper.handle_location(pvt, self.redis,
+                #                                      cellid=False, db=self.db) 
+                pvt.category = EVENTER.CATEGORY.REALTIME
+                if pvt.get('lat') and pvt.get('lon'): 
+                    insert_location(pvt, self.db, self.redis)
+
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)
@@ -423,12 +436,21 @@ class PacketTask(object):
             user = QueryHelper.get_user_by_tid(dev_id, self.db)
 
         if user:
-            name = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
-            push_key = NotifyHelper.get_push_key(user.owner_mobile, self.redis) 
-            NotifyHelper.push_to_android(category, user.owner_mobile, dev_id, name, location, push_key)      
-            ios_id, ios_badge = NotifyHelper.get_iosinfo(user.owner_mobile, self.redis)
-            if ios_id:
-                NotifyHelper.push_to_ios(category, user.owner_mobile, dev_id, name, location, ios_id, ios_badge)      
+            t_alias = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
+            # 1: push to android
+            android_push_list_key = get_android_push_list_key(user.uid) 
+            android_push_list = self.redis.getvalue(android_push_list_key) 
+            if android_push_list: 
+                for push_id in android_push_list: 
+                    push_key = NotifyHelper.get_push_key(push_id, self.redis) 
+                    NotifyHelper.push_to_android(category, dev_id, t_alias, location, push_id, push_key)
+            # 2: push  to ios 
+            ios_push_list_key = get_ios_push_list_key(user.uid) 
+            ios_push_list = self.redis.getvalue(ios_push_list_key) 
+            if ios_push_list: 
+                for iosid in ios_push_list: 
+                    ios_badge = NotifyHelper.get_iosbadge(iosid, self.redis) 
+                    NotifyHelper.push_to_ios(category, dev_id, t_alias, location, ios_id, ios_badge)
 
     def handle_power_status(self, report, name, report_name, terminal_time):
         """

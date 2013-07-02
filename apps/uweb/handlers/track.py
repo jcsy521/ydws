@@ -17,7 +17,7 @@ from utils.misc import get_lqgz_key, str_to_list, utc_to_date, seconds_to_label,
 from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
-from helpers.lbmphelper import get_distance 
+from helpers.lbmphelper import get_distance, get_locations_with_clatlon
 from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
@@ -152,6 +152,10 @@ class TrackHandler(BaseHandler):
                                       "    AND type = 0"
                                       "    ORDER BY timestamp",
                                       self.current_user.tid, start_time, end_time)
+
+            # NOTE: if latlons are legal, but clatlons are illlegal, offset
+            # them and update them in db.  
+            track = get_locations_with_clatlon(track, self.db)
 
             # add idle_points  
             # track1, track2, track3,...

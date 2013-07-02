@@ -26,28 +26,127 @@ from constants.MEMCACHED import ALIVED
 #                          tid)
 #    return location
 
-def get_clocation_from_ge(lat, lon):
-    """@params: lat, degree*3600000
-                lon, degree*3600000
-       @return: clat, degree
-                clon, degree
+#def get_clocation_from_ge(lat, lon):
+#    """@params: lat, degree*3600000
+#                lon, degree*3600000
+#       @return: clat, degree
+#                clon, degree
+#    """
+#    clat = 0 
+#    clon = 0 
+#    try: 
+#        args = DotDict(lat=lat,
+#                       lon=lon)
+#        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GE, args)
+#        response = json_decode(response)
+#        if response['success'] == 0:
+#            clat = response['position']['clat']
+#            clon = response['position']['clon']
+#        else:
+#            logging.info("Get clocation from GE failed, used 0,0 for clat and clon, response: %s, args: %s",
+#                         response['info'], args)
+#    except Exception as e:
+#        logging.exception("Get latlon from GE failed. Exception: %s", e.args)
+#    return clat, clon
+
+def get_clocation_from_ge(lats, lons):
+    """@params: lats, [degree*3600000, ...]
+                lons, [degree*3600000, ...]
+       @return: clats,[degree*3600000, ...]
+                clons, [degree*3600000, ...]
     """
-    clat = 0 
-    clon = 0 
+    # send 20 items for getting offset latlon every time.
+    MAX_COUNT = 20
+    clats = [] 
+    clons = [] 
     try: 
-        args = DotDict(lat=lat,
-                       lon=lon)
-        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GE, args)
-        response = json_decode(response)
-        if response['success'] == 0:
-            clat = response['position']['clat']
-            clon = response['position']['clon']
-        else:
-            logging.info("Get clocation from GE failed, used 0,0 for clat and clon, response: %s, args: %s",
-                         response['info'], args)
+        # NOTE: if lats and lons has different number of items, or either
+        # is a empty list, return clats and clons directly 
+        if (len(lats) != len(lons)) or (not (lats and lons)):
+            logging.error("[LBMPHELPER] Invalid data. len(lats)=%s, len(lons)=%s, lats: %s, lons: %s", 
+                          len(lats), len(lons), lats, lons)
+            return clats, clons
+
+        #NOTE: when there are too many lats and lons, send 20 pairs one time till all is sent.
+        d, m = divmod(len(lats), MAX_COUNT)
+        rounds = (d + 1) if m else d
+        for i in xrange(rounds):
+            lats_item = lats[(i * MAX_COUNT) : ((i+1) * MAX_COUNT)]
+            lons_item = lons[(i * MAX_COUNT) : ((i+1) * MAX_COUNT)]
+
+            args = DotDict(lats=lats_item,
+                           lons=lons_item)
+            response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.GE, args)
+            response = json_decode(response)
+            if response['success'] == 0:
+                clats_item = response['position']['clats']
+                clons_item = response['position']['clons']
+            else:
+                # NOTE: porvide a dummy list
+                clats_item = [0,] * len(lats_item)
+                clons_item = [0,] * len(lons_item)
+                logging.info("[LBMPHELPER] Get clocation from GE failed, response: %s, args: %s",
+                             response['info'], args)
+            clats.extend(clats_item)
+            clons.extend(clons_item)
     except Exception as e:
-        logging.exception("Get latlon from GE failed. Exception: %s", e.args)
-    return clat, clon
+        logging.exception("[LBMPHELPER] Get latlon from GE failed. Exception: %s", e.args)
+    return clats, clons
+
+def get_locations_with_clatlon(locations, db):
+    # NOTE: if latlons are legal, but clatlons are illlegal, offset them
+    # and update them in db. 
+    if not locations:
+        return []
+    modify_locations= []
+    lats = []
+    lons = []
+    index_lst = []
+    for i, location in enumerate(locations): 
+        if location and not (location['clatitude'] and location['clongitude']):
+            index_lst.append(i)
+            lats.append(location['latitude'])
+            lons.append(location['longitude'])
+        else:
+            #NOTE: the location has legal clatlon, there is noneed to offset.
+            pass
+
+    if not (lats and lons):
+        return locations
+
+    clats, clons = get_clocation_from_ge(lats, lons) 
+    if clats and clons:
+        clatlons = zip(index_lst, clats, clons)
+        # NOTE: clatlons, a list like [(index, clat, clon,),
+        #                              (index, clat, clon,), 
+        #                              ...]
+        for clatlon in clatlons:
+            index = clatlon[0]
+            clat = clatlon[1]
+            clon = clatlon[2]
+            if clat and clon:
+                locations[index]['clatitude'] = clat
+                locations[index]['clongitude'] = clon
+                modify_locations.append(dict(lid=locations[index]['id'], 
+                                             clat=clat, 
+                                             clon=clon))
+            else:
+                # BIG NOTE: if offset failed. set the clatlon as latlon 
+                logging.error("[LBMPHELPER] get clatlon failed, lat: %s, lon: %s", 
+                              locations[index]['latitude'],
+                              locations[index]['longitude'])
+                locations[index]['clatitude'] = 0 
+                locations[index]['clongitude'] = 0 
+
+    if modify_locations:
+        db.executemany("UPDATE T_LOCATION"
+                       "  SET clatitude = %s,"
+                       "      clongitude = %s"
+                       "  WHERE id = %s",
+                       [(item['clat'], item['clon'], item['lid']) 
+                       for item in modify_locations])
+    return locations
+
 
 def get_latlon_from_cellid(mcc, mnc, lac, cid, sim):
     """@params: mcc, mobile country code 
@@ -86,7 +185,8 @@ def handle_latlon_from_cellid(lat, lon, tid, redis, db):
     """
     distance = 0
 
-    clat, clon = get_clocation_from_ge(lat, lon)
+    clats, clons = get_clocation_from_ge([lat,], [lon,])
+    clat, clon = clats[0], clons[0]
     location_key = get_location_key(tid)
     location = redis.getvalue(location_key)
     if location and location.get('type',None) == UWEB.LOCATE_FLAG.GPS: 
@@ -258,7 +358,8 @@ def handle_location(location, redis, cellid=False, db=None):
                     logging.info("[LBMPHELPER] tid:%s last location is none, use cellid location", location.dev_id)
 
     if location and location.lat and location.lon:
-        location.cLat, location.cLon = get_clocation_from_ge(location.lat, location.lon)
+        clats, clons = get_clocation_from_ge([location.lat,], [location.lon,])
+        location.cLat, location.cLon = clats[0], clons[0] 
         #if (location['t'] == EVENTER.INFO_TYPE.REPORT or
         #    location['command'] == GATEWAY.T_MESSAGE_TYPE.LOCATIONDESC):
         # NOTE: change it temporarily: in platform get loction name of all

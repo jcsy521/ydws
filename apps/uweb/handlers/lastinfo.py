@@ -11,6 +11,7 @@ from utils.ordereddict import OrderedDict
 from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key, get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
+from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
 from constants import UWEB, EVENTER, GATEWAY
 from constants.MEMCACHED import ALIVED
 from base import BaseHandler, authenticated
@@ -55,6 +56,9 @@ class LastInfoHandler(BaseHandler):
 
                 # 2: get location 
                 location = QueryHelper.get_location_info(tid, self.db, self.redis)
+                locations = [location,]
+                locations = get_locations_with_clatlon(locations, self.db) 
+                location = locations[0]
 
                 if location and location['name'] is None:
                     location['name'] = ''
@@ -116,14 +120,16 @@ class LastInfoHandler(BaseHandler):
                             if int(query_time) == -1:
                                 pass
                             elif lastinfo_time - query_time > 1: # every 30 second, ternimal generate a location 
-                                track  = self.db.query("SELECT clatitude, clongitude"
+                                track  = self.db.query("SELECT id, latitude, longitude," 
+                                                       "    clatitude, clongitude"
                                                        "  FROM T_LOCATION"
                                                        "  WHERE tid = %s"
                                                        "    AND NOT (latitude = 0 OR longitude = 0)"
                                                        "    AND (timestamp BETWEEN %s AND %s)"
-                                                       #"    AND type = 0"
+                                                       "    AND type = 0"
                                                        "    ORDER BY timestamp",
                                                        track_tid, int(track_time)+1, int(lastinfo_time)-1)
+                                track = get_locations_with_clatlon(track, self.db)
                                 for item in track:
                                     track_info.append(item['clatitude'])
                                     track_info.append(item['clongitude'])
@@ -214,6 +220,9 @@ class LastInfoCorpHandler(BaseHandler):
 
                     # 2: get location 
                     location = QueryHelper.get_location_info(tid, self.db, self.redis)
+                    locations = [location,]
+                    locations = get_locations_with_clatlon(locations, self.db) 
+                    location = locations[0]
 
                     if location and location['name'] is None:
                         location['name'] = ''
@@ -247,7 +256,8 @@ class LastInfoCorpHandler(BaseHandler):
                     #2: build track_info
                     track_info = []
                     if tid in track_tids:
-                        points_track = self.db.query("SELECT clatitude, clongitude"
+                        points_track = self.db.query("SELECT id, latitude, longitude," 
+                                                     "   clatitude, clongitude"
                                                      "  FROM T_LOCATION"
                                                      "  WHERE tid = %s"
                                                      "    AND NOT (clatitude = 0 OR clongitude = 0)"
@@ -256,13 +266,15 @@ class LastInfoCorpHandler(BaseHandler):
                                                      "    ORDER BY timestamp",
                                                      tid, int(track_lst[tid]['track_time'])+1, int(current_time)-1)
 
+                        points_track = get_locations_with_clatlon(points_track, self.db)
                         for point in points_track: 
                             track_info.append(point['clatitude'])
                             track_info.append(point['clongitude'])
 
                     #3: build trace_info
                     trace_info = []
-                    points_trace = self.db.query("SELECT distinct clatitude, clongitude"
+                    points_trace = self.db.query("SELECT distinct id, latitude, longitude," 
+                                                 "    clatitude, clongitude"
                                                  "  FROM T_LOCATION"
                                                  "  WHERE tid = %s"
                                                  "    AND NOT (clatitude = 0 OR clongitude = 0)"
@@ -271,6 +283,7 @@ class LastInfoCorpHandler(BaseHandler):
                                                  "    ORDER BY timestamp",
                                                  tid, int(current_time)-60*5, int(current_time))
 
+                    points_trace = get_locations_with_clatlon(points_trace, self.db)
                     if points_trace:
                         points_trace = points_trace[-5:]
                         for point in points_trace: 

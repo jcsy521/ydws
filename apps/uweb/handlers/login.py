@@ -9,13 +9,15 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import get_ios_id_key, get_ios_badge_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key
+from utils.misc import get_ios_push_list_key, get_ios_id_key, get_ios_badge_key,\
+     get_android_push_list_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key
 from utils.checker import check_sql_injection, check_phone
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER, GATEWAY
 from base import BaseHandler, authenticated
 from helpers.notifyhelper import NotifyHelper
 from helpers.queryhelper import QueryHelper 
+from helpers.lbmphelper import get_locations_with_clatlon
 from helpers.downloadhelper import get_version_info 
 
 from mixin.login import LoginMixin
@@ -30,7 +32,7 @@ class LoginHandler(BaseHandler, LoginMixin):
                     user_type=UWEB.USER_TYPE.PERSON,
                     message=None,
                     message_captcha=None)
-
+ 
     @tornado.web.removeslash
     def post(self):
         """We store uid, tid and sim in the cookie to
@@ -224,19 +226,17 @@ class IOSHandler(BaseHandler, LoginMixin):
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)
 
-            ios_id_key = get_ios_id_key(username)
-           
-            # NOTE: check the iosid whether has been linked to a user, if
-            # ture, clean it
-            ios_id_key_old = self.redis.getvalue(iosid)
-            if ios_id_key_old:
-                self.redis.delete(iosid, ios_id_key_old)
-            # follow up, we must keep iosid -> user and user -> iosid
-            self.redis.setvalue(ios_id_key, iosid, UWEB.IOS_ID_INTERVAL)
-            self.redis.setvalue(iosid, ios_id_key, UWEB.IOS_ID_INTERVAL)
-
-            ios_badge_key = get_ios_badge_key(username)
+            # uid --> iosid_push_list 
+            ios_push_list_key = get_ios_push_list(uid) 
+            ios_push_list = self.redis.getvalue(ios_push_list_key)
+            ios_push_list = ios_push_list if ios_push_list else []
+            if iosid not in ios_push_list: 
+                ios_push_list.append(iosid)
+            self.redis.set(ios_push_list_key, ios_push_list)
+            ios_badge_key = get_ios_badge_key(iosid) 
             self.redis.setvalue(ios_badge_key, 0, UWEB.IOS_ID_INTERVAL)
+            logging.info("[UWEB] username %s, ios_push_lst: %s", username, ios_push_list)
+
             self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name, 
@@ -253,7 +253,9 @@ class AndroidHandler(BaseHandler, LoginMixin):
         username = self.get_argument("username")
         password = self.get_argument("password")
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
-        logging.info("[UWEB] Android login request, username: %s, password: %s, user_type: %s", username, password, user_type)
+        devid = self.get_argument("devid", "")
+        logging.info("[UWEB] Android login request, username: %s, password: %s, user_type: %s, devid: %s", 
+                     username, password, user_type, devid)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
             status= ErrorCode.LOGIN_FAILED
@@ -316,6 +318,9 @@ class AndroidHandler(BaseHandler, LoginMixin):
 
                 # 2: get location
                 location = QueryHelper.get_location_info(tid, self.db, self.redis)
+                locations = [location,] 
+                locations = get_locations_with_clatlon(locations, self.db) 
+                location = locations[0]
 
                 if location and location['name'] is None:
                     location['name'] = ''
@@ -348,16 +353,28 @@ class AndroidHandler(BaseHandler, LoginMixin):
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)
 
-            push_info = NotifyHelper.get_push_info()
-            push_key = NotifyHelper.get_push_key(uid, self.redis)
+            #push_info = NotifyHelper.get_push_info()
+            
+            push_id = devid if devid else uid 
+            push_key = NotifyHelper.get_push_key(push_id, self.redis)
+
             version_info = get_version_info("android")
             lastinfo_time_key = get_lastinfo_time_key(uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
 
+            # uid --> android_push_lst 
+            android_push_list_key = get_android_push_list(uid) 
+            android_push_list = self.redis.getvalue(android_push_list_key)
+            android_push_list = android_push_list if android_push_list else []
+            if push_id not in android_push_list: 
+                android_push_list.append(push_id)
+            self.redis.set(android_push_list_key, android_push_list)
+            logging.info("[UWEB] uid: %s, android_push_lst: %s", username, android_push_list)
+
             self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
             self.write_ret(status,
-                           dict_=DotDict(push_id=uid,
-                                         app_key=push_info.app_key,
+                           dict_=DotDict(push_id=push_id,
+                                         #app_key=push_info.app_key,
                                          push_key=push_key,
                                          name=user_info.name, 
                                          cars_info=cars_info,
@@ -378,15 +395,15 @@ class LogoutHandler(BaseHandler):
 
 class IOSLogoutHandler(BaseHandler):
 
-    @authenticated
-    @tornado.web.removeslash
-    def get(self):
-        """Clear the cookie, ios_id and ios_badge. """
-        ios_id_key = get_ios_id_key(self.current_user.uid)
-        ios_badge_key = get_ios_badge_key(self.current_user.uid)
-        keys = [ios_id_key, ios_badge_key]
-        self.redis.delete(*keys)
-        self.clear_cookie(self.app_name)
+    #@authenticated
+    #@tornado.web.removeslash
+    #def get(self):
+    #    """Clear the cookie, ios_id and ios_badge. """
+    #    ios_id_key = get_ios_id_key(self.current_user.uid)
+    #    ios_badge_key = get_ios_badge_key(self.current_user.uid)
+    #    keys = [ios_id_key, ios_badge_key]
+    #    self.redis.delete(*keys)
+    #    self.clear_cookie(self.app_name)
 
     @authenticated
     @tornado.web.removeslash
@@ -394,6 +411,7 @@ class IOSLogoutHandler(BaseHandler):
         """Clear the cookie and set defend."""
         try:
             data = DotDict(json_decode(self.request.body))
+            iosid = data.get("iosid", "")
             logging.info("[UWEB] logout request: %s, uid: %s", 
                          data, self.current_user.uid)
         except:
@@ -421,23 +439,29 @@ class IOSLogoutHandler(BaseHandler):
                     self.redis.setvalue(terminal_info_key, terminal_info)
                 logging.info("[UWEB] uid:%s, tid:%s set mannual status  successfully", 
                              self.current_user.uid, tid)
+
+            # 2: remove ios from push_list 
+            ios_push_list_key = get_ios_push_list(self.current_user.uid) 
+            ios_push_list = self.redis.getvalue(ios_push_list_key) 
+            if iosid in ios_push_list: 
+                ios_push_list.remove(iosid) 
+                self.redis.set(ios_push_list_key, ios_push_list) 
+            ios_badge_key = get_ios_badge_key(iosid) 
+            self.redis.delete(ios_badge_key) 
+            logging.info("[UWEB] uid:%s, ios_push_lst: %s", self.current_user.uid, ios_push_list)
         finally:
-            #2: clear cookie, 
-            #ios_id_key = get_ios_id_key(self.current_user.uid)
-            #ios_badge_key = get_ios_badge_key(self.current_user.uid)
-            #keys = [ios_id_key, ios_badge_key]
-            #self.redis.delete(*keys)
+            # 3: clear cookie
             self.clear_cookie(self.app_name)
             self.write_ret(ErrorCode.SUCCESS)
 
 
 class AndroidLogoutHandler(BaseHandler):
 
-    @authenticated
-    @tornado.web.removeslash
-    def get(self):
-        """Clear the cookie ."""
-        self.clear_cookie(self.app_name)
+    #@authenticated
+    #@tornado.web.removeslash
+    #def get(self):
+    #    """Clear the cookie ."""
+    #    self.clear_cookie(self.app_name)
 
     @authenticated
     @tornado.web.removeslash
@@ -445,6 +469,7 @@ class AndroidLogoutHandler(BaseHandler):
         """Clear the cookie and set defend."""
         try:
             data = DotDict(json_decode(self.request.body))
+            devid = data.get("devid", "")
             logging.info("[UWEB] logout request: %s, uid: %s", 
                          data, self.current_user.uid)
         except:
@@ -472,7 +497,14 @@ class AndroidLogoutHandler(BaseHandler):
                     self.redis.setvalue(terminal_info_key, terminal_info)
                 logging.info("[UWEB] uid:%s, tid:%s set mannual status  successfully", 
                              self.current_user.uid, tid)
+            # 2: remove devid from android_push_list 
+            android_push_list_key = get_android_push_list_key(self.current_user.uid) 
+            android_push_list = self.redis.getvalue(android_push_list_key) 
+            if devid in android_push_list: 
+                android_push_list.remove(devid) 
+                self.redis.set(android_push_list_key, android_push_list) 
+            logging.info("[UWEB] uid:%s, android_push_lst: %s", self.current_user.uid, android_push_list)
         finally:
-            #2: clear cookie
+            # 3: clear cookie
             self.clear_cookie(self.app_name)
             self.write_ret(ErrorCode.SUCCESS)

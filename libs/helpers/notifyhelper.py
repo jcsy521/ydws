@@ -34,14 +34,19 @@ class NotifyHelper(object):
                        endtime=endtime)
     
     @staticmethod
-    def push_to_android(category, uid, tid, t_alias, location, key):
+    def push_to_android(category, tid, t_alias, location, push_id, push_key):
         """Push info for android by means of openfire.
+        @params:
+        category,
+        t_alias,
+        location,
+        push_id,
+        push_key,
         """
         # part 1: android-push 
         #NOTE: because it's invalid most time, so close it.
         h = httplib2.Http()
         push_info = NotifyHelper.get_push_info()
-        alias=uid
         ret = DotDict(tid=tid,
                       category=category,
                       longitude=location.lon,
@@ -70,8 +75,8 @@ class NotifyHelper(object):
 
         headers = {"Content-type": "application/x-www-form-urlencoded; charset=utf-8"}
         url = ConfHelper.OPENFIRE_CONF.push_url 
-        data = DotDict(uid=uid,
-                       key=key,
+        data = DotDict(uid=push_id,
+                       key=push_key,
                        body=msg)
         response, content = h.request(url, 'POST', body=urlencode(data), headers=headers)
         ret = json_decode(content)
@@ -101,7 +106,7 @@ class NotifyHelper(object):
             logging.exception("Push register failed. Exception: %s", e.args)
     
     @staticmethod
-    def get_push_key(uid, redis):
+    def get_push_key(push_id, redis):
         """Get push key of current user for openfie push.
         workflow:
         if push_key in redis:
@@ -111,40 +116,34 @@ class NotifyHelper(object):
             keep push_key in redis
         """
         try:
-            push_key = redis.getvalue(('push:%s' % uid))
+            push_key = redis.getvalue(('push:%s' % push_id))
             if not push_key:
-                push_key = NotifyHelper.push_register(uid) 
-                redis.setvalue(('push:%s' % uid), push_key)
+                push_key = NotifyHelper.push_register(push_id) 
+                redis.setvalue(('push:%s' % push_id), push_key)
             return push_key
         except Exception as e:
+            logging.exception("Get push key failed. Exception: %s", e.args)
             return None 
-            logging.exception("Get push key failed. Exception: %s", e.args)
 
     @staticmethod
-    def get_iosinfo(uid, redis):
-        """Get ios_id and ios_badge.
-        """
-        ios_id = None
+    def get_iosbadge(iosid, redis): 
+        """Get ios_badge throuth iosid. """ 
         ios_badge = None
-        try:
-            ios_id_key = get_ios_id_key(uid)
-            ios_badge_key = get_ios_badge_key(uid)
-
-            ios_id = redis.getvalue(ios_id_key)
-            ios_badge = redis.getvalue(ios_badge_key)
-            if ios_badge is not None:
-                ios_badge = int(ios_badge) + 1
+        try: 
+            ios_badge_key = get_ios_badge_key(iosid) 
+            ios_badge = redis.getvalue(ios_badge_key) 
+            if ios_badge is not None: 
+                ios_badge = int(ios_badge) + 1 
                 redis.setvalue(ios_badge_key, ios_badge)
-        except Exception as e:
-            logging.exception("Get push key failed. Exception: %s", e.args)
+        except Exception as e: 
+            logging.exception("Get push key failed. Exception: %s", e.args) 
         finally:
-            return ios_id, ios_badge
+            return ios_badge 
 
     @staticmethod
-    def push_to_ios(category, uid, tid, t_alias, location, ios_id, ios_badge):
+    def push_to_ios(category, tid, t_alias, location, ios_id, ios_badge):
         """Push info fo IOS by the means of ANPS
         @param: category,
-                uid, 
                 tid, 
                 t_alias,
                 location,
