@@ -125,7 +125,7 @@ def insert_location(location, db, redis):
                      location.category, location.type,
                      location.speed, location.degree,
                      location.cellid)
-    if location.cLat and location.cLon:
+    if location.lat and location.lon:
         lqgz_interval_key = get_lqgz_interval_key(location.dev_id)
         lqgz = redis.getvalue(lqgz_interval_key)
         if lqgz and (int(location.type) != 0):
