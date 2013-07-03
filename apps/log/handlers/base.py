@@ -35,10 +35,6 @@ def authenticated(method):
         return method(self, *args, **kwargs)
     return wrapper
 
-def log_file_path():
-    log_file_path = '/var/log/supervisor/gateway_new/'
-    return log_file_path
-
 class BaseHandler(tornado.web.RequestHandler):
 
     SUPPORTED_METHODS = ("GET", "POST","PUT")

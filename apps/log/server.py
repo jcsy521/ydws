@@ -34,6 +34,7 @@ from handlers.getlogs import DoFile
 from handlers.message import MessageHandler 
 from handlers.packet import GWPacketHandler
 from handlers.battery import GWBatteryHandler
+from handlers.password import LOGPasswordHandler
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis 
@@ -57,6 +58,7 @@ class Application(tornado.web.Application):
 			 
             (r"/packet",GWPacketHandler),
             (r"/battery",GWBatteryHandler),
+            (r"/password",LOGPasswordHandler),
             ]
             
         settings = dict(

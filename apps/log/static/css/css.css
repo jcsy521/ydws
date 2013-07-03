@@ -430,5 +430,17 @@ table, .ui-widget-header {
 .width_batteryTime {
 	width: 50%;
 }
+/* sms css*/
 
+.inputTypeTip {
+	display: inline-block;
+	width: 95px;
+}
+.inputPanelTip {
+	display: inline-block;
+	width: 100px;
+}
+#domain {
+	width: 240px;
+}
 

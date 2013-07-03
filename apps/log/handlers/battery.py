@@ -5,13 +5,15 @@ import os
 import re
 import time
 import logging
+import linecache
 
 import tornado.web
 from tornado.escape import  json_decode
 
+from fileconf import FileConf
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from base import authenticated, BaseHandler, log_file_path
+from base import authenticated, BaseHandler
 
 class GWBatteryHandler(BaseHandler):
 
@@ -24,6 +26,7 @@ class GWBatteryHandler(BaseHandler):
                     role=n_role.role)
 
     @authenticated
+    @tornado.web.removeslash
     def post(self):
 
         try:
@@ -40,36 +43,37 @@ class GWBatteryHandler(BaseHandler):
 
         try:
             result = self.acbdb.get("SELECT tid FROM T_TERMINAL_INFO WHERE mobile = %s", mobile)
-            file_path = log_file_path()
+            fc = FileConf()
+            file_path = fc.getLogFile()
             files = os.listdir(file_path)
             lst = []
             if result:
                 tid =result['tid']
                 for file in files:
-                    dat_file = open(file_path+file, 'rb')
-                    first_line = dat_file.readline().strip()
-                    if first_line:
-                        while first_line[0] != '[':
-                            first_line = dat_file.readline().strip()
-                        first_time = '20%s' % first_line[3:18]
-                        #Get the file's recently alter time throught os.stat(filename).st_mtime to last_time
-                        last_time = time.strftime("%Y%m%d %H:%M:%S", time.localtime(os.stat(file_path+file).st_mtime) )
+                    lines= linecache.getlines(file_path+file)
+                    if len(lines) !=0:
+                        first_num = 0
+                        last_num = len(lines)-1
+                        while lines[first_num][0] != '[':
+                            first_num = first_num+1
+                        first_time = '20%s' % lines[first_num][3:18]
+                        while lines[last_num][0] != '[':
+                            last_num = last_num - 1
+                        last_time = '20%s' % lines[last_num][3:18]
                         if start_time > last_time or end_time < first_time:
                             logging.info("[LOG] Ignored file: %s, BeginTime: %s, EndTime: %s", file, first_time, last_time)
                         else:
-                            log = open(file_path+file, 'r')
                             p1 = re.compile(tid, re.I)
                             p2 = re.compile("T2,", re.I)
                             p3 = re.compile("I ", re.I)
-                            for line in log:
-                                if p1.search(line) and p2.search(line) and p3.search(line):
-                                    if '20%s' % line[3:18]>start_time and '20%s' % line[3:18]<end_time:
-                                        battery_time = line[3:18]
-                                        battery_num = line.split(',')[6].split(':')[2]
+                            for num in range(len(lines)):
+                                if p1.search(lines[num]) and p2.search(lines[num]) and p3.search(lines[num]):
+                                    if '20%s' % lines[num][3:18]>start_time and '20%s' % lines[num][3:18]<end_time:
+                                        battery_time = lines[num][3:18]
+                                        battery_num = lines[num].split(',')[6].split(':')[2]
                                         p = {'battery_time':battery_time,
                                              'battery_num':battery_num}
                                         lst.append(p)
-                            log.close()
                     else:
                         pass
                 self.write_ret(ErrorCode.SUCCESS,

@@ -27,7 +27,7 @@ function fn_initRecordSearch(str_who) {
 		var obj_allCheck = $('#packet_all_type'),
 			obj_packetType = $('#packetTypes input[name=packet_type]');
 		// 选中状态初始化
-		$('#packetTypes input[name=packet_type], #packet_all_type').removeAttr('checked');
+		$('#packetTypes input[name=packet_type], #packet_all_type, #packet_report_type').removeAttr('checked');
 		
 		//全选的事件
 		obj_allCheck.click(function(e) {
@@ -94,7 +94,9 @@ function fn_searchData(str_who) {
 			var str_stTime = $('#beginDate').val(), 
 				str_entTime = $('#endDate').val(), 
 				str_mobile = $('#mobile').val(), 
-				str_message_type = ''; 
+				str_message_type = '',
+				b_packetReport = $('#packet_report_type').attr('checked'),
+				n_packetReport = b_packetReport ? 1 : 0; // 是否要回调报文 
 				
 			if ( !fn_validMobile(str_mobile) ) {
 				return;
@@ -103,6 +105,7 @@ function fn_searchData(str_who) {
 			if ( !fn_validSearchDate() ) {
 				return;
 			}
+			
 			$('#packetTypes input[name=packet_type]').each(function(e) {
 				var str_checked = $(this).attr('checked'),
 					str_check_type = $(this).val();
@@ -116,6 +119,7 @@ function fn_searchData(str_who) {
 				}
 			});
 			
+			// 是否选择了报文类型
 			if ( str_message_type.length <= 0 ) {
 				//str_message_type = 'T1,|T2,|T3,|T4,|T5,|T6,|T7,|T8,|T9,|T10,|T11,|T12,|T13,|T14,|T15,|T16,|T17|T18,|T19,|T20,|T21,|T22,|T23,|T24,|T25';
 				alert('请选择您要查询的报文类型。');
@@ -123,12 +127,12 @@ function fn_searchData(str_who) {
 			} else {
 				str_message_type = str_message_type.substr(1, str_message_type.length);
 			}
-				
-				
+			
 			obj_conditionData = {
 				'start_time': fn_changeDateStringToFormat(str_stTime),
 				'end_time': fn_changeDateStringToFormat(str_entTime),
 				'mobile': str_mobile,
+				'is_report': n_packetReport,
 				'packet_types': '('+str_message_type+')'
 			};
 			str_getDataUrl = '/packet';

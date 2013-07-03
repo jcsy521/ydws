@@ -23,7 +23,6 @@ class FileConf(object):
                      "db_user":db_user,
                      "db_pass":db_pass}
         self.save_info = cf.get("message", "save_days")
-        
         self.ls = []
         allsession = cf.sections()
         for file in allsession:
@@ -43,7 +42,8 @@ class FileConf(object):
                           "servername":conf_servername,
                           "sessionname":file}
                 self.ls.append(filedict)
-      
+        self.Log_File_Path = cf.get("Log_File_Path", "Log_File_Path")
+
     def getDB(self):
         """ get conf of mysql"""
         return self.dbdict
@@ -55,3 +55,6 @@ class FileConf(object):
     def getSaveInfo(self):
         """ get days the data will be keep for"""
         return self.save_info
+
+    def getLogFile(self):
+        return self.Log_File_Path

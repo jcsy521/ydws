@@ -96,6 +96,7 @@ $(function () {
 		$.ajax({ 
 				url: '/whitelist', 
 				type: 'PUT',
+				dataType: 'json', 
 				data: JSON.stringify(obj_conditionData),
 				success: function(data){
 					alert(data.message);

@@ -10,7 +10,8 @@ $(function () {
 		
 		var str_id = $(this).attr('id'), 
 			obj_isclear = $('#sms_jb_clear_panel'),
-			obj_jhuPanel = $('#sms_jh_umobile_panel');
+			obj_jhuPanel = $('#sms_jh_umobile_panel'),
+			obj_domainPanel = $('#sms_domain_panel');
 			
 		$('#umobile').val(''); // 切换短信类型时,清除车主手机号
 		
@@ -25,6 +26,12 @@ $(function () {
 		} else {
 			obj_jhuPanel.hide();
 		}
+		
+		if ( str_id == 'sms_domain' ) { // 如果是服务器设置
+			obj_domainPanel.show();
+		} else {
+			obj_domainPanel.hide();
+		}
 	});
 	// 发送按钮 事件侦听 
 	$('#sms_send').click(function(e) {
@@ -32,9 +39,10 @@ $(function () {
 		
 		var str_umobile = $('#umobile').val(),
 			str_tmobile = $('#tmobile').val(),
+			str_domain = $('#domain').val(),
 			str_smsType = $('#sms_type_panel input[name="sms_type"]input:checked').val(), 
 			str_dataClear = $('#sms_jb_clear_panel input[name="data_clear"]input:checked').val(),
-			obj_conditionData = {'umobile': str_umobile, 'tmobile': str_tmobile, 'sms_type': str_smsType, 'is_clear':  str_dataClear};
+			obj_conditionData = {'umobile': '', 'tmobile': str_tmobile, 'sms_type': str_smsType, 'is_clear': str_dataClear, 'domain': ''};
 		
 		if ( !fn_validMobile(str_tmobile) ) {
 			return;
@@ -44,8 +52,12 @@ $(function () {
 			if ( !fn_validMobile(str_umobile, '车主') ) {
 				return;
 			}
+			obj_conditionData.umobile = str_umobile;
 		}
 		
+		if ( str_smsType == 'DOMAIN' ) { // domain设置
+			obj_conditionData.domain = str_domain;
+		}
 		$.post('/smssend',  JSON.stringify(obj_conditionData), function (data) { 
 			if ( data.status == 0) {
 				if ( str_smsType == 'DEL' ) {

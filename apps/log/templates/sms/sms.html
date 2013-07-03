@@ -17,7 +17,6 @@
 	<script src="/static/js/jquery-1.6.2.min.js" type="text/javascript"></script>
 	<script type="text/javascript" src="/static/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript"></script>
 	
-	
 	<script src="/static/js/initialize.js" type="text/javascript"></script>
 	<script src="/static/js/jquery-ui-timepicker-addon-0.5.min.js" type="text/javascript"></script>
 	<script src="/static/js/myDateTime.js" type="text/javascript"></script>
@@ -44,6 +43,9 @@
 			<li class="logNavItem logCurrentItem">
 				<a href="/smssend">短信发送</a>
 			</li>
+			<li class="logNavItem">
+				<a href="/password">修改密码</a>
+			</li>
 		</ul>
 		<div class="right_title">
 			欢迎您，<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
@@ -56,7 +58,7 @@
 		</legend>
 		<div class="ui-log-panel">
 			<div id="sms_type_panel">
-				短信内容：
+				<label class="inputTypeTip">短信内容：</label>
 				
 				<input id="sms_jh" type="radio" value="JH" name="sms_type" checked/>
 				<label id="tpsLable1" for="tr_push_status1">终端激活</label>
@@ -69,6 +71,9 @@
 				
 				<input id="sms_cq" type="radio" value="CQ" name="sms_type" />
 				<label id="tpsLable5" for="sms_cq">终端重启</label>
+				
+				<input id="sms_domain" type="radio" value="DOMAIN" name="sms_type" />
+				<label id="tpsLable5" for="sms_domain">服务器地址</label>
 				
 				<!--<input id="sms_dw" type="radio" value="DW" name="sms_type" />
 				<label id="tpsLable2" for="sms_dw">实时定位</label>
@@ -87,21 +92,28 @@
 				
 			</div>
 			<div>
-				终端号码：
-				<input type="text" name="tmobile" id="tmobile" class="tdStyle" maxlength="11" />
+				<label class="inputPanelTip">终端号码：</label>
+				<input type="text" id="tmobile" class="tdStyle" maxlength="11" />
 			</div>
 			<div id="sms_jh_umobile_panel">
-				车主号码：
-				<input type="text" name="umobile" id="umobile" class="tdStyle" maxlength="11" />
+				<label class="inputPanelTip">车主号码：</label>
+				<input type="text" id="umobile" class="tdStyle" maxlength="11" />
 			</div>
 			<div id="sms_jb_clear_panel" class="hide">
-				清除历史数据：
+				<label class="inputPanelTip">清除历史数据：</label>
 				<input id="data_clear_n" type="radio" value="0" name="data_clear" checked />
 				<label id="tpsLable8" for="data_clear_n">不清除</label>
 				
 				<input id="data_clear_y" type="radio" value="1" name="data_clear" />
 				<label id="tpsLable9" for="data_clear_y">清除</label>
-				
+			</div>
+			<div id="sms_domain_panel" class="hide">
+				 <label class="inputPanelTip">服务器地址：</label>
+				 <select id="domain" class="tdStyle">
+					{% for domain in domains %}
+						<option value="{{domain}}">{{domain}}</option>
+					{% end %}
+				 </select>
 			</div>
 			<div>
 				<input id="sms_send" type="button" value="发送" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />

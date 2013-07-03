@@ -43,6 +43,9 @@
 			<li class="logNavItem">
 				<a href="/smssend">短信发送</a>
 			</li>
+			<li class="logNavItem">
+				<a href="/password">修改密码</a>
+			</li>
 		</ul>
 		<div class="right_title">
 			欢迎您，<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
@@ -58,15 +61,15 @@
 			<tr>
 				<td align="right" nowrap="nowrap" class="log_tip_title">开始时间：</td>
 				<td align="left">
-					<input type="text" name="beginDate" id="beginDate" class="tdStyle" readonly="true" />
+					<input type="text" id="beginDate" class="tdStyle" readonly="true" />
 				</td>
 				<td align="right" nowrap="nowrap" class="log_tip_title">结束时间：</td>
 				<td align="left">
-					<input type="text" name="endDate" id="endDate" class="tdStyle" readonly="true" />
+					<input type="text" id="endDate" class="tdStyle" readonly="true" />
 				</td>
 				<td align="right" nowrap="nowrap" class="log_tip_title">模块：</td>
 				<td align="left">
-					<select name="plan_id" id="plan_id" class="tdStyle">
+					<select id="plan_id" class="tdStyle">
 						<option value="">--请选择要查询的模块--</option>
 						<option value="uweb">1 uweb</option>
 						<option value="gf_sender">2 gf_sender</option>
@@ -83,7 +86,7 @@
 				</td>
 				<td align="right" nowrap="nowrap" class="log_tip_title">错误级别：</td>
 				<td align="left">
-					<select name="level" id="level_id" class="tdStyle">
+					<select id="level_id" class="tdStyle">
 						<option value="">--请选择要查询的错误级别--</option>
 						<option value="ERROR">ERROR</option>
 						<option value="WARN">WARN</option>
