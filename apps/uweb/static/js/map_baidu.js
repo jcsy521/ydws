@@ -506,7 +506,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		}
 	} else if ( str_type == 'alarmInfo' ) {
 		$('.j_alarmTable').data('markers')[n_index].name = str_result;
-		// $('.clickedBg').children('td').eq(2).html(str_result);
+		$('.clickedBg').children('td').eq(2).html(str_result);
 	} else if ( str_type == 'delay' || str_type == 'start' || str_type == 'end' ) {
 		// $('.clickedBg').children('td').eq(2).html(str_result);	// 修改右侧列表位置描述
 		$('.lblAddress').html(str_result);	// 修改吹出框位置描述

@@ -1393,6 +1393,7 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 		}
 		obj_selfmarkers[str_tid].selfInfoWindow.setContent(str_content);
 		$('#markerWindowtitle h4[tid='+ str_tid +']').html('车辆：' + str_tempAlias);
+		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	}
 }
 
