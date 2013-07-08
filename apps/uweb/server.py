@@ -62,6 +62,7 @@ from handlers.instruction import WebInsHandler, AndroidInsHandler, IOSInsHandler
 from handlers.servicesterms import ServicesTermsHandler
 from handlers.helper import HelperHandler 
 from handlers.charge import ChargeHandler 
+from handlers.clientdownload import ClientDownloadHandler 
 from handlers.wapimg import WapImgHandler
 from handlers.tinyurl import TinyURLHandler
 from handlers.delegation import DelegationHandler
@@ -166,6 +167,7 @@ class Application(tornado.web.Application):
             (r"/servicesterms/*", ServicesTermsHandler),
             (r"/helper/*", HelperHandler),
             (r"/charge/*", ChargeHandler),
+            (r"/clientdownload/*", ClientDownloadHandler),
 
             # for android 
             (r"/android/*", AndroidHandler),
