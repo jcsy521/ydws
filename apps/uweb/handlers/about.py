@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import pysvn
 import os.path
+import pysvn
 
 import tornado.web
 
@@ -12,7 +12,7 @@ class AboutHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         client = pysvn.Client()
-        svn_path = os.path.split(os.path.split(os.getcwd())[0])[0]
+        svn_path = os.path.abspath(os.path.join(self.application.settings['server_path'], '../../'))
         #entry = client.info('/home/w_lhs/acb/trunk')
         entry = client.info(svn_path)
         self.render('about.html',

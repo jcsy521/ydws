@@ -16,7 +16,7 @@ from helpers.uwebhelper import UWebHelper
 from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
      get_ios_id_key, get_power_full_key, get_region_status_key, get_alarm_info_key,\
-     safe_utf8, safe_unicode
+     safe_utf8, safe_unicode, get_ios_push_list_key, get_android_push_list_key
 from utils.public import insert_location
 
 from codes.smscode import SMSCode
