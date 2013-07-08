@@ -681,15 +681,18 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		// $('.clickedBg').children('td').eq(2).html(str_result);	// 修改右侧列表位置描述
 		$('.lblAddress').html(str_result);	// 修改吹出框位置描述
 		if ( str_type == 'delay' && dlf.fn_userType() ) {	// 如果是集团的停留点的话
-			var obj_tempMarker = $('.delayTable').data('markers')[$('.clickedBg').index()],
-				str_content = obj_tempMarker.selfInfoWindow.getContent();
-				n_beginNum = str_content.indexOf('位置： ')+37,	// <lable class="lblAddress">
-				n_endNum = str_content.indexOf('</a></label></li>') + 4;
-				str_address = str_content.substring(n_beginNum, n_endNum);
-				str_content = str_content.replace(str_address, str_result);
+			var obj_tempMarker = $('.delayTable').data('markers')[$('.clickedBg').index()];
 			
-			obj_tempMarker.selfInfoWindow.setContent(str_content);
-			obj_tempMarker.selfInfoWindow.open(mapObj, obj_tempMarker.getPosition());
+			if ( obj_tempMarker ) {
+				var str_content = obj_tempMarker.selfInfoWindow.getContent();
+					n_beginNum = str_content.indexOf('位置： ')+37,	// <lable class="lblAddress">
+					n_endNum = str_content.indexOf('</a></label></li>') + 4;
+					str_address = str_content.substring(n_beginNum, n_endNum);
+					str_content = str_content.replace(str_address, str_result);
+				
+				obj_tempMarker.selfInfoWindow.setContent(str_content);
+				obj_tempMarker.selfInfoWindow.open(mapObj, obj_tempMarker.getPosition());
+			}				
 		}		
 	} else {
 		if ( n_index >= 0 ) {
