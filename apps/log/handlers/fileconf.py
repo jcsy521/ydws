@@ -42,19 +42,19 @@ class FileConf(object):
                           "servername":conf_servername,
                           "sessionname":file}
                 self.ls.append(filedict)
-        self.Log_File_Path = cf.get("Log_File_Path", "Log_File_Path")
+        self.log_file_path = os.path.dirname(cf.get("fileGATEWAY", "remotepath"))
 
     def getDB(self):
         """ get conf of mysql"""
         return self.dbdict
-    
+
     def getFilePath(self):       
         """ get conf of error file in servers"""
         return self.ls
-    
+
     def getSaveInfo(self):
         """ get days the data will be keep for"""
         return self.save_info
 
     def getLogFile(self):
-        return self.Log_File_Path
+        return self.log_file_path

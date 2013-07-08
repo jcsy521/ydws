@@ -42,12 +42,12 @@ class GWPacketHandler(BaseHandler):
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
             return
-        
+
         try:
             result = self.acbdb.get("SELECT tid FROM T_TERMINAL_INFO WHERE mobile = %s",
                                      mobile)
             fc = FileConf()
-            file_path = fc.getLogFile()
+            file_path = fc.getLogFile() + '/'
             files = os.listdir(file_path)
             lst = []
             if result:
