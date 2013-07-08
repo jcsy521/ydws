@@ -457,14 +457,14 @@ class PacketTask(object):
         if user:
             t_alias = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
             # 1: push to android
-            android_push_list_key = get_android_push_list_key(user.uid) 
+            android_push_list_key = get_android_push_list_key(user.owner_mobile) 
             android_push_list = self.redis.getvalue(android_push_list_key) 
             if android_push_list: 
                 for push_id in android_push_list: 
                     push_key = NotifyHelper.get_push_key(push_id, self.redis) 
                     NotifyHelper.push_to_android(category, dev_id, t_alias, location, push_id, push_key)
             # 2: push  to ios 
-            ios_push_list_key = get_ios_push_list_key(user.uid) 
+            ios_push_list_key = get_ios_push_list_key(user.owner_mobile) 
             ios_push_list = self.redis.getvalue(ios_push_list_key) 
             if ios_push_list: 
                 for iosid in ios_push_list: 
