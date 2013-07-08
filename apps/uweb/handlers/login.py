@@ -227,7 +227,7 @@ class IOSHandler(BaseHandler, LoginMixin):
                 cars_info.update(car_dct)
 
             # uid --> iosid_push_list 
-            ios_push_list_key = get_ios_push_list(uid) 
+            ios_push_list_key = get_ios_push_list_key(uid) 
             ios_push_list = self.redis.getvalue(ios_push_list_key)
             ios_push_list = ios_push_list if ios_push_list else []
             if iosid not in ios_push_list: 
@@ -363,7 +363,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
 
             # uid --> android_push_lst 
-            android_push_list_key = get_android_push_list(uid) 
+            android_push_list_key = get_android_push_list_key(uid) 
             android_push_list = self.redis.getvalue(android_push_list_key)
             android_push_list = android_push_list if android_push_list else []
             if push_id not in android_push_list: 

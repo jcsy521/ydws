@@ -162,5 +162,10 @@ class DownloadInstructionsHandler(BaseHandler):
 
     @tornado.web.removeslash
     def get(self):
-        url = "/static/download/移动车卫士使用手册.ppt"
-        self.redirect(url)
+        filename = '移动车卫士使用手册.pdf'
+        filepath = os.path.join(DOWNLOAD_DIR_,filename)
+        instruction = open(filepath)
+        self.set_header('Content-Type', 'application/force-download')
+        self.set_header('Content-Disposition', 'attachment; filename=%s' % (filename,))
+        self.write(instruction.read())
+

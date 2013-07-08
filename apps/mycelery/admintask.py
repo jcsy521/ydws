@@ -323,6 +323,7 @@ class TerminalStatistic(object):
         logging.info("[CELERY] day_start_time: %s, day_end_time: %s, month_start_time: %s, month_end_time: %s, year_start_time: %s, year_end_time: %s.", 
                     day_start_time, day_end_time, month_start_time, month_end_time, year_start_time, year_end_time)
 
+
         import xlwt 
         import xlrd
 
@@ -345,6 +346,7 @@ class TerminalStatistic(object):
                           u"唤醒指令下发频次", 
                           u"今日新增", 
                           u"当前状态", 
+                          u"基站定位结果", 
                           u"备注")
 
         cur_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
@@ -362,6 +364,15 @@ class TerminalStatistic(object):
             tmobile_lst.append(item['tmobile'])
             item['offline_period'] = int(time.time()) - item['offline_time']
             item['offline_cause'] =  2 if item['pbat'] < 5 else 1
+            item['sim_status'] = u'失败'
+            if item['offline_cause'] == 1: # heart beat
+                # check the sim status
+                terminal_log = self.get("SELECT sim_status FROM T_SUBSCRIPTION_LOG",
+                                        "  WHERE mobile = %s",
+                                        item['tmobile'])
+                if terminal_log.sim_status == 1:
+                    item['sim_status'] = u'成功'
+            
             item['remark'] = safe_unicode(item['remark'])
         logging.info('[CELERY] the currentrecords to be dealed with, counts: %s, cur_res: %s', len(cur_res), cur_res)
 
@@ -374,8 +385,6 @@ class TerminalStatistic(object):
             for rownum in range(1,sh.nrows): # get records from the second row
 
                 row = sh.row_values(rownum)
-                #if row[7] == u'新增':
-                #    continue
 
                 if row[1] in tmobile_lst:
                     continue
@@ -400,9 +409,9 @@ class TerminalStatistic(object):
                     d,m = divmod(offline_period,60*60)
                     count = d+1 if m else d
                     row[6] = count
-                    row[9] = safe_unicode(terminal['remark'])
+                    row[10] = safe_unicode(terminal['remark'])
                 pre_res.append(row)
-            logging.info('[CELERY] the previous records to be dealed with, counts: %s, pre_res: %s', len(pre_res), pre_res)
+            logging.info('[CELERY] the previous records to be dealed with, count: %s, pre_res: %s', len(pre_res), pre_res)
 
         # some styles
         #date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
@@ -427,7 +436,8 @@ class TerminalStatistic(object):
         ws.col(3).width = 4000 * 2  # offline_time
         ws.col(4).width = 4000 * 2  # offline_period
         ws.col(6).width = 4000      # lq count
-        ws.col(9).width = 4000 * 4 # remark
+        ws.col(9).width = 4000  # sim_status
+        ws.col(10).width = 4000 * 4 # remark
 
         start_line += 1
 
@@ -451,10 +461,11 @@ class TerminalStatistic(object):
             terminal = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
 
             ws.write(i, 7, u'新增', add_style)
-            ws.write(i, 9, safe_unicode(terminal['remark']), center_style)
+            ws.write(i, 9, safe_unicode(terminal['sim_status']), center_style)
+            ws.write(i, 10, safe_unicode(terminal['remark']), center_style)
             start_line += 1
 
-        logging.info('[CELERY] counts: %s, tmobile_lst: %s', len(tmobile_lst), tmobile_lst)
+        logging.info('[CELERY] current offline records, count: %s, tmobile_lst: %s', len(tmobile_lst), tmobile_lst)
         results = pre_res
         for i, result in zip(range(start_line, len(results) + start_line), results):
             #for j in range(len(OFFLINE_HEADER)):
@@ -473,9 +484,12 @@ class TerminalStatistic(object):
             ws.write(i, 6, result[6])
             if result[8] == u'在线':
                 ws.write(i, 8, u'在线', online_style)
+            elif result[8] == u'已解绑': 
+                ws.write(i, 8, u'已解绑')
             else:
                 pass
             ws.write(i, 9, result[9], center_style)
+            ws.write(i, 10, result[10], center_style)
 
         wb.save(CUR_PATH)
 

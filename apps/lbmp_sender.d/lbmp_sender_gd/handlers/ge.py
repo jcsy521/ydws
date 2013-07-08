@@ -31,8 +31,8 @@ class GeHandler(BaseHandler):
         """
         ret=DotDict(success=ErrorCode.LOCATION_OFFSET_FAILED,
                     info=ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_OFFSET_FAILED],
-                    position=DotDict(clat=0,
-                                     clon=0))
+                    position=DotDict(clats=[],
+                                     clons=[]))
         try:
             data = DotDict(json_decode(self.request.body))
             logging.info('[GE] request:\n %s', data)
@@ -44,27 +44,41 @@ class GeHandler(BaseHandler):
              
         def _on_finish():
             try:
-                response = self.send(ConfHelper.LBMP_CONF.gd_host,
-                                     ConfHelper.LBMP_CONF.gd_ge_url % (float(data.lon)/3600000.0, 
-                                                                       float(data.lat)/3600000.0, 
-                                                                       ConfHelper.LBMP_CONF.gd_key),
-                                     None, 
-                                     HTTP.METHOD.GET)
-                response = response.decode("GB2312")
-                logging.info('[GE] response:\n %s', response)
-                ggp = GdGeParser(response)
-                if ggp.success == ErrorCode.SUCCESS: 
-                    position = ggp.get_position()
-                    ret.position.clat = int(float(position['clat']) * 3600000)
-                    ret.position.clon = int(float(position['clon']) * 3600000)
-                    logging.info("[GE] get clat=%s, clon=%s through lat=%s, lon=%s", 
-                                       ret.position.clat, ret.position.clon, data.lat, data.lon)
-                    ret.success = ErrorCode.SUCCESS 
-                    ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
-                else:
-                    ret.success = ggp.success
-                    ret.info = ggp.info
-                    logging.error("[GE] Get ge info error:%s, errorcode:%s", ret.info, ret.success)
+                if len(data.lats) != len(data.lons): 
+                    logging.error("Invalid data.  len(lats)=%s, len(lons)=%s, lats: %s, lons: %s", len(data.lats), len(data.lons), data.lats, data.lons)
+
+                latlons = zip(data.lats, data.lons)
+
+                clats = []
+                clons = []
+                
+                for lat, lon in latlons:
+                    response = self.send(ConfHelper.LBMP_CONF.gd_host,
+                                         ConfHelper.LBMP_CONF.gd_ge_url % (float(lon)/3600000.0, 
+                                                                           float(lat)/3600000.0, 
+                                                                           ConfHelper.LBMP_CONF.gd_key),
+                                         None, 
+                                         HTTP.METHOD.GET)
+                    response = response.decode("GB2312")
+                    logging.info('[GE] response:\n %s', response)
+                    ggp = GdGeParser(response)
+                    if ggp.success == ErrorCode.SUCCESS: 
+                        position = ggp.get_position()
+                        clat = int(float(position['clat']) * 3600000)
+                        clon = int(float(position['clon']) * 3600000)
+                        logging.info("[GE] get clat=%s, clon=%s through lat=%s, lon=%s", 
+                                           clat, clon, lat, lon)
+                        clats.append(clat)
+                        clons.append(clon)
+                    else:
+                        clats.append(0)
+                        clons.append(0)
+
+                ret.success = ErrorCode.SUCCESS 
+                ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
+
+                ret.position.clats = clats 
+                ret.position.clons = clons 
             except Exception as e:
                 logging.exception("[GE] get latlon_offset failed. Exception: %s", e.args)
 

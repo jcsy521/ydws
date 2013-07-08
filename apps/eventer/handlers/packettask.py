@@ -55,7 +55,7 @@ class PacketTask(object):
                                 "  FROM T_REGION tr, T_REGION_TERMINAL trt "
                                 "  WHERE tr.id = trt.rid"
                                 "  AND trt.tid = %s",
-                                location['dev_id'])
+                                tid)
         if regions is None or len(regions) == 0:
             return []
         else:
@@ -200,12 +200,13 @@ class PacketTask(object):
         if location.Tid == EVENTER.TRIGGERID.CALL:
             #location = lbmphelper.handle_location(location, self.redis,
             #                                      cellid=True, db=self.db) 
-            regions = get_regions(location['dev_id'])
+            regions = self.get_regions(location['dev_id'])
             if regions:
                 location = lbmphelper.handle_location(location, self.redis,
                                                       cellid=True, db=self.db) 
                 self.check_region_event(location, regions)
-            location.category = EVENTER.CATEGORY.REALTIME
+            location['category'] = EVENTER.CATEGORY.REALTIME
+            location['type'] = location.get('type', 1)
             self.update_terminal_info(location)
             if location.get('lat') and location.get('lon'):
                 self.realtime_location_hook(location)
@@ -215,7 +216,7 @@ class PacketTask(object):
                 # get available location from lbmphelper
                 pvt['dev_id'] = location['dev_id']
 
-                regions = get_regions(pvt['dev_id'])
+                regions = self.get_regions(pvt['dev_id'])
                 if regions:
                     pvt = lbmphelper.handle_location(pvt, self.redis,
                                                           cellid=True, db=self.db) 
@@ -223,7 +224,8 @@ class PacketTask(object):
                 # NOTE: not offset it
                 #location = lbmphelper.handle_location(pvt, self.redis,
                 #                                      cellid=False, db=self.db) 
-                pvt.category = EVENTER.CATEGORY.REALTIME
+                pvt['category'] = EVENTER.CATEGORY.REALTIME
+                pvt['type'] = location.get('type', 0)
                 if pvt.get('lat') and pvt.get('lon'): 
                     insert_location(pvt, self.db, self.redis)
 
@@ -305,19 +307,36 @@ class PacketTask(object):
                 else: # type: fob
                     sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
-                sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
+                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                    sms = SMSCode.SMS_ILLEGALMOVE_NOLOC % (name, terminal_time)
+                else:
+                    sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
-                sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
+                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                    sms = SMSCode.SMS_ILLEGALSHAKE_NOLOC % (name, terminal_time)
+                else:
+                    sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.EMERGENCY:
                 whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
                 if whitelist:
                     white_str = ','.join(white['mobile'] for white in whitelist) 
-                    sms = SMSCode.SMS_SOS_OWNER % (name, white_str, report_name, terminal_time)
-                    sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
+
+                    if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                        sms = SMSCode.SMS_SOS_OWNER_NOLOC % (name, white_str, terminal_time)
+                        sms_white = SMSCode.SMS_SOS_WHITE_NOLOC % (name, terminal_time) 
+                    else:
+                        sms = SMSCode.SMS_SOS_OWNER % (name, white_str, report_name, terminal_time)
+                        sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
                 else:
-                    sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
+                    if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                        sms = SMSCode.SMS_SOS_NOLOC % (name, terminal_time)
+                    else:
+                        sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.POWERDOWN:
-                sms = SMSCode.SMS_POWERDOWN % (name, report_name, terminal_time)
+                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                    sms = SMSCode.SMS_POWERDOWN_NOLOC % (name, terminal_time)
+                else:
+                    sms = SMSCode.SMS_POWERDOWN % (name, report_name, terminal_time)
             else:
                 pass
 
@@ -470,9 +489,15 @@ class PacketTask(object):
                             "         sms_flag = VALUES(sms_flag),"
                             "         timestamp = VALUES(timestamp)",
                             report.dev_id, GATEWAY.POWEROFF_TIMEOUT_SMS.UNSEND, t_time)
-            sms = SMSCode.SMS_POWERLOW_OFF % (name, report_name, terminal_time)
+            if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                sms = SMSCode.SMS_POWERLOW_OFF_NOLOC % (name, terminal_time)
+            else: 
+                sms = SMSCode.SMS_POWERLOW_OFF % (name, report_name, terminal_time)
         else:
-            sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
+            if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                sms = SMSCode.SMS_TRACKER_POWERLOW_NOLOC % (name, int(report.pbat), terminal_time)
+            else:
+                sms = SMSCode.SMS_TRACKER_POWERLOW % (name, int(report.pbat), report_name, terminal_time)
 
         return sms
 

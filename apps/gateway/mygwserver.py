@@ -54,6 +54,7 @@ from clw.packet.parser.fobinfo import FobInfoParser
 from clw.packet.parser.locationdesc import LocationDescParser
 from clw.packet.parser.unbind import UNBindParser
 from clw.packet.parser.unusualactivate import UnusualActivateParser
+from clw.packet.parser.misc import MiscParser
 from clw.packet.composer.login import LoginRespComposer
 from clw.packet.composer.heartbeat import HeartbeatRespComposer
 from clw.packet.composer.async import AsyncRespComposer
@@ -63,6 +64,7 @@ from clw.packet.composer.config import ConfigRespComposer
 from clw.packet.composer.fobinfo import FobInfoRespComposer
 from clw.packet.composer.unbind import UNBindComposer
 from clw.packet.composer.unusualactivate import UnusualActivateComposer
+from clw.packet.composer.misc import MiscComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
 
 
@@ -303,6 +305,9 @@ class MyGWServer(object):
                             elif command == T_MESSAGE_TYPE.UNUSUALACTIVATE:
                                 logging.info("[GW] Recv unusual activate packet:\n%s", packet)
                                 self.handle_unusual_activate(clw, address, connection, channel)
+                            elif command == T_MESSAGE_TYPE.MISC:
+                                logging.info("[GW] Recv misc packet:\n%s", packet)
+                                self.handle_misc(clw, address, connection, channel)
                             else:
                                 logging.info("[GW] Recv packet from terminal:\n%s", packet)
                                 self.foward_packet_to_si(clw, packet, address, connection, channel)
@@ -1445,6 +1450,36 @@ class MyGWServer(object):
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand unusual activate report exception.")
+            
+    def handle_misc(self, info, address, connection, channel):
+        """
+        misc: debugging for terminal.
+        0: success, then record new terminal's address
+        1: invalid SessionID 
+        """
+        try:
+            head = info.head
+            body = info.body
+
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           command=head.command)
+            sessionID = self.get_terminal_sessionID(head.dev_id)
+            if sessionID != head.sessionID: 
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
+            else:
+                uap = MiscParser(body, head)
+                t_info = uap.ret
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                " SET misc = %s"
+                                "    WHERE tid = %s ",
+                                t_info['misc'], head.dev_id)
+            uac = MiscComposer(args)
+            request = DotDict(packet=uac.buf,
+                              address=address)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Hand misc report exception.")
+
 
     def foward_packet_to_si(self, info, packet, address, connection, channel):
         """

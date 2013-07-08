@@ -19,6 +19,7 @@ from utils.misc import get_offline_lq_key, get_lq_interval_key,\
 from constants import GATEWAY, EVENTER, UWEB, SMS
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
+from helpers.lbmphelper import get_latlon_from_cellid
 from helpers.queryhelper import QueryHelper
 from helpers.confhelper import ConfHelper
 
@@ -135,6 +136,16 @@ class CheckTerminalStatus(object):
             terminal_info = DotDict(terminal_info)
             terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
             terminal_info['fob_list'] = [fob.fobid for fob in fobs]
+
+        # check sim status
+        lat, lon = get_latlon_from_cellid(0, 0, 0, 0, terminal['mobile'])
+        if lat and lon: 
+            self.execute("UPDATE T_SUBSCRIPTION_LOG"
+                         "  SET sim_status = 1"
+                         "  WHERE mobile = %s",
+                         terminal_info['mobile'])
+            logging.info("[CK] tid: %s, mobile: %s heartbeat lost but cellid successed.",
+                         terminal_info['tid'], terminal_info['mobile'])
 
         # db
         self.db.execute("UPDATE T_TERMINAL_INFO"

@@ -48,7 +48,8 @@ class DBTask(object):
         logging.info("[CLERY] the number of points without valid claton: %s.", len(points))
         for point in points:
             time.sleep(1)
-            clat, clon = get_clocation_from_ge(point['latitude'], point['longitude']) 
+            clats, clons = get_clocation_from_ge([point['latitude'],], [point['longitude'],]) 
+            clat, clon = clats[0], clons[0]
             self.db.execute("UPDATE T_LOCATION"
                             "  SET clatitude = %s, clongitude = %s"
                             "  WHERE id = %s",
