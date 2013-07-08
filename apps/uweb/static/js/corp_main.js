@@ -1082,7 +1082,11 @@ function fn_updateAlarmList(arr_alarm) {
 			dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 16);
 			obj_this.data('marker', obj_marker);
 			
-			obj_marker.setTop(true);
+			if ( dlf.fn_isBMap() ) {
+				obj_marker.setTop(true);
+			} else {
+				obj_marker.setzIndex(10);
+			}
 		} else {
 			dlf.fn_jNotifyMessage('该告警没有位置信息。', 'message', false, 3000);
 			return;
@@ -1100,8 +1104,14 @@ function fn_updateAlarmList(arr_alarm) {
 			obj_circle = dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
 			obj_this.data('region', obj_circle);
 		}
-		obj_marker.openInfoWindow(obj_marker.selfInfoWindow);
-		mapObj.setCenter(obj_marker.getPosition());
+		var obj_position = obj_marker.getPosition();
+		
+		if ( !dlf.fn_isBMap() ) {
+			obj_marker.selfInfoWindow.open(mapObj, obj_position);
+		} else {
+			obj_marker.openInfoWindow(obj_marker.selfInfoWindow);
+		}
+		mapObj.setCenter(obj_position);
 	});
 	
 }
@@ -1141,6 +1151,9 @@ window.dlf.fn_clearAlarmMarker = function(n_num) {
 		} 
 		if ( obj_tempClearRegion != null ) {
 			dlf.fn_clearMapComponent(obj_tempClearRegion);
+		}
+		if ( !dlf.fn_isBMap() ) {
+			mapObj.clearInfoWindow();
 		}
 	}
 }
@@ -1338,7 +1351,8 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 		str_tmobile = obj_current.attr('title'),
 		str_tempAlias = str_cnum,
 		str_tid = str_currentTid,
-		obj_selfMarker = obj_selfmarkers[str_tid];
+		obj_selfMarker = obj_selfmarkers[str_tid],
+		b_mapType = dlf.fn_isBMap();
 	
 	if ( str_cnum == '' ) {
 		str_tempAlias = str_tmobile;
@@ -1371,12 +1385,14 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 			str_content = str_content.replace(str_oldname, str_tempAlias);
 		
 
-		var obj_selfLabel = obj_selfMarker.selfLable;
+		if ( b_mapType ) {	// 百度地图修改label
+			var obj_selfLabel = obj_selfMarker.selfLable;
 		
-		obj_selfLabel.setContent(str_tempAlias);	// label上的alias值
-		obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
-		
-		obj_selfMarker.selfInfoWindow.setContent(str_content);	// todo
+			obj_selfLabel.setContent(str_tempAlias);	// label上的alias值
+			obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
+		}
+		obj_selfmarkers[str_tid].selfInfoWindow.setContent(str_content);
+		$('#markerWindowtitle h4[tid='+ str_tid +']').html('车辆：' + str_tempAlias);
 	}
 }
 

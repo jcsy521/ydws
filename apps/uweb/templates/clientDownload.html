@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>移动车卫士-android下载</title>
+		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+		<script type="text/javascript" src="/static/js/json2.js"></script>
+		<script type="text/javascript" src="/static/js/definitions.js"></script>
+		<script type="text/javascript" src="/static/js/download.js"></script>
+
+		<link type="text/css" href="/static/css/client.css" rel="stylesheet" />
+		<link type="text/css" href="/static/css/download.css" rel="stylesheet" />
+		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
+	</head>
+<body id="downloadBody">
+	<center>
+		<div class="downloadBox">
+		<!--togglebox-->
+			<div class="innerBox">
+				<div class="Tabbox " style="display: block;">
+					<div class="h250 mt20 mb20">
+						<div class="fl tc w200"><img src="../static/images/client/phone1.png">
+						</div>
+						<div class="fl w420 pl40 lineS_r pt30">
+							<h1 class="f40 lh35 h40 mb10">移动车卫士<font class="f25 ml20 ftx60">iPhone版</font>
+							<font class="f18 ml10 ftx20">Update on 2013.05</font></h1>
+							<div class="dBut">
+								<span><a href="https://itunes.apple.com/us/app/yi-dong-che-wei-shi/id587253267?ls=1&mt=8" target="_blank">从appStore下载</a></span>
+							</div>
+							<div class="f14 flk50 lh25 h80">
+								<span class="fl w100 lh20">其他下载方式：</span>
+								<span class="fl w300">
+									<a class=" fl w80 mr10" href="http://app.tongbu.com/587253267_yidongcheweishi.html" target="_blank">同步推</a>
+									<a class=" fl w80 mr10" href="http://www.25pp.com/ipad/soft/info_791011.html" target="_blank">pp助手</a>
+								</span>
+							</div>
+						</div>
+						<div class="fl w250 ml20">
+							<div class="barcode tc">
+							<img src="http://api.kuaipai.cn/qr?chs=230x230&chl=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Fyi-dong-che-wei-shi%2Fid587253267%3Fls%3D1%26mt%3D8" />
+							</div>
+							<p class="lh25 flk50">
+								用手机上的二维码扫描软件拍摄上面的二维码可直接下载移动车卫士客户端
+							</p>
+						</div>
+					</div>
+					<div class="spline mt20 mb20"></div>
+					<div class="h250 mt20 mb20">
+						<div class="fl tc w200"><img src="../static/images/client/phone2.png">
+						</div>
+						<div class="fl w420 pl40 lineS_r pt30 h173">
+							<h1 class="f40 lh35 h40 mb10">移动车卫士<font class="f25 ml20 ftx60">Android版</font><font class="f18 ml10 ftx20">Update on 2013.05</font></h1>
+							<div class="dBut">
+								<span><a href="/download?category=2&versionname={{versionname}}" target="_blank">Android版本地下载</a></span><span><a href="#" id="smsDown">短信下载</a></span>
+							</div>
+						</div>
+						<div class="fl w250 ml20">
+							<div class="barcode tc"><img src="http://api.kuaipai.cn/qr?chs=230x230&chl=http%3A%2F%2Fydcws.com%2Fdownload%3Fcategory%3D2%26versionname%3D1.2.19.2">
+							</div>
+							<p class="lh25 flk50">
+								用手机上的二维码扫描软件拍摄上面的二维码可直接下载移动车卫士客户端
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		
+		<!--密码修改框-->
+		<div id="smsUploadWrapper" class="wrapper hide j_drag">
+			<div class="wrapperTitle smsUploadTitle">
+				<span class="close j_close" id="smsClose" title="关闭窗口"></span>
+			</div>
+			<div class="wrapperContent smsUploadContent">
+				<div class="mobiles">
+					<label for="mobile">手机号：</label>
+					<input type="text" id="txtmobile" placeholder="请输入手机号" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="11" />
+					<label id="mobileTip" ></label>
+				</div>
+				<div class="capPanel">
+					<div class="capText">
+						<label for="smsCaptcha">验证码：</label>
+						<input type="text" id="captcha_sms" maxlength="4" placeholder="请输入验证码" />
+						<input type="hidden" id="captchahash_sms" value="" />
+					</div>
+					<div class="capImg">
+						<img alt="验证码图片" id="smsCaptchaimg" src="" class="smsCaptchaImg" />
+						<a href="#" onclick="$('#smsCaptchaimg').click();" class="txtColor">换一张？</a>
+					</div>
+				</div>
+				<div>
+					<input type="button" class="form-button btnSend" value="发送短信" id="sendSms" />
+				</div>
+				<div class="msgPanel j_smsMsg"></div>
+			</div>
+		</div><!--密码修改框end-->
+		<!--下载页面遮罩层-->
+		<div id="downloadLayer"></div>
+	</center>
+</body>
+</html>

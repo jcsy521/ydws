@@ -8,8 +8,8 @@
 	<script type="text/javascript" src="/static/js/main.js"></script>
 	<script type="text/javascript" src="/static/js/current.js"></script>
 	<script type="text/javascript" src="/static/js/searchRecord.js"></script>
-	<script type="text/javascript" src="/static/js/track.js"></script>
-	<!--<script type="text/javascript" src="/static/js/announcement.js"></script>-->
+	<!--<script type="text/javascript" src="/static/js/track.js"></script>
+	<script type="text/javascript" src="/static/js/announcement.js"></script>-->
 {% end %}
 {% block body %}
 <body class="j_body mainBody" userType="{{user_type}}" mapType="{{map_type}}">
@@ -37,23 +37,7 @@
 			<div id="cars">
 				<div class="carsTitle"></div>
 				<ul id="carList" class="j_carList">
-				{% for car in cars %}
-					<li keys_num = '{{car.keys_num}}'>
-						{% if car.login == 0 %} 
-							<a href="#" title="{{car.alias}}" class="carlogout j_terminal"  keys_num="{{car.keys_num}}"  tid="{{car.tid}}" fob_status=""  cLogin="{{car.login}}" actiontrack="no" >
-								<img src="../static/images/carout1.png" />
-							</a>
-							<div class="gray">{{car.alias}}</div>
-							<div class="gray">(离线)</div>
-						{% else %}
-							<a href="#" title="{{car.alias}}" class="carlogin j_terminal"  keys_num="{{car.keys_num}}" fob_status=""  tid="{{car.tid}}" cLogin="{{car.login}}" actiontrack="no" >
-								<img src="../static/images/car1.png" />
-							</a>
-							<div class="green">{{car.alias}}</div>
-							<div class="green">(在线)</div>
-						{% end %}
-					</li>
-				{% end  %}
+				
 				</ul>
 			</div>
 			<div id="carInfo">
@@ -144,14 +128,6 @@
 		</div> 
 	</div>
 	<div id="maskLayer" class="hide"></div>
-	{% if map_type == '2' %}
-	<div id="mapTileLayer" >
-		<ul>
-			<li id="layerForTraffic">实时路况</li>
-			<li id="layerForSatellite">卫星地图</li>
-		</ul>
-	</div>
-	{% end %}
 	{% elif status == 201 %}
 		<div id="errormsg"></div>
 	{% end %}

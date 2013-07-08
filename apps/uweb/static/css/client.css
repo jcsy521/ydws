@@ -1,0 +1,170 @@
+ html, #downloadBody {
+	font-size: 12px;
+	font-family: "微软雅黑","黑体","Lucida Grande",Verdana,sans-serif;
+	line-height: 150%;
+}
+.downloadBox {
+	width: 980px;
+	margin: 0 auto;
+}
+.innerBox{
+	margin-top: 50px;
+	border: 1px solid #CCC;
+}
+.Tabbox {
+	padding: 20px;
+}
+.mb20 {
+	margin-bottom: 20px;
+}
+.mt20 {
+	margin-top: 20px;
+}
+.h250 {
+	height: 250px;
+}
+.w200 {
+	width: 200px;
+}
+.fl {
+	float: left;
+	display: inline;
+}
+.tc {
+	text-align: center;
+}
+.lineS_r {
+	border-right: 1px solid #CCC;
+}
+.pl40 {
+	padding-left: 40px;
+}
+.pt30 {
+	padding-top: 30px;
+}
+.w420 {
+	width: 420px;
+}
+.h40 {
+	height: 40px;
+}
+.lh35 {
+	line-height: 35px;
+}
+.f40 {
+	font-size: 23px;
+}
+.mb10 {
+	margin-bottom: 10px;
+}
+.ftx60, .flk60 a:link, .flk60 a:visited, a.flk60:link, a.flk60:visited {
+	color: #F60;
+}
+.ml20 {
+	margin-left: 20px;
+}
+.f25 {
+	font-size: 18px;
+}
+.ftx20, .flk20 a:link, .flk20 a:visited, a.flk20:link, a.flk20:visited {
+	color: #CCC;
+}
+.f18 {
+	font-size: 18px;
+}
+.ml10 {
+	margin-left: 10px;
+}
+.dBut {
+	height: 50px;
+	margin: 20px 0;
+}
+.dBut span {
+	width: 150px;
+	margin-right: 20px;
+	float: left;
+}
+a:link, a:visited {
+	color: black;
+	text-decoration: none;
+}
+.dBut a {
+	background: url(../images/client/but.png) 0 -200px no-repeat;
+	width: 148px;
+	height: 50px;
+	line-height: 50px;
+	color: black;
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+	display: block;
+	-moz-box-shadow: #f2f2f2 0px 1px 3px;
+	box-shadow: #F2F2F2 0px 1px 3px;
+	-moz-box-shadow: #f2f2f2 0px 1px 3px;
+	-webkit-border-radius: 11px;
+	-moz-border-radius: 11px;
+	border-radius: 11px;
+	behavior: url(../js/PIE.htc);
+}
+.dBut a:hover {
+	background: url(../images/client/but.png) 0 -250px no-repeat;
+	text-decoration: none;
+}
+.w250 {
+	width: 250px;
+}
+.barcode {
+	margin: 20px;
+}
+.barcode img {
+	width: 100px;
+	height: 100px;
+	background: white;
+	border: 1px solid #CCC;
+	padding: 4px;
+}
+.lh25 {
+	line-height: 25px;
+}
+.ftx40, .flk40 a:link, .flk40 a:visited, a.flk40:link, a.flk40:visited {
+	color: #C00;
+}
+.ftx50, .flk50 a:link, .flk50 a:visited, a.flk50:link, a.flk50:visited {
+	color: #006C03;
+}
+.spline {
+	height: 1px;
+	border-top: 1px solid #C9C9C9;
+	overflow: hidden;
+	background: white;
+	clear: both;
+	margin-bottom: 37px;
+}
+.h173 {
+	height: 173px;
+}
+.f14 {
+	font-size: 14px;
+}
+.lh25 {
+	line-height: 25px;
+}
+.lh20 {
+	line-height: 20px;
+}
+.w100 {
+	width: 100px;
+}
+.w300 {
+	width: 300px;
+}
+.w80 {
+	width: 80px;
+}
+.ftx50, .flk50 a:link, .flk50 a:visited, a.flk50:link, a.flk50:visited {
+	color: #006C03;
+	text-decoration: underline;
+}
+.mr10 {
+	margin-right: 10px;
+}

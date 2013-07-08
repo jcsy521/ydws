@@ -920,10 +920,16 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
          * 鼠标点击的事件
          */
         var clickAction = function (e) {
+			var n_cnt = 1;
+			
+			for ( var obj in obj_routeLineMarker ) {
+				n_cnt ++;
+			}
+	
             // 往地图上添加marker
             var marker = new BMap.Marker(e.point, me.markerOptions),
 				str_markerGuid = marker.guid, 
-				str_infoWindowText = '<div class="routeLineWindow"><label class="clickWindowPolder">站点名称</label><input type="text" id="clickMarkerWindowText" value="" /><a href="#" onclick="dlf.fn_saveClickWindowText(\''+ str_markerGuid +'\', this);">保存</a><a href="#" onclick="dlf.fn_delClickWindowText(\''+ str_markerGuid +'\');">删除</a></div>',
+				str_infoWindowText = '<div class="routeLineWindow"><label class="clickWindowPolder">站点名称</label><input type="text" id="clickMarkerWindowText" value="站点'+ n_cnt +'" /><a href="#" onclick="dlf.fn_delClickWindowText(\''+ str_markerGuid +'\');">删除</a></div>',
 				obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);  // 创建信息窗口对象
 			
 			mapObj.addOverlay(marker);
@@ -931,18 +937,34 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 	
 			marker.openInfoWindow(obj_clickInfoWindow);
 		
+			$('#clickMarkerWindowText').focus().blur(function() {
+				dlf.fn_saveClickWindowText(str_markerGuid);
+			});
 			obj_routeLineMarker[str_markerGuid] = {'marker': marker, 'stationname': ''};
 			/**
 			* marker click事件
 			*/
 			marker.addEventListener('click', function(e){ 
-				var obj_markerPanel = obj_routeLineMarker[this.guid],
-					str_stationName = obj_markerPanel.stationname;
+				var str_tempgid = this.guid,
+					obj_markerPanel = obj_routeLineMarker[str_tempgid],
+					str_stationName = obj_markerPanel.stationname,
+					n_tempCnt = 1;
 				
 				this.openInfoWindow(obj_clickInfoWindow);
-				
-				$('#clickMarkerWindowText').val(str_stationName);
+				for ( var hid in obj_routeLineMarker ) {
+					if ( hid == str_tempgid ) {
+						break;
+					}
+					n_tempCnt ++;
+				}
+				$('#clickMarkerWindowText').val(str_stationName || '站点' + n_tempCnt).focus();
+				setTimeout(function() {
+					$('#clickMarkerWindowText').focus();
+				}, 100);
 			});
+			setTimeout(function() {
+				$('#clickMarkerWindowText').focus();
+			}, 100);
 			dlf.fn_mapStopDraw();
 			$('#routeLineCreate_clickMap').removeClass('routeLineBtnCurrent');
 			$('#routeLineCreate_clickMap').html('添加站点');
@@ -1030,22 +1052,28 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				}
 			}
 			if ( n_radius < 500 ) { 
+				labelPoint = e.point;
 				str_infoWindowText = '<div class="clickWindowPanel errorCircleInfo"><span class="errorCircle"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
-				dlf.fn_mapStopDraw();
+				/*obj_circleLabel = new BMap.Label('半径：'+Math.round(circle.getRadius())+'米', {position: labelPoint});
+				//todo 2013.4.22
+				mapObj.addOverlay(obj_circleLabel);	*/
 			}
 		
 			// 2013.4.22 绘画完圆后显示圆心点吹出框,提示用户保存或重绘
 			mapObj.removeOverlay(obj_circleMarker);// 2013.4.22
 			
-			obj_circleMarker= new BMap.Marker(centerPoint); 
-			
+			obj_circleMarker= new BMap.Marker(centerPoint);
 			mapObj.addOverlay(obj_circleMarker);	//向地图添加覆盖物 
 
 			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);
 			obj_circleMarker.openInfoWindow(obj_clickInfoWindow);
-			
+			// 新增点添加click事件
+			obj_circleMarker.addEventListener('click', function() {
+				obj_circleMarker.openInfoWindow(obj_clickInfoWindow);
+			});
+			dlf.fn_mapStopDraw();
 			setTimeout(function(){  
-				$('.clickWindowPanel').parent().parent().next().hide();//隐藏关闭按钮
+				// $('.clickWindowPanel').parent().parent().next().hide();//隐藏关闭按钮
 			}, 300);
 			//==========================================
             var point = e.point,

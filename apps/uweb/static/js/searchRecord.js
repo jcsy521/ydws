@@ -36,18 +36,16 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	$('#' + str_who + '_uploadBtn').hide();	// 隐藏下载按钮
 	
 	if ( str_who == 'eventSearch' ) { // 告警查询
+		dlf.fn_ShowOrHideMiniMap(false);
 		$('#eventSearchCategory').val(-1);
 		obj_tableHeader.hide();
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
 		dlf.fn_clearMapComponent(); // 清除页面图形
-		// 调整工具条和
-		// dlf.fn_setMapControl(10); // 调整相应的地图控件及服务对象
 		
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
-
 	} else if ( str_who == 'mileage' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
@@ -264,8 +262,7 @@ window.dlf.fn_searchData = function (str_who) {
 			str_getDataUrl = EVENT_URL;
 			dlf.fn_clearMapComponent(); // 清除页面图形
 			// 设置地图父容器 小地图  地图title隐藏
-			fn_ShowOrHideMiniMap(false);
-			
+			dlf.fn_ShowOrHideMiniMap(false);
 			var n_startTime = $('#eventSearchStartTime').val(), // 用户选择时间
 				n_endTime = $('#eventSearchEndTime').val(), // 用户选择时间
 				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
@@ -514,7 +511,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				dlf.fn_showMarkerOnEvent();
 				// 关闭小地图
 				$('.eventMapClose').unbind('click').bind('click', function() {
-					fn_ShowOrHideMiniMap(false);
+					dlf.fn_ShowOrHideMiniMap(false);
 				});
 			}
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
@@ -528,11 +525,12 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		} else {
 			obj_download.hide();
 			obj_pagination.hide(); //显示分页
-			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			if ( str_who == 'routeLine' ) {
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 				obj_searchHeader.after('<tr><td colspan="5" class="colorRed">没有查询到线路，请先创建。</td></tr>');
 				return;
 			} else if ( str_who == 'infoPush' ) {
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 				$('.j_infoPushChecks').html('');
 				obj_infoPushEle.hide();
 				obj_infoPushTipsEle.show();	// infoPush没有查询到乘客信息提示框隐藏
@@ -541,7 +539,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				obj_searchHeader.hide();
 			}
 			if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
-				// dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			} else {
 				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000);
 			}
@@ -564,8 +562,8 @@ window.dlf.fn_showMarkerOnEvent = function() {
 	$('.j_eventItem').click(function(event) {
 		dlf.fn_clearMapComponent();
 		// 设置地图父容器 小地图显示 地图title显示
-		fn_ShowOrHideMiniMap(true, event);
-		dlf.fn_showOrHideControl(false);
+		dlf.fn_ShowOrHideMiniMap(true, event);
+		dlf.fn_hideControl();
 		// 根据行编号拿到数据，在地图上做标记显示
 		var n_tempIndex = $(this).parent().parent().index()-1,
 			obj_tempData = arr_dwRecordData[n_tempIndex];
@@ -584,8 +582,9 @@ window.dlf.fn_showMarkerOnEvent = function() {
 							var obj_circleData = data.region,
 								obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
 							
-							dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
+							// dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
 							dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
+							dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);
 						} else if ( data.status == 201 ) {	// 业务变更
 							dlf.fn_showBusinessTip();
 						} else { // 查询状态不正确,错误提示
@@ -601,6 +600,7 @@ window.dlf.fn_showMarkerOnEvent = function() {
 			}, 100);
 	});
 }
+
 /**
 * 根据数据和页面不同生成相应的table域内容
 */
@@ -1101,20 +1101,20 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		obj_mapTitle.hide();	// 地图title隐藏
 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
 		
-	//设置地图默认属性
-	if ( obj_mapCenter ) {
-		setTimeout (function () {
-			mapObj.setCenter(obj_mapCenter);
-			mapObj.setZoom(obj_mapSize);
-			$('.j_body').removeData('mapcenter mapsize');
-		}, 300);
-	}
+		//设置地图默认属性
+		if ( obj_mapCenter ) {
+			setTimeout (function () {
+				mapObj.setCenter(obj_mapCenter);
+				mapObj.setZoom(obj_mapSize);
+				$('.j_body').removeData('mapcenter mapsize');
+			}, 300);
+		}
 	}
 }
 /*
 * 告警查询关闭小地图
 */
-function fn_ShowOrHideMiniMap(b_isShow, event) {
+window.dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {
 	var obj_mapContainer = $('.mapContainer'), 
 		obj_mapPanel = $('#mapObj'), 
 		obj_mapConTitle = $('.mapDragTitle');

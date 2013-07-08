@@ -46,7 +46,8 @@ var mapObj = null,
 	obj_circle = null,
 	obj_circleLabel = null,
 	obj_circleMarker = null,
-	obj_carsData = null;
+	obj_carsData = null,
+	mousetool = null;
 		
 if ( !window.dlf ) { window.dlf = {}; }
 
@@ -327,12 +328,19 @@ window.dlf.fn_bindCarListItem = function() {
 			
 		if (n_mouseWhick == 1 ) {
 			if ( str_className.search('j_currentCar') != -1 || str_className.search(JSTREECLICKED) != -1 ) { // 如果用户点击当前车辆不做操作
-				var obj_currentMarker = obj_selfmarkers[n_tid];
+				var obj_currentMarker = obj_selfmarkers[n_tid];				
 				
-				if ( obj_currentMarker ) {
-					obj_currentMarker.openInfoWindow(obj_currentMarker.selfInfoWindow);
-					mapObj.setCenter(obj_currentMarker.getPosition());
-				}
+					if ( obj_currentMarker ) {
+						var obj_position = obj_currentMarker.getPosition(),
+							obj_infowindow = obj_currentMarker.selfInfoWindow;
+						
+						mapObj.setCenter(obj_position);
+						if ( dlf.fn_isBMap() ) {
+							obj_currentMarker.openInfoWindow(obj_infowindow);
+						} else {
+							obj_selfmarkers[n_tid].selfInfoWindow.open(mapObj, obj_position);	// 显示吹出框
+						}
+			    	}
 				return;
 			}
 			dlf.fn_switchCar(n_tid, obj_currentCar); // 车辆列表切换
@@ -505,6 +513,15 @@ window.dlf.fn_getCarData = function(str_flag) {
 				// 如果无终端或终端都无位置  地图设置为全国地图
 				if ( n_pointNum <= 0 ) {
 					mapObj.setZoom(5);
+				}
+				//是否进行切车操作
+				var obj_currentCarDatas = obj_cars[str_currentPersonalTid];
+				
+				if ( !obj_currentCarDatas ) {
+					var obj_tempCurrentCar = $('.j_carList .j_terminal').eq(0),
+						str_tempTid = obj_tempCurrentCar.attr('tid');
+						
+					dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar); // 车辆列表切换
 				}
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();
@@ -1110,6 +1127,18 @@ window.dlf.fn_dealAlias = function (str_tempAlias) {
 }
 
 /**
+* kjj 2013-06-21 create
+* 判断是否是百度地图
+*/
+window.dlf.fn_isBMap = function() {
+	if ( $('.j_body').attr('mapType') == '1' ) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
 * 业务变更提示 
 * str_type: event
 */
@@ -1304,13 +1333,14 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 
 	$('.j_delay').hide();
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+	dlf.fn_gaodeCloseDrawCircle();	// 关闭高德地图的画圆事件
+	dlf.fn_mapStopDraw(true);	// 关闭高德地图的 添加站点事件
 	dlf.fn_closeDialog();	// 关闭所有dialog
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
 	}
 	$('#'+ str_tempWrapperId).addClass(str_tempWrapperId +'Hover');
 	dlf.fn_clearNavStatus('home');	// 移除菜单车辆位置的样式
-	
 	if ( str_wrapperId == 'eventSearch' ) {
 		dlf.fn_setMapPosition(true);	// 如果打开的是告警查询  设置地图位置
 	} else {
@@ -1335,11 +1365,11 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 	}
 	if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo	
-		if ( str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' ) {
+		if ( str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
-		} else if ( str_wrapperId == 'bindBatchRegion' ) {
+		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'eventSearch' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
-		}		
+		}
 	}
 	obj_wrapper.show();
 }
@@ -1534,9 +1564,11 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				} else if ( str_who == 'regionCreate' ) { // 围栏管理
 					dlf.fn_initRegion(); // 重新显示围栏管理 
-					mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
+					if ( dlf.fn_isBMap() ) {
+						mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
+					}					
 					$('#regionContent').data('iscreate',  true);// 存储新增成功数据
-					f_closeWrapper = false;
+					b_closeWrapper = false;
 				} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
 					dlf.fn_setMapContainerZIndex(0);
@@ -1657,6 +1689,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						}
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else if ( str_who == 'corpTerminal' ) {	// 定位器参数设置修改
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						var str_val = obj_data[param];
@@ -1682,14 +1715,23 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 								str_tid = obj_current.attr('tid'),
 								n_imgDegree = obj_current.attr('degree'),
 								obj_currentMarker = obj_selfmarkers[str_tid],
+								b_mapType = dlf.fn_isBMap(),
+								obj_icon = null,
 								str_iconUrl = dlf.fn_setMarkerIconType(dlf.fn_processDegree(n_imgDegree), str_val);
 							
 							obj_current.attr('icon_type', str_val);
 							if ( obj_currentMarker ) {
-								obj_currentMarker.setIcon(new BMap.Icon(str_iconUrl, new BMap.Size(34, 34)));
+								if ( b_mapType ) {
+									obj_icon = new BMap.Icon(str_iconUrl, new BMap.Size(34, 34));
+								} else {
+									obj_icon = str_iconUrl;
+								}
+								obj_currentMarker.setIcon(obj_icon);
 							}
 							dlf.fn_updateTerminalLogin(obj_current);	
 							$('#corp_' + param ).attr('t_val', str_val);
+						} else if ( param == 'corp_cnum' ) {
+							dlf.fn_updateCorpCnum(str_val);	// 更新最新的车牌号
 						}
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
@@ -1719,6 +1761,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						$('#' + param).attr('t_checked', str_val).attr('t_val', str_val);
 					}
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else if ( str_who == 'operator' ) { // 操作员管理 
 					var n_operatorId = obj_data.id ,
 						str_name = obj_data.name, 
@@ -1858,6 +1901,24 @@ window.dlf.fn_changeTableBackgroundColor = function() {
 		$(this).css('background-color', '');
 	});
 }
+
+/**
+* kjj 2013-06-21 create
+* 高德地图关闭鼠标画圆事件
+*/
+window.dlf.fn_gaodeCloseDrawCircle = function() {
+	var b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
+		b_mapType = dlf.fn_isBMap();
+	
+	if ( b_regionCreateStatus && !b_mapType ) {
+		if ( mousetool ) {
+			mousetool.close(true);
+			mousetool = null;
+		}		
+		dlf.fn_setCursor(true);	// 鼠标状态
+	}	
+}
+
 })();
 
 /**

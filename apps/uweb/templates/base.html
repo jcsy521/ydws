@@ -19,10 +19,12 @@
 		<!--加载鼠标绘制工具-->
 		<script type="text/javascript" src="/static/js/drawingManager.js"></script>
 		<script type="text/javascript" src="/static/js/map_baidu.js"></script>
+		<script type="text/javascript" src="/static/js/track.js"></script>
 	{% else %}
 		<script type="text/javascript" src="/static/js/initialize_gaode.js"></script>
-		<script language="javascript" src="http://apis.mapabc.com/webapi/auth.json?t=javascriptmap&v=3.1.1&key=04a4f71df9914e8908336e5ae7191e0d8c68d35821e546d4a96a776a0aea56f65d1bd6a1d1426f5d"></script>
+		<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.2&key=69cb5d8ade23a204ce385bcf862833ff"></script>
 		<script type="text/javascript" src="/static/js/map_gaode.js"></script>
+		<script type="text/javascript" src="/static/js/track_gaode.js"></script>
 	{% end %}	
 	{% block include %}{% end %}
 		<title>{% block title %}移动车卫士{% end %}</title>

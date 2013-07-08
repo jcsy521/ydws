@@ -19,16 +19,21 @@ window.dlf.fn_initTrack = function() {
 	
 	$('#track').addClass('trackHover');
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
+	dlf.fn_gaodeCloseDrawCircle();	// 关闭高德地图的画圆事件
+	dlf.fn_mapStopDraw(true);	// 关闭高德地图的 添加站点事件
 	dlf.fn_closeDialog(); // 关闭所有dialog
 	dlf.fn_setMapPosition(false);
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询
+	
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
 	$('#ceillid_flag').removeAttr('checked');
+	
 	obj_trackHeader.show();	// 轨迹查询条件显示
 	// 调整工具条和
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
+	dlf.fn_closeAllInfoWindow();	
 	
 	var str_tempAlias = $('.j_currentCar').attr('alias'),
 		str_currentCarAlias = dlf.fn_dealAlias(str_tempAlias), 
@@ -45,6 +50,13 @@ window.dlf.fn_initTrack = function() {
 }
 
 /**
+* 高德关闭所有的吹出框
+*/
+window.dlf.fn_closeAllInfoWindow = function () {
+	mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
+}
+
+/**
 * 关闭轨迹显示页面
 * b_ifLastInfo: 清除规矩相关的时候是否要发起lastinfo
 */
@@ -52,6 +64,7 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 	$('#mapObj').show();
 	dlf.fn_clearNavStatus('track'); // 移除导航操作中的样式
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	dlf.fn_closeAllInfoWindow();
 	dlf.fn_clearTrack();	// 清除数据
 	$('#trackHeader').hide();	// 轨迹查询条件隐藏
 	$('.j_delay').hide();
@@ -107,6 +120,7 @@ function fn_trackQuery() {
 	$('.j_trackBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
+	dlf.fn_closeAllInfoWindow();
 	dlf.fn_jNotifyMessage('车辆轨迹查询中' + WAITIMG, 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
 	$('.j_trackbody').data('layer', true);
@@ -152,16 +166,17 @@ function fn_trackQuery() {
 				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 				arr_dataArr = arr_locations, 
-				n_tempMax = 0, 
+				str_alias = b_userType ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
+				
+				/*n_tempMax = 0, 
 				obj_tempMaxPoint = arr_locations[0];
 				obj_tempFirstPoint = arr_locations[0];
-				str_alias = b_userType ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
 				
 				if ( n_tempMax <= 0 ) {
 					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
 				} else {
 					dlf.fn_setOptionsByType('viewport', [obj_tempFirstPoint, obj_tempMaxPoint]);
-				}
+				}*/
 				dlf.fn_caculateBox(arr_locations);
 				fn_startDrawLineStatic(arr_locations);
 			}
@@ -299,12 +314,10 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 		for ( var x = 2; x < n_delayLength; x++ ) {
 			var obj_point = arr_delayPoints[x],
 				obj_tempMarker = {};
-			
-			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, 0);
-			
+				
+			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, x);
 			str_html += '<tr><td width="130px"><img src="../static/images/delay_Marker.png" width="25px" /><label>停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</label></td><td width="130px" class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_point.start_time) +'</td><td width="270px" class="delayCenterTd">'+ obj_point.name +'</td></tr>';
 			arr_markers.push(obj_tempMarker);
-			
 		}
 	}
 	obj_table.data('markers', arr_markers);
@@ -327,15 +340,16 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 			var obj_marker = arr_markerList[i];
 			
 			if ( obj_marker ) {
-				obj_marker.setTop(false);
+				obj_marker.setzIndex(0);
 			}
 		}
-		obj_tempMarker.setTop(true);
-		obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
+		obj_tempMarker.setzIndex(10);
+		
+		obj_tempMarker.selfInfoWindow.open(mapObj, obj_tempMarker.getPosition());
 		mapObj.setCenter(obj_tempMarker.getPosition());
 		
 		obj_this.addClass('clickedBg').siblings('tr').removeClass('clickedBg');	// 添加背景色
-	});	
+	});
 }
 
 /**
@@ -400,31 +414,31 @@ function fn_bindPlay() {
 * 动态标记移动方法
 */
 function fn_drawMarker() {
-	var n_len = arr_dataArr.length;
+	var n_len = arr_dataArr.length,
+		n_mapType = $('.j_body').attr('mapType'),
+		obj_location = arr_dataArr[counter];
 		
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;
 		str_actionState = 0;
 	}
 	if ( counter <= n_len-1 ) {
+		// 将播放过的点放到数组中
+		var obj_tempPoint = dlf.fn_createMapPoint(obj_location.clongitude, obj_location.clatitude);
+		
 		if ( actionMarker ) {
-			b_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
 			dlf.fn_clearMapComponent(actionMarker);
 		}
-		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, counter); // 添加标记
-		// 将播放过的点放到数组中
-		var obj_tempPoint = dlf.fn_createMapPoint(arr_dataArr[counter].clongitude, arr_dataArr[counter].clatitude);
+		dlf.fn_addMarker(obj_location, 'draw', 0, b_trackMsgStatus, counter); // 添加标记
 		
 		arr_drawLine.push(obj_tempPoint);
 		obj_drawLine.setPath(arr_drawLine);
 		
-		if ( b_trackMsgStatus ) {
-			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框 
-		}
 		dlf.fn_boundContainsPoint(obj_tempPoint);
 		counter ++;
 	} else {	// 播放完成后
-		dlf.fn_clearTrack();	// 清除数据
+		dlf.fn_clearTrack();
+		mapObj.clearInfoWindow();
 		dlf.fn_clearMapComponent(actionMarker);
 		$('#tPause').hide();
 		$('#tPlay').css('display', 'inline-block');
@@ -442,7 +456,7 @@ function fn_createDrawLine () {
 * 关闭轨迹清除数据
 */
 window.dlf.fn_clearTrack = function(clearType) { 
-	if ( timerId ) { dlf.fn_clearInterval(timerId) };	// 清除计时器
+	if ( timerId ) { dlf.fn_clearInterval(timerId); };	// 清除计时器
 	str_actionState = 0;
 	counter = 0;
 	arr_drawLine = [];

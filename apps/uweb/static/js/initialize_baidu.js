@@ -16,7 +16,7 @@ window.dlf.fn_moveMarker = function(n_tid) {
 			
 		if ( obj_tempMarker ) {
 			obj_infoWindow = obj_tempMarker.selfInfoWindow;
-			mapObj.setCenter(obj_tempMarker.getPosition());
+			// mapObj.setCenter(obj_tempMarker.getPosition());
 			for ( var i = 0; i < arr_overlays.length; i++ ) {
 				var obj_marker = obj_selfmarkers[$(arr_overlays[i]).attr('tid')];
 				
@@ -26,6 +26,9 @@ window.dlf.fn_moveMarker = function(n_tid) {
 			}
 			obj_tempMarker.setTop(true);
 			obj_tempMarker.openInfoWindow(obj_infoWindow); // 显示吹出框
+			setTimeout(function() {
+				mapObj.setCenter(obj_tempMarker.getPosition());
+			}, 300);
 		} else {
 			// 关闭所有的marker
 			mapObj.closeInfoWindow();
@@ -70,8 +73,10 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		str_randomColor = dlf.fn_randomColor(),	// 随机生成的颜色值
 		n_track = obj_carInfo.track,	// 是否开启追踪 0: 取消追踪 1: 开启追踪
 		str_track = n_track == 1 ? 'yes' : 'no';
-
-	obj_actionTrack[str_tid].status = str_track;
+		
+	if ( str_type != 'current' ) {
+		obj_actionTrack[str_tid].status = str_track;
+	}
 	str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
 	
 	if ( !str_alias ) {	// 如果无alias ，从车辆列表获取

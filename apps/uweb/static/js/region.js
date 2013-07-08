@@ -6,7 +6,8 @@
 window.dlf.fn_initRegion = function() {
 	var str_region = 'region', 
 		obj_regionWapper = $('#regionWrapper'), 
-		obj_regionAddWapper = $('#regionCreateWrapper');
+		obj_regionAddWapper = $('#regionCreateWrapper'),
+		b_mapType = dlf.fn_isBMap();
 	
 	dlf.fn_dialogPosition(str_region);	// 设置dialog的位置并显示
 	dlf.fn_mapRightClickFun(); //清除地图画围栏事件及状态 
@@ -18,6 +19,7 @@ window.dlf.fn_initRegion = function() {
 	//获取围栏数据 
 	dlf.fn_setSearchRecord(str_region);
 	dlf.fn_searchData(str_region);
+
 	// 新增围栏事件侦听
 	$('#regionCreateBtn').unbind('click').click(function(event){
 		var n_circleNum = $('#regionTable').data('regionnum');
@@ -38,26 +40,40 @@ window.dlf.fn_initRegion = function() {
 		fn_displayCars(); // 显示车辆信息数据
 		obj_circle =  null;
 		
-		// 启动画围栏事件
-		dlf.fn_mapStartDraw();
+		if ( b_mapType ) {
+			// 启动画围栏事件
+			dlf.fn_mapStartDraw();
+		}
 		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 		$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
 	});
 	//关闭新增围栏窗口
 	$('#regionCreateClose').unbind('click').click(function(event){
+		if ( !b_mapType ) {
+			dlf.fn_gaodeCloseDrawCircle();
+		}
 		dlf.fn_initRegion(); // 重新显示围栏管理 
 	});
 	//默认样式初始化
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+	
 	// 给绘制地图绑定事件
 	$('#regionCreate_clickMap').unbind('click').click(function(event){
+		if ( !b_mapType ) {
+			dlf.fn_mapRightClickFun();
+		}
 		dlf.fn_mapStartDraw();
 		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 		$(this).addClass('regionCreateBtnCurrent');
 	});
+	
 	// 给拖动地图绑定事件
 	$('#regionCreate_dragMap').unbind('click').click(function(event){
-		dlf.fn_mapRightClickFun();
+		if ( !b_mapType ) {
+			dlf.fn_gaodeCloseDrawCircle();
+		} else {
+			dlf.fn_mapRightClickFun();
+		}
 		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 		$(this).addClass('regionCreateBtnCurrent');
 	});
@@ -85,8 +101,11 @@ function fn_displayCars () {
 */
 window.dlf.fn_resetRegion = function() {
 	dlf.fn_mapRightClickFun();
-	obj_drawingManager.open();
-	
+	if ( obj_drawingManager ) {
+		obj_drawingManager.open();
+	} else {
+		dlf.fn_initCreateCircle();
+	}
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 	$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
 }
@@ -146,17 +165,21 @@ window.dlf.fn_detailRegion = function(n_seq) {
 		n_radius = obj_circleData.radius;
 		n_lng = obj_circleData.longitude,
 		n_lat = obj_circleData.latitude,
-		n_otherLng = Math.abs(n_lng/NUMLNGLAT + n_radius/111000.0)*NUMLNGLAT,
-		obj_centerPoint = dlf.fn_createMapPoint(n_lng, n_lat),
-		obj_otherPoint = dlf.fn_createMapPoint(n_otherLng, n_lat),
+		n_otherLat = Math.abs(n_lat/NUMLNGLAT + n_radius/111000.0)*NUMLNGLAT,
+		n_otherLat2 = Math.abs(n_lat/NUMLNGLAT - n_radius/111000.0)*NUMLNGLAT,
+		obj_otherPoint = dlf.fn_createMapPoint(n_lng, n_otherLat),
+		obj_otherPoint2 = dlf.fn_createMapPoint(n_lng, n_otherLat2),
 	
 	fn_clearCircleRegion();
-	mapObj.closeInfoWindow();// 关闭吹出框 已显示圆
+	if ( dlf.fn_isBMap() ) {
+		mapObj.closeInfoWindow();// 关闭吹出框 已显示圆
+	} else {
+		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
+	}
 	// 调用地图显示圆形
 	dlf.fn_displayCircle(obj_circleData);
 	// 计算bound显示 
-	dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_otherPoint]);
-	mapObj.zoomOut();
+	dlf.fn_setOptionsByType('viewport', [obj_otherPoint2, obj_otherPoint]);
 }
 
 /*
@@ -206,7 +229,7 @@ window.dlf.fn_initBindRegion = function() {
 	dlf.fn_dialogPosition(str_bindRegion);	// 设置dialog的位置并显示
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
-	// dlf.fn_clearMapComponent(); // 清除页面图形
+	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_displayCars(); // 显示车辆信息数据
 	//获取围栏数据 
 	dlf.fn_searchData(str_bindRegion);
@@ -332,4 +355,3 @@ function fn_getRegionDatas(str_who) {
 	});
 	return arr_regionIds;
 }
-

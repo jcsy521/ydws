@@ -1405,14 +1405,14 @@ body {
 #markerWindowtitle .colorF0960F {
 	color: red;/*#F0960F;*/
 }
-.height110 {
-	height: 110px;
+.height90 {
+	height: 90px;
 }
 .height135 {
 	height: 135px;
 }
-.height90 {
-	height: 90px;
+.height110 {
+	height: 110px;
 }
 .clickedBg {
 	background-color: #9CCAF4;
@@ -1763,7 +1763,10 @@ body {
 	/*top: 87px;*/
     line-height: 15px;
     position: absolute;
-    width: 190px;
+    width: 203px;
+}
+.left60 {
+	left: 60px;
 }
 .waitImg {
 	display: inline-block;
@@ -2931,10 +2934,11 @@ legend {
     position: relative;
     top: -30px;
 }
-
+.clickWindowPolder {
+	/*margin-right: 5px;*/
+}
 #clickMarkerWindowText {
 	height: 20px;
-    margin: 0px 6px;
     width: 100px;
 }
 .regionCreate_dragMap {
@@ -2955,9 +2959,10 @@ legend {
 .clickWindowPanel {
 	position: relative;
     top: 14px;
+	height: 42px;
 }
-.height50 {
-	height: 50px;
+.height38 {
+	height: 38px;
 }
 #createRegionName {
 	width: 100px;
@@ -3038,7 +3043,8 @@ legend {
 	font-size: 14px;
 	z-index: 1000;
 }
-.clickWindowPanel a, .routeLineWindow a {
+.clickWindowPanel a, .routeLineWindow a, .gaodeWindowPanel a, .gaodeClickWindowPanel a {
+	display: inline-block;
 	background-color: #000000;
     border: 1px solid gray;
     border-radius: 5px 5px 5px 5px;
@@ -3049,7 +3055,7 @@ legend {
     padding: 7px;
     text-decoration: none;
 }
-.clickWindowPanel a:hover, .routeLineWindow a:hover {
+.clickWindowPanel a:hover, .routeLineWindow a:hover, .gaodeWindowPanel a:hover, .gaodeClickWindowPanel a:hover {
 	background-color: #FFFFFF;
 	color: #000000;
 }
@@ -3157,7 +3163,9 @@ legend {
 	position: relative;
 	top: 2px;
 }
-
+.errorTop10 {
+	top: 10px;
+}
 /* del temrinal clear Data div css */
 #clearDataWrapper {
 	width: 290px;

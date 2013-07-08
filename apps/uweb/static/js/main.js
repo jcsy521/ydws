@@ -397,7 +397,7 @@ window.onresize = function () {
 		if ( b_layer ) {
 			dlf.fn_lockScreen();
 		}
-		if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图
+		if ( !dlf.fn_isBMap() ) {	// 高德地图
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
 		}
 		$('.j_delayPanel').css({'left': n_delayLeft});
@@ -478,7 +478,7 @@ $(function () {
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	$('#mapObj, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
 	
-	if ( $('.j_body').attr('mapType') != '1' ) {	// 高德地图初始化tilelayer的位置
+	if ( !dlf.fn_isBMap() ) {	// 高德地图初始化tilelayer的位置
 		$('#mapTileLayer').css('left', n_tilelayerLeft);
 	}
 	// 设置停留点列表的位置
@@ -494,6 +494,7 @@ $(function () {
 	var str_userType = $('.j_body').attr('userType');
 	$('.j_click').click(function(e) { 
 		var str_id = e.currentTarget.id, 
+			b_mapType = dlf.fn_isBMap(),
 			n_carNum = $('#carList li').length,
 			b_trackStatus = $('#trackHeader').is(':visible'), 
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询是否显示
@@ -535,8 +536,11 @@ $(function () {
 		// 是否清除地图及lastinfo
 		if ( str_id == 'eventSearch' || str_id == 'routeLine' ) {
 			obj_alarm.hide();
-			// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
+		}
+		if ( !b_mapType ) {
+			dlf.fn_gaodeCloseDrawCircle();	// 关闭高德地图的画圆事件
+			dlf.fn_mapStopDraw(true);	// 关闭高德地图的 添加站点事件
 		}
 		if ( str_userType !=  USER_PERSON ) {
 			dlf.fn_secondNavValid();
@@ -560,10 +564,6 @@ $(function () {
 				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				} else {
-					/*var obj_carItem = $('.j_carList .j_currentCar'),
-						str_tid = obj_carItem.attr('tid');
-					
-					dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换*/
 					var obj_current = obj_selfmarkers[$('.j_carList .j_currentCar').attr('tid')];
 					
 					if ( obj_current ) {
@@ -634,7 +634,6 @@ $(function () {
 				break;
 			case 'region': // 围栏管理
 				obj_alarm.hide();
-				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 				if ( b_eventSearchStatus ) {
 					dlf.fn_setMapPosition(false);	// 还原地图
@@ -928,13 +927,7 @@ $(function () {
 	* 加载完成后，第一次发送switchcar请求
 	*/
 	if ( !dlf.fn_userType() ) {
-		var n_carNum = $('.j_carList .j_terminal').length;
-		if ( n_carNum > 0 ) {
-			dlf.fn_switchCar($('.j_carList .j_terminal').eq(0).attr('tid'), $($('.j_carList .j_terminal')[0])); // 登录成功, 车辆列表切换
-			dlf.fn_bindCarListItem();
-		} else {
-			dlf.fn_getCarData();
-		}
+		dlf.fn_getCarData('first');
 	} else {
 		$('.j_corpLeft').css('background-color', '#fff')
 		// 点击查询按钮触发自动搜索功能	

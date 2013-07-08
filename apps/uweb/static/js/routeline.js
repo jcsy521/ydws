@@ -106,7 +106,8 @@ function fn_createLineSelect( arr_lines ) {
 window.dlf.fn_initRouteLine = function() {
 	var str_routeLine = 'routeLine', 
 		obj_routeLineWapper = $('#routeLineWrapper'), 
-		obj_reouteLineAddWapper = $('#routeLineCreateWrapper');
+		obj_reouteLineAddWapper = $('#routeLineCreateWrapper'),
+		b_mapType = dlf.fn_isBMap();
 	
 	dlf.fn_dialogPosition(str_routeLine);	// 设置dialog的位置并显示
 	$('#routeLineContent').show();
@@ -129,6 +130,9 @@ window.dlf.fn_initRouteLine = function() {
 		dlf.fn_clearMapComponent(); // 清除页面图形
 		obj_reouteLineAddWapper.css({'left': '250px', 'top': '160px'}).show();
 		obj_routeLineMarker = {};
+		if ( !b_mapType ) {	// 高德地图清除infowindow
+			dlf.fn_clickMapToAddMarker();
+		}
 	});
 	//关闭新增窗口
 	$('#routeLineCreateClose').unbind('click').click(function(event){
@@ -146,12 +150,12 @@ window.dlf.fn_initRouteLine = function() {
 			
 			if ( str_addPointHtmlText == '添加站点' ) {
 				$(this).html('取消添加');
-				dlf.fn_mapStartDraw();
+				dlf.fn_mapStartDraw(true);
 				$(this).addClass('routeLineBtnCurrent');
 			} else {
 				$(this).html('添加站点');
 				//mapObj.removeEventListener('click', dlf.fn_mapClickFunction);
-				dlf.fn_mapStopDraw();
+				dlf.fn_mapStopDraw(true);
 				$(this).removeClass('routeLineBtnCurrent');
 			}
 		}
@@ -163,7 +167,8 @@ window.dlf.fn_initRouteLine = function() {
 */
 window.dlf.fn_saveClickWindowText = function(obj_guid, obj_clickSaveBtn) {
 	var obj_markerPanel = obj_routeLineMarker[obj_guid], 
-		str_stationName = $(obj_clickSaveBtn).prev().val(); 
+		str_stationName = $('#clickMarkerWindowText').val(),
+		b_mapType = dlf.fn_isBMap();
 	
 	if ( obj_markerPanel ) { 
 		var temp_marker = obj_markerPanel.marker;
@@ -174,7 +179,11 @@ window.dlf.fn_saveClickWindowText = function(obj_guid, obj_clickSaveBtn) {
 			return;
 		}
 		obj_markerPanel.stationname = str_stationName;
-		temp_marker.closeInfoWindow();
+		if ( b_mapType  ) {
+			temp_marker.closeInfoWindow();
+		} else {
+			mapObj.clearInfoWindow();
+		}
 	}
 }
 
@@ -182,12 +191,17 @@ window.dlf.fn_saveClickWindowText = function(obj_guid, obj_clickSaveBtn) {
 * 删除站点
 */
 window.dlf.fn_delClickWindowText = function(obj_guid, obj_clickSaveBtn) {
-	var obj_markerPanel = obj_routeLineMarker[obj_guid];
-	
+	var obj_markerPanel = obj_routeLineMarker[obj_guid],
+		b_mapType = dlf.fn_isBMap();
+		
 	if ( obj_markerPanel ) {
 		var temp_marker = obj_markerPanel.marker;
+		
 		dlf.fn_clearMapComponent(temp_marker);
-		obj_routeLineMarker[obj_guid] = null;
+		if ( obj_markerPanel.infowindow && !b_mapType ) {	// 高德地图清除infowindow
+			mapObj.clearInfoWindow();
+		}
+		delete obj_routeLineMarker[obj_guid];
 	}
 }
 
@@ -278,6 +292,9 @@ window.dlf.fn_deleteRouteLine = function(n_id) {
 						$('#routeLineTableHeader').after('<tr><td colspan="5" class="colorRed">没有查询到线路，请先创建。</td></tr>');
 					}
 					dlf.fn_clearMapComponent(); // 清除页面图形
+					if ( !dlf.fn_isBMap() ) {	// 高德地图清除infowindow
+						mapObj.clearInfoWindow();
+					}
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;
