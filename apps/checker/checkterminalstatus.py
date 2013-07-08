@@ -138,7 +138,7 @@ class CheckTerminalStatus(object):
             terminal_info['fob_list'] = [fob.fobid for fob in fobs]
 
         # check sim status
-        lat, lon = get_latlon_from_cellid(0, 0, 0, 0, terminal['mobile'])
+        lat, lon = get_latlon_from_cellid(0, 0, 0, 0, terminal_info['mobile'])
         if lat and lon: 
             self.execute("UPDATE T_SUBSCRIPTION_LOG"
                          "  SET sim_status = 1"
