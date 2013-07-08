@@ -140,10 +140,10 @@ class CheckTerminalStatus(object):
         # check sim status
         lat, lon = get_latlon_from_cellid(0, 0, 0, 0, terminal_info['mobile'])
         if lat and lon: 
-            self.execute("UPDATE T_SUBSCRIPTION_LOG"
-                         "  SET sim_status = 1"
-                         "  WHERE mobile = %s",
-                         terminal_info['mobile'])
+            self.db.execute("UPDATE T_SUBSCRIPTION_LOG"
+                            "  SET sim_status = 1"
+                            "  WHERE mobile = %s",
+                            terminal_info['mobile'])
             logging.info("[CK] tid: %s, mobile: %s heartbeat lost but cellid successed.",
                          terminal_info['tid'], terminal_info['mobile'])
 
