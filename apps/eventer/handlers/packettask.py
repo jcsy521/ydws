@@ -468,8 +468,8 @@ class PacketTask(object):
             ios_push_list_key = get_ios_push_list_key(user.owner_mobile) 
             ios_push_list = self.redis.getvalue(ios_push_list_key) 
             if ios_push_list: 
-                for iosid in ios_push_list: 
-                    ios_badge = NotifyHelper.get_iosbadge(iosid, self.redis) 
+                for ios_id in ios_push_list: 
+                    ios_badge = NotifyHelper.get_iosbadge(ios_id, self.redis) 
                     NotifyHelper.push_to_ios(category, dev_id, t_alias, location, ios_id, ios_badge)
 
     def handle_power_status(self, report, name, report_name, terminal_time):
