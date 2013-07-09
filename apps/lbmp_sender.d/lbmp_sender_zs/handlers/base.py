@@ -2,6 +2,7 @@
 
 import logging
 import httplib
+import httplib2
 import errno, time
 
 import tornado.web
@@ -18,6 +19,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def __init__(self, application, request): 
         tornado.web.RequestHandler.__init__(self, application, request)
+
+    @property
+    def http(self):
+        return httplib2.Http(cache=".lbmp_cache",timeout=HTTP.ASYNC_REQUEST_TIMEOUT)
 
     @property
     def queue(self):

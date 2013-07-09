@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import base64
+import base64 
+from decimal import Decimal
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
@@ -62,7 +63,7 @@ class GeHandler(BaseHandler):
                 lats_s = ','.join([repr(lat) for lat in lats])
                 lons_s = ','.join([repr(lon) for lon in lons])
                     
-                response, content = self.http.request(ConfHelper.LBMP_CONF.ge_full_path % (lats_s, lons_s), HTTP.METHOD.GET)
+                response, content = self.http.request(ConfHelper.LBMP_CONF.ge_multipoints_url  % (lats_s, lons_s), HTTP.METHOD.GET)
 
                 logging.info('[GE] response:\n %s, \ncontent:\n %s', response, content)
                 if response['status'] == '200':

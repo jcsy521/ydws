@@ -5,6 +5,7 @@ import time
 
 from helpers.queryhelper import QueryHelper
 from misc import *
+from utils.dotdict import DotDict
 from constants import EVENTER, UWEB
 
 def record_terminal_subscription(db, tmobile, group_id, begintime, add_time, op_type):
@@ -116,6 +117,7 @@ def delete_terminal(tid, db, redis, del_user=True):
 
 def insert_location(location, db, redis):
     # insert data into T_LOCATION
+    location = DotDict(location)
     lid = db.execute("INSERT INTO T_LOCATION"
                      "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s,"
                      "          %s, %s, %s, %s, %s, %s)",

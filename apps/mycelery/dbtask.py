@@ -42,8 +42,8 @@ class DBTask(object):
                                "  FROM T_LOCATION"
                                "  WHERE (clatitude = 0 or clongitude =0) "
                                "  AND latitude != 0 AND longitude !=0 "
-                               "  AND timestamp > %s",
-                               int(time.time())-60*5)
+                               "  AND (timestamp between %s and %s)",
+                               int(time.time())-60*5, int(time.time()))
 
         logging.info("[CLERY] the number of points without valid claton: %s.", len(points))
         for point in points:

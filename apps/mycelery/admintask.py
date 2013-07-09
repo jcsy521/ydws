@@ -367,9 +367,9 @@ class TerminalStatistic(object):
             item['sim_status'] = u'失败'
             if item['offline_cause'] == 1: # heart beat
                 # check the sim status
-                terminal_log = self.get("SELECT sim_status FROM T_SUBSCRIPTION_LOG",
-                                        "  WHERE mobile = %s",
-                                        item['tmobile'])
+                terminal_log = self.db.get("SELECT sim_status FROM T_SUBSCRIPTION_LOG"
+                                           "  WHERE tmobile = %s",
+                                           item['tmobile'])
                 if terminal_log.sim_status == 1:
                     item['sim_status'] = u'成功'
             
@@ -461,7 +461,7 @@ class TerminalStatistic(object):
             terminal = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
 
             ws.write(i, 7, u'新增', add_style)
-            ws.write(i, 9, safe_unicode(terminal['sim_status']), center_style)
+            ws.write(i, 9, safe_unicode(result['sim_status']), center_style)
             ws.write(i, 10, safe_unicode(terminal['remark']), center_style)
             start_line += 1
 
@@ -488,7 +488,7 @@ class TerminalStatistic(object):
                 ws.write(i, 8, u'已解绑')
             else:
                 pass
-            ws.write(i, 9, result[9], center_style)
+            #ws.write(i, 9, result[9], center_style)
             ws.write(i, 10, result[10], center_style)
 
         wb.save(CUR_PATH)
