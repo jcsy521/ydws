@@ -221,6 +221,7 @@ class PacketTask(object):
                     pvt = lbmphelper.handle_location(pvt, self.redis,
                                                           cellid=True, db=self.db) 
                     self.check_region_event(pvt, regions)
+                pvt['dev_id'] = location['dev_id']
                 # NOTE: not offset it
                 #location = lbmphelper.handle_location(pvt, self.redis,
                 #                                      cellid=False, db=self.db) 
