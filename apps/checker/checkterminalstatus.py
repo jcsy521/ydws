@@ -142,7 +142,7 @@ class CheckTerminalStatus(object):
         if lat and lon: 
             self.db.execute("UPDATE T_SUBSCRIPTION_LOG"
                             "  SET sim_status = 1"
-                            "  WHERE mobile = %s",
+                            "  WHERE tmobile = %s",
                             terminal_info['mobile'])
             logging.info("[CK] tid: %s, mobile: %s heartbeat lost but cellid successed.",
                          terminal_info['tid'], terminal_info['mobile'])
