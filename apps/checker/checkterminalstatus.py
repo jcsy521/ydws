@@ -145,7 +145,7 @@ class CheckTerminalStatus(object):
                             "  WHERE tmobile = %s",
                             terminal_info['mobile'])
             logging.info("[CK] tid: %s, mobile: %s heartbeat lost but cellid successed.",
-                         terminal_info['tid'], terminal_info['mobile'])
+                         info['tid'], terminal_info['mobile'])
 
         # db
         self.db.execute("UPDATE T_TERMINAL_INFO"
