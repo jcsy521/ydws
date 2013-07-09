@@ -51,6 +51,9 @@ class LastPositionHandler(BaseHandler):
 
                 # 2: get location 
                 location = QueryHelper.get_location_info(tid, self.db, self.redis)
+                locations = [location,]
+                locations = get_locations_with_clatlon(locations, self.db)
+                location = locations[0]
 
                 if location and location['name'] is None:
                     location['name'] = location['name'] if location['name'] else ''

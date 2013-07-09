@@ -2,7 +2,6 @@
 
 from utils.misc import get_terminal_info_key, get_lq_sms_key,\
      get_location_key, get_login_time_key, 
-from helpers.lbmphelper import get_locations_with_clatlon
 from utils.dotdict import DotDict
 from constants import GATEWAY, EVENTER
 
@@ -239,11 +238,6 @@ class QueryHelper(object):
                               "    LIMIT 1",
                               tid)
             if location:
-                if not (location.clatitude and location.clongitude):
-                    locations = [location,]
-                    locations = get_locations_with_clatlon(locations, db) 
-                    location = locations[0]
-
                 mem_location = DotDict({'id':location.id,
                                         'latitude':location.latitude,
                                         'longitude':location.longitude,
