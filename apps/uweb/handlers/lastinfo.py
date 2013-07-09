@@ -8,7 +8,8 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
-from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key, get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
+from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key,\
+     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
@@ -56,9 +57,6 @@ class LastInfoHandler(BaseHandler):
 
                 # 2: get location 
                 location = QueryHelper.get_location_info(tid, self.db, self.redis)
-                locations = [location,]
-                locations = get_locations_with_clatlon(locations, self.db) 
-                location = locations[0]
 
                 if location and location['name'] is None:
                     location['name'] = ''
@@ -85,8 +83,7 @@ class LastInfoHandler(BaseHandler):
                               alias=terminal['alias'],
                               #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                               keys_num=0,
-                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
-                              track=terminal['track'] if terminal.get('track',None) is not None else 0)
+                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 car_dct[tid]=car_info
                 cars_info.update(car_dct)
@@ -220,9 +217,6 @@ class LastInfoCorpHandler(BaseHandler):
 
                     # 2: get location 
                     location = QueryHelper.get_location_info(tid, self.db, self.redis)
-                    locations = [location,]
-                    locations = get_locations_with_clatlon(locations, self.db) 
-                    location = locations[0]
 
                     if location and location['name'] is None:
                         location['name'] = ''
@@ -257,10 +251,10 @@ class LastInfoCorpHandler(BaseHandler):
                     track_info = []
                     if tid in track_tids:
                         points_track = self.db.query("SELECT id, latitude, longitude," 
-                                                     "   clatitude, clongitude"
+                                                     "   clatitude, clongitude, type, timestamp"
                                                      "  FROM T_LOCATION"
                                                      "  WHERE tid = %s"
-                                                     "    AND NOT (clatitude = 0 OR clongitude = 0)"
+                                                     "    AND NOT (latitude = 0 OR longitude = 0)"
                                                      "    AND (timestamp BETWEEN %s AND %s)"
                                                      "    AND type = 0"
                                                      "    ORDER BY timestamp",
@@ -268,8 +262,13 @@ class LastInfoCorpHandler(BaseHandler):
 
                         points_track = get_locations_with_clatlon(points_track, self.db)
                         for point in points_track: 
-                            track_info.append(point['clatitude'])
-                            track_info.append(point['clongitude'])
+                            t = dict(latitude=point['latitude'],
+                                     longitude=point['longitude'],
+                                     clatitude=point['clatitude'],
+                                     clongitude=point['clongitude'],
+                                     type=point['type'],
+                                     timestamp=point['timestamp'])
+                            track_info.append(t)
 
                     #3: build trace_info
                     trace_info = []
@@ -277,7 +276,7 @@ class LastInfoCorpHandler(BaseHandler):
                                                  "    clatitude, clongitude"
                                                  "  FROM T_LOCATION"
                                                  "  WHERE tid = %s"
-                                                 "    AND NOT (clatitude = 0 OR clongitude = 0)"
+                                                 "    AND NOT (latitude = 0 OR longitude = 0)"
                                                  "    AND (timestamp  between %s and %s)"
                                                  "    AND type = 0"
                                                  "    ORDER BY timestamp",

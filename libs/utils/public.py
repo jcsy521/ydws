@@ -36,13 +36,15 @@ def clear_data(tid, db):
 def delete_terminal(tid, db, redis, del_user=True):
     terminal = db.get("SELECT mobile, owner_mobile FROM T_TERMINAL_INFO"
                       "  WHERE tid = %s", tid)
-    if not terminal:
-        logging.info("Terminal: %s already not existed.", tid)
-        return
+    #if not terminal:
+    #    logging.info("Terminal: %s already not existed.", tid)
+    #    return
         
-    user = db.get("SELECT id FROM T_USER"
-                  "  WHERE mobile = %s",
-                  terminal.owner_mobile)
+    user = None
+    if terminal:
+        user = db.get("SELECT id FROM T_USER"
+                      "  WHERE mobile = %s",
+                      terminal.owner_mobile)
     rids = db.query("SELECT rid FROM T_REGION_TERMINAL"
                     "  WHERE tid = %s", tid)
     # clear history data
@@ -81,9 +83,10 @@ def delete_terminal(tid, db, redis, del_user=True):
         redis.delete(*keys)
 
     # clear db
-    db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s"
-               "  WHERE tmobile = %s ", 
-               int(time.time()), UWEB.OP_TYPE.DEL, terminal.mobile)
+    if terminal:
+        db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s"
+                   "  WHERE tmobile = %s ", 
+                   int(time.time()), UWEB.OP_TYPE.DEL, terminal.mobile)
 
     db.execute("DELETE FROM T_TERMINAL_INFO"
                "  WHERE tid = %s", 
@@ -110,10 +113,10 @@ def delete_terminal(tid, db, redis, del_user=True):
                 redis.delete(*keys)
                 logging.info("[GW] Delete User: %s", terminal.owner_mobile)
     else:
-        logging.info("[GW] User of %s: %s already not exist.", tid, terminal.owner_mobile)
+        logging.info("[GW] User of %s already not exist.", tid)
 
     logging.info("[GW] Delete Terminal: %s, tmobile: %s, umobile: %s",
-                 tid, tmobile, (terminal.owner_mobile if user else None))
+                 tid, tmobile, (terminal.owner_mobile if terminal else None))
 
 def insert_location(location, db, redis):
     # insert data into T_LOCATION
@@ -128,9 +131,11 @@ def insert_location(location, db, redis):
                      location.speed, location.degree,
                      location.cellid)
     if location.lat and location.lon:
-        lqgz_interval_key = get_lqgz_interval_key(location.dev_id)
-        lqgz = redis.getvalue(lqgz_interval_key)
-        if lqgz and (int(location.type) != 0):
+        track_key = get_track_key(location.dev_id)
+        track = redis.get(track_key)
+        # if track is on, just put PVT into redis 
+        # maybe put cellid into redis later. 
+        if track and (int(track) == 1) and (location.get("Tid", None) != EVENTER.TRIGGERID.PVT): 
             return lid
 
         location_key = get_location_key(location.dev_id)

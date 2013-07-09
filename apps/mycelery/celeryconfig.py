@@ -63,6 +63,12 @@ CELERYBEAT_SCHEDULE = {
        "schedule": timedelta(minutes=1),
    },
 
+   "check_track": {
+       "task": "checkertask.check_track",
+       # every 1 minute 
+       "schedule": timedelta(minutes=1),
+   },
+
    # part 2: for db 
    "update_clatclon": {
        "task": "dbtask.update_clatclon",

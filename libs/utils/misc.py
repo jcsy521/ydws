@@ -80,6 +80,14 @@ def get_lastinfo_time_key(umobile):
     """for the newest lastinfo of owner"""
     return str("lastinfo_time:%s" % umobile)
 
+def get_lastposition_key(umobile):
+    """for the newest lastposition of owner"""
+    return str("lastposition:%s" % umobile)
+
+def get_lastposition_time_key(umobile):
+    """for the newest lastposition of owner"""
+    return str("lastposition_time:%s" % umobile)
+
 def get_lastinfo_line_key(line_id):
     """for the newest lastinfo of line"""
     return str("lastinfo_line:%s" % line_id)
@@ -141,6 +149,9 @@ def get_del_data_key(dev_id):
 
 def get_login_time_key(dev_id):
     return str("login_time:%s" % dev_id)
+
+def get_track_key(dev_id):  
+    return str("track:%s" % dev_id) 
 
 def get_terminal_time(timestamp):
     terminal_time = ""

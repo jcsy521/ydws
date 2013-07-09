@@ -1,7 +1,8 @@
 # -*- coding:utf-8 -*-
 
 from utils.misc import get_terminal_info_key, get_lq_sms_key,\
-     get_location_key, get_login_time_key
+     get_location_key, get_login_time_key, 
+from helpers.lbmphelper import get_locations_with_clatlon
 from utils.dotdict import DotDict
 from constants import GATEWAY, EVENTER
 
@@ -198,7 +199,7 @@ class QueryHelper(object):
         if not terminal_info:
             terminal_info = db.get("SELECT mannual_status, defend_status,"
                                    "  fob_status, mobile, login, gps, gsm,"
-                                   "  pbat, keys_num, icon_type, track"
+                                   "  pbat, keys_num, icon_type"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", tid)
             car = db.get("SELECT cnum FROM T_CAR"
@@ -233,11 +234,16 @@ class QueryHelper(object):
                               "  degree, type, latitude, longitude, clatitude, clongitude, timestamp"
                               "  FROM T_LOCATION"
                               "  WHERE tid = %s"
-                              "    AND NOT (clatitude = 0 AND clongitude = 0)"
+                              "    AND NOT (latitude = 0 AND longitude = 0)"
                               "    ORDER BY timestamp DESC"
                               "    LIMIT 1",
                               tid)
             if location:
+                if not (location.clatitude and location.clongitude):
+                    locations = [location,]
+                    locations = get_locations_with_clatlon(locations, db) 
+                    location = locations[0]
+
                 mem_location = DotDict({'id':location.id,
                                         'latitude':location.latitude,
                                         'longitude':location.longitude,

@@ -111,3 +111,7 @@ TERMINAL_STATUS = DotDict(JHING=0,
                           MOBILE_NOT_ORDERED=4)
 
 SIMPLE_YDCWS_PATTERN = r"^(1477874\d{4})$"
+
+# turn on track for 10mins  
+TRACK_INTERVAL = 10 * 60  
+

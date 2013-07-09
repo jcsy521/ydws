@@ -13,6 +13,7 @@ site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 from tornado.options import define, options, parse_command_line
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
+from utils.misc import get_track_key, get_terminal_sessionID_key 
 from constants import GATEWAY
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
@@ -26,6 +27,26 @@ class CheckTask(object):
     def __init__(self):
         self.db = DBConnection().db
         self.redis = MyRedis()
+
+    def check_track_status(self):
+        logging.info("[CELERY] checkertask check track status started.")
+        try:
+            terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                      "  WHERE track = 1"
+                                      "    AND service_status = 1")
+            for terminal in terminals:
+                track_key = get_track_key(terminal.tid)
+                track = self.redis.get(track_key)
+                if not track:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET track = 0"
+                                    "  WHERE tid = %s LIMIT 1",
+                                    terminal.tid)
+                    sessionID_key = get_terminal_sessionID_key(terminal.tid)
+                    self.redis.delete(sessionID_key)
+                    logging.info("[CK] Turn off track of terminal: %s", terminal.tid)
+        except Exception as e:
+            logging.exception("[CELERY] Check track status exception.")
 
     def check_poweroff_timeout(self):
         logging.info("[CELERY] checkertask check poweroff timeout started.")
@@ -47,7 +68,7 @@ class CheckTask(object):
                     self.update_sms_flag(terminal.tid)
                     logging.info("[CELERY] Send poweroff timeout sms to user:%s, tid:%s", user.owner_mobile, terminal.tid)
         except Exception as e:
-            logging.exception("[CLERY] Check terminal poweroff timeout exception.")
+            logging.exception("[CELERY] Check terminal poweroff timeout exception.")
 
     def update_sms_flag(self, tid):
         self.db.execute("UPDATE T_POWEROFF_TIMEOUT"
@@ -103,6 +124,10 @@ def check_poweroff():
 #    ct = CheckTask()
 #    ct.check_charge_remind()
 
+def check_track():
+    ct = CheckTask()
+    ct.check_track_status()
+
 if __name__ == '__main__':
     ConfHelper.load(options.conf)
     parse_command_line()
@@ -113,6 +138,7 @@ else:
         from celery.decorators import task 
         check_poweroff = task(ignore_result=True)(check_poweroff) 
         #check_charge= task(ignore_result=True)(check_charge) 
+        check_track = task(ignore_result=True)(check_track)
     except Exception as e: 
         logging.exception("[CELERY] admintask statistic failed. Exception: %s", e.args)
 

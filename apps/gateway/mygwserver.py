@@ -408,7 +408,8 @@ class MyGWServer(object):
         t_status = None
         # new softversion, new meaning, 1: active; othter: normal login
         flag = t_info['psd'] 
-        terminal = self.db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status"
+        terminal = self.db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status,"
+                               "       defend_status, mannual_status, icon_type"
                                "  FROM T_TERMINAL_INFO"
                                "  WHERE mobile = %s LIMIT 1",
                                t_info['t_msisdn']) 
@@ -455,6 +456,12 @@ class MyGWServer(object):
                          t_info['dev_id'], t_info['t_msisdn'])
             # 0. Initialize 
             group_id = -1
+            mannual_status = UWEB.DEFEND_STATUS.YES
+            defend_status = UWEB.DEFEND_STATUS.YES
+            icon_type = 0
+            # send JH sms to terminal. default active time is one year.
+            begintime = datetime.datetime.now() 
+            endtime = begintime + relativedelta(years=1)
 
             # 1. check data validation
             logging.info("[GW] Checking terminal mobile: %s and owner mobile: %s, Terminal: %s",
@@ -515,18 +522,29 @@ class MyGWServer(object):
                 else:     
                     # 4.2 existed tmobile changed dev or corp terminal login first
                     group_id = terminal.group_id
+                    mannual_status = terminal.mannual_status
+                    defend_status = terminal.defend_status
+                    icon_type = terminal.icon_type
                     if terminal.tid == terminal.mobile:
                         # corp terminal login first, keep corp info
                         logging.info("[GW] Corp terminal: %s login first, tmobile: %s.",
                                      t_info['dev_id'], t_info['t_msisdn'])
-                    else:
+                    elif terminal.tid != t_info['dev_id']:
                         logging.info("[GW] Tmobile: %s changed dev, new: %s, delete old: %s.",
                                      t_info['t_msisdn'], t_info['dev_id'], terminal.tid)
+                    else:
+                        # Refurbishment, change user
+                        logging.info("[GW] Terminal: %s change user, new: %s, old: %s",
+                                     t_info['dev_id'], t_info['u_msisdn'],
+                                     terminal.owner_mobile)
                     del_user = True
                     if terminal.owner_mobile != t_info['u_msisdn']:
                         # send message to old user of dev_id
                         sms_ = SMSCode.SMS_DELETE_TERMINAL % terminal.mobile 
                         SMSHelper.send(terminal.owner_mobile, sms_)
+                        if terminal.tid == t_info['dev_id']: 
+                            # change user
+                            clear_data(terminal.tid, self.db)
                         logging.info("[GW] Send delete terminal message: %s to user: %s",
                                      sms_, terminal.owner_mobile)
                     else:
@@ -560,9 +578,6 @@ class MyGWServer(object):
                     delete_terminal(tid_terminal['tid'], self.db, self.redis, del_user=del_user)
 
                 # 6 add terminal info
-                # send JH sms to terminal. default active time is one year.
-                begintime = datetime.datetime.now() 
-                endtime = begintime + relativedelta(years=1)
                 record_terminal_subscription(self.db, t_info['t_msisdn'], -1, 
                                              int(time.mktime(begintime.timetuple())), 
                                              int(time.mktime(begintime.timetuple())), 
@@ -570,14 +585,16 @@ class MyGWServer(object):
 
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
-                                "  keys_num, login, service_status, begintime, endtime, offline_time)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s)",
+                                "  keys_num, login, service_status, defend_status,"
+                                "  mannual_status, icon_type, begintime, endtime, offline_time)"
+                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s)",
                                 t_info['dev_id'], group_id, t_info['dev_type'],
                                 t_info['t_msisdn'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'],
                                 t_info['factory_name'],
                                 t_info['softversion'], t_info['keys_num'], 
                                 GATEWAY.SERVICE_STATUS.ON,
+                                defend_status, mannual_status, icon_type,
                                 int(time.mktime(begintime.timetuple())),
                                 int(time.mktime(endtime.timetuple())),
                                 int(time.mktime(begintime.timetuple())))
