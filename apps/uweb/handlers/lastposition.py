@@ -10,6 +10,7 @@ from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
 from utils.misc import get_terminal_info_key, get_location_key,\
      get_lastposition_key, get_lastposition_time_key, get_track_key
+from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from constants import UWEB, EVENTER, GATEWAY, LOCATION
@@ -69,7 +70,6 @@ class LastPositionHandler(BaseHandler):
                               type=location.type if location else 1,
                               latitude=location['latitude'] if location else 0,
                               longitude=location['longitude'] if location else 0, 
-                              altitude=location['altitude'] if location else 0,
                               clatitude=location['clatitude'] if location else 0,
                               clongitude=location['clongitude'] if location else 0, 
                               login=terminal['login'] if terminal['login'] is not None else 0,
@@ -144,7 +144,6 @@ class LastPositionHandler(BaseHandler):
                               tid, begintime, endtime)
         track = get_locations_with_clatlon(track, self.db)
         for t in track: 
-            #BIG NOTE: never add altitude in track_info. track_info is to draw line, altitude is unwanted.
             point = dict(latitude=t['latitude'],
                          longitude=t['longitude'],
                          clatitude=t['clatitude'],

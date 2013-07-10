@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from utils.misc import get_terminal_info_key, get_lq_sms_key,\
-     get_location_key, get_login_time_key, 
+     get_location_key, get_login_time_key 
 from utils.dotdict import DotDict
 from constants import GATEWAY, EVENTER
 
