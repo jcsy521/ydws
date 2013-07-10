@@ -198,12 +198,10 @@ class PacketTask(object):
     def handle_position_info(self, location):
         location = DotDict(location)
         if location.Tid == EVENTER.TRIGGERID.CALL:
-            #location = lbmphelper.handle_location(location, self.redis,
-            #                                      cellid=True, db=self.db) 
+            location = lbmphelper.handle_location(location, self.redis,
+                                                  cellid=True, db=self.db) 
             regions = self.get_regions(location['dev_id'])
             if regions:
-                location = lbmphelper.handle_location(location, self.redis,
-                                                      cellid=True, db=self.db) 
                 self.check_region_event(location, regions)
             location['category'] = EVENTER.CATEGORY.REALTIME
             location['type'] = location.get('type', 1)
@@ -215,13 +213,13 @@ class PacketTask(object):
             for pvt in location['pvts']:
                 # get available location from lbmphelper
                 pvt['dev_id'] = location['dev_id']
+                pvt['Tid'] = location['Tid']
 
                 regions = self.get_regions(pvt['dev_id'])
                 if regions:
                     pvt = lbmphelper.handle_location(pvt, self.redis,
                                                           cellid=True, db=self.db) 
                     self.check_region_event(pvt, regions)
-                pvt['dev_id'] = location['dev_id']
                 # NOTE: not offset it
                 #location = lbmphelper.handle_location(pvt, self.redis,
                 #                                      cellid=False, db=self.db) 

@@ -250,8 +250,7 @@ class LastInfoCorpHandler(BaseHandler):
                                     #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                                     keys_num=0,
                                     icon_type=terminal['icon_type'] if terminal.get('icon_type', None) is not None else 0,
-                                    fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
-                                    track=terminal['track'] if terminal.get('track',None) is not None else 0)
+                                    fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                     #2: build track_info
                     track_info = []
