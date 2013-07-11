@@ -11,8 +11,8 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
-		n_height = 350,
-		n_btnTop = 330;
+		n_height = 375,
+		n_btnTop = 355;
 	
 	if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
 		dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
@@ -24,8 +24,8 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	if ( str_bizType == 'znbc' ) {
 		dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
-		n_height = 417;
-		n_btnTop = 390;
+		n_height = 442;
+		n_btnTop = 415;
 	}
 	$('.corpTerminalContent').css('height', n_height);
 	$('#corp_terminalSave').css('top', n_btnTop);
@@ -69,6 +69,8 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 						
 						obj_currentCar.attr('icon_type', str_val);
 						dlf.fn_updateTerminalLogin(obj_currentCar);
+					} else if ( param == 'login_permit' ) {
+						$('#login_permit' + str_val).attr('checked', true);
 					} else {
 						if ( param == 'alias' || param == 'freq' ) {	// 定位器别名、上报频率
 							$('#t_corp_' + param ).val(str_val);
@@ -226,6 +228,8 @@ window.dlf.fn_corpBaseSave = function() {
 				str_key = 'corp_cnum';
 			} else if ( str_key == 'corp_icon_type' ) {
 				str_key = 'icon_type';
+			} else if ( str_key == 'corp_login_permit' ) {
+				str_key = 'login_permit';
 			}
 			obj_terminalData[str_key] = str_newVal;
 		}
