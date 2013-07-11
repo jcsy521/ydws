@@ -378,11 +378,11 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                                          UWEB.OP_TYPE.ADD)
 
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  begintime, endtime, offline_time)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                            "  begintime, endtime, offline_time, login_permit)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                             fields.tmobile, gid,
                             fields.tmobile, fields.umobile, 
-                            fields.begintime, fields.endtime, fields.begintime)
+                            fields.begintime, fields.endtime, fields.begintime, 0)
     
             # 3: add car tnum --> cnum
             self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"

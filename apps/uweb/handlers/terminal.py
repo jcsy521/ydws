@@ -44,7 +44,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             # 1: terminal 
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
                                    "       vibchk, tid as sn, mobile, vibl,"
-                                   "       white_pop, push_status, icon_type, owner_mobile"
+                                   "       white_pop, push_status, icon_type, owner_mobile, login_permit"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s"
@@ -275,11 +275,11 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                          data.group_id, begintime, begintime, UWEB.OP_TYPE.ADD)
 
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  defend_status, mannual_status, begintime, endtime, offline_time, icon_type)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            "  defend_status, mannual_status, begintime, endtime, offline_time, icon_type, login_permit)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                             data.tmobile, data.group_id,
                             data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                            UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.icon_type)
+                            UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.icon_type, 0)
     
             # 1: add user
             user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)

@@ -16,7 +16,7 @@ class TerminalMixin(BaseMixin):
         """Update database.
         """
         # these fileds just need to be modified in db
-        terminal_keys = ['cellid_status','white_pop','trace','freq', 'vibchk', 'vibl','push_status']
+        terminal_keys = ['cellid_status','white_pop','trace','freq', 'vibchk', 'vibl','push_status', 'login_permit']
         terminal_fields = []
         
         for key, value in car_sets.iteritems():

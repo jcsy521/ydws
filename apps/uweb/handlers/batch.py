@@ -257,11 +257,11 @@ class BatchJHHandler(BaseHandler):
                 record_terminal_subscription(self.db, tmobile, gid, begintime, begintime, UWEB.OP_TYPE.ADD)
 
                 tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
-                                      "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time)"
-                                      "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                      "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit)"
+                                      "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                       tmobile, tmobile, gid, umobile, 
                                       UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
-                                      begintime, endtime, begintime)
+                                      begintime, endtime, begintime, 0)
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
                                 tmobile)

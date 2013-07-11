@@ -19,13 +19,13 @@ class LoginMixin(BaseMixin):
     def login_passwd_auth(self, username, password, user_type):
         """Check user whether available."""
 
-        if user_type == UWEB.USER_TYPE.PERSON:
+        if user_type == UWEB.USER_TYPE.PERSON: # individual
             user = self.db.get("SELECT uid, mobile"
                                "  FROM T_USER"
                                "    WHERE uid = %s"
                                "      LIMIT 1", 
                                username)
-        else:
+        else: # enterprise
             user = self.db.get("SELECT cid, mobile"
                                "  FROM T_CORP"
                                "    WHERE cid = %s"
@@ -81,7 +81,7 @@ class LoginMixin(BaseMixin):
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND owner_mobile = %s"
-                                          "    AND group_id = -1"
+                                          "    AND login_permit = 1"
                                           "    AND (%s BETWEEN begintime AND endtime)",
                                           UWEB.SERVICE_STATUS.ON, username, int(time.time()))
                 #NOTE: provide a dummy_cid for user

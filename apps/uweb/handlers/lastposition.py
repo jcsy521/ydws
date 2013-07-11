@@ -38,7 +38,7 @@ class LastPositionHandler(BaseHandler):
             terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = %s"
                                       "    AND owner_mobile = %s"
-                                      "    AND group_id = -1"
+                                      "    AND login_permit = 1"
                                       "    ORDER BY login DESC",
                                       UWEB.SERVICE_STATUS.ON, self.current_user.uid)
             tids = [terminal.tid for terminal in terminals]

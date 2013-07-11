@@ -35,7 +35,7 @@ class LoginHandler(BaseHandler, LoginMixin):
  
     @tornado.web.removeslash
     def post(self):
-        """We store uid, tid and sim in the cookie to
+        """We store cid, oid, uid,tid and sim in the cookie to
         authenticate the user.
         """
         username = self.get_argument("username", "")
