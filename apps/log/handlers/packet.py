@@ -73,11 +73,11 @@ class GWPacketHandler(BaseHandler):
                                 if p1.search(lines[num]) and p2.search(lines[num]) and p3.search(lines[num]):
                                     if  '20%s' % lines[num][3:18] > start_time and '20%s' % lines[num][3:18] < end_time:
                                         ldata = lines[num].split(',')
-                                        packet_type = ldata[5][0:3]
-                                        packet_time = lines[num][3:18]
+                                        T_packet_type = ldata[5][0:3]
+                                        T_packet_time = lines[num][3:18]
                                         packet = lines[num]
-                                        p = {'packet_time':packet_time,
-                                             'packet_type':packet_type ,
+                                        p = {'packet_time':T_packet_time,
+                                             'packet_type':T_packet_type ,
                                              'packet':packet}
                                         lst.append(p)
                                         if is_report == 1:
@@ -90,9 +90,9 @@ class GWPacketHandler(BaseHandler):
                                             p9 = re.compile(match_type, re.I)
                                             while True:
                                                 if p6.search(lines[next_num]) and p7.search(lines[next_num]) and p8.search(lines[next_num]) and p9.search(lines[next_num]):
-                                                    packet_time = lines[next_num][3:18]
+                                                    S_packet_time = lines[next_num][3:18]
                                                     packet = lines[next_num]
-                                                    p = {'packet_time':packet_time,
+                                                    p = {'packet_time':S_packet_time,
                                                          'packet_type':match_type ,
                                                          'packet':packet}
                                                     lst.append(p)
