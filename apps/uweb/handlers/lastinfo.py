@@ -123,7 +123,8 @@ class LastInfoHandler(BaseHandler):
                             if int(query_time) == -1:
                                 pass
                             elif lastinfo_time - query_time > 1: # every 30 second, ternimal generate a location 
-                                endtime = int(car_info['timestamp'])-1 if location else int(lastinfo_time)-1 
+                                car_info = cars_info[track_tid]
+                                endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(lastinfo_time)-1 
                                 track  = self.db.query("SELECT id, latitude, longitude," 
                                                        "    clatitude, clongitude"
                                                        "  FROM T_LOCATION"
@@ -263,7 +264,7 @@ class LastInfoCorpHandler(BaseHandler):
                     #2: build track_info
                     track_info = []
                     if tid in track_tids:
-                        endtime = int(basic_info['timestamp'])-1 if location else int(current_time)-1
+                        endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else int(current_time)-1
                         points_track = self.db.query("SELECT id, latitude, longitude," 
                                                      "   clatitude, clongitude, type, timestamp"
                                                      "  FROM T_LOCATION"

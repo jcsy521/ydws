@@ -113,7 +113,7 @@ class LastPositionHandler(BaseHandler):
                         track_time = item['track_time']
                         track_key = get_track_key(track_tid)
                         self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
-                        car_info = res['track_tid']['car_info']
+                        car_info = res[track_tid]['car_info']
                         endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(lastposition_time)-1 
                         track_info = self.get_track_info(tid, int(track_time)+1, endtime)
                         res[track_tid]['track_info'] = track_info
@@ -124,7 +124,7 @@ class LastPositionHandler(BaseHandler):
                     track_time = item['track_time']
                     track_key = get_track_key(track_tid)
                     self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
-                    car_info = res['track_tid']['car_info']
+                    car_info = res[track_tid]['car_info']
                     endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(time.time())-1
                     track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
                     res[track_tid]['track_info'] = track_info
