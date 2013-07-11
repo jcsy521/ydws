@@ -84,6 +84,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		str_iconType = obj_currentCar.attr('icon_type'),	// icon_type
 		str_tid = str_type == 'current' ? str_currentTid : obj_carInfo.tid,
 		str_alias = obj_carInfo.alias,
+		n_carTimestamp = obj_carInfo.timestamp,
+		n_type = obj_carInfo.type, 
 		n_clon = obj_carInfo.clongitude,
 		n_clat = obj_carInfo.clatitude,
 		n_degree = obj_carInfo.degree,
@@ -92,7 +94,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_tempPoint = dlf.fn_createMapPoint(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
 		actionPolyline = null, // 轨迹线对象
-		str_actionTrack = '', // dlf.fn_getActionTrackStatus(str_tid),		// obj_carA.attr('actiontrack'), 
+		str_actionTrack =  dlf.fn_getActionTrackStatus(str_tid),
 		obj_selfMarker = obj_selfmarkers[str_tid],		// obj_carA.data('selfmarker'), 
 		n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
 		obj_selfPolyline = 	obj_polylines[str_tid],		// obj_carA.data('selfpolyline'),
@@ -108,11 +110,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_track = obj_carInfo.track,	// 是否开启追踪 0: 取消追踪 1: 开启追踪
 		str_track = n_track == 1 ? 'yes' : 'no';
 
-	if ( str_type != 'current' ) {
+	/*if ( str_type != 'current' ) {
 		obj_actionTrack[str_tid].status = str_track;
 	}	
 	str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
-	
+	*/
 	if ( !str_alias ) {	// 如果无alias ，从车辆列表获取
 		str_alias = obj_carA.next().html() || obj_carA.text();
 	}
@@ -147,7 +149,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 					obj_tempVal.val = [];
 					obj_selfmarkers[str_tid].track = 0;
 				}
-				if ( arr_trackPoints ) {	//  开启追踪后的track点
+				/*if ( arr_trackPoints ) {	//  开启追踪后的track点
 					var n_trackLength = arr_trackPoints.length;
 					
 					if ( n_trackLength > 0 ) {
@@ -156,9 +158,38 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 						}
 					}
 				}
+				obj_tempVal.val.push(obj_tempPoint);*/
+			}
+			/**
+			* kjj add 2013-07-09 
+			* get the gps point in track info 
+			*/
+			if ( arr_trackPoints ) {
+				for ( var x = 0; x < arr_trackPoints.length; x ++ ) {
+					var obj_tempTrackInfo = arr_trackPoints[x],
+						n_lat = obj_tempTrackInfo.clatitude,
+						n_lon = obj_tempTrackInfo.clongitude,
+						n_trackPointType = obj_tempTrackInfo.type,
+						n_trackTimestamp = obj_tempTrackInfo.timestamp,
+						obj_tempTrackPoint = dlf.fn_createMapPoint(n_lon, n_lat);
+					
+					if ( n_type == GPS_TYPE ) {
+						obj_tempVal.val.push(obj_tempTrackPoint);
+						if ( b_isCorpUser ) {	// 集团更新最新的gps点时间
+							obj_carsData[str_tid].timestamp = n_trackTimestamp;
+						} else {	// 个人更新最新的gps点时间
+							$('.j_carList').data('carsData')[str_tid].timestamp = n_trackTimestamp;
+						}
+					}
+				}
+			}
+			if ( n_type == 0 ) {
 				obj_tempVal.val.push(obj_tempPoint);
-			} else {	// 如果是个人开启追踪后 显示carinfo中的点
-				obj_tempVal.val.push(obj_tempPoint);
+				if ( b_isCorpUser ) {
+					obj_carsData[str_tid].timestamp = n_carTimestamp;
+				} else {
+					$('.j_carList').data('carsData')[str_tid].timestamp = n_carTimestamp;
+				}
 			}
 			if ( str_tempOldColor == '' ) {
 				str_tempOldColor = str_randomColor;
@@ -183,7 +214,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	actionPolyline = dlf.fn_createPolyline(obj_tempData.val, obj_polylineOptions, str_tid);
 	obj_polylines[str_tid] = actionPolyline;	// 存储开启追踪轨迹
 	
-	
+	if ( str_actionTrack == 'yes' && n_type == CELLID_TYPE ) { // kjj add 2013.7.9 开户追踪后,基站点及信息不进行显示
+		return;
+	}
 	if ( obj_selfMarker ) {
 		var obj_infowindow = obj_selfMarker.selfInfoWindow, 
 			b_infoWindow = obj_infowindow.getIsOpen(),

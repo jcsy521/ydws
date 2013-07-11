@@ -82,6 +82,8 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 		obj_selfmarkers = {};
 		
 		LASTINFOCACHE = 0; //轨迹查询后重新获取终端数据
+		dlf.fn_clearOpenTrackData();	// 初始化开启追踪的数据
+		$('.j_body').data('lastposition_time', -1);
 		if ( !dlf.fn_userType() ) {
 			// $('.j_carList').removeData('carsData');
 			dlf.fn_getCarData('first');	// 重新请求lastinfo
