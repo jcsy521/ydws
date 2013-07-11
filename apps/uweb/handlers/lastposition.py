@@ -52,9 +52,13 @@ class LastPositionHandler(BaseHandler):
 
                 # 2: get location 
                 location = QueryHelper.get_location_info(tid, self.db, self.redis)
-                locations = [location,]
-                locations = get_locations_with_clatlon(locations, self.db)
-                location = locations[0]
+                if location and not (location.clatitude or location.clongitude):
+                    location_key = get_location_key(str(tid))
+                    locations = [location,] 
+                    locations = get_locations_with_clatlon(locations, self.db) 
+                    location = locations[0]
+                    if location.clatitude and location.clongitude:
+                        self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
 
                 if location and location['name'] is None:
                     location['name'] = location['name'] if location['name'] else ''
@@ -109,7 +113,8 @@ class LastPositionHandler(BaseHandler):
                         track_time = item['track_time']
                         track_key = get_track_key(track_tid)
                         self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
-                        track_info = self.get_track_info(tid, int(track_time)+1, int(lastposition_time)-1)
+                        endtime = int(car_info['timestamp'])-1 if location else int(lastposition_time)-1 
+                        track_info = self.get_track_info(tid, int(track_time)+1, endtime)
                         res[track_tid]['track_info'] = track_info
             else: 
                 usable = 1
@@ -118,7 +123,8 @@ class LastPositionHandler(BaseHandler):
                     track_time = item['track_time']
                     track_key = get_track_key(track_tid)
                     self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
-                    track_info = self.get_track_info(track_tid, int(track_time)+1, int(time.time())-1)
+                    endtime = int(car_info['timestamp'])-1 if location else int(time.time())-1
+                    track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
                     res[track_tid]['track_info'] = track_info
             
             self.write_ret(status, 
@@ -144,12 +150,13 @@ class LastPositionHandler(BaseHandler):
                               tid, begintime, endtime)
         track = get_locations_with_clatlon(track, self.db)
         for t in track: 
-            point = dict(latitude=t['latitude'],
-                         longitude=t['longitude'],
-                         clatitude=t['clatitude'],
-                         clongitude=t['clongitude'],
-                         type=t['type'],
-                         timestamp=t['timestamp'])
+            if t['clatitude'] and t['clongitude']:
+                point = dict(latitude=t['latitude'],
+                             longitude=t['longitude'],
+                             clatitude=t['clatitude'],
+                             clongitude=t['clongitude'],
+                             type=t['type'],
+                             timestamp=t['timestamp'])
             track_info.append(point)
 
         return track_info

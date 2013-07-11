@@ -194,6 +194,12 @@ class IOSHandler(BaseHandler, LoginMixin):
 
                 # 2: get location
                 location = QueryHelper.get_location_info(tid, self.db, self.redis)
+                if location and not (location.clatitude or location.clongitude):
+                    location_key = get_location_key(str(tid))
+                    locations = [location,] 
+                    locations = get_locations_with_clatlon(locations, self.db) 
+                    location = locations[0]
+                    self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
 
                 if location and location['name'] is None:
                     location['name'] = ''
@@ -317,9 +323,12 @@ class AndroidHandler(BaseHandler, LoginMixin):
 
                 # 2: get location
                 location = QueryHelper.get_location_info(tid, self.db, self.redis)
-                locations = [location,] 
-                locations = get_locations_with_clatlon(locations, self.db) 
-                location = locations[0]
+                if location and not (location.clatitude or location.clongitude):
+                    location_key = get_location_key(str(tid))
+                    locations = [location,] 
+                    locations = get_locations_with_clatlon(locations, self.db) 
+                    location = locations[0]
+                    self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
 
                 if location and location['name'] is None:
                     location['name'] = ''
