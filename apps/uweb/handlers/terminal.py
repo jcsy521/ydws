@@ -207,47 +207,26 @@ class TerminalHandler(BaseHandler, TerminalMixin):
 
 class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
-    #@authenticated
-    #@tornado.web.removeslash
-    #def get(self):
-    #    """Show information of a terminal.
-    #    """
-    #    status = ErrorCode.SUCCESS
-    #    try:
-    #        tid = self.get_argument('tid','')
-    #        logging.info("[UWEB] corp terminal request: %s, cid: %s", tid, self.current_user.cid)
-    #        terminal = self.db.get("SELECT tid, mobile, group_id, owner_mobile, begintime, endtime"
-    #                               "  FROM T_TERMINAL_INFO"
-    #                               "  WHERE tid = %s"
-    #                               "    AND service_status = %s",
-    #                               tid, UWEB.SERVICE_STATUS.ON)
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """Show information of a terminal.
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            terminals = QueryHelper.get_terminals_by_cid(self.current_user.cid, self.db)
+            res=[]
+            for terminal in terminals:
+                res.append(dict(tid=terminal.tid,
+                                tmobile=terminal.mobile))
 
-    #        if not terminal:
-    #            status = ErrorCode.LOGIN_AGAIN
-    #            logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
-    #            self.write_ret(status)
-    #            return
-    #        car = self.db.get("SELECT cnum, type, color, brand"
-    #                          "  FROM T_CAR"
-    #                          "  WHERE tid = %s", tid)
-    #        umobile = terminal.owner_mobile if terminal.owner_mobile != self.current_user.cid else ''
-    #        res = DotDict(tmobile=terminal.mobile,
-    #                      group_id=terminal.group_id,
-    #                      umobile=umobile,
-    #                      begintime=terminal.begintime,
-    #                      endtime=terminal.endtime,
-    #                      cnum=car.cnum,
-    #                      ctype=car.type,
-    #                      ccolor=car.color, 
-    #                      cbrand=car.brand)
-    #        self.write_ret(status,
-    #                       dict_=dict(res=res))
-    #    except Exception as e:
-    #        logging.exception("[UWEB] cid:%s, tid:%s get terminal info failed. Exception: %s", 
-    #                          self.current_user.cid, tid, e.args)
-    #        status = ErrorCode.SERVER_BUSY
-    #        self.write_ret(status)
-
+            self.write_ret(status,
+                           dict_=dict(res=res))
+        except Exception as e:
+            logging.exception("[UWEB] cid:%s, tid:%s get terminal info failed. Exception: %s", 
+                              self.current_user.cid, tid, e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
 
     @authenticated
     @tornado.web.removeslash

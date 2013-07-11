@@ -282,3 +282,13 @@ def days_of_month(year="2012",month="11"):
     days = datetime.datetime.fromtimestamp(e_epoch).day
     return days
 
+def get_date_from_utc(timestamp):
+    """Get a readable data from utc time.
+    @params: timestamp, utc, in second, for instance, 1373278897
+    @return: year, 
+             month, 
+             day
+    """
+    date = time.localtime(timestamp)
+    year, month, day = date.tm_year, date.tm_mon, date.tm_mday
+    return year, month, day

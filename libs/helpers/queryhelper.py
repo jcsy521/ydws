@@ -225,6 +225,13 @@ class QueryHelper(object):
         return int(login_time)
 
     @staticmethod
+    def get_terminals_by_cid(cid, db):
+        terminals = db.query("SELECT tt.mobile, tt.owner_mobile, tt.tid FROM T_TERMINAL_INFO as tt, T_GROUP as tg, T_CORP as tc" 
+                             "  WHERE tt.service_status = 1 AND tc.cid = %s AND tc.cid = tg.corp_id AND tt.group_id = tg.id", 
+                             cid)
+        return terminals
+
+    @staticmethod
     def get_location_info(tid, db, redis):
         location_key = get_location_key(str(tid))
         location = redis.getvalue(location_key)

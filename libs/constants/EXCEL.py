@@ -18,10 +18,17 @@ EVENT_SINGLE_STATISTIC_HEADER = (u"时间",
                                  u"通讯异常",
                                  u"电量报警")
 
-MILEAGE_STATISTIC_FILE_NAME = u'里程统计'
-MILEAGE_STATISTIC_SHEET = u'里程统计'
-MILEAGE_STATISTIC_HEADER = (u"定位器", 
-                            u"里程（公里）")
+MILEAGE_STATISTIC_FILE_NAME_ALL = u'里程统计'
+MILEAGE_STATISTIC_SHEET_ALL = u'里程统计'
+MILEAGE_STATISTIC_HEADER_ALL = (u"序号", 
+                                u"定位器", 
+                                u"里程（公里）")
+
+MILEAGE_STATISTIC_FILE_NAME_SINGLE = u'里程统计'
+MILEAGE_STATISTIC_SHEET_SINGLE = u'里程统计'
+MILEAGE_STATISTIC_HEADER_SINGLE = (u"序号", 
+                                   u"日期", 
+                                   u"里程（公里）")
 
 MILEAGE_SINGLE_MONTHLY_STATISTIC_FILE_NAME = u'里程统计'
 MILEAGE_SINGLE_MONTHLY_STATISTIC_SHEET = u'里程统计'
