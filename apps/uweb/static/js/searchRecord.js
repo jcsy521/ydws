@@ -50,6 +50,10 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
+		if ( str_who == 'mileage' ) {
+			$('#'+ str_who +'Wrapper .j_chart').hide();	// 查看统计图链接隐藏
+			dlf.fn_getAllTerminals();	// 加载所有定位器
+		}
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'operator' ) {
 		obj_tableHeader.hide();
@@ -147,7 +151,7 @@ window.dlf.fn_setSearchRecord = function(str_who) {
 		dlf.fn_downloadData(str_who);
 	});
 	
-	if ( str_who == 'singleEvent' || str_who == 'singleMileage' ) {
+	if ( str_who == 'singleEvent' || str_who == 'singleMileage' || str_who == 'mileage' ) {
 		/**
 		* 查看统计图 : 统计图事件
 		*/
@@ -171,6 +175,16 @@ window.dlf.fn_setSearchRecord = function(str_who) {
 				$('.j_iframe').hide();
 			}
 		});
+		$('#mileageChart').dialog({
+			autoOpen: false,
+			width: 630,
+			height: 480,
+			resizable: false,	// 不可变大小
+			modal: true,
+			close: function() {
+				$('.j_iframe').hide();
+			}
+		});
 		// 告警统计图
 		$('#singleEventWrapper .j_chart').unbind('click').bind('click', function() {
 			dlf.fn_showIframe('singleEvent');
@@ -178,8 +192,13 @@ window.dlf.fn_setSearchRecord = function(str_who) {
 		});
 		// 里程统计图
 		$('#singleMileageWrapper .j_chart').unbind('click').bind('click', function() {
-			dlf.fn_showIframe('singleEvent');
+			dlf.fn_showIframe('singleMileage');
 			$('#singleMileageChart').dialog('open');
+		});
+		// 单个里程统计图
+		$('#mileageWrapper .j_chart').unbind('click').bind('click', function() {
+			dlf.fn_showIframe('mileage');
+			$('#mileageChart').dialog('open');
 		});
 	}
 }
@@ -228,6 +247,7 @@ window.dlf.fn_searchData = function (str_who) {
 	var obj_conditionData = {}, 
 		str_getDataUrl = '', 
 		arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
+		str_currentTid = $('.j_currentCar').attr('tid'),
 		n_tidsNums = arr_leafNodes.length;
 	
 	switch (str_who) {
@@ -302,6 +322,7 @@ window.dlf.fn_searchData = function (str_who) {
 				n_endTime = $('#mileageEndTime').val() + ' 23:59:59', // 用户选择时间
 				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
+				str_tid = $('#selectTerminals').val(),					// 选中终端tid
 				str_tids = '';
 			
 			obj_conditionData = {
@@ -309,17 +330,17 @@ window.dlf.fn_searchData = function (str_who) {
 							'end_time': n_finishTime, 
 							'pagenum': n_dwRecordPageNum, 
 							'pagecnt': n_dwRecordPageCnt, 
-							'tids': ''
+							'tids': str_tid
 						};	
 			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
 				return;
 			}
-			if ( n_tidsNums <= 0 ) {
+			/*if ( n_tidsNums <= 0 ) {
 				dlf.fn_jNotifyMessage('请在左侧勾选定位器。', 'message', false, 6000);
 				return;	
 			}
-			obj_conditionData.tids = dlf.fn_searchCheckTerminal();
+			obj_conditionData.tids = dlf.fn_searchCheckTerminal();*/
 			break;
 		case 'onlineStatics': // 在线统计
 			str_getDataUrl = ONLINE_URL;
@@ -439,8 +460,10 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
 			str_tbodyText = '';
-							// 下载按钮显示
-		$('#'+ str_who +'Wrapper .j_chart').css('display', 'inline-block'); // 显示查看统计图连接
+		
+		if ( str_who != 'mileage' ) {
+			$('#'+ str_who +'Wrapper .j_chart').css('display', 'inline-block'); // 显示查看统计图连接
+		}
 		
 		obj_searchHeader.nextAll().remove();	//清除页面数据
 		$('.j_'+ str_who +'Foot').empty();	// 清空foot数据
@@ -535,6 +558,8 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				obj_infoPushEle.hide();
 				obj_infoPushTipsEle.show();	// infoPush没有查询到乘客信息提示框隐藏
 				return;
+			} else if ( str_who == 'region' ) {
+				
 			} else {
 				obj_searchHeader.hide();
 			}
@@ -627,7 +652,8 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		n_pagecnt = obj_reaData.pagecnt,	
 		str_tbodyText = '',
 		obj_tableHeader = $('#'+ str_who +'TableHeader'),	// 查询结果表头
-		str_tfoot = '<tr><td>总计：</td>',
+		str_tfoot = '<tr><td>总计：</td>', 
+		obj_tfoot = $('.j_'+ str_who +'Foot'),
 		str_hash = obj_reaData.hash_;	// 下载用的参数
 	
 	for( var i = 0; i < n_searchLen; i++ ) {	
@@ -721,9 +747,18 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_tbodyText+= '</tr>';
 				break;
 			case 'mileage': // 里程 统计
+				var obj_aliasTH = $('.j_mileageTH'),
+					str_th = '定位器';
+				
+				if ( $('#selectTerminals').val() != '' ) {
+					str_th = '日期';
+					$('#'+ str_who +'Wrapper .j_chart').css('display', 'inline-block'); // 显示查看统计图连接
+				}
+				obj_aliasTH.html(str_th);
 				obj_tableHeader.show();
 				str_tbodyText+= '<tr>';
-				str_tbodyText+= '<td>'+ obj_tempData.alias +'</td>';	// 车牌号
+				str_tbodyText+= '<td>'+ obj_tempData.seq +'</td>';	// 序列号				
+				str_tbodyText+= '<td>'+ obj_tempData.alias +'</td>';	// 车牌号 or 日期
 				str_tbodyText+= '<td>'+ obj_tempData.distance +'</td>';	//里程 
 				str_tbodyText+= '</tr>';
 				break;
@@ -804,8 +839,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	obj_searchHeader.after(str_tbodyText);
 	
 	if ( str_who == 'singleMileage' || str_who == 'singleEvent' ) {
-		var obj_tfoot = $('.j_'+ str_who +'Foot'),
-			obj_theadTH = $('.j_' + str_who + 'TH'),	// 表头时间TH
+		var	obj_theadTH = $('.j_' + str_who + 'TH'),	// 表头时间TH
 			n_type = parseInt($('#'+ str_who +'Type').val()),
 			obj_content = $('.j_' + str_who + 'Content'),	// 内容区域
 			obj_month = $('#'+ str_who +'Month'),
@@ -874,6 +908,30 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		obj_theadTH.html(str_th);
 		arr_series.push(obj_chart);
 		fn_initChart(arr_series, arr_categories, str_container, str_unit, str_who);	// 初始化chart图
+	} else if ( str_who == 'mileage' ) {	// 如果是里程统计 选择单个终端的统计图
+		// todo 显示统计图 和总计
+		var obj_foot = $('.j_mileageFoot'),
+			str_alias = $('#selectTerminals').val(),	// 当前定位器tmobile
+			obj_chart = {'name': str_alias, 'data': arr_graphic}, 
+			arr_categories = [],
+			b_isLastPage = n_dwRecordPageNum != n_pagecnt-1,
+			arr_series = [],// 统计数据
+			str_foot = '<tr><td>总计：</td><td colspan="2">';
+
+		if ( $('#selectTerminals').val() != '' ) {	// 只有单个定位器里程统计才显示统计图
+			for ( var i = 0; i < arr_graphic.length; i++ ) {
+				arr_categories.push(i+1);
+			}
+			arr_series.push(obj_chart);
+			if ( !b_isLastPage ) {
+				for ( var j = 0; j < obj_counts.length; j++ ) {
+					str_tfoot += '<td colspan="2">'+ obj_counts[j] + '</td>';
+				}
+				str_tfoot += '</tr>';
+				obj_tfoot.empty().append(str_tfoot).show();
+			}
+			fn_initChart(arr_series, arr_categories, 'mileageChart', '公里', str_who);	// 初始化chart图
+		}
 	} else if ( str_who == 'infoPush' ) {
 		$('.j_infoPushChecks').html(str_tbodyText);
 		
@@ -904,7 +962,8 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 */
 window.dlf.fn_initTimeControl = function(str_who) {
 	
-	var n_currentDate = new Date().getTime();
+	var obj_date = new Date(),
+		n_currentDate = obj_date.getTime();
 		str_nowDate = dlf.fn_changeNumToDateString(n_currentDate, 'ymd'), 
 		str_inputStartTime = str_who+'StartTime', 
 		str_inputEndTime = str_who+'EndTime',
@@ -914,9 +973,15 @@ window.dlf.fn_initTimeControl = function(str_who) {
 		obj_stTime = $('#'+str_inputStartTime), 
 		obj_endTime = $('#'+str_inputEndTime);
 	
-	if ( str_who == 'onlineStatics' || str_who == 'mileage' ) {
+	if ( str_who == 'onlineStatics' ) {
 		str_tempEndTime = str_tempBeginTime = str_nowDate;
 		str_timepickerFormat = 'yyyy-MM-dd';
+	}
+	if ( str_who == 'mileage' ) {
+		var str_tempMonth = obj_date.getMonth() + 1;
+		
+		
+		str_tempBeginTime = obj_date.getFullYear() + '-' +(str_tempMonth<10 ? '0'+str_tempMonth : str_tempMonth) + '-01 ' + '00:00:00' ;
 	}
 	
 	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
@@ -950,6 +1015,31 @@ window.dlf.fn_initTimeControl = function(str_who) {
 		});
 	}).val(str_tempEndTime);
 	
+}
+
+/**
+* 2013-07-10 kjj create
+* get all of the terminals in corp
+*/
+window.dlf.fn_getAllTerminals = function() {
+	var obj_selectTerminals = $('#selectTerminals');	// the container of terminals
+	
+	obj_selectTerminals.empty(); 	// clear the container
+	obj_selectTerminals.append('<option value="">全部</option>');
+	$.get_(TERMINALCORP_URL, '', function(data) {
+		if ( data.status == 0 ) {
+			var arr_res = data.res,
+				str_options = '';
+			
+			for ( var i = 0; i < arr_res.length; i++ ) {
+				str_options = '<option value="'+ arr_res[i].tid +'">'+ arr_res[i].tmobile +'</option>';
+				obj_selectTerminals.append(str_options);
+			}
+		} else {
+			dlf.fn_jNotifyMessage('获取定位器信息失败。', 'message', false, 3000);
+			return;
+		}
+	});
 }
 
 /**
@@ -1004,12 +1094,25 @@ function fn_generateSelectOption(str_type, n_searchYear) {
 */
 function fn_initChart(arr_series, arr_categories, str_container, str_unit, str_who) {
 	var str_title = $('#'+ str_who +'Year').val(),
-		str_name = str_who == 'singleEvent' ? '告警' : '里程';
+		str_name = str_who == 'singleEvent' ? '告警' : '里程',
+		str_x = '时间';
 	
-	if ( !$('#'+ str_who +'Month').is(':hidden') ) {
-		str_title += '年'+ $('#'+ str_who +'Month').val() +'月份'+ str_name +'统计图' 
+	if ( str_who == 'mileage' ) {
+		var str_tempStartDate = $('#mileageStartTime').val(),
+			str_tempEndDate = $('#mileageEndTime').val(),
+			arr_startTime = str_tempStartDate.split(' '), 
+            arr_startYMD = arr_startTime[0].split('-'),
+			arr_endTime = str_tempEndDate.split(' '), 
+            arr_endYMD = arr_endTime[0].split('-');
+
+		str_x = '序号';
+		str_title = arr_startYMD[0] + '-' + arr_startYMD[1] + '-' + arr_startYMD[2] + '到' + arr_endYMD[0] + '-' + arr_endYMD[1] + '-' + arr_endYMD[2] + '里程统计图';
 	} else {
-		str_title += '年'+ str_name +'统计图' 
+		if ( !$('#'+ str_who +'Month').is(':hidden') ) {
+			str_title += '年'+ $('#'+ str_who +'Month').val() +'月份'+ str_name +'统计图' 
+		} else {
+			str_title += '年'+ str_name +'统计图' 
+		}
 	}
 	// 初始化统计图对象
 	chart = new Highcharts.Chart({
@@ -1026,7 +1129,7 @@ function fn_initChart(arr_series, arr_categories, str_container, str_unit, str_w
 				xAxis: {
 					categories: arr_categories,
 					title: {
-						text: '时间'
+						text: str_x
 					}
 				},
 				yAxis: {

@@ -260,6 +260,13 @@
 									<label for="icon_type3" title="其他"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon" /></label>
 								</td>
 							</tr>
+							<!--<tr>
+								<td class="corp_terminalTdL" > </td>
+								<td>
+									<input type="checkbox" id="t_corp_login" name="t_corp_login"  />
+									<label for="t_corp_login" >是否允许个人用户登录</label>
+								</td>
+							</tr>-->
 						</tbody>
 					</table>
 				</fieldset>
@@ -930,31 +937,44 @@
 		<!--<div class="wrapperTitle mileageTitle">
 			<span class="close j_close" title="关闭窗口" who="mileage"></span>
 		</div>-->
-		<div class="wrapperContent mileageContent j_wrapperContent">
+		<div class="wrapperContent mileageContent">
 			<table class="mileageCondition">
 				<tr>
-					<td colspan="3" class="title">
+					<td colspan="5" class="title">
 						里程统计查询
 					</td>
 				</tr>
 				<tr>
+					<td width="200px">
+						定位器：
+						<select id="selectTerminals">
+							<option value="">全部</option>
+							<option value="ACB2012777">15919176710</option>
+						</select>
+					</td>
 					<td width="442px">
 						查询时间：<input type="text" id="mileageStartTime"  class="time" />
 						至 <input type="text" id="mileageEndTime"  class="time" />
 					</td>
-					<td width="150px"><span id="mileage_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
+					<td><span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover" title="搜索"></span></td>
 					<td>
 						<a id="mileage_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
+					</td>
+					<td>
+						<a href="#" class="j_chart hide chartBtn">点击查看统计图</a>
 					</td>
 				</tr>
 			</table>
 			<table class="dataTable mileageTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="mileageTableHeader">
-						<th class="mileageAlias">定位器</th>
+						<th >序号</th>
+						<th class="mileageAlias j_mileageTH">定位器</th>
 						<th class="mileageDist">里程（公里）</th>
 					</tr>
 				</tbody>
+				<tfoot class="j_mileageFoot hide">
+				</tfoot>
 			</table>
 			<!-- 分页 -->
 			<div id="mileagePage" class="hide">
@@ -964,6 +984,9 @@
 			</div>
 		</div>
 	</div>
+	
+	<div id="mileageChart" class="hide" title="里程统计图"></div>
+	
 	<!-- 单个定位器 里程统计 查询 -->
 	<div id="singleMileageWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle mileageTitle">
@@ -1225,6 +1248,7 @@
 			<span title="收起" class="hideOrShowContent min j_hosBtn" id="region_hos"></span>
 		</div>
 		<div id="regionContent" class="wrapperContent regionContent">
+			<label id="regionForTerminal">定位器：</label>
 			<a id="regionCreateBtn" href="#">新增围栏</a>
 			<table id="regionTable" class="dataTable regionTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>

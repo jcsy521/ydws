@@ -346,7 +346,7 @@ body {
 .menu, .menu li {
 	float: left;
 }
-.corpMapObj, #eventSearchContent, .operatorContent .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent {
+.corpMapObj, #eventSearchContent, .operatorContent, .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent {
 	min-width: 1151px;
 	/*min-height: 463px;*/
 	min-height: 566px;
@@ -2688,7 +2688,7 @@ legend {
 	width: 800px;
 }
 .eventSearchContent td, .mileageContent td, .operatorContent td, .onlineStaticsContent td {
-	height: 40px;
+	height: 38px;
 }
 .singleMileageTable td, .singleEventContent td {
 	height: 22px;
@@ -2722,8 +2722,11 @@ legend {
 .eventSearchCondition, .mileageCondition, .operatorConditions, .onlineStaticsCondition, .passengerConditions {
 	margin: 0 auto;
 }
-.mileageCondition, .operatorCondition, .onlineStaticsCondition, .passengerConditions {
+.onlineStaticsCondition, .passengerConditions {
 	width: 754px;
+}
+.mileageCondition, .operatorCondition {
+	width: 900px;
 }
 .onlineStaticsCondition .title, .mileageCondition .title {
 	color: #69B2E9;
@@ -2736,9 +2739,13 @@ legend {
 	width: 92%;
 }
 .eventSearchCondition select, .mileageCondition select, .singleEventCondition select, .singleMileageCondition select {	/* search conditions */
-	height: 24px;
-	height: 21px;
+	height: 23px;
+	padding-top: 1px;
     width: 146px;
+}
+.mileageCondition option {
+	height: 20px;
+	background-color: #FFF;
 }
 .eventBtn {
 	background: url('/static/images/cx.png') no-repeat;
@@ -2984,7 +2991,7 @@ legend {
 	display: inline-block;
     cursor: pointer;
     height: 23px;
-    left: 436px;
+    left: 272px;
     position: relative;
     top: 14px;
 }
@@ -3226,5 +3233,15 @@ legend {
 }
 .paddingleft20 {
 	padding-left: 20px;
+}
+.marginleft0 {
+	margin-left: 0px;
+}
+#regionForTerminal {
+    display: inline-block;
+    left: 26px;
+    position: relative;
+    top: 14px;
+    width: 160px;
 }
 /*web css end*/
