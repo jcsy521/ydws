@@ -455,13 +455,16 @@ class TerminalStatistic(object):
             else:
                 offline_cause =  u'通讯异常'
                 ws.write(i, 5, offline_cause, abnormal_style)
+                if result['sim_status'] == u'成功': 
+                    ws.write(i, 9, safe_unicode(result['sim_status']), online_style)
+                else:
+                    ws.write(i, 9, safe_unicode(result['sim_status']), abnormal_style)
             d,m = divmod(result['offline_period'],60*60)
             count = d+1 if m else d
             ws.write(i, 6, count)
             terminal = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
 
             ws.write(i, 7, u'新增', add_style)
-            ws.write(i, 9, safe_unicode(result['sim_status']), center_style)
             ws.write(i, 10, safe_unicode(terminal['remark']), center_style)
             start_line += 1
 
