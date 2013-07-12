@@ -123,6 +123,7 @@ class PacketTask(object):
                                    location['dev_id'])
                 if corp and corp.mobile:
                     terminal_time = get_terminal_time(int(location.gps_time))
+                    terminal_time = safe_unicode(terminal_time)
                     if region_status == EVENTER.CATEGORY.REGION_OUT:
                         if location.name:
                             sms = SMSCode.SMS_REGION_OUT % (terminal.mobile,
@@ -287,6 +288,7 @@ class PacketTask(object):
         if sms_option == UWEB.SMS_OPTION.SEND:
             name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
             terminal_time = get_terminal_time(int(report.gps_time))
+            terminal_time = safe_unicode(terminal_time)
 
             report_name = report.name
             if not report_name:

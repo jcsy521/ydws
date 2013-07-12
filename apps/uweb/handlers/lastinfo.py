@@ -171,7 +171,7 @@ class LastInfoCorpHandler(BaseHandler):
     def post(self):
         try:
             data = DotDict(json_decode(self.request.body))
-            track_lst = data.get('track_list', None)
+            track_lst = data.get('track_lst', [])
             current_time = int(time.time()) 
             lastinfo_time = data.get('lastinfo_time') 
             #NOTE: first time, lastinfo_time = -1, set the lsstinfo_time as current_time 
@@ -194,10 +194,6 @@ class LastInfoCorpHandler(BaseHandler):
                 gids = [g.group_id for g in groups]
                 groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE id IN %s", tuple(DUMMY_IDS + gids))
  
-            track_tids = []
-            if track_lst:
-                track_tids = [track['track_tid'] for track in track_lst]
-
             res = DotDict(name=corp.name if corp else '',
                           cid=corp.cid if corp else '',
                           online=0,
@@ -263,29 +259,31 @@ class LastInfoCorpHandler(BaseHandler):
 
                     #2: build track_info
                     track_info = []
-                    if tid in track_tids:
-                        endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else int(current_time)-1
-                        points_track = self.db.query("SELECT id, latitude, longitude," 
-                                                     "   clatitude, clongitude, type, timestamp"
-                                                     "  FROM T_LOCATION"
-                                                     "  WHERE tid = %s"
-                                                     "    AND NOT (latitude = 0 OR longitude = 0)"
-                                                     "    AND (timestamp BETWEEN %s AND %s)"
-                                                     "    AND type = 0"
-                                                     "    ORDER BY timestamp",
-                                                     tid,
-                                                     int(track_lst[tid]['track_time'])+1, endtime)
+                    for item in track_lst:
+                        if tid == item['track_tid']:
+                            endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else int(current_time)-1
+                            points_track = self.db.query("SELECT id, latitude, longitude," 
+                                                         "   clatitude, clongitude, type, timestamp"
+                                                         "  FROM T_LOCATION"
+                                                         "  WHERE tid = %s"
+                                                         "    AND NOT (latitude = 0 OR longitude = 0)"
+                                                         "    AND (timestamp BETWEEN %s AND %s)"
+                                                         "    AND type = 0"
+                                                         "    ORDER BY timestamp",
+                                                         tid,
+                                                         int(item['track_time'])+1, endtime)
 
-                        points_track = get_locations_with_clatlon(points_track, self.db)
-                        for point in points_track: 
-                            if point['clatitude'] and point['clongitude']:
-                                t = dict(latitude=point['latitude'],
-                                         longitude=point['longitude'],
-                                         clatitude=point['clatitude'],
-                                         clongitude=point['clongitude'],
-                                         type=point['type'],
-                                         timestamp=point['timestamp'])
-                                track_info.append(t)
+                            points_track = get_locations_with_clatlon(points_track, self.db)
+                            for point in points_track: 
+                                if point['clatitude'] and point['clongitude']:
+                                    t = dict(latitude=point['latitude'],
+                                             longitude=point['longitude'],
+                                             clatitude=point['clatitude'],
+                                             clongitude=point['clongitude'],
+                                             type=point['type'],
+                                             timestamp=point['timestamp'])
+                                    track_info.append(t)
+                            break
 
                     #3: build trace_info
                     trace_info = []

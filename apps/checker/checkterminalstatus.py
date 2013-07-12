@@ -15,7 +15,7 @@ from utils.myredis import MyRedis
 from utils.dotdict import DotDict
 from utils.misc import get_offline_lq_key, get_lq_interval_key,\
      get_terminal_sessionID_key, get_terminal_info_key, get_terminal_address_key,\
-     get_terminal_time
+     get_terminal_time, safe_unicode
 from constants import GATEWAY, EVENTER, UWEB, SMS
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
@@ -99,6 +99,7 @@ class CheckTerminalStatus(object):
             logging.info("sms option: %s of %s", sms_option, user.owner_mobile)
             if sms_option and sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
                 current_time = get_terminal_time(timestamp) 
+                current_time = safe_unicode(current_time)
                 tname = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                 sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
                 SMSHelper.send(user.owner_mobile, sms)
