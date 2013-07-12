@@ -66,7 +66,9 @@ class MessageHandler(BaseHandler):
                     self.write_ret(status)              
                                    
                 elif sms_type == 'DEL':
-                    delete_terminal(tmobile,self.acbdb,self.redis,del_user=True)
+                    terminal = self.acbdb.get('SELECT tid FROM T_TERMINAL_INFO WHERE mobile=%s', tmobile)
+                    if terminal:
+                        delete_terminal(terminal.tid,self.acbdb,self.redis,del_user=False)
                     self.write_ret(status)
                                                          
                 elif sms_type == 'DOMAIN':
@@ -74,6 +76,7 @@ class MessageHandler(BaseHandler):
                     info = self.acbdb.get('SELECT * FROM T_TERMINAL_INFO WHERE mobile=%s', tmobile)
                     if info:
                         self.acbdb.execute('UPDATE T_TERMINAL_INFO SET domain=%s WHERE mobile=%s', ip, tmobile)                
+                        SMSHelper.send_to_terminal(tmobile,ip)
                         self.write_ret(status)
                     else:
                         status = ErrorCode.TERMINAL_NOT_EXISTED
