@@ -470,8 +470,9 @@ class IOSLogoutHandler(BaseHandler):
                              self.current_user.uid, tid)
 
             # 2: remove ios from push_list 
-            ios_push_list_key = get_ios_push_list(self.current_user.uid) 
+            ios_push_list_key = get_ios_push_list_key(self.current_user.uid) 
             ios_push_list = self.redis.getvalue(ios_push_list_key) 
+            ios_push_list = ios_push_list if ios_push_list else []
             if iosid in ios_push_list: 
                 ios_push_list.remove(iosid) 
                 self.redis.set(ios_push_list_key, ios_push_list) 
@@ -529,6 +530,7 @@ class AndroidLogoutHandler(BaseHandler):
             # 2: remove devid from android_push_list 
             android_push_list_key = get_android_push_list_key(self.current_user.uid) 
             android_push_list = self.redis.getvalue(android_push_list_key) 
+            android_push_list = android_push_list if android_push_list else []
             if devid in android_push_list: 
                 android_push_list.remove(devid) 
                 self.redis.set(android_push_list_key, android_push_list) 
