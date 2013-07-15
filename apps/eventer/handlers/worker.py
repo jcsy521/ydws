@@ -29,7 +29,7 @@ class Worker(object):
         self.thread = None
         self.db = None
         self.is_alive = False
-        self.mobiles = [13693675352, 15901258591]
+        self.mobiles = [13693675352, 15901258591, 18310505991]
         self.emails = ['boliang.guan@dbjtech.com',
                        'zhaoxia.guo@dbjtech.com',
                        'xiaolei.jia@dbjtech.com']
@@ -69,9 +69,9 @@ class Worker(object):
             try:
                 packet = self.queue.get(True, self.BLOCK_TIMEOUT)
                 queue_len = self.queue.qsize()
-                logging.info("[EVENTER] current queue size :%s", queue_len)
                 if queue_len >= 30 and (int(time.time()) > send_time):
                     send_time = int(time.time()) + 60*3
+                    logging.info("[EVENTER] current queue size :%s, current time:%s, send time:%s", queue_len, int(time.time()), send_time)
                     content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
                     for mobile in self.mobiles:
                         SMSHelper.send(mobile, content)
