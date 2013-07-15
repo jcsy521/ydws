@@ -154,6 +154,8 @@ def get_track_key(dev_id):
     return str("track:%s" % dev_id) 
 
 def get_terminal_time(timestamp):
+    """Format a readable time like 2013-10-10，10:10:10 
+    """
     terminal_time = ""
     try:
         from datetime import datetime
@@ -173,7 +175,8 @@ def get_today_last_month():
     return back_most
 	
 def list_to_str(list):
-
+    """convert a list to a string.
+    """
     s = ''
     for i in list:
         s += str(i)
@@ -181,12 +184,16 @@ def list_to_str(list):
     return s
 
 def utc_to_date(timestamp):
+    """Get a readable date through a utc time.
+    """
     if not timestamp:
         return ''
     else:
         return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(timestamp))
 
 def seconds_to_label(seconds):
+    """Get a label like '1天4时20分' through some seconds.
+    """
     label = ''
     if not seconds:
         pass
@@ -206,6 +213,8 @@ def seconds_to_label(seconds):
     return label
 
 def get_sessionID():
+    """Get a random str with lengh 8 as a sessionID.
+    """
     sessionID = ''
     base_str = 'abcdefghijklmnopqrstuvwxyz0123456789'
     for i in range(8):
@@ -215,6 +224,8 @@ def get_sessionID():
     return sessionID
 
 def get_psd():
+    """Get a random digit with lengh 6 as a password.
+    """
     psd = ''
     base_str = '0123456789'
     for i in range(6):
@@ -287,8 +298,16 @@ def get_date_from_utc(timestamp):
     @params: timestamp, utc, in second, for instance, 1373278897
     @return: year, 
              month, 
-             day
+             day,
+             hour,
+             minute,
+             second,
     """
     date = time.localtime(timestamp)
-    year, month, day = date.tm_year, date.tm_mon, date.tm_mday
-    return year, month, day
+    year, month, day, hour, minute, second = date.tm_year, date.tm_mon, date.tm_mday, date.tm_hour, date.tm_min, date.tm_sec
+    return DotDict(year=year, 
+                   month=month, 
+                   day=day, 
+                   hour=hour,
+                   minute=minute, 
+                   second=second)
