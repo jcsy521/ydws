@@ -232,12 +232,23 @@ class IOSHandler(BaseHandler, LoginMixin):
                 cars_info.update(car_dct)
 
             # uid --> iosid_push_list 
+            # check iosid whether exists in a old ios_push_list
+            old_ios_push_list_key = self.redis.get(iosid)
+            if old_ios_push_list_key:
+                old_ios_push_list = self.redis.getvalue(old_ios_push_list_key)
+                if old_ios_push_list and (iosid in old_ios_push_list):
+                    logging.info("[UWEB] iosid:%s has existed in a old_ios_push_list: %s, so remove iosid from the list.", 
+                                 iosid, old_ios_push_list)
+                    old_ios_push_list.remove(iosid)
+                    self.redis.set(old_ios_push_list_key, old_ios_push_list)
+
             ios_push_list_key = get_ios_push_list_key(uid) 
             ios_push_list = self.redis.getvalue(ios_push_list_key)
             ios_push_list = ios_push_list if ios_push_list else []
             if iosid not in ios_push_list: 
                 ios_push_list.append(iosid)
             self.redis.set(ios_push_list_key, ios_push_list)
+            self.redis.set(iosid, ios_push_list_key)
             ios_badge_key = get_ios_badge_key(iosid) 
             self.redis.setvalue(ios_badge_key, 0, UWEB.IOS_ID_INTERVAL)
             logging.info("[UWEB] username %s, ios_push_lst: %s", username, ios_push_list)
@@ -369,13 +380,24 @@ class AndroidHandler(BaseHandler, LoginMixin):
             lastinfo_time_key = get_lastinfo_time_key(uid)
             lastinfo_time = self.redis.getvalue(lastinfo_time_key)
 
-            # uid --> android_push_lst 
+            # uid --> android_push_list 
+            # check push_id whether exists in a old android_push_list
+            old_android_push_list_key = self.redis.get(push_id)
+            if old_android_push_list_key:
+                old_android_push_list = self.redis.getvalue(old_android_push_list_key)
+                if old_android_push_list and (push_id in old_android_push_list):
+                    logging.info("[UWEB] push_id:%s has existed in a old_android_push_list: %s, so remove push_id from the list.", 
+                                 push_id, old_android_push_list)
+                    old_android_push_list.remove(push_id)
+                    self.redis.set(old_android_push_list_key, old_android_push_list)
+
             android_push_list_key = get_android_push_list_key(uid) 
             android_push_list = self.redis.getvalue(android_push_list_key)
             android_push_list = android_push_list if android_push_list else []
             if push_id not in android_push_list: 
                 android_push_list.append(push_id)
             self.redis.set(android_push_list_key, android_push_list)
+            self.redis.set(push_id, android_push_list_key)
             logging.info("[UWEB] uid: %s, android_push_lst: %s", username, android_push_list)
 
             self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")

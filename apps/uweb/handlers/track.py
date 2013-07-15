@@ -124,21 +124,21 @@ class TrackHandler(BaseHandler):
 
             if cellid_flag == 1:
                 # gps track and cellid track
-                track = self.db.query("SELECT latitude, longitude, clatitude,"
+                track = self.db.query("SELECT id, latitude, longitude, clatitude,"
                                       "       clongitude, timestamp, name, type, speed, degree"
                                       "  FROM T_LOCATION"
                                       "  WHERE tid = %s"
-                                      "    AND NOT (clatitude = 0 OR clongitude = 0)"
+                                      "    AND NOT (latitude = 0 OR longitude = 0)"
                                       "    AND (timestamp BETWEEN %s AND %s)"
                                       "    ORDER BY timestamp",
                                       self.current_user.tid, start_time, end_time)
             else:
                 # cellid_flag is None or 0, only gps track
-                track = self.db.query("SELECT latitude, longitude, clatitude,"
+                track = self.db.query("SELECT id, latitude, longitude, clatitude,"
                                       "       clongitude, timestamp, name, type, speed, degree"
                                       "  FROM T_LOCATION"
                                       "  WHERE tid = %s"
-                                      "    AND NOT (clatitude = 0 OR clongitude = 0)"
+                                      "    AND NOT (latitude = 0 OR longitude = 0)"
                                       "    AND (timestamp BETWEEN %s AND %s)"
                                       "    AND type = 0"
                                       "    ORDER BY timestamp",

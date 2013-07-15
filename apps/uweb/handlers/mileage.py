@@ -88,7 +88,6 @@ class MileageHandler(BaseHandler):
                     distance = '%0.1f' % (distance/1000,)
                     alias = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                     dct = dict(seq=item+1,
-                               tid=tid,
                                alias=alias,
                                distance=distance)
                     reports.append(dct)
@@ -110,11 +109,21 @@ class MileageHandler(BaseHandler):
                 tid = tids[0]
                 delta = end_time - start_time # end_time must bigger than start_time
                 d, m = divmod(delta, 60*60*24) 
-                year, month, day = get_date_from_utc(start_time)
+                start_date = get_date_from_utc(start_time)
+                end_date = get_date_from_utc(start_time)
                 start_day = datetime.datetime.fromtimestamp(start_time)
                 end_day = datetime.datetime.fromtimestamp(end_time)
                 days = abs(end_day-start_day).days
-                days = days+1 if m else days
+                if days == 0: 
+                    if start_date.day  == end_date.day:   
+                        days = 1
+                    else: 
+                        days = 2
+                else: 
+                    days = days+1 if m else days
+                    if end_day.hour*60*60 + end_day.minute*60 + end_day.second <  start_day.hour*60*60 + start_day.minute*60 + start_day.second:                   
+                        days = days+1 
+  
 
                 res = []
                 graphics = [] 
@@ -140,23 +149,14 @@ class MileageHandler(BaseHandler):
                             "    AND type = 0"
                             "  ORDER BY timestamp asc limit 1")
                  
-                for item in range(days):
-                    timestamp = start_time+1*60*60*24*(item)
-                    year, month, day = get_date_from_utc(timestamp)
-                    start_time_, end_time_ = start_end_of_day(year=year, month=month, day=day)
-                    if item == 0: 
-                        start_time_ = start_time
-                    if item == days: 
-                        end_time_ = end_time
-                    last_point = self.db.get(last_cmd, tid, start_time_-60*60*24, start_time_,)
-                    next_point = self.db.get(next_cmd, tid, end_time_, end_time_+60*60*24)
-                    start_time_ = last_point['timestamp'] if last_point else start_time_
-                    end_time_ = next_point['timestamp'] if next_point else end_time_
+                if  days == 1: # start_time, end_time in the same day
+                    timestamp = start_time
+                    date = get_date_from_utc(timestamp)
 
                     re = {} 
-                    re['alias'] = '-'.join([str(year),str(month),str(day)]) 
+                    re['alias'] = '-'.join([str(date.year),str(date.month),str(date.day)]) 
                     distance = Decimal() 
-                    points = self.db.query(sql_cmd, tid, start_time_, end_time_)
+                    points = self.db.query(sql_cmd, tid, start_time, end_time)
                     for i in range(len(points)-1):
                         if points[i].longitude and points[i].latitude and \
                            points[i+1].longitude and points[i+1].latitude:
@@ -170,8 +170,42 @@ class MileageHandler(BaseHandler):
                     dis_sum += Decimal(distance)
 
                     re['distance'] = distance 
-                    re['seq'] = item+1 
+                    re['seq'] = 1 
                     res.append(re)
+                else: # start_time, end_time in different days
+                    for item in range(days):
+                        timestamp = start_time+1*60*60*24*(item)
+                        date = get_date_from_utc(timestamp)
+                        year, month, day = date.year, date.month, date.day
+                        start_time_, end_time_ = start_end_of_day(year=year, month=month, day=day)
+                        if item == 0: 
+                            start_time_ = start_time
+                        if item == days: 
+                            end_time_ = end_time
+                        last_point = self.db.get(last_cmd, tid, start_time_-60*60*24, start_time_,)
+                        next_point = self.db.get(next_cmd, tid, end_time_, end_time_+60*60*24)
+                        start_time_ = last_point['timestamp'] if last_point else start_time_
+                        end_time_ = next_point['timestamp'] if next_point else end_time_
+
+                        re = {} 
+                        re['alias'] = '-'.join([str(year),str(month),str(day)]) 
+                        distance = Decimal() 
+                        points = self.db.query(sql_cmd, tid, start_time_, end_time_)
+                        for i in range(len(points)-1):
+                            if points[i].longitude and points[i].latitude and \
+                               points[i+1].longitude and points[i+1].latitude:
+                                dis = get_distance(points[i].longitude, points[i].latitude,
+                                                   points[i+1].longitude, points[i+1].latitude) 
+                                distance += Decimal(str(dis)) 
+                        # meter --> km
+                        distance = '%0.1f' % (distance/1000,)      
+                            
+                        graphics.append(float(distance))
+                        dis_sum += Decimal(distance)
+
+                        re['distance'] = distance 
+                        re['seq'] = item+1 
+                        res.append(re)
 
                 counts = [float(dis_sum),]
 
