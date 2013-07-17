@@ -31,6 +31,10 @@ CELLID_MAX_OFFSET = 2000 # in metre
 IDLE_INTERVAL = 5 * 60 # 5 minutes, in second. 
 IDLE_DISTANCE  = 200 # in metre 
 
+REGION_SHAPE=DotDict(CIRCLE=0,
+                     POLYGON=1)
+
+
 USER_TYPE=DotDict(PERSON='individual',
                   CORP='enterprise',
                   OPERATOR='operator')

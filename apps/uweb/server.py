@@ -74,7 +74,7 @@ from handlers.batch import BatchImportHandler
 from handlers.batch import BatchDeleteHandler
 from handlers.batch import BatchJHHandler
 from handlers.operator import OperatorHandler
-from handlers.region import RegionHandler, RegionEventHandler
+from handlers.region import RegionHandler, RegionDetailHandler
 from handlers.bindregion import BindRegionHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
 
@@ -217,7 +217,7 @@ class Application(tornado.web.Application):
             (r"/operator/*", OperatorHandler),
             (r"/region/*", RegionHandler),
             (r"/bindregion/*", BindRegionHandler),
-            (r"/getregionevent/*", RegionEventHandler),
+            (r"/getregionevent/*", RegionDetailHandler),
             (r"/report/online/*", OnlineHandler),
             (r"/download/*", DownloadHandler),
             
