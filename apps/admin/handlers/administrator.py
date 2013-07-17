@@ -49,9 +49,9 @@ class AdministratorSearchHandler(BaseHandler):
         for key in fields.iterkeys():
             v = self.get_argument(key, None)
             if v:
-                if not check_sql_injection(v):
-                    self.get()
-                    return  
+                #if not check_sql_injection(v):
+                #    self.get()
+                #    return  
                 fields[key] = fields[key] % (v,)
             else:
                  fields[key] = None
@@ -201,9 +201,9 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
         list_inject = ['corporation','name','mobile','phone'] 
         for key in list_inject:
             v = self.get_argument(key, '')
-            if not check_sql_injection(v):
-               self.get(administrator_id) 
-               return
+            #if not check_sql_injection(v):
+            #   self.get(administrator_id) 
+            #   return
         if is_self:
             del fields['valid']
             del fields['source_id']
@@ -334,9 +334,9 @@ class AdministratorCreateHandler(BaseHandler, BaseMixin):
         list_inject = ['name','password','mobile','phone']
         for key in list_inject:
             v = self.get_argument(key,'')
-            if not check_sql_injection(v):
-                self.get()
-                return
+            #if not check_sql_injection(v):
+            #    self.get()
+            #    return
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'')
 

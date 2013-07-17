@@ -37,24 +37,17 @@ class FeedBackHandler(BaseHandler):
 
         try:
 
-            if data.has_key('contact')  and not check_sql_injection(data.contact):
-                status = ErrorCode.ILLEGAL_NAME
-                logging.info("[UWEB] feedback failed, Message: %s", ErrorCode.ERROR_MESSAGE[status])
-                self.write_ret(status)
-                return
+            #if data.has_key('contact') and not check_sql_injection(data.contact):
+            #    status = ErrorCode.ILLEGAL_NAME
+            #    logging.info("[UWEB] feedback failed, Message: %s", ErrorCode.ERROR_MESSAGE[status])
+            #    self.write_ret(status)
+            #    return
 
-            if data.has_key('email')  and not check_sql_injection(data.email):
-                status = ErrorCode.ILLEGAL_EMAIL
-                logging.info("[UWEB] feedback failed, Message: %s", ErrorCode.ERROR_MESSAGE[status])
-                self.write_ret(status)
-                return
-
-
-            if data.has_key('content')  and not check_sql_injection(data.content):
-                status = ErrorCode.ILLEGAL_CONTENT
-                logging.info("[UWEB] feedback failed, Message: %s", ErrorCode.ERROR_MESSAGE[status])
-                self.write_ret(status)
-                return
+            #if data.has_key('email')  and not check_sql_injection(data.email):
+            #    status = ErrorCode.ILLEGAL_EMAIL
+            #    logging.info("[UWEB] feedback failed, Message: %s", ErrorCode.ERROR_MESSAGE[status])
+            #    self.write_ret(status)
+            #    return
 
             self.db.execute("INSERT into T_FEEDBACK(contact,email,content,timestamp,category)"
                             "  VALUES(%s, %s, %s, %s, %s)",

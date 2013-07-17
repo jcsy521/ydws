@@ -15,6 +15,10 @@ _phone_pattern = r"^(1\d{10}|0\d{8,11})$"
 
 PHONE_CHECKER = re.compile(_phone_pattern)
 
+_cnum_pattern = r"^[^\x00-\xff]{1}[a-zA-Z0-9]+$"
+
+CNUM_CHECKER = re.compile(_cnum_pattern)
+
 _zs_phone_pattern = r"^(1477847\d{4}|1477874\d{4})$"
 
 ZS_PHONE_CHECKER = re.compile(_zs_phone_pattern)
@@ -28,6 +32,14 @@ def check_sql_injection(str_):
 
     return not SQL_INJECTION_CHECKER.search(str_)
 
+def check_cnum(cnum):
+    """Check if the licensenum is valid.
+
+    @return True: it's valid
+            False: it's invalid
+    """
+    
+    return CNUM_CHECKER.match(cnum)
 
 def check_phone(phone):
     """Check if the phone is valid.

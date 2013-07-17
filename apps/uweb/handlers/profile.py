@@ -73,10 +73,10 @@ class ProfileHandler(BaseHandler):
             return 
 
         try:
-            if data.has_key('name')  and not check_sql_injection(data.name):
-                status = ErrorCode.ILLEGAL_NAME 
-                self.write_ret(status)
-                return
+            #if data.has_key('name')  and not check_sql_injection(data.name):
+            #    status = ErrorCode.ILLEGAL_NAME 
+            #    self.write_ret(status)
+            #    return
 
             #if data.has_key('address')  and not check_sql_injection(data.address):
             #    status = ErrorCode.ILLEGAL_ADDRESS
@@ -93,10 +93,10 @@ class ProfileHandler(BaseHandler):
             #    self.write_ret(status)
             #    return
 
-            if data.has_key('cnum')  and not check_sql_injection(data.cnum):
-                status = ErrorCode.ILLEGAL_CNUM 
-                self.write_ret(status)
-                return
+            #if data.has_key('cnum')  and not check_sql_injection(data.cnum):
+            #    status = ErrorCode.ILLEGAL_CNUM 
+            #    self.write_ret(status)
+            #    return
 
             fields_ = DotDict()
             fields = DotDict(name="name = '%s'")
@@ -180,20 +180,20 @@ class ProfileCorpHandler(BaseHandler):
             return 
 
         try:
-            if data.has_key('name')  and not check_sql_injection(data.name):
-                status = ErrorCode.ILLEGAL_NAME 
-                self.write_ret(status)
-                return
+            #if data.has_key('name')  and not check_sql_injection(data.name):
+            #    status = ErrorCode.ILLEGAL_NAME 
+            #    self.write_ret(status)
+            #    return
 
-            if data.has_key('address')  and not check_sql_injection(data.address):
-                status = ErrorCode.ILLEGAL_ADDRESS
-                self.write_ret(status)
-                return
+            #if data.has_key('address')  and not check_sql_injection(data.address):
+            #    status = ErrorCode.ILLEGAL_ADDRESS
+            #    self.write_ret(status)
+            #    return
 
-            if data.has_key('email')  and not check_sql_injection(data.email):
-                status = ErrorCode.ILLEGAL_EMAIL 
-                self.write_ret(status)
-                return
+            #if data.has_key('email')  and not check_sql_injection(data.email):
+            #    status = ErrorCode.ILLEGAL_EMAIL 
+            #    self.write_ret(status)
+            #    return
 
 
             fields_ = DotDict()
@@ -271,15 +271,15 @@ class ProfileOperHandler(BaseHandler):
             #    self.write_ret(status)
             #    return
 
-            if data.has_key('address')  and not check_sql_injection(data.address):
-                status = ErrorCode.ILLEGAL_ADDRESS
-                self.write_ret(status)
-                return
+            #if data.has_key('address')  and not check_sql_injection(data.address):
+            #    status = ErrorCode.ILLEGAL_ADDRESS
+            #    self.write_ret(status)
+            #    return
 
-            if data.has_key('email')  and not check_sql_injection(data.email):
-                status = ErrorCode.ILLEGAL_EMAIL 
-                self.write_ret(status)
-                return
+            #if data.has_key('email')  and not check_sql_injection(data.email):
+            #    status = ErrorCode.ILLEGAL_EMAIL 
+            #    self.write_ret(status)
+            #    return
 
 
             fields_ = DotDict()

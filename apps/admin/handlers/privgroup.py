@@ -135,9 +135,9 @@ class PrivGroupCreateHandler(BaseHandler):
     def post(self):
 
         name = self.get_argument('name', '')
-        if not check_sql_injection(name):
-            self.get()
-            return
+        #if not check_sql_injection(name):
+        #    self.get()
+        #    return
         privileges = self.get_arguments('privilege')
         priv_group_id = self.db.execute("INSERT INTO T_PRIVILEGE_GROUP"
                                         "  VALUES (NULL, %s, 0)",

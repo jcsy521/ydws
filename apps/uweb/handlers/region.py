@@ -8,12 +8,12 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from utils.misc import DUMMY_IDS, str_to_list, get_region_status_key
 from utils.checker import check_sql_injection
-from constants import UWEB
+from constants import UWEB, LIMIT
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
 
 
-class RegionEventHandler(BaseHandler):
+class RegionDetailHandler(BaseHandler):
 
     @authenticated
     @tornado.web.removeslash
@@ -34,8 +34,16 @@ class RegionEventHandler(BaseHandler):
                                  "  FROM T_REGION"
                                  "  WHERE id = %s",
                                  rid)
+            #NOTE: now, just provide region whose shape is circle
+            res = DotDict(region_id=region.region_id,
+                          region_name=region.region_name,
+                          region_shape=UWEB.REGION_SHAPE.CIRCLE,
+                          circle=DotDict(latitude=region.latitude,
+                                         longitude=region.longitude,
+                                         radius=region.radius),
+                          )
             self.write_ret(status,
-                           dict_=DotDict(region=region))
+                           dict_=DotDict(res=res))
         except Exception as e:
             logging.exception("[UWEB] cid: %s get report region failed. Exception: %s", 
                               self.current_user.cid, e.args) 
@@ -45,25 +53,45 @@ class RegionEventHandler(BaseHandler):
        
 class RegionHandler(BaseHandler):
 
+
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """ """ 
+        """ Get regions by tid"""
+        status = ErrorCode.SUCCESS
         try:
-            status = ErrorCode.SUCCESS
-            regions = self.db.query("SELECT id AS region_id, name AS region_name, longitude, latitude, radius "
-                                    "  FROM T_REGION"
-                                    "  WHERE cid = %s",
-                                    self.current_user.cid)
-            
-            self.write_ret(status,
-                           dict_=DotDict(regions=regions))
+            tid = self.get_argument('tid')
         except Exception as e:
-            logging.exception("[UWEB] cid: %s get regions failed. Exception: %s", 
-                              self.current_user.cid, e.args) 
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] uid: %s get region bind data format illegal. Exception: %s",
+                              self.current_user.uid, e.args)
+            self.write_ret(status)
+            return
+
+        try:
+            res = []
+            regions = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name,"
+                                    "       tr.longitude, tr.latitude, tr.radius "
+                                    "  FROM T_REGION tr, T_REGION_TERMINAL trt"
+                                    "  WHERE tr.id = trt.rid"
+                                    "  AND trt.tid = %s",
+                                    tid)
+            for region in regions:
+               r = DotDict(region_id=region.region_id,
+                           region_name=region.region_name,
+                           region_shape=UWEB.REGION_SHAPE.CIRCLE,
+                           circle=DotDict(latitude=region.latitude,
+                                          longitude=region.longitude,
+                                          radius=region.radius),
+                           )
+               res.append(r)
+            self.write_ret(status,
+                           dict_=DotDict(res=res))
+        except Exception as e:
+            logging.exception("[UWEB] tid: %s get regions failed. Exception: %s",
+                              tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-
 
     @authenticated
     @tornado.web.removeslash
@@ -72,41 +100,50 @@ class RegionHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] add region request: %s, cid: %s", 
-                         data, self.current_user.cid)
+            logging.info("[UWEB] add region request: %s, uid: %s",
+                         data, self.current_user.uid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] cid: %s create region data format illegal. Exception: %s", 
-                              self.current_user.cid, e.args) 
+            logging.exception("[UWEB] uid: %s create region data format illegal. Exception: %s",
+                              self.current_user.uid, e.args)
             self.write_ret(status)
             return
 
         try:
             regions = self.db.query("SELECT id"
-                                    "  FROM T_REGION"
-                                    "  WHERE cid = %s",
-                                    self.current_user.cid)
-            if len(regions) > UWEB.LIMIT.REGION - 1:
-                status = ErrorCode.REGION_ADDITION_EXCESS
-                logging.info("[UWEB] add region reach max limit number %s, cid: %s", 
-                             UWEB.LIMIT.REGION, self.current_user.cid)
-                self.write_ret(status)
+                                    "  FROM T_REGION_TERMINAL"
+                                    "  WHERE tid = %s",
+                                    data.tid)
+            if len(regions) > LIMIT.REGION - 1:
+                self.write_ret(ErrorCode.REGION_ADDITION_EXCESS)
                 return
-                
+
             status = ErrorCode.SUCCESS
+            rid = -1
+            tid = data.tid
             region_name = data.region_name
-            longitude = data.longitude
-            latitude = data.latitude
-            radius = data.radius
+            region_shape = data.region_shape
+            if region_shape == UWEB.REGION_SHAPE.CIRCLE:
+                circle = DotDict(data.circle)
+                longitude = circle.longitude 
+                latitude = circle.latitude 
+                radius = circle.radius
+                # create new region
+                rid = self.db.execute("INSERT T_REGION(id, name, longitude, latitude, radius, uid)"
+                                      "  VALUES(NULL, %s, %s, %s, %s, %s)",
+                                      region_name, longitude, latitude, radius, self.current_user.uid)
+
+                self.db.execute("INSERT INTO T_REGION_TERMINAL(rid, tid)"
+                                "  VALUES(%s, %s)",
+                                rid, tid)
+            else: # TODO:
+                pass
             
-            self.db.execute("INSERT T_REGION(id, name, longitude, latitude, radius, cid)"
-                            "  VALUES(NULL, %s, %s, %s, %s, %s)",
-                            region_name, longitude, latitude, radius, self.current_user.cid)
-            
-            self.write_ret(status)
+            self.write_ret(status,
+                           dict_=DotDict(rid=rid))
         except Exception as e:
-            logging.exception("[UWEB] cid: %s create region failed. Exception: %s", 
-                              self.current_user.cid, e.args) 
+            logging.exception("[UWEB] uid: %s create region for tid: %s failed. Exception: %s",
+                              self.current_user.uid, data.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 

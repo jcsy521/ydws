@@ -40,9 +40,10 @@ class DelegationHandler(BaseHandler):
     def post(self):
         tmobile = self.get_argument('tmobile', '')
 
-        if not check_sql_injection(tmobile): 
-           self.get() 
-           return 
+        #if not check_sql_injection(tmobile): 
+        #   self.get() 
+        #   return 
+
         message = None
         url = None
         terminal = self.db.get("SELECT tid, owner_mobile"

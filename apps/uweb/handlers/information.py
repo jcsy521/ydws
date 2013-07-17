@@ -33,10 +33,10 @@ class InformationHandler(BaseHandler):
             for key in fields.iterkeys():
                 v = self.get_argument(key, None)
                 if v:
-                    if not check_sql_injection(v):
-                        status = ErrorCode.SELECT_CONDITION_ILLEGAL
-                        self.write_ret(status)
-                        return  
+                    #if not check_sql_injection(v):
+                    #    status = ErrorCode.SELECT_CONDITION_ILLEGAL
+                    #    self.write_ret(status)
+                    #    return  
                     fields[key] = fields[key] % (v,)
                 else:
                     fields[key] = None

@@ -34,7 +34,7 @@ class NotifyHelper(object):
                        endtime=endtime)
     
     @staticmethod
-    def push_to_android(category, tid, t_alias, location, push_id, push_key):
+    def push_to_android(category, tid, t_alias, location, push_id, push_key, region_id=None):
         """Push info for android by means of openfire.
         @params:
         category,
@@ -60,7 +60,9 @@ class NotifyHelper(object):
                       type=location.type,
                       alias=t_alias,
                       pbat=location.pbat,
-                      comment=location.comment)
+                      comment=location.comment,
+                      # for region
+                      region_id=region.region_id if region_id else -1,)
     
         msg=str(json_encode(ret)) 
         #url = "http://www.android-push.com/api/send/?secret=%s&app_key=%s&client_ids=&alias=%s&msg=%s" % (push_info.secret, push_info.app_key, alias, msg)
@@ -141,7 +143,7 @@ class NotifyHelper(object):
             return ios_badge 
 
     @staticmethod
-    def push_to_ios(category, tid, t_alias, location, ios_id, ios_badge):
+    def push_to_ios(category, tid, t_alias, location, ios_id, ios_badge, region_id=None):
         """Push info fo IOS by the means of ANPS
         @param: category,
                 tid, 
@@ -160,7 +162,9 @@ class NotifyHelper(object):
                         4:u'移动告警',
                         5:u'SOS',
                         6:u'通讯异常',
-                        9:u'断电'}
+                        7:u'进入围栏',
+                        8:u'离开围栏',
+                        9:u'断电' }
             t_alias= t_alias if len(t_alias)<=11 else t_alias[:8]+u'...'
             alert = u"您的爱车 “%s” 产生了%s" % (t_alias, CATEGORY[category])
 
@@ -178,7 +182,8 @@ class NotifyHelper(object):
                           type=location.type,
                           alias=t_alias,
                           pbat=location.pbat,
-                          comment=location.comment)
+                          comment=location.comment, 
+                          region_id=region_id if region_id else -1)
 
             keys = ['tid',
                     'category', 
@@ -193,7 +198,8 @@ class NotifyHelper(object):
                     'type', 
                     'alias', 
                     'pbat', 
-                    'comment']
+                    'comment',
+                    'region_id']
 
             def get_body_str(ret):
                 body_str = u'' 

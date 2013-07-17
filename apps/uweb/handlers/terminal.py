@@ -132,20 +132,24 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 return
 
             # sql injection 
-            if data.has_key('alias') and not check_sql_injection(data.alias):
-                status = ErrorCode.ILLEGAL_ALIAS 
-                self.write_ret(status)
-                return
-
-            if data.has_key('corp_cnum') and not check_sql_injection(data.corp_cnum):
+            if data.has_key('cnum') and not check_cnum_injection(data.cnum):
                 status = ErrorCode.ILLEGAL_CNUM 
                 self.write_ret(status)
-                return
 
-            if data.has_key('owner_mobile') and not check_sql_injection(data.owner_mobile):
-                status = ErrorCode.ILLEGAL_MOBILE
-                self.write_ret(status)
-                return
+            #if data.has_key('alias') and not check_sql_injection(data.alias):
+            #    status = ErrorCode.ILLEGAL_ALIAS 
+            #    self.write_ret(status)
+            #    return
+
+            #if data.has_key('corp_cnum') and not check_sql_injection(data.corp_cnum):
+            #    status = ErrorCode.ILLEGAL_CNUM 
+            #    self.write_ret(status)
+            #    return
+
+            #if data.has_key('owner_mobile') and not check_sql_injection(data.owner_mobile):
+            #    status = ErrorCode.ILLEGAL_MOBILE
+            #    self.write_ret(status)
+            #    return
 
             if data.has_key('white_list'):
                 white_list = ":".join(data.white_list)

@@ -2,6 +2,7 @@
 
 import logging
 import time
+import copy
 
 from tornado.escape import json_decode
 
@@ -48,7 +49,6 @@ class PacketTask(object):
         
     def get_regions(self, tid): 
         """Get all regions associated with the tid."""
-        #1.select the terminal's all regions and compare it
         regions = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name, "
                                 "       tr.longitude AS region_longitude, tr.latitude AS region_latitude, "
                                 "       tr.radius AS region_radius" 
@@ -61,101 +61,48 @@ class PacketTask(object):
         else:
             return regions
 
-    def check_region_event(self, location, regions): 
+    def check_region_event(self, ori_location, region): 
         """check enter or out region """
-        #1.select the terminal's all regions and compare it
+        if not (location and region): 
+            return None
+
+        # BIG NOTE: python grammar, shallow copy will change origen data.
+        location = copy.deepcopy(dict(ori_location))
+        location = DotDict(location)
+
         location['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS
         terminal = QueryHelper.get_terminal_by_tid(location['dev_id'], self.db)
-        for region in regions:
-            old_region_status_key = get_region_status_key(location['dev_id'], region.region_id)
-            old_region_status = self.redis.getvalue(old_region_status_key)
-            #2.get distance that now location and the centre of the region 
-            distance = lbmphelper.get_distance(region.region_longitude,
-                                               region.region_latitude,
-                                               location.cLon, 
-                                               location.cLat)
-            
-            if distance >= region.region_radius:
-                region_status = EVENTER.CATEGORY.REGION_OUT
-                rname = EVENTER.RNAME.REGION_OUT
-            else:
-                region_status = EVENTER.CATEGORY.REGION_ENTER
-                rname = EVENTER.RNAME.REGION_ENTER
-            
+        old_region_status_key = get_region_status_key(location['dev_id'], region.region_id)
+        old_region_status = self.redis.getvalue(old_region_status_key)
+        # get distance beteween now location and the centre of the region 
+        distance = lbmphelper.get_distance(region.region_longitude,
+                                           region.region_latitude,
+                                           location.cLon, 
+                                           location.cLat)
+        
+        if distance >= region.region_radius:
+            region_status = EVENTER.CATEGORY.REGION_OUT
+            rname = EVENTER.RNAME.REGION_OUT
+        else:
+            region_status = EVENTER.CATEGORY.REGION_ENTER
+            rname = EVENTER.RNAME.REGION_ENTER
+        
+        self.redis.setvalue(old_region_status_key, region_status)
+        logging.info("rname:%s, old status:%s, current status:%s, tid:%s",
+                     region.region_name, old_region_status, region_status, location['dev_id'])    
+
+        if not old_region_status:
+            # skip the first region event
+            return location
+
+        if region_status != old_region_status:
             self.redis.setvalue(old_region_status_key, region_status)
-            logging.info("rname:%s, old status:%s, current status:%s, tid:%s",
-                         region.region_name, old_region_status, region_status, location['dev_id'])    
-
-            if not old_region_status:
-                # skip the first region event
-                continue
-
-            if region_status != old_region_status:
-                
-                # keep the region alarm 
-                alarm = dict(tid=location['dev_id'],
-                             category=region_status,
-                             timestamp=location.get('gps_time',0),
-                             latitude=location.get('lat',0),
-                             longitude=location.get('lon',0),
-                             clatitude=location.get('cLat',0),
-                             clongitude=location.get('cLon',0),
-                             name=location['name'] if location.get('name',None) is not None else '',
-                             degree=location.get('degree',0),
-                             speed=location.get('speed',0),
-                             #3# for regions
-                             region_id=region.region_id,
-                             region_radius=region.region_radius,
-                             bounds=[region.region_latitude, region.region_longitude]
-                             )
-                self.record_alarm_info(alarm)
-                location['category']=region_status
-                location['t'] = EVENTER.INFO_TYPE.REPORT
-                location['rName'] = rname
-                lid = insert_location(location, self.db, self.redis)
-                self.event_hook(region_status, location['dev_id'], 1, lid, location.pbat, None, region.region_id)
-                self.redis.setvalue(old_region_status_key, region_status)
-                corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
-                                   "  WHERE T_TERMINAL_INFO.tid = %s"
-                                   "    AND T_TERMINAL_INFO.group_id != -1"
-                                   "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
-                                   "    AND T_GROUP.corp_id = T_CORP.cid",
-                                   location['dev_id'])
-                if corp and corp.mobile:
-                    terminal_time = get_terminal_time(int(location.gps_time))
-                    terminal_time = safe_unicode(terminal_time)
-                    if region_status == EVENTER.CATEGORY.REGION_OUT:
-                        if location.name:
-                            sms = SMSCode.SMS_REGION_OUT % (terminal.mobile,
-                                                            safe_unicode(region.region_name),
-                                                            safe_unicode(location.name), terminal_time)
-                        else:
-                            sms = SMSCode.SMS_REGION_ENTER_NO_ADDRESS % (terminal.mobile,
-                                                                         safe_unicode(region.region_name),
-                                                                         terminal_time)
-                    else:
-                        if location.name:
-                            sms = SMSCode.SMS_REGION_ENTER % (terminal.mobile,
-                                                              safe_unicode(region.region_name),
-                                                              safe_unicode(location.name), terminal_time)
-                        else:
-                            sms = SMSCode.SMS_REGION_OUT_NO_ADDRESS % (terminal.mobile,
-                                                                       safe_unicode(region.region_name),
-                                                                       terminal_time)
-                    if location.cLon and location.cLat:
-                        clon = '%0.3f' % (location.cLon/3600000.0) 
-                        clat = '%0.3f' % (location.cLat/3600000.0)
-                        url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + clon + '&clat=' + clat 
-                        tiny_id = URLHelper.get_tinyid(url)
-                        if tiny_id:
-                            base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
-                            tiny_url = base_url + '/' + tiny_id
-                            logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
-                            self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                            sms += u"点击" + tiny_url + u" 查看车辆位置。" 
-                        else:
-                            logging.info("[EVENTER] get tiny url failed.")
-                    SMSHelper.send(corp.mobile, sms)
+            # 2: complete the location
+            location['category']=region_status
+            location['t'] = EVENTER.INFO_TYPE.REPORT
+            location['rName'] = rname
+            location['region'] = region 
+        return location
                 
     def get_tname(self, dev_id):
         t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
@@ -198,12 +145,16 @@ class PacketTask(object):
     
     def handle_position_info(self, location):
         location = DotDict(location)
+        regions = self.get_regions(location['dev_id'])
         if location.Tid == EVENTER.TRIGGERID.CALL:
             location = lbmphelper.handle_location(location, self.redis,
                                                   cellid=True, db=self.db) 
-            regions = self.get_regions(location['dev_id'])
-            if regions:
-                self.check_region_event(location, regions)
+            # check regions
+            for region in regions:
+                region_location = self.check_region_event(location, region)
+                if region_location: 
+                    self.handle_report_info(region_location)
+
             location['category'] = EVENTER.CATEGORY.REALTIME
             location['type'] = location.get('type', 1)
             self.update_terminal_info(location)
@@ -217,10 +168,14 @@ class PacketTask(object):
                 pvt['Tid'] = location['Tid']
 
                 regions = self.get_regions(pvt['dev_id'])
+                # check regions
                 if regions:
                     pvt = lbmphelper.handle_location(pvt, self.redis,
                                                           cellid=True, db=self.db) 
-                    self.check_region_event(pvt, regions)
+                    for region in regions:
+                        region_pvt= self.check_region_event(pvt, region)
+                        if region_pvt: 
+                            self.handle_report_info(region_pvt)
                 # NOTE: not offset it
                 #location = lbmphelper.handle_location(pvt, self.redis,
                 #                                      cellid=False, db=self.db) 
@@ -239,15 +194,14 @@ class PacketTask(object):
         ILLEGALMOVE
         ILLEGALSHAKE
         EMERGENCY
-
+        REGION_ENTER
+        REGION_OUT
         """
+        if not info:
+            return
         # 1: get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
-
-
-        # check region evnent
-        #self.check_region_event(report)
 
         #NOTE: if undefend, just save location into db
         if info['rName'] in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
@@ -259,17 +213,24 @@ class PacketTask(object):
                 logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
                              info['dev_id'], info['rName'])
                 return
-
+        
+        # keep alarm info
         alarm = dict(tid=report['dev_id'],
                      category=report['category'], 
-                     latitude=report['lat'], 
-                     longitude=report['lon'], 
-                     clatitude=report['cLat'], 
-                     clongitude=report['cLon'], 
-                     timestamp=report['gps_time'], 
+                     type=report['type'], 
+                     timestamp=report.get('gps_time',0),
+                     latitude=report.get('lat',0),
+                     longitude=report.get('lon',0),
+                     clatitude=report.get('cLat',0),
+                     clongitude=report.get('cLon',0),
                      name=report['name'] if report.get('name',None) is not None else '',
-                     degree=report['degree'], 
-                     speed=report['speed'])
+                     degree=report.get('degree',0),
+                     speed=report.get('speed',0))
+
+
+        if info['rName'] in [EVENTER.RNAME.REGION_OUT, EVENTER.RNAME.REGION_ENTER]:
+            region = location['region']
+            alarm['region_id'] = region.region_id
 
         self.record_alarm_info(alarm)
 
@@ -284,11 +245,12 @@ class PacketTask(object):
             logging.error("[EVENTER] Cannot find USER of terminal: %s", report.dev_id)
             return
         
+        # send sms to owner
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
         if sms_option == UWEB.SMS_OPTION.SEND:
             name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
             terminal_time = get_terminal_time(int(report.gps_time))
-            terminal_time = safe_unicode(terminal_time)
+            terminal_time = safe_unicode(terminal_time) 
 
             report_name = report.name
             if not report_name:
@@ -338,6 +300,16 @@ class PacketTask(object):
                     sms = SMSCode.SMS_POWERDOWN_NOLOC % (name, terminal_time)
                 else:
                     sms = SMSCode.SMS_POWERDOWN % (name, report_name, terminal_time)
+            elif report.rName == EVENTER.RNAME.REGION_OUT:
+                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                    sms = SMSCode.SMS_REGION_OUT_NOLOC % (name, report['region']['region_name'], terminal_time)
+                else:
+                    sms = SMSCode.SMS_REGION_OUT % (name, report['region']['region_name'], report_name, terminal_time)
+            elif report.rName == EVENTER.RNAME.REGION_ENTER:
+                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                    sms = SMSCode.SMS_REGION_ENTER_NOLOC % (name, report['region']['region_name'], terminal_time)
+                else:
+                    sms = SMSCode.SMS_REGION_ENTER % (name, report['region']['region_name'], report_name, terminal_time)
             else:
                 pass
 
@@ -378,11 +350,13 @@ class PacketTask(object):
         else:
             logging.info("[EVENTER] Remind option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)
-
+         
+        # push to owner
         terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
                                "  WHERE tid = %s", report.dev_id)
         if terminal and terminal.push_status == 1:
             report.comment = ''
+            region_id = None
             if report.rName == EVENTER.RNAME.POWERLOW:
                 if report.terminal_type == "1":
                     if int(report.pbat) == 100:
@@ -393,8 +367,13 @@ class PacketTask(object):
                         report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
                 else:
                     report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
-
-            self.notify_to_parents(report.category, report.dev_id, report, user) 
+            elif report.rName in (EVENTER.RNAME.REGION_ENTER, EVENTER.RNAME.REGION_OUT):
+                region = report['region']
+                region_id = region.region_id
+                if region.get('region_name', None): 
+                    region.comment = u"围栏名：%s" % region.region_name
+                
+            self.notify_to_parents(name, report, user, region_id) 
         else:
             logging.info("[EVENTER] Push option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)
@@ -450,27 +429,30 @@ class PacketTask(object):
                 SMSHelper.send(white['mobile'], sms)
 
 
-    def notify_to_parents(self, category, dev_id, location, user=None):
+    def notify_to_parents(self, alias, location, user, region_id=None):
         # NOTE: if user is not null, notify android
+
+        category = location.category
+        dev_id = location.dev_id
+
         if not user:
             user = QueryHelper.get_user_by_tid(dev_id, self.db)
 
         if user:
-            t_alias = QueryHelper.get_alias_by_tid(dev_id, self.redis, self.db)
             # 1: push to android
             android_push_list_key = get_android_push_list_key(user.owner_mobile) 
             android_push_list = self.redis.getvalue(android_push_list_key) 
             if android_push_list: 
                 for push_id in android_push_list: 
                     push_key = NotifyHelper.get_push_key(push_id, self.redis) 
-                    NotifyHelper.push_to_android(category, dev_id, t_alias, location, push_id, push_key)
+                    NotifyHelper.push_to_android(category, dev_id, alias, location, push_id, push_key, region_id)
             # 2: push  to ios 
             ios_push_list_key = get_ios_push_list_key(user.owner_mobile) 
             ios_push_list = self.redis.getvalue(ios_push_list_key) 
             if ios_push_list: 
                 for ios_id in ios_push_list: 
                     ios_badge = NotifyHelper.get_iosbadge(ios_id, self.redis) 
-                    NotifyHelper.push_to_ios(category, dev_id, t_alias, location, ios_id, ios_badge)
+                    NotifyHelper.push_to_ios(category, dev_id, alias, location, ios_id, ios_badge, region_id)
 
     def handle_power_status(self, report, name, report_name, terminal_time):
         """
@@ -507,6 +489,7 @@ class PacketTask(object):
         tid --> alarm_info:[
                              {
                                keeptime // keep alarm's keeptime when kept in reids, not timestamp alarm occurs
+                               type, 
                                category,
                                latitude,
                                longitude, 
@@ -517,9 +500,7 @@ class PacketTask(object):
                                degree, 
                                speed,
                                # for regions
-                               region_name,
-                               region_radius,
-                               bounds,
+                               region_id,
                              },
                              ...
                            ]

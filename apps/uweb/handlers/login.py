@@ -56,14 +56,14 @@ class LoginHandler(BaseHandler, LoginMixin):
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
             return
 
-        if not (check_sql_injection(username) and check_sql_injection(password)):
-            self.render("login.html",
-                        username="",
-                        password="",
-                        user_type=user_type,
-                        message_captcha=None,
-                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
-            return
+        #if not (check_sql_injection(username) and check_sql_injection(password)):
+        #    self.render("login.html",
+        #                username="",
+        #                password="",
+        #                user_type=user_type,
+        #                message_captcha=None,
+        #                message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
+        #    return
 
         m = hashlib.md5()
         m.update(captcha.lower())
@@ -136,14 +136,14 @@ class IOSHandler(BaseHandler, LoginMixin):
         logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s, user_type: %s",
                      username, password, iosid, user_type)
         # must check username and password avoid sql injection.
-        if not (username.isalnum() and password.isalnum()):
-            status= ErrorCode.LOGIN_FAILED
-            self.write_ret(status)
-            return
-        if not (check_sql_injection(username) and check_sql_injection(password)):
-            status= ErrorCode.LOGIN_FAILED
-            self.write_ret(status)
-            return
+        #if not (username.isalnum() and password.isalnum()):
+        #    status= ErrorCode.LOGIN_FAILED
+        #    self.write_ret(status)
+        #    return
+        #if not (check_sql_injection(username) and check_sql_injection(password)):
+        #    status= ErrorCode.LOGIN_FAILED
+        #    self.write_ret(status)
+        #    return
 
         # check the user, return uid, tid, sim and status
         cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
@@ -236,6 +236,9 @@ class IOSHandler(BaseHandler, LoginMixin):
             old_ios_push_list_key = self.redis.get(iosid)
             if old_ios_push_list_key:
                 old_ios_push_list = self.redis.getvalue(old_ios_push_list_key)
+                if not isinstance(old_ios_push_list, list):
+                    self.redis.delete(old_ios_push_list_key)
+                    old_ios_push_list = []
                 if old_ios_push_list and (iosid in old_ios_push_list):
                     logging.info("[UWEB] iosid:%s has existed in a old_ios_push_list: %s, so remove iosid from the list.", 
                                  iosid, old_ios_push_list)
@@ -277,10 +280,10 @@ class AndroidHandler(BaseHandler, LoginMixin):
             status= ErrorCode.LOGIN_FAILED
             self.write_ret(status)
             return
-        if not (check_sql_injection(username) and check_sql_injection(password)):
-            status= ErrorCode.LOGIN_FAILED
-            self.write_ret(status)
-            return
+        #if not (check_sql_injection(username) and check_sql_injection(password)):
+        #    status= ErrorCode.LOGIN_FAILED
+        #    self.write_ret(status)
+        #    return
 
         # check the user, return uid, tid, sim and status
         cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
@@ -385,6 +388,9 @@ class AndroidHandler(BaseHandler, LoginMixin):
             old_android_push_list_key = self.redis.get(push_id)
             if old_android_push_list_key:
                 old_android_push_list = self.redis.getvalue(old_android_push_list_key)
+                if not isinstance(old_android_push_list, list):
+                    self.redis.delete(old_android_push_list_key)
+                    old_android_push_list = []
                 if old_android_push_list and (push_id in old_android_push_list):
                     logging.info("[UWEB] push_id:%s has existed in a old_android_push_list: %s, so remove push_id from the list.", 
                                  push_id, old_android_push_list)

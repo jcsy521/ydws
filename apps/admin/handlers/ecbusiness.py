@@ -53,9 +53,9 @@ class ECBusinessMixin(BaseMixin):
         for key in fields.iterkeys():
             v = self.get_argument(key, None)
             if v:
-                if not check_sql_injection(v):
-                    self.get()
-                    return  
+                #if not check_sql_injection(v):
+                #    self.get()
+                #    return  
                 fields[key] = fields[key] % (v,)
             else:
                  fields[key] = None
@@ -225,10 +225,10 @@ class ECBusinessEditHandler(BaseHandler, ECBusinessMixin):
         for key in fields:
             v = self.get_argument(key, None)
             if v is not None:
-                if not check_sql_injection(v):
-                   # call get method
-                   self.get(tmobile)
-                   return
+                #if not check_sql_injection(v):
+                #   # call get method
+                #   self.get(tmobile)
+                #   return
                 fields[key] = fields[key] % v 
             else:
                 fields[key] = None
@@ -334,11 +334,11 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                          email="")
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'')
-            if not check_sql_injection(fields[key]):
-                logging.error("Create business condition contain SQL inject. %s : %s", key, fields[key])
-                self.render('errors/error.html',
-                    message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_CONDITION_ILLEGAL])
-                return
+            #if not check_sql_injection(fields[key]):
+            #    logging.error("Create business condition contain SQL inject. %s : %s", key, fields[key])
+            #    self.render('errors/error.html',
+            #        message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_CONDITION_ILLEGAL])
+            #    return
 
         white_list = check_zs_phone(fields.tmobile, self.db)
         if not white_list:

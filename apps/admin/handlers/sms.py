@@ -45,10 +45,10 @@ class SMSMixin(BaseMixin):
         user_name = self.get_argument('user_name', None)
         mobile = self.get_argument('mobile', None)
 
-        if user_name and  (not check_sql_injection(user_name)):
-            return [], [start_time, end_time]
-        if mobile  and  (not check_sql_injection(mobile)):
-            return [], [start_time, end_time]
+        #if user_name and  (not check_sql_injection(user_name)):
+        #    return [], [start_time, end_time]
+        #if mobile  and  (not check_sql_injection(mobile)):
+        #    return [], [start_time, end_time]
             
         # the result of today is inavaliable
         d = datetime.datetime.fromtimestamp(time.time())
