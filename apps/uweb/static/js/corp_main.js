@@ -163,6 +163,14 @@ function customMenu(node) {
 				dlf.fn_routeLineBindEvent();
 			}
 		},
+		"region": {
+			"label" : '电子围栏',
+			"action" : function(obj) {	// 终端右键菜单 电子围栏 kjj add  2013-07-10
+				obj_alarmAndDelay.hide();
+				dlf.fn_initRegion();
+			}
+		},
+		/*
 		"bindRegion": {
 			"label" : bindRegionLabel,
 			"action" : function(obj) {	// todo 
@@ -170,7 +178,7 @@ function customMenu(node) {
 				obj_alarmAndDelay.hide();
 				dlf.fn_initBindRegion();
 			}
-		},
+		},*/
 		"terminalSetting": {	// 参数设置
 			"label" : terminalLabel,
 			"action" : function (obj) {
@@ -224,6 +232,7 @@ function customMenu(node) {
 				}
 			}
 		},
+		/*
 		"batchRegion" : {
 			"label" : batchRegionLabel,
 			"action": function (obj) { // 批量设置电子围栏
@@ -231,7 +240,7 @@ function customMenu(node) {
 				obj_alarmAndDelay.hide();
 				dlf.fn_initBatchRegions(obj);
 			}
-		},
+		},*/
 		"batchTrack" : {
 			"label" : "批量追踪",
 			"submenu": {
@@ -340,6 +349,7 @@ function customMenu(node) {
 		delete items.singleDelete;
 		delete items.bindLine;
 		delete items.bindRegion;
+		delete items.region;
 		delete items.batchTrack;
    }
    if ( obj_node.hasClass('j_group') ) {
@@ -355,6 +365,7 @@ function customMenu(node) {
 		delete items.singleDelete;
 		delete items.bindLine;
 		delete items.bindRegion;
+		delete items.region;
    }
    if ( str_userType == USER_OPERATOR ) {	// 操作员屏蔽右键	
 		delete items.create;
@@ -794,7 +805,6 @@ function fn_updateTerminalCount(str_operation, num) {
 	$('.carCount').html( n_onlineCnt + n_offlineCnt + '(全部)');
 	$('.onlineCount').html(n_onlineCnt + '(在线)');
 	$('.offlineCount').html(n_offlineCnt + '(离线)');
-		
 }
 
 /**
@@ -1073,12 +1083,13 @@ function fn_updateAlarmList(arr_alarm) {
 			obj_circle = null;
 		
 		// 清除地图上告警的图层
-		dlf.fn_clearAlarmMarker(n_num);
+		dlf.fn_clearAlarmMarker();
 		obj_this.addClass('clickedBg').siblings('li').removeClass('clickedBg');	// 添加背景色
 		
 		if ( n_lng != 0 && n_lat != 0 ) {	// 如果有经纬度则添加marker
-			obj_alarmTable.data('num', n_index);
+			// obj_alarmTable.data('num', n_index);
 			obj_marker = dlf.fn_addMarker(obj_alarm, 'alarmInfo', $('.j_currentCar').attr('tid'), true, n_index); // 添加标记
+			obj_alarmTable.data('alarmMarker', obj_marker);	// 存储当前的marker 以便下次先删除再添加
 			dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 16);
 			obj_this.data('marker', obj_marker);
 			
@@ -1091,6 +1102,8 @@ function fn_updateAlarmList(arr_alarm) {
 			dlf.fn_jNotifyMessage('该告警没有位置信息。', 'message', false, 3000);
 			return;
 		}
+		dlf.fn_drawRegion(n_category, obj_alarm.rid, obj_centerPointer, 1);	// 画围栏
+		/*
 		if ( n_category == 7 || n_category == 8 ) {	// 如果是进出围栏告警 画围栏
 			var obj_circleData = {},
 				n_regionLon = obj_alarm.bounds[1],
@@ -1102,8 +1115,8 @@ function fn_updateAlarmList(arr_alarm) {
 			obj_circleData.latitude = n_regionLat;
 			dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
 			obj_circle = dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
-			obj_this.data('region', obj_circle);
-		}
+			obj_alarmTable.data('region', obj_circle);
+		}*/
 		var obj_position = obj_marker.getPosition();
 		
 		if ( !dlf.fn_isBMap() ) {
@@ -1122,14 +1135,10 @@ function fn_updateAlarmList(arr_alarm) {
 */
 window.dlf.fn_closeAlarmPanel = function() {
 	var obj_alarmPanel = $('.j_alarm'),
-		obj_alarmTable = $('.j_alarmTable'),
-		obj_alarmTable = $('.j_alarmTable'),
-		n_num = obj_alarmTable.data('num'),
-		arr_markerList = obj_alarmTable.data('markers'),
-		obj_clearMarker = arr_markerList[n_num];
+		obj_alarmTable = $('.j_alarmTable');
 
 	// 清除告警提示的所有marker和region
-	dlf.fn_clearAlarmMarker(n_num);
+	dlf.fn_clearAlarmMarker();
 	$('.j_alarmTable').removeData('markers');
 	obj_alarmTable.html('');
 	obj_alarmPanel.hide();		
@@ -1140,21 +1149,20 @@ window.dlf.fn_closeAlarmPanel = function() {
 * 告警提示marker清除
 * n_num: 要清除marker在li上的位置
 */
-window.dlf.fn_clearAlarmMarker = function(n_num) {
-	if ( n_num != undefined ) {
-		var obj_before = $('.j_alarmTable li').eq(n_num),
-			obj_tempClearMarker = obj_before.data('marker'),
-			obj_tempClearRegion = obj_before.data('region');
+window.dlf.fn_clearAlarmMarker = function() {
+	var obj_alarmTable = $('.j_alarmTable'),
+		obj_alarmMarker = obj_alarmTable.data('alarmMarker'),
+		obj_alarmRegion = obj_alarmTable.data('region');
+	
+	if ( obj_alarmMarker ) {
+		dlf.fn_clearMapComponent(obj_alarmMarker);
 		
-		if ( obj_tempClearMarker != null ) {
-			dlf.fn_clearMapComponent(obj_tempClearMarker);
-		} 
-		if ( obj_tempClearRegion != null ) {
-			dlf.fn_clearMapComponent(obj_tempClearRegion);
-		}
 		if ( !dlf.fn_isBMap() ) {
 			mapObj.clearInfoWindow();
 		}
+	}
+	if ( obj_alarmRegion ) {
+		dlf.fn_clearMapComponent(obj_alarmRegion);
 	}
 }
 

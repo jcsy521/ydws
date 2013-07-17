@@ -352,8 +352,9 @@ window.dlf.fn_bindCarListItem = function() {
 * 车辆列表的切换方法
 * n_tid: 定位器序列号
 * obj_currentItem: 当前车辆对象
+* str_flag: 是否是第一次switchcar
 */
-window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
+window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	var obj_carA = $('.j_carList a[tid='+n_tid+']');
 	
 	/*$.get_(SWITCHCAR_URL + '/' + n_tid, '', function (data) {	// 向后台发送切换请求
@@ -375,6 +376,20 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 	obj_terminals.removeClass('j_currentCar');	// 其他车辆移除样式
 	obj_currentItem.addClass('j_currentCar');	// 当前车添加样式
 	
+	if ( b_regionWpST ) { // 如果切车时当前正在进行围栏查询操作
+		dlf.fn_initRegion();
+	}
+	if ( b_regionCreateWpST ) { // 如果切车时当前正在进行围栏创建操作
+		$.get_(REGION_URL+'?tid='+ n_tid, '', function(data) {
+			var arr_regions = data.regions;
+			
+			$('#regionTable').data('regions', arr_regions); //围栏存储数据以便显示详细信息
+			$('#regionTable').data('regionnum', arr_regions.length); //围栏存储数据以便显示详细信息
+		},
+		function(XMLHttpRequest, textStatus, errorThrown) {
+			dlf.fn_serverError(XMLHttpRequest);
+		});
+	}
 	if ( !dlf.fn_userType() ) {	// 如果是个人用户添加当前车样式
 		obj_terminals.removeClass('currentCarCss');	// 其他车辆移除样式
 		obj_currentItem.addClass('currentCarCss');	// 当前车添加样式
@@ -385,7 +400,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem) {
 			var obj_currentCarData = obj_carDatas[n_tid];
 			if ( obj_currentCarData ) {
 				dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
-				dlf.fn_moveMarker(n_tid);
+				dlf.fn_moveMarker(n_tid, str_flag);
 			}
 			if ( b_trackSt || b_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 				return;
@@ -541,7 +556,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 					var obj_tempCurrentCar = $('.j_carList .j_terminal').eq(0),
 						str_tempTid = obj_tempCurrentCar.attr('tid');
 						
-					dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar); // 车辆列表切换
+					dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar, str_flag); // 车辆列表切换
 				}
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();
@@ -557,36 +572,41 @@ window.dlf.fn_getCarData = function(str_flag) {
 /**
 * lastinfo第一次 计算最大点和最小点 让所有点放在一个盒子中
 * arr_locations: 所有点数组
+* 通过比较取到sw(最小经纬) 和ne(最大经纬)的点进行数据显示
 */
 window.dlf.fn_caculateBox = function (arr_locations) {
-	n_tempMax = 0;
-	obj_tempMaxPoint = arr_locations[0];
-	obj_tempFirstPoint = arr_locations[0];
-	
 	var	n_locLength = arr_locations.length,
-		arr_points = [];
+		arr_trackPoints = [], 
+		obj_tempFirstLoc = arr_locations[0],
+		n_maxLng = obj_tempFirstLoc.clongitude, // 最大经度
+		n_maxLat = obj_tempFirstLoc.clatitude, // 最大纬度
+		n_minLng = obj_tempFirstLoc.clongitude, // 最小经度
+		n_minLat = obj_tempFirstLoc.clatitude; // 最小纬度 
 	
-	for (var i = 0; i < n_locLength; i++) {
-		var obj_currentLoc = arr_locations[i], 
-			obj_firstPoint = dlf.fn_createMapPoint(obj_currentLoc.clongitude, obj_currentLoc.clatitude);
-			
-		for ( var j = i + 1; j < n_locLength; j++ ) {
-			var obj_itemLoc = arr_locations[j], 
-				obj_tempPoint = dlf.fn_createMapPoint(obj_itemLoc.clongitude, obj_itemLoc.clatitude);
-				
-			dlf.fn_tempDist(obj_firstPoint, obj_tempPoint); // 计算与第一个点距离
+	for (var i = 0; i < n_locLength; i++) { 
+		var obj_itemLoc = arr_locations[i], 
+			n_tempClng = obj_itemLoc.clongitude,
+			n_tempClat = obj_itemLoc.clatitude,
+			obj_tempPoint = dlf.fn_createMapPoint(n_tempClng, n_tempClat);
+		
+		if ( n_tempClng > n_maxLng ) {
+			n_maxLng = n_tempClng;
 		}
-		arr_locations[i].icon_type = $('.j_currentCar').attr('icon_type');
-		arr_points.push(obj_firstPoint);
+		if ( n_tempClng < n_minLng ) {
+			n_minLng = n_tempClng;
+		}
+		if ( n_tempClat > n_maxLat ) {
+			n_maxLat = n_tempClat;
+		}
+		if ( n_tempClat < n_minLat ) {
+			n_minLat = n_tempClat;
+		}
+		
+		arr_trackPoints.push(obj_tempPoint);
 	}
-	$('#trackHeader').data('points', arr_points);	// 轨迹查询的所有点数据
-	if ( n_tempMax <= 0 ) {
-		dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
-	} else {
-		dlf.fn_setOptionsByType('viewport', [obj_tempFirstPoint, obj_tempMaxPoint]);
-	}
+	$('#trackHeader').data('points', arr_trackPoints);// 此数据点给轨迹查询显示使用
+	dlf.fn_setOptionsByType('viewport', [dlf.fn_createMapPoint(n_minLng, n_minLat), dlf.fn_createMapPoint(n_maxLng, n_maxLat)]);
 }
-
 
 /**
 * 对定位器的最新数据进行页面填充
@@ -1358,7 +1378,10 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		n_wrapperWidth = obj_wrapper.width(),
 		n_width = ($(window).width() - n_wrapperWidth)/2,
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
-		b_bindRegionStatus = $('#bindRegionWrapper').is(':visible');	// 围栏绑定是否显示
+		b_eventStatus = $('#eventSearchWrapper').is(':visible'),	// 告警是否显示
+		b_regionStatus = $('#regionWrapper').is(':visible'),	// 电子围栏是否显示
+		b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
+		b_routeLineStatus = $('#routeLineWrapper').is(':visible');	// 线路管理是否显示
 
 	$('.j_delay').hide();
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');
@@ -1388,15 +1411,15 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
-	if ( str_wrapperId != 'eventSearch' && str_wrapperId != 'routeLine' && str_wrapperId != 'bindBatchRegion' && str_wrapperId != 'region' && str_wrapperId != 'bindRegion' ) {
+	/*if ( str_wrapperId != 'eventSearch' && str_wrapperId != 'routeLine' && str_wrapperId != 'bindBatchRegion' && str_wrapperId != 'region' && str_wrapperId != 'bindRegion' ) {
 		if ( n_currentLastInfoNum != currentLastInfo ) {
 			dlf.fn_closeTrackWindow(true);
 		}
-	}
-	if ( b_trackStatus || b_bindRegionStatus ) {	// 如果轨迹打开 要重启lastinfo	
+	}*/
+	if ( b_trackStatus || b_bindRegionStatus || b_regionStatus || b_eventStatus || b_routeLineStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
 		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' ) {
-			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
-		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'eventSearch' ) {
+			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
+		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
 	}
@@ -1435,7 +1458,7 @@ window.dlf.fn_userType = function() {
 * 随机生成颜色值
 */
 window.dlf.fn_randomColor = function() {
-	var colorvalue=["0","2","3","4","5","6","7","8","9","a","b","c","d","e","f"],
+	/*var colorvalue=["0","2","3","4","5","6","7","8","9","a","b","c","d","e","f"],
 		colorprefix="#",
 		index;
 		
@@ -1443,7 +1466,17 @@ window.dlf.fn_randomColor = function() {
 		index = Math.round(Math.random()*14);
 		colorprefix += colorvalue[index];
 	}
-	return colorprefix;
+	return colorprefix;*/
+	
+	var r = Math.floor(Math.random() * 255).toString(16),
+		g = Math.floor(Math.random() * 255).toString(16),
+		b = Math.floor(Math.random() * 255).toString(16);
+		
+	r = r.length == 1 ? "0" + r : r;
+	g = g.length == 1 ? "0" + g : g;
+	b = b.length == 1 ? "0" + b : b;
+	
+	return "#" + r + g + b;
 }
 
 /**
@@ -1595,7 +1628,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_initRegion(); // 重新显示围栏管理 
 					if ( dlf.fn_isBMap() ) {
 						mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
-					}					
+					}
 					$('#regionContent').data('iscreate',  true);// 存储新增成功数据
 					b_closeWrapper = false;
 				} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {

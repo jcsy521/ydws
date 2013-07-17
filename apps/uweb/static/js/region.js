@@ -4,7 +4,8 @@
 
 // 围栏管理的初始化查询展示
 window.dlf.fn_initRegion = function() {
-	var str_region = 'region', 
+	var str_tid = $('.j_currentCar').attr('tid'),
+		str_region = 'region', 
 		obj_regionWapper = $('#regionWrapper'), 
 		obj_regionAddWapper = $('#regionCreateWrapper'),
 		b_mapType = dlf.fn_isBMap();
@@ -15,6 +16,9 @@ window.dlf.fn_initRegion = function() {
 	dlf.fn_clearTrack();	// 初始化清除数据
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_displayCars(); // 显示车辆信息数据
+	
+	//填充当前终端tid在围栏页面
+	$('#regionForTerminal').html('定位器：'+str_tid);
 	
 	//获取围栏数据 
 	dlf.fn_setSearchRecord(str_region);
@@ -118,6 +122,7 @@ window.dlf.fn_saveReginon = function() {
 		n_radius = 0, 
 		obj_regions = $('#regionTable').data('regions'),
 		n_circleNum = $('#regionTable').data('regionnum'),
+		str_tid = $('.j_currentCar').attr('tid'),
 		obj_regionData = {};
 		
 	if ( n_circleNum ) {
@@ -144,10 +149,13 @@ window.dlf.fn_saveReginon = function() {
 		dlf.fn_jNotifyMessage('您还没有填写围栏名称。', 'message', false, 3000);
 		return;
 	}
+	var obj_circleData = dlf.fn_getCirlceData();
 	
-	obj_regionData = dlf.fn_getCirlceData();
 	obj_regionData.region_name = str_regionName;
-	n_radius = obj_regionData.radius;
+	obj_regionData.region_shape = 0;	// 默认先画圆
+	obj_regionData.tid = str_tid;
+	obj_regionData.circle = obj_circleData;
+	n_radius = obj_circleData.radius;
 
 	if ( n_radius < 500 ) {
 		dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
@@ -160,26 +168,31 @@ window.dlf.fn_saveReginon = function() {
 * 查看围栏的详细信息
 */
 window.dlf.fn_detailRegion = function(n_seq) {
-	var obj_regionDatas = $('#regionTable').data('regions'), 
-		obj_circleData = obj_regionDatas[n_seq], 
-		n_radius = obj_circleData.radius;
-		n_lng = obj_circleData.longitude,
-		n_lat = obj_circleData.latitude,
-		n_otherLat = Math.abs(n_lat/NUMLNGLAT + n_radius/111000.0)*NUMLNGLAT,
-		n_otherLat2 = Math.abs(n_lat/NUMLNGLAT - n_radius/111000.0)*NUMLNGLAT,
-		obj_otherPoint = dlf.fn_createMapPoint(n_lng, n_otherLat),
-		obj_otherPoint2 = dlf.fn_createMapPoint(n_lng, n_otherLat2),
-	
+	var obj_regionDatas = $('#regionTable').data('regions'),
+		obj_regionData = obj_regionDatas[n_seq], 
+		n_region_shape = obj_regionData.region_shape;	// 围栏类型 0: 圆形 1: 多边形
+		
 	fn_clearCircleRegion();
+	if ( n_region_shape == 0 ) {
+		var obj_circleData = obj_regionData.circle,
+			n_radius = obj_circleData.radius;
+			n_lng = obj_circleData.longitude,
+			n_lat = obj_circleData.latitude,
+			n_otherLat = Math.abs(n_lat/NUMLNGLAT + n_radius/111000.0)*NUMLNGLAT,
+			n_otherLat2 = Math.abs(n_lat/NUMLNGLAT - n_radius/111000.0)*NUMLNGLAT,
+			obj_otherPoint = dlf.fn_createMapPoint(n_lng, n_otherLat),
+			obj_otherPoint2 = dlf.fn_createMapPoint(n_lng, n_otherLat2);
+
+		// 调用地图显示圆形
+		dlf.fn_displayCircle(obj_circleData);
+		// 计算bound显示 
+		dlf.fn_setOptionsByType('viewport', [obj_otherPoint2, obj_otherPoint]);
+	}
 	if ( dlf.fn_isBMap() ) {
 		mapObj.closeInfoWindow();// 关闭吹出框 已显示圆
 	} else {
 		mapObj.clearInfoWindow();	// 高德infowindow不是图层需要单独关闭所有infowindow
 	}
-	// 调用地图显示圆形
-	dlf.fn_displayCircle(obj_circleData);
-	// 计算bound显示 
-	dlf.fn_setOptionsByType('viewport', [obj_otherPoint2, obj_otherPoint]);
 }
 
 /*

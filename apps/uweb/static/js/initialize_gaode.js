@@ -2,8 +2,9 @@
 /**
 * 设置marker的中心移动
 * str_tid: 要设置的终端tid
+* str_flag: 是否是第一次加载  2013-07-16 add
 */
-window.dlf.fn_moveMarker = function(str_tid) {
+window.dlf.fn_moveMarker = function(str_tid, str_flag) {
 	var str_trackStatus = $('#trackHeader').css('display');
 	
 	if ( str_trackStatus == 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	
@@ -28,6 +29,11 @@ window.dlf.fn_moveMarker = function(str_tid) {
 			//obj_tempMarker.setzIndex(1);
 			obj_tempMarker.selfInfoWindow.open(mapObj, obj_position);	// 显示吹出框
 			//dlf.fn_updateInfowWindowStatus(str_tid);
+			if ( !str_flag ) {
+				setTimeout(function() {
+					mapObj.setCenter(obj_position);
+				}, 300);
+			}
 		} else {
 			if ( n_mapType == 1 ) {
 				for ( var index in obj_selfmarkers ) {
@@ -149,16 +155,6 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 					obj_tempVal.val = [];
 					obj_selfmarkers[str_tid].track = 0;
 				}
-				/*if ( arr_trackPoints ) {	//  开启追踪后的track点
-					var n_trackLength = arr_trackPoints.length;
-					
-					if ( n_trackLength > 0 ) {
-						for ( var x = 0; x < n_trackLength; x=x+2 ) {
-							obj_tempVal.val.push(dlf.fn_createMapPoint(arr_trackPoints[x+1], arr_trackPoints[x]));
-						}
-					}
-				}
-				obj_tempVal.val.push(obj_tempPoint);*/
 			}
 			/**
 			* kjj add 2013-07-09 

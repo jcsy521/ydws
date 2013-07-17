@@ -137,6 +137,7 @@ window.dlf.fn_setOptionsByType = function(type, centers, zoom) {
 		case 'viewport':	// todo
 			bounds = new AMap.Bounds(centers[0],centers[1]); 
 			mapObj.setBounds(bounds);
+			mapObj.zoomOut();
 			break;
 	}
 }
@@ -540,7 +541,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 					address = '正在获取位置描述' + WAITIMG; 
 					dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
 				}
-			} else ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' )  {
+			} else if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' )  {
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\''+ str_iconType +'\','+ n_index +');">获取位置</a>'; 
 			}
 		}

@@ -14,9 +14,9 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 		n_height = 375,
 		n_btnTop = 355;
 	
-	if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
+	/*if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
 		dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
-	}
+	}*/
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('.j_input input[type=text]').blur().css('color', '#000').val('');

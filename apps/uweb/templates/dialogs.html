@@ -185,6 +185,12 @@
 					<li>
 						<input type="checkbox" id="illegalshake" class="j_checkbox" title="震动" /><label for="illegalshake">震动告警</label> 
 					</li>
+					<li>
+						<input type="checkbox" id="region_enter" class="j_checkbox" title="进围栏告警" /><label for="region_enter">进围栏告警</label>
+					</li>
+					<li>
+						<input type="checkbox" id="region_out" class="j_checkbox" title="出围栏告警" /><label for="region_out">出围栏告警</label> 
+					</li>
 					<!--<li>
 						<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
 					</li>
@@ -315,13 +321,13 @@
 						</li>
 						<!--<li>
 							<input type="checkbox" id="corp_charge" class="j_corp_checkbox" title="余额提醒" /><label for="corp_charge">余额提醒</label> 
-						</li>
+						</li>-->
 						<li>
 							<input type="checkbox" id="corp_region_enter" class="j_corp_checkbox" title="进围栏告警" /><label for="corp_region_enter">进围栏告警</label>
 						</li>
 						<li>
 							<input type="checkbox" id="corp_region_out" class="j_corp_checkbox" title="出围栏告警" /><label for="corp_region_out">出围栏告警</label> 
-						</li>-->
+						</li>
 					</ul>
 					<div class="smsMobileDiv">
 						短信接收号码：
@@ -651,7 +657,8 @@
 					<tr>
 						<td>
 							<label><font class="txtColor">* </font>联系电话：</label>
-							<input type="text" name="c_mobile" id="c_mobile"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="mobile" msg="请输入正确的手机号！"  parent="corpWrapper" />
+							<!--<input type="text" name="c_mobile" id="c_mobile"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="mobile" msg="请输入正确的手机号！"  parent="corpWrapper" />-->
+							<label name="c_mobile" id="c_mobile"></label>
 						</td>
 					</tr>
 					<tr>
@@ -849,10 +856,8 @@
 								<!--<option value="5">SOS</option>-->
 								<option value="2">电量告警</option>
 								<option value="6">通讯异常</option>
-								{% if user_type != 'individual' %}
 								<option value="7">进围栏</option>
 								<option value="8">出围栏</option>
-								{% end %}
 								<option value="3">震动</option>
 								<option value="4">移动</option>
 								<!--<option value="9">断电</option>-->

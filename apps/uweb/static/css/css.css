@@ -476,7 +476,7 @@ body {
 }
 .selfList li {
 	float: left;
-	margin-left: 20px;
+	margin-left: 10px;
 	height: 36px;
 	line-height: 36px;
 }
@@ -867,6 +867,9 @@ body {
     margin-right: 20px;
     text-align: right;
     width: 84px;
+}
+#c_mobile {
+	text-align: left;
 }
 .cTerminalList .cTerminalLabel {
 	width: 102px;
@@ -2456,7 +2459,7 @@ fieldset {
     width: 425px;
 }
 .corpFieldSet {
-	height: 197px
+	height: 213px
 }
 legend {
 	display:block;

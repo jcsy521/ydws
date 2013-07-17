@@ -416,7 +416,7 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'bindRegion': // 绑定围栏管理查询
 		case 'bindBatchRegion': // 批量绑定围栏管理查询
 		case 'region': // 围栏管理查询
-			str_getDataUrl = REGION_URL;
+			str_getDataUrl = REGION_URL + '?tid=' + str_currentTid;
 			$('#regionTable').removeData();
 			break;
 	}
@@ -476,7 +476,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			arr_dwRecordData = obj_resdata.passengers;
 		} else if ( str_who == 'routeLine' ) {
 			arr_dwRecordData = obj_resdata.lines;
-		} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+		} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 			arr_dwRecordData = obj_resdata.regions;
 		}
 		
@@ -543,7 +543,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				b_regionCreate = obj_regionContent.data('iscreate');
 			if ( b_regionCreate ) {
 				obj_regionContent.removeData('iscreate');
-				dlf.fn_jNotifyMessage('创建成功，请绑定围栏。', 'message', false, 6000);
+				dlf.fn_jNotifyMessage('创建成功。', 'message', false, 3000);
 			}
 		} else {
 			obj_download.hide();
@@ -600,15 +600,22 @@ window.dlf.fn_showMarkerOnEvent = function() {
 					n_category = obj_tempData.category,
 					n_rid = obj_tempData.rid;
 				
-				// 如果是进出围栏告警则显示电子围栏
+				
+				dlf.fn_drawRegion(n_category, n_rid, obj_centerPointer, 0);	// 画围栏
+				/* 如果是进出围栏告警则显示电子围栏
 				if ( n_category == 7 || n_category == 8 ) {
 					$.get_(GETREGIONDATA_URL +'?rid='+ n_rid, '', function (data) {  
 						if ( data.status == 0 ) {
-							var obj_circleData = data.region,
-								obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
+							var obj_res = data.res,
+								n_region_shape = obj_res.region_shape,
+								obj_circleData = {},
+								obj_centerPoint = null;
 							
-							// dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
-							dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
+							if ( n_region_shape == 0 ) {	// 圆形围栏
+								obj_circleData = obj_res.circle;
+								obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
+								dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
+							}
 							dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);
 						} else if ( data.status == 201 ) {	// 业务变更
 							dlf.fn_showBusinessTip();
@@ -621,9 +628,52 @@ window.dlf.fn_showMarkerOnEvent = function() {
 					});
 				} else {
 					dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
-				}
+				}*/
 			}, 100);
 	});
+}
+
+/**
+* 进出围栏告警，画围栏
+* kjj add 2013-07-17
+* n_category: 告警类型
+* rid: 围栏id
+* n_type: 0: event 1: lastinfo
+*/
+window.dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) {
+	if ( n_category == 7 || n_category == 8 ) {
+		$.get_(GETREGIONDATA_URL +'?rid='+ rid, '', function (data) {  
+			if ( data.status == 0 ) {
+				var obj_res = data.res,
+					n_region_shape = obj_res.region_shape,
+					obj_circleData = {},
+					obj_centerPoint = null;
+				
+				if ( n_region_shape == 0 ) {	// 圆形围栏
+					obj_circleData = obj_res.circle;
+					obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
+					obj_circle1 = dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
+
+					if ( n_type == 1 ) {	// 如果是lastinfo 告警信息 保存region 以便删除
+						obj_circle = obj_circle1;
+						$('.j_alarmTable').data('region', obj_circle);
+						dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
+					} else {
+						dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);
+					}
+				}				
+			} else if ( data.status == 201 ) {	// 业务变更
+				dlf.fn_showBusinessTip();
+			} else { // 查询状态不正确,错误提示
+				dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
+			}
+		}, 
+		function (XMLHttpRequest, textStatus, errorThrown) {
+			dlf.fn_serverError(XMLHttpRequest);
+		});
+	} else {
+		dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
+	}
 }
 
 /**
@@ -639,7 +689,9 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	} else if ( str_who == 'routeLine' ) {
 		obj_searchData = obj_reaData.lines;
 	} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
-		obj_searchData = obj_reaData.regions;
+		if ( str_who != 'region' ) {
+			obj_searchData = obj_reaData.regions;
+		}
 		$('#regionTable').data({'regions': obj_searchData, 'regionnum': obj_searchData.length}); //围栏存储数据以便显示详细信息
 	}
 
@@ -985,7 +1037,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 	}
 	
 	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
-		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false,  qsEnabled: false,
+		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false,  qsEnabled: false,
 		onpicked: function() {
 			if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 				var obj_endDate = $dp.$D(str_inputEndTime), 
@@ -1000,8 +1052,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 	}).val(str_tempBeginTime);
 	
 	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
-		WdatePicker({el: str_inputEndTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false, qsEnabled: false, 
-			onpicked: function() {
+		WdatePicker({el: str_inputEndTime, dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false, qsEnabled: false, onpicked: function() {
 				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 					var obj_beginDate = $dp.$D(str_inputStartTime), 
 						str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
@@ -1014,11 +1065,10 @@ window.dlf.fn_initTimeControl = function(str_who) {
 			}
 		});
 	}).val(str_tempEndTime);
-	
 }
 
 /**
-* 2013-07-10 kjj create
+* 2013-07-10 kjj create				todo
 * get all of the terminals in corp
 */
 window.dlf.fn_getAllTerminals = function() {

@@ -76,6 +76,7 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 		obj_carInfo = null; 
 		
 	n_currentLastInfoNum = 0;
+	dlf.fn_clearOpenTrackData();	// 初始化开启追踪的数据
 	if ( b_ifLastInfo ) {
 		
 		// obj_carsData = {};

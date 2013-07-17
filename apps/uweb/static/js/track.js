@@ -120,12 +120,6 @@ function fn_trackQuery() {
 	obj_locusDate.tid = dlf.fn_getCurrentTid();
 	$.post_(TRACK_URL, JSON.stringify(obj_locusDate), function (data) {
 		if ( data.status == 0 ) {
-			/**
-			   * 获取最大和最小的差值
-			   * n_tempMax 暂时存储与第一点的最大距离
-			   * obj_tempMaxPoint 存储与每一点最大距离的数据
-			   * obj_tempFirstPoint 存储与每最远点的数据
-			*/
 			var arr_locations = data.track, 
 				locLength = arr_locations.length,
 				str_downloadHash = data.hash_,	// 下载停留点的hash参数
@@ -154,16 +148,8 @@ function fn_trackQuery() {
 				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 				arr_dataArr = arr_locations, 
-				n_tempMax = 0, 
-				obj_tempMaxPoint = arr_locations[0];
-				obj_tempFirstPoint = arr_locations[0];
 				str_alias = b_userType ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
 				
-				if ( n_tempMax <= 0 ) {
-					dlf.fn_setOptionsByType('centerAndZoom', dlf.fn_createMapPoint(obj_tempFirstPoint.clongitude, obj_tempFirstPoint.clatitude), 18);
-				} else {
-					dlf.fn_setOptionsByType('viewport', [obj_tempFirstPoint, obj_tempMaxPoint]);
-				}
 				dlf.fn_caculateBox(arr_locations);
 				fn_startDrawLineStatic(arr_locations);
 			}
@@ -175,18 +161,6 @@ function fn_trackQuery() {
 		dlf.fn_unLockScreen(); // 清除页面遮罩
 		$('.j_trackbody').removeData('layer');
 	});
-}
-
-/**
-*  两点距离比较
-*/
-window.dlf.fn_tempDist = function (startXY, endXY) {
-	var n_pointDist = dlf.fn_forMarkerDistance(startXY, endXY);
-	if ( n_pointDist > n_tempMax ) {
-		n_tempMax = n_pointDist;
-		obj_tempFirstPoint = startXY;
-		obj_tempMaxPoint = endXY;
-	}
 }
 
 /**

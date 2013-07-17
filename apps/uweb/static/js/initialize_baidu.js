@@ -2,8 +2,9 @@
 /**
 * 设置marker的中心移动
 * n_tid: 要设置的终端tid
+* str_flag : 是否是第一次加载  2013-07-16 add
 */
-window.dlf.fn_moveMarker = function(n_tid) { 
+window.dlf.fn_moveMarker = function(n_tid, str_flag) { 
 	var str_trackStatus = $('#trackHeader').css('display');
 	
 	if ( str_trackStatus == 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	
@@ -26,9 +27,11 @@ window.dlf.fn_moveMarker = function(n_tid) {
 			}
 			obj_tempMarker.setTop(true);
 			obj_tempMarker.openInfoWindow(obj_infoWindow); // 显示吹出框
-			setTimeout(function() {
-				mapObj.setCenter(obj_tempMarker.getPosition());
-			}, 300);
+			if ( !str_flag ) {
+				setTimeout(function() {
+					mapObj.setCenter(obj_tempMarker.getPosition());
+				}, 300);
+			}
 		} else {
 			// 关闭所有的marker
 			mapObj.closeInfoWindow();

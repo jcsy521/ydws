@@ -203,7 +203,7 @@ window.dlf.fn_initCorpData = function() {
 			$('#c_name').val(str_name).data('c_name', str_name);
 			$('#c_address').val(str_address).data('c_address', str_address);
 			$('#c_email').val(str_email).data('c_email', str_email);
-			$('#c_mobile').val(str_mobile).data('c_mobile', str_mobile);
+			$('#c_mobile').html(str_mobile);
 			$('#c_linkman').val(str_linkMan).data('c_linkman', str_linkMan);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
@@ -463,7 +463,7 @@ $(function () {
 		n_trackLeft = ( obj_track.width() ) / 7;
 		
 		if ( n_windowWidth < 1500 ) {
-			n_trackLeft = 80;
+			n_trackLeft = 70;
 			n_delayLeft = 870;
 			n_delayIconLeft = 853;
 			n_alarmLeft = 1000;
@@ -785,7 +785,7 @@ $(function () {
 	});
 	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "名只能是由数字、英文、下划线或中文组成！"});  //集团名
 	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人姓名只能是由数字、英文、下划线或中文组成！"});  // 联系人姓名
-	$('#c_mobile').formValidator({validatorGroup: '4'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人手机号输入不合法，请重新输入！"});  // 联系人手机号	
+	// $('#c_mobile').formValidator({validatorGroup: '4'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人手机号输入不合法，请重新输入！"});  // 联系人手机号	
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
