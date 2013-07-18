@@ -130,15 +130,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_iconType = str_iconType;
 	}
 	
-	if ( arr_tracePoints ) {	// trace_info如果有数据就甩尾，如果没有就显示basic_info的点
-		var n_trackLength = arr_tracePoints.length;
-		
-		if ( n_trackLength > 0 ) {
-			for ( var x = 0; x < arr_tracePoints.length; x=x+2 ) {
-				arr_tempTracePoints.push(dlf.fn_createMapPoint(arr_tracePoints[x+1], arr_tracePoints[x]));
-			}
-		} else {
-			arr_tempTracePoints.push(obj_tempPoint);
+	var n_trackLength = arr_tracePoints.length;	// trace_info如果有数据就甩尾，如果没有就显示basic_info的点
+	
+	if ( n_trackLength > 0 ) {
+		for ( var x = 0; x < arr_tracePoints.length; x=x+2 ) {
+			arr_tempTracePoints.push(dlf.fn_createMapPoint(arr_tracePoints[x+1], arr_tracePoints[x]));
 		}
 	}
 	/**
@@ -148,14 +144,14 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if ( str_actionTrack == 'yes' ) {
 			var str_tempOldColor = obj_actionTrack[str_tid].color;
 			
-			if ( b_isCorpUser ) {	// 如果是集团开启追踪后  显示track_info的点数据
+			/*if ( b_isCorpUser ) {	// 如果是集团开启追踪后  显示track_info的点数据
 				var n_firstTrack = obj_selfMarker.track;
 				
 				if ( n_firstTrack ) {
 					obj_tempVal.val = [];
 					obj_selfmarkers[str_tid].track = 0;
 				}
-			}
+			}*/
 			/**
 			* kjj add 2013-07-09 
 			* get the gps point in track info 
@@ -344,7 +340,7 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 		}
 		arr_openTids.push(str_tid); // 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪 todo
 		if ( obj_selfMarker ) {
-			obj_selfMarker.track = n_track;	// 存储第一次开启追踪、移除存储第一次开启追踪
+			// obj_selfMarker.track = n_track;	// 存储第一次开启追踪、移除存储第一次开启追踪
 			obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,  // 获取吹出框
 			str_content = obj_selfInfoWindow.getContent(); // 吹出框内容
 			

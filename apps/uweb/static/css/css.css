@@ -1223,6 +1223,7 @@ body {
 .trackPos #trackTerminalAliasLabel {
 	color: #119DED;
 	padding: 0px;
+	*top: 0px;
 }
 #trackSlide {
     display: inline-block;
@@ -2462,7 +2463,6 @@ fieldset {
 	height: 213px
 }
 legend {
-	display:block;
 	border: 0px;
 	font-size: 13px;
 	padding-left: 10px;
