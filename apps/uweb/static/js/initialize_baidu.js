@@ -77,8 +77,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		arr_tempTracePoints = [],	// 临时存储甩尾的点数组
 		str_randomColor = dlf.fn_randomColor(),	// 随机生成的颜色值
 		n_track = obj_carInfo.track,	// 是否开启追踪 0: 取消追踪 1: 开启追踪
-		str_track = n_track == 1 ? 'yes' : 'no',
-		n_trackLength = arr_tracePoints.length;
+		str_track = n_track == 1 ? 'yes' : 'no';
 		
 	/*if ( str_type != 'current' ) {
 		obj_actionTrack[str_tid].status = str_track;
@@ -93,13 +92,15 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	if ( b_isCorpUser && str_type == 'current' ) {	// 如果是集团用户 && 实时定位
 		n_iconType = str_iconType;
 	}
-	
-	if ( n_trackLength > 0 ) {	// trace_info如果有数据就甩尾，如果没有就显示basic_info的点
-		for ( var x = 0; x < arr_tracePoints.length; x=x+2 ) {
-			arr_tempTracePoints.push(dlf.fn_createMapPoint(arr_tracePoints[x+1], arr_tracePoints[x]));
+	if ( arr_tracePoints ) {
+		var n_trackLength = arr_tracePoints.length;
+		
+		if ( n_trackLength > 0 ) {	// trace_info如果有数据就甩尾，如果没有就显示basic_info的点
+			for ( var x = 0; x < n_trackLength; x=x+2 ) {
+				arr_tempTracePoints.push(dlf.fn_createMapPoint(arr_tracePoints[x+1], arr_tracePoints[x]));
+			}
 		}
 	}
-	
 	/**
 	* 存储车辆信息
 	*/

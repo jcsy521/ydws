@@ -130,11 +130,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_iconType = str_iconType;
 	}
 	
-	var n_trackLength = arr_tracePoints.length;	// trace_info如果有数据就甩尾，如果没有就显示basic_info的点
-	
-	if ( n_trackLength > 0 ) {
-		for ( var x = 0; x < arr_tracePoints.length; x=x+2 ) {
-			arr_tempTracePoints.push(dlf.fn_createMapPoint(arr_tracePoints[x+1], arr_tracePoints[x]));
+	if ( arr_tracePoints ) {
+		var n_trackLength = arr_tracePoints.length;
+		
+		if ( n_trackLength > 0 ) {	// trace_info如果有数据就甩尾，如果没有就显示basic_info的点
+			for ( var x = 0; x < n_trackLength; x=x+2 ) {
+				arr_tempTracePoints.push(dlf.fn_createMapPoint(arr_tracePoints[x+1], arr_tracePoints[x]));
+			}
 		}
 	}
 	/**
