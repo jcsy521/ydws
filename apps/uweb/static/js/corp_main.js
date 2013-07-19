@@ -896,6 +896,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 							}
 							str_tempFirstTid = 'leaf_' + param;	// 第一个分组的第一个定位器 id							
 						}
+						obj_carsData = {};
 						for ( var param in obj_trackers ) {	// 添加组下面的定位器
 							var obj_infoes = obj_trackers[param],
 								obj_car = obj_infoes.basic_info,	// 终端基本信息

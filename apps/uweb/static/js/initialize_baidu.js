@@ -30,7 +30,7 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 			if ( !str_flag ) {
 				setTimeout(function() {
 					mapObj.setCenter(obj_tempMarker.getPosition());
-				}, 300);
+				}, 100);
 			}
 		} else {
 			// 关闭所有的marker
