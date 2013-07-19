@@ -120,25 +120,28 @@ class LastInfoHandler(BaseHandler):
                     if int(query_time) < lastinfo_time:
                         usable = 1
                         if track_tid:
-                            if int(query_time) == -1:
-                                pass
-                            elif lastinfo_time - query_time > 1: # every 30 second, ternimal generate a location 
-                                car_info = cars_info[track_tid]
-                                endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(lastinfo_time)-1 
-                                track  = self.db.query("SELECT id, latitude, longitude," 
-                                                       "    clatitude, clongitude"
-                                                       "  FROM T_LOCATION"
-                                                       "  WHERE tid = %s"
-                                                       "    AND NOT (latitude = 0 OR longitude = 0)"
-                                                       "    AND (timestamp BETWEEN %s AND %s)"
-                                                       "    AND type = 0"
-                                                       "    ORDER BY timestamp",
-                                                       track_tid, int(track_time)+1, endtime)
-                                track = get_locations_with_clatlon(track, self.db)
-                                for item in track:
-                                    if item['clatitude'] and item['clongitude']:
-                                        track_info.append(item['clatitude'])
-                                        track_info.append(item['clongitude'])
+                            if track_tid not in tids:
+                                logging.error("The terminal with tid: %s does not exist", track_tid)
+                            else:
+                                if int(query_time) == -1:
+                                    pass
+                                elif lastinfo_time - query_time > 1: # every 30 second, ternimal generate a location 
+                                    car_info = cars_info[track_tid]
+                                    endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(lastinfo_time)-1 
+                                    track  = self.db.query("SELECT id, latitude, longitude," 
+                                                           "    clatitude, clongitude"
+                                                           "  FROM T_LOCATION"
+                                                           "  WHERE tid = %s"
+                                                           "    AND NOT (latitude = 0 OR longitude = 0)"
+                                                           "    AND (timestamp BETWEEN %s AND %s)"
+                                                           "    AND type = 0"
+                                                           "    ORDER BY timestamp",
+                                                           track_tid, int(track_time)+1, endtime)
+                                    track = get_locations_with_clatlon(track, self.db)
+                                    for item in track:
+                                        if item['clatitude'] and item['clongitude']:
+                                            track_info.append(item['clatitude'])
+                                            track_info.append(item['clongitude'])
                     else: 
                         cars_info = {}
                         usable = 0

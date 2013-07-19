@@ -37,7 +37,7 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             data = DotDict(json_decode(self.request.body))
             tid = data.get('tid',None) 
             tids = data.get('tids', None)
-            flag = int(data.get('flag', 0))
+            flag = int(data.get('flag', 1))
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
             logging.info("[UWEB] track LQ request: %s, uid: %s, tid: %s, tids: %s, flag: %s", 
