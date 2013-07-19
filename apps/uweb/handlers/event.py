@@ -85,7 +85,7 @@ class EventHandler(BaseHandler):
 
             # NOTE: for individual, do not show events about 5,7,8; for
             # enterprise, do not show events about 5
-            hide_lst = [5,7,8] # 5: sos, 7: enter bound, 8: out bound
+            hide_lst = [5,] # 5: sos
 
             #NOTE: for individual, the interval between start_time and end_time is one week;
             # for enterprise, no checks
@@ -169,7 +169,7 @@ class EventHandler(BaseHandler):
                     else:
                         event['comment'] = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % event['fobid']
 
-                if event.rid:
+                if event['category'] in [EVENTER.CATEGORY.REGION_ENTER, EVENTER.CATEGORY.REGION_OUT]:
                     region = self.db.get("SELECT name AS region_name"
                                          "  FROM T_REGION"
                                          "  WHERE id = %s",

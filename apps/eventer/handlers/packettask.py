@@ -63,7 +63,7 @@ class PacketTask(object):
 
     def check_region_event(self, ori_location, region): 
         """check enter or out region """
-        if not (location and region): 
+        if not (ori_location and region): 
             return None
 
         # BIG NOTE: python grammar, shallow copy will change origen data.
@@ -102,6 +102,7 @@ class PacketTask(object):
             location['t'] = EVENTER.INFO_TYPE.REPORT
             location['rName'] = rname
             location['region'] = region 
+            location['region_id'] = region.region_id
         return location
                 
     def get_tname(self, dev_id):
@@ -152,7 +153,7 @@ class PacketTask(object):
             # check regions
             for region in regions:
                 region_location = self.check_region_event(location, region)
-                if region_location: 
+                if region_location['t'] == EVENTER.INFO_TYPE.REPORT:
                     self.handle_report_info(region_location)
 
             location['category'] = EVENTER.CATEGORY.REALTIME
@@ -174,7 +175,7 @@ class PacketTask(object):
                                                           cellid=True, db=self.db) 
                     for region in regions:
                         region_pvt= self.check_region_event(pvt, region)
-                        if region_pvt: 
+                        if region_pvt['t'] == EVENTER.INFO_TYPE.REPORT:
                             self.handle_report_info(region_pvt)
                 # NOTE: not offset it
                 #location = lbmphelper.handle_location(pvt, self.redis,
@@ -229,7 +230,7 @@ class PacketTask(object):
 
 
         if info['rName'] in [EVENTER.RNAME.REGION_OUT, EVENTER.RNAME.REGION_ENTER]:
-            region = location['region']
+            region = report['region']
             alarm['region_id'] = region.region_id
 
         self.record_alarm_info(alarm)
@@ -237,7 +238,7 @@ class PacketTask(object):
         # 2:  save into database. T_LOCATION, T_EVENT
         lid = insert_location(report, self.db, self.redis)
         self.update_terminal_info(report)
-        self.event_hook(report.category, report.dev_id, report.terminal_type, lid, report.pbat, report.get('fobid'))
+        self.event_hook(report.category, report.dev_id, report.get('terminal_type',1), lid, report.pbat, report.get('fobid'), report.get('region_id', -1))
 
         # 3: notify the owner 
         user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
@@ -247,8 +248,8 @@ class PacketTask(object):
         
         # send sms to owner
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
+        name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
         if sms_option == UWEB.SMS_OPTION.SEND:
-            name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
             terminal_time = get_terminal_time(int(report.gps_time))
             terminal_time = safe_unicode(terminal_time) 
 

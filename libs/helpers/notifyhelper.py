@@ -62,7 +62,7 @@ class NotifyHelper(object):
                       pbat=location.pbat,
                       comment=location.comment,
                       # for region
-                      region_id=region.region_id if region_id else -1,)
+                      region_id=region_id if region_id else -1,)
     
         msg=str(json_encode(ret)) 
         #url = "http://www.android-push.com/api/send/?secret=%s&app_key=%s&client_ids=&alias=%s&msg=%s" % (push_info.secret, push_info.app_key, alias, msg)
