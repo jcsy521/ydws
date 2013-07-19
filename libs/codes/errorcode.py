@@ -19,6 +19,7 @@ class ErrorCode(object):
     ILLEGAL_CONTENT = 129
     ILLEGAL_EXCEL_FILE = 130
     ILLEGAL_MOBILE = 131
+    ILLEGAL_LABEL = 132
 
     LOGIN_FAILED = 200
     LOGIN_AGAIN = 201
@@ -56,6 +57,7 @@ class ErrorCode(object):
     QUERY_TRACK_FORBID = 700
     QUERY_INTERVAL_EXCESS = 701
     REGION_ADDITION_EXCESS = 702
+    REGION_NOT_EXISTED = 703 
 
     TERMINAL_OFFLINE = 800
     TERMINAL_OTHER_ERRORS = 802
@@ -89,6 +91,7 @@ class ErrorCode(object):
         ILLEGAL_CONTENT:               u"反馈内容中含有非法字符，请重新输入。",
         ILLEGAL_EXCEL_FILE:            u"非法的文件，请选择excel表。",
         ILLEGAL_MOBILE:                u"非法的手机号。",
+        ILLEGAL_LABEL:                 u"对不起，只允许输入数字和字母",
         WRONG_CAPTCHA:                 u"验证码输入错误。",
         WRONG_PASSWORD:                u"密码错误，请重新输入。",
         WRONG_OLD_PASSWORD:            u"原始密码错误，请重新输入。",
@@ -101,6 +104,7 @@ class ErrorCode(object):
         QUERY_TRACK_FORBID:            u"您使用的是简易版移动车卫士，不支持轨迹查询功能。",
         QUERY_INTERVAL_EXCESS:         u"对不起，只能查询一个星期之内的记录！",
         REGION_ADDITION_EXCESS:        u"对不起，电子围栏数已超过上限。",
+        REGION_NOT_EXISTED:            u"对不起，该围栏已经不存在。",
         TERMINAL_NOT_ORDERED:          u"对不起，该号码尚未绑定定位器。",
         MOBILE_NOT_ORDERED:            u"%s不是移动车卫士白名单号码，请联系客服。",
         TERMINAL_NOT_EXISTED:          u"对不起，该终端不存在。",

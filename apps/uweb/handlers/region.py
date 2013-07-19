@@ -34,6 +34,11 @@ class RegionDetailHandler(BaseHandler):
                                  "  FROM T_REGION"
                                  "  WHERE id = %s",
                                  rid)
+            if not region:
+                status = ErrorCode.REGION_NOT_EXISTED
+                self.write_ret(status)
+                return
+
             #NOTE: now, just provide region whose shape is circle
             res = DotDict(region_id=region.region_id,
                           region_name=region.region_name,
@@ -164,7 +169,7 @@ class RegionHandler(BaseHandler):
 
         try:
             status = ErrorCode.SUCCESS
-            # delete redis region status
+            #1: delete redis region status
             for region_id in delete_ids:
                 terminals = self.db.query("SELECT tid"
                                           "  FROM T_REGION_TERMINAL"
@@ -174,7 +179,7 @@ class RegionHandler(BaseHandler):
                     region_status_key = get_region_status_key(terminal.tid, region_id)
                     self.redis.delete(region_status_key)
             
-            # delete region, region event and region terminal relation
+            #2: delete region, region event and region terminal relation
             self.db.execute("DELETE FROM T_REGION WHERE id IN %s",
                             tuple(delete_ids + DUMMY_IDS)) 
 

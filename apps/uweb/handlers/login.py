@@ -53,7 +53,7 @@ class LoginHandler(BaseHandler, LoginMixin):
                         password='',
                         user_type=user_type,
                         message_captcha=None,
-                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
+                        message=ErrorCode.ERROR_MESSAGE[ErrorCode.ILLEGAL_LABEL])
             return
 
         #if not (check_sql_injection(username) and check_sql_injection(password)):
@@ -136,10 +136,10 @@ class IOSHandler(BaseHandler, LoginMixin):
         logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s, user_type: %s",
                      username, password, iosid, user_type)
         # must check username and password avoid sql injection.
-        #if not (username.isalnum() and password.isalnum()):
-        #    status= ErrorCode.LOGIN_FAILED
-        #    self.write_ret(status)
-        #    return
+        if not (username.isalnum() and password.isalnum()):
+            status= ErrorCode.ILLEGAL_LABEL
+            self.write_ret(status)
+            return
         #if not (check_sql_injection(username) and check_sql_injection(password)):
         #    status= ErrorCode.LOGIN_FAILED
         #    self.write_ret(status)
@@ -277,7 +277,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
                      username, password, user_type, devid)
         # must check username and password avoid sql injection.
         if not (username.isalnum() and password.isalnum()):
-            status= ErrorCode.LOGIN_FAILED
+            status= ErrorCode.ILLEGAL_LABEL
             self.write_ret(status)
             return
         #if not (check_sql_injection(username) and check_sql_injection(password)):

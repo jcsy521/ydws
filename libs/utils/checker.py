@@ -11,6 +11,14 @@ _sql_injection_pattern ='|'.join((r"\b(select|update|insert|delete|drop|create|a
 
 SQL_INJECTION_CHECKER = re.compile(_sql_injection_pattern, re.I)
 
+_label_pattern = r"^[a-zA-Z0-9]+$"
+
+LABEL_CHECKER = re.compile(_label_pattern)
+
+_phone_pattern = r"^(1\d{10}|0\d{8,11})$"
+
+PHONE_CHECKER = re.compile(_phone_pattern)
+
 _phone_pattern = r"^(1\d{10}|0\d{8,11})$"
 
 PHONE_CHECKER = re.compile(_phone_pattern)
@@ -31,6 +39,16 @@ def check_sql_injection(str_):
     """
 
     return not SQL_INJECTION_CHECKER.search(str_)
+
+def check_label(label):
+    """Check if the input is alpha or number.
+
+    @return True: it's valid
+            False: it's invalid
+    """
+    
+    return LABEL_CHECKER.match(label)
+
 
 def check_cnum(cnum):
     """Check if the licensenum is valid.
