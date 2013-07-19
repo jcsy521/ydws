@@ -1103,7 +1103,7 @@ function fn_updateAlarmList(arr_alarm) {
 			dlf.fn_jNotifyMessage('该告警没有位置信息。', 'message', false, 3000);
 			return;
 		}
-		dlf.fn_drawRegion(n_category, obj_alarm.rid, obj_centerPointer, 1);	// 画围栏
+		dlf.fn_drawRegion(n_category, obj_alarm.region_id, obj_centerPointer, 1);	// 画围栏
 		/*
 		if ( n_category == 7 || n_category == 8 ) {	// 如果是进出围栏告警 画围栏
 			var obj_circleData = {},

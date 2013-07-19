@@ -1381,6 +1381,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		b_eventStatus = $('#eventSearchWrapper').is(':visible'),	// 告警是否显示
 		b_regionStatus = $('#regionWrapper').is(':visible'),	// 电子围栏是否显示
+		b_createRegionStatus = $('#regionCreateWrapper').is(':visible'),	// 新建电子围栏是否显示
 		b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
 		b_routeLineStatus = $('#routeLineWrapper').is(':visible');	// 线路管理是否显示
 
@@ -1417,7 +1418,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 			dlf.fn_closeTrackWindow(true);
 		}
 	}*/
-	if ( b_trackStatus || b_bindRegionStatus || b_regionStatus || b_eventStatus || b_routeLineStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
+	if ( b_trackStatus || b_bindRegionStatus || b_regionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
 		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
