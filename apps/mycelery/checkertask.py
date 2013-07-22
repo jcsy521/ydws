@@ -37,6 +37,7 @@ class CheckTask(object):
             for terminal in terminals:
                 track_key = get_track_key(terminal.tid)
                 track = self.redis.get(track_key)
+                logging.info("[CK] track: %s, tid: %s", track, terminal.tid)
                 if not track:
                     self.db.execute("UPDATE T_TERMINAL_INFO"
                                     "  SET track = 0"

@@ -615,6 +615,8 @@ class MyGWServer(object):
             if resend_flag:
                 logging.warn("[GW] Recv resend login packet: %s and use old sessionID!", t_info) 
                 args.sessionID = self.get_terminal_sessionID(t_info['dev_id'])
+                if not args.sessionID:
+                    args.sessionID = get_sessionID()
             else:
                 args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
@@ -988,8 +990,10 @@ class MyGWServer(object):
         if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
             # get SessionID
             if resend_flag:
-                logging.warn("[GW] Recv resend login packet: %s and use old sessionID!", t_info) 
                 args.sessionID = self.get_terminal_sessionID(t_info['dev_id'])
+                logging.warn("[GW] Recv resend login packet: %s and use old sessionID: %s!", t_info, args.sessionID) 
+                if not args.sessionID:
+                    args.sessionID = get_sessionID()
             else:
                 args.sessionID = get_sessionID()
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])

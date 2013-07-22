@@ -124,7 +124,6 @@ def main():
     http_server = None
     try:
         ConfHelper.load(options.conf)
-        print 'conf', options.conf
 
         http_server = tornado.httpserver.HTTPServer(Application(debug=debug_mode), xheaders=True)
         http_server.listen(options.port)
