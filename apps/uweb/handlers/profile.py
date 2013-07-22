@@ -7,7 +7,7 @@ import tornado.web
 
 from utils.misc import get_today_last_month, get_terminal_info_key
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection
+from utils.checker import check_sql_injection, check_cnum, check_name
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
@@ -73,10 +73,10 @@ class ProfileHandler(BaseHandler):
             return 
 
         try:
-            #if data.has_key('name')  and not check_sql_injection(data.name):
-            #    status = ErrorCode.ILLEGAL_NAME 
-            #    self.write_ret(status)
-            #    return
+            if data.has_key('name')  and not check_name(data.name):
+                status = ErrorCode.ILLEGAL_NAME 
+                self.write_ret(status)
+                return
 
             #if data.has_key('address')  and not check_sql_injection(data.address):
             #    status = ErrorCode.ILLEGAL_ADDRESS
@@ -93,10 +93,10 @@ class ProfileHandler(BaseHandler):
             #    self.write_ret(status)
             #    return
 
-            #if data.has_key('cnum')  and not check_sql_injection(data.cnum):
-            #    status = ErrorCode.ILLEGAL_CNUM 
-            #    self.write_ret(status)
-            #    return
+            if data.has_key('cnum') and not check_cnum(data.cnum):
+                status = ErrorCode.ILLEGAL_CNUM 
+                self.write_ret(status)
+                return
 
             fields_ = DotDict()
             fields = DotDict(name="name = '%s'")

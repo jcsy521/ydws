@@ -12,7 +12,7 @@ from tornado.ioloop import IOLoop
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection, check_zs_phone
+from utils.checker import check_sql_injection, check_zs_phone, check_cnum
 from utils.public import record_terminal_subscription, delete_terminal
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
@@ -132,9 +132,10 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 return
 
             # sql injection 
-            if data.has_key('cnum') and not check_cnum_injection(data.cnum):
+            if data.has_key('corp_cnum') and not check_cnum(data.corp_cnum):
                 status = ErrorCode.ILLEGAL_CNUM 
                 self.write_ret(status)
+                return
 
             #if data.has_key('alias') and not check_sql_injection(data.alias):
             #    status = ErrorCode.ILLEGAL_ALIAS 

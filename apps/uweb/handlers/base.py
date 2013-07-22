@@ -135,7 +135,27 @@ class BaseHandler(tornado.web.RequestHandler):
             file_name = urllib.quote(safe_utf8(file_name))
         return '-'.join((file_name, strftime("%Y%m%d")))
 
-    def login_log(self, uid, role, method):
+    def login_log(self, uid, role, method, versionname=None):
+        """Keep the user's login log.
+        @params: role: 0: person; 
+                       1: operator; 
+                       2: enterprise 
+                 method:  0: web; 
+                          1: android; 
+                          2: ios 
+        """
         self.db.execute("INSERT INTO T_LOGIN_LOG(uid, role, method, timestamp)"
                         "  values(%s, %s, %s, %s)",
                         uid, role, method, int(time()))
+
+        if versionname: 
+            if method == 1: # android
+                self.db.execute("UPDATE T_USER SET android_versionname = %s "
+                                "  WHERE uid = %s", versionname, uid)
+            elif method == 2: # ios
+                self.db.execute("UPDATE T_USER SET ios_versionname = %s "
+                                "  WHERE uid = %s", versionname, uid)
+            else:
+                logging.info("[UWEB] method: %s is invalid.", method )
+        else:
+            logging.info("[UWEB] versionname is empty: %s", versionname)

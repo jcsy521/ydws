@@ -9,7 +9,7 @@ import tornado.web
 
 from utils.misc import get_psd
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection
+from utils.checker import check_sql_injection, check_label
 from mixin.password import PasswordMixin 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
@@ -45,10 +45,10 @@ class PasswordHandler(BaseHandler, PasswordMixin):
             old_password = data.old_password
             new_password = data.new_password
 
-            #if not (check_sql_injection(old_password) and check_sql_injection(new_password) ):
-            #    status = ErrorCode.ILLEGAL_PASSWORD 
-            #    self.write_ret(status)
-            #    return
+            if not (check_label(old_password) and check_label(new_password) ):
+                status = ErrorCode.ILLEGAL_PASSWORD 
+                self.write_ret(status)
+                return
 
             if not self.check_user_by_password(old_password, self.current_user.uid): 
                 logging.error("[UWEB] uid: %s change password failed. old passwrod: %s, new passwrod: %s",

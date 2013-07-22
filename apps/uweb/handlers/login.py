@@ -97,6 +97,7 @@ class LoginHandler(BaseHandler, LoginMixin):
                 logging.error("[UWEB] invalid user_type: %s", user_type)
                 pass
             if (role is not None) and (user_id is not None):
+                # keep the login log
                 self.login_log(user_id, role, 0)
 
             self.bookkeep(dict(cid=cid,
@@ -133,6 +134,7 @@ class IOSHandler(BaseHandler, LoginMixin):
         password = self.get_argument("password")
         iosid = self.get_argument("iosid",'')
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
+        versionname = self.get_argument("versionname", "")
         logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s, user_type: %s",
                      username, password, iosid, user_type)
         # must check username and password avoid sql injection.
@@ -148,8 +150,8 @@ class IOSHandler(BaseHandler, LoginMixin):
         # check the user, return uid, tid, sim and status
         cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
         if status == ErrorCode.SUCCESS: 
-
-            self.login_log(uid, 0, 2)
+            # keep the login log
+            self.login_log(uid, 0, 2, versionname)
             self.bookkeep(dict(cid=cid,
                                oid=oid,
                                uid=uid,
@@ -273,6 +275,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
         password = self.get_argument("password")
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
         devid = self.get_argument("devid", "")
+        versionname = self.get_argument("versionname", "")
         logging.info("[UWEB] Android login request, username: %s, password: %s, user_type: %s, devid: %s", 
                      username, password, user_type, devid)
         # must check username and password avoid sql injection.
@@ -290,7 +293,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
         if status == ErrorCode.SUCCESS: 
             ## role: 0: person; 1: operator; 2: enterprise
             ## method 0: web; 1: android; 2: ios 
-            self.login_log(uid, 0, 1)
+            self.login_log(uid, 0, 1, versionname)
 
             self.bookkeep(dict(cid=cid,
                                oid=oid,

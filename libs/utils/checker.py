@@ -23,9 +23,13 @@ _phone_pattern = r"^(1\d{10}|0\d{8,11})$"
 
 PHONE_CHECKER = re.compile(_phone_pattern)
 
-_cnum_pattern = r"^[^\x00-\xff]{1}[a-zA-Z0-9]+$"
+_cnum_pattern = r"^[\u4e00-\u9fa5A-Z0-9 ]+$"
 
 CNUM_CHECKER = re.compile(_cnum_pattern)
+
+_name_pattern = r"^[\u4e00-\u9fa5a-zA-Z0-9 ]+$"
+
+name_CHECKER = re.compile(_name_pattern)
 
 _zs_phone_pattern = r"^(1477847\d{4}|1477874\d{4})$"
 
@@ -49,7 +53,6 @@ def check_label(label):
     
     return LABEL_CHECKER.match(label)
 
-
 def check_cnum(cnum):
     """Check if the licensenum is valid.
 
@@ -58,6 +61,15 @@ def check_cnum(cnum):
     """
     
     return CNUM_CHECKER.match(cnum)
+
+def check_name(name):
+    """Check if the name is valid.
+
+    @return True: it's valid
+            False: it's invalid
+    """
+    
+    return NAME_CHECKER.match(name)
 
 def check_phone(phone):
     """Check if the phone is valid.
