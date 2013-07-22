@@ -295,7 +295,12 @@ class DoFile(object):
         f_save.write(json_encode(save_dict))
         f_save.close()
 
-    def dofile(self):  
+    def dofile(self): 
+
+        if os.path.exists(_conf_recod+"record.rgl"):
+            pass
+        else:
+            os.system(r'touch %s' % _conf_recod+"record.rgl")      
 
         save_message = self.fc.getSaveInfo() 
         record_dict = self.getLogRec() 
