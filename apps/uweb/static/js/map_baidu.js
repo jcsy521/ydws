@@ -98,7 +98,7 @@ window.dlf.fn_createMapPoint = function(n_lon, n_lat) {
 window.dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
 	var obj_polyLine = null;
 	if ( arr_drawLine.length > 0 ) {
-		obj_polyLine = new BMap.Polyline(arr_drawLine);
+		obj_polyLine = new BMap.Polyline(arr_drawLine, {'strokeOpacity': 0.5});
 		dlf.fn_addOverlay(obj_polyLine);
 		if ( obj_options ) {
 			var str_color = obj_options.color,
@@ -446,7 +446,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		if ( str_iconType == 'actiontrack' ) {
 			str_html+='<li class="top10"><a href="#" id="realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
 			if ( dlf.fn_userType() ) {	// 如果是集团用户的话 定位、轨迹、设防撤防、参数设置放在marker上
-				str_html+='<a href="#" id="corpTerminal"  onclick="dlf.fn_initCorpTerminal();">设置</a>';
+				str_html+='<a href="#" id="corpTerminal"  onclick="dlf.fn_initCorpTerminal();">设置</a><a href="#" onclick="dlf.fn_initRegion();">围栏</a>';
 			} else {	// 如果是个人用户
 				str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
 			}

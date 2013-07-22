@@ -4,7 +4,7 @@
 
 // 围栏管理的初始化查询展示
 window.dlf.fn_initRegion = function() {
-	var str_tid = $('.j_currentCar').attr('tid'),
+	var str_alias = $('.j_currentCar').attr('alias'),
 		str_region = 'region', 
 		obj_regionWapper = $('#regionWrapper'), 
 		obj_regionAddWapper = $('#regionCreateWrapper'),
@@ -18,7 +18,7 @@ window.dlf.fn_initRegion = function() {
 	fn_displayCars(); // 显示车辆信息数据
 	
 	//填充当前终端tid在围栏页面
-	$('#regionForTerminal').html('定位器：'+str_tid);
+	$('#regionForTerminal').html('定位器：'+str_alias);
 	
 	//获取围栏数据 
 	dlf.fn_setSearchRecord(str_region);
