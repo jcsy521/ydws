@@ -51,6 +51,7 @@ class GWBatteryHandler(BaseHandler):
                 tid =result['tid']
                 for file in files:
                     lines= linecache.getlines(file_path+file)
+                    linecache.updatecache(file_path+file)
                     if len(lines) !=0:
                         first_num = 0
                         last_num = len(lines)-1
