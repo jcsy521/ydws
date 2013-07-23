@@ -57,6 +57,7 @@ class TrackLQHandler(BaseHandler, BaseMixin):
                 for tid in tids:
                     track_key = get_track_key(tid)
                     track = self.redis.get(track_key)
+                    logging.info("[UWEB] Get track: %s from redis", track)
                     if track and int(track) == 1:
                         # turn on track already
                         logging.info("[UWEB] Terminal: %s turn on track already.", tid)
