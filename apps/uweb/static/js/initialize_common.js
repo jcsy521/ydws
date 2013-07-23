@@ -418,8 +418,10 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		
 		str_currentTid = n_tid;
 		
-		if ( !dlf.fn_isEmptyObj(obj_carDatas) ) {
-			dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
+		var obj_car = obj_carDatas[n_tid];
+		
+		if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
+			dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
 		}
 		/*集团用户切换变换轨迹要显示的终端 并清除地图*/
 		var str_tempAlias = $('.j_currentCar').attr('alias');
