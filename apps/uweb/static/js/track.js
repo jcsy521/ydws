@@ -10,7 +10,7 @@
 *n_speed: 默认播放速度
 *b_trackMsgStatus: 动态marker的吹出框是否显示
 */
-var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, b_trackMsgStatus = false,obj_drawLine = null, arr_drawLine = [];
+var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, b_trackMsgStatus = true,obj_drawLine = null, arr_drawLine = [];
 /**
 * 初始化轨迹显示页面
 */
@@ -387,7 +387,7 @@ function fn_drawMarker() {
 			b_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
 			dlf.fn_clearMapComponent(actionMarker);
 		}
-		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, counter); // 添加标记
+		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, b_trackMsgStatus, counter); // 添加标记
 		// 将播放过的点放到数组中
 		var obj_tempPoint = dlf.fn_createMapPoint(arr_dataArr[counter].clongitude, arr_dataArr[counter].clatitude);
 		
