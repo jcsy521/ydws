@@ -23,13 +23,13 @@ _phone_pattern = r"^(1\d{10}|0\d{8,11})$"
 
 PHONE_CHECKER = re.compile(_phone_pattern)
 
-_cnum_pattern = r"^[\u4e00-\u9fa5A-Z0-9 ]+$"
+_cnum_pattern = ur"^[\u4e00-\u9fa5A-Z0-9 ]+$"
 
 CNUM_CHECKER = re.compile(_cnum_pattern)
 
-_name_pattern = r"^[\u4e00-\u9fa5a-zA-Z0-9 ]+$"
+_name_pattern = ur"^[\u4e00-\u9fa5a-zA-Z0-9 ]+$"
 
-name_CHECKER = re.compile(_name_pattern)
+NAME_CHECKER = re.compile(_name_pattern)
 
 _zs_phone_pattern = r"^(1477847\d{4}|1477874\d{4})$"
 
