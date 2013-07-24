@@ -86,12 +86,12 @@ def check_zs_phone(phone, db):
     @return True: it's safe;
             False: unsafe
     """
-
-    if ZS_PHONE_CHECKER.match(phone):
-        return True
-    else:
-        white_list = db.get("SELECT id FROM T_BIZ_WHITELIST where mobile = %s LIMIT 1", phone)
-        if white_list:
-            return True
-        else:
-            return False
+    return True
+    #if ZS_PHONE_CHECKER.match(phone):
+    #    return True
+    #else:
+    #    white_list = db.get("SELECT id FROM T_BIZ_WHITELIST where mobile = %s LIMIT 1", phone)
+    #    if white_list:
+    #        return True
+    #    else:
+    #        return False
