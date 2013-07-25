@@ -53,7 +53,7 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             tids = tids if tids else [self.current_user.tid, ]
             tids = [str(tid) for tid in tids]
 
-            if int(flag) == 1:
+            if int(flag) != 2:
                 for tid in tids:
 
                     ##NOTE: just send lqgz temporary
@@ -62,7 +62,7 @@ class TrackLQHandler(BaseHandler, BaseMixin):
                     lqgz_value = self.redis.getvalue(lqgz_key)
                     lqgz_interval_key = get_lqgz_interval_key(tid)
                     if not lqgz_value:
-                        interval = 10
+                        interval = 30 # in minute
                         sms = SMSCode.SMS_LQGZ % interval
                         SMSHelper.send_to_terminal(terminal.mobile, sms)
                         self.redis.setvalue(lqgz_key, True, SMS.LQGZ_SMS_INTERVAL)
