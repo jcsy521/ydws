@@ -106,6 +106,7 @@ class LastPositionHandler(BaseHandler):
             if int(data.get('cache', 0)) == 1:  # use cache
                 if int(query_time) == lastposition_time:
                     usable = 0 
+                    res = {} 
                 else: 
                     usable = 1
                     for item in data.track_list:

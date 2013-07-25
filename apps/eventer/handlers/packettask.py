@@ -70,7 +70,6 @@ class PacketTask(object):
         location = copy.deepcopy(dict(ori_location))
         location = DotDict(location)
 
-        location['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS
         terminal = QueryHelper.get_terminal_by_tid(location['dev_id'], self.db)
         old_region_status_key = get_region_status_key(location['dev_id'], region.region_id)
         old_region_status = self.redis.getvalue(old_region_status_key)
@@ -103,6 +102,7 @@ class PacketTask(object):
             location['rName'] = rname
             location['region'] = region 
             location['region_id'] = region.region_id
+
         return location
                 
     def get_tname(self, dev_id):
@@ -157,7 +157,6 @@ class PacketTask(object):
                     self.handle_report_info(region_location)
 
             location['category'] = EVENTER.CATEGORY.REALTIME
-            location['type'] = location.get('type', 1)
             self.update_terminal_info(location)
             if location.get('lat') and location.get('lon'):
                 self.realtime_location_hook(location)
@@ -167,12 +166,14 @@ class PacketTask(object):
                 # get available location from lbmphelper
                 pvt['dev_id'] = location['dev_id']
                 pvt['Tid'] = location['Tid']
+                pvt['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS
+                pvt['type'] = 0 
 
                 regions = self.get_regions(pvt['dev_id'])
                 # check regions
                 if regions:
                     pvt = lbmphelper.handle_location(pvt, self.redis,
-                                                          cellid=True, db=self.db) 
+                                                     cellid=True, db=self.db) 
                     for region in regions:
                         region_pvt= self.check_region_event(pvt, region)
                         if region_pvt['t'] == EVENTER.INFO_TYPE.REPORT:
@@ -181,7 +182,6 @@ class PacketTask(object):
                 #location = lbmphelper.handle_location(pvt, self.redis,
                 #                                      cellid=False, db=self.db) 
                 pvt['category'] = EVENTER.CATEGORY.REALTIME
-                pvt['type'] = location.get('type', 0)
                 if pvt.get('lat') and pvt.get('lon'): 
                     insert_location(pvt, self.db, self.redis)
 

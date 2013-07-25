@@ -65,6 +65,7 @@ class TrackLQHandler(BaseHandler, BaseMixin):
                         self.db.execute("UPDATE T_TERMINAL_INFO SET track = %s"
                                         "  WHERE tid = %s",
                                         flag, tid)
+                        self.redis.set(track_key, 1)
                         sessionID_key = get_terminal_sessionID_key(tid)
                         self.redis.delete(sessionID_key)
             self.write_ret(status)
