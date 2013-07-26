@@ -249,6 +249,11 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             return 
         
         try:
+            if data.has_key('cnum') and not check_cnum(data.cnum):
+                status = ErrorCode.ILLEGAL_CNUM 
+                self.write_ret(status)
+                return
+            
             # 1 year
             begintime = int(time.time())
             now_ = datetime.datetime.now()

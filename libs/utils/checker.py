@@ -59,7 +59,8 @@ def check_cnum(cnum):
     @return True: it's valid
             False: it's invalid
     """
-    
+    if not cnum:  # it's ok if cnum is ''
+        return True
     return CNUM_CHECKER.match(cnum)
 
 def check_name(name):
