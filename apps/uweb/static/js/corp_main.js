@@ -674,8 +674,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					}
 				}
 			}
-
-			if ( str_currentTid != undefined && str_currentTid != '') {
+			if ( str_currentTid != undefined && str_currentTid != '' ) {
 				if ( b_createTerminal ) {	// 如果是新建终端 发起switchCar
 					var obj_newTerminal = $('#leaf_' + str_currentTid);
 					
@@ -686,7 +685,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						var obj_carInfo = obj_carsData[param], 
 							str_tid = param;
 						
-						if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
+						if ( str_currentTid == str_tid || str_checkedNodeId.substr(5, str_checkedNodeId.length) == str_tid ) {	// 更新当前车辆信息
 							dlf.fn_updateTerminalInfo(obj_carInfo);
 							b_loop = false;
 						}

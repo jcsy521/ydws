@@ -816,7 +816,7 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false,	// 一个汉字当一个字节
 		submitButtonID: 'cTerminalSave', // 指定本form的submit按钮
-		onError: function(msg) { 
+		onError: function(msg) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000);
 			return;
 		}, 
@@ -831,7 +831,7 @@ $(function () {
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "短信接收号码输入不合法，请重新输入！"});  // 别名;
-	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
+	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能是汉字、数字、大写英文组成！'});  // 别名;
 	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
 	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
 	
