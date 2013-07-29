@@ -742,6 +742,19 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			var str_tid = obj_current.attr('tid');
 			
 			if ( str_currentTid == str_tid ) {	// 如果是同辆车则不switchcar
+				var obj_currentMarker = obj_selfmarkers[str_tid];				
+				
+					if ( obj_currentMarker ) {	// 2013-07-29 add 切换当前车 只打开吹出框
+						var obj_position = obj_currentMarker.getPosition(),
+							obj_infowindow = obj_currentMarker.selfInfoWindow;
+						
+						mapObj.setCenter(obj_position);
+						if ( dlf.fn_isBMap() ) {
+							obj_currentMarker.openInfoWindow(obj_infowindow);
+						} else {
+							obj_selfmarkers[str_tid].selfInfoWindow.open(mapObj, obj_position);	// 显示吹出框
+						}
+			    	}
 				return;
 			}
 			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
@@ -864,13 +877,14 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			if ( str_corpId && str_corpName ) {
 				str_html += '<li class="j_corp" id="treeNode_'+ str_corpId +'"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_corpName +'</a>';
 			}
-			
+			fn_updateTerminalCount();	// lastinfo 每次更新在线个数 2013-07-29 kjj add
 			arr_autoCompleteData = [];
 			arr_submenuGroups = [];
 			if ( n_groupLength > 0 ) {
 				str_html += '<ul>';
 				str_groupFirstId = 'group_' + arr_groups[0].gid;
 				
+				obj_carsData = {};
 				for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
 					var obj_group = arr_groups[i],
 						str_groupName = obj_group.name,
@@ -895,7 +909,6 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 							}
 							str_tempFirstTid = 'leaf_' + param;	// 第一个分组的第一个定位器 id							
 						}
-						obj_carsData = {};
 						for ( var param in obj_trackers ) {	// 添加组下面的定位器
 							var obj_infoes = obj_trackers[param],
 								obj_car = obj_infoes.basic_info,	// 终端基本信息
