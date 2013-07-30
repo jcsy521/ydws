@@ -93,13 +93,20 @@ function fn_searchData(str_who) {
 			
 			var str_stTime = $('#beginDate').val(), 
 				str_entTime = $('#endDate').val(), 
-				str_mobile = $('#mobile').val(), 
+				str_terminalNum = $('#terminal_num').val(), 
+				n_snType = $('#snTypePanel input[name="sn_type"]input:checked').val(),
 				str_message_type = '',
 				b_packetReport = $('#packet_report_type').attr('checked'),
 				n_packetReport = b_packetReport ? 1 : 0; // 是否要回调报文 
-				
-			if ( !fn_validMobile(str_mobile) ) {
-				return;
+			
+			if ( n_snType == 0 ) {
+				if ( !fn_validMobile(str_terminalNum) ) {
+					return;
+				}
+			} else {
+				if ( !fn_validTerminalSn(str_terminalNum) ){
+					return;
+				}
 			}
 			
 			if ( !fn_validSearchDate() ) {
@@ -131,7 +138,9 @@ function fn_searchData(str_who) {
 			obj_conditionData = {
 				'start_time': fn_changeDateStringToFormat(str_stTime),
 				'end_time': fn_changeDateStringToFormat(str_entTime),
-				'mobile': str_mobile,
+				'mobile': str_terminalNum,
+				'sn': str_terminalNum,
+				'search_type': n_snType,
 				'is_report': n_packetReport,
 				'packet_types': '('+str_message_type+')'
 			};
@@ -142,10 +151,17 @@ function fn_searchData(str_who) {
 			
 			var str_stTime = $('#beginDate').val(), 
 				str_entTime = $('#endDate').val(), 
-				str_mobile = $('#mobile').val();
+				n_snType = $('#snTypePanel input[name="sn_type"]input:checked').val(),
+				str_terminalNum = $('#terminal_num').val();
 				
-			if ( !fn_validMobile(str_mobile) ) {
-				return;
+			if ( n_snType == 0 ) {
+				if ( !fn_validMobile(str_terminalNum) ) {
+					return;
+				}
+			} else {
+				if ( !fn_validTerminalSn(str_terminalNum) ){
+					return;
+				}
 			}
 				
 			if ( !fn_validSearchDate() ) {
@@ -154,7 +170,9 @@ function fn_searchData(str_who) {
 			obj_conditionData = {
 				'start_time': fn_changeDateStringToFormat(str_stTime),
 				'end_time': fn_changeDateStringToFormat(str_entTime),
-				'mobile': str_mobile
+				'mobile': str_terminalNum,
+				'sn': str_terminalNum,
+				'search_type': n_snType,
 			};
 			str_getDataUrl = '/battery';
 			
@@ -241,7 +259,7 @@ function fn_productTableContent(str_who, obj_reaData) {
 			
 			arr_graphic_x[0] = obj_reaData[0].battery_time;
 			arr_graphic_x[n_len] = obj_reaData[n_len].battery_time;
-			obj_chart = {'name': $('#mobile').val(), 'data': arr_graphic};
+			obj_chart = {'name': $('#terminal_num').val(), 'data': arr_graphic};
 			
 			// 电量查询 显示
 			$('#battery_chart_link').unbind('click').bind('click', function() {

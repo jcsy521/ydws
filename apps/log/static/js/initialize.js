@@ -180,7 +180,7 @@ function fn_validSearchDate() {
 * 验证手机号是否合法
 */
 function fn_validMobile(str_mobile, str_msgTitle) {
-	var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/,
+	var MOBILEREG = /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/,
 		str_alertMsg = '终端';
 	
 	if ( str_msgTitle ) {
@@ -193,6 +193,23 @@ function fn_validMobile(str_mobile, str_msgTitle) {
 	
 	if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
 		alert('您输入的'+ str_alertMsg +'手机号不合法，请重新输入！');
+		return false;
+	}
+	return true;
+}
+
+/*
+* 验证tid是否合法
+*/
+function fn_validTerminalSn(str_snNum) {
+	var SNREG = /^[A-Z0-9]+$/;
+	
+	if ( str_snNum == '' ) {
+		alert('请输入终端序列号！');
+		return false;
+	}
+	if ( !SNREG.test(str_snNum) ) {	// 终端序列号合法性验证
+		alert('您输入的终端序列号不合法，请重新输入！');
 		return false;
 	}
 	return true;

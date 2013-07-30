@@ -443,4 +443,6 @@ table, .ui-widget-header {
 #domain {
 	width: 240px;
 }
-
+#terminal_num {
+	width: 200px;
+}

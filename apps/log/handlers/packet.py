@@ -34,8 +34,10 @@ class GWPacketHandler(BaseHandler):
             start_time = data.get("start_time")
             end_time = data.get("end_time")
             mobile = data.get("mobile")
+            sn = data.get("sn")
             packet_type = data.get("packet_types")
             is_report = data.get("is_report")
+            search_type = data.get("search_type")
         except Exception as e:
             logging.exception("[LOG] Wrong data format. Exception: %s", 
                                e.args)
@@ -44,76 +46,81 @@ class GWPacketHandler(BaseHandler):
             return
 
         try:
-            result = self.acbdb.get("SELECT tid FROM T_TERMINAL_INFO WHERE mobile = %s",
-                                     mobile)
+            if search_type == '0':
+                result = self.acbdb.get("SELECT tid FROM T_TERMINAL_INFO WHERE mobile = %s",
+                                        mobile)
+                if result:
+                    tid = result['tid']
+                else:
+                    logging.error("[LOG] Packet Inquiry: %s don't has terminal.", mobile)
+                    self.write_ret(ErrorCode.TERMINAL_NOT_EXISTED, dict_=None)
+                    return
+            elif search_type == '1':
+                tid = sn
+
             fc = FileConf()
             file_path = fc.getLogFile() + '/'
             files = os.listdir(file_path)
             lst = []
-            if result:
-                tid = result['tid']
-                for file in files:
-                    lines= linecache.getlines(file_path+file)
-                    linecache.updatecache(file_path+file)
-                    if len(lines) !=0:
-                        first_num = 0
-                        last_num = len(lines)-1
-                        while lines[first_num][0] != '[':
-                            first_num = first_num+1
-                        first_time = '20%s' % lines[first_num][3:18]
-                        while lines[last_num][0] != '[':
-                            last_num = last_num - 1
-                        last_time = '20%s' % lines[last_num][3:18]
-                        if start_time > last_time or end_time < first_time:
-                            logging.info("[LOG] Ignored file: %s, BeginTime: %s, EndTime: %s", file, first_time, last_time)
-                        else:
-                            p1 = re.compile(tid, re.I)
-                            p2 = re.compile("recv:", re.I)
-                            p3 = re.compile(packet_type, re.I)
-                            for num in range(len(lines)):
-                                if p1.search(lines[num]) and p2.search(lines[num]) and p3.search(lines[num]):
-                                    if  '20%s' % lines[num][3:18] > start_time and '20%s' % lines[num][3:18] < end_time:
-                                        ldata = lines[num].split(',')
-                                        T_packet_type = ldata[5][0:3]
-                                        T_packet_time = lines[num][3:18]
-                                        packet = lines[num]
-                                        p = {'packet_time':T_packet_time,
-                                             'packet_type':T_packet_type ,
-                                             'packet':packet}
-                                        lst.append(p)
-                                        if is_report == 1:
-                                            ip = lines[num].split('\'')[1]
-                                            match_type = 'S' + ldata[5][1:3]
-                                            next_num = num + 1
-                                            p6 = re.compile("I ", re.I)
-                                            p7 = re.compile("send:", re.I)
-                                            p8 = re.compile(ip, re.I)
-                                            p9 = re.compile(match_type, re.I)
-                                            while True:
-                                                if p6.search(lines[next_num]) and p7.search(lines[next_num]) and p8.search(lines[next_num]) and p9.search(lines[next_num]):
-                                                    S_packet_time = lines[next_num][3:18]
-                                                    packet = lines[next_num]
-                                                    p = {'packet_time':S_packet_time,
-                                                         'packet_type':match_type ,
-                                                         'packet':packet}
-                                                    lst.append(p)
-                                                    
+            for file in files:
+                lines= linecache.getlines(file_path+file)
+                linecache.updatecache(file_path+file)
+                if len(lines) !=0:
+                    first_num = 0
+                    last_num = len(lines)-1
+                    while lines[first_num][0] != '[':
+                        first_num = first_num+1
+                    first_time = '20%s' % lines[first_num][3:18]
+                    while lines[last_num][0] != '[':
+                        last_num = last_num - 1
+                    last_time = '20%s' % lines[last_num][3:18]
+                    if start_time > last_time or end_time < first_time:
+                        logging.info("[LOG] Ignored file: %s, BeginTime: %s, EndTime: %s", file, first_time, last_time)
+                    else:
+                        p1 = re.compile(tid, re.I)
+                        p2 = re.compile("recv:", re.I)
+                        p3 = re.compile(packet_type, re.I)
+                        for num in range(len(lines)):
+                            if p1.search(lines[num]) and p2.search(lines[num]) and p3.search(lines[num]):
+                                if  '20%s' % lines[num][3:18] > start_time and '20%s' % lines[num][3:18] < end_time:
+                                    ldata = lines[num].split(',')
+                                    T_packet_type = ldata[5][0:3]
+                                    T_packet_time = lines[num][3:18]
+                                    packet = lines[num]
+                                    p = {'packet_time':T_packet_time,
+                                         'packet_type':T_packet_type ,
+                                         'packet':packet}
+                                    lst.append(p)
+                                    if is_report == 1:
+                                        ip = lines[num].split('\'')[1]
+                                        match_type = 'S' + ldata[5][1:3]
+                                        next_num = num + 1
+                                        p6 = re.compile("I ", re.I)
+                                        p7 = re.compile("send:", re.I)
+                                        p8 = re.compile(ip, re.I)
+                                        p9 = re.compile(match_type, re.I)
+                                        while True:
+                                            if p6.search(lines[next_num]) and p7.search(lines[next_num]) and p8.search(lines[next_num]) and p9.search(lines[next_num]):
+                                                S_packet_time = lines[next_num][3:18]
+                                                packet = lines[next_num]
+                                                p = {'packet_time':S_packet_time,
+                                                     'packet_type':match_type ,
+                                                     'packet':packet}
+                                                lst.append(p)
+                                                break
+                                            else:
+                                                next_num = next_num + 1
+                                                if next_num == num + 500:
                                                     break
-                                                else:
-                                                    next_num = next_num + 1
-                                                    if next_num == num + 500:
-                                                        break
-                                        elif is_report == 0:
-                                            pass
-                    else: 
-                         pass
-                self.write_ret(ErrorCode.SUCCESS,
-                               dict_=DotDict(packet_list=lst))
-            else:
-                logging.error("[LOG] TID: %s don't has terminal.", mobile)
-                self.write_ret(ErrorCode.TERMINAL_NOT_EXISTED, dict_=None)
+                                    elif is_report == 0:
+                                        pass
+                else:
+                     pass
+            self.write_ret(ErrorCode.SUCCESS,
+                           dict_=DotDict(packet_list=lst))
+
         except Exception as e:
-            logging.exception("[LOG] Mobile: %s 's battery inquiry is failed. Exception: %s", 
+            logging.exception("[LOG] Mobile: %s 's packet inquiry is failed. Exception: %s",
                               mobile, e.args)
             self.write_ret(ErrorCode.FAILED, dict_=None)
 
