@@ -322,6 +322,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 function fn_infoWindowCloseShow() {
 	$('#markerWindowtitle').parent().parent().next().show();//显示关闭按钮
 }
+
 /**
 * 吹出框内容更新
 * obj_location: 位置信息
@@ -411,9 +412,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			$('#address').html(address);
 		}
 	}
-	$('.j_carList a[tid='+ str_tid +']').data('address', address);	// 临时存储每辆车的位置描述
+	if ( str_iconType == 'actiontrack' ) {	// 2013-07-30 update 只有lastinfo或realtime时 存储address
+		$('.j_carList a[tid='+ str_tid +']').data('address', address);	// 临时存储每辆车的位置描述
+	}
 	
-	if (speed == '' || speed == 'undefined' || speed == null || speed == ' undefined' || typeof speed == 'undefined') { 
+	if ( speed == '' || speed == 'undefined' || speed == null || speed == ' undefined' || typeof speed == 'undefined' ) { 
 		speed = '0'; 
 	} else {
 		speed = speed;

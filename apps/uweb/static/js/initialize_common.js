@@ -399,8 +399,16 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		if ( obj_carDatas ) {
 			var obj_currentCarData = obj_carDatas[n_tid];
 			if ( obj_currentCarData ) {
-				dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
+				dlf.fn_updateTerminalInfo(obj_currentCarData);	// 更新车辆信息
 				dlf.fn_moveMarker(n_tid, str_flag);
+			}
+			if ( b_eventSearchWpST ) {
+				dlf.fn_ShowOrHideMiniMap(false);
+				$('#eventSearchPage').hide();
+				// $('#eventSearchCurrentPage', '#eventSearchPageCount').html('');
+				$('#eventSearchCategory').val(-1);
+				$('#eventSearchTableHeader').hide().nextAll().remove();
+				// dlf.fn_initTimeControl('eventSearch'); // 时间初始化方法
 			}
 			if ( b_trackSt || b_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 				return;
@@ -555,7 +563,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 				//是否进行切车操作
 				var obj_currentCarDatas = obj_cars[str_currentPersonalTid];
 				
-				if ( !obj_currentCarDatas ) {
+				if ( !dlf.fn_isEmptyObj(obj_currentCarDatas) ) {
 					var obj_tempCurrentCar = $('.j_carList .j_terminal').eq(0),
 						str_tempTid = obj_tempCurrentCar.attr('tid');
 						
