@@ -53,7 +53,7 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             tids = tids if tids else [self.current_user.tid, ]
             tids = [str(tid) for tid in tids]
 
-            if int(flag) != 2:
+            if int(flag) == 1:
                 for tid in tids:
 
                     ##NOTE: just send lqgz temporary
