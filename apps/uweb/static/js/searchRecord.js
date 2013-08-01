@@ -44,7 +44,6 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		dlf.fn_clearMapComponent(); // 清除页面图形
 		
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
-		$('#eventType option[value=-1]').attr('selected', true);	// 告警类型选项初始化
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'mileage' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
 		obj_tableHeader.hide();
@@ -455,14 +454,17 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		str_enableColor = '#4876FF',
 		str_disableColor = '#8E9090',
 		obj_infoPushEle = $('#infoPush_allCheckedPanel, #infoPushSave'),
-		obj_infoPushTipsEle = $('.j_infoPushTips, #infoPushDisabledBtn');
+		obj_infoPushTipsEle = $('.j_infoPushTips, #infoPushDisabledBtn'),
+		obj_chart = $('#'+ str_who +'Wrapper .j_chart');
 			
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
 			str_tbodyText = '';
 		
 		if ( str_who != 'mileage' ) {
-			$('#'+ str_who +'Wrapper .j_chart').css('display', 'inline-block'); // 显示查看统计图连接
+			obj_chart.css('display', 'inline-block'); // 显示查看统计图连接
+		} else {
+			obj_chart.css('display', 'none'); // 显示查看统计图连接
 		}
 		
 		obj_searchHeader.nextAll().remove();	//清除页面数据
@@ -963,7 +965,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	} else if ( str_who == 'mileage' ) {	// 如果是里程统计 选择单个终端的统计图
 		// todo 显示统计图 和总计
 		var obj_foot = $('.j_mileageFoot'),
-			str_alias = $('#selectTerminals').val(),	// 当前定位器tmobile
+			str_alias = $('#selectTerminals').find('option:selected').text(),	// 当前定位器tmobile
 			obj_chart = {'name': str_alias, 'data': arr_graphic}, 
 			arr_categories = [],
 			b_isLastPage = n_dwRecordPageNum != n_pagecnt-1,

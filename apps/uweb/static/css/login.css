@@ -183,7 +183,6 @@ table, tr, td {
 }
 .entrances li {
 	height: 114px;
-	width: 112px;
 	margin: 0px auto 0px;
 	float: left;
 	cursor: pointer;
@@ -191,7 +190,7 @@ table, tr, td {
 .entrances  a {
 	float: left;
 	text-decoration: none;
-	width: 112px;
+	width: 149px;
 	padding-top: 114px;
 	_padding-top: 97px;
 	text-align: center;
@@ -215,6 +214,8 @@ table, tr, td {
 	height: 65px;
 	float: left;
 	margin-top: 10px;
+	text-align: center;
+	line-height: 65px;
 }
 #contents {
 	float: left;

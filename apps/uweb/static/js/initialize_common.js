@@ -399,8 +399,15 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		if ( obj_carDatas ) {
 			var obj_currentCarData = obj_carDatas[n_tid];
 			if ( obj_currentCarData ) {
-				dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
+				dlf.fn_updateTerminalInfo(obj_currentCarData);	// 更新车辆信息
 				dlf.fn_moveMarker(n_tid, str_flag);
+			}
+			if ( b_eventSearchWpST ) {
+				$('#eventSearchPage').hide();
+				// $('#eventSearchCurrentPage', '#eventSearchPageCount').html('');
+				$('#eventSearchCategory').val(-1);
+				$('#eventSearchTableHeader').hide().nextAll().remove();
+				// dlf.fn_initTimeControl('eventSearch'); // 时间初始化方法
 			}
 			if ( b_trackSt || b_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 				return;
@@ -418,8 +425,10 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		
 		str_currentTid = n_tid;
 		
-		if ( !dlf.fn_isEmptyObj(obj_carDatas) ) {
-			dlf.fn_updateTerminalInfo(obj_carDatas[n_tid]);	// 更新车辆信息
+		var obj_car = obj_carDatas[n_tid];
+		
+		if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
+			dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
 		}
 		/*集团用户切换变换轨迹要显示的终端 并清除地图*/
 		var str_tempAlias = $('.j_currentCar').attr('alias');
