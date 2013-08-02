@@ -298,7 +298,7 @@ class LastInfoCorpHandler(BaseHandler):
                                                  "    AND (timestamp  between %s and %s)"
                                                  "    AND type = 0"
                                                  "    ORDER BY timestamp",
-                                                 tid, int(current_time)-60*5, int(current_time))
+                                                 tid, basic_info['timestamp']-60*5, basic_info['timestamp'])
 
                     points_trace = get_locations_with_clatlon(points_trace, self.db)
                     len_trace = 0
