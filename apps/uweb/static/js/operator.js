@@ -1,21 +1,31 @@
 // 操作员保存
 window.dlf.fn_saveOperator = function() {
 	var	str_id = $('#hidOperatorId').val(),
-		str_groupId = $('#txt_operatorGroup').val(),
-		str_groupName = $('#txt_operatorGroup').find('option:selected').text(),
+		arr_groups = $('#operatorGroups input:checked'),// $('#txt_operatorGroup').val(),
+		str_groupIds = '',
 		str_name = $('#txt_operatorName').val(),
 		str_mobile = $('#txt_operatorMobile').val(),
 		str_address = $('#txt_operatorAddress').val(),
 		str_email = $('#txt_operatorEmail').val(),
-		obj_operatorData = {'id': '', 'group_id': str_groupId, 'group_name': str_groupName, 'name': str_name, 'mobile': str_mobile, 'address': str_address, 'email': str_email},
+		obj_operatorData = {'oid': '', 'group_id': str_groupIds, 'name': str_name, 'mobile': str_mobile, 'address': str_address, 'email': str_email},
 		obj_header = $('#operatorTableHeader'),
 		b_header = obj_header.is(':hidden');
 
+	// kjj add in 2013-08-05 分组id 
+	for ( var x = 0 ;x < arr_groups.length; x++ ) {
+		var obj_group = $(arr_groups[x]);
+		
+		str_groupIds += obj_group.attr('groupId') + ',';
+	}
+	if ( str_groupIds != '' ) {
+		str_groupIds = str_groupIds.substr(0, str_groupIds.length-1);
+	}
+	obj_operatorData.group_id = str_groupIds;
 	if ( str_id ) {
 		if ( b_header ) {	// 判断表头是否显示
 			obj_header.show();
 		}
-		obj_operatorData.id = parseInt(str_id);
+		obj_operatorData.oid = parseInt(str_id);
 		dlf.fn_jsonPut(OPERATOR_URL, obj_operatorData, 'operator', '操作员数据保存中');
 	} else {
 		dlf.fn_jsonPost(OPERATOR_URL, obj_operatorData, 'operator', '操作员数据保存中');
@@ -30,7 +40,7 @@ window.dlf.fn_editOperator = function(n_id) {
 	if ( n_id ) {
 			var obj_currentOperatorItem = $('#operatorTable tr[id='+ n_id +']'), 
 				obj_currentOperatorItemTds = obj_currentOperatorItem.children(), 
-				str_currentGroupId = $(obj_currentOperatorItemTds.eq(0)).attr('groupId'),
+				str_currentGroupIds = $(obj_currentOperatorItemTds.eq(0)).attr('groupId'),
 				str_currentName = $(obj_currentOperatorItemTds.eq(1)).html(),
 				str_currentMobile = $(obj_currentOperatorItemTds.eq(2)).html(),
 				str_currentAddress = $(obj_currentOperatorItemTds.eq(3)).html(),
@@ -42,8 +52,19 @@ window.dlf.fn_editOperator = function(n_id) {
 			$('#txt_operatorMobile').val(str_currentMobile).data('oldmobile', str_currentMobile);
 			$('#txt_operatorAddress').val(str_currentAddress);
 			$('#txt_operatorEmail').val(str_currentEmail);
-			$('#txt_operatorGroup').html(fn_getGroupData());
-			$('#txt_operatorGroup').val(str_currentGroupId); 
+			fn_getGroupData();	//初始化分组
+			
+			if ( str_currentGroupIds.search(',') != -1 ) {
+				var arr_groupIds = str_currentGroupIds.split(',');
+				
+				for ( var i = 0; i < arr_groupIds.length; i++ ) {
+					$('#operatorGroups input[groupId='+ arr_groupIds[i] +']').attr('checked', true);
+				}
+			} else {
+				$('#operatorGroups input[groupId='+ str_currentGroupIds +']').attr('checked', true);
+			}
+			
+			// $('#txt_operatorGroup').val(str_currentGroupId); 
 			
 		$('#addOperatorDialog').dialog('open').attr('title', '编辑操作员').dialog('option', 'title', '编辑操作员');
 	}
@@ -60,10 +81,9 @@ window.dlf.fn_deleteOperator = function(n_id) {
 					$('#operatorTable tr[id='+ n_id +']').remove();
 					var n_trNum = $('#operatorTable tr').length;
 					
-					if ( n_trNum == 1 ) {
-						n_dwRecordPageNum = 0;
-						dlf.fn_searchData('operator');
-					}
+					n_dwRecordPageCnt = -1;
+					n_dwRecordPageNum = 0;
+					dlf.fn_searchData('operator');
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;
@@ -74,15 +94,31 @@ window.dlf.fn_deleteOperator = function(n_id) {
 }
 /*
 * 操作员获取组信息
+* str_operation: add：新增操作员操作
 */
-function fn_getGroupData() {
-	var str_groupSelect = '';
+function fn_getGroupData(str_operation) {
+	var str_groupSelect = '',
+		str_groupId = '',
+		obj_operatorGroup = $('#operatorGroups');
 	
 	$('.j_group').children('a').each(function(e){
-		var str_tempTitle= $(this).attr('title'),
+		var str_title = $(this).attr('title'),
+			str_tempTitle = str_title,
 			str_tempGid = $(this).attr('groupid');
-		str_groupSelect += '<option value="' +str_tempGid+ '">' +str_tempTitle+ '</option>';
+		
+		if ( str_title.length > 8 ) {
+			str_tempTitle = str_title.substr(0, 8) + '...';
+		}
+		if ( str_title == '默认组' ) {
+			str_groupId = str_tempGid;
+		}
+		// str_groupSelect += '<option value="' +str_tempGid+ '">' +str_tempTitle+ '</option>';
+		str_groupSelect += '<li><input type="checkbox" id="chkGroup'+ str_tempGid +'" name="chkGroup" groupId="'+ str_tempGid +'" value="'+  str_tempGid+'" /><label for="chkGroup' + str_tempGid + '"  title="'+ str_title +'">'+ str_tempTitle + '</label></li>';
 	});
+	obj_operatorGroup.html(str_groupSelect);
+	if ( str_operation == 'add' ) {
+		$('#operatorGroups input[groupId='+ str_groupId +']').attr('checked', true);
+	}
 	return str_groupSelect;
 }
 

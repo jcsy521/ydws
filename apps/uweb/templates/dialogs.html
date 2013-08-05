@@ -366,7 +366,7 @@
 				<table class="dataTable" id="operatorTable" cellspacing="0" border="1" align="center">
 					<tbody>
 						<tr id="operatorTableHeader">
-							<th>组名</th>
+							<th>序号</th>
 							<th>姓名</th>
 							<th>手机号</th>
 							<th>地址</th>
@@ -419,11 +419,13 @@
 					<tr>
 						<td><label for="txt_operatorGroup">组名：</label></td>
 						<td>
-							<select id="txt_operatorGroup" name="txt_operatorGroup"  class="c_select">
-							</select>
+							<!--<select id="txt_operatorGroup" name="txt_operatorGroup"  class="c_select">
+							</select>-->
+							<ul class="operatorGroups" id="operatorGroups">
+							</ul>
 						</td>
 					</tr>
-					<tr>
+					<tr height="60px">
 						<td colspan="2" align="center">
 							<input type="submit" width="100" value="" id="operatorSave" />
 						</td>
@@ -947,28 +949,43 @@
 		<div class="wrapperContent mileageContent">
 			<table class="mileageCondition">
 				<tr>
-					<td colspan="5" class="title">
+					<td colspan="4" class="title">
 						里程统计查询
 					</td>
 				</tr>
 				<tr>
-					<td width="200px">
-						定位器：
+					<td colspan="2">
+						<span class="spanConditionsWord">定位器：</span> 
 						<select id="selectTerminals">
 							<option value="">全部</option>
 							<option value="ACB2012777">15919176710</option>
 						</select>
-					</td>
-					<td width="442px">
-						查询时间：<input type="text" id="mileageStartTime"  class="time" />
+						<span class="spanConditions">
+						日期选择：<input type="text" id="mileageStartTime"  class="time" />
 						至 <input type="text" id="mileageEndTime"  class="time" />
+						</span>
 					</td>
-					<td><span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover" title="搜索"></span></td>
-					<td>
+				</tr>
+				<tr>
+					<td width="495px">
+						时间选择：
+						<span class="spanTime">
+							<input type="text" id="txtHour0" disabled />：
+							<input type="text" id="txtMinute0" disabled />
+							 ----------------------------------
+							<input type="text" id="txtHour1" disabled />：
+							<input type="text" id="txtMinute1" disabled />
+						</span>
+					</td>
+					<td colspan="3">
+						<span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover" title="搜索"></span>
 						<a id="mileage_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
+						<a id="mileage_chart" href="#" class="j_chart hide chartBtn">点击查看统计图</a>
 					</td>
-					<td>
-						<a href="#" class="j_chart hide chartBtn">点击查看统计图</a>
+				</tr>
+				<tr>
+					<td rowspan="4">
+						<span id="mileageSlider"></span>
 					</td>
 				</tr>
 			</table>

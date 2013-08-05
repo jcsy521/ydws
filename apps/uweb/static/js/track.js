@@ -323,7 +323,7 @@ function fn_startDrawLineStatic(arr_dataArr) {
 		obj_firstMarker = {},
 		obj_endMarker = {};
 	
-	var polyline = dlf.fn_createPolyline($('#trackHeader').data('points'));	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
+	var polyline = dlf.fn_createPolyline($('#trackHeader').data('points'), {color: '#150CFF'});	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	
 	obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
 	obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记

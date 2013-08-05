@@ -50,8 +50,9 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		if ( str_who == 'mileage' ) {
-			$('#'+ str_who +'Wrapper .j_chart').hide();	// 查看统计图链接隐藏
+			$('#'+ str_who +'Wrapper .j_chart, .j_mileageFoot').hide();	// 查看统计图链接隐藏
 			dlf.fn_getAllTerminals();	// 加载所有定位器
+			dlf.fn_initSlider();
 		}
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'operator' ) {
@@ -318,20 +319,26 @@ window.dlf.fn_searchData = function (str_who) {
 			str_getDataUrl = MILEAGE_URL;
 			
 			var n_startTime = $('#mileageStartTime').val() + ' 00:00:00', // 用户选择时间
-				n_endTime = $('#mileageEndTime').val() + ' 23:59:59', // 用户选择时间
-				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
-				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
+				n_endDate = $('#mileageEndTime').val() + ' 00:00:00', // 用户选择时间
+				
+				n_bgDate = dlf.fn_changeDateStringToNum(n_startTime), //开始日期
+				n_finishDate = dlf.fn_changeDateStringToNum(n_endDate), //结束日期
+				
+				str_startTime = $('#txtHour0').val() + $('#txtMinute0').val(), // 开始时间
+				str_endTime = $('#txtHour1').val() + $('#txtMinute1').val(), //结束时间
 				str_tid = $('#selectTerminals').val(),					// 选中终端tid
 				str_tids = '';
 			
 			obj_conditionData = {
-							'start_time': n_bgTime, 
-							'end_time': n_finishTime, 
+							'start_time': n_bgDate,
+							'end_time': n_finishDate,
+							'start_period': str_startTime, 
+							'end_period': str_endTime, 
 							'pagenum': n_dwRecordPageNum, 
 							'pagecnt': n_dwRecordPageCnt, 
 							'tids': str_tid
 						};	
-			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+			if ( n_bgDate > n_finishDate ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
 				return;
 			}
@@ -716,9 +723,10 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		
 		switch (str_who) {
 			case 'operator': // 操作员查询
+				str_id = obj_tempData.oid;	
 				obj_tableHeader.show();
 				str_tbodyText+= '<tr id='+ str_id +'>';
-				str_tbodyText+= '<td groupId ='+ obj_tempData.group_id +'>'+ obj_tempData.group_name +'</td>';	//组名
+				str_tbodyText+= '<td groupId ='+ obj_tempData.group_id +'>'+ obj_tempData.seq +'</td>';	//组名
 				str_tbodyText+= '<td>'+ obj_tempData.name +'</td>';	// 操作员姓名
 				str_tbodyText+= '<td>'+ obj_tempData.mobile +'</td>';	//操作员手机号
 				str_tbodyText+= '<td>'+ obj_tempData.address +'</td>';	// 操作员地址
@@ -1030,14 +1038,14 @@ window.dlf.fn_initTimeControl = function(str_who) {
 	if ( str_who == 'onlineStatics' ) {
 		str_tempEndTime = str_tempBeginTime = str_nowDate;
 		str_timepickerFormat = 'yyyy-MM-dd';
-	}
+	} 
 	if ( str_who == 'mileage' ) {
 		var str_tempMonth = obj_date.getMonth() + 1;
 		
-		
-		str_tempBeginTime = obj_date.getFullYear() + '-' +(str_tempMonth<10 ? '0'+str_tempMonth : str_tempMonth) + '-01 ' + '00:00:00' ;
+		str_tempEndTime = str_nowDate;
+		str_tempBeginTime =  dlf.fn_getFirstDayOfMonth(); // 月初
+		str_timepickerFormat = 'yyyy-MM-dd';
 	}
-	
 	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
 		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false,  qsEnabled: false,
 		onpicked: function() {
@@ -1067,6 +1075,80 @@ window.dlf.fn_initTimeControl = function(str_who) {
 			}
 		});
 	}).val(str_tempEndTime);
+}
+
+/**
+* 初始化里程统计时间滑块
+*/
+window.dlf.fn_initSlider = function() {
+	var n_minVal = 0,
+		n_maxVal = 1440,
+		obj_hour0 = $('#txtHour0'),
+		obj_minute0 = $('#txtMinute0'),
+		obj_hour1 = $('#txtHour1'),
+		obj_minute1 = $('#txtMinute1');
+		
+	obj_hour0.val('08');
+	obj_minute0.val('30');
+	obj_hour1.val('17');
+	obj_minute1.val('30');
+	$('#mileageSlider').slider({
+		min: n_minVal,
+		max: n_maxVal,
+		values: [520, 1050],	// 08:30 -- 17:30 
+		range: true,
+		slide: function (event, ui) {
+			var arr_slideVal0 = fn_slideValToTimeVal(ui.values[0]),
+				arr_slideVal1 = fn_slideValToTimeVal(ui.values[1]);
+				
+				obj_hour0.val(arr_slideVal0[0]);
+				obj_minute0.val(arr_slideVal0[1]);
+				obj_hour1.val(arr_slideVal1[0]);
+				obj_minute1.val(arr_slideVal1[1]);
+		}
+	});
+	/*$('.spanTime input').bind('blur', function() {
+		var obj_this = $(this),
+			n_startMinute = 0,
+			n_endMinute = 0,
+			n_hour0 = obj_hour0.val(),
+			n_hour1 = obj_hour1.val(),
+			n_minute1 = obj_minute1.val(),
+			n_minute0 = obj_minute0.val(),
+			n_minute1 = obj_minute1.val(),
+			str_val = obj_this.val(),
+			str_tid = obj_this.attr('id');
+			
+		switch (str_tid) {
+			case 'txtHour0':
+				n_startMinute = parseInt(str_val)*60 + parseInt(n_minute0);
+				n_endMinute = parseInt(n_hour1)*60 + parseInt(n_minute1);
+				break;
+			case 'txtMinute0':
+				n_startMinute = parseInt(n_hour0)*60 + parseInt(str_val);	
+				n_endMinute = parseInt(n_hour1)*60 + parseInt(n_minute1);		
+				break;
+			case 'txtHour1':
+				n_endMinute = parseInt(str_val)*60 + parseInt(n_minute1);
+				n_startMinute = parseInt(n_hour0)*60 + parseInt(n_minute0);
+				break;
+			case 'txtMinute1':
+				n_endMinute = parseInt(n_hour1)*60 + parseInt(str_val);	
+				n_startMinute = parseInt(n_hour0)*60 + parseInt(n_minute0);			
+				break;
+		}
+		$( "#mileageSlider" ).slider( "values", [n_startMinute, n_endMinute]);
+	});*/
+}
+
+// 通过slide滑块的值判断显示的时间点
+function fn_slideValToTimeVal(n_slideVal) {
+	var n_hour = Math.floor(n_slideVal/60), 
+        n_minute = n_slideVal%60;
+	
+    n_hour = n_hour < 10 ? '0'+ n_hour : n_hour;
+	n_minute = n_minute < 10 ? '0'+ n_minute : n_minute;
+	return [n_hour, n_minute];
 }
 
 /**

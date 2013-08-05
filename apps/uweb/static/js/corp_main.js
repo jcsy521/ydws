@@ -888,13 +888,15 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
 					var obj_group = arr_groups[i],
 						str_groupName = obj_group.name,
+						n_groupNameLng = str_groupName.length,
+						str_tempGroupName = n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
 						str_groupId = obj_group.gid,
 						obj_trackers = obj_group.trackers,
 						arr_tempTids = []; //tid组
 						//arr_tids = [];
 					
 					arr_submenuGroups.push({'groupId': str_groupId, 'groupName': str_groupName});
-					str_html += '<li class="j_group" id="groupNode_'+ str_groupId +'"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_groupName +'</a>';
+					str_html += '<li class="j_group" id="groupNode_'+ str_groupId +'"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_tempGroupName +'</a>';
 					
 					if ( dlf.fn_isEmptyObj(obj_trackers) ) {	// 如果没有终端返回
 						str_html += '<ul>';
@@ -1240,9 +1242,11 @@ function fn_updateTreeNode(obj_corp) {
 	for ( var gIndex in arr_groups ) {
 		var obj_group = arr_groups[gIndex],
 			str_groupName = obj_group.name,
+			n_groupNameLng = str_groupName.length,
+			str_tempGroupName = n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
 			obj_trackers = obj_group.trackers;	// 所有终端 arr_cars
 
-		$('#group_'+ obj_group.gid).html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_groupName).attr('title', str_groupName);	// 更新组名
+		$('#group_'+ obj_group.gid).html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempGroupName).attr('title', str_groupName);	// 更新组名
 		
 		if ( dlf.fn_isEmptyObj(obj_trackers) ) {
 			for ( var param in obj_trackers ) {
@@ -1862,8 +1866,10 @@ window.dlf.fn_checkTMobile = function(str_tmobile) {
 window.dlf.fn_checkOperatorMobile = function(str_tmobile) {
 	$.get_(CHECKOPERATORMOBILE_URL + '/' + str_tmobile, '', function(data){
 		if ( data.status != 0 ) {
-			dlf.fn_jNotifyMessage('操作员手机号已存在。', 'message', false, 5000);
-			$('#hidOperatorMobile').val('1');
+			var str_msg = data.message;
+			
+			dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+			$('#hidOperatorMobile').val(str_msg);
 			return;
 		} else {
 			$('#hidOperatorMobile').val('');

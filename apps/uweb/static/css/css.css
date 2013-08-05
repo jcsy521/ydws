@@ -2395,6 +2395,37 @@ body {
     width: 140px;
 	*top: 4px;
 }
+#mileageStartTime, #mileageEndTime {
+	width: 120px;
+}
+#mileageSlider {
+	background-color: #E6E7E7;
+    background-image: none;
+    border: 1px solid #B5D7FF;
+    border-radius: 0 0 0 0;
+    display: inline-block;
+    left: 68px;
+    position: relative;
+    top: -11px;
+    width: 358px;
+}
+#mileageSlider .ui-state-default {
+	background-color: #3D90F5;
+    background-image: none;
+}
+#mileage_chart, #mileage_uploadBtn {
+	position: relative;
+	top: 18px;
+	margin-left: 10px;
+}
+.spanTime input {
+	background: none repeat scroll 0 0 white;
+    border: 1px solid #CDCDCD;
+    color: #8A9097;
+    font-weight: bold;
+    padding: 2px 3px;
+    width: 16px;
+}
 .operatorConditions input {
 	padding-left: 10px;
 }
@@ -2516,8 +2547,19 @@ legend {
 	width: 500px;
 	height: 350px;
 }
-#addOperatorDialog input, #addOperatorDialog label, #addPassengerDialog input, #addPassengerDialog label {
+#addPassengerDialog input, #addPassengerDialog label {
 	display:block;
+}
+#operatorGroups {
+	width: 280px;
+}
+#operatorGroups li {
+	width: 135px;
+	line-height: 22px;
+	float: left;
+}
+#operatorGroups label {
+	margin: 0px 10px;
 }
 #addOperatorDialog input.text, #addPassengerDialog input.text {
 	margin-bottom:5px;
@@ -2732,7 +2774,7 @@ legend {
 	width: 754px;
 }
 .mileageCondition, .operatorCondition {
-	width: 900px;
+	width: 800px;
 }
 .onlineStaticsCondition .title, .mileageCondition .title {
 	color: #69B2E9;
@@ -2753,16 +2795,27 @@ legend {
 	height: 20px;
 	background-color: #FFF;
 }
-.eventBtn {
+.spanConditions {
+	display: inline-block;
+	margin-left: 28px;
+}
+.spanConditionsWord {
+	display: inline-block;
+    text-align: right;
+    width: 60px;
+}
+.eventBtn, #mileage_searchBtn {
 	background: url('/static/images/cx.png') no-repeat;
 	cursor: pointer;
 	display: inline-block;
 	height: 34px;
 	margin-left: 30px;
 	position: relative;
-	top: 1px;
-	_top: 1px;
+	top: 25px;
 	width: 92px;
+}
+.eventBtn {
+	top: 1px;	
 }
 #eventSearchPage, #singleEventPage, #singleMileagePage, #singleMileagePage, #routeLinePage {
 	height: 34px;

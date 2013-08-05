@@ -870,8 +870,14 @@ $(function () {
 			return;
 		}, 
 		onSuccess: function() { 
-			if ( $('#hidOperatorMobile').val() != '' ) {
-				dlf.fn_jNotifyMessage('操作员手机号已存在。', 'message', false, 5000);
+			var str_msg = $('#hidOperatorMobile').val(),
+				n_checkGroupLng = $('#operatorGroups input:checked').length;
+			
+			if ( str_msg != '' ) {
+				dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+				return;
+			} else if ( n_checkGroupLng == 0 ) {
+				dlf.fn_jNotifyMessage('请至少选择一个分组！', 'message', false, 4000);
 				return;
 			} else {
 				dlf.fn_saveOperator();
@@ -880,7 +886,7 @@ $(function () {
 	});
 	$('#txt_operatorName').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '操作员姓名不正确！'});
 	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号不正确！'});
-	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '9'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '8'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
 	* 乘客进行验证
@@ -961,15 +967,14 @@ $(function () {
 		$('.operatorfieldset input, textarea').val('');
 		$('#txt_operatorMobile').removeData('oldmobile');
 		$('#hidOperatorId').val('');
-		$('#txt_operatorGroup').html(fn_getGroupData());
+		fn_getGroupData('add');	// 初始化分组
 		dlf.fn_onInputBlur();	// 操作员手机号事件侦听
 		$('#addOperatorDialog').attr('title', '新增操作员').dialog('option', 'title', '新增操作员').dialog( "open" );
 	});
 	// 新增初始化dialog
 	$('#addOperatorDialog').dialog({
 		autoOpen: false,
-		height: 300,
-		width: 400,
+		width: 430,
 		modal: true,
 		resizable: false
 	});

@@ -308,7 +308,24 @@ window.dlf.fn_jNotifyMessage = function(messages, types, b_permanent, showTime) 
         disappearTime: displayTime
 	});
 }
-
+// test: 2012-06-01  2012-05-01
+window.dlf.fn_getFirstDayOfMonth = function(obj_date) {
+	
+	var date = new Date();
+	
+	if ( obj_date ) {
+		date = obj_date;
+	}
+	var	year = date.getFullYear(),
+		month = date.getMonth() +1,
+		day = '01';
+	
+	
+	if ( month < 10 ) {
+		month = '0' + month;
+	}
+	return year + '-' + month + '-' + day;
+}
 /**
 * 扩展jnotify的删除方法
 * id：调用jnotify的元素id
@@ -1837,22 +1854,23 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else if ( str_who == 'operator' ) { // 操作员管理 
-					var n_operatorId = obj_data.id ,
+					var n_operatorId = obj_data.oid ,
 						str_name = obj_data.name, 
 						str_mobile = obj_data.mobile,
 						str_address = obj_data.address, 
 						str_email = obj_data.email, 
 						str_groupId = obj_data.group_id,
-						str_groupName = obj_data.group_name;
+						obj_opertorTr = $('#operatorTable tr[id='+ n_operatorId +']'),
+						n_seq = obj_opertorTr.children('td').eq(0).html();
 					
-					$('tr[id='+ n_operatorId +']').empty().append(
-										'<td groupId ='+ str_groupId +'>'+ str_groupName +'</td>'+
+					obj_opertorTr.empty().append(
+										'<td groupId ='+ str_groupId +'>'+ n_seq +'</td>'+
 										'<td>' + str_name + '</td>' + 
 										'<td>' + str_mobile + '</td>' + 
 										'<td>' + str_address + '</td>' + 
 										'<td>' + str_email + '</td>' + 
-										'<td><a href="#" onclick=dlf.fn_editPassenger('+ n_operatorId +') class="blacklistLink">编辑</a></td>' +
-										'<td><a href="#" onclick=dlf.fn_deletePassenger('+ n_operatorId +') class="blacklistLink">删除</a></td>'
+										'<td><a href="#" onclick=dlf.fn_editOperator('+ n_operatorId +') class="blacklistLink">编辑</a></td>' +
+										'<td><a href="#" onclick=dlf.fn_deleteOperator('+ n_operatorId +') class="blacklistLink">删除</a></td>'
 										);
 					dlf.fn_changeTableBackgroundColor();	// 数据行背景色改变
 					$('#addOperatorDialog').dialog('close');	// 关闭dialog
