@@ -56,8 +56,10 @@ class LoginHandler(BaseHandler):
 
                 if role.role==0:
                     self.redirect("/systemlog")
-                else:
+                elif role.role==1:
                     self.redirect("/packet")
+                elif role.role==2:
+                    self.redirect("/uploadluascript")
             else:
                 self.render("login.html", 
                             username=login,

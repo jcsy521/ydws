@@ -172,7 +172,7 @@ function fn_searchData(str_who) {
 				'end_time': fn_changeDateStringToFormat(str_entTime),
 				'mobile': str_terminalNum,
 				'sn': str_terminalNum,
-				'search_type': n_snType,
+				'search_type': n_snType
 			};
 			str_getDataUrl = '/battery';
 			
@@ -374,7 +374,7 @@ function fn_initChart(arr_series, arr_graphic_x, arr_categories, str_container, 
 				chart: {
 					renderTo: str_container,
 					type: 'line',
-					marginRight: 30,
+					marginRight: 30
 				},
 				title: {
 					text: str_title,

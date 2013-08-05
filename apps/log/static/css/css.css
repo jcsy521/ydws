@@ -206,28 +206,20 @@ table, .ui-widget-header {
     border-bottom: 1px dashed #3b7ed4;
     color: white;
 }
-
-
 .cUlItem {
     margin: 0;
     padding: 0;
     width: 135px;
     list-style-position: inside;
 }
-
-
-
 .cTxt {
     font-size: 12px;
     color: blue;
 }
-
-
 .tableStyle {
     border-collapse: collapse;
     text-align: left;
 }
-
 .tableStyle td {
     background-color: #EFEFEF;
     border: 1px dashed #AAAAAA;
@@ -445,4 +437,51 @@ table, .ui-widget-header {
 }
 #terminal_num {
 	width: 200px;
+}
+#addTerminalScript {
+	left: 11px;
+    position: relative;
+    text-decoration: underline;
+    top: 11px;
+}
+#fileUploadDialog ul li {
+	height: 30px;
+    line-height: 30px;
+}
+#fileuploadSave {
+	/*left: 186px;
+    position: relative;
+    top: 39px;*/
+}
+.errorMessage {
+	color: red;
+    left: 190px;
+    position: relative;
+    top: 12px;
+}
+.filePanel {
+	height: 23px;
+    left: 57px;
+    overflow: hidden;
+    position: relative;
+    top: -26px;
+    width: 49px;
+}
+.filePanel .files {
+    cursor: pointer;
+    font-size: 24px;
+    height: 23px;
+    left: 0;
+    opacity: 0;
+    position: relative;
+    top: 0px;
+    width: 49px;
+}
+#fileBrowser {
+	width: 49px;
+	padding: 3px;
+}
+#filenamePanel {
+	background-color: #f2f2f2;
+	width: 260px;
 }
