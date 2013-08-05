@@ -103,7 +103,7 @@ class LoginMixin(BaseMixin):
                     group_ids = [str(group.group_id) for group in groups]
                     corp = self.db.get("SELECT corp_id FROM T_GROUP WHERE id = %s", groups[0].group_id)
                     cid = corp.corp_id
-                else:
+                else: # corp
                     cid = user.cid 
                     oid = UWEB.DUMMY_OID
                     groups = self.db.query("SELECT id, corp_id FROM T_GROUP WHERE corp_id = %s",

@@ -63,15 +63,15 @@ class OperatorHandler(BaseHandler):
             #                          "  WHERE corp_id = %s " + where_clause +
             #                          "  LIMIT %s, %s",
             #                          self.current_user.cid, page_number * page_size, page_size)
-            for operator in operators:
-                group = self.db.get("SELECT T_GROUP.id, T_GROUP.name"
-                                    "  FROM T_GROUP, T_GROUP_OPERATOR"
-                                    "  WHERE T_GROUP_OPERATOR.oper_id = %s"
-                                    "    AND T_GROUP.id = T_GROUP_OPERATOR.group_id"
-                                    "  LIMIT 1",
-                                    operator.oid)
-                operator['group_id'] = group.id if group else ''
-                operator['group_name'] = group.name if group else u''
+            for item,operator in enumerate(operators):
+                groups = self.db.query("SELECT T_GROUP.id, T_GROUP.name"
+                                      "  FROM T_GROUP, T_GROUP_OPERATOR"
+                                      "  WHERE T_GROUP_OPERATOR.oper_id = %s"
+                                      "    AND T_GROUP.id = T_GROUP_OPERATOR.group_id",
+                                      operator.oid)
+                group_ids = [str(group.id) for group in groups]
+                operator['seq'] = item+1+page_size*page_number
+                operator['group_id'] = ','.join(group_ids) if group_ids else ''
                 for key in operator.keys():
                     operator[key] = operator[key] if operator[key] else ''
             self.write_ret(status,
@@ -105,14 +105,15 @@ class OperatorHandler(BaseHandler):
             email = data.email
             address = data.address
             group_id = data.group_id
-            oid = self.db.execute("INSERT T_OPERATOR(id, oid, mobile, password, name, corp_id, email, address)"
-                                  "  VALUES(NULL, %s, %s, password(%s), %s, %s, %s, %s)",
+            group_ids = map(int, str_to_list(group_id))
+            oid = self.db.execute("INSERT T_OPERATOR(oid, mobile, password, name, corp_id, email, address)"
+                                  "  VALUES(%s, %s, password(%s), %s, %s, %s, %s)",
                                   mobile, mobile, '111111', name, self.current_user.cid,
                                   email, address)
-            group = self.db.get("SELECT name FROM T_GROUP WHERE id = %s", group_id)
-            self.db.execute("INSERT INTO T_GROUP_OPERATOR(id, group_id, oper_id)"
-                            "  VALUES(NULL, %s, %s)", group_id, mobile)
-            self.write_ret(status, dict_=DotDict(id=oid))
+            self.db.executemany("INSERT INTO T_GROUP_OPERATOR(group_id, oper_id)"
+                                "  VALUES( %s, %s)", 
+                                [(group_id, mobile) for group_id in group_ids])
+            self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s create operator failed. Exception: %s", 
                               self.current_user.cid, e.args) 
@@ -136,24 +137,29 @@ class OperatorHandler(BaseHandler):
 
         try:
             status = ErrorCode.SUCCESS
-            oid = data.id
+            oid = data.oid
             name = data.name
             mobile = data.mobile
             email = data.email
             address = data.address
             group_id = data.group_id
+            group_ids = map(int, str_to_list(group_id))
+
             self.db.execute("UPDATE T_OPERATOR"
                             "  SET name = %s,"
                             "      mobile = %s,"
                             "      oid = %s,"
                             "      email = %s,"
                             "      address = %s"
-                            "  WHERE id = %s",
+                            "  WHERE oid = %s",
                             name, mobile, mobile, email, address, oid)
-            self.db.execute("UPDATE T_GROUP_OPERATOR"
-                            "  SET group_id = %s"
-                            "  WHERE oper_id = %s",
-                            group_id, mobile)
+            if group_ids is not None:
+                self.db.execute("delete from T_GROUP_OPERATOR "
+                                "  where oper_id = %s",
+                                oid) 
+                self.db.executemany("INSERT INTO T_GROUP_OPERATOR(group_id, oper_id)"
+                                    "  VALUES(%s, %s)", 
+                                    [(group_id, oid) for group_id in group_ids])
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s modify operator failed. Exception: %s", 
@@ -177,7 +183,7 @@ class OperatorHandler(BaseHandler):
 
         try:
             status = ErrorCode.SUCCESS
-            self.db.execute("DELETE FROM T_OPERATOR WHERE id IN %s",
+            self.db.execute("DELETE FROM T_OPERATOR WHERE oid IN %s",
                             tuple(delete_ids + DUMMY_IDS)) 
             self.write_ret(status)
         except Exception as e:
@@ -187,33 +193,33 @@ class OperatorHandler(BaseHandler):
             self.write_ret(status)
 
 
-class OperatorBindGroupHandler(BaseHandler):
-
-    @authenticated
-    @tornado.web.removeslash
-    def post(self):
-        """Bind some groups to an operator.
-        """
-        try:
-            data = DotDict(json_decode(self.request.body))
-            gids = [str(gid) for gid in data.gids]
-            oid = data.oid 
-            logging.info("[UWEB] bind group to operator request: %s, cid: %s", 
-                         data, self.current_user.cid)
-        except Exception as e:
-            status = ErrorCode.ILLEGAL_DATA_FORMAT
-            self.write_ret(status)
-            return
-
-        try:
-            status = ErrorCode.SUCCESS
-            self.db.executemany("INSERT INTO T_GROUP_OPERATOR(id, group_id, oper_id)"
-                                "  VALUES(NULL, %s, %s)" %\
-                                [(gid, oid) for gid in gids])
-
-            self.write_ret(status)
-        except Exception as e:
-            logging.exception("[UWEB] cid: %s bind group failed. Exception: %s", 
-                              self.current_user.cid, e.args) 
-            status = ErrorCode.SERVER_BUSY
-            self.write_ret(status)
+#class OperatorBindGroupHandler(BaseHandler):
+#
+#    @authenticated
+#    @tornado.web.removeslash
+#    def post(self):
+#        """Bind some groups to an operator.
+#        """
+#        try:
+#            data = DotDict(json_decode(self.request.body))
+#            gids = [str(gid) for gid in data.gids]
+#            oid = data.oid 
+#            logging.info("[UWEB] bind group to operator request: %s, cid: %s", 
+#                         data, self.current_user.cid)
+#        except Exception as e:
+#            status = ErrorCode.ILLEGAL_DATA_FORMAT
+#            self.write_ret(status)
+#            return
+#
+#        try:
+#            status = ErrorCode.SUCCESS
+#            self.db.executemany("INSERT INTO T_GROUP_OPERATOR(id, group_id, oper_id)"
+#                                "  VALUES(NULL, %s, %s)" %\
+#                                [(gid, oid) for gid in gids])
+#
+#            self.write_ret(status)
+#        except Exception as e:
+#            logging.exception("[UWEB] cid: %s bind group failed. Exception: %s", 
+#                              self.current_user.cid, e.args) 
+#            status = ErrorCode.SERVER_BUSY
+#            self.write_ret(status)

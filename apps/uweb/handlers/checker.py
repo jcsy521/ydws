@@ -88,14 +88,22 @@ class CheckOperMobileHandler(BaseHandler):
         """
         try:
             status = ErrorCode.SUCCESS
-            res = self.db.get("SELECT id"
-                              "  FROM T_OPERATOR"
-                              "  WHERE mobile = %s"
-                              "   LIMIT 1",
-                              omobile)
-            if res:
-                #TODO: the status is ugly, maybe should be replaced on someday.
-                status = ErrorCode.DATA_EXIST
+
+            corp = self.db.get("SELECT id"
+                               "  FROM T_CORP"
+                               "  WHERE cid = %s"
+                               "   LIMIT 1",
+                               omobile)
+            if corp:
+                status = ErrorCode.CORP_EXIST
+            else:
+                operator = self.db.get("SELECT id"
+                                       "  FROM T_OPERATOR"
+                                       "  WHERE mobile = %s"
+                                       "   LIMIT 1",
+                                       omobile)
+                if operator:
+                    status = ErrorCode.OPERATOR_EXIST
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 
