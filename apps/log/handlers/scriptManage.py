@@ -103,7 +103,7 @@ class UploadLuaHandler(BaseHandler):
             self.acbdb.execute("INSERT INTO T_SCRIPT(version, filename, timestamp, author)"
                                "VALUES(%s, %s, %s, %s)",
                                versionname, filename, timestamp, author)
-            file_path = './static/terminal/'+ filename
+            file_path = os.path.join(DOWNLOAD_DIR_,filename)
             logging.info("[LOG] Upload path: %s", file_path)
             output_file = open(file_path, 'w')
             output_file.write(upload_file['body'])
