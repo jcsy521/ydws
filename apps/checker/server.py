@@ -27,7 +27,7 @@ from helpers.confhelper import ConfHelper
 from checkterminalstatus import CheckTerminalStatus
 from terminal import SimulatorTerminal
 from checkservice import CheckService
-from statistic import TerminalStatistic
+#from statistic import TerminalStatistic
 
 
 def usage():
