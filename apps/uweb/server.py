@@ -77,6 +77,7 @@ from handlers.operator import OperatorHandler
 from handlers.region import RegionHandler, RegionDetailHandler
 from handlers.bindregion import BindRegionHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
+from handlers.zfjsyncer import ZFJSyncerHandler
 
 #znbc uweb handler
 from handlers.passenger import PassengerHandler
@@ -189,6 +190,7 @@ class Application(tornado.web.Application):
             (r"/ios/captcha/*", ClientCaptchaHandler),
             (r"/ios/bindmobile/*", BindMobileHandler),
             (r"/ios/sync/*", SyncHandler),
+            (r"/zfjsyncer/*", ZFJSyncerHandler),
             
             # for wap
             (r"/wapimg/*", WapImgHandler),
