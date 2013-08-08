@@ -163,14 +163,14 @@ function customMenu(node) {
 				dlf.fn_routeLineBindEvent();
 			}
 		},
+		/*
 		"region": {
 			"label" : '电子围栏',
 			"action" : function(obj) {	// 终端右键菜单 电子围栏 kjj add  2013-07-10
 				obj_alarmAndDelay.hide();
 				dlf.fn_initRegion();
 			}
-		},
-		/*
+		},*/
 		"bindRegion": {
 			"label" : bindRegionLabel,
 			"action" : function(obj) {	// todo 
@@ -178,7 +178,15 @@ function customMenu(node) {
 				obj_alarmAndDelay.hide();
 				dlf.fn_initBindRegion();
 			}
-		},*/
+		},
+		"batchRegion" : {
+			"label" : batchRegionLabel,
+			"action": function (obj) { // 批量设置电子围栏
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				obj_alarmAndDelay.hide();
+				dlf.fn_initBatchRegions(obj);
+			}
+		},
 		"terminalSetting": {	// 参数设置
 			"label" : terminalLabel,
 			"action" : function (obj) {
@@ -232,15 +240,6 @@ function customMenu(node) {
 				}
 			}
 		},
-		/*
-		"batchRegion" : {
-			"label" : batchRegionLabel,
-			"action": function (obj) { // 批量设置电子围栏
-				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
-				obj_alarmAndDelay.hide();
-				dlf.fn_initBatchRegions(obj);
-			}
-		},*/
 		"batchTrack" : {
 			"label" : "批量追踪",
 			"submenu": {
@@ -274,7 +273,13 @@ function customMenu(node) {
 		"rename" : {
 			"label" : renameLabel,
 			"action" : function(obj) {
-				this.rename(obj);
+				var obj_node = $(obj).children('a'),
+					str_class = obj_node.attr('class');
+				
+				this.rename(obj);	
+				if ( str_class.search('groupNode') != -1 ) {
+					$('.jstree-rename-input').val($(obj).children('a').attr('title'));
+				}				
 			}
 		},
 		/*"moveTo": {
@@ -632,7 +637,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			return;
 		}
 		if ( obj_currentNode.hasClass('j_group') ) {	// 重命名组	
-			fn_renameGroup(obj_current.attr('groupid'), str_newName, data.rlbk);
+			fn_renameGroup(obj_current.attr('groupid'), str_newName, obj_current);
 		} else if ( obj_currentNode.hasClass('j_corp') ) {	// 重命名集团
 			var str_cid = obj_current.attr('corpid') || $('.j_body').attr('cid');
 			
@@ -1528,7 +1533,7 @@ function fn_renameGroup(gid, str_name, node) {
 	var obj_param = {'name': str_name, 'gid': gid};
 	if ( !fn_checkGroupName(str_name, node, gid) ) {
 		$.put_(GROUPS_URL, JSON.stringify(obj_param), function (data) {
-			if ( data.status == 0 ) {
+			if ( data.status == 0 ) {	
 				//dlf.fn_corpGetCarData();	// 重新加载树2013.4.10
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示

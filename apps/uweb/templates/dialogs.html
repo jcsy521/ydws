@@ -193,10 +193,10 @@
 					</li>
 					<!--<li>
 						<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
-					</li>
+					</li>-->
 					<li>
 						<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
-					</li>-->
+					</li>
 				</ul>
 				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
 		</div>
@@ -310,9 +310,9 @@
 						<li>
 							<input type="checkbox" id="corp_illegalshake" class="j_corp_checkbox" title="震动" /><label for="corp_illegalshake">震动告警</label> 
 						</li>
-						<!--<li>
+						<li>
 							<input type="checkbox" id="corp_powerdown" class="j_corp_checkbox" title="剩余流量" /><label for="corp_powerdown">断电告警</label> 
-						</li>-->
+						</li>
 						<li>
 							<input type="checkbox" id="corp_login" class="j_corp_checkbox" title="车主登录" /><label for="corp_login">平台登录提醒</label> 
 						</li>
@@ -862,7 +862,7 @@
 								<option value="8">出围栏</option>
 								<option value="3">震动</option>
 								<option value="4">移动</option>
-								<!--<option value="9">断电</option>-->
+								<option value="9">断电</option>
 							</select>
 						</span>
 					</td>
@@ -1269,11 +1269,11 @@
 	<div id="regionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle regionTitle">
 			<span class="close j_close" title="关闭窗口" who="region"></span>
-			<span title="收起" class="hideOrShowContent min j_hosBtn" id="region_hos"></span>
+			<span title="收起" class="hideOrShowContent min j_hosBtn"></span>
 		</div>
 		<div id="regionContent" class="wrapperContent regionContent">
-			<label id="regionForTerminal">定位器：</label>
-			<a id="regionCreateBtn" href="#">新增围栏</a>
+			<label id="regionForTerminal" class="regionForTerminal">定位器：</label>
+			<a id="regionCreateBtn" class="regionCreateBtn j_regionCreateBtn" href="#">新增围栏</a>
 			<table id="regionTable" class="dataTable regionTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="regionTableHeader">
@@ -1287,6 +1287,29 @@
 		</div>
 		<!--<span id="regionNote">注意：新建的围栏，需要选择终端，并在右键菜单中点击“绑定围栏”才能生效</span>-->
 	</div>
+	
+	<!-- 集团围栏管理展示页面 -->
+	<div id="corpRegionWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle regionTitle">
+			<span class="close j_close" title="关闭窗口" who="corpRegion"></span>
+			<span title="收起" class="hideOrShowContent min j_hosBtn"></span>
+		</div>
+		<div id="corpRegionContent" class="wrapperContent corpRegionContent">
+			<a id="corpRegionCreateBtn" class="regionCreateBtn j_regionCreateBtn" href="#">新增围栏</a>
+			<table id="corpRegionTable" class="dataTable regionTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="corpRegionTableHeader">
+						<th>序号</th>
+						<th>围栏名称</th>
+						<th>查看详情</th>
+						<th>操作</th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<span id="regionNote">注意：新建的围栏，需要选择终端，并在右键菜单中点击“绑定围栏”才能生效</span>
+	</div>
+	
 	<!-- 围栏新增服务功能条-->
 	<div id="regionCreateWrapper" class="wrapper hide j_drag">
 		<span id="regionCreateBtnPanel" class="regionCreateBtnPanel">
@@ -1307,6 +1330,7 @@
 			<span class="close j_close" title="关闭窗口" who="bindRegion"></span>
 		</div>
 		<div class="wrapperContent bindRegionContent">
+			<label id="corpRegionForTerminal" class="regionForTerminal">定位器：</label>
 			<table id="bindRegionTable" class="dataTable bindRegionTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="bindRegionTableHeader">

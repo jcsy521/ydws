@@ -4,9 +4,8 @@
 
 // 围栏管理的初始化查询展示
 window.dlf.fn_initRegion = function() {
-	var str_alias = $('.j_currentCar').attr('alias'),
-		str_region = 'region', 
-		obj_regionWapper = $('#regionWrapper'), 
+	var str_region = 'corpRegion', 
+		obj_regionWapper = $('#corpRegionWrapper'), 
 		obj_regionAddWapper = $('#regionCreateWrapper'),
 		b_mapType = dlf.fn_isBMap();
 	
@@ -17,16 +16,13 @@ window.dlf.fn_initRegion = function() {
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_displayCars(); // 显示车辆信息数据
 	
-	//填充当前终端tid在围栏页面
-	$('#regionForTerminal').html('定位器：'+str_alias);
-	
 	//获取围栏数据 
 	dlf.fn_setSearchRecord(str_region);
 	dlf.fn_searchData(str_region);
 
 	// 新增围栏事件侦听
-	$('#regionCreateBtn').unbind('click').click(function(event){
-		var n_circleNum = $('#regionTable').data('regionnum');
+	$('.j_regionCreateBtn').unbind('click').click(function(event){
+		var n_circleNum = $('#corpRegionTable').data('regionnum');
 			
 		if ( n_circleNum ) {
 			if ( n_circleNum >= 10 ) { //最多只能有十个电子围栏
@@ -82,6 +78,7 @@ window.dlf.fn_initRegion = function() {
 		$(this).addClass('regionCreateBtnCurrent');
 	});
 }
+
 // 操作围栏不清除车辆
 function fn_displayCars () {
 	// 显示车辆信息数据
@@ -101,7 +98,7 @@ function fn_displayCars () {
 	}
 }
 
-/*
+/**
 * 重新绘制围栏
 */
 window.dlf.fn_resetRegion = function() {
@@ -115,15 +112,15 @@ window.dlf.fn_resetRegion = function() {
 	$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
 }
 
-/*
+/**
 * 围栏保存操作
 */
 window.dlf.fn_saveReginon = function() {
 	dlf.fn_mapStopDraw();
 	var str_regionName = $.trim($('#createRegionName').val()), 
 		n_radius = 0, 
-		obj_regions = $('#regionTable').data('regions'),
-		n_circleNum = $('#regionTable').data('regionnum'),
+		obj_regions = $('#corpRegionTable').data('regions'),
+		n_circleNum = $('#corpRegionTable').data('regionnum'),
 		str_tid = $('.j_currentCar').attr('tid'),
 		obj_regionData = {};
 		
@@ -164,14 +161,14 @@ window.dlf.fn_saveReginon = function() {
 		return;
 	}
 	// 发送线请求数据
-	dlf.fn_jsonPost(REGION_URL, obj_regionData, 'regionCreate', '电子围栏数据保存中');
+	dlf.fn_jsonPost(CORP_REGION_URL, obj_regionData, 'regionCreate', '电子围栏数据保存中');
 }
 
-/*
+/**
 * 查看围栏的详细信息
 */
 window.dlf.fn_detailRegion = function(n_seq) {
-	var obj_regionDatas = $('#regionTable').data('regions'),
+	var obj_regionDatas = $('#corpRegionTable').data('regions'),
 		obj_regionData = obj_regionDatas[n_seq], 
 		n_region_shape = obj_regionData.region_shape;	// 围栏类型 0: 圆形 1: 多边形
 		
@@ -198,7 +195,7 @@ window.dlf.fn_detailRegion = function(n_seq) {
 	}
 }
 
-/*
+/**
 * 删除围栏信息
 */
 window.dlf.fn_deleteRegion = function(n_id) {
@@ -206,9 +203,9 @@ window.dlf.fn_deleteRegion = function(n_id) {
 		if ( confirm('确定要删除该围栏吗？') ) {
 			$.delete_(REGION_URL+'?ids='+n_id, '', function(data) {
 				if ( data.status == 0 ) {
-					var obj_regionTable = $('#regionTable'),
+					var obj_regionTable = $('#corpRegionTable'),
 						n_regionNums = obj_regionTable.data('regionnum'),
-						obj_currentRegionTr = $('#regionTable tr[id='+ n_id +']');
+						obj_currentRegionTr = $('#corpRegionTable tr[id='+ n_id +']');
 			
 					obj_currentRegionTr.remove();
 					obj_regionTable.data('regionnum', n_regionNums - 1);
@@ -237,35 +234,41 @@ window.dlf.fn_initBindRegion = function() {
 	var str_bindRegion = 'bindRegion',
 		obj_currentCar = $($('.j_carList a[class*=j_currentCar]')),
 		str_tid = obj_currentCar.attr('tid'),
+		str_alias = obj_currentCar.attr('alias'),
+		str_msg = '当前您还没有电子围栏，请新增电子围栏！',
 		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
 		
 	if ( b_trackStatus ) {
 		dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 	}
-	dlf.fn_dialogPosition(str_bindRegion);	// 设置dialog的位置并显示
+	
+	//填充当前终端tid在围栏页面
+	$('#corpRegionForTerminal').html('定位器：'+str_alias);
+
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_displayCars(); // 显示车辆信息数据
 	//获取围栏数据 
 	dlf.fn_searchData(str_bindRegion);
+
 	// 绑定围栏保存
 	$('#bindRegionSave').unbind('click').click(function(event) {
 		var obj_bindRegionData = {
 								'tids': [str_tid], 
 								'region_ids': fn_getRegionDatas(str_bindRegion)},
-			obj_regionDatas = $('#regionTable').data('regions');
+			obj_regionDatas = $('#corpRegionTable').data('regions');
 		
 		if ( obj_regionDatas ) {
 			var n_regionLen = obj_regionDatas.length;
 			// 当前没有创建电子围栏
 			if ( n_regionLen == 0 ) {
-				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
+				dlf.fn_jNotifyMessage(str_msg, 'message', false, 5000);
 				return;
 			}
 			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindRegion, '车辆与电子围栏绑定中');
 		} else {
-			dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
+			dlf.fn_jNotifyMessage(str_msg, 'message', false, 5000);
 		}
 	});
 }
@@ -277,13 +280,13 @@ window.dlf.fn_initBatchRegions = function(obj_group){
 	var str_bindBatchRegion = 'bindBatchRegion', 
 		arr_terminalIds = [];
 	
-	dlf.fn_dialogPosition(str_bindBatchRegion);	// 设置dialog的位置并显示
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
 	dlf.fn_clearMapComponent(); // 清除页面图形
 	fn_displayCars(); // 显示车辆信息数据
 	//获取围栏数据 
 	dlf.fn_searchData(str_bindBatchRegion);
+	
 	// 获取组下的所有终端TID
 	var str_groupNodeId = $(obj_group).attr('id'), 
 		obj_leafUl = $(obj_group).children('ul'),
@@ -303,7 +306,7 @@ window.dlf.fn_initBatchRegions = function(obj_group){
 		var obj_bindRegionData = {
 								'tids': arr_terminalIds, 
 								'region_ids': fn_getRegionDatas(str_bindBatchRegion)},
-			obj_regionDatas = $('#regionTable').data('regions'),
+			obj_regionDatas = $('#corpRegionTable').data('regions'),
 			n_tids = arr_terminalIds.length;
 		
 		if ( obj_regionDatas ) {

@@ -503,6 +503,7 @@ $(function () {
 			b_mileageStatus = $('#mileageWrapper').is(':visible'),	// 里程统计是否显示
 			b_addLineRoute = $('#routeLineCreateWrapper').is(':visible');	// 添加站点是否显示
 			b_regionStatus = $('#regionWrapper').is(':visible'),	// 围栏显示是否显示
+			b_corpRegionStatus = $('#corpRegionWrapper').is(':visible'),	// 集团的围栏管理
 			b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
 			b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 围栏批量绑定是否显示
 			b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
@@ -632,7 +633,8 @@ $(function () {
 				}
 				dlf.fn_initRouteLine();
 				break;
-			case 'region': // 围栏管理
+			case 'corpRegion': 	// 集团围栏管理
+			case 'region': // 个人围栏管理
 				obj_alarm.hide();
 				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 				if ( b_eventSearchStatus ) {

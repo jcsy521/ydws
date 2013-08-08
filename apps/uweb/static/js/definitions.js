@@ -54,6 +54,7 @@ var ROUTELINE_URL = '/line'; //线路管理
 var BINDLINE_URL = '/bindline'; //绑定线路
 var GETLINES_URL = '/getlines';// 获取线路
 var REGION_URL = '/region';	// 围栏管理
+var CORP_REGION_URL = '/corpregion';	// 集团围栏管理
 var BINDREGION_URL = '/bindregion'; // 围栏绑定
 var GETREGIONDATA_URL = '/getregionevent';//获取告警围栏信息
 /*常量*/

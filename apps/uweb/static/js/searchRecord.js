@@ -42,8 +42,8 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
 		dlf.fn_clearMapComponent(); // 清除页面图形
-		
-		dlf.fn_initTimeControl(str_who); // 时间初始化方法
+		fn_initEventTimeControl();
+		//dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'mileage' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
 		obj_tableHeader.hide();
@@ -419,17 +419,19 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'routeLine': // 线路管理查询
 			str_getDataUrl = ROUTELINE_URL+'?pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
 			break;
-		case 'bindRegion': // 绑定围栏管理查询
-		case 'bindBatchRegion': // 批量绑定围栏管理查询
 		case 'region': // 围栏管理查询
 			str_getDataUrl = REGION_URL + '?tid=' + str_currentTid;
 			$('#regionTable').removeData();
 			break;
+		case 'bindRegion': // 绑定围栏管理查询
+		case 'bindBatchRegion': // 批量绑定围栏管理查询
+		case 'corpRegion': // 集团用户的围栏管理	kjj add in 2013-08-07
+			str_getDataUrl = CORP_REGION_URL;
+			break;
 	}
-	
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
 	
-	if ( str_who == 'operator' || str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' ) {
+	if ( str_who == 'operator' || str_who == 'region' || str_who == 'corpRegion' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' ) {
 		$.get_(str_getDataUrl, '', function(data) {	
 			dlf.fn_bindSearchRecord(str_who, data);
 		},
@@ -462,7 +464,8 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		str_disableColor = '#8E9090',
 		obj_infoPushEle = $('#infoPush_allCheckedPanel, #infoPushSave'),
 		obj_infoPushTipsEle = $('.j_infoPushTips, #infoPushDisabledBtn'),
-		obj_chart = $('#'+ str_who +'Wrapper .j_chart');
+		obj_chart = $('#'+ str_who +'Wrapper .j_chart'),
+		b_userType = dlf.fn_userType();	// true: corp
 			
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
@@ -485,8 +488,6 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			arr_dwRecordData = obj_resdata.passengers;
 		} else if ( str_who == 'routeLine' ) {
 			arr_dwRecordData = obj_resdata.lines;
-		} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
-			arr_dwRecordData = obj_resdata.regions;
 		}
 		
 		n_eventDataLen = arr_dwRecordData.length; 	//记录数
@@ -552,7 +553,9 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				b_regionCreate = obj_regionContent.data('iscreate');
 			if ( b_regionCreate ) {
 				obj_regionContent.removeData('iscreate');
-				dlf.fn_jNotifyMessage('创建成功。', 'message', false, 3000);
+				var str_msg = b_userType == true ? '创建成功，请绑定围栏。' : '创建成功。';
+				
+				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 			}
 		} else {
 			obj_download.hide();
@@ -567,15 +570,17 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				obj_infoPushEle.hide();
 				obj_infoPushTipsEle.show();	// infoPush没有查询到乘客信息提示框隐藏
 				return;
-			} else if ( str_who == 'region' ) {
+			} else if ( str_who == 'region' || str_who == 'corpRegion'  ) {
 				
 			} else {
 				obj_searchHeader.hide();
 			}
-			if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+			if ( str_who == 'region' || str_who == 'corpRegion' ) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+			} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！。', 'message', false, 4000);
 			} else {
-				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 6000);
+				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 4000);
 			}
 		}
 	} else if ( obj_resdata.status == 201 ) {	// 业务变更
@@ -601,7 +606,6 @@ window.dlf.fn_showMarkerOnEvent = function() {
 		// 根据行编号拿到数据，在地图上做标记显示
 		var n_tempIndex = $(this).parent().parent().index()-1,
 			obj_tempData = arr_dwRecordData[n_tempIndex];
-
 			dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true, n_tempIndex); // 添加标记
 			setTimeout (function () {
 				// 为了正常显示暂时给告警的点加部分偏移进行显示:)
@@ -697,11 +701,11 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		obj_searchData = obj_reaData.passengers;
 	} else if ( str_who == 'routeLine' ) {
 		obj_searchData = obj_reaData.lines;
-	} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
-		if ( str_who != 'region' ) {
+	} else if ( str_who == 'region' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'corpRegion' ) {
+		/*if ( str_who != 'region' ) {
 			obj_searchData = obj_reaData.regions;
-		}
-		$('#regionTable').data({'regions': obj_searchData, 'regionnum': obj_searchData.length}); //围栏存储数据以便显示详细信息
+		}*/
+		$('#regionTable, #corpRegionTable').data({'regions': obj_searchData, 'regionnum': obj_searchData.length}); //围栏存储数据以便显示详细信息
 	}
 
 	arr_eventData = obj_searchData;
@@ -869,8 +873,8 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				
 				obj_routeLines[str_lineId] = obj_tempData; // 存储线信息以信显示线路详情
 				break;
-			case 'region': // 电子围栏
-				//todo
+			case 'corpRegion':	// 集团用户电子围栏 
+			case 'region': // 个人用户电子围栏
 				var str_regionId = obj_tempData.region_id,
 					arr_regionName = obj_tempData.region_name;
 			
@@ -880,7 +884,6 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';	// 
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteRegion('+ str_regionId +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';
-				
 				break;
 			case 'bindRegion': // 电子围栏绑定
 			case 'bindBatchRegion': // 电子围栏批量绑定
@@ -899,7 +902,6 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		}
 	}
 	obj_searchHeader.after(str_tbodyText);
-	
 	if ( str_who == 'singleMileage' || str_who == 'singleEvent' ) {
 		var	obj_theadTH = $('.j_' + str_who + 'TH'),	// 表头时间TH
 			n_type = parseInt($('#'+ str_who +'Type').val()),
@@ -1013,17 +1015,66 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				$('#infoPush_allChecked').removeAttr('checked');
 			}
 		});
-	} else if ( str_who == 'bindRegion' ) { // 当前终端所绑定的围栏进行显示
-		dlf.fn_getCurrentRegions();
+	} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) { // 当前终端所绑定的围栏进行显示
+		dlf.fn_dialogPosition(str_who);	// 绑定围栏前判断是否有围栏， 如果有就打开dialog
+		if ( str_who == 'bindRegion' ) {
+			dlf.fn_getCurrentRegions();
+		}		
 	}
 	$('#' + str_who + 'Wrapper').data('hash', str_hash);	// 存储hash值
+}
+
+/**
+* 告警查询的时间控件初始化
+* kjj add in 2013-08-06
+*/
+function fn_initEventTimeControl() {
+	var obj_date = new Date(),
+		n_currentDate = obj_date.getTime();
+		str_nowDate = dlf.fn_changeNumToDateString(n_currentDate, 'ymd'), 
+		str_inputStartTime = 'eventSearchStartTime', 
+		str_inputEndTime = 'eventSearchEndTime',
+		str_tempBeginTime = str_nowDate+' 00:00:00',
+		str_tempEndTime = str_nowDate+' '+dlf.fn_changeNumToDateString(n_currentDate, 'sfm'),
+		str_timepickerFormat = 'yyyy-MM-dd HH:mm:ss',
+		obj_stTime = $('#'+str_inputStartTime), 
+		obj_endTime = $('#'+str_inputEndTime);
+	
+	obj_stTime.unbind('click').bind('click', function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
+		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false,  qsEnabled: false,
+		onpicked: function() {
+			if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
+				var obj_endDate = $dp.$D(str_inputEndTime), 
+					str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
+					str_endTime = dlf.fn_changeDateStringToNum(str_endString), 
+					str_beginTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
+				if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
+					obj_endTime.val(dlf.fn_changeNumToDateString(str_beginTime + WEEKMILISECONDS));
+				}
+			}
+		}});
+	}).val(str_tempBeginTime);
+	
+	obj_endTime.unbind('click').bind('click', function() {	// 初始化结束时间，并做事件关联
+		WdatePicker({el: str_inputEndTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false, qsEnabled: false, onpicked: function() {
+				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
+					var obj_beginDate = $dp.$D(str_inputStartTime), 
+						str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
+						str_beginTime = dlf.fn_changeDateStringToNum(str_beginString), 
+						str_endTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
+					if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
+						obj_stTime.val(dlf.fn_changeNumToDateString(str_endTime - WEEKMILISECONDS));
+					}
+				}
+			}
+		});
+	}).val(str_tempEndTime);
 }
 
 /**
 *  时间控件初始化
 */
 window.dlf.fn_initTimeControl = function(str_who) {
-	
 	var obj_date = new Date(),
 		n_currentDate = obj_date.getTime();
 		str_nowDate = dlf.fn_changeNumToDateString(n_currentDate, 'ymd'), 
@@ -1141,7 +1192,10 @@ window.dlf.fn_initSlider = function() {
 	});*/
 }
 
-// 通过slide滑块的值判断显示的时间点
+/**
+* 通过slide滑块的值判断显示的时间点
+* n_slideVal: 分钟数
+*/
 function fn_slideValToTimeVal(n_slideVal) {
 	var n_hour = Math.floor(n_slideVal/60), 
         n_minute = n_slideVal%60;
@@ -1152,7 +1206,7 @@ function fn_slideValToTimeVal(n_slideVal) {
 }
 
 /**
-* 2013-07-10 kjj create				todo
+* 2013-07-10 kjj create
 * get all of the terminals in corp
 */
 window.dlf.fn_getAllTerminals = function() {

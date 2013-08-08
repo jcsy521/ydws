@@ -3034,18 +3034,16 @@ legend {
 	width: 100px;
 	padding: 5px;
 }
-
 /**==================*/
-#regionWrapper {
+#regionWrapper, #corpRegionWrapper {
 	background: none repeat scroll 0 0 #F7F8F8;
 	width: 510px;
 	height: 0px;
 }
-
-.regionContent {
+.regionContent, .corpRegionContent {
 	height: 458px
 }
-#regionCreateBtn {
+.regionCreateBtn {
 	color: #4876FF;
 	display: inline-block;
     cursor: pointer;
@@ -3053,6 +3051,9 @@ legend {
     left: 272px;
     position: relative;
     top: 14px;
+}
+#corpRegionCreateBtn {
+	left: 437px;
 }
 /*routeline add panel*/
 .regionCreateBtnPanel a {
@@ -3202,7 +3203,7 @@ legend {
 }
 .bindRegionTable, .bindBatchRegionTable {
 	width: 410px;
-	margin: 0px auto;
+	margin: 10px auto;
 }
 .bindRegionSave, .bindBatchRegionSave {
 	border: 0 none;
@@ -3227,7 +3228,8 @@ legend {
 	float: left;
 	height: 11px;
 	position: relative;
-	top: 2px;
+	top: 8px;
+	*top: 15px;
 }
 .errorTop10 {
 	top: 10px;
@@ -3296,11 +3298,14 @@ legend {
 .marginleft0 {
 	margin-left: 0px;
 }
-#regionForTerminal {
+.regionForTerminal {
     display: inline-block;
     left: 26px;
     position: relative;
     top: 14px;
     width: 160px;
+}
+#corpRegionForTerminal {
+	top: -8px;
 }
 /*web css end*/
