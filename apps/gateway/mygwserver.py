@@ -1413,22 +1413,15 @@ class MyGWServer(object):
             # before v2.2.0
             if len(body) == 0:
                 body.append("0")
-            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
-            resend_flag = self.redis.getvalue(resend_key)
 
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
-            if resend_flag:
-                logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
-                             info.head, info.body)
-            else: 
-                self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-                ap = AsyncParser(body, head)
-                info = ap.ret 
-                flag = info['flag']
-                delete_terminal(head.dev_id, self.db, self.redis)
-                if int(flag) == 1:
-                    clear_data(head.dev_id, self.db)
+            ap = AsyncParser(body, head)
+            info = ap.ret 
+            flag = info['flag']
+            delete_terminal(head.dev_id, self.db, self.redis)
+            if int(flag) == 1:
+                clear_data(head.dev_id, self.db)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,

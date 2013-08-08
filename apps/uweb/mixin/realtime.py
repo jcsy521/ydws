@@ -202,6 +202,9 @@ class RealtimeMixin(BaseMixin):
                         ret.location.tid = self.current_user.tid
                         ret.location.degree = float(location.degree)
                         self.update_terminal_status(location)
+                    else:
+                        ret.status = ErrorCode.LOCATION_FAILED
+                        ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
                 else:
                     if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
                         self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
