@@ -75,6 +75,7 @@ from handlers.batch import BatchDeleteHandler
 from handlers.batch import BatchJHHandler
 from handlers.operator import OperatorHandler
 from handlers.region import RegionHandler, RegionDetailHandler
+from handlers.corpregion import CorpRegionHandler
 from handlers.bindregion import BindRegionHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.zfjsyncer import ZFJSyncerHandler
@@ -222,6 +223,7 @@ class Application(tornado.web.Application):
             (r"/getregionevent/*", RegionDetailHandler),
             (r"/report/online/*", OnlineHandler),
             (r"/download/*", DownloadHandler),
+            (r"/corpregion/*", CorpRegionHandler),
             
             #znbc server handler
             (r"/passenger/*", PassengerHandler),

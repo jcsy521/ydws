@@ -90,7 +90,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             profile.update(car)
 
             ## part 3: sms option
-            sms_options = self.db.get("SELECT login, powerlow, illegalshake,"
+            sms_options = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
                                       "       illegalmove, sos, heartbeat_lost, charge"
                                       "  FROM T_SMS_OPTION"
                                       "  WHERE uid = %s"
