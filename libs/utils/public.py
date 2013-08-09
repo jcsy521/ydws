@@ -60,9 +60,6 @@ def delete_terminal(tid, db, redis, del_user=True):
         db.execute("DELETE FROM T_CHARGE"
                    " WHERE tid = %s",
                    tid)
-        db.execute("DELETE FROM T_REGION_TERMINAL"
-                   "  WHERE tid = %s",
-                   tid)
         logging.info("Delete db data of terminal: %s", tid)
 
     # clear redis
@@ -90,6 +87,9 @@ def delete_terminal(tid, db, redis, del_user=True):
         redis.delete(*keys)
 
     # clear db
+    db.execute("DELETE FROM T_REGION_TERMINAL"
+               "  WHERE tid = %s",
+               tid)
     if terminal:
         db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s"
                    "  WHERE tmobile = %s ", 

@@ -529,6 +529,10 @@ class MyGWServer(object):
                     icon_type = terminal.icon_type
                     if terminal.tid == terminal.mobile:
                         # corp terminal login first, keep corp info
+                        self.db.execute("UPDATE T_REGION_TERMINAL"
+                                        "  SET tid = %s"
+                                        "  WHERE tid = %s",
+                                        t_info['dev_id'], t_info['t_msisdn'])
                         logging.info("[GW] Corp terminal: %s login first, tmobile: %s.",
                                      t_info['dev_id'], t_info['t_msisdn'])
                     elif terminal.tid != t_info['dev_id']:
