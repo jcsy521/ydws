@@ -9,7 +9,7 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
 from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key,\
-     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
+     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS, get_track_key
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
@@ -123,6 +123,8 @@ class LastInfoHandler(BaseHandler):
                             if track_tid not in tids:
                                 logging.error("The terminal with tid: %s does not exist", track_tid)
                             else:
+                                track_key = get_track_key(track_tid)
+                                self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
                                 if int(query_time) == -1:
                                     pass
                                 elif lastinfo_time - query_time > 1: # every 30 second, ternimal generate a location 
@@ -264,6 +266,8 @@ class LastInfoCorpHandler(BaseHandler):
                     track_info = []
                     for item in track_lst:
                         if tid == item['track_tid']:
+                            track_key = get_track_key(tid)
+                            self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
                             endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else int(current_time)-1
                             points_track = self.db.query("SELECT id, latitude, longitude," 
                                                          "   clatitude, clongitude, type, timestamp"
