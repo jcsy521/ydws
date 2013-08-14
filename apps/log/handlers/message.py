@@ -15,6 +15,7 @@ from helpers.confhelper import ConfHelper
 from utils.dotdict import DotDict
 from utils.checker import check_phone
 from utils.public import clear_data, delete_terminal
+from constants import UWEB
 
 class MessageHandler(BaseHandler):
 
@@ -66,7 +67,13 @@ class MessageHandler(BaseHandler):
                         logging.error("The terminal with tmobile: %s does not exist!", tmobile)
                         self.write_ret(status)
                         return
-                    umobile = terminal.owner_mobile
+                    umobile = terminal.owner_mobile 
+
+                    # record the del action  
+                    self.acbdb.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type = %s" 
+                                       " WHERE tmobile = %s ", 
+                                       int(time.time()), UWEB.OP_TYPE.DEL, tmobile)
+
                     if ret['status'] == 0:
                         self.acbdb.execute("UPDATE T_TERMINAL_INFO"
                                             "  SET service_status = 2"
@@ -98,10 +105,12 @@ class MessageHandler(BaseHandler):
                                                          
                 elif sms_type == 'DOMAIN':
                     ip = data.get('domain')
+                    content = ':DOMAIN '+ip 
                     info = self.acbdb.get('SELECT * FROM T_TERMINAL_INFO WHERE mobile=%s', tmobile)
                     if info:
-                        self.acbdb.execute('UPDATE T_TERMINAL_INFO SET domain=%s WHERE mobile=%s', ip, tmobile)                
-                        SMSHelper.send_to_terminal(tmobile,ip)
+                        self.acbdb.execute('UPDATE T_TERMINAL_INFO SET domain=%s WHERE mobile=%s', 
+                                           content tmobile)                
+                        SMSHelper.send_to_terminal(tmobile, content)
                         self.write_ret(status)
                     else:
                         status = ErrorCode.TERMINAL_NOT_EXISTED

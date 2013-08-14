@@ -132,17 +132,17 @@ def main():
         http_server = tornado.httpserver.HTTPServer(Application(debug=debug_mode), xheaders=True)
         http_server.listen(options.port)
         thread.start_new_thread(start_log_syncer, ())
-        logging.warn("[admin] running on: localhost:%d", options.port)
+        logging.warn("[LOG] running on: localhost:%d", options.port)
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt: # todo: SystemExit?
         logging.error("Ctrl-C is pressed.")
     except:
-        logging.exception("[admin] Exit Exception")
+        logging.exception("[LOG] Exit Exception")
     finally:
-        logging.warn("[admin] shutdown...")
+        logging.warn("[LOG] shutdown...")
         if http_server is not None:
             shutdown(http_server)
-        logging.warn("[log] stopped. Bye!")
+        logging.warn("[LOG] stopped. Bye!")
 
 
 if __name__ == "__main__":

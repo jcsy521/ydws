@@ -305,6 +305,7 @@ class LastInfoCorpHandler(BaseHandler):
                                                  tid, int(current_time)-60*5, basic_info['timestamp'])
 
                     points_trace = get_locations_with_clatlon(points_trace, self.db)
+                    points_trace = points_trace[:5] 
                     len_trace = 0
                     if points_trace:
                         for point in points_trace:
@@ -334,7 +335,7 @@ class LastInfoCorpHandler(BaseHandler):
                     if alarm_info:
                         # NOTE: here, do not remove alarm_info, it will automagically disappear after 1 day 
                         #self.redis.delete(alarm_info_key)
-                        logging.info("[UWEB] alarm_info_key: %s, alarm_info: %s", alarm_info_key, alarm_info)
+                        logging.info("[UWEB] lastinfo_time: %s, alarm_info_key: %s, alarm_info: %s", lastinfo_time,  alarm_info_key, alarm_info)
 
                     for alarm in alarm_info:
                         alarm['alias'] = terminal['alias']

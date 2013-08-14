@@ -255,6 +255,11 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
             terminals = self.db.query("SELECT id, tid, mobile, owner_mobile FROM T_TERMINAL_INFO WHERE group_id IN %s",
                                       tuple(groups + DUMMY_IDS))
             for terminal in terminals:
+                # record the del action 
+                self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
+                                "  WHERE tmobile = %s ", 
+                                int(time.time()), UWEB.OP_TYPE.DEL, terminal.tmobile)
+
                 # unbind terminal
                 seq = str(int(time.time()*1000))[-4:]
                 args = DotDict(seq=seq,

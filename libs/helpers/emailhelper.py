@@ -48,7 +48,7 @@ class EmailHelper:
         if cc_email:
             msg['Cc'] = COMMASPACE.join(cc_email) 
         msg['Date'] = formatdate(localtime=True) 
-        msg.attach(MIMEText(safe_utf8(content))) 
+        msg.attach(MIMEText(safe_utf8(content), 'plain', 'utf-8'))
 
         for file in files: 
             part = MIMEBase('application', 'octet-stream') #'octet-stream': binary data 

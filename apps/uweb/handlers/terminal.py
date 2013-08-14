@@ -56,8 +56,9 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
+
             # 2: whitelist
-            user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+            user = QueryHelper.get_user_by_mobile(terminal.owner_mobile, self.db)
             if not user:
                 logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
                 self.clear_cookie(self.app_name)
@@ -77,7 +78,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
             car_sets.update(terminal)
             car_sets.update(car)
-            white_list = [user.mobile]
+            white_list = [terminal.owner_mobile]
             for item in whitelist: 
                 white_list.append(item['mobile'])
             car_sets.update(DotDict(white_list=white_list))

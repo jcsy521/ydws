@@ -196,21 +196,18 @@ class TrackHandler(BaseHandler):
                 if item.name is None:
                     item['name'] = ''
 
-            # orgnize and store the data to be downloaded 
+            # organize and store the data to be downloaded 
             m = hashlib.md5()
             m.update(self.request.body)
             hash_ = m.hexdigest()
             mem_key = self.KEY_TEMPLATE % (self.current_user.uid, hash_)
             
-            # todo: 
             res =  []
             if idle_lst:
-
                 point_begin = dict(label=u'起点',
                                    start_time=utc_to_date(track[0]['timestamp']),
                                    end_time='',
                                    name=track[0]['name'])
-                # TODO:
                 point_idle = []
                 for idle_point in idle_points:
                     idle_label =  seconds_to_label(idle_point['idle_time'])
@@ -229,7 +226,6 @@ class TrackHandler(BaseHandler):
                 res.extend(point_idle)
 
                 self.redis.setvalue(mem_key, res, time=UWEB.STATISTIC_INTERVAL)
-
 
             self.write_ret(status,
                            dict_=DotDict(track=track,

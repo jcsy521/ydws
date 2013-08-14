@@ -162,8 +162,8 @@ class TerminalStatistic(object):
                     for item in data:
                         deltime = time.localtime(int(item['del_time']))
                         addtime = time.localtime(int(item['add_time']))
-                        if (int(item['del_time']) != 0) and ((deltime.tm_year,deltime.tm_mon,deltime.tm_mday) == (addtime.tm_year,addtime.tm_mon,addtime.tm_mday)):
-                            logging.info("[CELERY] tmobile: %s, add and del in the same day, add_time: %s, del_time: %s ", item['tmobile'], addtime, deltime)
+                        if (int(item['del_time']) != 0) and ((deltime.tm_year,deltime.tm_mon,deltime.tm_mday) == (addtime.tm_year,addtime.tm_mon,addtime.tm_mday)) and (int(item['del_time']) > int(item['add_time'])):
+                            logging.info("[CELERY] tmobile: %s, add then delete in the same day, add_time: %s, del_time: %s ", item['tmobile'], addtime, deltime)
                             pass
                         else:
                             res.num += 1
@@ -172,6 +172,7 @@ class TerminalStatistic(object):
             #1 individual statistic 
             in_terminal_add_day = self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
                                                 day_start_time, day_end_time)
+
             in_terminal_add_day = handle_terminal_add(in_terminal_add_day)
                 
             in_terminal_add_month = self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
@@ -541,6 +542,7 @@ if __name__ == '__main__':
     logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
     ts = TerminalStatistic()
     #ts.statistic_online_terminal(timestamp) 
+    #ts.statistic_user(timestamp) 
     #ts.statistic_offline_terminal(timestamp) 
     #ts.statistic_misc() 
 else: 
