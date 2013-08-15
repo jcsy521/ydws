@@ -109,7 +109,7 @@ class MessageHandler(BaseHandler):
                     info = self.acbdb.get('SELECT * FROM T_TERMINAL_INFO WHERE mobile=%s', tmobile)
                     if info:
                         self.acbdb.execute('UPDATE T_TERMINAL_INFO SET domain=%s WHERE mobile=%s', 
-                                           content tmobile)                
+                                           content, tmobile)                
                         SMSHelper.send_to_terminal(tmobile, content)
                         self.write_ret(status)
                     else:
