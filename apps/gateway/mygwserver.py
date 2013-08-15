@@ -264,55 +264,60 @@ class MyGWServer(object):
                     connection, channel = self.__reconnect_rabbitmq(connection, host)
                     continue
                 else:
-                    if queue.qsize() != 0:
-                        item  = queue.get(False)
-                        packets = item.get('response')
-                        address = item.get('address')
-                        packets = self.divide_packets(packets)
-                        for packet in packets:
-                            clw = T_CLWCheck(packet)
-                            command = clw.head.command
-                            if command == T_MESSAGE_TYPE.LOGIN:
-                                logging.info("[GW] Recv login packet:\n%s", packet)
-                                self.handle_login(clw, address, connection, channel) 
-                            elif command == T_MESSAGE_TYPE.HEARTBEAT:
-                                logging.info("[GW] Recv heartbeat packet:\n%s", packet)
-                                self.handle_heartbeat(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.LOCATIONDESC:
-                                logging.info("[GW] Recv locationdesc packet:\n%s", packet)
-                                self.handle_locationdesc(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.CONFIG:
-                                logging.info("[GW] Recv query config packet:\n%s", packet)
-                                self.handle_config(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
-                                logging.info("[GW] Recv defend status packet:\n%s", packet)
-                                self.handle_defend_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.FOBINFO:
-                                logging.info("[GW] Recv fob info packet:\n%s", packet)
-                                self.handle_fob_info(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
-                                logging.info("[GW] Recv sleep status packet:\n%s", packet)
-                                self.handle_terminal_sleep_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.FOBSTATUS:
-                                logging.info("[GW] Recv fob status packet:\n%s", packet)
-                                self.handle_fob_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
-                                logging.info("[GW] Recv runtime status packet:\n%s", packet)
-                                self.handle_runtime_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
-                                logging.info("[GW] Recv unbind status packet:\n%s", packet)
-                                self.handle_unbind_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.UNUSUALACTIVATE:
-                                logging.info("[GW] Recv unusual activate packet:\n%s", packet)
-                                self.handle_unusual_activate(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.MISC:
-                                logging.info("[GW] Recv misc packet:\n%s", packet)
-                                self.handle_misc(clw, address, connection, channel)
-                            else:
-                                logging.info("[GW] Recv packet from terminal:\n%s", packet)
-                                self.foward_packet_to_si(clw, packet, address, connection, channel)
-                    else:
-                        sleep(0.1)
+                    try:
+                        if queue.qsize() != 0:
+                            item  = queue.get(False)
+                            packets = item.get('response')
+                            address = item.get('address')
+                            packets = self.divide_packets(packets)
+                            for packet in packets:
+                                clw = T_CLWCheck(packet)
+                                if not clw.head:
+                                    break
+                                command = clw.head.command
+                                if command == T_MESSAGE_TYPE.LOGIN:
+                                    logging.info("[GW] Recv login packet:\n%s", packet)
+                                    self.handle_login(clw, address, connection, channel) 
+                                elif command == T_MESSAGE_TYPE.HEARTBEAT:
+                                    logging.info("[GW] Recv heartbeat packet:\n%s", packet)
+                                    self.handle_heartbeat(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.LOCATIONDESC:
+                                    logging.info("[GW] Recv locationdesc packet:\n%s", packet)
+                                    self.handle_locationdesc(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.CONFIG:
+                                    logging.info("[GW] Recv query config packet:\n%s", packet)
+                                    self.handle_config(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
+                                    logging.info("[GW] Recv defend status packet:\n%s", packet)
+                                    self.handle_defend_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.FOBINFO:
+                                    logging.info("[GW] Recv fob info packet:\n%s", packet)
+                                    self.handle_fob_info(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
+                                    logging.info("[GW] Recv sleep status packet:\n%s", packet)
+                                    self.handle_terminal_sleep_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.FOBSTATUS:
+                                    logging.info("[GW] Recv fob status packet:\n%s", packet)
+                                    self.handle_fob_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
+                                    logging.info("[GW] Recv runtime status packet:\n%s", packet)
+                                    self.handle_runtime_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
+                                    logging.info("[GW] Recv unbind status packet:\n%s", packet)
+                                    self.handle_unbind_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.UNUSUALACTIVATE:
+                                    logging.info("[GW] Recv unusual activate packet:\n%s", packet)
+                                    self.handle_unusual_activate(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.MISC:
+                                    logging.info("[GW] Recv misc packet:\n%s", packet)
+                                    self.handle_misc(clw, address, connection, channel)
+                                else:
+                                    logging.info("[GW] Recv packet from terminal:\n%s", packet)
+                                    self.foward_packet_to_si(clw, packet, address, connection, channel)
+                        else:
+                            sleep(0.1)
+                    except:
+                        logging.exception("[GW] Handle packet Exception.")
         except:
             logging.exception("[GW] Recv Exception.")
 
@@ -577,8 +582,8 @@ class MyGWServer(object):
                             SMSHelper.send(tid_terminal['owner_mobile'], sms_)
                             logging.info("[GW] Send delete terminal message: %s to user: %s",
                                          sms_, tid_terminal['owner_mobile'])
-                        # user changed, must clear history data of dev_id
-                        clear_data(tid_terminal['tid'], self.db)
+                            # user changed, must clear history data of dev_id
+                            clear_data(tid_terminal['tid'], self.db)
                     else:
                         del_user = False
                     delete_terminal(tid_terminal['tid'], self.db, self.redis, del_user=del_user)
@@ -1118,7 +1123,6 @@ class MyGWServer(object):
                 location = lbmphelper.handle_location(location, self.redis, cellid=cellid, db=self.db)
                 location.name = location.get('name') if location.get('name') else ""
                 location.name = safe_unicode(location.name)
-                locationdesc = location.name.encode("utf-8", 'ignore')
                 user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
                 tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
                 dw_method = u'GPS' if not cellid else u'基站'
@@ -1126,8 +1130,8 @@ class MyGWServer(object):
                     if user:
                         current_time = get_terminal_time(int(time.time()))
                         sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method,
-                                                        unicode(locationdesc, 'utf-8'), 
-                                                        current_time) 
+                                                        location.name, 
+                                                        safe_unicode(current_time)) 
                         url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' +\
                               str(location.cLon/3600000.0) + '&clat=' + str(location.cLat/3600000.0)
                         tiny_id = URLHelper.get_tinyid(url)
