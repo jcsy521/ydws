@@ -631,8 +631,6 @@ class MyGWServer(object):
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
                 self.redis.setvalue(terminal_sessionID_key, args.sessionID)
                 self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-                if sms:
-                    SMSHelper.send(t_info['u_msisdn'], sms)
             # record terminal address
             self.update_terminal_status(t_info["dev_id"], address)
             # set login
@@ -649,6 +647,9 @@ class MyGWServer(object):
         request = DotDict(packet=lc.buf,
                           address=address)
         self.append_gw_request(request, connection, channel)
+
+        if sms and t_info['u_msisdn']:
+            SMSHelper.send(t_info['u_msisdn'], sms)
 
         if t_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
             seq = str(int(time.time()*1000))[-4:]
