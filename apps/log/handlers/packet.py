@@ -93,7 +93,7 @@ class GWPacketHandler(BaseHandler):
                                     lst.append(p)
                                     if is_report == 1:
                                         ip = lines[num].split('\'')[1]
-                                        match_type = 'S' + ldata[5][1:3]
+                                        match_type = 'S' + ldata[5][1:3]+','
                                         next_num = num + 1
                                         p6 = re.compile("I ", re.I)
                                         p7 = re.compile("send:", re.I)
