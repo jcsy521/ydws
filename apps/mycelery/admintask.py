@@ -105,7 +105,7 @@ class TerminalStatistic(object):
                          sta_type, the statistic type, 0: individual; 1: enterprise, 2: all
                          db, database
                 """
-                ## if first time statistic
+                ## NOTE: if first time statistic
                 #record = {}
                 #record['terminal_add_month'] = 0
                 #record['terminal_del_month'] = 0
@@ -119,16 +119,17 @@ class TerminalStatistic(object):
                                 "  FROM T_STATISTIC"
                                 "  WHERE timestamp = %s AND type = %s", 
                                 end_of_last_day, sta_type) 
-                if not record: # it should never happen  
+                if not record: 
+                    # it should never happen  
                     record = {}
 
                 last_day = time.localtime(end_of_last_day)
-                if last_day.tm_mon == 1: # first month of a year
-                    record['terminal_add_year'] = 0
-                    record['terminal_del_year'] = 0
-                if last_day.tm_mday == 1: # first day of a month
+                if last_day.tm_mday == 1: # first day of a month, year.month.01, the month-data is unavaliable
                     record['terminal_add_month'] = 0
                     record['terminal_del_month'] = 0
+                    if last_day.tm_mon == 1: # first month of a year, 2014.01.01, the month-data and year-data are unvavliable 
+                        record['terminal_add_year'] = 0
+                        record['terminal_del_year'] = 0
                 return record
 
             def handle_terminal(tmobile, start_time, end_time, db):
@@ -167,8 +168,8 @@ class TerminalStatistic(object):
                 return add_num, del_num
 
             # for individual
-            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where group_id = -1")
-            print 'len of termianls', len(terminals)
+            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where tmobile like '14778%%' and group_id = -1")
+
             tmobiles = [terminal.tmobile for terminal in terminals]
             for tmobile in tmobiles:
                 add_num, del_num = handle_terminal(tmobile, day_start_time, day_end_time, self.db)
@@ -187,7 +188,7 @@ class TerminalStatistic(object):
             in_terminal_del_year = record['terminal_del_year'] + in_terminal_del_day 
 
             # for enterprise
-            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where group_id != -1")
+            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where tmobile like '14778%%' and group_id != -1")
             tmobiles = [terminal.tmobile for terminal in terminals]
             for tmobile in tmobiles:
                 add_num, del_num = handle_terminal(tmobile, day_start_time, day_end_time, self.db)
@@ -577,7 +578,9 @@ class TerminalStatistic(object):
         self.db.execute("TRUNCATE T_BIND_LOG")
         terminals = self.db.query("SELECT id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO where service_status = 1")
         for terminal in terminals: 
-            record_add_action(terminal.mobile, terminal.group_id, 1376668799, self.db)
+            #1376755199, 2013.8.17; 1376668799, 2013.08.16
+            #record_add_action(terminal.mobile, terminal.group_id, 1376668799, self.db)
+            record_add_action(terminal.mobile, terminal.group_id, 1376755199, self.db)
             #record_add_action(terminal.mobile, terminal.group_id, int(time.time()), self.db)
         
 def statistic_offline_terminal():
@@ -608,7 +611,7 @@ if __name__ == '__main__':
         logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
         ts = TerminalStatistic()
         #ts.statistic_online_terminal(timestamp) 
-        ts.statistic_user(timestamp) 
+        #ts.statistic_user(timestamp) 
         #ts.statistic_offline_terminal(timestamp) 
         #ts.statistic_misc() 
 
