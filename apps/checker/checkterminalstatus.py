@@ -141,7 +141,7 @@ class CheckTerminalStatus(object):
         # check sim status
         lat, lon = get_latlon_from_cellid(0, 0, 0, 0, terminal_info['mobile'])
         if lat and lon: 
-            self.db.execute("UPDATE T_SUBSCRIPTION_LOG"
+            self.db.execute("UPDATE T_BIND_LOG"
                             "  SET sim_status = 1"
                             "  WHERE tmobile = %s",
                             terminal_info['mobile'])

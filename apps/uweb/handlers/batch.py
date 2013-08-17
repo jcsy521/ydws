@@ -13,7 +13,7 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.public import record_terminal_subscription, delete_terminal
+from utils.public import record_add_action, delete_terminal
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from constants import UWEB, GATEWAY
@@ -167,11 +167,6 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
                     res.append(r)
                     continue 
                 
-                # record the del action  
-                self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
-                                "  WHERE tmobile = %s ", 
-                                int(time.time()), UWEB.OP_TYPE.DEL, terminal.mobile)
-
                 seq = str(int(time.time()*1000))[-4:]
                 args = DotDict(seq=seq,
                                tid=tid)
@@ -254,7 +249,8 @@ class BatchJHHandler(BaseHandler):
                         r['status'] = ErrorCode.TERMINAL_ORDERED
                         continue 
 
-                record_terminal_subscription(self.db, tmobile, gid, begintime, begintime, UWEB.OP_TYPE.ADD)
+                # record the add action, enterprise
+                record_add_action(tmobile, gid, int(time.time()), self.db)
 
                 tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
                                       "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit)"

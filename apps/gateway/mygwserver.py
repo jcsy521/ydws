@@ -28,7 +28,7 @@ from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
      get_resend_key, get_lastinfo_key, get_login_time_key
-from utils.public import insert_location, delete_terminal, record_terminal_subscription,\
+from utils.public import insert_location, delete_terminal, record_add_action,\
      clear_data
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
@@ -589,10 +589,9 @@ class MyGWServer(object):
                     delete_terminal(tid_terminal['tid'], self.db, self.redis, del_user=del_user)
 
                 # 6 add terminal info
-                record_terminal_subscription(self.db, t_info['t_msisdn'], -1, 
-                                             int(time.mktime(begintime.timetuple())), 
-                                             int(time.mktime(begintime.timetuple())), 
-                                             UWEB.OP_TYPE.ADD)
+
+                # record the add action, enterprise or individual
+                record_add_action(t_info['t_msisdn'], group_id, int(time.time()), self.db)
 
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"

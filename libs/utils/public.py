@@ -8,17 +8,35 @@ from misc import *
 from utils.dotdict import DotDict
 from constants import EVENTER, UWEB
 
-def record_terminal_subscription(db, tmobile, group_id, begintime, add_time, op_type):
-
-    db.execute("INSERT INTO T_SUBSCRIPTION_LOG(tmobile, group_id, begintime, add_time, op_type)" 
-               "   VALUES(%s, %s, %s, %s, %s)" 
-               " ON DUPLICATE KEY" 
-               " UPDATE add_time=values(add_time)," 
-               " group_id=values(group_id)," 
-               " op_type=values(op_type)", 
-               tmobile, group_id, begintime, add_time, op_type)
+def record_add_action(tmobile, group_id, add_time, db):
+    """Record the add action of one mobile.
+    @params: tmobile, 
+             group_id, 
+             op_type, 
+             add_time,
+    """
+    logging.info("Record the add action, tmobile: %s, group_id: %s, add_time: %s",
+                 tmobile, group_id, add_time)
+    db.execute("INSERT INTO T_BIND_LOG(tmobile, group_id, op_type, add_time)" 
+               " VALUES(%s, %s, %s, %s)", 
+               tmobile, group_id, UWEB.OP_TYPE.ADD, add_time)              
+               
+def record_del_action(tmobile, group_id, del_time, db):
+    """Record the del action of one mobile.
+    @params: tmobile, 
+             group_id, 
+             op_type, 
+             del_time,
+    """
+    logging.info("Record the del action, tmobile: %s, group_id: %s, del_time: %s",
+                 tmobile, group_id, del_time)
+    db.execute("INSERT INTO T_BIND_LOG(tmobile, group_id, op_type, del_time)" 
+               " VALUES(%s, %s, %s, %s)", 
+               tmobile, group_id, UWEB.OP_TYPE.DEL, del_time)              
 
 def clear_data(tid, db):
+    """Just clear the info associated with terminal in database.
+    """
     db.execute("DELETE FROM T_LOCATION"
                "  WHERE tid = %s",
                tid)
@@ -34,6 +52,8 @@ def clear_data(tid, db):
     logging.info("Clear db data of terminal: %s", tid)
 
 def delete_terminal(tid, db, redis, del_user=True):
+    """Delete terminal from platform and clear the associated info.
+    """
     terminal = db.get("SELECT mobile, owner_mobile FROM T_TERMINAL_INFO"
                       "  WHERE tid = %s", tid)
     #if not terminal:
@@ -91,9 +111,8 @@ def delete_terminal(tid, db, redis, del_user=True):
                "  WHERE tid = %s",
                tid)
     if terminal:
-        db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s"
-                   "  WHERE tmobile = %s ", 
-                   int(time.time()), UWEB.OP_TYPE.DEL, terminal.mobile)
+        # record the del action.
+        record_del_action(terminal.mobile, terminal.group_id, int(time.time()), db)
 
     db.execute("DELETE FROM T_TERMINAL_INFO"
                "  WHERE tid = %s", 

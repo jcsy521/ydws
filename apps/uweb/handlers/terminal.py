@@ -13,7 +13,7 @@ from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
-from utils.public import record_terminal_subscription, delete_terminal
+from utils.public import record_add_action, delete_terminal
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
@@ -282,8 +282,8 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     self.write_ret(status)
                     return
 
-            record_terminal_subscription(self.db, data.tmobile, 
-                                         data.group_id, begintime, begintime, UWEB.OP_TYPE.ADD)
+            # record the add action
+            record_add_action(data.tmobile, data.group_id, int(time.time()), self.db)
 
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  defend_status, mannual_status, begintime, endtime, offline_time, icon_type, login_permit)"
