@@ -10,9 +10,11 @@ import logging
 import time
 
 from db_.mysql import DBConnection
+from utils.myredis import MyRedis
+
 from utils.misc import start_end_of_day, start_end_of_month, start_end_of_year, safe_unicode, str_to_list, safe_utf8, seconds_to_label, DUMMY_IDS
 from utils.dotdict import DotDict
-from utils.public import record_add_action
+from utils.public import record_add_action, delete_terminal
 from helpers.emailhelper import EmailHelper 
 from constants import UWEB 
 from tornado.options import define, options, parse_command_line
@@ -25,6 +27,7 @@ class TerminalStatistic(object):
 
     def __init__(self):
         self.db = DBConnection().db
+        self.redis = MyRedis()
         self.to_emails = ['boliang.guan@dbjtech.com']
         self.cc_emails = ['xiaolei.jia@dbjtech.com', 'zhaoxia.guo@dbjtech.com']
         
@@ -99,13 +102,24 @@ class TerminalStatistic(object):
             e_terminal_add_year = 0 
             e_terminal_del_year = 0
 
+            def handle_dead_terminal(db, redis):
+                """For the terminals to be removed, delte the associated info of it.
+                @params: db, database
+                """
+                terminals = db.query("select tid, mobile from T_TERMINAL_INFO where service_status = 2")
+                logging.info("Handle the to be removed terminals, the count of terminals: %s", len(terminals))
+                for terminal in terminals:
+                    logging.info("Delete the to be removed terminal:%s", terminal.mobile)
+                    delete_terminal(terminal.tid, db, redis, del_user=True)
+                
+
             def get_record_of_last_day(sta_time, sta_type, db):
                 """Get record statisticted in last day.
                 @params: sta_time, the statistic time
                          sta_type, the statistic type, 0: individual; 1: enterprise, 2: all
                          db, database
                 """
-                ## NOTE: if first time statistic
+                ## BIG NOTE: the snippet only be invoked when statistic occurs first time
                 #record = {}
                 #record['terminal_add_month'] = 0
                 #record['terminal_del_month'] = 0
@@ -123,11 +137,11 @@ class TerminalStatistic(object):
                     # it should never happen  
                     record = {}
 
-                last_day = time.localtime(end_of_last_day)
-                if last_day.tm_mday == 1: # first day of a month, year.month.01, the month-data is unavaliable
+                current_day = time.localtime(sta_time)
+                if current_day.tm_mday == 1: # first day of a month, year.month.01, the month-data is unavaliable
                     record['terminal_add_month'] = 0
                     record['terminal_del_month'] = 0
-                    if last_day.tm_mon == 1: # first month of a year, 2014.01.01, the month-data and year-data are unvavliable 
+                    if current_day.tm_mon == 1: # first month of a year, 2014.01.01, the month-data and year-data are unvavliable 
                         record['terminal_add_year'] = 0
                         record['terminal_del_year'] = 0
                 return record
@@ -166,6 +180,9 @@ class TerminalStatistic(object):
                                   tmobile, add_count.count, del_count.count)
 
                 return add_num, del_num
+
+            #  handle the dead terminal:
+            handle_dead_terminal(self.db, self.redis)
 
             # for individual
             terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where tmobile like '14778%%' and group_id = -1")
@@ -575,13 +592,19 @@ class TerminalStatistic(object):
         #                        terminal['begintime'], terminal['id'])
 
         #part 2: for new statistic, transfer data from T_TERMINAL to T_BIND_LOG 
-        self.db.execute("TRUNCATE T_BIND_LOG")
-        terminals = self.db.query("SELECT id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO where service_status = 1")
-        for terminal in terminals: 
-            #1376755199, 2013.8.17; 1376668799, 2013.08.16
-            #record_add_action(terminal.mobile, terminal.group_id, 1376668799, self.db)
-            record_add_action(terminal.mobile, terminal.group_id, 1376755199, self.db)
-            #record_add_action(terminal.mobile, terminal.group_id, int(time.time()), self.db)
+        #self.db.execute("TRUNCATE T_BIND_LOG")
+        #terminals = self.db.query("SELECT id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO where service_status = 1")
+        #for terminal in terminals: 
+        #    #1376755199, 2013.8.17; 1376668799, 2013.08.16
+        #    #record_add_action(terminal.mobile, terminal.group_id, 1376668799, self.db)
+        #    record_add_action(terminal.mobile, terminal.group_id, 1376755199, self.db)
+        #    #record_add_action(terminal.mobile, terminal.group_id, int(time.time()), self.db)
+        # part 3: handle terminals to be removed
+        #terminals = self.db.query("SELECT id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO where service_status = 2")
+        #for terminal in terminals:
+        #    logging.info("Delete to be removed terminal:%s with no log in T_BIND_LOG.", terminal.mobile)
+        #    delete_terminal_no_record(terminal.tid, self.db, self.redis, del_user=True)
+        pass
         
 def statistic_offline_terminal():
     ts = TerminalStatistic()
@@ -613,7 +636,7 @@ if __name__ == '__main__':
         #ts.statistic_online_terminal(timestamp) 
         #ts.statistic_user(timestamp) 
         #ts.statistic_offline_terminal(timestamp) 
-        #ts.statistic_misc() 
+        ts.statistic_misc() 
 
 else: 
     try: 

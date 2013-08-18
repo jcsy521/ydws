@@ -969,10 +969,8 @@ class MyGWServer(object):
                     # is one year.
                     begintime = datetime.datetime.now() 
                     endtime = begintime + relativedelta(years=1)
-                    record_terminal_subscription(self.db, t_info['t_msisdn'], -1, 
-                                                 int(time.mktime(begintime.timetuple())), 
-                                                 int(time.mktime(begintime.timetuple())), 
-                                                 UWEB.OP_TYPE.ADD)
+                    # record the add action, enterprise or individual
+                    record_add_action(t_info['t_msisdn'], -1, int(time.time()), self.db)
 
                     self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
                                     "  owner_mobile, imsi, imei, factory_name, softversion,"

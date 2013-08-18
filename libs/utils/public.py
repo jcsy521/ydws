@@ -54,7 +54,7 @@ def clear_data(tid, db):
 def delete_terminal(tid, db, redis, del_user=True):
     """Delete terminal from platform and clear the associated info.
     """
-    terminal = db.get("SELECT mobile, owner_mobile FROM T_TERMINAL_INFO"
+    terminal = db.get("SELECT mobile, owner_mobile, group_id FROM T_TERMINAL_INFO"
                       "  WHERE tid = %s", tid)
     #if not terminal:
     #    logging.info("Terminal: %s already not existed.", tid)
