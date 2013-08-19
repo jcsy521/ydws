@@ -35,7 +35,7 @@ function getChildName() {
 				flag = true;
 			}
 		} else {
-			alert('请输入儿童号码.');
+			alert('请输入终端手机号.');
 			flag = false;
 		}
 	}
