@@ -330,9 +330,9 @@ class PacketTask(object):
                     tiny_url = base_url + '/' + tiny_id
                     logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
                     self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                    sms += u"点击" + tiny_url + u" 查看车辆位置。" 
+                    sms += u"点击" + tiny_url + u" 查看定位仪位置。" 
                     if sms_white:
-                        sms_white += u"点击" + tiny_url + u" 查看车辆位置。"
+                        sms_white += u"点击" + tiny_url + u" 查看定位仪位置。"
                         self.sms_to_whitelist(sms_white, whitelist)
                 else:
                     logging.info("[EVENTER] get tiny url failed.")
@@ -446,6 +446,7 @@ class PacketTask(object):
             if android_push_list: 
                 for push_id in android_push_list: 
                     push_key = NotifyHelper.get_push_key(push_id, self.redis) 
+                    logging.info("get push key: %s for push_id: %s", push_key, push_id)
                     NotifyHelper.push_to_android(category, dev_id, alias, location, push_id, push_key, region_id)
             # 2: push  to ios 
             ios_push_list_key = get_ios_push_list_key(user.owner_mobile) 
