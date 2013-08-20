@@ -271,13 +271,6 @@ def issue_cellid(location, db, redis):
 
     logging.info("%s cellid result, lat:%s, lon:%s", location.dev_id, location.lat, location.lon)
 
-    # drop some odd cellid location
-    if PtInPolygon(location, DM_ZJGS_POLYGON):
-        location.lat = 0
-        location.lon = 0
-        location.cLat = 0
-        location.cLon = 0
-
     return location
 
 def handle_location(location, redis, cellid=False, db=None):
@@ -369,6 +362,14 @@ def handle_location(location, redis, cellid=False, db=None):
     if location and location.lat and location.lon:
         clats, clons = get_clocation_from_ge([location.lat,], [location.lon,])
         location.cLat, location.cLon = clats[0], clons[0] 
+        # drop some odd cellid location
+        if location.type == 1 and location.cLat and location.cLon:
+            if PtInPolygon(location, DM_ZJGS_POLYGON):
+                location.lat = 0
+                location.lon = 0
+                location.cLat = 0
+                location.cLon = 0
+
         #if (location['t'] == EVENTER.INFO_TYPE.REPORT or
         #    location['command'] == GATEWAY.T_MESSAGE_TYPE.LOCATIONDESC):
         # NOTE: change it temporarily: in platform get loction name of all

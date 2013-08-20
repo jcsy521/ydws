@@ -22,7 +22,7 @@ DM_ZJGS_POLYGON = {'name': u"斗门区珠江高速公路",
                               {'lat': 22.304065999999999, 'lon': 113.233312}]
                  }
 
-def PtInPolygon(point, *polygons):
+def PtInPolygon(location, *polygons):
     """
     function: judge point is in polygon or not.
     method: get num of intersection point which cross each side of polygon
@@ -38,9 +38,9 @@ def PtInPolygon(point, *polygons):
              ----------                
     """
 
-    point = DotDict(point)
-    point.lat = point.lat/3600000.0
-    point.lon = point.lon/3600000.0
+    point = DotDict(location)
+    point.lat = point.cLat/3600000.0
+    point.lon = point.cLon/3600000.0
     is_in = False
 
     for polygon in polygons:
