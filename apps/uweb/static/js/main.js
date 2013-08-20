@@ -360,11 +360,11 @@ window.onresize = function () {
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 
-		/*if ( n_tempTreeHight > n_treeHeight ) {
-			obj_tree.css('overflow-y', 'scroll');
+		if ( n_treeHeight < 345 ) {
+			n_treeHeight = 345;
 		}
-		obj_tree.height(n_treeHeight);
-		*/
+		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
+		
 		$('#right, #corpRight, #navi, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
@@ -437,7 +437,6 @@ $(function () {
 		n_mainHeight = n_windowHeight - 123,
 		n_corpTreeContainerHeight = n_mainHeight-220,
 		n_treeHeight = n_corpTreeContainerHeight - 45,
-		n_tempTreeHight = $('#corpTree ul').height(),
 		n_delayLeft = n_windowWidth - 530,
 		n_delayIconLeft = n_delayLeft - 17,
 		n_alarmLeft = n_windowWidth - 400,
@@ -452,11 +451,11 @@ $(function () {
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	
-	/*if ( n_tempTreeHight > n_treeHeight ) {
-		obj_tree.css('overflow-y', 'scroll');
-	}
-	obj_tree.height(n_treeHeight);
-	*/
+	if ( n_treeHeight < 345 ) {
+		n_treeHeight = 345;
+	}	
+	obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
+	
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	if ( dlf.fn_userType() ) {	// 集团用户

@@ -56,10 +56,14 @@
 							</td>
 						</tr>
 					</table>
-					<div class="btnPanel">
+					<div class="btnPanel j_personal">
 						<input type="submit" class="commit" id="btnLogin" value="" />
-						<a href="/password/corp" target="password_corp.html" id="corpGetPwd" class="pwd hide" title="忘记密码" >忘记密码？</a>
-						<a href="/password" target="password.html" id="getPwd"  class="pwd" title="忘记密码" >忘记密码？</a>
+						<a href="/password" target="password.html" id="getPwd" title="忘记密码" >忘记密码？</a>
+						<a href="/register/browser" target="_blank" id="register" class="ml10" title="注册" >注册</a>
+					</div>
+					<div class="btnPanel j_corp hide">
+						<input type="submit" class="commit ml47" id="btnLogin" value="" />
+						<a href="/password/corp" target="password_corp.html" id="corpGetPwd" title="忘记密码" >忘记密码？</a>
 					</div>
 					<span class="txtColor">
 						{% if message_captcha %}

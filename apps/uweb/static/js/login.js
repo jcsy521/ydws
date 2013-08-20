@@ -11,6 +11,8 @@ $(function(){
 		obj_tabs = $('.tabs li'),
 		obj_first = obj_tabs.eq(0),
 		obj_sed = obj_tabs.eq(1),
+		obj_individualPanel = $('.j_personal'),
+		obj_corp = $('.j_corp'),
 		obj_userGetPwd = $('#getPwd'),
 		obj_corpGetPwd = $('#corpGetPwd');
 	
@@ -18,13 +20,17 @@ $(function(){
 	if ( str_type == 'enterprise' ) {	// 集团用户
 		obj_sed.removeClass('other').addClass('current');
 		obj_first.removeClass('current').addClass('other');
-		obj_userGetPwd.hide();
-		obj_corpGetPwd.show();
+		/*obj_userGetPwd.hide();
+		obj_corpGetPwd.show();*/
+		obj_individualPanel.hide();
+		obj_corp.show();
 	} else {
 		obj_sed.removeClass('current').addClass('other');
 		obj_first.removeClass('other').addClass('current');
-		obj_userGetPwd.show();
-		obj_corpGetPwd.hide();
+		/*obj_userGetPwd.show();
+		obj_corpGetPwd.hide();*/		
+		obj_individualPanel.show();
+		obj_corp.hide();
 	}
 	
 	/**
@@ -35,6 +41,8 @@ $(function(){
 			str_userType = obj_this.attr('userType'),
 			b_current = obj_this.hasClass('current'),
 			obj_userType = $('#userRoleType'),
+			obj_individualPanel = $('.j_personal'),
+			obj_corp = $('.j_corp'),
 			obj_userGetPwd = $('#getPwd'),
 			obj_corpGetPwd = $('#corpGetPwd');
 		
@@ -48,11 +56,17 @@ $(function(){
 			obj_this.removeClass('other').addClass('current');
 		}
 		if ( str_userType == 'individual' ) {
-			obj_userGetPwd.show();
-			obj_corpGetPwd.hide();
+			obj_corp.hide();
+			obj_individualPanel.show();
+			/*obj_userGetPwd.show();
+			obj_corpGetPwd.hide();*/
 		} else {
+			obj_individualPanel.hide();
+			obj_corp.show();
+			/*
 			obj_userGetPwd.hide();
 			obj_corpGetPwd.show();
+			*/
 		}
 		$.cookie('USERCURRENTROLE', str_userType, {expires:365});
 	});
