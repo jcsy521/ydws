@@ -36,7 +36,7 @@ from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandl
 from handlers.checkupdate import CheckUpdateAndroidHandler, CheckUpdateIOSHandler
 from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
-from handlers.register import RegisterHandler
+from handlers.register import RegisterHandler, RegisterBrowserHandler
 from handlers.lastinfo import LastInfoHandler, LastInfoCorpHandler
 from handlers.lastposition import LastPositionHandler
 from handlers.worker import WorkerPool
@@ -162,6 +162,8 @@ class Application(tornado.web.Application):
             (r"/downloadsms/*", DownloadSmsHandler),
             (r"/uploadterminalfile/*", UploadTerminalHandler),
             (r"/download/instructions/*", DownloadInstructionsHandler),
+
+            (r"/register/browser/*", RegisterBrowserHandler),
 
 
             # for terminal lua    

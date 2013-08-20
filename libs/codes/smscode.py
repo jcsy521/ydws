@@ -52,7 +52,7 @@ class SMSCode(object):
     SMS_NOT_JH = u"尊敬的客户：您的定位器号码%s未激活，请先激活该号码。"
     SMS_USER_HK_SUCCESS = u"尊敬的客户：已成功更换车主号码，新车主号码：%s，平台网址：%s，用户名：%s，密码：%s"
     SMS_TERMINAL_HK_SUCCESS = u"尊敬的客户：您的定位器“%s”换卡成功，新卡号码：%s"
-    SMS_USER_ADD_TERMINAL = u"尊敬的客户：您的帐号已绑定了新的定位器号码%s。请使用原有的用户名和密码登录平台网址：%s查看。"
+    SMS_USER_ADD_TERMINAL = u"尊敬的客户：您的帐号已绑定了新的定位器号码%s。请使用原有的用户名和密码登录平台网址：%s 查看。"
     SMS_PSD_WRONG = u"尊敬的客户：您输入的密码错误，请重新确认！"
     SMS_TID_EXIST = u"尊敬的客户：该定位器序列号%s冲突，请联系【移动车卫士】客服。"
     SMS_TMOBILE_EXIST = u"尊敬的客户：卡号%s已被使用，请先执行解绑操作。"

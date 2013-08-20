@@ -32,16 +32,6 @@ from checkservice import CheckService
 def usage():
     print "python26 server.py --conf=/path/to/conf_file"
 
-def check_poweroff_timeout():
-    logging.info("[CK] check poweroff timeout thread started...")
-    cpt = Checkpofftimeout() 
-    try:
-        while True:
-            time.sleep(60)
-            cpt.check_poweroff_timeout()
-    except Exception as e:
-        logging.exception("[CK] Start check terminals poweroff timeout failed.")
-
 def check_terminal_status():
     logging.info("[CK] check terminal status thread started...")
     cps = CheckTerminalStatus() 
