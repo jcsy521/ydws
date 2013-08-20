@@ -438,11 +438,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 return
 
-            # record the del action  
-            self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
-                            "  WHERE tmobile = %s ", 
-                            int(time.time()), UWEB.OP_TYPE.DEL, terminal.mobile)
-
             key = get_del_data_key(tid)
             self.redis.set(key, flag)
             if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:

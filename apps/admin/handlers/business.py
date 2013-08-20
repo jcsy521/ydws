@@ -441,10 +441,7 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                 else:
                     logging.error("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
                                   pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
-                # record the del action 
-                self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
-                                "  WHERE tmobile = %s ", 
-                                int(time.time()), UWEB.OP_TYPE.DEL, tmobile)
+
         except Exception as e:
             status = ErrorCode.FAILED
             logging.exception("Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)

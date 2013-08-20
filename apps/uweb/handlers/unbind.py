@@ -53,11 +53,6 @@ class UNBindHandler(BaseHandler, BaseMixin):
                 IOLoop.instance().add_callback(self.finish)
                 return
 
-            # record the del action 
-            self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
-                            "  WHERE tmobile = %s ", 
-                            int(time.time()), UWEB.OP_TYPE.DEL, tmobile)
-
             key = get_del_data_key(terminal.tid)
             self.redis.set(key, flag)
             if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:

@@ -69,11 +69,6 @@ class MessageHandler(BaseHandler):
                         return
                     umobile = terminal.owner_mobile 
 
-                    # record the del action  
-                    self.acbdb.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type = %s" 
-                                       " WHERE tmobile = %s ", 
-                                       int(time.time()), UWEB.OP_TYPE.DEL, tmobile)
-
                     if ret['status'] == 0:
                         self.acbdb.execute("UPDATE T_TERMINAL_INFO"
                                             "  SET service_status = 2"
