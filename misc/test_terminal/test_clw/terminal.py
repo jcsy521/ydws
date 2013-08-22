@@ -52,6 +52,8 @@ class Terminal(object):
         self.unbind_status_mg = "[%s,%s,1,1.0.0,%s,T25,1]"
         self.unusual_activate_mg = "[%s,%s,1,1.0.0,%s,T27,%s,%s,%s]"
 
+        self.misc_mg = "[%s,%s,1,1.0.0,%s,T28,jiaxiaoleitest]"
+
         self.ARGS = DotDict(PSW="111111",
                             GSM=16,
                             LOGIN=1,
@@ -105,6 +107,14 @@ class Terminal(object):
 
     def upload_response(self):
         self.logging.info("location upload success!")
+
+    def misc(self):
+        #time.sleep(30)
+        time.sleep(1)
+        misc= self.misc_mg % (int(time.time()), self.sessionID, self.tid)
+        self.logging.info("Send misc:\n%s", misc_mg)
+        self.socket.send(misc_mg)
+        time.sleep(10)
 
     def heartbeat(self):
         time.sleep(30)
@@ -275,11 +285,18 @@ class Terminal(object):
         self.socket.send(msg)
 
     def read_mg(self):
+        """Read package from logfile then send them to gateway.
+        """
         time.sleep(20)
-        f = open("15919176710.log")
+        #NOTE:  
+        logfile = '15919176710.log'
+        sessionid = '0otq0d4v'
+        tid = "ACB2012777"
+
+        f = open(logfile)
         for line in f:
-            line = line.replace("0otq0d4v", self.sessionID)
-            line = line.replace("ACB2012777", "gzx333")
+            line = line.replace(sessionid, self.sessionID)
+            line = line.replace(tid, "gzx333")
             line = line.replace(" ", "")
             self.socket.send(line)
             time.sleep(5)
@@ -289,7 +306,8 @@ class Terminal(object):
         #thread.start_new_thread(self.upload_position, ())
         #thread.start_new_thread(self.report_mg, ())
         #thread.start_new_thread(self.report_once_mg, ())
-        #thread.start_new_thread(self.read_mg, ())
+        #thread.start_new_thread(self.misc, ())
+        thread.start_new_thread(self.read_mg, ())
 
 
     def handle_recv(self, bp, io_loop):
