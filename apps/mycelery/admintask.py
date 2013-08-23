@@ -445,7 +445,7 @@ class TerminalStatistic(object):
             if item['offline_cause'] == 1: # heart beat
                 # check the sim status
                 terminal_log = self.db.get("SELECT sim_status FROM T_BIND_LOG"
-                                           "  WHERE tmobile = %s",
+                                           "  WHERE tmobile = %s LIMIT 1",
                                            item['tmobile'])
                 if terminal_log.sim_status == 1:
                     item['sim_status'] = u'成功'
