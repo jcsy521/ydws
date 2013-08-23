@@ -10,7 +10,6 @@ from tornado.ioloop import IOLoop
 
 from constants import LOCATION, XXT
 from utils.dotdict import DotDict
-from utils.public import record_terminal_subscription
 
 from mixin import BaseMixin
 from base import BaseHandler, authenticated
@@ -27,6 +26,7 @@ from helpers.queryhelper import QueryHelper
 from codes.smscode import SMSCode 
 from constants import PRIVILEGES, SMS, UWEB, GATEWAY
 from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
+from utils.public import record_add_action
 from myutils import city_list
 from mongodb.mdaily import MDaily, MDailyMixin
 
@@ -143,10 +143,9 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                                 "  VALUES(%s)",
                                 fields.umobile)
             
-            record_terminal_subscription(self.db, fields.tmobile, -1,
-                                         fields.begintime,
-                                         fields.begintime,
-                                         UWEB.OP_TYPE.ADD)
+            # record the add action
+            record_add_action(fields.tmobile, -1, int(time.time()), self.db)
+
             # 2: add terminal
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                             "  begintime, endtime, offline_time)"
@@ -442,10 +441,7 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                 else:
                     logging.error("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
                                   pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
-                # record the del action 
-                self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
-                                "  WHERE tmobile = %s ", 
-                                int(time.time()), UWEB.OP_TYPE.DEL, tmobile)
+
         except Exception as e:
             status = ErrorCode.FAILED
             logging.exception("Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)

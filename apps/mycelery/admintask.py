@@ -10,9 +10,11 @@ import logging
 import time
 
 from db_.mysql import DBConnection
+from utils.myredis import MyRedis
+
 from utils.misc import start_end_of_day, start_end_of_month, start_end_of_year, safe_unicode, str_to_list, safe_utf8, seconds_to_label, DUMMY_IDS
 from utils.dotdict import DotDict
-from utils.public import record_terminal_subscription 
+from utils.public import record_add_action, delete_terminal
 from helpers.emailhelper import EmailHelper 
 from constants import UWEB 
 from tornado.options import define, options, parse_command_line
@@ -25,6 +27,7 @@ class TerminalStatistic(object):
 
     def __init__(self):
         self.db = DBConnection().db
+        self.redis = MyRedis()
         self.to_emails = ['boliang.guan@dbjtech.com']
         self.cc_emails = ['xiaolei.jia@dbjtech.com', 'zhaoxia.guo@dbjtech.com']
         
@@ -81,11 +84,145 @@ class TerminalStatistic(object):
             logging.info("[CELERY] day_start_time: %s, day_end_time: %s, month_start_time: %s, month_end_time: %s, year_start_time: %s, year_end_time: %s.", 
                         day_start_time, day_end_time, month_start_time, month_end_time, year_start_time, year_end_time)
             
-            sql_terminal_add = ("SELECT tsl.tmobile, tsl.begintime, tsl.add_time, tsl.del_time from T_SUBSCRIPTION_LOG as tsl, T_TERMINAL_INFO as tti"
-                                "  WHERE tsl.tmobile = tti.mobile AND tti.service_status=1 AND tsl.op_type = 1 AND tsl.tmobile like '14778%%' AND (tsl.add_time BETWEEN %s AND %s)")
+            in_terminal_add_day = 0 
+            in_terminal_del_day = 0 
 
-            sql_terminal_del = ("SELECT COUNT(id) AS num from T_SUBSCRIPTION_LOG "
-                                "  WHERE op_type = 2 AND tmobile like '14778%%' AND (del_time BETWEEN %s AND %s)")
+            in_terminal_add_month = 0 
+            in_terminal_del_month = 0 
+
+            in_terminal_add_year = 0 
+            in_terminal_del_year = 0 
+
+            e_terminal_add_day = 0 
+            e_terminal_del_day = 0 
+
+            e_terminal_add_month = 0 
+            e_terminal_del_month = 0 
+
+            e_terminal_add_year = 0 
+            e_terminal_del_year = 0
+
+            def handle_dead_terminal(db, redis):
+                """For the terminals to be removed, delte the associated info of it.
+                @params: db, database
+                """
+                terminals = db.query("select tid, mobile from T_TERMINAL_INFO where service_status = 2")
+                logging.info("Handle the to be removed terminals, the count of terminals: %s", len(terminals))
+                for terminal in terminals:
+                    logging.info("Delete the to be removed terminal:%s", terminal.mobile)
+                    delete_terminal(terminal.tid, db, redis, del_user=True)
+                
+
+            def get_record_of_last_day(sta_time, sta_type, db):
+                """Get record statisticted in last day.
+                @params: sta_time, the statistic time
+                         sta_type, the statistic type, 0: individual; 1: enterprise, 2: all
+                         db, database
+                """
+                ## BIG NOTE: the snippet only be invoked when statistic occurs first time
+                #record = {}
+                #record['terminal_add_month'] = 0
+                #record['terminal_del_month'] = 0
+                #record['terminal_add_year'] = 0
+                #record['terminal_del_year'] = 0
+                #return  record
+
+                end_of_last_day = sta_time - 1
+                
+                record = db.get("SELECT terminal_add_month, terminal_add_year, terminal_del_month, terminal_del_year"
+                                "  FROM T_STATISTIC"
+                                "  WHERE timestamp = %s AND type = %s", 
+                                end_of_last_day, sta_type) 
+                if not record: 
+                    # it should never happen  
+                    record = {}
+
+                current_day = time.localtime(sta_time)
+                if current_day.tm_mday == 1: # first day of a month, year.month.01, the month-data is unavaliable
+                    record['terminal_add_month'] = 0
+                    record['terminal_del_month'] = 0
+                    if current_day.tm_mon == 1: # first month of a year, 2014.01.01, the month-data and year-data are unvavliable 
+                        record['terminal_add_year'] = 0
+                        record['terminal_del_year'] = 0
+                return record
+
+            def handle_terminal(tmobile, start_time, end_time, db):
+                """Check the terminal is del or add. 
+                @params: tmobile, the mobile of terminal 
+                         start_time, the start time of a day
+                         end_time, the end time of a day 
+                         db, database
+                """
+                add_num = 0 
+                del_num = 0
+
+                add_count = db.get("SELECT COUNT(*) AS count FROM T_BIND_LOG" 
+                                   "  WHERE tmobile = %s AND op_type = %s AND add_time BETWEEN %s AND %s", 
+                                   tmobile, UWEB.OP_TYPE.ADD, start_time, end_time)
+
+                del_count = db.get("SELECT COUNT(*) AS count FROM T_BIND_LOG" 
+                                   "  WHERE tmobile = %s AND op_type = %s AND del_time BETWEEN %s and %s", 
+                                   tmobile, UWEB.OP_TYPE.DEL, start_time, end_time)
+
+                interval = add_count.count - del_count.count
+                if interval == 0: # +-, -+ 
+                    add_num = 0 
+                    del_num = 0
+                elif interval == 1: # +,+-+
+                    add_num = 1 
+                    del_num = 0
+                elif interval == -1: # -, -+-
+                    add_num = 0 
+                    del_num = 1
+                else:
+                    #NOTE: it should never happen 
+                    logging.error("Tmobile:%s, add_count: %s, del_count: %s", 
+                                  tmobile, add_count.count, del_count.count)
+
+                return add_num, del_num
+
+            #  handle the dead terminal:
+            handle_dead_terminal(self.db, self.redis)
+
+            # for individual
+            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where tmobile like '14778%%' and group_id = -1")
+
+            tmobiles = [terminal.tmobile for terminal in terminals]
+            for tmobile in tmobiles:
+                add_num, del_num = handle_terminal(tmobile, day_start_time, day_end_time, self.db)
+                in_terminal_add_day += add_num  
+                in_terminal_del_day += del_num 
+
+            record = get_record_of_last_day(day_start_time, UWEB.STATISTIC_USER_TYPE.INDIVIDUAL, self.db)
+            logging.info("in_terminal_add_day: %s, in_terminal_del_day:%s",
+                         in_terminal_add_day, in_terminal_del_day)
+            logging.info("record of last_day for individual: %s", record)
+
+            in_terminal_add_month = record['terminal_add_month'] + in_terminal_add_day
+            in_terminal_del_month = record['terminal_del_month'] + in_terminal_del_day 
+
+            in_terminal_add_year = record['terminal_add_year'] + in_terminal_add_day
+            in_terminal_del_year = record['terminal_del_year'] + in_terminal_del_day 
+
+            # for enterprise
+            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where tmobile like '14778%%' and group_id != -1")
+            tmobiles = [terminal.tmobile for terminal in terminals]
+            for tmobile in tmobiles:
+                add_num, del_num = handle_terminal(tmobile, day_start_time, day_end_time, self.db)
+                e_terminal_add_day += add_num  
+                e_terminal_del_day += del_num 
+
+
+            record = get_record_of_last_day(day_start_time, UWEB.STATISTIC_USER_TYPE.ENTERPRISE, self.db)
+            logging.info("e_terminal_add_day: %s, e_terminal_del_day:%s",
+                         e_terminal_add_day, e_terminal_del_day)
+            logging.info("record of last_day for enterprise: %s", record)
+
+            e_terminal_add_month = record['terminal_add_month'] + e_terminal_add_day 
+            e_terminal_del_month = record['terminal_del_month'] + e_terminal_del_day 
+
+            e_terminal_add_year = record['terminal_add_year'] + e_terminal_add_day 
+            e_terminal_del_year = record['terminal_del_year'] + e_terminal_del_day 
 
             sql_corp_add = ("SELECT COUNT(id) as num"
                             "  FROM T_CORP"
@@ -152,46 +289,6 @@ class TerminalStatistic(object):
                         "         terminal_offline=values(terminal_offline)")
 
 
-            def handle_terminal_add(data):
-                """Check the terminal is del or not.
-                """
-                res  = DotDict(num=0)
-                if data is None:
-                    pass
-                else:
-                    for item in data:
-                        deltime = time.localtime(int(item['del_time']))
-                        addtime = time.localtime(int(item['add_time']))
-                        if (int(item['del_time']) != 0) and ((deltime.tm_year,deltime.tm_mon,deltime.tm_mday) == (addtime.tm_year,addtime.tm_mon,addtime.tm_mday)):
-                            logging.info("[CELERY] tmobile: %s, add and del in the same day, add_time: %s, del_time: %s ", item['tmobile'], addtime, deltime)
-                            pass
-                        else:
-                            res.num += 1
-                return res
-
-            #1 individual statistic 
-            in_terminal_add_day = self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
-                                                day_start_time, day_end_time)
-            in_terminal_add_day = handle_terminal_add(in_terminal_add_day)
-                
-            in_terminal_add_month = self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
-                                               month_start_time, day_end_time)
-            in_terminal_add_month = DotDict(num=len(in_terminal_add_month))
-
-            in_terminal_add_year= self.db.query(sql_terminal_add + " AND tsl.group_id = -1 ",
-                                             year_start_time, day_end_time)
-            in_terminal_add_year = DotDict(num=len(in_terminal_add_year))
-
-            in_terminal_del_day = self.db.get(sql_terminal_del + " AND group_id = -1 ",
-                                             day_start_time, day_end_time)
-
-            
-            in_terminal_del_month = self.db.get(sql_terminal_del + " AND group_id = -1 ",
-                                               month_start_time, day_end_time)
-
-            in_terminal_del_year= self.db.get(sql_terminal_del + " AND group_id = -1 ",
-                                             year_start_time, day_end_time)
-
             in_login_day = self.db.get(sql_in_login,
                                       day_start_time, day_end_time )
 
@@ -214,8 +311,8 @@ class TerminalStatistic(object):
             in_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id=-1 AND login=0  AND mobile like '14778%%'")
 
             self.db.execute(sql_kept,
-                            0, 0, 0,in_terminal_add_day.num, in_terminal_add_month.num, in_terminal_add_year.num,
-                            in_terminal_del_day.num, in_terminal_del_month.num, in_terminal_del_year.num,
+                            0, 0, 0,in_terminal_add_day, in_terminal_add_month, in_terminal_add_year,
+                            in_terminal_del_day, in_terminal_del_month, in_terminal_del_year,
                             in_login_day.num, in_login_month.num, in_login_year.num, in_active.num, in_deactive.num,
                             in_terminal_online_count.num,
                             in_terminal_offline_count.num, day_end_time,
@@ -231,26 +328,6 @@ class TerminalStatistic(object):
             e_corp_add_year = self.db.get(sql_corp_add,
                                           year_start_time, day_end_time )
 
-            e_terminal_add_day = self.db.query(sql_terminal_add + " AND tsl.group_id != -1",
-                                            day_start_time, day_end_time)
-            e_terminal_add_day = handle_terminal_add(e_terminal_add_day)
-
-            e_terminal_add_month = self.db.query(sql_terminal_add + " AND tsl.group_id != -1",
-                                               month_start_time, day_end_time )
-            e_terminal_add_month = DotDict(num=len(e_terminal_add_month))
-
-            e_terminal_add_year= self.db.query(sql_terminal_add + " AND tsl.group_id != -1",
-                                           year_start_time, day_end_time )
-            e_terminal_add_year = DotDict(num=len(e_terminal_add_year))
-
-            e_terminal_del_day = self.db.get(sql_terminal_del + " AND group_id != -1",
-                                            day_start_time, day_end_time)
-
-            e_terminal_del_month = self.db.get(sql_terminal_del + " AND group_id != -1",
-                                               month_start_time, day_end_time )
-
-            e_terminal_del_year= self.db.get(sql_terminal_del + " AND group_id != -1",
-                                           year_start_time, day_end_time )
 
             e_login_day = self.db.get(sql_en_login,
                                       day_start_time, day_end_time )
@@ -278,8 +355,8 @@ class TerminalStatistic(object):
 
             self.db.execute(sql_kept,
                             e_corp_add_day.num, e_corp_add_month.num, e_corp_add_year.num,
-                            e_terminal_add_day.num, e_terminal_add_month.num, e_terminal_add_year.num,
-                            e_terminal_del_day.num, e_terminal_del_month.num, e_terminal_del_year.num,
+                            e_terminal_add_day, e_terminal_add_month, e_terminal_add_year,
+                            e_terminal_del_day, e_terminal_del_month, e_terminal_del_year,
                             e_login_day.num, e_login_month.num, e_login_year.num, e_active.num, e_deactive.num,
                             e_terminal_online_count.num, e_terminal_offline_count.num, day_end_time,
                             UWEB.STATISTIC_USER_TYPE.ENTERPRISE)
@@ -287,17 +364,17 @@ class TerminalStatistic(object):
             # 3 total statistic
             self.db.execute(sql_kept,
                             e_corp_add_day.num, e_corp_add_month.num, e_corp_add_year.num,
-                            in_terminal_add_day.num + e_terminal_add_day.num,
-                            in_terminal_add_month.num + e_terminal_add_month.num, 
-                            in_terminal_add_year.num + e_terminal_add_year.num,
+                            in_terminal_add_day+e_terminal_add_day,
+                            in_terminal_add_month+e_terminal_add_month, 
+                            in_terminal_add_year+e_terminal_add_year,
 
-                            in_terminal_del_day.num + e_terminal_del_day.num,
-                            in_terminal_del_month.num + e_terminal_del_month.num, 
-                            in_terminal_del_year.num + e_terminal_del_year.num,
+                            in_terminal_del_day+e_terminal_del_day,
+                            in_terminal_del_month+e_terminal_del_month, 
+                            in_terminal_del_year+e_terminal_del_year,
 
-                            in_login_day.num+ e_login_day.num,
-                            in_login_month.num + e_login_month.num,
-                            in_login_year.num + e_login_year.num, 
+                            in_login_day.num+e_login_day.num,
+                            in_login_month.num+e_login_month.num,
+                            in_login_year.num+e_login_year.num, 
                             in_active.num+e_active.num, in_deactive.num+e_deactive.num,
                             in_terminal_online_count.num+e_terminal_online_count.num,
                             in_terminal_offline_count.num+e_terminal_offline_count.num, day_end_time, 
@@ -367,7 +444,7 @@ class TerminalStatistic(object):
             item['sim_status'] = u'失败'
             if item['offline_cause'] == 1: # heart beat
                 # check the sim status
-                terminal_log = self.db.get("SELECT sim_status FROM T_SUBSCRIPTION_LOG"
+                terminal_log = self.db.get("SELECT sim_status FROM T_BIND_LOG"
                                            "  WHERE tmobile = %s",
                                            item['tmobile'])
                 if terminal_log.sim_status == 1:
@@ -500,19 +577,34 @@ class TerminalStatistic(object):
         EmailHelper.send(self.to_emails, content, self.cc_emails, files=[CUR_PATH]) 
         logging.info("[CELERY] statistic_offline_terminal finished, cur_path: %s", CUR_PATH)
 
-    def prepare_statistic(self):
+    def statistic_misc(self):
         """Handle the old data.
         """
-        #self.db.execute("truncate T_SUBSCRIPTION_LOG")
-        #self.db.execute("truncate T_STATISTIC")
-        terminals = self.db.query("select id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO")
-        for terminal in terminals: 
-            # 1: record to T_SUBSCRIPTION
-            record_terminal_subscription(self.db, terminal['mobile'], terminal['group_id'], terminal['begintime'], terminal['begintime'],1) 
-            # 2: modify the offline_time
-            if terminal['offline_time'] == 0:
-                self.db.execute("UPDATE T_TERMINAL_INFO set offline_time = %s where id = %s ", 
-                                terminal['begintime'], terminal['id'])
+        ##self.db.execute("truncate T_SUBSCRIPTION_LOG")
+        ##self.db.execute("truncate T_STATISTIC")
+        #terminals = self.db.query("select id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO")
+        #for terminal in terminals: 
+        #    # 1: record to T_SUBSCRIPTION
+        #    record_terminal_subscription(self.db, terminal['mobile'], terminal['group_id'], terminal['begintime'], terminal['begintime'],1) 
+        #    # 2: modify the offline_time
+        #    if terminal['offline_time'] == 0:
+        #        self.db.execute("UPDATE T_TERMINAL_INFO set offline_time = %s where id = %s ", 
+        #                        terminal['begintime'], terminal['id'])
+
+        #part 2: for new statistic, transfer data from T_TERMINAL to T_BIND_LOG 
+        #self.db.execute("TRUNCATE T_BIND_LOG")
+        #terminals = self.db.query("SELECT id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO where service_status = 1")
+        #for terminal in terminals: 
+        #    #1376755199, 2013.8.17; 1376668799, 2013.08.16
+        #    #record_add_action(terminal.mobile, terminal.group_id, 1376668799, self.db)
+        #    record_add_action(terminal.mobile, terminal.group_id, 1376755199, self.db)
+        #    #record_add_action(terminal.mobile, terminal.group_id, int(time.time()), self.db)
+        # part 3: handle terminals to be removed
+        #terminals = self.db.query("SELECT id, tid, mobile, begintime, offline_time, group_id from T_TERMINAL_INFO where service_status = 2")
+        #for terminal in terminals:
+        #    logging.info("Delete to be removed terminal:%s with no log in T_BIND_LOG.", terminal.mobile)
+        #    delete_terminal_no_record(terminal.tid, self.db, self.redis, del_user=True)
+        pass
         
 def statistic_offline_terminal():
     ts = TerminalStatistic()
@@ -528,21 +620,24 @@ def statistic_user():
  
 def statistic_misc():
     ts = TerminalStatistic()
-    ts.prepare_statistic()
+    ts.statistic_misc()
 
 if __name__ == '__main__':
     ConfHelper.load(options.conf)
     parse_command_line()
     #NOTE: here, you can name the date to be statisticed.
-    year = '2013'
-    month = '01'
-    day =  '14'
-    timestamp = int(time.mktime(time.strptime("%s-%s-%s-23-59"%(year,month,day),"%Y-%m-%d-%H-%M")))
-    logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
-    ts = TerminalStatistic()
-    #ts.statistic_online_terminal(timestamp) 
-    #ts.statistic_offline_terminal(timestamp) 
-    #ts.statistic_misc() 
+    for item in range(17,18):
+        year = '2013'
+        month = '08'
+        day = item 
+        timestamp = int(time.mktime(time.strptime("%s-%s-%s-23-59"%(year,month,day),"%Y-%m-%d-%H-%M")))
+        logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
+        ts = TerminalStatistic()
+        #ts.statistic_online_terminal(timestamp) 
+        #ts.statistic_user(timestamp) 
+        #ts.statistic_offline_terminal(timestamp) 
+        ts.statistic_misc() 
+
 else: 
     try: 
         from celery.decorators import task 

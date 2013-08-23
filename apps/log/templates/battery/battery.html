@@ -24,8 +24,8 @@
 	<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
 	<script type="text/javascript" src="/static/js/json2.js"></script>
 	<script type="text/javascript" src="/static/js/highcharts.js"></script>
-	<script type="text/javascript" src="/static/js/initialize.js"></script>
 	<script type="text/javascript" src="/static/js/searchRecord.js"></script>
+	<script type="text/javascript" src="/static/js/initialize.js"></script>
 
   </head>
   
@@ -41,7 +41,7 @@
 				<a href="/packet">报文查询</a>
 			</li>
 			<li class="logNavItem logCurrentItem">
-				<a href="/battery">电量查询</a>
+				<a href="#">电量查询</a>
 			</li>
 			<li class="logNavItem">
 				<a href="/smssend">短信发送</a>
@@ -66,11 +66,22 @@
 				<input type="text" id="beginDate" class="tdStyle" readonly="true" />
 				结束时间：
 				<input type="text" id="endDate" class="tdStyle" readonly="true" />
-				终端号码：
-				<input type="text" id="mobile" class="tdStyle" maxlength="11" />
 				<input id="search_button" type="button" value="查询" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
 				<!--曲线图-->
 				<a id="battery_chart_link" class="hide" href="#">点击查看统计图</a>
+			</div>
+			<div id="snTypePanel">
+				<label>号码类型：</label>
+			
+				<input id="terminal_mobile" type="radio" value="0" name="sn_type" checked/>
+				<label id="tpsLable1" for="terminal_mobile">mobile</label>
+				
+				<input id="terminal_sn" type="radio" value="1" name="sn_type" />
+				<label id="tpsLable5" for="terminal_sn">SN</label>
+			</div>
+			<div>
+				终端号码：
+				<input type="text" id="terminal_num" class="tdStyle" />
 			</div>
 		</div>	
 	</fieldset>

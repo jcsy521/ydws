@@ -103,14 +103,14 @@ class CheckTerminalStatus(object):
                 tname = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                 sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
                 SMSHelper.send(user.owner_mobile, sms)
-                corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
-                                   "  WHERE T_TERMINAL_INFO.tid = %s"
-                                   "    AND T_TERMINAL_INFO.group_id != -1"
-                                   "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
-                                   "    AND T_GROUP.corp_id = T_CORP.cid",
-                                   tid)
-                if (corp and corp.mobile != user.owner_mobile):
-                    SMSHelper.send(corp.mobile, sms)
+                #corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
+                #                   "  WHERE T_TERMINAL_INFO.tid = %s"
+                #                   "    AND T_TERMINAL_INFO.group_id != -1"
+                #                   "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
+                #                   "    AND T_GROUP.corp_id = T_CORP.cid",
+                #                   tid)
+                #if (corp and corp.mobile != user.owner_mobile):
+                #    SMSHelper.send(corp.mobile, sms)
         logging.warn("[CK] Terminal %s Heartbeat lost!!!", tid)
         # memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(tid)
@@ -141,7 +141,7 @@ class CheckTerminalStatus(object):
         # check sim status
         lat, lon = get_latlon_from_cellid(0, 0, 0, 0, terminal_info['mobile'])
         if lat and lon: 
-            self.db.execute("UPDATE T_SUBSCRIPTION_LOG"
+            self.db.execute("UPDATE T_BIND_LOG"
                             "  SET sim_status = 1"
                             "  WHERE tmobile = %s",
                             terminal_info['mobile'])

@@ -93,29 +93,9 @@ class RealtimeMixin(BaseMixin):
         All realtime requests in REALTIME_VALID_INTERVAL will be considered as
         only one. If not, invoke gf and use handle_location of lbmphelper. 
         """
-        is_alived = self.redis.getvalue('is_alived')
-        if is_alived == ALIVED:
-            location_key = get_location_key(str(self.current_user.tid))
-            location = self.redis.getvalue(location_key)
-            # after 1 minute, the location is invalid, get it again.
-            if location and abs(time.time() - int(location.timestamp)) > UWEB.REALTIME_VALID_INTERVAL:
-                location = None
-        else:
-            # we should eventually search location from T_LOCATION
-            location = self.db.get("SELECT id, clatitude, clongitude, latitude,"
-                                   "       longitude, name, timestamp, type, degree"
-                                   "  FROM T_LOCATION"
-                                   "  WHERE tid = %s"
-                                   "    AND NOT (clatitude = 0 AND clongitude = 0)"
-                                   "    AND (%s BETWEEN timestamp - %s"
-                                   "                AND timestamp + %s)"
-                                   "  ORDER BY timestamp DESC"
-                                   "  LIMIT 1",
-                                   self.current_user.tid, query.timestamp,
-                                   UWEB.REALTIME_VALID_INTERVAL, UWEB.REALTIME_VALID_INTERVAL)
-            if (location and not location.name):
-                location.name = ''
-
+        location = QueryHelper.get_location_info(self.current_user.tid, self.db, self.redis)
+        if location and location['name'] is None:
+            location['name'] = '' 
                 
         ret = DotDict(status=ErrorCode.SUCCESS,
                       message='',
@@ -222,6 +202,9 @@ class RealtimeMixin(BaseMixin):
                         ret.location.tid = self.current_user.tid
                         ret.location.degree = float(location.degree)
                         self.update_terminal_status(location)
+                    else:
+                        ret.status = ErrorCode.LOCATION_FAILED
+                        ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
                 else:
                     if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
                         self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)

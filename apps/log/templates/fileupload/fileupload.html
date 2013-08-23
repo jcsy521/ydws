@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>fileupload</title>
+		
+		<link type="text/css" href="/static/css/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
+		<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+		
+		<script type="text/javascript" src="/static/js/jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-1.8.14.custom.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
+		
+		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+		<script type="text/javascript" src="/static/js/json2.js"></script>
+		<script type="text/javascript" src="/static/js/fileupload.js"></script>
+		<script type="text/javascript" src="/static/js/initialize.js"></script>
+	</head>
+	<body>
+		<div class="logHeader">
+			<ul id="logNavItemPanel" class="logNavPanel">
+				<li class="logNavItem">
+					<a href="#">脚本管理</a>
+				</li>
+				<li class="logNavItem">
+					<a href="/password">修改密码</a>
+				</li>
+			</ul>
+			<div class="right_title">
+				欢迎您，<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
+			</div>
+		</div>
+		<!--data tables-->
+		<div class="resultQuery">
+		   <div class="resultTitle">
+				<h3>查询结果</h3>		
+				<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
+			</div>
+			<a href="#" id="addTerminalScript">上传脚本</a>
+			{% if message %}
+				<script>alert('{{message}}');</script>
+			{% end %}
+		</div>
+		<table id="search_table" class="display" whois="fileupload">
+			<thead>
+				<tr>
+					<th>时间</th>
+					<th>上传者</th>
+					<th>文件名</th>
+					<th>版本号</th>
+					<th>下载</th>
+					<th>删除</th>
+				</tr>
+			</thead>
+			<tbody id="search_tbody">
+				{% for file in files %}
+				<tr>
+					<td>{{file['timestamp']}}</td>
+					<td>{{file['author']}}</td>
+					<td>{{file['filename']}}</td>
+					<td>{{file['version']}}</td>
+					<td><a href="/downloadluascript?filename={{file['filename']}}" target="_blank">下载</a></td>
+					<td><a href="#" onclick="fn_terminalDel('{{file['filename']}}')">删除</a></td>
+				</tr>
+				{% end %}
+			</tbody>
+		</table>
+		
+		<!--fileuploadpanel-->
+		<div id="fileUploadDialog" title="添加脚本" class="hide">
+			<form id="fileUploadForm" name="fileUploadForm" method="POST" enctype="multipart/form-data" action="/uploadluascript" onsubmit="return fn_validFileuploadForm();">
+				<ul>
+					<li>
+						<label>文件名：</label>
+						<input id="filenamePanel" class="hide" disabled="disabled" />
+						<input type="button" value="浏览..." id="fileBrowser" />
+						<div class="filePanel">
+							<input type="file" class="files" id="fileUpload" name="fileupload" />
+						</div>
+					</li>
+					<li>
+						<label>版本号：</label>
+						<input type="text" name="versionname" id="versionname" />
+						<input type="submit" value="上传" id="fileuploadSave" class="ui-button ui-widget ui-state-default ui-corner-all" />
+					</li>
+				</ul>
+			</form>
+		</div>
+	</body>
+</html>

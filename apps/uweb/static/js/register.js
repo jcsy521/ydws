@@ -1,79 +1,138 @@
 $(function() {
 	$.ajaxSetup({ cache: false }); // 不保存缓存
-	$('#registerForm input[type=text], input[type=password]').val(''); // 数据清空
-	// 加载验证
+	 // 数据清空 添加获取焦点失去焦点样式
+	$('#registerForm input[type=text]').val('').unbind('focus, blur').bind('focus', function() {
+		$(this).parent().addClass('focus');
+	}).bind('blur', function() {
+		$(this).parent().removeClass('focus');
+	});
+	
 	$.formValidator.initConfig({
 		formID: 'registerForm', //指定from的ID 编号
-		
+		debug: true, // 指定调试模式,不提交form
+		wideWord: false, // 一个汉字当一个字节
+		submitButtonID: 'btn_register', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 4000);
+		}, 
 		onSuccess: function() { 
-			var obj_name = $('#name'), 
-				str_name = obj_name.val(), 
-				str_tMobile = $('#mobile').val(),
-				str_tid = $('#tid').val(), 
-				str_psw = $('#psw').val(),
-				n_mobileLen = $.trim(str_tMobile).length,
-				n_tidLen = $.trim(str_tid).length,
-				n_pswLen = $.trim(str_psw).length, 
-				obj_regex = regexEnum, 
-				obj_tMobileReg = new RegExp(regexEnum.mobile, 'g'), 
-				obj_tIdReg = new RegExp(regexEnum.letter_un, 'g'), 
-				obj_pswReg = new RegExp('^[0-9]{6}$', 'g');
+			var str_mobile = $('#txt_umobile').val(),
+				str_tmobile = $('#txt_tmobile').val(),
+				str_captcha = $('#captcha').val(),
+				str_url = '/register',
+				obj_param = {'umobile': str_mobile, 'tmobile': str_tmobile, 'captcha': str_captcha};
 			
-			if ( n_tidLen > 0 ) {
-				var obj_tTip = $('#tidTip');
-				
-				if ( !obj_tIdReg.test(str_tid) ) {
-					obj_tTip.html('请输入正确的终端序列号！');
-					return false;
+			$.post_(str_url, JSON.stringify(obj_param), function(data) {
+				if ( data.status == 0 ) {
+					/*dlf.fn_jNotifyMessage('注册信息已提交成功，请稍后注意查收短信。', 'message', false, 3000);
+					window.setTimeout(function() {
+						location.href = '/login';
+					}, 3000);
+					return;*/
+					$('#registerPanel').hide();
+					$('.j_tips').hide();
+					$('#register_success').show();
+					window.setInterval(function() {
+						var obj_intervalTip = $('.j_interval'),
+							n_oldInterval = parseInt(obj_intervalTip.html());
+							
+						if ( n_oldInterval == 1 ) {
+							location.href = '/login';
+						} else {
+							n_oldInterval--;
+							obj_intervalTip.html(n_oldInterval);
+						}
+					}, 1000);
+					return;
 				} else {
-					obj_tTip.html('');
-					return true;
+					dlf.fn_jNotifyMessage(data.message, 'error', false, 3000);
+					return;
 				}
-			}
-			if ( str_name == '' ) {
-				obj_name.val($('#mobile').val());
-			}
-			return true;
+			}, 
+			function(XMLHttpRequest, textStatus, errorThrown) {
+				dlf.fn_serverError(XMLHttpRequest);
+			});
 		}
 	});
-	$('#uid').formValidator({onFocus: '请输入用户名！', onShow: '请输入用户名！', onCorrect: '<font color="#000">用户名正确！</font>'})
-	.inputValidator({min: 6, max: 16, onError: '用户名范围(6-16)！'})
-	.regexValidator({regExp: 'username', dataType: 'enum', onError:'用户名只能由6-16位数字、26个英文字母或者下划线组成。'})
-	.ajaxValidator({
-		dataType : "json",
-		type: 'PUT', 
-		url : '/register',
-		success : function(data){
-            if( data.status == 0 ) return true;
-			return data.message;
-		},
-		error: function(jqXHR, textStatus, errorThrown){alert("服务器没有返回数据，可能服务器忙，请重试"+errorThrown);},
-		onError : "该用户名不可用，请重新输入",
-		onWait : "正在进行合法性校验，请稍候..."
-	});;
 	
-	$('#mobile').formValidator({onFocus: '请输入11位用户手机号！', onShow: '请输入11位用户手机号！', onCorrect: '<font color="#000">用户手机号正确</font>'}).inputValidator({min: 11, max: 11, onError: '请输入正确的11位手机号！'})
-	.regexValidator({regExp: 'mobile', dataType: 'enum', onError:'请输入正确的11位手机号！'})
-	.ajaxValidator({
-		dataType : "json",
-		type: 'PUT', 
-		url : '/register',
-		success : function(data){
-            if( data.status == 0 ) return true;
-			return data.message;
-		},
-		error: function(jqXHR, textStatus, errorThrown){alert("服务器没有返回数据，可能服务器忙，请重试"+errorThrown);},
-		onError : "该用户名手机号不可用，请重新输入",
-		onWait : "正在进行合法性校验，请稍候..."
-	});
+	var n_time = 60, 
+		MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// 手机号正则表达;
 	
-	$('#password').formValidator({onFocus: '请输入密码！', onShow: '请输入密码！', onCorrect: '<font color="#000">密码正确</font>'})
-	.inputValidator({min: 6, max: 16, onError: '密码长度范围(6-16)！'});
+	// 获取验证码
+	$('#btnCaptcha').unbind('click').bind('click', function() {
+		var obj_mobile = $('#txt_umobile'),
+			obj_captchaBtn = $('#btnCaptcha'),
+			str_mobile = obj_mobile.val(),
+			obj_captcha = $('#captcha'),
+			b_flag  = $('#mobileTip .onError').is(":visible"),
+			n_seconds = parseInt($('#flashTimeText').html());
+		
+		obj_mobile.parent().addClass('focus');
+		obj_mobile.focus();
+		
+		if ( n_seconds < 60 ) {	// 如果小于60 秒 不能发送
+			obj_captchaBtn.attr('disabled',true);
+			return;
+		} else {
+			obj_captchaBtn.removeAttr('disabled');
+		}
+		
+		if ( str_mobile == '' ) {  
+			dlf.fn_jNotifyMessage('请输入用户手机号！', 'error', false, 3000);
+			obj_mobile.focus();
+		} else if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
+			dlf.fn_jNotifyMessage('您输入的号码不合法，请重新输入！', 'error', false, 3000);
+			obj_mobile.focus();
+		} else {
+			$.get_('/register?umobile='+str_mobile, '', function(data) {
+				if ( data.status == 0 ) {
+					//  倒计时1分钟 同时 按钮不可用
+					dlf.fn_jNotifyMessage('验证码发送到您的手机，请在5分钟内激活。', 'message', false, 5000);
+					fn_resetUpdateTime();	// 重新读秒操作
+					$('#btnCaptcha').attr('disabled',true);
+					obj_captcha.parent().addClass('focus');
+					obj_captcha.focus();
+				} else {
+					dlf.fn_jNotifyMessage(data.message, 'error', false, 3000);
+				}
+			});
+		}
+	}).removeAttr('disabled');
 	
-	$('#pwd2').formValidator({onFocus: '请输入确认密码！', onShow: '请输入确认密码！', onCorrect: '<font color="#000">确认密码正确</font>'})
-	.inputValidator({min: 6, max: 16, onError: '密码长度范围(6-16)！'})
-	.compareValidator({desID: 'password', operateor: '=', datatype: 'number', onError: '两次密码不一致，请重新输入！'});
+	$('#txt_umobile').formValidator().inputValidator({min: 0, onError: '请输入车主手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'车主手机号格式不正确。'});
 	
-	$('#email').formValidator({onFocus: '请输入正确的邮箱！', onShow: '请输入正确的邮箱！', onCorrect: '<font color="#000">邮箱正确</font>'})
-	.inputValidator({max: 255, onError: '！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: '您输入的邮箱格式不正确！'});	
+	$('#txt_tmobile').formValidator().inputValidator({min: 0, onError: '请输入定位器手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'定位器手机号格式不正确。'});
+	
+	$('#captcha').formValidator().inputValidator({min: 1, onError: '请输入验证码！'});
+
+	// $('#serviceTerms').formValidator().inputValidator({min: 1, onError: '请阅读并同意遵守服务条款！'}); 
 });
+
+/**
+* 找回密码的读秒操作
+*/
+function fn_updateTime() {
+	obj_updateTimeInterval = setInterval(function() {
+		var obj_updateTime = $('#flashTimeText'),
+			str_updateTime = obj_updateTime.html();
+		
+		if ( parseInt(str_updateTime) == 0 ) {
+			dlf.fn_clearInterval(obj_updateTimeInterval);
+			obj_updateTime.html('');
+			$('#seconds').hide();
+			$('#btnCaptcha').removeAttr('disabled');
+		} else {
+			obj_updateTime.html(parseInt(str_updateTime)-1);
+		}
+	}, 1000);
+}
+/** 
+* 重新启动读秒操作
+*/
+var obj_updateTimeInterval =null;	// 获取验证码倒数计时
+function fn_resetUpdateTime() {
+	dlf.fn_clearInterval(obj_updateTimeInterval);
+	$('#flashTimeText').html(60);
+	$('#seconds').show();
+	fn_updateTime();
+}

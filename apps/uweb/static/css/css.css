@@ -258,19 +258,19 @@ body {
 	clear: both;
 	color: gray;   
 	word-break: break-all;
-    word-wrap: break-word
+    word-wrap: break-word;
 }
 .green {
 	clear: both;
 	color: green;
 	word-break: break-all;
-    word-wrap: break-word
+    word-wrap: break-word;
 }
 .blue {
 	clear: both;
 	color: #3e6c9b;
 	word-break: break-all;
-    word-wrap: break-word
+    word-wrap: break-word;
 }
 #carList span {
 	line-height: 22px;
@@ -1284,7 +1284,7 @@ body {
 .disPanelCon, .alarmPanelCon {
 	position: absolute;
 	top: 72px;
-	width: 18px;
+	width: 16px;
 	height: 68px;
 	background: url('/static/images/arrowIcon.png');
 	cursor: pointer;
@@ -1333,7 +1333,7 @@ body {
 	width: 5px;
 	height: 10px;
 	margin: 29px 0 0 7px;
-	background: url('/static/images/arrowIcon.png') no-repeat -29px -29px;
+	background: url('/static/images/arrowIcon.png') no-repeat -20px -29px;
 	cursor: pointer;
 	overflow: hidden;
 }
@@ -1416,7 +1416,7 @@ body {
 	height: 135px;
 }
 .height110 {
-	height: 110px;
+	height: 125px;
 }
 .clickedBg {
 	background-color: #9CCAF4;
@@ -1771,6 +1771,7 @@ body {
     line-height: 15px;
     position: absolute;
     width: 203px;
+	float: left;
 }
 .left60 {
 	left: 60px;
@@ -1782,7 +1783,7 @@ body {
 }
 /*marker css end*/
 .top10 {
-	padding-top: 10px;
+	padding-top: 18px;
 }
 /* index ads */
 #ads {
@@ -1909,6 +1910,13 @@ body {
 	margin-left: 32px;
 	*position: relative;
 	*top: -3px;
+}
+.services dt {
+	line-height: 22px;
+}
+#dlCss {
+	padding-top: 50px;
+	line-height: 22px;
 }
 .headline {
 	text-indent: 2em;
@@ -2395,6 +2403,37 @@ body {
     width: 140px;
 	*top: 4px;
 }
+#mileageStartTime, #mileageEndTime {
+	width: 120px;
+}
+#mileageSlider {
+	background-color: #E6E7E7;
+    background-image: none;
+    border: 1px solid #B5D7FF;
+    border-radius: 0 0 0 0;
+    display: inline-block;
+    left: 68px;
+    position: relative;
+    top: -11px;
+    width: 358px;
+}
+#mileageSlider .ui-state-default {
+	background-color: #3D90F5;
+    background-image: none;
+}
+#mileage_chart, #mileage_uploadBtn {
+	position: relative;
+	top: 18px;
+	margin-left: 10px;
+}
+.spanTime input {
+	background: none repeat scroll 0 0 white;
+    border: 1px solid #CDCDCD;
+    color: #8A9097;
+    font-weight: bold;
+    padding: 2px 3px;
+    width: 16px;
+}
 .operatorConditions input {
 	padding-left: 10px;
 }
@@ -2516,8 +2555,19 @@ legend {
 	width: 500px;
 	height: 350px;
 }
-#addOperatorDialog input, #addOperatorDialog label, #addPassengerDialog input, #addPassengerDialog label {
+#addPassengerDialog input, #addPassengerDialog label {
 	display:block;
+}
+#operatorGroups {
+	width: 280px;
+}
+#operatorGroups li {
+	width: 135px;
+	line-height: 22px;
+	float: left;
+}
+#operatorGroups label {
+	margin: 0px 10px;
 }
 #addOperatorDialog input.text, #addPassengerDialog input.text {
 	margin-bottom:5px;
@@ -2732,7 +2782,7 @@ legend {
 	width: 754px;
 }
 .mileageCondition, .operatorCondition {
-	width: 900px;
+	width: 800px;
 }
 .onlineStaticsCondition .title, .mileageCondition .title {
 	color: #69B2E9;
@@ -2753,16 +2803,27 @@ legend {
 	height: 20px;
 	background-color: #FFF;
 }
-.eventBtn {
+.spanConditions {
+	display: inline-block;
+	margin-left: 28px;
+}
+.spanConditionsWord {
+	display: inline-block;
+    text-align: right;
+    width: 60px;
+}
+.eventBtn, #mileage_searchBtn {
 	background: url('/static/images/cx.png') no-repeat;
 	cursor: pointer;
 	display: inline-block;
 	height: 34px;
 	margin-left: 30px;
 	position: relative;
-	top: 1px;
-	_top: 1px;
+	top: 25px;
 	width: 92px;
+}
+.eventBtn {
+	top: 1px;	
 }
 #eventSearchPage, #singleEventPage, #singleMileagePage, #singleMileagePage, #routeLinePage {
 	height: 34px;
@@ -2981,18 +3042,16 @@ legend {
 	width: 100px;
 	padding: 5px;
 }
-
 /**==================*/
-#regionWrapper {
+#regionWrapper, #corpRegionWrapper {
 	background: none repeat scroll 0 0 #F7F8F8;
 	width: 510px;
 	height: 0px;
 }
-
-.regionContent {
+.regionContent, .corpRegionContent {
 	height: 458px
 }
-#regionCreateBtn {
+.regionCreateBtn {
 	color: #4876FF;
 	display: inline-block;
     cursor: pointer;
@@ -3000,6 +3059,9 @@ legend {
     left: 272px;
     position: relative;
     top: 14px;
+}
+#corpRegionCreateBtn {
+	left: 437px;
 }
 /*routeline add panel*/
 .regionCreateBtnPanel a {
@@ -3149,7 +3211,7 @@ legend {
 }
 .bindRegionTable, .bindBatchRegionTable {
 	width: 410px;
-	margin: 0px auto;
+	margin: 10px auto;
 }
 .bindRegionSave, .bindBatchRegionSave {
 	border: 0 none;
@@ -3174,7 +3236,8 @@ legend {
 	float: left;
 	height: 11px;
 	position: relative;
-	top: 2px;
+	top: 8px;
+	*top: 15px;
 }
 .errorTop10 {
 	top: 10px;
@@ -3243,11 +3306,14 @@ legend {
 .marginleft0 {
 	margin-left: 0px;
 }
-#regionForTerminal {
+.regionForTerminal {
     display: inline-block;
     left: 26px;
     position: relative;
     top: 14px;
     width: 160px;
+}
+#corpRegionForTerminal {
+	top: -8px;
 }
 /*web css end*/

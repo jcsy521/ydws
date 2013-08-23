@@ -28,7 +28,7 @@ from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
      get_resend_key, get_lastinfo_key, get_login_time_key
-from utils.public import insert_location, delete_terminal, record_terminal_subscription,\
+from utils.public import insert_location, delete_terminal, record_add_action,\
      clear_data
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
@@ -264,55 +264,60 @@ class MyGWServer(object):
                     connection, channel = self.__reconnect_rabbitmq(connection, host)
                     continue
                 else:
-                    if queue.qsize() != 0:
-                        item  = queue.get(False)
-                        packets = item.get('response')
-                        address = item.get('address')
-                        packets = self.divide_packets(packets)
-                        for packet in packets:
-                            clw = T_CLWCheck(packet)
-                            command = clw.head.command
-                            if command == T_MESSAGE_TYPE.LOGIN:
-                                logging.info("[GW] Recv login packet:\n%s", packet)
-                                self.handle_login(clw, address, connection, channel) 
-                            elif command == T_MESSAGE_TYPE.HEARTBEAT:
-                                logging.info("[GW] Recv heartbeat packet:\n%s", packet)
-                                self.handle_heartbeat(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.LOCATIONDESC:
-                                logging.info("[GW] Recv locationdesc packet:\n%s", packet)
-                                self.handle_locationdesc(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.CONFIG:
-                                logging.info("[GW] Recv query config packet:\n%s", packet)
-                                self.handle_config(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
-                                logging.info("[GW] Recv defend status packet:\n%s", packet)
-                                self.handle_defend_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.FOBINFO:
-                                logging.info("[GW] Recv fob info packet:\n%s", packet)
-                                self.handle_fob_info(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
-                                logging.info("[GW] Recv sleep status packet:\n%s", packet)
-                                self.handle_terminal_sleep_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.FOBSTATUS:
-                                logging.info("[GW] Recv fob status packet:\n%s", packet)
-                                self.handle_fob_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
-                                logging.info("[GW] Recv runtime status packet:\n%s", packet)
-                                self.handle_runtime_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
-                                logging.info("[GW] Recv unbind status packet:\n%s", packet)
-                                self.handle_unbind_status(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.UNUSUALACTIVATE:
-                                logging.info("[GW] Recv unusual activate packet:\n%s", packet)
-                                self.handle_unusual_activate(clw, address, connection, channel)
-                            elif command == T_MESSAGE_TYPE.MISC:
-                                logging.info("[GW] Recv misc packet:\n%s", packet)
-                                self.handle_misc(clw, address, connection, channel)
-                            else:
-                                logging.info("[GW] Recv packet from terminal:\n%s", packet)
-                                self.foward_packet_to_si(clw, packet, address, connection, channel)
-                    else:
-                        sleep(0.1)
+                    try:
+                        if queue.qsize() != 0:
+                            item  = queue.get(False)
+                            packets = item.get('response')
+                            address = item.get('address')
+                            packets = self.divide_packets(packets)
+                            for packet in packets:
+                                clw = T_CLWCheck(packet)
+                                if not clw.head:
+                                    break
+                                command = clw.head.command
+                                if command == T_MESSAGE_TYPE.LOGIN:
+                                    logging.info("[GW] Recv login packet:\n%s", packet)
+                                    self.handle_login(clw, address, connection, channel) 
+                                elif command == T_MESSAGE_TYPE.HEARTBEAT:
+                                    logging.info("[GW] Recv heartbeat packet:\n%s", packet)
+                                    self.handle_heartbeat(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.LOCATIONDESC:
+                                    logging.info("[GW] Recv locationdesc packet:\n%s", packet)
+                                    self.handle_locationdesc(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.CONFIG:
+                                    logging.info("[GW] Recv query config packet:\n%s", packet)
+                                    self.handle_config(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
+                                    logging.info("[GW] Recv defend status packet:\n%s", packet)
+                                    self.handle_defend_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.FOBINFO:
+                                    logging.info("[GW] Recv fob info packet:\n%s", packet)
+                                    self.handle_fob_info(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
+                                    logging.info("[GW] Recv sleep status packet:\n%s", packet)
+                                    self.handle_terminal_sleep_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.FOBSTATUS:
+                                    logging.info("[GW] Recv fob status packet:\n%s", packet)
+                                    self.handle_fob_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
+                                    logging.info("[GW] Recv runtime status packet:\n%s", packet)
+                                    self.handle_runtime_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
+                                    logging.info("[GW] Recv unbind status packet:\n%s", packet)
+                                    self.handle_unbind_status(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.UNUSUALACTIVATE:
+                                    logging.info("[GW] Recv unusual activate packet:\n%s", packet)
+                                    self.handle_unusual_activate(clw, address, connection, channel)
+                                elif command == T_MESSAGE_TYPE.MISC:
+                                    logging.info("[GW] Recv misc packet:\n%s", packet)
+                                    self.handle_misc(clw, address, connection, channel)
+                                else:
+                                    logging.info("[GW] Recv packet from terminal:\n%s", packet)
+                                    self.foward_packet_to_si(clw, packet, address, connection, channel)
+                        else:
+                            sleep(0.1)
+                    except:
+                        logging.exception("[GW] Handle packet Exception.")
         except:
             logging.exception("[GW] Recv Exception.")
 
@@ -529,6 +534,10 @@ class MyGWServer(object):
                     icon_type = terminal.icon_type
                     if terminal.tid == terminal.mobile:
                         # corp terminal login first, keep corp info
+                        self.db.execute("UPDATE T_REGION_TERMINAL"
+                                        "  SET tid = %s"
+                                        "  WHERE tid = %s",
+                                        t_info['dev_id'], t_info['t_msisdn'])
                         logging.info("[GW] Corp terminal: %s login first, tmobile: %s.",
                                      t_info['dev_id'], t_info['t_msisdn'])
                     elif terminal.tid != t_info['dev_id']:
@@ -573,17 +582,16 @@ class MyGWServer(object):
                             SMSHelper.send(tid_terminal['owner_mobile'], sms_)
                             logging.info("[GW] Send delete terminal message: %s to user: %s",
                                          sms_, tid_terminal['owner_mobile'])
-                        # user changed, must clear history data of dev_id
-                        clear_data(tid_terminal['tid'], self.db)
+                            # user changed, must clear history data of dev_id
+                            clear_data(tid_terminal['tid'], self.db)
                     else:
                         del_user = False
                     delete_terminal(tid_terminal['tid'], self.db, self.redis, del_user=del_user)
 
                 # 6 add terminal info
-                record_terminal_subscription(self.db, t_info['t_msisdn'], -1, 
-                                             int(time.mktime(begintime.timetuple())), 
-                                             int(time.mktime(begintime.timetuple())), 
-                                             UWEB.OP_TYPE.ADD)
+
+                # record the add action, enterprise or individual
+                record_add_action(t_info['t_msisdn'], group_id, int(time.time()), self.db)
 
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
@@ -622,8 +630,6 @@ class MyGWServer(object):
                 terminal_sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
                 self.redis.setvalue(terminal_sessionID_key, args.sessionID)
                 self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-                if sms:
-                    SMSHelper.send(t_info['u_msisdn'], sms)
             # record terminal address
             self.update_terminal_status(t_info["dev_id"], address)
             # set login
@@ -640,6 +646,9 @@ class MyGWServer(object):
         request = DotDict(packet=lc.buf,
                           address=address)
         self.append_gw_request(request, connection, channel)
+
+        if sms and t_info['u_msisdn']:
+            SMSHelper.send(t_info['u_msisdn'], sms)
 
         if t_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
             seq = str(int(time.time()*1000))[-4:]
@@ -960,10 +969,8 @@ class MyGWServer(object):
                     # is one year.
                     begintime = datetime.datetime.now() 
                     endtime = begintime + relativedelta(years=1)
-                    record_terminal_subscription(self.db, t_info['t_msisdn'], -1, 
-                                                 int(time.mktime(begintime.timetuple())), 
-                                                 int(time.mktime(begintime.timetuple())), 
-                                                 UWEB.OP_TYPE.ADD)
+                    # record the add action, enterprise or individual
+                    record_add_action(t_info['t_msisdn'], -1, int(time.time()), self.db)
 
                     self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
                                     "  owner_mobile, imsi, imei, factory_name, softversion,"
@@ -1114,7 +1121,6 @@ class MyGWServer(object):
                 location = lbmphelper.handle_location(location, self.redis, cellid=cellid, db=self.db)
                 location.name = location.get('name') if location.get('name') else ""
                 location.name = safe_unicode(location.name)
-                locationdesc = location.name.encode("utf-8", 'ignore')
                 user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
                 tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
                 dw_method = u'GPS' if not cellid else u'基站'
@@ -1122,8 +1128,8 @@ class MyGWServer(object):
                     if user:
                         current_time = get_terminal_time(int(time.time()))
                         sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method,
-                                                        unicode(locationdesc, 'utf-8'), 
-                                                        current_time) 
+                                                        location.name, 
+                                                        safe_unicode(current_time)) 
                         url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' +\
                               str(location.cLon/3600000.0) + '&clat=' + str(location.cLat/3600000.0)
                         tiny_id = URLHelper.get_tinyid(url)
@@ -1413,22 +1419,15 @@ class MyGWServer(object):
             # before v2.2.0
             if len(body) == 0:
                 body.append("0")
-            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
-            resend_flag = self.redis.getvalue(resend_key)
 
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
-            if resend_flag:
-                logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
-                             info.head, info.body)
-            else: 
-                self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-                ap = AsyncParser(body, head)
-                info = ap.ret 
-                flag = info['flag']
-                delete_terminal(head.dev_id, self.db, self.redis)
-                if int(flag) == 1:
-                    clear_data(head.dev_id, self.db)
+            ap = AsyncParser(body, head)
+            info = ap.ret 
+            flag = info['flag']
+            delete_terminal(head.dev_id, self.db, self.redis)
+            if int(flag) == 1:
+                clear_data(head.dev_id, self.db)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,

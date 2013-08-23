@@ -13,7 +13,7 @@ import tornado.web
 
 from utils.dotdict import DotDict
 from utils.misc import str_to_list, utc_to_date, seconds_to_label,\
-     get_terminal_sessionID_key, get_track_key
+     get_terminal_sessionID_key, get_track_key, get_lqgz_key, get_lqgz_interval_key
 from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
@@ -55,6 +55,20 @@ class TrackLQHandler(BaseHandler, BaseMixin):
 
             if int(flag) == 1:
                 for tid in tids:
+
+                    ##NOTE: just send lqgz temporary
+                    terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
+                    lqgz_key = get_lqgz_key(tid)
+                    lqgz_value = self.redis.getvalue(lqgz_key)
+                    lqgz_interval_key = get_lqgz_interval_key(tid)
+                    if not lqgz_value:
+                        interval = 30 # in minute
+                        sms = SMSCode.SMS_LQGZ % interval
+                        SMSHelper.send_to_terminal(terminal.mobile, sms)
+                        self.redis.setvalue(lqgz_key, True, SMS.LQGZ_SMS_INTERVAL)
+                        self.redis.setvalue(lqgz_interval_key, True, SMS.LQGZ_INTERVAL * 2)
+                    # END
+
                     track_key = get_track_key(tid)
                     track = self.redis.get(track_key)
                     logging.info("[UWEB] Get track: %s from redis", track)
@@ -65,6 +79,7 @@ class TrackLQHandler(BaseHandler, BaseMixin):
                         self.db.execute("UPDATE T_TERMINAL_INFO SET track = %s"
                                         "  WHERE tid = %s",
                                         flag, tid)
+                        self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
                         sessionID_key = get_terminal_sessionID_key(tid)
                         self.redis.delete(sessionID_key)
             self.write_ret(status)
@@ -182,21 +197,18 @@ class TrackHandler(BaseHandler):
                 if item.name is None:
                     item['name'] = ''
 
-            # orgnize and store the data to be downloaded 
+            # organize and store the data to be downloaded 
             m = hashlib.md5()
             m.update(self.request.body)
             hash_ = m.hexdigest()
             mem_key = self.KEY_TEMPLATE % (self.current_user.uid, hash_)
             
-            # todo: 
             res =  []
             if idle_lst:
-
                 point_begin = dict(label=u'起点',
                                    start_time=utc_to_date(track[0]['timestamp']),
                                    end_time='',
                                    name=track[0]['name'])
-                # TODO:
                 point_idle = []
                 for idle_point in idle_points:
                     idle_label =  seconds_to_label(idle_point['idle_time'])
@@ -215,7 +227,6 @@ class TrackHandler(BaseHandler):
                 res.extend(point_idle)
 
                 self.redis.setvalue(mem_key, res, time=UWEB.STATISTIC_INTERVAL)
-
 
             self.write_ret(status,
                            dict_=DotDict(track=track,

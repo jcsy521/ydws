@@ -11,7 +11,6 @@ from utils.misc import DUMMY_IDS
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from utils.dotdict import DotDict
-from utils.public import record_terminal_subscription
 from base import BaseHandler, authenticated
 from checker import check_privileges 
 from constants import PRIVILEGES, GATEWAY, SMS, UWEB
@@ -22,6 +21,7 @@ from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
 from codes.errorcode import ErrorCode 
 from utils.checker import check_sql_injection, check_zs_phone
+from utils.public import record_add_action
 
 
 class ECBusinessMixin(BaseMixin):
@@ -255,6 +255,7 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
             terminals = self.db.query("SELECT id, tid, mobile, owner_mobile FROM T_TERMINAL_INFO WHERE group_id IN %s",
                                       tuple(groups + DUMMY_IDS))
             for terminal in terminals:
+
                 # unbind terminal
                 seq = str(int(time.time()*1000))[-4:]
                 args = DotDict(seq=seq,
@@ -372,10 +373,8 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                 gid = group.id
 
 
-            record_terminal_subscription(self.db, fields.tmobile, gid,
-                                         fields.begintime,
-                                         fields.begintime,
-                                         UWEB.OP_TYPE.ADD)
+            # record the add action, enterprise
+            record_add_action(fields.tmobile, gid, int(time.time()), self.db)
 
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  begintime, endtime, offline_time, login_permit)"

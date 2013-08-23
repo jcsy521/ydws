@@ -36,7 +36,7 @@ from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandl
 from handlers.checkupdate import CheckUpdateAndroidHandler, CheckUpdateIOSHandler
 from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
-from handlers.register import RegisterHandler
+from handlers.register import RegisterHandler, RegisterBrowserHandler
 from handlers.lastinfo import LastInfoHandler, LastInfoCorpHandler
 from handlers.lastposition import LastPositionHandler
 from handlers.worker import WorkerPool
@@ -75,8 +75,10 @@ from handlers.batch import BatchDeleteHandler
 from handlers.batch import BatchJHHandler
 from handlers.operator import OperatorHandler
 from handlers.region import RegionHandler, RegionDetailHandler
+from handlers.corpregion import CorpRegionHandler
 from handlers.bindregion import BindRegionHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
+from handlers.zfjsyncer import ZFJSyncerHandler
 
 #znbc uweb handler
 from handlers.passenger import PassengerHandler
@@ -161,6 +163,8 @@ class Application(tornado.web.Application):
             (r"/uploadterminalfile/*", UploadTerminalHandler),
             (r"/download/instructions/*", DownloadInstructionsHandler),
 
+            (r"/register/browser/*", RegisterBrowserHandler),
+
 
             # for terminal lua    
             (r"/upload/terminal/*", UploadTerminalHandler),
@@ -189,6 +193,7 @@ class Application(tornado.web.Application):
             (r"/ios/captcha/*", ClientCaptchaHandler),
             (r"/ios/bindmobile/*", BindMobileHandler),
             (r"/ios/sync/*", SyncHandler),
+            (r"/zfjsyncer/*", ZFJSyncerHandler),
             
             # for wap
             (r"/wapimg/*", WapImgHandler),
@@ -220,6 +225,7 @@ class Application(tornado.web.Application):
             (r"/getregionevent/*", RegionDetailHandler),
             (r"/report/online/*", OnlineHandler),
             (r"/download/*", DownloadHandler),
+            (r"/corpregion/*", CorpRegionHandler),
             
             #znbc server handler
             (r"/passenger/*", PassengerHandler),

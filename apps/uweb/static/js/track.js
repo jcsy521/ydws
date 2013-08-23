@@ -10,7 +10,7 @@
 *n_speed: 默认播放速度
 *b_trackMsgStatus: 动态marker的吹出框是否显示
 */
-var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, b_trackMsgStatus = false,obj_drawLine = null, arr_drawLine = [];
+var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, b_trackMsgStatus = true,obj_drawLine = null, arr_drawLine = [];
 /**
 * 初始化轨迹显示页面
 */
@@ -147,8 +147,7 @@ function fn_trackQuery() {
 				
 				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-				arr_dataArr = arr_locations, 
-				str_alias = b_userType ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
+				arr_dataArr = arr_locations;
 				
 				dlf.fn_caculateBox(arr_locations);
 				fn_startDrawLineStatic(arr_locations);
@@ -323,7 +322,7 @@ function fn_startDrawLineStatic(arr_dataArr) {
 		obj_firstMarker = {},
 		obj_endMarker = {};
 	
-	var polyline = dlf.fn_createPolyline($('#trackHeader').data('points'));	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
+	var polyline = dlf.fn_createPolyline($('#trackHeader').data('points'), {color: '#150CFF'});	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	
 	obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
 	obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
@@ -387,7 +386,7 @@ function fn_drawMarker() {
 			b_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
 			dlf.fn_clearMapComponent(actionMarker);
 		}
-		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, false, counter); // 添加标记
+		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, b_trackMsgStatus, counter); // 添加标记
 		// 将播放过的点放到数组中
 		var obj_tempPoint = dlf.fn_createMapPoint(arr_dataArr[counter].clongitude, arr_dataArr[counter].clatitude);
 		
@@ -400,8 +399,10 @@ function fn_drawMarker() {
 		dlf.fn_boundContainsPoint(obj_tempPoint);
 		counter ++;
 	} else {	// 播放完成后
+		b_trackMsgStatus = true;
 		dlf.fn_clearTrack();	// 清除数据
 		dlf.fn_clearMapComponent(actionMarker);
+		actionMarker = null;
 		$('#tPause').hide();
 		$('#tPlay').css('display', 'inline-block');
 	}
@@ -480,9 +481,9 @@ $(function () {
 			obj_this = $(this);
 		
 		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-21px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-45px -29px');
 		} else {	// 关闭面板 鼠标移上去效果
-			obj_arrowIcon.css('backgroundPosition', '-37px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-38px -29px');
 		}
 		obj_this.attr('title', '');
 	}).bind('mouseout', function() {
@@ -490,9 +491,9 @@ $(function () {
 			obj_arrowIcon = $('.j_arrowClick');
 		
 		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		} else {
-			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		}
 	}).bind('click', function() {
 		var obj_panel = $('.j_delayPanel'),
@@ -509,13 +510,13 @@ $(function () {
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
-			n_delayIconLeft = n_windowWidth - 18;
+			n_delayIconLeft = n_windowWidth - 16;
 			//obj_arrowCon.css({'right': '0px'});
-			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		} else {
 			obj_panel.show();
 			//obj_arrowCon.css({'right': '529px'});
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		}
 		obj_arrowCon.css({'left': n_delayIconLeft});
 	});

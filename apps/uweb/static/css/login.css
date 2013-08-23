@@ -130,6 +130,8 @@ table, tr, td {
     display: inline-block;
     height: 34px;
     width: 105px;
+}
+.ml47 {
 	margin-left: 47px;
 }
 .txtColor {
@@ -280,7 +282,7 @@ table, tr, td {
 .btnPanel * {
 	float: left;
 }
-.pwd {
+.btnPanel a {
 	font-size: 12px;
 	color: #5188ac;
     height: 15px;
@@ -289,8 +291,11 @@ table, tr, td {
     top: 14px;
     width: 60px;
 }
-.pwd:hover, .pwd:visited {
+.btnPanel a:hover, .btnPanel a:visited {
 	color: #5188ac;
+}
+.ml10 {
+	margin-left: 10px;
 }
 /*bottom*/
 .blinks {

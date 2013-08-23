@@ -22,6 +22,14 @@ from codes.smscode import SMSCode
 from constants import UWEB 
 
 
+class RegisterBrowserHandler(BaseHandler):
+    
+    @tornado.web.removeslash
+    def get(self):
+        """Jump to register.html.
+        """ 
+        self.render('register.html')
+
 class RegisterHandler(BaseHandler):
 
     @tornado.web.removeslash

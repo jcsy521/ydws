@@ -163,14 +163,14 @@ function customMenu(node) {
 				dlf.fn_routeLineBindEvent();
 			}
 		},
+		/*
 		"region": {
 			"label" : '电子围栏',
 			"action" : function(obj) {	// 终端右键菜单 电子围栏 kjj add  2013-07-10
 				obj_alarmAndDelay.hide();
 				dlf.fn_initRegion();
 			}
-		},
-		/*
+		},*/
 		"bindRegion": {
 			"label" : bindRegionLabel,
 			"action" : function(obj) {	// todo 
@@ -178,7 +178,15 @@ function customMenu(node) {
 				obj_alarmAndDelay.hide();
 				dlf.fn_initBindRegion();
 			}
-		},*/
+		},
+		"batchRegion" : {
+			"label" : batchRegionLabel,
+			"action": function (obj) { // 批量设置电子围栏
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				obj_alarmAndDelay.hide();
+				dlf.fn_initBatchRegions(obj);
+			}
+		},
 		"terminalSetting": {	// 参数设置
 			"label" : terminalLabel,
 			"action" : function (obj) {
@@ -232,15 +240,6 @@ function customMenu(node) {
 				}
 			}
 		},
-		/*
-		"batchRegion" : {
-			"label" : batchRegionLabel,
-			"action": function (obj) { // 批量设置电子围栏
-				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
-				obj_alarmAndDelay.hide();
-				dlf.fn_initBatchRegions(obj);
-			}
-		},*/
 		"batchTrack" : {
 			"label" : "批量追踪",
 			"submenu": {
@@ -274,7 +273,13 @@ function customMenu(node) {
 		"rename" : {
 			"label" : renameLabel,
 			"action" : function(obj) {
-				this.rename(obj);
+				var obj_node = $(obj).children('a'),
+					str_class = obj_node.attr('class');
+				
+				this.rename(obj);	
+				if ( str_class.search('groupNode') != -1 ) {
+					$('.jstree-rename-input').val($(obj).children('a').attr('title'));
+				}				
 			}
 		},
 		/*"moveTo": {
@@ -632,7 +637,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			return;
 		}
 		if ( obj_currentNode.hasClass('j_group') ) {	// 重命名组	
-			fn_renameGroup(obj_current.attr('groupid'), str_newName, data.rlbk);
+			fn_renameGroup(obj_current.attr('groupid'), str_newName, obj_current);
 		} else if ( obj_currentNode.hasClass('j_corp') ) {	// 重命名集团
 			var str_cid = obj_current.attr('corpid') || $('.j_body').attr('cid');
 			
@@ -659,29 +664,22 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					obj_track = obj_car.track_info,	// 开启追踪点数据
 					n_enClon = obj_car.clongitude,
 					n_enClat = obj_car.clatitude,
-					n_lon = obj_car.longitude,
-					n_lat = obj_car.latitude,
 					n_clon = n_enClon/NUMLNGLAT,	
 					n_clat = n_enClat/NUMLNGLAT;
 				
-				if ( n_lon != 0 && n_lat != 0 ) {
+				if ( n_clon != 0 && n_clat != 0 ) {
+					n_pointNum ++;
+					arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
 					obj_car.trace_info = obj_trace;
 					obj_car.track_info = obj_track;
-					if ( n_clon != 0 && n_clat != 0 ) {
-						n_pointNum ++;
-						arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
-						dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
-					} else {
-						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-07-11
-					}
+					dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
 					if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
 						obj_trace.tid = param;
 						//fn_updateTraceInfo(obj_trace);
 					}
 				}
 			}
-
-			if ( str_currentTid != undefined && str_currentTid != '') {
+			if ( str_currentTid != undefined && str_currentTid != '' ) {
 				if ( b_createTerminal ) {	// 如果是新建终端 发起switchCar
 					var obj_newTerminal = $('#leaf_' + str_currentTid);
 					
@@ -700,7 +698,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				}
 			} else {	// 第一次发起switchCar启动lastinfo
 				var obj_current = $('#' + data.inst.data.ui.to_select);
-				
 				if ( arr_locations.length > 0 ) {
 					dlf.fn_caculateBox(arr_locations);
 				}
@@ -885,7 +882,6 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			if ( str_corpId && str_corpName ) {
 				str_html += '<li class="j_corp" id="treeNode_'+ str_corpId +'"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_corpName +'</a>';
 			}
-			
 			fn_updateTerminalCount();	// lastinfo 每次更新在线个数 2013-07-29 kjj add
 			arr_autoCompleteData = [];
 			arr_submenuGroups = [];
@@ -897,13 +893,15 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
 					var obj_group = arr_groups[i],
 						str_groupName = obj_group.name,
+						n_groupNameLng = str_groupName.length,
+						str_tempGroupName = n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
 						str_groupId = obj_group.gid,
 						obj_trackers = obj_group.trackers,
 						arr_tempTids = []; //tid组
 						//arr_tids = [];
 					
 					arr_submenuGroups.push({'groupId': str_groupId, 'groupName': str_groupName});
-					str_html += '<li class="j_group" id="groupNode_'+ str_groupId +'"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_groupName +'</a>';
+					str_html += '<li class="j_group" id="groupNode_'+ str_groupId +'"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_tempGroupName +'</a>';
 					
 					if ( dlf.fn_isEmptyObj(obj_trackers) ) {	// 如果没有终端返回
 						str_html += '<ul>';
@@ -1249,9 +1247,11 @@ function fn_updateTreeNode(obj_corp) {
 	for ( var gIndex in arr_groups ) {
 		var obj_group = arr_groups[gIndex],
 			str_groupName = obj_group.name,
+			n_groupNameLng = str_groupName.length,
+			str_tempGroupName = n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
 			obj_trackers = obj_group.trackers;	// 所有终端 arr_cars
 
-		$('#group_'+ obj_group.gid).html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_groupName).attr('title', str_groupName);	// 更新组名
+		$('#group_'+ obj_group.gid).html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempGroupName).attr('title', str_groupName);	// 更新组名
 		
 		if ( dlf.fn_isEmptyObj(obj_trackers) ) {
 			for ( var param in obj_trackers ) {
@@ -1268,8 +1268,6 @@ function fn_updateTreeNode(obj_corp) {
 					str_tempAlias = dlf.fn_dealAlias(str_alias),
 					obj_leaf = $('#leaf_' + str_tid),
 					str_imgUrl = '',
-					n_lon = obj_car.longitude,
-					n_lat = obj_car.latitude,
 					n_clon = obj_car.clongitude/NUMLNGLAT,	
 					n_clat = obj_car.clatitude/NUMLNGLAT;
 				
@@ -1284,17 +1282,14 @@ function fn_updateTreeNode(obj_corp) {
 				if ( str_currentTid == str_tid  ) {
 					dlf.fn_updateTerminalInfo(obj_car);
 				}
-				if ( n_lon != 0 && n_lat != 0 ) {
+				if ( n_clon != 0 && n_clat != 0 ) {
 					obj_car.trace_info = obj_trace;
 					obj_car.track_info = obj_track;
-					if ( n_clon != 0 && n_clat != 0 ) {
-						dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
-					} else {
-						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-07-11
-					}
+					dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
 					if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
 						obj_trace.tid = str_tid;
-					}										
+						// fn_updateTraceInfo(obj_trace);
+					}					
 				}
 			}
 		}
@@ -1538,7 +1533,7 @@ function fn_renameGroup(gid, str_name, node) {
 	var obj_param = {'name': str_name, 'gid': gid};
 	if ( !fn_checkGroupName(str_name, node, gid) ) {
 		$.put_(GROUPS_URL, JSON.stringify(obj_param), function (data) {
-			if ( data.status == 0 ) {
+			if ( data.status == 0 ) {	
 				//dlf.fn_corpGetCarData();	// 重新加载树2013.4.10
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
@@ -1876,8 +1871,10 @@ window.dlf.fn_checkTMobile = function(str_tmobile) {
 window.dlf.fn_checkOperatorMobile = function(str_tmobile) {
 	$.get_(CHECKOPERATORMOBILE_URL + '/' + str_tmobile, '', function(data){
 		if ( data.status != 0 ) {
-			dlf.fn_jNotifyMessage('操作员手机号已存在。', 'message', false, 5000);
-			$('#hidOperatorMobile').val('1');
+			var str_msg = data.message;
+			
+			dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+			$('#hidOperatorMobile').val(str_msg);
 			return;
 		} else {
 			$('#hidOperatorMobile').val('');

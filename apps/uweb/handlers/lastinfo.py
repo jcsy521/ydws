@@ -9,7 +9,7 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
 from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key,\
-     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS
+     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS, get_track_key
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
@@ -123,6 +123,8 @@ class LastInfoHandler(BaseHandler):
                             if track_tid not in tids:
                                 logging.error("The terminal with tid: %s does not exist", track_tid)
                             else:
+                                track_key = get_track_key(track_tid)
+                                self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
                                 if int(query_time) == -1:
                                     pass
                                 elif lastinfo_time - query_time > 1: # every 30 second, ternimal generate a location 
@@ -264,6 +266,8 @@ class LastInfoCorpHandler(BaseHandler):
                     track_info = []
                     for item in track_lst:
                         if tid == item['track_tid']:
+                            track_key = get_track_key(tid)
+                            self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
                             endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else int(current_time)-1
                             points_track = self.db.query("SELECT id, latitude, longitude," 
                                                          "   clatitude, clongitude, type, timestamp"
@@ -298,9 +302,10 @@ class LastInfoCorpHandler(BaseHandler):
                                                  "    AND (timestamp  between %s and %s)"
                                                  "    AND type = 0"
                                                  "    ORDER BY timestamp",
-                                                 tid, int(current_time)-60*5, int(current_time))
+                                                 tid, int(current_time)-60*5, basic_info['timestamp'])
 
                     points_trace = get_locations_with_clatlon(points_trace, self.db)
+                    points_trace = points_trace[:5] 
                     len_trace = 0
                     if points_trace:
                         for point in points_trace:
@@ -330,7 +335,7 @@ class LastInfoCorpHandler(BaseHandler):
                     if alarm_info:
                         # NOTE: here, do not remove alarm_info, it will automagically disappear after 1 day 
                         #self.redis.delete(alarm_info_key)
-                        logging.info("[UWEB] alarm_info_key: %s, alarm_info: %s", alarm_info_key, alarm_info)
+                        logging.info("[UWEB] lastinfo_time: %s, alarm_info_key: %s, alarm_info: %s", lastinfo_time,  alarm_info_key, alarm_info)
 
                     for alarm in alarm_info:
                         alarm['alias'] = terminal['alias']

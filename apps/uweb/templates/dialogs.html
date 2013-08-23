@@ -193,10 +193,10 @@
 					</li>
 					<!--<li>
 						<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
-					</li>
+					</li>-->
 					<li>
 						<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
-					</li>-->
+					</li>
 				</ul>
 				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
 		</div>
@@ -236,7 +236,7 @@
 								</td>
 							</tr>
 							<tr>
-								<td class="corp_terminalTdL" >个人登录：</td>
+								<td class="corp_terminalTdL" >客户端登录:</td>
 								<td id="corp_login_permit" class="j_corp_ListVal j_radio"  t_val="" >
 									<input type="radio" id="login_permit1"  name="login_permit" value="1" />
 									<label for="login_permit1" title="允许">允许</label>
@@ -310,9 +310,9 @@
 						<li>
 							<input type="checkbox" id="corp_illegalshake" class="j_corp_checkbox" title="震动" /><label for="corp_illegalshake">震动告警</label> 
 						</li>
-						<!--<li>
+						<li>
 							<input type="checkbox" id="corp_powerdown" class="j_corp_checkbox" title="剩余流量" /><label for="corp_powerdown">断电告警</label> 
-						</li>-->
+						</li>
 						<li>
 							<input type="checkbox" id="corp_login" class="j_corp_checkbox" title="车主登录" /><label for="corp_login">平台登录提醒</label> 
 						</li>
@@ -366,7 +366,7 @@
 				<table class="dataTable" id="operatorTable" cellspacing="0" border="1" align="center">
 					<tbody>
 						<tr id="operatorTableHeader">
-							<th>组名</th>
+							<th>序号</th>
 							<th>姓名</th>
 							<th>手机号</th>
 							<th>地址</th>
@@ -419,11 +419,13 @@
 					<tr>
 						<td><label for="txt_operatorGroup">组名：</label></td>
 						<td>
-							<select id="txt_operatorGroup" name="txt_operatorGroup"  class="c_select">
-							</select>
+							<!--<select id="txt_operatorGroup" name="txt_operatorGroup"  class="c_select">
+							</select>-->
+							<ul class="operatorGroups" id="operatorGroups">
+							</ul>
 						</td>
 					</tr>
-					<tr>
+					<tr height="60px">
 						<td colspan="2" align="center">
 							<input type="submit" width="100" value="" id="operatorSave" />
 						</td>
@@ -614,7 +616,7 @@
 		</div>
 		<div class="businessContent">
 			<div class="businessText">
-				您的移动车卫士业务发生变更，请重新登录平台。
+				您的定位仪Beta版本业务发生变更，请重新登录平台。
 			</div>
 			<div class="msgLine businessLine"></div>
 			<a id="businessBtn" class="businessBtn"></a>
@@ -860,7 +862,7 @@
 								<option value="8">出围栏</option>
 								<option value="3">震动</option>
 								<option value="4">移动</option>
-								<!--<option value="9">断电</option>-->
+								<option value="9">断电</option>
 							</select>
 						</span>
 					</td>
@@ -947,28 +949,43 @@
 		<div class="wrapperContent mileageContent">
 			<table class="mileageCondition">
 				<tr>
-					<td colspan="5" class="title">
+					<td colspan="4" class="title">
 						里程统计查询
 					</td>
 				</tr>
 				<tr>
-					<td width="200px">
-						定位器：
+					<td colspan="2">
+						<span class="spanConditionsWord">定位器：</span> 
 						<select id="selectTerminals">
 							<option value="">全部</option>
 							<option value="ACB2012777">15919176710</option>
 						</select>
-					</td>
-					<td width="442px">
-						查询时间：<input type="text" id="mileageStartTime"  class="time" />
+						<span class="spanConditions">
+						日期选择：<input type="text" id="mileageStartTime"  class="time" />
 						至 <input type="text" id="mileageEndTime"  class="time" />
+						</span>
 					</td>
-					<td><span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover" title="搜索"></span></td>
-					<td>
+				</tr>
+				<tr>
+					<td width="495px">
+						时间选择：
+						<span class="spanTime">
+							<input type="text" id="txtHour0" disabled />：
+							<input type="text" id="txtMinute0" disabled />
+							 ----------------------------------
+							<input type="text" id="txtHour1" disabled />：
+							<input type="text" id="txtMinute1" disabled />
+						</span>
+					</td>
+					<td colspan="3">
+						<span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover" title="搜索"></span>
 						<a id="mileage_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
+						<a id="mileage_chart" href="#" class="j_chart hide chartBtn">点击查看统计图</a>
 					</td>
-					<td>
-						<a href="#" class="j_chart hide chartBtn">点击查看统计图</a>
+				</tr>
+				<tr>
+					<td rowspan="4"> 
+						<span id="mileageSlider"></span>
 					</td>
 				</tr>
 			</table>
@@ -1252,11 +1269,11 @@
 	<div id="regionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle regionTitle">
 			<span class="close j_close" title="关闭窗口" who="region"></span>
-			<span title="收起" class="hideOrShowContent min j_hosBtn" id="region_hos"></span>
+			<span title="收起" class="hideOrShowContent min j_hosBtn"></span>
 		</div>
 		<div id="regionContent" class="wrapperContent regionContent">
-			<label id="regionForTerminal">定位器：</label>
-			<a id="regionCreateBtn" href="#">新增围栏</a>
+			<label id="regionForTerminal" class="regionForTerminal">定位器：</label>
+			<a id="regionCreateBtn" class="regionCreateBtn j_regionCreateBtn" href="#">新增围栏</a>
 			<table id="regionTable" class="dataTable regionTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="regionTableHeader">
@@ -1270,6 +1287,29 @@
 		</div>
 		<!--<span id="regionNote">注意：新建的围栏，需要选择终端，并在右键菜单中点击“绑定围栏”才能生效</span>-->
 	</div>
+	
+	<!-- 集团围栏管理展示页面 -->
+	<div id="corpRegionWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle regionTitle">
+			<span class="close j_close" title="关闭窗口" who="corpRegion"></span>
+			<span title="收起" class="hideOrShowContent min j_hosBtn"></span>
+		</div>
+		<div id="corpRegionContent" class="wrapperContent corpRegionContent">
+			<a id="corpRegionCreateBtn" class="regionCreateBtn j_regionCreateBtn" href="#">新增围栏</a>
+			<table id="corpRegionTable" class="dataTable regionTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="corpRegionTableHeader">
+						<th>序号</th>
+						<th>围栏名称</th>
+						<th>查看详情</th>
+						<th>操作</th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<span id="regionNote">注意：新建的围栏，需要选择终端，并在右键菜单中点击“绑定围栏”才能生效</span>
+	</div>
+	
 	<!-- 围栏新增服务功能条-->
 	<div id="regionCreateWrapper" class="wrapper hide j_drag">
 		<span id="regionCreateBtnPanel" class="regionCreateBtnPanel">
@@ -1290,6 +1330,7 @@
 			<span class="close j_close" title="关闭窗口" who="bindRegion"></span>
 		</div>
 		<div class="wrapperContent bindRegionContent">
+			<label id="corpRegionForTerminal" class="regionForTerminal">定位器：</label>
 			<table id="bindRegionTable" class="dataTable bindRegionTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="bindRegionTableHeader">

@@ -75,6 +75,8 @@ class ErrorCode(object):
     
     DATA_EXIST = 911
     PASSENGER_EXIST = 912
+    OPERATOR_EXIST = 913
+    CORP_EXIST = 914
 
     ERROR_MESSAGE  = {
         SUCCESS:                       u"操作成功。",
@@ -137,4 +139,6 @@ class ErrorCode(object):
         EXPORT_FAILED:                 u"导出数据失败，请稍后重试。", 
         DATA_EXIST:                    u"数据已存在。",
         PASSENGER_EXIST:               u"乘客已存在。",
+        OPERATOR_EXIST:                u"集团操作员已存在。",
+        CORP_EXIST:                    u"集团管理员已存在。",
     }

@@ -100,6 +100,7 @@ function fn_displayCars () {
 		}
 	}
 }
+
 /*
 * 重新绘制围栏
 */
@@ -113,6 +114,7 @@ window.dlf.fn_resetRegion = function() {
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 	$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
 }
+
 /*
 * 围栏保存操作
 */
@@ -164,6 +166,7 @@ window.dlf.fn_saveReginon = function() {
 	// 发送线请求数据
 	dlf.fn_jsonPost(REGION_URL, obj_regionData, 'regionCreate', '电子围栏数据保存中');
 }
+
 /*
 * 查看围栏的详细信息
 */

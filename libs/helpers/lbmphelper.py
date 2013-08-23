@@ -11,6 +11,7 @@ from helpers.lbmpsenderhelper import LbmpSenderHelper
 from helpers.queryhelper import QueryHelper
 from utils.misc import get_location_cache_key, get_location_key
 from utils.dotdict import DotDict
+from utils.geometry import PtInPolygon, DM_ZJGS_POLYGON 
 from constants import EVENTER, GATEWAY, UWEB
 from constants.MEMCACHED import ALIVED
 
@@ -267,6 +268,7 @@ def issue_cellid(location, db, redis):
     cellid_info = [int(item) for item in location.cellid.split(":")]
     sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
     location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
+
     logging.info("%s cellid result, lat:%s, lon:%s", location.dev_id, location.lat, location.lon)
 
     return location
@@ -360,6 +362,14 @@ def handle_location(location, redis, cellid=False, db=None):
     if location and location.lat and location.lon:
         clats, clons = get_clocation_from_ge([location.lat,], [location.lon,])
         location.cLat, location.cLon = clats[0], clons[0] 
+        # drop some odd cellid location
+        if location.type == 1 and location.cLat and location.cLon:
+            if PtInPolygon(location, DM_ZJGS_POLYGON):
+                location.lat = 0
+                location.lon = 0
+                location.cLat = 0
+                location.cLon = 0
+
         #if (location['t'] == EVENTER.INFO_TYPE.REPORT or
         #    location['command'] == GATEWAY.T_MESSAGE_TYPE.LOCATIONDESC):
         # NOTE: change it temporarily: in platform get loction name of all

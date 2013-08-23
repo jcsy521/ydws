@@ -360,11 +360,11 @@ window.onresize = function () {
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 
-		/*if ( n_tempTreeHight > n_treeHeight ) {
-			obj_tree.css('overflow-y', 'scroll');
+		if ( n_treeHeight < 345 ) {
+			n_treeHeight = 345;
 		}
-		obj_tree.height(n_treeHeight);
-		*/
+		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
+		
 		$('#right, #corpRight, #navi, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
@@ -437,7 +437,6 @@ $(function () {
 		n_mainHeight = n_windowHeight - 123,
 		n_corpTreeContainerHeight = n_mainHeight-220,
 		n_treeHeight = n_corpTreeContainerHeight - 45,
-		n_tempTreeHight = $('#corpTree ul').height(),
 		n_delayLeft = n_windowWidth - 530,
 		n_delayIconLeft = n_delayLeft - 17,
 		n_alarmLeft = n_windowWidth - 400,
@@ -452,11 +451,11 @@ $(function () {
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	
-	/*if ( n_tempTreeHight > n_treeHeight ) {
-		obj_tree.css('overflow-y', 'scroll');
-	}
-	obj_tree.height(n_treeHeight);
-	*/
+	if ( n_treeHeight < 345 ) {
+		n_treeHeight = 345;
+	}	
+	obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
+	
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	if ( dlf.fn_userType() ) {	// 集团用户
@@ -503,6 +502,7 @@ $(function () {
 			b_mileageStatus = $('#mileageWrapper').is(':visible'),	// 里程统计是否显示
 			b_addLineRoute = $('#routeLineCreateWrapper').is(':visible');	// 添加站点是否显示
 			b_regionStatus = $('#regionWrapper').is(':visible'),	// 围栏显示是否显示
+			b_corpRegionStatus = $('#corpRegionWrapper').is(':visible'),	// 集团的围栏管理
 			b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
 			b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 围栏批量绑定是否显示
 			b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
@@ -561,7 +561,7 @@ $(function () {
 				dlf.fn_clearAllMenu();
 				$('#home').addClass('homeHover');
 				// 如果上次操作的是 轨迹、告警查询、线路管理、添加线路、围栏管理、绑定围栏、批量绑定围栏、创建围栏 操作的话 点击“车辆位置” 清除所有数据重新发起lastinfo请求
-				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
+				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				} else {
 					var obj_current = obj_selfmarkers[$('.j_carList .j_currentCar').attr('tid')];
@@ -632,7 +632,8 @@ $(function () {
 				}
 				dlf.fn_initRouteLine();
 				break;
-			case 'region': // 围栏管理
+			case 'corpRegion': 	// 集团围栏管理
+			case 'region': // 个人围栏管理
 				obj_alarm.hide();
 				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 				if ( b_eventSearchStatus ) {
@@ -816,7 +817,7 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false,	// 一个汉字当一个字节
 		submitButtonID: 'cTerminalSave', // 指定本form的submit按钮
-		onError: function(msg) { 
+		onError: function(msg) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000);
 			return;
 		}, 
@@ -831,7 +832,7 @@ $(function () {
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "短信接收号码输入不合法，请重新输入！"});  // 别名;
-	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能是汉字、数字、大写英文组成！'});  ;  // 别名;
+	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能是汉字、数字、大写英文组成！'});  // 别名;
 	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
 	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
 	
@@ -870,8 +871,14 @@ $(function () {
 			return;
 		}, 
 		onSuccess: function() { 
-			if ( $('#hidOperatorMobile').val() != '' ) {
-				dlf.fn_jNotifyMessage('操作员手机号已存在。', 'message', false, 5000);
+			var str_msg = $('#hidOperatorMobile').val(),
+				n_checkGroupLng = $('#operatorGroups input:checked').length;
+			
+			if ( str_msg != '' ) {
+				dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+				return;
+			} else if ( n_checkGroupLng == 0 ) {
+				dlf.fn_jNotifyMessage('请至少选择一个分组！', 'message', false, 4000);
 				return;
 			} else {
 				dlf.fn_saveOperator();
@@ -880,7 +887,7 @@ $(function () {
 	});
 	$('#txt_operatorName').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '操作员姓名不正确！'});
 	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号不正确！'});
-	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '9'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '8'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
 	* 乘客进行验证
@@ -961,15 +968,14 @@ $(function () {
 		$('.operatorfieldset input, textarea').val('');
 		$('#txt_operatorMobile').removeData('oldmobile');
 		$('#hidOperatorId').val('');
-		$('#txt_operatorGroup').html(fn_getGroupData());
+		fn_getGroupData('add');	// 初始化分组
 		dlf.fn_onInputBlur();	// 操作员手机号事件侦听
 		$('#addOperatorDialog').attr('title', '新增操作员').dialog('option', 'title', '新增操作员').dialog( "open" );
 	});
 	// 新增初始化dialog
 	$('#addOperatorDialog').dialog({
 		autoOpen: false,
-		height: 300,
-		width: 400,
+		width: 430,
 		modal: true,
 		resizable: false
 	});

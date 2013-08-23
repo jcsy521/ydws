@@ -78,7 +78,11 @@ class AddWLHandler(BaseHandler):
             mobile = data.get('mobile')
             biz_type = data.get('biz_type')
             if check_zs_phone(mobile, self.db):
-                self.db.execute("UPDATE T_BIZ_WHITELIST SET biz_type= %s WHERE mobile= %s", biz_type, mobile)
+                white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST where mobile = %s LIMIT 1", mobile)
+                if white_list:
+                    self.db.execute("UPDATE T_BIZ_WHITELIST SET biz_type= %s WHERE mobile= %s", biz_type, mobile)
+                else:
+                    self.db.execute("INSERT INTO T_BIZ_WHITELIST VALUES (NULL, %s, %s)", mobile, biz_type)
                 self.write_ret(status)
             else:
                 status = ErrorCode.MOBILE_NOT_ORDERED

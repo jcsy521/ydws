@@ -67,7 +67,7 @@ window.dlf.fn_closeWrapper = function() {
 		*/
 			dlf.fn_clearNavStatus(str_whoDialog);
 		//}
-		if ( str_whoDialog == 'region' || str_whoDialog == 'bindRegion' || str_whoDialog == 'bindBatchRegion' || str_whoDialog == 'routeLine' ) { // 围栏管理  线路管理 关闭的时候显示地图上的车辆图标
+		if ( str_whoDialog == 'region' || str_whoDialog == 'corpRegion' || str_whoDialog == 'bindRegion' || str_whoDialog == 'bindBatchRegion' || str_whoDialog == 'routeLine' ) { // 围栏管理  线路管理 关闭的时候显示地图上的车辆图标
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
 			dlf.fn_setMapContainerZIndex(0);
 			dlf.fn_clearAllMenu();
@@ -308,7 +308,24 @@ window.dlf.fn_jNotifyMessage = function(messages, types, b_permanent, showTime) 
         disappearTime: displayTime
 	});
 }
-
+// test: 2012-06-01  2012-05-01
+window.dlf.fn_getFirstDayOfMonth = function(obj_date) {
+	
+	var date = new Date();
+	
+	if ( obj_date ) {
+		date = obj_date;
+	}
+	var	year = date.getFullYear(),
+		month = date.getMonth() +1,
+		day = '01';
+	
+	
+	if ( month < 10 ) {
+		month = '0' + month;
+	}
+	return year + '-' + month + '-' + day;
+}
 /**
 * 扩展jnotify的删除方法
 * id：调用jnotify的元素id
@@ -370,27 +387,28 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		b_regionWpST = $('#regionWrapper').is(':visible'),
 		b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
 		b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
+		b_corpRegionWpST = $('#bindRegionWrapper').is(':visible'),
 		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
 		n_len = obj_terminals.length;
 
 	obj_terminals.removeClass('j_currentCar');	// 其他车辆移除样式
 	obj_currentItem.addClass('j_currentCar');	// 当前车添加样式
 	
-	if ( b_regionWpST ) { // 如果切车时当前正在进行围栏查询操作
-		dlf.fn_initRegion();
-	}
-	if ( b_regionCreateWpST ) { // 如果切车时当前正在进行围栏创建操作
-		$.get_(REGION_URL+'?tid='+ n_tid, '', function(data) {
-			var arr_regions = data.regions;
-			
-			$('#regionTable').data('regions', arr_regions); //围栏存储数据以便显示详细信息
-			$('#regionTable').data('regionnum', arr_regions.length); //围栏存储数据以便显示详细信息
-		},
-		function(XMLHttpRequest, textStatus, errorThrown) {
-			dlf.fn_serverError(XMLHttpRequest);
-		});
-	}
 	if ( !dlf.fn_userType() ) {	// 如果是个人用户添加当前车样式
+		if ( b_regionWpST ) { // 个人用户如果切车时当前正在进行围栏查询操作
+			dlf.fn_initRegion();
+		}
+		if ( b_regionCreateWpST ) { // 如果切车时当前正在进行围栏创建操作
+			$.get_(REGION_URL+'?tid='+ n_tid, '', function(data) {
+				var arr_regions = data.regions;
+				
+				$('#regionTable').data('regions', arr_regions); //围栏存储数据以便显示详细信息
+				$('#regionTable').data('regionnum', arr_regions.length); //围栏存储数据以便显示详细信息
+			},
+			function(XMLHttpRequest, textStatus, errorThrown) {
+				dlf.fn_serverError(XMLHttpRequest);
+			});
+		}	
 		obj_terminals.removeClass('currentCarCss');	// 其他车辆移除样式
 		obj_currentItem.addClass('currentCarCss');	// 当前车添加样式
 		
@@ -403,6 +421,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				dlf.fn_moveMarker(n_tid, str_flag);
 			}
 			if ( b_eventSearchWpST ) {
+				dlf.fn_ShowOrHideMiniMap(false);
 				$('#eventSearchPage').hide();
 				// $('#eventSearchCurrentPage', '#eventSearchPageCount').html('');
 				$('#eventSearchCategory').val(-1);
@@ -420,6 +439,9 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			}
 		}
 	} else {
+		if ( b_corpRegionWpST ) {
+			dlf.fn_initBindRegion();
+		}
 		obj_terminals.removeClass(JSTREECLICKED);
 		obj_currentItem.addClass(JSTREECLICKED);
 		
@@ -443,7 +465,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
 		}
 		dlf.fn_moveMarker(n_tid);
-		if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindRegionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
+		if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindRegionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
 			return;
 		}
 	}
@@ -562,7 +584,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 				//是否进行切车操作
 				var obj_currentCarDatas = obj_cars[str_currentPersonalTid];
 				
-				if ( !obj_currentCarDatas ) {
+				if ( !dlf.fn_isEmptyObj(obj_currentCarDatas) ) {
 					var obj_tempCurrentCar = $('.j_carList .j_terminal').eq(0),
 						str_tempTid = obj_tempCurrentCar.attr('tid');
 						
@@ -1390,8 +1412,10 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		b_eventStatus = $('#eventSearchWrapper').is(':visible'),	// 告警是否显示
 		b_regionStatus = $('#regionWrapper').is(':visible'),	// 电子围栏是否显示
+		b_corpRegionStatus = $('#corpRegionWrapper').is(':visible'),	// 电子围栏是否显示
 		b_createRegionStatus = $('#regionCreateWrapper').is(':visible'),	// 新建电子围栏是否显示
 		b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
+		b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 批量绑定围栏
 		b_routeLineStatus = $('#routeLineWrapper').is(':visible');	// 线路管理是否显示
 
 	$('.j_delay').hide();
@@ -1411,7 +1435,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 			dlf.fn_showOrHideMap(true);	// 显示地图
 			dlf.fn_setMapPosition(false);	// 设置地图最大化
 			dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
-			if ( str_wrapperId == 'region' || str_wrapperId == 'bindRegion' || str_wrapperId == 'bindBatchRegion') {
+			if ( str_wrapperId == 'region' || str_wrapperId == 'corpRegion' || str_wrapperId == 'bindRegion' || str_wrapperId == 'bindBatchRegion') {
 				obj_wrapper.css({'left': '250px', 'top': '160px'});
 			} else {
 				obj_wrapper.css({left: n_width});
@@ -1422,15 +1446,10 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
-	/*if ( str_wrapperId != 'eventSearch' && str_wrapperId != 'routeLine' && str_wrapperId != 'bindBatchRegion' && str_wrapperId != 'region' && str_wrapperId != 'bindRegion' ) {
-		if ( n_currentLastInfoNum != currentLastInfo ) {
-			dlf.fn_closeTrackWindow(true);
-		}
-	}*/
-	if ( b_trackStatus || b_bindRegionStatus || b_regionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
-		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' ) {
+	if ( b_trackStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionStatus || b_corpRegionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
+		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
-		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
+		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
 	}
@@ -1466,6 +1485,7 @@ window.dlf.fn_userType = function() {
 
 /**
 * kjj 2013-05-29
+* kjj update in 2013-08-22 (固定几种颜色)
 * 随机生成颜色值
 */
 window.dlf.fn_randomColor = function() {
@@ -1477,7 +1497,7 @@ window.dlf.fn_randomColor = function() {
 		index = Math.round(Math.random()*14);
 		colorprefix += colorvalue[index];
 	}
-	return colorprefix;*/
+	return colorprefix;
 	
 	var r = Math.floor(Math.random() * 255).toString(16),
 		g = Math.floor(Math.random() * 255).toString(16),
@@ -1487,7 +1507,21 @@ window.dlf.fn_randomColor = function() {
 	g = g.length == 1 ? "0" + g : g;
 	b = b.length == 1 ? "0" + b : b;
 	
-	return "#" + r + g + b;
+	return "#" + r + g + b;*/
+	var arr_colors = ['#F8110D', '#FF00A6', '#FA9907', '#756A07', '#79F216', '#D706FB', '#3C7C07', '#066AF6', '#061EF6', '#7206F6', '#3E0B7C', '#37591A', '#1F0A05', '#F213EB', '#8E1717', '#000DFA', '#ED0EDB', '#E75A76'];
+	
+	for ( var tid in obj_actionTrack ) {
+		var obj_tempTrack = obj_actionTrack[tid],
+			str_color = obj_tempTrack.color;
+		
+		if ( str_color ) {
+			arr_colors.splice(str_color, 1);	// 删除已有颜色
+		}
+	}
+	if ( arr_colors.length <= 0 ) {
+		arr_colors = ['#F8110D', '#FF00A6', '#FA9907', '#756A07', '#79F216', '#D706FB', '#3C7C07', '#066AF6', '#061EF6', '#7206F6', '#3E0B7C', '#37591A', '#1F0A05', '#F213EB', '#8E1717'];
+	}
+	return arr_colors[0];
 }
 
 /**
@@ -1836,22 +1870,23 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else if ( str_who == 'operator' ) { // 操作员管理 
-					var n_operatorId = obj_data.id ,
+					var n_operatorId = obj_data.oid ,
 						str_name = obj_data.name, 
 						str_mobile = obj_data.mobile,
 						str_address = obj_data.address, 
 						str_email = obj_data.email, 
 						str_groupId = obj_data.group_id,
-						str_groupName = obj_data.group_name;
+						obj_opertorTr = $('#operatorTable tr[id='+ n_operatorId +']'),
+						n_seq = obj_opertorTr.children('td').eq(0).html();
 					
-					$('tr[id='+ n_operatorId +']').empty().append(
-										'<td groupId ='+ str_groupId +'>'+ str_groupName +'</td>'+
+					obj_opertorTr.empty().append(
+										'<td groupId ='+ str_groupId +'>'+ n_seq +'</td>'+
 										'<td>' + str_name + '</td>' + 
 										'<td>' + str_mobile + '</td>' + 
 										'<td>' + str_address + '</td>' + 
 										'<td>' + str_email + '</td>' + 
-										'<td><a href="#" onclick=dlf.fn_editPassenger('+ n_operatorId +') class="blacklistLink">编辑</a></td>' +
-										'<td><a href="#" onclick=dlf.fn_deletePassenger('+ n_operatorId +') class="blacklistLink">删除</a></td>'
+										'<td><a href="#" onclick=dlf.fn_editOperator('+ n_operatorId +') class="blacklistLink">编辑</a></td>' +
+										'<td><a href="#" onclick=dlf.fn_deleteOperator('+ n_operatorId +') class="blacklistLink">删除</a></td>'
 										);
 					dlf.fn_changeTableBackgroundColor();	// 数据行背景色改变
 					$('#addOperatorDialog').dialog('close');	// 关闭dialog

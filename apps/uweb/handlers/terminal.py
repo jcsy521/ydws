@@ -13,7 +13,7 @@ from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
-from utils.public import record_terminal_subscription, delete_terminal
+from utils.public import record_add_action, delete_terminal
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
@@ -56,8 +56,9 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
+
             # 2: whitelist
-            user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
+            user = QueryHelper.get_user_by_mobile(terminal.owner_mobile, self.db)
             if not user:
                 logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
                 self.clear_cookie(self.app_name)
@@ -77,7 +78,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
             car_sets.update(terminal)
             car_sets.update(car)
-            white_list = [user.mobile]
+            white_list = [terminal.owner_mobile]
             for item in whitelist: 
                 white_list.append(item['mobile'])
             car_sets.update(DotDict(white_list=white_list))
@@ -249,6 +250,11 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             return 
         
         try:
+            if data.has_key('cnum') and not check_cnum(data.cnum):
+                status = ErrorCode.ILLEGAL_CNUM 
+                self.write_ret(status)
+                return
+            
             # 1 year
             begintime = int(time.time())
             now_ = datetime.datetime.now()
@@ -276,8 +282,8 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     self.write_ret(status)
                     return
 
-            record_terminal_subscription(self.db, data.tmobile, 
-                                         data.group_id, begintime, begintime, UWEB.OP_TYPE.ADD)
+            # record the add action
+            record_add_action(data.tmobile, data.group_id, int(time.time()), self.db)
 
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  defend_status, mannual_status, begintime, endtime, offline_time, icon_type, login_permit)"
@@ -431,11 +437,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 status = ErrorCode.TERMINAL_NOT_EXISTED
                 self.write_ret(status)
                 return
-
-            # record the del action  
-            self.db.execute("UPDATE T_SUBSCRIPTION_LOG SET del_time = %s, op_type=%s" 
-                            "  WHERE tmobile = %s ", 
-                            int(time.time()), UWEB.OP_TYPE.DEL, terminal.mobile)
 
             key = get_del_data_key(tid)
             self.redis.set(key, flag)

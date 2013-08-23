@@ -15,6 +15,7 @@ from helpers.confhelper import ConfHelper
 from utils.dotdict import DotDict
 from utils.checker import check_phone
 from utils.public import clear_data, delete_terminal
+from constants import UWEB
 
 class MessageHandler(BaseHandler):
 
@@ -22,7 +23,7 @@ class MessageHandler(BaseHandler):
     def get(self):
         username = self.get_current_user()
         n_role = self.db.get("select role from T_LOG_ADMIN where name = %s", username)
-	domain = ConfHelper.GW_SERVER_CONF.domain
+        domain = ConfHelper.GW_SERVER_CONF.domain
         domain_ip = ConfHelper.GW_SERVER_CONF.domain_ip
         domains = [domain,domain_ip]
         self.render('sms/sms.html',
@@ -55,7 +56,33 @@ class MessageHandler(BaseHandler):
                 elif sms_type == 'JB':
                     content = ':' + sms_type
                     is_clear = data.get('is_clear')
-                    SMSHelper.send_to_terminal(tmobile,content)
+                    ret = SMSHelper.send_to_terminal(tmobile,content)
+                    ret = json_decode(ret)
+                    terminal = self.acbdb.get("SELECT id, tid, owner_mobile, login FROM T_TERMINAL_INFO"
+                                               "  WHERE mobile = %s"
+                                               "    AND service_status = 1",
+                                               tmobile)
+                    if not terminal:
+                        status = ErrorCode.TERMINAL_NOT_EXISTED
+                        logging.error("The terminal with tmobile: %s does not exist!", tmobile)
+                        self.write_ret(status)
+                        return
+                    umobile = terminal.owner_mobile 
+
+                    if ret['status'] == 0:
+                        self.acbdb.execute("UPDATE T_TERMINAL_INFO"
+                                            "  SET service_status = 2"
+                                            "  WHERE mobile = %s",
+                                            tmobile)
+                        terminals = self.acbdb.query("SELECT id FROM T_TERMINAL_INFO"
+                                                      "  WHERE owner_mobile = %s"
+                                                      "    AND service_status = 1",
+                                                      umobile)
+                        # clear user
+                        if len(terminals) == 0:
+                            self.acbdb.execute("DELETE FROM T_USER"
+                                                "  WHERE mobile = %s",
+                                                umobile)
                     if is_clear == 1:
                         clear_data(tmobile,self.acbdb)
                     self.write_ret(status)
@@ -73,10 +100,12 @@ class MessageHandler(BaseHandler):
                                                          
                 elif sms_type == 'DOMAIN':
                     ip = data.get('domain')
+                    content = ':DOMAIN '+ip 
                     info = self.acbdb.get('SELECT * FROM T_TERMINAL_INFO WHERE mobile=%s', tmobile)
                     if info:
-                        self.acbdb.execute('UPDATE T_TERMINAL_INFO SET domain=%s WHERE mobile=%s', ip, tmobile)                
-                        SMSHelper.send_to_terminal(tmobile,ip)
+                        self.acbdb.execute('UPDATE T_TERMINAL_INFO SET domain=%s WHERE mobile=%s', 
+                                           content, tmobile)                
+                        SMSHelper.send_to_terminal(tmobile, content)
                         self.write_ret(status)
                     else:
                         status = ErrorCode.TERMINAL_NOT_EXISTED

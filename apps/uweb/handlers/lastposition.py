@@ -106,6 +106,7 @@ class LastPositionHandler(BaseHandler):
             if int(data.get('cache', 0)) == 1:  # use cache
                 if int(query_time) == lastposition_time:
                     usable = 0 
+                    res = {} 
                 else: 
                     usable = 1
                     for item in data.track_list:
@@ -118,19 +119,22 @@ class LastPositionHandler(BaseHandler):
                             self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
                             car_info = res[track_tid]['car_info']
                             endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(lastposition_time)-1 
-                            track_info = self.get_track_info(tid, int(track_time)+1, endtime)
+                            track_info = self.get_track_info(track_tid, int(track_time)+1, endtime)
                             res[track_tid]['track_info'] = track_info
             else: 
                 usable = 1
                 for item in data.track_list:
                     track_tid = item['track_tid']
-                    track_time = item['track_time']
-                    track_key = get_track_key(track_tid)
-                    self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
-                    car_info = res[track_tid]['car_info']
-                    endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(time.time())-1
-                    track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
-                    res[track_tid]['track_info'] = track_info
+                    if track_tid not in tids:
+                        logging.error("The terminal with tid: %s does not exist", track_tid)
+                    else:
+                        track_time = item['track_time']
+                        track_key = get_track_key(track_tid)
+                        self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
+                        car_info = res[track_tid]['car_info']
+                        endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(time.time())-1
+                        track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
+                        res[track_tid]['track_info'] = track_info
             
             self.write_ret(status, 
                            dict_=DotDict(res=res,
