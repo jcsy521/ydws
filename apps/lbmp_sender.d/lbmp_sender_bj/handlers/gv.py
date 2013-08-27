@@ -46,9 +46,12 @@ class GvHandler(BaseHandler):
                 logging.info("[GV] response:\n %s", "Too many words, DUMMY response instead.")
                 if response:
                     json_data = json_decode(response)
-                    if json_data['status'] == 0: # success
+                    if json_data['status'] == 0: # success 
+                        logging.info("result: %s", json_data['result'])
                         ret.address = json_data['result']['formatted_address']
-                        ret.address += u"，" + json_data['result']['pois'][0]['addr']+ u'附近'
+                        if len(json_data['result']['pois']) >= 1:
+                            if json_data['result']['pois'][0]['addr']: 
+                                ret.address += u"，" + json_data['result']['pois'][0]['addr']+ u'附近'
                         ret.success = ErrorCode.SUCCESS 
                         ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                         logging.info("[GV] get address=%s through lat=%s, lon=%s",
