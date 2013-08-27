@@ -13,6 +13,7 @@ from tornado.escape import json_encode, json_decode
 
 from base import BaseHandler, authenticated
 from utils.misc import safe_utf8
+from utils.checker import check_filename 
 
 class DeleteLuaHandler(BaseHandler):
 
@@ -24,7 +25,12 @@ class DeleteLuaHandler(BaseHandler):
         delete_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         filename = self.get_argument('filename')
         filepath = os.path.join(DOWNLOAD_DIR_,filename)
-        os.remove(filepath)
+
+        if os.path.isfile(filepath):
+            os.remove(filepath)
+        else:
+            logging.warn("[LOG] filename: %s can not be found in platform.", filename)
+            
         self.acbdb.execute("DELETE FROM T_SCRIPT WHERE filename = %s",
                            filename)
         self.redirect("/uploadluascript")
@@ -88,8 +94,29 @@ class UploadLuaHandler(BaseHandler):
 
         try:
             author = self.get_current_user()
+
+            # check version          
+            records = self.acbdb.query("SELECT * FROM T_SCRIPT ORDER BY id DESC")
+            version_list = [record.version for record in records]
             versionname = self.get_argument('versionname', '')
+            if versionname in version_list:
+                global MESSAGE
+                MESSAGE = '该版本号已存在'
+                logging.info("[LOG] Message: %s", MESSAGE)
+                self.redirect("/uploadluascript")
+                return
+ 
+            # check filename whether contains illegal character
             filename = safe_utf8(upload_file['filename'])
+            if not check_filename(filename):
+                global MESSAGE
+                MESSAGE = '文件名只能包含字母、数字、下划线、点'
+                logging.info("[LOG] Message: %s", MESSAGE)
+                self.redirect("/uploadluascript")
+                return
+
+
+            # check filename whether exists
             timestamp = int(time.time())
             localtime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(timestamp))
             files = os.listdir(DOWNLOAD_DIR_)

@@ -37,6 +37,7 @@ class MessageHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = json_decode(self.request.body)
+            logging.info("[LOG] message request: %s", data)
             sms_type = data.get('sms_type')
             tmobile = data.get('tmobile')
             content = ''
@@ -90,6 +91,11 @@ class MessageHandler(BaseHandler):
                 elif sms_type == 'CQ':
                     content = ':' + sms_type
                     SMSHelper.send_to_terminal(tmobile,content)
+                    self.write_ret(status)              
+
+                elif sms_type == 'UPDATE':
+                    content = ':' + sms_type
+                    SMSHelper.send_update_to_terminal(tmobile,content)
                     self.write_ret(status)              
                                    
                 elif sms_type == 'DEL':

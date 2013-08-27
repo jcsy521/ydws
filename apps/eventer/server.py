@@ -30,6 +30,7 @@ options['logging'].set('warning')
 
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
+from constants import EVENTER
 from helpers.confhelper import ConfHelper
 
 from handlers.worker import WorkerPool
@@ -53,7 +54,8 @@ class Application(tornado.web.Application):
 
         tornado.web.Application.__init__(self, handlers, **settings)
 
-        self.queue = Queue()
+        self.position_queue = Queue()
+        self.report_queue = Queue()
 
 
 def shutdown(pool, server):
@@ -87,12 +89,19 @@ def main():
         debug_mode = False
 
     http_server = None
-    worker_pool = None
+    # creat 2 work_pool, handle diferent package.
+    position_worker_pool = None
+    report_worker_pool = None
     try:
         ConfHelper.load(options.conf)
         app = Application(debug=debug_mode)
         
-        worker_pool = WorkerPool(app.queue, int(ConfHelper.EVENTER_CONF.workers))
+        position_worker_pool = WorkerPool(app.position_queue,
+                                          int(ConfHelper.EVENTER_CONF.workers),
+                                          name=EVENTER.INFO_TYPE.POSITION)
+        report_worker_pool = WorkerPool(app.report_queue,
+                                        int(ConfHelper.EVENTER_CONF.workers),
+                                        name=EVENTER.INFO_TYPE.REPORT)
 
         http_server = tornado.httpserver.HTTPServer(app, xheaders=True)
         http_server.listen(options.port)
@@ -104,7 +113,8 @@ def main():
         logging.exception("[eventer] Exit Exception")
     finally:
         logging.warn("[eventer] shutdown...")
-        shutdown(worker_pool, http_server)
+        shutdown(position_worker_pool, None)
+        shutdown(report_worker_pool, http_server)
         logging.warn("[eventer] Stopped. Bye!")
 
 

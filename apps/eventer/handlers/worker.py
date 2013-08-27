@@ -8,6 +8,7 @@ import time
 
 from db_.mysql import get_connection
 from utils.myredis import MyRedis
+from constants import EVENTER
 from codes.smscode import SMSCode
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
@@ -63,29 +64,36 @@ class Worker(object):
         """
         logging.error("Exception in callback %r", callback, exc_info=True)
 
+
     def run(self):
-        send_time = int(time.time()) 
+        self.send_time = int(time.time())
         while self.is_alive: # TODO: and not self.queue.empty()?
             try:
                 packet = self.queue.get(True, self.BLOCK_TIMEOUT)
+                logging.debug("[EVENTER] Get packet: %s from queue.", packet)
                 queue_len = self.queue.qsize()
-                if queue_len >= 30 and (int(time.time()) > send_time):
-                    send_time = int(time.time()) + 60*3
-                    logging.info("[EVENTER] current queue size :%s, current time:%s, send time:%s", queue_len, int(time.time()), send_time)
+                if queue_len >= 30 and (int(time.time()) > self.send_time):
+                    self.send_time = int(time.time()) + 60*3
                     content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
                     for mobile in self.mobiles:
                         SMSHelper.send(mobile, content)
                     for email in self.emails:
                         EmailHelper.send(email, content) 
-                    logging.info("[EVENTER] Notify EVENTER queue: %s exception to administrator!", queue_len)
+                    logging.info("[EVENTER] Notify EVENTER queue exception to administrator!")
+                    
             except Queue.Empty:
                 pass
             else:
                 # TODO: what if we're waiting for gf or lbmp and SystemExit is
                 # issued?
-                self._run_callback(PacketTask(packet, 
-                                              self.db, 
-                                              self.redis).run)
+                if self.name == EVENTER.INFO_TYPE.REPORT:
+                    self._run_callback(PacketTask(packet, 
+                                                  self.db, 
+                                                  self.redis).run_report)
+                else:
+                    self._run_callback(PacketTask(packet, 
+                                                  self.db, 
+                                                  self.redis).run_position)
 
     def stop(self):
         self.is_alive = False
@@ -102,17 +110,18 @@ class Worker(object):
 
 
 class WorkerPool(object):
-    def __init__(self, queue, n=1):
+    
+    def __init__(self, queue, n=1, name=EVENTER.INFO_TYPE.POSITION):
         """
         @param queue: task queue (callbacks)
         @param n: worker number
+        @param name: worker name 
         """
         self.workers = deque()
         for i in range(n):
-            worker = Worker(queue, name=i)
+            worker = Worker(queue, name=name)
             worker.start()
             self.workers.append(worker)
-
     def clear(self):
         for worker in self.workers:
             worker.stop()

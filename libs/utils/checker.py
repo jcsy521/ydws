@@ -35,6 +35,9 @@ _zs_phone_pattern = r"^(1477847\d{4}|1477874\d{4})$"
 
 ZS_PHONE_CHECKER = re.compile(_zs_phone_pattern)
 
+_filename_pattern = r"^[a-zA-Z0-9\._]+$"
+FILENAME_CHECKER = re.compile(_filename_pattern)
+
 def check_sql_injection(str_):
     """Check if the content has been injected by illegal SQL.
 
@@ -96,3 +99,10 @@ def check_zs_phone(phone, db):
             return True
         else:
             return False
+
+
+def check_filename(filename):
+    """Check if the filename contains illegal character
+    """
+    return FILENAME_CHECKER.match(filename)
+

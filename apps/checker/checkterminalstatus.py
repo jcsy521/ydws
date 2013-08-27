@@ -7,8 +7,10 @@ import site
 import logging
 import time
 
-TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
+TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
+
+from tornado.options import define, options, parse_command_line
 
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
@@ -23,8 +25,12 @@ from helpers.lbmphelper import get_latlon_from_cellid
 from helpers.queryhelper import QueryHelper
 from helpers.confhelper import ConfHelper
 
+if not 'conf' in options:
+    define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
+
 
 class CheckTerminalStatus(object):
+
     def __init__(self):
         self.db = DBConnection().db
         self.redis = MyRedis()
@@ -162,3 +168,10 @@ class CheckTerminalStatus(object):
         terminal_info = self.redis.getvalue(terminal_info_key)
         logging.info("[CK] %s after set redis login: %s", info['tid'], terminal_info['login'])
 
+
+if __name__ == '__main__':
+    ConfHelper.load(options.conf)
+    parse_command_line()
+    logging.info('come into checkterminalstatus')
+    cps = CheckTerminalStatus() 
+    cps.check_terminal_status()

@@ -33,19 +33,22 @@ class PacketTask(object):
         self.db = db
         self.redis = redis
 
-    def run(self):
-        """Process the current packet."""
+    def run_position(self):
+        """Process the current packet: position/charge"""
+        info = self.packet
 
-        info = json_decode(self.packet)
-        
-        if info['t'] == EVENTER.INFO_TYPE.POSITION: # positioninfo:
+        if info['t'] == EVENTER.INFO_TYPE.POSITION: # positioninfo
             self.handle_position_info(info)
-        elif info['t'] == EVENTER.INFO_TYPE.REPORT: # reportinfo:
-            self.handle_report_info(info)
-        elif info['t'] == EVENTER.INFO_TYPE.CHARGE: # chargeinfo:
+        elif info['t'] == EVENTER.INFO_TYPE.CHARGE: # chargeinfo
             self.handle_charge_info(info)
         else:
-            pass     
+            pass
+
+    def run_report(self):
+        """Process the current report packet."""
+
+        info = self.packet
+        self.handle_report_info(info) # reportinfo
         
     def get_regions(self, tid): 
         """Get all regions associated with the tid."""

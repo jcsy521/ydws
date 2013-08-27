@@ -2,6 +2,9 @@
 
 import logging
 
+from tornado.escape import json_decode
+from constants import EVENTER
+
 from base import BaseHandler
 
 
@@ -11,10 +14,22 @@ class MainHandler(BaseHandler):
         self.write("It works!")
 
     def post(self):
-        # en, there should be a dispatcher for different types. no
-        # more than 10 lines codes here, otherwise, it's doomed to suck!
-        logging.debug("Get request from sender:\n%s", self.request.body)
-        if self.request.body:
-            self.queue.put(self.request.body)
-
+        try:
+            body = json_decode(self.request.body)
+            if body['t'] == EVENTER.INFO_TYPE.POSITION:
+                logging.debug("Get position request from sender:\n%s", body)
+                self.position_queue.put(body)
+            elif body['t'] == EVENTER.INFO_TYPE.REPORT:
+                logging.debug("Get report request from sender:\n%s", body)
+                self.report_queue.put(body)
+                logging.info("Current report queue size:%s", self.report_queue.qsize())
+            elif body['t'] == EVENTER.INFO_TYPE.CHARGE:
+                logging.debug("Get charge request from sender:\n%s", body)
+                self.position_queue.put(body)
+                logging.info("Current position queue size:%s", self.position_queue.qsize())
+            else:
+                logging.warn("Get other request from sender:\n%s", body)
+            logging.info("Current position queue size:%s", self.position_queue.qsize())
+        except:
+            logging.exception("[EVENTER] what's up")
 

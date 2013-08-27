@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import socket, select, errno 
+
 import os
 import logging
 import time
@@ -322,14 +323,26 @@ class MyGWServer(object):
             logging.exception("[GW] Recv Exception.")
 
     def handle_login(self, info, address, connection, channel):
+        """Handle the login packet.
+        workflow:
+        1: check packet
+        if not dev_id:
+            send packt to terminal, illegal_devid
+        if mobile is not whitelist: 
+            send sms to owner, mobile is not whitelist
+            
+        if version is bigger than 2.2.0:
+            handle_new_login
+        else:
+            handle_old_login
+        """
         try:
             args = DotDict(success=GATEWAY.LOGIN_STATUS.SUCCESS,
                            sessionID='')
             lp = LoginParser(info.body, info.head)
             t_info = lp.ret
-
             if not t_info['dev_id']:
-                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_DEVID
                 lc = LoginRespComposer(args)
                 request = DotDict(packet=lc.buf,
                                   address=address)
@@ -352,6 +365,8 @@ class MyGWServer(object):
                                   t_info['t_msisdn'], t_info['dev_id'])
                     return
 
+            #NOTE: check the version. 
+            # if version is after 2.2.0, go to handle_new_login; else go to handle_old_login
             softversion = t_info['softversion']
             item = softversion.split(".")
             new_softversion = True
@@ -375,8 +390,9 @@ class MyGWServer(object):
             logging.exception("[GW] Handle login exception.")
 
     def handle_new_login(self, t_info, address, connection, channel):
-        """
-        flag:
+        """Handle the login packet with version bigger than 2.2.0
+
+        flag(t_info['psd']):
         0 - boot_normally
         1 - active_terminal
         2 - script_reload
@@ -432,19 +448,20 @@ class MyGWServer(object):
                 logging.warn("[GW] terminal: %s login at first time.",
                              t_info['dev_id'])
             elif terminal:
+                alias = QueryHelper.get_alias_by_tid(terminal['tid'], self.redis, self.db)
                 if terminal['tid'] != t_info['dev_id']:
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    sms = SMSCode.SMS_TERMINAL_HK % t_info['dev_id']
+                    sms = SMSCode.SMS_TERMINAL_HK % alias 
                     logging.warn("[GW] Tmobile: %s changed dev, old: %s, new: %s",
                                  t_info['t_msisdn'], terminal['tid'], t_info['dev_id'])
                 elif terminal['imsi'] != t_info['imsi']:
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    sms = SMSCode.SMS_TERMINAL_HK % t_info['dev_id']
+                    sms = SMSCode.SMS_TERMINAL_HK % alias 
                     logging.warn("[GW] Terminal %s imsi is wrong, old: %s, new: %s",
                                  t_info['dev_id'], terminal['imsi'], t_info['imsi'])
                 elif terminal['owner_mobile'] != t_info['u_msisdn']:
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    sms = SMSCode.SMS_TERMINAL_HK % t_info['dev_id']
+                    sms = SMSCode.SMS_TERMINAL_HK % alias 
                     logging.warn("[GW] Terminal %s owner_mobile is wrong, old: %s, new: %s",
                                  t_info['dev_id'], terminal['owner_mobile'], t_info['u_msisdn'])
                 elif terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
@@ -455,11 +472,10 @@ class MyGWServer(object):
             else:
                 args.success = GATEWAY.LOGIN_STATUS.UNREGISTER
                 logging.error("[GW] Terminal %s login failed, unregister.", t_info['dev_id'])
-        else:
-            # SMS JH 
+        else: # JH 
             logging.info("[GW] Terminal: %s, mobile: %s JH started.",
                          t_info['dev_id'], t_info['t_msisdn'])
-            # 0. Initialize: the valus keeps same as the default value in database.
+            # 0. Initialize the valus keeps same as the default value in database.
             group_id = -1
             login_permit = 1 
             mannual_status = UWEB.DEFEND_STATUS.YES
@@ -520,13 +536,17 @@ class MyGWServer(object):
                 if (terminal['tid'] == t_info['dev_id']) and \
                    (terminal['imsi'] == t_info['imsi']) and \
                    (terminal['owner_mobile'] == t_info['u_msisdn']):
-                    # 4.1 SCN: Refurbishment, JH it again.
-                    is_refurbishment = True
-                    sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
-                                                           ConfHelper.UWEB_CONF.url_out)
-                    logging.info("[GW] terminal: %s is refurbishment.", t_info['dev_id'])
+                    # 4.1 SCN: Refurbishment, the terminal-info has existed in platform. JH it again.
+                    is_refurbishment = True 
+                    # check the login packet whether is send again 
+                    if resend_flag:
+                        logging.info("[GW] Recv resend packet, do not send sms.")
+                    else:
+                        sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
+                                                               ConfHelper.UWEB_CONF.url_out)
+                        logging.info("[GW] terminal: %s is refurbishment.", t_info['dev_id'])
                 else:     
-                    # 4.2 existed tmobile changed dev or corp terminal login first
+                    # 4.2 existed tmobile changed dev or corp terminal login first, get the old info(group_id, login_permit and so on) before change
                     group_id = terminal.group_id
                     login_permit = terminal.login_permit 
                     mannual_status = terminal.mannual_status
@@ -722,8 +742,9 @@ class MyGWServer(object):
         tmobile = self.db.get("SELECT imsi FROM T_TERMINAL_INFO"
                               "  WHERE mobile = %s", t_info['t_msisdn'])
         if tmobile and tmobile.imsi and tmobile.imsi != t_info['imsi']:
+            alias = QueryHelper.get_alias_by_tid(t_info['dev_id'], self.redis, self.db)
             args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-            sms = SMSCode.SMS_TERMINAL_HK % (t_info['dev_id'])
+            sms = SMSCode.SMS_TERMINAL_HK % alias 
             SMSHelper.send(t_info['u_msisdn'], sms)
             lc = LoginRespComposer(args)
             request = DotDict(packet=lc.buf,
@@ -1023,7 +1044,7 @@ class MyGWServer(object):
                           address=address)
         self.append_gw_request(request, connection, channel)
                 
-        if sms:
+        if sms and t_info['u_msisdn']:
             SMSHelper.send(t_info['u_msisdn'], sms)
 
         # unbind terminal of to_be_unbind
@@ -1647,11 +1668,13 @@ class MyGWServer(object):
             pass
 
     def update_terminal_info(self, t_info):
+        """Update terminal's info in db and redis.
+        """
         terminal_info_key = get_terminal_info_key(t_info['dev_id'])
         terminal_info = QueryHelper.get_terminal_info(t_info['dev_id'],
                                                       self.db, self.redis)
 
-        # db
+        #1: db
         fields = []
         # gps, gsm, pbat, changed by position report
         keys = ['mobile', 'defend_status', 'login', 'keys_num', 'fob_status', 'mannual_status']
@@ -1669,7 +1692,7 @@ class MyGWServer(object):
                             "  SET " + set_clause + 
                             "  WHERE tid = %s",
                             t_info['dev_id'])
-        # redis
+        #2: redis
         for key in terminal_info:
             value = t_info.get(key, None)
             if value is not None:
@@ -1679,6 +1702,12 @@ class MyGWServer(object):
         return terminal_info
 
     def get_terminal_status(self, dev_id):
+        """Get address through dev_id. 
+        if address is not null:
+            terminal is on line  
+        else:
+            terminal is off line  
+        """
         terminal_status_key = get_terminal_address_key(dev_id)
         return self.redis.getvalue(terminal_status_key)
 
