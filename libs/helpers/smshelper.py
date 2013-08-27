@@ -56,6 +56,25 @@ class SMSHelper:
 
         return response
 
+    @classmethod
+    def send_update_to_terminal(cls, tmobile, content):
+        """
+        @param tmobile: mobile of terminal
+        @param content: original sms content
+        authentic content: xxx sign timestamp
+            - xxx: original sms content
+            - sign: (last 8 nums of tmobile) ^ SEND_KEY ^ timestamp
+            - timestamp: unix time
+        """
+
+        send_key = int(ConfHelper.SMS_CONF.send_key, 16)
+        timestamp = int(time.time())
+        sign = int(str(13800138000)[-8:]) ^ (send_key) ^ timestamp
+        content = ' '.join([content, str(sign), str(timestamp)])
+        response = cls.send(tmobile, content)
+
+        return response
+
     @staticmethod
     def send(mobile, content):
         """
