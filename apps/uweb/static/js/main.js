@@ -1020,18 +1020,18 @@ $(function () {
 			obj_arrowIcon = $('.j_alarmArrowClick');
 		
 		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-21px -29px').attr('title', '隐藏');
+			obj_arrowIcon.css('backgroundPosition', '-45px -29px').attr('title', '隐藏');
 		} else {	// 关闭面板 鼠标移上去效果
-			obj_arrowIcon.css('backgroundPosition', '-37px -29px').attr('title', '显示');
+			obj_arrowIcon.css('backgroundPosition', '-38px -29px').attr('title', '显示');
 		}
 	}).bind('mouseout', function() {
 		var b_panel = $('.j_alarmPanel').is(':visible'),
 			obj_arrowIcon = $('.j_alarmArrowClick');
 		
 		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		} else {
-			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		}
 	}).bind('click', function() {
 		var obj_panel = $('.j_alarmPanel'),
@@ -1051,9 +1051,13 @@ $(function () {
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		}
 		obj_arrowCon.css({'left': n_alarmIconLeft});
+	});
+	// 告警信息提示的关闭按钮
+	$('.j_closeAlarm').unbind('click').bind('click', function() {
+		dlf.fn_closeAlarmPanel();
 	});
 	// 告警信息提示的关闭按钮
 	$('.j_closeAlarm').unbind('click').bind('click', function() {

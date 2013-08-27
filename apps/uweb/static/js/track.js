@@ -512,7 +512,7 @@ $(function () {
 			obj_panel.hide();
 			n_delayIconLeft = n_windowWidth - 16;
 			//obj_arrowCon.css({'right': '0px'});
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
 			//obj_arrowCon.css({'right': '529px'});

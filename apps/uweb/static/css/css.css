@@ -1273,7 +1273,6 @@ body {
 	line-height: 34px;
 	_top: 8px;
     text-align: left;
-    width: 186px;
 }
 .trackBtn span, .tClose  {
 	cursor: pointer;
@@ -1433,7 +1432,7 @@ body {
 	position: absolute;
 	height: 17px;
 	width: 16px;
-	right: 10px;
+	right: 0px;
 	top: 10px;
 }
 .tClose:hover {
