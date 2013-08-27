@@ -140,6 +140,7 @@ function fn_trackQuery() {
 				if ( b_userType ) {
 					if ( arr_idlePoints.length > 0 ) {
 						obj_delayCon.show();
+						$('.j_delayPanel').show();
 						// 存储停留点信息
 						obj_trackHeader.data('delayPoints', arr_idlePoints);
 					}
@@ -147,8 +148,7 @@ function fn_trackQuery() {
 				
 				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
-				arr_dataArr = arr_locations, 
-				str_alias = b_userType ? $('.j_currentCar').text() : $('.j_currentCar').next().html().substr(2);
+				arr_dataArr = arr_locations;
 				
 				dlf.fn_caculateBox(arr_locations);
 				fn_startDrawLineStatic(arr_locations);
@@ -400,8 +400,10 @@ function fn_drawMarker() {
 		dlf.fn_boundContainsPoint(obj_tempPoint);
 		counter ++;
 	} else {	// 播放完成后
+		b_trackMsgStatus = true;
 		dlf.fn_clearTrack();	// 清除数据
 		dlf.fn_clearMapComponent(actionMarker);
+		actionMarker = null;
 		$('#tPause').hide();
 		$('#tPlay').css('display', 'inline-block');
 	}
@@ -480,9 +482,9 @@ $(function () {
 			obj_this = $(this);
 		
 		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-21px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-45px -29px');
 		} else {	// 关闭面板 鼠标移上去效果
-			obj_arrowIcon.css('backgroundPosition', '-37px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-38px -29px');
 		}
 		obj_this.attr('title', '');
 	}).bind('mouseout', function() {
@@ -490,9 +492,9 @@ $(function () {
 			obj_arrowIcon = $('.j_arrowClick');
 		
 		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		} else {
-			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		}
 	}).bind('click', function() {
 		var obj_panel = $('.j_delayPanel'),
@@ -509,13 +511,13 @@ $(function () {
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
-			n_delayIconLeft = n_windowWidth - 18;
+			n_delayIconLeft = n_windowWidth - 16;
 			//obj_arrowCon.css({'right': '0px'});
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
 			//obj_arrowCon.css({'right': '529px'});
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		}
 		obj_arrowCon.css({'left': n_delayIconLeft});
 	});

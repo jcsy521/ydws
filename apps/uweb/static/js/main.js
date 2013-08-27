@@ -561,7 +561,8 @@ $(function () {
 				dlf.fn_clearAllMenu();
 				$('#home').addClass('homeHover');
 				// 如果上次操作的是 轨迹、告警查询、线路管理、添加线路、围栏管理、绑定围栏、批量绑定围栏、创建围栏 操作的话 点击“车辆位置” 清除所有数据重新发起lastinfo请求
-				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
+				
+				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				} else {
 					var obj_current = obj_selfmarkers[$('.j_carList .j_currentCar').attr('tid')];
@@ -1020,18 +1021,18 @@ $(function () {
 			obj_arrowIcon = $('.j_alarmArrowClick');
 		
 		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-21px -29px').attr('title', '隐藏');
+			obj_arrowIcon.css('backgroundPosition', '-45px -29px').attr('title', '隐藏');
 		} else {	// 关闭面板 鼠标移上去效果
-			obj_arrowIcon.css('backgroundPosition', '-37px -29px').attr('title', '显示');
+			obj_arrowIcon.css('backgroundPosition', '-38px -29px').attr('title', '显示');
 		}
 	}).bind('mouseout', function() {
 		var b_panel = $('.j_alarmPanel').is(':visible'),
 			obj_arrowIcon = $('.j_alarmArrowClick');
 		
 		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		} else {
-			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
 		}
 	}).bind('click', function() {
 		var obj_panel = $('.j_alarmPanel'),
@@ -1051,7 +1052,7 @@ $(function () {
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {
 			obj_panel.show();
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
+			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		}
 		obj_arrowCon.css({'left': n_alarmIconLeft});
 	});

@@ -1485,6 +1485,7 @@ window.dlf.fn_userType = function() {
 
 /**
 * kjj 2013-05-29
+* kjj update in 2013-08-22 (固定几种颜色)
 * 随机生成颜色值
 */
 window.dlf.fn_randomColor = function() {
@@ -1496,7 +1497,7 @@ window.dlf.fn_randomColor = function() {
 		index = Math.round(Math.random()*14);
 		colorprefix += colorvalue[index];
 	}
-	return colorprefix;*/
+	return colorprefix;
 	
 	var r = Math.floor(Math.random() * 255).toString(16),
 		g = Math.floor(Math.random() * 255).toString(16),
@@ -1506,7 +1507,21 @@ window.dlf.fn_randomColor = function() {
 	g = g.length == 1 ? "0" + g : g;
 	b = b.length == 1 ? "0" + b : b;
 	
-	return "#" + r + g + b;
+	return "#" + r + g + b;*/
+	var arr_colors = ['#F8110D', '#FF00A6', '#FA9907', '#756A07', '#79F216', '#D706FB', '#3C7C07', '#066AF6', '#061EF6', '#7206F6', '#3E0B7C', '#37591A', '#1F0A05', '#F213EB', '#8E1717', '#000DFA', '#ED0EDB', '#E75A76'];
+	
+	for ( var tid in obj_actionTrack ) {
+		var obj_tempTrack = obj_actionTrack[tid],
+			str_color = obj_tempTrack.color;
+		
+		if ( str_color ) {
+			arr_colors.splice(str_color, 1);	// 删除已有颜色
+		}
+	}
+	if ( arr_colors.length <= 0 ) {
+		arr_colors = ['#F8110D', '#FF00A6', '#FA9907', '#756A07', '#79F216', '#D706FB', '#3C7C07', '#066AF6', '#061EF6', '#7206F6', '#3E0B7C', '#37591A', '#1F0A05', '#F213EB', '#8E1717'];
+	}
+	return arr_colors[0];
 }
 
 /**
