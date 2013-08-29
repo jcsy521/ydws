@@ -8,6 +8,7 @@ import tornado.web
 
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
+from helpers.lbmphelper import get_locations_with_clatlon
 from base import BaseHandler, authenticated
 
 
@@ -27,7 +28,8 @@ class ZFJSyncerHandler(BaseHandler):
                 for terminal in terminals:
                     mobile = terminal['mobile']
                     tid = terminal['tid']
-                    positions = self.db.query("SELECT latitude, longitude, timestamp FROM T_LOCATION WHERE tid=%s AND timestamp BETWEEN %s AND %s ORDER BY timestamp", tid, begin_time , end_time)
+                    positions = self.db.query("SELECT id, latitude, longitude, clatitude, clongitude timestamp FROM T_LOCATION WHERE tid=%s AND timestamp BETWEEN %s AND %s ORDER BY timestamp", tid, begin_time , end_time)
+                    positions = get_locations_with_clatlon(positions, self.db) 
                     res.append({'mobile':mobile, 'positions':positions})
             self.redis.setvalue('last_time', end_time)
             self.write({'res':res})
