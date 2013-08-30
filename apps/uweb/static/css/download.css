@@ -59,10 +59,10 @@ body {
 	width: 160px;
 }
 .infoGrCode img { 
-	border: 1px solid #999999;
+	border: 1px solid #ccc;
 	display: block;
-	height: 120px;
-	width: 120px;
+	height: 150px;
+	width: 150px;
 }
 .barCode {
 	
@@ -144,7 +144,7 @@ body {
 }
 .iosContent .infoText {
 	top: -22px;
-	width: 510px;
+	width: 412px;
 }
 .iosContent .descImg ul li img {
 	margin-left: 5px;
