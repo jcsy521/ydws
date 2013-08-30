@@ -369,6 +369,15 @@ window.onresize = function () {
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 6;
+			/**
+			* kjj add in 2013-08-28 
+			* 关闭停留点或告警列表的时候 改变浏览器窗口
+			*/
+			var obj_delayPanel = $('.j_delayPanel'),
+				b_delayPanel = obj_delayPanel.is(':visible'),
+				obj_alarmPanel = $('.j_alarmPanel'),
+				b_alarmPanel = obj_alarmPanel.is(':visible'),
+				n_tempWindowWidth = n_windowWidth;
 			
 			if ( n_windowWidth < 1500 ) {
 				n_trackLeft = 80;
@@ -376,7 +385,19 @@ window.onresize = function () {
 				n_delayIconLeft = 853;
 				n_alarmLeft = 1000;
 				n_alarmIconLeft = 982;
+				n_tempWindowWidth = 1400;
 			}
+			
+			if ( !b_delayPanel ) {
+				n_delayIconLeft = n_tempWindowWidth - 17;
+			}
+			if ( !b_alarmPanel ) {
+				n_alarmIconLeft = n_tempWindowWidth - 17;
+			}
+			obj_delayPanel.css({'left': n_delayLeft});
+			$('.j_disPanelCon').css({'left': n_delayIconLeft});
+			obj_alarmPanel.css({'left': n_alarmLeft});
+			$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 		} else {
 			n_trackLeft = ( obj_track.width() ) / 4;
 			if ( n_windowWidth < 1500 ) {
@@ -400,10 +421,6 @@ window.onresize = function () {
 		if ( !dlf.fn_isBMap() ) {	// 高德地图
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
 		}
-		$('.j_delayPanel').css({'left': n_delayLeft});
-		$('.j_disPanelCon').css({'left': n_delayIconLeft});
-		$('.j_alarmPanel').css({'left': n_alarmLeft});
-		$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 	}, 100);
 }
 

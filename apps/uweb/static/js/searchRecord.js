@@ -1304,43 +1304,45 @@ function fn_initChart(arr_series, arr_categories, str_container, str_unit, str_w
 	}
 	// 初始化统计图对象
 	chart = new Highcharts.Chart({
-				chart: {
-					renderTo: str_container,
-					defaultSeriesType: 'line'
-				},
-				title: {
-					text: str_title,
-					style: {
-						margin: '10px 100px 0 0' // center it
-					}
-				},
-				xAxis: {
-					categories: arr_categories,
-					title: {
-						text: str_x
-					}
-				},
-				yAxis: {
-					min: 0,                
-					allowDecimals: false,
-					title: {
-						text: '总数('+ str_unit +')'
-					},
-					plotLines: [{
-						value: 0,
-						width: 1,
-						color: '#808080'
-					}]
-				},
-				tooltip: {
-					formatter: function() {
-							return '<b>'+ this.series.name +'</b><br/>'+
-							this.x +': '+ this.y + str_unit;
-					}
-				},
-				series: arr_series
-			});
-	$('svg text').last().remove();	// 移除 网址
+		chart: {
+			renderTo: str_container,
+			defaultSeriesType: 'line'
+		},
+		title: {
+			text: str_title,
+			style: {
+				margin: '10px 100px 0 0' // center it
+			}
+		},
+		xAxis: {
+			categories: arr_categories,
+			title: {
+				text: str_x
+			}
+		},
+		yAxis: {
+			min: 0,                
+			allowDecimals: false,
+			title: {
+				text: '总数('+ str_unit +')'
+			},
+			plotLines: [{
+				value: 0,
+				width: 1,
+				color: '#808080'
+			}]
+		},
+		credits: { // 去版权信息
+			enabled: false
+		},
+		tooltip: {
+			formatter: function() {
+					return '<b>'+ this.series.name +'</b><br/>'+
+					this.x +': '+ this.y + str_unit;
+			}
+		},
+		series: arr_series
+	});
 }
 
 window.dlf.fn_showIframe = function(str_wrapper) {

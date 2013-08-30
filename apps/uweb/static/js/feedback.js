@@ -22,16 +22,24 @@ $(function() {
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false,
 		submitButtonID: 'btnSubmit', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, obj) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
 		}, 
-		onSuccess: function() { 
-			fn_fbsave();
+		onSuccess: function(obj) { 
+			
+			var obj_this = $('#content');
+			
+			if ( obj_this.val().length > 300 ) {
+				dlf.fn_jNotifyMessage('反馈内容不能大于300个字。', 'message', false, 5000); 
+				return;
+			} else {
+				fn_fbsave();
+			}
 		}
 	});
-	$('#contact').formValidator({empty:true}).inputValidator(); // 区分大小写
+	$('#contact').formValidator({empty:true}).inputValidator({max: 50, onError: '联系人不能大于50个字符。'}); // 区分大小写
 	$('#email').formValidator().inputValidator({max: 50, onError: '邮箱地址的最大长度是50个字符。'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "请输入正确的邮箱地址。"});  // 邮箱验证
-	$('#content').formValidator().inputValidator({min: 10, max: 300, onError: '您的反馈内容最小长度为10，最大长度是300。'}); // 区分大小写	
+	$('#content').formValidator().inputValidator({min: 10, onError: '反馈内容不能小于10个字。'}); // 区分大小写	
 });
 
 /**
@@ -46,6 +54,7 @@ function fn_fbsave() {
 	$.post_('feedback', JSON.stringify(obj_feedback), function(data) {
 		if ( data.status == 0 ) {
 			dlf.fn_jNotifyMessage('您的反馈内容已经提交成功。', 'message', false, 5000); 
+			$('input[type=text], textarea').val('');
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); 
 		}

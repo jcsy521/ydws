@@ -525,6 +525,43 @@ body {
 	top: 20%;
 	z-index: 1001;
 }
+#corpWrapper {
+	height: 291px;
+}
+#corpTerminalWrapper {
+	height: 409px;
+	width: 487px;
+}
+#corpSMSOptionWrapper {
+	height: 329px;
+	width: 487px;
+}
+#bindRegionWrapper {
+	height: 507px;
+	width: 530px;
+}
+#singleMileageWrapper {
+	width: 800px;
+	height: 554px;
+}
+#bindBatchRegionWrapper {
+	height: 504px;
+	width: 530px;
+}
+#fileUploadWrapper {
+	height: 530px;
+}
+#batchDeleteWrapper, #batchDefendWrapper {
+	height: 534px;
+	width: 600px;
+}
+#personalWrapper {
+	height: 229px;
+}
+#smsOptionWrapper {
+	height: 334px;
+	width: 440px;
+}
 .wrapperTitle {
 	height: 34px;
 	width: 448px;
@@ -811,7 +848,7 @@ body {
 	/* pwd/personal dialog */
 #pwdWrapper {
 	width: 336px;
-	height: 220px;
+	height: 254px;
 }
 .pwdContent {
 	height: 210px;
@@ -2381,7 +2418,7 @@ body {
 }
 #cTerminalWrapper, #cTerminalEditWrapper {
 	width: 448px;
-	height: 406px;
+	height: 256px;
 }
 .cTerminalContent, .cTerminalEditContent {
 	padding-top: 10px;
@@ -3045,7 +3082,7 @@ legend {
 #regionWrapper, #corpRegionWrapper {
 	background: none repeat scroll 0 0 #F7F8F8;
 	width: 510px;
-	height: 0px;
+	height: 592px;
 }
 .regionContent, .corpRegionContent {
 	height: 458px
