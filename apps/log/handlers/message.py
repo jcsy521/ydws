@@ -106,11 +106,11 @@ class MessageHandler(BaseHandler):
                                                          
                 elif sms_type == 'DOMAIN':
                     ip = data.get('domain')
-                    content = ':DOMAIN '+ip 
+                    content = ':DOMAIN ' + ip 
                     info = self.acbdb.get('SELECT * FROM T_TERMINAL_INFO WHERE mobile=%s', tmobile)
                     if info:
                         self.acbdb.execute('UPDATE T_TERMINAL_INFO SET domain=%s WHERE mobile=%s', 
-                                           content, tmobile)                
+                                           ip, tmobile)                
                         SMSHelper.send_to_terminal(tmobile, content)
                         self.write_ret(status)
                     else:
