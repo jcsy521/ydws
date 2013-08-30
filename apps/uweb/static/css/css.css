@@ -3084,6 +3084,9 @@ legend {
 	width: 510px;
 	height: 592px;
 }
+#corpRegionWrapper {
+	height: 492px;
+}
 .regionContent, .corpRegionContent {
 	height: 458px
 }
