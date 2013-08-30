@@ -32,9 +32,11 @@
   <body>
 	<div class="logHeader">
 		<ul id="logNavItemPanel" class="logNavPanel">
+			{% if role == 0 %}
 			<li class="logNavItem">
 				<a href="/systemlog">日志查询</a>
 			</li>
+			{% end %}
 			<li class="logNavItem">
 				<a href="/packet">报文查询</a>
 			</li>

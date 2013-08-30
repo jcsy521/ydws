@@ -45,9 +45,11 @@
 			<li class="logNavItem">
 				<a href="/smssend">短信发送</a>
 			</li>
+			{% if role == 0 %}
 			<li class="logNavItem">
 				<a href="/feedback">意见反馈</a>
 			</li>
+			{% end %}
 			<li class="logNavItem">
 				<a href="/password">修改密码</a>
 			</li>

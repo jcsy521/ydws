@@ -280,22 +280,22 @@ function fn_productTableContent(str_who, obj_reaData) {
 							str_html = '';
 							
 						str_contact = str_contact == '' ? str_email : str_contact;
-						str_html = '<div class="item" id="item'+ n_feedbackId +'"><div class="user"><span class="u_name">客户名称：'+ str_contact +'</span><span class="u_email">email：'+ str_email +'</span><span class="date-ask">'+ fn_changeNumToDateString(str_publishTime) +'</span><span class="operation">';
+						str_html = '<div class="item" id="item'+ n_feedbackId +'"><div class="user"><span class="u_name">客户名称：'+ str_contact +'</span><span class="u_email">email：'+ str_email +'</span><span class="date-ask">'+ fn_changeNumToDateString(str_publishTime) +'</span><span class="emailSpan"><label>邮件回复状态：</label>';
 						
-						str_html += '<a href="#" onclick="fn_editReply(this, '+ n_feedbackId +')">编辑回复</a>';
 						// 有回复
 						if ( n_reply == 1 ) {
 							str_html += '<font class="green">已回复</font>';
 						} else {
 							str_html += '<font class="red">未回复</font>';
 						}
+						str_html += '</span><span class="operation"><a href="#" onclick="fn_editReply(this, '+ n_feedbackId +')">编辑回复</a>';
 						str_html += '<a href="#" onclick="fn_deleteFeedback('+ n_feedbackId +')">删除反馈</a></span></div>';
 						str_html += '<dl class="ask"><dt>反馈内容：</dt><dd><label>'+ str_content +'</label></dd></dl>';
 						str_html += '<dl class="answer j_answer"><dt class="'+ str_hide +'">客服回复：</dt>';
 						
 						str_html += '<dd class="'+ str_hide +' j_replyContent"><div class="content">'+ str_replyContent +'</div><div class="date-answer">回复时间：'+ str_tempReplyTime +'</div></dd>';
 						
-						str_html += '<dd class="hide j_replayTextArea"><div><textarea class="txtReplayContent"></textarea></div><div class="buttons"><input type="button" value="取消" onclick="fn_cancelReply(this)" /><input type="button" value="提交" onclick="fn_saveReply(this, '+ n_feedbackId +')" /><input type="button" value="提交并回复" onclick="fn_saveReply(this, '+ n_feedbackId +', \''+ str_email +'\')" /></div>';
+						str_html += '<dd class="hide j_replayTextArea"><div><textarea class="txtReplayContent"></textarea></div><div class="buttons"><input type="button" value="取消" onclick="fn_cancelReply(this)" /><input type="button" value="提交" onclick="fn_saveReply(this, '+ n_feedbackId +')" /><input type="button" value="提交并回复邮件" onclick="fn_saveReply(this, '+ n_feedbackId +', \''+ str_email +'\')" /></div>';
 						
 						arr_tableData[i] = [str_html];	
 						break;
@@ -550,7 +550,7 @@ function fn_saveReply(obj_tempThis, id, str_email) {
 					obj_dt.css('display', 'inline');
 					obj_textareaDiv.hide();
 					if ( str_email ) {	// 未回复 ---> 已修复
-						obj_user.find('font').attr('class', '').addClass('green').html('已修复');
+						obj_user.find('font').attr('class', '').addClass('green').html('已回复');
 						
 						$('#layerMsgContent').html('发送成功。');
 						setTimeout(function() {
