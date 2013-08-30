@@ -21,8 +21,10 @@ class MessageHandler(BaseHandler):
 
     @authenticated 
     def get(self):
+        """Jump to sms.html.
+        """
         username = self.get_current_user()
-        n_role = self.db.get("select role from T_LOG_ADMIN where name = %s", username)
+        n_role = self.db.get("SELECT role FROM T_LOG_ADMIN WHERE name = %s", username)
         domain = ConfHelper.GW_SERVER_CONF.domain
         domain_ip = ConfHelper.GW_SERVER_CONF.domain_ip
         domains = [domain,domain_ip]
