@@ -165,7 +165,6 @@ class RegionHandler(BaseHandler):
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
-            return
 
         try:
             status = ErrorCode.SUCCESS

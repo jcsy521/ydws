@@ -19,8 +19,10 @@ class GWPacketHandler(BaseHandler):
     
     @authenticated
     def get(self):
+        """Jumtp to packet.html.
+        """
         username = self.get_current_user()
-        n_role = self.db.get("select role from T_LOG_ADMIN where name = %s", username)
+        n_role = self.db.get("SELECT role FROM T_LOG_ADMIN WHERE name = %s", username)
         self.render("packet/packet.html",
                      username=username,
                      role=n_role.role)
@@ -117,7 +119,7 @@ class GWPacketHandler(BaseHandler):
                 else:
                      pass
             self.write_ret(ErrorCode.SUCCESS,
-                           dict_=DotDict(packet_list=lst))
+                           dict_=DotDict(res=lst))
 
         except Exception as e:
             logging.exception("[LOG] Mobile: %s 's packet inquiry is failed. Exception: %s",

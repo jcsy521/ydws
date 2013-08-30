@@ -24,6 +24,10 @@ define('mode', default='deploy')
 options['logging'].set('warning')
 
 
+from helpers.confhelper import ConfHelper
+from db_.mysql import DBConnection
+from utils.myredis import MyRedis
+
 from handlers.logout import LogoutHandler
 from handlers.login import LoginHandler
 #from handlers.confhelper import ConfHelper
@@ -36,11 +40,7 @@ from handlers.packet import GWPacketHandler
 from handlers.battery import GWBatteryHandler
 from handlers.scriptManage import DeleteLuaHandler, DownloadLuaHandler, UploadLuaHandler
 from handlers.password import LOGPasswordHandler
-from helpers.confhelper import ConfHelper
-from db_.mysql import DBConnection
-from utils.myredis import MyRedis
-
-
+from handlers.feedback import FeedBackHandler
 
 class Application(tornado.web.Application):
 
@@ -50,19 +50,22 @@ class Application(tornado.web.Application):
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
             (r"/login", LoginHandler),
-            (r"/smssend",MessageHandler),
+
+            (r"/smssend", MessageHandler),
+
+            (r"/feedback/*", FeedBackHandler),
 
             (r"/systemlog",Log),
-            (r"/detail",Detail),
-            (r"/captcha",CaptchaHandler),
-            (r"/logout",LogoutHandler),
+            (r"/detail", Detail),
+            (r"/captcha", CaptchaHandler),
+            (r"/logout", LogoutHandler),
 
-            (r"/packet",GWPacketHandler),
-            (r"/battery",GWBatteryHandler),
-            (r"/password",LOGPasswordHandler),
-            (r"/uploadluascript",UploadLuaHandler),
-            (r"/downloadluascript",DownloadLuaHandler),
-            (r"/deleteluascript",DeleteLuaHandler),
+            (r"/packet", GWPacketHandler),
+            (r"/battery", GWBatteryHandler),
+            (r"/password", LOGPasswordHandler),
+            (r"/uploadluascript", UploadLuaHandler),
+            (r"/downloadluascript", DownloadLuaHandler),
+            (r"/deleteluascript", DeleteLuaHandler),
             ]
 
         settings = dict(

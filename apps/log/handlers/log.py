@@ -13,13 +13,13 @@ class Log(BaseHandler):
     
     @authenticated
     def get(self):
-
+        """Jump to log.html.
+        """
         username = self.get_current_user()
-        n_role = self.db.get("select role from T_LOG_ADMIN where name = %s", username)
+        n_role = self.db.get("SELECT role FROM T_LOG_ADMIN WHERE name = %s", username)
         self.render("log/log.html",
-                     username=username,
-					 role = "")
-        return
+                     username=username, 
+                     role=n_role.role)
 
     @authenticated
     @tornado.web.removeslash
@@ -34,7 +34,6 @@ class Log(BaseHandler):
             #TODO: 
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
-            return
 
         if level:
             if  start_time:
@@ -48,7 +47,7 @@ class Log(BaseHandler):
                                                "      AND level = %s",
                                                plan_id, start_time, end_time, level)
                         self.write_ret(ErrorCode.SUCCESS,
-                                       dict_=DotDict(log_list=allLog))
+                                       dict_=DotDict(res=allLog))
                     else:
                         allLog = self.db.query("SELECT id, level, servername, details,"
                                                "  DATE_FORMAT(time,'%%Y-%%m-%%d %%H:%%i:%%s')"
@@ -57,7 +56,7 @@ class Log(BaseHandler):
                                                "    AND level = %s",
                                                start_time, end_time, level)
                         self.write_ret(ErrorCode.SUCCESS,
-                                       dict_=DotDict(log_list=allLog))
+                                       dict_=DotDict(res=allLog))
                 except Exception as e:
                     # TODO: remvoe unwanted dict_
                     logging.exception("[LOG] Log's inquiry failed. Inquiry condition:"
@@ -76,7 +75,6 @@ class Log(BaseHandler):
                             plan_id="",
                             level="",
                             username=None,)
-                return
         else:
             if  start_time:#have time's value
                 try:
@@ -96,7 +94,7 @@ class Log(BaseHandler):
                                                "    WHERE time BETWEEN %s AND %s ",
                                                start_time, end_time)
                         self.write_ret(ErrorCode.SUCCESS, 
-                                       dict_=DotDict(log_list=allLog))
+                                       dict_=DotDict(res=allLog))
                 except Exception as e:
                     #TODO: 
                     logging.exception("[LOG] Log's inquiry failed. Inquiry condition:"

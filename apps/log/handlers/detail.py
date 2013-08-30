@@ -20,11 +20,9 @@ class Detail(BaseHandler):
                 self.render("log/details.html",
                             allinfo = allinfo,
                             errorinfo = errorinfo)
-                return
            except:
                logging.exception("Details select failed!")
         else:
             self.render("log/details.html",
                         allinfo = '',
                         errorinfo = '',)
-            return

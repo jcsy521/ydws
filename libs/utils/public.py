@@ -161,7 +161,10 @@ def insert_location(location, db, redis):
         track = redis.get(track_key)
         # if track is on, just put PVT into redis 
         # maybe put cellid into redis later. 
-        if track and (int(track) == 1) and (location.get("Tid", None) != EVENTER.TRIGGERID.PVT): 
+        #if track and (int(track) == 1) and (location.get("Tid", None) != EVENTER.TRIGGERID.PVT): 
+        #    return lid
+        #NOTE: if location's type is gps, put it into redis
+        if track and (int(track) == 1) and (location.type != 0):
             return lid
 
         location_key = get_location_key(location.dev_id)

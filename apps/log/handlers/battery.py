@@ -19,11 +19,13 @@ class GWBatteryHandler(BaseHandler):
 
     @authenticated
     def get(self):
+        """Jump to battery.html.
+        """
         username = self.get_current_user()
         n_role = self.db.get("select role from T_LOG_ADMIN where name = %s", username)
         self.render("battery/battery.html",
                      username=username,
-                    role=n_role.role)
+                     role=n_role.role)
 
     @authenticated
     @tornado.web.removeslash
@@ -88,7 +90,7 @@ class GWBatteryHandler(BaseHandler):
                 else:
                     pass
             self.write_ret(ErrorCode.SUCCESS,
-                           dict_=DotDict(battery_list=lst))
+                           dict_=DotDict(res=lst))
 
         except Exception as e:
             logging.exception("[LOG] Mobile: %s 's battery inquiry is failed. Exception: %s",
