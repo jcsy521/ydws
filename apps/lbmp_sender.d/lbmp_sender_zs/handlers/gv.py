@@ -51,7 +51,7 @@ class GvHandler(BaseHandler):
                         ret.address = json_data['result']['formatted_address']
                         if len(json_data['result']['pois']) >= 1:
                             if json_data['result']['pois'][0]['addr']: 
-                                ret.address += u"，" + json_data['result']['pois'][0]['addr']+ u'附近'
+                                ret.address += u"，" + json_data['result']['pois'][0]['name']+ u'附近'
                         ret.success = ErrorCode.SUCCESS 
                         ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                         logging.info("[GV] get address=%s through lat=%s, lon=%s",
