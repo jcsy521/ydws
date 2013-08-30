@@ -13,7 +13,7 @@ var chart = null,
 function fn_initRecordSearch(str_who) {
 	if (fn_validCookie()) {
 		return;
-	};
+	}
 	fn_setTitleName();  // 调整标题用户名位置
 	
 	fn_initDataTables('search_table', str_who, []);// 初始化表格显示
@@ -178,6 +178,19 @@ function fn_searchData(str_who) {
 			
 			$('#battery_chart_link').hide();
 			break;
+		case 'feedback':	// 意见反馈
+			var str_stTime = $('#beginDate').val(), 
+				str_entTime = $('#endDate').val(), 
+				n_reply = $('input:checked').val();
+				
+			obj_conditionData = {
+				'start_time': fn_changeDateStringToNum(str_stTime),
+				'end_time': fn_changeDateStringToNum(str_entTime),
+				'isreplied': parseInt(n_reply)
+			};
+			str_getDataUrl = '/feedback';
+			
+			break;
 	}
 	
 	fn_lockScreen();
@@ -194,14 +207,16 @@ function fn_bindSearchRecord(str_who, obj_resdata) {
 			
 	if ( obj_resdata.status == 0 ) {  // success
 		arr_recordData = obj_resdata.res; 
-		
+		/*	统一改成 res
 		if ( str_who == 'log' ) { //日志查询
 			arr_recordData = obj_resdata.log_list;
 		} else if ( str_who == 'packet' ) { //报文查询
 			arr_recordData = obj_resdata.packet_list;
 		} else if ( str_who == 'battery' ) { //电量查询
 			arr_recordData = obj_resdata.battery_list;
-		}
+		} else if ( str_who == 'feedback' ) {	// 意见反馈
+			arr_recordData = obj_resdata.feedback_list;
+		}*/
 		
 		fn_productTableContent(str_who, arr_recordData);	// 根据页面的不同生成相应的table表格
 	} else {
@@ -249,6 +264,40 @@ function fn_productTableContent(str_who, obj_reaData) {
 						arr_graphic.push(parseInt(str_battery)); // 每个时间点的电量信息
 						arr_categories.push(str_batteryTime);
 						arr_graphic_x[i] = '';
+						break;
+					case 'feedback':	// 意见反馈
+						var str_contact = obj_tempData.contact,	// 联系人
+							str_email = obj_tempData.email,	// 客户邮箱
+							str_content = obj_tempData.content,	// 反馈内容
+							str_publishTime = obj_tempData.timestamp,	// 反馈意见时间
+							n_reply = obj_tempData.isreplied,	// 是否回复邮件
+							str_replyTime = obj_tempData.reply_time,	// 回复时间
+							str_tempReplyTime = str_replyTime == 0 ? '' : fn_changeNumToDateString(str_replyTime),
+							str_replyContent = obj_tempData.reply,	// 回复内容
+							str_hide = n_reply == 0 ? 'hide' : '',
+							str_show = n_reply == 1 ? 'hide' : '',
+							n_feedbackId = obj_tempData.id,	// 记录ID 用来删除和编辑
+							str_html = '';
+							
+						str_contact = str_contact == '' ? str_email : str_contact;
+						str_html = '<div class="item" id="item'+ n_feedbackId +'"><div class="user"><span class="u_name">客户名称：'+ str_contact +'</span><span class="u_email">email：'+ str_email +'</span><span class="date-ask">'+ fn_changeNumToDateString(str_publishTime) +'</span><span class="operation">';
+						
+						str_html += '<a href="#" onclick="fn_editReply(this, '+ n_feedbackId +')">编辑回复</a>';
+						// 有回复
+						if ( n_reply == 1 ) {
+							str_html += '<font class="green">已回复</font>';
+						} else {
+							str_html += '<font class="red">未回复</font>';
+						}
+						str_html += '<a href="#" onclick="fn_deleteFeedback('+ n_feedbackId +')">删除反馈</a></span></div>';
+						str_html += '<dl class="ask"><dt>反馈内容：</dt><dd><label>'+ str_content +'</label></dd></dl>';
+						str_html += '<dl class="answer j_answer"><dt class="'+ str_hide +'">客服回复：</dt>';
+						
+						str_html += '<dd class="'+ str_hide +' j_replyContent"><div class="content">'+ str_replyContent +'</div><div class="date-answer">回复时间：'+ str_tempReplyTime +'</div></dd>';
+						
+						str_html += '<dd class="hide j_replayTextArea"><div><textarea class="txtReplayContent"></textarea></div><div class="buttons"><input type="button" value="取消" onclick="fn_cancelReply(this)" /><input type="button" value="提交" onclick="fn_saveReply(this, '+ n_feedbackId +')" /><input type="button" value="提交并回复" onclick="fn_saveReply(this, '+ n_feedbackId +', \''+ str_email +'\')" /></div>';
+						
+						arr_tableData[i] = [str_html];	
 						break;
 				}
 			}
@@ -312,7 +361,13 @@ function fn_initDataTables(str_tableName, str_who, obj_tableData) {
 			{ 'sTitle': '报文类型' },
 			{ 'sTitle': '报文内容', 'sClass': 'table_left_class' }
 		];	
-	};
+	} else if ( str_who == 'feedback' ) {	// 意见反馈
+		arr_ableTitle = [
+			{
+				'sTitle': '意见反馈'
+			}
+		];
+	}
 	obj_searchDataTables = $('#'+str_tableName).dataTable({
 		'bScrollCollapse': true,
 		'aaSorting': [], // 默认不排序
@@ -327,19 +382,19 @@ function fn_initDataTables(str_tableName, str_who, obj_tableData) {
 			'sUrl': '/static/js/dataTables.zh_CN.txt'
 		},
 		'aaData': obj_tableData, // 显示的数据
-        'aoColumns': arr_ableTitle // 结果头
+        'aoColumns': arr_ableTitle, // 结果头
+		'fnInitComplete': function(oSettings, json) {
+			$('#'+str_tableName+' tr').hover(function(){
+				$(this).children().css({
+					'background-color' : '#87CEFF'
+				});
+			},
+			function(){
+				$(this).children().removeAttr('style');
+			}); 
+		}
 	});
-	$('#'+str_tableName+' tr').hover(function(){
-		$(this).children().css({
-			'background-color' : '#87CEFF'
-		});
-	},
-	function(){
-		$(this).children().removeAttr('style');
-	}); 
 }
-
-
 
 /*
 * 检测 所有的类型是否被选中
@@ -371,42 +426,189 @@ function fn_initChart(arr_series, arr_graphic_x, arr_categories, str_container, 
 	
 	// 初始化统计图对象
 	chart = new Highcharts.Chart({
-				chart: {
-					renderTo: str_container,
-					type: 'line',
-					marginRight: 30
-				},
-				title: {
-					text: str_title,
-					style: {
-						margin: '10px 100px 0 0' // center it
+		chart: {
+			renderTo: str_container,
+			type: 'line',
+			marginRight: 30
+		},
+		title: {
+			text: str_title,
+			style: {
+				margin: '10px 100px 0 0' // center it
+			}
+		},
+		xAxis: {
+			categories: arr_graphic_x,
+			title: {
+				text: '时间'
+			}
+		},
+		yAxis: {
+			min: 0,                
+			allowDecimals: false,
+			title: {
+				text: '电量值('+ str_unit +')'
+			},
+			plotLines: [{
+				value: 0,
+				width: 1,
+				color: '#808080'
+			}]
+		},
+		credits: { // 去版权信息
+			enabled: false
+		},
+		tooltip: {
+			formatter: function(e) { 
+					return '<b>'+ this.series.name +'</b><br/>时间: '+
+					arr_categories[this.point.x]+', 电量: '+ this.y + str_unit;
+			}
+		},
+		series: arr_series
+	});
+}
+
+/**
+* 编辑回复
+*/
+function fn_editReply(obj_tempThis) {
+	var obj_this = $(obj_tempThis),
+		obj_answer = obj_this.parent().parent().siblings('.j_answer'),
+		obj_replyContent = obj_answer.children('.j_replyContent'),
+		obj_dt = obj_answer.children('dt'),
+		obj_textareaDiv = obj_answer.children('.j_replayTextArea'),
+		obj_textarea = obj_textareaDiv.find('textarea');
+	
+	obj_dt.show();
+	obj_replyContent.hide();	// 显示或隐藏回复内容
+	obj_textarea.val(obj_replyContent.children('.content').html());
+	obj_textareaDiv.show();	// 显示或隐藏回复框	
+}
+
+/**
+* 回复邮件
+* str_email：联系人email
+* str_content：回复的内容
+
+function fn_replyEmail(obj_tempThis, str_email) {
+	if ( str_email != '' ) {
+		var obj_params = {'contact': str_email, 'content': ''},
+			obj_this = $(obj_tempThis),
+			str_content = obj_this.parent().parent().siblings('.j_answer').find('.content').html();
+				
+		if ( str_content != '' ) {
+			obj_params.content = str_content;
+			if ( confirm('确定要将客服回复内容发送给”' + str_email + '”吗？' ) ) {		
+				$.post_('/mail', JSON.stringify(obj_params), function(data) {
+					if ( data.status == 0 ) {
+						alert('邮件已发送。');
+					} else {
+						alert('邮件回复错误，请稍后再试。');
+						return;
 					}
-				},
-				xAxis: {
-					categories: arr_graphic_x,
-					title: {
-						text: '时间'
+				});
+			}
+		} else {
+			alert('请先填写回复内容。');
+			return;
+		}
+	}
+}*/
+
+/**
+* 保存回复
+* obj_tempThis: 要操作的对象
+* id：编辑记录ID
+*/
+function fn_saveReply(obj_tempThis, id, str_email) {
+	var obj_this = $(obj_tempThis),
+		obj_textareaDiv = obj_this.parent().parent(),
+		obj_user = obj_textareaDiv.parent().siblings('.user'),
+		obj_replyContent = obj_textareaDiv.siblings('.j_replyContent'),
+		obj_dt = obj_textareaDiv.siblings('dt'),
+		obj_textarea = obj_textareaDiv.find('textarea'),
+		str_val = obj_textarea.val(),
+		obj_params = {'reply': '', 'id': id},
+		obj_msg = $('#sendEmailMsg'),
+		n_timeout = 200;
+		
+	if ( str_val != '' ) {
+		obj_params.reply = str_val;
+		if ( str_email ) {	// 提交并回复
+			obj_params.email = str_email;
+		}
+		$.put_('/feedback', JSON.stringify(obj_params), function(data) {
+			if ( str_email ) {
+				fn_lockScreen('正在发送中...');
+				n_timeout = 2000;
+			}
+			if ( data.status == 0 ) {
+				setTimeout(function() {
+					obj_replyContent.children('.content').html(str_val);
+					obj_replyContent.children('.date-answer').html(fn_changeNumToDateString(data.reply_time));
+					obj_replyContent.show();
+					obj_dt.css('display', 'inline');
+					obj_textareaDiv.hide();
+					if ( str_email ) {	// 未回复 ---> 已修复
+						obj_user.find('font').attr('class', '').addClass('green').html('已修复');
+						
+						$('#layerMsgContent').html('发送成功。');
+						setTimeout(function() {
+							fn_unLockScreen();
+						}, 1000);
+					} else {
+						alert('回复成功。');
 					}
-				},
-				yAxis: {
-					min: 0,                
-					allowDecimals: false,
-					title: {
-						text: '电量值('+ str_unit +')'
-					},
-					plotLines: [{
-						value: 0,
-						width: 1,
-						color: '#808080'
-					}]
-				},
-				tooltip: {
-					formatter: function(e) { 
-							return '<b>'+ this.series.name +'</b><br/>时间: '+
-							arr_categories[this.point.x]+', 电量: '+ this.y + str_unit;
-					}
-				},
-				series: arr_series
-			});
-	$('svg text').last().remove();	// 移除 网址
+				}, n_timeout);
+			} else {
+				$('#layerMsgContent').html('回复失败，请稍后再试。');
+				setTimeout(function() {
+					fn_unLockScreen();
+				}, 1000);
+				return;
+			}
+		});
+	} else {
+		alert('回复内容不可为空。');
+		return;
+	}
+}
+
+/**
+* 取消回复
+* obj_tempThis: 要操作的对象
+*/
+function fn_cancelReply(obj_tempThis) {
+	var obj_this = $(obj_tempThis),
+		obj_textareaDiv = obj_this.parent().parent(),
+		obj_user = obj_textareaDiv.parent().siblings('.user'),
+		obj_replyContent = obj_textareaDiv.siblings('.j_replyContent'),
+		obj_dt = obj_textareaDiv.siblings('dt'),
+		obj_content = obj_replyContent.children('.content');
+
+	if ( !obj_content.html() ) {
+		obj_dt.css('display', 'none');
+	}
+	obj_textareaDiv.hide();
+	obj_replyContent.show();
+}
+
+/**
+* 删除反馈
+* id：删除记录ID
+*/
+function fn_deleteFeedback(id) {
+	if ( confirm('确定要删除该意见反馈吗？') ) {
+		$.delete_('/feedback'+'?ids=' + id, '', function(data) {
+			if ( data.status == 0 ) {
+				var pos = obj_searchDataTables.fnGetPosition($("#item" + id).parent().parent()[0]);
+							
+				obj_searchDataTables.fnDeleteRow(pos);
+				alert('删除成功。');
+			} else {
+				alert('删除失败，请稍后再试。');
+				return;
+			}
+		});
+	}
 }

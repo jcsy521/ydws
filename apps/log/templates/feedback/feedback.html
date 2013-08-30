@@ -1,52 +1,50 @@
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
-  
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>移动车卫士各模块日志监控系统</title>
 	<meta http-equiv="pragma" content="no-cache">
 	<meta http-equiv="cache-control" content="no-cache">
-	<meta http-equiv="expires" content="0">    
-	
+	<meta http-equiv="expires" content="0">
 	<link type="text/css" href="/static/css/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
+	<link href="./static/css/css.css" rel="stylesheet" type="text/css"/>
 	<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
 	<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
-	<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
 	<link rel="stylesheet" media="all" type="text/css" href="/static/css/jquery-ui-timepicker-addon.css" />
-	
 	<script type="text/javascript" src="/static/js/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="/static/js/jquery-ui-1.8.14.custom.min.js"></script>
 	<script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
-	
 	<script type="text/javascript" src="/static/js/jquery-ui-timepicker-addon.js"></script>
 	<script type="text/javascript" src="/static/js/jquery-ui-timepicker-zh-CN.js"></script>
 	<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
 	<script type="text/javascript" src="/static/js/json2.js"></script>
-	<script type="text/javascript" src="/static/js/highcharts.js"></script>
 	<script type="text/javascript" src="/static/js/searchRecord.js"></script>
 	<script type="text/javascript" src="/static/js/initialize.js"></script>
-
+	<style type="text/css">
+		#progressbar .ui-widget-header {
+			background: url("/static/images/ui-bg_highlight-soft_25_ffef8f_1x100.png") repeat-x scroll 50% 50% #DEEDF7;
+			border: 1px solid #AED0EA;
+			color: #222222;
+			font-weight: bold;
+		}
+	</style>
   </head>
-  
   <body>
 	<div class="logHeader">
 		<ul id="logNavItemPanel" class="logNavPanel">
-			{% if role == 0 %}
-				<li class="logNavItem">
-					<a href="/systemlog">日志查询</a>
-				</li>
-			{% end %}
+			<li class="logNavItem">
+				<a href="/systemlog">日志查询</a>
+			</li>
 			<li class="logNavItem">
 				<a href="/packet">报文查询</a>
 			</li>
-			<li class="logNavItem logCurrentItem">
-				<a href="#">电量查询</a>
+			<li class="logNavItem">
+				<a href="/battery">电量查询</a>
 			</li>
 			<li class="logNavItem">
 				<a href="/smssend">短信发送</a>
 			</li>
-			<li class="logNavItem">
+			<li class="logNavItem logCurrentItem">
 				<a href="/feedback">意见反馈</a>
 			</li>
 			<li class="logNavItem">
@@ -54,68 +52,65 @@
 			</li>
 		</ul>
 		<div class="right_title">
-			欢迎您，
-			<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
+			欢迎您，<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
 		</div>
 	</div>
-	
 	<fieldset class="ui-widget ui-widget-content ui-corner-all">
 		<legend class="button legend ui-widget ui-state-default ui-corner-all ui-button-text-only legend-button" role="button">
-			<span class="ui-button-text legend-text">电量查询</span>
+			<span class="ui-button-text legend-text">意见反馈</span>
 		</legend>
-		<div class="ui-log-panel">
-			<div>
-				开始时间：
-				<input type="text" id="beginDate" class="tdStyle" readonly="true" />
-				结束时间：
-				<input type="text" id="endDate" class="tdStyle" readonly="true" />
-				<input id="search_button" type="button" value="查询" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
-				<!--曲线图-->
-				<a id="battery_chart_link" class="hide" href="#">点击查看统计图</a>
-			</div>
-			<div id="snTypePanel">
-				<label>号码类型：</label>
-			
-				<input id="terminal_mobile" type="radio" value="0" name="sn_type" checked/>
-				<label id="tpsLable1" for="terminal_mobile">mobile</label>
-				
-				<input id="terminal_sn" type="radio" value="1" name="sn_type" />
-				<label id="tpsLable5" for="terminal_sn">SN</label>
-			</div>
-			<div>
-				终端号码：
-				<input type="text" id="terminal_num" class="tdStyle" />
-			</div>
-		</div>	
+		<table id="searchTable" align="left">
+			<tr>
+				<td align="right" nowrap="nowrap" class="log_tip_title">开始时间：</td>
+				<td align="left">
+					<input type="text" id="beginDate" class="tdStyle" readonly="true" />
+				</td>
+				<td align="right" nowrap="nowrap" class="log_tip_title">结束时间：</td>
+				<td align="left">
+					<input type="text" id="endDate" class="tdStyle" readonly="true" />
+				</td>
+			</tr>
+			<tr>
+				<td align="right" nowrap="nowrap" class="log_tip_title">是否处理：</td>
+				<td align="left">
+					<input type="radio" name="radReal" value="-1"  /> 全部
+					<input type="radio" name="radReal" value="1"  /> 已处理
+					<input type="radio" name="radReal" value="0" checked /> 未处理					
+				</td>
+				<td> </td>
+				<td>
+					<input id="search_button" type="button" value="查询"
+					class="ui-button ui-widget ui-state-default ui-corner-all"
+					role="button" aria-disabled="false" />
+				</td>
+			</tr>
+		</table>
 	</fieldset>
-	
 	<div class="resultQuery">
 	   <div class="resultTitle">
 			<h3>查询结果</h3>		
 			<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
 		</div>
 	</div>
-	<table id="search_table" class="display" whois="battery">
+	<table id="search_table" class="display" whois="feedback">
 		<thead>
 			<tr>
-				<th class="width_batteryTime">时间</th>
-				<th>电量</th>
+				<th class="timeTh"></th>
+				<!--<th class="typeTh">客户名称</th>
+				<th class="timeTh">客户Email</th>
+				<th>反馈内容</th>
+				<th>处理结果</th>-->
 			</tr>
 		</thead>
-	<tbody id="search_tbody">
-	
-	</tbody>
+	<tbody id="feedback_tbody"></tbody>
 	</table>
-	<div id="batteryChart_dialog" class="hide" title="电量统计图">
-		<div id="batteryChart_panel"></div>
-	</div>
-	
 	<div id="msg" class="msg hide">
 		<strong class="msgContent">
 			<span id="layerMsgContent">页面数据正在加载中...</span>
-			<img src="/static/images/blue-wait.gif"></img>
+			<img src="/static/images/blue-wait.gif" />
 		</strong>
 	</div>
+	<div id="progressbar" class="hide"><div class="progress-label">正在发送中...</div></div>
 	<div id="maskLayer" class="iLayer">
 		<iframe scrolling="no" frameborder="0" style="width:100%; height:100%; top:0px; left:0px; position:absolute; z-index:-1; filter: alpha(opacity=20);"> 
 		</iframe>

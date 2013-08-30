@@ -352,6 +352,9 @@ table, .ui-widget-header {
 #search_table td {
     border: 1px solid #CDCDCD;
 }
+#feedback_tbody td {
+	text-align: left;
+}
 .timeTh {
 	width: 150px;
 }
@@ -484,4 +487,92 @@ table, .ui-widget-header {
 #filenamePanel {
 	background-color: #f2f2f2;
 	width: 260px;
+}
+/*feed back css*/
+.item {
+	border-bottom: 1px dotted #DEDEDE;
+}
+.item .user {
+	margin-top: 0;
+	color: #9C9A9C;
+}
+.item .user span {
+	margin-right: 20px;
+}
+.user .operation {
+	float: right;
+}
+.operation font {
+	padding-right: 10px;
+}
+.user a {
+	margin-right: 10px;
+}
+.item .user .date-ask {
+	margin-right: 0;
+}
+.item dl {
+	overflow: hidden;
+	zoom: 1;
+	width: 100%;
+	margin: 0px;
+}
+.item dt {
+	float: left;
+	width: 70px;
+	text-align: justify;
+}
+.item .answer {
+	color: #FF6500;
+}
+.item .answer dt {
+	float: left;
+	width: 70px;
+	text-align: justify;
+}
+.item .answer textarea {
+	height: 80px;
+	padding: 10px;
+    width: 500px;
+	font-size: 12px;
+}
+.gray {
+	color: gray;
+}
+.green {
+	color: green;
+}
+.red {
+	color: red;
+}
+.answer .buttons {
+	width: 550px;
+	margin-top: 10px;
+	text-align: right;
+}
+.buttons input {
+	height: 24px;
+    margin-left: 20px;
+    width: 79px;
+}
+.item .content {
+	float: left;
+}
+.item .date-answer {
+	float: right;
+	text-align: right;
+	color: #9C9A9C;
+}
+.ui-progressbar {
+	position: relative;
+	width: 550px;
+	margin: 0 auto;
+	color: #303AF8;
+	background: url("/static/images/ui-bg_glass_50_3baae3_1x400.png") repeat-x scroll 50% 50% #DEEDF7;
+}
+.progress-label {
+	position: absolute;
+	left: 45%;
+	font-weight: bold;
+	top: 4px;
 }

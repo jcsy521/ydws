@@ -8,9 +8,9 @@
 	// 初始化时间插件及表格
 	var str_who = $('#search_table').attr('whois');
 	
-	if ( str_who == 'log' || str_who == 'packet' || str_who == 'battery') {
+	if ( str_who == 'log' || str_who == 'packet' || str_who == 'battery' || str_who == 'feedback' ) {
 		// 设置默认时间
-		fn_initTimeControl();
+		fn_initTimeControl(str_who);
 		fn_initRecordSearch(str_who);
 	}
 	
@@ -66,7 +66,8 @@ function fn_changeDateStringToNum(dateString) {
 
 // 日期计算
 function fn_changeNumToDateString(myEpoch) {
-	var year = myEpoch.getFullYear(); // 注意
+	var myEpoch = new Date(myEpoch*1000),
+		year = myEpoch.getFullYear(); // 注意
  	var month = myEpoch.getMonth()+1;
  	var day = myEpoch.getDate();
  	var hour = myEpoch.getHours();
@@ -97,11 +98,15 @@ function fn_changeDateStringToFormat(dateString) {
 /**
 *  时间控件初始化
 */
-function fn_initTimeControl() {
+function fn_initTimeControl(str_who) {
 	// 设置默认时间
 	var obj_stTime = $('#beginDate'), 
 		obj_endTime = $('#endDate'),
 		obj_date = new Date(),
+		n_year = obj_date.getFullYear(),
+		n_month = obj_date.getMonth()+1,
+		n_day = obj_date.getDate(),
+		str_today = n_year + '-' + n_month + '-' + n_day + ' 00:00:00',
 		MILISECONDS = 24*60*60*10*1000; // 10天的毫秒数;
 		
 	obj_stTime.datetimepicker({
@@ -113,9 +118,11 @@ function fn_initTimeControl() {
 			var n_startTime = obj_stTime.datetimepicker('getDate').getTime(),
 				n_endTime = obj_endTime.datetimepicker('getDate').getTime(),
 				n_timesDiff = n_endTime - n_startTime;
-				
-			if ( Math.abs(n_timesDiff) > MILISECONDS ) {
-				obj_endTime.datetimepicker('setDate', new Date(n_startTime + MILISECONDS));
+			
+			if ( str_who != 'feedback' ) { 
+				if ( Math.abs(n_timesDiff) > MILISECONDS ) {
+					obj_endTime.datetimepicker('setDate', new Date(n_startTime + MILISECONDS));
+				}
 			}
 		}
 	});
@@ -129,12 +136,18 @@ function fn_initTimeControl() {
 				n_endTime = obj_endTime.datetimepicker('getDate').getTime(), 
 				n_timesDiff = n_endTime - n_startTime;
 				
-			if ( Math.abs(n_timesDiff) > MILISECONDS ) {
-				obj_stTime.datetimepicker('setDate', new Date(n_endTime-MILISECONDS));
+			if ( str_who != 'feedback' ) { 
+				if ( Math.abs(n_timesDiff) > MILISECONDS ) {
+					obj_stTime.datetimepicker('setDate', new Date(n_endTime-MILISECONDS));
+				}
 			}
 		}
 	}); 
-	obj_stTime.datetimepicker('setDate', new Date(new Date().getTime() - 24*60*60*1000));
+	if ( str_who == 'feedback' ) {
+		obj_stTime.datetimepicker('setDate', str_today);
+	} else {
+		obj_stTime.datetimepicker('setDate', new Date( obj_date - 24*60*60*1000));
+	}
 	obj_endTime.datetimepicker('setDate', obj_date);
 	
 }
@@ -247,3 +260,49 @@ window.onresize = function () {
 		}
 	}, 100);
 }
+
+
+/**
+* jquery 异步请求架构
+* url: ajax请求的url
+* data: ajax请求参数
+* callback: 回调函数
+* errorCallback: 出现错误的回调函数
+* method： ajax请求方式get or post
+*/
+function _ajax_request(url, data, callback, errorCallback, method) {
+	return jQuery.ajax({
+		type : method,
+		url : url,
+		data : data,
+		success : callback,
+        error : errorCallback, // 出现错误
+		dataType : 'json',
+		contentType : 'application/json; charset=utf-8',
+        complete: function (XMLHttpRequest, textStatus) { // 页面超时
+            var stu = XMLHttpRequest.status;
+            if ( stu == 200 && XMLHttpRequest.responseText.search('captchaimg') != -1 ) {
+                //window.location.replace('/static/timeout.html'); // redirect to the index.
+                return;
+            }
+        }
+	});
+}
+
+/**
+* 继承并重写jquery的异步方法
+*/
+jQuery.extend({
+    put_: function(url, data, callback, errorCallback) {
+        return _ajax_request(url, data, callback, errorCallback, 'PUT');
+    },
+    delete_: function(url, data, callback, errorCallback) {
+        return _ajax_request(url, data, callback, errorCallback, 'DELETE');
+    },
+    post_: function(url, data, callback, errorCallback) {
+        return _ajax_request(url, data, callback, errorCallback, 'POST');
+    },
+	get_: function(url, data, callback, errorCallback) {
+        return _ajax_request(url, data, callback, errorCallback, 'GET');
+    }
+});
