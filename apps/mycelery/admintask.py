@@ -146,7 +146,7 @@ class TerminalStatistic(object):
                         record['terminal_del_year'] = 0
                 return record
 
-            def handle_terminal(tmobile, start_time, end_time, db):
+            def handle_in_terminal(tmobile, start_time, end_time, db):
                 """Check the terminal is del or add. 
                 @params: tmobile, the mobile of terminal 
                          start_time, the start time of a day
@@ -157,11 +157,11 @@ class TerminalStatistic(object):
                 del_num = 0
 
                 add_count = db.get("SELECT COUNT(*) AS count FROM T_BIND_LOG" 
-                                   "  WHERE tmobile = %s AND op_type = %s AND add_time BETWEEN %s AND %s", 
+                                   "  WHERE tmobile = %s AND group_id = -1 AND op_type = %s AND add_time BETWEEN %s AND %s", 
                                    tmobile, UWEB.OP_TYPE.ADD, start_time, end_time)
 
                 del_count = db.get("SELECT COUNT(*) AS count FROM T_BIND_LOG" 
-                                   "  WHERE tmobile = %s AND op_type = %s AND del_time BETWEEN %s and %s", 
+                                   "  WHERE tmobile = %s AND group_id = -1 AND op_type = %s AND del_time BETWEEN %s and %s", 
                                    tmobile, UWEB.OP_TYPE.DEL, start_time, end_time)
 
                 interval = add_count.count - del_count.count
@@ -181,6 +181,43 @@ class TerminalStatistic(object):
 
                 return add_num, del_num
 
+            def handle_en_terminal(tmobile, start_time, end_time, db):
+                """Check the terminal is del or add. 
+                @params: tmobile, the mobile of terminal 
+                         start_time, the start time of a day
+                         end_time, the end time of a day 
+                         db, database
+                """
+                add_num = 0 
+                del_num = 0
+
+                add_count = db.get("SELECT COUNT(*) AS count FROM T_BIND_LOG" 
+                                   "  WHERE tmobile = %s AND group_id != -1  AND op_type = %s AND add_time BETWEEN %s AND %s", 
+                                   tmobile, UWEB.OP_TYPE.ADD, start_time, end_time)
+
+                del_count = db.get("SELECT COUNT(*) AS count FROM T_BIND_LOG" 
+                                   "  WHERE tmobile = %s AND group_id != -1 AND op_type = %s AND del_time BETWEEN %s and %s", 
+                                   tmobile, UWEB.OP_TYPE.DEL, start_time, end_time)
+
+                interval = add_count.count - del_count.count
+                if interval == 0: # +-, -+ 
+                    add_num = 0 
+                    del_num = 0
+                elif interval == 1: # +,+-+
+                    add_num = 1 
+                    del_num = 0
+                elif interval == -1: # -, -+-
+                    add_num = 0 
+                    del_num = 1
+                else:
+                    #NOTE: it should never happen 
+                    logging.error("Tmobile:%s, add_count: %s, del_count: %s", 
+                                  tmobile, add_count.count, del_count.count)
+
+                return add_num, del_num
+
+
+
             #  handle the dead terminal:
             handle_dead_terminal(self.db, self.redis)
 
@@ -189,7 +226,7 @@ class TerminalStatistic(object):
 
             tmobiles = [terminal.tmobile for terminal in terminals]
             for tmobile in tmobiles:
-                add_num, del_num = handle_terminal(tmobile, day_start_time, day_end_time, self.db)
+                add_num, del_num = handle_in_terminal(tmobile, day_start_time, day_end_time, self.db)
                 in_terminal_add_day += add_num  
                 in_terminal_del_day += del_num 
 
@@ -208,7 +245,7 @@ class TerminalStatistic(object):
             terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where tmobile like '14778%%' and group_id != -1")
             tmobiles = [terminal.tmobile for terminal in terminals]
             for tmobile in tmobiles:
-                add_num, del_num = handle_terminal(tmobile, day_start_time, day_end_time, self.db)
+                add_num, del_num = handle_en_terminal(tmobile, day_start_time, day_end_time, self.db)
                 e_terminal_add_day += add_num  
                 e_terminal_del_day += del_num 
 
@@ -223,6 +260,7 @@ class TerminalStatistic(object):
 
             e_terminal_add_year = record['terminal_add_year'] + e_terminal_add_day 
             e_terminal_del_year = record['terminal_del_year'] + e_terminal_del_day 
+
 
             sql_corp_add = ("SELECT COUNT(id) as num"
                             "  FROM T_CORP"
