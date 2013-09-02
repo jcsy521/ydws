@@ -522,8 +522,13 @@ table, .ui-widget-header {
 	width: 70px;
 	text-align: justify;
 }
+.ask .dt {
+	width: 80%;
+	padding-left: 34px;
+}
 .item .answer {
 	color: #FF6500;
+	margin-top: 10px;
 }
 .item .answer dt {
 	float: left;
@@ -557,6 +562,7 @@ table, .ui-widget-header {
 }
 .item .content {
 	float: left;
+	width: 85%;
 }
 .item .date-answer {
 	float: right;

@@ -290,7 +290,7 @@ function fn_productTableContent(str_who, obj_reaData) {
 						}
 						str_html += '</span><span class="operation"><a href="#" onclick="fn_editReply(this, '+ n_feedbackId +')">编辑回复</a>';
 						str_html += '<a href="#" onclick="fn_deleteFeedback('+ n_feedbackId +')">删除反馈</a></span></div>';
-						str_html += '<dl class="ask"><dt>反馈内容：</dt><dd><label>'+ str_content +'</label></dd></dl>';
+						str_html += '<dl class="ask"><dt>反馈内容：</dt><dd class="dt"><label>'+ str_content +'</label></dd></dl>';
 						str_html += '<dl class="answer j_answer"><dt class="'+ str_hide +'">客服回复：</dt>';
 						
 						str_html += '<dd class="'+ str_hide +' j_replyContent"><div class="content">'+ str_replyContent +'</div><div class="date-answer">回复时间：'+ str_tempReplyTime +'</div></dd>';
