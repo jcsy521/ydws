@@ -31,7 +31,6 @@ class Log(BaseHandler):
             plan_id = data.get("plan_id")
             level = data.get("level")
         except Exception as e:
-            #TODO: 
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
 
@@ -58,7 +57,6 @@ class Log(BaseHandler):
                         self.write_ret(ErrorCode.SUCCESS,
                                        dict_=DotDict(res=allLog))
                 except Exception as e:
-                    # TODO: remvoe unwanted dict_
                     logging.exception("[LOG] Log's inquiry failed. Inquiry condition:"
                                       "start_time: %s"
                                       "end_time: %s"
@@ -86,7 +84,7 @@ class Log(BaseHandler):
                                                "    AND time BETWEEN %s AND %s",
                                                plan_id, start_time, end_time)
                         self.write_ret(ErrorCode.SUCCESS,
-                                       dict_=DotDict(log_list=allLog))
+                                       dict_=DotDict(res=allLog))
                     else:
                         allLog = self.db.query("SELECT id, level, servername, details,"
                                                "  DATE_FORMAT(time,'%%Y-%%m-%%d %%H:%%i:%%s')"
@@ -96,7 +94,6 @@ class Log(BaseHandler):
                         self.write_ret(ErrorCode.SUCCESS, 
                                        dict_=DotDict(res=allLog))
                 except Exception as e:
-                    #TODO: 
                     logging.exception("[LOG] Log's inquiry failed. Inquiry condition:"
                                       "start_time: %s"
                                       "end_time: %s"
@@ -106,7 +103,6 @@ class Log(BaseHandler):
                                       start_time, end_time, plan_id, level, e.args)
                     self.write_ret(ErrorCode.FAILED)
             else:
-                # TODO: remove unwanted return
                 self.render("log/log.html",
                             allLog={},
                             start_time="",
