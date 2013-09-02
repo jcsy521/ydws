@@ -2787,7 +2787,7 @@ legend {
 	line-height: 22px;
 }
 .eventSearchContent .dataTable, .singleEventContent .dataTable {
-	width: 770px;
+	width: 850px;	/*770px*/
 }
 .singleEventContent {
 	padding-top: 10px;
@@ -3080,11 +3080,7 @@ legend {
 }
 /**==================*/
 #regionWrapper, #corpRegionWrapper {
-	background: none repeat scroll 0 0 #F7F8F8;
 	width: 510px;
-	height: 592px;
-}
-#corpRegionWrapper {
 	height: 492px;
 }
 .regionContent, .corpRegionContent {
@@ -3249,7 +3245,7 @@ legend {
 	padding-top: 20px;
 }
 .bindRegionTable, .bindBatchRegionTable {
-	width: 410px;
+	width: 460px;
 	margin: 10px auto;
 }
 .bindRegionSave, .bindBatchRegionSave {

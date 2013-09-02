@@ -466,7 +466,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		obj_infoPushTipsEle = $('.j_infoPushTips, #infoPushDisabledBtn'),
 		obj_chart = $('#'+ str_who +'Wrapper .j_chart'),
 		b_userType = dlf.fn_userType();	// true: corp
-			
+	
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
 			str_tbodyText = '';
@@ -785,7 +785,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					n_lng = obj_tempData.clongitude/NUMLNGLAT,
 					n_lat = obj_tempData.clatitude/NUMLNGLAT,
 					str_location = obj_tempData.name, 
-					str_tempAddress = str_location.length >= 30 ? str_location.substr(0,30) + '...':str_location,
+					str_tempAddress = str_location.length >= 25 ? str_location.substr(0,25) + '...':str_location,
 					str_comment = obj_tempData.comment,	// 电量备注
 					str_text = '';	//地址
 					
@@ -793,22 +793,22 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					* 拼接table
 					*/
 					str_tbodyText+= '<tr>';
-					str_tbodyText+= '<td>'+obj_tempData.alias+'</td>';
-					str_tbodyText+= '<td>'+dlf.fn_changeNumToDateString(obj_tempData.timestamp)+'</td>';	// 告警时间
-					str_tbodyText+= '<td>'+dlf.fn_eventText(str_type)+'</td>';	// 告警类型
+					str_tbodyText+= '<td width="100px">'+obj_tempData.alias+'</td>';
+					str_tbodyText+= '<td width="150px">'+dlf.fn_changeNumToDateString(obj_tempData.timestamp)+'</td>';	// 告警时间
+					str_tbodyText+= '<td width="100px">'+dlf.fn_eventText(str_type)+'</td>';	// 告警类型
 					if ( n_lng == 0 || n_lat == 0 ) {	//无地址
 						str_tbodyText+= '<td>无</td>';	
 					} else {
 						if ( str_location == '' || str_location == null ) {
-							str_tbodyText+= '<td><a href="#" onclick="dlf.fn_getAddressByLngLat(\''+n_lng+'\',\''+n_lat+'\',\'\',\'event\','+i+')" class="j_getPosition getPositionCss">获取位置</a></td>';
+							str_tbodyText+= '<td width="400px"><a href="#" onclick="dlf.fn_getAddressByLngLat(\''+n_lng+'\',\''+n_lat+'\',\'\',\'event\','+i+')" class="j_getPosition getPositionCss">获取位置</a></td>';
 						} else {
-							str_tbodyText+= '<td><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
+							str_tbodyText+= '<td width="400px"><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
 						}
 					}
 					if ( str_comment == '' ) {
-						str_tbodyText+= '<td>&nbsp;</td>';
+						str_tbodyText+= '<td width="100px">&nbsp;</td>';
 					} else {
-						str_tbodyText+= '<td>'+ str_comment +'</td>';
+						str_tbodyText+= '<td width="100px">'+ str_comment +'</td>';
 					}
 					str_tbodyText+= '</tr>';
 				break;
@@ -876,25 +876,29 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			case 'corpRegion':	// 集团用户电子围栏 
 			case 'region': // 个人用户电子围栏
 				var str_regionId = obj_tempData.region_id,
-					arr_regionName = obj_tempData.region_name;
-			
+					str_regionName = obj_tempData.region_name,
+					str_tempRegionName = str_regionName;
+				
+				str_tempRegionName = str_tempRegionName.length > 20 ? str_tempRegionName.substr(0, 20) + '...' : str_tempRegionName;
 				str_tbodyText+= '<tr id='+ str_regionId +'>';
-				str_tbodyText+= '<td>'+ (i+1) +'</td>';	// 围栏序列
-				str_tbodyText+= '<td>'+ arr_regionName +'</td>';	// 围栏名称
-				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';	// 
-				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteRegion('+ str_regionId +')>删除</a></td>';	
+				str_tbodyText+= '<td width="50px">'+ (i+1) +'</td>';	// 围栏序列
+				str_tbodyText+= '<td width="280px" title="'+ str_regionName +'">'+ str_tempRegionName +'</td>';	// 围栏名称
+				str_tbodyText+= '<td width="70px"><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';	// 
+				str_tbodyText+= '<td width="60px"><a href="#" onclick=dlf.fn_deleteRegion('+ str_regionId +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';
 				break;
 			case 'bindRegion': // 电子围栏绑定
 			case 'bindBatchRegion': // 电子围栏批量绑定
 				var str_regionId = obj_tempData.region_id,
-					arr_regionName = obj_tempData.region_name,
+					str_regionName = obj_tempData.region_name,
+					str_tempRegionName = str_regionName;
 					str_checkboxId = str_who+'Ck_' + str_regionId;
 				
+				str_tempRegionName = str_tempRegionName.length > 20 ? str_tempRegionName.substr(0, 20) + '...' : str_tempRegionName;
 				str_tbodyText+= '<tr id='+ str_regionId +'>';
 				str_tbodyText+= '<td>'+'<input type="checkbox" id="'+ str_checkboxId +'" name="'+ str_who +'_check" value="'+ str_regionId +'" /></td>';	// 围栏选择
 				str_tbodyText+= '<td>'+ (i+1) +'</td>';	// 围栏序列
-				str_tbodyText+= '<td>'+ arr_regionName +'</td>';	// 围栏名称
+				str_tbodyText+= '<td title="'+ str_regionName +'">'+ str_tempRegionName +'</td>';	// 围栏名称
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';
 				str_tbodyText+= '</tr>';
 				

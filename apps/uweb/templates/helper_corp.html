@@ -21,11 +21,14 @@
 				<div id="test5-header" class="accordion_headings"><a href="#" class="navItem">5.实时定位</a></div>
 				<div id="test6-header" class="accordion_headings"><a href="#" class="navItem">6.轨迹查询</a></div>
 				<div id="test7-header" class="accordion_headings"><a href="#" class="navItem">7.告警查询</a></div>
-				<div id="test8-header" class="accordion_headings"><a href="#" class="navItem">8.设防/撤防</a></div>
-				<div id="test9-header" class="accordion_headings"><a href="#" class="navItem">9.定位器设置</a></div>
-				<div id="test10-header" class="accordion_headings"><a href="#" class="navItem">10.短信设置</a></div>
-				<div id="test11-header" class="accordion_headings"><a href="#" class="navItem">11.个人信息设置</a></div>
-				<div id="test12-header" class="accordion_headings"><a href="#" class="navItem">12.路况信息查询</a></div>
+				<div id="test8-header" class="accordion_headings"><a href="#" class="navItem">8.电子围栏</a></div>
+				<div id="test9-header" class="accordion_headings"><a href="#" class="navItem">9.在线统计</a></div>
+				<div id="test10-header" class="accordion_headings"><a href="#" class="navItem">10.里程统计</a></div>
+				<div id="test11-header" class="accordion_headings"><a href="#" class="navItem">11.设防/撤防</a></div>
+				<div id="test12-header" class="accordion_headings"><a href="#" class="navItem">12.参数设置</a></div>
+				<div id="test13-header" class="accordion_headings"><a href="#" class="navItem">13.短信设置</a></div>
+				<div id="test14-header" class="accordion_headings"><a href="#" class="navItem">14.集团资料</a></div>
+				<div id="test15-header" class="accordion_headings"><a href="#" class="navItem">15.路况信息查询</a></div>
 			</div>
 			<div id="mainContent">
 				<div id="test1-content">
@@ -173,22 +176,73 @@
 				<div id="test7-content">
 					<div class="accordion_child">
                         <p>
-                            <strong class="bigFont">告警统计：</strong>
+                            <strong class="bigFont">告警查询：</strong>
                            车主在平台上查询车辆指定时间段内的电量告警、通讯异常、移动告警、震动告警的次数。
                         </p>
                         <ol>
                             <li>
-                                <h3 class="ctitle">告警统计-&gt;选择查询条件示例：</h3>
+                                <h3 class="ctitle">告警查询-&gt;选择查询条件示例：</h3>
 						        <img src="/static/images/corpHelpImg/event1.png" alt="告警统计条件" />
                             </li>
 							<li class="cHrLine cLinePos">
-						        <h3 class="ctitle">告警统计-&gt;告警统计结果：</h3>
+						        <h3 class="ctitle">告警查询-&gt;告警查询结果：</h3>
 						        <img src="/static/images/corpHelpImg/event2.png" alt="告警统计结果" />
                             </li>
                         </ol>
 					</div>
 				</div>
 				<div id="test8-content">
+					<div class="accordion_child">
+                        <p>
+                            <strong class="bigFont">电子围栏：</strong>
+                           车主在平台上画半径大于500米的圆形围栏，当车辆进入该区域内定位器将发生告警。
+                        </p>
+                        <ol>
+                            <li>
+                                <h3 class="ctitle">电子围栏-&gt;查询围栏列表示例：</h3>
+						        <img src="/static/images/corpHelpImg/region.png" alt="围栏列表" />
+                            </li>
+							<li class="cHrLine cLinePos">
+						        <h3 class="ctitle">电子围栏-&gt;新建围栏：</h3>
+						        <img src="/static/images/corpHelpImg/addRegion.png" alt="新建围栏" />
+                            </li>
+							<li class="cHrLine cLinePos">
+						        <h3 class="ctitle">电子围栏-&gt;删除围栏：</h3>
+						        <img src="/static/images/corpHelpImg/deleteRegion.png" alt="删除围栏" />
+                            </li>
+                        </ol>
+					</div>
+				</div>
+				<div id="test9-content">
+					<div class="accordion_child">
+                        <p>
+                            <strong class="bigFont">在线统计：</strong>
+                           车主可以查看某段时间内定位器的在线情况。
+                        </p>
+                        <ol>
+                            <li>
+                                <h3 class="ctitle">在线统计-&gt;查询在线统计示例：</h3>
+						        <img src="/static/images/corpHelpImg/onlineStatics.png" alt="在线统计" />
+                            </li>
+                        </ol>
+					</div>
+				</div>
+				<div id="test10-content">
+					<div class="accordion_child">
+                        <p>
+                            <strong class="bigFont">里程统计：</strong>
+                           车主可以查看某段时间内某个定位器的里程数。
+                        </p>
+                        <ol>
+                            <li>
+                                <h3 class="ctitle">里程统计-&gt;查询里程统计示例：</h3>
+						        <img src="/static/images/corpHelpImg/mileage.png" alt="在线统计" />
+                            </li>
+                        </ol>
+					</div>
+				</div>
+				
+				<div id="test11-content">
 					<div class="accordion_child">
 						<p>
                             <strong class="bigFont">设防/撤防：</strong>
@@ -207,19 +261,19 @@
 						</div>
 					</div>
 				</div>
-				<div id="test9-content">
+				<div id="test12-content">
 					<div class="accordion_child">
                         <ol>
                             <li class="cHrLine cLinePos">
-                                <strong class="bigFont">定位器参数设置：</strong>
-								设定定位器的各类参数，例如：车主手机号、振动报警频率，上报频率等。
-                                <h3 class="ctitle">定位器参数设置示例：</h3>
+                                <strong class="bigFont">参数设置：</strong>
+								设定定位器的各类参数，例如：车主手机号、客户端通知、车牌号、车辆图标、上报频率等。
+                                <h3 class="ctitle">参数设置示例：</h3>
                                 <img src="/static/images/corpHelpImg/terminal1.png" alt="定位器参数设置" />
                             </li>
                         </ol>
 					</div>
 				</div>
-				<div id="test10-content">
+				<div id="test13-content">
 					<div class="accordion_child">
                         <ol>
                             <li class="cHrLine cLinePos">
@@ -231,20 +285,19 @@
                         </ol>
 					</div>
 				</div>
-				<div id="test11-content">
+				<div id="test14-content">
 					<div class="accordion_child">
 						<p>
-                            <strong class="bigFont">个人信息设置：</strong>
-                            车主可以对个人的信息如:手机号、邮箱及密码等进行修改设置。
+                            <strong class="bigFont">集团资料设置：</strong>
+                            车主可以对集团的信息如:集团名称、集团联系人、地址、邮箱及密码等进行修改设置。
 						</p>
-						<h3 class="ctitle">个人信息示例：</h3>
-						<img class="cImgPos" src="/static/images/corpHelpImg/personal.png" alt="个人信息设置" />
+						<h3 class="ctitle">集团资料示例：</h3>
+						<img class="cImgPos" src="/static/images/corpHelpImg/personal.png" alt="集团资料设置" />
 						<h3 class="ctitle">修改密码示例：</h3>
 						<img class="cImgPos" src="/static/images/corpHelpImg/pwd.png" alt="修改密码" />
 					</div>
 				</div>
-				
-				<div id="test12-content">
+				<div id="test15-content">
 					<div class="accordion_child">
 						<p>
                             <strong class="bigFont">路况信息查询：</strong>

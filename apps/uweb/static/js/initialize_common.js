@@ -1301,7 +1301,7 @@ window.dlf.fn_onInputBlur = function() {
 						str_msg = '车主姓名最大长度是20个汉字或字符！'
 					} else {
 						if ( !reg.test(str_val) ) {
-							str_msg = '车主姓名只能是由数字、英文、下划线或中文组成！';
+							str_msg = '车主姓名只能由数字、英文、中文、空格组成！';
 						}
 					}
 					if ( str_msg != '' ) {
