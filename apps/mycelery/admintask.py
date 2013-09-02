@@ -222,7 +222,9 @@ class TerminalStatistic(object):
             handle_dead_terminal(self.db, self.redis)
 
             # for individual
-            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where tmobile like '14778%%' and group_id = -1")
+            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG"
+                                      "  WHERE (tmobile LIKE '14778%%' OR tmobile LIKE '1847644%%')"
+                                      "  AND group_id = -1")
 
             tmobiles = [terminal.tmobile for terminal in terminals]
             for tmobile in tmobiles:
@@ -242,7 +244,9 @@ class TerminalStatistic(object):
             in_terminal_del_year = record['terminal_del_year'] + in_terminal_del_day 
 
             # for enterprise
-            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG where tmobile like '14778%%' and group_id != -1")
+            terminals = self.db.query("SELECT DISTINCT tmobile FROM T_BIND_LOG" 
+                                      "  WHERE (tmobile LIKE '14778%%' OR tmobile LIKE '1847644%%') "
+                                      "    AND group_id != -1")
             tmobiles = [terminal.tmobile for terminal in terminals]
             for tmobile in tmobiles:
                 add_num, del_num = handle_en_terminal(tmobile, day_start_time, day_end_time, self.db)
@@ -268,7 +272,8 @@ class TerminalStatistic(object):
 
             sql_in_login = ("SELECT COUNT(distinct tll.uid) AS num"
                             "   FROM T_LOGIN_LOG as tll, T_TERMINAL_INFO as tti"
-                            "   WHERE tll.uid = tti.owner_mobile AND tti.mobile like '14778%%' "
+                            "   WHERE tll.uid = tti.owner_mobile "
+                            "       AND (tti.mobile LIKE '14778%%' OR tti.mobile LIKE '1847644%%')"
                             "       AND tll.role =0 AND (tll.timestamp BETWEEN %s AND %s)") 
 
             sql_en_login = ("SELECT COUNT(distinct uid) AS num"
@@ -282,7 +287,8 @@ class TerminalStatistic(object):
                              " FROM"
                              " (SELECT uid "
                              " FROM T_LOGIN_LOG as tll, T_TERMINAL_INFO as tti"
-                             " WHERE tll.uid = tti.owner_mobile AND tti.mobile like '14778%%' "
+                             " WHERE tll.uid = tti.owner_mobile"
+                             "     AND (tti.mobile LIKE '14778%%' OR tti.mobile LIKE '1847644%%')  "
                              "     AND  (tll.timestamp BETWEEN %s AND %s)"
                              "     AND tll.role = 0 " 
                              "  GROUP BY tll.uid"
@@ -341,12 +347,13 @@ class TerminalStatistic(object):
 
             individuals = self.db.get("SELECT COUNT(tu.id) AS num"
                                       "  FROM T_USER as tu, T_TERMINAL_INFO as tti"
-                                      "  WHERE tu.uid = tti.owner_mobile and tti.mobile like '14778%%'") 
+                                      "  WHERE tu.uid = tti.owner_mobile"
+                                      "    AND (tti.mobile LIKE '14778%%' OR tti.mobile LIKE '1847644%%')") 
             in_deactive = DotDict(num=individuals.num-in_active.num)
 
-            in_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id=-1 AND login != 0 AND mobile like '14778%%'")
+            in_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id=-1 AND login != 0 AND (mobile LIKE '14778%%' OR  mobile LIKE '1847644%%')")
 
-            in_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id=-1 AND login=0  AND mobile like '14778%%'")
+            in_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id=-1 AND login=0  AND (mobile LIKE '14778%%' OR mobile LIKE '1847644%%')")
 
             self.db.execute(sql_kept,
                             0, 0, 0,in_terminal_add_day, in_terminal_add_month, in_terminal_add_year,
@@ -387,9 +394,9 @@ class TerminalStatistic(object):
 
             e_deactive = DotDict(num=enterprise.num+oper.num-e_active.num) 
 
-            e_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id != -1  AND login != 0 AND mobile like '14778%%'")
+            e_terminal_online_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id != -1  AND login != 0 AND (mobile LIKE '14778%%' OR mobile LIKE '1847644%%') ")
 
-            e_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id != -1 AND login = 0 and mobile like '14778%%'")
+            e_terminal_offline_count = self.db.get(sql_terminal_line_count + " WHERE service_status=1 AND group_id != -1 AND login = 0 AND (mobile LIKE '14778%%' OR mobile LIKE '1847644%%')")
 
             self.db.execute(sql_kept,
                             e_corp_add_day.num, e_corp_add_month.num, e_corp_add_year.num,
@@ -467,8 +474,8 @@ class TerminalStatistic(object):
         cur_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
                        "  FROM T_TERMINAL_INFO"
                        "  WHERE service_status = 1 AND login =0 "
-                       "  AND mobile like '14778%%' "
-                       "  AND offline_time BETWEEN %s AND %s ORDER BY pbat")
+                       "  AND (mobile LIKE '14778%%' OR  mobile LIKE '1847644%%') "
+                       "  AND (offline_time BETWEEN %s AND %s) ORDER BY pbat")
 
         terminal_sql_cmd = "SELECT login, remark, offline_time FROM T_TERMINAL_INFO WHERE mobile = %s LIMIT 1"
 

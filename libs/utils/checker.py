@@ -31,7 +31,7 @@ _name_pattern = ur"^[\u4e00-\u9fa5a-zA-Z0-9 ]+$"
 
 NAME_CHECKER = re.compile(_name_pattern)
 
-_zs_phone_pattern = r"^(1477847\d{4}|1477874\d{4})$"
+_zs_phone_pattern = r"^(1477847\d{4}|1477874\d{4}|1847644\d{4})$"
 
 ZS_PHONE_CHECKER = re.compile(_zs_phone_pattern)
 
