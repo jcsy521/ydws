@@ -176,11 +176,15 @@ window.dlf.fn_initCorpData = function() {
 		var obj_this = $(this),
 			str_old = obj_this.data('c_name'),
 			str_new = obj_this.val();
-			
-		if ( str_old != str_new ) {
-			dlf.fn_checkCName($(this).val());
+		
+		if ( str_new != '' ) {
+			if ( str_old != str_new ) {
+				dlf.fn_checkCName($(this).val());
+			} else {
+				$('#hidCName').val('');
+			}
 		} else {
-			$('#hidCName').val('');
+			dlf.fn_jNotifyMessage('集团名称不能为空。', 'message', false, 3000);
 		}
 	});
 	$.get_(CORPPERSON_URL, '', function (data) {	// 获取最新的集团资料数据
@@ -369,6 +373,15 @@ window.onresize = function () {
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 6;
+			/**
+			* kjj add in 2013-08-28 
+			* 关闭停留点或告警列表的时候 改变浏览器窗口
+			*/
+			var obj_delayPanel = $('.j_delayPanel'),
+				b_delayPanel = obj_delayPanel.is(':visible'),
+				obj_alarmPanel = $('.j_alarmPanel'),
+				b_alarmPanel = obj_alarmPanel.is(':visible'),
+				n_tempWindowWidth = n_windowWidth;
 			
 			if ( n_windowWidth < 1500 ) {
 				n_trackLeft = 80;
@@ -376,7 +389,19 @@ window.onresize = function () {
 				n_delayIconLeft = 853;
 				n_alarmLeft = 1000;
 				n_alarmIconLeft = 982;
+				n_tempWindowWidth = 1400;
 			}
+			
+			if ( !b_delayPanel ) {
+				n_delayIconLeft = n_tempWindowWidth - 17;
+			}
+			if ( !b_alarmPanel ) {
+				n_alarmIconLeft = n_tempWindowWidth - 17;
+			}
+			obj_delayPanel.css({'left': n_delayLeft});
+			$('.j_disPanelCon').css({'left': n_delayIconLeft});
+			obj_alarmPanel.css({'left': n_alarmLeft});
+			$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 		} else {
 			n_trackLeft = ( obj_track.width() ) / 4;
 			if ( n_windowWidth < 1500 ) {
@@ -400,10 +425,6 @@ window.onresize = function () {
 		if ( !dlf.fn_isBMap() ) {	// 高德地图
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
 		}
-		$('.j_delayPanel').css({'left': n_delayLeft});
-		$('.j_disPanelCon').css({'left': n_delayIconLeft});
-		$('.j_alarmPanel').css({'left': n_alarmLeft});
-		$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 	}, 100);
 }
 
@@ -561,6 +582,7 @@ $(function () {
 				dlf.fn_clearAllMenu();
 				$('#home').addClass('homeHover');
 				// 如果上次操作的是 轨迹、告警查询、线路管理、添加线路、围栏管理、绑定围栏、批量绑定围栏、创建围栏 操作的话 点击“车辆位置” 清除所有数据重新发起lastinfo请求
+				
 				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				} else {
@@ -710,8 +732,8 @@ $(function () {
 		}
 	});
 	
-	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能是由数字、英文、中文组成！"});  // 别名;
-	$('#cnum').formValidator({empty:true}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能是汉字、数字、大写英文组成！'}); // 区分大小写
+	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能由数字、英文、中文、空格组成！"});  // 别名;
+	$('#cnum').formValidator({empty:true}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
 
 	/**
 	* 密码进行验证
@@ -784,8 +806,8 @@ $(function () {
 			}
 		}
 	});
-	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "名只能是由数字、英文、下划线或中文组成！"});  //集团名
-	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人姓名只能是由数字、英文、下划线或中文组成！"});  // 联系人姓名
+	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由数字、英文、中文组成！"});  //集团名
+	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人姓名只能由数字、英文、中文、空格组成！"});  // 联系人姓名
 	// $('#c_mobile').formValidator({validatorGroup: '4'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人手机号输入不合法，请重新输入！"});  // 联系人手机号	
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
@@ -1002,16 +1024,19 @@ $(function () {
     $('.j_hosBtn').unbind('click').click(function (event) {
         var obj_elem = $(this), 
 			obj_regionNote = $('#regionNote'),
-			obj_content = $(this).parent().next();
+			obj_content = $(this).parent().next(),
+			obj_wrapper = obj_content.parent();
 		
         if ( obj_elem.hasClass('min') ) {
 			obj_regionNote.hide();
             obj_elem.removeClass('min').addClass('max').attr('title', '展开');
             obj_content.hide();
+			obj_wrapper.height(34);
         } else if ( obj_elem.hasClass('max') ) {
 			obj_regionNote.show();
             obj_elem.removeClass('max').addClass('min').attr('title', '收起');
             obj_content.show();
+			obj_wrapper.height(492);
         }
     });
 	// 轨迹查询停留点图标事件、告警提示列表图标事件
@@ -1054,10 +1079,6 @@ $(function () {
 			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		}
 		obj_arrowCon.css({'left': n_alarmIconLeft});
-	});
-	// 告警信息提示的关闭按钮
-	$('.j_closeAlarm').unbind('click').bind('click', function() {
-		dlf.fn_closeAlarmPanel();
 	});
 	// 告警信息提示的关闭按钮
 	$('.j_closeAlarm').unbind('click').bind('click', function() {

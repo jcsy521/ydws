@@ -44,6 +44,33 @@ window.dlf.fn_initTrack = function() {
 	}
 }
 
+window.dlf.fn_initPanel = function () {
+	/**
+	* 调整页面大小
+	*/
+	var n_windowWidth = $(window).width(),
+		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
+		n_delayLeft = n_windowWidth - 530,
+		n_delayIconLeft = n_delayLeft - 17,
+		n_alarmLeft = n_windowWidth - 400,
+		n_alarmIconLeft = n_alarmLeft - 17,
+		obj_tree = $('#corpTree');
+	
+	if ( dlf.fn_userType() ) {	// 集团用户		
+		if ( n_windowWidth < 1500 ) {
+			n_delayLeft = 870;
+			n_delayIconLeft = 853;
+			n_alarmLeft = 1000;
+			n_alarmIconLeft = 982;
+		}
+	}
+	// 设置停留点列表的位置
+	$('.j_delayPanel').css({'left': n_delayLeft});
+	$('.j_disPanelCon').css({'left': n_delayIconLeft});
+	$('.j_alarmPanel').css({'left': n_alarmLeft});
+	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
+}
+
 /**
 * 关闭轨迹显示页面
 * b_ifLastInfo: 清除规矩相关的时候是否要发起lastinfo
@@ -118,6 +145,9 @@ function fn_trackQuery() {
 	// 集团用户显示查询结果面板
 	obj_delayCon.hide();
 	obj_locusDate.tid = dlf.fn_getCurrentTid();
+	
+	b_trackMsgStatus = true;
+	actionMarker = null;
 	$.post_(TRACK_URL, JSON.stringify(obj_locusDate), function (data) {
 		if ( data.status == 0 ) {
 			var arr_locations = data.track, 
@@ -140,6 +170,8 @@ function fn_trackQuery() {
 				if ( b_userType ) {
 					if ( arr_idlePoints.length > 0 ) {
 						obj_delayCon.show();
+						dlf.fn_initPanel();
+						$('.j_delayPanel').show();
 						// 存储停留点信息
 						obj_trackHeader.data('delayPoints', arr_idlePoints);
 					}
@@ -510,7 +542,7 @@ $(function () {
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
-			n_delayIconLeft = n_windowWidth - 16;
+			n_delayIconLeft = n_windowWidth - 17;
 			//obj_arrowCon.css({'right': '0px'});
 			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
 		} else {

@@ -1301,7 +1301,7 @@ window.dlf.fn_onInputBlur = function() {
 						str_msg = '车主姓名最大长度是20个汉字或字符！'
 					} else {
 						if ( !reg.test(str_val) ) {
-							str_msg = '车主姓名只能是由数字、英文、下划线或中文组成！';
+							str_msg = '车主姓名只能由数字、英文、中文、空格组成！';
 						}
 					}
 					if ( str_msg != '' ) {
@@ -1447,7 +1447,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
 	if ( b_trackStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionStatus || b_corpRegionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
-		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' ) {
+		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo

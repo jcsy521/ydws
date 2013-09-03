@@ -429,7 +429,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		var str_currenttid = $('.j_carList .j_currentCar').attr('tid');
 		
 		if ( str_tid == str_currenttid && str_iconType == 'actiontrack' ) {
-			$('#address').html(address);
+			$('#address').html(str_tempAddress);
 		}
 	}
 	if ( str_iconType == 'actiontrack' ) {	// 2013-07-30 update 只有lastinfo或realtime时 存储address
@@ -532,7 +532,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		dlf.fn_updateOpenTrackStatusColor(tid);
 	} else if ( str_type == 'event' ) {
 		if ( n_lon != 'none' ) {
-			var str_tempAddress = str_result.length >= 30 ? str_result.substr(0,30) + '...':str_result;
+			var str_tempAddress = str_result.length > 28 ? str_result.substr(0,28) + '...':str_result;
 			
 			$('.eventSearchTable tr').eq(n_index+1).find('.j_getPosition').parent().html('<label href="#" title="'+ str_result +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lon+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a>');
 			arr_dwRecordData[n_index].name = str_tempAddress;
