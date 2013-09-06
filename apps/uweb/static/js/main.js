@@ -344,7 +344,7 @@ window.onresize = function () {
 			n_trackLeft = 0,
 			n_mainContent = n_windowHeight - 104,
 			n_mainHeight = n_windowHeight - 123,
-			n_corpTreeContainerHeight = n_mainHeight-220,
+			n_corpTreeContainerHeight = n_mainHeight-270,
 			n_treeHeight = n_corpTreeContainerHeight - 45,
 			n_tempTreeHight = $('#corpTree ul').height(),
 			obj_tree = $('#corpTree'),
@@ -364,8 +364,8 @@ window.onresize = function () {
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 
-		if ( n_treeHeight < 345 ) {
-			n_treeHeight = 345;
+		if ( n_treeHeight < 340 ) {
+			n_treeHeight = 340;
 		}
 		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 		
@@ -456,7 +456,7 @@ $(function () {
 		n_trackLeft = 0,
 		obj_track = $('#trackHeader'),
 		n_mainHeight = n_windowHeight - 123,
-		n_corpTreeContainerHeight = n_mainHeight-220,
+		n_corpTreeContainerHeight = n_mainHeight-270,
 		n_treeHeight = n_corpTreeContainerHeight - 45,
 		n_delayLeft = n_windowWidth - 530,
 		n_delayIconLeft = n_delayLeft - 17,
@@ -472,8 +472,8 @@ $(function () {
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	
-	if ( n_treeHeight < 345 ) {
-		n_treeHeight = 345;
+	if ( n_treeHeight < 340 ) {
+		n_treeHeight = 340;
 	}	
 	obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 	
@@ -728,11 +728,22 @@ $(function () {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
 		}, 
 		onSuccess: function() { 
+			var str_val = $('#cnum').val(),
+				str_name = $('#name').val();
+			
+			if ( str_name.length > 0 && $.trim(str_name).length == 0 ) {
+				dlf.fn_jNotifyMessage('车主姓名不能只输入空格。', 'message', false, 3000);
+				return;
+			}
+			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
+				dlf.fn_jNotifyMessage('车牌号不能只输入空格。', 'message', false, 3000);
+				return;
+			}
 			dlf.fn_personalSave();
 		}
 	});
 	
-	$('#name').formValidator().inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能由数字、英文、中文、空格组成！"});  // 别名;
+	$('#name').formValidator({empty:true}).inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能由数字、英文、中文、空格组成！"});  // 别名;
 	$('#cnum').formValidator({empty:true}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
 
 	/**
@@ -810,6 +821,7 @@ $(function () {
 	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人姓名只能由数字、英文、中文、空格组成！"});  // 联系人姓名
 	// $('#c_mobile').formValidator({validatorGroup: '4'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人手机号输入不合法，请重新输入！"});  // 联系人手机号	
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	$('#c_address').formValidator({validatorGroup: '4'}).inputValidator({max: 100, onError: '地址最大长度是100个汉字或字符！'}); // 地址
 	
 	/**
 	* 操作员个人信息的验证
@@ -907,7 +919,7 @@ $(function () {
 			}
 		}
 	});
-	$('#txt_operatorName').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '操作员姓名不正确！'});
+	$('#txt_operatorName').formValidator({validatorGroup: '8'}).inputValidator({max: 20, onError: '操作员姓名最大长度为20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '操作员姓名只能由汉字、数字、大写英文、空格组成！'});
 	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号不正确！'});
 	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '8'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	

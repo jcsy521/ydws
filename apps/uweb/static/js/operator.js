@@ -7,7 +7,7 @@ window.dlf.fn_saveOperator = function() {
 		str_mobile = $('#txt_operatorMobile').val(),
 		str_address = $('#txt_operatorAddress').val(),
 		str_email = $('#txt_operatorEmail').val(),
-		obj_operatorData = {'oid': '', 'group_id': str_groupIds, 'name': str_name, 'mobile': str_mobile, 'address': str_address, 'email': str_email},
+		obj_operatorData = {'id': '', 'group_id': str_groupIds, 'name': str_name, 'mobile': str_mobile, 'address': str_address, 'email': str_email},
 		obj_header = $('#operatorTableHeader'),
 		b_header = obj_header.is(':hidden');
 
@@ -25,7 +25,7 @@ window.dlf.fn_saveOperator = function() {
 		if ( b_header ) {	// 判断表头是否显示
 			obj_header.show();
 		}
-		obj_operatorData.oid = parseInt(str_id);
+		obj_operatorData.id = parseInt(str_id);
 		dlf.fn_jsonPut(OPERATOR_URL, obj_operatorData, 'operator', '操作员数据保存中');
 	} else {
 		dlf.fn_jsonPost(OPERATOR_URL, obj_operatorData, 'operator', '操作员数据保存中');

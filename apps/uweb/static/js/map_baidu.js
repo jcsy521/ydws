@@ -475,7 +475,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			}
 			str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
 		} else if ( str_iconType == 'alarmInfo' ) {
-			str_html += '<li>告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
+			str_html += '<li class="top10">告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
 		}
 	}
 	str_html += '</ul></div>';

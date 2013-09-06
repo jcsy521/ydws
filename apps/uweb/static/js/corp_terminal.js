@@ -312,12 +312,18 @@ $(function() {
 		onError: function(msg) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
 		}, 
-		onSuccess: function() { 
+		onSuccess: function() {
+			var str_val = $('#t_corp_corp_cnum').val();
+			
+			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
+				dlf.fn_jNotifyMessage('车牌号不能只输入空格。', 'message', false, 3000);
+				return;
+			}
 			dlf.fn_corpBaseSave();	// put请求
 		}
 	});
 	$('#t_corp_owner_mobile').formValidator({validatorGroup: '7'}).inputValidator({max: 11, onError: '短信接收号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '短信接收号码不合法，请重新输入！'});
-	$('#t_corp_corp_cnum').formValidator({empty:true, validatorGroup: '7'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能是汉字、数字、大写英文组成！'});   // 别名;
+	$('#t_corp_corp_cnum').formValidator({empty:true, validatorGroup: '7'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写英文、空格组成！'});   // 别名;
 	
 	/** 
 	* 短息设置的验证

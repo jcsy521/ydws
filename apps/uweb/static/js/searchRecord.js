@@ -258,8 +258,13 @@ window.dlf.fn_searchData = function (str_who) {
 			
 			str_getDataUrl = OPERATOR_URL+'?name='+ str_name +'&mobile='+ str_mobile +'&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
 			
-			if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
-				dlf.fn_jNotifyMessage('您输入的手机号格式错误!', 'message', false);
+			if ( str_name!= '' && !NAMEREG.test(str_name) ) {
+				dlf.fn_jNotifyMessage('操作员姓名只能由汉字、数字、大写英文、空格组成!', 'message', false);
+				return;
+			}
+			if ( str_mobile != '' && !/^\d*$/.test(str_mobile) ) {	// 手机号合法性验证
+				dlf.fn_jNotifyMessage('手机号只能输入数字!', 'message', false);
+				return;
 			}
 				
 			break;
@@ -678,7 +683,7 @@ window.dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) 
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();
 			} else { // 查询状态不正确,错误提示
-				dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
+				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 			}
 		}, 
 		function (XMLHttpRequest, textStatus, errorThrown) {
@@ -727,7 +732,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		
 		switch (str_who) {
 			case 'operator': // 操作员查询
-				str_id = obj_tempData.oid;	
+				str_id = obj_tempData.id;	
 				obj_tableHeader.show();
 				str_tbodyText+= '<tr id='+ str_id +'>';
 				str_tbodyText+= '<td groupId ='+ obj_tempData.group_id +'>'+ obj_tempData.seq +'</td>';	//组名
@@ -797,12 +802,12 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_tbodyText+= '<td width="150px">'+dlf.fn_changeNumToDateString(obj_tempData.timestamp)+'</td>';	// 告警时间
 					str_tbodyText+= '<td width="100px">'+dlf.fn_eventText(str_type)+'</td>';	// 告警类型
 					if ( n_lng == 0 || n_lat == 0 ) {	//无地址
-						str_tbodyText+= '<td>无</td>';	
+						str_tbodyText+= '<td width="450px">无</td>';	
 					} else {
 						if ( str_location == '' || str_location == null ) {
-							str_tbodyText+= '<td width="400px"><a href="#" onclick="dlf.fn_getAddressByLngLat(\''+n_lng+'\',\''+n_lat+'\',\'\',\'event\','+i+')" class="j_getPosition getPositionCss">获取位置</a></td>';
+							str_tbodyText+= '<td width="450px"><a href="#" onclick="dlf.fn_getAddressByLngLat(\''+n_lng+'\',\''+n_lat+'\',\'\',\'event\','+i+')" class="j_getPosition getPositionCss">获取位置</a></td>';
 						} else {
-							str_tbodyText+= '<td width="400px"><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
+							str_tbodyText+= '<td width="450px"><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
 						}
 					}
 					if ( str_comment == '' ) {

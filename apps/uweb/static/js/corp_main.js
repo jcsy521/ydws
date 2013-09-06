@@ -527,6 +527,7 @@ window.dlf.fn_initOpenTrack  = function(str_operation, obj_params) {
 		dlf.setTrack(obj_params.tids);
 	});
 }
+
 /**
 * 生成二级菜单项
 * obj_group: 二级菜单项要显示的内容对象
@@ -1499,7 +1500,8 @@ function fn_createGroup(cid, str_newName, obj_rollBack, obj_newNode) {
 				if ( data.status == 0 ) {
 					var n_gid = data.gid;
 					obj_newNode.addClass('j_group').children('a').attr('groupId', n_gid).addClass('groupNode').attr('id', 'group_' + n_gid).css('color', '#000000');
-					//dlf.fn_corpGetCarData();	// 重新加载树 2013.4.10
+					dlf.fn_corpGetCarData();	// 重新加载树 2013.09.04
+					$('#corpTree').jstree('refresh',-1);
 				} else {
 					$.jstree.rollback(obj_rollBack);
 				}
@@ -1534,7 +1536,8 @@ function fn_renameGroup(gid, str_name, node) {
 	if ( !fn_checkGroupName(str_name, node, gid) ) {
 		$.put_(GROUPS_URL, JSON.stringify(obj_param), function (data) {
 			if ( data.status == 0 ) {	
-				//dlf.fn_corpGetCarData();	// 重新加载树2013.4.10
+				dlf.fn_corpGetCarData();	// 重新加载树2013.09.04
+				$('#corpTree').jstree('refresh',-1);
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 				return false;
@@ -1554,7 +1557,8 @@ function fn_removeGroup(node) {
 		$.delete_(GROUPS_URL + '?ids=' + str_param, '', function (data) {
 			if ( data.status == 0 ) {
 				$("#corpTree").jstree('remove');
-				//dlf.fn_corpGetCarData();	// 重新加载树2013.4.10
+				dlf.fn_corpGetCarData();	// 重新加载树2013.09.04
+				$('#corpTree').jstree('refresh',-1);
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 				return false;
@@ -1574,7 +1578,7 @@ function fn_moveGroup(arr_tids, n_newGroupId, obj_rlbk, node_id) {
 	} else {
 		$.post_(GROUPTRANSFER_URL, JSON.stringify(obj_param), function (data) {
 			if ( data.status == 0 ) {
-				//dlf.fn_corpGetCarData(true);	// 重新加载树2013.4.10
+				dlf.fn_corpGetCarData(true);	// 重新加载树2013.09.04
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 执行操作失败，提示错误消息
 				$.jstree.rollback(obj_rlbk);
