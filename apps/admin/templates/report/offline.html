@@ -97,7 +97,12 @@
 		<tbody id="adminTbody">
 		{% for r in res %}
 			<tr>
-				<td>{{r['user_type']}}</td>
+				<td>
+					{% if r['user_type'] == 'individual' %}
+						个人用户
+					{% else %}
+						集团用户
+					{% end %}</td>
 				<td>{{r['umobile']}}</td>
 				<td>{{r['tmobile']}}</td>
 				<td>
