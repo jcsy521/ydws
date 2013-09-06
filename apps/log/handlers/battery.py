@@ -77,7 +77,7 @@ class GWBatteryHandler(BaseHandler):
                         logging.info("[LOG] Ignored file: %s, BeginTime: %s, EndTime: %s", file, first_time, last_time)
                     else:
                         p1 = re.compile(tid, re.I)
-                        p2 = re.compile("T2,", re.I)
+                        p2 = re.compile("T2,")
                         p3 = re.compile("I ", re.I)
                         for num in range(len(lines)):
                             if p1.search(lines[num]) and p2.search(lines[num]) and p3.search(lines[num]):
