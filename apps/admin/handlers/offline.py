@@ -18,7 +18,7 @@ from base import BaseHandler, authenticated
 
 from checker import check_areas, check_privileges
 from codes.errorcode import ErrorCode 
-from constants import PRIVILEGES, SMS
+from constants import PRIVILEGES, SMS, UWEB 
 from utils.misc import str_to_list, safe_utf8, safe_unicode, seconds_to_label, DUMMY_IDS
 from utils.checker import check_sql_injection
 from myutils import city_list
@@ -41,18 +41,31 @@ class OfflineMixin(BaseMixin):
         start_time = int(self.get_argument('start_time', 0))
         end_time = int(self.get_argument('end_time', 0))
 
-        res_ = self.db.query("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
+        res_ = self.db.query("SELECT id, owner_mobile AS umobile, mobile AS tmobile,"
+                             "  begintime, offline_time, pbat, remark, group_id"
                              "  FROM T_TERMINAL_INFO"
                              "  WHERE service_status = 1 AND login =0 AND mobile like '14778%%'"
                              "  ORDER BY offline_time DESC, pbat")
 
         for item in res_:
+            if item['group_id'] == -1:
+                item['user_type'] = UWEB.USER_TYPE.PERSON 
+                #item['user_type'] = u'个人账户' 
+            else:
+                item['user_type'] = UWEB.USER_TYPE.CORP 
+                #item['user_type'] = u'集团账户' 
             offline_period = int(time.time()) - item['offline_time']
             item['offline_period'] = offline_period if offline_period > 0 else 0 
             item['offline_cause'] =  2 if item['pbat'] < 5 else 1
             item['remark'] = safe_unicode(item['remark'])
         
         res = res_[:]
+
+        user_type = self.get_argument('user_type', '') 
+        if user_type: # has no user_type
+            for item in res_:
+                if item['user_type'] != user_type:
+                    res.remove(item)
 
         offline_cause = self.get_argument('offline_cause', None) 
         if offline_cause is not None:
@@ -166,23 +179,24 @@ class OfflineDownloadHandler(BaseHandler, OfflineMixin):
         for i, head in enumerate(OFFLINE_HEADER):
             ws.write(0, i, head)
 
-        ws.col(0).width = 4000  
-        ws.col(1).width = 4000 
-        ws.col(3).width = 4000 * 2 
-        ws.col(4).width = 4000 * 2
-        ws.col(6).width = 4000 * 4
+        ws.col(1).width = 4000  
+        ws.col(2).width = 4000 
+        ws.col(4).width = 4000 * 2 
+        ws.col(5).width = 4000 * 2
+        ws.col(7).width = 4000 * 4
 
         start_line += 1
 
         for i, result in zip(range(start_line, len(results) + start_line), results):
-            ws.write(i, 0, result['umobile'])
-            ws.write(i, 1, result['tmobile'])
-            ws.write(i, 2, str(result['pbat'])+'%')
-            ws.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])))
-            ws.write(i, 4, seconds_to_label(result['offline_period']))
-            ws.write(i, 5, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
+            ws.write(i, 0, u'个人用户' if result['user_type'] == UWEB.USER_TYPE.PERSON else u'集团用户')
+            ws.write(i, 1, result['umobile'])
+            ws.write(i, 2, result['tmobile'])
+            ws.write(i, 3, str(result['pbat'])+'%')
+            ws.write(i, 4, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])))
+            ws.write(i, 5, seconds_to_label(result['offline_period']))
+            ws.write(i, 6, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
             terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
-            ws.write(i, 6, safe_unicode(terminal_offline['remark']))
+            ws.write(i, 7, safe_unicode(terminal_offline['remark']))
 
             
         _tmp_file = StringIO()
