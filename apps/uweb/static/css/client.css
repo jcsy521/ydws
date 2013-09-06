@@ -4,7 +4,7 @@
 	line-height: 150%;
 }
 .downloadBox {
-	width: 980px;
+	width: 1106px;
 	margin: 0 auto;
 }
 .innerBox{
@@ -37,13 +37,13 @@
 	border-right: 1px solid #CCC;
 }
 .pl40 {
-	padding-left: 40px;
+	/*padding-left: 40px;*/
 }
 .pt30 {
 	padding-top: 30px;
 }
 .w420 {
-	width: 420px;
+	width: 587px;
 }
 .h40 {
 	height: 40px;

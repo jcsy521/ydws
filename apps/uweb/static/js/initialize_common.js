@@ -1870,7 +1870,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else if ( str_who == 'operator' ) { // 操作员管理 
-					var n_operatorId = obj_data.oid ,
+					var n_operatorId = obj_data.id ,
 						str_name = obj_data.name, 
 						str_mobile = obj_data.mobile,
 						str_address = obj_data.address, 

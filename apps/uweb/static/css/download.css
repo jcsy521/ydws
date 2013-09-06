@@ -273,7 +273,9 @@ body {
     width: 100%;
     z-index: 100;
 }
-
+#versionType {
+	width: 236px;
+}
 /*browser download start*/
 
 /*browser download end*/
