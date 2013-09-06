@@ -75,6 +75,7 @@ class EventHandler(BaseHandler):
 
             page_size = int(data.get('pagesize', UWEB.LIMIT.PAGE_SIZE))
             category = int(data.category)
+            categories = data.get('categories', None)
             page_number = int(data.pagenum)
             page_count = int(data.pagecnt)
             start_time = data.start_time
@@ -83,8 +84,29 @@ class EventHandler(BaseHandler):
             tids = tids if tids else [self.current_user.tid, ]
             tids = [str(tid) for tid in tids]
 
-            # NOTE: for individual, do not show events about 5,7,8; for
-            # enterprise, do not show events about 5
+            #NOTE: all catgories
+            all_categories = [2, # powerlow
+                              3, # illegalshake
+                              4, # illegalmove
+                              5, # sos 
+                              6, # hearbeat lost
+                              7, # region enter
+                              8, # retion out
+                              9, # power off
+                              ]
+
+            if category is not None:
+                if int(category) == -1:
+                    categories = all_categories
+                else:
+                    categories = [int(category), ]
+            elif categories:
+                if int(categories[0]) == -1:
+                    categories = all_categories
+                else:
+                    categories = [int(c) for c in categories]
+
+            # NOTE: for enterprise, do not show events about 5
             hide_lst = [5,] # 5: sos
 
             #NOTE: for individual, the interval between start_time and end_time is one week;
@@ -95,54 +117,30 @@ class EventHandler(BaseHandler):
                 self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
                 return
 
-            if category == -1:
-                # we need return the event count to GUI at first time query
-                if page_count == -1:
-                    sql = ("SELECT COUNT(*) as count FROM V_EVENT" \
-                          "  WHERE tid IN %s " +\
-                          "  AND category NOT IN %s" +\
-                          "    AND (timestamp BETWEEN %s AND %s)")\
-                          % (tuple(tids + DUMMY_IDS_STR), tuple(hide_lst+DUMMY_IDS), start_time, end_time)
-                    res = self.db.get(sql)
-                    event_count = res.count
-                    d, m = divmod(event_count, page_size)
-                    page_count = (d + 1) if m else d
+            # we need return the event count to GUI at first time query
+            if page_count == -1:
+                sql = ("SELECT COUNT(*) as count FROM V_EVENT" \
+                      "  WHERE tid IN %s " +\
+                      "  AND category  IN %s" +\
+                      "    AND (timestamp BETWEEN %s AND %s)")\
+                      % (tuple(tids + DUMMY_IDS_STR), tuple(list(set(categories)-set(hide_lst))+DUMMY_IDS), start_time, end_time)
+                res = self.db.get(sql)
+                event_count = res.count
+                d, m = divmod(event_count, page_size)
+                page_count = (d + 1) if m else d
 
-                sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
-                      "  timestamp, name, type, speed, degree,"
-                      "  category, pbat, terminal_type, fobid, rid"  
-                      "  FROM V_EVENT"
-                      "  WHERE tid IN %s"
-                      "    AND (timestamp BETWEEN %s AND %s)"
-                      "    AND category NOT IN %s"
-                      "  ORDER BY timestamp DESC"
-                      "  LIMIT %s, %s") %\
-                      (tuple(tids + DUMMY_IDS_STR), start_time, end_time,
-                       tuple(hide_lst+DUMMY_IDS),  page_number * page_size, page_size)
-                events = self.db.query(sql)
-            else: 
-                if page_count == -1:
-                    sql = ("SELECT COUNT(*) as count FROM V_EVENT"
-                           "  WHERE tid IN %s"
-                           "    AND (timestamp BETWEEN %s AND %s)"
-                           "    AND category = %s") %\
-                           (tuple(tids + DUMMY_IDS_STR), start_time, end_time, category)
-                    res = self.db.get(sql)
-                    event_count = res.count
-                    d, m = divmod(event_count, page_size)
-                    page_count = (d + 1) if m else d
-
-                sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
-                       "  timestamp, name, type, speed, degree,"
-                       "  category, pbat, terminal_type, fobid, rid"  
-                       "  FROM V_EVENT"
-                       "  WHERE tid IN %s"
-                       "    AND (timestamp BETWEEN %s AND %s)"
-                       "    AND category = %s"
-                       "  ORDER BY timestamp DESC"
-                       "  LIMIT %s, %s") %\
-                       (tuple(tids + DUMMY_IDS_STR), start_time, end_time, category, page_number * page_size, page_size)
-                events = self.db.query(sql)
+            sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
+                  "  timestamp, name, type, speed, degree,"
+                  "  category, pbat, terminal_type, fobid, rid"  
+                  "  FROM V_EVENT"
+                  "  WHERE tid IN %s"
+                  "    AND (timestamp BETWEEN %s AND %s)"
+                  "    AND category IN %s"
+                  "  ORDER BY timestamp DESC"
+                  "  LIMIT %s, %s") %\
+                  (tuple(tids + DUMMY_IDS_STR), start_time, end_time,
+                   tuple(list(set(categories)-set(hide_lst))+DUMMY_IDS),  page_number * page_size, page_size)
+            events = self.db.query(sql)
                 
             alias_dict = {}
             for tid in tids:
