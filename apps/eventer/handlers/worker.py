@@ -69,31 +69,34 @@ class Worker(object):
         self.send_time = int(time.time())
         while self.is_alive: # TODO: and not self.queue.empty()?
             try:
-                packet = self.queue.get(True, self.BLOCK_TIMEOUT)
-                logging.debug("[EVENTER] Get packet: %s from queue.", packet)
-                queue_len = self.queue.qsize()
-                if queue_len >= 30 and (int(time.time()) > self.send_time):
-                    self.send_time = int(time.time()) + 60*3
-                    content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
-                    for mobile in self.mobiles:
-                        SMSHelper.send(mobile, content)
-                    for email in self.emails:
-                        EmailHelper.send(email, content) 
-                    logging.info("[EVENTER] Notify EVENTER queue exception to administrator!")
-                    
-            except Queue.Empty:
-                pass
-            else:
-                # TODO: what if we're waiting for gf or lbmp and SystemExit is
-                # issued?
-                if self.name == EVENTER.INFO_TYPE.REPORT:
-                    self._run_callback(PacketTask(packet, 
-                                                  self.db, 
-                                                  self.redis).run_report)
+                seq = int(time.time())
+                if self.queue.qsize() > 0 :
+                    logging.info("[Worker] Before get packet from queue, seq:%s", seq)
+                    packet = self.queue.get(True, self.BLOCK_TIMEOUT)
+                    logging.debug("[Worker] After get packet: %s from queue, seq:%s", packet, seq)
+                    queue_len = self.queue.qsize()
+                    if queue_len >= 3000 and (int(time.time()) > self.send_time):
+                        self.send_time = int(time.time()) + 60*3
+                        content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
+                        for mobile in self.mobiles:
+                            SMSHelper.send(mobile, content)
+                        for email in self.emails:
+                            EmailHelper.send(email, content) 
+                        logging.info("[EVENTER] Notify EVENTER queue exception to administrator!")
+
+                    if self.name == EVENTER.INFO_TYPE.REPORT:
+                        self._run_callback(PacketTask(packet,
+                                                      self.db,
+                                                      self.redis).run_report)
+                    else:
+                        self._run_callback(PacketTask(packet,
+                                                      self.db,
+                                                      self.redis).run_position)
                 else:
-                    self._run_callback(PacketTask(packet, 
-                                                  self.db, 
-                                                  self.redis).run_position)
+                    time.sleep(0.1)
+            except Exception as e:          
+                logging.info("[Worker] get exception.")
+                pass
 
     def stop(self):
         self.is_alive = False
