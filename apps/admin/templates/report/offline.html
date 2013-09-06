@@ -46,9 +46,17 @@
 						<option value="4">3天以上</option>
 					</select>
 				</td>
+				<td align="right">用户类型：</td>
+				<td align="left">
+					<select id="user_type" name="user_type">
+						<option value="">全部</option>
+						<option value="individual">个人</option>
+						<option value="enterprise">集团</option>
+					</select>
+				</td>
 				<td colspan="2" align="right">
 					<input type="submit" value="查询" 
-						onclick="fn_PushData('offline_cause,offline_period','individual');" 
+						onclick="fn_PushData('offline_cause,offline_period,user_type','individual');" 
 						class="ui-button ui-widget ui-state-default ui-corner-all" 
 						role="button" aria-disabled="false" />
 				</td>
@@ -76,6 +84,7 @@
 {% end %}
 		<thead>
 			<tr>
+				<th>用户类型</th>
 				<th>车主号</th>
 				<th>终端号</th>
 				<th>离线时间</th>
@@ -88,6 +97,7 @@
 		<tbody id="adminTbody">
 		{% for r in res %}
 			<tr>
+				<td>{{r['user_type']}}</td>
 				<td>{{r['umobile']}}</td>
 				<td>{{r['tmobile']}}</td>
 				<td>
@@ -122,6 +132,9 @@
 </table>
 {% if len(res) > 0 %}
 <ul class="reportFields">
+	<li>
+		用户类型：个人或集团；
+	</li>
 	<li>
 		离线时间：终端的离线时间；
 	</li>

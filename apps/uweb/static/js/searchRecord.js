@@ -261,6 +261,7 @@ window.dlf.fn_searchData = function (str_who) {
 			if ( str_name!= '' && !NAMEREG.test(str_name) ) {
 				dlf.fn_jNotifyMessage('操作员姓名只能由汉字、数字、大写英文、空格组成!', 'message', false);
 				return;
+				return;
 			}
 			if ( str_mobile != '' && !/^\d*$/.test(str_mobile) ) {	// 手机号合法性验证
 				dlf.fn_jNotifyMessage('手机号只能输入数字!', 'message', false);
