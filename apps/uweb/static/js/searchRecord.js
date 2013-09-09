@@ -793,6 +793,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_location = obj_tempData.name, 
 					str_tempAddress = str_location.length >= 25 ? str_location.substr(0,25) + '...':str_location,
 					str_comment = obj_tempData.comment,	// 电量备注
+					str_tempComment = str_comment.length > 12 ? str_comment.substr(0, 12) + '...' : str_comment,
 					str_text = '';	//地址
 					
 					/**
@@ -814,7 +815,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					if ( str_comment == '' ) {
 						str_tbodyText+= '<td width="100px">&nbsp;</td>';
 					} else {
-						str_tbodyText+= '<td width="100px">'+ str_comment +'</td>';
+						str_tbodyText+= '<td width="100px" title="'+ str_comment +'">'+ str_tempComment +'</td>';
 					}
 					str_tbodyText+= '</tr>';
 				break;

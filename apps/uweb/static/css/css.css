@@ -2823,7 +2823,7 @@ legend {
 	width: 754px;
 }
 .mileageCondition, .operatorCondition {
-	width: 800px;
+	width: 835px;
 }
 .onlineStaticsCondition .title, .mileageCondition .title {
 	color: #69B2E9;
@@ -3052,9 +3052,8 @@ legend {
 }
 #regionNote, .bindLineNote {
 	color: red;
-    left: 30px;
-    position: relative;
-    top: -30px;
+	display: block;
+	margin: 20px 0px 0px 40px;
 }
 .clickWindowPolder {
 	/*margin-right: 5px;*/
@@ -3093,10 +3092,10 @@ legend {
 /**==================*/
 #regionWrapper, #corpRegionWrapper {
 	width: 510px;
-	height: 492px;
+	height: 490px;
 }
 .regionContent, .corpRegionContent {
-	height: 458px
+	height: 455px;
 }
 .regionCreateBtn {
 	color: #4876FF;
