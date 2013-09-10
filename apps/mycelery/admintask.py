@@ -481,6 +481,7 @@ class TerminalStatistic(object):
                                  u"离线原因", 
                                  u"备注")
 
+        # offline-terminals of this day 
         cur_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile,"
                        "  begintime, offline_time, pbat, remark"
                        "  FROM T_TERMINAL_INFO"
@@ -488,11 +489,18 @@ class TerminalStatistic(object):
                        "  AND (mobile LIKE '14778%%' OR  mobile LIKE '1847644%%') "
                        "  AND (offline_time BETWEEN %s AND %s) ORDER BY pbat")
 
+        # offline-terminals till now 
+        #terminals_offline_cmd  = ("SELECT id, owner_mobile as umobile, mobile as tmobile,"
+        #                          "  begintime, offline_time, pbat, remark, group_id"
+        #                          "  FROM T_TERMINAL_INFO"
+        #                          "  WHERE service_status = 1 AND login =0 "
+        #                          "  AND (mobile LIKE '14778%%' OR  mobile LIKE '1847644%%') "
+        #                          "  ORDER BY group_id, pbat")
+
         terminals_offline_cmd  = ("SELECT id, owner_mobile as umobile, mobile as tmobile,"
                                   "  begintime, offline_time, pbat, remark, group_id"
                                   "  FROM T_TERMINAL_INFO"
-                                  "  WHERE service_status = 1 AND login =0 "
-                                  "  AND (mobile LIKE '14778%%' OR  mobile LIKE '1847644%%') "
+                                  "  WHERE service_status=1 AND login=0 "
                                   "  ORDER BY group_id, pbat")
 
         terminal_sql_cmd = "SELECT login, remark, offline_time FROM T_TERMINAL_INFO WHERE mobile = %s LIMIT 1"
