@@ -166,6 +166,6 @@ class LastPositionHandler(BaseHandler):
                              clongitude=t['clongitude'],
                              type=t['type'],
                              timestamp=t['timestamp'])
-            track_info.append(point)
+                track_info.append(point)
 
         return track_info

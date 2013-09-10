@@ -67,6 +67,12 @@ class PacketTask(object):
     def check_region_event(self, ori_location, region): 
         """check enter or out region """
         if not (ori_location and region): 
+            logging.info("[EVENTER] query data is invalid, ori_location: %s, region: %s, no check", 
+                         ori_location, region)
+            return None
+        if not (ori_location['cLat'] and ori_location['cLon']):
+            logging.info("[EVENTER] location is invalid, ori_location: %s, no check", 
+                         ori_location)
             return None
 
         # BIG NOTE: python grammar, shallow copy will change origen data.
@@ -153,11 +159,11 @@ class PacketTask(object):
         if location.Tid == EVENTER.TRIGGERID.CALL:
             location = lbmphelper.handle_location(location, self.redis,
                                                   cellid=True, db=self.db) 
-            # check regions
-            for region in regions:
-                region_location = self.check_region_event(location, region)
-                if region_location['t'] == EVENTER.INFO_TYPE.REPORT:
-                    self.handle_report_info(region_location)
+            ## check regions
+            #for region in regions:
+            #    region_location = self.check_region_event(location, region)
+            #    if region_location and region_location['t'] == EVENTER.INFO_TYPE.REPORT:
+            #        self.handle_report_info(region_location)
 
             location['category'] = EVENTER.CATEGORY.REALTIME
             self.update_terminal_info(location)
@@ -179,7 +185,7 @@ class PacketTask(object):
                                                      cellid=True, db=self.db) 
                     for region in regions:
                         region_pvt= self.check_region_event(pvt, region)
-                        if region_pvt['t'] == EVENTER.INFO_TYPE.REPORT:
+                        if region_pvt and region_pvt['t'] == EVENTER.INFO_TYPE.REPORT:
                             self.handle_report_info(region_pvt)
                 # NOTE: not offset it
                 #location = lbmphelper.handle_location(pvt, self.redis,
