@@ -347,7 +347,7 @@
 		</div>-->
 		<div id="operatorContent" class="operatorContent wrapperContent j_dialogContent j_wrapperContent">
 			<div class="dateChoose">
-				<table class="operatorConditions">
+				<table class="operatorConditions commonCondition">
 					<tr>
 						<td width="450px">
 							姓名：<input type="text" id="txt_oprName" maxlength="20" />
@@ -405,13 +405,13 @@
 						</td>
 					</tr>
 					<tr>
-						<td><label for="txt_operatorMobile">地址：</label></td>
+						<td><label for="txt_operatorAddress">地址：</label></td>
 						<td>
 							<input type="text" name="txt_operatorAddress" id="txt_operatorAddress" class="text ui-widget-content ui-corner-all j_onInputBlur" parent="addOperatorDialog" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="txt_operatorMobile">email：</label></td>
+						<td><label for="txt_operatorEmail">email：</label></td>
 						<td>
 							<input type="text" name="txt_operatorEmail" id="txt_operatorEmail" class="text ui-widget-content ui-corner-all j_onInputBlur" max="100" who="email" msg="您输入的邮箱格式不正确！" parent="addOperatorDialog" />
 						</td>
@@ -442,7 +442,7 @@
 		</div>-->
 		<div id="passengerContent" class="passengerContent wrapperContent j_dialogContent j_wrapperContent">
 			<div class="dateChoose">
-				<table class="passengerConditions conditions">
+				<table class="passengerConditions conditions commonCondition">
 					<tr>
 						<td width="450px">
 							姓名：<input type="text" id="txt_passenName" maxlength="20" />
@@ -844,10 +844,10 @@
 			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
 		</div>-->
 		<div class="wrapperContent eventSearchContent j_wrapperContent" id="eventSearchContent">
-			<table class="eventSearchCondition">
+			<table class="eventSearchCondition commonCondition">
 				<tr>
 					<td>
-						查询时间：<input type="text" id="eventSearchStartTime"  class="time" />
+						查询时间： <input type="text" id="eventSearchStartTime"  class="time" />
 						至 <input type="text" id="eventSearchEndTime"  class="time" />
 					</td>
 					<td>
@@ -895,7 +895,7 @@
 			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
 		</div>
 		<div class="wrapperContent singleEventContent j_singleEventContent">
-			<table class="singleEventCondition">
+			<table class="singleEventCondition commonCondition">
 				<tr>
 					<td width="500px" colspan="3">
 						查询类型：
@@ -947,7 +947,7 @@
 			<span class="close j_close" title="关闭窗口" who="mileage"></span>
 		</div>-->
 		<div class="wrapperContent mileageContent">
-			<table class="mileageCondition">
+			<table class="mileageCondition commonCondition">
 				<tr>
 					<td colspan="4" class="title">
 						里程统计查询
@@ -1018,7 +1018,7 @@
 			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
 		</div>
 		<div class="wrapperContent singleMileageContent j_singleMileageContent">
-			<table class="singleMileageCondition">
+			<table class="singleMileageCondition commonCondition">
 				<tr>
 					<td width="500px">
 						查询类型：
@@ -1100,7 +1100,7 @@
 			<span class="close j_close" title="关闭窗口" who="mileage"></span>
 		</div>-->
 		<div class="wrapperContent onlineStaticsContent">
-			<table class="onlineStaticsCondition">
+			<table class="onlineStaticsCondition commonCondition">
 				<tr>
 					<td colspan="3" class="title">
 						定位器在线统计查询
@@ -1291,7 +1291,7 @@
 	<!-- 集团围栏管理展示页面 -->
 	<div id="corpRegionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle regionTitle">
-			<span class="close j_close" title="关闭窗口" who="corpRegion"></span>
+			<span class="close j_close" title="关闭窗口" who="region"></span>
 			<span title="收起" class="hideOrShowContent min j_hosBtn"></span>
 		</div>
 		<div id="corpRegionContent" class="wrapperContent corpRegionContent">
@@ -1306,8 +1306,8 @@
 					</tr>
 				</tbody>
 			</table>
+			<span id="regionNote">注意：新建的围栏，需要选择终端，并在右键菜单中点击“绑定围栏”才能生效</span>
 		</div>
-		<span id="regionNote">注意：新建的围栏，需要选择终端，并在右键菜单中点击“绑定围栏”才能生效</span>
 	</div>
 	
 	<!-- 围栏新增服务功能条-->

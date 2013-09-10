@@ -293,25 +293,30 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 	
 	if ( n_delayLength > 0 ) {
 		var obj_first = arr_delayPoints[0],
-			obj_second = arr_delayPoints[1];
+			obj_second = arr_delayPoints[1],
+			str_startName = obj_first.name,
+			str_tempStartName = str_startName.length > 20 ? str_startName.substr(0, 20) + '...' : str_startName,
+			str_endName = obj_second.name,
+			str_tempEndName = str_endName.length > 20 ? str_endName.substr(0, 20) + '...' : str_endName;
 		
 		arr_markers.push(obj_firstMarker);
 		arr_markers.push(obj_endMarker);
 		// str_html += '<thead><tr><td>事件</td><td class="delayCenterTd">时间(开始)</td><td class="delayCenterTd">位置</td></tr></thead>';
 		
-		str_html += '<tr><td><img src="../static/images/green_MarkerA.png" width="25px" />起点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_first.timestamp)+'</td><td class="delayCenterTd">'+ obj_first.name +'</td></tr>';
+		str_html += '<tr><td><img src="../static/images/green_MarkerA.png" width="25px" />起点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_first.timestamp)+'</td><td class="delayCenterTd" title="'+ str_startName +'">'+ str_tempStartName +'</td></tr>';
 		
-		str_html += '<tr><td><img src="../static/images/green_MarkerB.png" width="25px" />终点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_second.timestamp) +'</td><td class="delayCenterTd">'+ obj_second.name +'</td></tr>';
+		str_html += '<tr><td><img src="../static/images/green_MarkerB.png" width="25px" />终点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_second.timestamp) +'</td><td class="delayCenterTd" title="'+ str_endName +'">'+ str_tempEndName +'</td></tr>';
 		
 		for ( var x = 2; x < n_delayLength; x++ ) {
 			var obj_point = arr_delayPoints[x],
-				obj_tempMarker = {};
+				obj_tempMarker = {},
+				str_name = obj_point.name,
+				str_tempEndName = str_name.length > 20 ? str_name.substr(0, 20) + '...' : str_name;
 			
 			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, 0);
 			
-			str_html += '<tr><td width="130px"><img src="../static/images/delay_Marker.png" width="25px" /><label>停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</label></td><td width="130px" class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_point.start_time) +'</td><td width="270px" class="delayCenterTd">'+ obj_point.name +'</td></tr>';
+			str_html += '<tr><td width="130px"><img src="../static/images/delay_Marker.png" width="25px" /><label>停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</label></td><td width="130px" class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_point.start_time) +'</td><td width="270px" class="delayCenterTd" title="'+ str_name +'">'+ str_tempEndName +'</td></tr>';
 			arr_markers.push(obj_tempMarker);
-			
 		}
 	}
 	obj_table.data('markers', arr_markers);
