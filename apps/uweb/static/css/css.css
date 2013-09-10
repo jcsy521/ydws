@@ -1535,6 +1535,7 @@ body {
 }
 .dataTable {
 	border: 0px;
+	_border-top: 1px solid #c1d2e5;
 	margin-top: 8px;
 	width: 850px;
 	border-collapse: collapse;
@@ -1545,7 +1546,6 @@ body {
 .dataTable td{
 	border: 0px;
 	height: 30px;
-	line-height: 20px;
 	text-align: center;
 	border: 1px solid #c1d2e5;
 }
@@ -2629,7 +2629,7 @@ legend {
 	color: #4290cb;
 }
 #operatorTable, #passengerTable {
-	width: 750px;
+	width: 850px;
 }
 #operatorTableHeader, #passengerTableHeader, #routeLineTableHeader {
 	height: 38px;

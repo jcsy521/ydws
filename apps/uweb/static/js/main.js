@@ -919,9 +919,9 @@ $(function () {
 			}
 		}
 	});
-	$('#txt_operatorName').formValidator({validatorGroup: '8'}).inputValidator({max: 20, onError: '操作员姓名最大长度为20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: '操作员姓名只能由汉字、数字、大写英文、空格组成！'});
-	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号不正确！'});
-	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '8'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号输入不合法，请重新输入！'});
+	$('#txt_operatorName').formValidator({validatorGroup: '8'}).inputValidator({max: 20, onError: '操作员姓名的最大长度为20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: '操作员姓名只能由汉字、数字、英文组成！'});
+	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '8'}).inputValidator({max: 50, onError: '操作员邮箱地址的最大长度为50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
 	* 乘客进行验证

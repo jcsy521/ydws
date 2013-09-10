@@ -43,8 +43,8 @@ window.dlf.fn_editOperator = function(n_id) {
 				str_currentGroupIds = $(obj_currentOperatorItemTds.eq(0)).attr('groupId'),
 				str_currentName = $(obj_currentOperatorItemTds.eq(1)).html(),
 				str_currentMobile = $(obj_currentOperatorItemTds.eq(2)).html(),
-				str_currentAddress = $(obj_currentOperatorItemTds.eq(3)).html(),
-				str_currentEmail = $(obj_currentOperatorItemTds.eq(4)).html();
+				str_currentAddress = $(obj_currentOperatorItemTds.eq(3)).attr('title'),
+				str_currentEmail = $(obj_currentOperatorItemTds.eq(4)).attr('title');
 			
 			$('#hidOperatorId').val(n_id);
 			$('#hidOperatorMobile').val('');

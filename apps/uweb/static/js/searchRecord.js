@@ -733,14 +733,19 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		
 		switch (str_who) {
 			case 'operator': // 操作员查询
-				str_id = obj_tempData.id;	
+				str_id = obj_tempData.id;
+				var str_address = obj_tempData.address,
+					str_tempAddress = str_address.length > 30 ? str_address.substr(0, 30) + '...' : str_address,
+					str_email = obj_tempData.email,
+					str_tempEmail = str_email.length > 30 ? str_email.substr(0, 30) + '...' : str_email;
+					
 				obj_tableHeader.show();
 				str_tbodyText+= '<tr id='+ str_id +'>';
 				str_tbodyText+= '<td groupId ='+ obj_tempData.group_id +'>'+ obj_tempData.seq +'</td>';	//组名
 				str_tbodyText+= '<td>'+ obj_tempData.name +'</td>';	// 操作员姓名
 				str_tbodyText+= '<td>'+ obj_tempData.mobile +'</td>';	//操作员手机号
-				str_tbodyText+= '<td>'+ obj_tempData.address +'</td>';	// 操作员地址
-				str_tbodyText+= '<td>'+ obj_tempData.email +'</td>';	//操作员email
+				str_tbodyText+= '<td title="'+ str_address +'">'+ str_tempAddress +'</td>';	// 操作员地址
+				str_tbodyText+= '<td title="'+ str_email +'">'+ str_tempEmail +'</td>';	//操作员email
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_editOperator('+ str_id +')>编辑</a></td>';	// 
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteOperator('+ str_id +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';

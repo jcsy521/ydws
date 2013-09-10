@@ -1359,7 +1359,7 @@ window.dlf.fn_onInputBlur = function() {
 						str_msg = '操作员手机号输入不合法，请重新输入！'
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
-							str_msg = '操作员手机号输入不合法，请重新输入';
+							str_msg = '操作员手机号输入不合法，请重新输入！';
 						}
 					}
 					if ( str_msg != '' ) {
@@ -1874,7 +1874,9 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						str_name = obj_data.name, 
 						str_mobile = obj_data.mobile,
 						str_address = obj_data.address, 
+						str_tempAddress = str_address.length > 30 ? str_address.substr(0, 30) + '...' : str_address,
 						str_email = obj_data.email, 
+						str_tempEmail = str_email.length > 30 ? str_email.substr(0, 30) + '...' : str_email,
 						str_groupId = obj_data.group_id,
 						obj_opertorTr = $('#operatorTable tr[id='+ n_operatorId +']'),
 						n_seq = obj_opertorTr.children('td').eq(0).html();
@@ -1883,8 +1885,8 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 										'<td groupId ='+ str_groupId +'>'+ n_seq +'</td>'+
 										'<td>' + str_name + '</td>' + 
 										'<td>' + str_mobile + '</td>' + 
-										'<td>' + str_address + '</td>' + 
-										'<td>' + str_email + '</td>' + 
+										'<td title="'+ str_address +'">' + str_tempAddress + '</td>' + 
+										'<td title="'+ str_email +'">' + str_tempEmail + '</td>' + 
 										'<td><a href="#" onclick=dlf.fn_editOperator('+ n_operatorId +') class="blacklistLink">编辑</a></td>' +
 										'<td><a href="#" onclick=dlf.fn_deleteOperator('+ n_operatorId +') class="blacklistLink">删除</a></td>'
 										);
