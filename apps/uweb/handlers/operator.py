@@ -47,7 +47,7 @@ class OperatorHandler(BaseHandler):
             if where_clause:
                 where_clause = ' AND ' + where_clause
             if page_count == -1:
-                sql = "SELECT count(id) as count FROM T_OPERATOR" + \
+                sql = "SELECT count(id) AS count FROM T_OPERATOR" + \
                       "  WHERE 1=1 " + where_clause
                 sql += " AND corp_id = %s" % (self.current_user.cid,)
                 res = self.db.get(sql) 
@@ -133,11 +133,10 @@ class OperatorHandler(BaseHandler):
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
-            return
 
         try:
             status = ErrorCode.SUCCESS
-            oid = data.oid
+            id = data.id
             name = data.name
             mobile = data.mobile
             email = data.email
@@ -145,21 +144,24 @@ class OperatorHandler(BaseHandler):
             group_id = data.group_id
             group_ids = map(int, str_to_list(group_id))
 
+            operator = self.db.get("select oid from T_OPERATOR where id=%s", id)
+
             self.db.execute("UPDATE T_OPERATOR"
                             "  SET name = %s,"
                             "      mobile = %s,"
                             "      oid = %s,"
                             "      email = %s,"
                             "      address = %s"
-                            "  WHERE oid = %s",
-                            name, mobile, mobile, email, address, oid)
+                            "  WHERE id = %s",
+                            name, mobile, mobile, email, address, id)
+            
             if group_ids is not None:
-                self.db.execute("delete from T_GROUP_OPERATOR "
-                                "  where oper_id = %s",
-                                oid) 
+                self.db.execute("DELETE FROM T_GROUP_OPERATOR "
+                                "  WHERE oper_id = %s",
+                                operator.oid) 
                 self.db.executemany("INSERT INTO T_GROUP_OPERATOR(group_id, oper_id)"
                                     "  VALUES(%s, %s)", 
-                                    [(group_id, oid) for group_id in group_ids])
+                                    [(group_id, mobile) for group_id in group_ids])
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s modify operator failed. Exception: %s", 
@@ -183,7 +185,7 @@ class OperatorHandler(BaseHandler):
 
         try:
             status = ErrorCode.SUCCESS
-            self.db.execute("DELETE FROM T_OPERATOR WHERE oid IN %s",
+            self.db.execute("DELETE FROM T_OPERATOR WHERE id IN %s",
                             tuple(delete_ids + DUMMY_IDS)) 
             self.write_ret(status)
         except Exception as e:

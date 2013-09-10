@@ -18,7 +18,7 @@ class EmailHelper:
     """Send email, and someone else receives email."""
 
     @staticmethod
-    def send(to_email, content, cc_email=[], files=[]):
+    def send(to_email, content, cc_email=[], files=[], subject=''):
         """
         @param to_email: list, emails to be sent to
         @param cc_email: list, emails to be copy to
@@ -43,7 +43,10 @@ class EmailHelper:
         
         msg = MIMEMultipart() 
         msg['From'] = ConfHelper.EMAIL_CONF.efrom
-        msg['Subject'] = ConfHelper.EMAIL_CONF.subject 
+        if subject:
+            msg['Subject'] = subject 
+        else:
+            msg['Subject'] = ConfHelper.EMAIL_CONF.subject 
         msg['To'] = COMMASPACE.join(to_email) 
         if cc_email:
             msg['Cc'] = COMMASPACE.join(cc_email) 

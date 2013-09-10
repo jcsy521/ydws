@@ -29,7 +29,8 @@ class TerminalStatistic(object):
         self.db = DBConnection().db
         self.redis = MyRedis()
         self.to_emails = ['boliang.guan@dbjtech.com']
-        self.cc_emails = ['xiaolei.jia@dbjtech.com', 'zhaoxia.guo@dbjtech.com']
+        self.cc_emails = ['xiaolei.jia@dbjtech.com','zhaoxia.guo@dbjtech.com']
+        #self.cc_emails = ['xiaolei.jia@dbjtech.com','zhaoxia.guo@dbjtech.com','xieyanpeng@zs.gd.chinamobile.com']
         
     def statistic_online_terminal(self, epoch_time):
         start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
@@ -471,15 +472,41 @@ class TerminalStatistic(object):
                           u"基站定位结果", 
                           u"备注")
 
-        cur_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile, begintime, offline_time, pbat, remark"
+        OFFLINE_DETAIL_HEADER = (u"用户类型", 
+                                 u"车主号",
+                                 u"终端号", 
+                                 u"电量", 
+                                 u"离线时间", 
+                                 u"累计离线时间", 
+                                 u"离线原因", 
+                                 u"备注")
+
+        # offline-terminals of this day 
+        cur_sql_cmd = ("SELECT id, owner_mobile as umobile, mobile as tmobile,"
+                       "  begintime, offline_time, pbat, remark"
                        "  FROM T_TERMINAL_INFO"
                        "  WHERE service_status = 1 AND login =0 "
                        "  AND (mobile LIKE '14778%%' OR  mobile LIKE '1847644%%') "
                        "  AND (offline_time BETWEEN %s AND %s) ORDER BY pbat")
 
+        # offline-terminals till now 
+        #terminals_offline_cmd  = ("SELECT id, owner_mobile as umobile, mobile as tmobile,"
+        #                          "  begintime, offline_time, pbat, remark, group_id"
+        #                          "  FROM T_TERMINAL_INFO"
+        #                          "  WHERE service_status = 1 AND login =0 "
+        #                          "  AND (mobile LIKE '14778%%' OR  mobile LIKE '1847644%%') "
+        #                          "  ORDER BY group_id, pbat")
+
+        terminals_offline_cmd  = ("SELECT id, owner_mobile as umobile, mobile as tmobile,"
+                                  "  begintime, offline_time, pbat, remark, group_id"
+                                  "  FROM T_TERMINAL_INFO"
+                                  "  WHERE service_status=1 AND login=0 "
+                                  "  ORDER BY group_id, pbat")
+
         terminal_sql_cmd = "SELECT login, remark, offline_time FROM T_TERMINAL_INFO WHERE mobile = %s LIMIT 1"
 
         cur_res = self.db.query(cur_sql_cmd, day_start_time, epoch_time)
+        terminals_ofline = self.db.query(terminals_offline_cmd)
 
         tmobile_lst = []
         for item in cur_res:
@@ -497,7 +524,8 @@ class TerminalStatistic(object):
             
             item['remark'] = safe_unicode(item['remark'])
         logging.info('[CELERY] the currentrecords to be dealed with, counts: %s, cur_res: %s', len(cur_res), cur_res)
-
+         
+        # NOTE: get last day's data
         pre_res = [] 
         if not os.path.isfile(PRE_PATH):
             logging.info("[CELERY] pre_path: %s cannot be found.", PRE_PATH)
@@ -548,7 +576,9 @@ class TerminalStatistic(object):
 
         wb = xlwt.Workbook()
         ws = wb.add_sheet(u'离线汇总分析')
+        ws_detail = wb.add_sheet(u'离线明细')
 
+        # sheet 1: 离线汇总分析
         start_line = 0
         for i, head in enumerate(OFFLINE_HEADER):
             ws.write(0, i, head, title_style)
@@ -602,6 +632,7 @@ class TerminalStatistic(object):
             ws.write(i, 2, result[2], center_style)
             ws.write(i, 3, result[3], center_style)
             ws.write(i, 4, result[4], center_style)
+
             if result[5] == u'低电关机':
                 ws.write(i, 5, u'低电关机', powerlow_style)
             else:
@@ -616,10 +647,54 @@ class TerminalStatistic(object):
             #ws.write(i, 9, result[9], center_style)
             ws.write(i, 10, result[10], center_style)
 
+        # sheet 2: 离线明细
+
+        start_line = 0
+        for i, head in enumerate(OFFLINE_DETAIL_HEADER):
+            ws_detail.write(0, i, head, title_style)
+
+        ws_detail.col(1).width = 4000 
+        ws_detail.col(2).width = 4000 
+        ws_detail.col(4).width = 4000 * 2 
+        ws_detail.col(5).width = 4000 * 2 
+        ws_detail.col(7).width = 4000 * 4
+
+        start_line += 1
+        results = terminals_ofline
+        for i, result in zip(range(start_line, len(results) + start_line), results):
+            # some modification 
+            if result['group_id'] == -1: 
+                result['user_type'] = UWEB.USER_TYPE.PERSON 
+            else: 
+                result['user_type'] = UWEB.USER_TYPE.CORP
+            offline_period = int(time.time()) - result['offline_time'] 
+            result['offline_period'] = offline_period if offline_period > 0  else  0 
+            result['offline_cause'] = 2 if result['pbat'] < 5 else 1
+
+            ws_detail.write(i, 0, u'个人用户' if result['user_type'] == UWEB.USER_TYPE.PERSON else u'集团用户')
+            ws_detail.write(i, 1, result['umobile'], center_style)
+            ws_detail.write(i, 2, result['tmobile'], center_style)
+            ws_detail.write(i, 3, str(result['pbat'])+'%', center_style)
+            ws_detail.write(i, 4, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])), center_style) 
+            ws_detail.write(i, 5, seconds_to_label(result['offline_period']))
+
+            if result['offline_cause'] == 2: 
+                offline_cause =  u'低电关机' 
+                ws_detail.write(i, 6, offline_cause, powerlow_style)
+            else:
+                offline_cause =  u'通讯异常'
+                ws_detail.write(i, 6, offline_cause, abnormal_style)
+            #ws_detail.write(i, 6, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
+            terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id']) 
+            ws_detail.write(i, 7, safe_unicode(terminal_offline['remark']))
+
+            start_line += 1
+
         wb.save(CUR_PATH)
 
         content = u'附件是 %s 的离线报表统计，请查收! 详情请看：%s ' % (cur_path,ConfHelper.ADMIN_CONF.url)
-        EmailHelper.send(self.to_emails, content, self.cc_emails, files=[CUR_PATH]) 
+        subject = u'移动车卫士离线分析报告' + cur_path
+        EmailHelper.send(self.to_emails, content, self.cc_emails, files=[CUR_PATH], subject=subject) 
         logging.info("[CELERY] statistic_offline_terminal finished, cur_path: %s", CUR_PATH)
 
     def statistic_misc(self):
