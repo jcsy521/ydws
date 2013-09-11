@@ -18,9 +18,8 @@ class ZFJSyncerHandler(BaseHandler):
     def post(self):
         res = list()
         try:
-            corp_id = 13928191116   #东升执法局
+            corp_id = 13726103889   #开发区执法局
             begin_time = self.redis.getvalue('last_time')
-            begin_time = 1375665789
             end_time = time.time()
             logging.info("[UWEB] ZFJ request, begin time:%s, end time:%s", begin_time, end_time)
             if begin_time:

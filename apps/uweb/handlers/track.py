@@ -227,6 +227,7 @@ class TrackHandler(BaseHandler):
 
                 self.redis.setvalue(mem_key, res, time=UWEB.STATISTIC_INTERVAL)
 
+            logging.info("[UEB] Tid:%s track query, returned %s points.", self.current_user.tid, len(track))
             self.write_ret(status,
                            dict_=DotDict(track=track,
                                          idle_points=idle_points,

@@ -29,8 +29,8 @@ class TerminalStatistic(object):
         self.db = DBConnection().db
         self.redis = MyRedis()
         self.to_emails = ['boliang.guan@dbjtech.com']
-        self.cc_emails = ['xiaolei.jia@dbjtech.com','zhaoxia.guo@dbjtech.com']
-        #self.cc_emails = ['xiaolei.jia@dbjtech.com','zhaoxia.guo@dbjtech.com','xieyanpeng@zs.gd.chinamobile.com']
+        #self.cc_emails = ['xiaolei.jia@dbjtech.com','zhaoxia.guo@dbjtech.com']
+        self.cc_emails = ['xiaolei.jia@dbjtech.com','zhaoxia.guo@dbjtech.com','xieyanpeng@zs.gd.chinamobile.com']
         
     def statistic_online_terminal(self, epoch_time):
         start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
