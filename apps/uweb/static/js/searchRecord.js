@@ -347,6 +347,9 @@ window.dlf.fn_searchData = function (str_who) {
 			if ( n_bgDate > n_finishDate ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
 				return;
+			} else if ( (n_finishDate-n_bgDate) > 24*60*60*31 ) {	// 判断选择时间
+				dlf.fn_jNotifyMessage('只能查询30天之内的数据，请重新选择时间段。', 'message', false, 3000);
+				return;
 			}
 			/*if ( n_tidsNums <= 0 ) {
 				dlf.fn_jNotifyMessage('请在左侧勾选定位器。', 'message', false, 6000);
@@ -471,7 +474,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		obj_infoPushEle = $('#infoPush_allCheckedPanel, #infoPushSave'),
 		obj_infoPushTipsEle = $('.j_infoPushTips, #infoPushDisabledBtn'),
 		obj_chart = $('#'+ str_who +'Wrapper .j_chart'),
-		b_userType = dlf.fn_userType();	// true: corp
+		b_userType = dlf.fn_userType();	// true: corp	
 	
 	if ( obj_resdata.status == 0 ) {  // success
 		var n_eventDataLen = 0,
@@ -733,14 +736,19 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		
 		switch (str_who) {
 			case 'operator': // 操作员查询
-				str_id = obj_tempData.id;	
+				str_id = obj_tempData.id;
+				var str_address = obj_tempData.address,
+					str_tempAddress = str_address.length > 30 ? str_address.substr(0, 30) + '...' : str_address,
+					str_email = obj_tempData.email,
+					str_tempEmail = str_email.length > 30 ? str_email.substr(0, 30) + '...' : str_email;
+					
 				obj_tableHeader.show();
 				str_tbodyText+= '<tr id='+ str_id +'>';
 				str_tbodyText+= '<td groupId ='+ obj_tempData.group_id +'>'+ obj_tempData.seq +'</td>';	//组名
 				str_tbodyText+= '<td>'+ obj_tempData.name +'</td>';	// 操作员姓名
 				str_tbodyText+= '<td>'+ obj_tempData.mobile +'</td>';	//操作员手机号
-				str_tbodyText+= '<td>'+ obj_tempData.address +'</td>';	// 操作员地址
-				str_tbodyText+= '<td>'+ obj_tempData.email +'</td>';	//操作员email
+				str_tbodyText+= '<td title="'+ str_address +'">'+ str_tempAddress +'</td>';	// 操作员地址
+				str_tbodyText+= '<td title="'+ str_email +'">'+ str_tempEmail +'</td>';	//操作员email
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_editOperator('+ str_id +')>编辑</a></td>';	// 
 				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_deleteOperator('+ str_id +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';
@@ -793,7 +801,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_location = obj_tempData.name, 
 					str_tempAddress = str_location.length >= 25 ? str_location.substr(0,25) + '...':str_location,
 					str_comment = obj_tempData.comment,	// 电量备注
-					str_tempComment = str_comment.length > 12 ? str_comment.substr(0, 12) + '...' : str_comment,
+					str_tempComment = str_comment.length > 11 ? str_comment.substr(0, 11) + '...' : str_comment,
 					str_text = '';	//地址
 					
 					/**
@@ -1398,7 +1406,8 @@ window.dlf.fn_setMapPosition = function(b_status) {
 			obj_mapSize = $('.j_body').data('mapsize');
 		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-			n_right = n_windowWidth - 249;
+			n_right = n_windowWidth - 259;
+			n_mapHeight = n_mapHeight - 10;
 		}
 		obj_map.css({'height': n_mapHeight, 'width': n_right, 'minHeight': 566, 'minWidth': 1151, 'zIndex': 0}).show();
 		obj_mapParentContainer.removeAttr('style');
@@ -1415,7 +1424,8 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		}
 	}
 }
-/*
+
+/**
 * 告警查询关闭小地图
 */
 window.dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {

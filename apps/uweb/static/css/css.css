@@ -1572,7 +1572,6 @@ body {
 	height: 20px;
 }
 .dataTable .viewMap:hover {
-	font-weight: bold;
 	text-decoration: underline;
 }
 .getPositionCss {
@@ -2629,7 +2628,7 @@ legend {
 	color: #4290cb;
 }
 #operatorTable, #passengerTable {
-	width: 750px;
+	width: 850px;
 }
 #operatorTableHeader, #passengerTableHeader, #routeLineTableHeader {
 	height: 38px;
@@ -2782,7 +2781,6 @@ legend {
 }
 .eventSearchContent td, .mileageContent td, .operatorContent td, .onlineStaticsContent td {
 	height: 33px;
-	line-height: 0px;
 }
 .singleMileageTable td, .singleEventContent td {
 	height: 22px;
