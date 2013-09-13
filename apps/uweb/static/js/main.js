@@ -1037,20 +1037,23 @@ $(function () {
 	//窗口最大最小化事件声明
     $('.j_hosBtn').unbind('click').click(function (event) {
         var obj_elem = $(this), 
-			obj_regionNote = $('#regionNote'),
 			obj_content = $(this).parent().next(),
-			obj_wrapper = obj_content.parent();
+			obj_wrapper = $(this).parent().parent(),
+			n_bodyHeight = $('.j_body').height(),
+			n_wrapperTop = obj_wrapper.offset().top;
 		
         if ( obj_elem.hasClass('min') ) {
-			obj_regionNote.hide();
-            obj_elem.removeClass('min').addClass('max').attr('title', '展开');
+            obj_elem.removeClass('min').addClass('max').attr('title', 'Expand');
             obj_content.hide();
-			obj_wrapper.height(34);
+			obj_wrapper.css('height', 34);
         } else if ( obj_elem.hasClass('max') ) {
-			obj_regionNote.show();
-            obj_elem.removeClass('max').addClass('min').attr('title', '收起');
+            obj_elem.removeClass('max').addClass('min').attr('title', 'Retract');
             obj_content.show();
-			obj_wrapper.height(492);
+			obj_wrapper.css('height', 493);
+			
+			if ( n_wrapperTop + 493 > n_bodyHeight ) {
+				obj_wrapper.css('top', n_bodyHeight - 500);
+			}
         }
     });
 	// 轨迹查询停留点图标事件、告警提示列表图标事件
