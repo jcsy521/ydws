@@ -50,6 +50,7 @@
 					<th>上传者</th>
 					<th>文件名</th>
 					<th>版本号</th>
+					<th>锁定</th>
 					<th>下载</th>
 					<th>删除</th>
 				</tr>
@@ -61,8 +62,22 @@
 					<td>{{file['author']}}</td>
 					<td>{{file['filename']}}</td>
 					<td>{{file['version']}}</td>
+					<td>
+					{% if file['islocked'] == 1 %}
+						<a href="#" onclick="fn_lockscript('{{file['islocked']}}', '{{file['id']}}')" class="red">解锁</a>
+					{% else %}
+						<a href="#" onclick="fn_lockscript('{{file['islocked']}}', '{{file['id']}}')" class="green">锁定</a>
+					{% end %}
+					</td>
 					<td><a href="/downloadluascript?filename={{file['filename']}}" target="_blank">下载</a></td>
-					<td><a href="#" onclick="fn_terminalDel('{{file['filename']}}')">删除</a></td>
+					
+					<td class="j_deleteTd">
+					{% if file['islocked'] == 1 %}
+						<a href="#" onclick="fn_terminalDel('{{file['filename']}}', {{file['islocked']}})" islocked="{{file['islocked']}}" class="j_deleteScript"></a>
+					{% else %}
+						<a href="#" onclick="fn_terminalDel('{{file['filename']}}', {{file['islocked']}})" islocked="{{file['islocked']}}" class="j_deleteScript">删除</a>
+					{% end %}
+					</td>
 				</tr>
 				{% end %}
 			</tbody>

@@ -67,8 +67,12 @@ $(function () {
 });
 
 //================删除脚本
-function fn_terminalDel(str_fileName) {
+function fn_terminalDel(str_fileName, n_islocked) {
 	if ( str_fileName != '' ) {
+		if ( n_islocked == 1 ) {
+			alert('脚本被锁定，请先解锁。');
+			return;
+		}
 		if ( confirm('您确定删除脚本吗？') ) {
 			window.location.href = '/deleteluascript?filename='+str_fileName; 
 		}
@@ -87,4 +91,30 @@ function fn_validFileuploadForm() {
 		return false;
 	}
 	return true;
+}
+
+// 脚本锁定 解锁
+function fn_lockscript(n_islocked, n_id) {
+	var str_tips = '',
+		str_returnMsg = '',
+		str_targetHtml = '',
+		obj_params = {'islocked': 0, 'id': parseInt(n_id)};
+	
+	if ( n_islocked == 1 ) {
+		str_tips = '您确定解锁脚本吗？';
+	} else {
+		str_tips = '您确定锁定脚本吗？';
+		obj_params.islocked = 1;
+	}
+	if ( confirm(str_tips) ) {
+		$.put_('/uploadluascript', JSON.stringify(obj_params), function(data) {
+			if ( data.status == 0 ) {
+				alert('操作成功。');
+				location.reload();
+			} else {
+				alert('操作失败，请稍后再试。');
+				return;
+			}
+		});
+	}
 }
