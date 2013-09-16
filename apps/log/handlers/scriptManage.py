@@ -11,6 +11,7 @@ import time
 import tornado.web
 from tornado.escape import json_encode, json_decode
 
+from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
 from utils.misc import safe_utf8
 from utils.checker import check_filename 
@@ -55,7 +56,6 @@ class UploadLuaHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-
         username = self.get_current_user()
         n_role = self.db.get("SELECT role FROM T_LOG_ADMIN WHERE name = %s", username)
         lst = []
@@ -65,10 +65,14 @@ class UploadLuaHandler(BaseHandler):
             author = record.author
             filename = record.filename
             version = record.version
+            islocked = record.islocked
+            id = record.id
             p = {'timestamp':timestamp,
                  'author':author ,
                  'filename':filename,
-                 'version':version
+                 'version':version,
+                 'islocked':islocked,
+                 'id':id,
                  }
             lst.append(p)
         self.render("fileupload/fileupload.html",
@@ -78,6 +82,29 @@ class UploadLuaHandler(BaseHandler):
                      message = MESSAGE)
         global MESSAGE
         MESSAGE = None
+
+    @authenticated
+    @tornado.web.removeslash
+    def put(self):
+        status = ErrorCode.SUCCESS
+        try:
+            data = json_decode(self.request.body)
+            logging.info("data: %s", data)
+            id = data.get("id", -1)
+            islocked = data.get("islocked",0)
+        except Exception as e:
+            logging.info("[LOG] islocked illegal data format. Exception: %s", e.args)
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+
+        try: 
+            self.acbdb.execute("UPDATE T_SCRIPT SET islocked = %s WHERE id = %s", islocked, id)
+            self.write_ret(status)
+        except Exception as e: 
+            logging.exception("[LOG] set islocked failed. Exception: %s", e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
 
     @authenticated
     @tornado.web.removeslash
