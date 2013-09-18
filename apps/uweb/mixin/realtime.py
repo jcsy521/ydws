@@ -55,7 +55,7 @@ class RealtimeMixin(BaseMixin):
                                     'clongitude':location.cLon,
                                     'timestamp':location.gps_time,
                                     'name':location.name,
-                                    'degree':location.degree,
+                                    'degree':float(location.degree),
                                     'speed':location.speed})
             location_key = get_location_key(str(location.dev_id))
             self.redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
