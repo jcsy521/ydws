@@ -35,7 +35,7 @@ class ProfileHandler(BaseHandler):
                                self.current_user.uid) 
             if not user:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
+                logging.error("[UWEB] user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
                 self.write_ret(status)
                 return
             
@@ -49,7 +49,7 @@ class ProfileHandler(BaseHandler):
             self.write_ret(status,
                            dict_=dict(profile=profile))
         except Exception as e:
-            logging.exception("[UWEB] uid:%s tid:%s get user profile failed. Exception: %s", 
+            logging.exception("[UWEB] user uid:%s tid:%s get user profile failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -65,7 +65,7 @@ class ProfileHandler(BaseHandler):
             tid = data.get('tid',None) 
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            logging.info("[UWEB] profile user request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] user profile request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -128,7 +128,7 @@ class ProfileHandler(BaseHandler):
                                 self.current_user.uid)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid:%s tid:%s update profile failed.  Exception: %s", 
+            logging.exception("[UWEB] user uid:%s tid:%s update profile failed.  Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -151,7 +151,7 @@ class ProfileCorpHandler(BaseHandler):
                                self.current_user.cid) 
             if not corp:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
+                logging.error("[UWEB] corp with cid: %s does not exist, redirect to login.html", self.current_user.cid)
                 self.write_ret(status)
                 return
             
@@ -159,8 +159,8 @@ class ProfileCorpHandler(BaseHandler):
             self.write_ret(status,
                            dict_=dict(profile=profile))
         except Exception as e:
-            logging.exception("[UWEB] uid:%s tid:%s get corp profile failed. Exception: %s", 
-                              self.current_user.uid, self.current_user.tid, e.args) 
+            logging.exception("[UWEB] corp cid:%s tid:%s get corp profile failed. Exception: %s", 
+                              self.current_user.cid, self.current_user.tid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -172,7 +172,7 @@ class ProfileCorpHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] profile corp request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] corp profile request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -191,9 +191,11 @@ class ProfileCorpHandler(BaseHandler):
             #    return
 
             #if data.has_key('email')  and not check_sql_injection(data.email):
-            #    status = ErrorCode.ILLEGAL_EMAIL 
-            #    self.write_ret(status)
-            #    return
+            if data.has_key('c_email') and len(data.c_email)>50:
+                status = ErrorCode.ILLEGAL_EMAIL 
+                self.write_ret(status, 
+                               message=u'联系人邮箱的最大长度是50个字符！')
+                return
 
 
             fields_ = DotDict()
@@ -211,8 +213,8 @@ class ProfileCorpHandler(BaseHandler):
                                 self.current_user.cid)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid:%s tid:%s update corp profile failed.  Exception: %s", 
-                              self.current_user.uid, self.current_user.tid, e.args)
+            logging.exception("[UWEB] corp cid:%s tid:%s update corp profile failed. Exception: %s", 
+                              self.current_user.cid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -222,7 +224,7 @@ class ProfileOperHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Display profile of current corp.
+        """Display profile of current operator.
         """
         status = ErrorCode.SUCCESS
         try: 
@@ -235,7 +237,7 @@ class ProfileOperHandler(BaseHandler):
                                self.current_user.oid) 
             if not oper:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.oid)
+                logging.error("[UWEB] operator with oid: %s does not exist, redirect to login.html", self.current_user.oid)
                 self.write_ret(status)
                 return
             
@@ -245,21 +247,21 @@ class ProfileOperHandler(BaseHandler):
             self.write_ret(status,
                            dict_=dict(profile=profile))
         except Exception as e:
-            logging.exception("[UWEB] uid:%s tid:%s get corp profile failed. Exception: %s", 
-                              self.current_user.uid, self.current_user.tid, e.args) 
+            logging.exception("[UWEB] operator oid:%s tid:%s get corp profile failed. Exception: %s", 
+                              self.current_user.oid, self.current_user.tid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
     @authenticated
     @tornado.web.removeslash
     def put(self):
-        """Modify profile of current corp. 
+        """Modify profile of current operator. 
         """
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] profile corp request: %s, uid: %s, tid: %s", 
-                         data, self.current_user.uid, self.current_user.tid)
+            logging.info("[UWEB] operator profile request: %s, oid: %s, tid: %s", 
+                         data, self.current_user.oid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
@@ -277,9 +279,11 @@ class ProfileOperHandler(BaseHandler):
             #    return
 
             #if data.has_key('email')  and not check_sql_injection(data.email):
-            #    status = ErrorCode.ILLEGAL_EMAIL 
-            #    self.write_ret(status)
-            #    return
+            if data.has_key('email') and len(data.email)>50:
+                status = ErrorCode.ILLEGAL_EMAIL 
+                self.write_ret(status, 
+                               message=u'联系人邮箱的最大长度是50个字符！')
+                return
 
 
             fields_ = DotDict()
@@ -294,7 +298,7 @@ class ProfileOperHandler(BaseHandler):
                                 self.current_user.oid)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] oid:%s update oper profile failed. Exception: %s", 
+            logging.exception("[UWEB] operator oid:%s update oper profile failed. Exception: %s", 
                               self.current_user.oid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

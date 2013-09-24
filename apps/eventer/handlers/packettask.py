@@ -17,7 +17,8 @@ from helpers.uwebhelper import UWebHelper
 from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
      get_ios_id_key, get_power_full_key, get_region_status_key, get_alarm_info_key,\
-     safe_utf8, safe_unicode, get_ios_push_list_key, get_android_push_list_key
+     safe_utf8, safe_unicode, get_ios_push_list_key, get_android_push_list_key,\
+     get_region_time_key
 from utils.public import insert_location
 
 from codes.smscode import SMSCode
@@ -65,7 +66,20 @@ class PacketTask(object):
             return regions
 
     def check_region_event(self, ori_location, region): 
-        """check enter or out region """
+        """Check enter or out region 
+
+        workflow:
+        get old_region_status accordinding to region and tid
+        get old_region_time accordinding to region and tid
+        check region_status according distance, then keep region_status in redis
+        if not old_region_status:
+            skip
+        if old_region_time and location's gps_time <= old_region_time:
+            skip
+        check region event according to region_status and old_region_staus
+        if region event:
+            keep region_status, region_time in redis
+        """
         if not (ori_location and region): 
             logging.info("[EVENTER] query data is invalid, ori_location: %s, region: %s, no check", 
                          ori_location, region)
@@ -80,8 +94,13 @@ class PacketTask(object):
         location = DotDict(location)
 
         terminal = QueryHelper.get_terminal_by_tid(location['dev_id'], self.db)
+
         old_region_status_key = get_region_status_key(location['dev_id'], region.region_id)
         old_region_status = self.redis.getvalue(old_region_status_key)
+
+        old_region_time_key = get_region_time_key(location['dev_id'], region.region_id)
+        old_region_time = self.redis.getvalue(old_region_time_key)
+
         # get distance beteween now location and the centre of the region 
         distance = lbmphelper.get_distance(region.region_longitude,
                                            region.region_latitude,
@@ -100,11 +119,20 @@ class PacketTask(object):
                      region.region_name, old_region_status, region_status, location['dev_id'])    
 
         if not old_region_status:
+            logging.info("[EVENTER] old_region_status: %s is invalid, skip it", 
+                         old_region_status)
             # skip the first region event
             return location
 
+        if old_region_time:
+            if int(location['gps_time']) <= int(old_region_time):
+                logging.info("[EVENTER] current location's gps_time: %s is not bigger than old_region_time: %s, skip it", 
+                             location['gps_time'], old_region_time)
+                return location
+
         if region_status != old_region_status:
             self.redis.setvalue(old_region_status_key, region_status)
+            self.redis.setvalue(old_region_time_key, location['gps_time'])
             # 2: complete the location
             location['category']=region_status
             location['t'] = EVENTER.INFO_TYPE.REPORT

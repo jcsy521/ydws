@@ -377,12 +377,12 @@ class MyGWServer(object):
 
             if new_softversion: 
                 # after v2.2.0
-                logging.info("[GW] New softversion: %s, go to new login handler...",
+                logging.info("[GW] New softversion(>=2.2.0): %s, go to new login handler...",
                              softversion)
                 self.handle_new_login(t_info, address, connection, channel)
             else:
                 # before v2.2.0
-                logging.info("[GW] Old softversion: %s, go to old login handler...",
+                logging.info("[GW] Old softversion(<2.2.0): %s, go to old login handler...",
                              softversion)
                 self.handle_old_login(t_info, address, connection, channel)
 
@@ -392,8 +392,23 @@ class MyGWServer(object):
     def handle_new_login(self, t_info, address, connection, channel):
         """Handle the login packet with version bigger than 2.2.0
         S1
-        flag(t_info['psd']):
 
+        t_info:{'dev_id' // tid
+                't_msisdn' // tmobile
+                'u_msisdn' // umobile
+                'imei' // sim's id 
+                'imsi' // track's id 
+                'dev_type' 
+                'softversion' // version of terminal, like 2.3.0
+                'timestamp'
+                'psd' 
+                'keys_num' 
+                'sessionID' 
+                'command'  
+                'factory_name'  
+               }
+
+        flag(t_info['psd']):
           0 - boot_normally
           1 - active_terminal
           2 - assert_reboot 
@@ -410,9 +425,11 @@ class MyGWServer(object):
         100 - script_reload 
 
         workflow:
-        if flag == 1:
+        if normal login:
+           if sn and imsi exist, but msisdn and msisdn are empty: 
+               send register sms again 
            normal login, check [SN,PHONE,IMSI,USER] is matching or not.
-        else:
+        else: #JH
            delete old bind relation of tid, and send message to old user.
            update new bind relation of tmobile, and send message to new user.
 
@@ -438,44 +455,58 @@ class MyGWServer(object):
                                "  FROM T_TERMINAL_INFO"
                                "  WHERE mobile = %s LIMIT 1",
                                t_info['t_msisdn']) 
-        if flag != "1":
-            # login
-            if not t_info['t_msisdn']:
-                # login first.
-                tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
-                                           " FROM T_TERMINAL_INFO"
-                                           " WHERE tid = %s LIMIT 1", t_info['dev_id'])
-                args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                if tid_terminal:
-                    sms_ = SMSCode.SMS_NOT_JH % tid_terminal.mobile 
-                    SMSHelper.send(tid_terminal.owner_mobile, sms_)
-                logging.warn("[GW] terminal: %s login at first time.",
-                             t_info['dev_id'])
-            elif terminal:
-                alias = QueryHelper.get_alias_by_tid(terminal['tid'], self.redis, self.db)
-                if terminal['tid'] != t_info['dev_id']:
-                    args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    sms = SMSCode.SMS_TERMINAL_HK % alias 
-                    logging.warn("[GW] Tmobile: %s changed dev, old: %s, new: %s",
-                                 t_info['t_msisdn'], terminal['tid'], t_info['dev_id'])
-                elif terminal['imsi'] != t_info['imsi']:
-                    args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    sms = SMSCode.SMS_TERMINAL_HK % alias 
-                    logging.warn("[GW] Terminal %s imsi is wrong, old: %s, new: %s",
-                                 t_info['dev_id'], terminal['imsi'], t_info['imsi'])
-                elif terminal['owner_mobile'] != t_info['u_msisdn']:
-                    args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    sms = SMSCode.SMS_TERMINAL_HK % alias 
-                    logging.warn("[GW] Terminal %s owner_mobile is wrong, old: %s, new: %s",
-                                 t_info['dev_id'], terminal['owner_mobile'], t_info['u_msisdn'])
-                elif terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                    t_status = UWEB.SERVICE_STATUS.TO_BE_UNBIND
-                    logging.warn("[GW] Terminal: %s is unbinded.", t_info["dev_id"])            
-                else:
-                    logging.info("[GW] Terminal %s normal login successfully.", t_info['dev_id'])
+        if flag != "1": # normal login
+            if (not t_info['t_msisdn']) and (not t_info['u_msisdn']):
+                t = self.db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status"
+                                "  FROM T_TERMINAL_INFO"
+                                "  WHERE service_status=1"
+                                "      AND tid = %s "
+                                "      AND imsi = %s LIMIT 1",
+                                t_info['dev_id'], t_info['imsi']) 
+                if t: 
+                     t_info['t_msisdn'] = t.mobile
+                     t_info['u_msisdn'] = t.owner_mobile
+                     register_sms = SMSCode.SMS_REGISTER % (t.owner_mobile, t.mobile)
+                     SMSHelper.send_to_terminal(t.mobile, register_sms)
+                     logging.info("[GATEWAY] a binded terminal tid:%s, imei:%s has no tmobile:%s, umobile:%s in login packet, so %s again.",
+                              t_info['dev_id'], t_info['imei'], t_info['t_msisdn'], t_info['u_msisdn'], register_sms)
             else:
-                args.success = GATEWAY.LOGIN_STATUS.UNREGISTER
-                logging.error("[GW] Terminal %s login failed, unregister.", t_info['dev_id'])
+                if not t_info['t_msisdn']:
+                    # login first.
+                    tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
+                                               " FROM T_TERMINAL_INFO"
+                                               " WHERE tid = %s LIMIT 1", t_info['dev_id'])
+                    args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                    if tid_terminal:
+                        sms_ = SMSCode.SMS_NOT_JH % tid_terminal.mobile 
+                        SMSHelper.send(tid_terminal.owner_mobile, sms_)
+                    logging.warn("[GW] terminal: %s login at first time.",
+                                 t_info['dev_id'])
+                elif terminal:
+                    alias = QueryHelper.get_alias_by_tid(terminal['tid'], self.redis, self.db)
+                    if terminal['tid'] != t_info['dev_id']:
+                        args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                        sms = SMSCode.SMS_TERMINAL_HK % alias 
+                        logging.warn("[GW] Tmobile: %s changed dev, old: %s, new: %s",
+                                     t_info['t_msisdn'], terminal['tid'], t_info['dev_id'])
+                    elif terminal['imsi'] != t_info['imsi']:
+                        args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                        sms = SMSCode.SMS_TERMINAL_HK % alias 
+                        logging.warn("[GW] Terminal %s imsi is wrong, old: %s, new: %s",
+                                     t_info['dev_id'], terminal['imsi'], t_info['imsi'])
+                    elif terminal['owner_mobile'] != t_info['u_msisdn']:
+                        args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                        sms = SMSCode.SMS_TERMINAL_HK % alias 
+                        logging.warn("[GW] Terminal %s owner_mobile is wrong, old: %s, new: %s",
+                                     t_info['dev_id'], terminal['owner_mobile'], t_info['u_msisdn'])
+                    elif terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+                        t_status = UWEB.SERVICE_STATUS.TO_BE_UNBIND
+                        logging.warn("[GW] Terminal: %s is unbinded.", t_info["dev_id"])            
+                    else:
+                        logging.info("[GW] Terminal %s normal login successfully.", t_info['dev_id'])
+                else:
+                    args.success = GATEWAY.LOGIN_STATUS.UNREGISTER
+                    logging.error("[GW] Terminal %s login failed, unregister.", t_info['dev_id'])
         else: # JH 
             logging.info("[GW] Terminal: %s, mobile: %s JH started.",
                          t_info['dev_id'], t_info['t_msisdn'])

@@ -50,8 +50,17 @@ class EventHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+
             tid = data.get('tid', None) 
+
             tids = data.get('tids', None)
+            tids = str_to_list(tids)
+            tids = tids if tids else [self.current_user.tid, ]
+            tids = [str(t) for t in tids]
+
+            if not tid:
+                tid = tids[0] if len(tids)>0 else ''
+
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
             logging.info("[UWEB] event request: %s, uid: %s, tid: %s, tids: %s", 
@@ -80,9 +89,6 @@ class EventHandler(BaseHandler):
             page_count = int(data.pagecnt)
             start_time = data.start_time
             end_time = data.end_time
-            tids = str_to_list(tids)
-            tids = tids if tids else [self.current_user.tid, ]
-            tids = [str(tid) for tid in tids]
 
             #NOTE: all catgories
             all_categories = [2, # powerlow
