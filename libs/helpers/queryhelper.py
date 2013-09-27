@@ -205,7 +205,10 @@ class QueryHelper(object):
                          "  WHERE tid = %s", tid)
             fobs = db.query("SELECT fobid FROM T_FOB"
                             "  WHERE tid = %s", tid)
-            terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
+            if car:
+                terminal_info['alias'] = car.cnum if car.cnum else terminal_info.mobile
+            else:
+                terminal_info['alias'] =  terminal_info.mobile
             terminal_info['fob_list'] = [fob.fobid for fob in fobs]
             redis.setvalue(terminal_info_key, terminal_info)
 
