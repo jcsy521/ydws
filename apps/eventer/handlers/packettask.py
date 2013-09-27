@@ -251,7 +251,16 @@ class PacketTask(object):
                 logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
                              info['dev_id'], info['rName'])
                 return
-        
+            # if alert_freq_key is exists,return
+            alert_freq_key = get_alert_freq_key(report.dev_id)
+            alert_freq = QueryHelper.get_alert_freq_by_tid(info['dev_id'], self.db)
+            if alert_freq != 0:
+                if self.redis.exists(alert_freq_key):
+                    logging.info("[EVENTER] Don't send duplicate %s alert to terminal:%s between:%s seconds", info["rName"], report.dev_id, alert_freq)
+                    return
+                else:
+                    self.redis.setvalue(alert_freq_key, time=alert_freq)
+
         # keep alarm info
         alarm = dict(tid=report['dev_id'],
                      category=report['category'], 
@@ -269,7 +278,7 @@ class PacketTask(object):
         if info['rName'] in [EVENTER.RNAME.REGION_OUT, EVENTER.RNAME.REGION_ENTER]:
             region = report['region']
             alarm['region_id'] = region.region_id
-
+             
         self.record_alarm_info(alarm)
 
         # 2:  save into database. T_LOCATION, T_EVENT
@@ -304,6 +313,16 @@ class PacketTask(object):
 
             if report.rName == EVENTER.RNAME.POWERLOW:
                 if report.terminal_type == "1": # type: terminal
+                    if int(report.pbat) == 100:
+                        pbat_message_key = get_pbat_message_key(report.dev_id)
+                        if self.redis.exists(pbat_message_key) is False:
+                            self.redis.setvalue(pbat_message_key,time=24*60*60)        
+                        else:
+                            logging.info("[EVENTER] Don't send duplicate power full message to terminal:%s in 24 hours", report.dev_id)
+                            return
+                    elif int(report.pbat) > 20 and int(report.pbat) < 100:
+                        logging.info("[EVENTER] Terminal:%s reported power low pbat:%s between 20% and 100%, so skip it", report.dev_id, report.pbat)
+                        return
                     sms = self.handle_power_status(report, name, report_name, terminal_time)
                 else: # type: fob
                     sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
@@ -402,7 +421,8 @@ class PacketTask(object):
                     elif int(report.pbat) <= 5:
                         report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF]
                     else:
-                        report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
+                        if int(report.pbat) <= 20:
+                            report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
                 else:
                     report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
             elif report.rName in (EVENTER.RNAME.REGION_ENTER, EVENTER.RNAME.REGION_OUT):

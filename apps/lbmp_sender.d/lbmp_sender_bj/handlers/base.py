@@ -22,7 +22,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def http(self):
-        return httplib2.Http(cache=".lbmp_cache",timeout=HTTP.ASYNC_REQUEST_TIMEOUT)
+        return httplib2.Http(timeout=HTTP.ASYNC_REQUEST_TIMEOUT)
+        #return httplib2.Http(cache=".lbmp_cache",timeout=HTTP.ASYNC_REQUEST_TIMEOUT)
 
     @property
     def queue(self):

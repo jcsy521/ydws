@@ -43,6 +43,7 @@ from handlers.worker import WorkerPool
 from handlers.main import MainHandler
 from handlers.track import TrackHandler, TrackDownloadHandler, TrackLQHandler
 from handlers.event import EventHandler
+from handlers.eventperiod import EventPeriodHandler
 from handlers.realtime import RealtimeHandler
 from handlers.defend import DefendHandler
 from handlers.group import GroupHandler, GroupTransferHandler
@@ -121,6 +122,7 @@ class Application(tornado.web.Application):
 
             (r"/tracklq/*", TrackLQHandler),
             (r"/event/*", EventHandler),
+            (r"/eventperiod/*", EventPeriodHandler),
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),
             (r"/terminal/*", TerminalHandler),

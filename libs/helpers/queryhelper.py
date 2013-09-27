@@ -259,3 +259,7 @@ class QueryHelper(object):
                 redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
         return location
 
+    @staticmethod
+    def get_alert_freq_by_tid(tid,db):
+        alert_freq = db.get("SELECT alert_freq FROM T_TERMINAL_INFO WHERE tid=%s", tid)
+        return alert_freq

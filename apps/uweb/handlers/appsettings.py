@@ -35,7 +35,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             ## part 1: terminal
             tracker = DotDict() 
             # 1: terminal 
-            terminal = self.db.get("SELECT white_pop as sos_pop, push_status"
+            terminal = self.db.get("SELECT white_pop as sos_pop, push_status, vibl, static_val "
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s"
@@ -65,7 +65,8 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             tracker.update(sos)
             tracker.update(dict(push_status=terminal.push_status))
             tracker.update(dict(sos_pop=terminal.sos_pop))
-     
+            tracker.update(dict(vibl=terminal.vibl))
+            tracker.update(dict(static_val=terminal.static_val)) 
             ## part 2: profile
 
             profile = DotDict()

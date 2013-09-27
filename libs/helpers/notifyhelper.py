@@ -8,6 +8,7 @@ import logging
 import httplib2
 import random
 import hashlib
+import time
 from urllib import urlencode
 
 from tornado.escape import json_decode, json_encode
@@ -235,3 +236,30 @@ class NotifyHelper(object):
 
         except Exception as e:
             logging.exception("Push to IOS failed. Exception: %s", e.args)
+
+    @staticmethod
+    def check_send_sms(tid):
+        flag = 0
+        date_dict = dict()
+        week_list = list()
+        hour = int(time.strftime('%I',time.localtime(time.time())))
+        minite = int(time.strftime('%m',time.localtime(time.time()))) 
+        nowdate = 3600*hour + 60*minite
+        week = int(time.strftime('%w',time.localtime(time.time())))
+        if week == 0:
+            week = 7
+        items = self.db.query("SELECT * FROM T_ALERT_SETTING WHERE tid=%s", tid)
+        if items is None:
+            return True
+        else:
+            for item in items:
+                date_dict[item["week"]] = [item["start_time"],item["end_time"]]
+            for key,date in date_dict.items():
+                if key[week] == 1:
+                    if data[0] < nowdate and data[1]> nowdate:
+                        flag = 1
+                        break
+            if flag == 1:
+                return True
+            else:
+               return False                   

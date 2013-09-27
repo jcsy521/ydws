@@ -157,6 +157,12 @@ def get_login_time_key(dev_id):
 def get_track_key(dev_id):  
     return str("track:%s" % dev_id) 
 
+def get_alert_freq_key(dev_id):
+    return str("alert_freq:%s" % dev_id)    
+
+def get_pbat_message_key(dev_id):
+    return str("pbat_message:%s" % dev_id)
+
 def get_terminal_time(timestamp):
     """Format a readable time like 2013-10-10，10:10:10 
     """

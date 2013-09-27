@@ -43,7 +43,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             car_sets = DotDict() 
             # 1: terminal 
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
-                                   "       vibchk, tid as sn, mobile, vibl,"
+                                   "       vibchk, tid as sn, mobile, vibl, static_val, alert_freq,"
                                    "       white_pop, push_status, icon_type, owner_mobile, login_permit"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
