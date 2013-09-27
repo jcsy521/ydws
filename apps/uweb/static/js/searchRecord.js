@@ -259,8 +259,7 @@ window.dlf.fn_searchData = function (str_who) {
 			str_getDataUrl = OPERATOR_URL+'?name='+ str_name +'&mobile='+ str_mobile +'&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
 			
 			if ( str_name!= '' && !NAMEREG.test(str_name) ) {
-				dlf.fn_jNotifyMessage('操作员姓名只能由汉字、数字、大写英文、空格组成!', 'message', false);
-				return;
+				dlf.fn_jNotifyMessage('操作员姓名只能由中文、数字、英文、空格组成!', 'message', false);
 				return;
 			}
 			if ( str_mobile != '' && !/^\d*$/.test(str_mobile) ) {	// 手机号合法性验证
@@ -437,10 +436,14 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'corpRegion': // 集团用户的围栏管理	kjj add in 2013-08-07
 			str_getDataUrl = CORP_REGION_URL;
 			break;
+		case 'alertSetting': // 告警时间段
+		case 'corpAlertSetting': 
+			str_getDataUrl = ALEERSETTING_URL + '?tid=' + str_currentTid;;
+			break;
 	}
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
 	
-	if ( str_who == 'operator' || str_who == 'region' || str_who == 'corpRegion' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' ) {
+	if ( str_who == 'operator' || str_who == 'region' || str_who == 'corpRegion' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
 		$.get_(str_getDataUrl, '', function(data) {	
 			dlf.fn_bindSearchRecord(str_who, data);
 		},
@@ -579,7 +582,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				obj_infoPushEle.hide();
 				obj_infoPushTipsEle.show();	// infoPush没有查询到乘客信息提示框隐藏
 				return;
-			} else if ( str_who == 'region' || str_who == 'corpRegion'  ) {
+			} else if ( str_who == 'region' || str_who == 'corpRegion' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
 				
 			} else {
 				obj_searchHeader.hide();
@@ -588,6 +591,10 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！。', 'message', false, 4000);
+			} else if ( str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
+				$('.j_weekList').data('weeks', []);
+				obj_searchHeader.after('<tr><td colspan="4">没有查询到记录。</td></tr>');
 			} else {
 				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 4000);
 			}
@@ -702,7 +709,8 @@ window.dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) 
 * 根据数据和页面不同生成相应的table域内容
 */
 window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
-	var obj_searchData = obj_reaData.res;
+	var obj_searchData = obj_reaData.res,
+		arr_checkWeek = [];	// 用来存储已经设置的星期
 	
 	if ( str_who == 'eventSearch' ) {
 		obj_searchData = obj_reaData.events;
@@ -716,7 +724,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		}*/
 		$('#regionTable, #corpRegionTable').data({'regions': obj_searchData, 'regionnum': obj_searchData.length}); //围栏存储数据以便显示详细信息
 	}
-
+	
 	arr_eventData = obj_searchData;
 		
 	var n_searchLen = obj_searchData.length,
@@ -918,8 +926,33 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '</tr>';
 				
 				break;
+			case 'corpAlertSetting':
+			case 'alertSetting': // 告警时间段
+				var str_id = obj_tempData.id,
+					str_week = obj_tempData.week,	// 设置的星期
+					arr_alartWeek = str_week.split(''),
+					n_alartWeekLen = arr_alartWeek.length,
+					str_startTime = dlf.fn_changeNumToDateString(obj_tempData.start_time, 'sfm'),	// 开始时间
+					str_endTime = dlf.fn_changeNumToDateString(obj_tempData.end_time, 'sfm'),	// 结束时间
+					arr_weeks = ['周一','周二','周三','周四','周五','周六','周日'],
+					str_weeks = '',	// 显示设置的星期字符
+					str_checkedWeek = '';	// 已经设置过的星期
+					
+				for ( var x = 0; x < n_alartWeekLen; x++ ) {
+					if ( arr_alartWeek[x] == 1 ) {
+						arr_checkWeek.push(x);
+						str_weeks += '  ' + arr_weeks[x]
+					}
+				}
+				str_tbodyText += '<tr><td id="'+ str_id +'">'+ (i+1) +'</td>';
+				str_tbodyText += '<td>'+ str_weeks +'</td>';
+				str_tbodyText += '<td>'+ str_startTime + '--' + str_endTime +'</td>';
+				str_tbodyText+= '<td><a href="#" onclick="fn_deleteAlertSetting('+ str_id +', \''+ obj_tempData.tid +'\', \''+ str_who +'\')">删除</a></td>';
+				break;
 		}
 	}
+	// 存储已经设置过的星期
+	$('.j_weekList').data('weeks', arr_checkWeek);
 	obj_searchHeader.after(str_tbodyText);
 	if ( str_who == 'singleMileage' || str_who == 'singleEvent' ) {
 		var	obj_theadTH = $('.j_' + str_who + 'TH'),	// 表头时间TH
@@ -1150,19 +1183,19 @@ window.dlf.fn_initTimeControl = function(str_who) {
 /**
 * 初始化里程统计时间滑块
 */
-window.dlf.fn_initSlider = function() {
+window.dlf.fn_initSlider = function(str_type) {
 	var n_minVal = 0,
 		n_maxVal = 1440,
-		obj_hour0 = $('#txtHour0'),
-		obj_minute0 = $('#txtMinute0'),
-		obj_hour1 = $('#txtHour1'),
-		obj_minute1 = $('#txtMinute1');
+		obj_hour0 = $('#txt'+ str_type +'Hour0'),
+		obj_minute0 = $('#txt'+ str_type +'Minute0'),
+		obj_hour1 = $('#txt'+ str_type +'Hour1'),
+		obj_minute1 = $('#txt'+ str_type +'Minute1');
 		
 	obj_hour0.val('08');
 	obj_minute0.val('30');
 	obj_hour1.val('17');
 	obj_minute1.val('30');
-	$('#mileageSlider').slider({
+	$('#mileageSlider, #alertSettingSlider').slider({
 		min: n_minVal,
 		max: n_maxVal,
 		values: [520, 1050],	// 08:30 -- 17:30 
@@ -1464,5 +1497,22 @@ window.dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {
 		obj_mapConTitle.hide();
 		obj_mapPanel.hide();
 		obj_mapContainer.removeAttr('style');
+	}
+}
+
+/**
+* 删除告警设置
+*/
+function fn_deleteAlertSetting(id, str_tid, str_who) {
+	if ( id ) {
+		if ( confirm('确定要删除该告警时间段设置吗？') )
+		$.delete_(ALEERSETTING_URL + '?id='+id+'&tid='+str_tid, '', function(data) {
+			if ( data.status == 0 ) {
+				dlf.fn_jNotifyMessage('告警时间段删除成功。', 'message', false, 3000);
+				dlf.fn_searchData(str_who);
+			} else {
+				dlf.fn_jNotifyMessage('删除失败，请重新再试。', 'message', false, 3000);
+			}
+		});
 	}
 }

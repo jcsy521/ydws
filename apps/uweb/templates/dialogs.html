@@ -50,12 +50,12 @@
 							<input type="text" name="name" id="name"  class="text_mouseOut j_personal j_onInputBlur" max="20" who="name" msg="车主姓名只能是由数字、英文、中文组成！"  parent="personalWrapper" />
 						</td>
 					</tr>
-					<tr>
+					<!--2013.09.22 move it to settings <tr>
 						<td>
 							<label>车牌号：</label>
 							<input type="text" id="cnum" class="text_mouseOut j_personal j_onInputBlur"  msg="车牌号只能由汉字、数字、大写字母、空格组成！" max="20"  who="validateLength" parent="personalWrapper"   />
 						</td>
-					</tr>
+					</tr>-->
 					
 					<!-- 2012-10-23 18:14 暂时隐藏个人资料的地址、email、备注信息 并添加车牌号
 					<tr><td><label>地址：</label><input type="text" name="txtAddress" id="txtAddress"  class="text_mouseOut j_personal j_onInputBlur"  parent="personalWrapper" max="100" who="validateLength" msg="地址最大长度是100个汉字或字符！"   /></td></tr>
@@ -91,11 +91,17 @@
 			<span class="close j_close" title="关闭窗口" who="terminal"></span>
 		</div>
 		<div class="terminalContent wrapperContent">
+			<!--tab选项卡 -->
+			<ul id="terminalTab" class="tabs">
+				<li id="rTab" class="j_tabs tabItems currentTab">定位器设置</li>
+				<li id="wTab" class="j_tabs tabItems">短信设置</li>
+				<!--<li id="eTab" class="j_tabs tabItems">告警时间段设置</li>-->
+			</ul>
 			<div class="j_terminalList">
 				<div id="terminalList0" class="j_terminalcontent">
 					<!-- 可查询参数列表 -->
 					<form id="terminalForm" >
-						<table class="bListR">
+						<table class="bListR" id="bListR">
 							<tbody>
 								<tr>
 									<td class="terminalTdL">定位器号码:</td>
@@ -103,16 +109,37 @@
 										<label id="t_mobile"></label>
 									</td>
 								</tr>
-								<tr class="j_corp_terminal">
-									<td class="terminalTdL">车主号码:</td>
-									<td id="t_c_umobile"  t_val="">
-										<label id="t_umobile"></label>
+								<tr>
+									<td class="terminalTdL" >车牌号:</td>
+									<td id="corp_cnum"  class="j_ListVal j_input"  t_val="">
+										<input type="text" id="t_cnum" class="text_mouseOut j_onInputBlur"  msg="车牌号只能由汉字、数字、大写字母、空格组成！" max="20"  who="validateLength"  />
 									</td>
 								</tr>
-								<tr class="hide">
-									<td class="terminalTdL" ></td>
-									<td id="white_list_1" class="j_white_list" t_val="">
-										<input id="t_white_list_1" terminalkey="owner_mobile"  class="textDisabled text_mouseOut" type="text" />
+								<tr>
+									<td class="terminalTdL" >震动告警模式:</td>
+									<td id="alert_freq"  class="j_ListVal j_input"  t_val="">
+										<select id="alert_freq_mode" >
+											<option value="0">普通模式</option>
+											<option value="1">智能模式</option>
+										</select>
+										<span class="autoContainer j_auto">
+											<label class="j_alert_freq_tip">第一次告警后</label>
+											<input type="text" id="t_alert_freq" class="text_mouseOut j_onInputBlur" value="0" />
+											<label class="j_alert_freq_tip">分钟再报</label>
+										</span>
+										<span class="autoContainer j_common">检测到震动，立刻告警</span>
+									</td>
+								</tr>
+								<tr>
+									<td class="terminalTdL" >震动灵敏度:</td>
+									<td id="vibl"  class="j_ListVal"  t_val="">
+										<select id="t_vibl">
+											<option value="0">非常灵敏</option>
+											<option value="1">灵敏</option>
+											<option value="2">正常</option>
+											<option value="3">不灵敏</option>
+											<option value="4">非常不灵敏</option>
+										</select>
 									</td>
 								</tr>
 								<tr>
@@ -122,24 +149,6 @@
 										<label id="tpsLable1" for="tr_push_status1">开启</label>
 										<input id="tr_push_status0" type="radio" value="0" name="tpStatus" />
 										<label id="tpsLable0" for="tr_push_status0">关闭</label>
-									</td>
-								</tr>
-								<tr class="j_corp_terminal">
-									<td class="terminalTdL" >上报频率:</td>
-									<td id="freq"  class="j_ListVal j_input"  t_val="">
-										<select id="t_freq" terminalkey="freq">
-											<option value="0">智能上报</option>
-											<option value="60">1分钟</option>
-											<option value="300">5分钟</option>
-											<option value="600">10分钟</option>
-											<option value="1800">30分钟</option>
-										</select>
-									</td>
-								</tr>
-								<tr class="j_corp_terminal">
-									<td class="terminalTdL" >车牌号:</td>
-									<td id="corp_cnum"  class="j_ListVal j_input"  t_val="">
-										<input type="text" id="t_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号最大长度是20个汉字或字符！" max = "20"  who="validateLength" parent="terminalWrapper"   />
 									</td>
 								</tr>
 							</tbody>
@@ -153,9 +162,108 @@
 						</table>
 					</form>
 				</div>
+				<div id="terminalList1" class="j_terminalcontent hide">
+					<span class="smsTip">请选择想要的短信通知项：</span>
+					<ul class="smsList">
+						<li>
+							<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">电量告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">平台登录提醒</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="illegalmove" class="j_checkbox" title="移动" /><label for="illegalmove">移动告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="通讯异常" /><label for="heartbeat_lost">通讯异常提醒</label>
+						</li>
+						<li>
+							<input type="checkbox" id="illegalshake" class="j_checkbox" title="震动" /><label for="illegalshake">震动告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="region_enter" class="j_checkbox" title="进围栏告警" /><label for="region_enter">进围栏告警</label>
+						</li>
+						<li>
+							<input type="checkbox" id="region_out" class="j_checkbox" title="出围栏告警" /><label for="region_out">出围栏告警</label> 
+						</li>
+						<!--<li>
+							<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
+						</li>-->
+						<li>
+							<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
+						</li>
+					</ul>
+					<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
+				</div>
+				<!--<div id="terminalList2" class="j_terminalcontent hide">
+					<a id="alertSettingCreateBtn" class="alertSettingCreateBtn j_alertSettingCreateBtn" href="#">新增告警设置</a>
+					<table id="alertSettingTable" class="dataTable alertSettingTable"  cellspacing="0" border="1" borderColor="red" align="center">
+						<tbody>
+							<tr id="alertSettingTableHeader" class="tableHeader">
+								<th>序号</th>
+								<th>星期</th>
+								<th>时间</th>
+								<th>操作</th>
+							</tr>
+						</tbody>
+					</table>
+				</div>-->
 			</div>
 		</div>
 	</div>
+	<!-- 新增告警时间段 -->
+	<div id="addAlertSettingDialog" title="新增告警时间段" class="hide">
+		<form id="addAlertSetting">
+			<!--<span class="smsTip alertSettingTip">* 灰色不可选星期为已设置告警时间段：</span>-->
+			<ul class="weekList j_weekList">
+				<li>
+					<input type="checkbox" id="week0" class="j_ckWeek" title="周一" /><label for="week0">周一</label> 
+				</li>
+				<li>
+					<input type="checkbox" id="week1" class="j_ckWeek" title="周二" /><label for="week1">周二</label> 
+				</li>
+				<li>
+					<input type="checkbox" id="week2" class="j_ckWeek" title="周三" /><label for="week2">周三</label> 
+				</li>
+				<li>
+					<input type="checkbox" id="week3" class="j_ckWeek" title="周四" /><label for="week3">周四</label>
+				</li>
+				<li>
+					<input type="checkbox" id="week4" class="j_ckWeek" title="周五" /><label for="week4">周五</label> 
+				</li>
+				<li>
+					<input type="checkbox" id="week5" class="j_ckWeek" title="周六" /><label for="week5">周六</label>
+				</li>
+				<li>
+					<input type="checkbox" id="week6" class="j_ckWeek" title="周日" /><label for="week6">周日</label> 
+				</li>
+			</ul>
+			<table class="timesTable">
+				<tr>
+					<td>
+						<span class="spanTime">
+							<input type="text" id="txtAlartHour0" disabled />：
+							<input type="text" id="txtAlartMinute0" disabled />
+							 ----------------------------------------
+							<input type="text" id="txtAlartHour1" disabled />：
+							<input type="text" id="txtAlartMinute1" disabled />
+						</span>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span id="alertSettingSlider"></span>
+					</td>
+				</tr>
+				<tr>
+					<td align="right">
+						<input type="submit" width="100" id="alertSettingSave" value="保存" />
+					</td>
+				</tr>
+			</table>			
+		</form>
+	</div>
+	
 	<!-- 白名单设置提醒 -->
 	<div id="whitelistPopWrapper" class="hide wrapper">
 		<p class="noticeClose" title="关闭"></p>
@@ -169,36 +277,36 @@
 		</div>
 		<div id="smsContent" class="smsContent j_terminalcontent wrapperContent">
 			<span class="smsTip">请选择想要的短信通知项：</span>
-				<ul class="smsList">
-					<li>
-						<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">电量告警</label> 
-					</li>
-					<li>
-						<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">平台登录提醒</label> 
-					</li>
-					<li>
-						<input type="checkbox" id="illegalmove" class="j_checkbox" title="移动" /><label for="illegalmove">移动告警</label> 
-					</li>
-					<li>
-						<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="通讯异常" /><label for="heartbeat_lost">通讯异常提醒</label>
-					</li>
-					<li>
-						<input type="checkbox" id="illegalshake" class="j_checkbox" title="震动" /><label for="illegalshake">震动告警</label> 
-					</li>
-					<li>
-						<input type="checkbox" id="region_enter" class="j_checkbox" title="进围栏告警" /><label for="region_enter">进围栏告警</label>
-					</li>
-					<li>
-						<input type="checkbox" id="region_out" class="j_checkbox" title="出围栏告警" /><label for="region_out">出围栏告警</label> 
-					</li>
-					<!--<li>
-						<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
-					</li>-->
-					<li>
-						<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
-					</li>
-				</ul>
-				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
+			<ul class="smsList">
+				<li>
+					<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">电量告警</label> 
+				</li>
+				<li>
+					<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">平台登录提醒</label> 
+				</li>
+				<li>
+					<input type="checkbox" id="illegalmove" class="j_checkbox" title="移动" /><label for="illegalmove">移动告警</label> 
+				</li>
+				<li>
+					<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="通讯异常" /><label for="heartbeat_lost">通讯异常提醒</label>
+				</li>
+				<li>
+					<input type="checkbox" id="illegalshake" class="j_checkbox" title="震动" /><label for="illegalshake">震动告警</label> 
+				</li>
+				<li>
+					<input type="checkbox" id="region_enter" class="j_checkbox" title="进围栏告警" /><label for="region_enter">进围栏告警</label>
+				</li>
+				<li>
+					<input type="checkbox" id="region_out" class="j_checkbox" title="出围栏告警" /><label for="region_out">出围栏告警</label> 
+				</li>
+				<!--<li>
+					<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
+				</li>-->
+				<li>
+					<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
+				</li>
+			</ul>
+			<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
 		</div>
 	</div>
 
@@ -208,87 +316,134 @@
 			<span class="close j_close" title="关闭窗口" who="corpTerminal"></span>
 		</div>
 		<div id="corpTerminalContent" class="corpTerminalContent wrapperContent">
-			<form id="corp_terminalForm" >
-				<fieldset>
-					<legend class="legendTerminal">定位器设置：</legend>
-					<table class="bListR">
+			<!--tab选项卡
+			<ul id="corpTerminalTab" class="tabs">
+				<li id="corp_terminalTab" class="j_tabs tabItems currentTab">参数设置</li>
+				<li class="j_tabs tabItems">告警时间段设置</li>
+			</ul> -->
+			<div class="j_terminalList">
+				<div id="corpTerminalList0" class="j_terminalcontent">
+					<form id="corp_terminalForm" >
+						<table class="bListR">
+							<tbody>
+								<tr>
+									<td class="corp_terminalTdL">定位器号码:</td>
+									<td id="corp_mobile"  t_val="">
+										<label id="t_corp_mobile"></label>
+									</td>
+								</tr>
+								<tr class="j_corp_terminal">
+									<td class="corp_terminalTdL">短信接收号码:</td>
+									<td id="t_corp_c_umobile" class="j_corp_ListVal j_input j_white_list"  t_val="">
+										<!--<label id="t_corp_umobile"></label>-->
+										<input id="t_corp_owner_mobile" terminalkey="owner_mobile"  class="text_mouseOut" type="text" />
+									</td>
+								</tr>
+								<tr>
+									<td class="corp_terminalTdL">客户端通知:</td>
+									<td id="corp_push_status" class="j_corp_ListVal j_radio"  t_val="">
+										<input id="tr_corp_push_status1" type="radio" value="1" name="corp_tpStatus" />
+										<label id="corp_tpsLable1" for="tr_corp_push_status1">开启</label>
+										<input id="tr_corp_push_status0" type="radio" value="0" name="corp_tpStatus" />
+										<label id="corp_tpsLable0" for="tr_corp_push_status0">关闭</label>
+									</td>
+								</tr>
+								<tr>
+									<td class="corp_terminalTdL" >客户端登录:</td>
+									<td id="corp_login_permit" class="j_corp_ListVal j_radio"  t_val="" >
+										<input type="radio" id="login_permit1"  name="login_permit" value="1" />
+										<label for="login_permit1" title="允许">允许</label>
+										<input type="radio" id="login_permit0"  name="login_permit" value="0"  />
+										<label for="login_permit0" title="不允许">不允许</label>
+									</td>
+								</tr>
+								<tr class="j_corp_terminal">
+									<td class="corp_terminalTdL" >上报频率:</td>
+									<td id="corp_freq"  class="j_corp_ListVal"  t_val="">
+										<select id="t_corp_freq" terminalkey="freq">
+											<option value="0">智能上报</option>
+											<option value="60">1分钟</option>
+											<option value="300">5分钟</option>
+											<option value="600">10分钟</option>
+											<option value="1800">30分钟</option>
+										</select>
+									</td>
+								</tr>
+								<tr class="j_corp_terminal">
+									<td class="corp_terminalTdL" >震动灵敏度:</td>
+									<td id="corp_vibl"  class="j_corp_ListVal"  t_val="">
+										<select id="t_corp_vibl" terminalkey="vibl">
+											<option value="0">非常灵敏</option>
+											<option value="1">灵敏</option>
+											<option value="2">正常</option>
+											<option value="3">不灵敏</option>
+											<option value="4">非常不灵敏</option>
+										</select>
+									</td>
+								</tr>
+								<tr class="j_corp_terminal">
+									<td class="corp_terminalTdL" >震动告警模式:</td>
+									<td id="corp_alert_freq"  class="j_corp_ListVal j_input"  t_val="">
+										<select id="corp_alert_freq_mode" >
+											<option value="0">普通模式</option>
+											<option value="1">智能模式</option>
+										</select>
+										<span class="autoContainer j_corp_auto">
+											<label class="j_corp_alert_freq_tip">第一次告警后</label>
+											<input type="text" id="t_corp_alert_freq" terminalkey="alert_freq"  class="text_mouseOut j_onInputBlur" />
+											<label class="j_corp_alert_freq_tip">分钟再报</label>
+										</span>
+										<span class="autoContainer hide j_corp__common" id="corp_common">检测到震动，立刻告警</span>
+									</td>
+								</tr>
+								<tr class="j_corp_terminal">
+									<td class="corp_terminalTdL" >车牌号:</td>
+									<td id="corp_corp_cnum"  class="j_corp_ListVal j_input"  t_val="">
+										<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号只能是汉字、数字、大写英文组成！" max = "20"  who="validateLength" parent="terminalWrapper"   />
+									</td>
+								</tr>
+								<tr class="j_corp_terminal">
+									<td class="corp_terminalTdL" >图标:</td>
+									<td id="corp_icon_type"  class="corp_radio j_corp_ListVal j_radio"  t_val="">
+										<input type="radio" id="icon_type0"  name="icon_type" value="0" />
+										<label for="icon_type0" title="汽车"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
+										<input type="radio" id="icon_type1"  name="icon_type" value="1"  />
+										<label for="icon_type1" title="摩托车"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
+										<input type="radio" id="icon_type2"  name="icon_type" value="2"  />
+										<label for="icon_type2" title="人"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
+										<input type="radio" id="icon_type3"  name="icon_type" value="3"  />
+										<label for="icon_type3" title="其他"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon" /></label>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						{% if bizcode == 'znbc' %}
+						<fieldset class="corpRouteLineFieldSet">
+							<legend>车辆绑定线路：</legend>
+								<ul class="corp_routeLineList">
+									<label>绑定线路：</label>
+									<label id="corp_routeLineName"></label>
+								</ul>
+						</fieldset>
+						{% end %}
+						<input type="submit" value="" id="corp_terminalSave" class="corp_terminalButton j_save" />
+					</form>	
+				</div>
+				<!-- 告警设置列表
+				<div id="corpTerminalList1" class="j_terminalcontent hide">
+					<a  class="alertSettingCreateBtn j_alertSettingCreateBtn" href="#">新增告警设置</a>
+					<table id="corpAlertSettingTable" class="dataTable alertSettingTable"  cellspacing="0" border="1" borderColor="red" align="center">
 						<tbody>
-							<tr>
-								<td class="corp_terminalTdL">定位器号码:</td>
-								<td id="corp_mobile"  t_val="">
-									<label id="t_corp_mobile"></label>
-								</td>
-							</tr>
-							<tr class="j_corp_terminal">
-								<td class="corp_terminalTdL">短信接收号码:</td>
-								<td id="t_corp_c_umobile" class="j_corp_ListVal j_input j_white_list"  t_val="">
-									<!--<label id="t_corp_umobile"></label>-->
-									<input id="t_corp_owner_mobile" terminalkey="owner_mobile"  class="text_mouseOut" type="text" />
-								</td>
-							</tr>
-							<tr>
-								<td class="corp_terminalTdL">客户端通知:</td>
-								<td id="corp_push_status" class="j_corp_ListVal j_radio"  t_val="">
-									<input id="tr_corp_push_status1" type="radio" value="1" name="corp_tpStatus" />
-									<label id="corp_tpsLable1" for="tr_corp_push_status1">开启</label>
-									<input id="tr_corp_push_status0" type="radio" value="0" name="corp_tpStatus" />
-									<label id="corp_tpsLable0" for="tr_corp_push_status0">关闭</label>
-								</td>
-							</tr>
-							<tr>
-								<td class="corp_terminalTdL" >客户端登录:</td>
-								<td id="corp_login_permit" class="j_corp_ListVal j_radio"  t_val="" >
-									<input type="radio" id="login_permit1"  name="login_permit" value="1" />
-									<label for="login_permit1" title="允许">允许</label>
-									<input type="radio" id="login_permit0"  name="login_permit" value="0"  />
-									<label for="login_permit0" title="不允许">不允许</label>
-								</td>
-							</tr>
-							<tr class="j_corp_terminal">
-								<td class="corp_terminalTdL" >上报频率:</td>
-								<td id="corp_freq"  class="j_corp_ListVal j_input"  t_val="">
-									<select id="t_corp_freq" terminalkey="freq">
-										<option value="0">智能上报</option>
-										<option value="60">1分钟</option>
-										<option value="300">5分钟</option>
-										<option value="600">10分钟</option>
-										<option value="1800">30分钟</option>
-									</select>
-								</td>
-							</tr>
-							<tr class="j_corp_terminal">
-								<td class="corp_terminalTdL" >车牌号:</td>
-								<td id="corp_corp_cnum"  class="j_corp_ListVal j_input"  t_val="">
-									<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号只能是汉字、数字、大写英文组成！" max = "20"  who="validateLength" parent="terminalWrapper"   />
-								</td>
-							</tr>
-							<tr class="j_corp_terminal">
-								<td class="corp_terminalTdL" >图标:</td>
-								<td id="corp_icon_type"  class="corp_radio j_corp_ListVal j_radio"  t_val="">
-									<input type="radio" id="icon_type0"  name="icon_type" value="0" />
-									<label for="icon_type0" title="汽车"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
-									<input type="radio" id="icon_type1"  name="icon_type" value="1"  />
-									<label for="icon_type1" title="摩托车"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
-									<input type="radio" id="icon_type2"  name="icon_type" value="2"  />
-									<label for="icon_type2" title="人"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
-									<input type="radio" id="icon_type3"  name="icon_type" value="3"  />
-									<label for="icon_type3" title="其他"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon" /></label>
-								</td>
+							<tr id="corpAlertSettingTableHeader" class="tableHeader">
+								<th>序号</th>
+								<th>星期</th>
+								<th>时间</th>
+								<th>操作</th>
 							</tr>
 						</tbody>
 					</table>
-				</fieldset>
-				{% if bizcode == 'znbc' %}
-				<fieldset class="corpRouteLineFieldSet">
-					<legend>车辆绑定线路：</legend>
-						<ul class="corp_routeLineList">
-							<label>绑定线路：</label>
-							<label id="corp_routeLineName"></label>
-						</ul>
-				</fieldset>
-				{% end %}
-				<input type="submit" value="" id="corp_terminalSave" class="corp_terminalButton j_save" />
-			</form>				
+				</div> -->
+			</div>
 		</div>
 	</div>
 	
@@ -393,31 +548,31 @@
 				<input type="hidden" id="hidOperatorMobile"  value="" />
 				<table>
 					<tr>
-						<td><label for="txt_operatorMobile">手机号：</label></td>
+						<td class="operatorLeftTd"><label for="txt_operatorMobile">手机号：</label></td>
 						<td>
 							<input type="text" name="txt_operatorMobile" id="txt_operatorMobile" class="text ui-widget-content ui-corner-all j_onInputBlur" max="11" maxlength="11" who="operatorMobile" msg="操作员号码格式不正确！" parent="addOperatorDialog" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="oprName">姓名：</label></td>
+						<td class="operatorLeftTd"><label for="oprName">姓名：</label></td>
 						<td>
 							<input type="text" name="oprName" id="txt_operatorName" class="text ui-widget-content ui-corner-all j_oprName" max="20" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="txt_operatorAddress">地址：</label></td>
+						<td class="operatorLeftTd"><label for="txt_operatorAddress">地址：</label></td>
 						<td>
 							<input type="text" name="txt_operatorAddress" id="txt_operatorAddress" class="text ui-widget-content ui-corner-all j_onInputBlur" parent="addOperatorDialog" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="txt_operatorEmail">email：</label></td>
+						<td class="operatorLeftTd"><label for="txt_operatorEmail">email：</label></td>
 						<td>
 							<input type="text" name="txt_operatorEmail" id="txt_operatorEmail" class="text ui-widget-content ui-corner-all j_onInputBlur" max="100" who="email" msg="您输入的邮箱格式不正确！" parent="addOperatorDialog" />
 						</td>
 					</tr>
 					<tr>
-						<td><label for="txt_operatorGroup">组名：</label></td>
+						<td class="operatorLeftTd"><label for="txt_operatorGroup">组名：</label></td>
 						<td>
 							<!--<select id="txt_operatorGroup" name="txt_operatorGroup"  class="c_select">
 							</select>-->
@@ -653,7 +808,7 @@
 					<tr>
 						<td>
 							<label><font class="txtColor">* </font>联系人：</label>
-							<input type="text" name="c_linkman" id="c_linkman"  class="text_mouseOut j_corpData1 j_onInputBlur" max="20" who="name" msg="联系人只能是由数字、英文、下划线或中文组成！"  parent="corpWrapper" />
+							<input type="text" name="c_linkman" id="c_linkman"  class="text_mouseOut j_corpData1"  parent="corpWrapper" />
 						</td>
 					</tr>
 					<tr>
@@ -749,7 +904,7 @@
 					<tr>
 						<td>
 							<label class="cTerminalLabel">车牌号：</label>
-							<input type="text" id="c_cnum" name="c_cnum" class="cTermninalInput text_mouseOut j_corpData j_onInputBlur"  msg="车牌号只能是汉字、数字、大写英文组成！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+							<input type="text" id="c_cnum" name="c_cnum" class="cTermninalInput text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最大长度为20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
 						</td>
 					</tr>
 					<tr>
@@ -1361,8 +1516,8 @@
 				</tbody>
 			</table>
 			<input type="button" id="bindBatchRegionSave" class="bindRegionSave j_save" />
+			<span class="bindLineNote">注意：批量绑定围栏会覆盖选中定位器的围栏信息。</span>
 		</div>
-		<span class="bindLineNote">注意：批量绑定围栏会覆盖选中定位器的围栏信息。</span>
 	</div>
 	<!-- 删除提示 -->
 	<div id="clearDataWrapper" class="hide wrapper">

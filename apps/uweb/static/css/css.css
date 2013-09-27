@@ -529,6 +529,8 @@ body {
 	height: 291px;
 }
 #corpTerminalWrapper {
+	/*height: 509px;
+	width: 487px;*/
 	height: 409px;
 	width: 487px;
 }
@@ -556,11 +558,15 @@ body {
 	width: 600px;
 }
 #personalWrapper {
-	height: 229px;
+	height: 196px;
 }
 #smsOptionWrapper {
 	height: 334px;
 	width: 440px;
+}
+#terminalWrapper {
+	height: 434px;
+	width: 600px;
 }
 .wrapperTitle {
 	height: 34px;
@@ -582,10 +588,10 @@ body {
 }
 .terminalTitle {
 	background-position: 0px 0px;
-	width: 410px;
+	width: 600px; /* 680px;*/
 }
 .terminalTitle .close {
-	left: 382px;
+	left: 570px;	/* 650px;*/
 }
 .PWDTitle {
 	background-position: 0px -204px;
@@ -625,15 +631,18 @@ body {
 }
 .corpTerminalTitle {
 	background-position: 0px -442px;
-	width: 487px;
+	width: 487px;	/* 680px;*/
 }
 .corpSMSOptionTitle {
 	background-position: 0 -952px;
 	width: 487px;
 }
-.corpTerminalTitle .close, .corpSMSOptionTitle .close {
-	left: 460px;
-	_left: 458px;
+.corpTerminalTitle .close {
+	left: 457px;
+}
+.corpSMSOptionTitle .close {
+	left: 457px;
+	_left: 455px;
 }
 .operatorTitle, .passengerTitle, .infoPushTitle {
 	background-position: 0px -476px;
@@ -653,8 +662,7 @@ body {
 	background-position: 0px -510px;
 }
 .mileageTitle .close {
-	left: 776px;
-	_left: 774px;
+	left: 770px;
 }
 .eventSearchTitle {
 	background-position: 0 -544px;
@@ -667,17 +675,13 @@ body {
 	background-position: 0px -578px;
 	width: 600px;
 }
-.fileUploadTitle .close{
-	left: 574px;
-	_left: 572px;
+.fileUploadTitle .close, .batchDeleteTitle .close, .batchDefendTitle .close, .batchTrackTitle .close  {
+	left: 570px;
+	_left: 568px;
 }
 .batchDeleteTitle {
 	background-position: 0 -613px;
 	width: 600px;
-}
-.batchDeleteTitle .close {
-	left: 576px;
-	_left: 574px;
 }
 .batchDefendTitle {
 	background-position: 0 -647px;
@@ -687,10 +691,6 @@ body {
 	background-position: 0 -920px;
 	width: 600px;
 	height: 32px;
-}
-.batchDefendTitle .close, .batchTrackTitle .close {
-	left: 576px;
-	_left: 574px;
 }
 .wrapperContent {
 	height: 249px;
@@ -710,8 +710,8 @@ body {
 	display: inline-block;
     height: 17px;
     position: relative;
-	left: 422px;
-	_left: 420px;
+	left: 418px;
+	_left: 416px;
 	top: 10px;
 	*top: 9px;
 	_top: 7px; /*ie6*/
@@ -730,7 +730,7 @@ body {
 	font-weight: bold;
 }
 .PWDTitle .close {
-	left: 308px;
+	left: 306px;
 }
 	/* realtime/defend dialog */
 #realtimeWrapper, #defendWrapper {
@@ -855,7 +855,7 @@ body {
 	padding-top: 10px;
 }
 .personalContent {
-	height: 185px;
+	height: 152px;
 	padding-top: 10px;
 }
 .corpContent {
@@ -935,24 +935,33 @@ body {
 	height: 300px;	/* 400px*/
 	width: 440px;
 }
-.smsList {
+.smsList, .weekList {
 	padding: 7px 18px 0px 53px;
-	display: inline;
-	float: left;
+	display: inline-block;
 	line-height: 37px;
     list-style: none outside none;
 }
-.smsList li {
+.weekList {
+	padding: 20px 0px 0px 20px;
+}
+.smsList li, .weekList li {
 	float: left;
 	padding: 0px 10px 10px 0px;
 	height: 22px;
 	line-height: 22px;
-	width: 165px;
+	width: 147px;
+}
+.weekList li {
+	width: 65px;
+}
+.timesTable {
+	margin-left: 17px;
+	padding-top: 15px;
 }
 .smsButton {
-    left: 324px;
+    left: 351px;
     position: absolute;
-    top: 247px;
+    top: 300px;
 }
 .smsTip {
 	display: inline-block;
@@ -964,36 +973,85 @@ body {
 	left: 418px;
 }
 	/* terminal dialog */
+	
+/*terminal tab start*/
+.tabs { 
+	height:31px;
+}
+.tabs  li {
+	list-style: none;
+	float: left;
+	border-bottom: 1px solid #CCCCCC;
+}
+#rTab {
+	width: 298px;
+}
+#regionTab {
+	border-right: none;
+}
+.tabs .tabItems {
+	cursor: pointer;
+	height: 30px;
+	line-height:30px;
+	text-align: center;
+	top: 1px;
+	left: -1px;
+	position: relative;
+	width: 300px;
+}
+#corpTerminalTab .tabItems {
+	width: 339px;
+}
+.tabs .currentTab {
+	height: 30px;
+	border-bottom: 1px solid white;
+	border-left: 1px solid #CCCCCC; 
+	border-right: 1px solid #CCCCCC; 
+	color: #3C7EA6;
+	font-weight: bold;
+}
+
 #terminalWrapper .terminalContent {
-	height: 274px;	/* 400px*/
-	width: 410px;
+	height: 400px;	/* 400px*/
+	width: 600px;	/* 680px;*/
 }
 #terminalWrapper .titleName {
 	width: 154px;
 }
 #terminalList1 {
-	width: 390px;
 	float: left;
+    padding-left: 116px;
+    padding-top: 26px;
+    width: 390px;
 }
 .terminalButton {
 	height: 31px;
 	width: 40px;
 }
+/*
 #terminalList0 {
-	padding: 10px 10px 0px 10px;
+	padding: 48px 106px 0;
 	display: inline-block;
-}
-
+}*/
 .bListR {
-	width: 390px;
+	width: 460px;
 	border: 1px;
 }
-#corp_terminalForm .bListR {
-	width: 380px;
+#corp_terminalForm .bListR, #terminalForm .bListR {
+	/*padding-left: 88px;*/
+    padding-top: 20px;
+    width: 460px;
+}
+#terminalForm .bListR {
+	padding-left: 89px;
+    padding-top: 47px;
+    width: 542px;
+}
+#bListR tr {
+	height: 40px;
 }
 .bListR tr{
 	height: 30px;
-	line-height: 30px;
 }
 .bListR, .bListR td{
 	margin: 0px;
@@ -1001,13 +1059,19 @@ body {
 	line-height: 34px;
 }
 .bListR .terminalTdL {
-	width: 33px;
+	width: 70px;
 	*width: 80px;
 	_width: 80px;
+	padding-right: 10px;
 	text-align: right;
+}
+.autoContainer, #corp_common {
+	width: 200px;
 }
 .bListR .corp_terminalTdL {
 	text-align: right;
+	width: 113px;
+	padding-right: 10px;
 }
 .freqDiv {
 	height: 24px;
@@ -1015,23 +1079,23 @@ body {
 	border: 1px solid #cdcdcd;
     width: 152px;
 }
-#t_freq, #t_corp_freq {
+#t_freq, #t_corp_freq, #t_corp_vibl {
 	background: none repeat scroll 0 0 #FFFFFF;
     border: 1px solid #cdcdcd;
     height: 24px;
     margin-left: 10px;
     padding: 2px 0;
-    width: 152px;
+    width: 98px;
 }
-#t_vibl, #t_vibchk {
-	width: 130px;
+#t_vibl, #alert_freq_mode, #corp_alert_freq_mode {
+	width: 98px;
 	margin-left: 10px;
 	height: 22px;
 	padding-top: 1px;
 }
 .bListR span {
 	display: inline-block;
-	width: 250px;
+	width: 214px;
 }
 #white_list_1 input {
 	padding: 0px;
@@ -1057,6 +1121,11 @@ body {
 }
 .bListR_text_mouseFocus  {
 	border: 1px groove #4773a2;
+}
+#t_alert_freq, #t_corp_alert_freq {
+	padding: 0px 5px;
+	width: 40px;
+	margin-left: 0px;
 }
 .vibchk {
 	width: 40px;
@@ -1084,13 +1153,22 @@ body {
 	height: 34px;
 	cursor: pointer;
 }
+#alertSettingSave {
+	background-color: #ccc;
+	border: 1px solid #ccc;
+	width: 92px;
+	height: 34px;
+	cursor: pointer;
+	margin-top: 20px;
+	color: #000;
+}
 #infoPushDisabledBtn {
 	background: url('/static/images/fs0.png') no-repeat;
 }
 #tmnTable {
 	height: 55px;
 	margin-top: 10px;
-	width: 383px;
+	width: 504px;
 }
 #whitelistPopWrapper {    
 	background: url("/static/images/notice.png") no-repeat scroll 0 0 transparent;
@@ -1244,7 +1322,7 @@ body {
 	display: inline-block;
     height: 36px;
 	line-height: 36px;
-    width: 660px;
+    width: 655px;
 	float: left;
 }
 .trackPos #ceillid_flag {
@@ -1300,8 +1378,6 @@ body {
     position: relative;
     text-align: left;
     top: 5px;
-    width: 166px;
-	padding-left: 10px;
 }
 .trackSpeed {
 	display: inline-block;
@@ -1310,12 +1386,12 @@ body {
 	line-height: 34px;
 	_top: 8px;
     text-align: left;
+	padding-left: 6px;
 }
-.trackBtn span, .tClose  {
+.trackBtn a, .tClose  {
 	cursor: pointer;
 	display: inline-block;
 	height: 25px;
-	padding-left: 10px;
 }
 .disPanelCon, .alarmPanelCon {
 	position: absolute;
@@ -1461,7 +1537,11 @@ body {
 	background: url('/static/images/trackcx1.png') no-repeat;
 	width: 63px;
 }
-.tPlay, .tStop, .tPause, .tClose{
+.tSearch:hover {
+	background: url('/static/images/trackcx2.png') no-repeat;
+	width: 63px;
+}
+.tPlay, .tStop, .tPause, .tClose, .tPrev, .tNext{
 	width: 63px;
 }
 .tClose {
@@ -1472,14 +1552,29 @@ body {
 	right: 0px;
 	top: 10px;
 }
-.tClose:hover {
-	background: url('/static/images/close_default1.png') no-repeat;
-}
 .tPlay {
 	background: url('/static/images/bf1.png') no-repeat;
 }
+.tPlay:hover {
+	background: url('/static/images/bf2.png') no-repeat;
+}
 .tPause {
 	background: url('/static/images/zt1.png') no-repeat;
+}
+.tPause:hover {
+	background: url('/static/images/zt2.png') no-repeat;
+}
+.tPrev {
+	background: url('/static/images/prev1.png') no-repeat;
+}
+.tPrev:hover {
+	background: url('/static/images/prev2.png') no-repeat;
+}
+.tNext {
+	background: url('/static/images/next1.png') no-repeat;
+}
+.tNext:hover {
+	background: url('/static/images/next2.png') no-repeat;
 }
 /*track css end*/
 
@@ -1592,7 +1687,7 @@ body {
 .onlineStaticsTable {
 	width: 750px;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th  {
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader  {
 	height: 38px;
 	line-height: 38px;
     font-size: 14px; 
@@ -1601,6 +1696,9 @@ body {
 }
 #staticsTableHeader th {
 	font-size: 14px;
+}
+.questionTable th {
+	font-size: 12px;
 }
 .eventAlias {
 	width: 150px;
@@ -1748,7 +1846,7 @@ body {
 }
 /*marker css start*/
 #markerWindowtitle {
-	width: 268px;
+	width: 288px;
 	font-size: 12px;
 }
 .closeWindow {
@@ -2063,7 +2161,7 @@ body {
 .smsList input {
 	padding-right: 10px;
 }
-.smsList label, .corp_smsList label {
+.smsList label, .corp_smsList label, .weekList label {
 	padding-left: 10px;
 	display: inline-block;
 }
@@ -2239,6 +2337,7 @@ body {
 .chargerBox a, .chargerBox a:hover {
 	text-decoration: none;
 	color: #08C;
+	font-size: 14px;
 }
 .list-img {
 	vertical-align: text-bottom;
@@ -2259,6 +2358,7 @@ body {
 .chargerBox p {
 	padding: 0px;
 	margin: 6px 0;
+	text-indent: 2em;
 }
 .chargerBox .serviceDetail {
 	text-indent: 3em;
@@ -2452,7 +2552,16 @@ body {
     top: -11px;
     width: 358px;
 }
-#mileageSlider .ui-state-default {
+#alertSettingSlider {
+	width: 350px;
+	background-color: #E6E7E7;
+    background-image: none;
+    border: 1px solid #B5D7FF;
+    border-radius: 0 0 0 0;
+    display: inline-block;
+	margin-top: 15px;
+}
+#mileageSlider .ui-state-default, #t_viblSlider .ui-state-default, #alertSettingSlider .ui-state-default {
 	background-color: #3D90F5;
     background-image: none;
 }
@@ -2466,8 +2575,8 @@ body {
     border: 1px solid #CDCDCD;
     color: #8A9097;
     font-weight: bold;
-    padding: 2px 3px;
-    width: 16px;
+    padding: 3px;
+    width: 19px;
 }
 .operatorConditions input {
 	padding-left: 10px;
@@ -2549,8 +2658,8 @@ legend {
 	line-height: 24px;
 }
 #corpTerminalWrapper .corpTerminalContent {
-	height: 574px;	/* 400px*/
-	width: 487px;
+	height: 574px;
+	width: 	487px; /*680px;*/
 }
 .corp_smsList {
 	padding: 7px 18px 0px 40px;
@@ -2576,7 +2685,7 @@ legend {
 	height: 295px;
 }
 .corp_terminalButton {
-    left: 340px;
+    left: 324px;
     position: absolute;
     top: 559px;
 }
@@ -2614,6 +2723,9 @@ legend {
 	border:0; 
 	margin-top:3px; 
 	width: auto;
+}
+.operatorfieldset .operatorLeftTd {
+	text-align: right;
 }
 .recordBtn {
 	background: url('/static/images/cx.png') no-repeat;
@@ -3051,7 +3163,7 @@ legend {
 #regionNote, .bindLineNote {
 	color: red;
 	display: block;
-	margin: 20px 0px 0px 40px;
+	margin: 80px 0px 0px 40px;
 }
 .clickWindowPolder {
 	/*margin-right: 5px;*/
@@ -3095,7 +3207,7 @@ legend {
 .regionContent, .corpRegionContent {
 	height: 455px;
 }
-.regionCreateBtn {
+.regionCreateBtn, .alertSettingCreateBtn {
 	color: #4876FF;
 	display: inline-block;
     cursor: pointer;
@@ -3103,6 +3215,10 @@ legend {
     left: 272px;
     position: relative;
     top: 14px;
+	text-decoration: none;
+}
+.alertSettingCreateBtn {
+	left: 554px;
 }
 #corpRegionCreateBtn {
 	left: 437px;
@@ -3142,11 +3258,14 @@ legend {
     width: 510px;
 }
 .regionTitle .close {
-	left: 486px;
+	left: 480px;
 }
-.regionTable {
+.regionTable, .alertSettingTable {
 	width: 460px;
 	margin-top: 20px;
+}
+.alertSettingTable {
+	width: 585px;
 }
 #regionCreateWrapper  {
 	position: absolute;
@@ -3225,7 +3344,7 @@ legend {
     height: 20px;
     overflow: hidden;
     position: absolute;
-    right: 30px;
+    right: 35px;
     top: 10px;
     width: 20px;
 }
@@ -3246,7 +3365,7 @@ legend {
 	width: 530px;
 }
 .bindRegionTitle .close, .bindBatchRegionTitle .close {
-	left: 505px;
+	left: 500px;
 }
 .bindRegionContent, .bindBatchRegionContent {
 	height: 450px;

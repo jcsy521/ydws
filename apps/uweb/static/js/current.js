@@ -164,6 +164,22 @@ function fn_displayCurrentMarker(obj_location) {
 	dlf.fn_closeDialog();
 	dlf.fn_updateLastInfo();	// 动态更新定位器相关数据
 	mapObj.setCenter(dlf.fn_createMapPoint(obj_location.clongitude, obj_location.clatitude));	// 标记显示及中心点移动
+
+	// realtime 修改存储数据
+	var obj_car = $('.j_carList').data('carsData')[obj_location.tid];
+	
+	obj_car.name = obj_location.name;
+	obj_car.degree = obj_location.degree;
+	obj_car.timestamp = obj_location.timestamp;
+	obj_car.longitude = obj_location.longitude;
+	obj_car.clongitude = obj_location.clongitude;
+	obj_car.latitude = obj_location.latitude;
+	obj_car.clatitude = obj_location.clatitude;
+	obj_car.type = obj_location.type;
+	obj_car.speed = obj_location.speed;
+	
+	$('.j_carList').data('carsData')[obj_location.tid] = obj_car;
+	
 	dlf.fn_updateInfoData(obj_location, 'current');	// 对当前车的位置信息进行更新
 	dlf.fn_updateTerminalInfo(obj_location, 'realtime');	// 对当前车的车辆信息进行更新
 }

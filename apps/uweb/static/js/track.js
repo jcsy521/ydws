@@ -36,7 +36,7 @@ window.dlf.fn_initTrack = function() {
 	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
-		obj_trackPos.css('width', 700);
+		obj_trackPos.css('width', 655);
 		$('.j_delay').hide();
 		$('.j_delayTbody').html('');
 	} else {
@@ -354,7 +354,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 * 添加轨迹线和轨迹点
 */
 function fn_startDrawLineStatic(arr_dataArr) {
-	$('#tPlay, #trackSpeed').css('display', 'inline-block');
+	$('#tPlay, #tPrev, #tNext, #trackSpeed').css('display', 'inline-block');
 	var arr = new Array(), //经纬度坐标数组 
 		obj_firstMarker = {},
 		obj_endMarker = {};
@@ -411,13 +411,24 @@ function fn_bindPlay() {
 /**
 * 动态标记移动方法
 */
-function fn_drawMarker() {
+function fn_drawMarker(str_step) {
 	var n_len = arr_dataArr.length;
 		
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;
 		str_actionState = 0;
 	}
+	// 对要播放的点进行计步
+	if ( str_step ) {	
+		if ( str_step ==  'next' ) {
+			counter++;
+		} else {
+			counter--;
+		}
+	} else {
+		counter++;
+	}
+	
 	if ( counter <= n_len-1 ) {
 		if ( actionMarker ) {
 			b_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
@@ -434,7 +445,6 @@ function fn_drawMarker() {
 			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框 
 		}
 		dlf.fn_boundContainsPoint(obj_tempPoint);
-		counter ++;
 	} else {	// 播放完成后
 		b_trackMsgStatus = true;
 		dlf.fn_clearTrack();	// 清除数据
@@ -561,7 +571,7 @@ $(function () {
 	* 按钮变色
 	*/
 	$('.j_trackBtnhover, #trackSearch, #trackClose').mouseover(function(event) {
-		var str_id = event.currentTarget.id, 
+		/*var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) {
 			str_imgUrl = 'trackcx2.png';
@@ -574,9 +584,9 @@ $(function () {
 		} else {
 			str_imgUrl = 'close_default.png';
 		}
-		$(this).css('background-image', 'url("'+ BASEIMGURL + str_imgUrl+'")');
+		$(this).css('background-image', 'url("'+ BASEIMGURL + str_imgUrl+'")');*/
 	}).mouseout(function(event){
-		var str_id = event.currentTarget.id, 
+		/*var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
 		if ( str_id == 'trackSearch' ) {
 			str_imgUrl = 'trackcx1.png';
@@ -589,7 +599,7 @@ $(function () {
 		} else {
 			str_imgUrl = 'close_default.png';
 		}
-		$(this).css('background-image', 'url("'+ BASEIMGURL + str_imgUrl+'")');
+		$(this).css('background-image', 'url("'+ BASEIMGURL + str_imgUrl+'")');*/
 	}).click(function(event) {
 		var str_id = event.currentTarget.id, 
 			str_imgUrl = '';
@@ -603,6 +613,14 @@ $(function () {
 			fn_trackQueryPause();
 			$(this).hide();
 			$('#tPlay').css('display', 'inline-block');
+		} else if ( str_id == 'tPrev' ) { // 上一个点
+			if ( counter > 0 ) {
+				arr_drawLine.pop();
+				arr_drawLine.pop();
+				fn_drawMarker('prev');
+			}
+		} else if ( str_id == 'tNext' ) { // 下一个点
+			fn_drawMarker('next');
 		} else {
 			dlf.fn_closeTrackWindow(true);
 		}

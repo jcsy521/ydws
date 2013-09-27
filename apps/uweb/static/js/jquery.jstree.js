@@ -740,7 +740,7 @@
 				if(js.attr) { d.attr(js.attr); }
 				if(js.metadata) { d.data(js.metadata); }
 				if(js.state) { d.addClass("jstree-" + js.state); }
-				if(!js.data) { js.data = this._get_string("new_node"); }
+				if(!js.data) {js.data = this._get_string("new_node"); }
 				if(!$.isArray(js.data)) { tmp = js.data; js.data = []; js.data.push(tmp); }
 				$.each(js.data, function (i, m) {
 					tmp = $("<a />");
@@ -1289,9 +1289,10 @@
 								b_terminalClass = obj.hasClass('j_terminal'),
 								v = i.val();
 							// KJJ: ADD CODE FOR TERMINAL TODO
+							
 							if(v === "") {
 								if ( !b_terminalClass ) {
-									v = t; 
+									v = ''; 
 								} else {
 									v = obj.attr('tmobile');
 								}
@@ -1339,7 +1340,7 @@
 					f.call(this, { "obj" : obj, "new_name" : new_name, "old_name" : old_name });
 				});
 			},
-			create : function (obj, position, js, callback, skip_rename) {
+			create : function (obj, position, js, callback, skip_rename) {  
 				var t, _this = this;
 				obj = this._get_node(obj);
 				if(!obj) { obj = -1; }
@@ -1354,7 +1355,7 @@
 							_this.__callback({ "obj" : obj, "name" : new_name, "parent" : p, "position" : pos });
 						});
 					}
-					else { _this.__callback({ "obj" : t, "name" : this.get_text(t), "parent" : p, "position" : pos }); }
+					else {_this.__callback({ "obj" : t, "name" : this.get_text(t), "parent" : p, "position" : pos }); }
 				});
 				return t;
 			},

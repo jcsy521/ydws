@@ -150,6 +150,11 @@ window.dlf.fn_saveReginon = function() {
 	if ( str_regionName == '' ) {
 		dlf.fn_jNotifyMessage('您还没有填写围栏名称。', 'message', false, 3000);
 		return;
+	} else {
+		if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_regionName) ) {
+			dlf.fn_jNotifyMessage('围栏名称只能由中文、数字、英文组成。', 'message', false, 3000);
+			return;
+		}
 	}
 	var obj_circleData = dlf.fn_getCirlceData();
 	

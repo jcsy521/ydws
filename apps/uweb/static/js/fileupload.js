@@ -23,6 +23,7 @@ $(function() {
 		if ( str != 'xlsx' && str != 'xls' ) {
 			obj_msg.html('上传文件格式错误，请重新上传。');
 			obj_this.val('');
+			$('.j_startUpload').hide();
 		} else {
 			$('.j_startUpload').show();
 		}

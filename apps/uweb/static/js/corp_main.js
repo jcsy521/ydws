@@ -632,17 +632,18 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			obj_currentNode = $(obj_rslt.obj[0]),
 			obj_current = obj_currentNode.children('a').eq(0),
 			str_newName = obj_rslt.new_name,
+			obj_rlbk = data.rlbk,
 			b_flag = obj_currentNode.hasClass('j_leafNode');
 			
 		if ( str_newName == data.rslt.old_name && !b_flag ){	// 如果新名称和旧名称相同 不操作
 			return;
 		}
 		if ( obj_currentNode.hasClass('j_group') ) {	// 重命名组	
-			fn_renameGroup(obj_current.attr('groupid'), str_newName, obj_current);
+			fn_renameGroup(obj_current.attr('groupid'), str_newName, obj_rlbk);
 		} else if ( obj_currentNode.hasClass('j_corp') ) {	// 重命名集团
 			var str_cid = obj_current.attr('corpid') || $('.j_body').attr('cid');
 			
-			fn_renameCorp(str_cid, str_newName, data.rlbk)
+			fn_renameCorp(str_cid, str_newName, obj_rlbk)
 		}
 	}).bind('loaded.jstree', function(e, data) {	// 树节点加载完成事件
 		data.inst.open_all(-1);	// 默认展开所有的节点
@@ -665,18 +666,23 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					obj_track = obj_car.track_info,	// 开启追踪点数据
 					n_enClon = obj_car.clongitude,
 					n_enClat = obj_car.clatitude,
+					n_lon = obj_car.longitude,
+					n_lat = obj_car.latitude,
 					n_clon = n_enClon/NUMLNGLAT,	
 					n_clat = n_enClat/NUMLNGLAT;
 				
-				if ( n_clon != 0 && n_clat != 0 ) {
-					n_pointNum ++;
-					arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
-					obj_car.trace_info = obj_trace;
-					obj_car.track_info = obj_track;
-					dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
-					if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
-						obj_trace.tid = param;
-						//fn_updateTraceInfo(obj_trace);
+				if ( n_lon != 0 && n_lat != 0 ) {
+					if ( n_clon != 0 && n_clat != 0 ) {
+						n_pointNum ++;
+						arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
+						obj_car.trace_info = obj_trace;
+						obj_car.track_info = obj_track;
+						dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
+						if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
+							obj_trace.tid = param;
+						}
+					} else {
+						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
 					}
 				}
 			}
@@ -836,7 +842,8 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 		b_flg = false,
 		obj_param = {'lastinfo_time': -1},
 		str_lastinfoTime = $('.j_body').data('lastinfo_time'),
-		arr_tracklist = [];
+		arr_tracklist = [],
+		obj_tempCarsData = $('.j_carList').data('carsData');
 
 	str_checkedNodeId = str_checkedNodeId == undefined ? 'leaf_' + str_currentTid : str_checkedNodeId;
 	str_tempTid = str_checkedNodeId.substr(5, str_checkedNodeId.length);
@@ -930,12 +937,33 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								n_iconType = obj_car.icon_type,	// icon_type
 								str_mobile = obj_car.mobile,	// 车主手机号
 								str_login = obj_car.login,
+								n_enClon = obj_car.clongitude,
+								n_enClat = obj_car.clatitude,
+								n_lon = obj_car.longitude,
+								n_lat = obj_car.latitude,
 								obj_currentSelfMarker = obj_selfmarkers[str_tid];
 							
 							obj_car.trace_info = obj_trace;
 							obj_car.track_info = obj_track;
 							obj_car.tid = str_tid;
-							obj_carsData[str_tid] =  obj_car;
+							
+							// 1. 判断之前数据是否合法 
+							// 2. 新数据是否合法: yes:更新  no: 不更新
+							if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
+								if ( dlf.fn_isEmptyObj(obj_tempCarsData[str_tid]) ) {
+									var obj_myCar = obj_tempCarsData[str_tid];
+									
+									if ( n_lon != 0 && n_lat != 0 && n_enClon != 0 && n_enClat != 0 ) {	// 新数据可用
+										obj_carsData[str_tid] = obj_car;
+									} else {
+										obj_carsData[str_tid] = obj_myCar;
+									}
+								}
+							} else {
+								obj_carsData[str_tid] = obj_car;
+							}
+							
+							// obj_carsData[str_tid] =  obj_car;
 							arr_tempTids.push(str_tid); //tid组string 串
 							if ( str_login == LOGINOUT ) {
 								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_oldAlias +'">'+ str_alias +'</a></li>';
@@ -1269,6 +1297,8 @@ function fn_updateTreeNode(obj_corp) {
 					str_tempAlias = dlf.fn_dealAlias(str_alias),
 					obj_leaf = $('#leaf_' + str_tid),
 					str_imgUrl = '',
+					n_lon = obj_car.longitude,
+					n_lat = obj_car.latitude,
 					n_clon = obj_car.clongitude/NUMLNGLAT,	
 					n_clat = obj_car.clatitude/NUMLNGLAT;
 				
@@ -1281,16 +1311,21 @@ function fn_updateTreeNode(obj_corp) {
 				obj_leaf.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', str_tmobile).attr('clogin', n_login).attr('alias', str_alias).attr('icon_type', n_iconType);	
 				
 				if ( str_currentTid == str_tid  ) {
-					dlf.fn_updateTerminalInfo(obj_car);
-				}
-				if ( n_clon != 0 && n_clat != 0 ) {
-					obj_car.trace_info = obj_trace;
-					obj_car.track_info = obj_track;
-					dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
-					if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
-						obj_trace.tid = str_tid;
-						// fn_updateTraceInfo(obj_trace);
+					if ( n_clon != 0 && n_clat != 0 ) {
+						dlf.fn_updateTerminalInfo(obj_car);
 					}					
+				}
+				if ( n_lon != 0 && n_lat != 0 ) {
+					if ( n_clon != 0 && n_clat != 0 ) {
+						obj_car.trace_info = obj_trace;
+						obj_car.track_info = obj_track;
+						dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
+						if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
+							obj_trace.tid = str_tid;
+						}
+					} else {
+						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
+					}
 				}
 			}
 		}
@@ -1514,7 +1549,26 @@ function fn_createGroup(cid, str_newName, obj_rollBack, obj_newNode) {
 * 判断组名是否重复
 */
 function fn_checkGroupName(str_name, node, str_gid) {
-	var b_flg = false;
+	var b_flg = false,
+		n_length = str_name.length;
+	
+	if ( n_length > 0 ) {
+		// 验证集团名称合法性
+		if ( n_length > 20 ) {
+			$.jstree.rollback(node);
+			dlf.fn_jNotifyMessage('分组名称最大长度是20个汉字或字符！', 'message', false, 3000);
+			b_flg = true;
+		}
+		if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_name) ) {
+			$.jstree.rollback(node);
+			dlf.fn_jNotifyMessage('分组名称只能由数字、英文、中文组成！', 'message', false, 3000); // 查询状态不正确,错误提示
+			b_flg = true;
+		}
+	} else {
+		$.jstree.rollback(node);
+		dlf.fn_jNotifyMessage('分组名称不能为空！', 'message', false, 3000);
+		b_flg = true;
+	}
 	
 	$('.groupNode[groupid != ' + str_gid+ ']').each(function() {
 		if ( $.trim($(this).text()) == str_name  ) {
@@ -1591,7 +1645,27 @@ function fn_moveGroup(arr_tids, n_newGroupId, obj_rlbk, node_id) {
 * 重命名集团名称 
 */
 function fn_renameCorp(cid, str_name, node) {
-	var obj_param = {'name': str_name, 'cid': cid};
+	var obj_param = {'name': str_name, 'cid': cid},
+		n_length = str_name.length;
+	
+	// 验证集团名称合法性
+	if ( n_length > 0 ) {
+		if ( n_length > 20 ) {
+			$.jstree.rollback(node);
+			dlf.fn_jNotifyMessage('集团名称最大长度是20个汉字或字符！', 'message', false, 3000); // 查询状态不正确,错误提示
+			return;
+		}
+		if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_name) ) {
+			$.jstree.rollback(node);
+			dlf.fn_jNotifyMessage('集团名称只能由数字、英文、中文组成！', 'message', false, 3000); // 查询状态不正确,错误提示
+			return;
+		}
+	} else {
+		$.jstree.rollback(node);
+		dlf.fn_jNotifyMessage('集团名称不能为空！', 'message', false, 3000); // 查询状态不正确,错误提示
+		return;
+	}
+	
 	$.put_(CORP_URL, JSON.stringify(obj_param), function (data) {
 		if ( data.status != 0 ) {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示

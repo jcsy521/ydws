@@ -636,23 +636,27 @@ window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInf
 		dataType : 'jsonp',
 		contentType : 'application/jsonp; charset=utf-8',
 		success : function(successData) {
-			var lng = successData.x,
+			var n_error = successData.error,
+				lng = successData.x,
 				lat = successData.y
 				point = new BMap.Point(lng, lat),
 				str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
-				
-			if ( str_type == 'lastposition' ) {
-				obj_carInfo.clongitude = point.lng*3600000;
-				obj_carInfo.clatitude = point.lat*3600000;
-				dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据		
-				if ( str_currentTid == obj_carInfo.tid ) {	// 更新当前车辆信息
-					dlf.fn_updateTerminalInfo(obj_carInfo);
+			
+			if ( n_error == 0 ) {
+				if ( str_type == 'lastposition' ) {
+					obj_carInfo.clongitude = point.lng*3600000;
+					obj_carInfo.clatitude = point.lat*3600000;
+					$('.j_carList').data('carsData')[obj_carInfo.tid] = obj_carInfo;
+					dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据		
+					if ( str_currentTid == obj_carInfo.tid ) {	// 更新当前车辆信息
+						dlf.fn_updateTerminalInfo(obj_carInfo);
+					}
 				}
 			}
 		},
         error : function(xyResult) {
 			return;
-		} 
+		}
 	});
 }
 

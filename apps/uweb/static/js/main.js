@@ -8,7 +8,7 @@
 window.dlf.fn_personalData = function() {
 	dlf.fn_dialogPosition('personal'); // 我的资料dialog显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_onInputBlur();	// input的鼠标样式
+	// dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('用户信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩
 	var str_tid = dlf.fn_getCurrentTid();
@@ -30,9 +30,9 @@ window.dlf.fn_personalData = function() {
 			}
 			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_name);	// 更新主页用户名
 			$('#phone').html(str_phone).data('phone', str_phone);
-			$('#cnum').val(str_cnum).data('cnum', str_cnum);
+			// $('#cnum').val(str_cnum).data('cnum', str_cnum);
 			
-			dlf.fn_updateAlias();	// 修改定位器别名
+			// dlf.fn_updateAlias();	// 修改定位器别名
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -91,8 +91,9 @@ window.dlf.fn_changePwd = function() {
 * 短息通知
 */
 window.dlf.fn_initSMSParams = function() {
-	dlf.fn_dialogPosition('smsOption');
-	dlf.fn_lockScreen(); // 添加页面遮罩
+	// dlf.fn_dialogPosition('smsOption');
+	// dlf.fn_lockScreen(); // 添加页面遮罩
+	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	$.get_(SMS_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.sms_options;
@@ -324,6 +325,100 @@ window.dlf.fn_operatorDataSave = function() {
 	}
 }
 
+/**
+* 初始化告警时间段设置列表
+* kjj add in 2013-09-23
+*/
+window.dlf.fn_initAlertSetting = function(str_who) {
+	var obj_alertSettingDialog = $('#addAlertSettingDialog');
+		
+	$('#' + str_who + 'TableHeader').nextAll().remove();
+	// 初始化新增按钮事件
+	$('.j_alertSettingCreateBtn').unbind('click').bind('click', function() {
+		if ( $('.j_weekList').data('weeks').length < 7 ) {
+			fn_initAlertSettingCreate(str_who);
+			obj_alertSettingDialog.attr('title', '新增告警时间段').dialog('option', 'title', '新增告警时间段').dialog( "open" );
+		} else {
+			dlf.fn_jNotifyMessage('该定位器所有星期都已设置告警时间段。', 'message', false, 3000);
+			return;
+		}
+	});
+	// 新增初始化dialog
+	obj_alertSettingDialog.dialog({
+		autoOpen: false,
+		width: 430,
+		height: 360,
+		modal: true,
+		resizable: false
+	});
+}
+
+/**
+* 新增告警时间段初始化条件
+*/
+function fn_initAlertSettingCreate(str_who) {
+	dlf.fn_initSlider('Alart');	// 初始化时间滑块
+	dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+	var arr_checkWeek = $('.j_weekList').data('weeks'),
+		n_weekLength = arr_checkWeek.length,
+		obj_ckWeeks = $('.j_ckWeek');
+	
+	obj_ckWeeks.removeAttr('disabled').removeAttr('checked');
+	// 已经设置的星期 不可再设置
+	if ( n_weekLength > 0 ) {
+		for ( var x = 0; x < n_weekLength; x++ ) {
+			obj_ckWeeks.eq(arr_checkWeek[x]).attr('checked', true).attr('disabled', true);
+		}
+	}
+	
+	$('#alertSettingSave').unbind('click').click(function() {	// 保存按钮事件
+		var n_alartHour0 = parseInt($('#txtAlartHour0').val()),
+			n_alartHour1 = parseInt($('#txtAlartHour1').val()),
+			n_alartMinute0 = parseInt($('#txtAlartMinute0').val()),
+			n_alartMinute1 = parseInt($('#txtAlartMinute1').val()),
+			n_startTime = (n_alartHour0*60+n_alartMinute0)*60,
+			n_endTime = (n_alartHour1*60+n_alartMinute1)*60,
+			str_tid = dlf.fn_getCurrentTid(),
+			str_week = '',
+			obj_data = {'tid': str_tid, 'start_time': n_startTime, 'end_time': n_endTime, 'week': str_week},
+			b_isflag = false;
+		
+		obj_ckWeeks.each(function(index, obj) {
+			var b_checked = $(obj).is(':checked'),
+				b_disabled = $(obj).is(':disabled');
+			
+			if ( b_checked && !b_disabled ) {
+				str_week += '1';
+				b_isflag = true;
+			} else {
+				str_week += '0';
+			}
+		});
+		if ( !b_isflag ) {	// 如果一个都没选中
+			dlf.fn_jNotifyMessage('请选择需要设置告警时间段的星期。', 'message', false, 3000);
+			return;
+		}
+		obj_data.week = str_week;
+		// 提交表单
+		$.post_(ALEERSETTING_URL, JSON.stringify(obj_data), function(data){
+			if ( data.status == 0 ) {
+				obj_ckWeeks.each(function(index, obj) {
+					var obj_this = $(obj),
+						b_checked = obj_this.is(':checked'),
+						b_disabled = obj_this.is(':disabled');
+					
+					if ( b_checked ) {
+						obj_this.attr('disabled', true)
+					}
+				});
+				dlf.fn_jNotifyMessage('保存成功，请稍后再试。', 'message', false, 3000);
+				dlf.fn_searchData(str_who);	// 重新刷新数据
+			} else {
+				dlf.fn_jNotifyMessage('保存失败，请稍后再试。', 'message', false, 3000);
+			}
+        });
+	});
+}
 })();
 
 /**
@@ -373,7 +468,7 @@ window.onresize = function () {
 		$('#right, #corpRight, #navi, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
-			n_trackLeft = ( obj_track.width() ) / 6;
+			n_trackLeft = ( obj_track.width() ) / 8;
 			/**
 			* kjj add in 2013-08-28 
 			* 关闭停留点或告警列表的时候 改变浏览器窗口
@@ -385,7 +480,7 @@ window.onresize = function () {
 				n_tempWindowWidth = n_windowWidth;
 			
 			if ( n_windowWidth < 1500 ) {
-				n_trackLeft = 80;
+				n_trackLeft = 40;
 				n_delayLeft = 870;
 				n_delayIconLeft = 853;
 				n_alarmLeft = 1000;
@@ -404,9 +499,9 @@ window.onresize = function () {
 			obj_alarmPanel.css({'left': n_alarmLeft});
 			$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 		} else {
-			n_trackLeft = ( obj_track.width() ) / 4;
+			n_trackLeft = ( obj_track.width() ) / 6;
 			if ( n_windowWidth < 1500 ) {
-				n_trackLeft = 230;
+				n_trackLeft = 90;
 			}
 		}
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
@@ -482,19 +577,19 @@ $(function () {
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	if ( dlf.fn_userType() ) {	// 集团用户
-		n_trackLeft = ( obj_track.width() ) / 7;
+		n_trackLeft = ( obj_track.width() ) / 8;
 		
 		if ( n_windowWidth < 1500 ) {
-			n_trackLeft = 70;
+			n_trackLeft = 40;
 			n_delayLeft = 870;
 			n_delayIconLeft = 853;
 			n_alarmLeft = 1000;
 			n_alarmIconLeft = 982;
 		}
 	} else {
-		n_trackLeft = ( obj_track.width() ) / 4;
+		n_trackLeft = ( obj_track.width() ) / 6;
 		if ( n_windowWidth < 1500 ) {
-			n_trackLeft = 230;
+			n_trackLeft = 90;
 		}
 	}
 	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
@@ -730,23 +825,22 @@ $(function () {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
 		}, 
 		onSuccess: function() { 
-			var str_val = $('#cnum').val(),
-				str_name = $('#name').val();
+			var str_name = $('#name').val(); //str_val = $('#cnum').val(),
 			
 			if ( str_name.length > 0 && $.trim(str_name).length == 0 ) {
 				dlf.fn_jNotifyMessage('车主姓名不能只输入空格。', 'message', false, 3000);
 				return;
 			}
-			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
+			/*if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
 				dlf.fn_jNotifyMessage('车牌号不能只输入空格。', 'message', false, 3000);
 				return;
-			}
+			}*/
 			dlf.fn_personalSave();
 		}
 	});
 	
 	$('#name').formValidator({empty:true}).inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能由数字、英文、中文、空格组成！"});  // 别名;
-	$('#cnum').formValidator({empty:true}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
+	
 
 	/**
 	* 密码进行验证
@@ -792,10 +886,22 @@ $(function () {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
 		}, 
 		onSuccess: function() { 
+			var str_static_val = $('#t_static_val').val(),				
+				str_mode = $('#static_val_mode').val();
+			
+			if ( str_mode == '1' ) {
+				if ( str_static_val <= 0 ) {
+					dlf.fn_jNotifyMessage('告警工作模式只能是大于0的整数！', 'message', false, 3000);
+					return;
+				} else if ( str_static_val > 1440 ) {
+					dlf.fn_jNotifyMessage('告警工作模式最大不能超过24小时！', 'message', false, 3000);
+					return;
+				}			
+			}
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	$('#t_white_list_2').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 11, onError: '车主手机号最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '您设置的SOS联系人号码不合法，请重新输入！'});
+	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
 	
 	/**
 	* 集团信息的验证
@@ -819,11 +925,11 @@ $(function () {
 			}
 		}
 	});
-	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由数字、英文、中文组成！"});  //集团名
-	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人姓名只能由数字、英文、中文、空格组成！"});  // 联系人姓名
-	// $('#c_mobile').formValidator({validatorGroup: '4'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "联系人手机号输入不合法，请重新输入！"});  // 联系人手机号	
-	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
-	$('#c_address').formValidator({validatorGroup: '4'}).inputValidator({max: 100, onError: '地址最大长度是100个汉字或字符！'}); // 地址
+	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '集团名称最大长度是20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由中文、英文、数字组成！"});  //集团名
+	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});  // 联系人姓名
+	
+	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 50, onError: '联系人邮箱的最大长度是50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	$('#c_address').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 100, onError: '地址最大长度是100个汉字或字符！'}).regexValidator({regExp: 'address', dataType: 'enum', onError: "联系人地址输入不合法，请重新输入！"});  // 联系人email; // 地址
 	
 	/**
 	* 操作员个人信息的验证
@@ -900,6 +1006,7 @@ $(function () {
 	$.formValidator.initConfig({
 		formID: 'addOperatorForm', //指定from的ID 编号
 		debug: true, // 指定调试模式,不提交form
+		wideWord: false,	// 一个汉字当一个字节
 		validatorGroup: '8', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'operatorSave', // 指定本form的submit按钮
 		onError: function(msg) {
@@ -908,21 +1015,29 @@ $(function () {
 		}, 
 		onSuccess: function() { 
 			var str_msg = $('#hidOperatorMobile').val(),
+				str_address = $.trim($('#txt_operatorAddress').val()),
 				n_checkGroupLng = $('#operatorGroups input:checked').length;
 			
 			if ( str_msg != '' ) {
-				dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 				return;
 			} else if ( n_checkGroupLng == 0 ) {
-				dlf.fn_jNotifyMessage('请至少选择一个分组！', 'message', false, 4000);
+				dlf.fn_jNotifyMessage('请至少选择一个分组！', 'message', false, 3000);
 				return;
 			} else {
+				if ( str_address.length > 0 ) {
+					if ( !/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test(str_address) ) {
+						dlf.fn_jNotifyMessage('操作员地址只能由汉字、数字、英文组成！', 'message', false, 3000);
+						return;
+					}
+				}
 				dlf.fn_saveOperator();
 			}
 		}
 	});
 	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号输入不合法，请重新输入！'});
 	$('#txt_operatorName').formValidator({validatorGroup: '8'}).inputValidator({max: 20, onError: '操作员姓名的最大长度为20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: '操作员姓名只能由汉字、数字、英文组成！'});
+	
 	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '8'}).inputValidator({max: 50, onError: '操作员邮箱地址的最大长度为50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**

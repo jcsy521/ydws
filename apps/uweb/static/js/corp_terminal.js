@@ -11,12 +11,9 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
-		n_height = 375,
-		n_btnTop = 355;
-	
-	/*if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
-		dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
-	}*/
+		n_height = 475,
+		n_btnTop = 410;
+
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('.j_input input[type=text]').blur().css('color', '#000').val('');
@@ -24,12 +21,41 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	if ( str_bizType == 'znbc' ) {
 		dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
-		n_height = 442;
-		n_btnTop = 415;
+		n_height = 512;
+		n_btnTop = 517;
 	}
 	$('.corpTerminalContent').css('height', n_height);
 	$('#corp_terminalSave').css('top', n_btnTop);
 	dlf.fn_onInputBlur();	// input的blur事件初始化
+	
+	// 标签初始化
+	$('.j_tabs').removeClass('currentTab');
+	$('#corp_terminalTab').addClass('currentTab');
+	
+	$('.j_terminalcontent').hide();
+	$('#corpTerminalList0').show();
+	
+	// 选项卡
+	$('.j_tabs').unbind('click').click(function() {
+		var obj_this = $(this),
+			n_index  = obj_this.index(), // 当前li索引
+			str_className = $(this)[0].className;
+			
+		if ( str_className.search('currentTab') != -1 ) {
+			return;
+		}
+		$('.j_tabs').removeClass('currentTab'); //移除所有选中样式
+		$(this).addClass('currentTab'); // 选中样式
+		$('#corpTerminalList'+n_index).show().siblings().hide(); // 显示当前内容 隐藏其他内容
+		if ( n_index == 1 ) {
+			$('.j_weekList').data('weeks', []);	// 每次打开移除data数据
+			obj_this.css('border-right', '0px');
+			dlf.fn_searchData('corpAlertSetting');
+			dlf.fn_initAlertSetting('corpAlertSetting');
+		} else if ( n_index == 0 ) {
+			dlf.fn_initTerminalWR(); // 初始化加载参数
+		}
+	});
 }
 
 /**
@@ -48,6 +74,28 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	dlf.fn_jNotifyMessage('定位器设置查询中' + WAITIMG , 'message', true); 
 	// todo  + '?tid=' + str_tid
+	var obj_static_mode = $('#corp_alert_freq_mode'),
+		obj_auto = $('.j_corp_auto'),
+		obj_common = $('#corp_common'),
+		obj_t_alert_freq = $('#t_corp_alert_freq'),
+		obj_static_tip = $('.j_corp_alert_freq_tip');
+
+	obj_static_mode.unbind('change').bind('change', function() {
+		var n_alert_freq = $(this).val(),
+			str_oldVal = obj_t_alert_freq.data('alert_freq');
+		
+		if ( n_alert_freq == 1 ) {
+			str_oldVal = str_oldVal == 0 ? 30 : str_oldVal;
+			obj_t_alert_freq.val(str_oldVal);
+			obj_auto.show();
+			obj_common.hide();
+		} else {
+			obj_t_alert_freq.val('0');
+			obj_common.show();
+			obj_auto.hide();
+		}
+	});
+		
 	$.get_(TERMINAL_URL + '?tid=' + dlf.fn_getCurrentTid(), '', function (data) {  
 		if (data.status == 0) {	
 			var obj_data = data.car_sets,
@@ -55,7 +103,8 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 				n_whitelistTip = 0;
 				
 			for(var param in obj_data) {
-				var str_val = obj_data[param];
+				var str_val = obj_data[param],
+					obj_param = $('#t_corp_' + param );
 				
 				if ( param ) {
 					if ( param == 'owner_mobile' ) {	// 车主号码
@@ -72,19 +121,35 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 					} else if ( param == 'login_permit' ) {
 						$('#login_permit' + str_val).attr('checked', true);
 					} else {
-						if ( param == 'alias' || param == 'freq' ) {	// 定位器别名、上报频率
-							$('#t_corp_' + param ).val(str_val);
+						if ( param == 'alias' || param == 'freq' || param == 'vibl' || param == 'alert_freq' ) {	// 定位器别名、上报频率、震动灵敏度、告警工作模式
+							if ( param == 'alert_freq' ) {
+								str_val = parseInt(str_val)/60;
+								
+								var n_mode = 0;
+								// 如果大于0：智能模式；等于0:普通模式
+								if ( str_val > 0 ) {
+									n_mode = 1;
+									obj_auto.show();
+									obj_common.hide();
+								} else {
+									obj_common.show();
+									obj_auto.hide();
+								}
+								obj_static_mode.val(n_mode);
+								obj_t_alert_freq.data('alert_freq', str_val);
+							}
+							obj_param.val(str_val);
 						} else if ( param == 'white_pop' ) {	// 白名单弹出框
 							n_whitelistTip = str_val;
 						} else if ( param == 'corp_cnum' && dlf.fn_userType() ) {	// 车牌号
-							$('#t_corp_' + param ).val(str_val);
+							obj_param.val(str_val);
 							$('#corp_' + param ).attr('t_val', str_val);	// 将每个定位器参数对应值保存在t_val中
 							if ( str_val == '' ) {
 								str_val = obj_data['mobile'];
 							}
 							dlf.fn_updateCorpCnum(str_val);	// 更新最新的车牌号
 						} else {
-							$('#t_corp_' + param ).html(str_val);
+							obj_param.html(str_val);
 						}
 					}
 					if ( param != 'corp_cnum' ) {
@@ -216,20 +281,20 @@ window.dlf.fn_corpBaseSave = function() {
 		if ( str_class.search('j_radio') != -1 ) {	// 上报间隔、基站定位、图标
 			str_newVal = parseInt($(this).children('input:checked').val());
 		}
+		if ( str_key == 'corp_alert_freq' ) {	// 单独处理 告警工作模式
+			str_newVal = $('#t_corp_alert_freq').val();
+		}
 		if ( str_newVal != str_oldVal ) {	// 判断参数是否有修改
 			if ( str_class.search('j_white_list') != -1 ) {	// 白名单 [车主手机号,白名单1,白名单2,...]
 				str_key = 'owner_mobile';
-			} else if ( str_key == 'corp_freq' ) {
-				str_key = 'freq';
+			} else {
+				str_key = str_key.substr(5, str_key.length);
+			}
+			
+			if ( str_key == 'freq' || str_key == 'vibl' ) {
 				str_newVal = parseInt(str_newVal);
-			} else if ( str_key == 'corp_push_status' ) {
-				str_key = 'push_status';
-			} else if ( str_key == 'corp_corp_cnum' ) {
-				str_key = 'corp_cnum';
-			} else if ( str_key == 'corp_icon_type' ) {
-				str_key = 'icon_type';
-			} else if ( str_key == 'corp_login_permit' ) {
-				str_key = 'login_permit';
+			} else if ( str_key == 'alert_freq' ) {
+				str_newVal = parseInt(str_newVal)*60;
 			}
 			obj_terminalData[str_key] = str_newVal;
 		}
@@ -313,11 +378,22 @@ $(function() {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
 		}, 
 		onSuccess: function() {
-			var str_val = $('#t_corp_corp_cnum').val();
+			var str_val = $('#t_corp_corp_cnum').val(),
+				str_alert_freq = $('#t_corp_alert_freq').val(),
+				str_mode = $('#corp_alert_freq_mode').val();
 			
 			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
 				dlf.fn_jNotifyMessage('车牌号不能只输入空格。', 'message', false, 3000);
 				return;
+			}
+			if ( str_mode == '1' ) {
+				if ( str_alert_freq <= 0 ) {
+					dlf.fn_jNotifyMessage('告警工作模式只能是大于0的整数！', 'message', false, 3000);
+					return;
+				} else if ( str_alert_freq > 1440 ) {
+					dlf.fn_jNotifyMessage('告警工作模式最大不能超过24小时！', 'message', false, 3000);
+					return;
+				}
 			}
 			dlf.fn_corpBaseSave();	// put请求
 		}

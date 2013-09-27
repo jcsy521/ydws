@@ -556,7 +556,23 @@ window.dlf.fn_getCarData = function(str_flag) {
 						n_clat = n_enClat/NUMLNGLAT;
 					
 					obj_carInfo.tid = str_tid;
-					obj_tempData[str_tid] = obj_carInfo;
+					
+					// 1. 判断之前数据是否合法 
+					// 2. 新数据是否合法: yes:更新  no: 不更新
+					if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
+						if ( dlf.fn_isEmptyObj(obj_tempCarsData[str_tid]) ) {
+							var obj_myCar = obj_tempCarsData[str_tid];
+							
+							if ( n_lon != 0 && n_lat != 0 && n_clon != 0 && n_clat != 0 ) {	// 新数据可用
+								obj_tempData[str_tid] = obj_carInfo;
+							} else {
+								obj_tempData[str_tid] = obj_myCar;
+							}
+						}
+					} else {
+						obj_tempData[str_tid] = obj_carInfo;
+					}
+					// obj_tempData[str_tid] = obj_carInfo;
 					
 					if ( n_lon != 0 && n_lat != 0 ) {
 						obj_carInfo.track_info = obj_trackInfo;
@@ -565,12 +581,13 @@ window.dlf.fn_getCarData = function(str_flag) {
 							n_pointNum ++;
 							arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
 							dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
+							
+							if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
+								dlf.fn_updateTerminalInfo(obj_carInfo);
+							}
 						} else {
 							dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_carInfo);	// 前台偏转 kjj 2013-07-11
 						}
-					}
-					if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
-						dlf.fn_updateTerminalInfo(obj_carInfo);
 					}
 				}
 				if ( str_flag == 'first' && arr_locations.length > 0 ) {
@@ -663,6 +680,8 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_time = obj_carInfo.timestamp > 0 ? dlf.fn_changeNumToDateString(obj_carInfo.timestamp) : '-',
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,	
 		str_clon = '',
+		n_lon = obj_carInfo.longitude,
+		n_lat = obj_carInfo.latitude,
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		str_clat = '',	// 经纬度
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
@@ -671,18 +690,21 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	if ( !dlf.fn_userType() && str_actionTrack == '1' && n_pointType == CELLID_TYPE ) { // 2013.7.9 个人用户 开户追踪后,基站点及信息不进行显示
 		return;
 	}
-	if ( n_clat == 0 || n_clon == 0 ) {	// 经纬度为0 不显示位置信息
-		str_address = '-';
-		str_degree = '-';
-		str_type = '-';
-		str_clon += '-';
-		str_clat += '-';
-		str_speed = '-';
-	} else {
-		str_address = $('.j_carList a[tid='+ obj_carInfo.tid +']').data('address');
-		str_clon += 'E ' + n_clon.toFixed(CHECK_ROUNDNUM);
-		str_clat += 'N ' + n_clat.toFixed(CHECK_ROUNDNUM);
+	if ( n_lon != 0 && n_lat != 0 ) {
+		if ( n_clat == 0 || n_clon == 0 ) {	// 经纬度为0 不显示位置信息		
+			str_degree = '-';
+			str_type = '-';
+			str_speed = '-';
+			str_address = '-';
+			str_clon += '-';
+			str_clat += '-';
+		} else {
+			str_address = $('.j_carList a[tid='+ obj_carInfo.tid +']').data('address');
+			str_clon += 'E ' + n_clon.toFixed(CHECK_ROUNDNUM);
+			str_clat += 'N ' + n_clat.toFixed(CHECK_ROUNDNUM);
+		}
 	}
+	
 	if ( !type ) {	// lastinfo: 更新车辆信息和定位器信息  realtime: 只更新位置信息
 		var n_power = parseInt(obj_carInfo.pbat),
 			str_power =  n_power + '%',	// 电池电量 0-100
@@ -771,7 +793,6 @@ function fn_createTerminalList(obj_carDatas) {
 		dlf.fn_checkTrackDatas(param);	// 初始化开启追踪数据
 	}
 	obj_carListUl.html(str_carListHtml); // 将新生成的终端列表进行填充到页面上
-	
 	dlf.fn_createTerminalListClearLayer(obj_selfmarkers, obj_carDatas);
 	obj_selfmarkers = obj_tempSelfMarker;
 	dlf.fn_bindCarListItem(); //绑定终端 点击事件
@@ -1253,7 +1274,6 @@ window.dlf.fn_onInputBlur = function() {
 			n_valLength = str_val.length;
 			
 		$this.removeClass('bListR_text_mouseFocus');
-		
 		/*if ( str_who == 'mobile' ) {
 			if ( str_val == '' ) {
 				$this.val('请输入手机号').css({'color': '#888'});
