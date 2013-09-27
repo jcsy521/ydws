@@ -113,7 +113,14 @@ class PacketTask(object):
         else:
             region_status = EVENTER.CATEGORY.REGION_ENTER
             rname = EVENTER.RNAME.REGION_ENTER
+
+        if old_region_time:
+            if int(location['gps_time']) <= int(old_region_time):
+                logging.info("[EVENTER] current location's gps_time: %s is not bigger than old_region_time: %s, skip it", 
+                             location['gps_time'], old_region_time)
+                return location
         
+        # keep region status 
         self.redis.setvalue(old_region_status_key, region_status)
         logging.info("rname:%s, old status:%s, current status:%s, tid:%s",
                      region.region_name, old_region_status, region_status, location['dev_id'])    
@@ -124,12 +131,7 @@ class PacketTask(object):
             # skip the first region event
             return location
 
-        if old_region_time:
-            if int(location['gps_time']) <= int(old_region_time):
-                logging.info("[EVENTER] current location's gps_time: %s is not bigger than old_region_time: %s, skip it", 
-                             location['gps_time'], old_region_time)
-                return location
-
+        # check region event
         if region_status != old_region_status:
             self.redis.setvalue(old_region_status_key, region_status)
             self.redis.setvalue(old_region_time_key, location['gps_time'])
