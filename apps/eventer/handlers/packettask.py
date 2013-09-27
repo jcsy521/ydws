@@ -259,7 +259,7 @@ class PacketTask(object):
                     logging.info("[EVENTER] Don't send duplicate %s alert to terminal:%s between:%s seconds", info["rName"], report.dev_id, alert_freq)
                     return
                 else:
-                    self.redis.setvalue(alert_freq_key, time=alert_freq)
+                    self.redis.setvalue(alert_freq_key, 1, time=alert_freq)
 
         # keep alarm info
         alarm = dict(tid=report['dev_id'],
@@ -316,7 +316,7 @@ class PacketTask(object):
                     if int(report.pbat) == 100:
                         pbat_message_key = get_pbat_message_key(report.dev_id)
                         if self.redis.exists(pbat_message_key) is False:
-                            self.redis.setvalue(pbat_message_key,time=24*60*60)        
+                            self.redis.setvalue(pbat_message_key, 1, time=24*60*60)        
                         else:
                             logging.info("[EVENTER] Don't send duplicate power full message to terminal:%s in 24 hours", report.dev_id)
                             return
