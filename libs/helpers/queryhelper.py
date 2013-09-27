@@ -262,4 +262,4 @@ class QueryHelper(object):
     @staticmethod
     def get_alert_freq_by_tid(tid,db):
         alert_freq = db.get("SELECT alert_freq FROM T_TERMINAL_INFO WHERE tid=%s", tid)
-        return alert_freq
+        return int(alert_freq['alert_freq'])
