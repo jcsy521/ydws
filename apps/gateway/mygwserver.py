@@ -464,12 +464,13 @@ class MyGWServer(object):
                                 "      AND imsi = %s LIMIT 1",
                                 t_info['dev_id'], t_info['imsi']) 
                 if t: 
-                     t_info['t_msisdn'] = t.mobile
-                     t_info['u_msisdn'] = t.owner_mobile
-                     register_sms = SMSCode.SMS_REGISTER % (t.owner_mobile, t.mobile)
-                     SMSHelper.send_to_terminal(t.mobile, register_sms)
-                     logging.info("[GATEWAY] a binded terminal tid:%s, imei:%s has no tmobile:%s, umobile:%s in login packet, so %s again.",
-                              t_info['dev_id'], t_info['imei'], t_info['t_msisdn'], t_info['u_msisdn'], register_sms)
+                    args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
+                    t_info['t_msisdn'] = t.mobile
+                    t_info['u_msisdn'] = t.owner_mobile
+                    register_sms = SMSCode.SMS_REGISTER % (t.owner_mobile, t.mobile)
+                    SMSHelper.send_to_terminal(t.mobile, register_sms)
+                    logging.info("[GATEWAY] a binded terminal tid:%s, imei:%s has no tmobile:%s, umobile:%s in login packet, so %s again.",
+                             t_info['dev_id'], t_info['imei'], t_info['t_msisdn'], t_info['u_msisdn'], register_sms)
             else:
                 if not t_info['t_msisdn']:
                     # login first.
