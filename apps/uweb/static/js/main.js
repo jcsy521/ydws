@@ -886,22 +886,27 @@ $(function () {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
 		}, 
 		onSuccess: function() { 
-			var str_static_val = $('#t_static_val').val(),				
-				str_mode = $('#static_val_mode').val();
+			var str_alert_freq = $('#t_alert_freq').val(),				
+				str_mode = $('#alert_freq_mode').val();
 			
 			if ( str_mode == '1' ) {
-				if ( str_static_val <= 0 ) {
+				if ( str_alert_freq <= 0 ) {
 					dlf.fn_jNotifyMessage('告警工作模式只能是大于0的整数！', 'message', false, 3000);
 					return;
-				} else if ( str_static_val > 1440 ) {
+				} else if ( str_alert_freq > 1440 ) {
 					dlf.fn_jNotifyMessage('告警工作模式最大不能超过24小时！', 'message', false, 3000);
 					return;
-				}			
+				} else {
+					if ( !/^[0-9]*[1-9][0-9]*$/.test(str_alert_freq) ) {
+						dlf.fn_jNotifyMessage('告警工作模式只能是正整数！', 'message', false, 3000);
+						return;
+					}
+				}
 			}
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号最大长度是20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
+	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
 	
 	/**
 	* 集团信息的验证
@@ -925,11 +930,11 @@ $(function () {
 			}
 		}
 	});
-	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '集团名称最大长度是20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由中文、英文、数字组成！"});  //集团名
-	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最大长度是20个字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});  // 联系人姓名
+	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '集团名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由中文、英文、数字组成！"});  //集团名
+	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最多可输入20个字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});  // 联系人姓名
 	
-	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 50, onError: '联系人邮箱的最大长度是50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
-	$('#c_address').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 100, onError: '地址最大长度是100个汉字或字符！'}).regexValidator({regExp: 'address', dataType: 'enum', onError: "联系人地址输入不合法，请重新输入！"});  // 联系人email; // 地址
+	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 50, onError: '联系人邮箱最多可输入50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	$('#c_address').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 100, onError: '联系人地址最多可输入100个汉字或字符！'}).regexValidator({regExp: 'address', dataType: 'enum', onError: "联系人地址输入不合法，请重新输入！"});  // 联系人email; // 地址
 	
 	/**
 	* 操作员个人信息的验证
@@ -948,7 +953,7 @@ $(function () {
 		}
 	});
 	
-	$('#txt_operEmail').formValidator({empty:true, validatorGroup: '9'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	$('#txt_operEmail').formValidator({empty:true, validatorGroup: '9'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
 	* 新建定位器验证
@@ -974,9 +979,9 @@ $(function () {
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "短信接收号码输入不合法，请重新输入！"});  // 别名;
-	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能是汉字、数字、大写英文组成！'});  // 别名;
-	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
-	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
+	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能是汉字、数字、大写英文组成！'});  // 别名;
+	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最多可输入20个汉字或字符！'});
+	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最多可输入20个汉字或字符！'});
 	
 	/**
 	* 编辑定位器验证
@@ -1036,9 +1041,9 @@ $(function () {
 		}
 	});
 	$('#txt_operatorMobile').formValidator({validatorGroup: '8'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '操作员手机号输入不合法，请重新输入！'});
-	$('#txt_operatorName').formValidator({validatorGroup: '8'}).inputValidator({max: 20, onError: '操作员姓名的最大长度为20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: '操作员姓名只能由汉字、数字、英文组成！'});
+	$('#txt_operatorName').formValidator({validatorGroup: '8'}).inputValidator({max: 20, onError: '操作员姓名最多可输入20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: '操作员姓名只能由汉字、数字、英文组成！'});
 	
-	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '8'}).inputValidator({max: 50, onError: '操作员邮箱地址的最大长度为50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
+	$('#txt_operatorEmail').formValidator({empty:true, validatorGroup: '8'}).inputValidator({max: 50, onError: '操作员邮箱最多可输入50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "操作员邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
 	* 乘客进行验证
@@ -1128,7 +1133,10 @@ $(function () {
 		autoOpen: false,
 		width: 430,
 		modal: true,
-		resizable: false
+		resizable: false,
+		close: function( event, ui ) {
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+		}
 	});
 	/*================================*/
 	var obj_addPassenger = $('#addPassenger');

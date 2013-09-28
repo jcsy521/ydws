@@ -468,7 +468,7 @@ function fn_createDrawLine () {
 window.dlf.fn_clearTrack = function(clearType) { 
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };	// 清除计时器
 	str_actionState = 0;
-	counter = 0;
+	counter = -1;
 	arr_drawLine = [];
 	if ( clearType == 'inittrack' ) {
 		$('.j_trackBtnhover, .trackSpeed').hide();	// 播放速度、播放按钮隐藏

@@ -393,6 +393,11 @@ $(function() {
 				} else if ( str_alert_freq > 1440 ) {
 					dlf.fn_jNotifyMessage('告警工作模式最大不能超过24小时！', 'message', false, 3000);
 					return;
+				} else {
+					if ( !/^[0-9]*[1-9][0-9]*$/.test(str_alert_freq) ) {
+						dlf.fn_jNotifyMessage('告警工作模式只能是正整数', 'message', false, 3000);
+						return;
+					}
 				}
 			}
 			dlf.fn_corpBaseSave();	// put请求

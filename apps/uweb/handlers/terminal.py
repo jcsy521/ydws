@@ -10,7 +10,7 @@ from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,get_alert_freq_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
 from utils.public import record_add_action, delete_terminal
@@ -101,6 +101,10 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             tid = data.get('tid',None) 
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
+            if data.get("alert_freq"):
+                alert_freq_key = get_alert_freq_key(tid)
+                if self.redis.exists(alert_freq_key):
+                    self.redis.delete(alert_freq_key)
             logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:

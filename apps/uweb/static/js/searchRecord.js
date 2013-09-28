@@ -52,7 +52,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		if ( str_who == 'mileage' ) {
 			$('#'+ str_who +'Wrapper .j_chart, .j_mileageFoot').hide();	// 查看统计图链接隐藏
 			dlf.fn_getAllTerminals();	// 加载所有定位器
-			dlf.fn_initSlider();
+			dlf.fn_initSlider('');
 		}
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'operator' ) {
@@ -1095,7 +1095,7 @@ function fn_initEventTimeControl() {
 	obj_stTime.unbind('click').bind('click', function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
 		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false,  qsEnabled: false,
 		onpicked: function() {
-			if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
+			//if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 				var obj_endDate = $dp.$D(str_inputEndTime), 
 					str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
 					str_endTime = dlf.fn_changeDateStringToNum(str_endString), 
@@ -1103,13 +1103,13 @@ function fn_initEventTimeControl() {
 				if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
 					obj_endTime.val(dlf.fn_changeNumToDateString(str_beginTime + WEEKMILISECONDS));
 				}
-			}
+			//}
 		}});
 	}).val(str_tempBeginTime);
 	
 	obj_endTime.unbind('click').bind('click', function() {	// 初始化结束时间，并做事件关联
 		WdatePicker({el: str_inputEndTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false, qsEnabled: false, onpicked: function() {
-				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
+				//if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 					var obj_beginDate = $dp.$D(str_inputStartTime), 
 						str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
 						str_beginTime = dlf.fn_changeDateStringToNum(str_beginString), 
@@ -1117,7 +1117,7 @@ function fn_initEventTimeControl() {
 					if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
 						obj_stTime.val(dlf.fn_changeNumToDateString(str_endTime - WEEKMILISECONDS));
 					}
-				}
+				//}
 			}
 		});
 	}).val(str_tempEndTime);
