@@ -55,7 +55,9 @@ class EventHandler(BaseHandler):
 
             tids = data.get('tids', None)
             tids = str_to_list(tids)
-            tids = tids if tids else [self.current_user.tid, ]
+
+            if not tids:
+                tids = [tid, ] if tid else []
             tids = [str(t) for t in tids]
 
             if not tid:
