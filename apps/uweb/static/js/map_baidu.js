@@ -207,7 +207,11 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
 		str_imgUrl = n_degree, 
 		myIcon = new BMap.Icon(BASEIMGURL + str_imgUrl + '.png', new BMap.Size(34, 34)),
-		mPoint = new BMap.Point(obj_location.clongitude/NUMLNGLAT, obj_location.clatitude/NUMLNGLAT), 
+		n_clon = obj_location.clongitude,
+		n_clat = obj_location.clatitude,
+		n_lon = obj_location.longitude,
+		n_lat = obj_location.latitude,
+		mPoint = new BMap.Point(n_clon/NUMLNGLAT, n_clat/NUMLNGLAT), 
 		infoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_iconType, n_index)),  // 创建信息窗口对象;
 		marker = null,
 		str_alias = obj_location.alias,
@@ -216,6 +220,13 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null; 
 
+	// kjj add in 2013-09-30 如果是轨迹、告警 经纬度偏转失败，不去处理
+	if ( str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'draw' || str_iconType == 'eventSurround' ) {
+		if ( n_lon == 0 || n_lat == 0 || n_clon == 0 || n_clat == 0 ) {
+			return;
+		}
+	}
+	
 	if ( !str_alias ) {	// 实时定位无alias，则根据tid获取对应定位器别名
 		str_alias = obj_carA.next().html();
 	}
