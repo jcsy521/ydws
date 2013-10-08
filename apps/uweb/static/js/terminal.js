@@ -91,6 +91,7 @@ window.dlf.fn_initTerminalWR = function () {
 						$('#t_mobile').html(str_val);
 					} else if ( param == 'corp_cnum' ) {	// 车牌号
 						$('#t_cnum').val(str_val);	
+						dlf.fn_updateAlias();	// 修改定位器别名
 					} else if ( param == 'vibl' ) {	// 震动灵敏度
 						$('#t_' + param).val(str_val);	
 					} else if ( param == 'alert_freq' ) {	// 告警工作模式

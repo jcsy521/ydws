@@ -339,7 +339,7 @@ window.dlf.fn_updateOpenTrackStatusColor = function(str_tid, str_order) {
 * 如果别名为空则显示车牌号，如果车牌号为空则显示定位器手机号
 */
 window.dlf.fn_updateAlias = function() {
-	var	cnum = $('#cnum').val(),	// 车牌号
+	var	cnum = $('#t_cnum').val(),	// 车牌号
 		tmobile = $('#tmobileContent').html(),
 		obj_car = $('.j_carList .j_currentCar'),
 		obj_selfMarker = obj_selfmarkers[obj_car.attr('tid')],	// obj_car.data('selfmarker'),

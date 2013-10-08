@@ -1812,6 +1812,9 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 								$('#white_list_2').attr('t_val', '');
 							}
 						} else {
+							if ( param == 'corp_cnum' ) {
+								dlf.fn_updateAlias();	// 修改定位器别名
+							}
 							$('#' + param ).attr('t_val', str_val);
 						}
 					}

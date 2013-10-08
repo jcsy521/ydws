@@ -11,7 +11,7 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
-		n_height = 475,
+		n_height = 440,
 		n_btnTop = 410;
 
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	

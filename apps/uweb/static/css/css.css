@@ -531,7 +531,7 @@ body {
 #corpTerminalWrapper {
 	/*height: 509px;
 	width: 487px;*/
-	height: 409px;
+	height: 474px;
 	width: 487px;
 }
 #corpSMSOptionWrapper {
@@ -565,7 +565,7 @@ body {
 	width: 440px;
 }
 #terminalWrapper {
-	height: 434px;
+	height: 404px;
 	width: 600px;
 }
 .wrapperTitle {
@@ -1012,7 +1012,7 @@ body {
 }
 
 #terminalWrapper .terminalContent {
-	height: 400px;	/* 400px*/
+	height: 370px;	/* 400px*/
 	width: 600px;	/* 680px;*/
 }
 #terminalWrapper .titleName {
@@ -1948,7 +1948,7 @@ body {
 	background:#F9F9F9;
 	margin: 0 auto;
 	padding: 30px 20px;
-	width: 960px;
+	width: 760px;
 }
 #pwdBox {
 	background: url('/static/images/reg_bg.gif') repeat scroll 0 0 transparent;
@@ -1979,6 +1979,7 @@ body {
     background: url('/static/images/reg_line.gif') no-repeat scroll 0 0 transparent;
     height: 12px;
     overflow: hidden;
+	width: 730px;
 }
 .pwdCnt {
 	margin-top: 36px;
