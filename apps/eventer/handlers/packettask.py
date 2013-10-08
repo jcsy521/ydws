@@ -258,7 +258,7 @@ class PacketTask(object):
             alert_freq = QueryHelper.get_alert_freq_by_tid(info['dev_id'], self.db)
             if alert_freq != 0:
                 if self.redis.exists(alert_freq_key):
-                    logging.info("[EVENTER] Don't send duplicate %s alert to terminal:%s between:%s seconds", info["rName"], report.dev_id, alert_freq)
+                    logging.info("[EVENTER] Don't send duplicate %s alert to terminal:%s in %s seconds", info["rName"], report.dev_id, alert_freq)
                     return
                 else:
                     self.redis.setvalue(alert_freq_key, 1, time=alert_freq)
