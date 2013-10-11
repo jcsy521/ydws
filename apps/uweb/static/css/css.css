@@ -1579,7 +1579,7 @@ body {
 	color: #4876FF;
 }
 .dataTable label {
-	display: block;
+	padding-right: 10px;
 	color: #000;
 }
 .dataTable a,.dataTable a:link, .infoPushContent a, .infoPushContent a:link {
@@ -2433,9 +2433,9 @@ body {
 	width: 191px;
 }
 #staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .onlineStaticsCondition input, .operatorConditions input, #passengerContent input {
-	height: 26px;
-    line-height: 27px;
-    padding: 2px 0 0 29px;
+	height: 24px;
+    line-height: 24px;
+    padding: 5px 0 0 29px;
     width: 140px;
 	*top: 4px;
 }
@@ -2761,6 +2761,7 @@ legend {
 .batchDeleteContent, .batchDefendContent, .batchTrackContent {
 	width: 600px;
 	height: 500px;
+	overflow-y: auto;
 	float: left;
 }
 .tfootCss {
@@ -2780,14 +2781,15 @@ legend {
 	width: 800px;
 }
 .eventSearchContent td, .mileageContent td, .operatorContent td, .onlineStaticsContent td {
-	height: 38px;
+	height: 33px;
+	line-height: 0px;
 }
 .singleMileageTable td, .singleEventContent td {
 	height: 22px;
 	line-height: 22px;
 }
 .eventSearchContent .dataTable, .singleEventContent .dataTable {
-	width: 850px;	/*770px*/
+	width: 900px;	/*770px*/
 }
 .singleEventContent {
 	padding-top: 10px;
@@ -2811,6 +2813,9 @@ legend {
 	padding-top: 10px;
 	margin-left: 22px;
 }
+.commonCondition  td {
+	padding-right: 20px;
+}
 .eventSearchCondition, .mileageCondition, .operatorConditions, .onlineStaticsCondition, .passengerConditions {
 	margin: 0 auto;
 }
@@ -2818,7 +2823,7 @@ legend {
 	width: 754px;
 }
 .mileageCondition, .operatorCondition {
-	width: 800px;
+	width: 835px;
 }
 .onlineStaticsCondition .title, .mileageCondition .title {
 	color: #69B2E9;
@@ -2831,8 +2836,10 @@ legend {
 	width: 92%;
 }
 .eventSearchCondition select, .mileageCondition select, .singleEventCondition select, .singleMileageCondition select {	/* search conditions */
-	height: 23px;
-	padding-top: 1px;
+	background: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    height: 29px;
+    padding: 0.4em 0.1em;
     width: 146px;
 }
 .mileageCondition option {
@@ -2853,7 +2860,7 @@ legend {
 	cursor: pointer;
 	display: inline-block;
 	height: 34px;
-	margin-left: 30px;
+	margin-left: 20px;
 	position: relative;
 	top: 25px;
 	width: 92px;
@@ -2867,6 +2874,11 @@ legend {
     margin: 0 auto;
     text-align: center;
     width: 750px;
+	padding-top: 10px;
+}
+.txtGo {
+	width: 30px;
+	height: 30px;
 }
 /*-------报表统计---*/
 #mileageWrapper, .mileageTitle {
@@ -3040,9 +3052,8 @@ legend {
 }
 #regionNote, .bindLineNote {
 	color: red;
-    left: 30px;
-    position: relative;
-    top: -30px;
+	display: block;
+	margin: 20px 0px 0px 40px;
 }
 .clickWindowPolder {
 	/*margin-right: 5px;*/
@@ -3081,10 +3092,10 @@ legend {
 /**==================*/
 #regionWrapper, #corpRegionWrapper {
 	width: 510px;
-	height: 492px;
+	height: 490px;
 }
 .regionContent, .corpRegionContent {
-	height: 458px
+	height: 455px;
 }
 .regionCreateBtn {
 	color: #4876FF;
