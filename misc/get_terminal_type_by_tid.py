@@ -44,11 +44,17 @@ def main():
     tid = options.tid
     
     bin_tid = hex2bin(tid)
-    print 'bin tid:', bin_tid
-    ttype = bin_tid[15:18]
+    
+    l = 40 - len(bin_tid)
+    s = '0' * l
+
+    sn= s + bin_tid
+
+    print 'bin SN:', sn 
+    ttype = sn[15:18]
     if ttype == "000":
         print 'ZJ100'
-    elif ttype == '100':
+    elif ttype == '001':
         print 'ZJ200'
     else:
         print 'Unknow terminal type'
