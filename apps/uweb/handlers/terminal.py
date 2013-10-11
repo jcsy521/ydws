@@ -43,7 +43,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             car_sets = DotDict() 
             # 1: terminal 
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
-                                   "       vibchk, tid as sn, mobile, vibl, static_val, alert_freq,"
+                                   "       vibchk, tid as sn, mobile, vibl, static_val, alert_freq,default_status"
                                    "       white_pop, push_status, icon_type, owner_mobile, login_permit"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
@@ -105,6 +105,9 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 alert_freq_key = get_alert_freq_key(tid)
                 if self.redis.exists(alert_freq_key):
                     self.redis.delete(alert_freq_key)
+            elif data.get("vibl"):
+                 sessionID_key = get_terminal_sessionID_key(tid)
+                 self.redis.delete(sessionID_key)
             logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
