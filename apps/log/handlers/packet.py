@@ -63,8 +63,19 @@ class GWPacketHandler(BaseHandler):
             fc = FileConf()
             file_path = fc.getLogFile() + '/'
             files = os.listdir(file_path)
+
+            # make the files ordered 
+            d = {} 
+            for f in files: 
+                file_time = os.path.getmtime(file_path+f) 
+                d[file_time] = f 
+                L = d.keys() 
+            L.sort() 
+            files = [d.get(file_time) for file_time in L]
+
             lst = []
             for file in files:
+                logging.info("[LOG] handle file: %s", file)
                 lines= linecache.getlines(file_path+file)
                 linecache.updatecache(file_path+file)
                 if len(lines) !=0:
