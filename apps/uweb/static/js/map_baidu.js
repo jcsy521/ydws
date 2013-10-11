@@ -335,16 +335,56 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 }
 
 /**
+* kjj add in 2013-10-11 
+* 中英文长度大于Ilength的显示省略号
+* str: 要截取的字符串
+* n_tempLength: 要截取的长度
+*/
+function CutStrLength(str, n_tempLength) {
+	var n_chineseLength = 0,
+		n_charLength = 0, 
+		n_totalLength = 0;
+	
+	for( var i = 0; i < n_tempLength; i++ ) {
+		if ( str.charCodeAt(i) > 255) {
+			n_chineseLength+=2;
+		} else {
+			n_charLength+=1;
+		}
+		n_totalLength+=1;		
+		if ( n_chineseLength+n_charLength == n_tempLength ) {
+			return (str.substring(0,n_totalLength));
+			break;
+		}
+		if ( n_chineseLength+n_charLength > n_tempLength ) {
+			return (str.substring(0,n_totalLength-1) + '...' );
+			break;
+		}
+	}
+}
+
+/**
+* kjj update in 2013-10-11
 * 截取字符串 kjj add 2013-08-21
 * str_temp: 要截取的字符串
 */ 
-function fn_cutString(str_temp) {
-	var n_len = str_temp.length;
+function fn_cutString(str) {
+	var theLen = 0;
 	
-	return n_len > 30 ? str_temp.substr(0, 30) + '...' : str_temp;
+	for( i = 0;i < str.length; i++ ) {
+		if(str.charCodeAt(i)>255) {
+			theLen=theLen+2;
+		} else {
+			theLen=theLen+1;
+		}
+	}
+	if( theLen > 30 ) {
+		str = CutStrLength(str, 60);
+	}
+	return str;
 }
 
-/*
+/**
 * 吹出框的关闭按钮显示
 */
 function fn_infoWindowCloseShow() {

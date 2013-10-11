@@ -118,8 +118,8 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 						
 						obj_currentCar.attr('icon_type', str_val);
 						dlf.fn_updateTerminalLogin(obj_currentCar);
-					} else if ( param == 'login_permit' ) {
-						$('#login_permit' + str_val).attr('checked', true);
+					} else if ( param == 'login_permit' ) {	// 客户端登录
+						$('#' + param + str_val).attr('checked', true);
 					} else {
 						if ( param == 'alias' || param == 'freq' || param == 'vibl' || param == 'alert_freq' ) {	// 定位器别名、上报频率、震动灵敏度、告警工作模式
 							if ( param == 'alert_freq' ) {

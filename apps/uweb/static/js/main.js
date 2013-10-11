@@ -159,7 +159,7 @@ window.dlf.fn_saveSMSOption = function() {
 */
 window.dlf.fn_exit = function() {
 	if ( confirm('您确定退出本系统吗？') ) {
-		window.location.href = '/logout';
+		window.location.href='/logout';
 	}
 }
 
@@ -636,7 +636,7 @@ $(function () {
 			}
 		}
 		// 除了对多个定位器操作外
-		if ( str_id != 'home' && str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'b_bindRegionStatus' && str_id != 'b_bindBatchRegionStatus' && str_id != 'operatorData' ) {
+		if ( str_id != 'home' && str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'corpRegion' && str_id != 'region' && str_id != 'operatorData' ) {
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
@@ -1126,7 +1126,7 @@ $(function () {
 		$('#hidOperatorId').val('');
 		fn_getGroupData('add');	// 初始化分组
 		dlf.fn_onInputBlur();	// 操作员手机号事件侦听
-		$('#addOperatorDialog').attr('title', '新增操作员').dialog('option', 'title', '新增操作员').dialog( "open" );
+		$('#addOperatorDialog').dialog('option', 'title', '新增操作员').dialog( "open" );
 	});
 	// 新增初始化dialog
 	$('#addOperatorDialog').dialog({

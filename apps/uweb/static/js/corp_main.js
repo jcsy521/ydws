@@ -276,10 +276,17 @@ function customMenu(node) {
 				var obj_node = $(obj).children('a'),
 					str_class = obj_node.attr('class');
 				
-				this.rename(obj);	
-				if ( str_class.search('groupNode') != -1 ) {
-					$('.jstree-rename-input').val($(obj).children('a').attr('title'));
-				}				
+				this.rename(obj);
+				// kjj add in 2013.10.10 重命名集团名称和分组名称时，名称>20不允许输入
+				$('.jstree-rename-input').unbind('keydown').bind('keydown', function() {
+					var obj_this = $(this),
+						str_val = obj_this.val();
+					
+					if ( str_val.length > 20 ) {
+						obj_this.val(str_val.substr(0, 20));
+					}
+				});		
+				$('.jstree-rename-input').val($(obj).children('a').attr('title'));
 			}
 		},
 		/*"moveTo": {
@@ -634,7 +641,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			str_newName = obj_rslt.new_name,
 			obj_rlbk = data.rlbk,
 			b_flag = obj_currentNode.hasClass('j_leafNode');
-			
+
 		if ( str_newName == data.rslt.old_name && !b_flag ){	// 如果新名称和旧名称相同 不操作
 			return;
 		}
@@ -871,6 +878,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				arr_groups = obj_corp.groups,	// all groups 
 				n_groupLength = arr_groups.length,	// group length
 				str_corpName = obj_corp.name,	// corp name
+				str_tempCorpName = str_corpName,
 				str_corpId = obj_corp.cid,		// corp id
 				str_html = '<ul>',
 				arr_groupIds = [], // 组ID组
@@ -888,7 +896,8 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			n_offlineCnt = obj_corp.offline;	// offline count
 			
 			if ( str_corpId && str_corpName ) {
-				str_html += '<li class="j_corp" id="treeNode_'+ str_corpId +'"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_corpName +'</a>';
+				str_tempCorpName = str_corpName.length > 10 ? str_corpName.substr(0,10)+ '...' : str_corpName;
+				str_html += '<li class="j_corp" id="treeNode_'+ str_corpId +'"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_tempCorpName +'</a>';
 			}
 			fn_updateTerminalCount();	// lastinfo 每次更新在线个数 2013-07-29 kjj add
 			arr_autoCompleteData = [];
@@ -941,6 +950,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								n_enClat = obj_car.clatitude,
 								n_lon = obj_car.longitude,
 								n_lat = obj_car.latitude,
+								// n_mannual_status = obj_car.set_mannual_status,	// 退出时默认设防状态 kjj add in 2013.10.09
 								obj_currentSelfMarker = obj_selfmarkers[str_tid];
 							
 							obj_car.trace_info = obj_trace;
@@ -994,7 +1004,6 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						}
 						str_html += '</ul>';
 						// 填充本次数据 为了与下次lastinfo进行比较
-						
 						arr_tids[str_groupId] = arr_tempTids;
 					} else {
 						arr_tids[str_groupId] = [];
@@ -1270,14 +1279,15 @@ function fn_updateTreeNode(obj_corp) {
 	var arr_groups = obj_corp.groups,	// all groups 
 		n_groupLength = arr_groups.length,	// group length
 		str_corpName = obj_corp.name,	// corp name
+		str_tempCorpName = str_corpName.length > 10 ? str_corpName.substr(0,10)+ '...' : str_corpName,
 		str_corpId = obj_corp.cid;		// corp id
 	
-	$('.j_corp a[corpId='+ str_corpId +']').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_corpName).attr('title', str_corpName);	// 更新集团名 <img src="/static/images/corpImages/corp.png">
+	$('.j_corp a[corpId='+ str_corpId +']').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempCorpName).attr('title', str_corpName);	// 更新集团名 <img src="/static/images/corpImages/corp.png">
 	for ( var gIndex in arr_groups ) {
 		var obj_group = arr_groups[gIndex],
 			str_groupName = obj_group.name,
 			n_groupNameLng = str_groupName.length,
-			str_tempGroupName = n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
+			str_tempGroupName = dlf.fn_dealAlias(str_groupName), // n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
 			obj_trackers = obj_group.trackers;	// 所有终端 arr_cars
 
 		$('#group_'+ obj_group.gid).html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempGroupName).attr('title', str_groupName);	// 更新组名
@@ -1670,6 +1680,9 @@ function fn_renameCorp(cid, str_name, node) {
 		if ( data.status != 0 ) {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 			$.jstree.rollback(node);
+		} else {
+			var str_tempCName = str_name.length > 10 ? str_name.substr(0,10)+ '...' : str_name;
+			$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempCName).attr('title', str_name).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');;
 		}
 	});
 }

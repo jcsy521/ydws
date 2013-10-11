@@ -6,7 +6,7 @@
 	<!--实时查询-->
 	<div id="realtimeWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle currentTitle">
-			<span class="close j_close" title="关闭窗口" who="realtime"></span>
+			<span class="close j_close" who="realtime"></span>
 		</div>
 		<div class="currentContent">
 			<div class="currentText">
@@ -20,7 +20,7 @@
 	<!--撤防/设防-->
 	<div id="defendWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle defendTitle">
-			<span class="close j_close" title="关闭窗口" who="defend"></span>
+			<span class="close j_close" who="defend"></span>
 		</div>
 		<div class="defendContent">
 			<div class="defendText">
@@ -34,7 +34,7 @@
 	<!--个人资料框-->
 	<div id="personalWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle personalTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close"></span>
 		</div>
 		<div class="wrapperContent personalContent">
 			<form id="personalForm" >
@@ -71,7 +71,7 @@
 	<!--密码修改框-->
 	<div id="pwdWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle PWDTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close"></span>
 		</div>
 		<div class="pwdContent wrapperContent">
 			<form id="pwdForm" >
@@ -88,7 +88,7 @@
 	<!--定位器参数设置-->
 	<div id="terminalWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle terminalTitle">
-			<span class="close j_close" title="关闭窗口" who="terminal"></span>
+			<span class="close j_close" who="terminal"></span>
 		</div>
 		<div class="terminalContent wrapperContent">
 			<!--tab选项卡 -->
@@ -142,6 +142,15 @@
 										</select>
 									</td>
 								</tr>
+								<!--<tr>
+									<td class="terminalTdL" >退出设置:</td>
+									<td id="default_status"  class="j_ListVal j_input"  t_val="">
+										<input id="tr_default_status1" type="radio" value="1" name="tnStatus" />
+										<label for="tr_default_status1">设防</label>
+										<input id="tr_default_status0" type="radio" value="0" name="tnStatus" />
+										<label for="tr_default_status0">撤防</label>
+									</td>
+								</tr>-->
 								<tr>
 									<td class="terminalTdL">客户端通知:</td>
 									<td id="push_status" class="j_ListVal j_radio"  t_val="">
@@ -266,14 +275,14 @@
 	
 	<!-- 白名单设置提醒 -->
 	<div id="whitelistPopWrapper" class="hide wrapper">
-		<p class="noticeClose" title="关闭"></p>
+		<p class="noticeClose"></p>
 		<p class="noticeMsg">请您设置SOS联系人。</p>
-		<p class="noticeRemeber" title="我知道了">我知道了</p>
+		<p class="noticeRemeber">我知道了</p>
 	</div>
 	<!-- 短信参数设置 -->
-	<div id="smsOptionWrapper" class="wrapper hide j_drag">
+	<!--<div id="smsOptionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle smsTitle">
-			<span class="close j_close" title="关闭窗口" who="smsOption"></span>
+			<span class="close j_close" who="smsOption"></span>
 		</div>
 		<div id="smsContent" class="smsContent j_terminalcontent wrapperContent">
 			<span class="smsTip">请选择想要的短信通知项：</span>
@@ -299,16 +308,13 @@
 				<li>
 					<input type="checkbox" id="region_out" class="j_checkbox" title="出围栏告警" /><label for="region_out">出围栏告警</label> 
 				</li>
-				<!--<li>
-					<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
-				</li>-->
 				<li>
 					<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
 				</li>
 			</ul>
 			<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
 		</div>
-	</div>
+	</div>-->
 
 	<!-- 集团用户的参数设置 -->
 	<div id="corpTerminalWrapper" class="wrapper hide j_drag">
@@ -352,11 +358,20 @@
 									<td class="corp_terminalTdL" >客户端登录:</td>
 									<td id="corp_login_permit" class="j_corp_ListVal j_radio"  t_val="" >
 										<input type="radio" id="login_permit1"  name="login_permit" value="1" />
-										<label for="login_permit1" title="允许">允许</label>
+										<label for="login_permit1">允许</label>
 										<input type="radio" id="login_permit0"  name="login_permit" value="0"  />
-										<label for="login_permit0" title="不允许">不允许</label>
+										<label for="login_permit0">不允许</label>
 									</td>
 								</tr>
+								<!--<tr>
+									<td class="corp_terminalTdL" >退出设置:</td>
+									<td id="corp_default_status"  class="j_ListVal j_input"  t_val="">
+										<input id="default_status1" type="radio" value="1" name="tmStatus" />
+										<label for="default_status1">设防</label>
+										<input id="default_status0" type="radio" value="0" name="tmStatus" />
+										<label for="default_status0">撤防</label>
+									</td>
+								</tr>-->
 								<tr class="j_corp_terminal">
 									<td class="corp_terminalTdL" >上报频率:</td>
 									<td id="corp_freq"  class="j_corp_ListVal"  t_val="">
@@ -406,13 +421,13 @@
 									<td class="corp_terminalTdL" >图标:</td>
 									<td id="corp_icon_type"  class="corp_radio j_corp_ListVal j_radio"  t_val="">
 										<input type="radio" id="icon_type0"  name="icon_type" value="0" />
-										<label for="icon_type0" title="汽车"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
+										<label for="icon_type0"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
 										<input type="radio" id="icon_type1"  name="icon_type" value="1"  />
-										<label for="icon_type1" title="摩托车"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
+										<label for="icon_type1"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
 										<input type="radio" id="icon_type2"  name="icon_type" value="2"  />
-										<label for="icon_type2" title="人"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
+										<label for="icon_type2"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
 										<input type="radio" id="icon_type3"  name="icon_type" value="3"  />
-										<label for="icon_type3" title="其他"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon" /></label>
+										<label for="icon_type3"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon" /></label>
 									</td>
 								</tr>
 							</tbody>
@@ -449,7 +464,7 @@
 	
 	<div id="corpSMSOptionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle corpSMSOptionTitle">
-			<span class="close j_close" title="关闭窗口" who="corpSMSOption"></span>
+			<span class="close j_close" who="corpSMSOption"></span>
 		</div>
 		<div id="corpSMSOptionContent" class="corpSMSOptionContent wrapperContent">
 			<form id="corp_smsOptionForm" >
@@ -511,7 +526,7 @@
 						</td>
 						<td>
 							<!--按钮-->
-							<span id="operator_searchBtn" class="recordBtn" title="搜索"></span>
+							<span id="operator_searchBtn" class="recordBtn"></span>
 							<a href="#" id="addOperator" class="addOperatorBtn">新增操作员</a>
 						</td>
 					</tr>
@@ -541,7 +556,7 @@
 		</div>
 	</div>
 	<!-- 新增操作员 -->
-	<div id="addOperatorDialog" title="新增操作员" class="hide">
+	<div id="addOperatorDialog" class="hide">
 		<form id="addOperatorForm">
 			<fieldset class="operatorfieldset">
 				<input type="hidden" id="hidOperatorId" />
@@ -606,7 +621,7 @@
 						</td>
 						<td>
 							<!--按钮-->
-							<span id="passenger_searchBtn" class="recordBtn" title="搜索"></span>
+							<span id="passenger_searchBtn" class="recordBtn"></span>
 							<a href="#" id="addPassenger" class="addPassenger">新增乘客</a>
 						</td>
 					</tr>
@@ -718,7 +733,7 @@
 	<div id="POISearchWrapper" class="POISearchWrapper hide j_drag">
 		<h2 class="PWrapperTitle">
 			<span>周边查询</span>
-			<span class="pClose close j_close" id="POISClose" title="关闭窗口"></span>
+			<span class="pClose close j_close" id="POISClose"></span>
 		</h2>
 		<div id="POISearchContent" class="POISearchContent">
 			<ol class="siv_list">
@@ -761,7 +776,7 @@
 			<div class="searchCondition">
 				<span>关键词：<input type="text" value="查找其他关键词" class="textbox j_blur" id="txtKeywords" /><font id="keywordsTip"></font></span>
 				<span>范围：&nbsp;&nbsp;<input type="text" value="1000"  class="textbox j_blur" id="txtBounds" />米<font id="boundsTip"></font></span>
-				<span><input type="button" id="btnSearch" class="btnSearch" value="搜索" /></span>
+				<span><input type="button" id="btnSearch" class="btnSearch" /></span>
 			</div>
 		</div>
 	</div>
@@ -779,7 +794,7 @@
 	</div>
 	<!-- 退出提示 -->
 	<div id="exitWrapper" class="hide wrapper">
-		<span title="关闭窗口" id="exitClose" class="hide close j_close"></span>
+		<span id="exitClose" class="hide close j_close"></span>
 		<div id="exitMsg"></div>
 		<div class="exitButtons">
 			<input type="button" id="btnSure" value="确定" />
@@ -794,7 +809,7 @@
 	<!--集团资料框-->
 	<div id="corpWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle corpPersonalTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close"></span>
 		</div>
 		<div class="wrapperContent corpContent">
 			<form id="corpForm" >
@@ -840,7 +855,7 @@
 	<!--操作员资料框-->
 	<div id="operatorDataWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle corpPersonalTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close"></span>
 		</div>
 		<div class="wrapperContent operatorDataContent">
 			<form id="operatorForm" >
@@ -884,7 +899,7 @@
 	<!-- 新增终端 -->
 	<div id="cTerminalWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle cTerminalTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close"></span>
 		</div>
 		<div class="wrapperContent cTerminalContent">
 			<form id="cTerminalForm" >
@@ -904,20 +919,20 @@
 					<tr>
 						<td>
 							<label class="cTerminalLabel">车牌号：</label>
-							<input type="text" id="c_cnum" name="c_cnum" class="cTermninalInput text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最大长度为20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+							<input type="text" id="c_cnum" name="c_cnum" class="cTermninalInput text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最多可输入20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
 						</td>
 					</tr>
 					<tr>
 						<td class="corp_radio">
 							<label class="cTerminalLabel">图标：</label>
 							<input type="radio" id="c_icon_type0"  name="c_icon_type" value="0" checked />
-							<label for="c_icon_type0" title="汽车"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
+							<label for="c_icon_type0"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
 							<input type="radio" id="c_icon_type1"  name="c_icon_type" value="1"  />
-							<label for="c_icon_type1" title="摩托车"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
+							<label for="c_icon_type1"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
 							<input type="radio" id="c_icon_type2"  name="c_icon_type" value="2"  />
-							<label for="c_icon_type2" title="人"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
+							<label for="c_icon_type2"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
 							<input type="radio" id="c_icon_type3"  name="c_icon_type" value="3"   />
-							<label for="c_icon_type3" title="其他"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon"  /></label>
+							<label for="c_icon_type3"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon"  /></label>
 						</td>
 					</tr>
 				</table>
@@ -930,7 +945,7 @@
 	<!-- 统计 -->
 	<div id="staticsWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle staticsTitle">
-			<span class="close j_close" title="关闭窗口" who="statics"></span>
+			<span class="close j_close" who="statics"></span>
 		</div>
 		<div class="wrapperContent staticsContent">
 			<table class="staticsCondition">
@@ -940,7 +955,7 @@
 						至 <input type="text" id="staticsEndTime"  class="time" />
 					</td>
 					<td>
-						<span id="statics_searchBtn" class="staticsBtn j_tBtnhover" title="搜索"></span>
+						<span id="statics_searchBtn" class="staticsBtn j_tBtnhover"></span>
 					</td>
 					<td>
 						<a id="statics_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
@@ -969,7 +984,7 @@
 	</div>
 	<div id="createGroupWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle createGroupTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close"></span>
 		</div>
 		<div class="createGroupContent wrapperContent">
 			<table class="createGTable">
@@ -989,9 +1004,9 @@
 		<input type="hidden" id="hidGid" />
 		<input type="hidden" id="hidGName" />
 		<div class="wrapperTitle fileUploadTitle">
-			<span class="close j_close" title="关闭窗口"></span>
+			<span class="close j_close"></span>
 		</div>
-		<iframe scrolling="auto" width=600 height=500 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
+		<iframe scrolling="auto"  width=600 height=500 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
 	</div>
 	<!-- 个人告警查询 -->
 	<div id="eventSearchWrapper" class="wrapper hide">
@@ -1021,7 +1036,7 @@
 							</select>
 						</span>
 					</td>
-					<td><span id="eventSearch_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
+					<td><span id="eventSearch_searchBtn" class="eventBtn j_tBtnhover" ></span></td>
 				</tr>
 			</table>
 			<table class="dataTable eventSearchTable"  cellspacing="0" border="1" borderColor="red" align="center">
@@ -1047,7 +1062,7 @@
 	<div id="singleEventWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle staticsTitle">
 			<span class="singleEventTitle j_singleEventTitle"></span>
-			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
+			<span class="close j_close" who="eventSearch"></span>
 		</div>
 		<div class="wrapperContent singleEventContent j_singleEventContent">
 			<table class="singleEventCondition commonCondition">
@@ -1069,7 +1084,7 @@
 						<a class="j_chart hide chartBtn" href="#">点击查看统计图</a>
 					</td>
 					<td>
-						<span id="singleEvent_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span>
+						<span id="singleEvent_searchBtn" class="eventBtn j_tBtnhover"></span>
 						<a id="singleEvent_uploadBtn" class="donwuploadBtn singleDownloadBtn j_downloadBtnhover"  href="#" >导出数据</a>
 					</td>
 				</tr>
@@ -1133,7 +1148,7 @@
 						</span>
 					</td>
 					<td colspan="3" width="340px">
-						<span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover" title="搜索"></span>
+						<span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover"></span>
 						<a id="mileage_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
 						<a id="mileage_chart" href="#" class="j_chart hide chartBtn">点击查看统计图</a>
 					</td>
@@ -1170,7 +1185,7 @@
 	<div id="singleMileageWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle mileageTitle">
 			<span class="singleMileageTitle j_singleMileageTitle"></span>
-			<span class="close j_close" title="关闭窗口" who="eventSearch"></span>
+			<span class="close j_close" who="eventSearch"></span>
 		</div>
 		<div class="wrapperContent singleMileageContent j_singleMileageContent">
 			<table class="singleMileageCondition commonCondition">
@@ -1193,7 +1208,7 @@
 						<a class="j_chart hide chartBtn" href="#">点击查看统计图</a>
 					</td>
 					<td>
-						<span id="singleMileage_searchBtn" class="eventBtn j_tBtnhover" title="查询"></span>
+						<span id="singleMileage_searchBtn" class="eventBtn j_tBtnhover"></span>
 						
 						<a id="singleMileage_uploadBtn" class="donwuploadBtn singleDownloadBtn j_downloadBtnhover"  href="#" >导出数据</a>
 					</td>
@@ -1222,7 +1237,7 @@
 	<!-- 批量删除数据回显 -->
 	<div class="wrapper hide j_drag" id="batchDeleteWrapper">
 		<div class="wrapperTitle batchDeleteTitle">
-			<span class="close j_close" title="关闭窗口" who="mileage"></span>
+			<span class="close j_close" who="mileage"></span>
 		</div>
 		<div class="wrapperContent batchDeleteContent">
 			<table class="dataTable batchDeleteTable">
@@ -1266,7 +1281,7 @@
 						查询时间：<input type="text" id="onlineStaticsStartTime"  class="time" />
 						至 <input type="text" id="onlineStaticsEndTime"  class="time" />
 					</td>
-					<td width="150px"><span id="onlineStatics_searchBtn" class="eventBtn j_tBtnhover" title="搜索"></span></td>
+					<td width="150px"><span id="onlineStatics_searchBtn" class="eventBtn j_tBtnhover"></span></td>
 					<td>
 						<a id="onlineStatics_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
 					</td>
@@ -1303,7 +1318,7 @@
 	<!-- 批量设防撤防数据回显 -->
 	<div class="wrapper hide j_drag" id="batchDefendWrapper">
 		<div class="wrapperTitle batchDefendTitle">
-			<span class="close j_close" title="关闭窗口" who="mileage"></span>
+			<span class="close j_close" who="mileage"></span>
 		</div>
 		<div class="wrapperContent batchDefendContent">
 			<table class="dataTable batchDefendTable">
@@ -1364,7 +1379,7 @@
 	<!-- 线路与终端绑定 -->
 	<div id="bindLineWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle bindLineTitle">
-			<span class="close j_close" title="关闭窗口" who="bindLine"></span>
+			<span class="close j_close" who="bindLine"></span>
 		</div>
 		<div class="wrapperContent bindLineContent">
 			<ul class="bindLineList">
@@ -1384,7 +1399,7 @@
 	<!-- 线路管理展示页面 -->
 	<div id="routeLineWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle routeLineTitle">
-			<span class="close j_close" title="关闭窗口" who="routeLine"></span>
+			<span class="close j_close" who="routeLine"></span>
 			<span title="收起" class="hideOrShowContent min j_hosBtn" id="routeLine_hos"></span>
 		</div>
 		<div id="routeLineContent" class="wrapperContent routeLineContent">
@@ -1418,12 +1433,12 @@
 			<a id="routeLineCreate_save" href="#" class="routeLineCreate_add">提交线路</a>
 			<a id="routeLineCreate_clickMap" href="#" class="routeLineCreate_clickMap">添加站点</a>
 		</span>
-		<a id="routeLineCreateClose" class="tClose" title="关闭"></a>
+		<a id="routeLineCreateClose" class="tClose"></a>
 	</div>
 	<!-- 围栏管理展示页面 -->
 	<div id="regionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle regionTitle">
-			<span class="close j_close" title="关闭窗口" who="region"></span>
+			<span class="close j_close" who="region"></span>
 			<span title="收起" class="hideOrShowContent min j_hosBtn"></span>
 		</div>
 		<div id="regionContent" class="wrapperContent regionContent">
@@ -1446,7 +1461,7 @@
 	<!-- 集团围栏管理展示页面 -->
 	<div id="corpRegionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle regionTitle">
-			<span class="close j_close" title="关闭窗口" who="corpRegion"></span>
+			<span class="close j_close" who="corpRegion"></span>
 			<span title="收起" class="hideOrShowContent min j_hosBtn"></span>
 		</div>
 		<div id="corpRegionContent" class="wrapperContent corpRegionContent">
@@ -1502,7 +1517,7 @@
 	<!-- 批量围栏与终端绑定 -->
 	<div id="bindBatchRegionWrapper" class="wrapper hide j_drag">
 		<div class="wrapperTitle bindBatchRegionTitle">
-			<span class="close j_close" title="关闭窗口" who="bindBatchRegion"></span>
+			<span class="close j_close" who="bindBatchRegion"></span>
 		</div>
 		<div class="wrapperContent bindBatchRegionContent">
 			<table id="bindBatchRegionTable" class="dataTable bindBatchRegionTable"  cellspacing="0" border="1" borderColor="red" align="center">
@@ -1543,7 +1558,7 @@
 			<div class="alarmDiv">
 				<span class="alarmTitle">
 					<span>告警列表</span>
-					<a class="closeAlarm j_closeAlarm" title="关闭"></a>
+					<a class="closeAlarm j_closeAlarm"></a>
 				</span>
 				<ul class="alarmTable j_alarmTable">
 				</ul>
@@ -1559,7 +1574,7 @@
 			<div class="delayDiv">
 				<span class="alarmTitle">
 					<span>停留点列表</span>
-					<a class="exportDelay j_exportDelay" id="exportDelay" title="导出">导出数据</a>
+					<a class="exportDelay j_exportDelay" id="exportDelay">导出数据</a>
 				</span>
 				<table class="delayTable">
 					<thead>

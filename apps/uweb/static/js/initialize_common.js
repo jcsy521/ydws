@@ -533,6 +533,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 				var obj_cars = data.res,
 					obj_tempData = {},
 					arr_locations = [],
+					arr_mannual_status = [],
 					n_pointNum = 0;
 
 				$('.j_body').data('lastposition_time', data.lastposition_time);	// 存储post返回的上次更新时间  返给后台
@@ -552,7 +553,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 						n_enClat = obj_carInfo.clatitude,
 						n_lon = obj_carInfo.longitude,
 						n_lat = obj_carInfo.latitude,
-						n_clon = n_enClon/NUMLNGLAT,	
+						n_clon = n_enClon/NUMLNGLAT,
 						n_clat = n_enClat/NUMLNGLAT;
 					
 					obj_carInfo.tid = str_tid;
@@ -593,6 +594,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 				if ( str_flag == 'first' && arr_locations.length > 0 ) {
 					dlf.fn_caculateBox(arr_locations);
 				}
+				
 				$('.j_carList').data('carsData', obj_tempData);
 				// 如果无终端或终端都无位置  地图设置为全国地图
 				if ( n_pointNum <= 0 ) {
@@ -1215,6 +1217,7 @@ window.dlf.fn_getCurrentTid = function() {
 
 /**
 * kjj 2013-06-08 create
+* kjj 2013-10-10 used in corpName and groupName
 * 处理alias过长问题
 */
 window.dlf.fn_dealAlias = function (str_tempAlias) { 
@@ -1226,7 +1229,6 @@ window.dlf.fn_dealAlias = function (str_tempAlias) {
 	}
 	return str_newAlias;
 }
-
 /**
 * kjj 2013-06-21 create
 * 判断是否是百度地图
@@ -1773,7 +1775,9 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						$('#spanWelcome').html('欢迎您，'+ str_newName).attr('title', str_linkman);
 					}
 					if ( str_cName ) {
-						$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_cName).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');;
+						var str_tempCName = str_cName.length > 10 ? str_cName.substr(0,10)+ '...' : str_cName;
+						
+						$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempCName).attr('title', str_cName).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');;
 					}
 					//$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_cName).children('ins').css('background', 'url("/static/images/corpImages/corp.png")');;
 					for(var param in obj_data) {	// 修改保存成功的原始值
