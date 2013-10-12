@@ -750,7 +750,7 @@ if __name__ == '__main__':
         year = '2013'
         month = '08'
         day = item 
-        timestamp = int(time.mktime(time.strptime("%s-%s-%s-23-59"%(year,month,day),"%Y-%m-%d-%H-%M")))
+        timestamp = int(time.mktime(time.strptime("%s-%s-%s-23-59-59"%(year,month,day),"%Y-%m-%d-%H-%M-%S")))
         logging.info('[CHECKER] year: %s, month: %s, day: %s, timestamp: %s. ' , year, month, day,timestamp)
         ts = TerminalStatistic()
         #ts.statistic_online_terminal(timestamp) 
