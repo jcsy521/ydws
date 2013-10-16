@@ -332,7 +332,8 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                          umobile="",
                          password="",
                          address="",
-                         email="")
+                         email="",
+                         ecmobile="")
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'')
             #if not check_sql_injection(fields[key]):
@@ -350,17 +351,16 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
 
         try:
             # 1: add user
-            if fields.umobile:
-                user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", fields.umobile)
-                if not user:
-                    self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
-                                    "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
-                                    fields.umobile, '111111',
-                                    fields.uname, fields.umobile,
-                                    fields.address, fields.email)
-                    self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                    "  VALUES(%s)",
-                                    fields.umobile)
+            user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", fields.umobile)
+            if not user:
+                self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
+                                "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
+                                fields.umobile, '111111',
+                                fields.uname, fields.umobile,
+                                fields.address, fields.email)
+                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                "  VALUES(%s)",
+                                fields.umobile)
             
             # 2: add terminal
             corp = self.db.get("SELECT cid FROM T_CORP WHERE id = %s", fields.ecid)
@@ -376,11 +376,15 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
             # record the add action, enterprise
             record_add_action(fields.tmobile, gid, int(time.time()), self.db)
 
+            if not fields.umobile:
+                user_mobile = fields.ecmobile
+            else:
+                user_mobile = fields.umobile
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  begintime, endtime, offline_time, login_permit)"
                             "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                             fields.tmobile, gid,
-                            fields.tmobile, fields.umobile, 
+                            fields.tmobile, user_mobile,
                             fields.begintime, fields.endtime, fields.begintime, 0)
     
             # 3: add car tnum --> cnum

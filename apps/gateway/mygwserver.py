@@ -652,12 +652,32 @@ class MyGWServer(object):
 
                 # record the add action, enterprise or individual
                 record_add_action(t_info['t_msisdn'], group_id, int(time.time()), self.db)
-
+                
+                # check use sence
+                base = [str(x) for x in range(10)] + [ chr(x) for x in range(ord('A'),ord('A')+6)]
+                tid = t_info['dev_id']
+                tid_hex2dec = str(int(tid.upper(), 16))   
+                num = int(tid_hex2dec)
+                mid = []
+                while True:
+                    if num == 0: break
+                    num,rem = divmod(num, 2)
+                    mid.append(base[rem])
+                bin_tid = ''.join([str(x) for x in mid[::-1]])
+                l = 40 - len(bin_tid)
+                s = '0' * l
+                sn= s + bin_tid
+                ttype = sn[15:18]
+                if ttype == "000":
+                    use_sence = 3    #zj100   
+                elif ttype == '001':
+                    use_sence = 1    #zj200
+                  
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, defend_status,"
-                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit, use_sence)"
+                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 t_info['dev_id'], group_id, t_info['dev_type'],
                                 t_info['t_msisdn'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'],
@@ -668,7 +688,7 @@ class MyGWServer(object):
                                 int(time.mktime(begintime.timetuple())),
                                 int(time.mktime(endtime.timetuple())),
                                 int(time.mktime(begintime.timetuple())),
-                                login_permit)
+                                login_permit, use_sence)
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
                                 t_info['dev_id'])

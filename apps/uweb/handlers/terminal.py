@@ -104,9 +104,11 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             if data.get("alert_freq"):
                 alert_freq_key = get_alert_freq_key(tid)
                 if self.redis.exists(alert_freq_key):
+                    logging.info("[UWEB] Termianl %s delete alert freq in redis.", tid)
                     self.redis.delete(alert_freq_key)
             if data.get("vibl"):
                  sessionID_key = get_terminal_sessionID_key(tid)
+                 logging.info("[UWEB] Termianl %s delete session in redis.", tid)
                  self.redis.delete(sessionID_key)
             logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)

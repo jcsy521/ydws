@@ -114,7 +114,8 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                          umobile="",
                          password="",
                          address="",
-                         email="")
+                         email="",
+                         ecmobile="")
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'')
             #if not check_sql_injection(fields[key]):
@@ -147,11 +148,15 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
             record_add_action(fields.tmobile, -1, int(time.time()), self.db)
 
             # 2: add terminal
+            if not fields.umobile:
+                user_mobile = fields.ecmobile
+            else:
+                user_mobile = fields.umobile
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                             "  begintime, endtime, offline_time)"
                             "  VALUES (%s, %s, %s, %s, %s, %s)",
-                            fields.tmobile, 
-                            fields.tmobile, fields.umobile, 
+                            fields.tmobile,
+                            fields.tmobile, user_mobile,
                             fields.begintime, fields.endtime, fields.begintime)
     
             # 3: add car tnum --> cnum
