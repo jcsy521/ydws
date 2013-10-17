@@ -188,7 +188,6 @@ def insert_location(location, db, redis):
 
 def get_terminal_type_by_tid(tid):
     base = [str(x) for x in range(10)] + [ chr(x) for x in range(ord('A'),ord('A')+6)]
-    tid = t_info['dev_id']
     tid_hex2dec = str(int(tid.upper(), 16))
     num = int(tid_hex2dec)
     mid = []
