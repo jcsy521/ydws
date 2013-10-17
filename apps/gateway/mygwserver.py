@@ -29,7 +29,7 @@ from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
      get_resend_key, get_lastinfo_key, get_login_time_key
-from utils.public import insert_location, delete_terminal, record_add_action, get_terminal_type_by_tid\
+from utils.public import insert_location, delete_terminal, record_add_action, get_terminal_type_by_tid,\
      clear_data
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
@@ -387,7 +387,7 @@ class MyGWServer(object):
                 self.handle_old_login(t_info, address, connection, channel)
             # check use sence
             ttype = get_terminal_type_by_tid(t_info['dev_id'])
-            logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id', ttype)
+            logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id'], ttype)
 
         except:
             logging.exception("[GW] Handle login exception.")
@@ -658,7 +658,7 @@ class MyGWServer(object):
                 
                 # check use sence
                 ttype = get_terminal_type_by_tid(t_info['dev_id'])
-                logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id', ttype) 
+                logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id'], ttype) 
                 if ttype == 'zj200':
                     use_sence = 1
                 else:
