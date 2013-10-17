@@ -10,7 +10,7 @@ from helpers.seqgenerator import SeqGenerator
 from helpers.queryhelper import QueryHelper 
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
-from helpers.lbmphelper import handle_location, get_locations_with_clatlon
+from helpers.lbmphelper import handle_location, get_locations_with_clatlon, get_latlon_from_cellid, get_location_name, get_clocation_from_ge
 from utils.misc import get_location_key 
 from utils.public import insert_location
 from constants import UWEB, EVENTER, GATEWAY, SMS
@@ -114,110 +114,45 @@ class RealtimeMixin(BaseMixin):
             ret.location = location
             if callback:
                 callback(ret)
-                #NOTE: after callback(ret), callback must be setted as null, and do not callback again.
-                callback=None
+                return
 
-        if query.locate_flag == UWEB.LOCATE_FLAG.CELLID:
-            loc = self.db.get("SELECT id, cellid, degree, speed"
-                              "  FROM T_LOCATION WHERE tid = %s"
-                              "  AND cellid IS NOT NULL "
-                              "  AND cellid <> '' "
-                              #"  AND clongitude = 0"
-                              #"  AND clatitude = 0"
-                              #"  AND (%s BETWEEN timestamp - %s"
-                              #"              AND timestamp + %s)"
-                              "  ORDER BY timestamp DESC"
-                              "  LIMIT 1",
-                              self.current_user.tid)
-                              #query.timestamp,
-                              #UWEB.LOCATION_VALID_INTERVAL,
-                              #UWEB.LOCATION_VALID_INTERVAL)
-            if loc:
-                location = DotDict(id=loc.id,
-                                   valid=GATEWAY.LOCATION_STATUS.FAILED,
-                                   t=EVENTER.INFO_TYPE.POSITION, 
-                                   dev_id=self.current_user.tid,
-                                   lat=0,
-                                   lon=0,
-                                   cLat=0,
-                                   cLon=0,
-                                   gps_time=int(time.time()),
-                                   type=1,
-                                   speed=float(loc.speed) if loc else 0.0,
-                                   degree=float(loc.degree) if loc else 0.0,
-                                   name='',
-                                   cellid=loc.cellid if loc else None)
+	lat, lon = get_latlon_from_cellid(0,0,0,0, self.current_user.sim)
+	clat, clon = get_clocation_from_ge([lat,],[lon,])
+	clat = int(clat[0]) if len(clat)>0 else 0
+	clon = int(clon[0]) if len(clon)>0 else 0
+	name = get_location_name(clat, clon, self.redis)
+        
+        location = DotDict(category = 1,
+                           dev_id = self.current_user.tid, 
+                           lat = lat, 
+                           lon = lon, 
+                           cLat = clat, 
+                           cLon = clon, 
+                           alt = 0,
+                           gps_time = int(time.time()), 
+                           type = 1, 
+                           speed = 0.0, 
+                           degree = 0.0, 
+                           name = name, 
+                           cellid = None)
+        if clat and clon:
+            ret.location = DotDict()
+            ret.location.latitude = lat
+            ret.location.longitude = lon
+            ret.location.clongitude = clon
+            ret.location.clatitude = clat
+            ret.location.timestamp = int(time.time()) 
+            ret.location.name = name
+            ret.location.speed = 0
+            ret.location.type = 1
+            ret.location.tid = self.current_user.tid
+            ret.location.degree = 0.0 
+            insert_location(location, self.db, self.redis)
+            logging.info("[UWEB] tid %s cellid query success", self.current_user.tid)
+        else:
+            ret.status = ErrorCode.LOCATION_CELLID_FAILED 
+            ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
+            logging.info("[UWEB] do not find any location, and cellid query failed. tid: %s", self.current_user.tid)
 
-                location = handle_location(location, self.redis,
-                                           cellid=True,
-                                           db=self.db)
-
-                if location.get('cLat') and location.get('cLon'):
-                    ret.location = DotDict()
-                    ret.location.latitude = location.lat
-                    ret.location.longitude = location.lon
-                    ret.location.clongitude = location.cLon
-                    ret.location.clatitude = location.cLat
-                    ret.location.timestamp = location.gps_time
-                    ret.location.name = location.name if location.name else ''
-                    ret.location.speed = location.speed
-                    ret.location.type = location.type
-                    ret.location.tid = self.current_user.tid
-                    ret.location.degree = float(location.degree)
-                    self.update_location(location)
-                else:
-                    ret.status = ErrorCode.LOCATION_CELLID_FAILED 
-                    ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
-            else:
-                logging.info("[UWEB] do not find any cellid info from db. tid: %s", self.current_user.tid)
-                ret.status = ErrorCode.LOCATION_CELLID_FAILED 
-                ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
-
-            if callback:
-                callback(ret)
-        else: 
-            def _on_finish(response):
-                ret = DotDict(status=ErrorCode.SUCCESS,
-                              message='',
-                              location=None)
-                response = json_decode(response)
-                if response['success'] == ErrorCode.SUCCESS:
-                    location = DotDict(response['position'])
-
-                    location = handle_location(location, self.redis,
-                                               cellid=False,
-                                               db=self.db)
-
-                    insert_location(location, self.db, self.redis)
-                    if location.get('cLat') and location.get('cLon'):
-                        ret.location = DotDict()
-                        ret.location.latitude = location.lat
-                        ret.location.longitude = location.lon
-                        ret.location.clongitude = location.cLon
-                        ret.location.clatitude = location.cLat
-                        ret.location.timestamp = location.gps_time
-                        ret.location.name = location.name if location.name else ''
-                        ret.location.speed = location.speed
-                        ret.location.type = location.type
-                        ret.location.tid = self.current_user.tid
-                        ret.location.degree = float(location.degree)
-                        self.update_terminal_status(location)
-                    else:
-                        ret.status = ErrorCode.LOCATION_FAILED
-                        ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
-                else:
-                    if response['success'] in (ErrorCode.TERMINAL_OFFLINE, ErrorCode.TERMINAL_TIME_OUT): 
-                        self.send_lq_sms(self.current_user.sim, self.current_user.tid, SMS.LQ.WEB)
-                    ret.status = response['success']
-                    ret.message = response['info']
-                    logging.error("[UWEB] realtime failed. tid: %s, status: %s, message: %s",
-                                  self.current_user.tid, ret.status, ret.message)
-                
-                if callback:
-                    callback(ret)
-
-            seq = str(int(time.time()*1000))[-4:]
-            args = DotDict(seq=seq,
-                           tid=self.current_user.tid)
-            GFSenderHelper.async_forward(GFSenderHelper.URLS.REALTIME, args,
-                                         _on_finish)
+        if callback:
+            callback(ret)

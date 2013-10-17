@@ -29,7 +29,7 @@ from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
      get_resend_key, get_lastinfo_key, get_login_time_key
-from utils.public import insert_location, delete_terminal, record_add_action,\
+from utils.public import insert_location, delete_terminal, record_add_action, get_terminal_type_by_tid\
      clear_data
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
      SLEEP_HEARTBEAT_INTERVAL
@@ -385,6 +385,9 @@ class MyGWServer(object):
                 logging.info("[GW] Old softversion(<2.2.0): %s, go to old login handler...",
                              softversion)
                 self.handle_old_login(t_info, address, connection, channel)
+            # check use sence
+            ttype = get_terminal_type_by_tid(t_info['dev_id'])
+            logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id', ttype)
 
         except:
             logging.exception("[GW] Handle login exception.")
@@ -654,25 +657,12 @@ class MyGWServer(object):
                 record_add_action(t_info['t_msisdn'], group_id, int(time.time()), self.db)
                 
                 # check use sence
-                base = [str(x) for x in range(10)] + [ chr(x) for x in range(ord('A'),ord('A')+6)]
-                tid = t_info['dev_id']
-                tid_hex2dec = str(int(tid.upper(), 16))   
-                num = int(tid_hex2dec)
-                mid = []
-                while True:
-                    if num == 0: break
-                    num,rem = divmod(num, 2)
-                    mid.append(base[rem])
-                bin_tid = ''.join([str(x) for x in mid[::-1]])
-                l = 40 - len(bin_tid)
-                s = '0' * l
-                sn= s + bin_tid
-                ttype = sn[15:18]
-                if ttype == "000":
-                    use_sence = 3    #zj100   
-                elif ttype == '001':
-                    use_sence = 1    #zj200
-                  
+                ttype = get_terminal_type_by_tid(t_info['dev_id'])
+                logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id', ttype) 
+                if ttype == 'zj200':
+                    use_sence = 1
+                else:
+                    use_sence = 3
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, defend_status,"
@@ -1260,14 +1250,15 @@ class MyGWServer(object):
                            static_val="",
                            move_val="",
                            trace_para="",
-                           vibl="")
+                           vibl="",
+                           use_sence="")
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
                 self.update_terminal_status(head.dev_id, address)
                 terminal = self.db.get("SELECT track, freq, trace, static_val,"
-                                       "       move_val, trace_para, vibl, domain"
+                                       "       move_val, trace_para, vibl, domain, use_sence"
                                        "  FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s", head.dev_id)
                 args.domain = terminal.domain
@@ -1275,6 +1266,7 @@ class MyGWServer(object):
                 args.trace = terminal.trace
                 args.static_val = terminal.static_val
                 args.move_val = terminal.move_val
+                args.use_sence = terminal.use_sence
                 if terminal.track == 1: # turn on track
                     args.trace_para = "60:1"
                 else:

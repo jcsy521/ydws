@@ -186,6 +186,12 @@ class PacketTask(object):
     def handle_position_info(self, location):
         location = DotDict(location)
         regions = self.get_regions(location['dev_id'])
+
+        time_different = location['gps_time']-time.time()
+        if int(time_different) > 86400:
+            logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", location)
+            return
+
         if location.Tid == EVENTER.TRIGGERID.CALL:
             location = lbmphelper.handle_location(location, self.redis,
                                                   cellid=True, db=self.db) 
@@ -242,6 +248,10 @@ class PacketTask(object):
         # 1: get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
+        time_different = report['gps_time']-time.time()
+        if int(time_different) > 86400:
+            logging.info("[EVENTER] The report's (gps_time - current_time) is more than 24 hours, so drop it:%s", report)
+            return
 
         #NOTE: if undefend, just save location into db
         if info['rName'] in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:

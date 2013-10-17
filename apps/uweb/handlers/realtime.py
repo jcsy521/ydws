@@ -88,7 +88,6 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             self.finish()
             return
 
-        self.keep_waking(self.current_user.sim, self.current_user.tid)
         current_query.locate_flag = data.locate_flag
         
         def _on_finish(realtime):
@@ -99,3 +98,4 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             
         self.request_realtime(current_query,
                               callback=_on_finish)
+        self.keep_waking(self.current_user.sim, self.current_user.tid)

@@ -428,6 +428,12 @@ class LogoutHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Clear the cookie and return to login.html."""
+        #uid = self.current_user.uid
+        #terminals = self.db.query("SELECT uid, default_status, defend_status FROM T_TERMINAL_INFO WHERE uid=%s", uid)
+        #for terminal in termianls:
+        #    if terminal["default_status"] != termianl["mannual_status"]:
+        #        self.db.update("UPDATE T_TERMINAL_INFO SET mannual_status=%s WHERE tid=%s",terminal["default_status"], terminal["tid"])
+        #        logging.info("[UWEB] terminal %s logout and change mannual status %s, uid is %s", terminal["tid"], terminal["default_status"], uid)
         self.clear_cookie(self.app_name)
         self.redirect(self.get_argument("next", "/"))
 
@@ -463,7 +469,10 @@ class IOSLogoutHandler(BaseHandler):
                     status = ErrorCode.LOGIN_AGAIN
                     logging.error("The terminal with tid: %s does not exist, check it ", tid)
                     continue
-
+                #terminal = self.db.get("SELECT uid, default_status, defend_status FROM T_TERMINAL_INFO WHERE tid=%s", tid)
+                #if terminal["default_status"] != termianl["mannual_status"]:
+                #    self.db.update("UPDATE T_TERMINAL_INFO SET mannual_status=%s WHERE tid=%s",terminal["default_status"], terminal["tid"])
+                #    logging.info("[UWEB] terminal %s logout and change mannual status %s, uid is %s", terminal["tid"], terminal["default_status"], terminal["uid"])
                 #self.keep_waking(self.current_user.sim, self.current_user.tid)
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET mannual_status = %s"
@@ -522,7 +531,10 @@ class AndroidLogoutHandler(BaseHandler):
                     status = ErrorCode.LOGIN_AGAIN
                     logging.error("The terminal with tid: %s does not exist, check it ", tid)
                     continue
-
+               # terminal = self.db.get("SELECT uid, default_status, defend_status FROM T_TERMINAL_INFO WHERE tid=%s", tid)
+               # if terminal["default_status"] != termianl["mannual_status"]:
+               #     self.db.update("UPDATE T_TERMINAL_INFO SET mannual_status=%s WHERE tid=%s",terminal["default_status"], terminal["tid"])
+               #     logging.info("[UWEB] terminal %s logout and change mannual status %s, uid is %s", terminal["tid"], terminal["default_status"], terminal["uid"])
                 #self.keep_waking(self.current_user.sim, self.current_user.tid)
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET mannual_status = %s"

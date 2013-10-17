@@ -185,3 +185,24 @@ def insert_location(location, db, redis):
             redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
     return lid
+
+def get_terminal_type_by_tid(tid):
+    base = [str(x) for x in range(10)] + [ chr(x) for x in range(ord('A'),ord('A')+6)]
+    tid = t_info['dev_id']
+    tid_hex2dec = str(int(tid.upper(), 16))
+    num = int(tid_hex2dec)
+    mid = []
+    while True:
+        if num == 0: break
+        num,rem = divmod(num, 2)
+        mid.append(base[rem])
+    bin_tid = ''.join([str(x) for x in mid[::-1]])
+    l = 40 - len(bin_tid)
+    s = '0' * l
+    sn= s + bin_tid
+    ttype = sn[15:18]
+    if ttype == "000":
+        ttype = 'zj100'   
+    elif ttype == '001':
+        ttype = 'zj200'
+    return ttype

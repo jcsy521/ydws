@@ -308,7 +308,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
     def get(self):
         """Just to create.html.
         """
-        corplist = self.db.query("SELECT id, name FROM T_CORP")
+        corplist = self.db.query("SELECT id, name, mobile as ecmobile FROM T_CORP")
         self.render('ecbusiness/addterminal.html',
                     corplist=corplist,
                     status=ErrorCode.SUCCESS,
