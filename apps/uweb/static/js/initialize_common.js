@@ -569,6 +569,8 @@ window.dlf.fn_getCarData = function(str_flag) {
 							} else {
 								obj_tempData[str_tid] = obj_myCar;
 							}
+						} else {
+							obj_tempData[str_tid] = obj_carInfo;
 						}
 					} else {
 						obj_tempData[str_tid] = obj_carInfo;

@@ -968,6 +968,8 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 									} else {
 										obj_carsData[str_tid] = obj_myCar;
 									}
+								} else {
+									obj_carsData[str_tid] = obj_car;
 								}
 							} else {
 								obj_carsData[str_tid] = obj_car;

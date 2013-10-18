@@ -3174,6 +3174,9 @@ legend {
 	display: block;
 	margin: 10px 0px 0px 40px;
 }
+.bindLineNote {
+	margin-top: 0px;
+}
 .clickWindowPolder {
 	/*margin-right: 5px;*/
 }
@@ -3392,6 +3395,9 @@ legend {
     position: relative;
     top: 20px;
     width: 92px;
+}
+.bindRegionSave {
+	top: 0px;
 }
 /* bind batch regions */
 .bindBatchRegionTitle {

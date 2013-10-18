@@ -551,7 +551,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType) : str_iconUrl,
 				str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
 			
-			str_html += '<li><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'text\': \'Hi，小伙伴们，我使用了 @移动车卫士 你们看到我现在在哪里了吗？这边的朋友你们好！\', \'pic\': \''+ str_shareUrl +'\'}"><span class="bds_more">分享到：</span><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_renren"></a><a class="bds_t163"></a></div></li>';	// 分享代码
+			str_html += '<li><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'text\': \'Hi，小伙伴们，我使用了 @移动车卫士 你们看到我现在在哪里了吗？这边的朋友你们好！\',\'comment\': \'无需安装：追踪器可放置车辆任何位置隐藏（抱枕内，后备箱，座位下，储物盒）。\', \'pic\': \''+ str_shareUrl +'\'}"><span class="bds_more">分享到：</span><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_renren"></a><a class="bds_t163"></a></div></li>';	// 分享代码
 		} else if ( str_iconType == 'alarmInfo' ) {
 			str_html += '<li class="top10">告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
 		}
