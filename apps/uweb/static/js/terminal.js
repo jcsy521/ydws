@@ -13,7 +13,7 @@ window.dlf.fn_initTerminal = function() {
 	dlf.fn_dialogPosition('terminal');  // 显示终端设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_initTerminalWR(); // 初始化加载参数
-	dlf.fn_onInputBlur();	// input的blur事件初始化
+	// dlf.fn_onInputBlur();	// input的blur事件初始化
 		// 标签初始化
 	$('.j_tabs').removeClass('currentTab');
 	$('#rTab').addClass('currentTab');

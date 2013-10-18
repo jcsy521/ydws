@@ -12,7 +12,10 @@ $(function () {
 	
 	// 表单验证, 
 	$('#businessFormID1, #businessFormID2, #businessFormID3, #businessFormID4, #businessFormID').validationEngine();
-	
+	// 集团名称change时 保存集团手机号
+	$('#corps').unbind('change').bind('change', function() {
+		$('#ecmobile').val($('#corps option:selected').attr('ecmobile'));
+	});
 	// 初次加载上页隐藏
 	obj_prevBtn.hide();
 	
@@ -119,14 +122,16 @@ function fn_fillUserData(n_tempNav) {
 			break;
 		case 3:
 			var str_Tmobile = $('#terminalMobile').val(), 
-				str_Umobile = $('#userMobile').val(), 
-				str_stTime = $('#begintime1').val(),
-				str_endTime = $('#endtime1').val();
+				str_Umobile = $('#userMobile').val() || $('#ecmobile').val(), 
+				str_nowTime = new Date(),
+				str_sfm = str_nowTime.getHours() + ':' + str_nowTime.getMinutes() + ':' + str_nowTime.getSeconds(),
+				str_stTime = toTodayDate() + ' ' + str_sfm,
+				str_endTime = fn_getNextYearToday() + ' ' + str_sfm;
 				
 			$('#tmobile').val(str_Tmobile);
 			$('#umobile').val(str_Umobile);
-			$('#tbegintime').val(toEpochDate(str_stTime+' 00:00:00'));
-			$('#tendtime').val(toEpochDate(str_endTime+' 00:00:00'));
+			$('#tbegintime').val(toEpochDate(str_stTime));
+			$('#tendtime').val(toEpochDate(str_endTime));
 			
 			$('#tdTmobile').html(str_Tmobile);
 			$('#tdUmobile').html(str_Umobile);

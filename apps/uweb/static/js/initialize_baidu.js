@@ -14,7 +14,7 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 		var obj_tempMarker = obj_selfmarkers[n_tid],	//obj_currentItem.data('selfmarker'),
 			obj_infoWindow = '',
 			arr_overlays = $('.j_carList .j_terminal');
-			
+
 		if ( obj_tempMarker ) {
 			obj_infoWindow = obj_tempMarker.selfInfoWindow;
 			// mapObj.setCenter(obj_tempMarker.getPosition());
@@ -178,7 +178,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		
 		obj_selfLabel.setContent(str_alias);	// label上的alias值
 		obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
-		obj_selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'))
+		obj_selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		
 		if ( b_isCorpUser ) {
@@ -197,6 +197,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if ( b_isOpen ) {
 			obj_selfMarker.openInfoWindow(obj_selfMarker.selfInfoWindow);
 		}
+		
+		dlf.fn_loadBaiduShare();
 	} else { 
 		/*if ( b_isCorpUser ) {
 			n_carIndex = $('.j_terminal').index(obj_carA);
@@ -349,7 +351,7 @@ window.dlf.fn_updateAlias = function() {
 		str_alias = cnum;
 	} else {
 		str_alias = tmobile;
-	}	
+	}
 	if ( obj_selfMarker ) {	// 修改 marker label 别名
 		var str_tid = $('.j_carList .j_currentCar').eq(0).attr('tid'),
 			str_content = obj_selfMarker.selfInfoWindow.getContent(),

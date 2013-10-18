@@ -110,13 +110,14 @@ function fn_fillUserData(n_tempNav) {
 			break;
 		case 2: 
 			var str_Tmobile = $('#terminalMobile').val(), 
-				str_stTime = $('#begintime1').val(),
-				str_endTime = $('#endtime1').val();
+				str_nowTime = new Date(),
+				str_sfm = str_nowTime.getHours() + ':' + str_nowTime.getMinutes() + ':' + str_nowTime.getSeconds(),
+				str_stTime = toTodayDate() + ' ' + str_sfm,
+				str_endTime = fn_getNextYearToday() + ' ' + str_sfm;
 				
 			$('#tmobile').val(str_Tmobile);
-			$('#tbegintime').val(toEpochDate(str_stTime+' 00:00:00'));
-			$('#tendtime').val(toEpochDate(str_endTime+' 00:00:00'));
-			
+			$('#tbegintime').val(toEpochDate(str_stTime));
+			$('#tendtime').val(toEpochDate(str_endTime));
 			$('#tdTmobile').html(str_Tmobile);
 			$('#tdBeginTime').html(str_stTime);
 			$('#tdEndtime').html(str_endTime);

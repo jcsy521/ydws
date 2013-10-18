@@ -64,9 +64,7 @@ window.dlf.fn_editOperator = function(n_id) {
 				$('#operatorGroups input[groupId='+ str_currentGroupIds +']').attr('checked', true);
 			}
 			
-			// $('#txt_operatorGroup').val(str_currentGroupId); 
-			
-		$('#addOperatorDialog').dialog('open').attr('title', '编辑操作员').dialog('option', 'title', '编辑操作员');
+			$('#addOperatorDialog').dialog('open').dialog('option', 'title', '编辑操作员');
 	}
 }
 

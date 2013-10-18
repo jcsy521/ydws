@@ -1299,10 +1299,12 @@ body {
 .hide, .trackBtn .hide {
 	display: none;
 }
+#bdshare {
+	margin-top: 5px;
+}
 .trackHeader {
 	background: url('/static/images/menuBg.png') repeat-x;
     height: 36px;
-	line-height: 32px;
 	float: left;
 	min-width: 1151px;
 	position: absolute;
@@ -1525,7 +1527,7 @@ body {
 	height: 90px;
 }
 .height135 {
-	height: 135px;
+	height: 160px;
 }
 .height110 {
 	height: 125px;
@@ -1549,7 +1551,7 @@ body {
 	position: absolute;
 	height: 17px;
 	width: 16px;
-	right: 0px;
+	right: 10px;
 	top: 10px;
 }
 .tPlay {
@@ -1873,7 +1875,7 @@ body {
 	margin-left: 8px;
 }
 #markerWindowtitle ul li {
-	height: 17px;
+	height: 16px;
 	list-style: none;
 }
 #markerWindowtitle label {
@@ -2019,6 +2021,12 @@ body {
 /* getpassword end */
 .txtColor {
 	color: red;
+}
+.fileuploadMsg {
+	display: block;
+    font-size: 14px;
+    margin-left: 40px;
+    padding-top: 30px;
 }
 .pwdBackTrPanel {
 	display: block;
@@ -3164,7 +3172,7 @@ legend {
 #regionNote, .bindLineNote {
 	color: red;
 	display: block;
-	margin: 80px 0px 0px 40px;
+	margin: 10px 0px 0px 40px;
 }
 .clickWindowPolder {
 	/*margin-right: 5px;*/

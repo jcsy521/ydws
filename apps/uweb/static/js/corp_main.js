@@ -285,7 +285,7 @@ function customMenu(node) {
 					if ( str_val.length > 20 ) {
 						obj_this.val(str_val.substr(0, 20));
 					}
-				});		
+				});
 				$('.jstree-rename-input').val($(obj).children('a').attr('title'));
 			}
 		},
@@ -1662,12 +1662,12 @@ function fn_renameCorp(cid, str_name, node) {
 	if ( n_length > 0 ) {
 		if ( n_length > 20 ) {
 			$.jstree.rollback(node);
-			dlf.fn_jNotifyMessage('集团名称最大长度是20个汉字或字符！', 'message', false, 3000); // 查询状态不正确,错误提示
+			dlf.fn_jNotifyMessage('集团名称最多可输入20个汉字或字符！', 'message', false, 3000); // 查询状态不正确,错误提示
 			return;
 		}
 		if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_name) ) {
 			$.jstree.rollback(node);
-			dlf.fn_jNotifyMessage('集团名称只能由数字、英文、中文组成！', 'message', false, 3000); // 查询状态不正确,错误提示
+			dlf.fn_jNotifyMessage('集团名称只能由中文、英文、数字组成组成！', 'message', false, 3000); // 查询状态不正确,错误提示
 			return;
 		}
 	} else {

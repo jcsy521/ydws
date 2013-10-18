@@ -6,11 +6,11 @@
 /**
 * 实时定位初始化方法
 */
-window.dlf.fn_currentQuery = function() {
-	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位参数设置
+window.dlf.fn_currentQuery = function(str_flag) {
+	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位参数设置		
 	
 	dlf.fn_dialogPosition('realtime');	// 设置dialog的位置
-	fn_currentRequest(obj_pd);	// 发起定位请求
+	fn_currentRequest(obj_pd, str_flag);	// 发起定位请求
 	$('#currentBtn').unbind('click').click(function() {	// 窗口关闭事件
 		dlf.fn_closeDialog(); 
 		dlf.fn_clearNavStatus('realtime');
@@ -26,7 +26,7 @@ function fn_startCell(n_locateFlag, n_cellstatus) {
 	var obj_msg = $('#currentMsg'),
 		obj_pd = {'locate_flag': CELLID_TYPE },	// 发起基站定位时向后台传送的数据
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
-		str_errorMsg = '信号弱，暂时无法定位，请稍候重试。';	//'无法获取车辆位置，请稍候重试。';
+		str_errorMsg = '定位失败，请尝试将定位器移至室外再次定位。'; //信号弱，暂时无法定位，请稍候重试。
 	
 	if ( n_locateFlag == GPS_TYPE ) {	// 上次请求是否是GPS定位，如果是则发起基站定位请求
 		if ( n_cellstatus == 1 ) {
@@ -60,20 +60,30 @@ function fn_openLastinfo(str_msg) {
 * 此方法：先向后台发送gps定位请求，如果gps定位失败则发起基站定位请求。
 * obj_pd: 向后台发送的定位类型 GPS_TYPE or CELLID_TYPE
 */
-function fn_currentRequest(obj_pd) {
+function fn_currentRequest(obj_pd, str_flag) {
 	var obj_cWrapper = $('#realtimeWrapper'),
 		obj_msg = $('#currentMsg'), 
-		str_errorMsg =  '信号弱，暂时无法定位，请稍候重试。',		//'无法获取车辆位置，请稍候重试。',
+		str_errorMsg =  '定位失败，请尝试将定位器移至室外再次定位。',		// 信号弱，暂时无法定位，请稍候重试。'
 		str_flagVal = obj_pd.locate_flag, 
 		str_carCurrent = $('.currentCar').next().html(), // 当前车辆的别名
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
 		//str_msg = '车辆<b> '+ str_carCurrent +' </b>'
 		str_msg = '车辆定位中，请等待',
 		b_warpperStatus = obj_cWrapper.is(':visible'),
-		str_tid = dlf.fn_getCurrentTid();
+		str_tid = dlf.fn_getCurrentTid(),
+		obj_tempCarsData = $('.j_carList').data('carsData');
 	
+	// 判断carsData中该终端是否有位置	
+	if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
+		var obj_car = obj_tempCarsData[str_tid],
+			n_lon = obj_car.longitude,
+			n_lat = obj_car.latitude;	
+		
+		if ( n_lon == 0 || n_lat == 0 ) {	// 终端无上报位置点
+			str_msg = '努力定位中，请稍后';
+		}
+	}
 	obj_pd.tid = str_tid;
-	
 	if ( b_warpperStatus ) {	// 判断current dialog弹出框是否已经关闭，如果关闭:不进行任何操作
 		/*if ( str_flagVal == CELLID_TYPE) {	// 根据定位类型设置提示信息
 			str_msg += '基站定位进行中...';
@@ -145,7 +155,7 @@ function fn_currentRequest(obj_pd) {
 				} else if ( n_callbackStatus == 301 || n_callbackStatus == 800 || n_callbackStatus == 801 )  {	// 301: gps信号弱 800: 定位器不在线 801: 定位器连接超时 发起基站定位
 					fn_startCell(str_flagVal, n_cellstatus);
 				} else { // 与后台连接失败  重新开启lastinfo
-					fn_openLastinfo(postData.message);
+					fn_openLastinfo(str_errorMsg);	// postData.message
 				}
 			}
 		}, 

@@ -200,7 +200,7 @@ function getFirstDayOfMonth(obj_date) {
 	}
 	return year + '-' + month + '-' + day;
 }
-// get today of  next year 
+// get today of  next year ymd 
 function fn_getNextYearToday() {
 	var myDate = new Date(),
 		year = myDate.getFullYear()+1,
@@ -209,6 +209,20 @@ function fn_getNextYearToday() {
 		temp_day = myDate.getDate(),
 		day = temp_day < 10 ? '0' + temp_day : temp_day;
 	return year+'-'+month+'-'+day;
+}
+// get today of  next year ymdsfm
+function fn_getNextTimeToday() {
+	var myDate = new Date(),
+		year = myDate.getFullYear()+1,
+		temp_month = myDate.getMonth()+1,
+		month = temp_month < 10 ? '0' + temp_month : temp_month,
+		temp_day = myDate.getDate(),
+		day = temp_day < 10 ? '0' + temp_day : temp_day,
+		hour = myDate.getHours(),
+		minute = myDate.getMinutes(),
+		seconds = myDate.getSeconds();
+		
+	return year+'-'+month+'-'+day + ' ' + hour + ':' + minute + ':' + seconds;
 }
 // 获取昨天时间
 function getYesterday() {

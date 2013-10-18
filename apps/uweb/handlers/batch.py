@@ -117,8 +117,10 @@ class BatchImportHandler(BaseHandler):
         except Exception as e:
             logging.exception("[UWEB] cid: %s batch import failed. Exception: %s",
                               self.current_user.cid, e.args)
-            status = ErrorCode.SERVER_BUSY
-            self.write_ret(status)
+            status = ErrorCode.ILLEGAL_FILE
+            self.render("fileUpload.html",
+                        status=status,
+                        message=ErrorCode.ERROR_MESSAGE[status])
 
 
 class BatchDeleteHandler(BaseHandler, BaseMixin):
@@ -204,7 +206,7 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
         except Exception as e:
             logging.exception("[UWEB] cid: %s batch delete failed. Exception: %s",
                               self.current_user.cid, e.args)
-            status = ErrorCode.SERVER_BUSY
+            status = ErrorCode.ILLEGAL_FILE
             self.write_ret(status)
 
 class BatchJHHandler(BaseHandler):

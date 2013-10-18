@@ -38,7 +38,7 @@
 								<select name="corps" id="corps" class="userSelect j_userSelect validate[required]">
 									<option value="">--请选择集团--</option>
 									{% for corp in corplist %}
-											<option value="{{corp.id}}">{{corp.name}}</option>
+											<option value="{{corp.id}}" ecmobile="{{corp.ecmobile}}">{{corp.name}}</option>
 									{% end %}
 								</select>
 							</td>	
@@ -105,20 +105,20 @@
 							<td	class="tLeft">车主手机号：</td>
 							<td class="tdText">
 								<input type="text" id="userMobile" class="validate[custom[mobile]]" maxlength="11" />
-								<span class="redColor">*</span>
+								<!--<span class="redColor">*</span>-->
 							</td>	
 						</tr>
-						<tr>
+						<tr class="hide">
 							<td	class="tLeft">开通日期：</td>
 							<td class="tdText">
-								<input type="text" id="begintime1"  class=""readonly="true" />
+								<input type="text" id="corpBeginTime"  class=""readonly="true" />
 								<span class="redColor">*</span>
 							</td>
 						</tr>
-						<tr>
+						<tr class="hide">
 							<td	class="tLeft">截止日期：</td>
 							<td class="tdText">
-								<input type="text" id="endtime1"  class="" readonly="true" />
+								<input type="text" id="corpEndTime"  class="" readonly="true" />
 								<span class="redColor">*</span>
 							</td>
 						</tr>
@@ -174,6 +174,7 @@
 		</div>
 		<form method="post" id="ecFormID" action="/ecbusiness/addterminal" class="businessFrom">
 			<input type="hidden" id="ecid" name="ecid" value="" />
+			<input type="hidden" id="ecmobile" name="ecmobile" value="" />			
 			<input type="hidden" id="cnum" name="cnum" value="" />
 			<input type="hidden" id="ctype" name="ctype" value="" />
 			<input type="hidden" id="ccolor" name="ccolor" value="" />

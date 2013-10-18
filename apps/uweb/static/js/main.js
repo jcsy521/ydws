@@ -176,9 +176,18 @@ window.dlf.fn_initCorpData = function() {
 	$('#c_name').unbind('blur').bind('blur', function() {
 		var obj_this = $(this),
 			str_old = obj_this.data('c_name'),
-			str_new = obj_this.val();
+			str_new = obj_this.val(),
+			n_nameLength = str_new.length;
 		
-		if ( str_new != '' ) {
+		if ( n_nameLength > 0 ) {
+			if ( n_nameLength > 20 ) {
+				dlf.fn_jNotifyMessage('集团名称最多可输入20个汉字或字符！', 'message', false, 3000); // 查询状态不正确,错误提示
+				return;
+			}
+			if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_new) ) {
+				dlf.fn_jNotifyMessage('集团名称只能由中文、英文、数字组成！', 'message', false, 3000);
+				return;
+			}
 			if ( str_old != str_new ) {
 				dlf.fn_checkCName($(this).val());
 			} else {
@@ -885,9 +894,10 @@ $(function () {
 		onError: function(msg) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
 		}, 
-		onSuccess: function() { 
+		onSuccess: function() {
 			var str_alert_freq = $('#t_alert_freq').val(),				
-				str_mode = $('#alert_freq_mode').val();
+				str_mode = $('#alert_freq_mode').val(),
+				str_val = $('#t_cnum').val();
 			
 			if ( str_mode == '1' ) {
 				if ( str_alert_freq <= 0 ) {
@@ -902,6 +912,11 @@ $(function () {
 						return;
 					}
 				}
+			}
+			
+			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
+				dlf.fn_jNotifyMessage('车牌号不能只输入空格。', 'message', false, 3000);
+				return;
 			}
 			dlf.fn_baseSave();	// put请求
 		}
@@ -979,7 +994,7 @@ $(function () {
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "短信接收号码输入不合法，请重新输入！"});  // 别名;
-	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能是汉字、数字、大写英文组成！'});  // 别名;
+	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'});  // 别名;
 	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最多可输入20个汉字或字符！'});
 	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最多可输入20个汉字或字符！'});
 	

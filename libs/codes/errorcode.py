@@ -20,6 +20,7 @@ class ErrorCode(object):
     ILLEGAL_EXCEL_FILE = 130
     ILLEGAL_MOBILE = 131
     ILLEGAL_LABEL = 132
+    ILLEGAL_FILE = 133
 
     LOGIN_FAILED = 200
     LOGIN_AGAIN = 201
@@ -83,7 +84,7 @@ class ErrorCode(object):
         FAILED:                        u"操作失败。",
         ILLEGAL_DATA_FORMAT:           u"错误的数据格式。",
         ILLEGAL_ALIAS:                 u"定位器别名中含有非法字符，请重新输入。",
-        ILLEGAL_CNUM:                  u"车牌号只能是汉字、数字、大写英文组成。",
+        ILLEGAL_CNUM:                  u"车牌号只能由汉字、数字、大写英文组成。",
         ILLEGAL_WHITELIST:             u"SOS联系人中含有非法字符，请重新输入。",
         ILLEGAL_NAME:                  u"车主姓名只能是由数字、英文、中文组成.",
         ILLEGAL_ADDRESS:               u"地址中含有非法字符，请重新输入。",
@@ -93,7 +94,8 @@ class ErrorCode(object):
         ILLEGAL_CONTENT:               u"反馈内容中含有非法字符，请重新输入。",
         ILLEGAL_EXCEL_FILE:            u"非法的文件，请选择excel表。",
         ILLEGAL_MOBILE:                u"非法的手机号。",
-        ILLEGAL_LABEL:                 u"对不起，只允许输入数字和字母",
+        ILLEGAL_LABEL:                 u"对不起，只允许输入数字和字母。",
+        ILLEGAL_FILE:                  u"文件导入失败，请检查导入文件。",
         WRONG_CAPTCHA:                 u"验证码输入错误。",
         WRONG_PASSWORD:                u"密码错误，请重新输入。",
         WRONG_OLD_PASSWORD:            u"原始密码错误，请重新输入。",

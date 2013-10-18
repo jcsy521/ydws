@@ -659,7 +659,6 @@ $.formValidator =
 			        return false;
 			    }
 			    isValid = (new RegExp(r, setting.param)).test($(elem).val());
-			    
 			    if(setting.compareType=="||" && isValid)
 			    {
 			        setting.isValid = true;
@@ -1411,7 +1410,7 @@ var regexValidator_setting =
 {
 	isValid : false,
 	regExp : "",
-	param : "i",
+	param : "",	// kjj update in 2013-10-12 old  value is 'i'：对大小写不敏感
 	dataType : "string",
 	compareType : "||",
 	onError:"输入的格式不正确",

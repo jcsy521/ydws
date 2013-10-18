@@ -279,6 +279,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 		marker.openInfoWindow(infoWindow);
 	}
 	infoWindow.addEventListener('open', function() {	// 吹出框打开时判断是否开启追踪 然后改变对应的文字颜色
+		dlf.fn_loadBaiduShare();
 		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	});
 	/**
@@ -330,8 +331,24 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 		}
 	});
 	
-	
+	dlf.fn_loadBaiduShare();
 	return marker;
+}
+
+// 百度分享js引用
+window.dlf.fn_loadBaiduShare = function() {
+	var obj_script = document.createElement('script'),
+		obj_share = $('#bdshare_s');
+	
+	if ( obj_share ) {
+		obj_share.remove();
+	}
+	obj_script.setAttribute('type', 'text/javascript');
+	obj_script.setAttribute('id', 'bdshell_js');
+	document.getElementsByTagName('head')[0].appendChild(obj_script);
+	setTimeout(function() {
+		document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000);
+	}, 1000);
 }
 
 /**
@@ -403,6 +420,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		speed = obj_location.speed,
 		date = dlf.fn_changeNumToDateString(obj_location.timestamp),
 		n_degree = obj_location.degree, 
+		str_imgUrl = dlf.fn_processDegree(n_degree),  // 车辆方向角
+		n_iconType = obj_location.icon_type,
 		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_tid = obj_location.tid,
@@ -525,6 +544,14 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
 			}
 			str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+			
+			var str_fileUrl = location.href,
+				str_fileUrl = str_fileUrl.substr(0, str_fileUrl.length-1),
+				str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
+				str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType) : str_iconUrl,
+				str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
+			
+			str_html += '<li><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'text\': \'Hi，小伙伴们，我使用了 @移动车卫士 你们看到我现在在哪里了吗？这边的朋友你们好！\', \'pic\': \''+ str_shareUrl +'\'}"><span class="bds_more">分享到：</span><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_renren"></a><a class="bds_t163"></a></div></li>';	// 分享代码
 		} else if ( str_iconType == 'alarmInfo' ) {
 			str_html += '<li class="top10">告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
 		}
@@ -711,7 +738,7 @@ window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInf
 	});
 }
 
-/*
+/**
 * 点击地图添加标记
 */
 window.dlf.fn_clickMapToAddMarker = function() {
@@ -723,7 +750,7 @@ window.dlf.fn_clickMapToAddMarker = function() {
 	obj_drawingManager.setDrawingMode(BMAP_DRAWING_MARKER);
 }
 
-/*
+/**
 * 添加线路的标记
 */
 window.dlf.fn_addRouteLineMarker = function(obj_stations){ 
@@ -745,7 +772,7 @@ window.dlf.fn_addRouteLineMarker = function(obj_stations){
 	});
 }
 
-/*
+/**
 * 初始化画圆及事件绑定
 */
 window.dlf.fn_initCreateCircle = function() {
@@ -777,7 +804,7 @@ window.dlf.fn_initCreateCircle = function() {
 	mapObj.addEventListener('rightclick', dlf.fn_mapRightClickFun);
 }
 
-/*
+/**
 * 地图的右击事件
 */
 window.dlf.fn_mapRightClickFun = function() { 
@@ -790,21 +817,21 @@ window.dlf.fn_mapRightClickFun = function() {
 	obj_circle = null;
 }
 
-/*
+/**
 * 地图的右击事件移除
 */
 window.dlf.fn_mapRightClickRemoveFun = function() { 
 	mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
 }
 
-/*
+/**
 * 地图开始画圆或者加点
 */
 window.dlf.fn_mapStartDraw = function() { 
 	obj_drawingManager.open();
 }
 
-/*
+/**
 * 地图停止画图或者加点
 */
 window.dlf.fn_mapStopDraw = function() {
@@ -815,7 +842,7 @@ window.dlf.fn_mapStopDraw = function() {
 	}
 }
 
-/*
+/**
 * 获取圆数据
 */
 window.dlf.fn_getCirlceData = function() {
@@ -826,7 +853,7 @@ window.dlf.fn_getCirlceData = function() {
 	}
 }
 
-/*
+/**
 * 显示圆
 */
 window.dlf.fn_displayCircle = function(obj_circleData) { 
