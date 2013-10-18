@@ -105,7 +105,15 @@ class GWPacketHandler(BaseHandler):
                                          'packet':packet}
                                     lst.append(p)
                                     if is_report == 1:
-                                        ip = lines[num].split('\'')[1]
+                                        #ip = lines[num].split('\'')[1]
+                   
+                                        #ip_index = lines[num].find('from')+4
+                                        #ip = lines[num][ip_index:][1:-1]
+                                        #ip = lines[num].split('\'')[1]
+
+                                        p_ip = re.compile(r"from \('.*?', .*?\)")
+                                        ip = p_ip.findall(lines[num])[0][6:-1]
+
                                         match_type = 'S' + ldata[5][1:3]+','
                                         next_num = num + 1
                                         p6 = re.compile("I ", re.I)
