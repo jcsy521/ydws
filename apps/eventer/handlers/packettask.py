@@ -187,7 +187,7 @@ class PacketTask(object):
         location = DotDict(location)
         regions = self.get_regions(location['dev_id'])
 
-        time_different = location['gps_time']-time.time()
+        time_different = location.get('gps_time', 0)-time.time()
         if int(time_different) > 86400:
             logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", location)
             return
