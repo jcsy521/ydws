@@ -187,8 +187,13 @@ def insert_location(location, db, redis):
     return lid
 
 def get_terminal_type_by_tid(tid):
+    ttype = 'unknown'
     base = [str(x) for x in range(10)] + [ chr(x) for x in range(ord('A'),ord('A')+6)]
-    tid_hex2dec = str(int(tid.upper(), 16))
+    try:
+        tid_hex2dec = str(int(tid.upper(), 16))
+    except:
+        logging.info("[GW] Terminal %s is illegale, can not transfer into 10 hexadecimal. It's type is unknown", tid)
+        return ttype
     num = int(tid_hex2dec)
     mid = []
     while True:

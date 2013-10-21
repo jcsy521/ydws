@@ -47,8 +47,12 @@ class PacketTask(object):
 
     def run_report(self):
         """Process the current report packet."""
-
         info = self.packet
+        current_time = int(time.time())
+        if info['gps_time'] > (current_time + 24*60*60):
+            logging.info("[EVENTER] The info's (gps_time - current_time) is more than 24 hours, so drop it:%s", info)
+            return
+
         self.handle_report_info(info) # reportinfo
         
     def get_regions(self, tid): 
@@ -186,13 +190,11 @@ class PacketTask(object):
     def handle_position_info(self, location):
         location = DotDict(location)
         regions = self.get_regions(location['dev_id'])
-
-        time_different = location.get('gps_time', 0)-time.time()
-        if int(time_different) > 86400:
-            logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", location)
-            return
-
+        current_time = int(time.time())
         if location.Tid == EVENTER.TRIGGERID.CALL:
+            if location['gps_time'] > (current_time + 24*60*60):
+                logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", location)
+                return
             location = lbmphelper.handle_location(location, self.redis,
                                                   cellid=True, db=self.db) 
             ## check regions
@@ -208,6 +210,9 @@ class PacketTask(object):
 
         elif location.Tid == EVENTER.TRIGGERID.PVT:
             for pvt in location['pvts']:
+                if pvt['gps_time'] > (current_time + 24*60*60):
+                    logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", pvt)
+                    continue
                 # get available location from lbmphelper
                 pvt['dev_id'] = location['dev_id']
                 pvt['Tid'] = location['Tid']
@@ -248,8 +253,8 @@ class PacketTask(object):
         # 1: get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
-        time_different = report['gps_time']-time.time()
-        if int(time_different) > 86400:
+        current_time = int(time.time())
+        if report['gps_time'] > (current_time + 24*60*60):
             logging.info("[EVENTER] The report's (gps_time - current_time) is more than 24 hours, so drop it:%s", report)
             return
 
