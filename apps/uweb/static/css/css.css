@@ -3495,3 +3495,8 @@ legend {
 	top: -8px;
 }
 /*web css end*/
+.share{
+    display:block;
+    line-height:38px;
+    float:left;
+}
