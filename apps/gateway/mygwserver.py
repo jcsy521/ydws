@@ -503,7 +503,7 @@ class MyGWServer(object):
                                      t_info['dev_id'], terminal['imsi'], t_info['imsi'])
                     elif terminal['owner_mobile'] != t_info['u_msisdn']:
                         args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                        sms = SMSCode.SMS_TERMINAL_HK % alias 
+                        sms = SMSCode.SMS_TERMINAL_REGISTER % alias 
                         logging.warn("[GW] Terminal %s owner_mobile is wrong, old: %s, new: %s",
                                      t_info['dev_id'], terminal['owner_mobile'], t_info['u_msisdn'])
                     elif terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
@@ -718,6 +718,8 @@ class MyGWServer(object):
         self.append_gw_request(request, connection, channel)
 
         if sms and t_info['u_msisdn']:
+            logging.info("[GW] mobile: %s, content: %s",
+                        t_info['u_msisdn'], sms)
             SMSHelper.send(t_info['u_msisdn'], sms)
 
         if t_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:

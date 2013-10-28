@@ -11,12 +11,12 @@ class ConfigRespComposer(BaseComposer):
 
     def compose(self, args):
         """
-        eg: [1343278800,S17,0,DOMAIN=www.pinganbb.info:8002,AGPS_SERVER=www.pinganbb.info:9002]
+        eg: [1343278800,1q2w3e45,S17,0,1q2w3e45,DOMAIN=www.pinganbb.info:8002,FREQ=0,TRACE=1,STATIC_VAL=3,MOVE_VAL=3,TRACE_PARA=5:10,VIBL=1,USE_SCENE=3]
         """
         packet = "%s,%s,%s" % (self.time, S_MESSAGE_TYPE.CONFIG,
                                args['success']) 
         for key in ['domain', 'freq', 'trace', 'static_val', 'move_val',
-                    'trace_para', 'vibl']:
+                    'trace_para', 'vibl','use_scene']:
             packet += ",%s=%s" % (key.upper(), args[key])
         request = self.format_packet(packet)
         
