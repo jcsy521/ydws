@@ -279,9 +279,9 @@ window.dlf.fn_changeTimestampToString = function(n_timestamp) {
 			
 			str_time += n_day + '天 ';	
 		}
-		str_time += n_hour + '时';	
+		str_time += n_hour + '时 ';	
 	}
-	str_time += n_minute + '分 ';
+	str_time += n_minute + '分';
 	return str_time;
 }
 
@@ -654,7 +654,6 @@ window.dlf.fn_caculateBox = function (arr_locations) {
 		if ( n_tempClat < n_minLat ) {
 			n_minLat = n_tempClat;
 		}
-		
 		arr_trackPoints.push(obj_tempPoint);
 	}
 	$('#trackHeader').data('points', arr_trackPoints);// 此数据点给轨迹查询显示使用

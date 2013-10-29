@@ -274,6 +274,39 @@ body {
     z-index: 100;
 }
 
-/*browser download start*/
-
-/*browser download end*/
+/*instructions start*/
+.downloadTip {
+	text-align: left;
+	width: 850px;
+	display: inline-block;
+}
+.fontRed {
+	color: red;
+}
+.downloadTable {
+	border: 0 none;
+    border-collapse: collapse;
+    margin-top: 15px;
+    width: 850px;
+}
+.mt100 {
+	margin-top: 100px;
+}
+.downloadTable th {
+	height: 80px;
+	font-size: 16px;
+}
+.downloadTable tr {
+    border: 1px solid #C1D2E5;
+}
+.downloadTable td {
+    border: 1px solid #C1D2E5;
+    height: 30px;
+    line-height: 20px;
+    text-align: center;
+}
+.downloadTable a, .downloadTable a:link {
+	color: #4876FF;
+    text-decoration: none;
+}
+/*instructions end*/

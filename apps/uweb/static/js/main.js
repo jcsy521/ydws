@@ -837,18 +837,18 @@ $(function () {
 			var str_name = $('#name').val(); //str_val = $('#cnum').val(),
 			
 			if ( str_name.length > 0 && $.trim(str_name).length == 0 ) {
-				dlf.fn_jNotifyMessage('车主姓名不能只输入空格。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('用户姓名不能只输入空格。', 'message', false, 3000);
 				return;
 			}
 			/*if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
-				dlf.fn_jNotifyMessage('车牌号不能只输入空格。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('定位器名称不能只输入空格。', 'message', false, 3000);
 				return;
 			}*/
 			dlf.fn_personalSave();
 		}
 	});
 	
-	$('#name').formValidator({empty:true}).inputValidator({max: 20, onError: '车主姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "车主姓名只能由数字、英文、中文、空格组成！"});  // 别名;
+	$('#name').formValidator({empty:true}).inputValidator({max: 20, onError: '用户姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"});  // 别名;
 	
 
 	/**
@@ -915,13 +915,13 @@ $(function () {
 			}
 			
 			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
-				dlf.fn_jNotifyMessage('车牌号不能只输入空格。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('定位器名称不能只输入空格。', 'message', false, 3000);
 				return;
 			}
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '车牌号最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
+	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '定位器名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
 	
 	/**
 	* 集团信息的验证
@@ -984,17 +984,22 @@ $(function () {
 			return;
 		}, 
 		onSuccess: function() {
+			var str_val = $('#c_cnum').val();
+			
 			if ( $('#hidTMobile').val()!= '' ) {
 				dlf.fn_jNotifyMessage('定位器手机号已存在。', 'message', false, 5000);
 				return;
-			} else {
-				dlf.fn_cTerminalSave();
+			}			
+			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
+				dlf.fn_jNotifyMessage('定位器名称不能只输入空格。', 'message', false, 3000);
+				return;
 			}
+			dlf.fn_cTerminalSave();
 		}
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "短信接收号码输入不合法，请重新输入！"});  // 别名;
-	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写字母、空格组成！'});  // 别名;
+	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '定位器名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'});  // 别名;
 	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最多可输入20个汉字或字符！'});
 	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最多可输入20个汉字或字符！'});
 	
@@ -1015,7 +1020,7 @@ $(function () {
 			dlf.fn_cEditTerminalSave();
 		}
 	});
-	$('#c_editcnum').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'});  // 别名;
+	$('#c_editcnum').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '定位器名称最大长度为20个汉字或字符！'});  // 别名;
 	$('#c_editccolor').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最大长度为20个汉字或字符！'});
 	$('#c_editcbrand').formValidator({empty:true,validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最大长度是20个汉字或字符！'});
 	
@@ -1118,13 +1123,13 @@ $(function () {
 				str_val = obj_this.val();
 				
 			if ( str_val == '' ) {
-				obj_this.val('请输入车牌号或定位器号码').addClass('gray');
+				obj_this.val('请输入定位器名称或号码').addClass('gray');
 			}
 		}).unbind('focus').bind('focus', function() {	// 获得焦点 隐藏tip
 			var obj_this = $('#txtautoComplete'),
 				str_val = obj_this.val();
 				
-			if ( str_val == '请输入车牌号或定位器号码' ) {
+			if ( str_val == '请输入定位器名称或号码' ) {
 				obj_this.val('').removeClass('gray');
 			}
 		});

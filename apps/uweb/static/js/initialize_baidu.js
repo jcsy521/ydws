@@ -184,7 +184,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if ( b_isCorpUser ) {
 			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType);
 		} else {
-			str_iconUrl = BASEIMGURL + n_imgDegree + '.png';
+			str_iconUrl = BASEIMGURL + 'default.png';
 		}
 		obj_selfMarker.setIcon(new BMap.Icon(str_iconUrl, new BMap.Size(34, 34)));	// 设置方向角图片
 		//obj_carA.data('selfmarker', obj_selfMarker);
@@ -355,11 +355,11 @@ window.dlf.fn_updateAlias = function() {
 	if ( obj_selfMarker ) {	// 修改 marker label 别名
 		var str_tid = $('.j_carList .j_currentCar').eq(0).attr('tid'),
 			str_content = obj_selfMarker.selfInfoWindow.getContent(),
-			n_beginNum = str_content.indexOf('车辆：')+3,
+			n_beginNum = str_content.indexOf('定位器：')+4,
 			n_endNum = str_content.indexOf('</h4>'),
 			str_oldname = str_content.substring(n_beginNum, n_endNum),
 			str_content = str_content.replace(str_oldname, str_alias);
-					
+		
 		obj_selfMarker.getLabel().setContent(str_alias);	// todo
 		//$('.cMsgWindow h4[tid='+str_tid+']').html('车辆：' + str_alias);
 		obj_selfMarker.selfInfoWindow.setContent(str_content);	// todo

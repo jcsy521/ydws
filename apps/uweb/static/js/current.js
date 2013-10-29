@@ -68,7 +68,7 @@ function fn_currentRequest(obj_pd, str_flag) {
 		str_carCurrent = $('.currentCar').next().html(), // 当前车辆的别名
 		str_img = '<img src="/static/images/blue-wait.gif" class="waitingImg" />',
 		//str_msg = '车辆<b> '+ str_carCurrent +' </b>'
-		str_msg = '车辆定位中，请等待',
+		str_msg = '定位器定位中，请等待',
 		b_warpperStatus = obj_cWrapper.is(':visible'),
 		str_tid = dlf.fn_getCurrentTid(),
 		obj_tempCarsData = $('.j_carList').data('carsData');

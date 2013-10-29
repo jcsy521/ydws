@@ -529,9 +529,7 @@ body {
 	height: 291px;
 }
 #corpTerminalWrapper {
-	/*height: 509px;
-	width: 487px;*/
-	height: 474px;
+	height: 424px;
 	width: 487px;
 }
 #corpSMSOptionWrapper {
@@ -3496,7 +3494,7 @@ legend {
 }
 /*web css end*/
 .share{
-    display:block;
-    line-height:38px;
-    float:left;
+    display: block;
+    line-height: 38px;
+    float: left;
 }

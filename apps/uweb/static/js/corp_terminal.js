@@ -11,8 +11,8 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
-		n_height = 440,
-		n_btnTop = 410;
+		n_height = 390,
+		n_btnTop = 360;
 
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
@@ -21,8 +21,8 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	if ( str_bizType == 'znbc' ) {
 		dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
-		n_height = 512;
-		n_btnTop = 517;
+		n_height = 462;
+		n_btnTop = 467;
 	}
 	$('.corpTerminalContent').css('height', n_height);
 	$('#corp_terminalSave').css('top', n_btnTop);
@@ -141,13 +141,13 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 							obj_param.val(str_val);
 						} else if ( param == 'white_pop' ) {	// 白名单弹出框
 							n_whitelistTip = str_val;
-						} else if ( param == 'corp_cnum' && dlf.fn_userType() ) {	// 车牌号
+						} else if ( param == 'corp_cnum' && dlf.fn_userType() ) {	// 定位器名称
 							obj_param.val(str_val);
 							$('#corp_' + param ).attr('t_val', str_val);	// 将每个定位器参数对应值保存在t_val中
 							if ( str_val == '' ) {
 								str_val = obj_data['mobile'];
 							}
-							dlf.fn_updateCorpCnum(str_val);	// 更新最新的车牌号
+							dlf.fn_updateCorpCnum(str_val);	// 更新最新的定位器名称
 						} else {
 							obj_param.html(str_val);
 						}
@@ -383,7 +383,7 @@ $(function() {
 				str_mode = $('#corp_alert_freq_mode').val();
 			
 			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
-				dlf.fn_jNotifyMessage('车牌号不能只输入空格。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('定位器名称不能只输入空格。', 'message', false, 3000);
 				return;
 			}
 			if ( str_mode == '1' ) {
@@ -404,7 +404,7 @@ $(function() {
 		}
 	});
 	$('#t_corp_owner_mobile').formValidator({validatorGroup: '7'}).inputValidator({max: 11, onError: '短信接收号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '短信接收号码不合法，请重新输入！'});
-	$('#t_corp_corp_cnum').formValidator({empty:true, validatorGroup: '7'}).inputValidator({max: 20, onError: '车牌号最大长度为20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '车牌号只能由汉字、数字、大写英文、空格组成！'});   // 别名;
+	$('#t_corp_corp_cnum').formValidator({empty:true, validatorGroup: '7'}).inputValidator({max: 20, onError: '定位器名称最大长度为20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写英文、空格组成！'});   // 别名;
 	
 	/** 
 	* 短息设置的验证

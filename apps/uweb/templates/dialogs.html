@@ -41,23 +41,23 @@
 				<table class="personalList">
 					<tr>
 						<td>
-							<label>车主电话：</label><font  id="phone"></font>
+							<label>用户电话：</label><font  id="phone"></font>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<label>车主姓名：</label>
-							<input type="text" name="name" id="name"  class="text_mouseOut j_personal j_onInputBlur" max="20" who="name" msg="车主姓名只能是由数字、英文、中文组成！"  parent="personalWrapper" />
+							<label>用户姓名：</label>
+							<input type="text" name="name" id="name"  class="text_mouseOut j_personal j_onInputBlur" max="20" who="name" msg="用户姓名只能是由数字、英文、中文组成！"  parent="personalWrapper" />
 						</td>
 					</tr>
 					<!--2013.09.22 move it to settings <tr>
 						<td>
-							<label>车牌号：</label>
-							<input type="text" id="cnum" class="text_mouseOut j_personal j_onInputBlur"  msg="车牌号只能由汉字、数字、大写字母、空格组成！" max="20"  who="validateLength" parent="personalWrapper"   />
+							<label>定位器名称：</label>
+							<input type="text" id="cnum" class="text_mouseOut j_personal j_onInputBlur"  msg="定位器名称只能由汉字、数字、大写字母、空格组成！" max="20"  who="validateLength" parent="personalWrapper"   />
 						</td>
 					</tr>-->
 					
-					<!-- 2012-10-23 18:14 暂时隐藏个人资料的地址、email、备注信息 并添加车牌号
+					<!-- 2012-10-23 18:14 暂时隐藏个人资料的地址、email、备注信息 并添加定位器名称
 					<tr><td><label>地址：</label><input type="text" name="txtAddress" id="txtAddress"  class="text_mouseOut j_personal j_onInputBlur"  parent="personalWrapper" max="100" who="validateLength" msg="地址最大长度是100个汉字或字符！"   /></td></tr>
 					<tr><td><label>E-MAIL：</label><input type="text" name="email" id="email" class="text_mouseOut j_personal j_onInputBlur"  parent="personalWrapper" msg="您输入的邮箱格式不正确！" max = "100"  who="email"  /></td></tr>
 					<tr><td><label>备注：</label><textarea name="remark" id="remark" class="remark j_personal j_onInputBlur" max="100"  parent="personalWrapper" who="validateLength" msg="备注最大长度是100个汉字或字符！"  ></textarea></td></tr>
@@ -110,9 +110,9 @@
 									</td>
 								</tr>
 								<tr>
-									<td class="terminalTdL" >车牌号:</td>
+									<td class="terminalTdL" >定位器名称:</td>
 									<td id="corp_cnum"  class="j_ListVal j_input"  t_val="">
-										<input type="text" id="t_cnum" class="text_mouseOut j_onInputBlur"  msg="车牌号只能由汉字、数字、大写字母、空格组成！" max="20"  who="validateLength"  />
+										<input type="text" id="t_cnum" class="text_mouseOut j_onInputBlur"  msg="定位器名称只能由汉字、数字、大写字母、空格组成！" max="20"  who="validateLength"  />
 									</td>
 								</tr>
 								<!--<tr>
@@ -178,7 +178,7 @@
 							<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">电量告警</label> 
 						</li>
 						<li>
-							<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">平台登录提醒</label> 
+							<input type="checkbox" id="login" class="j_checkbox" title="用户登录" /><label for="login">平台登录提醒</label> 
 						</li>
 						<li>
 							<input type="checkbox" id="illegalmove" class="j_checkbox" title="移动" /><label for="illegalmove">移动告警</label> 
@@ -291,7 +291,7 @@
 					<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">电量告警</label> 
 				</li>
 				<li>
-					<input type="checkbox" id="login" class="j_checkbox" title="车主登录" /><label for="login">平台登录提醒</label> 
+					<input type="checkbox" id="login" class="j_checkbox" title="用户登录" /><label for="login">平台登录提醒</label> 
 				</li>
 				<li>
 					<input type="checkbox" id="illegalmove" class="j_checkbox" title="移动" /><label for="illegalmove">移动告警</label> 
@@ -371,7 +371,7 @@
 										<input id="default_status0" type="radio" value="0" name="tmStatus" />
 										<label for="default_status0">撤防</label>
 									</td>
-								</tr>-->
+								</tr>
 								<tr class="j_corp_terminal">
 									<td class="corp_terminalTdL" >上报频率:</td>
 									<td id="corp_freq"  class="j_corp_ListVal"  t_val="">
@@ -383,7 +383,7 @@
 											<option value="1800">30分钟</option>
 										</select>
 									</td>
-								</tr>
+								</tr>-->
 								<tr class="j_corp_terminal">
 									<td class="corp_terminalTdL" >震动灵敏度:</td>
 									<td id="corp_vibl"  class="j_corp_ListVal"  t_val="">
@@ -412,9 +412,9 @@
 									</td>
 								</tr>-->
 								<tr class="j_corp_terminal">
-									<td class="corp_terminalTdL" >车牌号:</td>
+									<td class="corp_terminalTdL" >定位器名称:</td>
 									<td id="corp_corp_cnum"  class="j_corp_ListVal j_input"  t_val="">
-										<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="车牌号只能由汉字、数字、大写英文组成！" max = "20"  who="validateLength" parent="terminalWrapper"   />
+										<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur"  msg="定位器名称只能由汉字、数字、大写英文组成！" max = "20"  who="validateLength" parent="terminalWrapper"   />
 									</td>
 								</tr>
 								<tr class="j_corp_terminal">
@@ -484,7 +484,7 @@
 							<input type="checkbox" id="corp_powerdown" class="j_corp_checkbox" title="剩余流量" /><label for="corp_powerdown">断电告警</label> 
 						</li>
 						<li>
-							<input type="checkbox" id="corp_login" class="j_corp_checkbox" title="车主登录" /><label for="corp_login">平台登录提醒</label> 
+							<input type="checkbox" id="corp_login" class="j_corp_checkbox" title="用户登录" /><label for="corp_login">平台登录提醒</label> 
 						</li>
 						<li>
 							<input type="checkbox" id="corp_heartbeat_lost" class="j_corp_checkbox" title="通讯异常" /><label for="corp_heartbeat_lost">通讯异常提醒</label>
@@ -918,8 +918,8 @@
 					</tr>
 					<tr>
 						<td>
-							<label class="cTerminalLabel">车牌号：</label>
-							<input type="text" id="c_cnum" name="c_cnum" class="cTermninalInput text_mouseOut j_corpData j_onInputBlur"  msg="车牌号最多可输入20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
+							<label class="cTerminalLabel">定位器名称：</label>
+							<input type="text" id="c_cnum" name="c_cnum" class="cTermninalInput text_mouseOut j_corpData j_onInputBlur"  msg="定位器名称最多可输入20个汉字或字符！" max="20"  who="validateLength" parent="cTerminalWrapper"   />
 						</td>
 					</tr>
 					<tr>
@@ -1246,7 +1246,7 @@
 						<th colspan="3" class="j_batchDeleteHead"></th>
 					</tr>
 					<tr class="theadTitle">
-						<td>车牌号</td>
+						<td>定位器名称</td>
 						<td>定位器号码</td>
 						<td>状态</td>
 					</tr>
@@ -1327,7 +1327,7 @@
 						<th colspan="4"></th>
 					</tr>
 					<tr class="theadTitle">
-						<td>车牌号</td>
+						<td>定位器名称</td>
 						<td>定位器号码</td>
 						<td>设防状态</td>
 						<td>操作</td>
@@ -1358,7 +1358,7 @@
 						<th colspan="4"></th>
 					</tr>
 					<tr class="theadTitle">
-						<td>车牌号</td>
+						<td>定位器名称</td>
 						<td>定位器号码</td>
 						<td>追踪状态</td>
 					</tr>
@@ -1476,7 +1476,7 @@
 					</tr>
 				</tbody>
 			</table>
-			<span id="regionNote">注意：新建的围栏，需要选择终端，并在右键菜单中点击“绑定围栏”才能生效</span>
+			<span id="regionNote">注意：新建的围栏，需要选择定位器，并在右键菜单中点击“绑定围栏”才能生效</span>
 		</div>
 	</div>
 	

@@ -157,15 +157,21 @@ class DownloadSmsHandler(BaseHandler):
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
-class DownloadInstructionsHandler(BaseHandler):
-    """download PPT instructions"""
+class DownloadManualHandler(BaseHandler):
+    """Download different file throught param."""
 
     @tornado.web.removeslash
     def get(self):
-        filename = '移动车卫士使用手册.pdf'
-        filepath = os.path.join(DOWNLOAD_DIR_,filename)
+        """Download manual."""
+        category = self.get_argument('category', '1')
+        filename = "ZJ100_移动卫士使用手册.pdf"
+        if category == '1':
+            filename = "ZJ100_移动卫士使用手册.pdf"
+        elif category == '2':
+            filename = "ZJ200_移动卫士使用手册.pdf"
+        
+        filepath = os.path.join(DOWNLOAD_DIR_, filename)
         instruction = open(filepath)
         self.set_header('Content-Type', 'application/force-download')
         self.set_header('Content-Disposition', 'attachment; filename=%s' % (filename,))
         self.write(instruction.read())
-

@@ -26,21 +26,20 @@ ul, li {
 .loginFormContent {
 	background: url("../images/loginBox.png") no-repeat scroll 0 0 transparent;
     float: right;
-    height: 301px;
+    height: 261px;
     position: relative;
-    top: 65px;
-	_top: 55px;
-	*top: 65px;
-    width: 355px;
+    top: 90px;
+    width: 280px;
+	right: 40px;
 }
 .tabs {
-	position: relative;
-	top: 52px;
-	width: 260px;
-	left: 61px;
 	height: 30px;
-	list-style: none;
-	margin-bottom: 10px;
+    left: 16px;
+    list-style: none outside none;
+    margin-bottom: 10px;
+    position: relative;
+    top: 12px;
+    width: 260px;
 }
 .tabs li {
 	width: 100px;
@@ -106,9 +105,9 @@ table, tr, td {
 }
 .loginFormContent .loginBox{
 	font-size: 13px;
-	height: 125px;
-	list-style: none;
-	margin: 65px 0px 0px 67px;
+    height: 125px;
+    list-style: none outside none;
+    margin: 28px 0 0 24px;
 }
 .loginFormContent tr {
 	height: 40px;
@@ -140,7 +139,6 @@ table, tr, td {
     font-size: 12px;
     font-weight: bold;
     height: 15px;
-    left: 45px;
     position: relative;
     text-align: center;
     top: 10px;
@@ -275,7 +273,7 @@ table, tr, td {
 	display: none;
 }
 .btnPanel {
-	margin-left: 76px;
+	margin-left: 30px;
 	margin-top: 12px;
 }
 .btnPanel * {

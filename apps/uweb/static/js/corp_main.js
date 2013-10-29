@@ -1060,7 +1060,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				}
 				dlf.fn_loadJsTree(str_tempNodeId, str_html);
 				dlf.fn_initAutoComplete();
-				$('#txtautoComplete').val('请输入车牌号或定位器号码').addClass('gray');	
+				$('#txtautoComplete').val('请输入定位器名称或号码').addClass('gray');	
 			} else {
 				// 更新组名和集团名还有 在线离线状态
 				fn_updateTreeNode(obj_corp);
@@ -1248,7 +1248,7 @@ window.dlf.fn_initAutoComplete = function() {
 		str_val = obj_compelete.val();
 	
 	if ( str_val == '' ) {
-		str_val = '请输入车牌号';
+		str_val = '请输入定位器名称';
 	}
 	// autocomplete	自动完成 初始化
 	obj_compelete.keyup(function(event) {
@@ -1421,7 +1421,7 @@ window.dlf.fn_updateTerminalLogin = function(obj_this) {
 /**
 * 集团用户 /terminal get和put的时候更新最新的定位器别名
 * cnum: 要更新的定位器别名
-* str_tid: 集团用户右键参数设置中修改车牌号
+* str_tid: 集团用户右键参数设置中修改定位器名称
 */
 window.dlf.fn_updateCorpCnum = function(cnum) {
 	var obj_current = $('.j_currentCar'),
@@ -1452,12 +1452,12 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 			}
 			obj_terminal.label = str_newLabel;
 			dlf.fn_initAutoComplete();
-			// todo 修改marker上的车牌号和label的车牌号
+			// todo 修改marker上的定位器名称和label的定位器名称
 		}
 	}
 	if ( obj_selfMarker ) {	// 修改 marker label 别名
 		var	str_content = obj_selfMarker.selfInfoWindow.getContent(),
-			n_beginNum = str_content.indexOf('车辆：')+3,
+			n_beginNum = str_content.indexOf('定位器：')+3,
 			n_endNum = str_content.indexOf('</h4>'),
 			str_oldname = str_content.substring(n_beginNum, n_endNum),
 			str_content = str_content.replace(str_oldname, str_tempAlias);
@@ -1470,7 +1470,7 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 			obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
 		}
 		obj_selfmarkers[str_tid].selfInfoWindow.setContent(str_content);
-		$('#markerWindowtitle h4[tid='+ str_tid +']').html('车辆：' + str_tempAlias);
+		$('#markerWindowtitle h4[tid='+ str_tid +']').html('定位器：' + str_tempAlias);
 		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	}
 }

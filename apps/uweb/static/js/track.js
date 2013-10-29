@@ -136,7 +136,7 @@ function fn_trackQuery() {
 	$('.j_trackBtnhover').hide();	// 播放按钮隐藏
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_clearMapComponent(); // 清除页面图形
-	dlf.fn_jNotifyMessage('车辆轨迹查询中' + WAITIMG, 'message', true);
+	dlf.fn_jNotifyMessage('定位器轨迹查询中' + WAITIMG, 'message', true);
 	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
 	$('.j_trackbody').data('layer', true);
 	dlf.fn_lockScreen();
@@ -412,8 +412,9 @@ function fn_bindPlay() {
 * 动态标记移动方法
 */
 function fn_drawMarker(str_step) {
-	var n_len = arr_dataArr.length;
-		
+	var n_len = arr_dataArr.length,
+		str_tid = $('.j_currentCar').attr('tid');
+	
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;
 		str_actionState = 0;
@@ -434,6 +435,7 @@ function fn_drawMarker(str_step) {
 			b_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
 			dlf.fn_clearMapComponent(actionMarker);
 		}
+		arr_dataArr[counter].tid = str_tid;	// 轨迹播放传递tid
 		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, b_trackMsgStatus, counter); // 添加标记
 		// 将播放过的点放到数组中
 		var obj_tempPoint = dlf.fn_createMapPoint(arr_dataArr[counter].clongitude, arr_dataArr[counter].clatitude);

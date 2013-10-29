@@ -49,3 +49,10 @@ class SMSInsHandler(BaseHandler):
     def get(self):
         """Jump to sms.html."""
         self.render('sms.html')
+
+class ManualInsHandler(BaseHandler):
+
+    @tornado.web.removeslash
+    def get(self):
+        """Jump to manual.html."""
+        self.render('manual.html')
