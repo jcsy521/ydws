@@ -327,7 +327,7 @@ window.dlf.fn_initBatchRegions = function(obj_group){
 				dlf.fn_jNotifyMessage('当前组下没有定位器！', 'message', false, 5000);
 				return;
 			}
-			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindBatchRegion, '车辆与电子围栏绑定中');
+			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindBatchRegion, '围栏绑定中');
 		} else {
 			dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
 		}
