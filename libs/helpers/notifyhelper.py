@@ -167,7 +167,7 @@ class NotifyHelper(object):
                         8:u'离开围栏',
                         9:u'断电' }
             t_alias= t_alias if len(t_alias)<=11 else t_alias[:8]+u'...'
-            alert = u"您的爱车 “%s” 产生了%s" % (t_alias, CATEGORY[category])
+            alert = u"您的定位器 “%s” 产生了%s" % (t_alias, CATEGORY[category])
 
             # 2: format body 
             ret = DotDict(tid=tid,
