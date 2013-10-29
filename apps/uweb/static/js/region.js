@@ -272,7 +272,7 @@ window.dlf.fn_initBindRegion = function() {
 				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
 				return;
 			}
-			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindRegion, '车辆与电子围栏绑定中');
+			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindRegion, '围栏绑定中');
 		} else {
 			dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！', 'message', false, 5000);
 		}

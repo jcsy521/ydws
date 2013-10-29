@@ -275,7 +275,7 @@ window.dlf.fn_initBindRegion = function() {
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 5000);
 				return;
 			}
-			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindRegion, '车辆与电子围栏绑定中');
+			dlf.fn_jsonPost(BINDREGION_URL, obj_bindRegionData, str_bindRegion, '围栏绑定中');
 		} else {
 			dlf.fn_jNotifyMessage(str_msg, 'message', false, 5000);
 		}

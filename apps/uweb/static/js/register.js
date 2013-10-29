@@ -99,9 +99,9 @@ $(function() {
 		}
 	}).removeAttr('disabled');
 	
-	$('#txt_umobile').formValidator().inputValidator({min: 0, onError: '请输入用户手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'用户手机号格式不正确。'});
+	$('#txt_umobile').formValidator().inputValidator({min: 1, onError: '请输入用户手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'用户手机号格式不正确。'});
 	
-	$('#txt_tmobile').formValidator().inputValidator({min: 0, onError: '请输入定位器手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'定位器手机号格式不正确。'});
+	$('#txt_tmobile').formValidator().inputValidator({min: 1, onError: '请输入定位器手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'定位器手机号格式不正确。'});
 	
 	$('#captcha').formValidator().inputValidator({min: 1, onError: '请输入验证码！'});
 
