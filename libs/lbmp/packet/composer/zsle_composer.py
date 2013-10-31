@@ -9,8 +9,8 @@ class ZsLeComposer(BaseComposer):
     def __init__(self, args):
         
         self.args = args
-        id = "ZSCLGZ" 
-        pwd = "ZSCLGZ20120920"
-        serviceid = "ZSCLGZ"
+        id = "zsds20120224" 
+        pwd = "zsds20120224"
+        serviceid = "zsds"
         simcard = args['simcard']
         self.template = self.LE_TEMPLATE % locals()

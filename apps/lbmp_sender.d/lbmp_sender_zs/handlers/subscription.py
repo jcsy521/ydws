@@ -24,10 +24,16 @@ class SubscriptionHandler(BaseHandler):
                     info="")
         try:
 
-            args = dict(id="ZSCLGZ",
-                        pwd="ZSCLGZ20120920",
-                        serviceid="ZSCLGZ",
-                        appName="ACB",
+#            args = dict(id="ZSCLGZ",
+#                        pwd="ZSCLGZ20120920",
+#                        serviceid="ZSCLGZ",
+#                        appName="ACB",
+#                        area="0760")
+
+            args = dict(id="zsds20120224",
+                        pwd="zsds20120224",
+                        serviceid="zsds",
+                        appName=u"中山的士",
                         area="0760")
             data = dict(json_decode(self.request.body))
             status = ErrorCode.SUCCESS

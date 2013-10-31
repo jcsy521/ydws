@@ -122,10 +122,15 @@ class LeHandler(BaseHandler):
 
     def re_subscription(self, sim):
         logging.info("[LBMP] Terminal: %s not reply sms, Re_subscription it.", sim)
-        args = dict(id="ZSCLGZ",
-                    pwd="ZSCLGZ20120920",
-                    serviceid="ZSCLGZ",
-                    appName="ACB",
+#        args = dict(id="ZSCLGZ",
+#                    pwd="ZSCLGZ20120920",
+#                    serviceid="ZSCLGZ",
+#                    appName="ACB",
+#                    area="0760")
+        args = dict(id="zsds20120224",
+                    pwd="zsds20120224",
+                    serviceid="zsds",
+                    appName="acb",
                     area="0760")
         args['phoneNum'] = sim
         args['action'] = "D" 
