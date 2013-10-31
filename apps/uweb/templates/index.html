@@ -28,7 +28,13 @@
 			
 		</div>
 		<div class="welcome" title="{{name}}">
-			<span id="spanWelcome">欢迎您，{{name if len(name)<=4 else name[:4]+"..."}}</span>
+			<span id="spanWelcome">欢迎您，
+				{% if len(name)<=4 %}
+					{{name.replace("<", "&lt;").replace(">", "&gt;")}}
+				{% else %}
+					{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
+				{% end %}
+			</span>
 		</div>
 	</div>
 	<!-- main  -->
