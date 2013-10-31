@@ -28,7 +28,7 @@ window.dlf.fn_personalData = function() {
 			if ( str_name.length > 4 ) {	// 姓名长度大于4显示...
 				str_newName = str_name.substr(0,4)+'...';
 			}
-			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_name);	// 更新主页用户名
+			$('#spanWelcome').html('欢迎您，' + dlf.fn_encode(str_newName)).attr('title', str_name);	// 更新主页用户名
 			$('#phone').html(str_phone).data('phone', str_phone);
 			// $('#cnum').val(str_cnum).data('cnum', str_cnum);
 			
@@ -210,7 +210,7 @@ window.dlf.fn_initCorpData = function() {
 			if ( str_linkMan.length > 4 ) {	// 姓名长度大于4显示...
 				str_newName = str_linkMan.substr(0,4)+'...';
 			}
-			$('#spanWelcome').html('欢迎您，' + str_newName).attr('title', str_linkMan);	// 更新主页用户名
+			$('#spanWelcome').html('欢迎您，' + dlf.fn_encode(str_newName)).attr('title', str_linkMan);	// 更新主页用户名
 			// todo 集团名称修改的话左侧树根节点也修改
 			$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_name).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');
 			dlf.fn_setCorpIconDiffBrowser();
@@ -837,7 +837,7 @@ $(function () {
 			var str_name = $('#name').val(); //str_val = $('#cnum').val(),
 			
 			if ( str_name.length > 0 && $.trim(str_name).length == 0 ) {
-				dlf.fn_jNotifyMessage('用户姓名不能只输入空格。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('用户姓名不能输入为空。', 'message', false, 3000);
 				return;
 			}
 			/*if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
@@ -848,7 +848,7 @@ $(function () {
 		}
 	});
 	
-	$('#name').formValidator({empty:true}).inputValidator({max: 20, onError: '用户姓名最大长度是20个汉字或字符！'}).regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"});  // 别名;
+	$('#name').formValidator({empty:true}).inputValidator({max: 20, onError: '用户姓名最多可输入20个字符！'});  // 别名.regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"});
 	
 
 	/**
@@ -915,13 +915,13 @@ $(function () {
 			}
 			
 			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
-				dlf.fn_jNotifyMessage('定位器名称不能只输入空格。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('定位器名称不能为空。', 'message', false, 3000);
 				return;
 			}
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '定位器名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'}); // 区分大小写
+	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '定位器名称最多可输入20个字符！'}); // 区分大小写.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'})
 	
 	/**
 	* 集团信息的验证
@@ -946,7 +946,7 @@ $(function () {
 		}
 	});
 	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '集团名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由中文、英文、数字组成！"});  //集团名
-	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人姓名最多可输入20个字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});  // 联系人姓名
+	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人最多可输入20个字符！'});  // 联系人姓名regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});
 	
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 50, onError: '联系人邮箱最多可输入50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	$('#c_address').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 100, onError: '联系人地址最多可输入100个汉字或字符！'}).regexValidator({regExp: 'address', dataType: 'enum', onError: "联系人地址输入不合法，请重新输入！"});  // 联系人email; // 地址
@@ -991,7 +991,7 @@ $(function () {
 				return;
 			}			
 			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
-				dlf.fn_jNotifyMessage('定位器名称不能只输入空格。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('定位器名称不能为空。', 'message', false, 3000);
 				return;
 			}
 			dlf.fn_cTerminalSave();
@@ -999,7 +999,7 @@ $(function () {
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
 	$('#c_umobile').formValidator({empty:true, validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "短信接收号码输入不合法，请重新输入！"});  // 别名;
-	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '定位器名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'});  // 别名;
+	$('#c_cnum').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '定位器名称最多可输入20个汉字或字符！'});  // 别名;.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'})
 	$('#c_color').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆颜色最多可输入20个汉字或字符！'});
 	$('#c_brand').formValidator({empty:true, validatorGroup: '5'}).inputValidator({max: 20, onError: '车辆品牌最多可输入20个汉字或字符！'});
 	

@@ -175,7 +175,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		var obj_selfLabel = obj_selfMarker.selfLable,
 			obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,
 			b_isOpen = obj_selfInfoWindow.isOpen();
-		
+			
+		str_alias = dlf.fn_encode(str_alias);
 		obj_selfLabel.setContent(str_alias);	// label上的alias值
 		obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
 		obj_selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
@@ -341,7 +342,7 @@ window.dlf.fn_updateOpenTrackStatusColor = function(str_tid, str_order) {
 * 如果别名为空则显示车牌号，如果车牌号为空则显示定位器手机号
 */
 window.dlf.fn_updateAlias = function() {
-	var	cnum = $('#t_cnum').val(),	// 车牌号
+	var	cnum = dlf.fn_encode($('#t_cnum').val()),	// 车牌号
 		tmobile = $('#tmobileContent').html(),
 		obj_car = $('.j_carList .j_currentCar'),
 		obj_selfMarker = obj_selfmarkers[obj_car.attr('tid')],	// obj_car.data('selfmarker'),
@@ -364,7 +365,8 @@ window.dlf.fn_updateAlias = function() {
 		//$('.cMsgWindow h4[tid='+str_tid+']').html('车辆：' + str_alias);
 		obj_selfMarker.selfInfoWindow.setContent(str_content);	// todo
 	}
-	obj_car.attr('title', str_alias);	// 
 	obj_car.next().html(str_alias).attr('title', str_alias);
+	str_alias = dlf.fn_decode(str_alias);
+	obj_car.attr('title', str_alias);
 }
 })();

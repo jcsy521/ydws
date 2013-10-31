@@ -774,7 +774,8 @@ function fn_createTerminalList(obj_carDatas) {
 			obj_carInfo = obj_tempRes.car_info, 
 			str_tid = param, // 终端 tid
 			str_loginStatus = obj_carInfo.login, //终端状态
-			str_alias = obj_carInfo.alias, // 终端车牌号
+			str_tempAlias = obj_carInfo.alias,
+			str_alias = dlf.fn_encode(str_tempAlias), // 终端车牌号
 			str_carLoginClass = 'carlogin ', 
 			str_carLoginImg = 'car1',
 			str_carLoginColor = 'green',
@@ -792,8 +793,8 @@ function fn_createTerminalList(obj_carDatas) {
 			str_carClass = ' j_currentCar currentCarCss ' + str_carClass;
 		}
 		str_carListHtml += '<li>'
-						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="'+ str_alias +'" href="#" alias="'+ str_alias +'"><img src="/static/images/'+ str_carLoginImg +'.png" /></a>'
-						+'<div class="'+ str_carLoginColor +'" title="'+ str_alias +'">'+ str_alias +'</div>'
+						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="'+ str_tempAlias +'" href="#" alias="'+ str_tempAlias +'"><img src="/static/images/'+ str_carLoginImg +'.png" /></a>'
+						+'<div class="'+ str_carLoginColor +'" title="'+ str_tempAlias +'">'+ str_alias +'</div>'
 						+'<div class="'+ str_carLoginColor +'">('+ str_carLoginText +')</div></li>';
 			
 		if ( obj_currentSelfMarker ) {
@@ -1237,6 +1238,17 @@ window.dlf.fn_dealAlias = function (str_tempAlias) {
 	}
 	return str_newAlias;
 }
+
+/**
+* html标签 编码、解码
+*/
+window.dlf.fn_encode = function(str) {
+	return str.replace(/\>/g, '&gt;').replace(/\</g, '&lt;').replace(/\"/g, '&quot;');
+}
+window.dlf.fn_decode = function(str) {
+	return str.replace(/\&gt;/g, '>').replace(/\&lt;/g, '<').replace(/\&quot;/g, '"');
+}
+
 /**
 * kjj 2013-06-21 create
 * 判断是否是百度地图
@@ -1762,7 +1774,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						if ( str_name.length > 4 ) {
 							str_newName = str_name.substr(0,4)+'...';
 						}
-						$('#spanWelcome').html('欢迎您，'+ str_newName).attr('title', str_name);
+						$('#spanWelcome').html('欢迎您，'+ dlf.fn_encode(str_newName)).attr('title', str_name);
 					}
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						if ( param == 'cnum' ) {

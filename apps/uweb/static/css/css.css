@@ -1083,10 +1083,10 @@ body {
     height: 24px;
     margin-left: 10px;
     padding: 2px 0;
-    width: 98px;
+    width: 222px;
 }
 #t_vibl, #alert_freq_mode, #corp_alert_freq_mode {
-	width: 98px;
+	width: 222px;
 	margin-left: 10px;
 	height: 22px;
 	padding-top: 1px;

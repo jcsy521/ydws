@@ -230,6 +230,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 	if ( !str_alias ) {	// 实时定位无alias，则根据tid获取对应定位器别名
 		str_alias = obj_carA.next().html();
 	}
+	str_alias = dlf.fn_encode(str_alias);
 	label = new BMap.Label(str_alias, {offset:new BMap.Size(31, 22)});
 	label.setStyle({'backgroundColor': '#000000', 'fontSize': '13px', 'height': '20px','borderWidth':'0px','borderColor': '#000',
 	'opacity': '0.55','filter': 'alpha(opacity=50)','lineHeight': '20px','borderRadius': '6px','paddingLeft': '5px','paddingRight': '5px', 'color': '#ffffff'});	// 设置label样式
@@ -430,7 +431,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_clon = obj_location.clongitude/NUMLNGLAT,
 		str_clat = obj_location.clatitude/NUMLNGLAT,
 		str_type = obj_location.type == GPS_TYPE ? 'GPS定位' : '基站定位',
-		str_alias = obj_location.alias,
+		str_alias = dlf.fn_encode(obj_location.alias),
 		str_delayTime = obj_location.idle_time,
 		str_title = '定位器：',
 		str_tempMsg = '开始跟踪',

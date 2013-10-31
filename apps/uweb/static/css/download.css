@@ -129,7 +129,6 @@ body {
 .descImg ul li {
 	display: inline;
 	float: left;
-    height: 300px;
 	list-style: none;
     width: 210px
 }

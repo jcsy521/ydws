@@ -437,7 +437,7 @@ function fn_batchOperateValidate(obj, str_msg) {
 			
 			if ( b_isChecked ) {
 				arr_tids.push(str_tid);
-				arr_dataes.push({'alias': str_alias, 'tmobile': str_tmobile, 'tid': str_tid, 'mennual_status': obj_carsData[str_tid].mannual_status});
+				arr_dataes.push({'alias': dlf.fn_encode(str_alias), 'tmobile': str_tmobile, 'tid': str_tid, 'mennual_status': obj_carsData[str_tid].mannual_status});
 			}
 			obj_params['tids'] = arr_tids;
 			obj_params['characters'] = arr_dataes;
@@ -474,7 +474,7 @@ function fn_batchOpenTrack(obj, str_operation) {
 				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
 				str_tid = obj_terminalALink.attr('tid'),
 				obj_currentMarker = obj_selfmarkers[str_tid],
-				str_alias = obj_terminalALink.text(),	// tnum
+				str_alias = obj_terminalALink.attr('alias'),	// tnum
 				str_tmobile = obj_terminalALink.attr('title'),	// tmobile
 				str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
 			
@@ -484,7 +484,7 @@ function fn_batchOpenTrack(obj, str_operation) {
 				} else if ( str_operation == 'close' && str_actionTrack != 'no' && str_actionTrack != '' && obj_currentMarker ) {	// 选中终端 取消追踪
 					arr_tids.push(str_tid);
 				}
-				arr_dataes.push({'alias': str_alias, 'tmobile': str_tmobile, 'tid': str_tid, 'track': str_actionTrack});
+				arr_dataes.push({'alias': dlf.fn_encode(str_alias), 'tmobile': str_tmobile, 'tid': str_tid, 'track': str_actionTrack});
 			}
 		});
 		if ( arr_tids.length <= 0 ) {
@@ -941,7 +941,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								arr_alarm = obj_infoes.alarm_info,	// 告警提示列表
 								str_tid = param,
 								str_oldAlias = obj_car.alias,
-								str_alias = dlf.fn_dealAlias(str_oldAlias),
+								str_alias = dlf.fn_encode(dlf.fn_dealAlias(str_oldAlias)),
 								n_degree = obj_car.degree,	// icon_type
 								n_iconType = obj_car.icon_type,	// icon_type
 								str_mobile = obj_car.mobile,	// 车主手机号
@@ -1104,7 +1104,7 @@ function fn_updateAlarmList(arr_alarm) {
 		for ( var x = 0; x < n_alarmLength; x++ ) {
 			var obj_alarm = arr_alarm[x],
 				str_oldAlias = obj_alarm.alias,
-				str_alias = dlf.fn_dealAlias(str_oldAlias),
+				str_alias = dlf.fn_encode(dlf.fn_dealAlias(str_oldAlias)),
 				str_date = dlf.fn_changeNumToDateString(obj_alarm.timestamp),
 				n_categroy = obj_alarm.category;
 				
@@ -1306,7 +1306,7 @@ function fn_updateTreeNode(obj_corp) {
 					str_tmobile = obj_car.mobile,
 					str_alias = obj_car.alias,
 					n_iconType = obj_car.icon_type,	
-					str_tempAlias = dlf.fn_dealAlias(str_alias),
+					str_tempAlias = dlf.fn_encode(dlf.fn_dealAlias(str_alias)),
 					obj_leaf = $('#leaf_' + str_tid),
 					str_imgUrl = '',
 					n_lon = obj_car.longitude,
@@ -1435,7 +1435,7 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 	if ( str_cnum == '' ) {
 		str_tempAlias = str_tmobile;
 	}
-	str_tempAlias = dlf.fn_dealAlias(str_tempAlias);
+	str_tempAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias));
 	obj_current.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias);
 	dlf.fn_updateTerminalLogin(obj_current);
 	for ( var index in arr_autoCompleteData ) {
@@ -1457,12 +1457,11 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 	}
 	if ( obj_selfMarker ) {	// 修改 marker label 别名
 		var	str_content = obj_selfMarker.selfInfoWindow.getContent(),
-			n_beginNum = str_content.indexOf('定位器：')+3,
+			n_beginNum = str_content.indexOf('定位器：')+4,
 			n_endNum = str_content.indexOf('</h4>'),
 			str_oldname = str_content.substring(n_beginNum, n_endNum),
 			str_content = str_content.replace(str_oldname, str_tempAlias);
 		
-
 		if ( b_mapType ) {	// 百度地图修改label
 			var obj_selfLabel = obj_selfMarker.selfLable;
 		

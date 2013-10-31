@@ -144,6 +144,7 @@ function fn_trackQuery() {
 	obj_trackHeader.removeData('delayPoints');	// 清除停留点缓存数据
 	// 集团用户显示查询结果面板
 	obj_delayCon.hide();
+	$('#trackSpeed').hide();	// 速度滑块隐藏
 	obj_locusDate.tid = dlf.fn_getCurrentTid();
 	
 	b_trackMsgStatus = true;
@@ -162,7 +163,6 @@ function fn_trackQuery() {
 					str_msg = '该时间段没有轨迹记录，请选择其它时间段。';
 				}
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
-				$('#trackSpeed').hide();	// 速度滑块隐藏
 			} else {
 				// 集团用户显示查询结果面板
 				var arr_idlePoints = data.idle_points;
