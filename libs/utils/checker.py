@@ -62,9 +62,10 @@ def check_cnum(cnum):
     @return True: it's valid
             False: it's invalid
     """
-    if not cnum:  # it's ok if cnum is ''
-        return True
-    return CNUM_CHECKER.match(cnum)
+    return True
+    #if not cnum:  # it's ok if cnum is ''
+    #    return True
+    #return CNUM_CHECKER.match(cnum)
 
 def check_name(name):
     """Check if the name is valid.
@@ -72,8 +73,8 @@ def check_name(name):
     @return True: it's valid
             False: it's invalid
     """
-    
-    return NAME_CHECKER.match(name)
+    return True
+    #return NAME_CHECKER.match(name)
 
 def check_phone(phone):
     """Check if the phone is valid.
