@@ -1792,7 +1792,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						if ( str_linkman.length > 4 ) {
 							str_newName = str_linkman.substr(0,4)+'...';
 						}
-						$('#spanWelcome').html('欢迎您，'+ str_newName).attr('title', str_linkman);
+						$('#spanWelcome').html('欢迎您，'+ dlf.fn_encode(str_newName)).attr('title', str_linkman);
 					}
 					if ( str_cName ) {
 						var str_tempCName = str_cName.length > 10 ? str_cName.substr(0,10)+ '...' : str_cName;
