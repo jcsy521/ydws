@@ -431,7 +431,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_clon = obj_location.clongitude/NUMLNGLAT,
 		str_clat = obj_location.clatitude/NUMLNGLAT,
 		str_type = obj_location.type == GPS_TYPE ? 'GPS定位' : '基站定位',
-		str_alias = dlf.fn_encode(obj_location.alias),
+		str_alias = obj_location.alias,
 		str_delayTime = obj_location.idle_time,
 		str_title = '定位器：',
 		str_tempMsg = '开始跟踪',
@@ -517,14 +517,15 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		speed = speed;
 	}
 	if ( str_alias ) { // 如果是轨迹回放 
-		str_title += str_alias;
+		str_alias = str_alias;
 	} else {
 		if ( dlf.fn_userType() ) {
-			str_title += $('.j_carList a[id=leaf_'+ str_tid +']').text().substr(2); 
+			str_alias = $('.j_carList a[id=leaf_'+ str_tid +']').text().substr(2); 
 		} else {
-			str_title += $('.j_carList a[tid='+str_tid+']').next().html();
+			str_alias = $('.j_carList a[tid='+str_tid+']').next().html();
 		}
 	}
+	str_title += dlf.fn_encode(str_alias);
 	if ( str_iconType == 'delay' ) {	// 如果是轨迹播放的停留点 infowindow显示内容不同
 		str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 					'<li><label>停留：  '+ dlf.fn_changeTimestampToString(str_delayTime) +'</label>'+

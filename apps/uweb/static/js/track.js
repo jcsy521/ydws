@@ -126,6 +126,8 @@ function fn_trackQuery() {
 		obj_locusDate = {'start_time': str_beginTime, 
 						'end_time': str_endTime,
 						'cellid_flag': n_cellid_flag},
+		str_tid = dlf.fn_getCurrentTid(),
+		str_alias = $('.j_carList a[tid='+ str_tid +']').attr('alias'),
 		b_userType = dlf.fn_userType();	// 个人用户或者集团用户
 	
 	if ( str_beginTime >= str_endTime ) {
@@ -145,7 +147,7 @@ function fn_trackQuery() {
 	// 集团用户显示查询结果面板
 	obj_delayCon.hide();
 	$('#trackSpeed').hide();	// 速度滑块隐藏
-	obj_locusDate.tid = dlf.fn_getCurrentTid();
+	obj_locusDate.tid = str_tid;
 	
 	b_trackMsgStatus = true;
 	actionMarker = null;
@@ -154,6 +156,7 @@ function fn_trackQuery() {
 			var arr_locations = data.track, 
 				locLength = arr_locations.length,
 				str_downloadHash = data.hash_,	// 下载停留点的hash参数
+				
 				str_msg = '';
 				
 			if ( locLength <= 0) {
@@ -179,6 +182,10 @@ function fn_trackQuery() {
 				
 				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+				for ( var x = 0; x < locLength; x++ ) {
+					arr_locations[x].alias = str_alias;
+					arr_locations[x].tid = str_tid;
+				}
 				arr_dataArr = arr_locations;
 				
 				dlf.fn_caculateBox(arr_locations);
