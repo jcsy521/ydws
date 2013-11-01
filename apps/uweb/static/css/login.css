@@ -334,5 +334,28 @@ table, tr, td {
 	border: 0px;
 	height: 30px;
 	text-align: right;
+}
+.announcementTitle {
+	display: block;
+	margin-right: 177px;
+}
+#announcementDiv {
+	height: 40px;
+    line-height: 16px;
+    overflow: hidden;
+    width: 280px;
+    position: absolute;
+    right: 38px;
+	margin-top: 15px;
+	text-align: left;
+	color: red;
+}
+#announcementCon p, #announcementCon1 p {
+	text-indent: 2em;
+}
+#announcementCon div, #announcementCon1 div {
+	text-align: right;
+}
+.red {
 	color: red;
 }

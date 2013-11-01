@@ -816,7 +816,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					* 拼接table
 					*/
 					str_tbodyText+= '<tr>';
-					str_tbodyText+= '<td width="100px">'+obj_tempData.alias+'</td>';
+					str_tbodyText+= '<td width="100px">'+ dlf.fn_encode(obj_tempData.alias) +'</td>';
 					str_tbodyText+= '<td width="150px">'+dlf.fn_changeNumToDateString(obj_tempData.timestamp)+'</td>';	// 告警时间
 					str_tbodyText+= '<td width="100px">'+dlf.fn_eventText(str_type)+'</td>';	// 告警类型
 					if ( n_lng == 0 || n_lat == 0 ) {	//无地址
@@ -847,7 +847,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				obj_tableHeader.show();
 				str_tbodyText+= '<tr>';
 				str_tbodyText+= '<td>'+ obj_tempData.seq +'</td>';	// 序列号				
-				str_tbodyText+= '<td>'+ obj_tempData.alias +'</td>';	// 车牌号 or 日期
+				str_tbodyText+= '<td>'+ dlf.fn_encode(obj_tempData.alias) +'</td>';	// 车牌号 or 日期
 				str_tbodyText+= '<td>'+ obj_tempData.distance +'</td>';	//里程 
 				str_tbodyText+= '</tr>';
 				break;

@@ -768,7 +768,8 @@ function fn_createTerminalList(obj_carDatas) {
 	var str_carListHtml = '', 
 		obj_carListUl = $('.j_carList'),
 		obj_tempSelfMarker = {};
-	
+		
+	obj_carListUl.html('');
 	for(var param in obj_carDatas) {
 		var obj_tempRes = obj_carDatas[param],
 			obj_carInfo = obj_tempRes.car_info, 
@@ -776,6 +777,7 @@ function fn_createTerminalList(obj_carDatas) {
 			str_loginStatus = obj_carInfo.login, //终端状态
 			str_tempAlias = obj_carInfo.alias,
 			str_alias = dlf.fn_encode(str_tempAlias), // 终端车牌号
+			str_decodeAlias = dlf.fn_decode(str_alias),
 			str_carLoginClass = 'carlogin ', 
 			str_carLoginImg = 'car1',
 			str_carLoginColor = 'green',
@@ -792,9 +794,9 @@ function fn_createTerminalList(obj_carDatas) {
 		if ( str_currentPersonalTid == str_tid ) { // 如果是当前终端
 			str_carClass = ' j_currentCar currentCarCss ' + str_carClass;
 		}
-		str_carListHtml += '<li>'
-						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="'+ str_tempAlias +'" href="#" alias="'+ str_tempAlias +'"><img src="/static/images/'+ str_carLoginImg +'.png" /></a>'
-						+'<div class="'+ str_carLoginColor +'" title="'+ str_tempAlias +'">'+ str_alias +'</div>'
+		str_carListHtml = '<li>'
+						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="" href="#" alias=""><img src="/static/images/'+ str_carLoginImg +'.png" /></a>'
+						+'<div class="'+ str_carLoginColor +'" title="">'+ str_alias +'</div>'
 						+'<div class="'+ str_carLoginColor +'">('+ str_carLoginText +')</div></li>';
 			
 		if ( obj_currentSelfMarker ) {
@@ -802,8 +804,10 @@ function fn_createTerminalList(obj_carDatas) {
 			obj_selfmarkers[str_tid] = undefined;
 		}
 		dlf.fn_checkTrackDatas(param);	// 初始化开启追踪数据
+		obj_carListUl.append(str_carListHtml);
+		$('.j_carList a[tid='+ str_tid +']').attr('title', str_decodeAlias).attr('alias', str_decodeAlias).siblings('div').eq(0).attr('title', str_decodeAlias);
 	}
-	obj_carListUl.html(str_carListHtml); // 将新生成的终端列表进行填充到页面上
+	// obj_carListUl.html(str_carListHtml); // 将新生成的终端列表进行填充到页面上
 	dlf.fn_createTerminalListClearLayer(obj_selfmarkers, obj_carDatas);
 	obj_selfmarkers = obj_tempSelfMarker;
 	dlf.fn_bindCarListItem(); //绑定终端 点击事件
@@ -1243,10 +1247,10 @@ window.dlf.fn_dealAlias = function (str_tempAlias) {
 * html标签 编码、解码
 */
 window.dlf.fn_encode = function(str) {
-	return str.replace(/\>/g, '&gt;').replace(/\</g, '&lt;').replace(/\"/g, '&quot;');
+	return str.replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
 }
 window.dlf.fn_decode = function(str) {
-	return str.replace(/\&gt;/g, '>').replace(/\&lt;/g, '<').replace(/\&quot;/g, '"');
+	return str.replace(/\&gt;/g, '>').replace(/\&lt;/g, '<').replace(/\'/g, "\'").replace(/\"/g, '\"');
 }
 
 /**

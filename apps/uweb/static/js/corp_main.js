@@ -676,7 +676,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					n_lon = obj_car.longitude,
 					n_lat = obj_car.latitude,
 					n_clon = n_enClon/NUMLNGLAT,	
-					n_clat = n_enClat/NUMLNGLAT;
+					n_clat = n_enClat/NUMLNGLAT,
+					str_alias = dlf.fn_decode(obj_car.alias);
 				
 				if ( n_lon != 0 && n_lat != 0 ) {
 					if ( n_clon != 0 && n_clat != 0 ) {
@@ -692,6 +693,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
 					}
 				}
+				$('#leaf_'+param).attr('alias', str_alias);
 			}
 			if ( str_currentTid != undefined && str_currentTid != '' ) {
 				if ( b_createTerminal ) {	// 如果是新建终端 发起switchCar
@@ -941,7 +943,8 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								arr_alarm = obj_infoes.alarm_info,	// 告警提示列表
 								str_tid = param,
 								str_oldAlias = obj_car.alias,
-								str_alias = dlf.fn_encode(dlf.fn_dealAlias(str_oldAlias)),
+								str_dealAlias = dlf.fn_dealAlias(str_oldAlias),	// 处理中文后的别名
+								str_alias = dlf.fn_encode(str_dealAlias),	// 编码后的别名			
 								n_degree = obj_car.degree,	// icon_type
 								n_iconType = obj_car.icon_type,	// icon_type
 								str_mobile = obj_car.mobile,	// 车主手机号
@@ -978,11 +981,10 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 							// obj_carsData[str_tid] =  obj_car;
 							arr_tempTids.push(str_tid); //tid组string 串
 							if ( str_login == LOGINOUT ) {
-								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_oldAlias +'">'+ str_alias +'</a></li>';
+								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="">'+ str_alias +'</a></li>';
 							} else {
-								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_oldAlias +'">'+ str_alias +'</a></li>';	
+								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="">'+ str_alias +'</a></li>';	
 							}
-							
 							if ( str_tempTid != '' && str_tempTid == str_tid ) {
 								b_flg = true;
 							}
@@ -1307,6 +1309,7 @@ function fn_updateTreeNode(obj_corp) {
 					str_alias = obj_car.alias,
 					n_iconType = obj_car.icon_type,	
 					str_tempAlias = dlf.fn_encode(dlf.fn_dealAlias(str_alias)),
+					str_decodeAlias = dlf.fn_decode(str_alias),
 					obj_leaf = $('#leaf_' + str_tid),
 					str_imgUrl = '',
 					n_lon = obj_car.longitude,
@@ -1320,7 +1323,7 @@ function fn_updateTreeNode(obj_corp) {
 				} else {
 					str_imgUrl = 'online.png';
 				}
-				obj_leaf.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', str_tmobile).attr('clogin', n_login).attr('alias', str_alias).attr('icon_type', n_iconType);	
+				obj_leaf.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', str_tmobile).attr('clogin', n_login).attr('alias', str_decodeAlias).attr('icon_type', n_iconType);	
 				
 				if ( str_currentTid == str_tid  ) {
 					if ( n_clon != 0 && n_clat != 0 ) {
@@ -1428,6 +1431,7 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 		str_cnum = cnum['corp_cnum'] == undefined ? cnum : cnum['corp_cnum'],
 		str_tmobile = obj_current.attr('title'),
 		str_tempAlias = str_cnum,
+		str_dealAlias = '',
 		str_tid = str_currentTid,
 		obj_selfMarker = obj_selfmarkers[str_tid],
 		b_mapType = dlf.fn_isBMap();
@@ -1435,8 +1439,9 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 	if ( str_cnum == '' ) {
 		str_tempAlias = str_tmobile;
 	}
-	str_tempAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias));
-	obj_current.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias);
+	str_dealAlias = dlf.fn_dealAlias(str_tempAlias);
+	str_tempAlias = dlf.fn_encode(str_dealAlias);
+	obj_current.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', dlf.fn_decode(str_dealAlias));
 	dlf.fn_updateTerminalLogin(obj_current);
 	for ( var index in arr_autoCompleteData ) {
 		var obj_terminal = arr_autoCompleteData[index],

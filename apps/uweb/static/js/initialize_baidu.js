@@ -346,7 +346,8 @@ window.dlf.fn_updateAlias = function() {
 		tmobile = $('#tmobileContent').html(),
 		obj_car = $('.j_carList .j_currentCar'),
 		obj_selfMarker = obj_selfmarkers[obj_car.attr('tid')],	// obj_car.data('selfmarker'),
-		str_alias = '';
+		str_alias = '',
+		obj_terminal = obj_car.next();
 		
 	if ( cnum != '' ) {
 		str_alias = cnum;
@@ -365,8 +366,9 @@ window.dlf.fn_updateAlias = function() {
 		//$('.cMsgWindow h4[tid='+str_tid+']').html('车辆：' + str_alias);
 		obj_selfMarker.selfInfoWindow.setContent(str_content);	// todo
 	}
-	obj_car.next().html(str_alias).attr('title', str_alias);
+	obj_terminal.html(str_alias);
 	str_alias = dlf.fn_decode(str_alias);
+	obj_terminal.attr('title', str_alias);
 	obj_car.attr('title', str_alias);
 }
 })();

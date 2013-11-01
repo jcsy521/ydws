@@ -31,12 +31,12 @@ window.dlf.fn_initTrack = function() {
 	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	
 	var str_tempAlias = $('.j_currentCar').attr('alias'),
-		str_currentCarAlias = dlf.fn_dealAlias(str_tempAlias), 
+		str_currentCarAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias)),
 		obj_trackPos = $('.trackPos');
 	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
-		obj_trackPos.css('width', 655);
+		obj_trackPos.css('width', 685);
 		$('.j_delay').hide();
 		$('.j_delayTbody').html('');
 	} else {
@@ -381,6 +381,7 @@ function fn_startDrawLineStatic(arr_dataArr) {
 			arr_tempDelay.push(arr_dataArr[0]);
 			arr_tempDelay.push(arr_dataArr[arr_dataArr.length - 1]);
 			for ( var x = 0; x < arr_delayPoints.length; x++ ) {
+				arr_delayPoints[x].alias = $('.j_currentCar').attr('alias');
 				arr_tempDelay.push(arr_delayPoints[x]);
 			}
 			fn_printDelayDatas(arr_tempDelay, obj_firstMarker, obj_endMarker);	// 显示停留数据

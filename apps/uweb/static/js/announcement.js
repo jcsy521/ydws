@@ -9,7 +9,7 @@ var time,
 	n_interval = 0;
 
 function Run() {
-	var str_annoucement = '移动车卫士业务将于2013年5月22日晚22点-24点进行升级维护，期间将暂停服务。。。【中山移动】',
+	var str_annoucement = '尊敬的用户：2013年11月2日起，中山移动所属“移动车卫士”产品正式更名为“移动卫士”。将于2013年11月1日22：00至24：00期间将进行系统升级。给您带来的不便，尽请谅解。特此公告。',
 		n_timeout = 450;
 	
 	$('#announcement').html(str_annoucement.substring(possion-50,possion));

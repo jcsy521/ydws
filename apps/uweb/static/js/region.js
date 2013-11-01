@@ -4,7 +4,7 @@
 
 // 围栏管理的初始化查询展示
 window.dlf.fn_initRegion = function() {
-	var str_alias = $('.j_currentCar').attr('alias'),
+	var str_alias = dlf.fn_encode($('.j_currentCar').attr('alias')),
 		str_region = 'region', 
 		obj_regionWapper = $('#regionWrapper'), 
 		obj_regionAddWapper = $('#regionCreateWrapper'),

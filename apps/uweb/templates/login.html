@@ -8,14 +8,53 @@
 		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
 		<script type="text/javascript" src="/static/js/definitions.js"></script>
 		<script type="text/javascript" src="/static/js/login.js"></script>
-<!--		<script type="text/javascript" src="/static/js/announcement.js"></script> -->
+		<!--<script type="text/javascript" src="/static/js/announcement.js"></script>-->
 		<title>移动卫士--登录</title>
 	</head>
 	<body >
 		<div class="loginBody">
 			<div class="top">
 				<div class="announcementPanel">
-					<span type="text" class="announcement" id="announcement" ></span>
+					<!--<span type="text" class="announcement" id="announcement" ></span>-->
+					<span class="announcementTitle red">公告</span>
+					<div id="announcementDiv">
+						<table border="0" cellspacing="0" cellpadding="0" width="280">
+							<tr>
+								<td id="announcementCon">
+									<p>尊敬的用户：</p>
+									<p>2013年11月2日起，中山移动所属“移动车卫士”产品正式更名为“移动卫士”。将于2013年11月1日22：00至24：00期间将进行系统升级。给您带来的不便，尽请谅解。</p>
+									<p>特此公告。</p>
+									<div>中国移动通信集团广东有限公司中山分公司</div>
+									<div>2013年11月2日</div>
+								</td>
+							</tr>
+							<tr><td id="announcementCon1"></td></tr>
+						</table> 
+					</div>
+					<script type="text/javascript">
+						var demo=$("#announcementDiv"),
+							announcementCon=$("#announcementCon"),
+							announcementCon1=$("#announcementCon1");
+
+							announcementCon1.html(announcementCon.html());
+						
+						var speed=0,
+							sls=window.setInterval("sl()",100);
+						
+						function sl(){
+							speed=speed+1;
+							if(speed>=announcementCon.height())
+							{
+								speed=speed-announcementCon.height();
+							}
+							$("#announcementDiv").scrollTop(speed);
+						}
+						demo.hover(function(){
+								clearInterval(sls);
+							},function(){
+								sls=window.setInterval("sl()", 100);
+						});
+					</script>
 				</div>
 				<div class="loginFormContent">
 				<form action="/login" method="post">
