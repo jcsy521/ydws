@@ -1219,7 +1219,7 @@ class MyGWServer(object):
                             tiny_url = base_url + '/' + tiny_id
                             logging.info("[GW] get tiny url successfully. tiny_url:%s", tiny_url)
                             self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                            sms += u"点击 " + tiny_url + u" 查看车辆位置。" 
+                            sms += u"点击 " + tiny_url + u" 查看定位器位置。" 
                         else:
                             logging.info("[GW] get tiny url failed.")
                         SMSHelper.send(user.owner_mobile, sms)
