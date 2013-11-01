@@ -112,23 +112,29 @@ class TrackHandler(BaseHandler):
 
         try:
             # check the tracker whether can be tracked
-            biz = QueryHelper.get_biz_by_mobile(self.current_user.sim, self.db)
-            if biz: 
-                if biz.biz_type == UWEB.BIZ_TYPE.ELECTROCAR:
-                    status = ErrorCode.QUERY_TRACK_FORBID
-                    self.write_ret(status)
-                    logging.info("[UWEB] sim:%s, biz_type:%s, track is not permited.", 
-                                 self.current_user.sim, biz.biz_type)
-                    return
-            else:
-                # 1477874**** cannot query track
-                r = re.compile(UWEB.SIMPLE_YDCWS_PATTERN)
-                if r.match(self.current_user.sim):
-                    status = ErrorCode.QUERY_TRACK_FORBID
-                    self.write_ret(status)
-                    logging.info("[UWEB] sim:%s, track is not permited.", 
-                                 self.current_user.sim)
-                    return
+            # 13600335550 中山三乡谷都派出所
+            # 15919176710  贾晓磊的测试账号
+            if self.current_user.cid in ['15919176710','13600335550']:
+                logging.info("cid: %s is no need check.", self.current_user.cid)
+                pass
+            else: 
+                biz = QueryHelper.get_biz_by_mobile(self.current_user.sim, self.db)
+                if biz: 
+                    if biz.biz_type == UWEB.BIZ_TYPE.ELECTROCAR:
+                        status = ErrorCode.QUERY_TRACK_FORBID
+                        self.write_ret(status)
+                        logging.info("[UWEB] sim:%s, biz_type:%s, track is not permited.", 
+                                     self.current_user.sim, biz.biz_type)
+                        return
+                else:
+                    # 1477874**** cannot query track
+                    r = re.compile(UWEB.SIMPLE_YDCWS_PATTERN)
+                    if r.match(self.current_user.sim):
+                        status = ErrorCode.QUERY_TRACK_FORBID
+                        self.write_ret(status)
+                        logging.info("[UWEB] sim:%s, track is not permited.", 
+                                     self.current_user.sim)
+                        return
 
             start_time = data.start_time
             end_time = data.end_time
