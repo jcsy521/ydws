@@ -36,7 +36,7 @@ from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandl
 from handlers.checkupdate import CheckUpdateAndroidHandler, CheckUpdateIOSHandler
 from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
-from handlers.register import RegisterHandler, RegisterBrowserHandler
+from handlers.register import RegisterHandler, RegisterBrowserHandler, ReRegisterHandler
 from handlers.lastinfo import LastInfoHandler, LastInfoCorpHandler
 from handlers.lastposition import LastPositionHandler
 from handlers.worker import WorkerPool
@@ -185,6 +185,7 @@ class Application(tornado.web.Application):
             (r"/ios/*", IOSHandler),
             (r"/logout/ios/*", IOSLogoutHandler),
             (r"/register/*", RegisterHandler),
+            (r"/reregister/*", ReRegisterHandler),
            
             #znbc client handler
             (r"/ios/corpsearch/*", CorpSearchHandler),

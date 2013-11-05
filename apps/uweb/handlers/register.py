@@ -127,3 +127,44 @@ class RegisterHandler(BaseHandler):
                               umobile, tmobile, e.args)
             status = ErrorCode.REGISTER_FAILED
             self.write_ret(status)
+
+class ReRegisterHandler(BaseHandler):
+
+    @tornado.web.removeslash
+    def post(self):
+        """Reregist a pair of umobile and tmobile.
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            data = DotDict(json_decode(self.request.body))
+            logging.info("[UWEB] register request: %s", data)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+
+        try:
+            tmobile = data.tmobile            
+            user = QueryHelper.get_user_by_tmobile(tmobile, self.db) 
+            if user: 
+                umobile = user.owner_mobile            
+                register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
+                ret = SMSHelper.send_to_terminal(tmobile, register_sms)
+                ret = DotDict(json_decode(ret))
+                if ret.status == ErrorCode.SUCCESS:
+                    logging.info("[UWEB] umobile: %s, tmobile: %s reregist successfully.",
+                                 umobile, tmobile)
+                else:
+                    status = ErrorCode.REGISTER_FAILED
+                    logging.error("[UWEB] umobile: %s, tmobile: %s reregist failed. Message: %s",
+                                  umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
+            else: 
+                logging.exception("[UWEB] tmobile: %s has no user, ignore it. ", 
+                                  tmobile)
+                pass
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] tmobile: %s reregister failed, Exception: %s", 
+                              tmobile, e.args)
+            status = ErrorCode.REGISTER_FAILED
+            self.write_ret(status)
