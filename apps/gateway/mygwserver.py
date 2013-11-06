@@ -454,7 +454,7 @@ class MyGWServer(object):
         # new softversion, new meaning, 1: active; othter: normal login
         flag = t_info['psd'] 
         terminal = self.db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status,"
-                               "       defend_status, mannual_status, icon_type, login_permit"
+                               "       defend_status, mannual_status, icon_type, login_permit, alias"
                                "  FROM T_TERMINAL_INFO"
                                "  WHERE mobile = %s LIMIT 1",
                                t_info['t_msisdn']) 
@@ -523,6 +523,7 @@ class MyGWServer(object):
             mannual_status = UWEB.DEFEND_STATUS.YES
             defend_status = UWEB.DEFEND_STATUS.YES
             icon_type = 0
+            alias = ''
             # send JH sms to terminal. default active time is one year.
             begintime = datetime.datetime.now() 
             endtime = begintime + relativedelta(years=1)
@@ -595,6 +596,7 @@ class MyGWServer(object):
                     mannual_status = terminal.mannual_status
                     defend_status = terminal.defend_status
                     icon_type = terminal.icon_type
+                    alias = terminal.alias
                     if terminal.tid == terminal.mobile:
                         # corp terminal login first, keep corp info
                         self.db.execute("UPDATE T_REGION_TERMINAL"
@@ -668,8 +670,8 @@ class MyGWServer(object):
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, defend_status,"
-                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit,vibl, use_scene)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit, alias, vibl, use_scene)"
+                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 t_info['dev_id'], group_id, t_info['dev_type'],
                                 t_info['t_msisdn'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'],
@@ -680,7 +682,7 @@ class MyGWServer(object):
                                 int(time.mktime(begintime.timetuple())),
                                 int(time.mktime(endtime.timetuple())),
                                 int(time.mktime(begintime.timetuple())),
-                                login_permit, vibl, use_scene)
+                                login_permit, alias, vibl, use_scene)
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
                                 t_info['dev_id'])
