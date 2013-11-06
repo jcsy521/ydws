@@ -224,21 +224,21 @@ window.dlf.fn_defendQuery = function(str_alias) {
 				str_html = '',	// 页面上显示的设防状态
 				str_tip = '',	// 设防撤防中的提示信息
 				str_dImg = '',	// 页面上显示的设防撤防图标
-				obj_carData = $('.j_carList').data('carsData')[str_cTid];				
+				obj_carData = $('.j_carList').data('carsData')[str_cTid],
+				arr_defendBtns = null;
 			
 			n_fob_status = data.fob_status;
-			obj_defendBtn.show();
 			$('.currentCar').attr('fob_status', n_fob_status);	// 更新最新的 挂件状态  ：是否在附近
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defendStatus = DEFEND_OFF;
 				str_tip = '您的定位器'+ str_tempAlias +'当前已设防。';
-				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('cf', 'cf2'));	// 设置鼠标滑过设防或撤防按钮的样式
+				arr_defendBtns = new Array('cf', 'cf2'); 
 				str_html = '已设防';
 				str_dImg = 'defend_status1.png';
 			} else {
 				n_defendStatus = DEFEND_ON;
 				str_tip = '您的定位器'+ str_tempAlias +'当前未设防。';
-				dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', new Array('sf', 'sf2'));	// 设置鼠标滑过设防或撤防按钮的样式
+				arr_defendBtns = new Array('sf', 'sf2'); 
 				str_html = '未设防';
 				str_dImg = 'defend_status0.png';
 			}
@@ -251,7 +251,8 @@ window.dlf.fn_defendQuery = function(str_alias) {
 				obj_carData.mannual_status = str_defendStatus;	// 改变缓存中的设防撤防状态
 			}
 			$('.j_carList').data('carsData')[str_cTid] = obj_carData;
-			$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg +'")');	//.attr('title', str_html);
+			dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', arr_defendBtns);	// 设置鼠标滑过设防或撤防按钮的样式
+			obj_defendBtn.show();
 		} else if ( data.status == 201 ) {
 			dlf.fn_showBusinessTip();
 		} else {

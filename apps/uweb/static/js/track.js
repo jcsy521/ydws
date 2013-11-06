@@ -36,7 +36,7 @@ window.dlf.fn_initTrack = function() {
 	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
-		obj_trackPos.css('width', 685);
+		obj_trackPos.css('width', 641);
 		$('.j_delay').hide();
 		$('.j_delayTbody').html('');
 	} else {

@@ -43,6 +43,7 @@ function customMenu(node) {
 		moveToLabel = '',	// 移动至
 		eventLabel = '',	// 告警查询
 		terminalLabel = '',	// 参数设置
+		wakeupLabel = '',	// 重新激活终端
 		deleteLabel = '',	// 删除lable
 		batchDefendLabel = '',	// 批量设防*撤防
 		batchRegionLabel = '',	// 批量设置电子围栏
@@ -75,6 +76,7 @@ function customMenu(node) {
 		batchTrackLabel = '批量开启追踪';
 		batchCancleTrackLabel = '批量取消追踪';
 	} else {						// 定位器右键菜单
+		wakeupLabel = '重新激活';
 		terminalLabel = '参数设置';
 		singleDeleteLabel = '删除定位器';
 		realtimeLabel = '实时定位';
@@ -171,6 +173,13 @@ function customMenu(node) {
 				dlf.fn_initRegion();
 			}
 		},*/
+		"wakeUp": {	// 重新激活终端
+			"label" : wakeupLabel,
+			"action" : function (obj) {
+				dlf.fn_wakeUpTerminal($(obj).children('a').eq(0).attr('title'));
+				return false;
+			}
+		},
 		"bindRegion": {
 			"label" : bindRegionLabel,
 			"action" : function(obj) {	// todo 
@@ -345,6 +354,7 @@ function customMenu(node) {
    }
    // 集团右键菜单删除菜单
    if ( obj_node.hasClass('j_corp')  ) {
+		delete items.wakeUp;
 		delete items.singleCreate;
 		delete items.remove;
 		delete items.batchImportDelete;
@@ -365,6 +375,7 @@ function customMenu(node) {
 		delete items.batchTrack;
    }
    if ( obj_node.hasClass('j_group') ) {
+		delete items.wakeUp;
 		delete items.create;
 		//delete items.moveTo;
 		delete items.moveTerminal;
@@ -1253,19 +1264,15 @@ window.dlf.fn_initAutoComplete = function() {
 		str_val = '请输入定位器名称';
 	}
 	// autocomplete	自动完成 初始化
-	obj_compelete.keyup(function(event) {
-		if ( event.keyCode === $.ui.keyCode.TAB && $(this).data('autocomplete').menu.active ) {
-			event.preventDefault();
-		}
-		$(this).autocomplete('search');
-	}).autocomplete({
+	obj_compelete.autocomplete({
 		source: arr_autoCompleteData,
 		select: function(event, ui) {
-			var str_tid = ui.item.value,
+			var obj_item = ui.item,
+				str_tid = obj_item.value,
 				obj_itemLi = $('.j_carList a[tid='+ str_tid +']'),
 				str_crntTid = $('.j_leafNode a[class*='+ JSTREECLICKED +']').attr('tid');
-
-			$('#txtautoComplete').val( ui.item.label);
+			
+			$('#txtautoComplete').val(ui.item.label);
 			if ( str_crntTid == str_tid ) {
 				return false;
 			}
@@ -1441,7 +1448,7 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 	}
 	str_dealAlias = dlf.fn_dealAlias(str_tempAlias);
 	str_tempAlias = dlf.fn_encode(str_dealAlias);
-	obj_current.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', dlf.fn_decode(str_dealAlias));
+	obj_current.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', dlf.fn_decode(str_tempAlias));
 	dlf.fn_updateTerminalLogin(obj_current);
 	for ( var index in arr_autoCompleteData ) {
 		var obj_terminal = arr_autoCompleteData[index],
@@ -1673,7 +1680,7 @@ function fn_renameCorp(cid, str_name, node) {
 		}
 		if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_name) ) {
 			$.jstree.rollback(node);
-			dlf.fn_jNotifyMessage('集团名称只能由中文、英文、数字组成组成！', 'message', false, 3000); // 查询状态不正确,错误提示
+			dlf.fn_jNotifyMessage('集团名称只能由中文、英文、数字组成！', 'message', false, 3000); // 查询状态不正确,错误提示
 			return;
 		}
 	} else {
@@ -1701,7 +1708,7 @@ function fn_initCreateTerminal(obj_node, str_groupId) {
 	$('#c_icon_type0').attr('checked', true);
 	dlf.fn_dialogPosition('cTerminal'); // 新增定位器dialog显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	dlf.fn_onInputBlur();	// input的鼠标样式
+	//dlf.fn_onInputBlur();	// input的鼠标样式
 	/**
 	* 初始化报警查询选择时间
 	*/
@@ -2046,5 +2053,23 @@ window.dlf.fn_echoData = function(str_tableName, obj_params, str_msg) {
 		obj_table.append(str_html);	// 填充要删除的数据
 	}
 	obj_head.html(obj_params.gname);	// 表头显示组名
+}
+
+/**
+* 重新激活终端
+* str_tid: 激活终端tid
+* kjj add in 2013-11.05
+*/
+window.dlf.fn_wakeUpTerminal = function(str_tmobile) {
+	var obj_param = {'tmobile': str_tmobile};
+	
+	$.post_(CORP_REREGISTER_URL, JSON.stringify(obj_param), function(data){
+		if ( data.status != 0 ) {
+			dlf.fn_jNotifyMessage('激活指令已下发失败。', 'message', false, 4000);
+			return;
+		} else {
+			dlf.fn_jNotifyMessage('激活指令下发成功。', 'message', false, 4000);
+		}
+	});
 }
 })();

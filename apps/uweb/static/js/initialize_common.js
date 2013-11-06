@@ -447,7 +447,27 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		
 		str_currentTid = n_tid;
 		
-		var obj_car = obj_carDatas[n_tid];
+		var obj_car = obj_carDatas[n_tid],
+			obj_tree = $('#corpTree'),
+			obj_corp = $('.j_corp'),
+			n_corpIsOpen = obj_corp.attr('class').indexOf('jstree-closed');
+			obj_groupLi = obj_currentItem.parent().parent().parent(),
+			str_groupLiId = obj_groupLi.attr('id'),
+			n_isOpen = obj_groupLi.attr('class').indexOf('jstree-closed');
+			
+		// 判断搜索到的终端所在分组是否打开, 如果没打开，先打开分组再定位终端位置
+		if ( n_corpIsOpen != -1 ) {
+			obj_tree.jstree('open_node','#' + obj_corp.attr('id'));	// 打开集团
+		}
+		if ( n_isOpen != -1 ) {
+			obj_tree.jstree('open_node','#' + str_groupLiId);	// 打开所在分组
+		}
+		setTimeout(function() {
+			var n_itemLiOffsetTop = obj_currentItem.offset().top,	// 要搜索的终端的offset
+				n_corpOffsetTop = $('.corpNode').offset().top;	// 集团的offset 
+				
+			obj_tree.scrollTop(n_itemLiOffsetTop - n_corpOffsetTop);
+		}, 500);
 		
 		if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
 			dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息

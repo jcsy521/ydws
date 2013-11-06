@@ -945,7 +945,7 @@ $(function () {
 			}
 		}
 	});
-	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '集团名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由中文、英文、数字组成！"});  //集团名
+	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({min: 1, onErrorMin: '集团名称不能为空。', max: 20, onErrorMax: '集团名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由中文、英文、数字组成！"});  //集团名
 	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人最多可输入20个字符！'});  // 联系人姓名regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});
 	
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 50, onError: '联系人邮箱最多可输入50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
@@ -984,17 +984,22 @@ $(function () {
 			return;
 		}, 
 		onSuccess: function() {
-			var str_val = $('#c_cnum').val();
+			var str_val = $('#c_cnum').val(),
+				str_cmobile = $('#c_tmobile').val();
 			
-			if ( $('#hidTMobile').val()!= '' ) {
-				dlf.fn_jNotifyMessage('定位器手机号已存在。', 'message', false, 5000);
-				return;
-			}			
-			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
-				dlf.fn_jNotifyMessage('定位器名称不能为空。', 'message', false, 3000);
-				return;
-			}
-			dlf.fn_cTerminalSave();
+			$.get_(CHECKMOBILE_URL + '/' + str_cmobile, '', function(data){
+				if ( data.status != 0 ) {
+					dlf.fn_jNotifyMessage('定位器手机号已存在。', 'message', false, 5000);
+					return;
+				} else {
+					if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
+						dlf.fn_jNotifyMessage('定位器名称不能为空。', 'message', false, 3000);
+						return;
+					} else {
+						dlf.fn_cTerminalSave();
+					}
+				}
+			});
 		}
 	});
 	$('#c_tmobile').formValidator({validatorGroup: '5'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "定位器手机号输入不合法，请重新输入！"});  // 别名;
