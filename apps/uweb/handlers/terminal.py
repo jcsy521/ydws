@@ -106,7 +106,19 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 if self.redis.exists(alert_freq_key):
                     logging.info("[UWEB] Termianl %s delete alert freq in redis.", tid)
                     self.redis.delete(alert_freq_key)
+            # if vibl has been changed,then update use_scene as well
             if data.get("vibl"):
+                 vibl = data.get("vibl")
+                 if vibl == 1:
+                     use_scene = 3
+                 elif vibl == 2:
+                     use_scene = 1
+                 elif vibl == 3:
+                     use_scene = 9 
+                 else:
+                     use_scene = 3
+                 self.db.execute("UPDATE T_TERMINAL_INFO SET use_scene=%s WHERE tid=%s", use_scene, tid)
+                 logging.info("[UWEB] Terminal %s update use_scene %s and vibl %s", tid, use_scene, vibl)
                  sessionID_key = get_terminal_sessionID_key(tid)
                  logging.info("[UWEB] Termianl %s delete session in redis.", tid)
                  self.redis.delete(sessionID_key)

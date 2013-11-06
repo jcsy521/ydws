@@ -661,13 +661,15 @@ class MyGWServer(object):
                 logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id'], ttype) 
                 if ttype == 'zj200':
                     use_scene = 1
+                    vibl = 2 
                 else:
                     use_scene = 3
+                    vibl = 1
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, defend_status,"
-                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit, use_scene)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit,vibl, use_scene)"
+                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 t_info['dev_id'], group_id, t_info['dev_type'],
                                 t_info['t_msisdn'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'],
@@ -678,7 +680,7 @@ class MyGWServer(object):
                                 int(time.mktime(begintime.timetuple())),
                                 int(time.mktime(endtime.timetuple())),
                                 int(time.mktime(begintime.timetuple())),
-                                login_permit, use_scene)
+                                login_permit, vibl, use_scene)
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
                                 t_info['dev_id'])
