@@ -186,7 +186,7 @@ window.dlf.fn_baseSave = function() {
 					}
 				}
 			}
-			if ( str_key == 'freq' ) {
+			if ( str_key == 'freq' || str_key == 'vibl' ) {
 				str_newVal = parseInt(str_newVal);
 			} else if ( str_key == 'alert_freq' ) {	// 告警工作模式
 				str_newVal = parseInt(str_newVal*60);
