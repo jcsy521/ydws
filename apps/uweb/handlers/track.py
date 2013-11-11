@@ -152,6 +152,7 @@ class TrackHandler(BaseHandler):
                                       "  WHERE tid = %s"
                                       "    AND NOT (latitude = 0 OR longitude = 0)"
                                       "    AND (timestamp BETWEEN %s AND %s)"
+                                      "    GROUP BY timestamp"
                                       "    ORDER BY timestamp",
                                       self.current_user.tid, start_time, end_time)
             else:
@@ -163,6 +164,7 @@ class TrackHandler(BaseHandler):
                                       "    AND NOT (latitude = 0 OR longitude = 0)"
                                       "    AND (timestamp BETWEEN %s AND %s)"
                                       "    AND type = 0"
+                                      "    GROUP BY timestamp"
                                       "    ORDER BY timestamp",
                                       self.current_user.tid, start_time, end_time)
 
