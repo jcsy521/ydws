@@ -334,7 +334,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 		}
 	});
 	
-	dlf.fn_loadBaiduShare();
+	// dlf.fn_loadBaiduShare();
 	return marker;
 }
 
@@ -343,7 +343,7 @@ window.dlf.fn_loadBaiduShare = function() {
 	var obj_script = document.createElement('script'),
 		obj_share = $('#bdshare_s');
 	
-	if ( obj_share ) {
+	if ( dlf.fn_isEmptyObj(obj_share) ) {
 		obj_share.remove();
 	}
 	obj_script.setAttribute('type', 'text/javascript');
@@ -428,6 +428,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_tid = obj_location.tid,
+		str_currenttid = $('.j_carList .j_currentCar').attr('tid'),
 		str_clon = obj_location.clongitude/NUMLNGLAT,
 		str_clat = obj_location.clatitude/NUMLNGLAT,
 		str_type = obj_location.type == GPS_TYPE ? 'GPS定位' : '基站定位',
@@ -501,8 +502,6 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			}
 		}
 	} else {	// 判断是否是当前车辆
-		var str_currenttid = $('.j_carList .j_currentCar').attr('tid');
-		
 		if ( str_tid == str_currenttid && str_iconType == 'actiontrack' ) {
 			$('#address').html(str_tempAddress);
 		}
@@ -551,13 +550,15 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			}
 			str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
 			
-			var str_fileUrl = location.href,
-				str_fileUrl = str_fileUrl.substr(0, str_fileUrl.length-1),
-				str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
-				str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType) : str_iconUrl,
-				str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
+			if ( str_tid == str_currenttid ) {
+				var str_fileUrl = location.href,
+					str_fileUrl = str_fileUrl.substr(0, str_fileUrl.length-1),
+					str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
+					str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType) : str_iconUrl,
+					str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
 
-			str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'Hi，小伙伴们，你们看到我现在在哪里了吗？这边的朋友你们好！\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+				str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'Hi，小伙伴们，你们看到我现在在哪里了吗？这边的朋友你们好！\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+			}
 		} else if ( str_iconType == 'alarmInfo' ) {
 			str_html += '<li class="top10">告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
 		}

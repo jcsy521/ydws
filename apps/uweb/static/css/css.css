@@ -3510,3 +3510,13 @@ legend {
     line-height: 38px;
     float: left;
 }
+#loadingMsg {
+	width: 100%;
+	height: 50%;
+	text-align: center;
+	color: #000000;
+	font-size: 16px;
+	font-weight: bold;
+	position: absolute;
+	top: 200px;
+}

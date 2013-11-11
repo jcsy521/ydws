@@ -83,19 +83,18 @@ window.dlf.fn_initRegion = function() {
 function fn_displayCars () {
 	// 显示车辆信息数据
 	var obj_carDatas = $('.j_carList').data('carsData');
-	
-	for ( var param in obj_carDatas ) {
-		var obj_carInfo = obj_carDatas[param],
-			str_tid = obj_carInfo.tid,
-			/*obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
-			n_carIndex = $('.j_terminal').index(obj_carA), */
+		
+	$('.j_group .jstree-checked').each(function() {
+		var obj_this = $(this),
+			str_tid = obj_this.children('.j_terminal').attr('tid'),
+			obj_carInfo = obj_carDatas[str_tid],
 			n_clon = obj_carInfo.clongitude,
 			n_clat = obj_carInfo.clatitude;
 		
 		if ( n_clon != 0 && n_clat != 0 ) {
 			dlf.fn_addMarker(obj_carInfo, 'region', str_tid, false); // 添加标记
 		}
-	}
+	});
 }
 
 /**

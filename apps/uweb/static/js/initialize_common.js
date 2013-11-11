@@ -469,8 +469,11 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			obj_tree.scrollTop(n_itemLiOffsetTop - n_corpOffsetTop);
 		}, 500);
 		
+		$('#corpTree').jstree('check_node', $('#leafNode_' + str_currentTid));
+		
 		if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
 			dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
+			dlf.fn_updateInfoData(obj_car);			
 		}
 		/*集团用户切换变换轨迹要显示的终端 并清除地图*/
 		var str_tempAlias = $('.j_currentCar').attr('alias');
@@ -561,9 +564,10 @@ window.dlf.fn_getCarData = function(str_flag) {
 				fn_createTerminalList(obj_cars);
 				if ( !dlf.fn_isEmptyObj(obj_cars) ) {
 					dlf.fn_initCarInfo();
+					alert('您的帐号没有绑定定位器或者定位器都被解绑了。');
+					window.location.replace('/logout');
 					return;
 				}
-				
 				for ( var param in obj_cars ) {
 					var obj_resData = obj_cars[param],
 						obj_carInfo = obj_resData.car_info, 

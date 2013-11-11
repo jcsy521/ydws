@@ -669,17 +669,21 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		// 更新定位器总数
 		fn_updateTerminalCount();
 		// 循环所有定位器 找到当前定位器并更新车辆信息
-		var b_loop = true,
-			n_num = 0,
+		var n_num = 0,
 			n_pointNum = 0,
 			arr_locations = [];
 			
 		for ( var index in obj_carsData ) {
 			n_num ++;
+			if ( n_num > 0 ) {
+				break;
+			}
 		}
 		if ( n_num > 0 ) {
-			for ( var param in obj_carsData ) {
-				var obj_car = obj_carsData[param],
+			$('.j_group .jstree-checked').each(function() {
+				var obj_terminalNode = $(this).children('.j_terminal'),
+					str_tid = obj_terminalNode.attr('tid'),
+					obj_car = obj_carsData[str_tid],
 					obj_trace = obj_car.trace_info,	// 甩尾数据
 					obj_track = obj_car.track_info,	// 开启追踪点数据
 					n_enClon = obj_car.clongitude,
@@ -698,14 +702,14 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						obj_car.track_info = obj_track;
 						dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
 						if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
-							obj_trace.tid = param;
+							obj_trace.tid = str_tid;
 						}
 					} else {
 						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
 					}
 				}
-				$('#leaf_'+param).attr('alias', str_alias);
-			}
+				$('#leaf_'+str_tid).attr('alias', str_alias);
+			});
 			if ( str_currentTid != undefined && str_currentTid != '' ) {
 				if ( b_createTerminal ) {	// 如果是新建终端 发起switchCar
 					var obj_newTerminal = $('#leaf_' + str_currentTid);
@@ -719,7 +723,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						
 						if ( str_currentTid == str_tid || str_checkedNodeId.substr(5, str_checkedNodeId.length) == str_tid ) {	// 更新当前车辆信息
 							dlf.fn_updateTerminalInfo(obj_carInfo);
-							b_loop = false;
+							break;
 						}
 					}
 				}
@@ -755,15 +759,14 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		var obj_current = fn_nodeCurrentNode(event.target),
 			obj_currentCarParent = $('.j_terminal[tid='+ str_currentTid +']').parent();
 		
+		$('#corpTree').jstree('check_node', $('#leafNode_' + str_currentTid));
 		if ( obj_current.b_terminalClass ) {	// 如果选中的是定位器
 			var str_tid = obj_current.attr('tid');
 			
 			if ( str_currentTid == str_tid ) {	// 如果是同辆车则不switchcar
 				return;
 			}
-			$('#corpTree').jstree('uncheck_node.jstree', 'leafNode_'+ str_currentTid);
-			// obj_currentCarParent.removeClass('jstree-checked');
-			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
+			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,
 		} else {
 			obj_current.removeClass(JSTREECLICKED);
 		}
@@ -807,8 +810,60 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		} else {
 			return false;
 		}
-	}).bind('check_node.jstree', function(obj) {
-		// console.log(obj);	// 记住选中的
+	}).bind('check_node.jstree', function(event, data) {
+		var obj_currentLi = $(data.rslt.obj[0]),
+			str_class = obj_currentLi.attr('class'),
+			n_terminalClass = str_class.indexOf('j_leafNode'),
+			n_groupClass = str_class.indexOf('j_group'),
+			n_corpClass = str_class.indexOf('j_corp');
+			
+		if ( n_terminalClass != -1 ) {	// 选中单个终端
+			var obj_current = obj_currentLi.children('.j_terminal')
+				str_tid = obj_current.attr('tid');
+			
+			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
+		} else if ( n_groupClass != -1 || n_corpClass != -1 ) {	// 选中整个分组
+			// 获取该分组下所有终端
+			dlf.fn_lockScreen();
+			$('#loadingMsg').html('正在加载定位器...').show();
+			setTimeout(function(){
+				$('.j_group .jstree-checked').each(function() {
+					var obj_this = $(this),
+						obj_current = obj_this.children('.j_terminal'),
+						str_tid = obj_current.attr('tid');
+					
+					dlf.fn_updateInfoData(obj_carsData[str_tid]);
+				});
+				$('#loadingMsg').html('').hide();
+				dlf.fn_unLockScreen();
+			}, 1000);
+		}
+	}).bind('uncheck_node.jstree', function(event, data) {
+		var obj_currentLi = $(data.rslt.obj[0]),
+			str_class = obj_currentLi.attr('class'),
+			n_terminalClass = str_class.indexOf('j_leafNode'),
+			n_groupClass = str_class.indexOf('j_group'),
+			n_corpClass = str_class.indexOf('j_corp');
+			
+		if ( n_terminalClass != -1 ) {	// 取消单个终端
+			var obj_current = obj_currentLi.children('.j_terminal')
+				str_tid = obj_current.attr('tid'),
+				obj_marker = obj_selfmarkers[str_tid],
+				obj_polyline = obj_polylines[str_tid];
+			
+			if ( dlf.fn_isEmptyObj(obj_marker) ) {
+				dlf.fn_clearMapComponent(obj_marker);
+				delete obj_selfmarkers[str_tid];
+				obj_actionTrack[str_tid].status = '';
+			}
+			if ( dlf.fn_isEmptyObj(obj_polyline) ) {
+				dlf.fn_clearMapComponent(obj_polyline);
+			}
+		} else if ( n_groupClass != -1 || n_corpClass != -1 ) {	// 选中整个分组 or 整个集团
+			dlf.fn_clearMapComponent();
+			obj_selfmarkers = {};
+			dlf.fn_clearRealtimeTrack();	// 关闭所有开启追踪
+		}
 	});
 }
 
@@ -1318,6 +1373,7 @@ function fn_updateTreeNode(obj_corp) {
 					str_tempAlias = dlf.fn_encode(dlf.fn_dealAlias(str_alias)),
 					str_decodeAlias = dlf.fn_decode(str_alias),
 					obj_leaf = $('#leaf_' + str_tid),
+					n_checked = obj_leaf.attr('class').indexOf('jstree-checked'),
 					str_imgUrl = '',
 					n_lon = obj_car.longitude,
 					n_lat = obj_car.latitude,
@@ -1337,16 +1393,18 @@ function fn_updateTreeNode(obj_corp) {
 						dlf.fn_updateTerminalInfo(obj_car);
 					}					
 				}
-				if ( n_lon != 0 && n_lat != 0 ) {
-					if ( n_clon != 0 && n_clat != 0 ) {
-						obj_car.trace_info = obj_trace;
-						obj_car.track_info = obj_track;
-						dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
-						if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
-							obj_trace.tid = str_tid;
+				if ( n_checked != -1 ) {	// 被选中终端
+					if ( n_lon != 0 && n_lat != 0 ) {
+						if ( n_clon != 0 && n_clat != 0 ) {
+							obj_car.trace_info = obj_trace;
+							obj_car.track_info = obj_track;
+							dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
+							if ( dlf.fn_isEmptyObj(obj_trace) ) {	// 生成甩尾数据
+								obj_trace.tid = str_tid;
+							}
+						} else {
+							dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
 						}
-					} else {
-						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
 					}
 				}
 			}

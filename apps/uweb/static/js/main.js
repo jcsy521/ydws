@@ -829,6 +829,7 @@ $(function () {
 		formID: 'personalForm', //指定from的ID 编号
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false,	// 一个汉字当一个字节
+		validatorGroup: '1', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'personalSave', // 指定本form的submit按钮
 		onError: function(msg) { 
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
@@ -837,7 +838,7 @@ $(function () {
 			var str_name = $('#name').val(); //str_val = $('#cnum').val(),
 			
 			if ( str_name.length > 0 && $.trim(str_name).length == 0 ) {
-				dlf.fn_jNotifyMessage('用户姓名不能输入为空。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('用户姓名不能为空，请重新输入。', 'message', false, 3000);
 				return;
 			}
 			/*if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
@@ -848,7 +849,7 @@ $(function () {
 		}
 	});
 	
-	$('#name').formValidator({empty:true}).inputValidator({max: 20, onError: '用户姓名最多可输入20个字符！'});  // 别名.regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"});
+	$('#name').formValidator({validatorGroup: '1'}).inputValidator({min: 1, onErrorMin: '用户姓名不能为空，请重新输入。', max: 20, onErrorMax: '用户姓名最多可输入20个字符！'});  // 别名.regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"});
 	
 
 	/**
@@ -915,13 +916,13 @@ $(function () {
 			}
 			
 			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
-				dlf.fn_jNotifyMessage('定位器名称不能为空。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('定位器名称不能为空，请重新输入。', 'message', false, 3000);
 				return;
 			}
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	$('#t_cnum').formValidator({empty:true, validatorGroup: '3'}).inputValidator({max: 20, onError: '定位器名称最多可输入20个字符！'}); // 区分大小写.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'})
+	$('#t_cnum').formValidator({validatorGroup: '3'}).inputValidator({min: 1, onErrorMin: '定位器名称不能为空，请重新输入。', max: 20, onErrorMax: '定位器名称最多可输入20个字符！'}); // 区分大小写.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'})
 	
 	/**
 	* 集团信息的验证
