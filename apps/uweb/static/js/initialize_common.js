@@ -465,27 +465,14 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			obj_tree.jstree('open_node','#' + str_groupLiId);	// 打开所在分组
 		}
 		setTimeout(function() {
-			
-			if ( obj_oldCurrentCar.length > 0 ) {
-				n_oldOffsetTop = obj_oldCurrentCar.offset().top;	// 上一个终端top
-				n_sub1 = n_oldOffsetTop - 168;
-			}
-			var n_treeHeight = obj_tree.height() - 30,	// 树高度
+			var n_treeHeight = obj_tree.height(),	// 树高度
 				n_itemLiOffsetTop = obj_currentItem.offset().top,	// 要搜索的终端的offset
 				n_corpOffsetTop = obj_tree.offset().top,	// 集团的offset 
 				n_sub = Math.abs(n_itemLiOffsetTop - n_oldOffsetTop),	// 上一个和当前的高度差
 				n_scrollTop = n_itemLiOffsetTop - n_corpOffsetTop;
 				
-			if ( n_sub > n_treeHeight  ) {
-				obj_tree.scrollTop( n_scrollTop );
-			} else {
-				if ( n_sub1 > n_sub ) {
-					obj_tree.scrollTop( n_scrollTop );
-				} else {
-					if ( n_itemLiOffsetTop < 168 ) {
-						obj_tree.scrollTop( n_scrollTop );
-					}
-				}
+			if ( n_itemLiOffsetTop <= 168 || n_itemLiOffsetTop >= n_treeHeight+160 ) {
+				obj_tree.scrollTop(n_itemLiOffsetTop-n_corpOffsetTop);
 			}
 		}, 500);
 		
