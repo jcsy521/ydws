@@ -389,7 +389,9 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
 		b_corpRegionWpST = $('#bindRegionWrapper').is(':visible'),
 		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
-		n_len = obj_terminals.length;
+		n_len = obj_terminals.length,
+		obj_oldCurrentCar = $('.j_currentCar').parent(),
+		n_oldOffsetTop = n_sub1 = 0;
 
 	obj_terminals.removeClass('j_currentCar');	// 其他车辆移除样式
 	obj_currentItem.addClass('j_currentCar');	// 当前车添加样式
@@ -463,13 +465,31 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			obj_tree.jstree('open_node','#' + str_groupLiId);	// 打开所在分组
 		}
 		setTimeout(function() {
-			var n_itemLiOffsetTop = obj_currentItem.offset().top,	// 要搜索的终端的offset
-				n_corpOffsetTop = $('.corpNode').offset().top;	// 集团的offset 
+			
+			if ( obj_oldCurrentCar.length > 0 ) {
+				n_oldOffsetTop = obj_oldCurrentCar.offset().top;	// 上一个终端top
+				n_sub1 = n_oldOffsetTop - 168;
+			}
+			var n_treeHeight = obj_tree.height() - 30,	// 树高度
+				n_itemLiOffsetTop = obj_currentItem.offset().top,	// 要搜索的终端的offset
+				n_corpOffsetTop = obj_tree.offset().top,	// 集团的offset 
+				n_sub = Math.abs(n_itemLiOffsetTop - n_oldOffsetTop),	// 上一个和当前的高度差
+				n_scrollTop = n_itemLiOffsetTop - n_corpOffsetTop;
 				
-			obj_tree.scrollTop(n_itemLiOffsetTop - n_corpOffsetTop);
+			if ( n_sub > n_treeHeight  ) {
+				obj_tree.scrollTop( n_scrollTop );
+			} else {
+				if ( n_sub1 > n_sub ) {
+					obj_tree.scrollTop( n_scrollTop );
+				} else {
+					if ( n_itemLiOffsetTop < 168 ) {
+						obj_tree.scrollTop( n_scrollTop );
+					}
+				}
+			}
 		}, 500);
 		
-		$('#corpTree').jstree('check_node', $('#leafNode_' + str_currentTid));
+		$('#leafNode_' + str_currentTid).removeClass('jstree-unchecked').addClass('jstree-checked');
 		
 		if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
 			dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
@@ -486,6 +506,12 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
 			$('.j_delay').hide();
 			$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+		}
+		if ( b_eventSearchWpST ) {
+			dlf.fn_ShowOrHideMiniMap(false);
+			$('#eventSearchPage').hide();
+			$('#eventSearchCategory').val(-1);
+			$('#eventSearchTableHeader').hide().nextAll().remove();
 		}
 		dlf.fn_moveMarker(n_tid);
 		if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindRegionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新

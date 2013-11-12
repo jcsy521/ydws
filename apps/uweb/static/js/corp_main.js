@@ -732,7 +732,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				if ( arr_locations.length > 0 ) {
 					dlf.fn_caculateBox(arr_locations);
 				}
-				str_currentTid = str_checkedNodeId.substr(5, str_checkedNodeId.length);
 				dlf.fn_switchCar(str_currentTid, obj_current);
 			}
 			fn_updateAllTerminalLogin();
@@ -759,7 +758,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		var obj_current = fn_nodeCurrentNode(event.target),
 			obj_currentCarParent = $('.j_terminal[tid='+ str_currentTid +']').parent();
 		
-		$('#corpTree').jstree('check_node', $('#leafNode_' + str_currentTid));
 		if ( obj_current.b_terminalClass ) {	// 如果选中的是定位器
 			var str_tid = obj_current.attr('tid');
 			
@@ -820,8 +818,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		if ( n_terminalClass != -1 ) {	// 选中单个终端
 			var obj_current = obj_currentLi.children('.j_terminal')
 				str_tid = obj_current.attr('tid');
-			
-			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
+
+			dlf.fn_switchCar(str_tid, obj_current, 'check_node'); // 登录成功,   
 		} else if ( n_groupClass != -1 || n_corpClass != -1 ) {	// 选中整个分组
 			// 获取该分组下所有终端
 			dlf.fn_lockScreen();
@@ -1373,7 +1371,7 @@ function fn_updateTreeNode(obj_corp) {
 					str_tempAlias = dlf.fn_encode(dlf.fn_dealAlias(str_alias)),
 					str_decodeAlias = dlf.fn_decode(str_alias),
 					obj_leaf = $('#leaf_' + str_tid),
-					n_checked = obj_leaf.attr('class').indexOf('jstree-checked'),
+					n_checked = $('#leafNode_' + str_tid).attr('class').indexOf('jstree-checked'),
 					str_imgUrl = '',
 					n_lon = obj_car.longitude,
 					n_lat = obj_car.latitude,
