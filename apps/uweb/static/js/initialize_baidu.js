@@ -16,9 +16,9 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 			arr_overlays = $('.j_carList .j_terminal');
 
 		if ( obj_tempMarker ) {
-            var obj_currentCarInfo = $('.j_carList').data('carsData')[n_tid];
+           /* var obj_currentCarInfo = $('.j_carList').data('carsData')[n_tid];
             
-			obj_tempMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_currentCarInfo, 'actiontrack'));
+			obj_tempMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_currentCarInfo, 'actiontrack'));*/
 			obj_infoWindow = obj_tempMarker.selfInfoWindow;
 			// mapObj.setCenter(obj_tempMarker.getPosition());
 			for ( var i = 0; i < arr_overlays.length; i++ ) {
@@ -54,7 +54,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_currentCar = $('.j_carList a[class*=j_currentCar]'),
 		str_currentTid = obj_currentCar.attr('tid'),	// 当前车定位器编号
 		str_iconType = obj_currentCar.attr('icon_type'),	// icon_type
-		str_tid = str_type == 'current' ? str_currentTid : obj_carInfo.tid,
+		str_tempTid = obj_carInfo.tid,
+		str_tid = str_type == 'current' ? str_currentTid : str_tempTid,
 		str_alias = obj_carInfo.alias,
 		n_carTimestamp = obj_carInfo.timestamp,
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
@@ -183,7 +184,6 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_selfMarker.setLabel(obj_selfLabel);	// 设置label  obj_carA.data('selfLable')
 		obj_selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
-		
 		if ( b_isCorpUser ) {
 			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType);
 		} else {
@@ -200,11 +200,13 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if ( b_isOpen ) {
 			obj_selfMarker.openInfoWindow(obj_selfMarker.selfInfoWindow);
 		}
-		
-		dlf.fn_loadBaiduShare();
+		if ( str_tempTid == str_currentTid ) {
+			dlf.fn_loadBaiduShare();
+		}
 	} else {
 		dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid, false); // 添加标记
 	}
+	
 	var obj_toWindowInterval = setInterval(function() {
 		var obj_tempMarker = obj_selfmarkers[str_tid];	// obj_carA.data('selfmarker');
 		
@@ -213,7 +215,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 				if ( obj_tempMarker ) {
 					obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
 				}
-			} else if ( str_type == 'first' ) {	// 如果第一次lastinfo 移到中心点 打开吹出框
+			} else if ( str_type == 'first' && !b_isCorpUser ) {	// 如果第一次lastinfo 移到中心点 打开吹出框
 				dlf.fn_moveMarker(str_currentTid);				
 			}
 			clearInterval(obj_toWindowInterval);
@@ -368,6 +370,6 @@ window.dlf.fn_updateAlias = function() {
 	obj_terminal.html(str_alias);
 	str_alias = dlf.fn_decode(str_alias);
 	obj_terminal.attr('title', str_alias);
-	obj_car.attr('title', str_alias);
+	obj_car.attr('alias', str_alias);
 }
 })();

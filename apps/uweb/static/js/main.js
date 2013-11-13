@@ -205,7 +205,8 @@ window.dlf.fn_initCorpData = function() {
 				str_email = obj_data.c_email,		// 集团email
 				str_linkMan = obj_data.c_linkman,	// 集团联系人
 				str_newName = str_linkMan,			
-				str_mobile = obj_data.c_mobile;		// 集团联系人手机号
+				str_mobile = obj_data.c_mobile,		// 集团联系人手机号
+				str_alert_mobile = obj_data.c_alert_mobile;	// 离线通知人
 				
 			if ( str_linkMan.length > 4 ) {	// 姓名长度大于4显示...
 				str_newName = str_linkMan.substr(0,4)+'...';
@@ -219,6 +220,7 @@ window.dlf.fn_initCorpData = function() {
 			$('#c_email').val(str_email).data('c_email', str_email);
 			$('#c_mobile').html(str_mobile);
 			$('#c_linkman').val(str_linkMan).data('c_linkman', str_linkMan);
+			$('#c_alert_mobile').val(str_alert_mobile).data('c_alert_mobile', str_alert_mobile);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -948,7 +950,7 @@ $(function () {
 	});
 	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({min: 1, onErrorMin: '集团名称不能为空。', max: 20, onErrorMax: '集团名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由中文、英文、数字组成！"});  //集团名
 	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人最多可输入20个字符！'});  // 联系人姓名regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});
-	
+	$('#c_alert_mobile').formValidator({empty: true, validatorGroup: '4'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "离线通知号码输入不合法，请重新输入！"}); // 离线联系人手机号
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 50, onError: '联系人邮箱最多可输入50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	$('#c_address').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 100, onError: '联系人地址最多可输入100个汉字或字符！'}).regexValidator({regExp: 'address', dataType: 'enum', onError: "联系人地址输入不合法，请重新输入！"});  // 联系人email; // 地址
 	

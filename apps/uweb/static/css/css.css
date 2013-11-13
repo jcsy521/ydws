@@ -857,7 +857,7 @@ body {
 	padding-top: 10px;
 }
 .corpContent {
-	height: 247px;
+	height: 300px;
 	padding-top: 10px;
 }
 .personalList, .cTerminalList {
@@ -868,7 +868,7 @@ body {
 	line-height: 34px;
 }
 .personalList input {
-	width: 282px;
+	width: 265px;
 }
 .cTerminalList .cTermninalInput {
 	width: 210px;
@@ -901,7 +901,7 @@ body {
     float: left;
     margin-right: 20px;
     text-align: right;
-    width: 84px;
+    width: 97px;
 }
 #c_mobile {
 	text-align: left;
