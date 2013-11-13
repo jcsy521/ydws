@@ -144,7 +144,7 @@ class ProfileCorpHandler(BaseHandler):
         try: 
             profile = DotDict()
             # 1: user
-            corp = self.db.get("SELECT name c_name, mobile c_mobile, address c_address, email c_email, linkman c_linkman"
+            corp = self.db.get("SELECT name c_name, mobile c_mobile, alert_mobile c_alert_mobile, address c_address, email c_email, linkman c_linkman"
                                "  FROM T_CORP"
                                "  WHERE cid = %s"
                                "  LIMIT 1",
@@ -201,6 +201,7 @@ class ProfileCorpHandler(BaseHandler):
             fields_ = DotDict()
             fields = DotDict(c_name="name = '%s'",
                              c_mobile="mobile = '%s'",
+                             c_alert_mobile="alert_mobile = '%s'",
                              c_address="address = '%s'",
                              c_linkman="linkman = '%s'",
                              c_email="email = '%s'")
