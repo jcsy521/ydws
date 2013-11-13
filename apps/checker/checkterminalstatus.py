@@ -21,6 +21,7 @@ from utils.misc import get_offline_lq_key, get_lq_interval_key,\
 from constants import GATEWAY, EVENTER, UWEB, SMS
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
+from helpers.emailhelper import EmailHelper 
 from helpers.lbmphelper import get_latlon_from_cellid
 from helpers.queryhelper import QueryHelper
 from helpers.confhelper import ConfHelper
@@ -37,6 +38,9 @@ class CheckTerminalStatus(object):
         self.domain_ip = ConfHelper.GW_SERVER_CONF.domain_ip 
 
     def check_terminal_status(self):
+        """Check terminal whether lose hearbeat and provide reminder for
+        associated staff.
+        """
         try:
             terminals = self.db.query("SELECT tid, domain FROM T_TERMINAL_INFO"
                                       "  WHERE login != %s"
@@ -62,6 +66,8 @@ class CheckTerminalStatus(object):
             logging.exception("[CK] Check terminal status exception.")
 
     def send_cq_sms(self, tid, domain):
+        """Send CQ sms to terminal.
+        """
         terminal_info = QueryHelper.get_terminal_info(tid, self.db, self.redis)
         if terminal_info['pbat'] >= 5:
             mobile = terminal_info['mobile']
@@ -80,6 +86,8 @@ class CheckTerminalStatus(object):
             logging.info("[CK] Send cq sms to mobile: %s", mobile)
 
     def send_lq_sms(self, tid):
+        """Send LQ sms to terminal.
+        """
         sim = QueryHelper.get_tmobile_by_tid(tid, self.redis, self.db)
         if sim:
             interval = SMS.LQ.WEB
@@ -90,6 +98,8 @@ class CheckTerminalStatus(object):
             logging.info("[CK] Send offline LQ: '%s' to Sim: %s", sms, sim)
                 
     def heartbeat_lost_report(self, tid):
+        """Recort the heartbeat-lost event and remind the associated staff.
+        """
         timestamp = int(time.time())
         rname = EVENTER.RNAME.HEARTBEAT_LOST
         category = EVENTER.CATEGORY[rname]
@@ -99,6 +109,8 @@ class CheckTerminalStatus(object):
         self.db.execute("INSERT INTO T_EVENT(tid, lid, category)"
                         "  VALUES (%s, %s, %s)",
                         tid, lid, category)
+
+        # remind owner
         user = QueryHelper.get_user_by_tid(tid, self.db)
         if user:
             sms_option = QueryHelper.get_sms_option_by_uid(user.owner_mobile, 'heartbeat_lost', self.db)
@@ -117,6 +129,7 @@ class CheckTerminalStatus(object):
                 #                   tid)
                 #if (corp and corp.mobile != user.owner_mobile):
                 #    SMSHelper.send(corp.mobile, sms)
+
         logging.warn("[CK] Terminal %s Heartbeat lost!!!", tid)
         # memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(tid)
@@ -127,7 +140,64 @@ class CheckTerminalStatus(object):
                        offline_time=timestamp)
         self.update_terminal_status(info)
 
+        # remind maintenance personnel
+        # corp's alert_mobile; zhuhai(liyun.sun, shi.chen, chunfan.yang);
+        # beijing:(xiaolei.jia, boliang.guan)
+
+        # 13600335550 三乡, 15919176710 北京测试网
+        alert_cid = [13600335550, 15919176710]
+        sms_alert_lst = [15992657276, 13750012868, 15919161805, 13693675352, 18310505991]
+        email_alert_lst = ['liyun.sun@dbjtech.com', 'shi.chen@dbjtech.com', 'chunfan.yang@dbjtech.com']
+        email_alert_lst_cc = ['jiaolei.jia@dbjtech.com','boliang.guan@dbjtech.com']
+
+        #alert_cid = [15901258591, 15919176710]
+        #sms_alert_lst = [15901258591,18310505991]
+        #email_alert_lst = ['zhaoxia.guo@dbjtech.com']
+        #email_alert_lst_cc = ['jiaolei.jia@dbjtech.com']
+
+        alert_info = DotDict(tmobile='',
+                             umobile='',
+                             corp_name='',
+                             offline_cause='',
+                             pbat='',
+                             offline_time='')
+        t = self.db.get("select cid from V_TERMINAL where tid = %s limit 1", 
+                        tid)
+        cid = t.cid if t.get('cid', None) is not None else ''
+        if int(cid) not in alert_cid:
+            pass
+        else:
+            terminal = self.db.get("select mobile, owner_mobile, offline_time, pbat, offline_time"
+                                   "  from T_TERMINAL_INFO where tid = %s", tid)
+            corp = self.db.get("select name, alert_mobile from T_CORP where cid = %s", cid)
+            sms_alert_lst.append(corp.alert_mobile)
+
+            alert_info.tmobile = terminal.mobile 
+            alert_info.umobile = terminal.owner_mobile 
+            alert_info.corp_name = corp.name
+            alert_info.pbat = terminal.pbat
+            offline_time = time.strftime('%Y-%m-%d-%H:%M:%S',time.localtime(terminal.offline_time))
+            alert_info.offline_time = offline_time
+            alert_info.pbat= terminal.pbat 
+            alert_info.offline_cause = u'缺电关机' if terminal.pbat < 5 else u'通讯异常' 
+
+            alert_content = u'尊敬的用户，您好：\n\t现移动卫士平台检测到终端:（终端号码：%(tmobile)s；车主号码：%(umobile)s；集团名称：%(corp_name)s； 离线原因：%(offline_cause)s ； 离线时电量：%(pbat)s；离线时间：%(offline_time)s）离线，请相关人员尽快核查。' 
+
+            alert_content = alert_content % alert_info 
+
+            # send alert-sms
+            for mobile in  sms_alert_lst:
+                SMSHelper.send(mobile, alert_content)
+
+            # send alert-email
+            subject = u'移动卫士离线监测'
+            EmailHelper.send(email_alert_lst, alert_content, email_alert_lst, files=[], subject=subject) 
+            logging.info("[CK] alert_info: %s belongs to special corp: %s, remind associated staff", 
+                         alert_info, corp)
+
     def update_terminal_status(self, info):
+        """Update the terminal info according the latest infomation.
+        """
         terminal_info_key = get_terminal_info_key(info['tid'])
         terminal_info = self.redis.getvalue(terminal_info_key)
         if not terminal_info:
