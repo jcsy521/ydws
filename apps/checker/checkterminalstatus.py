@@ -146,7 +146,7 @@ class CheckTerminalStatus(object):
 
         # 13600335550 三乡, 15919176710 北京测试网
         alert_cid = [13600335550, 15919176710]
-        sms_alert_lst = [15992657276, 13750012868, 15919161805, 13693675352, 18310505991]
+        sms_alert_lst = [15992657276, 13693675352]
         email_alert_lst = ['liyun.sun@dbjtech.com', 'shi.chen@dbjtech.com', 'chunfan.yang@dbjtech.com']
         email_alert_lst_cc = ['jiaolei.jia@dbjtech.com','boliang.guan@dbjtech.com']
 
