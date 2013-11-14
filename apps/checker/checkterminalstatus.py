@@ -161,15 +161,15 @@ class CheckTerminalStatus(object):
                              offline_cause='',
                              pbat='',
                              offline_time='')
-        t = self.db.get("select cid from V_TERMINAL where tid = %s limit 1", 
+        t = self.db.get("SELECT cid FROM V_TERMINAL WHERE tid = %s LIMIT 1", 
                         tid)
         cid = t.cid if t.get('cid', None) is not None else ''
         if int(cid) not in alert_cid:
             pass
         else:
-            terminal = self.db.get("select mobile, owner_mobile, offline_time, pbat, offline_time"
-                                   "  from T_TERMINAL_INFO where tid = %s", tid)
-            corp = self.db.get("select name, alert_mobile from T_CORP where cid = %s", cid)
+            terminal = self.db.get("SELECT mobile, owner_mobile, offline_time, pbat, offline_time"
+                                   "  FROM T_TERMINAL_INFO WHERE tid = %s", tid)
+            corp = self.db.get("SELECT name, alert_mobile FROM T_CORP WHERE cid = %s", cid)
             sms_alert_lst.append(corp.alert_mobile)
 
             alert_info.tmobile = terminal.mobile 
@@ -191,7 +191,7 @@ class CheckTerminalStatus(object):
 
             # send alert-email
             subject = u'移动卫士离线监测'
-            EmailHelper.send(email_alert_lst, alert_content, email_alert_lst, files=[], subject=subject) 
+            EmailHelper.send(email_alert_lst, alert_content, email_alert_lst_cc, files=[], subject=subject) 
             logging.info("[CK] alert_info: %s belongs to special corp: %s, remind associated staff", 
                          alert_info, corp)
 
