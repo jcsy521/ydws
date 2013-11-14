@@ -181,7 +181,7 @@ class CheckTerminalStatus(object):
             alert_info.pbat= terminal.pbat 
             alert_info.offline_cause = u'缺电关机' if terminal.pbat < 5 else u'通讯异常' 
 
-            alert_content = u'尊敬的用户，您好：\n\t现移动卫士平台检测到终端:（终端号码：%(tmobile)s；车主号码：%(umobile)s；集团名称：%(corp_name)s； 离线原因：%(offline_cause)s ； 离线时电量：%(pbat)s；离线时间：%(offline_time)s）离线，请相关人员尽快核查。' 
+            alert_content = u'尊敬的用户，您好：\n\t移动卫士平台检测到终端离线:（终端号码：%(tmobile)s；车主号码：%(umobile)s；集团名：%(corp_name)s； 离线原因：%(offline_cause)s ； 离线时电量：%(pbat)s；离线时间：%(offline_time)s），请相关人员尽快核查。' 
 
             alert_content = alert_content % alert_info 
 
