@@ -163,7 +163,7 @@ class CheckTerminalStatus(object):
                              offline_time='')
         t = self.db.get("SELECT cid FROM V_TERMINAL WHERE tid = %s LIMIT 1", 
                         tid)
-        cid = t.cid if t.get('cid', None) is not None else ''
+        cid = t.cid if t.get('cid', None) is not None else '0'
         if int(cid) not in alert_cid:
             pass
         else:
