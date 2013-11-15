@@ -165,7 +165,7 @@ class NotifyHelper(object):
                         6:u'通讯异常',
                         7:u'进入围栏',
                         8:u'离开围栏',
-                        9:u'断电' }
+                        9:u'断电告警' }
             t_alias= t_alias if len(t_alias)<=11 else t_alias[:8]+u'...'
             alert = u"您的定位器 “%s” 产生了%s" % (t_alias, CATEGORY[category])
 
