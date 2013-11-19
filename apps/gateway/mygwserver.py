@@ -670,8 +670,8 @@ class MyGWServer(object):
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, defend_status,"
-                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit, alias, vibl, use_scene)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit, alias, vibl, use_scene, stop_interval)"
+                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 t_info['dev_id'], group_id, t_info['dev_type'],
                                 t_info['t_msisdn'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'],
@@ -682,7 +682,7 @@ class MyGWServer(object):
                                 int(time.mktime(begintime.timetuple())),
                                 int(time.mktime(endtime.timetuple())),
                                 int(time.mktime(begintime.timetuple())),
-                                login_permit, alias, vibl, use_scene)
+                                login_permit, alias, vibl, use_scene, 1800)
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
                                 t_info['dev_id'])
@@ -1257,14 +1257,15 @@ class MyGWServer(object):
                            move_val="",
                            trace_para="",
                            vibl="",
-                           use_scene="")
+                           use_scene="",
+                           stop_interval="")
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
                 self.update_terminal_status(head.dev_id, address)
                 terminal = self.db.get("SELECT track, freq, trace, static_val,"
-                                       "       move_val, trace_para, vibl, domain, use_scene"
+                                       "       move_val, trace_para, vibl, domain, use_scene, stop_interval"
                                        "  FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s", head.dev_id)
                 args.domain = terminal.domain
@@ -1273,6 +1274,7 @@ class MyGWServer(object):
                 args.static_val = terminal.static_val
                 args.move_val = terminal.move_val
                 args.use_scene = terminal.use_scene
+                args.stop_interval = terminal.stop_interval
                 if terminal.track == 1: # turn on track
                     args.trace_para = "60:1"
                 else:

@@ -396,6 +396,12 @@
 										</select>
 									</td>
 								</tr>
+								<tr class="corp_terminalTdL">
+									<td class="corp_terminalTdL">停留告警:</td>
+									<td id="corp_stop_interval"  class="j_corp_ListVal"  t_val="">
+										停留超过<input type="text" id="t_corp_stop_interval" terminalkey="stop_interval"  class="text_mouseOut j_onInputBlur" max = "4"  who="validateLength" parent="terminalWrapper" />分钟,上报告警
+									</td>
+								</tr>
 								<!--<tr class="j_corp_terminal">
 									<td class="corp_terminalTdL" >告警模式:</td>
 									<td id="corp_alert_freq"  class="j_corp_ListVal j_input"  t_val="">
@@ -411,7 +417,7 @@
 										<span class="autoContainer hide j_corp__common" id="corp_common">检测到震动，立刻告警</span>
 									</td>
 								</tr>-->
-								<tr class="j_corp_terminal">
+								<tr class="j_corp_terminal cCorpNum">
 									<td class="corp_terminalTdL" >定位器名称:</td>
 									<td id="corp_corp_cnum"  class="j_corp_ListVal j_input"  t_val="">
 										<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur" max = "20"  who="validateLength" parent="terminalWrapper"   />
@@ -1039,6 +1045,7 @@
 								<option value="3">震动</option>
 								<option value="4">移动</option>
 								<option value="9">断电</option>
+								<option value="10">停留</option>
 							</select>
 						</span>
 					</td>

@@ -1108,6 +1108,9 @@ window.dlf.fn_eventText = function(n_eventNum) {
 		case 9:
 			str_text = '断电';
 			break;
+		case 10:
+			str_text = '停留';
+			break;
 	}
 	return str_text;
 }

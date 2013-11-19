@@ -29,6 +29,8 @@ class AsyncRespComposer(BaseComposer):
             args.command = S_MESSAGE_TYPE.ILLEGALSHAKE
         elif args.command == T_MESSAGE_TYPE.EMERGENCY:
             args.command = S_MESSAGE_TYPE.EMERGENCY
+        elif args.command == T_MESSAGE_TYPE.STOP:
+            args.command = S_MESSAGE_TYPE.STOP
         elif args.command == T_MESSAGE_TYPE.DEFENDSTATUS:
             args.command = S_MESSAGE_TYPE.DEFENDSTATUS
         elif args.command == T_MESSAGE_TYPE.SLEEPSTATUS:

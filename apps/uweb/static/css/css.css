@@ -1091,6 +1091,17 @@ body {
 	height: 22px;
 	padding-top: 1px;
 }
+#corp_stop_interval {
+	padding-left: 10px;
+    text-align: left;
+}
+#t_corp_stop_interval {
+	margin-right: 10px;
+    width: 62px;
+}
+.bListR .cCorpNum {
+	height: 40px;
+}
 .bListR span {
 	display: inline-block;
 	width: 214px;

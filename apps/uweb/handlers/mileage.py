@@ -30,6 +30,7 @@ class MileageHandler(BaseHandler):
 
     @authenticated
     @tornado.web.removeslash
+    @tornado.web.asynchronous
     def post(self):
         """ Provide some statistics about terminals.
         """
@@ -59,6 +60,7 @@ class MileageHandler(BaseHandler):
                 pass
             elif (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                 self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
+                self.finish()
                 return
 
             statistic_mode = 'single' 
@@ -66,7 +68,17 @@ class MileageHandler(BaseHandler):
                 statistic_mode = 'all' 
                 terminals = QueryHelper.get_terminals_by_cid(self.current_user.cid, self.db)
                 tids = [terminal.tid for terminal in terminals]
+        except Exception as e:
+            logging.exception("[UWEB] cid:%s, oid:%s get mileage report failed. Exception: %s",
+                              self.current_user.cid, self.current_user.oid, e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+            self.finish()
+            return
 
+        def _on_finish(db):
+            self.db = db
+            page_count = int(data.pagecnt)
             if statistic_mode == 'all':
                 if page_count == -1:
                     count = len(tids)
@@ -253,13 +265,9 @@ class MileageHandler(BaseHandler):
                                           graphics=graphics,
                                           pagecnt=page_count,
                                           hash_=hash_)) 
+            self.finish()
+        self.queue.put((10, _on_finish))
   
-        except Exception as e:
-            logging.exception("[UWEB] cid:%s, oid:%s get mileage report failed. Exception: %s",
-                              self.current_user.cid, self.current_user.oid, e.args)
-            status = ErrorCode.SERVER_BUSY
-            self.write_ret(status)
-
 class MileageDownloadHandler(MileageHandler):
 
     @authenticated

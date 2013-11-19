@@ -30,6 +30,7 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          POWERDOWN="T26",
                          UNUSUALACTIVATE="T27",
                          MISC="T28",
+                         STOP="T29",
                          AGPS="T100"
                          )
 
@@ -61,6 +62,7 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          POWERDOWN="S26",
                          UNUSUALACTIVATE="S27",
                          MISC="S28",
+                         STOP="S29",
                          AGPS="S100"
                          )
 

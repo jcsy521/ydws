@@ -101,6 +101,7 @@ class EventHandler(BaseHandler):
                               7, # region enter
                               8, # retion out
                               9, # power off
+                              10, # stop
                               ]
 
             if category is not None:

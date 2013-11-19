@@ -148,7 +148,9 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 								str_val = obj_data['mobile'];
 							}
 							dlf.fn_updateCorpCnum(str_val);	// 更新最新的定位器名称
-						} else {
+						} else if ( param == 'stop_interval' ) { //停留告警时间
+							$('#t_corp_stop_interval').val(parseInt(str_val/60));
+						}else {
 							obj_param.html(str_val);
 						}
 					}
@@ -284,6 +286,9 @@ window.dlf.fn_corpBaseSave = function() {
 		if ( str_key == 'corp_alert_freq' ) {	// 单独处理 告警工作模式
 			str_newVal = $('#t_corp_alert_freq').val();
 		}
+		if ( str_key == 'stop_interval' ) {	// 单独处理 停留告警
+			str_newVal = parseInt(str_newVal*60);
+		}
 		if ( str_newVal != str_oldVal ) {	// 判断参数是否有修改
 			if ( str_class.search('j_white_list') != -1 ) {	// 白名单 [车主手机号,白名单1,白名单2,...]
 				str_key = 'owner_mobile';
@@ -294,6 +299,8 @@ window.dlf.fn_corpBaseSave = function() {
 			if ( str_key == 'freq' || str_key == 'vibl' ) {
 				str_newVal = parseInt(str_newVal);
 			} else if ( str_key == 'alert_freq' ) {
+				str_newVal = parseInt(str_newVal)*60;
+			} else if ( str_key == 'stop_interval' ) {
 				str_newVal = parseInt(str_newVal)*60;
 			}
 			obj_terminalData[str_key] = str_newVal;
@@ -380,7 +387,8 @@ $(function() {
 		onSuccess: function() {
 			var str_val = $('#t_corp_corp_cnum').val(),
 				str_alert_freq = $('#t_corp_alert_freq').val(),
-				str_mode = $('#corp_alert_freq_mode').val();
+				str_mode = $('#corp_alert_freq_mode').val(),
+				str_stopInterVal = $('#t_corp_stop_interval').val();
 			
 			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
 				dlf.fn_jNotifyMessage('定位器名称不能为空，请重新输入。', 'message', false, 3000);
@@ -400,11 +408,21 @@ $(function() {
 					}
 				}
 			}
+			
+			if ( str_stopInterVal == '' ) {
+				dlf.fn_jNotifyMessage('请输入停留告警的时间！', 'message', false, 3000);
+				return;
+			}
+			if ( str_stopInterVal < 1 || str_stopInterVal > 1440 ) {
+				dlf.fn_jNotifyMessage('停留告警的时间范围(1-1440分钟)！', 'message', false, 3000);
+				return;
+			}
+			
 			dlf.fn_corpBaseSave();	// put请求
 		}
 	});
 	$('#t_corp_owner_mobile').formValidator({validatorGroup: '7'}).inputValidator({max: 11, onError: '短信接收号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '短信接收号码不合法，请重新输入！'});
-	$('#t_corp_corp_cnum').formValidator({validatorGroup: '7'}).inputValidator({min: 1, onErrorMin: '定位器名称不能为空，请重新输入。', max: 20, onErrorMax: '定位器名称最多可输入20个字符！'});   // 别名;.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写英文、空格组成！'})
+	$('#t_corp_corp_cnum').formValidator({validatorGroup: '7'}).inputValidator({min: 1, onErrorMin: '定位器名称不能为空，请重新输入。', max: 20, onErrorMax: '定位器名称最多可输入20个字符！'});   // 别名;.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写英文、空格组成！'});
 	
 	/** 
 	* 短息设置的验证

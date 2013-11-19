@@ -95,6 +95,7 @@ class TrackHandler(BaseHandler):
 
     @authenticated
     @tornado.web.removeslash
+    @tornado.web.asynchronous
     def post(self):
         """Get track through tid in some period."""
         status = ErrorCode.SUCCESS
@@ -108,6 +109,7 @@ class TrackHandler(BaseHandler):
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
+            self.finish()
             return 
 
         try:
@@ -142,8 +144,18 @@ class TrackHandler(BaseHandler):
             # the interval between start_time and end_time is one week
             if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                 self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
+                self.finish()
                 return
+        except Exception as e:
+            logging.exception("[UWEB] uid: %s, tid: %s get track failed. Exception: %s. ", 
+                              self.current_user.uid, self.current_user.tid, e.args )
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+            self.finish()
+            return
 
+        def _on_finish(db):
+            self.db = db
             if cellid_flag == 1:
                 # gps track and cellid track
                 track = self.db.query("SELECT id, latitude, longitude, clatitude,"
@@ -240,11 +252,9 @@ class TrackHandler(BaseHandler):
                            dict_=DotDict(track=track,
                                          idle_points=idle_points,
                                          hash_=hash_))
-        except Exception as e:
-            logging.exception("[UWEB] uid: %s, tid: %s get track failed. Exception: %s. ", 
-                              self.current_user.uid, self.current_user.tid, e.args )
-            status = ErrorCode.SERVER_BUSY
-            self.write_ret(status)
+            self.finish()
+
+        self.queue.put((10, _on_finish))
 
 class TrackDownloadHandler(TrackHandler):
 

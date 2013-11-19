@@ -44,7 +44,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             # 1: terminal 
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
                                    "       vibchk, tid as sn, mobile, vibl, static_val, alert_freq,"
-                                   "       white_pop, push_status, icon_type, owner_mobile, login_permit"
+                                   "       white_pop, push_status, icon_type, owner_mobile, login_permit, stop_interval"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s"
@@ -122,6 +122,12 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  sessionID_key = get_terminal_sessionID_key(tid)
                  logging.info("[UWEB] Termianl %s delete session in redis.", tid)
                  self.redis.delete(sessionID_key)
+            # if stop_interval has been changed, then clear session to notify terminal
+            if data.get("stop_interval"):
+                 sessionID_key = get_terminal_sessionID_key(tid)
+                 logging.info("[UWEB] Termianl %s delete session in redis.", tid)
+                 self.redis.delete(sessionID_key)
+
             logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:

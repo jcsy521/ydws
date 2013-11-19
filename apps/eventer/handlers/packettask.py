@@ -448,7 +448,11 @@ class PacketTask(object):
                 if region.get('region_name', None): 
                     region.comment = u"围栏名：%s" % region.region_name
                 
-            self.notify_to_parents(name, report, user, region_id) 
+            if report.rName == EVENTER.RNAME.STOP:
+                logging.info("[EVENTER] %s altert needn't to push to user. Terminal: %s",
+                             report.rName, report.dev_id)
+            else:
+                self.notify_to_parents(name, report, user, region_id) 
         else:
             logging.info("[EVENTER] Push option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)
