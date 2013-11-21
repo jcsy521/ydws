@@ -601,7 +601,7 @@ class MyGWServer(object):
                     icon_type = terminal.icon_type
                     alias = terminal.alias
                     vibl = terminal.vibl
-                    use_secen = terminal.use_secen
+                    use_scene = terminal.use_scene
                     push_status = terminal.push_status
                     if terminal.tid == terminal.mobile:
                         # corp terminal login first, keep corp info
