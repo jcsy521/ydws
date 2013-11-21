@@ -1803,7 +1803,7 @@ function fn_initCreateTerminal(obj_node, str_groupId) {
 	$('#hidGroupId').val(str_groupId);	// 保存groupId
 	$('.j_corpData').val('');
 	$('#hidTMobile').val('');
-	$('#c_corp_push_status1, #c_login_permit1, #c_icon_type0').attr('checked', 'checked');
+	$('#c_corp_push_status1, #c_login_permit0, #c_icon_type0').attr('checked', 'checked');
 	$('#c_corp_vibl').val(1);
 }
 
