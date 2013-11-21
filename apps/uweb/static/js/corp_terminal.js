@@ -305,8 +305,6 @@ window.dlf.fn_corpBaseSave = function() {
 				str_newVal = parseInt(str_newVal);
 			} else if ( str_key == 'alert_freq' ) {
 				str_newVal = parseInt(str_newVal)*60;
-			} else if ( str_key == 'stop_interval' ) {
-				str_newVal = parseInt(str_newVal)*60;
 			}
 			obj_terminalData[str_key] = str_newVal;
 		}
