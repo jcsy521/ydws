@@ -65,6 +65,10 @@ class TerminalMixin(BaseMixin):
                                 "  SET cnum = %s"
                                 "  WHERE tid = %s",
                                 value, self.current_user.tid)
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET alias = %s"
+                                "  WHERE tid = %s",
+                                value, self.current_user.tid)
                 terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
                 if not terminal.alias:
                     terminal_info_key = get_terminal_info_key(self.current_user.tid)
