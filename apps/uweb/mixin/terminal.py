@@ -69,13 +69,11 @@ class TerminalMixin(BaseMixin):
                                 "  SET alias = %s"
                                 "  WHERE tid = %s",
                                 value, self.current_user.tid)
-                terminal = QueryHelper.get_terminal_by_tid(self.current_user.tid, self.db)
-                if not terminal.alias:
-                    terminal_info_key = get_terminal_info_key(self.current_user.tid)
-                    terminal_info = self.redis.getvalue(terminal_info_key)
-                    if terminal_info:
-                        terminal_info['alias'] = value if value else self.current_user.sim
-                        self.redis.setvalue(terminal_info_key, terminal_info)
+                terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                if terminal_info:
+                    terminal_info['alias'] = value if value else self.current_user.sim
+                    self.redis.setvalue(terminal_info_key, terminal_info)
             elif key == 'owner_mobile':
                 if value is not None:
                     umobile = value
