@@ -1333,7 +1333,7 @@ window.dlf.fn_initAutoComplete = function() {
 			
 			$('#txtautoComplete').val(ui.item.label);
 			if ( str_crntTid == str_tid ) {
-				return false;
+				//return false;
 			}
 			dlf.fn_switchCar(str_tid, obj_itemLi);
 			return false;
@@ -1794,6 +1794,8 @@ function fn_initCreateTerminal(obj_node, str_groupId) {
 	$('#hidGroupId').val(str_groupId);	// 保存groupId
 	$('.j_corpData').val('');
 	$('#hidTMobile').val('');
+	$('#c_corp_push_status1, #c_login_permit1, #c_icon_type0').attr('checked', 'checked');
+	$('#c_corp_vibl').val(1);
 }
 
 /**
@@ -1803,7 +1805,10 @@ window.dlf.fn_cTerminalSave = function() {
 	var str_tmobile = $('#c_tmobile').val(),
 		str_umobile = $('#c_umobile').val(),
 		str_cnum = $('#c_cnum').val(),
-		n_iconType = parseInt($('.cTerminalList input:checked').val());
+		n_pushStatus = $('#cTerminalForm input[name="corp_cStatus"]input:checked').val(),
+		n_loginPermit = $('#cTerminalForm input[name="clogin_permit"]input:checked').val(),
+		n_corpVibl = $('#c_corp_vibl').val(),
+		n_iconType = $('#cTerminalForm input[name="c_icon_type"]input:checked').val(), 
 		n_groupId = parseInt($('#hidGroupId').val()),
 		obj_corpData = {};
 		
@@ -1812,6 +1817,10 @@ window.dlf.fn_cTerminalSave = function() {
 	obj_corpData['umobile'] = str_umobile;
 	obj_corpData['cnum'] = str_cnum;
 	obj_corpData['icon_type'] = n_iconType;
+	
+	obj_corpData['push_status'] = n_pushStatus;
+	obj_corpData['login_permit'] = n_loginPermit;
+	obj_corpData['vibl'] = n_corpVibl;
 	dlf.fn_jsonPost(TERMINALCORP_URL, obj_corpData, 'cTerminal', '定位器信息保存中');
 }
 

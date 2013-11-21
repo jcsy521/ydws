@@ -2547,11 +2547,18 @@ body {
 }
 #cTerminalWrapper, #cTerminalEditWrapper {
 	width: 448px;
-	height: 256px;
+	height: 384px;
 }
 .cTerminalContent, .cTerminalEditContent {
 	padding-top: 10px;
-	height: 212px;
+	height: 340px;
+}
+#cTerminalSave {
+	margin-left: 273px;
+}
+#c_corp_vibl {
+	position: relative;
+    top: 7px;
 }
 .staticsContent {
 	width: 800px;

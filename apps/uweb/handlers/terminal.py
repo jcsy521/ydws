@@ -311,13 +311,22 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
             # record the add action
             record_add_action(data.tmobile, data.group_id, int(time.time()), self.db)
+            vibl = data.get("vibl")
+            if vibl == 1:
+                use_scene = 3 # car
+            elif vibl == 2:
+                use_scene = 1 # moto car
+            elif vibl == 3:
+                use_scene = 9 # human
+            else:
+                use_scene = 3 # default car scene
 
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  defend_status, mannual_status, begintime, endtime, offline_time, icon_type, login_permit)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            "  defend_status, mannual_status, begintime, endtime, offline_time, alias, icon_type, login_permit, push_status, vibl, use_scene)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                             data.tmobile, data.group_id,
                             data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                            UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.icon_type, 0)
+                            UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, data.login_permit, data.push_status, data.vibl, use_scene)
     
             # 1: add user
             user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)

@@ -454,7 +454,7 @@ class MyGWServer(object):
         # new softversion, new meaning, 1: active; othter: normal login
         flag = t_info['psd'] 
         terminal = self.db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status,"
-                               "       defend_status, mannual_status, icon_type, login_permit, alias"
+                               "       defend_status, mannual_status, icon_type, login_permit, alias, vibl, use_scene, push_status"
                                "  FROM T_TERMINAL_INFO"
                                "  WHERE mobile = %s LIMIT 1",
                                t_info['t_msisdn']) 
@@ -524,6 +524,9 @@ class MyGWServer(object):
             defend_status = UWEB.DEFEND_STATUS.YES
             icon_type = 0
             alias = ''
+            push_status = 1
+            vibl = 1
+            use_scene = 3
             # send JH sms to terminal. default active time is one year.
             begintime = datetime.datetime.now() 
             endtime = begintime + relativedelta(years=1)
@@ -597,6 +600,9 @@ class MyGWServer(object):
                     defend_status = terminal.defend_status
                     icon_type = terminal.icon_type
                     alias = terminal.alias
+                    vibl = terminal.vibl
+                    use_secen = terminal.use_secen
+                    push_status = terminal.push_status
                     if terminal.tid == terminal.mobile:
                         # corp terminal login first, keep corp info
                         self.db.execute("UPDATE T_REGION_TERMINAL"
@@ -661,31 +667,31 @@ class MyGWServer(object):
                 # check use sence
                 ttype = get_terminal_type_by_tid(t_info['dev_id'])
                 logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id'], ttype) 
-                if ttype == 'zj200':
-                    use_scene = 1
-                    vibl = 2 
-                else:
-                    use_scene = 3
-                    vibl = 1
+               # if ttype == 'zj200':
+               #     use_scene = 1
+               #     vibl = 2 
+               # else:
+               #     use_scene = 3
+               #     vibl = 1
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, defend_status,"
-                                "  mannual_status, icon_type, begintime, endtime, offline_time, login_permit, alias, vibl, use_scene, stop_interval)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  mannual_status, push_status, icon_type, begintime, endtime, offline_time, login_permit, alias, vibl, use_scene, stop_interval)"
+                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 t_info['dev_id'], group_id, t_info['dev_type'],
                                 t_info['t_msisdn'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'],
                                 t_info['factory_name'],
                                 t_info['softversion'], t_info['keys_num'], 
                                 GATEWAY.SERVICE_STATUS.ON,
-                                defend_status, mannual_status, icon_type,
+                                defend_status, mannual_status, push_status, icon_type,
                                 int(time.mktime(begintime.timetuple())),
                                 int(time.mktime(endtime.timetuple())),
                                 int(time.mktime(begintime.timetuple())),
                                 login_permit, alias, vibl, use_scene, 1800)
-                self.db.execute("INSERT INTO T_CAR(tid)"
-                                "  VALUES(%s)",
-                                t_info['dev_id'])
+                self.db.execute("INSERT INTO T_CAR(tid, cnum)"
+                                "  VALUES(%s, %s)",
+                                t_info['dev_id'], alias)
                 logging.info("[GW] Tmobile: %s with tid: %s JH success!",
                              t_info['t_msisdn'], t_info['dev_id'])
                 # subscription LE for new sim

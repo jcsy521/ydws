@@ -935,6 +935,34 @@
 						</td>
 					</tr>
 					<tr>
+						<td>
+							<label class="cTerminalLabel">客户端通知：</label>
+							<input id="c_corp_push_status1" type="radio" value="1" name="corp_cStatus" checked />
+							<label id="c_tpsLable1" for="c_corp_push_status1">开启</label>
+							<input id="c_corp_push_status0" type="radio" value="0" name="corp_cStatus" />
+							<label id="c_tpsLable0" for="c_corp_push_status0">关闭</label>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label class="cTerminalLabel">客户端登录：</label>
+							<input type="radio" id="c_login_permit1"  name="clogin_permit" value="1" checked />
+							<label for="c_login_permit1">允许</label>
+							<input type="radio" id="c_login_permit0"  name="clogin_permit" value="0"  />
+							<label for="c_login_permit0">不允许</label>
+						</td>
+					</tr>
+					<tr class="j_corp_terminal">
+						<td>
+							<label class="cTerminalLabel">震动灵敏度：</label>
+							<select id="c_corp_vibl" terminalkey="vibl">
+								<option value="1">灵敏 ( 适用汽车 )</option>
+								<option value="2">正常 ( 适用电动车 / 摩托车 )</option>
+								<option value="3">不灵敏 ( 适用于随身携带 )</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
 						<td class="corp_radio">
 							<label class="cTerminalLabel">图标：</label>
 							<input type="radio" id="c_icon_type0"  name="c_icon_type" value="0" checked />

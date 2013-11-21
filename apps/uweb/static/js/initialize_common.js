@@ -469,10 +469,19 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				n_itemLiOffsetTop = obj_currentItem.offset().top,	// 要搜索的终端的offset
 				n_corpOffsetTop = obj_tree.offset().top,	// 集团的offset 
 				n_sub = Math.abs(n_itemLiOffsetTop - n_oldOffsetTop),	// 上一个和当前的高度差
-				n_scrollTop = n_itemLiOffsetTop - n_corpOffsetTop;
+				n_scrollTop = n_itemLiOffsetTop - n_corpOffsetTop,
+				n_treeScrollTop = obj_tree.scrollTop();
+			
+			// 思路:根据当前tree的滚动条的位置(scrollTop),根据要查的终端所在的位置及正负进行加减运算
+			if ( n_itemLiOffsetTop < 168 ) { //<小于168像素(168为tree到距屏幕顶部) 
+				if ( n_itemLiOffsetTop > 0 ){ // 如果要查的终端小于168大于0
+					obj_tree.scrollTop(n_treeScrollTop-n_itemLiOffsetTop);
+				} else { // 如果要查的终端小于0
+					obj_tree.scrollTop(n_treeScrollTop+n_itemLiOffsetTop-168);
+				}
 				
-			if ( n_itemLiOffsetTop <= 168 || n_itemLiOffsetTop >= n_treeHeight+160 ) {
-				obj_tree.scrollTop(n_itemLiOffsetTop-n_corpOffsetTop);
+			} else if (n_itemLiOffsetTop > n_treeHeight+168 ) { //如果要查的终端大于tree的能见区域 > tree的高度+168(168为tree到距屏幕顶部) 
+				obj_tree.scrollTop(n_treeScrollTop+n_itemLiOffsetTop-168);
 			}
 		}, 500);
 		
@@ -1702,6 +1711,8 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					//str_currentTid = obj_data.tmobile;
 					b_createTerminal = true;	// 标记 是新增定位器操作 以便switchcar到新增车辆
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+					//todoing......................
+					str_currentTid = obj_data.tmobile;
 					dlf.fn_corpGetCarData();
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				} else if ( str_who == 'operator' ) {
