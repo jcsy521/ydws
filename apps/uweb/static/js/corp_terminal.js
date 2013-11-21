@@ -286,9 +286,14 @@ window.dlf.fn_corpBaseSave = function() {
 		if ( str_key == 'corp_alert_freq' ) {	// 单独处理 告警工作模式
 			str_newVal = $('#t_corp_alert_freq').val();
 		}
-		if ( str_key == 'stop_interval' ) {	// 单独处理 停留告警
+		if ( str_key == 'corp_stop_interval' ) {	// 单独处理 停留告警
 			str_newVal = parseInt(str_newVal*60);
 		}
+		/*if ( str_key == 'corp_corp_cnum' ) {	// 定位器名称
+			if ( str_newVal != str_oldVal && str_newVal.length > 0 ) {
+				obj_terminalData['corp_cnum'] = str_newVal;
+			}
+		}*/
 		if ( str_newVal != str_oldVal ) {	// 判断参数是否有修改
 			if ( str_class.search('j_white_list') != -1 ) {	// 白名单 [车主手机号,白名单1,白名单2,...]
 				str_key = 'owner_mobile';
@@ -386,13 +391,23 @@ $(function() {
 		}, 
 		onSuccess: function() {
 			var str_val = $('#t_corp_corp_cnum').val(),
+				str_oldVal = $('#corp_corp_cnum').attr('t_val'),
 				str_alert_freq = $('#t_corp_alert_freq').val(),
 				str_mode = $('#corp_alert_freq_mode').val(),
 				str_stopInterVal = $('#t_corp_stop_interval').val();
 			
-			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
+			
+			if ( (str_val.length > 0 && $.trim(str_val).length == 0) ) {
 				dlf.fn_jNotifyMessage('定位器名称不能为空，请重新输入。', 'message', false, 3000);
 				return;
+			} else {
+				// 如果旧的值是0 新的值也是0
+				if ( str_oldVal.length == 0 && str_val.length == 0 ) {
+					
+				} else if ( str_oldVal.length > 0 && str_val.length == 0 ) {
+					dlf.fn_jNotifyMessage('定位器名称不能为空，请重新输入。', 'message', false, 3000);
+					return;
+				}
 			}
 			if ( str_mode == '1' ) {
 				if ( str_alert_freq <= 0 ) {
@@ -422,7 +437,7 @@ $(function() {
 		}
 	});
 	$('#t_corp_owner_mobile').formValidator({validatorGroup: '7'}).inputValidator({max: 11, onError: '短信接收号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '短信接收号码不合法，请重新输入！'});
-	$('#t_corp_corp_cnum').formValidator({validatorGroup: '7'}).inputValidator({min: 1, onErrorMin: '定位器名称不能为空，请重新输入。', max: 20, onErrorMax: '定位器名称最多可输入20个字符！'});   // 别名;.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写英文、空格组成！'});
+	$('#t_corp_corp_cnum').formValidator({validatorGroup: '7', empty: true}).inputValidator({max: 20, onErrorMax: '定位器名称最多可输入20个字符！'});   // 别名;.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写英文、空格组成！'});
 	
 	/** 
 	* 短息设置的验证

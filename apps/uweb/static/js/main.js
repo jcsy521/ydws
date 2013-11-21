@@ -837,11 +837,20 @@ $(function () {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
 		}, 
 		onSuccess: function() { 
-			var str_name = $('#name').val(); //str_val = $('#cnum').val(),
+			var str_name = $('#name').val(),
+				str_oldVal = $('#corp_cnum').attr('t_val');
 			
 			if ( str_name.length > 0 && $.trim(str_name).length == 0 ) {
 				dlf.fn_jNotifyMessage('用户姓名不能为空，请重新输入。', 'message', false, 3000);
 				return;
+			} else {
+				// 如果旧的值是0 新的值也是0
+				if ( str_oldVal.length == 0 && str_val.length == 0 ) {
+					
+				} else if ( str_oldVal.length > 0 && str_val.length == 0 ) {
+					dlf.fn_jNotifyMessage('定位器名称不能为空，请重新输入。', 'message', false, 3000);
+					return;
+				}
 			}
 			/*if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
 				dlf.fn_jNotifyMessage('定位器名称不能只输入空格。', 'message', false, 3000);
@@ -851,7 +860,7 @@ $(function () {
 		}
 	});
 	
-	$('#name').formValidator({validatorGroup: '1'}).inputValidator({min: 1, onErrorMin: '用户姓名不能为空，请重新输入。', max: 20, onErrorMax: '用户姓名最多可输入20个字符！'});  // 别名.regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"});
+	$('#name').formValidator({validatorGroup: '1', empty: true}).inputValidator({min: 1, onErrorMin: '用户姓名不能为空，请重新输入。', max: 20, onErrorMax: '用户姓名最多可输入20个字符！'});  // 别名.regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"});
 	
 
 	/**
