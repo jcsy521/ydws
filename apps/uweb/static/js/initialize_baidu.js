@@ -118,7 +118,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	*/
 	if ( obj_tempVal ) { // 追加
 		if ( str_actionTrack == 'yes' ) {
-			var str_tempOldColor = obj_actionTrack[str_tid].color;
+			var str_tempOldColor = obj_actionTrack[str_tid].color,
+				obj_tempCarsData = $('.j_carList').data('carsData');
 			
 			if ( arr_trackPoints ) {
 				for ( var x = 0; x < arr_trackPoints.length; x ++ ) {
@@ -131,21 +132,23 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 					
 					if ( n_pointType == GPS_TYPE ) {
 						obj_tempVal.val.push(obj_tempTrackPoint);
-						if ( b_isCorpUser ) {
+						/*if ( b_isCorpUser ) {
 							obj_carsData[str_tid].timestamp = n_trackTimestamp;
 						} else {
 							$('.j_carList').data('carsData')[str_tid].timestamp = n_trackTimestamp;
-						}
+						} #todo */
+						obj_tempCarsData[str_tid].timestamp = n_trackTimestamp;
 					}
 				}
 			}
 			if ( n_pointType == GPS_TYPE ) {
 				obj_tempVal.val.push(obj_tempPoint);
-				if ( b_isCorpUser ) {
+				/*if ( b_isCorpUser ) {
 					obj_carsData[str_tid].timestamp = n_carTimestamp;
 				} else {
 					$('.j_carList').data('carsData')[str_tid].timestamp = n_carTimestamp;
-				}
+				} #todo */
+				obj_tempCarsData[str_tid].timestamp = n_carTimestamp;
 			}
 			if ( str_tempOldColor == '' ) {
 				str_tempOldColor = str_randomColor;

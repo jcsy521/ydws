@@ -11,8 +11,7 @@
 * obj_tracePolylines: 甩尾轨迹线
 * arr_tracePoints: 甩尾数据点
 */
-var obj_carsData = {},
-	str_currentTid = '',
+var str_currentTid = '',
 	arr_autoCompleteData = [],
 	b_createTerminal = false,
 	n_onlineCnt = 0,
@@ -444,11 +443,11 @@ function fn_batchOperateValidate(obj, str_msg) {
 				str_tid = obj_terminalALink.attr('tid'),
 				str_alias = obj_terminalALink.attr('alias'),	// tnum
 				str_tmobile = obj_terminalALink.attr('title');	// tmobile
-				//obj_carsData = $('.j_carList').data('carsData');	// todo 
+				obj_tempCarsData = $('.j_carList').data('carsData');	// todo 
 			
 			if ( b_isChecked ) {
 				arr_tids.push(str_tid);
-				arr_dataes.push({'alias': dlf.fn_encode(str_alias), 'tmobile': str_tmobile, 'tid': str_tid, 'mennual_status': obj_carsData[str_tid].mannual_status});
+				arr_dataes.push({'alias': dlf.fn_encode(str_alias), 'tmobile': str_tmobile, 'tid': str_tid, 'mennual_status': obj_tempCarsData[str_tid].mannual_status});	// #todo obj_carsData[str_tid].mannual_status
 			}
 			obj_params['tids'] = arr_tids;
 			obj_params['characters'] = arr_dataes;
@@ -671,24 +670,25 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		// 循环所有定位器 找到当前定位器并更新车辆信息
 		var n_num = 0,
 			n_pointNum = 0,
-			arr_locations = [];
+			arr_locations = [],
+			obj_tempCarsData = $('.j_carList').data('carsData');	
 			
-		for ( var index in obj_carsData ) {
+		for ( var index in obj_tempCarsData ) {
 			n_num ++;
 			if ( n_num > 0 ) {
 				break;
 			}
 		}
 		if ( n_num > 0 ) {
-			for(var param in obj_carsData) {	// 加载完树后，更新alias
-				var str_alias = dlf.fn_decode(obj_carsData[param].alias);
+			for(var param in obj_tempCarsData) {	// 加载完树后，更新alias
+				var str_alias = dlf.fn_decode(obj_tempCarsData[param].alias);
 				
 				$('#leaf_'+param).attr('alias', str_alias);
 			}
 			$('.j_group .jstree-checked').each(function() {
 				var obj_terminalNode = $(this).children('.j_terminal'),
 					str_tid = obj_terminalNode.attr('tid'),
-					obj_car = obj_carsData[str_tid],
+					obj_car = obj_tempCarsData[str_tid],
 					obj_trace = obj_car.trace_info,	// 甩尾数据
 					obj_track = obj_car.track_info,	// 开启追踪点数据
 					n_enClon = obj_car.clongitude,
@@ -720,8 +720,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					dlf.fn_switchCar(str_currentTid, obj_newTerminal);
 					data.inst.open_all(0); // -1 opens all nodes in the container
 				} else {
-					for(var param in obj_carsData) {
-						var obj_carInfo = obj_carsData[param], 
+					for(var param in obj_tempCarsData) {
+						var obj_carInfo = obj_tempCarsData[param], 
 							str_tid = param;
 						
 						if ( str_currentTid == str_tid || str_checkedNodeId.substr(5, str_checkedNodeId.length) == str_tid ) {	// 更新当前车辆信息
@@ -816,7 +816,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			str_class = obj_currentLi.attr('class'),
 			n_terminalClass = str_class.indexOf('j_leafNode'),
 			n_groupClass = str_class.indexOf('j_group'),
-			n_corpClass = str_class.indexOf('j_corp');
+			n_corpClass = str_class.indexOf('j_corp'),
+			obj_tempCarsData = $('.j_carList').data('carsData');
 			
 		if ( n_terminalClass != -1 ) {	// 选中单个终端
 			var obj_current = obj_currentLi.children('.j_terminal')
@@ -833,7 +834,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						obj_current = obj_this.children('.j_terminal'),
 						str_tid = obj_current.attr('tid');
 					
-					dlf.fn_updateInfoData(obj_carsData[str_tid]);
+					dlf.fn_updateInfoData(obj_tempCarsData[str_tid]);
 				});
 				$('#loadingMsg').html('').hide();
 				dlf.fn_unLockScreen();
@@ -922,19 +923,20 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 		obj_param = {'lastinfo_time': -1},
 		str_lastinfoTime = $('.j_body').data('lastinfo_time'),
 		arr_tracklist = [],
+		obj_carsData = {},
 		obj_tempCarsData = $('.j_carList').data('carsData');
 
 	str_checkedNodeId = str_checkedNodeId == undefined ? 'leaf_' + str_currentTid : str_checkedNodeId;
 	str_tempTid = str_checkedNodeId.substr(5, str_checkedNodeId.length);
 	str_currentTid = obj_current.attr('tid');	// load.jstree时更新选中的车
 	
-	if ( dlf.fn_isEmptyObj(obj_carsData) ) {
+	if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
 		$('.j_terminal').each(function() {
 			var str_tid = $(this).attr('tid'),
 				str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
 				
 			if ( str_actionTrack == 'yes' ) {
-				arr_tracklist.push({'track_tid': str_tid, 'track_time': obj_carsData[str_tid].timestamp});
+				arr_tracklist.push({'track_tid': str_tid, 'track_time': obj_tempCarsData[str_tid].timestamp});
 			}
 		});
 	}
@@ -978,7 +980,9 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				str_html += '<ul>';
 				str_groupFirstId = 'group_' + arr_groups[0].gid;
 				
-				obj_carsData = {};
+				// #todo obj_carsData = {};
+				$('.j_carList').data('carsData', {});
+				
 				for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
 					var obj_group = arr_groups[i],
 						str_groupName = obj_group.name,
@@ -1094,6 +1098,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			obj_selfmarkers = obj_tempSelfMarker;
 			if ( !b_isHasTerminal ) {
 				obj_carsData = {};
+				$('.j_carList').data('carsData', {});
 				// 显示告警提示列表
 				dlf.fn_closeAlarmPanel();
 			}
@@ -1173,6 +1178,10 @@ function fn_updateAlarmList(arr_alarm) {
 	
 	if ( n_alarmLength > 0 ) {
 		//str_html+= '<li class="closeAlarm"></li>';
+		if ( obj_li.length == 50 ) {	//当告警超过50个时， 不再累加
+			obj_li.last().remove();
+			delete arr_markers[arr_markers.length-1];
+		}
 		for ( var x = 0; x < n_alarmLength; x++ ) {
 			var obj_alarm = arr_alarm[x],
 				str_oldAlias = obj_alarm.alias,
@@ -1866,7 +1875,7 @@ function fn_removeTerminal(node) {
 				if ( obj_selfmarkers[str_param] ) {
 					mapObj.removeOverlay(obj_selfmarkers[str_param]);
 					delete obj_selfmarkers[str_param];
-					delete obj_carsData[str_param];
+					delete $('.j_carList').data('carsData')[str_param];	// #todo obj_carsData
 					dlf.fn_checkTrackDatas(str_param, true);	// 删除开启追踪的轨迹线
 				}
 				var obj_current = $('.' + JSTREECLICKED),

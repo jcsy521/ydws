@@ -46,7 +46,6 @@ var mapObj = null,
 	obj_circle = null,
 	obj_circleLabel = null,
 	obj_circleMarker = null,
-	obj_carsData = null,
 	mousetool = null;
 		
 if ( !window.dlf ) { window.dlf = {}; }
@@ -876,11 +875,12 @@ window.dlf.fn_createTerminalListClearLayer = function(obj_tempMarkers, obj_carDa
 			// 如果开启追踪的话清除轨迹线  置空status和color
 			dlf.fn_checkTrackDatas(param, true);
 			dlf.fn_clearMapComponent(str_tempTSelfMarker);
-			if ( b_userType ) {	// 如果是集团用户  清除obj_carsData数据
+			/*if ( b_userType ) {	// 如果是集团用户  清除obj_carsData数据
 				delete obj_carsData[param];	
 			} else {	// 个人用户清除carsData对应数据
 				delete $('.j_carList').data('carsData')[param];
-			}
+			}*/
+			delete $('.j_carList').data('carsData')[param];
 		}
 	}
 	
@@ -1714,7 +1714,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					//todoing......................
 					str_currentTid = obj_data.tmobile;
 					dlf.fn_corpGetCarData();
-					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+					dlf.fn_jNotifyMessage('创建成功，请确保定位器已开机。', 'message', false, 3000);
 				} else if ( str_who == 'operator' ) {
 					/*var obj_header = $('#operatorTableHeader'), 
 						n_operatorId = data.id ,
