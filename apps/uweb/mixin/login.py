@@ -101,8 +101,11 @@ class LoginMixin(BaseMixin):
                                            "  WHERE oper_id = %s",
                                            oid)
                     group_ids = [str(group.group_id) for group in groups]
-                    corp = self.db.get("SELECT corp_id FROM T_GROUP WHERE id = %s", groups[0].group_id)
-                    cid = corp.corp_id
+                    #corp = self.db.get("SELECT corp_id FROM T_GROUP WHERE id = %s", groups[0].group_id)
+                    #cid = corp.corp_id
+                    # NOTE：the codes above is ugly. one can get cid by T_OPERATOR, rather than T_GROUP
+                    operator = self.db.get("SELECT corp_id FROM T_OPERATOR WHERE oid = %s", oid)
+                    cid = operator.corp_id
                 else: # corp
                     cid = user.cid 
                     oid = UWEB.DUMMY_OID
