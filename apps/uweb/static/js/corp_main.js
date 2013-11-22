@@ -1178,10 +1178,7 @@ function fn_updateAlarmList(arr_alarm) {
 	
 	if ( n_alarmLength > 0 ) {
 		//str_html+= '<li class="closeAlarm"></li>';
-		if ( obj_li.length == 50 ) {	//当告警超过50个时， 不再累加
-			obj_li.last().remove();
-			delete arr_markers[arr_markers.length-1];
-		}
+		
 		for ( var x = 0; x < n_alarmLength; x++ ) {
 			var obj_alarm = arr_alarm[x],
 				str_oldAlias = obj_alarm.alias,
@@ -1199,6 +1196,15 @@ function fn_updateAlarmList(arr_alarm) {
 			arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
 		}
 		obj_table.data('markers', arr_markers);
+		
+		var n_tempLength = obj_li.length;
+		
+		if ( n_tempLength > 50 ) {	//当告警超过50个时， 不再累加
+			for ( var x = 0; x <= n_tempLength-50; x++ ) {
+				$('.j_alarmTable li').last().remove();
+				delete arr_markers[arr_markers.length-1];
+			}
+		}
 		obj_alarmCon.show();
 	}
 	
