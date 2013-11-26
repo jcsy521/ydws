@@ -21,7 +21,7 @@ class ACBMTHandler(BaseHandler):
             content = self.get_argument("content")
             mobile = self.get_argument("mobile")
 
-            cm = mobile[:3]
+            cm = int(mobile[:3])
             cm_list = (139,138,137,136,135,134,159,150,151,158,157,188,187,152,182,147)
             
             if cm not in cm_list:
