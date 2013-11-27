@@ -335,7 +335,8 @@ class LastInfoCorpHandler(BaseHandler):
                     if alarm_info:
                         # NOTE: here, do not remove alarm_info, it will automagically disappear after 1 day 
                         #self.redis.delete(alarm_info_key)
-                        logging.info("[UWEB] lastinfo_time: %s, alarm_info_key: %s, alarm_info: %s", lastinfo_time,  alarm_info_key, alarm_info)
+                        #logging.info("[UWEB] lastinfo_time: %s, alarm_info_key: %s, alarm_info: %s", lastinfo_time,  alarm_info_key, alarm_info)
+                        pass
 
                     for alarm in alarm_info:
                         alarm['alias'] = terminal['alias']
