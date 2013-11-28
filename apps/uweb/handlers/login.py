@@ -164,7 +164,7 @@ class IOSHandler(BaseHandler, LoginMixin):
             cars_info = {} 
 
             #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
-            terminals = self.db.query("SELECT tid, mobile, login, keys_num"
+            terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                       "    gsm, gps, pbat, login, defend_status,"
                                       "    mannual_status, fob_status"
                                       "  FROM T_TERMINAL_INFO"
@@ -313,7 +313,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
             cars_info = {} 
 
             #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
-            terminals = self.db.query("SELECT tid, mobile, login, keys_num"
+            terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                       "    gsm, gps, pbat, login, defend_status,"
                                       "    mannual_status, fob_status"
                                       "  FROM T_TERMINAL_INFO"
