@@ -210,3 +210,12 @@ def get_terminal_type_by_tid(tid):
     elif ttype == '001':
         ttype = 'zj200'
     return ttype
+
+def get_group_info_by_tid(db, tid):
+    group_info = db.query("SELECT T_GROUP.id as group_id, T_GROUP.name as group_name FROM T_TERMINAL_INFO,T_GROUP"
+                          " WHERE T_TERMINAL_INFO.group_id = T_GROUP.id and tid = %s", tid)
+    if not group_info:
+        group_info['group_id'] = -1
+        group_info['group_name'] = ''
+
+    return group_info

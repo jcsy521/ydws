@@ -38,6 +38,7 @@ class ErrorCode(object):
     EC_NAME_EXISTED = 219
     CNUM_EXISTED = 220
     MOBILE_NOT_ORDERED = 221
+    TRACK_POINTS_TOO_MUCH = 222
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -103,6 +104,7 @@ class ErrorCode(object):
         LOGIN_FAILED:                  u"用户名或密码输入错误。",
         LOGIN_AGAIN:                   u"业务信息发生变更，请重新登录。",
         USER_NOT_ORDERED:              u"对不起, 该号码尚未订购移动卫士业务。",
+        TRACK_POINTS_TOO_MUCH:         u"对不起，您的网速太慢，数据太多了，请缩小查询范围。",
         SERVER_ERROR:                  u"服务器错误。",
         SERVER_BUSY:                   u"服务器忙，请稍后重试。",
         QUERY_TRACK_FORBID:            u"您使用的是简易版移动卫士，不支持轨迹查询功能。",

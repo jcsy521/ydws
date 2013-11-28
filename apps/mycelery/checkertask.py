@@ -13,7 +13,7 @@ site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 from tornado.options import define, options, parse_command_line
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
-from utils.misc import get_track_key, get_terminal_sessionID_key 
+from utils.misc import get_track_key, get_terminal_sessionID_key, get_terminal_time, safe_unicode
 from constants import GATEWAY
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
@@ -77,6 +77,32 @@ class CheckTask(object):
                         "  WHERE tid = %s",
                         GATEWAY.POWEROFF_TIMEOUT_SMS.SEND, tid)
 
+    def send_offline_remind_sms(self):
+        logging.info("[CELERY] checkertask send offline remind sms started.")
+        try:
+            currenttime = int(time.time())
+
+            terminals = self.db.query("SELECT tid, alias, mobile, owner_mobile, offline_time"
+                                      "  FROM T_TERMINAL_INFO"
+                                      "  WHERE login = 0"
+                                      "  AND service_status = 1"
+                                      "  AND offline_time < %s",
+                                      (currenttime - 24*60*60))
+            for terminal in terminals:
+                sms_option = QueryHelper.get_sms_option_by_uid(terminal.owner_mobile, 'heartbeat_lost', self.db)
+                if sms_option and sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
+                    ctime = get_terminal_time(currenttime)
+                    ctime = safe_unicode(ctime)
+
+                    sms = SMSCode.SMS_HEARTBEAT_LOST % (terminal['alias'], ctime)
+                    SMSHelper.send(terminal.owner_mobile, sms)
+                    logging.info("[CELERY] Send offline remind sms to user:%s, tid:%s", terminal.owner_mobile, terminal.tid)
+           
+            logging.info("[CELERY] checkertask send offline remind sms finished.")
+        except Exception as e:
+            logging.exception("[CELERY] Check terminal poweroff timeout exception.")
+
+
     def check_charge_remind(self):
         logging.exception("[CELERY] checkertask charge remind started")
         try:
@@ -129,11 +155,15 @@ def check_track():
     ct = CheckTask()
     ct.check_track_status()
 
+def offline_remind():
+    ct = CheckTask()
+    ct.send_offline_sms_remind()
+
 if __name__ == '__main__':
     ConfHelper.load(options.conf)
     parse_command_line()
-    check_poweroff()
     #check_charge()
+    offline_remind()
 else: 
     try: 
         from celery.decorators import task 

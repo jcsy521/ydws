@@ -197,7 +197,7 @@ class QueryHelper(object):
         terminal_info = redis.getvalue(terminal_info_key)
         if not terminal_info:
             terminal_info = db.get("SELECT mannual_status, defend_status,"
-                                   "  fob_status, mobile, login, gps, gsm,"
+                                   "  fob_status, mobile, owner_mobile, login, gps, gsm,"
                                    "  pbat, keys_num, icon_type"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", tid)

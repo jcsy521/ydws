@@ -141,6 +141,7 @@ class TrackHandler(BaseHandler):
             start_time = data.start_time
             end_time = data.end_time
             cellid_flag = data.get('cellid_flag')
+            network_type = data.get('network_type', 1)
             # the interval between start_time and end_time is one week
             if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                 self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
@@ -179,6 +180,14 @@ class TrackHandler(BaseHandler):
                                       "    GROUP BY timestamp"
                                       "    ORDER BY timestamp",
                                       self.current_user.tid, start_time, end_time)
+
+            # check track point count
+            if track and len(track) > 500 and network_type == 0:
+                logging.info("[UWEB] The %s track points length is: %s, and the newtork type is too low, so return error.", tid, len(track))
+                self.write_ret(ErrorCode.TRACK_POINTS_TOO_MUCH)
+                self.finish()
+                return
+
 
             # NOTE: if latlons are legal, but clatlons are illlegal, offset
             # them and update them in db.  

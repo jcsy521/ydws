@@ -12,6 +12,7 @@ from utils.dotdict import DotDict
 from utils.misc import get_ios_push_list_key, get_ios_id_key, get_ios_badge_key,\
      get_android_push_list_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key
 from utils.checker import check_sql_injection, check_phone
+from utils.public import get_group_info_by_tid
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER, GATEWAY
 from base import BaseHandler, authenticated
@@ -177,6 +178,8 @@ class IOSHandler(BaseHandler, LoginMixin):
                 # 1: get terminal
                 tid = terminal.tid
 
+                group_info = get_group_info_by_tid(self.db, tid)
+
                 terminal_info_key = get_terminal_info_key(tid)
                 terminal_cache = self.redis.getvalue(terminal_info_key)
                 if terminal_cache:
@@ -225,9 +228,12 @@ class IOSHandler(BaseHandler, LoginMixin):
                               gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
                               pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
                               mobile=terminal['mobile'],
+                              owner_mobile=terminal['owner_mobile'],
                               alias=terminal['alias'],
                               #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                               keys_num=0,
+                              group_id=group_info['group_id'],
+                              group_name=group_info['group_name'],
                               fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 car_dct[tid]=car_info
@@ -321,6 +327,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
                 # 1: get terminal
                 tid = terminal.tid
 
+                group_info = get_group_info_by_tid(self.db, tid)
+
                 terminal_info_key = get_terminal_info_key(tid)
                 terminal_cache = self.redis.getvalue(terminal_info_key)
                 if terminal_cache:
@@ -369,9 +377,12 @@ class AndroidHandler(BaseHandler, LoginMixin):
                               gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
                               pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
                               mobile=terminal['mobile'],
+                              owner_mobile=terminal['owner_mobile'],
                               alias=terminal['alias'],
                               #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                               keys_num=0,
+                              group_id=group_info['group_id'],
+                              group_name=group_info['group_name'],
                               fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 car_dct[tid]=car_info

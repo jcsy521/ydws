@@ -10,6 +10,7 @@ from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
 from utils.misc import get_terminal_info_key, get_location_key,\
      get_lastposition_key, get_lastposition_time_key, get_track_key
+from utils.public import get_group_info_by_tid
 from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
@@ -45,6 +46,10 @@ class LastPositionHandler(BaseHandler):
             for tid in tids:
                 res[tid] = {'car_info':{},
                             'track_info':[]}
+
+                # 0: get group info
+                group_info = get_group_info_by_tid(self.db, tid)
+
                 # 1: get terminal info 
                 terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
@@ -81,9 +86,12 @@ class LastPositionHandler(BaseHandler):
                               gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
                               pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
                               mobile=terminal['mobile'],
+                              owner_mobile = terminal['owner_mobile'],
                               alias=terminal['alias'] if terminal['alias'] else terminal['iccid'],
                               #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                               keys_num=0,
+                              group_id=group_info['group_id'],
+                              group_name=group_info['group_name'],
                               fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 res[tid]['car_info'] = car_info

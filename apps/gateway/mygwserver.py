@@ -1264,14 +1264,15 @@ class MyGWServer(object):
                            trace_para="",
                            vibl="",
                            use_scene="",
-                           stop_interval="")
+                           stop_interval="",
+                           test="")
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
                 self.update_terminal_status(head.dev_id, address)
                 terminal = self.db.get("SELECT track, freq, trace, static_val,"
-                                       "       move_val, trace_para, vibl, domain, use_scene, stop_interval"
+                                       "       move_val, trace_para, vibl, domain, use_scene, stop_interval, test"
                                        "  FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s", head.dev_id)
                 args.domain = terminal.domain
@@ -1281,6 +1282,7 @@ class MyGWServer(object):
                 args.move_val = terminal.move_val
                 args.use_scene = terminal.use_scene
                 args.stop_interval = terminal.stop_interval
+                args.test = terminal.test
                 if terminal.track == 1: # turn on track
                     args.trace_para = "60:1"
                 else:
