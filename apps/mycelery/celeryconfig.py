@@ -60,7 +60,7 @@ CELERYBEAT_SCHEDULE = {
    "send_offline_remind_sms": {
        "task": "checkertask.send_offline_remind_sms",
        #  12:00AM every day 
-       "schedule": timedelta(minute=0, hour=12),
+       "schedule": crontab(minute=0, hour=12),
    },
 
    "check_poweroff": {
