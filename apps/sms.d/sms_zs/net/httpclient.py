@@ -7,8 +7,6 @@ import logging
 import re
 import os.path
 import site
-from tornado.httpclient import AsyncHTTPClient
-from tornado.httpclient import HTTPRequest, HTTPResponse
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
@@ -17,23 +15,6 @@ from codes.errorcode import ErrorCode
 
 
 class HttpClient(object):
-
-    def async_send_http_post_request(self, url = None, data = None, callback = None, encoding = 'utf-8'):
-        _CONTENT_TYPE = {"Content-type": "text/xml; charset=utf-8"}
-        ASYNC_CLIENT = AsyncHTTPClient(max_clients=500)
-        status = ErrorCode.SUCCESS
-
-        def _callback(response):
-            data = {"status" : ErrorCode.SUCCESS, "response" : response}
-            callback(data)
-
-        req = HTTPRequest(url,
-                          method='POST',
-                          headers=_CONTENT_TYPE,
-                          body=json_encode(data),
-                          connect_timeout=30,
-                          request_timeout=30)
-        ASYNC_CLIENT.fetch(req, _callback)
     
     def send_http_post_request(self, url = None, data = None, encoding = 'utf-8'):
         """

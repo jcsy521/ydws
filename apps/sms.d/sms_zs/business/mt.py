@@ -51,42 +51,39 @@ class MT(object):
                 
                 pack_result = SMSComposer(mobile, content).result
                 url = ConfHelper.SMS_CONF.mt_url
-                HttpClient().async_send_http_post_request(url, pack_result, _on_finish)
-
-                def _on_finish(db):
+                result = HttpClient().send_http_post_request(url, pack_result)
                 
-                    if result["status"] == ErrorCode.SUCCESS:
-                        
-                        parser_result = SMSParser(result["response"])
-                        response_code = parser_result.response_code
-                        response_text = parser_result.response_text
-                        
-                        if response_code == "0":
-                            logging.info("SMS-->Gateway success mobile = %s, content = %s, id = %s ", mobile, content, id)
-                            self.db.execute("UPDATE T_SMS "
-                                           "  SET send_status = %s"
-                                           "  WHERE id = %s",
-                                           SMS.SENDSTATUS.SUCCESS, id)
-                            status = ErrorCode.SUCCESS
-                        else:
-                            if response_code == "5":
-                                logging.error("SMS-->Gateway failure, gateway fault, errorcode = 5, mobile = %s, content = %s, id = %s ", mobile, content, id)
-                            else:
-                                logging.error("SMS-->Gateway other error, errorcode = %s errortext = %s, mobile = %s, content = %s, id = %s ", response_code, response_text, mobile, content, id)
-                                
-                                self.db.execute("UPDATE T_SMS "
-                                                "  SET send_status = %s"
-                                                "  WHERE id = %s",
-                                                SMS.SENDSTATUS.FAILURE, id)
-                            status = ErrorCode.FAILED
-                    else:
-                        status = ErrorCode.FAILED
+                if result["status"] == ErrorCode.SUCCESS:
+                    
+                    parser_result = SMSParser(result["response"])
+                    response_code = parser_result.response_code
+                    response_text = parser_result.response_text
+                    
+                    if response_code == "0":
+                        logging.info("SMS-->Gateway success mobile = %s, content = %s, id = %s ", mobile, content, id)
                         self.db.execute("UPDATE T_SMS "
-                                        "  SET send_status = %s"
-                                        "  WHERE id = %s",
-                                        SMS.SENDSTATUS.FAILURE, id)
-                        logging.error("SMS execute send_http_post_request() failure, mobile = %s, content = %s, id = %s ", mobile, content, id)
-                    self.finish()
+                                       "  SET send_status = %s"
+                                       "  WHERE id = %s",
+                                       SMS.SENDSTATUS.SUCCESS, id)
+                        status = ErrorCode.SUCCESS
+                    else:
+                        if response_code == "5":
+                            logging.error("SMS-->Gateway failure, gateway fault, errorcode = 5, mobile = %s, content = %s, id = %s ", mobile, content, id)
+                        else:
+                            logging.error("SMS-->Gateway other error, errorcode = %s errortext = %s, mobile = %s, content = %s, id = %s ", response_code, response_text, mobile, content, id)
+                            
+                            self.db.execute("UPDATE T_SMS "
+                                            "  SET send_status = %s"
+                                            "  WHERE id = %s",
+                                            SMS.SENDSTATUS.FAILURE, id)
+                        status = ErrorCode.FAILED
+                else:
+                    status = ErrorCode.FAILED
+                    self.db.execute("UPDATE T_SMS "
+                                    "  SET send_status = %s"
+                                    "  WHERE id = %s",
+                                    SMS.SENDSTATUS.FAILURE, id)
+                    logging.error("SMS execute send_http_post_request() failure, mobile = %s, content = %s, id = %s ", mobile, content, id)
                     
         except UnicodeEncodeError, msg:
             self.db.execute("UPDATE T_SMS "
