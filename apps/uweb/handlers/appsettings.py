@@ -35,7 +35,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             ## part 1: terminal
             tracker = DotDict() 
             # 1: terminal 
-            terminal = self.db.get("SELECT white_pop as sos_pop, push_status, vibl, static_val "
+            terminal = self.db.get("SELECT white_pop as sos_pop, push_status, vibl, static_val, owner_mobile"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s"
@@ -92,7 +92,8 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
 
             ## part 3: sms option
             sms_options = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
-                                      "       illegalmove, sos, heartbeat_lost, charge"
+                                      "       illegalmove, sos, heartbeat_lost, charge,"
+                                      "       region_enter, region_out"
                                       "  FROM T_SMS_OPTION"
                                       "  WHERE uid = %s"
                                       "  LIMIT 1",
