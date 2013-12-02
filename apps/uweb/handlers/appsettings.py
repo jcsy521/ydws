@@ -105,12 +105,21 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             #                            "  WHERE uid = %s"
             #                            "  LIMIT 1",
             #                            self.current_user.uid) 
+            
+            ## part 5: corp info
+            corp = DotDict()
+            corp = self.db.get("SELECT name c_name, mobile c_mobile, alert_mobile c_alert_mobile, address c_address, email c_email, linkman c_linkman"
+                               "  FROM T_CORP"
+                               "  WHERE cid = %s"
+                               "  LIMIT 1",
+                               self.current_user.cid)
 
             self.write_ret(status,
                            dict_=dict(tracker=tracker,
                                       sms_options=sms_options,
                                       #email_options=email_options,
-                                      profile=profile))
+                                      profile=profile,
+                                      corp=corp))
         except Exception as e: 
             status = ErrorCode.SERVER_BUSY
             logging.exception("[UWEB] uid: %s tid: %s get terminal failed. Exception: %s", 
