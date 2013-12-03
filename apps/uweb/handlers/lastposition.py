@@ -92,6 +92,7 @@ class LastPositionHandler(BaseHandler):
                               keys_num=0,
                               group_id=group_info['group_id'],
                               group_name=group_info['group_name'],
+                              icon_type=terminal['icon_type'],
                               fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 res[tid]['car_info'] = car_info

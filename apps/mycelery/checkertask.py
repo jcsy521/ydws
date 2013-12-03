@@ -14,7 +14,7 @@ from tornado.options import define, options, parse_command_line
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.misc import get_track_key, get_terminal_sessionID_key, get_terminal_time, safe_unicode
-from constants import GATEWAY
+from constants import GATEWAY,UWEB
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
@@ -157,7 +157,7 @@ def check_track():
 
 def offline_remind():
     ct = CheckTask()
-    ct.send_offline_sms_remind()
+    ct.send_offline_remind_sms()
 
 if __name__ == '__main__':
     ConfHelper.load(options.conf)
@@ -170,6 +170,7 @@ else:
         check_poweroff = task(ignore_result=True)(check_poweroff) 
         #check_charge= task(ignore_result=True)(check_charge) 
         check_track = task(ignore_result=True)(check_track)
+        offline_remind = task(ignore_result=True)(offline_remind)
     except Exception as e: 
         logging.exception("[CELERY] admintask statistic failed. Exception: %s", e.args)
 
