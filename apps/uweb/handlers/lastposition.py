@@ -36,12 +36,20 @@ class LastPositionHandler(BaseHandler):
             res = OrderedDict() 
             usable = 1
             status = ErrorCode.SUCCESS
-            terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                      "  WHERE service_status = %s"
-                                      "    AND owner_mobile = %s"
-                                      "    AND login_permit = 1"
-                                      "    ORDER BY login DESC",
-                                      UWEB.SERVICE_STATUS.ON, self.current_user.uid)
+            if self.current_user.cid != UWEB.DUMMY_CID: # corp user
+                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND owner_mobile = %s"
+                                          "    ORDER BY login DESC",
+                                          UWEB.SERVICE_STATUS.ON, self.current_user.uid)
+            else: # individual user
+                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND owner_mobile = %s"
+                                          "    AND login_permit = 1"
+                                          "    ORDER BY login DESC",
+                                          UWEB.SERVICE_STATUS.ON, self.current_user.uid)
+
             tids = [terminal.tid for terminal in terminals]
             for tid in tids:
                 res[tid] = {'car_info':{},
