@@ -12,7 +12,7 @@ import tornado.ioloop
 import tornado.web
 from tornado.options import define, options
 
-TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
+TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 define('port', type=int, default=6631)
 define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))

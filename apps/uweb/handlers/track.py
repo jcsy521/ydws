@@ -116,7 +116,8 @@ class TrackHandler(BaseHandler):
             # check the tracker whether can be tracked
             # 13600335550 中山三乡谷都派出所
             # 15919176710  贾晓磊的测试账号
-            if self.current_user.cid in ['15919176710','13600335550']:
+            # 13923302230 坦州公安
+            if self.current_user.cid in ['15919176710','13600335550','13923302230']:
                 logging.info("cid: %s is no need check.", self.current_user.cid)
                 pass
             else: 

@@ -7,6 +7,7 @@ import logging
 import re
 import os.path
 import site
+import sys
 from tornado.escape import json_decode
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../../.."))
@@ -16,6 +17,8 @@ from codes.errorcode import ErrorCode
 
 
 class HttpClient(object):
+    reload(sys)          
+    sys.setdefaultencoding('utf-8')
     
     def send_http_post_request(self, url= None, data=None, encoding='utf-8'):
         """
