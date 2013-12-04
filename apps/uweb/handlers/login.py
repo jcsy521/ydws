@@ -10,7 +10,7 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import get_ios_push_list_key, get_ios_id_key, get_ios_badge_key,\
-     get_android_push_list_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key
+     get_android_push_list_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key, DUMMY_IDS
 from utils.checker import check_sql_injection, check_phone
 from utils.public import get_group_info_by_tid
 from codes.errorcode import ErrorCode
@@ -149,7 +149,8 @@ class IOSHandler(BaseHandler, LoginMixin):
         #    return
 
         # check the user, return uid, tid, sim and status
-        cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
+        cid, oid, uid, terminals, user_type, status = self.login_passwd_auth(username, password, user_type)
+        logging.info("[UWEB] Login auth, cid:%s, oid:%s, uid:%s, user_type:%s", cid, oid, uid, user_type)
         if status == ErrorCode.SUCCESS: 
             # keep the login log
             self.login_log(uid, 0, 2, versionname)
@@ -164,15 +165,43 @@ class IOSHandler(BaseHandler, LoginMixin):
             cars_info = {} 
 
             #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
-            terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                      "    gsm, gps, pbat, login, defend_status,"
-                                      "    mannual_status, fob_status, icon_type"
-                                      "  FROM T_TERMINAL_INFO"
-                                      "  WHERE service_status = %s"
-                                      "    AND owner_mobile = %s"
-                                      "    AND login_permit = 1"
-                                      "    ORDER BY LOGIN DESC",
-                                      UWEB.SERVICE_STATUS.ON, username)
+
+            if user_type == UWEB.USER_TYPE.PERSON:
+                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
+                                          "    gsm, gps, pbat, login, defend_status,"
+                                          "    mannual_status, fob_status, icon_type"
+                                          "  FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND owner_mobile = %s"
+                                          "    AND login_permit = 1"
+                                          "    ORDER BY LOGIN DESC",
+                                          UWEB.SERVICE_STATUS.ON, uid)
+
+            elif user_type == UWEB.USER_TYPE.OPERATOR:
+                groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", oid)
+                gids = [g.group_id for g in groups]
+                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
+                                          "    gsm, gps, pbat, login, defend_status,"
+                                          "    mannual_status, fob_status, icon_type"
+                                          "  FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND group_id IN %s"
+                                          "    ORDER BY LOGIN DESC",
+                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+            elif user_type == UWEB.USER_TYPE.CORP:
+                groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", cid)
+                gids = [g.gid for g in groups]
+                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
+                                          "    gsm, gps, pbat, login, defend_status,"
+                                          "    mannual_status, fob_status, icon_type"
+                                          "  FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND group_id IN %s"
+                                          "    ORDER BY LOGIN DESC",
+                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+            else:
+                logging.error("[UWEB] invalid user_type: %s", user_type)
+                pass
 
             for terminal in terminals:
                 # 1: get terminal
@@ -296,7 +325,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
         #    return
 
         # check the user, return uid, tid, sim and status
-        cid, oid, uid, terminals, _, status = self.login_passwd_auth(username, password, user_type)
+        cid, oid, uid, terminals, user_type, status = self.login_passwd_auth(username, password, user_type)
+        logging.info("[UWEB] Login auth, cid:%s, oid:%s, uid:%s, user_type:%s", cid, oid, uid, user_type)
         if status == ErrorCode.SUCCESS: 
             ## role: 0: person; 1: operator; 2: enterprise
             ## method 0: web; 1: android; 2: ios 
@@ -313,16 +343,42 @@ class AndroidHandler(BaseHandler, LoginMixin):
             # NOTE: add cars_info, it's same as lastinfo
             cars_info = {} 
 
-            #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
-            terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                      "    gsm, gps, pbat, login, defend_status,"
-                                      "    mannual_status, fob_status, icon_type"
-                                      "  FROM T_TERMINAL_INFO"
-                                      "  WHERE service_status = %s"
-                                      "    AND owner_mobile = %s"
-                                      "    AND login_permit = 1"
-                                      "    ORDER BY LOGIN DESC",
-                                      UWEB.SERVICE_STATUS.ON, username)
+            if user_type == UWEB.USER_TYPE.PERSON:
+                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
+                                          "    gsm, gps, pbat, login, defend_status,"
+                                          "    mannual_status, fob_status, icon_type"
+                                          "  FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND owner_mobile = %s"
+                                          "    AND login_permit = 1"
+                                          "    ORDER BY LOGIN DESC",
+                                          UWEB.SERVICE_STATUS.ON, uid)
+
+            elif user_type == UWEB.USER_TYPE.OPERATOR:
+                groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", oid)
+                gids = [g.group_id for g in groups]
+                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
+                                          "    gsm, gps, pbat, login, defend_status,"
+                                          "    mannual_status, fob_status, icon_type"
+                                          "  FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND group_id IN %s"
+                                          "    ORDER BY LOGIN DESC",
+                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+            elif user_type == UWEB.USER_TYPE.CORP:
+                groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", cid)
+                gids = [g.gid for g in groups]
+                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
+                                          "    gsm, gps, pbat, login, defend_status,"
+                                          "    mannual_status, fob_status, icon_type"
+                                          "  FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND group_id IN %s"
+                                          "    ORDER BY LOGIN DESC",
+                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+            else:
+                logging.error("[UWEB] Invalid user_type: %s", user_type)
+                pass
 
             for terminal in terminals:
                 # 1: get terminal

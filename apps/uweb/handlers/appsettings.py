@@ -67,6 +67,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             tracker.update(dict(sos_pop=terminal.sos_pop))
             tracker.update(dict(vibl=terminal.vibl))
             tracker.update(dict(static_val=terminal.static_val)) 
+            tracker.update(dict(owner_mobile=terminal.owner_mobile)) 
             ## part 2: profile
 
             profile = DotDict()

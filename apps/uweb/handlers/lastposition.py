@@ -9,7 +9,7 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
 from utils.misc import get_terminal_info_key, get_location_key,\
-     get_lastposition_key, get_lastposition_time_key, get_track_key
+     get_lastposition_key, get_lastposition_time_key, get_track_key, DUMMY_IDS
 from utils.public import get_group_info_by_tid
 from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
 from codes.errorcode import ErrorCode
@@ -36,13 +36,23 @@ class LastPositionHandler(BaseHandler):
             res = OrderedDict() 
             usable = 1
             status = ErrorCode.SUCCESS
-            if self.current_user.cid != UWEB.DUMMY_CID: # corp user
+            if self.current_user.oid != UWEB.DUMMY_OID: # operator,Note: operator also has cid, so we check oid firstly.
+                groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
+                gids = [g.group_id for g in groups]
                 terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
-                                          "    AND owner_mobile = %s"
-                                          "    ORDER BY login DESC",
-                                          UWEB.SERVICE_STATUS.ON, self.current_user.uid)
-            else: # individual user
+                                          "    AND group_id IN %s"
+                                          "    ORDER BY LOGIN DESC",
+                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+            elif self.current_user.cid != UWEB.DUMMY_CID: # Corp 
+                groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
+                gids = [g.gid for g in groups]
+                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                          "  WHERE service_status = %s"
+                                          "    AND group_id IN %s"
+                                          "    ORDER BY LOGIN DESC",
+                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+            else : # individual user
                 terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND owner_mobile = %s"
@@ -95,7 +105,7 @@ class LastPositionHandler(BaseHandler):
                               pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
                               mobile=terminal['mobile'],
                               owner_mobile = terminal['owner_mobile'],
-                              alias=terminal['alias'] if terminal['alias'] else terminal['iccid'],
+                              alias=terminal['alias'] if terminal['alias'] else terminal['mobile'],
                               #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
                               keys_num=0,
                               group_id=group_info['group_id'],

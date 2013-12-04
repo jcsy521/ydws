@@ -94,7 +94,8 @@ class CheckTask(object):
                     ctime = get_terminal_time(currenttime)
                     ctime = safe_unicode(ctime)
 
-                    sms = SMSCode.SMS_HEARTBEAT_LOST % (terminal['alias'], ctime)
+                    alias = terminal['alias'] if terminal['alias'] else terminal['mobile']
+                    sms = SMSCode.SMS_HEARTBEAT_LOST % (alias, ctime)
                     SMSHelper.send(terminal.owner_mobile, sms)
                     logging.info("[CELERY] Send offline remind sms to user:%s, tid:%s", terminal.owner_mobile, terminal.tid)
            
