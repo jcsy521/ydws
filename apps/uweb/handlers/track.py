@@ -117,7 +117,8 @@ class TrackHandler(BaseHandler):
             # 13600335550 中山三乡谷都派出所
             # 15919176710  贾晓磊的测试账号
             # 13923302230 坦州公安
-            if self.current_user.cid in ['15919176710','13600335550','13923302230']:
+            # 13928196249 中山黄圃公安局
+            if self.current_user.cid in ['15919176710','13600335550','13923302230','13928196249']:
                 logging.info("cid: %s is no need check.", self.current_user.cid)
                 pass
             else: 
@@ -128,6 +129,7 @@ class TrackHandler(BaseHandler):
                         self.write_ret(status)
                         logging.info("[UWEB] sim:%s, biz_type:%s, track is not permited.", 
                                      self.current_user.sim, biz.biz_type)
+                        self.finish()
                         return
                 else:
                     # 1477874**** cannot query track
@@ -137,6 +139,7 @@ class TrackHandler(BaseHandler):
                         self.write_ret(status)
                         logging.info("[UWEB] sim:%s, track is not permited.", 
                                      self.current_user.sim)
+                        self.finish()
                         return
 
             start_time = data.start_time
