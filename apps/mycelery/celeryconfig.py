@@ -57,11 +57,11 @@ CELERYBEAT_SCHEDULE = {
    #    "schedule": crontab(minute=32, hour=10),
    #},
 
-   "offline_remind": {
-       "task": "checkertask.offline_remind",
-       #  12:00AM every day 
-       "schedule": crontab(minute=0, hour=12),
-   },
+#   "offline_remind": {
+#       "task": "checkertask.offline_remind",
+#       #  12:00AM every day 
+#       "schedule": crontab(minute=0, hour=12),
+#   },
 
    "check_poweroff": {
        "task": "checkertask.check_poweroff",
