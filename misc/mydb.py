@@ -21,8 +21,8 @@ def main():
     parse_command_line()
     db = DBConnection().db
     redis = MyRedis() 
-    keys = ['owner_mobile',]
-    terminals = db.query("SELECT tid, owner_mobile FROM T_TERMINAL_INFO")
+    keys = ['owner_mobile','icon_type',]
+    terminals = db.query("SELECT tid, icon_type, owner_mobile FROM T_TERMINAL_INFO")
     #users = db.query("SELECT mobile FROM T_USER")
     #for user in users:
     #    key = 'captcha:%s' % user.mobile
@@ -31,12 +31,14 @@ def main():
     for terminal in terminals:
         t_key = get_terminal_info_key(terminal.tid)
         info = redis.getvalue(t_key)
-        if info and ('owner_mobile' not in info):
-            info['owner_mobile'] = terminal['owner_mobile']
-            redis.setvalue(t_key, info)
-            print info
-        else:
-            print 'redis info:', info
+        for key in keys:
+            if info and (key not in info):
+                info[key] = terminal[key]
+                redis.setvalue(t_key, info)
+                print info
+            else:
+                #print 'redis info:', info
+                pass
 
 if __name__ == "__main__": 
     main()
