@@ -50,14 +50,9 @@ body {
 	_background-image: none;
 	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/userIcon.png',sizingMethod='scale');
 	padding-left: 60px;
-	float: right;
 	color: #0aa0fb;
-	font-size: 14px;
-	margin-top: 70px;
 	height: 44px;
-	width: 137px;
-	position: relative;
-	right: 30px;
+	width: 140px;
 }
 #spanWelcome {
 	display: inline-block;
@@ -1314,11 +1309,8 @@ body {
 .trackHeader {
 	background: url('/static/images/menuBg.png') repeat-x;
     height: 36px;
-	float: left;
 	min-width: 1151px;
-	position: absolute;
 	z-index: 1000;
-	top: 158px;
 }
 #trackTerminalAlias {
     display: inline-block;
@@ -1464,6 +1456,7 @@ body {
 	background-color: #FEFDFD;
 	max-height: 400px;
 	padding-bottom: 10px;
+	overflow-y: auto;
 }
 .delayPanel, .alarmPanel {
 	position: absolute;
@@ -1472,7 +1465,7 @@ body {
 	width: 400px;
 }
 .delayPanel {
-	width: 530px;
+	width: 550px;
 	top: 236px;
 }
 .alarmPanel, .alarmPanelCon {
@@ -1516,12 +1509,10 @@ body {
 	text-align: center;
 }
 .delayTable td label {
-	position: relative;
-	top: -5px;
 }
 .delayTable img {
 	position: relative;
-    top: 5px;
+    top: 7px;
 }
 .colorRed {
 	color: red;
@@ -2520,15 +2511,24 @@ body {
 }
 .staticsBox table {
 	width: 240px;
+	line-height: 25px;
+	position: relative;
+    top: -2px;
 }
-.carCount {
+#carCount {
 	color: #44a7e5;
+	cursor: pointer;
 }
-.onlineCount {
+#onlineCount {
 	color: #28ad09;
+	cursor: pointer;
 }
-.offlineCount {
+#offlineCount {
 	color: gray;
+	cursor: pointer;
+}
+.currentTNum {
+	background-color: #dfdfdf;
 }
 .corpLeft  {
 	background-color: #fff;
@@ -2714,7 +2714,6 @@ legend {
 	width: 135px;
 }
 .smsMobileDiv {
-	float: left;
 	padding: 20px 0px 10px 10px;
 }
 .corpSMSOptionContent {
@@ -3537,4 +3536,31 @@ legend {
 	font-weight: bold;
 	position: absolute;
 	top: 200px;
+}
+#topProfile {
+	float: right;
+    font-size: 14px;
+    margin-top: 25px;
+    position: relative;
+    right: 30px;	
+}
+#serviceHotline {
+	color: #17557c;
+	margin-bottom: 25px;
+}
+#smsOwerMobile {
+	height: 18px;
+}
+#smsOwerMobileSign {
+	cursor: pointer;
+	background: url('/static/images/sersj.png') no-repeat 0px center;
+	display: inline-block;
+	width: 18px;
+	height: 20px;
+	left: -25px;
+	top: 6px;
+    position: relative;
+}
+#smsOwerMobileSign:hover {
+	background: url('/static/images/sersjhover.png') no-repeat 0px center;
 }

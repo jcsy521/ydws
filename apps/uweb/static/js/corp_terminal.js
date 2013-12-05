@@ -71,7 +71,7 @@ window.dlf.fn_initSMSOption = function() {
 * 查询最新定位器参数
 */
 window.dlf.fn_initTerminalWR = function (str_tid) {
-	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
+	dlf.fn_lockContent($('.corpTerminalContent')); // 添加内容区域的遮罩
 	dlf.fn_jNotifyMessage('定位器设置查询中' + WAITIMG , 'message', true); 
 	// todo  + '?tid=' + str_tid
 	var obj_static_mode = $('#corp_alert_freq_mode'),
@@ -182,22 +182,40 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 * 初始化SMS通知
 */
 function fn_initCorpSMS() {
+	var obj_smsOwerMobile = $('#smsOwerMobile'),
+		arr_autoSmsMobileData = [];
+				
 	// 短信接收号码 change事件 加载对应的短信通知项
-	$('#smsOwerMobile').unbind('change').bind('change', function() {
+	/*$('#smsOwerMobile').unbind('change').bind('change', function() {
 		var str_val = $(this).val(),
 			obj_smsOptions = $('#smsOwerMobile option[value='+ str_val +']').data('smsList');
 		
-		fn_changeSMSCheckbox(obj_smsOptions);
-	});
+		fn_changeSMSCheckbox(obj_smsOptions);// ????????
+	});*/
+	// 短信接收号码的自动填充的数据
 	
+	if ( $.browser.msie ) {
+		var n_ieVersion = parseInt($.browser.version),
+			n_iconTop = 6;
+		
+		if ( n_ieVersion == 8 ) {
+			n_iconTop = 9;
+		} else if ( n_ieVersion <= 7 ) {
+			n_iconTop = 1;
+		}
+		$('#smsOwerMobileSign').css('top', n_iconTop);
+	}
+	
+	// 短信接收号码的下拉框事件
+	$('#smsOwerMobileSign').unbind('click').click(function(e) {
+		obj_smsOwerMobile.autocomplete('search', '');
+	});
 	$.get_(CORP_SMS_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.sms_options,
-				obj_smsOwerMobile = $('#smsOwerMobile'),
 				str_selectOptions = '',
 				b_selected = false,
-				n_num = 0,
-				str_currentMobile = '';
+				n_num = 0;
 				
 			obj_smsOwerMobile.html('');
 			for( var param in obj_data ) {	// 获取短信设置项的数据，进行更新
@@ -206,12 +224,14 @@ function fn_initCorpSMS() {
 				
 				if ( n_num == 1 ) {	// 默认加载第一个号码的短信设置项
 					fn_changeSMSCheckbox(obj_smsData);
-					str_currentMobile = param;
+					obj_smsOwerMobile.val(param);
 				}
-				obj_smsOwerMobile.append('<option value="'+ param +'">'+ param +'</option>');
-				$('#smsOwerMobile option[value='+ param +']').data('smsList', obj_smsData);// 临时存储短信设置数据  下拉列表change时获取数据
-				
+				//obj_smsOwerMobile.append('<option value="'+ param +'">'+ param +'</option>');
+				//$('#smsOwerMobile option[value='+ param +']').data('smsList', obj_smsData);// 临时存储短信设置数据  下拉列表change时获取数据
+				arr_autoSmsMobileData.push(param);
 			}
+			dlf.fn_initAutoSmsMobile(arr_autoSmsMobileData);
+			$('#smsOwerMobile').data('smsoption', obj_data);
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -219,6 +239,31 @@ function fn_initCorpSMS() {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
+	});
+}
+
+/**
+* 初始化短信接收号码的autocomplete
+*/
+window.dlf.fn_initAutoSmsMobile = function(arr_autoSmsMobileData) {
+	var obj_compelete = $('#smsOwerMobile'),
+		str_val = obj_compelete.val();
+	
+	// autocomplete	自动完成 初始化
+	obj_compelete.autocomplete({
+		minLength: 0,
+		source: arr_autoSmsMobileData,
+		select: function(event, ui) { 
+			var obj_item = ui.item,
+				str_tSmsMobile = obj_item.value,
+				obj_smsOptionData = $('#smsOwerMobile').data('smsoption');
+			
+			obj_compelete.val(str_tSmsMobile);
+			//设置数据
+			fn_changeSMSCheckbox(obj_smsOptionData[str_tSmsMobile]);
+			
+			return false;
+		}
 	});
 }
 
@@ -331,8 +376,23 @@ window.dlf.fn_smsOptionSave = function() {
 	
 	var obj_checkbox = $('.j_corp_checkbox'),
 		obj_smsData = {},
-		n_smsNum = 0;
+		n_smsNum = 0,
+		obj_smsOptionData = $('#smsOwerMobile').data('smsoption');
+		str_ownerMobile = $('#smsOwerMobile').val();
 		
+	//号码为空,不能使用
+	if ( str_ownerMobile == '' ) {
+		dlf.fn_jNotifyMessage('请输入或选择短信接收号码！', 'message', false, 4000); 
+		return;
+	}
+	if ( !MOBILEREG.test(str_ownerMobile) ) {	// 手机号合法性验证
+		dlf.fn_jNotifyMessage('短信接收号码输入不合法，请重新输入！', 'message', false, 4000); 
+		return;
+	} 
+	if ( !obj_smsOptionData[str_ownerMobile] ) {
+		dlf.fn_jNotifyMessage('短信接收号码不存在，请重新输入！', 'message', false, 4000); 
+		return;
+	}
 	$.each(obj_checkbox, function(index, dom) {
 		var obj_this = $(dom),
 			str_nowVal = obj_this.attr('checked') == 'checked' ? 1 : 0,
@@ -350,7 +410,7 @@ window.dlf.fn_smsOptionSave = function() {
 		n_smsNum = n_smsNum + 1;
 	}
 	if ( n_smsNum != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
-		obj_smsData.owner_mobile = $('#smsOwerMobile').val();
+		obj_smsData.owner_mobile = str_ownerMobile;
 		dlf.fn_jsonPut(CORP_SMS_URL, obj_smsData, 'corpSMSOption', '短信告警参数保存中');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示

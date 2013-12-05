@@ -421,9 +421,9 @@ function customMenu(node) {
 * 批量操作的数据验证：批量删除、批量设防撤防 (判断是否选中的是定位器)
 */
 function fn_batchOperateValidate(obj, str_msg) {
-	var obj_currentGroupChildren = obj.children('ul'),
+	var obj_currentGroupChildren = obj.children('ul').children('li:visible'),
 		str_gname = obj.children('a').text();	// 组名
-	
+		
 	//  批量删除选中定位器操作
 	if ( obj_currentGroupChildren.length <= 0 ) {	// 没有定位器，不能批量删除
 		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
@@ -436,14 +436,15 @@ function fn_batchOperateValidate(obj, str_msg) {
 			arr_dataes = [],
 			obj_params = {};
 		// 当前组下选中的tid
-		obj_currentGroupChildren.children('li').each(function() {
+		obj_currentGroupChildren.each(function() {
 			var obj_checkedTerminal = $(this),
 				obj_terminalALink = obj_checkedTerminal.children('a'),
 				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
 				str_tid = obj_terminalALink.attr('tid'),
-				str_alias = obj_terminalALink.attr('alias'),	// tnum
-				str_tmobile = obj_terminalALink.attr('title');	// tmobile
-				obj_tempCarsData = $('.j_carList').data('carsData');	// todo 
+				str_alias = obj_terminalALink.attr('alias'),	
+				str_tmobile = obj_terminalALink.attr('title');	
+				str_loginSt = obj_terminalALink.attr('clogin'),
+				obj_tempCarsData = $('.j_carList').data('carsData');
 			
 			if ( b_isChecked ) {
 				arr_tids.push(str_tid);
@@ -463,7 +464,7 @@ function fn_batchOperateValidate(obj, str_msg) {
 * str_operation: open:开启追踪  close: 取消追踪
 */
 function fn_batchOpenTrack(obj, str_operation) {
-	var obj_currentGroupChildren = obj.children('ul'),
+	var obj_currentGroupChildren = obj.children('ul').children('li:visible'),
 		str_gname = obj.children('a').text();	// 组名
 	
 	//  批量删除选中定位器操作
@@ -478,7 +479,7 @@ function fn_batchOpenTrack(obj, str_operation) {
 			arr_dataes = [],
 			obj_params = {};
 		// 当前组下选中的tid
-		obj_currentGroupChildren.children('li').each(function() {
+		obj_currentGroupChildren.each(function() {
 			var obj_checkedTerminal = $(this),
 				obj_terminalALink = obj_checkedTerminal.children('a'),
 				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
@@ -491,7 +492,7 @@ function fn_batchOpenTrack(obj, str_operation) {
 			if ( b_isChecked ) {
 				if ( str_operation == 'open' && str_actionTrack != 'yes' && obj_currentMarker ) {	// 选中终端没有开启追踪
 					arr_tids.push(str_tid);
-				} else if ( str_operation == 'close' && str_actionTrack != 'no' && str_actionTrack != '' && obj_currentMarker ) {	// 选中终端 取消追踪
+				} else if ( str_operation == 'close' && str_actionTrack != 'no' && obj_currentMarker) {	// 选中终端 取消追踪
 					arr_tids.push(str_tid);
 				}
 				arr_dataes.push({'alias': dlf.fn_encode(str_alias), 'tmobile': str_tmobile, 'tid': str_tid, 'track': str_actionTrack});
@@ -713,6 +714,20 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					}
 				}
 			});
+			$('.j_group .j_leafNode').each(function() {
+				var obj_terminalNode = $(this).children('.j_terminal'),
+					str_tid = obj_terminalNode.attr('tid'),
+					obj_car = obj_tempCarsData[str_tid],
+					n_enClon = obj_car.clongitude,
+					n_enClat = obj_car.clatitude,
+					n_clon = n_enClon/NUMLNGLAT,	
+					n_clat = n_enClat/NUMLNGLAT;
+				
+				if ( n_clon != 0 && n_clat != 0 ) {
+					n_pointNum ++;
+					arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
+				} 
+			});
 			if ( str_currentTid != undefined && str_currentTid != '' ) {
 				if ( b_createTerminal ) {	// 如果是新建终端 发起switchCar
 					var obj_newTerminal = $('#leaf_' + str_currentTid);
@@ -732,6 +747,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				}
 			} else {	// 第一次发起switchCar启动lastinfo
 				var obj_current = $('#' + data.inst.data.ui.to_select);
+				
 				if ( arr_locations.length > 0 ) {
 					dlf.fn_caculateBox(arr_locations);
 				}
@@ -757,6 +773,14 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			}
 			arr_treeNodeChecked = [];
 		}
+		var arr_jstreeClose = $('#corpTree').data('treemax');
+		//对于终端数据大于50的分组进行折叠
+		/*if ( arr_jstreeClose ) {
+			for ( var param in arr_jstreeClose ) {
+				$('#corpTree').jstree('close_node', '#group_'+arr_jstreeClose[param]);
+			}
+			$('#corpTree').removeData('treemax');
+		}*/
 	}).bind('contextmenu.jstree', function(event, data) {	// 右键除当前定位器外其余都不被选中
 		var obj_current = fn_nodeCurrentNode(event.target),
 			obj_currentCarParent = $('.j_terminal[tid='+ str_currentTid +']').parent();
@@ -764,20 +788,35 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		if ( obj_current.b_terminalClass ) {	// 如果选中的是定位器
 			var str_tid = obj_current.attr('tid');
 			
-			if ( str_currentTid == str_tid ) {	// 如果是同辆车则不switchcar
+			$('#corpTree').jstree('check_node', '#leafNode_' + str_tid);
+			/*if ( str_currentTid == str_tid ) {	// 如果是同辆车则不switchcar
+				var obj_currentMarker = obj_selfmarkers[str_tid];				
+				
+				if ( obj_currentMarker ) {	// 2013-07-29 add 切换当前车 只打开吹出框
+					var obj_position = obj_currentMarker.getPosition(),
+						obj_infowindow = obj_currentMarker.selfInfoWindow;
+					
+					mapObj.setCenter(obj_position);
+					if ( dlf.fn_isBMap() ) {
+						obj_currentMarker.openInfoWindow(obj_infowindow);
+					} else {
+						obj_selfmarkers[str_tid].selfInfoWindow.open(mapObj, obj_position);	// 显示吹出框
+					}
+				}
 				return;
-			}
-			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,
+			}*/
+			//dlf.fn_switchCar(str_tid, obj_current); // 登录成功,
 		} else {
 			obj_current.removeClass(JSTREECLICKED);
 		}
 	}).bind('click.jstree', function(event, data) {	// 选中节点事件
-		var obj_current = fn_nodeCurrentNode(event.target);					
+		var obj_current = fn_nodeCurrentNode(event.target);		
 		
 		if ( obj_current.b_terminalClass ) {	// 如果选中的是定位器
 			var str_tid = obj_current.attr('tid');
 			
-			if ( str_currentTid == str_tid ) {	// 如果是同辆车则不switchcar
+			$('#corpTree').jstree('check_node', '#leafNode_' + str_tid);
+			/*if ( str_currentTid == str_tid ) {	// 如果是同辆车则不switchcar
 				var obj_currentMarker = obj_selfmarkers[str_tid];				
 				
 					if ( obj_currentMarker ) {	// 2013-07-29 add 切换当前车 只打开吹出框
@@ -792,8 +831,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						}
 			    	}
 				return;
-			}
-			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
+			}*/
+			//dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
 		} else {	// 集团或组	如果选中集团或组的话没有被选中的样式、上一次选中的定位器还被选中			
 			$('.j_terminal[tid='+ str_currentTid +']').addClass(JSTREECLICKED);
 			$('.groupCss').removeClass('groupCss');
@@ -818,12 +857,30 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			n_groupClass = str_class.indexOf('j_group'),
 			n_corpClass = str_class.indexOf('j_corp'),
 			obj_tempCarsData = $('.j_carList').data('carsData');
-			
+		
 		if ( n_terminalClass != -1 ) {	// 选中单个终端
 			var obj_current = obj_currentLi.children('.j_terminal')
 				str_tid = obj_current.attr('tid');
 
-			dlf.fn_switchCar(str_tid, obj_current, 'check_node'); // 登录成功,   
+			dlf.fn_switchCar(str_tid, obj_current, 'check_node'); // 登录成功
+			
+		//如果当前分组下可见的终端全部被选中
+		var obj_currentGroup = obj_currentLi.parent().parent(),
+			obj_groupVisibleTerminal = obj_currentGroup.children('ul').children('li:visible'),
+			str_currentGroupId = obj_currentGroup.attr('id'),
+			b_groupAllCheck = true;
+		
+		obj_groupVisibleTerminal.each(function(e) {
+			if ( $(this).hasClass('jstree-unchecked') ) {
+				b_groupAllCheck = false;
+				return;
+			}
+		});
+		// 设置组为'选中状态
+		if ( b_groupAllCheck ) {
+			$('#corpTree').jstree('check_node', '#'+str_currentGroupId);
+		}
+			
 		} else if ( n_groupClass != -1 || n_corpClass != -1 ) {	// 选中整个分组
 			// 获取该分组下所有终端
 			dlf.fn_lockScreen();
@@ -832,8 +889,16 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				$('.j_group .jstree-checked').each(function() {
 					var obj_this = $(this),
 						obj_current = obj_this.children('.j_terminal'),
-						str_tid = obj_current.attr('tid');
+						str_tid = obj_current.attr('tid'),
+						str_loginSt = obj_current.attr('clogin'),
+						obj_corpInfoStat = $('#terminalInfo .currentTNum').children(),
+						str_currentCorpInfoStat = obj_corpInfoStat.attr('id');
 					
+					if ( str_currentCorpInfoStat == 'onlineCount' && str_loginSt != '1' ) {
+						return;
+					} else if ( str_currentCorpInfoStat == 'offlineCount' && str_loginSt != '0' ) {
+						return;
+					}
 					dlf.fn_updateInfoData(obj_tempCarsData[str_tid]);
 				});
 				$('#loadingMsg').html('').hide();
@@ -856,16 +921,35 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			if ( dlf.fn_isEmptyObj(obj_marker) ) {
 				dlf.fn_clearMapComponent(obj_marker);
 				delete obj_selfmarkers[str_tid];
-				obj_actionTrack[str_tid].status = '';
+				obj_actionTrack[str_tid].status = 'no';
 			}
 			if ( dlf.fn_isEmptyObj(obj_polyline) ) {
 				dlf.fn_clearMapComponent(obj_polyline);
 			}
+			
+		//如果当前分组下可见的终端全部被选中
+		var obj_currentGroup = obj_currentLi.parent().parent(),
+			obj_groupVisibleTerminal = obj_currentGroup.children('ul').children('li:visible'),
+			str_currentGroupId = obj_currentGroup.attr('id'),
+			b_groupAllCheck = true;
+		
+		obj_groupVisibleTerminal.each(function(e) {
+			if ( $(this).hasClass('jstree-checked') ) {
+				b_groupAllCheck = false;
+				return;
+			}
+		});
+		// 设置组为不选中状态
+		if ( b_groupAllCheck ) {
+			$('#corpTree').jstree('uncheck_node', '#'+str_currentGroupId);
+		}
+			
+			
 		} else if ( n_groupClass != -1 || n_corpClass != -1 ) {	// 选中整个分组 or 整个集团
 			dlf.fn_clearMapComponent();
 			obj_selfmarkers = {};
 			for ( var param in obj_actionTrack ) {
-				obj_actionTrack[param] = {'status': '', 'interval': '', 'color': '', 'track': 0};
+				obj_actionTrack[param] = {'status': 'no', 'interval': '', 'color': '', 'track': 0};
 			}
 			// 关闭所有开启追踪
 		}
@@ -906,9 +990,57 @@ function fn_updateTerminalCount(str_operation, num) {
 			break;
 	}
 	// 更新定位器总数
-	$('.carCount').html( n_onlineCnt + n_offlineCnt + '(全部)');
-	$('.onlineCount').html(n_onlineCnt + '(在线)');
-	$('.offlineCount').html(n_offlineCnt + '(离线)');
+	$('#carCount').html( n_onlineCnt + n_offlineCnt + '(全部)').unbind('click').click(function(e) {
+		$('#terminalInfo td').removeClass('currentTNum');
+		$(this).parent().addClass('currentTNum');
+		fn_displayTerminalNode('all');
+		fn_resetTreeChecked();
+	});
+	$('#onlineCount').html(n_onlineCnt + '(在线)').unbind('click').click(function(e) {
+		$('#terminalInfo td').removeClass('currentTNum');
+		$(this).parent().addClass('currentTNum');
+		fn_displayTerminalNode('online');
+		fn_resetTreeChecked();
+	});
+	$('#offlineCount').html(n_offlineCnt + '(离线)').unbind('click').click(function(e) {
+		$('#terminalInfo td').removeClass('currentTNum');
+		$(this).parent().addClass('currentTNum');
+		fn_displayTerminalNode('offline');
+		fn_resetTreeChecked();
+	});
+}
+
+/*
+* 重置树的选中状态
+*/
+function fn_resetTreeChecked() {
+	$('#corpTree').jstree('uncheck_node','#treeNode_15919176710');
+}
+/*
+* 根据操作显示相应的终端
+*/
+function fn_displayTerminalNode(str_operator) {
+	$('.j_terminal').each(function(e) {
+		var obj_terminalNode = $(this).parent();
+			str_currLoginSt = $(this).attr('clogin');
+		
+		if ( str_operator == 'all' ) { // 显示全部
+			obj_terminalNode.show();
+		} else if ( str_operator == 'online' ) { // 显示在线
+			if ( str_currLoginSt == 0 ) {
+				obj_terminalNode.hide();
+				
+			} else {
+				obj_terminalNode.show();
+			}
+		} else { //显示离线
+			if ( str_currLoginSt == 1 ) {
+				obj_terminalNode.hide();
+			} else {
+				obj_terminalNode.show();
+			}
+		}
+	});
 }
 
 /**
@@ -961,8 +1093,11 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				str_groupFirstId = '',	// 默认第一个groupid
 				b_isHasTerminal = true,	// 是否有终端
 				obj_newData = {},
-				obj_tempSelfMarker = {};	// 临时存储最新的marker数据
-				
+				obj_tempSelfMarker = {},	// 临时存储最新的marker数据
+				arr_jstreeClose = [], // 分组是否要折叠 组下终端>=50个
+				b_isFirst = $('#corpTree').data('firsttree');
+			
+			
 			// $('.j_alarmTable').removeData('num');
 			$('.j_body').attr('cid', str_corpId);	//  存储集团id防止树节点更新时 操作组 丢失cid	
 			$('.j_body').data('lastinfo_time', data.res.lastinfo_time);	// 存储post返回的上次更新时间  返给后台
@@ -990,7 +1125,8 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						str_tempGroupName = n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
 						str_groupId = obj_group.gid,
 						obj_trackers = obj_group.trackers,
-						arr_tempTids = []; //tid组
+						arr_tempTids = [], //tid组
+						n_trackersNum = 0;
 						//arr_tids = [];
 					
 					arr_submenuGroups.push({'groupId': str_groupId, 'groupName': str_groupName});
@@ -1009,6 +1145,11 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 							}
 							str_tempFirstTid = 'leaf_' + param;	// 第一个分组的第一个定位器 id							
 						}
+					/*	if (str_groupId == 75) {
+							for ( var i = 0; i < 60; i++ ) {
+								obj_trackers[i] = {"basic_info": {"fob_list": [], "defend_status": "1", "name": "", "degree": 0.0, "mobile": "14715530469", "timestamp": 1386126110, "fob_status": "0", "longitude": 408434875, "alias": "97D56"+i, "mannual_status": 0, "clongitude": 408477945, "pbat": "95", "type": 0, "latitude": 80156181, "login": 1, "clatitude": 80166807, "gps": "31", "speed": 0.26, "keys_num": 0, "gsm": "9"}, 'alarm_info':[],'trace_info':[],'track_info':[]};
+							}
+						}*/
 						for ( var param in obj_trackers ) {	// 添加组下面的定位器
 							var obj_infoes = obj_trackers[param],
 								obj_car = obj_infoes.basic_info,	// 终端基本信息
@@ -1067,7 +1208,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 							*/
 							var str_tempLabel = str_mobile;
 							if ( str_alias != str_mobile ) {
-								str_tempLabel = str_oldAlias + ' ' + str_mobile;
+								str_tempLabel = str_oldAlias +' '+ str_mobile +' '+ obj_car.owner_mobile;
 							}
 							arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
 							// 存储最新的marker信息
@@ -1079,10 +1220,16 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 							// 显示告警提示列表
 							fn_updateAlarmList(arr_alarm);
 							b_isHasTerminal = true;
+							
+							n_trackersNum++;
 						}
 						str_html += '</ul>';
 						// 填充本次数据 为了与下次lastinfo进行比较
 						arr_tids[str_groupId] = arr_tempTids;
+						
+						if ( n_trackersNum >= 50 ) {
+							arr_jstreeClose.push(str_groupId);
+						}
 					} else {
 						arr_tids[str_groupId] = [];
 					}
@@ -1109,12 +1256,14 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			* 设置jstree默认选中的节点
 			*/
 			if ( str_checkedNodeId == '' || str_checkedNodeId == 'leaf_' || str_checkedNodeId == ' leaf_undefined'  ) {		// 上次没有选中---第一次加载
+				
 				if ( str_tempFirstTid != '' ) {	// 拿第一个定位器
 					str_tempNodeId = str_tempFirstTid;
 				} else {
 					str_tempNodeId = str_groupFirstId;
 				}
-			} else {
+				$('#corpTree').data('treemax', arr_jstreeClose); // 大于50 个终端的组折叠
+			} else { 
 				if ( b_flg ) {
 					str_tempNodeId = str_checkedNodeId;
 				} else {
@@ -1877,7 +2026,7 @@ function fn_removeTerminal(node) {
 				fn_updateTerminalCount('sub', 1);				
 				$("#corpTree").jstree('remove');				
 				// 删除地图marker
-				obj_actionTrack[str_param].status = '';
+				obj_actionTrack[str_param].status = 'no';
 				if ( obj_selfmarkers[str_param] ) {
 					mapObj.removeOverlay(obj_selfmarkers[str_param]);
 					delete obj_selfmarkers[str_param];

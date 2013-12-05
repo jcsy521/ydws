@@ -54,31 +54,6 @@ window.dlf.fn_moveMarker = function(str_tid, str_flag) {
 }
 
 /**
-* 设置地图marker的icon图标=
-*/
-window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType) {
-	// 集团用户icon_type icon显示不同图标
-		var str_tempImgUrl = '',
-			str_dir = CORPIMGURL + 'terminalIcons/';
-		
-		if ( n_iconType == 0 ) {	// 车
-			str_tempImgUrl = n_degree;
-			str_dir = BASEIMGURL;
-		} else if ( n_iconType == 1 ) {	// 摩托车
-			str_tempImgUrl = 'moto';
-		} else if ( n_iconType == 2 ) {	// 人
-			str_tempImgUrl = 'person';
-		} else if ( n_iconType == 3 ) {	// 图标
-			str_tempImgUrl = 'default';
-		} else {
-			str_tempImgUrl = n_degree;
-			str_dir = BASEIMGURL;
-		}
-	
-	return str_dir + str_tempImgUrl + '.png';
-}
-
-/**
 * 对动态数据做更新
 * obj_carInfo: 车辆信息
 * str_type: 是否是实时定位
@@ -96,6 +71,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_clat = obj_carInfo.clatitude,
 		n_degree = obj_carInfo.degree,
 		n_iconType = obj_carInfo.icon_type,
+		str_loginSt = obj_carInfo.login,
 		obj_tempVal = dlf.fn_checkCarVal(str_tid, 'tracklq'), // 查询缓存中是否有当前车辆信息
 		obj_tempPoint = dlf.fn_createMapPoint(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
@@ -238,9 +214,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		dlf.fn_changeAddressHeight('actiontrack');
 		// obj_selfmarkers[str_tid].selfInfoWindow = obj_infoWindow;
 		if ( b_isCorpUser ) {
-			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType);
+			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType, str_loginSt);
 		} else {
-			str_iconUrl = BASEIMGURL + n_imgDegree + '.png';
+			str_iconUrl = BASEDEGREEIMGURL + n_imgDegree + '.png';
 		}
 		obj_selfMarker.setIcon(new AMap.Icon({image: str_iconUrl, size: new AMap.Size(34, 34)}));	// 设置方向角图片
 		obj_selfmarkers[str_tid] = obj_selfMarker;
@@ -275,25 +251,28 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 /**
 * 设置地图marker的icon图标=
 */
-window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType) {
+window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt) {
 	// 集团用户icon_type icon显示不同图标
-		var str_tempImgUrl = '',
-			str_dir = CORPIMGURL + 'terminalIcons/';
-		
-		if ( n_iconType == 0 ) {	// 车
-			str_tempImgUrl = n_degree;
-			str_dir = BASEIMGURL;
-		} else if ( n_iconType == 1 ) {	// 摩托车
-			str_tempImgUrl = 'moto';
-		} else if ( n_iconType == 2 ) {	// 人
-			str_tempImgUrl = 'person';
-		} else if ( n_iconType == 3 ) {	// 图标
-			str_tempImgUrl = 'default';
-		} else {
-			str_tempImgUrl = n_degree;
-			str_dir = BASEIMGURL;
-		}
+	var str_tempImgUrl = '',
+		str_dir = CORPIMGURL + 'terminalIcons/';
 	
+	if ( n_iconType == 0 ) {	// 车
+		str_tempImgUrl = n_degree;
+		str_dir = BASEDEGREEIMGURL;
+	} else if ( n_iconType == 1 ) {	// 摩托车
+		str_tempImgUrl = 'moto';
+	} else if ( n_iconType == 2 ) {	// 人
+		str_tempImgUrl = 'person';
+	} else if ( n_iconType == 3 ) {	// 图标
+		str_tempImgUrl = 'default';
+	} else {
+		str_tempImgUrl = n_degree;
+		str_dir = BASEDEGREEIMGURL;
+	}
+	
+	if ( str_loginSt == '0' ) {
+		str_tempImgUrl += '_logout';
+	}
 	return str_dir + str_tempImgUrl + '.png';
 }
 

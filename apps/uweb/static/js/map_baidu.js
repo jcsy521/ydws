@@ -217,6 +217,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 		str_alias = obj_location.alias,
 		str_tid = obj_location.tid,
 		n_iconType = obj_location.icon_type,	// icon_type 
+		str_loginSt =  obj_location.login,
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null,
 		b_userType = dlf.fn_userType();
@@ -242,7 +243,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 		if ( !n_iconType ) {
 			n_iconType = obj_carA.attr('icon_type');
 		}
-		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType);	// 集团用户设置marker的图标
+		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt);	// 集团用户设置marker的图标
 	}
 	if ( str_iconType == 'start' ) {	// 轨迹起点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerA.png';
@@ -439,6 +440,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_type = obj_location.type == GPS_TYPE ? 'GPS定位' : '基站定位',
 		str_alias = obj_location.alias,
 		str_delayTime = obj_location.idle_time,
+		str_loginSt = obj_location.login,
 		str_title = '定位器：',
 		str_tempMsg = '开始跟踪',
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
@@ -446,7 +448,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	
 	address = fn_cutString(address);
 	if ( dlf.fn_userType() ) {	// 集团用户修改图标
-		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType);	// 集团用户设置marker的图标
+		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt);	// 集团用户设置marker的图标
 	}
 	if ( str_iconType == 'delay' ) {
 		str_html = '<div id="markerWindowtitle" class="cMsgWindow height90">'
@@ -561,7 +563,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				var str_fileUrl = location.href,
 					str_fileUrl = str_fileUrl.substr(0, str_fileUrl.length-1),
 					str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
-					str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType) : str_iconUrl,
+					str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt) : str_iconUrl,
 					str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
 
 				str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'Hi，小伙伴们，你们看到我现在在哪里了吗？这边的朋友你们好！\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
@@ -591,9 +593,9 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		var str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 		// 左侧 位置描述填充
 		if ( str_currentTid == tid ) {
-			obj_addressLi.html('').html('位置：<lable class="lblAddress">' + str_tempResult + '</label>');	// 替换marker上的位置描述
+			obj_addressLi.html('').attr('html', '位置：<lable class="lblAddress">' + str_tempResult + '</label>');	// 替换marker上的位置描述
 			obj_addressLi.attr('title', str_result);
-			$('#address').html(str_result);
+			$('#address').attr('html', str_result);
 		}
 		if ( obj_selfmarker && obj_selfmarker != null ) {
 			var str_content = obj_selfmarker.selfInfoWindow.getContent(),
@@ -626,14 +628,14 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		if ( n_lon != 'none' ) {
 			var str_tempAddress = str_result.length > 28 ? str_result.substr(0,28) + '...':str_result;
 			
-			$('.eventSearchTable tr').eq(n_index+1).find('.j_getPosition').parent().html('<label href="#" title="'+ str_result +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lon+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a>');
+			$('.eventSearchTable tr').eq(n_index+1).find('.j_getPosition').parent().attr('html', '<label href="#" title="'+ str_result +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lon+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a>');
 			arr_dwRecordData[n_index].name = str_tempAddress;
 			
 			dlf.fn_showMarkerOnEvent();	// 初始化查看地图事件
 		}
 	} else if ( str_type == 'alarmInfo' ) {
 		$('.j_alarmTable').data('markers')[n_index].name = str_result;
-		$('.clickedBg').children('td').eq(2).html(str_result);
+		$('.clickedBg').children('td').eq(2).attr('html', str_result);
 	} else if ( str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == "draw" ) {
 		// $('.clickedBg').children('td').eq(2).html(str_result);	// 修改右侧列表位置描述
 		var obj_tempLi = $('#markerWindowtitle ul li');
@@ -641,14 +643,15 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		if ( n_index >= 0 ) {
 			arr_dataArr[n_index].name = str_result;
 		}
-		$('.lblAddress').html(str_tempResult);	// 修改吹出框位置描述
+		
+		$('.lblAddress').attr('html', str_tempResult);	// 修改吹出框位置描述
 		if ( str_type == 'delay' && dlf.fn_userType() ) {	// 如果是集团的停留点的话
 			var obj_tempMarker = $('.delayTable').data('markers')[$('.clickedBg').index()];
 			
 			if ( obj_tempMarker ) {
 				var str_content = obj_tempMarker.selfInfoWindow.getContent();
 					n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
-					n_endNum = str_content.indexOf('</a></label></li>');
+					n_endNum = str_content.indexOf('</a></label></li>')+4;
 					str_address = str_content.substring(n_beginNum, n_endNum);
 					str_content = str_content.replace(str_address, str_tempResult);
 				
@@ -657,10 +660,28 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			obj_tempLi.eq(3).attr('title', str_result);
 		} else {
 			obj_tempLi.eq(4).attr('title', str_result);	// kjj add in 2013-08-22
+			var obj_updateMarker = null;
+			
+			if ( str_type == 'draw' ) {
+				obj_updateMarker = actionMarker;
+			} else if ( str_type == 'start' ) {
+				obj_updateMarker = $('.delayTable').data('markers')[0];
+			} else if ( str_type == 'end' ) {
+				obj_updateMarker = $('.delayTable').data('markers')[1];
+			}
+			
+			var str_content = obj_updateMarker.selfInfoWindow.getContent();
+				n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
+				n_endNum = str_content.indexOf('</a></label></li>')+4;
+				str_address = str_content.substring(n_beginNum, n_endNum);
+				str_content = str_content.replace(str_address, str_tempResult);
+			
+			obj_updateMarker.selfInfoWindow.setContent(str_content);
+			obj_updateMarker.openInfoWindow(obj_updateMarker.selfInfoWindow);
 		}	
 	} else {
 		$('#markerWindowtitle ul li').eq(4).attr('title', str_result);
-		$('.lblAddress').html(str_tempResult);	// 替换marker上的位置描述
+		$('.lblAddress').attr('html', str_tempResult);	// 替换marker上的位置描述
 	}
 }
 
@@ -679,7 +700,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 		obj_point = new BMap.Point(n_lon, n_lat);
 	
 	if ( $('.j_currentCar').attr('tid') != tid ) {
-		return;
+		//return; // todo 2013.12.4
 	}
 	if ( str_type == 'event' ) {
 		dlf.fn_ShowOrHideMiniMap(false);	// 如果是告警的获取位置，关闭小地图

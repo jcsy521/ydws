@@ -36,14 +36,17 @@
 		{% else %}		
 			<div id="ads"></div>
 		{% end %}	
-		<div class="welcome" title="{{name}}">
-			<span id="spanWelcome">欢迎您，
-				{% if len(name)<=4 %}
-					{{name.replace("<", "&lt;").replace(">", "&gt;")}}
-				{% else %}
-					{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
-				{% end %}
-			</span>
+		<div id="topProfile">
+			<div id="serviceHotline">客服电话：400-863-0388</div>
+			<div class="welcome" title="{{name}}">
+				<span id="spanWelcome">欢迎您，
+					{% if len(name)<=4 %}
+						{{name.replace("<", "&lt;").replace(">", "&gt;")}}
+					{% else %}
+						{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
+					{% end %}
+				</span>
+			</div>
 		</div>
 	</div>
 	<div id="corpMain">
@@ -63,9 +66,9 @@
 				<div class="staticsBox">
 					<table>
 						<tr>
-							<td><label class="carCount"></label></td>
-							<td><label class="onlineCount"></label></td>
-							<td><label class="offlineCount"></label></td>
+							<td><label id="carCount"></label></td>
+							<td><label id="onlineCount"></label></td>
+							<td><label id="offlineCount"></label></td>
 						</tr>
 					</table>
 				</div>
@@ -136,38 +139,38 @@
 					<li><a href="#" id="logout" onclick="dlf.fn_exit()" title="退出">退出</a></li>
 				</ul>
 			</div>
-			<div class="trackHeader hide" id="trackHeader">
-				<span class="trackPos">
-					<span id="trackTerminalAlias"> 
-						定位器名称：
-						<label id="trackTerminalAliasLabel"></label>
-					</span>
-					<span class="timeTip">时间范围:</span>
-					<span class="trackTime">
-						<input type="text" class="time" id="trackBeginTime" />
-						至
-						<input type="text" class="time" id="trackEndTime" />
-					</span>
-					<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">显示基站定位</label>
-				</span>
-				<!--按钮-->
-				<span class="trackBtn">
-					<a id="trackSearch" class="tSearch"></a>
-					<a id="tPrev" class="tPrev hide j_trackBtnhover"></a>
-					<a id="tPlay" class="tPlay hide j_trackBtnhover"></a>
-					<a id="tPause" class="tPause hide j_trackBtnhover"></a>
-					<a id="tNext" class="tNext hide j_trackBtnhover"></a>
-				</span>
-				<!--关闭按钮-->
-				<a id="trackClose" class="tClose"></a>
-				<span id="trackSpeed" class="trackSpeed hide">
-					<span>播放速度：</span>
-					<span id="trackSlide" title="比较快"></span>
-				</span>
-			</div>
 			<div class="mapContainer">
 				<div class="j_draggable mapDragTitle hide">
 					<div class="eventMapClose j_close" id="mapClose" title="关闭窗口"></div>
+				</div>
+				<div class="trackHeader hide" id="trackHeader">
+					<span class="trackPos">
+						<span id="trackTerminalAlias"> 
+							定位器名称：
+							<label id="trackTerminalAliasLabel"></label>
+						</span>
+						<span class="timeTip">时间范围:</span>
+						<span class="trackTime">
+							<input type="text" class="time" id="trackBeginTime" />
+							至
+							<input type="text" class="time" id="trackEndTime" />
+						</span>
+						<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">显示基站定位</label>
+					</span>
+					<!--按钮-->
+					<span class="trackBtn">
+						<a id="trackSearch" class="tSearch"></a>
+						<a id="tPrev" class="tPrev hide j_trackBtnhover"></a>
+						<a id="tPlay" class="tPlay hide j_trackBtnhover"></a>
+						<a id="tPause" class="tPause hide j_trackBtnhover"></a>
+						<a id="tNext" class="tNext hide j_trackBtnhover"></a>
+					</span>
+					<!--关闭按钮-->
+					<a id="trackClose" class="tClose"></a>
+					<span id="trackSpeed" class="trackSpeed hide">
+						<span>播放速度：</span>
+						<span id="trackSlide" title="比较快"></span>
+					</span>
 				</div>
 				<div id="mapObj" class="corpMapObj"></div>
 			</div>

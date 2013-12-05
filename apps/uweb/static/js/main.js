@@ -446,7 +446,7 @@ window.onresize = function () {
 			n_tilelayerLeft = n_windowWidth <= 1400 ? 1400 - 288 : n_windowWidth - 188,
 			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
-			n_right = n_windowWidth - 249,
+			n_right = n_windowWidth - 251,
 			n_trackLeft = 0,
 			n_mainContent = n_windowHeight - 104,
 			n_mainHeight = n_windowHeight - 123,
@@ -455,11 +455,17 @@ window.onresize = function () {
 			n_tempTreeHight = $('#corpTree ul').height(),
 			obj_tree = $('#corpTree'),
 			obj_track = $('#trackHeader'),
-			n_delayLeft = n_windowWidth - 530,
+			n_delayLeft = n_windowWidth - 550,
 			n_delayIconLeft = n_delayLeft - 17,
 			n_alarmLeft = n_windowWidth - 400,
 			n_alarmIconLeft = n_alarmLeft - 17,
-			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible');	// 告警查询打开状态
+			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询打开状态
+			b_trackSt = obj_track.is(':visible');
+		
+		if ( b_trackSt ) {
+			n_mapHeight = n_windowHeight - 201;
+			$('#trackHeader').css('width', n_windowWidth - 251);
+		}
 		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 259;
@@ -476,7 +482,7 @@ window.onresize = function () {
 		}
 		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 		
-		$('#right, #corpRight, #navi, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
+		$('#right, #corpRight, #navi, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 8;
@@ -565,7 +571,7 @@ $(function () {
 		n_mainHeight = n_windowHeight - 123,
 		n_corpTreeContainerHeight = n_mainHeight-270,
 		n_treeHeight = n_corpTreeContainerHeight - 55,
-		n_delayLeft = n_windowWidth - 530,
+		n_delayLeft = n_windowWidth - 550,
 		n_delayIconLeft = n_delayLeft - 17,
 		n_alarmLeft = n_windowWidth - 400,
 		n_alarmIconLeft = n_alarmLeft - 17,
@@ -836,32 +842,17 @@ $(function () {
 		onError: function(msg) { 
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
 		}, 
-		onSuccess: function() { 
-			var str_name = $('#name').val(),
-				str_oldVal = $('#corp_cnum').attr('t_val');
+		onSuccess: function() {
+			var str_name = $('#name').val();
 			
 			if ( str_name.length > 0 && $.trim(str_name).length == 0 ) {
 				dlf.fn_jNotifyMessage('用户姓名不能为空，请重新输入。', 'message', false, 3000);
 				return;
-			} else {
-				// 如果旧的值是0 新的值也是0
-				if ( str_oldVal.length == 0 && str_val.length == 0 ) {
-					
-				} else if ( str_oldVal.length > 0 && str_val.length == 0 ) {
-					dlf.fn_jNotifyMessage('定位器名称不能为空，请重新输入。', 'message', false, 3000);
-					return;
-				}
 			}
-			/*if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
-				dlf.fn_jNotifyMessage('定位器名称不能只输入空格。', 'message', false, 3000);
-				return;
-			}*/
 			dlf.fn_personalSave();
 		}
 	});
-	
-	$('#name').formValidator({validatorGroup: '1', empty: true}).inputValidator({min: 1, onErrorMin: '用户姓名不能为空，请重新输入。', max: 20, onErrorMax: '用户姓名最多可输入20个字符！'});  // 别名.regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"});
-	
+	$('#name').formValidator({validatorGroup: '1'}).inputValidator({min: 1, onErrorMin: '用户姓名不能为空，请重新输入。', max: 20, onErrorMax: '用户姓名最多可输入20个字符！'});  // 别名.regexValidator({regExp: 'name', dataType: 'enum', onError: "用户姓名只能由数字、英文、中文、空格组成！"}); 
 
 	/**
 	* 密码进行验证
@@ -909,7 +900,8 @@ $(function () {
 		onSuccess: function() {
 			var str_alert_freq = $('#t_alert_freq').val(),				
 				str_mode = $('#alert_freq_mode').val(),
-				str_val = $('#t_cnum').val();
+				str_val = $('#t_cnum').val(),
+				str_oldVal = $('#corp_cnum').attr('t_val');
 			
 			if ( str_mode == '1' ) {
 				if ( str_alert_freq <= 0 ) {
@@ -929,11 +921,19 @@ $(function () {
 			if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
 				dlf.fn_jNotifyMessage('定位器名称不能为空，请重新输入。', 'message', false, 3000);
 				return;
+			} else { 
+				// 如果旧的值是0 新的值也是0
+				if ( str_oldVal.length == 0 && str_val.length == 0 ) {
+					
+				} else if ( str_oldVal.length > 0 && str_val.length == 0 ) {
+					dlf.fn_jNotifyMessage('定位器名称不能为空，请重新输入。', 'message', false, 3000);
+					return;
+				}
 			}
 			dlf.fn_baseSave();	// put请求
 		}
 	});
-	$('#t_cnum').formValidator({validatorGroup: '3'}).inputValidator({min: 1, onErrorMin: '定位器名称不能为空，请重新输入。', max: 20, onErrorMax: '定位器名称最多可输入20个字符！'}); // 区分大小写.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'})
+	$('#t_cnum').formValidator({validatorGroup: '3', empty: true}).inputValidator({min: 1, onErrorMin: '定位器名称不能为空，请重新输入。', max: 20, onErrorMax: '定位器名称最多可输入20个字符！'}); // 区分大小写.regexValidator({regExp: 'licensenum', dataType: 'enum', onError: '定位器名称只能由汉字、数字、大写字母、空格组成！'})
 	
 	/**
 	* 集团信息的验证
@@ -979,7 +979,7 @@ $(function () {
 			dlf.fn_operatorDataSave();
 		}
 	});
-	
+	$('#txt_operAddress').formValidator({empty:true, validatorGroup: '9'}).inputValidator({max: 100, onError: '地址最大长度是100个汉字或字符！'});  // 联系人email
 	$('#txt_operEmail').formValidator({empty:true, validatorGroup: '9'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "邮箱输入不合法，请重新输入！"});  // 联系人email
 	
 	/**
@@ -1150,7 +1150,10 @@ $(function () {
 				obj_this.val('').removeClass('gray');
 			}
 		});
+		
+		$('#carCount').parent().addClass('currentTNum');
 		dlf.fn_corpGetCarData();
+		$('#corpTree').data('firsttree', true);
 	}
 	
 	$('#txtautoComplete').val('');	// 清空autocomplete搜索框

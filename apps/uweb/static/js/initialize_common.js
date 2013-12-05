@@ -89,6 +89,7 @@ window.dlf.fn_closeDialog = function() {
 	dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	dlf.fn_clearAllMenu();
 	$('.wrapper').hide();
+	$( "#smsOwerMobile" ).autocomplete( "close" );
 }
 
 // 清除所有的menu的操作样式
@@ -276,9 +277,9 @@ window.dlf.fn_changeTimestampToString = function(n_timestamp) {
 			n_hour = n_hour%24;
 			n_day = Math.floor(n_tempHour/24);
 			
-			str_time += n_day + '天 ';	
+			str_time += n_day + '天';	
 		}
-		str_time += n_hour + '时 ';	
+		str_time += n_hour + '时';	
 	}
 	str_time += n_minute + '分';
 	return str_time;
@@ -735,7 +736,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
 		
 		
-	if ( !dlf.fn_userType() && str_actionTrack == '1' && n_pointType == CELLID_TYPE ) { // 2013.7.9 个人用户 开户追踪后,基站点及信息不进行显示
+	if ( !dlf.fn_userType() && str_actionTrack == 'yes' && n_pointType == CELLID_TYPE ) { // 2013.7.9 个人用户 开户追踪后,基站点及信息不进行显示
 		return;
 	}
 	if ( n_lon != 0 && n_lat != 0 ) {
@@ -906,12 +907,12 @@ window.dlf.fn_checkTrackDatas = function (str_tid, b_deleteTrack) {
 	var obj_tempTrack = obj_actionTrack[str_tid];
 
 	if ( !obj_tempTrack ) {
-		obj_actionTrack[str_tid] = {'status': '', 'interval': '', 'color': '', 'track': 0};
+		obj_actionTrack[str_tid] = {'status': 'no', 'interval': '', 'color': '', 'track': 0};
 	}
 	if ( b_deleteTrack ) {
 		var obj_selfPolyline = 	obj_polylines[str_tid];
 		
-		obj_actionTrack[str_tid] = {'status': '', 'interval': '', 'color': '', 'track': 0};
+		obj_actionTrack[str_tid] = {'status': 'no', 'interval': '', 'color': '', 'track': 0};
 		
 		if ( obj_selfPolyline ) {
 			dlf.fn_clearMapComponent(obj_selfPolyline); // 删除相应轨迹线
@@ -927,7 +928,7 @@ window.dlf.fn_clearOpenTrackData = function() {
 	$('.j_terminal').each(function(e){
 		var str_tid = $(this).attr('tid');
 			
-		obj_actionTrack[str_tid].status = '';
+		obj_actionTrack[str_tid].status = 'no';
 		obj_actionTrack[str_tid].color = '';
 		obj_actionTrack[str_tid].track = 0;
 		dlf.fn_clearInterval(obj_actionTrack[str_tid].interval);	
@@ -1927,10 +1928,11 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 							var obj_current = $('.j_currentCar'),
 								str_tid = obj_current.attr('tid'),
 								n_imgDegree = obj_current.attr('degree'),
+								str_loginSt = obj_current.attr('clogin'),
 								obj_currentMarker = obj_selfmarkers[str_tid],
 								b_mapType = dlf.fn_isBMap(),
 								obj_icon = null,
-								str_iconUrl = dlf.fn_setMarkerIconType(dlf.fn_processDegree(n_imgDegree), str_val);
+								str_iconUrl = dlf.fn_setMarkerIconType(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt);
 							
 							obj_current.attr('icon_type', str_val);
 							if ( obj_currentMarker ) {
@@ -1940,6 +1942,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 									obj_icon = str_iconUrl;
 								}
 								obj_currentMarker.setIcon(obj_icon);
+								obj_selfmarkers[str_tid] = obj_currentMarker;
 							}
 							dlf.fn_updateTerminalLogin(obj_current);	
 							$('#corp_' + param ).attr('t_val', str_val);
@@ -1950,7 +1953,8 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else if ( str_who == 'corpSMSOption' ) {
-					var str_mobile = obj_data.owner_mobile;
+					var str_mobile = obj_data.owner_mobile,
+						obj_smsOptionData = $('#smsOwerMobile').data('smsoption');
 					
 					
 					if ( str_mobile ) {
@@ -1958,10 +1962,11 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 					}
 					for ( var param in obj_data ) {
 						var str_val = obj_data[param];
-						
-						$('#smsOwerMobile option[value='+ str_mobile +']').data('smsList').param = str_val;
+						//$('#smsOwerMobile option[value='+ str_mobile +']').data('smsList').param = str_val;
 						$('#corp_' + param).attr('t_checked', str_val);
 					}
+					obj_smsOptionData[param] = obj_data;
+					$('#smsOwerMobile').data('smsoption', obj_smsOptionData);
 					$('#corp_' + param ).attr('t_val', str_val);
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩

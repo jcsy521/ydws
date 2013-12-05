@@ -291,17 +291,18 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 		str_imgUrl = n_degree, 
 		str_tid = obj_location.tid,
 		myIcon = null,
-		str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
+		str_iconUrl = BASEDEGREEIMGURL + str_imgUrl + '.png',
 		mPoint = dlf.fn_createMapPoint(obj_location.clongitude, obj_location.clatitude),
 		infoWindow = new AMap.InfoWindow({content: dlf.fn_tipContents(obj_location, str_iconType, n_index), position: mPoint}),
 		str_alias = obj_location.alias,
 		n_iconType = obj_location.icon_type,	// icon_type 
+		str_loginSt = obj_location.login,
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null,
 		startMarker = null,
 		endMarker = null,
 		delayMarker = null,
-		str_corpIconUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType);
+		str_corpIconUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt);
 		
 	if ( !str_alias ) {	// 实时定位无alias，则根据tid获取对应定位器别名
 		str_alias = obj_carA.next().html();

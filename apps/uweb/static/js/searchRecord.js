@@ -1433,16 +1433,22 @@ window.dlf.fn_setMapPosition = function(b_status) {
 			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
 			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
-			n_mapHeight = n_windowHeight - 166,
-			n_right = n_windowWidth - 249,
+			n_mapHeight = n_windowHeight - 161,
+			n_right = n_windowWidth - 250,
 			obj_mapCenter = $('.j_body').data('mapcenter'),
-			obj_mapSize = $('.j_body').data('mapsize');
+			obj_mapSize = $('.j_body').data('mapsize'),
+			b_trackSt = $('#trackHeader').is(':visible'), 
+			n_mapObjMinHeight = 566;
 		
+		if ( b_trackSt ) {
+			n_mapObjMinHeight = 530;
+			n_mapHeight = n_windowHeight - 181;
+		}
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 259;
 			n_mapHeight = n_mapHeight - 10;
 		}
-		obj_map.css({'height': n_mapHeight, 'width': n_right, 'minHeight': 566, 'minWidth': 1151, 'zIndex': 0}).show();
+		obj_map.css({'height': n_mapHeight, 'width': n_right, 'minHeight': n_mapObjMinHeight, 'minWidth': 1151, 'zIndex': 0}).show();
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/

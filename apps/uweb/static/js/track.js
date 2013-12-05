@@ -20,15 +20,15 @@ window.dlf.fn_initTrack = function() {
 	$('#track').addClass('trackHover');
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
 	dlf.fn_closeDialog(); // 关闭所有dialog
-	dlf.fn_setMapPosition(false);
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show();	// 轨迹查询条件显示
+	dlf.fn_setMapPosition(false);
 	// 调整工具条和
-	dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
+	//dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	
 	var str_tempAlias = $('.j_currentCar').attr('alias'),
 		str_currentCarAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias)),
@@ -50,7 +50,7 @@ window.dlf.fn_initPanel = function () {
 	*/
 	var n_windowWidth = $(window).width(),
 		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
-		n_delayLeft = n_windowWidth - 530,
+		n_delayLeft = n_windowWidth - 550,
 		n_delayIconLeft = n_delayLeft - 17,
 		n_alarmLeft = n_windowWidth - 400,
 		n_alarmIconLeft = n_alarmLeft - 17,
@@ -156,7 +156,6 @@ function fn_trackQuery() {
 			var arr_locations = data.track, 
 				locLength = arr_locations.length,
 				str_downloadHash = data.hash_,	// 下载停留点的hash参数
-				
 				str_msg = '';
 				
 			if ( locLength <= 0) {
@@ -318,7 +317,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 			var obj_point = arr_delayPoints[x],
 				obj_tempMarker = {},
 				str_name = obj_point.name,
-				str_tempEndName = str_name.length > 20 ? str_name.substr(0, 20) + '...' : str_name;
+				str_tempEndName = str_name.length > 18 ? str_name.substr(0, 18) + '...' : str_name;
 			
 			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, 0);
 			
@@ -328,6 +327,9 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 	}
 	obj_table.data('markers', arr_markers);
 	$('.j_delayTbody').html(str_html);
+	if ( parseInt($.browser.version) <= 7 ) {
+		$('.delayTable img').css('position', 'static');
+	}
 
 	/** 
 	* 初始化奇偶行
@@ -364,12 +366,17 @@ function fn_startDrawLineStatic(arr_dataArr) {
 	$('#tPlay, #tPrev, #tNext, #trackSpeed').css('display', 'inline-block');
 	var arr = new Array(), //经纬度坐标数组 
 		obj_firstMarker = {},
-		obj_endMarker = {};
+		obj_endMarker = {},
+		arr_markers = [];
 	
 	var polyline = dlf.fn_createPolyline($('#trackHeader').data('points'), {color: '#150CFF'});	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	
 	obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
-	obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); // 添加标记
+	obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); //添加标记
+	//存储起终端点以便没有位置时进行位置填充
+	arr_markers.push(obj_firstMarker);
+	arr_markers.push(obj_endMarker);
+	$('.delayTable').data('markers', arr_markers);
 	
 	// 如果是集团用户的轨迹查询 显示停留点数据信息
 	if ( dlf.fn_userType() ) {
@@ -558,7 +565,7 @@ $(function () {
 			obj_arrowIcon = $('.j_arrowClick'),
 			b_panel = obj_panel.is(':visible'),
 			n_windowWidth = $(window).width(),
-			n_delayIconLeft = n_windowWidth - 547;
+			n_delayIconLeft = n_windowWidth - 567;
 		
 		
 		if ( n_windowWidth < 1500 ) {
@@ -633,6 +640,7 @@ $(function () {
 			fn_drawMarker('next');
 		} else {
 			dlf.fn_closeTrackWindow(true);
+			dlf.fn_setMapPosition(false);
 		}
 	});
 	

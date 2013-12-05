@@ -65,6 +65,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_degree = obj_carInfo.degree,
 		n_iconType = obj_carInfo.icon_type,	// icon_type
 		n_pointType = obj_carInfo.type, 
+		str_loginSt = obj_carInfo.login,
 		obj_tempVal = dlf.fn_checkCarVal(str_tid, 'tracklq'), // 查询缓存中是否有当前车辆信息
 		obj_tempPoint = new BMap.Point(n_clon, n_clat),
 		obj_carA = $('.j_carList a[tid='+str_tid+']'),	// 要更新的车辆
@@ -188,7 +189,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		obj_selfInfoWindow.setContent(dlf.fn_tipContents(obj_carInfo, 'actiontrack'));
 		obj_selfMarker.setPosition(obj_tempPoint);
 		if ( b_isCorpUser ) {
-			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType);
+			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType, str_loginSt);
 		} else {
 			str_iconUrl = BASEIMGURL + 'default.png';
 		}
@@ -229,25 +230,27 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 /**
 * 设置地图marker的icon图标=
 */
-window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType) {
+window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt) {
 	// 集团用户icon_type icon显示不同图标
-		var str_tempImgUrl = '',
-			str_dir = CORPIMGURL + 'terminalIcons/';
-		
-		if ( n_iconType == 0 ) {	// 车
-			str_tempImgUrl = n_degree;
-			str_dir = BASEIMGURL;
-		} else if ( n_iconType == 1 ) {	// 摩托车
-			str_tempImgUrl = 'moto';
-		} else if ( n_iconType == 2 ) {	// 人
-			str_tempImgUrl = 'person';
-		} else if ( n_iconType == 3 ) {	// 图标
-			str_tempImgUrl = 'default';
-		} else {
-			str_tempImgUrl = n_degree;
-			str_dir = BASEIMGURL;
-		}
+	var str_tempImgUrl = '',
+		str_dir = CORPIMGURL + 'terminalIcons/';
 	
+	if ( n_iconType == 0 ) {	// 车
+		str_tempImgUrl = n_degree;
+		str_dir = BASEDEGREEIMGURL;
+	} else if ( n_iconType == 1 ) {	// 摩托车
+		str_tempImgUrl = 'moto';
+	} else if ( n_iconType == 2 ) {	// 人
+		str_tempImgUrl = 'person';
+	} else if ( n_iconType == 3 ) {	// 图标
+		str_tempImgUrl = 'default';
+	} else {
+		str_tempImgUrl = n_degree;
+		str_dir = BASEDEGREEIMGURL;
+	}
+	if ( str_loginSt == '0' ) {
+		str_tempImgUrl += '_logout';
+	}
 	return str_dir + str_tempImgUrl + '.png';
 }
 

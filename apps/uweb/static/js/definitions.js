@@ -82,6 +82,7 @@ var WEEKMILISECONDS = 24*60*60*7; // 一个星期的毫秒数
 var LASTINFOCACHE = 0;	// 0: 首次访问lastinfo  1: 不是首次访问
 var WAITIMG = '...<img src="/static/images/blue-wait.gif" width="12px" />';	// 正在查询中 图标
 var BASEIMGURL = '/static/images/';	// 图片的默认路径
+var BASEDEGREEIMGURL = '/static/images/degreeIcon/';	// 方向图片的默认路径
 var CORPIMGURL = BASEIMGURL + 'corpImages/';	// 集团默认图片路径
 var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// 手机号正则表达
 var NAMEREG = /^[a-zA-Z0-9\u4e00-\u9fa5 ]+$/;	// 姓名正则
