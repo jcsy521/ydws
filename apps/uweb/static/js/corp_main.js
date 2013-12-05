@@ -1014,7 +1014,7 @@ function fn_updateTerminalCount(str_operation, num) {
 * 重置树的选中状态
 */
 function fn_resetTreeChecked() {
-	$('#corpTree').jstree('uncheck_node','#treeNode_15919176710');
+	$('#corpTree').jstree('uncheck_node','.j_corp');
 }
 /*
 * 根据操作显示相应的终端
