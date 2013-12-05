@@ -118,7 +118,8 @@ class TrackHandler(BaseHandler):
             # 15919176710  贾晓磊的测试账号
             # 13923302230 坦州公安
             # 13928196249 中山黄圃公安局
-            if self.current_user.cid in ['15919176710','13600335550','13923302230','13928196249']:
+            corp = self.db.query("SELECT track_type FROM T_CORP WHERE cid = %s", self.current_user.cid)
+            if corp and corp[0].track_type == 1:
                 logging.info("cid: %s is no need check.", self.current_user.cid)
                 pass
             else: 
