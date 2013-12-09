@@ -231,7 +231,7 @@ class LastInfoCorpHandler(BaseHandler):
                     if location and not (location.clatitude or location.clongitude):
                         location_key = get_location_key(str(tid))
                         locations = [location,] 
-                        locations = get_locations_with_clatlon(locations, self.db) 
+                        #locations = get_locations_with_clatlon(locations, self.db) 
                         location = locations[0]
                         self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
 
@@ -282,7 +282,7 @@ class LastInfoCorpHandler(BaseHandler):
                                                          tid,
                                                          int(item['track_time'])+1, endtime)
 
-                            points_track = get_locations_with_clatlon(points_track, self.db)
+                            #points_track = get_locations_with_clatlon(points_track, self.db)
                             for point in points_track: 
                                 if point['clatitude'] and point['clongitude']:
                                     t = dict(latitude=point['latitude'],
@@ -306,7 +306,7 @@ class LastInfoCorpHandler(BaseHandler):
                                                  "    ORDER BY timestamp",
                                                  tid, int(current_time)-60*5, basic_info['timestamp'])
 
-                    points_trace = get_locations_with_clatlon(points_trace, self.db)
+                    #points_trace = get_locations_with_clatlon(points_trace, self.db)
                     points_trace = points_trace[:5] 
                     len_trace = 0
                     if points_trace:

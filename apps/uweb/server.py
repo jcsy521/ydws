@@ -247,7 +247,7 @@ class Application(tornado.web.Application):
             terminal_path="/static/terminal/",
             cookie_secret="s8g1gVxKOiQoZptLRi2nSuXmiK2ThYJJBSHIUHnqoUw=",
             login_url="/login",
-            debug=debug,
+            #debug=debug,
             app_name="ACBUWEB",
         )
 
@@ -299,7 +299,7 @@ def main():
         logging.warn("[uweb] running on: localhost:%d", options.port)
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
-        logging.error("Ctrl-C is pressed.")
+        logging.error("Ctrl-C is  pressed.")
     except:
         logging.exception("[uweb] Exit Exception")
     finally:

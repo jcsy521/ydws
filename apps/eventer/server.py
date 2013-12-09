@@ -49,7 +49,7 @@ class Application(tornado.web.Application):
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
-            debug=debug,
+            #debug=debug,
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)
