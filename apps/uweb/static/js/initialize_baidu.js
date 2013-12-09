@@ -84,7 +84,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		arr_tempTracePoints = [],	// 临时存储甩尾的点数组
 		str_randomColor = dlf.fn_randomColor(),	// 随机生成的颜色值
 		n_track = obj_carInfo.track,	// 是否开启追踪 0: 取消追踪 1: 开启追踪
-		str_track = n_track == 1 ? 'yes' : 'no';
+		str_track = n_track == 1 ? 'yes' : 'no',
+		b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
+		b_corpRegionWpST = $('#bindRegionWrapper').is(':visible'),
+		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
+		b_corpRegionST = $('#corpRegionWrapper').is(':visible');	// 电子围栏是否显示
 		
 	if ( n_lon != 0 && n_lat != 0 ) {
 		if ( n_clon != 0 && n_clat != 0 ) {
@@ -207,8 +211,12 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if ( str_tempTid == str_currentTid ) {
 			dlf.fn_loadBaiduShare();
 		}
-	} else {
-		dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid, false); // 添加标记
+	} else { 
+		if ( b_corpRegionST || b_bindBatchRegionWpST || b_regionCreateWpST || b_corpRegionWpST ) {	
+			dlf.fn_addMarker(obj_carInfo, 'region', str_tid, false); // 添加标记
+		} else {
+			dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid, false); // 添加标记
+		}
 	}
 	
 	var obj_toWindowInterval = setInterval(function() {
@@ -250,7 +258,7 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt) {
 	}
 	if ( str_loginSt == '0' ) {
 		str_tempImgUrl += '_logout';
-	}
+	} 
 	return str_dir + str_tempImgUrl + '.png';
 }
 

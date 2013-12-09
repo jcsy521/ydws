@@ -385,9 +385,9 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		b_routeLineWpST = $('#routeLineWrapper').is(':visible'), //线路展示窗口是否打开
 		b_routeLineCreateWpST = $('#routeLineCreateWrapper').is(':visible'), // 线路新展示窗口是否打开
 		b_regionWpST = $('#regionWrapper').is(':visible'),
-		b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
 		b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
-		b_corpRegionWpST = $('#bindRegionWrapper').is(':visible'),
+		b_corpRegionWpST = $('#corpRegionWrapper').is(':visible'),
+		b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
 		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
 		n_len = obj_terminals.length,
 		obj_oldCurrentCar = $('.j_currentCar').parent(),
@@ -441,76 +441,78 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			}
 		}
 	} else {
-		if ( b_corpRegionWpST ) {
+		if ( b_bindBatchRegionWpST ) {
 			dlf.fn_initBindRegion();
 		}
 		obj_terminals.removeClass(JSTREECLICKED);
 		obj_currentItem.addClass(JSTREECLICKED);
 		
 		str_currentTid = n_tid;
-		
-		var obj_car = obj_carDatas[n_tid],
-			obj_tree = $('#corpTree'),
-			obj_corp = $('.j_corp'),
-			n_corpIsOpen = obj_corp.attr('class').indexOf('jstree-closed');
-			obj_groupLi = obj_currentItem.parent().parent().parent(),
-			str_groupLiId = obj_groupLi.attr('id'),
-			n_isOpen = obj_groupLi.attr('class').indexOf('jstree-closed');
+		if ( obj_currentItem.length != 0 ) {
+			var obj_car = obj_carDatas[n_tid],
+				obj_tree = $('#corpTree'),
+				obj_corp = $('.j_corp'),
+				n_corpIsOpen = obj_corp.attr('class').indexOf('jstree-closed');
+				obj_groupLi = obj_currentItem.parent().parent().parent(),
+				str_groupLiId = obj_groupLi.attr('id'),
+				n_isOpen = obj_groupLi.attr('class').indexOf('jstree-closed');
 			
-		// 判断搜索到的终端所在分组是否打开, 如果没打开，先打开分组再定位终端位置
-		if ( n_corpIsOpen != -1 ) {
-			obj_tree.jstree('open_node','#' + obj_corp.attr('id'));	// 打开集团
-		}
-		if ( n_isOpen != -1 ) {
-			obj_tree.jstree('open_node','#' + str_groupLiId);	// 打开所在分组
-		}
-		setTimeout(function() {
-			var n_treeHeight = obj_tree.height(),	// 树高度
-				n_itemLiOffsetTop = obj_currentItem.offset().top,	// 要搜索的终端的offset
-				n_corpOffsetTop = obj_tree.offset().top,	// 集团的offset 
-				n_sub = Math.abs(n_itemLiOffsetTop - n_oldOffsetTop),	// 上一个和当前的高度差
-				n_scrollTop = n_itemLiOffsetTop - n_corpOffsetTop,
-				n_treeScrollTop = obj_tree.scrollTop();
-			
-			// 思路:根据当前tree的滚动条的位置(scrollTop),根据要查的终端所在的位置及正负进行加减运算
-			if ( n_itemLiOffsetTop < 168 ) { //<小于168像素(168为tree到距屏幕顶部) 
-				if ( n_itemLiOffsetTop > 0 ){ // 如果要查的终端小于168大于0
-					obj_tree.scrollTop(n_treeScrollTop-n_itemLiOffsetTop);
-				} else { // 如果要查的终端小于0
-					obj_tree.scrollTop(n_treeScrollTop+n_itemLiOffsetTop-168);
+			if ( str_currentTid ) { // md 
+				// 判断搜索到的终端所在分组是否打开, 如果没打开，先打开分组再定位终端位置
+				if ( n_corpIsOpen != -1 ) {
+					obj_tree.jstree('open_node','#' + obj_corp.attr('id'));	// 打开集团
 				}
-				
-			} else if (n_itemLiOffsetTop > n_treeHeight+168 ) { //如果要查的终端大于tree的能见区域 > tree的高度+168(168为tree到距屏幕顶部) 
-				obj_tree.scrollTop(n_treeScrollTop+n_itemLiOffsetTop-168);
+				if ( n_isOpen != -1 ) {
+					obj_tree.jstree('open_node','#' + str_groupLiId);	// 打开所在分组
+				}
+				setTimeout(function() {
+					var n_treeHeight = obj_tree.height(),	// 树高度
+						n_itemLiOffsetTop = obj_currentItem.offset().top,	// 要搜索的终端的offset
+						n_corpOffsetTop = obj_tree.offset().top,	// 集团的offset 
+						n_sub = Math.abs(n_itemLiOffsetTop - n_oldOffsetTop),	// 上一个和当前的高度差
+						n_scrollTop = n_itemLiOffsetTop - n_corpOffsetTop,
+						n_treeScrollTop = obj_tree.scrollTop();
+					
+					// 思路:根据当前tree的滚动条的位置(scrollTop),根据要查的终端所在的位置及正负进行加减运算
+					if ( n_itemLiOffsetTop < 168 ) { //<小于168像素(168为tree到距屏幕顶部) 
+						if ( n_itemLiOffsetTop > 0 ){ // 如果要查的终端小于168大于0
+							obj_tree.scrollTop(n_treeScrollTop-n_itemLiOffsetTop);
+						} else { // 如果要查的终端小于0
+							obj_tree.scrollTop(n_treeScrollTop+n_itemLiOffsetTop-168);
+						}
+						
+					} else if (n_itemLiOffsetTop > n_treeHeight+168 ) { //如果要查的终端大于tree的能见区域 > tree的高度+168(168为tree到距屏幕顶部) 
+						obj_tree.scrollTop(n_treeScrollTop+n_itemLiOffsetTop-168);
+					}
+				}, 500);
 			}
-		}, 500);
-		
-		$('#leafNode_' + str_currentTid).removeClass('jstree-unchecked').addClass('jstree-checked');
-		
-		if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
-			dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
-			dlf.fn_updateInfoData(obj_car);			
-		}
-		/*集团用户切换变换轨迹要显示的终端 并清除地图*/
-		var str_tempAlias = $('.j_currentCar').attr('alias');
-			str_currentCarAlias = '';
+			$('#corpTree').jstree('check_node', '#leafNode_' + str_currentTid);
 			
-		if ( str_tempAlias ) {
-			str_currentCarAlias = dlf.fn_dealAlias(str_tempAlias); 
+			if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
+				dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
+				dlf.fn_updateInfoData(obj_car);			
+			}
+			/*集团用户切换变换轨迹要显示的终端 并清除地图*/
+			var str_tempAlias = $('.j_currentCar').attr('alias');
+				str_currentCarAlias = '';
+				
+			if ( str_tempAlias ) {
+				str_currentCarAlias = dlf.fn_dealAlias(str_tempAlias); 
+			}
+			if ( b_trackSt ) {	
+				dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
+				$('.j_delay').hide();
+				$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+			}
+			if ( b_eventSearchWpST ) {
+				dlf.fn_ShowOrHideMiniMap(false);
+				$('#eventSearchPage').hide();
+				$('#eventSearchCategory').val(-1);
+				$('#eventSearchTableHeader').hide().nextAll().remove();
+			}
+			dlf.fn_moveMarker(n_tid);
 		}
-		if ( b_trackSt ) {	
-			dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
-			$('.j_delay').hide();
-			$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
-		}
-		if ( b_eventSearchWpST ) {
-			dlf.fn_ShowOrHideMiniMap(false);
-			$('#eventSearchPage').hide();
-			$('#eventSearchCategory').val(-1);
-			$('#eventSearchTableHeader').hide().nextAll().remove();
-		}
-		dlf.fn_moveMarker(n_tid);
-		if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindRegionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
+		if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
 			return;
 		}
 	}

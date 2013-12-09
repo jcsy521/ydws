@@ -319,7 +319,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 				str_name = obj_point.name,
 				str_tempEndName = str_name.length > 18 ? str_name.substr(0, 18) + '...' : str_name;
 			
-			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, 0);
+			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, x);
 			
 			str_html += '<tr><td width="130px"><img src="../static/images/delay_Marker.png" width="25px" /><label>停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</label></td><td width="130px" class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_point.start_time) +'</td><td width="270px" class="delayCenterTd" title="'+ str_name +'">'+ str_tempEndName +'</td></tr>';
 			arr_markers.push(obj_tempMarker);

@@ -604,7 +604,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			if ( str_content.search('正在获取位置描述...') != -1 ) {
 				str_content = str_content.replace('正在获取位置描述' + WAITIMG, str_tempResult);
 			} else {
-				n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
+				n_beginNum = str_content.indexOf('位置： ')+30,	
 				n_endNum = str_content.indexOf('</label></li><li class="top10">'),
 				str_address = str_content.substring(n_beginNum, n_endNum);
 				str_content = str_content.replace(str_address, str_tempResult);
@@ -638,50 +638,48 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		$('.clickedBg').children('td').eq(2).attr('html', str_result);
 	} else if ( str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == "draw" ) {
 		// $('.clickedBg').children('td').eq(2).html(str_result);	// 修改右侧列表位置描述
-		var obj_tempLi = $('#markerWindowtitle ul li');
+		var obj_tempLi = $('#markerWindowtitle ul li'),
+			n_eq = 4, 
+			obj_trackMarker = null;
 		
 		if ( n_index >= 0 ) {
 			arr_dataArr[n_index].name = str_result;
 		}
 		
-		$('.lblAddress').attr('html', str_tempResult);	// 修改吹出框位置描述
 		if ( str_type == 'delay' && dlf.fn_userType() ) {	// 如果是集团的停留点的话
-			var obj_tempMarker = $('.delayTable').data('markers')[$('.clickedBg').index()];
-			
-			if ( obj_tempMarker ) {
-				var str_content = obj_tempMarker.selfInfoWindow.getContent();
-					n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
-					n_endNum = str_content.indexOf('</a></label></li>')+4;
-					str_address = str_content.substring(n_beginNum, n_endNum);
-					str_content = str_content.replace(str_address, str_tempResult);
-				
-				obj_tempMarker.selfInfoWindow.setContent(str_content);
-			}
-			obj_tempLi.eq(3).attr('title', str_result);
-		} else {
-			obj_tempLi.eq(4).attr('title', str_result);	// kjj add in 2013-08-22
-			var obj_updateMarker = null;
-			
-			if ( str_type == 'draw' ) {
-				obj_updateMarker = actionMarker;
-			} else if ( str_type == 'start' ) {
-				obj_updateMarker = $('.delayTable').data('markers')[0];
-			} else if ( str_type == 'end' ) {
-				obj_updateMarker = $('.delayTable').data('markers')[1];
-			}
-			
-			var str_content = obj_updateMarker.selfInfoWindow.getContent();
-				n_beginNum = str_content.indexOf('位置： ')+30,	// <lable class="lblAddress">
+			obj_trackMarker = $('.delayTable').data('markers')[n_index];
+			n_eq = 3;
+		} else if ( str_type == 'draw' ) {
+			obj_trackMarker = actionMarker;
+		} else if ( str_type == 'start' ) {
+			obj_trackMarker = $('.delayTable').data('markers')[0];
+		} else if ( str_type == 'end' ) {
+			obj_trackMarker = $('.delayTable').data('markers')[1];
+		}
+		// 根据不同的marker对象,填充数据
+		if ( obj_trackMarker ) {
+			var str_content = obj_trackMarker.selfInfoWindow.getContent();
+				n_beginNum = str_content.indexOf('位置： ')+30,	
 				n_endNum = str_content.indexOf('</a></label></li>')+4;
 				str_address = str_content.substring(n_beginNum, n_endNum);
 				str_content = str_content.replace(str_address, str_tempResult);
 			
-			obj_updateMarker.selfInfoWindow.setContent(str_content);
-			obj_updateMarker.openInfoWindow(obj_updateMarker.selfInfoWindow);
-		}	
+			obj_trackMarker.selfInfoWindow.setContent(str_content);
+			obj_trackMarker.openInfoWindow(obj_trackMarker.selfInfoWindow);
+			
+			obj_tempLi.eq(4).attr('title', str_result);	
+		}
 	} else {
+		var str_content = obj_selfmarker.selfInfoWindow.getContent();
+			n_beginNum = str_content.indexOf('位置： ')+30,	
+			n_endNum = str_content.indexOf('</a></label></li>')+4;
+			str_address = str_content.substring(n_beginNum, n_endNum);
+			str_content = str_content.replace(str_address, str_tempResult);
+		
+		obj_selfmarker.selfInfoWindow.setContent(str_content);
+		obj_selfmarker.openInfoWindow(obj_selfmarker.selfInfoWindow);
+		
 		$('#markerWindowtitle ul li').eq(4).attr('title', str_result);
-		$('.lblAddress').attr('html', str_tempResult);	// 替换marker上的位置描述
 	}
 }
 

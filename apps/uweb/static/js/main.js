@@ -1153,7 +1153,7 @@ $(function () {
 		
 		$('#carCount').parent().addClass('currentTNum');
 		dlf.fn_corpGetCarData();
-		$('#corpTree').data('firsttree', true);
+		$('#corpTree').data('ftree', true);
 	}
 	
 	$('#txtautoComplete').val('');	// 清空autocomplete搜索框
