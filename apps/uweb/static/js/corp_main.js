@@ -798,7 +798,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				}
 				return;
 			}*/
-			//dlf.fn_switchCar(str_tid, obj_current); // 登录成功,
+			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,
 		} else {
 			obj_current.removeClass(JSTREECLICKED);
 		}
@@ -825,7 +825,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			    	}
 				return;
 			}*/
-			//dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
+			dlf.fn_switchCar(str_tid, obj_current); // 登录成功,   
 		} else {	// 集团或组	如果选中集团或组的话没有被选中的样式、上一次选中的定位器还被选中			
 			$('.j_terminal[tid='+ str_currentTid +']').addClass(JSTREECLICKED);
 			$('.groupCss').removeClass('groupCss');
