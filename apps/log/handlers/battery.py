@@ -105,10 +105,12 @@ class GWBatteryHandler(BaseHandler):
                                     lst.append(p)
                 else:
                     pass
+                linecache.clearcache()
             self.write_ret(ErrorCode.SUCCESS,
                            dict_=DotDict(res=lst))
 
         except Exception as e:
+            linecache.clearcache()
             logging.exception("[LOG] Mobile: %s 's battery inquiry is failed. Exception: %s",
                               mobile, e.args)
             self.write_ret(ErrorCode.FAILED, dict_=None)
