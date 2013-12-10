@@ -60,6 +60,22 @@ class GWBatteryHandler(BaseHandler):
             fc = FileConf()
             file_path = fc.getLogFile() + '/'
             files = os.listdir(file_path)
+
+            # make the files ordered 
+            d = {}
+            for f in files:
+                file_time = os.path.getmtime(file_path+f)
+                d[file_time] = f
+                L = d.keys()
+            L.sort()
+            for file_time in L:
+                if file_time >= start_time and file_time <= end_time:
+                    pass
+                else:
+                    L.remove(file_time)
+
+            files = [d.get(file_time) for file_time in L]
+
             lst = []
             for file in files:
                 lines= linecache.getlines(file_path+file)

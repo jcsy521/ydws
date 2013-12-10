@@ -71,6 +71,12 @@ class GWPacketHandler(BaseHandler):
                 d[file_time] = f 
                 L = d.keys() 
             L.sort() 
+            for file_time in L:
+                if file_time >= start_time and file_time <= end_time:
+                    pass
+                else:
+                    L.remove(file_time)
+
             files = [d.get(file_time) for file_time in L]
 
             lst = []
@@ -137,11 +143,13 @@ class GWPacketHandler(BaseHandler):
                                         pass
                 else:
                      pass
+                linecache.clearcache()
             self.write_ret(ErrorCode.SUCCESS,
                            dict_=DotDict(res=lst))
 
         except Exception as e:
             logging.exception("[LOG] Mobile: %s 's packet inquiry is failed. Exception: %s",
                               mobile, e.args)
+            linecache.clearcache()
             self.write_ret(ErrorCode.FAILED, dict_=None)
 
