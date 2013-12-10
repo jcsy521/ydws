@@ -71,13 +71,16 @@ class GWPacketHandler(BaseHandler):
                 d[file_time] = f 
                 L = d.keys() 
             L.sort() 
+            ftime=[]
             for file_time in L:
-                if file_time >= start_time and file_time <= end_time:
-                    pass
+                format = '%Y%m%d %H:%M:%S'
+                tmp = time.localtime(file_time)
+                dt = time.strftime(format, tmp)
+                if dt < start_time:
+                    logging.info("[LOG] skip file time :%s, file name:%s", file_time, d[file_time])
                 else:
-                    L.remove(file_time)
-
-            files = [d.get(file_time) for file_time in L]
+                    ftime.append(file_time)
+            files = [d.get(file_time) for file_time in ftime]
 
             lst = []
             for file in files:
