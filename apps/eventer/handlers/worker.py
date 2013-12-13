@@ -75,7 +75,7 @@ class Worker(object):
                     packet = self.queue.get(True, self.BLOCK_TIMEOUT)
                     logging.debug("[Worker] After get packet: %s from queue, seq:%s", packet, seq)
                     queue_len = self.queue.qsize()
-                    if queue_len >= 3000 and (int(time.time()) > self.send_time):
+                    if queue_len >= 300 and (int(time.time()) > self.send_time):
                         self.send_time = int(time.time()) + 60*3
                         content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
                         for mobile in self.mobiles:
@@ -95,8 +95,7 @@ class Worker(object):
                 else:
                     time.sleep(0.1)
             except Exception as e:          
-                logging.info("[Worker] get exception.")
-                pass
+                logging.info("[Worker] get exception:%s", e.args)
 
     def stop(self):
         self.is_alive = False
