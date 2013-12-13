@@ -370,9 +370,15 @@ class MyGWServer(object):
             softversion = t_info['softversion']
             item = softversion.split(".")
             new_softversion = True
-            if int(item[0]) < 2:
-                new_softversion = False 
-            elif int(item[1]) < 2:
+
+            if int(item[0]) > 2:
+                new_softversion = True
+            elif int(item[0]) == 2:
+                if int(item[1]) < 2:
+                    new_softversion = False 
+                else:
+                    new_softversion = True 
+            else:
                 new_softversion = False
 
             if new_softversion: 
