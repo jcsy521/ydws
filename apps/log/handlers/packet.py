@@ -67,6 +67,8 @@ class GWPacketHandler(BaseHandler):
             # make the files ordered 
             d = {} 
             for f in files: 
+                if not f.startswith('error'):
+                    continue
                 file_time = os.path.getmtime(file_path+f) 
                 d[file_time] = f 
                 L = d.keys() 
@@ -90,6 +92,8 @@ class GWPacketHandler(BaseHandler):
                 if len(lines) !=0:
                     first_num = 0
                     last_num = len(lines)-1
+                    if len(lines[first_num]) <= 1:
+                        continue
                     while lines[first_num][0] != '[':
                         first_num = first_num+1
                     first_time = '20%s' % lines[first_num][3:18]
