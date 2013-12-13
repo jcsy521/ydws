@@ -4,6 +4,7 @@ from threading import Thread
 from collections import deque 
 import Queue
 import logging
+import time
 
 from db_.mysql import get_connection
 
@@ -51,13 +52,13 @@ class Worker(object):
     def run(self):
         while self.is_alive: # TODO: and not self.queue.empty()?
             try:
-                p, callback = self.queue.get(True, self.BLOCK_TIMEOUT)
-            except Queue.Empty:
-                pass
-            else:
-                # TODO: what if we're waiting for gf and SystemExit is
-                # issued?
-                self._run_callback(callback)
+                if self.queue.qsize() > 0 :
+                    p, callback = self.queue.get(True, self.BLOCK_TIMEOUT)
+                    self._run_callback(callback)
+                else:
+                    time.sleep(0.1)
+            except Exception as e:
+                logging.info("[Worker] get exception :%s", e.args)
 
     def stop(self):
         self.is_alive = False
