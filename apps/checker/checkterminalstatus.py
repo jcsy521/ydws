@@ -148,7 +148,7 @@ class CheckTerminalStatus(object):
         alert_cid = [13600335550, 15919176710]
         sms_alert_lst = [13417738427]
         email_alert_lst = ['liyun.sun@dbjtech.com', 'shi.chen@dbjtech.com', 'chunfan.yang@dbjtech.com']
-        email_alert_lst_cc = ['jiaolei.jia@dbjtech.com','boliang.guan@dbjtech.com']
+        email_alert_lst_cc = ['jiaolei.jia@dbjtech.com']
 
         #alert_cid = [15901258591, 15919176710]
         #sms_alert_lst = [15901258591,18310505991]
