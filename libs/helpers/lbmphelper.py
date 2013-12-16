@@ -300,7 +300,7 @@ def handle_location(location, redis, cellid=False, db=None):
             location.lon = last_location.longitude
             location.cLat = last_location.clatitude
             location.cLon = last_location.clongitude
-            location.type = 0
+            location.type = last_location.type
             location.gps_time = int(time.time())
             location.gps = 0
         else:
