@@ -290,18 +290,19 @@ def handle_location(location, redis, cellid=False, db=None):
         last_location = QueryHelper.get_location_info(location.dev_id, db, redis)
         if last_location:
             current_time = int(time.time())
-            if (current_time - last_location.gps_time) > 600:
+            diff = current_time - last_location.timestamp
+            logging.info("current time:%s, last locaiton time:%s, diff time:%s", current_time, last_location.timestamp, diff)
+            if (current_time - last_location.timestamp) > 600:
                 location.gps_time = current_time 
-                logging.info("Tid:%s, current_time - last_location.gps_time  > 600s, so use current time:%s", location.dev_id, current_time)
+                logging.info("Tid:%s, current_time - last_location.timestamp  > 600s, so use current time:%s", location.dev_id, current_time)
             else:
-                logging.info("Tid:%s, current_time - last_location.gps_time  <= 600s, so use last location time:%s", location.dev_id, last_location.gps_time)
-                location.gps_time = last_location.gps_time
+                logging.info("Tid:%s, current_time - last_location.timestamp  <= 600s, so use last location time:%s", location.dev_id, last_location.timestamp)
+                location.gps_time = last_location.timestamp
             location.lat = last_location.latitude
             location.lon = last_location.longitude
             location.cLat = last_location.clatitude
             location.cLon = last_location.clongitude
             location.type = 1
-            location.gps_time = int(time.time())
             location.gps = 0
         else:
             location.lat = 0

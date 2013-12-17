@@ -134,7 +134,7 @@ def main():
 
         http_server = tornado.httpserver.HTTPServer(Application(debug=debug_mode), xheaders=True)
         http_server.listen(options.port)
-        thread.start_new_thread(start_log_syncer, ())
+        #thread.start_new_thread(start_log_syncer, ())
         logging.warn("[LOG] running on: localhost:%d", options.port)
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt: # todo: SystemExit?
