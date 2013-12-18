@@ -294,9 +294,12 @@ class IOSHandler(BaseHandler, LoginMixin):
             self.redis.setvalue(ios_badge_key, 0, UWEB.IOS_ID_INTERVAL)
             logging.info("[UWEB] username %s, ios_push_lst: %s", username, ios_push_list)
 
-            self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
+            if user_info:
+                self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
+            else:
+                pass # corp maybe no user_info
             self.write_ret(status,
-                           dict_=DotDict(name=user_info.name, 
+                           dict_=DotDict(name=user_info.name if user_info else username, 
                                          cars_info=cars_info,
                                          cars=terminals))
         else:
@@ -478,12 +481,15 @@ class AndroidHandler(BaseHandler, LoginMixin):
             self.redis.set(push_id, android_push_list_key)
             logging.info("[UWEB] uid: %s, android_push_lst: %s", username, android_push_list)
 
-            self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
+            if user_info:
+                self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
+            else:
+                pass # corp maybe no user_info
             self.write_ret(status,
                            dict_=DotDict(push_id=push_id,
                                          #app_key=push_info.app_key,
                                          push_key=push_key,
-                                         name=user_info.name, 
+                                         name=user_info.name if user_info else username, 
                                          cars_info=cars_info,
                                          lastinfo_time=lastinfo_time,
                                          cars=terminals))
