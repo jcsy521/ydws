@@ -268,8 +268,10 @@ class PacketTask(object):
                 logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
                              info['dev_id'], info['rName'])
                 return
+            
+        if info['rName'] in [EVENTER.RNAME.POWERDOWN,]:
             # if alert_freq_key is exists,return
-            alert_freq_key = get_alert_freq_key(report.dev_id)
+            alert_freq_key = get_alert_freq_key(report.dev_id + info['rName'])
             alert_freq = QueryHelper.get_alert_freq_by_tid(info['dev_id'], self.db)
             if alert_freq != 0:
                 if self.redis.exists(alert_freq_key):
