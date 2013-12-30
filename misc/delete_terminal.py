@@ -9,6 +9,7 @@ site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 import logging
 
 from tornado.options import define, options, parse_command_line
+define('mobile', default="")
 define('tid', default="")
 
 from helpers.confhelper import ConfHelper
