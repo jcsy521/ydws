@@ -426,6 +426,21 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 		}
 		dlf.fn_changeAddressHeight(str_iconType);
     });
+	
+	AMap.event.addListener(infoWindow, "open", function(e) {
+		// 圆: 经纬度,半径 显示误差圈 
+		var obj_circleData = {'circle': {'longitude': obj_location.clongitude, 'latitude': obj_location.clatitude, 'radius': obj_location.locate_error}, 'region_shape': 0};
+		
+		dlf.fn_displayMapShape(obj_circleData, false, true);
+    });
+	
+	AMap.event.addListener(infoWindow, "close", function(e) {
+		var obj_markerRegion = $('.j_body').data('markerregion');
+		
+		if ( obj_markerRegion ) {
+			dlf.fn_clearMapComponent(obj_markerRegion);
+		}
+    });
 	return marker;
 }
 
@@ -889,28 +904,38 @@ window.dlf.fn_addRouteLineMarker = function(obj_stations){
 /*
 * 初始化画圆及事件绑定
 */
-window.dlf.fn_initCreateCircle = function() {
-	var str_circleId = '';
+window.dlf.fn_initCreateRegion = function() {
+	var str_circleId = '',
+		str_regionType = $('#regionCreateTypePanel input[name="regionType"]input:checked').val();
+	
 	dlf.fn_setCursor();	// 鼠标状态
 	//添加鼠标工具插件，并进入鼠标画圆模式 	
 	mapObj.plugin(["AMap.MouseTool"],function(){ 
-		mousetool = new AMap.MouseTool(mapObj); 
+		mousetool = new AMap.MouseTool(mapObj);
 		
-		mousetool.circle({
-			strokeColor: '#5ca0ff',    //边线颜色。
-			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
-			strokeWeight: 0.5,       //边线的宽度，以像素为单位。
-			strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
-			fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
-			strokeStyle: 'solid' //边线的样式，solid或dashed。
-		});
+		if ( str_regionType == 'circle' ) {
+			mousetool.circle({
+				strokeColor: '#5ca0ff',    //边线颜色。
+				fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
+				strokeWeight: 0.5,       //边线的宽度，以像素为单位。
+				strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+				fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
+				strokeStyle: 'solid' //边线的样式，solid或dashed。
+			});
+		} else if ( str_regionType == 'polygon' ) {
+			mousetool.polygon({
+				strokeColor: '#5ca0ff',    //边线颜色。
+				fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
+				strokeWeight: 0.5,       //边线的宽度，以像素为单位。
+				strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+				fillOpacity: 0.5      //填充的透明度，取值范围0 - 1。
+			});
+		}
 		AMap.event.addListener(mousetool,"draw",function(e){
-		    var obj_event = e.obj,
-				n_radius = obj_event.getRadius(),
-				obj_centerPoint = obj_event.getCenter();
-			
-			fn_createCircleCenterPoint(n_radius, obj_centerPoint);
-			obj_circle = obj_event;
+		    var obj_event = e.obj;
+
+			fn_createCircleCenterPoint(obj_event);
+			obj_regionShape = obj_event;
 			mousetool.close();	// 关闭鼠标画圆事件
         });
 	});
@@ -920,22 +945,40 @@ window.dlf.fn_initCreateCircle = function() {
 * kjj 2013-06-21 create
 * 电子围栏画圆中心点
 */
-function fn_createCircleCenterPoint(n_radius, centerPoint) {
+function fn_createCircleCenterPoint(obj_event) {
 	var str_infoWindowText = '<div class="gaodeWindowPanel height38"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>',
 		obj_infoWindow = new AMap.InfoWindow({content: str_infoWindowText, offset:new AMap.Pixel(0,-5)});
-		marker = null;
+		marker = null,
+		n_radius = 0,
+		centerPoint = null,
+		str_regionType = $('#regionCreateTypePanel input[name="regionType"]input:checked').val();
+	
+	if ( str_regionType == 'circle' ) {
+		n_radius = obj_event.getRadius();
+		centerPoint = obj_event.getCenter();
 		
-	if ( n_radius < 500 ) { 
-		str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
+		if ( n_radius < 500 ) { 
+			str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
+			
+			obj_infoWindow.setContent(str_infoWindowText);
+			// obj_infoWindow.setOffset(new AMap.Pixel(-105,-45));
+		}
 		
-		obj_infoWindow.setContent(str_infoWindowText);
-		// obj_infoWindow.setOffset(new AMap.Pixel(-105,-45));
+	} else if ( str_regionType == 'polygon' ) {
+		var arr_polygonData = obj_event.getPath();
+		
+		if ( arr_polygonData.length < 3 ) {
+			str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">多边形围栏最少需要3个点！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
+			
+			obj_infoWindow.setContent(str_infoWindowText);
+		}
+		centerPoint = arr_polygonData[0];
 	}
 	dlf.fn_mapStopDraw();
 	marker = new AMap.Marker({position: centerPoint, offset: new AMap.Pixel(-10, -10)});
 	// marker.setIcon({imageOffset: new AMap.Pixel(0,200)});
 	mapObj.addOverlays(marker);	//向地图添加覆盖物 
-	obj_circleMarker = marker;
+	obj_shapeMarker = marker;
 	obj_circleInfowindow = obj_infoWindow;
 	obj_infoWindow.open(mapObj, centerPoint);
 	obj_circlMarker = marker;
@@ -949,16 +992,16 @@ function fn_createCircleCenterPoint(n_radius, centerPoint) {
 * 地图的右击事件
 */
 window.dlf.fn_mapRightClickFun = function() {
-	if ( obj_circle ) { 
-		dlf.fn_clearMapComponent(obj_circle); // 清除页面圆形
-		dlf.fn_clearMapComponent(obj_circleMarker);// 清除地图上的圆心标记
+	if ( obj_regionShape ) { 
+		dlf.fn_clearRegionShape(); // 清除页面圆形
+		dlf.fn_clearMapComponent(obj_shapeMarker);// 清除地图上的圆心标记
 	}
 	if ( obj_circleInfowindow ) {
 		mapObj.clearInfoWindow();
 	}
 	dlf.fn_mapStopDraw();
-	obj_circle = null;
-	obj_circleMarker = null;
+	obj_regionShape = null;
+	obj_shapeMarker = null;
 }
 
 /*
@@ -976,7 +1019,7 @@ window.dlf.fn_mapStartDraw = function(b_isCreateRouteLine) {
 	if ( b_isCreateRouteLine ) {
 		dlf.fn_mapClickFunction();
 	} else {
-		dlf.fn_initCreateCircle();
+		dlf.fn_initCreateRegion();
 	}
 }
 
@@ -996,37 +1039,101 @@ window.dlf.fn_mapStopDraw = function(b_isCreateRouteLine) {
 }
 
 /*
-* 获取圆数据
+* 获取图形数据
 */
-window.dlf.fn_getCirlceData = function() {
-	if ( obj_circle ) {
-		var obj_circleCenter = obj_circle.getCenter();
+window.dlf.fn_getShapeData = function() {
+	if ( obj_regionShape ) {
+		var str_regionType = obj_regionShape._className;
 		
-		return {'radius': obj_circle.getRadius(), 'longitude': obj_circleCenter.lng*NUMLNGLAT, 'latitude': obj_circleCenter.lat*NUMLNGLAT};
+		if ( str_regionType == 'Circle' ) {
+			obj_circleCenter = obj_regionShape.getCenter();
+			
+			return {'radius': Math.round(obj_regionShape.getRadius()), 'longitude': obj_circleCenter.lng*NUMLNGLAT, 'latitude': obj_circleCenter.lat*NUMLNGLAT, 'region_type': '0'};
+		} else {
+			return {'points': obj_regionShape.getPath(), 'region_type': '1'};
+		}
 	}
 }
 
 /*
-* 显示圆
+* 显示图形
 */
-window.dlf.fn_displayCircle = function(obj_circleData) { 
-	var centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude),
-		circleOptions = {//圆的样式
-			id: 'circle',
-			center: centerPoint,
-			radius: obj_circleData.radius,	
-			strokeColor: '#5ca0ff',    //边线颜色。
-			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
-			strokeWeight: 0.5,       //边线的宽度，以像素为单位。
-			strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
-			fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
-			strokeStyle: 'solid' //边线的样式，solid或dashed。
-		};
+window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError) { 
+	var n_region_shape = obj_shpaeData.region_shape,
+		obj_tempRegionShape = null,
+		arr_calboxData = [];
+	
+	// hs:2013.12.24 根据不同的围栏类型进行相应操作显示
+	if ( n_region_shape == 0 ) { // 围栏类型 0: 圆形 1: 多边形
+		var obj_regionData = obj_shpaeData.circle,
+			centerPoint = dlf.fn_createMapPoint(obj_regionData.longitude, obj_regionData.latitude),
+			circleOptions = {//圆的样式
+				id: 'circle',
+				center: centerPoint,
+				radius: obj_regionData.radius,	
+				strokeColor: '#5ca0ff',    //边线颜色。
+				fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
+				strokeWeight: 0.5,       //边线的宽度，以像素为单位。
+				strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+				fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
+				strokeStyle: 'solid' //边线的样式，solid或dashed。
+			};
 		
-	obj_circle = new AMap.Circle(circleOptions);
-	mapObj.setCenter(centerPoint);
-	mapObj.addOverlays(obj_circle);
-	return obj_circle;
+		obj_tempRegionShape = new AMap.Circle(circleOptions);
+	} else {
+		var arr_tempPolygonData = [],
+			arr_polygonDatas = obj_shpaeData.polygon,
+			n_lenPolygon = arr_polygonDatas.length;
+		
+		for ( var i = 0; i < n_lenPolygon; i++) {
+			var obj_temPolygonPts = arr_polygonDatas[i],
+				n_lon = obj_temPolygonPts.longitude,
+				n_lat = obj_temPolygonPts.latitude;
+			
+			arr_tempPolygonData.push(dlf.fn_createMapPoint(n_lon, n_lat));
+			arr_calboxData.push({'clongitude': n_lon, 'clatitude': n_lat});
+		}
+		centerPoint = arr_tempPolygonData[0];
+		
+		obj_tempRegionShape =new AMap.Polygon({     
+		   path:arr_tempPolygonData,//设置多边形边界路径  
+		   strokeColor:"#5ca0ff", //线颜色  
+		   strokeOpacity:0.8, //线透明度   
+		   strokeWeight:0.5,    //线宽   
+		   fillColor: "#ced7e8", //填充色  
+		   fillOpacity: 0.5//填充透明度  
+		});   
+	}
+	
+	// 是否是误差圈
+	if ( b_locateError ) {
+		$('.j_body').data('markerregion', obj_tempRegionShape);
+		
+		obj_tempRegionShape.setMap(mapObj);
+	} else {
+		obj_regionShape = obj_tempRegionShape;		
+		obj_regionShape.setMap(mapObj);
+	}
+	//是否需要移动中心点
+	if ( b_seCenter ) {
+		mapObj.setCenter(centerPoint);
+		if ( n_region_shape == 0 ) {
+			// 计算bound显示 
+			var obj_circleData = obj_shpaeData.circle,
+				n_radius = obj_circleData.radius;
+				n_lng = obj_circleData.longitude,
+				n_lat = obj_circleData.latitude,
+				n_otherLat = Math.abs(n_lat/NUMLNGLAT + n_radius/111000.0)*NUMLNGLAT,
+				n_otherLat2 = Math.abs(n_lat/NUMLNGLAT - n_radius/111000.0)*NUMLNGLAT,
+				obj_otherPoint = dlf.fn_createMapPoint(n_lng, n_otherLat),
+				obj_otherPoint2 = dlf.fn_createMapPoint(n_lng, n_otherLat2);
+			
+			dlf.fn_setOptionsByType('viewport', [obj_otherPoint2, obj_otherPoint]);
+		} else {
+			dlf.fn_caculateBox(arr_calboxData);
+		}
+	}
+	return obj_regionShape;
 }
 
 /***

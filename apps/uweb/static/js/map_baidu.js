@@ -292,6 +292,17 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, isOp
 	infoWindow.addEventListener('open', function() {	// 吹出框打开时判断是否开启追踪 然后改变对应的文字颜色
 		dlf.fn_loadBaiduShare();
 		dlf.fn_updateOpenTrackStatusColor(str_tid);
+		// 圆: 经纬度,半径 显示误差圈 //TODO
+		var obj_circleData = {'circle': {'longitude': n_clon, 'latitude': n_clat, 'radius': obj_location.locate_error}, 'region_shape': 0};
+		
+		dlf.fn_displayMapShape(obj_circleData, false, true);
+	});
+	infoWindow.addEventListener('close', function() {	// 吹出框关闭
+		var obj_markerRegion = $('.j_body').data('markerregion');
+		
+		if ( obj_markerRegion ) {
+			dlf.fn_clearMapComponent(obj_markerRegion);
+		}
 	});
 	/**
 	* marker click事件
@@ -811,21 +822,32 @@ window.dlf.fn_addRouteLineMarker = function(obj_stations){
 /**
 * 初始化画圆及事件绑定
 */
-window.dlf.fn_initCreateCircle = function() {
+window.dlf.fn_initCreateRegion = function() {
 	//实例化鼠标绘制工具
+	var str_regionType = $('#regionCreateTypePanel input[name="regionType"]input:checked').val(),
+		obj_regionStyleOpts = {//圆的样式
+				strokeColor: '#5ca0ff',    //边线颜色。
+				fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
+				strokeWeight: 0.5,       //边线的宽度，以像素为单位。
+				strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+				fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
+				strokeStyle: 'solid' //边线的样式，solid或dashed。
+			};
+	
+	
 	obj_drawingManager = new BMapLib.DrawingManager(mapObj, {
 		isOpen: false, //是否开启绘制模式
 		enableDrawingTool: false, //是否显示工具栏
-		circleOptions: {//圆的样式
-			strokeColor: '#5ca0ff',    //边线颜色。
-			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
-			strokeWeight: 0.5,       //边线的宽度，以像素为单位。
-			strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
-			fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
-			strokeStyle: 'solid' //边线的样式，solid或dashed。
-		} 
+		circleOptions: obj_regionStyleOpts, //圆的样式
+		polygonOptions: obj_regionStyleOpts //多边形的样式
 	});
-	obj_drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
+		
+	if ( str_regionType == 'circle' ) {
+		obj_drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
+	} else if ( str_regionType == 'polygon' ) {
+		obj_drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON);
+		dlf.fn_jNotifyMessage('开始绘画多边形，双击结束绘画．', 'message', false, 3000);
+	}
 	//添加鼠标绘制工具监听事件，用于获取绘制结果
 	/*obj_drawingManager.addEventListener('overlaycomplete', function(e){
 		//obj_circle = e.overlay;
@@ -844,13 +866,13 @@ window.dlf.fn_initCreateCircle = function() {
 * 地图的右击事件
 */
 window.dlf.fn_mapRightClickFun = function() { 
-	if ( obj_circle ) { 
-		dlf.fn_clearMapComponent(obj_circle); // 清除页面圆形
-		dlf.fn_clearMapComponent(obj_circleLabel); // 清除地图上的半径提示
-		dlf.fn_clearMapComponent(obj_circleMarker);// 清除地图上的圆心标记
+	if ( obj_regionShape ) { 
+		dlf.fn_clearRegionShape(); // 清除页面圆形
+		dlf.fn_clearMapComponent(obj_shapeLabel); // 清除地图上的半径提示
+		dlf.fn_clearMapComponent(obj_shapeMarker);// 清除地图上的圆心标记
 	}
 	dlf.fn_mapStopDraw();
-	obj_circle = null;
+	obj_regionShape = null;
 }
 
 /**
@@ -879,21 +901,27 @@ window.dlf.fn_mapStopDraw = function() {
 }
 
 /**
-* 获取圆数据
+* 获取围栏数据
 */
-window.dlf.fn_getCirlceData = function() {
-	if ( obj_circle ) {
-		var obj_circleCenter = obj_circle.getCenter();
+window.dlf.fn_getShapeData = function() {
+	if ( obj_regionShape ) {
+		var str_regionType = obj_regionShape._className;
 		
-		return {'radius': Math.round(obj_circle.getRadius()), 'longitude': obj_circleCenter.lng*NUMLNGLAT, 'latitude': obj_circleCenter.lat*NUMLNGLAT};
+		if ( str_regionType == 'Circle' ) {
+			obj_circleCenter = obj_regionShape.getCenter();
+			
+			return {'circle': {'radius': Math.round(obj_regionShape.getRadius()), 'longitude': parseInt(obj_circleCenter.lng*NUMLNGLAT), 'latitude': parseInt(obj_circleCenter.lat*NUMLNGLAT)}, 'region_type': '0'};
+		} else {
+			return {'points': obj_regionShape.getPath(), 'region_type': '1'};
+		}
 	}
 }
 
 /**
-* 显示圆
+* 显示图形
 */
-window.dlf.fn_displayCircle = function(obj_circleData) { 
-	var circleOptions = {//圆的样式
+window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError) {
+	var shapeOptions = {//样式
 			strokeColor: '#5ca0ff',    //边线颜色。
 			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
 			strokeWeight: 0.5,       //边线的宽度，以像素为单位。
@@ -901,12 +929,60 @@ window.dlf.fn_displayCircle = function(obj_circleData) {
 			fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
 			strokeStyle: 'solid' //边线的样式，solid或dashed。
 		},
-		centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
+		n_region_shape = obj_shpaeData.region_shape,
+		arr_calboxData = [],
+		obj_tempRegionShape = null;
+	
+	// hs:2013.12.24 根据不同的围栏类型进行相应操作显示
+	if ( n_region_shape == 0 ) { // 围栏类型 0: 圆形 1: 多边形
+		var obj_regionData = obj_shpaeData.circle
+			centerPoint = dlf.fn_createMapPoint(obj_regionData.longitude, obj_regionData.latitude);
+			
+		obj_tempRegionShape = new BMap.Circle(centerPoint, obj_regionData.radius, shapeOptions);
+	} else {
+		var arr_tempPolygonData = [],
+			arr_polygonDatas = obj_shpaeData.polygon,
+			n_lenPolygon = arr_polygonDatas.length;
 		
-	obj_circle = new BMap.Circle(centerPoint, obj_circleData.radius, circleOptions);
-	mapObj.setCenter(centerPoint);
-	mapObj.addOverlay(obj_circle);
-	return obj_circle;
+		for ( var i = 0; i < n_lenPolygon; i++) {
+			var obj_temPolygonPts = arr_polygonDatas[i],
+				n_lon = obj_temPolygonPts.longitude,
+				n_lat = obj_temPolygonPts.latitude;
+			
+			arr_tempPolygonData.push(dlf.fn_createMapPoint(n_lon, n_lat));
+			arr_calboxData.push({'clongitude': n_lon, 'clatitude': n_lat});
+		}
+		obj_tempRegionShape = new BMap.Polygon(arr_tempPolygonData, shapeOptions);
+		centerPoint = arr_tempPolygonData[0];
+	}
+	// 是否是误差圈
+	if ( b_locateError ) {
+		$('.j_body').data('markerregion', obj_tempRegionShape);
+		mapObj.addOverlay(obj_tempRegionShape);
+	} else {
+		obj_regionShape = obj_tempRegionShape;
+		mapObj.addOverlay(obj_regionShape);
+	}
+	//是否需要移动中心点
+	if ( b_seCenter ) {
+		mapObj.setCenter(centerPoint);
+		if ( n_region_shape == 0 ) {
+			// 计算bound显示 
+			var obj_circleData = obj_shpaeData.circle,
+				n_radius = obj_circleData.radius;
+				n_lng = obj_circleData.longitude,
+				n_lat = obj_circleData.latitude,
+				n_otherLat = Math.abs(n_lat/NUMLNGLAT + n_radius/111000.0)*NUMLNGLAT,
+				n_otherLat2 = Math.abs(n_lat/NUMLNGLAT - n_radius/111000.0)*NUMLNGLAT,
+				obj_otherPoint = dlf.fn_createMapPoint(n_lng, n_otherLat),
+				obj_otherPoint2 = dlf.fn_createMapPoint(n_lng, n_otherLat2);
+			
+			dlf.fn_setOptionsByType('viewport', [obj_otherPoint2, obj_otherPoint]);
+		} else {
+			dlf.fn_caculateBox(arr_calboxData);
+		}
+	}
+	return obj_regionShape;
 }
 
 /***

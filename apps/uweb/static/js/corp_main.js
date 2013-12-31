@@ -1405,7 +1405,7 @@ function fn_updateAlarmList(arr_alarm) {
 			n_lat = obj_alarm.clatitude,
 			obj_centerPointer = dlf.fn_createMapPoint(n_lng, n_lat),
 			obj_marker = null,
-			obj_circle = null;
+			obj_regionShape = null;
 		
 		// 清除地图上告警的图层
 		dlf.fn_clearAlarmMarker();

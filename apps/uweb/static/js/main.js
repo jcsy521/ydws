@@ -808,9 +808,11 @@ $(function () {
 			if ( b_conStatus ) {
 				dlf.fn_lockContent($($(this).children().eq(1)));
 			}
-			
 			if ( str_currentId == 'terminalWrapper' && b_warpperStatus ) {	// 定位器设置dialog拖动时，白名单未填提示框跟着拖动
 				obj_whitePop.css({left: n_left, top: n_top});
+			}
+			if ( str_currentId == 'corpSMSOptionWrapper' ) {
+				$('#smsOwerMobile').autocomplete('close');
 			}
 		},
 		stop: function(event, ui) {

@@ -450,7 +450,7 @@ body {
 .menu .region {
 	background-position: 0px -1080px;
 }
-.menu .region:hover, .menu .regionHover  {
+.menu .region:hover, .menu .regionHover, .menu .corpRegionHover  {
 	background-position: 0px -1116px;
 }
 .menu .onlineStatics {
@@ -464,6 +464,12 @@ body {
 }
 .menu .corpSMSOption:hover, .menu .corpSMSOptionHover {
 	background-position: 0px -1260px;
+}
+.menu .smallTools {
+	background-position: 0px -1296px;
+}
+.menu .smallTools:hover, .menu .smallToolsHover {
+	background-position: 0px -1332px;
 }
 .selfList {
 	float:right;
@@ -3313,7 +3319,7 @@ legend {
 	opacity: 0.6;
 	filter:alpha(opacity=60);
 	border-radius: 6px;
-	width: 250px;
+	width: 360px;
 	height: 40px;
 	line-height: 40px;
 	color: white;

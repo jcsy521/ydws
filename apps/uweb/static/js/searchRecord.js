@@ -681,11 +681,11 @@ window.dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) 
 				if ( n_region_shape == 0 ) {	// 圆形围栏
 					obj_circleData = obj_res.circle;
 					obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
-					obj_circle1 = dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
+					obj_circle1 = dlf.fn_displayMapShape(obj_circleData);	// 调用地图显示圆形
 
 					if ( n_type == 1 ) {	// 如果是lastinfo 告警信息 保存region 以便删除
-						obj_circle = obj_circle1;
-						$('.j_alarmTable').data('region', obj_circle);
+						obj_regionShape = obj_circle1;
+						$('.j_alarmTable').data('region', obj_regionShape);
 						dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
 					} else {
 						dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);

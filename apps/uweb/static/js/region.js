@@ -35,14 +35,33 @@ window.dlf.fn_initRegion = function() {
 			}
 		}
 		obj_regionWapper.hide();
-		dlf.fn_clearMapComponent(obj_circle); // 清除页面图形
+		dlf.fn_clearRegionShape(); // 清除页面图形
 		
 		obj_regionAddWapper.css({'left': '305px', 'top': '160px'}).show();
-		// 初始化画圆事件,并添加画圆事件
-		dlf.fn_initCreateCircle();
+		// 初始化画围栏事件,并添加画围栏事件
+		$('#regionCreate_circle').attr('checked', 'checked');
+		dlf.fn_initCreateRegion();
+		
+		// hs: 2013.12.24 添加围栏类型判断及初始化
+		$('#regionCreateTypePanel input[name=regionType]').unbind('change').change(function(e) {
+			dlf.fn_mapRightClickFun();
+			if ( obj_drawingManager ) {
+				//obj_drawingManager.open();
+			} else {
+				mousetool.close(true);	// 关闭鼠标画圆事件				
+			}
+			$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+			$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
+			dlf.fn_initCreateRegion();
+			if ( b_mapType ) {
+				// 启动画围栏事件
+				dlf.fn_mapStartDraw();
+			}
+		});
+		
 		$('#createRegionName').val('');
 		fn_displayCars(); // 显示车辆信息数据
-		obj_circle =  null;
+		obj_regionShape =  null;
 		
 		if ( b_mapType ) {
 			// 启动画围栏事件
@@ -107,9 +126,9 @@ function fn_displayCars () {
 window.dlf.fn_resetRegion = function() {
 	dlf.fn_mapRightClickFun();
 	if ( obj_drawingManager ) {
-		obj_drawingManager.open();
+		dlf.fn_mapStartDraw();
 	} else {
-		dlf.fn_initCreateCircle();
+		dlf.fn_initCreateRegion();
 	}
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 	$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
@@ -143,7 +162,7 @@ window.dlf.fn_saveReginon = function() {
 			}		
 		}
 	}
-	if ( !obj_circle ) { 
+	if ( !obj_regionShape ) { 
 		dlf.fn_jNotifyMessage('您还没有创建电子围栏。', 'message', false, 3000);
 		return;
 	}
@@ -160,20 +179,43 @@ window.dlf.fn_saveReginon = function() {
 			return;
 		}
 	}
-	var obj_circleData = dlf.fn_getCirlceData();
+	var obj_shapeData = dlf.fn_getShapeData(),
+		arr_polygonData = [];
 	
 	obj_regionData.region_name = str_regionName;
-	obj_regionData.region_shape = 0;	// 默认先画圆
+	obj_regionData.region_shape = obj_shapeData.region_type;	// 默认先画圆
 	obj_regionData.tid = str_tid;
-	obj_regionData.circle = obj_circleData;
-	n_radius = obj_circleData.radius;
+	
+	if ( obj_shapeData.region_type == 1 ) { // 如果是多边形,对数据进行转换
+		var arr_polygonTempPoints = obj_shapeData.points,
+			n_lenPolygon = arr_polygonTempPoints.length;
+		
+		if ( n_lenPolygon <= 0 ) {
+			dlf.fn_jNotifyMessage('请添加多边形区域！', 'message', false, 3000);
+			return;
+		}
+		for ( var i = 0; i < n_lenPolygon; i++) {
+			var obj_temPolygonPts = arr_polygonTempPoints[i];
+			
+			arr_polygonData.push({'latitude': parseInt(obj_temPolygonPts.lat*NUMLNGLAT), 'longitude': parseInt(obj_temPolygonPts.lng*NUMLNGLAT)});	
+		}
+		obj_regionData.polygon = arr_polygonData;
+		if ( arr_polygonData.length < 3 ) {
+			dlf.fn_jNotifyMessage('多边形围栏最少需要3个点！', 'message', false, 3000);
+			return;
+		}
+	} else { // 如果是圆
+		var n_radius = obj_shapeData.circle.radius;
 
-	if ( n_radius < 500 ) {
-		dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
-		return;
+		if ( n_radius < 500 ) {
+			dlf.fn_jNotifyMessage('电子围栏半径最小为500米！', 'message', false, 3000);
+			return;
+		}
+		obj_regionData.circle = obj_shapeData.circle;
 	}
 	// 发送线请求数据
 	dlf.fn_jsonPost(REGION_URL, obj_regionData, 'regionCreate', '电子围栏数据保存中');
+	
 }
 
 /*
@@ -184,22 +226,9 @@ window.dlf.fn_detailRegion = function(n_seq) {
 		obj_regionData = obj_regionDatas[n_seq], 
 		n_region_shape = obj_regionData.region_shape;	// 围栏类型 0: 圆形 1: 多边形
 		
-	fn_clearCircleRegion();
-	if ( n_region_shape == 0 ) {
-		var obj_circleData = obj_regionData.circle,
-			n_radius = obj_circleData.radius;
-			n_lng = obj_circleData.longitude,
-			n_lat = obj_circleData.latitude,
-			n_otherLat = Math.abs(n_lat/NUMLNGLAT + n_radius/111000.0)*NUMLNGLAT,
-			n_otherLat2 = Math.abs(n_lat/NUMLNGLAT - n_radius/111000.0)*NUMLNGLAT,
-			obj_otherPoint = dlf.fn_createMapPoint(n_lng, n_otherLat),
-			obj_otherPoint2 = dlf.fn_createMapPoint(n_lng, n_otherLat2);
-
-		// 调用地图显示圆形
-		dlf.fn_displayCircle(obj_circleData);
-		// 计算bound显示 
-		dlf.fn_setOptionsByType('viewport', [obj_otherPoint2, obj_otherPoint]);
-	}
+	dlf.fn_clearRegionShape();
+	// 调用地图显示圆形
+	dlf.fn_displayMapShape(obj_regionData, true);
 	if ( dlf.fn_isBMap() ) {
 		mapObj.closeInfoWindow();// 关闭吹出框 已显示圆
 	} else {
@@ -221,7 +250,7 @@ window.dlf.fn_deleteRegion = function(n_id) {
 			
 					obj_currentRegionTr.remove();
 					obj_regionTable.data('regionnum', n_regionNums - 1);
-					fn_clearCircleRegion();
+					dlf.fn_clearRegionShape();
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;
@@ -233,9 +262,9 @@ window.dlf.fn_deleteRegion = function(n_id) {
 /*
 * 清除地图上显示的围栏图形 
 */
-function fn_clearCircleRegion () {
-	if ( obj_circle ) {
-		dlf.fn_clearMapComponent(obj_circle); // 清除页面图形
+window.dlf.fn_clearRegionShape = function() {
+	if ( obj_regionShape ) {
+		dlf.fn_clearMapComponent(obj_regionShape); // 清除页面图形
 	}
 }
 //--------------bind regions----------------

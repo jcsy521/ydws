@@ -20,9 +20,9 @@
 * obj_infoPushMobiles: 消息推送时管理员选择的乘客MOBILE
 * n_currentLastInfoNum: lastinfo定时器生成的编号
 * obj_drawingManager: 鼠标绘制对象
-* obj_circle: 鼠标绘制圆形对象
-* obj_circleLabel : 圆的标签对象
-* obj_circleMarker : 圆的标记对象
+* obj_regionShape: 鼠标绘制围栏对象
+* obj_shapeLabel : 围栏的标签对象
+* obj_shapeMarker : 围栏的标记对象
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -43,9 +43,9 @@ var mapObj = null,
 	obj_infoPushMobiles = {},
 	n_currentLastInfoNum = 0,
 	obj_drawingManager = null,
-	obj_circle = null,
-	obj_circleLabel = null,
-	obj_circleMarker = null,
+	obj_regionShape = null,
+	obj_shapeLabel = null,
+	obj_shapeMarker = null,
 	mousetool = null;
 		
 if ( !window.dlf ) { window.dlf = {}; }
@@ -642,7 +642,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 					}
 				}
 				if ( str_flag == 'first' && arr_locations.length > 0 ) {
-					dlf.fn_caculateBox(arr_locations);
+					dlf.fn_caculateBox(arr_locations, 'lastinfo');
 				}
 				
 				$('.j_carList').data('carsData', obj_tempData);
@@ -675,7 +675,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 * arr_locations: 所有点数组
 * 通过比较取到sw(最小经纬) 和ne(最大经纬)的点进行数据显示
 */
-window.dlf.fn_caculateBox = function (arr_locations) {
+window.dlf.fn_caculateBox = function (arr_locations, str_type) {
 	var	n_locLength = arr_locations.length,
 		arr_trackPoints = [], 
 		obj_tempFirstLoc = arr_locations[0],
@@ -706,6 +706,11 @@ window.dlf.fn_caculateBox = function (arr_locations) {
 	}
 	$('#trackHeader').data('points', arr_trackPoints);// 此数据点给轨迹查询显示使用
 	dlf.fn_setOptionsByType('viewport', [dlf.fn_createMapPoint(n_minLng, n_minLat), dlf.fn_createMapPoint(n_maxLng, n_maxLat)]);
+	if ( str_type == 'lastinfo' ) {
+		setTimeout(function() { // 首次执行lastinfo进行地图位置调整
+			mapObj.setZoom(mapObj.getZoom()-2);
+		}, 200);
+	}
 }
 
 /**

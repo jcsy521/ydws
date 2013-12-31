@@ -1003,10 +1003,10 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				}
 			}
 			// 清除地图上图形 todo 
-			if ( obj_circle ) {
-				dlf.fn_clearMapComponent(obj_circle); // 清除页面圆形
-				dlf.fn_clearMapComponent(obj_circleLabel); // 清除地图上的半径提示
-				dlf.fn_clearMapComponent(obj_circleMarker);// 清除地图上的圆心标记
+			if ( obj_regionShape ) {
+				dlf.fn_clearRegionShape(); // 清除页面圆形
+				dlf.fn_clearMapComponent(obj_shapeLabel); // 清除地图上的半径提示
+				dlf.fn_clearMapComponent(obj_shapeMarker);// 清除地图上的圆心标记
 			}// 2013.4.16
             centerPoint = e.point;
             circle = new BMap.Circle(centerPoint, 0, me.circleOptions);
@@ -1022,12 +1022,12 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
         var moveAction = function(e) { 
 			labelPoint = e.point;
 			
-			mapObj.removeOverlay(obj_circleLabel);// 2013.4.22
+			mapObj.removeOverlay(obj_shapeLabel);// 2013.4.22
 			
             circle.setRadius(me._map.getDistance(centerPoint, e.point));
-			obj_circleLabel = new BMap.Label('半径：'+Math.round(circle.getRadius())+'米', {position: labelPoint});
+			obj_shapeLabel = new BMap.Label('半径：'+Math.round(circle.getRadius())+'米', {position: labelPoint});
 			//todo 2013.4.22
-			mapObj.addOverlay(obj_circleLabel);	
+			mapObj.addOverlay(obj_shapeLabel);	
         }
 
         /**
@@ -1041,7 +1041,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>',
 				obj_clickInfoWindow = null;  // 创建信息窗口对象
 			
-			obj_circle = circle; // 圆形数据保存
+			obj_regionShape = circle; // 圆形数据保存
 			if ( b_ie && str_ieVersion != '9.0' ) { // 如果是ie6 7 8 
 				if ( str_ieVersion != '10.0' &&  obj_startEventBtn != 1 ) {
 					return;
@@ -1060,16 +1060,16 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			}
 		
 			// 2013.4.22 绘画完圆后显示圆心点吹出框,提示用户保存或重绘
-			mapObj.removeOverlay(obj_circleMarker);// 2013.4.22
+			mapObj.removeOverlay(obj_shapeMarker);// 2013.4.22
 			
-			obj_circleMarker= new BMap.Marker(centerPoint);
-			mapObj.addOverlay(obj_circleMarker);	//向地图添加覆盖物 
+			obj_shapeMarker= new BMap.Marker(centerPoint);
+			mapObj.addOverlay(obj_shapeMarker);	//向地图添加覆盖物 
 
 			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);
-			obj_circleMarker.openInfoWindow(obj_clickInfoWindow);
+			obj_shapeMarker.openInfoWindow(obj_clickInfoWindow);
 			// 新增点添加click事件
-			obj_circleMarker.addEventListener('click', function() {
-				obj_circleMarker.openInfoWindow(obj_clickInfoWindow);
+			obj_shapeMarker.addEventListener('click', function() {
+				obj_shapeMarker.openInfoWindow(obj_clickInfoWindow);
 			});
 			dlf.fn_mapStopDraw();
 			setTimeout(function(){  
@@ -1117,6 +1117,28 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
          * 鼠标点击的事件
          */
         var startAction = function (e) {
+			var b_ie = $.browser.msie, 
+				obj_startEventBtn = e.button;
+			
+			
+			if ( b_ie ) { // 如果是IE
+				if ( obj_startEventBtn != 1 ) {
+					return;
+				}
+			} else {
+				if ( obj_startEventBtn != 0 ) {//不适合项目,暂时屏蔽2013.4.16
+					return;
+				}
+			}
+			
+			// 清除地图上图形 todo 
+			if ( obj_regionShape ) {
+				dlf.fn_clearRegionShape(); // 清除页面圆形
+				if( obj_shapeLabel ) {
+					dlf.fn_clearMapComponent(obj_shapeLabel); // 清除地图上的半径提示
+				}
+				dlf.fn_clearMapComponent(obj_shapeMarker);// 清除地图上的圆心标记
+			}// 2013.12.24
             points.push(e.point);
             drawPoint = points.concat(points[points.length - 1]);
             if (points.length == 1) {
@@ -1124,6 +1146,8 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
                     overlay = new BMap.Polyline(drawPoint, me.polylineOptions);
                 } else if (me._drawingType == BMAP_DRAWING_POLYGON) {
                     overlay = new BMap.Polygon(drawPoint, me.polygonOptions);
+					
+					
                 }
                 map.addOverlay(overlay);
             } else {
@@ -1154,10 +1178,54 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
             mask.removeEventListener('mousemove', mousemoveAction);
             mask.removeEventListener('dblclick', dblclickAction);
             overlay.setPath(points);
+			
+			obj_regionShape = overlay; // 多边形数据保存
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
+			var b_ie = $.browser.msie,
+				str_ieVersion = $.browser.version,
+				obj_startEventBtn = e.button, 
+				arr_polygonData = obj_regionShape.getPath(),
+				str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>',
+				obj_clickInfoWindow = null,// 创建信息窗口对象
+				centerPoint = arr_polygonData[0];  
+			
+			if ( b_ie && str_ieVersion != '9.0' ) { // 如果是ie6 7 8 
+				if ( str_ieVersion != '10.0' &&  obj_startEventBtn != 1 ) {
+					return;
+				}
+			} else { 
+				if ( obj_startEventBtn != 0 ) {//不适合项目,暂时屏蔽2013.4.16
+					return;
+				}
+			}	
+
+			if ( arr_polygonData.length < 3 ) { 
+				str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">多边形围栏最少需要3个点！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
+			}			
+			// 2013.4.22 绘画完圆后显示圆心点吹出框,提示用户保存或重绘
+			mapObj.removeOverlay(obj_shapeMarker);// 2013.4.22
+			
+			obj_shapeMarker= new BMap.Marker(centerPoint);
+			mapObj.addOverlay(obj_shapeMarker);	//向地图添加覆盖物 
+
+			obj_clickInfoWindow = new BMap.InfoWindow(str_infoWindowText);
+			obj_shapeMarker.openInfoWindow(obj_clickInfoWindow);
+			// 新增点添加click事件
+			obj_shapeMarker.addEventListener('click', function() {
+				obj_shapeMarker.openInfoWindow(obj_clickInfoWindow);
+			});
+			
+			
+			
+			
+			
+			
+			dlf.fn_mapStopDraw();
             var calculate = me._calculate(overlay, points.pop());
             me._dispatchOverlayComplete(overlay, calculate);
             points.length = 0;
             drawPoint.length = 0;
+			
         }
 
         mask.addEventListener('click', startAction);
