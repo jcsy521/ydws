@@ -20,6 +20,7 @@ from utils.misc import get_location_key, get_terminal_time, get_terminal_info_ke
      safe_utf8, safe_unicode, get_ios_push_list_key, get_android_push_list_key,\
      get_region_time_key, get_alert_freq_key, get_pbat_message_key
 from utils.public import insert_location
+from utils.geometry import PtInPolygon 
 
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
@@ -59,7 +60,8 @@ class PacketTask(object):
         """Get all regions associated with the tid."""
         regions = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name, "
                                 "       tr.longitude AS region_longitude, tr.latitude AS region_latitude, "
-                                "       tr.radius AS region_radius" 
+                                "       tr.radius AS region_radius," 
+                                "       tr.points, tr.shape AS region_shape"
                                 "  FROM T_REGION tr, T_REGION_TERMINAL trt "
                                 "  WHERE tr.id = trt.rid"
                                 "  AND trt.tid = %s",
@@ -105,18 +107,41 @@ class PacketTask(object):
         old_region_time_key = get_region_time_key(location['dev_id'], region.region_id)
         old_region_time = self.redis.getvalue(old_region_time_key)
 
-        # get distance beteween now location and the centre of the region 
-        distance = lbmphelper.get_distance(region.region_longitude,
-                                           region.region_latitude,
-                                           location.cLon, 
-                                           location.cLat)
-        
-        if distance >= region.region_radius:
-            region_status = EVENTER.CATEGORY.REGION_OUT
-            rname = EVENTER.RNAME.REGION_OUT
-        else:
-            region_status = EVENTER.CATEGORY.REGION_ENTER
-            rname = EVENTER.RNAME.REGION_ENTER
+        if region.region_shape == UWEB.REGION_SHAPE.CIRCLE:
+            # get distance beteween now location and the centre of the region 
+            distance = lbmphelper.get_distance(region.region_longitude,
+                                               region.region_latitude,
+                                               location.cLon, 
+                                               location.cLat)
+            
+            if distance >= region.region_radius:
+                region_status = EVENTER.CATEGORY.REGION_OUT
+                rname = EVENTER.RNAME.REGION_OUT
+            else:
+                region_status = EVENTER.CATEGORY.REGION_ENTER
+                rname = EVENTER.RNAME.REGION_ENTER
+        elif region.region_shape == UWEB.REGION_SHAPE.POLYGON:
+            polyon = {'name':'',
+                      'points':[]}
+            points = region.points 
+            point_lst = points.split(':') 
+            for point in point_lst: 
+               latlon = point.split(',') 
+               dct = {'lat':float(latlon[0])/3600000, 
+                      'lon':float(latlon[1])/3600000} 
+               polygon['points'].append(dct)
+
+            polyon['name'] = region.region_name
+
+            if PtInPolygon(location, polygon):
+                region_status = EVENTER.CATEGORY.REGION_OUT
+                rname = EVENTER.RNAME.REGION_OUT
+            else:
+                region_status = EVENTER.CATEGORY.REGION_OUT
+                rname = EVENTER.RNAME.REGION_OUT
+        else: 
+            logging.info("[EVENTER] unknow region_shape: %s, region: %s, skip it", 
+                         region.region_shape, region)
 
         if old_region_time:
             if int(location['gps_time']) <= int(old_region_time):
@@ -312,6 +337,11 @@ class PacketTask(object):
             return
         
         # send sms to owner
+        if report.rName in [EVENTER.RNAME.STOP]:
+            logging.info("[EVENTER] %s altert needn't to push to user.  Terminal: %s",
+                         report.rName, report.dev_id)
+            return
+            
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
         name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
         if sms_option == UWEB.SMS_OPTION.SEND:

@@ -133,23 +133,55 @@ class AsyncParser(object):
         return info
 
     def get_pvt_info(self, packet):
+
+        #NOTE: reorganize the packet. if locate_error is missed, add a default value
+        starts_index = []
+        ends_index = []
+        for index, p in enumerate(packet): 
+            if p.startswith('{'): 
+                starts_index.append(index) 
+            if p.endswith('}'): 
+                ends_index.append(index)
+        group_index = zip(starts_index, ends_index)
+        packet_new = []
+        for start_index, end_index in group_index: 
+            pvt = packet[start_index:end_index+1] 
+            if len(pvt) == 7: 
+                pvt[-1] = pvt[-1][:-1] 
+                pvt.append('20}') 
+                packet_new.extend(pvt) 
+        #END
+
         positions = []
-        keys = ['ew', 'lon', 'ns', 'lat', 'speed', 'degree', 'gps_time'] 
-        for index in range(len(packet)/len(keys)):
+
+        keys = ['ew', 'lon', 'ns', 'lat', 'speed', 'degree', 'gps_time', 'locate_error'] 
+
+        for index in range(len(packet_new)/len(keys)):
+            start_index = index*len(keys)
+            end_index = index*len(keys)+len(keys)
             position = self.get_position()
-            pvt = packet[index*len(keys):index*len(keys)+len(keys)]
+            pvt = packet_new[start_index:end_index]
+
             for i, item in enumerate(pvt):
+                #NOTE: just remove {} in packet
                 item = item.replace('{', '')
                 item = item.replace('}', '')
                 position['t'] = EVENTER.INFO_TYPE.POSITION 
                 position[keys[i]] = item 
+
+            #NOTE: some format-deal for body
             position['lon'] = int(float(position['lon']) * 3600000)
             position['lat'] = int(float(position['lat']) * 3600000)
             position['speed'] = float(position['speed'])
             position['degree'] = float(position['degree'])
             position['gps_time'] = int(position['gps_time'])
             position['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS 
+
+            if not position.get('locate_error', None):
+                position['locate_error'] = 20 # default value 
+            position['locate_error'] = int(position['locate_error']) 
             positions.append(position)
+
         info = {'pvts': positions}
 
         return info 
@@ -161,10 +193,18 @@ class AsyncParser(object):
         """
 
         keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed',
-                'degree', 'defend_status', 'cellid', 'extra', 'gps_time']
+                'degree', 'defend_status', 'cellid', 'extra', 'gps_time',
+                'locate_error']
+
+        #NOTE: if some new fields was added, provide a default value        
+        keys_miss = len(keys) - len(packet)
+        for i in range(keys_miss):
+            packet.append('')
+
         position = self.get_position()
         for i, key in enumerate(keys):
             position[key] = packet[i]
+
 
         keys = ['gps', 'gsm', 'pbat']
         ggp = position['extra'].split(':')
@@ -172,11 +212,16 @@ class AsyncParser(object):
             position[key] = ggp[i]
         del position['extra']
 
+        #NOTE: some format-deal for body
         position['lon'] = int(float(position['lon']) * 3600000)
         position['lat'] = int(float(position['lat']) * 3600000)
         position['speed'] = float(position['speed'])
         position['degree'] = float(position['degree'])
         position['gps_time'] = int(position['gps_time'])
+
+        if not position.get('locate_error', None):
+            position['locate_error'] = 20 # default value 
+        position['locate_error'] = int(position['locate_error']) 
 
         return position 
 
@@ -184,25 +229,35 @@ class AsyncParser(object):
         """Get the location report information. Location is classified as the 
         following categories: ILLEGALSHAKE, POWERLOW, EMERGENCY, ILLEGALMOVE 
         """
-
         keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed', 'degree',
                 'defend_status', 'cellid', 'extra', 'gps_time', 'terminal_type',
-                'fobid']
+                'fobid','locate_error']
+
+        keys_miss = len(keys) - len(packet)
+        for i in range(keys_miss):
+            packet.append('')
+
+
         position = self.get_position()
         for i, key in enumerate(keys):
             position[key] = packet[i] 
+
 
         keys = ['gps', 'gsm', 'pbat']
         ggp = position['extra'].split(':')
         for i, key in enumerate(keys):
             position[key] = ggp[i]
         del position['extra']
-
+   
+        #NOTE: some format-deal for body
         position['lon'] = int(float(position['lon']) * 3600000)
         position['lat'] = int(float(position['lat']) * 3600000)
         position['speed'] = float(position['speed'])
         position['degree'] = float(position['degree'])
         position['gps_time'] = int(position['gps_time'])
 
-        return position 
+        if not position.get('locate_error', None):
+            position['locate_error'] = 20 # default value 
+        position['locate_error'] = int(position['locate_error']) 
 
+        return position 

@@ -138,7 +138,7 @@ class QueryHelper(object):
 
     @staticmethod
     def get_biz_by_mobile(mobile, db):
-        """Get user info throught tmobile.
+        """Get user info through tmobile.
         """
         biz = db.get("SELECT biz_type"
                       "  FROM T_BIZ_WHITELIST"
@@ -148,7 +148,7 @@ class QueryHelper(object):
 
     @staticmethod
     def get_terminal_by_tmobile(tmobile, db):
-        """Get terminal info throught tmobile.
+        """Get terminal info through tmobile.
         """
         terminal = db.get("SELECT tid, login, msgid, service_status"
                           "  FROM T_TERMINAL_INFO"
@@ -159,7 +159,7 @@ class QueryHelper(object):
 
     @staticmethod
     def get_white_list_by_tid(tid, db):
-        """Get white list throught tid.
+        """Get white list through tid.
         """
         whitelist = db.query("SELECT mobile"
                              "  FROM T_WHITELIST"
@@ -179,7 +179,7 @@ class QueryHelper(object):
   
     @staticmethod
     def get_mannual_status_by_tid(tid, db):
-        """Get mannual status through bid.
+        """Get tracker's mannual status.
         """
         mannual_status = None
         t = db.get("SELECT mannual_status"
@@ -193,6 +193,8 @@ class QueryHelper(object):
 
     @staticmethod
     def get_terminal_info(tid, db, redis):
+        """Get tracker's terminal info.
+        """
         terminal_info_key = get_terminal_info_key(tid)
         terminal_info = redis.getvalue(terminal_info_key)
         if not terminal_info:
@@ -216,6 +218,8 @@ class QueryHelper(object):
 
     @staticmethod
     def get_login_time_by_tid(tid, db, redis):
+        """Get tracker's login_time.
+        """
         login_time_key = get_login_time_key(tid)
         login_time = redis.get(login_time_key)
         if not login_time:
@@ -229,6 +233,8 @@ class QueryHelper(object):
 
     @staticmethod
     def get_terminals_by_cid(cid, db):
+        """Get all trackers belongs to a corp.
+        """
         terminals = db.query("SELECT tt.mobile, tt.owner_mobile, tt.tid FROM T_TERMINAL_INFO as tt, T_GROUP as tg, T_CORP as tc" 
                              "  WHERE tt.service_status = 1 AND tc.cid = %s AND tc.cid = tg.corp_id AND tt.group_id = tg.id", 
                              cid)
@@ -236,11 +242,14 @@ class QueryHelper(object):
 
     @staticmethod
     def get_location_info(tid, db, redis):
+        """Get tracker's last location and keep a copy in redis.
+        """
         location_key = get_location_key(str(tid))
         location = redis.getvalue(location_key)
         if not location:
             location = db.get("SELECT id, speed, timestamp, category, name,"
-                              "  degree, type, latitude, longitude, clatitude, clongitude, timestamp"
+                              "  degree, type, latitude, longitude, clatitude, clongitude,"
+                              "  timestamp, locate_error"
                               "  FROM T_LOCATION"
                               "  WHERE tid = %s"
                               "    AND NOT (latitude = 0 AND longitude = 0)"
@@ -257,12 +266,15 @@ class QueryHelper(object):
                                         'timestamp':location.timestamp,
                                         'name':location.name,
                                         'degree':float(location.degree),
-                                        'speed':float(location.speed)})
+                                        'speed':float(location.speed),
+                                        'locate_error':int(location.locate_error)})
 
                 redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
         return location
 
     @staticmethod
     def get_alert_freq_by_tid(tid,db):
+        """Get tracker's alert_freq.
+        """
         alert_freq = db.get("SELECT alert_freq FROM T_TERMINAL_INFO WHERE tid=%s", tid)
         return int(alert_freq['alert_freq'])

@@ -30,12 +30,13 @@ class LocationDescParser(object):
     def parse(self, packet, ret):
         position = self.get_position()
         ret.update(position)
-        keys = ['ew', 'lon', 'ns', 'lat', 'cellid', 'valid'] 
+        keys = ['ew', 'lon', 'ns', 'lat', 'cellid', 'valid', 'locate_error'] 
         for i, key in enumerate(keys):
             ret[key] = packet[i]
         ret['lon'] = int(float(ret['lon']) * 3600000)
         ret['lat'] = int(float(ret['lat']) * 3600000)
         ret['gps_time'] = int(ret['timestamp'])
+        ret['locate_error'] = int(ret['locate_error'])
 
         return ret
 

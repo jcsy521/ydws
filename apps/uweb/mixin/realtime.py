@@ -116,13 +116,13 @@ class RealtimeMixin(BaseMixin):
                 callback(ret)
                 return
 
-	lat, lon = get_latlon_from_cellid(0,0,0,0, self.current_user.sim)
-	clat, clon = get_clocation_from_ge([lat,],[lon,])
-	clat = int(clat[0]) if len(clat)>0 else 0
-	clon = int(clon[0]) if len(clon)>0 else 0
-	name = get_location_name(clat, clon, self.redis)
+        lat, lon = get_latlon_from_cellid(0,0,0,0, self.current_user.sim)
+        clat, clon = get_clocation_from_ge([lat,],[lon,]) 
+        clat = int(clat[0]) if len(clat)>0 else 0 
+        clon = int(clon[0]) if len(clon)>0 else 0 
+        name = get_location_name(clat, clon, self.redis)
         
-        location = DotDict(category = 1,
+        location = DotDict(category = 1, # cellid
                            dev_id = self.current_user.tid, 
                            lat = lat, 
                            lon = lon, 
@@ -134,7 +134,8 @@ class RealtimeMixin(BaseMixin):
                            speed = 0.0, 
                            degree = 0.0, 
                            name = name, 
-                           cellid = None)
+                           cellid = None,
+                           locate_error = 20)
         if clat and clon:
             ret.location = DotDict()
             ret.location.latitude = lat
@@ -147,6 +148,7 @@ class RealtimeMixin(BaseMixin):
             ret.location.type = 1
             ret.location.tid = self.current_user.tid
             ret.location.degree = 0.0 
+            ret.location.locte_error = 20 
             insert_location(location, self.db, self.redis)
             logging.info("[UWEB] tid %s cellid query success", self.current_user.tid)
         else:

@@ -145,19 +145,20 @@ def delete_terminal(tid, db, redis, del_user=True):
                  tid, tmobile, (terminal.owner_mobile if terminal else None))
 
 def insert_location(location, db, redis):
-    """Insert whole-data into T_LOCATION
+    """Insert whole-data into T_LOCATION.
     """
     location = DotDict(location)
     lid = db.execute("INSERT INTO T_LOCATION(tid, latitude, longitude, altitude,"
-                     "    clatitude, clongitude, timestamp, name, category, type, speed, degree, cellid)"
+                     "    clatitude, clongitude, timestamp, name, category, type,"
+                     "    speed, degree, cellid, locate_error)"
                      "  VALUES (%s, %s, %s, %s, %s, %s, %s,"
-                     "          %s, %s, %s, %s, %s, %s)",
+                     "          %s, %s, %s, %s, %s, %s, %s)",
                      location.dev_id, location.lat, location.lon, 
                      location.alt, location.cLat, location.cLon,
                      location.gps_time, location.name,
                      location.category, location.type,
                      location.speed, location.degree,
-                     location.cellid)
+                     location.cellid, location.locate_error)
     if location.lat and location.lon:
         track_key = get_track_key(location.dev_id)
         track = redis.get(track_key)
@@ -182,7 +183,8 @@ def insert_location(location, db, redis):
                             'timestamp':location.gps_time,
                             'name':location.name,
                             'degree':location.degree,
-                            'speed':location.speed}
+                            'speed':location.speed,
+                            'locate_error':location.locate_error}
             location_key = get_location_key(location.dev_id)
             redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 

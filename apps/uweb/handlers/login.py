@@ -169,7 +169,7 @@ class IOSHandler(BaseHandler, LoginMixin):
             if user_type == UWEB.USER_TYPE.PERSON:
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND owner_mobile = %s"
@@ -182,7 +182,7 @@ class IOSHandler(BaseHandler, LoginMixin):
                 gids = [g.group_id for g in groups]
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND group_id IN %s"
@@ -193,7 +193,7 @@ class IOSHandler(BaseHandler, LoginMixin):
                 gids = [g.gid for g in groups]
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND group_id IN %s"
@@ -246,6 +246,9 @@ class IOSHandler(BaseHandler, LoginMixin):
                               speed=location.speed if location else 0,
                               # NOTE: degree's type is Decimal, float() it before json_encode
                               degree=float(location.degree) if location else 0.00,
+                              locate_error=location.get('locate_error', 20) if location else 20,
+                              bt_name=terminal['bt_name'] if terminal.get('bt_name', None) is not None else '',
+                              bt_mac=terminal['bt_mac'] if terminal.get('bt_mac', None) is not None else '',
                               name=location.name if location else '',
                               type=location.type if location else 1,
                               latitude=location['latitude'] if location else 0,
@@ -349,7 +352,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
             if user_type == UWEB.USER_TYPE.PERSON:
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND owner_mobile = %s"
@@ -362,7 +365,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
                 gids = [g.group_id for g in groups]
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND group_id IN %s"
@@ -373,7 +376,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
                 gids = [g.gid for g in groups]
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND group_id IN %s"
@@ -426,6 +429,9 @@ class AndroidHandler(BaseHandler, LoginMixin):
                               speed=location.speed if location else 0,
                               # NOTE: degree's type is Decimal, float() it before json_encode
                               degree=float(location.degree) if location else 0.00,
+                              locate_error=location.get('locate_error', 20) if location else 20,
+                              bt_name=terminal['bt_name'] if terminal.get('bt_name', None) is not None else '',
+                              bt_mac=terminal['bt_mac'] if terminal.get('bt_mac', None) is not None else '',
                               name=location.name if location else '',
                               type=location.type if location else 1,
                               latitude=location['latitude'] if location else 0,

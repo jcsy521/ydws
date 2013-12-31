@@ -13,51 +13,51 @@ from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
 
 
-class RegionDetailHandler(BaseHandler):
-
-    @authenticated
-    @tornado.web.removeslash
-    def get(self):
-        """ """ 
-        status = ErrorCode.SUCCESS
-        try:
-            rid = self.get_argument('rid')
-        except Exception as e:
-            status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] cid: %s get report region data format illegal. Exception: %s", 
-                              self.current_user.cid, e.args) 
-            self.write_ret(status)
-            return
-        
-        try:
-            region = self.db.get("SELECT id AS region_id, name AS region_name, longitude, latitude, radius"
-                                 "  FROM T_REGION"
-                                 "  WHERE id = %s",
-                                 rid)
-            if not region:
-                status = ErrorCode.REGION_NOT_EXISTED
-                self.write_ret(status)
-                return
-
-            #NOTE: now, just provide region whose shape is circle
-            res = DotDict(region_id=region.region_id,
-                          region_name=region.region_name,
-                          region_shape=UWEB.REGION_SHAPE.CIRCLE,
-                          circle=DotDict(latitude=region.latitude,
-                                         longitude=region.longitude,
-                                         radius=region.radius),
-                          )
-            self.write_ret(status,
-                           dict_=DotDict(res=res))
-        except Exception as e:
-            logging.exception("[UWEB] cid: %s get report region failed. Exception: %s", 
-                              self.current_user.cid, e.args) 
-            status = ErrorCode.SERVER_BUSY
-            self.write_ret(status)
+#class RegionDetailHandler(BaseHandler):
+#
+#    @authenticated
+#    @tornado.web.removeslash
+#    def get(self):
+#        """ 
+#        """ 
+#        status = ErrorCode.SUCCESS
+#        try:
+#            rid = self.get_argument('rid')
+#        except Exception as e:
+#            status = ErrorCode.ILLEGAL_DATA_FORMAT
+#            logging.exception("[UWEB] cid: %s get report region data format illegal. Exception: %s", 
+#                              self.current_user.cid, e.args) 
+#            self.write_ret(status)
+#            return
+#        
+#        try:
+#            region = self.db.get("SELECT id AS region_id, name AS region_name, longitude, latitude, radius"
+#                                 "  FROM T_REGION"
+#                                 "  WHERE id = %s",
+#                                 rid)
+#            if not region:
+#                status = ErrorCode.REGION_NOT_EXISTED
+#                self.write_ret(status)
+#                return
+#
+#            #NOTE: now, just provide region whose shape is circle
+#            res = DotDict(region_id=region.region_id,
+#                          region_name=region.region_name,
+#                          region_shape=UWEB.REGION_SHAPE.CIRCLE,
+#                          circle=DotDict(latitude=region.latitude,
+#                                         longitude=region.longitude,
+#                                         radius=region.radius),
+#                          )
+#            self.write_ret(status,
+#                           dict_=DotDict(res=res))
+#        except Exception as e:
+#            logging.exception("[UWEB] cid: %s get report region failed. Exception: %s", 
+#                              self.current_user.cid, e.args) 
+#            status = ErrorCode.SERVER_BUSY
+#            self.write_ret(status)
         
        
 class RegionHandler(BaseHandler):
-
 
     @authenticated
     @tornado.web.removeslash
@@ -76,19 +76,36 @@ class RegionHandler(BaseHandler):
         try:
             res = []
             regions = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name,"
-                                    "       tr.longitude, tr.latitude, tr.radius "
+                                    "       tr.longitude, tr.latitude, tr.radius,"
+                                    "       tr.points, tr.shape AS region_shape"
                                     "  FROM T_REGION tr, T_REGION_TERMINAL trt"
                                     "  WHERE tr.id = trt.rid"
                                     "  AND trt.tid = %s",
                                     tid)
             for region in regions:
-               r = DotDict(region_id=region.region_id,
-                           region_name=region.region_name,
-                           region_shape=UWEB.REGION_SHAPE.CIRCLE,
-                           circle=DotDict(latitude=region.latitude,
-                                          longitude=region.longitude,
-                                          radius=region.radius),
-                           )
+               if region.region_shape == UWEB.REGION_SHAPE.CIRCLE:
+                   r = DotDict(region_id=region.region_id,
+                               region_name=region.region_name,
+                               region_shape=region.region_shape,
+                               circle=DotDict(latitude=region.latitude,
+                                              longitude=region.longitude,
+                                              radius=region.radius),
+                               )
+               elif region.region_shape == UWEB.REGION_SHAPE.POLYGON:
+                   polygon = []
+                   points = region.points
+                   point_lst = points.split(':')
+                   for point in point_lst:
+                       latlon = point.split(',')
+                       dct = {'latitude':latlon[0],
+                              'longitude':latlon[1]}
+                       polygon.append(dct)
+                   
+                   r = DotDict(region_id=region.region_id,
+                               region_name=region.region_name,
+                               region_shape=region.region_shape,
+                               polygon=polygon)
+ 
                res.append(r)
             self.write_ret(status,
                            dict_=DotDict(res=res))
@@ -105,7 +122,10 @@ class RegionHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] add region request: %s, uid: %s",
+            tid = data.tid
+            region_name = data.region_name
+            region_shape = int(data.region_shape)
+            logging.info("[UWEB] Add region request: %s, uid: %s",
                          data, self.current_user.uid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -118,30 +138,46 @@ class RegionHandler(BaseHandler):
             regions = self.db.query("SELECT id"
                                     "  FROM T_REGION_TERMINAL"
                                     "  WHERE tid = %s",
-                                    data.tid)
+                                    tid)
             if len(regions) > LIMIT.REGION - 1:
                 self.write_ret(ErrorCode.REGION_ADDITION_EXCESS)
                 return
 
             status = ErrorCode.SUCCESS
             rid = -1
-            tid = data.tid
-            region_name = data.region_name
-            region_shape = data.region_shape
+
             if region_shape == UWEB.REGION_SHAPE.CIRCLE:
                 circle = DotDict(data.circle)
                 longitude = circle.longitude 
                 latitude = circle.latitude 
                 radius = circle.radius
-                # create new region
-                rid = self.db.execute("INSERT T_REGION(id, name, longitude, latitude, radius, uid)"
-                                      "  VALUES(NULL, %s, %s, %s, %s, %s)",
-                                      region_name, longitude, latitude, radius, self.current_user.uid)
+                rid = self.db.execute("INSERT T_REGION(name, longitude, latitude, radius, shape, uid)"
+                                      "  VALUES(%s, %s, %s, %s, %s, %s)",
+                                      region_name, longitude, latitude, radius, region_shape, self.current_user.uid)
 
                 self.db.execute("INSERT INTO T_REGION_TERMINAL(rid, tid)"
                                 "  VALUES(%s, %s)",
                                 rid, tid)
-            else: # TODO:
+            elif region_shape == UWEB.REGION_SHAPE.POLYGON:
+                polygon = data.polygon
+                points_lst = [] 
+                points = ''
+                for p in polygon:
+                    tmp = ','.join([str(p['latitude']), str(p['longitude'])])
+                    points += tmp
+                    points_lst.append(tmp)
+                points = ':'.join(points_lst) 
+                rid = self.db.execute("INSERT T_REGION(name, points, shape, uid)"
+                                      "  VALUES(%s, %s, %s, %s)",
+                                      region_name, points, region_shape, self.current_user.uid)
+
+                self.db.execute("INSERT INTO T_REGION_TERMINAL(rid, tid)"
+                                "  VALUES(%s, %s)",
+                                rid, tid)
+ 
+            else: 
+                logging.error("[UWEB] Add region failed, unknown region_shape: %s, uid: %s",
+                              region_shape, self.current_user.uid)
                 pass
             
             self.write_ret(status,
@@ -188,12 +224,9 @@ class RegionHandler(BaseHandler):
             self.db.execute("DELETE FROM T_REGION_TERMINAL WHERE rid IN %s",
                             tuple(delete_ids + DUMMY_IDS))
             
-            
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete region failed. Exception: %s", 
                               self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-
-

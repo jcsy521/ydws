@@ -28,26 +28,38 @@ class CorpRegionHandler(BaseHandler):
             return
 
         try:
-            '''
-            terminals = QueryHelper.get_terminals_by_cid(cid,self.db)
-            for terminal in terminals:
-                uid = terminal['owner_mobile']
-            '''
             res = []
             regions = self.db.query("SELECT id AS region_id, name AS region_name,"
-                                    "       longitude, latitude, radius "
+                                    "       longitude, latitude, radius,"
+                                    "       points, shape AS region_shape"
                                     "  FROM T_REGION"
                                     "  WHERE cid = %s",
                                     cid)
-            #print regions
             for region in regions:
-               r = DotDict(region_id=region.region_id,
-                           region_name=region.region_name,
-                           region_shape=UWEB.REGION_SHAPE.CIRCLE,
-                           circle=DotDict(latitude=region.latitude,
-                                          longitude=region.longitude,
-                                          radius=region.radius),
-                           )
+               if region.region_shape == UWEB.REGION_SHAPE.CIRCLE:
+                   r = DotDict(region_id=region.region_id,
+                               region_name=region.region_name,
+                               region_shape=region.region_shape,
+                               circle=DotDict(latitude=region.latitude,
+                                              longitude=region.longitude,
+                                              radius=region.radius),
+                               )
+               elif region.region_shape == UWEB.REGION_SHAPE.POLYGON:
+                   polygon = []
+                   points = region.points
+                   point_lst = points.split(':')
+                   for point in point_lst:
+                       latlon = point.split(',')
+                       dct = {'latitude':latlon[0],
+                              'longitude':latlon[1]}
+                       polygon.append(dct)
+                   
+                   r = DotDict(region_id=region.region_id,
+                               region_name=region.region_name,
+                               region_shape=region.region_shape,
+                               polygon=polygon)
+ 
+
                res.append(r)
             self.write_ret(status,
                            dict_=DotDict(res=res))
@@ -85,18 +97,31 @@ class CorpRegionHandler(BaseHandler):
             status = ErrorCode.SUCCESS
             rid = -1
             region_name = data.region_name
-            region_shape = data.region_shape
+            region_shape = int(data.region_shape)
             if region_shape == UWEB.REGION_SHAPE.CIRCLE:
                 circle = DotDict(data.circle)
                 longitude = circle.longitude 
                 latitude = circle.latitude 
                 radius = circle.radius
                 # create new region
-                rid = self.db.execute("INSERT T_REGION(id, name, longitude, latitude, radius, cid)"
-                                      "  VALUES(NULL, %s, %s, %s, %s, %s)",
-                                      region_name, longitude, latitude, radius, self.current_user.cid)
-
-            else: # TODO:
+                rid = self.db.execute("INSERT T_REGION(name, longitude, latitude, radius, shape, cid)"
+                                      "  VALUES(%s, %s, %s, %s, %s, %s)",
+                                      region_name, longitude, latitude, radius, region_shape, self.current_user.cid)
+            elif region_shape == UWEB.REGION_SHAPE.POLYGON:
+                polygon = data.polygon
+                points_lst = [] 
+                points = ''
+                for p in polygon:
+                    tmp = ','.join([str(p['latitude']), str(p['longitude'])])
+                    points += tmp
+                    points_lst.append(tmp)
+                points = ':'.join(points_lst) 
+                rid = self.db.execute("INSERT T_REGION(name, points, shape, cid)"
+                                      "  VALUES(%s, %s, %s, %s)",
+                                      region_name, points, region_shape, self.current_user.cid)
+            else: 
+                logging.error("[UWEB] Add region failed, unknown region_shape: %s, uid: %s",
+                              region_shape, self.current_user.uid)
                 pass
 
             self.write_ret(status,

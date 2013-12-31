@@ -93,6 +93,7 @@ class LastPositionHandler(BaseHandler):
                               speed=location.speed if location else 0,
                               # NOTE: degree's type is Decimal, float() it before json_encode
                               degree=float(location.degree) if location else 0.00,
+                              locate_error=location.get('locate_error', 20) if location else 20,
                               name=location.name if location else '',
                               type=location.type if location else 1,
                               latitude=location['latitude'] if location else 0,

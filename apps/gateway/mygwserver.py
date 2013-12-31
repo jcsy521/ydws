@@ -339,6 +339,12 @@ class MyGWServer(object):
         try:
             args = DotDict(success=GATEWAY.LOGIN_STATUS.SUCCESS,
                            sessionID='')
+
+            if len(info.body) == 7:
+                info.body.append("")
+                info.body.append("")
+                logging.info("[GW] old version is compatible, append bt_name, bt_mac")
+
             lp = LoginParser(info.body, info.head)
             t_info = lp.ret
             if not t_info['dev_id']:
@@ -682,8 +688,11 @@ class MyGWServer(object):
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, defend_status,"
-                                "  mannual_status, push_status, icon_type, begintime, endtime, offline_time, login_permit, alias, vibl, use_scene, stop_interval)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  mannual_status, push_status, icon_type, begintime, endtime, "
+                                "  offline_time, login_permit, alias, vibl, use_scene, stop_interval,"
+                                "  bt_name, bt_mac)"
+                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, "
+                                "  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 t_info['dev_id'], group_id, t_info['dev_type'],
                                 t_info['t_msisdn'], t_info['u_msisdn'],
                                 t_info['imsi'], t_info['imei'],
@@ -694,7 +703,8 @@ class MyGWServer(object):
                                 int(time.mktime(begintime.timetuple())),
                                 int(time.mktime(endtime.timetuple())),
                                 int(time.mktime(begintime.timetuple())),
-                                login_permit, alias, vibl, use_scene, 1800)
+                                login_permit, alias, vibl, use_scene, 1800,
+                                t_info['bt_name'], t_info['bt_mac'])
                 self.db.execute("INSERT INTO T_CAR(tid, cnum)"
                                 "  VALUES(%s, %s)",
                                 t_info['dev_id'], alias)
@@ -1180,6 +1190,10 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            if len(body) == 1:
+                body.append(20) 
+                logging.info("[GW] old version is compatible, append locate_error")
+
             resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
             resend_flag = self.redis.getvalue(resend_key)
             go_ahead = False 

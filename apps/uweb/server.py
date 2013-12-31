@@ -42,6 +42,7 @@ from handlers.lastposition import LastPositionHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
 from handlers.track import TrackHandler, TrackDownloadHandler, TrackLQHandler
+from handlers.bluetooth import KQBTHandler 
 from handlers.event import EventHandler
 from handlers.eventperiod import EventPeriodHandler
 from handlers.realtime import RealtimeHandler
@@ -74,7 +75,7 @@ from handlers.batch import BatchImportHandler
 from handlers.batch import BatchDeleteHandler
 from handlers.batch import BatchJHHandler
 from handlers.operator import OperatorHandler
-from handlers.region import RegionHandler, RegionDetailHandler
+from handlers.region import RegionHandler 
 from handlers.corpregion import CorpRegionHandler
 from handlers.bindregion import BindRegionHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
@@ -120,6 +121,7 @@ class Application(tornado.web.Application):
             (r"/download/track/*", TrackDownloadHandler),
 
             (r"/tracklq/*", TrackLQHandler),
+            (r"/kqbt/*", KQBTHandler),
             (r"/event/*", EventHandler),
             (r"/eventperiod/*", EventPeriodHandler),
             (r"/realtime/*", RealtimeHandler),
@@ -225,7 +227,6 @@ class Application(tornado.web.Application):
             (r"/operator/*", OperatorHandler),
             (r"/region/*", RegionHandler),
             (r"/bindregion/*", BindRegionHandler),
-            (r"/getregionevent/*", RegionDetailHandler),
             (r"/report/online/*", OnlineHandler),
             (r"/download/*", DownloadHandler),
             (r"/corpregion/*", CorpRegionHandler),

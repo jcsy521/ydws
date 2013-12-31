@@ -140,7 +140,7 @@ class EventHandler(BaseHandler):
 
             sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
                   "  timestamp, name, type, speed, degree,"
-                  "  category, pbat, terminal_type, fobid, rid"  
+                  "  category, pbat, terminal_type, fobid, rid, locate_error"  
                   "  FROM V_EVENT"
                   "  WHERE tid IN %s"
                   "    AND (timestamp BETWEEN %s AND %s)"
@@ -193,5 +193,3 @@ class EventHandler(BaseHandler):
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-
-
