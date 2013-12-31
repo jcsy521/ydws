@@ -17,6 +17,10 @@
                     },
                     "alertText": "* Field must equal test"
                 },
+				"fn_validCorpName":{
+					"name":"fn_validCorpName",
+					"regex":"none",
+					"alertText":"*"},
                 "dateRange": {
                     "regex": "none",
                     "alertText": "* Invalid ",

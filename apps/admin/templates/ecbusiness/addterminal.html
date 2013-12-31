@@ -35,12 +35,14 @@
 						<tr>
 							<td	class="tLeft">集团名称：</td>
 							<td class="tdText">
-								<select name="corps" id="corps" class="userSelect j_userSelect validate[required]">
-									<option value="">--请选择集团--</option>
+								<select id="corps_select" class="hide" selecttype="addterminal">
 									{% for corp in corplist %}
 											<option value="{{corp.id}}" ecmobile="{{corp.ecmobile}}">{{corp.name}}</option>
 									{% end %}
 								</select>
+								
+								<input type="text" name="corps" id="corps" class="j_userSelect validate[required] funcCall[fn_validCorpName[corps]]" value="" />
+								<a id="corps_sign" href="#"></a>
 							</td>	
 						</tr>
 					</table>

@@ -308,7 +308,7 @@ table, .ui-widget-header {
 .cUlItem {
     margin: 0;
     padding: 0;
-	width: 134px;
+	width: 135px;
     list-style-position: inside;
 }
 .privilegesMsg {
@@ -794,4 +794,21 @@ tfoot {
 }
 .sorting_1 {
 	background-color: #E2E4FF;
+}
+
+#corps {
+	height: 24px;
+}
+#corps_sign {
+	cursor: pointer;
+	background: url('/static/image/sersj.png') no-repeat 0px center;
+	display: inline-block;
+	width: 18px;
+	height: 20px;
+	left: -25px;
+	top: 5px;
+    position: relative;
+}
+#corps_sign:hover {
+	background: url('/static/image/sersjhover.png') no-repeat 0px center;
 }

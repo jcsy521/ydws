@@ -45,6 +45,7 @@ function fn_PushData(obj,name) {
 */
 function fn_PopData(name) {
     var element = parent.document.getElementById('cacheDatas');
+	
     if ($(element).attr('name') == name) {
         $(element).children().each(function(index, dom){
             var id = $(dom)[0].id;
@@ -78,6 +79,12 @@ function fn_PopData(name) {
 				$('#group option[value='+$(dom).text()+']').attr('selected', true);
 			} else if ( id == 'cities' ) {
 				$('#cities option[value='+$(dom).text()+']').attr('selected', true);
+			} else if ( id == 'corps_hidden' ) {
+				var str_hiddenVal = $(dom).text(),
+					obj_autoCorpsBakData = $('#corps_input').data('corpdata');
+				
+				$('#corps_input').val(obj_autoCorpsBakData[str_hiddenVal].ecname);
+				$(elementId).val(str_hiddenVal);
 			} else { // select and other
                 $(elementId).val($(dom).text());
             }

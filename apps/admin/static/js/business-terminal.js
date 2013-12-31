@@ -14,7 +14,8 @@ $(function () {
 	$('#businessFormID1, #businessFormID2, #businessFormID3, #businessFormID4, #businessFormID').validationEngine();
 	// 集团名称change时 保存集团手机号
 	$('#corps').unbind('change').bind('change', function() {
-		$('#ecmobile').val($('#corps option:selected').attr('ecmobile'));
+		//$('#ecmobile').val($('#corps option:selected').attr('ecmobile'));
+		
 	});
 	// 初次加载上页隐藏
 	obj_prevBtn.hide();
@@ -97,8 +98,8 @@ function fn_fillUserData(n_tempNav) {
 	
 	switch( n_tempNav) {
 		case 1: 
-			var str_gName = $('#corps').find('option:selected').text(), 
-				str_gNameId = $('#corps').val();
+			var str_gName = $('#corps').val(), 
+				str_gNameId = $('#corps').attr('ecid');
 			
 			$('#ecid').val(str_gNameId);
 			

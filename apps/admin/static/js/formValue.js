@@ -112,3 +112,30 @@ function fn_validMobile(str_mobile, str_msgTitle) {
 	}
 	return true;
 }
+
+// corp name valid
+function fn_validCorpName(obj_validObj) { // VALIDATE LENGTH BETWEEN
+	var str_validObj = obj_validObj.attr('id');
+	
+	if (str_validObj) {
+		var str_corpName = $.trim($('#corps').val()),
+			obj_autoCorpsBakData = $('#corps').data('corpdata'),
+			b_validCorpName = false;
+		
+		for ( var obj_parpCorp in obj_autoCorpsBakData ) {
+			var obj_tempCorpData = obj_autoCorpsBakData[obj_parpCorp],
+				str_tempCorpName = obj_tempCorpData.ecname;
+			
+			if ( str_tempCorpName == str_corpName ) {
+				b_validCorpName = true;
+				break;
+			}			
+		}
+		if ( !b_validCorpName ) {
+			$.validationEngine.isError = true;
+			$('#corps').removeAttr('ecid');
+			$('#ecmobile').val('');
+			return "*请选择正确的集团 ";
+		}
+	}
+}

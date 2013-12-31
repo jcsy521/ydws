@@ -112,6 +112,54 @@ $(function () {
 	$('.j_close').click(function() {
 		fn_closeWrapper();
 	});
+	
+	
+	// js模拟select
+	var obj_corpsSearch = $('#corps'),
+		arr_autoCorpsData = [],
+		obj_autoCorpsBakData = [],
+		str_selectType = $('#corps_select').attr('selecttype'),
+		obj_corpSelect = $('#corps_select option'),
+		n_corpSelectOptions = $('#corps_select option').length;
+		
+	if ( n_corpSelectOptions > 0 ) {
+		if ( str_selectType == 'usersearch' ) {
+			obj_corpsSearch = $('#corps_input'),
+			str_ecType = obj_corpsSearch.attr('ectype');
+			//获取集团数据
+			obj_corpSelect.each(function(e) {
+				var str_corpName = $(this).html(),
+					str_ecId = $(this).attr('value');
+				
+				arr_autoCorpsData.push({'label': str_corpName, 'value': str_ecId});		
+				
+				obj_autoCorpsBakData[str_ecId] = {'ecname': str_corpName};	
+			});
+			obj_corpsSearch.data({'corpdata': obj_autoCorpsBakData});
+			fn_PopData(str_ecType);	
+		} else {
+			//获取集团数据
+			obj_corpSelect.each(function(e) {
+				var str_corpName = $(this).html(),
+					str_ecMobile = $(this).attr('ecmobile'),
+					str_ecId = $(this).attr('value');
+				
+				arr_autoCorpsData.push({'label': str_corpName, 'value': str_ecId});
+				obj_autoCorpsBakData[str_ecId] = {'ecname': str_corpName, 'ecmobile': str_ecMobile};				
+			});
+			var obj_tempSelectOpts = $($('#corps_select option')[0]);
+			
+			obj_corpsSearch.data({'corpdata': obj_autoCorpsBakData}).attr('ecid', obj_tempSelectOpts.val());
+			//obj_corpsSearch.val(arr_autoCorpsData[0].label);
+			//$('#ecmobile').val(obj_tempSelectOpts.attr('ecmobile'));
+			
+		}
+		// 短信接收号码的下拉框事件	
+		$('#corps_sign').unbind('click').click(function(e) {
+			obj_corpsSearch.autocomplete('search', '');
+		});
+		fn_initAutoCorps(arr_autoCorpsData);
+	}
 });
 //to clear the password for message
 function clearSpan() {
@@ -305,4 +353,40 @@ function fn_xdwInitChart(arr_series, arr_categories, str_chartTitle) {
 */
 function fn_closeWrapper() {
 	$('.wrapper').hide();
+}
+
+/**
+* 初始化短信接收号码的autocomplete
+*/
+function fn_initAutoCorps(arr_autoCorpsData) {
+	var obj_compelete = $('#corps'),
+		str_selectType = $('#corps_select').attr('selecttype');
+		
+	if ( str_selectType == 'usersearch' ) {
+		obj_compelete = $('#corps_input');
+	}
+	// autocomplete	自动完成 初始化
+	obj_compelete.autocomplete({
+		minLength: 0,
+		source: arr_autoCorpsData,
+		select: function(event, ui) {
+			$('.formError').remove();
+			
+			var obj_item = ui.item,
+				str_tLabel = obj_item.label,
+				str_tVal = obj_item.value,
+				obj_autoCorpsBakData = $('#corps').data('corpdata'),
+				str_selectType = $('#corps_select').attr('selecttype');
+			
+			if ( str_selectType == 'usersearch' ) {
+				$('#corps_hidden').val(str_tVal);
+			} else {
+				$('#ecmobile').val(obj_autoCorpsBakData[str_tVal].ecmobile);
+				$('#corps').attr('ecid', str_tVal);
+			}
+			obj_compelete.val(str_tLabel);
+			
+			return false;
+		}
+	});
 }

@@ -24,6 +24,33 @@ function formSubmit(option) {
 			return false;
 		}
 	}
+	
+	// business search集团判断
+	if ( option == 'business' || option == 'ecbusiness' ) { 
+		var str_corpName = $.trim($('#corps_input').val()),
+			obj_autoCorpsBakData = $('#corps_input').data('corpdata'),
+			b_validCorpName = false;
+		
+		if ( str_corpName == '' ) {
+			alert('请选择集团');
+			return false;
+		}
+		for ( var obj_parpCorp in obj_autoCorpsBakData ) {
+			var obj_tempCorpData = obj_autoCorpsBakData[obj_parpCorp],
+				str_tempCorpName = obj_tempCorpData.ecname;
+			
+			if ( str_tempCorpName == str_corpName ) {
+				b_validCorpName = true;
+				break;
+			}			
+		}
+		if ( !b_validCorpName ) {
+			alert('请选择正确的集团');
+			return false;
+		}
+		return true;
+	}
+		
 	// business business edit
 	if ( option == 'business' || option == 'online' || option == 'individual' ) {
 		var et = toEpochDate(endtime),
