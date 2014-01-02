@@ -85,6 +85,16 @@ body {
 	text-decoration: underline;
 	color: #FFFFFF;
 }
+.softInfo .btn_weixin {
+	font-size: 27px;
+    height: 60px;
+    line-height: 60px;
+    width: 200px;
+	background: url("/static/images/btncommon_200_180.png") repeat scroll 200px 0 transparent;
+}
+.softInfo .btn_weixin:hover {
+	background-position: 200px 60px;
+}
 .smsBtn {
 	left: 100px;
     position: relative;

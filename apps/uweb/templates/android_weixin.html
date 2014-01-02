@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>移动卫士--android下载</title>
+		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
+		<link type="text/css" href="/static/css/download.css" rel="stylesheet" />
+		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+		<script type="text/javascript" src="/static/js/json2.js"></script>
+		<script type="text/javascript" src="/static/js/definitions.js"></script>
+		<script type="text/javascript" src="/static/js/download.js"></script>
+	</head>
+	<body>
+		<center>
+			<div class="content">
+				<!--android下载说明-->
+				<div class="softInfo">
+					<div class="infoSign infoL">
+						<img src="/static/images/acb_downloadLogo.png"  width="96" alt="移动卫士" />
+					</div>
+					<div class="infoText infoL">
+						<ul>
+							<li>
+								<h1 class="infoTextTitle">移动卫士</h1>
+								版本：{{versionname}}
+							</li>
+							<li>
+								<span>
+									类别：移动卫士Android版
+								</span>
+								<span>
+									更新时间：{{updatetime}}
+								</span>
+							</li>
+							<li>
+								<span>
+									下载：{{count}}
+								</span>
+								<span>
+									大小：{{filesize}}
+								</span>
+							</li>
+							<li>
+								<script type='text/javascript'>
+									var str_downloadUrl = '<a class="infoBtn btn_weixin" title="安卓版下载" href="http://';
+									
+									str_downloadUrl+= window.location.host;
+									str_downloadUrl+= '/static/download/ACB_{{versionname}}.apk#mp.weixin.qq.com';
+									str_downloadUrl+= '">立即下载</a>';
+									document.write(str_downloadUrl);
+								</script>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!--android描述-->
+				<div class="softDesc">
+					<h1>详细描述:</h1>
+					<!--文字说明-->
+					<div>
+						<p class="descProfess">
+							移动卫士是一项保障用户安全的服务业务，主要包括的功能有：实时定位、轨迹查询、告警查询、设防/撤防、定位器设置、短信设置等。
+							用户可以登录客户端随时查看定位器所在位置以及轨迹路线，同时用户还可以远程对定位器进行设防/撤防操作以保证用户的人身或财产安全；另外用户可通过手机发送短信指令到平台来查询定位器的当前位置以及对定位器设防撤防，并且还可以查询用户定位器的电量。
+						</p>
+						<br/>
+						<p class="">主要内容：</p>
+						<ul class="descText">
+							<li>1、实时定位：通过短信和网络都可以实时定位到定位器的位置。</li>
+							<li>2、轨迹查询：用户查询指定时间段内定位器的路线行踪信息， 在平台页面上通过点线的形式显示出来的行踪轨迹图， 该功能便于查看定位器的活动范围和路线轨迹。</li>
+							<li>3、设防/撤防：定位器处于设防状态时，若定位器发生震动、移动，定位器将会发起震动、移动告警。</li>
+							<li>4、定位器设置：设定定位器的客户端通知。</li>
+							<li>5、短信告警设置：用户选择是否接受告警和提醒信息。</li>
+							<li>6、告警查询：用户在平台上查询定位器指定时间段内的非法移动、低电、进出围栏等告警信息。得到查询结果之后，用户点击位置可以查看具体的位置信息。</li>
+							<li>7、个人信息设置：用户可以对个人的信息如:手机号、用户姓名及密码等进行修改设置。</li>
+						</ul>
+					</div>
+					<!--图片展示-->
+					<div class="descImg">
+						<ul>
+							<li><img src="/static/images/android/acb_login.png" /></li>
+							<li><img src="/static/images/android/acb_realtime.png" /></li>
+							<li><img src="/static/images/android/acb_track.png" /></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			
+			
+			<!--密码修改框-->
+			<div id="smsUploadWrapper" class="wrapper hide j_drag">
+				<div class="wrapperTitle smsUploadTitle">
+					<span class="close j_close" id="smsClose" title="关闭窗口"></span>
+				</div>
+				<div class="wrapperContent smsUploadContent">
+					<div class="mobiles">
+						<label for="mobile">手机号：</label>
+						<input type="text" id="txtmobile" placeholder="请输入手机号" onKeyUp="this.value=this.value.replace(/\D/g,'')" maxlength="11" />
+						<label id="mobileTip" ></label>
+					</div>
+					<div class="capPanel">
+						<div class="capText">
+							<label for="smsCaptcha">验证码：</label>
+							<input type="text" id="captcha_sms" maxlength="4" placeholder="请输入验证码" />
+							<input type="hidden" id="captchahash_sms" value="" />
+						</div>
+						<div class="capImg">
+							<img alt="验证码图片" id="smsCaptchaimg" src="" class="smsCaptchaImg" />
+							<a href="#" onclick="$('#smsCaptchaimg').click();" class="txtColor">换一张？</a>
+						</div>
+					</div>
+					<div>
+						<input type="button" class="form-button btnSend" value="发送短信" id="sendSms" />
+					</div>
+					<div class="msgPanel j_smsMsg"></div>
+				</div>
+			</div><!--密码修改框end-->
+			<!--下载页面遮罩层-->
+			<div id="downloadLayer"></div>
+		</center>
+	</body>
+</html>
