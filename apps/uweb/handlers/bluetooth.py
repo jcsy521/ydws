@@ -10,7 +10,7 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_sessionID_key, get_track_key, get_kqbt_key
+from utils.misc import get_terminal_sessionID_key, get_track_key, get_kqly_key
 from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
@@ -21,7 +21,7 @@ from codes.smscode import SMSCode
 from base import BaseHandler, authenticated
 from mixin.base import  BaseMixin
 
-class KQBTHandler(BaseHandler, BaseMixin):
+class KQLYHandler(BaseHandler, BaseMixin):
 
     @authenticated
     @tornado.web.removeslash
@@ -31,7 +31,7 @@ class KQBTHandler(BaseHandler, BaseMixin):
         try:
             data = DotDict(json_decode(self.request.body))
             tids = data.get('tids', None)
-            logging.info("[BLUETOOTH] kqbt request: %s, uid: %s, tids: %s", 
+            logging.info("[BLUETOOTH] kqly request: %s, uid: %s, tids: %s", 
                          data, self.current_user.uid, tids)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -44,15 +44,15 @@ class KQBTHandler(BaseHandler, BaseMixin):
             tids = [str(tid) for tid in tids]
 
             for tid in tids:
-                ##NOTE: just send KQBT 
+                ##NOTE: just send KQLY 
                 terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
-                kqbt_key = get_kqbt_key(tid)
-                kqbt_value = self.redis.getvalue(kqbt_key)
-                if not kqbt_value:
+                kqly_key = get_kqly_key(tid)
+                kqly_value = self.redis.getvalue(kqly_key)
+                if not kqly_value:
                     interval = 30 # in minute
-                    sms = SMSCode.SMS_KQBT % interval
+                    sms = SMSCode.SMS_KQLY % interval
                     SMSHelper.send_to_terminal(terminal.mobile, sms)
-                    self.redis.setvalue(kqbt_key, True, SMS.KQBT_SMS_INTERVAL)
+                    self.redis.setvalue(kqly_key, True, SMS.KQLY_SMS_INTERVAL)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[BLUETOOTH] uid: %s, tid: %s kqbt failed. Exception: %s. ", 

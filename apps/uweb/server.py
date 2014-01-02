@@ -42,7 +42,7 @@ from handlers.lastposition import LastPositionHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
 from handlers.track import TrackHandler, TrackDownloadHandler, TrackLQHandler
-from handlers.bluetooth import KQBTHandler 
+from handlers.bluetooth import KQLYHandler 
 from handlers.event import EventHandler
 from handlers.eventperiod import EventPeriodHandler
 from handlers.realtime import RealtimeHandler
@@ -121,7 +121,7 @@ class Application(tornado.web.Application):
             (r"/download/track/*", TrackDownloadHandler),
 
             (r"/tracklq/*", TrackLQHandler),
-            (r"/kqbt/*", KQBTHandler),
+            (r"/kqly/*", KQLYHandler),
             (r"/event/*", EventHandler),
             (r"/eventperiod/*", EventPeriodHandler),
             (r"/realtime/*", RealtimeHandler),

@@ -127,8 +127,8 @@ def get_alarm_info_key(dev_id):
 def get_lqgz_key(dev_id):
     return str("lqgz:%s" % dev_id)
 
-def get_kqbt_key(dev_id):
-    return str("kqbt:%s" % dev_id)
+def get_kqly_key(dev_id):
+    return str("kqly:%s" % dev_id)
 
 def get_lqgz_interval_key(dev_id):
     return str("lqgz_interval:%s" % dev_id)

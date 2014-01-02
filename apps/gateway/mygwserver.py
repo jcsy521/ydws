@@ -1479,6 +1479,7 @@ class MyGWServer(object):
 
     def handle_runtime_status(self, info, address, connection, channel):
         """
+        T23
         runtime status packet: {login [0:unlogin | 1:login],
                                 defend_status [0:undefend | 1:defend],
                                 gps:gsm:pbat [0-100:0-9:0-100]} 
@@ -1506,6 +1507,46 @@ class MyGWServer(object):
                                                                   self.redis)
                     args.mannual_status = terminal_info['mannual_status']
                 else:
+                    #NOTE: 3.20.1 and later version, platform need send sms to user
+                    is_need = False
+                    softversion = head.softversion
+                    if int(softversion[0]) > 3:
+                        is_need = True
+                    elif int(softversion[0]) ==  3:
+                        if int(softversion[1]) > 20:
+                            is_need = True
+                        elif int(softversion[1]) == 20:
+                            if int(softversion[2]) >= 1:
+                                is_need = True
+                            else:
+                                is_need = False
+                        else:
+                            is_need = False
+                    else:
+                        is_need = False
+
+                    if is_need:
+                        terminal_info_key = get_terminal_info_key(head.dev_id) 
+                        terminal_info = QueryHelper.get_terminal_info(head.dev_id, self.db, self.redis)
+                        communication_staus = u'正常'
+                        communication_mode = u'撤防'
+                        if int(terminal_info['login']) == GATEWAY.TERMINAL_LOGIN.ONLINE:
+                            communication_staus = u'异常'
+                        else:
+                            communication_staus = u'异常'
+
+                        if int(terminal_info['mannual_status']) == UWEB.DEFEND_STATUS.NO:
+                            communication_mode = u'设防'
+                        else:
+                            communication_mode= u'撤防'
+
+                        pbat = terminal_info.get('pbat', 0)
+                        gsm = terminal_info.get('gsm', 0)
+                        gps = terminal_info.get('gps', 0)
+
+                        rumtime_sms = SMSCode.SMS_RUNTIME_STATUS % (communication_staus, communication_mode, int(pbat), gsm, gps)
+                        SMSHelper.send(terminal_info.owner_mobile, runtime_sms)
+
                     self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
                     hp = AsyncParser(body, head)
                     runtime_info = hp.ret 
@@ -1711,6 +1752,8 @@ class MyGWServer(object):
         return sessionID
 
     def update_terminal_status(self, dev_id, address, is_sleep=False):
+        """Keep the latest address of termianl in redis.
+        """
         terminal_status_key = get_terminal_address_key(dev_id)
         lq_interval_key = get_lq_interval_key(dev_id)
         is_lq = self.redis.getvalue(lq_interval_key)

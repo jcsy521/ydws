@@ -12,6 +12,7 @@ class SMSCode(object):
     SMS_CF = u":CF"
     SMS_SF = u":SF"
     SMS_LQGZ = u":LQGZ %s"
+    SMS_KQLY = u":KQLY %s"
     SMS_CQ = u":CQ"
 
     # TO user
@@ -76,3 +77,5 @@ class SMSCode(object):
     SMS_REGION_OUT_NOLOC = u"尊敬的客户：您的定位器“%s”已离开电子围栏“%s”，地址：因定位信号弱，当前暂时无法定位，请关注定位器状态，时间：%s。"
     SMS_REGION_ENTER_NO_ADDRESS = u"尊敬的客户：您的定位器“%s”已进入电子围栏“%s”，时间：%s。"
     SMS_REGION_OUT_NO_ADDRESS = u"尊敬的客户：您的定位器“%s”已离开电子围栏“%s”，时间：%s。"
+    
+    SMS_RUNTIME_STATUS = u"尊敬的客户：您的定位器允许状态如下，通讯状态：%s，通讯模式：%s，电量：%d%%，GSM信号强度：%s，GPS信号强度：%s。"

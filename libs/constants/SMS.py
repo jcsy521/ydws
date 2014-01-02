@@ -12,7 +12,7 @@ LQ_INTERVAL = 3 * 60 # 3mins
 LQGZ_SMS_INTERVAL = 3* 60 # 3mins
 LQGZ_INTERVAL = 10 * 60 # 10mins
 
-KQBT_SMS_INTERVAL = 3* 60 # 3mins
+KQLY_SMS_INTERVAL = 3* 60 # 3mins
 
 #modify
 CATEGORY = DotDict(MO=1,
