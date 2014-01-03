@@ -38,27 +38,11 @@ window.dlf.fn_initRegion = function() {
 		dlf.fn_clearRegionShape(); // 清除页面图形
 		
 		obj_regionAddWapper.css({'left': '305px', 'top': '160px'}).show();
+		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
+		$('#regionCreate_circle').addClass('regionCreateBtnCurrent');
 		// 初始化画围栏事件,并添加画围栏事件
-		$('#regionCreate_circle').attr('checked', 'checked');
 		dlf.fn_initCreateRegion();
-		
-		// hs: 2013.12.24 添加围栏类型判断及初始化
-		$('#regionCreateTypePanel input[name=regionType]').unbind('change').change(function(e) {
-			dlf.fn_mapRightClickFun();
-			if ( obj_drawingManager ) {
-				//obj_drawingManager.open();
-			} else {
-				mousetool.close(true);	// 关闭鼠标画圆事件				
-			}
-			$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
-			$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
-			dlf.fn_initCreateRegion();
-			if ( b_mapType ) {
-				// 启动画围栏事件
-				dlf.fn_mapStartDraw();
-			}
-		});
-		
+				
 		$('#createRegionName').val('');
 		fn_displayCars(); // 显示车辆信息数据
 		obj_regionShape =  null;
@@ -67,8 +51,6 @@ window.dlf.fn_initRegion = function() {
 			// 启动画围栏事件
 			dlf.fn_mapStartDraw();
 		}
-		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
-		$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
 	});
 	//关闭新增围栏窗口
 	$('#regionCreateClose').unbind('click').click(function(event){
@@ -80,14 +62,23 @@ window.dlf.fn_initRegion = function() {
 	//默认样式初始化
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 	
-	// 给绘制地图绑定事件
-	$('#regionCreate_clickMap').unbind('click').click(function(event){
-		if ( !b_mapType ) {
-			dlf.fn_mapRightClickFun();
-		}
-		dlf.fn_mapStartDraw();
+	// 给绘制圆形 多边形 围栏绑定事件
+	$('#regionCreate_circle, #regionCreate_polygon ').unbind('click').click(function(event){
+		dlf.fn_mapRightClickFun();
+		dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 		$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
 		$(this).addClass('regionCreateBtnCurrent');
+		
+		if ( obj_drawingManager ) {
+			//obj_drawingManager.open();
+		} else {
+			mousetool.close(true);	// 关闭鼠标画圆事件				
+		}
+		dlf.fn_initCreateRegion();
+		if ( b_mapType ) {
+			// 启动画围栏事件
+			dlf.fn_mapStartDraw();
+		}
 	});
 	
 	// 给拖动地图绑定事件
@@ -131,7 +122,7 @@ window.dlf.fn_resetRegion = function() {
 		dlf.fn_initCreateRegion();
 	}
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
-	$('#regionCreate_clickMap').addClass('regionCreateBtnCurrent');
+	$('#regionCreate_circle').addClass('regionCreateBtnCurrent');
 }
 
 /*

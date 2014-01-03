@@ -29,7 +29,8 @@ function formSubmit(option) {
 	if ( option == 'business' || option == 'ecbusiness' ) { 
 		var str_corpName = $.trim($('#corps_input').val()),
 			obj_autoCorpsBakData = $('#corps_input').data('corpdata'),
-			b_validCorpName = false;
+			b_validCorpName = false,
+			str_tempEcid = '';
 		
 		if ( str_corpName == '' ) {
 			alert('请选择集团');
@@ -40,11 +41,14 @@ function formSubmit(option) {
 				str_tempCorpName = obj_tempCorpData.ecname;
 			
 			if ( str_tempCorpName == str_corpName ) {
+				str_tempEcid = obj_parpCorp;
 				b_validCorpName = true;
 				break;
 			}			
 		}
-		if ( !b_validCorpName ) {
+		if ( b_validCorpName ) {
+			$('#corps_hidden').val(str_tempEcid);
+		} else {
 			alert('请选择正确的集团');
 			return false;
 		}

@@ -208,7 +208,13 @@ function fn_initCorpSMS() {
 	
 	// 短信接收号码的下拉框事件
 	$('#smsOwerMobileSign').unbind('click').click(function(e) {
-		obj_smsOwerMobile.autocomplete('search', '');
+		var b_autoCompleteSt = $('.ui-autocomplete').is(':visible');
+		
+		if ( b_autoCompleteSt ) {
+			obj_smsOwerMobile.autocomplete('close');
+		} else {
+			obj_smsOwerMobile.autocomplete('search', '');
+		}
 	});
 	$.get_(CORP_SMS_URL, '', function(data) {
 		if ( data.status == 0 ) {

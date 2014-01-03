@@ -115,23 +115,33 @@ function fn_validMobile(str_mobile, str_msgTitle) {
 
 // corp name valid
 function fn_validCorpName(obj_validObj) { // VALIDATE LENGTH BETWEEN
-	var str_validObj = obj_validObj.attr('id');
+	var str_validObj = obj_validObj.attr('id'),
+		str_selectType = $('#corps_select').attr('selecttype'),
+		str_tempEcid = '';
 	
 	if (str_validObj) {
 		var str_corpName = $.trim($('#corps').val()),
 			obj_autoCorpsBakData = $('#corps').data('corpdata'),
 			b_validCorpName = false;
-		
+			
 		for ( var obj_parpCorp in obj_autoCorpsBakData ) {
 			var obj_tempCorpData = obj_autoCorpsBakData[obj_parpCorp],
 				str_tempCorpName = obj_tempCorpData.ecname;
 			
 			if ( str_tempCorpName == str_corpName ) {
+				str_tempEcid = obj_parpCorp;
 				b_validCorpName = true;
 				break;
 			}			
 		}
-		if ( !b_validCorpName ) {
+		if ( b_validCorpName ) {
+			if ( str_selectType == 'usersearch' ) {
+				$('#corps_hidden').val(str_tempEcid);
+			} else {
+				$('#ecmobile').val(obj_autoCorpsBakData[str_tempEcid].ecmobile);
+				$('#corps').attr('ecid', str_tempEcid);
+			}
+		} else {
 			$.validationEngine.isError = true;
 			$('#corps').removeAttr('ecid');
 			$('#ecmobile').val('');

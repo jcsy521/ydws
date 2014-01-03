@@ -1166,6 +1166,12 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
          */
         var mousemoveAction = function(e) {
             overlay.setPositionAt(drawPoint.length - 1, e.point);
+			if ( obj_shapeLabel ) {
+				mapObj.removeOverlay(obj_shapeLabel);// 2013.4.22
+			}
+			obj_shapeLabel = new BMap.Label('双击结束绘制多边形．', {position: e.point});
+			//todo 2013.4.22
+			mapObj.addOverlay(obj_shapeLabel);	
         }
 
         /**
@@ -1215,10 +1221,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				obj_shapeMarker.openInfoWindow(obj_clickInfoWindow);
 			});
 			
-			
-			
-			
-			
+			mapObj.removeOverlay(obj_shapeLabel);// 2013.4.22
 			
 			dlf.fn_mapStopDraw();
             var calculate = me._calculate(overlay, points.pop());

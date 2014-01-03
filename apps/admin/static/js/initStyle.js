@@ -156,7 +156,13 @@ $(function () {
 		}
 		// 短信接收号码的下拉框事件	
 		$('#corps_sign').unbind('click').click(function(e) {
-			obj_corpsSearch.autocomplete('search', '');
+			var b_autoCompleteSt = $('.ui-autocomplete').is(':visible');
+			
+			if ( b_autoCompleteSt ) {
+				obj_corpsSearch.autocomplete('close');
+			} else {
+				obj_corpsSearch.autocomplete('search', '');
+			}
 		});
 		fn_initAutoCorps(arr_autoCorpsData);
 	}

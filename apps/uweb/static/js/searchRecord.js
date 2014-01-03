@@ -674,23 +674,16 @@ window.dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) 
 		$.get_(GETREGIONDATA_URL +'?rid='+ rid, '', function (data) {  
 			if ( data.status == 0 ) {
 				var obj_res = data.res,
-					n_region_shape = obj_res.region_shape,
-					obj_circleData = {},
-					obj_centerPoint = null;
-				
-				if ( n_region_shape == 0 ) {	// 圆形围栏
-					obj_circleData = obj_res.circle;
-					obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
-					obj_circle1 = dlf.fn_displayMapShape(obj_circleData);	// 调用地图显示圆形
+					obj_regionShape1 = null;
 
-					if ( n_type == 1 ) {	// 如果是lastinfo 告警信息 保存region 以便删除
-						obj_regionShape = obj_circle1;
-						$('.j_alarmTable').data('region', obj_regionShape);
-						dlf.fn_setOptionsByType('viewport', [obj_centerPoint, obj_centerPointer]);
-					} else {
-						dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);
-					}
-				}				
+				if ( n_type == 1 ) {	// 如果是lastinfo 告警信息 保存region 以便删除
+					obj_regionShape1 = dlf.fn_displayMapShape(obj_res, true);
+					obj_regionShape = obj_regionShape1;
+					$('.j_alarmTable').data('region', obj_regionShape1);
+				} else {
+					dlf.fn_displayMapShape(obj_res, false);
+					dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);
+				}	
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();
 			} else { // 查询状态不正确,错误提示

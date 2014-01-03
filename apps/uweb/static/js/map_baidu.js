@@ -824,7 +824,7 @@ window.dlf.fn_addRouteLineMarker = function(obj_stations){
 */
 window.dlf.fn_initCreateRegion = function() {
 	//实例化鼠标绘制工具
-	var str_regionType = $('#regionCreateTypePanel input[name="regionType"]input:checked').val(),
+	var str_regionType = $('.regionCreateBtnCurrent').attr('regiontype'),
 		obj_regionStyleOpts = {//圆的样式
 				strokeColor: '#5ca0ff',    //边线颜色。
 				fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
@@ -833,7 +833,6 @@ window.dlf.fn_initCreateRegion = function() {
 				fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
 				strokeStyle: 'solid' //边线的样式，solid或dashed。
 			};
-	
 	
 	obj_drawingManager = new BMapLib.DrawingManager(mapObj, {
 		isOpen: false, //是否开启绘制模式
@@ -846,7 +845,9 @@ window.dlf.fn_initCreateRegion = function() {
 		obj_drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
 	} else if ( str_regionType == 'polygon' ) {
 		obj_drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON);
-		dlf.fn_jNotifyMessage('开始绘画多边形，双击结束绘画．', 'message', false, 3000);
+		dlf.fn_jNotifyMessage('单击鼠标开始绘制多边形．', 'message', false, 3000);
+	} else {
+		return;
 	}
 	//添加鼠标绘制工具监听事件，用于获取绘制结果
 	/*obj_drawingManager.addEventListener('overlaycomplete', function(e){
