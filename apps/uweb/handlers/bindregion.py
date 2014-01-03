@@ -18,7 +18,8 @@ class BindRegionHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """ """ 
+        """Get all regions binded by the terminal.
+        """ 
         status = ErrorCode.SUCCESS
         try:
             tid = self.get_argument('tid')
@@ -30,17 +31,16 @@ class BindRegionHandler(BaseHandler):
             return
 
         try:
-            bind_region = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name,"
-                                        "       tr.longitude, tr.latitude, tr.radius "
-                                        "  FROM T_REGION tr, T_REGION_TERMINAL trt"
-                                        "  WHERE tr.id = trt.rid"
-                                        "  AND trt.tid = %s",
-                                        tid)
+            res = self.db.query("SELECT tr.id AS region_id"
+                                "  FROM T_REGION tr, T_REGION_TERMINAL trt"
+                                "  WHERE tr.id = trt.rid"
+                                "  AND trt.tid = %s",
+                                tid)
             
             self.write_ret(status,
-                           dict_=DotDict(bind_region=bind_region if bind_region else ''))
+                           dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[UWEB] cid: %s get region bind failed. Exception: %s", 
+            logging.exception("[UWEB] cid: %s get regions bind failed. Exception: %s", 
                               self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
