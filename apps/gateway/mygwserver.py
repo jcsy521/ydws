@@ -1190,7 +1190,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
-            if len(body) == 1:
+            if len(body) == 6:
                 body.append(20) 
                 logging.info("[GW] old version is compatible, append locate_error")
 
