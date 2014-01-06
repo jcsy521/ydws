@@ -1532,10 +1532,12 @@ class MyGWServer(object):
                         terminal_info = QueryHelper.get_terminal_info(head.dev_id, self.db, self.redis)
                         communication_staus = u'正常'
                         communication_mode = u'撤防'
+                        gsm_strength = u'强'
+                        gps_strength = u'强'
                         if int(terminal_info['login']) == GATEWAY.TERMINAL_LOGIN.ONLINE:
                             communication_staus = u'异常'
                         else:
-                            communication_staus = u'异常'
+                            communication_staus = u'正常'
 
                         if int(terminal_info['mannual_status']) == UWEB.DEFEND_STATUS.NO:
                             communication_mode = u'设防'
@@ -1543,10 +1545,22 @@ class MyGWServer(object):
                             communication_mode= u'撤防'
 
                         pbat = terminal_info.get('pbat', 0)
-                        gsm = terminal_info.get('gsm', 0)
-                        gps = terminal_info.get('gps', 0)
 
-                        runtime_sms = SMSCode.SMS_RUNTIME_STATUS % (communication_staus, communication_mode, int(pbat), gsm, gps)
+                        gsm = terminal_info.get('gsm', 0)
+                        if gsm < 3:
+                            gsm_strength = u'弱'
+                        elif gsm < 6:
+                            gsm_strength = u'较弱'
+
+                        gps = terminal_info.get('gps', 0)
+                        if gps < 10:
+                            gps_strength = u'弱' 
+                        elif gps < 20:
+                            gps_strength = u'较弱' 
+                        elif gps < 30:
+                            gps_strength = u'较强' 
+
+                        runtime_sms = SMSCode.SMS_RUNTIME_STATUS % (communication_staus, communication_mode, int(pbat), gsm_strength, gps_strength)
                         SMSHelper.send(terminal_info.owner_mobile, runtime_sms)
                         logging.info("[GW] Send runtime_status sms to user: %s, tid: %s",
                                      terminal_info.owner_mobile, head.dev_id)

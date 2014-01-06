@@ -78,4 +78,4 @@ class SMSCode(object):
     SMS_REGION_ENTER_NO_ADDRESS = u"尊敬的客户：您的定位器“%s”已进入电子围栏“%s”，时间：%s。"
     SMS_REGION_OUT_NO_ADDRESS = u"尊敬的客户：您的定位器“%s”已离开电子围栏“%s”，时间：%s。"
     
-    SMS_RUNTIME_STATUS = u"尊敬的客户：您的定位器允许状态如下，通讯状态：%s，运行模式：%s，电量：%d%%，GSM信号强度：%s，GPS信号强度：%s。"
+    SMS_RUNTIME_STATUS = u"尊敬的客户：您的定位器允许状态如下，\n通讯状态：%s，\n运行模式：%s，\n电量：%d%%，\nGSM信号强度：%s，\nGPS信号强度：%s。"
