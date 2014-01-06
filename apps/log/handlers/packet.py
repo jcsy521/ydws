@@ -30,9 +30,9 @@ class GWPacketHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def post(self):
-
         try:
             data = json_decode(self.request.body)
+            logging.info("[LOG] packet request body: %s", data)
             start_time = data.get("start_time")
             end_time = data.get("end_time")
             mobile = data.get("mobile")
@@ -105,12 +105,12 @@ class GWPacketHandler(BaseHandler):
                     else:
                         p1 = re.compile(tid, re.I)
                         p2 = re.compile("recv:", re.I)
-                        p3 = re.compile(packet_type, re.I)
+                        p3 = re.compile(packet_type)
                         for num in range(len(lines)):
                             if p1.search(lines[num]) and p2.search(lines[num]) and p3.search(lines[num]):
                                 if  '20%s' % lines[num][3:18] > start_time and '20%s' % lines[num][3:18] < end_time:
                                     ldata = lines[num].split(',')
-                                    T_packet_type = ldata[5][0:3]
+                                    T_packet_type = ldata[5][0:3]+','
                                     T_packet_time = lines[num][3:18]
                                     packet = lines[num]
                                     p = {'packet_time':T_packet_time,
