@@ -30,7 +30,9 @@ class KQLYHandler(BaseHandler, BaseMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tid = data.get('tid', None)
             tids = data.get('tids', None)
+            self.check_tid(tid)
             logging.info("[BLUETOOTH] kqly request: %s, uid: %s, tids: %s", 
                          data, self.current_user.uid, tids)
         except Exception as e:

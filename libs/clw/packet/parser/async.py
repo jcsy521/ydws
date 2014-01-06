@@ -120,6 +120,7 @@ class AsyncParser(object):
         runtime_info['defend_status'] = packet[1]
         runtime_status = packet[2]
         runtime_info['fob_pbat'] = packet[3] if packet[3] else '-1'
+        runtime_info['is_send'] = packet[4] if packet[4] else '0'
         keys = ['gps', 'gsm', 'pbat']
         ggp = runtime_status.split(':')
         for i, key in enumerate(keys):

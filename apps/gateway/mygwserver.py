@@ -323,7 +323,9 @@ class MyGWServer(object):
             logging.exception("[GW] Recv Exception.")
 
     def handle_login(self, info, address, connection, channel):
-        """Handle the login packet.
+        """
+        S1
+        Handle the login packet.
         workflow:
         1: check packet
         if not dev_id:
@@ -1479,7 +1481,7 @@ class MyGWServer(object):
 
     def handle_runtime_status(self, info, address, connection, channel):
         """
-        T23
+        S23
         runtime status packet: {login [0:unlogin | 1:login],
                                 defend_status [0:undefend | 1:defend],
                                 gps:gsm:pbat [0-100:0-9:0-100]} 
@@ -1493,6 +1495,11 @@ class MyGWServer(object):
             resend_flag = self.redis.getvalue(resend_key)
             if len(body) == 3:
                 body.append('-1')
+                body.append('0')
+                logging.info("[GW] old version is compatible, append fob_pbat, is_send")
+            if len(body) == 4:
+                body.append('0')
+                logging.info("[GW] old version is compatible, append is_send")
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command,
                            mannual_status='')
@@ -1507,25 +1514,20 @@ class MyGWServer(object):
                                                                   self.redis)
                     args.mannual_status = terminal_info['mannual_status']
                 else:
-                    #NOTE: 3.20.1 and later version, platform need send sms to user
-                    is_need = False
-                    softversion = head.softversion
-                    if int(softversion[0]) > 3:
-                        is_need = True
-                    elif int(softversion[0]) ==  3:
-                        if int(softversion[1]) > 20:
-                            is_need = True
-                        elif int(softversion[1]) == 20:
-                            if int(softversion[2]) >= 1:
-                                is_need = True
-                            else:
-                                is_need = False
-                        else:
-                            is_need = False
-                    else:
-                        is_need = False
+                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
+                    hp = AsyncParser(body, head)
+                    runtime_info = hp.ret 
+                    self.update_terminal_status(head.dev_id, address)
+                    terminal_info = self.update_terminal_info(runtime_info)
+                    args.mannual_status = terminal_info['mannual_status']
+                    self.db.execute("INSERT INTO T_RUNTIME_STATUS"
+                                    "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                    head.dev_id, runtime_info['login'], runtime_info['defend_status'],
+                                    runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'],
+                                    runtime_info['fob_pbat'], head.timestamp)
 
-                    if is_need:
+                    is_send = int(runtime_info['is_send'])
+                    if is_send:
                         terminal_info_key = get_terminal_info_key(head.dev_id) 
                         terminal_info = QueryHelper.get_terminal_info(head.dev_id, self.db, self.redis)
                         communication_staus = u'正常'
@@ -1544,20 +1546,11 @@ class MyGWServer(object):
                         gsm = terminal_info.get('gsm', 0)
                         gps = terminal_info.get('gps', 0)
 
-                        rumtime_sms = SMSCode.SMS_RUNTIME_STATUS % (communication_staus, communication_mode, int(pbat), gsm, gps)
+                        runtime_sms = SMSCode.SMS_RUNTIME_STATUS % (communication_staus, communication_mode, int(pbat), gsm, gps)
                         SMSHelper.send(terminal_info.owner_mobile, runtime_sms)
+                        logging.info("[GW] Send runtime_status sms to user: %s, tid: %s",
+                                     terminal_info.owner_mobile, head.dev_id)
 
-                    self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-                    hp = AsyncParser(body, head)
-                    runtime_info = hp.ret 
-                    self.update_terminal_status(head.dev_id, address)
-                    terminal_info = self.update_terminal_info(runtime_info)
-                    args.mannual_status = terminal_info['mannual_status']
-                    self.db.execute("INSERT INTO T_RUNTIME_STATUS"
-                                    "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                    head.dev_id, runtime_info['login'], runtime_info['defend_status'],
-                                    runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'],
-                                    runtime_info['fob_pbat'], head.timestamp)
                 self.update_terminal_status(head.dev_id, address)
             rc = RuntimeRespComposer(args)
             request = DotDict(packet=rc.buf,
