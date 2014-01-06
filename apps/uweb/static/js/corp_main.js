@@ -1347,7 +1347,6 @@ var obj_trackPoint = {};
 function fn_updateAlarmList(arr_alarm) {
 	var n_alarmLength = arr_alarm.length,
 		obj_table = $('.j_alarmTable'),
-		obj_li = $('.j_alarmTable li'),
 		arr_temp = obj_table.data('markers'),
 		arr_markers = arr_temp == undefined ? [] : arr_temp,
 		obj_alarmCon = $('.j_alarm'),
@@ -1362,7 +1361,8 @@ function fn_updateAlarmList(arr_alarm) {
 				str_oldAlias = obj_alarm.alias,
 				str_alias = dlf.fn_encode(dlf.fn_dealAlias(str_oldAlias)),
 				str_date = dlf.fn_changeNumToDateString(obj_alarm.timestamp),
-				n_categroy = obj_alarm.category;
+				n_categroy = obj_alarm.category,
+				obj_li = $('.j_alarmTable li');
 				
 			str_html= '<li><label class="colorBlue" title="'+ str_oldAlias +'">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
 			
