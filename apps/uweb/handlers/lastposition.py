@@ -101,6 +101,8 @@ class LastPositionHandler(BaseHandler):
                               clatitude=location['clatitude'] if location else 0,
                               clongitude=location['clongitude'] if location else 0, 
                               login=terminal['login'] if terminal['login'] is not None else 0,
+                              bt_name=terminal.get('bt_name', '') if terminal else '',
+                              bt_mac=terminal.get('bt_mac', '') if terminal else '',
                               gps=terminal['gps'] if terminal['gps'] is not None else 0,
                               gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
                               pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
