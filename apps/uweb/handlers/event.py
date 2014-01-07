@@ -7,7 +7,7 @@ import tornado.web
 
 from helpers.queryhelper import QueryHelper 
 from helpers.confhelper import ConfHelper
-from utils.misc import DUMMY_IDS_STR, DUMMY_IDS, str_to_list, get_terminal_info_key
+from utils.misc import DUMMY_IDS_STR, DUMMY_IDS, safe_unicode, str_to_list, get_terminal_info_key
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER 
@@ -182,7 +182,7 @@ class EventHandler(BaseHandler):
                                          "  WHERE id = %s",
                                          event.rid)
                     
-                    region_name = region.region_name if region else u''
+                    region_name = safe_unicode(region.region_name) if region else u''
                     event['comment'] = u'围栏名：'+ region_name
                 
             self.write_ret(status,

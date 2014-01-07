@@ -73,5 +73,7 @@ def PtInPolygon(location, *polygons):
         is_in |= (nCross % 2 == 1)
         if is_in:
             logging.info("Point: %s is in polygon: %s", point, polygon_name)
+        else:
+            logging.info("Point: %s is out polygon: %s", point, polygon_name)
 
     return is_in 
