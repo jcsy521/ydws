@@ -16,7 +16,7 @@ from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
 from helpers.downloadhelper import get_version_info,\
-     update_download_count
+     update_download_count, get_download_count
 from helpers.smshelper import SMSHelper
 from helpers.confhelper import ConfHelper
 from constants import DOWNLOAD
@@ -30,16 +30,30 @@ class DownloadHandler(BaseHandler):
     #@authenticated
     @tornado.web.removeslash
     def get(self):
-        """Download apk for android."""
-        status = ErrorCode.SUCCESS
-        # TODO: here, just handle android
-        version_info = get_version_info('android')
+       # """Download apk for android."""
+       # status = ErrorCode.SUCCESS
+       # logging.info("Androdid client download request.")
+       # # TODO: here, just handle android
+       # version_info = get_version_info('android')
+       # category = self.get_argument('category', '2')
+       # versionname = self.get_argument('versionname', version_info.versionname)
+       # update_download_count(category, self.db)
+
+       # url = "/static/download/ACB_"+versionname+".apk#mp.weixin.qq.com"
+       # self.redirect(url)
+
         category = self.get_argument('category', '2')
-        versionname = self.get_argument('versionname', version_info.versionname)
+        version_info = get_version_info('android')
+        download_info = get_download_count(category, self.db)
         update_download_count(category, self.db)
 
-        url = "/static/download/ACB_"+versionname+".apk"
-        self.redirect(url)
+        self.render('android_weixin.html',
+                    versioncode=version_info.versioncode,
+                    versionname=version_info.versionname,
+                    versioninfo=version_info.versioninfo,
+                    updatetime=version_info.updatetime,
+                    filesize=version_info.filesize,
+                    count=download_info.count)
 
 class DownloadTerminalHandler(BaseHandler):
 

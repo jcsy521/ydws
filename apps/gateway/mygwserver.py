@@ -1226,6 +1226,10 @@ class MyGWServer(object):
                 self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
                 ldp = LocationDescParser(body, head)
                 location = ldp.ret
+                logging.info("[GW] T10 packet parsered:%s", location)
+                if not  location.has_key('gps_time'):
+                    location['gps_time'] = int(time.time())
+                    logging.info("[GW] what's up? location:%s hasn't gps_time.", location)
                 location['t'] = EVENTER.INFO_TYPE.POSITION
                 if location['valid'] != GATEWAY.LOCATION_STATUS.SUCCESS:
                     cellid = True

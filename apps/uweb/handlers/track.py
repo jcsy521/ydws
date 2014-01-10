@@ -118,30 +118,31 @@ class TrackHandler(BaseHandler):
             # 15919176710  贾晓磊的测试账号
             # 13923302230 坦州公安
             # 13928196249 中山黄圃公安局
-            corp = self.db.query("SELECT track_type FROM T_CORP WHERE cid = %s", self.current_user.cid)
-            if corp and corp[0].track_type == 1:
-                logging.info("cid: %s is no need check.", self.current_user.cid)
-                pass
-            else: 
-                biz = QueryHelper.get_biz_by_mobile(self.current_user.sim, self.db)
-                if biz: 
-                    if biz.biz_type == UWEB.BIZ_TYPE.ELECTROCAR:
-                        status = ErrorCode.QUERY_TRACK_FORBID
-                        self.write_ret(status)
-                        logging.info("[UWEB] sim:%s, biz_type:%s, track is not permited.", 
-                                     self.current_user.sim, biz.biz_type)
-                        self.finish()
-                        return
-                else:
-                    # 1477874**** cannot query track
-                    r = re.compile(UWEB.SIMPLE_YDCWS_PATTERN)
-                    if r.match(self.current_user.sim):
-                        status = ErrorCode.QUERY_TRACK_FORBID
-                        self.write_ret(status)
-                        logging.info("[UWEB] sim:%s, track is not permited.", 
-                                     self.current_user.sim)
-                        self.finish()
-                        return
+
+            #corp = self.db.query("SELECT track_type FROM T_CORP WHERE cid = %s", self.current_user.cid)
+            #if corp and corp[0].track_type == 1:
+            #    logging.info("cid: %s is no need check.", self.current_user.cid)
+            #    pass
+            #else: 
+            #    biz = QueryHelper.get_biz_by_mobile(self.current_user.sim, self.db)
+            #    if biz: 
+            #        if biz.biz_type == UWEB.BIZ_TYPE.ELECTROCAR:
+            #            status = ErrorCode.QUERY_TRACK_FORBID
+            #            self.write_ret(status)
+            #            logging.info("[UWEB] sim:%s, biz_type:%s, track is not permited.", 
+            #                         self.current_user.sim, biz.biz_type)
+            #            self.finish()
+            #            return
+            #    else:
+            #        # 1477874**** cannot query track
+            #        r = re.compile(UWEB.SIMPLE_YDCWS_PATTERN)
+            #        if r.match(self.current_user.sim):
+            #            status = ErrorCode.QUERY_TRACK_FORBID
+            #            self.write_ret(status)
+            #            logging.info("[UWEB] sim:%s, track is not permited.", 
+            #                         self.current_user.sim)
+            #            self.finish()
+            #            return
 
             start_time = data.start_time
             end_time = data.end_time
