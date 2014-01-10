@@ -37,7 +37,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             # 1: terminal 
             terminal = self.db.get("SELECT white_pop as sos_pop, push_status, vibl, static_val, owner_mobile"
                                    "  FROM T_TERMINAL_INFO"
-                                   "  WHERE tid = %s"
+                                   "  WHERE trim(tid) = %s"
                                    "    AND service_status = %s"
                                    "  LIMIT 1",
                                    self.current_user.tid,
@@ -57,7 +57,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
 
             sos = self.db.get("SELECT mobile"
                               "  FROM T_WHITELIST"
-                              "  WHERE tid = %s lIMIT 1",
+                              "  WHERE trim(tid) = %s lIMIT 1",
                               self.current_user.tid)
             #NOTE: if sos is null, provide some default value.
             if not sos:
@@ -85,7 +85,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             
             # 2: car
             car = self.db.get("SELECT cnum FROM T_CAR"
-                              "  WHERE tid = %s",
+                              "  WHERE trim(tid) = %s",
                               self.current_user.tid)
             
             profile.update(user)
