@@ -271,12 +271,12 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
 
             for i, business in enumerate(businesses):
                 business['seq'] = i + 1
-                business['sms_status'] = self.get_sms_status(business['tmobile'])
+                #business['sms_status'] = self.get_sms_status(business['tmobile'])
                 business['corp_name'] = ''
                 #NOTE: if login !=0(offline), set login as 1(online)
                 business['login'] = business['login'] if business['login']==0 else 1
-                biz = QueryHelper.get_biz_by_mobile(business['tmobile'], self.db)
-                business['biz_type'] = biz['biz_type'] if biz else 1
+                #biz = QueryHelper.get_biz_by_mobile(business['tmobile'], self.db)
+                #business['biz_type'] = biz['biz_type'] if biz else 1
                 terminal = QueryHelper.get_terminal_info(business['tid'], self.db, self.redis)
                 business['pbat'] = terminal['pbat'] if terminal.get('pbat', None) is not None else 0 
                 

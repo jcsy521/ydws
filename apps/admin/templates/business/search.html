@@ -98,7 +98,7 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>在线/离线</th><th>电量</th><th>办理版本</th>
+            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>在线/离线</th><th>电量</th>
             <th>开通时间</th><th>删除</th><th>终端启用/停用</th>
         </tr>
     </thead>
@@ -119,13 +119,6 @@
 				</td>
 				<td>
 					{{business.pbat}}%
-				</td>
-                <td>
-					{% if business['biz_type'] == 0 %}
-						电动车版
-					{% elif business['biz_type'] == 1 %}
-						汽车版
-					{% end %}
 				</td>
 				<td><script>document.write(toHumanDate({{business.begintime}}, 'yes'));</script></td>
 				<td>
