@@ -47,11 +47,13 @@
 		<tr>
 			<td class="tLeft">权限组名</td>
 			<td align="left">
+				<ul class="admin_privs">
 				{% for privilege in administrator.privileges %}
 					{% if privilege['valid'] == 1 %}
-						{{ privilege['name'] }}
-					{% end %}		    
+						<li>{{ privilege['name'] }}</li>
+					{% end %}
 				{% end %}
+				</ul>
 			</td>
 		</tr>
 		<!--<tr>

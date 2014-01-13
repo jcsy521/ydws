@@ -1,11 +1,11 @@
 ﻿//to get the privgroup detail for display
 function toPrivDetail(privID,privNAME){
-	var privHTML="<h3>"+privNAME+ "的详细权限</h3><table class='tableStyle'><tr><td class='tLeft'>具体权限</td><td align='left'>";
+	var privHTML="<h3>"+privNAME+ "的详细权限</h3><table class='tableStyle'><tr><td class='tLeft'>具体权限</td><td align='left'><ul>";
 	$.getJSON('/privileges/' + privID, function (data) {
 		for (var i = 0; i < data.length; i++) {
-			privHTML += data[i].name + " ";
+			privHTML += '<li>'+data[i].name + "</li>";
 		}
-		privHTML += "</td></tr></table>";
+		privHTML += "</ul></td></tr></table>";
 		$("#privList").html(privHTML);
     });
 }

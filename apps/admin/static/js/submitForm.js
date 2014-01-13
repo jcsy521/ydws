@@ -52,7 +52,6 @@ function formSubmit(option) {
 			alert('请选择正确的集团');
 			return false;
 		}
-		return true;
 	}
 		
 	// business business edit

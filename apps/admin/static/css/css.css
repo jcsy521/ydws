@@ -383,7 +383,7 @@ table, .ui-widget-header {
 #loginhistory td {
 	border: 1px solid #cdcdcd;
 }
-.privList {
+#privList li , .admin_privs li, .privList{
 	float: left;
 	width: 125px;
 	list-style: none;
