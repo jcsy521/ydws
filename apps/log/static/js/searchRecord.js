@@ -194,7 +194,7 @@ function fn_searchData(str_who) {
 	}
 	
 	fn_lockScreen();
-	$.post(str_getDataUrl,  JSON.stringify(obj_conditionData), function (data) { 
+	$.post_(str_getDataUrl,  JSON.stringify(obj_conditionData), function (data) { 
 		fn_unLockScreen();
 		fn_bindSearchRecord(str_who, data);
 	});

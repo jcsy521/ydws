@@ -31,22 +31,14 @@ $(function () {
 			alert('两次密码不一致。');
 			return;
 		}
-		
-		$.ajax({ 
-				url: '/password', 
-				type: 'PUT',
-				dataType: 'json', 
-				data: JSON.stringify(obj_conditionData),
-				success: function(data){
-					alert(data.message);
-					if ( data.status == 0 ) {
-						if (confirm('您要重新登录本系统吗？')) {
-							window.location.href = '/login'; 
-						}
-					}
+		$.put_('/password', JSON.stringify(obj_conditionData), function(data) {
+			alert(data.message);
+			if ( data.status == 0 ) {
+				if (confirm('您要重新登录本系统吗？')) {
+					window.location.href = '/login'; 
 				}
+			}
 		});
-			
 	}); 
 	// 密码重置
 	$('#pwd_reset').click(function(e) {

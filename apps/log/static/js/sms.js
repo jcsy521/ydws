@@ -58,7 +58,7 @@ $(function () {
 		if ( str_smsType == 'DOMAIN' ) { // domain设置
 			obj_conditionData.domain = str_domain;
 		}
-		$.post('/smssend',  JSON.stringify(obj_conditionData), function (data) { 
+		$.post_('/smssend',  JSON.stringify(obj_conditionData), function (data) { 
 			if ( data.status == 0) {
 				if ( str_smsType == 'DEL' ) {
 					alert('操作成功。');

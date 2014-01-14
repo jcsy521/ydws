@@ -284,7 +284,10 @@ function _ajax_request(url, data, callback, errorCallback, method) {
             if ( stu == 200 && XMLHttpRequest.responseText.search('captchaimg') != -1 ) {
                 //window.location.replace('/static/timeout.html'); // redirect to the index.
                 return;
-            }
+            } else if ( stu != 200 ) {
+				alert('请求失败，请重新操作！');
+				window.location.replace(window.location.href);
+			}
         }
 	});
 }
