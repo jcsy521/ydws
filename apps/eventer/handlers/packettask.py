@@ -121,7 +121,7 @@ class PacketTask(object):
                 region_status = EVENTER.CATEGORY.REGION_ENTER
                 rname = EVENTER.RNAME.REGION_ENTER
         elif region.region_shape == UWEB.REGION_SHAPE.POLYGON:
-            polyon = {'name':'',
+            polygon = {'name':'',
                       'points':[]}
             points = region.points 
             point_lst = points.split(':') 
@@ -131,11 +131,11 @@ class PacketTask(object):
                       'lon':float(latlon[1])/3600000} 
                polygon['points'].append(dct)
 
-            polyon['name'] = region.region_name
+            polygon['name'] = region.region_name
 
             if PtInPolygon(location, polygon):
-                region_status = EVENTER.CATEGORY.REGION_OUT
-                rname = EVENTER.RNAME.REGION_OUT
+                region_status = EVENTER.CATEGORY.REGION_ENTER
+                rname = EVENTER.RNAME.REGION_ENTER
             else:
                 region_status = EVENTER.CATEGORY.REGION_OUT
                 rname = EVENTER.RNAME.REGION_OUT
@@ -152,7 +152,7 @@ class PacketTask(object):
         # keep region status 
         self.redis.setvalue(old_region_status_key, region_status)
         logging.info("rname:%s, old status:%s, current status:%s, tid:%s",
-                     region.region_name, old_region_status, region_status, location['dev_id'])    
+                     safe_unicode(region.region_name), old_region_status, region_status, location['dev_id'])    
 
         if not old_region_status:
             logging.info("[EVENTER] old_region_status: %s is invalid, skip it", 
@@ -408,14 +408,14 @@ class PacketTask(object):
                     sms = SMSCode.SMS_POWERDOWN % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.REGION_OUT:
                 if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_REGION_OUT_NOLOC % (name, report['region']['region_name'], terminal_time)
+                    sms = SMSCode.SMS_REGION_OUT_NOLOC % (name,  safe_unicode(report['region']['region_name']), terminal_time)
                 else:
-                    sms = SMSCode.SMS_REGION_OUT % (name, report['region']['region_name'], report_name, terminal_time)
+                    sms = SMSCode.SMS_REGION_OUT % (name,  safe_unicode(report['region']['region_name']), report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.REGION_ENTER:
                 if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_REGION_ENTER_NOLOC % (name, report['region']['region_name'], terminal_time)
+                    sms = SMSCode.SMS_REGION_ENTER_NOLOC % (name,  safe_unicode(report['region']['region_name']), terminal_time)
                 else:
-                    sms = SMSCode.SMS_REGION_ENTER % (name, report['region']['region_name'], report_name, terminal_time)
+                    sms = SMSCode.SMS_REGION_ENTER % (name,  safe_unicode(report['region']['region_name']), report_name, terminal_time)
             else:
                 pass
 
