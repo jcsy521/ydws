@@ -13,6 +13,7 @@ from tornado.escape import json_encode
 from utils.dotdict import DotDict
 from utils.misc import safe_utf8
 from helpers.queryhelper import QueryHelper
+from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
 
 # cookie expire periods, in minutes. 12hours 
@@ -129,6 +130,16 @@ class BaseHandler(tornado.web.RequestHandler):
             self.current_user.tid=terminal.tid if terminal else tid
             self.current_user.sim=terminal.mobile if terminal else ''
 
+    def check_privilege(self, uid, tid=None):
+        """Check the user whether is test only."""
+        status = ErrorCode.SUCCESS
+        if tid:
+            if tid == ConfHelper.UWEB_CONF.test_tid: 
+                status = ErrorCode.TEST_NOT_PERMITED
+        elif uid == ConfHelper.UWEB_CONF.test_uid:
+            status = ErrorCode.TEST_NOT_PERMITED
+        return status
+    
     def generate_file_name(self, file_name):
         # NOTE: special handlings for IE.
         if "MSIE" in self.request.headers['User-Agent']:

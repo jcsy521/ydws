@@ -20,6 +20,7 @@ from helpers.notifyhelper import NotifyHelper
 from helpers.queryhelper import QueryHelper 
 from helpers.lbmphelper import get_locations_with_clatlon
 from helpers.downloadhelper import get_version_info 
+from helpers.confhelper import ConfHelper
 
 from mixin.login import LoginMixin
 
@@ -126,6 +127,27 @@ class LoginHandler(BaseHandler, LoginMixin):
                         user_type=user_type,
                         message_captcha=None,
                         message=ErrorCode.ERROR_MESSAGE[status])
+
+class LoginTestHandler(BaseHandler, LoginMixin):
+
+    @tornado.web.removeslash
+    def post(self):
+        """We store cid, oid, uid, tid and sim in the cookie to
+        authenticate the user.
+        """
+        logging.info("[UWEB] Browser login test")
+        cid = UWEB.DUMMY_CID 
+        oid = UWEB.DUMMY_OID 
+        uid = ConfHelper.UWEB_CONF.test_uid 
+        tid = ConfHelper.UWEB_CONF.test_tid 
+        sim = ConfHelper.UWEB_CONF.test_sim 
+        self.bookkeep(dict(cid=cid,
+                           oid=oid,
+                           uid=uid,
+                           tid=tid,
+                           sim=sim))
+        self.clear_cookie('captchahash')
+        self.redirect(self.get_argument("next","/"))
 
 class IOSHandler(BaseHandler, LoginMixin):
 
@@ -308,6 +330,114 @@ class IOSHandler(BaseHandler, LoginMixin):
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
+
+class IOSLoginTestHandler(BaseHandler, LoginMixin):
+
+    @tornado.web.removeslash
+    def post(self):
+        logging.info("[UWEB] IOS login test")
+        status = ErrorCode.SUCCESS
+        cid = UWEB.DUMMY_CID 
+        oid = UWEB.DUMMY_OID 
+        uid = ConfHelper.UWEB_CONF.test_uid 
+        tid = ConfHelper.UWEB_CONF.test_tid 
+        sim = ConfHelper.UWEB_CONF.test_sim
+
+        self.bookkeep(dict(cid=cid,
+                           oid=oid,
+                           uid=uid,
+                           tid=tid,
+                           sim=sim))
+        user_info = QueryHelper.get_user_by_uid(uid, self.db) 
+
+        # NOTE: add cars_info, it's same as lastinfo
+        cars_info = {} 
+
+        #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
+        terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
+                                  "    gsm, gps, pbat, login, defend_status,"
+                                  "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
+                                  "  FROM T_TERMINAL_INFO"
+                                  "  WHERE service_status = %s"
+                                  "    AND owner_mobile = %s"
+                                  "    AND login_permit = 1"
+                                  "    ORDER BY LOGIN DESC",
+                                  UWEB.SERVICE_STATUS.ON, uid)
+
+
+        for terminal in terminals:
+            # 1: get terminal
+            tid = terminal.tid
+
+            group_info = get_group_info_by_tid(self.db, tid)
+
+            terminal_info_key = get_terminal_info_key(tid)
+            terminal_cache = self.redis.getvalue(terminal_info_key)
+            if terminal_cache:
+                terminal['gps'] =  terminal_cache['gps']
+                terminal['gsm'] =  terminal_cache['gsm']
+                terminal['pbat'] =  terminal_cache['pbat']
+
+            terminal['keys_num'] = 0
+            if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
+                terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+            #NOTE: if alias is null, provide cnum or sim instead
+            terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
+            fobs = self.db.query("SELECT fobid FROM T_FOB"
+                                 "  WHERE tid = %s", tid)
+            terminal['fob_list'] = [fob.fobid for fob in fobs]
+            terminal['sim'] = terminal['mobile'] 
+
+            # 2: get location
+            location = QueryHelper.get_location_info(tid, self.db, self.redis)
+            if location and not (location.clatitude or location.clongitude):
+                location_key = get_location_key(str(tid))
+                locations = [location,] 
+                locations = get_locations_with_clatlon(locations, self.db) 
+                location = locations[0]
+                self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
+
+            if location and location['name'] is None:
+                location['name'] = ''
+
+            car_dct = {}
+            car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                          mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
+                          fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
+                          timestamp=location['timestamp'] if location else 0,
+                          speed=location.speed if location else 0,
+                          # NOTE: degree's type is Decimal, float() it before json_encode
+                          degree=float(location.degree) if location else 0.00,
+                          locate_error=location.get('locate_error', 20) if location else 20,
+                          bt_name=terminal['bt_name'] if terminal.get('bt_name', None) is not None else '',
+                          bt_mac=terminal['bt_mac'] if terminal.get('bt_mac', None) is not None else '',
+                          name=location.name if location else '',
+                          type=location.type if location else 1,
+                          latitude=location['latitude'] if location else 0,
+                          longitude=location['longitude'] if location else 0, 
+                          clatitude=location['clatitude'] if location else 0,
+                          clongitude=location['clongitude'] if location else 0, 
+                          login=terminal['login'] if terminal['login'] is not None else 0,
+                          gps=terminal['gps'] if terminal['gps'] is not None else 0,
+                          gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
+                          pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
+                          mobile=terminal['mobile'],
+                          owner_mobile=terminal['owner_mobile'],
+                          alias=terminal['alias'],
+                          #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                          keys_num=0,
+                          group_id=group_info['group_id'],
+                          group_name=group_info['group_name'],
+                          icon_type=terminal['icon_type'],
+                          fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
+
+            car_dct[tid]=car_info
+            cars_info.update(car_dct)
+
+        self.write_ret(status,
+                       dict_=DotDict(name=user_info.name if user_info else username, 
+                                     cars_info=cars_info,
+                                     cars=terminals))
 
 class AndroidHandler(BaseHandler, LoginMixin):
 
@@ -502,6 +632,125 @@ class AndroidHandler(BaseHandler, LoginMixin):
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
+
+class AndroidLoginTestHandler(BaseHandler, LoginMixin):
+
+    @tornado.web.removeslash
+    def post(self):
+        logging.info("[UWEB] Android login test")
+        status = ErrorCode.SUCCESS
+        cid = UWEB.DUMMY_CID 
+        oid = UWEB.DUMMY_OID 
+        uid = ConfHelper.UWEB_CONF.test_uid 
+        tid = ConfHelper.UWEB_CONF.test_tid 
+        sim = ConfHelper.UWEB_CONF.test_sim
+
+        self.bookkeep(dict(cid=cid,
+                           oid=oid,
+                           uid=uid,
+                           tid=tid,
+                           sim=sim))
+
+        user_info = QueryHelper.get_user_by_uid(uid, self.db)
+
+        # NOTE: add cars_info, it's same as lastinfo
+        cars_info = {} 
+        terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
+                                  "    gsm, gps, pbat, login, defend_status,"
+                                  "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
+                                  "  FROM T_TERMINAL_INFO"
+                                  "  WHERE service_status = %s"
+                                  "    AND owner_mobile = %s"
+                                  "    AND login_permit = 1"
+                                  "    ORDER BY LOGIN DESC",
+                                  UWEB.SERVICE_STATUS.ON, uid)
+        for terminal in terminals:
+            # 1: get terminal
+            tid = terminal.tid
+
+            group_info = get_group_info_by_tid(self.db, tid)
+
+            terminal_info_key = get_terminal_info_key(tid)
+            terminal_cache = self.redis.getvalue(terminal_info_key)
+            if terminal_cache:
+                terminal['gps'] =  terminal_cache['gps']
+                terminal['gsm'] =  terminal_cache['gsm']
+                terminal['pbat'] =  terminal_cache['pbat']
+
+            terminal['keys_num'] = 0
+            if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
+                terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+            #NOTE: if alias is null, provide cnum or sim instead
+            terminal['alias'] = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
+            fobs = self.db.query("SELECT fobid FROM T_FOB"
+                                 "  WHERE tid = %s", tid)
+            terminal['fob_list'] = [fob.fobid for fob in fobs]
+            terminal['sim'] = terminal['mobile'] 
+
+            # 2: get location
+            location = QueryHelper.get_location_info(tid, self.db, self.redis)
+            if location and not (location.clatitude or location.clongitude):
+                location_key = get_location_key(str(tid))
+                locations = [location,] 
+                locations = get_locations_with_clatlon(locations, self.db) 
+                location = locations[0]
+                self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
+
+            if location and location['name'] is None:
+                location['name'] = ''
+
+            car_dct = {}
+            car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                          mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
+                          fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
+                          timestamp=location['timestamp'] if location else 0,
+                          speed=location.speed if location else 0,
+                          # NOTE: degree's type is Decimal, float() it before json_encode
+                          degree=float(location.degree) if location else 0.00,
+                          locate_error=location.get('locate_error', 20) if location else 20,
+                          bt_name=terminal['bt_name'] if terminal.get('bt_name', None) is not None else '',
+                          bt_mac=terminal['bt_mac'] if terminal.get('bt_mac', None) is not None else '',
+                          name=location.name if location else '',
+                          type=location.type if location else 1,
+                          latitude=location['latitude'] if location else 0,
+                          longitude=location['longitude'] if location else 0, 
+                          clatitude=location['clatitude'] if location else 0,
+                          clongitude=location['clongitude'] if location else 0, 
+                          login=terminal['login'] if terminal['login'] is not None else 0,
+                          gps=terminal['gps'] if terminal['gps'] is not None else 0,
+                          gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
+                          pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
+                          mobile=terminal['mobile'],
+                          owner_mobile=terminal['owner_mobile'],
+                          alias=terminal['alias'],
+                          #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                          keys_num=0,
+                          group_id=group_info['group_id'],
+                          group_name=group_info['group_name'],
+                          icon_type=terminal['icon_type'],
+                          fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
+
+            car_dct[tid]=car_info
+            cars_info.update(car_dct)
+
+        #push_info = NotifyHelper.get_push_info()
+        
+        push_id =  uid 
+        push_key = NotifyHelper.get_push_key(push_id, self.redis)
+
+        version_info = get_version_info("android")
+        lastinfo_time_key = get_lastinfo_time_key(uid)
+        lastinfo_time = self.redis.getvalue(lastinfo_time_key)
+
+        self.write_ret(status,
+                       dict_=DotDict(push_id=push_id,
+                                     #app_key=push_info.app_key,
+                                     push_key=push_key,
+                                     name=user_info.name if user_info else username, 
+                                     cars_info=cars_info,
+                                     lastinfo_time=lastinfo_time,
+                                     cars=terminals))
+
 
 class LogoutHandler(BaseHandler):
 

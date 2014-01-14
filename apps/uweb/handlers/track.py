@@ -268,7 +268,6 @@ class TrackHandler(BaseHandler):
                                          idle_points=idle_points,
                                          hash_=hash_))
             self.finish()
-
         self.queue.put((10, _on_finish))
 
 class TrackDownloadHandler(TrackHandler):
@@ -330,5 +329,4 @@ class TrackDownloadHandler(TrackHandler):
             self.render("error.html",
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.EXPORT_FAILED],
                         home_url=ConfHelper.UWEB_CONF.url_out)
-
 

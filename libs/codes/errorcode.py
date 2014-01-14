@@ -28,6 +28,7 @@ class ErrorCode(object):
     WRONG_PASSWORD = 203 
     WRONG_OLD_PASSWORD = 204
     NO_CAPTCHA = 205
+    TEST_NOT_PERMITED = 206
 
     USER_NOT_ORDERED = 213 
     TERMINAL_NOT_ORDERED = 214
@@ -103,6 +104,7 @@ class ErrorCode(object):
         NO_CAPTCHA:                    u"验证码已失效，请重新获取。",
         LOGIN_FAILED:                  u"用户名或密码输入错误。",
         LOGIN_AGAIN:                   u"业务信息发生变更，请重新登录。",
+        TEST_NOT_PERMITED:             u"对不起，该账号是体验账号，不能使用该功能。",
         USER_NOT_ORDERED:              u"对不起, 该号码尚未订购移动卫士业务。",
         TRACK_POINTS_TOO_MUCH:         u"对不起，您的网速太慢，数据太多了，请缩小查询范围。",
         SERVER_ERROR:                  u"服务器错误。",

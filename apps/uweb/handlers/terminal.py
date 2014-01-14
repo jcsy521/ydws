@@ -98,13 +98,29 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            tid = data.get('tid',None) 
+            tid = data.get('tid', None) 
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
+            
+            logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
+                         data, self.current_user.uid, self.current_user.tid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+        
+        try:
+            status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
+            if status != ErrorCode.SUCCESS: 
+                logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
+                              self.current_user.tid, self.current_user.uid) 
+                self.write_ret(status) 
+                return
+
             if data.get("alert_freq"):
-                alert_freq_key = get_alert_freq_key(tid)
+                alert_freq_key = get_alert_freq_key(self.current_user.tid)
                 if self.redis.exists(alert_freq_key):
-                    logging.info("[UWEB] Termianl %s delete alert freq in redis.", tid)
+                    logging.info("[UWEB] Termianl %s delete alert freq in redis.", self.current_user.tid)
                     self.redis.delete(alert_freq_key)
             # if vibl has been changed,then update use_scene as well
             if data.get("vibl"):
@@ -117,25 +133,19 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                      use_scene = 9 
                  else:
                      use_scene = 3
-                 self.db.execute("UPDATE T_TERMINAL_INFO SET use_scene=%s WHERE tid=%s", use_scene, tid)
-                 logging.info("[UWEB] Terminal %s update use_scene %s and vibl %s", tid, use_scene, vibl)
-                 sessionID_key = get_terminal_sessionID_key(tid)
-                 logging.info("[UWEB] Termianl %s delete session in redis.", tid)
+                 self.db.execute("UPDATE T_TERMINAL_INFO SET use_scene=%s WHERE tid=%s", 
+                                 use_scene, self.current_user.tid)
+                 logging.info("[UWEB] Terminal %s update use_scene %s and vibl %s", 
+                              self.current_user.tid, use_scene, vibl)
+                 sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
+                 logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
                  self.redis.delete(sessionID_key)
             # if stop_interval has been changed, then clear session to notify terminal
             if data.get("stop_interval"):
-                 sessionID_key = get_terminal_sessionID_key(tid)
-                 logging.info("[UWEB] Termianl %s delete session in redis.", tid)
+                 sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
+                 logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
                  self.redis.delete(sessionID_key)
 
-            logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
-                         data, self.current_user.uid, self.current_user.tid)
-        except Exception as e:
-            status = ErrorCode.ILLEGAL_DATA_FORMAT
-            self.write_ret(status)
-            return 
-        
-        try:
             #seq = str(int(time.time()*1000))[-4:]
             #args = DotDict(seq=seq,
             #               tid=self.current_user.tid)

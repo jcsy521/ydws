@@ -85,7 +85,7 @@ class EventHandler(BaseHandler):
                 return
 
             page_size = int(data.get('pagesize', UWEB.LIMIT.PAGE_SIZE))
-            category = int(data.category)
+            category = data.get('category', None)
             categories = data.get('categories', None)
             page_number = int(data.pagenum)
             page_count = int(data.pagecnt)

@@ -32,7 +32,7 @@ from utils.myredis import MyRedis
 from constants.MEMCACHED import ALIVED
 
 from handlers.captcha import CaptchaHandler, CaptchaSmsHandler
-from handlers.login import LoginHandler, LogoutHandler, IOSHandler, AndroidHandler, IOSLogoutHandler, AndroidLogoutHandler
+from handlers.login import LoginHandler, LogoutHandler, LoginTestHandler, IOSHandler, IOSLogoutHandler, IOSLoginTestHandler, AndroidHandler, AndroidLogoutHandler, AndroidLoginTestHandler
 from handlers.checkupdate import CheckUpdateAndroidHandler, CheckUpdateIOSHandler
 from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
@@ -106,6 +106,7 @@ class Application(tornado.web.Application):
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
             (r"/login/*", LoginHandler),
+            (r"/logintest/*", LoginTestHandler),
             (r"/checkupdate/ios/*", CheckUpdateIOSHandler),
             (r"/checkupdate/*", CheckUpdateAndroidHandler),
             (r"/captcha", CaptchaHandler),
@@ -181,11 +182,14 @@ class Application(tornado.web.Application):
 
             # for android 
             (r"/android/*", AndroidHandler),
+            (r"/logintest/android/*", AndroidLoginTestHandler),
             (r"/logout/android/*", AndroidLogoutHandler),
 
             # for ios
             (r"/ios/*", IOSHandler),
+            (r"/logintest/ios/*", IOSLoginTestHandler),
             (r"/logout/ios/*", IOSLogoutHandler),
+
             (r"/register/*", RegisterHandler),
             (r"/reregister/*", ReRegisterHandler),
            

@@ -95,7 +95,12 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             self.set_header(*self.JSON_HEADER)
             self.write(json_encode(realtime))
             self.finish()
-            
-        self.request_realtime(current_query,
-                              callback=_on_finish)
-        self.keep_waking(self.current_user.sim, self.current_user.tid)
+
+        def __callback(db):
+            self.db = db
+            self.request_realtime(current_query,
+                                  callback=_on_finish)
+            self.keep_waking(self.current_user.sim, self.current_user.tid)
+
+        self.queue.put((10, __callback))
+

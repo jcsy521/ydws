@@ -73,6 +73,13 @@ class ProfileHandler(BaseHandler):
             return 
 
         try:
+            status = self.check_privilege(self.current_user.uid, tid) 
+            if status != ErrorCode.SUCCESS: 
+                logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
+                              tid, self.current_user.uid) 
+                self.write_ret(status) 
+                return
+
             if data.has_key('name')  and not check_name(data.name):
                 status = ErrorCode.ILLEGAL_NAME 
                 self.write_ret(status)

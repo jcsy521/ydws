@@ -42,6 +42,13 @@ class PasswordHandler(BaseHandler, PasswordMixin):
             return 
 
         try:
+            status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
+            if status != ErrorCode.SUCCESS: 
+                logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
+                              self.current_user.tid, self.current_user.uid) 
+                self.write_ret(status) 
+                return
+            
             old_password = data.old_password
             new_password = data.new_password
 
@@ -75,6 +82,13 @@ class PasswordHandler(BaseHandler, PasswordMixin):
             return 
 
         try:
+            status = self.check_privilege(data.mobile) 
+            if status != ErrorCode.SUCCESS: 
+                logging.error("[UWEB] User: %s is just for test, has no right to access the function.", 
+                              data.mobile) 
+                self.write_ret(status) 
+                return
+
             mobile = data.mobile
             user = self.db.get("SELECT mobile"
                                "  FROM T_USER"
