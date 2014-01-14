@@ -155,6 +155,11 @@ $(function(){
 			});
 		}
 	});
+	
+	// 体验
+	$('#login_ty').click(function(e) {
+		$('#login_tyForm').submit();
+	});	
 });
 
 /**

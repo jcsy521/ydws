@@ -37,7 +37,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	
 	if ( str_who == 'eventSearch' ) { // 告警查询
 		dlf.fn_ShowOrHideMiniMap(false);
-		$('#eventSearchCategory').val(-1);
+		$('#eventSearchCategory input[name=event_type], #allEventType').removeAttr('checked');
 		obj_tableHeader.hide();
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
@@ -45,6 +45,31 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		fn_initEventTimeControl();
 		//dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
+		// 添加复选框的事件 hs:2011.1.10
+		var obj_allCheck = $('#allEventType'),
+			obj_evnetType = $('#eventSearchCategory input[name=event_type]');
+		
+		obj_allCheck.unbind('change').change(function(e) { // 全选
+			var str_allCheck = $(this).attr('checked');
+			
+			if ( str_allCheck ) { 
+				obj_evnetType.attr('checked', 'checked');
+			} else {
+				obj_evnetType.removeAttr('checked');
+			}
+		});
+		obj_evnetType.unbind('change').change(function(e) {
+			var obj_this = $(this),
+				str_check = obj_this.attr('checked');
+				
+			if ( !str_check ) { 
+				obj_allCheck.removeAttr('checked');
+			} else {
+				if ( fn_validEventTypeCheck() ) {
+					obj_allCheck.attr('checked', 'checked');
+				}
+			}
+		});
 	} else if ( str_who == 'mileage' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
@@ -292,19 +317,43 @@ window.dlf.fn_searchData = function (str_who) {
 				n_endTime = $('#eventSearchEndTime').val(), // 用户选择时间
 				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
-				n_category = $('#eventSearchCategory').val(), 
+				arr_category = [],
+				n_category = '',
 				str_tids = '',
-				str_userType = $('.j_body').attr('userType');
+				str_userType = $('.j_body').attr('userType'),
+				str_allTypeCk = $('#allEventType').attr('checked');
+			
 			
 			obj_conditionData = {
 								'start_time': n_bgTime, 
 								'end_time': n_finishTime, 
 								'pagenum': n_dwRecordPageNum, 
 								'pagecnt': n_dwRecordPageCnt, 
-								'category': n_category, 
 								'tid': '',
 								'tids': ''
 							};
+			
+			if ( str_allTypeCk == 'checked') {
+				n_category = -1;
+				arr_category = [];
+				obj_conditionData.category = n_category;
+			} else {
+				//选择查询事件 hs:2011.1.10
+				$('#eventSearchCategory input[type=checkbox]').each(function(e) {
+					var str_typeVal = $(this).val(),
+						str_typeCk = $(this).attr('checked');
+						
+					if ( str_typeCk == 'checked' ) {
+						arr_category.push(str_typeVal);
+					}
+				});
+				
+				if ( arr_category.length == 0 ) {
+					dlf.fn_jNotifyMessage('请选择告警查询的类型。', 'message', false, 3000);
+					return;
+				}
+				obj_conditionData.categories = arr_category;
+			}
 			
 			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择其他时间段。', 'message', false, 3000);
@@ -1514,4 +1563,25 @@ function fn_deleteAlertSetting(id, str_tid, str_who) {
 			}
 		});
 	}
+}
+
+/*
+* 检测 所有的类型是否被选中
+*/
+function fn_validEventTypeCheck() {
+	var obj_eventType = $('#eventSearchCategory input[name=event_type]'),
+		n_ckLen = obj_eventType.length, 
+		n_ckCount = 0;
+	
+	obj_eventType.each(function(e) {
+		var str_checked = $(this).attr('checked');
+		
+		if ( str_checked ) { 
+			n_ckCount++;
+		}
+	});
+	if ( n_ckCount == n_ckLen ) {
+		return true;
+	} 
+	return false;	
 }

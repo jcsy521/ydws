@@ -29,9 +29,14 @@ window.dlf.fn_loadMap = function(mapContainer) {
 	
 	mapObj.addControl(obj_NavigationControl);	// 比例尺缩放
 	mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
-	if ( mapContainer == 'mapObj' ) {
-		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
-	}
+	
+	/*添加相应的地图控件及服务对象*/
+	mapObj.addControl(new BMap.MapTypeControl({mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], offset: new BMap.Size(100, 10)}));	// 地图类型 自定义显示 普通地图和卫星地图
+	
+	mapObj.addControl(new BMap.OverviewMapControl()); //添加缩略地图控件
+ 	if ( mapContainer == 'mapObj' ) {
+ 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
+ 	}
 }
 
 /**
@@ -40,17 +45,9 @@ window.dlf.fn_loadMap = function(mapContainer) {
 */
 window.dlf.fn_hideControl = function(b_menu) {
 	/*移除相应的地图控件及服务对象*/
-	if ( obj_MapTypeControl ) {
-		mapObj.removeControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
-		obj_MapTypeControl = null;
-	}
 	if ( obj_trafficControl != null ) {
 		mapObj.removeControl(obj_trafficControl); //移除路况信息控件
 		obj_trafficControl = null;
-	}
-	if ( obj_viewControl ) {
-		mapObj.removeControl(obj_viewControl); //移除小地图控件
-		obj_viewControl = null;
 	}
 }
 
@@ -60,24 +57,14 @@ window.dlf.fn_hideControl = function(b_menu) {
 */
 window.dlf.fn_setMapControl = function(n_NumTop) {
 	/*移除相应的地图控件及服务对象*/
-	if ( obj_MapTypeControl ) {
-		mapObj.removeControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
-	}
 	if ( obj_trafficControl ) {
 		mapObj.removeControl(obj_trafficControl); //移除路况信息控件
 	}
-	if ( obj_viewControl ) {
-		mapObj.removeControl(obj_viewControl); //移除小地图控件
-	}
 	/*重新声明相应的地图控件及服务对象*/
-	obj_MapTypeControl = new BMap.MapTypeControl({mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], offset: new BMap.Size(100, n_NumTop)});
 	obj_trafficControl = new BMapLib.TrafficControl(new BMap.Size(10, n_NumTop));
-	obj_viewControl = new BMap.OverviewMapControl({isOpen: true});
 	
 	/*添加相应的地图控件及服务对象*/
-	mapObj.addControl(obj_MapTypeControl);	// 地图类型 自定义显示 普通地图和卫星地图
 	mapObj.addControl(obj_trafficControl); //添加路况信息控件
-	mapObj.addControl(obj_viewControl); //添加缩略地图控件
 }
 /**
 * 百度地图生成点
@@ -866,7 +853,7 @@ window.dlf.fn_initCreateRegion = function() {
 /**
 * 地图的右击事件
 */
-window.dlf.fn_mapRightClickFun = function() { 
+window.dlf.fn_mapRightClickFun = function() {
 	if ( obj_regionShape ) { 
 		dlf.fn_clearRegionShape(); // 清除页面圆形
 		dlf.fn_clearMapComponent(obj_shapeLabel); // 清除地图上的半径提示

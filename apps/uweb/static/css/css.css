@@ -1720,22 +1720,6 @@ body {
 .eventLocation {
 	width: 175px;
 }
-.eventSearchPos input {
-	display: inline-block;
-	position: relative;
-	+top: 10px;
-	_top: 25px; /*ie6*/
-}
-.eventSearchPos .cEventType {
-	position: relative;
-	+top: 1px;
-	_top: 20px; /*ie6*/
-}
-.eventSearchPos span {
-	position: relative;
-	+top: 3px;
-	_top: 20px; /*ie6*/
-}
 #pagerContainer, #staticsPage, #operatorPage, #mileagePage, #onlineStaticsPage, #passengerPage {
 	width: 750px;
 	height: 34px;
@@ -2968,7 +2952,7 @@ legend {
 .commonCondition  td {
 	padding-right: 20px;
 }
-.eventSearchCondition, .mileageCondition, .operatorConditions, .onlineStaticsCondition, .passengerConditions {
+.eventSearchCondition, .mileageCondition, .operatorConditions, .onlineStaticsCondition, .passengerConditions, .eventSearchPos {
 	margin: 0 auto;
 }
 .onlineStaticsCondition, .passengerConditions {
@@ -3441,7 +3425,7 @@ legend {
 	width: 530px;
 }
 .errorCircleInfo {
-	top: 22px;
+	top: 14px;
 }
 .errorCircle {
 	background: url("/static/images/ui-icons_ef8c08_256x240.png") no-repeat scroll 0 -147px transparent;
@@ -3450,7 +3434,7 @@ legend {
 	float: left;
 	height: 11px;
 	position: relative;
-	top: 8px;
+	top: 11px;
 	*top: 15px;
 }
 .errorTop10 {
@@ -3572,4 +3556,31 @@ legend {
 }
 #smsOwerMobileSign:hover {
 	background: url('/static/images/sersjhover.png') no-repeat 0px center;
+}
+.eventSearchPos {
+	height: 40px;
+    left: 13px;
+    margin-top: 8px;
+    position: relative;
+    width: 610px;
+}
+.eventTypePanel {
+	left: 57px;
+    position: relative;
+}
+.eventTypePanel li {
+	float: left;
+	margin-left: 10px;
+}
+.eventTypePanel .x_label {
+	position: relative;
+	top: -2px;
+}
+.eventType_typeTip {
+	float: left;
+}
+.eventType_allPanel {
+	left: 8px;
+    margin-bottom: 5px;
+    position: relative;
 }

@@ -1060,26 +1060,52 @@
 						查询时间： <input type="text" id="eventSearchStartTime"  class="time" />
 						至 <input type="text" id="eventSearchEndTime"  class="time" />
 					</td>
-					<td>
-						<span class="eventSearchPos">
-							<span class="timeTip">告警类型：</span>
-							<select class="cEventType" id="eventSearchCategory">
-								<option value="-1">全部</option>
-								<!--<option value="5">SOS</option>-->
-								<option value="2">电量告警</option>
-								<option value="6">通讯异常</option>
-								<option value="7">进围栏</option>
-								<option value="8">出围栏</option>
-								<option value="3">震动</option>
-								<option value="4">移动</option>
-								<option value="9">断电</option>
-								<option value="10">停留</option>
-							</select>
-						</span>
-					</td>
 					<td><span id="eventSearch_searchBtn" class="eventBtn j_tBtnhover" ></span></td>
 				</tr>
 			</table>
+			<div class="eventSearchPos">
+				<span class="eventType_typeTip">告警类型：</span>
+				<div>
+					<div class="eventType_allPanel">
+						<input type="checkbox" id="allEventType" name="event_type" class="x_eventTypeCheckbox" value="-1" title="全部" />
+						<label class="x_label" title="全部">全部</label>
+					</div>
+					<ul id="eventSearchCategory" class="eventTypePanel">
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="2" title="电量告警" />
+							<label class="x_label" title="电量告警">电量告警</label>
+						</li>
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="6" title="通讯异常" />
+							<label class="x_label" title="通讯异常">通讯异常</label>
+						</li>
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="7" title="进围栏" />
+							<label class="x_label" title="进围栏">进围栏</label>
+						</li>
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="8" title="出围栏" />
+							<label class="x_label" title="出围栏">出围栏</label>
+						</li>
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="3" title="震动" />
+							<label class="x_label" title="震动">震动</label>
+						</li>
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="4" title="移动" />
+							<label class="x_label" title="移动">移动</label>
+						</li>
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="9" title="断电" />
+							<label class="x_label" title="断电">断电</label>
+						</li>
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="10" title="停留" />
+							<label class="x_label" title="停留">停留</label>
+						</li>
+					</ul>
+				</div>
+			</div>
 			<table class="dataTable eventSearchTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="eventSearchTableHeader">

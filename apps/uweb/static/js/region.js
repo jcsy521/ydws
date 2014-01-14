@@ -233,6 +233,8 @@ window.dlf.fn_detailRegion = function(n_seq) {
 window.dlf.fn_deleteRegion = function(n_id) {
 	if ( n_id ) {
 		if ( confirm('确定要删除该围栏吗？') ) {
+			dlf.fn_lockScreen(); // 添加页面遮罩
+			dlf.fn_jNotifyMessage('电子围栏数据删除中' + WAITIMG, 'message', true);
 			$.delete_(REGION_URL+'?ids='+n_id, '', function(data) {
 				if ( data.status == 0 ) {
 					var obj_regionTable = $('#regionTable'),
@@ -242,10 +244,9 @@ window.dlf.fn_deleteRegion = function(n_id) {
 					obj_currentRegionTr.remove();
 					obj_regionTable.data('regionnum', n_regionNums - 1);
 					dlf.fn_clearRegionShape();
-				} else {
-					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
-					return;
 				}
+				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+				dlf.fn_unLockScreen(); // 去除页面遮罩
 			});
 		}
 	}

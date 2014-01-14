@@ -273,7 +273,7 @@ table, tr, td {
 	display: none;
 }
 .btnPanel {
-	margin-left: 30px;
+	margin-left: 6px;
 	margin-top: 12px;
 }
 .btnPanel * {
@@ -358,4 +358,11 @@ table, tr, td {
 }
 .red {
 	color: red;
+}
+#register {
+	width: 25px;
+}
+#login_ty {
+	width: 50px;
+	color: #ff0000;
 }

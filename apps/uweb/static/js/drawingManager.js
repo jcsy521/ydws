@@ -1131,14 +1131,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				}
 			}
 			
-			// 清除地图上图形 todo 
-			if ( obj_regionShape ) {
-				dlf.fn_clearRegionShape(); // 清除页面圆形
-				if( obj_shapeLabel ) {
-					dlf.fn_clearMapComponent(obj_shapeLabel); // 清除地图上的半径提示
-				}
-				dlf.fn_clearMapComponent(obj_shapeMarker);// 清除地图上的圆心标记
-			}// 2013.12.24
+			// 2013.12.24
             points.push(e.point);
             drawPoint = points.concat(points[points.length - 1]);
             if (points.length == 1) {
@@ -1149,6 +1142,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 					
 					
                 }
+				obj_regionShape = overlay; // 多边形数据保存
                 map.addOverlay(overlay);
             } else {
                 overlay.setPath(drawPoint);
@@ -1206,7 +1200,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			}	
 
 			if ( arr_polygonData.length < 3 ) { 
-				str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">多边形围栏最少需要3个点！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
+				str_infoWindowText = '<div class="gaodeWindowPanel height38 clickWindowPanel errorCircleInfo"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">多边形围栏最少需要3个点！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
 			}			
 			// 2013.4.22 绘画完圆后显示圆心点吹出框,提示用户保存或重绘
 			mapObj.removeOverlay(obj_shapeMarker);// 2013.4.22

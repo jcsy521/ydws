@@ -99,6 +99,7 @@
 						<input type="submit" class="commit" id="btnLogin" value="" />
 						<a href="/password" target="password.html" id="getPwd" title="忘记密码" >忘记密码？</a>
 						<a href="/register/browser" target="_blank" id="register" class="ml10" title="注册" >注册</a>
+						<a href="#" id="login_ty" class="ml10" title="体验试用" >体验试用</a>
 					</div>
 					<div class="btnPanel j_corp hide">
 						<input type="submit" class="commit ml47" id="btnLogin" value="" />
@@ -113,6 +114,9 @@
 						{% end %}
 					</span>
 				</form>
+				<div class="hide">
+					<form action="/logintest" method="post" id="login_tyForm"></form>
+				</div>
 			</div>
 		</div>
 		<div class="center">
