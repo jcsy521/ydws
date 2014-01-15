@@ -1117,20 +1117,6 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
          * 鼠标点击的事件
          */
         var startAction = function (e) {
-			var b_ie = $.browser.msie, 
-				obj_startEventBtn = e.button;
-			
-			
-			if ( b_ie ) { // 如果是IE
-				if ( obj_startEventBtn != 1 ) {
-					return;
-				}
-			} else {
-				if ( obj_startEventBtn != 0 ) {//不适合项目,暂时屏蔽2013.4.16
-					return;
-				}
-			}
-			
 			// 2013.12.24
             points.push(e.point);
             drawPoint = points.concat(points[points.length - 1]);
@@ -1189,16 +1175,6 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				obj_clickInfoWindow = null,// 创建信息窗口对象
 				centerPoint = arr_polygonData[0];  
 			
-			if ( b_ie && str_ieVersion != '9.0' ) { // 如果是ie6 7 8 
-				if ( str_ieVersion != '10.0' &&  obj_startEventBtn != 1 ) {
-					return;
-				}
-			} else { 
-				if ( obj_startEventBtn != 0 ) {//不适合项目,暂时屏蔽2013.4.16
-					return;
-				}
-			}	
-
 			if ( arr_polygonData.length < 3 ) { 
 				str_infoWindowText = '<div class="gaodeWindowPanel height38 clickWindowPanel errorCircleInfo"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">多边形围栏最少需要3个点！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
 			}			
