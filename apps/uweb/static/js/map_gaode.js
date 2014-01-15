@@ -487,7 +487,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		speed = obj_location.speed,
 		date = dlf.fn_changeNumToDateString(obj_location.timestamp),
 		n_degree = obj_location.degree, 
-		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
+		str_degree = dlf.fn_changeData('degree', n_degree, speed), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_tid = obj_location.tid,
 		str_clon = obj_location.clongitude/NUMLNGLAT,
@@ -593,7 +593,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 					'<li>位置： <lable class="lblAddress left60">'+ address +'</label></li>';	
 	} else {
 		str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
-					'<li><label>速度： '+ speed+' km/h</label>'+
+					'<li><label>速度： '+ dlf.fn_NumForRound(speed, 1)+' km/h</label>'+
 					'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
 					'<li><label>经度： E '+str_clon.toFixed(CHECK_ROUNDNUM)+'</label>'+
 					'<label class="labelRight">纬度： N '+str_clat.toFixed(CHECK_ROUNDNUM)+'</label></li>'+

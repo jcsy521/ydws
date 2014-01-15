@@ -727,9 +727,9 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		str_dImg= n_defendStatus == DEFEND_ON ? 'defend_status1.png' : 'defend_status0.png',
 		n_pointType = obj_carInfo.type,
 		str_type = n_pointType == GPS_TYPE ? 'GPS定位' : '基站定位',
-		str_speed = obj_carInfo.speed + ' km/h',
+		str_speed = dlf.fn_NumForRound(obj_carInfo.speed, 1) + ' km/h',
 		n_degree = obj_carInfo.degree,
-		str_degree = dlf.fn_changeData('degree', n_degree), //方向角处理
+		str_degree = dlf.fn_changeData('degree', n_degree, obj_carInfo.speed), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
 		str_eStatus = dlf.fn_eventText(obj_carInfo.event_status),  // 报警状态
 		str_address = '',	// 位置描述		
@@ -946,8 +946,9 @@ window.dlf.fn_clearOpenTrackData = function() {
 * 转换GPS,GSM,power,degree 为相应的值
 * str_key: gsm、gps、power、degree
 * str_val: 对应的值
+* str_val2: 辅助判断数据
 */
-window.dlf.fn_changeData = function(str_key, str_val) {
+window.dlf.fn_changeData = function(str_key, str_val, str_val2) {
 	var str_return = '';
 	
 	if ( str_key == 'gsm' ) { // gsm 
@@ -1009,14 +1010,13 @@ window.dlf.fn_changeData = function(str_key, str_val) {
 	} else if ( str_key == 'degree' ) {	// 方向角
 		var arr_degree = [355,5,40,50,85,95,130,140,175,185,220,230,265,275,310,320,355],
 			arr_desc  = ['正北','北偏东','东北','东偏北','正东','东偏南','东南','南偏东','正南','南偏西','西南','西偏南','正西','西偏北','西北','北偏西','正北'];
-
+		
+		if ( str_val2 == 0 ) {
+			return '静止';
+		}
 		for ( var i = 0; i < arr_degree.length; i++ ) {
 			if ( str_val >= 355 || str_val < 5 ) {
-				if ( str_val == 0 ) {
-					str_return = 'N/A'
-				} else {
-					str_return = '正北';
-				}
+				str_return = '正北';
 				break;
 			} else if ( str_val >= arr_degree[i] && str_val < arr_degree[i+1] ) {
 				str_return = arr_desc[i];
@@ -2145,6 +2145,23 @@ window.dlf.fn_gaodeCloseDrawCircle = function() {
 		}		
 		dlf.fn_setCursor(true);	// 鼠标状态
 	}	
+}
+
+
+/*
+* 对给定的数值进行小数位截取
+* n_num: 要操作的数字
+* n_round: 小数后保留的位数
+*/
+window.dlf.fn_NumForRound = function(n_num, n_round) {
+	var n_roundNum = 1;
+	
+	if ( n_round != 0 ) {
+		for ( var i = 1; i <= n_round; i++ ) {
+			n_roundNum = n_roundNum * 10
+		}
+	}
+	return Math.round(n_num * n_roundNum) / n_roundNum;
 }
 
 })();
