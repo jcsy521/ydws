@@ -637,7 +637,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 								dlf.fn_updateTerminalInfo(obj_carInfo);
 							}
 						} else {
-							dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_carInfo);	// 前台偏转 kjj 2013-07-11
+							dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_carInfo);	// 前台偏转 kjj 2013-07-11
 						}
 					}
 				}

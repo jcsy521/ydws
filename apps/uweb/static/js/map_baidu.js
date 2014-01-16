@@ -481,29 +481,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 						str_oldClat = obj_oldCarData.clatitude;
 					}
 				}
-				if ( obj_selfmarker ) {	// 第一次加载 没有selfmarker 
-					if ( Math.abs(str_oldClon-str_newClon) < 100 || Math.abs(str_oldClat-str_newClat) < 100 ) {	// 判断和上次经纬度的差是否在100之内，在的话认为是同一个点
-						var obj_infowindow = obj_selfmarker.selfInfoWindow;
-						
-						if ( obj_infowindow && obj_infowindow.getContent() != '' ) {	// infowindow中位置替换
-							var str_content = obj_infowindow.getContent(),
-								n_beginNum = str_content.indexOf('位置： ')+30,
-								n_endNum = str_content.indexOf('</label></li><li class="top10">'),
-								str_address = str_content.substring(n_beginNum, n_endNum);
-							
-							address = str_address;
-						} else {
-							address = '正在获取位置描述' + WAITIMG; 
-							dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
-						}
-					} else {	// 否则重新获取	
-						address = '正在获取位置描述' + WAITIMG; 
-						dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
-					}
-				} else {
-					address = '正在获取位置描述' + WAITIMG; 
-					dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'lastinfo');
-				}
+				dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'actiontrack');
+				
 			} else {
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\''+ str_iconType +'\','+ n_index +');">获取位置</a>'; 
 			}
@@ -577,7 +556,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 
 /**
 ** 将获取到的name更新到marker或label上
-* str_type: 轨迹或 realtime或lastinfo
+* str_type: 轨迹或 realtime
 * str_result: 获取到的位置
 * n_index: 如果是轨迹则根据索引获取name
 */
@@ -587,7 +566,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
 		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
 		
-	if ( str_type == 'realtime' || str_type == 'lastinfo' ) {
+	if ( str_type == 'realtime' || str_type == 'actiontrack' ) {
 		var str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 		// 左侧 位置描述填充
 		if ( str_currentTid == tid ) {
@@ -596,10 +575,10 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			$('#address').attr('html', str_result);
 		}
 		if ( obj_selfmarker && obj_selfmarker != null ) {
-			var str_content = obj_selfmarker.selfInfoWindow.getContent(),
-				str_address = '';
+			var str_address = '',
+				str_content = obj_selfmarker.selfInfoWindow.getContent();
 				
-			if ( str_content.search('正在获取位置描述...') != -1 ) {
+			/*if ( str_content.search('正在获取位置描述...') != -1 ) {
 				str_content = str_content.replace('正在获取位置描述' + WAITIMG, str_tempResult);
 			} else {
 				n_beginNum = str_content.indexOf('位置： ')+30,	
@@ -607,8 +586,21 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 				str_address = str_content.substring(n_beginNum, n_endNum);
 				str_content = str_content.replace(str_address, str_tempResult);
 			}
+			*/
+			
+			$('.j_carList a[tid='+ tid +']').data('address', str_result);	// 存储最新从百度获取到的位置描述以便更新页面左侧位置信息
+			var obj_carDatas = $('.j_carList').data('carsData'),
+				obj_tempCarData = obj_carDatas[tid];
+			
+			
+			obj_tempCarData.name = str_tempResult;
+			
+			$('.j_carList').data('carsData', obj_carDatas);
+			obj_selfmarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_tempCarData, 'actiontrack'));
+			/*			
 			// 替换title内容 kjj add 2013-08-22 
-			var n_beginTitleNum = str_content.indexOf('<li title="') + 11,
+			var str_content = obj_selfmarker.selfInfoWindow.getContent(),
+				n_beginTitleNum = str_content.indexOf('<li title="') + 11,
 				n_endTitleNum = str_content.indexOf('">位置： ');
 				
 			if ( n_beginTitleNum == n_endTitleNum ) {
@@ -620,6 +612,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			}
 			$('.j_carList a[tid='+ tid +']').data('address', str_result);	// 存储最新从百度获取到的位置描述以便更新页面左侧位置信息
 			obj_selfmarker.selfInfoWindow.setContent(str_content);
+			*/
 		}
 		dlf.fn_updateOpenTrackStatusColor(tid);
 	} else if ( str_type == 'event' ) {
@@ -701,33 +694,39 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	if ( str_type == 'event' ) {
 		dlf.fn_ShowOrHideMiniMap(false);	// 如果是告警的获取位置，关闭小地图
 	}
-	if ( n_lon == 0 || n_lat == 0 ) {
-		$('#address').html('-');
-	} else {
-		gc.getLocation(obj_point, function(result){
-			str_result = result.address;
-			var arr_surroundingPois = result.surroundingPois;
+	gc.getLocation(obj_point, function(result){
+		str_result = result.address;
+		var arr_surroundingPois = result.surroundingPois;
+		
+		if ( arr_surroundingPois.length > 0 ) {
+			str_result += '，' + arr_surroundingPois[0].title + '附近';
+		}
+		if ( str_result == '' ) {
+			/*if ( postAddress != null ) {	// 第一次如果未获取位置则重新获取一次,如果还未获得则显示"无法获取"
+				clearTimeout(postAddress);
+				str_result = '-';
+				dlf.fn_updateAddress(str_type, tid, str_result, n_index);
+			} else {	// 如果未获取到位置描述  5秒后重新获取	
+				// todo  用户手动获取
+				str_result = '正在获取位置描述' + WAITIMG;
+				dlf.fn_updateAddress(str_type, tid, str_result, n_index, 'none');
+				postAddress = setTimeout(function() {
+					dlf.fn_getAddressByLngLat(n_lon, n_lat, tid, str_type, n_index);
+				}, 5000);
+			}*/
+			//var str_infoText = '位置： <a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+n_lon+', '+n_lat+',\''+tid+'\',\''+ str_type +'\','+ n_index +');">获取位置</a>';
 			
-			if ( arr_surroundingPois.length > 0 ) {
-				str_result += '，' + arr_surroundingPois[0].title + '附近';
-			}
-			if ( str_result == '' ) {
-				if ( postAddress != null ) {	// 第一次如果未获取位置则重新获取一次,如果还未获得则显示"无法获取"
-					clearTimeout(postAddress);
-					str_result = '-';
-					dlf.fn_updateAddress(str_type, tid, str_result, n_index);
-				} else {	// 如果未获取到位置描述  5秒后重新获取	
-					str_result = '正在获取位置描述' + WAITIMG;
-					dlf.fn_updateAddress(str_type, tid, str_result, n_index, 'none');
-					postAddress = setTimeout(function() {
-						dlf.fn_getAddressByLngLat(n_lon, n_lat, tid, str_type, n_index);
-					}, 5000);
-				}
-			} else {
-				dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
-			}
-		});
-	}
+			//$('.lblAddress').parent().html(str_infoText);
+			
+			var obj_carDatas = $('.j_carList').data('carsData')[tid],
+				obj_selfmarker = obj_selfmarkers[tid];
+			
+			obj_selfmarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_carDatas, 'actiontrack'));
+			
+		} else {
+			dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
+		}
+	});
 	return str_result;
 }
 
@@ -736,11 +735,11 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 * GPS点转换成百度点
 * n_lng, n_lat
 * tips:  data format is jsonp
+* b_geoCode: 是否进行逆地址请求
 */
-window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo) {
+window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_geoCode) {
 	//GPS坐标
 	var gpsPoint = dlf.fn_createMapPoint(n_lng, n_lat);
-
 	jQuery.ajax({
 		type : 'get',
 		timeout: 14000,
@@ -755,13 +754,17 @@ window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInf
 				str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
 			
 			if ( n_error == 0 ) {
-				if ( str_type == 'lastposition' ) {
+				if ( str_type == 'actiontrack' ) {
 					obj_carInfo.clongitude = point.lng*3600000;
 					obj_carInfo.clatitude = point.lat*3600000;
 					$('.j_carList').data('carsData')[obj_carInfo.tid] = obj_carInfo;
 					dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据		
 					if ( str_currentTid == obj_carInfo.tid ) {	// 更新当前车辆信息
 						dlf.fn_updateTerminalInfo(obj_carInfo);
+					}
+					// 偏转成功后进行逆地址操作 2014.1.15
+					if ( b_geoCode ) {
+						dlf.fn_getAddressByLngLat(obj_carInfo.clongitude, obj_carInfo.clatitude, obj_carInfo.tid, str_type);
 					}
 				}
 			}
@@ -832,7 +835,7 @@ window.dlf.fn_initCreateRegion = function() {
 		obj_drawingManager.setDrawingMode(BMAP_DRAWING_CIRCLE);
 	} else if ( str_regionType == 'polygon' ) {
 		obj_drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON);
-		dlf.fn_jNotifyMessage('单击鼠标开始绘制多边形．', 'message', false, 3000);
+		dlf.fn_jNotifyMessage('单击鼠标开始绘制多边形。', 'message', false, 3000);
 	} else {
 		return;
 	}

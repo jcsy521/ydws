@@ -170,6 +170,8 @@ window.dlf.fn_setSearchRecord = function(str_who) {
 		n_dwRecordPageCnt = -1;
 		n_dwRecordPageNum = 0;
 		dlf.fn_searchData(str_who);
+		
+		$('#mileagePage').data('mileages', 0);
 	});
 	
 	obj_download.unbind('click').bind('click', function() {	// 下载数据事件
@@ -638,6 +640,7 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			}
 			if ( str_who == 'region' || str_who == 'corpRegion' ) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				obj_searchHeader.after('<tr><td colspan="4">没有查询到围栏。</td></tr>');
 			} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！。', 'message', false, 4000);
 			} else if ( str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
@@ -1075,7 +1078,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			b_isLastPage = n_dwRecordPageNum != n_pagecnt-1,
 			arr_series = [],// 统计数据
 			str_foot = '<tr><td>总计：</td><td colspan="2">';
-
+		
 		if ( $('#selectTerminals').val() != '' ) {	// 只有单个定位器里程统计才显示统计图
 			for ( var i = 0; i < arr_graphic.length; i++ ) {
 				arr_categories.push(i+1);
@@ -1089,6 +1092,20 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				obj_tfoot.empty().append(str_tfoot).show();
 			}
 			fn_initChart(arr_series, arr_categories, 'mileageChart', '公里', str_who);	// 初始化chart图
+		} else {
+			var n_saveMileage = $('#mileagePage').data('mileages');
+			
+			for ( var n_mj = 0; n_mj < n_searchLen; n_mj++ ) {
+				var obj_tempData = obj_searchData[n_mj],
+					n_mileage = obj_tempData.distance;
+				
+				n_saveMileage += n_mileage;
+			}
+			$('#mileagePage').data('mileages', n_saveMileage);
+			if ( !b_isLastPage ) {
+				str_tfoot += '<td colspan="2">'+ $('#mileagePage').data('mileages') + '</td></tr>';
+				obj_tfoot.empty().append(str_tfoot).show();
+			}
 		}
 	} else if ( str_who == 'infoPush' ) {
 		$('.j_infoPushChecks').html(str_tbodyText);

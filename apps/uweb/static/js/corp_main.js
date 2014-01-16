@@ -710,7 +710,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 							obj_trace.tid = str_tid;
 						}
 					} else {
-						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
+						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_car, true);	// 前台偏转 kjj 2013-09-27
 					}
 				}
 			});
@@ -1601,7 +1601,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 									obj_trace.tid = str_tid;
 								}
 							} else {
-								dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
+								dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_car, true);	// 前台偏转 kjj 2013-09-27
 							}
 						} else {
 							if ( str_currentTid == str_tid ) { // 只更新当前终端
@@ -1613,7 +1613,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 										obj_trace.tid = str_tid;
 									}
 								} else {
-									dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_car);	// 前台偏转 kjj 2013-09-27
+									dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_car, true);	// 前台偏转 kjj 2013-09-27
 								}
 							}
 						}				

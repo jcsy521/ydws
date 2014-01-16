@@ -1149,7 +1149,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			if ( obj_shapeLabel ) {
 				mapObj.removeOverlay(obj_shapeLabel);// 2013.4.22
 			}
-			obj_shapeLabel = new BMap.Label('双击结束绘制多边形．', {position: e.point});
+			obj_shapeLabel = new BMap.Label('双击结束绘制多边形。', {position: e.point});
 			//todo 2013.4.22
 			mapObj.addOverlay(obj_shapeLabel);	
         }

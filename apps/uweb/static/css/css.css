@@ -344,7 +344,7 @@ body {
 .corpMapObj, #eventSearchContent, .operatorContent, .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent {
 	min-width: 1151px;
 	/*min-height: 463px;*/
-	min-height: 566px;
+	min-height: 567px;
 }
 .mapObj {
 	min-width: 1151px;

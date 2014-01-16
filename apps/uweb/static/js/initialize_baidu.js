@@ -94,7 +94,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if ( n_clon != 0 && n_clat != 0 ) {
 			
 		} else {
-			dlf.fn_translateToBMapPoint(n_lon, n_lat, 'lastposition', obj_carInfo);	// 前台偏转 kjj 2013-09-27
+			dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_carInfo, true);	// 前台偏转 kjj 2013-09-27
 		}
 	} else {
 		return;

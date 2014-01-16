@@ -231,13 +231,13 @@ window.dlf.fn_defendQuery = function(str_alias) {
 			$('.currentCar').attr('fob_status', n_fob_status);	// 更新最新的 挂件状态  ：是否在附近
 			if ( str_defendStatus == DEFEND_ON ) {
 				n_defendStatus = DEFEND_OFF;
-				str_tip = '您的定位器'+ str_tempAlias +'当前已设防。';
+				str_tip = '您的定位器“'+ str_tempAlias +'”当前已设防。';
 				arr_defendBtns = new Array('cf', 'cf2'); 
 				str_html = '已设防';
 				str_dImg = 'defend_status1.png';
 			} else {
 				n_defendStatus = DEFEND_ON;
-				str_tip = '您的定位器'+ str_tempAlias +'当前未设防。';
+				str_tip = '您的定位器“'+ str_tempAlias +'”当前未设防。';
 				arr_defendBtns = new Array('sf', 'sf2'); 
 				str_html = '未设防';
 				str_dImg = 'defend_status0.png';
