@@ -442,14 +442,23 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_title = '定位器：',
 		str_tempMsg = '开始跟踪',
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
-		str_html = str_iconType == 'actiontrack' ? '<div id="markerWindowtitle" class="cMsgWindow height135">' : '<div id="markerWindowtitle" class="cMsgWindow height110">';
+		str_html = str_iconType == 'actiontrack' ? '<div id="markerWindowtitle" class="cMsgWindow height135">' : '<div id="markerWindowtitle" class="cMsgWindow height110">',
+		b_routeLineWpST = $('#routeLineWrapper').is(':visible'), //线路展示窗口是否打开
+		b_routeLineCreateWpST = $('#routeLineCreateWrapper').is(':visible'), // 线路新展示窗口是否打开
+		b_regionWpST = $('#regionWrapper').is(':visible'),
+		b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
+		b_corpRegionWpST = $('#corpRegionWrapper').is(':visible'),
+		b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
+		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible');
 	
 	address = fn_cutString(address);
 	if ( dlf.fn_userType() ) {	// 集团用户修改图标
 		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt);	// 集团用户设置marker的图标
 	}
 	if ( str_iconType == 'delay' ) {
-		str_html = '<div id="markerWindowtitle" class="cMsgWindow height90">'
+		str_html = '<div id="markerWindowtitle" class="cMsgWindow height90">';
+	} else if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {		
+		str_html = '<div id="markerWindowtitle" class="cMsgWindow height110">';
 	}
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
@@ -528,22 +537,26 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 					'<li title="'+ str_tempAddress +'">位置： <lable class="lblAddress">'+ address +'</label></li>';
 
 		if ( str_iconType == 'actiontrack' ) {
-			str_html+='<li class="top10"><a href="#" id="realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
-			if ( dlf.fn_userType() ) {	// 如果是集团用户的话 定位、轨迹、设防撤防、参数设置放在marker上
-				str_html+='<a href="#" id="corpTerminal"  onclick="dlf.fn_initCorpTerminal();">设置</a><a href="#" onclick="dlf.fn_initRegion();">围栏</a>';
-			} else {	// 如果是个人用户
-				str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
-			}
-			str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+			if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
 			
-			if ( str_tid == str_currenttid || !str_currenttid ) {
-				var str_fileUrl = location.href,
-					str_fileUrl = str_fileUrl.substr(0, str_fileUrl.length-1),
-					str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
-					str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt) : str_iconUrl,
-					str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
+			} else {
+				str_html+='<li class="top10"><a href="#" id="realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
+				if ( dlf.fn_userType() ) {	// 如果是集团用户的话 定位、轨迹、设防撤防、参数设置放在marker上
+					str_html+='<a href="#" id="corpTerminal"  onclick="dlf.fn_initCorpTerminal();">设置</a><a href="#" onclick="dlf.fn_initRegion();">围栏</a>';
+				} else {	// 如果是个人用户
+					str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
+				}
+				str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+				
+				if ( str_tid == str_currenttid || !str_currenttid ) {
+					var str_fileUrl = location.href,
+						str_fileUrl = str_fileUrl.substr(0, str_fileUrl.length-1),
+						str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
+						str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt) : str_iconUrl,
+						str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
 
-				str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中山移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+					str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中山移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+				}
 			}
 		} else if ( str_iconType == 'alarmInfo' ) {
 			str_html += '<li class="top10">告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
