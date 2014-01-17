@@ -100,39 +100,39 @@ class ProfileHandler(BaseHandler):
             #    self.write_ret(status)
             #    return
 
-            if data.has_key('cnum') and not check_cnum(data.cnum):
-                status = ErrorCode.ILLEGAL_CNUM 
-                self.write_ret(status)
-                return
+            #if data.has_key('cnum') and not check_cnum(data.cnum):
+            #    status = ErrorCode.ILLEGAL_CNUM 
+            #    self.write_ret(status)
+            #    return
 
-            fields_ = DotDict()
-            fields = DotDict(name="name = '%s'")
-                             #mobile="mobile = '%s'",
-                             #address="address = '%s'",
-                             #email="email = '%s'",
-                             #remark="remark = '%s'")
-            for key, value in data.iteritems():
-                if key == 'name':
-                    fields_.setdefault(key, fields[key] % value) 
-                elif key == 'cnum':
-                    self.db.execute("UPDATE T_CAR"
-                                    "  SET cnum = %s"
-                                    "  WHERE tid = %s",
-                                    safe_unicode(value), self.current_user.tid)
-                    terminal_info_key = get_terminal_info_key(self.current_user.tid)
-                    terminal_info = self.redis.getvalue(terminal_info_key)
-                    if terminal_info:
-                        terminal_info['alias'] = value if value else self.current_user.sim 
-                        self.redis.setvalue(terminal_info_key, terminal_info)
-                else:
-                    logging.error("[UWEB] invaid field: %s, drop it!", key)
-                    pass
+            #fields_ = DotDict()
+            #fields = DotDict(name="name = %s")
+            #                 #mobile="mobile = '%s'",
+            #                 #address="address = '%s'",
+            #                 #email="email = '%s'",
+            #                 #remark="remark = '%s'")
+            #for key, value in data.iteritems():
+            #    if key == 'name':
+            #        fields_.setdefault(key, fields[key] % value) 
+            #    elif key == 'cnum':
+            #        self.db.execute("UPDATE T_CAR"
+            #                        "  SET cnum = %s"
+            #                        "  WHERE tid = %s",
+            #                        safe_unicode(value), self.current_user.tid)
+            #        terminal_info_key = get_terminal_info_key(self.current_user.tid)
+            #        terminal_info = self.redis.getvalue(terminal_info_key)
+            #        if terminal_info:
+            #            terminal_info['alias'] = value if value else self.current_user.sim 
+            #            self.redis.setvalue(terminal_info_key, terminal_info)
+            #    else:
+            #        logging.error("[UWEB] invaid field: %s, drop it!", key)
+            #        pass
 
-            set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
-            if set_clause:
-                self.db.execute("UPDATE T_USER SET " + set_clause +
-                                "  WHERE uid = %s",
-                                self.current_user.uid)
+            name = data.get('name', None)
+            if name is not None:
+                sql = "UPDATE T_USER SET name = %s WHERE uid = %s"
+                self.db.execute(sql, 
+                                name, self.current_user.uid)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] user uid:%s tid:%s update profile failed.  Exception: %s", 
