@@ -133,10 +133,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def check_privilege(self, uid, tid=None):
         """Check the user whether is test only."""
         status = ErrorCode.SUCCESS
-        if tid:
-            if tid == ConfHelper.UWEB_CONF.test_tid: 
-                status = ErrorCode.TEST_NOT_PERMITED
-        elif uid == ConfHelper.UWEB_CONF.test_uid:
+        #if tid:
+        #    if tid == ConfHelper.UWEB_CONF.test_tid: 
+        #        status = ErrorCode.TEST_NOT_PERMITED
+        if uid == ConfHelper.UWEB_CONF.test_uid:
             status = ErrorCode.TEST_NOT_PERMITED
         return status
     
