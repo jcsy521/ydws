@@ -402,7 +402,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		}
 		if ( b_regionCreateWpST ) { // 如果切车时当前正在进行围栏创建操作
 			$.get_(REGION_URL+'?tid='+ n_tid, '', function(data) {
-				var arr_regions = data.regions;
+				var arr_regions = data.res;
 				
 				$('#regionTable').data('regions', arr_regions); //围栏存储数据以便显示详细信息
 				$('#regionTable').data('regionnum', arr_regions.length); //围栏存储数据以便显示详细信息
