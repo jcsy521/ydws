@@ -16,9 +16,9 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 			arr_overlays = $('.j_carList .j_terminal');
 
 		if ( obj_tempMarker ) {
-           /* var obj_currentCarInfo = $('.j_carList').data('carsData')[n_tid];
+            var obj_currentCarInfo = $('.j_carList').data('carsData')[n_tid];
             
-			obj_tempMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_currentCarInfo, 'actiontrack'));*/
+			obj_tempMarker.selfInfoWindow.setContent(dlf.fn_tipContents(obj_currentCarInfo, 'actiontrack'));
 			obj_infoWindow = obj_tempMarker.selfInfoWindow;
 			// mapObj.setCenter(obj_tempMarker.getPosition());
 			for ( var i = 0; i < arr_overlays.length; i++ ) {
