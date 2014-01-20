@@ -442,7 +442,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 		str_title = '定位器：',
 		str_tempMsg = '开始跟踪',
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
-		str_html = str_iconType == 'actiontrack' ? '<div id="markerWindowtitle" class="cMsgWindow height135">' : '<div id="markerWindowtitle" class="cMsgWindow height110">',
+		str_html = '<div id="markerWindowtitle" class="cMsgWindow">',
 		b_routeLineWpST = $('#routeLineWrapper').is(':visible'), //线路展示窗口是否打开
 		b_routeLineCreateWpST = $('#routeLineCreateWrapper').is(':visible'), // 线路新展示窗口是否打开
 		b_regionWpST = $('#regionWrapper').is(':visible'),
@@ -454,11 +454,6 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	address = fn_cutString(address);
 	if ( dlf.fn_userType() ) {	// 集团用户修改图标
 		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt);	// 集团用户设置marker的图标
-	}
-	if ( str_iconType == 'delay' ) {
-		str_html = '<div id="markerWindowtitle" class="cMsgWindow height90">';
-	} else if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {		
-		str_html = '<div id="markerWindowtitle" class="cMsgWindow height110">';
 	}
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';

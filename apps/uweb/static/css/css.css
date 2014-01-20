@@ -1870,7 +1870,6 @@ body {
 }
 #markerWindowtitle label {
 	display: inline-block;
-	float: left;
 }
 #markerWindowtitle .labelRight {
 	float: right;
