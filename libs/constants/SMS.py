@@ -20,7 +20,8 @@ CATEGORY = DotDict(MO=1,
 
 SENDSTATUS = DotDict(PREPARING=-1,
                      SUCCESS=0,
-                     FAILURE=1)
+                     FAILURE=1,
+                     SENDING=2)
 
 USERSTATUS = DotDict(NOSYNC=-1,
                      SUCCESS=0,

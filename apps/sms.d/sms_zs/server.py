@@ -5,12 +5,14 @@ import os.path
 import site
 import logging
 import time
+import signal
 import thread
+from Queue import PriorityQueue
 
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
-from tornado.options import define, options
+from tornado.options import define, options, parse_command_line
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
@@ -27,6 +29,7 @@ from codes.errorcode import ErrorCode
 
 from handlers.mainhandler import MainHandler
 from handlers.acbmthandler import ACBMTHandler
+from handlers.worker import WorkerPool
 from business.mt import MT
 
 
@@ -45,59 +48,46 @@ class Application(tornado.web.Application):
 
         tornado.web.Application.__init__(self, handlers, **settings)
         self.db = DBConnection().db
+        self.queue = PriorityQueue()
 
 
-def shutdown(server):
+def shutdown(pool, server):
     try:
-        # old version of tornado does not support stop
-        if hasattr(server, 'stop'):
-            server.stop()
-        tornado.ioloop.IOLoop.instance().stop
+        if pool:
+            pool.clear()
+
+        if server:
+            # old version of tornado does not support stop
+            if hasattr(server, 'stop'):
+                server.stop()
+            tornado.ioloop.IOLoop.instance().stop
     except:
         pass
 
-
-def run_send_failed_mt_thread():
-    logging.info("Send failed mt thread started.")
-    INTERVAL = 180
-    status = ErrorCode.FAILED
-    mt = MT()
-    try:
-        while True:
-            time.sleep(INTERVAL)
-            status = mt.fetch_failed_mt_sms()
-            if status == ErrorCode.SUCCESS:
-                INTERVAL = 180
-            else:
-                INTERVAL = INTERVAL * 2
-                if INTERVAL > 600:
-                    INTERVAL = 600
-    except Exception as e:
-        logging.exception("Start send failed MT thread failed: %s", e.args)
-
-
-def run_send_mt_thread():
-    logging.info("MT thread started.")
+def add_sms_to_queue_thread(queue):
+    logging.info("[SMS] add_sms_to_queue thread started.")
     #time interval 3 second
-    INTERVAL = 3
+    INTERVAL = 0.1 
     status = ErrorCode.FAILED
-    mt = MT()
+    mt = MT(queue)
     try:
         while True:
             time.sleep(INTERVAL)
-            status = mt.fetch_mt_sms()
+            if queue.qsize() > 0:
+                continue
+            status = mt.add_sms_to_queue()
             if status == ErrorCode.SUCCESS:
-                INTERVAL = 3
+                INTERVAL = 0.1 
             else:
                 INTERVAL = INTERVAL * 2
                 if INTERVAL > 600:
                     INTERVAL = 600
     except Exception as e:
-        logging.exception("Start MT thread failed: %s", e.args)
-            
+        logging.exception("[SMS] Start add_sms_to_queue thread failed: %s", 
+                          e.args)
 
 def main():
-    tornado.options.parse_command_line()
+    parse_command_line()
     if options.mode.lower() == "debug":
         debug_mode = True
     else:
@@ -106,27 +96,24 @@ def main():
     http_server = None
     try:
         ConfHelper.load(options.conf)
-        application = Application(debug=debug_mode)
-        http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
-        # create mt thread
-        thread.start_new_thread(run_send_mt_thread, ())
-        
-        # create send failed mt thread
-        thread.start_new_thread(run_send_failed_mt_thread, ())
+        app = Application(debug=debug_mode)
+        http_server = tornado.httpserver.HTTPServer(app, xheaders=True)
+        worker_pool = WorkerPool(app.queue, int(ConfHelper.SMS_CONF.workers))
+
+        thread.start_new_thread(add_sms_to_queue_thread, (app.queue,))
 
         http_server.listen(options.port)
-        logging.warn("[ACB SMS] running on: localhost:%d", options.port)
+        logging.warn("[SMS] running on: localhost:%d", options.port)
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
         logging.error("Ctrl-C is pressed.")
     except:
-        logging.exception("[ACB SMS] exit exception")
+        logging.exception("[SMS] exit exception")
     finally:
-        logging.warn("[ACB SMS] shutdown...")
+        logging.warn("[SMS] shutdown...")
         if http_server:
-            shutdown(http_server)
-        logging.warn("[ACB SMS] Stopped. Bye!")
-
+            shutdown(worker_pool, http_server)
+        logging.warn("[SMS] Stopped. Bye!")
 
 if __name__ == "__main__":
     main()

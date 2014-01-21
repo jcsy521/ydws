@@ -41,19 +41,18 @@ class HttpClient(object):
             
                 response = streamData.decode('utf-8')
             else:
-                logging.error("Opener is None")
+                logging.error("[SMS] Opener is None")
                 
         except urllib2.HTTPError, msg:
             status = ErrorCode.FAILED
-            logging.exception("Connection sms service HTTPError : %s", msg)
+            logging.exception("[SMS] Connection sms service HTTPError : %s", msg)
         except urllib2.URLError, msg:
             status = ErrorCode.FAILED
-            logging.exception("Connection sms service URLError : %s", msg)
+            logging.exception("[SMS] Connection sms service URLError : %s", msg)
         except Exception, msg:
             status = ErrorCode.FAILED
-            logging.exception("Send http post request exception : %s", msg)
+            logging.exception("[SMS] Send http post request exception : %s", msg)
         finally:
             if opener:
                 opener.close()
             return {"status" : status, "response" : response}
-

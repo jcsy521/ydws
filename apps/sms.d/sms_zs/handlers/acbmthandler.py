@@ -26,7 +26,7 @@ class ACBMTHandler(BaseHandler):
                           '13928184846','15819975339','15220938533','13416058872','13532063411','13590715788','15889888140',
                           '13703041733','15976025624','15017335473','13702533993','18219251647','13528189287','18344911924')
             if mobile in black_list:
-                logging.info("%s is in black list, so skip the sms.", mobile)
+                logging.info("[SMS] %s is in black list, so skip the sms.", mobile)
                 self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
                 return
 
@@ -34,7 +34,7 @@ class ACBMTHandler(BaseHandler):
             cm_list = (139,138,137,136,135,134,159,150,151,158,157,188,187,152,182,183,147)
             
             if cm not in cm_list:
-                logging.info("%s is not China Mobile, so skip the sms.", mobile)
+                logging.info("[SMS] %s is not China Mobile, so skip the sms.", mobile)
                 self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
                 return
             
@@ -43,10 +43,10 @@ class ACBMTHandler(BaseHandler):
                             "  VALUES(%s, %s, %s, %s, %s, %s)",
                             msgid, mobile, content, insert_time,
                             SMS.CATEGORY.MT, SMS.SENDSTATUS.PREPARING)
-            logging.info("acb-->sms save success! mobile = %s, content = %s", mobile, content)
+            logging.info("[SMS] acb-->sms save success! mobile = %s, content = %s", mobile, content)
             self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
         except Exception, msg:  
-            logging.exception("acb-->sms post exception : %s", msg)
+            logging.exception("[SMS] acb-->sms post exception : %s", msg)
             self.write({'status' : ErrorCode.FAILED, 'msgid' : msgid})
         
         
