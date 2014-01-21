@@ -150,7 +150,8 @@ class AsyncParser(object):
             if len(pvt) == 7: 
                 pvt[-1] = pvt[-1][:-1] 
                 pvt.append('20}') 
-                packet_new.extend(pvt) 
+                logging.info("[GW] old version is compatible, append locate_error")
+            packet_new.extend(pvt) 
         #END
 
         positions = []
