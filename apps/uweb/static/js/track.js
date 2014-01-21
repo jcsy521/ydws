@@ -563,7 +563,8 @@ window.dlf.fn_initTrackDatepicker = function() {
 	*/
 	var str_nowDate = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd'), 
 		obj_stTime = $('#trackBeginTime'), 
-		obj_endTime = $('#trackEndTime');
+		obj_endTime = $('#trackEndTime'),
+		str_tempBeginTime = str_nowDate+' 00:00:00';
 		
 	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联   maxDate: '#F{$dp.$D(\'trackEndTime\')}',   minDate:'#F{$dp.$D(\'trackBeginTime\')}', // delete in 2013.04.10
 		WdatePicker({el: 'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, 
@@ -577,7 +578,7 @@ window.dlf.fn_initTrackDatepicker = function() {
 				}
 			}
 		});
-	}).val(dlf.fn_changeNumToDateString((new Date()-7200000)/1000));
+	}).val(str_tempBeginTime);
 	
 	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
 		WdatePicker({el: 'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, 

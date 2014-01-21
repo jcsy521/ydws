@@ -493,7 +493,7 @@ window.dlf.fn_searchData = function (str_who) {
 			break;
 	}
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
-	
+	dlf.fn_lockScreen();
 	if ( str_who == 'operator' || str_who == 'region' || str_who == 'corpRegion' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
 		$.get_(str_getDataUrl, '', function(data) {	
 			dlf.fn_bindSearchRecord(str_who, data);
@@ -502,6 +502,9 @@ window.dlf.fn_searchData = function (str_who) {
 			dlf.fn_serverError(XMLHttpRequest);
 		});
 	} else {
+		if ( str_who == 'singleMileage' ) {
+			$('#maskLayer').css('z-index', 1004);
+		}
 		$.post_(str_getDataUrl, JSON.stringify(obj_conditionData), function(data) {	
 			dlf.fn_bindSearchRecord(str_who, data);
 		},
@@ -655,6 +658,11 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 		dlf.fn_showBusinessTip('eventSearch');
 	} else {
 		dlf.fn_jNotifyMessage(obj_resdata.message, 'message', false, 3000);	
+	}
+	if ( str_who == 'singleMileage' ) {
+		$('#maskLayer').css('z-index', 1002);
+	} else {
+		dlf.fn_unLockScreen(); // 清除页面遮罩
 	}
 }
 
