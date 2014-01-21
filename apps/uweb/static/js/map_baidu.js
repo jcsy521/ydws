@@ -527,8 +527,51 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 					'<label class="labelRight" title="'+str_degreeTip+'">方向： '+str_degree+'</label></li>'+
 					'<li><label>经度： E '+str_clon.toFixed(CHECK_ROUNDNUM)+'</label>'+
 					'<label class="labelRight">纬度： N '+str_clat.toFixed(CHECK_ROUNDNUM)+'</label></li>'+
-					'<li>类型： '+ str_type +'</li>'+
-					'<li>时间： '+ date +'</li>' + 
+					'<li><label>类型： '+ str_type +'</label>';
+		
+		// hs:2014.1.21 轨迹查询的吹出框增加里程显示
+		//-==============轨迹的播放点	
+		var n_tempDist = 0;
+		
+		if ( str_iconType == 'draw' ) { 
+			// 距离计算
+			if ( n_index == 0 ) {
+				n_tempDist = 0;
+			} else {
+				for ( var i = 1; i <= counter ; i++ ) {
+					var obj_currentData = arr_dataArr[i],
+						obj_prevData = arr_dataArr[i - 1],
+						obj_currentPoint = dlf.fn_createMapPoint(obj_currentData.clongitude, obj_currentData.clatitude),
+						obj_prevPoint = dlf.fn_createMapPoint(obj_prevData.clongitude, obj_prevData.clatitude),
+						n_pointDist = dlf.fn_forMarkerDistance(obj_currentPoint, obj_prevPoint);
+					
+					n_tempDist = n_tempDist + n_pointDist;
+				}
+			}
+		}
+		//==============轨迹的起点
+		if ( str_iconType == 'start' ) { 
+			n_tempDist = 0;
+		}
+		//==============轨迹的终点
+		if ( str_iconType == 'end' ) {
+			var n_dataLen = arr_dataArr.length;
+			
+			for ( var i = 1 ; i < n_dataLen; i++ ) {
+				var obj_currentData = arr_dataArr[i],
+					obj_prevData = arr_dataArr[i - 1], 
+					obj_currentPoint = dlf.fn_createMapPoint(obj_currentData.clongitude, obj_currentData.clatitude),
+					obj_prevPoint = dlf.fn_createMapPoint(obj_prevData.clongitude, obj_prevData.clatitude),
+					n_pointDist = dlf.fn_forMarkerDistance(obj_currentPoint, obj_prevPoint);
+				
+				n_tempDist += n_pointDist;
+			}
+		}
+		if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' ) {
+			str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist/1000, 1) +' km</label></li>';
+		}
+		
+		str_html += '<li>时间： '+ date +'</li>' + 
 					'<li title="'+ str_tempAddress +'">位置： <lable class="lblAddress">'+ address +'</label></li>';
 
 		if ( str_iconType == 'actiontrack' ) {

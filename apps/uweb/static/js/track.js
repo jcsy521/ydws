@@ -202,48 +202,109 @@ function fn_trackQuery() {
 
 /**
 * 根据经纬度求两点间距离
-
-function fn_forMarkerDistance(firstPoint, secondPoint) {
-	var EarthRadiusKm = 6378137.0; // 取WGS84标准参考椭球中的地球长半径(单位:m)
-	var dLat1InRad = firstPoint.lat/NUMLNGLAT * (Math.PI / 180);
-	var dLong1InRad = firstPoint.lng/NUMLNGLAT * (Math.PI / 180);
-	var dLat2InRad = secondPoint.lat/NUMLNGLAT * (Math.PI / 180);
-	var dLong2InRad = secondPoint.lng/NUMLNGLAT * (Math.PI / 180);
-	var dLongitude = dLong2InRad - dLong1InRad;
-	var dLatitude = dLat2InRad - dLat1InRad;
-	var a = Math.pow(Math.sin(dLatitude / 2), 2) + 
-		Math.cos(dLat1InRad) * Math.cos(dLat2InRad) * 
-		Math.pow(Math.sin(dLongitude / 2), 2);
-	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-	var n_Distance = EarthRadiusKm * c;
-	return n_Distance;
-}
-*/
-
-/**
-* 根据经纬度求两点间距离
 */
 window.dlf.fn_forMarkerDistance = function (point1, point2) {
-	var EARTHRADIUS = 6370996.81; // 取WGS84标准参考椭球中的地球长半径(单位:m)
-	//判断类型
-	/*if(!(point1 instanceof BMap.Point) ||
-		!(point2 instanceof BMap.Point)){
-		return 0;
-	}*/
-	
-	/*point1.lng = fn_getLoop(point1.lng, -180, 180);
-	point1.lat = fn_getRange(point1.lat, -74, 74);
-	point2.lng = fn_getLoop(point2.lng, -180, 180);
-	point2.lat = fn_getRange(point2.lat, -74, 74);
-	*/
-	
-	var x1, x2, y1, y2;
-	x1 = dlf.degreeToRad(point1.lng);
-	y1 = dlf.degreeToRad(point1.lat);
-	x2 = dlf.degreeToRad(point2.lng);
-	y2 = dlf.degreeToRad(point2.lat);
+	// Based on http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
+	// using the "Inverse Formula" (section 4)
+	var EARTHRADIUS = 6370996.81,  // 取WGS84标准参考椭球中的地球长半径(单位:m)
+		lon1 = point1.lng,
+		lon2 = point2.lng,
+		lat1 = point1.lat,
+		lat2 = point2.lat,
+		MAXITERS = 20;
+		
+	// Convert lat/long to radians
+	lat1 = lat1 * Math.PI / 180.0;
+	lat2 = lat2 * Math.PI / 180.0;
+	lon1 = lon1 * Math.PI / 180.0;
+	lon2 = lon2 * Math.PI / 180.0;
 
-	return EARTHRADIUS * Math.acos((Math.sin(y1) * Math.sin(y2) + Math.cos(y1) * Math.cos(y2) * Math.cos(x2 - x1)));    
+	var a = 6378137.0, // WGS84 major axis
+		b = 6356752.3142, // WGS84 semi-major axis
+		f = (a - b) / a,
+		aSqMinusBSqOverBSq = (a * a - b * b) / (b * b);
+
+	var L = lon2 - lon1,
+		A = 0.0,
+		U1 = Math.atan((1.0 - f) * Math.tan(lat1)),
+		U2 = Math.atan((1.0 - f) * Math.tan(lat2));
+
+	var cosU1 = Math.cos(U1),
+		cosU2 = Math.cos(U2),
+		sinU1 = Math.sin(U1),
+		sinU2 = Math.sin(U2),
+		cosU1cosU2 = cosU1 * cosU2,
+		sinU1sinU2 = sinU1 * sinU2;
+
+	var sigma = 0.0,
+		deltaSigma = 0.0,
+		cosSqAlpha = 0.0,
+		cos2SM = 0.0,
+		cosSigma = 0.0,
+		sinSigma = 0.0,
+		cosLambda = 0.0,
+		inLambda = 0.0;
+
+	var lambda = L; // initial guess
+	
+	for (var iter = 0; iter < MAXITERS; iter++) {
+		var lambdaOrig = lambda;
+		
+		cosLambda = Math.cos(lambda);
+		sinLambda = Math.sin(lambda);
+		var t1 = cosU2 * sinLambda,
+			t2 = cosU1 * sinU2 - sinU1 * cosU2 * cosLambda,
+			sinSqSigma = t1 * t1 + t2 * t2; // (14)
+			
+		sinSigma = Math.sqrt(sinSqSigma);
+		cosSigma = sinU1sinU2 + cosU1cosU2 * cosLambda; // (15)
+		sigma = Math.atan2(sinSigma, cosSigma); // (16)
+		
+		var sinAlpha = (sinSigma == 0) ? 0.0 : cosU1cosU2 * sinLambda
+				/ sinSigma; // (17)
+				
+		cosSqAlpha = 1.0 - sinAlpha * sinAlpha;
+		cos2SM = (cosSqAlpha == 0) ? 0.0 : cosSigma - 2.0 * sinU1sinU2
+				/ cosSqAlpha; // (18)
+
+		var uSquared = cosSqAlpha * aSqMinusBSqOverBSq; // defn
+		
+		A = 1 + (uSquared / 16384.0)
+				* // (3)
+				(4096.0 + uSquared
+						* (-768 + uSquared * (320.0 - 175.0 * uSquared)));
+						
+		var B = (uSquared / 1024.0) * // (4)
+				(256.0 + uSquared
+						* (-128.0 + uSquared * (74.0 - 47.0 * uSquared)));
+		var C = (f / 16.0) * cosSqAlpha
+				* (4.0 + f * (4.0 - 3.0 * cosSqAlpha)); // (10)
+		var  cos2SMSq = cos2SM * cos2SM;
+		
+		deltaSigma = B
+				* sinSigma
+				* // (6)
+				(cos2SM + (B / 4.0)
+						* (cosSigma * (-1.0 + 2.0 * cos2SMSq) - (B / 6.0)
+								* cos2SM
+								* (-3.0 + 4.0 * sinSigma * sinSigma)
+								* (-3.0 + 4.0 * cos2SMSq)));
+
+		lambda = L
+				+ (1.0 - C)
+				* f
+				* sinAlpha
+				* (sigma + C
+						* sinSigma
+						* (cos2SM + C * cosSigma
+								* (-1.0 + 2.0 * cos2SM * cos2SM))); // (11)
+
+		var delta = (lambda - lambdaOrig) / lambda;
+		if (Math.abs(delta) < 1.0e-12) {
+			break;
+		}
+	}
+	return (b * A * (sigma - deltaSigma));
 }
 
 /**
