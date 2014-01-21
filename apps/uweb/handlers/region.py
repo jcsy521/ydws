@@ -150,12 +150,12 @@ class RegionHandler(BaseHandler):
             return
 
         try:
-            status = self.check_privilege(self.current_user.uid, tid) 
-            if status != ErrorCode.SUCCESS: 
-                logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
-                              tid, self.current_user.uid) 
-                self.write_ret(status) 
-                return 
+            #status = self.check_privilege(self.current_user.uid, tid) 
+            #if status != ErrorCode.SUCCESS: 
+            #    logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
+            #                  tid, self.current_user.uid) 
+            #    self.write_ret(status) 
+            #    return 
 
             regions = self.db.query("SELECT id"
                                     "  FROM T_REGION_TERMINAL"
@@ -225,12 +225,12 @@ class RegionHandler(BaseHandler):
             self.write_ret(status)
 
         try:
-            status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
-            if status != ErrorCode.SUCCESS: 
-                logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
-                              self.current_user.tid, self.current_user.uid) 
-                self.write_ret(status) 
-                return
+            #status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
+            #if status != ErrorCode.SUCCESS: 
+            #    logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
+            #                  self.current_user.tid, self.current_user.uid) 
+            #    self.write_ret(status) 
+            #    return
 
             status = ErrorCode.SUCCESS
             #1: delete redis region status

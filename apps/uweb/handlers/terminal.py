@@ -110,12 +110,12 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             return 
         
         try:
-            status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
-            if status != ErrorCode.SUCCESS: 
-                logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
-                              self.current_user.tid, self.current_user.uid) 
-                self.write_ret(status) 
-                return
+            #status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
+            #if status != ErrorCode.SUCCESS: 
+            #    logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
+            #                  self.current_user.tid, self.current_user.uid) 
+            #    self.write_ret(status) 
+            #    return
 
             if data.get("alert_freq"):
                 alert_freq_key = get_alert_freq_key(self.current_user.tid)
