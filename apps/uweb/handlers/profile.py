@@ -133,6 +133,19 @@ class ProfileHandler(BaseHandler):
                 sql = "UPDATE T_USER SET name = %s WHERE uid = %s"
                 self.db.execute(sql, 
                                 name, self.current_user.uid)
+
+            cnum = data.get('cnum', None)
+            if cnum is not None:
+                self.db.execute("UPDATE T_CAR"
+                                "  SET cnum = %s"
+                                "  WHERE tid = %s",
+                                safe_unicode(cnum), self.current_user.tid)
+                terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                if terminal_info:
+                    terminal_info['alias'] = cnum if cnum else self.current_user.sim 
+                    self.redis.setvalue(terminal_info_key, terminal_info)
+
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] user uid:%s tid:%s update profile failed.  Exception: %s", 
