@@ -1972,11 +1972,19 @@ body {
     overflow: hidden;
 	width: 730px;
 }
-.pwdCnt {
+#pwdBox .pwdCnt {
 	margin-top: 36px;
 	text-align: center;
 }
-.pwdTips {
+#tab_pwd {
+	width: 540px;
+	margin: 0 auto;
+}
+#tab_pwd td {
+	width: 270px;
+	text-align: left;
+}
+#tab_pwd .pwdTips {
 	background: none repeat scroll 0 0 #FFFF99;
     border: 1px solid #EFAC22;
     height: 30px;
@@ -1985,10 +1993,14 @@ body {
     width: 388px;
 	color: #CD0101;
 	font-weight: bold;
+	text-align: center;
 }
-#tab_pwd {
-	width: 540px;
-	margin: 0 auto;
+#tab_pwd .pwdTable_tip {
+	width: 110px;
+	text-align: right;
+}
+#tab_pwd .pwdTable_tip_corp {
+	width: 144px;
 }
 #pwdBox p {
 	margin-right:30px;
@@ -1996,7 +2008,7 @@ body {
 	padding-top: 10px;
 	color: #999;
 }
-#mobile {
+#mobile, #pwd_captcha {
 	height: 22px;
 	line-height: 22px;
 	padding-left: 5px;

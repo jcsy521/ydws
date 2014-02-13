@@ -59,6 +59,8 @@ var CORP_REGION_URL = '/corpregion';	// 集团围栏管理
 var BINDREGION_URL = '/bindregion'; // 围栏绑定
 var GETREGIONDATA_URL = '/getregionevent';//获取告警围栏信息
 var ALEERSETTING_URL = '/eventperiod';	// 告警有效时间段设置
+var PWD_CAPCHA_URL = '/getcaptcha';	// 个人用户获取找回密码验证码
+var CORPPWD_CAPCHA_URL = '/getcaptcha/corp';	// 集团用户获取找回密码验证码
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒
 var CHECK_ROUNDNUM = 3; // 经纬度显示小数位截取
