@@ -21,7 +21,7 @@ $(function () {
 		}
 		
 		$.post('/whitelist_search',  JSON.stringify(obj_conditionData), function (data) { 
-			if ( data.success == 0 ) {
+			if ( data.status == 0 ) {
 				var str_tbodyText ='<tr>',
 					obj_tempData = data.whitelist,
 					str_mobile = obj_tempData.mobile,
@@ -33,7 +33,7 @@ $(function () {
 				}
 				str_tbodyText += '<td class="sorting_1">'+str_mobile+'</td>';
 				str_tbodyText += '<td class="sorting_1">'+str_planName+'</td>';
-				str_tbodyText += '<td><a href="#" onclick="fn_showModifyWhitelist(\''+str_mobile+'\',\''+str_bizType+'\')">更改套餐</a></td></tr>';
+				str_tbodyText += '<td class="sorting_1"><a href="#" onclick="fn_showModifyWhitelist(\''+str_mobile+'\',\''+str_bizType+'\')">更改套餐</a></td></tr>';
 				
 				obj_whitelistBody.html(str_tbodyText);
 			} else {
@@ -76,7 +76,7 @@ $(function () {
 		
 		$.post('/whitelist',  JSON.stringify(obj_conditionData), function (data) {
 			alert(data.message);
-			if ( data.success == 0 ) {
+			if ( data.status == 0 ) {
 				$('#addWhitelistDialog').dialog('close');
 			}
 		});
@@ -100,7 +100,7 @@ $(function () {
 				data: JSON.stringify(obj_conditionData),
 				success: function(data){
 					alert(data.message);
-					if ( data.success == 0 ) {
+					if ( data.status == 0 ) {
 						$('#modifyWhitelistDialog').dialog('close');
 						$('#whitelist_search').click();
 					}
