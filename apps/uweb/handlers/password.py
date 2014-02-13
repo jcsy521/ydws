@@ -7,7 +7,7 @@ import random
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
-from utils.misc import get_psd
+from utils.misc import get_psd, get_captcha_key
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_label
 from mixin.password import PasswordMixin 
@@ -75,6 +75,8 @@ class PasswordHandler(BaseHandler, PasswordMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            mobile = data.mobile
+            captcha = data.get('captcha','')
             logging.info("[UWEB] user retrieve password request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -89,32 +91,49 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                 self.write_ret(status) 
                 return
 
-            mobile = data.mobile
+            psd = get_psd()                        
             user = self.db.get("SELECT mobile"
                                "  FROM T_USER"
                                "  WHERE mobile = %s"
                                "  LIMIT 1",
                                mobile)
             if user:
-                psd = get_psd()                        
-                self.db.execute("UPDATE T_USER"
-                                "  SET password = password(%s)"
-                                "  WHERE mobile = %s",
-                                psd, mobile)
-                        
-                retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (psd) 
-                ret = SMSHelper.send(mobile, retrieve_password_sms)
-                ret = DotDict(json_decode(ret))
-                if ret.status == ErrorCode.SUCCESS:
-                    logging.info("[UWEB] user uid: %s retrieve password success, the new passwrod: %s", mobile, psd)
-                else:
-                    status = ErrorCode.SERVER_BUSY
-                    logging.error("[UWEB] user uid: %s retrieve password failed.", mobile)
-            else:
-                logging.error("[UWEB] user uid: %s does not exist, retrieve password failed.", mobile)
+                if not captcha: # old version
+                    self.update_password(psd, mobile)
+                    retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (psd) 
+                    ret = SMSHelper.send(mobile, retrieve_password_sms)
+                    ret = DotDict(json_decode(ret))
+                    if ret.status == ErrorCode.SUCCESS:
+                        logging.info("[UWEB] user uid: %s retrieve password success, the new passwrod: %s", mobile, psd)
+                    else:
+                        status = ErrorCode.SERVER_BUSY
+                        logging.error("[UWEB] user uid: %s retrieve password failed.", mobile)
+                else: # new version
+                    captcha_key = get_captcha_key(mobile)
+                    captcha_old = self.redis.get(captcha_key)
+                    if captcha_old:
+                        if captcha == str(captcha_old): 
+                            self.update_password(psd, mobile)
+                            retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (psd) 
+                            ret = SMSHelper.send(mobile, retrieve_password_sms)
+                            ret = DotDict(json_decode(ret))
+                            if ret.status == ErrorCode.SUCCESS:
+                                logging.info("[UWEB] user uid: %s retrieve password success, the new passwrod: %s", mobile, psd)
+                            else:
+                                status = ErrorCode.SERVER_BUSY
+                                logging.error("[UWEB] user uid: %s retrieve password failed.", mobile)
+                        else:
+                            status = ErrorCode.WRONG_CAPTCHA
+                            logging.error("mobile: %s retrieve password failed. captcha: %s, captcha_old: %s, Message: %s", 
+                                           mobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
+                    else:
+                        status = ErrorCode.NO_CAPTCHA
+                        logging.error("mobile: %s retrieve password failed. captcha: %s, Message: %s", 
+                                      mobile, captcha, ErrorCode.ERROR_MESSAGE[status])
+            else: 
                 status = ErrorCode.USER_NOT_ORDERED
+                logging.error("[UWEB] umobile: %s does not exist, retrieve password failed.", mobile)
             self.write_ret(status)
-            
         except Exception as e:
             logging.exception("[UWEB] user uid: %s retrieve password failed.  Exception: %s", mobile, e.args)
             status = ErrorCode.SERVER_BUSY
@@ -170,6 +189,8 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            mobile = data.mobile
+            captcha = data.get('captcha','')
             logging.info("[UWEB] corp retrieve password request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -177,30 +198,65 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
             return 
 
         try:
-            mobile = data.mobile
             psd = get_psd()                        
             user = self.db.get("SELECT mobile"
                                "  FROM T_CORP"
                                "  WHERE cid = %s"
                                "  LIMIT 1",
                                mobile)
-            if user:
-                self.db.execute("UPDATE T_CORP"
-                                "  SET password = password(%s)"
-                                "  WHERE cid = %s",
-                                psd, mobile)
-            else:
+            if user: # corp
+                if not captcha: # old version 
+                    self.db.execute("UPDATE T_CORP"
+                                    "  SET password = password(%s)"
+                                    "  WHERE cid = %s",
+                                    psd, mobile)
+                else: # new version
+                    captcha_key = get_captcha_key(mobile)
+                    captcha_old = self.redis.get(captcha_key)
+                    if captcha_old:
+                        if captcha == str(captcha_old):
+                            self.db.execute("UPDATE T_CORP"
+                                            "  SET password = password(%s)"
+                                            "  WHERE cid = %s",
+                                            psd, mobile)
+                        else:
+                            status = ErrorCode.WRONG_CAPTCHA
+                            logging.error("mobile: %s retrieve password failed. captcha: %s, captcha_old: %s, Message: %s", 
+                                           mobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
+                    else:
+                        status = ErrorCode.NO_CAPTCHA
+                        logging.error("mobile: %s retrieve password failed. captcha: %s, Message: %s", 
+                                      mobile, captcha, ErrorCode.ERROR_MESSAGE[status])
+            else: 
                 user = self.db.get("SELECT mobile"
                                    "  FROM T_OPERATOR"
                                    "  WHERE oid = %s"
                                    "  LIMIT 1",
                                    mobile)
-                if user: 
-                    self.db.execute("UPDATE T_OPERATOR"
-                                    "  SET password = password(%s)"
-                                    "  WHERE oid = %s",
-                                    psd, mobile)
-                        
+                if user: # operator
+                    if not captcha: # old version 
+                        self.db.execute("UPDATE T_OPERATOR"
+                                        "  SET password = password(%s)"
+                                        "  WHERE oid = %s",
+                                        psd, mobile)
+                    else: # new version
+                        captcha_key = get_captcha_key(mobile)
+                        captcha_old = self.redis.get(captcha_key)
+                        if captcha_old:
+                            if captcha == str(captcha_old):
+                                self.db.execute("UPDATE T_OPERATOR"
+                                                "  SET password = password(%s)"
+                                                "  WHERE oid = %s",
+                                                psd, mobile)
+                            else:
+                                status = ErrorCode.WRONG_CAPTCHA
+                                logging.error("mobile: %s retrieve password failed. captcha: %s, captcha_old: %s, Message: %s", 
+                                               mobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
+                        else:
+                            status = ErrorCode.NO_CAPTCHA
+                            logging.error("mobile: %s retrieve password failed. captcha: %s, Message: %s", 
+                                          mobile, captcha, ErrorCode.ERROR_MESSAGE[status])
+
             if user:
                 retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (psd) 
                 ret = SMSHelper.send(mobile, retrieve_password_sms)
@@ -214,7 +270,6 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
                 logging.error("[UWEB] corp mobile: %s does not exist, retrieve password failed.", mobile)
                 status = ErrorCode.USER_NOT_ORDERED
             self.write_ret(status)
-            
         except Exception as e:
             logging.exception("[UWEB] corp mobile: %s retrieve password failed.  Exception: %s", mobile, e.args)
             status = ErrorCode.SERVER_BUSY

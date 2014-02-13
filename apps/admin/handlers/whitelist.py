@@ -87,7 +87,8 @@ class AddWLHandler(BaseHandler):
             else:
                 status = ErrorCode.MOBILE_NOT_ORDERED
                 message = ErrorCode.ERROR_MESSAGE[status] % mobile 
-                self.write_ret(status=status, message=message)
+                self.write_ret(status=status, 
+                               message=message)
         except Exception as e:
             logging.exception("Edit whitelist failed.Terminal mobile: %s, owner mobile: %s", mobile)
             self.render('errors/error.html', message=ErrorCode.FAILED)

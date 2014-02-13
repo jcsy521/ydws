@@ -37,7 +37,7 @@ def authenticated(method):
 
 class BaseHandler(tornado.web.RequestHandler):
 
-    SUPPORTED_METHODS = ("GET", "POST", "PUT")
+    SUPPORTED_METHODS = ("GET", "POST", "PUT", "DELETE")
     
     COOKIE_PATTERN = re.compile(r"ID=(?P<id>.+):SID=(?P<session_id>.+)")
     COOKIE_FORMAT = "ID=%(id)s:SID=%(session_id)s"
@@ -93,7 +93,7 @@ class BaseHandler(tornado.web.RequestHandler):
                                      ...)
         NOTE: in the basis of status, add handling of True, False
         """
-        ret = DotDict(success=status)
+        ret = DotDict(status=status)
         if message is None:
             ret.message = ErrorCode.ERROR_MESSAGE[status]
         else:

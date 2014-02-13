@@ -81,6 +81,9 @@ class ErrorCode(object):
     OPERATOR_EXIST = 913
     CORP_EXIST = 914
 
+    ACTIVITY_EXISTED = 1001 
+    ACTIVITY_NAME_ILLEGAL = 1002
+
     ERROR_MESSAGE  = {
         SUCCESS:                       u"操作成功。",
         FAILED:                        u"操作失败。",
@@ -147,4 +150,8 @@ class ErrorCode(object):
         PASSENGER_EXIST:               u"乘客已存在。",
         OPERATOR_EXIST:                u"集团操作员已存在。",
         CORP_EXIST:                    u"集团管理员已存在。",
+
+        ACTIVITY_EXISTED:                u"文件已经存在，请先删除。",
+        ACTIVITY_NAME_ILLEGAL:           u"文件名只能包含字母、数字、下划线、点。",
+
     }

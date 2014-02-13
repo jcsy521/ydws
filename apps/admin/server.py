@@ -53,6 +53,7 @@ from handlers.enterprise import EnterpriseHandler, EnterpriseDownloadHandler
 from handlers.total import TotalHandler, TotalDownloadHandler
 from handlers.offline import OfflineHandler, OfflineDownloadHandler
 from handlers.misc import *
+from handlers.activity import ActivityHandler, ActivityListHandler
 
 
 class Application(tornado.web.Application):
@@ -117,6 +118,7 @@ class Application(tornado.web.Application):
             (r"/checkcnum/(\S+)/*", CheckCNumHandler),
             (r"/privileges/(\d+)/*", PrivilegeSetHandler),
 
+
             # statistic report
             (r"/report/subscriber/*", SubscriberHandler),
             (r"/report/ecsubscriber/*", ECSubscriberHandler),
@@ -131,7 +133,6 @@ class Application(tornado.web.Application):
             (r"/report/total/*", TotalHandler),
             (r"/report/offline/*", OfflineHandler),
 
-
             # download the report
             (r"/download/subscriber/(.*)/*", SubscriberDownloadHandler),
             (r"/download/ecsubscriber/(.*)/*", ECSubscriberDownloadHandler),
@@ -144,6 +145,10 @@ class Application(tornado.web.Application):
             (r"/download/enterprise/(.*)/*", EnterpriseDownloadHandler),
             (r"/download/total/(.*)/*", TotalDownloadHandler),
             (r"/download/offline/(.*)/*", OfflineDownloadHandler),
+
+            (r"/activity/*", ActivityHandler),
+            (r"/activity/list/*", ActivityListHandler),
+
         ]
 
         settings = dict(

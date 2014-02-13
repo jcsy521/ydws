@@ -24,6 +24,7 @@ class MainHandler(BaseHandler):
         name = ''
         if self.current_user.oid != UWEB.DUMMY_OID:
             index_html = "index_corp.html"
+            umobile=self.current_user.oid
             user_info = QueryHelper.get_operator_by_oid(self.current_user.oid, self.db)
             corp_info = QueryHelper.get_corp_by_oid(self.current_user.oid, self.db)
             if user_info:
@@ -32,12 +33,14 @@ class MainHandler(BaseHandler):
             bizcode = corp_info.bizcode
         elif self.current_user.cid != UWEB.DUMMY_CID:
             index_html = "index_corp.html"
+            umobile=self.current_user.cid
             user_info = QueryHelper.get_corp_by_cid(self.current_user.cid, self.db)
             if user_info:
                 name = user_info.linkman if user_info.linkman else user_info.mobile 
             user_type = UWEB.USER_TYPE.CORP
             bizcode = user_info.bizcode
         else:
+            umobile=self.current_user.uid
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if user_info:
                 name = user_info.name if user_info.name else user_info.mobile 
@@ -59,4 +62,5 @@ class MainHandler(BaseHandler):
                     user_type=user_type,
                     bizcode=bizcode,
                     status=status,
-                    name=name)
+                    name=name,
+                    umobile=umobile)

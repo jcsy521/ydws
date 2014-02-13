@@ -53,10 +53,13 @@ from handlers.terminal import TerminalHandler, TerminalCorpHandler
 from handlers.statistic import StatisticHandler, StatisticDownloadHandler, StatisticSingleHandler, StatisticSingleDownloadHandler
 from handlers.mileage import MileageHandler, MileageDownloadHandler, MileageSingleHandler, MileageSingleDownloadHandler
 from handlers.password import PasswordHandler, PasswordCorpHandler, PasswordOperHandler
+from handlers.getcaptcha import GetCaptchaHandler, GetCaptchaCorpHandler
 from handlers.profile import ProfileHandler, ProfileCorpHandler, ProfileOperHandler
 from handlers.smsoption import SMSOptionHandler, SMSOptionCorpHandler
 from handlers.appsettings import AppSettingsHandler
 from handlers.unbind import UNBindHandler
+from handlers.share import ShareHandler
+from handlers.activity import ActivityHandler
 from handlers.feedback import FeedBackHandler
 from handlers.download import DownloadHandler, DownloadTerminalHandler, DownloadSmsHandler, UploadTerminalHandler, DownloadManualHandler
 from handlers.about import AboutHandler
@@ -141,6 +144,8 @@ class Application(tornado.web.Application):
             (r"/download/mileage/*", MileageDownloadHandler),
 
             (r"/terminal/corp/*", TerminalCorpHandler),
+            (r"/getcaptcha/*", GetCaptchaHandler),
+            (r"/getcaptcha/corp/*", GetCaptchaCorpHandler),
             (r"/password/*", PasswordHandler),
             (r"/password/corp/*", PasswordCorpHandler),
             (r"/password/oper/*", PasswordOperHandler),
@@ -151,6 +156,8 @@ class Application(tornado.web.Application):
             (r"/smsoption/*", SMSOptionHandler),
             (r"/appsettings/*", AppSettingsHandler),
             (r"/unbind/*", UNBindHandler),
+            (r"/share/*", ShareHandler),
+            (r"/activity/*", ActivityHandler),
 
             (r"/about/*", AboutHandler),
 
@@ -251,6 +258,7 @@ class Application(tornado.web.Application):
             static_path=os.path.join(os.path.dirname(__file__), "static"),
             server_path=os.path.dirname(__file__),
             terminal_path="/static/terminal/",
+            activity_path="/static/activity/",
             cookie_secret="s8g1gVxKOiQoZptLRi2nSuXmiK2ThYJJBSHIUHnqoUw=",
             login_url="/login",
             #debug=debug,

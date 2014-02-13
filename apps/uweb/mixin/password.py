@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from constants import UWEB 
 from base import BaseMixin
+from utils.misc import get_ios_push_list_key
 
 
 class PasswordMixin(BaseMixin):
@@ -46,6 +49,17 @@ class PasswordMixin(BaseMixin):
                         "  WHERE uid = %s",
                         password, uid)
 
+        #NOTE: clear ios push list 
+        ios_push_list_key = get_ios_push_list_key(uid) 
+        ios_push_list = self.redis.getvalue(ios_push_list_key) 
+        ios_push_list = ios_push_list if ios_push_list else []
+        for iosid in ios_push_list: 
+            ios_badge_key = get_ios_badge_key(iosid) 
+            self.redis.delete(ios_badge_key) 
+            ios_push_list.remove(iosid) 
+        self.redis.set(ios_push_list_key, []) 
+        logging.info("[UWEB] uid:%s clear ios_push_list.", uid)
+
     def update_corp_password(self, password, cid):
         self.db.execute("UPDATE T_CORP "
                         "  SET password = password(%s)"
@@ -57,6 +71,3 @@ class PasswordMixin(BaseMixin):
                         "  SET password = password(%s)"
                         "  WHERE oid = %s",
                         password, oid)
-
-
- 

@@ -50,7 +50,7 @@ class FeedBackHandler(BaseHandler):
             #    self.write_ret(status)
             #    return
 
-            self.db.execute("INSERT into T_FEEDBACK(contact,email,content,timestamp,category)"
+            self.db.execute("INSERT INTO T_FEEDBACK(contact,email,content,timestamp,category)"
                             "  VALUES(%s, %s, %s, %s, %s)",
                             data.contact, data.email, safe_unicode(data.content),
                             int(time.time()), data.category)
