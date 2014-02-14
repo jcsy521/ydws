@@ -198,6 +198,7 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
             return 
 
         try:
+            status = ErrorCode.SUCCESS
             psd = get_psd()                        
             user = self.db.get("SELECT mobile"
                                "  FROM T_CORP"
@@ -256,8 +257,11 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
                             status = ErrorCode.NO_CAPTCHA
                             logging.error("mobile: %s retrieve password failed. captcha: %s, Message: %s", 
                                           mobile, captcha, ErrorCode.ERROR_MESSAGE[status])
+                else:
+                    status = ErrorCode.USER_NOT_ORDERED
+                    logging.error("[UWEB] corp mobile: %s does not exist, retrieve password failed.", mobile)
 
-            if user:
+            if status == ErrorCode.SUCCESS:
                 retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (psd) 
                 ret = SMSHelper.send(mobile, retrieve_password_sms)
                 ret = DotDict(json_decode(ret))
@@ -266,9 +270,6 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
                 else:
                     status = ErrorCode.SERVER_BUSY
                     logging.error("[UWEB] corp mobile: %s retrieve password failed.", mobile)
-            else:
-                logging.error("[UWEB] corp mobile: %s does not exist, retrieve password failed.", mobile)
-                status = ErrorCode.USER_NOT_ORDERED
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] corp mobile: %s retrieve password failed.  Exception: %s", mobile, e.args)
