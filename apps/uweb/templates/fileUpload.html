@@ -32,39 +32,37 @@
 		{% elif status == 0 %}
 			<table class="dataTable excelInfoTable" id="fileUploadTable">
 				<thead>
-					<tr class="batchThead"><th colspan="3" class="j_thead"></th></tr>
-					<tr class="theadTitle"><td>定位器号码</td><td>短信接收号码</td><td>状态</td></tr>
+					<tr class="batchThead"><th colspan="4" class="j_thead"></th></tr>
+					<tr class="theadTitle"><td>定位器号码</td><td>短信接收号码</td><td>业务类型</td><td>状态</td></tr>
 				</thead>
 				{% for r in res %}
 					{% if r.status == 1 %}
-						<tr class="j_notActived" tmobile="{{r.tmobile}}" umobile="{{r.umobile}}">
-							<td>{{r.tmobile}}</td>
-							<td>{{r.umobile}}</td>
-							<td class="fileStatus1">等待激活</td>
-						</tr>
-					{% elif r.status == 2 %}
+						<tr class="j_notActived" tmobile="{{r.tmobile}}" umobile="{{r.umobile}}" biztype="{{r.biz_type}}">
+					{% else %}
 						<tr>
-							<td>{{r.tmobile}}</td>
-							<td>{{r.umobile}}</td>
-							<td tmobile="{{r.tmobile}}" class="fileStatus2">定位器号码已存在</td>
-						</tr>
-					{% elif r.status == 3 %}
-						<tr>
-							<td>{{r.tmobile}}</td>
-							<td>{{r.umobile}}</td>
-							<td tmobile="{{r.tmobile}}" class="fileStatus3">手机号码格式错误</td>
-						</tr>
-					{% elif r.status == 4 %}
-						<tr>
-							<td>{{r.tmobile}}</td>
-							<td>{{r.umobile}}</td>
-							<td tmobile="{{r.tmobile}}" class="fileStatus3">非白名单号码</td>
-						</tr>
 					{% end %}
+					
+					<td>{{r.tmobile}}</td>
+					<td>{{r.umobile}}</td>
+					{% if r.biz_type == 0 %}
+						<td>移动卫士</td>
+					{% else %}
+						<td>移动外勤</td>
+					{% end %}
+					{% if r.status == 1 %}	
+						<td class="fileStatus1">等待激活</td>
+					{% elif r.status == 2 %}
+						<td tmobile="{{r.tmobile}}" class="fileStatus2">定位器号码已存在</td>
+					{% elif r.status == 3 %}
+						<td tmobile="{{r.tmobile}}" class="fileStatus3">手机号码格式错误</td>
+					{% elif r.status == 4 %}
+						<td tmobile="{{r.tmobile}}" class="fileStatus3">非白名单号码</td>
+					{% end %}
+					</tr>
 				{% end %}
 				<tfoot class="tfootCss">
 					<tr rowspan="2">
-						<td colspan="3" align="right">
+						<td colspan="4" align="right">
 							<input type="button" class="activeBtn j_active" value="批量激活" />
 						</td>
 					</tr>

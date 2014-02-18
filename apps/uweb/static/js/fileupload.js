@@ -38,9 +38,10 @@ $(function() {
 		$.each(obj_notActive, function() {
 			var obj_this = $(this),
 				str_tmobile = obj_this.attr('tmobile'),
-				str_umobile = obj_this.attr('umobile');
+				str_umobile = obj_this.attr('umobile'),
+				str_biztype = obj_this.attr('bizType');
 				
-			arr_mobiles.push({'tmobile': str_tmobile, 'umobile': str_umobile});
+			arr_mobiles.push({'tmobile': str_tmobile, 'umobile': str_umobile, 'biz_type': str_biztype});
 		});
 		
 		if ( arr_mobiles.length > 0 ) {

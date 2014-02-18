@@ -1499,7 +1499,7 @@ window.dlf.fn_eachCheckedNode = function(str_eachNode) {
 		var str_tempLeafClass = $(this).attr('class'), 
 			str_tempLeafId = '#' + $(this).attr('id');
 
-		if ( str_tempLeafClass.search(JSTREECLICKED) != -1) {
+		if ( str_tempLeafClass.search('jstree-checked') != -1) {
 			arr_treeNodeChecked.push(str_tempLeafId);
 		}
 	});
@@ -1987,7 +1987,7 @@ function fn_initCreateTerminal(obj_node, str_groupId) {
 	$('#hidGroupId').val(str_groupId);	// 保存groupId
 	$('.j_corpData').val('');
 	$('#hidTMobile').val('');
-	$('#c_corp_push_status1, #c_login_permit0, #c_icon_type0').attr('checked', 'checked');
+	$('#c_corp_push_status1, #c_login_permit0, #c_icon_type0, #c_biz_code_st1').attr('checked', 'checked');
 	$('#c_corp_vibl').val(1);
 }
 
@@ -2002,6 +2002,7 @@ window.dlf.fn_cTerminalSave = function() {
 		n_loginPermit = $('#cTerminalForm input[name="clogin_permit"]input:checked').val(),
 		n_corpVibl = $('#c_corp_vibl').val(),
 		n_iconType = $('#cTerminalForm input[name="c_icon_type"]input:checked').val(), 
+		n_bizType = $('#cTerminalForm input[name="c_corpBizcode"]input:checked').val(), 
 		n_groupId = parseInt($('#hidGroupId').val()),
 		obj_corpData = {};
 		
@@ -2010,6 +2011,7 @@ window.dlf.fn_cTerminalSave = function() {
 	obj_corpData['umobile'] = str_umobile;
 	obj_corpData['cnum'] = str_cnum;
 	obj_corpData['icon_type'] = n_iconType;
+	obj_corpData['biz_type'] = n_bizType;
 	
 	obj_corpData['push_status'] = n_pushStatus;
 	obj_corpData['login_permit'] = n_loginPermit;
@@ -2203,18 +2205,29 @@ function fn_batchRemoveTerminals(obj_params) {
 /**
 *二级菜单事件
 */
-window.dlf.fn_fillNavItem = function() {
-	var obj_navItemUl = $('.j_countNavItem'),
-		b_status = obj_navItemUl.is(':visible'),
-		obj_navOffset = $('#recordCount').offset();
+window.dlf.fn_fillNavItem = function(str_whoItem) {
+	var obj_navItemUl = null,
+		obj_navOffset = $('#'+str_whoItem).offset(),
+		str_navClassName = '',
+		n_offsetLeft = 0;
+		
+	dlf.fn_secondNavValid();
+	if ( str_whoItem == 'recordCount' ) {
+		str_navClassName = 'j_countNavItem';
+		n_offsetLeft = obj_navOffset.left - 5;
+	} else if ( str_whoItem == 'notifyManage' ) {
+		str_navClassName = 'j_notifyManageNavItem';
+		n_offsetLeft = obj_navOffset.left;
+	}
 	
-	obj_navItemUl.css('left',obj_navOffset.left - 5).show(); // 二级单显示
+	obj_navItemUl = $('.'+str_navClassName);
+	obj_navItemUl.css('left', n_offsetLeft).show(); // 二级单显示
 	/*二级菜单的滑过样式*/
-	$('.j_countNavItem li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
+	$('.'+str_navClassName+' li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
 		// $(this).removeClass('countUlItemHover');
-		obj_navItemUl.hide();
-		$('.j_countRecord').bind('mouseover', function() {
-			dlf.fn_fillNavItem();
+		$('.j_countNavItem, .j_notifyManageNavItem').hide();
+		$('.j_countRecord, .j_notifyManage').bind('mouseover', function(event) {
+			dlf.fn_fillNavItem(event.target.id);
 		});
 	}).mouseover(function(event) {
 		// $(this).addClass('countUlItemHover');
@@ -2227,11 +2240,16 @@ window.dlf.fn_fillNavItem = function() {
 * 判断二级菜单是否显示,如果显示进行隐藏
 */
 window.dlf.fn_secondNavValid = function() { 
-	var obj_navItem = $('.j_countNavItem'), 
-		f_hidden = obj_navItem.is(':hidden');
+	var obj_navItem1 = $('.j_countNavItem'), 
+		obj_navItem2 = $('.j_notifyManageNavItem'),
+		f_hidden1 = obj_navItem1.is(':hidden'),
+		f_hidden2 = obj_navItem2.is(':hidden');
 	
-	if ( !f_hidden ) {
-		obj_navItem.hide();
+	if ( !f_hidden1 ) {
+		obj_navItem1.hide();
+	}
+	if ( !f_hidden2 ) {
+		obj_navItem2.hide();
 	}
 }
 

@@ -110,7 +110,9 @@ $(function(){
 	currentAd = setInterval(fn_timer, 5000);
 	
 	$('#jNotifyMessage').css('top', 50);
-	$('#mobile').val('');
+	$('#mobile').val('').keyup(function(e) {
+		$('#btnGetCaptcha').removeAttr('disabled');
+	});
 	$('#pwd_captcha').val('');
 	// 找回密码获取验证码
 	$('#btnGetCaptcha').click(function() {
@@ -124,6 +126,7 @@ $(function(){
 			str_url = CORPPWD_CAPCHA_URL;
 		}
 		if ( str_updateTime != '' && str_updateTime != 0 ) {
+			dlf.fn_jNotifyMessage('请稍后获取。', 'message', false, 3000);
 			return;
 		}
 		
@@ -149,7 +152,7 @@ $(function(){
 				dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
-	});
+	}).attr('disabled',true);
 	
 	/**
 	* 找回密码的相关事件绑定

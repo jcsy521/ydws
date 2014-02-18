@@ -783,11 +783,17 @@ $(function () {
 			case 'corpSMSOption': 
 				dlf.fn_initSMSOption();
 				break;
+			case 'notifyManage_add': //通知发布
+				dlf.fn_notifyManage_addInit();
+				break;
+			case 'notifyManage_search': // 通知查询
+				dlf.fn_initRecordSearch('notifyManageSearch');
+				break;
 		}
 	});
 	/*鼠标滑动显示统计二级菜单*/
-	$('.j_countRecord').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
-		dlf.fn_fillNavItem();
+	$('.j_countRecord, .j_notifyManage').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {	
+		dlf.fn_fillNavItem(event.target.id);
 	}).unbind('mouseout').bind('mouseout', function() { 
 		dlf.fn_secondNavValid();
 	});
@@ -1125,6 +1131,22 @@ $(function () {
 		}
 	});
 	$('#text_infoPush').formValidator({validatorGroup: '11'}).inputValidator({min: 1, max: 256, onError: '消息内容最大长度是128个汉字！'});
+	/**
+	* 通知发布进行验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'notifyManageAddForm', //指定from的ID 编号
+		debug: true, // 指定调试模式,不提交form
+		validatorGroup: '13', // 指定本form组编码,默认为1, 多个验证组时使用
+		submitButtonID: 'notifyManageSave', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 5000, 'dw');
+			return;
+		}, 
+		onSuccess: function() { 
+			dlf.fn_notifyManageMsg();
+		}
+	});
 	/**
 	* 加载完成后，第一次发送switchcar请求
 	*/

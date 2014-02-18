@@ -120,7 +120,7 @@ window.dlf.fn_serverError = function(XMLHttpRequest) {
 	if ( XMLHttpRequest && XMLHttpRequest.status > 200 ) {
 		dlf.fn_jNotifyMessage('请求失败，请重新操作！', 'message', false, 3000);		
 		if ( window == window.parent ) {
-			window.location.replace('/');
+			//window.location.replace('/');
 		} else {
 			document.jxq_refresh.action = document.referrer;
 			document.jxq_refresh.submit();
@@ -1532,13 +1532,15 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	dlf.fn_closeDialog();	// 关闭所有dialog
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
+	}if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' ) {	//  通知查询
+		str_tempWrapperId = 'notifyManage';
 	}
 	$('#'+ str_tempWrapperId).addClass(str_tempWrapperId +'Hover');
 	dlf.fn_clearNavStatus('home');	// 移除菜单车辆位置的样式
 	if ( str_wrapperId == 'eventSearch' ) {
 		dlf.fn_setMapPosition(true);	// 如果打开的是告警查询  设置地图位置
 	} else {
-		if ( str_wrapperId != 'mileage' && str_wrapperId != 'operator' && str_wrapperId != 'onlineStatics' && str_wrapperId != 'passenger' && str_wrapperId != 'infoPush' ) {
+		if ( str_wrapperId != 'mileage' && str_wrapperId != 'operator' && str_wrapperId != 'onlineStatics' && str_wrapperId != 'passenger' && str_wrapperId != 'infoPush' && str_wrapperId != 'notifyManageSearch' && str_wrapperId != 'notifyManageAdd' ) {
 			dlf.fn_showOrHideMap(true);	// 显示地图
 			dlf.fn_setMapPosition(false);	// 设置地图最大化
 			dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
@@ -1789,6 +1791,10 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
 					dlf.fn_setMapContainerZIndex(0);
 					dlf.fn_clearAllMenu();
+				} else if ( str_who == 'notifyManage' ) {
+					dlf.fn_setItemMouseStatus($('#notifyManageSave'), 'default', 'fs0');
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
+					b_closeWrapper = false;
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}

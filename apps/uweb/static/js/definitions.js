@@ -61,6 +61,8 @@ var GETREGIONDATA_URL = '/getregionevent';//获取告警围栏信息
 var ALEERSETTING_URL = '/eventperiod';	// 告警有效时间段设置
 var PWD_CAPCHA_URL = '/getcaptcha';	// 个人用户获取找回密码验证码
 var CORPPWD_CAPCHA_URL = '/getcaptcha/corp';	// 集团用户获取找回密码验证码
+var NOTIFYMANAGE_URL = '/announcement/list'; //通知管理
+var NOTIFYMANAGE_ADD_URL = '/announcement'; //通知新增
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒
 var CHECK_ROUNDNUM = 3; // 经纬度显示小数位截取

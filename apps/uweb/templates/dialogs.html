@@ -425,8 +425,8 @@
 								</tr>
 								<tr class="j_corp_terminal">
 									<td class="corp_terminalTdL" >图标:</td>
-									<td id="corp_icon_type"  class="corp_radio j_corp_ListVal j_radio"  t_val="">
-										<input type="radio" id="icon_type0"  name="icon_type" value="0" />
+									<td id="corp_icon_type" class="corp_radio j_corp_ListVal j_radio"  t_val="">
+										<input type="radio" id="icon_type0" name="icon_type" value="0" />
 										<label for="icon_type0"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
 										<input type="radio" id="icon_type1"  name="icon_type" value="1"  />
 										<label for="icon_type1"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
@@ -434,6 +434,15 @@
 										<label for="icon_type2"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
 										<input type="radio" id="icon_type3"  name="icon_type" value="3"  />
 										<label for="icon_type3"><img src="../static/images/corpImages/terminalIcons/icon_terminal.png" class="icon" /></label>
+									</td>
+								</tr>
+								<tr>
+									<td class="corp_terminalTdL" >业务类型：:</td>
+									<td id="corp_biz_type" class="corp_radio j_corp_ListVal j_radio" t_val="">
+										<input id="corp_biz_code_st0" type="radio" value="0" name="corp_corpBizcode" checked />
+										<label id="corp_bicCodeLable0" for="corp_biz_code_st0">移动卫士</label>
+										<input id="corp_biz_code_st1" type="radio" value="1" name="corp_corpBizcode" />
+										<label id="corp_bicCodeLable1" for="corp_biz_code_st1">移动外勤</label>
 									</td>
 								</tr>
 							</tbody>
@@ -975,6 +984,15 @@
 							<label for="c_icon_type3"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon"  /></label>
 						</td>
 					</tr>
+					<tr>
+						<td>
+							<label class="cTerminalLabel">业务类型：</label>
+							<input id="c_biz_code_st1" type="radio" value="0" name="c_corpBizcode" checked />
+							<label id="c_tpsLable1" for="c_biz_code_st1">移动卫士</label>
+							<input id="c_biz_code_st2" type="radio" value="1" name="c_corpBizcode" />
+							<label id="c_tpsLable0" for="c_biz_code_st2">移动外勤</label>
+						</td>
+					</tr>
 				</table>
 				<input type="hidden" id="hidGroupId"  value="" />
 				<input type="hidden" id="hidTMobile"  value="" />
@@ -1099,10 +1117,10 @@
 							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="9" title="断电" />
 							<label class="x_label" title="断电">断电</label>
 						</li>
-						<li>
+						<!--<li>
 							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="10" title="停留" />
 							<label class="x_label" title="停留">停留</label>
-						</li>
+						</li>-->
 					</ul>
 				</div>
 			</div>
@@ -1648,5 +1666,48 @@
 				</table>
 			</div>
 		</span>
+	</div>
+	<!-- 通知查询 -->
+	<div id="notifyManageSearchWrapper" class="wrapper hide">
+		<div class="wrapperContent notifyManageSearchContent j_wrapperContent" id="notifyManageSearchContent">
+			<div class="notifyManageSearchPos">
+				<span>
+				查询时间：<input type="text" id="notifyManageSearchStartTime" class="time" />
+						至 <input type="text" id="notifyManageSearchEndTime" class="time" />
+				</span>
+					<span id="notifyManageSearch_searchBtn" class="eventBtn j_tBtnhover"></span>
+			</div>
+			<table id="notifyManageSearchTable" class="dataTable notifyManageSearchTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="notifyManageSearchTableHeader">
+						<th>编号</th>
+						<th>通知发布人</th>
+						<th class="eventTime">通知时间</th>
+						<th class="eventLocation">通知内容</th>
+						<th>操作</th>
+					</tr>
+				</tbody>
+			</table>
+			<!-- 分页 -->
+			<div id="notifyManageSearchPage" class="hide">
+				<span id="notifyManageSearchPrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="notifyManageSearchPageNums" class="pageNums"><label id="notifyManageSearchCurrentPage"></label>/<label id="notifyManageSearchPageCount"></label></span>
+				<span id="notifyManageSearchNextBtn" class="nextBtn j_pBtnHover"></span>
+			</div>
+		</div>
+	</div>
+	<!-- 通知发布 -->
+	<div id="notifyManageAddWrapper" class="wrapper hide">
+		<div class="wrapperContent notifyManageAddContent j_wrapperContent" id="notifyManageAddContent">
+			<form id="notifyManageAddForm">
+				<div class="notifyManage_infoMsg">
+					<label class="text_notifyManageMsgLabel" for="text_notifyManageMsg" maxlength="256">
+						<font class="txtColor">* </font>通知内容：
+					</label>
+					<textarea name="text_notifyManageMsg" id="text_notifyManageMsg"></textarea>
+				</div>
+				<input type="submit" width="100" value="" id="notifyManageSave" />
+			</form>
+		</div>
 	</div>
 </div>

@@ -12,7 +12,7 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
 		n_height = 390,
-		n_btnTop = 360;
+		n_btnTop = 380;
 
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
@@ -118,6 +118,8 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 						
 						obj_currentCar.attr('icon_type', str_val);
 						dlf.fn_updateTerminalLogin(obj_currentCar);
+					} else if ( param == 'biz_type' ) {	// 终端业务类型
+						$('#corp_biz_code_st' + str_val ).attr('checked', 'checked');
 					} else if ( param == 'login_permit' ) {	// 客户端登录
 						$('#' + param + str_val).attr('checked', true);
 					} else {

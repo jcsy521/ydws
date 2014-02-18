@@ -126,6 +126,11 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	} else if ( str_who == 'operator' || str_who == 'passenger' ) {
 		obj_tableHeader.hide();
 		dlf.fn_unLockScreen(); // 去除页面遮罩
+	} else if ( str_who == 'notifyManageSearch' ) { // 通知查询
+		obj_tableHeader.hide();
+		$('#'+ str_who +'TableHeader').hide();
+		dlf.fn_initTimeControl(str_who); // 时间初始化方法
+		dlf.fn_unLockScreen(); // 去除页面遮罩
 	}
 	dlf.fn_setSearchRecord(str_who); //  绑定查询的事件,查询,上下翻页
 }
@@ -138,7 +143,6 @@ window.dlf.fn_setSearchRecord = function(str_who) {
 	arr_dwRecordData = [],	// 后台查询到的报警记录数据
 	n_dwRecordPageCnt = -1,	// 查询到数据的总页数,默认-1
 	n_dwRecordPageNum = 0;	// 当前所在页数
-	
 	
 	/** 
 	* 上一页按钮 下一页按钮
@@ -490,6 +494,25 @@ window.dlf.fn_searchData = function (str_who) {
 		case 'alertSetting': // 告警时间段
 		case 'corpAlertSetting': 
 			str_getDataUrl = ALEERSETTING_URL + '?tid=' + str_currentTid;;
+			break;
+		case 'notifyManageSearch': // 通知查询
+			str_getDataUrl = NOTIFYMANAGE_URL;
+			
+			var n_startTime = $('#notifyManageSearchStartTime').val(), // 用户选择时间
+				n_endTime = $('#notifyManageSearchEndTime').val(), // 用户选择时间
+				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
+				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime); //结束时间
+			
+			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+				return;
+			}
+			obj_conditionData = {
+						'start_time': n_bgTime, 
+						'end_time': n_finishTime, 
+						'pagenum': n_dwRecordPageNum, 
+						'pagecnt': n_dwRecordPageCnt
+					};
 			break;
 	}
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
@@ -1001,6 +1024,18 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText += '<td>'+ str_weeks +'</td>';
 				str_tbodyText += '<td>'+ str_startTime + '--' + str_endTime +'</td>';
 				str_tbodyText+= '<td><a href="#" onclick="fn_deleteAlertSetting('+ str_id +', \''+ obj_tempData.tid +'\', \''+ str_who +'\')">删除</a></td>';
+				break;
+			case 'notifyManageSearch': // 通知查询
+				
+				obj_tableHeader.show();
+				var str_notifyText = obj_tempData.content,
+					str_tempId = obj_tempData.id;
+				
+				str_tbodyText += '<tr id="'+str_tempId+'"><td>'+ (i+1) +'</td>';
+				str_tbodyText += '<td>'+ obj_tempData.umobile +'</td>';
+				str_tbodyText += '<td>'+ dlf.fn_changeNumToDateString(obj_tempData.timestamp) +'</td>';
+				str_tbodyText += '<td title="'+str_notifyText+'">'+ str_notifyText.substr(0, 15) +'</td>';
+				str_tbodyText+= '<td><a href="#" onclick="dlf.fn_deleteNotifys('+str_tempId+')">删除</a></td>';
 				break;
 		}
 	}

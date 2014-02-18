@@ -341,7 +341,7 @@ body {
 .menu, .menu li {
 	float: left;
 }
-.corpMapObj, #eventSearchContent, .operatorContent, .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent {
+.corpMapObj, #eventSearchContent, .operatorContent, .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent, .notifyManageSearchContent, .notifyManageAddContent {
 	min-width: 1151px;
 	/*min-height: 463px;*/
 	min-height: 567px;
@@ -470,6 +470,24 @@ body {
 }
 .menu .smallTools:hover, .menu .smallToolsHover {
 	background-position: 0px -1332px;
+}
+.menu .notifyManage {
+	background-position: 0px -1368px;
+}
+.menu .notifyManage:hover, .menu .notifyManageHover {
+	background-position: 0px -1404px;
+}
+.menu .notifyManage_add  {
+	background-position: 0px -1440px;
+}
+.menu .notifyManage_add:hover {
+	background-position: 0px -1476px;
+}
+.menu .notifyManage_search {
+	background-position: 0px -1512px;
+}
+.menu .notifyManage_search:hover {
+	background-position: 0px -1547px;
 }
 .selfList {
 	float:right;
@@ -1156,7 +1174,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn  {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
@@ -1663,7 +1681,7 @@ body {
 #eventSearchTableHeader {
 	height: 38px;
 }
-#eventSearchTableHeader td, #staticsTableHeader td , #singleEventTableHeader td, #singleMileageTableHeader td {
+#eventSearchTableHeader td, #staticsTableHeader td , #singleEventTableHeader td, #singleMileageTableHeader td, #notifyManageSearchTableHeader td {
 	background-color: #5aabff;
 	border: 1px solid #ececec;
 	height: 30px;
@@ -1695,7 +1713,7 @@ body {
 .onlineStaticsTable {
 	width: 750px;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader  {
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader, #notifyManageSearchTableHeader th   {
 	height: 38px;
 	line-height: 38px;
     font-size: 14px; 
@@ -1720,6 +1738,7 @@ body {
 .eventLocation {
 	width: 175px;
 }
+
 #pagerContainer, #staticsPage, #operatorPage, #mileagePage, #onlineStaticsPage, #passengerPage {
 	width: 750px;
 	height: 34px;
@@ -2016,8 +2035,10 @@ body {
 	margin-right: 10px;
 }
 #btnGetPwd {
-	height: 27px;
-	width: 60px;
+	padding: 5px;
+}
+#btnGetCaptcha {
+	padding: 2px;
 }
 /* getpassword end */
 .txtColor {
@@ -2548,11 +2569,11 @@ body {
 }
 #cTerminalWrapper, #cTerminalEditWrapper {
 	width: 448px;
-	height: 384px;
+	height: 408px;
 }
 .cTerminalContent, .cTerminalEditContent {
 	padding-top: 10px;
-	height: 340px;
+	height: 408px;
 }
 #cTerminalSave {
 	margin-left: 273px;
@@ -2569,7 +2590,7 @@ body {
 	padding: 0 0 0 29px;
 	width: 191px;
 }
-#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .onlineStaticsCondition input, .operatorConditions input, #passengerContent input {
+#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .onlineStaticsCondition input, .operatorConditions input, #passengerContent input, #notifyManageSearchStartTime, #notifyManageSearchEndTime {
 	height: 24px;
     line-height: 24px;
     padding: 5px 0 0 29px;
@@ -2920,7 +2941,7 @@ legend {
 #singleEventWrapper {
 	height: 620px;
 }
-#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #onlineStaticsWrapper, #passengerWrapper, #infoPushWrapper {
+#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #onlineStaticsWrapper, #passengerWrapper, #infoPushWrapper, #notifyManageSearchWrapper, #notifyManageAddWrapper {
 	position: absolute;
 	left: 248px;
 	top: 160px;
@@ -3016,7 +3037,7 @@ legend {
 .eventBtn {
 	top: 1px;	
 }
-#eventSearchPage, #singleEventPage, #singleMileagePage, #singleMileagePage, #routeLinePage {
+#eventSearchPage, #singleEventPage, #singleMileagePage, #singleMileagePage, #routeLinePage, #notifyManageSearchPage {
 	height: 34px;
     line-height: 34px;
     margin: 0 auto;
@@ -3069,7 +3090,7 @@ legend {
 #infoPushWrapper {
 	height: 470px;
 }
-#text_infoPush {
+#text_infoPush, #text_notifyManageMsg {
 	height: 81px;
     width: 674px;
 	resize: none;
@@ -3594,5 +3615,25 @@ legend {
 .eventType_allPanel {
 	left: 8px;
     margin-bottom: 5px;
+    position: relative;
+}
+.notifyManageSearchPos {
+	margin: 0 auto;
+    width: 570px;
+}
+#notifyManageSearch_searchBtn {
+	top: 9px;
+}
+.notifyManage_infoMsg {
+	padding: 20px 0;
+}
+.text_notifyManageMsgLabel {
+	left: 16px;
+    margin-right: 45px;
+    position: relative;
+    top: -35px;
+}
+#notifyManageSave {
+	left: 700px;
     position: relative;
 }
