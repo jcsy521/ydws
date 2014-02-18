@@ -47,10 +47,10 @@
 	<thead>
 		<tr>
 			<th>活动名称</th>
-			<th>活动图片</th>
 			<th>活动上传人</th>
 			<th>活动开始时间</th>
 			<th>活动结束时间</th>
+			<th>活动详情</th>
 			<th>删除</th>
 		</tr>
 	</thead>
@@ -96,5 +96,9 @@
 				</td>
 			</tr>
 		</table>
+	</div>
+	<!-- 活动详情 -->
+	<div id="detailActivityDialog" title="活动详情" class="hide">
+		<img id="acitvityImgs" src="" alt="" onload="fn_activityImgLoad()" />
 	</div>
 {% end %}

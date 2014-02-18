@@ -37,7 +37,7 @@
 							<td class="tdText">
 								<select id="corps_select" class="hide" selecttype="addterminal">
 									{% for corp in corplist %}
-											<option value="{{corp.id}}" ecmobile="{{corp.ecmobile}}">{{corp.name}}</option>
+											<option value="{{corp.cid}}" ecmobile="{{corp.ecmobile}}">{{corp.name}}</option>
 									{% end %}
 								</select>
 								
@@ -110,6 +110,15 @@
 								<!--<span class="redColor">*</span>-->
 							</td>	
 						</tr>
+						<tr>
+							<td class="tLeft" >业务类型：:</td>
+							<td class="tdText">
+								<input id="corp_biz_type0" type="radio" value="0" name="corp_corpBiztype" checked />
+								<label id="corp_bicTypeLable0" for="corp_biz_type0">移动卫士</label>
+								<input id="corp_biz_type1" type="radio" value="1" name="corp_corpBiztype" />
+								<label id="corp_bicTypeLable1" for="corp_biz_type1">移动外勤</label>
+							</td>
+						</tr>
 						<tr class="hide">
 							<td	class="tLeft">开通日期：</td>
 							<td class="tdText">
@@ -158,6 +167,10 @@
 						<td class="tdText" id="tdUmobile"></td>	
 					</tr>
 					<tr>
+						<td	class="tLeft">业务类型：</td>
+						<td class="tdText" id="tdBizType"></td>	
+					</tr>
+					<tr>
 						<td	class="tLeft">开通日期：</td>
 						<td class="tdText" id="tdBeginTime"></td>	
 					</tr>
@@ -183,6 +196,7 @@
 			<input type="hidden" id="cbrand" name="cbrand" value="" />
 			<input type="hidden" id="tmobile" name="tmobile" value="" />
 			<input type="hidden" id="umobile" name="umobile" value="" />
+			<input type="hidden" id="biz_type" name="biz_type" value="" />
 			<input type="hidden" id="tbegintime" name="begintime" value="" />
 			<input type="hidden" id="tendtime" name="endtime" value="" />
 		</form>

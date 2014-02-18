@@ -75,7 +75,7 @@ function fn_checkMobile(id) {
 	} else {
 		$.get(str_url, function (data) {
 			// 修改时终端号码取反判断
-			if (data.success == false) {
+			if (data.status == false) {
 				obj_tips.html('号码不存在,请重新输入！');
 				obj_tips.show(function() {
 					obj_this.val(str_mobile);

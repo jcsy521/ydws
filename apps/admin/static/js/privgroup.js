@@ -41,7 +41,7 @@ function privgroupSubmit() {
 function privDelete(privid) {
     var pos = oTable.fnGetPosition(document.getElementById("priv" + privid));
 	$.post("/privgroup/delete/" + privid, function (data) {
-		if (data.success == 0) {
+		if (data.status == 0) {
 			oTable.fnDeleteRow(pos);
 		}
 	});

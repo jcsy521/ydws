@@ -127,20 +127,24 @@ function fn_fillUserData(n_tempNav) {
 				str_nowTime = new Date(),
 				str_sfm = str_nowTime.getHours() + ':' + str_nowTime.getMinutes() + ':' + str_nowTime.getSeconds(),
 				str_stTime = toTodayDate() + ' ' + str_sfm,
-				str_endTime = fn_getNextYearToday() + ' ' + str_sfm;
-				
+				str_endTime = fn_getNextYearToday() + ' ' + str_sfm,
+				n_bicType = parseInt($('#businessFormID3 input[name="corp_corpBiztype"]input:checked').val()),
+				str_bizType =  n_bicType ==  0 ? '移动卫士' : '移动外勤';
+			
 			$('#tmobile').val(str_Tmobile);
 			$('#umobile').val(str_Umobile);
 			$('#tbegintime').val(toEpochDate(str_stTime));
 			$('#tendtime').val(toEpochDate(str_endTime));
+			$('#biz_type').val(n_bicType);
 			
 			$('#tdTmobile').html(str_Tmobile);
 			$('#tdUmobile').html(str_Umobile);
 			$('#tdBeginTime').html(str_stTime);
 			$('#tdEndtime').html(str_endTime);
+			$('#tdBizType').html(str_bizType);
 			
-			n_panelHeight = 370, 
-			n_contentHeight = 270;
+			n_panelHeight = 400, 
+			n_contentHeight = 304;
 			break;
 	}
 	

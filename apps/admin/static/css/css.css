@@ -799,7 +799,7 @@ tfoot {
 #corps {
 	height: 24px;
 }
-#corps_sign {
+#corps_sign, #changeUserType_sign {
 	cursor: pointer;
 	background: url('/static/image/sersj.png') no-repeat 0px center;
 	display: inline-block;
@@ -809,7 +809,7 @@ tfoot {
 	top: 5px;
     position: relative;
 }
-#corps_sign:hover {
+#corps_sign:hover, #changeUserType_sign:hover {
 	background: url('/static/image/sersjhover.png') no-repeat 0px center;
 }
 
@@ -845,4 +845,11 @@ tfoot {
 #addActivityDialog input[type="text"] {
 	padding: 6px;
 	width: 220px;
+}
+#changUserTypeSave {
+	position: relative;
+	top: 20px;
+}
+#activity_tbody td {
+	text-align: center;
 }

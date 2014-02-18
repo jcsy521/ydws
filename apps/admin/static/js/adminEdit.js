@@ -49,7 +49,7 @@ function f_forEditAdmin(data, output) {
 function adminDelete(adminid) {
     var pos = oTable.fnGetPosition(document.getElementById("admin" + adminid));
 	$.post('/administrator/delete/' + adminid, function (data) {
-		if (data.success == 0) {
+		if (data.status == 0) {
             oTable.fnDeleteRow(pos);
 		} else {
 			alert("您没有删除自己账号的权限！");
@@ -76,7 +76,7 @@ function businessStop(tmobile, seq, tempType) {
 	
 	if ( confirm(str_msg) ) {
 		$.post(str_url, function (data) {
-			if ( data.success == 0 ) {
+			if ( data.status == 0 ) {
 				obj_service_status.attr('service_status', str_status);
 				obj_service_status.html(str_html);
 			} else {
@@ -109,7 +109,7 @@ function businessDelete(tmobile, mobile, tempType) {
 		fn_lockScreen('删除操作进行中...');
 		$.post(str_url, function (data) {
 			fn_unLockScreen();
-			if ( data.success == 0 ) {
+			if ( data.status == 0 ) {
 				oTable.fnDeleteRow(obj_pos);
 			} else {
 				alert("删除失败。");
@@ -125,7 +125,7 @@ function fn_smsReset(tmobile, mobile, obj_panel) {
 	};
 	
 	$.post('/sms/register', JSON.stringify(obj_data), function (data) {
-		if ( data.success == 0 ) {
+		if ( data.status == 0 ) {
 			$(obj_panel).parent().html('短信已发送').removeClass().addClass('sms_status1');
 		}
 	});

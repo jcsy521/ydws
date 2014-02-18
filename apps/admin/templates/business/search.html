@@ -36,7 +36,7 @@
 					<select id="corps_select" class="hide" selecttype="usersearch">
 						<option value="">全部</option>
 						{% for corp in corplist %}
-								<option value="{{corp.id}}">{{corp.name}}</option>
+								<option value="{{corp.cid}}">{{corp.name}}</option>
 						{% end %}
 					</select>
 					
@@ -98,8 +98,8 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>在线/离线</th><th>电量</th>
-            <th>开通时间</th><th>删除</th><th>终端启用/停用</th>
+            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>业务类型</th><th>在线/离线</th><th>电量</th>
+            <th>开通时间</th><th>删除</th><th>终端启用/停用</th><th>终端类型变更</th>
         </tr>
     </thead>
 		
@@ -110,6 +110,13 @@
 				<td>{{ business['ecname']}}</td>
                 <td>{{ business['umobile']}}</td>
                 <td>{{ business['tmobile']}}</td>
+				<td>
+					{% if business['biz_type'] == 0 %}
+						移动卫士
+					{% else %}
+						移动外勤
+					{% end %}
+				</td>				
                 <td>
 					{% if business['login'] == 0 %}
 						离线
@@ -131,6 +138,9 @@
 						 <a href="#" onclick="businessStop({{business['tmobile']}}, {{business['seq']}});" service_status="{{business['service_status']}}"  id="service_status{{business['seq']}}">停用</a>
 					{% end %}
                 </td>
+				<td>
+					<a href="#" onclick="bus_changeUserType('{{ business['ecname']}}',{{business['tmobile']}})">变更</a>
+                </td>
             </tr>
     {% end %}
     </tbody>
@@ -138,6 +148,30 @@
 <div style="display:none">
 	<input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'business_begin'}}"/>
 	<input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'business_end'}}"/>
+</div>
+<!-- 业务变更页面 -->
+<div id="userTypeChangeDialog" title="业务变更" class="hide">
+	<table>
+		<tr>
+			<td>终端手机号：</td>
+			<td>
+				<label id="txt_changeTmobile" />
+			</td>
+		</tr>
+		<tr id="changeUserType_corpName">
+			<td>集团名称：</td>
+			<td>
+				<input type="text" id="changeUserType_input" class="j_userSelect" value="" />
+				<a id="changeUserType_sign" href="#"></a>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<input type="hidden" id="changeUserType_hidden" value="" />
+				<input type="button" width="100" value="变更" id="changUserTypeSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+			</td>
+		</tr>
+	</table>
 </div>
 {% else %}
 	<div class="ui-widget" align="center">

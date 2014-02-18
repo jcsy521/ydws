@@ -132,7 +132,7 @@ function fn_initSearchActivity() {
 				for( var i = 0; i < n_activityDataLen; i++ ) {	
 					var obj_tempActivityData = arr_activityDatas[i];
 								
-					arr_tableData[i] = [obj_tempActivityData.title, obj_tempActivityData.filename, obj_tempActivityData.author, toHumanDate(obj_tempActivityData.begintime), toHumanDate(obj_tempActivityData.endtime),'<a href="#" onclick="fn_deleteActivity('+obj_tempActivityData.id+')">删除活动</a>'];
+					arr_tableData[i] = [obj_tempActivityData.title, obj_tempActivityData.author, toHumanDate(obj_tempActivityData.begintime), toHumanDate(obj_tempActivityData.endtime), '<a href="#" onclick="fn_detailActivity(\''+obj_tempActivityData.title+'\',\''+obj_tempActivityData.filename+'\')">活动详情</a>', '<a href="#" onclick="fn_deleteActivity('+obj_tempActivityData.id+')">删除活动</a>'];
 				}
 			}			
 			fn_initDataTables('activity', arr_tableData);
@@ -154,6 +154,30 @@ function fn_deleteActivity(str_id) {
 		}
 	}
 }
+
+//================活动详情
+function fn_detailActivity(str_activityName, str_filename) {
+	// 新增初始化dialog
+	$('#detailActivityDialog').dialog({
+		autoOpen: false,
+		height: 300,
+		width: 400,
+		position: [300, 100],
+		modal: true,
+		resizable: false
+	});
+	
+	$('#detailActivityDialog').attr('title', '活动详情').dialog('option', 'title', '活动详情').dialog('open');
+	$('#acitvityImgs').attr('src', '/static/activity/'+str_filename).attr('alt', str_activityName);
+	
+}
+// 文件上传完成 
+function fn_activityImgLoad() {
+	var obj_imgS = $('#acitvityImgs');
+	
+	$('#detailActivityDialog').dialog({ width: obj_imgS.width()+30 , 'height': obj_imgS.height()+50});
+}
+
 //文件上传的验证
 function fn_validFileuploadForm() {
 	var str_file = $('#fileUpload').val(),
@@ -212,10 +236,10 @@ function fn_initDataTables(str_who, obj_tableData) {
 	if ( str_who == 'activity' ) {
 		arr_ableTitle = [
 			{ 'sTitle': '活动名称' },
-			{ 'sTitle': '活动图片' },
 			{ 'sTitle': '活动上传人' },
 			{ 'sTitle': '活动开始时间' },
 			{ 'sTitle': '活动结束时间' },
+			{ 'sTitle': '活动详情' },
 			{ 'sTitle': '删除' }
 		];
 	}
