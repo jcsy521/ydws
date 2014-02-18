@@ -24,6 +24,7 @@ class ShareHandler(BaseHandler):
             umobile = data.platform
             tmobile = data.get('tmobile','')
             tid = data.get('tid','')
+            platform = data.get('platform','')
             logging.info("[UWEB] share log request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
