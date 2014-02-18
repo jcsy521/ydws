@@ -48,6 +48,7 @@ class SMSCode(object):
     SMS_DW_FAILED = u"尊敬的客户：您的定位器“%s”%s定位失败。"
     SMS_DEFEND_SUCCESS = u"尊敬的客户：您的定位器“%s”%s成功。"
 
+    SMS_ACTIVATE = u"尊敬的客户：您要监控的账号已经被激活。【移动外勤】"
     SMS_JH_SUCCESS = u"尊敬的客户：您的定位器“%s”激活成功，平台网址：%s，用户名：%s，密码：%s"
     SMS_JH_FAILED = u"激活失败，请确认手机号是否正确，或联系【移动卫士】客服。"
     SMS_TERMINAL_HK = u"尊敬的客户：您的定位器“%s”已经换卡，请先激活该号码。"
@@ -67,6 +68,7 @@ class SMSCode(object):
 
     #SMS_DOWNLOAD_REMIND = u"尊敬的客户：请手机登录中山无线城市手机网站 gd.wxcs.cn/zs 进入‘下载’-‘移动卫士’ 下载安装【移动卫士】客户端。"
     SMS_DOWNLOAD_REMIND = u"尊敬的客户：请点击 http://www.ydcws.com/download?category=2 下载安装【移动卫士】客户端。"
+    SMS_REGISTER_YDWQ = u"尊敬的客户：请点击 http://www.ydcws.com/download?category=3 下载安装【移动外勤】客户端。激活使用的验证吗为：%s。" 
 
     SMS_NEW_OPERATOR = u"尊敬的客户：您已经成为移动卫士集团用户管理员，平台网址：%s，用户名：%s，密码：%s"
     SMS_SERVICE_EXCEPTION_REPORT = u"管理员你好，平台%s，不能检测到模拟终端的位置更新，服务可能发生异常，请检查！！！"

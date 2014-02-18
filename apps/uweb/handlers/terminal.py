@@ -44,7 +44,8 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             # 1: terminal 
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
                                    "       vibchk, tid as sn, mobile, vibl, static_val, alert_freq,"
-                                   "       white_pop, push_status, icon_type, owner_mobile, login_permit, stop_interval"
+                                   "       white_pop, push_status, icon_type, owner_mobile, login_permit,"
+                                   "       stop_interval, biz_type"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND service_status = %s"
@@ -331,12 +332,30 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             else:
                 use_scene = 3 # default car scene
 
-            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  defend_status, mannual_status, begintime, endtime, offline_time, alias, icon_type, login_permit, push_status, vibl, use_scene)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                            data.tmobile, data.group_id,
-                            data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                            UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, data.login_permit, data.push_status, data.vibl, use_scene)
+            biz_type = data.get('biz_type', UWEB.BIZ_TYPE.YDWS)
+
+            if biz_type == UWEB.BIZ_TYPE.YDWS:
+                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
+                                "  defend_status, mannual_status, begintime, endtime, offline_time, "
+                                "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type)"
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                data.tmobile, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
+                                UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, 
+                                data.login_permit, data.push_status, data.vibl, use_scene, biz_type)
+            else:
+                activation_code = QueryHelper.get_activation_code(self.db)
+                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
+                                "  defend_status, mannual_status, begintime, endtime, offline_time, "
+                                "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
+                                "  activation_code)"
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                data.tmobile, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
+                                UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, 
+                                data.login_permit, data.push_status,
+                                data.vibl, use_scene, biz_type,
+                                activation_code)
+                register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
+                SMSHelper.send(fields.tmobile, register_sms)
     
             # 1: add user
             user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)

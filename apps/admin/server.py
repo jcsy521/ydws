@@ -54,6 +54,7 @@ from handlers.total import TotalHandler, TotalDownloadHandler
 from handlers.offline import OfflineHandler, OfflineDownloadHandler
 from handlers.misc import *
 from handlers.activity import ActivityHandler, ActivityListHandler
+from handlers.usertype import UserTypeHandler
 
 
 class Application(tornado.web.Application):
@@ -148,6 +149,8 @@ class Application(tornado.web.Application):
 
             (r"/activity/*", ActivityHandler),
             (r"/activity/list/*", ActivityListHandler),
+
+            (r"/usertype/*", UserTypeHandler),
 
         ]
 

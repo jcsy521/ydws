@@ -54,8 +54,11 @@ STATISTICS_TYPE=DotDict(YEAR=1,
                         MONTH=2,
                         QUARTER=3)
 
-BIZ_TYPE=DotDict(ELECTROCAR=0,
-                 CAR=1)
+VEHICLE_TYPE=DotDict(ELECTROCAR=0,
+                     CAR=1)
+
+BIZ_TYPE=DotDict(YDWS=0,
+                 YDWQ=1)
 
 LOGIN_WAY=DotDict(WEB=u"WEB",
                   WAP=u"WAP",

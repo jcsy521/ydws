@@ -60,6 +60,8 @@ from handlers.appsettings import AppSettingsHandler
 from handlers.unbind import UNBindHandler
 from handlers.share import ShareHandler
 from handlers.activity import ActivityHandler
+from handlers.announcement import AnnouncementHandler, AnnouncementListHandler
+from handlers.activate import ActivationcodeHandler, ActivateHandler 
 from handlers.feedback import FeedBackHandler
 from handlers.download import DownloadHandler, DownloadTerminalHandler, DownloadSmsHandler, UploadTerminalHandler, DownloadManualHandler
 from handlers.about import AboutHandler
@@ -158,6 +160,12 @@ class Application(tornado.web.Application):
             (r"/unbind/*", UNBindHandler),
             (r"/share/*", ShareHandler),
             (r"/activity/*", ActivityHandler),
+
+            # for YDWQ
+            (r"/announcement/*", AnnouncementHandler),
+            (r"/announcement/list/*", AnnouncementListHandler),
+            (r"/activationcode/*", ActivationcodeHandler),
+            (r"/activate/*", ActivateHandler),
 
             (r"/about/*", AboutHandler),
 

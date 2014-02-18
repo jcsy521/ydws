@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from utils.misc import get_terminal_info_key, get_lq_sms_key,\
-     get_location_key, get_login_time_key 
+     get_location_key, get_login_time_key, get_activation_code
 from utils.dotdict import DotDict
 from constants import GATEWAY, EVENTER
 
@@ -278,3 +278,29 @@ class QueryHelper(object):
         """
         alert_freq = db.get("SELECT alert_freq FROM T_TERMINAL_INFO WHERE tid=%s", tid)
         return int(alert_freq['alert_freq'])
+
+    @staticmethod
+    def get_activation_code(db):
+        """Generate a actiation_code which is never been used in db.
+        workflow:
+        for i in 0~9: # try it at most 10 times
+            try to get a actiation_code
+            if actiation_code is valid:
+                return it
+            else:
+                continue to try
+        """
+        activation_code = '' 
+        times = 10 
+        for i in range(times): 
+            activation_code = get_activation_code() 
+            t = db.get("SELECT id FROM T_TERMINAL_INFO WHERE activation_code = %s LIMIT 1", 
+                       activation_code) 
+            if not t: 
+                break 
+            else: 
+                activation_code = '' 
+        if not activation_code: 
+            logging.error("[QUERYHELPER] After times: %s, there is not a invalid actiation_code is got, have a check!", 
+                          times) 
+        return activation_code

@@ -247,6 +247,15 @@ def get_psd():
 
     return psd 
 
+def get_activation_code():
+    """A string consist of digits and upercase, whose length is 10.  
+    Do not include number 0,1 and letter o,i,l.  
+    """ 
+    activation_code = '' 
+    base_str = '23456789ABCDEFGHJKMNPQRSTUVWXYZ' 
+    activation_code = ''.join(random.choice(base_str) for x in range(10)) 
+    return activation_code
+
 def start_end_of_year(year="2011"):
     """Get start and end time of the year.
     """
@@ -324,3 +333,5 @@ def get_date_from_utc(timestamp):
                    hour=hour,
                    minute=minute, 
                    second=second)
+
+

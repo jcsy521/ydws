@@ -198,7 +198,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
     @check_privileges([PRIVILEGES.QUERY_BUSINESS])
     @tornado.web.removeslash
     def get(self):
-        corplist = self.db.query("SELECT id, name FROM T_CORP")
+        corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
         self.render('business/search.html',
                     interval=[], 
                     businesses=[],
@@ -213,7 +213,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
     def post(self):
         """Query businesses according to the given params.
         """
-        corplist = self.db.query("SELECT id, name FROM T_CORP")
+        corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
         corps = self.get_argument('corps', 0)
         begintime = int(self.get_argument('begintime',0))
         endtime = int(self.get_argument('endtime',0))
@@ -225,9 +225,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
             groups = self.db.query(sql)
             groups = [str(group.id) for group in groups] + [-1,]
         else:
-            corps = self.db.get("SELECT cid FROM T_CORP"
-                                "  WHERE id = %s", corps)
-            groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", corps.cid) 
+            groups = self.db.query("SELECT id FROM T_GROUP WHERE corp_id = %s", corps) 
             groups = [str(group.id) for group in groups]
 
         fields = DotDict(umobile="tu.mobile LIKE '%%%%%s%%%%'",
@@ -258,7 +256,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                                      if v is not None])
         try:
             sql = ("SELECT tt.tid, tt.login, tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile, tt.begintime, tt.endtime,"
-                   "  tt.service_status, tc.cnum, tcorp.name as ecname"
+                   "  tt.service_status, tc.cnum, tcorp.name as ecname, tt.biz_type"
                    "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_CAR as tc ON tt.tid = tc.tid"
                    "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"
                    "                             LEFT JOIN T_GROUP as tg ON tt.group_id = tg.id"

@@ -19,6 +19,7 @@ from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
 from constants import UWEB, GATEWAY
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.smshelper import SMSHelper
+from helpers.queryhelper import QueryHelper
 from utils.checker import check_phone, check_zs_phone
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
@@ -27,12 +28,12 @@ from base import BaseHandler, authenticated
 from mixin.base import BaseMixin
 
 class BatchImportHandler(BaseHandler):
-    """batch."""
+    """Batch."""
 
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """ render to fileUpload.html 
+        """Render to fileUpload.html 
         """
         self.render('fileUpload.html',
                     status=None)
@@ -40,7 +41,7 @@ class BatchImportHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        """ read excel
+        """Read excel.
         """
         try:
             upload_file = self.request.files['upload_file'][0]
@@ -80,8 +81,15 @@ class BatchImportHandler(BaseHandler):
                     if len(row) > 1:
                         umobile = unicode(row[1])
                         umobile = umobile[:umobile.find('.')]
+                    biz_type = 0 
+                    if len(row) > 2:
+                        biz_type = unicode(row[2])
+                        biz_type = biz_type[:biz_type.find('.')]
+                        biz_type = biz_type if biz_type else 0
+
                     r = DotDict(tmobile=tmobile,
                                 umobile=umobile,
+                                biz_type=biz_type,
                                 status=UWEB.TERMINAL_STATUS.UNJH)   
 
                     if not check_phone(tmobile) or (umobile and not check_phone(umobile)):
@@ -124,12 +132,11 @@ class BatchImportHandler(BaseHandler):
 
 
 class BatchDeleteHandler(BaseHandler, BaseMixin):
-    """batch delete."""
+    """Batch delete."""
 
     @authenticated
     @tornado.web.removeslash
     def post(self):
-
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
@@ -210,7 +217,7 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
             self.write_ret(status)
 
 class BatchJHHandler(BaseHandler):
-    """batch jh."""
+    """Batch jh."""
 
     @authenticated
     @tornado.web.removeslash
@@ -237,6 +244,7 @@ class BatchJHHandler(BaseHandler):
             for item in mobiles:
                 tmobile = item['tmobile']
                 umobile = item['umobile'] if item['umobile'] else self.current_user.cid
+                biz_type = item['biz_type']
                 r = DotDict(tmobile=tmobile,
                             status=ErrorCode.SUCCESS)
                 # 1. add terminal
@@ -254,12 +262,26 @@ class BatchJHHandler(BaseHandler):
                 # record the add action, enterprise
                 record_add_action(tmobile, gid, int(time.time()), self.db)
 
-                tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
-                                      "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit)"
-                                      "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                      tmobile, tmobile, gid, umobile, 
-                                      UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
-                                      begintime, endtime, begintime, 0)
+                if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
+                    tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
+                                          "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit)"
+                                          "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                          tmobile, tmobile, gid, umobile, 
+                                          UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
+                                          begintime, endtime, begintime, 0)
+                else:
+                    activation_code = QueryHelper.get_activation_code(self.db)
+                    tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
+                                          "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit,"
+                                          "  biz_type, activation_code)"
+                                          "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                          tmobile, tmobile, gid, umobile, 
+                                          UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
+                                          begintime, endtime, begintime, 0,
+                                          biz_type, activation_code)
+                    register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
+                    SMSHelper.send(tmobile, register_sms)
+                    
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
                                 tmobile)

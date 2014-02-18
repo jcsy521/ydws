@@ -41,8 +41,8 @@ class ECBusinessMixin(BaseMixin):
         endtime = int(self.get_argument('endtime',0))
         interval=[begintime, endtime]
         if int(corp) == 0:
-            corps = self.db.query("SELECT id FROM T_CORP")
-            corps = [str(corp.id) for corp in corps]
+            corps = self.db.query("SELECT id, cid FROM T_CORP")
+            corps = [str(corp.cid) for corp in corps]
         else:
             corps = [str(corp),]
             
@@ -65,7 +65,7 @@ class ECBusinessMixin(BaseMixin):
 
         sql = ("SELECT cid, name as ecname, mobile as ecmobile, address, email" 
                "  FROM T_CORP"
-               "  WHERE id IN %s ") % (tuple(corps + DUMMY_IDS),)
+               "  WHERE cid IN %s ") % (tuple(corps + DUMMY_IDS),)
         if where_clause:
             sql += " AND " + where_clause
         businesses = self.db.query(sql)
@@ -163,11 +163,12 @@ class ECBusinessListHandler(BaseHandler, ECBusinessMixin):
         
         
 class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
+
     @authenticated
     @check_privileges([PRIVILEGES.QUERY_ECBUSINESS])
     @tornado.web.removeslash
     def get(self):
-        corplist = self.db.query("SELECT id, name FROM T_CORP")
+        corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
         self.render('ecbusiness/search.html',
                     interval=[], 
                     corplist=corplist,
@@ -185,7 +186,7 @@ class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
         m.update(self.request.body)
         hash_ = m.hexdigest() 
         ecbusinesses, interval = self.prepare_data(hash_)
-        corplist = self.db.query("SELECT id, name FROM T_CORP")
+        corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
         self.render('ecbusiness/search.html',
                     interval=interval, 
                     ecbusinesses=ecbusinesses,
@@ -308,7 +309,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
     def get(self):
         """Just to create.html.
         """
-        corplist = self.db.query("SELECT id, name, mobile as ecmobile FROM T_CORP")
+        corplist = self.db.query("SELECT id, cid, name, mobile as ecmobile FROM T_CORP")
         self.render('ecbusiness/addterminal.html',
                     corplist=corplist,
                     status=ErrorCode.SUCCESS,
@@ -333,7 +334,8 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                          password="",
                          address="",
                          email="",
-                         ecmobile="")
+                         ecmobile="",
+                         biz_type="")
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'')
             #if not check_sql_injection(fields[key]):
@@ -341,7 +343,6 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
             #    self.render('errors/error.html',
             #        message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_CONDITION_ILLEGAL])
             #    return
-
         white_list = check_zs_phone(fields.tmobile, self.db)
         if not white_list:
             logging.error("Create business error, %s is not whitelist", fields.tmobile)
@@ -361,17 +362,14 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                 self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
                                 "  VALUES(%s)",
                                 fields.umobile)
-            
             # 2: add terminal
-            corp = self.db.get("SELECT cid FROM T_CORP WHERE id = %s", fields.ecid)
-            group = self.db.get("SELECT id FROM T_GROUP WHERE corp_id = %s AND type = 0 LIMIT 1", corp.cid) 
+            group = self.db.get("SELECT id FROM T_GROUP WHERE corp_id = %s AND type = 0 LIMIT 1", fields.ecid) 
             if not group:
                 gid= self.db.execute("INSERT INTO T_GROUP(corp_id, name, type)"
                                      "  VALUES(%s, default, default)",
-                                     corp.cid)
+                                     fields.ecid)
             else:
                 gid = group.id
-
 
             # record the add action, enterprise
             record_add_action(fields.tmobile, gid, int(time.time()), self.db)
@@ -380,36 +378,62 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                 user_mobile = fields.ecmobile
             else:
                 user_mobile = fields.umobile
-            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  begintime, endtime, offline_time, login_permit)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                            fields.tmobile, gid,
-                            fields.tmobile, user_mobile,
-                            fields.begintime, fields.endtime, fields.begintime, 0)
-    
-            # 3: add car tnum --> cnum
+
+            # 3: send message to terminal
+            biz_type = int(fields.biz_type)
+            if biz_type == UWEB.BIZ_TYPE.YDWS:  
+                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
+                                "  begintime, endtime, offline_time, login_permit)"
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                                fields.tmobile, gid,
+                                fields.tmobile, user_mobile,
+                                fields.begintime, fields.endtime, fields.begintime, 0)
+                register_sms = SMSCode.SMS_REGISTER % (fields.umobile, fields.tmobile) 
+                ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
+                ret = DotDict(json_decode(ret))
+                sms_status = 0
+                if ret.status == ErrorCode.SUCCESS:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET msgid = %s"
+                                    "  WHERE mobile = %s",
+                                    ret['msgid'], fields.tmobile)
+                    #convert front desk need format 
+                    sms_status = 1
+                else:
+                    sms_status = 0
+                    logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.umobile)
+            else: 
+                activation_code = QueryHelper.get_activation_code(self.db) 
+                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
+                                "  begintime, endtime, offline_time, login_permit,"
+                                "  biz_type, activation_code)"
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                fields.tmobile, gid,
+                                fields.tmobile, user_mobile,
+                                fields.begintime, fields.endtime,
+                                fields.begintime, 0, biz_type, activation_code) 
+
+                register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code 
+                ret = SMSHelper.send(fields.tmobile, register_sms)
+                ret = DotDict(json_decode(ret))
+                sms_status = 0
+                if ret.status == ErrorCode.SUCCESS:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET msgid = %s"
+                                    "  WHERE mobile = %s",
+                                    ret['msgid'], fields.tmobile)
+                    #convert front desk need format 
+                    sms_status = 1
+                else:
+                    sms_status = 0
+                    logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.umobile)
+
+            fields.sms_status = sms_status
+            # 4: add car tnum --> cnum
             self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
                             "  VALUES(%s, %s, %s, %s, %s)",
                             fields.tmobile, fields.cnum, 
                             fields.ctype, fields.ccolor, fields.cbrand)
-            
-            # 4: send message to terminal
-            register_sms = SMSCode.SMS_REGISTER % (fields.umobile, fields.tmobile) 
-            ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
-            ret = DotDict(json_decode(ret))
-            sms_status = 0
-            if ret.status == ErrorCode.SUCCESS:
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET msgid = %s"
-                                "  WHERE mobile = %s",
-                                ret['msgid'], fields.tmobile)
-            #convert front desk need format 
-                sms_status = 1
-            else:
-                
-                sms_status = 0
-                logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.umobile)
-            fields.sms_status = sms_status
             fields.service_status = 1
             self.render('business/list.html',
                         business=fields,

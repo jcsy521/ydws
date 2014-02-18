@@ -126,7 +126,7 @@ class TrackHandler(BaseHandler):
             #else: 
             #    biz = QueryHelper.get_biz_by_mobile(self.current_user.sim, self.db)
             #    if biz: 
-            #        if biz.biz_type == UWEB.BIZ_TYPE.ELECTROCAR:
+            #        if biz.biz_type == UWEB.VEHICLE_TYPE.ELECTROCAR:
             #            status = ErrorCode.QUERY_TRACK_FORBID
             #            self.write_ret(status)
             #            logging.info("[UWEB] sim:%s, biz_type:%s, track is not permited.", 

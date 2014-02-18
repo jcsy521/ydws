@@ -69,6 +69,8 @@ class EventHandler(BaseHandler):
                          data, self.current_user.uid, self.current_user.tid, tids)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
