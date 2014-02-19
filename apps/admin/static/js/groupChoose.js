@@ -123,9 +123,11 @@ function bus_changeUserType(str_ecName, str_tMobile) {
 		}
 		
 		$.post('/usertype',  JSON.stringify(obj_postData), function (data) {
-			alert(data.message);
 			if ( data.status == 0 ) {
-				$('#addWhitelistDialog').dialog('close');
+				alert('操作成功，请重新查询！');
+				$('#userTypeChangeDialog').dialog('close');
+			} else {
+				alert(data.message);
 			}
 		});
 	});
