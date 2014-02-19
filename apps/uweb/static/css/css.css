@@ -3637,3 +3637,13 @@ legend {
 	left: 700px;
     position: relative;
 }
+#fileUploadForm {
+	height: 86px;
+	margin: 10px 0px 0px 18px;
+}
+#fileUploadTipPanel {
+	margin-left: 38px;
+}
+#batchTerminalTipImg {
+	margin-top: 10px;
+}
