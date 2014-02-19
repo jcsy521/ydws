@@ -81,15 +81,15 @@ class BatchImportHandler(BaseHandler):
                     if len(row) > 1:
                         umobile = unicode(row[1])
                         umobile = umobile[:umobile.find('.')]
-                    biz_type = 0 
+                    biz_type = UWEB.BIZ_TYPE.YDWS 
                     if len(row) > 2:
                         biz_type = unicode(row[2])
                         biz_type = biz_type[:biz_type.find('.')]
-                        biz_type = biz_type if biz_type else 0
+                        biz_type = biz_type if biz_type else UWEB.BIZ_TYPE.YDWS 
 
                     r = DotDict(tmobile=tmobile,
                                 umobile=umobile,
-                                biz_type=biz_type,
+                                biz_type=int(biz_type),
                                 status=UWEB.TERMINAL_STATUS.UNJH)   
 
                     if not check_phone(tmobile) or (umobile and not check_phone(umobile)):
@@ -158,8 +158,7 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
                 terminal = self.db.get("SELECT id, mobile, owner_mobile, login FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s"
                                        "    AND service_status = %s",
-                                       tid, 
-                                       UWEB.SERVICE_STATUS.ON)
+                                       tid, UWEB.SERVICE_STATUS.ON)
                 if not terminal:
                     r.status = ErrorCode.SUCCESS
                     res.append(r)
@@ -269,6 +268,8 @@ class BatchJHHandler(BaseHandler):
                                           tmobile, tmobile, gid, umobile, 
                                           UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
                                           begintime, endtime, begintime, 0)
+                    register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
+                    ret = SMSHelper.send_to_terminal(tmobile, register_sms)
                 else:
                     activation_code = QueryHelper.get_activation_code(self.db)
                     tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
@@ -280,7 +281,16 @@ class BatchJHHandler(BaseHandler):
                                           begintime, endtime, begintime, 0,
                                           biz_type, activation_code)
                     register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
-                    SMSHelper.send(tmobile, register_sms)
+                    ret = SMSHelper.send(tmobile, register_sms)
+
+                ret = DotDict(json_decode(ret))
+                if ret.status == ErrorCode.SUCCESS:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET msgid = %s"
+                                    "  WHERE id = %s",
+                                    ret['msgid'], tid)
+                else:
+                    r['status'] = ErrorCode.FAILED 
                     
                 self.db.execute("INSERT INTO T_CAR(tid)"
                                 "  VALUES(%s)",
@@ -297,17 +307,6 @@ class BatchJHHandler(BaseHandler):
                     self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
                                     "  VALUES(%s)",
                                     umobile)
-                # 3: send JH message to terminal
-                register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
-                ret = SMSHelper.send_to_terminal(tmobile, register_sms)
-                ret = DotDict(json_decode(ret))
-                if ret.status == ErrorCode.SUCCESS:
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
-                                    "  SET msgid = %s"
-                                    "  WHERE id = %s",
-                                    ret['msgid'], tid)
-                else:
-                    r['status'] = ErrorCode.FAILED 
                 res.append(r)
             self.write_ret(status, dict_=DotDict(res=res))
         except Exception as e:

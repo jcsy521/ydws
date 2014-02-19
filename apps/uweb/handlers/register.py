@@ -148,8 +148,16 @@ class ReRegisterHandler(BaseHandler):
             user = QueryHelper.get_user_by_tmobile(tmobile, self.db) 
             if user: 
                 umobile = user.owner_mobile            
-                register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
-                ret = SMSHelper.send_to_terminal(tmobile, register_sms)
+                terminal = self.db.get("SELECT biz_type FROM T_TERMINAL_INFO WHERE mobile = %s LIMIT 1", 
+                                       tmobile)
+                if int(terminal.biz_type) == UWEB.BIZ_TYPE.YDWS:
+                    register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
+                    ret = SMSHelper.send_to_terminal(tmobile, register_sms)
+                else:
+                    activation_code = QueryHelper.get_activation_code(self.db)
+                    register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
+                    ret = SMSHelper.send(tmobile, register_sms)
+
                 ret = DotDict(json_decode(ret))
                 if ret.status == ErrorCode.SUCCESS:
                     logging.info("[UWEB] umobile: %s, tmobile: %s reregist successfully.",
