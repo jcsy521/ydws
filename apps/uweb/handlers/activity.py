@@ -26,7 +26,7 @@ class ActivityHandler(BaseHandler):
                 res = self.db.query("SELECT title, begintime, endtime, filename"
                                     "  FROM T_ACTIVITY"
                                     "  WHERE begintime > %s",
-                                    timesamp)
+                                    timestamp)
             for r in res:
                 r['filepath'] = self.application.settings['activity_path'] + r['filename']
                 del r['filename']

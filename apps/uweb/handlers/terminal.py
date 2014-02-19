@@ -334,7 +334,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
             biz_type = data.get('biz_type', UWEB.BIZ_TYPE.YDWS)
 
-            if biz_type == UWEB.BIZ_TYPE.YDWS:
+            if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                                 "  defend_status, mannual_status, begintime, endtime, offline_time, "
                                 "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type)"
@@ -342,6 +342,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 data.tmobile, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
                                 UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, 
                                 data.login_permit, data.push_status, data.vibl, use_scene, biz_type)
+                # 4: send message to terminal
+                register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
+                ret = SMSHelper.send_to_terminal(data.tmobile, register_sms)
             else:
                 activation_code = QueryHelper.get_activation_code(self.db)
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
@@ -355,8 +358,17 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 data.vibl, use_scene, biz_type,
                                 activation_code)
                 register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
-                SMSHelper.send(fields.tmobile, register_sms)
-    
+                ret = SMSHelper.send(data.tmobile, register_sms)
+
+            ret = DotDict(json_decode(ret))
+            if ret.status == ErrorCode.SUCCESS:
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET msgid = %s"
+                                "  WHERE mobile = %s",
+                                ret['msgid'], data.tmobile)
+            else:
+                logging.error("[UWEB] Send %s to terminal %s failed.", register_sms, data.tmobile)
+
             # 1: add user
             user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
             if not user:
@@ -372,20 +384,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                             "  VALUES(%s, %s)",
                             data.tmobile, data.cnum )
             
-            # 4: send message to terminal
-            register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
-            ret = SMSHelper.send_to_terminal(data.tmobile, register_sms)
-            ret = DotDict(json_decode(ret))
-            sms_status = 0
-            if ret.status == ErrorCode.SUCCESS:
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET msgid = %s"
-                                "  WHERE mobile = %s",
-                                ret['msgid'], data.tmobile)
-                sms_status = 1
-            else:
-                sms_status = 0
-                logging.error("[UWEB] Send %s to terminal %s failed.", register_sms, data.tmobile)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 
