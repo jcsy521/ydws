@@ -73,7 +73,8 @@ class BatchImportHandler(BaseHandler):
             # read from tmp file
             wb = xlrd.open_workbook(file_path)
             for sheet in wb.sheets():
-                for j in range(sheet.nrows):
+                #NOTE: first line is title, and is ignored
+                for j in range(1,sheet.nrows): 
                     row = sheet.row_values(j)
                     tmobile = unicode(row[0])
                     tmobile = tmobile[:tmobile.find('.')]
