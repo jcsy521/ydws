@@ -12,7 +12,8 @@ from codes.errorcode import ErrorCode
 from tornado.escape import json_encode, json_decode
 
 # expires period for cookie, it's 30 minutes now.
-EXPIRES_MINUTES = 30
+#EXPIRES_MINUTES = 30
+EXPIRES_MINUTES = 60*24 # 1 day
 
 
 def authenticated(method):

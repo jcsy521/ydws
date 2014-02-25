@@ -14,7 +14,8 @@ from mysql import DBAcbConnection
 from db import DBConnection
 
 # expires period for cookie, it's 2 hours now.
-EXPIRES_MINUTES = 120
+#EXPIRES_MINUTES = 120
+EXPIRES_MINUTES =  60*24 # 1 day
 
 def authenticated(method):
     """Decorate methods with this to require that the user be logged in."""
