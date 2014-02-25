@@ -4,7 +4,7 @@ import logging
 
 from constants import UWEB 
 from base import BaseMixin
-from utils.misc import get_ios_push_list_key
+from utils.misc import get_ios_push_list_key, get_ios_badge_key 
 
 
 class PasswordMixin(BaseMixin):
