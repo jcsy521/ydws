@@ -578,13 +578,13 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 			if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
 			
 			} else {
-				str_html+='<li class="top10"><a href="#" id="realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
+				str_html+='<li class="top10"><a href="#" id="infowindow_realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
 				if ( dlf.fn_userType() ) {	// 如果是集团用户的话 定位、轨迹、设防撤防、参数设置放在marker上
 					str_html+='<a href="#" id="corpTerminal"  onclick="dlf.fn_initCorpTerminal();">设置</a><a href="#" onclick="dlf.fn_initRegion();">围栏</a>';
 				} else {	// 如果是个人用户
-					str_html += '<a href="#" id="terminal" onclick="dlf.fn_initTerminal();">设置</a>';
+					str_html += '<a href="#" id="infowindow_terminal" onclick="dlf.fn_initTerminal();">设置</a>';
 				}
-				str_html += '<a href="#" id="defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+				str_html += '<a href="#" id="infowindow_defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
 				
 				if ( str_tid == str_currenttid || !str_currenttid ) {
 					var str_fileUrl = location.href,
