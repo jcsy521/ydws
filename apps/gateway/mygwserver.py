@@ -1543,20 +1543,20 @@ class MyGWServer(object):
                         else:
                             communication_staus = u'正常'
 
-                        if int(terminal_info['mannual_status']) == UWEB.DEFEND_STATUS.NO:
+                        if int(terminal_info['mannual_status']) == UWEB.DEFEND_STATUS.YES:
                             communication_mode = u'设防'
                         else:
                             communication_mode= u'撤防'
 
-                        pbat = terminal_info.get('pbat', 0)
+                        pbat = int(terminal_info.get('pbat', 0))
 
-                        gsm = terminal_info.get('gsm', 0)
+                        gsm = int(terminal_info.get('gsm', 0))
                         if gsm < 3:
                             gsm_strength = u'弱'
                         elif gsm < 6:
                             gsm_strength = u'较弱'
 
-                        gps = terminal_info.get('gps', 0)
+                        gps = int(terminal_info.get('gps', 0))
                         if gps < 10:
                             gps_strength = u'弱' 
                         elif gps < 20:
