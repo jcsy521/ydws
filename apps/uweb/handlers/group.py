@@ -14,6 +14,31 @@ from base import BaseHandler, authenticated
        
 class GroupHandler(BaseHandler):
 
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self):
+        """Get groups according to cid.
+        """
+        status = ErrorCode.SUCCESS
+        try:
+            res = []
+            cid = self.get_argument('cid', None)
+            if cid is None:
+                res = []
+            else:
+                res = self.db.query("SELECT id AS gid, name, type"
+                                    "  FROM T_GROUP"
+                                    "  WHERE corp_id = %s",
+                                    cid)
+            self.write_ret(status,
+                           dict_=DotDict(res=res))
+        except Exception as e:
+            logging.exception("[UWEB] get groups failed. Exception: %s",
+                              e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
     @authenticated
     @tornado.web.removeslash
     def post(self):
