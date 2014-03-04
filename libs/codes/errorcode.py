@@ -40,6 +40,7 @@ class ErrorCode(object):
     CNUM_EXISTED = 220
     MOBILE_NOT_ORDERED = 221
     TRACK_POINTS_TOO_MUCH = 222
+    USER_NOT_EXIST = 223
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -110,6 +111,7 @@ class ErrorCode(object):
         TEST_NOT_PERMITED:             u"对不起，该账号是体验账号，不能使用该功能。",
         USER_NOT_ORDERED:              u"对不起, 该号码尚未订购移动卫士业务。",
         TRACK_POINTS_TOO_MUCH:         u"对不起，您的网速太慢，数据太多了，请缩小查询范围。",
+        USER_NOT_EXIST:                u"对不起，当前用户不存在。",
         SERVER_ERROR:                  u"服务器错误。",
         SERVER_BUSY:                   u"服务器忙，请稍后重试。",
         QUERY_TRACK_FORBID:            u"您使用的是简易版移动卫士，不支持轨迹查询功能。",

@@ -2,7 +2,7 @@
 
 import os
 import datetime, time
-ACTIVITY_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/activity"))
+APK_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/apk"))
 import logging
 
 import tornado.web
@@ -14,12 +14,12 @@ from utils.checker import check_filename
 
 from base import BaseHandler, authenticated
 
-class ActivityHandler(BaseHandler):
+class ApkHandler(BaseHandler):
 
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        self.render('activity/activity.html',
+        self.render('apk/apkManage.html',
                     status=ErrorCode.SUCCESS,
                     message='')
 
@@ -28,20 +28,21 @@ class ActivityHandler(BaseHandler):
     def post(self):
         try:
             author = self.get_argument('author', '')
-            title = self.get_argument('title', '')
-            begintime = self.get_argument('begintime', 0)
-            endtime = self.get_argument('endtime', 0)
+            versioncode = self.get_argument('versioncode', '')
+            versionname = self.get_argument('versionname', '')
+            versioninfo = self.get_argument('versioninfo', '')
+            updatetime = self.get_argument('updatetime', '')
+            filesize = self.get_argument('filesize', '')
             upload_file = self.request.files['fileupload'][0]
             filename = safe_utf8(upload_file['filename'])
         except Exception as e:
-            logging.info("[ADMIN] Script upload failed, exception:%s", e.args)
+            logging.info("[ADMIN] Apk upload failed, exception:%s", e.args)
             status = ErrorCode.FAILED 
             self.write_ret(status) 
             return
 
         try:
             status = ErrorCode.SUCCESS 
-            # check filename whether contains illegal character
             if not check_filename(filename):
                 status = ErrorCode.ACTIVITY_NAME_ILLEGAL
                 self.write_ret(status) 
@@ -49,20 +50,12 @@ class ActivityHandler(BaseHandler):
                              filename, ErrorCode.ERROR_MESSAGE[status])
                 return
 
-            # check filename whether exists
-            files = os.listdir(ACTIVITY_DIR_)
-            for file in files:
-                if file == filename:
-                    status = ErrorCode.ACTIVITY_EXISTED
-                    logging.info("[ADMIN] filename: %s, Message: %s", 
-                                 filename, ErrorCode.ERROR_MESSAGE[status])
-                    self.write_ret(status) 
-                    return
-
-            self.db.execute("INSERT INTO T_ACTIVITY(title, filename, begintime, endtime, author)"
-                            "VALUES(%s, %s, %s, %s, %s)",
-                            title, filename, begintime, endtime, author)
-            file_path = os.path.join(ACTIVITY_DIR_, filename)
+            self.db.execute("INSERT INTO T_APK(versioncode, versionname, versioninfo, updatetime, filesize, author)"
+                            "VALUES(%s, %s, %s, %s, %s, %s)",
+                            versioncode, versionname, versioninfo, updatetime, filesize, author)
+                            
+            filename = 'YDWQ_%s.apk' % versionname
+            file_path = os.path.join(APK_DIR_, filename)
             logging.info("[ADMIN] Upload path: %s", file_path)
             output_file = open(file_path, 'w')
             output_file.write(upload_file['body'])
@@ -80,7 +73,6 @@ class ActivityHandler(BaseHandler):
     def delete(self):
         """Delete activity.  
         """
-        status = ErrorCode.SUCCESS
         try: 
             delete_ids = map(int, str_to_list(self.get_argument('ids', None))) 
             logging.info("[ADMIN] delete activity: %s", 
@@ -93,27 +85,28 @@ class ActivityHandler(BaseHandler):
             return
 
         try:
-            self.db.execute("DELETE FROM T_ACTIVITY WHERE id IN %s",
+            status = ErrorCode.SUCCESS
+            self.db.execute("DELETE FROM T_APK WHERE id IN %s",
                             tuple(delete_ids + DUMMY_IDS))
             self.write_ret(status)
         except Exception as e: 
             status = ErrorCode.SERVER_BUSY
-            logging.exception("[ADMIN] delete activity failed. Exception: %s", 
+            logging.exception("[ADMIN] delete  apk failed. Exception: %s", 
                               e.args) 
             self.write_ret(status)
 
-class ActivityListHandler(BaseHandler):
+class ApkListHandler(BaseHandler):
 
     @authenticated
     @tornado.web.removeslash
     def post(self):
         status = ErrorCode.SUCCESS
         try:
-            res = self.db.query("SELECT id, title, filename, begintime, endtime, author" 
-                                "  FROM T_ACTIVITY ORDER BY begintime ")
+            res = self.db.query("SELECT id, versioncode, versionname, versioninfo, updatetime, filesize, author" 
+                                "  FROM T_APK ORDER BY updatetime ")
             self.write_ret(status=status, 
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[ADMIN] Get activity list failed.")
+            logging.exception("[ADMIN] Get apk list failed.")
             status = ErrorCode.SUCCESS
             self.write_ret(status=status) 

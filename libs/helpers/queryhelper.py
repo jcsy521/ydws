@@ -304,3 +304,34 @@ class QueryHelper(object):
             logging.error("[QUERYHELPER] After times: %s, there is not a invalid actiation_code is got, have a check!", 
                           times) 
         return activation_code
+
+    @staticmethod
+    def get_corp_by_groupid(groupid, db):
+        corp = DotDict()
+        res = db.get("SELECT tc.cid, tc.name FROM T_GROUP AS tg, T_CORP AS tc"
+                     "  WHERE tg.corp_id = tc.cid"
+                     "  AND tg.id = %s",
+                     groupid)
+        if res:
+            corp.name = res['name']
+            corp.cid = res['cid']
+            
+        return corp
+
+    @staticmethod
+    def get_default_group_by_cid(cid, db):
+        group = DotDict()
+        res = db.get("SELECT id, name from T_GROUP"
+                     "  WHERE corp_id = %s"
+                     "  AND type=0",
+                     cid)
+        if res:
+            group.name = res['name']
+            group.gid = res['id']
+        else:
+            gid = db.execute("INSERT INTO T_GROUP(corp_id)"
+                             "  values(%s)",
+                             cid) 
+            group.name = u'默认组' 
+            group.gid = gid 
+        return group 

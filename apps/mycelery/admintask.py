@@ -104,7 +104,7 @@ class TerminalStatistic(object):
             e_terminal_del_year = 0
 
             def handle_dead_terminal(db, redis):
-                """For the terminals to be removed, delte the associated info of it.
+                """For the terminals to be removed, delete the associated info of it.
                 @params: db, database
                 """
                 terminals = db.query("select tid, mobile from T_TERMINAL_INFO where service_status = 2")
@@ -309,12 +309,13 @@ class TerminalStatistic(object):
                         "  terminal_add_day, terminal_add_month, terminal_add_year,"
                         "  terminal_del_day, terminal_del_month, terminal_del_year,"
                         "  login_day, login_month, login_year, active, deactive,"
-                        "  terminal_online, terminal_offline, timestamp, type)"
+                        "  terminal_online, terminal_offline,"
+                        "  terminal_individual, terminal_enterprise, timestamp, type)"
                         "  VALUES (%s,%s,%s,"
                         "  %s, %s, %s,"
                         "  %s, %s, %s,"
                         "  %s, %s, %s, %s, %s,"
-                        "  %s, %s, %s, %s)"
+                        "  %s, %s, %s, %s, %s, %s)"
                         "  ON DUPLICATE KEY"
                         "  UPDATE corp_add_day=values(corp_add_day),"
                         "         corp_add_month=values(corp_add_month), "
@@ -331,7 +332,9 @@ class TerminalStatistic(object):
                         "         active=values(active),"
                         "         deactive=values(deactive),"
                         "         terminal_online=values(terminal_online),"
-                        "         terminal_offline=values(terminal_offline)")
+                        "         terminal_offline=values(terminal_offline),"
+                        "         terminal_individual=values(terminal_individual),"
+                        "         terminal_enterprise=values(terminal_enterprise)")
 
 
             in_login_day = self.db.get(sql_in_login,
@@ -361,7 +364,7 @@ class TerminalStatistic(object):
                             in_terminal_del_day, in_terminal_del_month, in_terminal_del_year,
                             in_login_day.num, in_login_month.num, in_login_year.num, in_active.num, in_deactive.num,
                             in_terminal_online_count.num,
-                            in_terminal_offline_count.num, day_end_time,
+                            in_terminal_offline_count.num, 0, 0, day_end_time,
                             UWEB.STATISTIC_USER_TYPE.INDIVIDUAL)
 
             #2: enterprise stattis
@@ -404,10 +407,14 @@ class TerminalStatistic(object):
                             e_terminal_add_day, e_terminal_add_month, e_terminal_add_year,
                             e_terminal_del_day, e_terminal_del_month, e_terminal_del_year,
                             e_login_day.num, e_login_month.num, e_login_year.num, e_active.num, e_deactive.num,
-                            e_terminal_online_count.num, e_terminal_offline_count.num, day_end_time,
+                            e_terminal_online_count.num, e_terminal_offline_count.num, 0, 0, day_end_time,
                             UWEB.STATISTIC_USER_TYPE.ENTERPRISE)
  
             # 3 total statistic
+            terminal_total_in = self.db.get("SELECT count(id) AS num FROM T_TERMINAL_INFO WHERE group_id = -1")
+            terminal_total_en = self.db.get("SELECT count(id) AS num FROM T_TERMINAL_INFO WHERE group_id != -1")
+
+
             self.db.execute(sql_kept,
                             e_corp_add_day.num, e_corp_add_month.num, e_corp_add_year.num,
                             in_terminal_add_day+e_terminal_add_day,
@@ -423,7 +430,8 @@ class TerminalStatistic(object):
                             in_login_year.num+e_login_year.num, 
                             in_active.num+e_active.num, in_deactive.num+e_deactive.num,
                             in_terminal_online_count.num+e_terminal_online_count.num,
-                            in_terminal_offline_count.num+e_terminal_offline_count.num, day_end_time, 
+                            in_terminal_offline_count.num+e_terminal_offline_count.num,  
+                            terminal_total_in.num, terminal_total_en.num, day_end_time,
                             UWEB.STATISTIC_USER_TYPE.TOTAL)
 
             end_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) 
@@ -756,7 +764,7 @@ if __name__ == '__main__':
         #ts.statistic_online_terminal(timestamp) 
         #ts.statistic_user(timestamp) 
         #ts.statistic_offline_terminal(timestamp) 
-        ts.statistic_misc() 
+        #ts.statistic_misc() 
 
 else: 
     try: 

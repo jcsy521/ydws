@@ -6,6 +6,7 @@ import tornado.web
 from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
+from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode 
 
 from base import BaseHandler, authenticated
@@ -31,13 +32,10 @@ class UserTypeHandler(BaseHandler):
         try:
             status = ErrorCode.SUCCESS 
             if cid: # individual --> enterprise
-                group = self.db.get("SELECT id, corp_id FROM T_GROUP"
-                                    "  WHERE corp_id = %s AND type = 0"
-                                    "  ORDER BY id DESC",
-                                    cid)
+                group = QueryHelper.get_default_group_by_cid(cid, self.db)
                 self.db.execute("UPDATE T_TERMINAL_INFO SET group_id = %s"
                                 "  WHERE mobile = %s",
-                                group.id, tmobile)
+                                group.gid, tmobile)
             else: # enterprise --> individual
                 self.db.execute("UPDATE T_TERMINAL_INFO SET group_id = -1"
                                 "  WHERE mobile = %s",

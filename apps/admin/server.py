@@ -54,7 +54,10 @@ from handlers.total import TotalHandler, TotalDownloadHandler
 from handlers.offline import OfflineHandler, OfflineDownloadHandler
 from handlers.misc import *
 from handlers.activity import ActivityHandler, ActivityListHandler
+from handlers.apk import ApkHandler, ApkListHandler
 from handlers.usertype import UserTypeHandler
+from handlers.username import UsernameHandler
+from handlers.resetpassword import ResetPasswordHandler 
 
 
 class Application(tornado.web.Application):
@@ -146,11 +149,18 @@ class Application(tornado.web.Application):
             (r"/download/enterprise/(.*)/*", EnterpriseDownloadHandler),
             (r"/download/total/(.*)/*", TotalDownloadHandler),
             (r"/download/offline/(.*)/*", OfflineDownloadHandler),
+            
+            (r"/download/business/search/(.*)/*", BusinessSearchDownloadHandler),
+
 
             (r"/activity/*", ActivityHandler),
             (r"/activity/list/*", ActivityListHandler),
+            (r"/apk/*", ApkHandler),
+            (r"/apk/list/*", ApkListHandler),
 
             (r"/usertype/*", UserTypeHandler),
+            (r"/username/*", UsernameHandler),
+            (r"/resetpassword/*", ResetPasswordHandler),
 
         ]
 

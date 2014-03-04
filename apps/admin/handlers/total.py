@@ -58,11 +58,12 @@ class TotalMixin(BaseMixin):
                               "  terminal_add_day, terminal_add_month, terminal_add_year,"
                               "  terminal_del_day, terminal_del_month, terminal_del_year,"
                               "  login_day, login_month, login_year,"
-                              "  active, deactive, terminal_online, terminal_offline, timestamp"
+                              "  active, deactive, terminal_online, terminal_offline, "
+                              "  terminal_individual, terminal_enterprise, timestamp"
                               "  FROM T_STATISTIC"
                               "  WHERE type= %s"
                               "  AND (timestamp BETWEEN %s AND %s)",
-                              2,_start_time, _end_time)
+                              2, _start_time, _end_time)
             if not ret:
                 ret = {}
             _res = dict(# corp add
@@ -92,7 +93,11 @@ class TotalMixin(BaseMixin):
                         # online 
                         terminal_online=ret['terminal_online'] if ret.get('terminal_online', None) is not None else 0,
                         terminal_offline=ret['terminal_offline'] if ret.get('terminal_offline', None) is not None else 0,
-                        
+
+                        # total
+                        terminal_individual=ret['terminal_individual'] if ret.get('terminal_individual', None) is not None else 0,
+                        terminal_enterprise=ret['terminal_enterprise'] if ret.get('terminal_enterprise', None) is not None else 0,
+
                         timestamp=_start_time,
                         type=2
                        )
@@ -167,10 +172,11 @@ class TotalDownloadHandler(BaseHandler, TotalMixin):
         start_line = 0
         ws.write_merge(0,0,0,0+2,TOTAL_HEADER_TOP[0])
         ws.write_merge(0,0,3,3+2,TOTAL_HEADER_TOP[1])
-        ws.write_merge(0,0,6,6+1,TOTAL_HEADER_TOP[2])
-        ws.write_merge(0,0,8,8+1,TOTAL_HEADER_TOP[3])
-        ws.write_merge(0,0,10,10+2,TOTAL_HEADER_TOP[4])
-        ws.write_merge(0,0,13,13+0,TOTAL_HEADER_TOP[5])
+        ws.write_merge(0,0,6,6+2,TOTAL_HEADER_TOP[2])
+        ws.write_merge(0,0,9,9+1,TOTAL_HEADER_TOP[3])
+        ws.write_merge(0,0,11,11+1,TOTAL_HEADER_TOP[4])
+        ws.write_merge(0,0,13,13+1,TOTAL_HEADER_TOP[5])
+        ws.write_merge(0,0,15,15+0,TOTAL_HEADER_TOP[6])
         start_line += 1
         for i, head in enumerate(TOTAL_HEADER):
             ws.write(start_line, i, head)
@@ -189,7 +195,9 @@ class TotalDownloadHandler(BaseHandler, TotalMixin):
             ws.write(i, 10, result['deactive'])
             ws.write(i, 11, result['terminal_online'])
             ws.write(i, 12, result['terminal_offline'])
-            ws.write(i, 13, time.strftime("%Y-%m-%d",time.localtime(result['timestamp'])))
+            ws.write(i, 13, result['terminal_enterprise'])
+            ws.write(i, 14, result['terminal_individual'])
+            ws.write(i, 15, time.strftime("%Y-%m-%d",time.localtime(result['timestamp'])))
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)

@@ -68,6 +68,7 @@ TOTAL_HEADER_TOP = (u"新增激活终端",
                     u"用户登录情况", 
                     u"活跃情况",
                     u"终端情况",
+                    u"累计激活终端",
                     u"统计时间")
 TOTAL_HEADER = (u"日激活", 
                 u"月累计", 
@@ -81,6 +82,8 @@ TOTAL_HEADER = (u"日激活",
                 u"活跃用户", 
                 u"沉默用户", 
                 u"在线终端", 
+                u"离线终端", 
+                u"集团用户", 
                 u"离线终端", 
                 u"年月日")
 
@@ -138,6 +141,7 @@ ENTERPRISE_HEADER = (u"日激活",
 OFFLINE_SHEET = u"离线用户统计"
 OFFLINE_FILE_NAME = u"离线用户统计表"
 OFFLINE_HEADER = (u"用户类型", 
+                  u"集团名称", 
                   u"车主号", 
                   u"终端号", 
                   u"电量", 
@@ -145,3 +149,14 @@ OFFLINE_HEADER = (u"用户类型",
                   u"累计离线时间",
                   u"离线原因",
                   u"备注")
+
+
+BUSINESS_FILE_NAME = u"用户查询"
+BUSINESS_SHEET = u"用户"
+BUSINESS_HEADER = (u"序号", 
+                   u"集团名称", 
+                   u"车主手机号", 
+                   u"业务类型", 
+                   u"在线/离线",
+                   u"电量",
+                   u"开通时间")

@@ -26,6 +26,7 @@ from helpers.confhelper import ConfHelper
 
 from checkterminalstatus import CheckTerminalStatus
 from terminal import SimulatorTerminal
+from terminal_test import SimulatorTerminalTest
 from checkservice import CheckService
 
 
@@ -45,6 +46,15 @@ def check_terminal_status():
 def simulator_terminal():
     logging.info("[CK] simulator terminal thread started...")
     st = SimulatorTerminal() 
+    time.sleep(10)
+    try:
+        st.udp_client()
+    except Exception as e:
+        logging.exception("[CK] Start check simulator terminal failed.")
+
+def simulator_terminal_test():
+    logging.info("[CK] simulator terminal thread started...")
+    st = SimulatorTerminalTest() 
     time.sleep(10)
     try:
         st.udp_client()
@@ -78,6 +88,7 @@ def main():
         thread.start_new_thread(check_terminal_status, ())
         thread.start_new_thread(check_service, ())
         thread.start_new_thread(simulator_terminal, ())
+        thread.start_new_thread(simulator_terminal_test, ())
         while True:
             time.sleep(60)
          

@@ -5,6 +5,8 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import safe_unicode, DUMMY_IDS
+from utils.public import delete_terminal
+from constants import UWEB 
 from codes.errorcode import ErrorCode
 
 from base import BaseHandler, authenticated
@@ -115,15 +117,17 @@ class CheckTMobileHandler(BaseHandler):
 
         ret = DotDict(status=ErrorCode.SUCCESS,
                       message=None)
-        corp = self.db.get("SELECT id"
+        corp = self.db.get("SELECT id, tid, service_status"
                            "  FROM T_TERMINAL_INFO"
                            "  WHERE mobile = %s"
                            "   LIMIT 1",
                            mobile)
         if corp:
-            ret.status = ErrorCode.TERMINAL_ORDERED
-            ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
-            
+            if corp.service_status == UWEB.SERVICE_STATUS.ON:
+                ret.status = ErrorCode.TERMINAL_ORDERED
+                ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
+            else:
+                delete_terminal(corp.tid, self.db, self.redis, del_user=True)
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))
         

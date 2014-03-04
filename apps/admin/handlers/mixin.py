@@ -15,7 +15,7 @@ class BaseMixin(object):
     or common used functions.
     """
     # memcached expires time, in seconds
-    MEMCACHE_EXPIRY = 30 
+    MEMCACHE_EXPIRY = 60 * 5 # 5 minutes
 
     def get_memcache_key(self, hash_):
 

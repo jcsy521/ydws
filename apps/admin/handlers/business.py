@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from os import SEEK_SET
 import datetime, time
@@ -12,6 +13,7 @@ from constants import LOCATION, XXT
 from utils.dotdict import DotDict
 
 from mixin import BaseMixin
+from excelheaders import BUSINESS_FILE_NAME, BUSINESS_SHEET, BUSINESS_HEADER  
 from base import BaseHandler, authenticated
 
 from checker import check_areas, check_privileges 
@@ -33,6 +35,7 @@ from mongodb.mdaily import MDaily, MDailyMixin
 
 class BusinessMixin(BaseMixin):
 
+    KEY_TEMPLATE = "business_mixin_%s_%s"
 
     def get_sms_status(self, tmobile):
         """
@@ -200,6 +203,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
     def get(self):
         corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
         self.render('business/search.html',
+                    hash_='',
                     interval=[], 
                     businesses=[],
                     corplist=corplist,
@@ -283,16 +287,81 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                     if business[key] is None:
                         business[key] = ''
 
+            # keep data in redis
+            m = hashlib.md5()
+            m.update(self.request.body)
+            hash_ = m.hexdigest()
+            mem_key = self.get_memcache_key(hash_)
+            self.redis.setvalue(mem_key, businesses,
+                                time=self.MEMCACHE_EXPIRY)
+            
             self.render('business/search.html',
+                        status=ErrorCode.SUCCESS,
+                        message='',
                         interval=interval, 
                         businesses=businesses,
                         corplist=corplist,
-                        status=ErrorCode.SUCCESS,
-                        message='')
+                        hash_=hash_)
         except Exception as e:
             logging.exception("Search business failed.")
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.SEARCH_BUSINESS_FAILURE])
+
+
+class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
+
+    @authenticated
+    @tornado.web.removeslash
+    def get(self, hash_):
+
+        mem_key = self.get_memcache_key(hash_)
+
+        results = self.redis.getvalue(mem_key)
+
+        if not results:
+            self.render("errors/download.html")
+            return
+
+        import xlwt
+        from cStringIO import StringIO
+
+        filename = BUSINESS_FILE_NAME 
+        online_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;') 
+        offline_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
+
+        date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
+        wb = xlwt.Workbook()
+        ws = wb.add_sheet(BUSINESS_SHEET)
+
+        start_line = 0
+        for i, head in enumerate(BUSINESS_HEADER): 
+            ws.write(0, i, head)
+
+        start_line += 1
+        for i, result in zip(range(start_line, len(results) + start_line), results):
+            ws.write(i, 0, i)
+            ws.write(i, 1, result['ecname'])
+            ws.write(i, 2, result['umobile'])
+            ws.write(i, 3, u'移动卫士' if int(result['biz_type']) == 0 else '移动外勤')
+            if int(result['login']) == 0:
+                ws.write(i, 4, u'离线', offline_style)
+            else:
+                ws.write(i, 4, u'在线', online_style)
+            ws.write(i, 5, '%s%%' % result['pbat'])
+            ws.write(i, 6, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
+
+        _tmp_file = StringIO()
+        wb.save(_tmp_file)
+        
+        filename = self.generate_file_name(filename)
+
+        self.set_header('Content-Type', 'application/force-download')
+        self.set_header('Content-Disposition', 'attachment; filename=%s.xls' % (filename,))
+
+        # move the the begging. 
+        _tmp_file.seek(0, SEEK_SET)
+        self.write(_tmp_file.read())
+        _tmp_file.close()
 
 
 class BusinessListHandler(BaseHandler, BusinessMixin):

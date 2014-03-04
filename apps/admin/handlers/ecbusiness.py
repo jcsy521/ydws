@@ -83,8 +83,9 @@ class ECBusinessMixin(BaseMixin):
                 if business[key] is None:
                     business[key] = ''
 
-        self.redis.setvalue(mem_key,(businesses,interval), 
-                            time=self.MEMCACHE_EXPIRY)
+        #NOTE: here, in order to get the latest data, data is not kept in redis
+        #self.redis.setvalue(mem_key,(businesses,interval), 
+        #                    time=self.MEMCACHE_EXPIRY)
 
         return businesses, interval
 
@@ -443,5 +444,3 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
             logging.exception("Add terminal failed.")
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_USER_FAILURE])
-
- 
