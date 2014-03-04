@@ -73,11 +73,14 @@ $(function () {
 			$.ajaxFileUpload({
 				url : '/activity',//用于文件上传的服务器端请求地址
 				secureuri : false,//一般设置为false
+				fileOperate: 'activity',
 				fileElementId : 'fileUpload',//文件上传空间的id属性  <input type="file" id="files1" name="files1" /><input type="file" id="files2" name="files2" />
-				activitytitle: str_title,
-				sttime: n_stTime,
-				endtime: n_endTime,
-				author: decodeURIComponent($.cookie("ACBADMIN_N")),
+				fileParam: {
+					activitytitle: str_title,
+					sttime: n_stTime,
+					endtime: n_endTime,
+					author: decodeURIComponent($.cookie("ACBADMIN_N"))
+				},
 				dataType : 'json',//返回值类型 一般设置为json
 				success : function(data, status) { //服务器成功响应处理函数
 					if ( data.status == 0 ) {
@@ -90,7 +93,7 @@ $(function () {
 					alert(data.message);
 					
 				},
-				error : function(data, status, e) {console.log('xxx:  ',data, status, e);
+				error : function(data, status, e) {
 					alert('服务器错误，请重新操作!');
 				}
 			});
@@ -104,7 +107,7 @@ $(function () {
 // 验证cookie是否超时
 function fn_validCookie() {
 	if(!$.cookie('ACBADMIN')) {
-		alert('本次登陆已经超时，系统将重新进入登陆页面。');
+		alert('本次登录已经超时，系统将重新进入登录页面。');
 		parent.window.location.replace('/login'); // redirect to the index.
 		return true;
 	}
