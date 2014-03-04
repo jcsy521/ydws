@@ -36,11 +36,12 @@ class SMSCode(object):
     SMS_SOS_OWNER_NOLOC = u"您的定位器“%s”发起应急救援请求，已通知%s，地址：因定位信号弱，当前暂时无法定位，请关注定位器状态，时间：%s。"
     SMS_SOS_WHITE = u"您的定位器“%s”发起应急救援请求，当前所在位置：%s，时间：%s。"
     SMS_SOS_WHITE_NOLOC = u"您的定位器“%s”发起应急救援请求，地址：因定位信号弱，当前暂时无法定位，请关注定位器状态，时间：%s。"
-    SMS_LOGIN_REMIND = u"尊敬的客户：您于%s通过%s登陆【移动卫士】平台，用户号码为%s，所关联的定位器为“%s”。"
+    SMS_LOGIN_REMIND = u"尊敬的客户：您于%s通过%s登录【移动卫士】平台，用户号码为%s，所关联的定位器为“%s”。"
     SMS_CHARGE = u"尊敬的客户：您的定位器“%s”当前帐户信息：%s"
     SMS_CHARGE_REMIND = u"尊敬的客户：为了不影响移动卫士业务的正常使用，请您及时为您的移动卫士账号：%s进行充值，如已经缴费或者已经合并账号缴费请不用理会此短信。【移动卫士】"
     SMS_SERVICE_STOP = u"尊敬的客户：您的定位器“%s”已经停止服务。"
-    SMS_RETRIEVE_PASSWORD = u"尊敬的客户：您刚才使用了【移动卫士】密码找回功能，新的登陆密码为：%s，请妥善保管。如需修改密码，请登录【移动卫士】网站或手机客户端进行修改。" 
+    SMS_RETRIEVE_PASSWORD = u"尊敬的客户：您刚才使用了【移动卫士】密码找回功能，新的登录密码为：%s，请妥善保管。如需修改密码，请登录【移动卫士】网站或手机客户端进行修改。" 
+    SMS_RESET_PASSWORD = u"尊敬的客户：您的密码刚才被【移动卫士】客服人员进行了重置，新的登录密码为：%s，请妥善保管。如需修改密码，请登录【移动卫士】网站或手机客户端进行修改。" 
     SMS_CAPTCHA = u"尊敬的客户：您【移动卫士】找回密码所需的验证码为：%s，请5分钟内进行修改。若非您本人或授权操作，请联系【移动卫士】客服。" 
     SMS_REG = u"尊敬的客户：您的【移动卫士】验证码为：%s，请5分钟内进行激活。若非您本人或授权操作，请联系【移动卫士】客服。" 
     SMS_IOS_CAPTCHA = u"尊敬的客户：您的【智能班车】业务验证码为：%s，请5分钟内进行激活。若非您本人或授权操作，请联系【智能班车】客服。" 
@@ -68,7 +69,7 @@ class SMSCode(object):
 
     #SMS_DOWNLOAD_REMIND = u"尊敬的客户：请手机登录中山无线城市手机网站 gd.wxcs.cn/zs 进入‘下载’-‘移动卫士’ 下载安装【移动卫士】客户端。"
     SMS_DOWNLOAD_REMIND = u"尊敬的客户：请点击 http://www.ydcws.com/download?category=2 下载安装【移动卫士】客户端。"
-    SMS_REGISTER_YDWQ = u"尊敬的客户：请点击 http://www.ydcws.com/download?category=3 下载安装【移动外勤】客户端。激活使用的验证吗为：%s。" 
+    SMS_REGISTER_YDWQ = u"尊敬的客户：请点击 http://www.ydcws.com/download?category=3 下载安装【移动外勤】客户端。激活使用的验证码为：%s。" 
 
     SMS_NEW_OPERATOR = u"尊敬的客户：您已经成为移动卫士集团用户管理员，平台网址：%s，用户名：%s，密码：%s"
     SMS_SERVICE_EXCEPTION_REPORT = u"管理员你好，平台%s，不能检测到模拟终端的位置更新，服务可能发生异常，请检查！！！"
