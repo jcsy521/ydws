@@ -99,6 +99,7 @@ from handlers.clientpush import PushHandler
 from handlers.clientmap import MAPHandler
 from handlers.clientbindmobile import ClientCaptchaHandler, BindMobileHandler
 from handlers.clientsync import SyncHandler
+from handlers.avatar import AvatarHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -218,7 +219,7 @@ class Application(tornado.web.Application):
             (r"/ios/bindmobile/*", BindMobileHandler),
             (r"/ios/sync/*", SyncHandler),
             (r"/zfjsyncer/*", ZFJSyncerHandler),
-            
+            (r"/avatar/*", AvatarHandler),
             # for wap
             (r"/wapimg/*", WapImgHandler),
 
@@ -267,6 +268,7 @@ class Application(tornado.web.Application):
             server_path=os.path.dirname(__file__),
             terminal_path="/static/terminal/",
             activity_path="/static/activity/",
+            avatar_path="/static/avatar/",
             cookie_secret="s8g1gVxKOiQoZptLRi2nSuXmiK2ThYJJBSHIUHnqoUw=",
             login_url="/login",
             #debug=debug,

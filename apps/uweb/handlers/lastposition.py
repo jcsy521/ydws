@@ -17,9 +17,9 @@ from helpers.queryhelper import QueryHelper
 from constants import UWEB, EVENTER, GATEWAY, LOCATION
 from constants.MEMCACHED import ALIVED
 from base import BaseHandler, authenticated
-
+from mixin.avatar import AvatarMixin
        
-class LastPositionHandler(BaseHandler):
+class LastPositionHandler(BaseHandler, AvatarMixin):
     """Get the newest info of terminal from database.
     NOTE:It just retrieves data from db, not get info from terminal. 
     """
@@ -86,6 +86,7 @@ class LastPositionHandler(BaseHandler):
                 if location and location['name'] is None:
                     location['name'] = location['name'] if location['name'] else ''
 
+                avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
                 car_info=dict(defend_status=terminal['defend_status'] if terminal.get('defend_status', None) is not None else 1,
                               mannual_status=terminal['mannual_status'] if terminal.get('mannual_status', None) is not None else 1,
                               fob_status=terminal['fob_status'] if terminal.get('fob_status', None) is not None else 0,
@@ -114,7 +115,9 @@ class LastPositionHandler(BaseHandler):
                               group_id=group_info['group_id'],
                               group_name=group_info['group_name'],
                               icon_type=terminal['icon_type'],
-                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
+                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
+                              avatar_path=avatar_path,
+                              avatar_time=avatar_time)
 
                 res[tid]['car_info'] = car_info
             
@@ -165,7 +168,10 @@ class LastPositionHandler(BaseHandler):
                         endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(time.time())-1
                         track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
                         res[track_tid]['track_info'] = track_info
-            
+
+
+            logging.info("[lastposition]   res:%s, usable:%s ,avatar_path:%s, avatar_time: %s, lastposition_time: %s",
+                        res, usable, avatar_path, avatar_time, lastposition_time)
             self.write_ret(status, 
                            dict_=DotDict(res=res,
                                          usable=usable,

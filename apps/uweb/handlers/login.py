@@ -21,7 +21,7 @@ from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_locations_with_clatlon
 from helpers.downloadhelper import get_version_info 
 from helpers.confhelper import ConfHelper
-
+from mixin.avatar import AvatarMixin
 from mixin.login import LoginMixin
 
 class LoginHandler(BaseHandler, LoginMixin):
@@ -149,7 +149,7 @@ class LoginTestHandler(BaseHandler, LoginMixin):
         self.clear_cookie('captchahash')
         self.redirect(self.get_argument("next","/"))
 
-class IOSHandler(BaseHandler, LoginMixin):
+class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
 
     @tornado.web.removeslash
     def post(self):
@@ -260,6 +260,8 @@ class IOSHandler(BaseHandler, LoginMixin):
                 if location and location['name'] is None:
                     location['name'] = ''
 
+                avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
+
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -289,6 +291,8 @@ class IOSHandler(BaseHandler, LoginMixin):
                               group_id=group_info['group_id'],
                               group_name=group_info['group_name'],
                               icon_type=terminal['icon_type'],
+                              avatar_path=avatar_path,
+                              avatar_time=avatar_time,
                               fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 car_dct[tid]=car_info
@@ -331,7 +335,7 @@ class IOSHandler(BaseHandler, LoginMixin):
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
 
-class IOSLoginTestHandler(BaseHandler, LoginMixin):
+class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
     @tornado.web.removeslash
     def post(self):
@@ -400,6 +404,9 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin):
             if location and location['name'] is None:
                 location['name'] = ''
 
+
+            avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
+
             car_dct = {}
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                           mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -429,6 +436,8 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin):
                           group_id=group_info['group_id'],
                           group_name=group_info['group_name'],
                           icon_type=terminal['icon_type'],
+                          avatar_path=avatar_path,
+                          avatar_time=avatar_time,
                           fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
             car_dct[tid]=car_info
@@ -439,7 +448,7 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin):
                                      cars_info=cars_info,
                                      cars=terminals))
 
-class AndroidHandler(BaseHandler, LoginMixin):
+class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
 
     @tornado.web.removeslash
     def post(self):
@@ -551,6 +560,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
                 if location and location['name'] is None:
                     location['name'] = ''
 
+                avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -580,6 +590,8 @@ class AndroidHandler(BaseHandler, LoginMixin):
                               group_id=group_info['group_id'],
                               group_name=group_info['group_name'],
                               icon_type=terminal['icon_type'],
+                              avatar_path=avatar_path,
+                              avatar_time=avatar_time,
                               fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
                 car_dct[tid]=car_info
@@ -633,7 +645,7 @@ class AndroidHandler(BaseHandler, LoginMixin):
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
 
-class AndroidLoginTestHandler(BaseHandler, LoginMixin):
+class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
     @tornado.web.removeslash
     def post(self):
@@ -699,6 +711,8 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin):
             if location and location['name'] is None:
                 location['name'] = ''
 
+
+            avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
             car_dct = {}
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                           mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -728,6 +742,8 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin):
                           group_id=group_info['group_id'],
                           group_name=group_info['group_name'],
                           icon_type=terminal['icon_type'],
+                          avatar_path=avatar_path,
+                          avatar_time=avatar_time,
                           fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
             car_dct[tid]=car_info

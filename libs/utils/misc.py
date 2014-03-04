@@ -335,3 +335,6 @@ def get_date_from_utc(timestamp):
                    second=second)
 
 
+def get_avatar_time_key(tmobile):
+    """for the last modified time of the  icon belongs to the tmobile"""
+    return str("avatar_time:%s" % tmobile)
