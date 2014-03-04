@@ -154,3 +154,51 @@ function fn_initAutoUserTypeChange(arr_autoCorpsData) {
 		}
 	});
 }
+
+// 更改个人或者集团 的登录账号
+function fn_changeUserName(str_userType, str_oUser) {
+	$('#txt_oldUsername').html(str_oUser); 
+	$('#txt_newChangeUsername').val('').removeClass('text_blur').css({'width':'220px'}).unbind('focus blur');
+	
+	// 初始化dialog
+	$('#changeUserNameDialog').dialog({
+		autoOpen: true,
+		height: 200,
+		width: 350,
+		position: [300, 100],
+		modal: true,
+		resizable: false
+	});
+	
+	//保存
+	$('#changeUsernameSave').unbind('click').click(function(e) {
+		var str_newUsername = $.trim($('#txt_newChangeUsername').val()),
+			obj_conditionData = {'old_username': str_oUser, 'new_username': str_newUsername,'user_type': str_userType};
+		
+		/*
+		* 验证手机号是否合法
+		*/
+		var MOBILEREG = /^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/;
+		
+		if ( str_newUsername == '' ) {
+			alert('请输入用户手机号！');
+			return;
+		}
+		
+		if ( !MOBILEREG.test(str_newUsername) ) {	// 手机号合法性验证
+			alert('您输入的用户手机号不合法，请重新输入！');
+			return;
+		}
+		
+		$.post('/username',  JSON.stringify(obj_conditionData), function (data) { 
+			if ( data.status == 0 ) {
+				alert('账号已修改，请查看。');
+				$('#changeUserNameDialog').dialog('close');
+			} else {
+				alert(data.message);
+			}
+		});
+		
+	});
+	
+}

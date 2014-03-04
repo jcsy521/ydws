@@ -842,7 +842,7 @@ tfoot {
 	position: relative;
 	top: 12px;
 }
-#addActivityDialog input[type="text"] {
+#addActivityDialog input[type="text"], #addApkDialog input[type="text"], #changeUserNameDialog input[type="text"] {
 	padding: 6px;
 	width: 220px;
 }
@@ -850,6 +850,18 @@ tfoot {
 	position: relative;
 	top: 20px;
 }
-#activity_tbody td {
+#activity_tbody td, #apk_tbody td {
 	text-align: center;
+}
+#txt_apkInfo {
+	height: 81px;
+    width: 400;
+	resize: none;
+	font-size: 12px;    
+	background-color: #F3F9FA;
+    border: 1px solid #CDCDCD;
+	padding: 5px;
+} 
+#changeUsernameSave {
+	margin-top: 10px;
 }

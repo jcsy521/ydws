@@ -94,6 +94,10 @@
 		<h3>查询结果</h3>		
 		<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
 	</div>
+    <a id="exportData" href="/download/business/search/{{hash_}}"
+       class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+        <span class="ui-button-text">导出Excel</span>
+    </a>
 </div>
 <table id="rDataTables" class="display">
     <thead>
@@ -108,7 +112,9 @@
             <tr id="business{{business['tmobile']}}" >
 				<td>{{ business['seq'] }}</td>
 				<td>{{ business['ecname']}}</td>
-                <td>{{ business['umobile']}}</td>
+                <td>
+					<a href="#" onclick="fn_changeUserName('individual', {{ business['umobile']}})">{{ business['umobile']}}</a>
+				</td>
                 <td>{{ business['tmobile']}}</td>
 				<td>
 					{% if business['biz_type'] == 0 %}
@@ -169,6 +175,28 @@
 			<td colspan="2" align="center">
 				<input type="hidden" id="changeUserType_hidden" value="" />
 				<input type="button" width="100" value="变更" id="changUserTypeSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+			</td>
+		</tr>
+	</table>
+</div>
+<!-- 登录账号修改-->
+<div id="changeUserNameDialog" title="登录账号修改" class="hide">
+	<table>
+		<tr>
+			<td><label>当前账号：</label></td>
+			<td>
+				<label id="txt_oldUsername"></label>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="txt_newChangeUsername">新账号：</label></td>
+			<td>
+			<input type="text" id="txt_newChangeUsername" class="text ui-widget-content ui-corner-all" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<input type="button" width="100" value="修改" id="changeUsernameSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
 			</td>
 		</tr>
 	</table>

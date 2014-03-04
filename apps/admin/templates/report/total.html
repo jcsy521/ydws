@@ -72,6 +72,7 @@
 				<th colspan="3">用户登录情况</th>
 				<th colspan="2">活跃情况</th>
 				<th colspan="2">终端情况</th>
+				<th colspan="2">累计激活终端</th>
 				<th>统计时间</th>
 			</tr>
 			<tr id="reportThead">
@@ -88,6 +89,8 @@
 				<th>沉默用户</th>
 				<th>在线终端</th>
 				<th>离线终端</th>
+				<th>集团用户</th>
+				<th>个人用户</th>
 				<th>年、月、日</th>
 			</tr>
 		</thead>	
@@ -107,6 +110,9 @@
 				<td>{{r['deactive']}}</td>
 				<td>{{r['terminal_online']}}</td>
 				<td>{{r['terminal_offline']}}</td>
+				<!--todo 统计字段名-->
+				<td>{{r['terminal_enterprise']}}</td>
+				<td>{{r['terminal_individual']}}</td>
 				<td><script>document.write(toHumanDate({{r['timestamp']}}, 'no'));</script></td>
 			</tr>
 		{% end %}

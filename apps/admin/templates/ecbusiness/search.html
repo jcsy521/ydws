@@ -97,7 +97,9 @@
             <tr id="ecbusiness{{business['ecmobile']}}" >
 				<td>{{ business['seq'] }}</td>
 				<td>{{ business['ecname'] }}</td>
-	            <td>{{ business['ecmobile'] }}</td>
+                <td>
+					<a href="#" onclick="fn_changeUserName('enterprise', {{ business['ecmobile']}})">{{ business['ecmobile']}}</a>
+				</td>
 	            <td>{{ business['address'] }}</td>
                 <td>{{ business['email'] }}</td>
 				<td id="ec{{ business['ecmobile'] }}">{{ business['total_terminals'] }}</td>
@@ -121,6 +123,29 @@
 <div style="display:none">
 	<input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'business_begin'}}"/>
 	<input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'business_end'}}"/>
+</div>
+
+<!-- 登录账号修改-->
+<div id="changeUserNameDialog" title="登录账号修改" class="hide">
+	<table>
+		<tr>
+			<td><label>当前账号：</label></td>
+			<td>
+				<label id="txt_oldUsername"></label>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="txt_newChangeUsername">新账号：</label></td>
+			<td>
+			<input type="text" id="txt_newChangeUsername" class="text ui-widget-content ui-corner-all" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<input type="button" width="100" value="修改" id="changeUsernameSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+			</td>
+		</tr>
+	</table>
 </div>
 {% else %}
 	<div class="ui-widget" align="center">

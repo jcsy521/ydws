@@ -42,12 +42,16 @@ jQuery.extend({
 
             return io			
     },
-    createUploadForm: function(id, fileElementId, title, sttime, endtime, author)
+    createUploadForm: function(id, fileOperate, fileElementId, fileParam)
 	{
 		//create form	
 		var formId = 'jUploadForm' + id;
 		var fileId = 'jUploadFile' + id;
-		var form = $('<form action="" method="POST" name="' + formId + '" id="' + formId + '" enctype="multipart/form-data"><input type="text" name="title" id="title" value="'+title+'"/><input type="text" name="begintime" id="begintime" value="'+sttime+'"/><input type="text" name="endtime" id="endtime" value="'+endtime+'"/><input type="text" name="author" id="author" value="'+author+'"/></form>');	
+		if ( fileOperate == 'activity' ) {
+		var form = $('<form action="" method="POST" name="' + formId + '" id="' + formId + '" enctype="multipart/form-data"><input type="text" name="title" id="title" value="'+fileParam.title+'"/><input type="text" name="begintime" id="begintime" value="'+fileParam.sttime+'"/><input type="text" name="endtime" id="endtime" value="'+fileParam.endtime+'"/><input type="text" name="author" id="author" value="'+fileParam.author+'"/></form>');	
+		} else {
+			var form = $('<form action="" method="POST" name="' + formId + '" id="' + formId + '" enctype="multipart/form-data"><input type="text" name="versioncode" id="versioncode" value="'+fileParam.versioncode+'"/><input type="text" name="versionname" id="versionname" value="'+fileParam.versionname+'"/><input type="text" name="versioninfo" id="versioninfo" value="'+fileParam.versioninfo+'"/><input type="text" name="updatetime" id="updatetime" value="'+fileParam.updatetime+'"/><input type="text" name="filesize" id="filesize" value="'+fileParam.filesize+'"/><input type="text" name="author" id="author" value="'+fileParam.author+'"/></form>');
+		}
 		var oldElement = $('#' + fileElementId);
 		var newElement = $(oldElement).clone();
 		$(oldElement).attr('id', fileId);
@@ -65,7 +69,7 @@ jQuery.extend({
         // TODO introduce global settings, allowing the client to modify them for all requests, not only timeout		
         s = jQuery.extend({}, jQuery.ajaxSettings, s);
         var id = new Date().getTime()        
-		var form = jQuery.createUploadForm(id, s.fileElementId, s.activitytitle, s.sttime, s.endtime, s.author);
+		var form = jQuery.createUploadForm(id, s.fileOperate, s.fileElementId, s.fileParam);
 		var io = jQuery.createUploadIframe(id, s.secureuri);
 		var frameId = 'jUploadFrame' + id;
 		var formId = 'jUploadForm' + id;		
@@ -91,7 +95,6 @@ jQuery.extend({
 					 str_resText = str_resText.substr(str_resText.indexOf('>{"status":')+1);
 					 str_resText = str_resText.substr(0, str_resText.indexOf('pre')-2);
 					// str_resText = str_resText.replace(/\"/g, '');
-					 console.log('2233333333333333333333333:  ',str_resText);
 					 xml.responseText = str_resText;
                 	 xml.responseXML = io.contentWindow.document.XMLDocument?io.contentWindow.document.XMLDocument:io.contentWindow.document;
 					 

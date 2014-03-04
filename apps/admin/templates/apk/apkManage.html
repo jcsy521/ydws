@@ -1,0 +1,105 @@
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery.min-1.5.js"></script>
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet" type="text/css"/>
+<script src="/static/js/lockScreen.js"></script>
+<script type="text/javascript">
+	fn_lockScreen();
+</script>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
+<script type="text/javascript" src="/static/js/dateChoose.js"></script>
+<script type="text/javascript" src="/static/js/apkManage.js"></script>
+<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+<script type="text/javascript" src="/static/js/json2.js"></script>
+{% block body %}
+	<fieldset class="ui-widget ui-widget-content ui-corner-all">
+		<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+			<span class="ui-button-text legend-text">APK管理</span>
+		</legend>
+		<div class="ui-log-panel">
+			<table class="searchTable0">
+				<tr>
+					<td align="right">
+						<input id="apk_search" type="button" value="查询" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
+					</td>
+					<td align="right">
+						<input id="apk_upload" type="button" value="APK上传" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
+					</td>
+				</tr>
+			</table>
+		</div>	
+	</fieldset>
+	
+	<h3>查询结果</h3>
+	<table id="apkSearch_table" class="display">
+	<thead>
+		<tr>
+			<th>上传人</th>
+			<th>APK版本名称</th>
+			<th>APK版本号</th>
+			<th>APK描述</th>
+			<th>APK大小(M)</th>
+			<th>APK更新时间</th>
+			<th>删除</th>
+		</tr>
+	</thead>
+	<tbody id="apk_tbody">
+	
+	</tbody>
+	</table>
+	</div>
+	<!-- 新增APK-->
+	<div id="addApkDialog" title="新增APK" class="hide">
+		<table>
+			<tr>
+				<td><label for="txt_acticityTitle">APK版本名称：</label></td>
+				<td>
+					<input type="text" name="txt_apkVersionName" id="txt_apkVersionName" class="text ui-widget-content ui-corner-all" />
+				</td>
+			</tr>
+			<tr>
+				<td><label for="txt_acticityTitle">APK版本号：</label></td>
+				<td>
+					<input type="text" name="txt_apkVersionCode" id="txt_apkVersionCode" class="text ui-widget-content ui-corner-all" />
+				</td>
+			</tr>
+			<tr>
+				<td><label for="txt_apkDesc">APK大小(M)：</label></td>
+				<td>
+					<input type="text" name="txt_apkFileSize" id="txt_apkFileSize" class="text ui-widget-content ui-corner-all" />
+				</td>
+			</tr>
+			<tr>
+				<td><label for="txt_apkDesc">APK描述：</label></td>
+				<td>
+					<textarea name="txt_apkInfo" id="txt_apkInfo" class="text ui-widget-content ui-corner-all"></textarea>
+				</td>
+			</tr>
+			<tr>
+				<td><label for="txt_apkDesc">APK更新时间：</label></td>
+				<td>
+					<input type="text" name="txt_apkUpdateTime" id="txt_apkUpdateTime" class="text ui-widget-content ui-corner-all" readonly="true" />
+				</td>
+			</tr>
+			<tr>
+				<td><label for="filenamePanel">文件名：</label></td>
+				<td>
+					<input id="filenamePanel" class="hide" disabled="disabled" />
+					<input type="button" value="浏览..." id="fileBrowser" />
+					<div class="filePanel" id="fileUploadPanel">
+						<input type="file" class="files" id="fileUpload" name="fileupload" />
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="button" width="100" value="上传" id="addApkSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+				</td>
+			</tr>
+		</table>
+	</div>
+{% end %}

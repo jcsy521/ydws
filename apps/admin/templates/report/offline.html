@@ -85,6 +85,7 @@
 		<thead>
 			<tr>
 				<th>用户类型</th>
+				<th>集团名称</th>
 				<th>车主号</th>
 				<th>终端号</th>
 				<th>离线时间</th>
@@ -103,6 +104,7 @@
 					{% else %}
 						集团用户
 					{% end %}</td>
+				<td>{{r['corp_name']}}</td>
 				<td>{{r['umobile']}}</td>
 				<td>{{r['tmobile']}}</td>
 				<td>
