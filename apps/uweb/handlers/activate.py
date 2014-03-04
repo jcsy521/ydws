@@ -31,7 +31,7 @@ class ActivateHandler(BaseHandler):
             return
 
         try:
-            terminal = self.db.get("SELECT id, service_status, mobile, owmer_mobile"
+            terminal = self.db.get("SELECT id, service_status, mobile"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE activation_code = %s"
                                    "  AND biz_type = %s LIMIT 1",
@@ -43,8 +43,7 @@ class ActivateHandler(BaseHandler):
                 self.write_ret(status)
             else:
                 self.write_ret(status,
-                               dict_=DotDict(umobile=terminal.owmer_mobile,
-                                             tmobile=terminal.mobile))
+                               dict_=DotDict(mobile=terminal.mobile))
         except Exception as e:
             logging.exception("[UWEB] activate YDWQ termianl failed. Exception: %s",
                               e.args)
