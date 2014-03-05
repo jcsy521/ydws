@@ -329,6 +329,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                 pass # corp maybe no user_info
             self.write_ret(status,
                            dict_=DotDict(name=user_info.name if user_info else username, 
+                                         user_type=user_type,
                                          cars_info=cars_info,
                                          cars=terminals))
         else:
@@ -445,6 +446,7 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
         self.write_ret(status,
                        dict_=DotDict(name=user_info.name if user_info else username, 
+                                     user_type=UWEB.USER_TYPE.PERSON,
                                      cars_info=cars_info,
                                      cars=terminals))
 
@@ -638,6 +640,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                                          #app_key=push_info.app_key,
                                          push_key=push_key,
                                          name=user_info.name if user_info else username, 
+                                         user_type=user_type,
                                          cars_info=cars_info,
                                          lastinfo_time=lastinfo_time,
                                          cars=terminals))
@@ -763,6 +766,7 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                                      #app_key=push_info.app_key,
                                      push_key=push_key,
                                      name=user_info.name if user_info else username, 
+                                     user_type=UWEB.USER_TYPE.PERSON,
                                      cars_info=cars_info,
                                      lastinfo_time=lastinfo_time,
                                      cars=terminals))

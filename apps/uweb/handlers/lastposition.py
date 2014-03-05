@@ -169,9 +169,6 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                         track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
                         res[track_tid]['track_info'] = track_info
 
-
-            logging.info("[lastposition]   res:%s, usable:%s ,avatar_path:%s, avatar_time: %s, lastposition_time: %s",
-                        res, usable, avatar_path, avatar_time, lastposition_time)
             self.write_ret(status, 
                            dict_=DotDict(res=res,
                                          usable=usable,

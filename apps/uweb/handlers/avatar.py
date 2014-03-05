@@ -24,10 +24,10 @@ class AvatarHandler(BaseHandler, AvatarMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            tid = data.get('tid', None)
+            mobile = data.get('mobile', None)
             avatar = base64.urlsafe_b64decode(str(data.avatar))
             logging.info("[avatar] Request: %s, avatar: %s",
-                         tid, avatar)
+                         mobile, avatar)
         except Exception as e:
             logging.error("[avatar] Illegal format, body: %s, avatar: %s.",
                           self.request.body, avatar)
@@ -36,6 +36,9 @@ class AvatarHandler(BaseHandler, AvatarMixin):
             return
 
         try:
+            terminal = self.db.get("SELECT tid FROM T_TERMINAL_INFO WHERE mobile = %s",
+                                   mobile)
+            tid = terminal.tid
             avatar_name = tid + '.png'
             avatar_path = self.application.settings['avatar_path'] + avatar_name
             avatar_full_path = self.application.settings['server_path'] + avatar_path

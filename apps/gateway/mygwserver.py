@@ -1539,9 +1539,9 @@ class MyGWServer(object):
                         gsm_strength = u'强'
                         gps_strength = u'强'
                         if int(terminal_info['login']) == GATEWAY.TERMINAL_LOGIN.ONLINE:
-                            communication_staus = u'异常'
-                        else:
                             communication_staus = u'正常'
+                        else:
+                            communication_staus = u'异常'
 
                         if int(terminal_info['mannual_status']) == UWEB.DEFEND_STATUS.YES:
                             communication_mode = u'设防'
