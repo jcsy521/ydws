@@ -335,3 +335,14 @@ class QueryHelper(object):
             group.name = u'默认组' 
             group.gid = gid 
         return group 
+
+    @staticmethod
+    def get_biz_type__by_tmobile(tmobile, db):
+        terminal =db.get("SELECT biz_type FROM T_TERMINAL_INFO"
+                         "  WHERE mobile = %s LIMIT 1",
+                         tmobile)
+        biz_type = terminal.get('biz_type', None) if terminal else None
+        return biz_type
+
+
+
