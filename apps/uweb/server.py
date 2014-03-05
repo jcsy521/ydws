@@ -100,6 +100,7 @@ from handlers.clientmap import MAPHandler
 from handlers.clientbindmobile import ClientCaptchaHandler, BindMobileHandler
 from handlers.clientsync import SyncHandler
 from handlers.avatar import AvatarHandler
+from handlers.upload import UploadHandler
 
 from utils.dotdict import DotDict
 from helpers.confhelper import ConfHelper
@@ -220,6 +221,7 @@ class Application(tornado.web.Application):
             (r"/ios/sync/*", SyncHandler),
             (r"/zfjsyncer/*", ZFJSyncerHandler),
             (r"/avatar/*", AvatarHandler),
+            (r"/upload/*", UploadHandler),
             # for wap
             (r"/wapimg/*", WapImgHandler),
 
@@ -251,7 +253,7 @@ class Application(tornado.web.Application):
             (r"/report/online/*", OnlineHandler),
             (r"/download/*", DownloadHandler),
             (r"/corpregion/*", CorpRegionHandler),
-            
+
             #znbc server handler
             (r"/passenger/*", PassengerHandler),
             (r"/line/*", LineHandler),

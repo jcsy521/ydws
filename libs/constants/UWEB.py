@@ -98,6 +98,10 @@ TERMINAL_CATEGORY = DotDict(ESPECIAL_GPS_TERMINAL=1,
                             ESPECIAL_NO_GPS_TERMINAL=2, 
                             GENERAL_TERMINAL=3)
 
+UPLOAD_CATEGORY = DotDict(HEARTBEAT=0,
+                          LOCATION=1, 
+                          POWER=2)
+
 # the interval of query event, track, event: one week. in seconds.
 QUERY_INTERVAL = 7 * 24 * 60 * 60
 

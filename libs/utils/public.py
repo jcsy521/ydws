@@ -6,7 +6,7 @@ import time
 from helpers.queryhelper import QueryHelper
 from misc import *
 from utils.dotdict import DotDict
-from constants import EVENTER, UWEB
+from constants import EVENTER, UWEB, GATEWAY
 
 def record_add_action(tmobile, group_id, add_time, db):
     """Record the add action of one mobile.
@@ -225,3 +225,41 @@ def get_group_info_by_tid(db, tid):
         group_info=group[0]
 
     return group_info
+
+
+# for YDWQ
+def update_terminal_info(db, redis, t_info):
+    """Update terminal's info in db and redis.
+    """
+    terminal_info_key = get_terminal_info_key(t_info['tid'])
+    terminal_info = QueryHelper.get_terminal_info(t_info['tid'],
+                                                  db, redis)
+
+    #1: db
+    fields = []
+    # gps, gsm, pbat, changed by position report
+    keys = ['gps', 'gsm', 'pbat', 'login']
+    for key in keys:
+        value = t_info.get(key, None)
+        if value is not None and value != terminal_info[key]:
+            fields.append(key + " = " + str(t_info[key]))
+
+    set_clause = ','.join(fields)
+    if set_clause:
+        db.execute("UPDATE T_TERMINAL_INFO"
+                   "  SET " + set_clause + 
+                   "  WHERE tid = %s",
+                   t_info['tid'])
+    #2: redis
+    for key in terminal_info:
+        value = t_info.get(key, None)
+        if value is not None:
+            terminal_info[key] = value
+    redis.setvalue(terminal_info_key, terminal_info)
+
+    return terminal_info
+
+def update_terminal_status(redis, tid, address='DUMMY_ADDRESS'):
+    terminal_status_key = get_terminal_address_key(tid)
+    redis.setvalue(terminal_status_key, address, 10 * GATEWAY.HEARTBEAT_INTERVAL) # 3 minuts
+

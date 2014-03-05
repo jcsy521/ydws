@@ -166,6 +166,10 @@ def get_alert_freq_key(dev_id):
 def get_pbat_message_key(dev_id):
     return str("pbat_message:%s" % dev_id)
 
+def get_avatar_time_key(tid):
+    """for the last modified time of the avatar belongs to the tid"""
+    return str("avatar_time:%s" % tid)
+
 def get_terminal_time(timestamp):
     """Format a readable time like 2013-10-10，10:10:10 
     """
@@ -334,7 +338,11 @@ def get_date_from_utc(timestamp):
                    minute=minute, 
                    second=second)
 
-
-def get_avatar_time_key(tmobile):
-    """for the last modified time of the  icon belongs to the tmobile"""
-    return str("avatar_time:%s" % tmobile)
+def get_tid_from_mobile_ydwq(mobile):
+    """Get tid according tid in ydwq.
+    tid is the reverse of mobile.
+    """
+    tid = ''
+    if mobile:
+        tid = mobile[::-1]
+    return tid
