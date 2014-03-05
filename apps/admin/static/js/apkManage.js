@@ -162,7 +162,7 @@ function fn_deleteApk(str_id) {
 function fn_validFileuploadForm() {
 	var str_file = $('#fileUpload').val(),
 		str_versionName = $('#txt_apkVersionName').val(),
-		str_versionCode = $('#txt_apkVersionCode').val(),
+		n_versionCode = $('#txt_apkVersionCode').val(),
 		str_fileSize = $('#txt_apkFileSize').val(),
 		str_versionInfo = $('#txt_apkInfo').val();
 	
@@ -172,16 +172,19 @@ function fn_validFileuploadForm() {
 	} else if ( str_versionName == '' ) {
 		alert('请填写APK名称。');
 		return false;
-	}
-	else if ( str_versionCode == '' ) {
+	} else if ( n_versionCode == '' ) {
 		alert('请填写APK版本。');
 		return false;
-	}
-	else if ( str_fileSize == '' ) {
+	} else if ( !(/^\d*$/.test(n_versionCode)) ) {
+		alert('APK版本填写错误。');
+		return false;
+	} else if ( str_fileSize == '' ) {
 		alert('请填写APK大小。');
 		return false;
-	}
-	else if ( str_versionInfo == '' ) {
+	} else if ( !(/^\d+(\.\d{1,2}){0,1}$/.test(str_fileSize)) ) {
+		alert('APK大小填写错误。');
+		return false;
+	} else if ( str_versionInfo == '' ) {
 		alert('请填写APK描述。');
 		return false;
 	}
