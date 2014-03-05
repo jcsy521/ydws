@@ -10,7 +10,8 @@ from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,get_alert_freq_key
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,\
+    get_alert_freq_key, get_tid_from_mobile_ydwq
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
 from utils.public import record_add_action, delete_terminal
@@ -345,20 +346,29 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 # 4: send message to terminal
                 register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
                 ret = SMSHelper.send_to_terminal(data.tmobile, register_sms)
+
+                self.db.execute("INSERT INTO T_CAR(tid, cnum)"
+                                "  VALUES(%s, %s)",
+                                data.tmobile, data.cnum )
             else:
+                tid = get_tid_from_mobile_ydwq(data.tmobile)
                 activation_code = QueryHelper.get_activation_code(self.db)
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                                 "  defend_status, mannual_status, begintime, endtime, offline_time, "
                                 "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
                                 "  activation_code)"
                                 "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                data.tmobile, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
+                                tid, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
                                 UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, 
                                 data.login_permit, data.push_status,
                                 data.vibl, use_scene, biz_type,
                                 activation_code)
                 register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
                 ret = SMSHelper.send(data.tmobile, register_sms)
+
+                self.db.execute("INSERT INTO T_CAR(tid, cnum)"
+                                "  VALUES(%s, %s)",
+                                tid, data.cnum )
 
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:
@@ -379,10 +389,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
                                 "  VALUES(%s)",
                                 umobile) 
-            # 3: add car 
-            self.db.execute("INSERT INTO T_CAR(tid, cnum)"
-                            "  VALUES(%s, %s)",
-                            data.tmobile, data.cnum )
             
             self.write_ret(status)
         except Exception as e:
@@ -538,4 +544,3 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                               self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-

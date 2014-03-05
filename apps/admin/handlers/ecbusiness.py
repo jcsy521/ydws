@@ -391,50 +391,45 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                                 fields.begintime, fields.endtime, fields.begintime, 0)
                 register_sms = SMSCode.SMS_REGISTER % (fields.umobile, fields.tmobile) 
                 ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
-                ret = DotDict(json_decode(ret))
-                sms_status = 0
-                if ret.status == ErrorCode.SUCCESS:
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
-                                    "  SET msgid = %s"
-                                    "  WHERE mobile = %s",
-                                    ret['msgid'], fields.tmobile)
-                    #convert front desk need format 
-                    sms_status = 1
-                else:
-                    sms_status = 0
-                    logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.umobile)
+                self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
+                                "  VALUES(%s, %s, %s, %s, %s)",
+                                fields.tmobile, fields.cnum, 
+                                fields.ctype, fields.ccolor, fields.cbrand)
+
             else: 
+                tid = get_tid_from_mobile_ydwq(fields.tmobile)
                 activation_code = QueryHelper.get_activation_code(self.db) 
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                                 "  begintime, endtime, offline_time, login_permit,"
                                 "  biz_type, activation_code)"
                                 "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                fields.tmobile, gid,
+                                tid, gid,
                                 fields.tmobile, user_mobile,
                                 fields.begintime, fields.endtime,
                                 fields.begintime, 0, biz_type, activation_code) 
 
                 register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code 
                 ret = SMSHelper.send(fields.tmobile, register_sms)
-                ret = DotDict(json_decode(ret))
+
+                self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
+                                "  VALUES(%s, %s, %s, %s, %s)",
+                                tid, fields.cnum, 
+                                fields.ctype, fields.ccolor, fields.cbrand)
+
+            ret = DotDict(json_decode(ret))
+            sms_status = 0
+            if ret.status == ErrorCode.SUCCESS:
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET msgid = %s"
+                                "  WHERE mobile = %s",
+                                ret['msgid'], fields.tmobile)
+                #convert front desk need format 
+                sms_status = 1
+            else:
                 sms_status = 0
-                if ret.status == ErrorCode.SUCCESS:
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
-                                    "  SET msgid = %s"
-                                    "  WHERE mobile = %s",
-                                    ret['msgid'], fields.tmobile)
-                    #convert front desk need format 
-                    sms_status = 1
-                else:
-                    sms_status = 0
-                    logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.umobile)
+                logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.umobile)
 
             fields.sms_status = sms_status
-            # 4: add car tnum --> cnum
-            self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
-                            "  VALUES(%s, %s, %s, %s, %s)",
-                            fields.tmobile, fields.cnum, 
-                            fields.ctype, fields.ccolor, fields.cbrand)
             fields.service_status = 1
             self.render('business/list.html',
                         business=fields,
