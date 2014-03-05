@@ -20,7 +20,7 @@ from checker import check_areas, check_privileges
 from codes.errorcode import ErrorCode 
 from utils.checker import check_sql_injection, check_zs_phone
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, safe_unicode
 from helpers.smshelper import SMSHelper
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
@@ -340,9 +340,9 @@ class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line), results):
             ws.write(i, 0, i)
-            ws.write(i, 1, result['ecname'])
+            ws.write(i, 1, safe_unicode(result['ecname']) if result['ecname'] else u'')
             ws.write(i, 2, result['umobile'])
-            ws.write(i, 3, u'移动卫士' if int(result['biz_type']) == 0 else '移动外勤')
+            ws.write(i, 3, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
             if int(result['login']) == 0:
                 ws.write(i, 4, u'离线', offline_style)
             else:
