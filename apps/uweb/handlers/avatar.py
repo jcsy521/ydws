@@ -51,11 +51,11 @@ class AvatarHandler(BaseHandler, AvatarMixin):
                          avatar_time, tid, self.current_user.uid)
             if status == 0:
                 self.write_ret(status,
-                               dict_=dict(avatar_name=avatar_name,
+                               dict_=dict(avatar_path=avatar_path,
                                           avatar_time=avatar_time))
             else:
                 self.write_ret(status, message=ErrorCode.ERROR_MESSAGE[status],
-                               dict_=dict(avatar_name=avatar_name,
+                               dict_=dict(avatar_path=avatar_path,
                                           avatar_time=avatar_time))
         except Exception as e:
             logging.exception("[avatar] Post avatar failed, user: %s. Exception: %s",

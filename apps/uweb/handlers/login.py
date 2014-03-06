@@ -260,7 +260,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                 if location and location['name'] is None:
                     location['name'] = ''
 
-                avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
+                avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(tid)
 
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
@@ -406,7 +406,7 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                 location['name'] = ''
 
 
-            avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
+            avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(tid) 
 
             car_dct = {}
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
@@ -562,7 +562,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                 if location and location['name'] is None:
                     location['name'] = ''
 
-                avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
+                avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(tid)
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -715,7 +715,7 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                 location['name'] = ''
 
 
-            avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
+            avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(tid)
             car_dct = {}
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                           mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
