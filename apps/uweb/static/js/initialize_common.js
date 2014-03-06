@@ -1803,7 +1803,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
 					dlf.fn_setMapContainerZIndex(0);
 					dlf.fn_clearAllMenu();
-				} else if ( str_who == 'notifyManage' ) {
+				} else if ( str_who == 'notifyManageAdd' ) {
 					dlf.fn_setItemMouseStatus($('#notifyManageSave'), 'default', 'fs0');
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 					b_closeWrapper = false;

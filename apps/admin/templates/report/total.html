@@ -111,8 +111,20 @@
 				<td>{{r['terminal_online']}}</td>
 				<td>{{r['terminal_offline']}}</td>
 				<!--todo 统计字段名-->
-				<td>{{r['terminal_enterprise']}}</td>
-				<td>{{r['terminal_individual']}}</td>
+				<td>
+				{% if r['terminal_enterprise'] == 0 %}
+					-
+				{% else %}
+					{{r['terminal_enterprise']}}
+				{% end %}
+				</td>
+				<td>
+				{% if r['terminal_individual'] == 0 %}
+					-
+				{% else %}
+					{{r['terminal_individual']}}
+				{% end %}
+				</td>
 				<td><script>document.write(toHumanDate({{r['timestamp']}}, 'no'));</script></td>
 			</tr>
 		{% end %}
@@ -134,6 +146,9 @@
 	</li>
 	<li>
 		终端情况：每天晚上12点终端在线和离线数量；
+	</li>
+	<li>
+		累计激活终端：包含所有商用和非商用号码；
 	</li>
 	<li>
 		统计时间：统计数据的日期，当日的统计数据需到下一日查询；

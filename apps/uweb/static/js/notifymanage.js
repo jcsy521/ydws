@@ -55,7 +55,7 @@ window.dlf.fn_notifyManageMsg = function() {
 		dlf.fn_jNotifyMessage('请选择通知接收号码！', 'message', false, 4000); 
 		return;
 	}
-	dlf.fn_jsonPost(NOTIFYMANAGE_ADD_URL, obj_notifyManageData, 'notifyManage', '通知发送中');
+	dlf.fn_jsonPost(NOTIFYMANAGE_ADD_URL, obj_notifyManageData, 'notifyManageAdd', '通知发送中');
 }
 /*
 * 通知删除
