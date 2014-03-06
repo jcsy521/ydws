@@ -74,7 +74,7 @@ class CheckTerminalStatus(object):
             sms_cq = SMSCode.SMS_CQ
             if len(mobile) != 11:
                 return
-            biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db) 
+            biz_type = QueryHelper.get_biz_type_by_tmobile(mobile, self.db) 
             if biz_type != UWEB.BIZ_TYPE.YDWS: 
                 return
             SMSHelper.send_to_terminal(mobile, sms_cq)

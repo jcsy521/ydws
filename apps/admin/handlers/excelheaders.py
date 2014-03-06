@@ -84,7 +84,7 @@ TOTAL_HEADER = (u"日激活",
                 u"在线终端", 
                 u"离线终端", 
                 u"集团用户", 
-                u"离线终端", 
+                u"个人用户", 
                 u"年月日")
 
 INDIVIDUAL_SHEET = u"个人用户统计"
