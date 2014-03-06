@@ -31,7 +31,7 @@ class ACBMTHandler(BaseHandler):
                 return
 
             cm = int(mobile[:3])
-            cm_list = (139,138,137,136,135,134,159,150,151,158,157,188,187,152,182,183,147)
+            cm_list = (139,138,137,136,135,134,159,150,151,158,157,188,187,152,182,183,184,147)
             
             if cm not in cm_list:
                 logging.info("[SMS] %s is not China Mobile, so skip the sms.", mobile)
