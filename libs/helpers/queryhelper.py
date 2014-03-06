@@ -323,7 +323,7 @@ class QueryHelper(object):
         group = DotDict()
         res = db.get("SELECT id, name from T_GROUP"
                      "  WHERE corp_id = %s"
-                     "  AND type=0",
+                     "  AND type=0 LIMIT 1",
                      cid)
         if res:
             group.name = res['name']
@@ -337,12 +337,9 @@ class QueryHelper(object):
         return group 
 
     @staticmethod
-    def get_biz_type__by_tmobile(tmobile, db):
+    def get_biz_type_by_tmobile(tmobile, db):
         terminal =db.get("SELECT biz_type FROM T_TERMINAL_INFO"
                          "  WHERE mobile = %s LIMIT 1",
                          tmobile)
         biz_type = terminal.get('biz_type', None) if terminal else None
         return biz_type
-
-
-
