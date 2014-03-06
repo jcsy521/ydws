@@ -342,13 +342,14 @@ class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
             ws.write(i, 0, i)
             ws.write(i, 1, safe_unicode(result['ecname']) if result['ecname'] else u'')
             ws.write(i, 2, result['umobile'])
-            ws.write(i, 3, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
+            ws.write(i, 3, result['tmobile'])
+            ws.write(i, 4, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
             if int(result['login']) == 0:
-                ws.write(i, 4, u'离线', offline_style)
+                ws.write(i, 5, u'离线', offline_style)
             else:
-                ws.write(i, 4, u'在线', online_style)
-            ws.write(i, 5, '%s%%' % result['pbat'])
-            ws.write(i, 6, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
+                ws.write(i, 5, u'在线', online_style)
+            ws.write(i, 6, '%s%%' % result['pbat'])
+            ws.write(i, 7, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)

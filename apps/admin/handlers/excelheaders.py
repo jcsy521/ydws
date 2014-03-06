@@ -155,7 +155,8 @@ BUSINESS_FILE_NAME = u"用户查询"
 BUSINESS_SHEET = u"用户"
 BUSINESS_HEADER = (u"序号", 
                    u"集团名称", 
-                   u"车主手机号", 
+                   u"车主手机", 
+                   u"终端手机", 
                    u"业务类型", 
                    u"在线/离线",
                    u"电量",

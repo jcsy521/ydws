@@ -53,14 +53,27 @@ class UsernameHandler(BaseHandler):
                 corp = self.db.get("SELECT id FROM T_CORP"
                                    "  WHERE cid = %s",
                                    new_username)
-                REMOVE_CORP = False
-                if corp: # use a existed corp
-                    REMOVE_CORP = True 
-                else:
-                    self.db.execute("UPDATE T_CORP SET cid = %s, mobile=%s, linkman =%s"
-                                    "  WHERE cid = %s",
-                                    new_username, new_username, new_username, old_username)
+                if corp: 
+                    status = ErrorCode.CORP_EXIST
+                    self.write_ret(status) 
+                    return
 
+                operator = self.db.get("SELECT id FROM T_OPERATOR"
+                                       "  WHERE oid = %s",
+                                       new_username)
+                if operator: 
+                    status = ErrorCode.OPERATOR_EXIST
+                    self.write_ret(status) 
+                    return
+
+                self.db.execute("UPDATE T_CORP SET cid = %s, mobile=%s, linkman =%s"
+                                "  WHERE cid = %s",
+                                new_username, new_username, new_username, old_username)
+
+                user = self.db.get("SELECT id FROM T_USER"
+                                   "  WHERE uid = %s",
+                                   new_username)
+                if not user:
                     self.db.execute("UPDATE T_USER SET uid = %s, mobile = %s"
                                     "  WHERE uid = %s",
                                     new_username, new_username, old_username)
@@ -75,12 +88,6 @@ class UsernameHandler(BaseHandler):
                 self.db.execute("UPDATE T_TERMINAL_INFO SET owner_mobile = %s"
                                 "  WHERE owner_mobile = %s",
                                 new_username, old_username)
-
-                if REMOVE_CORP:  
-                    self.db.execute("DELETE FROM T_CORP"
-                                    "  WHERE cid = %s",
-                                    old_username)
-
 
             logging.info("[ADMIN] user_type: %s, old_username: %s has been changed to new_username: %s",
                          user_type, old_username, new_username)
