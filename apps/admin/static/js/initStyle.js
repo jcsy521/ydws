@@ -113,6 +113,10 @@ $(function () {
 		fn_closeWrapper();
 	});
 	
+	// 短信接收号码的下拉框
+	if ( $.browser.msie && parseInt($.browser.version) <= 8 ) {
+		$('#corps_sign, #changeUserType_sign').css('top','0');
+	}
 	
 	// js模拟select
 	var obj_corpsSearch = $('#corps'),

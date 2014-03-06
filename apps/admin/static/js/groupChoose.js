@@ -71,6 +71,11 @@ function bus_changeUserType(str_ecName, str_tMobile) {
 			$('#changeUserType_input').autocomplete('close');
 		}
 	});
+	
+	if ( $.browser.msie && parseInt($.browser.version) <= 8 ) {
+		$('#userTypeChangeDialog').dialog('option', 'height', '300');
+	}
+	
 	$('#txt_changeTmobile').html(str_tMobile);
 	$('#userTypeChangeDialog').attr('title', '业务变更').dialog('option', 'title', '业务变更').dialog( "open" );
 	$('#changeUserType_corpName').hide();
