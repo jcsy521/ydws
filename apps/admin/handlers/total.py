@@ -195,8 +195,8 @@ class TotalDownloadHandler(BaseHandler, TotalMixin):
             ws.write(i, 10, result['deactive'])
             ws.write(i, 11, result['terminal_online'])
             ws.write(i, 12, result['terminal_offline'])
-            ws.write(i, 13, result['terminal_enterprise'])
-            ws.write(i, 14, result['terminal_individual'])
+            ws.write(i, 13, result['terminal_enterprise'] if result['terminal_enterprise'] else u'-')
+            ws.write(i, 14, result['terminal_individual'] if result['terminal_individual'] else u'-')
             ws.write(i, 15, time.strftime("%Y-%m-%d",time.localtime(result['timestamp'])))
 
         _tmp_file = StringIO()
