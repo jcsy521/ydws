@@ -535,6 +535,10 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 window.dlf.fn_updateLastInfo = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除定时器
 	currentLastInfo = setInterval(function () { // 每15秒启动
+		if ( $('.j_body').data('intervalkey') ){
+			return;
+		}
+		$('.j_body').data('intervalkey', true);
 		if ( !dlf.fn_userType() ) {
 			dlf.fn_getCarData();
 		} else {
@@ -574,8 +578,16 @@ window.dlf.fn_getCarData = function(str_flag) {
 	if ( arr_tracklist.length > 0 ) {
 		obj_param.track_list = arr_tracklist;
 	}
-	
-	$.post_(LASTPOSITION_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
+	$.ajax({ 
+		url: LASTPOSITION_URL, 
+		dataType: 'json', 
+		type: 'POST', 
+		cache: false, 
+		timeout: 30000,
+		data: JSON.stringify(obj_param), 
+		contentType : 'application/json; charset=utf-8', 
+		success: function(data){
+			$('.j_body').data('intervalkey', false);
 			if ( data.status == 0 ) {
 				var obj_cars = data.res,
 					obj_tempData = {},
@@ -664,10 +676,10 @@ window.dlf.fn_getCarData = function(str_flag) {
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
 			}
-		}, 
-		function (XMLHttpRequest, textStatus, errorThrown) {
-			dlf.fn_serverError(XMLHttpRequest);
-		});
+		}, error: function(XMLHttpRequest, textStatus, errorThrown) {
+			$('.j_body').data('intervalkey', false);
+		}
+	});
 }
 
 /**
@@ -2188,6 +2200,7 @@ function _ajax_request(url, data, callback, errorCallback, method) {
 		success : callback,
         error : errorCallback, // 出现错误
 		dataType : 'json',
+		cache: false,
 		contentType : 'application/json; charset=utf-8',
         complete: function (XMLHttpRequest, textStatus) { // 页面超时
             var stu = XMLHttpRequest.status;

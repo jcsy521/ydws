@@ -1071,269 +1071,274 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 	if ( arr_tracklist.length > 0 ) {
 		obj_param.track_lst = arr_tracklist;
 	}
-	$.post_(CORP_LASTINFO_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
-		if ( data.status == 0 ) {
-			var obj_corp = data.res,
-				arr_groups = obj_corp.groups,	// all groups 
-				n_groupLength = arr_groups.length,	// group length
-				str_corpName = obj_corp.name,	// corp name
-				str_tempCorpName = str_corpName,
-				str_corpId = obj_corp.cid,		// corp id
-				str_html = '<ul>',
-				arr_groupIds = [], // 组ID组
-				arr_tids = [], 	// 组下的tid组
-				str_tempFirstTid = '',	// 默认第一个tid
-				str_groupFirstId = '',	// 默认第一个groupid
-				b_isHasTerminal = true,	// 是否有终端
-				obj_newData = {},
-				obj_tempSelfMarker = {},	// 临时存储最新的marker数据
-				b_isFirst = $('#corpTree').data('ftree');
-			
-			
-			// $('.j_alarmTable').removeData('num');
-			$('.j_body').attr('cid', str_corpId);	//  存储集团id防止树节点更新时 操作组 丢失cid	
-			$('.j_body').data('lastinfo_time', data.res.lastinfo_time);	// 存储post返回的上次更新时间  返给后台
-			n_onlineCnt = obj_corp.online,		// online count
-			n_offlineCnt = obj_corp.offline;	// offline count
-			
-			if ( str_corpId && str_corpName ) {
-				str_tempCorpName = str_corpName.length > 10 ? str_corpName.substr(0,10)+ '...' : str_corpName;
-				str_html += '<li class="j_corp jstree-open" id="treeNode_'+ str_corpId +'"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_tempCorpName +'</a>';
-			}
-			fn_updateTerminalCount();	// lastinfo 每次更新在线个数 2013-07-29 kjj add
-			arr_autoCompleteData = [];
-			arr_submenuGroups = [];
-			if ( n_groupLength > 0 ) {
-				str_html += '<ul>';
-				str_groupFirstId = 'group_' + arr_groups[0].gid;
+	$.ajax({ 
+		url: CORP_LASTINFO_URL, 
+		dataType: 'json', 
+		type: 'POST', 
+		cache: false, 
+		timeout: 30000,
+		data: JSON.stringify(obj_param), 
+		contentType : 'application/json; charset=utf-8', 
+		success: function(data){
+			$('.j_body').data('intervalkey', false);
+			if ( data.status == 0 ) {
+				var obj_corp = data.res,
+					arr_groups = obj_corp.groups,	// all groups 
+					n_groupLength = arr_groups.length,	// group length
+					str_corpName = obj_corp.name,	// corp name
+					str_tempCorpName = str_corpName,
+					str_corpId = obj_corp.cid,		// corp id
+					str_html = '<ul>',
+					arr_groupIds = [], // 组ID组
+					arr_tids = [], 	// 组下的tid组
+					str_tempFirstTid = '',	// 默认第一个tid
+					str_groupFirstId = '',	// 默认第一个groupid
+					b_isHasTerminal = true,	// 是否有终端
+					obj_newData = {},
+					obj_tempSelfMarker = {},	// 临时存储最新的marker数据
+					b_isFirst = $('#corpTree').data('ftree');
 				
-				// #todo obj_carsData = {};
-				$('.j_carList').data('carsData', {});
 				
-				for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
-					var obj_group = arr_groups[i],
-						str_groupName = obj_group.name,
-						n_groupNameLng = str_groupName.length,
-						str_tempGroupName = n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
-						str_groupId = obj_group.gid,
-						obj_trackers = obj_group.trackers,
-						arr_tempTids = [], //tid组
-						n_trackersNum = 0,
-						str_groupOpenClass = 'jstree-open';
-						//arr_tids = [];
+				// $('.j_alarmTable').removeData('num');
+				$('.j_body').attr('cid', str_corpId);	//  存储集团id防止树节点更新时 操作组 丢失cid	
+				$('.j_body').data('lastinfo_time', data.res.lastinfo_time);	// 存储post返回的上次更新时间  返给后台
+				n_onlineCnt = obj_corp.online,		// online count
+				n_offlineCnt = obj_corp.offline;	// offline count
+				
+				if ( str_corpId && str_corpName ) {
+					str_tempCorpName = str_corpName.length > 10 ? str_corpName.substr(0,10)+ '...' : str_corpName;
+					str_html += '<li class="j_corp jstree-open" id="treeNode_'+ str_corpId +'"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_tempCorpName +'</a>';
+				}
+				fn_updateTerminalCount();	// lastinfo 每次更新在线个数 2013-07-29 kjj add
+				arr_autoCompleteData = [];
+				arr_submenuGroups = [];
+				if ( n_groupLength > 0 ) {
+					str_html += '<ul>';
+					str_groupFirstId = 'group_' + arr_groups[0].gid;
 					
-					arr_submenuGroups.push({'groupId': str_groupId, 'groupName': str_groupName});
-					// 终端个数大于等于50
-					if ( b_isFirst ) {
-						//计算终端个数
-						for ( var param in obj_trackers ) {
-							n_trackersNum++;
-						}
-						if ( n_trackersNum >= 50 ) {
-							str_groupOpenClass = 'jstree-close';
-						}
-						
-						$('#corpTree').data('ftree', false);
-					}
-					str_html += '<li class="j_group '+ str_groupOpenClass +'" id="groupNode_'+ str_groupId +'"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_tempGroupName +'</a>';
+					// #todo obj_carsData = {};
+					$('.j_carList').data('carsData', {});
 					
-					if ( dlf.fn_isEmptyObj(obj_trackers) ) {	// 如果没有终端返回
-						str_html += '<ul>';
-						var str_tempData = '';
+					for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
+						var obj_group = arr_groups[i],
+							str_groupName = obj_group.name,
+							n_groupNameLng = str_groupName.length,
+							str_tempGroupName = n_groupNameLng>10 ? str_groupName.substr(0,10)+ '...' : str_groupName,
+							str_groupId = obj_group.gid,
+							obj_trackers = obj_group.trackers,
+							arr_tempTids = [], //tid组
+							n_trackersNum = 0,
+							str_groupOpenClass = 'jstree-open';
+							//arr_tids = [];
 						
-						if ( str_tempFirstTid == '' ) {
-							for( var param in obj_trackers ) {
-								if ( param ) {
-									str_tempData = param;
-									break;
+						arr_submenuGroups.push({'groupId': str_groupId, 'groupName': str_groupName});
+						// 终端个数大于等于50
+						if ( b_isFirst ) {
+							//计算终端个数
+							for ( var param in obj_trackers ) {
+								n_trackersNum++;
+							}
+							if ( n_trackersNum >= 50 ) {
+								str_groupOpenClass = 'jstree-close';
+							}
+							
+							$('#corpTree').data('ftree', false);
+						}
+						str_html += '<li class="j_group '+ str_groupOpenClass +'" id="groupNode_'+ str_groupId +'"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_tempGroupName +'</a>';
+						
+						if ( dlf.fn_isEmptyObj(obj_trackers) ) {	// 如果没有终端返回
+							str_html += '<ul>';
+							var str_tempData = '';
+							
+							if ( str_tempFirstTid == '' ) {
+								for( var param in obj_trackers ) {
+									if ( param ) {
+										str_tempData = param;
+										break;
+									}
 								}
+								str_tempFirstTid = 'leaf_' + param;	// 第一个分组的第一个定位器 id							
 							}
-							str_tempFirstTid = 'leaf_' + param;	// 第一个分组的第一个定位器 id							
-						}
-						// 首次登录根据在线状态排序
-						for ( var paramGroup in arr_groups ) {
-							var obj_cGroup = arr_groups[paramGroup],
-								obj_cNodeItems = obj_cGroup.trackers,
-								arr_markers1 = [],
-								obj_cTrackers = {};
-							
-							// 将对象转换成数组
-							for ( var param0 in obj_cNodeItems ) {
-								var obj_newItems = obj_cNodeItems[param0];
+							// 首次登录根据在线状态排序
+							for ( var paramGroup in arr_groups ) {
+								var obj_cGroup = arr_groups[paramGroup],
+									obj_cNodeItems = obj_cGroup.trackers,
+									arr_markers1 = [],
+									obj_cTrackers = {};
 								
-								obj_newItems['tid'] = param0;
-								
-								arr_markers1.push(obj_newItems);
-							}
-							
-							//对转换完成的数组进行排序 在线在前
-							arr_markers1.sort(function(a, b) {		
-								var str_cLogin0 = parseInt(a.basic_info.login),
-									str_cLogin1 = parseInt(b.basic_info.login);
-								
-								if ( str_cLogin0 < str_cLogin1 )  return 1;
-								return -1;
-							});
-							//将排序后的数据转换成相应对象
-							for ( var paramMarker in arr_markers1 ) {
-								var obj_newItems = arr_markers1[paramMarker],
-									str_newTid = obj_newItems.tid;
-								
-								obj_cTrackers[str_newTid] = obj_newItems;
-							}
-							arr_groups[paramGroup].trackers = obj_cTrackers;
-						}
-						// 将排序后数据重新赋值
-						obj_trackers = arr_groups[i].trackers;
-						// 根据排序后数据生成树节点
-						for ( var param in obj_trackers ) {	// 添加组下面的定位器
-							var obj_infoes = obj_trackers[param],
-								obj_car = obj_infoes.basic_info,	// 终端基本信息
-								obj_trace = obj_infoes.trace_info,	// 甩尾数据
-								obj_track = obj_infoes.track_info,	//  开启追踪后的点数据
-								arr_alarm = obj_infoes.alarm_info,	// 告警提示列表
-								str_tid = param,
-								str_oldAlias = obj_car.alias,
-								str_dealAlias = dlf.fn_dealAlias(str_oldAlias),	// 处理中文后的别名
-								str_alias = dlf.fn_encode(str_dealAlias),	// 编码后的别名			
-								n_degree = obj_car.degree,	// icon_type
-								n_iconType = obj_car.icon_type,	// icon_type
-								str_mobile = obj_car.mobile,	// 车主手机号
-								str_login = obj_car.login,
-								n_enClon = obj_car.clongitude,
-								n_enClat = obj_car.clatitude,
-								n_lon = obj_car.longitude,
-								n_lat = obj_car.latitude,
-								// n_mannual_status = obj_car.set_mannual_status,	// 退出时默认设防状态 kjj add in 2013.10.09
-								obj_currentSelfMarker = obj_selfmarkers[str_tid];
-							
-							obj_car.trace_info = obj_trace;
-							obj_car.track_info = obj_track;
-							obj_car.tid = str_tid;
-							
-							// 1. 判断之前数据是否合法 
-							// 2. 新数据是否合法: yes:更新  no: 不更新
-							if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
-								if ( dlf.fn_isEmptyObj(obj_tempCarsData[str_tid]) ) {
-									var obj_myCar = obj_tempCarsData[str_tid];
+								// 将对象转换成数组
+								for ( var param0 in obj_cNodeItems ) {
+									var obj_newItems = obj_cNodeItems[param0];
 									
-									if ( n_lon != 0 && n_lat != 0 && n_enClon != 0 && n_enClat != 0 ) {	// 新数据可用
-										obj_carsData[str_tid] = obj_car;
+									obj_newItems['tid'] = param0;
+									
+									arr_markers1.push(obj_newItems);
+								}
+								
+								//对转换完成的数组进行排序 在线在前
+								arr_markers1.sort(function(a, b) {		
+									var str_cLogin0 = parseInt(a.basic_info.login),
+										str_cLogin1 = parseInt(b.basic_info.login);
+									
+									if ( str_cLogin0 < str_cLogin1 )  return 1;
+									return -1;
+								});
+								//将排序后的数据转换成相应对象
+								for ( var paramMarker in arr_markers1 ) {
+									var obj_newItems = arr_markers1[paramMarker],
+										str_newTid = obj_newItems.tid;
+									
+									obj_cTrackers[str_newTid] = obj_newItems;
+								}
+								arr_groups[paramGroup].trackers = obj_cTrackers;
+							}
+							// 将排序后数据重新赋值
+							obj_trackers = arr_groups[i].trackers;
+							// 根据排序后数据生成树节点
+							for ( var param in obj_trackers ) {	// 添加组下面的定位器
+								var obj_infoes = obj_trackers[param],
+									obj_car = obj_infoes.basic_info,	// 终端基本信息
+									obj_trace = obj_infoes.trace_info,	// 甩尾数据
+									obj_track = obj_infoes.track_info,	//  开启追踪后的点数据
+									arr_alarm = obj_infoes.alarm_info,	// 告警提示列表
+									str_tid = param,
+									str_oldAlias = obj_car.alias,
+									str_dealAlias = dlf.fn_dealAlias(str_oldAlias),	// 处理中文后的别名
+									str_alias = dlf.fn_encode(str_dealAlias),	// 编码后的别名			
+									n_degree = obj_car.degree,	// icon_type
+									n_iconType = obj_car.icon_type,	// icon_type
+									str_mobile = obj_car.mobile,	// 车主手机号
+									str_login = obj_car.login,
+									n_enClon = obj_car.clongitude,
+									n_enClat = obj_car.clatitude,
+									n_lon = obj_car.longitude,
+									n_lat = obj_car.latitude,
+									// n_mannual_status = obj_car.set_mannual_status,	// 退出时默认设防状态 kjj add in 2013.10.09
+									obj_currentSelfMarker = obj_selfmarkers[str_tid];
+								
+								obj_car.trace_info = obj_trace;
+								obj_car.track_info = obj_track;
+								obj_car.tid = str_tid;
+								
+								// 1. 判断之前数据是否合法 
+								// 2. 新数据是否合法: yes:更新  no: 不更新
+								if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
+									if ( dlf.fn_isEmptyObj(obj_tempCarsData[str_tid]) ) {
+										var obj_myCar = obj_tempCarsData[str_tid];
+										
+										if ( n_lon != 0 && n_lat != 0 && n_enClon != 0 && n_enClat != 0 ) {	// 新数据可用
+											obj_carsData[str_tid] = obj_car;
+										} else {
+											obj_carsData[str_tid] = obj_myCar;
+										}
 									} else {
-										obj_carsData[str_tid] = obj_myCar;
+										obj_carsData[str_tid] = obj_car;
 									}
 								} else {
 									obj_carsData[str_tid] = obj_car;
 								}
-							} else {
-								obj_carsData[str_tid] = obj_car;
+								
+								// obj_carsData[str_tid] =  obj_car;
+								arr_tempTids.push(str_tid); //tid组string 串
+								if ( str_login == LOGINOUT ) {
+									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_mobile +'">'+ str_alias +'</a></li>';
+								} else {
+									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_mobile +'">'+ str_alias +'</a></li>';	
+								}
+								if ( str_tempTid != '' && str_tempTid == str_tid ) {
+									b_flg = true;
+								}
+								/** 
+								* 自动完成数据填充:根据旅客姓名和手机号进行搜索
+								*/
+								var str_tempLabel = str_mobile;
+								if ( str_alias != str_mobile ) {
+									str_tempLabel = str_oldAlias +' '+ str_mobile +' '+ obj_car.owner_mobile;
+								}
+								arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
+								// 存储最新的marker信息
+								if ( obj_currentSelfMarker ) {
+									obj_tempSelfMarker[str_tid] = obj_currentSelfMarker;
+									obj_selfmarkers[str_tid] = undefined;
+								}
+								dlf.fn_checkTrackDatas(str_tid);	// 清除开启追踪后的轨迹线数据
+								// 显示告警提示列表
+								fn_updateAlarmList(arr_alarm);
+								b_isHasTerminal = true;
 							}
-							
-							// obj_carsData[str_tid] =  obj_car;
-							arr_tempTids.push(str_tid); //tid组string 串
-							if ( str_login == LOGINOUT ) {
-								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_mobile +'">'+ str_alias +'</a></li>';
-							} else {
-								str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_mobile +'">'+ str_alias +'</a></li>';	
-							}
-							if ( str_tempTid != '' && str_tempTid == str_tid ) {
-								b_flg = true;
-							}
-							/** 
-							* 自动完成数据填充:根据旅客姓名和手机号进行搜索
-							*/
-							var str_tempLabel = str_mobile;
-							if ( str_alias != str_mobile ) {
-								str_tempLabel = str_oldAlias +' '+ str_mobile +' '+ obj_car.owner_mobile;
-							}
-							arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
-							// 存储最新的marker信息
-							if ( obj_currentSelfMarker ) {
-								obj_tempSelfMarker[str_tid] = obj_currentSelfMarker;
-								obj_selfmarkers[str_tid] = undefined;
-							}
-							dlf.fn_checkTrackDatas(str_tid);	// 清除开启追踪后的轨迹线数据
-							// 显示告警提示列表
-							fn_updateAlarmList(arr_alarm);
-							b_isHasTerminal = true;
+							str_html += '</ul>';
+							// 填充本次数据 为了与下次lastinfo进行比较
+							arr_tids[str_groupId] = arr_tempTids;
+						} else {
+							arr_tids[str_groupId] = [];
 						}
-						str_html += '</ul>';
-						// 填充本次数据 为了与下次lastinfo进行比较
-						arr_tids[str_groupId] = arr_tempTids;
-					} else {
-						arr_tids[str_groupId] = [];
+						str_html += '</li>';
+						arr_groupIds.push(str_groupId);
 					}
-					str_html += '</li>';
-					arr_groupIds.push(str_groupId);
+					str_html += '</ul>';
+					// 存储 gids , tids
+					obj_newData = {'gids': arr_groupIds, 'tids': arr_tids, 'n_gLen': n_groupLength};
+					// 清除被删除的marker
+					dlf.fn_createTerminalListClearLayer(obj_selfmarkers);
 				}
-				str_html += '</ul>';
-				// 存储 gids , tids
-				obj_newData = {'gids': arr_groupIds, 'tids': arr_tids, 'n_gLen': n_groupLength};
-				// 清除被删除的marker
-				dlf.fn_createTerminalListClearLayer(obj_selfmarkers);
-			}
-			obj_selfmarkers = obj_tempSelfMarker;
-			if ( !b_isHasTerminal ) {
-				obj_carsData = {};
-				$('.j_carList').data('carsData', {});
-				// 显示告警提示列表
-				dlf.fn_closeAlarmPanel();
-			}
-			$('.j_carList').data('carsData', obj_carsData);	// 存储所有定位器信息
-			str_html += '</li></ul>';
-			var str_tempNodeId = '';
-			/**
-			* 设置jstree默认选中的节点
-			*/
-			if ( str_checkedNodeId == '' || str_checkedNodeId == 'leaf_' || str_checkedNodeId == ' leaf_undefined'  ) {		// 上次没有选中---第一次加载
-				
-				if ( str_tempFirstTid != '' ) {	// 拿第一个定位器
-					str_tempNodeId = str_tempFirstTid;
-				} else {
-					str_tempNodeId = str_groupFirstId;
+				obj_selfmarkers = obj_tempSelfMarker;
+				if ( !b_isHasTerminal ) {
+					obj_carsData = {};
+					$('.j_carList').data('carsData', {});
+					// 显示告警提示列表
+					dlf.fn_closeAlarmPanel();
 				}
-			} else { 
-				if ( b_flg ) {
-					str_tempNodeId = str_checkedNodeId;
-				} else {
-					str_tempNodeId = str_tempFirstTid == '' ? str_groupFirstId : str_tempFirstTid;
-				}
-			}
-			var b_isDifferentData = fn_lastinfoCompare(obj_newData);
-			
-			if ( b_isDifferentData ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
+				$('.j_carList').data('carsData', obj_carsData);	// 存储所有定位器信息
+				str_html += '</li></ul>';
+				var str_tempNodeId = '';
 				/**
-				* 判断车辆是否选中
+				* 设置jstree默认选中的节点
 				*/
-				var obj_loadTreePanel = $('#corpTree .loadTree');
+				if ( str_checkedNodeId == '' || str_checkedNodeId == 'leaf_' || str_checkedNodeId == ' leaf_undefined'  ) {		// 上次没有选中---第一次加载
 					
-				//当前车辆列表是否数据
-				if ( dlf.fn_isEmptyObj(obj_loadTreePanel) ) {
-					//如果有车获取车辆选中状态
-					dlf.fn_eachCheckedNode('.j_group');
-					dlf.fn_eachCheckedNode('.j_leafNode');
+					if ( str_tempFirstTid != '' ) {	// 拿第一个定位器
+						str_tempNodeId = str_tempFirstTid;
+					} else {
+						str_tempNodeId = str_groupFirstId;
+					}
+				} else { 
+					if ( b_flg ) {
+						str_tempNodeId = str_checkedNodeId;
+					} else {
+						str_tempNodeId = str_tempFirstTid == '' ? str_groupFirstId : str_tempFirstTid;
+					}
 				}
-				dlf.fn_loadJsTree(str_tempNodeId, str_html);
-				dlf.fn_initAutoComplete();
-				$('#txtautoComplete').val('请输入定位器名称或号码').addClass('gray');	
-			} else {
-				// 更新组名和集团名还有 在线离线状态
-				fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow);
+				var b_isDifferentData = fn_lastinfoCompare(obj_newData);
+				
+				if ( b_isDifferentData ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
+					/**
+					* 判断车辆是否选中
+					*/
+					var obj_loadTreePanel = $('#corpTree .loadTree');
+						
+					//当前车辆列表是否数据
+					if ( dlf.fn_isEmptyObj(obj_loadTreePanel) ) {
+						//如果有车获取车辆选中状态
+						dlf.fn_eachCheckedNode('.j_group');
+						dlf.fn_eachCheckedNode('.j_leafNode');
+					}
+					dlf.fn_loadJsTree(str_tempNodeId, str_html);
+					dlf.fn_initAutoComplete();
+					$('#txtautoComplete').val('请输入定位器名称或号码').addClass('gray');	
+				} else {
+					// 更新组名和集团名还有 在线离线状态
+					fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow);
+				}
+				if ( b_isCloseTrackInfowindow ) {
+					var obj_carItem = $('.j_carList .j_currentCar'),
+						str_tid = obj_carItem.attr('tid');
+						
+					dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
+				}
 			}
-			if ( b_isCloseTrackInfowindow ) {
-				var obj_carItem = $('.j_carList .j_currentCar'),
-					str_tid = obj_carItem.attr('tid');
-					
-				dlf.fn_switchCar(str_tid, obj_carItem); // 车辆列表切换
-			}
-		} else if ( data.status == 201 ) {	// 业务变更
-			dlf.fn_showBusinessTip();
-		} else {
-			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
+		}, error: function(XMLHttpRequest, textStatus, errorThrown) {
+			$('.j_body').data('intervalkey', false);
 		}
-	},
-	function (XMLHttpRequest, textStatus, errorThrown) {
-		dlf.fn_serverError(XMLHttpRequest);
 	});
 }
 
