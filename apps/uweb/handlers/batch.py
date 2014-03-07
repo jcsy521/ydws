@@ -77,15 +77,15 @@ class BatchImportHandler(BaseHandler):
                 for j in range(1,sheet.nrows): 
                     row = sheet.row_values(j)
                     tmobile = unicode(row[0])
-                    tmobile = tmobile[:tmobile.find('.')]
+                    tmobile = tmobile[0:11]
                     umobile = ''
                     if len(row) > 1:
                         umobile = unicode(row[1])
-                        umobile = umobile[:umobile.find('.')]
+                        umobile = umobile[0:11]
                     biz_type = UWEB.BIZ_TYPE.YDWS 
                     if len(row) > 2:
                         biz_type = unicode(row[2])
-                        biz_type = biz_type[:biz_type.find('.')]
+                        biz_type = biz_type[0:1]
                         biz_type = biz_type if biz_type else UWEB.BIZ_TYPE.YDWS 
 
                     r = DotDict(tmobile=tmobile,
