@@ -6,6 +6,8 @@ from dateutil.relativedelta import relativedelta
 import functools
 import random
 import math
+import hashlib
+import os
 
 # import some modules for VG
 from dotdict import DotDict
@@ -346,3 +348,30 @@ def get_tid_from_mobile_ydwq(mobile):
     if mobile:
         tid = mobile[::-1]
     return tid
+
+def get_md5(body): 
+    m = hashlib.md5() 
+    m.update(body) 
+    md5 = m.hexdigest() 
+    return md5
+
+def visitor(lst, directoryName, filesInDirectory): 
+    """Get md5 from all *.js and .css.
+    """
+    if ".svn" in directoryName:
+        return
+    for fname in filesInDirectory:
+        if not(fname.endswith(".js") or fname.endswith(".css")):
+            continue
+        fpath = os.path.join(directoryName, fname)
+        if not os.path.isdir(fpath):
+            bytes=open(fpath, 'rb').read()
+            md5 = get_md5(bytes)
+            lst.append(md5)
+
+def get_static_hash(path):
+    lst = []
+    os.path.walk(path, visitor, lst)
+    body = ''.join(lst)
+    return get_md5(body)
+    

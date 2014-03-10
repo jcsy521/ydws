@@ -29,6 +29,9 @@ options['logging'].set('info')
 
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
+from utils.dotdict import DotDict
+from utils.misc import get_static_hash 
+from helpers.confhelper import ConfHelper
 from constants.MEMCACHED import ALIVED
 
 from handlers.captcha import CaptchaHandler, CaptchaSmsHandler
@@ -102,8 +105,6 @@ from handlers.clientsync import SyncHandler
 from handlers.avatar import AvatarHandler
 from handlers.upload import UploadHandler
 
-from utils.dotdict import DotDict
-from helpers.confhelper import ConfHelper
 
 
 class Application(tornado.web.Application):
@@ -282,6 +283,8 @@ class Application(tornado.web.Application):
         self.db = DBConnection().db
         self.redis = MyRedis()
         self.redis.setvalue('is_alived', ALIVED)
+        hash_ = get_static_hash(settings.get('static_path')) 
+        self.redis.setvalue('static_hash', hash_)
 
 def shutdown(pool, server):
     try:

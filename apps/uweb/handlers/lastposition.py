@@ -36,29 +36,39 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
             res = OrderedDict() 
             usable = 1
             status = ErrorCode.SUCCESS
-            if self.current_user.oid != UWEB.DUMMY_OID: # operator,Note: operator also has cid, so we check oid firstly.
-                groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
-                gids = [g.group_id for g in groups]
-                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
-                                          "    AND group_id IN %s"
-                                          "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
-            elif self.current_user.cid != UWEB.DUMMY_CID: # Corp 
-                groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
-                gids = [g.gid for g in groups]
-                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
-                                          "    AND group_id IN %s"
-                                          "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
-            else : # individual user
-                terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
-                                          "    AND owner_mobile = %s"
-                                          "    AND login_permit = 1"
-                                          "    ORDER BY login DESC",
-                                          UWEB.SERVICE_STATUS.ON, self.current_user.uid)
+            if data.get('tids', None):
+                terminals = []
+                for tid in data.tids:
+                    terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
+                    if terminal:
+                        terminals.append(DotDict(tid=tid))
+                    else:
+                        logging.exception("[UWEB] tid: %s can not be found.", 
+                        tid)
+            else:
+                if self.current_user.oid != UWEB.DUMMY_OID: # operator,Note: operator also has cid, so we check oid firstly.
+                    groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
+                    gids = [g.group_id for g in groups]
+                    terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                              "  WHERE service_status = %s"
+                                              "    AND group_id IN %s"
+                                              "    ORDER BY LOGIN DESC",
+                                              UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+                elif self.current_user.cid != UWEB.DUMMY_CID: # Corp 
+                    groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
+                    gids = [g.gid for g in groups]
+                    terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                              "  WHERE service_status = %s"
+                                              "    AND group_id IN %s"
+                                              "    ORDER BY LOGIN DESC",
+                                              UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+                else : # individual user
+                    terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                              "  WHERE service_status = %s"
+                                              "    AND owner_mobile = %s"
+                                              "    AND login_permit = 1"
+                                              "    ORDER BY login DESC",
+                                              UWEB.SERVICE_STATUS.ON, self.current_user.uid)
 
             tids = [terminal.tid for terminal in terminals]
             for tid in tids:

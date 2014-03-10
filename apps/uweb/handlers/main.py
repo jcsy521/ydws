@@ -57,10 +57,13 @@ class MainHandler(BaseHandler):
                         message_captcha=None)
             return
 
+        static_hash = self.redis.get('static_hash')
+        static_hash = static_hash if static_hash else u'dummy_hash'
         self.render(index_html,
                     map_type=ConfHelper.LBMP_CONF.map_type,
                     user_type=user_type,
                     bizcode=bizcode,
                     status=status,
                     name=name,
-                    umobile=umobile)
+                    umobile=umobile,
+                    static_hash=static_hash)
