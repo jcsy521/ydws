@@ -4,7 +4,7 @@ $(function() {
 		obj_gid = $('#gid');
 	
 	obj_gid.val(n_gid);
-	$('.j_thead').html(str_gname);
+	$('.j_thead').html('组名：'+str_gname);
 	$('.j_active').attr('disabled', false);
 	// 选择文本框和浏览按钮实现file的click事件
 	$('#btnFileUpload, #txtFile').click(function() {	

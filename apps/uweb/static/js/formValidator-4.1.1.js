@@ -42,7 +42,7 @@ $.formValidator =
 		var scriptSrcArray = fv_scriptSrc.split('/');
 		var jsName = scriptSrcArray[scriptSrcArray.length-1];
     	var themedir = fv_scriptSrc.replace(jsName,'');
-		$.ajax({async:false,type: "GET",url: themedir + "themes/"+settings.theme+"/js/theme.js",dataType: "script",
+		$.ajax({async:false,type: "GET",url: "/static/js/themes/"+settings.theme+"/js/theme.js",dataType: "script",
 			error :function(){alert('当前皮肤加载出错，请确认皮肤【'+settings.theme+'】是否存在')}
 		}); 
 		//读取主题对应的样式

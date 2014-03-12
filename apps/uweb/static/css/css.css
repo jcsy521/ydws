@@ -1174,7 +1174,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
@@ -1713,7 +1713,7 @@ body {
 .onlineStaticsTable {
 	width: 750px;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader, #notifyManageSearchTableHeader th   {
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader, #notifyManageSearchTableHeader th , #notifyManageDataSt th  {
 	height: 38px;
 	line-height: 38px;
     font-size: 14px; 
@@ -3626,6 +3626,23 @@ legend {
 }
 .notifyManage_infoMsg {
 	padding: 20px 0;
+}
+.notifyManage_infoMsgTip {
+	padding: 10px 0px 0px 130px;
+}
+#notifyManageDataStPanel{
+	height: 320px;
+	overflow-y: auto;	
+}
+#notifyManageDataStDialog table {
+	width: 370px;
+}
+#notifyManageDataStDialog table td {
+	text-align: center;
+}
+#notifyManageSureSave {
+	float: right;
+	margin-right: 38px;
 }
 .text_notifyManageMsgLabel {
 	left: 16px;

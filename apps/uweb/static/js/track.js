@@ -380,7 +380,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 				str_name = obj_point.name,
 				str_tempEndName = str_name.length > 18 ? str_name.substr(0, 18) + '...' : str_name;
 			
-			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, false, x);
+			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, x);
 			
 			str_html += '<tr><td width="130px"><img src="../static/images/delay_Marker.png" width="25px" /><label>停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</label></td><td width="130px" class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_point.start_time) +'</td><td width="270px" class="delayCenterTd" title="'+ str_name +'">'+ str_tempEndName +'</td></tr>';
 			arr_markers.push(obj_tempMarker);
@@ -403,7 +403,9 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 		var arr_markerList = $('.delayTable').data('markers'),
 			obj_this = $(this),
 			n_index = obj_this.index(),
-			obj_tempMarker = arr_markerList[n_index];
+			obj_tempMarker = arr_markerList[n_index],
+			str_trackType = 'delay',
+			str_trackTempIndex = n_index;
 		
 		for ( var i = 0; i < arr_markerList.length; i++ ) {
 			var obj_marker = arr_markerList[i];
@@ -413,7 +415,17 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 			}
 		}
 		obj_tempMarker.setTop(true);
-		obj_tempMarker.openInfoWindow(obj_tempMarker.selfInfoWindow);
+		
+		if ( n_index == 0 ) {
+			str_trackType = 'start';
+			str_trackTempIndex = 0;
+		} else if ( n_index == 1 ) {
+			str_trackType = 'end';
+			str_trackTempIndex = arr_dataArr.length - 1;
+		}
+		dlf.fn_createMapInfoWindow(arr_delayPoints[n_index], str_trackType, str_trackTempIndex);
+		obj_tempMarker.openInfoWindow(obj_mapInfoWindow);
+		
 		mapObj.setCenter(obj_tempMarker.getPosition());
 		
 		obj_this.addClass('clickedBg').siblings('tr').removeClass('clickedBg');	// 添加背景色
@@ -432,8 +444,8 @@ function fn_startDrawLineStatic(arr_dataArr) {
 	
 	var polyline = dlf.fn_createPolyline($('#trackHeader').data('points'), {color: '#150CFF'});	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 	
-	obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, false, 0); // 添加标记
-	obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, false, arr_dataArr.length - 1); //添加标记
+	obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, 0); // 添加标记
+	obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, arr_dataArr.length - 1); //添加标记
 	//存储起终端点以便没有位置时进行位置填充
 	arr_markers.push(obj_firstMarker);
 	arr_markers.push(obj_endMarker);
@@ -448,6 +460,9 @@ function fn_startDrawLineStatic(arr_dataArr) {
 		if ( arr_delayPoints ) { // 如果有停留点,进行显示
 			arr_tempDelay.push(arr_dataArr[0]);
 			arr_tempDelay.push(arr_dataArr[arr_dataArr.length - 1]);
+			
+			$('#trackHeader').data('delayPoints', arr_tempDelay);
+			
 			for ( var x = 0; x < arr_delayPoints.length; x++ ) {
 				arr_delayPoints[x].alias = $('.j_currentCar').attr('alias');
 				arr_tempDelay.push(arr_delayPoints[x]);
@@ -489,7 +504,8 @@ function fn_bindPlay() {
 */
 function fn_drawMarker(str_step) {
 	var n_len = arr_dataArr.length,
-		str_tid = $('.j_currentCar').attr('tid');
+		str_tid = $('.j_currentCar').attr('tid'),
+		obj_selfInfoWindow = null;
 	
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;
@@ -508,19 +524,20 @@ function fn_drawMarker(str_step) {
 	
 	if ( counter <= n_len-1 ) {
 		if ( actionMarker ) {
-			b_trackMsgStatus = actionMarker.selfInfoWindow.isOpen();	// 百度获取infowindow的状态
+			obj_selfInfoWindow = actionMarker.infoWindow;
 			dlf.fn_clearMapComponent(actionMarker);
 		}
 		arr_dataArr[counter].tid = str_tid;	// 轨迹播放传递tid
-		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, b_trackMsgStatus, counter); // 添加标记
+		dlf.fn_addMarker(arr_dataArr[counter], 'draw', 0, counter); // 添加标记
 		// 将播放过的点放到数组中
 		var obj_tempPoint = dlf.fn_createMapPoint(arr_dataArr[counter].clongitude, arr_dataArr[counter].clatitude);
 		
 		arr_drawLine.push(obj_tempPoint);
 		obj_drawLine.setPath(arr_drawLine);
-		
-		if ( b_trackMsgStatus ) {
-			actionMarker.openInfoWindow(actionMarker.selfInfoWindow); // 显示吹出框 
+			
+		if ( obj_selfInfoWindow ) {
+			dlf.fn_createMapInfoWindow(arr_dataArr[counter], 'draw', counter);
+			actionMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框 
 		}
 		dlf.fn_boundContainsPoint(obj_tempPoint);
 	} else {	// 播放完成后

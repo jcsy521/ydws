@@ -23,6 +23,8 @@
 * obj_regionShape: 鼠标绘制围栏对象
 * obj_shapeLabel : 围栏的标签对象
 * obj_shapeMarker : 围栏的标记对象
+* obj_mapInfoWindow : 地图吹出框
+* obj_mapMarkerClusterer : 聚合对象
 */
 var mapObj = null,
 	actionMarker = null, 
@@ -46,7 +48,9 @@ var mapObj = null,
 	obj_regionShape = null,
 	obj_shapeLabel = null,
 	obj_shapeMarker = null,
-	mousetool = null;
+	mousetool = null,
+	obj_mapInfoWindow = null,
+	obj_mapMarkerClusterer = null;
 		
 if ( !window.dlf ) { window.dlf = {}; }
 
@@ -116,7 +120,16 @@ window.dlf.fn_setMapContainerZIndex = function(n_num) {
 /**
 * 处理请求服务器错误
 */
-window.dlf.fn_serverError = function(XMLHttpRequest) {
+window.dlf.fn_serverError = function(XMLHttpRequest, str_actionType) {
+	var str_errorType = XMLHttpRequest.statusText;
+	
+	if ( str_errorType == 'timeout' && str_actionType == 'lastinfo' ) {
+		return;
+	} else {
+		dlf.fn_jNotifyMessage('网络繁忙，请稍后重试。', 'message', false, 3000);
+		dlf.fn_unLockScreen(); // 清除页面遮罩
+		return;
+	}
 	if ( XMLHttpRequest && XMLHttpRequest.status > 200 ) {
 		dlf.fn_jNotifyMessage('请求失败，请重新操作！', 'message', false, 3000);		
 		if ( window == window.parent ) {
@@ -348,14 +361,20 @@ window.dlf.fn_bindCarListItem = function() {
 				var obj_currentMarker = obj_selfmarkers[n_tid];				
 				
 					if ( obj_currentMarker ) {
+						var obj_carDatas = $('.j_carList').data('carsData'),
+							obj_tempCarData = obj_carDatas[tid];
+				
 						var obj_position = obj_currentMarker.getPosition(),
-							obj_infowindow = obj_currentMarker.selfInfoWindow;
+							obj_infowindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_tempCarData, 'actiontrack'));//obj_currentMarker.selfInfoWindow;
 						
 						mapObj.setCenter(obj_position);
 						if ( dlf.fn_isBMap() ) {
-							obj_currentMarker.openInfoWindow(obj_infowindow);
+							//obj_currentMarker.openInfoWindow(obj_infowindow);
+							dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack');
+							obj_currentMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 						} else {
-							obj_selfmarkers[n_tid].selfInfoWindow.open(mapObj, obj_position);	// 显示吹出框
+							//obj_selfmarkers[n_tid].selfInfoWindow.open(mapObj, obj_position);	// 显示吹出框
+							obj_selfmarkers[n_tid].openInfoWindow(obj_infowindow);
 						}
 			    	}
 				return;
@@ -374,9 +393,6 @@ window.dlf.fn_bindCarListItem = function() {
 window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	var obj_carA = $('.j_carList a[tid='+n_tid+']');
 	
-	/*$.get_(SWITCHCAR_URL + '/' + n_tid, '', function (data) {	// 向后台发送切换请求
-		if ( data.status == 0 ) { 
-	*/
 	// 更新当前车辆的详细信息显示
 	var	obj_carDatas = $('.j_carList').data('carsData'),
 		obj_terminals = $('.j_carList .j_terminal'),
@@ -518,15 +534,6 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	}
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 	dlf.fn_updateLastInfo();
-	/*} else if ( data.status == 201 ) {	// 业务变更
-			dlf.fn_showBusinessTip();
-		} else {
-			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
-		}
-	}, 
-	function (XMLHttpRequest, textStatus, errorThrown) {
-		dlf.fn_serverError(XMLHttpRequest);
-	});*/
 }
 
 /**
@@ -578,107 +585,101 @@ window.dlf.fn_getCarData = function(str_flag) {
 	if ( arr_tracklist.length > 0 ) {
 		obj_param.track_list = arr_tracklist;
 	}
-	$.ajax({ 
-		url: LASTPOSITION_URL, 
-		dataType: 'json', 
-		type: 'POST', 
-		cache: false, 
-		timeout: 30000,
-		data: JSON.stringify(obj_param), 
-		contentType : 'application/json; charset=utf-8', 
-		success: function(data){
-			$('.j_body').data('intervalkey', false);
-			if ( data.status == 0 ) {
-				var obj_cars = data.res,
-					obj_tempData = {},
-					arr_locations = [],
-					arr_mannual_status = [],
-					n_pointNum = 0;
+	
+	$.post_(LASTPOSITION_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
+		$('.j_body').data('intervalkey', false);
+		if ( data.status == 0 ) {
+			var obj_cars = data.res,
+				obj_tempData = {},
+				arr_locations = [],
+				arr_mannual_status = [],
+				n_pointNum = 0;
 
-				$('.j_body').data('lastposition_time', data.lastposition_time);	// 存储post返回的上次更新时间  返给后台
-				// 重新生成终端列表
-				fn_createTerminalList(obj_cars);
-				if ( !dlf.fn_isEmptyObj(obj_cars) ) {
-					dlf.fn_initCarInfo();
-					alert('您的帐号没有绑定定位器或者定位器都被解绑了。');
-					window.location.replace('/logout');
-					return;
-				}
-				for ( var param in obj_cars ) {
-					var obj_resData = obj_cars[param],
-						obj_carInfo = obj_resData.car_info, 
-						obj_trackInfo = obj_resData.track_info,	// 开启追踪后丢的点
-						str_tid = param,
-						n_enClon = obj_carInfo.clongitude,
-						n_enClat = obj_carInfo.clatitude,
-						n_lon = obj_carInfo.longitude,
-						n_lat = obj_carInfo.latitude,
-						n_clon = n_enClon/NUMLNGLAT,
-						n_clat = n_enClat/NUMLNGLAT;
-					
-					obj_carInfo.tid = str_tid;
-					
-					// 1. 判断之前数据是否合法 
-					// 2. 新数据是否合法: yes:更新  no: 不更新
-					if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
-						if ( dlf.fn_isEmptyObj(obj_tempCarsData[str_tid]) ) {
-							var obj_myCar = obj_tempCarsData[str_tid];
-							
-							if ( n_lon != 0 && n_lat != 0 && n_clon != 0 && n_clat != 0 ) {	// 新数据可用
-								obj_tempData[str_tid] = obj_carInfo;
-							} else {
-								obj_tempData[str_tid] = obj_myCar;
-							}
-						} else {
+			$('.j_body').data('lastposition_time', data.lastposition_time);	// 存储post返回的上次更新时间  返给后台
+			// 重新生成终端列表
+			fn_createTerminalList(obj_cars);
+			if ( !dlf.fn_isEmptyObj(obj_cars) ) {
+				dlf.fn_initCarInfo();
+				alert('您的帐号没有绑定定位器或者定位器都被解绑了。');
+				window.location.replace('/logout');
+				return;
+			}
+			for ( var param in obj_cars ) {
+				var obj_resData = obj_cars[param],
+					obj_carInfo = obj_resData.car_info, 
+					obj_trackInfo = obj_resData.track_info,	// 开启追踪后丢的点
+					str_tid = param,
+					n_enClon = obj_carInfo.clongitude,
+					n_enClat = obj_carInfo.clatitude,
+					n_lon = obj_carInfo.longitude,
+					n_lat = obj_carInfo.latitude,
+					n_clon = n_enClon/NUMLNGLAT,
+					n_clat = n_enClat/NUMLNGLAT;
+				
+				obj_carInfo.tid = str_tid;
+				
+				// 1. 判断之前数据是否合法 
+				// 2. 新数据是否合法: yes:更新  no: 不更新
+				if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
+					if ( dlf.fn_isEmptyObj(obj_tempCarsData[str_tid]) ) {
+						var obj_myCar = obj_tempCarsData[str_tid];
+						
+						if ( n_lon != 0 && n_lat != 0 && n_clon != 0 && n_clat != 0 ) {	// 新数据可用
 							obj_tempData[str_tid] = obj_carInfo;
+						} else {
+							obj_tempData[str_tid] = obj_myCar;
 						}
 					} else {
 						obj_tempData[str_tid] = obj_carInfo;
 					}
-					// obj_tempData[str_tid] = obj_carInfo;
+				} else {
+					obj_tempData[str_tid] = obj_carInfo;
+				}
+				// obj_tempData[str_tid] = obj_carInfo;
+				
+				if ( n_lon != 0 && n_lat != 0 ) {
+					obj_carInfo.track_info = obj_trackInfo;
 					
-					if ( n_lon != 0 && n_lat != 0 ) {
-						obj_carInfo.track_info = obj_trackInfo;
+					if ( n_clon != 0 && n_clat != 0 ) {
+						n_pointNum ++;
+						arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
+						dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
 						
-						if ( n_clon != 0 && n_clat != 0 ) {
-							n_pointNum ++;
-							arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
-							dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
-							
-							if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
-								dlf.fn_updateTerminalInfo(obj_carInfo);
-							}
-						} else {
-							dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_carInfo);	// 前台偏转 kjj 2013-07-11
+						if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
+							dlf.fn_updateTerminalInfo(obj_carInfo);
 						}
+					} else {
+						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_carInfo);	// 前台偏转 kjj 2013-07-11
 					}
 				}
-				if ( str_flag == 'first' && arr_locations.length > 0 ) {
-					dlf.fn_caculateBox(arr_locations, 'lastinfo');
-				}
-				
-				$('.j_carList').data('carsData', obj_tempData);
-				// 如果无终端或终端都无位置  地图设置为全国地图
-				if ( n_pointNum <= 0 ) {
-					mapObj.setZoom(5);
-				}
-				//是否进行切车操作
-				var obj_currentCarDatas = obj_cars[str_currentPersonalTid];
-				
-				if ( !dlf.fn_isEmptyObj(obj_currentCarDatas) ) {
-					var obj_tempCurrentCar = $('.j_carList .j_terminal').eq(0),
-						str_tempTid = obj_tempCurrentCar.attr('tid');
-						
-					dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar, str_flag); // 车辆列表切换
-				}
-			} else if ( data.status == 201 ) {	// 业务变更
-				dlf.fn_showBusinessTip();
-			} else {
-				dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
 			}
-		}, error: function(XMLHttpRequest, textStatus, errorThrown) {
-			$('.j_body').data('intervalkey', false);
+			if ( str_flag == 'first' && arr_locations.length > 0 ) {
+				dlf.fn_caculateBox(arr_locations, 'lastinfo');
+			}
+			
+			$('.j_carList').data('carsData', obj_tempData);
+			// 如果无终端或终端都无位置  地图设置为全国地图
+			if ( n_pointNum <= 0 ) {
+				mapObj.setZoom(5);
+			}
+			//是否进行切车操作
+			var obj_currentCarDatas = obj_cars[str_currentPersonalTid];
+			
+			if ( !dlf.fn_isEmptyObj(obj_currentCarDatas) ) {
+				var obj_tempCurrentCar = $('.j_carList .j_terminal').eq(0),
+					str_tempTid = obj_tempCurrentCar.attr('tid');
+					
+				dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar, str_flag); // 车辆列表切换
+			}
+		} else if ( data.status == 201 ) {	// 业务变更
+			dlf.fn_showBusinessTip();
+		} else {
+			dlf.fn_jNotifyMessage(data.message, 'message'); // 查询状态不正确,错误提示
 		}
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		$('.j_body').data('intervalkey', false);
+		dlf.fn_serverError(XMLHttpRequest, 'lastinfo');
 	});
 }
 
@@ -1804,9 +1805,11 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_setMapContainerZIndex(0);
 					dlf.fn_clearAllMenu();
 				} else if ( str_who == 'notifyManageAdd' ) {
-					dlf.fn_setItemMouseStatus($('#notifyManageSave'), 'default', 'fs0');
+					dlf.fn_setItemMouseStatus($('.j_notifyManageSaveBtn'), 'default', 'fs0');
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 					b_closeWrapper = false;
+					$('#text_notifyManageMsg').val('');
+					$('#notifyManageDataStDialog').dialog('close');
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}
@@ -2201,6 +2204,7 @@ function _ajax_request(url, data, callback, errorCallback, method) {
         error : errorCallback, // 出现错误
 		dataType : 'json',
 		cache: false,
+		timeout: 30000,
 		contentType : 'application/json; charset=utf-8',
         complete: function (XMLHttpRequest, textStatus) { // 页面超时
             var stu = XMLHttpRequest.status;

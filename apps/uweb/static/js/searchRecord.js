@@ -704,43 +704,19 @@ window.dlf.fn_showMarkerOnEvent = function() {
 		dlf.fn_hideControl();
 		// 根据行编号拿到数据，在地图上做标记显示
 		var n_tempIndex = $(this).parent().parent().index()-1,
-			obj_tempData = arr_dwRecordData[n_tempIndex];
-			dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, true, n_tempIndex); // 添加标记
+			obj_tempData = arr_dwRecordData[n_tempIndex],
+			obj_eventMarker = dlf.fn_addMarker(obj_tempData, 'eventSurround', 0, n_tempIndex); // 添加标记
+			
+			dlf.fn_createMapInfoWindow(obj_tempData, 'eventSurround', n_tempIndex);
+			obj_eventMarker.openInfoWindow(obj_mapInfoWindow);
+					
 			setTimeout (function () {
 				// 为了正常显示暂时给告警的点加部分偏移进行显示:)
 				var obj_centerPointer = dlf.fn_createMapPoint(obj_tempData.clongitude, obj_tempData.clatitude),
 					n_category = obj_tempData.category,
 					n_rid = obj_tempData.rid;
 				
-				
 				dlf.fn_drawRegion(n_category, n_rid, obj_centerPointer, 0);	// 画围栏
-				/* 如果是进出围栏告警则显示电子围栏
-				if ( n_category == 7 || n_category == 8 ) {
-					$.get_(GETREGIONDATA_URL +'?rid='+ n_rid, '', function (data) {  
-						if ( data.status == 0 ) {
-							var obj_res = data.res,
-								n_region_shape = obj_res.region_shape,
-								obj_circleData = {},
-								obj_centerPoint = null;
-							
-							if ( n_region_shape == 0 ) {	// 圆形围栏
-								obj_circleData = obj_res.circle;
-								obj_centerPoint = dlf.fn_createMapPoint(obj_circleData.longitude, obj_circleData.latitude);
-								dlf.fn_displayCircle(obj_circleData);	// 调用地图显示圆形
-							}
-							dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);
-						} else if ( data.status == 201 ) {	// 业务变更
-							dlf.fn_showBusinessTip();
-						} else { // 查询状态不正确,错误提示
-							dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
-						}
-					}, 
-					function (XMLHttpRequest, textStatus, errorThrown) {
-						dlf.fn_serverError(XMLHttpRequest);
-					});
-				} else {
-					dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
-				}*/
 			}, 100);
 	});
 }
@@ -1550,6 +1526,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 			n_right = n_windowWidth - 259;
 			n_mapHeight = n_mapHeight - 10;
 		}
+		
 		obj_map.css({'height': n_mapHeight, 'width': n_right, 'minHeight': n_mapObjMinHeight, 'minWidth': 1151, 'zIndex': 0}).show();
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
@@ -1557,6 +1534,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		
 		//设置地图默认属性
 		if ( obj_mapCenter ) {
+			mapObj.setMapType(BMAP_NORMAL_MAP);
 			setTimeout (function () {
 				mapObj.setCenter(obj_mapCenter);
 				mapObj.setZoom(obj_mapSize);

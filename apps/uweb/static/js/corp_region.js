@@ -42,6 +42,7 @@ window.dlf.fn_initRegion = function() {
 		dlf.fn_initCreateRegion();
 	
 		$('#createRegionName').val('');
+		dlf.fn_clearMapComponent(); // 清除页面图形
 		fn_displayCars(); // 显示车辆信息数据
 		obj_regionShape =  null;
 		
@@ -105,7 +106,7 @@ function fn_displayCars () {
 			n_clat = obj_carInfo.clatitude;
 		
 		if ( n_clon != 0 && n_clat != 0 ) {
-			dlf.fn_addMarker(obj_carInfo, 'region', str_tid, false); // 添加标记
+			dlf.fn_addMarker(obj_carInfo, 'region', str_tid); // 添加标记
 		}
 	});
 }
