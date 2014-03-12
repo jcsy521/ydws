@@ -41,6 +41,7 @@ from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
 from handlers.register import RegisterHandler, RegisterBrowserHandler, ReRegisterHandler
 from handlers.lastinfo import LastInfoHandler, LastInfoCorpHandler
+from handlers.inclastinfo import IncLastInfoCorpHandler
 from handlers.lastposition import LastPositionHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
@@ -122,6 +123,7 @@ class Application(tornado.web.Application):
             (r"/logout/*", LogoutHandler),
             (r"/switchcar/(\S+)/*", SwitchCarHandler),
             (r"/wakeup/*", WakeupHandler),
+            (r"/inclastinfo/corp/*", IncLastInfoCorpHandler),
             (r"/lastinfo/corp/*", LastInfoCorpHandler),
             (r"/lastinfo/*", LastInfoHandler),
             (r"/lastposition/*", LastPositionHandler),
