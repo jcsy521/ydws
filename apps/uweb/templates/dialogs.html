@@ -1700,14 +1700,31 @@
 	<div id="notifyManageAddWrapper" class="wrapper hide">
 		<div class="wrapperContent notifyManageAddContent j_wrapperContent" id="notifyManageAddContent">
 			<form id="notifyManageAddForm">
+				<div class="notifyManage_infoMsgTip">
+					<label class="txtColor">*请在左侧选择要发送通知的客户端</label>
+					<label class="txtColor">*通知内容最大为256个汉字(512个字符)</label>
+				</div>
 				<div class="notifyManage_infoMsg">
 					<label class="text_notifyManageMsgLabel" for="text_notifyManageMsg" maxlength="256">
 						<font class="txtColor">* </font>通知内容：
 					</label>
 					<textarea name="text_notifyManageMsg" id="text_notifyManageMsg"></textarea>
 				</div>
-				<input type="submit" width="100" value="" id="notifyManageSave" />
+				<input type="submit" width="100" value="" id="notifyManageSave" class="j_notifyManageSaveBtn" />
 			</form>
 		</div>
 	</div>
+	
+	<!-- 通知发布数据回显 -->
+	<div id="notifyManageDataStDialog" class="hide">
+		<div id="notifyManageDataStPanel">
+			<table class="dataTable">
+				<tr id="notifyManageDataSt">
+					<th>定位器名称</th>
+					<th>定位器号码</th>
+				</tr>
+			</table>
+		</div>	
+		<input type="submit" width="100" value="" id="notifyManageSureSave" class="j_notifyManageSaveBtn" />
+	</div>	
 </div>
