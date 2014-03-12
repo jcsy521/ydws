@@ -75,7 +75,7 @@ class ApkHandler(BaseHandler):
         """
         try: 
             delete_ids = map(int, str_to_list(self.get_argument('ids', None))) 
-            logging.info("[ADMIN] delete activity: %s", 
+            logging.info("[ADMIN] delete apk: %s", 
                          delete_ids)
         except Exception as e: 
             status = ErrorCode.ILLEGAL_DATA_FORMAT 
@@ -91,7 +91,7 @@ class ApkHandler(BaseHandler):
             self.write_ret(status)
         except Exception as e: 
             status = ErrorCode.SERVER_BUSY
-            logging.exception("[ADMIN] delete  apk failed. Exception: %s", 
+            logging.exception("[ADMIN] delete apk failed. Exception: %s", 
                               e.args) 
             self.write_ret(status)
 

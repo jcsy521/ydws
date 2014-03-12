@@ -363,7 +363,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 data.login_permit, data.push_status,
                                 data.vibl, use_scene, biz_type,
                                 activation_code)
-                register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
+                register_sms = SMSCode.SMS_REGISTER_YDWQ % (umobile, activation_code)
                 ret = SMSHelper.send(data.tmobile, register_sms)
 
                 self.db.execute("INSERT INTO T_CAR(tid, cnum)"

@@ -63,7 +63,7 @@ class BindHandler(BaseHandler, AvatarMixin):
                             begintime, cnum, 0, data.login_permit, data.push_status,
                             1, 3, UWEB.BIZ_TYPE.YDWQ,
                             activation_code)
-            register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
+            register_sms = SMSCode.SMS_REGISTER_YDWQ % (umobile, activation_code)
             ret = SMSHelper.send(tmobile, register_sms)
             self.db.execute("INSERT INTO T_CAR(tid, cnum)"
                             "  VALUES(%s, %s)",

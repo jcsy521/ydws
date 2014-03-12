@@ -36,7 +36,11 @@ class WakeupHandler(BaseHandler, BaseMixin):
             if terminal: 
                 lq_sms_key = get_lq_sms_key(self.current_user.tid) 
                 sms = SMSCode.SMS_LQ % SMS.LQ.WEB 
-                SMSHelper.send_to_terminal(self.current_user.sim, sms) 
+                biz_type = QueryHelper.get_biz_type_by_tmobile(self.current_user.sim, self.db)
+                if biz_type != UWEB.BIZ_TYPE.YDWS:
+                    pass
+                else:
+                    SMSHelper.send_to_terminal(self.current_user.sim, sms) 
                 self.redis.setvalue(lq_sms_key, True, SMS.LQ_INTERVAL)
 
                 lq_interval_key = get_lq_interval_key(self.current_user.tid) 

@@ -40,5 +40,3 @@ class CorpHandler(BaseHandler):
                               self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-
-

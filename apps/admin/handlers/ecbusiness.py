@@ -408,7 +408,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                                 fields.begintime, fields.endtime,
                                 fields.begintime, 0, biz_type, activation_code) 
 
-                register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code 
+                register_sms = SMSCode.SMS_REGISTER_YDWQ % (user_mobile, activation_code)
                 ret = SMSHelper.send(fields.tmobile, register_sms)
 
                 self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"

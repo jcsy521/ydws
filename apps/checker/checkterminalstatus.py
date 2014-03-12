@@ -95,7 +95,11 @@ class CheckTerminalStatus(object):
         if sim:
             interval = SMS.LQ.WEB
             sms = SMSCode.SMS_LQ % interval 
-            SMSHelper.send_to_terminal(sim, sms)
+            biz_type = QueryHelper.get_biz_type_by_tmobile(sim, self.db)
+            if biz_type != UWEB.BIZ_TYPE.YDWS:
+                pass
+            else:
+                SMSHelper.send_to_terminal(sim, sms)
             lq_interval_key = get_lq_interval_key(tid)
             self.redis.setvalue(lq_interval_key, int(time.time()), (interval*60 - 160))
             logging.info("[CK] Send offline LQ: '%s' to Sim: %s", sms, sim)
