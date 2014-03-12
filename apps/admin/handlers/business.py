@@ -500,8 +500,12 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                 logging.error('[UWEB] umobile:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                               pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
                 unbind_sms = SMSCode.SMS_UNBIND  
-                ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
-                ret = DotDict(json_decode(ret))
+                biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, self.db)
+                if biz_type != UWEB.BIZ_TYPE.YDWS:
+                    ret = DotDict(status=ErrorCode.SUCCESS)
+                else:
+                    ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
+                    ret = DotDict(json_decode(ret))
                 status = ret.status
                 if ret.status == ErrorCode.SUCCESS:
                     self.db.execute("UPDATE T_TERMINAL_INFO"

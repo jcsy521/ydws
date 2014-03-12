@@ -33,7 +33,11 @@ class BaseMixin(object):
 
         if not self.redis.getvalue(lq_sms_key): 
             sms = SMSCode.SMS_LQ % interval 
-            SMSHelper.send_to_terminal(sim, sms) 
+            biz_type = QueryHelper.get_biz_type_by_tmobile(sim, self.db)
+            if biz_type != UWEB.BIZ_TYPE.YDWS:
+                pass
+            else:
+                SMSHelper.send_to_terminal(sim, sms) 
             logging.info("[UWEB] send %s to Sim: %s", sms, sim) 
             self.redis.setvalue(lq_sms_key, True, SMS.LQ_INTERVAL)
 
@@ -57,8 +61,12 @@ class BaseMixin(object):
 
     def send_jb_sms(self, tmobile, umobile, tid):
         unbind_sms = SMSCode.SMS_UNBIND  
-        ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
-        ret = json_decode(ret)
+        biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, self.db)
+        if biz_type != UWEB.BIZ_TYPE.YDWS:
+            ret = DotDict(status=ErrorCode.SUCCESS) 
+        else:
+            ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
+            ret = json_decode(ret)
         status = ret['status']
         if status == ErrorCode.SUCCESS:
             self.db.execute("UPDATE T_TERMINAL_INFO"

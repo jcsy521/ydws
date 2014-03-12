@@ -192,8 +192,12 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
                     logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                                   self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[response['success']])
                     unbind_sms = SMSCode.SMS_UNBIND  
-                    ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
-                    ret = DotDict(json_decode(ret))
+                    biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db)
+                    if biz_type != UWEB.BIZ_TYPE.YDWS:
+                        ret = DotDict(status=ErrorCode.SUCCESS)
+                    else:
+                        ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
+                        ret = DotDict(json_decode(ret))
                     if ret.status == ErrorCode.SUCCESS:
                         res.append(r)
                         self.db.execute("UPDATE T_TERMINAL_INFO"
@@ -281,7 +285,7 @@ class BatchJHHandler(BaseHandler):
                                           UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
                                           begintime, endtime, begintime, 0,
                                           biz_type, activation_code)
-                    register_sms = SMSCode.SMS_REGISTER_YDWQ % activation_code
+                    register_sms = SMSCode.SMS_REGISTER_YDWQ % (umobile, activation_code)
                     ret = SMSHelper.send(tmobile, register_sms)
 
                 ret = DotDict(json_decode(ret))

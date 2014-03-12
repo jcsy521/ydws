@@ -277,8 +277,12 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
                                   terminal.owner_mobile, terminal.tid,
                                   terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
                     unbind_sms = SMSCode.SMS_UNBIND  
-                    ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
-                    ret = DotDict(json_decode(ret))
+                    biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db)
+                    if biz_type != UWEB.BIZ_TYPE.YDWS:
+                        ret = DotDict(status=ErrorCode.SUCCESS)
+                    else:
+                        ret = SMSHelper.send_to_terminal(terminal.mobile, unbind_sms)
+                        ret = DotDict(json_decode(ret))
                     status = ret.status
                     if ret.status == ErrorCode.SUCCESS:
                         self.db.execute("UPDATE T_TERMINAL_INFO"
