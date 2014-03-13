@@ -46,11 +46,16 @@
 							</li>
 							<li>
 								<script type='text/javascript'>
-									var str_downloadUrl = '<a class="infoBtn btn_weixin" title="安卓版下载" href="http://';
+									var str_host = window.location.host,
+										str_downloadUrl = '<a class="infoBtn btn_weixin" title="正式版下载" href="http://';
 									
-									str_downloadUrl+= window.location.host;
-									str_downloadUrl+= '/static/download/ACB_{{versionname}}.apk#mp.weixin.qq.com';
-									str_downloadUrl+= '">立即下载</a>';
+									str_downloadUrl+= str_host+'/static/download/ACB_{{versionname}}.apk#mp.weixin.qq.com';
+									str_downloadUrl+= '">正式版</a>';
+									
+									str_downloadUrl+= '<a class="infoBtn btn_weixin btn_bluetooth" title="找车体验版" href="http://';
+									str_downloadUrl+= str_host+'/static/download/ACB_bluetooth.apk#mp.weixin.qq.com';
+									str_downloadUrl+= '">找车体验版</a>';
+									
 									document.write(str_downloadUrl);
 								</script>
 							</li>
@@ -65,6 +70,11 @@
 						<p class="descProfess">
 							移动卫士是一项保障用户安全的服务业务，主要包括的功能有：实时定位、轨迹查询、告警查询、设防/撤防、定位器设置、短信设置等。
 							用户可以登录客户端随时查看定位器所在位置以及轨迹路线，同时用户还可以远程对定位器进行设防/撤防操作以保证用户的人身或财产安全；另外用户可通过手机发送短信指令到平台来查询定位器的当前位置以及对定位器设防撤防，并且还可以查询用户定位器的电量。
+						</p>
+						<p class="descProfess">
+							<span class="fontRed">
+								*  找车体验版是针对带有蓝牙找车功能终端的客户端抢先体验版本，提供发出声音寻找车辆的功能。详情请咨询销售点或联系客服。
+							<span>
 						</p>
 						<br/>
 						<p class="">主要内容：</p>

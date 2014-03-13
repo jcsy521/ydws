@@ -32,7 +32,8 @@ body {
     margin-left: 30px;
     position: relative;
     top: 26px;
-    width: 370px;
+    width: 426px;
+	height: 137px;
 }
 .infoText ul {
 	margin: 0;
@@ -317,5 +318,10 @@ body {
 .downloadTable a, .downloadTable a:link {
 	color: #4876FF;
     text-decoration: none;
+}
+.btn_bluetooth {
+	float: right;
+    position: relative;
+    top: -60px;
 }
 /*instructions end*/
