@@ -112,6 +112,9 @@ FOB_OPERATE = DotDict(ADD=0,
 STATUS = DotDict(SUCCESS="0",
                  FAILED="1")
 
+# 30 min 
+YDWQ_HEARTBEAT_INTERVAL = 30 * 60 
+
 # 30 second 
 HEARTBEAT_INTERVAL = 30 
 # 30 min 

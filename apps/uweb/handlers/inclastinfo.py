@@ -69,7 +69,6 @@ class IncLastInfoCorpHandler(BaseHandler):
             if corp_info_old:
                 if corp_info_old != corp_info:
                     res_type = 2
-                else:
  
             res = DotDict(name=corp_info['name'],
                           cid=corp_info['cid'],

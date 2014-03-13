@@ -261,5 +261,5 @@ def update_terminal_info(db, redis, t_info):
 
 def update_terminal_status(redis, tid, address='DUMMY_ADDRESS'):
     terminal_status_key = get_terminal_address_key(tid)
-    redis.setvalue(terminal_status_key, address, 10 * GATEWAY.HEARTBEAT_INTERVAL) # 3 minuts
+    redis.setvalue(terminal_status_key, address, GATEWAY.YDWQ_HEARTBEAT_INTERVAL) # 30 minuts
 

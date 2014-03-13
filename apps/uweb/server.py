@@ -105,6 +105,7 @@ from handlers.clientbindmobile import ClientCaptchaHandler, BindMobileHandler
 from handlers.clientsync import SyncHandler
 from handlers.avatar import AvatarHandler
 from handlers.upload import UploadHandler
+from handlers.bind import BindHandler
 
 
 
@@ -171,6 +172,8 @@ class Application(tornado.web.Application):
             (r"/announcement/list/*", AnnouncementListHandler),
             (r"/activationcode/*", ActivationcodeHandler),
             (r"/activate/*", ActivateHandler),
+            (r"/ydwq/bind/*", BindHandler),
+
 
             (r"/about/*", AboutHandler),
 

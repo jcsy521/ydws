@@ -48,7 +48,6 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             return 
 
         try:
-
             tids = str_to_list(tids)
             tids = tids if tids else [self.current_user.tid, ]
             tids = [str(tid) for tid in tids]
@@ -65,6 +64,7 @@ class TrackLQHandler(BaseHandler, BaseMixin):
                         interval = 30 # in minute
                         biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db)
                         if biz_type != UWEB.BIZ_TYPE.YDWS:
+                            self.write_ret(status)
                             return
                         sms = SMSCode.SMS_LQGZ % interval
                         SMSHelper.send_to_terminal(terminal.mobile, sms)
