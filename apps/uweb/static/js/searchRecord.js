@@ -1357,6 +1357,9 @@ window.dlf.fn_getAllTerminals = function() {
 			dlf.fn_jNotifyMessage('获取定位器信息失败。', 'message', false, 3000);
 			return;
 		}
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 }
 
@@ -1599,6 +1602,9 @@ function fn_deleteAlertSetting(id, str_tid, str_who) {
 			} else {
 				dlf.fn_jNotifyMessage('删除失败，请重新再试。', 'message', false, 3000);
 			}
+		}, 
+		function (XMLHttpRequest, textStatus, errorThrown) {
+			dlf.fn_serverError(XMLHttpRequest);
 		});
 	}
 }

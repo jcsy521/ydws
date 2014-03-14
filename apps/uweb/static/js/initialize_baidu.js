@@ -186,9 +186,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		var obj_selfInfoWindow = obj_selfMarker.infoWindow;
 			
 		str_alias = dlf.fn_encode(str_alias);
-		if ( obj_selfMarker.getLabel() ) {
-			obj_selfMarker.getLabel().setContent(str_alias);
-		}
+		//if ( obj_selfMarker.getLabel() ) {
+		//	obj_selfMarker.getLabel().setContent(str_alias);
+		//}
+		
+		obj_selfMarker.setTitle(str_alias);
 		
 		if ( str_currentTid == str_tid ) {
 			if ( obj_selfInfoWindow ) {

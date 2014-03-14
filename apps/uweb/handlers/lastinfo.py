@@ -355,7 +355,8 @@ class LastInfoCorpHandler(BaseHandler):
                     group['trackers'][tid]['alarm_info'] = alarm_info
                 res.groups.append(group)
             self.write_ret(status, 
-                           dict_=DotDict(res=res))
+                           dict_=DotDict(res=res,
+                                         res_type=3))
         except Exception as e:
             logging.exception("[UWEB] cid: %s get corp lastinfo failed. Exception: %s", 
                               self.current_user.cid, e.args) 

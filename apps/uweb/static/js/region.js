@@ -248,6 +248,9 @@ window.dlf.fn_deleteRegion = function(n_id) {
 				}
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				dlf.fn_unLockScreen(); // 去除页面遮罩
+			}, 
+			function (XMLHttpRequest, textStatus, errorThrown) {
+				dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
 	}

@@ -258,6 +258,9 @@ window.dlf.fn_defendQuery = function(str_alias) {
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 		}
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 	
 	$('#defendBtn').unbind('click').click(function() {	//设防撤防 业务保存	

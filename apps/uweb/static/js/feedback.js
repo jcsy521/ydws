@@ -58,5 +58,8 @@ function fn_fbsave() {
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); 
 		}
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 }

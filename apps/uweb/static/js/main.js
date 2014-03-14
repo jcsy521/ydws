@@ -116,6 +116,9 @@ window.dlf.fn_initSMSParams = function() {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 	$('#smsNoticeSave').unbind('click').bind('click', function() {
 		dlf.fn_saveSMSOption();
@@ -699,7 +702,7 @@ $(function () {
 				
 				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
-				} else {
+				} else { 
 					var obj_current = obj_selfmarkers[$('.j_carList .j_currentCar').attr('tid')];
 					
 					if ( obj_current ) {
@@ -1019,6 +1022,9 @@ $(function () {
 						dlf.fn_cTerminalSave();
 					}
 				}
+			}, 
+			function (XMLHttpRequest, textStatus, errorThrown) {
+				dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
 	});

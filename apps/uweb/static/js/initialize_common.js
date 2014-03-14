@@ -1266,6 +1266,9 @@ window.dlf.fn_openTrack = function(arr_openTids, selfItem, n_isOpen) {
 		} else {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 4000);
 		}
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 }
 /*

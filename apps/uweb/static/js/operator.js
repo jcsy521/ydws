@@ -86,6 +86,9 @@ window.dlf.fn_deleteOperator = function(n_id) {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;
 				}
+			}, 
+			function (XMLHttpRequest, textStatus, errorThrown) {
+				dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
 	}

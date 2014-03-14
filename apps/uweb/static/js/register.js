@@ -95,6 +95,9 @@ $(function() {
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'error', false, 3000);
 				}
+			}, 
+			function (XMLHttpRequest, textStatus, errorThrown) {
+				dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
 	}).removeAttr('disabled');

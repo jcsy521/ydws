@@ -190,6 +190,9 @@ function fn_trackQuery() {
 		}
 		dlf.fn_unLockScreen(); // 清除页面遮罩
 		$('.j_trackbody').removeData('layer');
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 }
 

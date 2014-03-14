@@ -247,6 +247,9 @@ function fn_initCorpSMS() {
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
 		}
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 }
 

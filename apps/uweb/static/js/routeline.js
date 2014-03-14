@@ -299,6 +299,9 @@ window.dlf.fn_deleteRouteLine = function(n_id) {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;
 				}
+			}, 
+			function (XMLHttpRequest, textStatus, errorThrown) {
+				dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
 	}

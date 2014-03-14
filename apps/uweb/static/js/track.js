@@ -105,6 +105,21 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 			arr_infoPoint = [];
 			arr_tracePoints = [];
 			obj_oldData = {'gids': '', 'tids': '', 'n_gLen': 0};
+			
+			//查找选中的终端,进行添加数据
+			var obj_carDatas = $('.j_carList').data('carsData');
+			
+			$('.j_group .jstree-checked').each(function() {
+				var obj_this = $(this),
+					obj_current = obj_this.children('.j_terminal'),
+					str_tid = obj_current.attr('tid'),
+					obj_tempCarData = obj_carDatas[str_tid];
+				
+				if ( obj_tempCarData ) {
+					dlf.fn_updateInfoData(obj_carDatas[str_tid]);
+				}
+			});			
+			dlf.fn_corpLastinfoSwitch(true);
 			dlf.fn_corpGetCarData(true);
 		}
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
@@ -197,6 +212,9 @@ function fn_trackQuery() {
 		}
 		dlf.fn_unLockScreen(); // 清除页面遮罩
 		$('.j_trackbody').removeData('layer');
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 }
 
