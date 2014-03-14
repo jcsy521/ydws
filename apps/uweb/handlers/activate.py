@@ -70,6 +70,7 @@ class ActivationcodeHandler(BaseHandler):
             return 
 
         try:
+            terminal = None
             if tid:
                 terminal = self.db.get("SELECT activation_code, mobile, tid, biz_type FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s", 

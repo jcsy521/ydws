@@ -16,6 +16,7 @@ from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
 from utils.dotdict import DotDict
 from utils.public import record_add_action, delete_terminal 
+from utils.misc import get_tid_from_mobile_ydwq 
 from constants import UWEB
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
@@ -70,7 +71,7 @@ class BindHandler(BaseHandler, AvatarMixin):
                     self.write_ret(status)
                     return
  
-            tid = tmobile 
+            tid = get_tid_from_mobile_ydwq(tmobile)
             activation_code = QueryHelper.get_activation_code(self.db)
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  defend_status, mannual_status, begintime, endtime, offline_time, "
