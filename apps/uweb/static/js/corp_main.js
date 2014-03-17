@@ -1073,12 +1073,13 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 	if ( arr_tracklist.length > 0 ) {
 		obj_param.track_lst = arr_tracklist;
 	}
-	$.post_(CORP_LASTINFO_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
+	$.post_(CORP_INCLASTINFO_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
 		$('.j_body').data('intervalkey', false);
 		if ( data.status == 0 ) {
 			var str_resDataType = data.res_type,
 				b_isDifferentData = true;
 			
+			$('.j_body').data('lastinfo_time', data.res.lastinfo_time);	// 存储post返回的上次更新时间  返给后台
 			if ( str_resDataType ==  0 ) { //本次数据未发生变化
 				return;
 			} else if ( str_resDataType == 1 ) { //1：本次数据部分终发生变化（只提供发生变化的那份数据）
@@ -1103,7 +1104,6 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				
 				// $('.j_alarmTable').removeData('num');
 				$('.j_body').attr('cid', str_corpId);	//  存储集团id防止树节点更新时 操作组 丢失cid	
-				$('.j_body').data('lastinfo_time', data.res.lastinfo_time);	// 存储post返回的上次更新时间  返给后台
 				n_onlineCnt = obj_corp.online,		// online count
 				n_offlineCnt = obj_corp.offline;	// offline count
 				
