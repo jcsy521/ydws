@@ -172,6 +172,22 @@ def get_avatar_time_key(tid):
     """for the last modified time of the avatar belongs to the tid"""
     return str("avatar_time:%s" % tid)
 
+def get_corp_info_key(cid):
+    """for the corp"""
+    return str("corpinfo:%s" % cid)
+
+def get_group_info_key(cid):
+    """for the group belongs to cid"""
+    return str("groupinfo:%s" % cid)
+
+def get_group_terminal_info_key(cid, gid):
+    """for the terminals belongs to cid, gid"""
+    return str("terminalinfo:%s:%s" % (cid, gid))
+
+def get_group_terminal_detail_key(cid, gid, tid):
+    """for the terminal detail belongs to cid, gid"""
+    return str("terminaldetail:%s:%s:%s" % (cid, gid, tid))
+
 def get_terminal_time(timestamp):
     """Format a readable time like 2013-10-10，10:10:10 
     """

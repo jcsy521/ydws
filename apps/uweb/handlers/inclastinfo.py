@@ -9,7 +9,8 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
 from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key,\
-     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS, get_track_key
+     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS, get_track_key,\
+     get_corp_info_key, get_group_info_key, get_group_terminal_info_key, get_group_terminal_detail_key
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
@@ -28,11 +29,11 @@ class IncLastInfoCorpHandler(BaseHandler):
         try:
             data = DotDict(json_decode(self.request.body))
             track_lst = data.get('track_lst', [])
-            current_time = int(time.time()) 
+            current_time = int(time.time()*1000) 
             lastinfo_time = data.get('lastinfo_time') 
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.info("[UWEB] lastfinfo for corp failed, message: %s, Exception: %s, request: \n%s", 
+            logging.info("[UWEB] inlastfinfo for corp failed, message: %s, Exception: %s, request: \n%s", 
                          ErrorCode.ERROR_MESSAGE[status], e.args, self.request.body)
             self.write_ret(status)
             return 
@@ -60,15 +61,24 @@ class IncLastInfoCorpHandler(BaseHandler):
             corp_info = dict(name=corp['name'] if corp else '',
                              cid=corp['cid'] if corp else '')
 
-            corp_info_key = 'corp_info:%s' % uid
-            corp_info_old = self.redis.getvalue(corp_info_key)
+            corp_info_key = get_corp_info_key(uid) 
 
-            self.redis.setvalue(corp_info_key, corp_info)
-
+            corp_info_tuple = self.redis.getvalue(corp_info_key)
+            if corp_info_tuple:
+                corp_info_old, corp_info_time = corp_info_tuple 
+            else:
+                corp_info_old, corp_info_time = None, None 
+             
 
             if corp_info_old:
                 if corp_info_old != corp_info:
                     res_type = 2
+                    self.redis.setvalue(corp_info_key, (corp_info, current_time))
+                else:
+                    if lastinfo_time < corp_info_time:
+                        res_type = 2
+            else: 
+                self.redis.setvalue(corp_info_key, (corp_info, current_time))
  
             res = DotDict(name=corp_info['name'],
                           cid=corp_info['cid'],
@@ -77,12 +87,44 @@ class IncLastInfoCorpHandler(BaseHandler):
                           groups=[],
                           lastinfo_time=current_time)
 
-            group_info_key = 'group_info:%s' % uid
-            group_info_old = self.redis.getvalue(group_info_key)
+            group_info_key = get_group_info_key(uid) 
+            group_info_tuple = self.redis.getvalue(group_info_key)
+            if group_info_tuple:
+                group_info_old, group_info_time = group_info_tuple
+            else:
+                group_info_old, group_info_time = None, None 
             if group_info_old:
                 if group_info_old != groups:
                     res_type = 2
-            self.redis.setvalue(group_info_key, groups)
+                    self.redis.setvalue(group_info_key, (groups, current_time))
+                else:
+                    if lastinfo_time < group_info_time:
+                        res_type = 2
+            else: 
+                self.redis.setvalue(corp_info_key, (corp_info, current_time))
+ 
+            res = DotDict(name=corp_info['name'],
+                          cid=corp_info['cid'],
+                          online=0,
+                          offline=0,
+                          groups=[],
+                          lastinfo_time=current_time)
+
+            group_info_key = get_group_info_key(uid) 
+            group_info_tuple = self.redis.getvalue(group_info_key)
+            if group_info_tuple:
+                group_info_old, group_info_time = group_info_tuple
+            else:
+                group_info_old, group_info_time = None, None 
+            if group_info_old:
+                if group_info_old != groups:
+                    res_type = 2
+                    self.redis.setvalue(group_info_key, (groups, current_time))
+                else:
+                    if lastinfo_time < group_info_time:
+                        res_type = 2
+            else: 
+                self.redis.setvalue(group_info_key, (groups, current_time))
               
             for group in groups:
                 group['trackers'] = {} 
@@ -93,12 +135,21 @@ class IncLastInfoCorpHandler(BaseHandler):
                                           group.gid, UWEB.SERVICE_STATUS.ON)
                 tids = [str(terminal.tid) for terminal in terminals]
 
-                terminal_info_key = 'terminal_info:%s:%s' % (uid, group.gid)
-                terminal_info_old = self.redis.getvalue(terminal_info_key)
+                terminal_info_key = get_group_terminal_info_key(uid, group.gid)
+                terminal_info_tuple = self.redis.getvalue(terminal_info_key)
+                if terminal_info_tuple: 
+                    terminal_info_old, terminal_info_time = terminal_info_tuple
+                else:
+                    terminal_info_old, terminal_info_time = None, None 
                 if terminal_info_old:
                     if terminal_info_old != tids:
                         res_type = 2
-                self.redis.setvalue(terminal_info_key, tids)
+                        self.redis.setvalue(terminal_info_key, (tids, current_time))
+                    else:
+                        if lastinfo_time < terminal_info_time:
+                            res_type = 2
+                else: 
+                    self.redis.setvalue(terminal_info_key, (tids, current_time))
 
                 for tid in tids:
 
@@ -238,21 +289,31 @@ class IncLastInfoCorpHandler(BaseHandler):
                     group['trackers'][tid]['trace_info'] = trace_info
                     group['trackers'][tid]['alarm_info'] = alarm_info
                     
-                    terminal_detail_key = 'terminal_detail:%s:%s' % (uid, tid)
-                    terminal_detail_old = self.redis.getvalue(terminal_detail_key)
-                    self.redis.setvalue(terminal_detail_key, group['trackers'][tid])
+                    terminal_detail_key = get_group_terminal_detail_key(uid, group.gid, tid)
+                    terminal_detail_tuple = self.redis.getvalue(terminal_detail_key)
+                    if terminal_detail_tuple:
+                        terminal_detail_old, terminal_detail_time = terminal_detail_tuple 
+                    else:
+                        terminal_detail_old, terminal_detail_time = None, None 
                     if res_type != 2:
                         if terminal_detail_old:
                             if terminal_detail_old != group['trackers'][tid]: 
+                                self.redis.setvalue(terminal_detail_key, (group['trackers'][tid], current_time))
                                 res_type = 1
                             else:
-                                del group['trackers'][tid]
-
+                                if lastinfo_time < terminal_detail_time:
+                                    res_type = 1
+                                else:
+                                    del group['trackers'][tid]
+                        else: 
+                            self.redis.setvalue(terminal_detail_key, (group['trackers'][tid], current_time))
                 res.groups.append(group)
 
             if int(res_type) == 0:
+                res = DotDict(lastinfo_time=current_time)
                 self.write_ret(status, 
-                               dict_=DotDict(res_type=res_type))
+                               dict_=DotDict(res=res,
+                                             res_type=res_type))
             else:
                 self.write_ret(status, 
                                dict_=DotDict(res=res, 
