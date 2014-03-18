@@ -411,7 +411,7 @@ table, .ui-widget-header {
 .planType {
 	display: none;
 }
-#rDataTables, #staticsTables {
+#rDataTables, #staticsTables, #tbindlogDataTables, #tlocationDataTables {
     text-align: center;
 	font-size: 12px;
 }
@@ -864,4 +864,7 @@ tfoot {
 } 
 #changeUsernameSave {
 	margin-top: 10px;
+}
+#tlocationOtherPanel {
+	padding: 0 0 0 40px;
 }

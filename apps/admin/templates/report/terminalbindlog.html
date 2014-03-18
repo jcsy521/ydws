@@ -1,0 +1,77 @@
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery.min-1.5.js"></script>
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet" type="text/css"/>
+<script src="/static/js/lockScreen.js"></script>
+<script type="text/javascript">
+	fn_lockScreen();
+</script>
+
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/static/js/jquery.ui.datepicker-zh-CN.js"></script>
+<script type="text/javascript" src="/static/js/jquery.validationEngine-en.js"></script>
+<script type="text/javascript" src="/static/js/jquery.validationEngine.js"></script>
+<script type="text/javascript" src="/static/js/initStyle.js"></script>
+<script type="text/javascript" src="/static/js/submitForm.js"></script>
+<script type="text/javascript" src="/static/js/dataTable.js"></script>
+<script type="text/javascript" src="/static/js/groupChoose.js"></script>
+<script type="text/javascript" src="/static/js/dateChoose.js"></script>
+<script type="text/javascript" src="/static/js/json2.js"></script>
+<script type="text/javascript" src="/static/js/cacheQueryValues.js"></script>
+{% block body %}
+<fieldset class="ui-widget ui-widget-content ui-corner-all">
+	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+		<span class="ui-button-text">终端绑定记录查询</span>
+	</legend>
+    <form method="post" action="" id="formID" onsubmit="return formSubmit('search');">
+        <table  class="searchTable0">
+			<tr>
+				<td align="right">
+					<label>终端手机号：</label>
+					<input type="text" name="mobile" id="mobile" maxlength="11" />
+					<input type="submit" value="查询" 
+							onclick="fn_PushData(mobile, 'terminalbindlog');" 
+							class="ui-button ui-widget ui-state-default ui-corner-all ui-state-focus" 
+							role="button" aria-disabled="false" />
+				</td>
+			</tr>
+        </table>
+    </form>
+</fieldset>
+<div class="resultQuery">
+    <h3>查询结果</h3>
+    <a id="exportData" href="/download/bindlog/{{hash_}}" 
+        class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+        <span class="ui-button-text">导出Excel</span>
+	</a>
+</div>
+<table id="tbindlogDataTables" class="display">
+    <thead>
+        <tr>
+            <th>定位器手机号</th><th>注册时间</th><th>解绑时间</th><th>操作类型</th>
+        </tr>
+    </thead>
+    <tbody>
+	{% for result in res %}
+		<tr>
+			<td>{{result['mobile']}}</td>
+			<td><script>document.write(toHumanDate({{result['add_time']}}, 'yes'));</script></td>
+			<td><script>document.write(toHumanDate({{result['del_time']}}, 'yes'));</script></td>
+			<td>
+				{% if result['op_type'] == 1 %}
+					注册
+				{% else %}
+					解绑
+				{% end %}
+			</td>
+		</tr>
+    {% end %}
+    </tbody>
+</table>
+<script type="text/javascript">
+    fn_PopData('terminalbindlog');
+</script>
+{% end %}

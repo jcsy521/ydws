@@ -1,0 +1,101 @@
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery.min-1.5.js"></script>
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet" type="text/css"/>
+<script src="/static/js/lockScreen.js"></script>
+<script type="text/javascript">
+	fn_lockScreen();
+</script>
+
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/static/js/jquery.ui.datepicker-zh-CN.js"></script>
+<script type="text/javascript" src="/static/js/jquery.validationEngine-en.js"></script>
+<script type="text/javascript" src="/static/js/jquery.validationEngine.js"></script>
+<script type="text/javascript" src="/static/js/initStyle.js"></script>
+<script type="text/javascript" src="/static/js/submitForm.js"></script>
+<script type="text/javascript" src="/static/js/dataTable.js"></script>
+<script type="text/javascript" src="/static/js/groupChoose.js"></script>
+<script type="text/javascript" src="/static/js/dateChoose.js"></script>
+<script type="text/javascript" src="/static/js/json2.js"></script>
+<script type="text/javascript" src="/static/js/cacheQueryValues.js"></script>
+{% block body %}
+<fieldset class="ui-widget ui-widget-content ui-corner-all">
+	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+		<span class="ui-button-text">车主服务查询</span>
+	</legend>
+    <form method="post" action="" id="formID" onsubmit="return formSubmit('ownerservice');">
+        <table  class="searchTable0">
+			<tr>
+				<td align="right">开始时间：</td>
+				<td align="left"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
+			</tr>
+			<tr>
+				<td align="right">结束时间：</td>
+				<td><input type="text" name="end_time1" id="end_time1" readonly="true" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" align="right">
+					<input type="hidden" id="start_time" name="start_time" value="" />
+					<input type="hidden" id="end_time" name="end_time" value="" />
+						<input type="submit" value="查询" class="ui-button ui-widget ui-state-default ui-corner-all ui-state-focus" 
+							role="button" aria-disabled="false" onclick="fn_PushData('','ownerservice');" />
+				</td>
+			</tr>
+		</table>
+    </form>
+</fieldset>
+<div class="resultQuery">
+    <h3>查询结果</h3>
+    <a id="exportData" href="/download/ownerservice/{{hash_}}" 
+        class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+        <span class="ui-button-text">导出Excel</span>
+	</a>
+</div>
+<table id="tlocationDataTables" class="display">
+    <thead>
+        <tr>
+            <th>车主手机号</th><th>车牌号</th><th>车型</th><th>定制时间</th>
+        </tr>
+    </thead>
+    <tbody>
+	{% for result in res %}
+		<tr>
+			<td>{{result['umobile']}}</td>
+			<td>{{result['car_num']}}</td>
+			<td>
+				{% if result['car_type'] == 1 %}
+					(黄牌)大型车
+				{% elif result['car_type'] == 2 %}
+					(蓝牌)小型车
+				{% elif result['car_type'] == 6 %}
+					(黑牌)外籍车
+				{% elif result['car_type'] == 7 %}
+					(黄牌)两三轮摩托
+				{% elif result['car_type'] == 8 %}
+					(蓝牌)轻便摩托
+				{% elif result['car_type'] == 12 %}
+					(黑牌)外籍摩托
+				{% elif result['car_type'] == 13 %}
+					(绿牌)农用运输车
+				{% else %}
+					(黄牌)挂车
+				{% end %}
+			
+			</td>
+			<td><script>document.write(toHumanDate({{result['add_time']}}, 'yes'));</script></td>
+		</tr>
+    {% end %}
+    </tbody>
+	</tfoot>
+</table>
+<div style="display:none">
+	<input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'user_start'}}"/>
+	<input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'end'}}"/>
+</div>
+<script type="text/javascript">
+    fn_PopData('ownerservice');
+</script>
+{% end %}

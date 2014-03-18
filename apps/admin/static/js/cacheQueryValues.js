@@ -13,7 +13,7 @@ function fn_PushData(obj,name) {
             var i = 0, html = '';
             while (i < l) {
                 var tmp = idArr[i++];
-                if (tmp == 'valid' || tmp == 'category' || tmp == 'status' || tmp == 'service_status') { // radio
+                if (tmp == 'valid' || tmp == 'category' || tmp == 'status' || tmp == 'service_status' || tmp == 'type' ) { // radio
                    var radios = document.getElementsByName(tmp);
                    var j = 0;
                    while (j < radios.length) {
@@ -50,7 +50,7 @@ function fn_PopData(name) {
         $(element).children().each(function(index, dom){
             var id = $(dom)[0].id;
             var elementId = '#'+id;
-            if (id == 'valid' || id == 'category' || id == 'status' || id == 'service_status') { // radio
+            if (id == 'valid' || id == 'category' || id == 'status' || id == 'service_status' || id == 'type' ) { // radio
                 var val = $(dom).text();
                 var radios = document.getElementsByName(id);
                 if (radios) {

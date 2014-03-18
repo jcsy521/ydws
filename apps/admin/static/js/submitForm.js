@@ -78,7 +78,7 @@ function formSubmit(option) {
 			$('#start_time').val(toEpochDate(dailytime + ' 00:00:00'));
 		}
 	}
-	// 成员订购查询 家长名或者手机号必填
+	// 成员订购查询m 终端绑定信息查询 家长名或者手机号必填
 	if ( option == 'search' ) {
 		if ( mobile != '' ) {
 			return true;
