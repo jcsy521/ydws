@@ -58,7 +58,9 @@ from handlers.apk import ApkHandler, ApkListHandler
 from handlers.usertype import UserTypeHandler
 from handlers.username import UsernameHandler
 from handlers.resetpassword import ResetPasswordHandler 
-
+from handlers.locationre import LocationSearchHandler, LocationSearchDownloadHandler
+from handlers.bindlog import BindLogSearchHandler, BindLogDownloadHandler
+from handlers.ownerservice import OwnerServiceHandler, OwnerServiceDownloadHandler
 
 class Application(tornado.web.Application):
 
@@ -151,7 +153,9 @@ class Application(tornado.web.Application):
             (r"/download/offline/(.*)/*", OfflineDownloadHandler),
             
             (r"/download/business/search/(.*)/*", BusinessSearchDownloadHandler),
-
+            (r"/download/bindlog/(.*)/*", BindLogDownloadHandler),
+	    (r"/download/location/(.*)/*", LocationSearchDownloadHandler),
+            (r"/download/ownerservice/(.*)/*", OwnerServiceDownloadHandler), 
 
             (r"/activity/*", ActivityHandler),
             (r"/activity/list/*", ActivityListHandler),
@@ -161,8 +165,11 @@ class Application(tornado.web.Application):
             (r"/usertype/*", UserTypeHandler),
             (r"/username/*", UsernameHandler),
             (r"/resetpassword/*", ResetPasswordHandler),
-
-        ]
+            
+            (r"/bindlog/*", BindLogSearchHandler),
+            (r"/location/*", LocationSearchHandler),
+            (r"/ownerservice/*", OwnerServiceHandler),
+            ] 
 
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
