@@ -1,0 +1,92 @@
+@charset "utf-8";
+/**
+*2014-03-15 
+*/
+* {
+	outline: none;
+}
+html, a, input, ul, ol, li, p {
+	font-size: 12px;
+	font-family: "宋体","Times New Roman","Arial";
+	margin: 0;
+	padding: 0;
+}
+ul, ol, li {
+	list-style: none;
+}
+body {
+	margin: 0;
+	padding: 0;
+}
+.hidden {
+	display: none;
+}
+#home, #userInputTable {
+	margin: 0 auto;
+}
+.redColor {
+	color: red;
+}
+#userMobile, .input_carnum {
+	padding: 10px;
+}
+#userInputTable select {
+	height: 36px;
+}
+.panelSpace {
+	margin: 10px 0px;
+	padding: 3px;
+	text-align: center;
+}
+#inputDataPanel .content, #inputDataPanel .content_userMobile {
+	margin: 0px 0px 10px 0px;
+}
+.content_userMobile, .content_userCarid, .content_savePanel, .content_footer, .registerBtnPanel {
+	text-align: center;
+}
+.content_msgTip div {
+	margin-bottom: 5px;
+}
+#userDataSaveBtn, #userDataResetBtn, #userData_register {
+	background-color: #1c94c4;
+    color: #ffffff;
+    padding: 10px 20px;
+    width: 144px;
+	border: none;
+	cursor: pointer;
+	text-align: center;
+	display: inline-block;
+	font-weight: bold;
+}
+#userData_register {
+	width: 214px;
+}
+#userCaridAdd {
+	background: url("/static/images/ownerservice_caradd.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    display: inline-block;
+    height: 16px;
+    width: 24px;
+	left: -14px;
+    position: relative;
+    top: 4px;
+}
+.content_title {
+	background: none repeat scroll 0 0 #1C94C4;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px;
+    text-align: center;
+	margin-bottom: 30px;
+}
+.content_serviceIntroduce div, .content_successPanel {
+	margin: 6px;
+	text-align: center;
+}
+.introduceBorder {
+	border-bottom: 1px dashed;
+	padding-bottom: 10px;
+}
+.content_footer {
+	margin-top: 40px;
+}

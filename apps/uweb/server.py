@@ -89,6 +89,7 @@ from handlers.corpregion import CorpRegionHandler
 from handlers.bindregion import BindRegionHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.zfjsyncer import ZFJSyncerHandler
+from handlers.ownerservice import OwnerserviceHandler
 
 #znbc uweb handler
 from handlers.passenger import PassengerHandler
@@ -267,6 +268,7 @@ class Application(tornado.web.Application):
             (r"/getlines/*", LinesGetHandler),
             (r"/bindline/*", BindlineHandler),
             (r"/checkpassengermobile/(\d+)/*", CheckPassengerMobileHandler),
+            (r"/ownerservice/*", OwnerserviceHandler),
 
         ]
 
