@@ -56,33 +56,47 @@
 	<div id="addApkDialog" title="新增APK" class="hide">
 		<table>
 			<tr>
-				<td><label for="txt_acticityTitle">APK版本名称：</label></td>
+				<td><label for="txt_apkVersionName">APK版本名称：</label></td>
 				<td>
 					<input type="text" name="txt_apkVersionName" id="txt_apkVersionName" class="text ui-widget-content ui-corner-all" />
 				</td>
 			</tr>
 			<tr>
-				<td><label for="txt_acticityTitle">APK版本号：</label></td>
+				<td><label for="txt_apkVersionCode">APK版本号：</label></td>
 				<td>
 					<input type="text" name="txt_apkVersionCode" id="txt_apkVersionCode" class="text ui-widget-content ui-corner-all" />
 				</td>
 			</tr>
 			<tr>
-				<td><label for="txt_apkDesc">APK大小(M)：</label></td>
+				<td><label for="txt_apkFileSize">APK大小(M)：</label></td>
 				<td>
 					<input type="text" name="txt_apkFileSize" id="txt_apkFileSize" class="text ui-widget-content ui-corner-all" />
 				</td>
 			</tr>
 			<tr>
-				<td><label for="txt_apkDesc">APK描述：</label></td>
+				<td><label for="txt_apkInfo">APK描述：</label></td>
 				<td>
 					<textarea name="txt_apkInfo" id="txt_apkInfo" class="text ui-widget-content ui-corner-all"></textarea>
 				</td>
 			</tr>
 			<tr>
-				<td><label for="txt_apkDesc">APK更新时间：</label></td>
+				<td><label for="txt_apkUpdateTime">APK更新时间：</label></td>
 				<td>
 					<input type="text" name="txt_apkUpdateTime" id="txt_apkUpdateTime" class="text ui-widget-content ui-corner-all" readonly="true" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="txt_apkType">APK类型：</label></td>
+				<td>
+					<input id="apkType_ydws" type="radio" value="1" name="apk_type" checked />
+					<label for="apkType_ydws">移动卫士</label>
+					
+					<input id="apkType_ydwq1" type="radio" value="2" name="apk_type" />
+					<label for="apkType_ydwq1">移动外勤监控端</label>
+					
+					<input id="apkType_ydwq2" type="radio" value="3" name="apk_type" />
+					<label  for="apkType_ydwq2">移动外勤被监控端</label>
 				</td>
 			</tr>
 			<tr>

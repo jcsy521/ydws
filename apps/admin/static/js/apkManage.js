@@ -33,6 +33,7 @@ $(function () {
 		$('#filenamePanel').hide().val('');
 		$('#fileBrowser').show();
 		$('#fileUpload').val('');
+		$('#sms_type_panel input[id="apkType_ydws"]').attr('checked', 'checked');
 		
 		$('#txt_apkUpdateTime').datepicker();
 		$('#txt_apkUpdateTime').datepicker( 'option', 'dateFormat', 'yy-mm-dd' );
@@ -67,7 +68,8 @@ $(function () {
 			str_versionCode = $('#txt_apkVersionCode').val(),
 			str_fileSize = $('#txt_apkFileSize').val(),
 			str_updateTime= $('#txt_apkUpdateTime').val(),
-			str_versionInfo = $('#txt_apkInfo').val();
+			str_versionInfo = $('#txt_apkInfo').val(),
+			str_apkType = $('input[name="apk_type"]input:checked').val();
 	
 		if ( fn_validFileuploadForm() ) {
 			$.ajaxFileUpload({
@@ -81,7 +83,8 @@ $(function () {
 					versioninfo: str_versionInfo,// 版本信息
 					updatetime: str_updateTime,// 更新时间
 					filesize: str_fileSize,// 文件大小 
-					author: decodeURIComponent($.cookie("ACBADMIN_N"))
+					author: decodeURIComponent($.cookie("ACBADMIN_N")),
+					category: str_apkType //apk类型
 				},
 				dataType : 'json',//返回值类型 一般设置为json
 				success : function(data, status) { //服务器成功响应处理函数

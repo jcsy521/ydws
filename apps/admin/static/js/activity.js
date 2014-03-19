@@ -63,7 +63,9 @@ $(function () {
 	$('#addActivitySave').unbind('click').click(function(e) {
 		var str_title = $('#txt_acticityTitle').val(),
 			n_stTime = toEpochDate($('#txt_acticityStTime').val()+' 00:00:00'),
-			n_endTime = toEpochDate($('#txt_acticityEndTime').val()+' 23:59:59');
+			n_endTime = toEpochDate($('#txt_acticityEndTime').val()+' 23:59:59'),
+			str_htmlName = $('#txt_acticityHtmlName').val();
+		
 		if ( n_stTime > n_endTime ) {
 			alert('开始时间不能大于结束时间，请重新选择时间段。');
 			return;
@@ -79,6 +81,7 @@ $(function () {
 					activitytitle: str_title,
 					sttime: n_stTime,
 					endtime: n_endTime,
+					html_name: str_htmlName,
 					author: decodeURIComponent($.cookie("ACBADMIN_N"))
 				},
 				dataType : 'json',//返回值类型 一般设置为json
@@ -135,7 +138,7 @@ function fn_initSearchActivity() {
 				for( var i = 0; i < n_activityDataLen; i++ ) {	
 					var obj_tempActivityData = arr_activityDatas[i];
 								
-					arr_tableData[i] = [obj_tempActivityData.title, obj_tempActivityData.author, toHumanDate(obj_tempActivityData.begintime), toHumanDate(obj_tempActivityData.endtime), '<a href="#" onclick="fn_detailActivity(\''+obj_tempActivityData.title+'\',\''+obj_tempActivityData.filename+'\')">活动详情</a>', '<a href="#" onclick="fn_deleteActivity('+obj_tempActivityData.id+')">删除活动</a>'];
+					arr_tableData[i] = [obj_tempActivityData.title, obj_tempActivityData.author, toHumanDate(obj_tempActivityData.begintime), toHumanDate(obj_tempActivityData.endtime), obj_tempActivityData.html_name, '<a href="#" onclick="fn_detailActivity(\''+obj_tempActivityData.title+'\',\''+obj_tempActivityData.filename+'\')">活动详情</a>', '<a href="#" onclick="fn_deleteActivity('+obj_tempActivityData.id+')">删除活动</a>'];
 				}
 			}			
 			fn_initDataTables('activity', arr_tableData);
@@ -171,7 +174,7 @@ function fn_detailActivity(str_activityName, str_filename) {
 	});
 	
 	$('#detailActivityDialog').attr('title', '活动详情').dialog('option', 'title', '活动详情').dialog('open');
-	$('#acitvityImgs').attr('src', '/static/activity/'+str_filename).attr('alt', str_activityName);
+	$('#acitvityImgs').attr('src', '/static/activity/pic/'+str_filename).attr('alt', str_activityName);
 	
 }
 // 文件上传完成 
@@ -187,8 +190,8 @@ function fn_validFileuploadForm() {
 		txt_acticityTitle = $('#txt_acticityTitle').val();
 	
 	if ( str_file == '' ) {
-		alert('请选择要上传的文件。');
-		return false;
+		//alert('请选择要上传的文件。');
+		//return false;
 	} else if ( txt_acticityTitle == '' ) {
 		alert('请填写活动名称。');
 		return false;
@@ -242,6 +245,7 @@ function fn_initDataTables(str_who, obj_tableData) {
 			{ 'sTitle': '活动上传人' },
 			{ 'sTitle': '活动开始时间' },
 			{ 'sTitle': '活动结束时间' },
+			{ 'sTitle': 'html文件名' },
 			{ 'sTitle': '活动详情' },
 			{ 'sTitle': '删除' }
 		];
