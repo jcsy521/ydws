@@ -72,8 +72,8 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
 
             if len(res) == 0:
                 status = ErrorCode.TERMINAL_NOT_EXISTED
-                message = ErrorCode.ERROR_MESSAGE[status] % mobile
-                self.wirte_ret(status=status, message=message)
+                message = ErrorCode.ERROR_MESSAGE[status]
+                self.write_ret(status=status, message=message)
             else:
                 self.render('report/terminalbindlog.html',
                             status=status, res=res, hash_=hash_)
