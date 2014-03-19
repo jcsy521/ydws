@@ -8,6 +8,7 @@ from helpers.downloadhelper import get_version_info
 from helpers.queryhelper import QueryHelper 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
+from constants import UWEB
 from base import BaseHandler
 
 class CheckUpdateAndroidHandler(BaseHandler):
