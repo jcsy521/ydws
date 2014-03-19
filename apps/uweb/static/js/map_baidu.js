@@ -276,7 +276,10 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 				str_tid = str_tempTid;
 			
 			if ( str_className.search('j_currentCar') != -1 ) { // 如果是当前车的话就直接打开吹出框，否则switchcar中打开infoWindow
-				dlf.fn_createMapInfoWindow(obj_location, str_iconType);
+				var obj_carDatas = $('.j_carList').data('carsData'),
+					obj_tempCarData = obj_carDatas[str_tid];
+			
+				dlf.fn_createMapInfoWindow(obj_tempCarData, str_iconType);
 				this.openInfoWindow(obj_mapInfoWindow);
 				fn_infoWindowCloseShow();
 				return;
@@ -934,7 +937,8 @@ window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateErro
 				n_lat = obj_temPolygonPts.latitude;
 			
 			arr_tempPolygonData.push(dlf.fn_createMapPoint(n_lon, n_lat));
-			arr_calboxData.push({'clongitude': n_lon, 'clatitude': n_lat});
+			//arr_calboxData.push({'clongitude': n_lon, 'clatitude': n_lat});
+			arr_calboxData.push(dlf.fn_createMapPoint(n_lon, n_lat));
 		}
 		obj_tempRegionShape = new BMap.Polygon(arr_tempPolygonData, shapeOptions);
 		centerPoint = arr_tempPolygonData[0];
@@ -968,7 +972,8 @@ window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateErro
 			
 			dlf.fn_setOptionsByType('viewport', [obj_otherPoint2, obj_otherPoint]);
 		} else {
-			dlf.fn_caculateBox(arr_calboxData);
+			//dlf.fn_caculateBox(arr_calboxData);
+			dlf.fn_setOptionsByType('viewport', arr_calboxData);
 		}
 	}
 	return obj_regionShape;
