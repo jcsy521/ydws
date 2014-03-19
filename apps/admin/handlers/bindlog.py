@@ -91,14 +91,14 @@ class BindLogDownloadHandler(BaseHandler, BindLogMixin):
         
         mem_key = self.get_memcache_key(hash_)
         results = self.redis.getvalue(mem_key)
-
-
         if not results:
             self.render("error/download.html")
             return
 
         filename = BINDLOG_FILE_NAME
         date_syle = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
+        bind_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;')
+        re_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
         wb = xlwt.Workbook()
         ws = wb.add_sheet(BINDLOG_SHEET)
 
@@ -108,11 +108,33 @@ class BindLogDownloadHandler(BaseHandler, BindLogMixin):
 
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line+1), results):
+            if int(result['op_type']) == 2:
+                bind = u'解绑'
+                style = bind_style
+            else:
+                bind = u'注册'
+                style = re_style
+
+            if result['add_time'] == 0:
+                add_time = 0
+            else:
+                add_time = result['add_time']
+            if result['del_time'] == 0:
+                del_time = 0
+            else:
+                del_time = result['del_time']
+
             ws.write(i, 0, i)
             ws.write(i, 1, result['mobile'])
-            ws.write(i, 2, result['op_type'])
-            ws.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(result['add_time'])))
-            ws.write(i, 4, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(result['del_time'])))
+            ws.write(i, 2, bind, style)
+            if add_time == 0:
+                ws.write(i, 3, '')
+            else:
+                ws.write(i, 3, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(add_time)))
+            if del_time == 0:
+                ws.write(i, 4, '')
+            else:
+                ws.write(i, 4, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(del_time)))
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)

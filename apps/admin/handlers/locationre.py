@@ -38,7 +38,6 @@ class LocationMixin(BaseMixin):
             return data
 
 
-
 class LocationSearchHandler(BaseHandler, LocationMixin):
     
     @authenticated
@@ -92,22 +91,25 @@ class LocationSearchHandler(BaseHandler, LocationMixin):
                                 cellid=ret.get('cellid', None))
                     res.append(_res)
 
-                m = hashlib.md5()
-                m.update(self.request.body)
-                hash_ = m.hexdigest()
-                mem_key = self.get_memcache_key(hash_)
-                self.redis.setvalue(mem_key, res, time=self.MEMCACHE_EXPIRY)
+            m = hashlib.md5()
+            m.update(self.request.body)
+            hash_ = m.hexdigest()
+            mem_key = self.get_memcache_key(hash_)
+            self.redis.setvalue(mem_key, res, time=self.MEMCACHE_EXPIRY)
 
-                self.render('report/terminallocation.html',
+            if len(res) == 0:
+                status = -1
+            self.render('report/terminallocation.html',
                         status=status,
                         res=res,
                         interval=interval,
                         hash_=hash_)
         except Exception as e:
-            logging.exception("Exception: %s",e.args)
+            logging.exception("Exception: %s", e.args)
             status = -1
             message = ErrorCode.ERROR_MESSAGE[status]
             self.write_ret(status=status, message=message)
+
 
 class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
 

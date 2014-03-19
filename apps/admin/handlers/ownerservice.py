@@ -15,6 +15,7 @@ from base import BaseHandler, authenticated
 from mixin import BaseMixin
 from excelheaders import OwnerService_FILE_NAME, OwnerService_SHEET, OwnerService_HEADER
 
+
 class OwnerServiceMixin(BaseMixin):
         KEY_TEMPLATE = "owerservice_report_%s_%s"
 
@@ -82,7 +83,6 @@ class OwnerServiceHandler(BaseHandler, OwnerServiceMixin):
             self.render('errors/error.html', message=ErrorCode.FAILED)
 
 
-
 class OwnerServiceDownloadHandler(BaseHandler, OwnerServiceMixin):
 
     @authenticated
@@ -105,10 +105,27 @@ class OwnerServiceDownloadHandler(BaseHandler, OwnerServiceMixin):
 
         start_line += 1
         for i, result in zip(range(start_line, len(results)+start_line + 1), results):
+            if int(result['car_type']) == 1:
+                car_type = u"(黄牌)大型车"
+            elif int(result['car_type']) == 2:
+                car_type = u'（蓝牌）小型车'
+            elif int(result['car_type']) == 6:
+                car_type = u'(黑牌)外籍车'
+            elif int(result['car_type']) == 7:
+                car_type = u'(黄牌)三轮摩托车'
+            elif int(result['car_type']) == 8:
+                car_type = u'(蓝牌)轻便摩托'
+            elif int(result['car_type']) == 12:
+                car_type = u'(黑牌)外籍摩托'
+            elif int(result['car_type']) == 13:
+                car_type = u'(绿牌)农用运输车'
+            elif int(result['car_type']) == 15:
+                car_type = u'(黄牌)挂车'
+
             ws.write(i, 0, i)
             ws.write(i, 1, result['umobile'])
             ws.write(i, 2, result['car_num'])
-            ws.write(i, 3, result['car_type'])
+            ws.write(i, 3, car_type)
             ws.write(i, 4, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(result['add_time'])))
 
         _tmp_file = StringIO()
