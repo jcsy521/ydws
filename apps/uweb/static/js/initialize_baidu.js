@@ -169,15 +169,23 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 			obj_tempVal.val = arr_tempTracePoints;
 		}
 		obj_tempData = obj_tempVal;
-		dlf.fn_clearMapComponent(obj_selfPolyline); // 删除相应轨迹线
+		if ( obj_selfPolyline ) {
+			//dlf.fn_clearMapComponent(obj_selfPolyline); // 删除相应轨迹线
+		}
 	} else {
 		arr_tempTracePoints.push(obj_tempPoint);
 		obj_tempData = {'key': str_tid, 'val': arr_tempTracePoints};
 		arr_infoPoint.push(obj_tempData);
 	}
-	actionPolyline = dlf.fn_createPolyline(obj_tempData.val, obj_polylineOptions); 
-	dlf.fn_addOverlay(actionPolyline);	//向地图添加覆盖物 
-	obj_polylines[str_tid] = actionPolyline;	// 存储开启追踪轨迹
+	if ( obj_tempData.val ) {
+		if ( obj_selfPolyline ) {
+			obj_selfPolyline.setPath(obj_tempData.val);
+		} else {
+			obj_selfPolyline = dlf.fn_createPolyline(obj_tempData.val, obj_polylineOptions); 
+			dlf.fn_addOverlay(obj_selfPolyline);	//向地图添加覆盖物 
+		}
+		obj_polylines[str_tid] = obj_selfPolyline;	// 存储开启追踪轨迹
+	}
 	
 	if ( str_actionTrack == 'yes' && n_pointType == CELLID_TYPE ) { // 2013.7.5 开户追踪后,基站点及信息不进行显示
 		return;
@@ -223,12 +231,11 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 			dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid); // 添加标记
 		}
 	}
+	
 	var obj_toWindowInterval = setInterval(function() {
 		var obj_tempMarker = obj_selfmarkers[str_tid];	// obj_carA.data('selfmarker');
 		
-		if ( !str_currentTid ) {
-			clearInterval(obj_toWindowInterval);
-		} else if (( str_currentTid == str_tid ) ) {
+		if ( str_currentTid && str_currentTid == str_tid ) {
 			if ( str_type == 'current' ) {	// 查找到当前车辆的信息
 				if ( obj_tempMarker ) {
 					var obj_carDatas = $('.j_carList').data('carsData')[str_tid];
@@ -240,7 +247,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 				dlf.fn_moveMarker(str_currentTid);				
 			}
 			clearInterval(obj_toWindowInterval);
-		}
+		}		
 	}, 500);
 }
 

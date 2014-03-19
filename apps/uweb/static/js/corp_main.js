@@ -681,11 +681,12 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			}
 		}
 		if ( n_num > 0 ) {
+			/* tohs 为什么要更新别名			
 			for(var param in obj_tempCarsData) {	// 加载完树后，更新alias
 				var str_alias = dlf.fn_decode(obj_tempCarsData[param].alias);
 				
 				$('#leaf_'+param).attr('alias', str_alias);
-			}
+			}*/
 			$('.j_group .jstree-checked').each(function() {
 				var obj_terminalNode = $(this).children('.j_terminal'),
 					str_tid = obj_terminalNode.attr('tid'),
@@ -702,7 +703,9 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				if ( n_lon != 0 && n_lat != 0 ) {
 					if ( n_clon != 0 && n_clat != 0 ) {
 						n_pointNum ++;
-						arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
+						//arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
+						
+						arr_locations.push(dlf.fn_createMapPoint(n_enClon, n_enClat));
 						obj_car.trace_info = obj_trace;
 						obj_car.track_info = obj_track;
 						dlf.fn_updateInfoData(obj_car); // 工具箱动态数据
@@ -713,20 +716,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_car, true);	// 前台偏转 kjj 2013-09-27
 					}
 				}
-			});
-			$('.j_group .j_leafNode').each(function() {
-				var obj_terminalNode = $(this).children('.j_terminal'),
-					str_tid = obj_terminalNode.attr('tid'),
-					obj_car = obj_tempCarsData[str_tid],
-					n_enClon = obj_car.clongitude,
-					n_enClat = obj_car.clatitude,
-					n_clon = n_enClon/NUMLNGLAT,	
-					n_clat = n_enClat/NUMLNGLAT;
-				
-				if ( n_clon != 0 && n_clat != 0 ) {
-					n_pointNum ++;
-					arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
-				} 
 			});
 			if ( str_currentTid != undefined && str_currentTid != '' ) {
 				if ( b_createTerminal ) {	// 如果是新建终端 发起switchCar
@@ -746,10 +735,26 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					}
 				}
 			} else {	// 第一次发起switchCar启动lastinfo
+				$('.j_group .j_leafNode').each(function() {
+					var obj_terminalNode = $(this).children('.j_terminal'),
+						str_tid = obj_terminalNode.attr('tid'),
+						obj_car = obj_tempCarsData[str_tid],
+						n_enClon = obj_car.clongitude,
+						n_enClat = obj_car.clatitude,
+						n_clon = n_enClon/NUMLNGLAT,	
+						n_clat = n_enClat/NUMLNGLAT;
+					
+					if ( n_clon != 0 && n_clat != 0 ) {
+						n_pointNum ++;
+						//arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
+						arr_locations.push(dlf.fn_createMapPoint(n_enClon, n_enClat));
+					} 
+				});
 				var obj_current = $('#' + data.inst.data.ui.to_select);
 				
 				if ( arr_locations.length > 0 ) {
-					dlf.fn_caculateBox(arr_locations);
+					//dlf.fn_caculateBox(arr_locations);
+					dlf.fn_setOptionsByType('viewport', arr_locations);
 				}
 				
 				dlf.fn_switchCar(str_currentTid, obj_current);
@@ -836,7 +841,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			n_terminalClass = str_class.indexOf('j_leafNode'),
 			n_groupClass = str_class.indexOf('j_group'),
 			n_corpClass = str_class.indexOf('j_corp'),
-			obj_tempCarsData = $('.j_carList').data('carsData');
+			obj_tempCarsData = $('.j_carList').data('carsData'),
+			str_nodes = '';
 		
 		if ( n_terminalClass != -1 ) {	// 选中单个终端
 			var obj_current = obj_currentLi.children('.j_terminal')
@@ -865,25 +871,34 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			// 获取该分组下所有终端
 			dlf.fn_lockScreen();
 			$('#loadingMsg').html('正在加载定位器...').show();
+			
+			if ( n_groupClass != -1 ) {	// 选中整个分组
+				str_nodes = '#'+data.rslt.obj[0].id;
+			} else if ( n_corpClass != -1 ) {	// 选中整个集团
+				str_nodes = '.j_corp .j_group';
+			}			
 			setTimeout(function(){				
-				$('.j_group .jstree-checked').each(function() {
+				$(str_nodes+' .jstree-checked').each(function() {
 					var obj_this = $(this),
 						obj_current = obj_this.children('.j_terminal'),
 						str_tid = obj_current.attr('tid'),
 						str_loginSt = obj_current.attr('clogin'),
 						obj_corpInfoStat = $('#terminalInfo .currentTNum').children(),
-						str_currentCorpInfoStat = obj_corpInfoStat.attr('id');
+						str_currentCorpInfoStat = obj_corpInfoStat.attr('id'),
+						obj_tempSelfmarker = obj_selfmarkers[str_tid];
 					
 					if ( str_currentCorpInfoStat == 'onlineCount' && str_loginSt != '1' ) {
 						return;
 					} else if ( str_currentCorpInfoStat == 'offlineCount' && str_loginSt != '0' ) {
 						return;
-					}
-					dlf.fn_updateInfoData(obj_tempCarsData[str_tid]);
+					} 
+					setTimeout(function(){	
+						dlf.fn_updateInfoData(obj_tempCarsData[str_tid]);
+					}, 50);
 				});				
 				$('#loadingMsg').html('').hide();
 				dlf.fn_unLockScreen();
-			}, 1000);
+			}, 400);
 		}
 	}).bind('uncheck_node.jstree', function(event, data) {
 		var obj_currentLi = $(data.rslt.obj[0]),
@@ -934,7 +949,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					obj_tempNodeMarker = obj_selfmarkers[str_tempNodeTid];
 					
 				if ( dlf.fn_isEmptyObj(obj_tempNodeMarker) ) {
-					arr_juheMarkers.push(obj_tempNodeMarker);
 					dlf.fn_clearMapComponent(obj_tempNodeMarker);
 					delete obj_selfmarkers[str_tempNodeTid];
 					obj_actionTrack[str_tempNodeTid].status = 'no';
@@ -1075,6 +1089,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 	}
 	$.post_(CORP_INCLASTINFO_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
 		$('.j_body').data('intervalkey', false);
+		 
 		if ( data.status == 0 ) {
 			var str_resDataType = data.res_type,
 				b_isDifferentData = true;
@@ -1083,9 +1098,10 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			if ( str_resDataType ==  0 ) { //本次数据未发生变化
 				return;
 			} else if ( str_resDataType == 1 ) { //1：本次数据部分终发生变化（只提供发生变化的那份数据）
+				fn_updateTerminalCount();
 				fn_updateTreeNode(data.res, b_isCloseTrackInfowindow);
 				return;
-			} else { // 2或者3 当用户有改变时,2,全部更新,3,前台自己判断是否要进行树更新
+			} else { // 2或者3 当用户有改变时,2,全部更新,3,前台自己判断是否要进行树更新.
 				var obj_corp = data.res,
 					arr_groups = obj_corp.groups,	// all groups 
 					n_groupLength = arr_groups.length,	// group length
@@ -1120,7 +1136,6 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 					
 					// #todo obj_carsData = {};
 					$('.j_carList').data('carsData', {});
-					
 					for ( var i = 0; i < n_groupLength; i++ ) {	// 添加组
 						var obj_group = arr_groups[i],
 							str_groupName = obj_group.name,
@@ -1310,6 +1325,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						str_tempNodeId = str_tempFirstTid == '' ? str_groupFirstId : str_tempFirstTid;
 					}
 				}
+				
 				if ( str_resDataType ==  3 ) { // 如果数据类型变化是 3 ,前台自已判断一次是否要重新加载树
 					b_isDifferentData = fn_lastinfoCompare(obj_newData);
 				}
@@ -1326,6 +1342,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						dlf.fn_eachCheckedNode('.j_group');
 						dlf.fn_eachCheckedNode('.j_leafNode');
 					}
+			
 					dlf.fn_loadJsTree(str_tempNodeId, str_html);
 					dlf.fn_initAutoComplete();
 					$('#txtautoComplete').val('请输入定位器名称或号码').addClass('gray');	

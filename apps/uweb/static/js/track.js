@@ -171,7 +171,8 @@ function fn_trackQuery() {
 			var arr_locations = data.track, 
 				locLength = arr_locations.length,
 				str_downloadHash = data.hash_,	// 下载停留点的hash参数
-				str_msg = '';
+				str_msg = ''.
+				arr_calboxData = [];
 				
 			if ( locLength <= 0) {
 				if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
@@ -199,10 +200,13 @@ function fn_trackQuery() {
 				for ( var x = 0; x < locLength; x++ ) {
 					arr_locations[x].alias = str_alias;
 					arr_locations[x].tid = str_tid;
+					arr_calboxData.push(dlf.fn_createMapPoint(arr_locations.clongitude, arr_locations.clatitude));
 				}
 				arr_dataArr = arr_locations;
 				
-				dlf.fn_caculateBox(arr_locations);
+				//dlf.fn_caculateBox(arr_locations);
+				$('#trackHeader').data('points', arr_calboxData);
+				dlf.fn_setOptionsByType('viewport', arr_calboxData);
 				fn_startDrawLineStatic(arr_locations);
 			}
 		} else if ( data.status == 201 ) {	// 业务变更

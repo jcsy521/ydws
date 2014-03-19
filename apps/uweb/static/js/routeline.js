@@ -271,7 +271,8 @@ window.dlf.fn_detailRouteLine = function(n_id) {
 		arr_stationPoints.push(obj_stationPoint);
 	}
 	// 重构数据并显示计算盒子数据
-	dlf.fn_caculateBox(obj_stations);
+	//dlf.fn_caculateBox(obj_stations);
+	dlf.fn_setOptionsByType('viewport', arr_stationPoints);
 	dlf.fn_createPolyline(arr_stationPoints);
 	//添加线上的标记
 }

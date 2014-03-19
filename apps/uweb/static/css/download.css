@@ -122,7 +122,7 @@ body {
 	line-height: 20px;
 }
 .descText li {
-	list-style: none;
+	list-style: decimal;
 	margin-bottom: 8px;
 }
 

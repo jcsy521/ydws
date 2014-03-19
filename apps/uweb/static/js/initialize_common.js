@@ -8,7 +8,6 @@
 * currentLastInfo: 动态更新的定时器对象
 * str_currentPersonalTid: 上次lastinfo的选中个人用户定位器tid
 * arr_infoPoint: 通过动态更新获取到的车辆数据进行轨迹显示
-* b_infoWindowStatus: 吹出框是否显示
 * obj_localSearch: 周边查询对象 
 * wakeupInterval： 唤醒定位器计时器
 * obj_polylines： 保存所有的开启追踪轨迹
@@ -31,7 +30,6 @@ var mapObj = null,
 	viewControl = null,
 	currentLastInfo = null,
 	arr_infoPoint = [],
-	b_infoWindowStatus = true,
 	obj_localSearch = null,
 	wakeupInterval = null,
 	trackInterval  = null,
@@ -642,7 +640,8 @@ window.dlf.fn_getCarData = function(str_flag) {
 					
 					if ( n_clon != 0 && n_clat != 0 ) {
 						n_pointNum ++;
-						arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
+						//arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
+						arr_locations.push(dlf.fn_createMapPoint(n_enClon, n_enClat));
 						dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
 						
 						if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
@@ -654,7 +653,11 @@ window.dlf.fn_getCarData = function(str_flag) {
 				}
 			}
 			if ( str_flag == 'first' && arr_locations.length > 0 ) {
-				dlf.fn_caculateBox(arr_locations, 'lastinfo');
+				//dlf.fn_caculateBox(arr_locations, 'lastinfo');
+				dlf.fn_setOptionsByType('viewport', arr_locations);
+				setTimeout(function() { // 首次执行lastinfo进行地图位置调整
+					mapObj.setZoom(mapObj.getZoom()-2);
+				}, 200);
 			}
 			
 			$('.j_carList').data('carsData', obj_tempData);
