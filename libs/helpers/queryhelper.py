@@ -3,7 +3,7 @@
 from utils.misc import get_terminal_info_key, get_lq_sms_key,\
      get_location_key, get_login_time_key, get_activation_code
 from utils.dotdict import DotDict
-from constants import GATEWAY, EVENTER
+from constants import GATEWAY, EVENTER, UWEB
 
 class QueryHelper(object):
     """A bunch of samll functions to get one attribute from another
@@ -343,3 +343,29 @@ class QueryHelper(object):
                          tmobile)
         biz_type = terminal.get('biz_type', None) if terminal else None
         return biz_type
+
+    @staticmethod
+    def get_version_info_by_category(category, db): 
+        version_info = db.get("SELECT versioncode, versionname, versioninfo, updatetime, filesize, filename"
+                              "  FROM T_APK"
+                              "  WHERE category = %s"
+                              "  ORDER BY id DESC LIMIT 1",
+                              category)
+        if version_info:
+            version_info['filesize'] = '%sM' % version_info['filesize']
+            version_info['filepath'] = '/static/apk/' + version_info['filename']
+
+        return version_info
+
+    @staticmethod
+    def get_service_status_by_tmobile(db, mobile): 
+        service_status = UWEB.SERVICE_STATUS.ON
+        biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, db)
+        if biz_type == UWEB.BIZ_TYPE.YDWQ: 
+            terminal = db.get("SELECT tid, mobile FROM T_TERMINAL_INFO"
+                              "  WHERE mobile = %s"
+                              "  AND biz_type = %s LIMIT 1",
+                              mobile, UWEB.BIZ_TYPE.YDWQ)
+            if terminal['tid'] == mobile:
+                service_status = UWEB.SERVICE_STATUS.TO_BE_ACTIVATED
+        return service_status
