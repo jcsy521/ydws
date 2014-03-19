@@ -15,7 +15,8 @@ import tornado.web
 from utils.dotdict import DotDict
 from utils.public import record_add_action, delete_terminal
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key, \
+    get_tid_from_mobile_ydwq
 from constants import UWEB, GATEWAY
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.smshelper import SMSHelper
@@ -267,7 +268,7 @@ class BatchJHHandler(BaseHandler):
                 record_add_action(tmobile, gid, int(time.time()), self.db)
 
                 if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
-                    tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
+                    t_id = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
                                           "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit)"
                                           "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                           tmobile, tmobile, gid, umobile, 
@@ -277,15 +278,16 @@ class BatchJHHandler(BaseHandler):
                     ret = SMSHelper.send_to_terminal(tmobile, register_sms)
                 else:
                     activation_code = QueryHelper.get_activation_code(self.db)
-                    tid = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
+                    tid = get_tid_from_mobile_ydwq(tmobile)
+                    t_id = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
                                           "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit,"
-                                          "  biz_type, activation_code)"
-                                          "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                          tmobile, tmobile, gid, umobile, 
+                                          "  biz_type, activation_code, service_status)"
+                                          "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                          tmobile, tid, gid, umobile, 
                                           UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
                                           begintime, endtime, begintime, 0,
-                                          biz_type, activation_code)
-                    register_sms = SMSCode.SMS_REGISTER_YDWQ % (umobile, activation_code)
+                                          biz_type, activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
+                    register_sms = SMSCode.SMS_REGISTER_YDWQ % (activation_code)
                     ret = SMSHelper.send(tmobile, register_sms)
 
                 ret = DotDict(json_decode(ret))
@@ -293,7 +295,7 @@ class BatchJHHandler(BaseHandler):
                     self.db.execute("UPDATE T_TERMINAL_INFO"
                                     "  SET msgid = %s"
                                     "  WHERE id = %s",
-                                    ret['msgid'], tid)
+                                    ret['msgid'], t_id)
                 else:
                     r['status'] = ErrorCode.FAILED 
                     
@@ -313,7 +315,8 @@ class BatchJHHandler(BaseHandler):
                                     "  VALUES(%s)",
                                     umobile)
                 res.append(r)
-            self.write_ret(status, dict_=DotDict(res=res))
+            self.write_ret(status, 
+                           dict_=DotDict(res=res))
         except Exception as e:
             logging.exception("[UWEB] cid: %s batch jh failed. Exception: %s",
                               self.current_user.cid, e.args)

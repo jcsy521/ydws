@@ -19,6 +19,7 @@ from helpers.downloadhelper import get_version_info,\
      update_download_count, get_download_count
 from helpers.smshelper import SMSHelper
 from helpers.confhelper import ConfHelper
+from helpers.queryhelper import QueryHelper
 from constants import DOWNLOAD
 
 from base import BaseHandler, authenticated
@@ -30,30 +31,38 @@ class DownloadHandler(BaseHandler):
     #@authenticated
     @tornado.web.removeslash
     def get(self):
-       # """Download apk for android."""
-       # status = ErrorCode.SUCCESS
-       # logging.info("Androdid client download request.")
-       # # TODO: here, just handle android
-       # version_info = get_version_info('android')
-       # category = self.get_argument('category', '2')
-       # versionname = self.get_argument('versionname', version_info.versionname)
-       # update_download_count(category, self.db)
+        #"""Download apk for android."""
+        #status = ErrorCode.SUCCESS
+        #logging.info("Androdid client download request.")
+        ## TODO: here, just handle android
+        #version_info = get_version_info('android')
+        #category = self.get_argument('category', '2')
+        #versionname = self.get_argument('versionname', version_info.versionname)
+        #update_download_count(category, self.db)
 
-       # url = "/static/download/ACB_"+versionname+".apk#mp.weixin.qq.com"
-       # self.redirect(url)
+        #url = "/static/download/ACB_"+versionname+".apk#mp.weixin.qq.com"
+        #self.redirect(url)
 
-        category = self.get_argument('category', '2')
-        version_info = get_version_info('android')
-        download_info = get_download_count(category, self.db)
-        update_download_count(category, self.db)
-
-        self.render('android_weixin.html',
-                    versioncode=version_info.versioncode,
-                    versionname=version_info.versionname,
-                    versioninfo=version_info.versioninfo,
-                    updatetime=version_info.updatetime,
-                    filesize=version_info.filesize,
-                    count=download_info.count)
+        category = int(self.get_argument('category', 2))
+        if category ==2: # ydws
+            version_info = get_version_info('android')
+            download_info = get_download_count(category, self.db)
+            update_download_count(category, self.db)
+            self.render('android_weixin.html',
+                        versioncode=version_info.versioncode,
+                        versionname=version_info.versionname,
+                        versioninfo=version_info.versioninfo,
+                        updatetime=version_info.updatetime,
+                        filesize=version_info.filesize,
+                        count=download_info.count)
+        elif category == 3: # ydwq_monitor
+            version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWQ_MONITOR, self.db)
+            url = "/static/apk/"+version_info['filename']
+            self.redirect(url)
+        elif category == 4: # ydwq_monitored
+            version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWQ_MONITORED, self.db)
+            url = "/static/apk/"+version_info['filename']
+            self.redirect(url)
 
 class DownloadTerminalHandler(BaseHandler):
 

@@ -44,31 +44,37 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                         terminals.append(DotDict(tid=tid))
                     else:
                         logging.exception("[UWEB] tid: %s can not be found.", 
-                        tid)
+                                          tid)
             else:
                 if self.current_user.oid != UWEB.DUMMY_OID: # operator,Note: operator also has cid, so we check oid firstly.
                     groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
                     gids = [g.group_id for g in groups]
                     terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                              "  WHERE service_status = %s"
+                                              "  WHERE (service_status = %s"
+                                              "         OR service_status = %s)"
                                               "    AND group_id IN %s"
                                               "    ORDER BY LOGIN DESC",
-                                              UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+                                              UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                              tuple(DUMMY_IDS + gids))
                 elif self.current_user.cid != UWEB.DUMMY_CID: # Corp 
                     groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
                     gids = [g.gid for g in groups]
                     terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                              "  WHERE service_status = %s"
+                                              "  WHERE (service_status = %s"
+                                              "         OR service_status = %s)"
                                               "    AND group_id IN %s"
                                               "    ORDER BY LOGIN DESC",
-                                              UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+                                              UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                              tuple(DUMMY_IDS + gids))
                 else : # individual user
                     terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                              "  WHERE service_status = %s"
+                                              "  WHERE (service_status = %s"
+                                              "         OR service_status = %s)"
                                               "    AND owner_mobile = %s"
                                               "    AND login_permit = 1"
                                               "    ORDER BY login DESC",
-                                              UWEB.SERVICE_STATUS.ON, self.current_user.uid)
+                                              UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                              self.current_user.uid)
 
             tids = [terminal.tid for terminal in terminals]
             for tid in tids:
@@ -80,6 +86,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
 
                 # 1: get terminal info 
                 terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
+                mobile = terminal['mobile']
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
 
@@ -96,8 +103,10 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                 if location and location['name'] is None:
                     location['name'] = location['name'] if location['name'] else ''
 
-                avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
+                avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(mobile)
+                service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
                 car_info=dict(defend_status=terminal['defend_status'] if terminal.get('defend_status', None) is not None else 1,
+                              service_status=service_status,
                               mannual_status=terminal['mannual_status'] if terminal.get('mannual_status', None) is not None else 1,
                               fob_status=terminal['fob_status'] if terminal.get('fob_status', None) is not None else 0,
                               timestamp=location['timestamp'] if location else 0,

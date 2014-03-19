@@ -39,6 +39,10 @@ USER_TYPE=DotDict(PERSON='individual',
                   CORP='enterprise',
                   OPERATOR='operator')
 
+APK_TYPE=DotDict(YDWS=1,
+                 YDWQ_MONITOR=2,
+                 YDWQ_MONITORED=3)
+
 GROUP_TYPE=DotDict(BUILTIN=0,
                    NEW=1)
 
@@ -86,7 +90,8 @@ LOCATE_FLAG=DotDict(GPS=0,
 
 SERVICE_STATUS=DotDict(OFF=0,
                        ON=1,
-                       TO_BE_UNBIND=2)
+                       TO_BE_UNBIND=2,
+                       TO_BE_ACTIVATED=3)
 
 
 TERMINAL_INFO_CATEGORY=DotDict(R=u'r',
@@ -100,7 +105,8 @@ TERMINAL_CATEGORY = DotDict(ESPECIAL_GPS_TERMINAL=1,
 
 UPLOAD_CATEGORY = DotDict(HEARTBEAT=0,
                           LOCATION=1, 
-                          POWER=2)
+                          POWER=2,
+                          ATTENDANCE=3)
 
 # the interval of query event, track, event: one week. in seconds.
 QUERY_INTERVAL = 7 * 24 * 60 * 60

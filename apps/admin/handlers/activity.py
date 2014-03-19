@@ -31,10 +31,14 @@ class ActivityHandler(BaseHandler):
             title = self.get_argument('title', '')
             begintime = self.get_argument('begintime', 0)
             endtime = self.get_argument('endtime', 0)
-            upload_file = self.request.files['fileupload'][0]
-            filename = safe_utf8(upload_file['filename'])
+            html_name = self.get_argument('html_name', '')
+            filename = ''
+            if self.request.files:
+                upload_file = self.request.files['fileupload'][0]
+                filename = safe_utf8(upload_file['filename'])
         except Exception as e:
-            logging.info("[ADMIN] Script upload failed, exception:%s", e.args)
+            logging.exception("[ADMIN] Script upload failed, exception:%s", 
+                              e.args)
             status = ErrorCode.FAILED 
             self.write_ret(status) 
             return
@@ -42,31 +46,33 @@ class ActivityHandler(BaseHandler):
         try:
             status = ErrorCode.SUCCESS 
             # check filename whether contains illegal character
-            if not check_filename(filename):
-                status = ErrorCode.ACTIVITY_NAME_ILLEGAL
-                self.write_ret(status) 
-                logging.info("[ADMIN] filename: %s, Message: %s", 
-                             filename, ErrorCode.ERROR_MESSAGE[status])
-                return
-
-            # check filename whether exists
-            files = os.listdir(ACTIVITY_DIR_)
-            for file in files:
-                if file == filename:
-                    status = ErrorCode.ACTIVITY_EXISTED
+            if filename:
+                if not check_filename(filename):
+                    status = ErrorCode.ACTIVITY_NAME_ILLEGAL
+                    self.write_ret(status) 
                     logging.info("[ADMIN] filename: %s, Message: %s", 
                                  filename, ErrorCode.ERROR_MESSAGE[status])
-                    self.write_ret(status) 
                     return
 
-            self.db.execute("INSERT INTO T_ACTIVITY(title, filename, begintime, endtime, author)"
-                            "VALUES(%s, %s, %s, %s, %s)",
-                            title, filename, begintime, endtime, author)
-            file_path = os.path.join(ACTIVITY_DIR_, filename)
-            logging.info("[ADMIN] Upload path: %s", file_path)
-            output_file = open(file_path, 'w')
-            output_file.write(upload_file['body'])
-            output_file.close()
+                # check filename whether exists
+                files = os.listdir(ACTIVITY_DIR_)
+                for file in files:
+                    if file == filename:
+                        status = ErrorCode.ACTIVITY_EXISTED
+                        logging.info("[ADMIN] filename: %s, Message: %s", 
+                                     filename, ErrorCode.ERROR_MESSAGE[status])
+                        self.write_ret(status) 
+                        return
+
+                file_path = os.path.join(ACTIVITY_DIR_, filename)
+                logging.info("[ADMIN] Upload path: %s", file_path)
+                output_file = open(file_path, 'w')
+                output_file.write(upload_file['body'])
+                output_file.close()
+
+            self.db.execute("INSERT INTO T_ACTIVITY(title, filename, begintime, endtime, author, html_name)"
+                            "VALUES(%s, %s, %s, %s, %s, %s)",
+                            title, filename, begintime, endtime, author, html_name)
             logging.info("[ADMIN] %s upload %s file success.", author, filename)
             self.write_ret(status) 
         except Exception as e:
@@ -109,8 +115,8 @@ class ActivityListHandler(BaseHandler):
     def post(self):
         status = ErrorCode.SUCCESS
         try:
-            res = self.db.query("SELECT id, title, filename, begintime, endtime, author" 
-                                "  FROM T_ACTIVITY ORDER BY begintime ")
+            res = self.db.query("SELECT id, title, filename, begintime, endtime, author, html_name" 
+                                "  FROM T_ACTIVITY ORDER BY begintime")
             self.write_ret(status=status, 
                            dict_=DotDict(res=res))
         except Exception as e:

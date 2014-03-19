@@ -73,7 +73,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                                       self.current_user.tid)
 
             # 3: car
-            car = self.db.get("SELECT cnum corp_cnum FROM T_CAR"
+            car = self.db.get("SELECT cnum AS corp_cnum FROM T_CAR"
                               "  WHERE tid = %s",
                               self.current_user.tid)
 
@@ -356,14 +356,14 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                                 "  defend_status, mannual_status, begintime, endtime, offline_time, "
                                 "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
-                                "  activation_code)"
-                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  activation_code, service_status)"
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 tid, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
                                 UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, 
                                 data.login_permit, data.push_status,
                                 data.vibl, use_scene, biz_type,
-                                activation_code)
-                register_sms = SMSCode.SMS_REGISTER_YDWQ % (umobile, activation_code)
+                                activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
+                register_sms = SMSCode.SMS_REGISTER_YDWQ % ( activation_code)
                 ret = SMSHelper.send(data.tmobile, register_sms)
 
                 self.db.execute("INSERT INTO T_CAR(tid, cnum)"

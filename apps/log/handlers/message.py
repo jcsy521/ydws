@@ -95,6 +95,11 @@ class MessageHandler(BaseHandler):
                     SMSHelper.send_to_terminal(tmobile,content)
                     self.write_ret(status)              
 
+                elif sms_type == 'DW':
+                    content = ':' + sms_type
+                    SMSHelper.send_to_terminal(tmobile,content)
+                    self.write_ret(status)              
+
                 elif sms_type == 'UPDATE':
                     content = ':' + sms_type
                     SMSHelper.send_update_to_terminal(tmobile,content)

@@ -238,6 +238,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                     terminal['gsm'] =  terminal_cache['gsm']
                     terminal['pbat'] =  terminal_cache['pbat']
 
+                mobile = terminal['mobile'] 
                 terminal['keys_num'] = 0
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
@@ -260,7 +261,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                 if location and location['name'] is None:
                     location['name'] = ''
 
-                avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(tid)
+                avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile)
 
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
@@ -383,6 +384,7 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                 terminal['gsm'] =  terminal_cache['gsm']
                 terminal['pbat'] =  terminal_cache['pbat']
 
+            mobile = terminal['mobile']
             terminal['keys_num'] = 0
             if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                 terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
@@ -406,7 +408,7 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                 location['name'] = ''
 
 
-            avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(tid) 
+            avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile) 
 
             car_dct = {}
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
@@ -540,6 +542,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                     terminal['gsm'] =  terminal_cache['gsm']
                     terminal['pbat'] =  terminal_cache['pbat']
 
+                mobile = terminal['mobile']
                 terminal['keys_num'] = 0
                 if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                     terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
@@ -562,7 +565,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                 if location and location['name'] is None:
                     location['name'] = ''
 
-                avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(tid)
+                avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile)
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -692,6 +695,7 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                 terminal['gsm'] =  terminal_cache['gsm']
                 terminal['pbat'] =  terminal_cache['pbat']
 
+            mobile = terminal['mobile']
             terminal['keys_num'] = 0
             if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
                 terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
@@ -715,7 +719,7 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                 location['name'] = ''
 
 
-            avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(tid)
+            avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile)
             car_dct = {}
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                           mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,

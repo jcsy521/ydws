@@ -32,6 +32,7 @@ class ApkHandler(BaseHandler):
             versionname = self.get_argument('versionname', '')
             versioninfo = self.get_argument('versioninfo', '')
             updatetime = self.get_argument('updatetime', '')
+            category = self.get_argument('category', '')
             filesize = self.get_argument('filesize', '')
             upload_file = self.request.files['fileupload'][0]
             filename = safe_utf8(upload_file['filename'])
@@ -50,11 +51,21 @@ class ApkHandler(BaseHandler):
                              filename, ErrorCode.ERROR_MESSAGE[status])
                 return
 
-            self.db.execute("INSERT INTO T_APK(versioncode, versionname, versioninfo, updatetime, filesize, author)"
-                            "VALUES(%s, %s, %s, %s, %s, %s)",
-                            versioncode, versionname, versioninfo, updatetime, filesize, author)
-                            
-            filename = 'YDWQ_%s.apk' % versionname
+            if category == UWEB.APK_TYPE.YDWS: 
+                filename_ = 'ACB_%s.apk' 
+            elif category == UWEB.APK_TYPE.YDWQ_MONITOR: 
+                filename_ = 'YDWQ_monitor_%s.apk' 
+            elif category == UWEB.APK_TYPE.YDWQ_MONITORED:
+                filename_ = 'YDWQ_monitored_%s.apk' 
+
+            filename = filename_ % versionname
+
+            self.db.execute("INSERT INTO T_APK(versioncode, versionname, versioninfo,"
+                            "  updatetime, filesize, author, category, filename) "
+                            "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s)",
+                            versioncode, versionname, versioninfo, updatetime, 
+                            filesize, author, category, filename)
+
             file_path = os.path.join(APK_DIR_, filename)
             logging.info("[ADMIN] Upload path: %s", file_path)
             output_file = open(file_path, 'w')

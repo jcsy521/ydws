@@ -5,6 +5,7 @@ import logging
 import tornado.web
 
 from helpers.downloadhelper import get_version_info 
+from helpers.queryhelper import QueryHelper 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from base import BaseHandler
@@ -15,7 +16,17 @@ class CheckUpdateAndroidHandler(BaseHandler):
     def get(self):
         status = ErrorCode.SUCCESS
         try:
-            version_info = get_version_info("android")
+            category = int(self.get_argument('category', UWEB.APK_TYPE.YDWS))
+            if category == UWEB.APK_TYPE.YDWS:
+                version_info = get_version_info("android")
+            elif category == UWEB.APK_TYPE.YDWQ_MONITOR:
+                version_info = QueryHelper.get_version_info_by_category(category, self.db)
+            elif category == UWEB.APK_TYPE.YDWQ_MONITORED:
+                version_info = QueryHelper.get_version_info_by_category(category, self.db)
+            else:
+                logging.info("[UWEB] Invalid category: %s",
+                             category)
+
             self.write_ret(status,
                            dict_=DotDict(version_info=version_info)) 
         except Exception as e:

@@ -358,11 +358,12 @@ def get_date_from_utc(timestamp):
 
 def get_tid_from_mobile_ydwq(mobile):
     """Get tid according tid in ydwq.
-    tid is the reverse of mobile.
     """
-    tid = ''
-    if mobile:
-        tid = mobile[::-1]
+    #tid = ''
+    #if mobile:
+    #    tid = mobile[::-1]
+
+    tid = mobile
     return tid
 
 def get_md5(body): 

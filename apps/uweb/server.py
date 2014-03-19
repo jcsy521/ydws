@@ -106,6 +106,7 @@ from handlers.clientbindmobile import ClientCaptchaHandler, BindMobileHandler
 from handlers.clientsync import SyncHandler
 from handlers.avatar import AvatarHandler
 from handlers.upload import UploadHandler
+from handlers.attendance import AttendanceHandler
 from handlers.bind import BindHandler
 
 
@@ -227,8 +228,11 @@ class Application(tornado.web.Application):
             (r"/ios/bindmobile/*", BindMobileHandler),
             (r"/ios/sync/*", SyncHandler),
             (r"/zfjsyncer/*", ZFJSyncerHandler),
+
             (r"/avatar/*", AvatarHandler),
             (r"/upload/*", UploadHandler),
+            (r"/attendance/*", AttendanceHandler),
+
             # for wap
             (r"/wapimg/*", WapImgHandler),
 

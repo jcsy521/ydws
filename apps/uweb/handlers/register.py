@@ -109,6 +109,9 @@ class RegisterHandler(BaseHandler):
                     if ret.status == ErrorCode.SUCCESS:
                         logging.info("[UWEB] umobile: %s, tmobile: %s regist successfully.",
                                      umobile, tmobile)
+                        logging.info("[UWEB] captcha_key: %s, captcha: %s is removed.",
+                                     captcha_key, captcha_old)
+                        self.redis.delete(captcha_key)
                     else:
                         status = ErrorCode.REGISTER_FAILED
                         logging.error("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
@@ -155,7 +158,7 @@ class ReRegisterHandler(BaseHandler):
                     ret = SMSHelper.send_to_terminal(tmobile, register_sms)
                 else:
                     activation_code = QueryHelper.get_activation_code(self.db)
-                    register_sms = SMSCode.SMS_REGISTER_YDWQ %(umobile, activation_code)
+                    register_sms = SMSCode.SMS_REGISTER_YDWQ %(activation_code)
                     ret = SMSHelper.send(tmobile, register_sms)
 
                 ret = DotDict(json_decode(ret))
@@ -169,7 +172,6 @@ class ReRegisterHandler(BaseHandler):
             else: 
                 logging.exception("[UWEB] tmobile: %s has no user, ignore it. ", 
                                   tmobile)
-                pass
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] tmobile: %s reregister failed, Exception: %s", 

@@ -76,19 +76,19 @@ class BindHandler(BaseHandler, AvatarMixin):
             self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                             "  defend_status, mannual_status, begintime, endtime, offline_time, "
                             "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
-                            "  activation_code)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            "  activation_code, service_status)"
+                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                             tid, group_id, tmobile, umobile, UWEB.DEFEND_STATUS.NO,
                             UWEB.DEFEND_STATUS.NO, begintime, endtime,
                             begintime, cnum, 0, 1, 1,
                             1, 3, UWEB.BIZ_TYPE.YDWQ,
-                            activation_code)
+                            activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
             self.db.execute("INSERT INTO T_CAR(tid, cnum)"
                             "  VALUES(%s, %s)",
                             tid, cnum)
-            avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tid)
+            avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tmobile)
 
-            register_sms = SMSCode.SMS_REGISTER_YDWQ % (umobile, activation_code)
+            register_sms = SMSCode.SMS_REGISTER_YDWQ % (activation_code)
             ret = SMSHelper.send(tmobile, register_sms)
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:
@@ -98,16 +98,16 @@ class BindHandler(BaseHandler, AvatarMixin):
                                 ret['msgid'], tmobile)
 
                 if avatar:
-                    avatar_name = tid + '.png'
+                    avatar_name = tmobile + '.png'
                     avatar_path = self.application.settings['avatar_path'] + avatar_name
                     avatar_full_path = self.application.settings['server_path'] + avatar_path
 
                     img = open(avatar_full_path, 'w')
                     img.write(avatar)
                     img.close()
-                    avatar_time = self.update_avatar_time(tid)
-                    logging.info("[BIND] avatar_time: %s, tid: %s, user: %s",
-                                 avatar_time, tid, self.current_user.cid)
+                    avatar_time = self.update_avatar_time(tmobile)
+                    logging.info("[BIND] avatar_time: %s, tmobile: %s, user: %s",
+                                 avatar_time, tmobile, self.current_user.cid)
                 else:
                     logging.error("[BIND] Termianl: %s has no avatar.",
                                   tmobile)

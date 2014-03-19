@@ -9,7 +9,7 @@ from tornado.escape import json_decode, json_encode
 
 from utils.misc import DUMMY_IDS
 from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_tid_from_mobile_ydwq
 from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
 from checker import check_privileges 
@@ -405,14 +405,15 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                 activation_code = QueryHelper.get_activation_code(self.db) 
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                                 "  begintime, endtime, offline_time, login_permit,"
-                                "  biz_type, activation_code)"
-                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  biz_type, activation_code, service_status)"
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 tid, gid,
                                 fields.tmobile, user_mobile,
                                 fields.begintime, fields.endtime,
-                                fields.begintime, 0, biz_type, activation_code) 
+                                fields.begintime, 0, biz_type,
+                                activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED) 
 
-                register_sms = SMSCode.SMS_REGISTER_YDWQ % (user_mobile, activation_code)
+                register_sms = SMSCode.SMS_REGISTER_YDWQ % (activation_code)
                 ret = SMSHelper.send(fields.tmobile, register_sms)
 
                 self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"

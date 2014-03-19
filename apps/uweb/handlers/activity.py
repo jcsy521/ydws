@@ -19,17 +19,22 @@ class ActivityHandler(BaseHandler):
             res = []
             timestamp = self.get_argument('timestamp', None)
             if timestamp is None:
-                res = self.db.query("SELECT title, begintime, endtime, filename"
+                res = self.db.query("SELECT title, begintime, endtime, filename, html_name"
                                     "  FROM T_ACTIVITY"
-                                    "  ORDER BY begintime LIMIT 1")
+                                    "  ORDER BY begintime DESC LIMIT 1")
             else:
-                res = self.db.query("SELECT title, begintime, endtime, filename"
+                res = self.db.query("SELECT title, begintime, endtime, filename, html_name"
                                     "  FROM T_ACTIVITY"
                                     "  WHERE begintime > %s",
                                     timestamp)
             for r in res:
-                r['filepath'] = self.application.settings['activity_path'] + r['filename']
+                if r['filename']:
+                    r['filepath'] = self.application.settings['activity_path'] + r['filename']
+                else:
+                    r['filepath'] = ''
+                r['url'] = r['html_name']
                 del r['filename']
+                del r['html_name']
             self.write_ret(status,
                            dict_=DotDict(res=res))
         except Exception as e:

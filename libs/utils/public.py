@@ -263,3 +263,8 @@ def update_terminal_status(redis, tid, address='DUMMY_ADDRESS'):
     terminal_status_key = get_terminal_address_key(tid)
     redis.setvalue(terminal_status_key, address, GATEWAY.YDWQ_HEARTBEAT_INTERVAL) # 30 minuts
 
+def record_attendance(db, a_info):
+    db.execute("INSERT INTO T_ATTENDANCE(mobile, comment, timestamp, lid)"
+               "  VALUES(%s, %s, %s, %s)",
+               a_info['mobile'], a_info['comment'], a_info['timestamp'], a_info['lid'])
+

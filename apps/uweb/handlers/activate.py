@@ -42,6 +42,13 @@ class ActivateHandler(BaseHandler):
                              activation_code)
                 self.write_ret(status)
             else:
+                if terminal['service_status'] != UWEB.SERVICE_STATUS.ON:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET service_status = %s"
+                                    "  WHERE activation_code = %s",
+                                    UWEB.SERVICE_STATUS.ON, activation_code)
+                    logging.info("[UWEB] activation_code: %s, mobile: %s is authorized.",
+                                 activation_code, terminal['mobile'])
                 self.write_ret(status,
                                dict_=DotDict(mobile=terminal.mobile))
         except Exception as e:

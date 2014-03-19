@@ -27,8 +27,7 @@ class OwnerserviceHandler(BaseHandler):
                 car_type = car['car_type']
                 if umobile and cnum:
                     self.db.execute("INSERT INTO T_OWNERSERVICE(umobile, cnum, add_time, car_type)"
-                                    "VALUES(%s,%s,%s,%s)", umobile, cnum, add_time, car_type
-                                    )
+                                    "VALUES(%s,%s,%s,%s)", umobile, cnum, add_time, car_type)
 
             self.write_ret(status=status)
             # if status= 201?
