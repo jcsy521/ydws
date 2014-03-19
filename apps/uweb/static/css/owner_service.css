@@ -70,8 +70,10 @@ body {
     position: relative;
     top: 4px;
 }
+.content_title, #userDataSaveBtn, #userDataResetBtn, #userData_register {
+	background: url('/static/images/common_ownerservice.png') repeat-x;
+}
 .content_title {
-	background: none repeat scroll 0 0 #1C94C4;
     color: #FFFFFF;
     font-size: 18px;
     font-weight: bold;
