@@ -5,6 +5,8 @@ import hashlib
 import logging
 import time
 from os import SEEK_SET
+import xlwt
+from cStringIO import StringIO
 
 import tornado.web
 
@@ -29,9 +31,7 @@ class OwnerServiceHandler(BaseHandler, OwnerServiceMixin):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        username = self.get_current_user()
         self.render('activity/ownerservice.html',
-                    username=username,
                     interval='',
                     res=[],
                     hash_='')
@@ -45,7 +45,6 @@ class OwnerServiceHandler(BaseHandler, OwnerServiceMixin):
             start_time = self.get_argument('start_time', 0)
             end_time = self.get_argument('end_time', 0)
             interval = [start_time, end_time]
-            print(start_time, end_time)
             sql = "SELECT umobile, cnum, car_type,  add_time FROM T_OWNERSERVICE where add_time < %s" \
                   " AND add_time > %s"
 
@@ -95,9 +94,6 @@ class OwnerServiceDownloadHandler(BaseHandler, OwnerServiceMixin):
         if not results:
             self.render("error/download.html")
             return
-
-        import xlwt
-        from cStringIO import StringIO
 
         filename = OwnerService_FILE_NAME
         wb = xlwt.Workbook()

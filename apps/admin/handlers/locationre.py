@@ -6,6 +6,8 @@ import time
 from os import SEEK_SET
 from datetime import date
 from calendar import monthrange
+import xlwt
+from cStringIO import StringIO
 
 import tornado.web
 from tornado.escape import json_decode
@@ -89,18 +91,14 @@ class LocationSearchHandler(BaseHandler, LocationMixin):
                                 locate_error=ret.get('locate_error', None),
                                 cellid=ret.get('cellid', None))
                     res.append(_res)
-            try:
+
                 m = hashlib.md5()
                 m.update(self.request.body)
                 hash_ = m.hexdigest()
                 mem_key = self.get_memcache_key(hash_)
                 self.redis.setvalue(mem_key, res, time=self.MEMCACHE_EXPIRY)
-            except Exception as e:
-                print("can'\t store values in reids")
-                print 'exception', e.args
-                hash_ = ''
 
-            self.render('report/terminallocation.html',
+                self.render('report/terminallocation.html',
                         status=status,
                         res=res,
                         interval=interval,
@@ -123,9 +121,6 @@ class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
         if not results:
             self.render("error/download.html")
             return
-
-        import xlwt
-        from cStringIO import StringIO
 
         date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         filename = LOCATION_FILE_NAME

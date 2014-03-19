@@ -5,6 +5,8 @@ import logging
 import time
 from os import SEEK_SET
 import hashlib
+import xlwt
+from cStringIO import StringIO
 
 import tornado.web
 from tornado.escape import json_decode
@@ -52,12 +54,15 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
             if not retlist:
                 retlist = []
             for ret in retlist:
-            	_res = dict(op_type=ret.get('op_type',None) if ret.get('op_type', None) is not None else 0,
-                        mobile=mobile,
-                        add_time=ret.get('add_time'),
-                        del_time=ret.get('del_time')
-                        )
-            	res.append(_res)
+                if ret.get('op_type', None) is not None:
+                    op_type = ret.get('op_type', None)
+                else:
+                    op_type = 0
+                _res = dict(op_type=op_type,
+                            mobile=mobile,
+                            add_time=ret.get('add_time'),
+                            del_time=ret.get('del_time'))
+                res.append(_res)
 
             m = hashlib.md5()
             m.update(self.request.body)
@@ -91,9 +96,6 @@ class BindLogDownloadHandler(BaseHandler, BindLogMixin):
         if not results:
             self.render("error/download.html")
             return
-
-        import xlwt
-        from cStringIO import StringIO
 
         filename = BINDLOG_FILE_NAME
         date_syle = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
