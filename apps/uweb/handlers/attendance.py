@@ -98,6 +98,7 @@ class AttendanceHandler(BaseHandler):
                 
             # change the type form decimal to float.
             for r in res:
+                r['alias'] = QueryHelper.get_alias_by_tid(r['tid'], self.redis, self.db)
                 r['name'] = r['name'] if r['name'] is not None else u''
                 r['degree'] = float(r['degree'])
                 r['speed'] = float(r['speed'])

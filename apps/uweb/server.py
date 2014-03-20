@@ -281,7 +281,7 @@ class Application(tornado.web.Application):
             static_path=os.path.join(os.path.dirname(__file__), "static"),
             server_path=os.path.dirname(__file__),
             terminal_path="/static/terminal/",
-            activity_path="/static/activity/",
+            activity_path="/static/activity/pic/",
             avatar_path="/static/avatar/",
             cookie_secret="s8g1gVxKOiQoZptLRi2nSuXmiK2ThYJJBSHIUHnqoUw=",
             login_url="/login",

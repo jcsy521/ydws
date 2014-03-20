@@ -2,7 +2,7 @@
 
 import os
 import datetime, time
-ACTIVITY_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/activity"))
+ACTIVITY_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/activity/pic"))
 import logging
 
 import tornado.web
