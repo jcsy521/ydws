@@ -171,7 +171,7 @@ function fn_trackQuery() {
 			var arr_locations = data.track, 
 				locLength = arr_locations.length,
 				str_downloadHash = data.hash_,	// 下载停留点的hash参数
-				str_msg = ''.
+				str_msg = '',
 				arr_calboxData = [];
 				
 			if ( locLength <= 0) {
@@ -200,7 +200,7 @@ function fn_trackQuery() {
 				for ( var x = 0; x < locLength; x++ ) {
 					arr_locations[x].alias = str_alias;
 					arr_locations[x].tid = str_tid;
-					arr_calboxData.push(dlf.fn_createMapPoint(arr_locations.clongitude, arr_locations.clatitude));
+					arr_calboxData.push(dlf.fn_createMapPoint(arr_locations[x].clongitude, arr_locations[x].clatitude));
 				}
 				arr_dataArr = arr_locations;
 				
