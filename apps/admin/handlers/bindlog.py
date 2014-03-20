@@ -73,7 +73,8 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
             if len(res) == 0:
                 status = ErrorCode.TERMINAL_NOT_EXISTED
                 message = ErrorCode.ERROR_MESSAGE[status]
-                self.write_ret(status=status, message=message)
+                self.render('report/terminalbindlog.html',
+                            status=status, res=res, hash_=hash_, message=message)
             else:
                 self.render('report/terminalbindlog.html',
                             status=status, res=res, hash_=hash_)
@@ -92,7 +93,7 @@ class BindLogDownloadHandler(BaseHandler, BindLogMixin):
         mem_key = self.get_memcache_key(hash_)
         results = self.redis.getvalue(mem_key)
         if not results:
-            self.render("error/download.html")
+            self.render("errors/download.html")
             return
 
         filename = BINDLOG_FILE_NAME

@@ -70,14 +70,12 @@ class OwnerServiceHandler(BaseHandler, OwnerServiceMixin):
 
             if len(res) == 0:
                 status = ErrorCode.FAILED
-                message = ErrorCode.ERROR_MESSAGE[status]
-                self.write_ret(status=status, message=message)
-            else:
-                self.render('activity/ownerservice.html',
-                            status=status,
-                            interval=interval,
-                            res=res,
-                            hash_=hash_)
+
+            self.render('activity/ownerservice.html',
+                        status=status,
+                        interval=interval,
+                        res=res,
+                        hash_=hash_)
         except Exception as e:
             logging.exception("search owners fail")
             self.render('errors/error.html', message=ErrorCode.FAILED)
@@ -92,7 +90,7 @@ class OwnerServiceDownloadHandler(BaseHandler, OwnerServiceMixin):
         mem_key = self.get_memcache_key(hash_)
         results = self.redis.getvalue(mem_key)
         if not results:
-            self.render("error/download.html")
+            self.render("errors/download.html")
             return
 
         filename = OwnerService_FILE_NAME

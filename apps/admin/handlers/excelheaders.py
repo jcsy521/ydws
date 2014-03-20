@@ -173,7 +173,7 @@ BINDLOG_HEADER = (u"序号",
 LOCATION_FILE_NAME = u"位置查询表"
 LOCATION_SHEET = u"位置查询"
 LOCATION_HEADER = (u"序号",
-                   u"定位手机号",
+                   u"终端手机号",
                    u"终端序列号",
                    u"加密前纬度",
                    u"加密前经度",
@@ -182,16 +182,15 @@ LOCATION_HEADER = (u"序号",
                    u"位置描述",
                    u"定位时间",
                    u"定位方式",
-                   u"速度",
-                   u"定位误差",
-                   u"基站类型")
+                   u"速度（km/h）",
+                   u"定位误差(米)")
 
 OwnerService_FILE_NAME = u"车主服务预登记表"
 OwnerService_SHEET = u"预登记车主"
 OwnerService_HEADER = (u"序号",
-                     u"用户手机号",
-                     u"车牌号",
-                     u"车辆类型",
-                     u"登记时间")
+                       u"车主手机号",
+                       u"车牌号",
+                       u"车型",
+                       u"定制时间")
 
 

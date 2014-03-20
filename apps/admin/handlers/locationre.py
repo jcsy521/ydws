@@ -26,6 +26,7 @@ from myutils import city_list, start_of_month, end_of_month, start_end_of_month
 from mongodb.mlocation import MLocation, MLocationMixin
 from codes.errorcode import ErrorCode
 
+
 class LocationMixin(BaseMixin):
 
     KEY_TEMPLATE = "location_report_%s_%s"
@@ -67,10 +68,16 @@ class LocationSearchHandler(BaseHandler, LocationMixin):
 
             for t in tidlist:
                 tid = t.get('tid', None)
-                sql = ("SELECT tid, latitude, longitude, clatitude, "
-                       "clongitude, name, timestamp, type, speed, "
-                       "locate_error, cellid FROM T_LOCATION  WHERE tid ='%s'  AND "
-                       "timestamp <%s and timestamp >%s") % (tid, end_time, start_time)
+                if int(type) == 2:
+                    sql = ("SELECT tid, latitude, longitude, clatitude, "
+                           "clongitude, name, timestamp, type, speed, "
+                           "locate_error, cellid FROM T_LOCATION  WHERE tid = '%s' AND "
+                           "timestamp < %s and timestamp > %s ") % (tid, end_time, start_time)
+                else:
+                    sql = ("SELECT tid, latitude, longitude, clatitude, "
+                           "clongitude, name, timestamp, type, speed, "
+                           "locate_error, cellid FROM T_LOCATION  WHERE tid = '%s' AND "
+                           "timestamp < %s and timestamp > %s AND type = %s") % (tid, end_time, start_time, type)
 
                 retlist = self.db.query(sql)
                 if not retlist:
@@ -121,11 +128,13 @@ class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
         results = self.redis.getvalue(mem_key)
 
         if not results:
-            self.render("error/download.html")
+            self.render("errors/download.html")
             return
 
         date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         filename = LOCATION_FILE_NAME
+        base_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;')
+        gps_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
 
         wb = xlwt.Workbook()
         ws = wb.add_sheet(LOCATION_SHEET)
@@ -136,6 +145,12 @@ class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
 
         start_line += 1
         for i, result in zip(range(start_line, len(results) + start_line), results):
+            if int(result['type']) == 1:
+                position_type = u'基站定位'
+                stlye = base_style
+            else:
+                position_type = u'GPS定位'
+                stlye = gps_style
             ws.write(i, 0, i)
             ws.write(i, 1, result['mobile'])
             ws.write(i, 2, result['tid'])
@@ -144,11 +159,10 @@ class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
             ws.write(i, 5, result['clatitude']/3600000)
             ws.write(i, 6, result['clongitude']/3600000)
             ws.write(i, 7, result['name'])
-            ws.write(i, 8, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['timestamp'])))
-            ws.write(i, 9, result['type'])
+            ws.write(i, 8, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(result['timestamp'])))
+            ws.write(i, 9, position_type, stlye)
             ws.write(i, 10, result['speed'])
             ws.write(i, 11, result['locate_error'])
-            ws.write(i, 12, result['cellid'])
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)
