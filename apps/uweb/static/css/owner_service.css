@@ -28,10 +28,13 @@ body {
 	color: red;
 }
 #userMobile, .input_carnum {
-	padding: 10px;
+	padding: 12px;
+}
+#userMobile {
+	width: 220px;
 }
 #userInputTable select {
-	height: 36px;
+	height: 38px;
 }
 .panelSpace {
 	margin: 10px 0px;
@@ -47,39 +50,33 @@ body {
 .content_msgTip div {
 	margin-bottom: 5px;
 }
-#userDataSaveBtn, #userDataResetBtn, #userData_register {
-	background-color: #1c94c4;
+#userDataSaveBtn, #userDataResetBtn, #userData_register, #userCaridAdd {
+	background-color: #0b95cf;
     color: #ffffff;
-    padding: 10px 20px;
+    padding: 12px 20px;
     width: 144px;
 	border: none;
 	cursor: pointer;
 	text-align: center;
 	display: inline-block;
 	font-weight: bold;
+	border-radius: 5px;
 }
 #userData_register {
 	width: 214px;
 }
 #userCaridAdd {
-	background: url("/static/images/ownerservice_caradd.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
-    display: inline-block;
-    height: 16px;
-    width: 24px;
-	left: -14px;
-    position: relative;
-    top: 4px;
-}
-.content_title, #userDataSaveBtn, #userDataResetBtn, #userData_register {
-	background: url('/static/images/common_ownerservice.png') repeat-x;
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border: 1px solid #0b95cf;
+    color: #0b95cf;
+    width: 290px;
 }
 .content_title {
-    color: #FFFFFF;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     padding: 5px;
     text-align: center;
-	margin-bottom: 30px;
+	margin: 12px 0px 10px 0px;
 }
 .content_serviceIntroduce div, .content_successPanel {
 	margin: 6px;
