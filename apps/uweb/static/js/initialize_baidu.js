@@ -323,6 +323,9 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 		}
 		// 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪 todo
 		arr_openTids.push(str_tid);
+		
+		obj_selfItem.html(str_tempMsg);
+		obj_actionTrack[str_tid].status = str_tempAction;
 		if ( obj_selfMarker ) {
 			// obj_selfMarker.track = n_track;	// 存储第一次开启追踪、移除存储第一次开启追踪
 			/*obj_selfInfoWindow = obj_selfMarker.selfInfoWindow,  // 获取吹出框
@@ -333,11 +336,18 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 			obj_selfMarker.selfInfoWindow = obj_selfInfoWindow;*/
 			
 			// todo infowindow 追踪
+			var obj_carDatas = $('.j_carList').data('carsData'),
+				obj_tempCarData = obj_carDatas[str_tid],
+				obj_selfInfoWindow = obj_selfMarker.infoWindow,
+				str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 			
-			obj_selfmarkers[str_tid] = obj_selfMarker;
+			dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack');
+			if ( str_currentTid == str_tid ) {
+				if ( obj_selfInfoWindow ) {
+					obj_selfMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+				}
+			}
 		}
-		obj_selfItem.html(str_tempMsg);
-		obj_actionTrack[str_tid].status = str_tempAction;
 		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	}
 	if ( arr_openTids.length > 0 )  {

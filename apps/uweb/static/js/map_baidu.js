@@ -282,6 +282,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 				dlf.fn_createMapInfoWindow(obj_tempCarData, str_iconType);
 				this.openInfoWindow(obj_mapInfoWindow);
 				fn_infoWindowCloseShow();
+				dlf.fn_updateOpenTrackStatusColor(str_tid);
 				return;
 			} else {
 				if ( dlf.fn_userType() ) {
