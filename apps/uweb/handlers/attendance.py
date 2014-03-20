@@ -55,7 +55,7 @@ class AttendanceHandler(BaseHandler):
                 terminals = self.db.query("SELECT tmobile FROM V_TERMINAL"
                                           "  where cid = %s", 
                                           self.current_user.cid)
-                mobiles = [terminal['tmobile'] for terminal in terminals]
+                mobiles = [str(terminal['tmobile']) for terminal in terminals]
             logging.info("[UWEB] attendance request: %s, cid: %s", 
                          data, self.current_user.cid)
         except Exception as e:
@@ -76,28 +76,28 @@ class AttendanceHandler(BaseHandler):
             if page_count == -1:
                 sql = ("SELECT COUNT(*) as count FROM V_ATTENDANCE" 
                        "  WHERE mobile IN %s " 
-                       "    AND (timestamp BETWEEN %s AND %s)") % \
-                      (tuple(mobiles + DUMMY_IDS_STR), start_time, end_time)
+                       "    AND (timestamp BETWEEN %s AND %s)") 
+
+                sql = sql % (tuple(mobiles + DUMMY_IDS_STR), start_time, end_time)
                 res = self.db.get(sql)
                 event_count = res.count
                 d, m = divmod(event_count, page_size)
                 page_count = (d + 1) if m else d
 
             sql = ("SELECT tid, mobile, clatitude, clongitude," 
-                  "  timestamp, name, type, speed, degree,"
-                  "  pbat, locate_error"  
-                  "  FROM V_ATTENDANCE"
-                  "  WHERE mobile IN %s"
-                  "    AND (timestamp BETWEEN %s AND %s)"
-                  "  ORDER BY timestamp DESC"
-                  "  LIMIT %s, %s") % (tuple(tids + DUMMY_IDS_STR), start_time, end_time,
-                   page_number * page_size, page_size)
+                   "  timestamp, name, type, speed, degree,"
+                   "  locate_error"  
+                   "  FROM V_ATTENDANCE"
+                   "  WHERE mobile IN %s"
+                   "    AND (timestamp BETWEEN %s AND %s)"
+                   "  ORDER BY timestamp DESC"
+                   "  LIMIT %s, %s") 
+            sql = sql % (tuple(mobiles + DUMMY_IDS_STR), start_time, end_time, page_number * page_size, page_size)
+
             res = self.db.query(sql)
                 
             # change the type form decimal to float.
             for r in res:
-                r['pbat'] = r['pbat'] if r['pbat'] is not None else 0
-                r['fobid'] = r['fobid'] if r['fobid'] is not None else u''
                 r['name'] = r['name'] if r['name'] is not None else u''
                 r['degree'] = float(r['degree'])
                 r['speed'] = float(r['speed'])

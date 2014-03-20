@@ -65,18 +65,31 @@ class UploadHandler(BaseHandler):
                                        speed=location['speed'],
                                        degree=location['degree'],
                                        cellid='',
-                                       locate_error=location['locate_error'])
+                                       locate_error=int(location['locate_error']))
                     insert_location(location, self.db, self.redis)
             elif category == UWEB.UPLOAD_CATEGORY.ATTENDANCE:
                 location = locations[0] if len(locations) >= 1 else None
                 if location:
+                    location = DotDict(dev_id=tid,
+                                       lat=location['clatitude'],
+                                       lon=location['clongitude'],
+                                       alt=0,
+                                       cLat=location['clatitude'],
+                                       cLon=location['clongitude'],
+                                       gps_time=location['timestamp'],
+                                       name=location.get('name', ''),
+                                       category=1,
+                                       type=int(location['type']),
+                                       speed=location['speed'],
+                                       degree=location['degree'],
+                                       cellid='',
+                                       locate_error=int(location['locate_error']))
                     lid = insert_location(location, self.db, self.redis)
                     a_info=dict(mobile=mobile,
                                 comment=u'',
-                                timestamp=location['timestamp'],
+                                timestamp=location['gps_time'],
                                 lid=lid)
                     record_attendance(self.db, a_info)
-                    self.db.execute("insert into ")
                 else:
                     logging.error("[UWEB] Invalid attendance data, location is missed.")
             else: 
