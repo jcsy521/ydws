@@ -1812,10 +1812,10 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_clearAllMenu();
 				} else if ( str_who == 'notifyManageAdd' ) {
 					dlf.fn_setItemMouseStatus($('.j_notifyManageSaveBtn'), 'default', 'fs0');
-					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 					b_closeWrapper = false;
 					$('#text_notifyManageMsg').val('');
 					$('#notifyManageDataStDialog').dialog('close');
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}
