@@ -29,7 +29,7 @@ class SimulatorTerminalTest(object):
         """Provide some necessary info and create a socket.
         """
         self.tid = 'T123SIMULATOR' 
-        self.tmobile = '18310505991'
+        self.tmobile = '13011292217'
         self.imsi = '888823615223531'
         self.imei = '888888900872201'
 
