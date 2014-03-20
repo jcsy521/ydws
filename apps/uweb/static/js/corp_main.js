@@ -1087,7 +1087,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 	if ( arr_tracklist.length > 0 ) {
 		obj_param.track_lst = arr_tracklist;
 	}
-	$.post_(CORP_INCLASTINFO_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
+	$.post_(CORP_LASTINFO_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
 		$('.j_body').data('intervalkey', false);
 		 
 		if ( data.status == 0 ) {
