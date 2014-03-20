@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 import sys
 
 import os.path
@@ -38,7 +41,7 @@ def main():
     #content = 'SET GROUP 10657061119980'
     #content = 'SET SIM 18241879776'
     #content = 'SET HFCC'
-    content = 'SET QQ 1*qi*13941567890'
+    content = 'SET QQ 4*爸爸*13942132225'
 
     if options.send.lower() == 'all':
         send_all(content)

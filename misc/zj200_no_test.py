@@ -26,6 +26,9 @@ def block_test():
         ttype = get_terminal_type_by_tid(tid) 
         print 'ttype', ttype
         if ttype == 'zj200':
+            t = db.query("SELECT tid from T_TERMINAL_INFO where test !=0 and tid=%s", tid)  
+            if not t:
+                continue
             db.execute("UPDATE T_TERMINAL_INFO SET test=0 WHERE tid = %s", 
                        tid)
             print 'tid: %s test is closed.' % tid

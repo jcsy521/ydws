@@ -11,7 +11,8 @@ import logging
 from tornado.options import define, options, parse_command_line
 define('excel', default="")
 
-import xlrd
+import xlrd 
+import xlwt 
 
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
@@ -20,29 +21,41 @@ from db_.mysql import DBConnection
 
 def batch_import(file_path):
     db = DBConnection().db
+    online_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;')
+    offline_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
+
+    wt = xlwt.Workbook()   
+    ws = wt.add_sheet(u'jia') 
+
     wb = xlrd.open_workbook(file_path)
     sheet = wb.sheets()[0]
     lst = ""
     num = 0
-    for i in range(sheet.nrows):
+    for i in range(0,sheet.nrows):
         row = sheet.row_values(i)
-        mobile = unicode(row[0])
-        mobile = mobile[0:11]
-        umobile = unicode(row[1])
-        umobile = umobile[0:11]
-        if not check_phone(mobile):
-            print 'invalid mobile: ', mobile
-            continue
+        print 'roe', row
+        #mobile = unicode(row[0])[0:-2]
+        mobile = unicode(row[0])[0:11] # is recommend
+        print 'mobile', mobile
 
-        if not check_phone(umobile):
-            print 'invalid umobile: ', umobile
-            continue
-        t = db.get('select id, mobile, login, tid,owner_mobile,domain from T_TERMINAL_INFO where mobile = %s', mobile)
+        t = db.get('select id, mobile, login, tid,owner_mobile,domain from T_TERMINAL_INFO where mobile = %s and service_status=1', mobile)
+    
         if not t:
+            label= u'未激活'
+            umobile=''
             print 'not: ', mobile
         else:
-            print 'tid: ', t.id
+            label = u'已激活'
+            print 't: ', t
+            umobile=t.owner_mobile
             num += 1
+        print 'label', label
+        ws.write(i,0,mobile)
+        ws.write(i,1,umobile)
+        if label == u'未激活':
+            ws.write(i,2,label, offline_style)
+        else:
+            ws.write(i,2,label, online_style)
         #lst += "'" + mobile + "',"
         #print 'select id, mobile, login, tid,owner_mobile,domain from T_TERMINAL_INFO where mobile = ' + mobile + ';'
         #db.execute("INSERT INTO T_BIZ_WHITELIST(id, mobile)"
@@ -54,9 +67,10 @@ def batch_import(file_path):
         #SMSHelper.send_to_terminal(mobile, content)
         #print '%s sucessfully.' % mobile
     print num 
+    wt.save('/tmp/jia_new.xlsx')
 
 def usage():
-    print "Usage: python import_whitelist.py --excel=file_path"
+    print "Usage: python handle_excel.py --excel=file_path"
 
 def main():
     ConfHelper.load('../conf/global.conf')
