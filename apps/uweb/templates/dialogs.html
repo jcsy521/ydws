@@ -1701,14 +1701,13 @@
 		<div class="wrapperContent notifyManageAddContent j_wrapperContent" id="notifyManageAddContent">
 			<form id="notifyManageAddForm">
 				<div class="notifyManage_infoMsgTip">
-					<label class="txtColor">*请在左侧选择要发送通知的客户端</label>
-					<label class="txtColor">*通知内容最大为256个汉字(512个字符)</label>
+					<label class="txtColor">*请在左侧选择要发送通知的成员</label>
 				</div>
 				<div class="notifyManage_infoMsg">
 					<label class="text_notifyManageMsgLabel" for="text_notifyManageMsg" maxlength="256">
 						<font class="txtColor">* </font>通知内容：
 					</label>
-					<textarea name="text_notifyManageMsg" id="text_notifyManageMsg"></textarea>
+					<textarea name="text_notifyManageMsg" id="text_notifyManageMsg" placeholder="通知内容最大为256个汉字(512个字符)"></textarea>
 				</div>
 				<input type="submit" width="100" value="" id="notifyManageSave" class="j_notifyManageSaveBtn" />
 			</form>
@@ -1720,8 +1719,8 @@
 		<div id="notifyManageDataStPanel">
 			<table class="dataTable">
 				<tr id="notifyManageDataSt">
-					<th>定位器名称</th>
-					<th>定位器号码</th>
+					<th>名称</th>
+					<th>号码</th>
 				</tr>
 			</table>
 		</div>	

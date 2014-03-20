@@ -56,7 +56,7 @@ window.dlf.fn_notifyManageMsg = function() {
 	obj_notifyManageData.mobiles = arr_tMobiles;
 	n_pMoblesLen = arr_tMobiles.length;
 	if ( n_pMoblesLen <= 0 ){
-		dlf.fn_jNotifyMessage('请选择通知接收号码！', 'message', false, 4000); 
+		dlf.fn_jNotifyMessage('请在左侧选择要发送通知的成员！', 'message', false, 4000); 
 		return;
 	}
 	//选中的用户号码的回显
