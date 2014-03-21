@@ -34,6 +34,7 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 			setTimeout(function() {
 				dlf.fn_createMapInfoWindow(obj_currentCarInfo, 'actiontrack');
 				obj_tempMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+				dlf.fn_updateOpenTrackStatusColor(n_tid);	
 			}, 130);
 		} else {
 			// 关闭所有的marker
@@ -341,8 +342,8 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 				obj_selfInfoWindow = obj_selfMarker.infoWindow,
 				str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 			
-			dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack');
 			if ( str_currentTid == str_tid ) {
+				dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack');
 				if ( obj_selfInfoWindow ) {
 					obj_selfMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 				}
