@@ -392,7 +392,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                                 "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                                 fields.tmobile, gid,
                                 fields.tmobile, user_mobile,
-                                fields.begintime, fields.endtime, fields.begintime, 0)
+                                fields.begintime, 4733481600, fields.begintime, 0)
                 register_sms = SMSCode.SMS_REGISTER % (fields.umobile, fields.tmobile) 
                 ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)
                 self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
@@ -409,7 +409,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                                 "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 tid, gid,
                                 fields.tmobile, user_mobile,
-                                fields.begintime, fields.endtime,
+                                fields.begintime, 4733481600,
                                 fields.begintime, 0, biz_type,
                                 activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED) 
 

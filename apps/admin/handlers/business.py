@@ -160,7 +160,7 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                             "  VALUES (%s, %s, %s, %s, %s, %s)",
                             fields.tmobile,
                             fields.tmobile, user_mobile,
-                            fields.begintime, fields.endtime, fields.begintime)
+                            fields.begintime, 4733481600, fields.begintime)
     
             # 3: add car tnum --> cnum
             self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"

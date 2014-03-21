@@ -341,7 +341,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type)"
                                 "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 data.tmobile, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                                UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, 
+                                UWEB.DEFEND_STATUS.NO, begintime, 4733481600, begintime, data.cnum, data.icon_type, 
                                 data.login_permit, data.push_status, data.vibl, use_scene, biz_type)
                 # 4: send message to terminal
                 register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
@@ -359,7 +359,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 "  activation_code, service_status)"
                                 "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 tid, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                                UWEB.DEFEND_STATUS.NO, begintime, endtime, begintime, data.cnum, data.icon_type, 
+                                UWEB.DEFEND_STATUS.NO, begintime, 4733481600, begintime, data.cnum, data.icon_type, 
                                 data.login_permit, data.push_status,
                                 data.vibl, use_scene, biz_type,
                                 activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)

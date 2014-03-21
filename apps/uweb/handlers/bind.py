@@ -79,7 +79,7 @@ class BindHandler(BaseHandler, AvatarMixin):
                             "  activation_code, service_status)"
                             "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                             tid, group_id, tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                            UWEB.DEFEND_STATUS.NO, begintime, endtime,
+                            UWEB.DEFEND_STATUS.NO, begintime, 4733481600,
                             begintime, cnum, 0, 1, 1,
                             1, 3, UWEB.BIZ_TYPE.YDWQ,
                             activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)

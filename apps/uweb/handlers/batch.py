@@ -273,7 +273,7 @@ class BatchJHHandler(BaseHandler):
                                           "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                           tmobile, tmobile, gid, umobile, 
                                           UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
-                                          begintime, endtime, begintime, 0)
+                                          begintime, 4733481600, begintime, 0)
                     register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
                     ret = SMSHelper.send_to_terminal(tmobile, register_sms)
                 else:
@@ -285,7 +285,7 @@ class BatchJHHandler(BaseHandler):
                                           "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                           tmobile, tid, gid, umobile, 
                                           UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
-                                          begintime, endtime, begintime, 0,
+                                          begintime, 4733481600, begintime, 0,
                                           biz_type, activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
                     register_sms = SMSCode.SMS_REGISTER_YDWQ % (activation_code)
                     ret = SMSHelper.send(tmobile, register_sms)

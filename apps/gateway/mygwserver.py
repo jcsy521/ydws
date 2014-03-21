@@ -703,7 +703,7 @@ class MyGWServer(object):
                                 GATEWAY.SERVICE_STATUS.ON,
                                 defend_status, mannual_status, push_status, icon_type,
                                 int(time.mktime(begintime.timetuple())),
-                                int(time.mktime(endtime.timetuple())),
+                                4733481600,
                                 int(time.mktime(begintime.timetuple())),
                                 login_permit, alias, vibl, use_scene, 1800,
                                 t_info['bt_name'], t_info['bt_mac'])
