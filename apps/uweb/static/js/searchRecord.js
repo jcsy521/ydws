@@ -1004,13 +1004,14 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			case 'notifyManageSearch': // 通知查询
 				
 				obj_tableHeader.show();
-				var str_notifyText = obj_tempData.content,
-					str_tempId = obj_tempData.id;
+				var str_notifyText = dlf.fn_encode(obj_tempData.content.substr(0, 15)),
+					str_tempId = obj_tempData.id,
+					str_notifyTextTip = dlf.fn_encode(obj_tempData.content);
 				
 				str_tbodyText += '<tr id="'+str_tempId+'"><td>'+ (i+1) +'</td>';
 				str_tbodyText += '<td>'+ obj_tempData.umobile +'</td>';
 				str_tbodyText += '<td>'+ dlf.fn_changeNumToDateString(obj_tempData.timestamp) +'</td>';
-				str_tbodyText += '<td title="'+str_notifyText+'">'+ str_notifyText.substr(0, 15) +'</td>';
+				str_tbodyText += '<td title="'+str_notifyTextTip+'">'+ str_notifyText +'</td>';
 				str_tbodyText+= '<td><a href="#" onclick="dlf.fn_deleteNotifys('+str_tempId+')">删除</a></td>';
 				break;
 		}
