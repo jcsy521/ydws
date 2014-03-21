@@ -102,7 +102,7 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>业务类型</th><th>在线/离线</th><th>电量</th>
+            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>定位器名称</th><th>业务类型</th><th>在线/离线</th><th>电量</th>
             <th>开通时间</th><th>删除</th><th>终端启用/停用</th><th>终端类型变更</th>
         </tr>
     </thead>
@@ -116,6 +116,7 @@
 					{{ business['umobile']}}
 				</td>
                 <td>{{ business['tmobile']}}</td>
+                <td>{{ business['alias']}}</td>
 				<td>
 					{% if business['biz_type'] == 0 %}
 						移动卫士
