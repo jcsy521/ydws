@@ -281,7 +281,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                 #business['biz_type'] = biz['biz_type'] if biz else 1
                 terminal = QueryHelper.get_terminal_info(business['tid'], self.db, self.redis)
                 business['pbat'] = terminal['pbat'] if terminal.get('pbat', None) is not None else 0 
-                
+                business['alias'] = business['cnum'] if business['cnum'] else business['tmobile']  
 
                 for key in business:
                     if business[key] is None:
@@ -343,13 +343,14 @@ class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
             ws.write(i, 1, safe_unicode(result['ecname']) if result['ecname'] else u'')
             ws.write(i, 2, result['umobile'])
             ws.write(i, 3, result['tmobile'])
-            ws.write(i, 4, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
+            ws.write(i, 4, result['alias'])
+            ws.write(i, 5, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
             if int(result['login']) == 0:
-                ws.write(i, 5, u'离线', offline_style)
+                ws.write(i, 6, u'离线', offline_style)
             else:
-                ws.write(i, 5, u'在线', online_style)
-            ws.write(i, 6, '%s%%' % result['pbat'])
-            ws.write(i, 7, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
+                ws.write(i, 6, u'在线', online_style)
+            ws.write(i, 7, '%s%%' % result['pbat'])
+            ws.write(i, 8, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)
@@ -483,6 +484,21 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s",
                                    tmobile)
+
+            biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db) 
+            if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
+                if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+                    if terminal.mobile == tid:
+                        delete_terminal(tid, self.db, self.redis)
+                    else:
+                        status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                    self.write_ret(status)
+                    return
+            else: 
+                delete_terminal(tid, self.db, self.redis)
+                self.write_ret(status)
+                return
+
             # unbind terminal
             seq = str(int(time.time()*1000))[-4:]
             args = DotDict(seq=seq,
