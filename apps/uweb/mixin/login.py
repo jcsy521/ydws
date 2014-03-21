@@ -81,9 +81,10 @@ class LoginMixin(BaseMixin):
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND owner_mobile = %s"
-                                          "    AND login_permit = 1"
-                                          "    AND (%s BETWEEN begintime AND endtime)",
-                                          UWEB.SERVICE_STATUS.ON, username, int(time.time()))
+                                          "    AND login_permit = 1",
+                                          UWEB.SERVICE_STATUS.ON, username)
+                                          #"    AND (%s BETWEEN begintime AND endtime)",
+                                          #UWEB.SERVICE_STATUS.ON, username, int(time.time()))
                 #NOTE: provide a dummy_cid for user
                 cid = UWEB.DUMMY_CID 
                 oid = UWEB.DUMMY_OID
