@@ -69,8 +69,7 @@ class IncLastInfoCorpHandler(BaseHandler):
             else:
                 corp_info_old, corp_info_time = None, None 
              
-
-            if corp_info_old:
+            if corp_info_old is not None:
                 if corp_info_old != corp_info:
                     res_type = 2
                     self.redis.setvalue(corp_info_key, (corp_info, current_time))
@@ -93,30 +92,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                 group_info_old, group_info_time = group_info_tuple
             else:
                 group_info_old, group_info_time = None, None 
-            if group_info_old:
-                if group_info_old != groups:
-                    res_type = 2
-                    self.redis.setvalue(group_info_key, (groups, current_time))
-                else:
-                    if lastinfo_time < group_info_time:
-                        res_type = 2
-            else: 
-                self.redis.setvalue(corp_info_key, (corp_info, current_time))
- 
-            res = DotDict(name=corp_info['name'],
-                          cid=corp_info['cid'],
-                          online=0,
-                          offline=0,
-                          groups=[],
-                          lastinfo_time=current_time)
-
-            group_info_key = get_group_info_key(uid) 
-            group_info_tuple = self.redis.getvalue(group_info_key)
-            if group_info_tuple:
-                group_info_old, group_info_time = group_info_tuple
-            else:
-                group_info_old, group_info_time = None, None 
-            if group_info_old:
+            if group_info_old is not None:
                 if group_info_old != groups:
                     res_type = 2
                     self.redis.setvalue(group_info_key, (groups, current_time))
@@ -125,7 +101,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                         res_type = 2
             else: 
                 self.redis.setvalue(group_info_key, (groups, current_time))
-              
+ 
             for group in groups:
                 group['trackers'] = {} 
                 terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
@@ -141,7 +117,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                     terminal_info_old, terminal_info_time = terminal_info_tuple
                 else:
                     terminal_info_old, terminal_info_time = None, None 
-                if terminal_info_old:
+                if terminal_info_old is not None:
                     if terminal_info_old != tids:
                         res_type = 2
                         self.redis.setvalue(terminal_info_key, (tids, current_time))
@@ -295,8 +271,9 @@ class IncLastInfoCorpHandler(BaseHandler):
                         terminal_detail_old, terminal_detail_time = terminal_detail_tuple 
                     else:
                         terminal_detail_old, terminal_detail_time = None, None 
+
                     if res_type != 2:
-                        if terminal_detail_old:
+                        if terminal_detail_old is not None:
                             if terminal_detail_old != group['trackers'][tid]: 
                                 self.redis.setvalue(terminal_detail_key, (group['trackers'][tid], current_time))
                                 res_type = 1
@@ -307,6 +284,8 @@ class IncLastInfoCorpHandler(BaseHandler):
                                     del group['trackers'][tid]
                         else: 
                             self.redis.setvalue(terminal_detail_key, (group['trackers'][tid], current_time))
+                    else:
+                        pass
                 res.groups.append(group)
 
             if int(res_type) == 0:
