@@ -533,6 +533,10 @@ window.dlf.fn_searchData = function (str_who) {
 		},
 		function(XMLHttpRequest, textStatus, errorThrown) {
 			dlf.fn_serverError(XMLHttpRequest);
+			if ( str_who == 'singleMileage' ) {
+				$('#maskLayer').css('z-index', 1002);
+				dlf.fn_lockScreen();
+			}
 		});
 	}
 }
