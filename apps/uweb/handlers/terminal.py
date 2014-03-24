@@ -49,10 +49,12 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                                    "       stop_interval, biz_type"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
-                                   "    AND service_status = %s"
+                                   "    AND (service_status = %s"
+                                   "    OR service_status = %s)"
                                    "  LIMIT 1",
                                    self.current_user.tid,
-                                   UWEB.SERVICE_STATUS.ON)
+                                   UWEB.SERVICE_STATUS.ON,
+                                   UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
@@ -498,9 +500,11 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                          tid, flag, self.current_user.cid)
             terminal = self.db.get("SELECT id, mobile, owner_mobile, login FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
-                                   "    AND service_status = %s",
+                                   "    AND (service_status = %s"
+                                   "         OR service_status = %s)",
                                    tid, 
-                                   UWEB.SERVICE_STATUS.ON)
+                                   UWEB.SERVICE_STATUS.ON,
+                                   UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
             if not terminal:
                 logging.error("The terminal with tid: %s does not exist!", tid)
                 status = ErrorCode.TERMINAL_NOT_EXISTED
@@ -509,11 +513,17 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
             key = get_del_data_key(tid)
             self.redis.set(key, flag)
-            if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
-                if terminal.mobile == tid:
-                    delete_terminal(tid, self.db, self.redis)
-                else:
-                    status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+            biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db) 
+            if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
+                if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+                    if terminal.mobile == tid:
+                        delete_terminal(tid, self.db, self.redis)
+                    else:
+                        status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                    self.write_ret(status)
+                    return
+            else: 
+                delete_terminal(tid, self.db, self.redis)
                 self.write_ret(status)
                 return
 
@@ -536,7 +546,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                               self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
                 status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
-
 
             self.write_ret(status)
         except Exception as e:

@@ -54,7 +54,6 @@ class TrackLQHandler(BaseHandler, BaseMixin):
 
             if int(flag) == 1:
                 for tid in tids:
-
                     ##NOTE: just send lqgz temporary
                     terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
                     lqgz_key = get_lqgz_key(tid)

@@ -213,8 +213,10 @@ class LastInfoCorpHandler(BaseHandler):
                 group['trackers'] = {} 
                 terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                           "  WHERE group_id = %s"
-                                          "    AND service_status = %s",
-                                          group.gid, UWEB.SERVICE_STATUS.ON)
+                                          "    AND (service_status = %s"
+                                          "         OR service_status = %s)",
+                                          group.gid, UWEB.SERVICE_STATUS.ON, 
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
                 tids = [str(terminal.tid) for terminal in terminals]
 
                 for tid in tids:

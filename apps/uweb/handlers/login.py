@@ -193,11 +193,14 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "    gsm, gps, pbat, login, defend_status,"
                                           "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
+                                          "  WHERE (service_status = %s"
+                                          "         OR service_status = %s)"
                                           "    AND owner_mobile = %s"
                                           "    AND login_permit = 1"
                                           "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, uid)
+                                          UWEB.SERVICE_STATUS.ON, 
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          uid)
 
             elif user_type == UWEB.USER_TYPE.OPERATOR:
                 groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", oid)
@@ -206,10 +209,13 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "    gsm, gps, pbat, login, defend_status,"
                                           "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
+                                          "  WHERE (service_status = %s"
+                                          "         OR service_status = %s)"
                                           "    AND group_id IN %s"
                                           "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+                                          UWEB.SERVICE_STATUS.ON, 
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          tuple(DUMMY_IDS + gids))
             elif user_type == UWEB.USER_TYPE.CORP:
                 groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", cid)
                 gids = [g.gid for g in groups]
@@ -217,10 +223,13 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "    gsm, gps, pbat, login, defend_status,"
                                           "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
+                                          "  WHERE (service_status = %s"
+                                          "         OR service_status = %s)"
                                           "    AND group_id IN %s"
                                           "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+                                          UWEB.SERVICE_STATUS.ON, 
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          tuple(DUMMY_IDS + gids))
             else:
                 logging.error("[UWEB] invalid user_type: %s", user_type)
                 pass
@@ -262,9 +271,10 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                     location['name'] = ''
 
                 avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile)
-
+                service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                              service_status=service_status,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
                               fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
                               timestamp=location['timestamp'] if location else 0,
@@ -410,8 +420,10 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
             avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile) 
 
+            service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
             car_dct = {}
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                          service_status=service_status,
                           mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
                           fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
                           timestamp=location['timestamp'] if location else 0,
@@ -497,11 +509,14 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "    gsm, gps, pbat, login, defend_status,"
                                           "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
+                                          "  WHERE (service_status = %s"
+                                          "         OR service_status = %s)"
                                           "    AND owner_mobile = %s"
                                           "    AND login_permit = 1"
                                           "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, uid)
+                                          UWEB.SERVICE_STATUS.ON, 
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          uid)
 
             elif user_type == UWEB.USER_TYPE.OPERATOR:
                 groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", oid)
@@ -511,9 +526,12 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
+                                          "         OR service_status = %s)"
                                           "    AND group_id IN %s"
                                           "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+                                          UWEB.SERVICE_STATUS.ON, 
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          tuple(DUMMY_IDS + gids))
             elif user_type == UWEB.USER_TYPE.CORP:
                 groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", cid)
                 gids = [g.gid for g in groups]
@@ -521,10 +539,13 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "    gsm, gps, pbat, login, defend_status,"
                                           "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
+                                          "  WHERE (service_status = %s"
+                                          "         OR service_status = %s)"
                                           "    AND group_id IN %s"
                                           "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, tuple(DUMMY_IDS + gids))
+                                          UWEB.SERVICE_STATUS.ON, 
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          tuple(DUMMY_IDS + gids))
             else:
                 logging.error("[UWEB] Invalid user_type: %s", user_type)
                 pass
@@ -566,8 +587,11 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                     location['name'] = ''
 
                 avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile)
+
+                service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                              service_status=service_status,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
                               fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
                               timestamp=location['timestamp'] if location else 0,
@@ -720,8 +744,10 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
 
             avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile)
+            service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
             car_dct = {}
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
+                          service_status=service_status,
                           mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
                           fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
                           timestamp=location['timestamp'] if location else 0,

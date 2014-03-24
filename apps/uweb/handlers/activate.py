@@ -4,6 +4,7 @@ import logging
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
+import time
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
@@ -21,6 +22,7 @@ class ActivateHandler(BaseHandler):
         try:
             data = DotDict(json_decode(self.request.body))
             activation_code = data.activation_code 
+            sn = data.sn 
             logging.info("[UWEB] activate request: %s", 
                          data)
         except Exception as e:
@@ -34,14 +36,43 @@ class ActivateHandler(BaseHandler):
             terminal = self.db.get("SELECT id, service_status, mobile"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE activation_code = %s"
+                                   "  AND sn = %s"
+                                   "  AND biz_type = %s LIMIT 1",
+                                   activation_code, sn,
+                                   UWEB.BIZ_TYPE.YDWQ)
+            if terminal: # normal login
+                logging.info("[UWEB] normal login. activation_code: %s, sn: %s.", 
+                             activation_code, sn)
+                self.write_ret(status,
+                               dict_=DotDict(mobile=terminal.mobile))
+                return
+ 
+            terminal = self.db.get("SELECT id, service_status, mobile"
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE activation_code = %s"
                                    "  AND biz_type = %s LIMIT 1",
                                    activation_code, UWEB.BIZ_TYPE.YDWQ)
-            if not terminal:
+            if not terminal: # no code, get activate_code first
                 status = ErrorCode.TERMINAL_NOT_EXISTED
-                logging.info("[UWEB] activation_code: %s can not be found.",
+                logging.error("[UWEB] activation_code: %s can not be found.",
                              activation_code)
                 self.write_ret(status)
-            else:
+            else: # has code 
+                terminal = self.db.get("SELECT id, service_status, mobile"
+                                       "  FROM T_TERMINAL_INFO"
+                                       "  WHERE sn = %s LIMIT 1",
+                                       sn)
+                if terminal: # has code, has sn(but sn exist)
+                    status = ErrorCode.TERMINAL_EXIST
+                    logging.info("[UWEB] sn: %s has exist.", sn)
+                    self.write_ret(status,
+                                   dict_=DotDict(mobile=terminal.mobile))
+                    return
+                # has code, sn not exist: a new activate
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET sn = %s"
+                                "  WHERE activation_code = %s",
+                                sn, activation_code)
                 if terminal['service_status'] != UWEB.SERVICE_STATUS.ON:
                     self.db.execute("UPDATE T_TERMINAL_INFO"
                                     "  SET service_status = %s"

@@ -169,11 +169,15 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
 
                 key = get_del_data_key(tid)
                 self.redis.set(key, flag)
-                if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
-                    if terminal.mobile == tid:
+                biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db) 
+                if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
+                    if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+                        if terminal.mobile == tid:
+                            delete_terminal(tid, self.db, self.redis)
+                        else:
+                            r.status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                    else: 
                         delete_terminal(tid, self.db, self.redis)
-                    else:
-                        r.status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
                     res.append(r)
                     continue 
                 

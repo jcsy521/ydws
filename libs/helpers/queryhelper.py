@@ -362,10 +362,10 @@ class QueryHelper(object):
         service_status = UWEB.SERVICE_STATUS.ON
         biz_type = QueryHelper.get_biz_type_by_tmobile(mobile, db)
         if biz_type == UWEB.BIZ_TYPE.YDWQ: 
-            terminal = db.get("SELECT tid, mobile FROM T_TERMINAL_INFO"
+            terminal = db.get("SELECT tid, mobile, service_status FROM T_TERMINAL_INFO"
                               "  WHERE mobile = %s"
                               "  AND biz_type = %s LIMIT 1",
                               mobile, UWEB.BIZ_TYPE.YDWQ)
-            if terminal['tid'] == mobile:
-                service_status = UWEB.SERVICE_STATUS.TO_BE_ACTIVATED
+
+            service_status = terminal['service_status']
         return service_status

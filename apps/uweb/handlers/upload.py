@@ -25,11 +25,13 @@ class UploadHandler(BaseHandler):
         try:
             data = DotDict(json_decode(self.request.body))
             mobile = data.mobile
+            sn = data.sn
             category = int(data.category)
             location = data.location
             gps = int(data.gps)
             gsm = int(data.gsm)
             pbat = int(data.pbat)
+            attendance_time = data.get('attendance_time', '')
             logging.info("[UWEB] upload request: %s", 
                          data)
         except Exception as e:
@@ -40,6 +42,20 @@ class UploadHandler(BaseHandler):
             return
 
         try:
+            terminal = self.db.get("SELECT id, service_status, mobile"
+                                   "  FROM T_TERMINAL_INFO"
+                                   "  WHERE mobile = %s"
+                                   "  AND sn = %s"
+                                   "  AND biz_type = %s LIMIT 1",
+                                   mobile, sn,
+                                   UWEB.BIZ_TYPE.YDWQ)
+            if not terminal: # normal login
+                status = ErrorCode.ACCOUNT_NOT_MATCH 
+                logging.info('mobile: %s, sn:%s not match.', 
+                              mobile, sn)
+                self.write_ret(status)
+                return
+            
             terminal = QueryHelper.get_terminal_by_tmobile(mobile, self.db)
             tid = terminal['tid']
             # NOTE: location may be a dict or list
@@ -87,7 +103,7 @@ class UploadHandler(BaseHandler):
                     lid = insert_location(location, self.db, self.redis)
                     a_info=dict(mobile=mobile,
                                 comment=u'',
-                                timestamp=location['gps_time'],
+                                timestamp=attendance_time if attendance_time else location['gps_time'],
                                 lid=lid)
                     record_attendance(self.db, a_info)
                 else:

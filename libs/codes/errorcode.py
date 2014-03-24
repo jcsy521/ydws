@@ -41,6 +41,7 @@ class ErrorCode(object):
     MOBILE_NOT_ORDERED = 221
     TRACK_POINTS_TOO_MUCH = 222
     USER_NOT_EXIST = 223
+    TERMINAL_EXIST = 224
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -84,6 +85,8 @@ class ErrorCode(object):
 
     ACTIVITY_EXISTED = 1001 
     ACTIVITY_NAME_ILLEGAL = 1002
+
+    ACCOUNT_NOT_MATCH = 1101
 
     ERROR_MESSAGE  = {
         SUCCESS:                       u"操作成功。",
@@ -152,8 +155,11 @@ class ErrorCode(object):
         PASSENGER_EXIST:               u"乘客已存在。",
         OPERATOR_EXIST:                u"集团操作员已存在。",
         CORP_EXIST:                    u"集团管理员已存在。",
+        TERMINAL_EXIST:                u"该定位器已经存在。",
 
-        ACTIVITY_EXISTED:                u"文件已经存在，请先删除。",
-        ACTIVITY_NAME_ILLEGAL:           u"文件名只能包含字母、数字、下划线、点。",
+        ACTIVITY_EXISTED:              u"文件已经存在，请先删除。",
+        ACTIVITY_NAME_ILLEGAL:         u"文件名只能包含字母、数字、下划线、点。",
+
+        ACCOUNT_NOT_MATCH:             u"账号不符，请联系客户人员。",
 
     }
