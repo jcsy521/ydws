@@ -485,7 +485,7 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                                    "  WHERE mobile = %s",
                                    tmobile)
 
-            biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db) 
+            biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, self.db) 
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
                 if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
                     if terminal.mobile == tid:
