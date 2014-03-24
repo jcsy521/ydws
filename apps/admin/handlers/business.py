@@ -28,7 +28,7 @@ from helpers.queryhelper import QueryHelper
 from codes.smscode import SMSCode 
 from constants import PRIVILEGES, SMS, UWEB, GATEWAY
 from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
-from utils.public import record_add_action
+from utils.public import record_add_action, delete_terminal 
 from myutils import city_list
 from mongodb.mdaily import MDaily, MDailyMixin
 
@@ -481,17 +481,19 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
     def post(self, tmobile, pmobile):
         status = ErrorCode.SUCCESS
         try:
-            terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+            terminal = self.db.get("SELECT id, login, mobile, tid FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s",
                                    tmobile)
-
+            tid = terminal.tid
             biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, self.db) 
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
                 if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
                     if terminal.mobile == tid:
                         delete_terminal(tid, self.db, self.redis)
                     else:
-                        status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                        unbind_sms = SMSCode.SMS_UNBIND  
+                        ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
+                        ret = DotDict(json_decode(ret))
                     self.write_ret(status)
                     return
             else: 
