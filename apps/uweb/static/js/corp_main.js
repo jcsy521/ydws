@@ -1098,6 +1098,11 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			if ( str_resDataType ==  0 ) { //本次数据未发生变化
 				return;
 			} else if ( str_resDataType == 1 ) { //1：本次数据部分终发生变化（只提供发生变化的那份数据）
+				var obj_corp = data.res;
+				
+				n_onlineCnt = obj_corp.online,		// online count
+				n_offlineCnt = obj_corp.offline;	// offline count
+				
 				fn_updateTerminalCount();
 				fn_updateTreeNode(data.res, b_isCloseTrackInfowindow);
 				return;
