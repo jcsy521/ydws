@@ -27,7 +27,6 @@ def checksignature(signature, timestamp, nonce):
     mysig = sha1.hexdigest()
     return mysig == signature
 
-
 class WeixinHandler(BaseHandler):
 
     def get(self):

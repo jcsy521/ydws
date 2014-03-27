@@ -38,6 +38,8 @@ from handlers.weixin import WeixinHandler
 from handlers.worker import WorkerPool
 from handlers.main import MainHandler
 from handlers.base import BaseHandler
+from handlers.bind import BindHandler, UnBindHandler
+from handlers.terminals import TerminalsHandler
 
 
 class Application(tornado.web.Application):
@@ -45,8 +47,13 @@ class Application(tornado.web.Application):
     def __init__(self, debug=False):
         handlers = [
             # NOTE: the order is important, the first matched pattern is used!!!
-            (r"/", MainHandler),
+            #(r"/", MainHandler),
+            (r"/", WeixinHandler),
+            (r"/bind", BindHandler),
+            (r"/unbind", UnBindHandler),
             (r"/weixin", WeixinHandler),
+            (r"/terminals", TerminalsHandler),
+            (r"/terminals", TerminalsHandler),
 
         ]
 
