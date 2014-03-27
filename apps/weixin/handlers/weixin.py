@@ -43,33 +43,17 @@ class WeixinHandler(BaseHandler):
             logging.error("[WEIXIN] acquire echostr fail---> %s", echostr)
 
     def post(self):
-        """接收和发送消息(文本消息)
+        """Receive and response.
         """
         body = self.request.body
+        logging.info("[WEIXIN] post request: %s", body)
         data = ET.fromstring(body)
         tousername = data.find('ToUserName').text
-        fromusername = data.find('FromUserName').text
+        openid = data.find('FromUserName').text
         createtime = data.find('CreateTime').text
         msgtype = data.find('MsgType').text
-        content = data.find('Content').text
-        msgid = data.find('MsgId').text
-
-        #  BD#username:password
-        content = content.lower()
-        bd = re.search('bd#', content)
-        f = re.search(':', content)
-        if bd:
-            username = content[bd.end():f.start()]
-            password = content[f.end():]
-
-            cksql = "SELECT　uid FROM T_USER WHERE uid = %s AND password =  PASSWORD(%s)" % (username, password)
-            upsql = "UPDATE T_USER SET openid = %s WHERE uid = %s" % (fromusername, username)
-            user = self.db.query(cksql)
-            if user:
-                self.db.query(upsql)
-                recontent = u"绑定成功"
-             # recontent = ""
-
+        
+        out = 'pass'
         answer = '''<xml>
                 <ToUserName><![CDATA[%s]]></ToUserName>
                 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -78,5 +62,51 @@ class WeixinHandler(BaseHandler):
                 <Content><![CDATA[%s]]></Content>
                 </xml>
                 '''
-        out = answer % (fromusername, tousername, str(int(time.time())), msgtype, recontent)
+
+        if msgtype == 'text':
+            content = data.find('Content').text
+            content = content.lower()
+            msgid = data.find('MsgId').text
+            # BD#username:password
+            bd = re.search('bd#', content)
+            jb = re.search('jb', content)
+            help = re.search('help', content)
+            f = re.search(':', content)
+            if bd:
+                logging.info("[WEIXIN] bd")
+                recontent = u"绑定失败"
+                username = content[bd.end():f.start()]
+                password = content[f.end():]
+
+                cksql = "SELECT uid FROM T_USER WHERE uid = %s AND password = password(%s)" % (username, password)
+                upsql = "UPDATE T_USER SET openid = '%s' WHERE uid = %s" % (fromusername, username)
+                user = self.db.query(cksql)
+                if user:
+                    self.db.execute(upsql)
+                    recontent = u"绑定成功"
+                    out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
+            elif jb:
+                # JB
+                logging.info("[WEIXIN] jd")
+                recontent = u"解绑失败"
+                cksql = "SELECT uid, openid FROM T_USER WHERE openid = '%s'" % openid
+                user = self.db.query(cksql)
+                if user:
+                    recontent = u"解绑成功"
+                    self.db.execute("UPDATE T_USER SET openid = '' WHERE openid = %s ",
+                                    openid)
+                else:
+                    recontent = u"尚未绑定"
+                out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
+            elif help:
+                logging.info("[WEIXIN] help")
+                recontent = u"1. 绑定：bd#username:password\n2. 解绑：jb\n3.帮助 help "
+                out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
+            else:
+                logging.info("[WEIXIN] help")
+                recontent = u"1. 绑定：bd#username:password\n2. 解绑：jb\n3.帮助 help "
+                out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
+        else:
+            pass
+        logging.info("[WEIXIN] response: %s", out)
         self.write(out)
