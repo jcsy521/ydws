@@ -115,7 +115,7 @@ function fn_displayCars () {
 /*
 * 重新绘制围栏
 */
-window.dlf.fn_resetRegion = function() {
+window.dlf.fn_resetRegion = function(str_regionType) {
 	dlf.fn_mapRightClickFun();
 	if ( obj_drawingManager ) {
 		dlf.fn_mapStartDraw();
@@ -123,7 +123,14 @@ window.dlf.fn_resetRegion = function() {
 		dlf.fn_initCreateRegion();
 	}
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent');
-	$('#regionCreate_circle').addClass('regionCreateBtnCurrent');
+	
+	var obj_regionCBtn = $('#regionCreate_circle');
+	
+	if ( str_regionType == 'polygon' ) {
+		obj_regionCBtn = $('#regionCreate_polygon');
+	} 
+	
+	obj_regionCBtn.addClass('regionCreateBtnCurrent');
 }
 
 /*

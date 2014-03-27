@@ -921,7 +921,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			if ( dlf.fn_isEmptyObj(obj_polyline) ) {
 				dlf.fn_clearMapComponent(obj_polyline);
 			}
-			
+			obj_current.removeClass('j_currentCar jstree-clicked');
 			//如果当前分组下可见的终端全部被选中
 			var obj_currentGroup = obj_currentLi.parent().parent(),
 				obj_groupVisibleTerminal = obj_currentGroup.children('ul').children('li:visible'),
@@ -947,7 +947,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				var obj_tempNodeTerminal = $(arr_nodeTerminsals[i]),
 					str_tempNodeTid = obj_tempNodeTerminal.attr('tid'),
 					obj_tempNodeMarker = obj_selfmarkers[str_tempNodeTid];
-					
+				
+				obj_tempNodeTerminal.removeClass('j_currentCar jstree-clicked');
 				if ( dlf.fn_isEmptyObj(obj_tempNodeMarker) ) {
 					dlf.fn_clearMapComponent(obj_tempNodeMarker);
 					delete obj_selfmarkers[str_tempNodeTid];
@@ -960,6 +961,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			for ( var param in obj_actionTrack ) {
 				obj_actionTrack[param] = {'status': 'no', 'interval': '', 'color': '', 'track': 0};
 			}
+			$('.j_carList .j_currentCar').removeClass('j_currentCar jstree-clicked');
 			// 关闭所有开启追踪
 		}
 	});

@@ -946,7 +946,7 @@ window.dlf.fn_initCreateRegion = function() {
 * 电子围栏画圆中心点
 */
 function fn_createCircleCenterPoint(obj_event) {
-	var str_infoWindowText = '<div class="gaodeWindowPanel height38"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>',
+	var str_infoWindowText = '<div class="gaodeWindowPanel height38"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion(\'circle\');">重画</a></div>',
 		obj_infoWindow = new AMap.InfoWindow({content: str_infoWindowText, offset:new AMap.Pixel(0,-5)});
 		marker = null,
 		n_radius = 0,
@@ -958,7 +958,7 @@ function fn_createCircleCenterPoint(obj_event) {
 		centerPoint = obj_event.getCenter();
 		
 		if ( n_radius < 500 ) { 
-			str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
+			str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion(\'circle\');">重画</a></div>';
 			
 			obj_infoWindow.setContent(str_infoWindowText);
 			// obj_infoWindow.setOffset(new AMap.Pixel(-105,-45));
@@ -968,7 +968,7 @@ function fn_createCircleCenterPoint(obj_event) {
 		var arr_polygonData = obj_event.getPath();
 		
 		if ( arr_polygonData.length < 3 ) {
-			str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">多边形围栏最少需要3个点！</label><a href="#" onclick="dlf.fn_resetRegion();">重画</a></div>';
+			str_infoWindowText = '<div class="gaodeWindowPanel height38"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">多边形围栏最少需要3个点！</label><a href="#" onclick="dlf.fn_resetRegion(\'polygon\');">重画</a></div>';
 			
 			obj_infoWindow.setContent(str_infoWindowText);
 		}

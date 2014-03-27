@@ -1003,7 +1003,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText += '<tr><td id="'+ str_id +'">'+ (i+1) +'</td>';
 				str_tbodyText += '<td>'+ str_weeks +'</td>';
 				str_tbodyText += '<td>'+ str_startTime + '--' + str_endTime +'</td>';
-				str_tbodyText+= '<td><a href="#" onclick="fn_deleteAlertSetting('+ str_id +', \''+ obj_tempData.tid +'\', \''+ str_who +'\')">删除</a></td>';
+				str_tbodyText+= '<td><a href="#" onclick="fn_deleteAlertSetting('+ str_id +', \''+ obj_tempData.tid +'\', \''+ str_who +'\')">删除</a></td></tr>';
 				break;
 			case 'notifyManageSearch': // 通知查询
 				
@@ -1016,7 +1016,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText += '<td>'+ obj_tempData.umobile +'</td>';
 				str_tbodyText += '<td>'+ dlf.fn_changeNumToDateString(obj_tempData.timestamp) +'</td>';
 				str_tbodyText += '<td title="'+str_notifyTextTip+'">'+ str_notifyText +'</td>';
-				str_tbodyText+= '<td><a href="#" onclick="dlf.fn_deleteNotifys('+str_tempId+')">删除</a></td>';
+				str_tbodyText+= '<td><a href="#" onclick="dlf.fn_deleteNotifys('+str_tempId+')">删除</a></td></tr>';
 				break;
 		}
 	}
@@ -1539,7 +1539,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
-		
+
 		//设置地图默认属性
 		if ( obj_mapCenter ) {
 			mapObj.setMapType(BMAP_NORMAL_MAP);

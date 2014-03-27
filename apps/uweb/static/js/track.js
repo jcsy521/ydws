@@ -107,7 +107,8 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 			obj_oldData = {'gids': '', 'tids': '', 'n_gLen': 0};
 			
 			//查找选中的终端,进行添加数据
-			var obj_carDatas = $('.j_carList').data('carsData');
+			var obj_carDatas = $('.j_carList').data('carsData'),
+				arr_lastLocations = [];
 			
 			$('.j_group .jstree-checked').each(function() {
 				var obj_this = $(this),
@@ -117,8 +118,15 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 				
 				if ( obj_tempCarData ) {
 					dlf.fn_updateInfoData(obj_carDatas[str_tid]);
+					arr_lastLocations.push(dlf.fn_createMapPoint(obj_tempCarData.clongitude, obj_tempCarData.clatitude));
 				}
-			});			
+			});	
+			if ( arr_lastLocations.length != 0 ) {
+				dlf.fn_setOptionsByType('viewport', arr_lastLocations);
+				setTimeout (function () {
+					mapObj.setCenter(arr_lastLocations[0]);
+				}, 310);
+			}
 			dlf.fn_corpLastinfoSwitch(true);
 			dlf.fn_corpGetCarData(true);
 		}

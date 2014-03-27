@@ -122,6 +122,7 @@ window.dlf.fn_serverError = function(XMLHttpRequest, str_actionType) {
 	var str_errorType = XMLHttpRequest.statusText;
 	
 	if ( str_errorType == 'timeout' && str_actionType == 'lastinfo' ) {
+		dlf.fn_updateLastInfo();
 		return;
 	} else {
 		dlf.fn_jNotifyMessage('网络繁忙，请稍后重试。', 'message', false, 3000);
