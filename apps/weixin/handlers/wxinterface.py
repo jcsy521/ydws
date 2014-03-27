@@ -31,8 +31,6 @@ def checksignature(signature, timestamp, nonce):
 
 class WXInterfaceHandler(BaseHandler):
 
-    def __init__(self):
-        self.template_path = self.application.settings['template_path']
     def get(self):
         # data = DotDict(json_decode(self.request.body))
         signature = self.get_argument('signature', 0)
@@ -49,7 +47,45 @@ class WXInterfaceHandler(BaseHandler):
             logging.error("acquire echostr fail---> %s", echostr)
 
     #接收和发送消息(文本消息)
+    # def post(self):
+        # body = self.request.body
+        # data = ET.fromstring(body)
+        # tousername = data.find('ToUserName').text
+        # fromusername = data.find('FromUserName').text
+        # createtime = data.find('CreateTime').text
+        # msgtype = data.find('MsgType').text
+        # content = data.find('Content').text
+        # msgid = data.find('MsgId').text
+        #
+        # content = content.lower()
+        # #  BD#username:password
+        # bd = re.search('bd#', content)
+        # f = re.search(':', content)
+        # if bd:
+        #     username = content[bd.end():f.start()]
+        #     password = content[f.end():]
+        #
+        #     cksql = "SELECT　uid FROM T_USER WHERE uid = %s AND password = %s" % (username, password)
+        #     upsql = "UPDATE T_USER SET openid = %s where uid = %s" % (fromusername, username)
+        #     user = self.db.query(cksql)
+        #     if user:
+        #         self.db.query(upsql)
+        #         recontent = u"绑定成功"
+        #      # recontent = ""
+        #
+        # answer = '''<xml>
+        #         <ToUserName><![CDATA[%s]]></ToUserName>
+        #         <FromUserName><![CDATA[%s]]></FromUserName>
+        #         <CreateTime>%s</CreateTime>
+        #         <MsgType><![CDATA[%s]]></MsgType>
+        #         <Content><![CDATA[%s]]></Content>
+        #         </xml>
+        #         '''
+        # out = answer % (fromusername, tousername, str(int(time.time())), msgtype, recontent)
+        # self.write(out)
+
     def post(self):
+    #######简单接收和发送消息
         body = self.request.body
         data = ET.fromstring(body)
         tousername = data.find('ToUserName').text
@@ -59,29 +95,26 @@ class WXInterfaceHandler(BaseHandler):
         content = data.find('Content').text
         msgid = data.find('MsgId').text
 
-        #  BD#username:password
-        bd = re.search('BD#', content)
-        f = re.search(':', content)
-        if bd:
-            username = content[bd.end():f.start()]
-            password = content[f.end():]
+        #print 'fromusername: %s' % fromusername
 
-            cksql = "SELECT　uid FROM T_USER WHERE uid = %s AND password = %s" % (username, password)
-            upsql = "UPDATE T_USER SET openid = %s where uid = %s" % (fromusername, username)
-            user = self.db.query(cksql)
-            if user:
-                self.db.query(upsql)
-                recontent = u"绑定成功"
-             # recontent = ""
+        #print 'tousername: %s' % tousername
 
-        answer = '''<xml>
+        #print 'createtime: %s' % createtime
+
+        #print 'msgtype: %s' % msgtype
+
+        #print 'msgid: %s' % msgid
+        if content.strip() in ('ls', 'pwd', 'w', 'uptime'):
+            result = commands.getoutput(content)
+        else:
+            result = '不可以哦!!!'
+        textTpl = """<xml>
                 <ToUserName><![CDATA[%s]]></ToUserName>
                 <FromUserName><![CDATA[%s]]></FromUserName>
                 <CreateTime>%s</CreateTime>
                 <MsgType><![CDATA[%s]]></MsgType>
                 <Content><![CDATA[%s]]></Content>
-                </xml>
-                '''
-        out = answer % (fromusername, tousername, str(int(time.time())), msgtype, recontent)
+                </xml>"""
+        out = textTpl % (fromusername, tousername, str(int(time.time())), msgtype, result)
         self.write(out)
 
