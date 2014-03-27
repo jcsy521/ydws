@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>移动卫士--终端列表</title>
+	<script src="./js/jquery-2.1.0.min.js" type="text/javascript"></script>
+	<script src="./js/jquery-ui-1.10.0.custom.js" type="text/javascript"></script>
+	<link href="./css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
+	<style>
+	.divHeight {
+	height: 300px;
+	}
+	</style>
+	<script type="text/javascript">
+		$(function() {
+			var testData = [{"name":"北京市海淀区建材城东路","degree":263.77,"timestamp":1358470134,"longitude":418929044,"clongitude":418974741,"latitude":144217173,"clatitude":144244127,"type":0,"speed":43},{"name":"北京市海淀区建材城东路","degree":265.61,"timestamp":1358470179,"longitude":418924677,"clongitude":418970395,"latitude":144216774,"clatitude":144243644,"type":0,"speed":17},{"name":"北京市海淀区建材城中路6号","degree":0,"timestamp":1358470252,"longitude":418892378,"clongitude":418938239,"latitude":144214207,"clatitude":144240444,"type":0,"speed":9},{"name":"北京市海淀区建材城中路6号","degree":0,"timestamp":1358470310,"longitude":418892349,"clongitude":418938210,"latitude":144214290,"clatitude":144240527,"type":0,"speed":0}];
+
+
+			$( "#accordion" ).accordion({
+				heightStyle: 'fill',
+				create: function(event, ui) {
+					fn_addStaticMap(testData[0], 0);
+				},
+				change: function(event, ui){
+					fn_addStaticMap(testData[ui.options.active], ui.options.active);
+				}
+			});
+			function fn_addStaticMap(obj_tempLocData, n_index) {
+				var n_clon = obj_tempLocData.clongitude/3600000,
+					n_clat= obj_tempLocData.clatitude/3600000,
+					str_imgHtml = 'http://api.map.baidu.com/staticimage?center='+n_clon+','+n_clat+'&width=300&height=300&zoom=17&markers='+n_clon+','+n_clat;
+					
+					$('#accordionImg'+n_index).attr('src', str_imgHtml);
+			}
+		});
+	</script>
+</head>
+<body>
+	<div id="accordion">
+		<h3>Section 1</h3>
+		<div class="divHeight">
+			<p>111</p>
+			<img id="accordionImg0" src="" alt="111" />
+		</div>
+		<h3>Section 2</h3>
+		<div class="divHeight">
+			<p>222 </p>
+			<img id="accordionImg1" src="" alt="222" />
+		</div>
+		<h3>Section 3</h3>
+		<div class="divHeight">
+			<p>333 </p>
+			<img id="accordionImg2" src="" alt="333" />
+		</div>
+		<h3>Section 4</h3>
+		<div class="divHeight">
+			<p>444</p>
+			<img id="accordionImg3" src="" alt="444" />
+		</div>
+	</div>
+ 
+</body>
+</html>
