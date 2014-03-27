@@ -69,8 +69,8 @@ $(function () {
 			str_fileSize = $('#txt_apkFileSize').val(),
 			str_updateTime= $('#txt_apkUpdateTime').val(),
 			str_versionInfo = $('#txt_apkInfo').val(),
-			str_apkType = $('input[name="apk_type"]input:checked').val();
-	
+			str_apkType = $('input[name="apk_type"]:checked').val();
+		
 		if ( fn_validFileuploadForm() ) {
 			$.ajaxFileUpload({
 				url : '/apk',//用于文件上传的服务器端请求地址
