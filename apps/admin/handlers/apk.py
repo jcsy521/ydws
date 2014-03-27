@@ -34,7 +34,7 @@ class ApkHandler(BaseHandler):
             versionname = self.get_argument('versionname', '')
             versioninfo = self.get_argument('versioninfo', '')
             updatetime = self.get_argument('updatetime', '')
-            category = self.get_argument('category', '')
+            category = int(self.get_argument('category', ''))
             filesize = self.get_argument('filesize', '')
             upload_file = self.request.files['fileupload'][0]
             filename = safe_utf8(upload_file['filename'])
