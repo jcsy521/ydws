@@ -12,6 +12,8 @@ from codes.errorcode import ErrorCode
 from utils.misc import safe_utf8, str_to_list, DUMMY_IDS
 from utils.checker import check_filename 
 
+from constants import UWEB
+
 from base import BaseHandler, authenticated
 
 class ApkHandler(BaseHandler):
