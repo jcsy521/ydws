@@ -55,13 +55,14 @@ class WeixinHandler(BaseHandler):
         msgid = data.find('MsgId').text
 
         #  BD#username:password
-        bd = re.search('BD#', content)
+        content = content.lower()
+        bd = re.search('bd#', content)
         f = re.search(':', content)
         if bd:
             username = content[bd.end():f.start()]
             password = content[f.end():]
 
-            cksql = "SELECT　uid FROM T_USER WHERE uid = %s AND password = %s" % (username, password)
+            cksql = "SELECT　uid FROM T_USER WHERE uid = %s AND password =  PASSWORD(%s)" % (username, password)
             upsql = "UPDATE T_USER SET openid = %s WHERE uid = %s" % (fromusername, username)
             user = self.db.query(cksql)
             if user:
