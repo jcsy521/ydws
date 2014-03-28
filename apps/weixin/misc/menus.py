@@ -122,7 +122,12 @@ menu3 = '''
                   {
                      "type":"view",
                      "name":"解绑",
-                     "url":"http://weixin.ichebao.net/ubind"
+                     "url":"http://weixin.ichebao.net/unbind"
+                  },
+                  {
+                     "type":"view",
+                     "name":"test",
+                     "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=http://weixin.ichebao.net/bind&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
                   }
                ]
             }

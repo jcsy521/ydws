@@ -40,6 +40,7 @@ from handlers.main import MainHandler
 from handlers.base import BaseHandler
 from handlers.bind import BindHandler, UnBindHandler
 from handlers.terminals import TerminalsHandler
+from handlers.event import EventHandler
 
 
 class Application(tornado.web.Application):
@@ -53,7 +54,7 @@ class Application(tornado.web.Application):
             (r"/unbind", UnBindHandler),
             (r"/weixin", WeixinHandler),
             (r"/terminals", TerminalsHandler),
-            (r"/terminals", TerminalsHandler),
+            (r"/event", EventHandler),
 
         ]
 

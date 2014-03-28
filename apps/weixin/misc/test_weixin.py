@@ -43,10 +43,8 @@ class MenuManager:
                users= "https://api.weixin.qq.com/cgi-bin/user/get?access_token=%(access_token)s&next_openid=",
                get_user_info = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=%(access_token)s&openid=%(openid)s&lang=zh_CN",
                
-               auth = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=%(appid)s&%(auth_url)s&response_type=code&scope=%(scope)s&state=%(state)s#wechat_redirect"
-
-               ) 
-
+               #auth = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=%(appid)s&%(auth_url)s&response_type=code&scope=%(scope)s&state=%(state)s#wechat_redirect"
+               auth = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=REDIRECT_URI&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect")
     def __init__(self):
         pass
         #self.db = DBConnection().db
@@ -59,7 +57,7 @@ class MenuManager:
 
         #token = 'zr4Jgv-suvfBPfBFEvYVYdS3Kqk-10nW6f4o7vK2RBU9s6nZZ1X7O52srGEZMQZwoRa0yR43TyyWhj3WFBF0dH628g4Ey7lRjrAzRq0Q50Pl0XnC1ZgjpqGfiO1zFR4zjTRDb_l-fccTnNLSoUTVSg' 
         #token = None
-        token = 'oCY83gLQlAIVycibh3WDI9QeWSYtHekof1x-Jb2IVM_Uw9stXDmgm5vNiVP2sRahziEXkIBx4naNIab44diPawqh1jaBA7yZZoQ3R0zuGcu2vAWn4-fGUk2H8sML8XA0V9PNmX-3LvM5F0_Zo_ALrQ'
+        token = 'nhsxkLTIEOmCwsQnnz7ATLPLH5iJCWuGNwu0-MfkLd2MC8oLqExQ8ilbAKdWaBgtkhYIBmUbMsiiElHGQIlz95TyCV8X94EsEh4s0PNt6GntgoiwwE9i2XkjU5zvKSyOxjkAvJOAF4ICO2PkK9gsaw'
         #self.redis.set('token', token)
         #token = self.redis.get('token')
         if not token:
@@ -84,7 +82,7 @@ class MenuManager:
     def createMenu(self, accessToken, menu):
         """Create a menu according json.
         """
-        html = urllib2.urlopen(self.createUrl + accessToken, menu.encode("utf-8"))
+        html = urllib2.urlopen(self.URL['createUrl'] + accessToken, menu.encode("utf-8"))
         result = json.loads(html.read().decode("utf-8"))
         logging.info("create menu. response: %s", result)
         return result["errcode"]
@@ -169,11 +167,11 @@ if __name__ == "__main__":
     accessToken = wx.getAccessToken()
     print 'token', accessToken
     #wx.delMenu(accessToken)
-    #wx.createMenu(accessToken, menu3)
+    wx.createMenu(accessToken, menu3)
     #wx.getMenu(accessToken)
     #wx.send_msg(accessToken)
     #wx.get_user_info(accessToken, "oPaxZt3o-PdbYCLKagXuOCoCJG5Y")
     #wx.create_group(accessToken )
     #wx.groups(accessToken )
     #wx.users(accessToken )
-    wx.auth()
+    #wx.auth()
