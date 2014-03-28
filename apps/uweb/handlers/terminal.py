@@ -311,7 +311,13 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 return
 
             # 1: add terminal
-            umobile = data.umobile if data.umobile else self.current_user.cid
+            #umobile = data.umobile if data.umobile else self.current_user.cid
+            if data.umobile:
+                umobile = data.umobile 
+            else:
+                corp = self.db.get("SELECT cid, mobile FROM T_CORP WHERE cid = %s", self.current_user.cid)
+                umobile = corp.mobile
+
             terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
                                    data.tmobile)
             if terminal:

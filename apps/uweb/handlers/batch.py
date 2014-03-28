@@ -252,12 +252,17 @@ class BatchJHHandler(BaseHandler):
             res = []
             for item in mobiles:
                 tmobile = item['tmobile']
-                umobile = item['umobile'] if item['umobile'] else self.current_user.cid
+                if item['umobile']: 
+                    umobile = item['umobile'] 
+                else:
+                    corp = self.db.get("SELECT cid, mobile FROM T_CORP WHERE cid = %s", self.current_user.cid) 
+                    umobile = corp.mobile
+
                 biz_type = item['biz_type']
                 r = DotDict(tmobile=tmobile,
                             status=ErrorCode.SUCCESS)
                 # 1. add terminal
-                umobile = umobile if umobile else self.current_user.cid
+
                 terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
                                        tmobile)
                 if terminal:
