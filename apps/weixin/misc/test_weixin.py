@@ -42,6 +42,9 @@ class MenuManager:
 
                users= "https://api.weixin.qq.com/cgi-bin/user/get?access_token=%(access_token)s&next_openid=",
                get_user_info = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=%(access_token)s&openid=%(openid)s&lang=zh_CN",
+               
+               auth = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=%(appid)s&%(auth_url)s&response_type=code&scope=%(scope)s&state=%(state)s#wechat_redirect"
+
                ) 
 
     def __init__(self):
@@ -137,6 +140,28 @@ class MenuManager:
         html = urllib2.urlopen(self.URL['users'] % data)
         print html.read().decode("utf-8")
 
+    def auth(self):
+        """ 
+        """
+        url = 'http://www.ichebao.net'
+     
+        #url = 'http://xiaolei.ichebao.net/'
+        data = dict(redirect_uri=url)
+        auth_url = urllib.urlencode(data)
+        scope = 'snsapi_base'
+        #scope = 'snsapi_userinfo'
+        state = '123'
+  
+        data = dict(appid=self.appid,
+                    auth_url=auth_url,
+                    scope=scope,
+                    state=state) 
+        full_path = self.URL['auth'] % data
+        print 'full_path', full_path
+        html = urllib2.urlopen(full_path)
+        print html.read()
+        #print html.read().decode("utf-8")
+
 
 if __name__ == "__main__":
     wx = MenuManager()
@@ -150,4 +175,5 @@ if __name__ == "__main__":
     #wx.get_user_info(accessToken, "oPaxZt3o-PdbYCLKagXuOCoCJG5Y")
     #wx.create_group(accessToken )
     #wx.groups(accessToken )
-    wx.users(accessToken )
+    #wx.users(accessToken )
+    wx.auth()
