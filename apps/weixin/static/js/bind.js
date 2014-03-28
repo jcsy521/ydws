@@ -27,6 +27,7 @@ $(function() {
 				if ( data.status == 0 ) {
 					alert('绑定成功！');
 					$('#userMobile, #userPwd').val('');
+					window.history.go(-1);
 				} else {
 					alert(data.message);
 				}
@@ -36,7 +37,7 @@ $(function() {
 		$('#unbind_userPwd').val('');
 		
 		$('#unbind_userSaveBtn').click(function(e) {
-			var str_userName = $.trim($('#unbind_uMobile').val()),
+			var str_userName = $.trim($('#unbind_userMobile').html()),
 				str_userPwd =  $.trim($('#unbind_userPwd').val()),
 				str_openid = $('#openid').val(),
 				obj_bindData = {'openid': str_openid, 'username': str_userName, 'password': str_userPwd};
@@ -46,10 +47,11 @@ $(function() {
 				alert('请输入密码！');
 				return;
 			}
-			$.post_('/bind', JSON.stringify(obj_bindData), function(data) {
+			$.post_('/unbind', JSON.stringify(obj_bindData), function(data) {
 				if ( data.status == 0 ) {
 					alert('解除绑定成功！');
 					$('#unbind_userPwd').val('');
+					window.history.go(-1);
 				} else {
 					alert(data.message);
 				}

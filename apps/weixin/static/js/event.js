@@ -50,6 +50,9 @@ function fn_loadEventData(str_timeType) {
 		n_nowTime = new Date().getTime()/1000,
 		n_dayTimel = 60*60*24;
 	
+	$('#loadDatasTHeader').nextAll().remove();
+	$('#loadEventDatas').hide();
+	
 	if ( str_timeType == 'day' ) {
 		n_stTime = toEpochDate(str_today+' 00:00:00');
 		n_endTime = n_nowTime;
@@ -83,7 +86,7 @@ function fn_addDataList() {
 		arr_eventData = $('#eventSearch_btn').data('eventdata');
 	
 	if ( arr_eventData ) {
-		for ( var i = 0; i < 10; i++) {alert('1111   '+n_showItemNums);
+		for ( var i = 0; i < 10; i++) {
 			var obj_tempData = arr_eventData[n_showItemNums];
 			
 			if ( obj_tempData ) {
@@ -100,7 +103,6 @@ function fn_addDataList() {
 			}
 			n_showItemNums++; //计数器+1
 		}
-		alert('xx: '+str_showHtml);
 		$('#loadDatasTHeader').after(str_showHtml);
 		$(window).scrollTop($(window).height()+100);
 	}
