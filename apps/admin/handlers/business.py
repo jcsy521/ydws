@@ -218,11 +218,11 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
         """Query businesses according to the given params.
         """
         corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
-        corps = self.get_argument('corps', 0)
+        corps = self.get_argument('corps', None)
         begintime = int(self.get_argument('begintime',0))
         endtime = int(self.get_argument('endtime',0))
         interval=[begintime, endtime]
-        if int(corps) == 0:
+        if not corps:
             corps = self.db.query("SELECT cid FROM T_CORP")
             corps = [str(corp.cid) for corp in corps]
             sql = "SELECT id FROM T_GROUP WHERE corp_id IN %s" % (tuple(corps + DUMMY_IDS),)
