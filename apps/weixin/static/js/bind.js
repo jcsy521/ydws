@@ -25,12 +25,10 @@ $(function() {
 			}
 			$.post_('/bind', JSON.stringify(obj_bindData), function(data) {
 				if ( data.status == 0 ) {
-					alert('绑定成功！');
 					$('#userMobile, #userPwd').val('');
 					window.history.go(-1);
-				} else {
-					alert(data.message);
-				}
+				} 
+				alert(data.message);
 			});
 		});
 	} else { // 解绑页面初始化
@@ -49,12 +47,10 @@ $(function() {
 			}
 			$.post_('/unbind', JSON.stringify(obj_bindData), function(data) {
 				if ( data.status == 0 ) {
-					alert('解除绑定成功！');
 					$('#unbind_userPwd').val('');
 					window.history.go(-1);
-				} else {
-					alert(data.message);
 				}
+				alert(data.message);
 			});
 		});
 	}
