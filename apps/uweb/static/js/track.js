@@ -108,7 +108,9 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 			
 			//查找选中的终端,进行添加数据
 			var obj_carDatas = $('.j_carList').data('carsData'),
-				arr_lastLocations = [];
+				arr_lastLocations = [],
+				b_bindRegionWpST = $('#bindRegionWrapper').is(':hidden'),
+				b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':hidden');
 			
 			$('.j_group .jstree-checked').each(function() {
 				var obj_this = $(this),
@@ -127,7 +129,10 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 					mapObj.setCenter(arr_lastLocations[0]);
 				}, 310);
 			}
-			dlf.fn_corpLastinfoSwitch(true);
+				
+			if ( b_bindBatchRegionWpST && b_bindRegionWpST ) {
+				dlf.fn_corpLastinfoSwitch(true);
+			}
 			dlf.fn_corpGetCarData(true);
 		}
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
