@@ -456,7 +456,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			}
 		}
 	} else {
-		if ( b_bindBatchRegionWpST ) {
+		if ( b_bindBatchRegionWpST || b_bindRegionWpST ) {
 			dlf.fn_initBindRegion();
 		}
 		obj_terminals.removeClass(JSTREECLICKED);
