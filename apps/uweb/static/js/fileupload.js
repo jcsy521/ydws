@@ -56,7 +56,7 @@ $(function() {
 						var obj_result = arr_datas[x],
 							n_status = obj_result.status,
 							str_tmobile = obj_result.tmobile,
-							obj_updateTd = $('.j_notActived[tmobile='+ str_tmobile +']').children('td').eq(2);
+							obj_updateTd = $('.j_notActived[tmobile='+ str_tmobile +']').children('td').eq(3);
 						
 						if ( n_status == 0 ) {
 							obj_updateTd.html('激活指令已下发').addClass('fileStatus4');
