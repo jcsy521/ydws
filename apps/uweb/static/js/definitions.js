@@ -96,3 +96,4 @@ var USER_PERSON = 'individual'; // 个人用户
 var USER_CORP = 'enterprise'; // 集团管理员
 var USER_OPERATOR = 'operator'; // 集团 操作员
 var JSTREECLICKED = 'jstree-clicked';	// jstree节点被选中的样式
+var DOMAIN_HOST = window.location.host;

@@ -1294,4 +1294,4 @@ $(function () {
 	$('.j_closeAlarm').unbind('click').bind('click', function() {
 		dlf.fn_closeAlarmPanel();
 	});
-})
+});

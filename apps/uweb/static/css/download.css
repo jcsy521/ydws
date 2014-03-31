@@ -4,6 +4,9 @@ body {
 	margin: 0 auto;
 	background-color: #fff;
 }
+.hide {
+	display: none;
+}
 .content {
 	background-color: #FFFFFF;
     border: 1px solid #D4D4D4;

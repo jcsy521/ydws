@@ -592,7 +592,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 						str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt) : str_iconUrl,
 						str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
 
-					str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中山移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+					str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
 				}
 			}
 		} else if ( str_iconType == 'alarmInfo' ) {
