@@ -20,7 +20,7 @@ from helpers.downloadhelper import get_version_info,\
 from helpers.smshelper import SMSHelper
 from helpers.confhelper import ConfHelper
 from helpers.queryhelper import QueryHelper
-from constants import DOWNLOAD
+from constants import DOWNLOAD, UWEB
 
 from base import BaseHandler, authenticated
 
@@ -61,6 +61,10 @@ class DownloadHandler(BaseHandler):
             self.redirect(url)
         elif category == 4: # ydwq_monitored
             version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWQ_MONITORED, self.db)
+            url = "/static/apk/"+version_info['filename']
+            self.redirect(url)
+        elif category == 5: # ydws_anjietong
+            version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWS_ANJIETONG, self.db)
             url = "/static/apk/"+version_info['filename']
             self.redirect(url)
 

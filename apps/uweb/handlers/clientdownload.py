@@ -11,8 +11,11 @@ class ClientDownloadHandler(BaseHandler):
 
     @tornado.web.removeslash
     def get(self):
-        """Jump to the clientDownload.html."""
-        version_info = get_version_info('android')
-        versionname = version_info.versionname
-        self.render('clientDownload.html', versionname=versionname)
-
+        """Jump to the clientDownload html."""
+        category = int(self.get_argument('category', 1))
+        if category == 1:  # ydws
+            self.render('download_ydws.html')
+        elif category == 2: # ydwq
+            self.render('download_ydwq.html')
+        elif category == 3: # ydws-anjietong 
+            self.render('download_anjietong.html')

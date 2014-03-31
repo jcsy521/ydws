@@ -41,7 +41,8 @@ USER_TYPE=DotDict(PERSON='individual',
 
 APK_TYPE=DotDict(YDWS=1,
                  YDWQ_MONITOR=2,
-                 YDWQ_MONITORED=3)
+                 YDWQ_MONITORED=3,
+                 YDWS_ANJIETONG=4)
 
 GROUP_TYPE=DotDict(BUILTIN=0,
                    NEW=1)
