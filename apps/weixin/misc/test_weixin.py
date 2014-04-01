@@ -43,7 +43,6 @@ class MenuManager:
                users= "https://api.weixin.qq.com/cgi-bin/user/get?access_token=%(access_token)s&next_openid=",
                get_user_info = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=%(access_token)s&openid=%(openid)s&lang=zh_CN",
                
-               #auth = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=%(appid)s&%(auth_url)s&response_type=code&scope=%(scope)s&state=%(state)s#wechat_redirect"
                auth = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=REDIRECT_URI&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect")
     def __init__(self):
         pass
@@ -55,9 +54,7 @@ class MenuManager:
         NOTE: access_token is limited. so you can keep the token when got it, rather than get it every time. 
         """
 
-        #token = 'zr4Jgv-suvfBPfBFEvYVYdS3Kqk-10nW6f4o7vK2RBU9s6nZZ1X7O52srGEZMQZwoRa0yR43TyyWhj3WFBF0dH628g4Ey7lRjrAzRq0Q50Pl0XnC1ZgjpqGfiO1zFR4zjTRDb_l-fccTnNLSoUTVSg' 
-        #token = None
-        token = 'nhsxkLTIEOmCwsQnnz7ATLPLH5iJCWuGNwu0-MfkLd2MC8oLqExQ8ilbAKdWaBgtkhYIBmUbMsiiElHGQIlz95TyCV8X94EsEh4s0PNt6GntgoiwwE9i2XkjU5zvKSyOxjkAvJOAF4ICO2PkK9gsaw'
+        token = None
         #self.redis.set('token', token)
         #token = self.redis.get('token')
         if not token:
@@ -143,7 +140,6 @@ class MenuManager:
         """
         url = 'http://www.ichebao.net'
      
-        #url = 'http://xiaolei.ichebao.net/'
         data = dict(redirect_uri=url)
         auth_url = urllib.urlencode(data)
         scope = 'snsapi_base'
@@ -155,20 +151,17 @@ class MenuManager:
                     scope=scope,
                     state=state) 
         full_path = self.URL['auth'] % data
-        print 'full_path', full_path
         html = urllib2.urlopen(full_path)
         print html.read()
-        #print html.read().decode("utf-8")
 
 
 if __name__ == "__main__":
     wx = MenuManager()
 
     accessToken = wx.getAccessToken()
-    print 'token', accessToken
     #wx.delMenu(accessToken)
     wx.createMenu(accessToken, menu3)
-    #wx.getMenu(accessToken)
+    wx.getMenu(accessToken)
     #wx.send_msg(accessToken)
     #wx.get_user_info(accessToken, "oPaxZt3o-PdbYCLKagXuOCoCJG5Y")
     #wx.create_group(accessToken )

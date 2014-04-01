@@ -69,7 +69,7 @@ class WeixinHandler(BaseHandler):
             msgid = data.find('MsgId').text
             # BD#username:password
             bd = re.search('bd#', content)
-            jb = re.search('jb', content)
+            jb = re.search('jb#', content)
             help = re.search('help', content)
             f = re.search(':', content)
             if bd:
@@ -79,32 +79,34 @@ class WeixinHandler(BaseHandler):
                 password = content[f.end():]
 
                 cksql = "SELECT uid FROM T_USER WHERE uid = %s AND password = password(%s)" % (username, password)
-                upsql = "UPDATE T_USER SET openid = '%s' WHERE uid = %s" % (fromusername, username)
+                upsql = "UPDATE T_USER SET openid = '%s' WHERE uid = %s" % (openid, username)
                 user = self.db.query(cksql)
                 if user:
                     self.db.execute(upsql)
                     recontent = u"绑定成功"
                     out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
             elif jb:
-                # JB
-                logging.info("[WEIXIN] jd")
+                # JB#username:password
+                logging.info("[WEIXIN] jb")
                 recontent = u"解绑失败"
-                cksql = "SELECT uid, openid FROM T_USER WHERE openid = '%s'" % openid
+                username = content[jb.end():f.start()]
+                password = content[f.end():]
+                cksql = "SELECT uid FROM T_USER WHERE uid = %s AND password = password(%s)" % (username, password)
                 user = self.db.query(cksql)
                 if user:
+                    self.db.execute("UPDATE T_USER SET openid = '' WHERE uid = %s ",
+                                    username)
                     recontent = u"解绑成功"
-                    self.db.execute("UPDATE T_USER SET openid = '' WHERE openid = %s ",
-                                    openid)
                 else:
-                    recontent = u"尚未绑定"
+                    recontent = u"输入的解绑用户名或密码有误"
                 out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
             elif help:
                 logging.info("[WEIXIN] help")
-                recontent = u"1. 绑定：bd#username:password\n2. 解绑：jb\n3.帮助 help "
+                recontent = u"1. 绑定：bd#username:password\n2. 解绑：jb#username:password\n3.帮助 help "
                 out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
             else:
                 logging.info("[WEIXIN] help")
-                recontent = u"1. 绑定：bd#username:password\n2. 解绑：jb\n3.帮助 help "
+                recontent = u"1. 绑定：bd#username:password\n2. 解绑：jb#username:password\n3.帮助 help "
                 out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
         else:
             pass

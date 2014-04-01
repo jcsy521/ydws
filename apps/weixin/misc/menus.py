@@ -104,12 +104,12 @@ menu3 = '''
             {
                 "type":"view",
                 "name":"车辆列表",
-                "url":"http://weixin.ichebao.net/terminals"
+                "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=http://weixin.ichebao.net/terminals&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
             },
             {
                 "type":"view",
                 "name":"查询警告",
-                "url":"http://weixin.ichebao.net/event"
+                "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=http://weixin.ichebao.net/event&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
             },
             {
                 "name":"账户管理",
@@ -117,18 +117,14 @@ menu3 = '''
                   {
                      "type":"view",
                      "name":"绑定",
-                     "url":"http://weixin.ichebao.net/bind"
+                     "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=http://weixin.ichebao.net/bind&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
                   },
                   {
                      "type":"view",
                      "name":"解绑",
-                     "url":"http://weixin.ichebao.net/unbind"
-                  },
-                  {
-                     "type":"view",
-                     "name":"test",
-                     "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=http://weixin.ichebao.net/bind&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
+                     "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=http://weixin.ichebao.net/unbind&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect"
                   }
+                  
                ]
             }
           ]

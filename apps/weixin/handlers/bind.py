@@ -6,6 +6,7 @@ import logging
 from hashlib import md5
 import urllib2
 import json
+import MySQLdb
 
 import tornado.web
 from tornado.escape import json_encode, json_decode
@@ -24,92 +25,154 @@ from helpers.lbmphelper import get_locations_with_clatlon
 from helpers.downloadhelper import get_version_info 
 from helpers.confhelper import ConfHelper
 
-class BindHandler(BaseHandler):
 
-    def getopenid(self):
-        code = self.get_argument('code')
-        getop = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx394eee811bd082b1&secret=a1a255d959889b86612cefe39324ef23&code=%s&grant_type=authorization_code" % code
-        f = urllib2.urlopen(getop)
-        co = f.read().decode("utf-8")
-        jsonT = json.loads(co)
-        access_token = jsonT['access_token']
-        print("---->co %s") % jsonT
-        openid = jsonT['openid']
-        return openid
+class BindHandler(BaseHandler):
 
     @tornado.web.removeslash
     def get(self):
         #openid = "oPaxZt1v4rhWN9hBgJ4vLh-nejJw"
-        #openid = self.get_argument('openid', 0)
         openid = self.getopenid()
-        print("------->>>openid:%s") % openid
-        self.render("bind.html",openid = openid) 
+        user = self.db.get("SELECT uid FROM T_USER WHERE openid = %s", openid)
+        if user is not None:
+            status = WXErrorCode.USER_BINDED
+            self.render("error.html",
+                        status=status,
+                        message=WXErrorCode.ERROR_MESSAGE[status])
+            return
+            
+        self.render("bind.html", openid=openid)
     
     @tornado.web.removeslash
     def post(self):
         status = WXErrorCode.SUCCESS
         try:
             data = json_decode(self.request.body)
-            print("_______>>>>data:%s") % data
             username = data.get('username')
             password = data.get('password')
-            #openid = 'oPaxZt1v4rhWN9hBgJ4vLh-nejJw'
-            uid = username
             openid = data.get('openid')
-            print("----<<<<<<--->>>openid:%s") % openid
-            print("username:password %s:%s") %(username,password)
-            sql = "SELECT uid, password FROM T_USER WHERE uid = '%s' and password = PASSWORD(%s) " % (username, password)
-            print("SQL:%s") % sql
-            user = self.db.query(sql)
+
+            sql = "SELECT uid, openid FROM T_USER WHERE uid = '%s' and password = PASSWORD(%s) "\
+                  % (username, password)
+            try:
+                user = self.db.query(sql)
+            except MySQLdb.Error, e:
+                status = WXErrorCode.USER_EXIST
+                self.write_ret(status=status, message=WXErrorCode.ERROR_MESSAGE[status])
+                logging.exception("[WEIXIN] bind check user post(), Exception:%s",
+                              e.args)
+                return
+
             bindsql = "UPDATE T_USER SET openid = '%s' WHERE uid = '%s' " % (openid, username)
             if user:
-                self.db.execute(bindsql)
+                if user[0]['openid'] is None:
+                    user[0]['openid'] = ''
+                if len(user[0]['openid']) == 0:
+                    try:
+                        self.db.execute(bindsql)
+                    except MySQLdb.Error, e:
+                        status = WXErrorCode.USER_EXIST
+                        self.write_ret(status=status, message=WXErrorCode.ERROR_MESSAGE[status])
+                        logging.exception("[WEIXIN] bind user post(), Exception:%s",
+                              e.args)
+                        return
+
+                else:
+                    status = WXErrorCode.USER_BINDED
+                    self.write_ret(status=status, message=WXErrorCode.ERROR_MESSAGE[status])
+                    return
+
             else:
                 status = WXErrorCode.USER_EXIST
-                message = WXErrorCode.ERROR_MESSAGE[status]
-                self.write_ret(status=status, message=message)
-                print("--------======")
-            self.write_ret(status=status, message='')
-        except Exception as e:
+                self.write_ret(status=status, message=WXErrorCode.ERROR_MESSAGE[status])
+                return
 
-            logging.exception("bind ydcws account failed")
+            self.write_ret(status=status, message=WXErrorCode.ERROR_MESSAGE[status])
+        except Exception as e:
+            logging.exception("[WEIXIN] bind ydcws account failed, Exception:%s",
+                              e.args)
             message = WXErrorCode.ERROR_MESSAGE[status]
-            self.write_ret(status=status, message=message)
+            self.render('error.html',
+                        status=status,
+                        message=message)
 
 
 class UnBindHandler(BaseHandler):
 
     @tornado.web.removeslash
     def get(self):
-        openid = "oPaxZt1v4rhWN9hBgJ4vLh-nejJw"
-        
-        self.render("unbind.html", openid=openid, username='')
+        status = WXErrorCode.SUCCESS
+        try:
+            openid = self.getopenid()
+            user = self.db.get("SELECT uid, password FROM T_USER WHERE openid = %s LIMIT 1",
+                               openid)
+            if user is None:
+                username = ''
+                status = WXErrorCode.USER_BIND
+                self.render("error.html",
+                            status=status,
+                            message=WXErrorCode.ERROR_MESSAGE[status])
+                return
+            else:
+                username = user['uid']
 
+            self.render("unbind.html",
+                        openid=openid,
+                        username=username,
+                        status=status)
+
+        except Exception as e:
+            status = WXErrorCode.FAILED
+            self.render("error.html", status=status, message=WXErrorCode.ERROR_MESSAGE[status])
+            logging.exception("[WEIXIN] unbind GET() fail, Execption:%s",
+                              e.args)
     @tornado.web.removeslash
     def post(self):
         status = WXErrorCode.SUCCESS
         try:
-            openid = 'oPaxZt1v4rhWN9hBgJ4vLh-nejJw'
-            sql = "SELECT uid, password FROM T_USER WHERE openid = %s" % openid
-            user = self.db.query(sql)
-            username = ''
-            password = ''
+            data = json_decode(self.request.body)
+            openid = data.get('openid', '')
+            username = data.get('username', '')
+            password = data.get('password', '')
+            sql = "SELECT uid, password, openid FROM T_USER WHERE uid = '%s' and password = PASSWORD('%s') "\
+                  % (username, password)
+            try:
+                user = self.db.query(sql)
+            except MySQLdb.Error as e:
+                logging.exception("[WEIXIN]unbind check account failed, Exception:%s",
+                              e.args)
             
-            for u in user:
-                username  = u.get('username')
-                password = u.get('password')
-            
-            bindsql = "UPDATE T_USER SET openid = %s WHERE uid = %s" % ('', username)
-            if user:
-                self.db.execute(bindsql)
-            else:
+            if not user:
                 status = WXErrorCode.USER_EXIST
                 message = WXErrorCode.ERROR_MESSAGE[status]
-                self.render("unbind.html", status=status, message=message, username=username)
-            self.render("unbind.html", status=status, username=username)
+                self.write_ret(status=status, message=message)
+                return
+            else:
+                if user[0]['openid'] is None or len(user[0]['openid']) == 0:
+                    status = WXErrorCode.USER_BIND
+                    message = WXErrorCode.ERROR_MESSAGE[status]
+                    self.write_ret(status=status, message=message)
+                    return
+            
+            username = ''
+            password = ''
+            for u in user:
+                username = u.get('uid', '')
+                password = u.get('password', '')
+                unbindsql = "UPDATE T_USER SET openid = '' WHERE uid = '%s' " % username
+                try:
+                    self.db.execute(unbindsql)
+                except MySQLdb.Error as e:
+                    logging.exception("[WEIXIN] unbind account failed, Exception:%s",
+                              e.args)
+                
+            message = WXErrorCode.ERROR_MESSAGE[status]
+            self.write_ret(status, message=message)
+
         except Exception as e:
-            logging.exception("unbind ydcws account failed")
+            logging.exception("[WEIXIN] unbind ydcws account failed, Exception: %s",
+                              e.args)
             status = WXErrorCode.FAILED
             message = WXErrorCode.ERROR_MESSAGE[status]
-            self.render("error.html", status=status, message=message, username=username)
-
+            self.render("error.html",
+                        status=status,
+                        message=message)

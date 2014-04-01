@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 import urllib2, json
 import xml.etree.ElementTree as ET
 import hashlib
+import MySQLdb
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
@@ -14,7 +15,7 @@ from tornado.ioloop import IOLoop
 
 from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,\
-    get_alert_freq_key, get_tid_from_mobile_ydwq
+    get_alert_freq_key, get_tid_from_mobile_ydwq, safe_unicode
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
 from utils.public import record_add_action, delete_terminal
@@ -40,20 +41,31 @@ class EventHandler(BaseHandler):
         status = WXErrorCode.SUCCESS
         try:
             body = self.request.body
-            openid='oPaxZt1v4rhWN9hBgJ4vLh-nejJw'
+            openid = self.getopenid()
             user = self.db.get("SELECT uid, mobile "
                                "  FROM T_USER "
                                "  WHERE openid = %s", 
                                openid)
-            if not user:
-                status=WXErrorCode.FAILED
-                self.render('error.html', 
-                             status=status,
-                             message=WXErrorCode.ERROR_MESSAGE[status])
-         
-            res = self.db.query("SELECT tid FROM T_TERMINAL_INFO "
-                                "  WHERE owner_mobile = %s",
-                                user['mobile'])
+
+            if user is None:
+                mobile = ''
+                status = WXErrorCode.USER_BIND
+                message=WXErrorCode.ERROR_MESSAGE[status]
+                self.render('error.html',
+                            status=status,
+                            message=message)
+                return
+            else:
+                mobile = user['mobile']
+            try:
+                res = self.db.query("SELECT tid FROM T_TERMINAL_INFO "
+                                    "  WHERE owner_mobile = %s",
+                                    mobile)
+            except MySQLdb.Error as e:
+                logging.exception("[WEIXIN]event search terminals failed, Exception:%s",
+                              e.args)
+            if not res:
+                res = []
             for r in res:
                 terminal = QueryHelper.get_terminal_info(r['tid'], self.db, self.redis)  
                 r['alias'] = terminal['alias']
@@ -63,10 +75,11 @@ class EventHandler(BaseHandler):
 
         except Exception as e:
             status = WXErrorCode.FAILED
-            logging.exception("[WEIXIN] get event failed ")
+            logging.exception("[WEIXIN] get event failed, Execptin:%s ",
+                              e.args)
             self.render('error.html', 
-                         status=status,
-                         message=WXErrorCode.ERROR_MESSAGE[status])
+                        status=status,
+                        message=WXErrorCode.ERROR_MESSAGE[status])
 
     @tornado.web.removeslash
     def post(self):
@@ -74,10 +87,10 @@ class EventHandler(BaseHandler):
         """
         status = WXErrorCode.SUCCESS
         try:
-            openid='oPaxZt1v4rhWN9hBgJ4vLh-nejJw'
             data = DotDict(json_decode(self.request.body))
             logging.info("[WEIXIN] event request body: %s", self.request.body)
             tid = data.tid
+            openid = data.get('openid')
             start_time = data.start_time
             end_time = data.end_time
         except Exception as e:
@@ -85,34 +98,44 @@ class EventHandler(BaseHandler):
             logging.exception("[WEIXIN] Invalid data format. Exception: %s",
                               e.args)
             self.render('error.html', 
-                         status=status,
-                         message=WXErrorCode.ERROR_MESSAGE[status])
+                        status=status,
+                        message=WXErrorCode.ERROR_MESSAGE[status])
             return
 
         try:
-            sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
-                  "  timestamp, name, type, speed, degree,"
-                  "  category, pbat, terminal_type, fobid, rid, locate_error"  
-                  "  FROM V_EVENT"
-                  "  WHERE tid ='%s'"
-                  "    AND (timestamp BETWEEN %s AND %s)"
-                  "  ORDER BY timestamp DESC") %\
-                  (tid, start_time, end_time)
+            checksql = "SELECT  uid FROM T_USER WHERE openid = '%s'" % openid
+            user = self.db.query(checksql)
+            if not user:
+                status = WXErrorCode.USER_BIND
+                message = WXErrorCode.ERROR_MESSAGE[status]
+                self.render('error.html',
+                            status=status,
+                            message=message)
+                return
 
             sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
-                  "  timestamp, name, type, speed, degree,"
-                  "  category, pbat, terminal_type, fobid, rid, locate_error"  
-                  "  FROM V_EVENT"
-                  "   where timestamp BETWEEN %s AND %s"
-                  "  ORDER BY timestamp DESC limit 21 ") %\
-                  (start_time, end_time)
-            print '-------------sql', sql
+                   "  timestamp, name, type, speed, degree,"
+                   "  category, pbat, terminal_type, fobid, rid, locate_error"
+                   "  FROM V_EVENT"
+                   "  WHERE tid ='%s'"
+                   "    AND (timestamp BETWEEN %s AND %s)"
+                   "  ORDER BY timestamp DESC") %\
+                (tid, start_time, end_time)
+
+            sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
+                   "  timestamp, name, type, speed, degree,"
+                   "  category, pbat, terminal_type, fobid, rid, locate_error"
+                   "  FROM V_EVENT"
+                   "   where timestamp BETWEEN %s AND %s"
+                   "  ORDER BY timestamp DESC limit 21 ") %\
+                (start_time, end_time)
             events = self.db.query(sql)
                 
             alias_dict = {}
             terminal_info_key = get_terminal_info_key(tid)
             terminal_info = self.redis.getvalue(terminal_info_key)
             alias_dict[tid] = terminal_info['alias'] if terminal_info['alias'] else terminal_info['mobile']
+
             # change the type form decimal to float.
             for event in events:
                 event['alias'] = '' # alias_dict[event['tid']] 
@@ -147,7 +170,12 @@ class EventHandler(BaseHandler):
                            dict_=DotDict(res=r))
 
         except Exception as e:
-            logging.exception("list of terminals failed ")
-            self.render('error.html', message=WXErrorCode.FAILED)
+            logging.exception("[WEIXIN] search event failed POST(), Execption:%s",
+                              e.args)
+            status=WXErrorCode.FAILED
+            message=WXErrorCode.ERROR_MESSAGE[status]
+            self.render('error.html',
+                        status=status,
+                        message=message)
 
 

@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 import urllib2, json
 import xml.etree.ElementTree as ET
 import hashlib
+import MySQLdb
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
@@ -33,7 +34,9 @@ from mixin import BaseMixin
 
 
 class TerminalsMixin(BaseMixin):
+
     KEY_TEMPLATE = "terminals_report_%s_%s"
+
     def prepare_data(self, hash_):
         mem_key = self.get_memcache_key(hash_)
         data = self.getvalue(mem_key)
@@ -50,36 +53,54 @@ class TerminalsHandler(BaseHandler, TerminalsMixin):
         """
         status = WXErrorCode.SUCCESS
         try:
-            body = self.request.body
-            #data = ET.fromstring(body)
-            #tousername = data.find('ToUserName').text
-            #fromusername = data.find('FromUserName').text
-            #createtime = data.find('CreateTime').text
-            #msgtype = data.find('MsgType').text
-            #event = data.find('Event').text
-            #eventkey = data.find('EventKey').text
-            fromusername='oPaxZt1v4rhWN9hBgJ4vLh-nejJw'
-            #checksql = "SELECT uid FROM T_USER WHERE openid = %s" % fromusername
-            checksql = "SELECT  uid FROM T_USER WHERE openid = 'oPaxZt1v4rhWN9hBgJ4vLh-nejJw'"
-            user = self.db.query(checksql)
-            print('user---%s') % user
 
-            listsql = "SELECT t.tid , t.dev_type, t.mobile, t.owner_mobile, t.alias, t.gsm, t.gps, t.login,t.login_time, t.offline_time, t.domain, t.service_status, t.defend_status, t.mannual_status,t.begintime, t.endtime, t.group_id, t.activation_code, t.biz_type, pbat FROM T_TERMINAL_INFO as t INNER JOIN T_USER on T_USER.openid = '%s' and t.owner_mobile=T_USER.mobile" % fromusername
-           
-            tlist = self.db.query(listsql)
+            openid = self.getopenid()
+            body = self.request.body
+            checksql = "SELECT  uid FROM T_USER WHERE openid = '%s'" % openid
+
+            try:    
+                user = self.db.query(checksql)
+            except MySQLdb.Error as e:
+                logging.exception("[WEIXIN] terminals get() check openid, Exception:%s",
+                              e.args)
+
+            tlist = []
+            listsql = "SELECT t.tid , t.dev_type, t.mobile, t.owner_mobile, t.alias, t.gsm, t.gps, " \
+                      "t.login,t.login_time, t.offline_time, t.domain, t.service_status, t.defend_status, " \
+                      "t.mannual_status,t.begintime, t.endtime, t.group_id, t.activation_code, t.biz_type, " \
+                      "pbat FROM T_TERMINAL_INFO as t INNER JOIN T_USER on T_USER.openid = '%s' " \
+                      "and t.owner_mobile=T_USER.mobile" % openid
+            if user:
+                try:
+                    tlist = self.db.query(listsql)
+                except MySQLdb.Error as e:
+                    logging.exception("[WEIXIN] terminals get() search terminals list, Exception:%s",
+                              e.args)
+            else:
+                status = WXErrorCode.USER_BIND
+                message = WXErrorCode.ERROR_MESSAGE[status]
+                self.render('error.html',
+                            status=status,
+                            message=message)
+                return
+
             res = []
             if not tlist:
                 tlist = []
             for t in tlist:
-                localsql = "SELECT name, clatitude, clongitude,MAX(timestamp) FROM T_LOCATION WHERE  tid = '%s'" % t.get('tid')
-                local = self.db.query(localsql)
+                localsql = "SELECT name, clatitude, clongitude FROM T_LOCATION WHERE  tid = '%s'  AND " \
+                           "NOT (latitude = 0 OR longitude = 0) ORDER BY timestamp DESC limit 1" % t.get('tid')
+                try:
+                    local = self.db.query(localsql)
+                except MySQLdb.Error as e:
+                    logging.exception("[WEIXIN] terminals get() search location, Exception:%s",
+                              e.args)
                 clongitude = 0
                 clatitude = 0
                 for l in local:
                     clongitude = l.get('clongitude')
                     clatitude = l.get('clatitude')
                     name = l.get('name')
-                print(clongitude, clatitude)
                 _res = dict(tid=t.get('tid'),
                             dev_type=t.get('dev_type'),
                             mobile=t.get('mobile'),
@@ -104,21 +125,14 @@ class TerminalsHandler(BaseHandler, TerminalsMixin):
                             clatitude=clatitude
                             )
                 res.append(_res)
-            
-            print("res--->%s") % res
-            #m = hashlib.md5()
-            #m.update(self.request.body)
-            #hash_ = m.hexdigest()
-            #mem_key = self.get_memcache_key(hash_)
-            #self.redis.setvalue(mem_key, res, time=self.MEMCACHE_EXPIRY)
-            if not user:
-                status = WXErrorCode.USER_BIND
-                message = "sorry ,please bind your ACB account at first"
-                self.render("terminals.html", message=message, status=USER_BIND, res=res)
-
-            self.render("terminals.html", status=status, res=res)
+                  
+            self.render("terminals.html",
+                        status=status,
+                        res=res)
 
         except Exception as e:
-            logging.exception("list of terminals failed ")
-            self.render('error.html', message=WXErrorCode.FAILED)
+            logging.exception("[WEIXIN] list of terminals failed, Execption:%s ", 
+                              e.args)
+            self.render('error.html',
+                        message=WXErrorCode.FAILED)
 

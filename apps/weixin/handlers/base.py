@@ -6,6 +6,8 @@ import urllib
 import re
 import logging
 from time import strftime, time
+import urllib2
+import json 
 
 import tornado.web
 from tornado.escape import json_encode
@@ -14,7 +16,7 @@ from utils.dotdict import DotDict
 from utils.misc import safe_utf8
 from helpers.queryhelper import QueryHelper
 from helpers.confhelper import ConfHelper
-from codes.errorcode import ErrorCode
+from codes.wxerrorcode import WXErrorCode
 
 # cookie expire periods, in minutes. 12hours 
 EXPIRES_MINUTES = 12 * 60 
@@ -105,7 +107,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         ret = DotDict(status=status)
         if message is None:
-            ret.message = ErrorCode.ERROR_MESSAGE[status]
+            ret.message = WXErrorCode.ERROR_MESSAGE[status]
         else:
             ret.message = message
         if isinstance(dict_, dict):
@@ -170,3 +172,27 @@ class BaseHandler(tornado.web.RequestHandler):
                 logging.info("[UWEB] method: %s is invalid.", method )
         else:
             logging.info("[UWEB] versionname is empty: %s", versionname)
+    
+    def getopenid(self):
+        code = self.get_argument('code')
+        getop = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx394eee811bd082b1" \
+                "&secret=a1a255d959889b86612cefe39324ef23&code=%s&grant_type=authorization_code" % code
+        f = urllib2.urlopen(getop)
+        co = f.read().decode("utf-8")
+        jsonT = json.loads(co)
+        try:
+            access_token = jsonT['access_token']
+            openid = jsonT['openid']
+        except Exception as e:
+            if jsonT['errcode'] == 40029:
+                status = WXErrorCode.USER_FLUSH
+                message = WXErrorCode.ERROR_MESSAGE[status]
+                self.render('error.html',
+                            status=status,
+                            message=message)
+                logging.exception("[WEIXIN] getopenid() repeat use code:%s", code)
+                return
+
+        print "sss",jsonT,code
+        return openid
+
