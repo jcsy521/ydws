@@ -98,6 +98,7 @@
     padding: 12px 12px;
     text-align: center;
     width: 320px;
+	-webkit-appearance: none; 
 }
 /*event*/
 .eventbody {
@@ -126,7 +127,7 @@
 	padding: 10px;
 }
 .eventBtn {
-	width: 166px;
+	width: 140px;
 	background-color: #2d9ede;
 }
 #loadEventDatas {
@@ -144,11 +145,14 @@
 	height: 38px;
    /* position: relative;
     top: -11px;*/
-    width: 210px;
+    width: 140px;
 }
 .tList_tip {
 	font-size: 24px;
 	color: #505050px;
+	position: relative;
+	left: 30px;
+	margin-right: 20px;
 }
 .panelSpace {
 	margin: 20px 0px;
