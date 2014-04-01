@@ -42,6 +42,7 @@ class ErrorCode(object):
     TRACK_POINTS_TOO_MUCH = 222
     USER_NOT_EXIST = 223
     TERMINAL_EXIST = 224
+    TERMINAL_BINDED = 225
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -156,6 +157,7 @@ class ErrorCode(object):
         OPERATOR_EXIST:                u"集团操作员已存在。",
         CORP_EXIST:                    u"集团管理员已存在。",
         TERMINAL_EXIST:                u"该定位器已经存在。",
+        TERMINAL_BINDED:               u"该定位器已经存在，请输入其他定位器号码进行绑定。",
 
         ACTIVITY_EXISTED:              u"文件已经存在，请先删除。",
         ACTIVITY_NAME_ILLEGAL:         u"文件名只能包含字母、数字、下划线、点。",

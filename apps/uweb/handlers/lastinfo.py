@@ -67,6 +67,9 @@ class LastInfoHandler(BaseHandler):
                 if location and location['name'] is None:
                     location['name'] = ''
 
+                if location['type'] == 1: # cellid 
+                    location['locate_error'] = 500  # mile
+
                 car_dct = {}
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -243,6 +246,8 @@ class LastInfoCorpHandler(BaseHandler):
                     if location and location['name'] is None:
                         location['name'] = ''
 
+                    if location['type'] == 1: # cellid 
+                        location['locate_error'] = 500  # mile
                     #1: build the basic_info
                     basic_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                                     mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,

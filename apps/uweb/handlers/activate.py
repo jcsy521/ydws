@@ -45,43 +45,45 @@ class ActivateHandler(BaseHandler):
                              activation_code, sn)
                 self.write_ret(status,
                                dict_=DotDict(mobile=terminal.mobile))
-                return
- 
-            terminal = self.db.get("SELECT id, service_status, mobile"
-                                   "  FROM T_TERMINAL_INFO"
-                                   "  WHERE activation_code = %s"
-                                   "  AND biz_type = %s LIMIT 1",
-                                   activation_code, UWEB.BIZ_TYPE.YDWQ)
-            if not terminal: # no code, get activate_code first
-                status = ErrorCode.TERMINAL_NOT_EXISTED
-                logging.error("[UWEB] activation_code: %s can not be found.",
-                             activation_code)
-                self.write_ret(status)
-            else: # has code 
+            else: 
                 terminal = self.db.get("SELECT id, service_status, mobile"
                                        "  FROM T_TERMINAL_INFO"
-                                       "  WHERE sn = %s LIMIT 1",
-                                       sn)
-                if terminal: # has code, has sn(but sn exist)
-                    status = ErrorCode.TERMINAL_EXIST
-                    logging.info("[UWEB] sn: %s has exist.", sn)
-                    self.write_ret(status,
-                                   dict_=DotDict(mobile=terminal.mobile))
-                    return
-                # has code, sn not exist: a new activate
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET sn = %s"
-                                "  WHERE activation_code = %s",
-                                sn, activation_code)
-                if terminal['service_status'] != UWEB.SERVICE_STATUS.ON:
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
-                                    "  SET service_status = %s"
-                                    "  WHERE activation_code = %s",
-                                    UWEB.SERVICE_STATUS.ON, activation_code)
-                    logging.info("[UWEB] activation_code: %s, mobile: %s is authorized.",
-                                 activation_code, terminal['mobile'])
-                self.write_ret(status,
-                               dict_=DotDict(mobile=terminal.mobile))
+                                       "  WHERE activation_code = %s"
+                                       "  AND biz_type = %s LIMIT 1",
+                                       activation_code, UWEB.BIZ_TYPE.YDWQ)
+                if not terminal: # no code 
+                    status = ErrorCode.TERMINAL_NOT_EXISTED
+                    logging.error("[UWEB] activation_code: %s can not be found.",
+                                 activation_code)
+                    self.write_ret(status)
+                else: # has code 
+                    terminal = self.db.get("SELECT id, service_status, mobile"
+                                           "  FROM T_TERMINAL_INFO"
+                                           "  WHERE sn = %s LIMIT 1",
+                                           sn)
+                    if terminal: # has code, but sn is used 
+                        status = ErrorCode.TERMINAL_EXIST
+                        logging.info("[UWEB] sn: %s has exist.", sn)
+                        self.write_ret(status,
+                                       dict_=DotDict(mobile=terminal.mobile))
+                    else: # has code, sn not exist: a new activate
+                        terminal = self.db.get("SELECT id, service_status, mobile"
+                                               "  FROM T_TERMINAL_INFO"
+                                               "  WHERE activation_code = %s LIMIT 1",
+                                               activation_code)
+                        if terminal['service_status'] == UWEB.SERVICE_STATUS.ON: # the code is used normal with another sn
+                            status = ErrorCode.TERMINAL_EXIST
+                            logging.info("[UWEB] sn: %s has exist.", sn)
+                            self.write_ret(status,
+                                           dict_=DotDict(mobile=terminal.mobile))
+                        else: # the code is not used normal, now use the new sn
+                            self.db.execute("UPDATE T_TERMINAL_INFO"
+                                            "  SET sn = %s, "
+                                            "      service_status = %s"
+                                            "  WHERE activation_code = %s",
+                                            sn, UWEB.SERVICE_STATUS.ON, activation_code)
+                            self.write_ret(status,
+                                           dict_=DotDict(mobile=terminal.mobile))
         except Exception as e:
             logging.exception("[UWEB] activate YDWQ termianl failed. Exception: %s",
                               e.args)

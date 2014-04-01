@@ -24,8 +24,7 @@ class CheckTMobileHandler(BaseHandler):
                               "   LIMIT 1",
                               tmobile, UWEB.SERVICE_STATUS.TO_BE_UNBIND)
             if res:
-                #TODO: the status is ugly, maybe should be replaced on someday.
-                status = ErrorCode.SERVER_BUSY
+                status = ErrorCode.TERMINAL_BINDED
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 
@@ -70,8 +69,7 @@ class CheckCNumHandler(BaseHandler):
                               "   LIMIT 1",
                               cnum)
             if res:
-                #TODO: the status is ugly, maybe should be replaced on someday.
-                status = ErrorCode.SERVER_BUSY
+                status = ErrorCode.TERMINAL_BINDED
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s check cnum failed. Exception: %s", 

@@ -273,6 +273,9 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                 avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile)
                 service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
                 car_dct = {}
+
+                if location['type'] == 1: # cellid 
+                    location['locate_error'] = 500  # mile
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                               service_status=service_status,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -422,6 +425,8 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
             service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
             car_dct = {}
+            if location['type'] == 1: # cellid 
+                location['locate_error'] = 500  # mile
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                           service_status=service_status,
                           mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -590,6 +595,10 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
 
                 service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
                 car_dct = {}
+
+                if location['type'] == 1: # cellid 
+                    location['locate_error'] = 500  # mile
+
                 car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                               service_status=service_status,
                               mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
@@ -746,6 +755,8 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
             avatar_name, avatar_path, avatar_full_path, avatar_time = self.get_avatar_info(mobile)
             service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
             car_dct = {}
+            if location['type'] == 1: # cellid 
+                location['locate_error'] = 500  # mile
             car_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                           service_status=service_status,
                           mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,

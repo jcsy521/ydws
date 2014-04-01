@@ -44,7 +44,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             car_sets = DotDict() 
             # 1: terminal 
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
-                                   "       vibchk, tid as sn, mobile, vibl, static_val, alert_freq,"
+                                   "       vibchk, tid as sn, mobile, vibl, move_val, static_val, alert_freq,"
                                    "       white_pop, push_status, icon_type, owner_mobile, login_permit,"
                                    "       stop_interval, biz_type"
                                    "  FROM T_TERMINAL_INFO"
@@ -60,6 +60,11 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
+            else: 
+                if terminal['static_val'] == 0:  # move_val:60, static_val:0
+                    terminal['parking_defend'] = 0
+                else: # move_val:0, static_val: 
+                    terminal['parking_defend'] = 1
 
             # 2: whitelist
             user = QueryHelper.get_user_by_mobile(terminal.owner_mobile, self.db)
@@ -144,6 +149,25 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
                  logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
                  self.redis.delete(sessionID_key)
+            # if vibl has been changed,then update use_scene as well
+            if data.get("parking_defend") is not None:
+                 parking_defend = data.get("parking_defend")
+                 if parking_defend == 1:
+                     move_val = 0
+                     static_val = 60 
+                 else:
+                     move_val = 60
+                     static_val = 0 
+                 self.db.execute("UPDATE T_TERMINAL_INFO "
+                                 "  SET move_val=%s, static_val=%s"
+                                 "  WHERE tid=%s", 
+                                 move_val, static_val, self.current_user.tid)
+                 logging.info("[UWEB] Terminal %s update move_val %s and static_val %s", 
+                              self.current_user.tid, move_val, static_val )
+                 sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
+                 logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
+                 self.redis.delete(sessionID_key)
+
             # if stop_interval has been changed, then clear session to notify terminal
             if data.get("stop_interval"):
                  sessionID_key = get_terminal_sessionID_key(self.current_user.tid)

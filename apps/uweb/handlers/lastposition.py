@@ -103,6 +103,10 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                 if location and location['name'] is None:
                     location['name'] = location['name'] if location['name'] else ''
 
+
+                if location['type'] == 1: # cellid
+                    location['locate_error'] = 500  # mile
+
                 avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(mobile)
                 service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
                 car_info=dict(defend_status=terminal['defend_status'] if terminal.get('defend_status', None) is not None else 1,

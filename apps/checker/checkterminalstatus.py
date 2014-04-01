@@ -128,6 +128,15 @@ class CheckTerminalStatus(object):
                 tname = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                 sms = SMSCode.SMS_HEARTBEAT_LOST % (tname, current_time)
                 SMSHelper.send(user.owner_mobile, sms)
+
+                #NOTE: if it's a monitored of ydwq, will receive a sms.
+                terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
+                mobile = terminal['mobile']
+                biz_type = QueryHelper.get_biz_type_by_tmobile(mobile, self.db)
+                if biz_type != UWEB.BIZ_TYPE.YDWS:
+                    sms = SMSCode.SMS_HEARTBEAT_LOST_YDWQ % (tname, current_time)
+                    SMSHelper.send(mobile, sms)
+                
                 #corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
                 #                   "  WHERE T_TERMINAL_INFO.tid = %s"
                 #                   "    AND T_TERMINAL_INFO.group_id != -1"
