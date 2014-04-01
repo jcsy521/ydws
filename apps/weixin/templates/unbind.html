@@ -19,23 +19,29 @@
 	
 	<script src="/static/js/common.js" type="text/javascript"></script>
 	<script src="/static/js/bind.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		// 去除微信页面下侧按钮
+		document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
+			WeixinJSBridge.call('hideToolbar');
+		});
+	</script>
 </head>
-<body>
-	<div class="teminalListTitle">解除绑定</div>
+<body class="unbindPanel">
 	<div id="content">
 		<div class="content_userMobile bindItemPanel">
-			<label class="inputLabel">手机号：</label>
-			<label  id="unbind_userMobile">{{username}}</label>
+			<input type="text" id="unbind_userMobile" value="{{username}}" readonly="true"/>
 		</div>
 		<div class="content_userPwd bindItemPanel">
-			<label class="inputLabel">密码：</label>
-			<input type="password" id="unbind_userPwd" value="" />
+			<input type="password" id="unbind_userPwd" value="" placeholder="密码" />
 		</div>
 		<div class="content_userBtn">
 			<input type="button" id="unbind_userSaveBtn" value="解除绑定" />
 			<input type="hidden" id="pagetype" value="unbind" />
 			<input type="hidden" id="openid" value="{{openid}}" />
 		</div>
+	</div>
+	<div id="unbindContent">
+		
 	</div>
 </body>
 </html>

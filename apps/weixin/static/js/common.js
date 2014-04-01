@@ -101,6 +101,44 @@ function fn_NumForRound(n_num, n_round) {
 }
 
 /**
+* 根据相应的报警状态码显示相应的报警提示
+*/
+function fn_eventText (n_eventNum) {
+	var str_text = '无法获取';
+	
+	switch (n_eventNum) {
+		case 2:
+			str_text = '电量';	// 告警
+			break;
+		case 3:
+			str_text = '震动';
+			break;
+		case 4:
+			str_text = '移动';
+			break;
+		case 5:
+			str_text = 'SOS';
+			break;
+		case 6:
+			str_text = '通讯异常';
+			break;
+		case 7:
+			str_text = '进围栏';
+			break;
+		case 8:
+			str_text = '出围栏';
+			break;
+		case 9:
+			str_text = '断电';
+			break;
+		case 10:
+			str_text = '停留';
+			break;
+	}
+	return str_text;
+}
+
+/**
 * jquery 异步请求架构
 * url: ajax请求的url
 * data: ajax请求参数

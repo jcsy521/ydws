@@ -786,7 +786,7 @@ body .ui-tooltip {
 /* Component containers
 ----------------------------------*/
 .ui-widget {
-	font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+	font-family: '微软雅黑', Lucida Grande,Lucida Sans,Arial,sans-serif;
 	font-size: 1.1em;
 }
 .ui-widget .ui-widget {
@@ -796,7 +796,7 @@ body .ui-tooltip {
 .ui-widget select,
 .ui-widget textarea,
 .ui-widget button {
-	font-family: Lucida Grande,Lucida Sans,Arial,sans-serif;
+	font-family: '微软雅黑', Lucida Grande,Lucida Sans,Arial,sans-serif;
 	font-size: 1em;
 }
 .ui-widget-content {
@@ -823,9 +823,10 @@ body .ui-tooltip {
 .ui-widget-content .ui-state-default,
 .ui-widget-header .ui-state-default {
 	border: 1px solid #aed0ea;
-	background: #d7ebf9 url(/static/images/ui-bg_glass_80_d7ebf9_1x400.png) 50% 50% repeat-x;
+	background: #2d9ede;
 	font-weight: bold;
-	color: #2779aa;
+	color: #ffffff;
+	height: 30px;
 }
 .ui-state-default a,
 .ui-state-default a:link,
@@ -840,7 +841,7 @@ body .ui-tooltip {
 .ui-widget-content .ui-state-focus,
 .ui-widget-header .ui-state-focus {
 	border: 1px solid #74b2e2;
-	background: #e4f1fb url(/static/images/ui-bg_glass_100_e4f1fb_1x400.png) 50% 50% repeat-x;
+	background: #2d9ede;
 	font-weight: bold;
 	color: #0070a3;
 }
@@ -855,9 +856,10 @@ body .ui-tooltip {
 .ui-widget-content .ui-state-active,
 .ui-widget-header .ui-state-active {
 	border: 1px solid #2694e8;
-	background: #3baae3 url(/static/images/ui-bg_glass_50_3baae3_1x400.png) 50% 50% repeat-x;
+	background: #2d9ede;
 	font-weight: bold;
 	color: #ffffff;
+	height: 30px;
 }
 .ui-state-active a,
 .ui-state-active a:link,
@@ -936,7 +938,7 @@ body .ui-tooltip {
 	background-image: url(/static/images/ui-icons_72a7cf_256x240.png);
 }
 .ui-state-default .ui-icon {
-	background-image: url(/static/images/ui-icons_3d80b3_256x240.png);
+	background-image: url(/static/images/ui-icons_ffffff_256x240.png);
 }
 .ui-state-hover .ui-icon,
 .ui-state-focus .ui-icon {

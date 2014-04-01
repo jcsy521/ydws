@@ -4,7 +4,7 @@
 var n_showItemNums = 0,
 	n_showItemMaxNums = 0;
 	
-$(function() {		
+$(function() {	
 	$('#loadDatasTHeader').nextAll().remove();
 	$('#loadEventDatas').hide();
 	
@@ -18,21 +18,20 @@ $(function() {
 		fn_loadEventData('week');
 	});
 	
-	
 	// 加载数据
 	$('#loadEventDatas').click(function(){
 		var srollPos = $(window).scrollTop(), //滚动条距离顶部的高度
 			windowHeight = $(window).height(), //窗口的高度
 			dbHiht = $('body').height(); //整个页面文件的高度
 		
-		$('#loadEventDatas').html('加载中...');
+		$('#loadEventDatas').val('加载中...');
 		
 		if((windowHeight + srollPos) >= (dbHiht) && n_showItemNums != n_showItemMaxNums){
 			fn_addDataList();
 			if ( n_showItemNums >= n_showItemMaxNums ) {
 				$('#loadEventDatas').hide;
 			} else {
-				$('#loadEventDatas').show().html('加载更多');
+				$('#loadEventDatas').show().val('加载更多');
 			}
 			
 		}
@@ -72,7 +71,7 @@ function fn_loadEventData(str_timeType) {
 			fn_addDataList();
 			
 			if ( n_showItemMaxNums > 10 ) {
-				$('#loadEventDatas').show().html('加载更多');
+				$('#loadEventDatas').show().val('加载更多');
 			}
 		} else {
 			alert(data.message);
@@ -87,35 +86,20 @@ function fn_addDataList() {
 	
 	if ( arr_eventData ) {
 		for ( var i = 0; i < 10; i++) {
-			var obj_tempData = arr_eventData[n_showItemNums];
+			var obj_tempData = arr_eventData[n_showItemNums],
+				str_tdCls = '#eaebff';
 			
 			if ( obj_tempData ) {
-				str_showHtml += '<tr>';
-				str_showHtml += '<td>'+ fn_NumForRound(obj_tempData.speed, 1) +'</td>';
-				str_showHtml += '<td>'+ fn_NumForRound(obj_tempData.clongitude/3600000, 3) +', '+ fn_NumForRound(obj_tempData.clatitude/3600000, 3) +'</td>';
-				
-				if (  obj_tempData.name == '' ) {
-					str_showHtml += '<td></td>';
-				} else {
-					str_showHtml += '<td><a href="#" onclick=fn_eventNameDetail('+ n_showItemNums +')'+ fn_NumForRound(obj_tempData.name, 6) +'</a></td>';
-				}
+				str_showHtml += '<tr class="'+ str_tdCls +'">';
+				str_showHtml += '<td>'+ toHumanDate(obj_tempData.timestamp, 'yes') +'</td>';
+				str_showHtml += '<td>'+ fn_eventText(obj_tempData.category, 1) +'</td>';
 				str_showHtml += '</tr>';
 			}
 			n_showItemNums++; //计数器+1
 		}
 		$('#loadDatasTHeader').after(str_showHtml);
-		$(window).scrollTop($(window).height()+100);
+		$(window).scrollTop($(window).height()*parseInt(n_showItemNums/10)+200);
 	}
 	$('#loadEventDatas').hide();
 }
 
-// 显示地址详细信息
-function fn_eventNameDetail(n_itemIndex) {
-	var data = $('#eventSearch_btn').data('eventdata'),
-		obj_itemData = data[n_showItemNums];
-	
-	if ( obj_itemData ) {
-		alert(obj_itemData.name);
-	}
-	
-}

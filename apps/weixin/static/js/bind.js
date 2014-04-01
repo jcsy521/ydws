@@ -24,18 +24,20 @@ $(function() {
 				return;
 			}
 			$.post_('/bind', JSON.stringify(obj_bindData), function(data) {
-				if ( data.status == 0 ) {
+				if ( data.status == 0 ) { 
 					$('#userMobile, #userPwd').val('');
-					window.history.go(-1);
-				} 
-				alert(data.message);
+					$('#content').hide();
+					$('#bindContent').html(data.message); 
+				} else {
+					alert(data.message);
+				}
 			});
 		});
 	} else { // 解绑页面初始化
 		$('#unbind_userPwd').val('');
 		
 		$('#unbind_userSaveBtn').click(function(e) {
-			var str_userName = $.trim($('#unbind_userMobile').html()),
+			var str_userName = $.trim($('#unbind_userMobile').val()),
 				str_userPwd =  $.trim($('#unbind_userPwd').val()),
 				str_openid = $('#openid').val(),
 				obj_bindData = {'openid': str_openid, 'username': str_userName, 'password': str_userPwd};
@@ -48,9 +50,11 @@ $(function() {
 			$.post_('/unbind', JSON.stringify(obj_bindData), function(data) {
 				if ( data.status == 0 ) {
 					$('#unbind_userPwd').val('');
-					window.history.go(-1);
+					$('#content').hide();
+					$('#unbindContent').html(data.message); 
+				} else {
+					alert(data.message);
 				}
-				alert(data.message);
 			});
 		});
 	}

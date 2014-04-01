@@ -19,39 +19,52 @@
 	
 	<script src="/static/js/terminals.js" type="text/javascript"></script>
 	<script src="/static/js/common.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		// 去除微信页面下侧按钮
+		document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
+			WeixinJSBridge.call('hideToolbar');
+		});
+	</script>
 </head>
 <body>
-	<div class="teminalListTitle">终端列表</div>
 	<div id="accordion">
 		{% for resdata in res %}
 			<h3><label>终端名称：{{resdata['alias']}}</h3>
 			<div class="terminalCon_panel">
 				<ul class="terminallist_ul">
 					<li>
-						<label>终端状态：</label>
-						{% if resdata['login'] == 1 %}
-							在线
-						{% else %}
-							离线
-						{% end %}
+						<label>状态:</label>
+						<label class="color_2d9ede">
+							{% if resdata['login'] == 1 %}
+								在线
+							{% else %}
+								离线
+							{% end %}
+						</label>
 					</li>
 					<li>
-						<label>设防状态：</label>
-						{% if resdata['defend_status'] == 1 %}
-							已设防
-						{% else %}
-							未设防
-						{% end %}
+						<label>电量:</label>
+						<label class="color_2d9ede">
+							{{resdata['pbat']}}%
+						</label>
 					</li>
 					<li>
-						<label>终端电量：</label>
-						{{resdata['pbat']}}%
-					</li>
-					<li>
-						<label>更新时间：</label>
-							<script type="text/javascript">document.write(toHumanDate({{resdata['login_time']}}, 'yes'));</script>
+						<label>设防/撤防:</label>
+						<label class="color_2d9ede">
+							{% if resdata['defend_status'] == 1 %}
+								已设防
+							{% else %}
+								撤防
+							{% end %}
+						</label>
 					</li>
 				</ul>
+				<div class="tList_updateTime">
+					<label>更新时间：</label>
+					<label class="color_2d9ede">
+						<script type="text/javascript">document.write(toHumanDate({{resdata['login_time']}}, 'yes'));</script>
+					</label>
+				</div>
 				{% if resdata['clongitude'] != 0 %}
 					<img class="accordionImg" src="http://api.map.baidu.com/staticimage?center={{resdata['clongitude']/3600000}},{{resdata['clatitude']/3600000}}&width=300&height=300&zoom=17&markers={{resdata['clongitude']/3600000}},{{resdata['clatitude']/3600000}}" alt="{{resdata['alias']}}" />
 				{% end %}
