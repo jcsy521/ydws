@@ -87,6 +87,8 @@ window.dlf.fn_initTerminalWR = function () {
 				if ( param ) {
 					if ( param == 'push_status' ) {	// 客户端通知
 						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
+					} else if ( param == 'parking_defend' ) {	// 停车设防
+						$('#tr_' + param + str_val ).attr('checked', 'checked'); 
 					} else if ( param == 'mobile' ) {	// 定位器号码
 						$('#t_mobile').html(str_val);
 					} else if ( param == 'corp_cnum' ) {	// 车牌号

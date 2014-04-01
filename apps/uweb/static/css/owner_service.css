@@ -60,7 +60,8 @@ body {
 	text-align: center;
 	display: inline-block;
 	font-weight: bold;
-	border-radius: 5px;
+	border-radius: 4px;
+	-webkit-appearance: none; 
 }
 #userData_register {
 	width: 214px;

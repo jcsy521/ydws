@@ -361,7 +361,7 @@ window.dlf.fn_bindCarListItem = function() {
 				
 					if ( obj_currentMarker ) {
 						var obj_carDatas = $('.j_carList').data('carsData'),
-							obj_tempCarData = obj_carDatas[tid];
+							obj_tempCarData = obj_carDatas[n_tid];
 				
 						var obj_position = obj_currentMarker.getPosition(),
 							obj_infowindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_tempCarData, 'actiontrack'));//obj_currentMarker.selfInfoWindow;
@@ -1441,7 +1441,7 @@ window.dlf.fn_onInputBlur = function() {
 					var str_msg = '';
 					
 					if ( n_valLength > 14 || n_valLength < 11 ) {
-						str_msg = '定位器手机号输入不合法，请重新输入！'
+						str_msg = '定位器手机号输入不合法，请重新输入！';
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
 							str_msg = '定位器手机号输入不合法，请重新输入';

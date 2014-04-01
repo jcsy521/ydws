@@ -2048,7 +2048,7 @@ function fn_initCreateTerminal(obj_node, str_groupId) {
 	$('#c_icon_type0').attr('checked', true);
 	dlf.fn_dialogPosition('cTerminal'); // 新增定位器dialog显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	//dlf.fn_onInputBlur();	// input的鼠标样式
+	dlf.fn_onInputBlur();	// input的鼠标样式
 	/**
 	* 初始化报警查询选择时间
 	*/
@@ -2334,7 +2334,7 @@ window.dlf.fn_checkTMobile = function(str_tmobile) {
 	$.get_(CHECKMOBILE_URL + '/' + str_tmobile, '', function(data){
 		if ( data.status != 0 ) {
 			$('#hidTMobile').val('1');
-			dlf.fn_jNotifyMessage('定位器手机号已存在。', 'message', false, 5000);
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
 			return;
 		} else {
 			$('#hidTMobile').val('');

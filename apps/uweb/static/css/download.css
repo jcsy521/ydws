@@ -327,4 +327,7 @@ body {
     position: relative;
     top: -60px;
 }
+.android_ajtDownload {
+	top: -32px;
+}
 /*instructions end*/

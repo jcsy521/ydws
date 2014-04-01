@@ -11,8 +11,8 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
-		n_height = 390,
-		n_btnTop = 380;
+		n_height = 470,
+		n_btnTop = 460;
 
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
@@ -21,8 +21,10 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	if ( str_bizType == 'znbc' ) {
 		dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
-		n_height = 462;
-		n_btnTop = 467;
+		n_height = 542;
+		n_btnTop = 530;
+		$('#corpTerminalWrapper').css('height', 576);
+		
 	}
 	$('.corpTerminalContent').css('height', n_height);
 	$('#corp_terminalSave').css('top', n_btnTop);
@@ -120,6 +122,8 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 						dlf.fn_updateTerminalLogin(obj_currentCar);
 					} else if ( param == 'biz_type' ) {	// 终端业务类型
 						$('#corp_biz_code_st' + str_val ).attr('checked', 'checked');
+					} else if ( param == 'parking_defend' ) {	// 停车设防
+						$('#corp_' + param + str_val ).attr('checked', 'checked'); 
 					} else if ( param == 'login_permit' ) {	// 客户端登录
 						$('#' + param + str_val).attr('checked', true);
 					} else {

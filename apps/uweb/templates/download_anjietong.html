@@ -3,8 +3,8 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>移动卫士--客户端下载</title>
-		<link type="text/css" href="/static/css/download.css" rel="stylesheet" />
 		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
+		<link type="text/css" href="/static/css/download.css" rel="stylesheet" />
 		
 		<script src="/static/js/jquery-1.7.1.min.js"></script>
 		<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
@@ -12,18 +12,18 @@
 		<script type="text/javascript" src="/static/js/json2.js"></script>
 		<script type="text/javascript" src="/static/js/definitions.js"></script>
 		
-		<script type="text/javascript" src="/static/js/download.js"></script>
+		<script type="text/javascript" src="/static/js/download_ajt.js"></script>
 	</head>
 	
 	<body>
 		<center>
-			<div id="content androidContent">
+			<div class="content androidContent hide">
 				<!--android下载说明-->
 				<div class="softInfo">
 					<div class="infoSign infoL">
 						<img src="/static/images/acb_downloadLogo.png"  width="96" alt="移动卫士" />
 					</div>
-					<div class="infoText infoL">
+					<div class="infoText infoL android_ajtDownload">
 						<ul>
 							<li>
 								<h1>移动卫士安卓版</h1>
@@ -41,6 +41,13 @@
 								<a href="/download?category=3" target="_blank" title="立即下载" class="infoBtn btn_weixin">立即下载</a>
 							</li>
 						</ul>
+					</div>
+					<div class="infoGrCode infoL">
+						<img src="/static/images/download_ajt.png" alt="移动卫士二维码" />
+						<!--<span class="barCode">
+							二维码扫描软件下载：
+							<a href="http://www.lingdong.mobi/" target="_blank">快拍</a>
+						</span>-->
 					</div>
 				</div>
 				<!--android描述-->
@@ -74,7 +81,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="content iosContent">
+			<div class="content iosContent hide">
 				<!--ios下载说明-->
 				<div class="softInfo">
 					<div class="infoSign infoL">
@@ -101,14 +108,14 @@
 								<label class="iosDownloadLabel">下载地址：</label>
 								<ul class="iosDownloadul">
 									<li>
-										<a href="#" target="_blank" title="苹果官方商店">苹果官方商店</a>
+										<a href="#" target="_blank" title="苹果官方商店" class="infoBtn btn_weixin">苹果官方商店</a>
 									</li>
 								</ul>
 							</li>
 						</ul>
 					</div>
 					<div class="infoGrCode infoL">
-						<img src="/static/images/liantu_ios.png" alt="移动卫士二维码" />
+						<img src="/static/images/download_ajt.png" alt="移动卫士二维码" />
 						<!--<span class="barCode">
 							二维码扫描软件下载：
 							<a href="http://www.lingdong.mobi/" target="_blank">快拍</a>

@@ -1,12 +1,39 @@
 $(function() {
 	$.ajaxSetup({ cache: false }); // 不保存缓存
+	
+	var n_time = 60, 
+		MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// 手机号正则表达;
+		
 	 // 数据清空 添加获取焦点失去焦点样式
 	$('#registerForm input[type=text]').val('').unbind('focus, blur').bind('focus', function() {
 		$(this).parent().addClass('focus');
 	}).bind('blur', function() {
 		$(this).parent().removeClass('focus');
 	});
-	
+	$('#txt_tmobile').unbind('blur').bind('blur', function() {
+		var str_tmobile = $('#txt_tmobile').val(),
+			n_valLength = str_tmobile.length;
+		
+		if ( n_valLength > 14 || n_valLength < 11 ) {
+			dlf.fn_jNotifyMessage('定位器手机号输入不合法，请重新输入！', 'message', false, 3000);
+			return;
+		} else {
+			if ( !MOBILEREG.test(str_tmobile) ) {	// 手机号合法性验证
+				dlf.fn_jNotifyMessage('定位器手机号格式不正确，请重新输入！', 'message', false, 3000);
+				return;
+			}
+		}
+		$.get_('/checktmobile' + '/' + str_tmobile, '', function(data){
+			if ( data.status != 0 ) {
+				dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
+				return;
+			}
+			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+		}, 
+		function (XMLHttpRequest, textStatus, errorThrown) {
+			dlf.fn_serverError(XMLHttpRequest);
+		});
+	});
 	$.formValidator.initConfig({
 		formID: 'registerForm', //指定from的ID 编号
 		debug: true, // 指定调试模式,不提交form
@@ -45,7 +72,7 @@ $(function() {
 					}, 1000);
 					return;
 				} else {
-					dlf.fn_jNotifyMessage(data.message, 'error', false, 3000);
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					return;
 				}
 			}, 
@@ -54,10 +81,7 @@ $(function() {
 			});
 		}
 	});
-	
-	var n_time = 60, 
-		MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// 手机号正则表达;
-	
+		
 	// 获取验证码
 	$('#btnCaptcha').unbind('click').bind('click', function() {
 		var obj_mobile = $('#txt_umobile'),
@@ -102,9 +126,9 @@ $(function() {
 		}
 	}).removeAttr('disabled');
 	
-	$('#txt_umobile').formValidator().inputValidator({min: 1, onError: '请输入用户手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'用户手机号格式不正确。'});
+	$('#txt_umobile').formValidator().inputValidator({min: 1, onError: '请输入用户手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'用户手机号格式不正确，请重新输入！'});
 	
-	$('#txt_tmobile').formValidator().inputValidator({min: 1, onError: '请输入定位器手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'定位器手机号格式不正确。'});
+	$('#txt_tmobile').formValidator().inputValidator({min: 1, onError: '请输入定位器手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'定位器手机号格式不正确，请重新输入！'});
 	
 	$('#captcha').formValidator().inputValidator({min: 1, onError: '请输入验证码！'});
 

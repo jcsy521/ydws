@@ -153,11 +153,20 @@
 								</tr>-->
 								<tr>
 									<td class="terminalTdL">客户端通知:</td>
-									<td id="push_status" class="j_ListVal j_radio"  t_val="">
+									<td id="push_status" class="j_ListVal j_radio" t_val="">
 										<input id="tr_push_status1" type="radio" value="1" name="tpStatus" />
 										<label id="tpsLable1" for="tr_push_status1">开启</label>
 										<input id="tr_push_status0" type="radio" value="0" name="tpStatus" />
 										<label id="tpsLable0" for="tr_push_status0">关闭</label>
+									</td>
+								</tr>
+								<tr>
+									<td class="terminalTdL">停车设防:</td>
+									<td id="parking_defend" class="j_ListVal j_radio" t_val="">
+										<input id="tr_parking_defend1" type="radio" value="1" name="tpparking_defend" />
+										<label id="tpparkLable0" for="tr_parking_defend1">开启</label>
+										<input id="tr_parking_defend0" type="radio" value="0" name="tpparking_defend" />
+										<label id="tpparkLable1" for="tr_parking_defend0">关闭</label>
 									</td>
 								</tr>
 							</tbody>
@@ -400,6 +409,15 @@
 									<td class="corp_terminalTdL">停留告警:</td>
 									<td id="corp_stop_interval"  class="j_corp_ListVal"  t_val="">
 										停留超过<input type="text" id="t_corp_stop_interval" terminalkey="stop_interval"  class="text_mouseOut j_onInputBlur" max = "4"  who="validateLength" parent="terminalWrapper" />分钟,上报告警
+									</td>
+								</tr>
+								<tr>
+									<td class="corp_terminalTdL">停车设防:</td>
+									<td id="corp_parking_defend" class="j_corp_ListVal j_radio" t_val="">
+										<input id="corp_parking_defend1" type="radio" value="1" name="corp_parking_defend" />
+										<label for="corp_parking_defend1">开启</label>
+										<input id="corp_parking_defend0" type="radio" value="0" name="corp_parking_defend" />
+										<label for="corp_parking_defend0">关闭</label>
 									</td>
 								</tr>
 								<!--<tr class="j_corp_terminal">
@@ -928,7 +946,7 @@
 					<tr>
 						<td>
 							<label class="cTerminalLabel"><font class="txtColor">* </font>定位器号码：</label>
-							<input type="text" name="c_tmobile" id="c_tmobile"  class="cTermninalInput text_mouseOut j_corpData j_onInputBlur" max="11" who="cMobile" msg="定位器号码格式不正确！"  parent="cTerminalWrapper" />
+							<input type="text" name="c_tmobile" id="c_tmobile"  class="cTermninalInput text_mouseOut j_corpData j_onInputBlur" max="11" maxlength="11" who="cMobile" msg="定位器号码格式不正确！"  parent="cTerminalWrapper" autocomplete="off" />
 						</td>
 					</tr>
 					<tr>

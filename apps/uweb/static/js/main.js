@@ -1012,7 +1012,7 @@ $(function () {
 			
 			$.get_(CHECKMOBILE_URL + '/' + str_cmobile, '', function(data){
 				if ( data.status != 0 ) {
-					dlf.fn_jNotifyMessage('定位器手机号已存在。', 'message', false, 5000);
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
 					return;
 				} else {
 					if ( str_val.length > 0 && $.trim(str_val).length == 0 ) {
