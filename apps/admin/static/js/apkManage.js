@@ -15,7 +15,7 @@ $(function () {
 	$('#addApkDialog').dialog({
 		autoOpen: false,
 		height: 400,
-		width: 530,
+		width: 590,
 		position: [300, 100],
 		modal: true,
 		resizable: false
@@ -136,9 +136,21 @@ function fn_initSearchApk() {
 				str_tbodyText ='<tr><td colspan="6" class="sorting_1">无记录</td></tr>';
 			} else {	
 				for( var i = 0; i < n_apkDataLen; i++ ) {	
-					var obj_tempApkData = arr_apkDatas[i];
-
-					arr_tableData[i] = [obj_tempApkData.author, obj_tempApkData.versionname, obj_tempApkData.versioncode, obj_tempApkData.versioninfo,obj_tempApkData.filesize, obj_tempApkData.updatetime, '<a href="#" onclick="fn_deleteApk('+obj_tempApkData.id+')">删除APK</a>'];
+					var obj_tempApkData = arr_apkDatas[i],
+						str_apkType = obj_tempApkData.category,
+						str_apkTypeText = '移动卫士';
+					
+					if ( str_apkType == 1 ) {
+						str_apkTypeText = '移动卫士'
+					} else if ( str_apkType == 2 ) {
+						str_apkTypeText = '移动外勤监控端'
+					} else if ( str_apkType == 3 ) {
+						str_apkTypeText = '移动外勤被监控端'
+					} else if ( str_apkType == 4 ) {
+						str_apkTypeText = '移动卫士--安捷通'
+					}
+					
+					arr_tableData[i] = [obj_tempApkData.author, obj_tempApkData.versionname, obj_tempApkData.versioncode, str_apkTypeText, obj_tempApkData.versioninfo, obj_tempApkData.filesize, obj_tempApkData.updatetime, '<a href="#" onclick="fn_deleteApk('+obj_tempApkData.id+')">删除APK</a>'];
 				}
 			}			
 			fn_initDataTables('apk', arr_tableData);
@@ -239,6 +251,7 @@ function fn_initDataTables(str_who, obj_tableData) {
 			{ 'sTitle': '上传人' },
 			{ 'sTitle': 'APK版本名称' },
 			{ 'sTitle': 'APK版本号' },
+			{ 'sTitle': 'APK类型' },
 			{ 'sTitle': 'APK描述' },
 			{ 'sTitle': 'APK大小(M)' },
 			{ 'sTitle': 'APK更新时间' },

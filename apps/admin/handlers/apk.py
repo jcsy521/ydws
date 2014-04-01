@@ -53,12 +53,14 @@ class ApkHandler(BaseHandler):
                              filename, ErrorCode.ERROR_MESSAGE[status])
                 return
 
-            if category == UWEB.APK_TYPE.YDWS: 
+            if category == UWEB.APK_TYPE.YDWS: # 1
                 filename_ = 'ACB_%s.apk' 
-            elif category == UWEB.APK_TYPE.YDWQ_MONITOR: 
+            elif category == UWEB.APK_TYPE.YDWQ_MONITOR: # 2
                 filename_ = 'YDWQ_monitor_%s.apk' 
-            elif category == UWEB.APK_TYPE.YDWQ_MONITORED:
+            elif category == UWEB.APK_TYPE.YDWQ_MONITORED: # 3
                 filename_ = 'YDWQ_monitored_%s.apk' 
+            elif category == UWEB.APK_TYPE.YDWS_ANJIETONG: # 4
+                filename_ = 'YDWS_anjietong_%s.apk' 
 
             filename = filename_ % versionname
 
@@ -115,7 +117,8 @@ class ApkListHandler(BaseHandler):
     def post(self):
         status = ErrorCode.SUCCESS
         try:
-            res = self.db.query("SELECT id, versioncode, versionname, versioninfo, updatetime, filesize, author" 
+            res = self.db.query("SELECT id, versioncode, versionname, versioninfo,"
+                                "  updatetime, filesize, author, category" 
                                 "  FROM T_APK ORDER BY updatetime ")
             self.write_ret(status=status, 
                            dict_=DotDict(res=res))
