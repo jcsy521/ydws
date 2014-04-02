@@ -171,7 +171,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		}
 		obj_tempData = obj_tempVal;
 		if ( obj_selfPolyline ) {
-			//dlf.fn_clearMapComponent(obj_selfPolyline); // 删除相应轨迹线
+			dlf.fn_clearMapComponent(obj_selfPolyline); // 删除相应轨迹线
 		}
 	} else {
 		arr_tempTracePoints.push(obj_tempPoint);
@@ -179,12 +179,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		arr_infoPoint.push(obj_tempData);
 	}
 	if ( obj_tempData.val ) {
-		if ( obj_selfPolyline ) {
-			obj_selfPolyline.setPath(obj_tempData.val);
-		} else {
-			obj_selfPolyline = dlf.fn_createPolyline(obj_tempData.val, obj_polylineOptions); 
-			dlf.fn_addOverlay(obj_selfPolyline);	//向地图添加覆盖物 
-		}
+		obj_selfPolyline = dlf.fn_createPolyline(obj_tempData.val, obj_polylineOptions); 
+		dlf.fn_addOverlay(obj_selfPolyline);	//向地图添加覆盖物 
+		
 		obj_polylines[str_tid] = obj_selfPolyline;	// 存储开启追踪轨迹
 	}
 	
