@@ -36,8 +36,8 @@ class UploadHandler(BaseHandler):
                          data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] Invalid data format. Exception: %s",
-                              e.args)
+            logging.exception("[UWEB] Invalid data format. Exception: %s, data: %s",
+                              e.args, self.request.body)
             self.write_ret(status)
             return
 
@@ -46,12 +46,13 @@ class UploadHandler(BaseHandler):
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s"
                                    "  AND sn = %s"
+                                   "  AND service_status = %s"
                                    "  AND biz_type = %s LIMIT 1",
-                                   mobile, sn,
+                                   mobile, sn, UWEB.SERVICE_STATUS.ON,
                                    UWEB.BIZ_TYPE.YDWQ)
-            if not terminal: # normal login
+            if not terminal: 
                 status = ErrorCode.ACCOUNT_NOT_MATCH 
-                logging.info('mobile: %s, sn:%s not match.', 
+                logging.info('mobile: %s, sn: %s not match, drop it.', 
                               mobile, sn)
                 self.write_ret(status)
                 return
@@ -110,7 +111,28 @@ class UploadHandler(BaseHandler):
                     logging.error("[UWEB] Invalid attendance data, location is missed.")
             else: 
                 #TODO: handle power-event  
-                pass
+                location = locations[0] if len(locations) >= 1 else None
+                if location:
+                    location = DotDict(dev_id=tid,
+                                       lat=location['clatitude'],
+                                       lon=location['clongitude'],
+                                       alt=0,
+                                       cLat=location['clatitude'],
+                                       cLon=location['clongitude'],
+                                       gps_time=location['timestamp'],
+                                       name=location.get('name', ''),
+                                       category=1,
+                                       type=int(location['type']),
+                                       speed=location['speed'],
+                                       degree=location['degree'],
+                                       cellid='',
+                                       locate_error=int(location['locate_error']))
+                    lid = insert_location(location, self.db, self.redis)
+                    #a_info=dict(mobile=mobile,
+                    #            comment=u'',
+                    #            timestamp=attendance_time if attendance_time else location['gps_time'],
+                    #            lid=lid)
+                    #record_attendance(self.db, a_info)
                 
             t_info = DotDict(gps=gps, 
                              gsm=gsm,

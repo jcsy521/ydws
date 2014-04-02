@@ -84,7 +84,7 @@ class AttendanceHandler(BaseHandler):
                 d, m = divmod(event_count, page_size)
                 page_count = (d + 1) if m else d
 
-            sql = ("SELECT tid, mobile, clatitude, clongitude," 
+            sql = ("SELECT mobile as tid, mobile, clatitude, clongitude," 
                    "  timestamp, name, type, speed, degree,"
                    "  locate_error"  
                    "  FROM V_ATTENDANCE"

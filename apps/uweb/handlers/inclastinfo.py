@@ -106,9 +106,11 @@ class IncLastInfoCorpHandler(BaseHandler):
                 group['trackers'] = {} 
                 terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                           "  WHERE group_id = %s"
-                                          "    AND service_status = %s"
+                                          "    AND (service_status = %s"
+                                          "    OR service_status = %s)"
                                           "    ORDER BY id",
-                                          group.gid, UWEB.SERVICE_STATUS.ON)
+                                          group.gid, UWEB.SERVICE_STATUS.ON, 
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
                 tids = [str(terminal.tid) for terminal in terminals]
 
                 terminal_info_key = get_group_terminal_info_key(uid, group.gid)

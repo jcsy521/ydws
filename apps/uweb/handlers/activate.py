@@ -21,7 +21,7 @@ class ActivateHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            activation_code = data.activation_code 
+            activation_code = data.activation_code.upper()
             sn = data.sn 
             logging.info("[UWEB] activate request: %s", 
                          data)
@@ -43,6 +43,10 @@ class ActivateHandler(BaseHandler):
             if terminal: # normal login
                 logging.info("[UWEB] normal login. activation_code: %s, sn: %s.", 
                              activation_code, sn)
+                self.db.execute("UPDATE T_TERMINAL_INFO"
+                                "  SET service_status = %s"
+                                "  WHERE activation_code = %s",
+                                UWEB.SERVICE_STATUS.ON, activation_code)
                 self.write_ret(status,
                                dict_=DotDict(mobile=terminal.mobile))
             else: 

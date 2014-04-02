@@ -104,7 +104,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                     location['name'] = location['name'] if location['name'] else ''
 
 
-                if location['type'] == 1: # cellid
+                if location and location['type'] == 1: # cellid
                     location['locate_error'] = 500  # mile
 
                 avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(mobile)

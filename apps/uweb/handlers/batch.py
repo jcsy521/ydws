@@ -159,8 +159,9 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
                             status=ErrorCode.SUCCESS)
                 terminal = self.db.get("SELECT id, mobile, owner_mobile, login FROM T_TERMINAL_INFO"
                                        "  WHERE tid = %s"
-                                       "    AND service_status = %s",
-                                       tid, UWEB.SERVICE_STATUS.ON)
+                                       "    AND (service_status = %s"
+                                       "    OR service_status = %s)",
+                                       tid, UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
                 if not terminal:
                     r.status = ErrorCode.SUCCESS
                     res.append(r)
@@ -170,16 +171,18 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
                 key = get_del_data_key(tid)
                 self.redis.set(key, flag)
                 biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db) 
-                if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
+                if int(biz_type) == UWEB.BIZ_TYPE.YDWQ:
+                    delete_terminal(tid, self.db, self.redis)
+                    res.append(r)
+                    continue 
+                elif int(biz_type) == UWEB.BIZ_TYPE.YDWS:
                     if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
                         if terminal.mobile == tid:
                             delete_terminal(tid, self.db, self.redis)
                         else:
                             r.status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
-                    else: 
-                        delete_terminal(tid, self.db, self.redis)
-                    res.append(r)
-                    continue 
+                        res.append(r)
+                        continue 
                 
                 seq = str(int(time.time()*1000))[-4:]
                 args = DotDict(seq=seq,
