@@ -122,13 +122,13 @@ class EventHandler(BaseHandler):
                    "  ORDER BY timestamp DESC") %\
                 (tid, start_time, end_time)
 
-            sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
-                   "  timestamp, name, type, speed, degree,"
-                   "  category, pbat, terminal_type, fobid, rid, locate_error"
-                   "  FROM V_EVENT"
-                   "   where timestamp BETWEEN %s AND %s"
-                   "  ORDER BY timestamp DESC limit 21 ") %\
-                (start_time, end_time)
+            #sql = ("SELECT tid, latitude, longitude, clatitude, clongitude," 
+             #      "  timestamp, name, type, speed, degree,"
+              #     "  category, pbat, terminal_type, fobid, rid, locate_error"
+               #    "  FROM V_EVENT"
+                #   "   where timestamp BETWEEN %s AND %s"
+                 #  "  ORDER BY timestamp DESC limit 21 ") %\
+               # (start_time, end_time)
             events = self.db.query(sql)
                 
             alias_dict = {}
@@ -169,6 +169,7 @@ class EventHandler(BaseHandler):
             self.write_ret(status,
                            dict_=DotDict(res=r))
 
+            print "jjjjjj res:",r
         except Exception as e:
             logging.exception("[WEIXIN] search event failed POST(), Execption:%s",
                               e.args)
