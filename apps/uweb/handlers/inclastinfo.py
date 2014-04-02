@@ -154,6 +154,9 @@ class IncLastInfoCorpHandler(BaseHandler):
                     if location and location['name'] is None:
                         location['name'] = ''
 
+                    if location and location['type'] == 1: # cellid 
+                        location['locate_error'] = 500  # mile
+
                     #1: build the basic_info
                     basic_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                                     mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
