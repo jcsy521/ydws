@@ -47,6 +47,11 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
+            else:
+                if terminal['static_val'] == 0:  # move_val:60, static_val:0
+                    terminal['parking_defend'] = 0
+                else: # move_val:0, static_val: 
+                    terminal['parking_defend'] = 1
             # 2: sos 
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if not user:
@@ -67,6 +72,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             tracker.update(dict(sos_pop=terminal.sos_pop))
             tracker.update(dict(vibl=terminal.vibl))
             tracker.update(dict(static_val=terminal.static_val)) 
+            tracker.update(dict(parking_defend=terminal.parking_defend)) 
             tracker.update(dict(owner_mobile=terminal.owner_mobile)) 
             ## part 2: profile
 
