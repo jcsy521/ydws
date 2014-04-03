@@ -7,18 +7,20 @@
 	<meta http-equiv="Content-Type" content="application/xhtml+xml;charset=utf-8"/>
     <meta name="MobileOptimized" content="240"/>
     <meta name="viewport" content="width=device-width,initial-scale=1.33,minimum-scale=1.0,maximum-scale=1.0"/>
+	<link rel="shortcut icon" href="/favicon.ico">
 	
 	<title>移动卫士--告警查询</title>
 	
-	<link href="/static/css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
-	<link href="/static/css/weixin-css.css" rel="stylesheet" type="text/css" />
+	<link href="../static/css/jquery.mobile-1.4.2.min.css" rel="stylesheet" type="text/css" />
+	<link href="../static/css/jqm-demos.css" rel="stylesheet" type="text/css" />
+	<link href="../static/css/weixin-css.css?r=0.12138" rel="stylesheet" type="text/css" />
 	
-	<script src="/static/js/jquery-2.1.0.min.js" type="text/javascript"></script>
-	<script src="/static/js/jquery-ui-1.10.0.custom.js" type="text/javascript"></script>
-	<script src="/static/js/json2.js" type="text/javascript"></script>
+	<script src="../static/js/jquery-2.1.0.min.js" type="text/javascript"></script>
+	<script src="../static/js/jquery.mobile-1.4.2.min.js" type="text/javascript"></script>
+	<script src="../static/js/json2.js" type="text/javascript"></script>
 	
-	<script src="/static/js/common.js" type="text/javascript"></script>
-	<script src="/static/js/event.js" type="text/javascript"></script>
+	<script src="../static/js/common.js?r=0.12138" type="text/javascript"></script>
+	<script src="../static/js/event.js?r=0.12138" type="text/javascript"></script>
 	<script type="text/javascript">
 		// 去除微信页面下侧按钮
 		document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
@@ -27,25 +29,35 @@
 	</script>
 </head>
 <body class="eventbody">
-	<div id="eventSearch_list" class="panelSpace">
-		<label class="tList_tip">车辆列表：</label>
-		<select id="terminalList">
-			{% for resdata in res %}
-				<option value="{{resdata['tid']}}">{{resdata['alias']}}</option>
-			{% end %}
-		</select>
-	</div>
-	<div id="eventSearch_btn" class="panelSpace">
-		<input type="button" id="eventBtn_day" class="eventBtn" value="今天" />
-		<input type="button" id="eventBtn_week" class="eventBtn" value="最近一周" />
-	</div>
-	<table id="loadDatas" class="dataTable">
-		<tr id="loadDatasTHeader">
-			<th class="eventTime">时间</th>
-			<th class="eventType">告警类型</th>
-		</tr>
-	</table>
-	<input type="button" id="loadEventDatas" class="hide" value="加载更多" />
+	<div data-role="page">
+		<div class="ui-content eventContent" role="main">
+			<div data-demo-html="true">
+				<div class="ui-field-contain">
+					<span for="terminalList" class="tListTip">车辆列表:</span>
+					<select id="terminalList">
+						{% for resdata in res %}
+							<option value="{{resdata['tid']}}">{{resdata['alias']}}</option>
+						{% end %}
+					</select>
+				</div>
+			</div><!--/demo-html -->
+		</div><!-- /content -->
+		<div id="eventSearch_btn" class="panelSpace">
+			<input type="button" id="eventBtn_day" class="eventBtn" value="今天" data-role="none" />
+			<input type="button" id="eventBtn_week" class="eventBtn" value="最近一周" data-role="none" />
+		</div>
+		<table id="loadDatas" class="dataTable hide">
+			<tr id="loadDatasTHeader">
+				<th class="eventTime">时间</th>
+				<th class="eventType">告警类型</th>
+			</tr>
+		</table>
+		<input type="button" id="loadEventDatas" class="hide" value="加载更多" data-role="none" />
+		<span id="loadEventNoDatas" class="hide">无记录</span>
+	</div><!-- /page -->
+	
 	<input type="hidden" id="openid" value="{{openid}}" />
+	<div id="pageMsg" class="hide"></div>
+	<div id="ioverlay" class="ioverlay hide"></div>
 </body>
 </html>

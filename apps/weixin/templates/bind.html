@@ -7,18 +7,20 @@
 	<meta http-equiv="Content-Type" content="application/xhtml+xml;charset=utf-8"/>
     <meta name="MobileOptimized" content="240"/>
     <meta name="viewport" content="width=device-width,initial-scale=1.33,minimum-scale=1.0,maximum-scale=1.0"/>
+	<link rel="shortcut icon" href="/favicon.ico">
 	
 	<title>移动卫士--绑定</title>
 	
-	<link href="/static/css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
-	<link href="/static/css/weixin-css.css" rel="stylesheet" type="text/css" />
+	<link href="/static/css/jquery.mobile-1.4.2.min.css" rel="stylesheet" type="text/css" />
+	<link href="/static/css/jqm-demos.css" rel="stylesheet" type="text/css" />
+	<link href="/static/css/weixin-css.css?r=0.12138" rel="stylesheet" type="text/css" />
 	
 	<script src="/static/js/jquery-2.1.0.min.js" type="text/javascript"></script>
-	<script src="/static/js/jquery-ui-1.10.0.custom.js" type="text/javascript"></script>
+	<script src="/static/js/jquery.mobile-1.4.2.min.js" type="text/javascript"></script>
 	<script src="/static/js/json2.js" type="text/javascript"></script>
 	
-	<script src="/static/js/common.js" type="text/javascript"></script>
-	<script src="/static/js/bind.js" type="text/javascript"></script>
+	<script src="/static/js/common.js?r=0.12138" type="text/javascript"></script>
+	<script src="/static/js/bind.js?r=0.12138" type="text/javascript"></script>
 	<script type="text/javascript">
 		// 去除微信页面下侧按钮
 		document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
@@ -27,26 +29,28 @@
 	</script>
 </head>
 <body class="bindPanel">
-	<div id="content">
-		<div class="content_logo"></div>
-		<div class="content_userMobile bindItemPanel">
-			<input type="text" id="userMobile" value="" placeholder="移动卫士账号" />
-		</div>
-		<div class="content_userPwd bindItemPanel">
-			<input type="password" id="userPwd" value="" placeholder="密码" />
-		</div>
-		<div class="content_userBtn">
-			<input type="button" id="userSaveBtn" value="绑定" />
-			<input type="hidden" id="pagetype" value="bind" />
-			<input type="hidden" id="openid" value="{{openid}}" />
-		</div> 
-		<div class="content_footerTip">
-			<div class="footerTip1">1.微信账号和移动卫士账号只能绑定一次</div>
-			<div>2.如需解绑，可在账户菜单里点周解绑</div>
-		</div> 
-	</div>
-	<div id="bindContent">
-		
-	</div>
+	<div data-role="page" id="content">
+		<div class="ui-content" role="main">
+			<img class="content_logo" src="/static/images/logo.png" alt="移动卫士" />
+			<div class="ui-field-contain">
+				<input type="text" id="userMobile" value="" placeholder="请输入移动卫士账号" />
+			</div>
+			<div class="ui-field-contain">
+				<input type="password" id="userPwd" value="" placeholder="请输入密码" />
+			</div>
+			<div class="ui-field-contain">
+				<input type="button" id="userSaveBtn" value="绑定" class="ui-btn ui-btn-c" />
+				<input type="hidden" id="pagetype" value="bind" />
+				<input type="hidden" id="openid" value="{{openid}}" />
+			</div>
+			<!--<div class="content_footerTip">
+				<div class="footerTip1">1.微信账号和移动卫士账号只能绑定一次</div>
+				<div>2.如需解绑，可在账户菜单里点周解绑</div>
+			</div> -->
+		</div><!-- /content -->
+	</div><!-- /page -->
+	<div id="bindContent" class="hide"></div>
+	<div id="pageMsg" class="hide"></div>
+	<div id="ioverlay" class="ioverlay hide"></div>
 </body>
 </html>
