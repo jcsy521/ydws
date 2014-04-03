@@ -17,6 +17,7 @@ from codes.smscode import SMSCode
 from utils.dotdict import DotDict
 from utils.public import record_add_action, delete_terminal 
 from utils.misc import get_tid_from_mobile_ydwq 
+from utils.checker import check_zs_phone
 from constants import UWEB
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
@@ -58,6 +59,14 @@ class BindHandler(BaseHandler, AvatarMixin):
             now_ = datetime.datetime.now()
             endtime = now_ + relativedelta(years=1)
             endtime = int(time.mktime(endtime.timetuple()))
+
+            white_list = check_zs_phone(tmobile, self.db) 
+            if not white_list:
+                logging.error("[UWEB] mobile: %s is not whitelist.", tmobile)
+                status = ErrorCode.MOBILE_NOT_ORDERED
+                message = ErrorCode.ERROR_MESSAGE[status] % tmobile
+                self.write_ret(status, message=message)
+                return
 
             # avatar
             terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",

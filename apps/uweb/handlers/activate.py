@@ -22,7 +22,7 @@ class ActivateHandler(BaseHandler):
         try:
             data = DotDict(json_decode(self.request.body))
             activation_code = data.activation_code.upper()
-            sn = data.sn 
+            sn = data.get('sn','')
             logging.info("[UWEB] activate request: %s", 
                          data)
         except Exception as e:
@@ -33,6 +33,29 @@ class ActivateHandler(BaseHandler):
             return
 
         try:
+            if not sn: # we assume it's activated by monitor
+                terminal = self.db.get("SELECT id, service_status, mobile"
+                                       "  FROM T_TERMINAL_INFO"
+                                       "  WHERE activation_code = %s"
+                                       "  AND sn = '' "
+                                       "  AND service_status = %s "
+                                       "  AND biz_type = %s LIMIT 1",
+                                       activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                       UWEB.BIZ_TYPE.YDWQ)
+                if terminal: 
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET service_status = %s"
+                                    "  WHERE activation_code = %s",
+                                    UWEB.SERVICE_STATUS.ON, activation_code)
+                    logging.info("[UWEB] monitored is activated by monitor.  activation_code: %s, sn: %s",
+                                 activation_code, sn)
+                else: 
+                    status = ErrorCode.ILLEGAL_DATA_FORMAT
+                    logging.info("[UWEB] Invalid data format. Exception: %s",
+                                 e.args)
+                    self.write_ret(status)
+                    return
+                    
             terminal = self.db.get("SELECT id, service_status, mobile"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE activation_code = %s"
@@ -50,7 +73,7 @@ class ActivateHandler(BaseHandler):
                 self.write_ret(status,
                                dict_=DotDict(mobile=terminal.mobile))
             else: 
-                terminal = self.db.get("SELECT id, service_status, mobile"
+                terminal = self.db.get("SELECT id, service_status, mobile, sn"
                                        "  FROM T_TERMINAL_INFO"
                                        "  WHERE activation_code = %s"
                                        "  AND biz_type = %s LIMIT 1",
@@ -61,6 +84,13 @@ class ActivateHandler(BaseHandler):
                                  activation_code)
                     self.write_ret(status)
                 else: # has code 
+                    if not terminal['sn']:
+                        self.db.execute("UPDATE T_TERMINAL_INFO"
+                                        "  SET sn = %s"
+                                        "  WHERE activation_code = %s",
+                                        sn, activation_code)
+                        logging.info("[UWEB] monitored is activated by monitor. now update the sn.  activation_code: %s, sn: %s",
+                                     activation_code, sn)
                     terminal = self.db.get("SELECT id, service_status, mobile"
                                            "  FROM T_TERMINAL_INFO"
                                            "  WHERE sn = %s LIMIT 1",
