@@ -6,16 +6,29 @@ var n_showItemNums = 0,
 	
 $(function() {	
 	$('#loadDatasTHeader').nextAll().remove();
-	$('#loadEventDatas').hide();
+	$('#loadEventDatas, #loadEventNoDatas').hide();
 	
 	$('#eventSearch_btn').removeData('eventdata');
+	
+	$('#eventBtn_week, #eventBtn_day').removeClass('currentEventBtn');
 	
 	// 查询数据
 	$('#eventBtn_day').click(function(e) {
 		fn_loadEventData('day');
+		$('#eventBtn_week').removeClass('currentEventBtn');
+		$(this).addClass('currentEventBtn');
 	});
 	$('#eventBtn_week').click(function(e) {
 		fn_loadEventData('week');
+		$('#eventBtn_day').removeClass('currentEventBtn');
+		$(this).addClass('currentEventBtn');
+	});
+	
+	//切换查询的终端 ,清除数据
+	$('#terminalList').change(function(e) {
+		$('#loadDatasTHeader').nextAll().remove();
+		$('#loadEventDatas, #loadEventNoDatas, #loadDatas').hide();
+		$('#eventSearch_btn').removeData('eventdata');
 	});
 	
 	// 加载数据
@@ -24,7 +37,7 @@ $(function() {
 			windowHeight = $(window).height(), //窗口的高度
 			dbHiht = $('body').height(); //整个页面文件的高度
 		
-		$('#loadEventDatas').val('加载中...');
+		$('#loadEventDatas').val('数据加载中');
 		
 		if((windowHeight + srollPos) >= (dbHiht) && n_showItemNums != n_showItemMaxNums){
 			fn_addDataList();
@@ -50,7 +63,7 @@ function fn_loadEventData(str_timeType) {
 		n_dayTimel = 60*60*24;
 	
 	$('#loadDatasTHeader').nextAll().remove();
-	$('#loadEventDatas').hide();
+	$('#loadEventDatas, #loadEventNoDatas, #loadDatas').hide();
 	
 	if ( str_timeType == 'day' ) {
 		n_stTime = toEpochDate(str_today+' 00:00:00');
@@ -62,16 +75,23 @@ function fn_loadEventData(str_timeType) {
 	obj_eventData.start_time = parseInt(n_stTime);
 	obj_eventData.end_time = parseInt(n_endTime);
 	
+	$('#loadEventNoDatas').hide();
+	
+	fn_dialogMsg('数据加载中<img src="/static/images/blue-wait.gif" />');
 	$.post_('/event', JSON.stringify(obj_eventData), function(data) {
+		fn_closeDialogMsg();
 		if ( data.status == 0 ) {
+			n_showItemNums = 0,
+			n_showItemMaxNums = 0;
 			$('#eventSearch_btn').data('eventdata', data.res);
 			
 			n_showItemMaxNums = data.res.length;
 			
-			fn_addDataList();
-			
-			if ( n_showItemMaxNums > 10 ) {
-				$('#loadEventDatas').show().val('加载更多');
+			if ( n_showItemMaxNums > 0 ) {
+				$('#loadDatas').show();
+				fn_addDataList();
+			} else {				
+				$('#loadEventNoDatas').show();
 			}
 		} else {
 			alert(data.message);
@@ -100,6 +120,11 @@ function fn_addDataList() {
 		$('#loadDatasTHeader').after(str_showHtml);
 		$(window).scrollTop($(window).height()*parseInt(n_showItemNums/10)+200);
 	}
-	$('#loadEventDatas').hide();
+	
+	if ( n_showItemMaxNums > n_showItemNums ) {
+		$('#loadEventDatas').show().val('加载更多');
+	} else {
+		$('#loadEventDatas').hide();
+	}
 }
 

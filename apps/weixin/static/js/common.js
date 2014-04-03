@@ -138,6 +138,23 @@ function fn_eventText (n_eventNum) {
 	return str_text;
 }
 
+// 添加遮罩层并显示消息
+function fn_dialogMsg(str_msg, n_msgTime) {
+	$('#ioverlay, #pageMsg').show();
+	
+	$('#pageMsg').html(str_msg);
+	if ( n_msgTime ) {
+		setTimeout(function() {
+			fn_closeDialogMsg();
+		}, n_msgTime);
+	}
+}
+
+// 关闭遮罩层
+function fn_closeDialogMsg() {
+	$('#ioverlay, #pageMsg').hide();
+}
+
 /**
 * jquery 异步请求架构
 * url: ajax请求的url
