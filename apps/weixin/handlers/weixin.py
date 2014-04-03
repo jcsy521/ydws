@@ -27,6 +27,7 @@ def checksignature(signature, timestamp, nonce):
     mysig = sha1.hexdigest()
     return mysig == signature
 
+
 class WeixinHandler(BaseHandler):
 
     def get(self):
@@ -72,6 +73,7 @@ class WeixinHandler(BaseHandler):
             jb = re.search('jb#', content)
             help = re.search('help', content)
             f = re.search(':', content)
+            about = re.search('about', content)
             if bd:
                 logging.info("[WEIXIN] bd")
                 recontent = u"绑定失败"
@@ -103,6 +105,9 @@ class WeixinHandler(BaseHandler):
             elif help:
                 logging.info("[WEIXIN] help")
                 recontent = u"1. 绑定：bd#username:password\n2. 解绑：jb#username:password\n3.帮助 help "
+                out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
+            elif about:
+                recontent = u"http://www.ichebao.net/about"
                 out = answer % (openid, tousername, str(int(time.time())), msgtype, recontent)
             else:
                 logging.info("[WEIXIN] help")

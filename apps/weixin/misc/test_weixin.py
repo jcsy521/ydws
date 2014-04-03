@@ -40,10 +40,11 @@ class MenuManager:
                create_group = "https://api.weixin.qq.com/cgi-bin/groups/create?access_token=%(access_token)s",
                groups = "https://api.weixin.qq.com/cgi-bin/groups/get?access_token=%(access_token)s",
 
-               users= "https://api.weixin.qq.com/cgi-bin/user/get?access_token=%(access_token)s&next_openid=",
-               get_user_info = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=%(access_token)s&openid=%(openid)s&lang=zh_CN",
+               users="https://api.weixin.qq.com/cgi-bin/user/get?access_token=%(access_token)s&next_openid=",
+               get_user_info="https://api.weixin.qq.com/cgi-bin/user/info?access_token=%(access_token)s&openid=%(openid)s&lang=zh_CN",
                
-               auth = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=REDIRECT_URI&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect")
+               auth="https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx394eee811bd082b1&redirect_uri=REDIRECT_URI&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect")
+
     def __init__(self):
         pass
         #self.db = DBConnection().db
@@ -157,14 +158,13 @@ class MenuManager:
 
 if __name__ == "__main__":
     wx = MenuManager()
-
     accessToken = wx.getAccessToken()
     #wx.delMenu(accessToken)
     wx.createMenu(accessToken, menu3)
     wx.getMenu(accessToken)
     #wx.send_msg(accessToken)
-    #wx.get_user_info(accessToken, "oPaxZt3o-PdbYCLKagXuOCoCJG5Y")
-    #wx.create_group(accessToken )
+    # wx.get_user_info(accessToken, "oPaxZt3o-PdbYCLKagXuOCoCJG5Y")
+    # wx.create_group(accessToken )
     #wx.groups(accessToken )
     #wx.users(accessToken )
     #wx.auth()

@@ -49,7 +49,8 @@ class DefendHandler(BaseHandler):
             tid = data.get('tid', None)
             mannual_status = data.get('mannual_status', None)
             
-            terminal = self.db.get("SELECT mannual_status, defend_status, service_status FROM T_TERMINAL_INFO WHERE tid = %s ", tid)
+            terminal = self.db.get("SELECT mannual_status, defend_status, service_status FROM T_TERMINAL_INFO "
+                                   "WHERE tid = %s ", tid)
 
             if terminal:
                 service_status = terminal['service_status']
@@ -58,7 +59,6 @@ class DefendHandler(BaseHandler):
                     self.write_ret(status=status,
                                    message=WXErrorCode.ERROR_MESSAGE[status])
                     return
-
              
             try:
                 self.db.execute("UPDATE T_TERMINAL_INFO SET mannual_status = %s"
