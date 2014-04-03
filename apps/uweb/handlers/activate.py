@@ -51,8 +51,7 @@ class ActivateHandler(BaseHandler):
                                  activation_code, sn)
                 else: 
                     status = ErrorCode.ILLEGAL_DATA_FORMAT
-                    logging.info("[UWEB] Invalid data format. Exception: %s",
-                                 e.args)
+                    logging.info("[UWEB] Invalid data format. data: %s", data)
                     self.write_ret(status)
                     return
                     
@@ -85,12 +84,17 @@ class ActivateHandler(BaseHandler):
                     self.write_ret(status)
                 else: # has code 
                     if not terminal['sn']:
+                        status = ErrorCode.SUCCESS
                         self.db.execute("UPDATE T_TERMINAL_INFO"
                                         "  SET sn = %s"
                                         "  WHERE activation_code = %s",
                                         sn, activation_code)
                         logging.info("[UWEB] monitored is activated by monitor. now update the sn.  activation_code: %s, sn: %s",
                                      activation_code, sn)
+                        self.write_ret(status,
+                                       dict_=DotDict(mobile=terminal.mobile))
+                        return
+
                     terminal = self.db.get("SELECT id, service_status, mobile"
                                            "  FROM T_TERMINAL_INFO"
                                            "  WHERE sn = %s LIMIT 1",
