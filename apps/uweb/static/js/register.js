@@ -2,7 +2,7 @@ $(function() {
 	$.ajaxSetup({ cache: false }); // 不保存缓存
 	
 	var n_time = 60, 
-		MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// 手机号正则表达;
+		MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/;	// 手机号正则表达;
 		
 	 // 数据清空 添加获取焦点失去焦点样式
 	$('#registerForm input[type=text]').val('').unbind('focus, blur').bind('focus', function() {

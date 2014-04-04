@@ -90,7 +90,7 @@ var WAITIMG = '...<img src="/static/images/blue-wait.gif" width="12px" />';	// �
 var BASEIMGURL = '/static/images/';	// 图片的默认路径
 var BASEDEGREEIMGURL = '/static/images/degreeIcon/';	// 方向图片的默认路径
 var CORPIMGURL = BASEIMGURL + 'corpImages/';	// 集团默认图片路径
-var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[02356789]|47)\d{8}$/;	// 手机号正则表达
+var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/;	// 手机号正则表达
 var NAMEREG = /^[a-zA-Z0-9\u4e00-\u9fa5 ]+$/;	// 姓名正则
 var USER_PERSON = 'individual'; // 个人用户
 var USER_CORP = 'enterprise'; // 集团管理员

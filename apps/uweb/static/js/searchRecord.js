@@ -78,6 +78,9 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 			$('#'+ str_who +'Wrapper .j_chart, .j_mileageFoot').hide();	// 查看统计图链接隐藏
 			dlf.fn_getAllTerminals();	// 加载所有定位器
 			dlf.fn_initSlider('');
+			if ( $.browser.mozilla || $.browser.msie ) {
+				$('#mileageSlider').css('top', -11);
+			}
 		}
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	} else if ( str_who == 'operator' ) {
