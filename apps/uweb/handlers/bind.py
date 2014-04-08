@@ -60,13 +60,13 @@ class BindHandler(BaseHandler, AvatarMixin):
             endtime = now_ + relativedelta(years=1)
             endtime = int(time.mktime(endtime.timetuple()))
 
-            white_list = check_zs_phone(tmobile, self.db) 
-            if not white_list:
-                logging.error("[UWEB] mobile: %s is not whitelist.", tmobile)
-                status = ErrorCode.MOBILE_NOT_ORDERED
-                message = ErrorCode.ERROR_MESSAGE[status] % tmobile
-                self.write_ret(status, message=message)
-                return
+            #white_list = check_zs_phone(tmobile, self.db) 
+            #if not white_list:
+            #    logging.error("[UWEB] mobile: %s is not whitelist.", tmobile)
+            #    status = ErrorCode.MOBILE_NOT_ORDERED
+            #    message = ErrorCode.ERROR_MESSAGE[status] % tmobile
+            #    self.write_ret(status, message=message)
+            #    return
 
             # avatar
             terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
