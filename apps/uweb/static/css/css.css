@@ -1133,7 +1133,7 @@ body {
 	margin-left: 10px;
 	padding: 5px;
 }
-#t_mobile, #t_sn, #t_umobile, #t_corp_mobile, #t_corp_umobile {
+#t_mobile, #t_sn, #t_umobile, #t_corp_mobile, #t_corp_umobile, #t_corp_biz_type {
 	margin-left: 8px;
 }
 #tRadioLable1, #tRadioLable0, #tpsLable1, #tpsLable0  {

@@ -121,7 +121,10 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 						obj_currentCar.attr('icon_type', str_val);
 						dlf.fn_updateTerminalLogin(obj_currentCar);
 					} else if ( param == 'biz_type' ) {	// 终端业务类型
-						$('#corp_biz_code_st' + str_val ).attr('checked', 'checked');
+						//$('#corp_biz_code_st' + str_val ).attr('checked', 'checked');
+						var str_bizCodeText = str_val == 0 ? '移动卫士' : '移动外勤';
+						
+						$('#t_corp_biz_type').html(str_bizCodeText);
 					} else if ( param == 'parking_defend' ) {	// 停车设防
 						$('#corp_' + param + str_val ).attr('checked', 'checked'); 
 					} else if ( param == 'login_permit' ) {	// 客户端登录
