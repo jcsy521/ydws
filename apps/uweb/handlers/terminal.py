@@ -325,14 +325,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             now_ = datetime.datetime.now()
             endtime = now_ + relativedelta(years=1)
             endtime = int(time.mktime(endtime.timetuple()))
-            # 0. check tmobile is whitelist or not
-            white_list = check_zs_phone(data.tmobile, self.db) 
-            if not white_list:
-                logging.error("[UWEB] mobile: %s is not whitelist.", data.tmobile)
-                status = ErrorCode.MOBILE_NOT_ORDERED
-                message = ErrorCode.ERROR_MESSAGE[status] % data.tmobile
-                self.write_ret(status, message=message)
-                return
+
 
             # 1: add terminal
             #umobile = data.umobile if data.umobile else self.current_user.cid
@@ -368,6 +361,16 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             biz_type = data.get('biz_type', UWEB.BIZ_TYPE.YDWS)
 
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
+
+                # 0. check tmobile is whitelist or not
+                white_list = check_zs_phone(data.tmobile, self.db) 
+                if not white_list:
+                    logging.error("[UWEB] mobile: %s is not whitelist.", data.tmobile)
+                    status = ErrorCode.MOBILE_NOT_ORDERED
+                    message = ErrorCode.ERROR_MESSAGE[status] % data.tmobile
+                    self.write_ret(status, message=message)
+                    return
+
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                                 "  defend_status, mannual_status, begintime, endtime, offline_time, "
                                 "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type)"
