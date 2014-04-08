@@ -2608,7 +2608,7 @@ body {
     display: inline-block;
     left: 68px;
     position: relative;
-    top: 5px;
+    top: -8px;
     width: 358px;
 }
 #alertSettingSlider {
@@ -3010,6 +3010,9 @@ legend {
     height: 29px;
     padding: 0.4em 0.1em;
     width: 146px;
+}
+.mileageCondition {
+	height: 160px;
 }
 .mileageCondition option {
 	height: 20px;
