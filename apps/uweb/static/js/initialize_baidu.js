@@ -24,7 +24,9 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 					obj_marker.setTop(false);
 				}
 			}
-			mapObj.setZoom(15);
+			if ( mapObj.getZoom() < 15 ) {
+				mapObj.setZoom(15);
+			}
 			obj_tempMarker.setTop(true);
 			if ( !str_flag ) {
 				setTimeout(function() {
