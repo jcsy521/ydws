@@ -8,6 +8,7 @@ from utils.misc import get_terminal_info_key, get_terminal_sessionID_key
 from helpers.queryhelper import QueryHelper 
 from helpers.smshelper import SMSHelper
 from utils.dotdict import DotDict
+from utils.misc import safe_utf8
 
 class TerminalMixin(BaseMixin):
     """Mix-in for terminal related functions."""
@@ -66,11 +67,11 @@ class TerminalMixin(BaseMixin):
                 self.db.execute("UPDATE T_CAR"
                                 "  SET cnum = %s"
                                 "  WHERE tid = %s",
-                                value, self.current_user.tid)
+                                safe_utf8(value), self.current_user.tid)
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET alias = %s"
                                 "  WHERE tid = %s",
-                                value, self.current_user.tid)
+                                safe_utf8(value), self.current_user.tid)
                 terminal_info_key = get_terminal_info_key(self.current_user.tid)
                 terminal_info = self.redis.getvalue(terminal_info_key)
                 if terminal_info:
