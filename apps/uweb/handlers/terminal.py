@@ -181,9 +181,12 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             # check the data. some be sent to terminal, some just be modified in db 
             terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
-                                   "    AND service_status = %s",
+                                   "    AND (service_status = %s"
+                                   "    OR service_status = %s)"
+                                   "  LIMIT 1",
                                    self.current_user.tid,
-                                   UWEB.SERVICE_STATUS.ON)
+                                   UWEB.SERVICE_STATUS.ON,
+                                   UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
