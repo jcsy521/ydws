@@ -6,9 +6,8 @@ $(function(){
 	$.ajaxSetup({ cache: false }); // 不保存缓存
 	
 	if ( DOMAIN_HOST == 'ajt.zhydgps.com' || DOMAIN_HOST == 'ajt.ichebao.net' ) { 
-		$('#ads').css('background-image', 'url("/static/images/bannerAd_ajt.png")');
 		document.title='安捷通--登录';
-		$('#top').css('background-image', 'url("/static/images/loginBg_ajt.png")');
+		$('.top').css('background-image', 'url("/static/images/loginBg_ajt.png")');
 		$('#font_tipContent').html('安捷通');
 	} 
 	
