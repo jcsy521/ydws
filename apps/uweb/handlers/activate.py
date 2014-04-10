@@ -86,9 +86,10 @@ class ActivateHandler(BaseHandler):
                     if not terminal['sn']:
                         status = ErrorCode.SUCCESS
                         self.db.execute("UPDATE T_TERMINAL_INFO"
-                                        "  SET sn = %s"
+                                        "  SET sn = %s,"
+                                        "      service_status = %s"
                                         "  WHERE activation_code = %s",
-                                        sn, activation_code)
+                                        sn, UWEB.SERVICE_STATUS.ON, activation_code)
                         logging.info("[UWEB] monitored is activated by monitor. now update the sn.  activation_code: %s, sn: %s",
                                      activation_code, sn)
                         self.write_ret(status,
@@ -115,6 +116,8 @@ class ActivateHandler(BaseHandler):
                             self.write_ret(status,
                                            dict_=DotDict(mobile=terminal.mobile))
                         else: # the code is not used normal, now use the new sn
+                            logging.info("[UWEB] sn: %s, activation_code: %s activated successfully.", 
+                                          sn, activation_code)
                             self.db.execute("UPDATE T_TERMINAL_INFO"
                                             "  SET sn = %s, "
                                             "      service_status = %s"
