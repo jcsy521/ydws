@@ -38,8 +38,8 @@ def main():
         usage()
         exit(1)
 
-    #content = 'SET GROUP 10657061119980'
-    #content = 'SET SIM 18241879776'
+    #content = 'SET GROUP 9000214155'
+    content = 'SET SIM 15040342842'
     #content = 'SET HFCC'
     content = 'SET QQ 4*爸爸*13942132225'
 

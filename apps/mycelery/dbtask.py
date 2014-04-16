@@ -55,17 +55,62 @@ class DBTask(object):
                             "  WHERE id = %s",
                             clat, clon, point['id'])
 
+    def flush_partitions(self):
+        logging.info("Flush partitions started...")
+        current_day = datetime.datetime.fromtimestamp(time.time())
+        try:
+            # add a new partition 13 months later
+
+            day_ = current_day + relativedelta(months=1,
+                                               day=1,hour=0,minute=0,second=0)
+            day_ = current_day + relativedelta(months=13,
+                                               day=1,hour=0,minute=0,second=0)
+            ptime = int(time.mktime(day_.timetuple()))                                   
+            self.db.execute("ALTER TABLE T_LOCATION ADD PARTITION(PARTITION p%s_%s_%s VALUES LESS THAN(%s))",
+                            day_.year, day_.month, day_.day, ptime)
+        except Exception as e:
+            logging.exception("Add partitions p%s_%s_%s failed.Exception: %s", 
+                              day_.year, day_.month, day_.day, e.args)
+        else:
+            logging.info("Add partitions p%s_%s_%s successfully.", 
+                         day_.year, day_.month, day_.day)
+        #try:
+        #    # drop a old partiton 13 months ago
+        #    day_ = current_day + relativedelta(months=-13,
+        #                                       day=1,hour=0,minute=0,second=0)
+        #    self.db.execute("ALTER TABLE T_LOCATION DROP PARTITION p%s_%s_%s",
+        #                    day_.year,day_.month,day_.day)
+
+        #except Exception as e:
+        #    logging.exception("Drop partitions p%s_%s_%s failed.Exception: %s",
+        #                      day_.year, day_.month, day_.day, e.args)
+        #else:
+        #    logging.info("Drop partitions p%s_%s_%s successfully.", 
+        #                 day_.year, day_.month, day_.day)
+ 
+
 def update_clatclon():
     dbt = DBTask()
     dbt.update_clatclon()
+    dbt.finish()
+
+def flush():
+    d = datetime.date.today().timetuple()
+    # only on the first day of a month, flush partitions.
+    if d.tm_mday == 1:
+        dbt = DBTask()
+        dbt.flush_partitions() 
+        dbt.finish()
 
 if __name__ == "__main__":
     ConfHelper.load(options.conf)
     parse_command_line() 
     update_clatclon()
+    flush()
 else:
     try:
         from celery.decorators import task
         update_clatclon = task(ignore_result=True)(update_clatclon)
+        flush = task(ignore_result=True)(flush)
     except Exception as e: 
         logging.exception("[CELERY] dbtask failed. Exception: %s", e.args)

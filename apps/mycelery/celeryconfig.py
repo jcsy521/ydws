@@ -30,7 +30,6 @@ CELERY_IMPORTS = ("admintask","dbtask", "checkertask")
 CELERYBEAT_SCHEDULE = {
 
    # part 1: for admin
-
    "statistic_online_terminal": {
        "task": "admintask.statistic_online_terminal",
        # 12:00AM every day
@@ -57,12 +56,6 @@ CELERYBEAT_SCHEDULE = {
    #    "schedule": crontab(minute=32, hour=10),
    #},
 
-#   "offline_remind": {
-#       "task": "checkertask.offline_remind",
-#       #  12:00AM every day 
-#       "schedule": crontab(minute=0, hour=12),
-#   },
-
    "check_poweroff": {
        "task": "checkertask.check_poweroff",
        # every 1 minute 
@@ -81,4 +74,11 @@ CELERYBEAT_SCHEDULE = {
        # every 5 minute 
        "schedule": timedelta(minutes=5),
    },
+
+   "flush": {
+       "task": "dbtask.flush",
+       # 1:00AM every day
+       "schedule": crontab(minute=0, hour=1),
+   },
+
 }

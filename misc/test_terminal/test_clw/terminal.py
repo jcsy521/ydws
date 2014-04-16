@@ -29,7 +29,8 @@ class Terminal(object):
         self.reboot_mg = "[%s,%s,1,1.0.0,%s,T7,1]"
         self.remote_set_mg = "[%s,%s,1,1.0.0,%s,T8,0]"
         self.remote_unset_mg = "[%s,%s,1,1.0.0,%s,T9,0]"
-        self.locationdesc_mg = "[%s,%s,1,1.0.0,%s,T10,E,113.252432,N,22.564152,460:0:4489:25196,1]"
+        self.locationdesc_mg = "[%s,%s,1,1.0.0,%s,T10,e,120.93308,n,30.52336,460:0:22322:13215,4]"
+        #self.locationdesc_mg = "[%s,%s,1,1.0.0,%s,T10,E,113.252432,N,22.564152,460:0:4489:25196,1]"
         self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,113.252432,N,22.564152,120.3,270.5,1351492202},{E,114.252432,N,23.564152,130.3,280.5,1351492158},{E,115.252432,N,24.564152,130.3,280.5,1351492002},{E,116.252432,N,25.564152,130.3,280.5,1351492058},{E,117.252432,N,26.564152,130.3,280.5,1351491902}]"
         self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,%s,N,%s,120.3,270.5,%s,1134:22.87:31.40:05:4105}]"
         self.charge_mg = "[%s,%s,1,1.0.0,%s,T12,%s]"
@@ -83,7 +84,7 @@ class Terminal(object):
                             )
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.connect(('192.168.1.8', 10027))
+        self.socket.connect(('192.168.1.5', 10025))
         self.logging = self.initlog() 
 
     def login(self):
@@ -155,32 +156,33 @@ class Terminal(object):
         t_time = int(time.time())
 
         s = u'查询余额服务：您好，您的总账户余额为343.91元，感谢您的使用'
-        charge = base64.b64encode(s.encode("utf-8", 'ignore'))
-        charge_mg = self.charge_mg % (t_time, self.sessionID, self.tid, charge)
+        #charge = base64.b64encode(s.encode("utf-8", 'ignore'))
+        #charge_mg = self.charge_mg % (t_time, self.sessionID, self.tid, charge)
         #pvt_mg = self.pvt_mg % (t_time, self.sessionID, self.tid)
-        unbind_status_mg = self.unbind_status_mg % (t_time, 'abcd', self.tid)
-        defend_status_mg = self.defend_report_mg % (t_time, self.sessionID, self.tid)
-        runtime_status_mg = self.runtime_status_mg % (t_time, self.sessionID, self.tid)
-        sleep_status_mg = self.sleep_status_mg % (t_time, self.sessionID, self.tid)
-        fob_status_mg = self.fob_status_mg % (t_time, self.sessionID, self.tid)
+        #unbind_status_mg = self.unbind_status_mg % (t_time, 'abcd', self.tid)
+        #defend_status_mg = self.defend_report_mg % (t_time, self.sessionID, self.tid)
+        #runtime_status_mg = self.runtime_status_mg % (t_time, self.sessionID, self.tid)
+        #sleep_status_mg = self.sleep_status_mg % (t_time, self.sessionID, self.tid)
+        #fob_status_mg = self.fob_status_mg % (t_time, self.sessionID, self.tid)
         locationdesc_mg = self.locationdesc_mg % (t_time, self.sessionID, self.tid)
-        fobinfo_mg = self.fobinfo_mg % (t_time, self.sessionID, self.tid)
-        unusual_activate_mg = self.unusual_activate_mg % (t_time, self.sessionID, self.tid, '1234', '15901258591', self.imsi)
+        #fobinfo_mg = self.fobinfo_mg % (t_time, self.sessionID, self.tid)
+        #unusual_activate_mg = self.unusual_activate_mg % (t_time, self.sessionID, self.tid, '1234', '15901258591', self.imsi)
 
+        mgs = [locationdesc_mg]
         #mgs = [charge_mg, pvt_mg, locationdesc_mg, defend_status_mg]
-        #for mg in mgs:
-        #    #self.logging.info("Send report mg:\n%s", mg)
-        #    self.socket.send(mg)
-        #    time.sleep(15)
-        lat = 116.420
-        lon = 39.912
-        for i in range(100000):
-            t_time = int(time.time())
-            lat += 0.002
-            lon += 0.003
-            pvt_mg = self.pvt_mg % (t_time, self.sessionID, self.tid, lat, lon, t_time)
-            self.socket.send(pvt_mg)
-            time.sleep(20)
+        for mg in mgs:
+            #self.logging.info("Send report mg:\n%s", mg)
+            self.socket.send(mg)
+            time.sleep(15)
+        #lat = 116.420
+        #lon = 39.912
+        #for i in range(100000):
+        #    t_time = int(time.time())
+        #    lat += 0.002
+        #    lon += 0.003
+        #    pvt_mg = self.pvt_mg % (t_time, self.sessionID, self.tid, lat, lon, t_time)
+        #    self.socket.send(pvt_mg)
+        #    time.sleep(20)
 
     def report_mg(self):
         time.sleep(10)
@@ -305,9 +307,9 @@ class Terminal(object):
         thread.start_new_thread(self.heartbeat, ())
         #thread.start_new_thread(self.upload_position, ())
         #thread.start_new_thread(self.report_mg, ())
-        #thread.start_new_thread(self.report_once_mg, ())
+        thread.start_new_thread(self.report_once_mg, ())
         #thread.start_new_thread(self.misc, ())
-        thread.start_new_thread(self.read_mg, ())
+        #thread.start_new_thread(self.read_mg, ())
 
 
     def handle_recv(self, bp, io_loop):
@@ -384,9 +386,9 @@ if __name__ == "__main__":
     import sys
     
     io_loop = IOLoop.instance()
-    args = dict(tid='gzx333',
-                tmobile='13011292238',
-                imsi='13011292238',
+    args = dict(tid='ACB2012777',
+                tmobile='15919176710',
+                imsi='460029191653879',
                 imei='')
     keys = ['tid', 'tmobile', 'imsi', 'imei']
     for i, key in enumerate(keys):
