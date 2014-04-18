@@ -147,7 +147,8 @@ class IncLastInfoCorpHandler(BaseHandler):
                     if location and not (location.clatitude or location.clongitude):
                         location_key = get_location_key(str(tid))
                         locations = [location,] 
-                        #locations = get_locations_with_clatlon(locations, self.db) 
+                        #NOTE: offset latlon
+                        locations = get_locations_with_clatlon(locations, self.db) 
                         location = locations[0]
                         self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
 
@@ -204,7 +205,8 @@ class IncLastInfoCorpHandler(BaseHandler):
                                                          tid,
                                                          int(item['track_time'])+1, endtime)
 
-                            #points_track = get_locations_with_clatlon(points_track, self.db)
+                            #NOTE: offset latlon
+                            points_track = get_locations_with_clatlon(points_track, self.db)
                             for point in points_track: 
                                 if point['clatitude'] and point['clongitude']:
                                     t = dict(latitude=point['latitude'],
