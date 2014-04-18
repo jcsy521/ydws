@@ -25,144 +25,172 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
     """
     @authenticated
     @tornado.web.removeslash
+    @tornado.web.asynchronous
     def post(self):
-        try:
-            data = DotDict(json_decode(self.request.body))
-        except Exception as e:
-            self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
-            return
+        _start_time = time.time()
+        def _on_finish(db):
+            self.db = db
+            try:
+                data = DotDict(json_decode(self.request.body))
+            except Exception as e:
+                self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
+                self.finish()
+                return
 
-        try:
-            res = OrderedDict() 
-            usable = 1
-            status = ErrorCode.SUCCESS
-            if data.get('tids', None):
-                terminals = []
-                for tid in data.tids:
+            try:
+                res = OrderedDict() 
+                usable = 1
+                status = ErrorCode.SUCCESS
+                if data.get('tids', None):
+                    terminals = []
+                    for tid in data.tids:
+                        terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
+                        if terminal:
+                            terminals.append(DotDict(tid=tid))
+                        else:
+                            logging.exception("[UWEB] tid: %s can not be found.", 
+                                              tid)
+                else:
+                    if self.current_user.oid != UWEB.DUMMY_OID: # operator,Note: operator also has cid, so we check oid firstly.
+                        groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
+                        gids = [g.group_id for g in groups]
+                        terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                                  "  WHERE (service_status = %s"
+                                                  "         OR service_status = %s)"
+                                                  "    AND group_id IN %s"
+                                                  "    ORDER BY LOGIN DESC",
+                                                  UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  tuple(DUMMY_IDS + gids))
+                    elif self.current_user.cid != UWEB.DUMMY_CID: # Corp 
+                        groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
+                        gids = [g.gid for g in groups]
+                        terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                                  "  WHERE (service_status = %s"
+                                                  "         OR service_status = %s)"
+                                                  "    AND group_id IN %s"
+                                                  "    ORDER BY LOGIN DESC",
+                                                  UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  tuple(DUMMY_IDS + gids))
+                    else : # individual user
+                        terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                                                  "  WHERE (service_status = %s"
+                                                  "         OR service_status = %s)"
+                                                  "    AND owner_mobile = %s"
+                                                  "    AND login_permit = 1"
+                                                  "    ORDER BY login DESC",
+                                                  UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  self.current_user.uid)
+                _now_time = time.time()
+                if (_now_time - _start_time) > 5:
+                    logging.info("[UWEB] Lastinfo step1 used time: %s > 5s",
+                                _now_time - _start_time)
+
+                tids = [terminal.tid for terminal in terminals]
+                for tid in tids:
+                    _now_time = time.time()
+                    if (_now_time - _start_time) > 5:
+                        logging.info("[UWEB] Lastinfo step2 used time: %s > 5s",
+                                    _now_time - _start_time)
+
+                    res[tid] = {'car_info':{},
+                                'track_info':[]}
+
+                    # 0: get group info
+                    group_info = get_group_info_by_tid(self.db, tid)
+
+                    # 1: get terminal info 
                     terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
-                    if terminal:
-                        terminals.append(DotDict(tid=tid))
-                    else:
-                        logging.exception("[UWEB] tid: %s can not be found.", 
-                                          tid)
-            else:
-                if self.current_user.oid != UWEB.DUMMY_OID: # operator,Note: operator also has cid, so we check oid firstly.
-                    groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
-                    gids = [g.group_id for g in groups]
-                    terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                              "  WHERE (service_status = %s"
-                                              "         OR service_status = %s)"
-                                              "    AND group_id IN %s"
-                                              "    ORDER BY LOGIN DESC",
-                                              UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
-                                              tuple(DUMMY_IDS + gids))
-                elif self.current_user.cid != UWEB.DUMMY_CID: # Corp 
-                    groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
-                    gids = [g.gid for g in groups]
-                    terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                              "  WHERE (service_status = %s"
-                                              "         OR service_status = %s)"
-                                              "    AND group_id IN %s"
-                                              "    ORDER BY LOGIN DESC",
-                                              UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
-                                              tuple(DUMMY_IDS + gids))
-                else : # individual user
-                    terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                              "  WHERE (service_status = %s"
-                                              "         OR service_status = %s)"
-                                              "    AND owner_mobile = %s"
-                                              "    AND login_permit = 1"
-                                              "    ORDER BY login DESC",
-                                              UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
-                                              self.current_user.uid)
+                    mobile = terminal['mobile']
+                    if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
+                        terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
 
-            tids = [terminal.tid for terminal in terminals]
-            for tid in tids:
-                res[tid] = {'car_info':{},
-                            'track_info':[]}
+                    # 2: get location 
+                    location = QueryHelper.get_location_info(tid, self.db, self.redis)
+                    if location and not (location.clatitude or location.clongitude):
+                        location_key = get_location_key(str(tid))
+                        locations = [location,] 
+                        locations = get_locations_with_clatlon(locations, self.db) 
+                        location = locations[0]
+                        if location.clatitude and location.clongitude:
+                            self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
 
-                # 0: get group info
-                group_info = get_group_info_by_tid(self.db, tid)
-
-                # 1: get terminal info 
-                terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis) 
-                mobile = terminal['mobile']
-                if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP:
-                    terminal['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
-
-                # 2: get location 
-                location = QueryHelper.get_location_info(tid, self.db, self.redis)
-                if location and not (location.clatitude or location.clongitude):
-                    location_key = get_location_key(str(tid))
-                    locations = [location,] 
-                    locations = get_locations_with_clatlon(locations, self.db) 
-                    location = locations[0]
-                    if location.clatitude and location.clongitude:
-                        self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
-
-                if location and location['name'] is None:
-                    location['name'] = location['name'] if location['name'] else ''
+                    if location and location['name'] is None:
+                        location['name'] = location['name'] if location['name'] else ''
 
 
-                if location and location['type'] == 1: # cellid
-                    location['locate_error'] = 500  # mile
+                    if location and location['type'] == 1: # cellid
+                        location['locate_error'] = 500  # mile
 
-                avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(mobile)
-                service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
-                car_info=dict(defend_status=terminal['defend_status'] if terminal.get('defend_status', None) is not None else 1,
-                              service_status=service_status,
-                              mannual_status=terminal['mannual_status'] if terminal.get('mannual_status', None) is not None else 1,
-                              fob_status=terminal['fob_status'] if terminal.get('fob_status', None) is not None else 0,
-                              timestamp=location['timestamp'] if location else 0,
-                              speed=location.speed if location else 0,
-                              # NOTE: degree's type is Decimal, float() it before json_encode
-                              degree=float(location.degree) if location else 0.00,
-                              locate_error=location.get('locate_error', 20) if location else 20,
-                              name=location.name if location else '',
-                              type=location.type if location else 1,
-                              latitude=location['latitude'] if location else 0,
-                              longitude=location['longitude'] if location else 0, 
-                              clatitude=location['clatitude'] if location else 0,
-                              clongitude=location['clongitude'] if location else 0, 
-                              login=terminal['login'] if terminal['login'] is not None else 0,
-                              bt_name=terminal.get('bt_name', '') if terminal else '',
-                              bt_mac=terminal.get('bt_mac', '') if terminal else '',
-                              gps=terminal['gps'] if terminal['gps'] is not None else 0,
-                              gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
-                              pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
-                              mobile=terminal['mobile'],
-                              owner_mobile = terminal['owner_mobile'],
-                              alias=terminal['alias'] if terminal['alias'] else terminal['mobile'],
-                              #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
-                              keys_num=0,
-                              group_id=group_info['group_id'],
-                              group_name=group_info['group_name'],
-                              icon_type=terminal['icon_type'],
-                              fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
-                              avatar_path=avatar_path,
-                              avatar_time=avatar_time)
+                    avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(mobile)
+                    service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
+                    car_info=dict(defend_status=terminal['defend_status'] if terminal.get('defend_status', None) is not None else 1,
+                                  service_status=service_status,
+                                  mannual_status=terminal['mannual_status'] if terminal.get('mannual_status', None) is not None else 1,
+                                  fob_status=terminal['fob_status'] if terminal.get('fob_status', None) is not None else 0,
+                                  timestamp=location['timestamp'] if location else 0,
+                                  speed=location.speed if location else 0,
+                                  # NOTE: degree's type is Decimal, float() it before json_encode
+                                  degree=float(location.degree) if location else 0.00,
+                                  locate_error=location.get('locate_error', 20) if location else 20,
+                                  name=location.name if location else '',
+                                  type=location.type if location else 1,
+                                  latitude=location['latitude'] if location else 0,
+                                  longitude=location['longitude'] if location else 0, 
+                                  clatitude=location['clatitude'] if location else 0,
+                                  clongitude=location['clongitude'] if location else 0, 
+                                  login=terminal['login'] if terminal['login'] is not None else 0,
+                                  bt_name=terminal.get('bt_name', '') if terminal else '',
+                                  bt_mac=terminal.get('bt_mac', '') if terminal else '',
+                                  gps=terminal['gps'] if terminal['gps'] is not None else 0,
+                                  gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
+                                  pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
+                                  mobile=terminal['mobile'],
+                                  owner_mobile = terminal['owner_mobile'],
+                                  alias=terminal['alias'] if terminal['alias'] else terminal['mobile'],
+                                  #keys_num=terminal['keys_num'] if terminal['keys_num'] is not None else 0,
+                                  keys_num=0,
+                                  group_id=group_info['group_id'],
+                                  group_name=group_info['group_name'],
+                                  icon_type=terminal['icon_type'],
+                                  fob_list=terminal['fob_list'] if terminal['fob_list'] else [],
+                                  avatar_path=avatar_path,
+                                  avatar_time=avatar_time)
 
-                res[tid]['car_info'] = car_info
-            
-            lastposition_key = get_lastposition_key(self.current_user.uid)
-            lastposition = self.redis.get(lastposition_key)
+                    res[tid]['car_info'] = car_info
+                
+                lastposition_key = get_lastposition_key(self.current_user.uid)
+                lastposition = self.redis.get(lastposition_key)
 
-            lastposition_time_key = get_lastposition_time_key(self.current_user.uid)
-            lastposition_time = self.redis.getvalue(lastposition_time_key)
+                lastposition_time_key = get_lastposition_time_key(self.current_user.uid)
+                lastposition_time = self.redis.getvalue(lastposition_time_key)
 
-            if lastposition == str(res):  
-                pass
-            else:
-                lastposition_time = int(time.time())
-                self.redis.setvalue(lastposition_key, res) 
-                self.redis.setvalue(lastposition_time_key, lastposition_time)
+                if lastposition == str(res):  
+                    pass
+                else:
+                    lastposition_time = int(time.time())
+                    self.redis.setvalue(lastposition_key, res) 
+                    self.redis.setvalue(lastposition_time_key, lastposition_time)
 
-            query_time = data.get('lastposition_time', None)
-            # 2 check whether provide usable data   
-            if int(data.get('cache', 0)) == 1:  # use cache
-                if int(query_time) == lastposition_time:
-                    usable = 0 
-                    res = {} 
+                query_time = data.get('lastposition_time', None)
+                # 2 check whether provide usable data   
+                if int(data.get('cache', 0)) == 1:  # use cache
+                    if int(query_time) == lastposition_time:
+                        usable = 0 
+                        res = {} 
+                    else: 
+                        usable = 1
+                        for item in data.track_list:
+                            track_tid = item['track_tid']
+                            if track_tid not in tids:
+                                logging.error("The terminal with tid: %s does not exist", track_tid)
+                            else:
+                                track_time = item['track_time']
+                                track_key = get_track_key(track_tid)
+                                self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
+                                car_info = res[track_tid]['car_info']
+                                endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(lastposition_time)-1 
+                                track_info = self.get_track_info(track_tid, int(track_time)+1, endtime)
+                                res[track_tid]['track_info'] = track_info
                 else: 
                     usable = 1
                     for item in data.track_list:
@@ -174,34 +202,26 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                             track_key = get_track_key(track_tid)
                             self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
                             car_info = res[track_tid]['car_info']
-                            endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(lastposition_time)-1 
-                            track_info = self.get_track_info(track_tid, int(track_time)+1, endtime)
+                            endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(time.time())-1
+                            track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
                             res[track_tid]['track_info'] = track_info
-            else: 
-                usable = 1
-                for item in data.track_list:
-                    track_tid = item['track_tid']
-                    if track_tid not in tids:
-                        logging.error("The terminal with tid: %s does not exist", track_tid)
-                    else:
-                        track_time = item['track_time']
-                        track_key = get_track_key(track_tid)
-                        self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
-                        car_info = res[track_tid]['car_info']
-                        endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(time.time())-1
-                        track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
-                        res[track_tid]['track_info'] = track_info
 
-            self.write_ret(status, 
-                           dict_=DotDict(res=res,
-                                         usable=usable,
-                                         lastposition_time=lastposition_time))
+                self.write_ret(status, 
+                               dict_=DotDict(res=res,
+                                             usable=usable,
+                                             lastposition_time=lastposition_time))
+                _now_time = time.time()
+                if (_now_time - _start_time) > 5:
+                    logging.info("[UWEB] Lastinfo step3 used time: %s > 5s",
+                                _now_time - _start_time)
+            except Exception as e:
+                logging.exception("[UWEB] uid: %s get lastposition failed. Exception: %s", 
+                                  self.current_user.uid, e.args) 
+                status = ErrorCode.SERVER_BUSY
+                self.write_ret(status)
+            self.finish()
+        self.queue.put((10, _on_finish))
 
-        except Exception as e:
-            logging.exception("[UWEB] uid: %s get lastposition failed. Exception: %s", 
-                              self.current_user.uid, e.args) 
-            status = ErrorCode.SERVER_BUSY
-            self.write_ret(status)
 
     def get_track_info(self, tid, begintime, endtime):
         track_info = []
