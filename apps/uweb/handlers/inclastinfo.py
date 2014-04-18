@@ -33,7 +33,7 @@ class IncLastInfoCorpHandler(BaseHandler):
             try:
                 data = DotDict(json_decode(self.request.body))
                 track_lst = data.get('track_lst', [])
-                current_time = int(time.time()*1000) 
+                current_time = int(time.time()) 
                 lastinfo_time = data.get('lastinfo_time') 
             except Exception as e:
                 status = ErrorCode.ILLEGAL_DATA_FORMAT
