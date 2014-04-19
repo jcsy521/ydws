@@ -2,6 +2,7 @@
 
 import logging
 import time
+from copy import deepcopy
 
 import tornado.web
 from tornado.escape import json_encode, json_decode
@@ -33,7 +34,8 @@ class IncLastInfoCorpHandler(BaseHandler):
             try:
                 data = DotDict(json_decode(self.request.body))
                 track_lst = data.get('track_lst', [])
-                current_time = int(time.time()) 
+                #NOTE: nearly all timestamp's len is 10, here use 13
+                current_time = int(time.time()*1000) 
                 lastinfo_time = data.get('lastinfo_time') 
             except Exception as e:
                 status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -45,9 +47,11 @@ class IncLastInfoCorpHandler(BaseHandler):
 
             try:
                 status = ErrorCode.SUCCESS
+                REMOVE_GID_TID = [] # [(gid, tid),(gid,tid),]
                 res_type = 0
                 #NOTE: first time, lastinfo_time = -1, set the lsstinfo_time as current_time 
                 if lastinfo_time == -1:
+                    logging.info("[UWEB] res_type=2, first time, cid:%s", self.current_user.cid)
                     res_type = 2
                     lastinfo_time = current_time 
 
@@ -76,10 +80,13 @@ class IncLastInfoCorpHandler(BaseHandler):
                  
                 if corp_info_old is not None:
                     if corp_info_old != corp_info:
+                        logging.info("[UWEB] res_type=2, corp_info changed, cid:%s", self.current_user.cid)
                         res_type = 2
                         self.redis.setvalue(corp_info_key, (corp_info, current_time))
                     else:
                         if lastinfo_time < corp_info_time:
+                            logging.info("[UWEB] res_type=2, corp_info time changed, lastinfo_time:%s < corp_info_time:%s, cid:%s", 
+                                         lastinfo_time, corp_info_time, self.current_user.cid)
                             res_type = 2
                 else: 
                     self.redis.setvalue(corp_info_key, (corp_info, current_time))
@@ -99,10 +106,13 @@ class IncLastInfoCorpHandler(BaseHandler):
                     group_info_old, group_info_time = None, None 
                 if group_info_old is not None:
                     if group_info_old != groups:
+                        logging.info("[UWEB] res_type=2, group_info changed, cid:%s", self.current_user.cid)
                         res_type = 2
                         self.redis.setvalue(group_info_key, (groups, current_time))
                     else:
                         if lastinfo_time < group_info_time:
+                            logging.info("[UWEB] res_type=2, group_info time changed, lastinfo_time:%s < group_info_time:%s, cid:%s", 
+                                         lastinfo_time, group_info_time, self.current_user.cid)
                             res_type = 2
                 else: 
                     self.redis.setvalue(group_info_key, (groups, current_time))
@@ -126,10 +136,13 @@ class IncLastInfoCorpHandler(BaseHandler):
                         terminal_info_old, terminal_info_time = None, None 
                     if terminal_info_old is not None:
                         if terminal_info_old != tids:
+                            logging.info("[UWEB] res_type=2, terminal_info changed, cid:%s", self.current_user.cid)
                             res_type = 2
                             self.redis.setvalue(terminal_info_key, (tids, current_time))
                         else:
                             if lastinfo_time < terminal_info_time:
+                                logging.info("[UWEB] res_type=2, terminal_info time changed, lastinfo_time:%s < terminal_info_time:%s, cid:%s", 
+                                             lastinfo_time, terminal_info_time, self.current_user.cid)
                                 res_type = 2
                     else: 
                         self.redis.setvalue(terminal_info_key, (tids, current_time))
@@ -205,7 +218,8 @@ class IncLastInfoCorpHandler(BaseHandler):
                             if tid == item['track_tid']:
                                 track_key = get_track_key(tid)
                                 self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
-                                endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else int(current_time)-1
+                                #endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else (current_time/1000)-1
+                                endtime = int(basic_info['timestamp'])-1 
                                 points_track = self.db.query("SELECT id, latitude, longitude," 
                                                              "   clatitude, clongitude, type, timestamp"
                                                              "  FROM T_LOCATION"
@@ -217,6 +231,8 @@ class IncLastInfoCorpHandler(BaseHandler):
                                                              tid,
                                                              int(item['track_time'])+1, endtime)
 
+
+                                logging.info("[UWEB] tid: %s, track_time, %s, %s", tid, int(item['track_time'])+1, endtime)
                                 #NOTE: offset latlon
                                 points_track = get_locations_with_clatlon(points_track, self.db)
                                 for point in points_track: 
@@ -233,17 +249,18 @@ class IncLastInfoCorpHandler(BaseHandler):
                         #3: build trace_info
                         trace_info = []
                         points_trace = self.db.query("SELECT distinct id, latitude, longitude," 
-                                                     "    clatitude, clongitude"
+                                                     "    clatitude, clongitude, type, timestamp"
                                                      "  FROM T_LOCATION"
                                                      "  WHERE tid = %s"
                                                      "    AND NOT (latitude = 0 OR longitude = 0)"
-                                                     "    AND (timestamp  between %s and %s)"
+                                                     "    AND (timestamp BETWEEN %s and %s)"
                                                      "    AND type = 0"
                                                      "    ORDER BY timestamp",
-                                                     tid, int(current_time)-60*5, basic_info['timestamp'])
+                                                     tid, basic_info['timestamp']-60*5, basic_info['timestamp'])
+                                                     #tid, (current_time/1000)-60*5, basic_info['timestamp'])
 
                         points_trace = get_locations_with_clatlon(points_trace, self.db)
-                        points_trace = points_trace[:5] 
+                        points_trace = points_trace[-5:] 
                         len_trace = 0
                         if points_trace:
                             for point in points_trace:
@@ -268,7 +285,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                                 if alarm.get('keeptime', None) is None: 
                                     alarm['keeptime'] = alarm['timestamp']
                                 if alarm['keeptime'] >= lastinfo_time:
-                                   alarm_info.append(alarm)
+                                    alarm_info.append(alarm)
                             
                         if alarm_info:
                             # NOTE: here, do not remove alarm_info, it will automagically disappear after 1 day 
@@ -295,24 +312,45 @@ class IncLastInfoCorpHandler(BaseHandler):
                             if terminal_detail_old is not None:
                                 if terminal_detail_old != group['trackers'][tid]: 
                                     self.redis.setvalue(terminal_detail_key, (group['trackers'][tid], current_time))
+                                    logging.info("[UWEB] res_type=1, terminal detail changed cid:%s", self.current_user.cid)
                                     res_type = 1
                                 else:
                                     if lastinfo_time < terminal_detail_time:
+                                        logging.info("[UWEB] res_type=1, terminal detail time changed cid:%s", self.current_user.cid)
                                         res_type = 1
                                     else:
-                                        del group['trackers'][tid]
+                                        logging.info("[UWEB] res_type=0, terminal detail no changed cid:%s", self.current_user.cid)
+                                        REMOVE_GID_TID.append((group.gid, tid))
                             else: 
                                 self.redis.setvalue(terminal_detail_key, (group['trackers'][tid], current_time))
                         else:
                             pass
                     res.groups.append(group)
 
-                if int(res_type) == 0:
+                if res_type == 0:
                     res = DotDict(lastinfo_time=current_time)
                     self.write_ret(status, 
                                    dict_=DotDict(res=res,
                                                  res_type=res_type))
                 else:
+                    if res_type == 1: 
+                        for gid, tid in REMOVE_GID_TID:
+                            logging.info("[UWEB] res_type=1, gid: %s, tid: %s is tobe removed. cid:%s", 
+                                         gid, tid, self.current_user.cid)
+                            for index, group in enumerate(res.groups):
+                                if gid == group['gid']:
+                                    del res.groups[index]['trackers'][tid]
+                                    logging.info("[UWEB] res_type=1, gid: %s, tid: %s is removed. cid:%s", 
+                                                 gid, tid, self.current_user.cid)
+                                
+
+                        _groups = deepcopy(res.groups) 
+                        for index, group in enumerate(_groups):           
+                            if not group['trackers']:
+                               res.groups.remove(group)
+                               logging.info("[UWEB] res_type=1, gid: %s, has no tracker, remove it. cid:%s", 
+                                            gid, self.current_user.cid)
+                                 
                     self.write_ret(status, 
                                    dict_=DotDict(res=res, 
                                                  res_type=res_type))
