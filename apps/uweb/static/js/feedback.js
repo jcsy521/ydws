@@ -39,6 +39,7 @@ $(function() {
 	});
 	$('#contact').formValidator({empty:true}).inputValidator({max: 50, onError: '联系人不能大于50个字符。'}); // 区分大小写
 	$('#email').formValidator().inputValidator({max: 50, onError: '邮箱地址的最大长度是50个字符。'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "请输入正确的邮箱地址。"});  // 邮箱验证
+	$('#feedback_mobile').formValidator({empty: true}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "手机号输入不合法，请重新输入！"}); 
 	$('#content').formValidator().inputValidator({min: 10, onError: '反馈内容不能小于10个字。'}); // 区分大小写	
 });
 
@@ -48,8 +49,9 @@ $(function() {
 function fn_fbsave() {
 	var str_contact = $('#contact').val(),
 		str_email = $('#email').val(),
+		str_fmobile= $('#feedback_mobile').val(),
 		str_content = $('#content').val(),
-		obj_feedback = {'contact': str_contact, 'email': str_email, 'content': str_content, 'category': 0 };
+		obj_feedback = {'contact': str_contact, 'email': str_email, 'content': str_content, 'category': 0, 'mobile': str_fmobile };
 		
 	$.post_('feedback', JSON.stringify(obj_feedback), function(data) {
 		if ( data.status == 0 ) {
