@@ -51,7 +51,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                 res_type = 0
                 #NOTE: first time, lastinfo_time = -1, set the lsstinfo_time as current_time 
                 if lastinfo_time == -1:
-                    logging.info("[UWEB] res_type=2, first time, cid:%s", self.current_user.cid)
+                    #logging.info("[UWEB] res_type=2, first time, cid:%s", self.current_user.cid)
                     res_type = 2
                     lastinfo_time = current_time 
 
@@ -80,16 +80,21 @@ class IncLastInfoCorpHandler(BaseHandler):
                  
                 if corp_info_old is not None:
                     if corp_info_old != corp_info:
-                        logging.info("[UWEB] res_type=2, corp_info changed, cid:%s", self.current_user.cid)
+                        #logging.info("[UWEB] res_type=2, corp_info changed, cid:%s", self.current_user.cid)
                         res_type = 2
                         self.redis.setvalue(corp_info_key, (corp_info, current_time))
                     else:
                         if lastinfo_time < corp_info_time:
-                            logging.info("[UWEB] res_type=2, corp_info time changed, lastinfo_time:%s < corp_info_time:%s, cid:%s", 
-                                         lastinfo_time, corp_info_time, self.current_user.cid)
+                            #logging.info("[UWEB] res_type=2, corp_info time changed, lastinfo_time:%s < corp_info_time:%s, cid:%s", 
+                            #             lastinfo_time, corp_info_time, self.current_user.cid)
                             res_type = 2
                 else: 
                     self.redis.setvalue(corp_info_key, (corp_info, current_time))
+
+                _now_time = time.time()
+                if (_now_time - _start_time) > 5:
+                    logging.info("[UWEB] Inclastinfo step1_corp used time: %s > 5s, cid: %s",
+                                _now_time - _start_time, self.current_user.cid)
  
                 res = DotDict(name=corp_info['name'],
                               cid=corp_info['cid'],
@@ -106,27 +111,38 @@ class IncLastInfoCorpHandler(BaseHandler):
                     group_info_old, group_info_time = None, None 
                 if group_info_old is not None:
                     if group_info_old != groups:
-                        logging.info("[UWEB] res_type=2, group_info changed, cid:%s", self.current_user.cid)
+                        #logging.info("[UWEB] res_type=2, group_info changed, cid:%s", self.current_user.cid)
                         res_type = 2
                         self.redis.setvalue(group_info_key, (groups, current_time))
                     else:
                         if lastinfo_time < group_info_time:
-                            logging.info("[UWEB] res_type=2, group_info time changed, lastinfo_time:%s < group_info_time:%s, cid:%s", 
-                                         lastinfo_time, group_info_time, self.current_user.cid)
+                            #logging.info("[UWEB] res_type=2, group_info time changed, lastinfo_time:%s < group_info_time:%s, cid:%s", 
+                            #             lastinfo_time, group_info_time, self.current_user.cid)
                             res_type = 2
                 else: 
                     self.redis.setvalue(group_info_key, (groups, current_time))
  
                 for group in groups:
                     group['trackers'] = {} 
+                    #terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
+                    #                          "  WHERE group_id = %s"
+                    #                          "    AND (service_status = %s"
+                    #                          "    OR service_status = %s)"
+                    #                          "    ORDER BY id",
+                    #                          group.gid, UWEB.SERVICE_STATUS.ON, 
+                    #                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
+
                     terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                               "  WHERE group_id = %s"
                                               "    AND (service_status = %s"
-                                              "    OR service_status = %s)"
-                                              "    ORDER BY id",
+                                              "    OR service_status = %s)",
                                               group.gid, UWEB.SERVICE_STATUS.ON, 
                                               UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
                     tids = [str(terminal.tid) for terminal in terminals]
+                    _now_time = time.time()
+                    if (_now_time - _start_time) > 5:
+                        logging.info("[UWEB] Inclastinfo step1_group_sql used time: %s > 5s, cid: %s, gid: %s",
+                                    _now_time - _start_time, self.current_user.cid, group.gid)
 
                     terminal_info_key = get_group_terminal_info_key(uid, group.gid)
                     terminal_info_tuple = self.redis.getvalue(terminal_info_key)
@@ -136,25 +152,25 @@ class IncLastInfoCorpHandler(BaseHandler):
                         terminal_info_old, terminal_info_time = None, None 
                     if terminal_info_old is not None:
                         if terminal_info_old != tids:
-                            logging.info("[UWEB] res_type=2, terminal_info changed, cid:%s", self.current_user.cid)
+                            #logging.info("[UWEB] res_type=2, terminal_info changed, cid:%s", self.current_user.cid)
                             res_type = 2
                             self.redis.setvalue(terminal_info_key, (tids, current_time))
                         else:
                             if lastinfo_time < terminal_info_time:
-                                logging.info("[UWEB] res_type=2, terminal_info time changed, lastinfo_time:%s < terminal_info_time:%s, cid:%s", 
-                                             lastinfo_time, terminal_info_time, self.current_user.cid)
+                                #logging.info("[UWEB] res_type=2, terminal_info time changed, lastinfo_time:%s < terminal_info_time:%s, cid:%s", 
+                                #             lastinfo_time, terminal_info_time, self.current_user.cid)
                                 res_type = 2
                     else: 
                         self.redis.setvalue(terminal_info_key, (tids, current_time))
                     _now_time = time.time()
                     if (_now_time - _start_time) > 5:
-                        logging.info("[UWEB] Inclastinfo step1 used time: %s > 5s",
-                                    _now_time - _start_time)
+                        logging.info("[UWEB] Inclastinfo step1_group used time: %s > 5s, cid: %s, gid: %s",
+                                    _now_time - _start_time, self.current_user.cid, group.gid)
                     for tid in tids:
                         _now_time = time.time()
                         if (_now_time - _start_time) > 5:
-                            logging.info("[UWEB] Inclastinfo step2 used time: %s > 5s",
-                                        _now_time - _start_time)
+                            logging.info("[UWEB] Inclastinfo step2 used time: %s > 5s, cid: %s",
+                                        _now_time - _start_time, self.current_user.cid)
 
                         group['trackers'][tid] = {} 
                         # 1: get terminal info 
@@ -173,7 +189,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                             location_key = get_location_key(str(tid))
                             locations = [location,] 
                             #NOTE: offset latlon
-                            locations = get_locations_with_clatlon(locations, self.db) 
+                            #locations = get_locations_with_clatlon(locations, self.db) 
                             location = locations[0]
                             self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
 
@@ -212,6 +228,10 @@ class IncLastInfoCorpHandler(BaseHandler):
                                         icon_type=terminal['icon_type'] if terminal.get('icon_type', None) is not None else 0,
                                         fob_list=terminal['fob_list'] if terminal['fob_list'] else [])
 
+                        _now_time = time.time()
+                        if (_now_time - _start_time) > 5:
+                            logging.info("[UWEB] Inclastinfo step2_basic used time: %s > 5s, cid: %s",
+                                        _now_time - _start_time, self.current_user.cid)
                         #2: build track_info
                         track_info = []
                         for item in track_lst:
@@ -234,7 +254,7 @@ class IncLastInfoCorpHandler(BaseHandler):
 
                                 logging.info("[UWEB] tid: %s, track_time, %s, %s", tid, int(item['track_time'])+1, endtime)
                                 #NOTE: offset latlon
-                                points_track = get_locations_with_clatlon(points_track, self.db)
+                                #points_track = get_locations_with_clatlon(points_track, self.db)
                                 for point in points_track: 
                                     if point['clatitude'] and point['clongitude']:
                                         t = dict(latitude=point['latitude'],
@@ -246,9 +266,13 @@ class IncLastInfoCorpHandler(BaseHandler):
                                         track_info.append(t)
                                 break
 
+                        _now_time = time.time()
+                        if (_now_time - _start_time) > 5:
+                            logging.info("[UWEB] Inclastinfo step2_track used time: %s > 5s, cid: %s",
+                                        _now_time - _start_time, self.current_user.cid)
                         #3: build trace_info
                         trace_info = []
-                        points_trace = self.db.query("SELECT distinct id, latitude, longitude," 
+                        points_trace = self.db.query("SELECT id, latitude, longitude," 
                                                      "    clatitude, clongitude, type, timestamp"
                                                      "  FROM T_LOCATION"
                                                      "  WHERE tid = %s"
@@ -259,8 +283,8 @@ class IncLastInfoCorpHandler(BaseHandler):
                                                      tid, basic_info['timestamp']-60*5, basic_info['timestamp'])
                                                      #tid, (current_time/1000)-60*5, basic_info['timestamp'])
 
-                        points_trace = get_locations_with_clatlon(points_trace, self.db)
                         points_trace = points_trace[-5:] 
+                        #points_trace = get_locations_with_clatlon(points_trace, self.db)
                         len_trace = 0
                         if points_trace:
                             for point in points_trace:
@@ -272,6 +296,11 @@ class IncLastInfoCorpHandler(BaseHandler):
                                     len_trace += 1
                                 else:
                                     continue
+
+                        _now_time = time.time()
+                        if (_now_time - _start_time) > 5:
+                            logging.info("[UWEB] Inclastinfo step2_trace used time: %s > 5s, cid: %s",
+                                        _now_time - _start_time, self.current_user.cid)
 
                         #4: build alert_info
                         alarm_info_key = get_alarm_info_key(tid)
@@ -296,6 +325,10 @@ class IncLastInfoCorpHandler(BaseHandler):
                         for alarm in alarm_info:
                             alarm['alias'] = terminal['alias']
 
+                        _now_time = time.time()
+                        if (_now_time - _start_time) > 5:
+                            logging.info("[UWEB] Inclastinfo step2_alarm used time: %s > 5s, cid: %s",
+                                        _now_time - _start_time, self.current_user.cid)
                         group['trackers'][tid]['basic_info'] = basic_info
                         group['trackers'][tid]['track_info'] = track_info 
                         group['trackers'][tid]['trace_info'] = trace_info
@@ -312,14 +345,14 @@ class IncLastInfoCorpHandler(BaseHandler):
                             if terminal_detail_old is not None:
                                 if terminal_detail_old != group['trackers'][tid]: 
                                     self.redis.setvalue(terminal_detail_key, (group['trackers'][tid], current_time))
-                                    logging.info("[UWEB] res_type=1, terminal detail changed cid:%s", self.current_user.cid)
+                                    #logging.info("[UWEB] res_type=1, terminal detail changed cid:%s", self.current_user.cid)
                                     res_type = 1
                                 else:
                                     if lastinfo_time < terminal_detail_time:
-                                        logging.info("[UWEB] res_type=1, terminal detail time changed cid:%s", self.current_user.cid)
+                                        #logging.info("[UWEB] res_type=1, terminal detail time changed cid:%s", self.current_user.cid)
                                         res_type = 1
                                     else:
-                                        logging.info("[UWEB] res_type=0, terminal detail no changed cid:%s", self.current_user.cid)
+                                        #logging.info("[UWEB] res_type=0, terminal detail no changed cid:%s", self.current_user.cid)
                                         REMOVE_GID_TID.append((group.gid, tid))
                             else: 
                                 self.redis.setvalue(terminal_detail_key, (group['trackers'][tid], current_time))
@@ -335,21 +368,21 @@ class IncLastInfoCorpHandler(BaseHandler):
                 else:
                     if res_type == 1: 
                         for gid, tid in REMOVE_GID_TID:
-                            logging.info("[UWEB] res_type=1, gid: %s, tid: %s is tobe removed. cid:%s", 
-                                         gid, tid, self.current_user.cid)
+                            #logging.info("[UWEB] res_type=1, gid: %s, tid: %s is tobe removed. cid:%s", 
+                            #             gid, tid, self.current_user.cid)
                             for index, group in enumerate(res.groups):
                                 if gid == group['gid']:
                                     del res.groups[index]['trackers'][tid]
-                                    logging.info("[UWEB] res_type=1, gid: %s, tid: %s is removed. cid:%s", 
-                                                 gid, tid, self.current_user.cid)
+                                    #logging.info("[UWEB] res_type=1, gid: %s, tid: %s is removed. cid:%s", 
+                                    #             gid, tid, self.current_user.cid)
                                 
 
                         _groups = deepcopy(res.groups) 
                         for index, group in enumerate(_groups):           
                             if not group['trackers']:
                                res.groups.remove(group)
-                               logging.info("[UWEB] res_type=1, gid: %s, has no tracker, remove it. cid:%s", 
-                                            gid, self.current_user.cid)
+                               #logging.info("[UWEB] res_type=1, gid: %s, has no tracker, remove it. cid:%s", 
+                               #             gid, self.current_user.cid)
                                  
                     self.write_ret(status, 
                                    dict_=DotDict(res=res, 
@@ -357,8 +390,8 @@ class IncLastInfoCorpHandler(BaseHandler):
 
                 _now_time = time.time()
                 if (_now_time - _start_time) > 5:
-                    logging.info("[UWEB] Inclastinfo step3 used time: %s > 5s",
-                                _now_time - _start_time)
+                    logging.info("[UWEB] Inclastinfo step3 used time: %s > 5s, cid: %s",
+                                _now_time - _start_time, self.current_user.cid)
             except Exception as e:
                 logging.exception("[UWEB] cid: %s get corp lastinfo failed. Exception: %s", 
                                   self.current_user.cid, e.args) 
