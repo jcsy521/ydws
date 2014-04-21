@@ -1652,7 +1652,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 								dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_car, true);	// 前台偏转 kjj 2013-09-27
 							}
 						} else {
-							if ( str_currentTid == str_tid ) { // 只更新当前终端
+							//if ( str_currentTid == str_tid ) { // 只更新当前终端
 								if ( n_clon != 0 && n_clat != 0 ) {
 									obj_car.trace_info = obj_trace;
 									obj_car.track_info = obj_track;
@@ -1663,7 +1663,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 								} else {
 									dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_car, true);	// 前台偏转 kjj 2013-09-27
 								}
-							}
+							//}
 						}				
 					}
 				}
