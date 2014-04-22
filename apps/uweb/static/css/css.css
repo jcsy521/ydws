@@ -1951,9 +1951,9 @@ body {
 	width: 950px;
 	height: 123px;
 	float: left;
-	background: url('/static/images/bannerAd.png') no-repeat;
+	background: url('/static/images/bannerAd_ajt.png') no-repeat;
 	_background-image: none;
-	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/bannerAd.png',sizingMethod='scale');
+	_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/static/images/bannerAd_ajt.png',sizingMethod='scale');
 }
 #top .adsYDXF {
 	background: url('/static/images/bannerAdYDXF.png') no-repeat;
