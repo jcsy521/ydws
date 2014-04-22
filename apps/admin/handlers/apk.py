@@ -12,13 +12,15 @@ from codes.errorcode import ErrorCode
 from utils.misc import safe_utf8, str_to_list, DUMMY_IDS
 from utils.checker import check_filename 
 
-from constants import UWEB
+from checker import check_privileges
+from constants import PRIVILEGES, UWEB
 
 from base import BaseHandler, authenticated
 
 class ApkHandler(BaseHandler):
 
     @authenticated
+    @check_privileges([PRIVILEGES.APK])
     @tornado.web.removeslash
     def get(self):
         self.render('apk/apkManage.html',
@@ -26,6 +28,7 @@ class ApkHandler(BaseHandler):
                     message='')
 
     @authenticated
+    @check_privileges([PRIVILEGES.APK])
     @tornado.web.removeslash
     def post(self):
         try:
@@ -84,6 +87,7 @@ class ApkHandler(BaseHandler):
             self.write_ret(status) 
 
     @authenticated
+    @check_privileges([PRIVILEGES.APK])
     @tornado.web.removeslash
     def delete(self):
         """Delete activity.  
@@ -113,6 +117,7 @@ class ApkHandler(BaseHandler):
 class ApkListHandler(BaseHandler):
 
     @authenticated
+    @check_privileges([PRIVILEGES.APK])
     @tornado.web.removeslash
     def post(self):
         status = ErrorCode.SUCCESS

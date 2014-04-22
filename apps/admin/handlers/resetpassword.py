@@ -34,6 +34,7 @@ from mongodb.mdaily import MDaily, MDailyMixin
 class ResetPasswordHandler(BaseHandler):
 
     @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self):
         """Just to resetpassword.html.
@@ -43,6 +44,7 @@ class ResetPasswordHandler(BaseHandler):
                     message='')
 
     @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self):
         """Create business for a couple of users.

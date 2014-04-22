@@ -112,7 +112,7 @@ class EnterpriseMixin(BaseMixin):
 class EnterpriseHandler(BaseHandler, EnterpriseMixin):
 
     @authenticated
-    #@check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self):
         """Just to create.html.
@@ -125,7 +125,7 @@ class EnterpriseHandler(BaseHandler, EnterpriseMixin):
                     hash_='') 
                     
     @authenticated
-    #@check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def post(self):
         """Create business for a couple of users.
@@ -146,6 +146,7 @@ class EnterpriseHandler(BaseHandler, EnterpriseMixin):
 class EnterpriseDownloadHandler(BaseHandler, EnterpriseMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self, hash_):
 

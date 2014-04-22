@@ -29,7 +29,6 @@ from codes.smscode import SMSCode
 from constants import PRIVILEGES, SMS, UWEB, GATEWAY
 from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
 
-
 class TotalMixin(BaseMixin):
 
     KEY_TEMPLATE = "total_report_%s_%s"
@@ -114,7 +113,7 @@ class TotalMixin(BaseMixin):
 class TotalHandler(BaseHandler, TotalMixin):
 
     @authenticated
-    #@check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self):
         """Just to create.html.
@@ -128,7 +127,7 @@ class TotalHandler(BaseHandler, TotalMixin):
                     
 
     @authenticated
-    #@check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def post(self):
         """Create business for a couple of users.
@@ -148,6 +147,7 @@ class TotalHandler(BaseHandler, TotalMixin):
 class TotalDownloadHandler(BaseHandler, TotalMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self, hash_):
 

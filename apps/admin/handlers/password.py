@@ -85,14 +85,14 @@ class PasswordMixin:
 class MyPasswordHandler(BaseHandler, PasswordMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.RESET_MY_PASSWORD])
+    #@check_privileges([PRIVILEGES.RESET_MY_PASSWORD])
     @tornado.web.removeslash
     def get(self):
 
         self.do_get()
 
     @authenticated
-    @check_privileges([PRIVILEGES.RESET_MY_PASSWORD])
+    #@check_privileges([PRIVILEGES.RESET_MY_PASSWORD])
     @tornado.web.removeslash
     def post(self):
 

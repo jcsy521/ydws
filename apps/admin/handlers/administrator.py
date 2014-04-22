@@ -116,7 +116,7 @@ class AdministratorMixin(BaseMixin):
 class AdministratorListHandler(BaseHandler, AdministratorMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.LIST_ADMINISTRATOR])
+    #@check_privileges([PRIVILEGES.LIST_ADMINISTRATOR])
     @tornado.web.removeslash
     def get(self, administrator_id):
         success = True
@@ -143,7 +143,7 @@ class AdministratorSelfEditHandler(BaseHandler):
 class AdministratorEditHandler(BaseHandler, AdministratorMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
+    #@check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
     @tornado.web.removeslash
     def get(self, administrator_id):
         success = True
@@ -184,7 +184,7 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                     is_self=administrator_id == self.current_user.id)
         
     @authenticated
-    @check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
+    #@check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
     @tornado.web.removeslash
     def post(self, administrator_id):
         is_self = (administrator_id == self.current_user.id)
@@ -403,5 +403,3 @@ class AdministratorDeleteHandler(BaseHandler, BaseMixin):
             self.redis.delete(key)
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))
-
-

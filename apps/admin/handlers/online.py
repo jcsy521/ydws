@@ -66,7 +66,7 @@ class OlineMixin(BaseMixin):
 class OnlineHandler(BaseHandler, OlineMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.OLINE_STATISTIC])
+    #@check_privileges([PRIVILEGES.OLINE_STATISTIC])
     @tornado.web.removeslash
     def prepare(self):
 
@@ -82,7 +82,7 @@ class OnlineHandler(BaseHandler, OlineMixin):
 
 
     @authenticated
-    @check_privileges([PRIVILEGES.OLINE_STATISTIC])
+    #@check_privileges([PRIVILEGES.OLINE_STATISTIC])
     @tornado.web.removeslash
     def get(self):
         
@@ -96,7 +96,7 @@ class OnlineHandler(BaseHandler, OlineMixin):
 
 
     @authenticated
-    @check_privileges([PRIVILEGES.OLINE_STATISTIC])
+    #@check_privileges([PRIVILEGES.OLINE_STATISTIC])
     #@check_areas()
     @tornado.web.removeslash
     def post(self):

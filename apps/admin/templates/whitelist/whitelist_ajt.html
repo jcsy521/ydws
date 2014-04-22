@@ -1,0 +1,68 @@
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery.min-1.5.js"></script>
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet" type="text/css"/>
+<script src="/static/js/lockScreen.js"></script>
+<script type="text/javascript">
+	fn_lockScreen();
+</script>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript" src="/static/js/whitelist_ajt.js"></script>
+<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+<script type="text/javascript" src="/static/js/json2.js"></script>
+<script type="text/javascript" src="/static/js/dateChoose.js"></script>
+{% block body %}
+	<fieldset class="ui-widget ui-widget-content ui-corner-all">
+		<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+			<span class="ui-button-text legend-text">白名单</span>
+		</legend>
+		<div class="ui-log-panel">
+			<div>
+				终端号码：
+				<input type="text" name="mobile" id="mobile" class="tdStyle" maxlength="11" />
+				<input id="whitelist_search" type="button" value="查询" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
+				<input id="whitelist_add" type="button" value="加入白名单" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
+				<input id="whitelist_addbatch" type="button" value="批量导入白名单" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
+			</div>
+		</div>	
+	</fieldset>
+	
+	<h3>查询结果</h3>
+	<div class="fg-toolbar ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix"></div>
+	<table id="search_table" class="display">
+	<thead>
+		<tr>
+			<th>终端号码</th>
+			<th>时间</th>
+		</tr>
+	</thead>
+	<tbody id="whitelist_tbody">
+	
+	</tbody>
+	</table>
+	<div class="fg-toolbar ui-toolbar ui-widget-header ui-corner-bl ui-corner-br ui-helper-clearfix">
+	</div>
+	<!-- 新增白名单 -->
+	<div id="addWhitelistDialog" title="新增白名单" class="hide">
+		<table>
+			<tr>
+				<td><label for="txt_whitelistMobile">手机号：</label></td>
+				<td>
+					<input type="text" name="txt_whitelistMobile" id="txt_whitelistMobile" class="text ui-widget-content ui-corner-all" maxlength="11" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<input type="button" width="100" value="保存" id="addWhitelistSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!-- 文件上传 -->
+	<div id="fileUploadWrapper" class="wrapper hide j_drag">
+		<iframe scrolling="auto"  width=600 height=500 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
+	</div>
+{% end %}

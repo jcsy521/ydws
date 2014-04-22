@@ -11,12 +11,15 @@ from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode 
 from utils.misc import safe_utf8, str_to_list, DUMMY_IDS
 from utils.checker import check_filename 
+from checker import check_privileges
+from constants import PRIVILEGES, UWEB
 
 from base import BaseHandler, authenticated
 
 class ActivityHandler(BaseHandler):
 
     @authenticated
+    @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def get(self):
         self.render('activity/activity.html',
@@ -24,6 +27,7 @@ class ActivityHandler(BaseHandler):
                     message='')
 
     @authenticated
+    @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def post(self):
         try:
@@ -82,6 +86,7 @@ class ActivityHandler(BaseHandler):
             self.write_ret(status) 
 
     @authenticated
+    @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def delete(self):
         """Delete activity.  
@@ -111,6 +116,7 @@ class ActivityHandler(BaseHandler):
 class ActivityListHandler(BaseHandler):
 
     @authenticated
+    @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def post(self):
         status = ErrorCode.SUCCESS

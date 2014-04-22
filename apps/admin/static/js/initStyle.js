@@ -1,7 +1,10 @@
 ﻿var chart = null; // 统计图对象
 
 $(function () {
-
+	if ( window.location.host == 'ajt.zhydgps.com' ) { 
+		document.title='安捷通后台管理系统';
+		$('#logo').html('安捷通后台系统 v1.0');
+	} 
     //将页面查询到的时间进行转换
 	 var timeta= $(".j_timestamp");
 	 if (timeta.length != 0) {

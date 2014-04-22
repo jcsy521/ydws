@@ -90,7 +90,7 @@ class BusinessMixin(BaseMixin):
 class BusinessCreateHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_HANDLE])
     @tornado.web.removeslash
     def get(self):
         """Just to create.html.
@@ -100,7 +100,7 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                     message='')
 
     @authenticated
-    @check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_HANDLE])
     @tornado.web.removeslash
     def post(self):
         """Create business for a couple of users.
@@ -198,7 +198,7 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
 class BusinessSearchHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.QUERY_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self):
         corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
@@ -212,7 +212,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
 
 
     @authenticated
-    @check_privileges([PRIVILEGES.QUERY_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self):
         """Query businesses according to the given params.
@@ -311,6 +311,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
 class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
 
@@ -369,7 +370,7 @@ class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
 class BusinessListHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.LIST_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self, tmobile):
         """Show the info in detail for the given business.
@@ -385,7 +386,7 @@ class BusinessListHandler(BaseHandler, BusinessMixin):
 class BusinessEditHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.EDIT_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self, tmobile):
         """Jump to edit.html.
@@ -397,7 +398,7 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                     message='')
 
     @authenticated
-    @check_privileges([PRIVILEGES.EDIT_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self, tmobile):
         """Modify a business."""
@@ -476,7 +477,7 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
 class BusinessDeleteHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.DELETE_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self, tmobile, pmobile):
         status = ErrorCode.SUCCESS
@@ -545,7 +546,7 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
 class BusinessServiceHandler(BaseHandler, BusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.EDIT_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self, tmobile, service_status):
         status = ErrorCode.SUCCESS

@@ -17,6 +17,9 @@ from mixin import BaseMixin
 from excelheaders import BINDLOG_FILE_NAME, BINDLOG_SHEET, BINDLOG_HEADER
 from utils.misc import safe_unicode
 
+from checker import check_privileges 
+from constants import PRIVILEGES
+
 class BindLogMixin(BaseMixin):
     KEY_TEMPLATE = "binglog_report_%s_%s"
 
@@ -32,6 +35,7 @@ class BindLogMixin(BaseMixin):
 class BindLogSearchHandler(BaseHandler, BindLogMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
         username = self.get_current_user()
@@ -41,6 +45,7 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
                     hash_='')
 
     @authenticated
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def post(self):
 
@@ -87,6 +92,7 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
 class BindLogDownloadHandler(BaseHandler, BindLogMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
         

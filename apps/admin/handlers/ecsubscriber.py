@@ -87,7 +87,7 @@ class ECSubscriberMixin(BaseMixin):
 class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
+    #@check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
     @tornado.web.removeslash
     def prepare(self):
         self.corplist = self.db.query("SELECT id, name FROM T_CORP")
@@ -102,7 +102,7 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
         self.type = res.type
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
+    #@check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
     @tornado.web.removeslash
     def get(self):
         self.render("report/ecsubscriber.html",
@@ -113,7 +113,7 @@ class ECSubscriberHandler(BaseHandler, ECSubscriberMixin):
                     hash_=None)
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
+    #@check_privileges([PRIVILEGES.COUNT_ECSUBSCRIBER])
     @tornado.web.removeslash
     def post(self):
         m = hashlib.md5()

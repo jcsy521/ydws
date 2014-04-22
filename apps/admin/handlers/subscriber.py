@@ -79,7 +79,7 @@ class SubscriberMixin(BaseMixin):
 class SubscriberHandler(BaseHandler, SubscriberMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
+    #@check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
     @tornado.web.removeslash
     def prepare(self):
         key = self.get_area_memcache_key(self.current_user.id)
@@ -93,7 +93,7 @@ class SubscriberHandler(BaseHandler, SubscriberMixin):
         self.type = res.type
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
+    #@check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
     @tornado.web.removeslash
     def get(self):
         self.render("report/subscriber.html",
@@ -104,7 +104,7 @@ class SubscriberHandler(BaseHandler, SubscriberMixin):
                     hash_=None)
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
+    #@check_privileges([PRIVILEGES.COUNT_SUBSCRIBER])
     @tornado.web.removeslash
     def post(self):
         m = hashlib.md5()

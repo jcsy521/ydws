@@ -1,4 +1,8 @@
 $(function() {
+	if ( window.location.host == 'ajt.zhydgps.com' ) { 
+		document.title='安捷通后台管理系统';
+		$('#login').children('h1').eq(0).html('安捷通后台系统');
+	} 
 	/*
 		*login img
 	*/

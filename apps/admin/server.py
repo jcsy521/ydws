@@ -41,12 +41,12 @@ from handlers.password import MyPasswordHandler, OtherPasswordHandler
 from handlers.delegate import DelegationHandler, DelegationLogHandler
 from handlers.business import * 
 from handlers.ecbusiness import * 
-from handlers.whitelist import WLSearchHandler,AddWLHandler
+from handlers.whitelist import WLSearchHandler, AddWLHandler
 from handlers.subscriber import SubscriberHandler, SubscriberDownloadHandler
 from handlers.ecsubscriber import ECSubscriberHandler, ECSubscriberDownloadHandler
-from handlers.yearly import YearlyHandler, YearlyDownloadHandler
-from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
-from handlers.daily import DailyHandler, DailyDownloadHandler
+#from handlers.yearly import YearlyHandler, YearlyDownloadHandler
+#from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
+#from handlers.daily import DailyHandler, DailyDownloadHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.individual import IndividualHandler, IndividualDownloadHandler
 from handlers.enterprise import EnterpriseHandler, EnterpriseDownloadHandler
@@ -61,6 +61,8 @@ from handlers.resetpassword import ResetPasswordHandler
 from handlers.locationre import LocationSearchHandler, LocationSearchDownloadHandler
 from handlers.bindlog import BindLogSearchHandler, BindLogDownloadHandler
 from handlers.ownerservice import OwnerServiceHandler, OwnerServiceDownloadHandler
+# ajt
+from handlers.whitelist_ajt import WhitelistAJTHandler, WhitelistAJTSearchHandler, WhitelistAJTBatchImportHandler,WhitelistAJTBatchAddHandler
 
 class Application(tornado.web.Application):
 
@@ -110,6 +112,14 @@ class Application(tornado.web.Application):
             (r"/ecbusiness/edit/(\S+)/*", ECBusinessEditHandler),
             (r"/ecbusiness/delete/(\S+)/*", ECBusinessDeleteHandler),
             
+
+            # for ajt
+            (r"/whitelist_ajt/*", WhitelistAJTHandler),
+            (r"/whitelist_ajt/search/*", WhitelistAJTSearchHandler),
+            (r"/whitelist_ajt/batch/import/*", WhitelistAJTBatchImportHandler),
+            (r"/whitelist_ajt/batch/add/*", WhitelistAJTBatchAddHandler),
+
+
             # whitelist search add update
             (r"/whitelist_search",WLSearchHandler),
             (r"/whitelist",AddWLHandler),
@@ -128,10 +138,10 @@ class Application(tornado.web.Application):
             # statistic report
             (r"/report/subscriber/*", SubscriberHandler),
             (r"/report/ecsubscriber/*", ECSubscriberHandler),
-            (r"/report/yearly/*", YearlyHandler),
-            (r"/report/monthly/*", MonthlyHandler),
-            (r"/report/daily/*", DailyHandler),
-            (r"/report/online/*", OnlineHandler),
+            #(r"/report/yearly/*", YearlyHandler),
+            #(r"/report/monthly/*", MonthlyHandler),
+            #(r"/report/daily/*", DailyHandler),
+            #(r"/report/online/*", OnlineHandler),
             
             # new statistic report
             (r"/report/individual/*", IndividualHandler),
@@ -142,10 +152,10 @@ class Application(tornado.web.Application):
             # download the report
             (r"/download/subscriber/(.*)/*", SubscriberDownloadHandler),
             (r"/download/ecsubscriber/(.*)/*", ECSubscriberDownloadHandler),
-            (r"/download/yearly/(.*)/*", YearlyDownloadHandler),
-            (r"/download/monthly/(.*)/*", MonthlyDownloadHandler),
-            (r"/download/daily/(.*)/*", DailyDownloadHandler),
-            (r"/download/online/(.*)/*", OnlineDownloadHandler),
+            #(r"/download/yearly/(.*)/*", YearlyDownloadHandler),
+            #(r"/download/monthly/(.*)/*", MonthlyDownloadHandler),
+            #(r"/download/daily/(.*)/*", DailyDownloadHandler),
+            #(r"/download/online/(.*)/*", OnlineDownloadHandler),
 
             (r"/download/individual/(.*)/*", IndividualDownloadHandler),
             (r"/download/enterprise/(.*)/*", EnterpriseDownloadHandler),
@@ -154,7 +164,7 @@ class Application(tornado.web.Application):
             
             (r"/download/business/search/(.*)/*", BusinessSearchDownloadHandler),
             (r"/download/bindlog/(.*)/*", BindLogDownloadHandler),
-	    (r"/download/location/(.*)/*", LocationSearchDownloadHandler),
+	        (r"/download/location/(.*)/*", LocationSearchDownloadHandler),
             (r"/download/ownerservice/(.*)/*", OwnerServiceDownloadHandler), 
 
             (r"/activity/*", ActivityHandler),

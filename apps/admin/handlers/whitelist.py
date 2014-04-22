@@ -13,15 +13,20 @@ from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
 from utils.checker import check_zs_phone, ZS_PHONE_CHECKER
 
+from checker import check_privileges
+from constants import PRIVILEGES, UWEB
+
 class WLSearchHandler(BaseHandler):
 
     @authenticated
+    @check_privileges([PRIVILEGES.WHITELIST])
     def get(self):
         username = self.get_current_user()
         self.render('whitelist/whitelist.html',
                     username = username)
 
     @authenticated
+    @check_privileges([PRIVILEGES.WHITELIST])
     @tornado.web.removeslash
     def post(self):   
         status = ErrorCode.SUCCESS
@@ -52,6 +57,7 @@ class WLSearchHandler(BaseHandler):
 class AddWLHandler(BaseHandler):
     
     @authenticated
+    @check_privileges([PRIVILEGES.WHITELIST])
     @tornado.web.removeslash
     def post(self):
         status = ErrorCode.SUCCESS
@@ -70,6 +76,7 @@ class AddWLHandler(BaseHandler):
             self.render('errors/error.html', message=ErrorCode.FAILED)
 
     @authenticated
+    @check_privileges([PRIVILEGES.WHITELIST])
     @tornado.web.removeslash
     def put(self):
         status = ErrorCode.SUCCESS

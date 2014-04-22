@@ -103,7 +103,7 @@ class DelegationHandler(BaseHandler):
 class DelegationLogHandler(BaseHandler):
 
     @authenticated
-    @check_privileges([PRIVILEGES.DELEGATION_QUERY])
+    @check_privileges([PRIVILEGES.DELEGATION])
     @tornado.web.removeslash
     def get(self):
         self.render("delegation/log.html",
@@ -111,7 +111,7 @@ class DelegationLogHandler(BaseHandler):
                     interval=[])
 
     @authenticated
-    @check_privileges([PRIVILEGES.DELEGATION_QUERY])
+    @check_privileges([PRIVILEGES.DELEGATION])
     @tornado.web.removeslash
     def post(self):
         # check administrator_id

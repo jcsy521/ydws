@@ -30,6 +30,7 @@ from constants import PRIVILEGES, SMS, UWEB, GATEWAY
 from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
 from myutils import city_list
 from mongodb.mdaily import MDaily, MDailyMixin
+from checker import check_privileges
 
 
 class IndividualMixin(BaseMixin):
@@ -111,14 +112,14 @@ class IndividualMixin(BaseMixin):
 class IndividualHandler(BaseHandler, IndividualMixin):
 
     @authenticated
-    #@check_privileges([PRIVILEGES.YEARLY_STATISTIC])
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def prepare(self):
         pass
 
 
     @authenticated
-    #@check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self):
         """Just to create.html.
@@ -131,7 +132,7 @@ class IndividualHandler(BaseHandler, IndividualMixin):
                     hash_='')
 
     @authenticated
-    #@check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def post(self):
         """Create business for a couple of users.
@@ -151,6 +152,7 @@ class IndividualHandler(BaseHandler, IndividualMixin):
 class IndividualDownloadHandler(BaseHandler, IndividualMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self, hash_):
 

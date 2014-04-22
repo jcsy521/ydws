@@ -90,7 +90,7 @@ class LocationMixin(BaseMixin):
 class LocationHandler(BaseHandler, LocationMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_LOCATION])
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def prepare(self):
         key = self.get_area_memcache_key(self.current_user.id)
@@ -106,7 +106,7 @@ class LocationHandler(BaseHandler, LocationMixin):
             logging.exception("mongodb connected failed.") 
  
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_LOCATION])
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
 
@@ -117,8 +117,8 @@ class LocationHandler(BaseHandler, LocationMixin):
                     hash_=None)
 
     @authenticated
-    @check_privileges([PRIVILEGES.COUNT_LOCATION])
-    @check_areas()
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
+    #@check_areas()
     @tornado.web.removeslash
     def post(self):
 
@@ -137,6 +137,7 @@ class LocationHandler(BaseHandler, LocationMixin):
 class LocationDownloadHandler(BaseHandler, LocationMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
 

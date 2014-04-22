@@ -105,7 +105,7 @@ class OfflineMixin(BaseMixin):
 class OfflineHandler(BaseHandler, OfflineMixin):
 
     @authenticated
-    #@check_privileges([PRIVILEGES.OLINE_STATISTIC])
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self):
         
@@ -118,7 +118,7 @@ class OfflineHandler(BaseHandler, OfflineMixin):
 
 
     @authenticated
-    #@check_privileges([PRIVILEGES.OLINE_STATISTIC])
+    @check_privileges([PRIVILEGES.STATISTIC])
     #@check_areas()
     @tornado.web.removeslash
     def post(self):
@@ -136,7 +136,7 @@ class OfflineHandler(BaseHandler, OfflineMixin):
                     hash_=hash_)
 
     @authenticated
-    #@check_privileges([PRIVILEGES.OLINE_STATISTIC])
+    @check_privileges([PRIVILEGES.STATISTIC])
     #@check_areas()
     @tornado.web.removeslash
     def put(self):
@@ -160,6 +160,7 @@ class OfflineHandler(BaseHandler, OfflineMixin):
 class OfflineDownloadHandler(BaseHandler, OfflineMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self, hash_):
 

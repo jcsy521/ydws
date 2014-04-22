@@ -42,6 +42,7 @@ class LocationMixin(BaseMixin):
 class LocationSearchHandler(BaseHandler, LocationMixin):
     
     @authenticated
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
         username = self.get_current_user()
@@ -52,6 +53,7 @@ class LocationSearchHandler(BaseHandler, LocationMixin):
                     hash_='')
 
     @authenticated
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def post(self):
          
@@ -121,6 +123,7 @@ class LocationSearchHandler(BaseHandler, LocationMixin):
 class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
 

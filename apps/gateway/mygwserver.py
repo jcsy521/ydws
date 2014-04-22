@@ -585,8 +585,13 @@ class MyGWServer(object):
                 self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
                                 "  VALUES(%s)",
                                 t_info['u_msisdn'])
+                ajt = QueryHelper.get_ajt_whitelist_by_mobile(t_info['t_msisdn'], self.db)
+                if ajt:
+                   url_out = ConfHelper.UWEB_CONF.ajt_url_out
+                else:
+                   url_out = ConfHelper.UWEB_CONF.url_out
                 sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
-                                                ConfHelper.UWEB_CONF.url_out,
+                                                url_out,
                                                 t_info['u_msisdn'],
                                                 psd)
 

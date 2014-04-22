@@ -97,7 +97,7 @@
     <thead>
         <tr>
             <th>序号</th><th>公司</th><th>姓名</th><th>手机</th><th>固话</th><th>账号</th>
-            <th>级别</th><th>状态</th><th>编辑</th><th>删除</th><th>详细信息</th>
+            <th>状态</th><th>编辑</th><th>删除</th><th>详细信息</th>
         </tr>
     </thead>
     <tbody id="adminTbody">
@@ -109,17 +109,6 @@
                 <td>{{ administrator.mobile }}</td>
                 <td>{{ administrator.phone}}</td>
                 <td>{{ administrator.login }} </td>
-				<td>
-					{% if int(administrator.type) == 0 %}
-						超级管理员
-					{% elif int(administrator.type) == 1 %}
-						普通业务管理员
-					{% elif int(administrator.type) == 2 %}
-						市级管理员
-					{% else %}
-						
-					{% end %}
-				</td>
 	            <td>
 	                {% if administrator.valid == 0 %}
 		                停用

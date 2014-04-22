@@ -105,7 +105,7 @@ class ECBusinessMixin(BaseMixin):
 class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.CREATE_ECBUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_HANDLE])
     @tornado.web.removeslash
     def get(self):
         bizlist = self.db.query("SELECT bizcode, bizname FROM T_BUSINESS")
@@ -116,7 +116,7 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
                     message='')
 
     @authenticated
-    @check_privileges([PRIVILEGES.CREATE_ECBUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_HANDLE])
     @tornado.web.removeslash
     def post(self):
         """Create business for ec user.
@@ -150,7 +150,7 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
 class ECBusinessListHandler(BaseHandler, ECBusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.LIST_ECBUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self, ecmobile):
         """Show the info in detail for the given business.
@@ -166,7 +166,7 @@ class ECBusinessListHandler(BaseHandler, ECBusinessMixin):
 class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.QUERY_ECBUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self):
         corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
@@ -178,7 +178,7 @@ class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
                     message='')    
         
     @authenticated
-    @check_privileges([PRIVILEGES.QUERY_ECBUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self):
         """Query businesses according to the given params.
@@ -199,7 +199,7 @@ class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
 class ECBusinessEditHandler(BaseHandler, ECBusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.EDIT_ECBUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self, ecmobile):
         """Jump to edit.html.
@@ -211,7 +211,7 @@ class ECBusinessEditHandler(BaseHandler, ECBusinessMixin):
                     message='')
         
     @authenticated
-    @check_privileges([PRIVILEGES.EDIT_ECBUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self, ecmobile):
         """Modify a business.
@@ -246,7 +246,7 @@ class ECBusinessEditHandler(BaseHandler, ECBusinessMixin):
 class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.DELETE_ECBUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self, ecmobile):
         status = ErrorCode.SUCCESS
@@ -309,7 +309,7 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
 class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
 
     @authenticated
-    @check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_HANDLE])
     @tornado.web.removeslash
     def get(self):
         """Just to create.html.
@@ -321,7 +321,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                     message='')
 
     @authenticated
-    @check_privileges([PRIVILEGES.CREATE_BUSINESS])
+    @check_privileges([PRIVILEGES.BUSINESS_HANDLE])
     @tornado.web.removeslash
     def post(self):
         """Create business for a couple of users.
