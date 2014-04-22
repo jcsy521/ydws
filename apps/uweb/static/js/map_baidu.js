@@ -219,7 +219,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 	}
 	str_alias = dlf.fn_encode(str_alias);
 	label = new BMap.Label(str_alias, {offset:new BMap.Size(31, 22)});
-	//label.setStyle({'backgroundColor': '#fff', 'fontSize': '13px', 'lineheight': '20px','borderRadius': '6px','padding': '5px','color': '#000'});	// 设置label样式
+	label.setStyle({'backgroundColor': '#fff', 'fontSize': '13px', 'lineheight': '20px','borderRadius': '6px','padding': '5px','color': '#000'});	// 设置label样式
 	/**
 	* 设置marker图标
 	*/
@@ -244,7 +244,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
 		actionMarker = marker;
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
-		//marker.setLabel(label);
+		marker.setLabel(label);
 		marker.setTitle(str_alias);
 		obj_selfmarkers[str_tid] = marker;
 		
@@ -257,7 +257,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		}
 		marker.setOffset(new BMap.Size(-1, -14));
 	} else if ( str_iconType == 'eventSurround' ) {
-		//marker.setLabel(label);
+		marker.setLabel(label);
 		marker.setTitle(str_alias);
 	} else if ( str_iconType ==	'alarmInfo' ) {
 		marker.getIcon().imageOffset = new BMap.Size(5, 5);

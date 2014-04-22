@@ -1796,7 +1796,7 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 			str_content = str_content.replace(str_oldname, str_tempAlias);
 		*/
 		if ( b_mapType ) {	// 百度地图修改label
-			//obj_selfMarker.getLabel().setContent(str_tempAlias);
+			obj_selfMarker.getLabel().setContent(str_tempAlias);
 			obj_selfMarker.setTitle(str_tempAlias);
 		}
 		//obj_selfmarkers[str_tid].selfInfoWindow.setContent(str_content);
@@ -2274,57 +2274,6 @@ function fn_batchRemoveTerminals(obj_params) {
 	// 数据回显
 	$('.j_batchDelete').attr('disabled', false);	// 批量删除按钮变成绿色并且可用
 	fn_initBatchDeleteData(obj_params);
-}
-
-/**
-*二级菜单事件
-*/
-window.dlf.fn_fillNavItem = function(str_whoItem) {
-	var obj_navItemUl = null,
-		obj_navOffset = $('#'+str_whoItem).offset(),
-		str_navClassName = '',
-		n_offsetLeft = 0;
-		
-	dlf.fn_secondNavValid();
-	if ( str_whoItem == 'recordCount' ) {
-		str_navClassName = 'j_countNavItem';
-		n_offsetLeft = obj_navOffset.left - 5;
-	} else if ( str_whoItem == 'notifyManage' ) {
-		str_navClassName = 'j_notifyManageNavItem';
-		n_offsetLeft = obj_navOffset.left;
-	}
-	
-	obj_navItemUl = $('.'+str_navClassName);
-	obj_navItemUl.css('left', n_offsetLeft).show(); // 二级单显示
-	/*二级菜单的滑过样式*/
-	$('.'+str_navClassName+' li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
-		// $(this).removeClass('countUlItemHover');
-		$('.j_countNavItem, .j_notifyManageNavItem').hide();
-		$('.j_countRecord, .j_notifyManage').bind('mouseover', function(event) {
-			dlf.fn_fillNavItem(event.target.id);
-		});
-	}).mouseover(function(event) {
-		// $(this).addClass('countUlItemHover');
-		obj_navItemUl.show();
-		$('.j_countRecord').unbind('mouseover');
-	});
-}
-
-/**
-* 判断二级菜单是否显示,如果显示进行隐藏
-*/
-window.dlf.fn_secondNavValid = function() { 
-	var obj_navItem1 = $('.j_countNavItem'), 
-		obj_navItem2 = $('.j_notifyManageNavItem'),
-		f_hidden1 = obj_navItem1.is(':hidden'),
-		f_hidden2 = obj_navItem2.is(':hidden');
-	
-	if ( !f_hidden1 ) {
-		obj_navItem1.hide();
-	}
-	if ( !f_hidden2 ) {
-		obj_navItem2.hide();
-	}
 }
 
 /**

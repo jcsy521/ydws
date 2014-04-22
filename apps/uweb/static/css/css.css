@@ -27,7 +27,7 @@ body {
 #top {
 	background: url('/static/images/banner.png') repeat-x;
 	height: 123px;
-	min-width: 1400px;
+	min-width: 1174px;
 	float: left;
 }
 #top img {
@@ -70,7 +70,7 @@ body {
 /*main content start*/
 #main, #corpMain {
 	/*min-width: 1407px;*/
-	min-width: 1400px;
+	min-width: 1174px;
 	min-height: 500px;
 	background: #e7eeef;
 	float: left;
@@ -93,7 +93,7 @@ body {
 	border-right: 1px solid #c5c5c4;
 }
 #right, #corpRight {
-	min-width: 1151px;
+	min-width: 926px;
 }
 #left .title {
 	font-size: 14px;
@@ -336,176 +336,194 @@ body {
 #navi {
 	background: url('/static/images/menuBg.png') repeat-x;
 	height: 38px;
-	min-width: 1151px;
+	min-width: 926px;
 }
 .menu, .menu li {
 	float: left;
 }
 .corpMapObj, #eventSearchContent, .operatorContent, .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent, .notifyManageSearchContent, .notifyManageAddContent {
-	min-width: 1151px;
+	min-width: 926px;
 	/*min-height: 463px;*/
 	min-height: 567px;
 }
 .mapObj {
-	min-width: 1151px;
+	min-width: 875px;
 	min-height: 566px;
 }
 .menu a, .countUlIetm a {	/* , #countSecondList a */
 	display: inline-block;
 	height: 36px;
-	width: 104px;
+	width: 84px;
 	float: left;
-	background: url('/static/images/acb-menus.png') no-repeat;
+	background: url('/static/images/acb-menus.png') no-repeat -8px 0px;
 }
 .menu .home {
-	background-position: 0px -792px;
+	background-position: -8px -792px;
 }
 .menu .home:hover, .menu .homeHover {
-	background-position: 0px -828px;
+	background-position: -8px -828px;
 }
 .menu .realtime {
-	background-position: 0px 0px;
+	background-position: -8px 0px;
 }
 .menu .realtime:hover, .menu .realtimeHover {
-	background-position: 0px -36px;
+	background-position: -8px -36px;
 }
 .menu .track {
-	background-position: 0px -72px;
+	background-position: -8px -72px;
 }
 .menu .track:hover, .menu .trackHover {
-	background-position: 0px -108px;
+	background-position: -8px -108px;
 }
 .menu .eventSearch {
-	background-position: 0px -144px;
+	background-position: -8px -144px;
 }
 .menu .eventSearch:hover, .menu .eventSearchHover {
-	background-position: 0px -180px;
+	background-position: -8px -180px;
 }
 .menu .defend {
-	background-position: 0px -216px;
+	background-position: -8px -216px;
 }
 .menu .defend:hover, .menu .defendHover {
-	background-position: 0px -252px;
+	background-position: -8px -252px;
 }
 .menu .terminal {
-	background-position: 0px -288px;
+	background-position: -8px -288px;
 }
 .menu .terminal:hover, .menu .terminalHover {
-	background-position: 0px -324px;
+	background-position: -8px -324px;
 }
 .menu .corpTerminal {
-	background-position: 0px -576px;
+	background-position: -8px -576px;
 }
 .menu .corpTerminal:hover, .menu .corpTerminalHover {
-	background-position: 0px -612px;
+	background-position: -8px -612px;
 }
 .menu .smsOption {
-	background-position: 0px -360px;
+	background-position: -8px -360px;
 }
 .menu .smsOption:hover, .menu .smsOptionHover {
-	background-position: 0px -396px;
+	background-position: -8px -396px;
 }
 .menu .statics {
-	background-position: 0px -432px;
+	background-position: -8px -432px;
 }
 .menu .statics:hover, .menu .staticsHover {
-	background-position: 0px -468px;
+	background-position: -8px -468px;
 }
 .menu .operator {
-	background-position: 0px -648px;
+	background-position: -8px -648px;
 }
 .menu .operator:hover, .menu .operatorHover {
-	background-position: 0px -684px;
+	background-position: -8px -684px;
 }
 .menu .passenger {
-	background-position: 0px -864px;
+	background-position: -8px -864px;
 }
 .menu .passenger:hover, .menu .passengerHover {
-	background-position: 0px -900px;
+	background-position: -8px -900px;
 }
 .menu .recordCount {
-	background-position: 0px -504px;
+	background-position: -8px -504px;
 }
 .menu .recordCount:hover, .menu .recordCountHover {
-	background-position: 0px -540px;
+	background-position: -8px -540px;
 }
 .menu .infoPush {
-	background-position: 0px -1008px;
+	background-position: -8px -1008px;
 }
 .menu .infoPush:hover, .menu .infoPushHover {
-	background-position: 0px -1044px;
+	background-position: -8px -1044px;
 }
 .menu .routeLine {
-	background-position: 0px -936px;
+	background-position: -8px -936px;
 }
 .menu .routeLine:hover, .menu .routeLineHover {
-	background-position: 0px -972px;
+	background-position: -8px -972px;
 }
 .menu .mileage {
-	background-position: 0px -720px;
+	background-position: -8px -720px;
 }
 .menu .mileage:hover, .menu .mileageHover  {
-	background-position: 0px -756px;
+	background-position: -8px -756px;
 }
 .menu .region {
-	background-position: 0px -1080px;
+	background-position: -8px -1080px;
 }
 .menu .region:hover, .menu .regionHover, .menu .corpRegionHover  {
-	background-position: 0px -1116px;
+	background-position: -8px -1116px;
 }
 .menu .onlineStatics {
-	background-position: 0px -1152px;
+	background-position: -8px -1152px;
 }
 .menu .onlineStatics:hover, .menu .onlineStaticsHover {
-	background-position: 0px -1188px;
+	background-position: -8px -1188px;
 }
 .menu .corpSMSOption {
-	background-position: 0px -1224px;
+	background-position: -8px -1224px;
 }
 .menu .corpSMSOption:hover, .menu .corpSMSOptionHover {
-	background-position: 0px -1260px;
+	background-position: -8px -1260px;
 }
 .menu .smallTools {
-	background-position: 0px -1296px;
+	background-position: -8px -1296px;
 }
 .menu .smallTools:hover, .menu .smallToolsHover {
-	background-position: 0px -1332px;
+	background-position: -8px -1332px;
 }
 .menu .notifyManage {
-	background-position: 0px -1368px;
+	background-position: -8px -1368px;
 }
 .menu .notifyManage:hover, .menu .notifyManageHover {
-	background-position: 0px -1404px;
+	background-position: -8px -1404px;
 }
 .menu .notifyManage_add  {
-	background-position: 0px -1440px;
+	background-position: -8px -1440px;
 }
 .menu .notifyManage_add:hover {
-	background-position: 0px -1476px;
+	background-position: -8px -1476px;
 }
 .menu .notifyManage_search {
-	background-position: 0px -1512px;
+	background-position: -8px -1512px;
 }
 .menu .notifyManage_search:hover {
-	background-position: 0px -1547px;
+	background-position: -8px -1546px;
 }
-.selfList {
-	float:right;
-	margin-right: 20px;
+.menu .userProfileManage {
+	background-position: -8px -1584px;
 }
-.selfList li {
-	float: left;
-	margin-left: 10px;
-	height: 36px;
-	line-height: 36px;
+.menu .userProfileManage:hover, .menu .userProfileManageHover {
+	background-position: -8px -1620px;
 }
-.selfList a {
-	text-decoration: none;
-	color: #276dc3;
-	font-size: 12px;
+.menu #corpData {
+	background-position: -8px -1728px;
 }
-#logout {
-	color: #4c4c4c;
+.menu #corpData:hover {
+	background-position: -8px -1764px;
+}
+.menu #operatorData, .menu #personalData {
+	background-position: -8px -1944px;
+}
+.menu #operatorData:hover, .menu #personalData:hover {
+	background-position: -8px -1980px;
+}
+.menu #changePwd {
+	background-position: -8px -1800px;
+}
+.menu #changePwd:hover {
+	background-position: -8px -1836px;
+}
+.menu .help {
+	background-position: -8px -1656px;
+}
+.menu .help:hover {
+	background-position: -8px -1692px;
+}
+.menu #logout {
+	background-position: -8px -1872px;
+}
+.menu #logout:hover {
+	background-position: -8px -1908px;
 }
 /* right end */
 .userMsg {
@@ -1333,7 +1351,7 @@ body {
 .trackHeader {
 	background: url('/static/images/menuBg.png') repeat-x;
     height: 36px;
-	min-width: 1151px;
+	min-width: 875px;
 	z-index: 1000;
 }
 #trackTerminalAlias {
@@ -1930,7 +1948,7 @@ body {
 }
 /* index ads */
 #ads {
-	width: 1178px;
+	width: 950px;
 	height: 123px;
 	float: left;
 	background: url('/static/images/bannerAd.png') no-repeat;
@@ -3069,13 +3087,13 @@ legend {
 }
 /*报表统计二级菜单*/
 .countUlIetm {
-	width: 115px;
+	width: 84px;
     position: absolute;
     top: 157px;
 	z-index: 1002;
 }
-.countUlIetm li a{
-    padding-left: 20px;
+.countUlIetm li a {
+   /* padding-left: 20px;*/
 }
 #countSecondList .statics {
 	background-position: 0px -432px;
@@ -3666,4 +3684,41 @@ legend {
 }
 #batchTerminalTipImg {
 	margin-top: 10px;
+}
+#topShowIcon, #leftPanelShowIcon {
+	cursor: pointer;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 16px;
+	height: 42px;
+	border-radius: 4px;
+	border: 1px solid #b2c0c8;
+	background: url('/static/images/navIcon_showHide.png') no-repeat;
+}
+#topShowIcon {
+	height: 16px;
+	width: 46px;
+	top: 158px;
+	background-color: #f2f2f2;
+	border: 1px solid #c3c3c3;
+	border-top: none;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+	background-position: -107px 3px;
+}
+#dialogsWrapper .topShowIcon_hover {
+	background-position: -68px 3px;	
+}
+#leftPanelShowIcon {
+	width: 16px;
+	left: 247px;
+	border-left: 1px solid #fff;
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+	background-color: #fff;
+	background-position: -15px 14px;
+}
+#dialogsWrapper .leftPanelShowIcon_hover {
+	background-position: -49px 14px;	
 }
