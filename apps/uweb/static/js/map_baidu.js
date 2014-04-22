@@ -218,9 +218,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		str_alias = b_userType == true ? obj_carA.attr('alias') : obj_carA.next().html();
 	}
 	str_alias = dlf.fn_encode(str_alias);
-	//label = new BMap.Label(str_alias, {offset:new BMap.Size(31, 22)});
-	//label.setStyle({'backgroundColor': '#000000', 'fontSize': '13px', 'height': '20px','borderWidth':'0px','borderColor': '#000',
-	//'opacity': '0.55','filter': 'alpha(opacity=50)','lineHeight': '20px','borderRadius': '6px','paddingLeft': '5px','paddingRight': '5px', 'color': '#ffffff'});	// 设置label样式
+	label = new BMap.Label(str_alias, {offset:new BMap.Size(31, 22)});
+	label.setStyle({'backgroundColor': '#fff', 'fontSize': '13px', 'lineheight': '20px','borderRadius': '6px','padding': '5px','color': '#000'});	// 设置label样式
 	/**
 	* 设置marker图标
 	*/
@@ -245,7 +244,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
 		actionMarker = marker;
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
-		//marker.setLabel(label);
+		marker.setLabel(label);
 		marker.setTitle(str_alias);
 		obj_selfmarkers[str_tid] = marker;
 		
@@ -258,7 +257,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		}
 		marker.setOffset(new BMap.Size(-1, -14));
 	} else if ( str_iconType == 'eventSurround' ) {
-		//marker.setLabel(label);
+		marker.setLabel(label);
 		marker.setTitle(str_alias);
 	} else if ( str_iconType ==	'alarmInfo' ) {
 		marker.getIcon().imageOffset = new BMap.Size(5, 5);
@@ -592,7 +591,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 						str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt) : str_iconUrl,
 						str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
 
-					str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+					str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“安捷通”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://ajt.zhydgps.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
 				}
 			}
 		} else if ( str_iconType == 'alarmInfo' ) {
@@ -735,6 +734,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 * b_geoCode: 是否进行逆地址请求
 */
 window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_geoCode) {
+	$('.j_body').data('intervalkey', true);
 	//GPS坐标
 	var gpsPoint = dlf.fn_createMapPoint(n_lng, n_lat);
 	jQuery.ajax({
@@ -750,6 +750,7 @@ window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInf
 				point = new BMap.Point(lng, lat),
 				str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
 			
+			$('.j_body').data('intervalkey', false);
 			if ( n_error == 0 ) {
 				if ( str_type == 'actiontrack' ) {
 					obj_carInfo.clongitude = point.lng*3600000;

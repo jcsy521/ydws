@@ -1534,6 +1534,7 @@ class MyGWServer(object):
                     if is_send:
                         terminal_info_key = get_terminal_info_key(head.dev_id) 
                         terminal_info = QueryHelper.get_terminal_info(head.dev_id, self.db, self.redis)
+                        alias = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
                         communication_staus = u'正常'
                         communication_mode = u'撤防'
                         gsm_strength = u'强'
@@ -1564,7 +1565,7 @@ class MyGWServer(object):
                         elif gps < 30:
                             gps_strength = u'较强' 
 
-                        runtime_sms = SMSCode.SMS_RUNTIME_STATUS % (communication_staus, communication_mode, int(pbat), gsm_strength, gps_strength)
+                        runtime_sms = SMSCode.SMS_RUNTIME_STATUS % (alias, communication_staus, communication_mode, int(pbat), gsm_strength, gps_strength)
                         SMSHelper.send(terminal_info.owner_mobile, runtime_sms)
                         logging.info("[GW] Send runtime_status sms to user: %s, tid: %s",
                                      terminal_info.owner_mobile, head.dev_id)

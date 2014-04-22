@@ -1,6 +1,9 @@
 <div id="dialogsWrapper">
 	<iframe scrolling="no" frameborder="0" style="position:absolute; z-index:1002; filter:alpha(opacity=0); opacity: 0;" class="hide j_iframe"> 
 	</iframe>
+	<!--展开收起功能-->
+	<div id="topShowIcon"></div>
+	<div id="leftPanelShowIcon"></div>
 	<div id="jNotifyMessage" class="hide"></div> <!--消息提示框-->
 	<div id="jContentLock" class="readonly_overlay hide"></div> <!--消息提示框-->
 	<!--实时查询-->
@@ -461,7 +464,7 @@
 									</td>
 									<!--<td id="corp_biz_type" class="corp_radio j_corp_ListVal j_radio" t_val="">
 										<input id="corp_biz_code_st0" type="radio" value="0" name="corp_corpBizcode" checked />
-										<label id="corp_bicCodeLable0" for="corp_biz_code_st0">移动卫士</label>
+										<label id="corp_bicCodeLable0" for="corp_biz_code_st0">安捷通</label>
 										<input id="corp_biz_code_st1" type="radio" value="1" name="corp_corpBizcode" />
 										<label id="corp_bicCodeLable1" for="corp_biz_code_st1">移动外勤</label>
 									</td>-->
@@ -1009,7 +1012,7 @@
 						<td>
 							<label class="cTerminalLabel">业务类型：</label>
 							<input id="c_biz_code_st1" type="radio" value="0" name="c_corpBizcode" checked />
-							<label id="c_tpsLable1" for="c_biz_code_st1">移动卫士</label>
+							<label id="c_tpsLable1" for="c_biz_code_st1">安捷通</label>
 							<input id="c_biz_code_st2" type="radio" value="1" name="c_corpBizcode" />
 							<label id="c_tpsLable0" for="c_biz_code_st2">移动外勤</label>
 						</td>
@@ -1233,8 +1236,6 @@
 					<td colspan="4">
 						<span class="spanConditionsWord">定位器：</span> 
 						<select id="selectTerminals">
-							<option value="">全部</option>
-							<option value="ACB2012777">15919176710</option>
 						</select>
 						<span class="spanConditions">
 						日期选择：<input type="text" id="mileageStartTime"  class="time" />

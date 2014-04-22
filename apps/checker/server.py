@@ -28,10 +28,21 @@ from checkterminalstatus import CheckTerminalStatus
 from terminal import SimulatorTerminal
 from terminal_test import SimulatorTerminalTest
 from checkservice import CheckService
+from checkdb import CheckDB
 
 
 def usage():
     print "python26 server.py --conf=/path/to/conf_file"
+
+def check_db():
+    logging.info("[CK] check db thread started...")
+    cdb = CheckDB() 
+    try:
+        while True:
+            time.sleep(10)
+            cdb.update_clatclon()
+    except Exception as e:
+        logging.exception("[CK] Start check db failed.")
 
 def check_terminal_status():
     logging.info("[CK] check terminal status thread started...")
@@ -89,6 +100,7 @@ def main():
         thread.start_new_thread(check_service, ())
         thread.start_new_thread(simulator_terminal, ())
         thread.start_new_thread(simulator_terminal_test, ())
+        thread.start_new_thread(check_db, ())
         while True:
             time.sleep(60)
          

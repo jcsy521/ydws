@@ -18,11 +18,13 @@ class CheckUpdateAndroidHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             category = int(self.get_argument('category', UWEB.APK_TYPE.YDWS))
-            if category == UWEB.APK_TYPE.YDWS:
+            if category == UWEB.APK_TYPE.YDWS: # 1
                 version_info = get_version_info("android")
-            elif category == UWEB.APK_TYPE.YDWQ_MONITOR:
+            elif category == UWEB.APK_TYPE.YDWQ_MONITOR: # 2
                 version_info = QueryHelper.get_version_info_by_category(category, self.db)
-            elif category == UWEB.APK_TYPE.YDWQ_MONITORED:
+            elif category == UWEB.APK_TYPE.YDWQ_MONITORED: # 3
+                version_info = QueryHelper.get_version_info_by_category(category, self.db)
+            elif category == UWEB.APK_TYPE.YDWS_ANJIETONG: # 4
                 version_info = QueryHelper.get_version_info_by_category(category, self.db)
             else:
                 logging.info("[UWEB] Invalid category: %s",

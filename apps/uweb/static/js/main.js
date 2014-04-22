@@ -439,109 +439,7 @@ function fn_initAlertSettingCreate(str_who) {
 * 当用户窗口改变时,地图做相应调整
 */
 window.onresize = function () {
-	setTimeout (function () {
-		// 调整页面大小
-		var  n_windowHeight = $(window).height(),
-			n_tempHeight = n_windowHeight <= 624 ? 624 : n_windowHeight,
-			n_windowHeight = $.browser.version == '6.0' ? n_tempHeight : n_windowHeight,
-			n_windowWidth = $(window).width(),
-			n_tempWidth = n_windowWidth <= 1400 ? 1400 : n_windowWidth,
-			n_tilelayerLeft = n_windowWidth <= 1400 ? 1400 - 288 : n_windowWidth - 188,
-			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_windowWidth,
-			n_mapHeight = n_windowHeight - 161,
-			n_right = n_windowWidth - 251,
-			n_trackLeft = 0,
-			n_mainContent = n_windowHeight - 104,
-			n_mainHeight = n_windowHeight - 123,
-			n_corpTreeContainerHeight = n_mainHeight-270,
-			n_treeHeight = n_corpTreeContainerHeight - 55,
-			n_tempTreeHight = $('#corpTree ul').height(),
-			obj_tree = $('#corpTree'),
-			obj_track = $('#trackHeader'),
-			n_delayLeft = n_windowWidth - 550,
-			n_delayIconLeft = n_delayLeft - 17,
-			n_alarmLeft = n_windowWidth - 400,
-			n_alarmIconLeft = n_alarmLeft - 17,
-			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询打开状态
-			b_trackSt = obj_track.is(':visible');
-		
-		if ( b_trackSt ) {
-			n_mapHeight = n_windowHeight - 201;
-			$('#trackHeader').css('width', n_windowWidth - 251);
-		}
-		
-		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-			n_right = n_windowWidth - 259;
-			n_mapHeight = n_mapHeight - 10;
-		}
-		
-		$('.mainBody').height(n_windowHeight);
-		$('#top, #main, #corpMain').css('width', n_windowWidth);
-		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
-		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-
-		if ( n_treeHeight < 340 ) {
-			n_treeHeight = 340;
-		}
-		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
-		
-		$('#right, #corpRight, #navi, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
-		
-		if ( dlf.fn_userType() ) {	// 集团用户
-			n_trackLeft = ( obj_track.width() ) / 8;
-			/**
-			* kjj add in 2013-08-28 
-			* 关闭停留点或告警列表的时候 改变浏览器窗口
-			*/
-			var obj_delayPanel = $('.j_delayPanel'),
-				b_delayPanel = obj_delayPanel.is(':visible'),
-				obj_alarmPanel = $('.j_alarmPanel'),
-				b_alarmPanel = obj_alarmPanel.is(':visible'),
-				n_tempWindowWidth = n_windowWidth;
-			
-			if ( n_windowWidth < 1500 ) {
-				n_trackLeft = 40;
-				n_delayLeft = 870;
-				n_delayIconLeft = 853;
-				n_alarmLeft = 1000;
-				n_alarmIconLeft = 982;
-				n_tempWindowWidth = 1400;
-			}
-			
-			if ( !b_delayPanel ) {
-				n_delayIconLeft = n_tempWindowWidth - 17;
-			}
-			if ( !b_alarmPanel ) {
-				n_alarmIconLeft = n_tempWindowWidth - 17;
-			}
-			obj_delayPanel.css({'left': n_delayLeft});
-			$('.j_disPanelCon').css({'left': n_delayIconLeft});
-			obj_alarmPanel.css({'left': n_alarmLeft});
-			$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
-		} else {
-			n_trackLeft = ( obj_track.width() ) / 6;
-			if ( n_windowWidth < 1500 ) {
-				n_trackLeft = 90;
-			}
-		}
-		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-		$('.eventSearchContent, .j_wrapperContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
-		
-		if ( b_eventSearchStatus ) {
-			n_mapHeight = 340;
-			n_right = 370;
-		}
-		$('#mapObj').css({'width': n_right, 'height': n_mapHeight});	// 右侧宽度
-		dlf.fn_resizeWhitePop();	// 白名单未填提示
-		
-		var b_layer = $('.j_body').data('layer');
-		if ( b_layer ) {
-			dlf.fn_lockScreen();
-		}
-		if ( !dlf.fn_isBMap() ) {	// 高德地图
-			$('#mapTileLayer').css('left', n_tilelayerLeft);
-		}
-	}, 100);
+	dlf.resetPanelDisplay();
 }
 
 /**
@@ -565,8 +463,8 @@ $(function () {
 	var n_windowHeight = $(window).height(),
 		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 		n_windowWidth = $(window).width(),
-		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
-		n_tilelayerLeft = n_windowWidth <= 1400 ? 1400 - 188 : n_windowWidth - 188,
+		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1174 ? 1174 : n_windowWidth : n_windowWidth,
+		n_tilelayerLeft = n_windowWidth <= 1174 ? 1174 - 188 : n_windowWidth - 188,
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = 0,
@@ -599,7 +497,7 @@ $(function () {
 	if ( dlf.fn_userType() ) {	// 集团用户
 		n_trackLeft = ( obj_track.width() ) / 8;
 		
-		if ( n_windowWidth < 1500 ) {
+		if ( n_windowWidth < 1180 ) {
 			n_trackLeft = 40;
 			n_delayLeft = 870;
 			n_delayIconLeft = 853;
@@ -608,7 +506,7 @@ $(function () {
 		}
 	} else {
 		n_trackLeft = ( obj_track.width() ) / 6;
-		if ( n_windowWidth < 1500 ) {
+		if ( n_windowWidth < 1180 ) {
 			n_trackLeft = 90;
 		}
 	}
@@ -795,7 +693,7 @@ $(function () {
 		}
 	});
 	/*鼠标滑动显示统计二级菜单*/
-	$('.j_countRecord, .j_notifyManage').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {	
+	$('.j_countRecord, .j_notifyManage, .j_userProfileManage').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {	
 		dlf.fn_fillNavItem(event.target.id);
 	}).unbind('mouseout').bind('mouseout', function() { 
 		dlf.fn_secondNavValid();
@@ -1276,8 +1174,8 @@ $(function () {
 			n_windowWidth = $(window).width(),
 			n_alarmIconLeft = n_windowWidth - 417;
 		
-		if ( n_windowWidth < 1500 ) {
-			n_windowWidth = 1400;
+		if ( n_windowWidth < 1180 ) {
+			n_windowWidth = 1174;
 			n_alarmIconLeft = 982;
 		}
 		if ( b_panel ) {
@@ -1294,4 +1192,31 @@ $(function () {
 	$('.j_closeAlarm').unbind('click').bind('click', function() {
 		dlf.fn_closeAlarmPanel();
 	});
+	
+	//题栏切换
+	$('#topShowIcon').toggle(
+		function () {
+			$('#top').hide();
+			dlf.resetPanelDisplay();
+			$('#topShowIcon').css('top', '36px').addClass('topShowIcon_hover');
+		},
+		function () {
+			$('#top').show();
+			dlf.resetPanelDisplay();
+			$('#topShowIcon').css('top', '158px').removeClass('topShowIcon_hover');		
+		}
+	);
+	//终端列表切换
+	$('#leftPanelShowIcon').toggle(
+		function () {
+			$('#left, #corpLeft').hide();
+			dlf.resetPanelDisplay();
+			$('#leftPanelShowIcon').css('left', '0px').addClass('leftPanelShowIcon_hover');
+		},
+		function () {
+			$('#left, #corpLeft').show();
+			dlf.resetPanelDisplay();		
+			$('#leftPanelShowIcon').css('left', '247px').removeClass('leftPanelShowIcon_hover');	
+		}
+	);
 });
