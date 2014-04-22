@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from utils.misc import get_terminal_info_key, get_lq_sms_key,\
-     get_location_key, get_login_time_key, get_activation_code
+     get_location_key, get_gps_location_key, get_login_time_key, get_activation_code
 from utils.dotdict import DotDict
 from constants import GATEWAY, EVENTER, UWEB
 
@@ -273,6 +273,39 @@ class QueryHelper(object):
         return location
 
     @staticmethod
+    def get_gps_location_info(tid, db, redis):
+        """Get tracker's last location and keep a copy in redis.
+        """
+        location_key = get_gps_location_key(str(tid))
+        location = redis.getvalue(location_key)
+        if not location:
+            location = db.get("SELECT id, speed, timestamp, category, name,"
+                              "  degree, type, latitude, longitude, clatitude, clongitude,"
+                              "  timestamp, locate_error"
+                              "  FROM T_LOCATION"
+                              "  WHERE tid = %s"
+                              "    AND type = 0"
+                              "    AND NOT (latitude = 0 AND longitude = 0)"
+                              "    ORDER BY timestamp DESC"
+                              "    LIMIT 1",
+                              tid)
+            if location:
+                mem_location = DotDict({'id':location.id,
+                                        'latitude':location.latitude,
+                                        'longitude':location.longitude,
+                                        'type':location.type,
+                                        'clatitude':location.clatitude,
+                                        'clongitude':location.clongitude,
+                                        'timestamp':location.timestamp,
+                                        'name':location.name,
+                                        'degree':float(location.degree),
+                                        'speed':float(location.speed),
+                                        'locate_error':int(location.locate_error)})
+
+                redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+        return location
+
+    @staticmethod
     def get_alert_freq_by_tid(tid,db):
         """Get tracker's alert_freq.
         """
@@ -369,3 +402,13 @@ class QueryHelper(object):
 
             service_status = terminal['service_status']
         return service_status
+
+    @staticmethod
+    def get_ajt_whitelist_by_mobile(mobile, db):
+        """Get ajt whitelist through mobile.
+        """
+        biz = db.get("SELECT id, mobile, timestamp"
+                     "  FROM T_AJT_WHITELIST"
+                     "  WHERE mobile = %s LIMIT 1",
+                     mobile) 
+        return biz 

@@ -287,7 +287,8 @@ def handle_location(location, redis, cellid=False, db=None):
             location.degree = get_last_degree(location, redis, db)
     elif location.valid == GATEWAY.LOCATION_STATUS.UNMOVE: # 4
         logging.info("Tid:%s gps locate flag :%s", location.dev_id, location.valid)
-        last_location = QueryHelper.get_location_info(location.dev_id, db, redis)
+        #last_location = QueryHelper.get_location_info(location.dev_id, db, redis)
+        last_location = QueryHelper.get_gps_location_info(location.dev_id, db, redis)
         if last_location:
             current_time = int(time.time())
             diff = current_time - last_location.timestamp

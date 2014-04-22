@@ -102,6 +102,10 @@ def get_location_key(dev_id):
     """for the newest location of dev"""
     return str("location:%s" % dev_id)
 
+def get_gps_location_key(dev_id):
+    """for the newest gps location of dev"""
+    return str("gps_location:%s" % dev_id)
+
 def get_region_status_key(dev_id, region_id):
     """for the newest region status of dev"""
     return str("region_status:%s%s" % (dev_id, region_id))

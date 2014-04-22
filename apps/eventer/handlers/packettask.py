@@ -50,8 +50,8 @@ class PacketTask(object):
         """Process the current report packet."""
         info = self.packet
         current_time = int(time.time())
-        if info['gps_time'] > (current_time + 24*60*60):
-            logging.info("[EVENTER] The info's (gps_time - current_time) is more than 24 hours, so drop it:%s", info)
+        if info['timestamp'] > (current_time + 24*60*60):
+            logging.info("[EVENTER] The info's (timestamp- current_time) is more than 24 hours, so drop it:%s", info)
             return
 
         self.handle_report_info(info) # reportinfo
@@ -279,7 +279,7 @@ class PacketTask(object):
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
         current_time = int(time.time())
-        if report['gps_time'] > (current_time + 24*60*60):
+        if report['timestamp'] > (current_time + 24*60*60):
             logging.info("[EVENTER] The report's (gps_time - current_time) is more than 24 hours, so drop it:%s", report)
             return
 
@@ -309,7 +309,7 @@ class PacketTask(object):
         alarm = dict(tid=report['dev_id'],
                      category=report['category'], 
                      type=report['type'], 
-                     timestamp=report.get('gps_time',0),
+                     timestamp=report.get('timestamp',0),
                      latitude=report.get('lat',0),
                      longitude=report.get('lon',0),
                      clatitude=report.get('cLat',0),
@@ -328,7 +328,7 @@ class PacketTask(object):
         # 2:  save into database. T_LOCATION, T_EVENT
         lid = insert_location(report, self.db, self.redis)
         self.update_terminal_info(report)
-        self.event_hook(report.category, report.dev_id, report.get('terminal_type',1), lid, report.pbat, report.get('fobid'), report.get('region_id', -1))
+        self.event_hook(report.category, report.dev_id, report.get('terminal_type',1), report.get('timestamp'), lid, report.pbat, report.get('fobid'), report.get('region_id', -1))
 
         # 3: notify the owner 
         user = QueryHelper.get_user_by_tid(report.dev_id, self.db) 
@@ -490,10 +490,10 @@ class PacketTask(object):
                          report.rName, report.dev_id)
 
 
-    def event_hook(self, category, dev_id, terminal_type, lid, pbat=None, fobid=None , rid=None):
-        self.db.execute("INSERT INTO T_EVENT(tid, terminal_type, fobid, lid, pbat, category, rid)"
-                        "  VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                        dev_id, terminal_type, fobid, lid, pbat, category, rid)
+    def event_hook(self, category, dev_id, terminal_type, timestamp, lid, pbat=None, fobid=None , rid=None):
+        self.db.execute("INSERT INTO T_EVENT(tid, terminal_type, timestamp, fobid, lid, pbat, category, rid)"
+                        "  VALUES (%s, %s,  %s, %s, %s, %s, %s, %s)",
+                        dev_id, terminal_type, timestamp, fobid, lid, pbat, category, rid)
 
     def get_sms_option(self, uid, category):
         sms_option = self.db.get("SELECT " + category +
