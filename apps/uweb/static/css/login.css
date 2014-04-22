@@ -21,7 +21,7 @@ ul, li {
 .top {
 	width: 950px;
 	height: 411px;
-	background: url('../images/loginBg.png') no-repeat scroll 0 0;
+	background: url('../images/loginBg_ajt.png') no-repeat scroll 0 0;
 }
 .loginFormContent {
 	background: url("../images/loginBox.png") no-repeat scroll 0 0 transparent;
