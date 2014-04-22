@@ -95,12 +95,23 @@
 					<li><a href="#" id="defend" class="defend j_click"></a></li>
 					<li><a href="#" id="terminal" class="terminal j_click"></a></li>
 					<!--<li><a href="#" id="smsOption" class="smsOption j_click"></a></li>-->
-				</ul>
-				<ul class="selfList">
-					<li><a class="help" title="显示帮助文档" href="/helper" target="_blank">帮助</a></li>
-					<li><a href="#" id="personalData" class="j_click" title="个人资料">个人资料</a></li>
-					<li><a href="#" id="changePwd" class="j_click" title="修改密码">修改密码</a></li>
-					<li><a href="#" id="logout" onclick="dlf.fn_exit()" title="退出">退出</a></li>
+					<li>
+						<a href="#" id="userProfileManage" class="userProfileManage j_userProfileManage"></a>
+						<ul id="userProfileManageList" class="hide j_userProfileManageNavItem countUlIetm">
+							<li>
+								<a href="#" id="personalData" class="j_click"></a>
+							</li>
+							<li>
+								<a href="#" id="changePwd" class="j_click"></a>
+							</li>
+							<li>
+								<a class="help" href="/helper" target="_blank"></a>
+							</li>
+							<li>
+								<a href="#" id="logout" onclick="dlf.fn_exit()"></a>
+							</li>
+						</ul>
+					</li>
 				</ul>
 			</div>
 			<div class="mapContainer">
