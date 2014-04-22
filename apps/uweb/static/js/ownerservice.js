@@ -24,6 +24,7 @@ $(function () {
 		
 		if ( n_trNums >= 11 ) {
 			alert('您已添加10个车牌号！');
+			return;
 		}
 		$('#userInputTable').append(str_inputHtml);
 	});

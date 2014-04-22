@@ -134,6 +134,9 @@ class GWPacketHandler(BaseHandler):
                                         p8 = re.compile(ip, re.I)
                                         p9 = re.compile(match_type, re.I)
                                         while True:
+                                            if len(lines) - 1 < next_num:
+                                                logging.info("[LOG] next_num:%s may be invalid, break", next_num)
+                                                break
                                             if p6.search(lines[next_num]) and p7.search(lines[next_num]) and p8.search(lines[next_num]) and p9.search(lines[next_num]):
                                                 S_packet_time = lines[next_num][3:18]
                                                 packet = lines[next_num]

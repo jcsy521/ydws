@@ -88,7 +88,7 @@ class FeedBackHandler(BaseHandler):
                                    "  SET isreplied = 1"
                                    "  WHERE id = %s",
                                    id)
-                body = u"尊敬的客户：\n\t首先感谢您对【移动车卫士】的支持与关心，对您的意见反馈表示衷心感谢。\n\t针对您的反馈内容，工作人员做了如下回复：\n\t%s\n\n\t【移动车卫士】" % reply 
+                body = u"尊敬的客户：\n\t首先感谢您对【移动卫士】的支持与关心，对您的意见反馈表示衷心感谢。\n\t针对您的反馈内容，工作人员做了如下回复：\n\t%s\n\n\t【移动卫士】" % reply 
                 EmailHelper.send(email, body, [], []) 
             self.write_ret(status,
                            dict_=DotDict(reply_time=reply_time))

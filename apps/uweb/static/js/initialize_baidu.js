@@ -98,6 +98,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 			
 		} else {
 			dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_carInfo, true);	// 前台偏转 kjj 2013-09-27
+			return;
 		}
 	} else {
 		return;
@@ -194,9 +195,9 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		var obj_selfInfoWindow = obj_selfMarker.infoWindow;
 			
 		str_alias = dlf.fn_encode(str_alias);
-		//if ( obj_selfMarker.getLabel() ) {
-		//	obj_selfMarker.getLabel().setContent(str_alias);
-		//}
+		if ( obj_selfMarker.getLabel() ) {
+			obj_selfMarker.getLabel().setContent(str_alias);
+		}
 		
 		obj_selfMarker.setTitle(str_alias);
 		
@@ -401,7 +402,7 @@ window.dlf.fn_updateAlias = function() {
 	if ( obj_selfMarker ) {	// 修改 marker label 别名
 		var str_tid = $('.j_carList .j_currentCar').attr('tid');
 		
-		//obj_selfMarker.getLabel().setContent(str_alias);
+		obj_selfMarker.getLabel().setContent(str_alias);
 		obj_selfMarker.setTitle(str_alias);
 		
 		var obj_carDatas = $('.j_carList').data('carsData')[str_tid];

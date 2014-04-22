@@ -39,6 +39,8 @@ class LoginMixin(BaseMixin):
                                    username)
                 user_type = UWEB.USER_TYPE.OPERATOR if user else None
         if not user:
+            logging.info("[UWEB] user: %s can not be found.",
+                          username)
             return None, None, None, None, None, ErrorCode.USER_NOT_ORDERED
 
         return self.__internal_check(username, password, user_type)
@@ -90,6 +92,8 @@ class LoginMixin(BaseMixin):
                 oid = UWEB.DUMMY_OID
 
                 if not terminals: 
+                    logging.info("[UWEB] user: %s can not find invalid terminals",
+                                  username)
                     status = ErrorCode.TERMINAL_NOT_ORDERED
                     return None, None, None, None, user_type, status 
                 else:

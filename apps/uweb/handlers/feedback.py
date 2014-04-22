@@ -30,6 +30,7 @@ class FeedBackHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            mobile = data.get('mobile', '')
             logging.info("[UWEB] feedback request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -37,7 +38,6 @@ class FeedBackHandler(BaseHandler):
             return 
 
         try:
-
             #if data.has_key('contact') and not check_sql_injection(data.contact):
             #    status = ErrorCode.ILLEGAL_NAME
             #    logging.info("[UWEB] feedback failed, Message: %s", ErrorCode.ERROR_MESSAGE[status])
@@ -50,9 +50,9 @@ class FeedBackHandler(BaseHandler):
             #    self.write_ret(status)
             #    return
 
-            self.db.execute("INSERT INTO T_FEEDBACK(contact,email,content,timestamp,category)"
-                            "  VALUES(%s, %s, %s, %s, %s)",
-                            data.contact, data.email, safe_unicode(data.content),
+            self.db.execute("INSERT INTO T_FEEDBACK(contact, mobile, email, content, timestamp, category)"
+                            "  VALUES(%s, %s, %s, %s, %s, %s)",
+                            data.contact, mobile, data.email, safe_unicode(data.content),
                             int(time.time()), data.category)
             self.write_ret(status)
         except Exception as e:

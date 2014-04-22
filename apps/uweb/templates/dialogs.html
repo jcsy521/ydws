@@ -1,6 +1,9 @@
 <div id="dialogsWrapper">
 	<iframe scrolling="no" frameborder="0" style="position:absolute; z-index:1002; filter:alpha(opacity=0); opacity: 0;" class="hide j_iframe"> 
 	</iframe>
+	<!--展开收起功能-->
+	<div id="topShowIcon"></div>
+	<div id="leftPanelShowIcon"></div>
 	<div id="jNotifyMessage" class="hide"></div> <!--消息提示框-->
 	<div id="jContentLock" class="readonly_overlay hide"></div> <!--消息提示框-->
 	<!--实时查询-->
@@ -1233,8 +1236,6 @@
 					<td colspan="4">
 						<span class="spanConditionsWord">定位器：</span> 
 						<select id="selectTerminals">
-							<option value="">全部</option>
-							<option value="ACB2012777">15919176710</option>
 						</select>
 						<span class="spanConditions">
 						日期选择：<input type="text" id="mileageStartTime"  class="time" />

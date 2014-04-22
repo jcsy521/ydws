@@ -70,30 +70,61 @@ class DownloadHandler(BaseHandler):
 
 class DownloadTerminalHandler(BaseHandler):
 
+    #@tornado.web.removeslash
+    #def get(self):
+    #    """
+    #    Download script for terminal, and keep the info in T_SCRIPT_DOWNLOAD.
+    #    """
+    #    status = ErrorCode.SUCCESS
+    #    versionname = self.get_argument('v', '')
+    #    tid  = self.get_argument('sn', '')
+    #    version = self.db.get("SELECT filename FROM T_SCRIPT"
+    #                           " WHERE version = %s", versionname)
+    #    if not version:
+    #        logging.info("[UWEB] versionname: %s is not found, please check it again.", versionname)
+    #        url = self.application.settings['terminal_path'] + 'dummy_file'
+    #        self.redirect(url)
+    #    else:
+    #        filename = version['filename'] if version.get('filename', None) is not None else ''
+    #        downloadtime = int(time.time())
+    #        self.db.execute("INSERT INTO T_SCRIPT_DOWNLOAD(tid, versionname, timestamp)"
+    #                        " VALUES(%s, %s, %s)",
+    #                        tid, versionname, downloadtime)
+    #        url = self.application.settings['terminal_path'] + filename
+    #        logging.info("[UWEB] Terminal download path: %s", url)
+    #        self.redirect(url)
+
     @tornado.web.removeslash
+    @tornado.web.asynchronous
     def get(self):
         """
         Download script for terminal, and keep the info in T_SCRIPT_DOWNLOAD.
         """
-        status = ErrorCode.SUCCESS
-        versionname = self.get_argument('v', '')
-        tid  = self.get_argument('sn', '')
-        version = self.db.get("SELECT filename FROM T_SCRIPT"
-                               " WHERE version = %s", versionname)
-        if not version:
-            logging.info("[UWEB] versionname: %s is not found, please check it again.", versionname)
-            url = self.application.settings['terminal_path'] + 'dummy_file'
-            self.redirect(url)
-        else:
-            filename = version['filename'] if version.get('filename', None) is not None else ''
-            downloadtime = int(time.time())
-            self.db.execute("INSERT INTO T_SCRIPT_DOWNLOAD(tid, versionname, timestamp)"
-                            " VALUES(%s, %s, %s)",
-                            tid, versionname, downloadtime)
-            url = self.application.settings['terminal_path'] + filename
-            logging.info("[UWEB] Terminal download path: %s", url)
-            self.redirect(url)
+        def _on_finish(db):
+            self.db = db
+            status = ErrorCode.SUCCESS
+            versionname = self.get_argument('v', '')
+            tid  = self.get_argument('sn', '')
+            version = self.db.get("SELECT filename FROM T_SCRIPT"
+                                   " WHERE version = %s", versionname)
+            if not version:
+                logging.info("[UWEB] Terminal %s versionname: %s is not found, please check it again.", 
+                             tid, versionname)
+                url = self.application.settings['terminal_path'] + 'dummy_file'
+                self.redirect(url)
+            else:
+                filename = version['filename'] if version.get('filename', None) is not None else ''
+                downloadtime = int(time.time())
+                self.db.execute("INSERT INTO T_SCRIPT_DOWNLOAD(tid, versionname, timestamp)"
+                                " VALUES(%s, %s, %s)",
+                                tid, versionname, downloadtime)
+                url = self.application.settings['terminal_path'] + filename
+                logging.info("[UWEB] Terminal %s download path: %s", 
+                             tid, url)
+                self.redirect(url)
+            return
 
+        self.queue.put((10, _on_finish))
 
 class UploadTerminalHandler(BaseHandler):
 

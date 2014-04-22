@@ -1351,7 +1351,7 @@ window.dlf.fn_getAllTerminals = function() {
 	var obj_selectTerminals = $('#selectTerminals');	// the container of terminals
 	
 	obj_selectTerminals.empty(); 	// clear the container
-	obj_selectTerminals.append('<option value="">全部</option>');
+	//obj_selectTerminals.append('<option value="">全部</option>'); //注释2014-4-19 tohs
 	$.get_(TERMINALCORP_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var arr_res = data.res,
