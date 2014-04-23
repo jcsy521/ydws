@@ -2220,8 +2220,16 @@ window.dlf.fn_fillNavItem = function(str_whoItem) {
 		str_navClassName = 'j_notifyManageNavItem';
 		n_offsetLeft = obj_navOffset.left;
 	} else if ( str_whoItem == 'userProfileManage' ) {		
+		var b_topPanelSt = $('#top').is(':hidden'),
+			n_prolistTop = 157;
+		
 		str_navClassName = 'j_userProfileManageNavItem';
-		n_offsetLeft = obj_navOffset.left;		
+		n_offsetLeft = obj_navOffset.left;	
+		
+		if ( b_topPanelSt ) {
+			n_prolistTop = 36;
+		}
+		$('#userProfileManageList').css('top', n_prolistTop);	
 	}
 	
 	obj_navItemUl = $('.'+str_navClassName);
