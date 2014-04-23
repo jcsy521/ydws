@@ -2210,7 +2210,9 @@ window.dlf.fn_fillNavItem = function(str_whoItem) {
 	var obj_navItemUl = null,
 		obj_navOffset = $('#'+str_whoItem).offset(),
 		str_navClassName = '',
-		n_offsetLeft = 0;
+		n_offsetLeft = 0,
+		b_topPanelSt = $('#top').is(':hidden'),
+		n_prolistTop = 157;
 	
 	dlf.fn_secondNavValid();
 	if ( str_whoItem == 'recordCount' ) {
@@ -2219,18 +2221,15 @@ window.dlf.fn_fillNavItem = function(str_whoItem) {
 	} else if ( str_whoItem == 'notifyManage' ) {
 		str_navClassName = 'j_notifyManageNavItem';
 		n_offsetLeft = obj_navOffset.left;
-	} else if ( str_whoItem == 'userProfileManage' ) {		
-		var b_topPanelSt = $('#top').is(':hidden'),
-			n_prolistTop = 157;
-		
+	} else if ( str_whoItem == 'userProfileManage' ) {	
 		str_navClassName = 'j_userProfileManageNavItem';
 		n_offsetLeft = obj_navOffset.left;	
-		
-		if ( b_topPanelSt ) {
-			n_prolistTop = 36;
-		}
-		$('#userProfileManageList').css('top', n_prolistTop);	
 	}
+		
+	if ( b_topPanelSt ) {
+		n_prolistTop = 36;
+	}
+	$('.countUlIetm').css('top', n_prolistTop);	
 	
 	obj_navItemUl = $('.'+str_navClassName);
 	obj_navItemUl.css('left', n_offsetLeft).show(); // 二级单显示
