@@ -20,7 +20,7 @@ class CheckService(object):
     def __init__(self):
         self.db = DBConnection().db
         self.tid = 'B123SIMULATOR'
-        self.mobiles = [13693675352, 15901258591,13581731204]
+        self.mobiles = [13693675352, 18310505991, 13581731204]
         self.emails = ['boliang.guan@dbjtech.com', 'youbo.sun@dbjtech.com', 'xiaolei.jia@dbjtech.com']
         #self.emails = ['boliang.guan@dbjtech.com', 'zhaoxia.guo@dbjtech.com', 'xiaolei.jia@dbjtech.com', 'yuanchanggang@sxt.com.cn']
         
