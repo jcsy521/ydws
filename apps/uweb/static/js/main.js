@@ -609,6 +609,8 @@ $(function () {
 						}, 300);
 					}
 				}
+				//显示标题及左侧收缩按钮 
+				$('#topShowIcon, #leftPanelShowIcon').show();
 				break;
 			case 'personalData': //  个人资料 
 				dlf.fn_personalData();
@@ -1175,7 +1177,7 @@ $(function () {
 			n_alarmIconLeft = n_windowWidth - 417;
 		
 		if ( n_windowWidth < 1180 ) {
-			n_windowWidth = 1174;
+			n_windowWidth = 926;
 			n_alarmIconLeft = 982;
 		}
 		if ( b_panel ) {
