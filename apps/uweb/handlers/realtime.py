@@ -78,9 +78,11 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
 
         terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                "  WHERE tid = %s"
-                               "    AND service_status = %s",
+                               "    AND (service_status = %s"
+                               "    OR service_status = %s)",
                                self.current_user.tid,
-                               UWEB.SERVICE_STATUS.ON)
+                               UWEB.SERVICE_STATUS.ON,
+                               UWEB.SERVICE_STATUS.TO_BE_ACTIVATED) 
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
             logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
@@ -92,8 +94,10 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         
         def _on_finish(realtime):
             realtime['cellid_status'] = 1 
+            print '----come into finish', realtime
             self.set_header(*self.JSON_HEADER)
             self.write(json_encode(realtime))
+            print 'write......', json_encode(realtime)
             self.finish()
 
         def __callback(db):

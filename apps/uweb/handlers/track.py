@@ -167,27 +167,39 @@ class TrackHandler(BaseHandler):
             self.db = db
             if cellid_flag == 1:
                 # gps track and cellid track
+                #track = self.db.query("SELECT id, latitude, longitude, clatitude,"
+                #                      "       clongitude, timestamp, name, type, speed, degree, locate_error"
+                #                      "  FROM T_LOCATION"
+                #                      "  WHERE tid = %s"
+                #                      "    AND NOT (latitude = 0 OR longitude = 0)"
+                #                      "    AND (timestamp BETWEEN %s AND %s)"
+                #                      "    GROUP BY timestamp"
+                #                      "    ORDER BY timestamp",
+                #                      self.current_user.tid, start_time, end_time)
+
                 track = self.db.query("SELECT id, latitude, longitude, clatitude,"
                                       "       clongitude, timestamp, name, type, speed, degree, locate_error"
-                                      "  FROM T_LOCATION"
-                                      "  WHERE tid = %s"
-                                      "    AND NOT (latitude = 0 OR longitude = 0)"
-                                      "    AND (timestamp BETWEEN %s AND %s)"
+                                      "  FROM T_LOCATION_SIMULATOR"
                                       "    GROUP BY timestamp"
-                                      "    ORDER BY timestamp",
-                                      self.current_user.tid, start_time, end_time)
+                                      "    ORDER BY timestamp")
             else:
-                # cellid_flag is None or 0, only gps track
+                ## cellid_flag is None or 0, only gps track
+                #track = self.db.query("SELECT id, latitude, longitude, clatitude,"
+                #                      "       clongitude, timestamp, name, type, speed, degree, locate_error"
+                #                      "  FROM T_LOCATION"
+                #                      "  WHERE tid = %s"
+                #                      "    AND NOT (latitude = 0 OR longitude = 0)"
+                #                      "    AND (timestamp BETWEEN %s AND %s)"
+                #                      "    AND type = 0"
+                #                      "    GROUP BY timestamp"
+                #                      "    ORDER BY timestamp",
+                #                      self.current_user.tid, start_time, end_time)
+
                 track = self.db.query("SELECT id, latitude, longitude, clatitude,"
                                       "       clongitude, timestamp, name, type, speed, degree, locate_error"
-                                      "  FROM T_LOCATION"
-                                      "  WHERE tid = %s"
-                                      "    AND NOT (latitude = 0 OR longitude = 0)"
-                                      "    AND (timestamp BETWEEN %s AND %s)"
-                                      "    AND type = 0"
+                                      "  FROM T_LOCATION_SIMULATOR"
                                       "    GROUP BY timestamp"
-                                      "    ORDER BY timestamp",
-                                      self.current_user.tid, start_time, end_time)
+                                      "    ORDER BY timestamp")
 
             # check track point count
             if track and len(track) > 500 and network_type == 0:

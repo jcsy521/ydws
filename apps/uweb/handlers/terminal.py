@@ -61,10 +61,10 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 return
             else: 
-                if terminal['static_val'] == 0:  # move_val:60, static_val:0
-                    terminal['parking_defend'] = 0
-                else: # move_val:0, static_val: 
+                if terminal['move_val'] == 0: # move_val:0, static_val: 120
                     terminal['parking_defend'] = 1
+                else:  # move_val:60, static_val:0
+                    terminal['parking_defend'] = 0
 
             # 2: whitelist
             user = QueryHelper.get_user_by_mobile(terminal.owner_mobile, self.db)
@@ -154,7 +154,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  parking_defend = data.get("parking_defend")
                  if parking_defend == 1:
                      move_val = 0
-                     static_val = 60 
+                     static_val = 120 #60 
                  else:
                      move_val = 60
                      static_val = 0 
@@ -163,7 +163,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                                  "  WHERE tid=%s", 
                                  move_val, static_val, self.current_user.tid)
                  logging.info("[UWEB] Terminal %s update move_val %s and static_val %s", 
-                              self.current_user.tid, move_val, static_val )
+                              self.current_user.tid, move_val, static_val)
                  sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
                  logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
                  self.redis.delete(sessionID_key)

@@ -1589,8 +1589,22 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	}
 	
 	//收缩图标位置
-	if ( str_wrapperId == 'eventSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'operator' || str_wrapperId == 'mileage' ){
+	if ( str_wrapperId == 'eventSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'operator' || str_wrapperId == 'mileage' ) {
 		$('#topShowIcon, #leftPanelShowIcon').hide();
+		var b_topPanelSt = $('#top').is(':hidden'),
+			b_pLeftSt = $('#left').is(':hidden'),
+			b_corpLeftSt = $('#corpLeft').is(':hidden'),
+			obj_panelWrp = $('#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #notifyManageAddWrapper ,#notifyManageSearchWrapper'),
+			n_defLeft = 248,
+			n_defTop = 160;
+			
+		if ( b_topPanelSt ) {
+			n_defTop = 37;
+		}
+		if ( b_pLeftSt || b_corpLeftSt ) {
+			n_defLeft = 0
+		}
+		obj_panelWrp.css({'top': n_defTop, 'left': n_defLeft});
 	}
 	obj_wrapper.show();
 }
@@ -2338,7 +2352,7 @@ window.dlf.resetPanelDisplay = function() {
 		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 		
 		if ( $(window).width() < 1180 ) {
-			n_right = 1174;
+			n_right = 926;
 		}
 		$('#right, #corpRight, #navi, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
@@ -2360,7 +2374,7 @@ window.dlf.resetPanelDisplay = function() {
 				n_delayIconLeft = 853;
 				n_alarmLeft = 1000;
 				n_alarmIconLeft = 982;
-				n_tempWindowWidth = 1174;
+				n_tempWindowWidth = 926;
 			}
 			
 			if ( !b_delayPanel ) {
