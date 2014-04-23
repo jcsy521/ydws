@@ -1527,7 +1527,10 @@ window.dlf.fn_setMapPosition = function(b_status) {
 			obj_mapCenter = $('.j_body').data('mapcenter'),
 			obj_mapSize = $('.j_body').data('mapsize'),
 			b_trackSt = $('#trackHeader').is(':visible'), 
-			n_mapObjMinHeight = 566;
+			n_mapObjMinHeight = 566,
+			b_topPanelSt = $('#top').is(':hidden'),
+			b_pLeftSt = $('#left').is(':hidden'),
+			b_corpLeftSt = $('#corpLeft').is(':hidden');
 		
 		if ( b_trackSt ) {
 			n_mapObjMinHeight = 530;
@@ -1537,7 +1540,12 @@ window.dlf.fn_setMapPosition = function(b_status) {
 			n_right = n_windowWidth - 259;
 			n_mapHeight = n_mapHeight - 10;
 		}
-		
+		if ( b_topPanelSt ) {
+			n_mapHeight += 123;
+		}
+		if ( b_pLeftSt || b_corpLeftSt ) {
+			n_right += 247;
+		}
 		obj_map.css({'height': n_mapHeight, 'width': n_right, 'minHeight': n_mapObjMinHeight, 'minWidth': 1151, 'zIndex': 0}).show();
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
