@@ -47,6 +47,7 @@
 						</li>
 					</ul>
 				</div>
+				{% if is_ajt == 0 %}
 				<h3><a href="#">系统管理</a></h3>
 				<div>
 					<ul class="cUlItem">
@@ -167,81 +168,6 @@
 						</li>-->
 					</ul>
 				</div>
-				<!--
-				<h3><a href="#">系统管理</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li class="ultoggle">
-							<span id="adminUser">后台用户管理</span>
-							<ul class="hideul" id="toggle">
-								<li onclick="fn_CreateIframeSrc('/administrator/search');">
-									<a href="#">查询后台用户</a>
-								</li>
-								<li onclick="fn_CreateIframeSrc('/administrator/create');">
-									<a id="a_creatPerson" href="#">新增后台用户</a>
-								</li>
-							</ul>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/privgroup/list');">
-							<a href="#">权限组管理</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/administrator/password/other');">
-							<a href="#">密码管理</a>
-						</li>
-					</ul>
-				</div>
-				<h3><a href="#">代客操作</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li id="begDelegation" onclick="fn_CreateIframeSrc('/delegation');">
-							<a href="#">代客操作</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/delegation/log');">
-							<a href="#">代客操作记录</a>
-						</li>
-					</ul>
-				</div>
-				<h3><a href="#">业务查询</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/user/search');">
-							<a href="#">集团订购查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/user/subscription');">
-							<a href="#">成员订购查询</a>
-						</li>
-					</ul>
-				</div>
-				<h3><a href="#">业务统计</a></h3>
-				<div>
-					<ul class="cUlItem">
-					{% if type == '0' or type == '2'  %}
-						<li onclick="fn_CreateIframeSrc('/report/subscriber');">
-							<a href="#">地市用户统计</a>
-						</li>
-					{% end %}
-						<li onclick="fn_CreateIframeSrc('/report/group');">
-							<a href="#">集团用户统计</a>
-						</li>
-					</ul>
-				</div>
-				{% if type == '0' or type == '2' %}
-				<h3><a href="#">业务报表</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/report/daily');"">
-							<a href="#">业务日报</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/monthly');">
-							<a href="#">业务月报</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/business');">
-							<a href="#">报表查询</a>
-						</li>
-					</ul>
-				</div>
-				{% end %}
-			-->	
 				<h3><a href="#">白名单</a></h3>
 				<div>
 					<ul class="cUlItem">
@@ -250,6 +176,8 @@
 						</li>
 					</ul>
 				</div>
+				{% end %}
+				{% if is_ajt == 1 %}
 				<h3><a href="#">安捷通白名单</a></h3>
 				<div>
 					<ul class="cUlItem">
@@ -258,6 +186,8 @@
 						</li>
 					</ul>
 				</div>
+				{% end %}
+				{% if is_ajt == 0 %}
 				<h3><a href="#">活动管理</a></h3>
 				<div>
 					<ul class="cUlItem">
@@ -277,6 +207,7 @@
 						</li>
 					</ul>
 				</div>
+				{% end %}
 				<h3><a href="#">退出</a></h3>
 				<div>
 					<ul class="cUlItem">
