@@ -247,15 +247,15 @@ class QueryHelper(object):
         location_key = get_location_key(str(tid))
         location = redis.getvalue(location_key)
         if not location:
-            location = db.get("SELECT id, speed, timestamp, category, name,"
-                              "  degree, type, latitude, longitude, clatitude, clongitude,"
-                              "  timestamp, locate_error"
-                              "  FROM T_LOCATION"
-                              "  WHERE tid = %s"
-                              "    AND NOT (latitude = 0 AND longitude = 0)"
-                              "    ORDER BY timestamp DESC"
-                              "    LIMIT 1",
-                              tid)
+            #location = db.get("SELECT id, speed, timestamp, category, name,"
+            #                  "  degree, type, latitude, longitude, clatitude, clongitude,"
+            #                  "  timestamp, locate_error"
+            #                  "  FROM T_LOCATION"
+            #                  "  WHERE tid = %s"
+            #                  "    AND NOT (latitude = 0 AND longitude = 0)"
+            #                  "    ORDER BY timestamp DESC"
+            #                  "    LIMIT 1",
+            #                  tid)
             if location:
                 mem_location = DotDict({'id':location.id,
                                         'latitude':location.latitude,
