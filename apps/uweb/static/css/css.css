@@ -336,7 +336,7 @@ body {
 #navi {
 	background: url('/static/images/menuBg.png') repeat-x;
 	height: 38px;
-	min-width: 1152px;
+	min-width: 1096px;
 }
 .menu, .menu li {
 	float: left;
