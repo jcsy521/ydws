@@ -240,16 +240,17 @@ class IncLastInfoCorpHandler(BaseHandler):
                                 self.redis.setvalue(track_key, 1, UWEB.TRACK_INTERVAL)
                                 #endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else (current_time/1000)-1
                                 endtime = int(basic_info['timestamp'])-1 
-                                points_track = self.db.query("SELECT id, latitude, longitude," 
-                                                             "   clatitude, clongitude, type, timestamp"
-                                                             "  FROM T_LOCATION"
-                                                             "  WHERE tid = %s"
-                                                             "    AND NOT (latitude = 0 OR longitude = 0)"
-                                                             "    AND (timestamp BETWEEN %s AND %s)"
-                                                             "    AND type = 0"
-                                                             "    ORDER BY timestamp",
-                                                             tid,
-                                                             int(item['track_time'])+1, endtime)
+                                points_track = []
+                                #points_track = self.db.query("SELECT id, latitude, longitude," 
+                                #                             "   clatitude, clongitude, type, timestamp"
+                                #                             "  FROM T_LOCATION"
+                                #                             "  WHERE tid = %s"
+                                #                             "    AND NOT (latitude = 0 OR longitude = 0)"
+                                #                             "    AND (timestamp BETWEEN %s AND %s)"
+                                #                             "    AND type = 0"
+                                #                             "    ORDER BY timestamp",
+                                #                             tid,
+                                #                             int(item['track_time'])+1, endtime)
 
 
                                 logging.info("[UWEB] tid: %s, track_time, %s, %s", tid, int(item['track_time'])+1, endtime)
@@ -272,16 +273,17 @@ class IncLastInfoCorpHandler(BaseHandler):
                                         _now_time - _start_time, self.current_user.cid)
                         #3: build trace_info
                         trace_info = []
-                        points_trace = self.db.query("SELECT id, latitude, longitude," 
-                                                     "    clatitude, clongitude, type, timestamp"
-                                                     "  FROM T_LOCATION"
-                                                     "  WHERE tid = %s"
-                                                     "    AND NOT (latitude = 0 OR longitude = 0)"
-                                                     "    AND (timestamp BETWEEN %s and %s)"
-                                                     "    AND type = 0"
-                                                     "    ORDER BY timestamp",
-                                                     tid, basic_info['timestamp']-60*5, basic_info['timestamp'])
-                                                     #tid, (current_time/1000)-60*5, basic_info['timestamp'])
+                        points_trace = []
+                        #points_trace = self.db.query("SELECT id, latitude, longitude," 
+                        #                             "    clatitude, clongitude, type, timestamp"
+                        #                             "  FROM T_LOCATION"
+                        #                             "  WHERE tid = %s"
+                        #                             "    AND NOT (latitude = 0 OR longitude = 0)"
+                        #                             "    AND (timestamp BETWEEN %s and %s)"
+                        #                             "    AND type = 0"
+                        #                             "    ORDER BY timestamp",
+                        #                             tid, basic_info['timestamp']-60*5, basic_info['timestamp'])
+                        #                             #tid, (current_time/1000)-60*5, basic_info['timestamp'])
 
                         points_trace = points_trace[-5:] 
                         #points_trace = get_locations_with_clatlon(points_trace, self.db)

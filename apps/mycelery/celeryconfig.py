@@ -28,15 +28,6 @@ CELERY_DISABLE_RATE_LIMITS = True
 CELERY_IMPORTS = ("admintask","dbtask", "checkertask")
 
 CELERYBEAT_SCHEDULE = {
-
-   # part 1: for admin
-
-   "statistic_online_terminal": {
-       "task": "admintask.statistic_online_terminal",
-       # 12:00AM every day
-       "schedule": crontab(minute=0, hour=12),
-   },
-
    "statistic_offline_terminal": {
        "task": "admintask.statistic_offline_terminal",
        # 23:59PM every day
@@ -46,22 +37,9 @@ CELERYBEAT_SCHEDULE = {
    "statistic_user": {
        "task": "admintask.statistic_user",
        # 23:59PM every day
-       "schedule": crontab(minute=59, hour=23),
+       "schedule": crontab(minute=30, hour=23),
    },
 
-   # part 2: for checker 
-   #"check_remind": {
-   #    "task": "checkertask.check_remind",
-   #    # 12:00AM every day
-   #    #"schedule": crontab(minute=0, hour=12),
-   #    "schedule": crontab(minute=32, hour=10),
-   #},
-
-#   "offline_remind": {
-#       "task": "checkertask.offline_remind",
-#       #  12:00AM every day 
-#       "schedule": crontab(minute=0, hour=12),
-#   },
 
    "check_poweroff": {
        "task": "checkertask.check_poweroff",
@@ -75,10 +53,11 @@ CELERYBEAT_SCHEDULE = {
        "schedule": timedelta(minutes=1),
    },
 
-   # part 2: for db 
-   "update_clatclon": {
-       "task": "dbtask.update_clatclon",
-       # every 5 minute 
-       "schedule": timedelta(minutes=5),
-   },
+  # # part 2: for db 
+  # "update_clatclon": {
+  #     "task": "dbtask.update_clatclon",
+  #     # every 2 minute 
+  #     "schedule": timedelta(minutes=2),
+  # },
+
 }
