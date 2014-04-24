@@ -1351,7 +1351,7 @@ body {
 .trackHeader {
 	background: url('/static/images/menuBg.png') repeat-x;
     height: 36px;
-	min-width: 1152px;
+	min-width: 1096px;
 	z-index: 1000;
 }
 #trackTerminalAlias {
