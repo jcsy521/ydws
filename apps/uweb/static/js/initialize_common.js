@@ -2370,11 +2370,11 @@ window.dlf.resetPanelDisplay = function() {
 			
 			if ( n_windowWidth < 1180 ) {
 				n_trackLeft = 40;
-				n_delayLeft = 870;
-				n_delayIconLeft = 853;
-				n_alarmLeft = 1000;
-				n_alarmIconLeft = 982;
-				n_tempWindowWidth = 926;
+				n_delayLeft = 849;
+				n_delayIconLeft = 833;
+				n_alarmLeft = 970;
+				n_alarmIconLeft = 952;
+				n_tempWindowWidth = 896;
 			}
 			
 			if ( !b_delayPanel ) {
