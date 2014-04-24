@@ -109,7 +109,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                     if location and not (location.clatitude or location.clongitude):
                         location_key = get_location_key(str(tid))
                         locations = [location,] 
-                        locations = get_locations_with_clatlon(locations, self.db) 
+                        #locations = get_locations_with_clatlon(locations, self.db) 
                         location = locations[0]
                         if location.clatitude and location.clongitude:
                             self.redis.setvalue(location_key, location, EVENTER.LOCATION_EXPIRY)
