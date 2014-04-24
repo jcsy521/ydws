@@ -99,7 +99,11 @@ def check_zs_phone(phone, db):
         if white_list:
             return True
         else:
-            return False
+            ajt_white_list = db.get("SELECT id FROM T_AJT_WHITELIST where mobile = %s LIMIT 1", phone)
+            if ajt_white_list: 
+                return True
+            else: 
+                return False
 
 
 def check_filename(filename):

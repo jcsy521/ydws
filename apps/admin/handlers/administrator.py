@@ -184,7 +184,7 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                     is_self=administrator_id == self.current_user.id)
         
     @authenticated
-    #@check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
+    @check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
     @tornado.web.removeslash
     def post(self, administrator_id):
         is_self = (administrator_id == self.current_user.id)
@@ -393,12 +393,12 @@ class AdministratorDeleteHandler(BaseHandler, BaseMixin):
     @tornado.web.removeslash
     def post(self, administrator_id):
         if administrator_id == self.current_user.id:
-            ret = dict(success=1)
+            ret = dict(status=1)
         else:
             self.db.execute("DELETE FROM T_ADMINISTRATOR"
                             "  WHERE id = %s",
                             administrator_id)
-            ret = dict(success=0)
+            ret = dict(status=0)
             key = self.get_area_memcache_key(administrator_id) 
             self.redis.delete(key)
         self.set_header(*self.JSON_HEADER)
