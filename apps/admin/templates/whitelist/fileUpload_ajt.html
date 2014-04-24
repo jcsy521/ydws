@@ -45,10 +45,16 @@
 					<tr class="theadTitle"><td>白名单号码</td><td>状态</td></tr>
 				</thead>
 				{% for r in res %}
-					<tr class="j_notActived" tmobile="{{r.mobile}}">
+					{% if r.status == 0 %}
+						<tr class="j_notActived" tmobile="{{r.mobile}}">
+					{% else %}
+						<tr>
+					{% end %}
 						<td>{{r.mobile}}</td>
 						{% if r.status == 0 %}	
 							<td class="fileStatus1">未添加</td>
+						{% elif r.status == 3 %}	
+							<td tmobile="{{r.mobile}}" class="fileStatus3">非法手机号</td>
 						{% else %}
 							<td tmobile="{{r.mobile}}" class="fileStatus3">已添加</td>
 						{% end %}

@@ -15,6 +15,8 @@ from base import BaseHandler, authenticated
 from mixin import BaseMixin
 from excelheaders import OwnerService_FILE_NAME, OwnerService_SHEET, OwnerService_HEADER
 
+from checker import check_privileges
+from constants import PRIVILEGES, UWEB
 
 class OwnerServiceMixin(BaseMixin):
         KEY_TEMPLATE = "owerservice_report_%s_%s"
@@ -30,6 +32,7 @@ class OwnerServiceMixin(BaseMixin):
 class OwnerServiceHandler(BaseHandler, OwnerServiceMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def get(self):
         self.render('activity/ownerservice.html',
@@ -38,6 +41,7 @@ class OwnerServiceHandler(BaseHandler, OwnerServiceMixin):
                     hash_='')
 
     @authenticated
+    @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def post(self):
 
@@ -84,6 +88,7 @@ class OwnerServiceHandler(BaseHandler, OwnerServiceMixin):
 class OwnerServiceDownloadHandler(BaseHandler, OwnerServiceMixin):
 
     @authenticated
+    @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def get(self, hash_):
 
@@ -136,6 +141,3 @@ class OwnerServiceDownloadHandler(BaseHandler, OwnerServiceMixin):
         _tmp_file.seek(0, SEEK_SET)
         self.write(_tmp_file.read())
         _tmp_file.close()
-
-
-

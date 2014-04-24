@@ -16,7 +16,7 @@ from base import authenticated,BaseHandler
 from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
-from utils.checker import check_zs_phone, ZS_PHONE_CHECKER
+from utils.checker import check_zs_phone, ZS_PHONE_CHECKER, check_phone
 
 from checker import check_privileges
 from constants import PRIVILEGES, UWEB
@@ -143,18 +143,21 @@ class WhitelistAJTBatchImportHandler(BaseHandler):
                     mobile = unicode(row[0])
                     mobile = mobile[0:11]
 
-                    ajt = QueryHelper.get_ajt_whitelist_by_mobile(mobile, self.db)
-                    if ajt:
-                        status = ErrorCode.AJT_ORDERED
-                    else:
-                        pass
                     r = DotDict(mobile=mobile,
                                 status=ErrorCode.SUCCESS)   
+
+                    if not check_phone(mobile): 
+                        r.status = UWEB.TERMINAL_STATUS.INVALID 
+                        res.append(r) 
+                        continue 
+
+                    ajt = QueryHelper.get_ajt_whitelist_by_mobile(mobile, self.db)
+                    if ajt:
+                        r.status = UWEB.TERMINAL_STATUS.EXISTED
+                    else:
+                        pass
                     res.append(r)
             # remove tmp file
-            #print 'res', res, type(res)
-            #res = json_encode(res)
-            #print 'res', res, type(res)
             os.remove(file_path)
             self.render("whitelist/fileUpload_ajt.html",
                         status=ErrorCode.SUCCESS,
