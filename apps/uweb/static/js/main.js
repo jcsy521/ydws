@@ -499,8 +499,8 @@ $(function () {
 		
 		if ( n_windowWidth < 1180 ) {
 			n_trackLeft = 40;
-			n_delayLeft = 849;
-			n_delayIconLeft = 833;
+			n_delayLeft = 792;
+			n_delayIconLeft = 776;
 			n_alarmLeft = 970;
 			n_alarmIconLeft = 952;
 		}
@@ -510,7 +510,7 @@ $(function () {
 			n_trackLeft = 90;
 		}
 	}
-	if ( $(window).width > 1510 ) {
+	if ( $(window).width() > 1510 ) {
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	} else {
 		$('.trackPos').css('padding-left', 0);

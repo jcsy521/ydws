@@ -2370,8 +2370,8 @@ window.dlf.resetPanelDisplay = function() {
 			
 			if ( n_windowWidth < 1180 ) {
 				n_trackLeft = 40;
-				n_delayLeft = 849;
-				n_delayIconLeft = 833;
+				n_delayLeft = 792;
+				n_delayIconLeft = 776;
 				n_alarmLeft = 970;
 				n_alarmIconLeft = 952;
 				n_tempWindowWidth = 896;
@@ -2393,7 +2393,11 @@ window.dlf.resetPanelDisplay = function() {
 				n_trackLeft = 90;
 			}
 		}
-		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
+		if ( $(window).width() > 1510 ) {
+			$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
+		} else {
+			$('.trackPos').css('padding-left', 0);
+		}
 		$('.eventSearchContent, .j_wrapperContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
 		
 		if ( b_eventSearchStatus ) {
