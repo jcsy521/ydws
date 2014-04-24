@@ -108,10 +108,20 @@ class GroupHandler(BaseHandler):
         try:
             status = ErrorCode.SUCCESS
             delete_ids = map(int, str_to_list(self.get_argument('ids', None)))
-            logging.info("[UWEB] group delete request: %s, uid: %s, tid: %s", 
-                         delete_ids, self.current_user.uid, self.current_user.tid)
-            self.db.execute("DELETE FROM T_GROUP WHERE id IN %s",
-                            tuple(delete_ids+DUMMY_IDS)) 
+            for delete_id in delete_ids:
+                terminals = self.db.query("SELECT * FROM T_TERMINAL_INFO"
+                                          "  WHERE group_id = %s"
+                                          "  AND (service_status = %s "
+                                          "  OR service_status = %s)",
+                                          delete_id, UWEB.SERVICE_STATUS.ON,
+                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED) 
+                if not terminals:
+                    logging.info("[UWEB] group delete request: %s, uid: %s, tid: %s", 
+                                 delete_ids, self.current_user.uid, self.current_user.tid)
+                    self.db.execute("DELETE FROM T_GROUP WHERE id = %s",
+                                    delete_id) 
+                else: 
+                    status = ErrorCode.GROUP_HAS_TERMINAL
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete group failed. Exception: %s", 
