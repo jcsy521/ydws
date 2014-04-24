@@ -570,10 +570,19 @@ class MyGWServer(object):
             exist = self.db.get("SELECT id FROM T_USER"
                                 "  WHERE mobile = %s",
                                 t_info['u_msisdn'])
+
+            #NOTE: Check ydcw or ajt
+            ajt = QueryHelper.get_ajt_whitelist_by_mobile(t_info['t_msisdn'], self.db)
+            if ajt:
+               url_out = ConfHelper.UWEB_CONF.ajt_url_out
+            else:
+               url_out = ConfHelper.UWEB_CONF.url_out
+            logging.info("[GW] Terminal: %s, login url is: %s", t_info['t_msisdn'], url_out)
+
             if exist:
                 logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
                 sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
-                                                       ConfHelper.UWEB_CONF.url_out)
+                                                       url_out)
             else:
                 # get a new psd for new user
                 logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
@@ -585,11 +594,6 @@ class MyGWServer(object):
                 self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
                                 "  VALUES(%s)",
                                 t_info['u_msisdn'])
-                ajt = QueryHelper.get_ajt_whitelist_by_mobile(t_info['t_msisdn'], self.db)
-                if ajt:
-                   url_out = ConfHelper.UWEB_CONF.ajt_url_out
-                else:
-                   url_out = ConfHelper.UWEB_CONF.url_out
                 sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
                                                 url_out,
                                                 t_info['u_msisdn'],
@@ -609,7 +613,7 @@ class MyGWServer(object):
                         logging.info("[GW] Recv resend packet, do not send sms.")
                     else:
                         sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
-                                                               ConfHelper.UWEB_CONF.url_out)
+                                                               url_out)
                         logging.info("[GW] terminal: %s is refurbishment.", t_info['dev_id'])
                 else:     
                     # 4.2 existed tmobile changed dev or corp terminal login first, get the old info(group_id, login_permit and so on) before change
@@ -686,12 +690,12 @@ class MyGWServer(object):
                 # check use sence
                 ttype = get_terminal_type_by_tid(t_info['dev_id'])
                 logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id'], ttype) 
-               # if ttype == 'zj200':
-               #     use_scene = 1
-               #     vibl = 2 
-               # else:
-               #     use_scene = 3
-               #     vibl = 1
+                #if ttype == 'zj200':
+                #    use_scene = 1
+                #    vibl = 2 
+                #else:
+                #    use_scene = 3
+                #    vibl = 1
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
                                 "  owner_mobile, imsi, imei, factory_name, softversion,"
                                 "  keys_num, login, service_status, defend_status,"
@@ -888,6 +892,14 @@ class MyGWServer(object):
                                   t_info['dev_id'], terminal.mobile, t_info['t_msisdn'])
                     return
 
+        #NOTE: Check ydcw or ajt 
+        ajt = QueryHelper.get_ajt_whitelist_by_mobile(t_info['t_msisdn'], self.db) 
+        if ajt: 
+            url_out = ConfHelper.UWEB_CONF.ajt_url_out 
+        else: 
+            url_out = ConfHelper.UWEB_CONF.url_out 
+        logging.info("[GW] Terminal: %s, login url is: %s", t_info['t_msisdn'], url_out)
+
         if t_info['psd']:
             # check terminal exist or not when HK
             if not terminal:
@@ -971,7 +983,7 @@ class MyGWServer(object):
                         if user:
                             logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
                             sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
-                                                                   ConfHelper.UWEB_CONF.url_out) 
+                                                                   url_out) 
                         else:
                             logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
                             psd = get_psd()
@@ -985,7 +997,7 @@ class MyGWServer(object):
                                             "  VALUES(%s)",
                                             t_info['u_msisdn'])
                             sms = SMSCode.SMS_USER_HK_SUCCESS % (t_info['u_msisdn'],
-                                                                 ConfHelper.UWEB_CONF.url_out,
+                                                                 url_out,
                                                                  t_info['u_msisdn'],
                                                                  psd)
                         self.db.execute("UPDATE T_TERMINAL_INFO"
@@ -1012,7 +1024,7 @@ class MyGWServer(object):
                 if exist:
                     logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
                     sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
-                                                           ConfHelper.UWEB_CONF.url_out)
+                                                           url_out)
                 else:
                     # get a new psd for new user
                     logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
@@ -1025,7 +1037,7 @@ class MyGWServer(object):
                                     "  VALUES(%s)",
                                     t_info['u_msisdn'])
                     sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
-                                                    ConfHelper.UWEB_CONF.url_out,
+                                                    url_out,
                                                     t_info['u_msisdn'],
                                                     psd)
 
@@ -1252,11 +1264,11 @@ class MyGWServer(object):
                         sms = SMSCode.SMS_DW_SUCCESS % (tname, dw_method,
                                                         location.name, 
                                                         safe_unicode(current_time)) 
-                        url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' +\
+                        url = url_out + '/wapimg?clon=' +\
                               str(location.cLon/3600000.0) + '&clat=' + str(location.cLat/3600000.0)
                         tiny_id = URLHelper.get_tinyid(url)
                         if tiny_id:
-                            base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                            base_url = url_out + UWebHelper.URLS.TINYURL
                             tiny_url = base_url + '/' + tiny_id
                             logging.info("[GW] get tiny url successfully. tiny_url:%s", tiny_url)
                             self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
