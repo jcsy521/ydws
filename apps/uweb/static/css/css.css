@@ -27,7 +27,7 @@ body {
 #top {
 	background: url('/static/images/banner.png') repeat-x;
 	height: 123px;
-	min-width: 1174px;
+	min-width: 1344px;
 	float: left;
 }
 #top img {
@@ -336,13 +336,13 @@ body {
 #navi {
 	background: url('/static/images/menuBg.png') repeat-x;
 	height: 38px;
-	min-width: 1152px;
+	min-width: 1096px;
 }
 .menu, .menu li {
 	float: left;
 }
 .corpMapObj, #eventSearchContent, .operatorContent, .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent, .notifyManageSearchContent, .notifyManageAddContent {
-	min-width: 926px;
+	min-width: 1096px;
 	/*min-height: 463px;*/
 	min-height: 567px;
 }
@@ -1351,17 +1351,16 @@ body {
 .trackHeader {
 	background: url('/static/images/menuBg.png') repeat-x;
     height: 36px;
-	min-width: 1152px;
+	min-width: 1096px;
 	z-index: 1000;
 }
 #trackTerminalAlias {
     display: inline-block;
     float: left;
     height: 36px;
-    left: -35px;
     line-height: 36px;
     overflow: hidden;
-    position: relative;
+	margin-right: 5px;
 }
 .trackPos {
 	display: inline-block;
@@ -1388,11 +1387,12 @@ body {
 #trackSlide {
     display: inline-block;
     margin-left: 12px;
-    width: 82px;
-	top: 4px;
+    width: 56px;
+	top: 2px;
+	left: -22px;
 }
 #trackBeginTime, #trackEndTime {
-	width: 147px;
+	width: 138px;
 	padding-left: 8px;
 	height: 24px;
 	font-size: 12px;
@@ -1432,6 +1432,7 @@ body {
 	_top: 8px;
     text-align: left;
 	padding-left: 6px;
+	width: 136px;
 }
 .trackBtn a, .tClose  {
 	cursor: pointer;

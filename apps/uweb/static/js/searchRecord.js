@@ -1547,7 +1547,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 			n_right += 247;
 		}
 		
-		obj_map.css({'height': n_mapHeight, 'width': n_right, 'minHeight': n_mapObjMinHeight, 'minWidth': 1151, 'zIndex': 0}).show();
+		obj_map.css({'height': n_mapHeight, 'width': n_right, 'minHeight': n_mapObjMinHeight, 'minWidth': 1096, 'zIndex': 0}).show();
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/

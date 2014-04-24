@@ -36,7 +36,7 @@ window.dlf.fn_initTrack = function() {
 	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
-		obj_trackPos.css('width', 641);
+		obj_trackPos.css('width', 624);
 		$('.j_delay').hide();
 		$('.j_delayTbody').html('');
 	} else {
@@ -57,11 +57,11 @@ window.dlf.fn_initPanel = function () {
 		obj_tree = $('#corpTree');
 	
 	if ( dlf.fn_userType() ) {	// 集团用户		
-		if ( n_windowWidth < 1500 ) {
-			n_delayLeft = 870;
-			n_delayIconLeft = 853;
-			n_alarmLeft = 1000;
-			n_alarmIconLeft = 982;
+		if ( n_windowWidth < 1180 ) {
+			n_delayLeft = 792;
+			n_delayIconLeft = 776;
+			n_alarmLeft = 970;
+			n_alarmIconLeft = 952;
 		}
 	}
 	// 设置停留点列表的位置
@@ -682,9 +682,9 @@ $(function () {
 			n_delayIconLeft = n_windowWidth - 567;
 		
 		
-		if ( n_windowWidth < 1500 ) {
-			n_windowWidth = 1400;
-			n_delayIconLeft = 853;
+		if ( n_windowWidth < 1174 ) {
+			n_windowWidth = 1174;
+			n_delayIconLeft = 776;
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
