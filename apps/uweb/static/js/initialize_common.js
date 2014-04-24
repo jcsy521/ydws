@@ -1557,7 +1557,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		str_tempWrapperId = 'recordCount';
 	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' ) {	//  通知查询
 		str_tempWrapperId = 'notifyManage';
-	} else if ( str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personalData' ) {	//  通知查询
+	} else if ( str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' ) {	//  通知查询
 		str_tempWrapperId = 'userProfileManage';
 	}
 	$('#'+ str_tempWrapperId).addClass(str_tempWrapperId +'Hover');
