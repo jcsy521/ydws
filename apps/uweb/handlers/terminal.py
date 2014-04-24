@@ -349,8 +349,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     self.write_ret(status)
                     return
 
-            # record the add action
-            record_add_action(data.tmobile, data.group_id, int(time.time()), self.db)
             vibl = data.get("vibl")
             if vibl == 1:
                 use_scene = 3 # car
@@ -407,6 +405,8 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.db.execute("INSERT INTO T_CAR(tid, cnum)"
                                 "  VALUES(%s, %s)",
                                 tid, data.cnum )
+            # record the add action
+            record_add_action(data.tmobile, data.group_id, int(time.time()), self.db)
 
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:
