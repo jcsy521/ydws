@@ -499,10 +499,10 @@ $(function () {
 		
 		if ( n_windowWidth < 1180 ) {
 			n_trackLeft = 40;
-			n_delayLeft = 870;
-			n_delayIconLeft = 853;
-			n_alarmLeft = 1000;
-			n_alarmIconLeft = 982;
+			n_delayLeft = 849;
+			n_delayIconLeft = 833;
+			n_alarmLeft = 970;
+			n_alarmIconLeft = 952;
 		}
 	} else {
 		n_trackLeft = ( obj_track.width() ) / 6;
@@ -510,7 +510,11 @@ $(function () {
 			n_trackLeft = 90;
 		}
 	}
-	$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
+	if ( $(window).width > 1510 ) {
+		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
+	} else {
+		$('.trackPos').css('padding-left', 0);
+	}
 	$('#mapObj, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
 	
 	if ( !dlf.fn_isBMap() ) {	// 高德地图初始化tilelayer的位置
