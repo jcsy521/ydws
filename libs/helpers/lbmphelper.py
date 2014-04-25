@@ -314,8 +314,8 @@ def handle_location(location, redis, cellid=False, db=None):
             location.gps_time = int(time.time()) 
             location.degree = 0.00
             location.gps = 0
-            if cellid:
-                location = issue_cellid(location, db, redis)
+            #if cellid:
+            #    location = issue_cellid(location, db, redis)
     elif location.valid == GATEWAY.LOCATION_STATUS.MOVE: # 6
         logging.info("tid:%s gps locate flag :%s", location.dev_id, location.valid)
         location.lat = 0

@@ -345,7 +345,7 @@ class PacketTask(object):
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
         name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
         if sms_option == UWEB.SMS_OPTION.SEND:
-            terminal_time = get_terminal_time(int(report.gps_time))
+            terminal_time = get_terminal_time(int(report['timestamp']))
             terminal_time = safe_unicode(terminal_time) 
 
             report_name = report.name
