@@ -19,6 +19,13 @@ sudo sh -c 'echo "deb http://archive.canonical.com/ lucid partner" >> /etc/apt/s
 sudo sh -c 'echo "deb http://us.archive.ubuntu.com/ubuntu/ hardy multiverse" >> /etc/apt/sources.list'
 sudo apt-get update
 
+# rabbitmq
+wget -q -O - http://www.dotdeb.org/dotdeb.gpg | sudo apt-key add
+wget http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+sudo apt-key add rabbitmq-signing-key-public.asc
+
+sudo add-apt-repository ppa:nginx/stable
+
 # MySQL
 sudo apt-get install mysql-server
 sudo apt-get install mysql-client
@@ -90,6 +97,7 @@ sudo apt-get install -y supervisor
 # nginx
 # http://wiki.nginx.org/Install
 sudo apt-get install -y python-software-properties
+
 sudo add-apt-repository ppa:nginx/stable
 sudo apt-get install -y nginx
 sudo apt-get install -y --force-yes nginx
