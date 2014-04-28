@@ -89,6 +89,7 @@
 				<th>车主号</th>
 				<th>终端号</th>
 				<th>sn</th>
+				<th>定位器名称</th>
 				<th>离线时间</th>
 				<th>累计离线时间</th>
 				<th>离线原因</th>
@@ -109,6 +110,7 @@
 				<td>{{r['umobile']}}</td>
 				<td>{{r['tmobile']}}</td>
 				<td>{{r['tid']}}</td>
+				<td>{{r['alias']}}</td>
 				<td>
 					<script>document.write(toHumanDate({{r['offline_time']}}));</script>
 				</td>
