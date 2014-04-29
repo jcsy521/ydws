@@ -1607,6 +1607,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 			for ( var param in obj_trackers ) {
 				var obj_infoes = obj_trackers[param],
 					obj_car = obj_infoes.basic_info,	// 终端基本信息
+					arr_alarm = obj_infoes.alarm_info,	// 终端基本信息
 					obj_trace = obj_infoes.trace_info,	// 甩尾点数据
 					obj_track = obj_infoes.track_info,	// 开启追踪点数据
 					str_tid = param,
@@ -1668,6 +1669,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 					}
 				}
 			}
+			fn_updateAlarmList(arr_alarm);
 		}
 	}
 	$('.j_carList').data('carsData', obj_carsData);	// 存储所有定位器信息
