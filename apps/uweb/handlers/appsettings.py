@@ -35,7 +35,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             ## part 1: terminal
             tracker = DotDict() 
             # 1: terminal 
-            terminal = self.db.get("SELECT white_pop as sos_pop, push_status, vibl, static_val, owner_mobile"
+            terminal = self.db.get("SELECT white_pop as sos_pop, push_status, vibl, static_val, move_val, owner_mobile"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE trim(tid) = %s"
                                    "    AND service_status = %s"
@@ -48,10 +48,10 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 return
             else:
-                if terminal['static_val'] == 0:  # move_val:60, static_val:0
-                    terminal['parking_defend'] = 0
-                else: # move_val:0, static_val: 
+                if terminal['move_val'] == 0:  # move_val:0, static_val: 120 
                     terminal['parking_defend'] = 1
+                else: # move_val:60, static_val:0  
+                    terminal['parking_defend'] = 0
             # 2: sos 
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if not user:
