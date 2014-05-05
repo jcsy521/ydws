@@ -14,6 +14,13 @@ from base import BaseHandler, authenticated
 
 class ActivateHandler(BaseHandler):
 
+    def get_terminal_by_sn(self, sn):
+        terminal = self.db.get("SELECT id, service_status, mobile"
+                               "  FROM T_TERMINAL_INFO"
+                               "  WHERE sn = %s LIMIT 1",
+                               sn)
+        return terminal
+
     @tornado.web.removeslash
     def post(self):
         """Activate a YDWQ terminal.
@@ -84,6 +91,14 @@ class ActivateHandler(BaseHandler):
                     self.write_ret(status)
                 else: # has code 
                     if not terminal['sn']:
+                        terminal = self.get_terminal_by_sn(sn)
+                        if terminal: # has code, but sn is used 
+                            status = ErrorCode.TERMINAL_EXIST
+                            logging.info("[UWEB] sn: %s has exist.", sn)
+                            self.write_ret(status,
+                                           dict_=DotDict(mobile=terminal.mobile))
+                            return 
+
                         status = ErrorCode.SUCCESS
                         self.db.execute("UPDATE T_TERMINAL_INFO"
                                         "  SET sn = %s,"
@@ -96,10 +111,7 @@ class ActivateHandler(BaseHandler):
                                        dict_=DotDict(mobile=terminal.mobile))
                         return
 
-                    terminal = self.db.get("SELECT id, service_status, mobile"
-                                           "  FROM T_TERMINAL_INFO"
-                                           "  WHERE sn = %s LIMIT 1",
-                                           sn)
+                    terminal = self.get_terminal_by_sn(sn)
                     if terminal: # has code, but sn is used 
                         status = ErrorCode.TERMINAL_EXIST
                         logging.info("[UWEB] sn: %s has exist.", sn)
