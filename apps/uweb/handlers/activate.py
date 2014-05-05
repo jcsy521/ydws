@@ -93,7 +93,7 @@ class ActivateHandler(BaseHandler):
                     if not terminal['sn']:
                         terminal = self.get_terminal_by_sn(sn)
                         if terminal: # has code, but sn is used 
-                            status = ErrorCode.TERMINAL_EXIST
+                            status = ErrorCode.ACCOUNT_NOT_MATCH
                             logging.info("[UWEB] sn: %s has exist.", sn)
                             self.write_ret(status,
                                            dict_=DotDict(mobile=terminal.mobile))
@@ -113,7 +113,7 @@ class ActivateHandler(BaseHandler):
 
                     terminal = self.get_terminal_by_sn(sn)
                     if terminal: # has code, but sn is used 
-                        status = ErrorCode.TERMINAL_EXIST
+                        status = ErrorCode.ACCOUNT_NOT_MATCH
                         logging.info("[UWEB] sn: %s has exist.", sn)
                         self.write_ret(status,
                                        dict_=DotDict(mobile=terminal.mobile))
@@ -123,7 +123,7 @@ class ActivateHandler(BaseHandler):
                                                "  WHERE activation_code = %s LIMIT 1",
                                                activation_code)
                         if terminal['service_status'] == UWEB.SERVICE_STATUS.ON: # the code is used normal with another sn
-                            status = ErrorCode.TERMINAL_EXIST
+                            status = ErrorCode.ACCOUNT_NOT_MATCH
                             logging.info("[UWEB] sn: %s has exist.", sn)
                             self.write_ret(status,
                                            dict_=DotDict(mobile=terminal.mobile))
