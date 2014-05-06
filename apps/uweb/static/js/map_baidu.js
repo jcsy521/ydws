@@ -203,6 +203,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		str_tid = obj_location.tid,
 		n_iconType = obj_location.icon_type,	// icon_type 
 		str_loginSt =  obj_location.login,
+		n_timestamp = obj_location.timestamp,
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null,
 		b_userType = dlf.fn_userType();
@@ -227,7 +228,19 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		if ( !n_iconType ) {
 			n_iconType = obj_carA.attr('icon_type');
 		}
-		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt);	// 集团用户设置marker的图标
+		/**
+		* KJJ add in 2014.04.28
+		* 判断5分钟之内的点，速度大于5的证明终端在移动
+		*/
+		var b_flag = false,
+			n_nowtime = new Date().getTime()/1000;
+		
+		if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
+			b_flag = true;
+			myIcon.setSize(new BMap.Size(100, 100));
+			myIcon.setImageOffset(new BMap.Size(-30, -35));
+		}
+		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标		
 	}
 	if ( str_iconType == 'start' ) {	// 轨迹起点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerA.png';
@@ -238,7 +251,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 	} else if ( str_iconType == 'alarmInfo' ) {
 		myIcon.imageUrl = BASEIMGURL + 'alarmsign.gif';
 	}
-	marker= new BMap.Marker(mPoint, {icon: myIcon}); 
+	marker= new BMap.Marker(mPoint, {icon: myIcon});
 	marker.setOffset(new BMap.Size(0, 0));
 	
 	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
@@ -422,7 +435,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	var	address = obj_location.name, 
 		str_tempAddress = address,
 		speed = obj_location.speed,
-		date = dlf.fn_changeNumToDateString(obj_location.timestamp),
+		n_timestamp = obj_location.timestamp,
+		date = dlf.fn_changeNumToDateString(n_timestamp),
 		n_degree = obj_location.degree, 
 		str_imgUrl = 'default',  // 车辆方向角
 		n_iconType = obj_location.icon_type,
@@ -450,7 +464,13 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	
 	address = fn_cutString(address);
 	if ( dlf.fn_userType() ) {	// 集团用户修改图标
-		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt);	// 集团用户设置marker的图标
+		var b_flag = false,
+			n_nowtime = new Date().getTime()/1000;
+		
+		if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
+			b_flag = true;
+		}
+		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, true);	// 集团用户设置marker的图标
 	}
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';
@@ -588,7 +608,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 					var str_fileUrl = location.href,
 						str_fileUrl = str_fileUrl.substr(0, str_fileUrl.length-1),
 						str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
-						str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt) : str_iconUrl,
+						// str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt) : str_iconUrl,
 						str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
 
 					str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码

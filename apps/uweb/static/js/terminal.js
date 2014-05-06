@@ -19,7 +19,7 @@ window.dlf.fn_initTerminal = function() {
 	$('#rTab').addClass('currentTab');
 	$('.j_terminalcontent').hide();//css('display', 'none');
 	$('#terminalList0').show();//css('display', 'block');
-	// 选项卡
+	/* 选项卡
 	$('.j_tabs').unbind('click').click(function() {
 		var obj_this = $(this),
 			n_index  = obj_this.index(), // 当前li索引
@@ -42,7 +42,7 @@ window.dlf.fn_initTerminal = function() {
 			dlf.fn_searchData('alertSetting');
 			dlf.fn_initAlertSetting('alertSetting');
 		}
-	});	
+	});	*/
 }
 
 /**

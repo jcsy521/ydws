@@ -66,6 +66,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		n_lon = obj_carInfo.longitude,
 		n_lat = obj_carInfo.latitude,
 		n_degree = obj_carInfo.degree,
+		n_speed = obj_carInfo.speed,
 		n_iconType = obj_carInfo.icon_type,	// icon_type
 		n_pointType = obj_carInfo.type, 
 		str_loginSt = obj_carInfo.login,
@@ -102,7 +103,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		}
 	} else {
 		return;
-	}	
+	}
 	str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
 	
 	if ( !str_alias ) {	// 如果无alias ，从车辆列表获取
@@ -193,7 +194,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	}
 	if ( obj_selfMarker ) {
 		var obj_selfInfoWindow = obj_selfMarker.infoWindow;
-			
+
 		str_alias = dlf.fn_encode(str_alias);
 		if ( obj_selfMarker.getLabel() ) {
 			obj_selfMarker.getLabel().setContent(str_alias);
@@ -209,12 +210,25 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		}
 		
 		obj_selfMarker.setPosition(obj_tempPoint);
-		if ( b_isCorpUser ) {
-			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType, str_loginSt);
+		// 设置marker的icon
+		fn_setMarkerTraceIcon(n_imgDegree, n_iconType, str_loginSt, obj_selfMarker, n_carTimestamp);
+		
+		/**if ( b_isCorpUser ) {
+			
+			* KJJ add in 2014.04.28
+			* 判断5分钟之内的点，速度大于5的证明终端在移动
+			
+			var b_flag = false;
+			if ( n_nowtime - n_carTimestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
+				b_flag = true;
+			}
+			str_iconUrl = dlf.fn_setMarkerIconType(n_imgDegree, n_iconType, str_loginSt, true);
 		} else {
 			str_iconUrl = BASEIMGURL + 'default.png';
 		}
 		obj_selfMarker.setIcon(new BMap.Icon(str_iconUrl, new BMap.Size(34, 34)));	// 设置方向角图片
+		*/
+		
 		//obj_carA.data('selfmarker', obj_selfMarker);
 		obj_selfmarkers[str_tid] = obj_selfMarker;
 		var str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
@@ -252,17 +266,43 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	}, 500);
 }
 
+function fn_setMarkerTraceIcon(n_degree, n_iconType, str_loginSt, obj_currentMarker, n_carTimestamp) {
+	var n_nowtime = new Date().getTime()/1000,
+		b_flag = false,
+		b_isCorpUser = dlf.fn_userType(),
+		myIcon = new BMap.Icon(BASEIMGURL + 'default.png', new BMap.Size(34, 34));
+	
+	if ( b_isCorpUser ) {
+		/**
+		* KJJ add in 2014.04.28
+		* 判断5分钟之内的点，速度大于5的证明终端在移动
+		*/
+		
+		if ( n_nowtime - n_carTimestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
+			b_flag = true;
+			myIcon.setSize(new BMap.Size(100, 100));
+			myIcon.setImageOffset(new BMap.Size(-30, -35));
+		}
+		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);
+	} else {
+		myIcon.setImageOffset(new BMap.Size(0, 0));		
+	}
+	obj_currentMarker.setIcon(myIcon);	// 设置方向角图片
+}
+
 /**
 * 设置地图marker的icon图标=
 */
-window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt) {
+window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt, b_flagTrace) {
 	// 集团用户icon_type icon显示不同图标
 	var str_tempImgUrl = '',
+		b_isCar = false,
 		str_dir = CORPIMGURL + 'terminalIcons/';
 	
 	if ( n_iconType == 0 ) {	// 车
-		str_tempImgUrl = n_degree;
+		str_tempImgUrl = 27; // n_degree;
 		str_dir = BASEDEGREEIMGURL;
+		b_isCar = true;
 	} else if ( n_iconType == 1 ) {	// 摩托车
 		str_tempImgUrl = 'moto';
 	} else if ( n_iconType == 2 ) {	// 人
@@ -270,12 +310,16 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt) {
 	} else if ( n_iconType == 3 ) {	// 图标
 		str_tempImgUrl = 'default';
 	} else {
-		str_tempImgUrl = n_degree;
+		str_tempImgUrl = 27; // n_degree;
 		str_dir = BASEDEGREEIMGURL;
+		b_isCar = true;
 	}
 	if ( str_loginSt == '0' ) {
 		str_tempImgUrl += '_logout';
-	} 
+	}
+	if ( b_flagTrace && b_isCar ) {	// 甩尾动态图
+		str_tempImgUrl += '_trace';
+	}
 	return str_dir + str_tempImgUrl + '.png';
 }
 

@@ -1521,13 +1521,14 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		var n_windowHeight = $(window).height(),
 			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
-			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
+			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
 			n_right = n_windowWidth - 250,
 			obj_mapCenter = $('.j_body').data('mapcenter'),
 			obj_mapSize = $('.j_body').data('mapsize'),
 			b_trackSt = $('#trackHeader').is(':visible'), 
 			n_mapObjMinHeight = 566,
+			n_mapObjMinWidth = 875,
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');
@@ -1546,7 +1547,10 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		if ( b_pLeftSt || b_corpLeftSt ) {
 			n_right += 247;
 		}
-		obj_map.css({'height': n_mapHeight, 'width': n_right, 'minHeight': n_mapObjMinHeight, 'minWidth': 1096, 'zIndex': 0}).show();
+		if ( dlf.fn_userType() ) {	// 集团用户
+			n_mapObjMinWidth = 776;
+		}
+		obj_map.css({'height': n_mapHeight, 'width': $('#trackHeader').width(), 'minHeight': n_mapObjMinHeight, 'minWidth': n_mapObjMinWidth, 'zIndex': 0}).show();
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/

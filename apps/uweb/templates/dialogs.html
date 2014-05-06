@@ -94,12 +94,12 @@
 			<span class="close j_close" who="terminal"></span>
 		</div>
 		<div class="terminalContent wrapperContent">
-			<!--tab选项卡 -->
+			<!--tab选项卡 
 			<ul id="terminalTab" class="tabs">
 				<li id="rTab" class="j_tabs tabItems currentTab">定位器设置</li>
 				<li id="wTab" class="j_tabs tabItems">短信设置</li>
-				<!--<li id="eTab" class="j_tabs tabItems">告警时间段设置</li>-->
-			</ul>
+				<li id="eTab" class="j_tabs tabItems">告警时间段设置</li>
+			</ul>-->
 			<div class="j_terminalList">
 				<div id="terminalList0" class="j_terminalcontent">
 					<!-- 可查询参数列表 -->
@@ -183,39 +183,7 @@
 						</table>
 					</form>
 				</div>
-				<div id="terminalList1" class="j_terminalcontent hide">
-					<span class="smsTip">请选择想要的短信通知项：</span>
-					<ul class="smsList">
-						<li>
-							<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">电量告警</label> 
-						</li>
-						<li>
-							<input type="checkbox" id="login" class="j_checkbox" title="用户登录" /><label for="login">平台登录提醒</label> 
-						</li>
-						<li>
-							<input type="checkbox" id="illegalmove" class="j_checkbox" title="移动" /><label for="illegalmove">移动告警</label> 
-						</li>
-						<li>
-							<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="通讯异常" /><label for="heartbeat_lost">通讯异常提醒</label>
-						</li>
-						<li>
-							<input type="checkbox" id="illegalshake" class="j_checkbox" title="震动" /><label for="illegalshake">震动告警</label> 
-						</li>
-						<li>
-							<input type="checkbox" id="region_enter" class="j_checkbox" title="进围栏告警" /><label for="region_enter">进围栏告警</label>
-						</li>
-						<li>
-							<input type="checkbox" id="region_out" class="j_checkbox" title="出围栏告警" /><label for="region_out">出围栏告警</label> 
-						</li>
-						<!--<li>
-							<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
-						</li>-->
-						<li>
-							<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
-						</li>
-					</ul>
-					<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
-				</div>
+				
 				<!--<div id="terminalList2" class="j_terminalcontent hide">
 					<a id="alertSettingCreateBtn" class="alertSettingCreateBtn j_alertSettingCreateBtn" href="#">新增告警设置</a>
 					<table id="alertSettingTable" class="dataTable alertSettingTable"  cellspacing="0" border="1" borderColor="red" align="center">
@@ -232,6 +200,48 @@
 			</div>
 		</div>
 	</div>
+	<!-- 个人短信通知 -->
+	<div id="smsOptionWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle corpSMSOptionTitle">
+			<span class="close j_close" who="corpSMSOption"></span>
+		</div>
+		<div id="smsContent" class="smsContent wrapperContent">
+			<div id="terminalList1">
+				<span class="smsTip">请选择想要的短信通知项：</span>
+				<ul class="smsList">
+					<li>
+						<input type="checkbox" id="powerlow" class="j_checkbox" title="低电" /><label for="powerlow">电量告警</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="login" class="j_checkbox" title="用户登录" /><label for="login">平台登录提醒</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="illegalmove" class="j_checkbox" title="移动" /><label for="illegalmove">移动告警</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="heartbeat_lost" class="j_checkbox" title="通讯异常" /><label for="heartbeat_lost">通讯异常提醒</label>
+					</li>
+					<li>
+						<input type="checkbox" id="illegalshake" class="j_checkbox" title="震动" /><label for="illegalshake">震动告警</label> 
+					</li>
+					<li>
+						<input type="checkbox" id="region_enter" class="j_checkbox" title="进围栏告警" /><label for="region_enter">进围栏告警</label>
+					</li>
+					<li>
+						<input type="checkbox" id="region_out" class="j_checkbox" title="出围栏告警" /><label for="region_out">出围栏告警</label> 
+					</li>
+					<!--<li>
+						<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
+					</li>-->
+					<li>
+						<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
+					</li>
+				</ul>
+				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
+			</div>
+		</div>
+	</div>
+	
 	<!-- 新增告警时间段 -->
 	<div id="addAlertSettingDialog" title="新增告警时间段" class="hide">
 		<form id="addAlertSetting">
@@ -1660,6 +1670,8 @@
 			<div class="alarmDiv">
 				<span class="alarmTitle">
 					<span>告警列表</span>
+					<div id="showMusic"></div>
+					<a id="playMusic"></a>
 					<!--<a class="closeAlarm j_closeAlarm"></a>-->
 				</span>
 				<ul class="alarmTable j_alarmTable">
@@ -1676,9 +1688,9 @@
 			<div class="delayDiv">
 				<span class="alarmTitle">
 					<span>停留点列表</span>
-					<a class="exportDelay j_exportDelay" id="exportDelay">导出数据</a>
+					<a class="exportDelay j_exportDelay" id="exportDelay" target="_self">导出数据</a>
 				</span>
-				<table class="delayTable">
+				<table class="delayTable" id="delayTable">
 					<thead>
 						<tr><td>事件</td><td class="delayCenterTd">时间(开始)</td><td class="delayCenterTd">位置</td></tr>
 					</thead>
@@ -1689,6 +1701,9 @@
 			</div>
 		</span>
 	</div>
+	<table class="hide" id="tempDelayTable">
+	
+	</table>
 	<!-- 通知查询 -->
 	<div id="notifyManageSearchWrapper" class="wrapper hide">
 		<div class="wrapperContent notifyManageSearchContent j_wrapperContent" id="notifyManageSearchContent">

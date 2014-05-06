@@ -36,19 +36,7 @@
 			<div id="ads" class="adsZNBC"></div>
 		{% else %}		
 			<div id="ads"></div>
-		{% end %}	
-		<div id="topProfile">
-			<div id="serviceHotline">客服电话：400-863-0388</div>
-			<div class="welcome" title="{{name}}">
-				<span id="spanWelcome">欢迎您，
-					{% if len(name)<=4 %}
-						{{name.replace("<", "&lt;").replace(">", "&gt;")}}
-					{% else %}
-						{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
-					{% end %}
-				</span>
-			</div>
-		</div>
+		{% end %}
 	</div>
 	<div id="corpMain">
 		<div id="corpLeft" class="j_corpLeft">
@@ -95,6 +83,7 @@
 				<span class="tInfoWord">更新时间：</span>
 				<span class="fontColor" id="locationTime"></span>
 			</div>
+			<div id="serviceHotline">客服电话：400-863-0388</div>
 		</div>
 		<div id="corpRight">
 			<div id="navi">
@@ -106,7 +95,7 @@
 					<li><a href="#" id="home" class="homeHover home j_click"></a></li>
 					<li><a href="#" id="corpRegion" class="region j_click"></a></li>
 					<li><a href="#" id="eventSearch" class="eventSearch j_click"></a></li>
-					<li><a href="#" id="corpSMSOption" class="corpSMSOption j_click"></a></li>
+					<!-- 统计 -->
 					<li>
 						<a href="#" id="recordCount" class="recordCount j_countRecord"></a>
 						<ul id="countSecondList" class="hide j_countNavItem countUlIetm">
@@ -118,31 +107,20 @@
 							</li>
 						</ul>
 					</li>
+					<!-- 设置 -->
 					<li>
-						<a href="#" id="notifyManage" class="notifyManage j_notifyManage"></a>
-						<ul id="notifyManageList" class="hide j_notifyManageNavItem countUlIetm">
+						<a href="#" id="userProfileManage" class="userProfileManage j_userProfileManage"></a>
+						<ul id="userProfileManageList" class="hide j_userProfileManageNavItem countUlIetm">
+							<li><a href="#" id="corpSMSOption" class="corpSMSOption j_click"></a></li>
 							<li>
 								<a href="#" id="notifyManage_add" class="notifyManage_add j_click"></a>
 							</li>
 							<li>
 								<a href="#" id="notifyManage_search" class="notifyManage_search j_click"></a>
 							</li>
-						</ul>
-					</li>
-					<!--<li><a href="#" id="mileage" class="mileage j_click"></a></li>-->
-					{% if user_type != 'operator' %}
-					<li><a href="#" id="operator" class="operator j_click"></a></li>
-					{% end %}
-					<!--<li><a href="#" id="smallTools" class="smallTools j_click"></a></li>-->
-					<!--znbc-->
-					{% if bizcode == 'znbc' %}
-					<li><a href="#" id="passenger" class="passenger j_click"></a></li>
-					<li><a href="#" id="infoPush" class="infoPush j_click"></a></li>
-					<li><a href="#" id="routeLine" class="routeLine j_click"></a></li>
-					{% end %}
-					<li>
-						<a href="#" id="userProfileManage" class="userProfileManage j_userProfileManage"></a>
-						<ul id="userProfileManageList" class="hide j_userProfileManageNavItem countUlIetm">
+							{% if user_type != 'operator' %}
+							<li><a href="#" id="operator" class="operator j_click"></a></li>
+							{% end %}
 							{% if user_type != 'operator' %}
 								<li>
 									<a href="#" id="corpData" class="j_click"></a>
@@ -155,14 +133,45 @@
 							<li>
 								<a href="#" id="changePwd" class="j_click"></a>
 							</li>
-							<li>
-								<a class="help" href="/helper?user_type=enterprise" target="_blank"></a>
-							</li>
-							<li>
-								<a href="#" id="logout" onclick="dlf.fn_exit()"></a>
-							</li>
 						</ul>
 					</li>
+					<!--<li><a href="#" id="corpSMSOption" class="corpSMSOption j_click"></a></li>-->
+					<!-- 通知管理 
+					<li>
+						<a href="#" id="notifyManage" class="notifyManage j_notifyManage"></a>
+						<ul id="notifyManageList" class="hide j_notifyManageNavItem countUlIetm">
+							<li>
+								<a href="#" id="notifyManage_add" class="notifyManage_add j_click"></a>
+							</li>
+							<li>
+								<a href="#" id="notifyManage_search" class="notifyManage_search j_click"></a>
+							</li>
+						</ul>
+					</li>-->
+					<!--<li><a href="#" id="mileage" class="mileage j_click"></a></li>-->
+					
+					<!--<li><a href="#" id="smallTools" class="smallTools j_click"></a></li>-->
+					<!--znbc-->
+					{% if bizcode == 'znbc' %}
+					<li><a href="#" id="passenger" class="passenger j_click"></a></li>
+					<li><a href="#" id="infoPush" class="infoPush j_click"></a></li>
+					<li><a href="#" id="routeLine" class="routeLine j_click"></a></li>
+					{% end %}
+				</ul>
+				<ul class="selfList">
+					<li>
+						<a title="" href="#" id="userName" class="j_welcome">欢迎您，
+						{% if len(name)<=4 %}
+							{{name.replace("<", "&lt;").replace(">", "&gt;")}}
+						{% else %}
+							{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
+						{% end %}
+						</a>
+						<ul id="otherList" class="hide j_welcomeNavItem countUlIetm">
+							<li><a class="help j_click" id="help" href="/helper?user_type=enterprise" target="_blank">帮助</a></li>
+							<li><a href="#" class="j_click" id="logout">退出</a></li>
+						</ul>
+					</li>					
 				</ul>
 			</div>
 			<div class="mapContainer">
@@ -171,17 +180,16 @@
 				</div>
 				<div class="trackHeader hide" id="trackHeader">
 					<span class="trackPos">
-						<span id="trackTerminalAlias"> 
-							定位器名称：
+						<span id="trackTerminalAlias">
 							<label id="trackTerminalAliasLabel"></label>
 						</span>
-						<span class="timeTip">时间范围:</span>
+						<!--<span class="timeTip">时间范围:</span>-->
 						<span class="trackTime">
 							<input type="text" class="time" id="trackBeginTime" />
 							至
 							<input type="text" class="time" id="trackEndTime" />
 						</span>
-						<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">显示基站定位</label>
+						<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">基站定位</label>
 					</span>
 					<!--按钮-->
 					<span class="trackBtn">

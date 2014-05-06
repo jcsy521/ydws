@@ -91,8 +91,8 @@ window.dlf.fn_changePwd = function() {
 * 短息通知
 */
 window.dlf.fn_initSMSParams = function() {
-	// dlf.fn_dialogPosition('smsOption');
-	// dlf.fn_lockScreen(); // 添加页面遮罩
+	dlf.fn_dialogPosition('smsOption');
+	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	$.get_(SMS_URL, '', function(data) {
 		if ( data.status == 0 ) {
@@ -463,8 +463,8 @@ $(function () {
 	var n_windowHeight = $(window).height(),
 		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
 		n_windowWidth = $(window).width(),
-		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1174 ? 1174 : n_windowWidth : n_windowWidth,
-		n_tilelayerLeft = n_windowWidth <= 1174 ? 1174 - 188 : n_windowWidth - 188,
+		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
+		n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 188 : n_windowWidth - 188,
 		n_mapHeight = n_windowHeight - 166,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = 0,
@@ -476,6 +476,8 @@ $(function () {
 		n_delayIconLeft = n_delayLeft - 17,
 		n_alarmLeft = n_windowWidth - 400,
 		n_alarmIconLeft = n_alarmLeft - 17,
+		n_topPanelLeft = '50%',
+		n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
 		obj_tree = $('#corpTree');
 	
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
@@ -487,9 +489,9 @@ $(function () {
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	
-	if ( n_treeHeight < 340 ) {
-		n_treeHeight = 340;
-	}	
+	if ( n_treeHeight < 270 ) {
+		n_treeHeight = 270;
+	}
 	obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 	
 	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
@@ -497,20 +499,26 @@ $(function () {
 	if ( dlf.fn_userType() ) {	// 集团用户
 		n_trackLeft = ( obj_track.width() ) / 8;
 		
-		if ( n_windowWidth < 1180 ) {
+		if ( n_windowWidth < 1024 ) {
 			n_trackLeft = 40;
-			n_delayLeft = 792;
-			n_delayIconLeft = 776;
-			n_alarmLeft = 970;
-			n_alarmIconLeft = 952;
+			n_delayLeft = 474;
+			n_delayIconLeft = 458;
+			n_alarmLeft = 623;
+			n_alarmIconLeft = 609;
+			n_topPanelLeft = 1024/2;
+		}
+		if ( n_mainHeight < 600 ) {
+			n_leftPanelTop = 300 + 123;
 		}
 	} else {
 		n_trackLeft = ( obj_track.width() ) / 6;
-		if ( n_windowWidth < 1180 ) {
+		if ( n_windowWidth < 1024 ) {
 			n_trackLeft = 90;
 		}
 	}
-	if ( $(window).width() > 1510 ) {
+	$('#topShowIcon').css('left', n_topPanelLeft);
+	$('#leftPanelShowIcon').css('top', n_leftPanelTop);
+	if ( n_windowWidth > 1510 ) {
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	} else {
 		$('.trackPos').css('padding-left', 0);
@@ -696,12 +704,19 @@ $(function () {
 			case 'notifyManage_search': // 通知查询
 				dlf.fn_initRecordSearch('notifyManageSearch');
 				break;
+			case 'help':
+				dlf.fn_secondNavValid();
+				break;
+			case 'logout':
+				dlf.fn_secondNavValid();
+				dlf.fn_exit();
+				break;
 		}
 	});
 	/*鼠标滑动显示统计二级菜单*/
-	$('.j_countRecord, .j_notifyManage, .j_userProfileManage').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {	
+	$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
 		dlf.fn_fillNavItem(event.target.id);
-	}).unbind('mouseout').bind('mouseout', function() { 
+	}).unbind('mouseout').bind('mouseout', function() {
 		dlf.fn_secondNavValid();
 	});
 	dlf.fn_closeWrapper(); //吹出框关闭事件
@@ -1180,9 +1195,9 @@ $(function () {
 			n_windowWidth = $(window).width(),
 			n_alarmIconLeft = n_windowWidth - 417;
 		
-		if ( n_windowWidth < 1180 ) {
-			n_windowWidth = 926;
-			n_alarmIconLeft = 982;
+		if ( n_windowWidth < 1024 ) {
+			n_windowWidth = 1024;
+			n_alarmIconLeft = 609;
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
@@ -1226,3 +1241,35 @@ $(function () {
 		}
 	);
 });
+
+function fn_modiyListPanelPosition() {
+	var obj_delayPanel = $('.j_delayPanel'),
+		b_delayPanel = obj_delayPanel.is(':visible'),
+		obj_alarmPanel = $('.j_alarmPanel'),
+		b_alarmPanel = obj_alarmPanel.is(':visible'),
+		n_tempWindowWidth = $(window).width(),
+		n_delayLeft = n_tempWindowWidth - 550,
+		n_delayIconLeft = n_delayLeft - 17,
+		n_alarmLeft = n_tempWindowWidth - 400,
+		n_alarmIconLeft = n_alarmLeft - 17;
+	
+	
+	if ( n_tempWindowWidth < 1024 ) {
+		n_trackLeft = 40;
+		n_delayLeft = 474;
+		n_delayIconLeft = 458;
+		n_alarmLeft = 623;
+		n_alarmIconLeft = 609;
+		n_tempWindowWidth = 896;
+	}
+	if ( !b_delayPanel ) {
+		n_delayIconLeft = n_tempWindowWidth - 17;
+	}
+	if ( !b_alarmPanel ) {
+		n_alarmIconLeft = n_tempWindowWidth - 17;
+	}
+	obj_delayPanel.css({'left': n_delayLeft});
+	$('.j_disPanelCon').css({'left': n_delayIconLeft});
+	obj_alarmPanel.css({'left': n_alarmLeft});
+	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
+}

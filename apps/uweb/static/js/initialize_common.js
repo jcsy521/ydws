@@ -590,6 +590,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 	
 	$.post_(LASTPOSITION_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
 		$('.j_body').data('intervalkey', false);
+		
 		if ( data.status == 0 ) {
 			var obj_cars = data.res,
 				obj_tempData = {},
@@ -1555,9 +1556,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	dlf.fn_closeDialog();	// 关闭所有dialog
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
-	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' ) {	//  通知查询
-		str_tempWrapperId = 'notifyManage';
-	} else if ( str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' ) {	//  通知查询
+	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' ) {	//  通知查询
 		str_tempWrapperId = 'userProfileManage';
 	}
 	$('#'+ str_tempWrapperId).addClass(str_tempWrapperId +'Hover');
@@ -1581,30 +1580,11 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
 	if ( b_trackStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionStatus || b_corpRegionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
-		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' ) {
+		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
-	}
-	
-	//收缩图标位置
-	if ( str_wrapperId == 'eventSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'operator' || str_wrapperId == 'mileage' ) {
-		$('#topShowIcon, #leftPanelShowIcon').hide();
-		var b_topPanelSt = $('#top').is(':hidden'),
-			b_pLeftSt = $('#left').is(':hidden'),
-			b_corpLeftSt = $('#corpLeft').is(':hidden'),
-			obj_panelWrp = $('#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #notifyManageAddWrapper ,#notifyManageSearchWrapper'),
-			n_defLeft = 248,
-			n_defTop = 160;
-			
-		if ( b_topPanelSt ) {
-			n_defTop = 37;
-		}
-		if ( b_pLeftSt || b_corpLeftSt ) {
-			n_defLeft = 0
-		}
-		obj_panelWrp.css({'top': n_defTop, 'left': n_defLeft});
 	}
 	obj_wrapper.show();
 }
@@ -1986,21 +1966,28 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						} else if ( param == 'icon_type' ) {
 							var obj_current = $('.j_currentCar'),
 								str_tid = obj_current.attr('tid'),
+								obj_carInfo = $('.j_carList').data('carsData')[str_tid],
 								n_imgDegree = obj_current.attr('degree'),
 								str_loginSt = obj_current.attr('clogin'),
 								obj_currentMarker = obj_selfmarkers[str_tid],
 								b_mapType = dlf.fn_isBMap(),
-								obj_icon = null,
-								str_iconUrl = dlf.fn_setMarkerIconType(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt);
+								obj_icon = null;
 							
 							obj_current.attr('icon_type', str_val);
 							if ( obj_currentMarker ) {
-								if ( b_mapType ) {
+								// 设置marker的icon
+								fn_setMarkerTraceIcon(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt, obj_currentMarker, obj_carInfo.timestamp);	
+								/*if ( b_mapType ) {
 									obj_icon = new BMap.Icon(str_iconUrl, new BMap.Size(34, 34));
+									if ( b_flag ) {
+										obj_icon.setSize(new BMap.Size(100, 100));
+										obj_icon.setImageOffset(new BMap.Size(-30, -35));
+									}
 								} else {
 									obj_icon = str_iconUrl;
 								}
-								obj_currentMarker.setIcon(obj_icon);
+								obj_currentMarker.setIcon(obj_icon);*/
+								
 								obj_selfmarkers[str_tid] = obj_currentMarker;
 							}
 							dlf.fn_updateTerminalLogin(obj_current);	
@@ -2238,8 +2225,10 @@ window.dlf.fn_fillNavItem = function(str_whoItem) {
 	} else if ( str_whoItem == 'userProfileManage' ) {	
 		str_navClassName = 'j_userProfileManageNavItem';
 		n_offsetLeft = obj_navOffset.left;	
+	} else if ( str_whoItem == 'userName' ) {
+		str_navClassName = 'j_welcomeNavItem';
+		n_offsetLeft = obj_navOffset.left;
 	}
-		
 	if ( b_topPanelSt ) {
 		n_prolistTop = 36;
 	}
@@ -2250,13 +2239,19 @@ window.dlf.fn_fillNavItem = function(str_whoItem) {
 	/*二级菜单的滑过样式*/
 	$('.'+str_navClassName+' li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
 		// $(this).removeClass('countUlItemHover');
-		$('.j_countNavItem, .j_notifyManageNavItem, .j_userProfileManageNavItem').hide();
-		$('.j_countRecord, .j_notifyManage, .j_userProfileManage').bind('mouseover', function(event) {
+		$('.j_countNavItem, .j_notifyManageNavItem, .j_userProfileManageNavItem, .j_welcomeNavItem').hide();
+		$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome').bind('mouseover', function(event) {
 			dlf.fn_fillNavItem(event.target.id);
 		});
+		if ( str_navClassName == 'j_welcomeNavItem' ) {
+			$(this).parent().removeClass('otherListHover');
+		}
 	}).mouseover(function(event) {
 		// $(this).addClass('countUlItemHover');
 		obj_navItemUl.show();
+		if ( str_navClassName == 'j_welcomeNavItem' ) {
+			$(this).parent().addClass('otherListHover');
+		}
 		$('.j_countRecord').unbind('mouseover');
 	});
 }
@@ -2268,9 +2263,11 @@ window.dlf.fn_secondNavValid = function() {
 	var obj_navItem1 = $('.j_countNavItem'), 
 		obj_navItem2 = $('.j_notifyManageNavItem'),
 		obj_navItem3 = $('.j_userProfileManageNavItem'),
+		obj_navItem4 = $('.j_welcomeNavItem'),
 		f_hidden1 = obj_navItem1.is(':hidden'),
 		f_hidden2 = obj_navItem2.is(':hidden'),
-		f_hidden3 = obj_navItem3.is(':hidden');
+		f_hidden3 = obj_navItem3.is(':hidden'),
+		f_hidden4 = obj_navItem4.is(':hidden');
 	
 	if ( !f_hidden1 ) {
 		obj_navItem1.hide();
@@ -2280,6 +2277,9 @@ window.dlf.fn_secondNavValid = function() {
 	}
 	if ( !f_hidden3 ) {
 		obj_navItem3.hide();
+	}
+	if ( !f_hidden4 ) {
+		obj_navItem4.hide();
 	}
 }
 
@@ -2294,7 +2294,7 @@ window.dlf.resetPanelDisplay = function() {
 			n_tempHeight = n_windowHeight <= 624 ? 624 : n_windowHeight,
 			n_windowHeight = $.browser.version == '6.0' ? n_tempHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
-			n_tempWidth = n_windowWidth <= 1174 ? 1174 : n_windowWidth,
+			n_tempWidth = n_windowWidth <= 1024 ? 1024 : n_windowWidth,
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');
@@ -2305,9 +2305,9 @@ window.dlf.resetPanelDisplay = function() {
 		if ( b_pLeftSt || b_corpLeftSt ) {
 			n_windowWidth += 247;
 		}
-		var	n_tilelayerLeft = n_windowWidth <= 1174 ? 1174 - 288 : n_windowWidth - 188,
+		var	n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 288 : n_windowWidth - 188,
 			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_windowWidth,
-			n_mapHeight = n_windowHeight - 161,
+			n_tempContent = n_mapHeight = n_windowHeight - 161,
 			n_right = n_windowWidth - 251,
 			n_trackLeft = 0,
 			n_mainContent = n_windowHeight - 104,
@@ -2317,42 +2317,60 @@ window.dlf.resetPanelDisplay = function() {
 			n_tempTreeHight = $('#corpTree ul').height(),
 			obj_tree = $('#corpTree'),
 			obj_track = $('#trackHeader'),
-			n_delayLeft = n_windowWidth - 550,
-			n_delayIconLeft = n_delayLeft - 17,
-			n_alarmLeft = n_windowWidth - 400,
-			n_alarmIconLeft = n_alarmLeft - 17,
+			n_trackWidth = n_windowWidth - 251,
+			n_defTop = 160,
+			n_defLeft = 248,
+			n_topPanelLeft = '50%',
+			n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询打开状态
 			b_trackSt = obj_track.is(':visible');
 		
-		if ( b_trackSt ) {
-			n_mapHeight = n_windowHeight - 201;
-			$('#trackHeader').css('width', n_windowWidth - 251);
-		}
 		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 259;
-			n_mapHeight = n_mapHeight - 10;
+			n_tempContent = n_mapHeight = n_mapHeight - 10;
 		}
-		
 		if ( b_topPanelSt ) {
 			n_windowHeight -= 123;
+			n_defTop = 37;
 		}
 		$('.mainBody').height(n_windowHeight);
-		if ( b_pLeftSt || b_corpLeftSt ) {
+		if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
 			$('#top, #main, #corpMain').css('width', n_windowWidth-247);
+			n_trackWidth = n_right = n_windowWidth-247;
+			n_defLeft = 0;
 		} else {
 			$('#top, #main, #corpMain').css('width', n_windowWidth);
 		}
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 
-		if ( n_treeHeight < 340 ) {
-			n_treeHeight = 340;
+		if ( n_treeHeight < 270 ) {
+			n_treeHeight = 270;
 		}
 		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 		
-		if ( $(window).width() < 1180 ) {
-			n_right = 926;
+		if ( $(window).width() < 1024 ) {
+			n_right = 776;
+			n_topPanelLeft = 1024/2;
+			
+			if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
+				n_trackWidth = n_right = 1024;				
+			}
+		}
+		
+		if ( n_mainHeight < 600 ) {
+			n_leftPanelTop = 300 + 123;
+		}
+		$('#topShowIcon').css('left', n_topPanelLeft);
+		$('#leftPanelShowIcon').css('top', n_leftPanelTop);
+		if ( b_trackSt ) {
+			n_tempContent = n_mapHeight = n_windowHeight - 201;
+			if ( b_topPanelSt ) {
+				n_mapHeight = n_windowHeight - 74;
+				n_tempContent = n_windowHeight - 38;
+			}
+			$('#trackHeader').css('width', n_trackWidth);
 		}
 		$('#right, #corpRight, #navi, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
@@ -2366,17 +2384,21 @@ window.dlf.resetPanelDisplay = function() {
 				b_delayPanel = obj_delayPanel.is(':visible'),
 				obj_alarmPanel = $('.j_alarmPanel'),
 				b_alarmPanel = obj_alarmPanel.is(':visible'),
-				n_tempWindowWidth = n_windowWidth;
+				n_tempWindowWidth = $(window).width(),
+				n_delayLeft = n_tempWindowWidth - 550,
+				n_delayIconLeft = n_delayLeft - 17,
+				n_alarmLeft = n_tempWindowWidth - 400,
+				n_alarmIconLeft = n_alarmLeft - 17;
 			
-			if ( n_windowWidth < 1180 ) {
+			
+			if ( n_tempWindowWidth < 1024 ) {
 				n_trackLeft = 40;
-				n_delayLeft = 792;
-				n_delayIconLeft = 776;
-				n_alarmLeft = 970;
-				n_alarmIconLeft = 952;
-				n_tempWindowWidth = 896;
+				n_delayLeft = 474;
+				n_delayIconLeft = 458;
+				n_alarmLeft = 623;
+				n_alarmIconLeft = 609;
+				n_tempWindowWidth = 1024;
 			}
-			
 			if ( !b_delayPanel ) {
 				n_delayIconLeft = n_tempWindowWidth - 17;
 			}
@@ -2389,7 +2411,7 @@ window.dlf.resetPanelDisplay = function() {
 			$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 		} else {
 			n_trackLeft = ( obj_track.width() ) / 6;
-			if ( n_windowWidth < 1180 ) {
+			if ( n_windowWidth < 1024 ) {
 				n_trackLeft = 90;
 			}
 		}
@@ -2398,7 +2420,9 @@ window.dlf.resetPanelDisplay = function() {
 		} else {
 			$('.trackPos').css('padding-left', 0);
 		}
-		$('.eventSearchContent, .j_wrapperContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
+		$('.eventSearchContent, .j_wrapperContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_tempContent);
+		// 设置空白页面的top、left
+		$('#eventSearchWrapper, #notifyManageAddWrapper, #notifyManageSearchWrapper, #operatorWrapper, #mileageWrapper').css({'top': n_defTop, 'left': n_defLeft});
 		
 		if ( b_eventSearchStatus ) {
 			n_mapHeight = 340;
@@ -2406,6 +2430,8 @@ window.dlf.resetPanelDisplay = function() {
 		}
 		$('#mapObj').css({'width': n_right -2, 'height': n_mapHeight});	// 右侧宽度
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
+		
+		// fn_modifyAlarmInfoPanel(true);	// kjj add in 2014.04.28 调整告警列表位置
 		
 		var b_layer = $('.j_body').data('layer');
 		if ( b_layer ) {

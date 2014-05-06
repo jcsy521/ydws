@@ -25,18 +25,6 @@
 			<img src="../static/images/logo.png" alt="移动车卫士" />
 		</div>-->
 		<div id="ads"></div>
-		<div id="topProfile">
-			<div id="serviceHotline">客服电话：400-863-0388</div>
-			<div class="welcome" title="{{name}}">
-				<span id="spanWelcome">欢迎您，
-					{% if len(name)<=4 %}
-						{{name.replace("<", "&lt;").replace(">", "&gt;")}}
-					{% else %}
-						{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
-					{% end %}
-				</span>
-			</div>
-		</div>
 	</div>
 	<!-- main  -->
 	<div id="main">
@@ -83,6 +71,7 @@
 				<span class="tInfoWord">更新时间：</span>
 				<span class="fontColor" id="locationTime"></span>
 			</div>
+			<div id="serviceHotline">客服电话：400-863-0388</div>
 		</div>
 		<!-- menu and map-->
 		<div id="right">
@@ -93,25 +82,36 @@
 					<li><a href="#" id="eventSearch" class="eventSearch j_click"></a></li>
 					<li><a href="#" id="region" class="region j_click"></a></li>
 					<li><a href="#" id="defend" class="defend j_click"></a></li>
-					<li><a href="#" id="terminal" class="terminal j_click"></a></li>
-					<!--<li><a href="#" id="smsOption" class="smsOption j_click"></a></li>-->
+					<!--<li><a href="#" id="terminal" class="terminal j_click"></a></li>
+					<li><a href="#" id="smsOption" class="smsOption j_click"></a></li>-->
 					<li>
 						<a href="#" id="userProfileManage" class="userProfileManage j_userProfileManage"></a>
 						<ul id="userProfileManageList" class="hide j_userProfileManageNavItem countUlIetm">
+							<li><a href="#" id="terminal" class="terminal j_click"></a></li>
+							<li><a href="#" id="smsOption" class="corpSMSOption j_click"></a></li>
 							<li>
 								<a href="#" id="personalData" class="j_click"></a>
 							</li>
 							<li>
 								<a href="#" id="changePwd" class="j_click"></a>
 							</li>
-							<li>
-								<a class="help" href="/helper" target="_blank"></a>
-							</li>
-							<li>
-								<a href="#" id="logout" onclick="dlf.fn_exit()"></a>
-							</li>
 						</ul>
 					</li>
+				</ul>				
+				<ul class="selfList">
+					<li>
+						<a title="" href="#" id="userName" class="j_welcome">欢迎您，
+						{% if len(name)<=4 %}
+							{{name.replace("<", "&lt;").replace(">", "&gt;")}}
+						{% else %}
+							{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
+						{% end %}
+						</a>
+						<ul id="otherList" class="hide j_welcomeNavItem countUlIetm">
+							<li><a class="help j_click" id="help" href="/helper" target="_blank">帮助</a></li>
+							<li><a href="#" class="j_click" id="logout">退出</a></li>
+						</ul>
+					</li>					
 				</ul>
 			</div>
 			<div class="mapContainer">
@@ -122,13 +122,13 @@
 				<div class="trackHeader hide" id="trackHeader">
 					<!--时间选择-->
 					<span class="trackPos">
-						<span class="timeTip">时间范围:</span>
+						<!--<span class="timeTip">时间范围:</span>-->
 						<span class="trackTime">
 							<input type="text" class="time" id="trackBeginTime" />
 							至
 							<input type="text" class="time" id="trackEndTime" />
 						</span>
-						<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">显示基站定位</label>
+						<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">基站定位</label>
 					</span>
 					<!--按钮-->
 					<span class="trackBtn">

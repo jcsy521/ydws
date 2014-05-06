@@ -17,10 +17,10 @@ var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, b_trackMsgS
 window.dlf.fn_initTrack = function() {
 	var obj_trackHeader =  $('#trackHeader');
 	
-	$('#track').addClass('trackHover');
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
 	dlf.fn_closeDialog(); // 关闭所有dialog
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
+	$('#track').addClass('trackHover');
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
@@ -36,11 +36,11 @@ window.dlf.fn_initTrack = function() {
 	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
-		obj_trackPos.css('width', 624);
+		obj_trackPos.css('width', 490);
 		$('.j_delay').hide();
 		$('.j_delayTbody').html('');
 	} else {
-		obj_trackPos.css('width', 530);
+		obj_trackPos.css('width', 475);
 	}
 }
 
@@ -49,7 +49,7 @@ window.dlf.fn_initPanel = function () {
 	* 调整页面大小
 	*/
 	var n_windowWidth = $(window).width(),
-		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1400 ? 1400 : n_windowWidth : n_windowWidth,
+		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
 		n_delayLeft = n_windowWidth - 550,
 		n_delayIconLeft = n_delayLeft - 17,
 		n_alarmLeft = n_windowWidth - 400,
@@ -57,11 +57,11 @@ window.dlf.fn_initPanel = function () {
 		obj_tree = $('#corpTree');
 	
 	if ( dlf.fn_userType() ) {	// 集团用户		
-		if ( n_windowWidth < 1180 ) {
-			n_delayLeft = 792;
-			n_delayIconLeft = 776;
-			n_alarmLeft = 970;
-			n_alarmIconLeft = 952;
+		if ( n_windowWidth < 1024 ) {
+			n_delayLeft = 474;
+			n_delayIconLeft = 458;
+			n_alarmLeft = 625;
+			n_alarmIconLeft = 763;
 		}
 	}
 	// 设置停留点列表的位置
@@ -148,8 +148,11 @@ function fn_trackQuery() {
 	var obj_trackHeader = $('#trackHeader'),
 		arr_delayPoints = [],
 		obj_delayCon = $('.j_delay'),
-		str_beginTime = dlf.fn_changeDateStringToNum($('#trackBeginTime').val()), 
-		str_endTime = dlf.fn_changeDateStringToNum($('#trackEndTime').val()),
+		str_tempBeginTime = $('#trackBeginTime').val(),
+		str_tempEndTime = $('#trackEndTime').val(),
+		str_excelName = '',
+		str_beginTime = dlf.fn_changeDateStringToNum(str_tempBeginTime), 
+		str_endTime = dlf.fn_changeDateStringToNum(str_tempEndTime),
 		n_cellid_flag = $('#ceillid_flag').attr('checked') == 'checked' ? 1 : 0,
 		obj_locusDate = {'start_time': str_beginTime, 
 						'end_time': str_endTime,
@@ -207,8 +210,19 @@ function fn_trackQuery() {
 						obj_trackHeader.data('delayPoints', arr_idlePoints);
 					}
 				}
+				var obj_currentDate = new Date(),
+					str_tempYear = obj_currentDate.getFullYear(),
+					str_tempMonth = obj_currentDate.getMonth() + 1,
+					str_tempDay = obj_currentDate.getDate();
 				
-				$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
+				str_tempMonth = str_tempMonth < 10 ? '0' + str_tempMonth : str_tempMonth;
+				str_tempDay = str_tempDay < 10 ? '0' + str_tempDay : str_tempDay;
+				
+				str_excelName = '停留点列表-' + ( str_tempYear + '' + str_tempMonth + '' + str_tempDay) + '.xls';
+				$('#exportDelay').attr('download', str_excelName).click(function() {
+					fn_exportExcel(str_excelName);
+				});		
+				//$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 				for ( var x = 0; x < locLength; x++ ) {
 					arr_locations[x].alias = str_alias;
@@ -456,7 +470,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 			str_trackTempIndex = 0;
 		} else if ( n_index == 1 ) {
 			str_trackType = 'end';
-			str_trackTempIndex = arr_dataArr.length - 1;
+			str_trackTempIndex = 1; // arr_dataArr.length - 1;
 		}
 		dlf.fn_createMapInfoWindow(arr_delayPoints[n_index], str_trackType, str_trackTempIndex);
 		obj_tempMarker.openInfoWindow(obj_mapInfoWindow);
@@ -682,9 +696,9 @@ $(function () {
 			n_delayIconLeft = n_windowWidth - 567;
 		
 		
-		if ( n_windowWidth < 1174 ) {
-			n_windowWidth = 1174;
-			n_delayIconLeft = 776;
+		if ( n_windowWidth < 1024 ) {
+			n_windowWidth = 1024;
+			n_delayIconLeft = 458;
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
