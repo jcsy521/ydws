@@ -279,6 +279,11 @@ class PacketTask(object):
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
         current_time = int(time.time())
+
+        #NOTE: bug fixed: in pvt, timestamp is no used, so use gps_time as timestamp
+        if not report.get('timestamp',None):
+            report['timestamp'] = report['gps_time']
+
         if report['timestamp'] > (current_time + 24*60*60):
             logging.info("[EVENTER] The report's (gps_time - current_time) is more than 24 hours, so drop it:%s", report)
             return
@@ -478,7 +483,7 @@ class PacketTask(object):
                 region = report['region']
                 region_id = region.region_id
                 if region.get('region_name', None): 
-                    region.comment = u"围栏名：%s" % region.region_name
+                    region.comment = u"围栏名：%s" % safe_unicode(region.region_name)
                 
             if report.rName == EVENTER.RNAME.STOP:
                 logging.info("[EVENTER] %s altert needn't to push to user. Terminal: %s",

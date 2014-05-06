@@ -47,7 +47,8 @@ def PtInPolygon(location, *polygons):
         polygon_pts = polygon['points']
         polygon_name = polygon['name']
         # side num of polygon
-        sides = len(polygon_pts) - 1
+        #sides = len(polygon_pts) - 1
+        sides = len(polygon_pts)
         # num of intersection point, if nCross is odd, point is in polygon 
         nCross = 0
         for i in range(sides):
