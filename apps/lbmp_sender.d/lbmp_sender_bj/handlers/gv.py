@@ -50,8 +50,11 @@ class GvHandler(BaseHandler):
                         logging.info("result: %s", json_data['result'])
                         ret.address = json_data['result']['formatted_address']
                         if len(json_data['result']['pois']) >= 1:
-                            if json_data['result']['pois'][0]['addr']: 
-                                ret.address += u"，" + json_data['result']['pois'][0]['name']+ u'附近'
+                            pois = json_data['result']['pois']
+                            pois.sort(key=lambda item: int(item['distance']))
+                            poi_name = pois[0]['name']
+                            if poi_name:
+                                ret.address += u"，" + poi_name + u'附近'
                         ret.success = ErrorCode.SUCCESS 
                         ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
                         logging.info("[GV] get address=%s through lat=%s, lon=%s",
