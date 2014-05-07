@@ -3776,8 +3776,8 @@ legend {
     top: -35px;
 }
 #notifyManageSave {
-	float: right;
-	margin-right: 90px;
+	float: left;
+	margin-left: 700px;
 }
 #fileUploadForm {
 	height: 86px;

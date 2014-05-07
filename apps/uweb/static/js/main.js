@@ -1241,9 +1241,8 @@ $(function () {
 			$('#leftPanelShowIcon').css('left', '0px').addClass('leftPanelShowIcon_hover');
 		},
 		function () {
-			$('#left, #corpLeft').show();
-			dlf.resetPanelDisplay();		
-			$('#leftPanelShowIcon').css('left', '247px').removeClass('leftPanelShowIcon_hover');	
+			dlf.resetPanelDisplay(true);
+			$('#leftPanelShowIcon').css('left', '247px').removeClass('leftPanelShowIcon_hover');
 		}
 	);
 });

@@ -147,7 +147,7 @@ window.dlf.fn_serverError = function(XMLHttpRequest, str_actionType) {
 * 页面添加透明遮罩
 */
 window.dlf.fn_lockScreen = function(str_body) {
-	var n_height = document.body.offsetHeight, 
+	var n_height = $(window).height(), 
 		obj_body = ''; 
 		
 	if ( !str_body ) {
@@ -308,7 +308,7 @@ window.dlf.fn_changeTimestampToString = function(n_timestamp) {
 	* showTime: 消息显示时间
 */
 window.dlf.fn_jNotifyMessage = function(messages, types, b_permanent, showTime) {
-	var pf = (document.body.offsetWidth-447)/2,
+	var pf = ($(window).width()-447)/2,
         displayTime = 6000,
         b_perMan_type = b_permanent ? b_permanent : false,
 	    displayTime = showTime ? showTime : displayTime;
@@ -1223,7 +1223,7 @@ window.dlf.fn_openTrack = function(arr_openTids, selfItem, n_isOpen) {
 				obj_trackWrapper = $('#trackWrapper'),	// 定位器唤醒提示容器
 				obj_trackTimer = $('#trackTimer'),	// 定位器提示框计时器容器
 				n_timer = parseInt(obj_trackTimer.html()),
-				n_left = (document.body.offsetWidth-400)/2, 
+				n_left = ($(window).width()-400)/2, 
 				str_terminalAlias = '',
 				b_userType = dlf.fn_userType(),
 				arr_tempTids = arr_openTids.split(','),
@@ -1542,7 +1542,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	var obj_wrapper = $('#'+ str_wrapperId+'Wrapper'), 
 		str_tempWrapperId = str_wrapperId,
 		n_wrapperWidth = obj_wrapper.width(),
-		n_width = (document.body.offsetWidth - n_wrapperWidth)/2,
+		n_width = ($(window).width() - n_wrapperWidth)/2,
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		b_eventStatus = $('#eventSearchWrapper').is(':visible'),	// 告警是否显示
 		b_regionStatus = $('#regionWrapper').is(':visible'),	// 电子围栏是否显示
@@ -1557,9 +1557,11 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	dlf.fn_gaodeCloseDrawCircle();	// 关闭高德地图的画圆事件
 	dlf.fn_mapStopDraw(true);	// 关闭高德地图的 添加站点事件
 	dlf.fn_closeDialog();	// 关闭所有dialog
+	
+	console.log(str_tempWrapperId);
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
-	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' ) {	//  通知查询
+	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'operator' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' ) {	//  通知查询
 		str_tempWrapperId = 'userProfileManage';
 	}
 	$('#'+ str_tempWrapperId).addClass(str_tempWrapperId +'Hover');
@@ -2290,19 +2292,24 @@ window.dlf.fn_secondNavValid = function() {
 * 重新调整页面显示区域
 */
 
-window.dlf.resetPanelDisplay = function() {
+window.dlf.resetPanelDisplay = function(b_showLeft) {
 	setTimeout (function () {
+		
 		// 调整页面大小
-		var n_windowHeight = document.body.offsetHeight,
+		var n_windowHeight = $(window).height(),
 			n_tempHeight = n_windowHeight <= 624 ? 624 : n_windowHeight,
 			n_windowHeight = $.browser.version == '6.0' ? n_tempHeight : n_windowHeight,
-			n_tempWindowWidth = document.body.offsetWidth, // document.body.offsetWidth,
+			n_tempWindowWidth = $(window).width(), // document.body.offsetWidth,
 			n_tempWidth = n_tempWindowWidth <= 1024 ? 1024 : n_tempWindowWidth,
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');
-		
-		console.log('xxxx::', n_tempWindowWidth);
+	
+		if ( b_showLeft ) {
+			b_pLeftSt = false;
+			b_corpLeftSt = false;
+			$('#left, #corpLeft').show();
+		}
 		if ( b_topPanelSt ) {
 			n_windowHeight += 123;
 		}
@@ -2337,7 +2344,6 @@ window.dlf.resetPanelDisplay = function() {
 			n_windowHeight -= 123;
 			n_defTop = 37;
 		}
-		$('.mainBody').height(n_windowHeight);
 		if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
 			$('#top, #main, #corpMain').css('width', n_windowWidth-247);
 			n_trackWidth = n_right = n_windowWidth-247;
@@ -2345,15 +2351,13 @@ window.dlf.resetPanelDisplay = function() {
 		} else {
 			$('#top, #main, #corpMain').css('width', n_windowWidth);			
 		}
-		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
-		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 
 		if ( n_treeHeight < 270 ) {
 			n_treeHeight = 270;
 		}
 		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 		
-		if ( document.body.offsetWidth < 1024 ) {
+		if ( $(window).width() < 1024 ) {
 			n_right = 775;
 			n_topPanelLeft = 1024/2;
 			
@@ -2377,6 +2381,23 @@ window.dlf.resetPanelDisplay = function() {
 		}
 		$('#right, #corpRight, #navi, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
+		if ( b_eventSearchStatus ) {
+			n_mapHeight = 340;
+			n_right = 370;
+		}
+		$('#mapObj').css({'width': n_right -2, 'height': n_mapHeight});	// 右侧宽度
+		
+		$('.mainBody').height(n_windowHeight);
+		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
+		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
+		 
+		 if( document.body.style.overflow!="hidden" && document.body.scroll!="no" && document.body.scrollHeight >document.body.offsetHeight) {
+			console.log('有滚动条');
+			return;
+		 } else {
+			console.log('无滚动条');
+		 }
+
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 8;
 			/**
@@ -2387,7 +2408,7 @@ window.dlf.resetPanelDisplay = function() {
 				b_delayPanel = obj_delayPanel.is(':visible'),
 				obj_alarmPanel = $('.j_alarmPanel'),
 				b_alarmPanel = obj_alarmPanel.is(':visible'),
-				n_tempWindowWidth = document.body.offsetWidth,
+				n_tempWindowWidth = $(window).width(),
 				n_delayLeft = n_tempWindowWidth - 550,
 				n_delayIconLeft = n_delayLeft - 17,
 				n_alarmLeft = n_tempWindowWidth - 400,
@@ -2418,7 +2439,7 @@ window.dlf.resetPanelDisplay = function() {
 				n_trackLeft = 90;
 			}
 		}
-		if ( document.body.offsetWidth > 1510 ) {
+		if ( $(window).width() > 1510 ) {
 			$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 		} else {
 			$('.trackPos').css('padding-left', 0);
@@ -2427,11 +2448,6 @@ window.dlf.resetPanelDisplay = function() {
 		// 设置空白页面的top、left
 		$('#eventSearchWrapper, #notifyManageAddWrapper, #notifyManageSearchWrapper, #operatorWrapper, #mileageWrapper').css({'top': n_defTop, 'left': n_defLeft});
 		
-		if ( b_eventSearchStatus ) {
-			n_mapHeight = 340;
-			n_right = 370;
-		}
-		$('#mapObj').css({'width': n_right -2, 'height': n_mapHeight});	// 右侧宽度
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
 		
 		// fn_modifyAlarmInfoPanel(true);	// kjj add in 2014.04.28 调整告警列表位置
