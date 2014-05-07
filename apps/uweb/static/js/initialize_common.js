@@ -1558,7 +1558,6 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	dlf.fn_mapStopDraw(true);	// 关闭高德地图的 添加站点事件
 	dlf.fn_closeDialog();	// 关闭所有dialog
 	
-	console.log(str_tempWrapperId);
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
 	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'operator' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' ) {	//  通知查询
@@ -2391,13 +2390,6 @@ window.dlf.resetPanelDisplay = function(b_showLeft) {
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 		 
-		 if( document.body.style.overflow!="hidden" && document.body.scroll!="no" && document.body.scrollHeight >document.body.offsetHeight) {
-			console.log('有滚动条');
-			return;
-		 } else {
-			console.log('无滚动条');
-		 }
-
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 8;
 			/**
