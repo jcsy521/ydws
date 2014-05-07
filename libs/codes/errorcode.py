@@ -45,6 +45,7 @@ class ErrorCode(object):
     TERMINAL_BINDED = 225
     
     GROUP_HAS_TERMINAL = 226
+    GROUP_EXIST = 227
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -167,6 +168,7 @@ class ErrorCode(object):
         TERMINAL_BINDED:               u"该定位器已经存在，请输入其他定位器号码进行绑定。",
 
         GROUP_HAS_TERMINAL:            u"该分组下有定位器,不能删除。",
+        GROUP_EXIST:                   u"该分组已存在。", 
 
         ACTIVITY_EXISTED:              u"文件已经存在，请先删除。",
         ACTIVITY_NAME_ILLEGAL:         u"文件名只能包含字母、数字、下划线、点。",

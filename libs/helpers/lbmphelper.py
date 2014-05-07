@@ -293,29 +293,42 @@ def handle_location(location, redis, cellid=False, db=None):
             current_time = int(time.time())
             diff = current_time - last_location.timestamp
             logging.info("current time:%s, last locaiton time:%s, diff time:%s", current_time, last_location.timestamp, diff)
-            if (current_time - last_location.timestamp) > 600:
-                location.gps_time = current_time 
-                logging.info("Tid:%s, current_time - last_location.timestamp  > 600s, so use current time:%s", location.dev_id, current_time)
-            else:
+            if (current_time - last_location.timestamp) < 600: # 10 mins
                 logging.info("Tid:%s, current_time - last_location.timestamp  <= 600s, so use last location time:%s", location.dev_id, last_location.timestamp)
                 location.gps_time = last_location.timestamp
-            location.lat = last_location.latitude
-            location.lon = last_location.longitude
-            location.cLat = last_location.clatitude
-            location.cLon = last_location.clongitude
-            location.type = 0 
-            location.gps = 0
-        else:
-            location.lat = 0
-            location.lon = 0
-            location.cLat = 0
-            location.cLon = 0
-            location.type = 0
-            location.gps_time = int(time.time()) 
-            location.degree = 0.00
-            location.gps = 0
-            #if cellid:
-            #    location = issue_cellid(location, db, redis)
+                location.lat = last_location.latitude
+                location.lon = last_location.longitude
+                location.cLat = last_location.clatitude
+                location.cLon = last_location.clongitude
+                location.type = 0 
+            else:
+                location.type = 0 
+                logging.info("Tid:%s, current_time - last_location.timestamp >= 600s, so use location itself: %s.", location.dev_id, location)
+                pass
+        #    location.lat = last_location.latitude
+        #    if (current_time - last_location.timestamp) > 600:
+        #        location.gps_time = current_time 
+        #        logging.info("Tid:%s, current_time - last_location.timestamp  > 600s, so use current time:%s", location.dev_id, current_time)
+        #    else:
+        #        logging.info("Tid:%s, current_time - last_location.timestamp  <= 600s, so use last location time:%s", location.dev_id, last_location.timestamp)
+        #        location.gps_time = last_location.timestamp
+        #    location.lat = last_location.latitude
+        #    location.lon = last_location.longitude
+        #    location.cLat = last_location.clatitude
+        #    location.cLon = last_location.clongitude
+        #    location.type = 0 
+        #    location.gps = 0
+        #else:
+        #    location.lat = 0
+        #    location.lon = 0
+        #    location.cLat = 0
+        #    location.cLon = 0
+        #    location.type = 0
+        #    location.gps_time = int(time.time()) 
+        #    location.degree = 0.00
+        #    location.gps = 0
+        #    #if cellid:
+        #    #    location = issue_cellid(location, db, redis)
     elif location.valid == GATEWAY.LOCATION_STATUS.MOVE: # 6
         logging.info("tid:%s gps locate flag :%s", location.dev_id, location.valid)
         location.lat = 0

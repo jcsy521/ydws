@@ -1722,10 +1722,13 @@ class MyGWServer(object):
                     self.append_si_request(content, connection, channel)
                 self.update_terminal_status(dev_id, address)
 
+            #NOTE: Handle the packet.
             if head.command in (T_MESSAGE_TYPE.POSITION, T_MESSAGE_TYPE.MULTIPVT,
                                 T_MESSAGE_TYPE.CHARGE, T_MESSAGE_TYPE.ILLEGALMOVE,
                                 T_MESSAGE_TYPE.POWERLOW, T_MESSAGE_TYPE.ILLEGALSHAKE,
-                                T_MESSAGE_TYPE.EMERGENCY, T_MESSAGE_TYPE.POWERDOWN):
+                                T_MESSAGE_TYPE.EMERGENCY, T_MESSAGE_TYPE.POWERDOWN, 
+                                T_MESSAGE_TYPE.STOP):
+                logging.info("[GW] Head command: %s.", head.command)
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
                                   address=address)
@@ -1734,10 +1737,13 @@ class MyGWServer(object):
                 if not resend_flag:
                     self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
             elif head.command == GATEWAY.T_MESSAGE_TYPE.UNBIND:
+                logging.info("[GW] Head command: %s.", head.command)
                 up = UNBindParser(info.body, info.head)
                 status = up.ret['status']
                 if status == GATEWAY.STATUS.SUCCESS:
                     delete_terminal(dev_id, self.db, self.redis)
+            else:
+                logging.exception("[GW] Invalid command: %s.", head.command)
         except:
             logging.exception("[GW] Handle SI message exception.")
 

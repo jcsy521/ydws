@@ -14,6 +14,13 @@ from base import BaseHandler, authenticated
        
 class GroupHandler(BaseHandler):
 
+    def get_group_by_cid(self, cid, group_name):
+        group = self.db.get("SELECT corp_id, name"
+                            "  FROM T_GROUP"
+                            "  WHERE corp_id = %s"
+                            "  AND name = %s LIMIT 1",
+                            cid, group_name)
+        return group
 
     @authenticated
     @tornado.web.removeslash
@@ -57,6 +64,12 @@ class GroupHandler(BaseHandler):
             status = ErrorCode.SUCCESS
             cid = data.cid
             name = data.name
+            group = self.get_group_by_cid(cid, name)
+            if group:
+                status = ErrorCode.GROUP_EXIST
+                self.write_ret(status)
+                return
+            
             gid = self.db.execute("INSERT T_GROUP(id, corp_id, name, type)"
                                   "  VALUES(NULL, %s, %s, %s)",
                                   cid, name, UWEB.GROUP_TYPE.NEW)
@@ -86,8 +99,15 @@ class GroupHandler(BaseHandler):
 
         try:
             status = ErrorCode.SUCCESS
+            cid = self.current_user.cid
             gid = data.gid
             name = data.name
+            group = self.get_group_by_cid(cid, name)
+            if group:
+                status = ErrorCode.GROUP_EXIST
+                self.write_ret(status)
+                return
+
             self.db.execute("UPDATE T_GROUP"
                             "  SET name = %s"
                             "  WHERE id = %s",

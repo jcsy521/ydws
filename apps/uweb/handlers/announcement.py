@@ -51,8 +51,6 @@ class AnnouncementHandler(BaseHandler):
             logging.exception("[UWEB] record share failed, Exception: %s", e.args)
             self.write_ret(status)
 
-
-
     @authenticated
     @tornado.web.removeslash
     def delete(self):
@@ -104,15 +102,19 @@ class AnnouncementListHandler(BaseHandler):
         try: 
             if page_count == -1:
                 res = self.db.get("SELECT COUNT(*) AS count" 
-                                  "  FROM T_ANNOUNCEMENT_LOG")
+                                  "  FROM T_ANNOUNCEMENT_LOG"
+                                  "  WHERE umobile = %s",
+                                  self.current_user.cid)
 
                 d, m = divmod(res.count, page_size)
                 page_count = (d + 1) if m else d 
 
             res = self.db.query("SELECT id, umobile, content, timestamp, mobiles" 
                                 "  FROM T_ANNOUNCEMENT_LOG"
+                                "  WHERE umobile = %s"
                                 "  ORDER BY timestamp DESC"
                                 "  LIMIT %s, %s",
+                                self.current_user.cid,
                                 page_number * page_size, page_size) 
 
             self.write_ret(status=status, 
