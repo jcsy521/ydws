@@ -349,7 +349,7 @@ body {
 .corpMapObj, #eventSearchContent, .operatorContent, .mileageContent, .onlineStaticsContent, .passengerContent, .infoPushContent, .operatorContent, .notifyManageSearchContent, .notifyManageAddContent {
 	/*min-width: 1096px;
 	min-height: 463px;*/
-	min-width: 776px;
+	min-width: 775px;
 	min-height: 497px;
 }
 .mapObj {
@@ -365,7 +365,7 @@ body {
 }
 .selfList {
 	float: right;
-	margin-right: 20px;
+	margin-right: 40px;
 }
 .selfList li {
 	float: left;
@@ -631,7 +631,7 @@ body {
 	position: absolute;
 	top: 0;	
 	width: 100%;
-	z-index: 1004;
+	z-index: 1002;
 }
 .wrapper {
 	height: 210px;
@@ -639,7 +639,7 @@ body {
 	width: 448px;
 	position: absolute;
 	top: 20%;
-	z-index: 1004;
+	z-index: 1002;
 }
 #corpWrapper {
 	height: 291px;
@@ -1772,7 +1772,8 @@ body {
 .dataTable {
 	border: 0px;
 	margin-top: 8px;
-	width: 850px;
+	/*width: 850px;*/
+	width: 680px;
 	border-collapse: collapse;
 }
 .dataTable tr {
@@ -3060,7 +3061,8 @@ legend {
 	position: absolute;
 	left: 248px;
 	top: 160px;
-	z-index: 1001;
+	/*z-index: 1001;*/
+	z-index: 983;
 }
 .eventSearchTitle , .eventSearchContent, #singleEventWrapper {
 	width: 800px;
@@ -3098,16 +3100,17 @@ legend {
 	margin-left: 22px;
 }
 .commonCondition  td {
-	padding-right: 20px;
+	/*padding-right: 20px;*/
 }
 .eventSearchCondition, .mileageCondition, .operatorConditions, .onlineStaticsCondition, .passengerConditions, .eventSearchPos {
 	margin: 0 auto;
 }
 .onlineStaticsCondition, .passengerConditions {
-	width: 754px;
+	width: 730px;
 }
 .mileageCondition, .operatorCondition {
-	width: 835px;
+	/*width: 835px;*/
+	width: 730px;
 }
 .onlineStaticsCondition .title, .mileageCondition .title {
 	color: #69B2E9;
@@ -3169,14 +3172,17 @@ legend {
 }
 /*-------报表统计---*/
 #mileageWrapper, .mileageTitle {
-	width: 800px;
+	/*width: 800px;*/
+	width: 758px;
 }
 .mileageContent {
-	width: 800px;
+	/*width: 800px;*/
+	width: 730px;
 	height: 600px;
 }
 .mileageTable {
-	width: 755px;
+	/*width: 755px;*/
+	width: 720px;
 }
 .singleMileageContent {
 	width: 800px;
@@ -3599,7 +3605,7 @@ legend {
 	background-color: #f0f0f0;
 	text-align: center;
 	border: 1px solid #adaaaa;
-	z-index: 1003;
+	z-index: 1004;
 }
 .clearDataButtons {
 	background-color: #f0f0f0;
@@ -3770,8 +3776,8 @@ legend {
     top: -35px;
 }
 #notifyManageSave {
-	left: 700px;
-    position: relative;
+	float: right;
+	margin-right: 90px;
 }
 #fileUploadForm {
 	height: 86px;
@@ -3793,7 +3799,7 @@ legend {
 	border-radius: 4px;
 	border: 1px solid #b2c0c8;
 	background: url('/static/images/navIcon_showHide.png') no-repeat;
-	z-index: 1003;
+	z-index: 985;
 }
 #topShowIcon {
 	height: 16px;

@@ -421,7 +421,7 @@ function fn_infoWindowTextUpdate(obj_location) {
 	// 圆: 经纬度,半径 显示误差圈 //TODO
 	var obj_circleData = {'circle': {'longitude': n_clon, 'latitude': n_clat, 'radius': obj_location.locate_error}, 'region_shape': 0};
 	
-	dlf.fn_displayMapShape(obj_circleData, false, true);
+	dlf.fn_displayMapShape(obj_circleData, true, true);
 }
 
 

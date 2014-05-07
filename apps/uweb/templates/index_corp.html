@@ -161,10 +161,10 @@
 				<ul class="selfList">
 					<li>
 						<a title="" href="#" id="userName" class="j_welcome">欢迎您，
-						{% if len(name)<=4 %}
+						{% if len(name)<=8 %}
 							{{name.replace("<", "&lt;").replace(">", "&gt;")}}
 						{% else %}
-							{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
+							{{name[:8].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
 						{% end %}
 						</a>
 						<ul id="otherList" class="hide j_welcomeNavItem countUlIetm">

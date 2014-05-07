@@ -125,6 +125,11 @@ function fn_tableToExcel(table, name) {
 		str_tableHtml = '';
 	
 	obj_table.html($('#delayTable').html());
+	
+	$('#tempDelayTable .j_delayName').each(function(obj, index) {
+		$(this).html($(this).attr('title'));
+	});
+	// $('#' + table + ' .j_delayName').html($('#' + table + ' .j_delayName').attr('title'));
 	$('#tempDelayTable tbody tr td img').remove();
 	str_tableHtml = $('#tempDelayTable').html();
 	

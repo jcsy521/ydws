@@ -10,6 +10,7 @@
 * arr_submenuGroups: 移动至组的所有组名
 * obj_tracePolylines: 甩尾轨迹线
 * arr_tracePoints: 甩尾数据点
+* n_addMarkerInterval: 选中节点每隔50毫秒添加终端
 */
 var str_currentTid = '',
 	arr_autoCompleteData = [],
@@ -21,7 +22,8 @@ var str_currentTid = '',
 	obj_tracePolylines = {},
 	arr_tracePoints = [],
 	b_uncheckedAll = false,
-	b_checkedAll = false;
+	b_checkedAll = false,
+	n_addMarkerInterval = 0;
 	
 (function() {
 
@@ -154,6 +156,7 @@ function customMenu(node) {
 					}
 				}
 				$('#corpTree').jstree('check_node', $(obj).eq(0));
+				$("#showMusic").html('');
 				dlf.fn_initRecordSearch('eventSearch');
 			}
 		},
@@ -163,6 +166,7 @@ function customMenu(node) {
 				if ( b_trackStatus ) {	// 如果轨迹打开 要重启lastinfo
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,不操作lastinfo
 				}
+				$("#showMusic").html('');
 				dlf.fn_routeLineBindEvent();
 			}
 		},
@@ -782,10 +786,12 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		var n_treeNodeCheckLen = arr_treeNodeChecked.length;
 		
 		if ( n_treeNodeCheckLen > 0 ) {
-			for ( var i = 0; i < n_treeNodeCheckLen; i++ ) {
-				$('#corpTree').jstree('check_node', arr_treeNodeChecked[i]);
-			}
-			arr_treeNodeChecked = [];
+			setTimeout(function() {
+				for ( var i = 0; i < n_treeNodeCheckLen; i++ ) {
+					$('#corpTree').jstree('check_node', arr_treeNodeChecked[i]);
+				}
+				arr_treeNodeChecked = [];
+			}, 100);
 		}
 	}).bind('contextmenu.jstree', function(event, data) {	// 右键除当前定位器外其余都不被选中
 		var obj_current = fn_nodeCurrentNode(event.target),
@@ -852,12 +858,14 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			obj_tempCarsData = $('.j_carList').data('carsData'),
 			str_nodes = '';
 		
+		b_uncheckedAll = false;
+		b_checkedAll = false;
 		if ( n_terminalClass != -1 ) {	// 选中单个终端
 			var obj_current = obj_currentLi.children('.j_terminal')
 				str_tid = obj_current.attr('tid');
 
 			dlf.fn_switchCar(str_tid, obj_current, 'check_node'); // 登录成功
-						
+			b_checkedAll = true;			
 			//如果当前分组下可见的终端全部被选中
 			var obj_currentGroup = obj_currentLi.parent().parent(),
 				obj_groupVisibleTerminal = obj_currentGroup.children('ul').children('li:visible'),
@@ -884,37 +892,49 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				str_nodes = '#'+data.rslt.obj[0].id;
 			} else if ( n_corpClass != -1 ) {	// 选中整个集团
 				str_nodes = '.j_corp .j_group';
-			}	
+			}
 			setTimeout(function() {
 				var n_checkedLength = $(str_nodes+' .jstree-checked').length,
-					n_num = 0;
+					n_num = 0,
+					n_count = 0;
 				
-				$(str_nodes+' .jstree-checked').each(function() {
-					var obj_this = $(this),
-						obj_current = obj_this.children('.j_terminal'),
-						str_tid = obj_current.attr('tid'),
-						str_loginSt = obj_current.attr('clogin'),
-						obj_corpInfoStat = $('#terminalInfo .currentTNum').children(),
-						str_currentCorpInfoStat = obj_corpInfoStat.attr('id'),
-						obj_tempSelfmarker = obj_selfmarkers[str_tid];
+				/**
+				* KJJ add in 2014.05.07
+				* 每隔1s添加一个终端
+				*/
+				n_addMarkerInterval = setInterval(function() {
+					var obj_terminal = $($(str_nodes+' .jstree-checked')[n_count]);
 					
-					if ( str_currentCorpInfoStat == 'onlineCount' && str_loginSt != '1' ) {
-						return;
-					} else if ( str_currentCorpInfoStat == 'offlineCount' && str_loginSt != '0' ) {
-						return;
-					}
-					setTimeout(function(){
+					if ( obj_terminal ) {
+						var obj_current = obj_terminal.children('.j_terminal'),
+							str_tid = obj_current.attr('tid'),
+							str_loginSt = obj_current.attr('clogin'),
+							obj_corpInfoStat = $('#terminalInfo .currentTNum').children(),
+							str_currentCorpInfoStat = obj_corpInfoStat.attr('id'),
+							obj_tempSelfmarker = obj_selfmarkers[str_tid];
+						
+						if ( str_currentCorpInfoStat == 'onlineCount' && str_loginSt != '1' ) {
+							return;
+						} else if ( str_currentCorpInfoStat == 'offlineCount' && str_loginSt != '0' ) {
+							return;
+						}
 						if ( b_uncheckedAll ) {	// 如果已经取消选中，则停止循环
+							clearInterval(n_addMarkerInterval);
 							return;							
 						} else {
 							dlf.fn_updateInfoData(obj_tempCarsData[str_tid]);
 							n_num ++;
-							if ( n_num == n_checkedLength ) {
+							
+							if ( n_num == n_checkedLength ) {	// 全部执行完毕
 								b_checkedAll = true;
+								$('.j_body').data('intervalkey', false);
+								clearInterval(n_addMarkerInterval);
+								return;
 							}
 						}
-					}, 50);
-				});				
+						n_count ++;
+					}					
+				}, 50);
 				$('#loadingMsg').html('').hide();
 				dlf.fn_unLockScreen();
 			}, 400);			
@@ -931,68 +951,69 @@ function fn_uncheckedNode(obj) {
 		n_groupClass = str_class.indexOf('j_group'),
 		n_corpClass = str_class.indexOf('j_corp');
 	
-	b_uncheckedAll = true;
-	if ( !b_checkedAll ) {
-		
-	}
-	if ( n_terminalClass != -1 ) {	// 取消单个终端
-		var obj_current = obj_currentLi.children('.j_terminal'),
-			str_tid = obj_current.attr('tid'),
-			obj_marker = obj_selfmarkers[str_tid],
-			obj_polyline = obj_polylines[str_tid];
-		
-		if ( dlf.fn_isEmptyObj(obj_marker) ) {				
-			dlf.fn_clearMapComponent(obj_marker);
-			delete obj_selfmarkers[str_tid];
-			obj_actionTrack[str_tid].status = 'no';
-		}
-		if ( dlf.fn_isEmptyObj(obj_polyline) ) {
-			dlf.fn_clearMapComponent(obj_polyline);
-		}
-		obj_current.removeClass('j_currentCar jstree-clicked');
-		//如果当前分组下可见的终端全部被选中
-		var obj_currentGroup = obj_currentLi.parent().parent(),
-			obj_groupVisibleTerminal = obj_currentGroup.children('ul').children('li:visible'),
-			str_currentGroupId = obj_currentGroup.attr('id'),
-			b_groupAllCheck = true;
-		
-		obj_groupVisibleTerminal.each(function(e) {
-			if ( $(this).hasClass('jstree-checked') ) {
-				b_groupAllCheck = false;
-				return;
-			}
-		});
-		// 设置组为不选中状态
-		if ( b_groupAllCheck ) {
-			$('#corpTree').jstree('uncheck_node', '#'+str_currentGroupId);
-		}
-		
-		
-	} else if ( n_groupClass != -1 )  { //取消选中整个分组
-		var arr_nodeTerminsals = obj_currentLi.children('ul').children('li').children('.j_terminal');
+	b_uncheckedAll = true;	// 设置反选为true
+	clearInterval(n_addMarkerInterval);	// 反选时，先清空全选计时器，避免继续添加终端
+	// 延迟0.5s 清空地图
+	setTimeout(function() {
+		$('.j_body').data('intervalkey', false);
+		if ( n_terminalClass != -1 ) {	// 取消单个终端
+			var obj_current = obj_currentLi.children('.j_terminal'),
+				str_tid = obj_current.attr('tid'),
+				obj_marker = obj_selfmarkers[str_tid],
+				obj_polyline = obj_polylines[str_tid];
 			
-		for ( var i = 0; i< arr_nodeTerminsals.length; i++ ) { 
-			var obj_tempNodeTerminal = $(arr_nodeTerminsals[i]),
-				str_tempNodeTid = obj_tempNodeTerminal.attr('tid'),
-				obj_tempNodeMarker = obj_selfmarkers[str_tempNodeTid];
-			
-			obj_tempNodeTerminal.removeClass('j_currentCar jstree-clicked');
-			if ( dlf.fn_isEmptyObj(obj_tempNodeMarker) ) {
-				dlf.fn_clearMapComponent(obj_tempNodeMarker);
-				delete obj_selfmarkers[str_tempNodeTid];
-				obj_actionTrack[str_tempNodeTid].status = 'no';
+			if ( dlf.fn_isEmptyObj(obj_marker) ) {				
+				dlf.fn_clearMapComponent(obj_marker);
+				delete obj_selfmarkers[str_tid];
+				obj_actionTrack[str_tid].status = 'no';
 			}
+			if ( dlf.fn_isEmptyObj(obj_polyline) ) {
+				dlf.fn_clearMapComponent(obj_polyline);
+			}
+			obj_current.removeClass('j_currentCar jstree-clicked');
+			//如果当前分组下可见的终端全部被选中
+			var obj_currentGroup = obj_currentLi.parent().parent(),
+				obj_groupVisibleTerminal = obj_currentGroup.children('ul').children('li:visible'),
+				str_currentGroupId = obj_currentGroup.attr('id'),
+				b_groupAllCheck = true;
+			
+			obj_groupVisibleTerminal.each(function(e) {
+				if ( $(this).hasClass('jstree-checked') ) {
+					b_groupAllCheck = false;
+					return;
+				}
+			});
+			// 设置组为不选中状态
+			if ( b_groupAllCheck ) {
+				$('#corpTree').jstree('uncheck_node', '#'+str_currentGroupId);
+			}
+			
+			
+		} else if ( n_groupClass != -1 )  { //取消选中整个分组
+			var arr_nodeTerminsals = obj_currentLi.children('ul').children('li').children('.j_terminal');
+				
+			for ( var i = 0; i< arr_nodeTerminsals.length; i++ ) { 
+				var obj_tempNodeTerminal = $(arr_nodeTerminsals[i]),
+					str_tempNodeTid = obj_tempNodeTerminal.attr('tid'),
+					obj_tempNodeMarker = obj_selfmarkers[str_tempNodeTid];
+				
+				obj_tempNodeTerminal.removeClass('j_currentCar jstree-clicked');
+				if ( dlf.fn_isEmptyObj(obj_tempNodeMarker) ) {
+					dlf.fn_clearMapComponent(obj_tempNodeMarker);
+					delete obj_selfmarkers[str_tempNodeTid];
+					obj_actionTrack[str_tempNodeTid].status = 'no';
+				}
+			}
+		} else if ( n_corpClass != -1 ) {	// 取消选中整个集团
+			dlf.fn_clearMapComponent();
+			obj_selfmarkers = {};
+			for ( var param in obj_actionTrack ) {
+				obj_actionTrack[param] = {'status': 'no', 'interval': '', 'color': '', 'track': 0};
+			}
+			$('.j_carList .j_currentCar').removeClass('j_currentCar jstree-clicked');
+			// 关闭所有开启追踪
 		}
-	} else if ( n_corpClass != -1 ) {	// 取消选中整个集团
-		console.log('clear data');
-		dlf.fn_clearMapComponent();
-		obj_selfmarkers = {};
-		for ( var param in obj_actionTrack ) {
-			obj_actionTrack[param] = {'status': 'no', 'interval': '', 'color': '', 'track': 0};
-		}
-		$('.j_carList .j_currentCar').removeClass('j_currentCar jstree-clicked');
-		// 关闭所有开启追踪
-	}
+	}, 500);	
 }
 
 /**
@@ -1964,6 +1985,7 @@ function fn_createGroup(cid, str_newName, obj_rollBack, obj_newNode) {
 					dlf.fn_corpGetCarData();	// 重新加载树 2013.09.04
 					$('#corpTree').jstree('refresh',-1);
 				} else {
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					$.jstree.rollback(obj_rollBack);
 				}
 			}, 
@@ -2023,6 +2045,7 @@ function fn_renameGroup(gid, str_name, node) {
 				$('#corpTree').jstree('refresh',-1);
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
+				$.jstree.rollback(node);
 				return false;
 			}
 		}, 

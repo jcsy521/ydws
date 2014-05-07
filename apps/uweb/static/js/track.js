@@ -17,6 +17,7 @@ var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, b_trackMsgS
 window.dlf.fn_initTrack = function() {
 	var obj_trackHeader =  $('#trackHeader');
 	
+	$("#showMusic").html('');
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
 	dlf.fn_closeDialog(); // 关闭所有dialog
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
@@ -102,6 +103,7 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 			// $('.j_carList').removeData('carsData');
 			dlf.fn_getCarData('first');	// 重新请求lastinfo
 		} else {
+			dlf.fn_setMapPosition(false);
 			arr_infoPoint = [];
 			arr_tracePoints = [];
 			obj_oldData = {'gids': '', 'tids': '', 'n_gLen': 0};
@@ -419,9 +421,9 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 		arr_markers.push(obj_endMarker);
 		// str_html += '<thead><tr><td>事件</td><td class="delayCenterTd">时间(开始)</td><td class="delayCenterTd">位置</td></tr></thead>';
 		
-		str_html += '<tr><td><img src="../static/images/green_MarkerA.png" width="25px" />起点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_first.timestamp)+'</td><td class="delayCenterTd" title="'+ str_startName +'">'+ str_tempStartName +'</td></tr>';
+		str_html += '<tr><td><img src="../static/images/green_MarkerA.png" width="25px" />起点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_first.timestamp)+'</td><td class="delayCenterTd j_delayName" title="'+ str_startName +'">'+ str_tempStartName +'</td></tr>';
 		
-		str_html += '<tr><td><img src="../static/images/green_MarkerB.png" width="25px" />终点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_second.timestamp) +'</td><td class="delayCenterTd" title="'+ str_endName +'">'+ str_tempEndName +'</td></tr>';
+		str_html += '<tr><td><img src="../static/images/green_MarkerB.png" width="25px" />终点</td><td class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_second.timestamp) +'</td><td class="delayCenterTd j_delayName" title="'+ str_endName +'">'+ str_tempEndName +'</td></tr>';
 		
 		for ( var x = 2; x < n_delayLength; x++ ) {
 			var obj_point = arr_delayPoints[x],
@@ -431,7 +433,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 			
 			obj_tempMarker = dlf.fn_addMarker(obj_point, 'delay', 0, x);
 			
-			str_html += '<tr><td width="130px"><img src="../static/images/delay_Marker.png" width="25px" /><label>停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</label></td><td width="130px" class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_point.start_time) +'</td><td width="270px" class="delayCenterTd" title="'+ str_name +'">'+ str_tempEndName +'</td></tr>';
+			str_html += '<tr><td width="130px"><img src="../static/images/delay_Marker.png" width="25px" /><label>停留'+ dlf.fn_changeTimestampToString(obj_point.idle_time) +'</label></td><td width="130px" class="delayCenterTd">'+ dlf.fn_changeNumToDateString(obj_point.start_time) +'</td><td width="270px" class="delayCenterTd j_delayName" title="'+ str_name +'">'+ str_tempEndName +'</td></tr>';
 			arr_markers.push(obj_tempMarker);
 		}
 	}

@@ -465,7 +465,7 @@ $(function () {
 		n_windowWidth = $(window).width(),
 		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
 		n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 188 : n_windowWidth - 188,
-		n_mapHeight = n_windowHeight - 166,
+		n_mapHeight = n_windowHeight - 161,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = 0,
 		obj_track = $('#trackHeader'),
@@ -485,16 +485,12 @@ $(function () {
 		n_mapHeight = n_mapHeight - 10;
 	}
 	$('.mainBody').height(n_windowHeight);
-	$('#top, #main, #corpMain').css('width', n_windowWidth);
-	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight );	// 内容域的高度 左右栏高度
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	
 	if ( n_treeHeight < 270 ) {
 		n_treeHeight = 270;
 	}
 	obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
-	
-	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	if ( dlf.fn_userType() ) {	// 集团用户
 		n_trackLeft = ( obj_track.width() ) / 8;
@@ -506,6 +502,7 @@ $(function () {
 			n_alarmLeft = 623;
 			n_alarmIconLeft = 609;
 			n_topPanelLeft = 1024/2;
+			n_right = 775;
 		}
 		if ( n_mainHeight < 600 ) {
 			n_leftPanelTop = 300 + 123;
@@ -516,6 +513,10 @@ $(function () {
 			n_trackLeft = 90;
 		}
 	}
+	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
+	
+	$('#top, #main, #corpMain').css('width', n_windowWidth);
+	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight);	// 内容域的高度 左右栏高度
 	$('#topShowIcon').css('left', n_topPanelLeft);
 	$('#leftPanelShowIcon').css('top', n_leftPanelTop);
 	if ( n_windowWidth > 1510 ) {
@@ -566,7 +567,7 @@ $(function () {
 			}
 		}
 		// 除了对多个定位器操作外
-		if ( str_id != 'home' && str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'corpRegion' && str_id != 'region' && str_id != 'operatorData' ) {
+		if ( str_id != 'home' && str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'corpRegion' && str_id != 'region' && str_id != 'operatorData' && str_id != 'logout' ) {
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
@@ -596,6 +597,11 @@ $(function () {
 			if ( b_eventSearchStatus ) {
 				dlf.fn_setMapPosition(false);	// 还原地图
 			}
+		}
+		
+		// kjj add in 2014.05.07
+		if ( str_id == 'operatorData' || str_id == 'track' || str_id == 'eventSearch' || str_id == 'operator' || str_id == 'mileage' || str_id == 'passenger' || str_id == 'infoPush' || str_id == 'routeLine' || str_id == 'corpRegion' || str_id == 'region' ||  str_id == 'notifyManage_add' || str_id == 'notifyManage_search' ) {
+			$("#showMusic").html('');
 		}
 		switch (str_id) {
 			case 'home': // 主页
