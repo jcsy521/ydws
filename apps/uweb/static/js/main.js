@@ -567,7 +567,7 @@ $(function () {
 			}
 		}
 		// 除了对多个定位器操作外
-		if ( str_id != 'home' && str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'corpRegion' && str_id != 'region' && str_id != 'operatorData' && str_id != 'logout' ) {
+		if ( str_id != 'home' && str_id != 'personalData' && str_id != 'corpData' && str_id != 'changePwd' && str_id != 'statics' && str_id != 'mileage' && str_id != 'operator' && str_id != 'passenger' && str_id != 'infoPush' && str_id != 'routeLine' && str_id != 'eventSearch' && str_id != 'corpRegion' && str_id != 'region' && str_id != 'operatorData' && str_id != 'logout' && str_id != 'help' ) {
 			if ( $('.j_terminal').length <= 0 ) {
 				dlf.fn_jNotifyMessage('当前用户没有可用终端，不能操作', 'message', false, 5000); // 查询状态不正确,错误提示
 				return;
@@ -1228,8 +1228,7 @@ $(function () {
 			$('#topShowIcon').css('top', '36px').addClass('topShowIcon_hover');
 		},
 		function () {
-			$('#top').show();
-			dlf.resetPanelDisplay();
+			dlf.resetPanelDisplay(1);
 			$('#topShowIcon').css('top', '158px').removeClass('topShowIcon_hover');		
 		}
 	);
@@ -1241,7 +1240,7 @@ $(function () {
 			$('#leftPanelShowIcon').css('left', '0px').addClass('leftPanelShowIcon_hover');
 		},
 		function () {
-			dlf.resetPanelDisplay(true);
+			dlf.resetPanelDisplay(0);
 			$('#leftPanelShowIcon').css('left', '247px').removeClass('leftPanelShowIcon_hover');
 		}
 	);

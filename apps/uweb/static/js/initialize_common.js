@@ -2291,7 +2291,7 @@ window.dlf.fn_secondNavValid = function() {
 * 重新调整页面显示区域
 */
 
-window.dlf.resetPanelDisplay = function(b_showLeft) {
+window.dlf.resetPanelDisplay = function(n_type) {
 	setTimeout (function () {
 		
 		// 调整页面大小
@@ -2304,10 +2304,13 @@ window.dlf.resetPanelDisplay = function(b_showLeft) {
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');
 	
-		if ( b_showLeft ) {
+		if ( n_type == 0 ) {
 			b_pLeftSt = false;
 			b_corpLeftSt = false;
 			$('#left, #corpLeft').show();
+		} else if ( n_type == 1 ) {
+			b_topPanelSt = false;
+			$('#top').show();
 		}
 		if ( b_topPanelSt ) {
 			n_windowHeight += 123;
@@ -2405,8 +2408,7 @@ window.dlf.resetPanelDisplay = function(b_showLeft) {
 				n_delayIconLeft = n_delayLeft - 17,
 				n_alarmLeft = n_tempWindowWidth - 400,
 				n_alarmIconLeft = n_alarmLeft - 17;
-			
-			
+
 			if ( n_tempWindowWidth < 1024 ) {
 				n_trackLeft = 40;
 				n_delayLeft = 474;

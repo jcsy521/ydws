@@ -478,6 +478,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	if (str_tid == '' || str_tid == 'undefined' || str_tid == null ) { 
 		str_tid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 	}
+	address = '';
 	if ( address == '' || address == null ) {
 		if ( str_clon == 0 || str_clat == 0 ) {
 			address = '-';
@@ -647,8 +648,11 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			
 			// 左侧 位置描述填充
 			if ( str_currentTid == tid ) {
-				dlf.fn_createMapInfoWindow(obj_tempCarData, str_type);
+				/*dlf.fn_createMapInfoWindow(obj_tempCarData, str_type);*/
 				obj_selfmarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+				setTimeout(function() {
+					$('.lblAddress').html(str_result).attr('title', str_result);
+				}, 500);
 				$('#address').attr('html', str_result);
 			}
 		}
@@ -672,7 +676,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 	} else if ( str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == "draw" ) {
 		var obj_trackLocation = '';
 		
-		$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_result);	// 修改右侧列表位置描述
+		$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_result).attr('title', str_result);	// 修改右侧列表位置描述
 		if ( n_index >= 0 ) {
 			arr_dataArr[n_index].name = str_result;
 			obj_trackLocation = arr_dataArr[n_index];
@@ -733,17 +737,50 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	if ( str_type == 'event' ) {
 		dlf.fn_ShowOrHideMiniMap(false);	// 如果是告警的获取位置，关闭小地图
 	}
-	gc.getLocation(obj_point, function(result){
-		str_result = result.address;
-		var arr_surroundingPois = result.surroundingPois;
-		
-		if ( arr_surroundingPois.length > 0 ) {
-			str_result += '，' + arr_surroundingPois[0].title + '附近';
+	jQuery.ajax({
+		type : 'get',
+		timeout: 14000,
+		url : 'http://api.map.baidu.com/geocoder/v2/?ak=DD8efee89860f59163512b729edbb4b1&location='+ n_lat +','+ n_lon +'&output=json&pois=10',
+		dataType : 'jsonp',
+		contentType : 'application/jsonp; charset=utf-8',
+		success : function(successData) {
+			var n_status = successData.status,
+				obj_result = successData.result,
+				str_formattedAddress = '',
+				arr_pois = [],
+				n_poiLength = 0,
+				n_minDistance = 0,
+				str_name = null;
+				
+			if ( n_status == 0 ) {
+				str_result += obj_result.formatted_address;
+				
+				arr_pois = obj_result.pois;
+				n_poiLength = arr_pois.length;
+				
+				if ( n_poiLength > 0 ) {
+					n_minDistance = arr_pois[0].distance;
+					str_name = arr_pois[0].name;
+					
+					// 排序获取distance最小的name
+					for ( var i = 1; i < n_poiLength; i++ ) {
+						var obj_poi = arr_pois[i],
+							n_distance = obj_poi.distance;
+						
+						if ( n_distance - n_minDistance < 0 ) {
+							n_minDistance = n_distance;
+							str_name = obj_poi.name;
+						}
+					}
+					str_result += '，' + str_name + '附近';
+				}
+				dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
+			}
+		},
+        error : function(xyResult) {
+			return;
 		}
-		
-		dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
 	});
-	return str_result;
 }
 
 /**

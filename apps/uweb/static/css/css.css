@@ -1598,7 +1598,7 @@ body {
 	min-height: 120px;
 	max-height: 345px;
 	overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 .alarmTable li {
 	height: 29px;
@@ -1615,7 +1615,7 @@ body {
 	min-height: 120px;
 	max-height: 345px;
 	overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 .delayTable tr {
 	width: 520px;
@@ -3171,9 +3171,12 @@ legend {
 	height: 30px;
 }
 /*-------报表统计---*/
-#mileageWrapper, .mileageTitle {
+#mileageWrapper {
 	/*width: 800px;*/
 	width: 758px;
+}
+.mileageTitle {
+	width: 800px;
 }
 .mileageContent {
 	/*width: 800px;*/

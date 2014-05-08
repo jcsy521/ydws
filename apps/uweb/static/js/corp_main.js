@@ -702,8 +702,12 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					str_tid = $.trim(str_checkedNode.substr(str_checkedNode.indexOf('_') + 1));
 					
 					
-					var	obj_car = obj_tempCarsData[str_tid],
-						obj_trace = obj_car.trace_info,	// 甩尾数据
+					var	obj_car = obj_tempCarsData[str_tid];
+					
+					if ( dlf.fn_isEmptyObj( obj_car )) {
+						return;
+					}
+					var obj_trace = obj_car.trace_info,	// 甩尾数据
 						obj_track = obj_car.track_info,	// 开启追踪点数据
 						n_enClon = obj_car.clongitude,
 						n_enClat = obj_car.clatitude,
@@ -903,11 +907,11 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				* 每隔1s添加一个终端
 				*/
 				n_addMarkerInterval = setInterval(function() {
-					var obj_terminal = $($(str_nodes+' .jstree-checked')[n_count]);
+					var obj_terminal = $($(str_nodes+' .jstree-checked')[n_count]),
+						obj_current = obj_terminal.children('.j_terminal');
 					
-					if ( obj_terminal ) {
-						var obj_current = obj_terminal.children('.j_terminal'),
-							str_tid = obj_current.attr('tid'),
+					if ( obj_current.length > 0 ) {
+						var str_tid = obj_current.attr('tid'),
 							str_loginSt = obj_current.attr('clogin'),
 							obj_corpInfoStat = $('#terminalInfo .currentTNum').children(),
 							str_currentCorpInfoStat = obj_corpInfoStat.attr('id'),
@@ -933,7 +937,9 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 							}
 						}
 						n_count ++;
-					}					
+					} else {
+						clearInterval(n_addMarkerInterval);
+					}
 				}, 50);
 				$('#loadingMsg').html('').hide();
 				dlf.fn_unLockScreen();
