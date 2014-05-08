@@ -101,6 +101,18 @@ def check_zs_phone(phone, db):
         else:
             return False
 
+def check_ajt_phone(phone, db):
+    """Check if the phone is valid.
+
+    @return True: it's safe;
+            False: unsafe
+    """
+
+    white_list = db.get("SELECT id FROM T_AJT_WHITELIST where mobile = %s LIMIT 1", phone)
+    if white_list:
+        return True
+    else:
+        return False
 
 def check_filename(filename):
     """Check if the filename contains illegal character

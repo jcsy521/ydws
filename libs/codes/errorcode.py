@@ -43,6 +43,7 @@ class ErrorCode(object):
     USER_NOT_EXIST = 223
     TERMINAL_EXIST = 224
     TERMINAL_BINDED = 225
+    MOBILE_NOT_ORDERED_AJT = 226
 
     LOCATION_NAME_NONE = 300
     LOCATION_FAILED = 301
@@ -124,6 +125,7 @@ class ErrorCode(object):
         REGION_NOT_EXISTED:            u"对不起，该围栏已经不存在。",
         TERMINAL_NOT_ORDERED:          u"对不起，该号码尚未绑定定位器。",
         MOBILE_NOT_ORDERED:            u"%s不是移动卫士白名单号码，请联系客服。",
+        MOBILE_NOT_ORDERED_AJT:        u"%s不是安捷通白名单号码，请联系客服。",
         TERMINAL_NOT_EXISTED:          u"对不起，该终端不存在。",
         LOCATION_NAME_NONE:            u"无法解析经纬度对应的地址",
         LOCATION_FAILED:               u"定位不成功",
