@@ -269,6 +269,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 			marker.setTop(true);
 		}
 		marker.setOffset(new BMap.Size(-1, -14));
+		// kjj add in 2014.05.09 为了逆地址编码
+		dlf.fn_tipContents(obj_location, str_iconType, n_index, true)
 	} else if ( str_iconType == 'eventSurround' ) {
 		marker.setLabel(label);
 		marker.setTitle(str_alias);
@@ -406,22 +408,26 @@ window.dlf.fn_createMapInfoWindow = function(obj_location, str_type, n_pointInde
 	//注销之前的窗口事件
 	obj_mapInfoWindow.removeEventListener('open', fn_infoWindowTextUpdate);
 	//重新绑定吹出框事件
-	obj_mapInfoWindow.addEventListener('open', fn_infoWindowTextUpdate(obj_location));
+	obj_mapInfoWindow.addEventListener('open', fn_infoWindowTextUpdate(obj_location, str_type));
 }
 
 /**
 * 吹出框打开方法的函数
 */
-function fn_infoWindowTextUpdate(obj_location) { 
+function fn_infoWindowTextUpdate(obj_location, str_type) { 
 	var n_clon = obj_location.clongitude,
-		n_clat = obj_location.clatitude;
+		n_clat = obj_location.clatitude,
+		b_viewport = true;
 	
 	dlf.fn_loadBaiduShare();
 	dlf.fn_updateOpenTrackStatusColor(obj_location.tid);
 	// 圆: 经纬度,半径 显示误差圈 //TODO
 	var obj_circleData = {'circle': {'longitude': n_clon, 'latitude': n_clat, 'radius': obj_location.locate_error}, 'region_shape': 0};
 	
-	dlf.fn_displayMapShape(obj_circleData, true, true);
+	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' ) {
+		b_viewport = false;
+	}
+	dlf.fn_displayMapShape(obj_circleData, b_viewport, true);
 }
 
 
@@ -430,8 +436,9 @@ function fn_infoWindowTextUpdate(obj_location) {
 * obj_location: 位置信息
 * str_iconType: marker类型
 * n_index: 轨迹索引
+* b_isGencoder: 是否进行逆地址编码
 */
-window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
+window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder) {
 	var	address = obj_location.name, 
 		str_tempAddress = address,
 		speed = obj_location.speed,
@@ -478,7 +485,6 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 	if (str_tid == '' || str_tid == 'undefined' || str_tid == null ) { 
 		str_tid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 	}
-	address = '';
 	if ( address == '' || address == null ) {
 		if ( str_clon == 0 || str_clat == 0 ) {
 			address = '-';
@@ -505,8 +511,10 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index) {
 				}
 				address = '正在获取位置描述' + WAITIMG; 
 				dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, 'actiontrack');
-				
 			} else {
+				if ( b_isGencoder ) {
+					dlf.fn_getAddressByLngLat(str_clon, str_clat, str_tid, str_iconType, n_index);
+				}
 				address = '<a href="#" title="获取位置" onclick="dlf.fn_getAddressByLngLat('+str_clon+', '+str_clat+',\''+str_tid+'\',\''+ str_iconType +'\','+ n_index +');">获取位置</a>'; 
 			}
 		}
@@ -648,7 +656,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			
 			// 左侧 位置描述填充
 			if ( str_currentTid == tid ) {
-				/*dlf.fn_createMapInfoWindow(obj_tempCarData, str_type);*/
+				dlf.fn_createMapInfoWindow(obj_tempCarData, str_type);
 				obj_selfmarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 				setTimeout(function() {
 					$('.lblAddress').html(str_result).attr('title', str_result);
@@ -669,14 +677,15 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		}
 	} else if ( str_type == 'alarmInfo' ) {
 		$('.j_alarmTable').data('markers')[n_index].name = str_result;
-		$('.clickedBg').children('td').eq(2).attr('html', str_result);
-			//todo update address
-		dlf.fn_createMapInfoWindow(obj_tempCarData, str_type, n_index);
-		obj_selfmarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
-	} else if ( str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == "draw" ) {
-		var obj_trackLocation = '';
 		
-		$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_result).attr('title', str_result);	// 修改右侧列表位置描述
+		$('.clickedBg').children('td').eq(2).attr('html', str_result);
+		dlf.fn_createMapInfoWindow($('.j_alarmTable').data('markers')[n_index], str_type, n_index);
+		$('.j_alarmTable').data('alarmMarker').openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+	} else if ( str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == "draw" ) {
+		var obj_trackLocation = '',
+			str_tempResult = str_result.length > 20 ? str_result.substr(0, 20) + '...' : str_result;
+		
+		$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_tempResult).attr('title', str_result);	// 修改右侧列表位置描述
 		if ( n_index >= 0 ) {
 			arr_dataArr[n_index].name = str_result;
 			obj_trackLocation = arr_dataArr[n_index];
@@ -690,7 +699,6 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 				$('#trackHeader').data('delayPoints', arr_delayPoints);
 			}
 		}
-		
 		if ( str_type == 'delay' && dlf.fn_userType() ) {	// 如果是集团的停留点的话
 			obj_trackMarker = $('.delayTable').data('markers')[n_index];
 		} else if ( str_type == 'draw' ) {
@@ -700,11 +708,11 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		} else if ( str_type == 'end' ) {
 			obj_trackMarker = $('.delayTable').data('markers')[1];
 		}
-		// 根据不同的marker对象,填充数据
+		/* 根据不同的marker对象,填充数据
 		if ( obj_trackMarker ) {
 			dlf.fn_createMapInfoWindow(obj_trackLocation, str_type, n_index);
 			obj_trackMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
-		}
+		}*/
 	} else {
 		var obj_carDatas = $('.j_carList').data('carsData'),
 				obj_tempCarData = obj_carDatas[tid];
@@ -965,8 +973,9 @@ window.dlf.fn_getShapeData = function() {
 
 /**
 * 显示图形
+* obj_centerPointer: 多边形围栏的告警点
 */
-window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError) {
+window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError, obj_centerPointer) {
 	var shapeOptions = {//样式
 			strokeColor: '#5ca0ff',    //边线颜色。
 			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
@@ -990,6 +999,9 @@ window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateErro
 			arr_polygonDatas = obj_shpaeData.polygon,
 			n_lenPolygon = arr_polygonDatas.length;
 		
+		if ( obj_centerPointer ) {
+			arr_tempPolygonData.push(obj_centerPointer);
+		}
 		for ( var i = 0; i < n_lenPolygon; i++) {
 			var obj_temPolygonPts = arr_polygonDatas[i],
 				n_lon = obj_temPolygonPts.longitude,

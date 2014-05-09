@@ -1753,7 +1753,6 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					//str_currentTid = obj_data.tmobile;
 					b_createTerminal = true;	// 标记 是新增定位器操作 以便switchcar到新增车辆
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-					//todoing......................
 					str_currentTid = obj_data.tmobile;
 					dlf.fn_corpGetCarData();
 					dlf.fn_jNotifyMessage('创建成功，请确保定位器已开机。', 'message', false, 3000);
@@ -1877,7 +1876,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						if ( str_name.length > 4 ) {
 							str_newName = str_name.substr(0,4)+'...';
 						}
-						$('#spanWelcome').html('欢迎您，'+ dlf.fn_encode(str_newName)).attr('title', str_name);
+						$('#userName').html('欢迎您，'+ dlf.fn_encode(str_newName)).attr('title', str_name);
 					}
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						if ( param == 'cnum' ) {
@@ -1980,7 +1979,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 							obj_current.attr('icon_type', str_val);
 							if ( obj_currentMarker ) {
 								// 设置marker的icon
-								fn_setMarkerTraceIcon(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt, obj_currentMarker, obj_carInfo.timestamp);	
+								dlf.fn_setMarkerTraceIcon(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt, obj_currentMarker, obj_carInfo.timestamp);	
 								/*if ( b_mapType ) {
 									obj_icon = new BMap.Icon(str_iconUrl, new BMap.Size(34, 34));
 									if ( b_flag ) {
@@ -2303,7 +2302,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');
-	
+		
 		if ( n_type == 0 ) {
 			b_pLeftSt = false;
 			b_corpLeftSt = false;
@@ -2353,7 +2352,6 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		} else {
 			$('#top, #main, #corpMain').css('width', n_windowWidth);			
 		}
-
 		if ( n_treeHeight < 270 ) {
 			n_treeHeight = 270;
 		}

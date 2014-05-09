@@ -13,7 +13,7 @@ function fn_exportExcel(str_excelName) {
 	
 	if( navigator.appName == "Microsoft Internet Explorer" ) {
 		obj_delayLink.unbind('click').click(function() {
-			fn_tableToExcelFromIE('delayTable',null, str_excelName);
+			fn_tableToExcelFromIE('tempDelayTable',null, str_excelName);
 		});		
 	} else {
 		fn_tableToExcel('tempDelayTable', '停留点列表');
@@ -108,7 +108,7 @@ function doFileExport(inName, inStr) {
 	}
 	xlsWin.document.write(inStr); 
 	xlsWin.document.close(); 
-	xlsWin.document.execCommand('Saveas', true, inName); 
+	xlsWin.document.execCommand('saveAs', true, inName); 
 	xlsWin.close(); 
 }
 
@@ -121,17 +121,7 @@ function fn_tableToExcel(table, name) {
     , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
     , format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
 	
-	var obj_table = $('#' + table),
-		str_tableHtml = '';
-	
-	obj_table.html($('#delayTable').html());
-	
-	$('#tempDelayTable .j_delayName').each(function(obj, index) {
-		$(this).html($(this).attr('title'));
-	});
-	// $('#' + table + ' .j_delayName').html($('#' + table + ' .j_delayName').attr('title'));
-	$('#tempDelayTable tbody tr td img').remove();
-	str_tableHtml = $('#tempDelayTable').html();
+	var str_tableHtml = $('#tempDelayTable').html();
 	
 	var ctx = {worksheet: name || 'Worksheet', table: str_tableHtml},
 		str_url = uri + base64(format(template, ctx));

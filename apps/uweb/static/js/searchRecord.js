@@ -747,8 +747,8 @@ window.dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) 
 					obj_regionShape = obj_regionShape1;
 					$('.j_alarmTable').data('region', obj_regionShape1);
 				} else {
-					dlf.fn_displayMapShape(obj_res, false);
-					dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);
+					dlf.fn_displayMapShape(obj_res, true, false, obj_centerPointer);
+					//dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 15);
 				}	
 			} else if ( data.status == 201 ) {	// 业务变更
 				dlf.fn_showBusinessTip();

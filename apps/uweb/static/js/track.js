@@ -18,6 +18,7 @@ window.dlf.fn_initTrack = function() {
 	var obj_trackHeader =  $('#trackHeader');
 	
 	$("#showMusic").html('');
+	$('.j_alarm').hide();
 	dlf.fn_clearNavStatus('eventSearch');  // 移除告警导航操作中的样式
 	dlf.fn_closeDialog(); // 关闭所有dialog
 	dlf.fn_initTrackDatepicker(); // 初始化时间控件
@@ -220,10 +221,31 @@ function fn_trackQuery() {
 				str_tempMonth = str_tempMonth < 10 ? '0' + str_tempMonth : str_tempMonth;
 				str_tempDay = str_tempDay < 10 ? '0' + str_tempDay : str_tempDay;
 				
-				str_excelName = '停留点列表-' + ( str_tempYear + '' + str_tempMonth + '' + str_tempDay) + '.xls';
+				str_excelName = '停留点列表-' + ( str_tempYear + '' + str_tempMonth + '' + str_tempDay);
 				$('#exportDelay').attr('download', str_excelName).click(function() {
-					fn_exportExcel(str_excelName);
-				});		
+					var obj_table = $('#tempDelayTable'),
+						str_tableHtml = '',
+						b_isNullName = false;
+					
+					obj_table.html($('#delayTable').html());
+					
+					$('#tempDelayTable .j_delayName').each(function(obj, index) {
+						var str_title = $(this).attr('title');
+						
+						$(this).html(str_title);
+						if ( str_title == '' ) {
+							b_isNullName = true;
+						}
+					});
+					$('#tempDelayTable tbody tr td img').remove();
+					
+					if ( b_isNullName ) {
+						dlf.fn_jNotifyMessage('正在获取数据，请稍等。', 'message', false, 3000);
+						return;
+					} else {
+						fn_exportExcel(str_excelName);
+					}
+				});
 				//$('#exportDelay').attr('href', TRACKDOWNLOAD_URL + '?hash_=' + str_downloadHash);
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 				for ( var x = 0; x < locLength; x++ ) {

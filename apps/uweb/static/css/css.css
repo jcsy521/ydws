@@ -279,7 +279,7 @@ body {
 	word-break: normal; 
 }
 #cInfo tr {
-	line-height: 19px;
+	line-height: 16px;
 	width: 210px;
 	vertical-align: top;
 }
@@ -2604,8 +2604,8 @@ body {
 }
 .corpTree {
 	width: 247px;
-	height: 340px;
-	min-height: 340px;
+	height: 288px;
+	min-height: 288px;
 	overflow-y: auto;
 }
 .j_corp>a {
@@ -2675,7 +2675,7 @@ body {
 	background-color: #fefdfd;
 }
 .corpLeftTree {
-	min-height: 320px;
+	min-height: 300px;
 	max-height: 580px;
 }
 .loadTree {
@@ -3700,7 +3700,6 @@ legend {
 #serviceHotline {
 	color: #17557c;
 	padding-left: 20px;
-	height: 30px;
 }
 #smsOwerMobile {
 	height: 18px;

@@ -9,6 +9,7 @@ window.dlf.fn_initRegion = function() {
 		obj_regionAddWapper = $('#regionCreateWrapper'),
 		b_mapType = dlf.fn_isBMap();
 	
+	$('.j_alarm').hide();
 	dlf.fn_dialogPosition(str_region);	// 设置dialog的位置并显示
 	dlf.fn_mapRightClickFun(); //清除地图画围栏事件及状态 
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器

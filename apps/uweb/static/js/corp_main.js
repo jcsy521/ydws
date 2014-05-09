@@ -21,8 +21,8 @@ var str_currentTid = '',
 	arr_submenuGroups = [],
 	obj_tracePolylines = {},
 	arr_tracePoints = [],
-	b_uncheckedAll = false,
-	b_checkedAll = false,
+	b_uncheckedAll = true,
+	b_checkedAll = true,
 	n_addMarkerInterval = 0;
 	
 (function() {
@@ -704,7 +704,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					
 					var	obj_car = obj_tempCarsData[str_tid];
 					
-					if ( dlf.fn_isEmptyObj( obj_car )) {
+					if ( !dlf.fn_isEmptyObj( obj_car )) {
 						return;
 					}
 					var obj_trace = obj_car.trace_info,	// 甩尾数据
@@ -859,6 +859,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			n_terminalClass = str_class.indexOf('j_leafNode'),
 			n_groupClass = str_class.indexOf('j_group'),
 			n_corpClass = str_class.indexOf('j_corp'),
+			b_trackStatus = $('#trackHeader').is(':visible'),
 			obj_tempCarsData = $('.j_carList').data('carsData'),
 			str_nodes = '';
 		
@@ -926,6 +927,10 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 							clearInterval(n_addMarkerInterval);
 							return;							
 						} else {
+							if ( b_trackStatus ) {
+								clearInterval(n_addMarkerInterval);
+								return;	
+							}
 							dlf.fn_updateInfoData(obj_tempCarsData[str_tid]);
 							n_num ++;
 							
@@ -1225,7 +1230,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						}
 						str_html += '<li class="j_group '+ str_groupOpenClass +'" id="groupNode_'+ str_groupId +'"><a href="#" class="groupNode" groupId="'+ str_groupId +'" title="'+ str_groupName +'" id="group_'+ str_groupId +'">'+ str_tempGroupName +'</a>';
 						
-						if ( dlf.fn_isEmptyObj(obj_trackers) ) {	// 如果没有终端返回
+						if ( dlf.fn_isEmptyObj(obj_trackers) ) {	// 如果有终端返回
 							str_html += '<ul>';
 							var str_tempData = '';
 							
@@ -1391,7 +1396,6 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				if ( str_resDataType ==  3 ) { // 如果数据类型变化是 3 ,前台自已判断一次是否要重新加载树
 					b_isDifferentData = fn_lastinfoCompare(obj_newData);
 				}
-				
 				if ( b_isDifferentData ) {	// lastinfo 与当前树节点对比 是否需要重新加载树节点
 					/**
 					* 判断车辆是否选中
@@ -1549,7 +1553,7 @@ function fn_updateAlarmList(arr_alarm) {
 			n_lng = obj_alarm.clongitude
 			n_lat = obj_alarm.clatitude,
 			obj_centerPointer = dlf.fn_createMapPoint(n_lng, n_lat),
-			obj_marker = null,
+			obj_marker = obj_this.data('marker'),
 			obj_regionShape = null;
 		
 		// 清除地图上告警的图层
@@ -1591,10 +1595,9 @@ function fn_updateAlarmList(arr_alarm) {
 		
 		if ( dlf.fn_isBMap() ) {
 			//obj_marker.selfInfoWindow.open(mapObj, obj_position);
-			
 			//obj_marker.openInfoWindow(new BMap.InfoWindow(dlf.fn_tipContents(obj_alarm, 'alarmInfo')));
-			dlf.fn_createMapInfoWindow(obj_alarm, 'alarmInfo');
-			obj_marker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+			dlf.fn_createMapInfoWindow(obj_alarm, 'alarmInfo', n_index);
+			obj_marker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框	
 		} else {
 			// todo gaode.???
 			//obj_marker.openInfoWindow(obj_marker.selfInfoWindow);
@@ -1828,7 +1831,7 @@ window.dlf.fn_updateTerminalLogin = function(obj_this) {
 		str_imgUrl = '',
 		str_color = '',
 		obj_ins = obj_this.children('ins[class=jstree-icon]');	// todo
-	
+
 	if ( str_login == LOGINOUT ) {
 		// str_imgUrl = 'offline.png';
 		str_color = 'gray';

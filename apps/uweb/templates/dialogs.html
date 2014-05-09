@@ -1151,10 +1151,12 @@
 							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="9" title="断电" />
 							<label class="x_label" title="断电">断电</label>
 						</li>
-						<!--<li>
+						{% if user_type == 'enterprise' %}
+						<li>
 							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="10" title="停留" />
 							<label class="x_label" title="停留">停留</label>
-						</li>-->
+						</li>
+						{% end %}
 					</ul>
 				</div>
 			</div>
