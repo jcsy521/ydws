@@ -288,6 +288,7 @@ dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_curr
 		myIcon.setImageOffset(new BMap.Size(0, 0));		
 	}
 	obj_currentMarker.setIcon(myIcon);	// 设置方向角图片
+	return obj_currentMarker;
 }
 
 /**
@@ -305,10 +306,12 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt, b_
 		b_isCar = true;
 	} else if ( n_iconType == 1 ) {	// 摩托车
 		str_tempImgUrl = 'moto';
+		b_isCar = true;
 	} else if ( n_iconType == 2 ) {	// 人
 		str_tempImgUrl = 'person';
 	} else if ( n_iconType == 3 ) {	// 图标
 		str_tempImgUrl = 'default';
+		b_isCar = true;
 	} else {
 		str_tempImgUrl = 27; // n_degree;
 		str_dir = BASEDEGREEIMGURL;

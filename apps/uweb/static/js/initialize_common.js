@@ -1977,9 +1977,10 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 								obj_icon = null;
 							
 							obj_current.attr('icon_type', str_val);
+							obj_carInfo.icon_type = str_val;
 							if ( obj_currentMarker ) {
 								// 设置marker的icon
-								dlf.fn_setMarkerTraceIcon(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt, obj_currentMarker, obj_carInfo.timestamp);	
+								obj_selfmarkers[str_tid] = dlf.fn_setMarkerTraceIcon(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt, obj_currentMarker, obj_carInfo.timestamp);	
 								/*if ( b_mapType ) {
 									obj_icon = new BMap.Icon(str_iconUrl, new BMap.Size(34, 34));
 									if ( b_flag ) {
@@ -1991,7 +1992,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 								}
 								obj_currentMarker.setIcon(obj_icon);*/
 								
-								obj_selfmarkers[str_tid] = obj_currentMarker;
+								// obj_selfmarkers[str_tid] = obj_currentMarker;
 							}
 							dlf.fn_updateTerminalLogin(obj_current);	
 							$('#corp_' + param ).attr('t_val', str_val);
@@ -2352,8 +2353,8 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		} else {
 			$('#top, #main, #corpMain').css('width', n_windowWidth);			
 		}
-		if ( n_treeHeight < 270 ) {
-			n_treeHeight = 270;
+		if ( n_treeHeight < 255 ) {
+			n_treeHeight = 255;
 		}
 		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 		

@@ -635,7 +635,7 @@ body {
 }
 .wrapper {
 	height: 210px;
-	left: 38%;
+	/*left: 38%;*/
 	width: 448px;
 	position: absolute;
 	top: 20%;

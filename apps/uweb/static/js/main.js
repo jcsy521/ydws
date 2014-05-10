@@ -488,8 +488,8 @@ $(function () {
 		$('.mainBody').height(n_windowHeight);
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 		
-		if ( n_treeHeight < 270 ) {
-			n_treeHeight = 270;
+		if ( n_treeHeight < 255 ) {
+			n_treeHeight = 255;
 		}
 		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 		
