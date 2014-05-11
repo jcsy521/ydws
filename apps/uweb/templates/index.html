@@ -77,30 +77,30 @@
 		<div id="right">
 			<div id="navi">
 				<ul class="menu">
-					<li><a href="#" id="realtime" class="realtime j_click"></a></li>
-					<li><a href="#" id="track" class="track j_click"></a></li>
-					<li><a href="#" id="eventSearch" class="eventSearch j_click"></a></li>
-					<li><a href="#" id="region" class="region j_click"></a></li>
-					<li><a href="#" id="defend" class="defend j_click"></a></li>
+					<li><a href="#" id="realtime" class="realtime j_click">实时定位</a></li>
+					<li><a href="#" id="track" class="track j_click">轨迹查询</a></li>
+					<li><a href="#" id="eventSearch" class="eventSearch j_click">告警查询</a></li>
+					<li><a href="#" id="region" class="region j_click">电子围栏</a></li>
+					<li><a href="#" id="defend" class="defend j_click">设防/撤防</a></li>
 					<!--<li><a href="#" id="terminal" class="terminal j_click"></a></li>
 					<li><a href="#" id="smsOption" class="smsOption j_click"></a></li>-->
 					<li>
-						<a href="#" id="userProfileManage" class="userProfileManage j_userProfileManage"></a>
+						<a href="#" id="userProfileManage" class="userProfileManage j_userProfileManage">设置</a>
 						<ul id="userProfileManageList" class="hide j_userProfileManageNavItem countUlIetm">
-							<li><a href="#" id="terminal" class="terminal j_click"></a></li>
-							<li><a href="#" id="smsOption" class="corpSMSOption j_click"></a></li>
+							<li><a href="#" id="terminal" class="terminal j_click">定位器设置</a></li>
+							<li><a href="#" id="smsOption" class="corpSMSOption j_click">短信设置</a></li>
 							<li>
-								<a href="#" id="personalData" class="j_click"></a>
+								<a href="#" id="personalData" class="j_click">个人资料</a>
 							</li>
 							<li>
-								<a href="#" id="changePwd" class="j_click"></a>
+								<a href="#" id="changePwd" class="j_click">修改密码</a>
 							</li>
 						</ul>
 					</li>
 				</ul>				
 				<ul class="selfList">
 					<li>
-						<a title="" href="#" id="userName" class="j_welcome">欢迎您，
+						<a title="" href="#" id="userName" title="{{name}}" class="j_welcome">欢迎您，
 						{% if len(name)<=4 %}
 							{{name.replace("<", "&lt;").replace(">", "&gt;")}}
 						{% else %}

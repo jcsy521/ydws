@@ -92,38 +92,38 @@
 					<li><a href="#" id="track" class="track j_click"></a></li>
 					<li><a href="#" id="defend" class="defend j_click"></a></li>
 					<li><a href="#" id="corpTerminal" class="corpTerminal j_click"></a></li>-->
-					<li><a href="#" id="home" class="homeHover home j_click"></a></li>
-					<li><a href="#" id="corpRegion" class="region j_click"></a></li>
-					<li><a href="#" id="eventSearch" class="eventSearch j_click"></a></li>
+					<li><a href="#" id="home" class="menuHover home j_click">定位器位置</a></li>
+					<li><a href="#" id="corpRegion" class="region j_click">电子围栏</a></li>
+					<li><a href="#" id="eventSearch" class="eventSearch j_click">告警查询</a></li>
 					<!-- 统计 -->
 					<li>
-						<a href="#" id="recordCount" class="recordCount j_countRecord"></a>
+						<a href="#" id="recordCount" class="recordCount j_countRecord">统计报表</a>
 						<ul id="countSecondList" class="hide j_countNavItem countUlIetm">
 							<!--<li>
 								<a href="#" id="onlineStatics" class="onlineStatics j_click"></a>
 							</li>-->
 							<li>
-								<a href="#" id="mileage" class="mileage j_click"></a>
+								<a href="#" id="mileage" class="mileage j_click">里程统计</a>
 							</li>
 						</ul>
 					</li>
 					<!-- 通知管理 -->
 					<li>
-						<a href="#" id="notifyManage" class="notifyManage j_notifyManage"></a>
+						<a href="#" id="notifyManage" class="notifyManage j_notifyManage">通知管理</a>
 						<ul id="notifyManageList" class="hide j_notifyManageNavItem countUlIetm">
 							<li>
-								<a href="#" id="notifyManage_add" class="notifyManage_add j_click"></a>
+								<a href="#" id="notifyManage_add" class="notifyManage_add j_click">发布通知</a>
 							</li>
 							<li>
-								<a href="#" id="notifyManage_search" class="notifyManage_search j_click"></a>
+								<a href="#" id="notifyManage_search" class="notifyManage_search j_click">通知查询</a>
 							</li>
 						</ul>
 					</li>
 					<!-- 设置 -->
 					<li>
-						<a href="#" id="userProfileManage" class="userProfileManage j_userProfileManage"></a>
+						<a href="#" id="userProfileManage" class="userProfileManage j_userProfileManage">设置</a>
 						<ul id="userProfileManageList" class="hide j_userProfileManageNavItem countUlIetm">
-							<li><a href="#" id="corpSMSOption" class="corpSMSOption j_click"></a></li>
+							<li><a href="#" id="corpSMSOption" class="corpSMSOption j_click">短信设置</a></li>
 							<!--<li>
 								<a href="#" id="notifyManage_add" class="notifyManage_add j_click"></a>
 							</li>
@@ -131,19 +131,19 @@
 								<a href="#" id="notifyManage_search" class="notifyManage_search j_click"></a>
 							</li>-->
 							{% if user_type != 'operator' %}
-							<li><a href="#" id="operator" class="operator j_click"></a></li>
+							<li><a href="#" id="operator" class="operator j_click">操作员管理</a></li>
 							{% end %}
 							{% if user_type != 'operator' %}
 								<li>
-									<a href="#" id="corpData" class="j_click"></a>
+									<a href="#" id="corpData" class="j_click">集团资料</a>
 								</li>
 							{% else %}
 								<li>
-									<a href="#" id="operatorData" class="j_click"></a>
+									<a href="#" id="operatorData" class="j_click">个人资料</a>
 								</li>
 							{% end %}
 							<li>
-								<a href="#" id="changePwd" class="j_click"></a>
+								<a href="#" id="changePwd" class="j_click">修改密码</a>
 							</li>
 						</ul>
 					</li>
@@ -154,18 +154,18 @@
 					<!--<li><a href="#" id="smallTools" class="smallTools j_click"></a></li>-->
 					<!--znbc-->
 					{% if bizcode == 'znbc' %}
-					<li><a href="#" id="passenger" class="passenger j_click"></a></li>
+					<li><a href="#" id="passenger" class="passenger j_click">乘客管理</a></li>
 					<li><a href="#" id="infoPush" class="infoPush j_click"></a></li>
-					<li><a href="#" id="routeLine" class="routeLine j_click"></a></li>
+					<li><a href="#" id="routeLine" class="routeLine j_click">线路管理</a></li>
 					{% end %}
 				</ul>
 				<ul class="selfList">
 					<li>
-						<a title="" href="#" id="userName" class="j_welcome">欢迎您，
-						{% if len(name)<=8 %}
+						<a title="" href="#" id="userName" title="{{name}}" class="j_welcome">欢迎您，
+						{% if len(name)<=4 %}
 							{{name.replace("<", "&lt;").replace(">", "&gt;")}}
 						{% else %}
-							{{name[:8].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
+							{{name[:4].replace("<", "&lt;").replace(">", "&gt;") + "..."}}
 						{% end %}
 						</a>
 						<ul id="otherList" class="hide j_welcomeNavItem countUlIetm">

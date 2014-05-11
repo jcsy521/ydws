@@ -110,7 +110,7 @@ window.dlf.fn_clearAllMenu = function() {
 * str_who: 要清除的导航ID
 */
 window.dlf.fn_clearNavStatus = function(str_who) {
-	$('#'+ str_who).removeClass(str_who +'Hover'); 
+	$('#'+ str_who).removeClass('menuHover').css('color', ''); 	//str_who
 }
 
 window.dlf.fn_setMapContainerZIndex = function(n_num) {
@@ -1565,7 +1565,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' ) {
 		str_tempWrapperId = 'notifyManage';
 	}
-	$('#'+ str_tempWrapperId).addClass(str_tempWrapperId +'Hover');
+	$('#'+ str_tempWrapperId).addClass('menuHover').css('color', '#0E6CA5').parent().siblings('li').children('a').removeClass('menuHover');	// str_tempWrapperId
 	dlf.fn_clearNavStatus('home');	// 移除菜单车辆位置的样式
 	if ( str_wrapperId == 'eventSearch' ) {
 		dlf.fn_setMapPosition(true);	// 如果打开的是告警查询  设置地图位置
@@ -2343,7 +2343,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		n_tempContent = n_mapHeight = n_mapHeight - 10;
 	}
 	if ( b_topPanelSt ) {
-		n_windowHeight -= 123;
+		n_mapHeight = n_windowHeight - 38;
 		n_defTop = 37;
 	}
 	if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
@@ -2366,7 +2366,6 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			n_trackWidth = n_right = 1024;				
 		}
 	}
-	
 	if ( n_mainHeight < 600 ) {
 		n_leftPanelTop = 300 + 123;
 	}

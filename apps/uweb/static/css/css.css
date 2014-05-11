@@ -356,12 +356,34 @@ body {
 	min-width: 875px;
 	min-height: 566px;
 }
-.menu a, .countUlIetm a {	/* , #countSecondList a */
+.menu a:hover, .menuHover, .selfList a:hover {
+	background: url('/static/images/menuImage.png') no-repeat;	/* acb-menus.png*/
+	color: #0E6CA5;
+	margin-top: 1px;
+}
+.menu a, .countUlIetm a, .selfList a {	/* , #countSecondList a */
 	display: inline-block;
-	height: 36px;
+	height: 34px;
+	line-height: 34px;
+	text-align: center;
 	width: 84px;
 	float: left;
-	background: url('/static/images/acb-menus.png') no-repeat -8px 0px;
+	font-size: 14px;
+	font-family: '微软雅黑';
+	text-decoration: none;
+	color: #444444;
+}
+.countUlIetm a {
+	background: url('/static/images/menuBg.png') repeat-x;
+	border: 1px solid #D1D1D1;
+	border-top: 0px;
+}
+.countUlIetm li {
+	height: 33px;
+}
+.countUlIetm a:hover {
+	background: url('/static/images/secondMenuImage.png') repeat-x;	/* acb-menus.png*/
+	color: #0E6CA5;
 }
 .selfList {
 	float: right;
@@ -374,15 +396,14 @@ body {
 	line-height: 36px;
 }
 .selfList a {
-	text-decoration: none;
-	color: #276dc3;
-	font-size: 12px;
-	display: inline-block;
-	height: 40px;
-	line-height: 38px;
+	width: 130px;
 }
+.selfList a:hover {
+	background: url('/static/images/welcomeBg.png');	/* acb-menus.png*/
+}
+
 #otherList {
-	background-color: #ffffff;
+	/*background-color: #ffffff;
 	border: 1px solid #ccc;
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	border-radius: 6px;
@@ -397,17 +418,17 @@ body {
 	behavior: url(/static/js/themes/classic/PIE.htc);
 	width: 110px;
 	position: absolute;
-	z-index: 1002;
+	z-index: 1002;*/
 }
 #otherList li {
 	height: 30px;
 	width: 100px;
 	border-bottom: 1px solid #E5E5E5;
 	margin: 0px;
-	padding-left: 10px;
+	/*padding-left: 10px;*/
 }
 #otherList a {
-	display: block;
+	/*display: block;
 	padding: 3px 10px;
 	font-weight: normal;
 	line-height: 30px;
@@ -419,11 +440,15 @@ body {
 	height: 25px;
 	width: 63px;
 	background: none;
-	behavior: url(/static/js/themes/classic/PIE.htc);
+	behavior: url(/static/js/themes/classic/PIE.htc);*/
+	margin: 0px;
 }
 #otherList a:hover {
-	color: #FFFFFF;
+	background: url('/static/images/secondMenuImage.png') repeat-x;	/* acb-menus.png*/
+	width: 130px;
+	color: #0E6CA5;
 }
+/**/
 .otherListHover {
 	background: #0081c2;
 	width: 115px;
@@ -436,6 +461,7 @@ body {
 	background-image: -o-linear-gradient(top, #0088cc, #0077b3);
 	background-image: linear-gradient(to bottom, #0088cc, #0077b3);
 }
+/*
 .menu .home {
 	background-position: -8px -792px;
 }
@@ -604,6 +630,7 @@ body {
 .menu #logout:hover {
 	background-position: -8px -1908px;
 }
+*/
 /* right end */
 .userMsg {
 	color: #464646;
