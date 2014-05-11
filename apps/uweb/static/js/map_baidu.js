@@ -206,6 +206,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		n_timestamp = obj_location.timestamp,
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null,
+		obj_iconSize = new BMap.Size(100, 100),
+		obj_imageOffset = new BMap.Size(-30, -35),
 		b_userType = dlf.fn_userType();
 
 	// kjj add in 2013-09-30 如果是轨迹、告警 经纬度偏转失败，不去处理
@@ -237,8 +239,16 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		
 		if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
 			b_flag = true;
-			myIcon.setSize(new BMap.Size(100, 100));
-			myIcon.setImageOffset(new BMap.Size(-30, -35));
+			if ( n_iconType == 1 || n_iconType == 3 ) {
+				obj_iconSize = new BMap.Size(50, 50);
+				if ( n_iconType == 1 ) {
+					obj_imageOffset = new BMap.Size(0, 0);
+				} else {
+					obj_imageOffset = new BMap.Size(-5, 0);
+				}
+			}
+			myIcon.setSize(obj_iconSize);
+			myIcon.setImageOffset(obj_imageOffset);
 		}
 		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标		
 	}

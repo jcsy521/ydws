@@ -1497,9 +1497,13 @@ function fn_updateAlarmList(arr_alarm) {
 		arr_markers = arr_temp == undefined ? [] : arr_temp,
 		obj_alarmCon = $('.j_alarm'),
 		str_html = '',
-		obj_markers = {};
+		obj_markers = {},
+		obj_arrowCon = $('.j_alarmPanelCon'),
+		n_windowWidth = $(window).width(),
+		n_alarmIconLeft = n_windowWidth - 417;
 	
-	obj_alarmCon.show();
+	// obj_alarmCon.show();
+	
 	if ( n_alarmLength > 0 ) {
 		//str_html+= '<li class="closeAlarm"></li>';
 		
@@ -1532,6 +1536,9 @@ function fn_updateAlarmList(arr_alarm) {
 		}
 		playMiusic();
 		// obj_alarmCon.show();
+		$('.j_alarmPanel').show();
+		$('.j_alarmArrowClick').css('backgroundPosition', '-20px -29px');
+		obj_arrowCon.css({'left': n_alarmIconLeft});
 	} else {
 		
 	}

@@ -455,88 +455,90 @@ $(function () {
     
 	$(document).bind('contextmenu', function (e) { 	// 屏蔽鼠标右键相关功能
 		return false; 
-	}); 
+});
+	/**
+	* 调整页面大小
+	*/
+	var n_windowHeight = $(window).height(),
+		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
+		n_windowWidth = $(window).width(),
+		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
+		n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 188 : n_windowWidth - 188,
+		n_mapHeight = n_windowHeight - 161,
+		n_right = n_windowWidth - 249,
+		n_trackLeft = 0,
+		obj_track = $('#trackHeader'),
+		n_mainHeight = n_windowHeight - 123,
+		n_corpTreeContainerHeight = n_mainHeight-270,
+		n_treeHeight = n_corpTreeContainerHeight - 55,
+		n_delayLeft = n_windowWidth - 550,
+		n_delayIconLeft = n_delayLeft - 17,
+		n_alarmLeft = n_windowWidth - 400,
+		n_alarmIconLeft = n_alarmLeft - 17,
+		n_topPanelLeft = '50%',
+		n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
+		obj_tree = $('#corpTree');
+		
+	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
+		n_right = n_windowWidth - 259;
+		n_mapHeight = n_mapHeight - 10;
+	}
+	$('.mainBody').height(n_windowHeight);
+	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	
-	setTimeout(function() {
-		/**
-		* 调整页面大小
-		*/
-		var n_windowHeight = $(window).height(),
-			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
-			n_windowWidth = $(window).width(),
-			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
-			n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 188 : n_windowWidth - 188,
-			n_mapHeight = n_windowHeight - 161,
-			n_right = n_windowWidth - 249,
-			n_trackLeft = 0,
-			obj_track = $('#trackHeader'),
-			n_mainHeight = n_windowHeight - 123,
-			n_corpTreeContainerHeight = n_mainHeight-270,
-			n_treeHeight = n_corpTreeContainerHeight - 55,
-			n_delayLeft = n_windowWidth - 550,
-			n_delayIconLeft = n_delayLeft - 17,
-			n_alarmLeft = n_windowWidth - 400,
-			n_alarmIconLeft = n_alarmLeft - 17,
-			n_topPanelLeft = '50%',
-			n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
-			obj_tree = $('#corpTree');
-			
-		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-			n_right = n_windowWidth - 259;
-			n_mapHeight = n_mapHeight - 10;
-		}
-		$('.mainBody').height(n_windowHeight);
-		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-		
-		if ( n_treeHeight < 255 ) {
-			n_treeHeight = 255;
-		}
-		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
-		
-		if ( dlf.fn_userType() ) {	// 集团用户
-			n_trackLeft = ( obj_track.width() ) / 8;
-			
-			if ( n_windowWidth < 1024 ) {
-				n_trackLeft = 40;
-				n_delayLeft = 474;
-				n_delayIconLeft = 458;
-				n_alarmLeft = 623;
-				n_alarmIconLeft = 609;
-				n_topPanelLeft = 1024/2;
-				n_right = 775;
-			}
-			if ( n_mainHeight < 600 ) {
-				n_leftPanelTop = 300 + 123;
-			}
-		} else {
-			n_trackLeft = ( obj_track.width() ) / 6;
-			if ( n_windowWidth < 1024 ) {
-				n_trackLeft = 90;
-			}
-		}
-		$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
-		
-		$('#top, #main, #corpMain').css('width', n_windowWidth);
-		$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight);	// 内容域的高度 左右栏高度
-		$('#topShowIcon').css('left', n_topPanelLeft);
-		$('#leftPanelShowIcon').css('top', n_leftPanelTop);
-		if ( n_windowWidth > 1510 ) {
-			$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-		} else {
-			$('.trackPos').css('padding-left', 0);
-		}
-		$('#mapObj, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
-		
-		if ( !dlf.fn_isBMap() ) {	// 高德地图初始化tilelayer的位置
-			$('#mapTileLayer').css('left', n_tilelayerLeft);
-		}
-		// 设置停留点列表的位置
-		$('.j_delayPanel').css({'left': n_delayLeft});
-		$('.j_disPanelCon').css({'left': n_delayIconLeft});
-		$('.j_alarmPanel').css({'left': n_alarmLeft});
-		$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
-	}, 50);
+	if ( n_treeHeight < 255 ) {
+		n_treeHeight = 255;
+	}
+	obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 	
+	if ( dlf.fn_userType() ) {	// 集团用户
+		n_trackLeft = ( obj_track.width() ) / 8;
+		
+		if ( n_windowWidth < 1024 ) {
+			n_trackLeft = 40;
+			n_delayLeft = 474;
+			n_delayIconLeft = 458;
+			n_alarmLeft = 623;
+			n_alarmIconLeft = 609;
+			n_topPanelLeft = 1024/2;
+			n_right = 775;
+		}
+		if ( n_mainHeight < 600 ) {
+			n_leftPanelTop = 300 + 123;
+		}
+	} else {
+		n_trackLeft = ( obj_track.width() ) / 6;
+		if ( n_windowWidth < 1024 ) {
+			n_trackLeft = 90;
+		}
+	}
+	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
+	
+	$('#top, #main, #corpMain').css('width', n_windowWidth);
+	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight);	// 内容域的高度 左右栏高度
+	$('#topShowIcon').css('left', n_topPanelLeft);
+	$('#leftPanelShowIcon').css('top', n_leftPanelTop);
+	if ( n_windowWidth > 1510 ) {
+		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
+	} else {
+		$('.trackPos').css('padding-left', 0);
+	}
+	$('#mapObj, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_mapHeight);
+	
+	if ( !dlf.fn_isBMap() ) {	// 高德地图初始化tilelayer的位置
+		$('#mapTileLayer').css('left', n_tilelayerLeft);
+	}
+	// 设置停留点列表的位置
+	$('.j_delayPanel').css({'left': n_delayLeft});
+	$('.j_disPanelCon').css({'left': n_delayIconLeft});
+	/*
+	$('.j_alarmPanel').css({'left': n_alarmLeft});
+	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
+	*/
+	$('.j_alarmPanel').hide();
+	$('.j_alarmPanelCon').css({'left': (n_windowWidth-18)});
+	$('.j_alarmArrowClick').css('backgroundPosition', '-29px -29px');
+
 	dlf.fn_loadMap('mapObj');	// 加载百度map
 	
 	/**

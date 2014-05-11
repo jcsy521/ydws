@@ -2548,7 +2548,7 @@ body {
 	background: url("/static/images/corpImages/searchBox.png") no-repeat scroll 0 0 transparent;
     height: 38px;
     margin-bottom: 5px;
-    margin-top: 2px;
+    /*margin-top: 2px;*/
     width: 246px;
 }
 .searchText {

@@ -97,7 +97,22 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 			obj_auto.hide();
 		}
 	});
+	$('#corp_stop input').unbind('click').bind('click', function() {
+		var str_val = $(this).val(),
+			obj_tdStopInterval = $('#td_corp_stop_interval'),
+			obj_inputStopInterval = $('#t_corp_stop_interval'),
+			n_newVal = 0,
+			n_oldVal = parseInt($('#corp_stop_interval').attr('t_val'));
 		
+		if ( str_val == 1 ) {
+			obj_tdStopInterval.show();
+			n_newVal = parseInt(n_oldVal/60);
+		} else {
+			obj_tdStopInterval.hide();
+			n_newVal = 0;
+		}
+		obj_inputStopInterval.val(n_newVal);
+	});
 	$.get_(TERMINAL_URL + '?tid=' + dlf.fn_getCurrentTid(), '', function (data) {  
 		if (data.status == 0) {	
 			var obj_data = data.car_sets,
@@ -158,7 +173,19 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 							}
 							dlf.fn_updateCorpCnum(str_val);	// 更新最新的定位器名称
 						} else if ( param == 'stop_interval' ) { //停留告警时间
-							$('#t_corp_stop_interval').val(parseInt(str_val/60));
+							var n_stopInterval = parseInt(str_val/60),
+								obj_tdStopInterval = $('#td_corp_stop_interval'),
+								n_isOpen = 0;
+							
+							if ( n_stopInterval == 0 ) {
+								obj_tdStopInterval.hide();
+							} else {
+								obj_tdStopInterval.show();
+								n_isOpen = 1;
+							}
+							$('#corp_stop_status' + n_isOpen).attr('checked', 'checked');
+							
+							$('#t_corp_stop_interval').val(n_stopInterval);
 						}else {
 							obj_param.html(str_val);
 						}
@@ -369,7 +396,9 @@ window.dlf.fn_corpBaseSave = function() {
 			} else if ( str_key == 'alert_freq' ) {
 				str_newVal = parseInt(str_newVal)*60;
 			}
-			obj_terminalData[str_key] = str_newVal;
+			if ( str_key != 'stop' && str_key != 'biz_type' ) {
+				obj_terminalData[str_key] = str_newVal;	
+			}
 		}
 	});
 	
@@ -504,8 +533,8 @@ $(function() {
 				dlf.fn_jNotifyMessage('请输入停留告警的时间！', 'message', false, 3000);
 				return;
 			}
-			if ( str_stopInterVal < 1 || str_stopInterVal > 1440 ) {
-				dlf.fn_jNotifyMessage('停留告警的时间范围(1-1440分钟)！', 'message', false, 3000);
+			if ( str_stopInterVal < 0 || str_stopInterVal > 1440 ) {
+				dlf.fn_jNotifyMessage('停留告警的时间范围(0-1440分钟)！', 'message', false, 3000);
 				return;
 			}
 			

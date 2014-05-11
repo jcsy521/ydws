@@ -418,8 +418,17 @@
 										</select>
 									</td>
 								</tr>
-								<tr class="corp_terminalTdL">
+								<tr>
 									<td class="corp_terminalTdL">停留告警:</td>
+									<td id="corp_stop" class="j_corp_ListVal j_radio">
+										<input id="corp_stop_status1" type="radio" value="1" name="corp_stop_status" />
+										<label for="corp_stop_status1">开启</label>
+										<input id="corp_stop_status0" type="radio" value="0" name="corp_stop_status" />
+										<label for="corp_stop_status0">关闭</label>
+									</td>
+								</tr>
+								<tr class="corp_terminalTdL hide" id="td_corp_stop_interval">
+									<td class="corp_terminalTdL"></td>
 									<td id="corp_stop_interval"  class="j_corp_ListVal"  t_val="">
 										停留超过<input type="text" id="t_corp_stop_interval" terminalkey="stop_interval"  class="text_mouseOut j_onInputBlur" max = "4"  who="validateLength" parent="terminalWrapper" />分钟,上报告警
 									</td>
