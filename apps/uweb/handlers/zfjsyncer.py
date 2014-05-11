@@ -21,6 +21,11 @@ class ZFJSyncerHandler(BaseHandler):
             corp_id = 13726103889   #开发区执法局
             begin_time = self.redis.getvalue('last_time')
             end_time = time.time()
+            if (end_time - begin_time) < 15*60: # 15 分钟
+                logging.info("[UWEB] ZFJ request too frequency, skip it, begin time:%s, end time:%s", begin_time, end_time)
+                self.write({'res':res})
+                return
+
             logging.info("[UWEB] ZFJ request, begin time:%s, end time:%s", begin_time, end_time)
             if begin_time:
                 terminals = QueryHelper.get_terminals_by_cid(corp_id,self.db)
