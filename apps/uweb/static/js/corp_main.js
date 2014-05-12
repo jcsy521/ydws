@@ -2247,7 +2247,7 @@ function fn_removeTerminal(node) {
 					mapObj.removeOverlay(obj_selfmarkers[str_param]);
 					delete obj_selfmarkers[str_param];
 					delete [str_param];	// #todo obj_carsData
-					dlf.fn_checkTrackDatas(str_param, true$('.j_carList').data('carsData'));	// 删除开启追踪的轨迹线
+					dlf.fn_checkTrackDatas(str_param, true, $('.j_carList').data('carsData'));	// 删除开启追踪的轨迹线
 				}
 				var obj_current = $('.' + JSTREECLICKED),
 					b_class = obj_current.hasClass('groupNode'),

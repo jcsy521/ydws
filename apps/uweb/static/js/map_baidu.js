@@ -302,7 +302,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 			if ( str_className.search('j_currentCar') != -1 ) { // 如果是当前车的话就直接打开吹出框，否则switchcar中打开infoWindow
 				var obj_carDatas = $('.j_carList').data('carsData'),
 					obj_tempCarData = obj_carDatas[str_tid];
-			
+					
 				dlf.fn_createMapInfoWindow(obj_tempCarData, str_iconType);
 				this.openInfoWindow(obj_mapInfoWindow);
 				fn_infoWindowCloseShow();

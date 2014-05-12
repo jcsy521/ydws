@@ -875,7 +875,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					* 拼接table
 					*/
 					str_tbodyText+= '<tr>';
-					str_tbodyText+= '<td width="100px">'+ dlf.fn_encode(obj_tempData.alias) +'</td>';
+					str_tbodyText+= '<td width="80px">'+ dlf.fn_encode(obj_tempData.alias) +'</td>';
 					str_tbodyText+= '<td width="150px">'+dlf.fn_changeNumToDateString(obj_tempData.timestamp)+'</td>';	// 告警时间
 					str_tbodyText+= '<td width="100px">'+dlf.fn_eventText(str_type)+'</td>';	// 告警类型
 					if ( n_lng == 0 || n_lat == 0 ) {	//无地址
@@ -1160,6 +1160,8 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		}		
 	}
 	$('#' + str_who + 'Wrapper').data('hash', str_hash);	// 存储hash值
+	// 重新计算高度，宽度
+	dlf.resetPanelDisplay();
 }
 
 /**

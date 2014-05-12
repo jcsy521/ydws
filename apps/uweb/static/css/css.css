@@ -3102,7 +3102,7 @@ legend {
 	line-height: 22px;
 }
 .eventSearchContent .dataTable, .singleEventContent .dataTable {
-	width: 900px;	/*770px*/
+	width: 760px;	/*770px*/
 }
 .singleEventContent {
 	padding-top: 10px;

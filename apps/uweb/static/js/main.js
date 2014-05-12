@@ -620,7 +620,7 @@ $(function () {
 					$('#eventSearch').removeClass('eventSearchHover');
 				}
 				dlf.fn_clearAllMenu();
-				$('#home').addClass('menuHover');	// homeHover
+				$('#home').addClass('menuHover').css('color', '#0E6CA5');	// homeHover
 				// 如果上次操作的是 轨迹、告警查询、线路管理、添加线路、围栏管理、绑定围栏、批量绑定围栏、创建围栏 操作的话 点击“车辆位置” 清除所有数据重新发起lastinfo请求
 				
 				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {

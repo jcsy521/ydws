@@ -69,11 +69,11 @@ window.dlf.fn_closeWrapper = function() {
 			dlf.fn_clearNavStatus(str_whoDialog);
 		//}
 		if ( str_whoDialog == 'region' || str_whoDialog == 'corpRegion' || str_whoDialog == 'bindRegion' || str_whoDialog == 'bindBatchRegion' || str_whoDialog == 'routeLine' ) { // 围栏管理  线路管理 关闭的时候显示地图上的车辆图标
+			$('#'+ str_whoDialog +'Wrapper').hide();
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
 			dlf.fn_setMapContainerZIndex(0);
 			dlf.fn_clearAllMenu();
 			dlf.fn_setMapPosition(false);	// 还原地图
-			$('#'+ str_whoDialog +'Wrapper').hide();
 			return;
 		}
 		dlf.fn_closeJNotifyMsg('#jNotifyMessage');
@@ -2294,163 +2294,166 @@ window.dlf.fn_secondNavValid = function() {
 */
 
 window.dlf.resetPanelDisplay = function(n_type) {
-	// 调整页面大小
-	var n_windowHeight = $(window).height(),
-		n_tempHeight = n_windowHeight <= 624 ? 624 : n_windowHeight,
-		n_windowHeight = $.browser.version == '6.0' ? n_tempHeight : n_windowHeight,
-		n_tempWindowWidth = $(window).width(), // document.body.offsetWidth,
-		n_tempWidth = n_tempWindowWidth <= 1024 ? 1024 : n_tempWindowWidth,
-		b_topPanelSt = $('#top').is(':hidden'),
-		b_pLeftSt = $('#left').is(':hidden'),
-		b_corpLeftSt = $('#corpLeft').is(':hidden');
-	
-	if ( n_type == 0 ) {
-		b_pLeftSt = false;
-		b_corpLeftSt = false;
-		$('#left, #corpLeft').show();
-	} else if ( n_type == 1 ) {
-		b_topPanelSt = false;
-		$('#top').show();
-	}
-	if ( b_topPanelSt ) {
-		n_windowHeight += 123;
-	}
-	if ( b_pLeftSt || b_corpLeftSt ) {
-		n_tempWindowWidth += 247;
-	}
-	var	n_tilelayerLeft = n_tempWindowWidth <= 1024 ? 1024 - 288 : n_tempWindowWidth - 188,
-		n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_tempWindowWidth,
-		n_tempContent = n_mapHeight = n_windowHeight - 161,
-		n_right = n_windowWidth - 251,
-		n_trackLeft = 0,
-		n_mainContent = n_windowHeight - 104,
-		n_mainHeight = n_windowHeight - 123,
-		n_corpTreeContainerHeight = n_mainHeight-270,
-		n_treeHeight = n_corpTreeContainerHeight - 55,
-		n_tempTreeHight = $('#corpTree ul').height(),
-		obj_tree = $('#corpTree'),
-		obj_track = $('#trackHeader'),
-		n_trackWidth = n_windowWidth - 251,
-		n_defTop = 160,
-		n_defLeft = 248,
-		n_topPanelLeft = '50%',
-		n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
-		b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询打开状态
-		b_trackSt = obj_track.is(':visible');
-
-	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-		n_right = n_windowWidth - 259;
-		n_tempContent = n_mapHeight = n_mapHeight - 10;
-	}
-	if ( b_topPanelSt ) {
-		n_mapHeight = n_windowHeight - 38;
-		n_defTop = 37;
-	}
-	if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
-		$('#top, #main, #corpMain').css('width', n_windowWidth-247);
-		n_trackWidth = n_right = n_windowWidth-247;
-		n_defLeft = 0;
-	} else {
-		$('#top, #main, #corpMain').css('width', n_windowWidth);			
-	}
-	if ( n_treeHeight < 255 ) {
-		n_treeHeight = 255;
-	}
-	obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
-	
-	if ( $(window).width() < 1024 ) {
-		n_right = 775;
-		n_topPanelLeft = 1024/2;
+	setTimeout(function() {
+		var n_windowHeight = $(window).height(),
+			n_tempWindowHeight = n_windowHeight = $('.j_body').height() > n_windowHeight ? n_windowHeight + 17 : n_windowHeight,
+			n_tempHeight = n_windowHeight <= 624 ? 624 : n_windowHeight,
+			n_windowHeight = $.browser.version == '6.0' ? n_tempHeight : n_windowHeight,
+			n_tempWindowWidth = $(window).width(), // document.body.offsetWidth,
+			n_tempWindowWidth = $('#top').width() > n_tempWindowWidth ? n_tempWindowWidth + 17 : n_tempWindowWidth,
+			n_tempWidth = n_tempWindowWidth <= 1024 ? 1024 : n_tempWindowWidth,
+			b_topPanelSt = $('#top').is(':hidden'),
+			b_pLeftSt = $('#left').is(':hidden'),
+			b_corpLeftSt = $('#corpLeft').is(':hidden');
 		
-		if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
-			n_trackWidth = n_right = 1024;				
+		if ( n_type == 0 ) {
+			b_pLeftSt = false;
+			b_corpLeftSt = false;
+			$('#left, #corpLeft').show();
+		} else if ( n_type == 1 ) {
+			b_topPanelSt = false;
+			$('#top').show();
 		}
-	}
-	if ( n_mainHeight < 600 ) {
-		n_leftPanelTop = 300 + 123;
-	}
-	$('#topShowIcon').css('left', n_topPanelLeft);
-	$('#leftPanelShowIcon').css('top', n_leftPanelTop);
-	if ( b_trackSt ) {
-		n_tempContent = n_mapHeight = n_windowHeight - 201;
 		if ( b_topPanelSt ) {
-			n_mapHeight = n_windowHeight - 74;
-			n_tempContent = n_windowHeight - 38;
+			//n_windowHeight += 123;
 		}
-		$('#trackHeader').css('width', n_trackWidth);
-	}
-	$('#right, #corpRight, #navi, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
-	
-	if ( b_eventSearchStatus ) {
-		n_mapHeight = 340;
-		n_right = 370;
-	}
-	$('#mapObj').css({'width': n_right -2, 'height': n_mapHeight});	// 右侧宽度
-	
-	$('.mainBody').height(n_windowHeight);
-	$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
-	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
-	 
-	if ( dlf.fn_userType() ) {	// 集团用户
-		n_trackLeft = ( obj_track.width() ) / 8;
-		/**
-		* kjj add in 2013-08-28 
-		* 关闭停留点或告警列表的时候 改变浏览器窗口
-		*/
-		var obj_delayPanel = $('.j_delayPanel'),
-			b_delayPanel = obj_delayPanel.is(':visible'),
-			obj_alarmPanel = $('.j_alarmPanel'),
-			b_alarmPanel = obj_alarmPanel.is(':visible'),
-			n_tempWindowWidth = $(window).width(),
-			n_delayLeft = n_tempWindowWidth - 550,
-			n_delayIconLeft = n_delayLeft - 17,
-			n_alarmLeft = n_tempWindowWidth - 400,
-			n_alarmIconLeft = n_alarmLeft - 17;
+		if ( b_pLeftSt || b_corpLeftSt ) {
+			n_tempWindowWidth += 247;
+		}
+		var	n_tilelayerLeft = n_tempWindowWidth <= 1024 ? 1024 - 288 : n_tempWindowWidth - 188,
+			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_tempWindowWidth,
+			n_tempContent = n_mapHeight = n_windowHeight - 161,
+			n_right = n_windowWidth - 251,
+			n_trackLeft = 0,
+			n_mainContent = n_windowHeight - 104,
+			n_mainHeight = n_windowHeight - 123,
+			n_corpTreeContainerHeight = n_mainHeight-270,
+			n_treeHeight = n_corpTreeContainerHeight - 55,
+			n_tempTreeHight = $('#corpTree ul').height(),
+			obj_tree = $('#corpTree'),
+			obj_track = $('#trackHeader'),
+			n_trackWidth = n_windowWidth - 251,
+			n_defTop = 160,
+			n_defLeft = 248,
+			n_topPanelLeft = '50%',
+			n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
+			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询打开状态
+			b_trackSt = obj_track.is(':visible');
 
-		if ( n_tempWindowWidth < 1024 ) {
-			n_trackLeft = 40;
-			n_delayLeft = 474;
-			n_delayIconLeft = 458;
-			n_alarmLeft = 623;
-			n_alarmIconLeft = 609;
-			n_tempWindowWidth = 1024;
+		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
+			n_right = n_windowWidth - 259;
+			n_tempContent = n_mapHeight = n_mapHeight - 10;
 		}
-		if ( !b_delayPanel ) {
-			n_delayIconLeft = n_tempWindowWidth - 17;
+		if ( b_topPanelSt ) {
+			n_mapHeight = n_windowHeight - 38;
+			n_defTop = 37;
 		}
-		if ( !b_alarmPanel ) {
-			n_alarmIconLeft = n_tempWindowWidth - 17;
+		if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
+			$('#top, #main, #corpMain').css('width', n_windowWidth-247);
+			n_trackWidth = n_right = n_windowWidth-247;
+			n_defLeft = 0;
+		} else {
+			$('#top, #main, #corpMain').css('width', n_windowWidth);			
 		}
-		obj_delayPanel.css({'left': n_delayLeft});
-		$('.j_disPanelCon').css({'left': n_delayIconLeft});
-		obj_alarmPanel.css({'left': n_alarmLeft});
-		$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
-	} else {
-		n_trackLeft = ( obj_track.width() ) / 6;
-		if ( n_windowWidth < 1024 ) {
-			n_trackLeft = 90;
+		if ( n_treeHeight < 255 ) {
+			n_treeHeight = 255;
 		}
-	}
-	if ( $(window).width() > 1510 ) {
-		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
-	} else {
-		$('.trackPos').css('padding-left', 0);
-	}
-	$('.eventSearchContent, .j_wrapperContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_tempContent);
-	// 设置空白页面的top、left
-	$('#eventSearchWrapper, #notifyManageAddWrapper, #notifyManageSearchWrapper, #operatorWrapper, #mileageWrapper').css({'top': n_defTop, 'left': n_defLeft});
-	
-	dlf.fn_resizeWhitePop();	// 白名单未填提示
-	
-	// fn_modifyAlarmInfoPanel(true);	// kjj add in 2014.04.28 调整告警列表位置
-	
-	var b_layer = $('.j_body').data('layer');
-	if ( b_layer ) {
-		dlf.fn_lockScreen();
-	}
-	if ( !dlf.fn_isBMap() ) {	// 高德地图
-		$('#mapTileLayer').css('left', n_tilelayerLeft);
-	}
+		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
+		
+		if ( $(window).width() < 1024 ) {
+			n_right = 775;
+			n_topPanelLeft = 1024/2;
+			
+			if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
+				n_trackWidth = n_right = 1024;				
+			}
+		}
+		if ( n_mainHeight < 600 ) {
+			n_leftPanelTop = 300 + 123;
+		}
+		$('#topShowIcon').css('left', n_topPanelLeft);
+		$('#leftPanelShowIcon').css('top', n_leftPanelTop);
+		if ( b_trackSt ) {
+			n_tempContent = n_mapHeight = n_windowHeight - 201;
+			if ( b_topPanelSt ) {
+				n_mapHeight = n_windowHeight - 74;
+				n_tempContent = n_windowHeight - 38;
+			}
+			$('#trackHeader').css('width', n_trackWidth);
+		}
+		$('#right, #corpRight, #navi, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
+		
+		if ( b_eventSearchStatus ) {
+			n_mapHeight = 340;
+			n_right = 370;
+		}
+		$('#mapObj').css({'width': n_right -2, 'height': n_mapHeight});	// 右侧宽度
+		
+		$('.mainBody').height(n_windowHeight);
+		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
+		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
+		 
+		if ( dlf.fn_userType() ) {	// 集团用户
+			n_trackLeft = ( obj_track.width() ) / 8;
+			/**
+			* kjj add in 2013-08-28 
+			* 关闭停留点或告警列表的时候 改变浏览器窗口
+			*/
+			var obj_delayPanel = $('.j_delayPanel'),
+				b_delayPanel = obj_delayPanel.is(':visible'),
+				obj_alarmPanel = $('.j_alarmPanel'),
+				b_alarmPanel = obj_alarmPanel.is(':visible'),
+				n_tempWindowWidth = n_tempWidth,
+				n_delayLeft = n_tempWindowWidth - 550,
+				n_delayIconLeft = n_delayLeft - 17,
+				n_alarmLeft = n_tempWindowWidth - 400,
+				n_alarmIconLeft = n_alarmLeft - 17;
+
+			if ( n_tempWindowWidth <= 1024 ) {
+				n_trackLeft = 40;
+				n_delayLeft = 474;
+				n_delayIconLeft = 458;
+				n_alarmLeft = 623;
+				n_alarmIconLeft = 609;
+				n_tempWindowWidth = 1024;
+			}
+			if ( !b_delayPanel ) {
+				n_delayIconLeft = n_tempWindowWidth - 17;
+			}
+			if ( !b_alarmPanel ) {
+				n_alarmIconLeft = n_tempWindowWidth - 17;
+			}
+			obj_delayPanel.css({'left': n_delayLeft});
+			$('.j_disPanelCon').css({'left': n_delayIconLeft});
+			obj_alarmPanel.css({'left': n_alarmLeft});
+			$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
+		} else {
+			n_trackLeft = ( obj_track.width() ) / 6;
+			if ( n_windowWidth < 1024 ) {
+				n_trackLeft = 90;
+			}
+		}
+		if ( $(window).width() > 1510 ) {
+			$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
+		} else {
+			$('.trackPos').css('padding-left', 0);
+		}
+		$('.eventSearchContent, .j_wrapperContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('height', n_tempContent);
+		// 设置空白页面的top、left
+		$('#eventSearchWrapper, #notifyManageAddWrapper, #notifyManageSearchWrapper, #operatorWrapper, #mileageWrapper').css({'top': n_defTop, 'left': n_defLeft});
+		
+		dlf.fn_resizeWhitePop();	// 白名单未填提示
+		
+		// fn_modifyAlarmInfoPanel(true);	// kjj add in 2014.04.28 调整告警列表位置
+		
+		var b_layer = $('.j_body').data('layer');
+		if ( b_layer ) {
+			dlf.fn_lockScreen();
+		}
+		if ( !dlf.fn_isBMap() ) {	// 高德地图
+			$('#mapTileLayer').css('left', n_tilelayerLeft);
+		}
+	}, 25);
 }
 })();
 
