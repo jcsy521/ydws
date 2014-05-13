@@ -282,6 +282,7 @@ dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_curr
 		
 		if ( n_nowtime - n_carTimestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
 			b_flag = true;
+			
 			if ( n_iconType == 1 || n_iconType == 3 ) {
 				obj_iconSize = new BMap.Size(50, 50);
 				if ( n_iconType == 1 ) {
@@ -289,10 +290,13 @@ dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_curr
 				} else {
 					obj_imageOffset = new BMap.Size(-5, 0);
 				}
+			} else if ( n_iconType == 2 ) {
+				obj_iconSize = new BMap.Size(34, 34);
+				obj_imageOffset = new BMap.Size(0, 0);
 			}
 			myIcon.setSize(obj_iconSize);
 			myIcon.setImageOffset(obj_imageOffset);
-		}		
+		}
 		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);
 	} else {
 		myIcon.setImageOffset(new BMap.Size(0, 0));		

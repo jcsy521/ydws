@@ -2296,16 +2296,48 @@ window.dlf.fn_secondNavValid = function() {
 window.dlf.resetPanelDisplay = function(n_type) {
 	setTimeout(function() {
 		var n_windowHeight = $(window).height(),
-			n_tempWindowHeight = n_windowHeight = $('.j_body').height() > n_windowHeight ? n_windowHeight + 17 : n_windowHeight,
-			n_tempHeight = n_windowHeight <= 624 ? 624 : n_windowHeight,
-			n_windowHeight = $.browser.version == '6.0' ? n_tempHeight : n_windowHeight,
+			n_bodyHeight = $('.j_body').height(),
+			n_tempWindowHeight = n_windowHeight,
 			n_tempWindowWidth = $(window).width(), // document.body.offsetWidth,
-			n_tempWindowWidth = $('#top').width() > n_tempWindowWidth ? n_tempWindowWidth + 17 : n_tempWindowWidth,
-			n_tempWidth = n_tempWindowWidth <= 1024 ? 1024 : n_tempWindowWidth,
+			n_topWidth = $('#top').width(),
+			n_tempWidth = n_tempWindowWidth,
+			n_tempWindowWidth = n_tempWindowWidth,
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
-			b_corpLeftSt = $('#corpLeft').is(':hidden');
+			b_corpLeftSt = $('#corpLeft').is(':hidden');	
 		
+		/*if ( n_topWidth > n_tempWindowWidth ){
+			if ( n_tempWindowWidth > 1024 ) {
+				n_tempWindowHeight = n_windowHeight +17;
+			}
+		}
+		
+		if ( n_bodyHeight > n_windowHeight ){
+			if ( n_windowHeight > 624 ) {
+				n_tempWindowWidth += 17;
+			}
+		}*/
+		if ( n_bodyHeight > n_windowHeight ){
+			if ( n_tempWindowWidth > 1024 ) {
+				n_tempWindowHeight = n_windowHeight +17;
+			}
+		}
+		
+		if ( n_topWidth > n_tempWindowWidth ){
+			if ( n_windowHeight > 624 ) {
+				n_tempWindowWidth += 17;
+			}
+		}
+		//todo
+		n_windowHeight = n_tempWindowHeight;
+		//todoend
+		if ( n_tempWindowHeight <= 624 ) {
+			n_windowHeight = 624;
+		}
+		
+		if ( $(window).width() <= 1024 ) {
+			n_tempWidth = 1024;
+		}
 		if ( n_type == 0 ) {
 			b_pLeftSt = false;
 			b_corpLeftSt = false;

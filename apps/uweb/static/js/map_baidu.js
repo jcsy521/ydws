@@ -246,11 +246,14 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 				} else {
 					obj_imageOffset = new BMap.Size(-5, 0);
 				}
+			} else if ( n_iconType == 2 ) {
+				obj_iconSize = new BMap.Size(34, 34);
+				obj_imageOffset = new BMap.Size(0, 0);
 			}
 			myIcon.setSize(obj_iconSize);
 			myIcon.setImageOffset(obj_imageOffset);
 		}
-		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标		
+		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标	
 	}
 	if ( str_iconType == 'start' ) {	// 轨迹起点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerA.png';

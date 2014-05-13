@@ -701,11 +701,21 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				if ( n_index != -1 ) {
 					str_tid = $.trim(str_checkedNode.substr(str_checkedNode.indexOf('_') + 1));
 					
-					
 					var	obj_car = obj_tempCarsData[str_tid];
 					
+					/**
+					* KJJ add in 2014.05.12
+					* 判断是否有缓存数据
+					* 如果是新增终端，tid==tmobile，所以需要根据tmobile获取对应tid以及对应缓存数据
+					*/ 
 					if ( !dlf.fn_isEmptyObj( obj_car )) {
-						return;
+						var obj_tempAddTerminal = $('#corpTree a[title='+ str_tid +']');
+						
+						if ( obj_tempAddTerminal.length <= 0 ) {
+							return;
+						} else {
+							obj_car = obj_tempCarsData[obj_tempAddTerminal.attr('tid')];
+						}
 					}
 					var obj_trace = obj_car.trace_info,	// 甩尾数据
 						obj_track = obj_car.track_info,	// 开启追踪点数据
@@ -898,6 +908,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			} else if ( n_corpClass != -1 ) {	// 选中整个集团
 				str_nodes = '.j_corp .j_group';
 			}
+			arr_checkedNode.push($(str_nodes).attr('id'));
 			setTimeout(function() {
 				var n_checkedLength = $(str_nodes+' .jstree-checked').length,
 					n_num = 0,
@@ -923,7 +934,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						} else if ( str_currentCorpInfoStat == 'offlineCount' && str_loginSt != '0' ) {
 							return;
 						}
-						if ( b_uncheckedAll ) {	// 如果已经取消选中，则停止循环
+						if ( $.inArray($(str_nodes).attr('id'), arr_checkedNode) < 0 ) {	// 如果已经取消选中，则停止循环
 							clearInterval(n_addMarkerInterval);
 							return;							
 						} else {
@@ -955,14 +966,18 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 	});
 }
 
+var arr_checkedNode = [];
+
 function fn_uncheckedNode(obj) {
 	var obj_currentLi = $(obj),
+		str_id = obj_currentLi.attr('id'),
 		str_class = obj_currentLi.attr('class'),
 		n_terminalClass = str_class.indexOf('j_leafNode'),
 		n_groupClass = str_class.indexOf('j_group'),
 		n_corpClass = str_class.indexOf('j_corp');
 	
 	b_uncheckedAll = true;	// 设置反选为true
+	arr_checkedNode.splice($.inArray(str_id,arr_checkedNode),1);	// 清除选中元素
 	clearInterval(n_addMarkerInterval);	// 反选时，先清空全选计时器，避免继续添加终端
 	// 延迟0.5s 清空地图
 	setTimeout(function() {
@@ -1408,7 +1423,6 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						dlf.fn_eachCheckedNode('.j_group');
 						dlf.fn_eachCheckedNode('.j_leafNode');
 					}
-			
 					dlf.fn_loadJsTree(str_tempNodeId, str_html);
 					dlf.fn_initAutoComplete();
 					$('#txtautoComplete').val('请输入定位器名称或号码').addClass('gray');	
