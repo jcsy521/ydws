@@ -495,6 +495,7 @@ $(function () {
 		n_trackLeft = ( obj_track.width() ) / 8;
 		
 		if ( n_windowWidth < 1024 ) {
+			n_windowWidth = 1024;
 			n_trackLeft = 40;
 			n_delayLeft = 474;
 			n_delayIconLeft = 458;
@@ -532,10 +533,10 @@ $(function () {
 	$('.j_delayPanel').css({'left': n_delayLeft});
 	$('.j_disPanelCon').css({'left': n_delayIconLeft});
 	/*
-	$('.j_alarmPanel').css({'left': n_alarmLeft});
 	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 	*/
 	$('.j_alarmPanel').hide();
+	$('.j_alarmPanel').css({'left': n_alarmLeft});
 	$('.j_alarmPanelCon').css({'left': (n_windowWidth-18)});
 	$('.j_alarmArrowClick').css('backgroundPosition', '-29px -29px');
 

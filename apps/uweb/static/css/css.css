@@ -357,9 +357,8 @@ body {
 	min-height: 566px;
 }
 .menu a:hover, .menuHover, .selfList a:hover {
-	background: url('/static/images/menuImage.png') no-repeat;	/* acb-menus.png*/
+	background: url('/static/images/menuImage.png') repeat-x;	/* acb-menus.png*/
 	color: #0E6CA5;
-	margin-top: 1px;
 }
 .menu a, .countUlIetm a, .selfList a {	/* , #countSecondList a */
 	display: inline-block;

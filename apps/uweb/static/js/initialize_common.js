@@ -2306,17 +2306,6 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
 		
-		/*if ( n_topWidth > n_tempWindowWidth ){
-			if ( n_tempWindowWidth > 1024 ) {
-				n_tempWindowHeight = n_windowHeight +17;
-			}
-		}
-		
-		if ( n_bodyHeight > n_windowHeight ){
-			if ( n_windowHeight > 624 ) {
-				n_tempWindowWidth += 17;
-			}
-		}*/
 		if ( n_bodyHeight > n_windowHeight ){
 			if ( n_tempWindowWidth > 1024 ) {
 				n_tempWindowHeight = n_windowHeight +17;
@@ -2331,7 +2320,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		//todo
 		n_windowHeight = n_tempWindowHeight;
 		//todoend
-		if ( n_tempWindowHeight <= 624 ) {
+		if ( n_windowHeight <= 624 ) {
 			n_windowHeight = 624;
 		}
 		
@@ -2350,7 +2339,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			//n_windowHeight += 123;
 		}
 		if ( b_pLeftSt || b_corpLeftSt ) {
-			n_tempWindowWidth += 247;
+			//n_tempWindowWidth += 247;
 		}
 		var	n_tilelayerLeft = n_tempWindowWidth <= 1024 ? 1024 - 288 : n_tempWindowWidth - 188,
 			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_tempWindowWidth,
@@ -2381,8 +2370,8 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			n_defTop = 37;
 		}
 		if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同
-			$('#top, #main, #corpMain').css('width', n_windowWidth-247);
-			n_trackWidth = n_right = n_windowWidth-247;
+			$('#top, #main, #corpMain').css('width', n_windowWidth);
+			n_trackWidth = n_right = n_windowWidth;
 			n_defLeft = 0;
 		} else {
 			$('#top, #main, #corpMain').css('width', n_windowWidth);			
@@ -2435,7 +2424,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 				b_delayPanel = obj_delayPanel.is(':visible'),
 				obj_alarmPanel = $('.j_alarmPanel'),
 				b_alarmPanel = obj_alarmPanel.is(':visible'),
-				n_tempWindowWidth = n_tempWidth,
+				//n_tempWindowWidth = n_tempWidth,
 				n_delayLeft = n_tempWindowWidth - 550,
 				n_delayIconLeft = n_delayLeft - 17,
 				n_alarmLeft = n_tempWindowWidth - 400,
@@ -2452,8 +2441,15 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			if ( !b_delayPanel ) {
 				n_delayIconLeft = n_tempWindowWidth - 17;
 			}
-			if ( !b_alarmPanel ) {
+			if ( !b_alarmPanel && n_type != 2  ) {	// searchRecord.js 查询完数据后也会重新计算宽高
 				n_alarmIconLeft = n_tempWindowWidth - 17;
+			}
+			if ( n_type == 2 ) {
+				if ( $('.j_alarmPanel').css('display') != 'none' ) {
+					//n_alarmIconLeft =  
+				} else {
+					n_alarmIconLeft = n_tempWindowWidth - 17;
+				}
 			}
 			obj_delayPanel.css({'left': n_delayLeft});
 			$('.j_disPanelCon').css({'left': n_delayIconLeft});

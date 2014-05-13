@@ -1161,7 +1161,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	}
 	$('#' + str_who + 'Wrapper').data('hash', str_hash);	// 存储hash值
 	// 重新计算高度，宽度
-	dlf.resetPanelDisplay();
+	dlf.resetPanelDisplay(2);
 }
 
 /**
