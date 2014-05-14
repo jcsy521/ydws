@@ -241,6 +241,17 @@ class QueryHelper(object):
         return terminals
 
     @staticmethod
+    def get_terminals_by_oid(oid, db):
+        """Get all trackers belongs to a operator.
+        """
+        terminals = db.query("SELECT mobile, owner_mobile, tid FROM T_TERMINAL_INFO "
+                             "  WHERE group_id IN "
+                             "  (SELECT group_id FROM T_GROUP_OPERATOR "
+                             "   WHERE T_GROUP_OPERATOR.oper_id = %s)" , 
+                             oid)
+        return terminals
+
+    @staticmethod
     def get_location_info(tid, db, redis):
         """Get tracker's last location and keep a copy in redis.
         """
