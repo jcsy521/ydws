@@ -301,10 +301,12 @@ def handle_location(location, redis, cellid=False, db=None):
                 location.cLat = last_location.clatitude
                 location.cLon = last_location.clongitude
                 location.type = 0 
+                location.gps = 0
             else:
                 location.type = 0 
                 logging.info("Tid:%s, current_time - last_location.timestamp >= 600s, so use location itself: %s.", location.dev_id, location)
                 pass
+        
         #    location.lat = last_location.latitude
         #    if (current_time - last_location.timestamp) > 600:
         #        location.gps_time = current_time 

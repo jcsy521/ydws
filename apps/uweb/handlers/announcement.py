@@ -89,6 +89,8 @@ class AnnouncementListHandler(BaseHandler):
             page_size = int(data.get('pagesize', UWEB.LIMIT.PAGE_SIZE))
             page_number = int(data.pagenum)
             page_count = int(data.pagecnt)
+            start_time = data.start_time 
+            end_time = data.end_time
 
             logging.info("[UWEB] announcement request: %s, uid: %s", 
                          data, self.current_user.uid)
@@ -103,8 +105,9 @@ class AnnouncementListHandler(BaseHandler):
             if page_count == -1:
                 res = self.db.get("SELECT COUNT(*) AS count" 
                                   "  FROM T_ANNOUNCEMENT_LOG"
-                                  "  WHERE umobile = %s",
-                                  self.current_user.cid)
+                                  "  WHERE umobile = %s "
+                                  "  AND (timestamp BETWEEN %s AND %s)",
+                                  self.current_user.cid, start_time, end_time)
 
                 d, m = divmod(res.count, page_size)
                 page_count = (d + 1) if m else d 
@@ -112,9 +115,11 @@ class AnnouncementListHandler(BaseHandler):
             res = self.db.query("SELECT id, umobile, content, timestamp, mobiles" 
                                 "  FROM T_ANNOUNCEMENT_LOG"
                                 "  WHERE umobile = %s"
+                                "  AND (timestamp BETWEEN %s AND %s)"
                                 "  ORDER BY timestamp DESC"
                                 "  LIMIT %s, %s",
                                 self.current_user.cid,
+                                start_time, end_time,
                                 page_number * page_size, page_size) 
 
             self.write_ret(status=status, 

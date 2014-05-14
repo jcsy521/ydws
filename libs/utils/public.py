@@ -148,6 +148,9 @@ def insert_location(location, db, redis):
     """Insert whole-data into T_LOCATION.
     """
     location = DotDict(location)
+    #NOTE if locate_error is bigger then 500, set it 500
+    if int(location.locate_error) > 500:
+        location.locate_error = 500
     lid = db.execute("INSERT INTO T_LOCATION(tid, latitude, longitude, altitude,"
                      "    clatitude, clongitude, timestamp, name, category, type,"
                      "    speed, degree, cellid, locate_error)"

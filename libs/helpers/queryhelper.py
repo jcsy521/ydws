@@ -270,6 +270,11 @@ class QueryHelper(object):
                                         'locate_error':int(location.locate_error)})
 
                 redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+
+        #NOTE: if locate_error is bigger than 500, set it as 500
+        if location and int(location['locate_error']) > 500:
+            location['locate_error'] = 500
+
         return location
 
     @staticmethod
