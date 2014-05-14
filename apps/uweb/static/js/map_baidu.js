@@ -437,7 +437,7 @@ function fn_infoWindowTextUpdate(obj_location, str_type) {
 	// 圆: 经纬度,半径 显示误差圈 //TODO
 	var obj_circleData = {'circle': {'longitude': n_clon, 'latitude': n_clat, 'radius': obj_location.locate_error}, 'region_shape': 0};
 	
-	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' || str_type == 'delay' || str_type == 'start' || str_type == 'end' ) {
+	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' || str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == 'draw' ) {
 		b_viewport = false;
 	}
 	dlf.fn_displayMapShape(obj_circleData, b_viewport, true);

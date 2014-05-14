@@ -401,7 +401,11 @@ window.dlf.fn_searchData = function (str_who) {
 							'pagenum': n_dwRecordPageNum, 
 							'pagecnt': n_dwRecordPageCnt, 
 							'tids': str_tid
-						};	
+						};
+			if ( !str_tid ) {
+				dlf.fn_jNotifyMessage('该集团下无可用的定位器。', 'message', false, 3000);
+				return;
+			}
 			if ( n_bgDate > n_finishDate ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
 				return;
