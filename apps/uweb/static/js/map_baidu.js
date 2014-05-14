@@ -721,11 +721,11 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		} else if ( str_type == 'end' ) {
 			obj_trackMarker = $('.delayTable').data('markers')[1];
 		}
-		/* 根据不同的marker对象,填充数据
-		if ( obj_trackMarker ) {
+		/* 根据不同的marker对象,填充数据*/
+		if ( obj_trackMarker && obj_trackMarker.infoWindow ) {
 			dlf.fn_createMapInfoWindow(obj_trackLocation, str_type, n_index);
 			obj_trackMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
-		}*/
+		}
 	} else {
 		var obj_carDatas = $('.j_carList').data('carsData'),
 				obj_tempCarData = obj_carDatas[tid];

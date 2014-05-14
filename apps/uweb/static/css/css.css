@@ -1605,7 +1605,6 @@ body {
 	background-color: #FEFDFD;
 	max-height: 400px;
 	padding-bottom: 10px;
-	overflow-y: auto;
 }
 .delayPanel, .alarmPanel {
 	position: absolute;

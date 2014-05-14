@@ -69,8 +69,8 @@ window.dlf.fn_initPanel = function () {
 	// 设置停留点列表的位置
 	$('.j_delayPanel').css({'left': n_delayLeft});
 	$('.j_disPanelCon').css({'left': n_delayIconLeft});
-	$('.j_alarmPanel').css({'left': n_alarmLeft});
-	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
+	/*$('.j_alarmPanel').css({'left': n_alarmLeft});
+	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});*/
 }
 
 /**

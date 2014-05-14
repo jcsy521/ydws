@@ -42,7 +42,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		dlf.fn_clearTrack();	// 初始化清除数据
 		dlf.fn_clearMapComponent(); // 清除页面图形
-		fn_initEventTimeControl();
+		fn_initEventTimeControl('eventSearch');
 		//dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 		// 添加复选框的事件 hs:2011.1.10
@@ -132,7 +132,8 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 	} else if ( str_who == 'notifyManageSearch' ) { // 通知查询
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
-		dlf.fn_initTimeControl(str_who); // 时间初始化方法
+		fn_initEventTimeControl(str_who);
+		//dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 	}
 	dlf.fn_setSearchRecord(str_who); //  绑定查询的事件,查询,上下翻页
@@ -1168,12 +1169,12 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 * 告警查询的时间控件初始化
 * kjj add in 2013-08-06
 */
-function fn_initEventTimeControl() {
+function fn_initEventTimeControl(str_who) {
 	var obj_date = new Date(),
 		n_currentDate = obj_date.getTime();
 		str_nowDate = dlf.fn_changeNumToDateString(n_currentDate, 'ymd'), 
-		str_inputStartTime = 'eventSearchStartTime', 
-		str_inputEndTime = 'eventSearchEndTime',
+		str_inputStartTime = str_who + 'StartTime', 
+		str_inputEndTime = str_who + 'EndTime',
 		str_tempBeginTime = str_nowDate+' 00:00:00',
 		str_tempEndTime = str_nowDate+' '+dlf.fn_changeNumToDateString(n_currentDate, 'sfm'),
 		str_timepickerFormat = 'yyyy-MM-dd HH:mm:ss',
@@ -1237,7 +1238,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 		str_tempBeginTime =  dlf.fn_getFirstDayOfMonth(); // 月初
 		str_timepickerFormat = 'yyyy-MM-dd';
 	}
-	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
+	obj_stTime.unbind('click').bind('click', function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
 		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false,  qsEnabled: false,
 		onpicked: function() {
 			if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
@@ -1252,7 +1253,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 		}});
 	}).val(str_tempBeginTime);
 	
-	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
+	obj_endTime.unbind('click').bind('click', function() {	// 初始化结束时间，并做事件关联
 		WdatePicker({el: str_inputEndTime, dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false, qsEnabled: false, onpicked: function() {
 				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 					var obj_beginDate = $dp.$D(str_inputStartTime), 
