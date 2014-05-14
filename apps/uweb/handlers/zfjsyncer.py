@@ -21,7 +21,8 @@ class ZFJSyncerHandler(BaseHandler):
             corp_id = 13726103889   #开发区执法局
             begin_time = self.redis.getvalue('last_time')
             end_time = time.time()
-            if (end_time - begin_time) < 15*60: # 15 分钟
+            self.redis.setvalue('last_time', end_time)
+            if (end_time - begin_time) < 14*60: # 14 分钟
                 logging.info("[UWEB] ZFJ request too frequency, skip it, begin time:%s, end time:%s", begin_time, end_time)
                 self.write({'res':res})
                 return
@@ -42,7 +43,6 @@ class ZFJSyncerHandler(BaseHandler):
 
                     positions = get_locations_with_clatlon(positions, self.db) 
                     res.append({'mobile':mobile, 'positions':positions})
-            self.redis.setvalue('last_time', end_time)
             self.write({'res':res})
 
         except Exception as e:
