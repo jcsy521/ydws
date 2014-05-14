@@ -53,11 +53,11 @@ CELERYBEAT_SCHEDULE = {
        "schedule": timedelta(minutes=1),
    },
 
-  # # part 2: for db 
-  # "update_clatclon": {
-  #     "task": "dbtask.update_clatclon",
-  #     # every 2 minute 
-  #     "schedule": timedelta(minutes=2),
-  # },
+   # part 2: for db 
+   "update_clatclon": {
+       "task": "dbtask.update_clatclon",
+       # every 2 minute 
+       "schedule": timedelta(minutes=5),
+   },
 
 }

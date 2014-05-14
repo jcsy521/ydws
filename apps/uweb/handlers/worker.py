@@ -56,7 +56,8 @@ class Worker(object):
                     p, callback = self.queue.get(True, self.BLOCK_TIMEOUT)
                     self._run_callback(callback)
                 else:
-                    time.sleep(0.1)
+                    time.sleep(1)
+                    #time.sleep(0.1)
             except Exception as e:
                 logging.info("[Worker] get exception :%s", e.args)
 
