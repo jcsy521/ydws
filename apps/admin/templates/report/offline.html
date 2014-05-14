@@ -91,6 +91,7 @@
 				<th>sn</th>
 				<th>定位器名称</th>
 				<th>离线时间</th>
+				<th>最近登录时间</th>
 				<th>累计离线时间</th>
 				<th>离线原因</th>
 				<th>电量</th>
@@ -114,6 +115,12 @@
 				<td>
 					<script>document.write(toHumanDate({{r['offline_time']}}));</script>
 				</td>
+
+                                <!-- last login_time -->
+				<td>
+					<script>document.write(toHumanDate({{r['login_time']}}));</script>
+				</td>
+
 				<td>
 					{% if r['offline_period'] >= 86400 and r['offline_period'] < 172800 %}
 						<label class="color37ABF8">

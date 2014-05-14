@@ -43,7 +43,7 @@ class OfflineMixin(BaseMixin):
         end_time = int(self.get_argument('end_time', 0))
 
         res_ = self.db.query("SELECT id, tid, owner_mobile AS umobile, mobile AS tmobile,"
-                             "  begintime, offline_time, pbat, remark, group_id"
+                             "  begintime, offline_time, login_time, pbat, remark, group_id"
                              "  FROM T_TERMINAL_INFO"
                              "  WHERE service_status = 1 AND login =0 AND mobile like '14778%%'"
                              "  ORDER BY offline_time DESC, pbat")
@@ -192,7 +192,8 @@ class OfflineDownloadHandler(BaseHandler, OfflineMixin):
         ws.col(4).width = 4000 
         ws.col(6).width = 4000 * 2 
         ws.col(7).width = 4000 * 2
-        ws.col(9).width = 4000 * 4
+        ws.col(8).width = 4000 * 2
+        ws.col(10).width = 4000 * 4
 
         start_line += 1
 
@@ -205,10 +206,11 @@ class OfflineDownloadHandler(BaseHandler, OfflineMixin):
             ws.write(i, 5, result['alias'])
             ws.write(i, 6, str(result['pbat'])+'%')
             ws.write(i, 7, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['offline_time'])))
-            ws.write(i, 8, seconds_to_label(result['offline_period']))
-            ws.write(i, 9, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
+            ws.write(i, 8, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['login_time'])))
+            ws.write(i, 9, seconds_to_label(result['offline_period']))
+            ws.write(i, 10, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
             terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
-            ws.write(i, 10, safe_unicode(terminal_offline['remark']))
+            ws.write(i, 11, safe_unicode(terminal_offline['remark']))
 
             
         _tmp_file = StringIO()
