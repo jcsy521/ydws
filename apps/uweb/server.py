@@ -90,6 +90,7 @@ from handlers.bindregion import BindRegionHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.zfjsyncer import ZFJSyncerHandler
 from handlers.ownerservice import OwnerserviceHandler
+from handlers.mileagenotification import MileageNotificationHandler 
 
 #znbc uweb handler
 from handlers.passenger import PassengerHandler
@@ -168,6 +169,7 @@ class Application(tornado.web.Application):
             (r"/unbind/*", UNBindHandler),
             (r"/share/*", ShareHandler),
             (r"/activity/*", ActivityHandler),
+            (r"/mileagenotification/*", MileageNotificationHandler),
 
             # for YDWQ
             (r"/announcement/*", AnnouncementHandler),
