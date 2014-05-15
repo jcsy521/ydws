@@ -31,43 +31,69 @@ def send_all(content):
     terminals = db.query("SELECT mobile FROM T_TERMINAL_INFO where login=0")
     for terminal in terminals:
         send(content, terminal.mobile)
-
-def check_req_to_nginx():
+def login():
+    url = 'http://www.ydcws.com/logintest'     
+    headers = dict()
     http = httplib2.Http(timeout=30)
-    url = "http://www.ydcws.com/zfjsyncer"
-    data = dict()
-    response, content = http.request(url, 'POST', json_encode(data))
+    response, content = http.request(url, 'POST') 
+    if response['status'] in ('200', '302'):
+        headers = {'Cookie': response['set-cookie']}
+        if content:
+            logging.info("Login nginx request success conent:%s", content)
+        else:
+            logging.info("Login nginx request conent is none")
+    else:
+        logging.exception("[Login] nginx request failed response: %s", response)
+        send("Login www.ydcws.com/logintest by nginx failed", "13693675352")
+
+    logging.exception("[Login] test login cookie header: %s", headers)
+
+    return headers
+
+def check_req_to_nginx(headers):
+    http = httplib2.Http(timeout=30)
+    url = "http://www.ydcws.com/track"
+    end_time = int(time.time())
+    start_time = end_time - 3600*2
+    
+    data = dict(start_time=start_time, end_time=end_time, cellid_flag=0, tid="T123SIMULATOR")
+    response, content = http.request(url, 'POST', headers=headers, body=json_encode(data))
     if response['status'] == '200':
         if content:
-            logging.info("ZFJSyncer nginx request success conent:%s", content)
+            logging.info("Track nginx request success conent len:%s", len(content))
         else:
-            logging.info("ZFJSyncer nginx request conent is none")
+            logging.info("Track nginx request conent is none")
     else:
-        logging.exception("[ZFJSyncer] nginx request failed response: %s", response)
-        send("Access www.ydcws.com by nginx failed", "13693675352")
+        logging.exception("[Track] nginx request failed response: %s", response)
+        send("Access www.ydcws.com/track by nginx failed", "13693675352")
 
-def check_req_to_uweb():
+def check_req_to_uweb(headers):
     http = httplib2.Http(timeout=30)
-    url = "http://APP01:8000/zfjsyncer"
-    data = dict()
-    response, content = http.request(url, 'POST', json_encode(data))
+    url = "http://app01:8000/track"
+    end_time = int(time.time())
+    start_time = end_time - 3600*2
+
+    data = dict(start_time=start_time, end_time=end_time, cellid_flag=0, tid="T123SIMULATOR")
+    response, content = http.request(url, 'POST', headers=headers, body=json_encode(data))
     if response['status'] == '200':
         if content:
-            logging.info("ZFJSyncer uweb request success conent:%s", content)
+            logging.info("Track uweb request success conent len:%s", len(content))
         else:
-            logging.info("ZFJSyncer uweb request conent is none")
+            logging.info("Track uweb request conent is none")
     else:
-        logging.exception("[ZFJSyncer] uweb request failed response: %s", response)
-        send("Access http://APP01:8000/zfjsyncer by uweb failed", "13693675352")
+        logging.exception("[Track] uweb request failed response: %s", response)
+        send("Access http://app01:8000/track by nginx failed", "13693675352")
 
 def main():
     ConfHelper.load('../conf/global.conf')
     parse_command_line()
+    
+    headers = login()
 
     while True:
-        check_req_to_nginx()
+        check_req_to_nginx(headers)
         time.sleep(1)
-        check_req_to_uweb()
+        check_req_to_uweb(headers)
         time.sleep(30)
 
 
