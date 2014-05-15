@@ -51,6 +51,7 @@ def login():
     return headers
 
 def check_req_to_nginx(headers):
+    a = time.time()
     http = httplib2.Http(timeout=30)
     url = "http://www.ydcws.com/track"
     end_time = int(time.time())
@@ -58,16 +59,18 @@ def check_req_to_nginx(headers):
     
     data = dict(start_time=start_time, end_time=end_time, cellid_flag=0, tid="T123SIMULATOR")
     response, content = http.request(url, 'POST', headers=headers, body=json_encode(data))
+    b = time.time()
     if response['status'] == '200':
         if content:
-            logging.info("Track nginx request success conent len:%s", len(content))
+            logging.info("Track nginx request success conent len:%s, used time:%s", len(content), b-a)
         else:
             logging.info("Track nginx request conent is none")
     else:
-        logging.exception("[Track] nginx request failed response: %s", response)
+        logging.exception("[Track] nginx request failed response: %s, used time:%s", response, b-a)
         send("Access www.ydcws.com/track by nginx failed", "13693675352")
 
 def check_req_to_uweb(headers):
+    a = time.time()
     http = httplib2.Http(timeout=30)
     url = "http://app01:8000/track"
     end_time = int(time.time())
@@ -75,13 +78,14 @@ def check_req_to_uweb(headers):
 
     data = dict(start_time=start_time, end_time=end_time, cellid_flag=0, tid="T123SIMULATOR")
     response, content = http.request(url, 'POST', headers=headers, body=json_encode(data))
+    b = time.time()
     if response['status'] == '200':
         if content:
-            logging.info("Track uweb request success conent len:%s", len(content))
+            logging.info("Track uweb request success conent len:%s, used time:%s", len(content), b-a)
         else:
             logging.info("Track uweb request conent is none")
     else:
-        logging.exception("[Track] uweb request failed response: %s", response)
+        logging.exception("[Track] uweb request failed response: %s, used time:%s", response)
         send("Access http://app01:8000/track by nginx failed", "13693675352")
 
 def main():
