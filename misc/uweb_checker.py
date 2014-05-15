@@ -39,11 +39,11 @@ def check_req_to_nginx():
     response, content = http.request(url, 'POST', json_encode(data))
     if response['status'] == '200':
         if content:
-            logging.info("ZFJSyncer request success conent:%s", content)
+            logging.info("ZFJSyncer nginx request success conent:%s", content)
         else:
-            logging.info("ZFJSyncer request conent is none")
+            logging.info("ZFJSyncer nginx request conent is none")
     else:
-        logging.exception("[ZFJSyncer] request failed response: %s", response)
+        logging.exception("[ZFJSyncer] nginx request failed response: %s", response)
         send("Access www.ydcws.com by nginx failed", "13693675352")
 
 def check_req_to_uweb():
@@ -53,11 +53,11 @@ def check_req_to_uweb():
     response, content = http.request(url, 'POST', json_encode(data))
     if response['status'] == '200':
         if content:
-            logging.info("ZFJSyncer request success conent:%s", content)
+            logging.info("ZFJSyncer uweb request success conent:%s", content)
         else:
-            logging.info("ZFJSyncer request conent is none")
+            logging.info("ZFJSyncer uweb request conent is none")
     else:
-        logging.exception("[ZFJSyncer] request failed response: %s", response)
+        logging.exception("[ZFJSyncer] uweb request failed response: %s", response)
         send("Access http://APP01:8000/zfjsyncer by uweb failed", "13693675352")
 
 def main():
@@ -69,9 +69,6 @@ def main():
         time.sleep(1)
         check_req_to_uweb()
         time.sleep(30)
-
-
-    
 
 
 if __name__ == "__main__": 
