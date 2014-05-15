@@ -633,7 +633,7 @@ $(function() {
 	$.formValidator.initConfig({
 		formID: 'mileageNotificationForm', //指定from的ID 编号
 		debug: true, // 指定调试模式,不提交form
-		validatorGroup: '13', // 指定本form组编码,默认为1, 多个验证组时使用
+		validatorGroup: '14', // 指定本form组编码,默认为1, 多个验证组时使用
 		wideWord: false, // 一个汉字当一个字节
 		submitButtonID: 'corp_mileageNotificationSave', // 指定本form的submit按钮
 		onError: function(msg) {
@@ -643,6 +643,6 @@ $(function() {
 			dlf.fn_mileageNotificationSave();	// put请求
 		}
 	});
-	$('#txtAssistMobile').formValidator({validatorGroup: '13', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
-	$('#txtDistanceNotification').formValidator({validatorGroup: '13', empty: true}).regexValidator({regExp: 'num1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
+	$('#txtAssistMobile').formValidator({validatorGroup: '14', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
+	$('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'num1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
 })
