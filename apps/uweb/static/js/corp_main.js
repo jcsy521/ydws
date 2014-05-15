@@ -60,6 +60,7 @@ function customMenu(node) {
 		bindRegionLabel = '', // 绑定围栏
 		batchTrackLabel = '',	// 开启追踪
 		batchCancleTrack = '',	// 取消追踪
+		mileageNotificationLabel = '',	// 里程保养
 		str_bizCode = $('#hidBizCode').val(),	// 当前的业务
 		obj_alarmAndDelay = $('.j_alarm, .j_delay'),
 		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
@@ -90,6 +91,7 @@ function customMenu(node) {
 		staticsLabel = '里程统计';
 		bindLineLabel = '绑定/解绑线路';
 		bindRegionLabel = '绑定围栏';
+		mileageNotificationLabel = '保养里程';
 	}
 	// 定位器的移动至菜单项
 	
@@ -207,6 +209,13 @@ function customMenu(node) {
 				dlf.fn_initCorpTerminal($(obj).children('a').eq(0).attr('tid'));
 				return false;
 			}
+		},
+		'mileageNotification': {
+			"label" : mileageNotificationLabel,
+			"action" : function (obj) {
+				dlf.fn_initMileageNotification($(obj).children('a').eq(0).attr('tid'));
+				return false;
+			}			
 		},
 		"defend": {	// 单个定位器设防撤防
 			"label" : singleDefendLabel,
@@ -378,6 +387,7 @@ function customMenu(node) {
 		delete items.bindRegion;
 		delete items.region;
 		delete items.batchTrack;
+		delete items.mileageNotification;
    }
    if ( obj_node.hasClass('j_group') ) {
 		delete items.wakeUp;
@@ -394,6 +404,7 @@ function customMenu(node) {
 		delete items.bindLine;
 		delete items.bindRegion;
 		delete items.region;
+		delete items.mileageNotification;
    }
    if ( str_userType == USER_OPERATOR ) {	// 操作员屏蔽右键	
 		delete items.create;

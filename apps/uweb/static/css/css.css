@@ -397,9 +397,6 @@ body {
 .selfList a {
 	width: 130px;
 }
-.selfList a:hover {
-	background: url('/static/images/welcomeBg.png');	/* acb-menus.png*/
-}
 
 #otherList {
 	/*background-color: #ffffff;
@@ -643,7 +640,7 @@ body {
 /*main content end*/
 
 /*dialogs wrapper start*/
-#currentMsg, #defendMsg, .bListR .terminalTdL, .personalList label, .pwdList label, .smsTip, .cTerminalList label {
+#currentMsg, #defendMsg, .bListR .terminalTdL, .personalList label, .pwdList label, .smsTip, .cTerminalList label, .wordColor {
 	color: #126393
 }
 .timeout {
@@ -831,6 +828,16 @@ body {
 	background-position: 0 -920px;
 	width: 600px;
 	height: 32px;
+}
+.mileageNotificationTitle {
+	background-position: 0 -1020px;
+	width: 480px;
+}
+.mileageNotificationTitle .close {
+	left: 454px;
+}
+.mileageNotificationContent {
+	width: 480px;
 }
 .wrapperContent {
 	height: 249px;
@@ -1044,6 +1051,20 @@ body {
     margin-right: 20px;
     text-align: right;
     width: 97px;
+}
+#mileageNotificationTable label {
+	width: 125px;
+}
+#txtAssistMobile {
+	width: 247px;
+}
+#txtDistanceNotification {
+	width: 215px;
+}
+#corp_mileageNotificationSave {
+	top: 229px;
+	left: 346px;
+	position: absolute;
 }
 #c_mobile {
 	text-align: left;
@@ -1297,7 +1318,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave, .saveButton {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
@@ -1797,8 +1818,8 @@ body {
 .dataTable {
 	border: 0px;
 	margin-top: 8px;
-	/*width: 850px;*/
-	width: 680px;
+	/*width: 850px;
+	width: 680px;*/
 	border-collapse: collapse;
 }
 .dataTable tr {
@@ -3093,14 +3114,14 @@ legend {
 	width: 800px;
 }
 .eventSearchContent td, .mileageContent td, .operatorContent td, .onlineStaticsContent td {
-	height: 33px;
+	height: 29px;
 }
 .singleMileageTable td, .singleEventContent td {
 	height: 22px;
 	line-height: 22px;
 }
 .eventSearchContent .dataTable, .singleEventContent .dataTable {
-	width: 760px;	/*770px*/
+	/*width: 790px;	770px*/
 }
 .singleEventContent {
 	padding-top: 10px;

@@ -568,6 +568,65 @@
 		</div>
 	</div>
 	
+	<!-- 保养提醒 -->
+	<div id="mileageNotificationWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle mileageNotificationTitle">
+			<span class="close j_close" who="corpSMSOption"></span>
+		</div>
+		<div id="mileageNotificationContent" class="mileageNotificationContent wrapperContent">
+			<form id="mileageNotificationForm">
+				<table class="personalList" id="mileageNotificationTable">
+					<tbody>
+						<tr>
+							<td>
+								<label>车主号码：</label>
+							</td>
+							<td id=""  t_val="">
+								<span id="spanOwnerMobile"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>第二通知号码：</label>
+							</td>
+							<td id="td_assist_mobile"  t_val="">
+								<input id="txtAssistMobile" class="text_mouseOut" type="text" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>下次保养里程：</label>
+							</td>
+							<td id="tddistance_left"  t_val="">
+								<input id="txtDistanceNotification" class="text_mouseOut" type="text" />
+								<span class="wordColor">公里</span>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>当前行车里程：</label>
+							</td>
+							<td>
+								<span id="lblDistanceCurrent"></span>
+								<span>公里</span>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>距离下次保养还有：</label>
+							</td>
+							<td>
+								<span id="lblDistanceLeft"></span>
+								<span>公里</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<input type="submit" id="corp_mileageNotificationSave" width=100 value="" class="saveButton j_save" />
+			</form>
+		</div>
+	</div>
+	
 	<!-- 操作员管理 -->
 	<div id="operatorWrapper" class="hide wrapper">
 		<!--<div class="wrapperTitle operatorTitle">

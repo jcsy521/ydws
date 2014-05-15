@@ -1586,7 +1586,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
 	if ( b_trackStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionStatus || b_corpRegionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
-		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' ) {
+		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'mileageNotification' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
@@ -2070,6 +2070,18 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 					dlf.fn_changeTableBackgroundColor();	// 数据行背景色改变
 					$('#addPassengerDialog').dialog('close');	// 关闭dialog
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+				} else if ( str_who == 'mileageNotification' ) {
+					for ( var param in obj_data ) {
+						var str_val = obj_data[param];
+						
+						if ( param == 'assist_mobile' ) {
+							$('#txtAssistMobile').data('t_val', str_val);
+						} else if ( param == 'distance_notification' ) {
+							$('#txtDistanceNotification').data('t_val', str_val);
+						}
+					}
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else {
 					if ( str_who == 'corpTerminal' ) {
 						dlf.fn_clearNavStatus('corpTerminal');
@@ -2307,19 +2319,17 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
 		
 		if ( n_bodyHeight > n_windowHeight ){
+			n_topWidth = n_topWidth - 17;
 			if ( n_tempWindowWidth > 1024 ) {
 				n_tempWindowHeight = n_windowHeight +17;
 			}
 		}
-		
 		if ( n_topWidth > n_tempWindowWidth ){
 			if ( n_windowHeight > 624 ) {
 				n_tempWindowWidth += 17;
 			}
 		}
-		//todo
 		n_windowHeight = n_tempWindowHeight;
-		//todoend
 		if ( n_windowHeight <= 624 ) {
 			n_windowHeight = 624;
 		}
@@ -2363,10 +2373,11 @@ window.dlf.resetPanelDisplay = function(n_type) {
 
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 259;
-			n_tempContent = n_mapHeight = n_mapHeight - 10;
+			n_tempContent = n_mapHeight - 10;
 		}
 		if ( b_topPanelSt ) {
-			n_mapHeight = n_windowHeight - 38;
+			n_tempContent = n_mapHeight = n_windowHeight - 38;
+			n_mainHeight = n_windowHeight;			
 			n_defTop = 37;
 		}
 		if ( b_pLeftSt || b_corpLeftSt ) {	// 左侧如果隐藏了的话，main、right、map宽高相同

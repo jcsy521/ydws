@@ -479,6 +479,72 @@ window.dlf.fn_resizeWhitePop = function() {
 		obj_whitePop.css({left: n_left, top: n_top});
 	}
 }
+
+
+/**
+* KJJ add in 2014.05.15
+* 里程保养
+*/
+window.dlf.fn_initMileageNotification = function(str_tid) {
+	dlf.fn_dialogPosition('mileageNotification');  // 显示短信设置dialog	
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	$.get_(MILEAGENOTIFICATION_URL + '?tid=' + str_tid, '', function(data) {
+		if ( data.status == 0 ) {
+			var obj_res = data.res,
+				str_ownerMobile = obj_res.owner_mobile,	// 车主号码
+				str_assist_mobile = obj_res.assist_mobile,	// 第二通知号码
+				n_distance_current = Math.round(obj_res.distance_current/1000),	// 当前行车里程
+				n_distance_left = Math.round(obj_res.distance_left/1000), // 距离下次保养里程
+				n_tempDistance = obj_res.distance_notification,
+				n_distance_notification = Math.round(n_tempDistance/1000); // 下次保养里程
+			
+			$('#spanOwnerMobile').html(str_ownerMobile);
+			$('#txtAssistMobile').val(str_assist_mobile).data('t_val', str_assist_mobile);
+			$('#txtDistanceNotification').val(n_distance_notification).data('t_val', n_tempDistance);
+			
+			$('#lblDistanceCurrent').html(n_distance_current);
+			$('#lblDistanceLeft').html(n_distance_left);
+			
+		} else if ( data.status == 201 ) {	// 业务变更
+			dlf.fn_showBusinessTip();
+		} else {
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
+		}
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	});
+}
+
+window.dlf.fn_mileageNotificationSave = function() {
+	var obj_param = {},
+		n_num = 0,
+		str_oldAssistMobile = $('#txtAssistMobile').data('t_val');
+		str_newAssistMobile = $('#txtAssistMobile').val(),
+		n_oldDistance = $('#txtDistanceNotification').data('t_val'),
+		n_newDistance = $('#txtDistanceNotification').val()*1000;
+		
+	if ( str_oldAssistMobile != str_newAssistMobile ) {
+		n_num ++;
+		obj_param.assist_mobile = str_newAssistMobile;
+	}
+	if ( n_oldDistance != n_newDistance ) {
+		n_num ++;
+		obj_param.distance_notification = n_newDistance;		
+	}
+	/**
+	* 只保存有修改的数据
+	*/
+	for(var param in obj_param) {	// 修改项的数目
+		n_num = n_num + 1;
+	}
+	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
+		obj_param.tid = dlf.fn_getCurrentTid();
+		dlf.fn_jsonPut(MILEAGENOTIFICATION_URL, obj_param, 'mileageNotification', '保养里程保存中');
+	} else {
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	}
+}
+
 })();
 
 $(function() {
@@ -561,4 +627,22 @@ $(function() {
 		}
 	});
 	
+	/** 
+	* 短息设置的验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'mileageNotificationForm', //指定from的ID 编号
+		debug: true, // 指定调试模式,不提交form
+		validatorGroup: '13', // 指定本form组编码,默认为1, 多个验证组时使用
+		wideWord: false, // 一个汉字当一个字节
+		submitButtonID: 'corp_mileageNotificationSave', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+		}, 
+		onSuccess: function() {
+			dlf.fn_mileageNotificationSave();	// put请求
+		}
+	});
+	$('#txtAssistMobile').formValidator({validatorGroup: '13', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
+	$('#txtDistanceNotification').formValidator({validatorGroup: '13', empty: true}).regexValidator({regExp: 'num1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
 })
