@@ -86,8 +86,8 @@ class LeHandler(BaseHandler):
                     if zlp.success == "9999228":
                         callback = partial(self.re_subscription, data['sim'])
                         IOLoop.instance().add_timeout(int(time.time()) + 5, callback)
-                    logging.info("[LE] Zsle request failed, errorcode: %s, info: %s",
-                                 zlp.success, zlp.info)
+                    logging.info("[LE] Zsle request failed, errorcode: %s, info: %s, sim:%s"
+                                 zlp.success, zlp.info, data['sim'])
                     # logging.info('[LE] Google request:\n %s', request)
                     # response = self.send(ConfHelper.LBMP_CONF.le_host, 
                     #                      ConfHelper.LBMP_CONF.le_url, 
@@ -101,7 +101,7 @@ class LeHandler(BaseHandler):
                     #     ret.success = ErrorCode.SUCCESS 
                     #     ret.info = ErrorCode.ERROR_MESSAGE[ret.success]
             except Exception as e:
-                logging.exception("[LE] Get latlon failed. Exception: %s", e.args)
+                logging.exception("[LE] Get latlon failed. Exception: %s, sim:%s", e.args, data['sim'])
             self.write(ret)
             IOLoop.instance().add_callback(self.finish)
 
