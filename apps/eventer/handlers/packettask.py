@@ -18,7 +18,7 @@ from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
      get_ios_id_key, get_power_full_key, get_region_status_key, get_alarm_info_key,\
      safe_utf8, safe_unicode, get_ios_push_list_key, get_android_push_list_key,\
-     get_region_time_key, get_alert_freq_key, get_pbat_message_key
+     get_region_time_key, get_alert_freq_key, get_pbat_message_key, start_end_of_day
 from utils.public import insert_location
 from utils.geometry import PtInPolygon 
 
@@ -238,6 +238,7 @@ class PacketTask(object):
                 if pvt['gps_time'] > (current_time + 24*60*60):
                     logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", pvt)
                     continue
+
                 # get available location from lbmphelper
                 pvt['dev_id'] = location['dev_id']
                 pvt['Tid'] = location['Tid']
@@ -259,6 +260,43 @@ class PacketTask(object):
                 pvt['category'] = EVENTER.CATEGORY.REALTIME
                 if pvt.get('lat') and pvt.get('lon'): 
                     insert_location(pvt, self.db, self.redis)
+                    #NOTE: record the milleage
+                    mileage_key = 'mileage:%s' % pvt['dev_id']
+                    mileage = self.redis.getvalue(mileage_key)
+                    if not mileage:
+                        mileage = dict(lat=pvt.get('lat'),
+                                       lon=pvt.get('lon'),
+                                       dis=0,
+                                       gps_time=pvt['gps_time'])
+                        self.redis.setvalue(mileage_key, mileage)
+                    else:
+                        if pvt['gps_time'] < mileage['gps_time']:
+                            logging.info("[EVENTER] gps_time: %s is less than mileage['gps_time']: %s, drop it. pvt: %s, mileage: %s", 
+                                         pvt['gps_time'],
+                                         mileage['gps_time'], 
+                                         pvt, 
+                                         mileage)
+                            pass
+                        else:
+                            dis = lbmphelper.get_distance(int(mileage["lon"]), int(mileage["lat"]),  int(pvt["lon"]) , int(pvt["lat"]))
+                            dis_current = mileage['dis'] +  dis 
+                            self.db.execute("UPDATE T_TERMINAL_INFO" 
+                                            "  SET distance_current = %s "
+                                            "  WHERE tid = %s",
+                                            dis_current, pvt['dev_id'])
+
+                            mileage = dict(lat=pvt.get('lat'),
+                                           lon=pvt.get('lon'),
+                                           dis=dis_current,
+                                           gps_time=pvt['gps_time'])
+                            self.redis.setvalue(mileage_key, mileage)
+                            current_day = time.localtime(pvt['gps_time']) 
+                            day_start_time, day_end_time = start_end_of_day(current_day.tm_year, current_day.tm_mon, current_day.tm_mday)
+                            self.db.execute("INSERT INTO T_MILEAGE_LOG(tid, distance, timestamp)"
+                                            "  VALUES(%s, %s, %s)"
+                                            "  ON DUPLICATE KEY"
+                                            "  UPDATE distance=values(distance)",
+                                            pvt['dev_id'], dis_current, day_end_time)
 
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
