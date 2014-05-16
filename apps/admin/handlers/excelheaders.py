@@ -188,7 +188,8 @@ LOCATION_HEADER = (u"序号",
                    u"定位时间",
                    u"定位方式",
                    u"速度（km/h）",
-                   u"定位误差(米)")
+                   u"定位误差(米)",
+                   u"基站信息")
 
 OwnerService_FILE_NAME = u"车主服务预登记表"
 OwnerService_SHEET = u"预登记车主"

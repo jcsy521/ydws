@@ -166,6 +166,7 @@ class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
             ws.write(i, 9, position_type, stlye)
             ws.write(i, 10, result['speed'])
             ws.write(i, 11, result['locate_error'])
+            ws.write(i, 12, result['cellid'])
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)
