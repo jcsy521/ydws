@@ -32,6 +32,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
             self.db = db
             try:
                 data = DotDict(json_decode(self.request.body))
+                biz_type = self.get_argument("biz_type", UWEB.BIZ_TYPE.YDWS)
             except Exception as e:
                 self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
                 self.finish()
@@ -57,9 +58,11 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                         terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                                   "  WHERE (service_status = %s"
                                                   "         OR service_status = %s)"
+                                                  "    AND biz_type = %s"
                                                   "    AND group_id IN %s"
                                                   "    ORDER BY LOGIN DESC",
                                                   UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  biz_type,
                                                   tuple(DUMMY_IDS + gids))
                     elif self.current_user.cid != UWEB.DUMMY_CID: # Corp 
                         groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
@@ -67,18 +70,22 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                         terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                                   "  WHERE (service_status = %s"
                                                   "         OR service_status = %s)"
+                                                  "    AND biz_type = %s"
                                                   "    AND group_id IN %s"
                                                   "    ORDER BY LOGIN DESC",
                                                   UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  biz_type,
                                                   tuple(DUMMY_IDS + gids))
                     else : # individual user
                         terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                                   "  WHERE (service_status = %s"
                                                   "         OR service_status = %s)"
+                                                  "    AND biz_type = %s"
                                                   "    AND owner_mobile = %s"
                                                   "    AND login_permit = 1"
                                                   "    ORDER BY login DESC",
                                                   UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  biz_type,
                                                   self.current_user.uid)
                 _now_time = time.time()
                 if (_now_time - _start_time) > 5:
