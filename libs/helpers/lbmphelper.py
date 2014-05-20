@@ -99,55 +99,72 @@ def get_locations_with_clatlon(locations, db):
     # and update them in db. 
     if not locations:
         return []
-    modify_locations= []
+    #modify_locations= []
     lats = []
     lons = []
     index_lst = []
+    lids = []
     for i, location in enumerate(locations): 
         if location and not (location['clatitude'] and location['clongitude']):
             index_lst.append(i)
             lats.append(location['latitude'])
             lons.append(location['longitude'])
+            lids.append(location['id'])
         else:
             #NOTE: the location has legal clatlon, there is noneed to offset.
             pass
 
     if not (lats and lons):
         return locations
+    
+    #NOTE:
+    raw_locations = zip(lids, lats, lons, index_lst)
+    logging.info("[LBMPHELPER] Raw location, num:%s, data:%s",
+                 len(raw_locations), raw_locations)
+    
+    MAX_COUNT = 20
+    d, m = divmod(len(index_lst), MAX_COUNT)
+    rounds = (d + 1) if m else d 
+    for i in xrange(rounds):
+        modify_locations = []
+        index_lst_ = index_lst[(i * MAX_COUNT) : ((i+1) * MAX_COUNT)]
+        lats_ = lats[(i * MAX_COUNT) : ((i+1) * MAX_COUNT)]
+        lons_ = lons[(i * MAX_COUNT) : ((i+1) * MAX_COUNT)] 
+        clats, clons = get_clocation_from_ge(lats_, lons_) 
+        if clats and clons:
+            clatlons = zip(index_lst_, clats, clons)
+            # NOTE: clatlons, a list like [(index, clat, clon,),
+            #                              (index, clat, clon,), 
+            #                              ...]
+            for clatlon in clatlons:
+                index = clatlon[0]
+                clat = clatlon[1]
+                clon = clatlon[2]
+                if clat and clon:
+                    locations[index]['clatitude'] = clat
+                    locations[index]['clongitude'] = clon
+                    modify_locations.append(dict(lid=locations[index]['id'], 
+                                                 clat=clat, 
+                                                 clon=clon,
+                                                 index=index))
+                else:
+                    # BIG NOTE: if offset failed. set the clatlon as latlon 
+                    logging.error("[LBMPHELPER] get clatlon failed, lat: %s, lon: %s", 
+                                  locations[index]['latitude'],
+                                  locations[index]['longitude'])
+                    locations[index]['clatitude'] = 0 
+                    locations[index]['clongitude'] = 0 
 
-    clats, clons = get_clocation_from_ge(lats, lons) 
-    if clats and clons:
-        clatlons = zip(index_lst, clats, clons)
-        # NOTE: clatlons, a list like [(index, clat, clon,),
-        #                              (index, clat, clon,), 
-        #                              ...]
-        for clatlon in clatlons:
-            index = clatlon[0]
-            clat = clatlon[1]
-            clon = clatlon[2]
-            if clat and clon:
-                locations[index]['clatitude'] = clat
-                locations[index]['clongitude'] = clon
-                modify_locations.append(dict(lid=locations[index]['id'], 
-                                             clat=clat, 
-                                             clon=clon))
-            else:
-                # BIG NOTE: if offset failed. set the clatlon as latlon 
-                logging.error("[LBMPHELPER] get clatlon failed, lat: %s, lon: %s", 
-                              locations[index]['latitude'],
-                              locations[index]['longitude'])
-                locations[index]['clatitude'] = 0 
-                locations[index]['clongitude'] = 0 
-
-    if modify_locations:
-        db.executemany("UPDATE T_LOCATION"
-                       "  SET clatitude = %s,"
-                       "      clongitude = %s"
-                       "  WHERE id = %s",
-                       [(item['clat'], item['clon'], item['lid']) 
-                       for item in modify_locations])
+        if modify_locations:
+            logging.info("[LBMPHELPER] Modify location, num:%s, data:%s",
+                         len(modify_locations), modify_locations)
+            db.executemany("UPDATE T_LOCATION"
+                           "  SET clatitude = %s,"
+                           "      clongitude = %s"
+                           "  WHERE id = %s",
+                           [(item['clat'], item['clon'], item['lid']) 
+                           for item in modify_locations])
     return locations
-
 
 def get_latlon_from_cellid(mcc, mnc, lac, cid, sim):
     """@params: mcc, mobile country code 
