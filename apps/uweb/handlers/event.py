@@ -103,7 +103,7 @@ class EventHandler(BaseHandler):
                               7, # region enter
                               8, # retion out
                               9, # power off
-                              #10, # stop
+                              10, # stop
                               ]
 
             if category is not None:
@@ -117,16 +117,15 @@ class EventHandler(BaseHandler):
                 else:
                     categories = [int(c) for c in categories]
 
-            # NOTE: for enterprise, do not show events about 5
-            hide_lst = [5,] # 5: sos
-
-            #NOTE: for individual, the interval between start_time and end_time is one week;
-            # for enterprise, no checks
+            #NOTE: for individual: the interval between start_time and end_time is one week;
+            # for enterprise: no need to check time interval
             if self.current_user.cid != UWEB.DUMMY_CID: 
-                hide_lst = [5]
-            elif (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
-                self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
-                return
+                hide_lst = [5] # enterprise: no sos
+            else: # individual: no stop
+                hide_lst = [5, 10]
+                if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
+                    self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
+                    return
 
             # we need return the event count to GUI at first time query
             if page_count == -1:
@@ -152,7 +151,7 @@ class EventHandler(BaseHandler):
                   (tuple(tids + DUMMY_IDS_STR), start_time, end_time,
                    tuple(list(set(categories)-set(hide_lst))+DUMMY_IDS),  page_number * page_size, page_size)
             events = self.db.query(sql)
-                
+
             alias_dict = {}
             for tid in tids:
                 terminal_info_key = get_terminal_info_key(tid)
