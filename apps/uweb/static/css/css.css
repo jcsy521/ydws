@@ -362,8 +362,8 @@ body {
 }
 .menu a, .countUlIetm a, .selfList a {	/* , #countSecondList a */
 	display: inline-block;
-	height: 34px;
-	line-height: 34px;
+	height: 36px;
+	line-height: 36px;
 	text-align: center;
 	width: 84px;
 	float: left;
@@ -378,7 +378,7 @@ body {
 	border-top: 0px;
 }
 .countUlIetm li {
-	height: 33px;
+	height: 35px;
 }
 .countUlIetm a:hover {
 	background: url('/static/images/secondMenuImage.png') repeat-x;	/* acb-menus.png*/
@@ -1864,7 +1864,7 @@ body {
 	padding-right: 10px;
 	color: #000;
 }
-.dataTable a,.dataTable a:link, .infoPushContent a, .infoPushContent a:link {
+.dataTable a,.dataTable a:link, .infoPushContent a, .infoPushContent a:link, #advancedSearchMileage {
 	color: 	#4876FF;
 	text-decoration: none;
 }
@@ -2650,8 +2650,8 @@ body {
 }
 .corpTree {
 	width: 247px;
-	height: 288px;
-	min-height: 288px;
+	height: 300px;
+	min-height: 300px;
 	overflow-y: auto;
 }
 .j_corp>a {
@@ -2721,7 +2721,7 @@ body {
 	background-color: #fefdfd;
 }
 .corpLeftTree {
-	min-height: 300px;
+	min-height: 340px;
 	max-height: 580px;
 }
 .loadTree {
@@ -2787,8 +2787,6 @@ body {
     background-image: none;
 }
 #mileage_chart, #mileage_uploadBtn {
-	position: relative;
-	top: 18px;
 	margin-left: 10px;
 }
 .spanTime input {
@@ -3114,7 +3112,7 @@ legend {
 	width: 800px;
 }
 .eventSearchContent td, .mileageContent td, .operatorContent td, .onlineStaticsContent td {
-	height: 29px;
+	height: 27px;
 }
 .singleMileageTable td, .singleEventContent td {
 	height: 22px;
@@ -3156,7 +3154,7 @@ legend {
 }
 .mileageCondition, .operatorCondition {
 	/*width: 835px;*/
-	width: 730px;
+	width: 785px;
 }
 .onlineStaticsCondition .title, .mileageCondition .title {
 	color: #69B2E9;
@@ -3175,8 +3173,23 @@ legend {
     padding: 0.4em 0.1em;
     width: 146px;
 }
-.mileageCondition {
-	height: 160px;
+#advancedSearchMileage {
+	background: url('/static/images/advanced.png') no-repeat 0px 0px;
+	width: 17px;
+	height: 17px;
+	padding-left: 21px;
+	padding-top: 5px;
+}
+#advancedSearchTable {
+	padding-top: 0px;
+	display: block;
+	height: 50px;
+}
+#exportMileageDiv {
+	width: 722px;
+	margin: 0px auto;
+	text-align: right;
+	line-height: 23px;
 }
 .mileageCondition option {
 	height: 20px;
@@ -3184,7 +3197,7 @@ legend {
 }
 .spanConditions {
 	display: inline-block;
-	margin-left: 28px;
+	/*margin-left: 28px;*/
 }
 .spanConditionsWord {
 	display: inline-block;
@@ -3200,6 +3213,10 @@ legend {
 	position: relative;
 	top: 25px;
 	width: 92px;
+}
+#mileage_searchBtn {
+	top: 9px;
+	margin-left: 0px;
 }
 .eventBtn {
 	top: 1px;	

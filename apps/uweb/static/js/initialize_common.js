@@ -2309,7 +2309,6 @@ window.dlf.resetPanelDisplay = function(n_type) {
 	setTimeout(function() {
 		var n_windowHeight = $(window).height(),
 			n_bodyHeight = $('.j_body').height(),
-			n_tempWindowHeight = n_windowHeight,
 			n_tempWindowWidth = $(window).width(), // document.body.offsetWidth,
 			n_topWidth = $('#top').width(),
 			n_tempWidth = n_tempWindowWidth,
@@ -2318,20 +2317,19 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
 		
-		if ( n_bodyHeight > n_windowHeight ){
-			n_topWidth = n_topWidth - 17;
+		if ( n_bodyHeight > n_windowHeight ){	
 			if ( n_tempWindowWidth > 1024 ) {
-				n_tempWindowHeight = n_windowHeight +17;
+				n_topWidth = n_topWidth + 17;
+				n_windowHeight = n_windowHeight + 17;
 			}
-		}
-		if ( n_topWidth > n_tempWindowWidth ){
-			if ( n_windowHeight > 624 ) {
+		}		
+		if ( n_topWidth > n_tempWindowWidth ) {
+			if ( n_windowHeight > 658 ) {
 				n_tempWindowWidth += 17;
 			}
 		}
-		n_windowHeight = n_tempWindowHeight;
-		if ( n_windowHeight <= 624 ) {
-			n_windowHeight = 624;
+		if ( n_windowHeight <= 658 ) {
+			n_windowHeight = 658;
 		}
 		
 		if ( $(window).width() <= 1024 ) {
@@ -2351,6 +2349,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		if ( b_pLeftSt || b_corpLeftSt ) {
 			//n_tempWindowWidth += 247;
 		}
+		
 		var	n_tilelayerLeft = n_tempWindowWidth <= 1024 ? 1024 - 288 : n_tempWindowWidth - 188,
 			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_tempWindowWidth,
 			n_tempContent = n_mapHeight = n_windowHeight - 161,
@@ -2370,10 +2369,10 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询打开状态
 			b_trackSt = obj_track.is(':visible');
-
+		
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-			n_right = n_windowWidth - 259;
-			n_tempContent = n_mapHeight - 10;
+			//n_right = n_windowWidth - 259;
+			//n_tempContent = n_mapHeight - 10;
 		}
 		if ( b_topPanelSt ) {
 			n_tempContent = n_mapHeight = n_windowHeight - 38;
@@ -2387,8 +2386,8 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		} else {
 			$('#top, #main, #corpMain').css('width', n_windowWidth);			
 		}
-		if ( n_treeHeight < 255 ) {
-			n_treeHeight = 255;
+		if ( n_treeHeight < 296 ) {
+			n_treeHeight = 296;
 		}
 		obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 		
@@ -2434,7 +2433,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			var obj_delayPanel = $('.j_delayPanel'),
 				b_delayPanel = obj_delayPanel.is(':visible'),
 				obj_alarmPanel = $('.j_alarmPanel'),
-				b_alarmPanel = obj_alarmPanel.is(':visible'),
+				str_alarmPanelDisplay = obj_alarmPanel.css('display'),
 				//n_tempWindowWidth = n_tempWidth,
 				n_delayLeft = n_tempWindowWidth - 550,
 				n_delayIconLeft = n_delayLeft - 17,
@@ -2452,7 +2451,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			if ( !b_delayPanel ) {
 				n_delayIconLeft = n_tempWindowWidth - 17;
 			}
-			if ( !b_alarmPanel && n_type != 2  ) {	// searchRecord.js 查询完数据后也会重新计算宽高
+			if ( str_alarmPanelDisplay == 'none' && n_type != 2  ) {	// searchRecord.js 查询完数据后也会重新计算宽高
 				n_alarmIconLeft = n_tempWindowWidth - 17;
 			}
 			if ( n_type == 2 ) {

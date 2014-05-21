@@ -109,6 +109,12 @@ $(function () {
 		
 	});
 	fn_unLockScreen();
+	
+	// 窗口关闭，清除cookie
+	window.close(function() {
+		$.cookie('ACBADMIN', null);
+	});
+	
 });
 
 /*

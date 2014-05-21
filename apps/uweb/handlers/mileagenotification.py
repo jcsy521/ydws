@@ -39,9 +39,10 @@ class MileageNotificationHandler(BaseHandler):
             self.write_ret(status)
 
         try:
-            res = self.db.get("select owner_mobile, assist_mobile, distance_current, distance_left, distance_notification"
-                              "  from T_TERMINAL_INFO"
-                              "  where tid = %s",
+            res = self.db.get("SELECT owner_mobile, assist_mobile,"
+                              "  distance_current, distance_left, distance_notification"
+                              "  FROM T_TERMINAL_INFO"
+                              "  WHERE tid = %s",
                               tid)
             self.write_ret(status,
                            dict_=DotDict(res=res))
@@ -59,7 +60,7 @@ class MileageNotificationHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] mileage notification request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] Mileage notification request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
             tid = data.tid
         except Exception as e:
@@ -69,18 +70,20 @@ class MileageNotificationHandler(BaseHandler):
 
         try:
             distance_notification = data.get('distance_notification', None)
-            is_maintained =  data.get('is_maintained', None)
+            #is_maintained =  data.get('is_maintained', None)
             assist_mobile =  data.get('assist_mobile', None)
             if distance_notification is not None:
                 self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET distance_notification = %s"
+                                "  SET distance_notification = %s,"
+                                "      is_maintained = 1,"
+                                "      notify_count = 0"
                                 "  WHERE tid = %s",
                                 distance_notification, tid)
-            if is_maintained is not None:
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET is_maintained = 1"
-                                "  WHERE tid = %s",
-                                tid)
+            #if is_maintained is not None:
+            #    self.db.execute("UPDATE T_TERMINAL_INFO"
+            #                    "  SET is_maintained = 1"
+            #                    "  WHERE tid = %s",
+            #                    tid)
             if assist_mobile is not None:
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET assist_mobile = %s"
@@ -88,7 +91,7 @@ class MileageNotificationHandler(BaseHandler):
                                 assist_mobile, tid)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] Get mileage notification.Exception: %s",
+            logging.exception("[UWEB] Get mileage notification. Exception: %s",
                               self.current_user.cid, self.current_user.oid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

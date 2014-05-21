@@ -29,6 +29,7 @@ var CORPPERSON_URL = '/profile/corp';	// 集团资料
 var TERMINALCORP_URL = '/terminal/corp';	// 集团终端
 var STATICS_URL = '/statistic';	// 告警统计
 var MILEAGE_URL = '/mileage';	// 里程统计
+var MILEAGE2_URL = '/mileage2';	// 里程统计
 var ONLINE_URL = '/report/online';			// 在线统计
 var SINGLESTATICS_URL = '/statistic/single';	// 单个定位器的告警统计
 var SINGLEMILEAGE_URL = '/mileage/single';	// 单个定位器的里程统计

@@ -34,7 +34,9 @@ class MileageHandler(BaseHandler):
     def post(self):
         """ Provide some statistics about terminals.
         """
+      
         status = ErrorCode.SUCCESS
+        #NOTE: check data format
         try:
             data = DotDict(json_decode(self.request.body))
             page_size = UWEB.LIMIT.PAGE_SIZE
@@ -42,19 +44,27 @@ class MileageHandler(BaseHandler):
             page_count = int(data.pagecnt)
             start_time= data.start_time
             end_time = data.end_time
-            start_period= data.start_period
-            end_period = data.end_period
-            start_period_ = int(start_period[:2])*60*60 + int(start_period[2:])*60
-            end_period_ = int(end_period[:2])*60*60 + int(end_period[2:])*60
+            query_type = data.query_type
+            if query_type == UWEB.QUERY_TYPE.JUNIOR: # 0
+                start_period_ = 0
+                end_period_ = 0 
+            else:
+                start_period= data.start_period
+                end_period = data.end_period
+                start_period_ = int(start_period[:2])*60*60 + int(start_period[2:])*60
+                end_period_ = int(end_period[:2])*60*60 + int(end_period[2:])*60
             tids = str_to_list(data.tids)
             logging.info("[UWEB] mileage request: %s, cid: %s, oid: %s", 
                          data, self.current_user.cid, self.current_user.oid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             self.finish()
             return
 
+        #NOTE: prepare  
         try:
             # the interval between start_time and end_time is one week
             if self.current_user.cid != UWEB.DUMMY_CID: # no checks for enterprise
@@ -80,7 +90,7 @@ class MileageHandler(BaseHandler):
         def _on_finish(db):
             self.db = db
             page_count = int(data.pagecnt)
-            if statistic_mode == 'all':
+            if statistic_mode == 'all': # all
                 if page_count == -1:
                     count = len(tids)
                     d, m = divmod(count, page_size)
@@ -160,7 +170,6 @@ class MileageHandler(BaseHandler):
                 #    if end_day.hour*60*60 + end_day.minute*60 + end_day.second <  start_day.hour*60*60 + start_day.minute*60 + start_day.second:                   
                 #        days = days+1 
   
-
                 res = []
                 graphics = [] 
                 counts = []
@@ -185,13 +194,14 @@ class MileageHandler(BaseHandler):
                 #            "    AND type = 0"
                 #            "  ORDER BY timestamp asc limit 1")
                  
-                if  days == 1: # start_time, end_time in the same day
+                if days == 1: # start_time, end_time in the same day
                     timestamp = start_time
                     date = get_date_from_utc(timestamp)
 
                     re = {} 
                     re['alias'] = '-'.join([str(date.year),str(date.month),str(date.day)]) 
                     distance = Decimal() 
+
                     points = self.db.query(sql_cmd, tid, start_time+start_period_, start_time+end_period_)
                     for i in range(len(points)-1):
                         if points[i].longitude and points[i].latitude and \

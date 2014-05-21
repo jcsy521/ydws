@@ -56,6 +56,7 @@ from handlers.corp import CorpHandler
 from handlers.terminal import TerminalHandler, TerminalCorpHandler
 from handlers.statistic import StatisticHandler, StatisticDownloadHandler, StatisticSingleHandler, StatisticSingleDownloadHandler
 from handlers.mileage import MileageHandler, MileageDownloadHandler, MileageSingleHandler, MileageSingleDownloadHandler
+from handlers.mileage2 import Mileage2Handler
 from handlers.password import PasswordHandler, PasswordCorpHandler, PasswordOperHandler
 from handlers.getcaptcha import GetCaptchaHandler, GetCaptchaCorpHandler
 from handlers.profile import ProfileHandler, ProfileCorpHandler, ProfileOperHandler
@@ -152,6 +153,7 @@ class Application(tornado.web.Application):
             (r"/statistic/*", StatisticHandler),
             (r"/download/statistic/*", StatisticDownloadHandler),
             (r"/mileage/*", MileageHandler),
+            (r"/mileage2/*", Mileage2Handler),
             (r"/download/mileage/*", MileageDownloadHandler),
 
             (r"/terminal/corp/*", TerminalCorpHandler),
@@ -266,6 +268,8 @@ class Application(tornado.web.Application):
             (r"/report/online/*", OnlineHandler),
             (r"/download/*", DownloadHandler),
             (r"/corpregion/*", CorpRegionHandler),
+
+            (r"/test/*", EventHandler),
 
             #znbc server handler
             (r"/passenger/*", PassengerHandler),

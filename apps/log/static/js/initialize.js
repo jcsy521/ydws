@@ -20,6 +20,11 @@
 			window.location.href = '/logout'; 
 		}
 	});
+	
+	// 窗口关闭，清除cookie
+	window.close(function() {
+		$.cookie('ACBLOGSYSTEM', null);
+	});
 });
 
 /**

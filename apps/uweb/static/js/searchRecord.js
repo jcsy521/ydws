@@ -71,10 +71,37 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 			}
 		});
 	} else if ( str_who == 'mileage' || str_who == 'onlineStatics' ) { // 里程统计 告警统计 
+		var obj_advancedTable = $('#advancedSearchTable'),
+			obj_selectTerminals = $('#selectTerminals'),
+			obj_export = $('#exportMileageDiv');
+		
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		if ( str_who == 'mileage' ) {
+			/**
+			* 默认选中全部终端，高级查询
+			*/
+			obj_advancedTable.hide();
+			obj_export.hide();
+			$('#advancedSearchMileage').css('backgroundPosition', '0px 0px');
+			$('#advancedSearchMileage').unbind('click').bind('click', function() {
+				var b_isVisible = obj_advancedTable.is(':visible'),
+					obj_this = $(this);
+				
+				obj_export.hide();
+				$('#mileagePage').hide();
+				$('#mileageTable').hide();
+				$("#selectTerminals option[value='']").remove();
+				obj_this.css('backgroundPosition', '0px -17px');
+				if ( b_isVisible ) {	// 要隐藏，不可选择全部
+					obj_selectTerminals.prepend("<option value=''>全部</option>");
+					obj_this.css('backgroundPosition', '0px 0px');
+					obj_advancedTable.slideUp();
+				} else {
+					obj_advancedTable.slideDown();
+				}
+			});
 			$('#'+ str_who +'Wrapper .j_chart, .j_mileageFoot').hide();	// 查看统计图链接隐藏
 			dlf.fn_getAllTerminals();	// 加载所有定位器
 			dlf.fn_initSlider('');
@@ -366,7 +393,7 @@ window.dlf.fn_searchData = function (str_who) {
 			}
 			
 			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择其他时间段。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
 				return;
 			}	
 			if ( str_userType ==  USER_PERSON ) {
@@ -380,19 +407,26 @@ window.dlf.fn_searchData = function (str_who) {
 			}
 			break;
 		case 'mileage': // 里程统计
-			str_getDataUrl = MILEAGE_URL;
 			
 			var n_startTime = $('#mileageStartTime').val() + ' 00:00:00', // 用户选择时间
 				n_endDate = $('#mileageEndTime').val() + ' 00:00:00', // 用户选择时间
 				
 				n_bgDate = dlf.fn_changeDateStringToNum(n_startTime), //开始日期
 				n_finishDate = dlf.fn_changeDateStringToNum(n_endDate), //结束日期
-				
 				str_startTime = $('#txtHour0').val() + $('#txtMinute0').val(), // 开始时间
 				str_endTime = $('#txtHour1').val() + $('#txtMinute1').val(), //结束时间
-				str_tid = $('#selectTerminals').val(),					// 选中终端tid
+				str_tid = $('#selectTerminals').val(),				// 选中终端tid
+				b_advancedVisible = $('#advancedSearchTable').is(':visible'),
+				n_isAdvanced = 1,
 				str_tids = '';
 			
+			if ( !b_advancedVisible ) {
+				str_startTime = str_endTime = '';
+				n_isAdvanced = 0;
+				str_getDataUrl = MILEAGE2_URL;
+			} else {
+				str_getDataUrl = MILEAGE_URL;
+			}
 			obj_conditionData = {
 							'start_time': n_bgDate,
 							'end_time': n_finishDate,
@@ -400,19 +434,22 @@ window.dlf.fn_searchData = function (str_who) {
 							'end_period': str_endTime, 
 							'pagenum': n_dwRecordPageNum, 
 							'pagecnt': n_dwRecordPageCnt, 
-							'tids': str_tid
+							'tids': str_tid,
+							'query_type': n_isAdvanced
 						};
-			if ( !str_tid ) {
+			/*if ( !str_tid ) {
 				dlf.fn_jNotifyMessage('该集团下无可用的定位器。', 'message', false, 3000);
 				return;
-			}
+			}*/
+			
 			if ( n_bgDate > n_finishDate ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
 				return;
-			} else if ( (n_finishDate-n_bgDate) > 24*60*60*31 ) {	// 判断选择时间
+			}
+			/*else if ( (n_finishDate-n_bgDate) > 24*60*60*31 ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('只能查询30天之内的数据，请重新选择时间段。', 'message', false, 3000);
 				return;
-			}
+			}*/
 			/*if ( n_tidsNums <= 0 ) {
 				dlf.fn_jNotifyMessage('请在左侧勾选定位器。', 'message', false, 6000);
 				return;	
@@ -598,6 +635,11 @@ window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			obj_infoPushTipsEle.hide();	// infoPush没有查询到乘客信息提示框隐藏
 			obj_download.show();
 			obj_pagination.show(); //显示分页
+			
+			if ( str_who == 'mileage' ) {
+				$('#exportMileageDiv').show();
+			}
+			
 			if ( n_dwRecordPageCnt > 1 ) {	// 总页数大于1 
 				if ( n_dwRecordPageNum > 0 && n_dwRecordPageNum < n_dwRecordPageCnt-1 ) {  //上下页都可用
 					if ( str_who == 'infoPush' ) {
@@ -1358,7 +1400,7 @@ window.dlf.fn_getAllTerminals = function() {
 	var obj_selectTerminals = $('#selectTerminals');	// the container of terminals
 	
 	obj_selectTerminals.empty(); 	// clear the container
-	//obj_selectTerminals.append('<option value="">全部</option>'); //注释2014-4-19 tohs
+	obj_selectTerminals.append('<option value="">全部</option>'); //注释2014-4-19 tohs
 	$.get_(TERMINALCORP_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var arr_res = data.res,
@@ -1441,7 +1483,7 @@ function fn_initChart(arr_series, arr_categories, str_container, str_unit, str_w
 			arr_endTime = str_tempEndDate.split(' '), 
             arr_endYMD = arr_endTime[0].split('-');
 
-		str_x = '序号';
+		str_x = '日期';
 		str_title = arr_startYMD[0] + '-' + arr_startYMD[1] + '-' + arr_startYMD[2] + '到' + arr_endYMD[0] + '-' + arr_endYMD[1] + '-' + arr_endYMD[2] + '里程统计图';
 	} else {
 		if ( !$('#'+ str_who +'Month').is(':hidden') ) {
@@ -1525,8 +1567,9 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		//存储当前的中心点及比例尺数据,以便切换回来的时候显示 
 		$('.j_body').data({'mapcenter': mapObj.getCenter(), 'mapsize': mapObj.getZoom()});
 	} else {
+	
 		var n_windowHeight = $(window).height(),
-			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
+			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 658 ? 658 : n_windowHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
 			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
@@ -1557,7 +1600,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_mapObjMinWidth = 776;
 		}
-		obj_map.css({'height': n_mapHeight, 'width': $('#trackHeader').width(), 'zIndex': 0}).show();
+		obj_map.css({'height': n_mapHeight, 'width': n_right, 'zIndex': 0}).show();
 		obj_mapParentContainer.removeAttr('style');
 		obj_mapTitle.hide();	// 地图title隐藏
 		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
@@ -1578,7 +1621,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 * 告警查询关闭小地图
 */
 window.dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {
-	var obj_mapContainer = $('.mapContainer'), 
+	/*var obj_mapContainer = $('.mapContainer'), 
 		obj_mapPanel = $('#mapObj'), 
 		obj_mapConTitle = $('.mapDragTitle');
 	
@@ -1612,6 +1655,47 @@ window.dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {
 	} else {
 		obj_mapConTitle.hide();
 		obj_mapPanel.hide();
+		obj_mapContainer.removeAttr('style');
+	}
+	*/
+	
+	var obj_mapContainer = $('.mapContainer'), 
+		obj_mapPanel = $('#mapObj'), 
+		obj_mapConTitle = $('.mapDragTitle'),
+		obj_traffic = $('#tcBtn');
+	
+	if ( b_isShow ) {
+		var n_top = event.clientY - 161;
+		
+		if ( n_top > 352) {
+			n_top = event.clientY - 540;
+		}
+		// 设置地图父容器的样式
+		obj_mapContainer.css({	
+			'left': 40, 
+			'top': 63,
+			'backgroundColor': '#FFFFFF',
+			'border': '1px solid #BBBBBB',
+			'height': '370px',
+			'width': '370px',
+			'padding': '10px',
+			'zIndex': 10000
+		});
+		// 设置并显示小地图的样式
+		obj_mapPanel.css({
+			'width': 370,
+			'height': 340,
+			'minWidth': 370,
+			'minHeight': 340,
+			'zIndex': 10000
+		}).show();
+		// 地图title显示
+		obj_mapConTitle.show();
+		obj_traffic.show();
+	} else {
+		obj_mapConTitle.hide();
+		obj_mapPanel.hide();
+		obj_traffic.hide();
 		obj_mapContainer.removeAttr('style');
 	}
 }

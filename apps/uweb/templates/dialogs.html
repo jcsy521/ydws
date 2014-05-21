@@ -1321,10 +1321,14 @@
 						日期选择：<input type="text" id="mileageStartTime"  class="time" />
 						至 <input type="text" id="mileageEndTime"  class="time" />
 						</span>
+						<span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover"></span>
+						<a href="#" id="advancedSearchMileage">高级查询</a>
 					</td>
 				</tr>
+			</table>
+			<table class="mileageCondition commonCondition hide" id="advancedSearchTable">
 				<tr>
-					<td width="430px">
+					<td>
 						时间选择：
 						<span class="spanTime">
 							<input type="text" id="txtHour0" disabled />：
@@ -1334,22 +1338,24 @@
 							<input type="text" id="txtMinute1" disabled />
 						</span>
 					</td>
-					<td colspan="3" width="340px">
+					<!--<td colspan="3" width="340px">
 						<span id="mileage_searchBtn" class="eventBtn marginleft0 j_tBtnhover"></span>
-						<a id="mileage_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
-						<a id="mileage_chart" href="#" class="j_chart hide chartBtn">点击查看统计图</a>
-					</td>
+					</td>-->
 				</tr>
 				<tr>
-					<td rowspan="4"> 
+					<td> 
 						<span id="mileageSlider"></span>
 					</td>
 				</tr>
 			</table>
-			<table class="dataTable mileageTable"  cellspacing="0" border="1" borderColor="red" align="center">
+			<div class="hide" id="exportMileageDiv">
+				<a id="mileage_uploadBtn" class="donwuploadBtn j_downloadBtnhover"  href="#" >导出数据</a>
+				<a id="mileage_chart" href="#" class="j_chart hide chartBtn">点击查看统计图</a>
+			</div>
+			<table id="mileageTable" class="dataTable mileageTable"  cellspacing="0" border="1" borderColor="red" align="center">
 				<tbody>
 					<tr id="mileageTableHeader">
-						<th >序号</th>
+						<th class="j_mileageNum">序号</th>
 						<th class="mileageAlias j_mileageTH">定位器</th>
 						<th class="mileageDist">里程（公里）</th>
 					</tr>

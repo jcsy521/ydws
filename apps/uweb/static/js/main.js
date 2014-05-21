@@ -460,7 +460,7 @@ $(function () {
 	* 调整页面大小
 	*/
 	var n_windowHeight = $(window).height(),
-		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 624 ? 624 : n_windowHeight : n_windowHeight,
+		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 658 ? 658 : n_windowHeight : n_windowHeight,
 		n_windowWidth = $(window).width(),
 		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
 		n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 188 : n_windowWidth - 188,
@@ -480,14 +480,14 @@ $(function () {
 		obj_tree = $('#corpTree');
 		
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
-		n_right = n_windowWidth - 259;
-		n_mapHeight = n_mapHeight - 10;
+		//n_right = n_windowWidth - 259;
+		//n_mapHeight = n_mapHeight - 10;
 	}
 	$('.mainBody').height(n_windowHeight);
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 	
-	if ( n_treeHeight < 255 ) {
-		n_treeHeight = 255;
+	if ( n_treeHeight < 296 ) {
+		n_treeHeight = 296;
 	}
 	obj_tree.css('min-height', n_treeHeight).height(n_treeHeight);
 	
