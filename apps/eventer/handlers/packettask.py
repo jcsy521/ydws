@@ -288,20 +288,37 @@ class PacketTask(object):
                                             "  WHERE tid = %s",
                                             dis_current, pvt['dev_id'])
 
+                            logging.info("[EVENTER] Tid: %s, distance: %s. pvt: %s.",
+                                          pvt['dev_id'], dis_current, pvt)
+
                             mileage = dict(lat=pvt.get('lat'),
                                            lon=pvt.get('lon'),
                                            dis=dis_current,
                                            gps_time=pvt['gps_time'])
                             self.redis.setvalue(mileage_key, mileage)
+
                             current_day = time.localtime(pvt['gps_time']) 
                             day_start_time, day_end_time = start_end_of_day(current_day.tm_year, current_day.tm_mon, current_day.tm_mday)
+
+                            mileage_log = self.db.get("SELECT * FROM T_MILEAGE_LOG"
+                                                      "  WHERE tid = %s"
+                                                      "  AND timestamp = %s",
+                                                      pvt['dev_id'], day_end_time)
+                            if mileage_log:
+                                dis_day = mileage_log['distance'] + dis
+                            else:
+                                self.db.execute("INSERT INTO T_MILEAGE_LOG(timestamp)"
+                                                "  VALUES(%s)",
+                                                day_end_time)
+                                dis_day = dis
+
                             self.db.execute("INSERT INTO T_MILEAGE_LOG(tid, distance, timestamp)"
                                             "  VALUES(%s, %s, %s)"
                                             "  ON DUPLICATE KEY"
                                             "  UPDATE distance=values(distance)",
-                                            pvt['dev_id'], dis_current, day_end_time)
-                            logging.info("[EVENTER] Tid: %s, distance: %s. pvt: %s.",
-                                          pvt['dev_id'], dis_current, pvt)
+                                            pvt['dev_id'], dis_day, day_end_time)
+                            logging.info("[EVENTER] Tid: %s, dis_day: %s. pvt: %s.",
+                                          pvt['dev_id'], dis_day, pvt)
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)
