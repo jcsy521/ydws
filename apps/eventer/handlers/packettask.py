@@ -260,10 +260,12 @@ class PacketTask(object):
                 pvt['category'] = EVENTER.CATEGORY.REALTIME
                 if pvt.get('lat') and pvt.get('lon'): 
                     insert_location(pvt, self.db, self.redis)
-                    #NOTE: record the milleage
+                    #NOTE: record the mileage
                     mileage_key = 'mileage:%s' % pvt['dev_id']
                     mileage = self.redis.getvalue(mileage_key)
                     if not mileage:
+                        logging.info("[EVENTER] Tid: %s, init mileage. pvt: %s.",
+                                      pvt['dev_id'], pvt)
                         mileage = dict(lat=pvt.get('lat'),
                                        lon=pvt.get('lon'),
                                        dis=0,
@@ -271,7 +273,8 @@ class PacketTask(object):
                         self.redis.setvalue(mileage_key, mileage)
                     else:
                         if pvt['gps_time'] < mileage['gps_time']:
-                            logging.info("[EVENTER] gps_time: %s is less than mileage['gps_time']: %s, drop it. pvt: %s, mileage: %s", 
+                            logging.info("[EVENTER] Tid: %s, gps_time: %s is less than mileage['gps_time']: %s, drop it. pvt: %s, mileage: %s", 
+                                         pvt['dev_id'],
                                          pvt['gps_time'],
                                          mileage['gps_time'], 
                                          pvt, 
@@ -281,7 +284,7 @@ class PacketTask(object):
                             dis = lbmphelper.get_distance(int(mileage["lon"]), int(mileage["lat"]),  int(pvt["lon"]) , int(pvt["lat"]))
                             dis_current = mileage['dis'] +  dis 
                             self.db.execute("UPDATE T_TERMINAL_INFO" 
-                                            "  SET distance_current = %s "
+                                            "  SET distance_current = %s"
                                             "  WHERE tid = %s",
                                             dis_current, pvt['dev_id'])
 
@@ -297,7 +300,8 @@ class PacketTask(object):
                                             "  ON DUPLICATE KEY"
                                             "  UPDATE distance=values(distance)",
                                             pvt['dev_id'], dis_current, day_end_time)
-
+                            logging.info("[EVENTER] Tid: %s, distance: %s. pvt: %s.",
+                                          pvt['dev_id'], dis_current, pvt)
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)
