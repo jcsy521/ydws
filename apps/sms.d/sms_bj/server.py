@@ -13,6 +13,7 @@ import tornado.web
 from tornado.options import define, options
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
+#TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 define('port', type=int, default=6631)
 define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
@@ -175,16 +176,16 @@ def main():
         thread.start_new_thread(run_send_mt_thread, ())
         
         # create send failed mt thread
-        thread.start_new_thread(run_send_failed_mt_thread, ())
+        #thread.start_new_thread(run_send_failed_mt_thread, ())
         
         # create user receive status thread
         thread.start_new_thread(run_user_receive_status_thread, ())
         
         # create get mo thread
-        thread.start_new_thread(run_get_mo_from_gateway_thread, ())
+        #thread.start_new_thread(run_get_mo_from_gateway_thread, ())
         
         # create send mo thread
-        thread.start_new_thread(run_send_mo_to_acb_thread, ())
+        #thread.start_new_thread(run_send_mo_to_acb_thread, ())
         
         http_server.listen(options.port)
         logging.warn("[ACB SMS] running on: localhost:%d", options.port)

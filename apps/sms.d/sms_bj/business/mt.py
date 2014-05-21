@@ -8,6 +8,10 @@ import logging
 import time
 from exceptions import UnicodeEncodeError
 
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 site.addsitedir(os.path.join(TOP_DIR_, "apps/sms"))
@@ -17,9 +21,12 @@ if 'conf' not in options:
     define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 
 from helpers.confhelper import ConfHelper
+
 from db_.mysql import DBConnection
 from constants import SMS
 from codes.errorcode import ErrorCode
+from utils.misc import safe_utf8, safe_unicode
+
 from net.httpclient import HttpClient
 
 
@@ -101,6 +108,8 @@ class MT(object):
             msgid = msgid
             mobiles = mobile
             msg = content.encode('gbk')
+            #msg = content.decode('UTF-8')
+            #msg = safe_utf8(content)
             
             data = dict(cmd=cmd,
                         uid=uid,
