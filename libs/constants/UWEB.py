@@ -65,6 +65,9 @@ VEHICLE_TYPE=DotDict(ELECTROCAR=0,
 BIZ_TYPE=DotDict(YDWS=0,
                  YDWQ=1)
 
+QUERY_TYPE=DotDict(JUNIOR=0,
+                   SENIOR=1)
+
 LOGIN_WAY=DotDict(WEB=u"WEB",
                   WAP=u"WAP",
                   ANDROID=u"Android客户端",
