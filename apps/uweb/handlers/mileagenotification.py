@@ -44,11 +44,14 @@ class MileageNotificationHandler(BaseHandler):
                               "  FROM T_TERMINAL_INFO"
                               "  WHERE tid = %s",
                               tid)
+            if res:
+                res['distance_left'] = int(res['distance_notification']) - int(res['distance_current'])
+                res['distance_left'] = res['distance_left'] if res['distance_left'] > 0 else 0
             self.write_ret(status,
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[UWEB] Get mileage notification.Exception: %s",
-                              self.current_user.cid, self.current_user.oid, e.args)
+            logging.exception("[UWEB] Get mileage notification. cid: %s, Exception: %s",
+                              self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 

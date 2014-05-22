@@ -32,7 +32,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
             self.db = db
             try:
                 data = DotDict(json_decode(self.request.body))
-                biz_type = self.get_argument("biz_type", UWEB.BIZ_TYPE.YDWS)
+                biz_type = data.get("biz_type", UWEB.BIZ_TYPE.YDWS)
             except Exception as e:
                 self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
                 self.finish()

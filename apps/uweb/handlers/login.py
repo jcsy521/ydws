@@ -157,6 +157,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
         password = self.get_argument("password")
         iosid = self.get_argument("iosid",'')
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
+        biz_type = self.get_argument("biz_type", UWEB.BIZ_TYPE.YDWS)
         versionname = self.get_argument("versionname", "")
         logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s, user_type: %s",
                      username, password, iosid, user_type)
@@ -195,11 +196,13 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
+                                          "    AND biz_type = %s"
                                           "    AND owner_mobile = %s"
                                           "    AND login_permit = 1"
                                           "    ORDER BY LOGIN DESC",
                                           UWEB.SERVICE_STATUS.ON, 
                                           UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          biz_type,
                                           uid)
 
             elif user_type == UWEB.USER_TYPE.OPERATOR:
@@ -211,10 +214,12 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
+                                          "    AND biz_type = %s"
                                           "    AND group_id IN %s"
                                           "    ORDER BY LOGIN DESC",
                                           UWEB.SERVICE_STATUS.ON, 
                                           UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          biz_type,
                                           tuple(DUMMY_IDS + gids))
             elif user_type == UWEB.USER_TYPE.CORP:
                 groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", cid)
@@ -225,10 +230,12 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
+                                          "    AND biz_type = %s"
                                           "    AND group_id IN %s"
                                           "    ORDER BY LOGIN DESC",
                                           UWEB.SERVICE_STATUS.ON, 
                                           UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                          biz_type,
                                           tuple(DUMMY_IDS + gids))
             else:
                 logging.error("[UWEB] invalid user_type: %s", user_type)
@@ -532,7 +539,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "    gsm, gps, pbat, login, defend_status,"
                                           "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                                           "  FROM T_TERMINAL_INFO"
-                                          "  WHERE service_status = %s"
+                                          "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
                                           "    AND biz_type = %s"
                                           "    AND group_id IN %s"
@@ -549,6 +556,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
+                                          "    AND biz_type = %s"
                                           "    AND group_id IN %s"
                                           "    ORDER BY LOGIN DESC",
                                           UWEB.SERVICE_STATUS.ON, 

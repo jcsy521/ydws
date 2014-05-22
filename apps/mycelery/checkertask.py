@@ -7,7 +7,7 @@ import site
 import logging
 import time
 
-TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
+TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
 from tornado.options import define, options, parse_command_line
@@ -18,6 +18,7 @@ from constants import GATEWAY,UWEB
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
+from helpers.confhelper import ConfHelper
 
 if not 'conf' in options:
     define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
@@ -142,7 +143,48 @@ class CheckTask(object):
                         logging.info("[CELERY] Send charge remind sms to user: %s", terminal.owner_mobile)
         except Exception as e:
             logging.exception("[CELERY] Check charge remind exception: %s", e.args)
-                
+
+    def mileage_notify(self):
+        logging.info("[CELERY] checkertask mileage_notify started.")
+        try:
+            terminals = self.db.query("SELECT id, tid, mobile, owner_mobile, assist_mobile,"
+                                      "   distance_notification, distance_current, notify_count"
+                                      "  FROM T_TERMINAL_INFO"
+                                      "  WHERE service_status = 1"
+                                      "  AND distance_current > distance_notification"
+                                      "  AND notify_count < 2")
+            for terminal in terminals:
+                terminal_info = QueryHelper.get_terminal_info(terminal.tid, self.db, self.redis)
+                mobile = terminal['mobile']
+                tid = terminal['tid']
+                owner_mobile = terminal['owner_mobile']
+                assist_mobile = terminal['assist_mobile']
+                distance_current = terminal['distance_current']
+                notify_count = terminal['notify_count']
+                distance_notification= terminal['distance_notification']
+
+                logging.info("[CELERY] Send mileage notification."
+                             "  owner_mobile: %s, assist_mobile: %s,"
+                             "  distance_notification: %s, distance_current: %s," 
+                             "  notify_count: %s.", 
+                             owner_mobile, assist_mobile, distance_notification, 
+                             distance_current, notify_count)
+                self.db.execute("UPDATE T_TERMINAL_INFO SET notify_count = %s"
+                                "  WHERE tid = %s",
+                                notify_count+1, tid)
+                distance_current_ = int(round(terminal['distance_current']/1000.0))
+                if owner_mobile:
+                    sms = SMSCode.SMS_NOTIFY % (distance_current_, terminal_info['alias'])
+                    SMSHelper.send(owner_mobile, sms)
+                if assist_mobile:
+                    user = QueryHelper.get_user_by_mobile(owner_mobile, self.db)
+                    name = safe_unicode(user['name'])
+                    sms = SMSCode.SMS_NOTIFY_ASSIST % (mobile, owner_mobile, name, distance_current_)
+                    SMSHelper.send(assist_mobile, sms)
+
+        except Exception as e:
+            logging.exception("[CELERY] Check terminal poweroff timeout exception.")
+
 
 def check_poweroff():
     ct = CheckTask()
@@ -160,11 +202,16 @@ def offline_remind():
     ct = CheckTask()
     ct.send_offline_remind_sms()
 
+def mileage_notify():
+    ct = CheckTask()
+    ct.mileage_notify()
+
 if __name__ == '__main__':
     ConfHelper.load(options.conf)
     parse_command_line()
     #check_charge()
-    offline_remind()
+    #offline_remind()
+    mileage_notify()
 else: 
     try: 
         from celery.decorators import task 
@@ -172,6 +219,7 @@ else:
         #check_charge= task(ignore_result=True)(check_charge) 
         check_track = task(ignore_result=True)(check_track)
         offline_remind = task(ignore_result=True)(offline_remind)
+        mileage_notify = task(ignore_result=True)(mileage_notify)
     except Exception as e: 
         logging.exception("[CELERY] admintask statistic failed. Exception: %s", e.args)
 
