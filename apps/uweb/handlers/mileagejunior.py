@@ -23,7 +23,7 @@ from constants import UWEB, EXCEL
 from base import BaseHandler, authenticated
 
 
-class Mileage2Handler(BaseHandler):
+class MileageJuniorHandler(BaseHandler):
     """Junior Mileage."""
 
     KEY_TEMPLATE = "mileage_statistic_%s_%s"

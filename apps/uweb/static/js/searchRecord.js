@@ -423,7 +423,7 @@ window.dlf.fn_searchData = function (str_who) {
 			if ( !b_advancedVisible ) {
 				str_startTime = str_endTime = '';
 				n_isAdvanced = 0;
-				str_getDataUrl = MILEAGE2_URL;
+				str_getDataUrl = MILEAGE_JUNIOR_URL;
 			} else {
 				str_getDataUrl = MILEAGE_URL;
 			}
