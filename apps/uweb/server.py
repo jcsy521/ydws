@@ -280,6 +280,8 @@ class Application(tornado.web.Application):
             (r"/checkpassengermobile/(\d+)/*", CheckPassengerMobileHandler),
             (r"/ownerservice/*", OwnerserviceHandler),
 
+            # handle the invalid url
+            (r".*", MainHandler),
         ]
 
         settings = dict(

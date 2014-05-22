@@ -86,3 +86,6 @@ class SMSCode(object):
     SMS_REGION_OUT_NO_ADDRESS = u"尊敬的客户：您的定位器“%s”已离开电子围栏“%s”，时间：%s。"
     
     SMS_RUNTIME_STATUS = u"尊敬的客户：您的定位器“%s”运行状态如下，\n通讯状态：%s，\n运行模式：%s，\n电量：%d%%，\nGSM信号强度：%s，\nGPS信号强度：%s。"
+
+    SMS_NOTIFY = u"尊敬的客户，您的车辆行程已到达%s公里，请及时对车辆“%s”进行保养。若已保养，请登录网页或手机客户端重新设置“下次保养里程”【移动卫士】"
+    SMS_NOTIFY_ASSIST = u"定位器:%s，车主号码：%s，车主姓名：%s。该车辆已经到达%s公里，该进行车辆保养。"

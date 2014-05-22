@@ -91,8 +91,8 @@ class ActivateHandler(BaseHandler):
                     self.write_ret(status)
                 else: # has code 
                     if not terminal['sn']:
-                        terminal = self.get_terminal_by_sn(sn)
-                        if terminal: # has code, but sn is used 
+                        terminal_ = self.get_terminal_by_sn(sn)
+                        if terminal_: # has code, but sn is used 
                             status = ErrorCode.ACCOUNT_NOT_MATCH
                             logging.info("[UWEB] sn: %s has exist.", sn)
                             self.write_ret(status,

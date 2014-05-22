@@ -24,11 +24,35 @@ def test_redis():
     old_sessionid = redis.get(sessionID_key)
     print  'session_id: %s' % old_sessionid
 
+def test_mileage():
+    db = DBConnection().db
+    redis = MyRedis()
+    tid = 'CBBJTEAM01'
+    #tid = '361A000066'
+    mileage_key = 'mileage:%s'  % tid
+    #mileage = redis.getvalue(mileage_key)
+
+    # for hmy
+    #mileage = dict(lat=80547804,
+    #               lon=408846024,
+    #               dis=530, 
+    #               gps_time=1400733148)
+
+    # for lp 
+    mileage = dict(lat=144089748,
+                   lon=418702032,
+                   dis=561, 
+                   gps_time=1400732859)
+    print  'mileage: %s' % mileage 
+    #mileage['dis'] = 530
+    redis.setvalue(mileage_key, mileage)
+
+
 def main():
     ConfHelper.load('../conf/global.conf')
     parse_command_line()
 
-    test_redis() 
+    test_mileage() 
 
 if __name__ == "__main__": 
     main()

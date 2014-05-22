@@ -307,9 +307,9 @@ class PacketTask(object):
                             if mileage_log:
                                 dis_day = mileage_log['distance'] + dis
                             else:
-                                self.db.execute("INSERT INTO T_MILEAGE_LOG(timestamp)"
-                                                "  VALUES(%s)",
-                                                day_end_time)
+                                self.db.execute("INSERT INTO T_MILEAGE_LOG(tid, timestamp)"
+                                                "  VALUES(%s, %s)",
+                                                pvt['dev_id'], day_end_time)
                                 dis_day = dis
 
                             self.db.execute("INSERT INTO T_MILEAGE_LOG(tid, distance, timestamp)"
