@@ -96,7 +96,8 @@ class MessageHandler(BaseHandler):
                     self.write_ret(status)              
                 elif sms_type == 'REBOOT':
                     content = ':' + sms_type
-                    SMSHelper.send_to_terminal(tmobile,content)
+                    #SMSHelper.send_to_terminal(tmobile,content)
+                    SMSHelper.send_update_to_terminal(tmobile,content)
                     self.write_ret(status)              
                 elif sms_type == 'DW':
                     content = ':' + sms_type
