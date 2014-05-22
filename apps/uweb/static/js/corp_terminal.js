@@ -493,11 +493,11 @@ window.dlf.fn_initMileageNotification = function(str_tid) {
 			var obj_res = data.res,
 				str_ownerMobile = obj_res.owner_mobile,	// 车主号码
 				str_assist_mobile = obj_res.assist_mobile,	// 第二通知号码
+				n_tempDistance = obj_res.distance_notification,
+				n_distance_notification = Math.round(n_tempDistance/1000), // 下次保养里程
 				n_distance_current = Math.round(obj_res.distance_current/1000),	// 当前行车里程
 				n_distance_left = n_distance_notification-n_distance_current, // Math.round(obj_res.distance_left/1000), // 距离下次保养里程
-				n_distance_left = n_distance_left > 0 ? n_distance_left : 0,
-				n_tempDistance = obj_res.distance_notification,
-				n_distance_notification = Math.round(n_tempDistance/1000); // 下次保养里程
+				n_distance_left = n_distance_left > 0 ? n_distance_left : 0;
 			
 			$('#spanOwnerMobile').html(str_ownerMobile);
 			$('#txtAssistMobile').val(str_assist_mobile).data('t_val', str_assist_mobile);
