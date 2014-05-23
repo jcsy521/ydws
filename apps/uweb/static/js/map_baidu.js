@@ -237,21 +237,23 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		var b_flag = false,
 			n_nowtime = new Date().getTime()/1000;
 		
-		if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
-			b_flag = true;
-			if ( n_iconType == 1 || n_iconType == 3 ) {
-				obj_iconSize = new BMap.Size(50, 50);
-				if ( n_iconType == 1 ) {
+		if ( str_iconType == 'actiontrack' ) {
+			if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
+				b_flag = true;
+				if ( n_iconType == 1 || n_iconType == 3 ) {
+					obj_iconSize = new BMap.Size(50, 50);
+					if ( n_iconType == 1 ) {
+						obj_imageOffset = new BMap.Size(0, 0);
+					} else {
+						obj_imageOffset = new BMap.Size(-5, 0);
+					}
+				} else if ( n_iconType == 2 ) {
+					obj_iconSize = new BMap.Size(34, 34);
 					obj_imageOffset = new BMap.Size(0, 0);
-				} else {
-					obj_imageOffset = new BMap.Size(-5, 0);
 				}
-			} else if ( n_iconType == 2 ) {
-				obj_iconSize = new BMap.Size(34, 34);
-				obj_imageOffset = new BMap.Size(0, 0);
+				myIcon.setSize(obj_iconSize);
+				myIcon.setImageOffset(obj_imageOffset);
 			}
-			myIcon.setSize(obj_iconSize);
-			myIcon.setImageOffset(obj_imageOffset);
 		}
 		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标	
 	}
@@ -487,8 +489,10 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 		var b_flag = false,
 			n_nowtime = new Date().getTime()/1000;
 		
-		if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
-			b_flag = true;
+		if ( str_iconType == 'actiontrack' ) {
+			if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
+				b_flag = true;
+			}
 		}
 		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, true);	// 集团用户设置marker的图标
 	}

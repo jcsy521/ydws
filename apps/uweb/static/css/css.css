@@ -1880,7 +1880,7 @@ body {
 .onlineStaticsTable {
 	width: 750px;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader, #notifyManageSearchTableHeader th , #notifyManageDataSt th  {
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader, #notifyManageSearchTableHeader th  {
 	height: 38px;
 	line-height: 38px;
     font-size: 14px; 
