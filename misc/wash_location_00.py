@@ -34,22 +34,22 @@ def wash_location():
     for i, t in enumerate(terminals):
         tid = t.tid
         key = 'location:%s' % tid
-        location = redis.get(key) 
-        #if not location:
-        if True:
+        location = redis.getvalue(key) 
+        if location and location.latitude == 0:
             print 'tid', tid
+            redis.delete(key)
 
             location = db.get("SELECT timestamp, MAX(timestamp) as maxtime"
                               "  FROM T_LOCATION"
                               "  WHERE tid = %s"
-                              "    AND type = 0"
+                              #"    AND type = 0"
                               "    AND latitude != 0",
                               tid)
             
             if location:
                 if location.timestamp != location.maxtime:
                     print 'timestamp != maxtime, tid', tid
-                    location = db.get("SELECT * FROM T_LOCATION where timestamp = %s AND tid = %s limit 1", location.maxtime, tid)
+                    location = db.get("SELECT * FROM T_LOCATION where timestamp = %s AND tid = %s AND latitude != 0 limit 1", location.maxtime, tid)
                 else:
                     continue
                 mem_location = DotDict({'id':location.id,
