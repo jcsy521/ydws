@@ -1228,7 +1228,7 @@ function fn_initEventTimeControl(str_who) {
 		obj_endTime = $('#'+str_inputEndTime);
 	
 	obj_stTime.unbind('click').bind('click', function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
-		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false,  qsEnabled: false,
+		WdatePicker({el: str_inputStartTime, lang: 'zh-cn', dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false,  qsEnabled: false,
 		onpicked: function() {
 			//if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 				var obj_endDate = $dp.$D(str_inputEndTime), 
@@ -1243,7 +1243,7 @@ function fn_initEventTimeControl(str_who) {
 	}).val(str_tempBeginTime);
 	
 	obj_endTime.unbind('click').bind('click', function() {	// 初始化结束时间，并做事件关联
-		WdatePicker({el: str_inputEndTime, dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false, qsEnabled: false, onpicked: function() {
+		WdatePicker({el: str_inputEndTime,lang: 'zh-cn', dateFmt: str_timepickerFormat, readOnly: true, isShowClear: false, qsEnabled: false, onpicked: function() {
 				//if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 					var obj_beginDate = $dp.$D(str_inputStartTime), 
 						str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
@@ -1285,7 +1285,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 		str_timepickerFormat = 'yyyy-MM-dd';
 	}
 	obj_stTime.unbind('click').bind('click', function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
-		WdatePicker({el: str_inputStartTime, dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false,  qsEnabled: false,
+		WdatePicker({el: str_inputStartTime, lang: 'zh-cn', dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false,  qsEnabled: false,
 		onpicked: function() {
 			if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 				var obj_endDate = $dp.$D(str_inputEndTime), 
@@ -1300,7 +1300,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 	}).val(str_tempBeginTime);
 	
 	obj_endTime.unbind('click').bind('click', function() {	// 初始化结束时间，并做事件关联
-		WdatePicker({el: str_inputEndTime, dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false, qsEnabled: false, onpicked: function() {
+		WdatePicker({el: str_inputEndTime, lang: 'zh-cn', dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false, qsEnabled: false, onpicked: function() {
 				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
 					var obj_beginDate = $dp.$D(str_inputStartTime), 
 						str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
