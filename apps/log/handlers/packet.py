@@ -147,7 +147,7 @@ class GWPacketHandler(BaseHandler):
                                                 break
                                             else:
                                                 next_num = next_num + 1
-                                                if next_num == num + 500:
+                                                if next_num == num + 5000:
                                                     break
                                     elif is_report == 0:
                                         pass
