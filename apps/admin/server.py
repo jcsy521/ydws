@@ -63,6 +63,7 @@ from handlers.bindlog import BindLogSearchHandler, BindLogDownloadHandler
 from handlers.ownerservice import OwnerServiceHandler, OwnerServiceDownloadHandler
 # ajt
 from handlers.whitelist_ajt import WhitelistAJTHandler, WhitelistAJTSearchHandler, WhitelistAJTBatchImportHandler,WhitelistAJTBatchAddHandler
+from handlers.testsms import TestSMSHandler
 
 class Application(tornado.web.Application):
 
@@ -111,6 +112,13 @@ class Application(tornado.web.Application):
             (r"/ecbusiness/list/(\S+)/*", ECBusinessListHandler),
             (r"/ecbusiness/edit/(\S+)/*", ECBusinessEditHandler),
             (r"/ecbusiness/delete/(\S+)/*", ECBusinessDeleteHandler),
+
+
+            # termianl query
+            (r"/bindlog/*", BindLogSearchHandler),
+            (r"/location/*", LocationSearchHandler),
+            (r"/ownerservice/*", OwnerServiceHandler),
+            (r"/testsms/*", TestSMSHandler),
             
 
             # for ajt
@@ -176,9 +184,6 @@ class Application(tornado.web.Application):
             (r"/username/*", UsernameHandler),
             (r"/resetpassword/*", ResetPasswordHandler),
             
-            (r"/bindlog/*", BindLogSearchHandler),
-            (r"/location/*", LocationSearchHandler),
-            (r"/ownerservice/*", OwnerServiceHandler),
             ] 
 
         settings = dict(

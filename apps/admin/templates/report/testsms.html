@@ -1,0 +1,46 @@
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery.min-1.5.js"></script>
+<script type="text/javascript" type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<link href="/static/css/jquery-ui.css"rel="stylesheet" type="text/css"/>
+<script src="/static/js/lockScreen.js"></script>
+<script type="text/javascript">
+	fn_lockScreen();
+</script>
+<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript" src="/static/js/testsms.js"></script>
+<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+<script type="text/javascript" src="/static/js/json2.js"></script>
+{% block body %}
+	<fieldset class="ui-widget ui-widget-content ui-corner-all">
+		<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+			<span class="ui-button-text legend-text">Test短信</span>
+		</legend>
+		<div class="ui-log-panel">
+			<div>
+				终端号码：
+				<input type="text" name="mobile" id="mobile" class="tdStyle" maxlength="11" />
+				<input id="test_search" type="button" value="查询" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />				
+			</div>
+		</div>	
+	</fieldset>
+	
+	<h3>查询结果</h3>
+	<div class="fg-toolbar ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix"></div>
+	<table id="search_table" class="display">
+	<thead>
+		<tr>
+			<th>终端号码</th>
+			<th>状态</th>
+			<th>编辑</th>
+		</tr>
+	</thead>
+	<tbody id="testsms_tbody">
+	
+	</tbody>
+	</table>
+	<div class="fg-toolbar ui-toolbar ui-widget-header ui-corner-bl ui-corner-br ui-helper-clearfix">
+	</div>
+{% end %}
