@@ -1524,7 +1524,7 @@ function fn_updateAlarmList(arr_alarm) {
 		str_html = '',
 		obj_markers = {},
 		obj_arrowCon = $('.j_alarmPanelCon'),
-		n_windowWidth = $(window).width(),
+		n_windowWidth = $('body').width(),
 		n_alarmIconLeft = n_windowWidth - 417;
 	
 	// obj_alarmCon.show();
@@ -1909,7 +1909,7 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 	str_tempAlias = dlf.fn_encode(str_dealAlias);
 	var str_decodeAlias = dlf.fn_decode(str_tempAlias);
 	
-	obj_current.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', str_decodeAlias).attr('alias', str_decodeAlias);
+	obj_current.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('alias', str_decodeAlias);
 	dlf.fn_updateTerminalLogin(obj_current);
 	for ( var index in arr_autoCompleteData ) {
 		var obj_terminal = arr_autoCompleteData[index],

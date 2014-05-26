@@ -127,6 +127,11 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 			n_month = obj_date.getMonth() + 1,	// 当前月份
 			str_alias = $('.j_currentCar').text().substr(2);
 		
+		if ( $(window).height() <= 658 ) {
+			if ( $('#'+ str_who +'Wrapper').is(':visible') ) {
+				$('#'+ str_who +'Wrapper').css('top', '0px');
+			}
+		}		
 		$('.' + str_who + 'Table').hide();
 		$('#'+ str_who +'Wrapper .j_chart').hide();	// 查看统计图链接隐藏
 		$('.j_singleEventTitle, .j_singleMileageTitle').html(' - ' + str_alias);	// dialog的title显示当前定位器名称
@@ -437,10 +442,10 @@ window.dlf.fn_searchData = function (str_who) {
 							'tids': str_tid,
 							'query_type': n_isAdvanced
 						};
-			/*if ( !str_tid ) {
+			if ( str_tid == '-1' ) {
 				dlf.fn_jNotifyMessage('该集团下无可用的定位器。', 'message', false, 3000);
 				return;
-			}*/
+			}
 			
 			if ( n_bgDate > n_finishDate ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
@@ -916,28 +921,31 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_tempAddress = str_location.length >= 25 ? str_location.substr(0,25) + '...':str_location,
 					str_comment = obj_tempData.comment,	// 电量备注
 					str_tempComment = str_comment.length > 11 ? str_comment.substr(0, 11) + '...' : str_comment,
+					str_oldAlias = obj_tempData.alias,
+					str_dealAlias = dlf.fn_dealAlias(str_oldAlias),	// 处理中文后的别名
+					str_alias = dlf.fn_encode(str_dealAlias),	// 编码后的别名
 					str_text = '';	//地址
 					
 					/**
 					* 拼接table
 					*/
 					str_tbodyText+= '<tr>';
-					str_tbodyText+= '<td width="80px">'+ dlf.fn_encode(obj_tempData.alias) +'</td>';
+					str_tbodyText+= '<td width="80px" title="'+ str_alias +'">'+ str_alias +'</td>';
 					str_tbodyText+= '<td width="150px">'+dlf.fn_changeNumToDateString(obj_tempData.timestamp)+'</td>';	// 告警时间
 					str_tbodyText+= '<td width="100px">'+dlf.fn_eventText(str_type)+'</td>';	// 告警类型
 					if ( n_lng == 0 || n_lat == 0 ) {	//无地址
-						str_tbodyText+= '<td width="450px">无</td>';	
+						str_tbodyText+= '<td width="430px">无</td>';	
 					} else {
 						if ( str_location == '' || str_location == null ) {
-							str_tbodyText+= '<td width="450px"><a href="#" onclick="dlf.fn_getAddressByLngLat(\''+n_lng+'\',\''+n_lat+'\',\'\',\'event\','+i+')" class="j_getPosition getPositionCss">获取位置</a></td>';
+							str_tbodyText+= '<td width="430px"><a href="#" onclick="dlf.fn_getAddressByLngLat(\''+n_lng+'\',\''+n_lat+'\',\'\',\'event\','+i+')" class="j_getPosition getPositionCss">获取位置</a></td>';
 						} else {
-							str_tbodyText+= '<td width="450px"><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
+							str_tbodyText+= '<td width="430px"><label title="'+ str_location +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lng+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a></td>';	//详细地址
 						}
 					}
 					if ( str_comment == '' ) {
 						str_tbodyText+= '<td width="100px">&nbsp;</td>';
 					} else {
-						str_tbodyText+= '<td width="100px" title="'+ str_comment +'">'+ str_tempComment +'</td>';
+						str_tbodyText+= '<td width="" title="'+ str_comment +'">'+ str_tempComment +'</td>';
 					}
 					str_tbodyText+= '</tr>';
 				break;
@@ -1208,7 +1216,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	}
 	$('#' + str_who + 'Wrapper').data('hash', str_hash);	// 存储hash值
 	// 重新计算高度，宽度
-	dlf.resetPanelDisplay(2);
+	// dlf.resetPanelDisplay(2);
 }
 
 /**
@@ -1400,15 +1408,19 @@ window.dlf.fn_getAllTerminals = function() {
 	var obj_selectTerminals = $('#selectTerminals');	// the container of terminals
 	
 	obj_selectTerminals.empty(); 	// clear the container
-	obj_selectTerminals.append('<option value="">全部</option>'); //注释2014-4-19 tohs
 	$.get_(TERMINALCORP_URL, '', function(data) {
 		if ( data.status == 0 ) {
 			var arr_res = data.res,
 				str_options = '';
 			
-			for ( var i = 0; i < arr_res.length; i++ ) {
-				str_options = '<option value="'+ arr_res[i].tid +'">'+ arr_res[i].tmobile +'</option>';
-				obj_selectTerminals.append(str_options);
+			if ( arr_res.length > 0 ) {
+				obj_selectTerminals.append('<option value="">全部</option>'); //注释2014-4-19 tohs
+				for ( var i = 0; i < arr_res.length; i++ ) {
+					str_options = '<option value="'+ arr_res[i].tid +'">'+ arr_res[i].tmobile +'</option>';
+					obj_selectTerminals.append(str_options);
+				}
+			} else {
+				obj_selectTerminals.append('<option value="-1">暂无终端</option>'); //注释2014-4-19 tohs
 			}
 		} else {
 			dlf.fn_jNotifyMessage('获取定位器信息失败。', 'message', false, 3000);
@@ -1566,14 +1578,13 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		
 		//存储当前的中心点及比例尺数据,以便切换回来的时候显示 
 		$('.j_body').data({'mapcenter': mapObj.getCenter(), 'mapsize': mapObj.getZoom()});
-	} else {
-	
+	} else {	
 		var n_windowHeight = $(window).height(),
 			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 658 ? 658 : n_windowHeight : n_windowHeight,
 			n_windowWidth = $(window).width(),
 			n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
 			n_mapHeight = n_windowHeight - 161,
-			n_right = n_windowWidth - 250,
+			n_right = n_windowWidth - 249,
 			obj_mapCenter = $('.j_body').data('mapcenter'),
 			obj_mapSize = $('.j_body').data('mapsize'),
 			b_trackSt = $('#trackHeader').is(':visible'), 
@@ -1585,7 +1596,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		
 		if ( b_trackSt ) {
 			n_mapObjMinHeight = 530;
-			n_mapHeight = n_windowHeight - 181;
+			n_mapHeight = n_windowHeight - 201;
 		}
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 259;

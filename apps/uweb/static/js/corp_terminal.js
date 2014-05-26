@@ -399,6 +399,10 @@ window.dlf.fn_corpBaseSave = function() {
 			if ( str_key != 'stop' && str_key != 'biz_type' ) {
 				obj_terminalData[str_key] = str_newVal;	
 			}
+		} else {
+			if ( str_key == 'corp_stop_interval' && str_newVal == 0 ) {	// 单独处理 停留告警
+				obj_terminalData[str_key] = str_newVal;
+			}
 		}
 	});
 	
@@ -645,5 +649,5 @@ $(function() {
 		}
 	});
 	$('#txtAssistMobile').formValidator({validatorGroup: '14', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
-	$('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'num1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
+	$('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
 })

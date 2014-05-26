@@ -477,11 +477,17 @@ $(function () {
 		n_alarmIconLeft = n_alarmLeft - 17,
 		n_topPanelLeft = '50%',
 		n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
-		obj_tree = $('#corpTree');
+		obj_tree = $('#corpTree'),
+		obj_trackSpeed = $('.trackSpeed');
 		
 	if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 		//n_right = n_windowWidth - 259;
 		//n_mapHeight = n_mapHeight - 10;
+	}
+	if ( $(window).width() < 1024 ) {
+		obj_trackSpeed.css('marginLeft', '0px');
+	} else {
+		obj_trackSpeed.css('marginLeft', '10px');
 	}
 	$('.mainBody').height(n_windowHeight);
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
@@ -519,7 +525,7 @@ $(function () {
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight);	// 内容域的高度 左右栏高度
 	$('#topShowIcon').css('left', n_topPanelLeft);
 	$('#leftPanelShowIcon').css('top', n_leftPanelTop);
-	if ( n_windowWidth > 1510 ) {
+	if ( n_windowWidth > 1100 ) {
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	} else {
 		$('.trackPos').css('padding-left', 0);

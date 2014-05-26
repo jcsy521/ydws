@@ -29,6 +29,7 @@ window.dlf.fn_initTrack = function() {
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show();	// 轨迹查询条件显示
 	dlf.fn_setMapPosition(false);
+	dlf.resetPanelDisplay();
 	// 调整工具条和
 	//dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
 	

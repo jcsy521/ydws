@@ -1228,17 +1228,19 @@
 					</ul>
 				</div>
 			</div>
-			<table class="dataTable eventSearchTable"  cellspacing="0" border="1" borderColor="red" align="center">
-				<tbody>
-					<tr id="eventSearchTableHeader">
-						<th class="eventAlias">定位器</th>
-						<th class="eventTime">时间</th>
-						<th class="eventType">告警类型</th>
-						<th class="eventLocation">位置详情</th>
-						<th class="eventLocation">备注</th>
-					</tr>
-				</tbody>
-			</table>
+			<div class="eventSearchDiv">
+				<table class="dataTable eventSearchTable"  cellspacing="0" border="1" borderColor="red" align="center">
+					<tbody>
+						<tr id="eventSearchTableHeader">
+							<th class="eventAlias">定位器</th>
+							<th class="eventTime">时间</th>
+							<th class="eventType">告警类型</th>
+							<th class="eventLocation">位置详情</th>
+							<th class="eventLocation">备注</th>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 			<!-- 分页 -->
 			<div id="eventSearchPage" class="hide">
 				<span id="eventSearchPrevBtn" class="prevBtn j_pBtnHover"></span>
@@ -1305,7 +1307,7 @@
 		<!--<div class="wrapperTitle mileageTitle">
 			<span class="close j_close" title="关闭窗口" who="mileage"></span>
 		</div>-->
-		<div class="wrapperContent mileageContent">
+		<div class="wrapperContent mileageContent j_wrapperContent">
 			<table class="mileageCondition commonCondition">
 				<tr>
 					<td colspan="4" class="title">
@@ -1462,7 +1464,7 @@
 		<!--<div class="wrapperTitle mileageTitle">
 			<span class="close j_close" title="关闭窗口" who="mileage"></span>
 		</div>-->
-		<div class="wrapperContent onlineStaticsContent">
+		<div class="wrapperContent onlineStaticsContent j_wrapperContent">
 			<table class="onlineStaticsCondition commonCondition">
 				<tr>
 					<td colspan="3" class="title">
