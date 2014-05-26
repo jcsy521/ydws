@@ -524,6 +524,7 @@ window.dlf.fn_mileageNotificationSave = function() {
 		n_num = 0,
 		str_oldAssistMobile = $('#txtAssistMobile').data('t_val');
 		str_newAssistMobile = $('#txtAssistMobile').val(),
+		n_currentDistance = parseInt($('#lblDistanceCurrent').html()) * 1000,
 		n_oldDistance = $('#txtDistanceNotification').data('t_val'),
 		n_newDistance = $('#txtDistanceNotification').val()*1000;
 		
@@ -531,9 +532,14 @@ window.dlf.fn_mileageNotificationSave = function() {
 		n_num ++;
 		obj_param.assist_mobile = str_newAssistMobile;
 	}
-	if ( n_oldDistance != n_newDistance ) {
-		n_num ++;
-		obj_param.distance_notification = n_newDistance;		
+	if ( n_newDistance <= n_currentDistance ) {
+		dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
+		return;
+	} else {
+		if ( n_newDistance != n_oldDistance ) {
+			n_num ++;
+			obj_param.distance_notification = n_newDistance;
+		}		
 	}
 	/**
 	* 只保存有修改的数据
@@ -649,5 +655,5 @@ $(function() {
 		}
 	});
 	$('#txtAssistMobile').formValidator({validatorGroup: '14', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
-	$('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
+	// $('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
 })
