@@ -94,10 +94,8 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         
         def _on_finish(realtime):
             realtime['cellid_status'] = 1 
-            print '----come into finish', realtime
             self.set_header(*self.JSON_HEADER)
             self.write(json_encode(realtime))
-            print 'write......', json_encode(realtime)
             self.finish()
 
         def __callback(db):
