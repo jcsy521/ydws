@@ -41,7 +41,12 @@ class ZFJSyncerHandler(BaseHandler):
                                                     "   ORDER BY timestamp",
                                                     tid, begin_time , end_time)
 
+                    _start_time = time.time()
                     positions = get_locations_with_clatlon(positions, self.db) 
+                    _now_time = time.time()
+                    if _now_time - _start_time > 3: # 3 seconds
+                        logging.info("[UWEB] Track offset used time: %s s, tid: %s, cid: %s",
+                                     _now_time - _start_time, tid, corp_id)
                     res.append({'mobile':mobile, 'positions':positions})
             self.write({'res':res})
 

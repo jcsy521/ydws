@@ -235,8 +235,15 @@ class QueryHelper(object):
     def get_terminals_by_cid(cid, db):
         """Get all trackers belongs to a corp.
         """
-        terminals = db.query("SELECT tt.mobile, tt.owner_mobile, tt.tid FROM T_TERMINAL_INFO as tt, T_GROUP as tg, T_CORP as tc" 
-                             "  WHERE tt.service_status = 1 AND tc.cid = %s AND tc.cid = tg.corp_id AND tt.group_id = tg.id", 
+        terminals = db.query("SELECT tt.mobile, tt.owner_mobile, tt.tid"
+                             "  FROM T_TERMINAL_INFO as tt, T_GROUP as tg, T_CORP as tc" 
+                             "  WHERE (tt.service_status = %s"
+                             "     OR tt.service_status = %s)"
+                             "  AND tc.cid = %s "
+                             "  AND tc.cid = tg.corp_id "
+                             "  AND tt.group_id = tg.id", 
+                             UWEB.SERVICE_STATUS.ON,
+                             UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
                              cid)
         return terminals
 
@@ -245,9 +252,13 @@ class QueryHelper(object):
         """Get all trackers belongs to a operator.
         """
         terminals = db.query("SELECT mobile, owner_mobile, tid FROM T_TERMINAL_INFO "
-                             "  WHERE group_id IN "
-                             "  (SELECT group_id FROM T_GROUP_OPERATOR "
-                             "   WHERE T_GROUP_OPERATOR.oper_id = %s)" , 
+                             "  WHERE (service_status = %s"
+                             "    OR service_status = %s)"
+                             "  AND group_id IN"
+                             "    (SELECT group_id FROM T_GROUP_OPERATOR"
+                             "     WHERE T_GROUP_OPERATOR.oper_id = %s)", 
+                             UWEB.SERVICE_STATUS.ON,
+                             UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
                              oid)
         return terminals
 

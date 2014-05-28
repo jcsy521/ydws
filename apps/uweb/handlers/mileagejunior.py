@@ -34,7 +34,6 @@ class MileageJuniorHandler(BaseHandler):
     def post(self):
         """ Provide some statistics about terminals.
         """
-      
         status = ErrorCode.SUCCESS
         #NOTE: check data format
         try:
@@ -92,31 +91,16 @@ class MileageJuniorHandler(BaseHandler):
                 interval = [start_time, end_time]
                 for item, tid in enumerate(tids):
                     seq = item + 1
-                    dis_sum = Decimal()  
-
-                    start_date = get_date_from_utc(start_time)
-                    end_date = get_date_from_utc(end_time)
-                    start_day = datetime.datetime.fromtimestamp(start_time)
-                    end_day = datetime.datetime.fromtimestamp(end_time)
-                    # get how many days the end_time and start_time cover
-                    days = abs(end_day-start_day).days+1
-
-                    for item in range(days):
-                        distance = Decimal()
-                        timestamp = start_time+1*60*60*24*(item)
-                        date = get_date_from_utc(timestamp)
-                        year, month, day = date.year, date.month, date.day
-                        start_time_, end_time_ = start_end_of_day(year=year, month=month, day=day)
-
-                        mileage_log = self.db.get("SELECT distance FROM T_MILEAGE_LOG" 
-                                                  "  WHERE tid = %s"
-                                                  "  AND timestamp = %s",
-                                                  tid, end_time_)
-                        distance = mileage_log['distance'] if mileage_log else 0
-                         
-                        # meter --> km
-                        distance = '%0.1f' % (distance/1000,)
-                        dis_sum += Decimal(distance)
+                    mileage_log = self.db.get("SELECT SUM(distance) AS distance"
+                                              " FROM T_MILEAGE_LOG" 
+                                              "  WHERE tid = %s"
+                                              "  AND (timestamp BETWEEN %s AND %s)",
+                                              tid, start_time,
+                                              end_time + 60*60*24)
+                    if mileage_log and mileage_log['distance']:
+                        dis_sum = '%0.1f' % (mileage_log['distance']/1000,)
+                    else:
+                        dis_sum = 0
 
                     alias = QueryHelper.get_alias_by_tid(tid, self.redis, self.db)
                     dct = dict(seq=seq,

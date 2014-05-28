@@ -2,6 +2,7 @@
 
 import logging
 import datetime
+import time
 import re
 import hashlib
 from os import SEEK_SET
@@ -199,8 +200,23 @@ class TrackHandler(BaseHandler):
 
 
             # NOTE: if latlons are legal, but clatlons are illlegal, offset
-            # them and update them in db.  
+            # them and update them in db. 
+            _start_time = time.time()
             track = get_locations_with_clatlon(track, self.db)
+            _now_time = time.time()
+            if _now_time - _start_time > 3: # 3 seconds
+                logging.info("[UWEB] Track offset used time: %s s, tid: %s, cid: %s", 
+                             _now_time - _start_time, self.current_user.tid, self.current_user.cid)
+
+            # NOTE: filter point without valid clat and clon 
+            _track = []
+            for t in track: 
+                if t['clongitude'] and ['clatitude']: 
+                    _track.append(t)
+                else:
+                    logging.info("[UWEB] Invalid point: %s, drop it, cid: %s", 
+                                 t, self.current_user.cid)
+            track = _track
 
             # add idle_points  
             # track1, track2, track3,...

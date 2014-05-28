@@ -30,11 +30,19 @@ class Worker(object):
         self.thread = None
         self.db = None
         self.is_alive = False
-        self.mobiles = [13693675352, 15901258591, 18310505991]
-        self.emails = ['boliang.guan@dbjtech.com',
-                       'zhaoxia.guo@dbjtech.com',
-                       'xiaolei.jia@dbjtech.com']
-
+        # NOTE: If queue's size is more than alarm_size, send mesage to the
+        # mobiles and emails in alarm_interval
+        self.alarm_key = 'eventer_alarm' 
+        self.alarm_interval = 60 * 5 # 5 minutes 
+        self.alarm_size = 10000  
+        self.mobiles = [13693675352, 
+                        18310505991, 
+                        15110243861, 
+                        13581731204]
+        self.emails = ['boliang.guan@dbjtech.com', 
+                       'xiaolei.jia@dbjtech.com',
+                       'ziqi.zhong@dbjtech.com', 
+                       'youbo.sun@dbjtech.com']
     
     def start(self):
         self.db = get_connection()
@@ -66,7 +74,6 @@ class Worker(object):
 
 
     def run(self):
-        self.send_time = int(time.time())
         while self.is_alive: # TODO: and not self.queue.empty()?
             try:
                 seq = int(time.time())
@@ -75,15 +82,19 @@ class Worker(object):
                     packet = self.queue.get(True, self.BLOCK_TIMEOUT)
                     logging.debug("[Worker] After get packet: %s from queue, seq:%s", packet, seq)
                     queue_len = self.queue.qsize()
-                    if queue_len >= 300 and (int(time.time()) > self.send_time):
-                        self.send_time = int(time.time()) + 60*3
+
+                    #NOTE: Send alarm message if need
+                    send_flag = self.redis.getvalue(self.alarm_key)
+                    if queue_len >= self.alarm_size and (not send_flag):
                         content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
                         for mobile in self.mobiles:
                             SMSHelper.send(mobile, content)
                         for email in self.emails:
                             EmailHelper.send(email, content) 
                         logging.info("[EVENTER] Notify EVENTER queue exception to administrator!")
+                        self.redis.setvalue(self.alarm_key, True, self.alarm_interval)
 
+                    #NOTE: Deal with the packet
                     if self.name == EVENTER.INFO_TYPE.REPORT:
                         self._run_callback(PacketTask(packet,
                                                       self.db,

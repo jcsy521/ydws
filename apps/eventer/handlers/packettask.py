@@ -260,6 +260,7 @@ class PacketTask(object):
                 pvt['category'] = EVENTER.CATEGORY.REALTIME
                 if pvt.get('lat') and pvt.get('lon'): 
                     insert_location(pvt, self.db, self.redis)
+
                     #NOTE: record the mileage
                     mileage_key = 'mileage:%s' % pvt['dev_id']
                     mileage = self.redis.getvalue(mileage_key)
@@ -282,6 +283,8 @@ class PacketTask(object):
                             pass
                         else:
                             dis = lbmphelper.get_distance(int(mileage["lon"]), int(mileage["lat"]),  int(pvt["lon"]) , int(pvt["lat"]))
+
+                            # for mileage notification
                             dis_current = mileage['dis'] +  dis 
                             self.db.execute("UPDATE T_TERMINAL_INFO" 
                                             "  SET distance_current = %s"
@@ -297,6 +300,7 @@ class PacketTask(object):
                                            gps_time=pvt['gps_time'])
                             self.redis.setvalue(mileage_key, mileage)
 
+                            # for mileage junior statistic
                             current_day = time.localtime(pvt['gps_time']) 
                             day_start_time, day_end_time = start_end_of_day(current_day.tm_year, current_day.tm_mon, current_day.tm_mday)
 
