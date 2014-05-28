@@ -1974,6 +1974,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 								obj_carInfo = $('.j_carList').data('carsData')[str_tid],
 								n_imgDegree = obj_current.attr('degree'),
 								str_loginSt = obj_current.attr('clogin'),
+								n_speed = obj_carInfo.speed,
 								obj_currentMarker = obj_selfmarkers[str_tid],
 								b_mapType = dlf.fn_isBMap(),
 								obj_icon = null;
@@ -1982,7 +1983,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 							obj_carInfo.icon_type = str_val;
 							if ( obj_currentMarker ) {
 								// 设置marker的icon
-								obj_selfmarkers[str_tid] = dlf.fn_setMarkerTraceIcon(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt, obj_currentMarker, obj_carInfo.timestamp);	
+								obj_selfmarkers[str_tid] = dlf.fn_setMarkerTraceIcon(dlf.fn_processDegree(n_imgDegree), str_val, str_loginSt, obj_currentMarker, obj_carInfo.timestamp, n_speed);	
 								/*if ( b_mapType ) {
 									obj_icon = new BMap.Icon(str_iconUrl, new BMap.Size(34, 34));
 									if ( b_flag ) {

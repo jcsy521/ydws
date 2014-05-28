@@ -1183,6 +1183,31 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			
 			$('.j_body').data('lastinfo_time', data.res.lastinfo_time);	// 存储post返回的上次更新时间  返给后台
 			$('.j_alarm').show();
+			
+			/**
+			* KJJ add 2014.05.28
+			* 判断缓存数据的点是否在移动，如果没有则修改marker的icon图标
+			*/
+			for ( var tid in obj_selfmarkers ) {
+				var obj_tempCarInfo = obj_tempCarsData[tid];
+				
+				if ( obj_tempCarInfo ) {
+					var n_speed = obj_tempCarInfo.speed,
+						n_timestamp = obj_tempCarInfo.timestamp,
+						b_flag = false,
+						obj_marker = obj_selfmarkers[tid],
+						n_nowtime = new Date().getTime()/1000,
+						myIcon = new BMap.Icon(BASEIMGURL + 'default.png', new BMap.Size(34, 34)),
+						obj_imageOffset = new BMap.Size(0, 0);
+						
+					if ( n_nowtime - n_timestamp > 300 || n_speed < 5 ) {
+						myIcon.setImageUrl(dlf.fn_setMarkerIconType(27, obj_tempCarInfo.icon_type, obj_tempCarInfo.login, false));
+						myIcon.setImageOffset(obj_imageOffset);
+						obj_marker.setIcon(myIcon);
+					}
+				}
+			}
+			
 			if ( str_resDataType ==  0 ) { //本次数据未发生变化
 				return;
 			} else if ( str_resDataType == 1 ) { //1：本次数据部分终发生变化（只提供发生变化的那份数据）

@@ -197,6 +197,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		n_clat = obj_location.clatitude,
 		n_lon = obj_location.longitude,
 		n_lat = obj_location.latitude,
+		n_speed = obj_location.speed,
 		mPoint = new BMap.Point(n_clon/NUMLNGLAT, n_clat/NUMLNGLAT), 
 		marker = null,
 		str_alias = obj_location.alias,

@@ -211,7 +211,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		
 		obj_selfMarker.setPosition(obj_tempPoint);
 		// 设置marker的icon
-		dlf.fn_setMarkerTraceIcon(n_imgDegree, n_iconType, str_loginSt, obj_selfMarker, n_carTimestamp);
+		dlf.fn_setMarkerTraceIcon(n_imgDegree, n_iconType, str_loginSt, obj_selfMarker, n_carTimestamp, n_speed);
 		
 		/**if ( b_isCorpUser ) {
 			
@@ -266,7 +266,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	}, 500);
 }
 
-dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_currentMarker, n_carTimestamp) {
+dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_currentMarker, n_carTimestamp, n_speed) {
 	var n_nowtime = new Date().getTime()/1000,
 		b_flag = false,
 		b_isCorpUser = dlf.fn_userType(),
