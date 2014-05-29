@@ -1183,7 +1183,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				
 				n_saveMileage += n_mileage;
 			}
-			$('#mileagePage').data('mileages', n_saveMileage);
+			$('#mileagePage').data('mileages', n_saveMileage.toFixed(1));
 			if ( !b_isLastPage ) {
 				str_tfoot += '<td colspan="2">'+ $('#mileagePage').data('mileages') + '</td></tr>';
 				obj_tfoot.empty().append(str_tfoot).show();
