@@ -55,8 +55,9 @@ from handlers.group import GroupHandler, GroupTransferHandler
 from handlers.corp import CorpHandler
 from handlers.terminal import TerminalHandler, TerminalCorpHandler
 from handlers.statistic import StatisticHandler, StatisticDownloadHandler, StatisticSingleHandler, StatisticSingleDownloadHandler
-from handlers.mileage import MileageHandler, MileageDownloadHandler, MileageSingleHandler, MileageSingleDownloadHandler
+from handlers.mileage import MileageHandler, MileageDownloadHandler, MileageSingleDownloadHandler
 from handlers.mileagejunior import MileageJuniorHandler
+from handlers.mileagesingle import MileageSingleHandler
 from handlers.password import PasswordHandler, PasswordCorpHandler, PasswordOperHandler
 from handlers.getcaptcha import GetCaptchaHandler, GetCaptchaCorpHandler
 from handlers.profile import ProfileHandler, ProfileCorpHandler, ProfileOperHandler

@@ -91,6 +91,7 @@ class MileageJuniorHandler(BaseHandler):
                 interval = [start_time, end_time]
                 for item, tid in enumerate(tids):
                     seq = item + 1
+                    #NOTE: It's amazing: In database, distance's type is long. sum(distance)'s type is Decimal 
                     mileage_log = self.db.get("SELECT SUM(distance) AS distance"
                                               " FROM T_MILEAGE_LOG" 
                                               "  WHERE tid = %s"
@@ -163,7 +164,7 @@ class MileageJuniorHandler(BaseHandler):
                     distance = mileage_log['distance'] if mileage_log else 0
 
                     # meter --> km
-                    distance = '%0.1f' % (distance/1000,)      
+                    distance = '%0.1f' % (Decimal(distance)/1000,)      
 
                         
                     graphics.append(float(distance))
