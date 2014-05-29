@@ -1238,6 +1238,12 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
             self.update_terminal_status(head.dev_id, address)
+            #NOTE: Check ydcw or ajt 
+            ajt = QueryHelper.get_ajt_whitelist_by_mobile(head.dev_id, self.db) 
+            if ajt: 
+                url_out = ConfHelper.UWEB_CONF.ajt_url_out 
+            else: 
+                url_out = ConfHelper.UWEB_CONF.url_out
 
             if go_ahead:
                 self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)

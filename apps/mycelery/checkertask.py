@@ -151,6 +151,7 @@ class CheckTask(object):
                                       "   distance_notification, distance_current, notify_count"
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = 1"
+                                      "  AND distance_notification != 0"
                                       "  AND distance_current > distance_notification"
                                       "  AND notify_count < 2")
             for terminal in terminals:
