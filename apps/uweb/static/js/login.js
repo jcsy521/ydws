@@ -23,8 +23,8 @@ $(function(){
 		obj_userGetPwd = $('#getPwd'),
 		obj_corpGetPwd = $('#corpGetPwd');
 	
-	$('#userRoleType').val(str_type);
 	if ( str_type == 'enterprise' ) {	// 集团用户
+		$('#userRoleType').val('enterprise');
 		obj_sed.removeClass('other').addClass('current');
 		obj_first.removeClass('current').addClass('other');
 		/*obj_userGetPwd.hide();
@@ -32,6 +32,7 @@ $(function(){
 		obj_individualPanel.hide();
 		obj_corp.show();
 	} else {
+		$('#userRoleType').val('individual');
 		obj_sed.removeClass('current').addClass('other');
 		obj_first.removeClass('other').addClass('current');
 		/*obj_userGetPwd.show();
