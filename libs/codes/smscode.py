@@ -77,6 +77,7 @@ class SMSCode(object):
     SMS_NEW_OPERATOR = u"尊敬的客户：您已经成为移动卫士集团用户管理员，平台网址：%s，用户名：%s，密码：%s"
     SMS_SERVICE_EXCEPTION_REPORT = u"管理员你好，平台%s，不能检测到模拟终端的位置更新，服务可能发生异常，请检查！！！"
     SMS_EVENTER_QUEUE_REPORT = u"管理员你好，平台%s，检测到EVENTER模块队列长度超过上限，服务可能发生异常，请检查！！！"
+    SMS_GW_ERROR_REPORT = u"管理员你好，平台%s，检测到GW服务出错，请检查！！！"
     
     SMS_REGION_ENTER = u"尊敬的客户：您的定位器“%s”已进入电子围栏“%s”，地址：%s，时间：%s。"
     SMS_REGION_ENTER_NOLOC = u"尊敬的客户：您的定位器“%s”已进入电子围栏“%s”，地址：因定位信号弱，当前暂时无法定位，请关注定位器状态， 时间：%s。"

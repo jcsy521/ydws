@@ -30,13 +30,14 @@ from helpers.confhelper import ConfHelper
 
 from mygwserver import MyGWServer
 
-def shutdown(gwserver, processes):
+def shutdown(gwserver, processes, db):
     try:
         for process in processes:
             if process and process.is_alive():
                 process.join()
             logging.warn("Process: %s ", process)
             process.terminate()
+        db.close()
         gwserver.stop()
 
     except:
@@ -94,7 +95,7 @@ def main():
         logging.exception("[gateway] Exit Exception")
     finally:
         logging.warn("[gateway] shutdown...")
-        shutdown(gwserver, processes)
+        shutdown(gwserver, processes, db)
         logging.warn("[gateway] stopped. Bye!")
 
 

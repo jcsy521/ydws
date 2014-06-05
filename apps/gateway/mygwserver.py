@@ -14,7 +14,7 @@ from pika.adapters import *
 from pika.exceptions import AMQPConnectionError, AMQPChannelError
 import json
 from functools import partial
-from Queue import Queue
+from Queue import Queue, Empty
 import thread
 
 from tornado.escape import json_decode
@@ -68,9 +68,18 @@ from clw.packet.composer.unusualactivate import UnusualActivateComposer
 from clw.packet.composer.misc import MiscComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
 
+from error import GWException
+
 
 class MyGWServer(object):
     """
+    GWServer communicate with terminals.
+    It receive MT packets from terminals and handle them, And send MO
+    packets to terminals.
+
+    There are two process: 
+      - publish process(recv packets and put response into queue)
+      - consume process(send packets from queue)
     """
 
     def __init__(self, conf_file):
@@ -80,6 +89,7 @@ class MyGWServer(object):
         self.check_heartbeat_thread = None
         self.redis = None 
         self.db = None
+        self.db_list = []
         self.exchange = 'acb_exchange'
         self.gw_queue = 'gw_requests_queue@' +\
                         ConfHelper.GW_SERVER_CONF.host + ':' +\
@@ -99,6 +109,9 @@ class MyGWServer(object):
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
 
     def __connect_rabbitmq(self, host):
+        """
+        connect rabbitmq
+        """
         connection = None
         channel = None
         try:
@@ -126,6 +139,7 @@ class MyGWServer(object):
                          self.si_queue, self.si_binding)
         except:
             logging.exception("[GW] Connect Rabbitmq-server Error!")
+            raise GWException
 
         return connection, channel
 
@@ -161,9 +175,13 @@ class MyGWServer(object):
         return connection, channel
 
     def consume(self, host):
+        """
+        1. get packet from rabbitmq_queue
+        2. send packet to terminal
+        """
         logging.info("[GW] consume process: %s started...", os.getpid())
-        consume_connection, consume_channel = self.__connect_rabbitmq(host)
         try:
+            consume_connection, consume_channel = self.__connect_rabbitmq(host)
             while True:
                 try:
                     method, header, body = consume_channel.basic_get(queue=self.gw_queue)
@@ -178,8 +196,8 @@ class MyGWServer(object):
                     continue 
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
-        except Exception as e:
-            logging.exception("[GW] Unknow Exception:%s", e.args)
+        except GWException:
+            logging.exception("[GW] Unknow Exception...")
         finally:
             logging.info("[GW] Rabbitmq consume connection close...")
             self.__close_rabbitmq(consume_connection, consume_channel)
@@ -188,38 +206,60 @@ class MyGWServer(object):
         try:
             message = json.loads(body)
             message = DotDict(message)
-            logging.info("[GW] send: %s to %s", message.packet, message.address)
+            logging.info("[GW] Send: %s to %s", message.packet, message.address)
             self.socket.sendto(message.packet, tuple(message.address))
         except socket.error as e:
-            logging.exception("[GW]sock send error: %s", e.args)
+            logging.exception("[GW] Sock send error: %s", e.args)
         except Exception as e:
-            logging.exception("[GW]unknown send Exception:%s", e.args)
+            logging.exception("[GW] Unknown send Exception:%s", e.args)
 
     def publish(self, host):
+        """
+        1. get packet from terminal
+        2. put this packet into queue
+        3. handle packets of queue by multi threads
+        """
+
         logging.info("[GW] publish process: %s started...", os.getpid())
-        queue = Queue()
         try:
-            thread.start_new_thread(self.handle_packet_from_terminal,
-                                    (queue, host))
-            self.recv(queue)
+            queue = Queue()
+            # multi threads handle packets
+            publish_connection, publish_channel = self.__connect_rabbitmq(host)
+            for i in range(int(ConfHelper.GW_SERVER_CONF.workers)):
+                db = DBConnection().db
+                self.db_list.append(db)
+                logging.info("[GW] publish thread%s started...", i)
+                thread.start_new_thread(self.handle_packet_from_terminal,
+                                        (queue, host, publish_connection, publish_channel, i, db))
+            # recv packet and put it into queue
+            while True:
+                self.recv(queue)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
-        except Exception as e:
-            logging.exception("[GW] Unknow Exception:%s", e.args)
+        except GWException:
+            logging.exception("[GW] Unknow Exception...")
+        finally:
+            logging.info("[GW] Rabbitmq publish connection close...")
+            self.__close_rabbitmq(publish_connection, publish_channel)
 
     def recv(self, queue):
         try:
-            while True:
-                response, address = self.socket.recvfrom(1024)
-                logging.info("[GW] recv: %s from %s", response, address)
-                if response:
-                    item = dict(response=response,
-                                address=address)
-                    queue.put(item)
+            response, address = self.socket.recvfrom(1024)
+            logging.info("[GW] Recv: %s from %s", response, address)
+            if response:
+                item = dict(response=response,
+                            address=address)
+                queue.put(item)
         except socket.error as e:
-            logging.exception("[GW]sock recv error: %s", e.args)
+            logging.exception("[GW] Sock recv error: %s", e.args)
+            # reconnect socket?
+            self.__close_socket()
+            sleep(0.1)
+            self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
         except Exception as e:
-            logging.exception("[GW]unknow recv Exception:%s", e.args)
+            logging.exception("[GW] Unknow recv Exception:%s", e.args)
 
     def divide_packets(self, packets):
         """
@@ -249,18 +289,22 @@ class MyGWServer(object):
 
         return valid_packets
         
-    def handle_packet_from_terminal(self, queue, host):
+    def handle_packet_from_terminal(self, queue, host, connection, channel, name, db):
         """
         handle packet recv from terminal:
         - login
         - heartbeat
         - locationdesc
+        - config
+        - defendstatus
+        - fobinfo
+        - sleepstatus
+        - fobstatus
+        - unbindstatus
         - other, forward it to si.
         """
-        try:
-            logging.info("[GW] Handle recv packet thread started...")
-            connection, channel = self.__connect_rabbitmq(host)
-            while True:
+        while True:
+            try:
                 if not connection.is_open:
                     connection, channel = self.__reconnect_rabbitmq(connection, host)
                     continue
@@ -277,52 +321,55 @@ class MyGWServer(object):
                                     break
                                 command = clw.head.command
                                 if command == T_MESSAGE_TYPE.LOGIN:
-                                    logging.info("[GW] Recv login packet:\n%s", packet)
-                                    self.handle_login(clw, address, connection, channel) 
+                                    logging.info("[GW] Thread%s recv login packet:\n%s", name, packet)
+                                    self.handle_login(clw, address, connection, channel, db) 
                                 elif command == T_MESSAGE_TYPE.HEARTBEAT:
-                                    logging.info("[GW] Recv heartbeat packet:\n%s", packet)
-                                    self.handle_heartbeat(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv heartbeat packet:\n%s", name, packet)
+                                    self.handle_heartbeat(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.LOCATIONDESC:
-                                    logging.info("[GW] Recv locationdesc packet:\n%s", packet)
-                                    self.handle_locationdesc(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv locationdesc packet:\n%s", name, packet)
+                                    self.handle_locationdesc(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.CONFIG:
-                                    logging.info("[GW] Recv query config packet:\n%s", packet)
-                                    self.handle_config(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv query config packet:\n%s", name,  packet)
+                                    self.handle_config(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
-                                    logging.info("[GW] Recv defend status packet:\n%s", packet)
-                                    self.handle_defend_status(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv defend status packet:\n%s", name, packet)
+                                    self.handle_defend_status(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.FOBINFO:
-                                    logging.info("[GW] Recv fob info packet:\n%s", packet)
-                                    self.handle_fob_info(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv fob info packet:\n%s", name, packet)
+                                    self.handle_fob_info(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
-                                    logging.info("[GW] Recv sleep status packet:\n%s", packet)
-                                    self.handle_terminal_sleep_status(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv sleep status packet:\n%s", name, packet)
+                                    self.handle_terminal_sleep_status(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.FOBSTATUS:
-                                    logging.info("[GW] Recv fob status packet:\n%s", packet)
-                                    self.handle_fob_status(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv fob status packet:\n%s", name, packet)
+                                    self.handle_fob_status(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
-                                    logging.info("[GW] Recv runtime status packet:\n%s", packet)
-                                    self.handle_runtime_status(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv runtime status packet:\n%s", name, packet)
+                                    self.handle_runtime_status(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
-                                    logging.info("[GW] Recv unbind status packet:\n%s", packet)
-                                    self.handle_unbind_status(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv unbind status packet:\n%s", name, packet)
+                                    self.handle_unbind_status(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.UNUSUALACTIVATE:
-                                    logging.info("[GW] Recv unusual activate packet:\n%s", packet)
-                                    self.handle_unusual_activate(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv unusual activate packet:\n%s", name, packet)
+                                    self.handle_unusual_activate(clw, address, connection, channel, db)
                                 elif command == T_MESSAGE_TYPE.MISC:
-                                    logging.info("[GW] Recv misc packet:\n%s", packet)
-                                    self.handle_misc(clw, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv misc packet:\n%s", name, packet)
+                                    self.handle_misc(clw, address, connection, channel, db)
                                 else:
-                                    logging.info("[GW] Recv packet from terminal:\n%s", packet)
-                                    self.foward_packet_to_si(clw, packet, address, connection, channel)
+                                    logging.info("[GW] Thread%s recv packet from terminal:\n%s", name, packet)
+                                    self.foward_packet_to_si(clw, packet, address, connection, channel, db)
                         else:
                             sleep(0.1)
-                    except:
-                        logging.exception("[GW] Handle packet Exception.")
-        except:
-            logging.exception("[GW] Recv Exception.")
+                    except Empty:
+                        logging.info("[GW] Thread%s queue empty.", name)
+                        sleep(0.1)
+                    except GWException:
+                        logging.exception("[GW] Thread%s handle packet Exception.", name) 
+            except:
+                logging.exception("[GW] Thread%s recv Exception.", name)
 
-    def handle_login(self, info, address, connection, channel):
+    def handle_login(self, info, address, connection, channel, db):
         """
         S1
         Handle the login packet.
@@ -361,7 +408,7 @@ class MyGWServer(object):
             if t_info['t_msisdn']:
                 logging.info("[GW] Checking whitelist, terminal mobile: %s, Terminal: %s",
                              t_info['t_msisdn'], t_info['dev_id'])
-                if not check_zs_phone(t_info['t_msisdn'], self.db):
+                if not check_zs_phone(t_info['t_msisdn'], db):
                     args.success = GATEWAY.LOGIN_STATUS.NOT_WHITELIST 
                     lc = LoginRespComposer(args)
                     request = DotDict(packet=lc.buf,
@@ -393,20 +440,21 @@ class MyGWServer(object):
                 # after v2.2.0
                 logging.info("[GW] New softversion(>=2.2.0): %s, go to new login handler...",
                              softversion)
-                self.handle_new_login(t_info, address, connection, channel)
+                self.handle_new_login(t_info, address, connection, channel, db)
             else:
                 # before v2.2.0
                 logging.info("[GW] Old softversion(<2.2.0): %s, go to old login handler...",
                              softversion)
-                self.handle_old_login(t_info, address, connection, channel)
+                self.handle_old_login(t_info, address, connection, channel, db)
             # check use sence
             ttype = get_terminal_type_by_tid(t_info['dev_id'])
             logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id'], ttype)
 
         except:
             logging.exception("[GW] Handle login exception.")
+            raise GWException
 
-    def handle_new_login(self, t_info, address, connection, channel):
+    def handle_new_login(self, t_info, address, connection, channel, db):
         """Handle the login packet with version bigger than 2.2.0
         S1
 
@@ -467,19 +515,19 @@ class MyGWServer(object):
         t_status = None
         # new softversion, new meaning, 1: active; othter: normal login
         flag = t_info['psd'] 
-        terminal = self.db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status,"
-                               "       defend_status, mannual_status, icon_type, login_permit, alias, vibl, use_scene, push_status"
-                               "  FROM T_TERMINAL_INFO"
-                               "  WHERE mobile = %s LIMIT 1",
-                               t_info['t_msisdn']) 
+        terminal = db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status,"
+                          "       defend_status, mannual_status, icon_type, login_permit, alias, vibl, use_scene, push_status"
+                          "  FROM T_TERMINAL_INFO"
+                          "  WHERE mobile = %s LIMIT 1",
+                          t_info['t_msisdn']) 
         if flag != "1": # normal login
             if (not t_info['t_msisdn']) and (not t_info['u_msisdn']):
-                t = self.db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status"
-                                "  FROM T_TERMINAL_INFO"
-                                "  WHERE service_status=1"
-                                "      AND tid = %s "
-                                "      AND imsi = %s LIMIT 1",
-                                t_info['dev_id'], t_info['imsi']) 
+                t = db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status"
+                           "  FROM T_TERMINAL_INFO"
+                           "  WHERE service_status=1"
+                           "      AND tid = %s "
+                           "      AND imsi = %s LIMIT 1",
+                           t_info['dev_id'], t_info['imsi']) 
                 if t: 
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                     t_info['t_msisdn'] = t.mobile
@@ -494,9 +542,9 @@ class MyGWServer(object):
             else:
                 if not t_info['t_msisdn']:
                     # login first.
-                    tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
-                                               " FROM T_TERMINAL_INFO"
-                                               " WHERE tid = %s LIMIT 1", t_info['dev_id'])
+                    tid_terminal = db.get("SELECT tid, mobile, owner_mobile, service_status"
+                                          " FROM T_TERMINAL_INFO"
+                                          " WHERE tid = %s LIMIT 1", t_info['dev_id'])
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                     if tid_terminal:
                         sms_ = SMSCode.SMS_NOT_JH % tid_terminal.mobile 
@@ -504,7 +552,7 @@ class MyGWServer(object):
                     logging.warn("[GW] terminal: %s login at first time.",
                                  t_info['dev_id'])
                 elif terminal:
-                    alias = QueryHelper.get_alias_by_tid(terminal['tid'], self.redis, self.db)
+                    alias = QueryHelper.get_alias_by_tid(terminal['tid'], self.redis, db)
                     if terminal['tid'] != t_info['dev_id']:
                         args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                         sms = SMSCode.SMS_TERMINAL_HK % alias 
@@ -563,16 +611,16 @@ class MyGWServer(object):
 
             # 2. delete to_be_unbind terminal
             if terminal and terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                delete_terminal(terminal['tid'], self.db, self.redis)
+                delete_terminal(terminal['tid'], db, self.redis)
                 terminal = None
 
             # 3. add user info
-            exist = self.db.get("SELECT id FROM T_USER"
+            exist = db.get("SELECT id FROM T_USER"
                                 "  WHERE mobile = %s",
                                 t_info['u_msisdn'])
 
             #NOTE: Check ydcw or ajt
-            ajt = QueryHelper.get_ajt_whitelist_by_mobile(t_info['t_msisdn'], self.db)
+            ajt = QueryHelper.get_ajt_whitelist_by_mobile(t_info['t_msisdn'], db)
             if ajt:
                url_out = ConfHelper.UWEB_CONF.ajt_url_out
             else:
@@ -587,13 +635,13 @@ class MyGWServer(object):
                 # get a new psd for new user
                 logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
                 psd = get_psd()
-                self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
-                                "  VALUES(%s, password(%s), %s, %s)",
-                                t_info['u_msisdn'], psd,
-                                t_info['u_msisdn'], t_info['u_msisdn'])
-                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                "  VALUES(%s)",
-                                t_info['u_msisdn'])
+                db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
+                           "  VALUES(%s, password(%s), %s, %s)",
+                           t_info['u_msisdn'], psd,
+                           t_info['u_msisdn'], t_info['u_msisdn'])
+                db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                           "  VALUES(%s)",
+                           t_info['u_msisdn'])
                 sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
                                                 url_out,
                                                 t_info['u_msisdn'],
@@ -628,10 +676,10 @@ class MyGWServer(object):
                     push_status = terminal.push_status
                     if terminal.tid == terminal.mobile:
                         # corp terminal login first, keep corp info
-                        self.db.execute("UPDATE T_REGION_TERMINAL"
-                                        "  SET tid = %s"
-                                        "  WHERE tid = %s",
-                                        t_info['dev_id'], t_info['t_msisdn'])
+                        db.execute("UPDATE T_REGION_TERMINAL"
+                                   "  SET tid = %s"
+                                   "  WHERE tid = %s",
+                                   t_info['dev_id'], t_info['t_msisdn'])
                         logging.info("[GW] Corp terminal: %s login first, tmobile: %s.",
                                      t_info['dev_id'], t_info['t_msisdn'])
                     elif terminal.tid != t_info['dev_id']:
@@ -649,19 +697,19 @@ class MyGWServer(object):
                         SMSHelper.send(terminal.owner_mobile, sms_)
                         if terminal.tid == t_info['dev_id']: 
                             # change user
-                            clear_data(terminal.tid, self.db)
+                            clear_data(terminal.tid, db)
                         logging.info("[GW] Send delete terminal message: %s to user: %s",
                                      sms_, terminal.owner_mobile)
                     else:
                         del_user = False
-                    delete_terminal(terminal.tid, self.db, self.redis, del_user=del_user)
+                    delete_terminal(terminal.tid, db, self.redis, del_user=del_user)
 
             if not is_refurbishment:
                 # 5. delete existed tid
-                tid_terminal = self.db.get("SELECT tid, mobile, owner_mobile, service_status"
-                                           "  FROM T_TERMINAL_INFO"
-                                           "  WHERE tid = %s LIMIT 1",
-                                           t_info['dev_id'])
+                tid_terminal = db.get("SELECT tid, mobile, owner_mobile, service_status"
+                                      "  FROM T_TERMINAL_INFO"
+                                      "  WHERE tid = %s LIMIT 1",
+                                      t_info['dev_id'])
                 if tid_terminal:
                     logging.info("[GW] Delete existed tid: %s while JH mobile: %s.",
                                  tid_terminal['tid'], t_info['t_msisdn'])
@@ -677,15 +725,15 @@ class MyGWServer(object):
                             logging.info("[GW] Send delete terminal message: %s to user: %s",
                                          sms_, tid_terminal['owner_mobile'])
                             # user changed, must clear history data of dev_id
-                            clear_data(tid_terminal['tid'], self.db)
+                            clear_data(tid_terminal['tid'], db)
                     else:
                         del_user = False
-                    delete_terminal(tid_terminal['tid'], self.db, self.redis, del_user=del_user)
+                    delete_terminal(tid_terminal['tid'], db, self.redis, del_user=del_user)
 
                 # 6 add terminal info
 
                 # record the add action, enterprise or individual
-                record_add_action(t_info['t_msisdn'], group_id, int(time.time()), self.db)
+                record_add_action(t_info['t_msisdn'], group_id, int(time.time()), db)
                 
                 # check use sence
                 ttype = get_terminal_type_by_tid(t_info['dev_id'])
@@ -696,34 +744,34 @@ class MyGWServer(object):
                 #else:
                 #    use_scene = 3
                 #    vibl = 1
-                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
-                                "  owner_mobile, imsi, imei, factory_name, softversion,"
-                                "  keys_num, login, service_status, defend_status,"
-                                "  mannual_status, push_status, icon_type, begintime, endtime, "
-                                "  offline_time, login_permit, alias, vibl, use_scene, stop_interval,"
-                                "  bt_name, bt_mac)"
-                                "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, "
-                                "  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                t_info['dev_id'], group_id, t_info['dev_type'],
-                                t_info['t_msisdn'], t_info['u_msisdn'],
-                                t_info['imsi'], t_info['imei'],
-                                t_info['factory_name'],
-                                t_info['softversion'], t_info['keys_num'], 
-                                GATEWAY.SERVICE_STATUS.ON,
-                                defend_status, mannual_status, push_status, icon_type,
-                                int(time.mktime(begintime.timetuple())),
-                                4733481600,
-                                int(time.mktime(begintime.timetuple())),
-                                login_permit, alias, vibl, use_scene, 1800,
-                                t_info['bt_name'], t_info['bt_mac'])
-                self.db.execute("INSERT INTO T_CAR(tid, cnum)"
-                                "  VALUES(%s, %s)",
-                                t_info['dev_id'], alias)
+                db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, dev_type, mobile,"
+                           "  owner_mobile, imsi, imei, factory_name, softversion,"
+                           "  keys_num, login, service_status, defend_status,"
+                           "  mannual_status, push_status, icon_type, begintime, endtime, "
+                           "  offline_time, login_permit, alias, vibl, use_scene, stop_interval,"
+                           "  bt_name, bt_mac)"
+                           "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, "
+                           "  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                           t_info['dev_id'], group_id, t_info['dev_type'],
+                           t_info['t_msisdn'], t_info['u_msisdn'],
+                           t_info['imsi'], t_info['imei'],
+                           t_info['factory_name'],
+                           t_info['softversion'], t_info['keys_num'], 
+                           GATEWAY.SERVICE_STATUS.ON,
+                           defend_status, mannual_status, push_status, icon_type,
+                           int(time.mktime(begintime.timetuple())),
+                           4733481600,
+                           int(time.mktime(begintime.timetuple())),
+                           login_permit, alias, vibl, use_scene, 1800,
+                           t_info['bt_name'], t_info['bt_mac'])
+                db.execute("INSERT INTO T_CAR(tid, cnum)"
+                           "  VALUES(%s, %s)",
+                           t_info['dev_id'], alias)
                 logging.info("[GW] Tmobile: %s with tid: %s JH success!",
                              t_info['t_msisdn'], t_info['dev_id'])
                 # subscription LE for new sim
                 thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
-                #self.request_location(t_info['dev_id'])
+                #self.request_location(t_info['dev_id'], db)
 
         if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
             # get SessionID
@@ -745,7 +793,7 @@ class MyGWServer(object):
                            keys_num=t_info['keys_num'],
                            login_time=int(time.time()),
                            dev_id=t_info["dev_id"])
-            self.update_terminal_info(info)
+            self.update_terminal_info(info, db)
             logging.info("[GW] Terminal %s login success! SIM: %s",
                          t_info['dev_id'], t_info['t_msisdn'])
 
@@ -782,7 +830,7 @@ class MyGWServer(object):
             logging.warn("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
                          t_info['dev_id'], t_info['t_msisdn'], response)
 
-    def handle_old_login(self, t_info, address, connection, channel):
+    def handle_old_login(self, t_info, address, connection, channel, db):
         """
         S1
         login response packet:
@@ -812,10 +860,10 @@ class MyGWServer(object):
                           t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
             return
 
-        t_status = self.db.get("SELECT service_status"
-                               "  FROM T_TERMINAL_INFO"
-                               "  WHERE mobile = %s",
-                               t_info['t_msisdn'])
+        t_status = db.get("SELECT service_status"
+                          "  FROM T_TERMINAL_INFO"
+                          "  WHERE mobile = %s",
+                          t_info['t_msisdn'])
         if t_status and t_status.service_status == GATEWAY.SERVICE_STATUS.OFF:
             args.success = GATEWAY.LOGIN_STATUS.EXPIRED
             lc = LoginRespComposer(args)
@@ -829,13 +877,13 @@ class MyGWServer(object):
 
         logging.info("[GW] Checking imsi: %s and mobile: %s, Terminal: %s",
                      t_info['imsi'], t_info['t_msisdn'], t_info['dev_id'])
-        tmobile = self.db.get("SELECT imsi FROM T_TERMINAL_INFO"
-                              "  WHERE mobile = %s", t_info['t_msisdn'])
+        tmobile = db.get("SELECT imsi FROM T_TERMINAL_INFO"
+                         "  WHERE mobile = %s", t_info['t_msisdn'])
         if tmobile and tmobile.imsi and tmobile.imsi != t_info['imsi']:
             # check terminal and give a appropriate HK notification
-            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO WHERE tid=%s", t_info['dev_id'])
+            terminal = db.get("SELECT id FROM T_TERMINAL_INFO WHERE tid=%s", t_info['dev_id'])
             if terminal:
-                alias = QueryHelper.get_alias_by_tid(t_info['dev_id'], self.redis, self.db)
+                alias = QueryHelper.get_alias_by_tid(t_info['dev_id'], self.redis, db)
             else: 
                 alias = t_info['t_msisdn']
             args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
@@ -849,9 +897,9 @@ class MyGWServer(object):
                           t_info['t_msisdn'], t_info['dev_id'])
             return
 
-        terminal = self.db.get("SELECT id, mobile, owner_mobile, service_status"
-                               "  FROM T_TERMINAL_INFO"
-                               "  WHERE tid = %s", t_info['dev_id'])
+        terminal = db.get("SELECT id, mobile, owner_mobile, service_status"
+                          "  FROM T_TERMINAL_INFO"
+                          "  WHERE tid = %s", t_info['dev_id'])
         if terminal:
             if terminal.mobile != t_info['t_msisdn']:
                 logging.info("[GW] Terminal: %s changed mobile, old mobile: %s, new mobile: %s",
@@ -863,8 +911,8 @@ class MyGWServer(object):
                     logging.info("[GW] Delete old tid bind relation. tid: %s, owner_mobile: %s, service_status: %s",
                                  t_info['dev_id'], t_info['u_msisdn'],
                                  terminal.service_status)
-                    delete_terminal(t_info['dev_id'], self.db, self.redis, del_user=False)
-                    exist = self.db.get("SELECT tid, owner_mobile, service_status FROM T_TERMINAL_INFO"
+                    delete_terminal(t_info['dev_id'], db, self.redis, del_user=False)
+                    exist = db.get("SELECT tid, owner_mobile, service_status FROM T_TERMINAL_INFO"
                                         "  WHERE mobile = %s LIMIT 1",
                                         t_info['t_msisdn'])
                     if exist:
@@ -872,7 +920,7 @@ class MyGWServer(object):
                         t_status = None
                         logging.info("[GW] Delete old tmobile bind relation. tid: %s, mobile: %s",
                                      exist.tid, t_info['t_msisdn'])
-                        delete_terminal(exist.tid, self.db, self.redis, del_user=False)
+                        delete_terminal(exist.tid, db, self.redis, del_user=False)
                         if exist.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
                             logging.info("[GW] Terminal: %s of %s is to_be_unbind, delete it.",
                                          exist.tid, t_info['t_msisdn'])
@@ -893,7 +941,7 @@ class MyGWServer(object):
                     return
 
         #NOTE: Check ydcw or ajt 
-        ajt = QueryHelper.get_ajt_whitelist_by_mobile(t_info['t_msisdn'], self.db) 
+        ajt = QueryHelper.get_ajt_whitelist_by_mobile(t_info['t_msisdn'], db) 
         if ajt: 
             url_out = ConfHelper.UWEB_CONF.ajt_url_out 
         else: 
@@ -916,10 +964,10 @@ class MyGWServer(object):
             # HK, change terminal mobile or owner mobile
             logging.info("[GW] Checking password. Terminal: %s",
                          t_info['dev_id'])
-            owner = self.db.get("SELECT id FROM T_USER"
-                                "  WHERE mobile = %s"
-                                "    AND password = password(%s)",
-                                terminal.owner_mobile, t_info['psd'])
+            owner = db.get("SELECT id FROM T_USER"
+                           "  WHERE mobile = %s"
+                           "    AND password = password(%s)",
+                           terminal.owner_mobile, t_info['psd'])
             if not owner:
                 # psd wrong
                 sms = SMSCode.SMS_PSD_WRONG
@@ -932,15 +980,15 @@ class MyGWServer(object):
                         # terminal HK
                         logging.info("[GW] Terminal: %s HK started.", t_info['dev_id'])
                         # unbind old tmobile
-                        old_bind = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
-                                               "  WHERE mobile = %s"
-                                               "    AND id != %s",
-                                               t_info['t_msisdn'], terminal.id)
+                        old_bind = db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+                                          "  WHERE mobile = %s"
+                                          "    AND id != %s",
+                                          t_info['t_msisdn'], terminal.id)
                         if old_bind:
                             # clear db
-                            self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                                            "  WHERE id = %s", 
-                                            old_bind.id) 
+                            db.execute("DELETE FROM T_TERMINAL_INFO"
+                                       "  WHERE id = %s", 
+                                       old_bind.id) 
                             # clear redis
                             sessionID_key = get_terminal_sessionID_key(old_bind.tid)
                             address_key = get_terminal_address_key(old_bind.tid)
@@ -953,12 +1001,12 @@ class MyGWServer(object):
                                          t_info['dev_id'], t_info['t_msisdn'])
 
                         # update new tmobile
-                        self.db.execute("UPDATE T_TERMINAL_INFO"
-                                        "  SET mobile = %s,"
-                                        "      imsi = %s"
-                                        "  WHERE id = %s",
-                                        t_info['t_msisdn'],
-                                        t_info['imsi'], terminal.id)
+                        db.execute("UPDATE T_TERMINAL_INFO"
+                                   "  SET mobile = %s,"
+                                   "      imsi = %s"
+                                   "  WHERE id = %s",
+                                   t_info['t_msisdn'],
+                                   t_info['imsi'], terminal.id)
                         # clear redis
                         sessionID_key = get_terminal_sessionID_key(t_info['dev_id'])
                         address_key = get_terminal_address_key(t_info['dev_id'])
@@ -971,15 +1019,15 @@ class MyGWServer(object):
                         sms = SMSCode.SMS_TERMINAL_HK_SUCCESS % (terminal.mobile, t_info['t_msisdn'])
                         # subscription LE for new sim
                         thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
-                        #self.request_location(t_info['dev_id'])
+                        #self.request_location(t_info['dev_id'], db)
                         logging.info("[GW] Terminal: %s HK success!", t_info['dev_id'])
 
                     if terminal.owner_mobile != t_info['u_msisdn']:
                         logging.info("[GW] Owner HK started. Terminal: %s", t_info['dev_id'])
                         # owner HK
-                        user = self.db.get("SELECT id FROM T_USER"
-                                           "  WHERE mobile = %s",
-                                           t_info['u_msisdn'])
+                        user = db.get("SELECT id FROM T_USER"
+                                      "  WHERE mobile = %s",
+                                      t_info['u_msisdn'])
                         if user:
                             logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
                             sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
@@ -987,23 +1035,23 @@ class MyGWServer(object):
                         else:
                             logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
                             psd = get_psd()
-                            self.db.execute("INSERT INTO T_USER"
-                                            "  VALUES(NULL, %s, password(%s), %s, %s, NULL, NULL, NULL)",
-                                            t_info['u_msisdn'],
-                                            psd,
-                                            t_info['u_msisdn'],
-                                            t_info['u_msisdn'])
-                            self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                            "  VALUES(%s)",
-                                            t_info['u_msisdn'])
+                            db.execute("INSERT INTO T_USER"
+                                       "  VALUES(NULL, %s, password(%s), %s, %s, NULL, NULL, NULL)",
+                                       t_info['u_msisdn'],
+                                       psd,
+                                       t_info['u_msisdn'],
+                                       t_info['u_msisdn'])
+                            db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                                       "  VALUES(%s)",
+                                       t_info['u_msisdn'])
                             sms = SMSCode.SMS_USER_HK_SUCCESS % (t_info['u_msisdn'],
                                                                  url_out,
                                                                  t_info['u_msisdn'],
                                                                  psd)
-                        self.db.execute("UPDATE T_TERMINAL_INFO"
-                                        "  SET owner_mobile = %s"
-                                        "  WHERE id = %s",
-                                        t_info['u_msisdn'], terminal.id)
+                        db.execute("UPDATE T_TERMINAL_INFO"
+                                   "  SET owner_mobile = %s"
+                                   "  WHERE id = %s",
+                                   t_info['u_msisdn'], terminal.id)
                         logging.info("[GW] Owner of %s HK success!", t_info['dev_id'])
                 else:
                     logging.error("[GW] What happened? Cannot find old terminal by dev_id: %s",
@@ -1018,9 +1066,9 @@ class MyGWServer(object):
                 # SMS JH or admin JH or change new dev JH
                 logging.info("[GW] Terminal: %s, mobile: %s JH started.",
                              t_info['dev_id'], t_info['t_msisdn'])
-                exist = self.db.get("SELECT id FROM T_USER"
-                                    "  WHERE mobile = %s",
-                                    t_info['u_msisdn'])
+                exist = db.get("SELECT id FROM T_USER"
+                               "  WHERE mobile = %s",
+                               t_info['u_msisdn'])
                 if exist:
                     logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
                     sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
@@ -1029,55 +1077,55 @@ class MyGWServer(object):
                     # get a new psd for new user
                     logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
                     psd = get_psd()
-                    self.db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
-                                    "  VALUES(%s, password(%s), %s, %s)",
-                                    t_info['u_msisdn'], psd,
-                                    t_info['u_msisdn'], t_info['u_msisdn'])
-                    self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                    "  VALUES(%s)",
-                                    t_info['u_msisdn'])
+                    db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
+                               "  VALUES(%s, password(%s), %s, %s)",
+                               t_info['u_msisdn'], psd,
+                               t_info['u_msisdn'], t_info['u_msisdn'])
+                    db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                               "  VALUES(%s)",
+                               t_info['u_msisdn'])
                     sms = SMSCode.SMS_JH_SUCCESS % (t_info['t_msisdn'],
                                                     url_out,
                                                     t_info['u_msisdn'],
                                                     psd)
 
-                admin_terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
-                                             "  WHERE tid = %s",
-                                             t_info['t_msisdn'])
+                admin_terminal = db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+                                        "  WHERE tid = %s",
+                                        t_info['t_msisdn'])
                 if admin_terminal:
                     # admin JH
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
-                                    "  SET tid = %s,"
-                                    "      dev_type = %s,"
-                                    "      owner_mobile = %s,"
-                                    "      imsi = %s,"
-                                    "      imei = %s,"
-                                    "      factory_name = %s,"
-                                    "      keys_num = %s,"
-                                    "      softversion = %s"
-                                    "  WHERE id = %s",
-                                    t_info['dev_id'],
-                                    t_info['dev_type'],
-                                    t_info['u_msisdn'],
-                                    t_info['imsi'],
-                                    t_info['imei'],
-                                    t_info['factory_name'],
-                                    t_info['keys_num'],
-                                    t_info['softversion'],
-                                    admin_terminal.id)
-                    self.db.execute("UPDATE T_CAR SET tid = %s"
-                                    "  WHERE tid = %s",
-                                    t_info['dev_id'], t_info['t_msisdn'])
+                    db.execute("UPDATE T_TERMINAL_INFO"
+                               "  SET tid = %s,"
+                               "      dev_type = %s,"
+                               "      owner_mobile = %s,"
+                               "      imsi = %s,"
+                               "      imei = %s,"
+                               "      factory_name = %s,"
+                               "      keys_num = %s,"
+                               "      softversion = %s"
+                               "  WHERE id = %s",
+                               t_info['dev_id'],
+                               t_info['dev_type'],
+                               t_info['u_msisdn'],
+                               t_info['imsi'],
+                               t_info['imei'],
+                               t_info['factory_name'],
+                               t_info['keys_num'],
+                               t_info['softversion'],
+                               admin_terminal.id)
+                    db.execute("UPDATE T_CAR SET tid = %s"
+                               "  WHERE tid = %s",
+                               t_info['dev_id'], t_info['t_msisdn'])
                     logging.info("[GW] Terminal %s by ADMIN JH success!", t_info['dev_id'])
                 else:
-                    exist_terminal = self.db.get("SELECT id, tid FROM T_TERMINAL_INFO"
-                                                 "  WHERE mobile = %s",
-                                                 t_info['t_msisdn'])
+                    exist_terminal = db.get("SELECT id, tid FROM T_TERMINAL_INFO"
+                                            "  WHERE mobile = %s",
+                                            t_info['t_msisdn'])
                     if exist_terminal:
                         # unbind old tmobile
-                        self.db.execute("DELETE FROM T_TERMINAL_INFO"
-                                        "  WHERE id = %s",
-                                        exist_terminal.id)
+                        db.execute("DELETE FROM T_TERMINAL_INFO"
+                                   "  WHERE id = %s",
+                                   exist_terminal.id)
                         # clear redis
                         sessionID_key = get_terminal_sessionID_key(exist_terminal.tid)
                         address_key = get_terminal_address_key(exist_terminal.tid)
@@ -1094,29 +1142,29 @@ class MyGWServer(object):
                     begintime = datetime.datetime.now() 
                     endtime = begintime + relativedelta(years=1)
                     # record the add action, enterprise or individual
-                    record_add_action(t_info['t_msisdn'], -1, int(time.time()), self.db)
+                    record_add_action(t_info['t_msisdn'], -1, int(time.time()), db)
 
-                    self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
-                                    "  owner_mobile, imsi, imei, factory_name, softversion,"
-                                    "  keys_num, login, service_status, begintime, endtime, offline_time)"
-                                    "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s)",
-                                    t_info['dev_id'], t_info['dev_type'],
-                                    t_info['t_msisdn'], t_info['u_msisdn'],
-                                    t_info['imsi'], t_info['imei'],
-                                    t_info['factory_name'],
-                                    t_info['softversion'], t_info['keys_num'], 
-                                    GATEWAY.SERVICE_STATUS.ON,
-                                    int(time.mktime(begintime.timetuple())),
-                                    int(time.mktime(endtime.timetuple())),
-                                    int(time.mktime(begintime.timetuple())))
-                    self.db.execute("INSERT INTO T_CAR(tid)"
-                                    "  VALUES(%s)",
-                                    t_info['dev_id'])
+                    db.execute("INSERT INTO T_TERMINAL_INFO(tid, dev_type, mobile,"
+                               "  owner_mobile, imsi, imei, factory_name, softversion,"
+                               "  keys_num, login, service_status, begintime, endtime, offline_time)"
+                               "  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, DEFAULT, %s, %s, %s, %s)",
+                               t_info['dev_id'], t_info['dev_type'],
+                               t_info['t_msisdn'], t_info['u_msisdn'],
+                               t_info['imsi'], t_info['imei'],
+                               t_info['factory_name'],
+                               t_info['softversion'], t_info['keys_num'], 
+                               GATEWAY.SERVICE_STATUS.ON,
+                               int(time.mktime(begintime.timetuple())),
+                               int(time.mktime(endtime.timetuple())),
+                               int(time.mktime(begintime.timetuple())))
+                    db.execute("INSERT INTO T_CAR(tid)"
+                               "  VALUES(%s)",
+                               t_info['dev_id'])
                     logging.info("[GW] Terminal %s by SMS JH success!", t_info['dev_id'])
 
                 # subscription LE for new sim
                 thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
-                #self.request_location(t_info['dev_id'])
+                #self.request_location(t_info['dev_id'], db)
 
         if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
             # get SessionID
@@ -1138,7 +1186,7 @@ class MyGWServer(object):
                            keys_num=t_info['keys_num'],
                            login_time=int(time.time()),
                            dev_id=t_info["dev_id"])
-            self.update_terminal_info(info)
+            self.update_terminal_info(info, db)
             logging.info("[GW] Terminal %s login success! SIM: %s",
                          t_info['dev_id'], t_info['t_msisdn'])
 
@@ -1161,7 +1209,7 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
 
-    def handle_heartbeat(self, info, address, connection, channel):
+    def handle_heartbeat(self, info, address, connection, channel, db):
         """
         S2
         heartbeat packet
@@ -1190,7 +1238,7 @@ class MyGWServer(object):
                 del heartbeat_info['sleep_status']
 
                 self.update_terminal_status(head.dev_id, address, is_sleep)
-                self.update_terminal_info(heartbeat_info)
+                self.update_terminal_info(heartbeat_info, db)
 
             hc = HeartbeatRespComposer(args)
             request = DotDict(packet=hc.buf,
@@ -1198,8 +1246,9 @@ class MyGWServer(object):
             self.append_gw_request(request, connection, channel)
         except:
             logging.error("[GW] Hand heartbeat exception.")
+            raise GWException
 
-    def handle_locationdesc(self, info, address, connection, channel):
+    def handle_locationdesc(self, info, address, connection, channel, db):
         """
         S10
         locationdesc packet
@@ -1239,7 +1288,7 @@ class MyGWServer(object):
             self.append_gw_request(request, connection, channel)
             self.update_terminal_status(head.dev_id, address)
             #NOTE: Check ydcw or ajt 
-            ajt = QueryHelper.get_ajt_whitelist_by_mobile(head.dev_id, self.db) 
+            ajt = QueryHelper.get_ajt_whitelist_by_mobile(head.dev_id, db) 
             if ajt: 
                 url_out = ConfHelper.UWEB_CONF.ajt_url_out 
             else: 
@@ -1258,11 +1307,11 @@ class MyGWServer(object):
                     cellid = True
                 else:
                     cellid = False
-                location = lbmphelper.handle_location(location, self.redis, cellid=cellid, db=self.db)
+                location = lbmphelper.handle_location(location, self.redis, cellid=cellid, db=db)
                 location.name = location.get('name') if location.get('name') else ""
                 location.name = safe_unicode(location.name)
-                user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
-                tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
+                user = QueryHelper.get_user_by_tid(head.dev_id, db)
+                tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, db)
                 dw_method = u'GPS' if not cellid else u'基站'
                 if location.cLat and location.cLon:
                     if user:
@@ -1289,12 +1338,13 @@ class MyGWServer(object):
                 if not (location.lat and location.lon):
                     args.success = GATEWAY.RESPONSE_STATUS.CELLID_FAILED
                 else:
-                    insert_location(location, self.db, self.redis)
+                    insert_location(location, db, self.redis)
 
         except:
             logging.exception("[GW] Handle locationdesc exception.")
+            raise GWException
 
-    def handle_config(self, info, address, connection, channel):
+    def handle_config(self, info, address, connection, channel, db):
         """
         S17
         config packet
@@ -1320,10 +1370,10 @@ class MyGWServer(object):
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
                 self.update_terminal_status(head.dev_id, address)
-                terminal = self.db.get("SELECT track, freq, trace, static_val,"
-                                       "       move_val, trace_para, vibl, domain, use_scene, stop_interval, test"
-                                       "  FROM T_TERMINAL_INFO"
-                                       "  WHERE tid = %s", head.dev_id)
+                terminal = db.get("SELECT track, freq, trace, static_val,"
+                                  "       move_val, trace_para, vibl, domain, use_scene, stop_interval, test"
+                                  "  FROM T_TERMINAL_INFO"
+                                  "  WHERE tid = %s", head.dev_id)
                 args.domain = terminal.domain
                 args.freq = terminal.freq
                 args.trace = terminal.trace
@@ -1344,8 +1394,9 @@ class MyGWServer(object):
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand query config exception.")
+            raise GWException
 
-    def handle_defend_status(self, info, address, connection, channel):
+    def handle_defend_status(self, info, address, connection, channel, db):
         """
         defend status report packet
         0: success, then record new terminal's address
@@ -1379,14 +1430,14 @@ class MyGWServer(object):
                         # come from sms or web 
                         if defend_info['defend_source'] == "1":
                             _status = u"设防" if defend_info['defend_status'] == "1" else u"撤防"
-                            tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
+                            tname = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, db)
                             sms = SMSCode.SMS_DEFEND_SUCCESS % (tname, _status) 
-                            user = QueryHelper.get_user_by_tid(head.dev_id, self.db)
+                            user = QueryHelper.get_user_by_tid(head.dev_id, db)
                             if user:
                                 SMSHelper.send(user.owner_mobile, sms)
                         del defend_info['defend_status']
                     del defend_info['defend_source']
-                    self.update_terminal_info(defend_info)
+                    self.update_terminal_info(defend_info, db)
                 self.update_terminal_status(head.dev_id, address)
 
             hc = AsyncRespComposer(args)
@@ -1394,9 +1445,10 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand defend status report exception.")
+            logging.exception("[GW] Handle defend status report exception.")
+            raise GWException
 
-    def handle_fob_info(self, info, address, connection, channel):
+    def handle_fob_info(self, info, address, connection, channel, db):
         """
         fob info packet: add or remove fob
         0: success, then record new terminal's address
@@ -1413,16 +1465,17 @@ class MyGWServer(object):
                 fp = FobInfoParser(body, head)
                 fobinfo = fp.ret
                 self.update_terminal_status(head.dev_id, address)
-                self.update_fob_info(fobinfo)
+                self.update_fob_info(fobinfo, db)
 
             fc = FobInfoRespComposer(args)
             request = DotDict(packet=fc.buf,
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand fob info report exception.")
+            logging.exception("[GW] Handle fob info report exception.")
+            raise GWException
 
-    def handle_terminal_sleep_status(self, info, address, connection, channel):
+    def handle_terminal_sleep_status(self, info, address, connection, channel, db):
         """
         sleep status packet: 0-sleep, 1-LQ
         0: success, then record new terminal's address
@@ -1458,7 +1511,7 @@ class MyGWServer(object):
                     else:
                         logging.info("[GW] Recv wrong sleep status: %s", sleep_info)
                     del sleep_info['sleep_status']
-                    self.update_terminal_info(sleep_info)
+                    self.update_terminal_info(sleep_info, db)
 
                 self.update_terminal_status(head.dev_id, address, is_sleep)
 
@@ -1467,9 +1520,10 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand sleep status report exception.")
+            logging.exception("[GW] Handle sleep status report exception.")
+            raise GWException
 
-    def handle_fob_status(self, info, address, connection, channel):
+    def handle_fob_status(self, info, address, connection, channel, db):
         """
         fob status packet: 0-no fob near, 1-have fob near
         0: success, then record new terminal's address
@@ -1496,7 +1550,7 @@ class MyGWServer(object):
                     fob_info = hp.ret 
                     info = DotDict(fob_status=fob_info['fob_status'],
                                    dev_id=fob_info['dev_id'])
-                    self.update_terminal_info(fob_info)
+                    self.update_terminal_info(fob_info, db)
                 self.update_terminal_status(head.dev_id, address)
 
             hc = AsyncRespComposer(args)
@@ -1504,9 +1558,10 @@ class MyGWServer(object):
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand fob status report exception.")
+            logging.exception("[GW] Handle fob status report exception.")
+            raise GWException
 
-    def handle_runtime_status(self, info, address, connection, channel):
+    def handle_runtime_status(self, info, address, connection, channel, db):
         """
         S23
         runtime status packet: {login [0:unlogin | 1:login],
@@ -1537,7 +1592,7 @@ class MyGWServer(object):
                 if resend_flag:
                     logging.warn("[GW] Recv resend packet, head: %s, body: %s and drop it!",
                                  info.head, info.body)
-                    terminal_info = QueryHelper.get_terminal_info(head.dev_id, self.db,
+                    terminal_info = QueryHelper.get_terminal_info(head.dev_id, db,
                                                                   self.redis)
                     args.mannual_status = terminal_info['mannual_status']
                 else:
@@ -1545,19 +1600,19 @@ class MyGWServer(object):
                     hp = AsyncParser(body, head)
                     runtime_info = hp.ret 
                     self.update_terminal_status(head.dev_id, address)
-                    terminal_info = self.update_terminal_info(runtime_info)
+                    terminal_info = self.update_terminal_info(runtime_info, db)
                     args.mannual_status = terminal_info['mannual_status']
-                    self.db.execute("INSERT INTO T_RUNTIME_STATUS"
-                                    "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                    head.dev_id, runtime_info['login'], runtime_info['defend_status'],
-                                    runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'],
-                                    runtime_info['fob_pbat'], head.timestamp)
+                    db.execute("INSERT INTO T_RUNTIME_STATUS"
+                               "  VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s)",
+                               head.dev_id, runtime_info['login'], runtime_info['defend_status'],
+                               runtime_info['gps'], runtime_info['gsm'], runtime_info['pbat'],
+                               runtime_info['fob_pbat'], head.timestamp)
 
                     is_send = int(runtime_info['is_send'])
                     if is_send:
                         terminal_info_key = get_terminal_info_key(head.dev_id) 
-                        terminal_info = QueryHelper.get_terminal_info(head.dev_id, self.db, self.redis)
-                        alias = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, self.db)
+                        terminal_info = QueryHelper.get_terminal_info(head.dev_id, db, self.redis)
+                        alias = QueryHelper.get_alias_by_tid(head.dev_id, self.redis, db)
                         communication_staus = u'正常'
                         communication_mode = u'撤防'
                         gsm_strength = u'强'
@@ -1600,8 +1655,9 @@ class MyGWServer(object):
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle runtime status report exception.")
+            raise GWException
 
-    def handle_unbind_status(self, info, address, connection, channel):
+    def handle_unbind_status(self, info, address, connection, channel, db):
         """
         unbind status report packet
         0: success, then record new terminal's address
@@ -1619,19 +1675,20 @@ class MyGWServer(object):
             ap = AsyncParser(body, head)
             info = ap.ret 
             flag = info['flag']
-            delete_terminal(head.dev_id, self.db, self.redis)
+            delete_terminal(head.dev_id, db, self.redis)
             if int(flag) == 1:
-                clear_data(head.dev_id, self.db)
+                clear_data(head.dev_id, db)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand unbind status report exception.")
+            logging.exception("[GW] Handle unbind status report exception.")
+            raise GWException
 
 
-    def handle_unusual_activate(self, info, address, connection, channel):
+    def handle_unusual_activate(self, info, address, connection, channel, db):
         """
         unusual activate report packet: owner_mobile changed.
         0: success, then record new terminal's address
@@ -1652,9 +1709,9 @@ class MyGWServer(object):
                 self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
                 uap = UnusualActivateParser(body, head)
                 t_info = uap.ret
-                terminal = self.db.get("SELECT mobile FROM T_TERMINAL_INFO"
-                                       "  WHERE tid = %s LIMIT 1",
-                                       t_info['dev_id'])
+                terminal = db.get("SELECT mobile FROM T_TERMINAL_INFO"
+                                  "  WHERE tid = %s LIMIT 1",
+                                  t_info['dev_id'])
                 if terminal:
                     sms = SMSCode.SMS_UNUSUAL_ACTIVATE % terminal['mobile'] 
                     SMSHelper.send(t_info['u_msisdn'], sms)
@@ -1667,8 +1724,9 @@ class MyGWServer(object):
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand unusual activate report exception.")
+            raise GWException
             
-    def handle_misc(self, info, address, connection, channel):
+    def handle_misc(self, info, address, connection, channel, db):
         """
         misc: debugging for terminal.
         0: success, then record new terminal's address
@@ -1686,19 +1744,20 @@ class MyGWServer(object):
             else:
                 uap = MiscParser(body, head)
                 t_info = uap.ret
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                " SET misc = %s"
-                                "    WHERE tid = %s ",
-                                t_info['misc'], head.dev_id)
+                db.execute("UPDATE T_TERMINAL_INFO"
+                           " SET misc = %s"
+                           "    WHERE tid = %s ",
+                           t_info['misc'], head.dev_id)
             uac = MiscComposer(args)
             request = DotDict(packet=uac.buf,
                               address=address)
             self.append_gw_request(request, connection, channel)
         except:
-            logging.exception("[GW] Hand misc report exception.")
+            logging.exception("[GW] Handle misc report exception.")
+            raise GWException
 
 
-    def foward_packet_to_si(self, info, packet, address, connection, channel):
+    def foward_packet_to_si(self, info, packet, address, connection, channel, db):
         """
         response packet or position/report/charge packet
         0: success, then forward it to SIServer and record new terminal's address
@@ -1747,40 +1806,31 @@ class MyGWServer(object):
                 up = UNBindParser(info.body, info.head)
                 status = up.ret['status']
                 if status == GATEWAY.STATUS.SUCCESS:
-                    delete_terminal(dev_id, self.db, self.redis)
+                    delete_terminal(dev_id, db, self.redis)
             else:
                 logging.exception("[GW] Invalid command: %s.", head.command)
         except:
             logging.exception("[GW] Handle SI message exception.")
+            raise GWException
 
     def append_gw_request(self, request, connection, channel):
         message = json.dumps(request)
-        try:
-            # make message not persistent
-            properties = pika.BasicProperties(delivery_mode=1,)
-            channel.basic_publish(exchange=self.exchange,
-                                  routing_key=self.gw_binding,
-                                  body=message,
-                                  properties=properties)
-        except AMQPConnectionError as e:
-            logging.exception("[GW] Rabbitmq publish into gw_queue error: %s", e.args)
-        except Exception as e:
-            logging.exception("[GW] Unknown publish error: %s", e.args)
+        # make message not persistent
+        properties = pika.BasicProperties(delivery_mode=1,)
+        channel.basic_publish(exchange=self.exchange,
+                              routing_key=self.gw_binding,
+                              body=message,
+                              properties=properties)
 
     def append_si_request(self, request, connection, channel):
         request = dict({"packet":request})
         message = json.dumps(request)
-        try:
-            # make message not persistent
-            properties = pika.BasicProperties(delivery_mode=1,)
-            channel.basic_publish(exchange=self.exchange,
-                                  routing_key=self.si_binding,
-                                  body=message,
-                                  properties=properties)
-        except AMQPConnectionError as e:
-            logging.exception("[GW] Rabbitmq publish into si_queue error: %s", e.args)
-        except Exception as e:
-            logging.exception("[GW] Unknown publish error: %s", e.args)
+        # make message not persistent
+        properties = pika.BasicProperties(delivery_mode=1,)
+        channel.basic_publish(exchange=self.exchange,
+                              routing_key=self.si_binding,
+                              body=message,
+                              properties=properties)
 
     def get_terminal_sessionID(self, dev_id):
         """Get terminal's sessionid generated by platform in last interactive.
@@ -1807,18 +1857,18 @@ class MyGWServer(object):
         else:
             self.redis.setvalue(terminal_status_key, address, (1 * SLEEP_HEARTBEAT_INTERVAL + 300))
 
-    def update_fob_info(self, fobinfo):
+    def update_fob_info(self, fobinfo, db):
         terminal_info_key = get_terminal_info_key(fobinfo['dev_id'])
         terminal_info = QueryHelper.get_terminal_info(fobinfo['dev_id'],
-                                                      self.db, self.redis)
+                                                      db, self.redis)
 
         if int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.ADD:
-            self.db.execute("INSERT INTO T_FOB(tid, fobid)"
-                            "  VALUES(%s, %s)"
-                            "  ON DUPLICATE KEY"
-                            "  UPDATE tid = VALUES(tid),"
-                            "         fobid = VALUES(fobid)",
-                            fobinfo['dev_id'], fobinfo['fobid'])
+            db.execute("INSERT INTO T_FOB(tid, fobid)"
+                       "  VALUES(%s, %s)"
+                       "  ON DUPLICATE KEY"
+                       "  UPDATE tid = VALUES(tid),"
+                       "         fobid = VALUES(fobid)",
+                       fobinfo['dev_id'], fobinfo['fobid'])
             fob_list = terminal_info['fob_list']
             if fob_list:
                 fob_list.append(fobinfo['fobid'])
@@ -1826,16 +1876,16 @@ class MyGWServer(object):
                 fob_list = [fobinfo['fobid'],]
             terminal_info['fob_list'] = list(set(fob_list))
             terminal_info['keys_num'] = len(terminal_info['fob_list']) 
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET keys_num = %s"
-                            "  WHERE tid = %s", 
-                            terminal_info['keys_num'], fobinfo['dev_id'])
+            db.execute("UPDATE T_TERMINAL_INFO"
+                       "  SET keys_num = %s"
+                       "  WHERE tid = %s", 
+                       terminal_info['keys_num'], fobinfo['dev_id'])
             self.redis.setvalue(terminal_info_key, terminal_info)
         elif int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.REMOVE:
-            self.db.execute("DELETE FROM T_FOB"
-                            "  WHERE fobid = %s"
-                            "    AND tid = %s",
-                            fobinfo['fobid'], fobinfo['dev_id'])
+            db.execute("DELETE FROM T_FOB"
+                       "  WHERE fobid = %s"
+                       "    AND tid = %s",
+                       fobinfo['fobid'], fobinfo['dev_id'])
             fob_list = terminal_info['fob_list']
             if fob_list:
                 if fobinfo['fobid'] in fob_list:
@@ -1844,20 +1894,20 @@ class MyGWServer(object):
                 fob_list = []
             terminal_info['fob_list'] = list(set(fob_list))
             terminal_info['keys_num'] = len(terminal_info['fob_list']) 
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET keys_num = %s"
-                            "  WHERE tid = %s", 
-                            terminal_info['keys_num'], fobinfo['dev_id'])
+            db.execute("UPDATE T_TERMINAL_INFO"
+                       "  SET keys_num = %s"
+                       "  WHERE tid = %s", 
+                       terminal_info['keys_num'], fobinfo['dev_id'])
             self.redis.setvalue(terminal_info_key, terminal_info)
         else:
             pass
 
-    def update_terminal_info(self, t_info):
+    def update_terminal_info(self, t_info, db):
         """Update terminal's info in db and redis.
         """
         terminal_info_key = get_terminal_info_key(t_info['dev_id'])
         terminal_info = QueryHelper.get_terminal_info(t_info['dev_id'],
-                                                      self.db, self.redis)
+                                                      db, self.redis)
 
         #1: db
         fields = []
@@ -1873,10 +1923,10 @@ class MyGWServer(object):
             self.redis.setvalue(login_time_key, t_info['login_time'])
         set_clause = ','.join(fields)
         if set_clause:
-            self.db.execute("UPDATE T_TERMINAL_INFO"
-                            "  SET " + set_clause + 
-                            "  WHERE tid = %s",
-                            t_info['dev_id'])
+            db.execute("UPDATE T_TERMINAL_INFO"
+                       "  SET " + set_clause + 
+                       "  WHERE tid = %s",
+                       t_info['dev_id'])
         #2: redis
         for key in terminal_info:
             value = t_info.get(key, None)
@@ -1896,7 +1946,7 @@ class MyGWServer(object):
         terminal_status_key = get_terminal_address_key(dev_id)
         return self.redis.getvalue(terminal_status_key)
 
-    def request_location(self, dev_id):
+    def request_location(self, dev_id, db):
         location = DotDict({'dev_id':dev_id,
                             'valid':GATEWAY.LOCATION_STATUS.FAILED,
                             't':EVENTER.INFO_TYPE.POSITION,
@@ -1912,9 +1962,9 @@ class MyGWServer(object):
                             'speed':0.0,
                             'cellid':'0:0:0:0'})
         location = lbmphelper.handle_location(location, self.redis,
-                                              cellid=True, db=self.db)
+                                              cellid=True, db=db)
         if location.cLat and location.cLon:
-            insert_location(location, self.db, self.redis)
+            insert_location(location, db, self.redis)
 
     def __close_rabbitmq(self, connection=None, channel=None):
         if connection and connection.is_open:
@@ -1936,6 +1986,8 @@ class MyGWServer(object):
     def stop(self):
         self.__close_socket()
         self.__clear_memcached()
+        for db in self.db_list:
+            db.close()
 
     def __del__(self):
         self.stop()
