@@ -3,6 +3,7 @@
 import logging
 import time
 import copy
+import functools 
 
 from tornado.escape import json_decode
 
@@ -21,6 +22,7 @@ from utils.misc import get_location_key, get_terminal_time, get_terminal_info_ke
      get_region_time_key, get_alert_freq_key, get_pbat_message_key, start_end_of_day
 from utils.public import insert_location
 from utils.geometry import PtInPolygon 
+from utils.repeatedtimer import RepeatedTimer
 
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
@@ -410,6 +412,7 @@ class PacketTask(object):
                          report.rName, report.dev_id)
             return
             
+        #NOTE: check sms option
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
         name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
         if sms_option == UWEB.SMS_OPTION.SEND:
@@ -448,11 +451,24 @@ class PacketTask(object):
                     sms = SMSCode.SMS_ILLEGALMOVE_NOLOC % (name, terminal_time)
                 else:
                     sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
+
+                _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", user)
+                #NOTE: re-notify
+                # 30 seconds later, send sms 1 time.
+                task = RepeatedTimer(30, _resend_alarm, 1)  
+                task.start()
             elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
                 if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
                     sms = SMSCode.SMS_ILLEGALSHAKE_NOLOC % (name, terminal_time)
                 else:
                     sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
+
+                #NOTE: re-notify
+                _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", user)
+                # 30 seconds later, send sms 1 time.
+                task = RepeatedTimer(30, _resend_alarm, 1)  
+                task.start()
+                
             elif report.rName == EVENTER.RNAME.EMERGENCY:
                 whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
                 if whitelist:
@@ -553,6 +569,11 @@ class PacketTask(object):
                              report.rName, report.dev_id)
             else:
                 self.notify_to_parents(name, report, user, region_id) 
+                if report.rName in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]: 
+                    _resend_alarm = functools.partial(self.notify_to_parents, name, report, user, region_id) 
+                    # 30 seconds later, send sms 1 time.  
+                    task = RepeatedTimer(30, _resend_alarm, 1) 
+                    task.start()
         else:
             logging.info("[EVENTER] Push option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)
