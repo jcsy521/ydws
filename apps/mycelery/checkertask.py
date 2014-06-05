@@ -148,12 +148,14 @@ class CheckTask(object):
         logging.info("[CELERY] checkertask mileage_notify started.")
         try:
             terminals = self.db.query("SELECT id, tid, mobile, owner_mobile, assist_mobile,"
-                                      "   distance_notification, distance_current, notify_count"
+                                      "   distance_notification, distance_current," 
+                                      "   notify_count, left_days"
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = 1"
+                                      "  WHERE left_days = 1"
                                       "  AND distance_notification != 0"
                                       "  AND distance_current > distance_notification"
-                                      "  AND notify_count < 2")
+                                      "  AND notify_count < 3")
             for terminal in terminals:
                 terminal_info = QueryHelper.get_terminal_info(terminal.tid, self.db, self.redis)
                 mobile = terminal['mobile']
@@ -170,9 +172,12 @@ class CheckTask(object):
                              "  notify_count: %s.", 
                              owner_mobile, assist_mobile, distance_notification, 
                              distance_current, notify_count)
-                self.db.execute("UPDATE T_TERMINAL_INFO SET notify_count = %s"
+                self.db.execute("UPDATE T_TERMINAL_INFO SET notify_count = %s,"
+                                "  left_days = %s"
                                 "  WHERE tid = %s",
-                                notify_count+1, tid)
+                                notify_count+1, 
+                                left_days-1,
+                                tid)
                 distance_current_ = int(round(terminal['distance_current']/1000.0))
                 if owner_mobile:
                     sms = SMSCode.SMS_NOTIFY % (distance_current_, terminal_info['alias'])

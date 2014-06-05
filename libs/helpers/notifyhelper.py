@@ -84,9 +84,11 @@ class NotifyHelper(object):
         response, content = h.request(url, 'POST', body=urlencode(data), headers=headers)
         ret = json_decode(content)
         if ret['status'] == 0:
-            logging.info("Push to Android success! Message: %s", ret['message'])
+            logging.info("Push to Android success! Message: %s, Tid: %s, push_id: %s", 
+                         ret['message'], tid, push_id)
         else:
-            logging.error("Push to Android failed! Message: %s", ret['message'])
+            logging.error("Push to Android failed! Message: %s, Tid: %s, push_id: %s", 
+                         ret['message'], tid, push_id)
     
     @staticmethod
     def push_register(uid):

@@ -98,9 +98,11 @@ def delete_terminal(tid, db, redis, del_user=True):
         lqgz_interval_key = get_lqgz_interval_key(item)
         lqgz_key = get_lqgz_key(item)
         alarm_info_key = get_alarm_info_key(item)
+        mileage_key = get_mileage_key(item)
         keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key,
                 location_key, del_data_key, track_key, login_time_key,
-                offline_lq_key, lqgz_interval_key, lqgz_key, alarm_info_key]
+                offline_lq_key, lqgz_interval_key, lqgz_key, alarm_info_key,
+                mileage_key]
         for rid in rids:
             region_status_key = get_region_status_key(item, rid)
             keys.append(region_status_key)

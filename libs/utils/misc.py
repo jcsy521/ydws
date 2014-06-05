@@ -172,6 +172,9 @@ def get_alert_freq_key(dev_id):
 def get_pbat_message_key(dev_id):
     return str("pbat_message:%s" % dev_id)
 
+def get_mileage_key(dev_id):
+    return str("mileage:%s" % dev_id)
+
 def get_avatar_time_key(tid):
     """for the last modified time of the avatar belongs to the tid"""
     return str("avatar_time:%s" % tid)

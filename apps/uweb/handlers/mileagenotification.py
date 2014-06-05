@@ -79,7 +79,8 @@ class MileageNotificationHandler(BaseHandler):
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET distance_notification = %s,"
                                 "      is_maintained = 1,"
-                                "      notify_count = 0"
+                                "      notify_count = 0,"
+                                "      left_days = 3"
                                 "  WHERE tid = %s",
                                 distance_notification, tid)
             #if is_maintained is not None:

@@ -2,6 +2,7 @@
 
 import logging
 import time
+import datetime
 import copy
 import functools 
 
@@ -19,7 +20,8 @@ from utils.dotdict import DotDict
 from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
      get_ios_id_key, get_power_full_key, get_region_status_key, get_alarm_info_key,\
      safe_utf8, safe_unicode, get_ios_push_list_key, get_android_push_list_key,\
-     get_region_time_key, get_alert_freq_key, get_pbat_message_key, start_end_of_day
+     get_region_time_key, get_alert_freq_key, get_pbat_message_key,\
+     get_mileage_key, start_end_of_day
 from utils.public import insert_location
 from utils.geometry import PtInPolygon 
 from utils.repeatedtimer import RepeatedTimer
@@ -264,7 +266,7 @@ class PacketTask(object):
                     insert_location(pvt, self.db, self.redis)
 
                     #NOTE: record the mileage
-                    mileage_key = 'mileage:%s' % pvt['dev_id']
+                    mileage_key = get_mileage_key(pvt['dev_id'])
                     mileage = self.redis.getvalue(mileage_key)
                     if not mileage:
                         logging.info("[EVENTER] Tid: %s, init mileage. pvt: %s.",
@@ -452,11 +454,15 @@ class PacketTask(object):
                 else:
                     sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
 
-                _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", user)
-                #NOTE: re-notify
-                # 30 seconds later, send sms 1 time.
-                task = RepeatedTimer(30, _resend_alarm, 1)  
-                task.start()
+
+                _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
+                _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
+                if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
+                    _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", user)
+                    #NOTE: re-notify
+                    # 30 seconds later, send sms 1 time.
+                    task = RepeatedTimer(30, _resend_alarm, 1)  
+                    task.start()
             elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
                 if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
                     sms = SMSCode.SMS_ILLEGALSHAKE_NOLOC % (name, terminal_time)
@@ -464,10 +470,13 @@ class PacketTask(object):
                     sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
 
                 #NOTE: re-notify
-                _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", user)
-                # 30 seconds later, send sms 1 time.
-                task = RepeatedTimer(30, _resend_alarm, 1)  
-                task.start()
+                _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
+                _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
+                if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
+                    _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", user)
+                    # 30 seconds later, send sms 1 time.
+                    task = RepeatedTimer(30, _resend_alarm, 1)  
+                    task.start()
                 
             elif report.rName == EVENTER.RNAME.EMERGENCY:
                 whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
@@ -570,10 +579,14 @@ class PacketTask(object):
             else:
                 self.notify_to_parents(name, report, user, region_id) 
                 if report.rName in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]: 
-                    _resend_alarm = functools.partial(self.notify_to_parents, name, report, user, region_id) 
-                    # 30 seconds later, send sms 1 time.  
-                    task = RepeatedTimer(30, _resend_alarm, 1) 
-                    task.start()
+
+                    _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
+                    _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
+                    if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
+                        _resend_alarm = functools.partial(self.notify_to_parents, name, report, user, region_id) 
+                        # 30 seconds later, send sms 1 time.  
+                        task = RepeatedTimer(30, _resend_alarm, 1) 
+                        task.start()
         else:
             logging.info("[EVENTER] Push option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)
