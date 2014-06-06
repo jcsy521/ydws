@@ -89,6 +89,7 @@ class TerminalMixin(BaseMixin):
                         self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
                                         "  VALUES(%s)",
                                         umobile)
+                # send sms
                 umobile = value if value else self.current_user.cid
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET owner_mobile = %s"
@@ -96,6 +97,13 @@ class TerminalMixin(BaseMixin):
                                 value, self.current_user.tid)
                 register_sms = SMSCode.SMS_REGISTER % (umobile, self.current_user.sim)
                 SMSHelper.send_to_terminal(self.current_user.sim, register_sms)
+
+                # update redis
+                terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                terminal_info = self.redis.getvalue(terminal_info_key)
+                if terminal_info:
+                    terminal_info[key] = value 
+                    self.redis.setvalue(terminal_info_key, terminal_info)
 
         terminal_clause = ','.join(terminal_fields)        
         if terminal_clause:
