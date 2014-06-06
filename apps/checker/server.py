@@ -18,7 +18,10 @@ define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 # deploy or debug
 define('mode', default='deploy')
 # use warning for deployment
-options['logging'].set('info')
+try:
+    options['logging'].set('info')
+except:
+    options.logging='info'
 
 from utils.myredis import MyRedis
 from db_.mysql import DBConnection
@@ -39,8 +42,9 @@ def check_db():
     cdb = CheckDB() 
     try:
         while True:
-            time.sleep(10)
-            cdb.update_clatclon()
+            time.sleep(60)
+            cdb.check_sms()
+            cdb.check_push()
     except Exception as e:
         logging.exception("[CK] Start check db failed.")
 
@@ -100,7 +104,7 @@ def main():
         thread.start_new_thread(check_service, ())
         thread.start_new_thread(simulator_terminal, ())
         thread.start_new_thread(simulator_terminal_test, ())
-        #thread.start_new_thread(check_db, ())
+        thread.start_new_thread(check_db, ())
         while True:
             time.sleep(60)
          

@@ -55,7 +55,7 @@ class PacketTask(object):
         info = self.packet
         current_time = int(time.time())
         if info['timestamp'] > (current_time + 24*60*60):
-            logging.info("[EVENTER] The info's (timestamp- current_time) is more than 24 hours, so drop it:%s", info)
+            logging.info("[EVENTER] The info's (timestamp - current_time) is more than 24 hours, so drop it:%s", info)
             return
 
         self.handle_report_info(info) # reportinfo

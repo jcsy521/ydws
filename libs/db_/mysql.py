@@ -2,7 +2,10 @@
 
 import logging
 
-from tornado.database import Connection
+try:
+    from tornado.database import Connection
+except:
+    from torndb import Connection
 
 from helpers.confhelper import ConfHelper
 
@@ -19,6 +22,17 @@ def get_connection():
                       database=ConfHelper.MYSQL_CONF.database,
                       user=ConfHelper.MYSQL_CONF.user,
                       password=ConfHelper.MYSQL_CONF.password)
+
+def get_connection_push():
+    if not ConfHelper.loaded:
+        logging.error("Please run load_config(conf_file) before setting up connections.")
+        raise UninitializedConfiguration("use ConfHelper before initialized.")
+
+    return Connection(host=ConfHelper.MYSQL_PUSH_CONF.host,
+                      database=ConfHelper.MYSQL_PUSH_CONF.database,
+                      user=ConfHelper.MYSQL_PUSH_CONF.user,
+                      password=ConfHelper.MYSQL_PUSH_CONF.password)
+
 
 class _SingletonDBConnection(object):
     """DB Singleton.
