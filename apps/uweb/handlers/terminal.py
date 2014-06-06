@@ -377,11 +377,11 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     return
 
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                                "  defend_status, mannual_status, begintime, endtime, offline_time, "
+                                "  begintime, endtime, offline_time, "
                                 "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type)"
-                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                data.tmobile, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                                UWEB.DEFEND_STATUS.NO, begintime, 4733481600, begintime, data.cnum, data.icon_type, 
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                data.tmobile, data.group_id, data.tmobile, umobile,
+                                begintime, 4733481600, begintime, data.cnum, data.icon_type, 
                                 data.login_permit, data.push_status, data.vibl, use_scene, biz_type)
                 # 4: send message to terminal
                 register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
@@ -394,12 +394,12 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 tid = get_tid_from_mobile_ydwq(data.tmobile)
                 activation_code = QueryHelper.get_activation_code(self.db)
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                                "  defend_status, mannual_status, begintime, endtime, offline_time, "
+                                "  begintime, endtime, offline_time, "
                                 "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
                                 "  activation_code, service_status)"
-                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                tid, data.group_id, data.tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                                UWEB.DEFEND_STATUS.NO, begintime, 4733481600, begintime, data.cnum, data.icon_type, 
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                tid, data.group_id, data.tmobile, umobile, 
+                                begintime, 4733481600, begintime, data.cnum, data.icon_type, 
                                 data.login_permit, data.push_status,
                                 data.vibl, use_scene, biz_type,
                                 activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
