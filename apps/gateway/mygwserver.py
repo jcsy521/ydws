@@ -186,7 +186,7 @@ class MyGWServer(object):
                 try:
                     method, header, body = consume_channel.basic_get(queue=self.gw_queue)
                     if method.NAME == 'Basic.GetEmpty':
-                        sleep(1) 
+                        sleep(0.1) 
                     else:
                         consume_channel.basic_ack(delivery_tag=method.delivery_tag)
                         self.send(body)
