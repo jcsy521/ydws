@@ -1175,7 +1175,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			}
 			fn_initChart(arr_series, arr_categories, 'mileageChart', '公里', str_who);	// 初始化chart图
 		} else {
-			var n_saveMileage = $('#mileagePage').data('mileages');
+			var n_saveMileage = parseFloat($('#mileagePage').data('mileages'));
 			
 			for ( var n_mj = 0; n_mj < n_searchLen; n_mj++ ) {
 				var obj_tempData = obj_searchData[n_mj],
