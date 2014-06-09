@@ -6,6 +6,7 @@ import os.path
 import site
 import logging
 import time
+import datetime
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
@@ -147,12 +148,17 @@ class CheckTask(object):
     def mileage_notify(self):
         logging.info("[CELERY] checkertask mileage_notify started.")
         try:
+            #NOTE: avoid sms is sent when the server is restart.
+            _date = datetime.datetime.fromtimestamp(int(time.time()))
+            if _date.hour not in (9,10):
+                return
+                
+            # get all terminals which may be notified.
             terminals = self.db.query("SELECT id, tid, mobile, owner_mobile, assist_mobile,"
                                       "   distance_notification, distance_current," 
                                       "   notify_count, left_days"
                                       "  FROM T_TERMINAL_INFO"
                                       "  WHERE service_status = 1"
-                                      "  WHERE left_days = 1"
                                       "  AND distance_notification != 0"
                                       "  AND distance_current > distance_notification"
                                       "  AND notify_count < 3")
@@ -164,30 +170,45 @@ class CheckTask(object):
                 assist_mobile = terminal['assist_mobile']
                 distance_current = terminal['distance_current']
                 notify_count = terminal['notify_count']
+                left_days = terminal['left_days']
                 distance_notification= terminal['distance_notification']
-
-                logging.info("[CELERY] Send mileage notification."
-                             "  owner_mobile: %s, assist_mobile: %s,"
-                             "  distance_notification: %s, distance_current: %s," 
-                             "  notify_count: %s.", 
-                             owner_mobile, assist_mobile, distance_notification, 
-                             distance_current, notify_count)
-                self.db.execute("UPDATE T_TERMINAL_INFO SET notify_count = %s,"
-                                "  left_days = %s"
-                                "  WHERE tid = %s",
-                                notify_count+1, 
-                                left_days-1,
-                                tid)
-                distance_current_ = int(round(terminal['distance_current']/1000.0))
-                if owner_mobile:
-                    sms = SMSCode.SMS_NOTIFY % (distance_current_, terminal_info['alias'])
-                    SMSHelper.send(owner_mobile, sms)
-                if assist_mobile:
-                    user = QueryHelper.get_user_by_mobile(owner_mobile, self.db)
-                    name = safe_unicode(user['name'])
-                    sms = SMSCode.SMS_NOTIFY_ASSIST % (mobile, owner_mobile, name, distance_current_)
-                    SMSHelper.send(assist_mobile, sms)
-
+                if left_days == 1: # it should be notified this day                           
+                    logging.info("[CELERY] Send mileage notification."
+                                 "  tid: %s, owner_mobile: %s, assist_mobile: %s,"
+                                 "  distance_notification: %s, distance_current: %s," 
+                                 "  notify_count: %s, left_days: %s.", 
+                                 tid, owner_mobile, assist_mobile, distance_notification, 
+                                 distance_current, notify_count, left_days)
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET notify_count = %s,"
+                                    "      left_days = %s"
+                                    "  WHERE tid = %s",
+                                    notify_count+1, 3, tid)
+                    distance_current_ = int(round(terminal['distance_current']/1000.0))
+                    if owner_mobile:
+                        sms = SMSCode.SMS_NOTIFY % (distance_current_, terminal_info['alias'])
+                        SMSHelper.send(owner_mobile, sms)
+                    if assist_mobile:
+                        user = QueryHelper.get_user_by_mobile(owner_mobile, self.db)
+                        name = safe_unicode(user['name'])
+                        sms = SMSCode.SMS_NOTIFY_ASSIST % (mobile, owner_mobile, name, distance_current_)
+                        SMSHelper.send(assist_mobile, sms)
+                elif left_days in (2, 3): # do not notify, just postpone one day
+                    logging.info("[CELERY] Do not send mileage notification this day,"
+                                 "  just modify the left_days."
+                                 "  tid: %s, owner_mobile: %s, assist_mobile: %s,"
+                                 "  distance_notification: %s, distance_current: %s," 
+                                 "  notify_count: %s, left_days: %s.", 
+                                 tid, owner_mobile, assist_mobile, distance_notification, 
+                                 distance_current, notify_count, left_days)
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET left_days = %s"
+                                    "  WHERE tid = %s",
+                                    left_days-1,
+                                    tid)
+                else: # it should never occur.
+                    logging.info("[CELERY] Invalid left_days: %s.", left_days)
+                    
         except Exception as e:
             logging.exception("[CELERY] Check terminal poweroff timeout exception.")
 

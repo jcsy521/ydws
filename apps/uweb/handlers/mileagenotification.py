@@ -80,7 +80,7 @@ class MileageNotificationHandler(BaseHandler):
                                 "  SET distance_notification = %s,"
                                 "      is_maintained = 1,"
                                 "      notify_count = 0,"
-                                "      left_days = 3"
+                                "      left_days = 1"
                                 "  WHERE tid = %s",
                                 distance_notification, tid)
             #if is_maintained is not None:
