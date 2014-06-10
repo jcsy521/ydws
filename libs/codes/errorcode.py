@@ -115,7 +115,7 @@ class ErrorCode(object):
         ILLEGAL_FILE:                  u"文件导入失败，请检查导入文件。",
         WRONG_CAPTCHA:                 u"验证码输入错误。",
         WRONG_PASSWORD:                u"用户名或密码错误，请重新输入。",
-        WRONG_OLD_PASSWORD:            u"原始密码错误，请重新输入。",
+        WRONG_OLD_PASSWORD:            u"当前密码错误，请重新输入。",
         NO_CAPTCHA:                    u"验证码已失效，请重新获取。",
         LOGIN_FAILED:                  u"用户名或密码输入错误。",
         LOGIN_AGAIN:                   u"业务信息发生变更，请重新登录。",
