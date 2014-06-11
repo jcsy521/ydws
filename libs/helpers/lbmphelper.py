@@ -283,8 +283,14 @@ def issue_cellid(location, db, redis):
     location.degree = random.randint(0, 360)
     # 1: get latlon through cellid
     cellid_info = [int(item) for item in location.cellid.split(":")]
-    sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
-    location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
+    #NOTE: Check version of terminal: If version if 2.3.x, do not issue cellid
+    terminal = db.get("SELECT id, tid, mobile, softversion FROM T_TERMINAL_INFO WHERE tid = %s", location.dev_id)
+    if terminal and str(terminal['softversion'][0:3]) == '2.3':
+        logging.info("%s softversion: %s is 2.3.x, do not issue cellid", location.dev_id, terminal['softversion'])
+        location.lat, location.lon = 0, 0
+    else:
+        sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
+        location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
 
     logging.info("%s cellid result, lat:%s, lon:%s", location.dev_id, location.lat, location.lon)
 

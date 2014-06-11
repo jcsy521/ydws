@@ -791,6 +791,7 @@ class MyGWServer(object):
             info = DotDict(login=GATEWAY.TERMINAL_LOGIN.ONLINE,
                            mobile=t_info['t_msisdn'],
                            keys_num=t_info['keys_num'],
+                           softversion=t_info['softversion'],
                            login_time=int(time.time()),
                            dev_id=t_info["dev_id"])
             self.update_terminal_info(info, db)
