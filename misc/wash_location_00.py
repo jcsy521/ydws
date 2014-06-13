@@ -25,33 +25,41 @@ def wash_location():
     db = DBConnection().db
     redis = MyRedis()
     
-    sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login = 0"
+    #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login = 0"
+    #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where tid = '354A000121'"
+    sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login_time>0"
     #print 'sql', sql
     terminals  = db.query(sql)
     #print 'len ', len(terminals)
     count = 0
     cnt = 0
+    no_loc = 0
     for i, t in enumerate(terminals):
+        #print 'terminal: %s' % t
         tid = t.tid
         key = 'location:%s' % tid
         location = redis.getvalue(key) 
-        if location and location.latitude == 0:
-            print 'tid', tid
-            redis.delete(key)
+        #if location and location.latitude == 0:
+        if not location: #if location and location.latitude == 0:
+            time.sleep(2)
+            no_loc = no_loc + 1
+            #print 'key', key
+            print 'no location, tid', tid
+            #continue
+            
+            ##return
+            ##redis.delete(key)
 
+            #NOTE: get latest point.
             location = db.get("SELECT timestamp, MAX(timestamp) as maxtime"
                               "  FROM T_LOCATION"
                               "  WHERE tid = %s"
-                              #"    AND type = 0"
+                              "    AND type = 0"
                               "    AND latitude != 0",
                               tid)
             
-            if location:
-                if location.timestamp != location.maxtime:
-                    print 'timestamp != maxtime, tid', tid
-                    location = db.get("SELECT * FROM T_LOCATION where timestamp = %s AND tid = %s AND latitude != 0 limit 1", location.maxtime, tid)
-                else:
-                    continue
+            if location and location['timestamp']:
+                location = db.get("SELECT * FROM T_LOCATION where timestamp = %s AND tid = %s AND latitude != 0 limit 1", location.maxtime, tid)
                 mem_location = DotDict({'id':location.id,
                                         'latitude':location.latitude,
                                         'longitude':location.longitude,
@@ -69,6 +77,7 @@ def wash_location():
                 print 'handled tid:', tid
             else:
                 cnt = cnt + 1    
+    print '-------no_loc', no_loc
     print 'total hanlded count:', count
     print 'total not hanlded count:', cnt
 

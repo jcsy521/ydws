@@ -18,6 +18,8 @@ from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 from db_.mysql import DBConnection
 
+mobiles = ["13693675352","18310505991"]
+
 def send(content, mobile):
     logging.info("Send %s to %s", content, mobile)
     #NOTE: send encrypt sms to mobile
@@ -68,7 +70,9 @@ def check_req_to_nginx(headers):
                 logging.info("Track nginx request conent is none")
     except:
         logging.exception("[Track] nginx request failed")
-        send("Access www.ydcws.com/track by nginx failed", "13693675352")
+
+        for mobile in mobiles:
+            send("Access www.ydcws.com/track by nginx failed", mobile)
 
 def check_req_to_uweb(headers):
     a = time.time()
@@ -88,7 +92,8 @@ def check_req_to_uweb(headers):
                 logging.info("Track uweb request conent is none")
     except:
         logging.exception("[Track] uweb request failed")
-        send("Access http://app01:8000/track by uweb failed", "13693675352")
+        for mobile in mobiles:
+            send("Access http://app01:8001/track by uweb failed", mobile)
 
 def main():
     ConfHelper.load('../conf/global.conf')

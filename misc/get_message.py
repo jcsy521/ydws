@@ -18,22 +18,25 @@ from helpers.smshelper import SMSHelper
 from db_.mysql import DBConnection
 
 def main():
-    log = open('/var/log/supervisor/gateway/error.log')
-    #p0 = re.compile("130708", re.I)
-    p1 = re.compile("369A4006F5", re.I)
-    p2 = re.compile("recv", re.I)
-    p3 = re.compile("send", re.I)
-    for line in log:
-        if p1.search(line) and p2.search(line): # and p0.search(line):
-            print line
-            index = line.find('from') + 4
-            addr = line[index:][1:-1]
-            p4 = re.compile(addr, re.I)
-            for line in log: 
-                if p3.search(line) and p4.search(line): # and p0.search(line):
-                    print line
-                    break
-    
+    for i in xrange(64,100):
+    #for i in xrange(64,65):
+        file_path = '/var/log/supervisor/gateway/error.log.'+str(i)
+        log = open(file_path)
+        #p0 = re.compile("130708", re.I)
+        p1 = re.compile("36E2400954", re.I)
+        p2 = re.compile("recv", re.I)
+        p3 = re.compile("send", re.I)
+        for line in log:
+            if p1.search(line) and p2.search(line): # and p0.search(line):
+                print line
+                index = line.find('from') + 4
+                addr = line[index:][1:-1]
+                p4 = re.compile(addr, re.I)
+                for line in log: 
+                    if p3.search(line) and p4.search(line): # and p0.search(line):
+                        print line
+                        break
+        
 
 if __name__ == "__main__": 
     main()
