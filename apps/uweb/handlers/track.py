@@ -176,6 +176,7 @@ class TrackHandler(BaseHandler):
                                       "    GROUP BY timestamp"
                                       "    ORDER BY timestamp",
                                       self.current_user.tid, start_time, end_time)
+
             else:
                 # cellid_flag is None or 0, only gps track
                 track = self.db.query("SELECT id, latitude, longitude, clatitude,"

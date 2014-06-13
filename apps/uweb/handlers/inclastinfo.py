@@ -313,7 +313,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                                 #NOTE: here, check alarm's keeptime when kept in reids, not timestamp alarm occurs
                                 if alarm.get('keeptime', None) is None: 
                                     alarm['keeptime'] = alarm['timestamp']
-                                if alarm['keeptime'] >= lastinfo_time:
+                                if alarm['keeptime']*1000 >= lastinfo_time:
                                     alarm_info.append(alarm)
                             
                         if alarm_info:
