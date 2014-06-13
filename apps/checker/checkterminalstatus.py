@@ -113,9 +113,9 @@ class CheckTerminalStatus(object):
         lid = self.db.execute("INSERT INTO T_LOCATION(tid, timestamp, category, type)"
                               "  VALUES(%s, %s, %s, %s)",
                               tid, timestamp, category, 1)
-        self.db.execute("INSERT INTO T_EVENT(tid, lid, category)"
-                        "  VALUES (%s, %s, %s)",
-                        tid, lid, category)
+        self.db.execute("INSERT INTO T_EVENT(tid, timestamp, lid, category)"
+                        "  VALUES (%s, %s, %s, %s)",
+                        tid, timestamp, lid, category)
 
         # remind owner
         user = QueryHelper.get_user_by_tid(tid, self.db)
@@ -163,7 +163,7 @@ class CheckTerminalStatus(object):
         # 13600335550 三乡, 15919176710 北京测试网
         alert_cid = [13600335550, 15919176710]
         sms_alert_lst = [13417738427]
-        email_alert_lst = ['mengxuan.chen@dbjtech.com', 'shi.chen@dbjtech.com', 'chunfan.yang@dbjtech.com']
+        email_alert_lst = ['mengxuan.chen@dbjtech.com', 'shi.chen@dbjtech.com', 'qi.liu@dbjtech.com', 'chunfan.yang@dbjtech.com']
         email_alert_lst_cc = ['xiaolei.jia@dbjtech.com']
 
         #alert_cid = [15901258591, 15919176710]
