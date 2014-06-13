@@ -74,7 +74,7 @@
     <thead>
         <tr>
             <th>终端序列号</th><th>终端手机号</th><th>定位类型</th><th>定位时间</th><th>定位速度(km/h)</th>
-            <th>定位误差(米)</th><th>位置</th><th>加密前经纬度</th><th>加密后经纬度</th>
+            <th>定位误差(米)</th><th>位置</th><th>加密前经纬度</th><th>加密后经纬度</th><th>基站信息</th>
         </tr>
     </thead>
     <tbody>
@@ -95,6 +95,7 @@
 			<td>{{result['name']}}</td>
 			<td>{{result['longitude']/3600000}}, {{result['latitude']/3600000}}</td>
 			<td>{{result['clongitude']/3600000}}, {{result['clatitude']/3600000}}</td>
+			<td>{{result['cellid']}}</td>
 		</tr>
     {% end %}
     </tbody>

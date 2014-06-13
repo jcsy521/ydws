@@ -100,9 +100,9 @@ function fn_searchData(str_who) {
 				n_packetReport = b_packetReport ? 1 : 0; // 是否要回调报文 
 			
 			if ( n_snType == 0 ) {
-				if ( !fn_validMobile(str_terminalNum) ) {
-					return;
-				}
+				// if ( !fn_validMobile(str_terminalNum) ) {
+				// 	return;
+				// }
 			} else {
 				if ( !fn_validTerminalSn(str_terminalNum) ){
 					return;
