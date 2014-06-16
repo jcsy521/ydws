@@ -462,8 +462,9 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		if ( b_bindBatchRegionWpST || b_bindRegionWpST ) {
 			dlf.fn_initBindRegion();
 		}
-		obj_terminals.removeClass(JSTREECLICKED);
-		obj_currentItem.addClass(JSTREECLICKED);
+        // NOTE: 允许选中多个定位器
+		//obj_terminals.removeClass(JSTREECLICKED);
+		//obj_currentItem.addClass(JSTREECLICKED);
 		
 		str_currentTid = n_tid;
 		if ( obj_currentItem.length != 0 ) {

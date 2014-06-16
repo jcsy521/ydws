@@ -1384,12 +1384,13 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 									b_flg = true;
 								}
 								/** 
-								* 自动完成数据填充:根据旅客姓名和手机号进行搜索
+								* 自动完成数据填充:根据旅客姓名,手机号和车牌号进行搜索
 								*/
-								var str_tempLabel = str_mobile;
-								if ( str_alias != str_mobile ) {
-									str_tempLabel = str_oldAlias +' '+ str_mobile +' '+ obj_car.owner_mobile;
-								}
+							    var str_tempLabel = str_mobile +' '+ obj_car.owner_mobile +' '+ str_oldAlias;
+								//var str_tempLabel = str_mobile;
+								//if ( str_alias != str_mobile ) {
+								//	str_tempLabel = str_oldAlias +' '+ str_mobile +' '+ obj_car.owner_mobile;
+								//}
 								arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
 								// 存储最新的marker信息
 								if ( obj_currentSelfMarker ) {

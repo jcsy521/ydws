@@ -33,6 +33,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
             try:
                 data = DotDict(json_decode(self.request.body))
                 biz_type = data.get("biz_type", UWEB.BIZ_TYPE.YDWS)
+                version_type = int(self.get_argument("version_type", 0))
             except Exception as e:
                 self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
                 self.finish()
@@ -212,11 +213,23 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                             endtime = int(car_info['timestamp'])-1 if car_info['timestamp'] else int(time.time())-1
                             track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
                             res[track_tid]['track_info'] = track_info
+               
+                if version_type >= 1:
+                    terminals = []
+                    for k, v in res.iteritems():
+                        v.update({'tid':k})
+                        terminals.append(v)
 
-                self.write_ret(status, 
-                               dict_=DotDict(res=res,
-                                             usable=usable,
-                                             lastposition_time=lastposition_time))
+                    self.write_ret(status, 
+                                   dict_=DotDict(terminals=terminals,
+                                                 usable=usable,
+                                                 lastposition_time=lastposition_time))
+
+                else:
+                    self.write_ret(status, 
+                                   dict_=DotDict(res=res,
+                                                 usable=usable,
+                                                 lastposition_time=lastposition_time))
                 _now_time = time.time()
                 if (_now_time - _start_time) > 5:
                     logging.info("[UWEB] Lastinfo step3 used time: %s > 5s",

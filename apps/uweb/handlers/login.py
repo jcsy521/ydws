@@ -348,11 +348,23 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                 self.login_sms_remind(uid, user_info.mobile, terminals, login="IOS")
             else:
                 pass # corp maybe no user_info
-            self.write_ret(status,
-                           dict_=DotDict(name=user_info.name if user_info else username, 
-                                         user_type=user_type,
-                                         cars_info=cars_info,
-                                         cars=terminals))
+
+            if version_type >= 1:
+                terminals = []
+                for k, v in cars_info.iteritems():
+                    v.update({'tid':k})
+                    terminals.append(v)
+
+                self.write_ret(status,
+                               dict_=DotDict(name=user_info.name if user_info else username, 
+                                             user_type=user_type,
+                                             terminals=terminals))
+            else:
+                self.write_ret(status,
+                               dict_=DotDict(name=user_info.name if user_info else username, 
+                                             user_type=user_type,
+                                             cars_info=cars_info,
+                                             cars=terminals))
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
@@ -368,6 +380,7 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
         uid = ConfHelper.UWEB_CONF.test_uid 
         tid = ConfHelper.UWEB_CONF.test_tid 
         sim = ConfHelper.UWEB_CONF.test_sim
+        version_type = int(self.get_argument("version_type", 0))
 
         self.bookkeep(dict(cid=cid,
                            oid=oid,
@@ -470,11 +483,21 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
             car_dct[tid]=car_info
             cars_info.update(car_dct)
 
-        self.write_ret(status,
-                       dict_=DotDict(name=user_info.name if user_info else username, 
-                                     user_type=UWEB.USER_TYPE.PERSON,
-                                     cars_info=cars_info,
-                                     cars=terminals))
+        if version_type >= 1:
+            terminals = []
+            for k, v in cars_info.iteritems():
+                v.update({'tid':k})
+                terminals.append(v)
+            self.write_ret(status,
+                           dict_=DotDict(name=user_info.name if user_info else username, 
+                                         user_type=UWEB.USER_TYPE.PERSON,
+                                         terminals=terminals))
+        else:
+            self.write_ret(status,
+                           dict_=DotDict(name=user_info.name if user_info else username, 
+                                         user_type=UWEB.USER_TYPE.PERSON,
+                                         cars_info=cars_info,
+                                         cars=terminals))
 
 class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
 
@@ -486,6 +509,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
         biz_type = self.get_argument("biz_type", UWEB.BIZ_TYPE.YDWS)
         devid = self.get_argument("devid", "")
         versionname = self.get_argument("versionname", "")
+        version_type = int(self.get_argument("version_type", 0))
         logging.info("[UWEB] Android login request, username: %s, password: %s, user_type: %s, devid: %s", 
                      username, password, user_type, devid)
         # must check username and password avoid sql injection.
@@ -682,15 +706,30 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                 self.login_sms_remind(uid, user_info.mobile, terminals, login="ANDROID")
             else:
                 pass # corp maybe no user_info
-            self.write_ret(status,
-                           dict_=DotDict(push_id=push_id,
-                                         #app_key=push_info.app_key,
-                                         push_key=push_key,
-                                         name=user_info.name if user_info else username, 
-                                         user_type=user_type,
-                                         cars_info=cars_info,
-                                         lastinfo_time=lastinfo_time,
-                                         cars=terminals))
+
+            if version_type >= 1:
+                terminals = []
+                for k, v in cars_info.iteritems():
+                    v.update({'tid':k})
+                    terminals.append(v)
+
+                self.write_ret(status,
+                               dict_=DotDict(push_id=push_id,
+                                             push_key=push_key,
+                                             name=user_info.name if user_info else username, 
+                                             user_type=user_type,
+                                             terminals=terminals,
+                                             lastinfo_time=lastinfo_time,))
+            else:
+                self.write_ret(status,
+                               dict_=DotDict(push_id=push_id,
+                                             #app_key=push_info.app_key,
+                                             push_key=push_key,
+                                             name=user_info.name if user_info else username, 
+                                             user_type=user_type,
+                                             cars_info=cars_info,
+                                             lastinfo_time=lastinfo_time,
+                                             cars=terminals))
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
@@ -706,6 +745,7 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
         uid = ConfHelper.UWEB_CONF.test_uid 
         tid = ConfHelper.UWEB_CONF.test_tid 
         sim = ConfHelper.UWEB_CONF.test_sim
+        version_type = int(self.get_argument("version_type", 0))
 
         self.bookkeep(dict(cid=cid,
                            oid=oid,
@@ -813,16 +853,31 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
         lastinfo_time_key = get_lastinfo_time_key(uid)
         lastinfo_time = self.redis.getvalue(lastinfo_time_key)
 
-        self.write_ret(status,
-                       dict_=DotDict(push_id=push_id,
-                                     #app_key=push_info.app_key,
-                                     push_key=push_key,
-                                     name=user_info.name if user_info else username, 
-                                     user_type=UWEB.USER_TYPE.PERSON,
-                                     cars_info=cars_info,
-                                     lastinfo_time=lastinfo_time,
-                                     cars=terminals))
+        if version_type >= 1: 
+            terminals = []
+            for k, v in cars_info.iteritems():
+                v.update({'tid':k})
+                terminals.append(v)
 
+            self.write_ret(status,
+                           dict_=DotDict(push_id=push_id,
+                                         push_key=push_key,
+                                         name=user_info.name if user_info else username, 
+                                         user_type=UWEB.USER_TYPE.PERSON,
+                                         lastinfo_time=lastinfo_time,
+                                         terminals=terminals))
+
+        else:
+            self.write_ret(status,
+                           dict_=DotDict(push_id=push_id,
+                                         #app_key=push_info.app_key,
+                                         push_key=push_key,
+                                         name=user_info.name if user_info else username, 
+                                         user_type=UWEB.USER_TYPE.PERSON,
+                                         cars_info=cars_info,
+                                         lastinfo_time=lastinfo_time,
+                                         cars=terminals,))
+    
 
 class LogoutHandler(BaseHandler):
 
