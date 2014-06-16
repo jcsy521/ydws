@@ -61,8 +61,8 @@ def login():
             logging.info("[UWEB_TEST] Login nginx request conent is none")
     else:
         logging.exception("[UWEB_TEST] nginx request failed response: %s", response)
-        send("Login url:%s by nginx failed", 
-             url, alert_mobile)
+        send("Login url:%s by nginx failed" % url, 
+             alert_mobile)
 
     logging.info("[UWEB_TEST] Test login cookie header: %s", headers)
     return headers
@@ -90,18 +90,20 @@ def check_track_to_nginx(headers):
             logging.info("[UWEB_TEST] Track nginx request failed.")
     except:
         logging.exception("[UWEB_TEST] nginx request failed")
-        send("Access url:%s by nginx failed", 
-             url, alert_mobile)
+        send("Access url:%s by nginx failed" % url, 
+             alert_mobile)
 
 def check_lastposition_to_nginx(headers):
     _start_time = time.time()
     http = httplib2.Http(timeout=30)
-    url = base_url + "/lastposition"
+    #url = base_url + "/lastposition"
+    url = base_url + "/inclastinfo/corp"
     end_time = int(time.time())
     start_time = end_time - 3600*2
     
     try:
-        data = dict(lastposition_time=_start_time, cache=0, track_list=[])
+        data = dict(lastinfo_time=-1, cache=0, track_list=[])
+        #data = dict(lastposition_time=_start_time, cache=0, track_list=[])
         response, content = http.request(url, 'POST', headers=headers, body=json_encode(data))
         #print 'response', response
         #print 'content',  content
@@ -123,15 +125,18 @@ def test_single():
     """
     """
     logging.info("[UWEB_TEST] Test single start.")
-    headers = login()
+    #headers = login()
     #NOTE: here, you can set a cookie
     cookie = 'bdshare_firstime=1397896826550; USERCURRENTROLE=enterprise; ACBUWEB="2|1:0|10:1402380632|7:ACBUWEB|92:Qz0xODcwMTYzODQ5NDpPPWR1bW15X29pZDpVPTE4NzAxNjM4NDk0OlQ9Q0JCSlRFQU0wMTpUVD0xNTIxMDAxNjQ2OQ==|678e6a0891f88fdbb22ae21fcfc3978d49ea7523076cb84865cc166dea46193c"'
-
+   
+    # 13693675352, 111111
+    cookie = 'bdshare_firstime=1397896826550; USERCURRENTROLE=enterprise; ACBUWEB="2|1:0|10:1402478349|7:ACBUWEB|92:Qz0xMzY5MzY3NTM1MjpPPWR1bW15X29pZDpVPTEzNjkzNjc1MzUyOlQ9MTg5MTE0NDM5ODM6VFQ9MTg5MTE0NDM5ODM=|716bb65e7e5436ad35dd4617fec08ce2c317335b0bed4e2df533c23abaf974d7"'
 
     # ydcws.com
-    cookie = 'bdshare_firstime=1382629354368; USERCURRENTROLE=enterprise; ACBUWEB="Qz0xMzYwMDMzNTU1MDpPPWR1bW15X29pZDpVPTEzNTMxODg3MjMzOlQ9MzY5QTQwMDRBNzpUVD0xNDc3ODc0MzQ3OQ==|1402411014|e586c8fe2d9cd50dd0c906b2a7ff6580892352aa"'
+    #cookie = 'bdshare_firstime=1382629354368; USERCURRENTROLE=enterprise; ACBUWEB="Qz0xMzYwMDMzNTU1MDpPPWR1bW15X29pZDpVPTEzNTMxODg3MjMzOlQ9MzY5QTQwMDRBNzpUVD0xNDc3ODc0MzQ3OQ==|1402411014|e586c8fe2d9cd50dd0c906b2a7ff6580892352aa"'
 
     cookie = 'bdshare_firstime=1382629354368; USERCURRENTROLE=enterprise; ACBUWEB="Qz0xMzcyNjEwMzg4OTpPPWR1bW15X29pZDpVPTEzNzI2MTAzODg5OlQ9MzMwQTAwMDFDOTpUVD0xNDcxNDk4NzU3OQ==|1402413922|d4045caa17f0dc7e1a895db0541a482994f9ebd1"'
+    headers =  {} 
     headers['Cookie'] = cookie 
     while True:
         check_lastposition_to_nginx(headers)
@@ -141,10 +146,17 @@ def test_single():
 def test():
     """
     """
-    users=500
+    #users=5
+    #users=200
+    #users=50
+    #users=100
+    #users=200
+    users=300
+    #users=1
     try: 
         for i in xrange(users):
             thread.start_new_thread(test_single, ())
+            time.sleep(0.1) 
         while True: 
             time.sleep(60) 
     except KeyboardInterrupt as e:
