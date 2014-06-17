@@ -645,16 +645,22 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			}
 		}
 	}).bind('move_node.jstree', function(e, data) {
-		var obj_currentNode = data.rslt.o,
-			obj_currentA = obj_currentNode.children('a').eq(0),
-			str_tid = obj_currentA.attr('tid'),
-			obj_target = data.rslt.np,
-			str_groupId = $(obj_target).children('a').attr('groupid'),
-			arr_tids = [];
-			if ( str_tid ) {	// 只有终端才可以移动到组
-				arr_tids.push(str_tid);
-				fn_moveGroup(arr_tids, str_groupId, data.rlbk);
-			}
+        var arr_currentNode = data.rslt.o, 
+            obj_target = data.rslt.np, 
+            str_groupId = $(obj_target).children('a').attr('groupid'), 
+            arr_tids = [];
+                                                        
+        for ( var i =0; i < arr_currentNode.length; i++){ 
+            var obj_currentA = $(arr_currentNode[i]).children('a').eq(0), 
+                str_tid = obj_currentA.attr('tid'); 
+            if ( str_tid ) {    // 只有终端才可以移动到组
+                arr_tids.push(str_tid); 
+            } 
+        } 
+        if ( arr_tids.length > 0 ) {    // 只有终端才可以移动到组 
+            fn_moveGroup(arr_tids, str_groupId, data.rlbk); 
+        }
+
 	}).bind('create.jstree', function(e, data) {
 		var obj_rslt = data.rslt,
 			obj_rollBack = data.rlbk,

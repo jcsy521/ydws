@@ -24,6 +24,7 @@
 				<input type="text" name="mobile" id="mobile" class="tdStyle" maxlength="11" />
 				<input id="whitelist_search" type="button" value="查询" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
 				<input id="whitelist_add" type="button" value="加入白名单" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
+					<input id="whitelist_addbatch" type="button" value="批量导入白名单" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
 			</div>
 		</div>	
 	</fieldset>
@@ -95,5 +96,9 @@
 				</td>
 			</tr>
 		</table>
+	</div>
+		<!-- 文件上传 -->
+	<div id="fileUploadWrapper" class="wrapper hide j_drag">
+		<iframe scrolling="auto"  width=600 height=500 frameborder=0 src="" id="fileUploadIframe" name="fileUploadIframe"></iframe>
 	</div>
 {% end %}

@@ -108,6 +108,31 @@ $(function () {
 		});
 		
 	});
+	
+	//批量导入白名单初始化
+	$('#fileUploadWrapper').dialog({
+		autoOpen: false,
+		height: 554,
+		width: 630,
+		position: [300, 100],
+		modal: true,
+		resizable: false
+	});	
+		
+	//批量导入白名单点击
+	$('#whitelist_addbatch').click(function(e) {
+		if ( fn_validCookie() ) {
+			return;
+		}
+		var obj_upfile = window.frames['fileUploadIframe'].document.getElementById('fileUploadTable'),
+			obj_msg = window.frames['fileUploadIframe'].document.getElementById('jNotifyMessage');
+			
+		$(obj_upfile).remove().html('');
+		$(obj_msg).html('');
+		$('#fileUploadIframe').attr('src', '/whitelist/batch/import');
+		$('#fileUploadWrapper').attr('title', '批量导入白名单号码').dialog('option', 'title', '批量导入白名单号码').dialog( "open" );
+	});
+	
 	fn_unLockScreen();
 	
 	// 窗口关闭，清除cookie

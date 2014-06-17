@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<meta http-equiv="Cache-Control" content="no-cache" />
+		<meta http-equiv="Expires" content="-1" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<script type="text/javascript" type="text/javascript" src="/static/js/jquery.min-1.5.js"></script>
+		<script type="text/javascript" type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+		<link href="/static/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+		<script src="/static/js/jquery.dataTables.min.js"></script>
+		<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+
+		<script type="text/javascript" src="/static/js/fileupload.js"></script>
+		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+		<script type="text/javascript" src="/static/js/json2.js"></script>
+
+		<title>文件上传</title>
+	</head>
+	<body style="background-color: #FFF;">
+		{% if status is None %}
+		<form id="fileUploadForm" name="fileUploadForm" method="POST" target="fileUploadIframe"  enctype="multipart/form-data" action="/whitelist/batch/import">
+			<p class="uploadTip">
+				请选择后缀名为xls或xlsx的Excel文件
+			</p>
+			<input type="hidden" id="gid" name="gid" value="" />
+			<div class="file-box">				
+				<input type='text' name='txtFile' id='txtFile' class='txtFile' />  
+				<input type='button' class='btnFileUpload' id="btnFileUpload" value='浏览...' />
+				<input type="file" name="upload_file" class="file" id="upload_file" size="28" onchange="document.getElementById('txtFile').value=this.value" />
+				<input type="submit" href="#" title="开始上传" class="btnFileUpload j_startUpload hide" value="开始上传" />
+			</div>
+			<p class="errorMsg j_uploadError">
+			</p>
+		</form>
+		<div id="fileUploadTipPanel">
+			<label>批量导入文件示例(默认：20元套餐)：</label>
+			<img id="batchTerminalTipImg" src="/static/image/whitelist_fileupload_tip.png" alt="批量导入示例" />	
+		</div>
+		{% elif status == 0 %}
+			<table class="dataTable excelInfoTable" id="fileUploadTable">
+				<thead>
+					<tr class="theadTitle"><td>白名单号码</td><td>状态</td></tr>
+				</thead>
+				{% for r in res %}
+					{% if r.status == 0 %}
+						<tr class="j_notActived" tmobile="{{r.mobile}}">
+					{% else %}
+						<tr>
+					{% end %}
+						<td>{{r.mobile}}</td>
+						{% if r.status == 0 %}	
+							<td class="fileStatus1">未添加</td>
+						{% elif r.status == 3 %}	
+							<td tmobile="{{r.mobile}}" class="fileStatus3">非法手机号</td>
+						{% else %}
+							<td tmobile="{{r.mobile}}" class="fileStatus3">已添加</td>
+						{% end %}
+					</tr>
+				{% end %}
+				<tfoot class="tfootCss">
+					<tr rowspan="2">
+						<td colspan="4" align="right">
+							<input type="button" class="activeBtn j_active ui-button ui-widget ui-state-default ui-corner-all" value="批量导入" />
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+			<div id="jNotifyMessage"></div> <!--消息提示框-->
+		{% else %}
+			<span class="txtColor fileuploadMsg">* {{message}}</span>
+		{% end %}
+	</body>
+</html>
