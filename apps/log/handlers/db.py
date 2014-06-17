@@ -2,7 +2,10 @@
 
 import logging
 
-from tornado.database import Connection
+try:
+    from tornado.database import Connection
+except:
+    from torndb import Connection
 
 from fileconf import FileConf
 

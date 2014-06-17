@@ -5,7 +5,6 @@ import uuid
 import hashlib
 
 import tornado.web
-import tornado.database
 
 from urllib import quote
 from misc import safe_utf8

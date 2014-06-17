@@ -25,7 +25,10 @@ define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 # deploy or debug
 define('mode', default='deploy')
 # use warning for deployment
-options['logging'].set('info')
+try:
+    options['logging'].set('info')
+except:
+    options.logging='info'
 
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis

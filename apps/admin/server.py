@@ -18,7 +18,10 @@ define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 # deploy or debug
 define('mode', default='deploy')
 # use warning for deployment
-options['logging'].set('warning')
+try:
+    options['logging'].set('warning')
+except:
+    options.logging='warning'
 
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection

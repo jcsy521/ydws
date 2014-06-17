@@ -21,8 +21,10 @@ define("port",default=6001,type=int)
 if 'conf' not in options:
     define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 define('mode', default='deploy')
-options['logging'].set('warning')
-
+try:
+    options['logging'].set('warning')
+except:
+    options.logging='warning'
 
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
