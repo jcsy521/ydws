@@ -78,6 +78,7 @@ class SMSCode(object):
     SMS_NEW_OPERATOR = u"尊敬的客户：您已经成为移动卫士集团用户管理员，平台网址：%s，用户名：%s，密码：%s"
     SMS_SERVICE_EXCEPTION_REPORT = u"管理员你好，平台%s，不能检测到模拟终端的位置更新，服务可能发生异常，请检查！！！"
     SMS_EVENTER_QUEUE_REPORT = u"管理员你好，平台%s，检测到EVENTER模块队列长度超过上限，服务可能发生异常，请检查！！！"
+    SMS_GW_DELAY_REPORT = u"管理员你好，平台%s，检测到GW的S报文响应超时，请检查！！！"
     SMS_GW_ERROR_REPORT = u"管理员你好，平台%s，检测到GW服务出错，请检查！！！"
     SMS_PUSH_REPORT = u"管理员你好，平台%s，检测到PUSH长度超过上限 ，请检查！！！"
     SMS_SMS_REPORT = u"管理员你好，平台%s，检测到SMS长度超过上限，请检查！！！"
