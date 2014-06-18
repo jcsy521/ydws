@@ -21,6 +21,8 @@ from constants import UWEB, GATEWAY
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
+from helpers.confhelper import ConfHelper
+
 from utils.checker import check_phone, check_zs_phone
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
@@ -299,7 +301,7 @@ class BatchJHHandler(BaseHandler):
                                           UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
                                           begintime, 4733481600, begintime, 0,
                                           biz_type, activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
-                    register_sms = SMSCode.SMS_REGISTER_YDWQ % (activation_code)
+                    register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
                     ret = SMSHelper.send(tmobile, register_sms)
 
                 ret = DotDict(json_decode(ret))

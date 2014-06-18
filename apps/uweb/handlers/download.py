@@ -206,7 +206,7 @@ class DownloadSmsHandler(BaseHandler):
             else:
                 version_info = get_version_info('android')
                 # downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
-                download_remind = SMSCode.SMS_DOWNLOAD_REMIND 
+                download_remind = SMSCode.SMS_DOWNLOAD_REMIND % (ConfHelper.UWEB_CONF.url_out)
                 SMSHelper.send(mobile, download_remind)
        
             self.write_ret(status)

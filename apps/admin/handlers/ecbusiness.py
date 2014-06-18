@@ -17,8 +17,9 @@ from constants import PRIVILEGES, GATEWAY, SMS, UWEB
 from mixin import BaseMixin
 from helpers.queryhelper import QueryHelper
 from helpers.gfsenderhelper import GFSenderHelper
-from codes.smscode import SMSCode 
+from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
+from codes.smscode import SMSCode 
 from codes.errorcode import ErrorCode 
 from utils.checker import check_sql_injection, check_zs_phone
 from utils.public import record_add_action
@@ -413,7 +414,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                                 fields.begintime, 0, biz_type,
                                 activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED) 
 
-                register_sms = SMSCode.SMS_REGISTER_YDWQ % (activation_code)
+                register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
                 ret = SMSHelper.send(fields.tmobile, register_sms)
 
                 self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"

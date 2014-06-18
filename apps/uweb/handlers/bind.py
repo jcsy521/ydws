@@ -21,6 +21,7 @@ from utils.checker import check_zs_phone
 from constants import UWEB
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
+from helpers.confhelper import ConfHelper
 
 class BindHandler(BaseHandler, AvatarMixin):
     """ Show avatar for mobile client loggin
@@ -98,7 +99,7 @@ class BindHandler(BaseHandler, AvatarMixin):
             record_add_action(tmobile, group_id, begintime, self.db)
             avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tmobile)
 
-            register_sms = SMSCode.SMS_REGISTER_YDWQ % (activation_code)
+            register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
             ret = SMSHelper.send(tmobile, register_sms)
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:

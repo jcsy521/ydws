@@ -23,6 +23,7 @@ from constants import UWEB, SMS, GATEWAY
 from helpers.queryhelper import QueryHelper  
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
+from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 
 from mixin.terminal import TerminalMixin 
@@ -403,7 +404,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 data.login_permit, data.push_status,
                                 data.vibl, use_scene, biz_type,
                                 activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
-                register_sms = SMSCode.SMS_REGISTER_YDWQ % ( activation_code)
+                register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
                 ret = SMSHelper.send(data.tmobile, register_sms)
 
                 self.db.execute("INSERT INTO T_CAR(tid, cnum)"

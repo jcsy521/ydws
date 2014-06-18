@@ -15,6 +15,7 @@ from utils.dotdict import DotDict
 from utils.public import delete_terminal
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
+from helpers.confhelper import ConfHelper
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
@@ -158,7 +159,7 @@ class ReRegisterHandler(BaseHandler):
                     ret = SMSHelper.send_to_terminal(tmobile, register_sms)
                 else:
                     activation_code = QueryHelper.get_activation_code(self.db)
-                    register_sms = SMSCode.SMS_REGISTER_YDWQ %(activation_code)
+                    register_sms = SMSCode.SMS_REGISTER_YDWQ %(ConfHelper.UWEB_CONF.url_out, activation_code)
                     ret = SMSHelper.send(tmobile, register_sms)
 
                 ret = DotDict(json_decode(ret))
