@@ -44,7 +44,7 @@ from handlers.password import MyPasswordHandler, OtherPasswordHandler
 from handlers.delegate import DelegationHandler, DelegationLogHandler
 from handlers.business import * 
 from handlers.ecbusiness import * 
-from handlers.whitelist import WLSearchHandler, AddWLHandler
+from handlers.whitelist import WLSearchHandler, AddWLHandler, WhitelistBatchImportHandler, WhitelistBatchAddHandler 
 from handlers.subscriber import SubscriberHandler, SubscriberDownloadHandler
 from handlers.ecsubscriber import ECSubscriberHandler, ECSubscriberDownloadHandler
 #from handlers.yearly import YearlyHandler, YearlyDownloadHandler
@@ -134,6 +134,8 @@ class Application(tornado.web.Application):
             # whitelist search add update
             (r"/whitelist_search",WLSearchHandler),
             (r"/whitelist",AddWLHandler),
+            (r"/whitelist/batch/import/*", WhitelistBatchImportHandler),
+            (r"/whitelist/batch/add/*", WhitelistBatchAddHandler),
 
             # misc
             (r"/administrator/checkloginname/(.*)/*", AdministratorLoginnameHandler),
