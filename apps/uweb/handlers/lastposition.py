@@ -33,7 +33,9 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
             try:
                 data = DotDict(json_decode(self.request.body))
                 biz_type = data.get("biz_type", UWEB.BIZ_TYPE.YDWS)
-                version_type = int(self.get_argument("version_type", 0))
+                version_type = int(data.get("version_type", 0))
+                logging.info("[UWEB] Lastposition request: %s", 
+                             data)
             except Exception as e:
                 self.write_ret(ErrorCode.ILLEGAL_DATA_FORMAT) 
                 self.finish()
@@ -214,7 +216,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                             track_info = self.get_track_info(track_tid, int(track_time)+1, endtime) 
                             res[track_tid]['track_info'] = track_info
                
-                if version_type >= 1:
+                if int(version_type) >= 1:
                     terminals = []
                     for k, v in res.iteritems():
                         v.update({'tid':k})
