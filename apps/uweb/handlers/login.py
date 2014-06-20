@@ -159,6 +159,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
         biz_type = self.get_argument("biz_type", UWEB.BIZ_TYPE.YDWS)
         versionname = self.get_argument("versionname", "")
+        version_type = int(self.get_argument("version_type", 0))
         logging.info("[UWEB] IOS login request, username: %s, password: %s, iosid: %s, user_type: %s",
                      username, password, iosid, user_type)
         # must check username and password avoid sql injection.

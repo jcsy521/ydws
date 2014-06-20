@@ -71,6 +71,7 @@ from handlers.share import ShareHandler
 from handlers.activity import ActivityHandler
 from handlers.announcement import AnnouncementHandler, AnnouncementListHandler
 from handlers.activate import ActivationcodeHandler, ActivateHandler 
+from handlers.ydwq_activate import YDWQActivateHandler 
 from handlers.feedback import FeedBackHandler
 from handlers.download import DownloadHandler, DownloadTerminalHandler, DownloadSmsHandler, UploadTerminalHandler, DownloadManualHandler
 from handlers.about import AboutHandler
@@ -182,7 +183,9 @@ class Application(tornado.web.Application):
             (r"/announcement/list/*", AnnouncementListHandler),
             (r"/activationcode/*", ActivationcodeHandler),
             (r"/activate/*", ActivateHandler),
+            (r"/ydwq/activate/*", YDWQActivateHandler),
             (r"/ydwq/bind/*", BindHandler),
+            (r"/upload/*", UploadHandler),
 
 
             (r"/about/*", AboutHandler),
@@ -238,7 +241,6 @@ class Application(tornado.web.Application):
             (r"/zfjsyncer/*", ZFJSyncerHandler),
 
             (r"/avatar/*", AvatarHandler),
-            (r"/upload/*", UploadHandler),
             (r"/attendance/*", AttendanceHandler),
 
             # for wap

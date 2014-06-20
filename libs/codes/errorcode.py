@@ -91,6 +91,8 @@ class ErrorCode(object):
     ACTIVITY_NAME_ILLEGAL = 1002
 
     ACCOUNT_NOT_MATCH = 1101
+    ACCOUNT_INVALID = 1102
+    SN_USED = 1103
 
     # for ajt
     AJT_ORDERED = 1201
@@ -174,6 +176,8 @@ class ErrorCode(object):
         ACTIVITY_NAME_ILLEGAL:         u"文件名只能包含字母、数字、下划线、点。",
 
         ACCOUNT_NOT_MATCH:             u"账号不符，请联系客户人员。",
+        ACCOUNT_INVALID:               u"用户名或密码错误，请重新输入。",
+        SN_USED:                       u"账号不符合，请联系客服。",
 
         AJT_ORDERED:                   u"%s已经是安捷通白名单号码。",
         AJT_NOT_ORDERED:               u"%s不是安捷通白名单号码，请联系客服。",
