@@ -1504,8 +1504,8 @@ var b_stopMusic = false;	// 静音
 function playMiusic() {
 	var sound="../static/images/bg.mp3";
 	
-	if ( !b_stopMusic ) {
-		if( navigator.appName == "Microsoft Internet Explorer" ) {
+	if ( b_stopMusic ) {
+		/*if( navigator.appName == "Microsoft Internet Explorer" ) {
 			var snd = document.createElement("bgsound");
 			
 			$("#showMusic").html('');
@@ -1513,29 +1513,34 @@ function playMiusic() {
 			snd.loop = -1;
 			snd.src = sound;
 		} else {
-			/*$("#showMusic").html('<object width="0px" height="0px" data="'+ sound +'"></object>');
-			//$("#showMusic").html('<embed src="'+ sound +'" autostart="true" loop="100" controls="ControlPanel" width="0" height="0">');*/
-			$("#showMusic").html('<object data="'+ sound +'"  width="0" height="0">' + 
+			//$("#showMusic").html('<object width="0px" height="0px" data="'+ sound +'"></object>');
+			$("#showMusic").html('<embed src="'+ sound +'" autostart="true" loop="100" controls="ControlPanel" width="0" height="0">');
+			//$("#showMusic").html('<object data="'+ sound +'"  width="0" height="0">' + 
 			'<param name="src" value="'+ sound +'"> ' + 
 			'<param name="autostart" value="-1"> ' + 
 			'</object>');
-		}
-		
-		$('#playMusic').addClass('playMusic').attr('title', '播放');;
+
+		}*/
+		//$("#showMusic").html('<audio id="playMusicAudio" autoplay><source src="'+sound+'" type="audio/mpeg"></audio>');
+		//$('#playMusic').addClass('playMusic').attr('title', '播放');
+	} else {
+		//$("#showMusic").html('');
 	}
+	$('#playMusic').removeClass('playMusic').addClass('stopMusic').attr('title', '静音');
 	$('#playMusic').unbind('click').click(function() {
 		var obj_this = $(this),
 			str_playClass = 'playMusic',
 			str_stopClass = 'stopMusic';
 		
-		if ( b_stopMusic ) {	// 播放音乐
-			obj_this.removeClass(str_stopClass).addClass(str_playClass).attr('title', '播放');
-			b_stopMusic = false;
-			//playMiusic();
-		} else {
+		if ( b_stopMusic ) {	
 			obj_this.removeClass(str_playClass).addClass(str_stopClass).attr('title', '静音');
-			b_stopMusic = true;
+			b_stopMusic = false;
 			$("#showMusic").html('');
+			//playMiusic();
+		} else { // 播放音乐
+			obj_this.removeClass(str_stopClass).addClass(str_playClass).attr('title', '播放');
+			b_stopMusic = true;
+			$("#showMusic").html('<audio id="playMusicAudio" loop autoplay><source src="'+sound+'" type="audio/mpeg"></audio>');
 		}
 	});
 }
