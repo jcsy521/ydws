@@ -67,18 +67,19 @@ def delete_terminal(tid, db, redis, del_user=True):
                       terminal.owner_mobile)
     rids = db.query("SELECT rid FROM T_REGION_TERMINAL"
                     "  WHERE tid = %s", tid)
+
     # clear history data
+    db.execute("DELETE FROM T_EVENT"
+               " WHERE tid = %s",
+               tid)
+    db.execute("DELETE FROM T_CHARGE"
+               " WHERE tid = %s",
+               tid)
     key = get_del_data_key(tid)
     flag = redis.get(key)
     if flag and int(flag) == 1:
         db.execute("DELETE FROM T_LOCATION"
                    "  WHERE tid = %s",
-                   tid)
-        db.execute("DELETE FROM T_EVENT"
-                   " WHERE tid = %s",
-                   tid)
-        db.execute("DELETE FROM T_CHARGE"
-                   " WHERE tid = %s",
                    tid)
         logging.info("Delete db data of terminal: %s", tid)
 
