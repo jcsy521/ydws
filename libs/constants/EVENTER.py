@@ -58,7 +58,8 @@ CATEGORY = DotDict(UNKNOWN=0,
 LOCATION_NAME_EXPIRY = 60 * 60 * 24 * 365 * 2 # two years
 
 # location of target keep 24 hours. in seconds.
-LOCATION_EXPIRY = 60 * 60 * 24 * 7
+#LOCATION_EXPIRY = 60 * 60 * 24 * 7
+LOCATION_EXPIRY = 60 * 60 * 24 * 365 * 2 # two years 
 
 # tinyurl keep 3 days
 TINYURL_EXPIRY = 3 * 24 * 60 * 60
