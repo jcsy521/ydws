@@ -15,7 +15,7 @@ def record_add_action(tmobile, group_id, add_time, db):
              op_type, 
              add_time,
     """
-    logging.info("Record the add action, tmobile: %s, group_id: %s, add_time: %s",
+    logging.info("[PUBLIC] Record the add action, tmobile: %s, group_id: %s, add_time: %s",
                  tmobile, group_id, add_time)
     db.execute("INSERT INTO T_BIND_LOG(tmobile, group_id, op_type, add_time)" 
                " VALUES(%s, %s, %s, %s)", 
@@ -28,7 +28,7 @@ def record_del_action(tmobile, group_id, del_time, db):
              op_type, 
              del_time,
     """
-    logging.info("Record the del action, tmobile: %s, group_id: %s, del_time: %s",
+    logging.info("[PUBLIC] Record the del action, tmobile: %s, group_id: %s, del_time: %s",
                  tmobile, group_id, del_time)
     db.execute("INSERT INTO T_BIND_LOG(tmobile, group_id, op_type, del_time)" 
                " VALUES(%s, %s, %s, %s)", 
@@ -49,7 +49,7 @@ def clear_data(tid, db):
     db.execute("DELETE FROM T_REGION_TERMINAL"
                "  WHERE tid = %s",
                tid)
-    logging.info("Clear db data of terminal: %s", tid)
+    logging.info("[PUBLIC] Clear db data of terminal: %s", tid)
 
 def delete_terminal(tid, db, redis, del_user=True):
     """Delete terminal from platform and clear the associated info.
@@ -81,7 +81,7 @@ def delete_terminal(tid, db, redis, del_user=True):
         db.execute("DELETE FROM T_LOCATION"
                    "  WHERE tid = %s",
                    tid)
-        logging.info("Delete db data of terminal: %s", tid)
+        logging.info("[PUBLIC] Delete db data of terminal: %s", tid)
 
     # clear redis
     tmobile = terminal.mobile if terminal else ""
@@ -140,11 +140,11 @@ def delete_terminal(tid, db, redis, del_user=True):
                 ios_badge_key = get_ios_badge_key(terminal.owner_mobile)
                 keys = [lastinfo_key, lastinfo_time_key, ios_id_key, ios_badge_key]
                 redis.delete(*keys)
-                logging.info("[GW] Delete User: %s", terminal.owner_mobile)
+                logging.info("[PUBLIC] Delete User: %s", terminal.owner_mobile)
     else:
-        logging.info("[GW] User of %s already not exist.", tid)
+        logging.info("[PUBLIC] User of %s already not exist.", tid)
 
-    logging.info("[GW] Delete Terminal: %s, tmobile: %s, umobile: %s",
+    logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
                  tid, tmobile, (terminal.owner_mobile if terminal else None))
 
 def insert_location(location, db, redis):
@@ -180,6 +180,9 @@ def insert_location(location, db, redis):
         last_location = redis.getvalue(location_key)
         if (last_location and (location.gps_time > last_location['timestamp'])) or\
             not last_location:
+
+            logging.info("[PUBLIC] Keep location in redis. tid: %s, location: %s", 
+                         tid, location)
             mem_location = {'id':lid,
                             'latitude':location.lat,
                             'longitude':location.lon,
@@ -194,6 +197,12 @@ def insert_location(location, db, redis):
             location_key = get_location_key(location.dev_id)
             redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
+            if int(location.type) == 0: # gps
+                logging.info("[PUBLIC] Keep gps_location in gps_redis. tid: %s, location: %s", 
+                             tid, location)
+                location_key = get_gps_location_key(location.dev_id)
+                redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
+
     return lid
 
 def get_terminal_type_by_tid(tid):
@@ -202,7 +211,7 @@ def get_terminal_type_by_tid(tid):
     try:
         tid_hex2dec = str(int(tid.upper(), 16))
     except:
-        logging.info("[GW] Terminal %s is illegale, can not transfer into 10 hexadecimal. It's type is unknown", tid)
+        logging.info("[PUBLIC] Terminal %s is illegale, can not transfer into 10 hexadecimal. It's type is unknown", tid)
         return ttype
     num = int(tid_hex2dec)
     mid = []
@@ -226,7 +235,7 @@ def get_group_info_by_tid(db, tid):
     group_info = {'group_id':-1, 'group_name':''}
 
     group = db.query("SELECT T_GROUP.id as group_id, T_GROUP.name as group_name FROM T_TERMINAL_INFO,T_GROUP"
-                          " WHERE T_TERMINAL_INFO.group_id = T_GROUP.id and tid = %s", tid)
+                    " WHERE T_TERMINAL_INFO.group_id = T_GROUP.id and tid = %s", tid)
     if group:
         group_info=group[0]
 

@@ -57,7 +57,7 @@ def get_clocation_from_ge(lats, lons):
                 clons, [degree*3600000, ...]
     """
     # send 20 items for getting offset latlon every time.
-    MAX_COUNT = 20
+    MAX_COUNT = 20 
     clats = [] 
     clons = [] 
     try: 
@@ -185,10 +185,10 @@ def get_latlon_from_cellid(mcc, mnc, lac, cid, sim):
             lat = response['position']['lat']
             lon = response['position']['lon']
         else:
-            logging.info("Get latlon from LE failed, response: %s, args: %s",
+            logging.info("[LBMPHELPER] Get latlon from LE failed, response: %s, args: %s",
                          response['info'], args)
     except Exception as e:
-        logging.exception("Get latlon from LE failed. Exception: %s", e.args)
+        logging.exception("[LBMPHELPER] Get latlon from LE failed. Exception: %s", e.args)
     return lat, lon 
 
 def handle_latlon_from_cellid(lat, lon, tid, redis, db):
@@ -219,10 +219,10 @@ def handle_latlon_from_cellid(lat, lon, tid, redis, db):
         if location: 
             distance = get_distance(int(clon), int(clat), int(location.clongitude), int(location.clatitude))
 
-    logging.info("The distance :%s, tid:%s", distance, tid)
+    logging.info("[LBMPHELPER] The distance :%s, tid:%s", distance, tid)
     if 0 < distance < 2000: 
         lon, lat = location.longitude, location.latitude
-        logging.info("The distance: %s beteen cellid-latlon(%s, %s) and gps-latlon(%s, %s) is "
+        logging.info("[LBMPHELPER] The distance: %s beteen cellid-latlon(%s, %s) and gps-latlon(%s, %s) is "
                      "lesser than %s, so change the cellid-latlon to gps-latlon",
                      distance, lat, lon, location.longitude, location.latitude, UWEB.CELLID_MAX_OFFSET)
     return lat, lon 
@@ -247,10 +247,10 @@ def get_location_name(clat, clon, redis):
                 if name:
                     redis.setvalue(key, name, EVENTER.LOCATION_NAME_EXPIRY)
             else:
-                logging.error("Get location name failed, response: %s, args: %s",
+                logging.error("[LBMPHELPER] Get location name failed, response: %s, args: %s",
                               response.get('info'), args)
     except Exception as e:
-        logging.exception("Get location name from GV failed. Exception: %s", e.args)
+        logging.exception("[LBMPHELPER] Get location name from GV failed. Exception: %s", e.args)
     return name 
 
 def get_last_degree(location, redis, db):
@@ -277,7 +277,7 @@ def get_last_degree(location, redis, db):
     return float(location.degree)
 
 def issue_cellid(location, db, redis):
-    logging.info("%s Issue cellid...", location.dev_id)
+    logging.info("[LBMPHELPER] %s Issue cellid...", location.dev_id)
     location.gps = 0
     location.type = 1
     location.degree = random.randint(0, 360)
@@ -286,13 +286,13 @@ def issue_cellid(location, db, redis):
     #NOTE: Check version of terminal: If version if 2.3.x, do not issue cellid
     terminal = db.get("SELECT id, tid, mobile, softversion FROM T_TERMINAL_INFO WHERE tid = %s", location.dev_id)
     if terminal and str(terminal['softversion'][0:3]) == '2.3':
-        logging.info("%s softversion: %s is 2.3.x, do not issue cellid", location.dev_id, terminal['softversion'])
+        logging.info("[LBMPHELPER] %s softversion: %s is 2.3.x, do not issue cellid", location.dev_id, terminal['softversion'])
         location.lat, location.lon = 0, 0
     else:
         sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
         location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)
 
-    logging.info("%s cellid result, lat:%s, lon:%s", location.dev_id, location.lat, location.lon)
+    logging.info("[LBMPHELPER] %s cellid result, lat:%s, lon:%s", location.dev_id, location.lat, location.lon)
 
     return location
 
@@ -309,15 +309,16 @@ def handle_location(location, redis, cellid=False, db=None):
         if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
             location.degree = get_last_degree(location, redis, db)
     elif location.valid == GATEWAY.LOCATION_STATUS.UNMOVE: # 4
-        logging.info("Tid:%s gps locate flag :%s", location.dev_id, location.valid)
+        logging.info("[LBMPHELPER] Tid:%s gps locate flag :%s", location.dev_id, location.valid)
         #last_location = QueryHelper.get_location_info(location.dev_id, db, redis)
         last_location = QueryHelper.get_gps_location_info(location.dev_id, db, redis)
         if last_location:
             current_time = int(time.time())
             diff = current_time - last_location.timestamp
-            logging.info("current time:%s, last locaiton time:%s, diff time:%s", current_time, last_location.timestamp, diff)
-            if (current_time - last_location.timestamp) < 600: # 10 mins
-                logging.info("Tid:%s, current_time - last_location.timestamp  <= 600s, so use last location time:%s", location.dev_id, last_location.timestamp)
+            logging.info("[LBMPHELPER] current time:%s, last locaiton time:%s, diff time:%s", current_time, last_location.timestamp, diff)
+            if (current_time - last_location.timestamp) < 60 * 60 * 24 * 30: # 30 days. in seconds 
+                logging.info("[LBMPHELPER] Tid:%s, current_time - last_location.timestamp  < 30 days, so use last location time:%s", 
+                             location.dev_id, last_location.timestamp)
                 location.gps_time = last_location.timestamp
                 location.lat = last_location.latitude
                 location.lon = last_location.longitude
@@ -327,11 +328,11 @@ def handle_location(location, redis, cellid=False, db=None):
                 location.gps = 0
             else:
                 location.type = 0 
-                logging.info("Tid:%s, current_time - last_location.timestamp >= 600s, so use location itself: %s.", location.dev_id, location)
+                logging.info("[LBMPHELPER] Tid:%s, current_time - last_location.timestamp >= 600s, so use location itself: %s.", location.dev_id, location)
                 pass
         else:
             location.type = 0 
-            logging.info("Tid:%s, found no location before, so use location itself: %s.", location.dev_id, location)
+            logging.info("[LBMPHELPER] Tid:%s, found no location before, so use location itself: %s.", location.dev_id, location)
             pass
         
         #    location.lat = last_location.latitude
@@ -359,7 +360,7 @@ def handle_location(location, redis, cellid=False, db=None):
         #    #if cellid:
         #    #    location = issue_cellid(location, db, redis)
     elif location.valid == GATEWAY.LOCATION_STATUS.MOVE: # 6
-        logging.info("tid:%s gps locate flag :%s", location.dev_id, location.valid)
+        logging.info("[LBMPHELPER] tid:%s gps locate flag :%s", location.dev_id, location.valid)
         location.lat = 0
         location.lon = 0
         location.cLat = 0
@@ -371,7 +372,7 @@ def handle_location(location, redis, cellid=False, db=None):
         if cellid:
             location = issue_cellid(location, db, redis)
     else: # 0,2,5
-        logging.info("tid:%s gps locate flag :%s", location.dev_id, location.valid)
+        logging.info("[LBMPHELPER] tid:%s gps locate flag :%s", location.dev_id, location.valid)
         location.lat = 0
         location.lon = 0
         location.cLat = 0

@@ -27,8 +27,8 @@ class AndroidInsHandler(BaseHandler):
     def get(self):
         """Jump to android.html."""
         category = self.get_argument('category', '2')
-        version_info = get_version_info('android')
-        #version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWS, self.db)
+        #version_info = get_version_info('android')
+        version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWS, self.db)
         download_info = get_download_count(category, self.db)
 
         self.render('android.html',

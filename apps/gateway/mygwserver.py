@@ -513,14 +513,17 @@ class MyGWServer(object):
 
         sms = ''
         t_status = None
-        # new softversion, new meaning, 1: active; othter: normal login
+        #NOTE: new softversion, new meaning, 1: active; othter: normal login
         flag = t_info['psd'] 
         terminal = db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status,"
                           "       defend_status, mannual_status, icon_type, login_permit, alias, vibl, use_scene, push_status"
                           "  FROM T_TERMINAL_INFO"
                           "  WHERE mobile = %s LIMIT 1",
                           t_info['t_msisdn']) 
+
+        #NOTE: normal login
         if flag != "1": # normal login
+            #NOTE: no tmobile and ower_mobile 
             if (not t_info['t_msisdn']) and (not t_info['u_msisdn']):
                 t = db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status"
                            "  FROM T_TERMINAL_INFO"
@@ -534,12 +537,13 @@ class MyGWServer(object):
                     t_info['u_msisdn'] = t.owner_mobile
                     register_sms = SMSCode.SMS_REGISTER % (t.owner_mobile, t.mobile)
                     SMSHelper.send_to_terminal(t.mobile, register_sms)
-                    logging.info("[GATEWAY] a crash terminal tid:%s, imei:%s has no tmobile:%s, umobile:%s in login packet, so %s again.",
-                             t_info['dev_id'], t_info['imei'], t_info['t_msisdn'], t_info['u_msisdn'], register_sms)
+                    logging.info("[GW] A crash terminal tid:%s, imei:%s has no tmobile: %s, umobile:%s in login packet, so send %s again.",
+                                 t_info['dev_id'], t_info['imei'], t_info['t_msisdn'], t_info['u_msisdn'], register_sms)
                 else:
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
-                    logging.info("[GATEWAY] a crash terminal:%s login without umobile and tmobile, and there is no record in db.", t_info['dev_id'])
+                    logging.info("[GW] A crash terminal:%s login without umobile and tmobile, and there is no record in db.", t_info['dev_id'])
             else:
+                #NOTE: no tmobile 
                 if not t_info['t_msisdn']:
                     # login first.
                     tid_terminal = db.get("SELECT tid, mobile, owner_mobile, service_status"
@@ -547,37 +551,43 @@ class MyGWServer(object):
                                           " WHERE tid = %s LIMIT 1", t_info['dev_id'])
                     args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                     if tid_terminal:
+                        #NOTE: mobile is not not JH, send caution to owner
                         sms_ = SMSCode.SMS_NOT_JH % tid_terminal.mobile 
                         SMSHelper.send(tid_terminal.owner_mobile, sms_)
                     logging.warn("[GW] terminal: %s login at first time.",
                                  t_info['dev_id'])
+                #NOTE: tmobile is exist
                 elif terminal:
                     alias = QueryHelper.get_alias_by_tid(terminal['tid'], self.redis, db)
                     if terminal['tid'] != t_info['dev_id']:
                         args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                         sms = SMSCode.SMS_TERMINAL_HK % alias 
-                        logging.warn("[GW] Tmobile: %s changed dev, old: %s, new: %s",
+                        logging.warn("[GW] Terminal changed dev, mobile: %s, old_tid: %s, new_tid: %s",
                                      t_info['t_msisdn'], terminal['tid'], t_info['dev_id'])
                     elif terminal['imsi'] != t_info['imsi']:
                         args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                         sms = SMSCode.SMS_TERMINAL_HK % alias 
-                        logging.warn("[GW] Terminal %s imsi is wrong, old: %s, new: %s",
-                                     t_info['dev_id'], terminal['imsi'], t_info['imsi'])
+                        logging.warn("[GW] Terminal imsi is wrong, tid: %s, mobile: %s, old_imsi: %s, new_imsi: %s",
+                                     t_info['dev_id'], t_info['t_msisdn'], terminal['imsi'], t_info['imsi'])
                     elif terminal['owner_mobile'] != t_info['u_msisdn']:
                         register_sms = SMSCode.SMS_REGISTER % (terminal['owner_mobile'], terminal['mobile']) 
                         SMSHelper.send_to_terminal(terminal['mobile'], register_sms)
-                        logging.warn("[GW] Terminal %s owner_mobile is wrong, old: %s, new: %s, send the regist sms: %s again",
+                        logging.warn("[GW] Terminal owner_mobile is wrong, tid: %s, old_owner_mobile: %s, new_owner_mobile: %s, send the regist sms: %s again",
                                      t_info['dev_id'], terminal['owner_mobile'], t_info['u_msisdn'], register_sms)
                     elif terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
                         t_status = UWEB.SERVICE_STATUS.TO_BE_UNBIND
-                        logging.warn("[GW] Terminal: %s is unbinded.", t_info["dev_id"])            
+                        logging.warn("[GW] Terminal is unbinded. tid: %s, mobile: %s", 
+                                     t_info["dev_id"], t_info['t_msisdn'])            
                     else:
-                        logging.info("[GW] Terminal %s normal login successfully.", t_info['dev_id'])
+                        logging.info("[GW] Terminal normal login successfully. tid: %s, mobile: %s", 
+                                     t_info['dev_id'], t_info['t_msisdn'])
                 else:
                     args.success = GATEWAY.LOGIN_STATUS.UNREGISTER
-                    logging.error("[GW] Terminal %s login failed, unregister.", t_info['dev_id'])
+                    logging.error("[GW] Terminal login failed, unregister. tid: %s, mobile: %s", 
+                                  t_info['dev_id'], t_info['t_msisdn'])
+        #NOTE: JH
         else: # JH 
-            logging.info("[GW] Terminal: %s, mobile: %s JH started.",
+            logging.info("[GW] Terminal JH started. tid: %s, mobile: %s",
                          t_info['dev_id'], t_info['t_msisdn'])
             # 0. Initialize the valus keeps same as the default value in database.
             group_id = -1
@@ -603,14 +613,17 @@ class MyGWServer(object):
                                   address=address)
                 self.append_gw_request(request, connection, channel)
                 if t_info['u_msisdn']:
+                    # send JH failed caution to owner
                     sms = SMSCode.SMS_JH_FAILED
                     SMSHelper.send(t_info['u_msisdn'], sms)
-                logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, dev_id: %s",
+                logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, tid: %s",
                               t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
                 return
 
             # 2. delete to_be_unbind terminal
             if terminal and terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
+                logging.info("[GW] Delete terminal which is to_be_unbind. tid: %s, mobile: %s", 
+                             terminal['tid'], terminal['mobile'])
                 delete_terminal(terminal['tid'], db, self.redis)
                 terminal = None
 
@@ -625,15 +638,17 @@ class MyGWServer(object):
                url_out = ConfHelper.UWEB_CONF.ajt_url_out
             else:
                url_out = ConfHelper.UWEB_CONF.url_out
-            logging.info("[GW] Terminal: %s, login url is: %s", t_info['t_msisdn'], url_out)
+            logging.info("[GW] Login url is: %s, tid: %s, mobile: %s ", 
+                         url_out, t_info['dev_id'], t_info['t_msisdn'])
 
             if exist:
-                logging.info("[GW] Owner already existed. Terminal: %s", t_info['dev_id'])
+                logging.info("[GW] Owner already existed. tid: %s, mobile: %s", 
+                             t_info['dev_id'], t_info['t_msisdn'])
                 sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
                                                        url_out)
             else:
                 # get a new psd for new user
-                logging.info("[GW] Create new owner started. Terminal: %s", t_info['dev_id'])
+                logging.info("[GW] Create new owner started. tid: %s, mobile: %s", t_info['dev_id'], t_info['t_msisdn'])
                 psd = get_psd()
                 db.execute("INSERT INTO T_USER(uid, password, name, mobile)"
                            "  VALUES(%s, password(%s), %s, %s)",
@@ -647,7 +662,7 @@ class MyGWServer(object):
                                                 t_info['u_msisdn'],
                                                 psd)
 
-            # 4. jh existed tmobile
+            # 4. JH existed tmobile
             is_refurbishment = False
             if terminal:
                 if (terminal['tid'] == t_info['dev_id']) and \
@@ -658,11 +673,13 @@ class MyGWServer(object):
                     # check the login packet whether is send again 
                     if resend_flag:
                         sms = ''
-                        logging.info("[GW] Recv resend packet, do not send sms.")
+                        logging.info("[GW] Recv resend packet, do not send sms. tid: %s, mobile: %s", 
+                                     t_info['dev_id'], t_info['t_msisdn'])
                     else:
                         sms = SMSCode.SMS_USER_ADD_TERMINAL % (t_info['t_msisdn'],
                                                                url_out)
-                        logging.info("[GW] terminal: %s is refurbishment.", t_info['dev_id'])
+                        logging.info("[GW] Terminal is refurbishment. tid: %s, mobile: %s", 
+                                     t_info['dev_id'], t_info['t_msisdn'])
                 else:     
                     # 4.2 existed tmobile changed dev or corp terminal login first, get the old info(group_id, login_permit and so on) before change
                     group_id = terminal.group_id
@@ -680,23 +697,26 @@ class MyGWServer(object):
                                    "  SET tid = %s"
                                    "  WHERE tid = %s",
                                    t_info['dev_id'], t_info['t_msisdn'])
-                        logging.info("[GW] Corp terminal: %s login first, tmobile: %s.",
+                        logging.info("[GW] Corp terminal login first, tid: %s, mobile: %s.",
                                      t_info['dev_id'], t_info['t_msisdn'])
                     elif terminal.tid != t_info['dev_id']:
-                        logging.info("[GW] Tmobile: %s changed dev, new: %s, delete old: %s.",
+                        logging.info("[GW] Terminal changed dev, mobile: %s, new_tid: %s, delete old_tid: %s.",
                                      t_info['t_msisdn'], t_info['dev_id'], terminal.tid)
                     else:
                         # Refurbishment, change user
-                        logging.info("[GW] Terminal: %s change user, new: %s, old: %s",
-                                     t_info['dev_id'], t_info['u_msisdn'],
+                        logging.info("[GW] Terminal change user, tid: %s, mobile: %s, new_owner_mobile: %s, old_owner_mobile: %s",
+                                     t_info['dev_id'], t_info['t_msisdn'], t_info['u_msisdn'],
                                      terminal.owner_mobile)
+                    #NOTE: If terminal has exist, firt remove the terminal 
+                    logging.info("[GW] Terminal is deleted, tid: %s, mobile: %s.",
+                                 terminal['tid'], terminal['mobile']) 
                     del_user = True
                     if terminal.owner_mobile != t_info['u_msisdn']:
                         # send message to old user of dev_id
                         sms_ = SMSCode.SMS_DELETE_TERMINAL % terminal.mobile 
                         SMSHelper.send(terminal.owner_mobile, sms_)
                         if terminal.tid == t_info['dev_id']: 
-                            # change user
+                            # clear data belongs to the terminal 
                             clear_data(terminal.tid, db)
                         logging.info("[GW] Send delete terminal message: %s to user: %s",
                                      sms_, terminal.owner_mobile)
@@ -704,6 +724,7 @@ class MyGWServer(object):
                         del_user = False
                     delete_terminal(terminal.tid, db, self.redis, del_user=del_user)
 
+            #NOTE: Normal JH.
             if not is_refurbishment:
                 # 5. delete existed tid
                 tid_terminal = db.get("SELECT tid, mobile, owner_mobile, service_status"
@@ -711,13 +732,13 @@ class MyGWServer(object):
                                       "  WHERE tid = %s LIMIT 1",
                                       t_info['dev_id'])
                 if tid_terminal:
-                    logging.info("[GW] Delete existed tid: %s while JH mobile: %s.",
-                                 tid_terminal['tid'], t_info['t_msisdn'])
+                    logging.info("[GW] Terminal is deleted, tid: %s, mobile: %s.",
+                                 tid_terminal['tid'], tid_terminal['mobile']) 
                     del_user = True
                     if tid_terminal['owner_mobile'] != t_info['u_msisdn']:
                         if tid_terminal['service_status'] == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
-                            logging.info("[GW] Terminal: %s is to_be_unbind, delete it.",
-                                         tid_terminal['tid']) 
+                            logging.info("[GW] Terminal is to_be_unbind, tid: %s, mobile: %s, delete it.",
+                                         tid_terminal['tid'], tid_terminal['mobile']) 
                         else:
                             # send message to old user of dev_id
                             sms_ = SMSCode.SMS_DELETE_TERMINAL % tid_terminal['mobile'] 
@@ -737,7 +758,8 @@ class MyGWServer(object):
                 
                 # check use sence
                 ttype = get_terminal_type_by_tid(t_info['dev_id'])
-                logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id'], ttype) 
+                logging.info("[GW] Terminal's type is %s. tid: %s, mobile: %s", 
+                             ttype, t_info['dev_id'], t_info['t_msisdn']) 
                 #if ttype == 'zj200':
                 #    use_scene = 1
                 #    vibl = 2 
@@ -767,8 +789,8 @@ class MyGWServer(object):
                 db.execute("INSERT INTO T_CAR(tid, cnum)"
                            "  VALUES(%s, %s)",
                            t_info['dev_id'], alias)
-                logging.info("[GW] Tmobile: %s with tid: %s JH success!",
-                             t_info['t_msisdn'], t_info['dev_id'])
+                logging.info("[GW] Terminal JH success! tid: %s, mobile: %s.",
+                             t_info['dev_id'], t_info['t_msisdn'])
                 # subscription LE for new sim
                 thread.start_new_thread(self.subscription_lbmp, (t_info,)) 
                 #self.request_location(t_info['dev_id'], db)
@@ -776,7 +798,8 @@ class MyGWServer(object):
         if args.success == GATEWAY.LOGIN_STATUS.SUCCESS:
             # get SessionID
             if resend_flag:
-                logging.warn("[GW] Recv resend login packet: %s and use old sessionID!", t_info) 
+                logging.warn("[GW] Recv resend login packet and use old sessionID! packet: %s, tid: %s, mobile: %s.", 
+                             t_info, t_info['dev_id'], t_info['t_msisdn']) 
                 args.sessionID = self.get_terminal_sessionID(t_info['dev_id'])
                 if not args.sessionID:
                     args.sessionID = get_sessionID()
@@ -795,7 +818,7 @@ class MyGWServer(object):
                            login_time=int(time.time()),
                            dev_id=t_info["dev_id"])
             self.update_terminal_info(info, db)
-            logging.info("[GW] Terminal %s login success! SIM: %s",
+            logging.info("[GW] Terminal login success! tid: %s, mobile: %s",
                          t_info['dev_id'], t_info['t_msisdn'])
 
         lc = LoginRespComposer(args)
@@ -804,7 +827,7 @@ class MyGWServer(object):
         self.append_gw_request(request, connection, channel)
 
         if sms and t_info['u_msisdn']:
-            logging.info("[GW] mobile: %s, content: %s",
+            logging.info("[GW] Send sms to owner. mobile: %s, content: %s",
                         t_info['u_msisdn'], sms)
             SMSHelper.send(t_info['u_msisdn'], sms)
 
@@ -816,7 +839,7 @@ class MyGWServer(object):
             request = DotDict(packet=ubc.buf,
                               address=address)
             self.append_gw_request(request, connection, channel)
-            logging.warn("[GW] Terminal: %s is unbinded, send unbind packet.", t_info["dev_id"])            
+            logging.warn("[GW] Terminal is unbinded, tid: %s, send unbind packet.", t_info["dev_id"])            
 
     def subscription_lbmp(self, t_info):
         # subscription LE for new sim
