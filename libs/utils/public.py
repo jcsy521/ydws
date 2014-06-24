@@ -182,7 +182,7 @@ def insert_location(location, db, redis):
             not last_location:
 
             logging.info("[PUBLIC] Keep location in redis. tid: %s, location: %s", 
-                         tid, location)
+                         location.dev_id, location)
             mem_location = {'id':lid,
                             'latitude':location.lat,
                             'longitude':location.lon,
@@ -199,7 +199,7 @@ def insert_location(location, db, redis):
 
             if int(location.type) == 0: # gps
                 logging.info("[PUBLIC] Keep gps_location in gps_redis. tid: %s, location: %s", 
-                             tid, location)
+                             location.dev_id, location)
                 location_key = get_gps_location_key(location.dev_id)
                 redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
