@@ -174,10 +174,10 @@ class CheckTask(object):
                 distance_notification= terminal['distance_notification']
                 if left_days == 1: # it should be notified this day                           
                     logging.info("[CELERY] Send mileage notification."
-                                 "  tid: %s, owner_mobile: %s, assist_mobile: %s,"
+                                 "  tid: %s, mobile: %s, owner_mobile: %s, assist_mobile: %s,"
                                  "  distance_notification: %s, distance_current: %s," 
                                  "  notify_count: %s, left_days: %s.", 
-                                 tid, owner_mobile, assist_mobile, distance_notification, 
+                                 tid, mobile, owner_mobile, assist_mobile, distance_notification, 
                                  distance_current, notify_count, left_days)
                     self.db.execute("UPDATE T_TERMINAL_INFO"
                                     "  SET notify_count = %s,"
@@ -196,10 +196,10 @@ class CheckTask(object):
                 elif left_days in (2, 3): # do not notify, just postpone one day
                     logging.info("[CELERY] Do not send mileage notification this day,"
                                  "  just modify the left_days."
-                                 "  tid: %s, owner_mobile: %s, assist_mobile: %s,"
+                                 "  tid: %s, mobile: %s, owner_mobile: %s, assist_mobile: %s,"
                                  "  distance_notification: %s, distance_current: %s," 
                                  "  notify_count: %s, left_days: %s.", 
-                                 tid, owner_mobile, assist_mobile, distance_notification, 
+                                 tid, mobile, owner_mobile, assist_mobile, distance_notification, 
                                  distance_current, notify_count, left_days)
                     self.db.execute("UPDATE T_TERMINAL_INFO"
                                     "  SET left_days = %s"
@@ -207,10 +207,12 @@ class CheckTask(object):
                                     left_days-1,
                                     tid)
                 else: # it should never occur.
-                    logging.info("[CELERY] Invalid left_days: %s.", left_days)
+                    logging.info("[CELERY] Invalid left_days: %s, mobile: %s.", 
+                                left_days, mobile)
                     
         except Exception as e:
-            logging.exception("[CELERY] Check terminal poweroff timeout exception.")
+            logging.exception("[CELERY] Mileage notification failed. Exception: %s.",
+                              e.args)
 
 
 def check_poweroff():
