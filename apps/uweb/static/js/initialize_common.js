@@ -646,9 +646,8 @@ window.dlf.fn_getCarData = function(str_flag) {
 				
 				if ( n_lon != 0 && n_lat != 0 ) {
 					obj_carInfo.track_info = obj_trackInfo;
-					
+					n_pointNum ++;
 					if ( n_clon != 0 && n_clat != 0 ) {
-						n_pointNum ++;
 						//arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
 						arr_locations.push(dlf.fn_createMapPoint(n_enClon, n_enClat));
 						dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
@@ -1195,8 +1194,16 @@ window.dlf.fn_clearRealtimeTrack = function(str_tid) {
 	$('#trackWrapper').hide();
 	if ( str_tid ) { 
 		var obj_carTrackInterval = obj_actionTrack[str_tid].interval;
+		
 		// todo 清除开启追踪的轨迹
 		dlf.fn_clearInterval(obj_carTrackInterval);
+		for ( var i = 0; i < arr_infoPoint.length; i++ ) {
+			var str_tempKey = arr_infoPoint[i].key;
+			
+			if ( str_tempKey == str_tid ) {
+				arr_infoPoint[i].val = [];
+			}
+		}
 	} else { 
 		$('.j_carList a').each(function(e){
 			var obj_tempActionTrack = obj_actionTrack[str_tid];

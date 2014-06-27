@@ -24,9 +24,10 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 					obj_marker.setTop(false);
 				}
 			}
-			if ( mapObj.getZoom() < 15 ) {
+			//注释 hs:2014-6-25
+			/*if ( mapObj.getZoom() < 15 ) {
 				mapObj.setZoom(15);
-			}
+			}*/
 			obj_tempMarker.setTop(true);
 			if ( !str_flag ) {
 				setTimeout(function() {

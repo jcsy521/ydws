@@ -1855,7 +1855,6 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 					}
 				}
 				for ( var ia = 0; ia <arr_alarm.length; ia++ ) {	// 添加组下面的定位器
-					
 					arr_alarm[ia].owner_mobile = obj_car.owner_mobile;
 				}
 				fn_updateAlarmList(arr_alarm);
@@ -1873,7 +1872,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 			str_ownerMobile = obj_tempAutoData.owner_mobile,
 			str_tempLabel = str_mobile +' '+ str_ownerMobile +' '+ str_alias;
 		
-		arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
+		arr_autoCompleteData.push({label: str_tempLabel, value: autoParam});
 	}
 	dlf.fn_initAutoComplete();
 	
@@ -1985,11 +1984,8 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 			str_label = obj_terminal.label;	// alias 或 tmobile
 		// 当前终端的、alias不是tmobile
 		if ( str_tempTid == str_tid ) {
-			if ( str_cnum == '' || str_cnum ==  str_tmobile ) {
-				str_newLabel = str_tmobile;
-			} else {
-				str_newLabel = str_cnum + ' ' + str_tmobile;
-			}
+			str_newLabel = str_tmobile +' '+ $('.j_carList').data('carsData')[str_tempTid].owner_mobile +' '+ str_tempAlias;
+			
 			obj_terminal.label = str_newLabel;
 			dlf.fn_initAutoComplete();
 			// todo 修改marker上的定位器名称和label的定位器名称

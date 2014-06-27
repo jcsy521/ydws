@@ -1495,7 +1495,7 @@ function fn_initChart(arr_series, arr_categories, str_container, str_unit, str_w
 			arr_endTime = str_tempEndDate.split(' '), 
             arr_endYMD = arr_endTime[0].split('-');
 
-		str_x = '日期';
+		str_x = '时间';
 		str_title = arr_startYMD[0] + '-' + arr_startYMD[1] + '-' + arr_startYMD[2] + '到' + arr_endYMD[0] + '-' + arr_endYMD[1] + '-' + arr_endYMD[2] + '里程统计图';
 	} else {
 		if ( !$('#'+ str_who +'Month').is(':hidden') ) {
