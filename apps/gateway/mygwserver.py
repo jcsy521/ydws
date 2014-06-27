@@ -1550,6 +1550,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
             resend_flag = self.redis.getvalue(resend_key)
 
@@ -1584,7 +1585,7 @@ class MyGWServer(object):
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,
-                              dev_id=t_info["dev_id"])
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle sleep status report exception.")
