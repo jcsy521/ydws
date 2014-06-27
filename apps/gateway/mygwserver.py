@@ -1642,7 +1642,8 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
-            resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
+            dev_id = head.dev_id
+            resend_key = get_resend_key(dev_id, head.timestamp, head.command)
             resend_flag = self.redis.getvalue(resend_key)
             if len(body) == 3:
                 body.append('-1')
@@ -1721,7 +1722,7 @@ class MyGWServer(object):
             rc = RuntimeRespComposer(args)
             request = DotDict(packet=rc.buf,
                               address=address,
-                              dev_id=t_info["dev_id"])
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle runtime status report exception.")
