@@ -1316,6 +1316,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             if len(body) == 6:
                 body.append(20) 
                 logging.info("[GW] old version is compatible, append locate_error")
@@ -1343,7 +1344,7 @@ class MyGWServer(object):
             lc = LocationDescRespComposer(args)
             request = DotDict(packet=lc.buf,
                               address=address,
-                              dev_id=t_info["dev_id"])
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
             self.update_terminal_status(head.dev_id, address)
             #NOTE: Check ydcw or ajt 
@@ -1414,6 +1415,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            domain="",
                            freq="",
@@ -1454,7 +1456,7 @@ class MyGWServer(object):
             hc = ConfigRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,
-                              dev_id=head.dev_id)
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand query config exception.")
@@ -1469,6 +1471,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
             resend_flag = self.redis.getvalue(resend_key)
 
@@ -1507,7 +1510,7 @@ class MyGWServer(object):
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,
-                              dev_id=t_info["dev_id"])
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle defend status report exception.")
@@ -1522,6 +1525,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS)
             sessionID = self.get_terminal_sessionID(head.dev_id)
             if sessionID != head.sessionID:
@@ -1535,7 +1539,7 @@ class MyGWServer(object):
             fc = FobInfoRespComposer(args)
             request = DotDict(packet=fc.buf,
                               address=address,
-                              dev_id=t_info["dev_id"])
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle fob info report exception.")
@@ -1600,6 +1604,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
             resend_flag = self.redis.getvalue(resend_key)
 
@@ -1624,7 +1629,7 @@ class MyGWServer(object):
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,
-                              dev_id=t_info["dev_id"])
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle fob status report exception.")
@@ -1739,6 +1744,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             # before v2.2.0
             if len(body) == 0:
                 body.append("0")
@@ -1755,7 +1761,7 @@ class MyGWServer(object):
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,
-                              dev_id=t_info["dev_id"])
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle unbind status report exception.")
@@ -1772,6 +1778,7 @@ class MyGWServer(object):
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             resend_key = get_resend_key(head.dev_id, head.timestamp, head.command)
             resend_flag = self.redis.getvalue(resend_key)
 
@@ -1796,7 +1803,7 @@ class MyGWServer(object):
             uac = UnusualActivateComposer(args)
             request = DotDict(packet=uac.buf,
                               address=address,
-                              dev_id=t_info["dev_id"])
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand unusual activate report exception.")
