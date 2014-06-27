@@ -642,6 +642,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 				}
 			}
 		} else if ( str_iconType == 'alarmInfo' ) {
+			str_html += '<li class="top10">车主： <lable class="colorRed">'+ obj_location.owner_mobile +'</label></li>';
 			str_html += '<li class="top10">告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
 		}
 	}

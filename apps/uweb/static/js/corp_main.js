@@ -1,4 +1,5 @@
 /**
+/**
 * 集团用户操作方法
 * obj_carsData: 存储lastinfo中所有定位器的信息
 * str_currentTid: 上次lastinfo的选中定位器tid
@@ -1405,6 +1406,9 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								}
 								dlf.fn_checkTrackDatas(str_tid);	// 清除开启追踪后的轨迹线数据
 								// 显示告警提示列表
+								for ( var ia = 0; ia <arr_alarm.length; ia++ ) {	// 添加组下面的定位器
+									arr_alarm[ia].owner_mobile = obj_car.owner_mobile;
+								}
 								fn_updateAlarmList(arr_alarm);
 								b_isHasTerminal = true;
 							}
@@ -1501,8 +1505,8 @@ window.dlf.fn_corpLastinfoSwitch = function(b_isCloseTrackInfowindow) {
 */
 var b_stopMusic = false;	// 静音
 
-function playMiusic() {
-	var sound="../static/images/bg.mp3";
+function playMusic() {
+	var sound="/static/images/bg.mp3";
 	
 	if ( b_stopMusic ) {
 		/*if( navigator.appName == "Microsoft Internet Explorer" ) {
@@ -1536,7 +1540,7 @@ function playMiusic() {
 			obj_this.removeClass(str_playClass).addClass(str_stopClass).attr('title', '静音');
 			b_stopMusic = false;
 			$("#showMusic").html('');
-			//playMiusic();
+			//playMusic();
 		} else { // 播放音乐
 			obj_this.removeClass(str_stopClass).addClass(str_playClass).attr('title', '播放');
 			b_stopMusic = true;
@@ -1562,7 +1566,9 @@ function fn_updateAlarmList(arr_alarm) {
 		obj_markers = {},
 		obj_arrowCon = $('.j_alarmPanelCon'),
 		n_windowWidth = $('body').width(),
-		n_alarmIconLeft = n_windowWidth - 417;
+		n_alarmIconLeft = n_windowWidth - 417,
+		obj_cacheAlertOption = $('#hidumobile').data('alertoption'),
+		n_playMusicNum = 0;
 	
 	// obj_alarmCon.show();
 	
@@ -1576,15 +1582,18 @@ function fn_updateAlarmList(arr_alarm) {
 				str_date = dlf.fn_changeNumToDateString(obj_alarm.timestamp),
 				n_categroy = obj_alarm.category,
 				obj_li = $('.j_alarmTable li');
-				
-			str_html= '<li><label class="colorBlue" title="'+ str_oldAlias +'">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
 			
-			if ( obj_li.length > 0 ) {
-				obj_li.first().before(str_html);
-			} else {
-				obj_table.append(str_html);
-			}			
-			arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
+			if ( obj_cacheAlertOption[n_categroy] == 1 ) {	
+				str_html= '<li><label class="colorBlue" title="'+ str_oldAlias +'">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
+				
+				if ( obj_li.length > 0 ) {
+					obj_li.first().before(str_html);
+				} else {
+					obj_table.append(str_html);
+				}			
+				arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
+				n_playMusicNum++;
+			}
 		}
 		obj_table.data('markers', arr_markers);
 		
@@ -1596,7 +1605,9 @@ function fn_updateAlarmList(arr_alarm) {
 				delete arr_markers[arr_markers.length-1];
 			}
 		}
-		playMiusic();
+		if ( n_playMusicNum > 0 ) {
+			playMusic();
+		}
 		// obj_alarmCon.show();
 		$('.j_alarmPanel').show();
 		$('.j_alarmArrowClick').css('backgroundPosition', '-20px -29px');
@@ -1781,8 +1792,8 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 		if ( dlf.fn_isEmptyObj(obj_trackers) ) {
 			for ( var param in obj_trackers ) {
 				var obj_infoes = obj_trackers[param],
-					obj_car = obj_infoes.basic_info,	// 终端基本信息
 					arr_alarm = obj_infoes.alarm_info,	// 终端基本信息
+					obj_car = obj_infoes.basic_info,	// 终端基本信息
 					obj_trace = obj_infoes.trace_info,	// 甩尾点数据
 					obj_track = obj_infoes.track_info,	// 开启追踪点数据
 					str_tid = param,
@@ -1843,10 +1854,29 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 						}				
 					}
 				}
+				for ( var ia = 0; ia <arr_alarm.length; ia++ ) {	// 添加组下面的定位器
+					
+					arr_alarm[ia].owner_mobile = obj_car.owner_mobile;
+				}
+				fn_updateAlarmList(arr_alarm);
 			}
-			fn_updateAlarmList(arr_alarm);
 		}
 	}
+	
+	//更新autocomplete数据
+	arr_autoCompleteData = [];
+	
+	for ( var autoParam in obj_carsData ) {
+		var obj_tempAutoData = obj_carsData[autoParam],
+			str_mobile = obj_tempAutoData.mobile,
+			str_alias = obj_tempAutoData.alias,
+			str_ownerMobile = obj_tempAutoData.owner_mobile,
+			str_tempLabel = str_mobile +' '+ str_ownerMobile +' '+ str_alias;
+		
+		arr_autoCompleteData.push({label: str_tempLabel, value: str_tid});
+	}
+	dlf.fn_initAutoComplete();
+	
 	$('.j_carList').data('carsData', obj_carsData);	// 存储所有定位器信息
 	fn_updateAllTerminalLogin();
 	dlf.fn_setCorpIconDiffBrowser();

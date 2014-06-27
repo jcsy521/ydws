@@ -1749,7 +1749,8 @@
 				<span class="alarmTitle">
 					<span>告警列表</span>
 					<div id="showMusic"></div>
-					<a id="playMusic"></a>
+					<a id="playMusic" href="#"></a>
+					<a id="corpAlertOption" title="告警设置" href="#"></a>
 					<!--<a class="closeAlarm j_closeAlarm"></a>-->
 				</span>
 				<ul class="alarmTable j_alarmTable">
@@ -1842,5 +1843,40 @@
 			</table>
 		</div>	
 		<input type="submit" width="100" value="" id="notifyManageSureSave" class="j_notifyManageSaveBtn" />
-	</div>	
+	</div>
+	
+	<!--集团版告警设置-->
+	<div id="corpAlertOptionWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle corpAlertOptionTitle">
+			<span class="close j_close" who="corpAlertOption"></span>
+		</div>
+		<div id="corpAlertOptionContent" class="corpAlertOptionContent wrapperContent">
+			<form id="corp_alertOptionForm" action="#">
+				<fieldset class="corpFieldSet">
+					<legend>告警显示项：</legend>
+					<ul class="corp_smsList">
+						<li>
+							<input type="checkbox" id="corp_alert_powerlow" class="j_corpAlert_checkbox" title="低电" /><label for="corp_alert_powerlow">电量告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_alert_illegalmove" class="j_corpAlert_checkbox" title="移动" /><label for="corp_alert_illegalmove">移动告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_alert_illegalshake" class="j_corpAlert_checkbox" title="震动" /><label for="corp_alert_illegalshake">震动告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_alert_heartbeat_lost" class="j_corpAlert_checkbox" title="通讯异常" /><label for="corp_alert_heartbeat_lost">通讯异常提醒</label>
+						</li>
+						<li>
+							<input type="checkbox" id="corp_alert_region_enter" class="j_corpAlert_checkbox" title="进围栏告警" /><label for="corp_alert_region_enter">进围栏告警</label>
+						</li>
+						<li>
+							<input type="checkbox" id="corp_alert_region_out" class="j_corpAlert_checkbox" title="出围栏告警" /><label for="corp_alert_region_out">出围栏告警</label> 
+						</li>
+					</ul>
+				</fieldset>
+				<input type="button" value="" id="corp_alertOptionSave" class="corp_alertOptionButton j_save" />
+			</form>
+		</div>
+	</div>
 </div>

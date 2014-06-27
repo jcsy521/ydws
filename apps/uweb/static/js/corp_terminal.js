@@ -195,6 +195,8 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 					}
 				}
 			}
+			
+			$('#corp_terminalSave').data('cachesn', obj_data.sn);
 			/*if ( n_whitelistLenth <= 1 && n_whitelistTip == 0 ) {	// 白名单提示 没有设置白名单一直提示
 				dlf.fn_showNotice();
 			} else {
@@ -320,7 +322,7 @@ function fn_changeSMSCheckbox(obj_data) {
 	for(var param in obj_data) {	// 获取短信设置项的数据，进行更新
 		var n_val = obj_data[param],
 			obj_param = $('#corp_' + param);
-			
+		
 		obj_param.attr('t_checked', n_val);
 		if ( n_val == 1 ) {
 			obj_param.attr('checked', true)
@@ -410,7 +412,7 @@ window.dlf.fn_corpBaseSave = function() {
 		n_num = n_num +1;
 	}
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
-		obj_terminalData.tid = dlf.fn_getCurrentTid();
+		obj_terminalData.tid = $('#corp_terminalSave').data('cachesn');
 		dlf.fn_jsonPut(TERMINAL_URL, obj_terminalData, 'corpTerminal', '定位器参数保存中');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
@@ -484,72 +486,96 @@ window.dlf.fn_resizeWhitePop = function() {
 	}
 }
 
+/**
+* 集团用户告警设置初始化
+*/
+window.dlf.fn_initAlertOption = function() {
+	dlf.fn_dialogPosition('corpAlertOption');  // 显示短信设置dialog	
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	
+	
+	$('#corp_alertOptionSave').unbind('click').click(function(e) {
+		dlf.fn_alertOptionSave();
+	});
+	/**
+	* 初始化SMS通知
+	*/
+	dlf.fn_getAlertOptionForUrl('get');
+}
 
 /**
-* KJJ add in 2014.05.15
-* 里程保养
+* 请求所有的告警设置项
 */
-window.dlf.fn_initMileageNotification = function(str_tid) {
-	dlf.fn_dialogPosition('mileageNotification');  // 显示短信设置dialog	
-	dlf.fn_lockScreen(); // 添加页面遮罩
-	$.get_(MILEAGENOTIFICATION_URL + '?tid=' + str_tid, '', function(data) {
+window.dlf.fn_getAlertOptionForUrl = function(str_getType) {
+	$.get_(CORP_ALERT_URL+'?umobile='+$('#hidumobile').val(), '', function(data) {
 		if ( data.status == 0 ) {
-			var obj_res = data.res,
-				str_ownerMobile = obj_res.owner_mobile,	// 车主号码
-				str_assist_mobile = obj_res.assist_mobile,	// 第二通知号码
-				n_tempDistance = obj_res.distance_notification,
-				n_distance_notification = Math.round(n_tempDistance/1000), // 下次保养里程
-				n_distance_current = Math.round(obj_res.distance_current/1000),	// 当前行车里程
-				n_distance_left = n_distance_notification-n_distance_current, // Math.round(obj_res.distance_left/1000), // 距离下次保养里程
-				n_distance_left = n_distance_left > 0 ? n_distance_left : 0;
+			var obj_data = data.res;
 			
-			$('#spanOwnerMobile').html(str_ownerMobile);
-			$('#txtAssistMobile').val(str_assist_mobile).data('t_val', str_assist_mobile);
-			$('#txtDistanceNotification').val(n_distance_notification).data('t_val', n_tempDistance);
-			
-			$('#lblDistanceCurrent').html(n_distance_current);
-			$('#lblDistanceLeft').html(n_distance_left);
-			
+			if ( str_getType == 'init' ) {
+				var obj_cacheData = {	'2': obj_data.powerlow, 
+										'3': obj_data.illegalshake, 
+										'4': obj_data.illegalmove, 
+										'5': obj_data.sos, 
+										'6': obj_data.heartbeat_lost, 
+										'7': obj_data.region_enter, 
+										'8': obj_data.region_out 
+									};
+				$('#hidumobile').data('alertoption', obj_cacheData);
+			} else {
+				for(var param in obj_data) {	// 获取短信设置项的数据，进行更新
+					var n_val = obj_data[param],
+						obj_param = $('#corp_alert_' + param);
+					
+					obj_param.attr('t_checked', n_val);
+					if ( n_val == 1 ) {
+						obj_param.attr('checked', true)
+					} else {
+						obj_param.attr('checked', false)
+					}
+				}
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+			}
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
-		} else {
+		} else { 
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
 		}
-		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩	
+	}, 
+	function (XMLHttpRequest, textStatus, errorThrown) {
+		dlf.fn_serverError(XMLHttpRequest);
 	});
 }
 
-window.dlf.fn_mileageNotificationSave = function() {
-	var obj_param = {},
-		n_num = 0,
-		str_oldAssistMobile = $('#txtAssistMobile').data('t_val');
-		str_newAssistMobile = $('#txtAssistMobile').val(),
-		n_currentDistance = parseInt($('#lblDistanceCurrent').html()) * 1000,
-		n_oldDistance = $('#txtDistanceNotification').data('t_val'),
-		n_newDistance = $('#txtDistanceNotification').val()*1000;
-		
-	if ( str_oldAssistMobile != str_newAssistMobile ) {
-		n_num ++;
-		obj_param.assist_mobile = str_newAssistMobile;
-	}
-	if ( n_newDistance <= n_currentDistance ) {
-		dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
-		return;
-	} else {
-		if ( n_newDistance != n_oldDistance ) {
-			n_num ++;
-			obj_param.distance_notification = n_newDistance;
-		}		
-	}
+/**
+* 告警置保存
+*/
+window.dlf.fn_alertOptionSave = function() {
+	//判断短信通知是否要提交	
+	var obj_checkbox = $('.j_corpAlert_checkbox'),
+		obj_alertData = {},
+		n_smsNum = 0
+	
+	$.each(obj_checkbox, function(index, dom) {
+		var obj_this = $(dom),
+			str_nowVal = obj_this.attr('checked') == 'checked' ? 1 : 0,
+			str_oldVal = parseInt(obj_this.attr('t_checked')),
+			str_id = obj_this.attr('id').substr(11);
+			
+		if ( str_nowVal != str_oldVal ) {
+			obj_alertData[str_id] = str_nowVal;
+		}
+	});
 	/**
 	* 只保存有修改的数据
 	*/
-	for(var param in obj_param) {	// 修改项的数目
-		n_num = n_num + 1;
+	for(var param in obj_alertData) {	// 修改项的数目
+		n_smsNum = n_smsNum + 1;
 	}
-	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
-		obj_param.tid = dlf.fn_getCurrentTid();
-		dlf.fn_jsonPut(MILEAGENOTIFICATION_URL, obj_param, 'mileageNotification', '保养里程保存中');
+	
+	if ( n_smsNum != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
+		obj_alertData.umobile = $('#hidumobile').val();
+		dlf.fn_jsonPut(CORP_ALERT_URL, obj_alertData, 'corpAlertOption', '告警告警设置保存中');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
@@ -637,23 +663,4 @@ $(function() {
 			dlf.fn_smsOptionSave();	// put请求
 		}
 	});
-	
-	/** 
-	* 短息设置的验证
-	*/
-	$.formValidator.initConfig({
-		formID: 'mileageNotificationForm', //指定from的ID 编号
-		debug: true, // 指定调试模式,不提交form
-		validatorGroup: '14', // 指定本form组编码,默认为1, 多个验证组时使用
-		wideWord: false, // 一个汉字当一个字节
-		submitButtonID: 'corp_mileageNotificationSave', // 指定本form的submit按钮
-		onError: function(msg) {
-			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
-		}, 
-		onSuccess: function() {
-			dlf.fn_mileageNotificationSave();	// put请求
-		}
-	});
-	$('#txtAssistMobile').formValidator({validatorGroup: '14', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
-	// $('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
 })

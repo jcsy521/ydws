@@ -65,6 +65,7 @@ from handlers.password import PasswordHandler, PasswordCorpHandler, PasswordOper
 from handlers.getcaptcha import GetCaptchaHandler, GetCaptchaCorpHandler
 from handlers.profile import ProfileHandler, ProfileCorpHandler, ProfileOperHandler
 from handlers.smsoption import SMSOptionHandler, SMSOptionCorpHandler
+from handlers.alarmoption import AlarmOptionHandler
 from handlers.appsettings import AppSettingsHandler
 from handlers.unbind import UNBindHandler
 from handlers.share import ShareHandler
@@ -172,6 +173,7 @@ class Application(tornado.web.Application):
             (r"/profile/oper/*", ProfileOperHandler),
             (r"/smsoption/corp/*", SMSOptionCorpHandler),
             (r"/smsoption/*", SMSOptionHandler),
+            (r"/alarmoption/*", AlarmOptionHandler),
             (r"/appsettings/*", AppSettingsHandler),
             (r"/unbind/*", UNBindHandler),
             (r"/share/*", ShareHandler),

@@ -287,9 +287,11 @@ table, tr, td {
     position: relative;
     top: 14px;
     width: 60px;
+	text-decoration: none;
 }
 .btnPanel a:hover, .btnPanel a:visited {
 	color: #5188ac;
+	text-decoration: underline;
 }
 .ml10 {
 	margin-left: 10px;
@@ -303,10 +305,14 @@ table, tr, td {
 	line-height: 30px;
 	color: #17557c;
 }
-.blinks a{
+.blinks a {
 	outline: none;
 	display: inline-block;
 	color: #17557c;
+	text-decoration: none;
+}
+.blinks a:hover {
+	text-decoration: underline;
 }
 .login_linkLine {
 	margin: 0 5px;

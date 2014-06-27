@@ -2024,6 +2024,15 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 					$('#corp_' + param ).attr('t_val', str_val);
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+				} else if ( str_who == 'corpAlertOption' ) {
+					for ( var param in obj_data ) {
+						var str_val = obj_data[param];
+						
+						$('#corp_alert_' + param).attr('t_checked', str_val);
+						dlf.fn_getAlertOptionForUrl('init');
+					}
+					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 				} else if ( str_who == 'whitelistPop' ) {	// 白名单提示框
 					$('#whitelistPopWrapper').hide();
 				} else if ( str_who == 'sms' ) {	// 短信设置修改
@@ -2499,6 +2508,77 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
 		}
 	}, 100);
+}
+
+/**
+* KJJ add in 2014.05.15
+* 里程保养
+*/
+window.dlf.fn_initMileageNotification = function(str_tid) {
+	dlf.fn_dialogPosition('mileageNotification');  // 显示短信设置dialog	
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	$.get_(MILEAGENOTIFICATION_URL + '?tid=' + str_tid, '', function(data) {
+		if ( data.status == 0 ) {
+			var obj_res = data.res,
+				str_ownerMobile = obj_res.owner_mobile,	// 车主号码
+				str_assist_mobile = obj_res.assist_mobile,	// 第二通知号码
+				n_tempDistance = obj_res.distance_notification,
+				n_distance_notification = Math.round(n_tempDistance/1000), // 下次保养里程
+				n_distance_current = Math.round(obj_res.distance_current/1000),	// 当前行车里程
+				n_distance_left = n_distance_notification-n_distance_current, // Math.round(obj_res.distance_left/1000), // 距离下次保养里程
+				n_distance_left = n_distance_left > 0 ? n_distance_left : 0;
+			
+			$('#spanOwnerMobile').html(str_ownerMobile);
+			$('#txtAssistMobile').val(str_assist_mobile).data('t_val', str_assist_mobile);
+			$('#txtDistanceNotification').val(n_distance_notification).data('t_val', n_tempDistance);
+			
+			$('#lblDistanceCurrent').html(n_distance_current);
+			$('#lblDistanceLeft').html(n_distance_left);
+			
+		} else if ( data.status == 201 ) {	// 业务变更
+			dlf.fn_showBusinessTip();
+		} else {
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000); // 查询状态不正确,错误提示
+		}
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	});
+}
+
+window.dlf.fn_mileageNotificationSave = function() {
+	var obj_param = {},
+		n_num = 0,
+		str_oldAssistMobile = $('#txtAssistMobile').data('t_val');
+		str_newAssistMobile = $('#txtAssistMobile').val(),
+		n_currentDistance = parseInt($('#lblDistanceCurrent').html()) * 1000,
+		n_oldDistance = $('#txtDistanceNotification').data('t_val'),
+		n_newDistance = $('#txtDistanceNotification').val()*1000;
+		
+	if ( str_oldAssistMobile != str_newAssistMobile ) {
+		n_num ++;
+		obj_param.assist_mobile = str_newAssistMobile;
+	}
+	if ( n_newDistance <= n_currentDistance ) {
+		dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
+		return;
+	} else {
+		if ( n_newDistance != n_oldDistance ) {
+			n_num ++;
+			obj_param.distance_notification = n_newDistance;
+		}		
+	}
+	/**
+	* 只保存有修改的数据
+	*/
+	for(var param in obj_param) {	// 修改项的数目
+		n_num = n_num + 1;
+	}
+	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
+		obj_param.tid = dlf.fn_getCurrentTid();
+		dlf.fn_jsonPut(MILEAGENOTIFICATION_URL, obj_param, 'mileageNotification', '保养里程保存中');
+	} else {
+		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_unLockContent(); // 清除内容区域的遮罩
+	}
 }
 
 })();

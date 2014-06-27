@@ -731,8 +731,17 @@ $(function () {
 				dlf.fn_secondNavValid();
 				dlf.fn_exit();
 				break;
+			case 'mileageNotificationSet':  //个人版里程保养
+				dlf.fn_initMileageNotification(dlf.fn_getCurrentTid());
+				break;
 		}
 	});
+	
+	//集团告警列表的设置按钮 
+	$('#corpAlertOption').unbind('click').click(function(e) {
+		dlf.fn_initAlertOption();
+	});
+	
 	/*鼠标滑动显示统计二级菜单*/
 	$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
 		dlf.fn_fillNavItem(event.target.id);
@@ -1092,6 +1101,28 @@ $(function () {
 			dlf.fn_notifyManageMsg();
 		}
 	});
+	
+	
+	
+	/** 
+	* 里程提醒的验证
+	*/
+	$.formValidator.initConfig({
+		formID: 'mileageNotificationForm', //指定from的ID 编号
+		debug: true, // 指定调试模式,不提交form
+		validatorGroup: '14', // 指定本form组编码,默认为1, 多个验证组时使用
+		wideWord: false, // 一个汉字当一个字节
+		submitButtonID: 'corp_mileageNotificationSave', // 指定本form的submit按钮
+		onError: function(msg) {
+			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+		}, 
+		onSuccess: function() {
+			dlf.fn_mileageNotificationSave();	// put请求
+		}
+	});
+	$('#txtAssistMobile').formValidator({validatorGroup: '14', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
+	// $('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
+	
 	/**
 	* 加载完成后，第一次发送switchcar请求
 	*/
@@ -1258,6 +1289,9 @@ $(function () {
 			$('#leftPanelShowIcon').css('left', '247px').removeClass('leftPanelShowIcon_hover');
 		}
 	);
+	
+	//查询所有告警并存储
+	dlf.fn_getAlertOptionForUrl('init');
 });
 
 function fn_modiyListPanelPosition() {

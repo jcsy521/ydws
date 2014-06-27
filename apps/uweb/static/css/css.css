@@ -673,7 +673,7 @@ body {
 	height: 504px;
 	width: 487px;
 }
-#corpSMSOptionWrapper {
+#corpSMSOptionWrapper, #corpAlertOptionWrapper {
 	height: 329px;
 	width: 487px;
 }
@@ -779,9 +779,13 @@ body {
 .corpTerminalTitle .close {
 	left: 457px;
 }
-.corpSMSOptionTitle .close, .smsOptionTitle .close {
+.corpSMSOptionTitle .close, .smsOptionTitle .close, .corpAlertOptionTitle .close {
 	left: 457px;
 	_left: 455px;
+}
+.corpAlertOptionTitle {
+	background-position: 0 -1054px;
+	width: 487px;
 }
 .operatorTitle, .passengerTitle, .infoPushTitle {
 	background-position: 0px -476px;
@@ -1320,7 +1324,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave, .saveButton {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave, .saveButton, #corp_alertOptionSave {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
@@ -1734,22 +1738,6 @@ body {
 .tPlay:hover {
 	background: url('/static/images/bf2.png') no-repeat;
 }
-#playMusic {
-	display: inline-block;
-	height: 25px;
-	position: relative;
-	float: right;
-	top: -20px;
-	right: 24px;
-	width: 24px;
-	height: 24px;
-}
-.playMusic {
-	background: url('/static/images/music.png') no-repeat 0px 0px;
-}
-.stopMusic {
-	background: url('/static/images/music.png') no-repeat 0px -24px;
-}
 .tPause {
 	background: url('/static/images/zt1.png') no-repeat;
 }
@@ -1770,7 +1758,26 @@ body {
 }
 /*track css end*/
 
-
+#playMusic, #corpAlertOption {
+	display: inline-block;
+	height: 25px;
+	position: relative;
+	float: right;
+	top: -20px;
+	right: 24px;
+	width: 22px;
+	height: 22px;
+}
+.playMusic {
+	background: url('/static/images/music.png') no-repeat 0px 0px;
+}
+.stopMusic {
+	background: url('/static/images/music.png') no-repeat 0px -24px;
+}
+#corpAlertOption {
+	background: url('/static/images/alertlist_setting.png') no-repeat 0px 0px;
+	margin-right: 10px;
+}
 /*event css start*/
 .eventbody {
 	background-color: #fff;
@@ -2362,6 +2369,8 @@ body {
 .smsList label, .corp_smsList label, .weekList label {
 	padding-left: 10px;
 	display: inline-block;
+	position: relative;
+	top: -3px;
 }
 /*checkbox css end*/
 
@@ -2870,7 +2879,9 @@ fieldset {
     width: 425px;
 }
 .corpFieldSet {
-	height: 213px
+	height: 213px;
+	position: relative;
+	top: 14px;
 }
 legend {
 	border: 0px;
@@ -2903,7 +2914,7 @@ legend {
 .smsMobileDiv {
 	padding: 20px 0px 10px 10px;
 }
-.corpSMSOptionContent {
+.corpSMSOptionContent, .corpAlertOptionContent {
 	width: 487px;
 	height: 295px;
 }
@@ -2912,9 +2923,9 @@ legend {
     position: absolute;
     top: 559px;
 }
-.corp_smsOptionButton {
+.corp_smsOptionButton, .corp_alertOptionButton  {
     position: absolute;
-	top: 266px;
+	top: 284px;
     left: 340px;
 }
 /*corp terminal css end*/
@@ -3483,6 +3494,10 @@ legend {
     top: 14px;
 	text-decoration: none;
 }
+.regionCreateBtn:hover {
+	color: #222;
+	text-decoration: underline;
+}
 .alertSettingCreateBtn {
 	left: 554px;
 }
@@ -3899,4 +3914,16 @@ legend {
 }
 #dialogsWrapper .leftPanelShowIcon_hover {
 	background-position: -49px 14px;	
+}
+#corpAlertOptionWrapper {
+	height: 284px;
+}
+#corpAlertOptionContent {
+	height: 250px;
+}
+#corp_alertOptionForm .corpFieldSet {
+	height: 160px;
+}
+#corp_alertOptionSave {
+	top: 236px;
 }
