@@ -16,6 +16,7 @@ import json
 from functools import partial
 from Queue import Queue, Empty
 import thread
+import multiprocessing
 
 from tornado.escape import json_decode
 from tornado.ioloop import IOLoop
@@ -84,8 +85,11 @@ class MyGWServer(object):
 
     def __init__(self, conf_file):
         ConfHelper.load(conf_file)
+
         for i in ('port', 'count', 'check_heartbeat_interval'):
             ConfHelper.GW_SERVER_CONF[i] = int(ConfHelper.GW_SERVER_CONF[i])
+
+        #NOTE: define some variable 
         self.check_heartbeat_thread = None
         self.redis = None 
         self.db = None
@@ -104,22 +108,23 @@ class MyGWServer(object):
                           ConfHelper.SI_SERVER_CONF.host + ':' +\
                           str(ConfHelper.SI_SERVER_CONF.port)
 
+        #NOTE: initialize socket 
         self.socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((ConfHelper.GW_SERVER_CONF.host, ConfHelper.GW_SERVER_CONF.port))
 
     def __connect_rabbitmq(self, host):
         """
-        connect rabbitmq
+        Connect rabbitmq
         """
         connection = None
         channel = None
         try:
             parameters = pika.ConnectionParameters(host=host)
             connection = BlockingConnection(parameters)
-            # default 10, maybe make it bigger.
+            #NOTE: default 50, maybe make it bigger.
             connection.set_backpressure_multiplier(50)
-            # Write buffer exceeded warning threshold
+            #NOTE: Write buffer exceeded warning threshold
             #reconnect_rabbitmq = partial(self.__reconnect_rabbitmq, *(connection, host))
             #connection.add_backpressure_callback(reconnect_rabbitmq)
             channel = connection.channel()
@@ -137,8 +142,8 @@ class MyGWServer(object):
                          self.gw_queue, self.gw_binding)
             logging.info("[GW] Create SI request queue: %s, binding: %s",
                          self.si_queue, self.si_binding)
-        except:
-            logging.exception("[GW] Connect Rabbitmq-server Error!")
+        except Exception as e:
+            logging.exception("[GW] Connect Rabbitmq-server failed. Exception：%s", e.args)
             raise GWException
 
         return connection, channel
@@ -175,11 +180,14 @@ class MyGWServer(object):
         return connection, channel
 
     def consume(self, host):
-        """
+        """Consume connection.
+
+        workflow:
         1. get packet from rabbitmq_queue
         2. send packet to terminal
         """
-        logging.info("[GW] consume process: %s started...", os.getpid())
+        logging.info("[GW] Consume process, name: %s, pid: %s started...", 
+                     multiprocessing.current_process().name, os.getpid())
         try:
             consume_connection, consume_channel = self.__connect_rabbitmq(host)
             while True:
@@ -203,10 +211,12 @@ class MyGWServer(object):
             self.__close_rabbitmq(consume_connection, consume_channel)
 
     def send(self, body):
+        """Send packet to terminal.
+        """
         try:
             message = json.loads(body)
             message = DotDict(message)
-            logging.info("[GW] Send: %s to %s", message.packet, message.address)
+            logging.info("[GW] Send packet: %s to dev_id: %s, address: %s", message.packet, message.dev_id, message.address)
             self.socket.sendto(message.packet, tuple(message.address))
         except socket.error as e:
             logging.exception("[GW] Sock send error: %s", e.args)
@@ -214,16 +224,18 @@ class MyGWServer(object):
             logging.exception("[GW] Unknown send Exception:%s", e.args)
 
     def publish(self, host):
-        """
+        """Publish connection. 
+
         1. get packet from terminal
         2. put this packet into queue
         3. handle packets of queue by multi threads
         """
 
-        logging.info("[GW] publish process: %s started...", os.getpid())
+        logging.info("[GW] Publish process, name: %s, pid: %s started...", 
+                     multiprocessing.current_process().name, os.getpid())
         try:
             queue = Queue()
-            # multi threads handle packets
+            #NOTE: multi threads handle packets
             publish_connection, publish_channel = self.__connect_rabbitmq(host)
             for i in range(int(ConfHelper.GW_SERVER_CONF.workers)):
                 db = DBConnection().db
@@ -231,18 +243,20 @@ class MyGWServer(object):
                 logging.info("[GW] publish thread%s started...", i)
                 thread.start_new_thread(self.handle_packet_from_terminal,
                                         (queue, host, publish_connection, publish_channel, i, db))
-            # recv packet and put it into queue
+            #NOTE: recv packet and put it into queue
             while True:
                 self.recv(queue)
         except KeyboardInterrupt:
             logging.warn("[GW] Ctrl-C is pressed")
-        except GWException:
-            logging.exception("[GW] Unknow Exception...")
+        except GWException as e:
+            logging.exception("[GW] Unknow Exception: %s", e.args)
         finally:
             logging.info("[GW] Rabbitmq publish connection close...")
             self.__close_rabbitmq(publish_connection, publish_channel)
 
     def recv(self, queue):
+        """Recv packet from terminal.
+        """
         try:
             response, address = self.socket.recvfrom(1024)
             logging.info("[GW] Recv: %s from %s", response, address)
@@ -262,10 +276,10 @@ class MyGWServer(object):
             logging.exception("[GW] Unknow recv Exception:%s", e.args)
 
     def divide_packets(self, packets):
-        """
+        """Divide multi-packets into a list, that contains valid packet.
+
         @param: multi-packets
         @return: valid_packets
-        divide multi-packets into a list, that contains valid packet.
         """
         valid_packets = []
 
@@ -290,8 +304,8 @@ class MyGWServer(object):
         return valid_packets
         
     def handle_packet_from_terminal(self, queue, host, connection, channel, name, db):
-        """
-        handle packet recv from terminal:
+        """Handle packet recv from terminal:
+
         - login
         - heartbeat
         - locationdesc
@@ -356,7 +370,7 @@ class MyGWServer(object):
                                 elif command == T_MESSAGE_TYPE.MISC:
                                     logging.info("[GW] Thread%s recv misc packet:\n%s", name, packet)
                                     self.handle_misc(clw, address, connection, channel, db)
-                                else:
+                                else: #NOTE: others
                                     logging.info("[GW] Thread%s recv packet from terminal:\n%s", name, packet)
                                     self.foward_packet_to_si(clw, packet, address, connection, channel, db)
                         else:
@@ -373,6 +387,7 @@ class MyGWServer(object):
         """
         S1
         Handle the login packet.
+
         workflow:
         1: check packet
         if not dev_id:
@@ -400,7 +415,8 @@ class MyGWServer(object):
                 args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_DEVID
                 lc = LoginRespComposer(args)
                 request = DotDict(packet=lc.buf,
-                                  address=address)
+                                  address=address,
+                                  dev_id=t_info['dev_id'])
                 self.append_gw_request(request, connection, channel)
                 logging.error("[GW] Login failed! Invalid terminal dev_id: %s", t_info['dev_id'])
                 return
@@ -412,7 +428,8 @@ class MyGWServer(object):
                     args.success = GATEWAY.LOGIN_STATUS.NOT_WHITELIST 
                     lc = LoginRespComposer(args)
                     request = DotDict(packet=lc.buf,
-                                      address=address)
+                                      address=address,
+                                      dev_id=t_info['dev_id'])
                     self.append_gw_request(request, connection, channel)
                     sms = SMSCode.SMS_MOBILE_NOT_WHITELIST % t_info['t_msisdn']
                     SMSHelper.send(t_info['u_msisdn'], sms)
@@ -610,7 +627,8 @@ class MyGWServer(object):
                 args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
                 lc = LoginRespComposer(args)
                 request = DotDict(packet=lc.buf,
-                                  address=address)
+                                  address=address,
+                                  dev_id=t_info['dev_id'])
                 self.append_gw_request(request, connection, channel)
                 if t_info['u_msisdn']:
                     # send JH failed caution to owner
@@ -823,7 +841,8 @@ class MyGWServer(object):
 
         lc = LoginRespComposer(args)
         request = DotDict(packet=lc.buf,
-                          address=address)
+                          address=address,
+                          dev_id=t_info["dev_id"])
         self.append_gw_request(request, connection, channel)
 
         if sms and t_info['u_msisdn']:
@@ -837,12 +856,14 @@ class MyGWServer(object):
                             tid=t_info["dev_id"])
             ubc = UNBindComposer(args_)
             request = DotDict(packet=ubc.buf,
-                              address=address)
+                              address=address,
+                              tid=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
             logging.warn("[GW] Terminal is unbinded, tid: %s, send unbind packet.", t_info["dev_id"])            
 
     def subscription_lbmp(self, t_info):
-        # subscription LE for new sim
+        """ Subscription LE for new sim
+        """
         data = DotDict(sim=t_info['t_msisdn'],
                        action="A")
         response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data) 
@@ -857,7 +878,8 @@ class MyGWServer(object):
     def handle_old_login(self, t_info, address, connection, channel, db):
         """
         S1
-        login response packet:
+        Login response packet:
+
         0 - success, then get a sessionID for terminal and record terminal's address
         1 - illegal format of sim
         2 - expired, service stop or endtime < now
@@ -878,7 +900,8 @@ class MyGWServer(object):
             args.success = GATEWAY.LOGIN_STATUS.ILLEGAL_SIM
             lc = LoginRespComposer(args)
             request = DotDict(packet=lc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
             logging.error("[GW] Login failed! Invalid terminal mobile: %s or owner_mobile: %s, dev_id: %s",
                           t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])
@@ -892,7 +915,8 @@ class MyGWServer(object):
             args.success = GATEWAY.LOGIN_STATUS.EXPIRED
             lc = LoginRespComposer(args)
             request = DotDict(packet=lc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
             logging.error("[GW] Login failed! terminal service expired! mobile: %s, dev_id: %s",
                           t_info['t_msisdn'], t_info['dev_id'])
@@ -915,7 +939,8 @@ class MyGWServer(object):
             SMSHelper.send(t_info['u_msisdn'], sms)
             lc = LoginRespComposer(args)
             request = DotDict(packet=lc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
             logging.error("[GW] Login failed! Illegal SIM: %s for Terminal: %s",
                           t_info['t_msisdn'], t_info['dev_id'])
@@ -958,7 +983,8 @@ class MyGWServer(object):
                     SMSHelper.send(t_info['u_msisdn'], sms)
                     lc = LoginRespComposer(args)
                     request = DotDict(packet=lc.buf,
-                                      address=address)
+                                      address=address,
+                                      dev_id=t_info["dev_id"])
                     self.append_gw_request(request, connection, channel)
                     logging.error("[GW] Login failed! Terminal: %s already bound by %s, new mobile: %s",
                                   t_info['dev_id'], terminal.mobile, t_info['t_msisdn'])
@@ -980,7 +1006,8 @@ class MyGWServer(object):
                 SMSHelper.send(t_info['u_msisdn'], sms)
                 lc = LoginRespComposer(args)
                 request = DotDict(packet=lc.buf,
-                                  address=address)
+                                  address=address,
+                                  dev_id=t_info["dev_id"])
                 self.append_gw_request(request, connection, channel)
                 logging.error("[GW] Login failed! Terminal %s execute HK, but tid is not exist",
                               t_info['dev_id'])
@@ -1216,7 +1243,8 @@ class MyGWServer(object):
 
         lc = LoginRespComposer(args)
         request = DotDict(packet=lc.buf,
-                          address=address)
+                          address=address,
+                          dev_id=t_info["dev_id"])
         self.append_gw_request(request, connection, channel)
                 
         if sms and t_info['u_msisdn']:
@@ -1230,21 +1258,24 @@ class MyGWServer(object):
                            tid=t_info["dev_id"])
             ubc = UNBindComposer(args)
             request = DotDict(packet=ubc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
 
     def handle_heartbeat(self, info, address, connection, channel, db):
         """
         S2
         heartbeat packet
+
         0: success, then record new terminal's address
         1: invalid SessionID 
         """
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS)
-            sessionID = self.get_terminal_sessionID(head.dev_id)
+            sessionID = self.get_terminal_sessionID(dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
             else:
@@ -1266,16 +1297,19 @@ class MyGWServer(object):
 
             hc = HeartbeatRespComposer(args)
             request = DotDict(packet=hc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
-        except:
-            logging.error("[GW] Hand heartbeat exception.")
+        except Exception as e:
+            logging.exception("[GW] Hand heartbeat failed. Exception: %s.", 
+                              e.args)
             raise GWException
 
     def handle_locationdesc(self, info, address, connection, channel, db):
         """
         S10
         locationdesc packet
+
         0: success, then return locationdesc to terminal and record new terminal's address
         1: invalid SessionID 
         """
@@ -1308,7 +1342,8 @@ class MyGWServer(object):
 
             lc = LocationDescRespComposer(args)
             request = DotDict(packet=lc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
             self.update_terminal_status(head.dev_id, address)
             #NOTE: Check ydcw or ajt 
@@ -1371,7 +1406,8 @@ class MyGWServer(object):
     def handle_config(self, info, address, connection, channel, db):
         """
         S17
-        config packet
+        Config packet
+
         0: success, then record new terminal's address
         1: invalid SessionID 
         """
@@ -1417,7 +1453,8 @@ class MyGWServer(object):
 
             hc = ConfigRespComposer(args)
             request = DotDict(packet=hc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=head.dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand query config exception.")
@@ -1469,7 +1506,8 @@ class MyGWServer(object):
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle defend status report exception.")
@@ -1496,7 +1534,8 @@ class MyGWServer(object):
 
             fc = FobInfoRespComposer(args)
             request = DotDict(packet=fc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle fob info report exception.")
@@ -1544,7 +1583,8 @@ class MyGWServer(object):
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle sleep status report exception.")
@@ -1582,7 +1622,8 @@ class MyGWServer(object):
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle fob status report exception.")
@@ -1594,6 +1635,7 @@ class MyGWServer(object):
         runtime status packet: {login [0:unlogin | 1:login],
                                 defend_status [0:undefend | 1:defend],
                                 gps:gsm:pbat [0-100:0-9:0-100]} 
+
         0: success, then record new terminal's address
         1: invalid SessionID
         """
@@ -1678,7 +1720,8 @@ class MyGWServer(object):
                 self.update_terminal_status(head.dev_id, address)
             rc = RuntimeRespComposer(args)
             request = DotDict(packet=rc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle runtime status report exception.")
@@ -1686,7 +1729,8 @@ class MyGWServer(object):
 
     def handle_unbind_status(self, info, address, connection, channel, db):
         """
-        unbind status report packet
+        Unbind status report packet
+
         0: success, then record new terminal's address
         1: invalid SessionID 
         """
@@ -1708,7 +1752,8 @@ class MyGWServer(object):
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle unbind status report exception.")
@@ -1717,7 +1762,8 @@ class MyGWServer(object):
 
     def handle_unusual_activate(self, info, address, connection, channel, db):
         """
-        unusual activate report packet: owner_mobile changed.
+        Unusual activate report packet: owner_mobile changed.
+
         0: success, then record new terminal's address
         1: invalid SessionID 
         """
@@ -1747,7 +1793,8 @@ class MyGWServer(object):
 
             uac = UnusualActivateComposer(args)
             request = DotDict(packet=uac.buf,
-                              address=address)
+                              address=address,
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Hand unusual activate report exception.")
@@ -1756,16 +1803,18 @@ class MyGWServer(object):
     def handle_misc(self, info, address, connection, channel, db):
         """
         misc: debugging for terminal.
+
         0: success, then record new terminal's address
         1: invalid SessionID 
         """
         try:
             head = info.head
             body = info.body
+            dev_id = head.dev_id
 
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
                            command=head.command)
-            sessionID = self.get_terminal_sessionID(head.dev_id)
+            sessionID = self.get_terminal_sessionID(dev_id)
             if sessionID != head.sessionID: 
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
             else:
@@ -1777,7 +1826,8 @@ class MyGWServer(object):
                            t_info['misc'], head.dev_id)
             uac = MiscComposer(args)
             request = DotDict(packet=uac.buf,
-                              address=address)
+                              address=address,
+                              dev_id=dev_id)
             self.append_gw_request(request, connection, channel)
         except:
             logging.exception("[GW] Handle misc report exception.")
@@ -1786,7 +1836,8 @@ class MyGWServer(object):
 
     def foward_packet_to_si(self, info, packet, address, connection, channel, db):
         """
-        response packet or position/report/charge packet
+        Response packet or position/report/charge packet
+
         0: success, then forward it to SIServer and record new terminal's address
         1: invalid SessionID 
         """
@@ -1823,7 +1874,8 @@ class MyGWServer(object):
                 logging.info("[GW] Head command: %s.", head.command)
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
-                                  address=address)
+                                  address=address,
+                                  dev_id=dev_id)
                 self.append_gw_request(request, connection, channel)
                 # resend flag
                 if not resend_flag:
@@ -1841,6 +1893,8 @@ class MyGWServer(object):
             raise GWException
 
     def append_gw_request(self, request, connection, channel):
+        """Append request to GW.
+        """
         message = json.dumps(request)
         # make message not persistent
         properties = pika.BasicProperties(delivery_mode=1,)
@@ -1850,6 +1904,8 @@ class MyGWServer(object):
                               properties=properties)
 
     def append_si_request(self, request, connection, channel):
+        """Append request to SI.
+        """
         request = dict({"packet":request})
         message = json.dumps(request)
         # make message not persistent
@@ -1885,6 +1941,8 @@ class MyGWServer(object):
             self.redis.setvalue(terminal_status_key, address, (1 * SLEEP_HEARTBEAT_INTERVAL + 300))
 
     def update_fob_info(self, fobinfo, db):
+        """Update fob's information.
+        """
         terminal_info_key = get_terminal_info_key(fobinfo['dev_id'])
         terminal_info = QueryHelper.get_terminal_info(fobinfo['dev_id'],
                                                       db, self.redis)
@@ -1965,6 +2023,8 @@ class MyGWServer(object):
 
     def get_terminal_status(self, dev_id):
         """Get address through dev_id. 
+
+        workflow:
         if address is not null:
             terminal is on line  
         else:
@@ -1974,6 +2034,8 @@ class MyGWServer(object):
         return self.redis.getvalue(terminal_status_key)
 
     def request_location(self, dev_id, db):
+        """Request location.
+        """
         location = DotDict({'dev_id':dev_id,
                             'valid':GATEWAY.LOCATION_STATUS.FAILED,
                             't':EVENTER.INFO_TYPE.POSITION,
@@ -1994,27 +2056,39 @@ class MyGWServer(object):
             insert_location(location, db, self.redis)
 
     def __close_rabbitmq(self, connection=None, channel=None):
+        """Close rabbitmq.
+        """
         if connection and connection.is_open:
             try:
                 channel.queue_delete(queue=self.gw_queue)
-            except AMQPChannelError:
-                logging.warn("[GW] Delete gw_queue error: already delete.")
+            except AMQPChannelError as e:
+                logging.exception("[GW] Delete gw_queue failed: already delete. Exception: %s",
+                                  e.args)
             connection.close()
 
     def __close_socket(self):
+        """Close socket.
+        """
         try:
             self.socket.close()
-        except:
-            logging.exception("[GW] Close socket Exception.")
+        except Exception as e:
+            logging.exception("[GW] Close socket Failed. Exception: %s.",
+                              e.args)
 
     def __clear_memcached(self, dev_id=None):
+        """Clear memcached.
+        """
         pass
 
     def stop(self):
+        """Stop socket, memcached, db
+        """
         self.__close_socket()
         self.__clear_memcached()
         for db in self.db_list:
             db.close()
 
     def __del__(self):
+        """Invoke stop method.
+        """
         self.stop()

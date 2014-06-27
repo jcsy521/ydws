@@ -33,23 +33,35 @@ from helpers.confhelper import ConfHelper
 
 from mygwserver import MyGWServer
 
-def shutdown(gwserver, processes, db):
-    try:
-        for process in processes:
-            if process and process.is_alive():
-                process.join()
-            logging.warn("Process: %s ", process)
-            process.terminate()
-        db.close()
-        gwserver.stop()
+def shutdown(gwserver, processes):
+    """Shut down the server.
 
-    except:
+    workflow:
+    stop process
+    close gw server
+    """
+    try:
+        for p in processes:
+            #if process and process.is_alive():
+            #    process.join()
+            #logging.warn("Process: %s ", process)
+            p.terminate()
+            logging.info("[GW] Process is terminated. name: %s, pid: %s, exitcode: %s", 
+                         p.name, p.pid, p.exitcode)
+        for p in processes:
+            p.join()
+        gwserver.stop()
+    except Exception as e:
+        logging.exception("[GW] Shutdown failed. Exception: %s", e.args)
         pass
 
 def usage():
-    print "python26 server.py --conf=/path/to/conf_file"
+    print "python server.py --conf=/path/to/conf_file"
 
 def main():
+    """Main method.
+
+    """
     tornado.options.parse_command_line()
     if not ('conf' in options):
         import sys
@@ -63,24 +75,33 @@ def main():
 
     ConfHelper.load(options.conf)
     redis = MyRedis()
-    db = DBConnection().db
+    #db = DBConnection().db
 
     gwserver = None
     processes = None
     try:
-        logging.warn("[gateway] running on: localhost. Parent process: %s", os.getpid())
+        logging.warn("[GW] Running on: localhost. Parent process: %s, Current process: %s", 
+                     os.getppid(), os.getpid())
+
         gwserver = MyGWServer(options.conf)
+
         gwserver.redis = redis
-        gwserver.db = db
+        #gwserver.db = db
+
         gw_send = Process(name='GWSender',
                           target=gwserver.consume,
                           args=(ConfHelper.RABBITMQ_CONF.host,))
+
         gw_recv = Process(name='GWReceiver',
                           target=gwserver.publish,
                           args=(ConfHelper.RABBITMQ_CONF.host,))
+
         processes = (gw_send, gw_recv,)
         for p in processes:
             p.start()
+            logging.info("[GW] Process name: %s, pid: %s start.",
+                         p.name, p.pid)
+        #NOTE: It's maybe unused here. 
         for p in processes:
             # NOTE: just to put into join queue, it will work until process
             # finished
@@ -89,17 +110,21 @@ def main():
     except KeyboardInterrupt:
         try:
             for p in processes:
+                logging.info("[GW] Process terminate. name: %s, pid: %s, exitcode: %s",
+                             p.name, p.pid, p.exitcode)
                 p.terminate()
+            for p in processes:
+                p.join()
             thread.exit()
         except SystemExit:
-            logging.info("[GW] Threads stop...")
-        logging.error("Ctrl-C is pressed.")
+            logging.info("[GW] Process stop...")
+        logging.error("[GW] Ctrl-C is pressed.")
     except:
-        logging.exception("[gateway] Exit Exception")
+        logging.exception("[GW] Exit Exception")
     finally:
-        logging.warn("[gateway] shutdown...")
-        shutdown(gwserver, processes, db)
-        logging.warn("[gateway] stopped. Bye!")
+        logging.warn("[GW] Shutdown...")
+        shutdown(gwserver, processes)
+        logging.warn("[GW] Stopped. Bye!")
 
 
 if __name__ == '__main__':
