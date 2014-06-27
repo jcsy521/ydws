@@ -38,13 +38,15 @@ def main():
         usage()
         exit(1)
 
-    content = 'SET GROUP 10657061162347'
-    #content = 'SET SIM 18842962071'
+    #content = 'SET GROUP 10657061123235'
+    #content = 'SET SIM 13841915426'
     #content = 'SET SMS 10657'
     #content = 'BIND 18642537770:13842168880'
     #content = 'HFCC'
+    content = 'LQ 30'
     #content = 'SSDW'
     #content = 'RELOGIN'
+    #content = 'SET TIME 20140625133814'
     #content = 'SET QQ 1*爸爸*13693675352 2*妈妈*13693675352'
 
     if options.send.lower() == 'all':

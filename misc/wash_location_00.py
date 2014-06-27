@@ -27,7 +27,8 @@ def wash_location():
     
     #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login = 0"
     #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where tid = '354A000121'"
-    sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login_time>0"
+    sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where mobile = '14778742419'"
+    #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login_time>0"
     #print 'sql', sql
     terminals  = db.query(sql)
     #print 'len ', len(terminals)

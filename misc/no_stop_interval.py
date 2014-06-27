@@ -22,7 +22,8 @@ def block_test():
 
     #terminals = db.query("SELECT tid, mobile, group_id, cid FROM V_TERMINAL WHERE group_id != '-1'")
     #terminals = db.query("SELECT tid, tmobile, group_id, cid FROM V_TERMINAL WHERE cid = '13600335550'")
-    terminals = db.query("SELECT tid, mobile, group_id FROM T_TERMINAL_INFO WHERE stop_interval != 0 limit 1000")
+    #terminals = db.query("SELECT tid, mobile, group_id FROM T_TERMINAL_INFO WHERE stop_interval != 0 limit 1000")
+    print 'len ', len(terminals)
     for terminal in terminals: 
         tid = terminal.tid
         db.execute("UPDATE T_TERMINAL_INFO SET stop_interval=0 WHERE tid = %s", 
