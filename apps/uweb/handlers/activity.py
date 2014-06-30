@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import time
 
 import tornado.web
 
@@ -22,6 +23,11 @@ class ActivityHandler(BaseHandler):
                 res = self.db.query("SELECT title, begintime, endtime, filename, html_name"
                                     "  FROM T_ACTIVITY"
                                     "  ORDER BY begintime DESC LIMIT 1")
+            elif int(timestamp) == -1:
+                res = self.db.query("SELECT title, begintime, endtime, filename, html_name"
+                                    "  FROM T_ACTIVITY"
+                                    "  WHERE endtime > %s",
+                                    int(time.time()))
             else:
                 res = self.db.query("SELECT title, begintime, endtime, filename, html_name"
                                     "  FROM T_ACTIVITY"
