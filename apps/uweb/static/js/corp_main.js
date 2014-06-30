@@ -1203,14 +1203,18 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						n_timestamp = obj_tempCarInfo.timestamp,
 						b_flag = false,
 						obj_marker = obj_selfmarkers[tid],
+						obj_markerIcon = obj_marker.getIcon(),
+						str_markerIconUrl = obj_markerIcon.imageUrl,
 						n_nowtime = new Date().getTime()/1000,
 						myIcon = new BMap.Icon(BASEIMGURL + 'default.png', new BMap.Size(34, 34)),
 						obj_imageOffset = new BMap.Size(0, 0);
-						
-					if ( n_nowtime - n_timestamp > 300 || n_speed < 5 ) {
-						myIcon.setImageUrl(dlf.fn_setMarkerIconType(27, obj_tempCarInfo.icon_type, obj_tempCarInfo.login, false));
-						myIcon.setImageOffset(obj_imageOffset);
-						obj_marker.setIcon(myIcon);
+					
+					if ( str_markerIconUrl.search('_trace') != -1 ) {
+						if ( n_nowtime - n_timestamp > 300 || n_speed < 5 ) {
+							myIcon.setImageUrl(dlf.fn_setMarkerIconType(27, obj_tempCarInfo.icon_type, obj_tempCarInfo.login, false));
+							myIcon.setImageOffset(obj_imageOffset);
+							obj_marker.setIcon(myIcon);
+						}
 					}
 				}
 			}

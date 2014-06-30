@@ -167,7 +167,8 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 			}
 			obj_polylineOptions = {'color': str_tempOldColor, 'weight': 4} ;
 			if ( str_tid == str_currentTid ) {	// 只移动当前终端到地图中心
-				dlf.fn_boundContainsPoint(obj_tempPoint);	// 开启追踪是否超出地图
+				// hs:2014-6-30 注释 
+				//dlf.fn_boundContainsPoint(obj_tempPoint);	// 开启追踪是否超出地图
 			}
 		} else {
 			arr_tempTracePoints.push(obj_tempPoint);

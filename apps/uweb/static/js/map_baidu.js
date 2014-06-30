@@ -485,7 +485,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 		b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
 		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible');
 	
-	address = fn_cutString(address);
+	//address = fn_cutString(address); hs: 2014-6-30
 	if ( dlf.fn_userType() ) {	// 集团用户修改图标
 		var b_flag = false,
 			n_nowtime = new Date().getTime()/1000;
@@ -565,7 +565,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 					'<li><label>停留：  '+ dlf.fn_changeTimestampToString(str_delayTime) +'</label>'+
 					'<li><label>开始：  '+ dlf.fn_changeNumToDateString(obj_location.start_time) +'</label>'+
 					'<li><label>结束：  '+ dlf.fn_changeNumToDateString(obj_location.end_time) +'</label></li>' + 
-					'<li title="'+ str_tempAddress +'">位置： <lable class="lblAddress">'+ address +'</label></li>';	
+					'<li class="msgBox_addressLi" title="'+ str_tempAddress +'"><label class="msgBox_addressTip">位置： </label><lable class="lblAddress">'+ address +'</label></li>';
+					
 	} else {
 		str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 					'<li><label>速度： '+ dlf.fn_NumForRound(speed, 1)+' km/h</label>'+
@@ -617,7 +618,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 		}
 		
 		str_html += '<li>时间： '+ date +'</li>' + 
-					'<li title="'+ str_tempAddress +'">位置： <lable class="lblAddress">'+ address +'</label></li>';
+					'<li class="msgBox_addressLi" title="'+ str_tempAddress +'"><label class="msgBox_addressTip">位置：</label> <lable class="lblAddress">'+ address +'</label></li>';
+
 
 		if ( str_iconType == 'actiontrack' ) {
 			if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
@@ -643,7 +645,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 			}
 		} else if ( str_iconType == 'alarmInfo' ) {
 			str_html += '<li class="top10">车主： <lable class="colorRed">'+ obj_location.owner_mobile +'</label></li>';
-			str_html += '<li class="top10">告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
+			str_html += '<li>告警： <lable class="colorRed">'+ dlf.fn_eventText(obj_location.category) +'告警</label></li>';
 		}
 	}
 	str_html += '</ul></div>';
@@ -659,7 +661,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 */
 window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat) {
 	var str_result = str_result,
-		str_tempResult = fn_cutString(str_result),	// 位置描述过长显示省略号 kjj add in 2013-08-21
+		str_tempResult = str_result;//fn_cutString(str_result),	// 位置描述过长显示省略号 kjj add in 2013-08-21 hs:2014-6-30
 		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
 		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
 		

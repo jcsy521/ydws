@@ -2078,18 +2078,19 @@ body {
 #markerWindowtitle a:visited {
 	color: #0000ff;
 }
-.lblAddress {
-	display: inline-block;
-    /*left: 57px;
-	*left: 100px;
-    top: 95px; gaode map*/
-	left: 49px;
-	/*top: 87px;*/
-    line-height: 15px;
-    position: absolute;
-    width: 203px;
-	float: left;
+ .lblAddress {
+    display: inline-block;
+	left: 41px;
+    position: relative;
+    width: 230px;
+ }
+#markerWindowtitle ul .msgBox_addressLi {
+    height: auto;
 }
+.msgBox_addressTip {
+    position: absolute;
+}
+
 .left60 {
 	left: 60px;
 }
