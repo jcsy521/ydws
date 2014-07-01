@@ -130,7 +130,9 @@ class GWPacketHandler(BaseHandler):
                                         match_type = 'S' + ldata[5][1:3]+','
                                         next_num = num + 1
                                         p6 = re.compile("I ", re.I)
-                                        p7 = re.compile("send:", re.I)
+                                        #NOTE: never add : in pattern
+                                        #p7 = re.compile("send:", re.I)
+                                        p7 = re.compile("send", re.I)
                                         p8 = re.compile(ip, re.I)
                                         p9 = re.compile(match_type, re.I)
                                         while True:
