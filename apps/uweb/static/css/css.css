@@ -392,7 +392,6 @@ body {
 }
 .selfList li {
 	float: left;
-	margin-left: 20px;
 	height: 36px;
 	line-height: 36px;
 }

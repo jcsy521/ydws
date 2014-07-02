@@ -677,8 +677,10 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			
 			// 左侧 位置描述填充
 			if ( str_currentTid == tid ) {
-				dlf.fn_createMapInfoWindow(obj_tempCarData, str_type);
-				obj_selfmarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+				if ( obj_selfmarker.infoWindow ) {
+					dlf.fn_createMapInfoWindow(obj_tempCarData, str_type);
+					obj_selfmarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+				}
 				setTimeout(function() {
 					$('.lblAddress').html(str_result).attr('title', str_result);
 				}, 500);
@@ -727,6 +729,8 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		} else if ( str_type == 'start' ) {
 			obj_trackMarker = $('.delayTable').data('markers')[0];
 		} else if ( str_type == 'end' ) {
+			arr_dataArr[arr_dataArr.length - 1].name = str_result;
+			obj_trackLocation = arr_dataArr[arr_dataArr.length - 1];
 			obj_trackMarker = $('.delayTable').data('markers')[1];
 		}
 		/* 根据不同的marker对象,填充数据*/

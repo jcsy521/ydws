@@ -1154,6 +1154,9 @@ $(function () {
 		$('#carCount').parent().addClass('currentTNum');
 		dlf.fn_corpGetCarData();
 		$('#corpTree').data('ftree', true);
+		
+		//查询所有告警并存储
+		dlf.fn_getAlertOptionForUrl('init');
 	}
 	
 	$('#txtautoComplete').val('');	// 清空autocomplete搜索框
@@ -1290,8 +1293,6 @@ $(function () {
 		}
 	);
 	
-	//查询所有告警并存储
-	dlf.fn_getAlertOptionForUrl('init');
 });
 
 function fn_modiyListPanelPosition() {

@@ -35,8 +35,10 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 				}, 100);
 			}
 			setTimeout(function() {
+			if ( obj_tempMarker && obj_tempMarker.infoWindow ) {
 				dlf.fn_createMapInfoWindow(obj_currentCarInfo, 'actiontrack');
 				obj_tempMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+			}
 				dlf.fn_updateOpenTrackStatusColor(n_tid);	
 			}, 130);
 		} else {
@@ -406,8 +408,8 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 				str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 			
 			if ( str_currentTid == str_tid ) {
-				dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack');
 				if ( obj_selfInfoWindow ) {
+					dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack')
 					obj_selfMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 				}
 			}
@@ -472,8 +474,10 @@ window.dlf.fn_updateAlias = function() {
 			
 		obj_carDatas.alias = str_alias;
 		
-		dlf.fn_createMapInfoWindow(obj_carDatas, 'actiontrack');
-		obj_selfMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		if ( obj_selfMarker && obj_selfMarker.infoWindow ) {
+			dlf.fn_createMapInfoWindow(obj_carDatas, 'actiontrack');
+			obj_selfMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		}
 	}
 	obj_terminal.html(str_alias);
 	str_alias = dlf.fn_decode(str_alias);

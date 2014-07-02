@@ -35,16 +35,19 @@ function customMenu(node) {
 	var obj_node = $(node),
 		obj_currentGroup = obj_node.parent().siblings('a'),
 		str_currentGroupName = obj_currentGroup.attr('title'),	// 当前定位器所在组名
+		str_currentGroupIdForBatchMove = obj_node.attr('id').substr(10),//当前组的名称
 		str_groupId = obj_currentGroup.attr('groupId'),	// 当前所在组的组ID
 		str_userType = $('.j_body').attr('userType'),	// 用户类型
 		items = null,		// 菜单的操作方法
 		submenuItems = {},	// 二级菜单
+		submenuItemsForGroup = {},	// 二级菜单--组移动分组
 		subDefendItems = {},	// 批量设防撤防二级菜单
 		renameLabel = '',	// 重命名lable
 		createLabel = '',	// 新建lable
 		batchImportDeleteLabel = '',	// 批量导入
 		batchDeleteLabel = '',	// 批量删除
 		moveToLabel = '',	// 移动至
+		moveToLabelForGroup = '',	// 批量移动至
 		eventLabel = '',	// 告警查询
 		terminalLabel = '',	// 参数设置
 		wakeupLabel = '',	// 重新激活终端
@@ -80,6 +83,7 @@ function customMenu(node) {
 		batchRegionLabel = '批量绑定围栏';
 		batchTrackLabel = '批量开启追踪';
 		batchCancleTrackLabel = '批量取消追踪';
+		moveToLabelForGroup = '批量移动至';
 	} else {						// 定位器右键菜单
 		wakeupLabel = '重新激活';
 		terminalLabel = '参数设置';
@@ -103,6 +107,9 @@ function customMenu(node) {
 		
 		if ( str_currentGroupName != str_groupName ) {
 			submenuItems['moveToGroup' + str_groupId ] = fn_createSubMenu(obj_group);
+		}
+		if ( str_currentGroupIdForBatchMove != str_groupId ) {
+			submenuItemsForGroup['moveToGroup' + str_groupId ] = fn_createSubMenuForGroup(obj_group);
 		}
 	}
 	// 右键菜单执行的操作
@@ -281,6 +288,10 @@ function customMenu(node) {
 				}
 			}
 		},
+		"moveTerminalForGroup": {
+			"label" : moveToLabelForGroup,
+			"submenu": submenuItemsForGroup
+		},
 		/*		
 		"batchTrack" : {
 			"label" : "批量开启追踪",
@@ -366,6 +377,7 @@ function customMenu(node) {
 		delete items.batchRegion;
 		delete items.remove;
 		delete items.batchTrack;
+		delete items.moveTerminalForGroup;
    }
    // 集团右键菜单删除菜单
    if ( obj_node.hasClass('j_corp')  ) {
@@ -388,6 +400,7 @@ function customMenu(node) {
 		delete items.bindRegion;
 		delete items.region;
 		delete items.batchTrack;
+		delete items.moveTerminalForGroup;
 		delete items.mileageNotification;
    }
    if ( obj_node.hasClass('j_group') ) {
@@ -578,6 +591,40 @@ function fn_createSubMenu(obj_group) {
 			// 移动至组的方法实现
 			var str_moveTid = obj.children('a').attr('tid');
 			fn_moveGroup([str_moveTid], str_groupId, '', obj.attr('id'));
+		}
+	}
+}
+
+/**
+* 生成二级菜单项
+* obj_group: 二级菜单项要显示的内容对象
+*/
+function fn_createSubMenuForGroup(obj_group) {
+	var str_groupName = obj_group.groupName,
+		str_groupId = obj_group.groupId;
+		
+	return {
+		"label": str_groupName, 
+		"action": function(obj) {
+			//获取当前组下所有选中的终端
+			var arr_nodeTerminsals = obj.children('ul').children('li'),
+				arr_moveIds = [];
+			
+			for ( var i = 0; i< arr_nodeTerminsals.length; i++ ) { 
+				var obj_tempNodeTerminal = $(arr_nodeTerminsals[i]),
+					str_tempNodeClass = obj_tempNodeTerminal.attr('class'),
+					str_tempNodeTid = obj_tempNodeTerminal.attr('id').substr(9);
+				
+				if ( obj_tempNodeTerminal.hasClass('jstree-checked') ) {
+					arr_moveIds.push(str_tempNodeTid);
+				}
+			}
+
+			if ( arr_moveIds.length > 0 ) {    // 只有终端才可以移动到组 
+				fn_moveGroup(arr_moveIds, str_groupId, '');
+			} else {
+				dlf.fn_jNotifyMessage('请勾选要移动的终端', 'message', false, 3000); 
+			}
 		}
 	}
 }
@@ -1615,7 +1662,7 @@ function fn_updateAlarmList(arr_alarm) {
 		// obj_alarmCon.show();
 		$('.j_alarmPanel').show();
 		$('.j_alarmArrowClick').css('backgroundPosition', '-20px -29px');
-		obj_arrowCon.css({'left': n_alarmIconLeft});
+		obj_arrowCon.css({'left': $('.j_alarmPanel').offset().left - 16});
 	} else {
 		
 	}
@@ -2011,8 +2058,10 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 			obj_tempCarData = obj_carDatas[str_tid];
 			
 		//obj_marker.openInfoWindow(new BMap.InfoWindow(dlf.fn_tipContents(obj_tempCarData, 'actiontrack')));
-		dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack');
-		obj_selfMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		if ( obj_selfMarker && obj_selfMarker.infoWindow ) {
+			dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack');
+			obj_selfMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		}
 		$('#markerWindowtitle h4[tid='+ str_tid +']').html('定位器：' + str_tempAlias);
 		dlf.fn_updateOpenTrackStatusColor(str_tid);
 	}

@@ -341,7 +341,7 @@
 			strings		: {
 				loading		: "Loading ...",
 				new_node	: "New node",
-				multiple_selection : "Multiple selection"
+				multiple_selection : "多行选中"
 			}
 		},
 		_fn : { 
@@ -3590,7 +3590,7 @@
 				was_sep = false;
 				var str_tempClass = val._class || '';
 				
-				if ( i == 'event' || i == 'statics' || i == 'singleCreate' || i == 'batchTrack' || i == 'defend' || i == 'singleDelete' || i == 'region' ) {
+				if ( i == 'event' || i == 'statics' || i == 'singleCreate' || i == 'moveTerminalForGroup' || i == 'defend' || i == 'singleDelete' || i == 'region' ) {
 					str_tempClass = 'separator'
 				}
 				str += "<li class='" + (str_tempClass) + (val._disabled ? " jstree-contextmenu-disabled " : "") + "'><ins ";
