@@ -7,8 +7,29 @@ from utils.dotdict import DotDict
 from constants.GATEWAY import T_MESSAGE_TYPE
 
 class T_CLWCheck(object):
-    """
-    report of terminal
+    """ Report of terminal.
+     
+    Returns head, body
+    
+    An example. 
+    head:
+    {'dev_id': '18701638494', 
+     'softversion': '3.3.1', 
+     'dev_type': '1', 
+     'timestamp': 1404364119, 
+     'sessionID': '', 
+     'command': 'T1'}
+
+    body:
+    ['18701638494', 
+     '13011292217', 
+     '18701638494', 
+     '', 
+     'CLW', 
+     '2', 
+     '0', 
+     'bt_mac', 
+     'bt_name']
     """
     def __init__(self, packet):
         self.head, self.body = self.parse_head(packet)
@@ -32,8 +53,7 @@ class T_CLWCheck(object):
         return head, body 
     
 class S_CLWCheck(object):
-    """
-    report of service
+    """Report of service.
     """
     def __init__(self, packet):
         self.head, self.body = self.parse_head(packet)

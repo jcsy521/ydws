@@ -828,13 +828,15 @@ class MyGWServer(object):
                 self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
             # record terminal address
             self.update_terminal_status(t_info["dev_id"], address)
-            # set login
+            #NOTE: When termianl is normal login, update some properties to platform.
             info = DotDict(login=GATEWAY.TERMINAL_LOGIN.ONLINE,
                            mobile=t_info['t_msisdn'],
                            keys_num=t_info['keys_num'],
                            softversion=t_info['softversion'],
                            login_time=int(time.time()),
-                           dev_id=t_info["dev_id"])
+                           dev_id=t_info["dev_id"],
+                           bt_mac=t_info['bt_mac'],
+                           bt_name=t_info['bt_name'])
             self.update_terminal_info(info, db)
             logging.info("[GW] Terminal login success! tid: %s, mobile: %s",
                          t_info['dev_id'], t_info['t_msisdn'])
@@ -1998,6 +2000,8 @@ class MyGWServer(object):
 
     def update_terminal_info(self, t_info, db):
         """Update terminal's info in db and redis.
+        NOTE: 
+        Only those properties which are different from platform is needed to change.
         """
         terminal_info_key = get_terminal_info_key(t_info['dev_id'])
         terminal_info = QueryHelper.get_terminal_info(t_info['dev_id'],
@@ -2006,21 +2010,23 @@ class MyGWServer(object):
         #1: db
         fields = []
         # gps, gsm, pbat, changed by position report
-        keys = ['mobile', 'defend_status', 'login', 'keys_num', 'fob_status', 'mannual_status']
+        keys = ['mobile', 'defend_status', 'login', 'keys_num', 'fob_status', 'mannual_status', 
+                'softversion', 'bt_mac', 'bt_name']
         for key in keys:
             value = t_info.get(key, None)
-            if value is not None and value != terminal_info[key]:
-                fields.append(key + " = " + str(t_info[key]))
+            t_value = terminal_info.get(key, '')
+            if value is not None and value != t_value:
+                fields.append(key + " = " + "'" + str(t_info[key]) + "'")
         if 'login_time' in t_info:
             fields.append('login_time' + " = " + str(t_info['login_time']))
             login_time_key = get_login_time_key(t_info['dev_id'])
             self.redis.setvalue(login_time_key, t_info['login_time'])
         set_clause = ','.join(fields)
         if set_clause:
-            db.execute("UPDATE T_TERMINAL_INFO"
+            sql_cmd = ("UPDATE T_TERMINAL_INFO "
                        "  SET " + set_clause + 
-                       "  WHERE tid = %s",
-                       t_info['dev_id'])
+                       "  WHERE tid = %s")
+            db.execute(sql_cmd, t_info['dev_id'])
         #2: redis
         for key in terminal_info:
             value = t_info.get(key, None)

@@ -20,7 +20,10 @@ define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 # deploy or debug
 define('mode', default='deploy')
 # use info for deployment
-options['logging'].set('info')
+try:
+    options['logging'].set('info') # tornado2.x
+except:
+    options.logging='info' # tornado3.x
 
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
