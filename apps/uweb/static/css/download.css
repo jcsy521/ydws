@@ -330,4 +330,7 @@ body {
 .android_ajtDownload {
 	top: -32px;
 }
+.download_left {
+	text-align: left;
+}
 /*instructions end*/

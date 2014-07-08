@@ -35,10 +35,9 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 				}, 100);
 			}
 			setTimeout(function() {
-			if ( obj_tempMarker && obj_tempMarker.infoWindow ) {
 				dlf.fn_createMapInfoWindow(obj_currentCarInfo, 'actiontrack');
 				obj_tempMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
-			}
+				
 				dlf.fn_updateOpenTrackStatusColor(n_tid);	
 			}, 130);
 		} else {

@@ -472,9 +472,9 @@ $(function () {
 		n_corpTreeContainerHeight = n_mainHeight-270,
 		n_treeHeight = n_corpTreeContainerHeight - 55,
 		n_delayLeft = n_windowWidth - 550,
-		n_delayIconLeft = n_delayLeft - 17,
+		n_delayIconLeft = n_delayLeft - 18,
 		n_alarmLeft = n_windowWidth - 400,
-		n_alarmIconLeft = n_alarmLeft - 17,
+		n_alarmIconLeft = n_alarmLeft - 18,
 		n_topPanelLeft = '50%',
 		n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
 		obj_tree = $('#corpTree'),
@@ -544,7 +544,6 @@ $(function () {
 	$('.j_alarmPanel').hide();
 	$('.j_alarmPanel').css({'left': n_alarmLeft});
 	$('.j_alarmPanelCon').css({'left': (n_windowWidth-18)});
-	$('.j_alarmArrowClick').css('backgroundPosition', '-29px -29px');
 
 	dlf.fn_loadMap('mapObj');	// 加载百度map
 	
@@ -1223,31 +1222,13 @@ $(function () {
         }
     });
 	// 轨迹查询停留点图标事件、告警提示列表图标事件
-	$('.j_alarmPanelCon').unbind('mouseover mouseout click').bind('mouseover', function() {
-		var b_panel = $('.j_alarmPanel').is(':visible'),
-			obj_arrowIcon = $('.j_alarmArrowClick');
-		
-		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-45px -29px').attr('title', '隐藏');
-		} else {	// 关闭面板 鼠标移上去效果
-			obj_arrowIcon.css('backgroundPosition', '-38px -29px').attr('title', '显示');
-		}
-	}).bind('mouseout', function() {
-		var b_panel = $('.j_alarmPanel').is(':visible'),
-			obj_arrowIcon = $('.j_alarmArrowClick');
-		
-		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
-		} else {
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
-		}
-	}).bind('click', function() {
+	$('.j_alarmPanelCon').bind('click', function() {
 		var obj_panel = $('.j_alarmPanel'),
 			obj_arrowCon = $('.j_alarmPanelCon'),
 			obj_arrowIcon = $('.j_alarmArrowClick'),
 			b_panel = obj_panel.is(':visible'),
 			n_windowWidth = $(window).width(),
-			n_alarmIconLeft = n_windowWidth - 417;
+			n_alarmIconLeft = n_windowWidth - 418;
 		
 		if ( n_windowWidth < 1024 ) {
 			n_windowWidth = 1024;
@@ -1256,10 +1237,10 @@ $(function () {
 		if ( b_panel ) {
 			obj_panel.hide();
 			n_alarmIconLeft = n_windowWidth - 18;
-			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+			obj_arrowCon.removeClass('alarmPanelConShow');
 		} else {
+			obj_arrowCon.addClass('alarmPanelConShow').removeClass('alarmWitchIcon');
 			obj_panel.show();
-			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		}
 		obj_arrowCon.css({'left': n_alarmIconLeft});
 	});
@@ -1302,9 +1283,9 @@ function fn_modiyListPanelPosition() {
 		b_alarmPanel = obj_alarmPanel.is(':visible'),
 		n_tempWindowWidth = $(window).width(),
 		n_delayLeft = n_tempWindowWidth - 550,
-		n_delayIconLeft = n_delayLeft - 17,
+		n_delayIconLeft = n_delayLeft - 18,
 		n_alarmLeft = n_tempWindowWidth - 400,
-		n_alarmIconLeft = n_alarmLeft - 17;
+		n_alarmIconLeft = n_alarmLeft - 18;
 	
 	
 	if ( n_tempWindowWidth < 1024 ) {
@@ -1316,10 +1297,10 @@ function fn_modiyListPanelPosition() {
 		n_tempWindowWidth = 896;
 	}
 	if ( !b_delayPanel ) {
-		n_delayIconLeft = n_tempWindowWidth - 17;
+		n_delayIconLeft = n_tempWindowWidth - 18;
 	}
 	if ( !b_alarmPanel ) {
-		n_alarmIconLeft = n_tempWindowWidth - 17;
+		n_alarmIconLeft = n_tempWindowWidth - 18;
 	}
 	obj_delayPanel.css({'left': n_delayLeft});
 	$('.j_disPanelCon').css({'left': n_delayIconLeft});

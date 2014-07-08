@@ -54,9 +54,9 @@ window.dlf.fn_initPanel = function () {
 	var n_windowWidth = $(window).width(),
 		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
 		n_delayLeft = n_windowWidth - 550,
-		n_delayIconLeft = n_delayLeft - 17,
+		n_delayIconLeft = n_delayLeft - 18,
 		n_alarmLeft = n_windowWidth - 400,
-		n_alarmIconLeft = n_alarmLeft - 17,
+		n_alarmIconLeft = n_alarmLeft - 18,
 		obj_tree = $('#corpTree');
 	
 	if ( dlf.fn_userType() ) {	// 集团用户		
@@ -69,7 +69,7 @@ window.dlf.fn_initPanel = function () {
 	}
 	// 设置停留点列表的位置
 	$('.j_delayPanel').css({'left': n_delayLeft});
-	$('.j_disPanelCon').css({'left': n_delayIconLeft});
+	$('.j_disPanelCon').css({'left': n_delayIconLeft}).addClass('disPanelConShow');
 	/*$('.j_alarmPanel').css({'left': n_alarmLeft});
 	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});*/
 }
@@ -658,7 +658,7 @@ window.dlf.fn_initTrackDatepicker = function() {
 		str_tempBeginTime = str_nowDate+' 00:00:00';
 		
 	obj_stTime.click(function() {	// 初始化起始时间，并做事件关联   maxDate: '#F{$dp.$D(\'trackEndTime\')}',   minDate:'#F{$dp.$D(\'trackBeginTime\')}', // delete in 2013.04.10
-		WdatePicker({el: 'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, 
+		WdatePicker({el: 'trackBeginTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, autoPickDate: false, 
 			onpicked: function() {
 				var obj_endDate = $dp.$D('trackEndTime'), 
 					str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
@@ -672,7 +672,7 @@ window.dlf.fn_initTrackDatepicker = function() {
 	}).val(str_tempBeginTime);
 	
 	obj_endTime.click(function() {	// 初始化结束时间，并做事件关联
-		WdatePicker({el: 'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, 
+		WdatePicker({el: 'trackEndTime', dateFmt: 'yyyy-MM-dd HH:mm:ss', readOnly: true, isShowClear: false, qsEnabled: false, autoPickDate: false, 
 			onpicked: function() {
 				var obj_beginDate = $dp.$D('trackBeginTime'), 
 					str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
@@ -692,33 +692,13 @@ window.dlf.fn_initTrackDatepicker = function() {
 $(function () {	
 	
 	dlf.fn_initTrackDatepicker();	// 初始化时间控件
-	$('.j_disPanelCon').unbind('mouseover mouseout click').bind('mouseover', function() {
-		var b_panel = $('.j_delayPanel').is(':visible'),
-			obj_arrowIcon = $('.j_arrowClick'),
-			obj_this = $(this);
-		
-		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-45px -29px');
-		} else {	// 关闭面板 鼠标移上去效果
-			obj_arrowIcon.css('backgroundPosition', '-38px -29px');
-		}
-		obj_this.attr('title', '');
-	}).bind('mouseout', function() {
-		var b_panel = $('.j_delayPanel').is(':visible'),
-			obj_arrowIcon = $('.j_arrowClick');
-		
-		if ( b_panel ) {
-			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
-		} else {
-			obj_arrowIcon.css('backgroundPosition', '-29px -29px');
-		}
-	}).bind('click', function() {
+	$('.j_disPanelCon').bind('click', function() {
 		var obj_panel = $('.j_delayPanel'),
 			obj_arrowCon = $('.j_disPanelCon'),
 			obj_arrowIcon = $('.j_arrowClick'),
 			b_panel = obj_panel.is(':visible'),
 			n_windowWidth = $(window).width(),
-			n_delayIconLeft = n_windowWidth - 567;
+			n_delayIconLeft = n_windowWidth - 568;
 		
 		
 		if ( n_windowWidth < 1024 ) {
@@ -727,13 +707,11 @@ $(function () {
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
-			n_delayIconLeft = n_windowWidth - 17;
-			//obj_arrowCon.css({'right': '0px'});
-			obj_arrowIcon.css('backgroundPosition', '-6px -29px');
+			n_delayIconLeft = n_windowWidth - 18;
+			obj_arrowCon.removeClass('disPanelConShow');
 		} else {
+			obj_arrowCon.addClass('disPanelConShow');
 			obj_panel.show();
-			//obj_arrowCon.css({'right': '529px'});
-			obj_arrowIcon.css('backgroundPosition', '-20px -29px');
 		}
 		obj_arrowCon.css({'left': n_delayIconLeft});
 	});

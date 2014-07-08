@@ -2,65 +2,18 @@
 	font-family: "微软雅黑","宋体","Arial Narrow";
 	padding: 0;
 	font-size: 12px;
-	width: 1000px;
 	margin: 0 auto;
     zoom: 1;
-}
-img {
-	margin: 5px 0;
-}
-#menus {
-	width: 226px;
-	float: left;
-}
-#menus, h2, h3, .headerTxt {
-    font-weight: bold;
-}
-#mainContent {
-	float: right;
-	width: 765px;
-	color: black;
-	background-color: #EFF8EB;
-	font-family: "宋体","Arial Narrow";
-}
-h3 {
-    color: #444;
-} 
-#mainContent p, h3, ul li {
-	font-size: 13px;
-	letter-spacing: normal;
-	line-height: 20px;
-	text-align: left;
-}
-.navItem {
-	display: block;
-	width: 100%;
-	border-radius: 7px;
-	background: url('/static/images/helpImg/help-nav.png') no-repeat scroll left bottom;
-	height: 35px;
-	text-decoration: none;
-    font-size: 16px;
-	text-indent: 1em;
-	margin-bottom: 5px;
-	font-weight: normal;
-}
-.navItem:hover {
-	text-decoration: underline;
-}
-.navItem:hover, .header_highlight .navItem {
-	background-position: right bottom;
-	color: #F5F5F5;
-}
-.accordion_child {
-	padding: 10px;
 }
 .header, .headerTxt {
 	height: 34px;
 }
 .header {
 	background: url('/static/images/helpImg/helpCenterBg.png') no-repeat scroll 0 0px transparent;
-	margin-left: -8px;
-	padding-left: 25px;
+	width: 100%;
+	position: fixed;
+	z-index: 1;
+	text-align: center;
 }
 .headerTxt {
 	background: url('/static/images/helpImg/helpCenterBg.png') repeat-x scroll 0 -38px transparent;
@@ -75,68 +28,14 @@ h3 {
 .headerTxt, .navItem {
 	line-height: 2;
 }
-h3 a {
-    display: inline;
-    border: none;
-}
-h3 a:hover {
-	background-color: #DDEEE0;
-	border: none;
-	color: #f08008;
-}
-.cImgPos {
-	padding: 0;
-}
-.cLinePos {
-    padding-bottom: 29px;
-    margin-bottom: 1px;
-}
-ol ul {
-    margin-bottom: 5px;
-}
-#test4-content img, #test5-content img {
-    margin-left: 0;
-}
-#test8-content ol p {
-    margin: 0;
-}
-.fontRed {
-    color: red;
-}
-.bigFont {
-    font-weight: bold;
-    color: black;
-}
-/*pabbHelp_test.html*/
-.testBtn {
-	display: block;
-	float: left;
-	width: 100px;
-	height :30px;
-	line-height: 30px;
-	background: url('/static/images/testBtn.png') no-repeat center;
-	border: 0;
-	font-size: 14px;
-	color: white;
-	font-weight: 900;
-	margin-right: 20px;
-	text-align: center;
-	text-decoration: none;
-}
-.pabbTxt{
-	text-indent: 28px;
-}
-#testTitle {
-	float: left;
-    font-size: 20px;
-    font-weight: 900;
-    height: auto;
-}
 .hide {
 	display: none;
 }
 .helpLogo {
-	padding-left: 25px;
+	position: fixed;
+	top: 25px;
+	left: 50px;
+	z-index: 1;
 }
 
 .helpTitleLink {
@@ -151,6 +50,12 @@ ol ul {
 .helpTitleLink a:hover {
 	color: #16a1d3;
 }
-.helpCurrentTitle {
-	
+.fontRed {
+	color: red;
 }
+#menu { position: absolute; right: 60px; top: 204px; width: 20px; margin-top: -170px; padding: 0; list-style-type: none; z-index: 1}
+#menu li { float: left;}
+#menu a { display: block; width: 10px; height: 10px; margin: 20px 6px; border-radius: 14px; text-indent: -9999px; overflow: hidden; background-color: #a0afb9; background-position: 50%; background-repeat: no-repeat;}
+#menu a:hover, #menu .active a { margin: 14px 0; border: 4px solid #fff; box-shadow: 1px 1px 3px 1px #b4d7ed; border-radius: 50%; background-color: #239ae6;}
+
+.section .imgbox { margin-left: 300px;}

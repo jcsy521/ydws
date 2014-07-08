@@ -46,11 +46,13 @@ window.dlf.fn_notifyManageMsg = function() {
 	$('.j_leafNode').each(function(leafEvent) { 
 		var str_tempLeafClass = $(this).attr('class'), 
 			str_tempLeafMobile = $(this).children('a').attr('title'),
-			str_tempLeafAlias = $(this).children('a').attr('alias');
+			str_tempLeafAlias = $(this).children('a').attr('alias'),
+			str_dealAlias = dlf.fn_dealAlias(str_tempLeafAlias),	// 处理中文后的别名
+			str_alias = dlf.fn_encode(str_dealAlias);	// 编码后的别名
 		
 		if ( str_tempLeafClass.search('jstree-checked') != -1) {
 			arr_tMobiles.push(str_tempLeafMobile);
-			arr_tAlias.push(str_tempLeafAlias);
+			arr_tAlias.push(str_alias);
 		}
 	});
 	obj_notifyManageData.mobiles = arr_tMobiles;

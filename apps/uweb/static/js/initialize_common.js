@@ -1599,6 +1599,11 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
+	} else if ( str_wrapperId == 'singleMileage' ) {
+		//当切换到个人里程统计查询时,进行车辆的位置移动for: hs at 2014-7-8
+		if (str_currentTid != '' ) {
+			dlf.fn_moveMarker(str_currentTid);
+		}
 	}
 	obj_wrapper.show();
 }
@@ -2428,7 +2433,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		$('#topShowIcon').css('left', n_topPanelLeft);
 		$('#leftPanelShowIcon').css('top', n_leftPanelTop);
 		if ( b_trackSt ) {
-			n_tempContent = n_mapHeight = n_windowHeight - 201;
+			n_tempContent = n_mapHeight = n_windowHeight - 161;
 			if ( b_topPanelSt ) {
 				n_mapHeight = n_windowHeight - 74;
 				n_tempContent = n_windowHeight - 38;
@@ -2459,9 +2464,9 @@ window.dlf.resetPanelDisplay = function(n_type) {
 				str_alarmPanelDisplay = obj_alarmPanel.css('display'),
 				//n_tempWindowWidth = n_tempWidth,
 				n_delayLeft = n_tempWindowWidth - 550,
-				n_delayIconLeft = n_delayLeft - 17,
+				n_delayIconLeft = n_delayLeft - 18,
 				n_alarmLeft = n_tempWindowWidth - 400,
-				n_alarmIconLeft = n_alarmLeft - 17;
+				n_alarmIconLeft = n_alarmLeft - 18;
 
 			if ( n_tempWindowWidth <= 1024 ) {
 				n_trackLeft = 40;
@@ -2472,16 +2477,16 @@ window.dlf.resetPanelDisplay = function(n_type) {
 				n_tempWindowWidth = 1024;
 			}
 			if ( !b_delayPanel ) {
-				n_delayIconLeft = n_tempWindowWidth - 17;
+				n_delayIconLeft = n_tempWindowWidth - 18;
 			}
 			if ( str_alarmPanelDisplay == 'none' && n_type != 2  ) {	// searchRecord.js 查询完数据后也会重新计算宽高
-				n_alarmIconLeft = n_tempWindowWidth - 17;
+				n_alarmIconLeft = n_tempWindowWidth - 18;
 			}
 			if ( n_type == 2 ) {
 				if ( $('.j_alarmPanel').css('display') != 'none' ) {
 					//n_alarmIconLeft =  
 				} else {
-					n_alarmIconLeft = n_tempWindowWidth - 17;
+					n_alarmIconLeft = n_tempWindowWidth - 18;
 				}
 			}
 			obj_delayPanel.css({'left': n_delayLeft});

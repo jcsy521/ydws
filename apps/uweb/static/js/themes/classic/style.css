@@ -64,6 +64,11 @@
     background-clip: padding-box;
 	behavior: url(/static/js/themes/classic/PIE.htc);
 }
+#vakata-contextmenu li ul {
+	height: 270px;
+	overflow-y: scroll;
+	overflow-x: auto;
+}
 #vakata-contextmenu.jstree-classic-context li { }
 #vakata-contextmenu.jstree-classic-context a { /* kjj update old css is color: black; */
 	display: block;

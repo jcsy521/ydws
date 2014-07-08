@@ -222,7 +222,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		str_alias = b_userType == true ? obj_carA.attr('alias') : obj_carA.next().html();
 	}
 	str_alias = dlf.fn_encode(str_alias);
-	label = new BMap.Label(str_alias, {offset:new BMap.Size(31, 22)});
+	label = new BMap.Label(str_alias, {offset:new BMap.Size(31, 26)});
 	label.setStyle({'backgroundColor': '#fff', 'fontSize': '13px', 'lineheight': '20px','borderRadius': '6px','padding': '5px','color': '#000'});	// 设置label样式
 	/**
 	* 设置marker图标
@@ -766,6 +766,10 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	
 	if ( $('.j_currentCar').attr('tid') != tid ) {
 		//return; // todo 2013.12.4
+	}
+	if ( str_type == 'draw' ) {
+		//正在播放时,进行获取地址操作,停止播放动作
+		$('#tPause').click();
 	}
 	if ( str_type == 'event' ) {
 		dlf.fn_ShowOrHideMiniMap(false);	// 如果是告警的获取位置，关闭小地图

@@ -189,9 +189,9 @@ function fn_displayCurrentMarker(obj_location) {
 	obj_car.speed = obj_location.speed;
 	
 	$('.j_carList').data('carsData')[obj_location.tid] = obj_car;
-	
-	dlf.fn_updateInfoData(obj_location, 'current');	// 对当前车的位置信息进行更新
-	dlf.fn_updateTerminalInfo(obj_location, 'realtime');	// 对当前车的车辆信息进行更新
+	//todo使用完整数据
+	dlf.fn_updateInfoData(obj_car, 'current');	// 对当前车的位置信息进行更新
+	dlf.fn_updateTerminalInfo(obj_car, 'realtime');	// 对当前车的车辆信息进行更新
 }
 
 /**
