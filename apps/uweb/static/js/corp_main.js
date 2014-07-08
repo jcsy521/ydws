@@ -912,6 +912,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			
 			$('#corpTree').jstree('check_node', '#leafNode_' + str_tid);
 			
+			str_currentTid = str_tid;
 			if ( str_clcikTerminalCls ) { // 如果已经选中,不进行check_node事件
 				dlf.fn_switchCar(str_tid, obj_current); 
 			}
@@ -948,7 +949,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		if ( n_terminalClass != -1 ) {	// 选中单个终端
 			var obj_current = obj_currentLi.children('.j_terminal')
 				str_tid = obj_current.attr('tid');
-
+			
+			str_currentTid = str_tid;
 			dlf.fn_switchCar(str_tid, obj_current, 'check_node'); // 登录成功
 			b_checkedAll = true;			
 			//如果当前分组下可见的终端全部被选中
@@ -1216,7 +1218,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 
 	str_checkedNodeId = str_checkedNodeId == undefined ? 'leaf_' + str_currentTid : str_checkedNodeId;
 	str_tempTid = str_checkedNodeId.substr(5, str_checkedNodeId.length);
-	str_currentTid = obj_current.attr('tid');	// load.jstree时更新选中的车
+	//str_currentTid = obj_current.attr('tid');	// load.jstree时更新选中的车
 	
 	if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
 		$('.j_terminal').each(function() {
@@ -1246,7 +1248,6 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 		dlf.fn_eachCheckedNode('.j_group');
 		dlf.fn_eachCheckedNode('.j_leafNode');
 	}
-				
 	$.post_(CORP_LASTINFO_URL, JSON.stringify(obj_param), function (data) {	// 向后台发起lastinfo请求
 		$('.j_body').data('intervalkey', false);
 		
