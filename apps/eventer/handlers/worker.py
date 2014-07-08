@@ -86,13 +86,13 @@ class Worker(object):
                     #NOTE: Send alarm message if need
                     send_flag = self.redis.getvalue(self.alarm_key)
                     if queue_len >= self.alarm_size and (not send_flag):
+                        self.redis.setvalue(self.alarm_key, True, self.alarm_interval)
                         content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
                         for mobile in self.mobiles:
                             SMSHelper.send(mobile, content)
                         for email in self.emails:
                             EmailHelper.send(email, content) 
                         logging.info("[EVENTER] Notify EVENTER queue exception to administrator!")
-                        self.redis.setvalue(self.alarm_key, True, self.alarm_interval)
 
                     #NOTE: Deal with the packet
                     if self.name == EVENTER.INFO_TYPE.REPORT:

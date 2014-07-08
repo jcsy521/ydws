@@ -259,7 +259,8 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
         where_clause = ' AND '.join([v for v in fields.itervalues()
                                      if v is not None])
         try:
-            sql = ("SELECT tt.tid, tt.login, tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile, tt.begintime, tt.endtime,"
+            sql = ("SELECT tt.tid, tt.login, tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile,"
+                   "  tt.softversion, tt.begintime, tt.endtime,"
                    "  tt.service_status, tc.cnum, tcorp.name as ecname, tt.biz_type"
                    "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_CAR as tc ON tt.tid = tc.tid"
                    "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"
@@ -345,14 +346,15 @@ class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
             ws.write(i, 2, result['umobile'])
             ws.write(i, 3, result['tmobile'])
             ws.write(i, 4, result['tid'])
-            ws.write(i, 5, result['alias'])
-            ws.write(i, 6, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
+            ws.write(i, 5, result['softversion'])
+            ws.write(i, 6, result['alias'])
+            ws.write(i, 7, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
             if int(result['login']) == 0:
-                ws.write(i, 7, u'离线', offline_style)
+                ws.write(i, 8, u'离线', offline_style)
             else:
-                ws.write(i, 7, u'在线', online_style)
-            ws.write(i, 8, '%s%%' % result['pbat'])
-            ws.write(i, 9, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
+                ws.write(i, 8, u'在线', online_style)
+            ws.write(i, 9, '%s%%' % result['pbat'])
+            ws.write(i, 10, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)
@@ -489,13 +491,18 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             tid = terminal.tid
             biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, self.db) 
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
-                if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
+                if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE: # offline
                     if terminal.mobile == tid:
                         delete_terminal(tid, self.db, self.redis)
+                        logging.info('[ADMIN] Delete terminal. umobile:%s, tid: %s, tmobile:%s.', 
+                                     pmobile, tid, tmobile)
                     else:
+                        delete_terminal(tid, self.db, self.redis)
                         unbind_sms = SMSCode.SMS_UNBIND  
                         ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
                         ret = DotDict(json_decode(ret))
+                        logging.info('[ADMIN] Send JB sms. umobile:%s, tid: %s, tmobile:%s.', 
+                                     pmobile, tid, tmobile)
                     self.write_ret(status)
                     return
             else: 
@@ -510,14 +517,14 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args)
             response = json_decode(response)
             if response['success'] == ErrorCode.SUCCESS:
-                logging.info("[UWEB] umobile: %s, tid: %s, tmobile:%s GPRS unbind successfully", 
+                logging.info("[ADMIN] Umobile: %s, tid: %s, tmobile:%s GPRS unbind successfully", 
                              pmobile, terminal.tid, tmobile)
             else:
                 status = response['success']
                 # unbind failed. clear sessionID for relogin, then unbind it again
                 sessionID_key = get_terminal_sessionID_key(terminal.tid)
                 self.redis.delete(sessionID_key)
-                logging.error('[UWEB] umobile:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
+                logging.error("[ADMIN] Umobile:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...", 
                               pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
                 unbind_sms = SMSCode.SMS_UNBIND  
                 biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, self.db)
@@ -533,15 +540,15 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                                     "  WHERE id = %s",
                                     UWEB.SERVICE_STATUS.TO_BE_UNBIND,
                                     terminal.id)
-                    logging.info("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind successfully.",
+                    logging.info("[ADMIN] umobile: %s, tid: %s, tmobile: %s SMS unbind successfully.",
                                  pmobile, terminal.tid, tmobile)
                 else:
-                    logging.error("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
+                    logging.error("[ADMIN] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
                                   pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
 
         except Exception as e:
             status = ErrorCode.FAILED
-            logging.exception("Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)
+            logging.exception("[ADMIN] Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)
         self.write_ret(status)
             
 class BusinessServiceHandler(BaseHandler, BusinessMixin):
@@ -569,6 +576,6 @@ class BusinessServiceHandler(BaseHandler, BusinessMixin):
             self.redis.delete(*keys)
         except Exception as e:
             status = ErrorCode.FAILED
-            logging.exception("Update service_status to %s failed. tmobile: %s", service_status, tmobile)
+            logging.exception("[ADMIN] Update service_status to %s failed. tmobile: %s", service_status, tmobile)
         self.write_ret(status)
             
