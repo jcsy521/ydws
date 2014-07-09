@@ -60,8 +60,10 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		str_carTid = obj_currentCar.attr('tid');	// 当前车定位器编号
 	
 	if ( obj_currentCar.length == 0 ) {
-		str_carTid = str_currentTid;
-		obj_currentCar = $('.j_terminal[tid='+ str_currentTid +']');
+		if ( dlf.fn_userType() ) {
+			str_carTid = str_currentTid;
+			obj_currentCar = $('.j_terminal[tid='+ str_currentTid +']');
+		}
 	}
 	
 	var	str_iconType = obj_currentCar.attr('icon_type'),	// icon_type
@@ -259,6 +261,10 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	var obj_toWindowInterval = setInterval(function() {
 		var obj_tempMarker = obj_selfmarkers[str_tid];	// obj_carA.data('selfmarker');
 		
+		if ( !dlf.fn_userType() ) {
+			str_currentTid = str_currentPersonalTid;
+		}
+	
 		if ( str_currentTid && str_currentTid == str_tid ) {
 			if ( str_type == 'current' ) {	// 查找到当前车辆的信息
 				if ( obj_tempMarker ) {

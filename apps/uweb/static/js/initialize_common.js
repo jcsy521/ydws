@@ -679,7 +679,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 			if ( !dlf.fn_isEmptyObj(obj_currentCarDatas) ) {
 				var obj_tempCurrentCar = $('.j_carList .j_terminal').eq(0),
 					str_tempTid = obj_tempCurrentCar.attr('tid');
-					
+				
 				dlf.fn_switchCar(str_tempTid, obj_tempCurrentCar, str_flag); // 车辆列表切换
 			}
 		} else if ( data.status == 201 ) {	// 业务变更
