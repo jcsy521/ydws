@@ -632,7 +632,7 @@ $(function () {
 				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				} else { 
-					var obj_current = obj_selfmarkers[$('.j_carList .j_currentCar').attr('tid')];
+					var obj_current = obj_selfmarkers[str_currentTid];
 					
 					if ( obj_current ) {
 						setTimeout(function() {

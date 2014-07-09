@@ -65,8 +65,8 @@
 	behavior: url(/static/js/themes/classic/PIE.htc);
 }
 #vakata-contextmenu li ul {
-	height: 270px;
-	overflow-y: scroll;
+	max-height: 270px;
+	overflow-y: auto;
 	overflow-x: auto;
 }
 #vakata-contextmenu.jstree-classic-context li { }

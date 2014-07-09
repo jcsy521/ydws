@@ -1312,13 +1312,13 @@ window.dlf.fn_getCurrentTid = function() {
 		str_tempCurrentTid = '',
 		b_userType = dlf.fn_userType();
 
-	if ( obj_currentCar ) {
+	if ( obj_currentCar.length != 0 ) {
 		str_tempCurrentTid = obj_currentCar.attr('tid');
 	} else {
 		if ( b_userType ) {
-			str_tempCurrentTid = str_currentPersonalTid;
-		} else {
 			str_tempCurrentTid = str_currentTid;
+		} else {
+			str_tempCurrentTid = str_currentPersonalTid;
 		}
 	}
 	return str_tempCurrentTid;
@@ -1599,7 +1599,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
-	} else if ( str_wrapperId == 'singleMileage' ) {
+	} else if ( str_wrapperId == 'singleMileage' || str_wrapperId == 'realtime' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'bindRegion' ) {
 		//当切换到个人里程统计查询时,进行车辆的位置移动for: hs at 2014-7-8
 		if (str_currentTid != '' ) {
 			dlf.fn_moveMarker(str_currentTid);
@@ -1710,6 +1710,11 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						str_defendMsg = n_status == 1 ? '已设防' : '未设防',
 						str_poDefendMsg = n_status == 0 ? '已设防' : '未设防',
 						arr_datas = data.res;
+					
+					if (  $('.j_currentCar').length == 0 ) {
+						str_tid = str_currentTid;
+						obj_currentCar = $('.j_terminal[tid='+ str_currentTid +']');
+					}
 					
 					if ( n_length > 0 ) {	// 批量设防撤防
 						for ( var i in arr_tids ) {
@@ -1992,6 +1997,13 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 								b_mapType = dlf.fn_isBMap(),
 								obj_icon = null;
 							
+							if (  obj_current.length == 0 ) {
+								str_tid = str_currentTid;
+								obj_current = $('.j_terminal[tid='+ str_currentTid +']');
+								n_imgDegree = obj_current.attr('degree');
+								str_loginSt = obj_current.attr('clogin');
+							}
+					
 							obj_current.attr('icon_type', str_val);
 							obj_carInfo.icon_type = str_val;
 							if ( obj_currentMarker ) {

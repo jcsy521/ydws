@@ -37,6 +37,11 @@ window.dlf.fn_initTrack = function() {
 		str_currentCarAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias)),
 		obj_trackPos = $('.trackPos');
 	
+	if ( $('.j_currentCar').length == 0 ) {
+		str_tempAlias = $('.j_terminal[tid='+ str_currentTid +']').attr('alias');
+		str_currentCarAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias));
+	}
+	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
 		obj_trackPos.css('width', 490);
@@ -538,7 +543,12 @@ function fn_startDrawLineStatic(arr_dataArr) {
 			$('#trackHeader').data('delayPoints', arr_tempDelay);
 			
 			for ( var x = 0; x < arr_delayPoints.length; x++ ) {
-				arr_delayPoints[x].alias = $('.j_currentCar').attr('alias');
+				var obj_currentCar = $('.j_currentCar');
+				
+				if ( $('.j_currentCar').length == 0 ) {
+					obj_currentCar = $('.j_terminal[tid='+ str_currentTid +']');
+				}
+				arr_delayPoints[x].alias = obj_currentCar.attr('alias');
 				arr_tempDelay.push(arr_delayPoints[x]);
 			}
 			fn_printDelayDatas(arr_tempDelay, obj_firstMarker, obj_endMarker);	// 显示停留数据
@@ -580,6 +590,10 @@ function fn_drawMarker(str_step) {
 	var n_len = arr_dataArr.length,
 		str_tid = $('.j_currentCar').attr('tid'),
 		obj_selfInfoWindow = null;
+	
+	if ( $('.j_currentCar').length == 0 ) {
+		str_tid = str_currentTid;
+	}
 	
 	if ( str_actionState != 0 ) {
 		counter = str_actionState;

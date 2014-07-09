@@ -496,6 +496,10 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 			}
 		}
 		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, true);	// 集团用户设置marker的图标
+		
+		if ( $('.j_carList .j_currentCar').length == 0 ) {
+			str_currenttid = str_currentTid;
+		}
 	}
 	if ( str_actionTrack == 'yes' ) {
 		str_tempMsg = '取消跟踪';

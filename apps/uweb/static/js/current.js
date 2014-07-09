@@ -209,6 +209,8 @@ window.dlf.fn_defendQuery = function(str_alias) {
 		str_tempAlias = '';
 	
 	if ( dlf.fn_userType() ) {
+		obj_currentCar = $('.j_terminal[tid='+str_currentTid+']');
+		
 		str_tempAlias = str_alias || obj_currentCar.text().substr(2);
 	} else {
 		str_tempAlias = obj_currentCar.siblings(0).html();

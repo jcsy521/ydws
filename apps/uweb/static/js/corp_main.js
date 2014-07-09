@@ -1623,7 +1623,7 @@ function fn_updateAlarmList(arr_alarm) {
 	
 	// 首次提示用户无告警数据
 	if ( !$('.j_alarmTable').data('markers') ) {
-		obj_table.append('<li class="j_noDataAlarmPanel noDataAlarm">暂无告警信息</li>');
+		obj_table.html('<li class="j_noDataAlarmPanel noDataAlarm">暂无告警信息</li>');
 		return;
 	} else {
 		$('.j_noDataAlarmPanel').remove();
@@ -2086,12 +2086,12 @@ window.dlf.fn_updateTerminalLogin = function(obj_this) {
 * str_tid: 集团用户右键参数设置中修改定位器名称
 */
 window.dlf.fn_updateCorpCnum = function(cnum) {
-	var obj_current = $('.j_currentCar'),
+	var obj_current = $('.j_terminal[tid='+str_currentTid+']'),
 		str_cnum = cnum['corp_cnum'] == undefined ? cnum : cnum['corp_cnum'],
 		str_tmobile = obj_current.attr('title'),
 		str_tempAlias = str_cnum,
 		str_dealAlias = '',
-		str_tid = $('.j_carList .j_currentCar').attr('tid'),
+		str_tid = str_currentTid,
 		obj_selfMarker = obj_selfmarkers[str_tid],
 		b_mapType = dlf.fn_isBMap();
 	

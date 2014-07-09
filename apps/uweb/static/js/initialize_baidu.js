@@ -57,10 +57,16 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	var obj_tempData = [], 
 		obj_currentCar = $('.j_carList a[class*=j_currentCar]'),
-		str_currentTid = obj_currentCar.attr('tid'),	// 当前车定位器编号
-		str_iconType = obj_currentCar.attr('icon_type'),	// icon_type
+		str_carTid = obj_currentCar.attr('tid');	// 当前车定位器编号
+	
+	if ( obj_currentCar.length == 0 ) {
+		str_carTid = str_currentTid;
+		obj_currentCar = $('.j_terminal[tid='+ str_currentTid +']');
+	}
+	
+	var	str_iconType = obj_currentCar.attr('icon_type'),	// icon_type
 		str_tempTid = obj_carInfo.tid,
-		str_tid = str_type == 'current' ? str_currentTid : str_tempTid,
+		str_tid = str_type == 'current' ? str_carTid : str_tempTid,
 		str_alias = obj_carInfo.alias,
 		n_carTimestamp = obj_carInfo.timestamp,
 		n_clon = obj_carInfo.clongitude/NUMLNGLAT,
@@ -404,9 +410,13 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 			var obj_carDatas = $('.j_carList').data('carsData'),
 				obj_tempCarData = obj_carDatas[str_tid],
 				obj_selfInfoWindow = obj_selfMarker.infoWindow,
-				str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
+				str_carTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 			
-			if ( str_currentTid == str_tid ) {
+			if ( $('.j_carList a[class*=j_currentCar]').length == 0 ) {
+				str_carTid = str_currentTid;
+			}			
+			
+			if ( str_carTid == str_tid ) {
 				if ( obj_selfInfoWindow ) {
 					dlf.fn_createMapInfoWindow(obj_tempCarData, 'actiontrack')
 					obj_selfMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
@@ -426,9 +436,14 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 */
 window.dlf.fn_updateOpenTrackStatusColor = function(str_tid, str_order) {
 	var str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),
-		str_color = '';
-
-	if ( str_tid == $('.j_currentCar').attr('tid') ) {
+		str_color = '',
+		str_carcTid = $('.j_currentCar').attr('tid');
+	
+	if ( $('.j_currentCar').length == 0 ) {
+		str_carcTid = str_currentTid;
+	}
+	
+	if ( str_tid == str_carcTid ) {
 		if ( str_order == 'after' ) {
 			if ( str_actionTrack == 'yes' ) {
 				str_color = 'blue';

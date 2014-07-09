@@ -127,6 +127,10 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 			n_month = obj_date.getMonth() + 1,	// 当前月份
 			str_alias = $('.j_currentCar').text().substr(2);
 		
+		if ( $('.j_currentCar').length == 0 ) {
+			str_alias = $('.j_terminal[tid='+ str_currentTid +']').text().substr(2);
+		}
+		
 		if ( $(window).height() <= 658 ) {
 			if ( $('#'+ str_who +'Wrapper').is(':visible') ) {
 				$('#'+ str_who +'Wrapper').css('top', '0px');
@@ -314,9 +318,13 @@ window.dlf.fn_searchData = function (str_who) {
 	var obj_conditionData = {}, 
 		str_getDataUrl = '', 
 		arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
-		str_currentTid = $('.j_currentCar').attr('tid'),
+		str_cTid = $('.j_currentCar').attr('tid'),
 		n_tidsNums = arr_leafNodes.length;
 	
+	if ( $('.j_currentCar').length == 0 ) {
+		str_cTid = str_currentTid;
+	}
+		
 	switch (str_who) {
 		case 'operator': //  操作员查询
 			
@@ -533,7 +541,7 @@ window.dlf.fn_searchData = function (str_who) {
 			str_getDataUrl = ROUTELINE_URL+'?pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
 			break;
 		case 'region': // 围栏管理查询
-			str_getDataUrl = REGION_URL + '?tid=' + str_currentTid;
+			str_getDataUrl = REGION_URL + '?tid=' + str_cTid;
 			$('#regionTable').removeData();
 			break;
 		case 'bindRegion': // 绑定围栏管理查询
@@ -543,7 +551,7 @@ window.dlf.fn_searchData = function (str_who) {
 			break;
 		case 'alertSetting': // 告警时间段
 		case 'corpAlertSetting': 
-			str_getDataUrl = ALEERSETTING_URL + '?tid=' + str_currentTid;;
+			str_getDataUrl = ALEERSETTING_URL + '?tid=' + str_cTid;;
 			break;
 		case 'notifyManageSearch': // 通知查询
 			str_getDataUrl = NOTIFYMANAGE_URL;

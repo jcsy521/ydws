@@ -13,7 +13,11 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 		str_bizType = $('#hidBizCode').val(),
 		n_height = 470,
 		n_btnTop = 460;
-
+	
+	if ( $($('.j_carList a[class*=j_currentCar]')).length == 0 ) {
+		str_tid = str_currentTid;
+	}
+	
 	dlf.fn_dialogPosition('corpTerminal');  // 显示定位器设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('.j_input input[type=text]').blur().css('color', '#000').val('');
@@ -131,7 +135,7 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 						$('#tr_corp_' + param + str_val ).attr('checked', 'checked'); 
 					} else if ( param == 'icon_type' ) {	// 图标
 						$('#icon_type' + str_val).attr('checked', true);
-						var obj_currentCar = $('.j_currentCar');
+						var obj_currentCar = $('.j_terminal[tid='+str_currentTid+']');
 						
 						obj_currentCar.attr('icon_type', str_val);
 						dlf.fn_updateTerminalLogin(obj_currentCar);

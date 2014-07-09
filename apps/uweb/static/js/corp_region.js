@@ -287,7 +287,7 @@ window.dlf.fn_initBindRegion = function() {
 	}
 	
 	//填充当前终端tid在围栏页面
-	$('#corpRegionForTerminal').html('定位器：'+str_alias);
+	$('#corpRegionForTerminal').html('定位器：'+dlf.fn_encode(str_alias));
 
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
