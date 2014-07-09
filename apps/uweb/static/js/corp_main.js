@@ -1646,6 +1646,8 @@ function fn_updateAlarmList(arr_alarm) {
 					obj_li.first().before(str_html);
 				} else {
 					obj_table.append(str_html);
+					
+					$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
 				}			
 				arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
 				n_playMusicNum++;

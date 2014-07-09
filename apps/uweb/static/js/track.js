@@ -467,6 +467,7 @@ function fn_printDelayDatas(arr_delayPoints, obj_firstMarker, obj_endMarker) {
 	}
 	obj_table.data('markers', arr_markers);
 	$('.j_delayTbody').html(str_html);
+	$('.j_disPanelCon').css('top', $('#delayTable').height()/2+240);
 	if ( parseInt($.browser.version) <= 7 ) {
 		$('.delayTable img').css('position', 'static');
 	}

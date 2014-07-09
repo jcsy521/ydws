@@ -1576,7 +1576,7 @@ body {
 }
 .disPanelCon, .alarmPanelCon {
 	position: absolute;
-	top: 207px;
+	top: 280px;
 	width: 16px;
 	height: 42px;
 	background: url('/static/images/navIcon_showHide.png') no-repeat;
@@ -1593,7 +1593,7 @@ body {
 }
 
 .disPanelCon {
-	top: 236px;
+	top: 342px;
 }
 .alarmTitle {
 	text-align: center;
@@ -1654,6 +1654,11 @@ body {
 .delayPanel {
 	width: 550px;
 	top: 236px;
+}
+.delayPanel .alarmTitle span {
+	margin-left: 0;
+	position: relative;
+	left: 120px;
 }
 .alarmPanel {
 	top: 207px;
