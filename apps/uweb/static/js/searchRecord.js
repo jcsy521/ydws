@@ -1604,7 +1604,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		
 		if ( b_trackSt ) {
 			n_mapObjMinHeight = 530;
-			n_mapHeight = n_windowHeight - 201;
+			n_mapHeight = n_windowHeight - 240;
 		}
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			n_right = n_windowWidth - 259;

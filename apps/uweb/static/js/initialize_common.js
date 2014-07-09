@@ -2445,7 +2445,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		$('#topShowIcon').css('left', n_topPanelLeft);
 		$('#leftPanelShowIcon').css('top', n_leftPanelTop);
 		if ( b_trackSt ) {
-			n_tempContent = n_mapHeight = n_windowHeight - 161;
+			n_tempContent = n_mapHeight = n_windowHeight - 200;
 			if ( b_topPanelSt ) {
 				n_mapHeight = n_windowHeight - 74;
 				n_tempContent = n_windowHeight - 38;
