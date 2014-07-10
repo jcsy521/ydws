@@ -341,6 +341,12 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt, b_
 	} else if ( n_iconType == 3 ) {	// 图标
 		str_tempImgUrl = 'default';
 		b_isCar = true;
+	} else if ( n_iconType == 4 ) {	// 警车
+		str_tempImgUrl = 'police';
+		b_isCar = true;
+	} else if ( n_iconType == 5 ) {	// 警摩托车
+		str_tempImgUrl = 'policeMoto';
+		b_isCar = true;
 	} else {
 		str_tempImgUrl = 27; // n_degree;
 		str_dir = BASEDEGREEIMGURL;

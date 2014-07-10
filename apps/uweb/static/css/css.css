@@ -1036,7 +1036,7 @@ body {
 	top: 2px;
 }
 .corp_radio label {
-	margin-right: 10px;
+	margin-right: 0;
 }
 .personalList input, .pwdList input, .cTerminalList input {
 	padding: 5px;

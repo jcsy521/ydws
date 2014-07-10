@@ -2044,6 +2044,10 @@ function fn_setIconType(n_iconType, n_login) {
 		str_tempImgUrl = 'icon_person';
 	} else if ( n_iconType == 3 ) {
 		str_tempImgUrl = 'icon_default';
+	} else if ( n_iconType == 4 ) {// 警车
+		str_tempImgUrl = 'icon_police';
+	} else if ( n_iconType == 5 ) {// 警摩托车
+		str_tempImgUrl = 'icon_policeMoto';
 	}
 	return str_tempImgUrl + n_login + '.png';
 }
@@ -2458,7 +2462,12 @@ function fn_removeTerminal(node) {
 		dlf.fn_jNotifyMessage('定位器正在删除中' + WAITIMG, 'message', true);
 		$.delete_(str_delTerminalUrl, '', function (data) {
 			if ( data.status == 0 ) {
-				fn_updateTerminalCount('sub', 1);				
+				if ( str_login == LOGINOUT ) {
+					n_offlineCnt -= 1;
+				} else {
+					n_onlineCnt  -=1;
+				}
+				fn_updateTerminalCount();				
 				$("#corpTree").jstree('remove');				
 				// 删除地图marker
 				obj_actionTrack[str_param].status = 'no';
@@ -2548,6 +2557,7 @@ function fn_initBatchDeleteData(obj_params) {
 					}
 					n_successLen = arr_success.length;	// 成功删除的终端个数
 					fn_updateTerminalCount('sub', n_successLen);
+					
 					$('.j_batchDelete').attr('disabled', true);	// 批量删除按钮变成灰色并且不可用
 					/**
 					* 删除节点
