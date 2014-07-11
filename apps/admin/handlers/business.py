@@ -260,7 +260,7 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                                      if v is not None])
         try:
             sql = ("SELECT tt.tid, tt.login, tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile,"
-                   "  tt.softversion, tt.begintime, tt.endtime,"
+                   "  tt.softversion, tt.begintime, tt.endtime, tt.move_val, tt.static_val,"
                    "  tt.service_status, tc.cnum, tcorp.name as ecname, tt.biz_type"
                    "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_CAR as tc ON tt.tid = tc.tid"
                    "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"

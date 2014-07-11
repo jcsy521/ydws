@@ -102,8 +102,8 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>sn</th><th>版本号</th><th>定位器名称</th><th>业务类型</th><th>在线/离线</th><th>电量</th>
-            <th>开通时间</th><th>删除</th><th>终端类型变更</th>
+            <th>序号</th><th>集团名称</th><th>车主手机</th><th>终端手机</th><th>sn</th><th>版本号</th><th>定位器名称</th><th>业务类型</th><th>在线/离线</th><th>电量</th><th>move_val</th><th>static_val</th>
+<th>开通时间</th><th>删除</th><th>终端类型变更</th>
             <!--2014.07.07 Jia Xiaolei. 暂时去掉“停用”功能。-->
             <!--<th>开通时间</th><th>删除</th><th>终端启用/停用</th><th>终端类型变更</th>-->
         </tr>
@@ -138,6 +138,13 @@
 				<td>
 					{{business.pbat}}%
 				</td>
+				<td>
+					{{business.move_val}}
+				</td>
+				<td>
+					{{business.static_val}}
+				</td>
+
 				<td><script>document.write(toHumanDate({{business.begintime}}, 'yes'));</script></td>
 				<td>
                     <a href="#" onclick="businessDelete({{business['tmobile']}}, {{ business['umobile'] }})">删除</a>

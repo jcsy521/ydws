@@ -73,7 +73,7 @@ class OfflineMixin(BaseMixin):
                     res.remove(item)
 
         offline_cause = self.get_argument('offline_cause', None) 
-        if offline_cause is not None:
+        if (offline_cause is not None) and (offline_cause != ''):
             for item in res_:
                 if item['offline_cause'] != int(offline_cause):
                     if item in res:
