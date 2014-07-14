@@ -1,0 +1,153 @@
+Index: apps/uweb/handlers/login.py
+===================================================================
+--- apps/uweb/handlers/login.py	(revision 2031)
++++ apps/uweb/handlers/login.py	(working copy)
+@@ -40,9 +40,13 @@
+         """We store cid, oid, uid,tid and sim in the cookie to
+         authenticate the user.
+         """
+-        username = self.get_argument("username", "")
+-        password = self.get_argument("password", "")
+-        captcha = self.get_argument("captcha", "")
++        username_ = self.get_argument("username", "")
++        username = base64.b64decode(username_)[128:]
++        password_ = self.get_argument("password", "")
++        password = base64.b64decode(password_)[128:]
++        captcha_ = self.get_argument("captcha", "")
++        captcha = base64.b64decode(captcha_)[128:]
++
+         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
+         captchahash = self.get_argument("captchahash", "")
+ 
+Index: apps/uweb/static/css/login.css
+===================================================================
+--- apps/uweb/static/css/login.css	(revision 2031)
++++ apps/uweb/static/css/login.css	(working copy)
+@@ -96,7 +96,7 @@
+ 	padding: 0px 5px;
+ 	background-color: #FFF;
+ }
+-#captcha {
++#login_captcha {
+ 	width: 70px;
+ }
+ table, tr, td {
+Index: apps/uweb/static/js/initialize_common.js
+===================================================================
+--- apps/uweb/static/js/initialize_common.js	(revision 2031)
++++ apps/uweb/static/js/initialize_common.js	(working copy)
+@@ -1343,7 +1343,7 @@
+ * html标签 编码、解码
+ */
+ window.dlf.fn_encode = function(str) {
+-	return str.replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
++	return str.replace(/\>/g, '&gt;').replace(/\</g, '&lt;').replace(/\&/g, '&amp;');
+ }
+ window.dlf.fn_decode = function(str) {
+ 	return str.replace(/\&gt;/g, '>').replace(/\&lt;/g, '<').replace(/\'/g, "\'").replace(/\"/g, '\"');
+Index: apps/uweb/static/js/login.js
+===================================================================
+--- apps/uweb/static/js/login.js	(revision 2031)
++++ apps/uweb/static/js/login.js	(working copy)
+@@ -278,3 +278,37 @@
+ 		$('#captchahash').val($.cookie('captchahash'));
+ 	});
+ }
++
++
++/**
++* 对登录字段处理
++*/
++function fn_validLogin() {
++	var str_loginName = $('#login_username').val(),
++		str_loginPwd = $('#login_pwd').val(),
++		str_loginCaptcha = $('#login_captcha').val(),
++		str_randomStr = fn_createRandomStr(128);
++	
++	$('#loginHidden_username').val(base64encode(utf16to8(str_randomStr+str_loginName)));
++	$('#loginHidden_pwd').val(base64encode(utf16to8(str_randomStr+str_loginPwd)));
++	$('#loginHidden_captcha').val(base64encode(utf16to8(str_randomStr+str_loginCaptcha)));
++	return true;
++}
++
++/**
++* 生成一个随机数
++*/
++
++function fn_createRandomStr(n_randomNum) {
++	var str_baseCode = '23456789ABCDEFGHJKMNPQRSTUVWXYZ',
++		str_returncode = '';
++	
++	for ( var i = 0; i< n_randomNum; i++ ) {
++		var n_tempRandomNum = Math.random()*30+1,
++			str_tempCode = str_baseCode.substr(n_tempRandomNum, 1);
++		
++		str_returncode += str_tempCode;
++	}
++	return str_returncode;
++		
++}
+Index: apps/uweb/templates/login.html
+===================================================================
+--- apps/uweb/templates/login.html	(revision 2031)
++++ apps/uweb/templates/login.html	(working copy)
+@@ -6,6 +6,7 @@
+ 		<meta http-equiv="Expires" content="-1" />
+ 		<link rel="shortcut icon" href="/favicon.ico" />
+ 		<link type="text/css" href="/static/css/login.css" rel="stylesheet" />
++		<script type="text/javascript" src="/static/js/base64.js"></script>
+ 		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>		
+ 		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+ 		<script type="text/javascript" src="/static/js/definitions.js"></script>
+@@ -59,7 +60,7 @@
+ 					</script>
+ 				</div> 
+ 				<div class="loginFormContent">
+-				<form action="/login" method="post">
++				<form action="/login" method="post" onsubmit="return fn_validLogin();">
+ 					<ul class="tabs">
+ 						<li class="current" title="个人登录" userType="individual">个人登录</li>
+ 						<li class="other" title="集团用户" userType="enterprise">集团用户</li>
+@@ -67,33 +68,33 @@
+ 					<table class="loginBox">
+ 						<tr>
+ 							<td>
+-								<label for="username">用户名：</label>
++								<label for="login_username">用户名：</label>
+ 							</td>
+ 							<td>
+-								<input id="username" type="text" name="username"
+-									value="{{username}}"  class="j_replace" />
++								<input id="login_username" type="text" value="{{username}}"  class="j_replace" />
+ 							</td>
+ 						</tr>
+ 						<tr>
+ 							<td>
+-								<label for="password">密&#12288;码：</label>
++								<label for="login_pwd">密&#12288;码：</label>
+ 							</td>
+ 							<td>
+-							<input id="password" type="password" name="password" value="{{password}}"
+-								  class="j_replace"
+-								   />
++							<input id="login_pwd" type="password" value="{{password}}" class="j_replace" />
+ 							</td>
+ 						</tr>
+ 						<tr>
+ 							<td>
+-								<label for="captcha">验证码：</label>
++								<label for="login_captcha">验证码：</label>
+ 							</td>
+ 							<td>
+-								<input id="captcha" type="text" name="captcha" maxlength="4" class="captchaInput j_replace"  
++								<input id="login_captcha" type="text" maxlength="4" class="captchaInput j_replace"  
+ 								   autocomplete="off" />
+ 								<img alt="验证码图片" id="captchaimg" src="" class="captchaImg" alt="看不清？换一张" title="看不清？换一张" />
+ 								<input type="hidden" name="captchahash" id="captchahash" value="" />
+ 								<input type="hidden" name="user_type" id="userRoleType" value="{{user_type}}" />
++								<input type="hidden" name="username" id="loginHidden_username" value="" />
++								<input type="hidden" name="password" id="loginHidden_pwd" value="" />
++								<input type="hidden" name="captcha" id="loginHidden_captcha" value="" />
+ 							</td>
+ 						</tr>
+ 					</table>
