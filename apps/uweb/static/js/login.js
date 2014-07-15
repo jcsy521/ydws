@@ -278,3 +278,37 @@ function fn_getCaptcha($obj) {
 		$('#captchahash').val($.cookie('captchahash'));
 	});
 }
+
+
+/**
+* 对登录字段处理
+*/
+function fn_validLogin() {
+	var str_loginName = $('#login_username').val(),
+		str_loginPwd = $('#login_pwd').val(),
+		str_loginCaptcha = $('#login_captcha').val(),
+		str_randomStr = fn_createRandomStr(128);
+	
+	$('#loginHidden_username').val(base64encode(utf16to8(str_randomStr+str_loginName)));
+	$('#loginHidden_pwd').val(base64encode(utf16to8(str_randomStr+str_loginPwd)));
+	$('#loginHidden_captcha').val(base64encode(utf16to8(str_randomStr+str_loginCaptcha)));
+	return true;
+}
+
+/**
+* 生成一个随机数
+*/
+
+function fn_createRandomStr(n_randomNum) {
+	var str_baseCode = '23456789ABCDEFGHJKMNPQRSTUVWXYZ',
+		str_returncode = '';
+	
+	for ( var i = 0; i< n_randomNum; i++ ) {
+		var n_tempRandomNum = Math.random()*30+1,
+			str_tempCode = str_baseCode.substr(n_tempRandomNum, 1);
+		
+		str_returncode += str_tempCode;
+	}
+	return str_returncode;
+		
+}

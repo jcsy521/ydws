@@ -182,7 +182,7 @@ def main():
         #thread.start_new_thread(run_send_failed_mt_thread, ())
         
         # create user receive status thread
-        thread.start_new_thread(run_user_receive_status_thread, ())
+        #thread.start_new_thread(run_user_receive_status_thread, ())
         
         # create get mo thread
         #thread.start_new_thread(run_get_mo_from_gateway_thread, ())

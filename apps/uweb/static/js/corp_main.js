@@ -1581,7 +1581,7 @@ function playMusic() {
 		$("#showMusic").html('<audio id="playMusicAudio" autoplay><source src="'+sound+'" type="audio/mpeg"></audio>');
 	}
 
-	$('#playMusic').removeClass('playMusic').addClass('stopMusic').attr('title', '静音');
+	//$('#playMusic').removeClass('playMusic').addClass('stopMusic').attr('title', '静音');
 	$('#playMusic').unbind('click').click(function() {
 		var obj_this = $(this),
 			str_playClass = 'playMusic',
@@ -1622,7 +1622,7 @@ function fn_updateAlarmList(arr_alarm) {
 		b_panel = $('.j_alarmPanel').is(':hidden');
 	
 	// 首次提示用户无告警数据
-	if ( !$('.j_alarmTable').data('markers') ) {
+	if ( !$('.j_alarmTable').data('markers') && n_alarmLength <= 0 ) {
 		obj_table.html('<li class="j_noDataAlarmPanel noDataAlarm">暂无告警信息</li>');
 		return;
 	} else {

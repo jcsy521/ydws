@@ -415,7 +415,7 @@ class QueryHelper(object):
             version_info['filesize'] = '%sM' % version_info['filesize']
             version_info['filepath'] = '/static/apk/' + version_info['filename']
 
-        return version_info
+        return version_info if version_info else {'versioncode':0}
 
     @staticmethod
     def get_service_status_by_tmobile(db, mobile): 

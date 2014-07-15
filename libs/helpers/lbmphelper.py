@@ -57,7 +57,8 @@ def get_clocation_from_ge(lats, lons):
                 clons, [degree*3600000, ...]
     """
     # send 20 items for getting offset latlon every time.
-    MAX_COUNT = 20 
+    #MAX_COUNT = 20 
+    MAX_COUNT = 100 
     clats = [] 
     clons = [] 
     try: 
@@ -122,7 +123,7 @@ def get_locations_with_clatlon(locations, db):
     logging.info("[LBMPHELPER] Raw location, num:%s, data:%s",
                  len(raw_locations), raw_locations)
     
-    MAX_COUNT = 20
+    MAX_COUNT = 100
     d, m = divmod(len(index_lst), MAX_COUNT)
     rounds = (d + 1) if m else d 
     for i in xrange(rounds):

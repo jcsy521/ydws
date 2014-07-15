@@ -4,6 +4,7 @@ import hashlib
 import time
 import logging
 from hashlib import md5
+import base64
 
 import tornado.web
 from tornado.escape import json_encode, json_decode
@@ -40,9 +41,13 @@ class LoginHandler(BaseHandler, LoginMixin):
         """We store cid, oid, uid,tid and sim in the cookie to
         authenticate the user.
         """
-        username = self.get_argument("username", "")
-        password = self.get_argument("password", "")
-        captcha = self.get_argument("captcha", "")
+        username_ = self.get_argument("username", "")
+        username = base64.b64decode(username_)[128:]
+        password_ = self.get_argument("password", "")
+        password = base64.b64decode(password_)[128:]
+        captcha_ = self.get_argument("captcha", "")
+        captcha = base64.b64decode(captcha_)[128:]
+
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
         captchahash = self.get_argument("captchahash", "")
 

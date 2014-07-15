@@ -25,13 +25,16 @@ define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 # deploy or debug
 define('mode', default='deploy')
 # use warning for deployment
-options['logging'].set('debug')
-# options['logging'].set('warning')
+try:
+    options['logging'].set('debug')
+except:
+    options.logging='debug'
 
 from handlers.main import MainHandler
 from handlers.le import LeHandler
 from handlers.subscription import SubscriptionHandler
-from handlers.ge import GeHandler
+#from handlers.ge import GeHandler
+from handlers.ge_geoconv import GeHandler
 from handlers.gv import GvHandler
 from handlers.worker import WorkerPool
 from helpers.confhelper import ConfHelper

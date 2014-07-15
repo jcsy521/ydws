@@ -45,9 +45,9 @@ class DownloadHandler(BaseHandler):
 
         category = int(self.get_argument('category', 2))
         if category ==2: # ydws
-            version_info = get_version_info('android')
+            #version_info = get_version_info('android')
             download_info = get_download_count(category, self.db)
-            #version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWS, self.db)
+            version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWS, self.db)
             update_download_count(category, self.db)
             self.render('android_weixin.html',
                         versioncode=version_info.versioncode,

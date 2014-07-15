@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+from urllib import urlencode
+import urllib2
 import os.path
 import site
 import logging
 import time
 from exceptions import UnicodeEncodeError
+from tornado.escape import json_encode, json_decode
+
 
 import sys
 reload(sys)
@@ -36,7 +39,6 @@ class MT(object):
         ConfHelper.load(options.conf)
         self.db = DBConnection().db
     
-    
     def fetch_mt_sms(self):
         status = ErrorCode.SUCCESS
         result = None
@@ -56,6 +58,7 @@ class MT(object):
                 id = mt["id"]
                 
                 result = self.send_mt(id, msgid, mobile, content)
+                result = json_decode(result)
                 
                 if result["status"] == ErrorCode.SUCCESS:
                     if result["ret"] == "100":
@@ -85,6 +88,7 @@ class MT(object):
                         status = ErrorCode.FAILED
                 else:
                     # http response is None
+                    logging.info("SMS-->Gateway failed, mobile = %s, content = %s, id = %s ", mobile, content, id)
                     status = ErrorCode.FAILED
                     self.db.execute("UPDATE T_SMS "
                                     "  SET send_status = %s"
@@ -99,27 +103,19 @@ class MT(object):
     
     
     def send_mt(self, id, msgid, mobile, content):
-        result = {'status': ErrorCode.FAILED, 'ret' : '100'}
+        response = {'status': ErrorCode.FAILED, 'ret' : '100'}
         try:
             url = ConfHelper.SMS_CONF.mt_url
-            cmd = "send"
-            uid = ConfHelper.SMS_CONF.uid
-            psw = ConfHelper.SMS_CONF.psw
             msgid = msgid
             mobiles = mobile
-            msg = content.encode('gbk')
-            #msg = content.decode('UTF-8')
-            #msg = safe_utf8(content)
-            
-            data = dict(cmd=cmd,
-                        uid=uid,
-                        psw=psw,
-                        mobiles=mobiles,
-                        msgid=msgid,
-                        msg=msg
-                        )
-            result = HttpClient().send_http_post_request(url, data)
-            
+            msg = content
+            req = urllib2.Request(url=url,
+                                  data=urlencode(dict(mobiles=mobiles,
+                                                      msg=msg,
+                                                      msgid=msgid)))
+            f = urllib2.urlopen(req)
+            response = f.read()
+           
         except UnicodeEncodeError, msg:
             self.db.execute("UPDATE T_SMS "
                             "  SET send_status = %s, "
@@ -132,8 +128,44 @@ class MT(object):
         except Exception, msg:
             logging.exception("Send mt sms exception : %s, msgid:%s, id:%s", msg, msgid, id)
         finally:
-            return result
+            f.close()
+            return response
         
+    #NOTE: old version
+    #def send_mt(self, id, msgid, mobile, content):
+    #    result = {'status': ErrorCode.FAILED, 'ret' : '100'}
+    #    try:
+    #        url = ConfHelper.SMS_CONF.mt_url
+    #        cmd = "send"
+    #        uid = ConfHelper.SMS_CONF.uid
+    #        psw = ConfHelper.SMS_CONF.psw
+    #        msgid = msgid
+    #        mobiles = mobile
+    #        msg = content.encode('gbk')
+
+    #        data = dict(cmd=cmd,
+    #                    uid=uid,
+    #                    psw=psw,
+    #                    mobiles=mobiles,
+    #                    msgid=msgid,
+    #                    msg=msg
+    #                    )            
+
+    #        result = HttpClient().send_http_post_request(url, data)
+    #        
+    #    except UnicodeEncodeError, msg:
+    #        self.db.execute("UPDATE T_SMS "
+    #                        "  SET send_status = %s, "
+    #                        "  recv_status = %s, "
+    #                        "  retry_status = %s "
+    #                        "  WHERE id = %s",
+    #                        SMS.SENDSTATUS.FAILURE, SMS.USERSTATUS.FAILURE, 
+    #                        SMS.RETRYSTATUS.YES, id)
+    #        logging.exception("MT sms encode exception : %s, msgid:%s, id:%s", msg, msgid, id)
+    #    except Exception, msg:
+    #        logging.exception("Send mt sms exception : %s, msgid:%s, id:%s", msg, msgid, id)
+    #    finally:
+    #        return result
     
     def fetch_failed_mt_sms(self):
         status = ErrorCode.SUCCESS
