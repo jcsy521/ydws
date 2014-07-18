@@ -47,12 +47,22 @@ def test_mileage():
     #mileage['dis'] = 530
     redis.setvalue(mileage_key, mileage)
 
+def test_acc_status():
+    db = DBConnection().db
+    redis = MyRedis()
+    tid = 'T123SIMULATOR'
+    #tid = '13011292218'
+    acc_status_info_key = 'acc_status_info:%s'  % tid
+    acc_status_info = redis.getvalue(acc_status_info_key)
+    print 'tid: %s, acc_status_info_key: %s, acc_status_info: %s' % (tid, 
+           acc_status_info_key, acc_status_info)
 
 def main():
     ConfHelper.load('../conf/global.conf')
     parse_command_line()
 
-    test_mileage() 
+    #test_mileage() 
+    test_acc_status() 
 
 if __name__ == "__main__": 
     main()

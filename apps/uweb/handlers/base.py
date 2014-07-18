@@ -5,6 +5,7 @@ import urlparse
 import urllib
 import re
 import logging
+import random
 from time import strftime, time
 
 import tornado.web
@@ -77,6 +78,24 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def app_name(self):
         return self.application.settings.get('app_name')
+
+    def set_client_id(self, username):
+        """Set a value for client_id in cookie when login is invoked, then get
+        the client_id in folling request.
+        """
+        base_str = '23456789ABCDEFGHJKMNPQRSTUVWXYZ' 
+        client_id = username + ''.join(random.choice(base_str) for x in range(10))  
+        return self.set_cookie('client_id', client_id,
+                               expires_days=float(EXPIRES_MINUTES)/(24 * 60))
+
+    @property
+    def client_id(self):
+        """Return the virtual client_id of the current http request.
+
+        Set a value for client_id in cookie when login is invoked, then get
+        the client_id in folling request.
+        """
+        return self.get_cookie('client_id')
 
     def finish(self, chunk=None):
         if self.request.connection.stream.closed():

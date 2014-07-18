@@ -49,17 +49,17 @@ class MySIServer():
         # RabbitMQ
         self.rabbitmq_connection = None
         self.rabbitmq_channel = None
-        self.exchange = 'acb_exchange'
-        self.gw_queue = 'gw_requests_queue@' +\
+        self.exchange = 'ydws_exchange'
+        self.gw_queue = 'ydws_gw_requests_queue@' +\
                         ConfHelper.GW_SERVER_CONF.host + ':' +\
                         str(ConfHelper.GW_SERVER_CONF.port)
-        self.si_queue = 'si_requests_queue@' +\
+        self.si_queue = 'ydws_si_requests_queue@' +\
                         ConfHelper.SI_SERVER_CONF.host + ':' +\
                         str(ConfHelper.SI_SERVER_CONF.port)
-        self.gw_binding = 'gw_requests_binding@' +\
+        self.gw_binding = 'ydws_gw_requests_binding@' +\
                           ConfHelper.GW_SERVER_CONF.host + ':' +\
                           str(ConfHelper.GW_SERVER_CONF.port)
-        self.si_binding = 'si_requests_binding@' +\
+        self.si_binding = 'ydws_si_requests_binding@' +\
                           ConfHelper.SI_SERVER_CONF.host + ':' +\
                           str(ConfHelper.SI_SERVER_CONF.port)
 

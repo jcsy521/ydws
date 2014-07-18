@@ -3,6 +3,8 @@
 import time
 
 class BaseComposer(object):
+    """Basic composer
+    """
 
     def __init__(self):
         self.time = str(int(time.time()))

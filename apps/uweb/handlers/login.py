@@ -107,11 +107,14 @@ class LoginHandler(BaseHandler, LoginMixin):
                 # keep the login log
                 self.login_log(user_id, role, 0)
 
+            #keep current_user in cookie
             self.bookkeep(dict(cid=cid,
                                oid=oid,
                                uid=uid if uid else cid,
                                tid=terminals[0].tid,
                                sim=terminals[0].sim))
+            #keep client_id in cookie
+            self.set_client_id(username)
             user_info = QueryHelper.get_user_by_uid(uid, self.db)
             if user_info:
                 #NOTE: if alias is null, provide cnum or sim instead

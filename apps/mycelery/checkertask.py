@@ -153,22 +153,20 @@ class CheckTask(object):
             if _date.hour not in (9,10):
                 return
                 
-            # get all terminals which may be notified.
-            terminals = self.db.query("SELECT id, tid, mobile, owner_mobile, assist_mobile,"
-                                      "   distance_notification, distance_current," 
-                                      "   notify_count, left_days"
-                                      "  FROM T_TERMINAL_INFO"
-                                      "  WHERE service_status = 1"
-                                      "  AND distance_notification != 0"
-                                      "  AND distance_current > distance_notification"
+            #NOTE: get all terminals which may be notified, record them into T_MILEAGE_NOTIFICATION.
+            terminals = self.db.query("SELECT tid, distance_notification, notify_count, left_days"
+                                      "  FROM T_MILEAGE_NOTIFICATION"
+                                      "  WHERE distance_notification != 0"
                                       "  AND notify_count < 3")
             for terminal in terminals:
                 terminal_info = QueryHelper.get_terminal_info(terminal.tid, self.db, self.redis)
-                mobile = terminal['mobile']
                 tid = terminal['tid']
-                owner_mobile = terminal['owner_mobile']
-                assist_mobile = terminal['assist_mobile']
-                distance_current = terminal['distance_current']
+
+                owner_mobile = terminal_info['owner_mobile']
+                assist_mobile = terminal_info['assist_mobile']
+                distance_current = terminal_info['distance_current']
+                mobile = terminal_info['mobile']
+
                 notify_count = terminal['notify_count']
                 left_days = terminal['left_days']
                 distance_notification= terminal['distance_notification']
@@ -206,7 +204,7 @@ class CheckTask(object):
                                     "  WHERE tid = %s",
                                     left_days-1,
                                     tid)
-                else: # it should never occur.
+                else: #NOTE: It should never occur.
                     logging.info("[CELERY] Invalid left_days: %s, mobile: %s.", 
                                 left_days, mobile)
                     
@@ -214,6 +212,76 @@ class CheckTask(object):
             logging.exception("[CELERY] Mileage notification failed. Exception: %s.",
                               e.args)
 
+    def day_notify(self):
+        logging.info("[CELERY] checkertask day_notify started.")
+        try:
+            #NOTE: avoid sms is sent when the server is restart.
+            _date = datetime.datetime.fromtimestamp(int(time.time()))
+            if _date.hour not in (9,10):
+                return
+                
+            #NOTE: get all terminals which may be notified, record them into T_MILEAGE_NOTIFICATION.
+            terminals = self.db.query("SELECT tid, day_notification, notify_count, left_days"
+                                      "  FROM T_DAY_NOTIFICATION"
+                                      "  WHERE day_notification != 0"
+                                      "  AND notify_count < 3")
+            for terminal in terminals:
+                if int(time.time()) < terminal['day_notification']:
+                    # it's not time to notify
+                    continue
+
+                terminal_info = QueryHelper.get_terminal_info(terminal.tid, self.db, self.redis)
+                tid = terminal['tid']
+
+                owner_mobile = terminal_info['owner_mobile']
+                assist_mobile = terminal_info['assist_mobile']
+                distance_current = terminal_info['distance_current']
+                mobile = terminal_info['mobile']
+
+                notify_count = terminal['notify_count']
+                left_days = terminal['left_days']
+                day_notification= terminal['day_notification']
+
+                if left_days == 1: # it should be notified this day                           
+                    logging.info("[CELERY] Send mileage notification."
+                                 "  tid: %s, mobile: %s, owner_mobile: %s, assist_mobile: %s,"
+                                 "  day_notification: %s" 
+                                 "  notify_count: %s, left_days: %s.", 
+                                 tid, mobile, owner_mobile, assist_mobile, day_notification, 
+                                 notify_count, left_days)
+                    self.db.execute("UPDATE T_DAY_NOTIFICATION"
+                                    "  SET notify_count = %s,"
+                                    "      left_days = %s"
+                                    "  WHERE tid = %s",
+                                    notify_count+1, 3, tid)
+                    if owner_mobile:
+                        sms = SMSCode.SMS_NOTIFY_DAY % (terminal_info['alias'])
+                        SMSHelper.send(owner_mobile, sms)
+                    if assist_mobile:
+                        user = QueryHelper.get_user_by_mobile(owner_mobile, self.db)
+                        name = safe_unicode(user['name'])
+                        sms = SMSCode.SMS_NOTIFY_ASSIST_DAY % (mobile, owner_mobile, name)
+                        SMSHelper.send(assist_mobile, sms)
+                elif left_days in (2, 3): # do not notify, just postpone one day
+                    logging.info("[CELERY] Do not send mileage notification this day,"
+                                 "  just modify the left_days."
+                                 "  tid: %s, mobile: %s, owner_mobile: %s, assist_mobile: %s,"
+                                 "  day_notification: %s" 
+                                 "  notify_count: %s, left_days: %s.", 
+                                 tid, mobile, owner_mobile, assist_mobile, day_notification, 
+                                 notify_count, left_days)
+                    self.db.execute("UPDATE T_DAY_NOTIFICATION"
+                                    "  SET left_days = %s"
+                                    "  WHERE tid = %s",
+                                    left_days-1,
+                                    tid)
+                else: #NOTE: It should never occur.
+                    logging.info("[CELERY] Invalid left_days: %s, mobile: %s.", 
+                                left_days, mobile)
+                    
+        except Exception as e:
+            logging.exception("[CELERY] Day notification failed. Exception: %s.",
+                              e.args)
 
 def check_poweroff():
     ct = CheckTask()
@@ -235,12 +303,17 @@ def mileage_notify():
     ct = CheckTask()
     ct.mileage_notify()
 
+def day_notify():
+    ct = CheckTask()
+    ct.day_notify()
+
 if __name__ == '__main__':
     ConfHelper.load(options.conf)
     parse_command_line()
     #check_charge()
     #offline_remind()
-    mileage_notify()
+    #mileage_notify()
+    day_notify()
 else: 
     try: 
         from celery.decorators import task 

@@ -26,10 +26,10 @@ from utils.repeatedtimer import RepeatedTimer
 from utils.checker import check_phone, check_zs_phone
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
-from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,\
-     get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,\
-     get_resend_key, get_lastinfo_key, get_login_time_key
+from utils.misc import (get_terminal_address_key, get_terminal_sessionID_key,
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,
+     get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,
+     get_resend_key, get_lastinfo_key, get_login_time_key, get_acc_status_info_key)
 from utils.public import insert_location, delete_terminal, record_add_action, get_terminal_type_by_tid,\
      clear_data
 from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
@@ -57,6 +57,7 @@ from clw.packet.parser.locationdesc import LocationDescParser
 from clw.packet.parser.unbind import UNBindParser
 from clw.packet.parser.unusualactivate import UnusualActivateParser
 from clw.packet.parser.misc import MiscParser
+from clw.packet.parser.acc_status import ACCStatusParser
 from clw.packet.composer.login import LoginRespComposer
 from clw.packet.composer.heartbeat import HeartbeatRespComposer
 from clw.packet.composer.async import AsyncRespComposer
@@ -67,6 +68,7 @@ from clw.packet.composer.fobinfo import FobInfoRespComposer
 from clw.packet.composer.unbind import UNBindComposer
 from clw.packet.composer.unusualactivate import UnusualActivateComposer
 from clw.packet.composer.misc import MiscComposer
+from clw.packet.composer.acc_status import ACCStatusComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
 
 from error import GWException
@@ -94,17 +96,17 @@ class MyGWServer(object):
         self.redis = None 
         self.db = None
         self.db_list = []
-        self.exchange = 'acb_exchange'
-        self.gw_queue = 'gw_requests_queue@' +\
+        self.exchange = 'ydws_exchange'
+        self.gw_queue = 'ydws_gw_requests_queue@' +\
                         ConfHelper.GW_SERVER_CONF.host + ':' +\
                         str(ConfHelper.GW_SERVER_CONF.port)
-        self.si_queue = 'si_requests_queue@' +\
+        self.si_queue = 'ydws_si_requests_queue@' +\
                         ConfHelper.SI_SERVER_CONF.host + ':' +\
                         str(ConfHelper.SI_SERVER_CONF.port)
-        self.gw_binding = 'gw_requests_binding@' +\
+        self.gw_binding = 'ydws_gw_requests_binding@' +\
                           ConfHelper.GW_SERVER_CONF.host + ':' +\
                           str(ConfHelper.GW_SERVER_CONF.port)
-        self.si_binding = 'si_requests_binding@' +\
+        self.si_binding = 'ydws_si_requests_binding@' +\
                           ConfHelper.SI_SERVER_CONF.host + ':' +\
                           str(ConfHelper.SI_SERVER_CONF.port)
 
@@ -334,43 +336,46 @@ class MyGWServer(object):
                                 if not clw.head:
                                     break
                                 command = clw.head.command
-                                if command == T_MESSAGE_TYPE.LOGIN:
+                                if command == T_MESSAGE_TYPE.LOGIN: # T1
                                     logging.info("[GW] Thread%s recv login packet:\n%s", name, packet)
                                     self.handle_login(clw, address, connection, channel, db) 
-                                elif command == T_MESSAGE_TYPE.HEARTBEAT:
+                                elif command == T_MESSAGE_TYPE.HEARTBEAT: # T2
                                     logging.info("[GW] Thread%s recv heartbeat packet:\n%s", name, packet)
                                     self.handle_heartbeat(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.LOCATIONDESC:
+                                elif command == T_MESSAGE_TYPE.LOCATIONDESC: # T10
                                     logging.info("[GW] Thread%s recv locationdesc packet:\n%s", name, packet)
                                     self.handle_locationdesc(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.CONFIG:
+                                elif command == T_MESSAGE_TYPE.CONFIG: # T17
                                     logging.info("[GW] Thread%s recv query config packet:\n%s", name,  packet)
                                     self.handle_config(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.DEFENDSTATUS:
+                                elif command == T_MESSAGE_TYPE.DEFENDSTATUS: # T18, deprecated
                                     logging.info("[GW] Thread%s recv defend status packet:\n%s", name, packet)
                                     self.handle_defend_status(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.FOBINFO:
+                                elif command == T_MESSAGE_TYPE.FOBINFO: # T19 deprecated 
                                     logging.info("[GW] Thread%s recv fob info packet:\n%s", name, packet)
                                     self.handle_fob_info(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.SLEEPSTATUS:
+                                elif command == T_MESSAGE_TYPE.SLEEPSTATUS: # T21
                                     logging.info("[GW] Thread%s recv sleep status packet:\n%s", name, packet)
                                     self.handle_terminal_sleep_status(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.FOBSTATUS:
+                                elif command == T_MESSAGE_TYPE.FOBSTATUS: # T22, deprecated
                                     logging.info("[GW] Thread%s recv fob status packet:\n%s", name, packet)
                                     self.handle_fob_status(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.RUNTIMESTATUS:
+                                elif command == T_MESSAGE_TYPE.RUNTIMESTATUS: # T23
                                     logging.info("[GW] Thread%s recv runtime status packet:\n%s", name, packet)
                                     self.handle_runtime_status(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.UNBINDSTATUS:
+                                elif command == T_MESSAGE_TYPE.UNBINDSTATUS: # T24
                                     logging.info("[GW] Thread%s recv unbind status packet:\n%s", name, packet)
                                     self.handle_unbind_status(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.UNUSUALACTIVATE:
+                                elif command == T_MESSAGE_TYPE.UNUSUALACTIVATE: # T27
                                     logging.info("[GW] Thread%s recv unusual activate packet:\n%s", name, packet)
                                     self.handle_unusual_activate(clw, address, connection, channel, db)
-                                elif command == T_MESSAGE_TYPE.MISC:
+                                elif command == T_MESSAGE_TYPE.MISC: # T28
                                     logging.info("[GW] Thread%s recv misc packet:\n%s", name, packet)
                                     self.handle_misc(clw, address, connection, channel, db)
-                                else: #NOTE: others
+                                elif command == T_MESSAGE_TYPE.ACC_STATUS: # T30
+                                    logging.info("[GW] Thread%s recv power status packet:\n%s", name, packet)
+                                    self.handle_acc_status(clw, address, connection, channel, db)
+                                else: #NOTE: others will be forwar to SI server
                                     logging.info("[GW] Thread%s recv packet from terminal:\n%s", name, packet)
                                     self.foward_packet_to_si(clw, packet, address, connection, channel, db)
                         else:
@@ -1271,6 +1276,7 @@ class MyGWServer(object):
 
         0: success, then record new terminal's address
         1: invalid SessionID 
+        3: acc_status is changed 
         """
         try:
             head = info.head
@@ -1290,13 +1296,29 @@ class MyGWServer(object):
                 elif heartbeat_info['sleep_status'] == '1':
                     heartbeat_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
                     is_sleep = False
-                else:
-                    logging.info("[GW] Recv wrong sleep status: %s", heartbeat_info)
+                elif heartbeat_info['sleep_status'] == '2': # query mode
+                    acc_status_info_key = get_acc_status_info_key(dev_id)
+                    acc_status_info = self.redis.getvalue(acc_status_info_key)
+                    if acc_status_info:  
+                        args.timestamp = acc_status_info['timestamp']
+                        args.op_type = acc_status_info['op_type']
+                    else: # no info about acc_status, provide default value
+                        args.timestamp = '' 
+                        args.op_type = 2 # wait 
+                else: #NOTE: it should never occur
+                    logging.error("[GW] Recv wrong sleep status: %s", heartbeat_info)
                 del heartbeat_info['sleep_status']
 
                 self.update_terminal_status(head.dev_id, address, is_sleep)
                 self.update_terminal_info(heartbeat_info, db)
 
+            if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS:
+                acc_status_info_key = get_acc_status_info_key(dev_id)
+                acc_status_info = self.redis.getvalue(acc_status_info_key)
+                if acc_status_info: # acc_status 
+                    args['success'] = 3 # acc_status is changed
+                    logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
+                                 dev_id, acc_status_info)
             hc = HeartbeatRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,
@@ -1455,6 +1477,14 @@ class MyGWServer(object):
                     args.trace_para = terminal.trace_para
                 args.vibl = terminal.vibl
 
+            if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
+                acc_status_info_key = get_acc_status_info_key(dev_id) 
+                acc_status_info = self.redis.getvalue(acc_status_info_key) 
+                if acc_status_info: # acc_status 
+                    args['success'] = 3 # acc_status is changed 
+                    logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
+                                 dev_id, acc_status_info)
+
             hc = ConfigRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,
@@ -1509,6 +1539,13 @@ class MyGWServer(object):
                     self.update_terminal_info(defend_info, db)
                 self.update_terminal_status(head.dev_id, address)
 
+            if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
+                acc_status_info_key = get_acc_status_info_key(dev_id) 
+                acc_status_info = self.redis.getvalue(acc_status_info_key) 
+                if acc_status_info: # acc_status 
+                    args['success'] = 3 # acc_status is changed 
+                    logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
+                                 dev_id, acc_status_info)
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,
@@ -1587,6 +1624,14 @@ class MyGWServer(object):
                     self.update_terminal_info(sleep_info, db)
 
                 self.update_terminal_status(head.dev_id, address, is_sleep)
+
+            if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
+                acc_status_info_key = get_acc_status_info_key(dev_id) 
+                acc_status_info = self.redis.getvalue(acc_status_info_key) 
+                if acc_status_info: # acc_status 
+                    args['success'] = 3 # acc_status is changed 
+                    logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
+                                 dev_id, acc_status_info)
 
             hc = AsyncRespComposer(args)
             request = DotDict(packet=hc.buf,
@@ -1727,6 +1772,15 @@ class MyGWServer(object):
                                      terminal_info.owner_mobile, head.dev_id)
 
                 self.update_terminal_status(head.dev_id, address)
+
+            if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
+                acc_status_info_key = get_acc_status_info_key(dev_id) 
+                acc_status_info = self.redis.getvalue(acc_status_info_key) 
+                if acc_status_info: # acc_status 
+                    args['success'] = 3 # acc_status is changed 
+                    logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
+                                 dev_id, acc_status_info)
+
             rc = RuntimeRespComposer(args)
             request = DotDict(packet=rc.buf,
                               address=address,
@@ -1769,10 +1823,8 @@ class MyGWServer(object):
             logging.exception("[GW] Handle unbind status report exception.")
             raise GWException
 
-
     def handle_unusual_activate(self, info, address, connection, channel, db):
-        """
-        Unusual activate report packet: owner_mobile changed.
+        """Unusual activate report packet: owner_mobile changed.
 
         0: success, then record new terminal's address
         1: invalid SessionID 
@@ -1813,6 +1865,7 @@ class MyGWServer(object):
             
     def handle_misc(self, info, address, connection, channel, db):
         """
+        S28
         misc: debugging for terminal.
 
         0: success, then record new terminal's address
@@ -1835,6 +1888,14 @@ class MyGWServer(object):
                            " SET misc = %s"
                            "    WHERE tid = %s ",
                            t_info['misc'], head.dev_id)
+
+            if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
+                acc_status_info_key = get_acc_status_info_key(dev_id) 
+                acc_status_info = self.redis.getvalue(acc_status_info_key) 
+                if acc_status_info: # acc_status 
+                    args['success'] = 3 # acc_status is changed 
+                    logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
+                                 dev_id, acc_status_info)
             uac = MiscComposer(args)
             request = DotDict(packet=uac.buf,
                               address=address,
@@ -1843,7 +1904,46 @@ class MyGWServer(object):
         except:
             logging.exception("[GW] Handle misc report exception.")
             raise GWException
+            
+    def handle_acc_status(self, info, address, connection, channel, db):
+        """
+        S30
+        ACC_status: 
 
+        0: success, then record new terminal's address
+        1: invalid SessionID 
+        """
+        try:
+            head = info.head
+            body = info.body
+            dev_id = head.dev_id
+
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           command=head.command)
+            sessionID = self.get_terminal_sessionID(dev_id)
+            if sessionID != head.sessionID: 
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
+            else:
+                uap = MiscParser(body, head)
+                t_info = uap.ret
+                acc_status_info_key = get_acc_status_info_key(dev_id)
+                acc_status_info = self.redis.getvalue(acc_status_info_key)
+                if acc_status_info:  
+                    acc_status_info['op_status'] = 1 # success
+                    self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
+                else: # It should never occur. 
+                    logging.error("[GW] ACC_status can not be found. dev_id: %s",
+                                  dev_id)
+                    pass
+
+            asc = ACCStatusComposer(args)
+            request = DotDict(packet=asc.buf,
+                              address=address,
+                              dev_id=dev_id)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Handle acc status exception.")
+            raise GWException
 
     def foward_packet_to_si(self, info, packet, address, connection, channel, db):
         """
@@ -1883,6 +1983,15 @@ class MyGWServer(object):
                                 T_MESSAGE_TYPE.EMERGENCY, T_MESSAGE_TYPE.POWERDOWN, 
                                 T_MESSAGE_TYPE.STOP):
                 logging.info("[GW] Head command: %s.", head.command)
+                if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
+                    acc_status_info_key = get_acc_status_info_key(dev_id) 
+                    acc_status_info = self.redis.getvalue(acc_status_info_key) 
+                    if acc_status_info: # acc_status 
+                        logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
+                                     dev_id, acc_status_info)
+                        args['success'] = 3 # acc_status is changed
+
+                #NOTE: composer response for terminal 
                 rc = AsyncRespComposer(args)
                 request = DotDict(packet=rc.buf,
                                   address=address,

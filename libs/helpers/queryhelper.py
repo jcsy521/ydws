@@ -1,7 +1,11 @@
 # -*- coding:utf-8 -*-
 
-from utils.misc import get_terminal_info_key, get_lq_sms_key,\
-     get_location_key, get_gps_location_key, get_login_time_key, get_activation_code
+import time
+import logging
+
+from utils.misc import (get_terminal_info_key, get_lq_sms_key,
+     get_location_key, get_gps_location_key, get_login_time_key, 
+     get_activation_code, get_acc_status_info_key)
 from utils.dotdict import DotDict
 from constants import GATEWAY, EVENTER, UWEB
 
@@ -200,7 +204,8 @@ class QueryHelper(object):
         if not terminal_info:
             terminal_info = db.get("SELECT mannual_status, defend_status,"
                                    "  fob_status, mobile, owner_mobile, login, gps, gsm,"
-                                   "  pbat, keys_num, icon_type, softversion, bt_name, bt_mac"
+                                   "  pbat, keys_num, icon_type, softversion, bt_name, bt_mac,"
+                                   "  assist_mobile, distance_current"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", tid)
             car = db.get("SELECT cnum FROM T_CAR"
@@ -439,3 +444,104 @@ class QueryHelper(object):
                      "  WHERE mobile = %s LIMIT 1",
                      mobile) 
         return biz 
+
+    @staticmethod
+    def get_mileage_notification_by_tid(tid, db):
+        """Get mileage notification infomation according to tid.
+        """
+        mileage = DotDict()
+        res = db.get("SELECT owner_mobile, assist_mobile, distance_current" 
+                     "  FROM T_TERMINAL_INFO"
+                     "  WHERE tid = %s limit 1",
+                     tid)
+        mileage.update(res)
+
+        mileage_res = db.get("SELECT distance_notification"
+                             "  FROM T_MILEAGE_NOTIFICATION"
+                             "  WHERE tid = %s LIMIT 1",
+                             tid)
+        if mileage_res:
+            mileage.update(mileage_res)
+        else:
+            db.execute("INSERT INTO T_MILEAGE_NOTIFICATION(tid) "
+                       "  VALUES(%s)",
+                       tid)
+            mileage.update({'distance_notification':0})
+
+        day_res = db.get("SELECT day_notification"
+                         "  FROM T_DAY_NOTIFICATION"
+                         "  WHERE tid = %s LIMIT 1",
+                         tid)
+        if day_res: 
+            mileage.update(day_res)
+        else:
+            db.execute("INSERT INTO T_DAY_NOTIFICATION(tid) "
+                       "  VALUES(%s)",
+                       tid)
+            mileage.update({'day_notification':0})
+
+        return mileage 
+
+    @staticmethod
+    def get_acc_status_info_by_tid(client_id, tid, db, redis):
+        """Get acc status infomation according to tid.
+        @paramers: client_id, 
+                   tid, 
+                   db, 
+                   redis
+        @return: acc_status_info ,
+        { 
+            client_id: unique id of a login on of a user,
+            op_type 1: power on (default), 0: power off 
+            timestamp: timestamp, the operate option
+            op_status: handle_status, 1: success, 0: failed(time out)
+            acc_message: notify message.
+        
+        }
+
+        NOTE: 
+        1. acc_status just record the action occurs in platform, for power
+        status is maybe modified by fob or others, so it does not represent
+        the newest power status in tracker.
+
+        """
+
+        acc_status_info_key = get_acc_status_info_key(tid)
+        acc_status_info =  redis.getvalue(acc_status_info_key)
+        if not acc_status_info:
+            # provide a default dict.
+            acc_status_info = dict(client_id=client_id,
+                                   op_type=1, 
+                                   timestamp=0, 
+                                   op_status=0,
+                                   acc_message=u'')
+
+            logging.info("[QUERYHELPER] Termianl does not has acc_status_info, current_id: %s, tid: %s ", 
+                         client_id, tid)
+        else: # a whole dict should be found
+            acc_action = u'供电' if acc_status_info['acc_status'] else u'断电' 
+            terminal_info = QueryHelper.get_terminal_info(tid, db, redis)
+            alias = terminal_info['alias']
+            if acc_status_info['client_id'] != client_id:
+                logging.info("] Current client_id is not match acc_status, renturn nothing, "
+                              "current_id: %s, acc_status_info: %s", 
+                              client_id, acc_status_info)
+            else:
+                if acc_status_info['handle_status']: 
+                    acc_status_info['acc_message'] = ''.join([alias, acc_action, u'成功'])
+                    redis.delete(acc_status_info_key)
+                    logging.info("[QUERYHELPER] Termianl does receive terminal's response, set successful. current_id: %s, tid: %s", 
+                                 client_id, tid)
+                else:
+                    #NOTE: acc_status_info['timestamp'] should never be 0
+                    if int(time.time()) - acc_status_info['timestamp'] > 60*3:
+                        acc_status_info['acc_message'] = ''.join([alias, acc_status_action, u'失败'])
+                        redis.delete(acc_status_info_key)
+                        logging.info("[QUERYHELPER] Termianl does not receive terminal's response in 4 minutes, set failed. current_id: %s, tid: %s", 
+                                     client_id, tid)
+                    else:
+                        logging.info("[QUERYHELPER] Termianl does not receive terminal's respons, just wait, current_id: %s, tid: %s ", 
+                                     client_id, tid)
+                        pass
+
+        return acc_status_info 

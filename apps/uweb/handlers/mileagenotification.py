@@ -30,23 +30,18 @@ class MileageNotificationHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Get mileage notifiction of a terminal.
+
+        @params: tid, is required 
         """
         status = ErrorCode.SUCCESS
         try:
-            tid = self.get_argument('tid',None) 
+            tid = self.get_argument('tid') 
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
 
         try:
-            res = self.db.get("SELECT owner_mobile, assist_mobile,"
-                              "  distance_current, distance_left, distance_notification"
-                              "  FROM T_TERMINAL_INFO"
-                              "  WHERE tid = %s",
-                              tid)
-            if res:
-                res['distance_left'] = int(res['distance_notification']) - int(res['distance_current'])
-                res['distance_left'] = res['distance_left'] if res['distance_left'] > 0 else 0
+            res = QueryHelper.get_mileage_notification_by_tid(tid, self.db)
             self.write_ret(status,
                            dict_=DotDict(res=res))
         except Exception as e:
@@ -73,21 +68,27 @@ class MileageNotificationHandler(BaseHandler):
 
         try:
             distance_notification = data.get('distance_notification', None)
-            #is_maintained =  data.get('is_maintained', None)
+            day_notification = data.get('day_notification', None)
             assist_mobile =  data.get('assist_mobile', None)
+
             if distance_notification is not None:
-                self.db.execute("UPDATE T_TERMINAL_INFO"
+                self.db.execute("UPDATE T_MILEAGE_NOTIFICATION"
                                 "  SET distance_notification = %s,"
-                                "      is_maintained = 1,"
                                 "      notify_count = 0,"
                                 "      left_days = 1"
+                                "      set_time = %s"
                                 "  WHERE tid = %s",
-                                distance_notification, tid)
-            #if is_maintained is not None:
-            #    self.db.execute("UPDATE T_TERMINAL_INFO"
-            #                    "  SET is_maintained = 1"
-            #                    "  WHERE tid = %s",
-            #                    tid)
+                                distance_notification, tid,
+                                int(time.time()))
+            if day_notification is not None:
+                self.db.execute("UPDATE T_DAY_NOTIFICATION"
+                                "  SET day_notification = %s,"
+                                "      notify_count = 0,"
+                                "      left_days = 1"
+                                "      set_time = %s"
+                                "  WHERE tid = %s",
+                                day_notification, tid,
+                                int(time.time()))
             if assist_mobile is not None:
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET assist_mobile = %s"

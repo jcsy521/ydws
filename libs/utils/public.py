@@ -75,12 +75,14 @@ def delete_terminal(tid, db, redis, del_user=True):
     db.execute("DELETE FROM T_CHARGE"
                " WHERE tid = %s",
                tid)
+
     key = get_del_data_key(tid)
     flag = redis.get(key)
     if flag and int(flag) == 1:
         db.execute("DELETE FROM T_LOCATION"
                    "  WHERE tid = %s",
                    tid)
+        redis.delete(key)
         logging.info("[PUBLIC] Delete db data of terminal: %s", tid)
 
     # clear redis

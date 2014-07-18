@@ -11,10 +11,12 @@ class HeartbeatRespComposer(BaseComposer):
 
     def compose(self, args):
         """
-        eg: [1343278800,S2,0]
+        eg: [1343278800,S2,0,0,1405650165]
         """
-        packet = "%s,%s,%s" % (self.time, S_MESSAGE_TYPE.HEARTBEAT,
-                               args['success'])
+        packet = "%s,%s,%s,%s,%s" % (self.time, S_MESSAGE_TYPE.HEARTBEAT,
+                                    args['success'],
+                                    args.get('op_status',''),
+                                    args.get('timestamp',''))
         request = self.format_packet(packet)
 
         return request

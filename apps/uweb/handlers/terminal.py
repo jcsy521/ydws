@@ -21,6 +21,7 @@ from codes.smscode import SMSCode
 from constants import UWEB, SMS, GATEWAY
 
 from helpers.queryhelper import QueryHelper  
+from helpers.dmlhelper import DMLHelper  
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.confhelper import ConfHelper
@@ -112,7 +113,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
             
-            logging.info("[UWEB] terminal request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] Terminal request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -169,6 +170,17 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
                  self.redis.delete(sessionID_key)
 
+            if data.get("op_type") is not None:
+                 op_type = data.get("op_type")
+                 acc_status_info_key = get_acc_status_info_key(self.current_user.tid) 
+                 acc_status_info = dict(client_id=client_id, 
+                                        op_type=op_type, 
+                                        timestamp=int(time.time()), 
+                                        op_status=0, 
+                                        acc_message=u'') 
+                 self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
+                 logging.info("[UWEB] Terminal %s acc_status %s", 
+                              self.current_user.tid, acc_status)
             # if stop_interval has been changed, then clear session to notify terminal
             if data.get("stop_interval"):
                  sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
