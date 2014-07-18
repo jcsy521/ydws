@@ -44,11 +44,11 @@ window.dlf.fn_initTrack = function() {
 	
 	if ( dlf.fn_userType() ) {
 		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
-		obj_trackPos.css('width', 490);
+		//obj_trackPos.css('width', 490);
 		$('.j_delay').hide();
 		$('.j_delayTbody').html('');
 	} else {
-		obj_trackPos.css('width', 475);
+		//obj_trackPos.css('width', 475);
 	}
 }
 
@@ -129,9 +129,11 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 				
 				if ( obj_tempCarData ) {
 					dlf.fn_updateInfoData(obj_carDatas[str_tid]);
-					arr_lastLocations.push(dlf.fn_createMapPoint(obj_tempCarData.clongitude, obj_tempCarData.clatitude));
+					if ( obj_tempCarData.clongitude != 0 ) {
+						arr_lastLocations.push(dlf.fn_createMapPoint(obj_tempCarData.clongitude, obj_tempCarData.clatitude));
+					}
 				}
-			});	
+			});
 			if ( arr_lastLocations.length != 0 ) {
 				dlf.fn_setOptionsByType('viewport', arr_lastLocations);
 				setTimeout (function () {

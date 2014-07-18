@@ -55,9 +55,9 @@ $(function(){
 			obj_corpGetPwd = $('#corpGetPwd');
 		
 		obj_userType.val(str_userType);
-		$('#username').val('');
-		$('#password').val('');
-		$('#captcha').val('');
+		$('#login_username').val('');
+		$('#login_pwd').val('');
+		$('#login_captcha').val('');
 		$('.txtColor').html('');
 		if ( !b_current ) {
 			obj_this.siblings().removeClass('current').addClass('other');

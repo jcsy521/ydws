@@ -806,8 +806,6 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#gpsContent').html(str_gps);	// gps
 		$('#defendContent').html(str_dStatus).data('defend', n_defendStatus);	// defend status
 		$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_dStatusTitle);
-		//$('#tmobile').attr('title', '定位器号码：' + str_tmobile );	// 定位器手机号
-		$('#tmobileContent').html(str_tmobile);
 	}
 	//$('.j_updateTime').attr('title', str_time)
 	$('#locationTime').html(str_time); // 最后一次定位时间
@@ -1559,12 +1557,17 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
 		b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 批量绑定围栏
 		b_routeLineStatus = $('#routeLineWrapper').is(':visible');	// 线路管理是否显示
-
+	
 	$('.j_delay').hide();
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 	dlf.fn_gaodeCloseDrawCircle();	// 关闭高德地图的画圆事件
 	dlf.fn_mapStopDraw(true);	// 关闭高德地图的 添加站点事件
 	dlf.fn_closeDialog();	// 关闭所有dialog
+	if ( $('.j_alarmTable').data('alarmMarker') ) {
+		dlf.fn_clearMapComponent();
+		$('.j_alarmTable').removeData('alarmMarker');
+		$('.j_alarm').removeData();
+	}
 	
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
@@ -1601,9 +1604,21 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 	} else if ( str_wrapperId == 'singleMileage' || str_wrapperId == 'realtime' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'bindRegion' ) {
 		//当切换到个人里程统计查询时,进行车辆的位置移动for: hs at 2014-7-8
-		if (str_currentTid != '' ) {
-			dlf.fn_moveMarker(str_currentTid);
+		var str_tempCTid = '';
+		
+		if ( !dlf.fn_userType() ) {
+			str_tempCTid = str_currentPersonalTid;
+		} else {
+			str_tempCTid = str_currentTid;
 		}
+		
+		if (str_tempCTid != '' ) {
+			dlf.fn_moveMarker(str_tempCTid);
+		}
+	}
+	
+	if ( b_trackStatus ) {
+		$('.j_wrapperContent').css('height', $('.j_wrapperContent').height()+38);
 	}
 	obj_wrapper.show();
 }
@@ -2393,7 +2408,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 			n_mainContent = n_windowHeight - 104,
 			n_mainHeight = n_windowHeight - 123,
 			n_corpTreeContainerHeight = n_mainHeight-270,
-			n_treeHeight = n_corpTreeContainerHeight - 55,
+			n_treeHeight = n_corpTreeContainerHeight - 48,
 			n_tempTreeHight = $('#corpTree ul').height(),
 			obj_tree = $('#corpTree'),
 			obj_track = $('#trackHeader'),
@@ -2541,6 +2556,12 @@ window.dlf.resetPanelDisplay = function(n_type) {
 window.dlf.fn_initMileageNotification = function(str_tid) {
 	dlf.fn_dialogPosition('mileageNotification');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
+	var str_nowDate =  dlf.fn_changeNumToDateString(new Date().getTime()),
+		str_nowDateYMd = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
+	
+	$('#txtDistanceNotificationTime').unbind('click').bind('click', function() {
+		WdatePicker({el: 'txtDistanceNotificationTime', lang: 'zh-cn', dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false,  qsEnabled: false, autoPickDate: false, minDate: str_nowDateYMd});
+	}).val(str_nowDateYMd);
 	$.get_(MILEAGENOTIFICATION_URL + '?tid=' + str_tid, '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_res = data.res,
@@ -2548,16 +2569,22 @@ window.dlf.fn_initMileageNotification = function(str_tid) {
 				str_assist_mobile = obj_res.assist_mobile,	// 第二通知号码
 				n_tempDistance = obj_res.distance_notification,
 				n_distance_notification = Math.round(n_tempDistance/1000), // 下次保养里程
+				n_day_notification = obj_res.day_notification,
 				n_distance_current = Math.round(obj_res.distance_current/1000),	// 当前行车里程
 				n_distance_left = n_distance_notification-n_distance_current, // Math.round(obj_res.distance_left/1000), // 距离下次保养里程
-				n_distance_left = n_distance_left > 0 ? n_distance_left : 0;
+				n_distance_left = n_distance_left > 0 ? n_distance_left : 0,
+				n_distanceTime = obj_res.day_notification;
 			
 			$('#spanOwnerMobile').html(str_ownerMobile);
 			$('#txtAssistMobile').val(str_assist_mobile).data('t_val', str_assist_mobile);
 			$('#txtDistanceNotification').val(n_distance_notification).data('t_val', n_tempDistance);
+			$('#txtDayNotification').val(n_day_notification).data('t_val', n_day_notification);
 			
 			$('#lblDistanceCurrent').html(n_distance_current);
 			$('#lblDistanceLeft').html(n_distance_left);
+			if ( n_distanceTime != 0 ) {
+				$('#txtDistanceNotificationTime').val(dlf.fn_changeNumToDateString(n_distanceTime*1000, 'ymd')).data('olddate', n_distanceTime);
+			}
 			
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -2575,20 +2602,30 @@ window.dlf.fn_mileageNotificationSave = function() {
 		str_newAssistMobile = $('#txtAssistMobile').val(),
 		n_currentDistance = parseInt($('#lblDistanceCurrent').html()) * 1000,
 		n_oldDistance = $('#txtDistanceNotification').data('t_val'),
-		n_newDistance = $('#txtDistanceNotification').val()*1000;
+		n_newDistance = $('#txtDistanceNotification').val()*1000,
+		n_newDisatanceDay = $('#txtDayNotification').val(),
+		n_oldDistanceTime = $('#txtDistanceNotificationTime').data('olddate'),
+		n_newDistanceTime = dlf.fn_changeDateStringToNum($('#txtDistanceNotificationTime').val()+' 00:00:00');
 		
 	if ( str_oldAssistMobile != str_newAssistMobile ) {
 		n_num ++;
 		obj_param.assist_mobile = str_newAssistMobile;
 	}
-	if ( n_newDistance <= n_currentDistance ) {
-		dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
-		return;
-	} else {
-		if ( n_newDistance != n_oldDistance ) {
-			n_num ++;
-			obj_param.distance_notification = n_newDistance;
-		}		
+	if ( n_newDistance != n_currentDistance ) {
+		if ( n_newDistance <= n_currentDistance ) {
+			dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
+			return;
+		} else {
+			if ( n_newDistance != n_oldDistance ) {
+				n_num ++;
+				obj_param.distance_notification = n_newDistance;
+			}		
+		}
+		n_num ++;
+	}
+	if ( n_oldDistanceTime != n_newDistanceTime ) {
+		n_num ++;
+		obj_param.day_notification = n_newDistanceTime;
 	}
 	/**
 	* 只保存有修改的数据
@@ -2598,7 +2635,7 @@ window.dlf.fn_mileageNotificationSave = function() {
 	}
 	if ( n_num != 0 ) {	// 如果有修改向后台发送数据,否则提示无任何修改
 		obj_param.tid = dlf.fn_getCurrentTid();
-		dlf.fn_jsonPut(MILEAGENOTIFICATION_URL, obj_param, 'mileageNotification', '保养里程保存中');
+		dlf.fn_jsonPut(MILEAGENOTIFICATION_URL, obj_param, 'mileageNotification', '保养提醒保存中');
 	} else {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩

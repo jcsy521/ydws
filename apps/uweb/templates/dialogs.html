@@ -442,6 +442,15 @@
 										<label for="corp_parking_defend0">关闭</label>
 									</td>
 								</tr>
+								<tr>
+									<td class="corp_terminalTdL">供电设置:</td>
+									<td id="corp_op_type" class="j_corp_ListVal j_radio" t_val="">
+										<input id="corp_op_type1" type="radio" value="1" name="corp_op_type" />
+										<label for="corp_op_type1">供电</label>
+										<input id="corp_op_type0" type="radio" value="0" name="corp_op_type" />
+										<label for="corp_op_type0">断电</label>
+									</td>
+								</tr>
 								<!--<tr class="j_corp_terminal">
 									<td class="corp_terminalTdL" >告警模式:</td>
 									<td id="corp_alert_freq"  class="j_corp_ListVal j_input"  t_val="">
@@ -578,7 +587,7 @@
 			<span class="close j_close" who="corpSMSOption"></span>
 		</div>
 		<div id="mileageNotificationContent" class="mileageNotificationContent wrapperContent">
-			<form id="mileageNotificationForm">
+			<form id="mileageNotificationForm" action="#">
 				<table class="personalList" id="mileageNotificationTable">
 					<tbody>
 						<tr>
@@ -604,6 +613,14 @@
 							<td id="tddistance_left"  t_val="">
 								<input id="txtDistanceNotification" class="text_mouseOut" type="text" />
 								<span class="wordColor">公里</span>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>下次保养时间：</label>
+							</td>
+							<td id="tddays_left" t_val="">
+								<input type="text" id="txtDistanceNotificationTime" class="time" />
 							</td>
 						</tr>
 						<tr>
@@ -1088,6 +1105,10 @@
 							<label for="c_icon_type2"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
 							<input type="radio" id="c_icon_type3"  name="c_icon_type" value="3"   />
 							<label for="c_icon_type3"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon"  /></label>
+							<input type="radio" id="c_icon_type4"  name="c_icon_type" value="4"  />
+							<label for="c_icon_type4"><img src="../static/images/corpImages/terminalIcons/icon_police0.png" class="icon" /></label>
+							<input type="radio" id="c_icon_type5"  name="c_icon_type" value="5"  />
+							<label for="c_icon_type5"><img src="../static/images/corpImages/terminalIcons/icon_policeMoto0.png" class="icon" /></label>
 						</td>
 					</tr>
 					<tr>

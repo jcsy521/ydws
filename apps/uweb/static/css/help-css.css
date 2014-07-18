@@ -42,6 +42,8 @@
 	float: right;
 	font-size: 16px;
 	margin-right: 20px;
+	position: absolute;
+	right: 0px;
 }
 .helpTitleLink a {
 	color: #888;
@@ -53,9 +55,13 @@
 .fontRed {
 	color: red;
 }
-#menu { position: absolute; right: 60px; top: 204px; width: 20px; margin-top: -170px; padding: 0; list-style-type: none; z-index: 1}
+.fp-tableCell img {
+	margin-top: 10px;
+}
+#menu { position: absolute; right: 60px; width: 20px; padding: 4% 0; list-style-type: none; z-index: 1}
+.personalBody #menu {padding: 12% 0;}
 #menu li { float: left;}
-#menu a { display: block; width: 10px; height: 10px; margin: 20px 6px; border-radius: 14px; text-indent: -9999px; overflow: hidden; background-color: #a0afb9; background-position: 50%; background-repeat: no-repeat;}
+#menu a { display: block; width: 10px; height: 10px; margin: 20px 6px; border-radius: 14px; text-indent: -9999px; overflow: hidden; background-color: #fff; background-position: 50%; background-repeat: no-repeat;}
 #menu a:hover, #menu .active a { margin: 14px 0; border: 4px solid #fff; box-shadow: 1px 1px 3px 1px #b4d7ed; border-radius: 50%; background-color: #239ae6;}
 
 .section .imgbox { margin-left: 300px;}

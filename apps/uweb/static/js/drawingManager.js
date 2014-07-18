@@ -647,8 +647,9 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
         if (this._isOpen == false){
             return true;
         }
-
+		
         this._close();
+		this._mask.disableEdgeMove();
     }
 
     /**

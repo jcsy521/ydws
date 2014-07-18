@@ -11,8 +11,8 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
-		n_height = 470,
-		n_btnTop = 460;
+		n_height = 510,
+		n_btnTop = 490;
 	
 	if ( $($('.j_carList a[class*=j_currentCar]')).length == 0 ) {
 		str_tid = str_currentTid;
@@ -25,9 +25,9 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 	dlf.fn_initTerminalWR(str_tid); // 初始化加载参数
 	if ( str_bizType == 'znbc' ) {
 		dlf.fn_initBindLine(str_tid);// 初始化终端绑定的线路
-		n_height = 542;
-		n_btnTop = 530;
-		$('#corpTerminalWrapper').css('height', 576);
+		n_height = 582;
+		n_btnTop = 560;
+		$('#corpTerminalWrapper').css('height', 616);
 		
 	}
 	$('.corpTerminalContent').css('height', n_height);
@@ -122,7 +122,10 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 			var obj_data = data.car_sets,
 				n_whitelistLenth = 0,
 				n_whitelistTip = 0;
-				
+			
+			$('#corp_op_type1' ).attr('checked', 'checked'); 
+			$('#corp_op_type').attr('t_val', 1);
+			
 			for(var param in obj_data) {
 				var str_val = obj_data[param],
 					obj_param = $('#t_corp_' + param );
@@ -407,6 +410,7 @@ window.dlf.fn_corpBaseSave = function() {
 			}
 		} else {
 			if ( str_key == 'corp_stop_interval' && str_newVal == 0 ) {	// 单独处理 停留告警
+				str_key = str_key.substr(5, str_key.length);
 				obj_terminalData[str_key] = str_newVal;
 			}
 		}

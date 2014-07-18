@@ -295,7 +295,7 @@ body {
 	color: #126393;
 	padding-left: 3px;
 }
-#defendStatus, #power, #gps, #gsm{
+#defendStatus, #power, #gps, #gsm, #powerStatus {
 	background-repeat: no-repeat;
 	background-position: 168px center;
 }
@@ -669,7 +669,7 @@ body {
 	height: 291px;
 }
 #corpTerminalWrapper {
-	height: 504px;
+	height: 544px;
 	width: 487px;
 }
 #corpSMSOptionWrapper, #corpAlertOptionWrapper {
@@ -1060,11 +1060,12 @@ body {
 #mileageNotificationTable label {
 	width: 125px;
 }
-#txtAssistMobile {
-	width: 247px;
-}
-#txtDistanceNotification {
+#txtDistanceNotification, #txtDistanceNotificationTime, #txtAssistMobile {
 	width: 215px;
+}
+#txtDistanceNotificationTime {
+	padding: 0 0 0 30px;
+	width: 196px;
 }
 #corp_mileageNotificationSave {
 	top: 229px;
@@ -1499,7 +1500,8 @@ body {
 	display: inline-block;
     height: 36px;
 	line-height: 36px;
-    width: 655px;
+    width: auto;
+	margin-right: 10px;
 	float: left;
 }
 .trackPos #ceillid_flag {
@@ -1605,7 +1607,7 @@ body {
 	display: inline-block;
 	height: 24px;
 	line-height: 24px;
-	color: #74BBF9;
+	color: #000;
 	font-size: 14px;
 	margin-left: 16px;
 }
@@ -1681,6 +1683,7 @@ body {
 	text-align: center;
 	padding: 22px 0;
 }
+
 .j_alarm .alarmWitchIcon {
 	border: 0 none;
 	width: 18px;
@@ -1798,11 +1801,11 @@ body {
 	background: url('/static/images/music.png') no-repeat 0px 0px;
 }
 .stopMusic {
-	background: url('/static/images/music.png') no-repeat 0px -24px;
+	background: url('/static/images/music.png') no-repeat 0px -22px;
 }
 #corpAlertOption {
 	background: url('/static/images/alertlist_setting.png') no-repeat 0px 0px;
-	margin-right: 10px;
+	margin-right: 20px;
 }
 /*event css start*/
 .eventbody {
@@ -2095,6 +2098,9 @@ body {
 	width: 100px;
 	display: inline-block;
 	text-align: left;
+}
+#markerWindowtitle .delayLabel {
+	width: auto;
 }
 #markerWindowtitle a {
 	margin-right: 10px;
@@ -2763,7 +2769,7 @@ body {
 }
 .corpLeftTree {
 	min-height: 340px;
-	max-height: 580px;
+	max-height: 682px;
 }
 .loadTree {
 	margin: 10px 0px;
@@ -3786,6 +3792,7 @@ legend {
 }
 #corpRegionForTerminal {
 	top: -8px;
+	width: auto;
 }
 /*web css end*/
 .share{

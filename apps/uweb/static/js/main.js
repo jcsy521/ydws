@@ -470,7 +470,7 @@ $(function () {
 		obj_track = $('#trackHeader'),
 		n_mainHeight = n_windowHeight - 123,
 		n_corpTreeContainerHeight = n_mainHeight-270,
-		n_treeHeight = n_corpTreeContainerHeight - 55,
+		n_treeHeight = n_corpTreeContainerHeight - 48,
 		n_delayLeft = n_windowWidth - 550,
 		n_delayIconLeft = n_delayLeft - 18,
 		n_alarmLeft = n_windowWidth - 400,
@@ -676,6 +676,7 @@ $(function () {
 				dlf.fn_initSMSParams();
 				break;
 			case 'eventSearch': // 告警查询
+				$('#trackHeader').show();
 				dlf.fn_initRecordSearch('eventSearch');
 				break;
 			case 'operator': // 操作员查询
@@ -1273,6 +1274,21 @@ $(function () {
 			$('#leftPanelShowIcon').css('left', '247px').removeClass('leftPanelShowIcon_hover');
 		}
 	);
+	
+	//告警列表播放声音事件
+	$('#playMusic').unbind('click').click(function() {
+		var obj_this = $(this),
+			str_playClass = 'playMusic',
+			str_stopClass = 'stopMusic',
+			str_playPanelClass = obj_this.attr('class');
+		
+		if ( str_playPanelClass.search('playMusic') != -1 ) {
+			obj_this.removeClass(str_playClass).addClass(str_stopClass).attr('title', '静音');
+			$("#showMusic").html('');
+		} else {
+			obj_this.removeClass(str_stopClass).addClass(str_playClass).attr('title', '播放');
+		}
+	});
 	
 });
 

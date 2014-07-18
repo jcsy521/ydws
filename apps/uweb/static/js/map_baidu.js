@@ -22,7 +22,7 @@ var postAddress = null,
 window.dlf.fn_loadMap = function(mapContainer) {                  	
 	mapObj = new BMap.Map(mapContainer); // 创建地图实例
 	markerPoint = new BMap.Point(116.39825820922851 ,39.904600759441024); // 创建点坐标
-	mapObj.centerAndZoom(markerPoint, 12); // 初始化地图，设置中心点坐标和地图级别 
+	mapObj.centerAndZoom(markerPoint, 5); // 初始化地图，设置中心点坐标和地图级别 
 	mapObj.enableScrollWheelZoom();  // 启用滚轮放大缩小。
 
 	obj_NavigationControl = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_LEFT});
@@ -191,7 +191,8 @@ window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 */
 window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
-		str_imgUrl = 'default', 
+		str_loginSt =  obj_location.login,
+		str_imgUrl = str_loginSt == 1 ? 'default' : 'default_logout', 
 		myIcon = new BMap.Icon(BASEIMGURL + str_imgUrl + '.png', new BMap.Size(34, 34)),
 		n_clon = obj_location.clongitude,
 		n_clat = obj_location.clatitude,
@@ -203,7 +204,6 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		str_alias = obj_location.alias,
 		str_tid = obj_location.tid,
 		n_iconType = obj_location.icon_type,	// icon_type 
-		str_loginSt =  obj_location.login,
 		n_timestamp = obj_location.timestamp,
 		obj_carA = $('.j_carList a[tid='+ str_tid +']'),
 		label = null,
@@ -566,9 +566,9 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 	str_title += dlf.fn_encode(str_alias);
 	if ( str_iconType == 'delay' ) {	// 如果是轨迹播放的停留点 infowindow显示内容不同
 		str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
-					'<li><label>停留：  '+ dlf.fn_changeTimestampToString(str_delayTime) +'</label>'+
-					'<li><label>开始：  '+ dlf.fn_changeNumToDateString(obj_location.start_time) +'</label>'+
-					'<li><label>结束：  '+ dlf.fn_changeNumToDateString(obj_location.end_time) +'</label></li>' + 
+					'<li><label class="delayLabel">停留：  '+ dlf.fn_changeTimestampToString(str_delayTime) +'</label>'+
+					'<li><label class="delayLabel">开始：  '+ dlf.fn_changeNumToDateString(obj_location.start_time) +'</label>'+
+					'<li><label class="delayLabel">结束：  '+ dlf.fn_changeNumToDateString(obj_location.end_time) +'</label></li>' + 
 					'<li class="msgBox_addressLi" title="'+ str_tempAddress +'"><label class="msgBox_addressTip">位置： </label><lable class="lblAddress">'+ address +'</label></li>';
 					
 	} else {
@@ -698,7 +698,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			var str_tempAddress = str_result.length > 28 ? str_result.substr(0,28) + '...':str_result;
 			
 			$('.eventSearchTable tr').eq(n_index+1).find('.j_getPosition').parent().html('<label href="#" title="'+ str_result +'">'+str_tempAddress+'</label><a href="#" c_lon="'+n_lon+'" c_lat="'+n_lat+'" class="j_eventItem viewMap" >查看地图</a>');
-			arr_dwRecordData[n_index].name = str_tempAddress;
+			arr_dwRecordData[n_index].name = str_result;
 			
 			dlf.fn_showMarkerOnEvent();	// 初始化查看地图事件
 		}
@@ -714,8 +714,6 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		
 		$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_tempResult).attr('title', str_result);	// 修改右侧列表位置描述
 		if ( n_index >= 0 ) {
-			arr_dataArr[n_index].name = str_result;
-			obj_trackLocation = arr_dataArr[n_index];
 			if ( str_type == 'delay' ) {
 				var arr_delayPoints = $('#trackHeader').data('delayPoints');
 				
@@ -724,6 +722,9 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 				obj_trackLocation = arr_delayPoints[n_index];
 				
 				$('#trackHeader').data('delayPoints', arr_delayPoints);
+			} else {
+				arr_dataArr[n_index].name = str_result;
+				obj_trackLocation = arr_dataArr[n_index];
 			}
 		}
 		if ( str_type == 'delay' && dlf.fn_userType() ) {	// 如果是集团的停留点的话

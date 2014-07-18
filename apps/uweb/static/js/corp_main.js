@@ -96,7 +96,7 @@ function customMenu(node) {
 		staticsLabel = '里程统计';
 		bindLineLabel = '绑定/解绑线路';
 		bindRegionLabel = '绑定围栏';
-		mileageNotificationLabel = '保养里程';
+		mileageNotificationLabel = '保养提醒';
 	}
 	// 定位器的移动至菜单项
 	
@@ -1458,7 +1458,9 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								} else {
 									obj_carsData[str_tid] = obj_car;
 								}
-								
+								if ( obj_car.acc_message != '' ) {
+									alert(obj_car.acc_message);
+								}
 								// obj_carsData[str_tid] =  obj_car;
 								arr_tempTids.push(str_tid); //tid组string 串
 								if ( str_login == LOGINOUT ) {
@@ -1571,8 +1573,6 @@ window.dlf.fn_corpLastinfoSwitch = function(b_isCloseTrackInfowindow) {
 * 播放背景音乐
 * todo 控制暂停
 */
-var b_stopMusic = false;	// 静音
-
 function playMusic() {
 	var sound="/static/images/bg.mp3",
 		str_playClass = $('#playMusic').attr('class');
@@ -1580,23 +1580,6 @@ function playMusic() {
 	if ( str_playClass.search('playMusic') != -1 ) {
 		$("#showMusic").html('<audio id="playMusicAudio" autoplay><source src="'+sound+'" type="audio/mpeg"></audio>');
 	}
-
-	//$('#playMusic').removeClass('playMusic').addClass('stopMusic').attr('title', '静音');
-	$('#playMusic').unbind('click').click(function() {
-		var obj_this = $(this),
-			str_playClass = 'playMusic',
-			str_stopClass = 'stopMusic';
-		
-		if ( b_stopMusic ) {	
-			obj_this.removeClass(str_playClass).addClass(str_stopClass).attr('title', '静音');
-			b_stopMusic = false;
-			$("#showMusic").html('');
-		} else { // 播放音乐
-			obj_this.removeClass(str_stopClass).addClass(str_playClass).attr('title', '播放');
-			b_stopMusic = true;
-			//$("#showMusic").html('<audio id="playMusicAudio" autoplay><source src="'+sound+'" type="audio/mpeg"></audio>');
-		}
-	});
 }
 
 /**
@@ -1646,9 +1629,8 @@ function fn_updateAlarmList(arr_alarm) {
 					obj_li.first().before(str_html);
 				} else {
 					obj_table.append(str_html);
-					
-					$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
-				}			
+				}
+				$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
 				arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
 				n_playMusicNum++;
 			}
@@ -1669,6 +1651,11 @@ function fn_updateAlarmList(arr_alarm) {
 			//如果列表是关闭的,则显示告警切换图标
 			if ( b_panel ) {
 				$('.j_alarmPanelCon').addClass('alarmWitchIcon');
+			}
+		} else {
+			if ( $('.j_alarmTable li').length == 0 ) {
+				obj_table.html('<li class="j_noDataAlarmPanel noDataAlarm">暂无告警信息</li>');
+				return;
 			}
 		}
 		// obj_alarmCon.show();
@@ -1886,6 +1873,9 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 					n_clon = obj_car.clongitude/NUMLNGLAT,	
 					n_clat = obj_car.clatitude/NUMLNGLAT;
 				
+				if ( obj_car.acc_message != '' ) {
+					alert(obj_car.acc_message);
+				}
 				obj_car.tid = str_tid;
 				obj_carsData[str_tid] = obj_car;
 				if ( n_login == LOGINOUT ) {
