@@ -519,7 +519,7 @@ class QueryHelper(object):
             logging.info("[QUERYHELPER] Termianl does not has acc_status_info, current_id: %s, tid: %s ", 
                          client_id, tid)
         else: # a whole dict should be found
-            acc_action = u'供电' if acc_status_info['acc_status'] else u'断电' 
+            acc_action = u'供电' if acc_status_info['op_type'] else u'断电' 
             terminal_info = QueryHelper.get_terminal_info(tid, db, redis)
             alias = terminal_info['alias']
             if acc_status_info['client_id'] != client_id:
@@ -527,7 +527,7 @@ class QueryHelper(object):
                               "current_id: %s, acc_status_info: %s", 
                               client_id, acc_status_info)
             else:
-                if acc_status_info['handle_status']: 
+                if acc_status_info['op_status']: 
                     acc_status_info['acc_message'] = ''.join([alias, acc_action, u'成功'])
                     redis.delete(acc_status_info_key)
                     logging.info("[QUERYHELPER] Termianl does receive terminal's response, set successful. current_id: %s, tid: %s", 
