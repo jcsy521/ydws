@@ -116,7 +116,7 @@ from handlers.avatar import AvatarHandler
 from handlers.upload import UploadHandler
 from handlers.attendance import AttendanceHandler
 from handlers.bind import BindHandler
-
+from handlers.acc import ACCHandler
 
 
 class Application(tornado.web.Application):
@@ -148,6 +148,7 @@ class Application(tornado.web.Application):
             (r"/eventperiod/*", EventPeriodHandler),
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/*", DefendHandler),
+            (r"/acc/*", ACCHandler),
             (r"/terminal/*", TerminalHandler),
 
             (r"/statistic/single/*", StatisticSingleHandler),
