@@ -1204,7 +1204,7 @@ body {
 	width: 460px;
 	border: 1px;
 }
-#corp_terminalForm .bListR, #terminalForm .bListR {
+#corp_terminalForm .bListR, #terminalForm .bListR, #accStatusWrapper .bListR {
 	/*padding-left: 88px;*/
     padding-top: 20px;
     width: 460px;
@@ -1324,7 +1324,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave, .saveButton, #corp_alertOptionSave {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave, .saveButton, #corp_alertOptionSave, #accStatusSave {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
@@ -3964,3 +3964,22 @@ legend {
 
 #corpTree .jstree-open > ins { background-position:-18px 0; }
 #corpTree  .jstree-closed > ins { background-position:0 0; }
+
+.accStatusTitle {
+	background-position: 0px -1088px;
+}
+
+#accStatusWrapper .bListR {
+	padding-left: 60px;
+}
+#accStatusWrapper .bListR input {
+	margin-left: 0;
+}
+#accStatusSave {
+	position: relative;
+	left: 188px;
+	top: 20px;
+}
+.accStatusContent {
+	height: 180px;
+}

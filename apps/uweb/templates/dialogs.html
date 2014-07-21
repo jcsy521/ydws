@@ -442,15 +442,6 @@
 										<label for="corp_parking_defend0">关闭</label>
 									</td>
 								</tr>
-								<tr>
-									<td class="corp_terminalTdL">供电设置:</td>
-									<td id="corp_op_type" class="j_corp_ListVal j_radio" t_val="">
-										<input id="corp_op_type1" type="radio" value="1" name="corp_op_type" />
-										<label for="corp_op_type1">供电</label>
-										<input id="corp_op_type0" type="radio" value="0" name="corp_op_type" />
-										<label for="corp_op_type0">断电</label>
-									</td>
-								</tr>
 								<!--<tr class="j_corp_terminal">
 									<td class="corp_terminalTdL" >告警模式:</td>
 									<td id="corp_alert_freq"  class="j_corp_ListVal j_input"  t_val="">
@@ -1902,6 +1893,33 @@
 				</fieldset>
 				<input type="button" value="" id="corp_alertOptionSave" class="corp_alertOptionButton j_save" />
 			</form>
+		</div>
+	</div>
+	<!--供电/断电-->
+	<div id="accStatusWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle accStatusTitle">
+			<span class="close j_close" who="accStatus"></span>
+		</div>
+		<div class="accStatusContent wrapperContent">
+			<table id="accStatusTable" class="bListR">
+				<tbody>
+					<tr>
+						<td class="corp_terminalTdL">定位器名称：</td>
+						<td>
+							<span id="accStatus_alias"></label>
+						</td>
+					</tr>
+					<tr><td class="corp_terminalTdL">定位器电池状态：</td>
+						<td>
+							</label><input id="accStatusType1" type="radio" value="1" name="accStatusType" checked />
+							<label for="accStatusType1">供电</label>
+							<input id="accStatusType0" type="radio" value="0" name="accStatusType" />
+							<label for="accStatusType0">断电</label>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<input type="button" value="" id="accStatusSave" class="j_save" />
 		</div>
 	</div>
 </div>

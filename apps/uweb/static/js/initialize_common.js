@@ -625,6 +625,9 @@ window.dlf.fn_getCarData = function(str_flag) {
 				
 				obj_carInfo.tid = str_tid;
 				
+				if ( obj_carInfo.acc_message != '' ) {
+					alert(obj_carInfo.acc_message);
+				}
 				// 1. 判断之前数据是否合法 
 				// 2. 新数据是否合法: yes:更新  no: 不更新
 				if ( dlf.fn_isEmptyObj(obj_tempCarsData) ) {
@@ -806,6 +809,8 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		$('#gpsContent').html(str_gps);	// gps
 		$('#defendContent').html(str_dStatus).data('defend', n_defendStatus);	// defend status
 		$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_dStatusTitle);
+		//$('#tmobile').attr('title', '定位器号码：' + str_tmobile );	// 定位器手机号
+		$('#tmobileContent').html(str_tmobile);
 	}
 	//$('.j_updateTime').attr('title', str_time)
 	$('#locationTime').html(str_time); // 最后一次定位时间
@@ -2611,17 +2616,19 @@ window.dlf.fn_mileageNotificationSave = function() {
 		n_num ++;
 		obj_param.assist_mobile = str_newAssistMobile;
 	}
-	if ( n_newDistance != n_currentDistance ) {
-		if ( n_newDistance <= n_currentDistance ) {
-			dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
-			return;
-		} else {
-			if ( n_newDistance != n_oldDistance ) {
-				n_num ++;
-				obj_param.distance_notification = n_newDistance;
-			}		
+	
+	if ( n_newDistance != n_oldDistance ) {
+		if ( n_newDistance != n_currentDistance ) {
+			if ( n_newDistance <= n_currentDistance ) {
+				dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
+				return;
+			} else {
+				if ( n_newDistance != n_oldDistance ) {
+					n_num ++;
+					obj_param.distance_notification = n_newDistance;
+				}		
+			}
 		}
-		n_num ++;
 	}
 	if ( n_oldDistanceTime != n_newDistanceTime ) {
 		n_num ++;
@@ -2641,6 +2648,31 @@ window.dlf.fn_mileageNotificationSave = function() {
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
 }
+
+/**
+* 供电/断电设置
+*hs: 2014-7-21
+*/
+
+window.dlf.fn_initAccStatus = function(str_alias) {
+	dlf.fn_dialogPosition('accStatus');  // 显示短信设置dialog	
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	
+	$('#accStatusType1').attr('checked', 'checked');
+	$('#accStatus_alias').html(dlf.fn_encode(str_alias));
+	$('#accStatusSave').unbind('click').click(function(e) {
+		dlf.fn_accStatusSave();
+	});
+}
+
+window.dlf.fn_accStatusSave = function() {
+	var n_accStatus = $('input[name=accStatusType]:checked').val(),
+		obj_param = {'tids': [dlf.fn_getCurrentTid()], 'op_type': n_accStatus};
+	
+	dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '供电/断电保存中');
+}
+
+
 
 })();
 

@@ -734,6 +734,9 @@ $(function () {
 			case 'mileageNotificationSet':  //个人版里程保养
 				dlf.fn_initMileageNotification(dlf.fn_getCurrentTid());
 				break;
+			case 'accStatus': // 供电/断电
+				dlf.fn_initAccStatus($('.j_currentCar').attr('alias'));
+				break;
 		}
 	});
 	

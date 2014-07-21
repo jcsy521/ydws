@@ -123,9 +123,6 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 				n_whitelistLenth = 0,
 				n_whitelistTip = 0;
 			
-			$('#corp_op_type1' ).attr('checked', 'checked'); 
-			$('#corp_op_type').attr('t_val', 1);
-			
 			for(var param in obj_data) {
 				var str_val = obj_data[param],
 					obj_param = $('#t_corp_' + param );

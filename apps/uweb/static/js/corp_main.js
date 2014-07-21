@@ -93,6 +93,7 @@ function customMenu(node) {
 		eventLabel = '告警查询';
 		moveToLabel = '移动定位器';
 		singleDefendLabel = '设防/撤防';
+		accStatusLabel = '供电/断电';
 		staticsLabel = '里程统计';
 		bindLineLabel = '绑定/解绑线路';
 		bindRegionLabel = '绑定围栏';
@@ -224,6 +225,12 @@ function customMenu(node) {
 				dlf.fn_initMileageNotification($(obj).children('a').eq(0).attr('tid'));
 				return false;
 			}			
+		},
+		"accStatus": {	// 单个定位器设置供电/断电
+			"label" : accStatusLabel,
+			"action" : function (obj) {
+				dlf.fn_initAccStatus(obj.children('a').attr('alias'));
+			}
 		},
 		"defend": {	// 单个定位器设防撤防
 			"label" : singleDefendLabel,
@@ -392,6 +399,7 @@ function customMenu(node) {
 		delete items.batchDefend;
 		delete items.batchRegion;
 		delete items.defend;
+		delete items.accStatus;
 		delete items.realtime;
 		delete items.track;
 		delete items.statics;
@@ -411,6 +419,7 @@ function customMenu(node) {
 		delete items.event;
 		delete items.terminalSetting;
 		delete items.defend;
+		delete items.accStatus;
 		delete items.realtime;
 		delete items.track;
 		delete items.statics;
