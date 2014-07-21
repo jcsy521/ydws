@@ -75,20 +75,20 @@ class MileageNotificationHandler(BaseHandler):
                 self.db.execute("UPDATE T_MILEAGE_NOTIFICATION"
                                 "  SET distance_notification = %s,"
                                 "      notify_count = 0,"
-                                "      left_days = 1"
+                                "      left_days = 1,"
                                 "      set_time = %s"
                                 "  WHERE tid = %s",
-                                distance_notification, tid,
-                                int(time.time()))
+                                distance_notification,
+                                int(time.time()), tid)
             if day_notification is not None:
                 self.db.execute("UPDATE T_DAY_NOTIFICATION"
                                 "  SET day_notification = %s,"
                                 "      notify_count = 0,"
-                                "      left_days = 1"
+                                "      left_days = 1,"
                                 "      set_time = %s"
                                 "  WHERE tid = %s",
-                                day_notification, tid,
-                                int(time.time()))
+                                day_notification, 
+                                int(time.time()), tid)
             if assist_mobile is not None:
                 self.db.execute("UPDATE T_TERMINAL_INFO"
                                 "  SET assist_mobile = %s"
