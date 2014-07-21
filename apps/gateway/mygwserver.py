@@ -1302,13 +1302,13 @@ class MyGWServer(object):
                     if acc_status_info and int(acc_status_info['op_status']) == 0:  
                         args.timestamp = acc_status_info['timestamp']
                         args.op_type = acc_status_info['op_type']
+                        # modify t2_status in acc_status_info
+                        acc_status_info['t2_status'] = 1 # T2 query occurs 
+                        self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
                     else: # if acc_status_info['op_status'] is 1, or no acc_status_info, set op_type is 2
                         args.timestamp = '' 
                         args.op_type = 2 # wait 
 
-                    # modify t2_status in acc_status_info
-                    acc_status_info['t2_status'] = 1 # T2 query occurs 
-                    self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
 
                 else: #NOTE: it should never occur
                     logging.error("[GW] Recv wrong sleep status: %s", heartbeat_info)
