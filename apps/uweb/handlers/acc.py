@@ -9,7 +9,7 @@ from tornado.ioloop import IOLoop
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import UWEB 
+from constants import UWEB, EVENTER
 from utils.misc import get_acc_status_info_key
 
 from base import BaseHandler, authenticated
@@ -44,6 +44,7 @@ class ACCHandler(BaseHandler, BaseMixin):
                                            op_type=op_type, 
                                            timestamp=int(time.time()), 
                                            op_status=0, # failed
+                                           t2_tatus=0, # wait for T2 
                                            acc_message=u'') 
                     self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
                 except Exception as e: 
