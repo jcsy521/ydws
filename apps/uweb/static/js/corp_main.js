@@ -57,6 +57,7 @@ function customMenu(node) {
 		singleDeleteLabel = '',	// 删除单个定位器
 		singleCreateLabel = '',	// 单个定位器的添加
 		singleDefendLabel = '',	// 单个定位器设防撤防
+		accStatusLabel = '', //供电/断电
 		realtimeLabel = '',	// 单个定位器实时定位
 		trackLabel = '',	// 单个定位器轨迹查询
 		staticsLabel = '',	// 单个定位器统计报表
