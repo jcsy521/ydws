@@ -1346,7 +1346,7 @@ window.dlf.fn_dealAlias = function (str_tempAlias) {
 * html标签 编码、解码
 */
 window.dlf.fn_encode = function(str) {
-	return str.replace(/\>/g, '&gt;').replace(/\</g, '&lt;').replace(/\&/g, '&amp;');
+	return str.replace(/\&/g, '&amp;').replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
 }
 window.dlf.fn_decode = function(str) {
 	return str.replace(/\&gt;/g, '>').replace(/\&lt;/g, '<').replace(/\'/g, "\'").replace(/\"/g, '\"');
