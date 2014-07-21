@@ -1299,10 +1299,10 @@ class MyGWServer(object):
                 elif heartbeat_info['sleep_status'] == '2': # query mode
                     acc_status_info_key = get_acc_status_info_key(dev_id)
                     acc_status_info = self.redis.getvalue(acc_status_info_key)
-                    if acc_status_info:  
+                    if acc_status_info and int(acc_status_info['op_status']) == 0:  
                         args.timestamp = acc_status_info['timestamp']
                         args.op_type = acc_status_info['op_type']
-                    else: # no info about acc_status, provide default value
+                    else: # if acc_status_info['op_status'] is 1, or no acc_status_info, set op_type is 2
                         args.timestamp = '' 
                         args.op_type = 2 # wait 
                 else: #NOTE: it should never occur
