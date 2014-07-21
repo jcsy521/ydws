@@ -15,8 +15,9 @@ class HeartbeatRespComposer(BaseComposer):
         """
         packet = "%s,%s,%s,%s,%s" % (self.time, S_MESSAGE_TYPE.HEARTBEAT,
                                     args['success'],
-                                    args.get('op_status',''),
+                                    args.get('op_type',''),
                                     args.get('timestamp',''))
+
         request = self.format_packet(packet)
 
         return request
