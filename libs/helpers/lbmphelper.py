@@ -289,6 +289,9 @@ def issue_cellid(location, db, redis):
     if terminal and str(terminal['softversion'][0:3]) == '2.3':
         logging.info("[LBMPHELPER] %s softversion: %s is 2.3.x, do not issue cellid", location.dev_id, terminal['softversion'])
         location.lat, location.lon = 0, 0
+    elif terminal and str(terminal['softversion'][0:5]) == '2.6.3':
+        logging.info("[LBMPHELPER] %s softversion: %s is 2.6.3, do not issue cellid", location.dev_id, terminal['softversion'])
+        location.lat, location.lon = 0, 0
     else:
         sim = QueryHelper.get_tmobile_by_tid(location.dev_id, redis, db)
         location.lat, location.lon = get_latlon_from_cellid(cellid_info[0],cellid_info[1],cellid_info[2],cellid_info[3], sim)

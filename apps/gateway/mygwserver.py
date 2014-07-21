@@ -1305,6 +1305,11 @@ class MyGWServer(object):
                     else: # if acc_status_info['op_status'] is 1, or no acc_status_info, set op_type is 2
                         args.timestamp = '' 
                         args.op_type = 2 # wait 
+
+                    # modify t2_status in acc_status_info
+                    acc_status_info['t2_status'] = 1 # T2 query occurs 
+                    self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
+
                 else: #NOTE: it should never occur
                     logging.error("[GW] Recv wrong sleep status: %s", heartbeat_info)
                 del heartbeat_info['sleep_status']
@@ -1315,7 +1320,7 @@ class MyGWServer(object):
             if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS:
                 acc_status_info_key = get_acc_status_info_key(dev_id)
                 acc_status_info = self.redis.getvalue(acc_status_info_key)
-                if acc_status_info: # acc_status 
+                if acc_status_info and (not acc_status_info['t2_status']): # T2(query) is need
                     args['success'] = 3 # acc_status is changed
                     logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
                                  dev_id, acc_status_info)
@@ -1480,7 +1485,7 @@ class MyGWServer(object):
             if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
                 acc_status_info_key = get_acc_status_info_key(dev_id) 
                 acc_status_info = self.redis.getvalue(acc_status_info_key) 
-                if acc_status_info: # acc_status 
+                if acc_status_info and (not acc_status_info['t2_status']): # T2(query) is need
                     args['success'] = 3 # acc_status is changed 
                     logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
                                  dev_id, acc_status_info)
@@ -1542,7 +1547,7 @@ class MyGWServer(object):
             if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
                 acc_status_info_key = get_acc_status_info_key(dev_id) 
                 acc_status_info = self.redis.getvalue(acc_status_info_key) 
-                if acc_status_info: # acc_status 
+                if acc_status_info and (not acc_status_info['t2_status']): # T2(query) is need
                     args['success'] = 3 # acc_status is changed 
                     logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
                                  dev_id, acc_status_info)
@@ -1628,7 +1633,7 @@ class MyGWServer(object):
             if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
                 acc_status_info_key = get_acc_status_info_key(dev_id) 
                 acc_status_info = self.redis.getvalue(acc_status_info_key) 
-                if acc_status_info: # acc_status 
+                if acc_status_info and (not acc_status_info['t2_status']): # T2(query) is need
                     args['success'] = 3 # acc_status is changed 
                     logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
                                  dev_id, acc_status_info)
@@ -1776,7 +1781,7 @@ class MyGWServer(object):
             if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
                 acc_status_info_key = get_acc_status_info_key(dev_id) 
                 acc_status_info = self.redis.getvalue(acc_status_info_key) 
-                if acc_status_info: # acc_status 
+                if acc_status_info and (not acc_status_info['t2_status']): # T2(query) is need
                     args['success'] = 3 # acc_status is changed 
                     logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
                                  dev_id, acc_status_info)
@@ -1892,7 +1897,7 @@ class MyGWServer(object):
             if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
                 acc_status_info_key = get_acc_status_info_key(dev_id) 
                 acc_status_info = self.redis.getvalue(acc_status_info_key) 
-                if acc_status_info: # acc_status 
+                if acc_status_info and (not acc_status_info['t2_status']): # T2(query) is need
                     args['success'] = 3 # acc_status is changed 
                     logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
                                  dev_id, acc_status_info)
@@ -1986,7 +1991,7 @@ class MyGWServer(object):
                 if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
                     acc_status_info_key = get_acc_status_info_key(dev_id) 
                     acc_status_info = self.redis.getvalue(acc_status_info_key) 
-                    if acc_status_info: # acc_status 
+                    if acc_status_info and (not acc_status_info['t2_status']): # T2(query) is need 
                         logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
                                      dev_id, acc_status_info)
                         args['success'] = 3 # acc_status is changed

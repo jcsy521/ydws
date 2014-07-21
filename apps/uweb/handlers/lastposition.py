@@ -133,9 +133,14 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
 
                     avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(mobile)
                     service_status = QueryHelper.get_service_status_by_tmobile(self.db, mobile)
+
+                    acc_status_info = QueryHelper.get_acc_status_info_by_tid(self.client_id, tid, self.db, self.redis)
+                    acc_message = acc_status_info['acc_message']
+
                     car_info=dict(defend_status=terminal['defend_status'] if terminal.get('defend_status', None) is not None else 1,
                                   service_status=service_status,
                                   mannual_status=terminal['mannual_status'] if terminal.get('mannual_status', None) is not None else 1,
+                                  acc_message=acc_message,
                                   fob_status=terminal['fob_status'] if terminal.get('fob_status', None) is not None else 0,
                                   timestamp=location['timestamp'] if location else 0,
                                   speed=location.speed if location else 0,

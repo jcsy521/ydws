@@ -489,12 +489,13 @@ class QueryHelper(object):
                    tid, 
                    db, 
                    redis
-        @return: acc_status_info ,
+        @return: acc_status_info, 6 items.
         { 
             client_id: unique id of a login on of a user,
             op_type 1: power on (default), 0: power off 
-            timestamp: timestamp, the operate option
-            op_status: handle_status, 1: success, 0: failed(time out)
+            timestamp: the operate option
+            op_status: 1: success, 0: failed(time out), 2: to be query by T2
+            t2_flag: 1: T2 query occurs. 2: wait for T2. 
             acc_message: notify message.
         
         }
@@ -514,6 +515,7 @@ class QueryHelper(object):
                                    op_type=1, 
                                    timestamp=0, 
                                    op_status=0,
+                                   t2_flag=0,
                                    acc_message=u'')
 
             logging.info("[QUERYHELPER] Termianl does not has acc_status_info, current_id: %s, tid: %s ", 
