@@ -140,3 +140,6 @@ AVATAR_SIZE = DotDict(WIDTH=320,
                     HEIGHT=320)
 
 AVATAR_QUALITY = 50
+
+# The acc_status will be cached for 3 minutes
+ACC_STATUS_EXPIRY = 60 * 3

@@ -67,5 +67,3 @@ TINYURL_EXPIRY = 3 * 24 * 60 * 60
 # The alarm will be cached for 1 days
 ALARM_EXPIRY = 60 * 60 * 24  
 
-# The acc_status will be cached for 10 minutes 
-ACC_STATUS_EXPIRY = 60 * 10  

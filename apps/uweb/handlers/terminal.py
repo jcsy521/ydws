@@ -170,15 +170,6 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
                  self.redis.delete(sessionID_key)
 
-            if data.get("op_type") is not None:
-                 op_type = data.get("op_type")
-                 acc_status_info_key = get_acc_status_info_key(self.current_user.tid) 
-                 acc_status_info = dict(client_id=self.client_id, 
-                                        op_type=op_type, 
-                                        timestamp=int(time.time()), 
-                                        op_status=0, 
-                                        acc_message=u'') 
-                 self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
             # if stop_interval has been changed, then clear session to notify terminal
             if data.get("stop_interval"):
                  sessionID_key = get_terminal_sessionID_key(self.current_user.tid)

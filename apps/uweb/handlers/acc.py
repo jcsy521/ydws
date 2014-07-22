@@ -9,7 +9,7 @@ from tornado.ioloop import IOLoop
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import UWEB, EVENTER
+from constants import UWEB
 from utils.misc import get_acc_status_info_key
 
 from base import BaseHandler, authenticated
@@ -40,15 +40,21 @@ class ACCHandler(BaseHandler, BaseMixin):
                             status=ErrorCode.SUCCESS)
                 try:
                     acc_status_info_key = get_acc_status_info_key(tid) 
-                    acc_status_info = dict(client_id=self.client_id, 
-                                           op_type=op_type, 
-                                           timestamp=int(time.time()), 
-                                           op_status=0, # failed
-                                           t2_tatus=0, # wait for T2 
-                                           acc_message=u'') 
-                    self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
+                    acc_status_info = self.redis.getvalue(acc_status_info_key) 
+                    if acc_status_info:
+                        r['status'] = ErrorCode.ACC_NOT_ALLOWED
+                        status = ErrorCode.ACC_NOT_ALLOWED
+                        break
+                    else:
+                        acc_status_info = dict(client_id=self.client_id, 
+                                               op_type=op_type, 
+                                               timestamp=int(time.time()), 
+                                               op_status=0, # failed
+                                               t2_tatus=0, # wait for T2 
+                                               acc_message=u'') 
+                        self.redis.setvalue(acc_status_info_key, acc_status_info, UWEB.ACC_STATUS_EXPIRY)
                 except Exception as e: 
-                    r.status = ErrorCode.FAILED
+                    r['status'] = ErrorCode.FAILED
                     logging.info("[UWEB] Set acc status failed, uid:%s, tid:%s, op_type:%s.", 
                                  self.current_user.uid, tid, op_type)
                 finally:
