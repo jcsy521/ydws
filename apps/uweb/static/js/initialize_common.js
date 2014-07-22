@@ -516,7 +516,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				str_currentCarAlias = '';
 				
 			if ( str_tempAlias ) {
-				str_currentCarAlias = dlf.fn_dealAlias(str_tempAlias); 
+				str_currentCarAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias)); 
 			}
 			if ( b_trackSt ) {	
 				dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
@@ -2669,7 +2669,7 @@ window.dlf.fn_accStatusSave = function() {
 	var n_accStatus = $('input[name=accStatusType]:checked').val(),
 		obj_param = {'tids': [dlf.fn_getCurrentTid()], 'op_type': n_accStatus};
 	
-	dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '供电/断电保存中');
+	dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '远程开关保存中');
 }
 
 

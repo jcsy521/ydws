@@ -57,7 +57,7 @@ function customMenu(node) {
 		singleDeleteLabel = '',	// 删除单个定位器
 		singleCreateLabel = '',	// 单个定位器的添加
 		singleDefendLabel = '',	// 单个定位器设防撤防
-		accStatusLabel = '', //供电/断电
+		accStatusLabel = '', //远程开关
 		realtimeLabel = '',	// 单个定位器实时定位
 		trackLabel = '',	// 单个定位器轨迹查询
 		staticsLabel = '',	// 单个定位器统计报表
@@ -94,7 +94,7 @@ function customMenu(node) {
 		eventLabel = '告警查询';
 		moveToLabel = '移动定位器';
 		singleDefendLabel = '设防/撤防';
-		accStatusLabel = '供电/断电';
+		accStatusLabel = '远程开关';
 		staticsLabel = '里程统计';
 		bindLineLabel = '绑定/解绑线路';
 		bindRegionLabel = '绑定围栏';
@@ -227,7 +227,7 @@ function customMenu(node) {
 				return false;
 			}			
 		},
-		"accStatus": {	// 单个定位器设置供电/断电
+		"accStatus": {	// 单个定位器设置远程开关
 			"label" : accStatusLabel,
 			"action" : function (obj) {
 				dlf.fn_initAccStatus(obj.children('a').attr('alias'));
