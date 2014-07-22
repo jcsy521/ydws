@@ -537,7 +537,7 @@ class QueryHelper(object):
                 else:
                     #NOTE: acc_status_info['timestamp'] should never be 0
                     if int(time.time()) - acc_status_info['timestamp'] > 60*3:
-                        acc_status_info['acc_message'] = ''.join([alias, acc_status_action, u'失败'])
+                        acc_status_info['acc_message'] = ''.join([alias, acc_action, u'失败'])
                         redis.delete(acc_status_info_key)
                         logging.info("[QUERYHELPER] Termianl does not receive terminal's response in 4 minutes, set failed. current_id: %s, tid: %s", 
                                      client_id, tid)
