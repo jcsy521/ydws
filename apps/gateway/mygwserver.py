@@ -1935,7 +1935,7 @@ class MyGWServer(object):
                 acc_status_info = self.redis.getvalue(acc_status_info_key)
                 if acc_status_info:  
                     acc_status_info['op_status'] = 1 # success
-                    self.redis.setvalue(acc_status_info_key, acc_status_info, EVENTER.ACC_STATUS_EXPIRY)
+                    self.redis.setvalue(acc_status_info_key, acc_status_info, UWEB.ACC_STATUS_EXPIRY)
                 else: # It should never occur. 
                     logging.error("[GW] ACC_status can not be found. dev_id: %s",
                                   dev_id)
