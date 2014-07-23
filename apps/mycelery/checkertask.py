@@ -177,12 +177,12 @@ class CheckTask(object):
                                  "  notify_count: %s, left_days: %s.", 
                                  tid, mobile, owner_mobile, assist_mobile, distance_notification, 
                                  distance_current, notify_count, left_days)
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                    self.db.execute("UPDATE T_MILEAGE_NOTIFICATION"
                                     "  SET notify_count = %s,"
                                     "      left_days = %s"
                                     "  WHERE tid = %s",
                                     notify_count+1, 3, tid)
-                    distance_current_ = int(round(terminal['distance_current']/1000.0))
+                    distance_current_ = int(round(distance_current/1000.0))
                     if owner_mobile:
                         sms = SMSCode.SMS_NOTIFY % (distance_current_, terminal_info['alias'])
                         SMSHelper.send(owner_mobile, sms)
@@ -199,7 +199,7 @@ class CheckTask(object):
                                  "  notify_count: %s, left_days: %s.", 
                                  tid, mobile, owner_mobile, assist_mobile, distance_notification, 
                                  distance_current, notify_count, left_days)
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                    self.db.execute("UPDATE T_MILEAGE_NOTIFICATION"
                                     "  SET left_days = %s"
                                     "  WHERE tid = %s",
                                     left_days-1,
@@ -243,7 +243,7 @@ class CheckTask(object):
                 day_notification= terminal['day_notification']
 
                 if left_days == 1: # it should be notified this day                           
-                    logging.info("[CELERY] Send mileage notification."
+                    logging.info("[CELERY] Send day notification."
                                  "  tid: %s, mobile: %s, owner_mobile: %s, assist_mobile: %s,"
                                  "  day_notification: %s" 
                                  "  notify_count: %s, left_days: %s.", 
@@ -263,7 +263,7 @@ class CheckTask(object):
                         sms = SMSCode.SMS_NOTIFY_ASSIST_DAY % (mobile, owner_mobile, name)
                         SMSHelper.send(assist_mobile, sms)
                 elif left_days in (2, 3): # do not notify, just postpone one day
-                    logging.info("[CELERY] Do not send mileage notification this day,"
+                    logging.info("[CELERY] Do not send day notification this day,"
                                  "  just modify the left_days."
                                  "  tid: %s, mobile: %s, owner_mobile: %s, assist_mobile: %s,"
                                  "  day_notification: %s" 
