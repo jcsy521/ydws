@@ -170,6 +170,11 @@ class CheckTask(object):
                 notify_count = terminal['notify_count']
                 left_days = terminal['left_days']
                 distance_notification= terminal['distance_notification']
+
+                # NOTE: if distance_current is less than distance_notification, just skip it
+                if distance_current < distance_notification:
+                    continue
+
                 if left_days == 1: # it should be notified this day                           
                     logging.info("[CELERY] Send mileage notification."
                                  "  tid: %s, mobile: %s, owner_mobile: %s, assist_mobile: %s,"
@@ -322,6 +327,7 @@ else:
         check_track = task(ignore_result=True)(check_track)
         offline_remind = task(ignore_result=True)(offline_remind)
         mileage_notify = task(ignore_result=True)(mileage_notify)
+        day_notify = task(ignore_result=True)(day_notify)
     except Exception as e: 
         logging.exception("[CELERY] admintask statistic failed. Exception: %s", e.args)
 

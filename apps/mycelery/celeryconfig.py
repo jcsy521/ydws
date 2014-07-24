@@ -59,6 +59,12 @@ CELERYBEAT_SCHEDULE = {
        "schedule": crontab(minute=59, hour=9),
    },
 
+   "day_notify": {
+       "task": "checkertask.day_notify",
+       # 09:59PM every day
+       "schedule": crontab(minute=59, hour=9),
+   },
+
    # part 2: for db 
    "update_clatclon": {
        "task": "dbtask.update_clatclon",
