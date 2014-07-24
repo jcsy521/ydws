@@ -1882,6 +1882,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 						b_closeWrapper = false;
 						dlf.fn_jNotifyMessage(obj_res.message, 'message', false, 3000); 
 					}
+					dlf.fn_unLockContent(); // 清除内容区域的遮罩
 					return;
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
