@@ -841,7 +841,8 @@ class MyGWServer(object):
                            login_time=int(time.time()),
                            dev_id=t_info["dev_id"],
                            bt_mac=t_info['bt_mac'],
-                           bt_name=t_info['bt_name'])
+                           bt_name=t_info['bt_name'],
+                           dev_type=t_info['dev_type'])
             self.update_terminal_info(info, db)
             logging.info("[GW] Terminal login success! tid: %s, mobile: %s",
                          t_info['dev_id'], t_info['t_msisdn'])
@@ -2125,7 +2126,7 @@ class MyGWServer(object):
         fields = []
         # gps, gsm, pbat, changed by position report
         keys = ['mobile', 'defend_status', 'login', 'keys_num', 'fob_status', 'mannual_status', 
-                'softversion', 'bt_mac', 'bt_name']
+                'softversion', 'bt_mac', 'bt_name', 'dev_type']
         for key in keys:
             value = t_info.get(key, None)
             t_value = terminal_info.get(key, '')

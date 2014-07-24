@@ -3,6 +3,7 @@
 import logging
 import time
 import datetime
+
 import copy
 import functools 
 
@@ -190,6 +191,8 @@ class PacketTask(object):
         insert_location(location, self.db, self.redis)
 
     def unknown_location_hook(self, location):
+        """Now, just do nothing.
+        """
         pass
 
     def update_terminal_info(self, location):
@@ -355,16 +358,21 @@ class PacketTask(object):
             logging.info("[EVENTER] The report's (gps_time - current_time) is more than 24 hours, so drop it:%s", report)
             return
 
-        #NOTE: if undefend, just save location into db
+
+        #NOTE: If undefend, just save location into db
         if info['rName'] in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
-            mannual_status = QueryHelper.get_mannual_status_by_tid(info['dev_id'], self.db)
-            if int(mannual_status) == UWEB.DEFEND_STATUS.NO:
-                report['category'] = EVENTER.CATEGORY.REALTIME
-                insert_location(report, self.db, self.redis)
-                self.update_terminal_info(report)
-                logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
-                             info['dev_id'], info['rName'])
-                return
+            if str(info.get('is_notify','')) == '1': # send notify even if CF 
+                logging.info("[EVENTER] Send notify forever, go ahead.. Terminal: %s, is_notify: %s",
+                             report.dev_id, info.get('is_notify',''))
+            else:
+                mannual_status = QueryHelper.get_mannual_status_by_tid(info['dev_id'], self.db)
+                if int(mannual_status) == UWEB.DEFEND_STATUS.NO:
+                    report['category'] = EVENTER.CATEGORY.REALTIME
+                    insert_location(report, self.db, self.redis)
+                    self.update_terminal_info(report)
+                    logging.info("[EVENTER] %s mannual_status is undefend, drop %s report.",
+                                 info['dev_id'], info['rName'])
+                    return
             
         if info['rName'] in [EVENTER.RNAME.POWERDOWN,]:
             # if alert_freq_key is exists,return
@@ -417,6 +425,12 @@ class PacketTask(object):
         #NOTE: check sms option
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
         name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
+        
+        if str(info.get('is_notify','')) == '1': # send notify even if CF
+            sms_option = UWEB.SMS_OPTION.SEND
+            logging.info("[EVENTER] Send notify forever. Terminal: %s, is_notify: %s",
+                         report.dev_id, info.get('is_notify',''))
+
         if sms_option == UWEB.SMS_OPTION.SEND:
             terminal_time = get_terminal_time(int(report['timestamp']))
             terminal_time = safe_unicode(terminal_time) 

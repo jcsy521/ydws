@@ -73,21 +73,21 @@ class GFBase(object):
         def __wait():
             # interval = retry * ConfHelper.GF_CONF.retry_interval
             interval = ConfHelper.GF_CONF.retry_interval
-            logging.error("Retry connecting in %d seconds.", interval)
+            logging.error("[GFPROXY] Retry connecting in %d seconds.", interval)
             sleep(interval)
 
         for retry in xrange(ConfHelper.GF_CONF.retry_count):
             try:
-                logging.info("Connecting GF...")
+                logging.info("[GFPROXY] Connecting GF...")
                 self.__sock.connect((ConfHelper.GF_CONF.host, ConfHelper.GF_CONF.port))
             except:
                 __wait()
             else:
-                logging.info("GF connected.")
+                logging.info("[GFPROXY] GF connected.")
                 status = True
                 break
         if not status:
-            logging.error("Connecting failed.")
+            logging.error("[GFPROXY] Connecting failed.")
         return status
 
     def login(self):
@@ -97,7 +97,7 @@ class GFBase(object):
         def __wait():
             # interval = (2 ** retry) * ConfHelper.GF_CONF.retry_interval
             interval = ConfHelper.GF_CONF.retry_interval
-            logging.error("Retry login in %d seconds.", interval)
+            logging.error("[GFPROXY] Retry login in %d seconds.", interval)
             sleep(interval)
 
         go_ahead = False
@@ -106,7 +106,7 @@ class GFBase(object):
             if not self.__connect():
                 continue
 
-            logging.info("Login GF...")
+            logging.info("[GFPROXY] Login GF...")
             
             bc = BindComposer(dict(seq=str(random.randint(0, 9999)),
                                    username=ConfHelper.GF_CONF.username,
@@ -117,7 +117,7 @@ class GFBase(object):
                 response = self.recv_response()
             except Exception as e:
                 response = ""
-                logging.exception("Login GF error. reason: %s", e.args)
+                logging.exception("[GFPROXY] Login GF error. reason: %s", e.args)
                 __wait()
             else:
                 gf = GFCheck(response)
@@ -128,30 +128,30 @@ class GFBase(object):
                     if command == '1001': # bind response
                         logging.info("bind_resp:\n%s", gfhead)
                         if gfhead.status == '0000':
-                            logging.info("login success!  status:%s", gfhead.status)
+                            logging.info("[GFPROXY] Login success!  status:%s", gfhead.status)
                             self.is_alive = True
                             go_ahead = True
                             break
                         else: 
-                            logging.info("login failed!  status:%s", gfhead.status)
+                            logging.info("[GFPROXY] Login failed!  status:%s", gfhead.status)
                             __wait()
                     elif command == '0020': # active_test
-                        logging.info("active_test_resp:\n%s", gfhead)
+                        logging.info("[GFPROXY] Active_test_resp:\n%s", gfhead)
                         args = DotDict(seq=gfhead.seq)
                         atc = ActiveTestRespComposer(args)
                         self.send_request(atc.buf)
                     else:
-                        logging.exception("unknown command:%s", command)
+                        logging.exception("[GFPROXY] Unknown command:%s", command)
             if go_ahead:
                 break
         if not self.is_alive:
-            logging.error("Login failed.")
+            logging.error("[GFPROXY] Login failed.")
             self.__prepare_reconnect()
-            raise LoginException("GF Login failed.")
+            raise LoginException("[GFPROXY] GF Login failed.")
 
 
     def logout(self):
-        logging.info("Logout GF...")
+        logging.info("[GFPROXY] Logout GF...")
         
         unbc = UNBindComposer(dict(seq=str(random.randint(0, 9999))))
         try:
@@ -166,14 +166,14 @@ class GFBase(object):
                     command = gfhead.command
                     if command == '1002': # unbind response
                         # NOTE: should check the response whether okay or nt
-                        logging.info("unbind_resp:\n%s",gfhead)
+                        logging.info("[GFPROXY] unbind_resp:\n%s",gfhead)
                         if gfhead.status == '0000':
-                            logging.info("logout success!  status:%s",gfhead.status)
+                            logging.info("[GFPROXY] logout success!  status:%s",gfhead.status)
                             go_ahead = True
                             self.destroy()
                             break
                         else: 
-                            logging.info("logout failed!  status:%s",gfhead.status)
+                            logging.info("[GFPROXY] logout failed!  status:%s",gfhead.status)
                     elif command == '0020': # active_test
                         logging.info("active_test_resp:\n%s", gfhead)
                         args = DotDict(seq=gfhead.seq)
@@ -242,7 +242,7 @@ class GFBase(object):
         while length:
             tmp_buf = self.__sock.recv(length)
             if not tmp_buf:
-                logging.warn("recv empty response of socket!")
+                logging.warn("[GFPROXY] recv empty response of socket!")
                 self.__close_socket()
                 raise socket.error(errno.EPIPE, "the pipe might be broken.") 
             ret_buf += tmp_buf 
@@ -267,7 +267,7 @@ class GFBase(object):
         return packet 
             
     def _clear_wait_response_queue(self):
-        logging.info("Clearing wait response queue: %s", len(self.wait_response_queue))
+        logging.info("[GFPROXY] Clearing wait response queue: %s", len(self.wait_response_queue))
         try:
             for i in self.wait_response_queue:
                 for j, item in enumerate(self.wait_response_queue[i]):
@@ -288,7 +288,7 @@ class GFBase(object):
         if ((time() - self.last_check_time) < 10):
             return
 
-        logging.info("Clearing timeout request in wait response queue.")
+        logging.info("[GFPROXY] Clearing timeout request in wait response queue.")
         self.last_check_time = time()
         for i in self.wait_response_queue:
             for j, item in enumerate(self.wait_response_queue[i]):
@@ -357,7 +357,7 @@ class GFBase(object):
                     infds, _, _ = select.select([self.__sock], [], [], 0.1)
                     if len(infds) > 0:
                         response = self.recv_response()
-                        logging.info('[GF] Recv whole packet: %s', response)
+                        logging.info('[GFPROXY] Recv whole packet: %s', response)
 
                         gf = GFCheck(response)
                         gfheads = gf.heads
@@ -403,6 +403,8 @@ class GFBase(object):
 
                                 r_key = ("%s%s" % (clwhead.dev_id, 'S'+clwhead.command[1:])).replace(' ','')
                                 if self.wait_response_queue.has_key(r_key):
+                                    logging.info("[GFPROXY] UWEB-->GF-->UWEB. r_key: %s",
+                                                 r_key)
                                     callback = self.wait_response_queue[r_key][0]['callback']
                                     resp.clwbody= clwbody
                                     resp.clwhead = clwhead
@@ -411,6 +413,8 @@ class GFBase(object):
                                     if len(self.wait_response_queue[r_key]) == 0:
                                         del self.wait_response_queue[r_key]
                                 else:
+                                    logging.info("[GFPROXY] SI-->GF-->EVENTER. ap.ret: %s",
+                                                 ap.ret)
                                     ap = AsyncParser(clwbody, clwhead)
                                     if ap.ret:
                                         self.forward(ap.ret)

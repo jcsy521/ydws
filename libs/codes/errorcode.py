@@ -100,6 +100,7 @@ class ErrorCode(object):
 
     # ACC_STATUS
     ACC_NOT_ALLOWED = 1301
+    ACC_TOO_FREQUENCY = 1302
 
 
     ERROR_MESSAGE  = {
@@ -186,6 +187,7 @@ class ErrorCode(object):
         AJT_ORDERED:                   u"%s已经是安捷通白名单号码。",
         AJT_NOT_ORDERED:               u"%s不是安捷通白名单号码，请联系客服。",
 
-        ACC_NOT_ALLOWED:               u"对不起，您的操作过于频繁，请稍后再试。",
+        ACC_NOT_ALLOWED:               u"对不起，该定位器不支持远程开关。",
+        ACC_TOO_FREQUENCY:             u"对不起，您的操作过于频繁，请稍后再试。",
 
     }

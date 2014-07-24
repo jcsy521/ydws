@@ -521,7 +521,7 @@ class QueryHelper(object):
             logging.info("[QUERYHELPER] Termianl does not has acc_status_info, current_id: %s, tid: %s ", 
                          client_id, tid)
         else: # a whole dict should be found
-            acc_action = u'供电' if acc_status_info['op_type'] else u'断电' 
+            acc_action = u'锁定' if acc_status_info['op_type'] else u'解锁' 
             terminal_info = QueryHelper.get_terminal_info(tid, db, redis)
             alias = terminal_info['alias']
             if acc_status_info['client_id'] != client_id:

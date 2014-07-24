@@ -201,7 +201,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
             if user_type == UWEB.USER_TYPE.PERSON:
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
@@ -219,7 +219,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                 gids = [g.group_id for g in groups]
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
@@ -235,7 +235,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                 gids = [g.gid for g in groups]
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
@@ -258,6 +258,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
 
                 terminal_info_key = get_terminal_info_key(tid)
                 terminal_cache = self.redis.getvalue(terminal_info_key)
+                #NOTE: the latest gps, gsm, pbat kept in redis
                 if terminal_cache:
                     terminal['gps'] =  terminal_cache['gps']
                     terminal['gsm'] =  terminal_cache['gsm']
@@ -303,6 +304,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                               locate_error=location.get('locate_error', 20) if location else 20,
                               bt_name=terminal['bt_name'] if terminal.get('bt_name', None) is not None else '',
                               bt_mac=terminal['bt_mac'] if terminal.get('bt_mac', None) is not None else '',
+                              dev_type=terminal['dev_type'] if terminal.get('dev_type', None) is not None else 'A',
                               name=location.name if location else '',
                               type=location.type if location else 1,
                               latitude=location['latitude'] if location else 0,
@@ -467,6 +469,7 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                           locate_error=location.get('locate_error', 20) if location else 20,
                           bt_name=terminal['bt_name'] if terminal.get('bt_name', None) is not None else '',
                           bt_mac=terminal['bt_mac'] if terminal.get('bt_mac', None) is not None else '',
+                          dev_type=terminal['dev_type'] if terminal.get('dev_type', None) is not None else 'A',
                           name=location.name if location else '',
                           type=location.type if location else 1,
                           latitude=location['latitude'] if location else 0,
@@ -553,7 +556,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
             if user_type == UWEB.USER_TYPE.PERSON:
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
@@ -570,7 +573,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                 gids = [g.group_id for g in groups]
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
@@ -585,7 +588,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                 gids = [g.gid for g in groups]
                 terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
                                           "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
+                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE (service_status = %s"
                                           "         OR service_status = %s)"
@@ -654,6 +657,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                               locate_error=location.get('locate_error', 20) if location else 20,
                               bt_name=terminal['bt_name'] if terminal.get('bt_name', None) is not None else '',
                               bt_mac=terminal['bt_mac'] if terminal.get('bt_mac', None) is not None else '',
+                              dev_type=terminal['dev_type'] if terminal.get('dev_type', None) is not None else 'A',
                               name=location.name if location else '',
                               type=location.type if location else 1,
                               latitude=location['latitude'] if location else 0,
@@ -828,6 +832,7 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                           locate_error=location.get('locate_error', 20) if location else 20,
                           bt_name=terminal['bt_name'] if terminal.get('bt_name', None) is not None else '',
                           bt_mac=terminal['bt_mac'] if terminal.get('bt_mac', None) is not None else '',
+                          dev_type=terminal['dev_type'] if terminal.get('dev_type', None) is not None else 'A',
                           name=location.name if location else '',
                           type=location.type if location else 1,
                           latitude=location['latitude'] if location else 0,

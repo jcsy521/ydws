@@ -21,7 +21,7 @@ class Sender(GFBase):
 
     def forward(self, args):
         """Forward the packet packet to eventer."""
-        logging.debug("forwarding to eventer...")
+        logging.debug("[GFPROXY] Forwarding to eventer. args: %s", args)
         try:
             opener = urllib2.build_opener()
             opener.addheaders = [("Content-type", "application/json; charset=utf-8")]

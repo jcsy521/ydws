@@ -23,6 +23,7 @@ class AsyncParser(object):
             ret['Tid'] = self.get_tid(ret.command)
             info = self.get_pvt_info(packet)
         elif ret.command in ('T13', 'T14', 'T15', 'T16', 'T26', 'T29'):
+            #report
             ret['t'] = EVENTER.INFO_TYPE.REPORT
             ret['rName'] = self.get_tid(ret.command) 
             info = self.get_report_info(packet)
@@ -69,6 +70,8 @@ class AsyncParser(object):
         return tid
 
     def get_position(self):
+        """Provide a default dict.
+        """
         position = {'lon' : 0, 
                     'lat' : 0,
                     'alt' : 0,
@@ -230,21 +233,26 @@ class AsyncParser(object):
     def get_report_info(self, packet):
         """Get the location report information. Location is classified as the 
         following categories: ILLEGALSHAKE, POWERLOW, EMERGENCY, ILLEGALMOVE 
+ 
         """
+        # 15 itesm.
         keys = ['valid', 'ew', 'lon', 'ns', 'lat', 'speed', 'degree',
                 'defend_status', 'cellid', 'extra', 'gps_time', 'terminal_type',
-                'fobid','locate_error']
+                'fobid', 'locate_error', 'is_notify']
 
+        #NOTE: If the packet misses some field, provide a '' 
         keys_miss = len(keys) - len(packet)
+        logging.info("[GW] packet: %s, keys_miss: %s", packet, keys_miss)
         for i in range(keys_miss):
             packet.append('')
 
 
+        #NOTE: unpack extra into gps, gsm, pbat 
         position = self.get_position()
         for i, key in enumerate(keys):
             position[key] = packet[i] 
 
-
+        #NOTE: unpack extra into gps, gsm, pbat 
         keys = ['gps', 'gsm', 'pbat']
         ggp = position['extra'].split(':')
         for i, key in enumerate(keys):
@@ -258,6 +266,7 @@ class AsyncParser(object):
         position['degree'] = float(position['degree'])
         position['gps_time'] = int(position['gps_time'])
 
+        #NOTE: IF locate_error is inexistence, provide 20 default 
         if not position.get('locate_error', None):
             position['locate_error'] = 20 # default value 
         position['locate_error'] = int(position['locate_error']) 

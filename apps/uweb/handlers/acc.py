@@ -37,27 +37,38 @@ class ACCHandler(BaseHandler, BaseMixin):
             res = [] 
             for tid in tids:
                 r = DotDict(tid=tid,
-                            status=ErrorCode.SUCCESS)
+                            status=ErrorCode.SUCCESS,
+                            message=ErrorCode.ERROR_MESSAGE[status])
                 try:
-                    acc_status_info_key = get_acc_status_info_key(tid) 
-                    acc_status_info = self.redis.getvalue(acc_status_info_key) 
-                    if acc_status_info:
+                    t = self.db.get("SELECT dev_type FROM T_TERMINAL_INFO"
+                                    "  where tid = %s LIMIT 1",
+                                    tid)
+                    if str(t['dev_type']) != 'D':
                         r['status'] = ErrorCode.ACC_NOT_ALLOWED
-                        status = ErrorCode.ACC_NOT_ALLOWED
-                        break
-                    else:
-                        acc_status_info = dict(client_id=self.client_id, 
-                                               op_type=op_type, 
-                                               timestamp=int(time.time()), 
-                                               op_status=0, # failed
-                                               t2_tatus=0, # wait for T2 
-                                               acc_message=u'') 
-                        self.redis.setvalue(acc_status_info_key, acc_status_info, UWEB.ACC_STATUS_EXPIRY)
+                        logging.info("[UWEB] Acc is not allowed. uid: %s, tid: %s, dev_type: %s", 
+                                     self.current_user.uid, tid, t['dev_type'])
+
+                    else: 
+                        acc_status_info_key = get_acc_status_info_key(tid) 
+                        acc_status_info = self.redis.getvalue(acc_status_info_key) 
+                        if acc_status_info:
+                            r['status'] = ErrorCode.ACC_TOO_FREQUENCY
+                            logging.info("[UWEB] Acc is too frequency. uid: %s, tid: %s", 
+                                         self.current_user.uid, tid)
+                        else:
+                            acc_status_info = dict(client_id=self.client_id, 
+                                                   op_type=op_type, 
+                                                   timestamp=int(time.time()), 
+                                                   op_status=0, # failed
+                                                   t2_tatus=0, # wait for T2 
+                                                   acc_message=u'') 
+                            self.redis.setvalue(acc_status_info_key, acc_status_info, UWEB.ACC_STATUS_EXPIRY)
                 except Exception as e: 
                     r['status'] = ErrorCode.FAILED
                     logging.info("[UWEB] Set acc status failed, uid:%s, tid:%s, op_type:%s.", 
                                  self.current_user.uid, tid, op_type)
                 finally:
+                    r['message'] = ErrorCode.ERROR_MESSAGE[r['status']]
                     res.append(r)
             self.write_ret(status, dict_=DotDict(res=res))
         except Exception as e:
