@@ -184,9 +184,11 @@ class CheckTask(object):
                                  distance_current, notify_count, left_days)
                     self.db.execute("UPDATE T_MILEAGE_NOTIFICATION"
                                     "  SET notify_count = %s,"
-                                    "      left_days = %s"
+                                    "      left_days = %s,"
+                                    "      notify_time = %s"
                                     "  WHERE tid = %s",
-                                    notify_count+1, 3, tid)
+                                    notify_count+1, 3, tid,
+                                    int(time.time()))
                     distance_current_ = int(round(distance_current/1000.0))
                     if owner_mobile:
                         sms = SMSCode.SMS_NOTIFY % (distance_current_, terminal_info['alias'])
@@ -256,9 +258,11 @@ class CheckTask(object):
                                  notify_count, left_days)
                     self.db.execute("UPDATE T_DAY_NOTIFICATION"
                                     "  SET notify_count = %s,"
-                                    "      left_days = %s"
+                                    "      left_days = %s,"
+                                    "      notify_time = %s"
                                     "  WHERE tid = %s",
-                                    notify_count+1, 3, tid)
+                                    notify_count+1, 3, tid,
+                                    int(time.time()))
                     if owner_mobile:
                         sms = SMSCode.SMS_NOTIFY_DAY % (terminal_info['alias'])
                         SMSHelper.send(owner_mobile, sms)
