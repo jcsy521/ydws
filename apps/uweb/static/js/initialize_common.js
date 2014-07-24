@@ -314,6 +314,7 @@ window.dlf.fn_jNotifyMessage = function(messages, types, b_permanent, showTime) 
 	    displayTime = showTime ? showTime : displayTime;
 
 	$('#jNotifyMessage').css({
+		'z-index': '100001',
 		'display': 'block',
         'left': pf
     }).jnotifyAddMessage({
@@ -627,6 +628,8 @@ window.dlf.fn_getCarData = function(str_flag) {
 				
 				if ( obj_carInfo.acc_message != '' ) {
 					alert(obj_carInfo.acc_message);
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 				}
 				// 1. 判断之前数据是否合法 
 				// 2. 新数据是否合法: yes:更新  no: 不更新
@@ -1576,7 +1579,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
-	} else if ( str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'operator' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' ) {	//  通知查询
+	} else if ( str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'operator' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'accStatus' ) {
 		str_tempWrapperId = 'userProfileManage';
 	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' ) {
 		str_tempWrapperId = 'notifyManage';
@@ -1602,12 +1605,12 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
 	if ( b_trackStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionStatus || b_corpRegionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
-		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'mileageNotification' ) {
+		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'accStatus' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
-	} else if ( str_wrapperId == 'singleMileage' || str_wrapperId == 'realtime' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'bindRegion' ) {
+	} else if ( str_wrapperId == 'singleMileage' || str_wrapperId == 'realtime' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'bindRegion' || str_wrapperId == 'accStatus' ) {
 		//当切换到个人里程统计查询时,进行车辆的位置移动for: hs at 2014-7-8
 		var str_tempCTid = '';
 		
@@ -1622,6 +1625,9 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 	}
 	
+	if ( !dlf.fn_userType() ) {
+		dlf.fn_setMapPosition(false);
+	}
 	if ( b_trackStatus ) {
 		$('.j_wrapperContent').css('height', $('.j_wrapperContent').height()+38);
 	}
@@ -1864,6 +1870,19 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					$('#text_notifyManageMsg').val('');
 					$('#notifyManageDataStDialog').dialog('close');
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
+				} else if ( str_who == 'accStatus' ) {
+					var obj_res = data.res[0];
+					
+					if ( obj_res == 0 ) {
+						b_closeWrapper = true;
+						dlf.fn_jNotifyMessage('操作指令已发送，请等待响应'+WAITIMG, 'message', true, 3000); 
+						$('#accStatusWrapper').css({'z-index': 1001});
+						$('#jNotifyMessage').css({'z-index': 1002});
+					} else {
+						b_closeWrapper = false;
+						dlf.fn_jNotifyMessage(obj_res.message, 'message', false, 3000); 
+					}
+					return;
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}
@@ -2565,8 +2584,9 @@ window.dlf.fn_initMileageNotification = function(str_tid) {
 		str_nowDateYMd = dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd');
 	
 	$('#txtDistanceNotificationTime').unbind('click').bind('click', function() {
-		WdatePicker({el: 'txtDistanceNotificationTime', lang: 'zh-cn', dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false,  qsEnabled: false, autoPickDate: false, minDate: str_nowDateYMd});
+		WdatePicker({el: 'txtDistanceNotificationTime', lang: 'zh-cn', dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false,  qsEnabled: false, autoPickDate: false});
 	}).val(str_nowDateYMd);
+	
 	$.get_(MILEAGENOTIFICATION_URL + '?tid=' + str_tid, '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_res = data.res,
@@ -2630,6 +2650,10 @@ window.dlf.fn_mileageNotificationSave = function() {
 			}
 		}
 	}
+	if ( n_newDistanceTime < n_oldDistanceTime ) {
+		dlf.fn_jNotifyMessage('下次保养时间必须大于当前保养时间。', 'message', false, 4000); // 查询状态不正确,错误提示
+		return;
+	}
 	if ( n_oldDistanceTime != n_newDistanceTime ) {
 		n_num ++;
 		obj_param.day_notification = n_newDistanceTime;
@@ -2657,8 +2681,9 @@ window.dlf.fn_mileageNotificationSave = function() {
 window.dlf.fn_initAccStatus = function(str_alias) {
 	dlf.fn_dialogPosition('accStatus');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	
-	$('#accStatusType1').attr('checked', 'checked');
+	$('#accStatusWrapper').css({'z-index': 1002});
+	dlf.fn_setItemMouseStatus($('.j_accStatusSave'), 'pointer', new Array('qd', 'qd2'));	// 保存按钮鼠标滑过样式
+	$('#accStatusType1, #accStatusType0').removeAttr('checked');
 	$('#accStatus_alias').html(dlf.fn_encode(str_alias));
 	$('#accStatusSave').unbind('click').click(function(e) {
 		dlf.fn_accStatusSave();
@@ -2669,6 +2694,10 @@ window.dlf.fn_accStatusSave = function() {
 	var n_accStatus = $('input[name=accStatusType]:checked').val(),
 		obj_param = {'tids': [dlf.fn_getCurrentTid()], 'op_type': n_accStatus};
 	
+	if ( !n_accStatus ) {
+		dlf.fn_jNotifyMessage('请选择要进行的操作。', 'message', false, 4000); // 查询状态不正确,错误提示
+		return;
+	}
 	dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '远程开关保存中');
 }
 
@@ -2732,3 +2761,4 @@ $(function () {
 		appendType : 'append'
 	});
 })
+

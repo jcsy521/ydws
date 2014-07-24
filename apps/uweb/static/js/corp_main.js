@@ -1470,6 +1470,8 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								}
 								if ( obj_car.acc_message != '' ) {
 									alert(obj_car.acc_message);
+									dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+									dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 								}
 								// obj_carsData[str_tid] =  obj_car;
 								arr_tempTids.push(str_tid); //tid组string 串

@@ -138,7 +138,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 		}		
 		$('.' + str_who + 'Table').hide();
 		$('#'+ str_who +'Wrapper .j_chart').hide();	// 查看统计图链接隐藏
-		$('.j_singleEventTitle, .j_singleMileageTitle').html(' - ' + str_alias);	// dialog的title显示当前定位器名称
+		$('.j_singleEventTitle, .j_singleMileageTitle').html(' - ' + dlf.fn_encode(str_alias));	// dialog的title显示当前定位器名称
 		// obj_searchMonth.hide();	// 月份默认隐藏
 		obj_searchYear.html(fn_generateSelectOption('year'));	// 填充年份
 		obj_searchMonth.html(fn_generateSelectOption('month', obj_searchYear.val())).val(n_month).show();	// 填充月份

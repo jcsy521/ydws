@@ -287,7 +287,8 @@ dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_curr
 		b_isCorpUser = dlf.fn_userType(),
 		obj_iconSize = new BMap.Size(100, 100),
 		obj_imageOffset = new BMap.Size(-30, -35),
-		myIcon = new BMap.Icon(BASEIMGURL + 'default.png', new BMap.Size(34, 34));
+		str_imgUrl = str_loginSt == 1 ? 'default' : 'default_logout', 
+		myIcon = new BMap.Icon(BASEIMGURL + str_imgUrl+'.png', new BMap.Size(34, 34));
 	
 	if ( b_isCorpUser ) {
 		/**

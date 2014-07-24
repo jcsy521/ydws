@@ -262,6 +262,8 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerA.png';
 	} else if ( str_iconType == 'end' ) {	// 轨迹终点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerB.png';
+	} else if ( str_iconType == 'draw' ) {
+		myIcon.imageUrl = BASEIMGURL + 'default.png';
 	} else if ( str_iconType == 'delay' ) {	// 停留点图标
 		myIcon.imageUrl = BASEIMGURL + 'delay_Marker.png';
 	} else if ( str_iconType == 'alarmInfo' ) {
@@ -272,6 +274,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 	
 	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
 		actionMarker = marker;
+		
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
 		marker.setLabel(label);
 		marker.setTitle(str_alias);
@@ -461,7 +464,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 		n_timestamp = obj_location.timestamp,
 		date = dlf.fn_changeNumToDateString(n_timestamp),
 		n_degree = obj_location.degree, 
-		str_imgUrl = 'default',  // 车辆方向角
+		str_loginSt =  obj_location.login,
+		str_imgUrl = str_loginSt == 1 ? 'default' : 'default_logout', 
 		n_iconType = obj_location.icon_type,
 		str_degree = dlf.fn_changeData('degree', n_degree, speed), //方向角处理
 		str_degreeTip = '方向角：' + Math.round(n_degree),
@@ -472,7 +476,6 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 		str_type = obj_location.type == GPS_TYPE ? 'GPS定位' : '基站定位',
 		str_alias = obj_location.alias,
 		str_delayTime = obj_location.idle_time,
-		str_loginSt = obj_location.login,
 		str_title = '定位器：',
 		str_tempMsg = '开始跟踪',
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),	// $('.j_carList a[tid='+str_tid+']').attr('actiontrack'),
