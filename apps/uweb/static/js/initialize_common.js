@@ -314,7 +314,6 @@ window.dlf.fn_jNotifyMessage = function(messages, types, b_permanent, showTime) 
 	    displayTime = showTime ? showTime : displayTime;
 
 	$('#jNotifyMessage').css({
-		'z-index': '100001',
 		'display': 'block',
         'left': pf
     }).jnotifyAddMessage({
@@ -627,9 +626,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 				obj_carInfo.tid = str_tid;
 				
 				if ( obj_carInfo.acc_message != '' ) {
-					alert(obj_carInfo.acc_message);
-					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-					dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+					dlf.fn_accCallback(obj_carInfo.acc_message, str_tid);
 				}
 				// 1. 判断之前数据是否合法 
 				// 2. 新数据是否合法: yes:更新  no: 不更新
@@ -1873,11 +1870,11 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 				} else if ( str_who == 'accStatus' ) {
 					var obj_res = data.res[0];
 					
-					if ( obj_res == 0 ) {
+					if ( obj_res.status == 0 ) {
 						b_closeWrapper = true;
-						dlf.fn_jNotifyMessage('操作指令已发送，请等待响应'+WAITIMG, 'message', true, 3000); 
-						$('#accStatusWrapper').css({'z-index': 1001});
-						$('#jNotifyMessage').css({'z-index': 1002});
+						dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+						dlf.fn_jNotifyMessage('操作中'+WAITIMG, 'message', true, 3000);
+						$('#accStatusWrapper').data('operator', true);
 					} else {
 						b_closeWrapper = false;
 						dlf.fn_jNotifyMessage(obj_res.message, 'message', false, 3000); 
@@ -2675,31 +2672,82 @@ window.dlf.fn_mileageNotificationSave = function() {
 }
 
 /**
-* 供电/断电设置
+*  远程开关设置
 *hs: 2014-7-21
 */
 
 window.dlf.fn_initAccStatus = function(str_alias) {
+	var b_accOperator = $('#accStatusWrapper').data('operator');
+	
+	if ( b_accOperator ) {
+		dlf.fn_jNotifyMessage('操作中'+WAITIMG, 'message', true, 3000);
+		return;
+	}
+	
 	dlf.fn_dialogPosition('accStatus');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
-	$('#accStatusWrapper').css({'z-index': 1002});
 	dlf.fn_setItemMouseStatus($('.j_accStatusSave'), 'pointer', new Array('qd', 'qd2'));	// 保存按钮鼠标滑过样式
 	$('#accStatusType1, #accStatusType0').removeAttr('checked');
 	$('#accStatus_alias').html(dlf.fn_encode(str_alias));
-	$('#accStatusSave').unbind('click').click(function(e) {
+	$('#accStatusType1, #accStatusType0').unbind('click').click(function(e) {
 		dlf.fn_accStatusSave();
 	});
 }
 
 window.dlf.fn_accStatusSave = function() {
 	var n_accStatus = $('input[name=accStatusType]:checked').val(),
-		obj_param = {'tids': [dlf.fn_getCurrentTid()], 'op_type': n_accStatus};
+		obj_param = {'tids': [dlf.fn_getCurrentTid()], 'op_type': n_accStatus},
+		str_accAlertMsg = '';
 	
 	if ( !n_accStatus ) {
 		dlf.fn_jNotifyMessage('请选择要进行的操作。', 'message', false, 4000); // 查询状态不正确,错误提示
 		return;
 	}
-	dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '远程开关保存中');
+	
+	if ( n_accStatus == 1 ) {
+		str_accAlertMsg = '“锁定”将会导致车辆无法行驶，您确定要锁定吗？';
+	} else {
+		str_accAlertMsg = '您确定要解锁吗？';
+	}
+	if ( confirm(str_accAlertMsg) ) {
+		dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '远程开关保存中');
+	}
+}
+
+/**
+* 远程开关结果显示
+*/
+window.dlf.fn_accCallback = function(n_status, n_tid) {
+	$('#accStatusWrapper').removeData('operator');
+	
+	$('#accStatusCallBackWrapper').show();
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
+	if ( n_status == 1 ) {
+		$('#accStatusCallBackError').hide();
+		$('#accStatusCallBackSuccess').show();
+		
+		//知道了
+		$('#accCallBack_know').unbind('click').click(function(e) {
+			$('#accStatusCallBackWrapper').hide();
+			dlf.fn_unLockScreen();
+		});
+	} else {
+		$('#accStatusCallBackError').show();
+		$('#accStatusCallBackSuccess').hide();
+		//重新尝试
+		$('#accCallBack_reTry').unbind('click').click(function(e) {
+			var str_alias = $('a[tid='+ n_tid +']').attr('alias');
+			
+			dlf.fn_initAccStatus(str_alias);
+		});
+		//关闭
+		$('#accCallBack_Close').unbind('click').click(function(e) {
+			$('#accStatusCallBackWrapper').hide();
+			dlf.fn_unLockScreen();
+		});
+	}
+	
 }
 
 

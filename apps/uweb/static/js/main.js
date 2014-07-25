@@ -792,6 +792,8 @@ $(function () {
 	
 	dlf.fn_setItemMouseStatus($('.j_save'), 'pointer', new Array('bc', 'bc2'));	// 保存按钮鼠标滑过样式
 	
+	dlf.fn_setItemMouseStatus($('#accCallBack_reTry'), 'pointer', new Array('cxcs', 'cxcs2'));	// acc_retry保存按钮鼠标滑过样式
+	dlf.fn_setItemMouseStatus($('#accCallBack_know'), 'pointer', new Array('zdl', 'zdl2'));	// acc_zdl保存按钮鼠标滑过样式
 	/**
 	* 个人信息的验证
 	*/

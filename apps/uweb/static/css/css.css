@@ -3984,6 +3984,53 @@ legend {
 	left: 188px;
 	top: 20px;
 }
+#accStatusWrapper {
+	height: 150px;
+}
 .accStatusContent {
-	height: 180px;
+	height: 116px;
+}
+
+/*accbackwrapper*/
+.accCallBackFont {
+	font-size: 14px;
+	font-weight: bold;
+	color: #222;
+}
+#accStatusCallBackWrapper {
+	position: absolute;
+	left: 35%;
+	top: 25%;
+	border: 1px solid #70bbf6;
+	border-radius: 4px;
+	width: 120px;
+	height: 48px;
+	background-color: #fff;
+	padding: 30px 54px;
+	opacity: .8;
+	filter: alpha(opacity=80); /*ie*/
+}
+.accStatusCallBackBtn{
+	border: 0px;
+	width: 63px;
+	height: 25px;
+}
+#accCallBack_know {
+	position: relative;
+	left: 28px;
+	top: 8px;
+}
+.accCallBack_btnPanel {
+	position: relative;
+	top: 14px;
+}
+#accCallBack_Close {
+	width: 30px;
+	background: #fff;
+	cursor: pointer;
+	position: relative;
+	top: -9px;
+	left: 21px;
+	font-size: 14px;
+	font-weight: bold;
 }

@@ -1468,10 +1468,8 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								} else {
 									obj_carsData[str_tid] = obj_car;
 								}
-								if ( obj_car.acc_message != '' ) {
-									alert(obj_car.acc_message);
-									dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-									dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+								if ( obj_car.acc_message != ''  ) {
+									dlf.fn_accCallback(obj_car.acc_message, str_tid);
 								}
 								// obj_carsData[str_tid] =  obj_car;
 								arr_tempTids.push(str_tid); //tid组string 串
@@ -1886,7 +1884,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 					n_clat = obj_car.clatitude/NUMLNGLAT;
 				
 				if ( obj_car.acc_message != '' ) {
-					alert(obj_car.acc_message);
+					dlf.fn_accCallback(obj_car.acc_message, str_tid);
 				}
 				obj_car.tid = str_tid;
 				obj_carsData[str_tid] = obj_car;
