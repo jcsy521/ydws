@@ -205,7 +205,7 @@ class QueryHelper(object):
             terminal_info = db.get("SELECT mannual_status, defend_status,"
                                    "  fob_status, mobile, owner_mobile, login, gps, gsm,"
                                    "  pbat, keys_num, icon_type, softversion, bt_name, bt_mac,"
-                                   "  assist_mobile, distance_current"
+                                   "  assist_mobile, distance_current, dev_type"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", tid)
             car = db.get("SELECT cnum FROM T_CAR"
@@ -525,19 +525,21 @@ class QueryHelper(object):
             terminal_info = QueryHelper.get_terminal_info(tid, db, redis)
             alias = terminal_info['alias']
             if acc_status_info['client_id'] != client_id:
-                logging.info("] Current client_id is not match acc_status, renturn nothing, "
+                logging.info("[QUERYHELPER] Current client_id is not match acc_status, renturn nothing, "
                               "current_id: %s, acc_status_info: %s", 
                               client_id, acc_status_info)
             else:
                 if acc_status_info['op_status']: 
-                    acc_status_info['acc_message'] = ''.join([alias, acc_action, u'成功'])
+                    acc_status_info['acc_message'] = '1' 
+                    #acc_status_info['acc_message'] = ''.join([alias, acc_action, u'成功'])
                     redis.delete(acc_status_info_key)
                     logging.info("[QUERYHELPER] Termianl does receive terminal's response, set successful. current_id: %s, tid: %s", 
                                  client_id, tid)
                 else:
                     #NOTE: acc_status_info['timestamp'] should never be 0
-                    if int(time.time()) - acc_status_info['timestamp'] > 60*3:
-                        acc_status_info['acc_message'] = ''.join([alias, acc_action, u'失败'])
+                    if int(time.time()) - acc_status_info['timestamp'] > 90:
+                        acc_status_info['acc_message'] = '0' 
+                        #acc_status_info['acc_message'] = ''.join([alias, acc_action, u'失败'])
                         redis.delete(acc_status_info_key)
                         logging.info("[QUERYHELPER] Termianl does not receive terminal's response in 4 minutes, set failed. current_id: %s, tid: %s", 
                                      client_id, tid)
