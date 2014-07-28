@@ -203,11 +203,13 @@ class IncLastInfoCorpHandler(BaseHandler):
 
                         acc_status_info = QueryHelper.get_acc_status_info_by_tid(self.client_id, tid, self.db, self.redis)
                         acc_message =  acc_status_info['acc_message'] 
+                        op_status =  acc_status_info['op_status'] 
 
                         #1: build the basic_info
                         basic_info=dict(defend_status=terminal['defend_status'] if terminal['defend_status'] is not None else 1,
                                         mannual_status=terminal['mannual_status'] if terminal['mannual_status'] is not None else 1,
                                         acc_message=acc_message,
+                                        op_status=op_status,
                                         fob_status=terminal['fob_status'] if terminal['fob_status'] is not None else 0,
                                         timestamp=location['timestamp'] if location else 0,
                                         speed=location.speed if location else 0,
