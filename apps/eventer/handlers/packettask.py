@@ -362,7 +362,7 @@ class PacketTask(object):
         #NOTE: If undefend, just save location into db
         if info['rName'] in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]:
             if str(info.get('is_notify','')) == '1': # send notify even if CF 
-                logging.info("[EVENTER] Send notify forever, go ahead.. Terminal: %s, is_notify: %s",
+                logging.info("[EVENTER] Send notify forever, go ahead. Terminal: %s, is_notify: %s",
                              report.dev_id, info.get('is_notify',''))
             else:
                 mannual_status = QueryHelper.get_mannual_status_by_tid(info['dev_id'], self.db)
@@ -425,12 +425,6 @@ class PacketTask(object):
         #NOTE: check sms option
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
         name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
-        
-        if str(info.get('is_notify','')) == '1': # send notify even if CF
-            sms_option = UWEB.SMS_OPTION.SEND
-            logging.info("[EVENTER] Send notify forever. Terminal: %s, is_notify: %s",
-                         report.dev_id, info.get('is_notify',''))
-
         if sms_option == UWEB.SMS_OPTION.SEND:
             terminal_time = get_terminal_time(int(report['timestamp']))
             terminal_time = safe_unicode(terminal_time) 
