@@ -2712,7 +2712,7 @@ window.dlf.fn_accStatusSave = function() {
 		return;
 	}
 	
-	if ( n_accStatus == 1 ) {
+	if ( n_accStatus == 0 ) {
 		str_accAlertMsg = '“锁定“将会导致车辆失去动力而无法行驶，并有可能引起安全问题，您确定要锁定吗？';
 	} else {
 		str_accAlertMsg = '您确定要解锁吗？';
