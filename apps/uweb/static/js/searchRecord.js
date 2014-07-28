@@ -970,7 +970,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<tr>';
 				str_tbodyText+= '<td>'+ obj_tempData.seq +'</td>';	// 序列号				
 				str_tbodyText+= '<td>'+ dlf.fn_encode(obj_tempData.alias) +'</td>';	// 车牌号 or 日期
-				str_tbodyText+= '<td>'+ obj_tempData.distance +'</td>';	//里程 
+				str_tbodyText+= '<td>'+ parseFloat(obj_tempData.distance) +'</td>';	//里程 
 				str_tbodyText+= '</tr>';
 				break;
 			case 'onlineStatics':	// 在线统计
@@ -1074,10 +1074,13 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			case 'notifyManageSearch': // 通知查询
 				
 				obj_tableHeader.show();
-				var str_notifyText = dlf.fn_encode(obj_tempData.content.substr(0, 15)),
+				var str_notifyText = obj_tempData.content,
 					str_tempId = obj_tempData.id,
-					str_notifyTextTip = dlf.fn_encode(obj_tempData.content);
+					str_notifyTextTip = dlf.fn_encode(str_notifyText);
 				
+				if ( str_notifyText.length > 15 ) {
+					str_notifyText = dlf.fn_encode(str_notifyText.substr(0, 15)+'...');
+				}
 				str_tbodyText += '<tr id="'+str_tempId+'"><td>'+ (i+1) +'</td>';
 				str_tbodyText += '<td>'+ obj_tempData.umobile +'</td>';
 				str_tbodyText += '<td>'+ dlf.fn_changeNumToDateString(obj_tempData.timestamp) +'</td>';
@@ -1096,7 +1099,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			obj_month = $('#'+ str_who +'Month'),
 			b_month = obj_month.is(':hidden'),
 			str_alias = $('.j_currentCar').text().substr(2),	// 当前定位器名称
-			obj_chart = {'name': str_alias, 'data': arr_graphic}, 
+			obj_chart = {'name': dlf.fn_encode(str_alias), 'data': arr_graphic}, 
 			arr_categories = [],
 			str_unit = '次',
 			str_container = 'singleEventChart',
@@ -1121,7 +1124,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			for(var i = 0; i < n_searchLen; i++) {
 				var obj_data = obj_searchData[i],
 					str_name = obj_data.name,	// 如果是年报：2个月份、季报：四个季度、月报：30天
-					n_mileage = obj_data.mileage;
+					n_mileage = parseFloat(obj_data.mileage);
 				
 				str_tbodyText += '<tr><td>'+ str_name +'</td>';
 				str_tbodyText+= '<td>'+ n_mileage +'</td>';	// 里程数
@@ -1163,7 +1166,7 @@ window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		// todo 显示统计图 和总计
 		var obj_foot = $('.j_mileageFoot'),
 			str_alias = $('#selectTerminals').find('option:selected').text(),	// 当前定位器tmobile
-			obj_chart = {'name': str_alias, 'data': arr_graphic}, 
+			obj_chart = {'name': dlf.fn_encode(str_alias), 'data': arr_graphic}, 
 			arr_categories = [],
 			b_isLastPage = n_dwRecordPageNum != n_pagecnt-1,
 			arr_series = [],// 统计数据
@@ -1447,12 +1450,30 @@ window.dlf.fn_searchCheckTerminal = function() {
 	// 获取当前选中的终端 
 	var arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
 		n_tidsNums = arr_leafNodes.length, 
-		str_tids = '';
-		
+		str_tids = '',
+		str_currentTNumId = $($('#terminalInfo .currentTNum').children()).attr('id'),
+		n_tShow = 2;
+	
+	//查看用户设置的终端选择状态
+	if ( str_currentTNumId == 'carCount' ) {
+		n_tShow = 2
+	} else if ( str_currentTNumId == 'offlineCount' ) {
+		n_tShow = '0';
+	} else {
+		n_tShow = '1';
+	}	
+	
 	for (var i = 0; i < n_tidsNums; i++ ) {
-		var obj_tempLeafNode = $($(arr_leafNodes[i]).children('a'));
+		var obj_tempLeafNode = $($(arr_leafNodes[i]).children('a')),
+			str_clogin = obj_tempLeafNode.attr('clogin');
 		
-		str_tids += obj_tempLeafNode.attr('tid')+',';
+		if ( n_tShow == 2 ) {
+			str_tids += obj_tempLeafNode.attr('tid')+',';
+		} else {
+			if ( n_tShow == str_clogin ) {
+				str_tids += obj_tempLeafNode.attr('tid')+',';
+			}
+		}
 	}
 	str_tids = str_tids.substr(0,str_tids.length - 1);
 	return str_tids;
@@ -1585,7 +1606,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 		}}).css('zIndex', 10000);
 		
 		//存储当前的中心点及比例尺数据,以便切换回来的时候显示 
-		$('.j_body').data({'mapcenter': mapObj.getCenter(), 'mapsize': mapObj.getZoom()});
+		$('.j_body').data({'mapcenter': mapObj.getCenter()});
 	} else {	
 		var n_windowHeight = $(window).height(),
 			n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 658 ? 658 : n_windowHeight : n_windowHeight,
@@ -1594,7 +1615,6 @@ window.dlf.fn_setMapPosition = function(b_status) {
 			n_mapHeight = n_windowHeight - 161,
 			n_right = n_windowWidth - 249,
 			obj_mapCenter = $('.j_body').data('mapcenter'),
-			obj_mapSize = $('.j_body').data('mapsize'),
 			b_trackSt = $('#trackHeader').is(':visible'), 
 			n_mapObjMinHeight = 566,
 			n_mapObjMinWidth = 875,
@@ -1629,7 +1649,6 @@ window.dlf.fn_setMapPosition = function(b_status) {
 			mapObj.setMapType(BMAP_NORMAL_MAP);
 			setTimeout (function () {
 				mapObj.setCenter(obj_mapCenter);
-				mapObj.setZoom(obj_mapSize);
 				$('.j_body').removeData('mapcenter mapsize');
 			}, 300);
 		}

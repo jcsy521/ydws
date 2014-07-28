@@ -57,7 +57,7 @@ function customMenu(node) {
 		singleDeleteLabel = '',	// 删除单个定位器
 		singleCreateLabel = '',	// 单个定位器的添加
 		singleDefendLabel = '',	// 单个定位器设防撤防
-		accStatusLabel = '', //远程开关
+		accStatusLabel = '', //远程控制
 		realtimeLabel = '',	// 单个定位器实时定位
 		trackLabel = '',	// 单个定位器轨迹查询
 		staticsLabel = '',	// 单个定位器统计报表
@@ -94,7 +94,7 @@ function customMenu(node) {
 		eventLabel = '告警查询';
 		moveToLabel = '移动定位器';
 		singleDefendLabel = '设防/撤防';
-		accStatusLabel = '远程开关';
+		accStatusLabel = '远程控制';
 		staticsLabel = '里程统计';
 		bindLineLabel = '绑定/解绑线路';
 		bindRegionLabel = '绑定围栏';
@@ -166,6 +166,7 @@ function customMenu(node) {
 					for ( var i = 0; i < n_treeNodeCheckLen; i++ ) {
 						$('#corpTree').jstree('uncheck_node', arr_treeNodeChecked[i]);
 					}
+					arr_treeNodeChecked = [];
 				}
 				$('#corpTree').jstree('check_node', $(obj).eq(0));
 				$("#showMusic").html('');
@@ -227,7 +228,7 @@ function customMenu(node) {
 				return false;
 			}			
 		},
-		"accStatus": {	// 单个定位器设置远程开关
+		"accStatus": {	// 单个定位器设置远程控制
 			"label" : accStatusLabel,
 			"action" : function (obj) {
 				dlf.fn_initAccStatus(obj.children('a').attr('alias'));
@@ -1000,7 +1001,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				* KJJ add in 2014.05.07
 				* 每隔1s添加一个终端
 				*/
-				n_addMarkerInterval = setInterval(function() {
+				//n_addMarkerInterval = setInterval(function() {
 					var obj_terminal = $($(str_nodes+' .jstree-checked')[n_count]),
 						obj_current = obj_terminal.children('.j_terminal');
 					
@@ -1038,7 +1039,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					} else {
 						clearInterval(n_addMarkerInterval);
 					}
-				}, 50);
+				//}, 50);
 				$('#loadingMsg').html('').hide();
 				dlf.fn_unLockScreen();
 			}, 400);			
@@ -1121,6 +1122,8 @@ function fn_uncheckedNode(obj) {
 			$('.j_carList .j_currentCar').removeClass('j_currentCar jstree-clicked');
 			// 关闭所有开启追踪
 		}
+		//清除告警图标
+		dlf.fn_clearAlarmMarker();
 	}, 500);	
 }
 
@@ -1712,7 +1715,7 @@ function fn_updateAlarmList(arr_alarm) {
 				obj_marker = dlf.fn_addMarker(obj_alarm, 'alarmInfo', $('.j_currentCar').attr('tid'), n_index); // 添加标记
 				obj_alarmTable.data('alarmMarker', obj_marker);	// 存储当前的marker 以便下次先删除再添加
 				$('.j_alarm').data(str_tempTid+n_index, true);
-				dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 16);
+				dlf.fn_setOptionsByType('center', obj_centerPointer);
 				obj_this.data('marker', obj_marker);
 				
 				if ( dlf.fn_isBMap() ) {
@@ -2133,7 +2136,6 @@ window.dlf.fn_updateCorpCnum = function(cnum) {
 		*/
 		if ( b_mapType ) {	// 百度地图修改label
 			obj_selfMarker.getLabel().setContent(str_tempAlias);
-			obj_selfMarker.setTitle(str_tempAlias);
 		}
 		//obj_selfmarkers[str_tid].selfInfoWindow.setContent(str_content);
 		var obj_carDatas = $('.j_carList').data('carsData'),
@@ -2298,10 +2300,11 @@ function fn_renameGroup(gid, str_name, node) {
 * 删除组
 */
 function fn_removeGroup(node) {
-	var str_param = node.children('a').attr('groupid');
+	var str_param = node.children('a').attr('groupid'),
+		str_groupTitle = node.children('a').attr('title');
 	
 	$('#vakata-contextmenu').hide();	// 右键菜单隐藏
-	if ( confirm('确定要删除该分组吗？') ) {
+	if ( confirm('确定要删除'+ str_groupTitle +'吗？') ) {
 		$.delete_(GROUPS_URL + '?ids=' + str_param, '', function (data) {
 			if ( data.status == 0 ) {
 				$("#corpTree").jstree('remove');

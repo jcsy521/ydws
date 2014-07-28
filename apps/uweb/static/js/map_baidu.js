@@ -277,11 +277,11 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
 		marker.setLabel(label);
-		marker.setTitle(str_alias);
 		obj_selfmarkers[str_tid] = marker;
 		
 		// dlf.fn_setOptionsByType('center', mPoint);
 	} else if ( str_iconType == 'region' ) {
+		marker.setLabel(label);
 		obj_selfmarkers[str_tid] = marker;
 	} else if ( str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'delay' ) {
 		if ( str_iconType != 'delay' ) {
@@ -292,7 +292,6 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		dlf.fn_tipContents(obj_location, str_iconType, n_index, true)
 	} else if ( str_iconType == 'eventSurround' ) {
 		marker.setLabel(label);
-		marker.setTitle(str_alias);
 	} else if ( str_iconType ==	'alarmInfo' ) {
 		marker.getIcon().imageOffset = new BMap.Size(5, 5);
 	}  
@@ -1037,7 +1036,7 @@ window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateErro
 			n_lenPolygon = arr_polygonDatas.length;
 		
 		if ( obj_centerPointer ) {
-			arr_tempPolygonData.push(obj_centerPointer);
+			arr_calboxData.push(obj_centerPointer);
 		}
 		for ( var i = 0; i < n_lenPolygon; i++) {
 			var obj_temPolygonPts = arr_polygonDatas[i],

@@ -207,14 +207,19 @@ window.dlf.fn_initCorpData = function() {
 				str_address = obj_data.c_address,	// 集团地址
 				str_email = obj_data.c_email,		// 集团email
 				str_linkMan = obj_data.c_linkman,	// 集团联系人
-				str_newName = str_linkMan,			
+				str_newName = str_linkMan,
+				str_subNewName = str_newName,
 				str_mobile = obj_data.c_mobile,		// 集团联系人手机号
 				str_alert_mobile = obj_data.c_alert_mobile;	// 离线通知人
-				
-			if ( str_linkMan.length > 4 ) {	// 姓名长度大于4显示...
-				str_newName = str_linkMan.substr(0,4)+'...';
+			
+			if ( str_newName == '' ) {
+				str_newName = str_subNewName = str_mobile;
 			}
-			$('#spanWelcome').html('欢迎您，' + dlf.fn_encode(str_newName)).attr('title', str_linkMan);	// 更新主页用户名
+			
+			if ( str_subNewName.length > 4 ) {	// 姓名长度大于4显示...
+				str_subNewName = str_subNewName.substr(0,4)+'...';
+			}
+			$('#userName').html('欢迎您，' + dlf.fn_encode(str_subNewName)).attr('title', str_newName);	// 更新主页用户名
 			// todo 集团名称修改的话左侧树根节点也修改
 			$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_name).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');
 			dlf.fn_setCorpIconDiffBrowser();
@@ -287,9 +292,11 @@ window.dlf.fn_initOperatorData = function() {
 				str_newName = str_linkMan,			
 				str_mobile = obj_data.mobile;		// 操作员手机号
 				
-			if ( str_linkMan.length > 4 ) {	// 姓名长度大于4显示...
-				str_newName = str_linkMan.substr(0,4)+'...';
+			if ( str_newName.length > 4 ) {	// 姓名长度大于4显示...
+				str_newName = str_newName.substr(0,4)+'...';
 			}
+			$('#userName').html('欢迎您，' + dlf.fn_encode(str_newName)).attr('title', str_newName);	// 更新主页用户名
+			
 			$('#span_operCName').html(str_name);
 			$('#span_operName').html(str_linkMan);
 			$('#span_operMobile').html(str_mobile);
@@ -491,6 +498,7 @@ $(function () {
 	}
 	$('.mainBody').height(n_windowHeight);
 	$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
+	$('.j_carList').css('height', n_corpTreeContainerHeight-230);	// 个人用户终端列表的高度
 	
 	if ( n_treeHeight < 296 ) {
 		n_treeHeight = 296;
@@ -922,7 +930,7 @@ $(function () {
 		}
 	});
 	$('#c_name').formValidator({validatorGroup: '4'}).inputValidator({min: 1, onErrorMin: '集团名称不能为空。', max: 20, onErrorMax: '集团名称最多可输入20个汉字或字符！'}).regexValidator({regExp: 'c_name', dataType: 'enum', onError: "集团名称只能由中文、英文、数字组成！"});  //集团名
-	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({max: 20, onError: '联系人最多可输入20个字符！'});  // 联系人姓名regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});
+	$('#c_linkman').formValidator({validatorGroup: '4'}).inputValidator({min: 1, onErrorMin: '联系人不能为空。',max: 20, onError: '联系人最多可输入20个字符！'});  // 联系人姓名regexValidator({regExp: 'c_name', dataType: 'enum', onError: "联系人姓名只能由中文、英文、数字组成！"});
 	$('#c_alert_mobile').formValidator({empty: true, validatorGroup: '4'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: "离线通知号码输入不合法，请重新输入！"}); // 离线联系人手机号
 	$('#c_email').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 50, onError: '联系人邮箱最多可输入50个字符！'}).regexValidator({regExp: 'email', dataType: 'enum', onError: "联系人邮箱输入不合法，请重新输入！"});  // 联系人email
 	$('#c_address').formValidator({empty:true, validatorGroup: '4'}).inputValidator({max: 100, onError: '联系人地址最多可输入100个汉字或字符！'}).regexValidator({regExp: 'address', dataType: 'enum', onError: "联系人地址输入不合法，请重新输入！"});  // 联系人email; // 地址

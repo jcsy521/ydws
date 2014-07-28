@@ -27,10 +27,13 @@ $(function() {
 		}, 
 		onSuccess: function(obj) { 
 			
-			var obj_this = $('#content');
+			var str_feedback = $.trim($('#content').val());
 			
-			if ( obj_this.val().length > 300 ) {
+			if ( str_feedback.length > 300 ) {
 				dlf.fn_jNotifyMessage('反馈内容不能大于300个字。', 'message', false, 5000); 
+				return;
+			} else if ( str_feedback.length <= 0 ) {
+				dlf.fn_jNotifyMessage('请输入反馈内容。', 'message', false, 5000); 
 				return;
 			} else {
 				fn_fbsave();

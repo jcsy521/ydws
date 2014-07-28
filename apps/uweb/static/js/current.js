@@ -215,7 +215,6 @@ window.dlf.fn_defendQuery = function(str_alias) {
 	} else {
 		str_tempAlias = obj_currentCar.siblings(0).html();
 	}
-	str_tempAlias = dlf.fn_encode(str_tempAlias);
 	obj_defendBtn.hide();
 	dlf.fn_dialogPosition('defend');	// 设置dialog的位置
 	dlf.fn_lockScreen();	//添加页面遮罩	

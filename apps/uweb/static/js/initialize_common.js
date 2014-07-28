@@ -665,10 +665,10 @@ window.dlf.fn_getCarData = function(str_flag) {
 			}
 			if ( str_flag == 'first' && arr_locations.length > 0 ) {
 				//dlf.fn_caculateBox(arr_locations, 'lastinfo');
-				dlf.fn_setOptionsByType('viewport', arr_locations);
-				setTimeout(function() { // 首次执行lastinfo进行地图位置调整
-					mapObj.setZoom(mapObj.getZoom()-2);
-				}, 200);
+				//dlf.fn_setOptionsByType('viewport', arr_locations);
+				//setTimeout(function() { // 首次执行lastinfo进行地图位置调整
+				//	mapObj.setZoom(mapObj.getZoom()-2);
+				//}, 200);
 			}
 			
 			$('.j_carList').data('carsData', obj_tempData);
@@ -1349,7 +1349,7 @@ window.dlf.fn_encode = function(str) {
 	return str.replace(/\&/g, '&amp;').replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
 }
 window.dlf.fn_decode = function(str) {
-	return str.replace(/\&gt;/g, '>').replace(/\&lt;/g, '<').replace(/\'/g, "\'").replace(/\"/g, '\"');
+	return str.replace(/\&gt;/g, '>').replace(/\&lt;/g, '<').replace(/\'/g, "\'").replace(/\"/g, '\"').replace(/\&amp;/g, '&');
 }
 
 /**
@@ -1858,6 +1858,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					$('#regionContent').data('iscreate',  true);// 存储新增成功数据
 					b_closeWrapper = false;
 				} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
 					dlf.fn_setMapContainerZIndex(0);
 					dlf.fn_clearAllMenu();
@@ -1945,21 +1946,26 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 				} else if ( str_who == 'corp' ) {	// 集团资料
 					var str_cName = obj_data.c_name,
 						str_linkman = obj_data.c_linkman,
-						str_newName = str_linkman;
+						str_newName = str_linkman,
+						str_subNewName = str_newName;
+						console.log('x: ',str_linkman);
 						
-					if ( str_linkman ) {	// 用户名回填
-						if ( str_linkman.length > 4 ) {
-							str_newName = str_linkman.substr(0,4)+'...';
-						}
-						$('#spanWelcome').html('欢迎您，'+ dlf.fn_encode(str_newName)).attr('title', str_linkman);
-					}
-					if ( str_cName ) {
-						var str_tempCName = str_cName.length > 10 ? str_cName.substr(0,10)+ '...' : str_cName;
-						
-						$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempCName).attr('title', str_cName).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');;
-					}
-					//$('.corpNode').html('<ins class="jstree-icon">&nbsp;</ins>' + str_cName).children('ins').css('background', 'url("/static/images/corpImages/corp.png")');;
 					for(var param in obj_data) {	// 修改保存成功的原始值
+						if ( param == 'c_linkman' ) {
+							if ( str_linkman == '' ) {
+								str_newName = str_subNewName = $('#c_mobile').html();
+							}
+						
+							if ( str_subNewName.length > 4 ) {
+								str_subNewName = str_subNewName.substr(0,4)+'...';
+							}
+							$('#userName').html('欢迎您，'+ dlf.fn_encode(str_subNewName)).attr('title', str_newName);
+						}
+						if ( param == 'c_name' ) {
+							var str_tempCName = str_cName.length > 10 ? str_cName.substr(0,10)+ '...' : str_cName;
+						
+							$('.corpNode').html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempCName).attr('title', str_cName).children().eq(1).css('background', 'url("/static/images/corpImages/corp.png") 0px no-repeat');
+						}
 						if ( param == 'cnum' ) {
 							dlf.fn_updateAlias();
 						}
@@ -2500,6 +2506,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 		$('.mainBody').height(n_windowHeight);
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
+		$('.j_carList').css('height', n_corpTreeContainerHeight-230);	// 个人用户终端列表的高度
 		 
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 8;
@@ -2583,7 +2590,7 @@ window.dlf.fn_initMileageNotification = function(str_tid) {
 	
 	$('#txtDistanceNotificationTime').unbind('click').bind('click', function() {
 		WdatePicker({el: 'txtDistanceNotificationTime', lang: 'zh-cn', dateFmt: 'yyyy-MM-dd', readOnly: true, isShowClear: false,  qsEnabled: false, autoPickDate: false});
-	}).val(str_nowDateYMd);
+	});
 	
 	$.get_(MILEAGENOTIFICATION_URL + '?tid=' + str_tid, '', function(data) {
 		if ( data.status == 0 ) {
@@ -2628,7 +2635,8 @@ window.dlf.fn_mileageNotificationSave = function() {
 		n_newDistance = $('#txtDistanceNotification').val()*1000,
 		n_newDisatanceDay = $('#txtDayNotification').val(),
 		n_oldDistanceTime = $('#txtDistanceNotificationTime').data('olddate'),
-		n_newDistanceTime = dlf.fn_changeDateStringToNum($('#txtDistanceNotificationTime').val()+' 00:00:00');
+		str_dayTimeVal = $.trim($('#txtDistanceNotificationTime').val()),
+		n_newDistanceTime = dlf.fn_changeDateStringToNum(str_dayTimeVal+' 00:00:00');
 		
 	if ( str_oldAssistMobile != str_newAssistMobile ) {
 		n_num ++;
@@ -2641,10 +2649,8 @@ window.dlf.fn_mileageNotificationSave = function() {
 				dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
 				return;
 			} else {
-				if ( n_newDistance != n_oldDistance ) {
-					n_num ++;
-					obj_param.distance_notification = n_newDistance;
-				}		
+				n_num ++;
+				obj_param.distance_notification = n_newDistance;
 			}
 		}
 	}
@@ -2652,9 +2658,11 @@ window.dlf.fn_mileageNotificationSave = function() {
 		dlf.fn_jNotifyMessage('下次保养时间必须大于当前保养时间。', 'message', false, 4000); // 查询状态不正确,错误提示
 		return;
 	}
-	if ( n_oldDistanceTime != n_newDistanceTime ) {
-		n_num ++;
-		obj_param.day_notification = n_newDistanceTime;
+	if ( str_dayTimeVal != '' ) {
+		if ( n_oldDistanceTime != n_newDistanceTime ) {
+			n_num ++;
+			obj_param.day_notification = n_newDistanceTime;
+		}
 	}
 	/**
 	* 只保存有修改的数据
@@ -2672,7 +2680,7 @@ window.dlf.fn_mileageNotificationSave = function() {
 }
 
 /**
-*  远程开关设置
+*  远程控制设置
 *hs: 2014-7-21
 */
 
@@ -2705,17 +2713,17 @@ window.dlf.fn_accStatusSave = function() {
 	}
 	
 	if ( n_accStatus == 1 ) {
-		str_accAlertMsg = '“锁定”将会导致车辆无法行驶，您确定要锁定吗？';
+		str_accAlertMsg = '“锁定“将会导致车辆失去动力而无法行驶，并有可能引起安全问题，您确定要锁定吗？';
 	} else {
 		str_accAlertMsg = '您确定要解锁吗？';
 	}
 	if ( confirm(str_accAlertMsg) ) {
-		dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '远程开关保存中');
+		dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '远程控制保存中');
 	}
 }
 
 /**
-* 远程开关结果显示
+* 远程控制结果显示
 */
 window.dlf.fn_accCallback = function(n_status, n_tid) {
 	$('#accStatusWrapper').removeData('operator');

@@ -209,10 +209,7 @@ window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		str_alias = dlf.fn_encode(str_alias);
 		if ( obj_selfMarker.getLabel() ) {
 			obj_selfMarker.getLabel().setContent(str_alias);
-		}
-		
-		obj_selfMarker.setTitle(str_alias);
-		
+		}		
 		if ( str_currentTid == str_tid ) {
 			if ( obj_selfInfoWindow ) {
 				dlf.fn_createMapInfoWindow(obj_carInfo, 'actiontrack');
@@ -495,7 +492,6 @@ window.dlf.fn_updateAlias = function() {
 		var str_tid = $('.j_carList .j_currentCar').attr('tid');
 		
 		obj_selfMarker.getLabel().setContent(str_alias);
-		obj_selfMarker.setTitle(str_alias);
 		
 		var obj_carDatas = $('.j_carList').data('carsData')[str_tid];
 			
