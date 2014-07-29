@@ -316,6 +316,9 @@ class MileageDownloadHandler(MileageHandler):
                     ws.write(i, 0, result['seq'])
                     ws.write(i, 1, result['alias'])
                     ws.write(i, 2, result['distance'])
+                last_row = len(results) + start_line
+                ws.write(last_row, 0, u'合计')
+                ws.write(last_row, 1, counts[0])
             else: 
                 date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
                 
@@ -427,6 +430,8 @@ class MileageSingleHandler(BaseHandler):
                             distance += Decimal(str(dis)) 
                     # meter --> km
                     distance = '%0.1f' % (distance/1000,)      
+                    if float(distance) == 0:
+                        distance = 0
                         
                     graphics.append(float(distance))
                     dis_sum += Decimal(distance)
@@ -476,6 +481,8 @@ class MileageSingleHandler(BaseHandler):
                             distance += Decimal(str(dis)) 
                     # meter --> km
                     distance = '%0.1f' % (distance/1000,)      
+                    if float(distance) == 0:
+                        distance = 0
 
                     graphics.append(float(distance))
                         

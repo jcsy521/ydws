@@ -32,7 +32,7 @@ class MileageJuniorHandler(BaseHandler):
     @tornado.web.removeslash
     @tornado.web.asynchronous
     def post(self):
-        """ Provide some statistics about terminals.
+        """Provide some statistics about terminals.
         """
         status = ErrorCode.SUCCESS
         #NOTE: check data format
@@ -89,6 +89,7 @@ class MileageJuniorHandler(BaseHandler):
 
                 reports = []
                 interval = [start_time, end_time]
+                dis_count = Decimal() 
                 for item, tid in enumerate(tids):
                     seq = item + 1
                     #NOTE: It's amazing: In database, distance's type is long. sum(distance)'s type is Decimal 
@@ -108,6 +109,8 @@ class MileageJuniorHandler(BaseHandler):
                                alias=alias,
                                distance=float(dis_sum))
                     reports.append(dct)
+                    dis_count += Decimal(dis_sum)
+                counts = [float(dis_count),]
 
                 # orgnize and store the data to be downloaded 
                 m = hashlib.md5()
@@ -115,7 +118,7 @@ class MileageJuniorHandler(BaseHandler):
                 hash_ = m.hexdigest()
                 mem_key = self.KEY_TEMPLATE % (self.current_user.uid, hash_)
                 
-                self.redis.setvalue(mem_key, (statistic_mode, reports, 0), time=UWEB.STATISTIC_INTERVAL)
+                self.redis.setvalue(mem_key, (statistic_mode, reports, counts), time=UWEB.STATISTIC_INTERVAL)
 
                 reports= reports[(page_number * page_size):((page_number+1) * page_size)]
                 self.write_ret(status,
@@ -165,8 +168,9 @@ class MileageJuniorHandler(BaseHandler):
 
                     # meter --> km
                     distance = '%0.1f' % (Decimal(distance)/1000,)      
+                    if float(distance) == 0:
+                        distance = 0
 
-                        
                     graphics.append(float(distance))
                     dis_sum += Decimal(distance)
 

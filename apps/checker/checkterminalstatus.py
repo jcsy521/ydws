@@ -15,9 +15,9 @@ from tornado.options import define, options, parse_command_line
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
 from utils.dotdict import DotDict
-from utils.misc import get_offline_lq_key, get_lq_interval_key,\
-     get_terminal_sessionID_key, get_terminal_info_key, get_terminal_address_key,\
-     get_terminal_time, safe_unicode
+from utils.misc import (get_offline_lq_key, get_lq_interval_key,
+     get_terminal_sessionID_key, get_terminal_info_key, get_terminal_address_key,
+     get_terminal_time, safe_unicode, get_alarm_info_key)
 from constants import GATEWAY, EVENTER, UWEB, SMS
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
@@ -116,6 +116,45 @@ class CheckTerminalStatus(object):
         self.db.execute("INSERT INTO T_EVENT(tid, timestamp, lid, category)"
                         "  VALUES (%s, %s, %s, %s)",
                         tid, timestamp, lid, category)
+        
+        # keep alarm info 
+        alarm = dict(tid=tid, 
+                     category=6, 
+                     type=1, #cellid 
+                     timestamp=timestamp, 
+                     latitude=0, 
+                     longitude=0, 
+                     clatitude=0, 
+                     clongitude=0, 
+                     name=u'', 
+                     degree=0, 
+                     speed=0)
+        # get last_location
+        last_location = QueryHelper.get_gps_location_info(tid, self.db, self.redis)
+        if last_location:
+            alarm['type'] = 0 # gps
+            alarm['latitude'] = last_location['latitude'] 
+            alarm['longitude'] = last_location['longitude'] 
+            alarm['clatitude'] = last_location['clatitude']
+            alarm['clongitude'] = last_location['clongitude']
+            alarm['name'] = last_location['name']
+            alarm['degree'] = last_location['degree'] 
+            alarm['speed'] = last_location['speed']
+
+        alarm_info_key = get_alarm_info_key(alarm['tid']) 
+        alarm_info = self.redis.getvalue(alarm_info_key) 
+        alarm_info = alarm_info if alarm_info else [] 
+        alarm['keeptime'] = int(time.time())
+        alarm_info.append(alarm)
+        alarm_info_new = [] 
+        for alarm in alarm_info: 
+            if alarm.get('keeptime', None) is None: 
+                alarm['keeptime'] = alarm['timestamp'] 
+            if alarm['keeptime'] + 60*10 < int(time.time()): 
+                pass 
+            else: 
+                alarm_info_new.append(alarm)
+        self.redis.setvalue(alarm_info_key, alarm_info_new, EVENTER.ALARM_EXPIRY)
 
         # remind owner
         user = QueryHelper.get_user_by_tid(tid, self.db)
@@ -260,4 +299,6 @@ if __name__ == '__main__':
     parse_command_line()
     logging.info('come into checkterminalstatus')
     cps = CheckTerminalStatus() 
-    cps.check_terminal_status()
+    #cps.check_terminal_status()
+    tid = 'T123SIMULATOR'
+    cps.heartbeat_lost_report(tid)

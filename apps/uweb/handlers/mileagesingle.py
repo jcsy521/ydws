@@ -80,7 +80,7 @@ class MileageSingleHandler(BaseHandler):
                     graphics.append(float(distance))
                     dis_sum += Decimal(distance)
 
-                    re['mileage'] = distance 
+                    re['mileage'] = float(distance)
                     res.append(re)
                 counts = [float(dis_sum),]
 
@@ -113,7 +113,7 @@ class MileageSingleHandler(BaseHandler):
 
                     graphics.append(float(distance))
                     dis_sum += Decimal(distance)
-                    re['mileage'] = distance 
+                    re['mileage'] = float(distance)
                     res.append(re)
 
                 counts = [float(dis_sum),]
