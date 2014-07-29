@@ -997,6 +997,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 					n_num = 0,
 					n_count = 0;
 				
+				$('#loadingMsg').html('').hide();
+				dlf.fn_unLockScreen();
 				/**
 				* KJJ add in 2014.05.07
 				* 每隔1s添加一个终端
@@ -1040,8 +1042,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						clearInterval(n_addMarkerInterval);
 					}
 				//}, 50);
-				$('#loadingMsg').html('').hide();
-				dlf.fn_unLockScreen();
 			}, 400);			
 		}
 	}).bind('uncheck_node.jstree', function(event, data) {

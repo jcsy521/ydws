@@ -1507,6 +1507,7 @@ body {
     width: auto;
 	margin-right: 10px;
 	float: left;
+	min-width: 526px;
 }
 .trackPos #ceillid_flag {
 	position: absolute;

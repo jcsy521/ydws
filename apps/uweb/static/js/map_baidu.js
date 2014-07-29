@@ -44,6 +44,11 @@ window.dlf.fn_loadMap = function(mapContainer) {
 * b_menu: true: 显示 false: 隐藏
 */
 window.dlf.fn_hideControl = function(b_menu) {
+	var b_isHttps = document.location.protocol == 'https:' ? true : false;
+	
+	if ( b_isHttps ) {
+		return;
+	}
 	/*移除相应的地图控件及服务对象*/
 	if ( obj_trafficControl != null ) {
 		mapObj.removeControl(obj_trafficControl); //移除路况信息控件
@@ -56,6 +61,11 @@ window.dlf.fn_hideControl = function(b_menu) {
 * n_NumTop: 相对于地图上侧做的偏移值 
 */
 window.dlf.fn_setMapControl = function(n_NumTop) {
+	var b_isHttps = document.location.protocol == 'https:' ? true : false;
+	
+	if ( b_isHttps ) {
+		return;
+	}
 	/*移除相应的地图控件及服务对象*/
 	if ( obj_trafficControl ) {
 		mapObj.removeControl(obj_trafficControl); //移除路况信息控件
@@ -241,7 +251,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		if ( str_iconType == 'actiontrack' ) {
 			if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
 				b_flag = true;
-				if ( n_iconType == 1 || n_iconType == 3 ) {
+				if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4|| n_iconType == 5 ) {
 					obj_iconSize = new BMap.Size(50, 50);
 					if ( n_iconType == 1 ) {
 						obj_imageOffset = new BMap.Size(0, 0);
@@ -335,8 +345,12 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 // 百度分享js引用
 window.dlf.fn_loadBaiduShare = function() {
 	var obj_script = document.createElement('script'),
-		obj_share = $('#bdshare_s');
+		obj_share = $('#bdshare_s'),
+		b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
+	if ( b_isHttps ) {
+		return;
+	}
 	if ( dlf.fn_isEmptyObj(obj_share) ) {
 		obj_share.remove();
 	}
@@ -644,9 +658,12 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 						str_fileUrl = str_fileUrl.substr(0, str_fileUrl.length-1),
 						str_iconUrl = BASEIMGURL + str_imgUrl + '.png',
 						// str_iconUrl = dlf.fn_userType() == true ? dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt) : str_iconUrl,
-						str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34';
-
-					str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+						str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34',
+						b_isHttps = document.location.protocol == 'https:' ? true : false;
+	
+						if ( !b_isHttps ) {
+							str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+						}
 				}
 			}
 		} else if ( str_iconType == 'alarmInfo' ) {
@@ -769,7 +786,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	var gc = new BMap.Geocoder(),
 		str_result = '',
 		str_surroundingPois = '',
-		obj_point = new BMap.Point(n_lon, n_lat);
+		obj_point = dlf.fn_createMapPoint(n_lon, n_lat);
 	
 	if ( $('.j_currentCar').attr('tid') != tid ) {
 		//return; // todo 2013.12.4
@@ -781,7 +798,16 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	if ( str_type == 'event' ) {
 		dlf.fn_ShowOrHideMiniMap(false);	// 如果是告警的获取位置，关闭小地图
 	}
-	jQuery.ajax({
+	var gc = new BMap.Geocoder();
+		
+	gc.getLocation(obj_point, function(result){
+		str_result = result.address;
+		
+		if ( str_result != '' ) {
+			dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
+		}
+	});
+	/*jQuery.ajax({
 		type : 'get',
 		timeout: 14000,
 		url : 'http://api.map.baidu.com/geocoder/v2/?ak=DD8efee89860f59163512b729edbb4b1&location='+ n_lat +','+ n_lon +'&output=json&pois=10',
@@ -824,7 +850,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
         error : function(xyResult) {
 			return;
 		}
-	});
+	});*/
 }
 
 /**
@@ -836,23 +862,25 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 */
 window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_geoCode) {
 	$('.j_body').data('intervalkey', true);
-	//GPS坐标
-	var gpsPoint = dlf.fn_createMapPoint(n_lng, n_lat);
-	jQuery.ajax({
+	var n_lng = obj_carInfo.longitude,
+		n_lat = obj_carInfo.latitude,
+		str_lngLatUrl = n_lng+','+n_lat;
+	
+	$.ajax({
 		type : 'get',
 		timeout: 14000,
-		url : 'http://api.map.baidu.com/ag/coord/convert?from=0&to=4&y='+ gpsPoint.lat +'&x='+ gpsPoint.lng,
-		dataType : 'jsonp',
+		url : '/ge?positions='+str_lngLatUrl,
+		dataType : 'json',
 		contentType : 'application/jsonp; charset=utf-8',
 		success : function(successData) {
-			var n_error = successData.error,
-				lng = successData.x,
-				lat = successData.y
-				point = new BMap.Point(lng, lat),
-				str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
-			
 			$('.j_body').data('intervalkey', false);
-			if ( n_error == 0 ) {
+			if ( successData.status == 0 ) {
+				var obj_resPoint = successData.res[0],
+					lng = obj_resPoint.lon/3600000,
+					lat = obj_resPoint.lat/3600000,
+					point = new BMap.Point(lng, lat),
+					str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
+				
 				if ( str_type == 'actiontrack' ) {
 					obj_carInfo.clongitude = point.lng*3600000;
 					obj_carInfo.clatitude = point.lat*3600000;
@@ -868,7 +896,7 @@ window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInf
 				}
 			}
 		},
-        error : function(xyResult) {
+		error : function(xyResult) {
 			return;
 		}
 	});

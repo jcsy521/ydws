@@ -11,7 +11,7 @@
 function fn_exportExcel(str_excelName) {
 	var obj_delayLink = $('#exportDelay');
 	
-	if( navigator.appName == "Microsoft Internet Explorer" ) {
+	if( $.browser.msie ) {
 		obj_delayLink.unbind('click').click(function() {
 			fn_tableToExcelFromIE('tempDelayTable',null, str_excelName);
 		});		

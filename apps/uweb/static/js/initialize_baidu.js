@@ -296,7 +296,7 @@ dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_curr
 		if ( n_nowtime - n_carTimestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
 			b_flag = true;
 			
-			if ( n_iconType == 1 || n_iconType == 3 ) {
+			if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4|| n_iconType == 5 ) {
 				obj_iconSize = new BMap.Size(50, 50);
 				if ( n_iconType == 1 ) {
 					obj_imageOffset = new BMap.Size(0, 0);

@@ -613,7 +613,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 			}
 			for ( var param in obj_cars ) {
 				var obj_resData = obj_cars[param],
-					obj_carInfo = obj_resData.car_info, 
+					obj_carInfo = obj_resData.car_info,
 					obj_trackInfo = obj_resData.track_info,	// 开启追踪后丢的点
 					str_tid = param,
 					n_enClon = obj_carInfo.clongitude,
@@ -1795,10 +1795,12 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					// $('#corpTree').jstree("create", $('#group_'+ obj_data.group_id), 'first', obj_data.tmobile);
 					//str_currentTid = obj_data.tmobile;
 					b_createTerminal = true;	// 标记 是新增定位器操作 以便switchcar到新增车辆
+					dlf.fn_unLockContent(); // 清除内容区域的遮罩
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 					str_currentTid = obj_data.tmobile;
 					dlf.fn_corpGetCarData();
 					dlf.fn_jNotifyMessage('创建成功，请确保定位器已开机。', 'message', false, 3000);
+					return;
 				} else if ( str_who == 'operator' ) {
 					/*var obj_header = $('#operatorTableHeader'), 
 						n_operatorId = data.id ,
@@ -1948,7 +1950,6 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 						str_linkman = obj_data.c_linkman,
 						str_newName = str_linkman,
 						str_subNewName = str_newName;
-						console.log('x: ',str_linkman);
 						
 					for(var param in obj_data) {	// 修改保存成功的原始值
 						if ( param == 'c_linkman' ) {
