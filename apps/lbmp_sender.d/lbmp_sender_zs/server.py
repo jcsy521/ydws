@@ -35,6 +35,7 @@ from handlers.le import LeHandler
 from handlers.subscription import SubscriptionHandler
 #from handlers.ge import GeHandler
 from handlers.ge_geoconv import GeHandler
+from handlers.localge import LocalGeHandler
 from handlers.gv import GvHandler
 from handlers.worker import WorkerPool
 from helpers.confhelper import ConfHelper
@@ -49,6 +50,7 @@ class Application(tornado.web.Application):
             (r"/le/*", LeHandler),
             (r"/subscription/*", SubscriptionHandler),
             (r"/ge/*", GeHandler),
+            (r"/localge/*", LocalGeHandler),
             (r"/gv/*", GvHandler),
         ]
 

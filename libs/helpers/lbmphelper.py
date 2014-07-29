@@ -95,6 +95,32 @@ def get_clocation_from_ge(lats, lons):
         logging.exception("[LBMPHELPER] Get latlon from GE failed. Exception: %s", e.args)
     return clats, clons
 
+def get_clocation_from_localge(positions):
+    """Local ge.
+    @params: position, [{"lon":*,"lat":*}, {}, ...] 
+    @return: position, [{"lon":*,"lat":*}, {}, ...] 
+    """
+    result = [] 
+    MAX_COUNT = 100 
+    if len(positions) > MAX_COUNT: 
+        logging.info("[LBMPHELPER] Get clocations: The number of positions is more than MAX_COUNT!") 
+        return result 
+        
+    try: 
+        args = dict(position=positions) 
+        response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.LOCALGE, args) 
+        response = json_decode(response) 
+        if response["status"] == 0: 
+            result.extend(response["position"]) 
+        else: # NOTE: provide a dummy list 
+            result.extend([dict(lon=0,lat=0) for i in xrange(len(positions))]) 
+            logging.info("[LBMPHELPER] Get clocation failed, response: %s, args: %s", 
+                         response['info'], args) 
+    except Exception as e: 
+        logging.exception("[LBMPHELPER] Get clocations from GE failed.  Exception: %s", e.args) 
+    finally:
+        return result
+
 def get_locations_with_clatlon(locations, db):
     # NOTE: if latlons are legal, but clatlons are illlegal, offset them
     # and update them in db. 

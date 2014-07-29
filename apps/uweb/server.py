@@ -118,6 +118,9 @@ from handlers.attendance import AttendanceHandler
 from handlers.bind import BindHandler
 from handlers.acc import ACCHandler
 
+# utils
+from handlers.uwebhelper import GEHandler
+
 
 class Application(tornado.web.Application):
 
@@ -288,6 +291,9 @@ class Application(tornado.web.Application):
             (r"/bindline/*", BindlineHandler),
             (r"/checkpassengermobile/(\d+)/*", CheckPassengerMobileHandler),
             (r"/ownerservice/*", OwnerserviceHandler),
+
+            # utils
+            (r"/ge/*", GEHandler),
 
             # handle the invalid url
             (r".*", MainHandler),
