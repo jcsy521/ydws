@@ -786,7 +786,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 	var gc = new BMap.Geocoder(),
 		str_result = '',
 		str_surroundingPois = '',
-		obj_point = dlf.fn_createMapPoint(n_lon, n_lat);
+		obj_point = dlf.fn_createMapPoint(n_lon*3600000, n_lat*3600000);
 	
 	if ( $('.j_currentCar').attr('tid') != tid ) {
 		//return; // todo 2013.12.4
