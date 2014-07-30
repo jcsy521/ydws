@@ -29,7 +29,8 @@ class LbmpSenderHelper(object):
                    SUBSCRIPTION=r"/subscription",
                    GV=r"/gv",
                    GV_QUERY=r"/gv_query",
-                   GE=r"/ge")
+                   GE=r"/ge",
+                   LOCALGE="/localge")
 
     _CONTENT_TYPE = {"Content-type": "application/json; charset=utf-8"}
 
