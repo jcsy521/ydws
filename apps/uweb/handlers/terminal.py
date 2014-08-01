@@ -85,6 +85,11 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             car = self.db.get("SELECT cnum AS corp_cnum FROM T_CAR"
                               "  WHERE tid = %s",
                               self.current_user.tid)
+            if not car:
+                self.db.execute("INSERT INTO T_CAR(tid)"
+                                "  VALUES(%s)",
+                                self.current_user.tid)
+                car = {'corp_cnum':''}
 
             # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
             car_sets.update(terminal)
