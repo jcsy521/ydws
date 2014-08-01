@@ -1135,7 +1135,7 @@ $(function () {
 		}
 	});
 	$('#txtAssistMobile').formValidator({validatorGroup: '14', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
-	$('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
+	$('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是整数，请重新输入！'});
 	
 	/**
 	* 加载完成后，第一次发送switchcar请求
