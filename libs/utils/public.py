@@ -132,9 +132,10 @@ def delete_terminal(tid, db, redis, del_user=True):
                                  UWEB.SERVICE_STATUS.ON)
             # clear user
             if len(terminals) == 0:
-                db.execute("DELETE FROM T_USER"
-                           "  WHERE mobile = %s",
-                           terminal.owner_mobile)
+                #NOTE: Record in T_USER is retained.
+                #db.execute("DELETE FROM T_USER"
+                #           "  WHERE mobile = %s",
+                #           terminal.owner_mobile)
 
                 lastinfo_key = get_lastinfo_key(terminal.owner_mobile)
                 lastinfo_time_key = get_lastinfo_time_key(terminal.owner_mobile)

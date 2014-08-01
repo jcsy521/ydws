@@ -156,7 +156,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  parking_defend = data.get("parking_defend")
                  if parking_defend == 1:
                      move_val = 0
-                     static_val = 120 #60 
+                     static_val = 180 #120,60 
                  else:
                      move_val = 60
                      static_val = 0 
