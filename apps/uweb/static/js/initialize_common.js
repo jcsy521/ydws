@@ -2667,12 +2667,12 @@ dlf.fn_mileageNotificationSave = function() {
 			return;
 		}
 	}
-	if ( n_newDistanceTime < n_oldDistanceTime ) {
+	/*if ( n_newDistanceTime < n_oldDistanceTime ) {
 		dlf.fn_jNotifyMessage('下次保养时间必须大于当前保养时间。', 'message', false, 4000); 
 		return;
-	}
+	}*/
 	
-	if ( n_newDistanceTime < n_currentDataTime ) {
+	if ( n_newDistanceTime <= n_currentDataTime ) {
 		dlf.fn_jNotifyMessage('下次保养时间必须大于今天。', 'message', false, 4000); 
 		return;
 	}
