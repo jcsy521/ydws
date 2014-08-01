@@ -4001,15 +4001,17 @@ legend {
 #accStatusCallBackWrapper {
 	position: absolute;
 	left: 35%;
-	top: 25%;
+	top: 47%;
 	border: 1px solid #70bbf6;
 	border-radius: 4px;
-	width: 120px;
-	height: 48px;
+	width: 410px;
+	height: 54px;
 	background-color: #fff;
-	padding: 30px 54px;
+	padding: 38px 54px;
 	opacity: .8;
 	filter: alpha(opacity=80); /*ie*/
+	text-align: center;
+	z-index: 1003;
 }
 .accStatusCallBackBtn{
 	border: 0px;
@@ -4032,6 +4034,15 @@ legend {
 	position: relative;
 	top: -9px;
 	left: 21px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#accStatus_confirmClose {
+	background: #fff;
+	cursor: pointer;
+	position: relative;
+	top: -9px;
 	font-size: 14px;
 	font-weight: bold;
 }

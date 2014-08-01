@@ -5,7 +5,7 @@
 /**
 * 我的资料初始化 
 */
-window.dlf.fn_personalData = function() {
+dlf.fn_personalData = function() {
 	dlf.fn_dialogPosition('personal'); // 我的资料dialog显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	// dlf.fn_onInputBlur();	// input的鼠标样式
@@ -49,7 +49,7 @@ window.dlf.fn_personalData = function() {
 /**
 * 个人信息保存 
 */
-window.dlf.fn_personalSave = function() { 
+dlf.fn_personalSave = function() { 
 	dlf.fn_lockContent($('.personalContent')); // 添加内容区域的遮罩	
 	var b_warpperStatus = !$('#personalWrapper').is(':hidden'),
 		n_num = 0,
@@ -81,7 +81,7 @@ window.dlf.fn_personalSave = function() {
 /**
 * 修改密码初始化
 */
-window.dlf.fn_changePwd = function() {
+dlf.fn_changePwd = function() {
 	dlf.fn_dialogPosition('pwd');
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#pwdWrapper input[type=password]').val('');// 清除文本框数据
@@ -90,7 +90,7 @@ window.dlf.fn_changePwd = function() {
 /**
 * 短息通知
 */
-window.dlf.fn_initSMSParams = function() {
+dlf.fn_initSMSParams = function() {
 	dlf.fn_dialogPosition('smsOption');
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
@@ -128,7 +128,7 @@ window.dlf.fn_initSMSParams = function() {
 /**
 * 短信参数的保存方法
 */
-window.dlf.fn_saveSMSOption = function() {
+dlf.fn_saveSMSOption = function() {
 	var obj_checkbox = $('.j_checkbox'),
 		n_num = 0,
 		obj_smsData = {};
@@ -160,7 +160,7 @@ window.dlf.fn_saveSMSOption = function() {
 /**
 * 用户点击退出按钮 
 */
-window.dlf.fn_exit = function() {
+dlf.fn_exit = function() {
 	if ( confirm('您确定退出本系统吗？') ) {
 		window.location.href='/logout';
 	}
@@ -169,7 +169,7 @@ window.dlf.fn_exit = function() {
 /**
 * 初始化集团资料
 */
-window.dlf.fn_initCorpData = function() {
+dlf.fn_initCorpData = function() {
 	$('#hidCName').val('');
 	dlf.fn_dialogPosition('corp'); // 我的资料dialog显示
 	dlf.fn_lockScreen(); // 添加页面遮罩
@@ -245,7 +245,7 @@ window.dlf.fn_initCorpData = function() {
 /**
 * 保存集团资料修改
 */
-window.dlf.fn_corpSave = function() {
+dlf.fn_corpSave = function() {
 	dlf.fn_lockContent($('.corpContent')); // 添加内容区域的遮罩	
 	var b_warpperStatus = !$('#corpWrapper').is(':hidden'),
 		n_num = 0,
@@ -276,7 +276,7 @@ window.dlf.fn_corpSave = function() {
 /**
 * 初始化操作员个人资料
 */
-window.dlf.fn_initOperatorData = function() {
+dlf.fn_initOperatorData = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_dialogPosition('operatorData'); // 我的资料dialog显示
 	dlf.fn_onInputBlur();	// input的鼠标样式
@@ -318,7 +318,7 @@ window.dlf.fn_initOperatorData = function() {
 /**
 * 保存操作员个人资料修改
 */
-window.dlf.fn_operatorDataSave = function() {
+dlf.fn_operatorDataSave = function() {
 	dlf.fn_lockContent($('.operatorContent')); // 添加内容区域的遮罩	
 	var b_warpperStatus = !$('#operatorDataWrapper').is(':hidden'),
 		n_num = 0,
@@ -350,7 +350,7 @@ window.dlf.fn_operatorDataSave = function() {
 * 初始化告警时间段设置列表
 * kjj add in 2013-09-23
 */
-window.dlf.fn_initAlertSetting = function(str_who) {
+dlf.fn_initAlertSetting = function(str_who) {
 	var obj_alertSettingDialog = $('#addAlertSettingDialog');
 		
 	$('#' + str_who + 'TableHeader').nextAll().remove();
@@ -802,6 +802,7 @@ $(function () {
 	
 	dlf.fn_setItemMouseStatus($('#accCallBack_reTry'), 'pointer', new Array('cxcs', 'cxcs2'));	// acc_retry保存按钮鼠标滑过样式
 	dlf.fn_setItemMouseStatus($('#accCallBack_know'), 'pointer', new Array('zdl', 'zdl2'));	// acc_zdl保存按钮鼠标滑过样式
+	dlf.fn_setItemMouseStatus($('#accStatus_confirmSure'), 'pointer', new Array('confirm_qd', 'confirm_qd2'));	// acc_confirm保存按钮鼠标滑过样式
 	/**
 	* 个人信息的验证
 	*/
@@ -1134,7 +1135,7 @@ $(function () {
 		}
 	});
 	$('#txtAssistMobile').formValidator({validatorGroup: '14', empty: true}).inputValidator({max: 11, onError: '第二通知号码最大长度是11位！'}).regexValidator({regExp: 'owner_mobile', dataType: 'enum', onError: '第二通知号码不合法，请重新输入！'});
-	// $('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
+	$('#txtDistanceNotification').formValidator({validatorGroup: '14', empty: true}).regexValidator({regExp: 'intege1', dataType: 'enum', onError: '保养里程只能是大于0的整数，请重新输入！'});
 	
 	/**
 	* 加载完成后，第一次发送switchcar请求

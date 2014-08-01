@@ -4,7 +4,7 @@
 /*
 * 通知新增
 */
-window.dlf.fn_notifyManage_addInit = function() {
+dlf.fn_notifyManage_addInit = function() {
 	dlf.fn_dialogPosition('notifyManageAdd');	// 设置dialog的位置并显示
 	dlf.fn_unLockScreen(); // 添加页面遮罩
 	dlf.fn_setItemMouseStatus($('.j_notifyManageSaveBtn'), 'default', 'fs0');
@@ -18,7 +18,7 @@ window.dlf.fn_notifyManage_addInit = function() {
 /*
 *保存通知并发送通知
 */ 
-window.dlf.fn_notifyManageMsg = function() {
+dlf.fn_notifyManageMsg = function() {
 	var str_message = $.trim($('#text_notifyManageMsg').val()),
 		n_msgLength = (str_message.replace(/[^\x00-\xff]/g, '^^')).length, 
 		arr_tMobiles = [],
@@ -89,7 +89,7 @@ window.dlf.fn_notifyManageMsg = function() {
 /*
 * 通知删除
 */
-window.dlf.fn_deleteNotifys = function(n_id) {
+dlf.fn_deleteNotifys = function(n_id) {
 	if ( n_id ) {
 		if ( confirm('确定要删除该通知吗？') ) {
 			$.delete_(NOTIFYMANAGE_ADD_URL+'?ids='+n_id, '', function(data) {

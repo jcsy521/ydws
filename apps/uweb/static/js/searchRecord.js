@@ -14,7 +14,7 @@ var arr_dwRecordData = [],	// 后台查询到的报警记录数据
 /**
 * 初始化查询条件
 */
-window.dlf.fn_initRecordSearch = function(str_who) {
+dlf.fn_initRecordSearch = function(str_who) {
 	var obj_currentWrapper = $('#' + str_who + 'Wrapper'),
 		b_status  = obj_currentWrapper.is(':visible'),
 		obj_tableHeader = $('#'+ str_who +'TableHeader');	// 查询结果表头
@@ -178,7 +178,7 @@ window.dlf.fn_initRecordSearch = function(str_who) {
 /**
 * 初始化查询的分页、搜索按钮的事件方法
 */
-window.dlf.fn_setSearchRecord = function(str_who) { 
+dlf.fn_setSearchRecord = function(str_who) { 
 	/*查询变量初始化*/
 	arr_dwRecordData = [],	// 后台查询到的报警记录数据
 	n_dwRecordPageCnt = -1,	// 查询到数据的总页数,默认-1
@@ -278,7 +278,7 @@ window.dlf.fn_setSearchRecord = function(str_who) {
 * excel表格下载
 * str_who: 下载对象
 */
-window.dlf.fn_downloadData = function(str_who) {
+dlf.fn_downloadData = function(str_who) {
 	var str_downloadUrl = '';
 	
 	switch (str_who) {
@@ -314,7 +314,7 @@ window.dlf.fn_downloadData = function(str_who) {
 * 拼凑查询参数并查询数据
 * str_who: 根据wrapper来拼凑查询参数
 */
-window.dlf.fn_searchData = function (str_who) {
+dlf.fn_searchData = function (str_who) {
 	var obj_conditionData = {}, 
 		str_getDataUrl = '', 
 		arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
@@ -601,7 +601,7 @@ window.dlf.fn_searchData = function (str_who) {
 /**
 * 绑定页面连接及操作的事件 
 */
-window.dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
+dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 	var obj_prevPage = $('#'+ str_who +'PrevBtn'),	// 上一页按钮
 		obj_nextPage = $('#'+ str_who +'NextBtn'), 	// 下一页按钮
 		obj_pagination = $('#'+ str_who +'Page'), 	// 分页容器
@@ -763,7 +763,7 @@ String.prototype.len=function() {
 /**
 * 告警查询：用户点击位置进行地图显示
 */
-window.dlf.fn_showMarkerOnEvent = function() {
+dlf.fn_showMarkerOnEvent = function() {
 	$('.j_eventItem').click(function(event) {
 		dlf.fn_clearMapComponent();
 		// 设置地图父容器 小地图显示 地图title显示
@@ -795,7 +795,7 @@ window.dlf.fn_showMarkerOnEvent = function() {
 * rid: 围栏id
 * n_type: 0: event 1: lastinfo
 */
-window.dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) {
+dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) {
 	if ( n_category == 7 || n_category == 8 ) {
 		$.get_(GETREGIONDATA_URL +'?rid='+ rid, '', function (data) {  
 			if ( data.status == 0 ) {
@@ -820,14 +820,16 @@ window.dlf.fn_drawRegion = function(n_category, rid, obj_centerPointer, n_type) 
 			dlf.fn_serverError(XMLHttpRequest);
 		});
 	} else {
-		dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
+		if ( n_type != 1 ) {
+			dlf.fn_setOptionsByType('centerAndZoom', obj_centerPointer, 17);
+		}
 	}
 }
 
 /**
 * 根据数据和页面不同生成相应的table域内容
 */
-window.dlf.fn_productTableContent = function (str_who, obj_reaData) {
+dlf.fn_productTableContent = function (str_who, obj_reaData) {
 	var obj_searchData = obj_reaData.res,
 		arr_checkWeek = [];	// 用来存储已经设置的星期
 	
@@ -1280,7 +1282,7 @@ function fn_initEventTimeControl(str_who) {
 /**
 *  时间控件初始化
 */
-window.dlf.fn_initTimeControl = function(str_who) {
+dlf.fn_initTimeControl = function(str_who) {
 	var obj_date = new Date(),
 		n_currentDate = obj_date.getTime();
 		str_nowDate = dlf.fn_changeNumToDateString(n_currentDate, 'ymd'), 
@@ -1337,7 +1339,7 @@ window.dlf.fn_initTimeControl = function(str_who) {
 /**
 * 初始化里程统计时间滑块
 */
-window.dlf.fn_initSlider = function(str_type) {
+dlf.fn_initSlider = function(str_type) {
 	var n_minVal = 0,
 		n_maxVal = 1440,
 		obj_hour0 = $('#txt'+ str_type +'Hour0'),
@@ -1415,7 +1417,7 @@ function fn_slideValToTimeVal(n_slideVal) {
 * 2013-07-10 kjj create
 * get all of the terminals in corp
 */
-window.dlf.fn_getAllTerminals = function() {
+dlf.fn_getAllTerminals = function() {
 	var obj_selectTerminals = $('#selectTerminals');	// the container of terminals
 	
 	obj_selectTerminals.empty(); 	// clear the container
@@ -1446,7 +1448,7 @@ window.dlf.fn_getAllTerminals = function() {
 /**
 * 集团操作:查询当前选中的终端 
 */
-window.dlf.fn_searchCheckTerminal = function() {
+dlf.fn_searchCheckTerminal = function() {
 	// 获取当前选中的终端 
 	var arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
 		n_tidsNums = arr_leafNodes.length, 
@@ -1576,7 +1578,7 @@ function fn_initChart(arr_series, arr_categories, str_container, str_unit, str_w
 	});
 }
 
-window.dlf.fn_showIframe = function(str_wrapper) {
+dlf.fn_showIframe = function(str_wrapper) {
 	// 设置iframe显示 
 	var obj_wrapper = $('#' + str_wrapper + 'Wrapper'),
 		n_top = 0,
@@ -1592,7 +1594,7 @@ window.dlf.fn_showIframe = function(str_wrapper) {
 * 调整地图的显示隐藏、位置、尺寸
 * b_status: true: 告警查询、里程统计、操作员管理 false: 非告警查询
 */
-window.dlf.fn_setMapPosition = function(b_status) {
+dlf.fn_setMapPosition = function(b_status) {
 	var obj_mapParentContainer = $('.mapContainer'),	// map外面的父元素
 		obj_mapTitle = $('.mapDragTitle'),	// map容器外的title
 		obj_map = $('#mapObj');
@@ -1658,7 +1660,7 @@ window.dlf.fn_setMapPosition = function(b_status) {
 /**
 * 告警查询关闭小地图
 */
-window.dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {
+dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {
 	/*var obj_mapContainer = $('.mapContainer'), 
 		obj_mapPanel = $('#mapObj'), 
 		obj_mapConTitle = $('.mapDragTitle');

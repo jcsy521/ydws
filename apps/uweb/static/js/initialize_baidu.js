@@ -4,7 +4,7 @@
 * n_tid: 要设置的终端tid
 * str_flag : 是否是第一次加载  2013-07-16 add
 */
-window.dlf.fn_moveMarker = function(n_tid, str_flag) { 
+dlf.fn_moveMarker = function(n_tid, str_flag) { 
 	var str_trackStatus = $('#trackHeader').css('display');
 	
 	if ( str_trackStatus == 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	
@@ -54,7 +54,7 @@ window.dlf.fn_moveMarker = function(n_tid, str_flag) {
 * obj_carInfo: 车辆信息
 * str_type: 是否是实时定位
 */
-window.dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
+dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 	var obj_tempData = [], 
 		obj_currentCar = $('.j_carList a[class*=j_currentCar]'),
 		str_carTid = obj_currentCar.attr('tid');	// 当前车定位器编号
@@ -321,11 +321,12 @@ dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_curr
 /**
 * 设置地图marker的icon图标=
 */
-window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt, b_flagTrace) {
+dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt, b_flagTrace) {
 	// 集团用户icon_type icon显示不同图标
 	var str_tempImgUrl = '',
 		b_isCar = false,
-		str_dir = CORPIMGURL + 'terminalIcons/';
+		str_dir = CORPIMGURL + 'terminalIcons/',
+		str_imgSrc = '';
 	
 	if ( n_iconType == 0 ) {	// 车
 		str_tempImgUrl = 27; // n_degree;
@@ -356,13 +357,16 @@ window.dlf.fn_setMarkerIconType = function(n_degree, n_iconType, str_loginSt, b_
 	if ( b_flagTrace && b_isCar ) {	// 甩尾动态图
 		str_tempImgUrl += '_trace';
 	}
+	
+	//str_imgSrc = obj_markerPngForBase64[str_tempImgUrl];
+	//return str_imgSrc;
 	return str_dir + str_tempImgUrl + '.png';
 }
 
 /**
 * 设置是否要启动追踪效果
 */
-window.dlf.setTrack = function(arr_tempTids, selfItem) {
+dlf.setTrack = function(arr_tempTids, selfItem) {
 	var str_type = typeof(arr_tempTids),
 		arr_tids = [],
 		arr_openTids = [],
@@ -444,7 +448,7 @@ window.dlf.setTrack = function(arr_tempTids, selfItem) {
 * kjj 2013-05-27 
 * 修改吹出框上开启追踪的颜色
 */
-window.dlf.fn_updateOpenTrackStatusColor = function(str_tid, str_order) {
+dlf.fn_updateOpenTrackStatusColor = function(str_tid, str_order) {
 	var str_actionTrack = dlf.fn_getActionTrackStatus(str_tid),
 		str_color = '',
 		str_carcTid = $('.j_currentCar').attr('tid');
@@ -475,7 +479,7 @@ window.dlf.fn_updateOpenTrackStatusColor = function(str_tid, str_order) {
 * 更新定位器别名 terminal get和put的时候  
 * 如果别名为空则显示车牌号，如果车牌号为空则显示定位器手机号
 */
-window.dlf.fn_updateAlias = function() {
+dlf.fn_updateAlias = function() {
 	var	cnum = dlf.fn_encode($('#t_cnum').val()),	// 车牌号
 		tmobile = $('#tmobileContent').html(),
 		obj_car = $('.j_carList .j_currentCar'),

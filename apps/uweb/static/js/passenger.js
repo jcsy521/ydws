@@ -3,7 +3,7 @@
 * 咨询推送逻辑
 */
 // 乘客保存
-window.dlf.fn_savePassenger = function() {
+dlf.fn_savePassenger = function() {
 	var	str_id = $('#hidPassengerId').val(),
 		str_name = $('#txt_passengerName').val(),
 		str_mobile = $('#txt_passengerMobile').val(),
@@ -24,7 +24,7 @@ window.dlf.fn_savePassenger = function() {
 /**
 * 编辑乘客
 */
-window.dlf.fn_editPassenger = function(n_id) {
+dlf.fn_editPassenger = function(n_id) {
 	dlf.fn_onInputBlur();	// 乘客手机号事件侦听
 	$('#addPassengerForm input').css('color', '#000000');
 	if ( n_id ) {
@@ -44,7 +44,7 @@ window.dlf.fn_editPassenger = function(n_id) {
 /**
 * 删除乘客
 */
-window.dlf.fn_deletePassenger = function(n_id) {
+dlf.fn_deletePassenger = function(n_id) {
 	if ( n_id ) {
 		if ( confirm('确定要删除该乘客吗？') ) {
 			$.delete_(PASSENGER_URL+'?ids='+n_id, '', function(data) {
@@ -66,7 +66,7 @@ window.dlf.fn_deletePassenger = function(n_id) {
 *咨询操作的的相关方法
 */
 // 咨询推送初始化
-window.dlf.fn_initInfoPush = function() { // todo 页面优化
+dlf.fn_initInfoPush = function() { // todo 页面优化
 	var str_infoPush = 'infoPush';
 	
 	dlf.fn_dialogPosition(str_infoPush);	// 设置dialog的位置并显示
@@ -99,7 +99,7 @@ window.dlf.fn_initInfoPush = function() { // todo 页面优化
 	}).removeAttr('checked');
 }
 /*保存消息并发送消息*/ 
-window.dlf.fn_saveInfoPush = function() {
+dlf.fn_saveInfoPush = function() {
 	// 拿到所有选中的乘客的pid
 	var str_message = $('#text_infoPush').val(),
 		b_allChecked = $('#infoPush_allChecked').attr('checked'), 

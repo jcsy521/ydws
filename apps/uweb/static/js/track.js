@@ -14,7 +14,7 @@ var timerId = null, counter = 0, str_actionState = 0, n_speed = 200, b_trackMsgS
 /**
 * 初始化轨迹显示页面
 */
-window.dlf.fn_initTrack = function() {
+dlf.fn_initTrack = function() {
 	var obj_trackHeader =  $('#trackHeader');
 	
 	$("#showMusic").html('');
@@ -52,7 +52,7 @@ window.dlf.fn_initTrack = function() {
 	}
 }
 
-window.dlf.fn_initPanel = function () {
+dlf.fn_initPanel = function () {
 	/**
 	* 调整页面大小
 	*/
@@ -83,7 +83,7 @@ window.dlf.fn_initPanel = function () {
 * 关闭轨迹显示页面
 * b_ifLastInfo: 清除规矩相关的时候是否要发起lastinfo
 */
-window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
+dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 	$('#mapObj').show();
 	dlf.fn_clearNavStatus('track'); // 移除导航操作中的样式
 	dlf.fn_clearMapComponent(); // 清除页面图形
@@ -108,7 +108,7 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 		$('.j_body').data('lastposition_time', -1);
 		if ( !dlf.fn_userType() ) {
 			// $('.j_carList').removeData('carsData');
-			dlf.fn_getCarData('first');	// 重新请求lastinfo
+			dlf.fn_getCarData();	// 重新请求lastinfo
 		} else {
 			dlf.fn_setMapPosition(false);
 			arr_infoPoint = [];
@@ -135,7 +135,7 @@ window.dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 				}
 			});
 			if ( arr_lastLocations.length != 0 ) {
-				dlf.fn_setOptionsByType('viewport', arr_lastLocations);
+				//dlf.fn_setOptionsByType('viewport', arr_lastLocations);
 				setTimeout (function () {
 					mapObj.setCenter(arr_lastLocations[0]);
 				}, 310);
@@ -284,7 +284,7 @@ function fn_trackQuery() {
 /**
 * 根据经纬度求两点间距离
 */
-window.dlf.fn_forMarkerDistance = function (point1, point2) {
+dlf.fn_forMarkerDistance = function (point1, point2) {
 	// Based on http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
 	// using the "Inverse Formula" (section 4)
 	var EARTHRADIUS = 6370996.81,  // 取WGS84标准参考椭球中的地球长半径(单位:m)
@@ -393,7 +393,7 @@ window.dlf.fn_forMarkerDistance = function (point1, point2) {
  * @param {degree} Number 度     
  * @returns {Number} 弧度
  */
-window.dlf.degreeToRad =  function(degree){
+dlf.degreeToRad =  function(degree){
 	return Math.PI * degree/180;    
 }
 /**
@@ -401,7 +401,7 @@ window.dlf.degreeToRad =  function(degree){
  * @param {radian} Number 弧度     
  * @returns {Number} 度
  */
-window.dlf.radToDegree = function(rad){
+dlf.radToDegree = function(rad){
 	return (180 * rad) / Math.PI;       
 }
 /**
@@ -651,7 +651,7 @@ function fn_createDrawLine () {
 /**
 * 关闭轨迹清除数据
 */
-window.dlf.fn_clearTrack = function(clearType) { 
+dlf.fn_clearTrack = function(clearType) { 
 	if ( timerId ) { dlf.fn_clearInterval(timerId) };	// 清除计时器
 	str_actionState = 0;
 	counter = -1;
@@ -665,7 +665,7 @@ window.dlf.fn_clearTrack = function(clearType) {
 /**
 * 初始化时间控件
 */
-window.dlf.fn_initTrackDatepicker = function() {	
+dlf.fn_initTrackDatepicker = function() {	
 	/**
 	* 初始化轨迹查询选择时间
 	*/

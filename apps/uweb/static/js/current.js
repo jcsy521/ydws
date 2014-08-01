@@ -6,7 +6,7 @@
 /**
 * 实时定位初始化方法
 */
-window.dlf.fn_currentQuery = function(str_flag) {
+dlf.fn_currentQuery = function(str_flag) {
 	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位参数设置		
 	
 	dlf.fn_dialogPosition('realtime');	// 设置dialog的位置
@@ -197,7 +197,7 @@ function fn_displayCurrentMarker(obj_location) {
 /**
 * 设防撤防初始化
 */
-window.dlf.fn_defendQuery = function(str_alias) {
+dlf.fn_defendQuery = function(str_alias) {
 	var n_defendStatus = 0,	// 设防撤防状态
 		n_fob_status = 0,	// 挂件是否在附近 1: 在附近 0: 没在附近
 		str_cTid = dlf.fn_getCurrentTid(),
@@ -290,7 +290,7 @@ function fn_saveDefend(obj_defend, b_corp) {
 /**
 * 批量设防撤防
 */
-window.dlf.fn_initBatchDefend = function(str_defend, obj_param) {
+dlf.fn_initBatchDefend = function(str_defend, obj_param) {
 	dlf.fn_dialogPosition('batchDefend');	// 设置dialog的位置
 	dlf.fn_echoData('batchDefendTable', obj_param, str_defend);
 	var obj_defend = {},

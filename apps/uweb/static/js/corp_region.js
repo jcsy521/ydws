@@ -3,7 +3,7 @@
 */
 
 // 围栏管理的初始化查询展示
-window.dlf.fn_initRegion = function() {
+dlf.fn_initRegion = function() {
 	var str_region = 'corpRegion', 
 		obj_regionWapper = $('#corpRegionWrapper'), 
 		obj_regionAddWapper = $('#regionCreateWrapper'),
@@ -115,7 +115,7 @@ function fn_displayCars () {
 /**
 * 重新绘制围栏
 */
-window.dlf.fn_resetRegion = function(str_regionType) {
+dlf.fn_resetRegion = function(str_regionType) {
 	dlf.fn_mapRightClickFun();
 	if ( obj_drawingManager ) {
 		dlf.fn_mapStartDraw();
@@ -136,7 +136,7 @@ window.dlf.fn_resetRegion = function(str_regionType) {
 /**
 * 围栏保存操作
 */
-window.dlf.fn_saveReginon = function() {
+dlf.fn_saveReginon = function() {
 	dlf.fn_mapStopDraw();
 	var str_regionName = $.trim($('#createRegionName').val()), 
 		n_radius = 0, 
@@ -220,7 +220,7 @@ window.dlf.fn_saveReginon = function() {
 /**
 * 查看围栏的详细信息
 */
-window.dlf.fn_detailRegion = function(n_seq) {
+dlf.fn_detailRegion = function(n_seq) {
 	var obj_regionDatas = $('#corpRegionTable').data('regions'),
 		obj_regionData = obj_regionDatas[n_seq], 
 		n_region_shape = obj_regionData.region_shape;	// 围栏类型 0: 圆形 1: 多边形
@@ -237,7 +237,7 @@ window.dlf.fn_detailRegion = function(n_seq) {
 /**
 * 删除围栏信息
 */
-window.dlf.fn_deleteRegion = function(n_id) {
+dlf.fn_deleteRegion = function(n_id) {
 	if ( n_id ) {
 		if ( confirm('确定要删除该围栏吗？') ) {
 			
@@ -265,7 +265,7 @@ window.dlf.fn_deleteRegion = function(n_id) {
 /*
 * 清除地图上显示的围栏图形 
 */
-window.dlf.fn_clearRegionShape = function() {
+dlf.fn_clearRegionShape = function() {
 	if ( obj_regionShape ) {
 		dlf.fn_clearMapComponent(obj_regionShape); // 清除页面图形
 	}
@@ -274,7 +274,7 @@ window.dlf.fn_clearRegionShape = function() {
 /*
 * 绑定围栏初始化
 */
-window.dlf.fn_initBindRegion = function() {
+dlf.fn_initBindRegion = function() {
 	var str_bindRegion = 'bindRegion',
 		obj_currentCar = $($('.j_carList a[class*=j_currentCar]')),
 		str_tid = obj_currentCar.attr('tid'),
@@ -320,7 +320,7 @@ window.dlf.fn_initBindRegion = function() {
 /*
 * 初始化批量电子围栏方法
 */
-window.dlf.fn_initBatchRegions = function(obj_group){
+dlf.fn_initBatchRegions = function(obj_group){
 	var str_bindBatchRegion = 'bindBatchRegion', 
 		arr_terminalIds = [];
 	
@@ -375,7 +375,7 @@ window.dlf.fn_initBatchRegions = function(obj_group){
 /*
 * 获取当前终端的围栏信息
 */
-window.dlf.fn_getCurrentRegions = function () {
+dlf.fn_getCurrentRegions = function () {
 	var obj_currentCar = $($('.j_carList a[class*=j_currentCar]')),
 		str_tid = obj_currentCar.attr('tid');
 	

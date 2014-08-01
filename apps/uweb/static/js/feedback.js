@@ -35,6 +35,9 @@ $(function() {
 			} else if ( str_feedback.length <= 0 ) {
 				dlf.fn_jNotifyMessage('请输入反馈内容。', 'message', false, 5000); 
 				return;
+			} else if ( str_feedback.length < 10 ) {
+				dlf.fn_jNotifyMessage('反馈内容不能小于10个字。', 'message', false, 5000); 
+				return;
 			} else {
 				fn_fbsave();
 			}

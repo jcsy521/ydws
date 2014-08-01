@@ -1922,11 +1922,18 @@
 		</div>
 	</div>
 	<div id="accStatusCallBackWrapper" class="wrapper hide j_drag">
+		<div id="accStatusConfirmPanel" class="hide">
+			<div id="accStatus_confirmMsg" class="accCallBackFont"></div>
+			<div class="accCallBack_btnPanel">
+				<input id="accStatus_confirmSure" type="button" class="accStatusCallBackBtn" />
+				<input id="accStatus_confirmClose" type="button" class="accStatusCallBackBtn" value="关闭" />
+			</div>
+		</div>
 		<div id="accStatusCallBackSuccess" class="hide">
 			<div class="accCallBackFont">远程控制操作成功</div>
 			<input id="accCallBack_know" type="button" class="accStatusCallBackBtn" />
 		</div>
-		<div id="accStatusCallBackError">
+		<div id="accStatusCallBackError" class="hide">
 			<div class="accCallBackFont">远程控制操作失败</div>
 			<div class="accCallBack_btnPanel">
 				<input id="accCallBack_reTry" type="button" class="accStatusCallBackBtn" />

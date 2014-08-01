@@ -48,15 +48,14 @@ var mapObj = null,
 	obj_shapeMarker = null,
 	mousetool = null,
 	obj_mapInfoWindow = null,
-	obj_mapMarkerClusterer = null;
-		
-if ( !window.dlf ) { window.dlf = {}; }
+	obj_mapMarkerClusterer = null,
+	dlf = {};	
 
 (function () {
 /**
 * 窗口关闭事件
 */
-window.dlf.fn_closeWrapper = function() {
+dlf.fn_closeWrapper = function() {
 	var obj_close = $('.j_close');
 	
 	obj_close.click(function() {
@@ -86,7 +85,7 @@ window.dlf.fn_closeWrapper = function() {
 */
 var b_eventSearchStatus = false;
 
-window.dlf.fn_closeDialog = function() {
+dlf.fn_closeDialog = function() {
 	dlf.fn_unLockScreen(); // 去除页面遮罩
 	dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	dlf.fn_clearAllMenu();
@@ -96,7 +95,7 @@ window.dlf.fn_closeDialog = function() {
 }
 
 // 清除所有的menu的操作样式
-window.dlf.fn_clearAllMenu = function() {
+dlf.fn_clearAllMenu = function() {
 	$('.menu a').each(function() {
 		var obj_this = $(this),
 			str_id = obj_this.attr('id');
@@ -109,17 +108,17 @@ window.dlf.fn_clearAllMenu = function() {
 * 清除导航功能的选中状态
 * str_who: 要清除的导航ID
 */
-window.dlf.fn_clearNavStatus = function(str_who) {
+dlf.fn_clearNavStatus = function(str_who) {
 	$('#'+ str_who).removeClass('menuHover').css('color', ''); 	//str_who
 }
 
-window.dlf.fn_setMapContainerZIndex = function(n_num) {
+dlf.fn_setMapContainerZIndex = function(n_num) {
 	$('.mapContainer').css('zIndex', n_num);
 }
 /**
 * 处理请求服务器错误
 */
-window.dlf.fn_serverError = function(XMLHttpRequest, str_actionType) {
+dlf.fn_serverError = function(XMLHttpRequest, str_actionType) {
 	var str_errorType = XMLHttpRequest.statusText;
 	
 	if ( str_errorType == 'timeout' && str_actionType == 'lastinfo' ) {
@@ -146,7 +145,7 @@ window.dlf.fn_serverError = function(XMLHttpRequest, str_actionType) {
 /**
 * 页面添加透明遮罩
 */
-window.dlf.fn_lockScreen = function(str_body) {
+dlf.fn_lockScreen = function(str_body) {
 	var n_height = $(window).height(), 
 		obj_body = ''; 
 		
@@ -167,7 +166,7 @@ window.dlf.fn_lockScreen = function(str_body) {
 /**
 * 去除页面的透明遮罩
 */
-window.dlf.fn_unLockScreen = function() {
+dlf.fn_unLockScreen = function() {
 	$('#maskLayer').removeClass().css({'display': 'none','height': '0px','width': '0px'});
 	$('.j_body').removeData('layer');
 }
@@ -176,7 +175,7 @@ window.dlf.fn_unLockScreen = function() {
 * 添加内容区域的遮罩
 * obj_who 要进行内容区域遮罩的内容ID
 */
-window.dlf.fn_lockContent = function(obj_who) {
+dlf.fn_lockContent = function(obj_who) {
 	var obj_offset = obj_who.offset();
 
 	$('#jContentLock').css({
@@ -191,7 +190,7 @@ window.dlf.fn_lockContent = function(obj_who) {
 /**
 * 移除内容区域的遮罩
 */
-window.dlf.fn_unLockContent = function() {
+dlf.fn_unLockContent = function() {
 	$('#jContentLock').css('display', 'none');
 }
 
@@ -201,7 +200,7 @@ window.dlf.fn_unLockContent = function() {
 * 如果直传第二中小时和分钟，则在使用今天日期构造数据
 * 返回秒
 */
-window.dlf.fn_changeDateStringToNum = function(dateString) {
+dlf.fn_changeDateStringToNum = function(dateString) {
     var year = '',
         month = '', 
         day = '', 
@@ -242,7 +241,7 @@ window.dlf.fn_changeDateStringToNum = function(dateString) {
 * 如果传入str_isYear不是： 时分秒(sfm)、年月日(ymd)、date  整数时间*1000转换成毫秒
 * 返回正常时间
 */
-window.dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
+dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
 	var n_myEpoch = '';
 	
 	if ( str_isYear == 'sfm' ||   str_isYear == 'date' || str_isYear == 'ymd'  ) {
@@ -275,7 +274,7 @@ window.dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
 	}
 }
 
-window.dlf.fn_changeTimestampToString = function(n_timestamp) {
+dlf.fn_changeTimestampToString = function(n_timestamp) {
 	var n_tempMinute = Math.round(n_timestamp/60),
 		n_minute = n_tempMinute,
 		n_hour = 0,
@@ -307,7 +306,7 @@ window.dlf.fn_changeTimestampToString = function(n_timestamp) {
 	* b_permanent: 消息是否总显示
 	* showTime: 消息显示时间
 */
-window.dlf.fn_jNotifyMessage = function(messages, types, b_permanent, showTime) {
+dlf.fn_jNotifyMessage = function(messages, types, b_permanent, showTime) {
 	var pf = ($(window).width()-447)/2,
         displayTime = 6000,
         b_perMan_type = b_permanent ? b_permanent : false,
@@ -324,7 +323,7 @@ window.dlf.fn_jNotifyMessage = function(messages, types, b_permanent, showTime) 
 	});
 }
 // test: 2012-06-01  2012-05-01
-window.dlf.fn_getFirstDayOfMonth = function(obj_date) {
+dlf.fn_getFirstDayOfMonth = function(obj_date) {
 	
 	var date = new Date();
 	
@@ -345,13 +344,13 @@ window.dlf.fn_getFirstDayOfMonth = function(obj_date) {
 * 扩展jnotify的删除方法
 * id：调用jnotify的元素id
 */
-window.dlf.fn_closeJNotifyMsg = function(id) {
+dlf.fn_closeJNotifyMsg = function(id) {
     $(id).hide().children().remove();
 }
 /**
 * 绑定车辆列表的各项
 */
-window.dlf.fn_bindCarListItem = function() {
+dlf.fn_bindCarListItem = function() {
 	$('.j_carList .j_terminal').unbind('mousedown').mousedown(function(event) {
 		var n_tid = $(this).attr('tid'), 
 			obj_currentCar = $(this), 
@@ -392,7 +391,7 @@ window.dlf.fn_bindCarListItem = function() {
 * obj_currentItem: 当前车辆对象
 * str_flag: 是否是第一次switchcar
 */
-window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
+dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	var obj_carA = $('.j_carList a[tid='+n_tid+']');
 	
 	// 更新当前车辆的详细信息显示
@@ -455,7 +454,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			if ( b_trackSt || b_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 				return;
 			} else {
-				dlf.fn_getCarData('first');
+				dlf.fn_getCarData();
 			}
 		}
 	} else {
@@ -542,7 +541,7 @@ window.dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 /**
 *动态更新定位器相关数据
 */
-window.dlf.fn_updateLastInfo = function() {
+dlf.fn_updateLastInfo = function() {
 	dlf.fn_clearInterval(currentLastInfo); // 清除定时器
 	currentLastInfo = setInterval(function () { // 每15秒启动
 		if ( $('.j_body').data('intervalkey') ){
@@ -564,7 +563,7 @@ window.dlf.fn_updateLastInfo = function() {
 /**
 * 每隔15秒获取数据
 */
-window.dlf.fn_getCarData = function(str_flag) {
+dlf.fn_getCarData = function(str_flag) {
 	var obj_tempCarsData = $('.j_carList').data('carsData'),
 		str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),	//当前车tid
 		obj_carListLi = $('.j_carList li'),
@@ -664,18 +663,17 @@ window.dlf.fn_getCarData = function(str_flag) {
 				}
 			}
 			if ( str_flag == 'first' && arr_locations.length > 0 ) {
-				//dlf.fn_caculateBox(arr_locations, 'lastinfo');
-				//dlf.fn_setOptionsByType('viewport', arr_locations);
-				//setTimeout(function() { // 首次执行lastinfo进行地图位置调整
-				//	mapObj.setZoom(mapObj.getZoom()-2);
-				//}, 200);
+				dlf.fn_setOptionsByType('viewport', arr_locations);
+				setTimeout(function() { // 首次执行lastinfo进行地图位置调整
+					mapObj.setZoom(mapObj.getZoom()-2);
+				}, 200);
 			}
 			
 			$('.j_carList').data('carsData', obj_tempData);
 			// 如果无终端或终端都无位置  地图设置为全国地图
-			if ( n_pointNum <= 0 ) {
-				mapObj.setZoom(5);
-			}
+			//if ( n_pointNum <= 0 ) {
+				//mapObj.setZoom(5);
+			//}
 			//是否进行切车操作
 			var obj_currentCarDatas = obj_cars[str_currentPersonalTid];
 			
@@ -702,7 +700,7 @@ window.dlf.fn_getCarData = function(str_flag) {
 * arr_locations: 所有点数组
 * 通过比较取到sw(最小经纬) 和ne(最大经纬)的点进行数据显示
 */
-window.dlf.fn_caculateBox = function (arr_locations, str_type) {
+dlf.fn_caculateBox = function (arr_locations, str_type) {
 	var	n_locLength = arr_locations.length,
 		arr_trackPoints = [], 
 		obj_tempFirstLoc = arr_locations[0],
@@ -745,7 +743,7 @@ window.dlf.fn_caculateBox = function (arr_locations, str_type) {
 * obj_carInfo: 车辆的信息
 * type: 是否是实时定位
 */
-window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
+dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	var str_tid = obj_carInfo.tid,
 		str_tmobile = obj_carInfo.mobile,
 		n_defendStatus = obj_carInfo.mannual_status, 
@@ -825,7 +823,7 @@ window.dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 /**
 * 无终端时车辆信息栏显示-
 */
-window.dlf.fn_initCarInfo = function () {
+dlf.fn_initCarInfo = function () {
 	$('#defendContent').html('-').attr('title', '');
 	$('#defendStatus').css('background-image', '');
 	$('#gpsContent').html('-').attr('title', '').css('background', 'inherit');
@@ -897,7 +895,7 @@ function fn_createTerminalList(obj_carDatas) {
 * kjj 2013-06-04
 * 重新添加终端后 清除marker和track轨迹
 */
-window.dlf.fn_createTerminalListClearLayer = function(obj_tempMarkers, obj_carDatas) {
+dlf.fn_createTerminalListClearLayer = function(obj_tempMarkers, obj_carDatas) {
 	var b_userType = dlf.fn_userType(),// 集团用户 、个人用户
 		n_num = 0;
 	
@@ -937,7 +935,7 @@ window.dlf.fn_createTerminalListClearLayer = function(obj_tempMarkers, obj_carDa
 /*
 * 追踪效果的数据存储判断
 */
-window.dlf.fn_checkTrackDatas = function (str_tid, b_deleteTrack) {
+dlf.fn_checkTrackDatas = function (str_tid, b_deleteTrack) {
 	var obj_tempTrack = obj_actionTrack[str_tid];
 
 	if ( !obj_tempTrack ) {
@@ -958,7 +956,7 @@ window.dlf.fn_checkTrackDatas = function (str_tid, b_deleteTrack) {
 * kjj 2013-05-23 
 * 清除开启追踪的轨迹线
 */
-window.dlf.fn_clearOpenTrackData = function() {
+dlf.fn_clearOpenTrackData = function() {
 	$('.j_terminal').each(function(e){
 		var str_tid = $(this).attr('tid');
 			
@@ -975,7 +973,7 @@ window.dlf.fn_clearOpenTrackData = function() {
 * str_val: 对应的值
 * str_val2: 辅助判断数据
 */
-window.dlf.fn_changeData = function(str_key, str_val, str_val2) {
+dlf.fn_changeData = function(str_key, str_val, str_val2) {
 	var str_return = '';
 	
 	if ( str_key == 'gsm' ) { // gsm 
@@ -1054,7 +1052,7 @@ window.dlf.fn_changeData = function(str_key, str_val, str_val2) {
 	return str_return;
 }
 
-window.dlf.fn_getImgUrl = function() {
+dlf.fn_getImgUrl = function() {
 	if ( dlf.fn_userType() ) {
 		return CORPIMGURL;
 	} else {
@@ -1066,7 +1064,7 @@ window.dlf.fn_getImgUrl = function() {
 * 查找相应tid下的数据
 * str_tid: 定位器序列号
 */
-window.dlf.fn_checkCarVal = function(str_tid, str_type) {
+dlf.fn_checkCarVal = function(str_tid, str_type) {
 	var len = 0,
 		arr_tempPoint = [];
 		
@@ -1090,7 +1088,7 @@ window.dlf.fn_checkCarVal = function(str_tid, str_type) {
 /**
 * 清除定时器
 */
-window.dlf.fn_clearInterval = function(obj_interval) {
+dlf.fn_clearInterval = function(obj_interval) {
 	if ( obj_interval ) {
 		clearInterval(obj_interval); 
 	}
@@ -1100,7 +1098,7 @@ window.dlf.fn_clearInterval = function(obj_interval) {
 * 方向角处理
 * n_degree: 方向角度
 */
-window.dlf.fn_processDegree = function(n_degree) {
+dlf.fn_processDegree = function(n_degree) {
 	var n_roundDegree = Math.round(n_degree/10);
 	
 	return n_roundDegree != 0 ? n_roundDegree : 36;
@@ -1109,13 +1107,13 @@ window.dlf.fn_processDegree = function(n_degree) {
 /**
 * 判断object对象是否有属性
 */
-window.dlf.fn_isEmptyObj = function (obj){
+dlf.fn_isEmptyObj = function (obj){
     return ((function(){for(var k in obj)return k})()!=null?true:false)
 }
 /**
 * 判断object对象有数据属性的个数
 */
-window.dlf.fn_getObjNums = function (obj){
+dlf.fn_getObjNums = function (obj){
 	var n_nums = 0;
 	for(var k in obj) {
 		if ( obj[k] ) {
@@ -1128,7 +1126,7 @@ window.dlf.fn_getObjNums = function (obj){
 /**
 * 根据相应的报警状态码显示相应的报警提示
 */
-window.dlf.fn_eventText = function(n_eventNum) {
+dlf.fn_eventText = function(n_eventNum) {
 	var str_text = '无法获取';
 	
 	switch (n_eventNum) {
@@ -1170,7 +1168,7 @@ window.dlf.fn_eventText = function(n_eventNum) {
 * str_cursor: 要修改的鼠标指针状态
 * 根据typeof来判断用户所传的参数进行相应操作
 */
-window.dlf.fn_setItemMouseStatus = function(obj_who, str_cursor, arr_png) {
+dlf.fn_setItemMouseStatus = function(obj_who, str_cursor, arr_png) {
 	var obj_type = typeof(arr_png);
 	if ( obj_type == 'string' ) {
 		obj_who.css({
@@ -1192,7 +1190,7 @@ window.dlf.fn_setItemMouseStatus = function(obj_who, str_cursor, arr_png) {
 /**
 * 定位器开启追踪倒计时初始化 
 */
-window.dlf.fn_clearRealtimeTrack = function(str_tid) { 
+dlf.fn_clearRealtimeTrack = function(str_tid) { 
 	$('#trackTimer').html('0');
 	$('#trackWrapper').hide();
 	if ( str_tid ) { 
@@ -1224,7 +1222,7 @@ window.dlf.fn_clearRealtimeTrack = function(str_tid) {
 /**
 * 向后台发送开始跟踪请求，前台倒计时5分钟，5分钟后自动取消跟踪
 */
-window.dlf.fn_openTrack = function(arr_openTids, selfItem, n_isOpen) {
+dlf.fn_openTrack = function(arr_openTids, selfItem, n_isOpen) {
 	// 向后台发送开启追踪请求
 	var obj_param = {'tids': arr_openTids, 'flag': n_isOpen};	// 'interval': 10, 
 	
@@ -1296,7 +1294,7 @@ window.dlf.fn_openTrack = function(arr_openTids, selfItem, n_isOpen) {
 /*
 * 通过tid取得当前tid的actiontrack状态
 */      
-window.dlf.fn_getActionTrackStatus = function(str_tid) {
+dlf.fn_getActionTrackStatus = function(str_tid) {
 	var obj_tempActionTrack = obj_actionTrack[str_tid];
 	
 	if ( obj_tempActionTrack ) {
@@ -1310,7 +1308,7 @@ window.dlf.fn_getActionTrackStatus = function(str_tid) {
 * kjj 2013-06-09 create
 * 获取当前车辆的tid
 */
-window.dlf.fn_getCurrentTid = function() {
+dlf.fn_getCurrentTid = function() {
 	var obj_currentCar = $('.j_currentCar'),
 		str_tempCurrentTid = '',
 		b_userType = dlf.fn_userType();
@@ -1332,7 +1330,7 @@ window.dlf.fn_getCurrentTid = function() {
 * kjj 2013-10-10 used in corpName and groupName
 * 处理alias过长问题
 */
-window.dlf.fn_dealAlias = function (str_tempAlias) { 
+dlf.fn_dealAlias = function (str_tempAlias) { 
 	var b_isChinese = /.*[\u4e00-\u9fa5]+.*$/.test(str_tempAlias),
 		str_newAlias = str_tempAlias;
 		
@@ -1345,10 +1343,10 @@ window.dlf.fn_dealAlias = function (str_tempAlias) {
 /**
 * html标签 编码、解码
 */
-window.dlf.fn_encode = function(str) {
+dlf.fn_encode = function(str) {
 	return str.replace(/\&/g, '&amp;').replace(/\>/g, '&gt;').replace(/\</g, '&lt;');
 }
-window.dlf.fn_decode = function(str) {
+dlf.fn_decode = function(str) {
 	return str.replace(/\&gt;/g, '>').replace(/\&lt;/g, '<').replace(/\'/g, "\'").replace(/\"/g, '\"').replace(/\&amp;/g, '&');
 }
 
@@ -1356,7 +1354,7 @@ window.dlf.fn_decode = function(str) {
 * kjj 2013-06-21 create
 * 判断是否是百度地图
 */
-window.dlf.fn_isBMap = function() {
+dlf.fn_isBMap = function() {
 	if ( $('.j_body').attr('mapType') == '1' ) {
 		return true;
 	} else {
@@ -1368,7 +1366,7 @@ window.dlf.fn_isBMap = function() {
 * 业务变更提示 
 * str_type: event
 */
-window.dlf.fn_showBusinessTip = function(str_type) {
+dlf.fn_showBusinessTip = function(str_type) {
 	window.location.reload();
 	/*dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo定时器
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
@@ -1386,7 +1384,7 @@ window.dlf.fn_showBusinessTip = function(str_type) {
 /**
 * 文本框获得焦点事件
 */
-window.dlf.fn_onInputBlur = function() {
+dlf.fn_onInputBlur = function() {
 	$('.j_onInputBlur').unbind('blur').bind('blur', function() {
 		var $this = $(this),
 			obj_wrapper = $('#' + $this.attr('parent')),
@@ -1635,7 +1633,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 * 设置地图的显示状态
 * b_flag: true: 显示  false: 隐藏
 */
-window.dlf.fn_showOrHideMap = function(b_flag) {
+dlf.fn_showOrHideMap = function(b_flag) {
 	var obj_map = $('#mapObj'),
 		b_mapStatus = obj_map.is(':hidden'),
 		str_display  = 'none';
@@ -1649,7 +1647,7 @@ window.dlf.fn_showOrHideMap = function(b_flag) {
 /**
 * 判断是个人用户还是集团用户
 */
-window.dlf.fn_userType = function() {
+dlf.fn_userType = function() {
 	var str_flag = $('.j_body').attr('userType');
 	
 	if ( str_flag == USER_PERSON ) { // 个人用户
@@ -1663,7 +1661,7 @@ window.dlf.fn_userType = function() {
 * kjj update in 2013-08-22 (固定几种颜色)
 * 随机生成颜色值
 */
-window.dlf.fn_randomColor = function() {
+dlf.fn_randomColor = function() {
 	/*var colorvalue=["0","2","3","4","5","6","7","8","9","a","b","c","d","e","f"],
 		colorprefix="#",
 		index;
@@ -1706,7 +1704,7 @@ window.dlf.fn_randomColor = function() {
 *str_who: 发起此次操作的源头
 *str_msg: 发送中的消息提示
 */
-window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
+dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 	var obj_cWrapper = $('#'+str_who+'Wrapper'), 
 		obj_content = $('.'+str_who+'Content'), 
 		b_closeWrapper = true;
@@ -1911,7 +1909,7 @@ window.dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 *msg: 发送中的消息提示
 *str_tid: 集团用户的右键菜单参数设置
 */
-window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
+dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 	var obj_cWrapper = $('#'+str_who+'Wrapper'), 
 		obj_content = $('.'+str_who+'Content');
 	
@@ -2186,7 +2184,7 @@ window.dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 /**
 * 周边查询事件绑定
 */
-window.dlf.fn_POISearch = function(n_clon, n_clat) {
+dlf.fn_POISearch = function(n_clon, n_clat) {
 	// 文本框获取/失去焦点
 	$('.j_blur').blur(function() {
 		var obj_this = $(this),
@@ -2244,7 +2242,7 @@ window.dlf.fn_POISearch = function(n_clon, n_clat) {
 /**
 * 无钥匙挂件:无定位操作
 */
-window.dlf.fn_showOrHideLocation = function(n_keys_num) {
+dlf.fn_showOrHideLocation = function(n_keys_num) {
 	if ( n_keys_num == 0 ) {
 		$('#defend').parent().hide();
 	} else {
@@ -2255,7 +2253,7 @@ window.dlf.fn_showOrHideLocation = function(n_keys_num) {
 /**
 * 鼠标滑过datatable的时候行的背景色改变
 */
-window.dlf.fn_changeTableBackgroundColor = function() {
+dlf.fn_changeTableBackgroundColor = function() {
 	/** 
 	* 初始化奇偶行
 	*/
@@ -2270,7 +2268,7 @@ window.dlf.fn_changeTableBackgroundColor = function() {
 * kjj 2013-06-21 create
 * 高德地图关闭鼠标画圆事件
 */
-window.dlf.fn_gaodeCloseDrawCircle = function() {
+dlf.fn_gaodeCloseDrawCircle = function() {
 	var b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
 		b_mapType = dlf.fn_isBMap();
 	
@@ -2289,7 +2287,7 @@ window.dlf.fn_gaodeCloseDrawCircle = function() {
 * n_num: 要操作的数字
 * n_round: 小数后保留的位数
 */
-window.dlf.fn_NumForRound = function(n_num, n_round) {
+dlf.fn_NumForRound = function(n_num, n_round) {
 	var n_roundNum = 1;
 	
 	if ( n_round != 0 ) {
@@ -2304,7 +2302,7 @@ window.dlf.fn_NumForRound = function(n_num, n_round) {
 /**
 *二级菜单事件
 */
-window.dlf.fn_fillNavItem = function(str_whoItem) {
+dlf.fn_fillNavItem = function(str_whoItem) {
 	var obj_navItemUl = null,
 		obj_navOffset = $('#'+str_whoItem).offset(),
 		str_navClassName = '',
@@ -2356,7 +2354,7 @@ window.dlf.fn_fillNavItem = function(str_whoItem) {
 /**
 * 判断二级菜单是否显示,如果显示进行隐藏
 */
-window.dlf.fn_secondNavValid = function() { 
+dlf.fn_secondNavValid = function() { 
 	var obj_navItem1 = $('.j_countNavItem'), 
 		obj_navItem2 = $('.j_notifyManageNavItem'),
 		obj_navItem3 = $('.j_userProfileManageNavItem'),
@@ -2384,7 +2382,7 @@ window.dlf.fn_secondNavValid = function() {
 * 重新调整页面显示区域
 */
 
-window.dlf.resetPanelDisplay = function(n_type) {
+dlf.resetPanelDisplay = function(n_type) {
 	setTimeout(function() {
 		var n_windowHeight = $(window).height(),
 			n_bodyHeight = $('.j_body').height(),
@@ -2583,7 +2581,7 @@ window.dlf.resetPanelDisplay = function(n_type) {
 * KJJ add in 2014.05.15
 * 里程保养
 */
-window.dlf.fn_initMileageNotification = function(str_tid) {
+dlf.fn_initMileageNotification = function(str_tid) {
 	dlf.fn_dialogPosition('mileageNotification');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	var str_nowDate =  dlf.fn_changeNumToDateString(new Date().getTime()),
@@ -2626,7 +2624,7 @@ window.dlf.fn_initMileageNotification = function(str_tid) {
 	});
 }
 
-window.dlf.fn_mileageNotificationSave = function() {
+dlf.fn_mileageNotificationSave = function() {
 	var obj_param = {},
 		n_num = 0,
 		str_oldAssistMobile = $('#txtAssistMobile').data('t_val');
@@ -2637,7 +2635,8 @@ window.dlf.fn_mileageNotificationSave = function() {
 		n_newDisatanceDay = $('#txtDayNotification').val(),
 		n_oldDistanceTime = $('#txtDistanceNotificationTime').data('olddate'),
 		str_dayTimeVal = $.trim($('#txtDistanceNotificationTime').val()),
-		n_newDistanceTime = dlf.fn_changeDateStringToNum(str_dayTimeVal+' 00:00:00');
+		n_newDistanceTime = dlf.fn_changeDateStringToNum(str_dayTimeVal+' 00:00:00'),
+		n_currentDataTime =  dlf.fn_changeDateStringToNum(dlf.fn_changeNumToDateString(new Date(), 'ymd')+' 00:00:00');
 		
 	if ( str_oldAssistMobile != str_newAssistMobile ) {
 		n_num ++;
@@ -2647,18 +2646,27 @@ window.dlf.fn_mileageNotificationSave = function() {
 	if ( n_newDistance != n_oldDistance ) {
 		if ( n_newDistance != n_currentDistance ) {
 			if ( n_newDistance <= n_currentDistance ) {
-				dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); // 查询状态不正确,错误提示
+				dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); 
 				return;
 			} else {
 				n_num ++;
 				obj_param.distance_notification = n_newDistance;
 			}
+		} else {
+			dlf.fn_jNotifyMessage('下次保养里程必须大于当前保养里程。', 'message', false, 4000); 
+			return;
 		}
 	}
 	if ( n_newDistanceTime < n_oldDistanceTime ) {
-		dlf.fn_jNotifyMessage('下次保养时间必须大于当前保养时间。', 'message', false, 4000); // 查询状态不正确,错误提示
+		dlf.fn_jNotifyMessage('下次保养时间必须大于当前保养时间。', 'message', false, 4000); 
 		return;
 	}
+	
+	if ( n_newDistanceTime < n_currentDataTime ) {
+		dlf.fn_jNotifyMessage('下次保养时间必须大于今天。', 'message', false, 4000); 
+		return;
+	}
+	
 	if ( str_dayTimeVal != '' ) {
 		if ( n_oldDistanceTime != n_newDistanceTime ) {
 			n_num ++;
@@ -2685,7 +2693,7 @@ window.dlf.fn_mileageNotificationSave = function() {
 *hs: 2014-7-21
 */
 
-window.dlf.fn_initAccStatus = function(str_alias) {
+dlf.fn_initAccStatus = function(str_alias) {
 	var b_accOperator = $('#accStatusWrapper').data('operator');
 	
 	if ( b_accOperator ) {
@@ -2703,10 +2711,11 @@ window.dlf.fn_initAccStatus = function(str_alias) {
 	});
 }
 
-window.dlf.fn_accStatusSave = function() {
+dlf.fn_accStatusSave = function() {
 	var n_accStatus = $('input[name=accStatusType]:checked').val(),
 		obj_param = {'tids': [dlf.fn_getCurrentTid()], 'op_type': n_accStatus},
-		str_accAlertMsg = '';
+		str_accAlertMsg = '',
+		obj_accWrapperStyle = {'height': 54, 'padding': '38px 54px'};
 	
 	if ( !n_accStatus ) {
 		dlf.fn_jNotifyMessage('请选择要进行的操作。', 'message', false, 4000); // 查询状态不正确,错误提示
@@ -2714,26 +2723,45 @@ window.dlf.fn_accStatusSave = function() {
 	}
 	
 	if ( n_accStatus == 0 ) {
+		obj_accWrapperStyle = {'height': 70, 'padding': '30px 54px'};
 		str_accAlertMsg = '“锁定“将会导致车辆失去动力而无法行驶，并有可能引起安全问题，您确定要锁定吗？';
 	} else {
 		str_accAlertMsg = '您确定要解锁吗？';
 	}
-	if ( confirm(str_accAlertMsg) ) {
+	
+	$('#accStatusCallBackWrapper').show();
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	$('#maskLayer').css('z-index', 1003);
+	
+	$('#accStatusCallBackSuccess, #accStatusCallBackError').hide();
+	$('#accStatusConfirmPanel').show();
+	$('#accStatusCallBackWrapper').css(obj_accWrapperStyle);
+	
+	$('#accStatus_confirmMsg').html(str_accAlertMsg);
+	
+	$('#accStatus_confirmSure').unbind('click').click(function(e) {
+		$('#accStatusCallBackWrapper').hide();
+		$('#maskLayer').css('z-index', 1002);
 		dlf.fn_jsonPost(ACCSTATUS_URL, obj_param, 'accStatus', '远程控制保存中');
-	}
+	});
+	
+	$('#accStatus_confirmClose').unbind('click').click(function(e) {
+		$('#accStatusCallBackWrapper').hide();
+		$('#maskLayer').css('z-index', 1002);
+	});
 }
 
 /**
 * 远程控制结果显示
 */
-window.dlf.fn_accCallback = function(n_status, n_tid) {
+dlf.fn_accCallback = function(n_status, n_tid) {
 	$('#accStatusWrapper').removeData('operator');
 	
 	$('#accStatusCallBackWrapper').show();
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 	if ( n_status == 1 ) {
-		$('#accStatusCallBackError').hide();
+		$('#accStatusCallBackError, #accStatusConfirmPanel').hide();
 		$('#accStatusCallBackSuccess').show();
 		
 		//知道了
@@ -2743,7 +2771,7 @@ window.dlf.fn_accCallback = function(n_status, n_tid) {
 		});
 	} else {
 		$('#accStatusCallBackError').show();
-		$('#accStatusCallBackSuccess').hide();
+		$('#accStatusCallBackSuccess, #accStatusConfirmPanel').hide();
 		//重新尝试
 		$('#accCallBack_reTry').unbind('click').click(function(e) {
 			var str_alias = $('a[tid='+ n_tid +']').attr('alias');

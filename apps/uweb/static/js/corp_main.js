@@ -554,7 +554,7 @@ function fn_batchOpenTrack(obj, str_operation) {
 /**
 * 批量开启追踪数据回显
 */
-window.dlf.fn_initOpenTrack  = function(str_operation, obj_params) {
+dlf.fn_initOpenTrack  = function(str_operation, obj_params) {
 	dlf.fn_dialogPosition('batchTrack');	// 设置dialog的位置
 	
 	var arr_dataes = obj_params.characters;
@@ -649,7 +649,7 @@ function fn_createSubMenuForGroup(obj_group) {
 * types: node icon
 * crrm: create、remove、rename等
 */
-window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
+dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 	$('#corpTree').jstree({
 		"plugins": [ "themes", "html_data", "ui", "contextmenu",'crrm', "types", 'dnd', 'checkbox'],
 		'core': {
@@ -856,7 +856,6 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				var obj_current = $('#' + data.inst.data.ui.to_select);
 				
 				if ( arr_locations.length > 0 ) {
-					//dlf.fn_caculateBox(arr_locations);
 					dlf.fn_setOptionsByType('viewport', arr_locations);
 				}
 				
@@ -869,9 +868,9 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			dlf.fn_initCarInfo();
 		}
 		// 如果无终端或终端都无位置  地图设置为全国地图
-		if ( n_pointNum <= 0 ) {
-			mapObj.setZoom(5);
-		}
+		//if ( n_pointNum <= 0 ) {
+		//	mapObj.setZoom(5);
+		//}
 		// 将之前的checked状态填充 
 		var n_treeNodeCheckLen = arr_treeNodeChecked.length;
 		
@@ -957,6 +956,8 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		
 		b_uncheckedAll = false;
 		b_checkedAll = false;
+		//清除告警图标
+		dlf.fn_clearAlarmMarker();
 		if ( n_terminalClass != -1 ) {	// 选中单个终端
 			var obj_current = obj_currentLi.children('.j_terminal')
 				str_tid = obj_current.attr('tid');
@@ -1004,6 +1005,7 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 				* 每隔1s添加一个终端
 				*/
 				//n_addMarkerInterval = setInterval(function() {
+				for ( var n_count = 0; n_count < n_checkedLength; n_count++) {
 					var obj_terminal = $($(str_nodes+' .jstree-checked')[n_count]),
 						obj_current = obj_terminal.children('.j_terminal');
 					
@@ -1037,10 +1039,11 @@ window.dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 								return;
 							}
 						}
-						n_count ++;
+						//n_count ++;
 					} else {
 						clearInterval(n_addMarkerInterval);
 					}
+				}
 				//}, 50);
 			}, 400);			
 		}
@@ -1218,7 +1221,7 @@ function fn_displayTerminalNode(str_operator) {
 * 集团用户 lastinfo
 * b_isOpenInfowindow
 */
-window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
+dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 	var obj_current = $('.j_leafNode a[class*='+ JSTREECLICKED +']'),
 		str_checkedNodeId = obj_current.attr('id'),	// 上一次选中车辆的id
 		str_tempTid = '',
@@ -1573,7 +1576,7 @@ window.dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 /**
 *集团数据更新后是否要切换车辆信息
 */
-window.dlf.fn_corpLastinfoSwitch = function(b_isCloseTrackInfowindow) {
+dlf.fn_corpLastinfoSwitch = function(b_isCloseTrackInfowindow) {
 	if ( b_isCloseTrackInfowindow ) {
 		var obj_carItem = $('.j_carList .j_currentCar'),
 			str_tid = obj_carItem.attr('tid');
@@ -1763,7 +1766,7 @@ function fn_updateAlarmList(arr_alarm) {
 * kjj 2013-05-24 
 * 关闭告警列表 
 */
-window.dlf.fn_closeAlarmPanel = function() {
+dlf.fn_closeAlarmPanel = function() {
 	var obj_alarmPanel = $('.j_alarm'),
 		obj_alarmTable = $('.j_alarmTable');
 
@@ -1779,7 +1782,7 @@ window.dlf.fn_closeAlarmPanel = function() {
 * 告警提示marker清除
 * n_num: 要清除marker在li上的位置
 */
-window.dlf.fn_clearAlarmMarker = function() {
+dlf.fn_clearAlarmMarker = function() {
 	var obj_alarmTable = $('.j_alarmTable'),
 		obj_alarmMarker = obj_alarmTable.data('alarmMarker'),
 		obj_alarmRegion = obj_alarmTable.data('region');
@@ -1802,7 +1805,7 @@ window.dlf.fn_clearAlarmMarker = function() {
 /**
 * 对node节点做遍历查找选中的节点
 */
-window.dlf.fn_eachCheckedNode = function(str_eachNode) {
+dlf.fn_eachCheckedNode = function(str_eachNode) {
 	$(str_eachNode).each(function(leafEvent) { 
 		var str_tempLeafClass = $(this).attr('class'),
 			str_tempLeafId = '#' + $(this).attr('id');
@@ -1816,7 +1819,7 @@ window.dlf.fn_eachCheckedNode = function(str_eachNode) {
 /**
 * 初始化autocomplete
 */
-window.dlf.fn_initAutoComplete = function() {
+dlf.fn_initAutoComplete = function() {
 	var obj_compelete = $('#txtautoComplete'),
 		str_val = obj_compelete.val();
 	
@@ -2013,7 +2016,7 @@ function fn_updateTerminalOnlineNum() {
 	}	
 }
 
-window.dlf.fn_setCorpIconDiffBrowser = function () {
+dlf.fn_setCorpIconDiffBrowser = function () {
 	/*if ( $.browser.msie && ($.browser.version == "7.0") ) {
 		$('.corpNode ins').css('backgroundPosition', '0px 0px');
 	} else {
@@ -2059,7 +2062,7 @@ function fn_setIconType(n_iconType, n_login) {
 * obj_this: 要更新的定位器对象
 * 更新定位器在线离线图标
 */
-window.dlf.fn_updateTerminalLogin = function(obj_this) {
+dlf.fn_updateTerminalLogin = function(obj_this) {
 	var	str_login = obj_this.attr('clogin'),
 		n_iconType = obj_this.attr('icon_type'),	// icon_type
 		str_imgUrl = '',
@@ -2094,7 +2097,7 @@ window.dlf.fn_updateTerminalLogin = function(obj_this) {
 * cnum: 要更新的定位器别名
 * str_tid: 集团用户右键参数设置中修改定位器名称
 */
-window.dlf.fn_updateCorpCnum = function(cnum) {
+dlf.fn_updateCorpCnum = function(cnum) {
 	var obj_current = $('.j_terminal[tid='+str_currentTid+']'),
 		str_cnum = cnum['corp_cnum'] == undefined ? cnum : cnum['corp_cnum'],
 		str_tmobile = obj_current.attr('title'),
@@ -2405,7 +2408,7 @@ function fn_initCreateTerminal(obj_node, str_groupId) {
 /**
 * 保存单个定位器
 */
-window.dlf.fn_cTerminalSave = function() {
+dlf.fn_cTerminalSave = function() {
 	var str_tmobile = $('#c_tmobile').val(),
 		str_umobile = $('#c_umobile').val(),
 		str_cnum = $('#c_cnum').val(),
@@ -2628,7 +2631,7 @@ function fn_batchRemoveTerminals(obj_params) {
 /**
 * 验证定位器手机号
 */
-window.dlf.fn_checkTMobile = function(str_tmobile) {
+dlf.fn_checkTMobile = function(str_tmobile) {
 	$.get_(CHECKMOBILE_URL + '/' + str_tmobile, '', function(data){
 		if ( data.status != 0 ) {
 			$('#hidTMobile').val('1');
@@ -2646,7 +2649,7 @@ window.dlf.fn_checkTMobile = function(str_tmobile) {
 /**
 * 操作员手机号已存在。
 */
-window.dlf.fn_checkOperatorMobile = function(str_tmobile) {
+dlf.fn_checkOperatorMobile = function(str_tmobile) {
 	$.get_(CHECKOPERATORMOBILE_URL + '/' + str_tmobile, '', function(data){
 		if ( data.status != 0 ) {
 			var str_msg = data.message;
@@ -2665,7 +2668,7 @@ window.dlf.fn_checkOperatorMobile = function(str_tmobile) {
 /**
 * 验证乘客手机号
 */
-window.dlf.fn_checkPassengerMobile = function(str_tmobile) {
+dlf.fn_checkPassengerMobile = function(str_tmobile) {
 	$.get_(CHECKPASSENGERMOBILE_URL + '/' + str_tmobile, '', function(data){
 		if ( data.status != 0 ) {
 			dlf.fn_jNotifyMessage('乘客手机号已存在。', 'message', false, 5000);
@@ -2682,7 +2685,7 @@ window.dlf.fn_checkPassengerMobile = function(str_tmobile) {
 /**
 * 验证集团名是否重复
 */
-window.dlf.fn_checkCName = function(str_cname) {
+dlf.fn_checkCName = function(str_cname) {
 	$.get_(CHECKCNAME_URL + '/' + str_cname, '', function(data){
 		if ( data.status != 0 ) {
 			$('#hidCName').val('1');
@@ -2716,7 +2719,7 @@ function fn_initBatchImport(gid, gname) {
 /**
 * 数据回显：批量删除定位器、批量设防撤防
 */
-window.dlf.fn_echoData = function(str_tableName, obj_params, str_msg) {
+dlf.fn_echoData = function(str_tableName, obj_params, str_msg) {
 	var arr_dataes = obj_params.characters;
 		obj_table = $('.' + str_tableName + ' tbody'),
 		obj_head = $('.' + str_tableName + ' thead th');
@@ -2743,7 +2746,7 @@ window.dlf.fn_echoData = function(str_tableName, obj_params, str_msg) {
 * str_tid: 激活终端tid
 * kjj add in 2013-11.05
 */
-window.dlf.fn_wakeUpTerminal = function(str_tmobile) {
+dlf.fn_wakeUpTerminal = function(str_tmobile) {
 	var obj_param = {'tmobile': str_tmobile};
 	
 	$.post_(CORP_REREGISTER_URL, JSON.stringify(obj_param), function(data){

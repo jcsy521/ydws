@@ -7,7 +7,7 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 /**
 * 定位器参数设置初始化
 */
-window.dlf.fn_initCorpTerminal = function(str_tid) {
+dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
 		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
@@ -67,7 +67,7 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 /**
 * 集团用户短信设置初始化
 */
-window.dlf.fn_initSMSOption = function() {
+dlf.fn_initSMSOption = function() {
 	dlf.fn_dialogPosition('corpSMSOption');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	fn_initCorpSMS();	// 初始化SMS通知
@@ -76,7 +76,7 @@ window.dlf.fn_initSMSOption = function() {
 /**
 * 查询最新定位器参数
 */
-window.dlf.fn_initTerminalWR = function (str_tid) {
+dlf.fn_initTerminalWR = function (str_tid) {
 	dlf.fn_lockContent($('.corpTerminalContent')); // 添加内容区域的遮罩
 	dlf.fn_jNotifyMessage('定位器设置查询中' + WAITIMG , 'message', true); 
 	// todo  + '?tid=' + str_tid
@@ -296,7 +296,7 @@ function fn_initCorpSMS() {
 /**
 * 初始化短信接收号码的autocomplete
 */
-window.dlf.fn_initAutoSmsMobile = function(arr_autoSmsMobileData) {
+dlf.fn_initAutoSmsMobile = function(arr_autoSmsMobileData) {
 	var obj_compelete = $('#smsOwerMobile'),
 		str_val = obj_compelete.val();
 	
@@ -339,7 +339,7 @@ function fn_changeSMSCheckbox(obj_data) {
 /**
 * 显示白名单提示框
 */
-window.dlf.fn_showNotice = function() {
+dlf.fn_showNotice = function() {
 	$('#whitelistPopWrapper').show();
 	dlf.fn_resizeWhitePop();	//  pop框位置随着wrapper的改变而改变
 	/** 
@@ -360,7 +360,7 @@ window.dlf.fn_showNotice = function() {
 /**
 * 保存定位器参数操作
 */
-window.dlf.fn_corpBaseSave = function() {
+dlf.fn_corpBaseSave = function() {
 	var obj_terminalData = {},
 		n_num = 0,
 		obj_listVal = $('.j_corp_ListVal');
@@ -428,7 +428,7 @@ window.dlf.fn_corpBaseSave = function() {
 /**
 * 短信设置保存
 */
-window.dlf.fn_smsOptionSave = function() {
+dlf.fn_smsOptionSave = function() {
 	
 	//判断短信通知是否要提交
 	
@@ -479,7 +479,7 @@ window.dlf.fn_smsOptionSave = function() {
 /**
 * pop框位置随着wrapper的改变而改变
 */
-window.dlf.fn_resizeWhitePop = function() {
+dlf.fn_resizeWhitePop = function() {
 	var obj_terminalWrapperOffset = $('#terminalWrapper').offset(),
 		obj_whitePop = $('#whitelistPopWrapper'),
 		b_warpperStatus = !obj_whitePop.is(':hidden'),
@@ -494,7 +494,7 @@ window.dlf.fn_resizeWhitePop = function() {
 /**
 * 集团用户告警设置初始化
 */
-window.dlf.fn_initAlertOption = function() {
+dlf.fn_initAlertOption = function() {
 	dlf.fn_dialogPosition('corpAlertOption');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	
@@ -511,7 +511,7 @@ window.dlf.fn_initAlertOption = function() {
 /**
 * 请求所有的告警设置项
 */
-window.dlf.fn_getAlertOptionForUrl = function(str_getType) {
+dlf.fn_getAlertOptionForUrl = function(str_getType) {
 	$.get_(CORP_ALERT_URL+'?umobile='+$('#hidumobile').val(), '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.res;
@@ -555,7 +555,7 @@ window.dlf.fn_getAlertOptionForUrl = function(str_getType) {
 /**
 * 告警置保存
 */
-window.dlf.fn_alertOptionSave = function() {
+dlf.fn_alertOptionSave = function() {
 	//判断短信通知是否要提交	
 	var obj_checkbox = $('.j_corpAlert_checkbox'),
 		obj_alertData = {},

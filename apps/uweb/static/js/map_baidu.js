@@ -19,7 +19,7 @@ var postAddress = null,
 /**
 * 加载百度MAP
 */
-window.dlf.fn_loadMap = function(mapContainer) {                  	
+dlf.fn_loadMap = function(mapContainer) {                  	
 	mapObj = new BMap.Map(mapContainer); // 创建地图实例
 	markerPoint = new BMap.Point(116.39825820922851 ,39.904600759441024); // 创建点坐标
 	mapObj.centerAndZoom(markerPoint, 5); // 初始化地图，设置中心点坐标和地图级别 
@@ -43,7 +43,7 @@ window.dlf.fn_loadMap = function(mapContainer) {
 * 设置地图控件的显示隐藏
 * b_menu: true: 显示 false: 隐藏
 */
-window.dlf.fn_hideControl = function(b_menu) {
+dlf.fn_hideControl = function(b_menu) {
 	var b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
 	if ( b_isHttps ) {
@@ -60,7 +60,7 @@ window.dlf.fn_hideControl = function(b_menu) {
 * 设置地图上地图类型,实时路况的位置
 * n_NumTop: 相对于地图上侧做的偏移值 
 */
-window.dlf.fn_setMapControl = function(n_NumTop) {
+dlf.fn_setMapControl = function(n_NumTop) {
 	var b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
 	if ( b_isHttps ) {
@@ -79,7 +79,7 @@ window.dlf.fn_setMapControl = function(n_NumTop) {
 /**
 * 百度地图生成点
 */
-window.dlf.fn_createMapPoint = function(n_lon, n_lat) {
+dlf.fn_createMapPoint = function(n_lon, n_lat) {
 	if ( n_lon == 0 || n_lat == 0 ) { 
 		return '-';
 	} else {
@@ -92,7 +92,7 @@ window.dlf.fn_createMapPoint = function(n_lon, n_lat) {
 * arr_drawLine: 轨迹线的点集合
 * options: 轨迹线的属性
 */
-window.dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
+dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
 	var obj_polyLine = null;
 	if ( arr_drawLine.length > 0 ) {
 		obj_polyLine = new BMap.Polyline(arr_drawLine, {'strokeOpacity': 0.5});
@@ -122,7 +122,7 @@ window.dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
 * centers: point对象
 * zoom: 地图级别值
 */
-window.dlf.fn_setOptionsByType = function(type, centers, zoom) {
+dlf.fn_setOptionsByType = function(type, centers, zoom) {
 	switch (type) {
 		case 'center':	// 设置中心点
 			mapObj.setCenter(centers);
@@ -143,7 +143,7 @@ window.dlf.fn_setOptionsByType = function(type, centers, zoom) {
 * 百度地图添加图层
 * obj_overlay: 要添加的图层对象
 */
-window.dlf.fn_addOverlay = function(obj_overlay) {
+dlf.fn_addOverlay = function(obj_overlay) {
 	mapObj.addOverlay(obj_overlay);
 }
 
@@ -151,7 +151,7 @@ window.dlf.fn_addOverlay = function(obj_overlay) {
 * 清除页面上的地图图形数据
 * obj_overlays: 要删除的图层对象,如果没有则清除地图上所有图层
 */
-window.dlf.fn_clearMapComponent = function(obj_overlays) {
+dlf.fn_clearMapComponent = function(obj_overlays) {
 	if ( obj_overlays ) {
 		mapObj.removeOverlay(obj_overlays);
 	} else {
@@ -165,7 +165,7 @@ window.dlf.fn_clearMapComponent = function(obj_overlays) {
 * n_clon：经度
 * n_clat: 纬度
 */
-window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
+dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 	var str_keywords = '',
 		n_bounds = parseInt($('#txtBounds').val()),
 		obj_kw = $('#txtKeywords');
@@ -199,7 +199,7 @@ window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 * n_index: 轨迹点的索引值，根据其值获取对应的位置
 * n_counter : draw 时根据值修改数组中点的位置描述  下次就不用重新获取位置
 */
-window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
+dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
 		str_loginSt =  obj_location.login,
 		str_imgUrl = str_loginSt == 1 ? 'default' : 'default_logout', 
@@ -343,7 +343,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 }
 
 // 百度分享js引用
-window.dlf.fn_loadBaiduShare = function() {
+dlf.fn_loadBaiduShare = function() {
 	var obj_script = document.createElement('script'),
 		obj_share = $('#bdshare_s'),
 		b_isHttps = document.location.protocol == 'https:' ? true : false;
@@ -422,7 +422,7 @@ function fn_infoWindowCloseShow() {
 /*
 * 创建地图吹出框对象
 */
-window.dlf.fn_createMapInfoWindow = function(obj_location, str_type, n_pointIndex) {
+dlf.fn_createMapInfoWindow = function(obj_location, str_type, n_pointIndex) {
 	if ( !obj_mapInfoWindow ) {
 		obj_mapInfoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_type, n_pointIndex));
 		
@@ -470,7 +470,7 @@ function fn_infoWindowTextUpdate(obj_location, str_type) {
 * n_index: 轨迹索引
 * b_isGencoder: 是否进行逆地址编码
 */
-window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder) {
+dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder) {
 	var	address = obj_location.name, 
 		str_tempAddress = address,
 		speed = obj_location.speed,
@@ -511,7 +511,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 				b_flag = true;
 			}
 		}
-		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, true);	// 集团用户设置marker的图标
+		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标
 		
 		if ( $('.j_carList .j_currentCar').length == 0 ) {
 			str_currenttid = str_currentTid;
@@ -682,7 +682,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 * str_result: 获取到的位置
 * n_index: 如果是轨迹则根据索引获取name
 */
-window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat) {
+dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat) {
 	var str_result = str_result,
 		str_tempResult = str_result;//fn_cutString(str_result),	// 位置描述过长显示省略号 kjj add in 2013-08-21 hs:2014-6-30
 		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
@@ -782,7 +782,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 * str_type: 类型: realtime lastinfo or draw
 * n_index: 如果是轨迹则显示轨迹点的索引
 */
-window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index) {
+dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index) {
 	var gc = new BMap.Geocoder(),
 		str_result = '',
 		str_surroundingPois = '',
@@ -805,6 +805,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 		
 		if ( str_result != '' ) {
 			dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
+			//TODO:暂时未加poi显示
 		}
 	});
 	/*jQuery.ajax({
@@ -860,7 +861,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 * tips:  data format is jsonp
 * b_geoCode: 是否进行逆地址请求
 */
-window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_geoCode) {
+dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_geoCode) {
 	$('.j_body').data('intervalkey', true);
 	var n_lng = obj_carInfo.longitude,
 		n_lat = obj_carInfo.latitude,
@@ -905,7 +906,7 @@ window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInf
 /**
 * 点击地图添加标记
 */
-window.dlf.fn_clickMapToAddMarker = function() {
+dlf.fn_clickMapToAddMarker = function() {
 	//实例化鼠标绘制工具
 	obj_drawingManager = new BMapLib.DrawingManager(mapObj, {
 		isOpen: false, //是否开启绘制模式
@@ -917,7 +918,7 @@ window.dlf.fn_clickMapToAddMarker = function() {
 /**
 * 添加线路的标记
 */
-window.dlf.fn_addRouteLineMarker = function(obj_stations){ 
+dlf.fn_addRouteLineMarker = function(obj_stations){ 
 	var str_stationName = obj_stations.name,
 		obj_stationPoint = dlf.fn_createMapPoint(obj_stations.longitude, obj_stations.latitude),
 		obj_stationMarker = new BMap.Marker(obj_stationPoint); 
@@ -939,7 +940,7 @@ window.dlf.fn_addRouteLineMarker = function(obj_stations){
 /**
 * 初始化画圆及事件绑定
 */
-window.dlf.fn_initCreateRegion = function() {
+dlf.fn_initCreateRegion = function() {
 	//实例化鼠标绘制工具
 	var str_regionType = $('.regionCreateBtnCurrent').attr('regiontype'),
 		obj_regionStyleOpts = {//圆的样式
@@ -983,7 +984,7 @@ window.dlf.fn_initCreateRegion = function() {
 /**
 * 地图的右击事件
 */
-window.dlf.fn_mapRightClickFun = function() {
+dlf.fn_mapRightClickFun = function() {
 	if ( obj_regionShape ) { 
 		dlf.fn_clearRegionShape(); // 清除页面圆形
 		dlf.fn_clearMapComponent(obj_shapeLabel); // 清除地图上的半径提示
@@ -996,21 +997,21 @@ window.dlf.fn_mapRightClickFun = function() {
 /**
 * 地图的右击事件移除
 */
-window.dlf.fn_mapRightClickRemoveFun = function() { 
+dlf.fn_mapRightClickRemoveFun = function() { 
 	mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
 }
 
 /**
 * 地图开始画圆或者加点
 */
-window.dlf.fn_mapStartDraw = function() { 
+dlf.fn_mapStartDraw = function() { 
 	obj_drawingManager.open();
 }
 
 /**
 * 地图停止画图或者加点
 */
-window.dlf.fn_mapStopDraw = function() {
+dlf.fn_mapStopDraw = function() {
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent currentCircle currentDrag');
 	$('#regionCreate_dragMap').addClass('regionCreateBtnCurrent');
 	if ( obj_drawingManager ) {	
@@ -1021,7 +1022,7 @@ window.dlf.fn_mapStopDraw = function() {
 /**
 * 获取围栏数据
 */
-window.dlf.fn_getShapeData = function() {
+dlf.fn_getShapeData = function() {
 	if ( obj_regionShape ) {
 		var str_regionType = obj_regionShape._className;
 		
@@ -1039,7 +1040,7 @@ window.dlf.fn_getShapeData = function() {
 * 显示图形
 * obj_centerPointer: 多边形围栏的告警点
 */
-window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError, obj_centerPointer) {
+dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError, obj_centerPointer) {
 	var shapeOptions = {//样式
 			strokeColor: '#5ca0ff',    //边线颜色。
 			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
@@ -1118,7 +1119,7 @@ window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateErro
 * kjj 2013-06-05
 * 计算点是否超出地图，如果超出设置地图中心点为当前点
 */
-window.dlf.fn_boundContainsPoint = function(obj_tempPoint) {
+dlf.fn_boundContainsPoint = function(obj_tempPoint) {
 	// 是否进行中心点移动操作 如果当前播放点在屏幕外则,设置当前点为中心点
 	var obj_mapBounds = mapObj.getBounds(), 
 		b_isInbound = null;
@@ -1134,7 +1135,7 @@ window.dlf.fn_boundContainsPoint = function(obj_tempPoint) {
 /**
 * 根据操作的参数,增加聚合点
 */
-window.dlf.fn_addMarkerClusterer = function(str_markerAction, arr_markers) {
+dlf.fn_addMarkerClusterer = function(str_markerAction, arr_markers) {
 	if ( !obj_mapMarkerClusterer ) {
 		obj_mapMarkerClusterer = new BMapLib.MarkerClusterer(mapObj);
 	}

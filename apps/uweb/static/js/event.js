@@ -123,7 +123,7 @@ function fn_initEventSearch(n_num) {
 /**
 * 告警查询 查看小地图 
 */
-window.dlf.fn_showMarkerOnEvent = function() {
+dlf.fn_showMarkerOnEvent = function() {
 	/**
 	* 用户点击位置进行地图显示
 	*/

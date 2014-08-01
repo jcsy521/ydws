@@ -7,7 +7,7 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 /**
 * 定位器参数设置初始化
 */
-window.dlf.fn_initTerminal = function() {
+dlf.fn_initTerminal = function() {
 	$('.j_input input').val('');
 
 	dlf.fn_dialogPosition('terminal');  // 显示终端设置dialog	
@@ -48,7 +48,7 @@ window.dlf.fn_initTerminal = function() {
 /**
 * 查询最新定位器参数
 */
-window.dlf.fn_initTerminalWR = function () {
+dlf.fn_initTerminalWR = function () {
 	dlf.fn_lockContent($('.terminalContent')); // 添加内容区域的遮罩
 	dlf.fn_jNotifyMessage('定位器设置查询中' + WAITIMG , 'message', true); 
 	var str_cTid = dlf.fn_getCurrentTid(),
@@ -131,7 +131,7 @@ window.dlf.fn_initTerminalWR = function () {
 /**
 * 显示白名单提示框
 */
-window.dlf.fn_showNotice = function() {
+dlf.fn_showNotice = function() {
 	$('#whitelistPopWrapper').show();
 	dlf.fn_resizeWhitePop();	//  pop框位置随着wrapper的改变而改变
 	/** 
@@ -152,7 +152,7 @@ window.dlf.fn_showNotice = function() {
 /**
 * 保存定位器参数操作
 */
-window.dlf.fn_baseSave = function() {
+dlf.fn_baseSave = function() {
 	var str_key = $('#bListSet').attr('terminalkey'), 
 		obj_terminalData = {},
 		n_num = 0,
@@ -216,7 +216,7 @@ window.dlf.fn_baseSave = function() {
 /**
 * pop框位置随着wrapper的改变而改变
 */
-window.dlf.fn_resizeWhitePop = function() {
+dlf.fn_resizeWhitePop = function() {
 	var obj_terminalWrapperOffset = $('#terminalWrapper').offset(),
 		obj_whitePop = $('#whitelistPopWrapper'),
 		b_warpperStatus = !obj_whitePop.is(':hidden'),
