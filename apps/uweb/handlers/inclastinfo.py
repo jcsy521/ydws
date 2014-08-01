@@ -225,6 +225,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                                         login=terminal['login'] if terminal['login'] is not None else 0,
                                         bt_name=terminal.get('bt_name', '') if terminal else '',
                                         bt_mac=terminal.get('bt_mac', '') if terminal else '',
+                                        dev_type=terminal['dev_type'] if terminal.get('dev_type', None) is not None else 'A',
                                         gps=terminal['gps'] if terminal['gps'] is not None else 0,
                                         gsm=terminal['gsm'] if terminal['gsm'] is not None else 0,
                                         pbat=terminal['pbat'] if terminal['pbat'] is not None else 0,
