@@ -453,9 +453,15 @@ function customMenu(node) {
 		delete items.bindRegion;
 		delete items.bindRegion;*/
    }
-   if ( str_bizCode != 'znbc' ) {	// 如果集团业务不是智能班车业务的话  没有绑定线路功能
+	if ( str_bizCode != 'znbc' ) {	// 如果集团业务不是智能班车业务的话  没有绑定线路功能
 		delete items.bindLine;
-   }
+	}
+   
+	if ( obj_node.children('a').attr('devtype') != 'D' ) {// 非210终端,不显示远程控制
+		delete items.accStatus;
+	}
+   
+   
    return items;
 }
 
@@ -1450,6 +1456,7 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 									n_enClat = obj_car.clatitude,
 									n_lon = obj_car.longitude,
 									n_lat = obj_car.latitude,
+									str_devType = obj_car.dev_type,
 									obj_currentSelfMarker = obj_selfmarkers[str_tid];
 									// n_mannual_status = obj_car.set_mannual_status,	// 退出时默认设防状态 kjj add in 2013.10.09
 																	
@@ -1480,9 +1487,9 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								// obj_carsData[str_tid] =  obj_car;
 								arr_tempTids.push(str_tid); //tid组string 串
 								if ( str_login == LOGINOUT ) {
-									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_alias +'">'+ str_alias +'</a></li>';
+									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_alias +'" devtype="'+ str_devType +'">'+ str_alias +'</a></li>';
 								} else {
-									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_alias +'">'+ str_alias +'</a></li>';	
+									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_alias +'" devtype="'+ str_devType +'">'+ str_alias +'</a></li>';	
 								}
 								if ( str_tempTid != '' && str_tempTid == str_tid ) {
 									b_flg = true;

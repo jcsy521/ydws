@@ -861,6 +861,7 @@ function fn_createTerminalList(obj_carDatas) {
 			str_carLoginColor = 'green',
 			str_carLoginText = '在线', 
 			str_carClass = 'j_terminal', 
+			str_devType = obj_carInfo.dev_type,
 			obj_currentSelfMarker = obj_selfmarkers[str_tid];
 		
 		if ( str_loginStatus == LOGINOUT ) { // 终端离线
@@ -873,7 +874,7 @@ function fn_createTerminalList(obj_carDatas) {
 			str_carClass = ' j_currentCar currentCarCss ' + str_carClass;
 		}
 		str_carListHtml = '<li>'
-						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="" href="#" alias=""><img src="/static/images/'+ str_carLoginImg +'.png" /></a>'
+						+'<a clogin="'+ str_loginStatus +'" tid="'+ str_tid +'" class="'+ str_carLoginClass +str_carClass +'" title="" href="#" alias="" devtype="'+ str_devType +'"><img src="/static/images/'+ str_carLoginImg +'.png"/></a>'
 						+'<div class="'+ str_carLoginColor +'" title="">'+ str_alias +'</div>'
 						+'<div class="'+ str_carLoginColor +'">('+ str_carLoginText +')</div></li>';
 			
@@ -2331,6 +2332,15 @@ dlf.fn_fillNavItem = function(str_whoItem) {
 	
 	obj_navItemUl = $('.'+str_navClassName);
 	obj_navItemUl.css('left', n_offsetLeft).show(); // 二级单显示
+	
+	// 非210不显示远程控制
+	if ( str_whoItem == 'userProfileManage' ) {	
+		var str_devType = $('.j_currentCar').attr('devtype');
+		
+		if ( str_devType != 'D' ) {// 非210终端,不显示远程控制
+			$('#accStatus').hide();
+		}
+	}
 	/*二级菜单的滑过样式*/
 	$('.'+str_navClassName+' li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
 		// $(this).removeClass('countUlItemHover');
