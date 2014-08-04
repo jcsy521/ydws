@@ -520,10 +520,12 @@ dlf.fn_getAlertOptionForUrl = function(str_getType) {
 				var obj_cacheData = {	'2': obj_data.powerlow, 
 										'3': obj_data.illegalshake, 
 										'4': obj_data.illegalmove, 
-										'5': obj_data.sos, 
+										// '5': obj_data.sos, 
 										'6': obj_data.heartbeat_lost, 
 										'7': obj_data.region_enter, 
-										'8': obj_data.region_out 
+										'8': obj_data.region_out,
+										'9': obj_data.powerdown
+										//'10': obj_data.stop
 									};
 				$('#hidumobile').data('alertoption', obj_cacheData);
 			} else {
