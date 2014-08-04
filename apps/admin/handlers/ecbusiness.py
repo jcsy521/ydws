@@ -38,8 +38,21 @@ class ECBusinessMixin(BaseMixin):
                 return data
 
         corp = self.get_argument('corps', None)
-        begintime = int(self.get_argument('begintime',0))
-        endtime = int(self.get_argument('endtime',0))
+
+        begintime = self.get_argument('begintime',0)
+        if not begintime:
+            begintime = 0
+        else:
+            begintime = int(begintime) 
+
+        endtime = self.get_argument('endtime',0)
+        if not endtime:
+            endtime= 0
+        else:
+            endtime = int(endtime) 
+  
+        #begintime = int(self.get_argument('begintime',0))
+        #endtime = int(self.get_argument('endtime',0))
         interval=[begintime, endtime]
         if not corp:
             corps = self.db.query("SELECT id, cid FROM T_CORP")

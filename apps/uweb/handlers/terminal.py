@@ -21,7 +21,6 @@ from codes.smscode import SMSCode
 from constants import UWEB, SMS, GATEWAY, EVENTER
 
 from helpers.queryhelper import QueryHelper  
-from helpers.dmlhelper import DMLHelper  
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.confhelper import ConfHelper

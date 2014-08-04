@@ -4,6 +4,7 @@ import logging
 import time
 
 import tornado.web
+from tornado.ioloop import IOLoop
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
@@ -247,7 +248,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                                   self.current_user.uid, e.args) 
                 status = ErrorCode.SERVER_BUSY
                 self.write_ret(status)
-            self.finish()
+            IOLoop.instance().add_callback(self.finish)
         self.queue.put((10, _on_finish))
 
 

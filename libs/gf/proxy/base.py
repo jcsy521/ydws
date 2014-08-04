@@ -413,9 +413,9 @@ class GFBase(object):
                                     if len(self.wait_response_queue[r_key]) == 0:
                                         del self.wait_response_queue[r_key]
                                 else:
+                                    ap = AsyncParser(clwbody, clwhead)
                                     logging.info("[GFPROXY] SI-->GF-->EVENTER. ap.ret: %s",
                                                  ap.ret)
-                                    ap = AsyncParser(clwbody, clwhead)
                                     if ap.ret:
                                         self.forward(ap.ret)
                                     else:
