@@ -110,7 +110,8 @@ class AlarmOptionHandler(BaseHandler):
                              heartbeat_lost="heartbeat_lost = %s",
                              charge="charge = %s",
                              region_enter="region_enter = %s",
-                             region_out="region_out = %s")
+                             region_out="region_out = %s",
+                             stop="stop = %s")
             for key, value in data.iteritems():
                 data[key] = fields[key] % data[key] 
             set_clause = ','.join([v for v in data.itervalues() if v is not None])
