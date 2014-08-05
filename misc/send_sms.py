@@ -54,7 +54,7 @@ def main():
     # for  CIQ 
     #content = ':DOMAIN 59.37.56.145:10024'
 
-    content = ':CQ' # restart terminal
+    content = ':CQ test' # restart terminal
 
     #content = ':UPDATE' # update script
 
@@ -67,6 +67,7 @@ def main():
     #content = 'SET QQ 3*c*15241589576'
     #content = u'尊敬的客户：您的定位器“14778471700”基站定位成功，地址：浙江省嘉兴市海盐县城北西路178-8号，红太阳药店附近，时间：2013-12-27，15:03:33。点击 http://www.ydcws.com/tl/nI3mUb 查看定位器位置。'
     #content = u'尊敬的客户：您的定位器“粤T7A711”发生震动，请关注定位器状态，地址：广东省中山市市辖 区起湾南道71，华凯花园附近，时间：2014-01-03，07:56:12。如需取消短信提醒，请执行撤防操作。点击http://www.ydcws.com/tl/Fj2MRz 查看定位器位置。'
+    content = u'尊敬的客户，您之前参加的手机阅读精品阅读包0元打折体验优惠将于本月底到期，如需退订请发送QXJPYDB到10658080、或登录手机阅读网站/客户端进行退订操作。若不退订，下月起按正常资费（5元/月）收取。精品阅读包书单详见wap.cmread.com/iread/m/M6060282 手机阅读、给你好看，感谢您的支持。中国移动'
 
     
     if options.send.lower() == 'all':

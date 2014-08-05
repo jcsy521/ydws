@@ -20,7 +20,9 @@ from db_.mysql import DBConnection
 
 def add_whitelist():
     db = DBConnection().db
-    for mobile  in range(14715438531, 14715438631+1):
+    begin = 20000000000
+    num = 100
+    for mobile  in xrange(begin, begin+num+1):
         print 'mobile', mobile
         db.execute("INSERT INTO T_BIZ_WHITELIST(id, mobile)"
                    "  VALUES(NULL, %s)"

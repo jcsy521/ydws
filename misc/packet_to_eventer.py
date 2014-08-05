@@ -10,7 +10,7 @@ from tornado.escape import json_encode
 
 class EventerHelper(object):
 
-    url = 'http://192.168.1.4:5200'
+    url = 'http://192.168.1.5:5001'
     file_path = '/var/log/supervisor/eventer/'
     start_time = "20130715 17:44:52"
     end_time = "20130722 17:49:11"
@@ -28,7 +28,9 @@ class EventerHelper(object):
                 if p1.search(lines[num]):
                     if '20%s' % lines[num][3:18] > self.start_time and '20%s' % lines[num][3:18] < self.end_time:
                         packet = lines[num+1]
-                        self.forward(packet)
+                        if 'ACB2012777' in packet and 'T3' in packet:
+                            print packet
+                            #self.forward(packet)
     @classmethod
     def forward(self, args):
         """Forward the packet packet to eventer."""

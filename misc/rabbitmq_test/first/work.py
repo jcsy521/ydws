@@ -1,7 +1,9 @@
 import pika
 import time
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+#connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='drone-105'))
+#connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.1.105'))
 channel = connection.channel()
 
 channel.queue_declare(queue='si_requests_queue', durable=False)
@@ -9,6 +11,7 @@ print "[x] Waiting for message."
 
 def callback(ch, method, properties, body):
     print "[x] Received %r" % body
+    print 'sleep', body.count('.')
     time.sleep(body.count('.'))
     print '[x] Done'
     # 
