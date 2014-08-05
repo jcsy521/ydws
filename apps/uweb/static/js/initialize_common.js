@@ -1568,7 +1568,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	dlf.fn_mapStopDraw(true);	// 关闭高德地图的 添加站点事件
 	dlf.fn_closeDialog();	// 关闭所有dialog
 	if ( $('.j_alarmTable').data('alarmMarker') ) {
-		dlf.fn_clearMapComponent();
+		dlf.fn_clearMapComponent($('.j_alarmTable').data('alarmMarker'));
 		$('.j_alarmTable').removeData('alarmMarker');
 		$('.j_alarm').removeData();
 	}
