@@ -5,6 +5,7 @@ import time
 from copy import deepcopy
 
 import tornado.web
+from tornado.ioloop import IOLoop
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
@@ -43,7 +44,7 @@ class IncLastInfoCorpHandler(BaseHandler):
                 logging.info("[UWEB] inlastfinfo for corp failed, message: %s, Exception: %s, request: \n%s", 
                              ErrorCode.ERROR_MESSAGE[status], e.args, self.request.body)
                 self.write_ret(status)
-                self.finish()
+                IOLoop.instance().add_callback(self.finish)
                 return 
 
             try:
@@ -408,6 +409,6 @@ class IncLastInfoCorpHandler(BaseHandler):
                                   self.current_user.cid, e.args) 
                 status = ErrorCode.SERVER_BUSY
                 self.write_ret(status)
-            self.finish()
+            IOLoop.instance().add_callback(self.finish)
 
         self.queue.put((10, _on_finish))
