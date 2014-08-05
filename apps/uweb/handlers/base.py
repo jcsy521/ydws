@@ -40,8 +40,10 @@ def authenticated(method):
                         # if login url is absolute, make next absolute too
                         next_url = self.request.full_url()
                     else:
-                        next_url = self.request.uri
+                        #next_url = self.request.uri
+                        next_url = "/index" 
                     url += "?" + urllib.urlencode(dict(next=next_url))
+            logging.info("url:%s, uri:%s, next_url:%s, full url:%s", url, self.request.uri, next_url, self.request.full_url())
             self.redirect(url)
             return
         return method(self, *args, **kwargs)

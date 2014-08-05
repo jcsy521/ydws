@@ -126,7 +126,7 @@ class LoginHandler(BaseHandler, LoginMixin):
                 pass
 
             self.clear_cookie('captchahash')
-            self.redirect(self.get_argument("next","/"))
+            self.redirect(self.get_argument("next","/index"))
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.render("login.html",

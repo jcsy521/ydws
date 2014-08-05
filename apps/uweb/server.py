@@ -128,6 +128,7 @@ class Application(tornado.web.Application):
         handlers = [
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
+            (r"/index", MainHandler),
             (r"/login/*", LoginHandler),
             (r"/logintest/*", LoginTestHandler),
             (r"/checkupdate/ios/*", CheckUpdateIOSHandler),
