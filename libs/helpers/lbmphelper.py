@@ -331,7 +331,42 @@ def handle_location(location, redis, cellid=False, db=None):
     @param location: position/report/locationdesc/pvt
            memcached
            cellid: if True issue cellid
+
     @return location
+    eg.
+    {u'gps_time': 1407138438, 
+     u'dev_id': u'T123SIMULATOR', 
+     u'defend_status': u'1', 
+     u'locate_error': 20, 
+     u'alt': 0, 
+     u'speed': 126.3, 
+     u'cLat': 0, 
+     u'cLon': 0, 
+     u'lon': 418507200, 
+     u'valid': u'0', 
+     u'ns': u'N', 
+     u'gps': u'20', 
+     u'fobid': u'', 
+     u'degree': 276.5, 
+     u'softversion': u'1.0.0', 
+     u'timestamp': 1407138438, 
+     u'terminal_type': u'1', 
+     u'sessionID': u'cyndqhy9', 
+     u'pbat': u'10', 
+     u'lat': 95630400, 
+     u'is_notify': u'', 
+     u'rName': u'POWERDOWN', 
+     u'name': None, 
+     u'ew': u'E', 
+     u'dev_type': u'1', 
+     u'command': u'T26', 
+     u't': u'REPORT', 
+     u'gsm': u'6', 
+     u'cellid': u'460:0:10101:03633'
+     u'type':0,
+     u'category':9,
+    }
+
     """
     location = DotDict(location)
     if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS: # 1

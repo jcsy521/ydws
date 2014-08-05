@@ -336,6 +336,7 @@ class PacketTask(object):
 
     def handle_report_info(self, info):
         """These reports should be handled here:
+
         POWERLOW/POWERFULL/POWEROFF/POWERDOWN 
         ILLEGALMOVE
         ILLEGALSHAKE
@@ -348,6 +349,20 @@ class PacketTask(object):
         # 1: get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
+        if not (report['cLat'] and report['cLon']):
+            #NOTE: Get latest location
+            last_location = QueryHelper.get_location_info(report.dev_id, self.db, self.redis)
+            if last_location:
+                report['lat'] = last_location['latitude']
+                report['lon'] = last_location['longitude']
+                report['cLat'] = last_location['clatitude']
+                report['cLon'] = last_location['clongitude']
+                report['name'] = last_location['name']
+                report['type'] = last_location['type']
+                logging.info("[EVENTER] The report has invalid location and use last_location. report: %s", report)
+            else:
+                logging.info("[EVENTER] The report has invalid location and last_location is invalid. report: %s", report)
+
         current_time = int(time.time())
 
         #NOTE: bug fixed: in pvt, timestamp is no used, so use gps_time as timestamp
@@ -418,7 +433,7 @@ class PacketTask(object):
         
         # send sms to owner
         if report.rName in [EVENTER.RNAME.STOP]:
-            logging.info("[EVENTER] %s altert needn't to push to user.  Terminal: %s",
+            logging.info("[EVENTER] %s alert needn't to push to user. Terminal: %s",
                          report.rName, report.dev_id)
             return
             

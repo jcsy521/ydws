@@ -130,7 +130,7 @@ class CheckTerminalStatus(object):
                      degree=0, 
                      speed=0)
         # get last_location
-        last_location = QueryHelper.get_gps_location_info(tid, self.db, self.redis)
+        last_location = QueryHelper.get_location_info(tid, self.db, self.redis)
         if last_location:
             alarm['type'] = 0 # gps
             alarm['latitude'] = last_location['latitude'] 
