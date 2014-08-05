@@ -187,8 +187,8 @@ class CheckTask(object):
                                     "      left_days = %s,"
                                     "      notify_time = %s"
                                     "  WHERE tid = %s",
-                                    notify_count+1, 3, tid,
-                                    int(time.time()))
+                                    notify_count+1, 3, 
+                                    int(time.time()), tid)
                     distance_current_ = int(round(distance_current/1000.0))
                     if owner_mobile:
                         sms = SMSCode.SMS_NOTIFY % (distance_current_, terminal_info['alias'])
@@ -261,8 +261,8 @@ class CheckTask(object):
                                     "      left_days = %s,"
                                     "      notify_time = %s"
                                     "  WHERE tid = %s",
-                                    notify_count+1, 3, tid,
-                                    int(time.time()))
+                                    notify_count+1, 3, 
+                                    int(time.time()), tid)
                     if owner_mobile:
                         sms = SMSCode.SMS_NOTIFY_DAY % (terminal_info['alias'])
                         SMSHelper.send(owner_mobile, sms)
