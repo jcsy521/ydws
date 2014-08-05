@@ -25,9 +25,15 @@ def wash_location():
     db = DBConnection().db
     redis = MyRedis()
     
+    #NOTE: all offline terminal
     #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login = 0"
+
+    #NOTE: all offline terminals who has login before. 
+    sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login = 0 and login_time>0"
+
     #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where tid = '354A000121'"
-    sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where mobile = '14778742419'"
+    #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where mobile = '14778742419'"
+    #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where mobile = '14778749929'"
     #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login_time>0"
     #print 'sql', sql
     terminals  = db.query(sql)
@@ -36,15 +42,12 @@ def wash_location():
     cnt = 0
     no_loc = 0
     for i, t in enumerate(terminals):
-        #print 'terminal: %s' % t
         tid = t.tid
         key = 'location:%s' % tid
         location = redis.getvalue(key) 
-        #if location and location.latitude == 0:
-        if not location: #if location and location.latitude == 0:
+        if not location: 
             time.sleep(2)
             no_loc = no_loc + 1
-            #print 'key', key
             print 'no location, tid', tid
             #continue
             

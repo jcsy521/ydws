@@ -21,7 +21,8 @@ def block_test():
     redis = MyRedis()
 
     #terminals = db.query("select tid, move_val, static_val from T_TERMINAL_INFO where static_val =0 and move_val=0")
-    terminals = db.query("select tid, move_val, static_val from T_TERMINAL_INFO where id in (12923, 21792 )")
+    terminals = db.query("select tid, move_val, static_val from T_TERMINAL_INFO where tid = '392240008A' ")
+    #terminals = db.query("select tid, move_val, static_val from T_TERMINAL_INFO where id in (12923, 21792 )")
     #terminals = db.query("select tid, move_val, static_val from T_TERMINAL_INFO where static_val =60")
     for terminal in terminals: 
         tid = terminal.tid

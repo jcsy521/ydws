@@ -2,10 +2,10 @@
 #!/bin/bash
 
 # subscription
-#curl -d '{"sim":"14778477173", "action":"A"}' http://app01:3001/subscription
+curl -d '{"sim":"14778743211", "action":"A"}' http://app01:3001/subscription
 
 # le
-#curl -d '{"sim":"14778742471","lac":"","cid":"","mcc":"","mnc":""}' http://app01:3001/le
+curl -d '{"sim":"14778743211","lac":"","cid":"","mcc":"","mnc":""}' http://app01:3001/le
 #curl -d '{"sim":"14778477173","lac":"","cid":"","mcc":"","mnc":""}' http://app01:3001/le
 
 # ge
