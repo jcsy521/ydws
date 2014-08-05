@@ -20,11 +20,21 @@ class ACBMTHandler(BaseHandler):
         try:
             content = self.get_argument("content")
             mobile = self.get_argument("mobile")
+            if str(mobile) == '13432119832':
+                logging.info("[SMS] special mobile: %s, check huanka", mobile)
+                if u'换卡' in content:
+                    logging.info("[SMS] mobile: %s, content: %s is in black list, so skip the sms.", mobile, content)
+                    self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
+                    return
+                
             
             black_list = ('15819954159','13902820929','13450950869','13823921010','13822782382','13652230073','13703047912',
                           '13703047912','13823990298','13726107664','13411656959','15220936365','13702350426','13823922933',
                           '13928184846','15819975339','15220938533','13416058872','13532063411','13590715788','15889888140',
-                          '13703041733','15976025624','15017335473','13702533993','18219251647','13528189287','18344911924')
+                          '13703041733','15976025624','15017335473','13702533993','18219251647','13528189287','18344911924',
+                          # '13432119832'
+                          '13822769118',
+                          )
             if mobile in black_list:
                 logging.info("[SMS] %s is in black list, so skip the sms.", mobile)
                 self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
