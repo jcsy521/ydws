@@ -30,8 +30,8 @@ class SimulatorTerminalTest(object):
         """
         self.tid = 'T123SIMULATOR' 
         self.tmobile = '13011292217'
-        self.imsi = '888823615223531'
-        self.imei = '888888900872201'
+        self.imsi = '18310505991'
+        self.imei = '18310505991'
 
         self.login_mg = "[%s,,1,1.0.0,%s,T1,%s,18310505991,%s,%s,CLW,2,]"
         self.heartbeat_mg = "[%s,%s,1,1.0.0,%s,T2,23:9:95,1,0]"

@@ -17,6 +17,7 @@ from codes.smscode import SMSCode
 
 
 class CheckService(object):
+
     def __init__(self):
         self.db = DBConnection().db
         self.tid = 'B123SIMULATOR'
@@ -28,7 +29,7 @@ class CheckService(object):
         try:
             base_id = self.get_lid_by_tid(self.tid)
             while True:
-                time.sleep(600)
+                time.sleep(600) # 10 minutes
                 new_lid = self.get_lid_by_tid(self.tid) 
                 logging.info("[CK] simulator terminal location base_id:%s, new_lid:%s", base_id, new_lid)
                 if new_lid > base_id:
