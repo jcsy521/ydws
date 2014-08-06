@@ -662,7 +662,7 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 						b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
 						if ( !b_isHttps ) {
-							str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+							str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录https://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
 						}
 				}
 			}
