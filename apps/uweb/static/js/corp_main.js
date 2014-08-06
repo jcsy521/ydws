@@ -457,9 +457,9 @@ function customMenu(node) {
 		delete items.bindLine;
 	}
    
-	if ( obj_node.children('a').attr('devtype') != 'D' ) {// 非210终端,不显示远程控制
+	//if ( obj_node.children('a').attr('devtype') != 'D' ) {// 非210终端,不显示远程控制
 		delete items.accStatus;
-	}
+	//}
    
    
    return items;
