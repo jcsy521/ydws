@@ -416,6 +416,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	if ( !dlf.fn_userType() ) {	// 如果是个人用户添加当前车样式
 		if ( b_regionWpST ) { // 个人用户如果切车时当前正在进行围栏查询操作
 			dlf.fn_initRegion();
+			return;
 		}
 		if ( b_regionCreateWpST ) { // 如果切车时当前正在进行围栏创建操作
 			$.get_(REGION_URL+'?tid='+ n_tid, '', function(data) {
@@ -427,6 +428,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			function(XMLHttpRequest, textStatus, errorThrown) {
 				dlf.fn_serverError(XMLHttpRequest);
 			});
+			return;
 		}	
 		obj_terminals.removeClass('currentCarCss');	// 其他车辆移除样式
 		obj_currentItem.addClass('currentCarCss');	// 当前车添加样式
@@ -435,6 +437,11 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		str_currentPersonalTid = n_tid;
 		if ( obj_carDatas ) {
 			var obj_currentCarData = obj_carDatas[n_tid];
+			
+			if ( b_trackSt || b_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
+				return;
+			}
+			
 			if ( obj_currentCarData ) {
 				dlf.fn_updateTerminalInfo(obj_currentCarData);	// 更新车辆信息
 				dlf.fn_moveMarker(n_tid, str_flag);
@@ -447,9 +454,6 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				$('#eventSearchTableHeader').hide().nextAll().remove();
 				// dlf.fn_initTimeControl('eventSearch'); // 时间初始化方法
 			}
-			if ( b_trackSt || b_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
-				return;
-			}
 		} else {
 			if ( b_trackSt || b_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
 				return;
@@ -460,6 +464,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	} else {
 		if ( b_bindBatchRegionWpST || b_bindRegionWpST ) {
 			dlf.fn_initBindRegion();
+			return;
 		}
         // NOTE: 允许选中多个定位器
 		//obj_terminals.removeClass(JSTREECLICKED);
@@ -506,10 +511,6 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			}
 			$('#corpTree').jstree('check_node', '#leafNode_' + str_currentTid);
 			
-			if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
-				dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
-				dlf.fn_updateInfoData(obj_car);			
-			}
 			/*集团用户切换变换轨迹要显示的终端 并清除地图*/
 			var str_tempAlias = $('.j_currentCar').attr('alias');
 				str_currentCarAlias = '';
@@ -521,12 +522,19 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
 				$('.j_delay').hide();
 				$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+				return;
 			}
 			if ( b_eventSearchWpST ) {
 				dlf.fn_ShowOrHideMiniMap(false);
 				$('#eventSearchPage').hide();
 				$('#eventSearchCategory').val(-1);
 				$('#eventSearchTableHeader').hide().nextAll().remove();
+				return;
+			}
+			
+			if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
+				dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
+				dlf.fn_updateInfoData(obj_car);			
 			}
 			dlf.fn_moveMarker(n_tid);
 		}
