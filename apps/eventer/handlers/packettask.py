@@ -353,6 +353,11 @@ class PacketTask(object):
             #NOTE: Get latest location
             last_location = QueryHelper.get_location_info(report.dev_id, self.db, self.redis)
             if last_location:
+                #NOTE: Try to make the location is complete.
+                locations = [last_location,] 
+                locations = lbmphelper.get_locations_with_clatlon(locations, self.db) 
+                last_location = locations[0] 
+
                 report['lat'] = last_location['latitude']
                 report['lon'] = last_location['longitude']
                 report['cLat'] = last_location['clatitude']
