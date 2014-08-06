@@ -676,6 +676,10 @@ class PacketTask(object):
         category = location.category
         dev_id = location.dev_id
 
+        if not location['pbat']:
+            terminal = QueryHelper.get_terminal_info(dev_id, self.db, self.redis) 
+            location['pbat'] = terminal['pbat'] if terminal['pbat'] is not None else 0 
+
         if not user:
             user = QueryHelper.get_user_by_tid(dev_id, self.db)
 
