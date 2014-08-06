@@ -24,7 +24,7 @@ SMS_CAPTCHA_INTERVAL = 60*5 # 5 minutes. in seconds.
 
 IOS_ID_INTERVAL = 30 * 24 * 60 * 60 # one month. in seconds.
 
-IOS_MAX_SIZE = 160 # in bytes. 
+IOS_MAX_SIZE = 100 # in bytes. 
 
 CELLID_MAX_OFFSET = 2000 # in metre
 
