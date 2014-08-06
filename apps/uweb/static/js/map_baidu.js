@@ -882,17 +882,19 @@ dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_ge
 					point = new BMap.Point(lng, lat),
 					str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
 				
-				if ( str_type == 'actiontrack' ) {
-					obj_carInfo.clongitude = point.lng*3600000;
-					obj_carInfo.clatitude = point.lat*3600000;
-					$('.j_carList').data('carsData')[obj_carInfo.tid] = obj_carInfo;
-					dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据		
-					if ( str_currentTid == obj_carInfo.tid ) {	// 更新当前车辆信息
-						dlf.fn_updateTerminalInfo(obj_carInfo);
-					}
-					// 偏转成功后进行逆地址操作 2014.1.15
-					if ( b_geoCode ) {
-						dlf.fn_getAddressByLngLat(obj_carInfo.clongitude, obj_carInfo.clatitude, obj_carInfo.tid, str_type);
+				if ( obj_resPoint.lon != 0 ) {
+					if ( str_type == 'actiontrack' ) {
+						obj_carInfo.clongitude = point.lng*3600000;
+						obj_carInfo.clatitude = point.lat*3600000;
+						$('.j_carList').data('carsData')[obj_carInfo.tid] = obj_carInfo;
+						dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据		
+						if ( str_currentTid == obj_carInfo.tid ) {	// 更新当前车辆信息
+							dlf.fn_updateTerminalInfo(obj_carInfo);
+						}
+						// 偏转成功后进行逆地址操作 2014.1.15
+						if ( b_geoCode ) {
+							dlf.fn_getAddressByLngLat(obj_carInfo.clongitude, obj_carInfo.clatitude, obj_carInfo.tid, str_type);
+						}
 					}
 				}
 			}
