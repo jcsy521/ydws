@@ -127,7 +127,14 @@ class QueryHelper(object):
                             "  FROM T_SMS_OPTION"
                             "  WHERE uid = %s",
                             uid)
-
+        if sms_option:
+            db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                       "  VALUES(%s)",
+                       uid)
+            sms_option = db.get("SELECT " + category +
+                                "  FROM T_SMS_OPTION"
+                                "  WHERE uid = %s",
+                                uid)
         return sms_option
 
     @staticmethod
