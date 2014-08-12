@@ -155,7 +155,8 @@ class LoginTestHandler(BaseHandler, LoginMixin):
                            tid=tid,
                            sim=sim))
         self.clear_cookie('captchahash')
-        self.redirect(self.get_argument("next","/"))
+        self.redirect('/index')
+        #self.redirect(self.get_argument("next","/"))
 
 class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
 
