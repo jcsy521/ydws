@@ -297,7 +297,7 @@ class Application(tornado.web.Application):
             (r"/ge/*", GEHandler),
 
             # handle the invalid url
-            (r".*", MainHandler),
+            #(r".*", MainHandler),
         ]
 
         settings = dict(
@@ -311,6 +311,7 @@ class Application(tornado.web.Application):
             login_url="/login",
             #debug=debug,
             app_name="ACBUWEB",
+            #xsrf_cookies=True,
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)

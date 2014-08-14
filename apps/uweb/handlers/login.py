@@ -42,14 +42,15 @@ class LoginHandler(BaseHandler, LoginMixin):
         authenticate the user.
         """
         username_ = self.get_argument("username", "")
-        username = base64.b64decode(username_)[128:]
-        password_ = self.get_argument("password", "")
-        password = base64.b64decode(password_)[128:]
+        username = base64.b64decode(username_)[128:] if len(username_) > 128 else username_
+        password_ = self.get_argument("password", "")  
+        password = base64.b64decode(password_)[128:] if len(password_) > 128 else password_
         captcha_ = self.get_argument("captcha", "")
-        captcha = base64.b64decode(captcha_)[128:]
+        captcha = base64.b64decode(captcha_)[128:] if len(captcha_) > 128 else captcha_ 
 
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
-        captchahash = self.get_argument("captchahash", "")
+        #NOTE: Get captchahash from cookie
+        captchahash = self.get_cookie("captchahash", "")
 
         logging.info("[UWEB] Browser login request, username: %s, password: %s, user_type: %s", username, password, user_type)
 

@@ -89,7 +89,7 @@ class CaptchaHandler(BaseHandler):
         m.update(rand_str.lower()) 
         hash_ = m.hexdigest()
 
-        self.set_cookie('captchahash', hash_)
+        self.set_cookie('captchahash', hash_, httponly=True)
         self.set_header('Content-type', 'image/GIF')
         self.write(buf.getvalue())
 
@@ -165,7 +165,7 @@ class CaptchaSmsHandler(BaseHandler):
         m.update(rand_str.lower()) 
         hash_ = m.hexdigest()
 
-        self.set_cookie('captchahash_sms', hash_)
+        self.set_cookie('captchahash_sms', hash_, httponly=True)
         self.set_header('Content-type', 'image/GIF')
         self.write(buf.getvalue())
 
