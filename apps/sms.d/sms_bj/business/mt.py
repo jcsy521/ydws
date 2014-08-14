@@ -56,6 +56,9 @@ class MT(object):
                 content = mt["content"]
                 msgid = mt["msgid"]
                 id = mt["id"]
+                if not mobile:
+                    logging.error("[SMS] Mobile is missing, drop it. mt: %s", mt)
+                    continue
                 
                 result = self.send_mt(id, msgid, mobile, content)
                 result = json_decode(result)
@@ -238,18 +241,6 @@ class MT(object):
             logging.exception("Fetch failed mt sms exception : %s", msg)
         finally:
             return status
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
