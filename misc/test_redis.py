@@ -71,6 +71,24 @@ class Test(object):
         print 'tid: %s, alarm_info_key: %s, alarm_info: %s' % (tid, 
                alarm_info_key, alarm_info)
 
+    def test_terminal_info(self):
+        #tid = 'T123SIMULATOR'
+        tid = '18701639494'
+        terminal_info_key = "terminal_info:%s" % tid
+        #self.redis.delete(terminal_info_key)
+        terminal_info = self.redis.getvalue(terminal_info_key)
+        print 'tid: %s, terminal_info_key: %s, terminal_info: %s' % (tid, 
+               terminal_info_key, terminal_info)
+
+    def test_location(self):
+        #tid = 'T123SIMULATOR'
+        tid = '369A400585'
+        location_key = "location:%s" % tid
+        #self.redis.delete(location_key)
+        location = self.redis.getvalue(location_key)
+        print 'tid: %s, location_key: %s, location: %s' % (tid, 
+               location_key, location)
+
 def main():
     ConfHelper.load('../conf/global.conf')
     parse_command_line()
@@ -78,8 +96,10 @@ def main():
     t = Test()
 
     #test_mileage() 
-    t.test_acc_status() 
+    #t.test_acc_status() 
     #t.test_alarm_info()
+    #t.test_terminal_info() 
+    t.test_location() 
 
 if __name__ == "__main__": 
     main()
