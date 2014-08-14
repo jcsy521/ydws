@@ -127,7 +127,7 @@ class QueryHelper(object):
                             "  FROM T_SMS_OPTION"
                             "  WHERE uid = %s",
                             uid)
-        if sms_option:
+        if not sms_option:
             db.execute("INSERT INTO T_SMS_OPTION(uid)"
                        "  VALUES(%s)",
                        uid)

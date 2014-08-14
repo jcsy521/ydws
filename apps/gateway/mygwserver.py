@@ -58,6 +58,7 @@ from clw.packet.parser.unbind import UNBindParser
 from clw.packet.parser.unusualactivate import UnusualActivateParser
 from clw.packet.parser.misc import MiscParser
 from clw.packet.parser.acc_status import ACCStatusParser
+from clw.packet.parser.acc_status_report import ACCStatusReportParser
 from clw.packet.composer.login import LoginRespComposer
 from clw.packet.composer.heartbeat import HeartbeatRespComposer
 from clw.packet.composer.async import AsyncRespComposer
@@ -69,6 +70,7 @@ from clw.packet.composer.unbind import UNBindComposer
 from clw.packet.composer.unusualactivate import UnusualActivateComposer
 from clw.packet.composer.misc import MiscComposer
 from clw.packet.composer.acc_status import ACCStatusComposer
+from clw.packet.composer.acc_status_report import ACCStatusReportComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
 
 from error import GWException
@@ -375,6 +377,9 @@ class MyGWServer(object):
                                 elif command == T_MESSAGE_TYPE.ACC_STATUS: # T30
                                     logging.info("[GW] Thread%s recv power status packet:\n%s", name, packet)
                                     self.handle_acc_status(clw, address, connection, channel, db)
+                                elif command == T_MESSAGE_TYPE.ACC_STATUS_REPORT: # T31
+                                    logging.info("[GW] Thread%s recv power status report packet:\n%s", name, packet)
+                                    self.handle_acc_status_report(clw, address, connection, channel, db)
                                 else: #NOTE: others will be forwar to SI server
                                     logging.info("[GW] Thread%s recv packet from terminal:\n%s", name, packet)
                                     self.foward_packet_to_si(clw, packet, address, connection, channel, db)
@@ -1887,6 +1892,7 @@ class MyGWServer(object):
             sessionID = self.get_terminal_sessionID(dev_id)
             if sessionID != head.sessionID: 
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
+                logging.error("[GW] Invalid sessionID, terminal: %s", head.dev_id)
             else:
                 uap = MiscParser(body, head)
                 t_info = uap.ret
@@ -1929,8 +1935,9 @@ class MyGWServer(object):
             sessionID = self.get_terminal_sessionID(dev_id)
             if sessionID != head.sessionID: 
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
+                logging.error("[GW] Invalid sessionID, terminal: %s", head.dev_id)
             else:
-                uap = MiscParser(body, head)
+                uap = ACCStatusParser(body, head)
                 t_info = uap.ret
                 acc_status_info_key = get_acc_status_info_key(dev_id)
                 acc_status_info = self.redis.getvalue(acc_status_info_key)
@@ -1950,6 +1957,42 @@ class MyGWServer(object):
         except:
             logging.exception("[GW] Handle acc status exception.")
             raise GWException
+
+    def handle_acc_status_report(self, info, address, connection, channel, db):
+        """
+        S31
+        ACC_status_report: 
+
+        0: success, then record new terminal's address
+        1: invalid SessionID 
+        """
+        try:
+            head = info.head
+            body = info.body
+            dev_id = head.dev_id
+
+            args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS,
+                           command=head.command)
+            sessionID = self.get_terminal_sessionID(dev_id)
+            if sessionID != head.sessionID: 
+                args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID
+                logging.error("[GW] Invalid sessionID, terminal: %s", head.dev_id)
+            else:
+                uap = ACCStatusReportParser(body, head)
+                t_info = uap.ret
+                #NOTE: Record it in db.
+                db.execute("INSERT INTO T_ACC_STATUS_REPORT(tid, category, timestamp)"
+                           "  VALUES(%s, %s, %s)",
+                           t_info['dev_id'], t_info['category'], t_info['timestamp'])
+            asc = ACCStatusReportComposer(args)
+            request = DotDict(packet=asc.buf,
+                              address=address,
+                              dev_id=dev_id)
+            self.append_gw_request(request, connection, channel)
+        except:
+            logging.exception("[GW] Handle acc status report exception.")
+            raise GWException
+
 
     def foward_packet_to_si(self, info, packet, address, connection, channel, db):
         """

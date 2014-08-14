@@ -32,6 +32,7 @@ T_MESSAGE_TYPE = DotDict(LOGIN="T1",
                          MISC="T28",
                          STOP="T29",
                          ACC_STATUS="T30",
+                         ACC_STATUS_REPORT="T31",
                          AGPS="T100"
                          )
 
@@ -65,6 +66,7 @@ S_MESSAGE_TYPE = DotDict(LOGIN="S1",
                          MISC="S28",
                          STOP="S29",
                          ACC_STATUS="S30",
+                         ACC_STATUS_REPORT="S31",
                          AGPS="S100"
                          )
 
