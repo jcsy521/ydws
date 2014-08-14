@@ -123,7 +123,6 @@ class OfflineHandler(BaseHandler, OfflineMixin):
     #@check_areas()
     @tornado.web.removeslash
     def post(self):
-
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
