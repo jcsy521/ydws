@@ -151,6 +151,10 @@ $(function(){
 			$.post_(str_url, JSON.stringify(obj_param) , function(data) {
 				if ( data.status == 0 ) { 
 					str_msg = '您的验证码已发送成功，请注意查收。';
+					fn_resetUpdateTime();	// 重新读秒操作
+					
+					$('#btnGetCaptcha').attr('disabled', 'disabled');
+					$('#btnGetPwd').removeAttr('disabled');
 				} else {
 					str_msg = data.message;
 				}
@@ -194,14 +198,15 @@ $(function(){
 				return;
 			}
 			if ( n_seconds < 60 ) {	// 如果小于60 秒 不能发送
-				$('#btnGetPwd').attr('disabled',true);
+				$('#btnGetCaptcha').attr('disabled',true);
 			} else {
-				$('#btnGetPwd').removeAttr('disabled');
+				$('#btnGetCaptcha').removeAttr('disabled');
 			}
 			$.post_(str_url, JSON.stringify(obj_param) , function(data) {
 				if ( data.status == 0 ) { 
-					fn_resetUpdateTime();	// 重新读秒操作
-					$('#btnGetPwd').attr('disabled',true);
+					
+					$('#mobile, #pwd_captcha').val('');
+					$('#btnGetPwd').attr('disabled', 'disabled');
 					str_msg = '您的密码已发送成功，请注意查收。';
 				} else {
 					str_msg = data.message;
@@ -253,7 +258,7 @@ function fn_updateTime() {
 			dlf.fn_clearInterval(obj_updateTimeInterval);
 			obj_updateTime.html('');
 			$('#seconds').hide();
-			$('#btnGetPwd').removeAttr('disabled');
+			$('#btnGetCaptcha').removeAttr('disabled');
 		} else {
 			obj_updateTime.html(parseInt(str_updateTime)-1);
 		}
@@ -275,7 +280,7 @@ function fn_resetUpdateTime() {
 */
 function fn_getCaptcha($obj) {
 	$obj.attr('src', '/captcha?nocache=' + Math.random()).load(function () {
-		$('#captchahash').val($.cookie('captchahash'));
+		//$('#captchahash').val($.cookie('captchahash'));
 	});
 }
 
