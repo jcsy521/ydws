@@ -13,7 +13,7 @@ class ACCStatusParser(object):
         3. timestamp
 
         """
-        keys = ["acc_status","acc_source", "timestamp"]
+        keys = ["acc_status", "acc_source", "timestamp"]
         for i, key in enumerate(keys):
             ret[key] = packet[i]
 
