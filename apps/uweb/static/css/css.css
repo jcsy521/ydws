@@ -3522,15 +3522,19 @@ legend {
 .regionContent, .corpRegionContent {
 	height: 455px;
 }
+.corpRegionContent {
+	padding-top: 25px;
+}
 .regionCreateBtn, .alertSettingCreateBtn {
 	color: #4876FF;
 	display: inline-block;
     cursor: pointer;
     height: 23px;
-    left: 272px;
+    left: -24px;
     position: relative;
     top: 14px;
 	text-decoration: none;
+	float: right;
 }
 .regionCreateBtn:hover {
 	text-decoration: underline;
@@ -3540,7 +3544,7 @@ legend {
 	left: 554px;
 }
 #corpRegionCreateBtn {
-	left: 437px;
+	top: -8px;
 }
 /*routeline add panel*/
 .regionCreateBtnPanel a {
@@ -3578,10 +3582,13 @@ legend {
 }
 .regionTable, .alertSettingTable {
 	width: 460px;
-	margin-top: 20px;
+}
+#corpRegionTable, #regionTable {
+	margin: 24px auto;
 }
 .alertSettingTable {
 	width: 585px;
+	margin-top: 20px;
 }
 #regionCreateWrapper  {
 	position: absolute;
@@ -3798,6 +3805,7 @@ legend {
 #corpRegionForTerminal {
 	top: -8px;
 	width: auto;
+	left: 36px;
 }
 /*web css end*/
 .share{

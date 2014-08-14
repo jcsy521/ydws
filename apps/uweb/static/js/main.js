@@ -672,8 +672,14 @@ $(function () {
 			case 'realtime': // 实时查询
 				dlf.fn_currentQuery();
 				break;
-			case 'defend': // 设防撤防
-				dlf.fn_defendQuery();
+			case 'defend_smart': // 智能设防
+				dlf.fn_defendQuery('smart');
+				break;
+			case 'defend_powerful': // 强力设防
+				dlf.fn_defendQuery('powerful');
+				break;
+			case 'defend_disarm': // 撤防
+				dlf.fn_defendQuery('disarm');
 				break;
 			case 'track': // 轨迹查询
 				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
@@ -754,7 +760,7 @@ $(function () {
 	});
 	
 	/*鼠标滑动显示统计二级菜单*/
-	$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
+	$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome, .j_userDefend').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
 		dlf.fn_fillNavItem(event.target.id);
 	}).unbind('mouseout').bind('mouseout', function() {
 		dlf.fn_secondNavValid();

@@ -236,8 +236,28 @@ function customMenu(node) {
 		},
 		"defend": {	// 单个定位器设防撤防
 			"label" : singleDefendLabel,
-			"action" : function (obj) {
-				dlf.fn_defendQuery(obj.children('a').attr('alias'));
+			"submenu": {
+				'defendSmart': {
+					"label" : "智能设防",
+					"action" : function (obj) {
+						dlf.fn_defendQuery('smart', obj.children('a').attr('alias'));
+						return false;
+					}
+				},
+				'defend_powerful': {
+					"label" : "强力设防",
+					"action" : function (obj) {
+						dlf.fn_defendQuery('powerful', obj.children('a').attr('alias'));
+						return false;
+					}
+				},
+				'defend_disarm': {
+					"label" : "撤防",
+					"action" : function (obj) {
+						dlf.fn_defendQuery('disarm', obj.children('a').attr('alias'));
+						return false;
+					}
+				}
 			}
 		},
 		"batchImportDelete": {	// 批量导入定位器操作菜单
@@ -267,15 +287,21 @@ function customMenu(node) {
 			"label" : batchDefendLabel,
 			"submenu": {
 				'defend0': {
-					"label" : "批量设防",
+					"label" : "智能设防",
 					"action" : function (obj) {
-						fn_batchOperateValidate(obj, '设防');
+						fn_batchOperateValidate(obj, '2');
 					}
 				},
 				'defend1': {
-					"label" : "批量撤防",
+					"label" : "强力设防",
 					"action" : function (obj) {
-						fn_batchOperateValidate(obj, '撤防');
+						fn_batchOperateValidate(obj, '1');
+					}
+				},
+				'defend2': {
+					"label" : "撤防",
+					"action" : function (obj) {
+						fn_batchOperateValidate(obj, '0');
 					}
 				}
 			}
@@ -1296,10 +1322,23 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						str_markerIconUrl = obj_markerIcon.imageUrl,
 						n_nowtime = new Date().getTime()/1000,
 						myIcon = new BMap.Icon(BASEIMGURL + 'default.png', new BMap.Size(34, 34)),
+						obj_iconSize = new BMap.Size(100, 100),
 						obj_imageOffset = new BMap.Size(0, 0);
 					
 					if ( str_markerIconUrl.search('_trace') != -1 ) {
 						if ( n_nowtime - n_timestamp > 300 || n_speed < 5 ) {
+							if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4|| n_iconType == 5 ) {
+								obj_iconSize = new BMap.Size(50, 50);
+								if ( n_iconType == 1 ) {
+									obj_imageOffset = new BMap.Size(0, 0);
+								} else {
+									obj_imageOffset = new BMap.Size(-5, 0);
+								}
+							} else if ( n_iconType == 2 ) {
+								obj_iconSize = new BMap.Size(34, 34);
+								obj_imageOffset = new BMap.Size(0, 0);
+							}
+							myIcon.setSize(obj_iconSize);
 							myIcon.setImageUrl(dlf.fn_setMarkerIconType(27, obj_tempCarInfo.icon_type, obj_tempCarInfo.login, false));
 							myIcon.setImageOffset(obj_imageOffset);
 							obj_marker.setIcon(myIcon);
@@ -2734,9 +2773,17 @@ dlf.fn_echoData = function(str_tableName, obj_params, str_msg) {
 	obj_table.html('');	// 清空表格数据
 	for ( var i = 0; i < arr_dataes.length; i++ ) {
 		var obj = arr_dataes[i],
-			str_defendMsg = obj.mennual_status == 1 ? '已设防' : '未设防',
+			str_defendMsg = '',
 			str_html = '';
-		
+		// 0撤防,1强,2智能,
+		if ( obj.mennual_status == '2' ) {
+			str_defendMsg = '智能设防';
+		} else if ( obj.mennual_status == '1' ) {
+			str_defendMsg = '强力设防';
+		} else if ( obj.mennual_status == '0' ) {
+			str_defendMsg = '撤防';
+		} 
+	
 		str_html = '<tr><td>'+ obj.alias +'</td><td>'+ obj.tmobile +'</td>';
 		if ( str_msg != '删除' ) {	// 设防或撤防
 			str_html += '<td>'+ str_defendMsg +'</td>';

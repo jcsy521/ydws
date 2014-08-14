@@ -755,9 +755,9 @@ dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 	var str_tid = obj_carInfo.tid,
 		str_tmobile = obj_carInfo.mobile,
 		n_defendStatus = obj_carInfo.mannual_status, 
-		str_dStatus = n_defendStatus == DEFEND_ON ? '已设防' : '未设防', 
-		str_dStatusTitle =  n_defendStatus == DEFEND_ON ? '设防状态：已设防' : '设防状态：未设防',
-		str_dImg= n_defendStatus == DEFEND_ON ? 'defend_status1.png' : 'defend_status0.png',
+		str_dStatus = '', 
+		//str_dStatusTitle = n_defendStatus == DEFEND_OFF ? '设防状态：已撤防' : '设防状态：已设防',
+		str_dImg = '', //n_defendStatus == DEFEND_OFF ? 'defend_status0.png' : 'defend_status1.png',
 		n_pointType = obj_carInfo.type,
 		str_type = n_pointType == GPS_TYPE ? 'GPS定位' : '基站定位',
 		str_speed = dlf.fn_NumForRound(obj_carInfo.speed, 1) + ' km/h',
@@ -774,7 +774,18 @@ dlf.fn_updateTerminalInfo = function (obj_carInfo, type) {
 		n_clat = obj_carInfo.clatitude/NUMLNGLAT,
 		str_clat = '',	// 经纬度
 		str_actionTrack = dlf.fn_getActionTrackStatus(str_tid);
-		
+	
+	// 0撤防,1强,2智能,
+	if ( n_defendStatus == '2' ) {
+		str_dStatus = '智能设防';
+		str_dImg = 'defend_status1.png';
+	} else if ( n_defendStatus == '1' ) {
+		str_dStatus = '强力设防';
+		str_dImg = 'defend_status1.png';
+	} else if ( n_defendStatus == '0' ) {
+		str_dStatus = '撤防';
+		str_dImg = 'defend_status0.png';
+	} 
 		
 	if ( !dlf.fn_userType() && str_actionTrack == 'yes' && n_pointType == CELLID_TYPE ) { // 2013.7.9 个人用户 开户追踪后,基站点及信息不进行显示
 		return;
@@ -2332,6 +2343,9 @@ dlf.fn_fillNavItem = function(str_whoItem) {
 	} else if ( str_whoItem == 'userName' ) {
 		str_navClassName = 'j_welcomeNavItem';
 		n_offsetLeft = obj_navOffset.left;
+	} else if ( str_whoItem == 'defend' ) {
+		str_navClassName = 'j_userDefendNavItem';
+		n_offsetLeft = obj_navOffset.left;
 	}
 	if ( b_topPanelSt ) {
 		n_prolistTop = 36;
@@ -2352,7 +2366,7 @@ dlf.fn_fillNavItem = function(str_whoItem) {
 	/*二级菜单的滑过样式*/
 	$('.'+str_navClassName+' li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
 		// $(this).removeClass('countUlItemHover');
-		$('.j_countNavItem, .j_notifyManageNavItem, .j_userProfileManageNavItem, .j_welcomeNavItem').hide();
+		$('.j_countNavItem, .j_notifyManageNavItem, .j_userProfileManageNavItem, .j_welcomeNavItem, .j_userDefendNavItem').hide();
 		$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome').bind('mouseover', function(event) {
 			dlf.fn_fillNavItem(event.target.id);
 		});
@@ -2377,10 +2391,12 @@ dlf.fn_secondNavValid = function() {
 		obj_navItem2 = $('.j_notifyManageNavItem'),
 		obj_navItem3 = $('.j_userProfileManageNavItem'),
 		obj_navItem4 = $('.j_welcomeNavItem'),
+		obj_navItem5 = $('.j_userDefendNavItem'),
 		f_hidden1 = obj_navItem1.is(':hidden'),
 		f_hidden2 = obj_navItem2.is(':hidden'),
 		f_hidden3 = obj_navItem3.is(':hidden'),
-		f_hidden4 = obj_navItem4.is(':hidden');
+		f_hidden4 = obj_navItem4.is(':hidden'),
+		f_hidden5 = obj_navItem4.is(':hidden');
 	
 	if ( !f_hidden1 ) {
 		obj_navItem1.hide();
@@ -2393,6 +2409,9 @@ dlf.fn_secondNavValid = function() {
 	}
 	if ( !f_hidden4 ) {
 		obj_navItem4.hide();
+	}
+	if ( !f_hidden5 ) {
+		obj_navItem5.hide();
 	}
 }
 

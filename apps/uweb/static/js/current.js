@@ -197,16 +197,24 @@ function fn_displayCurrentMarker(obj_location) {
 /**
 * 设防撤防初始化
 */
-dlf.fn_defendQuery = function(str_alias) {
-	var n_defendStatus = 0,	// 设防撤防状态
-		n_fob_status = 0,	// 挂件是否在附近 1: 在附近 0: 没在附近
-		str_cTid = dlf.fn_getCurrentTid(),
-		obj_defend = {'mannual_status': n_defendStatus, 'tids': str_cTid},	// 向后台传递设防撤防数据
-		obj_dMsg = $('#defendMsg'),	// 设防撤防状态的提示信息容器
-		n_keyNum = parseInt($('#carList .currentCar').eq(0).attr('keys_num')),	// 当前车辆的挂件数量
+dlf.fn_defendQuery = function(str_defendType, str_alias) {
+	var str_cTid = dlf.fn_getCurrentTid(),
+		obj_defend = {'mannual_status': 0, 'tids': str_cTid},	// 向后台传递设防撤防数据
 		obj_currentCar = $('.j_currentCar'),
-		obj_defendBtn = $('#defendBtn'),	// 设防撤防的按钮
-		str_tempAlias = '';
+		str_tempAlias = '',
+		str_msg = '';
+	
+	// 0撤防,1强,2智能,
+	if ( str_defendType == 'smart' ) {
+		obj_defend.mannual_status = 2;
+		str_msg = '智能设防';
+	} else if ( str_defendType == 'powerful' ) {
+		obj_defend.mannual_status = 1;
+		str_msg = '强力设防';
+	} else if ( str_defendType == 'disarm' ) {
+		obj_defend.mannual_status = 0;
+		str_msg = '撤防';
+	} 
 	
 	if ( dlf.fn_userType() ) {
 		obj_currentCar = $('.j_terminal[tid='+str_currentTid+']');
@@ -216,93 +224,161 @@ dlf.fn_defendQuery = function(str_alias) {
 		str_tempAlias = obj_currentCar.siblings(0).html();
 	}
 	str_tempAlias = dlf.fn_encode(str_tempAlias);
-	obj_defendBtn.hide();
-	dlf.fn_dialogPosition('defend');	// 设置dialog的位置
-	dlf.fn_lockScreen();	//添加页面遮罩	
-	$.get_(DEFEND_URL + '?tid=' + str_cTid, '', function(data) {
-		if ( data.status == 0 ) {
-			var str_defendStatus = data.mannual_status,  // 从后台获取到最新的设防撤防状态
-				obj_wrapper = $('#defendWrapper'),	// 设防撤防容器
-				str_html = '',	// 页面上显示的设防状态
-				str_tip = '',	// 设防撤防中的提示信息
-				str_dImg = '',	// 页面上显示的设防撤防图标
-				obj_carData = $('.j_carList').data('carsData')[str_cTid],
-				arr_defendBtns = null;
-			
-			n_fob_status = data.fob_status;
-			$('.currentCar').attr('fob_status', n_fob_status);	// 更新最新的 挂件状态  ：是否在附近
-			if ( str_defendStatus == DEFEND_ON ) {
-				n_defendStatus = DEFEND_OFF;
-				str_tip = '您的定位器“'+ str_tempAlias +'”当前已设防。';
-				arr_defendBtns = new Array('cf', 'cf2'); 
-				str_html = '已设防';
+	
+	//保存
+	dlf.fn_jNotifyMessage(str_tempAlias+str_msg+'中' + WAITIMG, 'message', true);
+	
+	$.post_(DEFEND_URL, JSON.stringify(obj_defend), function (data) {
+		if ( data.status == 0 ) {				
+			var obj_carList = $('.j_carList'),
+				obj_carsData = obj_carList.data('carsData'),
+				obj_currentCar = $('.j_currentCar'),
+				str_tid = obj_currentCar.attr('tid'),
+				n_defendStatus = obj_defend.mannual_status,
+				str_defendMsg = '',
+				str_dImg = '';
+				
+			// 0撤防,1强,2智能,
+			if ( n_defendStatus == '2' ) {
+				str_defendMsg = '智能设防';
 				str_dImg = 'defend_status1.png';
-			} else {
-				n_defendStatus = DEFEND_ON;
-				str_tip = '您的定位器“'+ str_tempAlias +'”当前未设防。';
-				arr_defendBtns = new Array('sf', 'sf2'); 
-				str_html = '未设防';
+			} else if ( n_defendStatus == '1' ) {
+				str_defendMsg = '强力设防';
+				str_dImg = 'defend_status1.png';
+			} else if ( n_defendStatus == '0' ) {
+				str_defendMsg = '撤防';
 				str_dImg = 'defend_status0.png';
-			}
-			obj_defend['mannual_status'] = n_defendStatus;
-			obj_defend['tids'] = str_cTid;
-			obj_dMsg.html(str_tip);
-			// 主页面设防状态
-			$('#defendContent').html(str_html).data('defend', str_defendStatus);
-			if ( obj_carData ) {
-				obj_carData.mannual_status = str_defendStatus;	// 改变缓存中的设防撤防状态
-			}
-			$('.j_carList').data('carsData')[str_cTid] = obj_carData;
-			dlf.fn_setItemMouseStatus(obj_defendBtn, 'pointer', arr_defendBtns);	// 设置鼠标滑过设防或撤防按钮的样式
-			obj_defendBtn.show();
-		} else if ( data.status == 201 ) {
+			} 
+			
+			$('#defendContent').html(str_defendMsg).data('defend', n_defendStatus);	
+			$('#defendStatus').css('background-image', 'url("' + dlf.fn_getImgUrl() + str_dImg + '")');	
+		
+			obj_carsData[str_tid].mannual_status = obj_defend.mannual_status;
+			
+			obj_carList.data('carsData', obj_carsData);
+		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
-		} else {
-			dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 		}
+		dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
 	}, 
-	function (XMLHttpRequest, textStatus, errorThrown) {
+	function(XMLHttpRequest, textStatus, errorThrown) {
 		dlf.fn_serverError(XMLHttpRequest);
 	});
-	
-	$('#defendBtn').unbind('click').click(function() {	//设防撤防 业务保存	
-		/**
-		* 判断设防撤防时挂件状态和定位器在线状态
-		* 1、挂件不在附近时如果defend_status 是0 jNoityMessage提示“挂件不在附近，确定要撤防吗？”
-		*/
-		fn_saveDefend(obj_defend);
-	}); 
 }
 
-function fn_saveDefend(obj_defend, b_corp) {
-	var n_defendStatus = obj_defend['mannual_status'],	// 设防撤防状态
-		str_tip = '',
-		str_wrapper = b_corp == true ? 'batchDefend' : 'defend';
-		
-	if ( n_defendStatus == DEFEND_OFF ) {
-		str_tip = '撤防中';
-	} else {
-		str_tip = '设防中';
-	}
-	
-	dlf.fn_jsonPost(DEFEND_URL, obj_defend, str_wrapper, str_tip);
-}
 
 /**
 * 批量设防撤防
 */
 dlf.fn_initBatchDefend = function(str_defend, obj_param) {
 	dlf.fn_dialogPosition('batchDefend');	// 设置dialog的位置
-	dlf.fn_echoData('batchDefendTable', obj_param, str_defend);
 	var obj_defend = {},
-		n_defendStatus = str_defend == '设防' ? DEFEND_ON : DEFEND_OFF;
+		n_defendStatus = str_defend,
+		str_defnedMsg = '';
+	
+	if ( str_defend == '2' ) {
+		str_defnedMsg = '智能设防';
+	} else if ( str_defend == '1' ) {
+		str_defnedMsg = '强力设防';
+	} else if ( str_defend == '0' ) {
+		str_defnedMsg = '撤防';
+	} 
+	
+	dlf.fn_echoData('batchDefendTable', obj_param, str_defnedMsg);
 	
 	$('.j_batchDefend').removeClass('btn_delete').addClass('operationBtn').attr('disabled', false);	// 批量按钮变成灰色并且不可用
-	$('.j_batchDefend').val('批量' + str_defend).unbind('click').bind('click', function() {
+	$('.j_batchDefend').val('批量' + str_defnedMsg).unbind('click').bind('click', function() {
 		obj_defend['mannual_status'] = n_defendStatus;
 		obj_defend['tids'] = obj_param['tids'].join(',');
 		
-		fn_saveDefend(obj_defend, true);
+		//保存
+		dlf.fn_jNotifyMessage('批量' + str_defnedMsg+'中' + WAITIMG, 'message', true);
+		
+		$.post_(DEFEND_URL, JSON.stringify(obj_defend), function (data) {
+			if ( data.status == 0 ) {				
+				var arr_tids = obj_defend.tids.split(','),
+					n_length = arr_tids.length,
+					obj_carList = $('.j_carList'),
+					obj_carsData = obj_carList.data('carsData'),
+					obj_currentCar = $('.j_currentCar'),
+					str_tid = obj_currentCar.attr('tid'),
+					n_status = obj_defend.mannual_status,
+					str_defendMsg = '',
+					str_poDefendMsg = '',
+					arr_datas = data.res;
+				
+				// 0撤防,1强,2智能,
+				if ( n_defendStatus == '2' ) {
+					str_defendMsg = '智能设防';
+					str_poDefendMsg = '智能设防';
+				} else if ( n_defendStatus == '1' ) {
+					str_defendMsg = '强力设防';
+					str_poDefendMsg = '强力设防';
+				} else if ( n_defendStatus == '0' ) {
+					str_defendMsg = '撤防';
+					str_poDefendMsg = '撤防';
+				} 
+	
+				if (  $('.j_currentCar').length == 0 ) {
+					str_tid = str_currentTid;
+					obj_currentCar = $('.j_terminal[tid='+ str_currentTid +']');
+				}
+				
+				if ( n_length > 0 ) {	// 批量设防撤防
+					for ( var i in arr_tids ) {
+						var str_tempTid = arr_tids[i];
+						
+						obj_carsData[str_tempTid].mannual_status = n_status;
+						if ( str_tid == str_tempTid ) {	// 如果批量中有当前定位器
+							// todo 如果是集团用户 1、修改cardata里的数据  2、批量设防撤防如果有当前定位器要修改页面状态
+							var str_defendStatus = parseInt(n_status),
+								str_html = '',
+								str_dImg = '',
+								str_successMsg = '',
+								n_defendStatus = 0,
+								str_imgUrl = '';
+							if ( str_defendStatus == DEFEND_OFF ) { 
+								n_defendStatus = 0;
+								str_html = '未设防';
+								str_successMsg = '撤防成功';
+								str_dImg=  'defend_status0.png';			
+							} else {
+								n_defendStatus = 1;
+								str_html = '已设防';
+								str_successMsg = '设防成功';
+								str_dImg= 'defend_status1.png';	
+							}
+							$('#defendContent').html(str_html).data('defend', n_defendStatus);
+							$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_html);
+						}
+					}
+					for ( var x = 0; x < arr_datas.length; x++ ) {
+						var obj_result = arr_datas[x],
+							n_resultStatus = obj_result.status,
+							str_resTid = obj_result.tid,
+							obj_updateStatusTd = $('.batchDefendTable tbody td[tid='+ str_resTid +']'),
+							str_msg = '',
+							obj_updateDefendTd = obj_updateStatusTd.prev();
+						
+						if ( n_resultStatus == 0 ) {
+							obj_updateStatusTd.html('操作成功').addClass('fileStatus4');
+							obj_updateDefendTd.html(str_defendMsg);
+						} else {
+							obj_updateStatusTd.html('操作失败').addClass('fileStatus3');
+							obj_updateDefendTd.html(str_poDefendMsg);
+						}
+					}			
+					obj_carList.data('carsData', obj_carsData);
+					$('.j_batchDefend').removeClass('operationBtn').addClass('btn_delete').attr('disabled', true);	// 批量按钮变成灰色并且不可用
+				}
+			} else if ( data.status == 201 ) {	// 业务变更
+				dlf.fn_showBusinessTip();
+			}
+			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
+		}, 
+		function(XMLHttpRequest, textStatus, errorThrown) {
+			dlf.fn_serverError(XMLHttpRequest);
+		});
 	});
 }
 })();

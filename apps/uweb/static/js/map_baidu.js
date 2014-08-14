@@ -29,7 +29,7 @@ dlf.fn_loadMap = function(mapContainer) {
 	
 	mapObj.addControl(obj_NavigationControl);	// 比例尺缩放
 	mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
-	
+	mapObj.setMinZoom(5);
 	/*添加相应的地图控件及服务对象*/
 	mapObj.addControl(new BMap.MapTypeControl({mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], offset: new BMap.Size(100, 10)}));	// 地图类型 自定义显示 普通地图和卫星地图
 	
@@ -37,6 +37,21 @@ dlf.fn_loadMap = function(mapContainer) {
  	if ( mapContainer == 'mapObj' ) {
  		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
  	}
+	//若比例尺是国级别,不允许拖动地图
+	/*mapObj.addEventListener('dragstart', function(e) {
+		var n_zoomSize = mapObj.getZoom();
+		
+		if ( n_zoomSize <= 4 ) {
+			mapObj.disableDragging();
+		}
+	});
+	mapObj.addEventListener('zoomend', function(e) {
+		var n_zoomSize = mapObj.getZoom();
+		
+		if ( n_zoomSize > 4 ) {
+			mapObj.enableDragging();
+		}
+	});*/
 }
 
 /**
@@ -202,7 +217,7 @@ dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
 		str_loginSt =  obj_location.login,
-		str_imgUrl = str_loginSt == 1 ? 'default' : 'default_logout', 
+		str_imgUrl = str_loginSt == 0 ? 'default_logout' : 'default', 
 		myIcon = new BMap.Icon(BASEIMGURL + str_imgUrl + '.png', new BMap.Size(34, 34)),
 		n_clon = obj_location.clongitude,
 		n_clat = obj_location.clatitude,
@@ -651,7 +666,8 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 				} else {	// 如果是个人用户
 					str_html += '<a href="#" id="infowindow_terminal" onclick="dlf.fn_initTerminal();">设置</a>';
 				}
-				str_html += '<a href="#" id="infowindow_defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+				//<a href="#" id="infowindow_defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a>
+				str_html += '<a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
 				
 				if ( str_tid == str_currenttid || !str_currenttid ) {
 					var str_fileUrl = location.href,
