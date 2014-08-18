@@ -44,7 +44,8 @@ class Application(tornado.web.Application):
         handlers = [
             #the order is important, the first matched pattern is used
             (r'/', MainHandler),
-            (r'/sms/mt/*', ACBMTHandler)
+            (r'/sms/mt/*', ACBMTHandler),
+            (r'/sms/cmppmt/*', ACBMTHandler)
         ]
 
         settings = dict(
