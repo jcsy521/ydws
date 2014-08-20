@@ -87,7 +87,8 @@ CHECK_TERMINAL=DotDict(TID=u'tid',
                        MOBILE=u'mobile')
 
 DEFEND_STATUS=DotDict(NO=0,
-                      YES=1)
+                      YES=1,
+                      SMART=2)
 
 LOCATE_FLAG=DotDict(GPS=0,
                     CELLID=1)
