@@ -157,7 +157,9 @@ class LoginTestHandler(BaseHandler, LoginMixin):
                            uid=uid,
                            tid=tid,
                            sim=sim))
+        self.clear_cookie('bdshare_firstime')
         self.clear_cookie('captchahash')
+        self.clear_cookie('USERCURRENTROLE')
         self.redirect('/index')
         #self.redirect(self.get_argument("next","/"))
 
