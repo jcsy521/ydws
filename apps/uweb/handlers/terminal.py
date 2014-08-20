@@ -47,7 +47,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
                                    "       vibchk, tid as sn, mobile, vibl, move_val, static_val, alert_freq,"
                                    "       white_pop, push_status, icon_type, owner_mobile, login_permit,"
-                                   "       stop_interval, biz_type"
+                                   "       stop_interval, biz_type, speed_limit"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND (service_status = %s"
@@ -164,10 +164,15 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  else:
                      move_val = 60
                      static_val = 0 
+
                  self.db.execute("UPDATE T_TERMINAL_INFO "
-                                 "  SET move_val=%s, static_val=%s"
+                                 "  SET move_val=%s, static_val=%s,"
+                                 "　　　mannual_status = %s, defend_status = %s"
                                  "  WHERE tid=%s", 
-                                 move_val, static_val, self.current_user.tid)
+                                 move_val, static_val,
+                                 UWEB.DEFEND_STATUS.SMART,
+                                 UWEB.DEFEND_STATUS.SMART,
+                                 self.current_user.tid)
                  logging.info("[UWEB] Terminal %s update move_val %s and static_val %s", 
                               self.current_user.tid, move_val, static_val)
                  sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
