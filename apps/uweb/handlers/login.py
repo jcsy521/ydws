@@ -127,6 +127,8 @@ class LoginHandler(BaseHandler, LoginMixin):
                 pass
 
             self.clear_cookie('captchahash')
+            self.clear_cookie('bdshare_firstime')
+            self.clear_cookie('USERCURRENTROLE')
             self.redirect(self.get_argument("next","/index"))
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
