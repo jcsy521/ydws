@@ -2396,7 +2396,7 @@ dlf.fn_secondNavValid = function() {
 		f_hidden2 = obj_navItem2.is(':hidden'),
 		f_hidden3 = obj_navItem3.is(':hidden'),
 		f_hidden4 = obj_navItem4.is(':hidden'),
-		f_hidden5 = obj_navItem4.is(':hidden');
+		f_hidden5 = obj_navItem5.is(':hidden');
 	
 	if ( !f_hidden1 ) {
 		obj_navItem1.hide();
