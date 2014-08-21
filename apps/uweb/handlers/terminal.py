@@ -9,9 +9,9 @@ import tornado.web
 from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
-from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,\
-    get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key
+from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,
+    get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key)
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
 from utils.public import record_add_action, delete_terminal
@@ -178,6 +178,14 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
                  logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
                  self.redis.delete(sessionID_key)
+
+                 # NOTE: modify the terminal_info in redis.
+                 terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                 terminal_info = self.redis.getvalue(terminal_info_key)
+                 if terminal_info:
+                     terminal_info['mannual_status'] = UWEB.DEFEND_STATUS.SMART 
+                     self.redis.setvalue(terminal_info_key, terminal_info)
+
 
             # if stop_interval has been changed, then clear session to notify terminal
             if data.get("stop_interval"):
