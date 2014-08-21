@@ -103,6 +103,14 @@ class MessageHandler(BaseHandler):
                     content = u'尊敬的顾客，您好：这是一条测试短信，收到本条短信，说明短信提示服务正常，本短信不需要回复，如有问题，请和客服人员联系。感谢使用我们的产品，您的移动卫士。'
                     SMSHelper.send(tmobile,content)
                     self.write_ret(status)              
+                elif sms_type == 'KQLY':
+                    content = ':%s 30' % sms_type
+                    SMSHelper.send_update_to_terminal(tmobile,content)
+                    self.write_ret(status)              
+                elif sms_type == 'LQGZ':
+                    content = ':%s 30' %  sms_type
+                    SMSHelper.send_update_to_terminal(tmobile,content)
+                    self.write_ret(status)              
                 elif sms_type == 'DW':
                     content = ':' + sms_type
                     SMSHelper.send_to_terminal(tmobile,content)
