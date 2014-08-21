@@ -167,7 +167,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
 
                  self.db.execute("UPDATE T_TERMINAL_INFO "
                                  "  SET move_val=%s, static_val=%s,"
-                                 "　　　mannual_status = %s, defend_status = %s"
+                                 "      mannual_status = %s, defend_status = %s"
                                  "  WHERE tid=%s", 
                                  move_val, static_val,
                                  UWEB.DEFEND_STATUS.SMART,
