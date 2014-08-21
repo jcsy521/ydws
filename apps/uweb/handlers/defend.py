@@ -126,11 +126,11 @@ class DefendHandler(BaseHandler, BaseMixin):
                                     move_val, static_val,
                                     data.mannual_status,
                                     data.mannual_status,
-                                    self.current_user.tid)
+                                    tid)
                     logging.info("[UWEB] Terminal %s update move_val %s and static_val %s", 
-                                 self.current_user.tid, move_val, static_val)
-                    sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
-                    logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
+                                 tid, move_val, static_val)
+                    sessionID_key = get_terminal_sessionID_key(tid)
+                    logging.info("[UWEB] Termianl %s delete session in redis.", tid)
                     self.redis.delete(sessionID_key)
 
 
