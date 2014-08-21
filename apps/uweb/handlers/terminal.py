@@ -161,9 +161,11 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  if parking_defend == 1:
                      move_val = 0
                      static_val = 180 #120,60 
+                     mannual_status = UWEB.DEFEND_STATUS.SMART
                  else:
                      move_val = 60
                      static_val = 0 
+                     mannual_status = UWEB.DEFEND_STATUS.YES
 
                  self.db.execute("UPDATE T_TERMINAL_INFO "
                                  "  SET move_val=%s, static_val=%s,"
@@ -183,7 +185,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  terminal_info_key = get_terminal_info_key(self.current_user.tid)
                  terminal_info = self.redis.getvalue(terminal_info_key)
                  if terminal_info:
-                     terminal_info['mannual_status'] = UWEB.DEFEND_STATUS.SMART 
+                     terminal_info['mannual_status'] = mannual_status 
                      self.redis.setvalue(terminal_info_key, terminal_info)
 
 
