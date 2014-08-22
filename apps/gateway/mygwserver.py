@@ -30,10 +30,10 @@ from utils.misc import (get_terminal_address_key, get_terminal_sessionID_key,
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,
      get_resend_key, get_lastinfo_key, get_login_time_key, get_acc_status_info_key)
-from utils.public import insert_location, delete_terminal, record_add_action, get_terminal_type_by_tid,\
-     clear_data
-from constants.GATEWAY import T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,\
-     SLEEP_HEARTBEAT_INTERVAL
+from utils.public import (insert_location, delete_terminal, record_add_action, get_terminal_type_by_tid,
+     clear_data)
+from constants.GATEWAY import (T_MESSAGE_TYPE, HEARTBEAT_INTERVAL,
+     SLEEP_HEARTBEAT_INTERVAL)
 from constants.MEMCACHED import ALIVED
 from constants import EVENTER, GATEWAY, UWEB, SMS
 from codes.smscode import SMSCode
@@ -1289,6 +1289,7 @@ class MyGWServer(object):
             body = info.body
             dev_id = head.dev_id
             args = DotDict(success=GATEWAY.RESPONSE_STATUS.SUCCESS)
+            old_softversion = False # if version < 2.4.0, true; else false.
             sessionID = self.get_terminal_sessionID(dev_id)
             if sessionID != head.sessionID:
                 args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
@@ -1320,6 +1321,7 @@ class MyGWServer(object):
                     logging.error("[GW] Recv wrong sleep status: %s", heartbeat_info)
                 del heartbeat_info['sleep_status']
 
+
                 self.update_terminal_status(head.dev_id, address, is_sleep)
                 self.update_terminal_info(heartbeat_info, db)
 
@@ -1330,6 +1332,24 @@ class MyGWServer(object):
                     args['success'] = 3 # acc_status is changed
                     logging.info("[GW] ACC_status is changed, dev_id: %s, acc_status_info: %s", 
                                  dev_id, acc_status_info)
+
+                #NOTE: check the version. 
+                # if version is less than 2.4.0(not include 2.4.0), only has  success in args
+                softversion = heartbeat_info['softversion']
+                item = softversion.split(".")
+                if int(item[0]) > 2:
+                    pass
+                else: # A.B.C  A <= 2
+                    if int(item[1]) < 4: # A.B.C  B <= 4 
+                        old_softversion = True
+                    else:
+                        pass
+
+            if old_softversion:
+                logging.info("[GW] Old softversion(<2.4.0): %s, only success is provided in S2",
+                             softversion)
+                args = dict(success=args['success'])
+            
             hc = HeartbeatRespComposer(args)
             request = DotDict(packet=hc.buf,
                               address=address,

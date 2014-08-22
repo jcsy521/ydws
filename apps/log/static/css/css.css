@@ -59,7 +59,7 @@ a:hover {
 	display: block;
 }
 fieldset {
-    padding: 10px;
+    padding: 10px 0 40px 0;
 }
 #logo {
     padding: 10px 5px 10px 10px;
@@ -587,4 +587,9 @@ table, .ui-widget-header {
 }
 .emailSpan label {
 	color: #184589;
+}
+
+.packetTypeForOther2 {
+       width: 65px;
+       display: inline-block;	
 }
