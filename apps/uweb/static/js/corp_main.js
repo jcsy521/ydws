@@ -496,14 +496,24 @@ function customMenu(node) {
 */
 function fn_batchOperateValidate(obj, str_msg) {
 	var obj_currentGroupChildren = obj.children('ul').children('li:visible'),
-		str_gname = obj.children('a').text();	// 组名
-		
+		str_gname = obj.children('a').text(),	// 组名
+		str_tempMSg = 'str_msg'
+	
+	if ( str_msg  == 0 || str_msg == 1 || str_msg == 2 ) {
+		if ( str_msg == '2' ) {
+			str_tempMSg = '智能设防';
+		} else if ( str_msg == '1' ) {
+			str_tempMSg = '强力设防';
+		} else if ( str_msg == '0' ) {
+			str_tempMSg = '撤防';
+		}
+	}	
 	//  批量删除选中定位器操作
 	if ( obj_currentGroupChildren.length <= 0 ) {	// 没有定位器，不能批量删除
 		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
 		return false;
 	} else if ( obj.hasClass('jstree-unchecked') ) {	// 要删除定位器的组没有被选中
-		dlf.fn_jNotifyMessage('没有选中要'+ str_msg +'的定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
+		dlf.fn_jNotifyMessage('没有选中要'+ str_tempMSg +'的定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
 		return false;
 	} else {
 		var arr_tids = [],

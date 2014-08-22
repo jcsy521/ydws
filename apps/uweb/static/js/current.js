@@ -308,13 +308,13 @@ dlf.fn_initBatchDefend = function(str_defend, obj_param) {
 					arr_datas = data.res;
 				
 				// 0撤防,1强,2智能,
-				if ( n_defendStatus == '2' ) {
+				if ( n_status == '2' ) {
 					str_defendMsg = '智能设防';
 					str_poDefendMsg = '智能设防';
-				} else if ( n_defendStatus == '1' ) {
+				} else if ( n_status == '1' ) {
 					str_defendMsg = '强力设防';
 					str_poDefendMsg = '强力设防';
-				} else if ( n_defendStatus == '0' ) {
+				} else if ( n_status == '0' ) {
 					str_defendMsg = '撤防';
 					str_poDefendMsg = '撤防';
 				} 
@@ -337,16 +337,19 @@ dlf.fn_initBatchDefend = function(str_defend, obj_param) {
 								str_successMsg = '',
 								n_defendStatus = 0,
 								str_imgUrl = '';
-							if ( str_defendStatus == DEFEND_OFF ) { 
-								n_defendStatus = 0;
-								str_html = '未设防';
-								str_successMsg = '撤防成功';
-								str_dImg=  'defend_status0.png';			
-							} else {
+							
+							if ( str_defendStatus == '2' ) {
+								str_html = '智能设防';
+								str_dImg = 'defend_status1.png';
+								n_defendStatus = 2;
+							} else if ( str_defendStatus == '1' ) {
+								str_html = '强力设防';
+								str_dImg = 'defend_status1.png';
 								n_defendStatus = 1;
-								str_html = '已设防';
-								str_successMsg = '设防成功';
-								str_dImg= 'defend_status1.png';	
+							} else if ( str_defendStatus == '0' ) {
+								str_html = '撤防';
+								str_dImg = 'defend_status0.png';
+								n_defendStatus = 0;
 							}
 							$('#defendContent').html(str_html).data('defend', n_defendStatus);
 							$('#defendStatus').css('background-image', 'url("'+ dlf.fn_getImgUrl() + str_dImg + '")');	//.attr('title', str_html);
