@@ -18,7 +18,7 @@ class TerminalMixin(BaseMixin):
         """
         # these fileds just need to be modified in db
         terminal_keys = ['cellid_status','white_pop','trace','freq',
-        'vibchk', 'vibl','static_val', 'push_status', 'login_permit',
+        'vibchk', 'vibl', 'push_status', 'login_permit',
         'alert_freq', 'stop_interval', 'biz_type']
         terminal_fields = []
         
