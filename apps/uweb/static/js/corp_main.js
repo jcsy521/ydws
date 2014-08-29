@@ -540,7 +540,7 @@ function customMenu(node) {
 function fn_batchOperateValidate(obj, str_msg) {
 	var obj_currentGroupChildren = obj.children('ul').children('li:visible'),
 		str_gname = obj.children('a').text(),	// 组名
-		str_tempMSg = 'str_msg'
+		str_tempMSg = str_msg;
 	
 	if ( str_msg  == 0 || str_msg == 1 || str_msg == 2 ) {
 		if ( str_msg == '2' ) {
