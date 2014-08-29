@@ -76,8 +76,7 @@ class LoginHandler(BaseHandler, LoginMixin):
         m = hashlib.md5()
         m.update(captcha.lower())
         hash_ = m.hexdigest()
-        if False: 
-        #if hash_.lower() != captchahash.lower():
+        if hash_.lower() != captchahash.lower():
             self.render("login.html",
                         username=username,
                         password=password,
