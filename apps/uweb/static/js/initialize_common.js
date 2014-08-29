@@ -67,7 +67,7 @@ dlf.fn_closeWrapper = function() {
 		*/
 			dlf.fn_clearNavStatus(str_whoDialog);
 		//}
-		if ( str_whoDialog == 'region' || str_whoDialog == 'corpRegion' || str_whoDialog == 'bindRegion' || str_whoDialog == 'bindBatchRegion' || str_whoDialog == 'routeLine' ) { // 围栏管理  线路管理 关闭的时候显示地图上的车辆图标
+		if ( str_whoDialog == 'region' || str_whoDialog == 'corpRegion' || str_whoDialog == 'bindRegion' || str_whoDialog == 'bindBatchRegion' || str_whoDialog == 'routeLine'|| str_whoDialog == 'corpMileageSet' || str_whoDialog == 'bindMileageSet' || str_whoDialog == 'bindBatchMileageSet' ) { // 围栏管理  线路管理 关闭的时候显示地图上的车辆图标
 			$('#'+ str_whoDialog +'Wrapper').hide();
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
 			dlf.fn_setMapContainerZIndex(0);
@@ -92,6 +92,7 @@ dlf.fn_closeDialog = function() {
 	$('.wrapper').hide();
 	$('#topShowIcon, #leftPanelShowIcon').show();
 	$( "#smsOwerMobile" ).autocomplete( "close" );
+	$('#corpMileageSetWrapper').removeData('mileage_set');
 }
 
 // 清除所有的menu的操作样式
@@ -397,7 +398,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	// 更新当前车辆的详细信息显示
 	var	obj_carDatas = $('.j_carList').data('carsData'),
 		obj_terminals = $('.j_carList .j_terminal'),
-		b_trackSt = $('#trackHeader').is(':visible'), 
+		b_trackSt = $('.j_delay').is(':visible'), 
 		b_eventSearchWpST = $('#eventSearchWrapper ').is(':visible'),
 		b_routeLineWpST = $('#routeLineWrapper').is(':visible'), //线路展示窗口是否打开
 		b_routeLineCreateWpST = $('#routeLineCreateWrapper').is(':visible'), // 线路新展示窗口是否打开
@@ -406,6 +407,10 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		b_corpRegionWpST = $('#corpRegionWrapper').is(':visible'),
 		b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
 		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
+		b_corpMileageSetStatus = $('#corpMileageSetWrapper').is(':visible'),	// 单点里程设置
+		b_bindMileageSetStatus = $('#bindMileageSetWrapper').is(':visible'),	// 单点里程绑定
+		b_bindBatchMileageSetStatus = $('#bindBatchMileageSetWrapper').is(':visible'),	// 单点里程批量绑定
+		b_mileageSetCreateStatus = $('#mileageSetCreateWrapper').is(':visible'),	// 单点里程新增
 		n_len = obj_terminals.length,
 		obj_oldCurrentCar = $('.j_currentCar').parent(),
 		n_oldOffsetTop = n_sub1 = 0;
@@ -416,7 +421,6 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	if ( !dlf.fn_userType() ) {	// 如果是个人用户添加当前车样式
 		if ( b_regionWpST ) { // 个人用户如果切车时当前正在进行围栏查询操作
 			dlf.fn_initRegion();
-			return;
 		}
 		if ( b_regionCreateWpST ) { // 如果切车时当前正在进行围栏创建操作
 			$.get_(REGION_URL+'?tid='+ n_tid, '', function(data) {
@@ -428,7 +432,6 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			function(XMLHttpRequest, textStatus, errorThrown) {
 				dlf.fn_serverError(XMLHttpRequest);
 			});
-			return;
 		}	
 		obj_terminals.removeClass('currentCarCss');	// 其他车辆移除样式
 		obj_currentItem.addClass('currentCarCss');	// 当前车添加样式
@@ -438,13 +441,11 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		if ( obj_carDatas ) {
 			var obj_currentCarData = obj_carDatas[n_tid];
 			
-			if ( b_trackSt || b_eventSearchWpST ) {	// 如果告警查询,告警统计 ,里程统计 ,轨迹是打开并操作的,不进行数据更新
-				return;
-			}
-			
 			if ( obj_currentCarData ) {
 				dlf.fn_updateTerminalInfo(obj_currentCarData);	// 更新车辆信息
-				dlf.fn_moveMarker(n_tid, str_flag);
+				if ( !b_trackSt & !b_eventSearchWpST & !b_regionWpST & !b_regionCreateWpST ) {
+					dlf.fn_moveMarker(n_tid, str_flag);
+				}
 			}
 			if ( b_eventSearchWpST ) {
 				dlf.fn_ShowOrHideMiniMap(false);
@@ -464,7 +465,6 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 	} else {
 		if ( b_bindBatchRegionWpST || b_bindRegionWpST ) {
 			dlf.fn_initBindRegion();
-			return;
 		}
         // NOTE: 允许选中多个定位器
 		//obj_terminals.removeClass(JSTREECLICKED);
@@ -520,25 +520,24 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			}
 			if ( b_trackSt ) {	
 				dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
-				$('.j_delay').hide();
+				dlf.fn_initTrack();
 				$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
-				return;
 			}
 			if ( b_eventSearchWpST ) {
 				dlf.fn_ShowOrHideMiniMap(false);
 				$('#eventSearchPage').hide();
 				$('#eventSearchCategory').val(-1);
 				$('#eventSearchTableHeader').hide().nextAll().remove();
-				return;
 			}
-			
 			if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
 				dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
-				dlf.fn_updateInfoData(obj_car);			
+				dlf.fn_updateInfoData(obj_car);	
+				if ( !b_trackSt & !b_eventSearchWpST & !b_regionWpST & !b_regionCreateWpST & !b_bindBatchRegionWpST & !b_bindRegionWpST & !b_corpRegionWpST & !b_corpMileageSetStatus & !b_bindMileageSetStatus & !b_bindBatchMileageSetStatus & !b_mileageSetCreateStatus ) {
+					dlf.fn_moveMarker(n_tid);
+				}
 			}
-			dlf.fn_moveMarker(n_tid);
 		}
-		if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
+		if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST || b_corpMileageSetStatus || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
 			return;
 		}
 	}
@@ -737,7 +736,7 @@ dlf.fn_caculateBox = function (arr_locations, str_type) {
 		}
 		arr_trackPoints.push(obj_tempPoint);
 	}
-	$('#trackHeader').data('points', arr_trackPoints);// 此数据点给轨迹查询显示使用
+	$('.j_delay').data('points', arr_trackPoints);// 此数据点给轨迹查询显示使用
 	dlf.fn_setOptionsByType('viewport', [dlf.fn_createMapPoint(n_minLng, n_minLat), dlf.fn_createMapPoint(n_maxLng, n_maxLat)]);
 	if ( str_type == 'lastinfo' ) {
 		setTimeout(function() { // 首次执行lastinfo进行地图位置调整
@@ -1177,6 +1176,9 @@ dlf.fn_eventText = function(n_eventNum) {
 		case 10:
 			str_text = '停留';
 			break;
+		case 11:
+			str_text = '超速';
+			break;
 	}
 	return str_text;
 }
@@ -1572,14 +1574,18 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		str_tempWrapperId = str_wrapperId,
 		n_wrapperWidth = obj_wrapper.width(),
 		n_width = ($(window).width() - n_wrapperWidth)/2,
-		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
+		b_trackStatus = $('.j_delay').is(':visible'),	// 轨迹是否打开着
 		b_eventStatus = $('#eventSearchWrapper').is(':visible'),	// 告警是否显示
 		b_regionStatus = $('#regionWrapper').is(':visible'),	// 电子围栏是否显示
 		b_corpRegionStatus = $('#corpRegionWrapper').is(':visible'),	// 电子围栏是否显示
 		b_createRegionStatus = $('#regionCreateWrapper').is(':visible'),	// 新建电子围栏是否显示
 		b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
 		b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 批量绑定围栏
-		b_routeLineStatus = $('#routeLineWrapper').is(':visible');	// 线路管理是否显示
+		b_routeLineStatus = $('#routeLineWrapper').is(':visible'),	// 线路管理是否显示
+		b_corpMileageSetStatus = $('#corpMileageSetWrapper').is(':visible'),	// 单点里程设置
+		b_bindMileageSetStatus = $('#bindMileageSetWrapper').is(':visible'),	// 单点里程绑定
+		b_bindBatchMileageSetStatus = $('#bindBatchMileageSetWrapper').is(':visible'),	// 单点里程批量绑定
+		b_mileageSetCreateStatus = $('#mileageSetCreateWrapper').is(':visible');	// 单点里程新增
 	
 	$('.j_delay').hide();
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');
@@ -1604,11 +1610,11 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	if ( str_wrapperId == 'eventSearch' ) {
 		dlf.fn_setMapPosition(true);	// 如果打开的是告警查询  设置地图位置
 	} else {
-		if ( str_wrapperId != 'mileage' && str_wrapperId != 'operator' && str_wrapperId != 'onlineStatics' && str_wrapperId != 'passenger' && str_wrapperId != 'infoPush' && str_wrapperId != 'notifyManageSearch' && str_wrapperId != 'notifyManageAdd' ) {
+		if ( str_wrapperId != 'mileage' && str_wrapperId != 'operator' && str_wrapperId != 'onlineStatics' && str_wrapperId != 'passenger' && str_wrapperId != 'infoPush' && str_wrapperId != 'notifyManageSearch' && str_wrapperId != 'notifyManageAdd' && str_wrapperId != 'mileageSet' ) {
 			dlf.fn_showOrHideMap(true);	// 显示地图
 			dlf.fn_setMapPosition(false);	// 设置地图最大化
 			dlf.fn_clearNavStatus('eventSearch'); // 移除告警导航操作中的样式
-			if ( str_wrapperId == 'region' || str_wrapperId == 'corpRegion' || str_wrapperId == 'bindRegion' || str_wrapperId == 'bindBatchRegion') {
+			if ( str_wrapperId == 'region' || str_wrapperId == 'corpRegion' || str_wrapperId == 'bindRegion' || str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpMileageSet' || str_wrapperId == 'bindMileageSet' || str_wrapperId == 'bindBatchMileageSet' ) {
 				obj_wrapper.css({'left': '250px', 'top': '160px'});
 			} else {
 				obj_wrapper.css({left: n_width});
@@ -1619,8 +1625,8 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
-	if ( b_trackStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionStatus || b_corpRegionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
-		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'accStatus' ) {
+	if ( b_trackStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionStatus || b_corpRegionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus || b_corpMileageSetStatus || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus ) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
+		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'accStatus' || str_wrapperId == 'mileageSet' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
@@ -1902,7 +1908,21 @@ dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					}
 					dlf.fn_unLockContent(); // 清除内容区域的遮罩
 					return;
-				} else {
+				} else if ( str_who == 'mileageSetCreate' ) { // 单点管理
+					dlf.fn_initMileageSet(); // 重新显示围栏管理 
+					if ( dlf.fn_isBMap() ) {
+						mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
+					}
+					$('#corpMileageSetContent').data('iscreate',  true);// 存储新增成功数据
+					b_closeWrapper = false;
+				} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) { //绑定单点管理
+					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
+					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 开启lastinfo
+					dlf.fn_setMapContainerZIndex(0);
+					dlf.fn_clearAllMenu();
+				}
+				
+				else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); 
 				}
 				if ( b_closeWrapper ) {
@@ -2346,6 +2366,9 @@ dlf.fn_fillNavItem = function(str_whoItem) {
 	} else if ( str_whoItem == 'defend' ) {
 		str_navClassName = 'j_userDefendNavItem';
 		n_offsetLeft = obj_navOffset.left;
+	} else if ( str_whoItem == 'mileageSet' ) {
+		str_navClassName = 'j_mileageSetNavItem';
+		n_offsetLeft = obj_navOffset.left;
 	}
 	if ( b_topPanelSt ) {
 		n_prolistTop = 36;
@@ -2366,7 +2389,7 @@ dlf.fn_fillNavItem = function(str_whoItem) {
 	/*二级菜单的滑过样式*/
 	$('.'+str_navClassName+' li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
 		// $(this).removeClass('countUlItemHover');
-		$('.j_countNavItem, .j_notifyManageNavItem, .j_userProfileManageNavItem, .j_welcomeNavItem, .j_userDefendNavItem').hide();
+		$('.j_countNavItem, .j_notifyManageNavItem, .j_userProfileManageNavItem, .j_welcomeNavItem, .j_userDefendNavItem, .j_mileageSetNavItem').hide();
 		$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome').bind('mouseover', function(event) {
 			dlf.fn_fillNavItem(event.target.id);
 		});
@@ -2392,11 +2415,13 @@ dlf.fn_secondNavValid = function() {
 		obj_navItem3 = $('.j_userProfileManageNavItem'),
 		obj_navItem4 = $('.j_welcomeNavItem'),
 		obj_navItem5 = $('.j_userDefendNavItem'),
+		obj_navItem6 = $('.j_mileageSetNavItem'),
 		f_hidden1 = obj_navItem1.is(':hidden'),
 		f_hidden2 = obj_navItem2.is(':hidden'),
 		f_hidden3 = obj_navItem3.is(':hidden'),
 		f_hidden4 = obj_navItem4.is(':hidden'),
-		f_hidden5 = obj_navItem5.is(':hidden');
+		f_hidden5 = obj_navItem5.is(':hidden'),
+		f_hidden6 = obj_navItem6.is(':hidden');
 	
 	if ( !f_hidden1 ) {
 		obj_navItem1.hide();
@@ -2412,6 +2437,9 @@ dlf.fn_secondNavValid = function() {
 	}
 	if ( !f_hidden5 ) {
 		obj_navItem5.hide();
+	}
+	if ( !f_hidden6 ) {
+		obj_navItem6.hide();
 	}
 }
 
@@ -2475,7 +2503,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			n_treeHeight = n_corpTreeContainerHeight - 48,
 			n_tempTreeHight = $('#corpTree ul').height(),
 			obj_tree = $('#corpTree'),
-			obj_track = $('#trackHeader'),
+			obj_track = $('.j_delay'),
 			n_trackWidth = n_windowWidth - 251,
 			n_defTop = 160,
 			n_defLeft = 248,
@@ -2524,12 +2552,12 @@ dlf.resetPanelDisplay = function(n_type) {
 		$('#topShowIcon').css('left', n_topPanelLeft);
 		$('#leftPanelShowIcon').css('top', n_leftPanelTop);
 		if ( b_trackSt ) {
-			n_tempContent = n_mapHeight = n_windowHeight - 200;
+			n_tempContent = n_mapHeight = n_windowHeight - 162;
 			if ( b_topPanelSt ) {
 				n_mapHeight = n_windowHeight - 74;
 				n_tempContent = n_windowHeight - 38;
 			}
-			$('#trackHeader').css('width', n_trackWidth);
+			$('.j_delay').css('width', n_trackWidth);
 		}
 		$('#right, #corpRight, #navi, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 		
@@ -2543,6 +2571,15 @@ dlf.resetPanelDisplay = function(n_type) {
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 		$('.j_carList').css('height', n_corpTreeContainerHeight-230);	// 个人用户终端列表的高度
+		if ( $('#exportDelay').is(':visible') ) {
+			n_mainHeight -= 36;
+		}
+		if ( $('#trackSearchPanel').is(':visible') ) {
+			$('#delayTable').css('height', n_mainHeight-136);
+		} else {
+			$('#delayTable').css('height', n_mainHeight-35);
+		}
+		$('.j_disPanelCon').css('top', $('.delayTable').height()/2+180);
 		 
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 8;
@@ -2581,8 +2618,8 @@ dlf.resetPanelDisplay = function(n_type) {
 					n_alarmIconLeft = n_tempWindowWidth - 18;
 				}
 			}
-			obj_delayPanel.css({'left': n_delayLeft});
-			$('.j_disPanelCon').css({'left': n_delayIconLeft});
+			//obj_delayPanel.css({'left': n_delayLeft});
+			//$('.j_disPanelCon').css({'left': n_delayIconLeft});
 			obj_alarmPanel.css({'left': n_alarmLeft});
 			$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 		} else {

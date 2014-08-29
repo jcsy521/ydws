@@ -1,0 +1,158 @@
+@charset "utf-8";
+/**
+*acb single_point css v1.0
+*2014-8-19
+*/
+* {
+	outline: none;
+}
+html, a, input, ul, ol, li, p {
+	font-size: 12px;
+	font-family: "宋体","Times New Roman","Arial";
+	margin: 0;
+	padding: 0;
+}
+ul, ol, li {
+	list-style: none;
+}
+body {
+	margin: 0;
+	padding: 0;
+}
+.mapObj {
+	width: 800px;
+	height: 800px;
+}
+
+.hide {
+	display: none;
+}
+.trackBtn a  {
+	cursor: pointer;
+	display: inline-block;
+	height: 25px;
+}
+.tPlay, .tStop, .tPause, .tPrev, .tNext{
+	width: 25px;
+}
+.tPlay {
+	background: url('/static/images/bf1.png') no-repeat;
+}
+.tPlay:hover {
+	background: url('/static/images/bf2.png') no-repeat;
+}
+.tPause {
+	background: url('/static/images/zt1.png') no-repeat;
+}
+.tPause:hover {
+	background: url('/static/images/zt2.png') no-repeat;
+}
+.tPrev {
+	background: url('/static/images/prev1.png') no-repeat;
+}
+.tPrev:hover {
+	background: url('/static/images/prev2.png') no-repeat;
+}
+.tNext {
+	background: url('/static/images/next1.png') no-repeat;
+}
+.tNext:hover {
+	background: url('/static/images/next2.png') no-repeat;
+}
+#singleSlide {
+	display: inline-block;
+	width: 56px;
+	top: 2px;
+	left: -11px;
+	height: 4px;
+}
+#markerWindowtitle .colorF0960F {
+	color: red;
+}
+#markerWindowtitle {
+	width: 288px;
+	font-size: 12px;
+}
+.closeWindow {
+	background: url("/static/images/info.png") no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+    height: 12px;
+    left: 284px;
+    position: absolute;
+    top: 4px;
+    width: 12px;
+    z-index: 50000;
+}
+.closeWindow:hover {
+	background: url("/static/images/info.png") no-repeat scroll 0px -12px transparent;
+}
+#markerWindowtitle h4 {
+	margin: 0px 0 5px 8px;
+	font-size: 12px;
+	width: 224px;
+	text-align: left;
+}
+#markerWindowtitle ul {
+	text-align: left;
+	margin-left: 8px;
+}
+#markerWindowtitle ul li {
+	height: 16px;
+	list-style: none;
+}
+#markerWindowtitle label {
+	display: inline-block;
+	width: 150px;
+}
+#markerWindowtitle .labelRight {
+	width: 100px;
+	display: inline-block;
+	text-align: left;
+}
+#markerWindowtitle .delayLabel {
+	width: auto;
+}
+#markerWindowtitle a {
+	margin-right: 10px;
+	display: inline-block;
+	color: blue;
+}
+#markerWindowtitle a:visited {
+	color: #0000ff;
+}
+ .lblAddress {
+    display: inline-block;
+	left: 41px;
+    position: relative;
+    width: 230px;
+ }
+#markerWindowtitle ul .msgBox_addressLi {
+    height: auto;
+}
+.msgBox_addressTip {
+    position: absolute;
+}
+#control_panel {
+	position: absolute;
+	left: 41%;
+	top: 84%;
+	width: 218px;
+	height: 26px;
+	background-color: #fff;
+	border: 1px solid gray;
+	border-radius: 6px;
+	padding: 20px 50px;
+    opacity: 0.8;
+	filter: alpha(opacity=80)); /*ie*/
+}
+#singleSpeed {
+	position: relative;
+	top: -8px;
+	height: 4px;
+}
+#singleSlide .ui-slider-handle {
+	background: url(/static/images/singleSlide_bg.png) no-repeat;
+	border: 0 none;
+	width: 12px;
+	height: 14px;
+}

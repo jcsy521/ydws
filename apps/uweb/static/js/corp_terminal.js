@@ -9,7 +9,7 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 */
 dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
-		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
+		b_trackStatus = $('.j_delay').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
 		n_height = 510,
 		n_btnTop = 490;
@@ -101,6 +101,22 @@ dlf.fn_initTerminalWR = function (str_tid) {
 			obj_auto.hide();
 		}
 	});
+	$('#corp_speed_statusSet input').unbind('click').bind('click', function() {
+		var str_val = $(this).val(),
+			obj_tdLimit = $('#td_corp_speed_limit'),
+			obj_inputSpeedLimit = $('#t_corp_speed_limit'),
+			n_newVal = 0,
+			n_oldVal = parseInt($('#corp_speed_limitLabel').attr('t_val'));
+		
+		if ( str_val == 1 ) {
+			obj_tdLimit.show();
+			n_newVal = parseInt(120);
+		} else {
+			obj_tdLimit.hide();
+			n_newVal = 0;
+		}
+		obj_inputSpeedLimit.val(n_newVal);
+	});
 	$('#corp_stop input').unbind('click').bind('click', function() {
 		var str_val = $(this).val(),
 			obj_tdStopInterval = $('#td_corp_stop_interval'),
@@ -189,8 +205,23 @@ dlf.fn_initTerminalWR = function (str_tid) {
 							}
 							$('#corp_stop_status' + n_isOpen).attr('checked', 'checked');
 							
-							$('#t_corp_stop_interval').val(n_stopInterval);
-						}else {
+							$('#t_corp_stop_interval').val(n_stopInterval).attr('t_val', str_val);
+						} else if ( param == 'speed_limit' ) { //超速设置
+							var n_speedInterval = parseInt(str_val),
+								obj_tdSpeedInterval = $('#td_corp_speed_limit'),
+								n_isOpen = 0;
+							
+							if ( n_speedInterval == 0 ) {
+								obj_tdSpeedInterval.hide();
+							} else {
+								obj_tdSpeedInterval.show();
+								n_isOpen = 1;
+							}
+							$('#corp_speed_status' + n_isOpen).attr('checked', 'checked');
+							
+							$('#t_corp_speed_limit').val(n_speedInterval);
+							$('#corp_speed_limitLabel').attr('t_val', str_val);;
+						} else {
 							obj_param.html(str_val);
 						}
 					}
@@ -206,6 +237,46 @@ dlf.fn_initTerminalWR = function (str_tid) {
 			} else {
 				$('#whitelistPopWrapper').hide();
 			}*/
+			
+			//对超速设置进行验证事件
+			$('#t_corp_speed_limit').unbind('blur').blur(function() {
+				var reg = /^(1000|[1-9][0-9]{0,2})$/,
+					str_newSpeed = $.trim($(this).val()),
+					n_limitMax = 1000,
+					str_errorHtml = '';
+				
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+				if ( !/^\d+$/.test(str_newSpeed) ) {
+					str_errorHtml = '请输入数值';
+				}
+				if ( str_newSpeed <= 0 ) {
+					str_errorHtml = '您输入的数值不在1~1000km/h以内，请重新输入。';
+				}
+				if ( str_newSpeed > n_limitMax ) {
+					str_errorHtml = '您输入的数值不在1~1000km/h以内，请重新输入。';
+				}
+				if ( str_errorHtml != '' ) {
+					dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
+					$('#corp_terminalSave').data({'error_msg': str_errorHtml, 'error': true});
+				} else {
+					$('#corp_terminalSave').data({'error_msg': '', 'error': false});		
+				}
+			});
+			$('#t_corp_stop_interval').unbind('blur').blur(function() {
+				var reg = /^(1000|[1-9][0-9]{0,2})$/,
+					str_newSpeed = $.trim($(this).val()),
+					n_limitMax = 1000,
+					str_errorHtml = '';
+				
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+				if ( !/^\d+$/.test(str_newSpeed) ) {
+					str_errorHtml = '请输入数值';
+					dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
+					$('#corp_terminalSave').data({'error_msg': str_errorHtml, 'error': true});
+				} else {
+					$('#corp_terminalSave').data({'error_msg': '', 'error': false});		
+				}
+			});
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -329,9 +400,9 @@ function fn_changeSMSCheckbox(obj_data) {
 		
 		obj_param.attr('t_checked', n_val);
 		if ( n_val == 1 ) {
-			obj_param.attr('checked', true)
+			obj_param.attr('checked', true);
 		} else {
-			obj_param.attr('checked', false)
+			obj_param.attr('checked', false);
 		}
 	}
 }
@@ -363,8 +434,14 @@ dlf.fn_showNotice = function() {
 dlf.fn_corpBaseSave = function() {
 	var obj_terminalData = {},
 		n_num = 0,
-		obj_listVal = $('.j_corp_ListVal');
-		
+		obj_listVal = $('.j_corp_ListVal'),
+		b_error = $('#corp_terminalSave').data('error'),
+		b_errorMsg = $('#corp_terminalSave').data('error_msg');
+	
+	if ( b_error ) {
+		dlf.fn_jNotifyMessage(b_errorMsg, 'message', false, 5000);
+		return;
+	}
 	/**
 	* 遍历 td 查找text、radio、select
 	*/
@@ -374,11 +451,16 @@ dlf.fn_corpBaseSave = function() {
 			str_class = obj_this.attr('class'),
 			str_oldVal = obj_this.attr('t_val'),  // 原始值
 			obj_text = obj_this.children(),
-			str_newVal = obj_text.val(); 	// text of value
+			str_newVal = $.trim(obj_text.val()); 	// text of value
 		
 		if ( str_class.search('j_radio') != -1 ) {	// 上报间隔、基站定位、图标
 			str_newVal = parseInt($(this).children('input:checked').val());
 		}
+		
+		if ( str_key == 'corp_speed_limitLabel' ) {
+			str_key = 'corp_speed_limit';
+		}
+		
 		if ( str_key == 'corp_alert_freq' ) {	// 单独处理 告警工作模式
 			str_newVal = $('#t_corp_alert_freq').val();
 		}
@@ -396,7 +478,6 @@ dlf.fn_corpBaseSave = function() {
 			} else {
 				str_key = str_key.substr(5, str_key.length);
 			}
-			
 			if ( str_key == 'freq' || str_key == 'vibl' ) {
 				str_newVal = parseInt(str_newVal);
 			} else if ( str_key == 'alert_freq' ) {
@@ -405,13 +486,10 @@ dlf.fn_corpBaseSave = function() {
 			if ( str_key != 'stop' && str_key != 'biz_type' ) {
 				obj_terminalData[str_key] = str_newVal;	
 			}
-		} else {
-			if ( str_key == 'corp_stop_interval' && str_newVal == 0 ) {	// 单独处理 停留告警
-				str_key = str_key.substr(5, str_key.length);
-				obj_terminalData[str_key] = str_newVal;
-			}
+			n_num++;
 		}
 	});
+	
 	
 	for(var param in obj_terminalData) {	// 修改项的数目
 		n_num = n_num +1;
@@ -524,7 +602,8 @@ dlf.fn_getAlertOptionForUrl = function(str_getType) {
 										'6': obj_data.heartbeat_lost, 
 										'7': obj_data.region_enter, 
 										'8': obj_data.region_out,
-										'9': obj_data.powerdown
+										'9': obj_data.powerdown,
+										'11': obj_data.speed_limit
 										//'10': obj_data.stop
 									};
 				$('#hidumobile').data('alertoption', obj_cacheData);

@@ -5,7 +5,7 @@
 * str_flag : 是否是第一次加载  2013-07-16 add
 */
 dlf.fn_moveMarker = function(n_tid, str_flag) { 
-	var str_trackStatus = $('#trackHeader').css('display');
+	var str_trackStatus = $('.j_delay').css('display');
 	
 	if ( str_trackStatus == 'none' ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询	
 		/**
@@ -298,7 +298,7 @@ dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_curr
 			
 			if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4|| n_iconType == 5 ) {
 				obj_iconSize = new BMap.Size(50, 50);
-				if ( n_iconType == 1 ) {
+				if ( n_iconType == 1 || n_iconType == 4 || n_iconType == 5 ) {
 					obj_imageOffset = new BMap.Size(0, 0);
 				} else {
 					obj_imageOffset = new BMap.Size(-5, 0);

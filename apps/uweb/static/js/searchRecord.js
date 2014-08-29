@@ -165,12 +165,16 @@ dlf.fn_initRecordSearch = function(str_who) {
 	} else if ( str_who == 'operator' || str_who == 'passenger' ) {
 		obj_tableHeader.hide();
 		dlf.fn_unLockScreen(); // 去除页面遮罩
-	} else if ( str_who == 'notifyManageSearch' ) { // 通知查询
+	} else if ( str_who == 'notifyManageSearch' || str_who == 'mileageSet' ) { // 通知查询 ,单点查询
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
 		fn_initEventTimeControl(str_who);
 		//dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
+		
+		if ( str_who == 'mileageSet' ) {
+			dlf.fn_getAllTerminals('mileageSet');	// 加载所有定位器
+		}
 	}
 	dlf.fn_setSearchRecord(str_who); //  绑定查询的事件,查询,上下翻页
 }
@@ -572,10 +576,37 @@ dlf.fn_searchData = function (str_who) {
 						'pagecnt': n_dwRecordPageCnt
 					};
 			break;
+		case 'mileageSet': // 单点查询
+			str_getDataUrl = MILEAGE_SEARCH_URL;
+			
+			var n_startTime = $('#mileageSetStartTime').val(), // 用户选择时间
+				n_endTime = $('#mileageSetEndTime').val(), // 用户选择时间
+				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
+				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
+				str_tid = $('#selectTerminals2').val();				// 选中终端tid
+			
+			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+				return;
+			}
+			obj_conditionData = {
+						'start_time': n_bgTime, 
+						'end_time': n_finishTime, 
+						'pagenum': n_dwRecordPageNum, 
+						'pagecnt': n_dwRecordPageCnt,
+						'tid': str_tid
+					};
+			break;
+		case 'corpMileageSet': // 单点管理查询
+		case 'bindMileageSet': // 绑定单点管理查询
+		case 'bindBatchMileageSet': // 批量绑定单点管理查询
+			str_getDataUrl = MILEAGE_SET_URL;
+			$('#corpMileageSetTable').removeData();
+			break;
 	}
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
 	dlf.fn_lockScreen();
-	if ( str_who == 'operator' || str_who == 'region' || str_who == 'corpRegion' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
+	if ( str_who == 'operator' || str_who == 'region' || str_who == 'corpRegion' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' || str_who == 'corpMileageSet' || str_who == 'bindMileageSet' || str_who == 'bindBatchMileageSet' ) {
 		$.get_(str_getDataUrl, '', function(data) {	
 			dlf.fn_bindSearchRecord(str_who, data);
 		},
@@ -706,10 +737,18 @@ dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 			// 如果是围栏新增成功后,给用户提示绑定
 			var obj_regionContent = $('#regionContent'),
-				b_regionCreate = obj_regionContent.data('iscreate');
+				b_regionCreate = obj_regionContent.data('iscreate'),
+				b_mileageSetCreate = $('#corpMileageSetContent').data('iscreate');
+			
 			if ( b_regionCreate ) {
 				obj_regionContent.removeData('iscreate');
 				var str_msg = b_userType == true ? '创建成功，请绑定围栏。' : '创建成功。';
+				
+				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
+			}
+			if ( b_mileageSetCreate ) {
+				$('#corpMileageSetContent').removeData('iscreate');
+				var str_msg = b_userType == true ? '创建成功，请绑定单程起点。' : '创建单程起点。';
 				
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 			}
@@ -726,7 +765,10 @@ dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				obj_infoPushEle.hide();
 				obj_infoPushTipsEle.show();	// infoPush没有查询到乘客信息提示框隐藏
 				return;
-			} else if ( str_who == 'region' || str_who == 'corpRegion' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
+			} else if ( str_who == 'corpMileageSet' ) {
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				obj_searchHeader.after('<tr><td colspan="5">没有查询到单程起点。</td></tr>');
+			}else if ( str_who == 'region' || str_who == 'corpRegion' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
 				
 			} else {
 				obj_searchHeader.hide();
@@ -736,6 +778,8 @@ dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				obj_searchHeader.after('<tr><td colspan="4">没有查询到围栏。</td></tr>');
 			} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
 				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！。', 'message', false, 4000);
+			} else if ( str_who == 'bindMileageSet' || str_who == 'bindBatchMileageSet' ) {
+				dlf.fn_jNotifyMessage('当前您还没有单程起点，请新增单程起点！。', 'message', false, 4000);
 			} else if ( str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 				$('.j_weekList').data('weeks', []);
@@ -844,6 +888,8 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			obj_searchData = obj_reaData.regions;
 		}*/
 		$('#regionTable, #corpRegionTable').data({'regions': obj_searchData, 'regionnum': obj_searchData.length}); //围栏存储数据以便显示详细信息
+	} else if ( str_who == 'corpMileageSet' || str_who == 'bindMileageSet' || str_who == 'bindBatchMileageSet' ) {
+		$('#corpMileageSetTable').data({'regions': obj_searchData, 'regionnum': obj_searchData.length}); //单点储数据以便显示详细信息
 	}
 	
 	arr_eventData = obj_searchData;
@@ -1089,6 +1135,50 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText += '<td title="'+str_notifyTextTip+'">'+ str_notifyText +'</td>';
 				str_tbodyText+= '<td><a href="#" onclick="dlf.fn_deleteNotifys('+str_tempId+')">删除</a></td></tr>';
 				break;
+			case 'mileageSet': // 单点查询
+				
+				obj_tableHeader.show();
+				var str_startTime = obj_tempData.start_time,
+					str_endTime = obj_tempData.end_time,
+					str_singleName = obj_tempData.single_name,
+					str_tempSingleName = str_singleName,
+					str_singleId = obj_tempData.se_id;
+				
+				str_tempSingleName = str_tempSingleName.length > 20 ? str_tempSingleName.substr(0, 20) + '...' : str_tempSingleName;
+				str_tbodyText+= '<tr id='+ str_singleId +'>';
+				str_tbodyText+= '<td width="150px">'+ dlf.fn_changeNumToDateString(str_startTime)+'  ~  '+dlf.fn_changeNumToDateString(str_endTime) +'</td>';
+				str_tbodyText+= '<td width="180px" title="'+ str_singleName +'">'+ str_tempSingleName +'</td>';	
+				str_tbodyText+= '<td width="70px"><a href="/corpsingle/detail?se_id='+str_singleId+'" target="_blank">查看详情</a></td>';		
+				str_tbodyText+= '</tr>';
+				break;
+			case 'corpMileageSet':	// 单点管理 
+				var str_singleId = obj_tempData.single_id,
+					str_singleName = obj_tempData.single_name,
+					str_tempSingleName = str_singleName;
+				
+				str_tempSingleName = str_tempSingleName.length > 20 ? str_tempSingleName.substr(0, 20) + '...' : str_tempSingleName;
+				str_tbodyText+= '<tr id='+ str_singleId +'>';
+				str_tbodyText+= '<td width="50px">'+ (i+1) +'</td>';
+				str_tbodyText+= '<td width="280px" title="'+ str_singleName +'">'+ str_tempSingleName +'</td>';	// 围栏名称
+				str_tbodyText+= '<td width="70px"><a href="#" onclick=dlf.fn_detailMileageSet('+ i +')>查看详情</a></td>';	// 
+				str_tbodyText+= '<td width="60px"><a href="#" onclick=dlf.fn_deleteMileageSet('+ str_singleId +')>删除</a></td>';	
+				str_tbodyText+= '</tr>';
+				break;
+			case 'bindMileageSet': // 单点绑定
+			case 'bindBatchMileageSet': // 单点批量绑定
+				var str_singleId = obj_tempData.single_id,
+					str_singleName = obj_tempData.single_name,
+					str_tempSingleName = str_singleName;
+					str_checkboxId = str_who+'Radio_' + str_singleId;
+				
+				str_tempSingleName = str_tempSingleName.length > 20 ? str_tempSingleName.substr(0, 20) + '...' : str_tempSingleName;
+				str_tbodyText+= '<tr id='+ str_singleId +'>';
+				str_tbodyText+= '<td>'+'<input type="radio" id="'+ str_checkboxId +'" name="'+ str_who +'_radio" value="'+ str_singleId +'" /></td>';	// 围栏选择
+				str_tbodyText+= '<td>'+ (i+1) +'</td>';
+				str_tbodyText+= '<td title="'+ str_singleName +'">'+ str_tempSingleName +'</td>';
+				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailMileageSet('+ i +')>查看详情</a></td>';
+				str_tbodyText+= '</tr>';
+				break;
 		}
 	}
 	// 存储已经设置过的星期
@@ -1225,6 +1315,11 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 		dlf.fn_dialogPosition(str_who);	// 绑定围栏前判断是否有围栏， 如果有就打开dialog
 		if ( str_who == 'bindRegion' ) {
 			dlf.fn_getCurrentRegions();
+		}		
+	} else if ( str_who == 'bindMileageSet' || str_who == 'bindBatchMileageSet' ) { // 当前终端所绑定的单点管理进行显示
+		dlf.fn_dialogPosition(str_who);	
+		if ( str_who == 'bindMileageSet' ) {
+			dlf.fn_getCurrentMileageSet();
 		}		
 	}
 	$('#' + str_who + 'Wrapper').data('hash', str_hash);	// 存储hash值
@@ -1417,8 +1512,8 @@ function fn_slideValToTimeVal(n_slideVal) {
 * 2013-07-10 kjj create
 * get all of the terminals in corp
 */
-dlf.fn_getAllTerminals = function() {
-	var obj_selectTerminals = $('#selectTerminals');	// the container of terminals
+dlf.fn_getAllTerminals = function(str_who) {
+	var obj_selectTerminals = $('#selectTerminals, #selectTerminals2');	// the container of terminals
 	
 	obj_selectTerminals.empty(); 	// clear the container
 	$.get_(TERMINALCORP_URL, '', function(data) {
@@ -1427,7 +1522,9 @@ dlf.fn_getAllTerminals = function() {
 				str_options = '';
 			
 			if ( arr_res.length > 0 ) {
-				obj_selectTerminals.append('<option value="">全部</option>'); //注释2014-4-19 tohs
+				if ( str_who != 'mileageSet' ) {
+					obj_selectTerminals.append('<option value="">全部</option>'); //注释2014-4-19 tohs
+				}
 				for ( var i = 0; i < arr_res.length; i++ ) {
 					str_options = '<option value="'+ arr_res[i].tid +'">'+ arr_res[i].tmobile +'</option>';
 					obj_selectTerminals.append(str_options);
@@ -1617,7 +1714,7 @@ dlf.fn_setMapPosition = function(b_status) {
 			n_mapHeight = n_windowHeight - 161,
 			n_right = n_windowWidth - 249,
 			obj_mapCenter = $('.j_body').data('mapcenter'),
-			b_trackSt = $('#trackHeader').is(':visible'), 
+			b_trackSt = $('.j_delay').is(':visible'), 
 			n_mapObjMinHeight = 566,
 			n_mapObjMinWidth = 875,
 			b_topPanelSt = $('#top').is(':hidden'),

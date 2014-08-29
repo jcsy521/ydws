@@ -277,8 +277,8 @@ dlf.fn_corpSave = function() {
 * 初始化操作员个人资料
 */
 dlf.fn_initOperatorData = function() {
-	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_dialogPosition('operatorData'); // 我的资料dialog显示
+	dlf.fn_lockScreen(); // 添加页面遮罩
 	dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('操作员信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.operatorContent')); // 添加内容区域的遮罩
@@ -474,7 +474,7 @@ $(function () {
 		n_mapHeight = n_windowHeight - 161,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = 0,
-		obj_track = $('#trackHeader'),
+		obj_track = $('.j_delay'),
 		n_mainHeight = n_windowHeight - 123,
 		n_corpTreeContainerHeight = n_mainHeight-270,
 		n_treeHeight = n_corpTreeContainerHeight - 48,
@@ -527,12 +527,13 @@ $(function () {
 			n_trackLeft = 90;
 		}
 	}
-	$('#right, #corpRight, #navi, #mapObj, #trackHeader, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
+	$('#right, #corpRight, #navi, #mapObj, .j_wrapperContent, .eventSearchContent, .mileageContent, .operatorContent, .onlineStaticsContent').css('width', n_right);	// 右侧宽度
 	
 	$('#top, #main, #corpMain').css('width', n_windowWidth);
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight);	// 内容域的高度 左右栏高度
 	$('#topShowIcon').css('left', n_topPanelLeft);
 	$('#leftPanelShowIcon').css('top', n_leftPanelTop);
+	$('#delayTable').css('height', n_mainHeight-136);
 	if ( n_windowWidth > 1100 ) {
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	} else {
@@ -544,8 +545,8 @@ $(function () {
 		$('#mapTileLayer').css('left', n_tilelayerLeft);
 	}
 	// 设置停留点列表的位置
-	$('.j_delayPanel').css({'left': n_delayLeft});
-	$('.j_disPanelCon').css({'left': n_delayIconLeft});
+	//$('.j_delayPanel').css({'left': n_delayLeft});
+	//$('.j_disPanelCon').css({'left': n_delayIconLeft});
 	/*
 	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 	*/
@@ -565,7 +566,7 @@ $(function () {
 		var str_id = e.currentTarget.id, 
 			b_mapType = dlf.fn_isBMap(),
 			n_carNum = $('#carList li').length,
-			b_trackStatus = $('#trackHeader').is(':visible'), 
+			b_trackStatus = $('.j_delay').is(':visible'), 
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询是否显示
 			b_routeLineWpST = $('#routeLineWrapper').is(':visible'), //线路展示窗口是否打开
 			b_operatorStatus = $('#operateorWrapper').is(':visible'),	// 操作员是否显示
@@ -576,6 +577,10 @@ $(function () {
 			b_bindRegionStatus = $('#bindRegionWrapper').is(':visible'),	// 围栏绑定是否显示
 			b_bindBatchRegionStatus = $('#bindBatchRegionWrapper').is(':visible'),	// 围栏批量绑定是否显示
 			b_regionCreateStatus = $('#regionCreateWrapper').is(':visible'),	// 新增围栏是否显示
+			b_corpMileageSetStatus = $('#corpMileageSetWrapper').is(':visible'),	// 单点里程设置
+			b_bindMileageSetStatus = $('#bindMileageSetWrapper').is(':visible'),	// 单点里程绑定
+			b_bindBatchMileageSetStatus = $('#bindBatchMileageSetWrapper').is(':visible'),	// 单点里程批量绑定
+			b_mileageSetCreateStatus = $('#mileageSetCreateWrapper').is(':visible'),	// 单点里程新增
 			obj_navItemUl = $('.j_countNavItem'),
 			obj_alarm = $('.j_alarm'),
 			obj_delay = $('.j_delay');
@@ -637,7 +642,7 @@ $(function () {
 				$('#home').addClass('menuHover').css('color', '#0E6CA5');	// homeHover
 				// 如果上次操作的是 轨迹、告警查询、线路管理、添加线路、围栏管理、绑定围栏、批量绑定围栏、创建围栏 操作的话 点击“车辆位置” 清除所有数据重新发起lastinfo请求
 				
-				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus ) {
+				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus || b_corpMileageSetStatus  || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				} else { 
 					var obj_current = obj_selfmarkers[str_currentTid];
@@ -690,7 +695,7 @@ $(function () {
 				dlf.fn_initSMSParams();
 				break;
 			case 'eventSearch': // 告警查询
-				$('#trackHeader').show();
+				$('.j_delay').show();
 				dlf.fn_initRecordSearch('eventSearch');
 				break;
 			case 'operator': // 操作员查询
@@ -751,6 +756,17 @@ $(function () {
 			case 'accStatus': // 供电/断电
 				dlf.fn_initAccStatus($('.j_currentCar').attr('alias'));
 				break;
+			case 'mileageSet_setting': // 单点设置				
+				obj_alarm.hide();
+				dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
+				if ( b_eventSearchStatus ) {
+					dlf.fn_setMapPosition(false);	// 还原地图
+				}
+				dlf.fn_initMileageSet();
+				break;
+			case 'mileageSet_search': // 单点查询
+				dlf.fn_initRecordSearch('mileageSet');
+				break;
 		}
 	});
 	
@@ -760,7 +776,7 @@ $(function () {
 	});
 	
 	/*鼠标滑动显示统计二级菜单*/
-	$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome, .j_userDefend').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
+	$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome, .j_userDefend, .j_mileageSet').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
 		dlf.fn_fillNavItem(event.target.id);
 	}).unbind('mouseout').bind('mouseout', function() {
 		dlf.fn_secondNavValid();
@@ -1338,8 +1354,8 @@ function fn_modiyListPanelPosition() {
 	if ( !b_alarmPanel ) {
 		n_alarmIconLeft = n_tempWindowWidth - 18;
 	}
-	obj_delayPanel.css({'left': n_delayLeft});
-	$('.j_disPanelCon').css({'left': n_delayIconLeft});
+	//obj_delayPanel.css({'left': n_delayLeft});
+	//$('.j_disPanelCon').css({'left': n_delayIconLeft});
 	obj_alarmPanel.css({'left': n_alarmLeft});
 	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 }

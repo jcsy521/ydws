@@ -63,12 +63,18 @@ function customMenu(node) {
 		staticsLabel = '',	// 单个定位器统计报表
 		bindLineLabel = '', // 绑定线路
 		bindRegionLabel = '', // 绑定围栏
+		bindMileageSetLabel = '', // 绑定围栏
+		batchMileageSetLabel = '', // 绑定单程起点
 		batchTrackLabel = '',	// 开启追踪
 		batchCancleTrack = '',	// 取消追踪
 		mileageNotificationLabel = '',	// 里程保养
+		defendLabel0 = '撤防',
+		defendLabel1 = '强力设防',
+		defendLabel2 = '智能设防',
+		str_currentDefendImg = '';
 		str_bizCode = $('#hidBizCode').val(),	// 当前的业务
 		obj_alarmAndDelay = $('.j_alarm, .j_delay'),
-		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
+		b_trackStatus = $('.j_delay').is(':visible');	// 轨迹是否打开着
 	
 	if ( obj_node.hasClass('j_corp') ) {		// 集团右键菜单
 		renameLabel = '重命名集团';
@@ -82,6 +88,7 @@ function customMenu(node) {
 		batchDeleteLabel = '批量删除定位器';
 		batchDefendLabel = '批量设防/撤防';
 		batchRegionLabel = '批量绑定围栏';
+		batchMileageSetLabel = '批量绑定单程起点';
 		batchTrackLabel = '批量开启追踪';
 		batchCancleTrackLabel = '批量取消追踪';
 		moveToLabelForGroup = '批量移动至';
@@ -98,7 +105,23 @@ function customMenu(node) {
 		staticsLabel = '里程统计';
 		bindLineLabel = '绑定/解绑线路';
 		bindRegionLabel = '绑定围栏';
+		bindMileageSetLabel = '绑定单程起点';
 		mileageNotificationLabel = '保养提醒';
+		
+		//动态给设防/撤防状态增加选中的标记
+		var str_nodeClickTid = obj_node.children('a').attr('tid'),
+			obj_nodeData = $('.j_carList').data('carsData')[str_nodeClickTid],
+			n_defendSt = obj_nodeData.mannual_status;
+			
+		str_currentDefendImg = '<img class="currentDefendImg" src="/static/images/current_defend.png" alt="" />';
+		
+		if ( n_defendSt == 0 ) {
+			defendLabel0 += str_currentDefendImg;
+		} else if ( n_defendSt == 1 ) {
+			defendLabel1 += str_currentDefendImg;
+		} else {
+			defendLabel2 += str_currentDefendImg;
+		}
 	}
 	// 定位器的移动至菜单项
 	
@@ -214,6 +237,22 @@ function customMenu(node) {
 				dlf.fn_initBatchRegions(obj);
 			}
 		},
+		"bindMileageSet": {
+			"label" : bindMileageSetLabel,
+			"action" : function(obj) {	// 单程起点
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				obj_alarmAndDelay.hide();
+				dlf.fn_initBindMileageSet();
+			}
+		},
+		"batchMileageSet" : {
+			"label" : batchMileageSetLabel,
+			"action": function (obj) { // 批量单程起点
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				obj_alarmAndDelay.hide();
+				dlf.fn_initBatchMileageSet(obj);
+			}
+		},
 		"terminalSetting": {	// 参数设置
 			"label" : terminalLabel,
 			"action" : function (obj) {
@@ -238,21 +277,21 @@ function customMenu(node) {
 			"label" : singleDefendLabel,
 			"submenu": {
 				'defendSmart': {
-					"label" : "智能设防",
+					"label" : defendLabel2,
 					"action" : function (obj) {
 						dlf.fn_defendQuery('smart', obj.children('a').attr('alias'));
 						return false;
 					}
 				},
 				'defend_powerful': {
-					"label" : "强力设防",
+					"label" : defendLabel1,
 					"action" : function (obj) {
 						dlf.fn_defendQuery('powerful', obj.children('a').attr('alias'));
 						return false;
 					}
 				},
 				'defend_disarm': {
-					"label" : "撤防",
+					"label" : defendLabel0,
 					"action" : function (obj) {
 						dlf.fn_defendQuery('disarm', obj.children('a').attr('alias'));
 						return false;
@@ -410,6 +449,7 @@ function customMenu(node) {
 		delete items.rename;
 		delete items.batchDefend;
 		delete items.batchRegion;
+		delete items.batchMileageSet;
 		delete items.remove;
 		delete items.batchTrack;
 		delete items.moveTerminalForGroup;
@@ -426,6 +466,7 @@ function customMenu(node) {
 		delete items.terminalSetting;
 		delete items.batchDefend;
 		delete items.batchRegion;
+		delete items.batchMileageSet;
 		delete items.defend;
 		delete items.accStatus;
 		delete items.realtime;
@@ -434,6 +475,7 @@ function customMenu(node) {
 		delete items.singleDelete;
 		delete items.bindLine;
 		delete items.bindRegion;
+		delete items.bindMileageSet;
 		delete items.region;
 		delete items.batchTrack;
 		delete items.moveTerminalForGroup;
@@ -454,6 +496,7 @@ function customMenu(node) {
 		delete items.singleDelete;
 		delete items.bindLine;
 		delete items.bindRegion;
+		delete items.bindMileageSet;
 		delete items.region;
 		delete items.mileageNotification;
    }
@@ -483,9 +526,9 @@ function customMenu(node) {
 		delete items.bindLine;
 	}
    
-	//if ( obj_node.children('a').attr('devtype') != 'D' ) {// 非210终端,不显示远程控制
+	if ( obj_node.children('a').attr('devtype') != 'D' ) {// 非210终端,不显示远程控制
 		delete items.accStatus;
-	//}
+	}
    
    
    return items;
@@ -603,6 +646,7 @@ dlf.fn_initOpenTrack  = function(str_operation, obj_params) {
 		obj_table = $('.batchTrackTable tbody'),
 		obj_head = $('.batchTrackTable thead th');
 	
+	dlf.fn_lockScreen();
 	obj_table.html('');	// 清空表格数据
 	for ( var i = 0; i < arr_dataes.length; i++ ) {
 		var obj = arr_dataes[i],
@@ -992,7 +1036,7 @@ dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			n_terminalClass = str_class.indexOf('j_leafNode'),
 			n_groupClass = str_class.indexOf('j_group'),
 			n_corpClass = str_class.indexOf('j_corp'),
-			b_trackStatus = $('#trackHeader').is(':visible'),
+			b_trackStatus = $('.j_delay').is(':visible'),
 			obj_tempCarsData = $('.j_carList').data('carsData'),
 			str_nodes = '';
 		
@@ -1339,7 +1383,7 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 						if ( n_nowtime - n_timestamp > 300 || n_speed < 5 ) {
 							if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4|| n_iconType == 5 ) {
 								obj_iconSize = new BMap.Size(50, 50);
-								if ( n_iconType == 1 ) {
+								if ( n_iconType == 1 || n_iconType == 4 || n_iconType == 5 ) {
 									obj_imageOffset = new BMap.Size(0, 0);
 								} else {
 									obj_imageOffset = new BMap.Size(-5, 0);
@@ -1694,17 +1738,30 @@ function fn_updateAlarmList(arr_alarm) {
 				n_categroy = obj_alarm.category,
 				obj_li = $('.j_alarmTable li');
 			
-			if ( obj_cacheAlertOption[n_categroy] == 1 ) {	
-				str_html= '<li><label class="colorBlue" title="'+ str_oldAlias +'">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
+			if ( x == 0 )  {
+				var str_newTid = obj_alarm.tid,
+					n_newTimes = obj_alarm.timestamp,
+					obj_oldAlarmData = $('.j_alarmTable').data('markers')[0],
+					str_oldTid = obj_oldAlarmData.tid,
+					n_oldCategroy = obj_oldAlarmData.category,
+					n_oldTimes = obj_oldAlarmData.timestamp;
 				
-				if ( obj_li.length > 0 ) {
-					obj_li.first().before(str_html);
-				} else {
-					obj_table.append(str_html);
+				if ( n_oldCategroy == n_categroy && str_oldTid == str_newTid && n_oldTimes == n_newTimes ) {
+					continue;
+				}				
+			} else {			
+				if ( obj_cacheAlertOption[n_categroy] == 1 ) {	
+					str_html= '<li><label class="colorBlue" title="'+ str_oldAlias +'">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
+					
+					if ( obj_li.length > 0 ) {
+						obj_li.first().before(str_html);
+					} else {
+						obj_table.append(str_html);
+					}
+					$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
+					arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
+					n_playMusicNum++;
 				}
-				$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
-				arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
-				n_playMusicNum++;
 			}
 		}
 		obj_table.data('markers', arr_markers);
@@ -2680,6 +2737,7 @@ function fn_batchRemoveTerminals(obj_params) {
 	$('#vakata-contextmenu').hide();	// 右键菜单隐藏
 	dlf.fn_dialogPosition('batchDelete');	// 设置dialog的位置
 	// 数据回显
+	dlf.fn_lockScreen();
 	$('.j_batchDelete').attr('disabled', false);	// 批量删除按钮变成绿色并且可用
 	fn_initBatchDeleteData(obj_params);
 }
@@ -2767,6 +2825,7 @@ function fn_initBatchImport(gid, gname) {
 	$(obj_upfile).remove().html('');
 	$(obj_msg).html('');
 	dlf.fn_dialogPosition('fileUpload');	// 设置dialog的位置
+	dlf.fn_lockScreen();
 	$('#hidGid').val(gid);
 	$('#hidGName').val(gname);
 	$('#fileUploadIframe').attr('src', BATCHIMPORT_URL);

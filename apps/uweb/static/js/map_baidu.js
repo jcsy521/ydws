@@ -266,9 +266,9 @@ dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 		if ( str_iconType == 'actiontrack' ) {
 			if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
 				b_flag = true;
-				if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4|| n_iconType == 5 ) {
+				if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4 || n_iconType == 5 ) {
 					obj_iconSize = new BMap.Size(50, 50);
-					if ( n_iconType == 1 ) {
+					if ( n_iconType == 1 || n_iconType == 4 || n_iconType == 5 ) {
 						obj_imageOffset = new BMap.Size(0, 0);
 					} else {
 						obj_imageOffset = new BMap.Size(-5, 0);
@@ -363,9 +363,9 @@ dlf.fn_loadBaiduShare = function() {
 		obj_share = $('#bdshare_s'),
 		b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
-	if ( b_isHttps ) {
+	//if ( b_isHttps ) {
 		return;
-	}
+	//}
 	if ( dlf.fn_isEmptyObj(obj_share) ) {
 		obj_share.remove();
 	}
@@ -514,7 +514,11 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 		b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
 		b_corpRegionWpST = $('#corpRegionWrapper').is(':visible'),
 		b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
-		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible');
+		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
+		b_corpMileageSetStatus = $('#corpMileageSetWrapper').is(':visible'),	// 单点里程设置
+		b_bindMileageSetStatus = $('#bindMileageSetWrapper').is(':visible'),	// 单点里程绑定
+		b_bindBatchMileageSetStatus = $('#bindBatchMileageSetWrapper').is(':visible'),	// 单点里程批量绑定
+		b_mileageSetCreateStatus = $('#mileageSetCreateWrapper').is(':visible');	// 单点里程新增;
 	
 	//address = fn_cutString(address); hs: 2014-6-30
 	if ( dlf.fn_userType() ) {	// 集团用户修改图标
@@ -654,10 +658,9 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 		
 		str_html += '<li>时间： '+ date +'</li>' + 
 					'<li class="msgBox_addressLi" title="'+ str_tempAddress +'"><label class="msgBox_addressTip">位置：</label> <lable class="lblAddress">'+ address +'</label></li>';
-
-
+		
 		if ( str_iconType == 'actiontrack' ) {
-			if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
+			if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST || b_corpMileageSetStatus || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
 			
 			} else {
 				str_html+='<li class="top10"><a href="#" id="infowindow_realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
@@ -677,9 +680,9 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 						str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34',
 						b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
-						if ( !b_isHttps ) {
+						/*if ( !b_isHttps ) {
 							str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录https://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
-						}
+						}*/
 				}
 			}
 		} else if ( str_iconType == 'alarmInfo' ) {
@@ -703,7 +706,7 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 		str_tempResult = str_result;//fn_cutString(str_result),	// 位置描述过长显示省略号 kjj add in 2013-08-21 hs:2014-6-30
 		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
 		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
-		
+	
 	if ( str_type == 'realtime' || str_type == 'actiontrack' ) {
 		var str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 		
@@ -747,16 +750,18 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 		var obj_trackLocation = '',
 			str_tempResult = str_result.length > 20 ? str_result.substr(0, 20) + '...' : str_result;
 		
-		$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_tempResult).attr('title', str_result);	// 修改右侧列表位置描述
+		//$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_tempResult).attr('title', str_result);	// 修改右侧列表位置描述
+
 		if ( n_index >= 0 ) {
 			if ( str_type == 'delay' ) {
-				var arr_delayPoints = $('#trackHeader').data('delayPoints');
+				var arr_delayPoints = $('.j_delay').data('delayPoints');
 				
 				arr_delayPoints[n_index].name = str_result;
 				
 				obj_trackLocation = arr_delayPoints[n_index];
 				
-				$('#trackHeader').data('delayPoints', arr_delayPoints);
+				$('.j_delay').data('delayPoints', arr_delayPoints);
+				$('#trackLsAddressPanel'+n_index).html(str_tempResult).attr('title', str_result);
 			} else {
 				arr_dataArr[n_index].name = str_result;
 				obj_trackLocation = arr_dataArr[n_index];
@@ -778,6 +783,20 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 			dlf.fn_createMapInfoWindow(obj_trackLocation, str_type, n_index);
 			obj_trackMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 		}
+	} else if ( str_type == 'stop' ) {
+		var arr_delayPoints = $('.j_delay').data('delayPoints');
+		
+		arr_delayPoints[n_index].name = str_result;
+		
+		$('.j_delay').data('delayPoints', arr_delayPoints);
+		if ( n_index == 0 ) {
+			str_result += '（终点）';
+		} else if ( n_index == arr_delayPoints.length-1 ) {
+			str_result += '（起点）';
+		}
+		
+		$('#trackLsAddressPane'+n_index).html(str_result);
+		
 	} else {
 		var obj_carDatas = $('.j_carList').data('carsData'),
 				obj_tempCarData = obj_carDatas[tid];
@@ -1058,7 +1077,7 @@ dlf.fn_getShapeData = function() {
 * 显示图形
 * obj_centerPointer: 多边形围栏的告警点
 */
-dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError, obj_centerPointer) {
+dlf.fn_displayMapShape = function(obj_shapeData, b_seCenter, b_locateError, obj_centerPointer) {
 	var shapeOptions = {//样式
 			strokeColor: '#5ca0ff',    //边线颜色。
 			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
@@ -1067,19 +1086,24 @@ dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError, obj_
 			fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
 			strokeStyle: 'solid' //边线的样式，solid或dashed。
 		},
-		n_region_shape = obj_shpaeData.region_shape,
+		n_region_shape = obj_shapeData.region_shape,
 		arr_calboxData = [],
 		obj_tempRegionShape = null;
 	
+	//hs 2014-8-19如果是单起点显示使用single_shape
+	if ( $('#corpMileageSetWrapper').data('mileage_set') ) {
+		n_region_shape = obj_shapeData.single_shape;
+	}
+	
 	// hs:2013.12.24 根据不同的围栏类型进行相应操作显示
 	if ( n_region_shape == 0 ) { // 围栏类型 0: 圆形 1: 多边形
-		var obj_regionData = obj_shpaeData.circle
+		var obj_regionData = obj_shapeData.circle
 			centerPoint = dlf.fn_createMapPoint(obj_regionData.longitude, obj_regionData.latitude);
 			
 		obj_tempRegionShape = new BMap.Circle(centerPoint, obj_regionData.radius, shapeOptions);
 	} else {
 		var arr_tempPolygonData = [],
-			arr_polygonDatas = obj_shpaeData.polygon,
+			arr_polygonDatas = obj_shapeData.polygon,
 			n_lenPolygon = arr_polygonDatas.length;
 		
 		if ( obj_centerPointer ) {
@@ -1115,7 +1139,7 @@ dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError, obj_
 		mapObj.setCenter(centerPoint);
 		if ( n_region_shape == 0 ) {
 			// 计算bound显示 
-			var obj_circleData = obj_shpaeData.circle,
+			var obj_circleData = obj_shapeData.circle,
 				n_radius = obj_circleData.radius;
 				n_lng = obj_circleData.longitude,
 				n_lat = obj_circleData.latitude,

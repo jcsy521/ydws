@@ -1492,45 +1492,6 @@ body {
 	text-align: center;
 	z-index: 1000;
 }
-#trackTerminalAlias {
-    display: inline-block;
-    float: left;
-    height: 36px;
-    line-height: 36px;
-    overflow: hidden;
-	margin-right: 5px;
-}
-.trackPos {
-	display: inline-block;
-    height: 36px;
-	line-height: 36px;
-    width: auto;
-	margin-right: 10px;
-	float: left;
-	min-width: 526px;
-}
-.trackPos #ceillid_flag {
-	position: absolute;
-	top: 11px;
-	*top: 8px;
-}
-.trackPos label {
-	padding-left: 19px;
-	*position: relative;
-	*top: -4px;
-}
-.trackPos #trackTerminalAliasLabel {
-	color: #119DED;
-	padding: 0px;
-	*top: 0px;
-}
-#trackSlide {
-	display: inline-block;
-	/* margin-left: 12px; */
-	width: 56px;
-	top: 2px;
-	left: -11px;
-}
 #trackBeginTime, #trackEndTime {
 	width: 138px;
 	padding-left: 8px;
@@ -1562,7 +1523,7 @@ body {
 	display: inline-block;
     position: relative;
     text-align: left;
-    top: 5px;
+    top: 15px;
 	float: left;
 }
 .trackSpeed {
@@ -1601,6 +1562,7 @@ body {
 
 .disPanelCon {
 	top: 342px;
+	right: 560px;
 }
 .alarmTitle {
 	text-align: center;
@@ -1616,7 +1578,7 @@ body {
 	font-size: 14px;
 	margin-left: 16px;
 }
-.closeAlarm, .exportDelay {
+.closeAlarm {
 	background: url('/static/images/close_default.png');
 	height: 17px;
 	width: 16px;
@@ -1631,13 +1593,28 @@ body {
 	color: #0FB5F6;
 }
 .exportDelay {
-	background: none repeat scroll 0 0 #9BE2EC;
-    color: #FFFFFF;
-    display: inline-block;
+    position: relative;
+	cursor: pointer;
+	text-decoration: none;
+	background: none repeat scroll 0 0 #fff;
+    color: #000;
     height: 22px;
-    left: 237px;
-    line-height: 24px;
-    width: 69px;
+    left: -30px;
+    line-height: 18px;
+    width: 92px;
+	float: right;
+	border: 1px solid #9ccaf4;
+	border-radius: 4px;
+	text-align: center;
+	padding: 5px 0 0 0;
+	z-index: 1;
+	top: 3px;
+	margin-bottom: 6px;
+}
+.exportDelay:hover {
+	border: 1px solid #9ccaf4;
+	background-color: #9ccaf4;
+	color: #000;
 }
 .disPanel, .alarmIcon {
 	position: absolute;
@@ -1659,8 +1636,9 @@ body {
 	width: 400px;
 }
 .delayPanel {
-	width: 550px;
-	top: 236px;
+	width: 560px;
+	top: 158px;
+	background-color: #fff;
 }
 .delayPanel .alarmTitle span {
 	margin-left: 0;
@@ -1697,34 +1675,120 @@ body {
 }
 .delayTable {
 	display: inline-block;
-	width: 520px;
-	margin-left: 10px;
-	border: 0px;
-	border-collapse: collapse;
-	min-height: 120px;
-	max-height: 345px;
+	width: 560px;
+	min-height: 372px;
 	overflow-x: hidden;
     overflow-y: auto;
 }
-.delayTable tr {
-	width: 520px;
+.trackLsItem {
+	display: inline-block;
+	padding: 0 0 20px 78px;
+	background: url('/static/images/track_bg_line.png') repeat-y 150px 0;
 }
-.delayTable td {
-	border-bottom: 1px dashed #C1D2E5;
-    height: 23px;
-    line-height: 23px;
+.trackLsItemSt {
+	margin-top: 14px;
 }
-.delayTable thead td {
-	color: #69B2E9;
+.trackLsItemSt .trackLsDate {
+	top: -12px;
 }
-.delayCenterTd {
-	text-align: center;
+.trackLsItemSt .trackLsIcon_start {
+	top: 0;
 }
-.delayTable td label {
+.trackLsItemSt .trackLsContent {
+	top: -12px;
 }
-.delayTable img {
+.trackLsItemEnd {
+	height: 0px;
+	margin-bottom: 130px;
+}
+.trackLsDate, .trackLsIcon, .trackLsContent {
+	float: left;
+}
+.trackLsDate {
+	font-size: 14px;
+	color: #222;
+	font-family: '微软雅黑';
+	font-weight: bold;
 	position: relative;
-    top: 7px;
+	right: 16px;
+}
+.trackLsIcon {
+	background: url('/static/images/track_point_default.png') no-repeat;
+	height: 14px;
+	width: 14px;
+	position: relative;
+	right: 0px;
+	top: 12px;
+}
+.trackLsItem .trackLsIcon_start {
+	background: url('/static/images/track_point_start.png') no-repeat;
+}
+.trackLsItem .trackLsIcon_end {
+	background: url('/static/images/track_point_end.png') no-repeat;
+}
+.trackLsContent {
+	position: relative;
+	left: 36px;
+	font-size: 16px;
+	font-weight: bold;
+}
+.trackLsAddress {
+	color: #828282;
+	width: 290px;
+}
+.trackLsMileage {
+	background: url('/static/images/track_bg_defualt.png') no-repeat;
+	width: 340px;
+	height: 36px;
+	padding: 12px 0 0 34px;
+	margin-top: 30px;
+	cursor: pointer;
+}
+.trackLsMileage_hover {
+	background: url('/static/images/track_bg_hover.png') no-repeat;
+}
+.trackLsMileage_click {
+	background: url('/static/images/track_bg_click.png') no-repeat;	
+}
+.textZooIn {
+	font-size: 20px;
+}
+#control_panel {
+	position: absolute;
+	left: 41%;
+	top: 86%;
+	width: 90px;
+	height: 42px;
+	background-color: #fff;
+	border: 1px solid #589bc5;
+	border-radius: 6px;
+	padding: 20px 50px 25px;
+	opacity: .8;
+	filter: alpha(opacity=80);
+}
+#singleSpeed {
+	position: relative;
+	top: -8px;
+}
+#trackSearchPanel {
+	border-bottom: 1px solid gray;
+	height: 80px;
+	padding: 20px 0 0 30px;
+}
+.trackTime {
+	margin: 14px 0;
+}
+#ceillid_flag {
+	position: relative;
+	top: 3px;
+}
+.default_delayItem {
+	position: relative;
+	text-align: center;
+	top: 100px;
+	font-weight: bold;
+	color: #ccc;
+	font-size: 20px;
 }
 .colorRed {
 	color: red;
@@ -1747,9 +1811,17 @@ body {
 .clickedBg {
 	background-color: #9CCAF4;
 }
+.trackBtn a, .tSearch {
+	cursor: pointer;
+	display: inline-block;
+	height: 25px;
+}
 .tSearch {
 	background: url('/static/images/trackcx1.png') no-repeat;
 	width: 63px;
+	float: right;
+	position: relative;
+	right: 32px;
 }
 .tSearch:hover {
 	background: url('/static/images/trackcx2.png') no-repeat;
@@ -1921,7 +1993,7 @@ body {
 .onlineStaticsTable {
 	width: 750px;
 }
-#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader, #notifyManageSearchTableHeader th  {
+#eventSearchTableHeader th, #staticsTableHeader th, #mileageTableHeader th, #singleEventTableHeader th, #singleMileageTableHeader th, #operatorTableHeader th, .questionTable th, .regionTable th, .bindRegionTable th, .bindBatchRegionTable th, #onlineStaticsTableHeader th, .tableHeader, #notifyManageSearchTableHeader th, #bindMileageSetTableHeader th, #bindBatchMileageSetTableHeader th, #mileageSetTableHeader th {
 	height: 38px;
 	line-height: 38px;
     font-size: 14px; 
@@ -1947,7 +2019,7 @@ body {
 	width: 175px;
 }
 
-#pagerContainer, #staticsPage, #operatorPage, #mileagePage, #onlineStaticsPage, #passengerPage {
+#pagerContainer, #staticsPage, #operatorPage, #mileagePage, #onlineStaticsPage, #passengerPage, #mileageSetPage {
 	width: 750px;
 	height: 34px;
 	line-height: 34px;
@@ -1955,7 +2027,7 @@ body {
 	margin:0 auto;
 	text-align: center;
 }
-#mileagePage, #onlineStaticsPage {
+#mileagePage, #onlineStaticsPage, ##mileageSetPage {
 	width: 550px;
 }
 .pageNums {
@@ -2705,6 +2777,7 @@ body {
 	height: 300px;
 	min-height: 300px;
 	overflow-y: auto;
+	overflow-x: hidden;
 }
 .j_corp>a {
 	color: green;
@@ -2804,7 +2877,7 @@ body {
 	padding: 0 0 0 29px;
 	width: 191px;
 }
-#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .onlineStaticsCondition input, .operatorConditions input, #passengerContent input, #notifyManageSearchStartTime, #notifyManageSearchEndTime {
+#staticsStartTime, #staticsEndTime, #eventSearchStartTime, #eventSearchEndTime, #mileageStartTime, #mileageEndTime, .onlineStaticsCondition input, .operatorConditions input, #passengerContent input, #notifyManageSearchStartTime, #notifyManageSearchEndTime, #mileageSetStartTime, #mileageSetEndTime {
 	height: 24px;
     line-height: 24px;
     padding: 5px 0 0 29px;
@@ -3155,7 +3228,7 @@ legend {
 #singleEventWrapper {
 	height: 620px;
 }
-#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #onlineStaticsWrapper, #passengerWrapper, #infoPushWrapper, #notifyManageSearchWrapper, #notifyManageAddWrapper {
+#eventSearchWrapper, #mileageWrapper, #operatorWrapper, #onlineStaticsWrapper, #passengerWrapper, #infoPushWrapper, #notifyManageSearchWrapper, #notifyManageAddWrapper, #mileageSetWrapper {
 	position: absolute;
 	left: 248px;
 	top: 160px;
@@ -3924,7 +3997,7 @@ legend {
 #batchTerminalTipImg {
 	margin-top: 10px;
 }
-#topShowIcon, #leftPanelShowIcon {
+#topShowIcon, #leftPanelShowIcon, #trackSearch_topShowIcon {
 	cursor: pointer;
 	position: absolute;
 	left: 50%;
@@ -3936,7 +4009,7 @@ legend {
 	background: url('/static/images/navIcon_showHide.png') no-repeat;
 	z-index: 985;
 }
-#topShowIcon {
+#topShowIcon, #trackSearch_topShowIcon {
 	height: 16px;
 	width: 46px;
 	top: 158px;
@@ -3947,7 +4020,7 @@ legend {
 	border-top-right-radius: 0px;
 	background-position: -107px 3px;
 }
-#dialogsWrapper .topShowIcon_hover {
+#dialogsWrapper .topShowIcon_hover, #trackSearch_topShowIcon_hover {
 	background-position: -68px 3px;	
 }
 #leftPanelShowIcon {
@@ -4053,4 +4126,132 @@ legend {
 	top: -9px;
 	font-size: 14px;
 	font-weight: bold;
+}
+
+#corp_speed_limit {
+	text-align: left;
+}
+/*mileage setting*/
+#corpMileageSetWrapper {
+	width: 510px;
+	height: 510px;
+}
+#corpMileageSetContent {
+	height: 476px;
+}
+.corpMileageSetTitle {
+	background-position: 0 -1190px;
+    width: 510px;
+}
+.corpMileageSetTitle .close {
+	left: 480px;
+}
+#corpMileageSetCreateBtn {
+	color: #4876FF;
+	display: inline-block;
+    cursor: pointer;
+    height: 23px;
+    left: 437px;
+    position: relative;
+    top: 14px;
+	text-decoration: none;
+}
+#corpMileageSetCreateBtn:hover {
+	text-decoration: underline;
+	font-weight: bold;
+}
+#corpMileageSetTable {
+	width: 460px;
+	margin: 14px 0 26px 26px;
+}
+#corpMileageSetNote {
+	color: red;
+	display: block;
+	margin: 16px 0px 0px 14px;
+}
+#mileageSetCreateWrapper  {
+	position: absolute;
+	bottom: 100px;
+	background-color: #000;
+	opacity: 0.6;
+	filter:alpha(opacity=60);
+	border-radius: 6px;
+	width: 360px;
+	height: 40px;
+	line-height: 40px;
+	color: white;
+	font-size: 14px;
+	z-index: 1000;
+}
+#mileageSetCreateBtnPanel {
+	margin-left: 15px;
+}
+#mileageSet_searchBtn {
+	top: 9px;
+}
+
+#bindMileageSetWrapper {
+	height: 507px;
+	width: 530px;
+}
+.bindMileageSetTitle {
+	background-position: 0px -1156px;
+	width: 530px;
+}
+.bindMileageSetTitle .close, .bindBatchMileageSetTitle .close {
+	left: 500px;
+}
+.bindRegionContent, .bindBatchMileageSetContent {
+	height: 460px;
+	width: 530px;
+	padding-top: 20px;
+}
+#corpMileageSetForTerminal {
+	top: -8px;
+	width: auto;
+}
+#bindMileageSetTable, .bindBatchMileageSetTable {
+	width: 460px;
+	margin: 10px auto;
+}
+.bindBatchMileageSetTitle {
+	background-position: 0px -1122px;
+	width: 530px;
+}
+#corp_speed_limitLabel{
+	float: left;
+}
+.currentDefendImg {
+	position: relative;
+	top: 3px;
+	float: right;
+}
+
+#trackSearch_topShowIcon {
+	top: 100px;
+}
+#trackTerminalAlias {
+	margin-left: 10px;
+}
+.trackTime_label {
+	position: relative;
+	top: -2px;
+}
+
+#singleSlide {
+	display: inline-block;
+	width: 110px;
+	top: 2px;
+	left: -11px;
+	height: 4px;
+}
+#singleSlide .ui-slider-handle {
+	border-radius: 50%;
+	border: 0 none;
+	background: url(/static/images/singleSlide_bg.png) no-repeat;
+	width: 12px;
+	height: 14px;
+}
+#bindMileageSetSave, #bindBatchMileageSetSave {
+	left: 403px;
 }

@@ -280,7 +280,7 @@ dlf.fn_initBindRegion = function() {
 		str_tid = obj_currentCar.attr('tid'),
 		str_alias = obj_currentCar.attr('alias'),
 		str_msg = '当前您还没有电子围栏，请新增电子围栏！',
-		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
+		b_trackStatus = $('.j_delay').is(':visible');	// 轨迹是否打开着
 		
 	if ( b_trackStatus ) {
 		dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo

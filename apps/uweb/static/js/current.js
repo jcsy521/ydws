@@ -202,7 +202,9 @@ dlf.fn_defendQuery = function(str_defendType, str_alias) {
 		obj_defend = {'mannual_status': 0, 'tids': str_cTid},	// 向后台传递设防撤防数据
 		obj_currentCar = $('.j_currentCar'),
 		str_tempAlias = '',
-		str_msg = '';
+		str_msg = '',
+		obj_carData = $('.j_carList').data('carsData')[str_cTid],
+		n_defaultDefendSt = obj_carData.mannual_status;;
 	
 	// 0撤防,1强,2智能,
 	if ( str_defendType == 'smart' ) {
@@ -215,6 +217,11 @@ dlf.fn_defendQuery = function(str_defendType, str_alias) {
 		obj_defend.mannual_status = 0;
 		str_msg = '撤防';
 	} 
+	
+	if ( obj_defend.mannual_status == n_defaultDefendSt ) {
+		dlf.fn_jNotifyMessage('您已选择“'+str_msg+'”，请勿重复操作。', 'message', false, 4000);
+		return;
+	}
 	
 	if ( dlf.fn_userType() ) {
 		obj_currentCar = $('.j_terminal[tid='+str_currentTid+']');
@@ -283,9 +290,8 @@ dlf.fn_initBatchDefend = function(str_defend, obj_param) {
 	} else if ( str_defend == '0' ) {
 		str_defnedMsg = '撤防';
 	} 
-	
 	dlf.fn_echoData('batchDefendTable', obj_param, str_defnedMsg);
-	
+	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('.j_batchDefend').removeClass('btn_delete').addClass('operationBtn').attr('disabled', false);	// 批量按钮变成灰色并且不可用
 	$('.j_batchDefend').val('批量' + str_defnedMsg).unbind('click').bind('click', function() {
 		obj_defend['mannual_status'] = n_defendStatus;

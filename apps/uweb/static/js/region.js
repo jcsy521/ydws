@@ -278,7 +278,7 @@ dlf.fn_initBindRegion = function() {
 	var str_bindRegion = 'bindRegion',
 		obj_currentCar = $($('.j_carList a[class*=j_currentCar]')),
 		str_tid = obj_currentCar.attr('tid'),
-		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
+		b_trackStatus = $('.j_delay').is(':visible');	// 轨迹是否打开着
 		
 	if ( b_trackStatus ) {
 		dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
