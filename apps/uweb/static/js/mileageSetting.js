@@ -378,7 +378,7 @@ dlf.fn_getCurrentMileageSet = function () {
 	var obj_currentCar = $($('.j_carList a[class*=j_currentCar]')),
 		str_tid = obj_currentCar.attr('tid');
 	
-	$.get_(BIND_MILEAGE_SET_URL +'?single_id='+ str_tid, '', function (data) {  
+	$.get_(BIND_MILEAGE_SET_URL +'?tid='+ str_tid, '', function (data) {  
 		if ( data.status == 0 ) {
 			var obj_oneselfData = data.res,
 				n_selfRegion = obj_oneselfData.length;
