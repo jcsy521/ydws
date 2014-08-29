@@ -24,6 +24,9 @@ RNAME = DotDict(POWERLOW="POWERLOW",
                 REGION_OUT="REGION_OUT",
                 POWERDOWN="POWERDOWN",
                 STOP="STOP",
+                SPEED_LIMIT="SPEED_LIMIT",
+                SINGLE_ENTER="SINGLE_ENTER",
+                SINGLE_OUT="SINGLE_OUT",
                 UNKNOWN="UNKNOWN")
 
 # sms option 
@@ -37,9 +40,12 @@ SMS_CATEGORY = DotDict(LOGIN="LOGIN",
                        REGION_ENTER="REGION_ENTER",
                        REGION_OUT="REGION_OUT",
                        POWERDOWN="POWERDOWN",
-                       STOP="STOP")
+                       STOP="STOP",
+                       SPEED_LIMIT="SPEED_LIMIT",
+                       SINGLE_ENTER="SINGLE_ENTER",
+                       SINGLE_OUT="SINGLE_OUT",) 
 
-# match definitions in db.
+# category for eventer. match definitions in db.
 CATEGORY = DotDict(UNKNOWN=0,
                    REALTIME=1,
                    POWERLOW=2,
@@ -47,10 +53,13 @@ CATEGORY = DotDict(UNKNOWN=0,
                    ILLEGALMOVE=4,
                    EMERGENCY=5,
                    HEARTBEAT_LOST=6,
-                   REGION_ENTER=7,
-                   REGION_OUT=8,
-                   POWERDOWN=9,
-                   STOP=10)
+                   REGION_ENTER=7, # 进围栏
+                   REGION_OUT=8, # 出围栏
+                   POWERDOWN=9, # 低电
+                   STOP=10, # 停留
+                   SPEED_LIMIT=11, # 超速
+                   SINGLE_ENTER=12, # 进单程
+                   SINGLE_OUT=13) # 出单程
                    
 
 # The location name will be cached for 7 days
@@ -60,6 +69,11 @@ LOCATION_NAME_EXPIRY = 60 * 60 * 24 * 365 * 2 # two years
 # location of target keep 24 hours. in seconds.
 #LOCATION_EXPIRY = 60 * 60 * 24 * 7
 LOCATION_EXPIRY = 60 * 60 * 24 * 365 * 2 # two years 
+
+
+SPEED_LIMIT_EXPIRY = 60 * 60 * 24 * 365 * 2 # two years 
+
+STOP_EXPIRY = 60 * 60 * 24 * 365 * 2 # two years 
 
 # tinyurl keep 3 days
 TINYURL_EXPIRY = 3 * 24 * 60 * 60

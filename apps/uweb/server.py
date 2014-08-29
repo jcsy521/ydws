@@ -94,6 +94,9 @@ from handlers.operator import OperatorHandler
 from handlers.region import RegionHandler, RegionDetailHandler
 from handlers.corpregion import CorpRegionHandler
 from handlers.bindregion import BindRegionHandler
+from handlers.single import SingleHandler
+from handlers.corpsingle import CorpSingleHandler, CorpSingleListHandler, CorpSingleDetailHandler
+from handlers.bindsingle import BindSingleHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.zfjsyncer import ZFJSyncerHandler
 from handlers.ownerservice import OwnerserviceHandler
@@ -117,6 +120,7 @@ from handlers.upload import UploadHandler
 from handlers.attendance import AttendanceHandler
 from handlers.bind import BindHandler
 from handlers.acc import ACCHandler
+from handlers.masspoint import MassPointHandler 
 
 # utils
 from handlers.uwebhelper import GEHandler
@@ -281,6 +285,15 @@ class Application(tornado.web.Application):
             (r"/report/online/*", OnlineHandler),
             (r"/download/*", DownloadHandler),
             (r"/corpregion/*", CorpRegionHandler),
+
+            (r"/bindsingle/*", BindSingleHandler),
+            (r"/corpsingle/*", CorpSingleHandler),
+            (r"/corpsingle/list/*", CorpSingleListHandler),
+            (r"/corpsingle/detail/*", CorpSingleDetailHandler),
+            (r"/single/*", SingleHandler),
+
+            (r"/masspoint/*", MassPointHandler),
+
 
             (r"/test/*", EventHandler),
 

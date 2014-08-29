@@ -34,6 +34,9 @@ IDLE_DISTANCE  = 200 # in metre
 REGION_SHAPE=DotDict(CIRCLE=0,
                      POLYGON=1)
 
+SINGLE_SHAPE=DotDict(CIRCLE=0,
+                     POLYGON=1)
+
 
 USER_TYPE=DotDict(PERSON='individual',
                   CORP='enterprise',
@@ -144,3 +147,9 @@ AVATAR_QUALITY = 50
 
 # The acc_status will be cached for 90 seconds
 ACC_STATUS_EXPIRY = 90*2
+
+# The acc_status will be cached for 90 seconds
+MASS_POINT_LIMIT = 90*2
+
+# The acc_status will be cached for 90 seconds
+MASS_POINT_ = 90*2

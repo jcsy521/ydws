@@ -104,6 +104,7 @@ class EventHandler(BaseHandler):
                               8, # retion out
                               9, # power off
                               10, # stop
+                              11, # speed_limit 
                               ]
 
             if category is not None:

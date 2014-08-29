@@ -18,18 +18,20 @@ from helpers.confhelper import ConfHelper
 from helpers.uwebhelper import UWebHelper
 
 from utils.dotdict import DotDict
-from utils.misc import get_location_key, get_terminal_time, get_terminal_info_key,\
-     get_ios_id_key, get_power_full_key, get_region_status_key, get_alarm_info_key,\
-     safe_utf8, safe_unicode, get_ios_push_list_key, get_android_push_list_key,\
-     get_region_time_key, get_alert_freq_key, get_pbat_message_key,\
-     get_mileage_key, start_end_of_day
+from utils.misc import (get_location_key, get_terminal_time, get_terminal_info_key,
+     get_ios_id_key, get_power_full_key, get_region_status_key, get_alarm_info_key,
+     safe_utf8, safe_unicode, get_ios_push_list_key, get_android_push_list_key,
+     get_region_time_key, get_alert_freq_key, get_pbat_message_key,
+     get_mileage_key, start_end_of_day, get_single_status_key,
+     get_single_time_key, get_speed_limit_key, get_stop_key,
+     get_distance_key, get_last_pvt_key)
 from utils.public import insert_location
 from utils.geometry import PtInPolygon 
 from utils.repeatedtimer import RepeatedTimer
 
 from codes.smscode import SMSCode
 from codes.errorcode import ErrorCode 
-from constants import EVENTER, GATEWAY, UWEB 
+from constants import EVENTER, GATEWAY, UWEB, LIMIT
 from constants.MEMCACHED import ALIVED
 
 
@@ -76,6 +78,21 @@ class PacketTask(object):
         else:
             return regions
 
+    def get_singles(self, tid): 
+        """Get all singles associated with the tid."""
+        singles  = self.db.query("SELECT ts.id AS single_id, ts.name AS single_name, "
+                                "       ts.longitude AS single_longitude, ts.latitude AS single_latitude, "
+                                "       ts.radius AS single_radius," 
+                                "       ts.points, ts.shape AS single_shape"
+                                "  FROM T_SINGLE ts, T_SINGLE_TERMINAL tst "
+                                "  WHERE ts.id = tst.sid"
+                                "  AND tst.tid = %s",
+                                tid)
+        if singles is None or len(singles) == 0:
+            return []
+        else:
+            return singles
+
     def check_region_event(self, ori_location, region): 
         """Check enter or out region 
 
@@ -103,8 +120,6 @@ class PacketTask(object):
         # BIG NOTE: python grammar, shallow copy will change origen data.
         location = copy.deepcopy(dict(ori_location))
         location = DotDict(location)
-
-        terminal = QueryHelper.get_terminal_by_tid(location['dev_id'], self.db)
 
         old_region_status_key = get_region_status_key(location['dev_id'], region.region_id)
         old_region_status = self.redis.getvalue(old_region_status_key)
@@ -144,8 +159,8 @@ class PacketTask(object):
             else:
                 region_status = EVENTER.CATEGORY.REGION_OUT
                 rname = EVENTER.RNAME.REGION_OUT
-        else: 
-            logging.info("[EVENTER] unknow region_shape: %s, region: %s, skip it", 
+        else: #NOTE: here should never occur. 
+            logging.error("[EVENTER] unknow region_shape: %s, region: %s, skip it", 
                          region.region_shape, region)
 
         if old_region_time:
@@ -170,15 +185,150 @@ class PacketTask(object):
             self.redis.setvalue(old_region_status_key, region_status)
             self.redis.setvalue(old_region_time_key, location['gps_time'])
             # 2: complete the location
-            location['category']=region_status
-            location['t'] = EVENTER.INFO_TYPE.REPORT
+            location['category'] = region_status
+            location['t'] = EVENTER.INFO_TYPE.REPORT #NOTE: t is need
             location['rName'] = rname
             location['region'] = region 
             location['region_id'] = region.region_id
 
         return location
+
+    def check_single_event(self, ori_location, single): 
+        """Check enter or out single 
+
+        workflow:
+        get old_single_status accordinding to single and tid
+        get old_single_time accordinding to single and tid
+        check single_status according distance, then keep single_status in redis
+        if not old_single_status:
+            skip
+        if old_single_time and location's gps_time <= old_region_time:
+            skip
+        check single event according to single_status and old_single_staus
+        if single event:
+            keep single_status, single_time in redis
+        """
+        if not (ori_location and single): 
+            logging.info("[EVENTER] query data is invalid, ori_location: %s, single: %s, do not check.", 
+                         ori_location, single)
+            return None
+        if not (ori_location['cLat'] and ori_location['cLon']):
+            logging.info("[EVENTER] location is invalid, ori_location: %s, do not check.", 
+                         ori_location)
+            return None
+
+        # BIG NOTE: python grammar, shallow copy will change origen data.
+        location = copy.deepcopy(dict(ori_location))
+        location = DotDict(location)
+
+        old_single_status_key = get_single_status_key(location['dev_id'], single.single_id)
+        old_single_status = self.redis.getvalue(old_single_status_key)
+
+        old_single_time_key = get_single_time_key(location['dev_id'], single.single_id)
+        old_single_time = self.redis.getvalue(old_single_time_key)
+
+        if single.single_shape == UWEB.SINGLE_SHAPE.CIRCLE:
+            # get distance beteween now location and the centre of the region 
+            distance = lbmphelper.get_distance(single.single_longitude,
+                                               single.single_latitude,
+                                               location.cLon, 
+                                               location.cLat)
+            
+            if distance >= single.single_radius:
+                single_status = EVENTER.CATEGORY.SINGLE_OUT
+                rname = EVENTER.RNAME.SINGLE_OUT
+            else:
+                single_status = EVENTER.CATEGORY.SINGLE_ENTER
+                rname = EVENTER.RNAME.SINGLE_ENTER
+        elif single.single_shape == UWEB.SINGLE_SHAPE.POLYGON:
+            polygon = {'name':'',
+                       'points':[]}
+            points = single.points 
+            point_lst = points.split(':') 
+            for point in point_lst: 
+               latlon = point.split(',') 
+               dct = {'lat':float(latlon[0])/3600000, 
+                      'lon':float(latlon[1])/3600000} 
+               polygon['points'].append(dct)
+
+            polygon['name'] = single.single_name
+
+            if PtInPolygon(location, polygon):
+                single_status = EVENTER.CATEGORY.SINGLE_ENTER
+                rname = EVENTER.RNAME.SINGLE_ENTER
+            else:
+                single_status = EVENTER.CATEGORY.SINGLE_OUT
+                rname = EVENTER.RNAME.SINGLE_OUT
+        else: #NOTE: here should never occur. 
+            logging.error("[EVENTER] unknow single_shape: %s, single: %s, skip it", 
+                         single.single_shape, single)
+
+        #NOTE: skip the time
+        if old_single_time:
+            if int(location['gps_time']) <= int(old_single_time):
+                logging.info("[EVENTER] current location's gps_time: %s is not bigger than old_single_time: %s, skip it", 
+                             location['gps_time'], old_single_time)
+                return location
+        
+        logging.info('old_single_status_key: %s, single_status: %s', old_single_status_key, single_status)
+
+        # keep region status 
+        self.redis.setvalue(old_single_status_key, single_status)
+        logging.info("rname:%s, old status:%s, current status:%s, tid:%s",
+                     safe_unicode(single.single_name), old_single_status, single_status, location['dev_id'])    
+
+        if not old_single_status:
+            logging.info("[EVENTER] old_single_status: %s is invalid, skip it", 
+                         old_single_status)
+            # skip the first region event
+            return location
+
+        # check single event
+        if single_status != old_single_status:
+            self.redis.setvalue(old_single_status_key, single_status)
+            self.redis.setvalue(old_single_time_key, location['gps_time'])
+
+            # 2: complete the location
+            location['category'] = single_status
+            location['t'] = EVENTER.INFO_TYPE.REPORT #NOTE: t is need
+            location['rName'] = rname
+            location['single'] = single 
+            location['single_id'] = single.single_id
+
+            # 3. keep it in db
+            # out first, then enter
+            if single_status == EVENTER.CATEGORY.SINGLE_ENTER:
+                single_event = self.db.get("SELECT id as seid, tid, sid, start_time, end_time" 
+                                           "  FROM T_SINGLE_EVENT"
+                                           "  WHERE tid = %s "
+                                           "  AND sid = %s"
+                                           "  AND start_time !=0"
+                                           "  AND end_time = 0 "
+                                           "  ORDER BY id DESC LIMIT 1",
+                                           location['dev_id'],
+                                           location['single_id'])
+
+                if not single_event:
+                    pass
+                else:
+                    self.db.execute("UPDATE T_SINGLE_EVENT"
+                                    "  SET end_time = %s"
+                                    "  WHERE id = %s",
+                                    location['gps_time'],
+                                    single_event['seid'])
+            elif single_status == EVENTER.CATEGORY.SINGLE_OUT:
+                self.db.execute("INSERT INTO T_SINGLE_EVENT(tid, sid, start_time)" 
+                                "  VALUES(%s, %s, %s)",
+                                location['dev_id'], 
+                                location['single_id'],
+                                location['gps_time'])
                 
+        return location
+
     def get_tname(self, dev_id):
+        """Get alias of a terminal.
+        It's deprecated now.
+        """
         t = self.db.get("SELECT alias, mobile FROM T_TERMINAL_INFO"
                         "  WHERE tid = %s", dev_id)
         name = t.alias if t.alias else t.mobile 
@@ -188,6 +338,9 @@ class PacketTask(object):
         return name
 
     def realtime_location_hook(self, location):
+        """Handle realtime.
+        It's deprecated now.
+        """
         insert_location(location, self.db, self.redis)
 
     def unknown_location_hook(self, location):
@@ -196,6 +349,8 @@ class PacketTask(object):
         pass
 
     def update_terminal_info(self, location):
+        """Update terminal's info in db and redis.
+        """
         # db
         fields = []
         keys = ['gps', 'gsm', 'pbat', 'defend_status', 'login']
@@ -220,9 +375,12 @@ class PacketTask(object):
             self.redis.setvalue(terminal_info_key, terminal_info)
     
     def handle_position_info(self, location):
+        """Handle the info of position, include PVT(T11), CALL(T3)
+        """
         location = DotDict(location)
         regions = self.get_regions(location['dev_id'])
         current_time = int(time.time())
+        #NOTE: Now, it is seldom appears
         if location.Tid == EVENTER.TRIGGERID.CALL:
             if location['gps_time'] > (current_time + 24*60*60):
                 logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", location)
@@ -240,8 +398,17 @@ class PacketTask(object):
             if location.get('lat') and location.get('lon'):
                 self.realtime_location_hook(location)
 
+        # NOTE: For pvt(T11)
         elif location.Tid == EVENTER.TRIGGERID.PVT:
+            #NOTE: get speed_limit  
+            terminal = self.db.get("SELECT speed_limit "
+                                   "  FROM T_TERMINAL_INFO "
+                                   "  WHERE tid = %s",
+                                   location['dev_id']) 
+            speed_limit = terminal.get('speed_limit', '')
+
             for pvt in location['pvts']:
+                # The 'future time' is drop 
                 if pvt['gps_time'] > (current_time + 24*60*60):
                     logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", pvt)
                     continue
@@ -252,8 +419,91 @@ class PacketTask(object):
                 pvt['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS
                 pvt['type'] = 0 
 
+
+                #self.handle_stop(pvt)
+                #NOTE: handle stop 
+                tid = pvt['dev_id']
+                stop_key = get_stop_key(tid)
+                stop = self.redis.getvalue(stop_key)
+
+                distance_key = get_distance_key(tid)
+                distance = self.redis.get(distance_key)
+                if not distance:
+                    distance = 0
+
+                last_pvt_key = get_last_pvt_key(tid) 
+                last_pvt = self.redis.getvalue(last_pvt_key)
+                if last_pvt:
+                    distance = float(distance) + lbmphelper.get_distance( int(last_pvt["lon"]), int(last_pvt["lat"]), 
+                                             int(pvt["lon"]),
+                                             int(pvt["lat"]))
+                    self.redis.setvalue(distance_key, distance, time=EVENTER.STOP_EXPIRY)
+
+                if pvt['speed'] > LIMIT.SPEED_LIMIT: # is moving
+                    if stop: #NOTE: time_diff is too short, drop the point. 
+                        if pvt["gps_time"] - stop['start_time'] < 60: # 60 seconds 
+                            self.db.execute("DELETE FROM T_STOP WHERE lid = %s",
+                                            stop['lid'])
+                            self.redis.delete(stop_key)
+                            logging.info("[EVENTER] Stop point is droped: %s", stop)
+                        else: # close a stop point
+                            self.redis.delete(stop_key)
+                            self.db.execute("UPDATE T_STOP SET end_time = %s WHERE lid = %s",
+                                            pvt["gps_time"], stop['lid'])
+                            logging.info("[EVENTER] Stop point is closed: %s", stop)
+                    else:
+                        pass
+                else: # low speed, may stop
+                    if stop: 
+                        logging.info("[EVENTER] Stop point is updated: %s", stop)
+                        stop['end_time'] = pvt["gps_time"]
+                        self.redis.setvalue(stop_key, stop, time=EVENTER.STOP_EXPIRY)
+                        logging.info("[EVENTER] Stop point is updated: %s", stop)
+                    else: # create a new stop point
+                        pvt = lbmphelper.handle_location(pvt, self.redis, cellid=True, db=self.db)
+                        lid = insert_location(pvt, self.db, self.redis) 
+                        stop = dict(lid=lid, 
+                                    tid=tid, 
+                                    start_time=pvt["gps_time"], 
+                                    end_time=0, 
+                                    pre_lon=pvt["lon"], 
+                                    pre_lat=pvt["lat"], 
+                                    distance=distance)
+
+                        self.db.execute("INSERT INTO T_STOP(lid, tid, start_time, distance) VALUES(%s, %s, %s, %s)",
+                                        lid, tid, pvt["gps_time"], distance)
+                        self.redis.setvalue(stop_key, stop, time=EVENTER.STOP_EXPIRY)
+
+                        self.redis.delete(distance_key)
+
+                        logging.info("[EVENTER] Stop point is created: %s", stop)
+                
+                last_pvt = pvt 
+                self.redis.setvalue(last_pvt_key, last_pvt, time=EVENTER.STOP_EXPIRY)
+
+                #NOTE: check the speed limit
+                if speed_limit:
+                    speed_limit_key = get_speed_limit_key(pvt['dev_id'])
+                    if int(pvt['speed']) > speed_limit:
+                        if self.redis.exists(speed_limit_key): 
+                            logging.info("[EVENTER] speed_limit has reported, ignore it. pvt: %s", pvt) 
+                            pass
+                        else:
+                            speed_pvt = lbmphelper.handle_location(pvt, self.redis, cellid=True, db=self.db) 
+                            speed_pvt['category'] = EVENTER.CATEGORY.SPEED_LIMIT
+                            speed_pvt['t'] = EVENTER.INFO_TYPE.REPORT #NOTE: t is need
+                            speed_pvt['rName'] = EVENTER.RNAME.SPEED_LIMIT
+                            self.handle_report_info(speed_pvt)
+                            self.redis.setvalue(speed_limit_key, True, time=EVENTER.SPEED_LIMIT_EXPIRY)
+                            logging.info("[EVENTER] speed_limit works, pvt: %s", speed_pvt) 
+                    else: 
+                        self.redis.delete(speed_limit_key)
+                        logging.info("[EVENTER] speed_limit does not work, ignore it. pvt: %s", pvt) 
+                else: 
+                    logging.info("[EVENTER] speed_limit is closed, ignore it. pvt: %s", pvt) 
+
+                #NOTE: check region-event
                 regions = self.get_regions(pvt['dev_id'])
-                # check regions
                 if regions:
                     pvt = lbmphelper.handle_location(pvt, self.redis,
                                                      cellid=True, db=self.db) 
@@ -261,9 +511,20 @@ class PacketTask(object):
                         region_pvt= self.check_region_event(pvt, region)
                         if region_pvt and region_pvt['t'] == EVENTER.INFO_TYPE.REPORT:
                             self.handle_report_info(region_pvt)
+
+                #NOTE: check region-event
+                singles = self.get_singles(pvt['dev_id'])
+                if singles:
+                    pvt = lbmphelper.handle_location(pvt, self.redis,
+                                                     cellid=True, db=self.db) 
+                    for single in singles:
+                        #NOTE: report about single may be need in future 
+                        single_pvt = self.check_single_event(pvt, single)
+
                 # NOTE: not offset it
                 #location = lbmphelper.handle_location(pvt, self.redis,
                 #                                      cellid=False, db=self.db) 
+                #NOTE: mileage
                 pvt['category'] = EVENTER.CATEGORY.REALTIME
                 if pvt.get('lat') and pvt.get('lon'): 
                     insert_location(pvt, self.db, self.redis)
@@ -343,12 +604,15 @@ class PacketTask(object):
         EMERGENCY
         REGION_ENTER
         REGION_OUT
+        STOP
+        SPEED_LIMIT
         """
         if not info:
             return
         # 1: get available location from lbmphelper 
         report = lbmphelper.handle_location(info, self.redis,
                                             cellid=True, db=self.db)
+
         if not (report['cLat'] and report['cLon']):
             #NOTE: Get latest location
             last_location = QueryHelper.get_location_info(report.dev_id, self.db, self.redis)
@@ -422,7 +686,7 @@ class PacketTask(object):
         if info['rName'] in [EVENTER.RNAME.REGION_OUT, EVENTER.RNAME.REGION_ENTER]:
             region = report['region']
             alarm['region_id'] = region.region_id
-             
+
         self.record_alarm_info(alarm)
 
         # 2:  save into database. T_LOCATION, T_EVENT
@@ -529,14 +793,23 @@ class PacketTask(object):
                     sms = SMSCode.SMS_POWERDOWN % (name, report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.REGION_OUT:
                 if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_REGION_OUT_NOLOC % (name,  safe_unicode(report['region']['region_name']), terminal_time)
+                    sms = SMSCode.SMS_REGION_OUT_NOLOC % (name, safe_unicode(report['region']['region_name']), terminal_time)
                 else:
                     sms = SMSCode.SMS_REGION_OUT % (name,  safe_unicode(report['region']['region_name']), report_name, terminal_time)
             elif report.rName == EVENTER.RNAME.REGION_ENTER:
                 if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_REGION_ENTER_NOLOC % (name,  safe_unicode(report['region']['region_name']), terminal_time)
+                    sms = SMSCode.SMS_REGION_ENTER_NOLOC % (name, safe_unicode(report['region']['region_name']), terminal_time)
                 else:
-                    sms = SMSCode.SMS_REGION_ENTER % (name,  safe_unicode(report['region']['region_name']), report_name, terminal_time)
+                    sms = SMSCode.SMS_REGION_ENTER % (name, safe_unicode(report['region']['region_name']), report_name, terminal_time)
+            elif report.rName == EVENTER.RNAME.SPEED_LIMIT:
+                 sms_dct = dict(name=name,
+                                report_name=report_name,
+                                speed=int(report.get('speed',0)),
+                                terminal_time=terminal_time)
+                 if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                     sms = SMSCode.SMS_SPEED_LIMIT_NOLOC % sms_dct 
+                 else:
+                     sms = SMSCode.SMS_SPEED_LIMIT % sms_dct 
             else:
                 pass
 

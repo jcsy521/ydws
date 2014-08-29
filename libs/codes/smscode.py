@@ -86,7 +86,11 @@ class SMSCode(object):
     SMS_REGION_OUT_NOLOC = u"尊敬的客户：您的定位器“%s”已离开电子围栏“%s”，地址：因定位信号弱，当前暂时无法定位，请关注定位器状态，时间：%s。"
     SMS_REGION_ENTER_NO_ADDRESS = u"尊敬的客户：您的定位器“%s”已进入电子围栏“%s”，时间：%s。"
     SMS_REGION_OUT_NO_ADDRESS = u"尊敬的客户：您的定位器“%s”已离开电子围栏“%s”，时间：%s。"
+
+    SMS_SPEED_LIMIT = u"尊敬的客户：您的定位器“%(name)s”检测到超速，当前速度为%(speed)s km/h，为保障安全，请按照规定速度行驶。地址：%(report_name)s，时间：%(terminal_time)s。"
+    SMS_SPEED_LIMIT_NOLOC = u"尊敬的客户：您的定位器“%(name)s”检测到超速，当前速度为%(speed)s km/h，为保障安全，请按照规定速度行驶。地址：因定位信号弱，当前暂时无法定位，请关注定位器状态，时间：%(terminal_time)s。"
     
+
     SMS_RUNTIME_STATUS = u"尊敬的客户：您的定位器“%s”运行状态如下，\n通讯状态：%s，\n运行模式：%s，\n电量：%d%%，\nGSM信号强度：%s，\nGPS信号强度：%s。"
 
     SMS_NOTIFY = u"尊敬的客户，您的车辆行程已到达%s公里，请及时对车辆“%s”进行保养。若已保养，请登录网页或手机客户端重新设置“下次保养里程”【移动卫士】"

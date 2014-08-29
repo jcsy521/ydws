@@ -68,6 +68,8 @@ class ErrorCode(object):
     REGION_ADDITION_EXCESS = 702
     REGION_NOT_EXISTED = 703 
 
+    SINGLE_NOT_EXISTED = 704
+
     TERMINAL_OFFLINE = 800
     TERMINAL_OTHER_ERRORS = 802
     TERMINAL_TIME_OUT = 801
@@ -136,6 +138,7 @@ class ErrorCode(object):
         QUERY_INTERVAL_EXCESS:         u"对不起，只能查询一个星期之内的记录！",
         REGION_ADDITION_EXCESS:        u"对不起，电子围栏数已超过上限。",
         REGION_NOT_EXISTED:            u"对不起，该围栏已经不存在。",
+        SINGLE_NOT_EXISTED:            u"对不起，该单程起点不存在。",
         TERMINAL_NOT_ORDERED:          u"对不起，该号码尚未绑定定位器。",
         MOBILE_NOT_ORDERED:            u"%s不是移动卫士白名单号码，请联系客服。",
         TERMINAL_NOT_EXISTED:          u"对不起，该终端不存在。",
