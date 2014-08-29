@@ -87,29 +87,38 @@ def delete_terminal(tid, db, redis, del_user=True):
 
     # clear redis
     tmobile = terminal.mobile if terminal else ""
-    for item in [tid, tmobile]:
-        sessionID_key = get_terminal_sessionID_key(item)
-        address_key = get_terminal_address_key(item)
-        info_key = get_terminal_info_key(item)
-        lq_sms_key = get_lq_sms_key(item)
-        lq_interval_key = get_lq_interval_key(item)
-        location_key = get_location_key(item)
-        del_data_key = get_del_data_key(item)
-        track_key = get_track_key(item)
-        login_time_key = get_login_time_key(item)
-        offline_lq_key = get_offline_lq_key(item)
-        lqgz_interval_key = get_lqgz_interval_key(item)
-        lqgz_key = get_lqgz_key(item)
-        alarm_info_key = get_alarm_info_key(item)
-        mileage_key = get_mileage_key(item)
-        keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key,
-                location_key, del_data_key, track_key, login_time_key,
-                offline_lq_key, lqgz_interval_key, lqgz_key, alarm_info_key,
-                mileage_key]
-        for rid in rids:
-            region_status_key = get_region_status_key(item, rid)
-            keys.append(region_status_key)
-        redis.delete(*keys)
+    umobile = terminal.owner_mobile if terminal else None
+    #for item in [tid, tmobile]:
+    #    sessionID_key = get_terminal_sessionID_key(item)
+    #    address_key = get_terminal_address_key(item)
+    #    info_key = get_terminal_info_key(item)
+    #    lq_sms_key = get_lq_sms_key(item)
+    #    lq_interval_key = get_lq_interval_key(item)
+    #    location_key = get_location_key(item)
+    #    del_data_key = get_del_data_key(item)
+    #    track_key = get_track_key(item)
+    #    login_time_key = get_login_time_key(item)
+    #    offline_lq_key = get_offline_lq_key(item)
+    #    lqgz_interval_key = get_lqgz_interval_key(item)
+    #    lqgz_key = get_lqgz_key(item)
+    #    alarm_info_key = get_alarm_info_key(item)
+    #    mileage_key = get_mileage_key(item)
+    #    keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key,
+    #            location_key, del_data_key, track_key, login_time_key,
+    #            offline_lq_key, lqgz_interval_key, lqgz_key, alarm_info_key,
+    #            mileage_key]
+    #    for rid in rids:
+    #        region_status_key = get_region_status_key(item, rid)
+    #        keys.append(region_status_key)
+    #    redis.delete(*keys)
+    keys = []
+    tid_keys = redis.keys('*%s'%tid)
+    tmobile_keys = redis.keys('*%s'%tmobile)
+    keys.extend(tid_keys)
+    keys.extend(tmobile_keys)
+    redis.delete(*keys)
+    logging.info("[PUBLIC] Delete terminal's keys in reids, tid: %s, tmobile: %s, umobile: %s, keys: %s",
+                 tid, tmobile, umobile, keys)
 
     # clear db
     db.execute("DELETE FROM T_REGION_TERMINAL"
@@ -137,18 +146,20 @@ def delete_terminal(tid, db, redis, del_user=True):
                 #           "  WHERE mobile = %s",
                 #           terminal.owner_mobile)
 
-                lastinfo_key = get_lastinfo_key(terminal.owner_mobile)
-                lastinfo_time_key = get_lastinfo_time_key(terminal.owner_mobile)
-                ios_id_key = get_ios_id_key(terminal.owner_mobile)
-                ios_badge_key = get_ios_badge_key(terminal.owner_mobile)
-                keys = [lastinfo_key, lastinfo_time_key, ios_id_key, ios_badge_key]
+                #lastinfo_key = get_lastinfo_key(terminal.owner_mobile)
+                #lastinfo_time_key = get_lastinfo_time_key(terminal.owner_mobile)
+                #ios_id_key = get_ios_id_key(terminal.owner_mobile)
+                #ios_badge_key = get_ios_badge_key(terminal.owner_mobile)
+                #keys = [lastinfo_key, lastinfo_time_key, ios_id_key, ios_badge_key]
+                keys = redis.keys('*%s'%terminal.owner_mobile)
                 redis.delete(*keys)
-                logging.info("[PUBLIC] Delete User: %s", terminal.owner_mobile)
+                logging.info("[PUBLIC] Delete user. umobile: %s, keys: %s", 
+                             terminal.owner_mobile, keys)
     else:
         logging.info("[PUBLIC] User of %s already not exist.", tid)
 
     logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
-                 tid, tmobile, (terminal.owner_mobile if terminal else None))
+                 tid, tmobile, umobile)
 
 def insert_location(location, db, redis):
     """Insert whole-data into T_LOCATION.

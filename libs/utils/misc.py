@@ -114,6 +114,14 @@ def get_region_time_key(dev_id, region_id):
     """for the newest region event's time of dev"""
     return str("region_time:%s%s" % (dev_id, region_id))
 
+def get_single_status_key(dev_id, single_id):
+    """for the newest single status of dev"""
+    return str("single_status:%s%s" % (dev_id, single_id))
+
+def get_single_time_key(dev_id, single_id):
+    """for the newest single event's time of dev"""
+    return str("single_time:%s%s" % (dev_id, single_id))
+
 def get_terminal_sessionID_key(dev_id):
     return str("sessionID:%s" % dev_id)
 
@@ -198,6 +206,22 @@ def get_group_terminal_detail_key(cid, gid, tid):
 def get_acc_status_info_key(tid):
     """for the acc_status info belongs to the tid"""
     return str("acc_status_info:%s" % tid)
+
+def get_speed_limit_key(tid):
+    """for the speed_limit associated with the tid"""
+    return str("speed_limit:%s" % tid)
+
+def get_stop_key(tid):
+    """for the stop_point associated with the tid"""
+    return str("stop:%s" % tid)
+
+def get_distance_key(tid):
+    """for the distance associated with the tid"""
+    return str("distance:%s" % tid)
+
+def get_last_pvt_key(tid):
+    """for the last pvt associated with the tid"""
+    return str("last_pvt:%s" % tid)
 
 def get_terminal_time(timestamp):
     """Format a readable time like 2013-10-10，10:10:10 
