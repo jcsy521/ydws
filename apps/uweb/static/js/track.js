@@ -688,24 +688,21 @@ function fn_startDrawLineStatic(arr_dataArr, flag) {
 		//存储起终端点以便没有位置时进行位置填充
 		$('.delayTable').data('markers', arr_markers);
 		
-		// 如果是集团用户的轨迹查询 显示停留点数据信息
-		if ( dlf.fn_userType() ) {
-			// 添加停留点marker
-			var arr_delayPoints = $('.j_delay').data('delayPoints'),
-				arr_tempDelay = [];
-			
-			if ( arr_delayPoints ) { // 如果有停留点,进行显示
-				for ( var x = 0; x < arr_delayPoints.length; x++ ) {
-					var obj_currentCar = $('.j_currentCar');
-					
-					if ( $('.j_currentCar').length == 0 ) {
-						obj_currentCar = $('.j_terminal[tid='+ str_currentTid +']');
-					}
-					arr_delayPoints[x].alias = obj_currentCar.attr('alias');
-					arr_tempDelay.push(arr_delayPoints[x]);
+		// 添加停留点marker
+		var arr_delayPoints = $('.j_delay').data('delayPoints'),
+			arr_tempDelay = [];
+		
+		if ( arr_delayPoints ) { // 如果有停留点,进行显示
+			for ( var x = 0; x < arr_delayPoints.length; x++ ) {
+				var obj_currentCar = $('.j_currentCar');
+				
+				if ( $('.j_currentCar').length == 0 ) {
+					obj_currentCar = $('.j_terminal[tid='+ str_currentTid +']');
 				}
-				fn_printDelayDatas(arr_tempDelay, 'delay');	// 显示停留数据
+				arr_delayPoints[x].alias = obj_currentCar.attr('alias');
+				arr_tempDelay.push(arr_delayPoints[x]);
 			}
+			fn_printDelayDatas(arr_tempDelay, 'delay');	// 显示停留数据
 		}
 		$('#control_panel').show();
 		arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[0].clongitude, arr_dataArr[0].clatitude));
