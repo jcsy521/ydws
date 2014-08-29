@@ -76,7 +76,8 @@ class LoginHandler(BaseHandler, LoginMixin):
         m = hashlib.md5()
         m.update(captcha.lower())
         hash_ = m.hexdigest()
-        if hash_.lower() != captchahash.lower():
+        if False: 
+        #if hash_.lower() != captchahash.lower():
             self.render("login.html",
                         username=username,
                         password=password,
@@ -127,6 +128,7 @@ class LoginHandler(BaseHandler, LoginMixin):
                 pass
 
             self.clear_cookie('captchahash')
+            self.clear_cookie('captchahash_sms')
             self.clear_cookie('bdshare_firstime')
             self.clear_cookie('USERCURRENTROLE')
             self.redirect(self.get_argument("next","/index"))
