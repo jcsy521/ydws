@@ -76,6 +76,6 @@ class TrackMixin(BaseMixin):
             if name:
                 location['name'] = name 
                 self.db.execute("UPDATE T_LOCATION SET name = %s WHERE id = %s",
-                                name, location['lid'])
+                                name, location['id'])
         return location['name']
 
