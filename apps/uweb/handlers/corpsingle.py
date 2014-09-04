@@ -20,7 +20,7 @@ class CorpSingleHandler(BaseHandler):
         """ Get singles by cid"""
         status = ErrorCode.SUCCESS
         try:
-            cid = self.get_current_user()['cid']
+            cid = self.current_user.cid 
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             logging.exception("[UWEB] uid: %s get region data format illegal. Exception: %s",
@@ -225,7 +225,8 @@ class CorpSingleListHandler(BaseHandler):
                 pagecnt = (d + 1) if m else d
 
 
-            res = self.db.query("SELECT tse.id as se_id, tse.start_time, tse.end_time,  ts.name as single_name"
+            res = self.db.query("SELECT tse.id AS se_id, tse.start_time, tse.end_time,"
+                                "    ts.id AS single_id, ts.name AS single_name"
                                 "  FROM T_SINGLE_EVENT AS tse, T_SINGLE AS ts"
                                 "  WHERE tse.tid = %s"
                                 "  AND tse.sid = ts.id"

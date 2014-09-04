@@ -102,7 +102,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             ## part 3: sms option
             sms_options = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
                                       "       illegalmove, sos, heartbeat_lost, charge,"
-                                      "       region_enter, region_out"
+                                      "       region_enter, region_out, speed_limit"
                                       "  FROM T_SMS_OPTION"
                                       "  WHERE uid = %s"
                                       "  LIMIT 1",

@@ -72,10 +72,16 @@ class TrackMixin(BaseMixin):
         if not location:
             return ''
         if not location['name']:
+            if location['clatitude'] and location['clongitude']:
+                pass
+            else:
+                track = get_locations_with_clatlon([location,], self.db)
+                location = track[0] 
             name = get_location_name(location['clatitude'], location['clongitude'], self.redis)
             if name:
                 location['name'] = name 
                 self.db.execute("UPDATE T_LOCATION SET name = %s WHERE id = %s",
                                 name, location['id'])
-        return location['name']
+
+        return location['name'] if location['name'] else ''
 

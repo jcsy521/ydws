@@ -18,4 +18,11 @@ MASS_POINT_INTERVAL = 60*60*24*7
 # if speed is > 5, it is moving, else may be motionless 
 SPEED_LIMIT = 5 
 
+# a week. before 2014.08.01, if query interval about mass-point exceeds one week, it is invalid
+MASS_POINT_QUERY_INTERVAL = 60*60*24*7 
+
+# 2014.08.01. before 2014.08.01, if query interval about mass-point exceeds one week, it is invalid
+MASS_POINT_QUERY_TIME = 1406822400 
+
+
 

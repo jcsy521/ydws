@@ -142,7 +142,7 @@ class PacketTask(object):
                 rname = EVENTER.RNAME.REGION_ENTER
         elif region.region_shape == UWEB.REGION_SHAPE.POLYGON:
             polygon = {'name':'',
-                      'points':[]}
+                       'points':[]}
             points = region.points 
             point_lst = points.split(':') 
             for point in point_lst: 
@@ -317,11 +317,17 @@ class PacketTask(object):
                                     location['gps_time'],
                                     single_event['seid'])
             elif single_status == EVENTER.CATEGORY.SINGLE_OUT:
+                last_pvt_key = get_last_pvt_key(location['dev_id'])
+                last_pvt = self.redis.getvalue(last_pvt_key)
+                if last_pvt:
+                    gps_time = last_pvt['gps_time']
+                else:
+                    gps_time = location['gps_time']
                 self.db.execute("INSERT INTO T_SINGLE_EVENT(tid, sid, start_time)" 
                                 "  VALUES(%s, %s, %s)",
                                 location['dev_id'], 
                                 location['single_id'],
-                                location['gps_time'])
+                                gps_time)
                 
         return location
 
@@ -419,7 +425,6 @@ class PacketTask(object):
                 pvt['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS
                 pvt['type'] = 0 
 
-
                 #self.handle_stop(pvt)
                 #NOTE: handle stop 
                 tid = pvt['dev_id']
@@ -434,10 +439,29 @@ class PacketTask(object):
                 last_pvt_key = get_last_pvt_key(tid) 
                 last_pvt = self.redis.getvalue(last_pvt_key)
                 if last_pvt:
-                    distance = float(distance) + lbmphelper.get_distance( int(last_pvt["lon"]), int(last_pvt["lat"]), 
+                    distance = float(distance) + lbmphelper.get_distance(int(last_pvt["lon"]), int(last_pvt["lat"]), 
                                              int(pvt["lon"]),
                                              int(pvt["lat"]))
                     self.redis.setvalue(distance_key, distance, time=EVENTER.STOP_EXPIRY)
+
+                #NOTE: check region-event
+                regions = self.get_regions(pvt['dev_id'])
+                if regions:
+                    pvt = lbmphelper.handle_location(pvt, self.redis,
+                                                     cellid=True, db=self.db) 
+                    for region in regions:
+                        region_pvt= self.check_region_event(pvt, region)
+                        if region_pvt and region_pvt['t'] == EVENTER.INFO_TYPE.REPORT:
+                            self.handle_report_info(region_pvt)
+
+                #NOTE: check region-event
+                singles = self.get_singles(pvt['dev_id'])
+                if singles:
+                    pvt = lbmphelper.handle_location(pvt, self.redis,
+                                                     cellid=True, db=self.db) 
+                    for single in singles:
+                        #NOTE: report about single may be need in future 
+                        single_pvt = self.check_single_event(pvt, single)
 
                 if pvt['speed'] > LIMIT.SPEED_LIMIT: # is moving
                     if stop: #NOTE: time_diff is too short, drop the point. 
@@ -478,6 +502,7 @@ class PacketTask(object):
 
                         logging.info("[EVENTER] Stop point is created: %s", stop)
                 
+                #NOTE: the time of keep last_pvt is import.
                 last_pvt = pvt 
                 self.redis.setvalue(last_pvt_key, last_pvt, time=EVENTER.STOP_EXPIRY)
 
@@ -501,25 +526,6 @@ class PacketTask(object):
                         logging.info("[EVENTER] speed_limit does not work, ignore it. pvt: %s", pvt) 
                 else: 
                     logging.info("[EVENTER] speed_limit is closed, ignore it. pvt: %s", pvt) 
-
-                #NOTE: check region-event
-                regions = self.get_regions(pvt['dev_id'])
-                if regions:
-                    pvt = lbmphelper.handle_location(pvt, self.redis,
-                                                     cellid=True, db=self.db) 
-                    for region in regions:
-                        region_pvt= self.check_region_event(pvt, region)
-                        if region_pvt and region_pvt['t'] == EVENTER.INFO_TYPE.REPORT:
-                            self.handle_report_info(region_pvt)
-
-                #NOTE: check region-event
-                singles = self.get_singles(pvt['dev_id'])
-                if singles:
-                    pvt = lbmphelper.handle_location(pvt, self.redis,
-                                                     cellid=True, db=self.db) 
-                    for single in singles:
-                        #NOTE: report about single may be need in future 
-                        single_pvt = self.check_single_event(pvt, single)
 
                 # NOTE: not offset it
                 #location = lbmphelper.handle_location(pvt, self.redis,
