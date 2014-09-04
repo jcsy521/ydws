@@ -26,6 +26,7 @@ dlf.fn_initTrack = function() {
 	$('#POISearchWrapper').hide();  // 关闭周边查询
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack('inittrack');	// 初始化清除数据
+	$('#control_panel').hide();	
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show();	// 轨迹查询条件显示
 	dlf.fn_setMapPosition(false);
@@ -42,8 +43,9 @@ dlf.fn_initTrack = function() {
 		str_currentCarAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias));
 	}
 	
+	$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
 	if ( dlf.fn_userType() ) {
-		$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+		//$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
 		//obj_trackPos.css('width', 490);
 		//$('.j_delay').hide();
 		//$('.j_delayTbody').html('');
@@ -53,14 +55,14 @@ dlf.fn_initTrack = function() {
 	//题栏切换
 	$('#trackSearch_topShowIcon').toggle(
 		function () {
-			var n_delayTableHeight = $(window).height() - 159;
+			var n_delayTableHeight = $(window).height() - 158;
 			
 			$('#trackSearchPanel').hide();
 			$('#trackSearch_topShowIcon').css('top', '0').addClass('topShowIcon_hover');
 			if ( $('#exportDelay').is(':visible') ) {
-				n_delayTableHeight -= 36;
+				n_delayTableHeight -= 60;
 			}
-			$('#delayTable').css({'min-height': 430, 'height': n_delayTableHeight});
+			$('#delayTable').css({'min-height': 398, 'height': n_delayTableHeight});
 		},
 		function () {
 			var n_delayTableHeight = $(window).height() - 260;
@@ -68,9 +70,9 @@ dlf.fn_initTrack = function() {
 			$('#trackSearchPanel').show();
 			$('#trackSearch_topShowIcon').css('top', '100px').removeClass('topShowIcon_hover');		
 			if ( $('#exportDelay').is(':visible') ) {
-				n_delayTableHeight -= 36;
+				n_delayTableHeight -= 60;
 			}
-			$('#delayTable').css({'min-height': 372, 'height': n_delayTableHeight});
+			$('#delayTable').css({'min-height': 340, 'height': n_delayTableHeight});
 		}
 	);
 	if ( $('.j_delayPanel').is(':hidden') ) {
@@ -220,6 +222,7 @@ function fn_trackQuery() {
 	actionMarker = null;
 	$('#exportDelay').hide();
 	$('#control_panel').hide();
+	$('#delayTable').html('');
 	
 	$.post_('/masspoint', JSON.stringify(obj_locusDate), function (data) {
 		if ( data.status == 0 ) {
@@ -234,18 +237,19 @@ function fn_trackQuery() {
 				arr_trackQueryData = [],
 				str_msg = '';
 			
-			if ( dlf.fn_isEmptyObj(obj_trackStData) ) {
-				arr_trackQueryData.push(obj_trackStData);
-			}
-			
 			if ( arr_stopDatas.length > 0 ) {
-				arr_trackQueryData = arr_trackQueryData.concat(arr_stopDatas);
+				if ( dlf.fn_isEmptyObj(obj_trackStData) ) {
+					arr_trackQueryData.push(obj_trackStData);
+				}
+				
+				if ( arr_stopDatas.length > 0 ) {
+					arr_trackQueryData = arr_trackQueryData.concat(arr_stopDatas);
+				}
+				
+				if ( dlf.fn_isEmptyObj(obj_trackEndData) ) {
+					arr_trackQueryData.push(obj_trackEndData);
+				}
 			}
-			
-			if ( dlf.fn_isEmptyObj(obj_trackEndData) ) {
-				arr_trackQueryData.push(obj_trackEndData);
-			}
-			
 				
 			//判断标记
 			if ( n_flag == 0 ) { //直接显示数据	
@@ -312,6 +316,7 @@ function fn_trackQuery() {
 				$('#exportDelay').hide();
 				$('#delayTable').html('');
 			}
+			dlf.resetPanelDisplay();
 			if ( n_flag == 0 ) { //直接显示数据				
 				for ( var x = 0; x < n_locLength; x++ ) {
 					arr_trackDatas[x].alias = str_alias;
@@ -327,7 +332,9 @@ function fn_trackQuery() {
 			} else { //以停留形式显示数据
 				obj_trackHeader.data('delayPoints', arr_trackQueryData);
 				fn_startDrawLineStatic([], false);
+				$('#trackMileagePanel0').click();
 			}
+			
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -530,7 +537,7 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 			str_trackAddress += '（终点）';
 			str_fClass =  'trackLsItemEnd';
 		} else {
-			str_trackAddress +='（停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.idle_time)+'）';
+			str_trackAddress ='（停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.idle_time)+'）'+str_trackAddress;
 		}
 		
 		str_html += '<li id="trackLsItem'+i+'" class="trackLsItem '+str_fClass+'">';
@@ -539,7 +546,7 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		str_html += '<div class="trackLsIcon '+str_lsIconClass+'"></div>';
 		str_html += '<div class="trackLsContent">';
 		str_html += '<div id="trackLsAddressPanel'+i+'" class="trackLsAddress">'+str_trackAddress+'</div>';
-		if ( i > 0 ) {//if ( arr_delayPoints.length != (i +1) ) {
+		if ( arr_delayPoints.length != (i +1) ) {
 			str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">活动路线：<span class="textZooIn">'+dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）</div>';
 		}
 		str_html += '</div>';
@@ -577,16 +584,16 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 			str_itemTitleId = $(this).attr('id'),
 			n_itemTitleNum = parseInt(str_itemTitleId.substr(17));
 		
-		if ( str_tempClickOperation == 'delay' ) { //显示停留点
+		/*if ( str_tempClickOperation == 'delay' ) { //显示停留点
 			fn_getTrackDatas(n_itemTitleNum, 'delay');
-		} else { //请求路线数据并显示
+		} else { *///请求路线数据并显示
 			$('#control_panel').hide();
 			dlf.fn_clearMapComponent(); // 清除页面图形
 			actionMarker = null;
 			arr_drawLine = [];
 			arr_dataArr = [];
 			fn_getTrackDatas(n_itemTitleNum);
-		}
+		//}
 	});
 }
 
@@ -599,13 +606,11 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 	
 	//if ( (n_stopNum+1) >= arr_trackQueryData.length ) {
 	//	return;
-	//}
-	
-	n_endTime = arr_trackQueryData[n_stopNum].start_time;
-	n_startTime = arr_trackQueryData[(n_stopNum-1)].start_time;
+	//}	
+	n_startTime = arr_trackQueryData[n_stopNum].start_time;
+	n_endTime = arr_trackQueryData[(n_stopNum+1)].start_time;
 	
 	obj_trackQuery = {'tid': str_cTid, 'start_time': n_startTime, 'end_time': n_endTime};
-	
 	$.ajax({
 		type : 'post',
 		url : '/track',
@@ -641,8 +646,7 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 					
 					if ( str_operator == 'delay' ) {
 						dlf.fn_createPolyline(arr_trackLine, {color: '#ff0000'});	
-					} else {
-						
+					} else {						
 						dlf.fn_addMarker(arr_trackQueryLineData[0], 'start', 0, 0); // 添加标记
 						dlf.fn_addMarker(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end', 0, 1); //添加标记
 					
@@ -809,7 +813,6 @@ dlf.fn_clearTrack = function(clearType) {
 	str_actionState = 0;
 	counter = -1;
 	arr_drawLine = [];
-	$('#control_panel').hide();	// 播放速度、播放按钮隐藏
 	if ( clearType == 'inittrack' ) {
 		dlf.fn_clearMapComponent(); // 清除页面图形
 	}
@@ -840,7 +843,6 @@ dlf.fn_initTrackDatepicker = function() {
 * 页面加载完成后进行加载地图
 */
 $(function () {	
-	
 	dlf.fn_initTrackDatepicker();	// 初始化时间控件
 	$('.j_disPanelCon').bind('click', function() {
 		var obj_panel = $('.j_delayPanel'),
@@ -933,7 +935,7 @@ $(function () {
 	var arr_slide = [1000, 500, 200, 100], 
 		arr_slideTitle = ['慢速', '一般速度', '比较快', '极速'];
 	
-	$('#singleSlide').slider({
+	$('#trackSlide').slider({
 		min: 0,
 		max: 3,
 		values: 2,
@@ -942,7 +944,7 @@ $(function () {
 		slide: function (event, ui) {
 			var n_val = ui.value;
 			n_speed = arr_slide[n_val];
-			$('#singleSlide').attr('title', arr_slideTitle[n_val]);
+			$('#trackSlide').attr('title', arr_slideTitle[n_val]);
 			if ( timerId ) { dlf.fn_clearInterval(timerId) };
 			var obj_tplay = $('#tPlay'),
 				str_ishidden = obj_tplay.is(':hidden');

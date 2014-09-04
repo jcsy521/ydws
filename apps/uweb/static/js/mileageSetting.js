@@ -152,12 +152,14 @@ dlf.fn_saveMileageSet = function() {
 		// 单程起点名称 重复性校验
 		for ( var i = 0; i < n_circleNum; i++ ) {
 			var obj_tempRegion = obj_regions[i], 
-				str_tempRegionName = obj_tempRegion.region_name;
+				str_tempRegionName = obj_tempRegion.single_name;
 				
 			if ( str_regionName == str_tempRegionName ) {
-				dlf.fn_jNotifyMessage('单程起点名称与第'+ (i+1) +'个重复。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('起点名称已存在，请重新输入。', 'message', false, 3000);
+				$('#createRegionName').addClass('borderRed');
+				//dlf.fn_jNotifyMessage('单程起点名称与第'+ (i+1) +'个重复。', 'message', false, 3000);
 				return;
-			}		
+			}
 		}
 	}
 	if ( !obj_regionShape ) { 
@@ -166,17 +168,21 @@ dlf.fn_saveMileageSet = function() {
 	}
 	if ( str_regionName == '' ) {
 		dlf.fn_jNotifyMessage('您还没有填写单程起点名称。', 'message', false, 3000);
+		$('#createRegionName').addClass('borderRed');
 		return;
 	} else {
 		if ( str_regionName.length > 20 ) {
 			dlf.fn_jNotifyMessage('单程起点名称长度不能大于20个字符。', 'message', false, 3000);
+			$('#createRegionName').addClass('borderRed');
 			return;
 		}
 		if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_regionName) ) {
 			dlf.fn_jNotifyMessage('单程起点名称只能由中文、数字、英文组成。', 'message', false, 3000);
+			$('#createRegionName').addClass('borderRed');
 			return;
 		}
 	}
+	$('#createRegionName').removeClass('borderRed');
 	var obj_shapeData = dlf.fn_getShapeData(),
 		arr_polygonData = [];
 	
@@ -221,7 +227,19 @@ dlf.fn_saveMileageSet = function() {
 */
 dlf.fn_detailMileageSet = function(n_seq) {
 	var obj_regionDatas = $('#corpMileageSetTable').data('regions'),
-		obj_regionData = obj_regionDatas[n_seq];	// 围栏类型 0: 圆形 1: 多边形
+		obj_regionData = obj_regionDatas[n_seq],	// 围栏类型 0: 圆形 1: 多边形
+		n_id = obj_regionData.single_id,
+		obj_currentSingleTr = $('#corpMileageSetTable tr[id='+ n_id +']');
+	
+	$('.j_mileateSetSearchtd, .j_bindMileateSetSearchtd').removeClass('bg4876ff').addClass('bgfff');
+	$('#mileageSetDetailTdPanel'+n_id).removeClass('bgfff').addClass('bg4876ff');
+	$('#bindMileageSetDetailTdPanel'+n_id).removeClass('bgfff').addClass('bg4876ff');
+	
+	$('.j_mileageSetSearchA, .j_bindMileageSetSearchA').css({'color': '#4876ff'});
+	$('#mileageSetDetailPanel'+n_id).css({'color': '#000'});
+	$('#bindMileageSetDetailPanel'+n_id).css({'color': '#000'});
+	
+	dlf.fn_changeTableBackgroundColor();
 	
 	$('#corpMileageSetWrapper').data('mileage_set', true);
 	dlf.fn_clearRegionShape();
@@ -238,7 +256,7 @@ dlf.fn_detailMileageSet = function(n_seq) {
 */
 dlf.fn_deleteMileageSet = function(n_id) {
 	if ( n_id ) {
-		if ( confirm('确定要删除该单程起点吗？') ) {
+		if ( confirm('您确定要删除该起点吗？') ) {
 			
 			dlf.fn_lockScreen(); // 添加页面遮罩
 			dlf.fn_jNotifyMessage('单程起点数据删除中' + WAITIMG, 'message', true);

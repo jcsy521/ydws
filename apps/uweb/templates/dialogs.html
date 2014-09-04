@@ -457,12 +457,6 @@
 										<span class="autoContainer hide j_corp__common" id="corp_common">检测到震动，立刻告警</span>
 									</td>
 								</tr>-->
-								<tr class="j_corp_terminal cCorpNum">
-									<td class="corp_terminalTdL" >定位器名称:</td>
-									<td id="corp_corp_cnum"  class="j_corp_ListVal j_input"  t_val="">
-										<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur" max = "20"  who="validateLength" parent="terminalWrapper"   />
-									</td>
-								</tr>
 								<tr>
 									<td class="corp_terminalTdL">超速门限:</td>
 									<td id="corp_speed_statusSet" class="j_radio" t_val="">
@@ -476,6 +470,12 @@
 									<td class="corp_terminalTdL"></td>
 									<td id="corp_speed_limitLabel" t_val="" class="j_corp_ListVal">
 										<input type="text" id="t_corp_speed_limit" terminalkey="speed_limit" class="text_mouseOut " />km/h
+									</td>
+								</tr>
+								<tr class="j_corp_terminal cCorpNum">
+									<td class="corp_terminalTdL" >定位器名称:</td>
+									<td id="corp_corp_cnum"  class="j_corp_ListVal j_input"  t_val="">
+										<input type="text" id="t_corp_corp_cnum" terminalkey="corp_cnum"  class="text_mouseOut j_onInputBlur" max = "20"  who="validateLength" parent="terminalWrapper"   />
 									</td>
 								</tr>
 								<tr class="j_corp_terminal">
@@ -1798,7 +1798,7 @@
 	</div>
 	<div id="control_panel" class="hide">
 		<!--按钮-->
-		<span id="singleSlide" title="比较快"></span>
+		<span id="trackSlide" title="比较快"></span>
 		<span class="trackBtn">
 			<a id="tPrev" class="tPrev j_trackBtnhover"></a>
 			<a id="tPlay" class="tPlay j_trackBtnhover"></a>
@@ -1815,7 +1815,9 @@
 			<div id="trackSearchPanel">
 				<div id="trackTerminalAlias">
 					定位器：<label id="trackTerminalAliasLabel"></label>
-					<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">基站定位</label>
+				</div>
+				<div class="track_deillPanel">
+					<label for="ceillid_flag">基站定位：</label><input type="checkbox" id="ceillid_flag" title="是否显示基站定位" />
 				</div>
 				<!--<span class="timeTip">时间范围:</span>-->
 				<div class="trackTime">
@@ -2102,5 +2104,18 @@
 			</div>
 		</div>
 	</div>
-	
+	<!--单程详情-->
+	<div id="singleControl_panel" class="hide">
+		<!--按钮-->
+		<span class="singleSlideBtn">
+			<a id="singlePrev" class="tPrev j_singleBtnhover"></a>
+			<a id="singlePlay" class="tPlay j_singleBtnhover"></a>
+			<a id="singlePause" class="tPause hide j_singleBtnhover"></a>
+			<a id="singleNext" class="tNext j_singleBtnhover"></a>
+		</span>
+		<span id="singleSpeed">
+			<span>播放速度：</span>
+			<span id="singleSlide" title="比较快"></span>
+		</span>     <span id="trackSlide" title="比较快"></span>
+	</div>
 </div>

@@ -89,10 +89,13 @@ dlf.fn_closeDialog = function() {
 	dlf.fn_unLockScreen(); // 去除页面遮罩
 	dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	dlf.fn_clearAllMenu();
-	$('.wrapper').hide();
+	$('.wrapper, #singleControl_panel, #control_panel').hide();
 	$('#topShowIcon, #leftPanelShowIcon').show();
 	$( "#smsOwerMobile" ).autocomplete( "close" );
 	$('#corpMileageSetWrapper').removeData('mileage_set');
+	if ( dlf.fn_userType() ) {
+		dlf.fn_clearSingleAction();
+	}
 }
 
 // 清除所有的menu的操作样式
@@ -1408,6 +1411,7 @@ dlf.fn_showBusinessTip = function(str_type) {
 */
 dlf.fn_onInputBlur = function() {
 	$('.j_onInputBlur').unbind('blur').bind('blur', function() {
+		dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		var $this = $(this),
 			obj_wrapper = $('#' + $this.attr('parent')),
 			str_status = obj_wrapper.is(':hidden'),
@@ -1417,7 +1421,8 @@ dlf.fn_onInputBlur = function() {
 			n_maxLength = $this.attr('max'),
 			str_who = $this.attr('who'),
 			n_valLength = str_val.length;
-			
+		
+		$this.removeClass('borderRed');	
 		$this.removeClass('bListR_text_mouseFocus');
 		/*if ( str_who == 'mobile' ) {
 			if ( str_val == '' ) {
@@ -1426,6 +1431,7 @@ dlf.fn_onInputBlur = function() {
 		}*/	
 		// 如果错误消息已经验证显示,则不进行二次验证显示 2013.5.2
 		if ( str_jNotifMsg != '' ) {
+			$this.addClass('borderRed');	
 			return;
 		}
 		if ( str_status ) { 
@@ -1435,6 +1441,7 @@ dlf.fn_onInputBlur = function() {
 				case  'validateLength':
 					if ( n_valLength > n_maxLength ) {	// 验证长度
 						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+						$this.addClass('borderRed');
 					} else {
 						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
@@ -1446,7 +1453,7 @@ dlf.fn_onInputBlur = function() {
 					if ( n_valLength == 0 ) {	// 手机号验证长度
 						str_msg = '';
 					} else if ( n_valLength > 14 || n_valLength < 11 ) {
-						str_msg = '您设置的SOS联系人号码不合法，请重新输入！'
+						str_msg = '您设置的SOS联系人号码不合法，请重新输入！';
 					} else {
 						if ( !MOBILEREG.test(str_val) ) {	// 手机号合法性验证
 							str_msg = '您设置的SOS联系人号码不合法，请重新输入！';
@@ -1454,6 +1461,7 @@ dlf.fn_onInputBlur = function() {
 					}
 					if ( str_msg != '' ) {
 						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+						$this.addClass('borderRed');
 					} else {
 						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
@@ -1471,6 +1479,7 @@ dlf.fn_onInputBlur = function() {
 					}
 					if ( str_msg != '' ) {
 						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+						$this.addClass('borderRed');
 					} else {
 						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
@@ -1487,6 +1496,7 @@ dlf.fn_onInputBlur = function() {
 					}
 					if ( str_msg != '' ) {
 						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+						$this.addClass('borderRed');
 					} else {
 						if ( $this.attr('id') == 'c_tmobile' ) {
 							dlf.fn_checkTMobile(str_val);
@@ -1507,6 +1517,7 @@ dlf.fn_onInputBlur = function() {
 						}
 						if ( str_msg != '' ) {
 							dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+							$this.addClass('borderRed');
 						} else {
 							dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 						}
@@ -1529,6 +1540,7 @@ dlf.fn_onInputBlur = function() {
 					}
 					if ( str_msg != '' ) {
 						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+						$this.addClass('borderRed');
 					} else {
 						if ( $this.attr('id') == 'txt_operatorMobile' ) {
 							dlf.fn_checkOperatorMobile(str_val);
@@ -1553,10 +1565,29 @@ dlf.fn_onInputBlur = function() {
 					}
 					if ( str_msg != '' ) {
 						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+						$this.addClass('borderRed');
 					} else {
 						if ( $this.attr('id') == 'txt_passengerMobile' ) {
 							dlf.fn_checkPassengerMobile(str_val);
 						}
+						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+					}
+					break;
+				case 'email': // 邮箱
+					var str_msg = '',
+						str_emailVal = $(this).val();
+					
+					if ( str_emailVal.length > 50 ) {
+						str_msg = '邮箱最多可输入50个字符！'
+					} else {
+						if ( !new RegExp('^\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+$').test(str_emailVal)  ) {	// 手机号合法性验证
+							str_msg = '邮箱输入不合法，请重新输入';
+						}
+					}
+					if ( str_msg != '' ) {
+						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
+						$this.addClass('borderRed');
+					} else {
 						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
 					break;
@@ -1646,12 +1677,9 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		}
 	}
 	
-	if ( !dlf.fn_userType() ) {
-		dlf.fn_setMapPosition(false);
-	}
-	if ( b_trackStatus ) {
+	/*if ( b_trackStatus ) {
 		$('.j_wrapperContent').css('height', $('.j_wrapperContent').height()+38);
-	}
+	}*/
 	obj_wrapper.show();
 }
 
@@ -1739,7 +1767,7 @@ dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 	if ( obj_content.length > 0 ) {
 		dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩	
 	}
-	
+	$('.borderRed').removeClass('borderRed');
 	$.post_(url, JSON.stringify(obj_data), function (data) {
 		var b_warpperStatus = !obj_cWrapper.is(':hidden');
 		
@@ -1959,6 +1987,7 @@ dlf.fn_jsonPut = function(url, obj_data, str_who, str_msg, str_tid) {
 			dlf.fn_lockContent(obj_content); // 添加内容区域的遮罩	
 		}
 	}
+	$('.borderRed').removeClass('borderRed');
 	$.put_(url, JSON.stringify(obj_data), function (data) {
 		var b_warpperStatus = !obj_cWrapper.is(':hidden');
 		if ( b_warpperStatus ) { // 如果查到结束后,用户关闭的窗口,不进行后续操作
@@ -2299,8 +2328,10 @@ dlf.fn_changeTableBackgroundColor = function() {
 	*/
 	$('.dataTable tr').mouseover(function() {
 		$(this).css('background-color', '#FFFACD');
+		$($(this).children()).css('background-color', '#FFFACD');
 	}).mouseout(function() {
 		$(this).css('background-color', '');
+		$($(this).children()).css('background-color', '');
 	});
 }
 
@@ -2366,9 +2397,6 @@ dlf.fn_fillNavItem = function(str_whoItem) {
 	} else if ( str_whoItem == 'defend' ) {
 		str_navClassName = 'j_userDefendNavItem';
 		n_offsetLeft = obj_navOffset.left;
-	} else if ( str_whoItem == 'mileageSet' ) {
-		str_navClassName = 'j_mileageSetNavItem';
-		n_offsetLeft = obj_navOffset.left;
 	}
 	if ( b_topPanelSt ) {
 		n_prolistTop = 36;
@@ -2389,7 +2417,7 @@ dlf.fn_fillNavItem = function(str_whoItem) {
 	/*二级菜单的滑过样式*/
 	$('.'+str_navClassName+' li a').unbind('mousedown mouseover mouseout').mouseout(function(event) {
 		// $(this).removeClass('countUlItemHover');
-		$('.j_countNavItem, .j_notifyManageNavItem, .j_userProfileManageNavItem, .j_welcomeNavItem, .j_userDefendNavItem, .j_mileageSetNavItem').hide();
+		$('.j_countNavItem, .j_notifyManageNavItem, .j_userProfileManageNavItem, .j_welcomeNavItem, .j_userDefendNavItem').hide();
 		$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome').bind('mouseover', function(event) {
 			dlf.fn_fillNavItem(event.target.id);
 		});
@@ -2415,13 +2443,11 @@ dlf.fn_secondNavValid = function() {
 		obj_navItem3 = $('.j_userProfileManageNavItem'),
 		obj_navItem4 = $('.j_welcomeNavItem'),
 		obj_navItem5 = $('.j_userDefendNavItem'),
-		obj_navItem6 = $('.j_mileageSetNavItem'),
 		f_hidden1 = obj_navItem1.is(':hidden'),
 		f_hidden2 = obj_navItem2.is(':hidden'),
 		f_hidden3 = obj_navItem3.is(':hidden'),
 		f_hidden4 = obj_navItem4.is(':hidden'),
-		f_hidden5 = obj_navItem5.is(':hidden'),
-		f_hidden6 = obj_navItem6.is(':hidden');
+		f_hidden5 = obj_navItem5.is(':hidden');
 	
 	if ( !f_hidden1 ) {
 		obj_navItem1.hide();
@@ -2437,9 +2463,6 @@ dlf.fn_secondNavValid = function() {
 	}
 	if ( !f_hidden5 ) {
 		obj_navItem5.hide();
-	}
-	if ( !f_hidden6 ) {
-		obj_navItem6.hide();
 	}
 }
 
@@ -2510,6 +2533,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			n_topPanelLeft = '50%',
 			n_leftPanelTop = '50%',	// 左侧收缩按钮距离上面的高度
 			b_eventSearchStatus = $('#eventSearchWrapper').is(':visible'),	// 告警查询打开状态
+			b_singleSearchStatus = $('#mileageSetWrapper').is(':visible'),
 			b_trackSt = obj_track.is(':visible'),
 			obj_trackSpeed = $('.trackSpeed');
 		
@@ -2565,19 +2589,24 @@ dlf.resetPanelDisplay = function(n_type) {
 			n_mapHeight = 340;
 			n_right = 370;
 		}
+		if ( b_singleSearchStatus ) {
+			n_mapHeight = 450;
+			n_right = 800;
+		}
 		$('#mapObj').css({'width': n_right, 'height': n_mapHeight});	// 右侧宽度
 		
 		$('.mainBody').height(n_windowHeight);
 		$('#main, #left, #corpLeft, #right, #corpRight, #corpMain').css('height', n_mainHeight );	// 左右栏高度
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 		$('.j_carList').css('height', n_corpTreeContainerHeight-230);	// 个人用户终端列表的高度
+		
 		if ( $('#exportDelay').is(':visible') ) {
-			n_mainHeight -= 36;
+			n_mainHeight -= 60;
 		}
 		if ( $('#trackSearchPanel').is(':visible') ) {
 			$('#delayTable').css('height', n_mainHeight-136);
 		} else {
-			$('#delayTable').css('height', n_mainHeight-35);
+			$('#delayTable').css('height', n_mainHeight-34);
 		}
 		$('.j_disPanelCon').css('top', $('.delayTable').height()/2+180);
 		 

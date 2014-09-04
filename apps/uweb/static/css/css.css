@@ -386,6 +386,9 @@ body {
 	background: url('/static/images/secondMenuImage.png') repeat-x;	/* acb-menus.png*/
 	color: #0E6CA5;
 }
+.countUlIetm .defendRemeberColor {
+	color: #0E6CA5;
+}
 .selfList {
 	float: right;
 	margin-right: 40px;
@@ -1608,8 +1611,8 @@ body {
 	text-align: center;
 	padding: 5px 0 0 0;
 	z-index: 1;
-	top: 3px;
-	margin-bottom: 6px;
+	top: 16px;
+	margin-bottom: 30px;
 }
 .exportDelay:hover {
 	border: 1px solid #9ccaf4;
@@ -1676,7 +1679,7 @@ body {
 .delayTable {
 	display: inline-block;
 	width: 560px;
-	min-height: 372px;
+	min-height: 340px;
 	overflow-x: hidden;
     overflow-y: auto;
 }
@@ -1699,7 +1702,7 @@ body {
 }
 .trackLsItemEnd {
 	height: 0px;
-	margin-bottom: 130px;
+	margin-bottom: 80px;
 }
 .trackLsDate, .trackLsIcon, .trackLsContent {
 	float: left;
@@ -1766,17 +1769,13 @@ body {
 	opacity: .8;
 	filter: alpha(opacity=80);
 }
-#singleSpeed {
-	position: relative;
-	top: -8px;
-}
 #trackSearchPanel {
 	border-bottom: 1px solid gray;
 	height: 80px;
 	padding: 20px 0 0 30px;
 }
 .trackTime {
-	margin: 14px 0;
+	margin: 8px 0;
 }
 #ceillid_flag {
 	position: relative;
@@ -1895,13 +1894,13 @@ body {
 .eventMapClose {
     background: url("/static/images/close_default.png") no-repeat;
     height: 20px;
-    left: 355px;
     position: relative;
     top: -6px;
     _top: -4px;
     width: 20px;
 	cursor: pointer;
 	z_index: 100000;
+	float: right;
 }
 .mapContainer {
 	position: relative;
@@ -3928,7 +3927,7 @@ legend {
     left: 32px;
     margin-top: 8px;
     position: relative;
-    width: 610px;
+    width: 612px;
 }
 .eventTypePanel {
 	left: 57px;
@@ -4048,8 +4047,8 @@ legend {
 	top: 236px;
 }
 
-#corpTree .jstree-open > ins { background-position:-18px 0; }
-#corpTree  .jstree-closed > ins { background-position:0 0; }
+#corpTree .jstree-open > i { background-position:-18px 0; }
+#corpTree .jstree-closed > i { background-position:0 0; }
 
 .accStatusTitle {
 	background-position: 0px -1088px;
@@ -4137,7 +4136,7 @@ legend {
 	height: 510px;
 }
 #corpMileageSetContent {
-	height: 476px;
+	height: 480px;
 }
 .corpMileageSetTitle {
 	background-position: 0 -1190px;
@@ -4153,7 +4152,7 @@ legend {
     height: 23px;
     left: 437px;
     position: relative;
-    top: 14px;
+    top: 17px;
 	text-decoration: none;
 }
 #corpMileageSetCreateBtn:hover {
@@ -4162,7 +4161,7 @@ legend {
 }
 #corpMileageSetTable {
 	width: 460px;
-	margin: 14px 0 26px 26px;
+	margin: 26px 0 22px 25px;
 }
 #corpMileageSetNote {
 	color: red;
@@ -4237,15 +4236,15 @@ legend {
 	position: relative;
 	top: -2px;
 }
-
-#singleSlide {
+/*single search*/
+#trackSlide {
 	display: inline-block;
 	width: 110px;
 	top: 2px;
 	left: -11px;
 	height: 4px;
 }
-#singleSlide .ui-slider-handle {
+#trackSlide .ui-slider-handle {
 	border-radius: 50%;
 	border: 0 none;
 	background: url(/static/images/singleSlide_bg.png) no-repeat;
@@ -4254,4 +4253,60 @@ legend {
 }
 #bindMileageSetSave, #bindBatchMileageSetSave {
 	left: 403px;
+}
+
+.singleSlideBtn a  {
+	cursor: pointer;
+	display: inline-block;
+	height: 25px;
+}
+#singleSlide {
+	display: inline-block;
+	width: 56px;
+	top: 2px;
+	left: -11px;
+	height: 4px;
+}
+#singleControl_panel {
+	position: absolute;
+	left: 49%;
+	top: 560px;
+	width: 218px;
+	height: 26px;
+	background-color: #fff;
+	border: 1px solid gray;
+	border-radius: 6px;
+	padding: 20px 50px;
+    opacity: 0.8;
+	filter: alpha(opacity=80)); /*ie*/
+	z-index: 10001
+}
+#singleSpeed {
+	position: relative;
+	top: -8px;
+	height: 4px;
+}
+#singleSlide .ui-slider-handle {
+	background: url(/static/images/singleSlide_bg.png) no-repeat;
+	border: 0 none;
+	width: 12px;
+	height: 14px;
+}
+.bgfff {
+	background-color: #fff;
+}
+.bg4876ff{
+	background-color: #4876ff;
+}
+.track_deillPanel{
+	margin: 4px 0;
+}
+#mapConTitle {
+	float: left;
+}
+.mainBody .borderRed {
+	border: 1px solid red;
+}
+#t_corp_speed_limit {
+	margin-right: 10px;
 }

@@ -176,12 +176,13 @@ dlf.fn_initCorpData = function() {
 	dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('集团信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.corpContent')); // 添加内容区域的遮罩
-	$('#c_name').unbind('blur').bind('blur', function() {
+	$('#c_name').unbind('blur focus').bind('blur', function() {
 		var obj_this = $(this),
 			str_old = obj_this.data('c_name'),
 			str_new = obj_this.val(),
 			n_nameLength = str_new.length;
 		
+		$(this).removeClass('borderRed');
 		if ( n_nameLength > 0 ) {
 			if ( n_nameLength > 20 ) {
 				dlf.fn_jNotifyMessage('集团名称最多可输入20个汉字或字符！', 'message', false, 3000); // 查询状态不正确,错误提示
@@ -189,6 +190,7 @@ dlf.fn_initCorpData = function() {
 			}
 			if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_new) ) {
 				dlf.fn_jNotifyMessage('集团名称只能由中文、英文、数字组成！', 'message', false, 3000);
+				obj_this.addClass('borderRed');
 				return;
 			}
 			if ( str_old != str_new ) {
@@ -199,7 +201,7 @@ dlf.fn_initCorpData = function() {
 		} else {
 			dlf.fn_jNotifyMessage('集团名称不能为空。', 'message', false, 3000);
 		}
-	});
+	})
 	$.get_(CORPPERSON_URL, '', function (data) {	// 获取最新的集团资料数据
 		if ( data.status == 0 ) {
 			var obj_data = data.profile,
@@ -533,7 +535,10 @@ $(function () {
 	$('#main, #corpMain, #left, #corpLeft, #right, #corpRight').css('height', n_mainHeight);	// 内容域的高度 左右栏高度
 	$('#topShowIcon').css('left', n_topPanelLeft);
 	$('#leftPanelShowIcon').css('top', n_leftPanelTop);
-	$('#delayTable').css('height', n_mainHeight-136);
+	if ( $('#exportDelay').is(':visible') ) {
+			n_mainHeight -= 30;
+		}
+	$('#delayTable').css('height', n_mainHeight-166);
 	if ( n_windowWidth > 1100 ) {
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	} else {
@@ -581,6 +586,7 @@ $(function () {
 			b_bindMileageSetStatus = $('#bindMileageSetWrapper').is(':visible'),	// 单点里程绑定
 			b_bindBatchMileageSetStatus = $('#bindBatchMileageSetWrapper').is(':visible'),	// 单点里程批量绑定
 			b_mileageSetCreateStatus = $('#mileageSetCreateWrapper').is(':visible'),	// 单点里程新增
+			b_mileageSetSearchStatus = $('#mileageSetWrapper').is(':visible'),	// 单点里程查询
 			obj_navItemUl = $('.j_countNavItem'),
 			obj_alarm = $('.j_alarm'),
 			obj_delay = $('.j_delay');
@@ -588,8 +594,6 @@ $(function () {
 		if ( b_trackStatus ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
 			if ( str_id == 'track' ) {
 				return;
-			} else {
-				obj_delay.hide();
 			}
 		}
 		// 除了对多个定位器操作外
@@ -631,7 +635,7 @@ $(function () {
 		}
 		switch (str_id) {
 			case 'home': // 主页
-				$('.wrapper').hide();
+				$('.wrapper, #singleControl_panel, #control_panel').hide();
 				$('#mapObj').show();
 				
 				if ( b_eventSearchStatus || b_routeLineWpST || b_addLineRoute ) {	// 如果打开的是告警、线路、添加站点则还原地图开启lastinfo  同时移除地图的click事件
@@ -639,10 +643,11 @@ $(function () {
 					$('#eventSearch').removeClass('eventSearchHover');
 				}
 				dlf.fn_clearAllMenu();
+				dlf.fn_clearSingleAction();
 				$('#home').addClass('menuHover').css('color', '#0E6CA5');	// homeHover
 				// 如果上次操作的是 轨迹、告警查询、线路管理、添加线路、围栏管理、绑定围栏、批量绑定围栏、创建围栏 操作的话 点击“车辆位置” 清除所有数据重新发起lastinfo请求
 				
-				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus || b_corpMileageSetStatus  || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus ) {
+				if ( b_trackStatus || b_eventSearchStatus || b_routeLineWpST || b_addLineRoute || b_regionStatus || b_corpRegionStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionCreateStatus || b_corpMileageSetStatus  || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus || b_mileageSetSearchStatus ) {
 					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 				} else { 
 					var obj_current = obj_selfmarkers[str_currentTid];
@@ -764,9 +769,6 @@ $(function () {
 				}
 				dlf.fn_initMileageSet();
 				break;
-			case 'mileageSet_search': // 单点查询
-				dlf.fn_initRecordSearch('mileageSet');
-				break;
 		}
 	});
 	
@@ -776,8 +778,26 @@ $(function () {
 	});
 	
 	/*鼠标滑动显示统计二级菜单*/
-	$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome, .j_userDefend, .j_mileageSet').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
+	$('.j_countRecord, .j_notifyManage, .j_userProfileManage, .j_welcome, .j_userDefend').unbind('mouseover mousedown').bind('mouseover mousedown', function(event) {
 		dlf.fn_fillNavItem(event.target.id);
+		if ( event.target.id == 'defend' ) {
+			var n_defendStatus =$('#defendContent').data('defend'),
+				str_currentDefendItem = '';
+			
+			if ( n_defendStatus == '2' ) {
+				str_currentDefendItem = 'defend_smart';
+			} else if ( n_defendStatus == '1' ) {
+				str_currentDefendItem = 'defend_powerful';
+			} else if ( n_defendStatus == '0' ) {
+				str_currentDefendItem = 'defend_disarm';
+			}
+			
+			$('.j_defendStatusItem').removeClass('defendRemeberColor');
+			$('#'+str_currentDefendItem).addClass('defendRemeberColor');
+		}
+		
+		
+		
 	}).unbind('mouseout').bind('mouseout', function() {
 		dlf.fn_secondNavValid();
 	});
@@ -834,8 +854,9 @@ $(function () {
 		wideWord: false,	// 一个汉字当一个字节
 		validatorGroup: '1', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'personalSave', // 指定本form的submit按钮
-		onError: function(msg) { 
+		onError: function(msg, ea) { 
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
+			$(ea).addClass('borderRed');
 		}, 
 		onSuccess: function() {
 			var str_name = $('#name').val();
@@ -852,13 +873,17 @@ $(function () {
 	/**
 	* 密码进行验证
 	*/
+	$('.j_validate').unbind('blur').blur(function(e) {
+		$('.j_validate').removeClass('borderRed');
+	});
 	$.formValidator.initConfig({
 		formID: 'pwdForm', //指定from的ID 编号
 		debug: true, // 指定调试模式,不提交form
 		validatorGroup: '2', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'pwdSave', // 指定本form的submit按钮
-		onError: function(msg) { 
+		onError: function(msg, ea) { 
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
+			$(ea).addClass('borderRed');
 		}, 
 		onSuccess: function() { 
 			var obj_pwd = {'old_password' : $("#oldPwd").val(), 
@@ -889,8 +914,9 @@ $(function () {
 		validatorGroup: '3', // 指定本form组编码,默认为1, 多个验证组时使用
 		wideWord: false, // 一个汉字当一个字节
 		submitButtonID: 'terminalSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+			$(ea).addClass('borderRed');
 		}, 
 		onSuccess: function() {
 			var str_alert_freq = $('#t_alert_freq').val(),				
@@ -939,8 +965,9 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false,	// 一个汉字当一个字节
 		submitButtonID: 'corpSave', // 指定本form的submit按钮
-		onError: function(msg) { 
+		onError: function(msg, ea) { 
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000);
+			$(ea).addClass('borderRed');
 			return;
 		}, 
 		onSuccess: function() {
@@ -967,8 +994,9 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false,	// 一个汉字当一个字节
 		submitButtonID: 'operatorDataSave', // 指定本form的submit按钮
-		onError: function(msg) { 
+		onError: function(msg, ea) { 
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
+			$(ea).addClass('borderRed');
 		}, 
 		onSuccess: function() { 
 			dlf.fn_operatorDataSave();
@@ -986,8 +1014,9 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false,	// 一个汉字当一个字节
 		submitButtonID: 'cTerminalSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000);
+			$(ea).addClass('borderRed');
 			return;
 		}, 
 		onSuccess: function() {
@@ -1027,8 +1056,9 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false,	// 一个汉字当一个字节
 		submitButtonID: 'cTerminalEditSave', // 指定本form的submit按钮
-		onError: function(msg) { 
+		onError: function(msg, ea) { 
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000);
+			$(ea).addClass('borderRed');
 			return;
 		}, 
 		onSuccess: function() {
@@ -1049,8 +1079,9 @@ $(function () {
 		wideWord: false,	// 一个汉字当一个字节
 		validatorGroup: '8', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'operatorSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000, 'dw');
+			$(ea).addClass('borderRed');
 			return;
 		}, 
 		onSuccess: function() { 
@@ -1088,8 +1119,9 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		validatorGroup: '10', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'passengerSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000, 'dw');
+			$(ea).addClass('borderRed');
 			return;
 		}, 
 		onSuccess: function() { 
@@ -1112,8 +1144,9 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		validatorGroup: '11', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'infoPushSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000, 'dw');
+			$(ea).addClass('borderRed');
 			return;
 		}, 
 		onSuccess: function() { 
@@ -1129,8 +1162,9 @@ $(function () {
 		debug: true, // 指定调试模式,不提交form
 		validatorGroup: '13', // 指定本form组编码,默认为1, 多个验证组时使用
 		submitButtonID: 'notifyManageSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000, 'dw');
+			$(ea).addClass('borderRed');
 			return;
 		}, 
 		onSuccess: function() { 
@@ -1149,8 +1183,9 @@ $(function () {
 		validatorGroup: '14', // 指定本form组编码,默认为1, 多个验证组时使用
 		wideWord: false, // 一个汉字当一个字节
 		submitButtonID: 'corp_mileageNotificationSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+			$(ea).addClass('borderRed');
 		}, 
 		onSuccess: function() {
 			dlf.fn_mileageNotificationSave();	// put请求
@@ -1193,6 +1228,7 @@ $(function () {
 		
 		//查询所有告警并存储
 		dlf.fn_getAlertOptionForUrl('init');
+		$('.j_alarmTable').data('markers', []);
 	}
 	
 	$('#txtautoComplete').val('');	// 清空autocomplete搜索框

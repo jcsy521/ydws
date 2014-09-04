@@ -283,11 +283,11 @@ dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 		}
 		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标	
 	}
-	if ( str_iconType == 'start' ) {	// 轨迹起点图标
+	if ( str_iconType == 'start' || str_iconType == 'singlestart' ) {	// 轨迹起点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerA.png';
-	} else if ( str_iconType == 'end' ) {	// 轨迹终点图标
+	} else if ( str_iconType == 'end' || str_iconType == 'singleend' ) {	// 轨迹终点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerB.png';
-	} else if ( str_iconType == 'draw' ) {
+	} else if ( str_iconType == 'draw' || str_iconType == 'singledraw' ) {
 		myIcon.imageUrl = BASEIMGURL + 'default.png';
 	} else if ( str_iconType == 'delay' ) {	// 停留点图标
 		myIcon.imageUrl = BASEIMGURL + 'delay_Marker.png';
@@ -297,7 +297,7 @@ dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 	marker= new BMap.Marker(mPoint, {icon: myIcon});
 	marker.setOffset(new BMap.Size(0, 0));
 	
-	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
+	if ( str_iconType == 'draw'|| str_iconType == 'singledraw' ) {	// 轨迹播放点的marker设置
 		actionMarker = marker;
 		
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
@@ -467,13 +467,16 @@ function fn_infoWindowTextUpdate(obj_location, str_type) {
 		b_viewport = true;
 	
 	dlf.fn_loadBaiduShare();
-	dlf.fn_updateOpenTrackStatusColor(obj_location.tid);
+	setTimeout(function() {
+		dlf.fn_updateOpenTrackStatusColor(obj_location.tid);
+	}, 100);
 	// 圆: 经纬度,半径 显示误差圈 //TODO
 	var obj_circleData = {'circle': {'longitude': n_clon, 'latitude': n_clat, 'radius': obj_location.locate_error}, 'region_shape': 0};
 	
-	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' || str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == 'draw' || str_type == 'actiontrack' ) {
+	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' || str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == 'draw' || str_type == 'actiontrack' || str_type == 'singlestart' || str_type == 'singleend' || str_type == 'singledraw' ) {
 		b_viewport = false;
 	}
+	$('#corpMileageSetWrapper').data('mileage_set', false);
 	dlf.fn_displayMapShape(obj_circleData, b_viewport, true);
 }
 
@@ -617,8 +620,11 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 		// hs:2014.1.21 轨迹查询的吹出框增加里程显示
 		//-==============轨迹的播放点	
 		var n_tempDist = 0;
+		if ( str_iconType == 'singledraw' || str_iconType == 'singlestart' || str_iconType == 'singleend' ) {
+			arr_dataArr = $('#singleControl_panel').data('trackdata');
+		}
 		
-		if ( str_iconType == 'draw' ) { 
+		if ( str_iconType == 'draw' || str_iconType == 'singledraw' ) { 
 			// 距离计算
 			if ( n_index == 0 ) {
 				n_tempDist = 0;
@@ -635,11 +641,11 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 			}
 		}
 		//==============轨迹的起点
-		if ( str_iconType == 'start' ) { 
+		if ( str_iconType == 'start' || str_iconType == 'singlestart' ) { 
 			n_tempDist = 0;
 		}
 		//==============轨迹的终点
-		if ( str_iconType == 'end' ) {
+		if ( str_iconType == 'end' || str_iconType == 'singleend' ) {
 			var n_dataLen = arr_dataArr.length;
 			
 			for ( var i = 1 ; i < n_dataLen; i++ ) {
@@ -652,7 +658,7 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 				n_tempDist += n_pointDist;
 			}
 		}
-		if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' ) {
+		if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'singledraw' || str_iconType == 'singlestart' || str_iconType == 'singleend' ) {
 			str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist/1000, 1) +' km</label></li>';
 		}
 		
@@ -797,6 +803,27 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 		
 		$('#trackLsAddressPane'+n_index).html(str_result);
 		
+	} else if ( str_type == 'singledraw' || str_type == 'singlestart' || str_type == 'singleend' ) {
+		var arr_singleTrackData = $('#singleControl_panel').data('trackdata'),
+			obj_singleLocation = null;
+			
+		arr_singleTrackData[n_index].name = str_result;
+		if ( str_type == 'draw' ) {
+			obj_trackMarker = actionMarker;
+			obj_singleLocation = arr_singleTrackData[n_index];
+		} else if ( str_type == 'start' ) {
+			obj_trackMarker = $('#singleControl_panel').data('markers')[0];
+			obj_singleLocation = arr_singleTrackData[0];
+		} else if ( str_type == 'end' ) {
+			arr_singleTrackData[arr_singleTrackData.length - 1].name = str_result;
+			obj_singleLocation = arr_singleTrackData[arr_singleTrackData.length - 1];
+			obj_trackMarker = $('#singleControl_panel').data('markers')[1];
+		}
+		if ( obj_trackMarker && obj_trackMarker.infoWindow ) {
+			dlf.fn_createMapInfoWindow(obj_singleLocation, str_type, n_index);
+			obj_trackMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		}
+		$('#singleControl_panel').data('trackdata', arr_singleTrackData);
 	} else {
 		var obj_carDatas = $('.j_carList').data('carsData'),
 				obj_tempCarData = obj_carDatas[tid];

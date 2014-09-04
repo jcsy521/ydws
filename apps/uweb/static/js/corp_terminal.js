@@ -237,7 +237,9 @@ dlf.fn_initTerminalWR = function (str_tid) {
 			} else {
 				$('#whitelistPopWrapper').hide();
 			}*/
-			
+			$('#t_corp_owner_mobile').unbind('blur').blur(function() {
+				$('#t_corp_owner_mobile').removeClass('borderRed');
+			});
 			//对超速设置进行验证事件
 			$('#t_corp_speed_limit').unbind('blur').blur(function() {
 				var reg = /^(1000|[1-9][0-9]{0,2})$/,
@@ -258,8 +260,10 @@ dlf.fn_initTerminalWR = function (str_tid) {
 				if ( str_errorHtml != '' ) {
 					dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
 					$('#corp_terminalSave').data({'error_msg': str_errorHtml, 'error': true});
+					$('#t_corp_speed_limit').addClass('borderRed');
 				} else {
-					$('#corp_terminalSave').data({'error_msg': '', 'error': false});		
+					$('#corp_terminalSave').data({'error_msg': '', 'error': false});
+					$('#t_corp_speed_limit').removeClass('borderRed');					
 				}
 			});
 			$('#t_corp_stop_interval').unbind('blur').blur(function() {
@@ -273,8 +277,10 @@ dlf.fn_initTerminalWR = function (str_tid) {
 					str_errorHtml = '请输入数值';
 					dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
 					$('#corp_terminalSave').data({'error_msg': str_errorHtml, 'error': true});
+					$('#t_corp_stop_interval').addClass('borderRed');
 				} else {
-					$('#corp_terminalSave').data({'error_msg': '', 'error': false});		
+					$('#corp_terminalSave').data({'error_msg': '', 'error': false});
+					$('#t_corp_stop_interval').removeClass('borderRed');					
 				}
 			});
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
@@ -680,8 +686,9 @@ $(function() {
 		validatorGroup: '7', // 指定本form组编码,默认为1, 多个验证组时使用
 		wideWord: false, // 一个汉字当一个字节
 		submitButtonID: 'corp_terminalSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+			$(ea).addClass('borderRed');
 		}, 
 		onSuccess: function() {
 			var str_val = $('#t_corp_corp_cnum').val(),
@@ -742,8 +749,9 @@ $(function() {
 		validatorGroup: '12', // 指定本form组编码,默认为1, 多个验证组时使用
 		wideWord: false, // 一个汉字当一个字节
 		submitButtonID: 'corp_smsOptionSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg,obj) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+			$(obj).addClass('borderRed');
 		}, 
 		onSuccess: function() {
 			dlf.fn_smsOptionSave();	// put请求

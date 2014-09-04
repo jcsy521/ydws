@@ -777,9 +777,9 @@ dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 				obj_searchHeader.after('<tr><td colspan="4">没有查询到围栏。</td></tr>');
 			} else if ( str_who == 'bindRegion' || str_who == 'bindBatchRegion' ) {
-				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏！。', 'message', false, 4000);
+				dlf.fn_jNotifyMessage('当前您还没有电子围栏，请新增电子围栏。', 'message', false, 4000);
 			} else if ( str_who == 'bindMileageSet' || str_who == 'bindBatchMileageSet' ) {
-				dlf.fn_jNotifyMessage('当前您还没有单程起点，请新增单程起点！。', 'message', false, 4000);
+				dlf.fn_jNotifyMessage('没有查询到单程起点，请到“单程起点”划定再选择。', 'message', false, 4000);
 			} else if ( str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 				$('.j_weekList').data('weeks', []);
@@ -809,6 +809,7 @@ String.prototype.len=function() {
 */
 dlf.fn_showMarkerOnEvent = function() {
 	$('.j_eventItem').click(function(event) {
+		$('#mapConTitle').html('');
 		dlf.fn_clearMapComponent();
 		// 设置地图父容器 小地图显示 地图title显示
 		dlf.fn_ShowOrHideMiniMap(true, event);
@@ -1076,7 +1077,7 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<tr id='+ str_regionId +'>';
 				str_tbodyText+= '<td width="50px">'+ (i+1) +'</td>';	// 围栏序列
 				str_tbodyText+= '<td width="280px" title="'+ str_regionName +'">'+ str_tempRegionName +'</td>';	// 围栏名称
-				str_tbodyText+= '<td width="70px"><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';	// 
+				str_tbodyText+= '<td width="70px" id="regionDetailTdPanel'+str_regionId+'" class="j_regionSearchtd"><a id="regionDetailPanel'+str_regionId+'" class="j_regionSearchA" href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';	// 
 				str_tbodyText+= '<td width="60px"><a href="#" onclick=dlf.fn_deleteRegion('+ str_regionId +')>删除</a></td>';	
 				str_tbodyText+= '</tr>';
 				break;
@@ -1087,12 +1088,13 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_tempRegionName = str_regionName;
 					str_checkboxId = str_who+'Ck_' + str_regionId;
 				
+				$('#bindBatchRegionTableHeader, #bindRegionTableHeader').nextAll().remove();
 				str_tempRegionName = str_tempRegionName.length > 20 ? str_tempRegionName.substr(0, 20) + '...' : str_tempRegionName;
 				str_tbodyText+= '<tr id='+ str_regionId +'>';
 				str_tbodyText+= '<td>'+'<input type="checkbox" id="'+ str_checkboxId +'" name="'+ str_who +'_check" value="'+ str_regionId +'" /></td>';	// 围栏选择
 				str_tbodyText+= '<td>'+ (i+1) +'</td>';	// 围栏序列
 				str_tbodyText+= '<td title="'+ str_regionName +'">'+ str_tempRegionName +'</td>';	// 围栏名称
-				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';
+				str_tbodyText+= '<td id="bindRegionDetailTdPanel'+str_regionId+'" class="j_bindRegionSearchtd"><a id="bindRegionDetailPanel'+str_regionId+'" class="j_bindRegionSearchA" href="#" onclick=dlf.fn_detailRegion('+ i +')>查看详情</a></td>';
 				str_tbodyText+= '</tr>';
 				
 				break;
@@ -1142,13 +1144,14 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 					str_endTime = obj_tempData.end_time,
 					str_singleName = obj_tempData.single_name,
 					str_tempSingleName = str_singleName,
-					str_singleId = obj_tempData.se_id;
+					str_seId = obj_tempData.se_id,
+					str_singleId = obj_tempData.single_id;
 				
 				str_tempSingleName = str_tempSingleName.length > 20 ? str_tempSingleName.substr(0, 20) + '...' : str_tempSingleName;
 				str_tbodyText+= '<tr id='+ str_singleId +'>';
 				str_tbodyText+= '<td width="150px">'+ dlf.fn_changeNumToDateString(str_startTime)+'  ~  '+dlf.fn_changeNumToDateString(str_endTime) +'</td>';
 				str_tbodyText+= '<td width="180px" title="'+ str_singleName +'">'+ str_tempSingleName +'</td>';	
-				str_tbodyText+= '<td width="70px"><a href="/corpsingle/detail?se_id='+str_singleId+'" target="_blank">查看详情</a></td>';		
+				str_tbodyText+= '<td width="70px"><a href="#" onclick=dlf.fn_initSigleDetail('+ str_singleId +','+ str_startTime +','+ str_endTime+')>查看详情</a></td>';		
 				str_tbodyText+= '</tr>';
 				break;
 			case 'corpMileageSet':	// 单点管理 
@@ -1159,13 +1162,14 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tempSingleName = str_tempSingleName.length > 20 ? str_tempSingleName.substr(0, 20) + '...' : str_tempSingleName;
 				str_tbodyText+= '<tr id='+ str_singleId +'>';
 				str_tbodyText+= '<td width="50px">'+ (i+1) +'</td>';
-				str_tbodyText+= '<td width="280px" title="'+ str_singleName +'">'+ str_tempSingleName +'</td>';	// 围栏名称
-				str_tbodyText+= '<td width="70px"><a href="#" onclick=dlf.fn_detailMileageSet('+ i +')>查看详情</a></td>';	// 
-				str_tbodyText+= '<td width="60px"><a href="#" onclick=dlf.fn_deleteMileageSet('+ str_singleId +')>删除</a></td>';	
+				str_tbodyText+= '<td width="280px" title="'+ str_singleName +'">'+ str_tempSingleName +'</td>';
+				str_tbodyText+= '<td width="70px" id="mileageSetDetailTdPanel'+str_singleId+'" class="j_mileateSetSearchtd"><a id="mileageSetDetailPanel'+str_singleId+'" class="j_mileageSetSearchA" href="#" onclick=dlf.fn_detailMileageSet('+ i +')>查看详情</a></td>'; 
+				str_tbodyText+= '<td width="60px"><a href="#" onclick=dlf.fn_deleteMileageSet('+ str_singleId +')>删除</a></td>';
 				str_tbodyText+= '</tr>';
 				break;
 			case 'bindMileageSet': // 单点绑定
 			case 'bindBatchMileageSet': // 单点批量绑定
+				$('#bindBatchMileageSetTableHeader, #bindMileageSetTableHeader').nextAll().remove();
 				var str_singleId = obj_tempData.single_id,
 					str_singleName = obj_tempData.single_name,
 					str_tempSingleName = str_singleName;
@@ -1176,7 +1180,7 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td>'+'<input type="radio" id="'+ str_checkboxId +'" name="'+ str_who +'_radio" value="'+ str_singleId +'" /></td>';	// 围栏选择
 				str_tbodyText+= '<td>'+ (i+1) +'</td>';
 				str_tbodyText+= '<td title="'+ str_singleName +'">'+ str_tempSingleName +'</td>';
-				str_tbodyText+= '<td><a href="#" onclick=dlf.fn_detailMileageSet('+ i +')>查看详情</a></td>';
+				str_tbodyText+= '<td id="bindMileageSetDetailTdPanel'+str_singleId+'" class="j_bindMileateSetSearchtd"><a id="bindMileageSetDetailPanel'+str_singleId+'" class="j_bindMileateSetSearchA" href="#" onclick=dlf.fn_detailMileageSet('+ i +')>查看详情</a></td>';
 				str_tbodyText+= '</tr>';
 				break;
 		}
@@ -1802,30 +1806,52 @@ dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {
 		obj_traffic = $('#tcBtn');
 	
 	if ( b_isShow ) {
-		var n_top = event.clientY - 161;
-		
-		if ( n_top > 352) {
-			n_top = event.clientY - 540;
+		if ( typeof(event) == 'string' ) {
+			// 设置地图父容器的样式
+			obj_mapContainer.css({	
+				'left': '27%', 
+				'top': -3,
+				'backgroundColor': '#FFFFFF',
+				'border': '1px solid #BBBBBB',
+				'height': '470',
+				'width': '800',
+				'padding': '10px',
+				'zIndex': 10000
+			});
+			// 设置并显示小地图的样式
+			obj_mapPanel.css({
+				'width': 800,
+				'height': 450,
+				'minWidth': 800,
+				'minHeight': 450,
+				'zIndex': 10000
+			}).show();
+		} else {
+			var n_top = event.clientY - 161;
+			
+			if ( n_top > 352) {
+				n_top = event.clientY - 540;
+			}
+			// 设置地图父容器的样式
+			obj_mapContainer.css({	
+				'left': 40, 
+				'top': 63,
+				'backgroundColor': '#FFFFFF',
+				'border': '1px solid #BBBBBB',
+				'height': '370px',
+				'width': '370px',
+				'padding': '10px',
+				'zIndex': 10000
+			});
+			// 设置并显示小地图的样式
+			obj_mapPanel.css({
+				'width': 370,
+				'height': 340,
+				'minWidth': 370,
+				'minHeight': 340,
+				'zIndex': 10000
+			}).show();
 		}
-		// 设置地图父容器的样式
-		obj_mapContainer.css({	
-			'left': 40, 
-			'top': 63,
-			'backgroundColor': '#FFFFFF',
-			'border': '1px solid #BBBBBB',
-			'height': '370px',
-			'width': '370px',
-			'padding': '10px',
-			'zIndex': 10000
-		});
-		// 设置并显示小地图的样式
-		obj_mapPanel.css({
-			'width': 370,
-			'height': 340,
-			'minWidth': 370,
-			'minHeight': 340,
-			'zIndex': 10000
-		}).show();
 		// 地图title显示
 		obj_mapConTitle.show();
 		obj_traffic.show();

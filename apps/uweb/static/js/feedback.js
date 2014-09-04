@@ -24,6 +24,7 @@ $(function() {
 		submitButtonID: 'btnSubmit', // 指定本form的submit按钮
 		onError: function(msg, obj) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 5000); 
+			$(obj).addClass('borderRed');
 		}, 
 		onSuccess: function(obj) { 
 			

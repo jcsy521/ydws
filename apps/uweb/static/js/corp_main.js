@@ -68,6 +68,7 @@ function customMenu(node) {
 		batchTrackLabel = '',	// 开启追踪
 		batchCancleTrack = '',	// 取消追踪
 		mileageNotificationLabel = '',	// 里程保养
+		mileageSetSearchLabel = '', //单程查询
 		defendLabel0 = '撤防',
 		defendLabel1 = '强力设防',
 		defendLabel2 = '智能设防',
@@ -107,6 +108,7 @@ function customMenu(node) {
 		bindRegionLabel = '绑定围栏';
 		bindMileageSetLabel = '绑定单程起点';
 		mileageNotificationLabel = '保养提醒';
+		mileageSetSearchLabel = '单程查询';
 		
 		//动态给设防/撤防状态增加选中的标记
 		var str_nodeClickTid = obj_node.children('a').attr('tid'),
@@ -175,6 +177,12 @@ function customMenu(node) {
 				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				obj_alarmAndDelay.hide();	
 				dlf.fn_initTrack();
+			}
+		},
+		'mileageSetSearch': {
+			"label" : mileageSetSearchLabel,
+			"action" : function(obj) {
+				dlf.fn_initRecordSearch('mileageSet');
 			}
 		},
 		"event": {
@@ -480,6 +488,7 @@ function customMenu(node) {
 		delete items.batchTrack;
 		delete items.moveTerminalForGroup;
 		delete items.mileageNotification;
+		delete items.mileageSetSearch;
    }
    if ( obj_node.hasClass('j_group') ) {
 		delete items.wakeUp;
@@ -499,6 +508,7 @@ function customMenu(node) {
 		delete items.bindMileageSet;
 		delete items.region;
 		delete items.mileageNotification;
+		delete items.mileageSetSearch;
    }
    if ( str_userType == USER_OPERATOR ) {	// 操作员屏蔽右键	
 		delete items.create;
@@ -1739,29 +1749,30 @@ function fn_updateAlarmList(arr_alarm) {
 				obj_li = $('.j_alarmTable li');
 			
 			if ( x == 0 )  {
-				var str_newTid = obj_alarm.tid,
-					n_newTimes = obj_alarm.timestamp,
-					obj_oldAlarmData = $('.j_alarmTable').data('markers')[0],
-					str_oldTid = obj_oldAlarmData.tid,
-					n_oldCategroy = obj_oldAlarmData.category,
-					n_oldTimes = obj_oldAlarmData.timestamp;
-				
-				if ( n_oldCategroy == n_categroy && str_oldTid == str_newTid && n_oldTimes == n_newTimes ) {
-					continue;
-				}				
-			} else {			
-				if ( obj_cacheAlertOption[n_categroy] == 1 ) {	
-					str_html= '<li><label class="colorBlue" title="'+ str_oldAlias +'">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
+				if ( $('.j_alarmTable').data('markers').length > 0 ) {
+					var str_newTid = obj_alarm.tid,
+						n_newTimes = obj_alarm.timestamp,
+						obj_oldAlarmData = $('.j_alarmTable').data('markers')[0],
+						str_oldTid = obj_oldAlarmData.tid,
+						n_oldCategroy = obj_oldAlarmData.category,
+						n_oldTimes = obj_oldAlarmData.timestamp;
 					
-					if ( obj_li.length > 0 ) {
-						obj_li.first().before(str_html);
-					} else {
-						obj_table.append(str_html);
+					if ( n_oldCategroy == n_categroy && str_oldTid == str_newTid && n_oldTimes == n_newTimes ) {
+						continue;
 					}
-					$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
-					arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
-					n_playMusicNum++;
+				}				
+			}		
+			if ( obj_cacheAlertOption[n_categroy] == 1 ) {	
+				str_html= '<li><label class="colorBlue" title="'+ str_oldAlias +'">'+ str_alias +'</label> 在 '+ str_date +' 发生了 <label class="colorRed">'+ dlf.fn_eventText(n_categroy) +' </label>告警</li>';
+				
+				if ( obj_li.length > 0 ) {
+					obj_li.first().before(str_html);
+				} else {
+					obj_table.append(str_html);
 				}
+				$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
+				arr_markers.unshift(obj_alarm);	// 存储所有的告警数据
+				n_playMusicNum++;
 			}
 		}
 		obj_table.data('markers', arr_markers);
@@ -2750,8 +2761,10 @@ dlf.fn_checkTMobile = function(str_tmobile) {
 		if ( data.status != 0 ) {
 			$('#hidTMobile').val('1');
 			dlf.fn_jNotifyMessage(data.message, 'message', false, 5000);
+			$('#c_tmobile').addClass('borderRed');
 			return;
 		} else {
+			$('#c_tmobile').removeClass('borderRed');
 			$('#hidTMobile').val('');
 		}
 	}, 

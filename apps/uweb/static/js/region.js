@@ -157,6 +157,7 @@ dlf.fn_saveReginon = function() {
 				
 			if ( str_regionName == str_tempRegionName ) {
 				dlf.fn_jNotifyMessage('围栏名称与第'+ (i+1) +'个重复。', 'message', false, 3000);
+				$('#createRegionName').addClass('borderRed');
 				return;
 			}		
 		}
@@ -167,17 +168,21 @@ dlf.fn_saveReginon = function() {
 	}
 	if ( str_regionName == '' ) {
 		dlf.fn_jNotifyMessage('您还没有填写围栏名称。', 'message', false, 3000);
+		$('#createRegionName').addClass('borderRed');
 		return;
 	} else {
 		if ( str_regionName.length > 20 ) {
 			dlf.fn_jNotifyMessage('围栏名称长度不能大于20个字符。', 'message', false, 3000);
+			$('#createRegionName').addClass('borderRed');
 			return;
 		}
 		if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_regionName) ) {
 			dlf.fn_jNotifyMessage('围栏名称只能由中文、数字、英文组成。', 'message', false, 3000);
+			$('#createRegionName').addClass('borderRed');
 			return;
 		}
 	}
+	$('#createRegionName').removeClass('borderRed');
 	var obj_shapeData = dlf.fn_getShapeData(),
 		arr_polygonData = [];
 	
@@ -224,7 +229,15 @@ dlf.fn_detailRegion = function(n_seq) {
 	var obj_regionDatas = $('#regionTable').data('regions'),
 		obj_regionData = obj_regionDatas[n_seq], 
 		n_region_shape = obj_regionData.region_shape;	// 围栏类型 0: 圆形 1: 多边形
-		
+	
+	$('.j_regionSearchtd, .j_bindRegionSearchtd').removeClass('bg4876ff').addClass('bgfff');
+	$('#regionDetailTdPanel'+n_id).removeClass('bgfff').addClass('bg4876ff');
+	$('#bindRegionDetailTdPanel'+n_id).removeClass('bgfff').addClass('bg4876ff');
+	
+	$('.j_regionSearchA, .j_bindRegionSearchA').css({'color': '#4876ff'});
+	$('#regionDetailPanel'+n_id).css({'color': '#000'});
+	$('#bindRegionDetailPanel'+n_id).css({'color': '#000'});
+	
 	dlf.fn_clearRegionShape();
 	// 调用地图显示圆形
 	dlf.fn_displayMapShape(obj_regionData, true);

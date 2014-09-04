@@ -1091,7 +1091,7 @@ $.fn.formValidator = function(cs)
 			}
 			//注册获得焦点的事件。改变提示对象的文字和样式，保存原值
 			jqobj.focus(function()
-			{	
+			{
 				if (isInputControl) {
 					var val = jqobj.val();
 					this.validValueOld = val;

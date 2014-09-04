@@ -189,7 +189,7 @@ function fn_displayCurrentMarker(obj_location) {
 	obj_car.speed = obj_location.speed;
 	
 	$('.j_carList').data('carsData')[obj_location.tid] = obj_car;
-	//todo使用完整数据
+	//使用完整数据
 	dlf.fn_updateInfoData(obj_car, 'current');	// 对当前车的位置信息进行更新
 	dlf.fn_updateTerminalInfo(obj_car, 'realtime');	// 对当前车的车辆信息进行更新
 }
@@ -234,7 +234,7 @@ dlf.fn_defendQuery = function(str_defendType, str_alias) {
 	
 	//保存
 	dlf.fn_jNotifyMessage(str_tempAlias+str_msg+'中' + WAITIMG, 'message', true);
-	
+	$('#userProfileManageList').hide();
 	$.post_(DEFEND_URL, JSON.stringify(obj_defend), function (data) {
 		if ( data.status == 0 ) {				
 			var obj_carList = $('.j_carList'),

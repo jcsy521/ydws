@@ -20,6 +20,7 @@
 <script type="text/javascript" src="/static/js/corp_region.js?v={{static_hash}}"></script>
 <script type="text/javascript" src="/static/js/notifymanage.js?v={{static_hash}}"></script>
 <script type="text/javascript" src="/static/js/mileageSetting.js?v={{static_hash}}"></script>
+<script type="text/javascript" src="/static/js/single_point.js?v={{static_hash}}"></script>
 <!--
 <script type="text/javascript" src="/static/js/track.js"></script><script type="text/javascript" src="/static/js/announcement.js"></script>-->
 {% end %}
@@ -97,15 +98,7 @@
 					<li><a href="#" id="home" class="menuHover home j_click">定位器位置</a></li>
 					<li><a href="#" id="corpRegion" class="region j_click">电子围栏</a></li>
 					<li>
-						<a href="#" id="mileageSet" class="mileageSet j_mileageSet">单程起点</a>
-						<ul id="mileageSetList" class="hide j_mileageSetNavItem countUlIetm">
-							<li>
-								<a href="#" id="mileageSet_setting" class="mileageSet_setting j_click">单程设置</a>
-							</li>
-							<li>
-								<a href="#" id="mileageSet_search" class="mileageSet_search j_click">单程查询</a>
-							</li>
-						</ul>
+						<a href="#" id="mileageSet_setting" class="mileageSet_setting j_click">单程起点</a>
 					</li>
 					<li><a href="#" id="eventSearch" class="eventSearch j_click">告警查询</a></li>
 					<!-- 统计 -->
@@ -190,7 +183,8 @@
 			</div>
 			<div class="mapContainer">
 				<div class="j_draggable mapDragTitle hide">
-					<div class="eventMapClose j_close" id="mapClose" title="关闭窗口"></div>
+					<div id="mapConTitle"></div>
+					<div class="eventMapClose" id="mapClose" title="关闭窗口"></div>
 				</div>
 				<div id="mapObj" class="corpMapObj"></div>
 			</div>
