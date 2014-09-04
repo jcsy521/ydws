@@ -220,6 +220,9 @@ function fn_trackQuery() {
 	
 	b_trackMsgStatus = true;
 	actionMarker = null;
+	if ( $('#exportDelay').is(':visible') ) {
+		$('#delayTable').height($('#delayTable').height()+60)
+	}
 	$('#exportDelay').hide();
 	$('#control_panel').hide();
 	$('#delayTable').html('');
@@ -292,6 +295,7 @@ function fn_trackQuery() {
 				str_tempDay = str_tempDay < 10 ? '0' + str_tempDay : str_tempDay;
 				
 				str_excelName = '停留点列表-' + ( str_tempYear + '' + str_tempMonth + '' + str_tempDay);
+				$('#delayTable').height($('#delayTable').height()-60);
 				$('#exportDelay').show().attr('download', str_excelName).click(function() {
 					var obj_table = $('#tempDelayTable'),
 						str_tableHtml = '',
