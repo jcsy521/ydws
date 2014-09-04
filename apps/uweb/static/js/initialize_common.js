@@ -2482,14 +2482,15 @@ dlf.resetPanelDisplay = function(n_type) {
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
 		
+		//console.log('xx1: resize width:  ', n_bodyHeight,n_windowHeight,n_topWidth,n_tempWindowWidth);
 		if ( n_bodyHeight > n_windowHeight ){
-			if ( n_tempWindowWidth > 1024 && n_topWidth - n_tempWindowWidth == 17 ) {
+			if ( n_tempWindowWidth > 1024 ){//&& n_topWidth - n_tempWindowWidth == 17 ) {
 				n_topWidth = n_topWidth + 17;
 				n_windowHeight = n_windowHeight + 17;
 			}
 		}
 		if ( n_topWidth > n_tempWindowWidth ) {
-			if ( n_windowHeight > 658 && n_bodyHeight > n_windowHeight == 17 ) {
+			if ( n_windowHeight > 658 ){//&& n_bodyHeight - n_windowHeight == 17 ) {
 				n_tempWindowWidth += 17;
 			}
 		}
@@ -2514,7 +2515,6 @@ dlf.resetPanelDisplay = function(n_type) {
 		if ( b_pLeftSt || b_corpLeftSt ) {
 			//n_tempWindowWidth += 247;
 		}
-		
 		var	n_tilelayerLeft = n_tempWindowWidth <= 1024 ? 1024 - 288 : n_tempWindowWidth - 188,
 			n_windowWidth = $.browser.version == '6.0' ? n_tempWidth : n_tempWindowWidth,
 			n_tempContent = n_mapHeight = n_windowHeight - 161,
