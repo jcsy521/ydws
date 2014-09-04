@@ -658,6 +658,8 @@ $(function () {
 						}, 300);
 					}
 				}
+				
+				$('.j_delay').hide();
 				//显示标题及左侧收缩按钮 
 				$('#topShowIcon, #leftPanelShowIcon').show();
 				break;

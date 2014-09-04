@@ -226,6 +226,8 @@ function fn_trackQuery() {
 	$('#exportDelay').hide();
 	$('#control_panel').hide();
 	$('#delayTable').html('');
+	$('.j_trackBtnhover').show();
+	$('#tPause ').hide();
 	
 	$.post_('/masspoint', JSON.stringify(obj_locusDate), function (data) {
 		if ( data.status == 0 ) {
@@ -303,7 +305,7 @@ function fn_trackQuery() {
 						arr_delayPoints = $('.j_delay').data('delayPoints'),
 						str_html ='<tr><td>事件</td><td>时间（开始）</td><td>位置</td></tr>';
 					
-					for ( var i = 0; i < arr_delayPoints.length; i++ ) {
+					for ( var i = 1; i < arr_delayPoints.length-1; i++ ) {
 						var obj_tempTrackData = arr_delayPoints[i];
 						
 						str_html +='<tr><td>停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time) +'</label></td><td>'+ dlf.fn_changeNumToDateString(obj_tempTrackData.start_time) +'</td><td>'+ obj_tempTrackData.name +'</td></tr>';
@@ -592,10 +594,14 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 			fn_getTrackDatas(n_itemTitleNum, 'delay');
 		} else { *///请求路线数据并显示
 			$('#control_panel').hide();
+			$('.j_trackBtnhover').show();
+			$('#tPause ').hide();
 			dlf.fn_clearMapComponent(); // 清除页面图形
 			actionMarker = null;
 			arr_drawLine = [];
 			arr_dataArr = [];
+			counter = -1;
+			str_actionState = 0;
 			fn_getTrackDatas(n_itemTitleNum);
 		//}
 	});
@@ -647,7 +653,6 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 							arr_trackLine.push(obj_tempTrackPoint);
 						}
 					}
-					
 					if ( str_operator == 'delay' ) {
 						dlf.fn_createPolyline(arr_trackLine, {color: '#ff0000'});	
 					} else {						

@@ -228,7 +228,8 @@ dlf.fn_saveReginon = function() {
 dlf.fn_detailRegion = function(n_seq) {
 	var obj_regionDatas = $('#regionTable').data('regions'),
 		obj_regionData = obj_regionDatas[n_seq], 
-		n_region_shape = obj_regionData.region_shape;	// 围栏类型 0: 圆形 1: 多边形
+		n_region_shape = obj_regionData.region_shape,	// 围栏类型 0: 圆形 1: 多边形
+		n_id = obj_regionData.region_id;
 	
 	$('.j_regionSearchtd, .j_bindRegionSearchtd').removeClass('bg4876ff').addClass('bgfff');
 	$('#regionDetailTdPanel'+n_id).removeClass('bgfff').addClass('bg4876ff');
