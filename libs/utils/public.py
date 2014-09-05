@@ -82,6 +82,15 @@ def delete_terminal(tid, db, redis, del_user=True):
         db.execute("DELETE FROM T_LOCATION"
                    "  WHERE tid = %s",
                    tid)
+
+        db.execute("DELETE FROM T_STOP"
+                   "  WHERE tid = %s",
+                   tid)
+
+        db.execute("DELETE FROM T_MILEAGE_LOG"
+                   "  WHERE tid = %s",
+                   tid)
+
         redis.delete(key)
         logging.info("[PUBLIC] Delete db data of terminal: %s", tid)
 
