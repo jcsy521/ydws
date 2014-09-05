@@ -203,7 +203,7 @@ class Test():
     def get_terminals(self):
         terminals = self.db.query("SELECT * from T_TERMINAL_INFO"
                                   "  where 1=1"
-                                  "  limit 500")
+                                  "  limit 50")
         return terminals
 
 
@@ -220,13 +220,15 @@ def handle_stop_multi():
         tids = [terminal['tid'] for terminal in terminals]
         terminal_num = len(terminals)
 
-        page = 100
+        page = 10
 
         d, m = divmod(terminal_num, page)
-        theread_num = (d + 1) if m else d
+        thread_num = (d + 1) if m else d
 
-        thread.start_new_thread(handle_stop_groups, (tids[0:1*page],))
-        thread.start_new_thread(handle_stop_groups, (tids[1*page:2*page],))
+        for i in range(thread_num):
+            print '-----start thread', i
+            thread.start_new_thread(handle_stop_groups, (tids[i:(i+1)*page],))
+
         while True:
             time.sleep(60)
     except Exception as e:
