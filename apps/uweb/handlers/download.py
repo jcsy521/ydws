@@ -189,7 +189,7 @@ class DownloadSmsHandler(BaseHandler):
 
             mobile = data.mobile 
             captcha_sms = data.captcha_sms 
-            captchahash_sms = data.captchahash_sms 
+            captchahash_sms = self.get_cookie("captchahash_sms", "")
             category = data.category 
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
