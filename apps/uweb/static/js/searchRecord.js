@@ -1180,7 +1180,7 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 				str_tbodyText+= '<td>'+'<input type="radio" id="'+ str_checkboxId +'" name="'+ str_who +'_radio" value="'+ str_singleId +'" /></td>';	// 围栏选择
 				str_tbodyText+= '<td>'+ (i+1) +'</td>';
 				str_tbodyText+= '<td title="'+ str_singleName +'">'+ str_tempSingleName +'</td>';
-				str_tbodyText+= '<td id="bindMileageSetDetailTdPanel'+str_singleId+'" class="j_bindMileateSetSearchtd"><a id="bindMileageSetDetailPanel'+str_singleId+'" class="j_bindMileateSetSearchA" href="#" onclick=dlf.fn_detailMileageSet('+ i +')>查看详情</a></td>';
+				str_tbodyText+= '<td id="bindMileageSetDetailTdPanel'+str_singleId+'" class="j_bindMileateSetSearchtd"><a id="bindMileageSetDetailPanel'+str_singleId+'" class="j_bindMileageSetSearchA" href="#" onclick=dlf.fn_detailMileageSet('+ i +')>查看详情</a></td>';
 				str_tbodyText+= '</tr>';
 				break;
 		}
