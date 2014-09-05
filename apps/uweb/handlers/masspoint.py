@@ -171,6 +171,7 @@ class MassPointHandler(BaseHandler, TrackMixin):
                         if location['speed'] <= LIMIT.SPEED_LIMIT: # may be stop
                             # end_time of last one of track is useless
                             newest_stop['end_time'] = end['start_time']
+                            newest_stop['name'] = end['name']
                             newest_stop['idle_time'] = abs(newest_stop['end_time']-newest_stop['start_time'])
                             newest_stop['distance'] = newest_stop['distance'] + self.get_track_distance(
                                                                                      self.get_track(tid, 
