@@ -178,9 +178,10 @@ class MassPointHandler(BaseHandler, TrackMixin):
                                                                                           newest_stop['start_time'], 
                                                                                           end['start_time']))
 
-                            #
+                            # special handle for the last point
                             newest_stop['start_time'] = end['start_time']
-                            end = {} 
+                            end = newest_stop 
+                            stop.pop()
                         else: # it should never happpen
                             pass
 
