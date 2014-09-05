@@ -39,6 +39,7 @@ class TrackMixin(BaseMixin):
                                   "       clongitude, timestamp, name, type, speed, degree, locate_error"
                                   "  FROM T_LOCATION"
                                   "  WHERE tid = %s"
+                                  "    AND category = 1"
                                   "    AND NOT (latitude = 0 OR longitude = 0)"
                                   "    AND (timestamp BETWEEN %s AND %s)"
                                   "    AND type = 0"
