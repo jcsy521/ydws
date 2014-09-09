@@ -466,9 +466,17 @@ class PacketTask(object):
                 if pvt['speed'] > LIMIT.SPEED_LIMIT: # is moving
                     if stop: #NOTE: time_diff is too short, drop the point. 
                         if pvt["gps_time"] - stop['start_time'] < 60: # 60 seconds 
+                            _stop = self.db.get("SELECT distance FROM T_STOP WHERE lid =%s", stop['lid'])
+                            if _stop: 
+                                tmp_dis = _stop['distance'] 
+                            else: 
+                                tmp_dis = 0 
+                            distance = float(distance) + tmp_dis
+
                             self.db.execute("DELETE FROM T_STOP WHERE lid = %s",
                                             stop['lid'])
                             self.redis.delete(stop_key)
+                            self.redis.setvalue(distance_key, distance, time=EVENTER.STOP_EXPIRY)
                             logging.info("[EVENTER] Stop point is droped: %s", stop)
                         else: # close a stop point
                             self.redis.delete(stop_key)
