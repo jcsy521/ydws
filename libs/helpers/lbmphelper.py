@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import math
 from math import sin, cos, pi, acos 
 import time
 import random
@@ -502,8 +503,84 @@ def handle_location(location, redis, cellid=False, db=None):
 
     return location
 
+def get_distance(lon1, lat1, lon2, lat2):
+    if (lon1 == lon2) and (lat1 == lat2):
+        return 0 
 
-def get_distance(lon1, lat1, lon2, lat2): 
+    lon1 = lon1 / 3600000.0
+    lat1 = lat1/ 3600000.0
+    lon2 = lon2 / 3600000.0
+    lat2 = lat2 / 3600000.0
+
+    MAXITERS = 20
+    # Convert lat/long to radians
+    lat1 *= math.pi / 180.0
+    lat2 *= math.pi / 180.0
+    lon1 *= math.pi / 180.0
+    lon2 *= math.pi / 180.0
+
+    a = 6378137.0 # WGS84 major axis
+    b = 6356752.3142 # WGS84 semi-major axis
+    f = (a - b) / a
+    aSqMinusBSqOverBSq = (a * a - b * b) / (b * b)
+
+    L = lon2 - lon1
+    A = 0.0
+    U1 = math.atan((1.0 - f) * math.tan(lat1))
+    U2 = math.atan((1.0 - f) * math.tan(lat2))
+
+    cosU1 = math.cos(U1)
+    cosU2 = math.cos(U2)
+    sinU1 = math.sin(U1)
+    sinU2 = math.sin(U2)
+    cosU1cosU2 = cosU1 * cosU2
+    sinU1sinU2 = sinU1 * sinU2
+
+    sigma = 0.0
+    deltaSigma = 0.0
+    cosSqAlpha = 0.0
+    cos2SM = 0.0
+    cosSigma = 0.0
+    sinSigma = 0.0
+    cosLambda = 0.0
+    sinLambda = 0.0
+
+    lambda_ = L # initial guess
+    for i in range(MAXITERS):
+        lambdaOrig = lambda_
+        cosLambda = math.cos(lambda_)
+        sinLambda = math.sin(lambda_)
+        t1 = cosU2 * sinLambda
+        t2 = cosU1 * sinU2 - sinU1 * cosU2 * cosLambda
+        sinSqSigma = t1 * t1 + t2 * t2 # (14)
+        sinSigma = math.sqrt(sinSqSigma)
+        cosSigma = sinU1sinU2 + cosU1cosU2 * cosLambda # (15)
+        sigma = math.atan2(sinSigma, cosSigma) # (16)
+        sinAlpha = 0.0 if (sinSigma == 0) else (cosU1cosU2 * sinLambda / sinSigma) # (17)
+        cosSqAlpha = 1.0 - sinAlpha * sinAlpha
+        cos2SM = 0.0 if (cosSqAlpha == 0) else (cosSigma - 2.0 * sinU1sinU2 / cosSqAlpha) # (18)
+
+        uSquared = cosSqAlpha * aSqMinusBSqOverBSq # defn
+        A = 1 + (uSquared / 16384.0) * (4096.0 + uSquared * (-768 + uSquared * (320.0 - 175.0 * uSquared))) # (3)
+        B = (uSquared / 1024.0) * (256.0 + uSquared * (-128.0 + uSquared * (74.0 - 47.0 * uSquared))) # (4)
+        C = (f / 16.0) * cosSqAlpha * (4.0 + f * (4.0 - 3.0 * cosSqAlpha)) # (10)
+        cos2SMSq = cos2SM * cos2SM
+        deltaSigma = B * sinSigma * (cos2SM + (B / 4.0) * (cosSigma * (-1.0 + 2.0 * cos2SMSq) - (B / 6.0) * cos2SM * (-3.0 + 4.0 * sinSigma * sinSigma) * (-3.0 + 4.0 * cos2SMSq))) # (6)
+
+        lambda_ = L + (1.0 - C) * f * sinAlpha * (sigma + C * sinSigma * (cos2SM + C * cosSigma * (-1.0 + 2.0 * cos2SM * cos2SM))) # (11)
+
+        if lambda_:
+            delta = (lambda_ - lambdaOrig) / lambda_
+            if abs(delta) < 1.0e-12:
+                break
+        else:
+            break
+
+    distance = float((b * A * (sigma - deltaSigma)))
+
+    return distance
+
+def get_distance_rough(lon1, lat1, lon2, lat2): 
     """
     Receive a couple of longitude and latitude, and return the distance
     of the tow location.
@@ -513,6 +590,16 @@ def get_distance(lon1, lat1, lon2, lat2):
 
     @params: lon1, lat1, lon2, lat2 #degree*3600000, type=int
     @retuns: d, metre
+
+    NOTE: 
+    In some point, get_distance is bette than get_distance_rough.
+    For a tuple of paras, 408786211, 80495414, 408786209, 80495414.
+    get_distance works well, but get_distance_rough returns exception as
+    below.:
+
+        d = EARTH_RADIUS_METER * acos(c)
+        ValueError: math domain error
+
     """
     if (lon1 == lon2) and (lat1 == lat2):
         return 0 
