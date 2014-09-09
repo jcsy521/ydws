@@ -79,6 +79,7 @@ class Test():
         cnt = 0  
 
         for i, pvt in enumerate(track):
+
             #print 'i: %s, speed: %s, pvt: %s' % (i, pvt['speed'], pvt)
             stop_key = 'test_stop_redis:%s' % tid
             stop = self.redis.getvalue(stop_key)
@@ -91,18 +92,31 @@ class Test():
 
             last_pvt_key = 'test_last_pvt_redis:%s' % tid
             last_pvt = self.redis.getvalue(last_pvt_key)
+
             if last_pvt:
-                distance = float(distance) + get_distance(int(last_pvt["longitude"]), int(last_pvt["latitude"]), 
+                tmp = get_distance(int(last_pvt["longitude"]), int(last_pvt["latitude"]), 
                                                           int(pvt["longitude"]), int(pvt["latitude"])) 
+
+
+                distance = float(distance) + tmp 
+                print 'add distance', i, pvt['id'], tmp, distance
                 self.redis.setvalue(distance_key, distance, time=EVENTER.STOP_EXPIRY)
 
             if pvt['speed'] > LIMIT.SPEED_LIMIT: # 5  is moving
                 if stop: #NOTE: time_diff is too short, drop the point. 
                     if pvt["timestamp"] - stop['start_time'] < 60: # 60 seconds 
                         cnt += 1  
+                        _stop = self.db.get("select distance from T_STOP where lid =%s", stop['lid'])
+                        if _stop:
+                            tmp_dis = _stop['distance']
+                        else:
+                            tmp_dis = 0 
+                        distance = float(distance) + tmp_dis 
+
                         self.db.execute("DELETE FROM T_STOP WHERE lid = %s",
                                         stop['lid'])
                         self.redis.delete(stop_key)
+                        self.redis.setvalue(distance_key, distance, time=EVENTER.STOP_EXPIRY) 
                         logging.info("[EVENTER] Stop point is droped: %s", stop)
                     else: # close a stop point
                         cnt += 1  
@@ -155,11 +169,15 @@ def main():
     test = Test()
     start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,0,0,0),"%Y-%m-%d-%H-%M-%S")))
     #start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,0,0,0),"%Y-%m-%d-%H-%M-%S")))
-    end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,9,4,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+    #end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,19,0,0),"%Y-%m-%d-%H-%M-%S")))
+    end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,9,10,0,0,0),"%Y-%m-%d-%H-%M-%S")))
     print time.localtime(start_time)
     print time.localtime(end_time)
     
-    tid = 'T123SIMULATOR'
+    #tid = '35C2000067'
+
+    tid = '3A28200102'
+    #tid = 'T123SIMULATOR'
 
     begin_time = time.localtime()
     test.clear_stop(tid) 
