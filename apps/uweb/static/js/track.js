@@ -531,15 +531,15 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		if ( str_trackAddress == '' ) {
 			arr_noAddressPoint.push({'pd': obj_tempTrackData, 'index':i});
 		}
-			
-		if ( i == 0 ) {
-			str_lsIconClass = 'trackLsIcon_start';
-			str_trackAddress += '（起点）';
-			str_fClass = 'trackLsItemSt';
-		} else if ( arr_delayPoints.length == (i +1) ) {
+		
+		if ( arr_delayPoints.length == (i +1) ) {
 			str_lsIconClass = 'trackLsIcon_end';
 			str_trackAddress += '（终点）';
 			str_fClass =  'trackLsItemEnd';
+		} else if ( i == 0 ) {
+			str_lsIconClass = 'trackLsIcon_start';
+			str_trackAddress += '（起点）';
+			str_fClass = 'trackLsItemSt';
 		} else {
 			str_trackAddress ='（停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.idle_time)+'）'+str_trackAddress;
 		}
