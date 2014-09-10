@@ -204,16 +204,16 @@ class MassPointHandler(BaseHandler, TrackMixin):
 
             if track and (not stop):
                 start = dict(lid=track[0]['id'], 
-                           tid=tid, 
-                           start_time=track[0]['timestamp'],
-                           end_time=0, 
-                           idle_time=0,
-                           name=self.get_track_name(track[0]),
-                           longitude=track[0]['longitude'],
-                           latitude=track[0]['latitude'],
-                           clongitude=track[0]['clongitude'],
-                           clatitude=track[0]['clatitude'],
-                           distance=0)
+                             tid=tid, 
+                             start_time=track[0]['timestamp'],
+                             end_time=0, 
+                             idle_time=0,
+                             name=self.get_track_name(track[0]),
+                             longitude=track[0]['longitude'],
+                             latitude=track[0]['latitude'],
+                             clongitude=track[0]['clongitude'],
+                             clatitude=track[0]['clatitude'],
+                             distance=0)
 
                 end = dict(lid=track[-1]['id'], 
                            tid=tid, 
@@ -228,8 +228,8 @@ class MassPointHandler(BaseHandler, TrackMixin):
                            distance=0)
 
                 end['distance'] = self.get_track_distance(
-                                        self.get_track(tid,
-                                             start['start_time'], end['start_time']))
+                                       self.get_track(tid,
+                                            start['start_time'], end['start_time']))
 
 
             # modify name & degere 
@@ -249,11 +249,51 @@ class MassPointHandler(BaseHandler, TrackMixin):
                 track = []
                 logging.info("[UEB] mass point. tid:%s.", tid)
 
+            if mass_point == 1:
+                if not (start or end or stop):
+                    if cellid_flag == 1: # cellid
+                         track = self.get_track(tid, start_time, end_time, cellid=True) 
+                    else: # gps
+                        # cellid_flag is None or 0, only gps track
+                        track = self.get_track(tid, start_time, end_time, cellid=False) 
+                    if track:
+                        start = dict(lid=track[0]['id'], 
+                                     tid=tid, 
+                                     start_time=track[0]['timestamp'],
+                                     end_time=0, 
+                                     idle_time=0,
+                                     name=self.get_track_name(track[0]),
+                                     longitude=track[0]['longitude'],
+                                     latitude=track[0]['latitude'],
+                                     clongitude=track[0]['clongitude'],
+                                     clatitude=track[0]['clatitude'],
+                                     distance=0)
+
+                        end = dict(lid=track[-1]['id'], 
+                                   tid=tid, 
+                                   start_time=track[-1]['timestamp'],
+                                   end_time=0, 
+                                   idle_time=0,
+                                   name=self.get_track_name(track[-1]),
+                                   longitude=track[-1]['longitude'],
+                                   latitude=track[-1]['latitude'],
+                                   clongitude=track[-1]['clongitude'],
+                                   clatitude=track[-1]['clatitude'],
+                                   distance=0)
+
+                        end['distance'] = self.get_track_distance(
+                                               self.get_track(tid,
+                                                    start['start_time'], end['start_time']))
+
+            # if start is equal end, just provide start
+            if start and end:
+                if start['start_time'] == end['start_time']:
+                    end = {} 
 
             # NOTE: move the distance from next point to last point
             lst = stop[:]
             if start: 
-                lst.insert(0,start) 
+                lst.insert(0, start) 
             if end: 
                 lst.append(end) 
 
