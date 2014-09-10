@@ -98,22 +98,26 @@ class Test():
                                                           int(pvt["longitude"]), int(pvt["latitude"])) 
 
 
+                print 'tmp: %s, distance: %s' % (tmp, distance) 
                 distance = float(distance) + tmp 
-                print 'add distance', i, pvt['id'], tmp, distance
+                print 'last distance: %s' % (distance) 
+                #print 'add distance', i, pvt['id'], tmp, distance
                 self.redis.setvalue(distance_key, distance, time=EVENTER.STOP_EXPIRY)
 
             if pvt['speed'] > LIMIT.SPEED_LIMIT: # 5  is moving
                 if stop: #NOTE: time_diff is too short, drop the point. 
                     if pvt["timestamp"] - stop['start_time'] < 60: # 60 seconds 
                         cnt += 1  
-                        _stop = self.db.get("select distance from T_STOP where lid =%s", stop['lid'])
+                        _stop = self.db.get("select distance from T_STOP_bak where lid =%s", stop['lid'])
                         if _stop:
                             tmp_dis = _stop['distance']
                         else:
                             tmp_dis = 0 
+                        print 'tmp_dis', tmp_dis
                         distance = float(distance) + tmp_dis 
+                        print 'tmp_dis distance', distance 
 
-                        self.db.execute("DELETE FROM T_STOP WHERE lid = %s",
+                        self.db.execute("DELETE FROM T_STOP_bak WHERE lid = %s",
                                         stop['lid'])
                         self.redis.delete(stop_key)
                         self.redis.setvalue(distance_key, distance, time=EVENTER.STOP_EXPIRY) 
@@ -121,7 +125,7 @@ class Test():
                     else: # close a stop point
                         cnt += 1  
                         self.redis.delete(stop_key)
-                        self.db.execute("UPDATE T_STOP SET end_time = %s WHERE lid = %s",
+                        self.db.execute("UPDATE T_STOP_bak SET end_time = %s WHERE lid = %s",
                                         pvt["timestamp"], stop['lid'])
                         logging.info("[EVENTER] Stop point is closed: %s", stop)
                 else:
@@ -142,7 +146,7 @@ class Test():
                                 pre_lat=pvt["latitude"], 
                                 distance=distance)
 
-                    self.db.execute("INSERT INTO T_STOP(lid, tid, start_time, distance) VALUES(%s, %s, %s, %s)",
+                    self.db.execute("INSERT INTO T_STOP_bak(lid, tid, start_time, distance) VALUES(%s, %s, %s, %s)",
                                     lid, tid, pvt["timestamp"], distance)
                     self.redis.setvalue(stop_key, stop, time=EVENTER.STOP_EXPIRY)
 
@@ -155,12 +159,13 @@ class Test():
             print '---------------------- cnt', cnt
 
     def clear_stop(self, tid):
-        self.db.execute("DELETE FROM T_STOP WHERE tid = %s", tid)
+        self.db.execute("DELETE FROM T_STOP_bak WHERE tid = %s", tid)
         stop_key = 'test_stop_redis:%s' % tid
         distance_key = 'test_distance_redis:%s' % tid
         last_pvt_key = 'test_last_pvt_redis:%s' % tid
         self.redis.delete(stop_key)
         self.redis.delete(distance_key)
+        self.redis.delete(last_pvt_key)
 
 def usage():
     print "Usage: python handle_stop.py"
@@ -174,9 +179,9 @@ def main():
     print time.localtime(start_time)
     print time.localtime(end_time)
     
-    #tid = '35C2000067'
+    tid = '35C2000067'
 
-    tid = '3A28200102'
+    #tid = '3A28200102'
     #tid = 'T123SIMULATOR'
 
     begin_time = time.localtime()
