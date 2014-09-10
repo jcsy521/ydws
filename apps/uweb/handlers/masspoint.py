@@ -249,13 +249,13 @@ class MassPointHandler(BaseHandler, TrackMixin):
                 track = []
                 logging.info("[UEB] mass point. tid:%s.", tid)
 
+
             # NOTE: move the distance from next point to last point
             lst = stop[:]
-            if lst: 
-                if start: 
-                    lst.insert(0,start) 
-                if end: 
-                    lst.append(end) 
+            if start: 
+                lst.insert(0,start) 
+            if end: 
+                lst.append(end) 
 
             for k, v in enumerate(lst): 
                 if k == len(lst) - 1: 
