@@ -21,7 +21,7 @@ from helpers.lbmphelper import get_distance
 from constants import UWEB, LIMIT, EVENTER
 
 
-class Test():
+class Test(object):
 
     def __init__(self):
         self.db = DBConnection().db
@@ -93,11 +93,6 @@ class Test():
                 if stop: #NOTE: time_diff is too short, drop the point. 
                     if pvt["timestamp"] - stop['start_time'] < 60: # 60 seconds 
                         cnt += 1  
-                        #try:
-                        #    _stop = self.db.get("SELECT distance FROM T_STOP WHERE lid =%s ", stop['lid'])
-                        #    #_stop = self.db.get("select distance from T_STOP where lid =%s limit 1", stop['lid'])
-                        #except Exception as e:
-                        #    print e.args, stop
 
                         _stop = self.db.get("SELECT distance FROM T_STOP WHERE lid =%s ", stop['lid'])
                         if _stop:
@@ -160,29 +155,32 @@ class Test():
             self.redis.setvalue(last_pvt_key, last_pvt, time=EVENTER.STOP_EXPIRY)
             #print '---------------------- cnt', cnt
 
-        #handle db 
+        #BIG NOTE: never use it
+        #if create_item: 
+        #    #_start = time.time()
+        #    self.db.executemany("INSERT INTO T_STOP(lid, tid, start_time, distance) VALUES(%s, %s, %s, %s)", 
+        #                        [(item['lid'], item['tid'], item['timestamp'], item['distance']) for item in create_item])
+        #    #_end = time.time()
+        #    #print 'create_item', create_item 
+        #    #print 'time_diff',  _end - _start
+
+        ##handle db 
         #if delete_ids:
-        #    print 'delete_ids', delete_ids 
+        #    #print 'delete_ids', delete_ids 
         #    self.db.executemany("DELETE FROM T_STOP WHERE lid = %s", 
         #                        [(item) for item in delete_ids])
         #if update_item: 
-        #    print 'update_item', update_item 
+        #    #print 'update_item', update_item 
         #    self.db.executemany("UPDATE T_STOP SET end_time = %s WHERE lid = %s",
         #                        [(item['timestamp'], item['lid']) for item in update_item])
 
-        #if create_item: 
-        #    _start = time.time()
-        #    self.db.executemany("INSERT INTO T_STOP(lid, tid, start_time, distance) VALUES(%s, %s, %s, %s)", 
-        #                        [(item['lid'], item['tid'], item['timestamp'], item['distance']) for item in create_item])
-        #    _end = time.time()
-        #    print 'create_item', create_item 
-        #    print 'time_diff',  _end - _start
-
     def clear_stop(self, tid):
         self.db.execute("DELETE FROM T_STOP WHERE tid = %s", tid)
+
         stop_key = 'test_stop_redis:%s' % tid
         distance_key = 'test_distance_redis:%s' % tid
         last_pvt_key = 'test_last_pvt_redis:%s' % tid
+
         self.redis.delete(stop_key)
         self.redis.delete(distance_key)
         self.redis.delete(last_pvt_key)
@@ -197,20 +195,19 @@ class Test():
         #print 'end_time',end_time
 
     def handle_stop_groups(self, tids, start_time, end_time):
-        #print ' tids', tids
-        #return
 
         if not tids:
             return 
         for tid in tids:
             self.handle_stop_single(tid, start_time, end_time)
 
-    def get_terminals(self):
+        logging.info("handle_stop_groups finished")
 
+    def get_terminals(self):
         #terminals = self.db.query("SELECT * from T_TERMINAL_INFO"
         #                          "  where tid = '35C2000067'"
         #                          "  limit 50")
-        #terminals = self.db.query("SELECT id, tid from T_TERMINAL_INFO LIMIT 13")
+        #terminals = self.db.query("SELECT id, tid from T_TERMINAL_INFO where tid = '35C2000067'")
         terminals = self.db.query("SELECT id, tid from T_TERMINAL_INFO LIMIT 8000")
         return terminals
 
@@ -229,7 +226,7 @@ def handle_stop_multi():
         tids = [terminal['tid'] for terminal in terminals]
         terminal_num = len(terminals)
 
-        page = 1000 
+        page = 600 
 
         d, m = divmod(terminal_num, page)
         thread_num = (d + 1) if m else d
@@ -238,8 +235,9 @@ def handle_stop_multi():
 
         start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,0,0,0),"%Y-%m-%d-%H-%M-%S")))
         #start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,0,0,0),"%Y-%m-%d-%H-%M-%S")))
-        end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,2,0,0,0),"%Y-%m-%d-%H-%M-%S")))
-        #end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,9,10,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+        #end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,2,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+        #end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,18,40,0),"%Y-%m-%d-%H-%M-%S")))
+        end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,9,1,0,0,0),"%Y-%m-%d-%H-%M-%S")))
         #print time.localtime(start_time)
         #print time.localtime(end_time)
 
@@ -264,7 +262,12 @@ def usage():
     print "Usage: python handle_stop.py"
 
 def main():
-    handle_stop_multi()
+    try:
+        handle_stop_multi()
+    except KeyboardInterrupt:
+        logging.error("Ctrl-C is  pressed.")
+        thread.exit()
+
 
 if __name__ == "__main__": 
     ConfHelper.load('../conf/global.conf')
