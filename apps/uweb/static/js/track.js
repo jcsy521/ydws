@@ -171,9 +171,9 @@ dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 				}, 310);
 			}
 				
-			if ( b_bindBatchRegionWpST && b_bindRegionWpST ) {
-				dlf.fn_corpLastinfoSwitch(true);
-			}
+			//if ( b_bindBatchRegionWpST && b_bindRegionWpST ) {
+			//	dlf.fn_corpLastinfoSwitch(true);
+			//}
 			dlf.fn_corpGetCarData(true);
 		}
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
@@ -242,18 +242,16 @@ function fn_trackQuery() {
 				arr_trackQueryData = [],
 				str_msg = '';
 			
+			if ( dlf.fn_isEmptyObj(obj_trackStData) ) {
+				arr_trackQueryData.push(obj_trackStData);
+			}
+			
 			if ( arr_stopDatas.length > 0 ) {
-				if ( dlf.fn_isEmptyObj(obj_trackStData) ) {
-					arr_trackQueryData.push(obj_trackStData);
-				}
-				
-				if ( arr_stopDatas.length > 0 ) {
-					arr_trackQueryData = arr_trackQueryData.concat(arr_stopDatas);
-				}
-				
-				if ( dlf.fn_isEmptyObj(obj_trackEndData) ) {
-					arr_trackQueryData.push(obj_trackEndData);
-				}
+				arr_trackQueryData = arr_trackQueryData.concat(arr_stopDatas);
+			}
+			
+			if ( dlf.fn_isEmptyObj(obj_trackEndData) ) {
+				arr_trackQueryData.push(obj_trackEndData);
 			}
 				
 			//判断标记

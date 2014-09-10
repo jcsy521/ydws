@@ -1533,6 +1533,9 @@ dlf.fn_getAllTerminals = function(str_who) {
 					str_options = '<option value="'+ arr_res[i].tid +'">'+ arr_res[i].tmobile +'</option>';
 					obj_selectTerminals.append(str_options);
 				}
+				if ( str_who == 'mileageSet' ) {
+					$('#selectTerminals2').val($('.j_currentCar').attr('tid'));
+				}
 			} else {
 				obj_selectTerminals.append('<option value="-1">暂无终端</option>'); //注释2014-4-19 tohs
 			}

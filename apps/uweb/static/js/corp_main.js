@@ -884,7 +884,7 @@ dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 						var obj_tempAddTerminal = $('#corpTree a[title='+ str_tid +']');
 						
 						if ( obj_tempAddTerminal.length <= 0 ) {
-							return;
+							continue;
 						} else {
 							obj_car = obj_tempCarsData[obj_tempAddTerminal.attr('tid')];
 						}
@@ -2262,7 +2262,9 @@ dlf.fn_updateCorpCnum = function(cnum) {
 			str_content = str_content.replace(str_oldname, str_tempAlias);
 		*/
 		if ( b_mapType ) {	// 百度地图修改label
-			obj_selfMarker.getLabel().setContent(str_tempAlias);
+			if ( obj_selfMarker.getLabel() ) {
+				obj_selfMarker.getLabel().setContent(str_tempAlias);
+			}
 		}
 		//obj_selfmarkers[str_tid].selfInfoWindow.setContent(str_content);
 		var obj_carDatas = $('.j_carList').data('carsData'),
@@ -2619,6 +2621,7 @@ function fn_removeTerminal(node) {
 				} else {
 					dlf.fn_initCarInfo();
 				}
+				dlf.fn_corpGetCarData();
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
@@ -2652,7 +2655,7 @@ function fn_initBatchDeleteData(obj_params) {
 		obj_clearDataWp.css({'left': '40%'}).show();
 		obj_ck.removeAttr('checked');
 		$('#clearDataMsgCon').html('确定要删除以上定位器吗？');
-		obj_maskLayer.css('z-index', 1002);
+		obj_maskLayer.css('z-index', 1003);
 		
 		$('#clearDataSure').unbind('click').click(function(e) {
 			obj_clearDataWp.hide();
@@ -2721,11 +2724,11 @@ function fn_initBatchDeleteData(obj_params) {
 					} else {
 						dlf.fn_initCarInfo();
 					}
+					dlf.fn_corpGetCarData();
 					dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 				} else {
 					dlf.fn_jNotifyMessage(data.message, 'message', false, 3000); // 查询状态不正确,错误提示
 				} 
-				dlf.fn_unLockScreen(); // 添加页面遮罩
 				obj_maskLayer.css('z-index', 1000);
 			}, 
 			function (XMLHttpRequest, textStatus, errorThrown) {
@@ -2734,7 +2737,6 @@ function fn_initBatchDeleteData(obj_params) {
 		});
 		$('#clearDataCancel').unbind('click').click(function(e) {
 			obj_clearDataWp.hide();
-			dlf.fn_unLockScreen(); // 去除页面遮罩
 			obj_maskLayer.css('z-index', 1000);
 		});
 	});

@@ -414,6 +414,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		b_bindMileageSetStatus = $('#bindMileageSetWrapper').is(':visible'),	// 单点里程绑定
 		b_bindBatchMileageSetStatus = $('#bindBatchMileageSetWrapper').is(':visible'),	// 单点里程批量绑定
 		b_mileageSetCreateStatus = $('#mileageSetCreateWrapper').is(':visible'),	// 单点里程新增
+		b_mileageSetSearchStatus = $('#mileageSetWrapper').is(':visible'),	// 单点里程查询
 		n_len = obj_terminals.length,
 		obj_oldCurrentCar = $('.j_currentCar').parent(),
 		n_oldOffsetTop = n_sub1 = 0;
@@ -439,6 +440,35 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		obj_terminals.removeClass('currentCarCss');	// 其他车辆移除样式
 		obj_currentItem.addClass('currentCarCss');	// 当前车添加样式
 		
+		if ( b_trackSt ) {
+			dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
+			
+			var str_tempAlias = $('.j_currentCar').attr('alias');
+				str_currentCarAlias = '';
+				
+			if ( str_tempAlias ) {
+				str_currentCarAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias)); 
+			}
+			$('.j_delay').removeData('delayPoints');	// 清除停留点缓存数据
+			b_trackMsgStatus = true;
+			actionMarker = null;
+			if ( $('#exportDelay').is(':visible') ) {
+				$('#delayTable').height($('#delayTable').height()+60)
+			}
+			$('#exportDelay').hide();
+			$('#control_panel').hide();
+			$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
+			$('.j_trackBtnhover').show();
+			$('#tPause ').hide();
+			$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+		}
+		
+		if ( b_eventSearchWpST ) {
+			dlf.fn_ShowOrHideMiniMap(false);
+			$('#eventSearchPage').hide();
+			$('#eventSearchCategory').val(-1);
+			$('#eventSearchTableHeader').hide().nextAll().remove();
+		}
 		// 个人用户操作成功保存当前车tid 
 		str_currentPersonalTid = n_tid;
 		if ( obj_carDatas ) {
@@ -523,7 +553,18 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			}
 			if ( b_trackSt ) {	
 				dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
-				dlf.fn_initTrack();
+				
+				$('.j_delay').removeData('delayPoints');	// 清除停留点缓存数据
+				b_trackMsgStatus = true;
+				actionMarker = null;
+				if ( $('#exportDelay').is(':visible') ) {
+					$('#delayTable').height($('#delayTable').height()+60)
+				}
+				$('#exportDelay').hide();
+				$('#control_panel').hide();
+				$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
+				$('.j_trackBtnhover').show();
+				$('#tPause ').hide();
 				$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
 			}
 			if ( b_eventSearchWpST ) {
@@ -532,9 +573,21 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				$('#eventSearchCategory').val(-1);
 				$('#eventSearchTableHeader').hide().nextAll().remove();
 			}
+			
+			if ( b_mileageSetSearchStatus ) {
+				dlf.fn_ShowOrHideMiniMap(false);
+				$('#mileageSetPage').hide();
+				$('#mileageSetTableHeader').hide().nextAll().remove();
+				$('#selectTerminals2').val(str_currentTid);
+			}
+			
 			if ( obj_car && dlf.fn_isEmptyObj(obj_car) ) {
 				dlf.fn_updateTerminalInfo(obj_car);	// 更新车辆信息
-				dlf.fn_updateInfoData(obj_car);	
+				
+				if ( !b_trackSt & !b_eventSearchWpST & !b_mileageSetSearchStatus ) {
+					dlf.fn_updateInfoData(obj_car);	
+				}
+				
 				if ( !b_trackSt & !b_eventSearchWpST & !b_regionWpST & !b_regionCreateWpST & !b_bindBatchRegionWpST & !b_bindRegionWpST & !b_corpRegionWpST & !b_corpMileageSetStatus & !b_bindMileageSetStatus & !b_bindBatchMileageSetStatus & !b_mileageSetCreateStatus ) {
 					dlf.fn_moveMarker(n_tid);
 				}

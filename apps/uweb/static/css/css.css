@@ -1720,7 +1720,7 @@ body {
 	height: 14px;
 	width: 14px;
 	position: relative;
-	right: 0px;
+	right: -1px;
 	top: 12px;
 }
 .trackLsItem .trackLsIcon_start {
@@ -1731,7 +1731,7 @@ body {
 }
 .trackLsContent {
 	position: relative;
-	left: 36px;
+	left: 22px;
 	font-size: 16px;
 	font-weight: bold;
 }
@@ -1784,7 +1784,7 @@ body {
 .default_delayItem {
 	position: relative;
 	text-align: center;
-	top: 100px;
+	top: 50%;
 	font-weight: bold;
 	color: #ccc;
 	font-size: 20px;
@@ -1820,7 +1820,7 @@ body {
 	width: 63px;
 	float: right;
 	position: relative;
-	right: 32px;
+	right: 24px;
 }
 .tSearch:hover {
 	background: url('/static/images/trackcx2.png') no-repeat;
@@ -4223,7 +4223,7 @@ legend {
 .currentDefendImg {
 	position: relative;
 	top: 3px;
-	float: right;
+	left: 80px;
 }
 
 #trackSearch_topShowIcon {
@@ -4309,4 +4309,7 @@ legend {
 }
 #t_corp_speed_limit {
 	margin-right: 10px;
+}
+#trackAliasLabelPanel {
+	margin-right: 2px;
 }
