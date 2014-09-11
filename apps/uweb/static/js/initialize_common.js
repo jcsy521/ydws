@@ -279,12 +279,18 @@ dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
 }
 
 dlf.fn_changeTimestampToString = function(n_timestamp) {
-	var n_tempMinute = Math.round(n_timestamp/60),
+	var n_tempMinute = parseInt(n_timestamp/60),
+		n_tempMinuteMod = n_timestamp%60,
 		n_minute = n_tempMinute,
 		n_hour = 0,
 		n_tempHour = 0,
 		n_day = 0,
 		str_time = '';
+	
+	if ( n_tempMinuteMod > 0 ) {
+		n_tempMinute += 1;
+	}
+	n_minute = n_tempMinute;
 		
 	if ( n_tempMinute >= 60 ) {
 		n_minute = n_tempMinute%60;

@@ -594,6 +594,8 @@ $(function () {
 		if ( b_trackStatus ) {	// 如果当前点击的不是轨迹按钮，先关闭轨迹查询
 			if ( str_id == 'track' ) {
 				return;
+			} else {
+				$('.j_delay').hide();
 			}
 		}
 		// 除了对多个定位器操作外

@@ -551,7 +551,13 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		str_html += '<div class="trackLsContent">';
 		str_html += '<div id="trackLsAddressPanel'+i+'" class="trackLsAddress">'+str_trackAddress+'</div>';
 		if ( arr_delayPoints.length != (i +1) ) {
-			str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">活动路线：<span class="textZooIn">'+dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）</div>';
+			str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">活动路线：<span class="textZooIn">';
+			
+			if ( n_distance < 1000 ) {
+				str_html +=dlf.fn_NumForRound(n_distance, 0)+'</span>（米）</div>';
+			} else {
+				str_html +=dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）</div>';
+			}
 		}
 		str_html += '</div>';
 		if ( str_operation == 'delay' ) { //显示停留点

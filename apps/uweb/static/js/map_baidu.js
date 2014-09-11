@@ -659,7 +659,11 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 			}
 		}
 		if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'singledraw' || str_iconType == 'singlestart' || str_iconType == 'singleend' ) {
-			str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist/1000, 1) +' km</label></li>';
+			if ( n_tempDist < 1000 ) {
+				str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist, 0) +' m</label></li>';
+			} else {
+				str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist/1000, 1) +' km</label></li>';
+			}
 		}
 		
 		str_html += '<li>时间： '+ date +'</li>' + 
