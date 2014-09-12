@@ -30,6 +30,7 @@ dlf.fn_initTrack = function() {
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show();	// 轨迹查询条件显示
 	dlf.fn_setMapPosition(false);
+	$('#delayTable').css({'margin-top': 60});
 	dlf.resetPanelDisplay();
 	// 调整工具条和
 	//dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
@@ -221,7 +222,7 @@ function fn_trackQuery() {
 	b_trackMsgStatus = true;
 	actionMarker = null;
 	if ( $('#exportDelay').is(':visible') ) {
-		$('#delayTable').height($('#delayTable').height()+60)
+		$('#delayTable').height($('#delayTable').height()+60);
 	}
 	$('#exportDelay').hide();
 	$('#control_panel').hide();
@@ -295,27 +296,30 @@ function fn_trackQuery() {
 				str_tempDay = str_tempDay < 10 ? '0' + str_tempDay : str_tempDay;
 				
 				str_excelName = '停留点列表-' + ( str_tempYear + '' + str_tempMonth + '' + str_tempDay);
-				$('#delayTable').height($('#delayTable').height()-60);
-				$('#exportDelay').show().attr('download', str_excelName).click(function() {
-					var obj_table = $('#tempDelayTable'),
-						str_tableHtml = '',
-						b_isNullName = false,
-						arr_delayPoints = $('.j_delay').data('delayPoints'),
-						str_html ='<tr><td>事件</td><td>时间（开始）</td><td>位置</td></tr>';
-					
-					for ( var i = 1; i < arr_delayPoints.length-1; i++ ) {
-						var obj_tempTrackData = arr_delayPoints[i];
+				$('#delayTable').height($('#delayTable').height()-60).css({'margin-top': 60});
+				if ( arr_trackQueryData.length > 2 ) { 
+					$('#delayTable').css({'margin-top': 0});
+					$('#exportDelay').show().attr('download', str_excelName).click(function() {
+						var obj_table = $('#tempDelayTable'),
+							str_tableHtml = '',
+							b_isNullName = false,
+							arr_delayPoints = $('.j_delay').data('delayPoints'),
+							str_html ='<tr><td>事件</td><td>时间（开始）</td><td>位置</td></tr>';
 						
-						str_html +='<tr><td>停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time) +'</label></td><td>'+ dlf.fn_changeNumToDateString(obj_tempTrackData.start_time) +'</td><td>'+ obj_tempTrackData.name +'</td></tr>';
-					}
-					obj_table.html(str_html);
-					if ( b_isNullName ) {
-						dlf.fn_jNotifyMessage('正在获取数据，请稍等。', 'message', false, 3000);
-						return;
-					} else {
-						fn_exportExcel(str_excelName);
-					}
-				});
+						for ( var i = 1; i < arr_delayPoints.length-1; i++ ) {
+							var obj_tempTrackData = arr_delayPoints[i];
+							
+							str_html +='<tr><td>停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time) +'</label></td><td>'+ dlf.fn_changeNumToDateString(obj_tempTrackData.start_time) +'</td><td>'+ obj_tempTrackData.name +'</td></tr>';
+						}
+						obj_table.html(str_html);
+						if ( b_isNullName ) {
+							dlf.fn_jNotifyMessage('正在获取数据，请稍等。', 'message', false, 3000);
+							return;
+						} else {
+							fn_exportExcel(str_excelName);
+						}
+					});
+				}
 			} else {
 				$('#exportDelay').hide();
 				$('#delayTable').html('');

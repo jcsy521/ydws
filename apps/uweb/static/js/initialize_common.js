@@ -2659,9 +2659,9 @@ dlf.resetPanelDisplay = function(n_type) {
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 		$('.j_carList').css('height', n_corpTreeContainerHeight-230);	// 个人用户终端列表的高度
 		
-		if ( $('#exportDelay').is(':visible') ) {
+		//if ( $('#exportDelay').is(':visible') ) {
 			n_mainHeight -= 60;
-		}
+		//}
 		if ( $('#trackSearchPanel').is(':visible') ) {
 			$('#delayTable').css('height', n_mainHeight-136);
 		} else {
