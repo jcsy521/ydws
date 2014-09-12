@@ -596,6 +596,7 @@ $(function () {
 				return;
 			} else {
 				$('.j_delay').hide();
+				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 			}
 		}
 		// 除了对多个定位器操作外
