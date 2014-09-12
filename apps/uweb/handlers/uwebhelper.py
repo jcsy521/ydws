@@ -33,11 +33,12 @@ class GEHandler(BaseHandler):
                 latitude = p.split(',')[1] 
                 ret.append(dict(lon=longitude, lat=latitude)) 
 
-            res = lbmphelper.get_clocation_from_localge(ret) 
-            logging.info("[UWEB] LOCALGE return res:%s", res) 
+            #res = lbmphelper.get_clocation_from_localge(ret) 
+            #logging.info("[UWEB] LOCALGE return res:%s", res) 
 
             # LOCAL work well
-            if res and res[0]['lat'] and res[0]['lon']:
+            if False:
+            #if res and res[0]['lat'] and res[0]['lon']:
                 pass
             else:
                 res = []
