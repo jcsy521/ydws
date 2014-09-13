@@ -125,7 +125,8 @@ def delete_terminal(tid, db, redis, del_user=True):
     tmobile_keys = redis.keys('*%s'%tmobile)
     keys.extend(tid_keys)
     keys.extend(tmobile_keys)
-    redis.delete(*keys)
+    if keys:
+        redis.delete(*keys)
     logging.info("[PUBLIC] Delete terminal's keys in reids, tid: %s, tmobile: %s, umobile: %s, keys: %s",
                  tid, tmobile, umobile, keys)
 
