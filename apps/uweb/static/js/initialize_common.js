@@ -2471,6 +2471,8 @@ dlf.fn_fillNavItem = function(str_whoItem) {
 		
 		if ( str_devType != 'D' ) {// 非210终端,不显示远程控制
 			$('#accStatus').hide();
+		} else {
+			$('#accStatus').show();
 		}
 	}
 	/*二级菜单的滑过样式*/
