@@ -1777,7 +1777,9 @@ class MyGWServer(object):
                             communication_staus = u'异常'
 
                         if int(terminal_info['mannual_status']) == UWEB.DEFEND_STATUS.YES:
-                            communication_mode = u'设防'
+                            communication_mode = u'强力设防'
+                        elif int(terminal_info['mannual_status']) == UWEB.DEFEND_STATUS.SMART:
+                            communication_mode = u'智能设防'
                         else:
                             communication_mode= u'撤防'
 
