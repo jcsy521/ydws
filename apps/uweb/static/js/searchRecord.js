@@ -765,10 +765,7 @@ dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				obj_infoPushEle.hide();
 				obj_infoPushTipsEle.show();	// infoPush没有查询到乘客信息提示框隐藏
 				return;
-			} else if ( str_who == 'corpMileageSet' ) {
-				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
-				obj_searchHeader.after('<tr><td colspan="5">没有查询到单程起点。</td></tr>');
-			}else if ( str_who == 'region' || str_who == 'corpRegion' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
+			} else if ( str_who == 'region' || str_who == 'corpRegion' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
 				
 			} else {
 				obj_searchHeader.hide();
@@ -784,6 +781,9 @@ dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
 				$('.j_weekList').data('weeks', []);
 				obj_searchHeader.after('<tr><td colspan="4">没有查询到记录。</td></tr>');
+			} else if ( str_who == 'corpMileageSet' ) {
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+				obj_searchHeader.after('<tr><td colspan="5">没有查询到单程起点。</td></tr>');
 			} else {
 				dlf.fn_jNotifyMessage('没有查询到记录。', 'message', false, 4000);
 			}

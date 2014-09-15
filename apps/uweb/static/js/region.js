@@ -266,6 +266,7 @@ dlf.fn_deleteRegion = function(n_id) {
 					obj_currentRegionTr.remove();
 					obj_regionTable.data('regionnum', n_regionNums - 1);
 					dlf.fn_clearRegionShape();
+					dlf.fn_initRegion(); // 重新显示围栏管理 
 				}
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				dlf.fn_unLockScreen(); // 去除页面遮罩
