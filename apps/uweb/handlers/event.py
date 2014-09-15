@@ -123,7 +123,7 @@ class EventHandler(BaseHandler):
             if self.current_user.cid != UWEB.DUMMY_CID: 
                 hide_lst = [5] # enterprise: no sos
             else: # individual: no stop
-                hide_lst = [5, 10]
+                hide_lst = [5, 10, 11]
                 if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                     self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
                     return
