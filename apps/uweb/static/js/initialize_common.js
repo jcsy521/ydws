@@ -2667,7 +2667,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		} else {
 			$('#delayTable').css('height', n_mainHeight-34);
 		}
-		$('.j_disPanelCon').css('top', $('.delayTable').height()/2+180);
+		$('.j_disPanelCon').css('top', $('.delayTable').height()/2+220);
 		 
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 8;

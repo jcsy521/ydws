@@ -1784,7 +1784,7 @@ body {
 .default_delayItem {
 	position: relative;
 	text-align: center;
-	top: 50%;
+	top: 40%;
 	font-weight: bold;
 	color: #ccc;
 	font-size: 20px;

@@ -226,7 +226,6 @@ function fn_trackQuery() {
 	}
 	$('#exportDelay').hide();
 	$('#control_panel').hide();
-	$('#delayTable').html('');
 	$('.j_trackBtnhover').show();
 	$('#tPause ').hide();
 	
@@ -275,10 +274,13 @@ function fn_trackQuery() {
 			}
 			
 			if ( str_msg != '' ) {
+				$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 				dlf.fn_unLockScreen();
 				return;
 			}
+			
+			$('#delayTable').html('');
 			if ( arr_trackQueryData.length > 0 ) {
 				obj_delayCon.show();
 				$('.j_disPanelCon').addClass('disPanelConShow');
