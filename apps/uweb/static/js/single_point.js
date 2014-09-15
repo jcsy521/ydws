@@ -95,7 +95,7 @@ dlf.fn_initSigleDetail = function (n_singleId, n_startTime, n_endTime) {
 				if ( locLength <= 0) {
 					alert('该段时间没有单程轨迹，请尝试其他时间段。');
 				} else {
-					$('#singleControl_panel').show();
+					$('#singleControl_panel').css('display', 'inline-block');
 					$('#singlePause').hide();
 					for ( var x = 0; x < locLength; x++ ) {
 						arr_locations[x].alias = str_alias;
