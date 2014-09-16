@@ -73,6 +73,8 @@ dlf.fn_initSigleDetail = function (n_singleId, n_startTime, n_endTime) {
 	dlf.fn_lockScreen();
 	// 关闭小地图
 	$('.eventMapClose').unbind('click').bind('click', function() {
+		dlf.fn_clearMapComponent();
+		dlf.fn_clearSingleAction();
 		dlf.fn_ShowOrHideMiniMap(false);
 		$('#singleControl_panel').hide();
 		$('#singlePause').hide();
@@ -91,7 +93,10 @@ dlf.fn_initSigleDetail = function (n_singleId, n_startTime, n_endTime) {
 					locLength = arr_locations.length,
 					arr_calboxData = [],
 					str_alias = $('.j_carList a[tid='+ str_tid +']').attr('alias');
-					
+				
+				if ( $('.mapDragTitle').is(':hidden') ) {
+					return;
+				}
 				if ( locLength <= 0) {
 					alert('该段时间没有单程轨迹，请尝试其他时间段。');
 				} else {

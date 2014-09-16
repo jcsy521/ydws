@@ -682,13 +682,13 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 					}				
 				}
 			} else if ( data.status == 403 || data.status == 24 ) {
-				common.reLogin();
+				window.location.replace('/');
 			} else {
-				common.notifyMsg('show', data.message, false, 5);
+				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 			}
 		},
-		error : function(xyResult) {
-			common.server_error(xyResult);
+		error : function(XMLHttpRequest) {
+			dlf.fn_serverError(XMLHttpRequest);
 			return;
 		}
 	});
