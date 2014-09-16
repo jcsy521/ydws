@@ -303,9 +303,13 @@ dlf.fn_changeTimestampToString = function(n_timestamp) {
 			
 			str_time += n_day + '天';	
 		}
-		str_time += n_hour + '时';	
+		if ( n_hour > 0 ) {
+			str_time += n_hour + '时';	
+		}
 	}
-	str_time += n_minute + '分';
+	if ( n_minute > 0 ) {
+		str_time += n_minute + '分';
+	}
 	return str_time;
 }
 
