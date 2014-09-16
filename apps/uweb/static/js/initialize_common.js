@@ -310,6 +310,9 @@ dlf.fn_changeTimestampToString = function(n_timestamp) {
 	if ( n_minute > 0 ) {
 		str_time += n_minute + '分';
 	}
+	if ( n_tempMinute == 0 ) {
+		str_time += '1分';
+	}
 	return str_time;
 }
 
