@@ -1319,6 +1319,7 @@ $(function () {
 		} else {
 			obj_arrowCon.addClass('alarmPanelConShow').removeClass('alarmWitchIcon');
 			obj_panel.show();
+			$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
 		}
 		obj_arrowCon.css({'left': n_alarmIconLeft});
 	});
