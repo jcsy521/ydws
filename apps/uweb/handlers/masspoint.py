@@ -101,15 +101,18 @@ class MassPointHandler(BaseHandler, TrackMixin):
                 track = _track
 
 
-            stop = self.db.query("SELECT ts.lid, ts.start_time, ts.end_time, ts.distance,"
+            stop = self.db.query("SELECT ts.id, ts.lid, ts.start_time,"
+                                 "    ts.end_time, ts.distance,"
                                  "    tl.latitude, tl.longitude, "
                                  "    tl.clatitude, tl.clongitude, "
-                                 "    tl.id, tl.name, tl.degree, tl.speed, tl.locate_error"
+                                 "    tl.name, tl.degree, tl.speed, tl.locate_error"
                                  "  FROM T_STOP AS ts, T_LOCATION AS tl"
                                  "  WHERE ts.tid = %s"
                                  "  AND ts.lid = tl.id "
                                  "  AND ts.start_time BETWEEN %s AND %s"
-                                 "  ORDER BY ts.id ASC",
+                                 "  AND ts.end_time !=0"
+                                 "  AND ts.distance !=0"
+                                 "  ORDER BY ts.start_time ASC",
                                  tid, start_time, end_time)
 
             if stop: # some handle for the stop
