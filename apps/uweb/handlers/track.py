@@ -152,11 +152,11 @@ class TrackHandler(BaseHandler):
             end_time = data.end_time
             cellid_flag = data.get('cellid_flag')
             network_type = data.get('network_type', 1)
-            # the interval between start_time and end_time is one week
-            if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
-                self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
-                self.finish()
-                return
+            ## the interval between start_time and end_time is one week
+            #if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
+            #    self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
+            #    self.finish()
+            #    return
         except Exception as e:
             logging.exception("[UWEB] uid: %s, tid: %s get track failed. Exception: %s. ", 
                               self.current_user.uid, self.current_user.tid, e.args )
