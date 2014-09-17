@@ -2733,7 +2733,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		}
 		$('.eventSearchContent, .j_wrapperContent').css('height', n_tempContent);
 		// 设置空白页面的top、left
-		$('#eventSearchWrapper, #notifyManageAddWrapper, #notifyManageSearchWrapper, #operatorWrapper, #mileageWrapper').css({'top': n_defTop, 'left': n_defLeft});
+		$('#eventSearchWrapper, #notifyManageAddWrapper, #notifyManageSearchWrapper, #operatorWrapper, #mileageWrapper, #mileageSetWrapper').css({'top': n_defTop, 'left': n_defLeft});
 		
 		dlf.fn_resizeWhitePop();	// 白名单未填提示
 		
