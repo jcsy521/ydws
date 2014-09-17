@@ -55,7 +55,7 @@ class SMSHelper:
 
         #NOTE: check whether send throught sms_cmpp
         sms_cmpp=False
-        cmpp_pattern = r"SIM|JB"      
+        cmpp_pattern = r":SIM|:JB|:CQ|:LQGZ"      
         CMPP_CHECKER = re.compile(cmpp_pattern)
         if CMPP_CHECKER.search(content): # cmpp
             sms_cmpp=True
