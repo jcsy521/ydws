@@ -224,11 +224,11 @@ class QueryHelper(object):
             else:
                 terminal_info['alias'] =  terminal_info.mobile
             terminal_info['fob_list'] = [fob.fobid for fob in fobs]
-            redis.setvalue(terminal_info_key, terminal_info)
 
-        terminal = QueryHelper.get_terminal_info(tid, db, redis) 
-        if terminal['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP: 
-            terminal_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+            if terminal_info['login'] == GATEWAY.TERMINAL_LOGIN.SLEEP: 
+                terminal_info['login'] = GATEWAY.TERMINAL_LOGIN.ONLINE
+
+            redis.setvalue(terminal_info_key, terminal_info)
 
         return terminal_info
 
