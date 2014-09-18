@@ -765,7 +765,7 @@ dlf.fn_bindSearchRecord = function(str_who, obj_resdata) {
 				obj_infoPushEle.hide();
 				obj_infoPushTipsEle.show();	// infoPush没有查询到乘客信息提示框隐藏
 				return;
-			} else if ( str_who == 'region' || str_who == 'corpRegion' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' ) {
+			} else if ( str_who == 'region' || str_who == 'corpRegion' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' || str_who == 'corpMileageSet' ) {
 				
 			} else {
 				obj_searchHeader.hide();
