@@ -427,3 +427,9 @@ def get_static_hash(path):
     body = ''.join(lst)
     return get_md5(body)
     
+
+if __name__ == '__main__':
+    #For Test
+    psd = get_psd()
+    print 'psd', psd
+    
