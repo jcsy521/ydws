@@ -27,12 +27,10 @@ class CheckDB(object):
         self.alarm_size = 100 
         self.mobiles = [13693675352, 
                         18310505991, 
-                        15110243861, 
                         13581731204]
 
         self.emails = ['boliang.guan@dbjtech.com', 
                        'xiaolei.jia@dbjtech.com',
-                       'ziqi.zhong@dbjtech.com', 
                        'youbo.sun@dbjtech.com']
 
     def __del__(self):
