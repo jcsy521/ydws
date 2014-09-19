@@ -133,7 +133,6 @@ class CorpSingleHandler(BaseHandler):
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
-    #TODO:
     @authenticated
     @tornado.web.removeslash
     def delete(self):
