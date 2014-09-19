@@ -8,6 +8,8 @@ import re
 
 from confhelper import ConfHelper
 from utils.misc import safe_utf8
+from codes.errorcode import ErrorCode
+from tornado.escape import json_decode, json_encode
 
 
 class SMSHelper:
@@ -117,6 +119,7 @@ class SMSHelper:
         else: # cmpp
             logging.debug("[SMS_CMPP] mobile=%s, content=%s", mobile, content)
             try:
+                status = ErrorCode.SUCCESS 
                 url = 'http://www.ichebao.net/cmpp_sms/SendService'
                 insert_time = int(time.time() * 1000)
                 msgid = str(insert_time)[-9:]
@@ -132,12 +135,18 @@ class SMSHelper:
                 request.add_data(urlencode(data))
                 request.add_header("Content-type", "application/x-www-form-urlencoded")
                 f = urllib2.urlopen(request)
-                response = f.read()
+                res = f.read()
+                if int(res) != 0:
+                    status = ErrorCode.FAILED
                 logging.info("come into cmpp send  method, response: %s", response)
             except Exception as e:
+                status = ErrorCode.FAILED
                 logging.exception("Send http post request exception : %s", e.args)
             finally:
                 if f:
                     f.close()
+                response = dict(status=status, 
+                                message=ErrorCode.ERROR_MESSAGE[status])
+                response = json_encode(response) 
                 return response 
 
