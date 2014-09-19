@@ -198,6 +198,7 @@ class MyGWServer(object):
                 try:
                     method, header, body = consume_channel.basic_get(queue=self.gw_queue)
                     if method.NAME == 'Basic.GetEmpty':
+                        logging.info("---------Send queue is empty")
                         sleep(0.1) 
                     else:
                         consume_channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -870,7 +871,7 @@ class MyGWServer(object):
             ubc = UNBindComposer(args_)
             request = DotDict(packet=ubc.buf,
                               address=address,
-                              tid=t_info["dev_id"])
+                              dev_id=t_info["dev_id"])
             self.append_gw_request(request, connection, channel)
             logging.warn("[GW] Terminal is unbinded, tid: %s, send unbind packet.", t_info["dev_id"])            
 
