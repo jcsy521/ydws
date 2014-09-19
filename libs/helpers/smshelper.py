@@ -146,7 +146,8 @@ class SMSHelper:
                 if f:
                     f.close()
                 response = dict(status=status, 
-                                message=ErrorCode.ERROR_MESSAGE[status])
+                                message=ErrorCode.ERROR_MESSAGE[status],
+                                msgid=msgid)
                 response = json_encode(response) 
                 return response 
 
