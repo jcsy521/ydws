@@ -2889,7 +2889,7 @@ dlf.fn_wakeUpTerminal = function(str_tmobile) {
 	
 	$.post_(CORP_REREGISTER_URL, JSON.stringify(obj_param), function(data){
 		if ( data.status != 0 ) {
-			dlf.fn_jNotifyMessage('激活指令已下发失败。', 'message', false, 4000);
+			dlf.fn_jNotifyMessage('激活指令下发失败。', 'message', false, 4000);
 			return;
 		} else {
 			dlf.fn_jNotifyMessage('激活指令下发成功。', 'message', false, 4000);
