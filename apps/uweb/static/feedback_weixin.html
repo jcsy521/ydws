@@ -1,0 +1,111 @@
+<html ng-app="myApp">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>意见反馈</title>
+    <!--
+	<script src="//cdn.staticfile.org/angular.js/1.3.0-beta.8/angular.min.js"></script>
+	<link href="//cdn.bootcss.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    -->
+
+	<script src="/static/js/angular.min.js"></script>
+	<link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+	<style>
+		.main-container{padding:5px; width:100%;}
+		label{white-space:nowrap; text-align: right;}
+		.panel-body{padding-right:15px;}
+		.alert{padding:5px;margin-bottom:0;}
+	</style>
+	<script>
+	var app = angular.module('myApp', [])
+	app.config(function($locationProvider,$httpProvider){
+		$locationProvider.html5Mode(true).hashPrefix('!')
+		delete $httpProvider.defaults.headers.common['X-Requested-With']
+	})
+	function myController($scope,$location,$http,$window) {
+		var query = $location.search()
+		$scope.query = query
+		$scope.feedback = {category:'4'}
+		$scope.submit = function(){
+			var config = {headers:{'Content-Type':'application/json; charset=UTF-8'}}
+			config.url = '/feedback'
+			config.method = 'POST'
+			config.data = $scope.feedback
+			$scope.feedback_backup = angular.copy($scope.feedback)
+			$http(config).success(function(rs){
+				console.log(arguments)
+				if(rs.message)
+					$scope.error = rs.message
+			}).error(function(rs){
+				console.log(arguments)
+				$scope.error = rs||'出错了'
+			})
+		}
+		$scope.close = function(){
+
+		}
+		$scope.unchange = function(){
+			return angular.toJson($scope.feedback_backup) == angular.toJson($scope.feedback)
+		}
+	}
+	</script>
+</head>
+<body ng-controller="myController">
+<div class="main-container">
+<div class="panel panel-default">
+	<div class="panel-heading">
+		意见反馈
+	</div>
+	<div class="panel-body">
+		<div class="col-xs-12" style="margin-bottom: 10px;">
+            <!--
+			<span ng-show="error">出错了</span>
+            -->
+			<span ng-show="error">{{error}}</span>
+			<span ng-show="!error">您好，欢迎提出宝贵意见和建议，您留下的每个意见都会帮助我们提高服务。</span>
+		</div>
+		<form class="form-horizontal" role="form" name="ff" novalidate>
+			<div class="form-group" ng-class="{'has-error':ff.contact.$invalid&&ff.contact.$dirty}">
+				<label for="i0" class="col-xs-3 control-label">联系人</label>
+				<div class="col-xs-9">
+					<input type="text" class="form-control" id="i0" placeholder="联系人" ng-model="feedback.contact" name="contact" ng-maxlength=20 required/>
+					<p class="alert alert-danger" ng-show="ff.contact.$error.required&&ff.contact.$dirty">请输入联系人名字</p>
+					<p class="alert alert-danger" ng-show="ff.contact.$error.maxlength">联系人名字不能超过20个字</p>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error':ff.email.$invalid}">
+				<label for="i1" class="col-xs-3 control-label">Email</label>
+				<div class="col-xs-9">
+					<input type="text" class="form-control" id="i1" placeholder="Email" ng-model="feedback.email" name="email" ng-pattern="/^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/">
+					<p class="alert alert-danger" ng-show="ff.email.$error.pattern">请输入合法的Email</p>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error':ff.mobile.$invalid&&ff.mobile.$dirty}">
+				<label for="i2" class="col-xs-3 control-label">手机号</label>
+				<div class="col-xs-9">
+					<input type="text" class="form-control" id="i2" placeholder="手机号" ng-model="feedback.mobile" name="mobile" ng-pattern="/^[0-9-+ ]{1,20}$/" required>
+					<p class="alert alert-danger" ng-show="ff.mobile.$error.required&&ff.mobile.$dirty">请输入手机号码</p>
+					<p class="alert alert-danger" ng-show="ff.mobile.$error.pattern">请输入合法的手机号码</p>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error':ff.content.$invalid&&ff.content.$dirty}">
+				<label for="i3" class="col-xs-3 control-label">反馈内容</label>
+				<div class="col-xs-9">
+					<textarea class="form-control" id="i3" placeholder="反馈内容" rows="3" ng-model="feedback.content" name="content" ng-minlength=10 required></textarea>
+					<p class="alert alert-danger" ng-show="ff.content.$error.required&&ff.content.$dirty">请输入反馈内容</p>
+					<p class="alert alert-danger" ng-show="ff.content.$error.minlength">反馈内容不能少于10个字</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-xs-offset-3 col-xs-5">
+					<button class="btn btn-default col-xs-12" ng-click="submit()" ng-disabled="ff.$invalid||unchange()">提交</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+</div>
+</body>
+</html>
