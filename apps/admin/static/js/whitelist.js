@@ -146,7 +146,7 @@ $(function () {
 * 验证手机号是否合法
 */
 function fn_validMobile(str_mobile, str_msgTitle) {
-	var MOBILEREG =  /^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/,
+	var MOBILEREG = /^[0-9]{11}$/,/*/^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/,*/
 		str_alertMsg = '终端';
 		
 	if ( fn_validCookie() ) {

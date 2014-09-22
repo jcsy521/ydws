@@ -183,18 +183,19 @@ function fn_changeUserName(str_userType, str_oUser) {
 		/*
 		* 验证手机号是否合法
 		*/
-		var MOBILEREG = /^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/;
+		var MOBILEREG = /^[0-9]{11}$/;/*/^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/;*/
 		
 		if ( str_newUsername == '' ) {
 			alert('请输入用户手机号！');
 			return;
 		}
 		
+        
 		if ( !MOBILEREG.test(str_newUsername) ) {	// 手机号合法性验证
 			alert('您输入的用户手机号不合法，请重新输入！');
 			return;
 		}
-		
+        
 		$.post('/username',  JSON.stringify(obj_conditionData), function (data) { 
 			if ( data.status == 0 ) {
 				alert('账号已修改，请查看。');
