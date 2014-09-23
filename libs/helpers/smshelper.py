@@ -99,7 +99,7 @@ class SMSHelper:
         """
         response = None
         if not sms_cmpp: # sms
-            logging.debug("[SMS] mobile=%s, content=%s", mobile, content)
+            logging.info("[SMS] mobile=%s, content=%s", mobile, content)
             try:
                 content = safe_utf8(content)
 
@@ -117,7 +117,7 @@ class SMSHelper:
                     f.close()
             return response 
         else: # cmpp
-            logging.debug("[SMS_CMPP] mobile=%s, content=%s", mobile, content)
+            logging.info("[SMS_CMPP] mobile=%s, content=%s", mobile, content)
             try:
                 status = ErrorCode.SUCCESS 
                 url = 'http://www.ichebao.net/cmpp_sms/SendService'
