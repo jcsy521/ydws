@@ -98,6 +98,8 @@ class SMSHelper:
                 }
         """
         response = None
+        f = None
+        sms_cmpp = False
         if not sms_cmpp: # sms
             logging.info("[SMS] mobile=%s, content=%s", mobile, content)
             try:
