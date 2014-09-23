@@ -2980,7 +2980,7 @@ function _ajax_request(url, data, callback, errorCallback, method) {
         error : errorCallback, // 出现错误
 		dataType : 'json',
 		cache: false,
-		timeout: 30000*2*30,
+		timeout: 30000*2*1,
 		contentType : 'application/json; charset=utf-8',
         complete: function (XMLHttpRequest, textStatus) { // 页面超时
             var stu = XMLHttpRequest.status;
