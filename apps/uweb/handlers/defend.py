@@ -6,9 +6,11 @@ import time
 from tornado.escape import json_decode, json_encode
 import tornado.web
 from tornado.ioloop import IOLoop
+from hashlib import md5
 
 from utils.misc import (get_terminal_info_key, str_to_list, 
      get_terminal_sessionID_key)
+from utils.public import update_mannual_status
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB 
@@ -44,14 +46,11 @@ class DefendHandler(BaseHandler, BaseMixin):
             else:
                 terminal_info_key = get_terminal_info_key(self.current_user.tid)
                 terminal_info = self.redis.getvalue(terminal_info_key)
-                if terminal['mannual_status'] != terminal_info['mannual_status']:
-                    terminal_info['mannual_status'] = terminal['mannual_status'] 
-                    self.redis.setvalue(terminal_info_key, terminal_info)
-                    logging.error("[UWEB] the mannual_status in redis is not same as in database, update it")
+                mannual_status = terminal_info['mannual_status']
 
             self.write_ret(status,
-                           dict_=DotDict(defend_status=terminal.defend_status, 
-                                         mannual_status=terminal.mannual_status,
+                           dict_=DotDict(defend_status=mannual_status, 
+                                         mannual_status=mannual_status,
                                          fob_status=terminal.fob_status))
         except Exception as e:
             logging.exception("[UWEB] uid:%s tid:%s get defend status failed. Exception: %s", 
@@ -103,36 +102,7 @@ class DefendHandler(BaseHandler, BaseMixin):
                         logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
                         continue
 
-
-                    # NOTE: modify the terminal_info in redis.
-                    terminal_info_key = get_terminal_info_key(tid)
-                    terminal_info = self.redis.getvalue(terminal_info_key)
-                    if terminal_info:
-                        terminal_info['mannual_status'] = data.mannual_status
-                        self.redis.setvalue(terminal_info_key, terminal_info)
-                     
-                    # NOTE: modify the move_val, static_val accoring to mannual_status
-                    if int(data.mannual_status) != UWEB.DEFEND_STATUS.YES: # 撤防，智能设防
-                        move_val = 0
-                        static_val = 180 
-                    else: # 强力设防
-                        move_val = 60
-                        static_val = 0 
-
-                    self.db.execute("UPDATE T_TERMINAL_INFO "
-                                    "  SET move_val=%s, static_val=%s,"
-                                    "      mannual_status = %s, defend_status = %s"
-                                    "  WHERE tid=%s", 
-                                    move_val, static_val,
-                                    data.mannual_status,
-                                    data.mannual_status,
-                                    tid)
-                    logging.info("[UWEB] Terminal %s update move_val %s and static_val %s", 
-                                 tid, move_val, static_val)
-                    sessionID_key = get_terminal_sessionID_key(tid)
-                    logging.info("[UWEB] Termianl %s delete session in redis.", tid)
-                    self.redis.delete(sessionID_key)
-
+                    update_mannual_status(self.db, self.redis, tid, data.mannual_status)
 
                     logging.info("[UWEB] uid:%s, tid:%s set mannual status to %s successfully", 
                                  self.current_user.uid, tid, data.mannual_status)
@@ -148,5 +118,41 @@ class DefendHandler(BaseHandler, BaseMixin):
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s set mannual status to %s failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, data.mannual_status, e.args)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)
+
+class DefendWeixinHandler(BaseHandler, BaseMixin):
+
+    @tornado.web.removeslash
+    def post(self):
+        status = ErrorCode.SUCCESS
+        try:
+            t = self.get_argument('t', None)
+            key = self.get_argument('key', None)
+            tid = self.get_argument('tid', None)
+            mannual_status = self.get_argument('mannual_status', None)
+            logging.info("[UWEB] Defend request t:%s, key:%s, tid:%s, mannual_status: %s",
+                         t, key, tid, mannual_status)
+
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            self.write_ret(status)
+            return 
+
+        try:
+            m = md5()
+            pri_key='f36f7c203ea2c7b6f587e223132d9b85'
+            m.update(tid+t+pri_key)
+            hash_ = m.hexdigest()
+            if hash_ != key:
+                logging.info("[UWEB] Delegation requeset key wrong")
+                raise tornado.web.HTTPError(401)
+                return
+
+            update_mannual_status(self.db, self.redis, tid, mannual_status)
+            self.write_ret(status,)
+        except Exception as e:
+            logging.exception("[UWEB] tid:%s set mannual status to %s failed. Exception: %s", 
+                              tid, mannual_status, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

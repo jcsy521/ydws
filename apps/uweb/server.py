@@ -53,7 +53,7 @@ from handlers.bluetooth import KQLYHandler
 from handlers.event import EventHandler
 from handlers.eventperiod import EventPeriodHandler
 from handlers.realtime import RealtimeHandler
-from handlers.defend import DefendHandler
+from handlers.defend import DefendHandler, DefendWeixinHandler
 from handlers.group import GroupHandler, GroupTransferHandler
 from handlers.corp import CorpHandler
 from handlers.terminal import TerminalHandler, TerminalCorpHandler
@@ -73,7 +73,7 @@ from handlers.activity import ActivityHandler
 from handlers.announcement import AnnouncementHandler, AnnouncementListHandler
 from handlers.activate import ActivationcodeHandler, ActivateHandler 
 from handlers.ydwq_activate import YDWQActivateHandler 
-from handlers.feedback import FeedBackHandler
+from handlers.feedback import FeedBackHandler, FeedBackWeixinHandler
 from handlers.download import DownloadHandler, DownloadTerminalHandler, DownloadSmsHandler, UploadTerminalHandler, DownloadManualHandler
 from handlers.about import AboutHandler
 from handlers.instruction import WebInsHandler, AndroidInsHandler, IOSInsHandler, SMSInsHandler, ManualInsHandler
@@ -155,6 +155,7 @@ class Application(tornado.web.Application):
             (r"/event/*", EventHandler),
             (r"/eventperiod/*", EventPeriodHandler),
             (r"/realtime/*", RealtimeHandler),
+            (r"/defend/weixin/*", DefendWeixinHandler),
             (r"/defend/*", DefendHandler),
             (r"/acc/*", ACCHandler),
             (r"/terminal/*", TerminalHandler),
@@ -201,6 +202,7 @@ class Application(tornado.web.Application):
 
             (r"/about/*", AboutHandler),
 
+            (r"/feedback/weixin/*", FeedBackWeixinHandler),
             (r"/feedback/*", FeedBackHandler),
 
             (r"/instruction/web/*", WebInsHandler),

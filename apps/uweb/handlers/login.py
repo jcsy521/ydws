@@ -13,7 +13,7 @@ from utils.dotdict import DotDict
 from utils.misc import get_ios_push_list_key, get_ios_id_key, get_ios_badge_key,\
      get_android_push_list_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key, DUMMY_IDS
 from utils.checker import check_sql_injection, check_phone
-from utils.public import get_group_info_by_tid
+from utils.public import get_group_info_by_tid, update_mannual_status
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER, GATEWAY
 from base import BaseHandler, authenticated
@@ -942,28 +942,7 @@ class IOSLogoutHandler(BaseHandler):
         else:
             # 1: if there are tids, set defend
             for tid in data.tids:
-                terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
-                if not terminal:
-                    status = ErrorCode.LOGIN_AGAIN
-                    logging.error("The terminal with tid: %s does not exist, check it ", tid)
-                    continue
-                #terminal = self.db.get("SELECT uid, default_status, defend_status FROM T_TERMINAL_INFO WHERE tid=%s", tid)
-                #if terminal["default_status"] != termianl["mannual_status"]:
-                #    self.db.update("UPDATE T_TERMINAL_INFO SET mannual_status=%s WHERE tid=%s",terminal["default_status"], terminal["tid"])
-                #    logging.info("[UWEB] terminal %s logout and change mannual status %s, uid is %s", terminal["tid"], terminal["default_status"], terminal["uid"])
-                #self.keep_waking(self.current_user.sim, self.current_user.tid)
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET mannual_status = %s"
-                                "  WHERE tid = %s",
-                                UWEB.DEFEND_STATUS.YES, tid)
-
-                terminal_info_key = get_terminal_info_key(tid)
-                terminal_info = self.redis.getvalue(terminal_info_key)
-                if terminal_info:
-                    terminal_info['mannual_status'] = UWEB.DEFEND_STATUS.YES
-                    self.redis.setvalue(terminal_info_key, terminal_info)
-                logging.info("[UWEB] uid:%s, tid:%s set mannual status  successfully", 
-                             self.current_user.uid, tid)
+                update_mannual_status(self.db, self.redis, tid, UWEB.DEFEND_STATUS.YES)
 
             # 2: remove ios from push_list 
             ios_push_list_key = get_ios_push_list_key(self.current_user.uid) 
@@ -1004,28 +983,8 @@ class AndroidLogoutHandler(BaseHandler):
         else:
             # 1: if there are tids, set defend
             for tid in data.tids:
-                terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
-                if not terminal:
-                    status = ErrorCode.LOGIN_AGAIN
-                    logging.error("The terminal with tid: %s does not exist, check it ", tid)
-                    continue
-               # terminal = self.db.get("SELECT uid, default_status, defend_status FROM T_TERMINAL_INFO WHERE tid=%s", tid)
-               # if terminal["default_status"] != termianl["mannual_status"]:
-               #     self.db.update("UPDATE T_TERMINAL_INFO SET mannual_status=%s WHERE tid=%s",terminal["default_status"], terminal["tid"])
-               #     logging.info("[UWEB] terminal %s logout and change mannual status %s, uid is %s", terminal["tid"], terminal["default_status"], terminal["uid"])
-                #self.keep_waking(self.current_user.sim, self.current_user.tid)
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET mannual_status = %s"
-                                "  WHERE tid = %s",
-                                UWEB.DEFEND_STATUS.YES, tid)
+                update_mannual_status(self.db, self.redis, tid, UWEB.DEFEND_STATUS.YES)
 
-                terminal_info_key = get_terminal_info_key(tid)
-                terminal_info = self.redis.getvalue(terminal_info_key)
-                if terminal_info:
-                    terminal_info['mannual_status'] = UWEB.DEFEND_STATUS.YES
-                    self.redis.setvalue(terminal_info_key, terminal_info)
-                logging.info("[UWEB] uid:%s, tid:%s set mannual status  successfully", 
-                             self.current_user.uid, tid)
             # 2: remove devid from android_push_list 
             android_push_list_key = get_android_push_list_key(self.current_user.uid) 
             android_push_list = self.redis.getvalue(android_push_list_key) 

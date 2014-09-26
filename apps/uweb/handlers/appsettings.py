@@ -35,23 +35,26 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             ## part 1: terminal
             tracker = DotDict() 
             # 1: terminal 
+            # NOTE: static_val, move_val are deprecated
             terminal = self.db.get("SELECT white_pop as sos_pop, push_status, vibl,"
-                                   "  static_val, move_val, owner_mobile, speed_limit"
+                                   "  static_val, move_val, owner_mobile, speed_limit,"
+                                   "  mannual_status"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE trim(tid) = %s"
                                    "    AND service_status = %s"
                                    "  LIMIT 1",
                                    self.current_user.tid,
                                    UWEB.SERVICE_STATUS.ON)
+
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
             else:
-                if terminal['move_val'] == 0:  # move_val:0, static_val: 120 
+                if terminal['mannual_status'] != UWEB.DEFEND_STATUS.YES: # 撤防，智能设防
                     terminal['parking_defend'] = 1
-                else: # move_val:60, static_val:0  
+                else: # 强力设防 
                     terminal['parking_defend'] = 0
             # 2: sos 
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
@@ -84,7 +87,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
                                "  FROM T_USER"
                                "  WHERE uid = %s"
                                "  LIMIT 1",
-                               self.current_user.uid) 
+                               terminal.owner_mobile) 
             if not user:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
@@ -106,7 +109,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
                                       "  FROM T_SMS_OPTION"
                                       "  WHERE uid = %s"
                                       "  LIMIT 1",
-                                      self.current_user.uid) 
+                                      terminal.owner_mobile) 
             ### part 4: email option
             #email_options = self.db.get("SELECT login, powerlow, illegalshake,"
             #                            "       illegalmove, sos, heartbeat_lost, charge"

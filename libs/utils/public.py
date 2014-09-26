@@ -265,6 +265,46 @@ def get_group_info_by_tid(db, tid):
 
     return group_info
 
+# Feature: mannual_status 
+def update_mannual_status(db, redis, tid, mannual_status):
+    """Update mannual status in db and redis.
+
+    强力设防: mannual_status 1：move_val 60  staic_val 0
+    智能设防: mannual_status 2：move_val  0 stati_val 180
+    撤防 mannual_status 0：move_val  0 stati_val 180
+
+    开启停车设防: parking_defend 1  move_val  0 stati_val 180
+    关闭停车设防: parking_defend 0  move_val 60  staic_val 0
+    """
+    # NOTE: modify the terminal_info in redis.
+    terminal_info_key = get_terminal_info_key(tid)
+    terminal_info = redis.getvalue(terminal_info_key)
+    if terminal_info:
+        terminal_info['mannual_status'] = mannual_status
+        redis.setvalue(terminal_info_key, terminal_info)
+
+    db.execute("UPDATE T_TERMINAL_INFO "
+               "  SET mannual_status = %s"
+               "  WHERE tid=%s",
+               mannual_status, tid)
+    sessionID_key = get_terminal_sessionID_key(tid)
+    logging.info("[PUBLIC] Termianl %s delete session in redis.", tid)
+    redis.delete(sessionID_key)
+    logging.info("[PUBLIC] Terminal update mannual_status. tid: %s, mannual_status: %s",
+                 tid, mannual_status)
+
+
+# For Weixin
+def get_weixin_push_key(uid, t):
+    """Get key for push interface(register or push packet)"""
+    secret = '7c2d6047c7ad95f79cdb985e26a92141'
+    s = uid + str(t) + secret
+
+    m = hashlib.md5()
+    m.update(s)
+    key = m.hexdigest()
+
+    return key.decode('utf8')
 
 # for YDWQ
 def update_terminal_info(db, redis, t_info):

@@ -1497,8 +1497,6 @@ class MyGWServer(object):
                 args.domain = terminal.domain
                 args.freq = terminal.freq
                 args.trace = terminal.trace
-                args.static_val = terminal.static_val
-                args.move_val = terminal.move_val
                 args.use_scene = terminal.use_scene
                 args.stop_interval = terminal.stop_interval
                 args.test = terminal.test
@@ -1508,6 +1506,16 @@ class MyGWServer(object):
                 else:
                     args.trace_para = terminal.trace_para
                 args.vibl = terminal.vibl
+
+                #NOTE: get move_val and static_val according to mannual_status
+                if int(terminal.mannual_status) != UWEB.DEFEND_STATUS.YES: # 撤防，智能设防
+                    move_val = 0
+                    static_val = 180
+                else: # 强力设防
+                    move_val = 60
+                    static_val = 0
+                args.move_val = move_val
+                args.static_val = static_val
 
             if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
                 acc_status_info_key = get_acc_status_info_key(dev_id) 
@@ -1568,7 +1576,7 @@ class MyGWServer(object):
                                 SMSHelper.send(user.owner_mobile, sms)
                         del defend_info['defend_status']
                     del defend_info['defend_source']
-                    self.update_terminal_info(defend_info, db)
+                    update_mannual_status(db, self.redis, head.dev_id, defend_info['mannual_status'])
                 self.update_terminal_status(head.dev_id, address)
 
             if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 

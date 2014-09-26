@@ -13,6 +13,15 @@ from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
 from base import BaseHandler
 
+class FeedBackWeixinHandler(BaseHandler):
+    """Accept feedbacks from various devices.
+    """
+    @tornado.web.removeslash
+    def get(self):
+        """Jump to feedback_weixin.html."""
+        self.render('feedback_weixin.html',
+                    map_type=ConfHelper.LBMP_CONF.map_type)
+
 class FeedBackHandler(BaseHandler):
     """Accept feedbacks from various devices.
     NOTE: One can add feedback when he is not login, so authenticated is no need.
