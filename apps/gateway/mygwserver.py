@@ -26,6 +26,7 @@ from utils.repeatedtimer import RepeatedTimer
 from utils.checker import check_phone, check_zs_phone
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
+from utils.public import update_mannual_status
 from utils.misc import (get_terminal_address_key, get_terminal_sessionID_key,
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_location_key,
      get_terminal_time, get_sessionID, safe_unicode, get_psd, get_offline_lq_key,
@@ -198,7 +199,6 @@ class MyGWServer(object):
                 try:
                     method, header, body = consume_channel.basic_get(queue=self.gw_queue)
                     if method.NAME == 'Basic.GetEmpty':
-                        logging.info("---------Send queue is empty")
                         sleep(0.1) 
                     else:
                         consume_channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -1490,7 +1490,7 @@ class MyGWServer(object):
             else:
                 self.update_terminal_status(head.dev_id, address)
                 terminal = db.get("SELECT track, freq, trace, static_val,"
-                                  "       move_val, trace_para, vibl, domain,"
+                                  "       mannual_status, trace_para, vibl, domain,"
                                   "       use_scene, stop_interval, test, gps_enhanced"
                                   "  FROM T_TERMINAL_INFO"
                                   "  WHERE tid = %s", head.dev_id)
