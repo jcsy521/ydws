@@ -277,10 +277,10 @@ body {
 }
 .iLayer {
 	position: absolute;
-    background: none repeat scroll 0 0 #000000;
+    background: none repeat scroll 0 0 #fff;
     left: 0;
-    opacity: 0.3;
-	filter: alpha(opacity=30);
+    opacity: 0.8;
+	filter: alpha(opacity=80);
     top: 0;
     width: 100%;
     z-index: 100;
@@ -333,3 +333,34 @@ body {
 	text-align: left;
 }
 /*instructions end*/
+
+#weixin_downloadDemo {
+	width: 300px;
+	text-align: center;
+	font-size: 18px;
+	position: absolute;
+	top: 40%;
+	z-index: 101;
+}
+.weixin_downloadBrowserText {
+	margin: 20px 0;
+}
+#weixin_downloadKnow {
+	/*width: 150px;
+	border-radius: 10px;
+	color: #fff;
+	background-color: #00b6ff;
+	padding: 5px 0;
+	display: inline-block;
+	cursor: pointer;*/
+	border-radius: 10px;
+	color: #fff;
+	background-color: #00b6ff;
+	padding: 5px 0;
+	display: inline-block;
+	cursor: pointer;
+	height: 50px;
+	width: 200px;
+	font-size: 24px;
+	line-height: 47px;
+}

@@ -80,14 +80,42 @@ function fn_changeSmsCaptcha(obj_captchaImg) {
 */
 function fn_showSmsWrapper() {
 	var obj_smsWrapper = $('#smsUploadWrapper'), 
-		obj_smsLayer = $('#downloadLayer');
+		obj_smsLayer = $('#downloadLayer'),
+		n_clientHeight = document.documentElement.clientHeight,
+		n_scrollHeight = document.documentElement.scrollHeight,
+		n_layerHeight = n_clientHeight > n_scrollHeight ? n_clientHeight : n_scrollHeight;
 	
 	fn_changeSmsCaptcha($('#smsCaptchaimg'));	// 获取后台验证码
 	obj_smsWrapper.show();	// 显示短信下载dialog
 	obj_smsLayer.addClass('iLayer').css({	// 添加遮罩层
 		'display': 'block',
-		'height': $(window).height()+'px'
+		'height': n_layerHeight+'px'
 	});
 	$('#sendSms').removeClass('btnDisabled').unbind('click').bind('click', fn_sendBtn);	// 发送短信按钮事件
 	$('.j_smsMsg').html('');
+}
+
+
+/*微信找开此页面显示提示*/
+function fn_weixinDownload() {
+	var n_clientHeight = document.documentElement.clientHeight,
+		n_scrollHeight = document.documentElement.scrollHeight,
+		n_clientWidth = document.documentElement.clientWidth,
+		n_scrollWidth = document.documentElement.scrollWidth,
+		n_layerHeight = n_clientHeight > n_scrollHeight ? n_clientHeight : n_scrollHeight,
+		n_layerWidth = n_clientWidth > n_scrollWidth ? n_clientWidth : n_scrollWidth;
+	
+	$('#downloadLayer').addClass('iLayer').css({	// 添加遮罩层
+		'display': 'block',
+		'height': n_layerHeight+'px'
+	}).show();
+	$('#weixin_downloadDemo').show();
+	
+	$('#weixin_downloadImgPanel').attr('width', n_layerWidth/2);
+	$('#weixin_downloadDemo').css({'width': n_layerWidth/2, 'left': n_layerWidth/4});
+	
+	$('#weixin_downloadKnow').unbind('click').click(function(e) {
+		$('#weixin_downloadDemo').hide();
+		$('#downloadLayer').removeClass().css({'display': 'none','height': '0px'}).hide();
+	});
 }
