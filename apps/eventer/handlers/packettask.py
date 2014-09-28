@@ -409,9 +409,9 @@ class PacketTask(object):
             #NOTE: get speed_limit  
             terminal = self.db.get("SELECT speed_limit "
                                    "  FROM T_TERMINAL_INFO "
-                                   "  WHERE tid = %s",
+                                   "  WHERE tid = %s AND group_id != -1",
                                    location['dev_id']) 
-            speed_limit = terminal.get('speed_limit', '')
+            speed_limit = terminal.get('speed_limit', '') if terminal else ''
 
             for pvt in location['pvts']:
                 # The 'future time' is drop 
