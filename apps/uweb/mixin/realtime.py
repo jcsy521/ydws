@@ -93,7 +93,6 @@ class RealtimeMixin(BaseMixin):
         All realtime requests in REALTIME_VALID_INTERVAL will be considered as
         only one. If not, invoke gf and use handle_location of lbmphelper. 
         """
-        print 1
         location = QueryHelper.get_location_info(self.current_user.tid, self.db, self.redis)
         if location and location['name'] is None:
             location['name'] = '' 
@@ -117,7 +116,6 @@ class RealtimeMixin(BaseMixin):
                 callback(ret)
                 return
 
-        print 2
         lat, lon = get_latlon_from_cellid(0,0,0,0, self.current_user.sim)
         clat, clon = get_clocation_from_ge([lat,],[lon,]) 
         clat = int(clat[0]) if len(clat)>0 else 0 
@@ -158,8 +156,5 @@ class RealtimeMixin(BaseMixin):
             ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
             logging.info("[UWEB] do not find any location, and cellid query failed. tid: %s", self.current_user.tid)
 
-        print 3
-        print '----', callback, ret
         if callback:
-            print 4
             callback(ret)
