@@ -75,7 +75,7 @@ class Application(tornado.web.Application):
             static_path=os.path.join(os.path.dirname(__file__), "static"),
             cookie_secret="s8g1gVxKOiQoZptLRi2nSuXmiK2ThYJJBSHIUHnqoUw=",
             login_url="/login",
-            debug=debug,
+            #debug=debug,
             app_name="ACBLOGSYSTEM",
         )
 
