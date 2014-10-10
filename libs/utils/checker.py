@@ -95,11 +95,11 @@ def check_zs_phone(phone, db):
     if ZS_PHONE_CHECKER.match(phone):
         return True
     else:
-        white_list = db.get("SELECT id FROM T_BIZ_WHITELIST where mobile = %s LIMIT 1", phone)
+        white_list = db.get("SELECT id FROM T_BIZ_WHITELIST WHERE mobile = %s LIMIT 1", phone)
         if white_list:
             return True
         else:
-            ajt_white_list = db.get("SELECT id FROM T_AJT_WHITELIST where mobile = %s LIMIT 1", phone)
+            ajt_white_list = db.get("SELECT id FROM T_AJT_WHITELIST WHERE mobile = %s LIMIT 1", phone)
             if ajt_white_list: 
                 return True
             else: 
