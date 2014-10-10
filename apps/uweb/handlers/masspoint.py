@@ -72,7 +72,7 @@ class MassPointHandler(BaseHandler, TrackMixin):
             #if len(track) > LIMIT.MASS_POINT_NUMBER or (end_time-start_time) > LIMIT.MASS_POINT_INTERVAL : # mass point
                 mass_point = 1
                 track = []
-                logging.info("[UEB] mass point. tid:%s.", tid)
+                logging.info("[UWEB] mass point. tid:%s.", tid)
             else: # general point
                 if cellid_flag == 1: # cellid
                      track = self.get_track(tid, start_time, end_time, cellid=True) 
