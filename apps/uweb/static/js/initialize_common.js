@@ -2762,7 +2762,7 @@ dlf.resetPanelDisplay = function(n_type) {
 				n_trackTopIcon = 100;
 			
 			if ( n_windowWidth < 1500 ) {
-				n_delayTableHeight = n_mainHeight-206;
+				n_delayTableHeight = n_mainHeight-219;
 				n_trackTableMiniHeight = 270;
 				n_trackTopIcon = 170;
 			}

@@ -56,7 +56,7 @@ dlf.fn_initTrack = function() {
 	//题栏切换
 	$('#trackSearch_topShowIcon').toggle(
 		function () {
-			var n_delayTableHeight = $(window).height() - 218,
+			var n_delayTableHeight = $(window).height() - 219,
 				n_windowWidth = $(window).width(),
 				n_trackTableMiniHeight = 398;
 			
@@ -72,7 +72,7 @@ dlf.fn_initTrack = function() {
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 		},
 		function () {
-			var n_delayTableHeight = $(window).height() - 320,
+			var n_delayTableHeight = $(window).height() - 321,
 				n_windowWidth = $(window).width(),
 				n_trackTopIcon = 100,
 				n_trackTableMiniHeight = 340;
@@ -81,6 +81,7 @@ dlf.fn_initTrack = function() {
 			if ( n_windowWidth < 1500 ) {
 				n_trackTopIcon = 170;
 				n_trackTableMiniHeight = 270;
+				n_delayTableHeight -= 82;
 			}
 			
 			$('#trackSearchPanel').show();

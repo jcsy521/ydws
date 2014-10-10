@@ -1651,7 +1651,7 @@ body {
 	width: 35%;
 	top: 159px;
 	background-color: #fff;
-	min-width: 370px;
+	min-width: 400px;
 }
 .delayPanel .alarmTitle span {
 	margin-left: 0;
@@ -4412,10 +4412,11 @@ legend {
 @media only screen and (max-width: 1500px){
     .trackTimePanel{
        display: block;
+	   width: 100%;
     }
 	#trackSearch {
-		left: -63px;
-		top: 32px;
+		left: 150px;
+		top: -10px;
 	}
 	#trackSearchPanel {
 		height: 150px;
@@ -4424,7 +4425,7 @@ legend {
 		top: 170px;
 	}
 	.delayTable {
-		min-height: 270px;
+		min-height: 266px;
 	}
 	.trackLsMileage {
 		width: 90%;
