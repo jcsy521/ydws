@@ -79,7 +79,7 @@ class QueryHelper(object):
 
     @staticmethod
     def get_user_by_uid(uid, db):
-        user = db.get("SELECT mobile, name"
+        user = db.get("SELECT mobile, name, openid"
                       "  FROM T_USER"
                       "  WHERE uid= %s LIMIT 1",
                       uid) 
