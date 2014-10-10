@@ -53,10 +53,13 @@ dlf.fn_initTrack = function() {
 	} else {
 		//obj_trackPos.css('width', 475);
 	}
+	if ( $('#trackSearchPanel').is(':hidden') ) {
+		$('#trackSearch_topShowIcon').click();
+	}
 	//题栏切换
 	$('#trackSearch_topShowIcon').toggle(
 		function () {
-			var n_delayTableHeight = $(window).height() - 219,
+			var n_delayTableHeight = $(window).height() - 159,
 				n_windowWidth = $(window).width(),
 				n_trackTableMiniHeight = 398;
 			
@@ -66,8 +69,9 @@ dlf.fn_initTrack = function() {
 			
 			$('#trackSearchPanel').hide();
 			$('#trackSearch_topShowIcon').css('top', '0').addClass('topShowIcon_hover');
-			if ( $('#exportDelay').is(':visible') ) {
-				//n_delayTableHeight -= 60;
+			
+			if ( $('#exportDelay').is(':visible') || $('#completeTrack').is(':visible') ) {
+				n_delayTableHeight -= 60;
 			}
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 		},
@@ -86,8 +90,8 @@ dlf.fn_initTrack = function() {
 			
 			$('#trackSearchPanel').show();
 			$('#trackSearch_topShowIcon').css('top', n_trackTopIcon).removeClass('topShowIcon_hover');		
-			if ( $('#exportDelay').is(':visible') ) {
-				//n_delayTableHeight -= 60;
+			if ( $('#exportDelay').is(':visible') || $('#completeTrack').is(':visible') ) {
+				n_delayTableHeight -= 60;
 			}
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 		}
@@ -315,7 +319,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 		if ( n_flag == 0 ) { //直接显示数据	
 			if ( n_locLength <= 0) {
 				if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
-					str_msg = '该段时间无轨迹记录，请尝试选择“显示基站定位”。';
+					str_msg = '该段时间无轨迹记录，请尝试选择“基站定位”。';
 				} else {
 					str_msg = '该段时间无轨迹记录，请选择其它时间段。';
 				}
@@ -323,7 +327,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 		} else {
 			if ( arr_trackQueryData.length <= 0) {
 				if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
-					str_msg = '该段时间无轨迹记录，请尝试选择“显示基站定位”。';
+					str_msg = '该段时间无轨迹记录，请尝试选择“基站定位”。';
 				} else {
 					str_msg = '该段时间无轨迹记录，请选择其它时间段。';
 				}
@@ -388,7 +392,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 		
 		if ( arr_trackDatas.length <= 0) {
 			if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
-				str_msg = '该段时间无轨迹记录，请尝试选择“显示基站定位”。';
+				str_msg = '该段时间无轨迹记录，请尝试选择“基站定位”。';
 			} else {
 				str_msg = '该段时间无轨迹记录，请选择其它时间段。';
 			}
@@ -400,14 +404,13 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			dlf.fn_unLockScreen();
 			return;
 		}
-		
+		dlf.resetPanelDisplay();
 		$('#delayTable').html('');
 		if ( arr_trackDatas.length <= 0 ) {
 			$('#exportDelay, #completeTrack').hide();
-			$('#delayTable').html('');
-			
+			$('#delayTable').html('');			
 		} else {
-			//$('#delayTable').css('height', $(window).height()-295);	
+			$('#delayTable').css('height', $(window).height()-295);	
 			$('.j_delay').data('delayPoints', arr_trackQueryData);
 			
 			for ( var i = 0; i < arr_trackDatas.length; i++ ) {
@@ -422,7 +425,8 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					str_trackAddress = obj_tempTrackData.name,
 					str_yearLabel = str_fullYear,
 					str_dateLabel = str_md,
-					n_tempWeekNum = dlf.fn_calDateWeekNum(new Date(n_lcoateTime*1000));
+					n_tempWeekNum = dlf.fn_calDateWeekNum(new Date(n_lcoateTime*1000)),
+					trackLsItemSt = '';
 				
 				if ( n_tempWeekNum == n_currentWeekNum ) {
 					str_yearLabel = str_ymd;
@@ -432,8 +436,11 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				if ( str_trackAddress == '' ) {
 					arr_noAddressPoint.push({'pd': obj_tempTrackData, 'index':i});
 				}
+				if ( i == 0 ) {
+					trackLsItemSt = 'trackLsItemSt';
+				}
 				
-				str_html += '<li id="trackLsDayItem'+i+'" class="trackLsItem trackLsItemForDay">';
+				str_html += '<li id="trackLsDayItem'+i+'" class="trackLsItem trackLsItemForDay '+trackLsItemSt+'">';
 				str_html += '<div class="trackLsDate trackLsDateForDay">';
 				str_html += '<div>'+str_dateLabel+'</div><div class="dayFontStyle">'+str_yearLabel+'</div></div>';
 				str_html += '<div class="trackLsIcon"></div>';
@@ -454,7 +461,9 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			}
 			$('#delayTable').html(str_html);
 			
+			$('#trackSearch_topShowIcon').click();
 			if ( arr_trackQueryData.length > 0 ) {
+				$('#delayTable').css('height', $('#delayTable').height()+60);	
 				fn_exportDelayPoints(arr_trackQueryData);
 			}
 			
@@ -468,8 +477,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					dlf.fn_getAddressByLngLat(obj_pData.clongitude/NUMLNGLAT, obj_pData.clatitude/NUMLNGLAT, dlf.fn_getCurrentTid(), 'stop', n_tempIndex);
 				}
 			}
-		
-			$('#trackSearch_topShowIcon').click();
+			
 			$('.j_body').data({'track_daydata': arr_trackDatas, 'track_daysearch': obj_locusDate });
 			//添加 mouseover, mouseout,click事件
 			$('.j_trackMileagePanel').unbind('mouseover mouseout click').mouseover(function(e){

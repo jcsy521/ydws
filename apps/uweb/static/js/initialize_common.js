@@ -557,6 +557,10 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			$('.j_trackBtnhover').show();
 			$('#tPause ').hide();
 			$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+			
+			if ( $('#trackSearchPanel').is(':hidden') ) {
+				$('#trackSearch_topShowIcon').click();
+			}
 		}
 		
 		if ( b_eventSearchWpST ) {
@@ -662,6 +666,10 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				$('.j_trackBtnhover').show();
 				$('#tPause ').hide();
 				$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+				
+				if ( $('#trackSearchPanel').is(':hidden') ) {
+					$('#trackSearch_topShowIcon').click();
+				}
 			}
 			if ( b_eventSearchWpST ) {
 				dlf.fn_ShowOrHideMiniMap(false);
@@ -2633,6 +2641,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
+		
 		//console.log('aaa: ',n_bodyHeight,n_windowHeight,n_topWidth,n_tempWindowWidth);
 		if ( n_bodyHeight > n_windowHeight ){
 			if ( n_tempWindowWidth > 1024 ){//&& n_topWidth - n_tempWindowWidth == 17 ) {
@@ -2694,7 +2703,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			//n_tempContent = n_mapHeight - 10;
 		}
 		if ( b_topPanelSt ) {
-			n_tempContent = n_mapHeight = n_windowHeight - 38;
+			n_tempContent = n_mapHeight = n_windowHeight - 3;
 			n_mainHeight = n_windowHeight;			
 			n_defTop = 37;
 		}
@@ -2729,7 +2738,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		if ( b_trackSt ) {
 			n_tempContent = n_mapHeight = n_windowHeight - 162;
 			if ( b_topPanelSt ) {
-				n_mapHeight = n_windowHeight - 74;
+				n_mapHeight = n_windowHeight - 39;
 				n_tempContent = n_windowHeight - 38;
 			}
 			$('.j_delay').css('width', n_trackWidth);
@@ -2772,7 +2781,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			var n_windowWidth = $(window).width(),
 				n_trackTableMiniHeight = 398,
 				n_trackTopIcon = 0,
-				n_delayTableHeight = n_mainHeight-36;
+				n_delayTableHeight = n_mainHeight-35;
 			
 			if ( n_windowWidth < 1500 ) {
 				n_trackTableMiniHeight = 440;

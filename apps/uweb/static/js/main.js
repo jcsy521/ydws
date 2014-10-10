@@ -602,7 +602,9 @@ $(function () {
 			if ( str_id == 'track' ) {
 				return;
 			} else {
-				$('.j_delay').hide();
+				$('.j_delay, .j_alarmPanel').hide();
+				$('.j_alarmPanelCon').removeClass('alarmPanelConShow');
+				$('#control_panel').hide();
 				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
 			}
 		}
@@ -1372,10 +1374,12 @@ $(function () {
 			$('#top').hide();
 			dlf.resetPanelDisplay();
 			$('#topShowIcon').css('top', '36px').addClass('topShowIcon_hover');
+			$('.j_delayPanel').css('top', 35);
 		},
 		function () {
 			dlf.resetPanelDisplay(1);
 			$('#topShowIcon').css('top', '158px').removeClass('topShowIcon_hover');		
+			$('.j_delayPanel').css('top', 159);
 		}
 	);
 	//终端列表切换

@@ -1708,7 +1708,7 @@ body {
 .trackLsItemSt .trackLsDate {
 	top: -12px;
 }
-.trackLsItemSt .trackLsIcon_start {
+.trackLsItemSt .trackLsIcon_start, .trackLsItemSt .trackLsIcon {
 	top: 0;
 }
 .trackLsItemSt .trackLsContent {
