@@ -223,6 +223,15 @@ def get_last_pvt_key(tid):
     """for the last pvt associated with the tid"""
     return str("last_pvt:%s" % tid)
 
+def get_push_key(uid, t):
+    """Get key for push interface(register or push packet)""" 
+    secret = '7c2d6047c7ad95f79cdb985e26a92141' 
+    s = uid + str(t) + secret 
+    m = hashlib.md5() 
+    m.update(s) 
+    key = m.hexdigest() 
+    return key.decode('utf8')
+
 def get_terminal_time(timestamp):
     """Format a readable time like 2013-10-10，10:10:10 
     """
@@ -426,10 +435,30 @@ def get_static_hash(path):
     os.path.walk(path, visitor, lst)
     body = ''.join(lst)
     return get_md5(body)
+
+def get_sampled_list(lst, number):
+    """Sample a list to a list with a specified number.  
     
+    For wxample, a list [1,2,3,4,5,6,7,8,9,10] would be sampled to [1, 3, 5, 7, 9] with number 5.  
+    """ 
+    res = []
+    if not lst:
+        pass 
+    else:
+        d, m = divmod(len(lst), number) 
+        step = (d+1) if m else d 
+        res = lst[::step] 
+        res.append(lst[-1])
+    return res 
 
 if __name__ == '__main__':
-    #For Test
+
     psd = get_psd()
     print 'psd', psd
+
+    lst = []
+    lst = [0,1,2,3,4,5,6,7]
+    number = 5
+    b = get_sampled_list(lst, number)
+    print 'b', b
     

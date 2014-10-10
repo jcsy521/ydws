@@ -96,6 +96,9 @@ DEFEND_STATUS=DotDict(NO=0,
 LOCATE_FLAG=DotDict(GPS=0,
                     CELLID=1)
 
+TRACK_SAMPLE=DotDict(NO=0,
+                     YES=1)
+
 SERVICE_STATUS=DotDict(OFF=0,
                        ON=1,
                        TO_BE_UNBIND=2,
@@ -141,7 +144,7 @@ SIMPLE_YDCWS_PATTERN = r"^(1477874\d{4})$"
 TRACK_INTERVAL = 10 * 60  
 
 AVATAR_SIZE = DotDict(WIDTH=320,
-                    HEIGHT=320)
+                      HEIGHT=320)
 
 AVATAR_QUALITY = 50
 

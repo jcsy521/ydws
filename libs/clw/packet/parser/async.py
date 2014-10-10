@@ -7,6 +7,8 @@ from utils.dotdict import DotDict
 from constants import EVENTER, GATEWAY
 
 class AsyncParser(object):
+    """Parser packets which forward to eventer.
+    """
 
     def __init__(self, packet, ret):
         self.ret = self.parse(packet, ret)
@@ -152,14 +154,19 @@ class AsyncParser(object):
             pvt = packet[start_index:end_index+1] 
             if len(pvt) == 7: 
                 pvt[-1] = pvt[-1][:-1] 
-                pvt.append('20}') 
-                logging.info("[GW] old version is compatible, append locate_error")
+                pvt.append('20') 
+                pvt.append('}') 
+                logging.info("[GW] old version is compatible, append locate_error, misc")
+            elif len(pvt) == 8: 
+                pvt[-1] = pvt[-1][:-1] 
+                pvt.append('}') 
+                logging.info("[GW] old version is compatible, append misc")
             packet_new.extend(pvt) 
-        #END
 
         positions = []
 
-        keys = ['ew', 'lon', 'ns', 'lat', 'speed', 'degree', 'gps_time', 'locate_error'] 
+        # 9 items
+        keys = ['ew', 'lon', 'ns', 'lat', 'speed', 'degree', 'gps_time', 'locate_error', 'misc'] 
 
         for index in range(len(packet_new)/len(keys)):
             start_index = index*len(keys)
@@ -183,8 +190,10 @@ class AsyncParser(object):
             position['valid'] = GATEWAY.LOCATION_STATUS.SUCCESS 
 
             if not position.get('locate_error', None):
-                position['locate_error'] = 20 # default value 
+                position['locate_error'] = 20 # default value 20
             position['locate_error'] = int(position['locate_error']) 
+            if not position.get('misc', None):
+                position['misc'] = '' # default value ''
             positions.append(position)
 
         info = {'pvts': positions}

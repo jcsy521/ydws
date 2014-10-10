@@ -336,3 +336,35 @@ class BatchJHHandler(BaseHandler):
                               self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
+class BatchSpeedlimitHandler(BaseHandler):
+    """Batch set speedlimit."""
+
+    @authenticated
+    @tornado.web.removeslash
+    def put(self):
+        
+        try:
+            data = DotDict(json_decode(self.request.body))
+            tids = data.tids
+            speed_limit = data.speed_limit
+            logging.info("[UWEB] Batch speed_limit request: %s, corp_id: %s", 
+                         data, self.current_user.cid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
+            self.write_ret(status)
+            return
+
+        try:
+            status = ErrorCode.SUCCESS
+            self.db.executemany("UPDATE T_TERMINAL_INFO SET speed_limit = %s"
+                                "  WHERE tid = %s", 
+                               [(speed_limit, tid) for tid in tids])
+            self.write_ret(status)
+        except Exception as e:
+            logging.exception("[UWEB] Batch speed_limit failed. Exception: %s, cid: %s",
+                               e.args, self.current_user.cid)
+            status = ErrorCode.SERVER_BUSY
+            self.write_ret(status)

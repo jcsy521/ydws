@@ -90,6 +90,7 @@ from handlers.friendlink import FriendLinkHandler
 from handlers.batch import BatchImportHandler
 from handlers.batch import BatchDeleteHandler
 from handlers.batch import BatchJHHandler
+from handlers.batch import BatchSpeedlimitHandler
 from handlers.operator import OperatorHandler
 from handlers.region import RegionHandler, RegionDetailHandler
 from handlers.corpregion import CorpRegionHandler
@@ -121,6 +122,8 @@ from handlers.attendance import AttendanceHandler
 from handlers.bind import BindHandler
 from handlers.acc import ACCHandler
 from handlers.masspoint import MassPointHandler 
+from handlers.masspoint_basic import MassPointBasicHandler 
+from handlers.masspoint_day import MassPointDayHandler 
 
 # utils
 from handlers.uwebhelper import GEHandler
@@ -157,6 +160,7 @@ class Application(tornado.web.Application):
             (r"/realtime/*", RealtimeHandler),
             (r"/defend/weixin/*", DefendWeixinHandler),
             (r"/defend/*", DefendHandler),
+            (r"/defend/weixin/*", DefendWeixinHandler),
             (r"/acc/*", ACCHandler),
             (r"/terminal/*", TerminalHandler),
 
@@ -280,6 +284,7 @@ class Application(tornado.web.Application):
             (r"/batch/import/*", BatchImportHandler),
             (r"/batch/delete/*", BatchDeleteHandler),
             (r"/batch/JH/*", BatchJHHandler),
+            (r"/batch/speedlimit/*", BatchSpeedlimitHandler),
             (r"/operator/*", OperatorHandler),
             (r"/region/*", RegionHandler),
             (r"/bindregion/*", BindRegionHandler),
@@ -295,6 +300,8 @@ class Application(tornado.web.Application):
             (r"/single/*", SingleHandler),
 
             (r"/masspoint/*", MassPointHandler),
+            (r"/masspoint/basic/*", MassPointBasicHandler),
+            (r"/masspoint/day/*", MassPointDayHandler),
 
 
             (r"/test/*", EventHandler),
