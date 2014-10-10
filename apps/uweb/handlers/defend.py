@@ -129,7 +129,7 @@ class DefendWeixinHandler(BaseHandler, BaseMixin):
         try:
             t = self.get_argument('t', None)
             key = self.get_argument('key', None)
-            tid = self.get_argument('tid', None)
+            tid = self.get_argument('uid', None)
             mannual_status = self.get_argument('mannual_status', None)
             logging.info("[UWEB] Defend request t:%s, key:%s, tid:%s, mannual_status: %s",
                          t, key, tid, mannual_status)
@@ -142,17 +142,16 @@ class DefendWeixinHandler(BaseHandler, BaseMixin):
         try:
             m = md5()
             pri_key='f36f7c203ea2c7b6f587e223132d9b85'
-            m.update(tid+t+pri_key)
+            m.update(uid+t+pri_key)
             hash_ = m.hexdigest()
             if hash_ != key:
                 logging.info("[UWEB] Delegation requeset key wrong")
                 raise tornado.web.HTTPError(401)
-                return
 
-            update_mannual_status(self.db, self.redis, tid, mannual_status)
+            update_mannual_status(self.db, self.redis, tid, data.mannual_status)
             self.write_ret(status,)
         except Exception as e:
             logging.exception("[UWEB] tid:%s set mannual status to %s failed. Exception: %s", 
-                              tid, mannual_status, e.args)
+                              tid, data.mannual_status, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
