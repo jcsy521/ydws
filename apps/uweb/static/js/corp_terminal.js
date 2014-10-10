@@ -101,22 +101,6 @@ dlf.fn_initTerminalWR = function (str_tid) {
 			obj_auto.hide();
 		}
 	});
-	$('#corp_speed_statusSet input').unbind('click').bind('click', function() {
-		var str_val = $(this).val(),
-			obj_tdLimit = $('#td_corp_speed_limit'),
-			obj_inputSpeedLimit = $('#t_corp_speed_limit'),
-			n_newVal = 0,
-			n_oldVal = parseInt($('#corp_speed_limitLabel').attr('t_val'));
-		
-		if ( str_val == 1 ) {
-			obj_tdLimit.show();
-			n_newVal = parseInt(120);
-		} else {
-			obj_tdLimit.hide();
-			n_newVal = 0;
-		}
-		obj_inputSpeedLimit.val(n_newVal);
-	});
 	$('#corp_stop input').unbind('click').bind('click', function() {
 		var str_val = $(this).val(),
 			obj_tdStopInterval = $('#td_corp_stop_interval'),
@@ -207,17 +191,7 @@ dlf.fn_initTerminalWR = function (str_tid) {
 							
 							$('#t_corp_stop_interval').val(n_stopInterval).attr('t_val', str_val);
 						} else if ( param == 'speed_limit' ) { //超速设置
-							var n_speedInterval = parseInt(str_val),
-								obj_tdSpeedInterval = $('#td_corp_speed_limit'),
-								n_isOpen = 0;
-							
-							if ( n_speedInterval == 0 ) {
-								obj_tdSpeedInterval.hide();
-							} else {
-								obj_tdSpeedInterval.show();
-								n_isOpen = 1;
-							}
-							$('#corp_speed_status' + n_isOpen).attr('checked', 'checked');
+							var n_speedInterval = parseInt(str_val);
 							
 							$('#t_corp_speed_limit').val(n_speedInterval);
 							$('#corp_speed_limitLabel').attr('t_val', str_val);;
@@ -600,20 +574,20 @@ dlf.fn_getAlertOptionForUrl = function(str_getType) {
 		if ( data.status == 0 ) {
 			var obj_data = data.res;
 			
-			if ( str_getType == 'init' ) {
-				var obj_cacheData = {	'2': obj_data.powerlow, 
-										'3': obj_data.illegalshake, 
-										'4': obj_data.illegalmove, 
-										// '5': obj_data.sos, 
-										'6': obj_data.heartbeat_lost, 
-										'7': obj_data.region_enter, 
-										'8': obj_data.region_out,
-										'9': obj_data.powerdown,
-										'11': obj_data.speed_limit
-										//'10': obj_data.stop
-									};
-				$('#hidumobile').data('alertoption', obj_cacheData);
-			} else {
+			var obj_cacheData = {	'2': obj_data.powerlow, 
+									'3': obj_data.illegalshake, 
+									'4': obj_data.illegalmove, 
+									// '5': obj_data.sos, 
+									'6': obj_data.heartbeat_lost, 
+									'7': obj_data.region_enter, 
+									'8': obj_data.region_out,
+									'9': obj_data.powerdown,
+									'11': obj_data.speed_limit
+									//'10': obj_data.stop
+								};
+			$('#hidumobile').data('alertoption', obj_cacheData);
+			
+			if ( str_getType == 'get' ) {
 				for(var param in obj_data) {	// 获取短信设置项的数据，进行更新
 					var n_val = obj_data[param],
 						obj_param = $('#corp_alert_' + param);
@@ -672,6 +646,77 @@ dlf.fn_alertOptionSave = function() {
 		dlf.fn_jNotifyMessage('您未做任何修改。', 'message', false, 4000); // 查询状态不正确,错误提示
 		dlf.fn_unLockContent(); // 清除内容区域的遮罩
 	}
+}
+//批量设置超速门限
+dlf.bindBatchSpeedLimit = function(obj_group) {
+	var arr_terminalIds = [],
+		obj_currentGroupChildren = obj_group.children('ul').children('li:visible'),
+		str_groupName = dlf.fn_encode(obj_group.children('a').attr('title'));
+	
+	if ( obj_currentGroupChildren.length <= 0 ) {	// 没有定位器，不能批量删除
+		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
+		return;
+	} else if ( obj_group.hasClass('jstree-unchecked') ) {	// 要删除定位器的组没有被选中
+		dlf.fn_jNotifyMessage('没有选中要批量置超速门限的定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
+		return;
+	}
+	
+	dlf.fn_dialogPosition('batchSpeedLimit');  // 显示短信设置dialog	
+	dlf.fn_lockScreen(); // 添加页面遮罩
+	$('#batchSpeedLimit_groupName').html(str_groupName);
+	$('#accStatusType1, #accStatusType0').unbind('click').click(function(e) {
+		dlf.fn_accStatusSave();
+	});
+	
+	
+	$('#batch_speed_limit').val(120);
+	obj_currentGroupChildren.each(function() {
+		var obj_checkedTerminal = $(this),
+			obj_terminalALink = obj_checkedTerminal.children('a'),
+			b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
+			str_tid = obj_terminalALink.attr('tid');
+		
+		if ( b_isChecked ) {
+			arr_terminalIds.push(str_tid);
+		}
+	});
+	$('#batch_speed_limit').unbind('blur').blur(function() {
+		var reg = /^(1000|[1-9][0-9]{0,2})$/,
+			str_newSpeed = $.trim($(this).val()),
+			n_limitMax = 1000,
+			str_errorHtml = '';
+		
+		dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+		if ( !/^\d+$/.test(str_newSpeed) ) {
+			str_errorHtml = '请输入数值';
+		}
+		if ( str_newSpeed <= 0 ) {
+			str_errorHtml = '您输入的数值不在1~1000km/h以内，请重新输入。';
+		}
+		if ( str_newSpeed > n_limitMax ) {
+			str_errorHtml = '您输入的数值不在1~1000km/h以内，请重新输入。';
+		}
+		if ( str_errorHtml != '' ) {
+			dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
+			$('#batch_speed_limitBtn').data({'error_msg': str_errorHtml, 'error': true});
+			$('#batch_speed_limit').addClass('borderRed');
+		} else {
+			$('#batch_speed_limitBtn').data({'error_msg': '', 'error': false});
+			$('#batch_speed_limit').removeClass('borderRed');					
+		}
+	});
+	$('#batch_speed_limitBtn').unbind('click').click(function(e) {
+		var str_speedLimit = $('#batch_speed_limit').val(),
+			b_error = $('#batch_speed_limitBtn').data('error'),
+			b_errorMsg = $('#batch_speed_limitBtn').data('error_msg'),
+			obj_speedLimitData = {'tids': arr_terminalIds, 'speed_limit': str_speedLimit};
+		
+		if ( b_error ) {
+			dlf.fn_jNotifyMessage(b_errorMsg, 'message', false, 5000);
+			return;
+		}
+		dlf.fn_jsonPut(CORP_SPEEDLIMIT, obj_speedLimitData, 'batchSpeedLimit', '批量超速设置保存中');		
+	});
 }
 
 })();

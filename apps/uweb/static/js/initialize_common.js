@@ -273,6 +273,8 @@ dlf.fn_changeNumToDateString = function(myEpoch, str_isYear) {
 		return new Date(year, month - 1, day);
 	} else if ( str_isYear == 'ymd' ) {
 		return year +'-'+ month +'-'+ day;
+	} else if ( str_isYear == 'md' ) {
+		return month +'-'+ day;
 	} else {
 		return year +'-'+ month +'-'+ day +' '+ hours +':'+ min +':'+ seconds;
 	}
@@ -314,6 +316,87 @@ dlf.fn_changeTimestampToString = function(n_timestamp) {
 		str_time += '1分';
 	}
 	return str_time;
+}
+
+/**
+* 计算所在周数
+*/
+dlf.fn_calDateWeekNum = function(date) {
+    var date2=new Date(date.getFullYear(), 0, 1),
+		day1=date.getDay(),
+		day2=date2.getDay();
+		
+    if(day1==0) day1=7;   
+    if(day2==0) day2=7;  
+    d = Math.round((date.getTime() - date2.getTime()+(day2-day1)*(24*60*60*1000)) / 86400000);    
+    return Math.ceil(d /7)+1;   
+}
+
+/**
+* 返回当前日期代表的:今天,昨天,星期几
+**/
+dlf.fn_changeTimestampToWeek = function(n_timestamp) {
+	var str_week = '',
+		n_timestamp = n_timestamp*1000,
+		n_weekNum = new Date(n_timestamp).getDay(),
+		n_currentDayNum = new Date().getDate(),
+		n_timesDayNum = new Date(n_timestamp).getDate(),
+		n_currentMonth = new Date().getMonth(),
+		n_timesMonth = new Date(n_timestamp).getMonth();
+		
+	if ( n_currentDayNum == n_timesDayNum ) { // 是否是今天 				
+		n_weekNum = 7;
+	} else {
+		if ( n_currentMonth == n_timesMonth ) { // 是否是当月当日的昨天
+			if ( n_currentDayNum == (n_timesDayNum + 1 ) ) {				
+				n_weekNum = 8;
+			}
+		} else { // 是否是前一个月的昨天
+			var obj_tempDate = new Date(),
+				n_tempDateMonth = 0;
+			
+			if ( n_currentDayNum == 1 ) {
+				obj_tempDate.setMonth(obj_tempDate.getMonth()-1);
+				n_tempDateMonth = obj_tempDate.getMonth();
+				
+				if ( n_tempDateMonth == n_timesMonth ) {
+					if ( n_timesDayNum == 28 || n_timesDayNum == 29 || n_timesDayNum == 30 || n_timesDayNum == 31 ) {
+						n_weekNum = 8;
+					}
+				}
+			}
+		}
+	}
+	switch (n_weekNum) {
+		case 0:
+			str_week = '周日';	
+			break;
+		case 1:
+			str_week = '周一';
+			break;
+		case 2:
+			str_week = '周二';
+			break;
+		case 3:
+			str_week = '周三';
+			break;
+		case 4:
+			str_week = '周四';
+			break;
+		case 5:
+			str_week = '周五';
+			break;
+		case 6:
+			str_week = '周六';
+			break;
+		case 7:
+			str_week = '今天';
+			break;
+		case 8:
+			str_week = '昨天';
+			break;
+	}
+	return str_week;
 }
 
 /**
@@ -1698,7 +1781,7 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 	
 	if ( str_wrapperId == 'mileage' || str_wrapperId == 'onlineStatics' ) {	// 终端连接平台统计、里程统计
 		str_tempWrapperId = 'recordCount';
-	} else if ( str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'operator' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'accStatus' ) {
+	} else if ( str_wrapperId == 'corp' || str_wrapperId == 'operatorData' || str_wrapperId == 'operator' || str_wrapperId == 'pwd' || str_wrapperId == 'logout' || str_wrapperId == 'personal' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'accStatus' || str_wrapperId == 'batchSpeedLimit' ) {
 		str_tempWrapperId = 'userProfileManage';
 	} else if ( str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' ) {
 		str_tempWrapperId = 'notifyManage';
@@ -1724,12 +1807,12 @@ dlf.fn_dialogPosition = function ( str_wrapperId ) {
 		dlf.fn_setMapContainerZIndex(0);	// 除告警外的其余操作都设置地图zIndex：0
 	}
 	if ( b_trackStatus || b_bindRegionStatus || b_bindBatchRegionStatus || b_regionStatus || b_corpRegionStatus || b_eventStatus || b_routeLineStatus || b_createRegionStatus || b_corpMileageSetStatus || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus || b_corpMileageSetSearchStatus) {	// 如果轨迹、绑定围栏、围栏管理、告警查询、线路管理打开 要重启lastinfo	
-		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'accStatus' || str_wrapperId == 'mileageSet' ) {
+		if ( str_wrapperId == 'realtime' || str_wrapperId == 'bindLine' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileage' || str_wrapperId == 'singleMileage' || str_wrapperId == 'cTerminal' || str_wrapperId == 'fileUpload' || str_wrapperId == 'batchDelete' || str_wrapperId == 'batchDefend' || str_wrapperId == 'batchTrack' || str_wrapperId == 'smsOption' || str_wrapperId == 'terminal' || str_wrapperId == 'corpSMSOption' || str_wrapperId == 'operator' || str_wrapperId == 'onlineStatics' || str_wrapperId == 'personal' || str_wrapperId == 'pwd'|| str_wrapperId == 'corp' || str_wrapperId == 'notifyManageSearch' || str_wrapperId == 'notifyManageAdd' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'accStatus' || str_wrapperId == 'mileageSet' || str_wrapperId == 'batchSpeedLimit' ) {
 			dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询,操作lastinfo
 		} else if ( str_wrapperId == 'bindBatchRegion' || str_wrapperId == 'corpRegion' || str_wrapperId == 'eventSearch' || str_wrapperId == 'region' || str_wrapperId == 'routeLine' ) {
 			dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
 		}
-	} else if ( str_wrapperId == 'singleMileage' || str_wrapperId == 'realtime' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'bindRegion' || str_wrapperId == 'accStatus' ) {
+	} else if ( str_wrapperId == 'singleMileage' || str_wrapperId == 'realtime' || str_wrapperId == 'corpTerminal' || str_wrapperId == 'defend' || str_wrapperId == 'mileageNotification' || str_wrapperId == 'bindRegion' || str_wrapperId == 'accStatus' || str_wrapperId == 'batchSpeedLimit' ) {
 		//当切换到个人里程统计查询时,进行车辆的位置移动for: hs at 2014-7-8
 		var str_tempCTid = '';
 		
@@ -2550,8 +2633,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
-		
-		//console.log('xx1: resize width:  ', n_bodyHeight,n_windowHeight,n_topWidth,n_tempWindowWidth);
+		//console.log('aaa: ',n_bodyHeight,n_windowHeight,n_topWidth,n_tempWindowWidth);
 		if ( n_bodyHeight > n_windowHeight ){
 			if ( n_tempWindowWidth > 1024 ){//&& n_topWidth - n_tempWindowWidth == 17 ) {
 				n_topWidth = n_topWidth + 17;
@@ -2672,12 +2754,90 @@ dlf.resetPanelDisplay = function(n_type) {
 		//if ( $('#exportDelay').is(':visible') ) {
 			n_mainHeight -= 60;
 		//}
+		
 		if ( $('#trackSearchPanel').is(':visible') ) {
-			$('#delayTable').css('height', n_mainHeight-136);
+			var n_windowWidth = $(window).width(),
+				n_delayTableHeight = n_mainHeight-138,
+				n_trackTableMiniHeight = 340,
+				n_trackTopIcon = 100;
+			
+			if ( n_windowWidth < 1500 ) {
+				n_delayTableHeight = n_mainHeight-206;
+				n_trackTableMiniHeight = 270;
+				n_trackTopIcon = 170;
+			}
+			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
+			$('#trackSearch_topShowIcon').css('top', n_trackTopIcon);
 		} else {
-			$('#delayTable').css('height', n_mainHeight-34);
+			var n_windowWidth = $(window).width(),
+				n_trackTableMiniHeight = 398,
+				n_trackTopIcon = 0,
+				n_delayTableHeight = n_mainHeight-36;
+			
+			if ( n_windowWidth < 1500 ) {
+				n_trackTableMiniHeight = 440;
+				n_trackTopIcon = 0;
+			}
+			if ( $('.j_delayPanel').is(':hidden') ) {
+				n_delayTableHeight = n_mainHeight-207;
+				n_trackTableMiniHeight = 270;
+				if ( n_windowWidth > 1500 ) {
+					n_delayTableHeight = n_mainHeight-138;
+				}
+			}
+			
+			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
+			$('#trackSearch_topShowIcon').css('top', n_trackTopIcon);
 		}
 		$('.j_disPanelCon').css('top', $('.delayTable').height()/2+220);
+		var b_panel = $('.j_delayPanel').is(':visible'),
+			b_alarmPanel = $('.j_alarmPanel').is(':visible'),
+			n_delayIconRight = 0,
+			n_delayTablewidth = $('.j_delayPanel').width(),
+			n_chromeIndex = navigator.userAgent.search('Chrome');
+		
+		if ( n_chromeIndex != -1 ) {
+			var n_chromeVersion = parseFloat(navigator.userAgent.substring(n_chromeIndex+7));
+			
+			if ( n_chromeVersion < 35 ) {
+				if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {
+					n_delayIconRight += 17;
+				}
+			}
+		}
+		if ( $(window).width() < 1024 ) {
+			var n_trackPostNum = 1024-$(window).width();
+			
+			if ( b_panel ) {
+				$('.j_disPanelCon').css('right', n_delayTablewidth-n_trackPostNum);
+				$('.j_delayPanel').css('right', -n_trackPostNum);
+			} else {
+				$('.j_disPanelCon').css('right', -n_trackPostNum);
+			}
+			
+			if ( b_alarmPanel ) {
+				$('.j_alarmPanelCon').css('right', 400-n_trackPostNum);
+				$('.j_alarmPanel').css('right', -n_trackPostNum);
+			} else {
+				$('.j_alarmPanelCon').css('right', -n_trackPostNum);
+			}
+		} else {
+			if ( b_panel ) {
+				$('.j_disPanelCon').css('right', n_delayTablewidth-n_delayIconRight);
+				$('.j_delayPanel').css('right', -n_delayIconRight);
+			} else {
+				$('.j_disPanelCon').css('right', -n_delayIconRight);
+				$('.j_delayPanel').css('right', n_delayTablewidth-n_delayIconRight);
+			}
+			
+			if ( b_alarmPanel ) {
+				$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
+				$('.j_alarmPanel').css('right', -n_delayIconRight);
+			} else {
+				$('.j_alarmPanelCon').css('right', -n_delayIconRight);
+				$('.j_alarmPanel').css('right', 400-n_delayIconRight);
+			}
+		}
 		 
 		if ( dlf.fn_userType() ) {	// 集团用户
 			n_trackLeft = ( obj_track.width() ) / 8;
@@ -2718,8 +2878,8 @@ dlf.resetPanelDisplay = function(n_type) {
 			}
 			//obj_delayPanel.css({'left': n_delayLeft});
 			//$('.j_disPanelCon').css({'left': n_delayIconLeft});
-			obj_alarmPanel.css({'left': n_alarmLeft});
-			$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
+			//obj_alarmPanel.css({'left': n_alarmLeft});
+			//$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 		} else {
 			n_trackLeft = ( obj_track.width() ) / 6;
 			if ( n_windowWidth < 1024 ) {

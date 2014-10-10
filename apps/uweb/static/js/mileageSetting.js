@@ -340,7 +340,16 @@ dlf.fn_initBindMileageSet = function() {
 */
 dlf.fn_initBatchMileageSet = function(obj_group){
 	var str_bindBatchRegion = 'bindBatchMileageSet', 
-		arr_terminalIds = [];
+		arr_terminalIds = [],
+		obj_currentGroupChildren = obj_group.children('ul').children('li:visible');
+	
+	if ( obj_currentGroupChildren.length <= 0 ) {	// 没有定位器，不能批量删除
+		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
+		return;
+	} else if ( obj_group.hasClass('jstree-unchecked') ) {	// 要删除定位器的组没有被选中
+		dlf.fn_jNotifyMessage('没有选中要批量绑定单程起点的定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
+		return;
+	}
 	
 	dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 	dlf.fn_clearTrack();	// 初始化清除数据
@@ -351,16 +360,19 @@ dlf.fn_initBatchMileageSet = function(obj_group){
 	
 	// 获取组下的所有终端TID
 	var str_groupNodeId = $(obj_group).attr('id'), 
-		obj_leafUl = $(obj_group).children('ul'),
+		obj_leafUl = obj_group.children('ul').children('li:visible'),
 		n_leafUlLen = obj_leafUl.length;
 	
 	if ( n_leafUlLen != 0 ) { // 如果当前组下有终端
-		var obj_leafLi = obj_leafUl.children();
-		
-		obj_leafUl.children().each(function() {
-			var obj_leatA = $(this).children('a');
+		obj_leafUl.each(function() {
+			var obj_checkedTerminal = $(this),
+				obj_terminalALink = obj_checkedTerminal.children('a'),
+				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
+				str_tid = obj_terminalALink.attr('tid');
 			
-			arr_terminalIds.push(obj_leatA.attr('tid'));
+			if ( b_isChecked ) {
+				arr_terminalIds.push(str_tid);
+			}
 		});
 	}
 	// 绑定保存

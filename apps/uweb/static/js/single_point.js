@@ -82,14 +82,16 @@ dlf.fn_initSigleDetail = function (n_singleId, n_startTime, n_endTime) {
 	});
 	$.ajax({
 		type : 'post',
-		url : '/track',
+		url : '/masspoint/basic',
 		data: JSON.stringify(obj_locusDate),
 		dataType : 'json',
 		cache: false,
 		contentType : 'application/json; charset=utf-8',
 		success : function(data) {
 			if ( data.status == 0 ) {
+				
 				var arr_locations = data.track, 
+					arr_idlePoints = data.stop,
 					locLength = arr_locations.length,
 					arr_calboxData = [],
 					str_alias = $('.j_carList a[tid='+ str_tid +']').attr('alias');
@@ -111,7 +113,17 @@ dlf.fn_initSigleDetail = function (n_singleId, n_startTime, n_endTime) {
 					
 					mapObj.setViewport(arr_calboxData);
 					
-					$('#singleControl_panel').data({'points': arr_calboxData, 'trackdata': arr_dataArr});
+					//添加停留点
+					var arr_singleDelayMarkers = [];
+					
+					for ( var x = 0; x < arr_idlePoints.length; x++ ) {
+						arr_idlePoints[x].alias = str_alias;
+						arr_idlePoints[x].tid = str_tid;
+						var obj_temoIdelMarker = dlf.fn_addMarker(arr_idlePoints[x], 'singleDelay', 0, x);
+						arr_singleDelayMarkers.push(obj_temoIdelMarker);
+					}					
+					
+					$('#singleControl_panel').data({'points': arr_calboxData, 'trackdata': arr_dataArr, 'idle_points': arr_idlePoints, 'sinlge_delaymarker': arr_singleDelayMarkers});
 					fn_startDrawLineStatic(arr_locations);
 				}		
 			} else {
@@ -246,6 +258,7 @@ function fn_drawMarker(str_step) {
 		dlf.fn_boundContainsPoint(obj_tempPoint);
 	} else {	// 播放完成
 		dlf.fn_clearSingleAction();	// 清除数据
+		dlf.fn_clearMapComponent(obj_drawLine);
 		mapObj.removeOverlay(actionMarker);
 		actionMarker = null;
 		$('#singlePause').hide();

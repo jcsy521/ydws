@@ -5,222 +5,140 @@
 		<meta http-equiv="Cache-Control" content="no-cache" />
 		<meta http-equiv="Expires" content="-1" />
 		<link rel="shortcut icon" href="/static/favicon.ico" />
-		<link type="text/css" href="/static/css/login.css" rel="stylesheet" />
+		<title>移动卫士--登录</title>
+		<link rel="stylesheet" href="/static/css/bootstrap_web.css" />
+		<link  rel="stylesheet" href="/static/css/login.css" />
 		<script type="text/javascript" src="/static/js/base64.js"></script>
 		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>		
 		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
-		<script type="text/javascript" src="/static/js/definitions.js"></script>
+		<script type="text/javascript" src="/static/js/bootstrap.js"></script>
 		<script type="text/javascript" src="/static/js/login.js"></script>
-		<!--<script type="text/javascript" src="/static/js/announcement.js"></script>-->
-		<title>移动卫士--登录</title>
 	</head>
-	<body >
-		<div class="loginBody">
-			<div class="top">
-				<!--<span type="text" class="announcement" id="announcement" ></span>-->
-				<!--<div class="announcementPanel">
-					<span class="announcementTitle red">公告</span>
-					<div id="announcementDiv">
-						<table border="0" cellspacing="0" cellpadding="0" width="280">
-							<tr>
-								<td id="announcementCon">
-									<p>尊敬的用户：</p>
-									<p>移动卫士将于2014年7月10日23：00至24：00期间将进行系统升级。给您带来的不便，尽请谅解。</p>
-									<p>特此公告。</p>
-									<div>中国移动通信集团</div>
-									<div>2014年7月10日</div>
-								</td>
-							</tr>
-							<tr><td id="announcementCon1"></td></tr>
-						</table> 
+	<body>
+		<div class="login_con">
+			<div id="login_header">
+				<div id="loginHeader_logo"></div>
+				<div id="loginHeader_linkText">
+					<label id="loginHeader_logint" class="font-size14" title="登录">登录</label>	
+					
+					<span id="loginHeader_roleLine" class="login_linkLine">|</span>
+					
+					<a id="loginHeader_register" href="/register/browser" class="font-size14" target="_blank" title="立即注册">立即注册</a>
+				</div>
+			</div>
+			<div id="login_section">
+				<form id="loginForm" action="/login" method="post" onsubmit="return fn_validLogin();">
+					<div id="loginSection_roleSwitch">
+						<a id="login_individual" title="个人登录" class="current font-size20" href="#">个人登录</a>	
+						
+						<span class="login_linkLine">|</span>
+						
+						<a id="login_enterprise" title="集团用户" class="font-size20" href="#">集团用户</a>
 					</div>
-					<script type="text/javascript">
-						var demo=$("#announcementDiv"),
-							announcementCon=$("#announcementCon"),
-							announcementCon1=$("#announcementCon1");
-
-							announcementCon1.html(announcementCon.html());
-						
-						var speed=0,
-							sls=window.setInterval("sl()",100);
-						
-						function sl(){
-							speed=speed+1;
-							if(speed>=announcementCon.height())
-							{
-								speed=speed-announcementCon.height();
-							}
-							$("#announcementDiv").scrollTop(speed);
-						}
-						demo.hover(function(){
-								clearInterval(sls);
-							},function(){
-								sls=window.setInterval("sl()", 100);
-						});
-					</script>
-				</div>  -->
-				<div class="loginFormContent">
-				<form action="/login" method="post" onsubmit="return fn_validLogin();">
-					<ul class="tabs">
-						<li class="current" title="个人登录" userType="individual">个人登录</li>
-						<li class="other" title="集团用户" userType="enterprise">集团用户</li>
-					</ul>
-					<table class="loginBox">
-						<tr>
-							<td>
-								<label for="login_username">用户名：</label>
-							</td>
-							<td>
-								<input id="login_username" type="text" value="{{username}}"  class="j_replace" autocomplete="off" />
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label for="login_pwd">密&#12288;码：</label>
-							</td>
-							<td>
-							<input id="login_pwd" type="password" value="{{password}}" class="j_replace" autocomplete="off" />
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label for="login_captcha">验证码：</label>
-							</td>
-							<td>
-								<input id="login_captcha" type="text" maxlength="4" class="captchaInput j_replace"  
-								   autocomplete="off" />
-								<img alt="验证码图片" id="captchaimg" src="" class="captchaImg" alt="看不清？换一张" title="看不清？换一张" />
-								<!-- <input type="hidden" name="captchahash" id="captchahash" value="" />-->
+					<div class="form-group">
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<span class="loginIconPanel usernameIcon"></span>
+							<input type="text" id="login_username" class="loginText form-control font-size14" placeholder="登录名" value="{{username}}" autocomplete="off" />
+						</div>
+					</div>
+					{% if message_captcha or message %}
+						<div class="form-group login_msgPanel">
+					{% else %}
+						<div class="form-group login_msgPanel hide">
+					{% end %}
+							<label class="sr-only col-sm-2 control-label"></label>
+							<div>
+								<span id="login_errorMsg" class="errorMsg">
+									{% if message_captcha %}
+										{{ message_captcha }}
+									{% end %}
+									{% if message %}
+										{{ message }}
+									{% end %}
+								</span>
+							</div>
+						</div>
+					<div class="form-group">
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<span class="loginIconPanel passwordIcon"></span>
+							<input type="password" id="login_pwd" class="loginText form-control font-size14" placeholder="密码" value="{{password}}" autocomplete="off" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<span class="loginIconPanel captchaIcon"></span>
+							<input type="text" id="login_captcha" maxlength="4" class="loginText form-control font-size14" placeholder="验证码" value="" autocomplete="off" />
+							<img alt="验证码图片" id="captchaimg" src="" class="captchaImg" alt="看不清？换一张" title="看不清？换一张" />
+						</div>
+					</div>
+					<div class="form-group loginForm-submit">
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<div id="loginSubmit_hidden">
 								<input type="hidden" name="user_type" id="userRoleType" value="{{user_type}}" />
 								<input type="hidden" name="username" id="loginHidden_username" value="" />
 								<input type="hidden" name="password" id="loginHidden_pwd" value="" />
 								<input type="hidden" name="captcha" id="loginHidden_captcha" value="" />
-							</td>
-						</tr>
-					</table>
-					<div class="btnPanel j_personal">
-						<input type="submit" class="commit" id="btnLogin" value="" />
-						<a href="/password" target="password.html" id="getPwd" title="忘记密码" >忘记密码？</a>
-						<a href="/register/browser" target="_blank" id="register" class="ml10" title="注册" >注册</a>
-						<a href="#" id="login_ty" class="ml10" title="体验试用" >体验试用</a>
+							</div>
+							<!--<button id="loginBtn" type="submit" class="loginBtn">登录</button>-->
+							<span id="loginBtn" class="loginBtn font-size20">登录</span>
+						</div>
 					</div>
-					<div class="btnPanel j_corp hide">
-						<input type="submit" class="commit ml47" id="btnLogin" value="" />
-						<a href="/password/corp" target="password_corp.html" id="corpGetPwd" title="忘记密码" >忘记密码？</a>
+					<div class="form-group">
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<a href="/password" target="password.html" id="getPwd" title="忘记密码？" class="font-size14">忘记密码？</a>
+							
+							<a href="/password/corp" target="password_corp.html" id="corpGetPwd" title="忘记密码？" class="hide font-size14">忘记密码？</a>
+							
+							<a href="#" id="login_ty" class="font-size14" title="没有账号？免费体验试用&gt;&gt;">没有账号？免费体验试用&gt;&gt;</a>
+						</div>
 					</div>
-					<span class="txtColor">
-						{% if message_captcha %}
-							{{ message_captcha }}
-						{% end %}
-						{% if message %}
-							{{ message }}
-						{% end %}
-					</span>
 				</form>
 				<div class="hide">
 					<form action="/logintest" method="post" id="login_tyForm"></form>
 				</div>
 			</div>
-		</div>
-		<div class="center">
-			<div class="left">
-				<div id="ads">
-					<ul id="contents">
-						<li>
-							<div class="adImg"><img src="./static/images/moto0.png" /> </div>
-							<p>无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）
-							</p>
-						</li>
-						<li class="hide">
-							<div class="adImg"><img src="./static/images/moto1.png" /> </div>
-							<p>定位监控：轨迹实时监控和回放，提升监控能力，可广泛应用于物流/货运、汽车租赁、私家车、摩托车监控、物品监控、人员监控。
-							</p>
-						</li>
-						<li class="hide">
-							<div class="adImg"><img src="./static/images/moto2.png" /> </div>
-							<p>智能告警: 手机上网设防/撤防，操作简单方便，当定位器遭遇非法移动或非法震动时，自动实时告警，并给用户发送告警信息。
-							</p>
-						</li>
-						<!--<li class="hide">
-							<div class="adImg"><img src="./static/images/moto4.png" /> </div>
-							<p>路况查询：查询实时路况信息，道路车辆行驶情况一步了然，畅通路线由我提供，一路畅通一路好心情。
-							</p>
-						</li>
-						<li class="hide">
-							<div class="adImg"><img src="./static/images/moto5.png" /> </div>
-							<p>周边查询：随时随地为您提供酒店、餐饮、娱乐、购物、加油站、银行、医院等各类信息查询。
-							</p>
-						</li>-->
-						<li class="hide">
-							<div class="adImg"><img src="./static/images/moto6.png" /> </div>
-							<p>告警查询：为您提供低电、断电、非法移动、进出围栏查询统计。
-							</p>
-						</li>
-					</ul>
-					<ul id="adNums">
-						<li class="selected">1</li>
-						<li class="default">2</li>
-						<li class="default">3</li>
-						<li class="default">4</li>
-						<!--<li class="default">5</li>
-						<li class="default">6</li>-->
-					</ul>
+			<div id="login_footer">
+				<div id="login_footerLink" class="font-size14">
+					<a title="关于我们" href="about" target="about.html">关于我们</a>	
+					
+					<span class="login_linkLine">|</span>
+					
+					<a href="servicesterms" target="servicesTerms.html" title="服务条款">服务条款</a>
+					
+					<span class="login_linkLine">|</span>		
+					
+					<a href="feedback" target="feedback.html" title="意见反馈">意见反馈</a>
+					
+					<span class="login_linkLine">|</span>
+					
+					<a href="/instruction/manual" target="manual.html" title="使用手册">使用手册</a>
+					
+					<span class="login_linkLine">|</span>				
+					
+					<a href="/clientdownload?category=1" title="客户端下载" target="clientDownload.html">客户端下载</a>
+					
+					<span class="login_linkLine">|</span>
+					<!--<a href="/clientdownload?category=3" title="安捷通下载" target="monitor.html">安捷通下载</a>
+					<span class="login_linkLine">|</span>-->
+					
+					<a href="/charge" target="charge.html" title="常见问题及咨询">常见问题及咨询</a>
+					
+					<span class="login_linkLine">|</span>			
+					
+					<a id="login_helpLink" href="/helper" target="_blank" title="帮助">帮助</a>
+					
+					<span class="login_linkLine">|</span>		
+					
+					<label>客服电话：400-863-0388</label>
 				</div>
-			</div>
-			<div class="right">
-				<div id="title">您可以通过以下方式使用<font id="font_tipContent">移动卫士</font>平台：</div>
-				<ul class="entrances">
-					<li title="网页版"><a href="/instruction/web" target="web.html"  class="web"></a></li>
-					<li title="安卓版"><a href="/instruction/android?category=2" target="android.html"   class="android"></a></li>
-					<li title="iPhone版"><a href="/instruction/ios" target="ios.html" class="IOS"></a></li>	
-					<li title="手机短信"><a href="/instruction/sms" target="sms.html"  class="phone"></a></li>
-				</ul>
+				<div class="login_copyright">© <script>document.write(new Date().getFullYear());</script>中国移动通信集团 粤ICP备08037125号-23</div>
 			</div>
 		</div>
-		<div class="bottom">
-			<div class="blinks">
-				<a title="关于我们" href="about" target="about.html" >关于我们</a>
-				
-				<span class="login_linkLine">|</span>
-				<a href="servicesterms" target="servicesTerms.html" title="服务条款">服务条款</a>
-				<span class="login_linkLine">|</span>
-				
-				<a href="feedback" target="feedback.html" title="意见反馈">意见反馈</a>
-				<span class="login_linkLine">|</span>
-				
-				<!--<a href="friendlink" target="friendlink.html" title="友情链接">友情链接</a>
-				<span class="login_linkLine">|</span>-->
-				
-				<a href="/instruction/manual" target="manual.html" title="使用手册">使用手册</a>
-				<span class="login_linkLine">|</span>	
-				
-				<a href="/clientdownload?category=1" title="客户端下载" target="clientDownload.html">客户端下载</a>
-				<span class="login_linkLine">|</span>
-				
-                                <!--
-				<a href="/clientdownload?category=2" title="移动版下载" target="monitor.html">移动版下载</a>
-				<span class="login_linkLine">|</span>
-                                -->
-				
-				<!--<a href="/clientdownload?category=3" title="安捷通下载" target="monitor.html">安捷通下载</a>
-				<span class="login_linkLine">|</span>-->
-				
-				<a href="/charge" target="charge.html" title="常见问题及咨询">常见问题及咨询</a>
-				<span class="login_linkLine">|</span>
-				
-				<a id="login_helpLink" href="/helper" target="_blank" title="帮助">帮助</a>
-				<span class="login_linkLine">|</span>
-				
-				<label>客服电话：400-863-0388</label>
-				<!--<span class="login_linkLine">|</span>		
-				
-				<a href="http://carws.taobao.com/" title="移动卫士淘宝店" target="_blank">移动卫士淘宝店</a>-->
-			</div>
-			<p>
-				© <script>document.write(new Date().getFullYear());</script> 中国移动通信集团    粤ICP备08037125号-23
-			</p>
-		</div>
-		</div>
-	<div id="jNotifyMessage" class="hide"></div> <!--消息提示框-->
+		<hr id="login_footerHr">
 	</body>
 </html>

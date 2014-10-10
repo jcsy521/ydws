@@ -46,6 +46,7 @@ function customMenu(node) {
 		createLabel = '',	// 新建lable
 		batchImportDeleteLabel = '',	// 批量导入
 		batchDeleteLabel = '',	// 批量删除
+		batchSpeedLimitLabel = '', //批量设置超还门限
 		moveToLabel = '',	// 移动至
 		moveToLabelForGroup = '',	// 批量移动至
 		eventLabel = '',	// 告警查询
@@ -93,6 +94,7 @@ function customMenu(node) {
 		batchTrackLabel = '批量开启追踪';
 		batchCancleTrackLabel = '批量取消追踪';
 		moveToLabelForGroup = '批量移动至';
+		batchSpeedLimitLabel = '批量设置超速门限';
 	} else {						// 定位器右键菜单
 		wakeupLabel = '重新激活';
 		terminalLabel = '参数设置';
@@ -259,6 +261,14 @@ function customMenu(node) {
 				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
 				obj_alarmAndDelay.hide();
 				dlf.fn_initBatchMileageSet(obj);
+			}
+		},
+		"batchSpeedLimit" : {
+			"label" : batchSpeedLimitLabel,
+			"action": function (obj) { // 批量超速门限
+				// dlf.fn_clearOpenTrackData();	// 初始化开启追踪
+				obj_alarmAndDelay.hide();
+				dlf.bindBatchSpeedLimit(obj);
 			}
 		},
 		"terminalSetting": {	// 参数设置
@@ -458,6 +468,7 @@ function customMenu(node) {
 		delete items.batchDefend;
 		delete items.batchRegion;
 		delete items.batchMileageSet;
+		delete items.batchSpeedLimit;
 		delete items.remove;
 		delete items.batchTrack;
 		delete items.moveTerminalForGroup;
@@ -475,6 +486,7 @@ function customMenu(node) {
 		delete items.batchDefend;
 		delete items.batchRegion;
 		delete items.batchMileageSet;
+		delete items.batchSpeedLimit;
 		delete items.defend;
 		delete items.accStatus;
 		delete items.realtime;

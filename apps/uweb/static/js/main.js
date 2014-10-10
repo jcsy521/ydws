@@ -556,8 +556,15 @@ $(function () {
 	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 	*/
 	$('.j_alarmPanel').hide();
-	$('.j_alarmPanel').css({'left': n_alarmLeft});
-	$('.j_alarmPanelCon').css({'left': (n_windowWidth-18)});
+	//$('.j_alarmPanel').css({'left': n_alarmLeft});
+	//$('.j_alarmPanelCon').css({'left': (n_windowWidth-18)});
+	if ( $(window).width() < 1024 ) {
+		var n_trackPostNum = 1024-$(window).width();
+		
+		$('.j_disPanelCon').css('right', 560-n_trackPostNum);
+		$('.j_delayPanel').css('right', -n_trackPostNum);
+		$('.j_alarmPanelCon').css('right', -n_trackPostNum);
+	}
 
 	dlf.fn_loadMap('mapObj');	// 加载百度map
 	
@@ -1306,7 +1313,9 @@ $(function () {
 			obj_arrowIcon = $('.j_alarmArrowClick'),
 			b_panel = obj_panel.is(':visible'),
 			n_windowWidth = $(window).width(),
-			n_alarmIconLeft = n_windowWidth - 418;
+			n_alarmIconLeft = n_windowWidth - 418,
+			n_delayIconRight = 0,
+			n_chromeIndex = navigator.userAgent.search('Chrome');
 		
 		if ( n_windowWidth < 1024 ) {
 			n_windowWidth = 1024;
@@ -1314,14 +1323,43 @@ $(function () {
 		}
 		if ( b_panel ) {
 			obj_panel.hide();
-			n_alarmIconLeft = n_windowWidth - 18;
+			n_alarmIconLeft = n_windowWidth - 17;
 			obj_arrowCon.removeClass('alarmPanelConShow');
 		} else {
 			obj_arrowCon.addClass('alarmPanelConShow').removeClass('alarmWitchIcon');
 			obj_panel.show();
 			$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
 		}
-		obj_arrowCon.css({'left': n_alarmIconLeft});
+		
+		if ( n_chromeIndex != -1 ) {
+			var n_chromeVersion = parseFloat(navigator.userAgent.substring(n_chromeIndex+7));
+			
+			if ( n_chromeVersion < 35 ) {
+				if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {
+					n_delayIconRight += 17;
+				}
+			}
+		}
+		
+		if ( $(window).width() < 1024 ) {
+			var n_trackPostNum = 1024-$(window).width();
+			
+			if ( !b_panel  ) {
+				$('.j_alarmPanelCon').css('right', 400-n_trackPostNum);
+				$('.j_alarmPanel').css('right', -n_trackPostNum);
+			} else {
+				$('.j_alarmPanelCon').css('right', -n_trackPostNum);
+			}
+		} else {
+			
+			if ( !b_panel  ) {
+				$('.j_alarmPanelCon').css('right', 400-n_delayIconRight);
+				$('.j_alarmPanel').css('right', -n_delayIconRight);
+			} else {
+				$('.j_alarmPanelCon').css('right', -n_delayIconRight);
+				$('.j_alarmPanel').css('right', 400-n_delayIconRight);
+			}
+		}
 	});
 	// 告警信息提示的关闭按钮
 	$('.j_closeAlarm').unbind('click').bind('click', function() {
@@ -1398,6 +1436,6 @@ function fn_modiyListPanelPosition() {
 	}
 	//obj_delayPanel.css({'left': n_delayLeft});
 	//$('.j_disPanelCon').css({'left': n_delayIconLeft});
-	obj_alarmPanel.css({'left': n_alarmLeft});
-	$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
+	//obj_alarmPanel.css({'left': n_alarmLeft});
+	//$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
 }

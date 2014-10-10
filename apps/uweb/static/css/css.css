@@ -837,6 +837,10 @@ body {
 	width: 600px;
 	height: 32px;
 }
+#mileageNotificationWrapper {
+	width: 480px;
+	height: 284px;
+}
 .mileageNotificationTitle {
 	background-position: 0 -1020px;
 	width: 480px;
@@ -1331,7 +1335,7 @@ body {
 	margin-top: 10px;
 	color: gray;
 }
-.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave, .saveButton, #corp_alertOptionSave, #accStatusSave {
+.personalButton, #pwdSave, #terminalSave, #smsNoticeSave, #createGroupSave, #corp_terminalSave, #operatorSave, #passengerSave, #infoPushSave, #corp_smsOptionSave, #infoPushDisabledBtn, #notifyManageSave, #notifyManageSureSave, .saveButton, #corp_alertOptionSave, #accStatusSave, #batch_speed_limitBtn {
 	border: 0px;
 	background: url('/static/images/bc.png') no-repeat;
 	width: 92px;
@@ -1562,10 +1566,12 @@ body {
 .alarmPanelConShow, .disPanelConShow {
 	background-position: -48px 17px;
 }
-
+.alarmPanelCon {
+	right: 0;
+}
 .disPanelCon {
 	top: 342px;
-	right: 560px;
+	right: 35%;
 }
 .alarmTitle {
 	text-align: center;
@@ -1619,6 +1625,9 @@ body {
 	background-color: #9ccaf4;
 	color: #000;
 }
+#completeTrack {
+	margin-right: 20px;
+}
 .disPanel, .alarmIcon {
 	position: absolute;
 	width: 5px;
@@ -1639,9 +1648,10 @@ body {
 	width: 400px;
 }
 .delayPanel {
-	width: 560px;
-	top: 158px;
+	width: 35%;
+	top: 159px;
 	background-color: #fff;
+	min-width: 370px;
 }
 .delayPanel .alarmTitle span {
 	margin-left: 0;
@@ -1678,15 +1688,19 @@ body {
 }
 .delayTable {
 	display: inline-block;
-	width: 560px;
+	width: 100%;
 	min-height: 340px;
 	overflow-x: hidden;
     overflow-y: auto;
 }
 .trackLsItem {
 	display: inline-block;
-	padding: 0 0 20px 78px;
-	background: url('/static/images/track_bg_line.png') repeat-y 150px 0;
+	padding: 0 0 20px 30px;
+	background: url('/static/images/track_bg_line.png') repeat-y 100px 0;
+	width: 95%;
+}
+.trackLsItemForDay {
+	background-position: 105px 0;
 }
 .trackLsItemSt {
 	margin-top: 14px;
@@ -1714,13 +1728,18 @@ body {
 	font-weight: bold;
 	position: relative;
 	right: 16px;
+	width: 65px;
+	text-align: right;
+}
+.trackLsDateForDay {
+	width: 70px;
 }
 .trackLsIcon {
 	background: url('/static/images/track_point_default.png') no-repeat;
 	height: 14px;
 	width: 14px;
 	position: relative;
-	right: -2px;
+	right: 1px;
 	top: 12px;
 }
 .trackLsItem .trackLsIcon_start {
@@ -1734,24 +1753,64 @@ body {
 	left: 22px;
 	font-size: 16px;
 	font-weight: bold;
+	width: 76%;
 }
 .trackLsAddress {
 	color: #828282;
-	width: 290px;
+	width: 100%;
+	display: inline-block;
 }
 .trackLsMileage {
-	background: url('/static/images/track_bg_defualt.png') no-repeat;
-	width: 340px;
-	height: 36px;
-	padding: 12px 0 0 34px;
-	margin-top: 30px;
+	display: inline-block;
+	width: 96%;
+	padding: 12px 0 12px 20px;
+	margin-top: 16px;
 	cursor: pointer;
+	background: #e4f4e5 url('/static/images/trackLsMileage_iconDefault.png') no-repeat 95% center;
+	border-radius:6px;
 }
 .trackLsMileage_hover {
-	background: url('/static/images/track_bg_hover.png') no-repeat;
+	background-color: #fffacd;
 }
 .trackLsMileage_click {
-	background: url('/static/images/track_bg_click.png') no-repeat;	
+	background-color: #9ccaf4;	
+}
+.trackLsMileage_clickIcon {
+	background-image: url('/static/images/trackLsMileage_iconClick.png');
+}
+.trackLsDgIcon {
+	display: inline-block;
+	width: 8px;
+	height: 16px;
+	background: url('/static/images/trackLsMileage.png') no-repeat;
+	position: relative;
+	left: -28px;
+	top: 4px;
+}
+.trackLsDgIcon_hover {
+	background-image: url('/static/images/trackLsMileage_hover.png');
+}
+.trackLsDgIcon_click {
+	background-image: url('/static/images/trackLsMileage_click.png');
+}
+.trackLsDgIconFd {
+	display: inline-block;
+	width: 16px;
+	height: 8px;
+	background: url('/static/images/trackLsMileageForDay.png') no-repeat;
+	position: relative;
+	left: 16px;
+	top: -30px;
+}
+.trackLsDgIcon_hoverFd {
+	background-image: url('/static/images/trackLsMileageForDay_hover.png');
+}
+.trackLsDgIcon_clickFd {
+	background-image: url('/static/images/trackLsMileageForDay_click.png');
+}
+.dayFontStyle {
+	font-size: 12px;
+	color: #ccc;
 }
 .textZooIn {
 	font-size: 20px;
@@ -1781,13 +1840,27 @@ body {
 	position: relative;
 	top: 3px;
 }
-.default_delayItem {
+.default_delayItem, .default_delayItem2, .default_delayItem2Text, .default_delayItem3 {
 	position: relative;
 	text-align: center;
 	top: 40%;
 	font-weight: bold;
-	color: #ccc;
+	color: #707070;
 	font-size: 20px;
+}
+.default_delayItem2 {
+	top: 15%;
+	height: 164px;
+	background: url('/static/images/track_nodata.png') no-repeat 50%;
+}
+.default_delayItem2Text {
+	top: 20%;
+	font-size: 18px;
+}
+.default_delayItem3 {
+	top: 15%;
+	height: 164px;
+	background: url('/static/images/track_nodataForTime.png') no-repeat 50%;
 }
 .colorRed {
 	color: red;
@@ -1818,9 +1891,9 @@ body {
 .tSearch {
 	background: url('/static/images/trackcx1.png') no-repeat;
 	width: 63px;
-	float: right;
+	float: left;
 	position: relative;
-	right: 24px;
+	left: 8px;
 }
 .tSearch:hover {
 	background: url('/static/images/trackcx2.png') no-repeat;
@@ -2211,7 +2284,7 @@ body {
 }
 /*marker css end*/
 .top10 {
-	padding-top: 18px;
+	padding-top: 10px;
 }
 /* index ads */
 #ads {
@@ -4315,4 +4388,48 @@ legend {
 }
 #trackAliasLabelPanel {
 	margin-right: 2px;
+}
+.batchSpeedLimitContent {
+	height: 156px;
+	padding-top: 20px;
+}
+#batch_speed_limit {
+	margin-right: 10px;
+	width: 200px;
+	margin-left: 0;
+}
+#batch_speed_limitBtn {
+	position: relative;
+	float: right;
+	left: -116px;
+	top: 20px;
+}
+.trackTimePanel {
+	margin: 8px 0;
+	display: inline;
+	float: left;
+}
+@media only screen and (max-width: 1500px){
+    .trackTimePanel{
+       display: block;
+    }
+	#trackSearch {
+		left: -63px;
+		top: 32px;
+	}
+	#trackSearchPanel {
+		height: 150px;
+	}
+	#trackSearch_topShowIcon {
+		top: 170px;
+	}
+	.delayTable {
+		min-height: 270px;
+	}
+	.trackLsMileage {
+		width: 90%;
+	}
+	.trackLsContent {
+		width: 66%;
+	}
 }

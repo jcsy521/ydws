@@ -7,7 +7,13 @@
 * 实时定位初始化方法
 */
 dlf.fn_currentQuery = function(str_flag) {
-	var obj_pd = {'locate_flag': GPS_TYPE};	// 第一次post发起gps定位参数设置		
+	var obj_pd = {'locate_flag': GPS_TYPE},
+		n_cLogin = $('.j_currentCar').attr('clogin');	
+	
+	if ( n_cLogin == 0 ) {
+		//dlf.fn_jNotifyMessage('定位器不在线！', 'message', false, 4000);
+		//return;
+	}
 	
 	dlf.fn_dialogPosition('realtime');	// 设置dialog的位置
 	fn_currentRequest(obj_pd, str_flag);	// 发起定位请求
@@ -204,7 +210,13 @@ dlf.fn_defendQuery = function(str_defendType, str_alias) {
 		str_tempAlias = '',
 		str_msg = '',
 		obj_carData = $('.j_carList').data('carsData')[str_cTid],
-		n_defaultDefendSt = obj_carData.mannual_status;;
+		n_defaultDefendSt = obj_carData.mannual_status,
+		n_cLogin = $('.j_currentCar').attr('clogin');	
+	
+	if ( n_cLogin == 0 ) {
+		//dlf.fn_jNotifyMessage('定位器不在线！', 'message', false, 4000);
+		//return;
+	}
 	
 	// 0撤防,1强,2智能,
 	if ( str_defendType == 'smart' ) {

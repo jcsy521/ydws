@@ -374,6 +374,15 @@ dlf.setTrack = function(arr_tempTids, selfItem) {
 
 	if ( str_type == 'string' ) {	// 单个定位器的开启追踪
 		arr_tids.push(arr_tempTids);
+		var n_cLogin = $('.j_currentCar').attr('clogin');
+		
+		if ( dlf.fn_getActionTrackStatus(arr_tempTids) != 'yes' ) {
+			if ( n_cLogin == 0 ) {
+				//dlf.fn_jNotifyMessage('定位器不在线！', 'message', false, 4000);
+				//return;
+			}
+		}
+		
 	} else {	// 批量开启追踪
 		arr_tids = arr_tempTids;
 	}

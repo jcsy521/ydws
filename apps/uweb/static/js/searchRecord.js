@@ -168,6 +168,7 @@ dlf.fn_initRecordSearch = function(str_who) {
 	} else if ( str_who == 'notifyManageSearch' || str_who == 'mileageSet' ) { // 通知查询 ,单点查询
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
+		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
 		fn_initEventTimeControl(str_who);
 		//dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩

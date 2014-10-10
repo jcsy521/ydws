@@ -289,7 +289,7 @@ dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerB.png';
 	} else if ( str_iconType == 'draw' || str_iconType == 'singledraw' ) {
 		myIcon.imageUrl = BASEIMGURL + 'default.png';
-	} else if ( str_iconType == 'delay' ) {	// 停留点图标
+	} else if ( str_iconType == 'delay' || str_iconType == 'singleDelay' || str_iconType == 'delayFd' ) {	// 停留点图标
 		myIcon.imageUrl = BASEIMGURL + 'delay_Marker.png';
 	} else if ( str_iconType == 'alarmInfo' ) {
 		myIcon.imageUrl = BASEIMGURL + 'alarmsign.gif';
@@ -308,7 +308,7 @@ dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 	} else if ( str_iconType == 'region' ) {
 		marker.setLabel(label);
 		obj_selfmarkers[str_tid] = marker;
-	} else if ( str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'delay' ) {
+	} else if ( str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'delay' || str_iconType == 'singleDelay' || str_iconType == 'delayFd' ) {
 		if ( str_iconType != 'delay' ) {
 			marker.setTop(true);
 		}
@@ -473,7 +473,7 @@ function fn_infoWindowTextUpdate(obj_location, str_type) {
 	// 圆: 经纬度,半径 显示误差圈 //TODO
 	var obj_circleData = {'circle': {'longitude': n_clon, 'latitude': n_clat, 'radius': obj_location.locate_error}, 'region_shape': 0};
 	
-	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' || str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == 'draw' || str_type == 'actiontrack' || str_type == 'singlestart' || str_type == 'singleend' || str_type == 'singledraw' ) {
+	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' || str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == 'draw' || str_type == 'actiontrack' || str_type == 'singlestart' || str_type == 'singleend' || str_type == 'singledraw' || str_type == 'singleDelay' || str_type == 'delayFd' ) {
 		b_viewport = false;
 	}
 	$('#corpMileageSetWrapper').data('mileage_set', false);
@@ -602,7 +602,7 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 		}
 	}
 	str_title += dlf.fn_encode(str_alias);
-	if ( str_iconType == 'delay' ) {	// 如果是轨迹播放的停留点 infowindow显示内容不同
+	if ( str_iconType == 'delay' || str_iconType == 'singleDelay' || str_iconType == 'delayFd' ) {	// 如果是轨迹播放的停留点 infowindow显示内容不同
 		str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
 					'<li><label class="delayLabel">停留：  '+ dlf.fn_changeTimestampToString(str_delayTime) +'</label>'+
 					'<li><label class="delayLabel">开始：  '+ dlf.fn_changeNumToDateString(obj_location.start_time) +'</label>'+
@@ -828,9 +828,37 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 			obj_trackMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 		}
 		$('#singleControl_panel').data('trackdata', arr_singleTrackData);
+	} else if ( str_type = 'singleDelay' ) {
+		var arr_singleTrackData = $('#singleControl_panel').data('idle_points'),
+			arr_sinlgeDelayMarkers = $('#singleControl_panel').data('sinlge_delaymarker'),
+			obj_singleLocation = arr_singleTrackData[n_index],
+			obj_singleDelayMarker = arr_sinlgeDelayMarkers[n_index];
+		
+		if ( obj_singleDelayMarker && obj_singleDelayMarker.infoWindow ) {
+			dlf.fn_createMapInfoWindow(obj_singleLocation, str_type, n_index);
+			obj_singleDelayMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		}
+		
+		arr_singleTrackData[n_index].name = str_result;
+		
+		$('#singleControl_panel').data({'idle_points': arr_singleTrackData});
+	} else if ( str_type = 'delayFd' ) {
+		var arr_singleTrackData = $('.j_body').data('delayfd'),
+			arr_sinlgeDelayMarkers = $('.j_body').data('fdmarkers'),
+			obj_singleLocation = arr_singleTrackData[n_index],
+			obj_singleDelayMarker = arr_sinlgeDelayMarkers[n_index];
+		
+		if ( obj_singleDelayMarker && obj_singleDelayMarker.infoWindow ) {
+			dlf.fn_createMapInfoWindow(obj_singleLocation, str_type, n_index);
+			obj_singleDelayMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		}
+		
+		arr_singleTrackData[n_index].name = str_result;
+		
+		$('.j_body').data({'delayfd': arr_singleTrackData});
 	} else {
 		var obj_carDatas = $('.j_carList').data('carsData'),
-				obj_tempCarData = obj_carDatas[tid];
+			obj_tempCarData = obj_carDatas[tid];
 		
 		obj_tempCarData.name = str_tempResult;
 		

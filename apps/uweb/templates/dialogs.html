@@ -457,17 +457,8 @@
 										<span class="autoContainer hide j_corp__common" id="corp_common">检测到震动，立刻告警</span>
 									</td>
 								</tr>-->
-								<tr>
+								<tr class="corp_terminalTdL" id="td_corp_speed_limit">
 									<td class="corp_terminalTdL">超速门限:</td>
-									<td id="corp_speed_statusSet" class="j_radio" t_val="">
-										<input id="corp_speed_status1" type="radio" value="1" name="corp_speed_status" />
-										<label for="corp_speed_status1">开启</label>
-										<input id="corp_speed_status0" type="radio" value="0" name="corp_speed_status" />
-										<label for="corp_speed_status0">关闭</label>
-									</td>
-								</tr>
-								<tr class="corp_terminalTdL hide" id="td_corp_speed_limit">
-									<td class="corp_terminalTdL"></td>
 									<td id="corp_speed_limitLabel" t_val="" class="j_corp_ListVal">
 										<input type="text" id="t_corp_speed_limit" terminalkey="speed_limit" class="text_mouseOut " />km/h
 									</td>
@@ -1820,15 +1811,20 @@
 					<label for="ceillid_flag">基站定位&nbsp;：</label><input type="checkbox" id="ceillid_flag" title="是否显示基站定位" />
 				</div>
 				<!--<span class="timeTip">时间范围:</span>-->
-				<div class="trackTime">
+				<div class="trackTimePanel">
 					<label class="trackTime_label">开始时间&nbsp;：</label><input type="text" class="time" id="trackBeginTime" />
+				</div>
+				<div class="trackTimePanel">
 					<label class="trackTime_label">结束时间&nbsp;：</label><input type="text" class="time" id="trackEndTime" />
+				</div>
+				<div class="trackTimePanel">
 					<a id="trackSearch" class="tSearch"></a>
 				</div>
 			</div>
 			<div id="trackSearch_topShowIcon" style="left: 50%;"></div>
 			<div class="delayDataPanel">
-				<a class="exportDelay j_exportDelay hide" id="exportDelay" target="_self" title="导出停留点">导出数据</a>
+				<a class="exportDelay j_exportDelay hide" id="exportDelay" href="#" target="_self" title="导出停留点">导出数据</a>
+				<a class="exportDelay hide" id="completeTrack" href="#" title="完整轨迹">完整轨迹</a>
 				<ul id="delayTable" class="delayTable">
 					<li class="default_delayItem">请选择开始和结束时间进行查询</li>
 				</ul>
@@ -2102,6 +2098,36 @@
 				<span id="mileageSetPageNums" class="pageNums"><label id="mileageSetCurrentPage"></label>/<label id="mileageSetPageCount"></label></span>
 				<span id="mileageSetNextBtn" class="nextBtn j_pBtnHover"></span>
 			</div>
+		</div>
+	</div>
+	<!-- 批量超速设置 -->
+	<div id="batchSpeedLimitWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle batchSpeedLimitTitle">
+			<span class="close j_close" who="batchSpeedLimit"></span>
+		</div>
+		<div class="batchSpeedLimitContent wrapperContent">
+			<table id="batchSpeedLimitTable" class="bListR">
+				<tbody>
+					<tr>
+						<td class="corp_terminalTdL">组名：</td>
+						<td>
+							<span id="batchSpeedLimit_groupName"></label>
+						</td>
+					</tr>
+					<tr>
+						<td class="corp_terminalTdL">超速门限：</td>
+						<td>
+							<input type="text" id="batch_speed_limit" class="text_mouseOut" />km/h
+						</td>
+					</tr>
+					<tr>
+						<td class="corp_terminalTdL"></td>
+						<td>
+							<input type="button" id="batch_speed_limitBtn" class="j_save" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 </div>
