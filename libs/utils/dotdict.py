@@ -28,3 +28,12 @@ class DotDict(dict):
     def __setstate__(self, value):
         for (k, v) in value.items():
             self[k] = v
+
+
+if __name__ == '__main__':
+    a = DotDict(name='test')
+    print a, type(a)
+    print  isinstance(a, dict)
+    b = dict(a)
+    print b, type(b)
+
