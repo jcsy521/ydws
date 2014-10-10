@@ -253,6 +253,7 @@ function fn_trackQuery() {
 	$('#control_panel').hide();
 	$('.j_trackBtnhover').show();
 	$('#tPause ').hide();
+	$('#delayTable').css('margin-top', 60);
 	
 	$.post_(str_masspointUrl, JSON.stringify(obj_locusDate), function (data) {
 		if ( data.status == 0 ) {
@@ -281,7 +282,7 @@ function fn_trackQuery() {
 function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 	var str_tid = dlf.fn_getCurrentTid(),
 		str_alias = $('.j_carList a[tid='+ str_tid +']').attr('alias');
-		
+	
 	if ( b_masspointFlag ) { //按停留显示
 		var n_flag = data.track_sample,
 			arr_trackDatas = data.track,
@@ -346,7 +347,9 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			$('#delayTable').css('height', $(window).height()-295);				
 			
 			// to add for 2014-9-28 hs
-			$('#trackSearch_topShowIcon').click();
+			if ( $('#trackSearchPanel').is(':visible') ) {
+				$('#trackSearch_topShowIcon').click();
+			}
 		} else {
 			$('#exportDelay, #completeTrack').hide();
 			$('#delayTable').html('');
@@ -791,6 +794,10 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		
 		if ( str_tempClickOperation == 'delay' ) { //显示停留点
 			//fn_getTrackDatas(n_itemTitleNum, 'delay');
+			
+			if ( $('#delayTable').css('margin-top') == '60px' ) {
+				$('#delayTable').css('margin-top', 0);
+			}
 			$('#completeTrack').show().unbind('click').click(function(e) {
 				if ( $('#completeTrack').data('change') ){
 					dlf.fn_jNotifyMessage('查询时间条件已改变，请重新查询。', 'message');						
