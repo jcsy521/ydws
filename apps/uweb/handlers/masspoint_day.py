@@ -62,11 +62,7 @@ class MassPointDayHandler(BaseHandler, TrackMixin):
                 # 2014.08.01  a week.
                 if start_time < LIMIT.MASS_POINT_QUERY_TIME and (end_time-start_time) > LIMIT.MASS_POINT_QUERY_INTERVAL:
                     status = ErrorCode.MASS_POINT_QUERY_EXCESS
-                    self.write_ret(status,
-                                   dict_=DotDict(track=track,
-                                                 stop=stop,
-                                                 start=start,
-                                                 end=end))
+                    self.write_ret(status)
                     self.finish()
                     return
 
