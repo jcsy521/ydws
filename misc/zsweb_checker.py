@@ -18,7 +18,7 @@ from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 from db_.mysql import DBConnection
 
-mobiles = ["13693675352","13928181902","13928109033","13823931771"]
+mobiles = ["13928181902","13928109033","13823931771"]
 
 def send(content, mobile):
     logging.info("Send %s to %s", content, mobile)
