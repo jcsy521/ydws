@@ -1511,6 +1511,10 @@ body {
 	background-position:  right -3px;
 }
 
+#trackBeginTime {
+	margin-right: 6px;
+}
+
 .time {
 	background: url("/static/images/datePicker.png") no-repeat scroll #FFFFFF;
 	border: 1px solid #cccccc;
@@ -1696,7 +1700,7 @@ body {
 .trackLsItem {
 	display: inline-block;
 	padding: 0 0 20px 30px;
-	background: url('/static/images/track_bg_line.png') repeat-y 100px 0;
+	background: url('/static/images/track_bg_line.png') repeat-y 101px 0;
 	width: 95%;
 }
 .trackLsItemForDay {
@@ -1728,7 +1732,7 @@ body {
 	font-weight: bold;
 	position: relative;
 	right: 16px;
-	width: 65px;
+	width: 66px;
 	text-align: right;
 }
 .trackLsDateForDay {
@@ -4412,7 +4416,7 @@ legend {
 	top: 20px;
 }
 .trackTimePanel {
-	margin: 8px 0;
+	margin: 4px 0;
 	display: inline;
 	float: left;
 }
