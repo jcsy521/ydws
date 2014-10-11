@@ -64,10 +64,16 @@ if __name__ == "__main__":
     data = dict(cmd="send",
                 uid="2590",
                 psw="CEE712A91DD4D0A8A67CC8E47B645662",
-                mobile="18611357615",
+                #mobile="13750012868", # chen shi
+                #mobile="13750024048", # hmy 
+                #mobile="15919101662", # 
+                mobile="13417739327", # 
+                #mobile="15014903717", # hmy 
+                #mobile="13011292217", # hmy 
                 msgid="76150006",
-                content=u"你好 ！".encode('utf8'))
+                content=u"你好，这是cmpp测试短信.[YDWS]".encode('utf8'))
     httpclient = HttpClient()
-    url = 'http://192.168.1.9:8005/cmpp_sms/SendService'
+    #url = 'http://192.168.1.105:8905/cmpp_sms/SendService'
+    url = 'http://www.ichebao.net/cmpp_sms/SendService'
     ret = httpclient.send_http_post_request(url, data)
     print ret
