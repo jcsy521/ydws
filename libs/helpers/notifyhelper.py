@@ -46,7 +46,7 @@ class NotifyHelper(object):
         """
         # part 1: android-push 
         #NOTE: because it's invalid most time, so close it.
-        h = httplib2.Http()
+        h = httplib2.Http(timeout=3)
         push_info = NotifyHelper.get_push_info()
         ret = DotDict(tid=tid,
                       category=category,
@@ -96,7 +96,7 @@ class NotifyHelper(object):
         uid: in fact it's owner_mobile.
         """ 
         try:
-            h = httplib2.Http()
+            h = httplib2.Http(timeout=3)
             msg = DotDict(uid=uid)
             msg={'uid':uid}
             url_create = ConfHelper.OPENFIRE_CONF.accountcreate_url 
@@ -157,7 +157,7 @@ class NotifyHelper(object):
         """
 
         try:
-            h = httplib2.Http()
+            h = httplib2.Http(timeout=20)
             
             # 1: format alert 
             CATEGORY = {2:u'电量告警',
