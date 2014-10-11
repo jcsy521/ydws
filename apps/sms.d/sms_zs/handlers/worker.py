@@ -22,23 +22,27 @@ class Worker(object):
         self.thread = None
         self.db = None
         self.is_alive = False
+        self.mt = MT(self.queue)
     
     def start(self):
-        self.db = get_connection()
+        #self.db = get_connection()
         self.thread = Thread(target=self.run)
         self.is_alive = True
         self.thread.start()
 
     def send_sms(self, sms):
-        mt = MT(self.queue)
-        mt.send_sms(sms) 
+        #mt = MT(self.queue)
+        self.mt.send_sms(sms) 
 
     def run(self):
         while self.is_alive: # TODO: and not self.queue.empty()?
             try:
                 if self.queue.qsize() > 0 :
+                    s = time.time()
                     sms = self.queue.get(True, self.BLOCK_TIMEOUT)
+                    logging.info("Get sms from queue used time :%s", time.time() - s)
                     self.send_sms(sms)
+                    logging.info("Send sms to Gateway used time :%s", time.time() - s)
                 else:
                     time.sleep(0.1)
             except Exception as e:
@@ -49,7 +53,8 @@ class Worker(object):
 
     def join(self):
         self.thread.join()
-        self.db.close()
+        #self.db.close()
+        self.mt.db.close()
         logging.warn("Worker %s joined.", self.name)
 
     def __del__(self):
