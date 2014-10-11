@@ -548,10 +548,9 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			$('.j_delay').removeData('delayPoints');	// 清除停留点缓存数据
 			b_trackMsgStatus = true;
 			actionMarker = null;
-			if ( $('#exportDelay').is(':visible') ) {
-				$('#delayTable').height($('#delayTable').height()+60)
-			}
-			$('#exportDelay').hide();
+			$('#delayTable').css({'margin-top': 60});
+			
+			$('#exportDelay, #completeTrack').hide();
 			$('#control_panel').hide();
 			$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
 			$('.j_trackBtnhover').show();
@@ -657,10 +656,8 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				$('.j_delay').removeData('delayPoints');	// 清除停留点缓存数据
 				b_trackMsgStatus = true;
 				actionMarker = null;
-				if ( $('#exportDelay').is(':visible') ) {
-					$('#delayTable').height($('#delayTable').height()+60)
-				}
-				$('#exportDelay').hide();
+				$('#delayTable').css({'margin-top': 60});
+				$('#exportDelay, #completeTrack').hide();
 				$('#control_panel').hide();
 				$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
 				$('.j_trackBtnhover').show();
@@ -2703,7 +2700,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			//n_tempContent = n_mapHeight - 10;
 		}
 		if ( b_topPanelSt ) {
-			n_tempContent = n_mapHeight = n_windowHeight - 3;
+			n_tempContent = n_mapHeight = n_windowHeight - 42;
 			n_mainHeight = n_windowHeight;			
 			n_defTop = 37;
 		}
@@ -2781,7 +2778,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			var n_windowWidth = $(window).width(),
 				n_trackTableMiniHeight = 398,
 				n_trackTopIcon = 0,
-				n_delayTableHeight = n_mainHeight-35;
+				n_delayTableHeight = n_mainHeight-36;
 			
 			if ( n_windowWidth < 1500 ) {
 				n_trackTableMiniHeight = 440;

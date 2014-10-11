@@ -31,6 +31,7 @@ dlf.fn_initTrack = function() {
 	obj_trackHeader.show();	// 轨迹查询条件显示
 	dlf.fn_setMapPosition(false);
 	$('#delayTable').css({'margin-top': 60});
+	$('#exportDelay, #completeTrack').hide();
 	dlf.resetPanelDisplay();
 	// 调整工具条和
 	//dlf.fn_setMapControl(35); /*调整相应的地图控件及服务对象*/
@@ -59,7 +60,7 @@ dlf.fn_initTrack = function() {
 	//题栏切换
 	$('#trackSearch_topShowIcon').toggle(
 		function () {
-			var n_delayTableHeight = $(window).height() - 159,
+			var n_delayTableHeight = $(window).height() - 219,
 				n_windowWidth = $(window).width(),
 				n_trackTableMiniHeight = 398;
 			
@@ -71,12 +72,12 @@ dlf.fn_initTrack = function() {
 			$('#trackSearch_topShowIcon').css('top', '0').addClass('topShowIcon_hover');
 			
 			if ( $('#exportDelay').is(':visible') || $('#completeTrack').is(':visible') ) {
-				n_delayTableHeight -= 60;
+				//n_delayTableHeight -= 60;
 			}
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 		},
 		function () {
-			var n_delayTableHeight = $(window).height() - 321,
+			var n_delayTableHeight = $(window).height() - 320,
 				n_windowWidth = $(window).width(),
 				n_trackTopIcon = 100,
 				n_trackTableMiniHeight = 340;
@@ -91,7 +92,7 @@ dlf.fn_initTrack = function() {
 			$('#trackSearchPanel').show();
 			$('#trackSearch_topShowIcon').css('top', n_trackTopIcon).removeClass('topShowIcon_hover');		
 			if ( $('#exportDelay').is(':visible') || $('#completeTrack').is(':visible') ) {
-				n_delayTableHeight -= 60;
+				//n_delayTableHeight -= 60;
 			}
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 		}
@@ -100,7 +101,6 @@ dlf.fn_initTrack = function() {
 		$('.j_disPanelCon').click();
 	}
 	$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
-	$('#exportDelay, #completeTrack').hide();
 	$('.j_disPanelCon').css('top', $('.delayTable').height()/2+180);
 }
 
@@ -348,7 +348,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			$('.j_delayPanel').show();
 			// 存储停留点信息
 			obj_trackHeader.data('delayPoints', arr_trackQueryData);
-			$('#delayTable').css('height', $(window).height()-295);				
+			$('#delayTable').css('height', $(window).height()-296);				
 			
 			// to add for 2014-9-28 hs
 			if ( $('#trackSearchPanel').is(':visible') ) {
@@ -417,15 +417,17 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				var obj_tempTrackData = arr_trackDatas[i],
 					n_lcoateTime = obj_tempTrackData.timestamp,
 					n_distance = obj_tempTrackData.distance,
-					n_clat = obj_tempTrackData.latitude,
-					n_clon = obj_tempTrackData.longitude,
+					n_clat = obj_tempTrackData.clatitude,
+					n_clon = obj_tempTrackData.clongitude,
+					n_lat = obj_tempTrackData.latitude,
+					n_lon = obj_tempTrackData.longitude,
 					str_ymd = dlf.fn_changeNumToDateString(n_lcoateTime*1000, 'ymd'),
 					str_md = dlf.fn_changeNumToDateString(n_lcoateTime, 'md'),
 					str_fullYear = new Date(n_lcoateTime*1000).getFullYear(),
 					str_trackAddress = obj_tempTrackData.name,
 					str_yearLabel = str_fullYear,
 					str_dateLabel = str_md,
-					n_tempWeekNum = dlf.fn_calDateWeekNum(new Date(n_lcoateTime*1000)),
+					n_tempWeekNum = dlf.fn_calDateWeekNum(new Date(str_ymd)),
 					trackLsItemSt = '';
 				
 				if ( n_tempWeekNum == n_currentWeekNum ) {
@@ -434,7 +436,12 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				}
 				
 				if ( str_trackAddress == '' ) {
-					arr_noAddressPoint.push({'pd': obj_tempTrackData, 'index':i});
+					str_trackAddress = '暂无位置信息';
+					if ( n_lat != 0 ) {
+						arr_noAddressPoint.push({'pd': obj_tempTrackData, 'index':i});
+					} else {
+						str_trackAddress = '无位置信息';
+					}
 				}
 				if ( i == 0 ) {
 					trackLsItemSt = 'trackLsItemSt';
@@ -449,12 +456,16 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				if ( arr_trackDatas.length != (i +1) ) {
 					str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">';
 					str_html += '<span class="trackLsDgIconFd j_trackLsDgIconFd"></span>';
-					str_html += '活动路线：<span class="textZooIn">';
-					
-					if ( n_distance < 1000 ) {
-						str_html +=dlf.fn_NumForRound(n_distance, 0)+'</span>（米）';
+					if ( n_lat == 0 ) {
+						str_html += '<span class="textZooIn">今天没有活动轨迹哦．</span>';
 					} else {
-						str_html +=dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）';
+						str_html += '活动路线：<span class="textZooIn">';
+						
+						if ( n_distance < 1000 ) {
+							str_html +=dlf.fn_NumForRound(n_distance, 0)+'</span>（米）';
+						} else {
+							str_html +=dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）';
+						}
 					}
 				}
 				str_html += '</div></div>';
@@ -729,11 +740,11 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		}
 		
 		if ( arr_delayPoints.length == (i +1) ) {
-			str_lsIconClass = 'trackLsIcon_end';
+			str_lsIconClass = 'trackLsIcon_start';
 			str_trackAddress += '（起点）';
 			str_fClass =  'trackLsItemEnd';
 		} else if ( i == 0 ) {
-			str_lsIconClass = 'trackLsIcon_start';
+			str_lsIconClass = 'trackLsIcon_end';
 			str_trackAddress += '（终点）';
 			str_fClass = 'trackLsItemSt';
 		} else {
@@ -833,7 +844,12 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 		str_cTid = dlf.fn_getCurrentTid(),
 		n_endTime = 0,
 		n_startTime = 0,
-		obj_trackQuery = '';
+		obj_trackQuery = '',
+		n_lon = arr_trackQueryData[(n_stopNum)].longitude;
+	
+	if ( n_lon == 0 ) {
+		return;
+	}
 	
 	//if ( (n_stopNum+1) >= arr_trackQueryData.length ) {
 	//	return;

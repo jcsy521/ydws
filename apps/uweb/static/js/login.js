@@ -60,28 +60,6 @@ $(function(){
 	});
 });
 
-// 记住我复选框样式
-function fn_initCkBoxBg(obj_ckbox) {
-	obj_ckbox.iCheck({
-		checkboxClass: 'icheckbox_square-blue',
-		radioClass: 'iradio_square-blue',
-		increaseArea: '20%'
-	}).on('ifChecked', function(event) {
-		var str_ck = $(this).attr('id');
-		
-		if ( str_ck == 'remberCkLabel_ckbox' ) {
-			
-		}
-	}).on('ifUnchecked', function(event){
-		var str_ck = $(this).attr('id');
-		
-		if ( str_ck == 'remberCkLabel_ckbox' ) {
-			
-		}
-	});
-}
-
-
 /**
 * 验证码图片及hash值得设置
 */
@@ -95,9 +73,9 @@ function fn_getCaptcha($obj) {
 * 对登录字段处理
 */
 function fn_validLogin() {
-	var str_loginName = $('#login_username').val(),
-		str_loginPwd = $('#login_pwd').val(),
-		str_loginCaptcha = $('#login_captcha').val(),
+	var str_loginName = $.trim($('#login_username').val()),
+		str_loginPwd = $.trim($('#login_pwd').val()),
+		str_loginCaptcha = $.trim($('#login_captcha').val()),
 		str_randomStr = fn_createRandomStr(128);
 	
 	$('#loginHidden_username').val(base64encode(utf16to8(str_randomStr+str_loginName)));

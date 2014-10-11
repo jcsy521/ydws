@@ -321,6 +321,11 @@ dlf.fn_initBindMileageSet = function() {
 								'single_ids': fn_getMileageSetDatas(str_bindRegion)},
 			obj_regionDatas = $('#corpMileageSetTable').data('regions');
 		
+		if ( obj_bindRegionData.single_ids.length <= 0 ) {
+			dlf.fn_jNotifyMessage('请选择要绑定的单程起点！', 'message', false, 3000);
+			return;
+		}
+		
 		if ( obj_regionDatas ) {
 			var n_regionLen = obj_regionDatas.length;
 			// 当前没有创建单程起点
@@ -382,6 +387,11 @@ dlf.fn_initBatchMileageSet = function(obj_group){
 								'single_ids': fn_getMileageSetDatas(str_bindBatchRegion)},
 			obj_regionDatas = $('#corpMileageSetTable').data('regions'),
 			n_tids = arr_terminalIds.length;
+		
+		if ( obj_bindRegionData.single_ids.length <= 0 ) {
+			dlf.fn_jNotifyMessage('请选择要绑定的单程起点！', 'message', false, 3000);
+			return;
+		}
 		
 		if ( obj_regionDatas ) {
 			var n_regionLen = obj_regionDatas.length;

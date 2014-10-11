@@ -895,11 +895,13 @@ dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index) {
 	var gc = new BMap.Geocoder();
 		
 	gc.getLocation(obj_point, function(result){
-		str_result = result.address;
-		
-		if ( str_result != '' ) {
-			dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
-			//TODO:暂时未加poi显示
+		if ( result ) {
+			str_result = result.address;
+			
+			if ( str_result != '' ) {
+				dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
+				//TODO:暂时未加poi显示
+			}
 		}
 	});
 	/*jQuery.ajax({
