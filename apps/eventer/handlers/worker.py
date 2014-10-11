@@ -13,6 +13,7 @@ from codes.smscode import SMSCode
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 from helpers.emailhelper import EmailHelper
+from utils.public import notify_maintainer
 
 from packettask import PacketTask
 
@@ -30,17 +31,8 @@ class Worker(object):
         self.thread = None
         self.db = None
         self.is_alive = False
-        # NOTE: If queue's size is more than alarm_size, send mesage to the
-        # mobiles and emails in alarm_interval
-        self.alarm_key = 'eventer_alarm' 
-        self.alarm_interval = 60 * 5 # 5 minutes 
-        self.alarm_size = 10000  
-        self.mobiles = [13693675352, 
-                        18310505991, 
-                        13581731204]
-        self.emails = ['boliang.guan@dbjtech.com', 
-                       'xiaolei.jia@dbjtech.com',
-                       'youbo.sun@dbjtech.com']
+
+        self.alarm_size = 10000
     
     def start(self):
         self.db = get_connection()
@@ -84,12 +76,9 @@ class Worker(object):
                     #NOTE: Send alarm message if need
                     send_flag = self.redis.getvalue(self.alarm_key)
                     if queue_len >= self.alarm_size and (not send_flag):
-                        self.redis.setvalue(self.alarm_key, True, self.alarm_interval)
                         content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
-                        for mobile in self.mobiles:
-                            SMSHelper.send(mobile, content)
-                        for email in self.emails:
-                            EmailHelper.send(email, content) 
+                        
+                        notify_maintainer(self.db, self.redis, content, 2) 
                         logging.info("[EVENTER] Notify EVENTER queue exception to administrator!")
 
                     #NOTE: Deal with the packet

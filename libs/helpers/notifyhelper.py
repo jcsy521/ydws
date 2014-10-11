@@ -44,8 +44,18 @@ class NotifyHelper(object):
         push_id,
         push_key,
         """
-        # part 1: android-push 
-        #NOTE: because it's invalid most time, so close it.
+        CATEGORY = {2:u'电量告警',
+                    3:u'震动告警',
+                    4:u'移动告警',
+                    5:u'SOS',
+                    6:u'通讯异常',
+                    7:u'进入围栏',
+                    8:u'离开围栏',
+                    9:u'断电告警' }
+        if not CATEGORY.get(category, None):
+            logging.info("Invalid category, drop it. category: %s", category)
+            return
+
         h = httplib2.Http(timeout=3)
         push_info = NotifyHelper.get_push_info()
         ret = DotDict(tid=tid,
@@ -168,7 +178,10 @@ class NotifyHelper(object):
                         7:u'进入围栏',
                         8:u'离开围栏',
                         9:u'断电告警' }
-            t_alias= t_alias if len(t_alias)<=11 else t_alias[:8]+u'...'
+            if not CATEGORY.get(category, None):
+                logging.info("Invalid category, drop it. category: %s", category)
+                return
+
             alert = u"您的定位器 “%s” 产生了%s" % (t_alias, CATEGORY[category])
 
             # 2: format body 

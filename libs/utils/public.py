@@ -4,6 +4,9 @@ import logging
 import time 
 
 from helpers.queryhelper import QueryHelper
+from helpers.smshelper import SMSHelper
+from helpers.emailhelper import EmailHelper
+
 from misc import *
 from utils.dotdict import DotDict
 from constants import EVENTER, UWEB, GATEWAY
@@ -294,6 +297,39 @@ def update_mannual_status(db, redis, tid, mannual_status):
                  tid, mannual_status)
 
 
+# Feature: notify_maintainer
+def notify_maintainer(db, redis, content, category):
+    """Notify alarm info to maintainers.
+    @param: category, 1: gateway
+                      2: eventer
+    """
+    mobiles = []
+    emails = []
+    alarm_key = 'maintainer_alarm:%s' % category
+    alarm_interval = 60 * 5 # 5 minutes
+
+    alarm_flag = redis.getvalue(alarm_key)
+
+    if not alarm_flag:
+        maintainers = db.query("SELECT mid, mobile, email FROM T_MAINTAINER WHERE valid = 1")
+
+        for item in maintainers:
+            mobiles.append(item['mobile'])
+            emails.append(item['email'])
+
+        for mobile in mobiles:
+            SMSHelper.send(mobile, content)
+
+        for email in emails:
+            EmailHelper.send(email, content)
+
+        redis.setvalue(alarm_key, True, alarm_interval)
+
+        logging.info("[PUBLIC] Notify alarm to maintainers. content: %s, category: %s.",
+                     content, category)
+    else:
+        logging.info("[PUBLIC] Notify alarm is ignored in 5 minutes. content: %s, category: %s.",
+                     content, category)
 # For Weixin
 def get_weixin_push_key(uid, t):
     """Get key for push interface(register or push packet)"""

@@ -16,6 +16,7 @@ from helpers.notifyhelper import NotifyHelper
 from helpers.urlhelper import URLHelper
 from helpers.confhelper import ConfHelper
 from helpers.uwebhelper import UWebHelper
+from helpers.weixinpushhelper import WeixinPushHelper
 
 from utils.dotdict import DotDict
 from utils.misc import (get_location_key, get_terminal_time, get_terminal_info_key,
@@ -413,6 +414,7 @@ class PacketTask(object):
                                    location['dev_id']) 
             speed_limit = terminal.get('speed_limit', '') if terminal else ''
 
+
             for pvt in location['pvts']:
                 # The 'future time' is drop 
                 if pvt['gps_time'] > (current_time + 24*60*60):
@@ -454,7 +456,7 @@ class PacketTask(object):
                         if region_pvt and region_pvt['t'] == EVENTER.INFO_TYPE.REPORT:
                             self.handle_report_info(region_pvt)
 
-                #NOTE: check region-event
+                #NOTE: check single-event
                 singles = self.get_singles(pvt['dev_id'])
                 if singles:
                     pvt = lbmphelper.handle_location(pvt, self.redis,
@@ -605,6 +607,8 @@ class PacketTask(object):
                                             pvt['dev_id'], dis_day, day_end_time)
                             logging.info("[EVENTER] Tid: %s, dis_day: %s. pvt: %s.",
                                           pvt['dev_id'], dis_day, pvt)
+
+                self.push_to_weixin(pvt) 
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)
@@ -865,29 +869,30 @@ class PacketTask(object):
             logging.info("[EVENTER] Remind option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)
          
-        # push to owner
+        #NOTE: push to owner
+        report.comment = ''
+        region_id = None
+        if report.rName == EVENTER.RNAME.POWERLOW:
+            if report.terminal_type == "1":
+                if int(report.pbat) == 100:
+                    report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_FULL] 
+                elif int(report.pbat) <= 5:
+                    report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF]
+                else:
+                    if int(report.pbat) <= 20:
+                        report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
+            else:
+                report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
+        elif report.rName in (EVENTER.RNAME.REGION_ENTER, EVENTER.RNAME.REGION_OUT):
+            region = report['region']
+            region_id = region.region_id
+            if region.get('region_name', None): 
+                region.comment = u"围栏名：%s" % safe_unicode(region.region_name)
+
+        # push to client
         terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
                                "  WHERE tid = %s", report.dev_id)
         if terminal and terminal.push_status == 1:
-            report.comment = ''
-            region_id = None
-            if report.rName == EVENTER.RNAME.POWERLOW:
-                if report.terminal_type == "1":
-                    if int(report.pbat) == 100:
-                        report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_FULL] 
-                    elif int(report.pbat) <= 5:
-                        report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_OFF]
-                    else:
-                        if int(report.pbat) <= 20:
-                            report.comment = (ErrorCode.ERROR_MESSAGE[ErrorCode.TRACKER_POWER_LOW]) % report.pbat
-                else:
-                    report.comment = ErrorCode.ERROR_MESSAGE[ErrorCode.FOB_POWER_LOW] % report.fobid
-            elif report.rName in (EVENTER.RNAME.REGION_ENTER, EVENTER.RNAME.REGION_OUT):
-                region = report['region']
-                region_id = region.region_id
-                if region.get('region_name', None): 
-                    region.comment = u"围栏名：%s" % safe_unicode(region.region_name)
-                
             if report.rName == EVENTER.RNAME.STOP:
                 logging.info("[EVENTER] %s altert needn't to push to user. Terminal: %s",
                              report.rName, report.dev_id)
@@ -905,6 +910,7 @@ class PacketTask(object):
         else:
             logging.info("[EVENTER] Push option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)
+        self.push_to_weixin(report) 
 
 
     def event_hook(self, category, dev_id, terminal_type, timestamp, lid, pbat=None, fobid=None , rid=None):
@@ -958,8 +964,10 @@ class PacketTask(object):
 
 
     def notify_to_parents(self, alias, location, user, region_id=None):
-        # NOTE: if user is not null, notify android
+        """Push information to clinet through push.
 
+        PUSH 1.0
+        """
         category = location.category
         dev_id = location.dev_id
 
@@ -985,6 +993,33 @@ class PacketTask(object):
                 for ios_id in ios_push_list: 
                     ios_badge = NotifyHelper.get_iosbadge(ios_id, self.redis) 
                     NotifyHelper.push_to_ios(category, dev_id, alias, location, ios_id, ios_badge, region_id)
+
+
+    def push_to_weixin(self, location):
+        """Push information to weixin.
+        """
+        tid = location['dev_id']
+        terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis)
+        body = dict(tid=tid,
+                    category=location['category'], 
+                    type=location['type'], 
+                    timestamp=location.get('timestamp',0),
+                    latitude=location.get('lat',0),
+                    longitude=location.get('lon',0),
+                    clatitude=location.get('cLat',0),
+                    clongitude=location.get('cLon',0),
+                    name=location['name'] if location.get('name',None) is not None else '',
+                    degree=location.get('degree',0),
+                    speed=location.get('speed',0),
+                    locate_error=location.get('locate_error',0),
+                    region_id=location.get('region_id',-1),
+                    # for terminal
+                    alias=terminal.get('alias'),
+                    gps=terminal.get('gps'),
+                    gsm=terminal.get('gsm'),
+                    pbat=terminal.get('pbat'))
+
+        WeixinPushHelper.push(tid, body, self.db, self.redis)
 
     def handle_power_status(self, report, name, report_name, terminal_time):
         """
