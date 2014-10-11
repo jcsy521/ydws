@@ -88,8 +88,17 @@ class MassPointDayHandler(BaseHandler, TrackMixin):
                                  longitude=last_point.longitude,
                                  clatitude=last_point.clatitude,
                                  clongitude=last_point.clongitude,
-                                 name=last_point.name,)
-                        res.append(r)
+                                 name=self.get_track_name(last_point))
+                    else:
+                        r = dict(timestamp=end_time_,
+                                 distance=0,
+                                 latitude=0,
+                                 longitude=0,
+                                 clatitude=0,
+                                 clongitude=0,
+                                 name=u'')
+
+                    res.append(r)
 
                 stop = self.get_stop_point(tid, start_time, end_time)
 
