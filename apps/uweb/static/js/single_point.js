@@ -248,7 +248,11 @@ function fn_drawMarker(str_step) {
 		var obj_tempPoint = dlf.fn_createMapPoint(arr_tempDataArr[n_singleCounter].clongitude, arr_tempDataArr[n_singleCounter].clatitude);
 		
 		arr_drawLine.push(obj_tempPoint);
-		obj_drawLine.setPath(arr_drawLine);
+		if ( !obj_drawLine ) {
+			fn_createDrawLine();
+		} else {
+			obj_drawLine.setPath(arr_drawLine);
+		}
 		counter = n_singleCounter;
 		
 		if ( obj_selfInfoWindow ) {
@@ -260,7 +264,8 @@ function fn_drawMarker(str_step) {
 		dlf.fn_clearSingleAction();	// 清除数据
 		dlf.fn_clearMapComponent(obj_drawLine);
 		mapObj.removeOverlay(actionMarker);
-		actionMarker = null;
+		actionMarker = null;		
+		obj_drawLine = null;
 		$('#singlePause').hide();
 		$('#singlePlay').css('display', 'inline-block');
 	}

@@ -259,8 +259,7 @@ function fn_trackQuery() {
 	$('#tPause').hide();
 	
 	$.post_(str_masspointUrl, JSON.stringify(obj_locusDate), function (data) {
-		if ( data.status == 0 ) {
-			
+		if ( data.status == 0 ) {			
 			$('#delayTable').css('margin-top', 60);
 			fn_dealTrackDatas(b_masspointFlag, data, obj_locusDate);
 			
@@ -335,7 +334,8 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			}
 		}
 		
-		if ( str_msg != '' ) {
+		if ( str_msg != '' ) {			
+			$('#delayTable').css('margin-top', 60);
 			$('#delayTable').html('<li class="default_delayItem2"></li><li class="default_delayItem2Text">'+str_msg+'</li>');
 			dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 			dlf.fn_unLockScreen();
@@ -454,10 +454,15 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				str_html += '<div class="trackLsIcon"></div>';
 				str_html += '<div class="trackLsContent">';
 				str_html += '<div id="trackLsAddressPanel'+i+'" class="trackLsAddress">'+str_trackAddress+'</div>';
-				str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">';
-				str_html += '<span class="trackLsDgIconFd j_trackLsDgIconFd"></span>';
+				if ( n_lat == 0 ) {					
+					str_html += '<div id="trackMileagePanelDisabled'+i+'" class="trackLsMileage trackLsMileage_disabled j_trackMileagePanel">';
+					str_html += '<span class="trackLsDgIconFd trackLsDgIcon_disabled j_trackLsDgIconFd"></span>';
+				} else {
+					str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">';
+					str_html += '<span class="trackLsDgIconFd j_trackLsDgIconFd"></span>';
+				}
 				if ( n_lat == 0 ) {
-					str_html += '<span class="textZooIn">今天没有活动轨迹哦．</span>';
+					str_html += '<span class="textZooIn">今天没有活动轨迹哦。</span>';
 				} else {
 					str_html += '活动路线：<span class="textZooIn">';
 					
@@ -498,14 +503,18 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				$(this).removeClass('trackLsMileage_hover');
 				$($(this).children('.trackLsDgIconFd')).removeClass('trackLsDgIcon_hoverFd');
 			}).click(function(e){
+				var str_itemTitleId = $(this).attr('id'),
+					str_itemTitleNum = str_itemTitleId.substr(17);
+				
+				if ( str_itemTitleNum.search('Disabled') != -1 ) {
+					return;
+				}
+				
 				$('.j_trackMileagePanel').removeClass('trackLsMileage_click trackLsMileage_clickIcon');
 				$(this).addClass('trackLsMileage_click trackLsMileage_clickIcon');
 				
 				$('.j_trackLsDgIconFd').removeClass('trackLsDgIcon_clickFd');
 				$($(this).children('.trackLsDgIconFd')).addClass('trackLsDgIcon_clickFd');
-				
-				var str_itemTitleId = $(this).attr('id'),
-					n_itemTitleNum = parseInt(str_itemTitleId.substr(17));
 				
 				$('#control_panel').hide();
 				$('.j_trackBtnhover').show();
@@ -516,7 +525,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				arr_dataArr = [];
 				counter = -1;
 				str_actionState = 0;
-				fn_getTrackDatas(n_itemTitleNum, 'trackDelayDay');
+				fn_getTrackDatas(parseInt(str_itemTitleNum), 'trackDelayDay');
 			});
 			$('#trackMileagePanel0').click();
 		}
@@ -1069,7 +1078,11 @@ function fn_drawMarker(str_step) {
 		var obj_tempPoint = dlf.fn_createMapPoint(arr_dataArr[counter].clongitude, arr_dataArr[counter].clatitude);
 		
 		arr_drawLine.push(obj_tempPoint);
-		obj_drawLine.setPath(arr_drawLine);
+		if ( !obj_drawLine ) {
+			fn_createDrawLine();
+		} else {
+			obj_drawLine.setPath(arr_drawLine);
+		}
 			
 		if ( obj_selfInfoWindow ) {
 			dlf.fn_createMapInfoWindow(arr_dataArr[counter], 'draw', counter);
@@ -1081,6 +1094,7 @@ function fn_drawMarker(str_step) {
 		dlf.fn_clearTrack();	// 清除数据
 		dlf.fn_clearMapComponent(actionMarker);
 		dlf.fn_clearMapComponent(obj_drawLine);
+		obj_drawLine = null;
 		actionMarker = null;
 		$('#tPause').hide();
 		$('#tPlay').css('display', 'inline-block');

@@ -1775,6 +1775,10 @@ body {
 .trackLsMileage_click {
 	background-color: #9ccaf4;	
 }
+.trackLsMileage_disabled {
+	background-color: #dcdcdc;	
+	background-image: none;
+}
 .trackLsMileage_clickIcon {
 	background-image: url('/static/images/trackLsMileage_iconClick.png');
 }
@@ -1807,6 +1811,9 @@ body {
 }
 .trackLsDgIcon_clickFd {
 	background-image: url('/static/images/trackLsMileageForDay_click.png');
+}
+.trackLsDgIcon_disabled {
+	background-image: url('/static/images/trackLsMileageForDay_disabled.png');
 }
 .dayFontStyle {
 	font-size: 12px;
