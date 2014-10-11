@@ -1090,6 +1090,7 @@ function fn_drawMarker(str_step) {
 		}
 		dlf.fn_boundContainsPoint(obj_tempPoint);
 	} else {	// 播放完成后
+		dlf.fn_jNotifyMessage('轨迹播放完毕。', 'message', false, 3000);
 		b_trackMsgStatus = true;
 		dlf.fn_clearTrack();	// 清除数据
 		dlf.fn_clearMapComponent(actionMarker);
