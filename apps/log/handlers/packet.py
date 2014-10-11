@@ -30,6 +30,11 @@ class GWPacketHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def post(self):
+        #NOTE: just return
+        self.write_ret(ErrorCode.SUCCESS,
+                       dict_=DotDict(res=[]))
+        return
+
         try:
             data = json_decode(self.request.body)
             logging.info("[LOG] packet request body: %s", data)
