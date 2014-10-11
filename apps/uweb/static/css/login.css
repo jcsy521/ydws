@@ -71,8 +71,13 @@
 }
 #captchaimg {
 	position: relative;
-	right: 150px;
+	right: 184px;
 	cursor: pointer;
+	width: 100px;
+}
+#captchaimgRp {
+	position: relative;
+	right: 180px;
 }
 #loginBtn {
 	width: 348px;

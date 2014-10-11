@@ -30,6 +30,9 @@ $(function(){
 	obj_captchaImg.click(function () {
 		fn_getCaptcha($(this));
 	});
+	$('#captchaimgRp').click(function () {
+		fn_getCaptcha(obj_captchaImg);
+	});
 	fn_getCaptcha(obj_captchaImg);
 	
 	// 体验

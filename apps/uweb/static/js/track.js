@@ -256,11 +256,12 @@ function fn_trackQuery() {
 	$('#exportDelay, #completeTrack').hide();
 	$('#control_panel').hide();
 	$('.j_trackBtnhover').show();
-	$('#tPause ').hide();
-	$('#delayTable').css('margin-top', 60);
+	$('#tPause').hide();
 	
 	$.post_(str_masspointUrl, JSON.stringify(obj_locusDate), function (data) {
 		if ( data.status == 0 ) {
+			
+			$('#delayTable').css('margin-top', 60);
 			fn_dealTrackDatas(b_masspointFlag, data, obj_locusDate);
 			
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
@@ -453,19 +454,17 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				str_html += '<div class="trackLsIcon"></div>';
 				str_html += '<div class="trackLsContent">';
 				str_html += '<div id="trackLsAddressPanel'+i+'" class="trackLsAddress">'+str_trackAddress+'</div>';
-				if ( arr_trackDatas.length != (i +1) ) {
-					str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">';
-					str_html += '<span class="trackLsDgIconFd j_trackLsDgIconFd"></span>';
-					if ( n_lat == 0 ) {
-						str_html += '<span class="textZooIn">今天没有活动轨迹哦．</span>';
+				str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">';
+				str_html += '<span class="trackLsDgIconFd j_trackLsDgIconFd"></span>';
+				if ( n_lat == 0 ) {
+					str_html += '<span class="textZooIn">今天没有活动轨迹哦．</span>';
+				} else {
+					str_html += '活动路线：<span class="textZooIn">';
+					
+					if ( n_distance < 1000 ) {
+						str_html +=dlf.fn_NumForRound(n_distance, 0)+'</span>（米）';
 					} else {
-						str_html += '活动路线：<span class="textZooIn">';
-						
-						if ( n_distance < 1000 ) {
-							str_html +=dlf.fn_NumForRound(n_distance, 0)+'</span>（米）';
-						} else {
-							str_html +=dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）';
-						}
+						str_html +=dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）';
 					}
 				}
 				str_html += '</div></div>';
@@ -490,6 +489,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			}
 			
 			$('.j_body').data({'track_daydata': arr_trackDatas, 'track_daysearch': obj_locusDate });
+			$('.j_delay').data('delayPoints', arr_trackDatas);
 			//添加 mouseover, mouseout,click事件
 			$('.j_trackMileagePanel').unbind('mouseover mouseout click').mouseover(function(e){
 				$(this).addClass('trackLsMileage_hover');
@@ -845,7 +845,7 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 		n_endTime = 0,
 		n_startTime = 0,
 		obj_trackQuery = '',
-		n_lon = arr_trackQueryData[(n_stopNum)].longitude;
+		n_lon = arr_trackQueryData[n_stopNum].longitude;
 	
 	if ( n_lon == 0 ) {
 		return;
