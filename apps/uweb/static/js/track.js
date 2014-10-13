@@ -386,7 +386,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 	} else { //按天显示
 		var arr_trackDatas = data.res,
 			arr_trackQueryData = data.stop,
-			n_currentWeekNum = dlf.fn_calDateWeekNum(new Date()),
+			n_currentWeekNum = dlf.fn_calDateWeekNum(new Date(dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd'))),
 			str_html = '',
 			arr_noAddressPoint = [],
 			str_msg = '';
