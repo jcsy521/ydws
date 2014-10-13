@@ -817,13 +817,12 @@ dlf.fn_getCarData = function(str_flag) {
 						//arr_locations.push({'clongitude': n_enClon, 'clatitude': n_enClat});
 						arr_locations.push(dlf.fn_createMapPoint(n_enClon, n_enClat));
 						dlf.fn_updateInfoData(obj_carInfo, str_flag); // 工具箱动态数据
-						
-						if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
-							dlf.fn_updateTerminalInfo(obj_carInfo);
-						}
 					} else {
 						dlf.fn_translateToBMapPoint(n_lon, n_lat, 'actiontrack', obj_carInfo);	// 前台偏转 kjj 2013-07-11
 					}
+				}
+				if ( str_currentTid == str_tid ) {	// 更新当前车辆信息
+					dlf.fn_updateTerminalInfo(obj_carInfo);
 				}
 			}
 			if ( str_flag == 'first' && arr_locations.length > 0 ) {

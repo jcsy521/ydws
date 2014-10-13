@@ -2038,9 +2038,9 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 				obj_leaf.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + str_tempAlias).attr('title', str_tmobile).attr('clogin', n_login).attr('alias', str_decodeAlias).attr('icon_type', n_iconType);	
 				
 				if ( str_currentTid == str_tid  ) {
-					if ( n_clon != 0 && n_clat != 0 ) {
+					//if ( n_clon != 0 && n_clat != 0 ) {
 						dlf.fn_updateTerminalInfo(obj_car);
-					}					
+					//}					
 				}
 				if ( n_checked != -1 ) {	// 被选中终端
 					if ( n_lon != 0 && n_lat != 0 ) {
