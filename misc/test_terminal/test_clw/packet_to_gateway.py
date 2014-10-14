@@ -23,20 +23,19 @@ class Terminal(object):
         self.redis = MyRedis()
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.connect(('192.168.1.9', 10025))
+        self.socket.connect(('192.168.1.105', 10025))
         self.logging = self.initlog() 
 
     def read_mg(self):
         """Read package from logfile then send them to gateway.
         """
-        print 'come into read mg'
+        logging.info('come into read mg')
         time.sleep(5)
         #NOTE:  
         logfile = '/home/pabb/0703.log'
 
         f = open(logfile)
         for line in f:
-            print 'line', line
             lst = line.split(',')
 
             old_sessionid = lst[1]
@@ -44,7 +43,7 @@ class Terminal(object):
 
             key = "sessionID:%s" % old_tid
             sessionid = self.redis.get(key)
-            print 'key', key,  'sessionid', sessionid
+            logging.info('key:%s, sessionid: %s', key, sessionid)
             if not sessionid:
                 sessionid = ''
 
