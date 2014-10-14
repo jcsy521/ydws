@@ -33,6 +33,20 @@ class WeixinPushHelper(object):
         @body: location which  after handle from terminal send,
         @region_id: terminal's region id
         """
+        # 1: format alert 
+        CATEGORY = {2:u'电量告警',
+                    3:u'震动告警',
+                    4:u'移动告警',
+                    5:u'SOS',
+                    6:u'通讯异常',
+                    7:u'进入围栏',
+                    8:u'离开围栏',
+                    9:u'断电告警',
+                    11:u'超速告警'}
+        if not CATEGORY.get(body['category'], None):
+            logging.info("Invalid category, drop it. category: %s, body: %s.", body['category'], body)
+            return
+
         terminal = db.get("SELECT owner_mobile FROM T_TERMINAL_INFO"
                           " WHERE tid = %s",
                           tid)
@@ -50,7 +64,7 @@ class WeixinPushHelper(object):
             h = httplib2.Http()
             t = time.time() * 1000
             key = get_weixin_push_key(openid ,t)
-            url = ConfHelper.OPENFIRE_CONF.weixin_url 
+            url = ConfHelper.PUSH_CONF.wechat_push_url 
             data = DotDict(openid=openid,
                            t=str(t),
                            key=key,
@@ -66,7 +80,6 @@ class WeixinPushHelper(object):
                 logging.error("Push to Wechat failed! Message: %s, Tid: %s,openid: %s",ret['message'], tid, openid)
         else:
             logging.info("Push to Wechat: this user donesn't bind Wechat")
-
 
 
 if __name__ == '__main__':
