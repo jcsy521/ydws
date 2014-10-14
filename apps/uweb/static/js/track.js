@@ -526,8 +526,37 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				counter = -1;
 				str_actionState = 0;
 				fn_getTrackDatas(parseInt(str_itemTitleNum), 'trackDelayDay');
+				
+				/*
+				if ( $('#delayTable').css('margin-top') == '60px' ) {
+					$('#delayTable').css('margin-top', 0);
+				}
+				$('#completeTrack').show().unbind('click').click(function(e) {
+					if ( $('#completeTrack').data('change') ){
+						dlf.fn_jNotifyMessage('查询时间条件已改变，请重新查询。', 'message');						
+					} else {
+						fn_trackQuery();
+					}
+				});*/
 			});
+			
+			
 			$('#trackMileagePanel0').click();
+			/*TODO
+			var arr_calboxData = [];
+			for ( var x = 0; x < aaa.length; x++ ) {
+				arr_trackDatas[x].alias = str_alias;
+				arr_trackDatas[x].tid = str_tid;
+				arr_calboxData.push(dlf.fn_createMapPoint(aaa[x].clongitude, aaa[x].clatitude));
+			}
+			
+			
+			arr_dataArr = aaa;
+			$('.j_delay').data({'points': arr_calboxData, 'delayPoints': arr_trackQueryData});
+			dlf.fn_setOptionsByType('viewport', arr_calboxData);
+			
+			fn_startDrawLineStatic(aaa, true);
+			*/
 		}
 	}
 }
@@ -926,10 +955,7 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 					}
 					if ( str_operator == 'delay' ) {
 						dlf.fn_createPolyline(arr_trackLine, {color: '#ff0000'});	
-					} else {						
-						dlf.fn_addMarker(arr_trackQueryLineData[0], 'start', 0, 0); // 添加标记
-						dlf.fn_addMarker(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end', 0, 1); //添加标记
-					
+					} else {					
 						dlf.fn_createPolyline(arr_trackLine, {color: '#150CFF'});
 						
 						arr_dataArr = arr_trackQueryLineData;
@@ -937,9 +963,11 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 						//设置比例尺
 						mapObj.setViewport(arr_trackLine);
 						arr_drawLine.push(dlf.fn_createMapPoint(arr_trackQueryLineData[0].clongitude, arr_trackQueryLineData[0].clatitude));
-
-						fn_createDrawLine();
-						$('#control_panel').show();
+						
+						if ( arr_trackQueryLineData.length != 1 ) {
+							fn_createDrawLine();
+							$('#control_panel').show();
+						}
 					}				
 				}
 				if ( str_operator == 'trackDelayDay' ) { // 按天查显示停留点
@@ -962,6 +990,10 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 						}
 						$('.j_body').data({'delayfd': arr_tempDelay, 'fdmarkers': arr_delayFdMarkers});
 					}
+				}
+				if ( str_operator != 'delay' ) {	
+					dlf.fn_addMarker(arr_trackQueryLineData[0], 'start', 0, 0); // 添加标记
+					dlf.fn_addMarker(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end', 0, 1); //添加标记
 				}
 			} else if ( data.status == 403 || data.status == 24 ) {
 				window.location.replace('/');
@@ -988,8 +1020,6 @@ function fn_startDrawLineStatic(arr_dataArr, flag) {
 	if ( flag ) { //直接显示轨迹线及停留点
 		var polyline = dlf.fn_createPolyline($('.j_delay').data('points'), {color: '#150CFF'});	//通过经纬度坐标数组及参数选项构建多折线对象，arr是经纬度存档数组 
 		
-		obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, 0); // 添加标记
-		obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, 1); //添加标记
 		//存储起终端点以便没有位置时进行位置填充
 		$('.delayTable').data('markers', arr_markers);
 		
@@ -1009,9 +1039,13 @@ function fn_startDrawLineStatic(arr_dataArr, flag) {
 			}
 			fn_printDelayDatas(arr_tempDelay, 'delay');	// 显示停留数据
 		}
+		
+		obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, 0); // 添加标记
+		obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, 1); //添加标记
+		
 		$('#control_panel').show();
 		arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[0].clongitude, arr_dataArr[0].clatitude));
-
+		
 		fn_createDrawLine();
 	} else { // 只显示停留点
 		var arr_delayPoints = $('.j_delay').data('delayPoints');

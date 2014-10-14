@@ -1509,7 +1509,7 @@ dlf.fn_getCurrentTid = function() {
 * 处理alias过长问题
 */
 dlf.fn_dealAlias = function (str_tempAlias) { 
-	var b_isChinese = /.*[\u4e00-\u9fa5]+.*$/.test(str_tempAlias),
+	var b_isChinese = /.*[(\u4e00-\u9fa5)(\\）\\（\\？\\、\\。\\，\\，)]+.*$/.test(str_tempAlias),
 		str_newAlias = str_tempAlias;
 		
 	if ( b_isChinese ) {

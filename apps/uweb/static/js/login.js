@@ -50,6 +50,7 @@ $(function(){
 	
 	$('#login_enterprise').removeClass('current');
 	$('#login_individual').addClass('current');
+	$('#userRoleType').val('individual');
 	
 	$('#login_individual').unbind('click').click(function(e) {
 		$('#login_enterprise').removeClass('current');
