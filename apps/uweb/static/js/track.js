@@ -389,7 +389,9 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			n_currentWeekNum = dlf.fn_calDateWeekNum(new Date(dlf.fn_changeNumToDateString(new Date().getTime(), 'ymd'))),
 			str_html = '',
 			arr_noAddressPoint = [],
-			str_msg = '';
+			str_msg = '',
+			n_flag = data.track_sample,
+			arr_trackLineDatas = data.track;
 		
 		if ( arr_trackDatas.length <= 0) {
 			if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
@@ -404,6 +406,11 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 			dlf.fn_unLockScreen();
 			return;
+		}
+		if ( arr_trackQueryData.length > 0 ) {
+			if ( $('#trackSearchPanel').is(':visible') ) {
+				$('#trackSearch_topShowIcon').click();
+			}
 		}
 		dlf.resetPanelDisplay();
 		$('#delayTable').html('');
@@ -476,7 +483,6 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			}
 			$('#delayTable').html(str_html);
 			
-			$('#trackSearch_topShowIcon').click();
 			if ( arr_trackQueryData.length > 0 ) {
 				$('#delayTable').css('height', $('#delayTable').height()+60);	
 				fn_exportDelayPoints(arr_trackQueryData);
@@ -527,7 +533,6 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				str_actionState = 0;
 				fn_getTrackDatas(parseInt(str_itemTitleNum), 'trackDelayDay');
 				
-				/*
 				if ( $('#delayTable').css('margin-top') == '60px' ) {
 					$('#delayTable').css('margin-top', 0);
 				}
@@ -537,26 +542,27 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					} else {
 						fn_trackQuery();
 					}
-				});*/
+				});
 			});
 			
-			
-			$('#trackMileagePanel0').click();
-			/*TODO
-			var arr_calboxData = [];
-			for ( var x = 0; x < aaa.length; x++ ) {
-				arr_trackDatas[x].alias = str_alias;
-				arr_trackDatas[x].tid = str_tid;
-				arr_calboxData.push(dlf.fn_createMapPoint(aaa[x].clongitude, aaa[x].clatitude));
+			if ( n_flag == 0 ) {
+				var arr_calboxData = [];
+				
+				for ( var x = 0; x < arr_trackLineDatas.length; x++ ) {
+					arr_trackLineDatas[x].alias = str_alias;
+					arr_trackLineDatas[x].tid = str_tid;
+					arr_calboxData.push(dlf.fn_createMapPoint(arr_trackLineDatas[x].clongitude, arr_trackLineDatas[x].clatitude));
+				}
+				
+				
+				arr_dataArr = arr_trackLineDatas;
+				$('.j_delay').data({'points': arr_calboxData, 'delayPoints': arr_trackQueryData});
+				dlf.fn_setOptionsByType('viewport', arr_calboxData);
+				
+				fn_startDrawLineStatic(arr_trackLineDatas, true);
+			} else {
+				$('#trackMileagePanel0').click();			
 			}
-			
-			
-			arr_dataArr = aaa;
-			$('.j_delay').data({'points': arr_calboxData, 'delayPoints': arr_trackQueryData});
-			dlf.fn_setOptionsByType('viewport', arr_calboxData);
-			
-			fn_startDrawLineStatic(aaa, true);
-			*/
 		}
 	}
 }
