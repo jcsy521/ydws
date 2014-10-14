@@ -602,10 +602,11 @@ $(function () {
 			if ( str_id == 'track' ) {
 				return;
 			} else {
-				$('.j_delay, .j_alarmPanel').hide();
-				$('.j_alarmPanelCon').removeClass('alarmPanelConShow');
+				$('.j_delay').hide();
 				$('#control_panel').hide();
-				dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
+				if ( str_id != 'region' && str_id != 'mileageSet_setting' && str_id != 'corpRegion' ) {
+					dlf.fn_closeTrackWindow(true);	// 关闭轨迹查询 清除lastinfo
+				}
 			}
 		}
 		// 除了对多个定位器操作外

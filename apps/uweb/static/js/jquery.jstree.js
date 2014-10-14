@@ -3571,7 +3571,7 @@
 		},
 		hide	: function () {
 			$.vakata.context.vis = false;
-			$.vakata.context.cnt.attr("class","").css({ "visibility" : "hidden" });
+			$.vakata.context.cnt.attr("class","").css({ "visibility" : "hidden", "display": "none" });
 			$(document).triggerHandler("context_hide.vakata");
 		},
 		parse	: function (s, is_callback) {

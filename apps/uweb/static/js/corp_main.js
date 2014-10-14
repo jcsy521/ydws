@@ -1297,6 +1297,7 @@ function fn_updateTerminalCount(str_operation, num) {
 */
 function fn_resetTreeChecked() {
 	$('#corpTree').jstree('uncheck_node','.j_corp');
+	dlf.fn_initCarInfo();
 }
 /*
 * 根据操作显示相应的终端
@@ -1602,9 +1603,9 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								// obj_carsData[str_tid] =  obj_car;
 								arr_tempTids.push(str_tid); //tid组string 串
 								if ( str_login == LOGINOUT ) {
-									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_alias +'" devtype="'+ str_devType +'">'+ str_alias +'</a></li>';
+									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +' class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ dlf.fn_encode(str_oldAlias) +'" devtype="'+ str_devType +'">'+ str_alias +'</a></li>';
 								} else {
-									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ str_alias +'" devtype="'+ str_devType +'">'+ str_alias +'</a></li>';	
+									str_html += '<li class="jstree-leaf j_leafNode" id="leafNode_'+ str_tid +'"><a actiontrack="no" clogin="'+ obj_car.login+'" fob_status="" tid="'+ str_tid +'" keys_num="'+ obj_car.keys_num +'" title="'+ str_mobile +'" degree="'+ n_degree +'" icon_type='+ n_iconType +'  class="terminalNode j_terminal jstree-draggable" href="#" id="leaf_'+ str_tid +'" alias="'+ dlf.fn_encode(str_oldAlias) +'" devtype="'+ str_devType +'">'+ str_alias +'</a></li>';	
 								}
 								if ( str_tempTid != '' && str_tempTid == str_tid ) {
 									b_flg = true;

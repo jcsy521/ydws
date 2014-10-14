@@ -44,7 +44,6 @@ dlf.fn_initTrack = function() {
 		str_tempAlias = $('.j_terminal[tid='+ str_currentTid +']').attr('alias');
 		str_currentCarAlias = dlf.fn_encode(str_tempAlias);
 	}
-	
 	$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
 	if ( dlf.fn_userType() ) {
 		//$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
@@ -86,7 +85,7 @@ dlf.fn_initTrack = function() {
 			if ( n_windowWidth < 1500 ) {
 				n_trackTopIcon = 170;
 				n_trackTableMiniHeight = 270;
-				n_delayTableHeight -= 82;
+				n_delayTableHeight -= 70;
 			}
 			
 			$('#trackSearchPanel').show();
@@ -195,6 +194,7 @@ dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 			//if ( b_bindBatchRegionWpST && b_bindRegionWpST ) {
 			//	dlf.fn_corpLastinfoSwitch(true);
 			//}
+			
 			dlf.fn_corpGetCarData(true);
 		}
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
@@ -227,7 +227,7 @@ function fn_trackQuery() {
 		b_masspointFlag = true;
 	
 	if ( str_beginTime >= str_endTime ) {
-		dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+		dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
 		return;
 	}
 	
@@ -461,8 +461,8 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">';
 					str_html += '<span class="trackLsDgIconFd j_trackLsDgIconFd"></span>';
 				}
-				if ( n_lat == 0 ) {
-					str_html += '<span class="textZooIn">今天没有活动轨迹哦。</span>';
+				if ( (n_lat == 0) ||  (n_distance == 0) ) {
+					str_html += '今天没有活动轨迹哦。<span class="textZooIn">&nbsp;</span>';
 				} else {
 					str_html += '活动路线：<span class="textZooIn">';
 					
@@ -749,7 +749,11 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		}
 		
 		if ( arr_delayPoints.length == (i +1) ) {
-			str_lsIconClass = 'trackLsIcon_start';
+			if ( arr_delayPoints.length == 1 ) {
+				str_lsIconClass = 'trackLsIcon_end';
+			} else {
+				str_lsIconClass = 'trackLsIcon_start';
+			}
 			str_trackAddress += '（起点）';
 			str_fClass =  'trackLsItemEnd';
 		} else if ( i == 0 ) {

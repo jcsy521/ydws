@@ -40,8 +40,12 @@ $(function(){
 		$('#login_tyForm').submit();
 	});	
 	
-	$('#loginBtn').unbind('click').click(function(e) {
+	$('#loginBtn').unbind('click keyup').click(function(e) {
 		$('#loginForm').submit();
+	}).keyup(function(e) {
+		if ( e.keyCode == 13 ) {
+			$('#loginForm').submit();
+		}
 	});
 	
 	$('#login_enterprise').removeClass('current');

@@ -169,7 +169,11 @@ dlf.fn_initRecordSearch = function(str_who) {
 		obj_tableHeader.hide();
 		$('#'+ str_who +'TableHeader').hide();
 		dlf.fn_clearInterval(currentLastInfo); // 清除lastinfo计时器
-		fn_initEventTimeControl(str_who);
+		if ( str_who == 'mileageSet' ) {
+			dlf.fn_initTimeControl(str_who);
+		} else {
+			fn_initEventTimeControl(str_who);
+		}
 		//dlf.fn_initTimeControl(str_who); // 时间初始化方法
 		dlf.fn_unLockScreen(); // 去除页面遮罩
 		
@@ -461,7 +465,7 @@ dlf.fn_searchData = function (str_who) {
 			}
 			
 			if ( n_bgDate > n_finishDate ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
 				return;
 			}
 			/*else if ( (n_finishDate-n_bgDate) > 24*60*60*31 ) {	// 判断选择时间
@@ -490,7 +494,7 @@ dlf.fn_searchData = function (str_who) {
 						};
 
 			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
 				return;
 			}
 			break;
@@ -567,7 +571,7 @@ dlf.fn_searchData = function (str_who) {
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime); //结束时间
 			
 			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
 				return;
 			}
 			obj_conditionData = {
@@ -587,7 +591,7 @@ dlf.fn_searchData = function (str_who) {
 				str_tid = $('#selectTerminals2').val();				// 选中终端tid
 			
 			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间不能大于结束时间，请重新选择时间段。', 'message', false, 3000);
+				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
 				return;
 			}
 			obj_conditionData = {
@@ -1408,13 +1412,15 @@ dlf.fn_initTimeControl = function(str_who) {
 	obj_stTime.unbind('click').bind('click', function() {	// 初始化起始时间，并做事件关联 maxDate: '#F{$dp.$D(\''+str_inputEndTime+'\')}',minDate: '#F{$dp.$D(\''+str_inputStartTime+'\')}', // delete in 2013.04.10
 		WdatePicker({el: str_inputStartTime, lang: 'zh-cn', dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false,  qsEnabled: false, autoPickDate: false,
 		onpicked: function() {
-			if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
-				var obj_endDate = $dp.$D(str_inputEndTime), 
-					str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
-					str_endTime = dlf.fn_changeDateStringToNum(str_endString), 
-					str_beginTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
-				if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
-					obj_endTime.val(dlf.fn_changeNumToDateString(str_beginTime + WEEKMILISECONDS));
+			if ( str_who != 'mileageSet' ) {
+				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
+					var obj_endDate = $dp.$D(str_inputEndTime), 
+						str_endString = obj_endDate.y+'-'+obj_endDate.M+'-'+obj_endDate.d+' '+obj_endDate.H+':'+obj_endDate.m+':'+obj_endDate.s,
+						str_endTime = dlf.fn_changeDateStringToNum(str_endString), 
+						str_beginTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
+					if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
+						obj_endTime.val(dlf.fn_changeNumToDateString(str_beginTime + WEEKMILISECONDS));
+					}
 				}
 			}
 		}});
@@ -1422,13 +1428,15 @@ dlf.fn_initTimeControl = function(str_who) {
 	
 	obj_endTime.unbind('click').bind('click', function() {	// 初始化结束时间，并做事件关联
 		WdatePicker({el: str_inputEndTime, lang: 'zh-cn', dateFmt: str_timepickerFormat, maxDate: str_tempEndTime, readOnly: true, isShowClear: false, qsEnabled: false, autoPickDate: false, onpicked: function() {
-				if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
-					var obj_beginDate = $dp.$D(str_inputStartTime), 
-						str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
-						str_beginTime = dlf.fn_changeDateStringToNum(str_beginString), 
-						str_endTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
-					if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
-						obj_stTime.val(dlf.fn_changeNumToDateString(str_endTime - WEEKMILISECONDS));
+				if ( str_who != 'mileageSet' ) {
+					if ( !dlf.fn_userType() ) {	// 如果是个人用户 有时间限制
+						var obj_beginDate = $dp.$D(str_inputStartTime), 
+							str_beginString = obj_beginDate.y+'-'+obj_beginDate.M+'-'+obj_beginDate.d+' '+obj_beginDate.H+':'+obj_beginDate.m+':'+obj_beginDate.s,
+							str_beginTime = dlf.fn_changeDateStringToNum(str_beginString), 
+							str_endTime = dlf.fn_changeDateStringToNum($dp.cal.getDateStr());
+						if ( str_endTime - str_beginTime > WEEKMILISECONDS) {
+							obj_stTime.val(dlf.fn_changeNumToDateString(str_endTime - WEEKMILISECONDS));
+						}
 					}
 				}
 			}

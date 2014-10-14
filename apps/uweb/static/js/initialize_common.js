@@ -2759,7 +2759,6 @@ dlf.resetPanelDisplay = function(n_type) {
 		//if ( $('#exportDelay').is(':visible') ) {
 			n_mainHeight -= 60;
 		//}
-		
 		if ( $('#trackSearchPanel').is(':visible') ) {
 			var n_windowWidth = $(window).width(),
 				n_delayTableHeight = n_mainHeight-138,
@@ -2767,7 +2766,7 @@ dlf.resetPanelDisplay = function(n_type) {
 				n_trackTopIcon = 100;
 			
 			if ( n_windowWidth < 1500 ) {
-				n_delayTableHeight = n_mainHeight-219;
+				n_delayTableHeight = n_mainHeight-208;
 				n_trackTableMiniHeight = 270;
 				n_trackTopIcon = 170;
 			}
@@ -2796,6 +2795,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		}
 		$('.j_disPanelCon').css('top', $('.delayTable').height()/2+220);
 		var b_panel = $('.j_delayPanel').is(':visible'),
+			b_alarmWp = $('.j_alarm').is(':visible'),
 			b_alarmPanel = $('.j_alarmPanel').is(':visible'),
 			n_delayIconRight = 0,
 			n_delayTablewidth = $('.j_delayPanel').width(),
@@ -2819,12 +2819,13 @@ dlf.resetPanelDisplay = function(n_type) {
 			} else {
 				$('.j_disPanelCon').css('right', -n_trackPostNum);
 			}
-			
-			if ( b_alarmPanel ) {
-				$('.j_alarmPanelCon').css('right', 400-n_trackPostNum);
-				$('.j_alarmPanel').css('right', -n_trackPostNum);
-			} else {
-				$('.j_alarmPanelCon').css('right', -n_trackPostNum);
+			if ( b_alarmWp ) {
+				if ( b_alarmPanel ) {
+					$('.j_alarmPanelCon').css('right', 400-n_trackPostNum);
+					$('.j_alarmPanel').css('right', -n_trackPostNum);
+				} else {
+					$('.j_alarmPanelCon').css('right', -n_trackPostNum);
+				}
 			}
 		} else {
 			if ( b_panel ) {
@@ -2834,13 +2835,14 @@ dlf.resetPanelDisplay = function(n_type) {
 				$('.j_disPanelCon').css('right', -n_delayIconRight);
 				$('.j_delayPanel').css('right', n_delayTablewidth-n_delayIconRight);
 			}
-			
-			if ( b_alarmPanel ) {
-				$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
-				$('.j_alarmPanel').css('right', -n_delayIconRight);
-			} else {
-				$('.j_alarmPanelCon').css('right', -n_delayIconRight);
-				$('.j_alarmPanel').css('right', 400-n_delayIconRight);
+			if ( b_alarmWp ) {
+				if ( b_alarmPanel ) {
+					$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
+					$('.j_alarmPanel').css('right', -n_delayIconRight);
+				} else {
+					$('.j_alarmPanelCon').css('right', -n_delayIconRight);
+					$('.j_alarmPanel').css('right', 400-n_delayIconRight);
+				}
 			}
 		}
 		 

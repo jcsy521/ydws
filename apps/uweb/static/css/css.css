@@ -1783,6 +1783,9 @@ body {
 	background-color: #dcdcdc;	
 	background-image: none;
 }
+.textZooIn16 {
+	font-size: 16px;
+}
 .trackLsMileage_clickIcon {
 	background-image: url('/static/images/trackLsMileage_iconClick.png');
 }
@@ -1818,6 +1821,7 @@ body {
 }
 .trackLsDgIcon_disabled {
 	background-image: url('/static/images/trackLsMileageForDay_disabled.png');
+	top: -27px;
 }
 .dayFontStyle {
 	font-size: 12px;
@@ -4427,7 +4431,7 @@ legend {
     }
 	#trackSearch {
 		left: 150px;
-		top: -10px;
+		top: 4px;
 	}
 	#trackSearchPanel {
 		height: 150px;
@@ -4444,4 +4448,7 @@ legend {
 	.trackLsContent {
 		width: 66%;
 	}
+}
+.batchSpeedLimitTitle {
+	background-position: 0px -1224px;
 }
