@@ -373,7 +373,8 @@ def handle_location(location, redis, cellid=False, db=None):
     if location.valid == GATEWAY.LOCATION_STATUS.SUCCESS: # 1
         location.type = 0
         if location.get('speed') is not None and location.speed <= UWEB.SPEED_DIFF:
-            location.degree = get_last_degree(location, redis, db)
+            pass
+            #location.degree = get_last_degree(location, redis, db)
     elif location.valid == GATEWAY.LOCATION_STATUS.UNMOVE: # 4
         logging.info("[LBMPHELPER] Tid:%s gps locate flag :%s", location.dev_id, location.valid)
         #last_location = QueryHelper.get_location_info(location.dev_id, db, redis)
