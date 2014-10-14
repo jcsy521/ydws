@@ -23,15 +23,25 @@ class Terminal(object):
         self.redis = MyRedis()
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        #NOTE: connect the gateway
         self.socket.connect(('192.168.1.105', 10025))
         self.logging = self.initlog() 
+
+    def __send__(self, packet):
+        """Send packet to gateway and receive the response.
+        """
+        logging.info('send: %s', packet.strip())
+        self.socket.send(packet)
+        recv = self.socket.recv(1024)
+        logging.info('recv: %s', recv)
 
     def read_mg(self):
         """Read package from logfile then send them to gateway.
         """
         logging.info('come into read mg')
         time.sleep(5)
-        #NOTE:  
+        #NOTE: the gateway log has been pre-handled 
         logfile = '/home/pabb/0703.log'
 
         f = open(logfile)
@@ -49,7 +59,8 @@ class Terminal(object):
 
             line = line.replace(old_sessionid, sessionid)
             line = line.replace(" ", "")
-            self.socket.send(line)
+
+            self.__send__(line)
             time.sleep(5)
 
     def initlog(self): 
