@@ -548,18 +548,19 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			if ( n_flag == 0 ) {
 				var arr_calboxData = [];
 				
-				for ( var x = 0; x < arr_trackLineDatas.length; x++ ) {
-					arr_trackLineDatas[x].alias = str_alias;
-					arr_trackLineDatas[x].tid = str_tid;
-					arr_calboxData.push(dlf.fn_createMapPoint(arr_trackLineDatas[x].clongitude, arr_trackLineDatas[x].clatitude));
+				if ( arr_trackLineDatas.length > 0 ) {
+					for ( var x = 0; x < arr_trackLineDatas.length; x++ ) {
+						arr_trackLineDatas[x].alias = str_alias;
+						arr_trackLineDatas[x].tid = str_tid;
+						arr_calboxData.push(dlf.fn_createMapPoint(arr_trackLineDatas[x].clongitude, arr_trackLineDatas[x].clatitude));
+					}				
+					
+					arr_dataArr = arr_trackLineDatas;
+					$('.j_delay').data({'points': arr_calboxData, 'delayPoints': arr_trackQueryData});
+					dlf.fn_setOptionsByType('viewport', arr_calboxData);
+					
+					fn_startDrawLineStatic(arr_trackLineDatas, true);
 				}
-				
-				
-				arr_dataArr = arr_trackLineDatas;
-				$('.j_delay').data({'points': arr_calboxData, 'delayPoints': arr_trackQueryData});
-				dlf.fn_setOptionsByType('viewport', arr_calboxData);
-				
-				fn_startDrawLineStatic(arr_trackLineDatas, true);
 			} else {
 				$('#trackMileagePanel0').click();			
 			}

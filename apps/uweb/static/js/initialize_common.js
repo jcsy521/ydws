@@ -312,9 +312,6 @@ dlf.fn_changeTimestampToString = function(n_timestamp) {
 	if ( n_minute > 0 ) {
 		str_time += n_minute + '分';
 	}
-	if ( n_tempMinute == 0 ) {
-		str_time += '1分';
-	}
 	return str_time;
 }
 
@@ -2628,20 +2625,20 @@ dlf.fn_secondNavValid = function() {
 
 dlf.resetPanelDisplay = function(n_type) {
 	setTimeout(function() {
-		var n_windowHeight = $(window).height(),
-			n_bodyHeight = $('.j_body').height(),
-			n_tempWindowWidth = $(window).width(), // document.body.offsetWidth,
-			n_topWidth = $('#top').width(),
+		var n_windowHeight = document.documentElement.clientHeight,
+			n_bodyHeight = document.documentElement.scrollHeight,
+			n_tempWindowWidth = document.documentElement.clientWidth, // document.body.offsetWidth,
+			n_topWidth = document.documentElement.scrollWidth,
 			n_tempWidth = n_tempWindowWidth,
 			n_tempWindowWidth = n_tempWindowWidth,
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
 		
-		//console.log('aaa: ',n_bodyHeight,n_windowHeight,n_topWidth,n_tempWindowWidth);
+		//console.log('aaa: ', n_windowHeight, document.documentElement.clientHeight , document.documentElement.scrollHeight,n_tempWindowWidth,document.documentElement.clientWidth ,document.documentElement.scrollWidth);
 		if ( n_bodyHeight > n_windowHeight ){
 			if ( n_tempWindowWidth > 1024 ){//&& n_topWidth - n_tempWindowWidth == 17 ) {
-				n_topWidth = n_topWidth + 17;
+				//n_topWidth = n_topWidth + 17;
 				n_windowHeight = n_windowHeight + 17;
 			}
 		}
@@ -2765,11 +2762,13 @@ dlf.resetPanelDisplay = function(n_type) {
 				n_trackTableMiniHeight = 340,
 				n_trackTopIcon = 100;
 			
-			if ( n_windowWidth < 1500 ) {
+			if ( n_windowWidth <= 1500 ) {
 				n_delayTableHeight = n_mainHeight-208;
 				n_trackTableMiniHeight = 270;
 				n_trackTopIcon = 170;
 			}
+			fn_resetDelayPanelStyle();
+			
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 			$('#trackSearch_topShowIcon').css('top', n_trackTopIcon);
 		} else {
@@ -2789,6 +2788,7 @@ dlf.resetPanelDisplay = function(n_type) {
 					n_delayTableHeight = n_mainHeight-138;
 				}
 			}
+			fn_resetDelayPanelStyle();
 			
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 			$('#trackSearch_topShowIcon').css('top', n_trackTopIcon);
@@ -2837,7 +2837,21 @@ dlf.resetPanelDisplay = function(n_type) {
 			}
 			if ( b_alarmWp ) {
 				if ( b_alarmPanel ) {
-					$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
+					if ( n_chromeIndex != -1 ) {
+						var n_chromeVersion = parseFloat(navigator.userAgent.substring(n_chromeIndex+7));
+						
+						if ( n_chromeVersion < 35 ) {
+							if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {	
+									$('.j_alarmPanelCon').css('right', 366+n_delayIconRight);
+							} else {								
+								$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
+							}
+						} else {
+							$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
+						}
+					} else {						
+						$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
+					}
 					$('.j_alarmPanel').css('right', -n_delayIconRight);
 				} else {
 					$('.j_alarmPanelCon').css('right', -n_delayIconRight);
@@ -2914,6 +2928,31 @@ dlf.resetPanelDisplay = function(n_type) {
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
 		}
 	}, 100);
+}
+
+/*
+* 根据1500宽度修改轨迹查询停留点框高度及部分样式
+*/
+function fn_resetDelayPanelStyle() {
+	var n_windowWidth = $(window).width();
+	
+	if ( n_windowWidth <= 1500 ) {
+		$('.trackTimePanel').css({'display': 'block', 'width': '100%'});
+		$('#trackSearch').css({'left': '150px', 'top': '4px'});
+		$('#trackSearchPanel').css({'height': '150px'});
+		$('#trackSearch_topShowIcon').css({'top': '170px'});
+		$('.delayTable').css({'min-height': '266px'});
+		$('.trackLsMileage').css({'padding-left': '0', 'width': '90%'});
+		$('.trackLsContent').css({'width': '66%'});
+	} else {
+		$('.trackTimePanel').css({'display': 'inline', 'width': 'auto'});
+		$('#trackSearch').css({'left': '8px', 'top': '0'});
+		$('#trackSearchPanel').css({'height': '80px'});
+		$('#trackSearch_topShowIcon').css({'top': '100px'});
+		$('.delayTable').css({'min-height': '340px'});
+		$('.trackLsMileage').css({'padding-left': '20px', 'width': '96%'});
+		$('.trackLsContent').css({'width': '76%'});
+	}
 }
 
 /**
