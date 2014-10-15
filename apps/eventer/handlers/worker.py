@@ -74,8 +74,7 @@ class Worker(object):
                     queue_len = self.queue.qsize()
 
                     #NOTE: Send alarm message if need
-                    send_flag = self.redis.getvalue(self.alarm_key)
-                    if queue_len >= self.alarm_size and (not send_flag):
+                    if queue_len >= self.alarm_size: 
                         content = SMSCode.SMS_EVENTER_QUEUE_REPORT % ConfHelper.UWEB_CONF.url_out
                         
                         notify_maintainer(self.db, self.redis, content, 2) 
