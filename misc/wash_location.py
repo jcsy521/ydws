@@ -25,18 +25,20 @@ def wash_location():
     db = DBConnection().db
     redis = MyRedis()
     
-    sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login = 0"
+    #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where tid = '36E2400480' "
+    sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO"
+    #sql = "select id, tid,  mobile, owner_mobile, begintime, login_time from T_TERMINAL_INFO where login = 0"
     #print 'sql', sql
     terminals  = db.query(sql)
-    #print 'len ', len(terminals)
+    print 'len ', len(terminals)
     count = 0
     cnt = 0
     for i, t in enumerate(terminals):
         tid = t.tid
         key = 'location:%s' % tid
         location = redis.get(key) 
-        #if not location:
-        if True:
+        if not location:
+        #if True:
             print 'tid', tid
 
             location = db.get("SELECT timestamp, MAX(timestamp) as maxtime"

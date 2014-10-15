@@ -23,18 +23,23 @@ LOCATION_NAME_EXPIRY = 60 * 60 * 24 *7
 class Test(object):
 
     def __init__(self):
-        self.db = DBConnection().db
+        #self.db = DBConnection().db
         self.redis = MyRedis()
 
     def test_lk(self):
         #pattern = "lk:4083025:798780"
         pattern = "lk:*"
         keys = self.redis.keys(pattern)
-        print 'len ----', len(keys)
+        count = 0
+        #print 'len ----', len(keys)
         for k in keys:
             v = self.redis.get(k)
-            print '-----------k', k, v
+            #print '-----------k', k, v
+            self.redis.delete(k)
+            count += 1
             #self.redis.set(k, v, LOCATION_NAME_EXPIRY)
+            if not (count % 10000):
+                print 'count: %s W' %  count
 
 def main():
     ConfHelper.load('../conf/global.conf')

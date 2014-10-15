@@ -43,7 +43,7 @@ def main():
     content = 'SET SMS 10657'
     content = 'BIND 13693675352:13417738440'
     #content = 'HFCC'
-    #content = 'LQ 30'
+    content = 'LQ 30'
     #content = 'SSDW'
     #content = 'RELOGIN'
     #content = 'SET TIME 20140721162811'

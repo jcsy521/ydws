@@ -73,7 +73,7 @@ def main():
     #content = ':CQ test' # restart terminal
 
     #content = ':CQ' # restart terminal
-    content = ':REBOOT' # restart terminal
+    #content = ':REBOOT' # restart terminal
 
     #content = ':UPDATE' # update script
 
@@ -81,7 +81,8 @@ def main():
 
     #content = ':JB'
     #content = ':SIM 13922256008:13751803006'
-    #content = ':SIM 13420222834:14778741742'
+    #content = ':SIM 18823511110:14715437523'
+    content = ':SIM 13600124555:14715437523'
     #content = ':DW'
     #content = 'test it'
     #content = 'SET QQ 3*c*15241589576'

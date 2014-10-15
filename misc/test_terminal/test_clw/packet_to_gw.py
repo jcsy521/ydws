@@ -24,7 +24,7 @@ class Terminal(object):
     def __init__(self, tid, tmobile, umobile, imsi, imei):
 
         import redis
-        self.redis = redis.Redis(host='192.168.1.105',port=6379)
+        self.redis = redis.Redis(host='192.168.108.43',port=6379)
         #self.redis = MyRedis()
 
         self.tid = tid
@@ -154,7 +154,7 @@ class Terminal(object):
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         #self.socket.connect(('192.168.1.9', 6322))
-        self.socket.connect(('192.168.1.9', 10025))
+        self.socket.connect(('192.168.108.43', 10025))
         self.logging = self.initlog() 
 
     def login(self):
@@ -396,9 +396,9 @@ class Terminal(object):
         """Read package from logfile then send them to gateway.
         """
         print 'come into read mg'
-        time.sleep(5)
+        time.sleep(2)
         #NOTE:  
-        logfile = '/home/pabb/0703.log'
+        logfile = '/home/ydcws/3.log'
         #logfile = 'gw.log'
         #logfile = '15919176710.log'
 
@@ -406,6 +406,7 @@ class Terminal(object):
         #sessionid = '0otq0d4v'
         #tid = "ACB2012777"
 
+        count = 0
         f = open(logfile)
         for line in f:
             print 'line', line
@@ -416,15 +417,20 @@ class Terminal(object):
 
             key = "sessionID:%s" % old_tid
             sessionid = self.redis.get(key)
+            if not sessionid:
+                continue
             #sessionid = r.get(key)
-            print 'key', key,  'sessionid', sessionid
+            #print 'key', key,  'sessionid', sessionid
            
             #sessionid = self.redis.get(key)
 
             line = line.replace(old_sessionid, sessionid)
             line = line.replace(" ", "")
             self.socket.send(line)
-            time.sleep(5)
+            count = count + 1
+            if not count % 100:
+                print count
+            time.sleep(0.01)
 
     def start_each_thread(self):
         thread.start_new_thread(self.read_mg, ())
