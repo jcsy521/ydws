@@ -2630,22 +2630,29 @@ dlf.resetPanelDisplay = function(n_type) {
 			n_tempWindowWidth = document.documentElement.clientWidth, // document.body.offsetWidth,
 			n_topWidth = document.documentElement.scrollWidth,//$('#top').width(),
 			n_tempWidth = n_tempWindowWidth,
-			n_tempWindowWidth = n_tempWindowWidth,
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
 		
 		//console.log('aaa: ', fn_isChromeLow35(),document.documentElement.clientHeight,document.documentElement.scrollHeight,document.documentElement.clientWidth ,document.documentElement.scrollWidth);
 		
-		if ( n_bodyHeight > n_windowHeight &&  n_windowHeight > 658) {
-			if ( n_tempWindowWidth > 1024 ){//&& n_topWidth - n_tempWindowWidth == 17 ) {
-				//n_topWidth = n_topWidth + 17;
-				n_windowHeight += 17;
+		if ( n_bodyHeight > n_windowHeight) {
+			if ( fn_isChromeLow35() ) {
+				n_windowHeight += 14;
+			} else {
+				if ( n_tempWindowWidth > 1024 ){//&& n_topWidth - n_tempWindowWidth == 17 ) {
+					//n_topWidth = n_topWidth + 17;
+					n_windowHeight += 17;
+				}
 			}
 		}
-		if ( n_topWidth > n_tempWindowWidth && n_tempWindowWidth > 1024 ) {
-			if ( n_windowHeight > 658 ){//&& n_bodyHeight - n_windowHeight == 17 ) {
-				n_tempWindowWidth += 17;
+		if ( n_topWidth > n_tempWindowWidth ) {
+			if ( fn_isChromeLow35() ) {
+				n_tempWindowWidth += 14;
+			} else {
+				if ( n_windowHeight > 658 ){//&& n_bodyHeight - n_windowHeight == 17 ) {
+					n_tempWindowWidth += 17;
+				}
 			}
 		}
 		if ( n_windowHeight <= 658 ) {
