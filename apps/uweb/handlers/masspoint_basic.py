@@ -167,7 +167,6 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
                             else: # it should never happpen
                                 pass
 
-
                     # full the stop  
                     for item in stop:
                         #NOTE: end_time is should be bigger than start_time
@@ -175,7 +174,6 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
 
                         if item.name is None:
                             name = self.get_track_name(item)
-
 
                 if start and stop:
                     if start['start_time'] == oldest_stop['start_time']:
@@ -213,8 +211,9 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
                     end['distance'] = self.get_track_distance(
                                            self.get_track(tid,
                                                 start['start_time'], end['start_time']))
-                #NOTE: 
-                if stop:
+
+                # special handle for the newest stop
+                if stop and end:
                     if stop[-1]['end_time'] > end['start_time']:
                         stop[-1]['end_time'] = end['start_time'] 
                         stop[-1]['idle_time'] = abs(end['start_time']-stop[-1]['start_time'])
