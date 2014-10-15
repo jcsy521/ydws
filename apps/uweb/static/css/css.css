@@ -665,7 +665,7 @@ body {
 	/*left: 38%;*/
 	width: 448px;
 	position: absolute;
-	top: 25%;
+	top: 120px;
 	z-index: 1002;
 }
 #corpWrapper {
@@ -1821,7 +1821,7 @@ body {
 }
 .trackLsDgIcon_disabled {
 	background-image: url('/static/images/trackLsMileageForDay_disabled.png');
-	top: -27px;
+	top: -30px;
 }
 .dayFontStyle {
 	font-size: 12px;
@@ -4448,6 +4448,9 @@ legend {
 	}
 	.trackLsContent {
 		width: 66%;
+	}
+	.trackLsDgIcon {
+		left: -8px;
 	}
 }
 .batchSpeedLimitTitle {

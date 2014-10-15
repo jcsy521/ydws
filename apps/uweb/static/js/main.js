@@ -538,7 +538,11 @@ $(function () {
 	if ( $('#exportDelay').is(':visible') ) {
 			n_mainHeight -= 30;
 		}
-	$('#delayTable').css('height', n_mainHeight-166);
+	if ( $(window).width() <= 1500 ) {
+		$('#delayTable').css('height', n_mainHeight-278);
+	} else {
+		$('#delayTable').css('height', n_mainHeight-198);
+	}
 	if ( n_windowWidth > 1100 ) {
 		$('.trackPos').css('padding-left', n_trackLeft); // 轨迹查询条件 位置调整
 	} else {

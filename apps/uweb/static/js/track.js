@@ -61,10 +61,11 @@ dlf.fn_initTrack = function() {
 		function () {
 			var n_delayTableHeight = $(window).height() - 219,
 				n_windowWidth = $(window).width(),
-				n_trackTableMiniHeight = 398;
+				n_trackTableMiniHeight = 440;
 			
 			if ( n_windowWidth < 1500 ) {
-				n_trackTableMiniHeight = 440;
+				n_trackTableMiniHeight = 439;
+				n_delayTableHeight = $(window).height() - 220;
 			}
 			
 			$('#trackSearchPanel').hide();
@@ -73,7 +74,7 @@ dlf.fn_initTrack = function() {
 			if ( $('#exportDelay').is(':visible') || $('#completeTrack').is(':visible') ) {
 				//n_delayTableHeight -= 60;
 			}
-			if ( $(window).height() <= 624 ) {
+			if ( $(window).height() <= 540 ) {
 				n_delayTableHeight += 100;
 			}
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
@@ -87,7 +88,7 @@ dlf.fn_initTrack = function() {
 			if ( n_windowWidth < 1500 ) {
 				n_trackTopIcon = 170;
 				n_trackTableMiniHeight = 270;
-				n_delayTableHeight -= 70;
+				n_delayTableHeight -= 71;
 			}
 			
 			$('#trackSearchPanel').show();
@@ -362,6 +363,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			$('#delayTable').html('');
 		}
 		dlf.resetPanelDisplay();
+		$('.j_delay').data('daymasspoint', false);
 		if ( n_flag == 0 ) { //直接显示数据				
 			for ( var x = 0; x < n_locLength; x++ ) {
 				arr_trackDatas[x].alias = str_alias;
@@ -527,6 +529,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				$('#control_panel').hide();
 				$('.j_trackBtnhover').show();
 				$('#tPause').hide();
+				if ( timerId ) { dlf.fn_clearInterval(timerId) };
 				dlf.fn_clearMapComponent(); // 清除页面图形
 				actionMarker = null;
 				arr_drawLine = [];
@@ -558,7 +561,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					}				
 					
 					arr_dataArr = arr_trackLineDatas;
-					$('.j_delay').data({'points': arr_calboxData, 'delayPoints': arr_trackQueryData});
+					$('.j_delay').data({'points': arr_calboxData, 'delayPoints': arr_trackQueryData, 'daymasspoint': true});
 					dlf.fn_setOptionsByType('viewport', arr_calboxData);
 					
 					fn_startDrawLineStatic(arr_trackLineDatas, true);
@@ -789,10 +792,11 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		if ( arr_delayPoints.length == (i +1) ) {
 			if ( arr_delayPoints.length == 1 ) {
 				str_lsIconClass = 'trackLsIcon_end';
+				str_trackAddress += '（终点）';
 			} else {
 				str_lsIconClass = 'trackLsIcon_start';
+				str_trackAddress += '（起点）';
 			}
-			str_trackAddress += '（起点）';
 			str_fClass =  'trackLsItemEnd';
 		} else if ( i == 0 ) {
 			str_lsIconClass = 'trackLsIcon_end';
@@ -880,6 +884,7 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		$('#control_panel').hide();
 		$('.j_trackBtnhover').show();
 		$('#tPause').hide();
+		if ( timerId ) { dlf.fn_clearInterval(timerId) };
 		dlf.fn_clearMapComponent(); // 清除页面图形
 		actionMarker = null;
 		arr_drawLine = [];
@@ -1003,6 +1008,11 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 				if ( str_operator != 'delay' ) {	
 					dlf.fn_addMarker(arr_trackQueryLineData[0], 'start', 0, 0); // 添加标记
 					dlf.fn_addMarker(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end', 0, 1); //添加标记
+					
+					if ( arr_trackQueryLineData.length == 1 ) {
+						dlf.fn_createMapInfoWindow(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end');
+						obj_endMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+					}
 				}
 			} else if ( data.status == 403 || data.status == 24 ) {
 				window.location.replace('/');
@@ -1045,12 +1055,27 @@ function fn_startDrawLineStatic(arr_dataArr, flag) {
 				}
 				arr_delayPoints[x].alias = obj_currentCar.attr('alias');
 				arr_tempDelay.push(arr_delayPoints[x]);
+				
+				if ( $('.j_delay').data('daymasspoint') ) {
+					obj_tempMarker = dlf.fn_addMarker(arr_delayPoints[x], 'delay', 0, x);
+					arr_markers.push(obj_tempMarker);
+				}
 			}
-			fn_printDelayDatas(arr_tempDelay, 'delay');	// 显示停留数据
+			if ( $('.j_delay').data('daymasspoint') ) {				
+				$('.j_delay').data('delayPoints', arr_tempDelay);
+				$('.delayTable').data('markers', arr_markers);				
+			} else {
+				fn_printDelayDatas(arr_tempDelay, 'delay');	// 显示停留数据
+			}
+			
 		}
 		
 		obj_firstMarker = dlf.fn_addMarker(arr_dataArr[0], 'start', 0, 0); // 添加标记
 		obj_endMarker = dlf.fn_addMarker(arr_dataArr[arr_dataArr.length - 1], 'end', 0, 1); //添加标记
+		if ( arr_dataArr.length == 1 ) {
+			dlf.fn_createMapInfoWindow(arr_dataArr[arr_dataArr.length - 1], 'end');
+			obj_endMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		}
 		
 		$('#control_panel').show();
 		arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[0].clongitude, arr_dataArr[0].clatitude));

@@ -161,10 +161,10 @@ dlf.fn_lockScreen = function(str_body) {
 	}
 	
 	$('#maskLayer').addClass('layer').css({
-			'display': 'block',
-			'height': n_height +'px',
-			'width': $(window).width()+'px'
-		});
+		'display': 'block',
+		'height': document.documentElement.scrollHeight +'px',
+		'width': document.documentElement.scrollWidth+'px'
+	});
 }
 
 /**
@@ -552,7 +552,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
 			$('.j_trackBtnhover').show();
 			$('#tPause ').hide();
-			$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+			$('#trackTerminalAliasLabel').html(dlf.fn_encode(str_tempAlias)).attr('title', str_tempAlias);
 			
 			if ( $('#trackSearchPanel').is(':hidden') ) {
 				$('#trackSearch_topShowIcon').click();
@@ -659,7 +659,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
 				$('.j_trackBtnhover').show();
 				$('#tPause ').hide();
-				$('#trackTerminalAliasLabel').html(str_currentCarAlias).attr('title', str_tempAlias);
+				$('#trackTerminalAliasLabel').html(dlf.fn_encode(str_tempAlias)).attr('title', str_tempAlias);
 				
 				if ( $('#trackSearchPanel').is(':hidden') ) {
 					$('#trackSearch_topShowIcon').click();
@@ -2626,23 +2626,24 @@ dlf.fn_secondNavValid = function() {
 dlf.resetPanelDisplay = function(n_type) {
 	setTimeout(function() {
 		var n_windowHeight = document.documentElement.clientHeight,
-			n_bodyHeight = document.documentElement.scrollHeight,
+			n_bodyHeight = document.documentElement.scrollHeight,//$('.j_body').height(),
 			n_tempWindowWidth = document.documentElement.clientWidth, // document.body.offsetWidth,
-			n_topWidth = document.documentElement.scrollWidth,
+			n_topWidth = document.documentElement.scrollWidth,//$('#top').width(),
 			n_tempWidth = n_tempWindowWidth,
 			n_tempWindowWidth = n_tempWindowWidth,
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
 			b_corpLeftSt = $('#corpLeft').is(':hidden');	
 		
-		//console.log('aaa: ', n_windowHeight, document.documentElement.clientHeight , document.documentElement.scrollHeight,n_tempWindowWidth,document.documentElement.clientWidth ,document.documentElement.scrollWidth);
-		if ( n_bodyHeight > n_windowHeight ){
+		//console.log('aaa: ', fn_isChromeLow35(),document.documentElement.clientHeight,document.documentElement.scrollHeight,document.documentElement.clientWidth ,document.documentElement.scrollWidth);
+		
+		if ( n_bodyHeight > n_windowHeight &&  n_windowHeight > 658) {
 			if ( n_tempWindowWidth > 1024 ){//&& n_topWidth - n_tempWindowWidth == 17 ) {
 				//n_topWidth = n_topWidth + 17;
-				n_windowHeight = n_windowHeight + 17;
+				n_windowHeight += 17;
 			}
 		}
-		if ( n_topWidth > n_tempWindowWidth ) {
+		if ( n_topWidth > n_tempWindowWidth && n_tempWindowWidth > 1024 ) {
 			if ( n_windowHeight > 658 ){//&& n_bodyHeight - n_windowHeight == 17 ) {
 				n_tempWindowWidth += 17;
 			}
@@ -2778,7 +2779,7 @@ dlf.resetPanelDisplay = function(n_type) {
 				n_delayTableHeight = n_mainHeight-36;
 			
 			if ( n_windowWidth < 1500 ) {
-				n_trackTableMiniHeight = 440;
+				n_trackTableMiniHeight = 439;
 				n_trackTopIcon = 0;
 			}
 			if ( $('.j_delayPanel').is(':hidden') ) {
@@ -2798,16 +2799,11 @@ dlf.resetPanelDisplay = function(n_type) {
 			b_alarmWp = $('.j_alarm').is(':visible'),
 			b_alarmPanel = $('.j_alarmPanel').is(':visible'),
 			n_delayIconRight = 0,
-			n_delayTablewidth = $('.j_delayPanel').width(),
-			n_chromeIndex = navigator.userAgent.search('Chrome');
+			n_delayTablewidth = $('.j_delayPanel').width();
 		
-		if ( n_chromeIndex != -1 ) {
-			var n_chromeVersion = parseFloat(navigator.userAgent.substring(n_chromeIndex+7));
-			
-			if ( n_chromeVersion < 35 ) {
-				if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {
-					n_delayIconRight += 17;
-				}
+		if ( fn_isChromeLow35() ) {
+			if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {
+				n_delayIconRight += 17;
 			}
 		}
 		if ( $(window).width() < 1024 ) {
@@ -2837,16 +2833,10 @@ dlf.resetPanelDisplay = function(n_type) {
 			}
 			if ( b_alarmWp ) {
 				if ( b_alarmPanel ) {
-					if ( n_chromeIndex != -1 ) {
-						var n_chromeVersion = parseFloat(navigator.userAgent.substring(n_chromeIndex+7));
-						
-						if ( n_chromeVersion < 35 ) {
-							if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {	
-									$('.j_alarmPanelCon').css('right', 366+n_delayIconRight);
-							} else {								
-								$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
-							}
-						} else {
+					if ( fn_isChromeLow35() ) {
+						if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {	
+								$('.j_alarmPanelCon').css('right', 366+n_delayIconRight);
+						} else {								
 							$('.j_alarmPanelCon').css('right', 400+n_delayIconRight);
 						}
 					} else {						
@@ -2944,6 +2934,7 @@ function fn_resetDelayPanelStyle() {
 		$('.delayTable').css({'min-height': '266px'});
 		$('.trackLsMileage').css({'padding-left': '0', 'width': '90%'});
 		$('.trackLsContent').css({'width': '66%'});
+		$('.trackLsDgIcon').css({'left': '-8px'});		
 	} else {
 		$('.trackTimePanel').css({'display': 'inline', 'width': 'auto'});
 		$('#trackSearch').css({'left': '8px', 'top': '0'});
@@ -2952,7 +2943,23 @@ function fn_resetDelayPanelStyle() {
 		$('.delayTable').css({'min-height': '340px'});
 		$('.trackLsMileage').css({'padding-left': '20px', 'width': '96%'});
 		$('.trackLsContent').css({'width': '76%'});
+		$('.trackLsDgIcon').css({'left': '-28px'});
 	}
+}
+
+//判断当前浏览器是否为chrome 35以下
+function fn_isChromeLow35 () {
+	var n_chromeIndex = navigator.userAgent.search('Chrome'),
+		b_isVal = false;
+		
+	if ( n_chromeIndex != -1 ) {
+		var n_chromeVersion = parseFloat(navigator.userAgent.substring(n_chromeIndex+7));
+		
+		if ( n_chromeVersion < 35 ) {
+			b_isVal = true;
+		}
+	}
+	return b_isVal;
 }
 
 /**
