@@ -73,14 +73,16 @@ dlf.fn_initTrack = function() {
 			if ( $('#exportDelay').is(':visible') || $('#completeTrack').is(':visible') ) {
 				//n_delayTableHeight -= 60;
 			}
+			if ( $(window).height() <= 624 ) {
+				n_delayTableHeight += 100;
+			}
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 		},
 		function () {
 			var n_delayTableHeight = $(window).height() - 320,
 				n_windowWidth = $(window).width(),
 				n_trackTopIcon = 100,
-				n_trackTableMiniHeight = 340;
-			
+				n_trackTableMiniHeight = 340;			
 			
 			if ( n_windowWidth < 1500 ) {
 				n_trackTopIcon = 170;

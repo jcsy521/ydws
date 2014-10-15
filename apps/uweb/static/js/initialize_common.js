@@ -2782,10 +2782,10 @@ dlf.resetPanelDisplay = function(n_type) {
 				n_trackTopIcon = 0;
 			}
 			if ( $('.j_delayPanel').is(':hidden') ) {
-				n_delayTableHeight = n_mainHeight-207;
+				n_delayTableHeight = n_mainHeight-35;
 				n_trackTableMiniHeight = 270;
 				if ( n_windowWidth > 1500 ) {
-					n_delayTableHeight = n_mainHeight-138;
+					n_delayTableHeight = n_mainHeight-36;
 				}
 			}
 			fn_resetDelayPanelStyle();
