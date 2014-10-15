@@ -242,7 +242,10 @@ class CheckTask(object):
 
                 owner_mobile = terminal_info['owner_mobile']
                 assist_mobile = terminal_info['assist_mobile']
-                distance_current = terminal_info['distance_current']
+                
+                t = self.db.get("SELECT distance_current FROM T_TERMINAL_INFO WHERE tid = %s", terminal.tid)
+                #distance_current = terminal_info['distance_current']
+                distance_current = t['distance_current']
                 mobile = terminal_info['mobile']
 
                 notify_count = terminal['notify_count']
