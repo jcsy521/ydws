@@ -49,7 +49,9 @@ class DBTask(object):
 
         logging.info("[CLERY] the number of points without valid claton: %s.", len(points))
 
+        s = time.time()
         get_locations_with_clatlon(points, self.db)
+        logging.info("GE %s points used time:%s", len(points),time.time()-s)
         #for point in points:
         #    time.sleep(0.1)
         #    clats, clons = get_clocation_from_ge([point['latitude'],], [point['longitude'],]) 
