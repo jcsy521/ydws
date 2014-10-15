@@ -256,10 +256,12 @@ def handle_latlon_from_cellid(lat, lon, tid, redis, db):
     return lat, lon 
 
 def get_location_name(clat, clon, redis):
-    """@params: clat, degree*3600000
-                clon, degree*3600000
-                redis
-       @return: name
+    """Get location's name.
+   
+    @params: clat, degree*3600000
+             clon, degree*3600000
+             redis
+    @return: name
     """
     name = ''
     try: 
@@ -272,7 +274,7 @@ def get_location_name(clat, clon, redis):
             response = json_decode(response)
             if response['success'] == 0:
                 name = response.get('address')
-                if name:
+                if name: # keep it in location for 7 days.
                     redis.setvalue(key, name, EVENTER.LOCATION_NAME_EXPIRY)
             else:
                 logging.error("[LBMPHELPER] Get location name failed, response: %s, args: %s",
