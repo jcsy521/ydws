@@ -213,6 +213,11 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
                     end['distance'] = self.get_track_distance(
                                            self.get_track(tid,
                                                 start['start_time'], end['start_time']))
+                #NOTE: 
+                if stop:
+                    if stop[-1]['end_time'] > end['start_time']:
+                        stop[-1]['end_time'] = end['start_time'] 
+                        stop[-1]['idle_time'] = abs(end['start_time']-stop[-1]['start_time'])
 
 
                 # modify name & degere 
