@@ -8,7 +8,7 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.misc import get_date_from_utc, start_end_of_day
+from utils.misc import get_date_from_utc, start_end_of_day, get_sampled_list
      
 from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
@@ -59,6 +59,9 @@ class MassPointDayHandler(BaseHandler, TrackMixin):
                 res = []
                 stop = []
 
+                track = []
+                track_sample = UWEB.TRACK_SAMPLE.NO
+
                 # 2014.08.01  a week.
                 if start_time < LIMIT.MASS_POINT_QUERY_TIME and (end_time-start_time) > LIMIT.MASS_POINT_QUERY_INTERVAL:
                     status = ErrorCode.MASS_POINT_QUERY_EXCESS
@@ -71,6 +74,12 @@ class MassPointDayHandler(BaseHandler, TrackMixin):
                     date = get_date_from_utc(timestamp)
                     year, month, day = date.year, date.month, date.day
                     start_time_, end_time_ = start_end_of_day(year=year, month=month, day=day)
+
+                    #NOTE: handle for the first and last point
+                    if item == 0:
+                        start_time_ = start_time
+                    elif item == days-1:
+                        end_time_ = end_time
                     
                     if cellid_flag == 1: # cellid
                          track = self.get_track(tid, start_time_, end_time_, cellid=True) 
@@ -89,6 +98,7 @@ class MassPointDayHandler(BaseHandler, TrackMixin):
                                  clatitude=last_point.clatitude,
                                  clongitude=last_point.clongitude,
                                  name=self.get_track_name(last_point))
+
                     else:
                         r = dict(timestamp=end_time_,
                                  distance=0,
@@ -100,6 +110,16 @@ class MassPointDayHandler(BaseHandler, TrackMixin):
 
                     res.append(r)
 
+                if cellid_flag == 1: # cellid
+                     track = self.get_track(tid, start_time, end_time, cellid=True) 
+                else: # gps
+                     # cellid_flag is None or 0, only gps track
+                     track = self.get_track(tid, start_time, end_time, cellid=False) 
+
+                if len(track) > LIMIT.MASS_POINT_NUMBER: # > 1000
+                    track_sample = UWEB.TRACK_SAMPLE.YES 
+                    track = get_sampled_list(track, LIMIT.MASS_POINT_NUMBER)   
+
                 stop = self.get_stop_point(tid, start_time, end_time)
 
                 res.reverse()
@@ -107,7 +127,9 @@ class MassPointDayHandler(BaseHandler, TrackMixin):
 
                 self.write_ret(status,
                                dict_=DotDict(res=res,
-                                             stop=stop))
+                                             stop=stop,
+                                             track=track,
+                                             track_sample=track_sample))
                 self.finish()
 
             except Exception as e:
