@@ -47,7 +47,7 @@ class Application(tornado.web.Application):
         ]
 
         settings = dict(
-            debug=debug,
+            #debug=debug,
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)
