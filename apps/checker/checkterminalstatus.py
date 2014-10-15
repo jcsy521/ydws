@@ -78,7 +78,14 @@ class CheckTerminalStatus(object):
             if biz_type != UWEB.BIZ_TYPE.YDWS: 
                 return
             SMSHelper.send_to_terminal(mobile, sms_cq)
+            logging.info("[CK] Send cq sms to mobile: %s", mobile)
+
+            #NOTE: Some mobiles is not cq
+            back_list = ['13926952102']
             if domain != self.domain_ip:
+                if mobile in back_list: 
+                    logging.info("do not set domain to mobile: %s", mobile)
+                    return
                 sms_domain = SMSCode.SMS_DOMAIN % self.domain_ip 
                 SMSHelper.send_to_terminal(mobile, sms_domain)
                 self.db.execute("UPDATE T_TERMINAL_INFO SET domain = %s"
@@ -86,7 +93,6 @@ class CheckTerminalStatus(object):
                                 self.domain_ip, tid)
                 logging.info("[CK] Send domain sms: %s to mobile: %s",
                              sms_domain, mobile)
-            logging.info("[CK] Send cq sms to mobile: %s", mobile)
 
     def send_lq_sms(self, tid):
         """Send LQ sms to terminal.
