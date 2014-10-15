@@ -100,6 +100,7 @@ def main():
 
     try:
         logging.warn("[CK] running on: localhost. Parent process: %s", os.getpid())
+        # run terminal
         thread.start_new_thread(check_terminal_status, ())
         thread.start_new_thread(check_service, ())
         thread.start_new_thread(simulator_terminal, ())
