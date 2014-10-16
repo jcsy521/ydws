@@ -464,7 +464,19 @@ $(function () {
     
 	$(document).bind('contextmenu', function (e) { 	// 屏蔽鼠标右键相关功能
 		return false; 
-});
+	});
+	//console.log('window init: ',document.documentElement.clientHeight,document.documentElement.scrollHeight,'------------',document.documentElement.clientWidth,document.documentElement.scrollWidth );
+	var b_xScroll = false,
+		b_yScroll = false;
+	
+	if ( document.documentElement.clientHeight < document.documentElement.scrollHeight ) {
+		b_yScroll = true;
+	}
+	if ( document.documentElement.clientWidth < document.documentElement.scrollWidth ) {
+		b_xScroll = true;
+	}
+	$('.j_body').data({'wxscroll': b_xScroll, 'wyscroll': b_yScroll});
+	
 	/**
 	* 调整页面大小
 	*/

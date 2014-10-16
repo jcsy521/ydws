@@ -2632,29 +2632,59 @@ dlf.resetPanelDisplay = function(n_type) {
 			n_tempWidth = n_tempWindowWidth,
 			b_topPanelSt = $('#top').is(':hidden'),
 			b_pLeftSt = $('#left').is(':hidden'),
-			b_corpLeftSt = $('#corpLeft').is(':hidden');	
+			b_corpLeftSt = $('#corpLeft').is(':hidden'),
+			b_xScroll = $('.j_body').data('wxscroll'),
+			b_yScroll = $('.j_body').data('wyscroll')
+			b_chrome35again = false;
 		
-		//console.log('aaa: ', fn_isChromeLow35(),document.documentElement.clientHeight,document.documentElement.scrollHeight,document.documentElement.clientWidth ,document.documentElement.scrollWidth);
+		//console.log('window reset: ', fn_isChromeLow35(),'n_windowHeight: ',document.documentElement.clientHeight,' n_bodyHeight: ',document.documentElement.scrollHeight,'  n_tempWindowWidth:  ',document.documentElement.clientWidth , '  n_topWidth: ',document.documentElement.scrollWidth, '--',$(window).height(), $(window).width(), '   b_xScroll:  ',b_xScroll,'  b_yScroll:  ',b_yScroll);
 		
-		if ( n_bodyHeight > n_windowHeight) {
-			if ( fn_isChromeLow35() ) {
-				n_windowHeight += 14;
-			} else {
-				if ( n_tempWindowWidth > 1024 ){//&& n_topWidth - n_tempWindowWidth == 17 ) {
-					//n_topWidth = n_topWidth + 17;
+		if ( n_topWidth > n_tempWindowWidth && n_bodyHeight > n_windowHeight ) {
+			if ( n_windowHeight > 658 ){
+				if ( fn_isChromeLow35() ) {
+					n_tempWindowWidth += 15;
+				} else {
+					n_tempWindowWidth += 17;
+				}
+			}
+			if ( n_tempWindowWidth > 1024 ){
+				if ( fn_isChromeLow35() ) {
+					n_windowHeight += 15;
+				} else {
+					n_windowHeight += 17;
+				}
+			}
+		}	
+		if ( n_bodyHeight < n_windowHeight && n_topWidth > n_tempWindowWidth ) {
+			if ( n_windowHeight > 658 ){
+				if ( fn_isChromeLow35() ) {
+					n_windowHeight += 15;
+				} else {
 					n_windowHeight += 17;
 				}
 			}
 		}
-		if ( n_topWidth > n_tempWindowWidth ) {
-			if ( fn_isChromeLow35() ) {
-				n_tempWindowWidth += 14;
-			} else {
-				if ( n_windowHeight > 658 ){//&& n_bodyHeight - n_windowHeight == 17 ) {
+		if ( n_bodyHeight > n_windowHeight && n_topWidth <= n_tempWindowWidth ) {
+			if ( n_tempWindowWidth > 1024 ){
+				if ( fn_isChromeLow35() ) {
+					n_tempWindowWidth += 15;
+				} else {
 					n_tempWindowWidth += 17;
 				}
 			}
 		}
+		
+		if (  n_topWidth <= n_tempWindowWidth )  {
+			if ( b_xScroll && n_windowHeight > 658 ) {			
+				if ( fn_isChromeLow35() ) {
+					//n_windowHeight += 15;
+					b_chrome35again = true;
+				} else {
+					n_windowHeight += 17;
+				}
+			}
+		}
+		
 		if ( n_windowHeight <= 658 ) {
 			n_windowHeight = 658;
 		}
@@ -2765,14 +2795,14 @@ dlf.resetPanelDisplay = function(n_type) {
 			n_mainHeight -= 60;
 		//}
 		if ( $('#trackSearchPanel').is(':visible') ) {
-			var n_windowWidth = $(window).width(),
+			var n_windowWidth = document.documentElement.scrollWidth,
 				n_delayTableHeight = n_mainHeight-138,
 				n_trackTableMiniHeight = 340,
 				n_trackTopIcon = 100;
 			
 			if ( n_windowWidth <= 1500 ) {
 				n_delayTableHeight = n_mainHeight-208;
-				n_trackTableMiniHeight = 270;
+				n_trackTableMiniHeight = 271;
 				n_trackTopIcon = 170;
 			}
 			fn_resetDelayPanelStyle();
@@ -2780,18 +2810,18 @@ dlf.resetPanelDisplay = function(n_type) {
 			$('#delayTable').css({'min-height': n_trackTableMiniHeight, 'height': n_delayTableHeight});
 			$('#trackSearch_topShowIcon').css('top', n_trackTopIcon);
 		} else {
-			var n_windowWidth = $(window).width(),
+			var n_windowWidth = document.documentElement.scrollWidth,
 				n_trackTableMiniHeight = 398,
 				n_trackTopIcon = 0,
 				n_delayTableHeight = n_mainHeight-36;
 			
 			if ( n_windowWidth < 1500 ) {
-				n_trackTableMiniHeight = 439;
+				n_trackTableMiniHeight = 440;
 				n_trackTopIcon = 0;
 			}
 			if ( $('.j_delayPanel').is(':hidden') ) {
 				n_delayTableHeight = n_mainHeight-35;
-				n_trackTableMiniHeight = 270;
+				n_trackTableMiniHeight = 271;
 				if ( n_windowWidth > 1500 ) {
 					n_delayTableHeight = n_mainHeight-36;
 				}
@@ -2804,7 +2834,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		$('.j_disPanelCon').css('top', $('.delayTable').height()/2+220);
 		var b_panel = $('.j_delayPanel').is(':visible'),
 			b_alarmWp = $('.j_alarm').is(':visible'),
-			b_alarmPanel = $('.j_alarmPanel').is(':visible'),
+			str_alarmPanel = $('.j_alarmPanel').css('display'),
 			n_delayIconRight = 0,
 			n_delayTablewidth = $('.j_delayPanel').width();
 		
@@ -2822,14 +2852,14 @@ dlf.resetPanelDisplay = function(n_type) {
 			} else {
 				$('.j_disPanelCon').css('right', -n_trackPostNum);
 			}
-			if ( b_alarmWp ) {
-				if ( b_alarmPanel ) {
+			//if ( b_alarmWp ) {
+				if ( str_alarmPanel == 'block' ) {
 					$('.j_alarmPanelCon').css('right', 400-n_trackPostNum);
 					$('.j_alarmPanel').css('right', -n_trackPostNum);
 				} else {
 					$('.j_alarmPanelCon').css('right', -n_trackPostNum);
 				}
-			}
+			//}
 		} else {
 			if ( b_panel ) {
 				$('.j_disPanelCon').css('right', n_delayTablewidth-n_delayIconRight);
@@ -2839,7 +2869,7 @@ dlf.resetPanelDisplay = function(n_type) {
 				$('.j_delayPanel').css('right', n_delayTablewidth-n_delayIconRight);
 			}
 			if ( b_alarmWp ) {
-				if ( b_alarmPanel ) {
+				if ( str_alarmPanel == 'block' ) {
 					if ( fn_isChromeLow35() ) {
 						if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {	
 								$('.j_alarmPanelCon').css('right', 366+n_delayIconRight);
@@ -2923,6 +2953,22 @@ dlf.resetPanelDisplay = function(n_type) {
 		}*/
 		if ( !dlf.fn_isBMap() ) {	// 高德地图
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
+		}
+		
+		var b_txScroll = false,
+			b_tyScroll = false;
+		if ( document.documentElement.clientHeight < document.documentElement.scrollHeight ) {
+			b_tyScroll = true;
+		}
+		if ( document.documentElement.clientWidth < document.documentElement.scrollWidth ) {
+			b_txScroll = true;
+		}
+		$('.j_body').data({'wxscroll': b_txScroll, 'wyscroll': b_tyScroll});
+		//console.log('window reset22: ',  'b_xScroll:  ',$('.j_body').data('wxscroll'),'  b_yScroll:  ',$('.j_body').data('wyscroll'));
+		if ( b_chrome35again ) {
+			setTimeout(function() {
+				dlf.resetPanelDisplay();
+			},200);
 		}
 	}, 100);
 }

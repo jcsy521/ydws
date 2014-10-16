@@ -64,7 +64,7 @@ dlf.fn_initTrack = function() {
 				n_trackTableMiniHeight = 440;
 			
 			if ( n_windowWidth < 1500 ) {
-				n_trackTableMiniHeight = 439;
+				n_trackTableMiniHeight = 440;
 				n_delayTableHeight = $(window).height() - 220;
 			}
 			
@@ -85,9 +85,9 @@ dlf.fn_initTrack = function() {
 				n_trackTopIcon = 100,
 				n_trackTableMiniHeight = 340;			
 			
-			if ( n_windowWidth < 1500 ) {
+			if ( n_windowWidth <= 1500 ) {
 				n_trackTopIcon = 170;
-				n_trackTableMiniHeight = 270;
+				n_trackTableMiniHeight = 271;
 				n_delayTableHeight -= 71;
 			}
 			
@@ -373,7 +373,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			
 			$('#delayTable').height($('#delayTable').height()-60).css({'margin-top': 60});
 			if ( arr_trackQueryData.length > 2 ) {
-				fn_exportDelayPoints(arr_trackQueryData);
+				fn_exportDelayPoints(arr_trackQueryData, 'delay');
 			}
 			
 			arr_dataArr = arr_trackDatas;
@@ -457,6 +457,8 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				}
 				if ( i == 0 ) {
 					trackLsItemSt = 'trackLsItemSt';
+				} else if ( arr_trackDatas.length == (i +1) ) {
+					trackLsItemSt = 'trackLsItemEndFd';
 				}
 				
 				str_html += '<li id="trackLsDayItem'+i+'" class="trackLsItem trackLsItemForDay '+trackLsItemSt+'">';
@@ -489,7 +491,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			
 			if ( arr_trackQueryData.length > 0 ) {
 				$('#delayTable').css('height', $('#delayTable').height()+60);	
-				fn_exportDelayPoints(arr_trackQueryData);
+				fn_exportDelayPoints(arr_trackQueryData, 'trackDay');
 			}
 			
 			//是否对无地址的进行地址解析操作
@@ -541,13 +543,15 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				if ( $('#delayTable').css('margin-top') == '60px' ) {
 					$('#delayTable').css('margin-top', 0);
 				}
-				$('#completeTrack').show().unbind('click').click(function(e) {
-					if ( $('#completeTrack').data('change') ){
-						dlf.fn_jNotifyMessage('查询时间条件已改变，请重新查询。', 'message');						
-					} else {
-						fn_trackQuery();
-					}
-				});
+				if ( n_flag == 0 ) {
+					$('#completeTrack').show().unbind('click').click(function(e) {
+						if ( $('#completeTrack').data('change') ){
+							dlf.fn_jNotifyMessage('查询时间条件已改变，请重新查询。', 'message');						
+						} else {
+							fn_trackQuery();
+						}
+					});
+				}
 			});
 			
 			if ( n_flag == 0 ) {
@@ -576,7 +580,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 /**
 * 导出停留点
 */
-function fn_exportDelayPoints(arr_trackQueryData) {	
+function fn_exportDelayPoints(arr_trackQueryData, str_who) {	
 	var obj_currentDate = new Date(),
 		str_tempYear = obj_currentDate.getFullYear(),
 		str_tempMonth = obj_currentDate.getMonth() + 1,
@@ -592,13 +596,20 @@ function fn_exportDelayPoints(arr_trackQueryData) {
 			str_tableHtml = '',
 			b_isNullName = false,
 			arr_delayPoints = $('.j_delay').data('delayPoints'),
-			str_html ='<tr><td>事件</td><td>时间（开始）</td><td>位置</td></tr>';
+			str_html = '<tr><td style="vnd.ms-excel.numberformat:@">事件</td><td style="vnd.ms-excel.numberformat:@">时间（开始）</td><td style="vnd.ms-excel.numberformat:@">位置</td></tr>',
+			i = 1,
+			leni = arr_delayPoints.length-1;
 		
-		for ( var i = 1; i < arr_delayPoints.length-1; i++ ) {
+		if ( str_who == 'trackDay' ) {
+			i = 0;
+			leni = arr_delayPoints.length;
+		} 
+		for ( i; i < leni; i++ ) {
 			var obj_tempTrackData = arr_delayPoints[i];
 			
-			str_html +='<tr><td>停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time) +'</label></td><td>'+ dlf.fn_changeNumToDateString(obj_tempTrackData.start_time) +'</td><td>'+ obj_tempTrackData.name +'</td></tr>';
+			str_html +='<tr><td style="vnd.ms-excel.numberformat:@">停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time) +'</td><td style="vnd.ms-excel.numberformat:@">'+ dlf.fn_changeNumToDateString(obj_tempTrackData.start_time) +'</td><td style="vnd.ms-excel.numberformat:@">'+ obj_tempTrackData.name +'</td></tr>';
 		}
+		
 		obj_table.html(str_html);
 		if ( b_isNullName ) {
 			dlf.fn_jNotifyMessage('正在获取数据，请稍等。', 'message', false, 3000);
@@ -900,12 +911,7 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 		str_cTid = dlf.fn_getCurrentTid(),
 		n_endTime = 0,
 		n_startTime = 0,
-		obj_trackQuery = '',
-		n_lon = arr_trackQueryData[n_stopNum].longitude;
-	
-	if ( n_lon == 0 ) {
-		return;
-	}
+		obj_trackQuery = '';
 	
 	//if ( (n_stopNum+1) >= arr_trackQueryData.length ) {
 	//	return;
@@ -916,7 +922,12 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 			n_stDateYmd = dlf.fn_changeNumToDateString(obj_locusDate.start_time*1000, 'ymd'),
 			n_endDateYmd = dlf.fn_changeNumToDateString(obj_locusDate.end_time*1000, 'ymd'),
 			n_dayTimestamp = arr_trackDatas[n_stopNum].timestamp,
-			str_dayYmd = dlf.fn_changeNumToDateString(n_dayTimestamp*1000, 'ymd');
+			str_dayYmd = dlf.fn_changeNumToDateString(n_dayTimestamp*1000, 'ymd'),
+			n_lon = arr_trackDatas[n_stopNum].longitude;
+	
+		if ( n_lon == 0 ) {
+			return;
+		}
 		
 		if ( n_stDateYmd ==  str_dayYmd ) { //和开始时间所在同一天
 			n_startTime = obj_locusDate.start_time;
@@ -927,14 +938,20 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 		} else {
 			n_startTime = new Date(str_dayYmd+' 0:0:0').getTime()/1000;
 			n_endTime = new Date(str_dayYmd+' 23:59:59').getTime()/1000;
+		}		
+	} else {		
+		var n_lon = arr_trackQueryData[n_stopNum].longitude;
+	
+		if ( n_lon == 0 ) {
+			return;
 		}
-		
-	} else {
 		n_startTime = arr_trackQueryData[n_stopNum+1].start_time;
 		n_endTime = arr_trackQueryData[(n_stopNum)].start_time;
 	}
 	
 	obj_trackQuery = {'tid': str_cTid, 'start_time': n_startTime, 'end_time': n_endTime};
+	
+	dlf.fn_lockScreen('j_trackbody'); // 添加页面遮罩
 	$.ajax({
 		type : 'post',
 		url : '/masspoint/basic',
@@ -999,6 +1016,7 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 							}
 							arr_trackQueryData[x].alias = obj_currentCar.attr('alias');
 							arr_tempDelay.push(arr_trackQueryData[x]);
+							
 							obj_tempDelayFdMarker = dlf.fn_addMarker(arr_trackQueryData[x], 'delayFd', 0, x);
 							arr_delayFdMarkers.push(obj_tempDelayFdMarker);
 						}
@@ -1018,7 +1036,8 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 				window.location.replace('/');
 			} else {
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
-			}
+			}			
+			dlf.fn_unLockScreen();
 		},
 		error : function(XMLHttpRequest) {
 			dlf.fn_serverError(XMLHttpRequest);
@@ -1057,7 +1076,7 @@ function fn_startDrawLineStatic(arr_dataArr, flag) {
 				arr_tempDelay.push(arr_delayPoints[x]);
 				
 				if ( $('.j_delay').data('daymasspoint') ) {
-					obj_tempMarker = dlf.fn_addMarker(arr_delayPoints[x], 'delay', 0, x);
+					obj_tempMarker = dlf.fn_addMarker(arr_delayPoints[x], 'delayFd', 0, x);
 					arr_markers.push(obj_tempMarker);
 				}
 			}
@@ -1075,9 +1094,10 @@ function fn_startDrawLineStatic(arr_dataArr, flag) {
 		if ( arr_dataArr.length == 1 ) {
 			dlf.fn_createMapInfoWindow(arr_dataArr[arr_dataArr.length - 1], 'end');
 			obj_endMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		} else {
+			$('#control_panel').show();
 		}
 		
-		$('#control_panel').show();
 		arr_drawLine.push(dlf.fn_createMapPoint(arr_dataArr[0].clongitude, arr_dataArr[0].clatitude));
 		
 		fn_createDrawLine();

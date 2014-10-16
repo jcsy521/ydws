@@ -604,7 +604,7 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 	str_title += dlf.fn_encode(str_alias);
 	if ( str_iconType == 'delay' || str_iconType == 'singleDelay' || str_iconType == 'delayFd' ) {	// 如果是轨迹播放的停留点 infowindow显示内容不同
 		str_html += '<h4 tid="'+obj_location.tid+'">'+str_title+'</h4><ul>'+ 
-					'<li><label class="delayLabel">停留：  '+ dlf.fn_changeTimestampToString(str_delayTime) +'</label>'+
+					'<li><label class="delayLabel">停留：  '+ dlf.fn_changeTimestampToString(obj_location.end_time-obj_location.start_time) +'</label>'+
 					'<li><label class="delayLabel">开始：  '+ dlf.fn_changeNumToDateString(obj_location.start_time) +'</label>'+
 					'<li><label class="delayLabel">结束：  '+ dlf.fn_changeNumToDateString(obj_location.end_time) +'</label></li>' + 
 					'<li class="msgBox_addressLi" title="'+ str_tempAddress +'"><label class="msgBox_addressTip">位置： </label><lable class="lblAddress">'+ address +'</label></li>';
@@ -632,8 +632,8 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 				for ( var i = 1; i <= counter ; i++ ) {
 					var obj_currentData = arr_dataArr[i],
 						obj_prevData = arr_dataArr[i - 1],
-						obj_currentPoint = dlf.fn_createMapPoint(obj_currentData.clongitude, obj_currentData.clatitude),
-						obj_prevPoint = dlf.fn_createMapPoint(obj_prevData.clongitude, obj_prevData.clatitude),
+						obj_currentPoint = dlf.fn_createMapPoint(obj_currentData.longitude, obj_currentData.latitude),
+						obj_prevPoint = dlf.fn_createMapPoint(obj_prevData.longitude, obj_prevData.latitude),
 						n_pointDist = dlf.fn_forMarkerDistance(obj_currentPoint, obj_prevPoint);
 					
 					n_tempDist = n_tempDist + n_pointDist;
@@ -651,13 +651,14 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 			for ( var i = 1 ; i < n_dataLen; i++ ) {
 				var obj_currentData = arr_dataArr[i],
 					obj_prevData = arr_dataArr[i - 1], 
-					obj_currentPoint = dlf.fn_createMapPoint(obj_currentData.clongitude, obj_currentData.clatitude),
-					obj_prevPoint = dlf.fn_createMapPoint(obj_prevData.clongitude, obj_prevData.clatitude),
+					obj_currentPoint = dlf.fn_createMapPoint(obj_currentData.longitude, obj_currentData.latitude),
+					obj_prevPoint = dlf.fn_createMapPoint(obj_prevData.longitude, obj_prevData.latitude),
 					n_pointDist = dlf.fn_forMarkerDistance(obj_currentPoint, obj_prevPoint);
 				
 				n_tempDist += n_pointDist;
 			}
 		}
+		
 		if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'singledraw' || str_iconType == 'singlestart' || str_iconType == 'singleend' ) {
 			if ( n_tempDist < 1000 ) {
 				str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist, 0) +' m</label></li>';
