@@ -484,8 +484,15 @@ $(function () {
 		n_windowHeight = $.browser.version == '6.0' ? n_windowHeight <= 658 ? 658 : n_windowHeight : n_windowHeight,
 		n_windowWidth = $(window).width(),
 		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
-		n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 188 : n_windowWidth - 188,
-		n_mapHeight = n_windowHeight - 161,
+		n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 188 : n_windowWidth - 188;
+		
+	if ( dlf.fn_isChromeLow35() && $('.j_body').data('wyscroll')) {
+		if ( $(window).height() > 658 ) {
+			n_windowWidth += 14;
+		}
+	}
+	
+	var	n_mapHeight = n_windowHeight - 161,
 		n_right = n_windowWidth - 249,
 		n_trackLeft = 0,
 		obj_track = $('.j_delay'),
@@ -505,6 +512,7 @@ $(function () {
 		//n_right = n_windowWidth - 259;
 		//n_mapHeight = n_mapHeight - 10;
 	}
+	
 	if ( $(window).width() < 1024 ) {
 		obj_trackSpeed.css('marginLeft', '0px');
 	} else {

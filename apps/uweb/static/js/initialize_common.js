@@ -2637,37 +2637,37 @@ dlf.resetPanelDisplay = function(n_type) {
 			b_yScroll = $('.j_body').data('wyscroll')
 			b_chrome35again = false;
 		
-		//console.log('window reset: ', fn_isChromeLow35(),'n_windowHeight: ',document.documentElement.clientHeight,' n_bodyHeight: ',document.documentElement.scrollHeight,'  n_tempWindowWidth:  ',document.documentElement.clientWidth , '  n_topWidth: ',document.documentElement.scrollWidth, '--',$(window).height(), $(window).width(), '   b_xScroll:  ',b_xScroll,'  b_yScroll:  ',b_yScroll);
+		//console.log('window reset: ', dlf.fn_isChromeLow35(),'n_windowHeight: ',document.documentElement.clientHeight,' n_bodyHeight: ',document.documentElement.scrollHeight,'  n_tempWindowWidth:  ',document.documentElement.clientWidth , '  n_topWidth: ',document.documentElement.scrollWidth, '--',$(window).height(), $(window).width(), '   b_xScroll:  ',b_xScroll,'  b_yScroll:  ',b_yScroll);
 		
 		if ( n_topWidth > n_tempWindowWidth && n_bodyHeight > n_windowHeight ) {
 			if ( n_windowHeight > 658 ){
-				if ( fn_isChromeLow35() ) {
+				if ( dlf.fn_isChromeLow35() ) {
 					n_tempWindowWidth += 15;
 				} else {
 					n_tempWindowWidth += 17;
 				}
 			}
 			if ( n_tempWindowWidth > 1024 ){
-				if ( fn_isChromeLow35() ) {
+				if ( dlf.fn_isChromeLow35() ) {
 					n_windowHeight += 15;
 				} else {
 					n_windowHeight += 17;
 				}
 			}
-		}	
-		if ( n_bodyHeight < n_windowHeight && n_topWidth > n_tempWindowWidth ) {
+		} else if ( n_bodyHeight < n_windowHeight && n_topWidth > n_tempWindowWidth ) {
 			if ( n_windowHeight > 658 ){
-				if ( fn_isChromeLow35() ) {
+				if ( dlf.fn_isChromeLow35() ) {
 					n_windowHeight += 15;
 				} else {
 					n_windowHeight += 17;
 				}
 			}
-		}
-		if ( n_bodyHeight > n_windowHeight && n_topWidth <= n_tempWindowWidth ) {
+		} else if ( n_bodyHeight > n_windowHeight && n_topWidth <= n_tempWindowWidth ) {
 			if ( n_tempWindowWidth > 1024 ){
-				if ( fn_isChromeLow35() ) {
-					n_tempWindowWidth += 15;
+				if ( dlf.fn_isChromeLow35() ) {
+					if ( n_windowHeight > 658 ){
+						n_tempWindowWidth += 15;
+					}
 				} else {
 					n_tempWindowWidth += 17;
 				}
@@ -2676,7 +2676,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		
 		if (  n_topWidth <= n_tempWindowWidth )  {
 			if ( b_xScroll && n_windowHeight > 658 ) {			
-				if ( fn_isChromeLow35() ) {
+				if ( dlf.fn_isChromeLow35() ) {
 					//n_windowHeight += 15;
 					b_chrome35again = true;
 				} else {
@@ -2728,7 +2728,6 @@ dlf.resetPanelDisplay = function(n_type) {
 			b_trackSt = obj_track.is(':visible'),
 			obj_trackSpeed = $('.trackSpeed');
 		
-		$('#maskLayer').css({'width': n_windowWidth, 'height': n_windowHeight});
 		if ( $.browser.msie ) { // 根据浏览器不同调整页面部分元素大小 
 			//n_right = n_windowWidth - 259;
 			//n_tempContent = n_mapHeight - 10;
@@ -2838,7 +2837,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			n_delayIconRight = 0,
 			n_delayTablewidth = $('.j_delayPanel').width();
 		
-		if ( fn_isChromeLow35() ) {
+		if ( dlf.fn_isChromeLow35() ) {
 			if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {
 				n_delayIconRight += 17;
 			}
@@ -2870,7 +2869,7 @@ dlf.resetPanelDisplay = function(n_type) {
 			}
 			if ( b_alarmWp ) {
 				if ( str_alarmPanel == 'block' ) {
-					if ( fn_isChromeLow35() ) {
+					if ( dlf.fn_isChromeLow35() ) {
 						if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {	
 								$('.j_alarmPanelCon').css('right', 366+n_delayIconRight);
 						} else {								
@@ -2948,9 +2947,11 @@ dlf.resetPanelDisplay = function(n_type) {
 		// fn_modifyAlarmInfoPanel(true);	// kjj add in 2014.04.28 调整告警列表位置
 		
 		var b_layer = $('.j_body').data('layer');
-		/*if ( b_layer ) {
+		if ( b_layer ) {
 			dlf.fn_lockScreen();
-		}*/
+		}
+		
+		//$('#maskLayer').css({'width': n_tempWindowWidth, 'height': n_windowHeight});
 		if ( !dlf.fn_isBMap() ) {	// 高德地图
 			$('#mapTileLayer').css('left', n_tilelayerLeft);
 		}
@@ -2968,7 +2969,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		if ( b_chrome35again ) {
 			setTimeout(function() {
 				dlf.resetPanelDisplay();
-			},200);
+			},100);
 		}
 	}, 100);
 }
@@ -3001,7 +3002,7 @@ function fn_resetDelayPanelStyle() {
 }
 
 //判断当前浏览器是否为chrome 35以下
-function fn_isChromeLow35 () {
+dlf.fn_isChromeLow35 = function () {
 	var n_chromeIndex = navigator.userAgent.search('Chrome'),
 		b_isVal = false;
 		
