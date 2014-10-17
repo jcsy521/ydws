@@ -783,7 +783,7 @@ class PacketTask(object):
                 _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
                 _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
                 if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
-                    _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", user)
+                    _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"此条短信为重复提醒，请注意您的车辆状态。", user)
                     # 30 seconds later, send sms 1 time.
                     task = RepeatedTimer(30, _resend_alarm, 1)  
                     task.start()
