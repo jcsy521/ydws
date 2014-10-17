@@ -2640,11 +2640,19 @@ dlf.resetPanelDisplay = function(n_type) {
 		//console.log('window reset: ', dlf.fn_isChromeLow35(),'n_windowHeight: ',document.documentElement.clientHeight,' n_bodyHeight: ',document.documentElement.scrollHeight,'  n_tempWindowWidth:  ',document.documentElement.clientWidth , '  n_topWidth: ',document.documentElement.scrollWidth, '--',$(window).height(), $(window).width(), '   b_xScroll:  ',b_xScroll,'  b_yScroll:  ',b_yScroll);
 		
 		if ( n_topWidth > n_tempWindowWidth && n_bodyHeight > n_windowHeight ) {
-			if ( n_windowHeight > 658 ){
+			if ( n_windowHeight >= 658 ) {
 				if ( dlf.fn_isChromeLow35() ) {
 					n_tempWindowWidth += 15;
 				} else {
 					n_tempWindowWidth += 17;
+				}
+			} else if ( n_bodyHeight <= 675 && n_tempWindowWidth > 1024 ) {
+				if ( dlf.fn_isChromeLow35() ) {
+					n_tempWindowWidth += 15;
+				}
+			} else {
+				if ( dlf.fn_isChromeLow35() ) {
+					b_chrome35again = true;
 				}
 			}
 			if ( n_tempWindowWidth > 1024 ){

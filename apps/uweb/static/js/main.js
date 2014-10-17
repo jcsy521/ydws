@@ -486,7 +486,7 @@ $(function () {
 		n_windowWidth = $.browser.version == '6.0' ? n_windowWidth <= 1024 ? 1024 : n_windowWidth : n_windowWidth,
 		n_tilelayerLeft = n_windowWidth <= 1024 ? 1024 - 188 : n_windowWidth - 188;
 		
-	if ( dlf.fn_isChromeLow35() && $('.j_body').data('wyscroll')) {
+	if ( dlf.fn_isChromeLow35() && $('.j_body').data('wyscroll') ) {
 		if ( $(window).height() > 658 ) {
 			n_windowWidth += 14;
 		}
