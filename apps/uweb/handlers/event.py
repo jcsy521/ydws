@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#self.current_user.uid, self.current_user. -*- coding: utf-8 -*-
 
 import logging
 
@@ -77,9 +77,11 @@ class EventHandler(BaseHandler):
         try:
             terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
-                                   "    AND service_status = %s",
+                                   "    AND (service_status = %s"
+                                   "    OR service_status = %s)",
                                    self.current_user.tid,
-                                   UWEB.SERVICE_STATUS.ON)
+                                   UWEB.SERVICE_STATUS.ON, 
+                                   UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
