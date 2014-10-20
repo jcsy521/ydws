@@ -399,11 +399,14 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                                 "  begintime, endtime, offline_time, "
-                                "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type)"
-                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
+                                "  speed_limit, stop_interval)"
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 data.tmobile, data.group_id, data.tmobile, umobile,
                                 begintime, 4733481600, begintime, data.cnum, data.icon_type, 
-                                data.login_permit, data.push_status, data.vibl, use_scene, biz_type)
+                                data.login_permit, data.push_status,
+                                data.vibl, use_scene, biz_type,
+                                data.speed_limit, data.stop_interval)
                 # 4: send message to terminal
                 register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
                 ret = SMSHelper.send_to_terminal(data.tmobile, register_sms)
@@ -417,13 +420,15 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
                                 "  begintime, endtime, offline_time, "
                                 "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
-                                "  activation_code, service_status)"
-                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                "  activation_code, service_status, speed_limit, stop_interval)"
+                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                 tid, data.group_id, data.tmobile, umobile, 
                                 begintime, 4733481600, begintime, data.cnum, data.icon_type, 
                                 data.login_permit, data.push_status,
                                 data.vibl, use_scene, biz_type,
-                                activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
+                                activation_code,
+                                UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
+                                data.speed_limit, data.stop_interval)
                 register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
                 ret = SMSHelper.send(data.tmobile, register_sms)
 
