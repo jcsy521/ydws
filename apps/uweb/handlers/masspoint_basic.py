@@ -240,6 +240,11 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
                 # reverse the stop
                 stop.reverse()
 
+                # NOTE: replace null with '' 
+                for item in track:
+                    if item.name is None:
+                        item['name'] = ''
+
                 self.write_ret(status,
                                dict_=DotDict(track=track,
                                              track_sample=track_sample,
