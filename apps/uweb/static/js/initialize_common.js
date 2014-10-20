@@ -2799,9 +2799,9 @@ dlf.resetPanelDisplay = function(n_type) {
 		$('.j_carList').css('height', n_corpTreeContainerHeight-230);	// 个人用户终端列表的高度
 		
 		dlf.fn_calTrackMileageIsBr();// 计算里程部分是否要换行显示
-		//if ( $('#exportDelay').is(':visible') ) {
+		if ( $('#delayTable').data('m60') ) {
 			n_mainHeight -= 60;
-		//}
+		}
 		if ( $('#trackSearchPanel').is(':visible') ) {
 			var n_windowWidth = document.documentElement.scrollWidth,
 				n_delayTableHeight = n_mainHeight-138,

@@ -1863,22 +1863,22 @@ body {
 .default_delayItem, .default_delayItem2, .default_delayItem2Text, .default_delayItem3 {
 	position: relative;
 	text-align: center;
-	top: 40%;
+	top: 42%;
 	font-weight: bold;
 	color: #707070;
 	font-size: 20px;
 }
 .default_delayItem2 {
-	top: 15%;
+	top: 28%;
 	height: 164px;
 	background: url('/static/images/track_nodata.png') no-repeat 50%;
 }
 .default_delayItem2Text {
-	top: 20%;
+	top: 28%;
 	font-size: 18px;
 }
 .default_delayItem3 {
-	top: 15%;
+	top: 26%;
 	height: 164px;
 	background: url('/static/images/track_nodataForTime.png') no-repeat 50%;
 }

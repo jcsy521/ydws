@@ -30,7 +30,7 @@ dlf.fn_initTrack = function() {
 	$('#ceillid_flag').removeAttr('checked');
 	obj_trackHeader.show();	// 轨迹查询条件显示
 	dlf.fn_setMapPosition(false);
-	$('#delayTable').css({'margin-top': 60});
+	$('#delayTable').css({'margin-top': 60}).data('m60', true);
 	$('#exportDelay, #completeTrack').hide();
 	dlf.resetPanelDisplay();
 	// 调整工具条和
@@ -269,7 +269,8 @@ function fn_trackQuery() {
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
-		}  else if ( data.status == 1401 ) {	// 对不起，8月1日之前的数据一次查询范围不能超过1周。
+		}  else if ( data.status == 1401 ) {	// 对不起，8月1日之前的数据一次查询范围不能超过1周。			
+			$('#delayTable').css('margin-top', 60);
 			$('#delayTable').html('<li class="default_delayItem3"></li><li class="default_delayItem2Text">对不起，8月1日之前的数据一次查询范围不能超过1周。</li>');	
 			dlf.fn_jNotifyMessage(data.message, 'message');			
 		} else { // 查询状态不正确,错误提示
@@ -336,9 +337,11 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				}
 			}
 		}
+		$('#delayTable').css('margin-top', 60);
+		$('#delayTable').data('m60', true);
+		dlf.resetPanelDisplay();
 		
 		if ( str_msg != '' ) {			
-			$('#delayTable').css('margin-top', 60);
 			$('#delayTable').html('<li class="default_delayItem2"></li><li class="default_delayItem2Text">'+str_msg+'</li>');
 			dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 			dlf.fn_unLockScreen();
@@ -362,7 +365,6 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			$('#exportDelay, #completeTrack').hide();
 			$('#delayTable').html('');
 		}
-		dlf.resetPanelDisplay();
 		$('.j_delay').data('daymasspoint', false);
 		if ( n_flag == 0 ) { //直接显示数据				
 			for ( var x = 0; x < n_locLength; x++ ) {
@@ -372,6 +374,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			}
 			
 			$('#delayTable').height($('#delayTable').height()-60).css({'margin-top': 60});
+			$('#delayTable').data('m60', true);
 			if ( arr_trackQueryData.length > 2 ) {
 				fn_exportDelayPoints(arr_trackQueryData, 'delay');
 			}
@@ -405,6 +408,9 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			}
 		}
 		
+		$('#delayTable').css('margin-top', 60);
+		$('#delayTable').data('m60', true);
+		dlf.resetPanelDisplay();
 		if ( str_msg != '' ) {
 			$('#delayTable').html('<li class="default_delayItem2"></li><li class="default_delayItem2Text">'+str_msg+'</li>');
 			dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
@@ -416,7 +422,6 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				$('#trackSearch_topShowIcon').click();
 			}
 		}
-		dlf.resetPanelDisplay();
 		$('#delayTable').html('');
 		if ( arr_trackDatas.length <= 0 ) {
 			$('#exportDelay, #completeTrack').hide();
@@ -542,10 +547,11 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				fn_getTrackDatas(parseInt(str_itemTitleNum), 'trackDelayDay');
 				
 				if ( $('#delayTable').css('margin-top') == '60px' ) {
-					$('#delayTable').css('margin-top', 0);
+					$('#delayTable').css('margin-top', 0);					
+					$('#delayTable').data('m60', false);
 				}
 				if ( n_flag == 0 ) {
-					$('#completeTrack').show().unbind('click').click(function(e) {
+					$('#completeTrack').css('display', 'inline-block').unbind('click').click(function(e) {
 						if ( $('#completeTrack').data('change') ){
 							dlf.fn_jNotifyMessage('查询时间条件已改变，请重新查询。', 'message');						
 						} else {
@@ -587,7 +593,7 @@ dlf.fn_calTrackMileageIsBr = function() {
 				obj_trackTextZooIn = $(this).children('.textZooIn');
 			
 			//console.log('tb: ',n_thisTextLength,obj_trackBrPanel,obj_trackTextZooIn);
-			if ( n_thisTextLength > 13 && $('.j_delayPanel').width() <= 400) {
+			if ( n_thisTextLength > 3 && $('.j_delayPanel').width() <= 400) {
 				obj_trackBrPanel.css('display', 'block');
 				obj_trackTextZooIn.css('margin-left', '14px');
 			} else {
@@ -612,7 +618,7 @@ function fn_exportDelayPoints(arr_trackQueryData, str_who) {
 	
 	str_excelName = '停留点列表-' + ( str_tempYear + '' + str_tempMonth + '' + str_tempDay);
 	$('#delayTable').css({'margin-top': 0});
-	$('#exportDelay').show().attr('download', str_excelName).click(function() {
+	$('#exportDelay').css('display', 'inline-block').attr('download', str_excelName).click(function() {
 		var obj_table = $('#tempDelayTable'),
 			str_tableHtml = '',
 			b_isNullName = false,
@@ -903,9 +909,10 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 			//fn_getTrackDatas(n_itemTitleNum, 'delay');
 			
 			if ( $('#delayTable').css('margin-top') == '60px' ) {
-				$('#delayTable').css('margin-top', 0);
+				$('#delayTable').css('margin-top', 0);				
+				$('#delayTable').data('m60', false);
 			}
-			$('#completeTrack').show().unbind('click').click(function(e) {
+			$('#completeTrack').css('display', 'inline-block').unbind('click').click(function(e) {
 				if ( $('#completeTrack').data('change') ){
 					dlf.fn_jNotifyMessage('查询时间条件已改变，请重新查询。', 'message');						
 				} else {
