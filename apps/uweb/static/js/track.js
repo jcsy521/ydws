@@ -397,7 +397,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			n_flag = data.track_sample,
 			arr_trackLineDatas = data.track;
 		
-		if ( arr_trackDatas.length <= 0) {
+		if ( arr_trackLineDatas.length <= 0) {
 			if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
 				str_msg = '该段时间无轨迹记录，请尝试选择“基站定位”。';
 			} else {
@@ -477,17 +477,18 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				if ( (n_lat == 0) ||  (n_distance == 0) ) {
 					str_html += '今天没有活动轨迹哦。<span class="textZooIn">&nbsp;</span>';
 				} else {
-					str_html += '活动路线：<span class="textZooIn">';
+					str_html += '活动路线：<span class="trackTextMilegePanel"></span><span class="textZooIn">';
 					
 					if ( n_distance < 1000 ) {
-						str_html +=dlf.fn_NumForRound(n_distance, 0)+'</span>（米）';
+						str_html += dlf.fn_NumForRound(n_distance, 0)+'</span>（米）';
 					} else {
-						str_html +=dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）';
+						str_html += dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）';
 					}
 				}
 				str_html += '</div></div>';
 			}
 			$('#delayTable').html(str_html);
+			dlf.fn_calTrackMileageIsBr(); // 计算里程部分是否要换行显示
 			
 			if ( arr_trackQueryData.length > 0 ) {
 				$('#delayTable').css('height', $('#delayTable').height()+60);	
@@ -574,6 +575,26 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				$('#trackMileagePanel0').click();			
 			}
 		}
+	}
+}
+
+/*判断里程的显示是否需要换行*/
+dlf.fn_calTrackMileageIsBr = function() {
+	if ( $('.j_trackMileagePanel').length > 0 ) {
+		$('.j_trackMileagePanel').each(function(e) {
+			var n_thisTextLength = $(this).text().length,
+				obj_trackBrPanel = $(this).children('.trackTextMilegePanel'),
+				obj_trackTextZooIn = $(this).children('.textZooIn');
+			
+			//console.log('tb: ',n_thisTextLength,obj_trackBrPanel,obj_trackTextZooIn);
+			if ( n_thisTextLength > 13 && $('.j_delayPanel').width() <= 400) {
+				obj_trackBrPanel.css('display', 'block');
+				obj_trackTextZooIn.css('margin-left', '14px');
+			} else {
+				obj_trackBrPanel.css('display', 'inline');
+				obj_trackTextZooIn.css('margin-left', 0);
+			}
+		});
 	}
 }
 
@@ -826,7 +847,7 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 		if ( arr_delayPoints.length != (i +1) ) {
 			str_html += '<div id="trackMileagePanel'+i+'" class="trackLsMileage j_trackMileagePanel">';
 			str_html += '<span class="trackLsDgIcon j_trackLsDgIcon"></span>';
-			str_html += '活动路线：<span class="textZooIn">';
+			str_html += '活动路线：<span class="trackTextMilegePanel"></span><span class="textZooIn">';
 			
 			if ( n_distance < 1000 ) {
 				str_html +=dlf.fn_NumForRound(n_distance, 0)+'</span>（米）';
@@ -842,6 +863,7 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 	}
 	$('.j_delay').data('delayPoints', arr_cacheDelayPoints);
 	$('#delayTable').html(str_html);
+	dlf.fn_calTrackMileageIsBr();// 计算里程部分是否要换行显示
 	$('.delayTable').data('markers', arr_markers);
 	if ( arr_delayPoints.length == 1 ) {
 		$('#delayTable li').css('background-image', 'none');

@@ -2676,9 +2676,9 @@ dlf.resetPanelDisplay = function(n_type) {
 					if ( n_windowHeight > 658 ){
 						n_tempWindowWidth += 15;
 					}
-				} else {
+				}/* else {
 					n_tempWindowWidth += 17;
-				}
+				}*/
 			}
 		}
 		
@@ -2798,6 +2798,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		$('.j_corpCarInfo').css('height', n_corpTreeContainerHeight);	// 集团用户左侧树的高度
 		$('.j_carList').css('height', n_corpTreeContainerHeight-230);	// 个人用户终端列表的高度
 		
+		dlf.fn_calTrackMileageIsBr();// 计算里程部分是否要换行显示
 		//if ( $('#exportDelay').is(':visible') ) {
 			n_mainHeight -= 60;
 		//}
@@ -3017,7 +3018,7 @@ dlf.fn_isChromeLow35 = function () {
 	if ( n_chromeIndex != -1 ) {
 		var n_chromeVersion = parseFloat(navigator.userAgent.substring(n_chromeIndex+7));
 		
-		if ( n_chromeVersion < 35 ) {
+		if ( n_chromeVersion <= 35 ) {
 			b_isVal = true;
 		}
 	}

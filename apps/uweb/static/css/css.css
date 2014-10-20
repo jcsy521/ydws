@@ -1724,7 +1724,7 @@ body {
 }
 .trackLsItemEndFd {
 	height: 0px;
-	margin-bottom: 100px;
+	/*margin-bottom: 100px;*/
 }
 .trackLsDate, .trackLsIcon, .trackLsContent {
 	float: left;
@@ -1815,7 +1815,8 @@ body {
 	background: url('/static/images/trackLsMileageForDay.png') no-repeat;
 	position: relative;
 	left: 16px;
-	top: -30px;
+	top: -20px;
+	float: left;
 }
 .trackLsDgIcon_hoverFd {
 	background-image: url('/static/images/trackLsMileageForDay_hover.png');
@@ -1825,7 +1826,7 @@ body {
 }
 .trackLsDgIcon_disabled {
 	background-image: url('/static/images/trackLsMileageForDay_disabled.png');
-	top: -30px;
+	top: -20px;
 }
 .dayFontStyle {
 	font-size: 12px;
