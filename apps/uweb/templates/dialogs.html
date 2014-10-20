@@ -1070,18 +1070,18 @@
 						<td>
 							<label class="cTerminalLabel">客户端通知：</label>
 							<input id="c_corp_push_status1" type="radio" value="1" name="corp_cStatus" checked />
-							<label id="c_tpsLable1" for="c_corp_push_status1">开启</label>
+							<label id="c_tpsLable1" for="c_corp_push_status1" class="corp_addTLabel">开启</label>
 							<input id="c_corp_push_status0" type="radio" value="0" name="corp_cStatus" />
-							<label id="c_tpsLable0" for="c_corp_push_status0">关闭</label>
+							<label id="c_tpsLable0" for="c_corp_push_status0" class="corp_addTLabel">关闭</label>
 						</td>
 					</tr>
 					<tr>
 						<td>
 							<label class="cTerminalLabel">客户端登录：</label>
 							<input type="radio" id="c_login_permit1"  name="clogin_permit" value="1"  />
-							<label for="c_login_permit1">允许</label>
+							<label for="c_login_permit1" class="corp_addTLabel">允许</label>
 							<input type="radio" id="c_login_permit0"  name="clogin_permit" value="0" checked />
-							<label for="c_login_permit0">不允许</label>
+							<label for="c_login_permit0" class="corp_addTLabel">不允许</label>
 						</td>
 					</tr>
 					<tr class="j_corp_terminal">
@@ -1092,6 +1092,27 @@
 								<option value="2">正常 ( 适用电动车 / 摩托车 )</option>
 								<option value="3">不灵敏 ( 适用于随身携带 )</option>
 							</select>
+						</td>
+					</tr>					
+					<tr>
+						<td>
+							<label class="cTerminalLabel">停留告警：</label>
+							<input id="corp_stop_status_add1" type="radio" value="1" name="corp_stop_status_add" />
+							<label for="corp_stop_status_add1" class="corp_addTLabel">开启</label>
+							<input id="corp_stop_status_add0" type="radio" value="0" name="corp_stop_status_add" />
+							<label for="corp_stop_status_add0" class="corp_addTLabel">关闭</label>
+						</td>
+					</tr>
+					<tr class="hide" id="td_corp_stop_interval_add">
+						<td>					
+							<label class="cTerminalLabel">&nbsp;</label>
+							停留超过<input type="text" id="t_corp_stop_interval_add" terminalkey="stop_interval"  class="cTermninalInput_add text_mouseOut j_onInputBlur" max = "4"  who="validateLength" parent="terminalWrapper" />分钟,上报告警
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label class="cTerminalLabel">超速门限：</label>
+							<input type="text" id="t_corp_speed_limit_add" terminalkey="speed_limit" class="cTermninalInput text_mouseOut " />km/h
 						</td>
 					</tr>
 					<tr>
@@ -1115,9 +1136,9 @@
 						<td>
 							<label class="cTerminalLabel">业务类型：</label>
 							<input id="c_biz_code_st1" type="radio" value="0" name="c_corpBizcode" checked />
-							<label id="c_tpsLable1" for="c_biz_code_st1">移动卫士</label>
+							<label id="c_tpsLable1" for="c_biz_code_st1" class="corp_addTLabel">移动卫士</label>
 							<input id="c_biz_code_st2" type="radio" value="1" name="c_corpBizcode" />
-							<label id="c_tpsLable0" for="c_biz_code_st2">移动外勤</label>
+							<label id="c_tpsLable0" for="c_biz_code_st2" class="corp_addTLabel">移动外勤</label>
 						</td>
 					</tr>
 				</table>

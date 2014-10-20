@@ -4461,3 +4461,20 @@ legend {
 .batchSpeedLimitTitle {
 	background-position: 0px -1224px;
 }
+#t_corp_speed_limit_add {
+	margin-right: 5px;
+}
+.corp_addTLabel {
+	position: relative;
+	top: -3px;
+}
+.cTerminalContent {
+	height: 480px;
+}
+#cTerminalWrapper {
+	height: 524px;
+}
+.cTermninalInput_add {
+	width: 60px;
+	margin: 0 10px;
+}

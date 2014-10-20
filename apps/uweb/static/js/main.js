@@ -873,7 +873,7 @@ $(function () {
 	/**
 	* 定位器设置、个人资料、修改 input的焦点事件
 	*/
-	$('#bListR input[type=text], .personalList input, .pwdList input, #remark').focus(function() {
+	$('#bListR input[type=text], .personalList input #remark').focus(function() {
 		$(this).addClass('bListR_text_mouseFocus');
 	}).blur(function() {
 		$(this).removeClass('bListR_text_mouseFocus');

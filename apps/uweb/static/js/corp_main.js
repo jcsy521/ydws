@@ -2542,6 +2542,66 @@ function fn_initCreateTerminal(obj_node, str_groupId) {
 	$('#hidTMobile').val('');
 	$('#c_corp_push_status1, #c_login_permit0, #c_icon_type0, #c_biz_code_st1').attr('checked', 'checked');
 	$('#c_corp_vibl').val(1);
+	
+	$('#corp_stop_status_add0').attr('checked', 'checked');
+	$('#t_corp_stop_interval_add').val(0);
+	$('#t_corp_speed_limit_add').val(120);
+	$('#td_corp_stop_interval_add').hide();
+	//对超速设置进行验证事件
+	$('#t_corp_speed_limit_add').unbind('blur').blur(function() {
+		var reg = /^(1000|[1-9][0-9]{0,2})$/,
+			str_newSpeed = $.trim($(this).val()),
+			n_limitMax = 1000,
+			str_errorHtml = '';
+		
+		dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+		if ( !/^\d+$/.test(str_newSpeed) ) {
+			str_errorHtml = '请输入数值';
+		}
+		if ( str_newSpeed <= 0 ) {
+			str_errorHtml = '您输入的数值不在1~1000km/h以内，请重新输入。';
+		}
+		if ( str_newSpeed > n_limitMax ) {
+			str_errorHtml = '您输入的数值不在1~1000km/h以内，请重新输入。';
+		}
+		if ( str_errorHtml != '' ) {
+			dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
+			$('#cTerminalSave').data({'error_msg': str_errorHtml, 'error': true});
+			$('#t_corp_speed_limit_add').addClass('borderRed');
+		} else {
+			$('#cTerminalSave').data({'error_msg': '', 'error': false});
+			$('#t_corp_speed_limit_add').removeClass('borderRed');					
+		}
+	});
+	// 停留告警
+	$('input[name=corp_stop_status_add]').unbind('click').bind('click', function() {
+		var str_val = $(this).val(),
+			obj_tdStopInterval = $('#td_corp_stop_interval_add');
+		
+		if ( str_val == 1 ) {
+			obj_tdStopInterval.show();
+		} else {
+			obj_tdStopInterval.hide();
+		}
+		$('#t_corp_stop_interval_add').val(0);
+	});
+	$('#t_corp_stop_interval_add').unbind('blur').blur(function() {
+		var reg = /^(1000|[1-9][0-9]{0,2})$/,
+			str_newSpeed = $.trim($(this).val()),
+			n_limitMax = 1000,
+			str_errorHtml = '';
+		
+		dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+		if ( !/^\d+$/.test(str_newSpeed) ) {
+			str_errorHtml = '请输入数值';
+			dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
+			$('#cTerminalSave').data({'error_msg': str_errorHtml, 'error': true});
+			$('#t_corp_stop_interval_add').addClass('borderRed');
+		} else {
+			$('#cTerminalSave').data({'error_msg': '', 'error': false});
+			$('#t_corp_stop_interval_add').removeClass('borderRed');					
+		}
+	});
 }
 
 /**
@@ -2557,7 +2617,20 @@ dlf.fn_cTerminalSave = function() {
 		n_iconType = $('#cTerminalForm input[name="c_icon_type"]input:checked').val(), 
 		n_bizType = $('#cTerminalForm input[name="c_corpBizcode"]input:checked').val(), 
 		n_groupId = parseInt($('#hidGroupId').val()),
-		obj_corpData = {};
+		n_speed_limit = $('#t_corp_speed_limit_add').val(),
+		n_stop_interval = $('#t_corp_stop_interval_add').val(),
+		obj_corpData = {},
+		b_error = $('#cTerminalSave').data('error'),
+		b_errorMsg = $('#cTerminalSave').data('error_msg');
+	
+	if ( b_error ) {
+		dlf.fn_jNotifyMessage(b_errorMsg, 'message', false, 5000);
+		return;
+	}
+	
+	if ( $('#corp_stop_status_add1').attr('checked') != 'checked' ) {
+		n_stop_interval = 0;
+	}
 		
 	obj_corpData['tmobile'] = str_tmobile;
 	obj_corpData['group_id'] = n_groupId;
@@ -2568,7 +2641,9 @@ dlf.fn_cTerminalSave = function() {
 	
 	obj_corpData['push_status'] = n_pushStatus;
 	obj_corpData['login_permit'] = n_loginPermit;
-	obj_corpData['vibl'] = n_corpVibl;
+	obj_corpData['vibl'] = n_corpVibl;	
+	obj_corpData['speed_limit'] = n_speed_limit;
+	obj_corpData['stop_interval'] = n_stop_interval*60;
 	dlf.fn_jsonPost(TERMINALCORP_URL, obj_corpData, 'cTerminal', '定位器信息保存中');
 }
 
