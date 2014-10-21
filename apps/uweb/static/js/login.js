@@ -47,10 +47,13 @@ $(function(){
 			$('#loginForm').submit();
 		}
 	});
-	
-	$('#login_enterprise').removeClass('current');
-	$('#login_individual').addClass('current');
-	$('#userRoleType').val('individual');
+	if ( $('#userRoleType').val() == 'individual' ) {	 
+		$('#login_enterprise').removeClass('current');
+		$('#login_individual').addClass('current');
+	} else {
+		$('#login_enterprise').addClass('current');
+		$('#login_individual').removeClass('current');
+	}
 	
 	$('#login_individual').unbind('click').click(function(e) {
 		$('#login_enterprise').removeClass('current');
