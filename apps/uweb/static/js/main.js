@@ -176,6 +176,7 @@ dlf.fn_initCorpData = function() {
 	dlf.fn_onInputBlur();	// input的鼠标样式
 	dlf.fn_jNotifyMessage('集团信息查询中' + WAITIMG, 'message', true); 
 	dlf.fn_lockContent($('.corpContent')); // 添加内容区域的遮罩
+	$('#corpForm input[type=text]').removeClass('borderRed');
 	$('#c_name').unbind('blur focus').bind('blur', function() {
 		var obj_this = $(this),
 			str_old = obj_this.data('c_name'),
