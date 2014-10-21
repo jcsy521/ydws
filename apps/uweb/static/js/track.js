@@ -459,6 +459,8 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					} else {
 						str_trackAddress = '无位置信息';
 					}
+				} else {
+					str_trackAddress += '（终点）';
 				}
 				if ( i == 0 ) {
 					trackLsItemSt = 'trackLsItemSt';
@@ -882,7 +884,7 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 				n_tempIndex = obj_tempParamData.index,
 				obj_pData = obj_tempParamData.pd;
 			
-			dlf.fn_getAddressByLngLat(obj_pData.clongitude/NUMLNGLAT, obj_pData.clatitude/NUMLNGLAT, dlf.fn_getCurrentTid(), 'stop', n_tempIndex);
+			dlf.fn_getAddressByLngLat(obj_pData.clongitude/NUMLNGLAT, obj_pData.clatitude/NUMLNGLAT, dlf.fn_getCurrentTid(), 'stopFd', n_tempIndex);
 		}
 	}
 	

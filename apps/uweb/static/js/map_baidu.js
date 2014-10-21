@@ -806,7 +806,7 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 			str_result += '（起点）';
 		}
 		
-		$('#trackLsAddressPane'+n_index).html(str_result);
+		$('#trackLsAddressPanel'+n_index).html(str_result);
 		
 	} else if ( str_type == 'singledraw' || str_type == 'singlestart' || str_type == 'singleend' ) {
 		var arr_singleTrackData = $('#singleControl_panel').data('trackdata'),
@@ -857,6 +857,16 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 		arr_singleTrackData[n_index].name = str_result;
 		
 		$('.j_body').data({'delayfd': arr_singleTrackData});
+	} else if ( str_type == 'stopFd' ) {
+		var arr_delayPoints = $('.j_delay').data('delayPoints');
+		
+		arr_delayPoints[n_index].name = str_result;
+		
+		$('.j_delay').data('delayPoints', arr_delayPoints);
+		str_result += '（终点）';
+		
+		$('#trackLsAddressPanel'+n_index).html(str_result);
+		
 	} else {
 		var obj_carDatas = $('.j_carList').data('carsData'),
 			obj_tempCarData = obj_carDatas[tid];
