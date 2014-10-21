@@ -692,6 +692,11 @@ $(function () {
 					if ( obj_current ) {
 						setTimeout(function() {
 							mapObj.setCenter(obj_current.getPosition());
+							if ( obj_current.infoWindow ) {
+								obj_current.closeInfoWindow();
+								obj_current.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+							}
+							
 						}, 300);
 					}
 				}
@@ -1276,6 +1281,7 @@ $(function () {
 	// 新增操作员 单击事件
 	obj_addOperator.unbind('click').bind('click', function() {
 		$('.operatorfieldset input, textarea').val('');
+		$('.operatorfieldset input[type=text]').removeClass('borderRed');
 		$('#txt_operatorMobile').removeData('oldmobile');
 		$('#hidOperatorId').val('');
 		fn_getGroupData('add');	// 初始化分组

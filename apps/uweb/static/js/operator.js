@@ -37,34 +37,35 @@ dlf.fn_saveOperator = function() {
 dlf.fn_editOperator = function(n_id) {
 	dlf.fn_onInputBlur();	// 操作员手机号事件侦听
 	$('#addOperatorForm input').css('color', '#000000');
+	$('.operatorfieldset input[type=text]').removeClass('borderRed');
 	if ( n_id ) {
-			var obj_currentOperatorItem = $('#operatorTable tr[id='+ n_id +']'), 
-				obj_currentOperatorItemTds = obj_currentOperatorItem.children(), 
-				str_currentGroupIds = $(obj_currentOperatorItemTds.eq(0)).attr('groupId'),
-				str_currentName = $(obj_currentOperatorItemTds.eq(1)).html(),
-				str_currentMobile = $(obj_currentOperatorItemTds.eq(2)).html(),
-				str_currentAddress = $(obj_currentOperatorItemTds.eq(3)).attr('title'),
-				str_currentEmail = $(obj_currentOperatorItemTds.eq(4)).attr('title');
+		var obj_currentOperatorItem = $('#operatorTable tr[id='+ n_id +']'), 
+			obj_currentOperatorItemTds = obj_currentOperatorItem.children(), 
+			str_currentGroupIds = $(obj_currentOperatorItemTds.eq(0)).attr('groupId'),
+			str_currentName = $(obj_currentOperatorItemTds.eq(1)).html(),
+			str_currentMobile = $(obj_currentOperatorItemTds.eq(2)).html(),
+			str_currentAddress = $(obj_currentOperatorItemTds.eq(3)).attr('title'),
+			str_currentEmail = $(obj_currentOperatorItemTds.eq(4)).attr('title');
+		
+		$('#hidOperatorId').val(n_id);
+		$('#hidOperatorMobile').val('');
+		$('#txt_operatorName').val(str_currentName);
+		$('#txt_operatorMobile').val(str_currentMobile).data('oldmobile', str_currentMobile);
+		$('#txt_operatorAddress').val(str_currentAddress);
+		$('#txt_operatorEmail').val(str_currentEmail);
+		fn_getGroupData();	//初始化分组
+		
+		if ( str_currentGroupIds.search(',') != -1 ) {
+			var arr_groupIds = str_currentGroupIds.split(',');
 			
-			$('#hidOperatorId').val(n_id);
-			$('#hidOperatorMobile').val('');
-			$('#txt_operatorName').val(str_currentName);
-			$('#txt_operatorMobile').val(str_currentMobile).data('oldmobile', str_currentMobile);
-			$('#txt_operatorAddress').val(str_currentAddress);
-			$('#txt_operatorEmail').val(str_currentEmail);
-			fn_getGroupData();	//初始化分组
-			
-			if ( str_currentGroupIds.search(',') != -1 ) {
-				var arr_groupIds = str_currentGroupIds.split(',');
-				
-				for ( var i = 0; i < arr_groupIds.length; i++ ) {
-					$('#operatorGroups input[groupId='+ arr_groupIds[i] +']').attr('checked', true);
-				}
-			} else {
-				$('#operatorGroups input[groupId='+ str_currentGroupIds +']').attr('checked', true);
+			for ( var i = 0; i < arr_groupIds.length; i++ ) {
+				$('#operatorGroups input[groupId='+ arr_groupIds[i] +']').attr('checked', true);
 			}
-			
-			$('#addOperatorDialog').dialog('open').dialog('option', 'title', '编辑操作员');
+		} else {
+			$('#operatorGroups input[groupId='+ str_currentGroupIds +']').attr('checked', true);
+		}
+		
+		$('#addOperatorDialog').dialog('open').dialog('option', 'title', '编辑操作员');
 	}
 }
 

@@ -1725,21 +1725,25 @@ dlf.fn_onInputBlur = function() {
 					break;
 				case 'email': // 邮箱
 					var str_msg = '',
-						str_emailVal = $(this).val();
+						str_emailVal = $.trim($(this).val());
 					
-					if ( str_emailVal.length > 50 ) {
-						str_msg = '邮箱最多可输入50个字符！'
-					} else {
-						if ( !new RegExp('^\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+$').test(str_emailVal)  ) {	// 手机号合法性验证
-							str_msg = '邮箱输入不合法，请重新输入';
+					if ( str_emailVal != '' ) {
+						if ( str_emailVal.length > 50 ) {
+							str_msg = '邮箱最多可输入50个字符！'
+						} else {
+							if ( !new RegExp('^\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+$').test(str_emailVal)  ) {	// 手机号合法性验证
+								str_msg = '邮箱输入不合法，请重新输入';
+							}
 						}
 					}
 					if ( str_msg != '' ) {
 						dlf.fn_jNotifyMessage(str_msg, 'message', false, 4000);
 						$this.addClass('borderRed');
 					} else {
+						$this.removeClass('borderRed');
 						dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 					}
+					
 					break;
 			}
 		}
