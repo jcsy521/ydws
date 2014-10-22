@@ -40,6 +40,8 @@ class MassPointDayHandler(BaseHandler, TrackMixin):
             end_day = datetime.datetime.fromtimestamp(end_time)
             # get how many days the end_time and start_time cover
             days = abs(end_day-start_day).days+1
+            if (start_day.hour*60*60 + start_day.minute*60 + start_day.second) > (end_day.hour*60*60 + end_day.minute*60 + end_day.second):
+                days += 1
 
             cellid_flag = data.get('cellid_flag', 0)
             logging.info("[UWEB] Mass point day request: %s, uid: %s, tid: %s", 
