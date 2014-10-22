@@ -417,7 +417,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			dlf.fn_unLockScreen();
 			return;
 		}
-		if ( arr_trackQueryData.length > 0 ) {
+		if ( arr_trackDatas.length > 0 ) {
 			if ( $('#trackSearchPanel').is(':visible') ) {
 				$('#trackSearch_topShowIcon').click();
 			}
@@ -580,7 +580,17 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					fn_startDrawLineStatic(arr_trackLineDatas, true);
 				}
 			} else {
-				$('#trackMileagePanel0').click();			
+				for ( var i = 0; i < arr_trackDatas.length; i++ ) {
+					var obj_tempTrackData = arr_trackDatas[i],
+						n_lon = obj_tempTrackData.longitude;
+					
+					if ( n_lon == 0 ) {
+						continue;
+					} else {						
+						$('#trackMileagePanel'+i).click();
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -1054,9 +1064,11 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 						$('.j_body').data({'delayfd': arr_tempDelay, 'fdmarkers': arr_delayFdMarkers});
 					}
 				}
-				if ( str_operator != 'delay' ) {	
-					dlf.fn_addMarker(arr_trackQueryLineData[0], 'start', 0, 0); // 添加标记
-					dlf.fn_addMarker(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end', 0, 1); //添加标记
+				if ( str_operator != 'delay' ) {
+					if ( arr_trackQueryLineData.length > 0 ) {
+						dlf.fn_addMarker(arr_trackQueryLineData[0], 'start', 0, 0); // 添加标记
+						dlf.fn_addMarker(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end', 0, 1); //添加标记
+					}
 					
 					if ( arr_trackQueryLineData.length == 1 ) {
 						dlf.fn_createMapInfoWindow(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end');

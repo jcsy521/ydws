@@ -3573,6 +3573,7 @@
 			$.vakata.context.vis = false;
 			$.vakata.context.cnt.attr("class","").css({ "visibility" : "hidden", "display": "none" });
 			$(document).triggerHandler("context_hide.vakata");
+			dlf.resetPanelDisplay(); // 解决当右键菜单超出屏幕时引起的样式差异
 		},
 		parse	: function (s, is_callback) {
 			if(!s) { return false; }
