@@ -53,6 +53,8 @@ $(function(){
 	} else {
 		$('#login_enterprise').addClass('current');
 		$('#login_individual').removeClass('current');
+		$('#loginHeader_register, #loginHeader_roleLine, #login_ty, #getPwd').hide();
+		$('#corpGetPwd').show();
 	}
 	
 	$('#login_individual').unbind('click').click(function(e) {
