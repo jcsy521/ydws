@@ -28,7 +28,7 @@ from helpers.queryhelper import QueryHelper
 from codes.smscode import SMSCode 
 from constants import PRIVILEGES, SMS, UWEB, GATEWAY
 from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
-from utils.public import record_add_action, delete_terminal 
+from utils.public import record_add_action, delete_terminal, add_user, add_terminal
 from myutils import city_list
 from mongodb.mdaily import MDaily, MDailyMixin
 
@@ -136,17 +136,13 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
 
         try:
             # 1: add user
-            user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", fields.umobile)
-            if not user:
-                self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
-                                "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
-                                fields.umobile, fields.password,
-                                fields.uname, fields.umobile,
-                                fields.address, fields.email)
-                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                "  VALUES(%s)",
-                                fields.umobile)
-            
+            user_info = dict(umobile=fields.umobile,
+                             password=fields.password,
+                             uname=fields.uname,
+                             address=fields.address,
+                             email=fields.email)
+            add_user(user_info, self.db, self.redis)
+
             # record the add action
             record_add_action(fields.tmobile, -1, int(time.time()), self.db)
 
@@ -155,19 +151,18 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                 user_mobile = fields.ecmobile
             else:
                 user_mobile = fields.umobile
-            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
-                            "  begintime, endtime, offline_time)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s)",
-                            fields.tmobile,
-                            fields.tmobile, user_mobile,
-                            fields.begintime, 4733481600, fields.begintime)
-    
-            # 3: add car tnum --> cnum
-            self.db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
-                            "  VALUES(%s, %s, %s, %s, %s)",
-                            fields.tmobile, fields.cnum, 
-                            fields.ctype, fields.ccolor, fields.cbrand)
-            
+
+
+            terminal_info = dict(tmobile=fields.tmobile,
+                                 owner_mobile=fields.user_mobile,
+                                 begintime=fields.begintime,
+                                 endtime=4733481600, # 2120.1.1
+                                 cnum=fields.cnum,
+                                 ctype=fields.ctype,
+                                 ccolor=fields.ccolor,
+                                 cbrand=fields.cbrand)
+            add_terminal(terminal_info, self.db, self.redis)
+
             # 4: send message to terminal
             register_sms = SMSCode.SMS_REGISTER % (fields.umobile, fields.tmobile) 
             ret = SMSHelper.send_to_terminal(fields.tmobile, register_sms)

@@ -81,13 +81,13 @@ class MessageHandler(BaseHandler):
                                                       "  WHERE owner_mobile = %s"
                                                       "    AND service_status = 1",
                                                       umobile)
-                        # clear user
-                        if len(terminals) == 0:
-                            self.acbdb.execute("DELETE FROM T_USER"
-                                                "  WHERE mobile = %s",
-                                                umobile)
+                        ## clear user
+                        #if len(terminals) == 0:
+                        #    self.acbdb.execute("DELETE FROM T_USER"
+                        #                        "  WHERE mobile = %s",
+                        #                        umobile)
                     if is_clear == 1:
-                        clear_data(tmobile,self.acbdb)
+                        clear_data(terminal['tid'], self.acbdb, self.redis)
                     self.write_ret(status)
              
                 elif sms_type == 'CQ':

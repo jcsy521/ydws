@@ -37,56 +37,19 @@ def record_del_action(tmobile, group_id, del_time, db):
                " VALUES(%s, %s, %s, %s)", 
                tmobile, group_id, UWEB.OP_TYPE.DEL, del_time)              
 
-def clear_data(tid, db):
-    """Just clear the info associated with terminal in database.
-    """
-    db.execute("DELETE FROM T_LOCATION"
-               "  WHERE tid = %s",
-               tid)
-    db.execute("DELETE FROM T_EVENT"
-               " WHERE tid = %s",
-               tid)
-    db.execute("DELETE FROM T_CHARGE"
-               " WHERE tid = %s",
-               tid)
-    db.execute("DELETE FROM T_REGION_TERMINAL"
-               "  WHERE tid = %s",
-               tid)
-    logging.info("[PUBLIC] Clear db data of terminal: %s", tid)
-
-def delete_terminal(tid, db, redis, del_user=True):
-    """Delete terminal from platform and clear the associated info.
+def clear_data(tid, db, redis):
+    """Just clear the info associated with terminal in platform.
     """
     terminal = db.get("SELECT mobile, owner_mobile, group_id FROM T_TERMINAL_INFO"
                       "  WHERE tid = %s", tid)
-    #if not terminal:
-    #    logging.info("Terminal: %s already not existed.", tid)
-    #    return
-        
-    user = None
-    if terminal:
-        user = db.get("SELECT id FROM T_USER"
-                      "  WHERE mobile = %s",
-                      terminal.owner_mobile)
-    rids = db.query("SELECT rid FROM T_REGION_TERMINAL"
-                    "  WHERE tid = %s", tid)
+    if not terminal:
+        logging.info("Terminal: %s already does not exist, do nothing.", tid)
+        return 
+    else:
+        logging.info("[PUBLIC] Delete db data of terminal: %s", tid)
 
-    # clear history data
-    db.execute("DELETE FROM T_EVENT"
-               " WHERE tid = %s",
-               tid)
-    db.execute("DELETE FROM T_CHARGE"
-               " WHERE tid = %s",
-               tid)
-
-    key = get_del_data_key(tid)
-    flag = redis.get(key)
-    if flag and int(flag) == 1:
+        # clear db 
         db.execute("DELETE FROM T_LOCATION"
-                   "  WHERE tid = %s",
-                   tid)
-
-        db.execute("DELETE FROM T_STOP"
                    "  WHERE tid = %s",
                    tid)
 
@@ -94,90 +57,125 @@ def delete_terminal(tid, db, redis, del_user=True):
                    "  WHERE tid = %s",
                    tid)
 
-        redis.delete(key)
-        logging.info("[PUBLIC] Delete db data of terminal: %s", tid)
+        db.execute("DELETE FROM T_EVENT"
+                   " WHERE tid = %s",
+                   tid)
 
-    # clear redis
-    tmobile = terminal.mobile if terminal else ""
-    umobile = terminal.owner_mobile if terminal else None
-    #for item in [tid, tmobile]:
-    #    sessionID_key = get_terminal_sessionID_key(item)
-    #    address_key = get_terminal_address_key(item)
-    #    info_key = get_terminal_info_key(item)
-    #    lq_sms_key = get_lq_sms_key(item)
-    #    lq_interval_key = get_lq_interval_key(item)
-    #    location_key = get_location_key(item)
-    #    del_data_key = get_del_data_key(item)
-    #    track_key = get_track_key(item)
-    #    login_time_key = get_login_time_key(item)
-    #    offline_lq_key = get_offline_lq_key(item)
-    #    lqgz_interval_key = get_lqgz_interval_key(item)
-    #    lqgz_key = get_lqgz_key(item)
-    #    alarm_info_key = get_alarm_info_key(item)
-    #    mileage_key = get_mileage_key(item)
-    #    keys = [sessionID_key, address_key, info_key, lq_sms_key, lq_interval_key,
-    #            location_key, del_data_key, track_key, login_time_key,
-    #            offline_lq_key, lqgz_interval_key, lqgz_key, alarm_info_key,
-    #            mileage_key]
-    #    for rid in rids:
-    #        region_status_key = get_region_status_key(item, rid)
-    #        keys.append(region_status_key)
-    #    redis.delete(*keys)
-    keys = []
-    if tid:
-        tid_keys = redis.keys('*:%s'%tid)
-        keys.extend(tid_keys)
+        db.execute("DELETE FROM T_STOP"
+                   "  WHERE tid = %s",
+                   tid)
 
-    if tmobile:
-        tmobile_keys = redis.keys('*:%s'%tmobile)
-        keys.extend(tmobile_keys)
+        db.execute("DELETE FROM T_CHARGE"
+                   " WHERE tid = %s",
+                   tid)
 
-    if keys:
-        redis.delete(*keys)
-    logging.info("[PUBLIC] Delete terminal's keys in reids, tid: %s, tmobile: %s, umobile: %s, keys: %s",
-                 tid, tmobile, umobile, keys)
+        db.execute("DELETE FROM T_REGION_TERMINAL"
+                   "  WHERE tid = %s",
+                   tid)
 
-    # clear db
-    db.execute("DELETE FROM T_REGION_TERMINAL"
-               "  WHERE tid = %s",
-               tid)
-    if terminal:
-        # record the del action.
+        db.execute("delete FROM T_REGION_TERMINAL"
+                   "  WHERE tid = %s", tid)
+
+        # clear redis
+        tmobile = terminal.mobile if terminal else ""
+        umobile = terminal.owner_mobile if terminal else None
+
+        keys = []
+        if tid:
+            tid_keys = redis.keys('*:%s'%tid)
+            keys.extend(tid_keys)
+
+        if tmobile:
+            tmobile_keys = redis.keys('*:%s'%tmobile)
+            keys.extend(tmobile_keys)
+
+        if keys:
+            redis.delete(*keys)
+
+        logging.info("[PUBLIC] Delete terminal's keys in reids, tid: %s, tmobile: %s, umobile: %s, keys: %s",
+                     tid, tmobile, umobile, keys)
+
+def delete_terminal(tid, db, redis, del_user=True):
+    """Delete terminal from platform and clear the associated info.
+    """
+    terminal = db.get("SELECT mobile, owner_mobile, group_id FROM T_TERMINAL_INFO"
+                      "  WHERE tid = %s", tid)
+    if not terminal:
+        logging.info("Terminal: %s already does not exist, do nothing.", tid)
+        return
+    else:
+        user = db.get("SELECT id FROM T_USER"
+                      "  WHERE mobile = %s",
+                      terminal.owner_mobile)
+        #NOTE: record the del action.
         record_del_action(terminal.mobile, terminal.group_id, int(time.time()), db)
 
-    db.execute("DELETE FROM T_TERMINAL_INFO"
-               "  WHERE tid = %s", 
-               tid) 
-    if user:
-        if del_user:
-            terminals = db.query("SELECT id FROM T_TERMINAL_INFO"
-                                 "  WHERE owner_mobile = %s"
-                                 #"    AND group_id = -1",
-                                 "    AND service_status = %s",
-                                 terminal.owner_mobile,
-                                 UWEB.SERVICE_STATUS.ON)
-            # clear user
-            if len(terminals) == 0:
-                #NOTE: Record in T_USER is retained.
-                #db.execute("DELETE FROM T_USER"
-                #           "  WHERE mobile = %s",
-                #           terminal.owner_mobile)
+        #NOTE: check whether clear history data
+        key = get_del_data_key(tid)
+        flag = redis.get(key)
+        if flag and int(flag) == 1:
+            clear_data(tid, db, redis)
+            redis.delete(key)
 
-                #lastinfo_key = get_lastinfo_key(terminal.owner_mobile)
-                #lastinfo_time_key = get_lastinfo_time_key(terminal.owner_mobile)
-                #ios_id_key = get_ios_id_key(terminal.owner_mobile)
-                #ios_badge_key = get_ios_badge_key(terminal.owner_mobile)
-                #keys = [lastinfo_key, lastinfo_time_key, ios_id_key, ios_badge_key]
-                keys = redis.keys('*%s'%terminal.owner_mobile)
-                redis.delete(*keys)
-                logging.info("[PUBLIC] Delete user. umobile: %s, keys: %s", 
-                             terminal.owner_mobile, keys)
-    else:
-        logging.info("[PUBLIC] User of %s already not exist.", tid)
+        #NOTE: delete terminal
+        db.execute("DELETE FROM T_TERMINAL_INFO"
+                   "  WHERE tid = %s", 
+                   tid) 
 
-    logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
-                 tid, tmobile, umobile)
+        logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
+                     tid, tmobile, umobile)
 
+def add_user(user, db, redis):
+    """"Add a user.
+    @param: user, {'umobie':'', 
+                   'password':'',
+                   'uname':'',
+                   'address':'',
+                   'email':''}
+    @param: db
+    @param: redis
+
+    """
+    # add user
+    user = db.get("SELECT id FROM T_USER WHERE mobile = %s", user['umobile'])
+    if not user:
+        db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
+                   "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
+                   user['umobile'], user['password'],
+                   user['uname'], user['umobile'],
+                   user['address'], user['email'])
+
+    # add sms_option
+    sms_option = db.get("SELECT id FROM T_SMS_OPTION WHERE uid= %s", user['umobile'])
+    if not sms_option:
+        db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                   "  VALUES(%s)",
+                   user['umobile'])
+
+def add_terminal(terminal, db, redis):
+    """"Add a terminal.
+    @param: terminal, {'tmobile':'', 
+                       'owner_mobile':'',
+                       'begintime':'',
+                       'endtime':'',
+                       'offline_time':''}
+    @param: db
+    @param: redis
+    """
+    # add terminal
+    db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
+               "  begintime, endtime, offline_time)"
+               "  VALUES (%s, %s, %s, %s, %s, %s)",
+               terminal['tmobile'],
+               terminal['tmobile'], terminal['owner_mobile'],
+               terminal['begintime'], terminal['endtime'], fields.begintime)
+    
+    #add car tnum --> cnum
+    db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
+               "  VALUES(%s, %s, %s, %s, %s)",
+               terminal['tmobile'], terminal['cnum'], 
+               terminal['ctype'], terminal['ccolor'], terminal['cbrand'])
+ 
 def insert_location(location, db, redis):
     """Insert whole-data into T_LOCATION.
     """
@@ -235,6 +233,17 @@ def insert_location(location, db, redis):
                 redis.setvalue(location_key, mem_location, EVENTER.LOCATION_EXPIRY)
 
     return lid
+
+def get_alarm_mobile(tid, db, redis):
+    """Get the alarm mobile associate with the terminal.
+    """
+    alarm_mobile = ''
+    t = db.get("SELECT cid FROM V_TERMINAL WHERE tid = %s LIMIT 1", tid)
+    cid = t.cid if t.get('cid', None) is not None else '0'
+    corp = db.get("SELECT name, alarm_mobile FROM T_CORP WHERE cid = %s", cid)
+    if corp:
+        alarm_mobile = corp['alarm_mobile']
+    return alarm_mobile
 
 def get_terminal_type_by_tid(tid):
     ttype = 'unknown'

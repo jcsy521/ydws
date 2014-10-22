@@ -751,7 +751,7 @@ class MyGWServer(object):
                         SMSHelper.send(terminal.owner_mobile, sms_)
                         if terminal.tid == t_info['dev_id']: 
                             # clear data belongs to the terminal 
-                            clear_data(terminal.tid, db)
+                            clear_data(terminal.tid, db, self.redis)
                         logging.info("[GW] Send delete terminal message: %s to user: %s",
                                      sms_, terminal.owner_mobile)
                     else:

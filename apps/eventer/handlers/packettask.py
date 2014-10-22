@@ -26,7 +26,7 @@ from utils.misc import (get_location_key, get_terminal_time, get_terminal_info_k
      get_mileage_key, start_end_of_day, get_single_status_key,
      get_single_time_key, get_speed_limit_key, get_stop_key,
      get_distance_key, get_last_pvt_key)
-from utils.public import insert_location
+from utils.public import insert_location, get_alarm_mobile
 from utils.geometry import PtInPolygon 
 from utils.repeatedtimer import RepeatedTimer
 
@@ -652,7 +652,9 @@ class PacketTask(object):
 
         current_time = int(time.time())
 
-        #NOTE: bug fixed: in pvt, timestamp is no used, so use gps_time as timestamp
+        alarm_mobile = get_alarm_mobile(report.dev_id, self.db, self.redis)
+
+        #NOTE: in pvt, timestamp is no used, so use gps_time as timestamp
         if not report.get('timestamp',None):
             report['timestamp'] = report['gps_time']
 
@@ -666,6 +668,9 @@ class PacketTask(object):
             if str(info.get('is_notify','')) == '1': # send notify even if CF 
                 logging.info("[EVENTER] Send notify forever, go ahead. Terminal: %s, is_notify: %s",
                              report.dev_id, info.get('is_notify',''))
+            elif alarm_mobile:
+                logging.info("[EVENTER] Send notify forever , go ahead.  Terminal: %s, alarm_mobile: %s",
+                             report.dev_id, alarm_mobile)
             else:
                 mannual_status = QueryHelper.get_mannual_status_by_tid(info['dev_id'], self.db)
                 if int(mannual_status) == UWEB.DEFEND_STATUS.NO:
@@ -726,150 +731,170 @@ class PacketTask(object):
             
         #NOTE: check sms option
         sms_option = self.get_sms_option(user.owner_mobile, EVENTER.SMS_CATEGORY[report.rName].lower())
-        name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
+
         if sms_option == UWEB.SMS_OPTION.SEND:
-            terminal_time = get_terminal_time(int(report['timestamp']))
-            terminal_time = safe_unicode(terminal_time) 
-
-            report_name = report.name
-            if not report_name:
-                if report.cLon and report.cLat:
-                    report_name = ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
-                else:
-                    report_name = ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]
-            sms = '' 
-            sms_white = '' 
-            if isinstance(report_name, str):
-                report_name = report_name.decode('utf-8')
-                report_name = unicode(report_name)
-
-            if report.rName == EVENTER.RNAME.POWERLOW:
-                if report.terminal_type == "1": # type: terminal
-                    if int(report.pbat) == 100:
-                        pbat_message_key = get_pbat_message_key(report.dev_id)
-                        if self.redis.exists(pbat_message_key) is False:
-                            self.redis.setvalue(pbat_message_key, 1, time=24*60*60)        
-                        else:
-                            logging.info("[EVENTER] Don't send duplicate power full message to terminal:%s in 24 hours", report.dev_id)
-                            return
-                    elif int(report.pbat) > 20 and int(report.pbat) < 100:
-                        logging.info("[EVENTER] Terminal:%s reported power low pbat:%s between 20% and 100%, so skip it", report.dev_id, report.pbat)
-                        return
-                    sms = self.handle_power_status(report, name, report_name, terminal_time)
-                else: # type: fob
-                    sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
-            elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
-                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_ILLEGALMOVE_NOLOC % (name, terminal_time)
-                else:
-                    sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
-
-
-                _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
-                _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
-                if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
-                    _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", user)
-                    #NOTE: re-notify
-                    # 30 seconds later, send sms 1 time.
-                    task = RepeatedTimer(30, _resend_alarm, 1)  
-                    task.start()
-            elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
-                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_ILLEGALSHAKE_NOLOC % (name, terminal_time)
-                else:
-                    sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
-
-                #NOTE: re-notify
-                _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
-                _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
-                if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
-                    _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"此条短信为重复提醒，请注意您的车辆状态。", user)
-                    # 30 seconds later, send sms 1 time.
-                    task = RepeatedTimer(30, _resend_alarm, 1)  
-                    task.start()
-                
-            elif report.rName == EVENTER.RNAME.EMERGENCY:
-                whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
-                if whitelist:
-                    white_str = ','.join(white['mobile'] for white in whitelist) 
-
-                    if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                        sms = SMSCode.SMS_SOS_OWNER_NOLOC % (name, white_str, terminal_time)
-                        sms_white = SMSCode.SMS_SOS_WHITE_NOLOC % (name, terminal_time) 
-                    else:
-                        sms = SMSCode.SMS_SOS_OWNER % (name, white_str, report_name, terminal_time)
-                        sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
-                else:
-                    if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                        sms = SMSCode.SMS_SOS_NOLOC % (name, terminal_time)
-                    else:
-                        sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
-            elif report.rName == EVENTER.RNAME.POWERDOWN:
-                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_POWERDOWN_NOLOC % (name, terminal_time)
-                else:
-                    sms = SMSCode.SMS_POWERDOWN % (name, report_name, terminal_time)
-            elif report.rName == EVENTER.RNAME.REGION_OUT:
-                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_REGION_OUT_NOLOC % (name, safe_unicode(report['region']['region_name']), terminal_time)
-                else:
-                    sms = SMSCode.SMS_REGION_OUT % (name,  safe_unicode(report['region']['region_name']), report_name, terminal_time)
-            elif report.rName == EVENTER.RNAME.REGION_ENTER:
-                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                    sms = SMSCode.SMS_REGION_ENTER_NOLOC % (name, safe_unicode(report['region']['region_name']), terminal_time)
-                else:
-                    sms = SMSCode.SMS_REGION_ENTER % (name, safe_unicode(report['region']['region_name']), report_name, terminal_time)
-            elif report.rName == EVENTER.RNAME.SPEED_LIMIT:
-                 sms_dct = dict(name=name,
-                                report_name=report_name,
-                                speed=int(report.get('speed',0)),
-                                terminal_time=terminal_time)
-                 if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
-                     sms = SMSCode.SMS_SPEED_LIMIT_NOLOC % sms_dct 
-                 else:
-                     sms = SMSCode.SMS_SPEED_LIMIT % sms_dct 
-            else:
-                pass
-
-            #wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s%26width=800%26height=800%26zoom=17%26markers=%s,%s'
-            #wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
-            #wap_url = 'http://api.map.baidu.com/staticimage?center=' +\
-            #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
-            #          '&width=320&height=480&zoom=17&markers=' +\
-            #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
-            if report.cLon and report.cLat:
-                clon = '%0.3f' % (report.cLon/3600000.0) 
-                clat = '%0.3f' % (report.cLat/3600000.0)
-                url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + clon + '&clat=' + clat 
-                tiny_id = URLHelper.get_tinyid(url)
-                if tiny_id:
-                    base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
-                    tiny_url = base_url + '/' + tiny_id
-                    logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
-                    self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
-                    sms += u"点击" + tiny_url + u" 查看定位器位置。" 
-                    if sms_white:
-                        sms_white += u"点击" + tiny_url + u" 查看定位器位置。"
-                        self.sms_to_whitelist(sms_white, whitelist)
-                else:
-                    logging.info("[EVENTER] get tiny url failed.")
-            else:
-                logging.info("[EVENTER] location failed.")
-            self.sms_to_user(report.dev_id, sms, user)
-            #if report.rName == EVENTER.RNAME.POWERLOW:
-            #    corp = self.db.get("SELECT T_CORP.mobile FROM T_CORP, T_GROUP, T_TERMINAL_INFO"
-            #                       "  WHERE T_TERMINAL_INFO.tid = %s"
-            #                       "    AND T_TERMINAL_INFO.group_id != -1"
-            #                       "    AND T_TERMINAL_INFO.group_id = T_GROUP.id"
-            #                       "    AND T_GROUP.corp_id = T_CORP.cid",
-            #                       report.dev_id)
-            #    if (corp and corp.mobile != user.owner_mobile):
-            #        SMSHelper.send(corp.mobile, sms)
+            logging.info("[EVENTER] Notify report to user by sms. category: %s, tid: %s, mobile: %s",
+                         report.rName, report.dev_id, user['owner_mobile'])
+            self.notify_report_by_sms(report, user['owner_mobile'])
         else:
             logging.info("[EVENTER] Remind option of %s is closed. Terminal: %s",
                          report.rName, report.dev_id)
-         
-        #NOTE: push to owner
+
+        if alarm_mobile:
+            logging.info("[EVENTER] Notify report to user by sms. category: %s, tid: %s, alarm_mobile: %s",
+                         report.rName, report.dev_id, alarm_mobile)
+            self.notify_report_by_sms(report, alarm_mobile)
+
+        #NOTE: check push option
+        terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
+                               "  WHERE tid = %s", report.dev_id)
+        if terminal and terminal.push_status == 1:
+            logging.info("[EVENTER] Notify report to user by push. category: %s, tid: %s, mobile: %s",
+                         report.rName, report.dev_id, user['owner_mobile'])
+            self.notify_report_by_push(report, user['owner_mobile'])
+        else:
+            logging.info("[EVENTER] Push option of %s is closed. Terminal: %s",
+                         report.rName, report.dev_id)
+
+        if alarm_mobile:
+            logging.info("[EVENTER] Notify report to user by push. category: %s, tid: %s, alarm_mobile: %s",
+                         report.rName, report.dev_id, alarm_mobile)
+            self.notify_report_by_push(report, alarm_mobile)
+
+    def notify_report_by_sms(self, report, mobile):
+
+        name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
+        terminal_time = get_terminal_time(int(report['timestamp']))
+        terminal_time = safe_unicode(terminal_time) 
+
+        report_name = report.name
+        if not report_name:
+            if report.cLon and report.cLat:
+                report_name = ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE]
+            else:
+                report_name = ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]
+        sms = '' 
+        sms_white = '' 
+        if isinstance(report_name, str):
+            report_name = report_name.decode('utf-8')
+            report_name = unicode(report_name)
+
+        if report.rName == EVENTER.RNAME.POWERLOW:
+            if report.terminal_type == "1": # type: terminal
+                if int(report.pbat) == 100:
+                    pbat_message_key = get_pbat_message_key(report.dev_id)
+                    if self.redis.exists(pbat_message_key) is False:
+                        self.redis.setvalue(pbat_message_key, 1, time=24*60*60)        
+                    else:
+                        logging.info("[EVENTER] Don't send duplicate power full message to terminal:%s in 24 hours", report.dev_id)
+                        return
+                elif int(report.pbat) > 20 and int(report.pbat) < 100:
+                    logging.info("[EVENTER] Terminal:%s reported power low pbat:%s between 20% and 100%, so skip it", report.dev_id, report.pbat)
+                    return
+                sms = self.handle_power_status(report, name, report_name, terminal_time)
+            else: # type: fob
+                sms = SMSCode.SMS_FOB_POWERLOW % (report.fobid, terminal_time)
+        elif report.rName == EVENTER.RNAME.ILLEGALMOVE:
+            if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                sms = SMSCode.SMS_ILLEGALMOVE_NOLOC % (name, terminal_time)
+            else:
+                sms = SMSCode.SMS_ILLEGALMOVE % (name, report_name, terminal_time)
+
+            _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
+            _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
+            if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
+                _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"重复提醒，如已收到，请忽略。", mobile)
+                #NOTE: re-notify
+                # 30 seconds later, send sms 1 time.
+                task = RepeatedTimer(30, _resend_alarm, 1)  
+                task.start()
+        elif report.rName == EVENTER.RNAME.ILLEGALSHAKE:
+            if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                sms = SMSCode.SMS_ILLEGALSHAKE_NOLOC % (name, terminal_time)
+            else:
+                sms = SMSCode.SMS_ILLEGALSHAKE % (name, report_name, terminal_time)
+
+            #NOTE: re-notify
+            _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
+            _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
+            if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
+                _resend_alarm = functools.partial(self.sms_to_user, report.dev_id, sms+u"此条短信为重复提醒，请注意您的车辆状态。", mobile)
+                # 30 seconds later, send sms 1 time.
+                task = RepeatedTimer(30, _resend_alarm, 1)  
+                task.start()
+            
+        elif report.rName == EVENTER.RNAME.EMERGENCY:
+            whitelist = QueryHelper.get_white_list_by_tid(report.dev_id, self.db)      
+            if whitelist:
+                white_str = ','.join(white['mobile'] for white in whitelist) 
+
+                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                    sms = SMSCode.SMS_SOS_OWNER_NOLOC % (name, white_str, terminal_time)
+                    sms_white = SMSCode.SMS_SOS_WHITE_NOLOC % (name, terminal_time) 
+                else:
+                    sms = SMSCode.SMS_SOS_OWNER % (name, white_str, report_name, terminal_time)
+                    sms_white = SMSCode.SMS_SOS_WHITE % (name, report_name, terminal_time) 
+            else:
+                if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                    sms = SMSCode.SMS_SOS_NOLOC % (name, terminal_time)
+                else:
+                    sms = SMSCode.SMS_SOS % (name, report_name, terminal_time)
+        elif report.rName == EVENTER.RNAME.POWERDOWN:
+            if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                sms = SMSCode.SMS_POWERDOWN_NOLOC % (name, terminal_time)
+            else:
+                sms = SMSCode.SMS_POWERDOWN % (name, report_name, terminal_time)
+        elif report.rName == EVENTER.RNAME.REGION_OUT:
+            if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                sms = SMSCode.SMS_REGION_OUT_NOLOC % (name, safe_unicode(report['region']['region_name']), terminal_time)
+            else:
+                sms = SMSCode.SMS_REGION_OUT % (name,  safe_unicode(report['region']['region_name']), report_name, terminal_time)
+        elif report.rName == EVENTER.RNAME.REGION_ENTER:
+            if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                sms = SMSCode.SMS_REGION_ENTER_NOLOC % (name, safe_unicode(report['region']['region_name']), terminal_time)
+            else:
+                sms = SMSCode.SMS_REGION_ENTER % (name, safe_unicode(report['region']['region_name']), report_name, terminal_time)
+        elif report.rName == EVENTER.RNAME.SPEED_LIMIT:
+             sms_dct = dict(name=name,
+                            report_name=report_name,
+                            speed=int(report.get('speed',0)),
+                            terminal_time=terminal_time)
+             if report_name in [ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_NAME_NONE], ErrorCode.ERROR_MESSAGE[ErrorCode.LOCATION_FAILED]]:
+                 sms = SMSCode.SMS_SPEED_LIMIT_NOLOC % sms_dct 
+             else:
+                 sms = SMSCode.SMS_SPEED_LIMIT % sms_dct 
+        else:
+            pass
+
+        #wap_url = 'http://api.map.baidu.com/staticimage?center=%s,%s%26width=800%26height=800%26zoom=17%26markers=%s,%s'
+        #wap_url = wap_url % (report.lon/3600000.0, report.lat/3600000.0, report.lon/3600000.0, report.lat/3600000.0)
+        #wap_url = 'http://api.map.baidu.com/staticimage?center=' +\
+        #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) +\
+        #          '&width=320&height=480&zoom=17&markers=' +\
+        #          str(report.cLon/3600000.0) + ',' + str(report.cLat/3600000.0) 
+        if report.cLon and report.cLat:
+            clon = '%0.3f' % (report.cLon/3600000.0) 
+            clat = '%0.3f' % (report.cLat/3600000.0)
+            url = ConfHelper.UWEB_CONF.url_out + '/wapimg?clon=' + clon + '&clat=' + clat 
+            tiny_id = URLHelper.get_tinyid(url)
+            if tiny_id:
+                base_url = ConfHelper.UWEB_CONF.url_out + UWebHelper.URLS.TINYURL
+                tiny_url = base_url + '/' + tiny_id
+                logging.info("[EVENTER] get tiny url successfully. tiny_url:%s", tiny_url)
+                self.redis.setvalue(tiny_id, url, time=EVENTER.TINYURL_EXPIRY)
+                sms += u"点击" + tiny_url + u" 查看定位器位置。" 
+                if sms_white:
+                    sms_white += u"点击" + tiny_url + u" 查看定位器位置。"
+                    self.sms_to_whitelist(sms_white, whitelist)
+            else:
+                logging.info("[EVENTER] get tiny url failed.")
+        else:
+            logging.info("[EVENTER] location failed.")
+
+        self.sms_to_user(report.dev_id, sms, mobile)
+
+    def notify_report_by_push(self, report, mobile):
+        name = QueryHelper.get_alias_by_tid(report.dev_id, self.redis, self.db)
         report.comment = ''
         region_id = None
         if report.rName == EVENTER.RNAME.POWERLOW:
@@ -889,29 +914,23 @@ class PacketTask(object):
             if region.get('region_name', None): 
                 region.comment = u"围栏名：%s" % safe_unicode(region.region_name)
 
-        # push to client
-        terminal = self.db.get("SELECT push_status FROM T_TERMINAL_INFO"
-                               "  WHERE tid = %s", report.dev_id)
-        if terminal and terminal.push_status == 1:
-            if report.rName == EVENTER.RNAME.STOP:
-                logging.info("[EVENTER] %s altert needn't to push to user. Terminal: %s",
-                             report.rName, report.dev_id)
-            else:
-                self.notify_to_parents(name, report, user, region_id) 
-                if report.rName in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]: 
-
-                    _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
-                    _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
-                    if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
-                        _resend_alarm = functools.partial(self.notify_to_parents, name, report, user, region_id) 
-                        # 30 seconds later, send sms 1 time.  
-                        task = RepeatedTimer(30, _resend_alarm, 1) 
-                        task.start()
-        else:
-            logging.info("[EVENTER] Push option of %s is closed. Terminal: %s",
+        # push 
+        if report.rName == EVENTER.RNAME.STOP:
+            logging.info("[EVENTER] %s altert needn't to push to user. Terminal: %s",
                          report.rName, report.dev_id)
-        self.push_to_weixin(report) 
+        else:
+            self.notify_to_parents(name, report, mobile, region_id) 
+            if report.rName in [EVENTER.RNAME.ILLEGALMOVE, EVENTER.RNAME.ILLEGALSHAKE]: 
 
+                _date = datetime.datetime.fromtimestamp(int(report['timestamp']))
+                _seconds = _date.hour * 60 * 60 + _date.minute * 60 + _date.second 
+                if _seconds < 7 * 60 * 60 or _seconds > 19 * 60 * 60:  
+                    _resend_alarm = functools.partial(self.notify_to_parents, name, report, mobile, region_id) 
+                    # 30 seconds later, send sms 1 time.  
+                    task = RepeatedTimer(30, _resend_alarm, 1) 
+                    task.start()
+
+        self.push_to_weixin(report) 
 
     def event_hook(self, category, dev_id, terminal_type, timestamp, lid, pbat=None, fobid=None , rid=None):
         self.db.execute("INSERT INTO T_EVENT(tid, terminal_type, timestamp, fobid, lid, pbat, category, rid)"
@@ -944,15 +963,15 @@ class PacketTask(object):
             #sms = SMSCode.SMS_CHARGE % (name, info.content)
             #self.sms_to_user(info.dev_id, sms, user)
 
-    def sms_to_user(self, dev_id, sms, user=None):
+    def sms_to_user(self, dev_id, sms, mobile):
         if not sms:
             return
 
-        if not user:
-            user = QueryHelper.get_user_by_tid(dev_id, self.db) 
+        if not mobile:
+            return
 
-        if user:
-            SMSHelper.send(user.owner_mobile, sms)
+        if mobile:
+            SMSHelper.send(mobile, sms)
 
     def sms_to_whitelist(self, sms, whitelist=None):
         if not sms:
@@ -962,8 +981,7 @@ class PacketTask(object):
             for white in whitelist:
                 SMSHelper.send(white['mobile'], sms)
 
-
-    def notify_to_parents(self, alias, location, user, region_id=None):
+    def notify_to_parents(self, alias, location, mobile, region_id=None):
         """Push information to clinet through push.
 
         PUSH 1.0
@@ -975,25 +993,21 @@ class PacketTask(object):
             terminal = QueryHelper.get_terminal_info(dev_id, self.db, self.redis) 
             location['pbat'] = terminal['pbat'] if terminal['pbat'] is not None else 0 
 
-        if not user:
-            user = QueryHelper.get_user_by_tid(dev_id, self.db)
-
-        if user:
+        if mobile:
             # 1: push to android
-            android_push_list_key = get_android_push_list_key(user.owner_mobile) 
+            android_push_list_key = get_android_push_list_key(mobile) 
             android_push_list = self.redis.getvalue(android_push_list_key) 
             if android_push_list: 
                 for push_id in android_push_list: 
                     push_key = NotifyHelper.get_push_key(push_id, self.redis) 
                     NotifyHelper.push_to_android(category, dev_id, alias, location, push_id, push_key, region_id)
             # 2: push  to ios 
-            ios_push_list_key = get_ios_push_list_key(user.owner_mobile) 
+            ios_push_list_key = get_ios_push_list_key(mobile) 
             ios_push_list = self.redis.getvalue(ios_push_list_key) 
             if ios_push_list: 
                 for ios_id in ios_push_list: 
                     ios_badge = NotifyHelper.get_iosbadge(ios_id, self.redis) 
                     NotifyHelper.push_to_ios(category, dev_id, alias, location, ios_id, ios_badge, region_id)
-
 
     def push_to_weixin(self, location):
         """Push information to weixin.
@@ -1018,6 +1032,7 @@ class PacketTask(object):
                     gps=terminal.get('gps'),
                     gsm=terminal.get('gsm'),
                     pbat=terminal.get('pbat'))
+
 
         WeixinPushHelper.push(tid, body, self.db, self.redis)
 
