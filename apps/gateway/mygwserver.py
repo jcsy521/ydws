@@ -544,7 +544,8 @@ class MyGWServer(object):
         #NOTE: new softversion, new meaning, 1: active; othter: normal login
         flag = t_info['psd'] 
         terminal = db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status,"
-                          "       defend_status, mannual_status, icon_type, login_permit, alias, vibl, use_scene, push_status"
+                          "    defend_status, mannual_status, icon_type, login_permit, "
+                          "    alias, vibl, use_scene, push_status, speed_limit, stop_interval"
                           "  FROM T_TERMINAL_INFO"
                           "  WHERE mobile = %s LIMIT 1",
                           t_info['t_msisdn']) 
