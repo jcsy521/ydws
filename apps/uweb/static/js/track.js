@@ -1066,8 +1066,8 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 				}
 				if ( str_operator != 'delay' ) {
 					if ( arr_trackQueryLineData.length > 0 ) {
-						dlf.fn_addMarker(arr_trackQueryLineData[0], 'start', 0, 0); // 添加标记
-						dlf.fn_addMarker(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end', 0, 1); //添加标记
+						obj_firstMarker = dlf.fn_addMarker(arr_trackQueryLineData[0], 'start', 0, 0); // 添加标记
+						obj_endMarker = dlf.fn_addMarker(arr_trackQueryLineData[arr_trackQueryLineData.length - 1], 'end', 0, 1); //添加标记
 					}
 					
 					if ( arr_trackQueryLineData.length == 1 ) {
