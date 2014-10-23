@@ -2260,7 +2260,7 @@ dlf.fn_updateCorpCnum = function(cnum) {
 			str_label = obj_terminal.label;	// alias 或 tmobile
 		// 当前终端的、alias不是tmobile
 		if ( str_tempTid == str_tid ) {
-			str_newLabel = str_tmobile +' '+ $('.j_carList').data('carsData')[str_tempTid].owner_mobile +' '+ str_tempAlias;
+			str_newLabel = str_tmobile +' '+ $('.j_carList').data('carsData')[str_tempTid].owner_mobile +' '+ str_decodeAlias;
 			
 			obj_terminal.label = str_newLabel;
 			dlf.fn_initAutoComplete();
