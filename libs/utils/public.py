@@ -123,7 +123,7 @@ def delete_terminal(tid, db, redis, del_user=True):
                    tid) 
 
         logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
-                     tid, tmobile, umobile)
+                     tid, terminal['mobile'], terminal['owner_mobile'])
 
 def add_user(user, db, redis):
     """"Add a user.
