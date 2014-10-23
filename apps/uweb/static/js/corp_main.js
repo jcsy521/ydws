@@ -1618,7 +1618,7 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								//if ( str_alias != str_mobile ) {
 								//	str_tempLabel = str_oldAlias +' '+ str_mobile +' '+ obj_car.owner_mobile;
 								//}
-								arr_autoCompleteData.push({label: dlf.fn_encode(str_tempLabel), value: str_tid});
+								arr_autoCompleteData.push({label: (str_tempLabel), value: str_tid});
 								// 存储最新的marker信息
 								if ( obj_currentSelfMarker ) {
 									obj_tempSelfMarker[str_tid] = obj_currentSelfMarker;
@@ -2090,7 +2090,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 			str_ownerMobile = obj_tempAutoData.owner_mobile,
 			str_tempLabel = str_mobile +' '+ str_ownerMobile +' '+ str_alias;
 		
-		arr_autoCompleteData.push({label: dlf.fn_encode(str_tempLabel), value: autoParam});
+		arr_autoCompleteData.push({label: (str_tempLabel), value: autoParam});
 	}
 	dlf.fn_initAutoComplete();
 	
