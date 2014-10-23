@@ -19,7 +19,8 @@ define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
 define('mode', default='deploy')
 # use warning for deployment
 try:
-    options['logging'].set('warning')
+    #options['logging'].set('warning')
+    options['logging'].set('info')
 except:
     options.logging='warning'
 
