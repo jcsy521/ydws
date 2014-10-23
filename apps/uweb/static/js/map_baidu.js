@@ -319,7 +319,9 @@ dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 		marker.setLabel(label);
 	} else if ( str_iconType ==	'alarmInfo' ) {
 		marker.getIcon().imageOffset = new BMap.Size(5, 5);
-	}  
+	} else if ( str_iconType == 'singlestart' || str_iconType == 'singleend' ) {
+		marker.setOffset(new BMap.Size(0, -14));
+	}
 	//if ( !dlf.fn_userType() ) { // 个人用户向地图添加标记,集团用户使用聚合
 		mapObj.addOverlay(marker);	//向地图添加覆盖物 
 	//}
