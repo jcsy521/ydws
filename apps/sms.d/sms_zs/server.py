@@ -98,9 +98,11 @@ def main():
         ConfHelper.load(options.conf)
         app = Application(debug=debug_mode)
         http_server = tornado.httpserver.HTTPServer(app, xheaders=True)
-        worker_pool = WorkerPool(app.queue, int(ConfHelper.SMS_CONF.workers))
 
         thread.start_new_thread(add_sms_to_queue_thread, (app.queue,))
+
+        worker_pool = WorkerPool(app.queue, int(ConfHelper.SMS_CONF.workers))
+
 
         http_server.listen(options.port)
         logging.warn("[SMS] running on: localhost:%d", options.port)
