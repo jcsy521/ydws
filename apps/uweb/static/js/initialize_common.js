@@ -2880,7 +2880,7 @@ dlf.resetPanelDisplay = function(n_type) {
 				$('.j_disPanelCon').css('right', -n_delayIconRight);
 				$('.j_delayPanel').css('right', n_delayTablewidth-n_delayIconRight);
 			}
-			if ( b_alarmWp ) {
+			//if ( b_alarmWp ) {
 				if ( str_alarmPanel == 'block' ) {
 					if ( dlf.fn_isChromeLow35() ) {
 						if ( (document.documentElement.clientHeight < document.documentElement.scrollHeight) && (document.documentElement.clientWidth < document.documentElement.scrollWidth)) {	
@@ -2896,7 +2896,7 @@ dlf.resetPanelDisplay = function(n_type) {
 					$('.j_alarmPanelCon').css('right', -n_delayIconRight);
 					$('.j_alarmPanel').css('right', 400-n_delayIconRight);
 				}
-			}
+			//}
 		}
 		 
 		if ( dlf.fn_userType() ) {	// 集团用户
