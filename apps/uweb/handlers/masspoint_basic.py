@@ -103,7 +103,8 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
                         distance = self.get_track_distance(starts)
 
                         lid=starts[0]['id']
-                        location = self.db.get("SELECT * FROM T_LOCATION WHERE id = %s", lid)
+                        location = self.db.get("SELECT * FROM T_LOCATION WHERE id = %s AND tid = %s LIMIT 1", lid, tid)
+
                         _start_time=starts[0]["timestamp"] 
                         _end_time=starts[-1]["timestamp"] 
                         start = dict(lid=lid, 
