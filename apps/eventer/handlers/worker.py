@@ -32,7 +32,7 @@ class Worker(object):
         self.db = None
         self.is_alive = False
 
-        self.alarm_size = 10000
+        self.alarm_size = 1000
     
     def start(self):
         self.db = get_connection()

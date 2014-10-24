@@ -137,8 +137,8 @@ def add_user(user, db, redis):
 
     """
     # add user
-    user = db.get("SELECT id FROM T_USER WHERE mobile = %s", user['umobile'])
-    if not user:
+    old_user = db.get("SELECT id FROM T_USER WHERE mobile = %s", user['umobile'])
+    if not old_user:
         db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
                    "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
                    user['umobile'], user['password'],
@@ -168,7 +168,7 @@ def add_terminal(terminal, db, redis):
                "  VALUES (%s, %s, %s, %s, %s, %s)",
                terminal['tmobile'],
                terminal['tmobile'], terminal['owner_mobile'],
-               terminal['begintime'], terminal['endtime'], fields.begintime)
+               terminal['begintime'], terminal['endtime'], terminal['begintime'])
     
     #add car tnum --> cnum
     db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"

@@ -154,7 +154,7 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
 
 
             terminal_info = dict(tmobile=fields.tmobile,
-                                 owner_mobile=fields.user_mobile,
+                                 owner_mobile=user_mobile,
                                  begintime=fields.begintime,
                                  endtime=4733481600, # 2120.1.1
                                  cnum=fields.cnum,
