@@ -554,7 +554,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 			$('#tPause ').hide();
 			$('#trackTerminalAliasLabel').html(dlf.fn_encode(str_tempAlias)).attr('title', str_tempAlias);
 			
-			if ( $('#trackSearchPanel').is(':hidden') ) {
+			if ( $('#trackSearchPanel').css('display') != 'block' ) {
 				$('#trackSearch_topShowIcon').click();
 			}
 		}
@@ -661,7 +661,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				$('#tPause ').hide();
 				$('#trackTerminalAliasLabel').html(dlf.fn_encode(str_tempAlias)).attr('title', str_tempAlias);
 				
-				if ( $('#trackSearchPanel').is(':hidden') ) {
+				if ( $('#trackSearchPanel').css('display') != 'block' ) {
 					$('#trackSearch_topShowIcon').click();
 				}
 			}
@@ -2806,7 +2806,7 @@ dlf.resetPanelDisplay = function(n_type) {
 		if ( $('#delayTable').data('m60') ) {
 			n_mainHeight -= 60;
 		}
-		if ( $('#trackSearchPanel').is(':visible') ) {
+		if ( $('#trackSearchPanel').css('display') == 'block' ) {
 			var n_windowWidth = document.documentElement.scrollWidth,
 				n_delayTableHeight = n_mainHeight-138,
 				n_trackTableMiniHeight = 340,
@@ -2829,11 +2829,10 @@ dlf.resetPanelDisplay = function(n_type) {
 			
 			if ( n_windowWidth < 1500 ) {
 				n_trackTableMiniHeight = 440;
-				n_trackTopIcon = 0;
 			}
 			if ( $('.j_delayPanel').is(':hidden') ) {
 				n_delayTableHeight = n_mainHeight-35;
-				n_trackTableMiniHeight = 271;
+				n_trackTableMiniHeight = 270;
 				if ( n_windowWidth > 1500 ) {
 					n_delayTableHeight = n_mainHeight-36;
 				}
