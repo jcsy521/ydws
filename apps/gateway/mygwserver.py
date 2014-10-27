@@ -781,7 +781,7 @@ class MyGWServer(object):
                             logging.info("[GW] Send delete terminal message: %s to user: %s",
                                          sms_, tid_terminal['owner_mobile'])
                             # user changed, must clear history data of dev_id
-                            clear_data(tid_terminal['tid'], db)
+                            clear_data(tid_terminal['tid'], db, self.redis)
                     else:
                         del_user = False
                     delete_terminal(tid_terminal['tid'], db, self.redis, del_user=del_user)
