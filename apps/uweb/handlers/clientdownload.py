@@ -19,3 +19,6 @@ class ClientDownloadHandler(BaseHandler):
             self.render('download_ydwq.html')
         elif category == 3: # ydws-anjietong 
             self.render('download_anjietong.html')
+        else:
+            self.render('download_ydws.html')
+            

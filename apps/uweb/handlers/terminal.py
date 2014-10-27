@@ -9,9 +9,9 @@ import tornado.web
 from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
-from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,\
-    get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key
+from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
+    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,
+    get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key)
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
 from utils.public import record_add_action, delete_terminal
@@ -21,11 +21,11 @@ from codes.smscode import SMSCode
 from constants import UWEB, SMS, GATEWAY, EVENTER
 
 from helpers.queryhelper import QueryHelper  
-from helpers.dmlhelper import DMLHelper  
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
+from helpers.wspushhelper import WSPushHelper
 
 from mixin.terminal import TerminalMixin 
 
@@ -48,7 +48,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
                                    "       vibchk, tid as sn, mobile, vibl, move_val, static_val, alert_freq,"
                                    "       white_pop, push_status, icon_type, owner_mobile, login_permit,"
-                                   "       stop_interval, biz_type"
+                                   "       stop_interval, biz_type, speed_limit"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND (service_status = %s"
@@ -85,6 +85,11 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             car = self.db.get("SELECT cnum AS corp_cnum FROM T_CAR"
                               "  WHERE tid = %s",
                               self.current_user.tid)
+            if not car:
+                self.db.execute("INSERT INTO T_CAR(tid)"
+                                "  VALUES(%s)",
+                                self.current_user.tid)
+                car = {'corp_cnum':''}
 
             # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
             car_sets.update(terminal)
@@ -156,19 +161,34 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                  parking_defend = data.get("parking_defend")
                  if parking_defend == 1:
                      move_val = 0
-                     static_val = 120 #60 
+                     static_val = 180 #120,60 
+                     mannual_status = UWEB.DEFEND_STATUS.SMART
                  else:
                      move_val = 60
                      static_val = 0 
+                     mannual_status = UWEB.DEFEND_STATUS.YES
+
                  self.db.execute("UPDATE T_TERMINAL_INFO "
-                                 "  SET move_val=%s, static_val=%s"
+                                 "  SET move_val=%s, static_val=%s,"
+                                 "      mannual_status = %s, defend_status = %s"
                                  "  WHERE tid=%s", 
-                                 move_val, static_val, self.current_user.tid)
+                                 move_val, static_val,
+                                 UWEB.DEFEND_STATUS.SMART,
+                                 UWEB.DEFEND_STATUS.SMART,
+                                 self.current_user.tid)
                  logging.info("[UWEB] Terminal %s update move_val %s and static_val %s", 
                               self.current_user.tid, move_val, static_val)
                  sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
                  logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
                  self.redis.delete(sessionID_key)
+
+                 # NOTE: modify the terminal_info in redis.
+                 terminal_info_key = get_terminal_info_key(self.current_user.tid)
+                 terminal_info = self.redis.getvalue(terminal_info_key)
+                 if terminal_info:
+                     terminal_info['mannual_status'] = mannual_status 
+                     self.redis.setvalue(terminal_info_key, terminal_info)
+
 
             # if stop_interval has been changed, then clear session to notify terminal
             if data.get("stop_interval"):
@@ -274,6 +294,9 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             #    IOLoop.instance().add_callback(self.finish)
 
             self.write_ret(status)
+            #NOTE: wspush 
+            if status == ErrorCode.SUCCESS: 
+                WSPushHelper.pushS7(tid, self.db, self.redis)
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
@@ -316,6 +339,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            tid = data.tmobile
             logging.info("[UWEB] corp add terminal request: %s, cid: %s", 
                          data, self.current_user.cid)
         except Exception as e:
@@ -435,6 +459,10 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 umobile) 
             
             self.write_ret(status)
+            #NOTE: wspush 
+            if status == ErrorCode.SUCCESS: 
+                WSPushHelper.pushS3(tid, self.db, self.redis)
+
         except Exception as e:
             logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 
                               self.current_user.cid, e.args)
@@ -590,6 +618,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
 
             self.write_ret(status)
+            #NOTE: wspush 
+            if status == ErrorCode.SUCCESS: 
+                WSPushHelper.pushS3(tid, self.db, self.redis)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete terminal failed. Exception: %s", 
                               self.current_user.cid, e.args) 

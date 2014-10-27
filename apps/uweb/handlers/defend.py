@@ -7,7 +7,8 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 from tornado.ioloop import IOLoop
 
-from utils.misc import get_terminal_info_key, str_to_list 
+from utils.misc import (get_terminal_info_key, str_to_list, 
+     get_terminal_sessionID_key)
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB 
@@ -30,9 +31,11 @@ class DefendHandler(BaseHandler, BaseMixin):
             terminal = self.db.get("SELECT fob_status, mannual_status, defend_status"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
-                                   "    AND service_status = %s",
+                                   "    AND (service_status = %s"
+                                   "      OR service_status = %s)",
                                    self.current_user.tid,
-                                   UWEB.SERVICE_STATUS.ON)
+                                   UWEB.SERVICE_STATUS.ON,
+                                   UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
@@ -100,24 +103,44 @@ class DefendHandler(BaseHandler, BaseMixin):
                         logging.error("The terminal with tid: %s does not exist, redirect to login.html", tid)
                         continue
 
-                    #self.keep_waking(self.current_user.sim, self.current_user.tid)
-                    self.db.execute("UPDATE T_TERMINAL_INFO"
-                                    "  SET mannual_status = %s"
-                                    "  WHERE tid = %s",
-                                    data.mannual_status, tid)
 
+                    # NOTE: modify the terminal_info in redis.
                     terminal_info_key = get_terminal_info_key(tid)
                     terminal_info = self.redis.getvalue(terminal_info_key)
                     if terminal_info:
                         terminal_info['mannual_status'] = data.mannual_status
                         self.redis.setvalue(terminal_info_key, terminal_info)
+                     
+                    # NOTE: modify the move_val, static_val accoring to mannual_status
+                    if int(data.mannual_status) != UWEB.DEFEND_STATUS.YES: # 撤防，智能设防
+                        move_val = 0
+                        static_val = 180 
+                    else: # 强力设防
+                        move_val = 60
+                        static_val = 0 
+
+                    self.db.execute("UPDATE T_TERMINAL_INFO "
+                                    "  SET move_val=%s, static_val=%s,"
+                                    "      mannual_status = %s, defend_status = %s"
+                                    "  WHERE tid=%s", 
+                                    move_val, static_val,
+                                    data.mannual_status,
+                                    data.mannual_status,
+                                    tid)
+                    logging.info("[UWEB] Terminal %s update move_val %s and static_val %s", 
+                                 tid, move_val, static_val)
+                    sessionID_key = get_terminal_sessionID_key(tid)
+                    logging.info("[UWEB] Termianl %s delete session in redis.", tid)
+                    self.redis.delete(sessionID_key)
+
 
                     logging.info("[UWEB] uid:%s, tid:%s set mannual status to %s successfully", 
                                  self.current_user.uid, tid, data.mannual_status)
                 except Exception as e: 
                     r.status = ErrorCode.FAILED
-                    logging.info("[UWEB] uid:%s, tid:%s set mannual status to %s failed", 
-                                 self.current_user.uid, tid, data.mannual_status)
+                    logging.error("[UWEB] uid:%s, tid:%s set mannual status to %s failed. Exception: %s", 
+                                  self.current_user.uid, tid,
+                                  data.mannual_status, e.args)
                 finally:
                     res.append(r)
 

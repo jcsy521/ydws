@@ -29,6 +29,7 @@ class AlarmOptionHandler(BaseHandler):
     8, # retion out
     9, # power off
     10, # stop
+    11, # speed_limit 
 
     The alarmoption is associate with user(administrator or operator in corp). 
     If alarmoption is inexistence for the user, initialize it.  If user's infomation 
@@ -60,7 +61,8 @@ class AlarmOptionHandler(BaseHandler):
 
         try: 
             alarm_options = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
-                                        "    illegalmove, sos, heartbeat_lost, charge, region_enter, region_out"
+                                        "    illegalmove, sos, heartbeat_lost, charge, "
+                                        "    region_enter, region_out, stop, speed_limit"
                                         "  FROM T_ALARM_OPTION"
                                         "  WHERE uid = %s"
                                         "  LIMIT 1",
@@ -69,8 +71,10 @@ class AlarmOptionHandler(BaseHandler):
                 self.db.execute("INSERT INTO T_ALARM_OPTION(uid)" 
                                 "  VALUES(%s)",
                                 umobile) 
+
                 alarm_options = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
-                                            "    illegalmove, sos, heartbeat_lost, charge, region_enter, region_out"
+                                            "    illegalmove, sos, heartbeat_lost, charge, "
+                                            "    region_enter, region_out, stop, speed_limit"
                                             "  FROM T_ALARM_OPTION"
                                             "  WHERE uid = %s"
                                             "  LIMIT 1",
@@ -110,7 +114,9 @@ class AlarmOptionHandler(BaseHandler):
                              heartbeat_lost="heartbeat_lost = %s",
                              charge="charge = %s",
                              region_enter="region_enter = %s",
-                             region_out="region_out = %s")
+                             region_out="region_out = %s",
+                             stop="stop = %s",
+                             speed_limit="speed_limit = %s")
             for key, value in data.iteritems():
                 data[key] = fields[key] % data[key] 
             set_clause = ','.join([v for v in data.itervalues() if v is not None])

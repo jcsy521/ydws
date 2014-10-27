@@ -14,14 +14,17 @@ from utils.misc import get_ios_push_list_key, get_ios_id_key, get_ios_badge_key,
      get_android_push_list_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key, DUMMY_IDS
 from utils.checker import check_sql_injection, check_phone
 from utils.public import get_group_info_by_tid
+from utils.public import get_push_key
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER, GATEWAY
-from base import BaseHandler, authenticated
 from helpers.notifyhelper import NotifyHelper
+from helpers.wspushhelper import WSPushHelper
 from helpers.queryhelper import QueryHelper 
 from helpers.lbmphelper import get_locations_with_clatlon
 from helpers.downloadhelper import get_version_info 
 from helpers.confhelper import ConfHelper
+
+from base import BaseHandler, authenticated
 from mixin.avatar import AvatarMixin
 from mixin.login import LoginMixin
 
@@ -42,14 +45,15 @@ class LoginHandler(BaseHandler, LoginMixin):
         authenticate the user.
         """
         username_ = self.get_argument("username", "")
-        username = base64.b64decode(username_)[128:]
-        password_ = self.get_argument("password", "")
-        password = base64.b64decode(password_)[128:]
+        username = base64.b64decode(username_)[128:] if len(username_) > 128 else username_
+        password_ = self.get_argument("password", "")  
+        password = base64.b64decode(password_)[128:] if len(password_) > 128 else password_
         captcha_ = self.get_argument("captcha", "")
-        captcha = base64.b64decode(captcha_)[128:]
+        captcha = base64.b64decode(captcha_)[128:] if len(captcha_) > 128 else captcha_ 
 
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
-        captchahash = self.get_argument("captchahash", "")
+        #NOTE: Get captchahash from cookie
+        captchahash = self.get_cookie("captchahash", "")
 
         logging.info("[UWEB] Browser login request, username: %s, password: %s, user_type: %s", username, password, user_type)
 
@@ -75,7 +79,8 @@ class LoginHandler(BaseHandler, LoginMixin):
         m = hashlib.md5()
         m.update(captcha.lower())
         hash_ = m.hexdigest()
-        if hash_.lower() != captchahash.lower():
+        if False: #hash_.lower() != captchahash.lower():
+        #if hash_.lower() != captchahash.lower():
             self.render("login.html",
                         username=username,
                         password=password,
@@ -126,7 +131,10 @@ class LoginHandler(BaseHandler, LoginMixin):
                 pass
 
             self.clear_cookie('captchahash')
-            self.redirect(self.get_argument("next","/"))
+            self.clear_cookie('captchahash_sms')
+            self.clear_cookie('bdshare_firstime')
+            self.clear_cookie('USERCURRENTROLE')
+            self.redirect(self.get_argument("next","/index"))
         else:
             logging.info("[UWEB] username: %s login failed, message: %s", username, ErrorCode.ERROR_MESSAGE[status])
             self.render("login.html",
@@ -154,8 +162,11 @@ class LoginTestHandler(BaseHandler, LoginMixin):
                            uid=uid,
                            tid=tid,
                            sim=sim))
+        self.clear_cookie('bdshare_firstime')
         self.clear_cookie('captchahash')
-        self.redirect(self.get_argument("next","/"))
+        self.clear_cookie('USERCURRENTROLE')
+        self.redirect('/index')
+        #self.redirect(self.get_argument("next","/"))
 
 class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
 
@@ -360,6 +371,20 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
             else:
                 pass # corp maybe no user_info
 
+
+            #NOTE:
+            push = dict(id='', 
+                        key='') 
+            t = int(time.time()) * 1000 
+            push_key = get_push_key(uid, t)
+            json_data = WSPushHelper.register(uid, t, push_key) 
+            if json_data:
+                data = json_data['data'] 
+                id = data.get('push_id', '') 
+                key = data.get('psd', '') 
+                push['id'] = id
+                push['key'] = key
+
             if version_type >= 1:
                 terminals = []
                 for k, v in cars_info.iteritems():
@@ -367,12 +392,14 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
                     terminals.append(v)
 
                 self.write_ret(status,
-                               dict_=DotDict(name=user_info.name if user_info else username, 
+                               dict_=DotDict(wspush=push,
+                                             name=user_info.name if user_info else username, 
                                              user_type=user_type,
                                              terminals=terminals))
             else:
                 self.write_ret(status,
-                               dict_=DotDict(name=user_info.name if user_info else username, 
+                               dict_=DotDict(wspush=push,
+                                             name=user_info.name if user_info else username, 
                                              user_type=user_type,
                                              cars_info=cars_info,
                                              cars=terminals))
@@ -720,6 +747,18 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
             else:
                 pass # corp maybe no user_info
 
+            push = dict(id='', 
+                        key='') 
+            t = int(time.time()) * 1000 
+            push_key = get_push_key(uid, t)
+            json_data = WSPushHelper.register(uid, t, push_key) 
+            data = json_data['data'] 
+            if data: 
+                id = data.get('push_id', '') 
+                key = data.get('psd', '') 
+                push['id'] = id
+                push['key'] = key
+
             if version_type >= 1:
                 terminals = []
                 for k, v in cars_info.iteritems():
@@ -727,7 +766,8 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                     terminals.append(v)
 
                 self.write_ret(status,
-                               dict_=DotDict(push_id=push_id,
+                               dict_=DotDict(wspush=push,
+                                             push_id=push_id,
                                              push_key=push_key,
                                              name=user_info.name if user_info else username, 
                                              user_type=user_type,
@@ -735,7 +775,8 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
                                              lastinfo_time=lastinfo_time,))
             else:
                 self.write_ret(status,
-                               dict_=DotDict(push_id=push_id,
+                               dict_=DotDict(wspush=push,
+                                             push_id=push_id,
                                              #app_key=push_info.app_key,
                                              push_key=push_key,
                                              name=user_info.name if user_info else username, 
@@ -860,12 +901,24 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
         #push_info = NotifyHelper.get_push_info()
         
-        push_id =  uid 
+        push_id = uid 
         push_key = NotifyHelper.get_push_key(push_id, self.redis)
 
         version_info = get_version_info("android")
         lastinfo_time_key = get_lastinfo_time_key(uid)
         lastinfo_time = self.redis.getvalue(lastinfo_time_key)
+
+        push = dict(id='', 
+                    key='') 
+        t = int(time.time()) * 1000 
+        push_key = get_push_key(uid, t)
+        json_data = WSPushHelper.register(uid, t, push_key) 
+        data = json_data['data'] 
+        if data: 
+            id = data.get('push_id', '') 
+            key = data.get('psd', '') 
+            push['id'] = id
+            push['key'] = key
 
         if version_type >= 1: 
             terminals = []
@@ -874,7 +927,8 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                 terminals.append(v)
 
             self.write_ret(status,
-                           dict_=DotDict(push_id=push_id,
+                           dict_=DotDict(wspush=push,
+                                         push_id=push_id,
                                          push_key=push_key,
                                          name=user_info.name if user_info else username, 
                                          user_type=UWEB.USER_TYPE.PERSON,
@@ -883,7 +937,8 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
         else:
             self.write_ret(status,
-                           dict_=DotDict(push_id=push_id,
+                           dict_=DotDict(wspush=push,
+                                         push_id=push_id,
                                          #app_key=push_info.app_key,
                                          push_key=push_key,
                                          name=user_info.name if user_info else username, 

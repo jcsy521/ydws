@@ -119,7 +119,7 @@ class SMSOptionCorpHandler(BaseHandler):
             for mobile in mobiles:
                 sms_option = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
                                           "       illegalmove, sos, heartbeat_lost, charge,"
-                                          "       region_enter, region_out"
+                                          "       region_enter, region_out, stop, speed_limit"
                                           "  FROM T_SMS_OPTION"
                                           "  WHERE uid = %s"
                                           "  LIMIT 1",
@@ -163,7 +163,9 @@ class SMSOptionCorpHandler(BaseHandler):
                              heartbeat_lost="heartbeat_lost = %s",
                              charge="charge = %s",
                              region_enter="region_enter = %s",
-                             region_out="region_out = %s")
+                             region_out="region_out = %s",
+                             stop="stop = %s",
+                             speed_limit="speed_limit = %s")
             for key, value in data.iteritems():
                 data[key] = fields[key] % data[key] 
             set_clause = ','.join([v for v in data.itervalues() if v is not None])

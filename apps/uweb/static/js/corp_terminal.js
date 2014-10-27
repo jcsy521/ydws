@@ -7,9 +7,9 @@ var arr_slide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 /**
 * 定位器参数设置初始化
 */
-window.dlf.fn_initCorpTerminal = function(str_tid) {
+dlf.fn_initCorpTerminal = function(str_tid) {
 	var str_tid = $($('.j_carList a[class*=j_currentCar]')).attr('tid'),
-		b_trackStatus = $('#trackHeader').is(':visible'),	// 轨迹是否打开着
+		b_trackStatus = $('.j_delay').is(':visible'),	// 轨迹是否打开着
 		str_bizType = $('#hidBizCode').val(),
 		n_height = 510,
 		n_btnTop = 490;
@@ -67,7 +67,7 @@ window.dlf.fn_initCorpTerminal = function(str_tid) {
 /**
 * 集团用户短信设置初始化
 */
-window.dlf.fn_initSMSOption = function() {
+dlf.fn_initSMSOption = function() {
 	dlf.fn_dialogPosition('corpSMSOption');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	fn_initCorpSMS();	// 初始化SMS通知
@@ -76,7 +76,7 @@ window.dlf.fn_initSMSOption = function() {
 /**
 * 查询最新定位器参数
 */
-window.dlf.fn_initTerminalWR = function (str_tid) {
+dlf.fn_initTerminalWR = function (str_tid) {
 	dlf.fn_lockContent($('.corpTerminalContent')); // 添加内容区域的遮罩
 	dlf.fn_jNotifyMessage('定位器设置查询中' + WAITIMG , 'message', true); 
 	// todo  + '?tid=' + str_tid
@@ -100,6 +100,22 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 			obj_common.show();
 			obj_auto.hide();
 		}
+	});
+	$('#corp_speed_statusSet input').unbind('click').bind('click', function() {
+		var str_val = $(this).val(),
+			obj_tdLimit = $('#td_corp_speed_limit'),
+			obj_inputSpeedLimit = $('#t_corp_speed_limit'),
+			n_newVal = 0,
+			n_oldVal = parseInt($('#corp_speed_limitLabel').attr('t_val'));
+		
+		if ( str_val == 1 ) {
+			obj_tdLimit.show();
+			n_newVal = parseInt(120);
+		} else {
+			obj_tdLimit.hide();
+			n_newVal = 0;
+		}
+		obj_inputSpeedLimit.val(n_newVal);
 	});
 	$('#corp_stop input').unbind('click').bind('click', function() {
 		var str_val = $(this).val(),
@@ -189,8 +205,23 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 							}
 							$('#corp_stop_status' + n_isOpen).attr('checked', 'checked');
 							
-							$('#t_corp_stop_interval').val(n_stopInterval);
-						}else {
+							$('#t_corp_stop_interval').val(n_stopInterval).attr('t_val', str_val);
+						} else if ( param == 'speed_limit' ) { //超速设置
+							var n_speedInterval = parseInt(str_val),
+								obj_tdSpeedInterval = $('#td_corp_speed_limit'),
+								n_isOpen = 0;
+							
+							if ( n_speedInterval == 0 ) {
+								obj_tdSpeedInterval.hide();
+							} else {
+								obj_tdSpeedInterval.show();
+								n_isOpen = 1;
+							}
+							$('#corp_speed_status' + n_isOpen).attr('checked', 'checked');
+							
+							$('#t_corp_speed_limit').val(n_speedInterval);
+							$('#corp_speed_limitLabel').attr('t_val', str_val);;
+						} else {
 							obj_param.html(str_val);
 						}
 					}
@@ -206,6 +237,52 @@ window.dlf.fn_initTerminalWR = function (str_tid) {
 			} else {
 				$('#whitelistPopWrapper').hide();
 			}*/
+			$('#t_corp_owner_mobile').unbind('blur').blur(function() {
+				$('#t_corp_owner_mobile').removeClass('borderRed');
+			});
+			//对超速设置进行验证事件
+			$('#t_corp_speed_limit').unbind('blur').blur(function() {
+				var reg = /^(1000|[1-9][0-9]{0,2})$/,
+					str_newSpeed = $.trim($(this).val()),
+					n_limitMax = 1000,
+					str_errorHtml = '';
+				
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+				if ( !/^\d+$/.test(str_newSpeed) ) {
+					str_errorHtml = '请输入数值';
+				}
+				if ( str_newSpeed <= 0 ) {
+					str_errorHtml = '您输入的数值不在1~1000km/h以内，请重新输入。';
+				}
+				if ( str_newSpeed > n_limitMax ) {
+					str_errorHtml = '您输入的数值不在1~1000km/h以内，请重新输入。';
+				}
+				if ( str_errorHtml != '' ) {
+					dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
+					$('#corp_terminalSave').data({'error_msg': str_errorHtml, 'error': true});
+					$('#t_corp_speed_limit').addClass('borderRed');
+				} else {
+					$('#corp_terminalSave').data({'error_msg': '', 'error': false});
+					$('#t_corp_speed_limit').removeClass('borderRed');					
+				}
+			});
+			$('#t_corp_stop_interval').unbind('blur').blur(function() {
+				var reg = /^(1000|[1-9][0-9]{0,2})$/,
+					str_newSpeed = $.trim($(this).val()),
+					n_limitMax = 1000,
+					str_errorHtml = '';
+				
+				dlf.fn_closeJNotifyMsg('#jNotifyMessage'); // 关闭消息提示
+				if ( !/^\d+$/.test(str_newSpeed) ) {
+					str_errorHtml = '请输入数值';
+					dlf.fn_jNotifyMessage(str_errorHtml, 'message', false, 5000);
+					$('#corp_terminalSave').data({'error_msg': str_errorHtml, 'error': true});
+					$('#t_corp_stop_interval').addClass('borderRed');
+				} else {
+					$('#corp_terminalSave').data({'error_msg': '', 'error': false});
+					$('#t_corp_stop_interval').removeClass('borderRed');					
+				}
+			});
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		} else if ( data.status == 201 ) {	// 业务变更
 			dlf.fn_showBusinessTip();
@@ -296,7 +373,7 @@ function fn_initCorpSMS() {
 /**
 * 初始化短信接收号码的autocomplete
 */
-window.dlf.fn_initAutoSmsMobile = function(arr_autoSmsMobileData) {
+dlf.fn_initAutoSmsMobile = function(arr_autoSmsMobileData) {
 	var obj_compelete = $('#smsOwerMobile'),
 		str_val = obj_compelete.val();
 	
@@ -329,9 +406,9 @@ function fn_changeSMSCheckbox(obj_data) {
 		
 		obj_param.attr('t_checked', n_val);
 		if ( n_val == 1 ) {
-			obj_param.attr('checked', true)
+			obj_param.attr('checked', true);
 		} else {
-			obj_param.attr('checked', false)
+			obj_param.attr('checked', false);
 		}
 	}
 }
@@ -339,7 +416,7 @@ function fn_changeSMSCheckbox(obj_data) {
 /**
 * 显示白名单提示框
 */
-window.dlf.fn_showNotice = function() {
+dlf.fn_showNotice = function() {
 	$('#whitelistPopWrapper').show();
 	dlf.fn_resizeWhitePop();	//  pop框位置随着wrapper的改变而改变
 	/** 
@@ -360,11 +437,17 @@ window.dlf.fn_showNotice = function() {
 /**
 * 保存定位器参数操作
 */
-window.dlf.fn_corpBaseSave = function() {
+dlf.fn_corpBaseSave = function() {
 	var obj_terminalData = {},
 		n_num = 0,
-		obj_listVal = $('.j_corp_ListVal');
-		
+		obj_listVal = $('.j_corp_ListVal'),
+		b_error = $('#corp_terminalSave').data('error'),
+		b_errorMsg = $('#corp_terminalSave').data('error_msg');
+	
+	if ( b_error ) {
+		dlf.fn_jNotifyMessage(b_errorMsg, 'message', false, 5000);
+		return;
+	}
 	/**
 	* 遍历 td 查找text、radio、select
 	*/
@@ -374,11 +457,16 @@ window.dlf.fn_corpBaseSave = function() {
 			str_class = obj_this.attr('class'),
 			str_oldVal = obj_this.attr('t_val'),  // 原始值
 			obj_text = obj_this.children(),
-			str_newVal = obj_text.val(); 	// text of value
+			str_newVal = $.trim(obj_text.val()); 	// text of value
 		
 		if ( str_class.search('j_radio') != -1 ) {	// 上报间隔、基站定位、图标
 			str_newVal = parseInt($(this).children('input:checked').val());
 		}
+		
+		if ( str_key == 'corp_speed_limitLabel' ) {
+			str_key = 'corp_speed_limit';
+		}
+		
 		if ( str_key == 'corp_alert_freq' ) {	// 单独处理 告警工作模式
 			str_newVal = $('#t_corp_alert_freq').val();
 		}
@@ -396,7 +484,6 @@ window.dlf.fn_corpBaseSave = function() {
 			} else {
 				str_key = str_key.substr(5, str_key.length);
 			}
-			
 			if ( str_key == 'freq' || str_key == 'vibl' ) {
 				str_newVal = parseInt(str_newVal);
 			} else if ( str_key == 'alert_freq' ) {
@@ -405,13 +492,10 @@ window.dlf.fn_corpBaseSave = function() {
 			if ( str_key != 'stop' && str_key != 'biz_type' ) {
 				obj_terminalData[str_key] = str_newVal;	
 			}
-		} else {
-			if ( str_key == 'corp_stop_interval' && str_newVal == 0 ) {	// 单独处理 停留告警
-				str_key = str_key.substr(5, str_key.length);
-				obj_terminalData[str_key] = str_newVal;
-			}
+			n_num++;
 		}
 	});
+	
 	
 	for(var param in obj_terminalData) {	// 修改项的数目
 		n_num = n_num +1;
@@ -428,7 +512,7 @@ window.dlf.fn_corpBaseSave = function() {
 /**
 * 短信设置保存
 */
-window.dlf.fn_smsOptionSave = function() {
+dlf.fn_smsOptionSave = function() {
 	
 	//判断短信通知是否要提交
 	
@@ -479,7 +563,7 @@ window.dlf.fn_smsOptionSave = function() {
 /**
 * pop框位置随着wrapper的改变而改变
 */
-window.dlf.fn_resizeWhitePop = function() {
+dlf.fn_resizeWhitePop = function() {
 	var obj_terminalWrapperOffset = $('#terminalWrapper').offset(),
 		obj_whitePop = $('#whitelistPopWrapper'),
 		b_warpperStatus = !obj_whitePop.is(':hidden'),
@@ -494,7 +578,7 @@ window.dlf.fn_resizeWhitePop = function() {
 /**
 * 集团用户告警设置初始化
 */
-window.dlf.fn_initAlertOption = function() {
+dlf.fn_initAlertOption = function() {
 	dlf.fn_dialogPosition('corpAlertOption');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	
@@ -511,22 +595,24 @@ window.dlf.fn_initAlertOption = function() {
 /**
 * 请求所有的告警设置项
 */
-window.dlf.fn_getAlertOptionForUrl = function(str_getType) {
+dlf.fn_getAlertOptionForUrl = function(str_getType) {
 	$.get_(CORP_ALERT_URL+'?umobile='+$('#hidumobile').val(), '', function(data) {
 		if ( data.status == 0 ) {
 			var obj_data = data.res;
 			
-			if ( str_getType == 'init' ) {
-				var obj_cacheData = {	'2': obj_data.powerlow, 
-										'3': obj_data.illegalshake, 
-										'4': obj_data.illegalmove, 
-										'5': obj_data.sos, 
-										'6': obj_data.heartbeat_lost, 
-										'7': obj_data.region_enter, 
-										'8': obj_data.region_out 
-									};
-				$('#hidumobile').data('alertoption', obj_cacheData);
-			} else {
+			var obj_cacheData = {	'2': obj_data.powerlow, 
+									'3': obj_data.illegalshake, 
+									'4': obj_data.illegalmove, 
+									// '5': obj_data.sos, 
+									'6': obj_data.heartbeat_lost, 
+									'7': obj_data.region_enter, 
+									'8': obj_data.region_out,
+									'9': obj_data.powerdown,
+									'11': obj_data.speed_limit
+									//'10': obj_data.stop
+								};
+			$('#hidumobile').data('alertoption', obj_cacheData);
+			if ( str_getType == 'get' ) {
 				for(var param in obj_data) {	// 获取短信设置项的数据，进行更新
 					var n_val = obj_data[param],
 						obj_param = $('#corp_alert_' + param);
@@ -555,7 +641,7 @@ window.dlf.fn_getAlertOptionForUrl = function(str_getType) {
 /**
 * 告警置保存
 */
-window.dlf.fn_alertOptionSave = function() {
+dlf.fn_alertOptionSave = function() {
 	//判断短信通知是否要提交	
 	var obj_checkbox = $('.j_corpAlert_checkbox'),
 		obj_alertData = {},
@@ -599,8 +685,9 @@ $(function() {
 		validatorGroup: '7', // 指定本form组编码,默认为1, 多个验证组时使用
 		wideWord: false, // 一个汉字当一个字节
 		submitButtonID: 'corp_terminalSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+			$(ea).addClass('borderRed');
 		}, 
 		onSuccess: function() {
 			var str_val = $('#t_corp_corp_cnum').val(),
@@ -661,8 +748,9 @@ $(function() {
 		validatorGroup: '12', // 指定本form组编码,默认为1, 多个验证组时使用
 		wideWord: false, // 一个汉字当一个字节
 		submitButtonID: 'corp_smsOptionSave', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg,obj) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000); 
+			$(obj).addClass('borderRed');
 		}, 
 		onSuccess: function() {
 			dlf.fn_smsOptionSave();	// put请求

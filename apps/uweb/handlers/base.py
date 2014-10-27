@@ -40,8 +40,10 @@ def authenticated(method):
                         # if login url is absolute, make next absolute too
                         next_url = self.request.full_url()
                     else:
-                        next_url = self.request.uri
+                        #next_url = self.request.uri
+                        next_url = "/index" 
                     url += "?" + urllib.urlencode(dict(next=next_url))
+            logging.info("url:%s, uri:%s, next_url:%s, full url:%s", url, self.request.uri, next_url, self.request.full_url())
             self.redirect(url)
             return
         return method(self, *args, **kwargs)
@@ -86,7 +88,8 @@ class BaseHandler(tornado.web.RequestHandler):
         base_str = '23456789ABCDEFGHJKMNPQRSTUVWXYZ' 
         client_id = username + ''.join(random.choice(base_str) for x in range(10))  
         return self.set_cookie('client_id', client_id,
-                               expires_days=float(EXPIRES_MINUTES)/(24 * 60))
+                               expires_days=float(EXPIRES_MINUTES)/(24 * 60),
+                               httponly=True)
 
     @property
     def client_id(self):
@@ -105,7 +108,8 @@ class BaseHandler(tornado.web.RequestHandler):
     def bookkeep(self, data_dict):
         self.set_secure_cookie(self.app_name,
                                self.COOKIE_FORMAT % data_dict,
-                               expires_days=float(EXPIRES_MINUTES)/(24 * 60))
+                               expires_days=float(EXPIRES_MINUTES)/(24 * 60),
+                               httponly=True)
 
     def get_current_user(self):
         app_data = self.get_secure_cookie(self.app_name)

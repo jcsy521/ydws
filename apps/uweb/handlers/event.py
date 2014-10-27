@@ -104,6 +104,7 @@ class EventHandler(BaseHandler):
                               8, # retion out
                               9, # power off
                               10, # stop
+                              11, # speed_limit 
                               ]
 
             if category is not None:
@@ -122,7 +123,7 @@ class EventHandler(BaseHandler):
             if self.current_user.cid != UWEB.DUMMY_CID: 
                 hide_lst = [5] # enterprise: no sos
             else: # individual: no stop
-                hide_lst = [5, 10]
+                hide_lst = [5, 10, 11]
                 if (int(end_time) - int(start_time)) > UWEB.QUERY_INTERVAL:
                     self.write_ret(ErrorCode.QUERY_INTERVAL_EXCESS)
                     return

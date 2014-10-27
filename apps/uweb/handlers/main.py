@@ -8,9 +8,11 @@ from tornado.escape import json_encode
 from base import BaseHandler, authenticated
 from helpers.queryhelper import QueryHelper
 from helpers.confhelper import ConfHelper
+from helpers.wspushhelper import WSPushHelper
 from constants import UWEB, GATEWAY
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
+from utils.public import get_push_key
 
 class MainHandler(BaseHandler):
 
@@ -59,6 +61,19 @@ class MainHandler(BaseHandler):
 
         static_hash = self.redis.get('static_hash')
         static_hash = static_hash if static_hash else u'dummy_hash'
+
+        wspush = dict(id='', 
+                      key='') 
+        t = int(time.time()) * 1000 
+        push_key = get_push_key(umobile, t)
+        json_data = WSPushHelper.register(umobile, t, push_key) 
+        if json_data: 
+            data = json_data['data'] 
+            id = data.get('push_id', '') 
+            key = data.get('psd', '') 
+            wspush['id'] = id
+            wspush['key'] = key
+
         self.render(index_html,
                     map_type=ConfHelper.LBMP_CONF.map_type,
                     user_type=user_type,
@@ -66,4 +81,5 @@ class MainHandler(BaseHandler):
                     status=status,
                     name=name,
                     umobile=umobile,
-                    static_hash=static_hash)
+                    static_hash=static_hash,
+                    wspush=wspush,)

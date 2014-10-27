@@ -13,7 +13,7 @@
 		</div>
 		<div class="currentContent">
 			<div class="currentText">
-				<em id="currentMsg">定位进行中...<img src="/static/images/blue-wait.gif" /></em>
+				<em id="currentMsg">定位进行中...<img src="{{static_url('images/blue-wait.gif')}}" /></em>
 			</div>
 			<div class="msgLine"></div>
 			<a id="currentBtn" class="confirmBtn"></a>
@@ -79,9 +79,9 @@
 		<div class="pwdContent wrapperContent">
 			<form id="pwdForm" >
 				<table class="pwdList">
-					<tr><td><label><font class="txtColor">* </font>当前密码：</label><input type="password" id="oldPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
-					<tr><td><label><font class="txtColor">* </font>新密码：</label><input type="password" id="newPwd" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
-					<tr><td><label><font class="txtColor">* </font>确认新密码：</label><input type="password" id="newPwd2" class="text_mouseOut j_validate" maxlength="16" /></td></tr>
+					<tr><td><label><font class="txtColor">* </font>当前密码：</label><input type="password" id="oldPwd" class="text_mouseOut j_validate" maxlength="16" autocomplete="off" /></td></tr>
+					<tr><td><label><font class="txtColor">* </font>新密码：</label><input type="password" id="newPwd" class="text_mouseOut j_validate" maxlength="16" autocomplete="off" /></td></tr>
+					<tr><td><label><font class="txtColor">* </font>确认新密码：</label><input type="password" id="newPwd2" class="text_mouseOut j_validate" maxlength="16" autocomplete="off" /></td></tr>
 				</table>
 				<input type="submit" value="" id="pwdSave" class="pwdButton j_save" />
 			</form>
@@ -163,7 +163,7 @@
 										<label id="tpsLable0" for="tr_push_status0">关闭</label>
 									</td>
 								</tr>
-								<tr>
+								<!--<tr>
 									<td class="terminalTdL">停车设防:</td>
 									<td id="parking_defend" class="j_ListVal j_radio" t_val="">
 										<input id="tr_parking_defend1" type="radio" value="1" name="tpparking_defend" />
@@ -171,7 +171,7 @@
 										<input id="tr_parking_defend0" type="radio" value="0" name="tpparking_defend" />
 										<label id="tpparkLable1" for="tr_parking_defend0">关闭</label>
 									</td>
-								</tr>
+								</tr>-->
 							</tbody>
 						</table>
 						<table id="tmnTable" >
@@ -234,7 +234,7 @@
 						<input type="checkbox" id="charge" class="j_checkbox" title="剩余流量" /><label for="charge">余额提醒</label> 
 					</li>-->
 					<li>
-						<input type="checkbox" id="powerdown" class="j_checkbox" title="剩余流量" /><label for="powerdown">断电告警</label> 
+						<input type="checkbox" id="powerdown" class="j_checkbox" title="断电告警" /><label for="powerdown">断电告警</label> 
 					</li>
 				</ul>
 				<input type="button" value="" id="smsNoticeSave" class="smsButton j_save" />
@@ -420,7 +420,7 @@
 								</tr>
 								<tr>
 									<td class="corp_terminalTdL">停留告警:</td>
-									<td id="corp_stop" class="j_corp_ListVal j_radio">
+									<td id="corp_stop" class="j_radio">
 										<input id="corp_stop_status1" type="radio" value="1" name="corp_stop_status" />
 										<label for="corp_stop_status1">开启</label>
 										<input id="corp_stop_status0" type="radio" value="0" name="corp_stop_status" />
@@ -429,11 +429,11 @@
 								</tr>
 								<tr class="corp_terminalTdL hide" id="td_corp_stop_interval">
 									<td class="corp_terminalTdL"></td>
-									<td id="corp_stop_interval"  class="j_corp_ListVal"  t_val="">
+									<td id="corp_stop_interval"  class="j_corp_ListVal" t_val="">
 										停留超过<input type="text" id="t_corp_stop_interval" terminalkey="stop_interval"  class="text_mouseOut j_onInputBlur" max = "4"  who="validateLength" parent="terminalWrapper" />分钟,上报告警
 									</td>
 								</tr>
-								<tr>
+								<!--<tr>
 									<td class="corp_terminalTdL">停车设防:</td>
 									<td id="corp_parking_defend" class="j_corp_ListVal j_radio" t_val="">
 										<input id="corp_parking_defend1" type="radio" value="1" name="corp_parking_defend" />
@@ -441,7 +441,7 @@
 										<input id="corp_parking_defend0" type="radio" value="0" name="corp_parking_defend" />
 										<label for="corp_parking_defend0">关闭</label>
 									</td>
-								</tr>
+								</tr>-->
 								<!--<tr class="j_corp_terminal">
 									<td class="corp_terminalTdL" >告警模式:</td>
 									<td id="corp_alert_freq"  class="j_corp_ListVal j_input"  t_val="">
@@ -457,6 +457,21 @@
 										<span class="autoContainer hide j_corp__common" id="corp_common">检测到震动，立刻告警</span>
 									</td>
 								</tr>-->
+								<tr>
+									<td class="corp_terminalTdL">超速门限:</td>
+									<td id="corp_speed_statusSet" class="j_radio" t_val="">
+										<input id="corp_speed_status1" type="radio" value="1" name="corp_speed_status" />
+										<label for="corp_speed_status1">开启</label>
+										<input id="corp_speed_status0" type="radio" value="0" name="corp_speed_status" />
+										<label for="corp_speed_status0">关闭</label>
+									</td>
+								</tr>
+								<tr class="corp_terminalTdL hide" id="td_corp_speed_limit">
+									<td class="corp_terminalTdL"></td>
+									<td id="corp_speed_limitLabel" t_val="" class="j_corp_ListVal">
+										<input type="text" id="t_corp_speed_limit" terminalkey="speed_limit" class="text_mouseOut " />km/h
+									</td>
+								</tr>
 								<tr class="j_corp_terminal cCorpNum">
 									<td class="corp_terminalTdL" >定位器名称:</td>
 									<td id="corp_corp_cnum"  class="j_corp_ListVal j_input"  t_val="">
@@ -467,22 +482,22 @@
 									<td class="corp_terminalTdL" >图标:</td>
 									<td id="corp_icon_type" class="corp_radio j_corp_ListVal j_radio"  t_val="">
 										<input type="radio" id="icon_type0" name="icon_type" value="0" />
-										<label for="icon_type0"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
+										<label for="icon_type0"><img src="{{static_url('images/corpImages/terminalIcons/icon_car1.png')}}" class="icon" /></label>
 										<input type="radio" id="icon_type1"  name="icon_type" value="1"  />
-										<label for="icon_type1"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
+										<label for="icon_type1"><img src="{{static_url('images/corpImages/terminalIcons/icon_moto1.png')}}" class="icon" /></label>
 										<input type="radio" id="icon_type2"  name="icon_type" value="2"  />
-										<label for="icon_type2"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
+										<label for="icon_type2"><img src="{{static_url('images/corpImages/terminalIcons/icon_person1.png')}}" class="icon"  /></label>
 										<input type="radio" id="icon_type3"  name="icon_type" value="3"  />
-										<label for="icon_type3"><img src="../static/images/corpImages/terminalIcons/icon_terminal.png" class="icon" /></label>
+										<label for="icon_type3"><img src="{{static_url('images/corpImages/terminalIcons/icon_terminal.png')}}" class="icon" /></label>
 										<input type="radio" id="icon_type4"  name="icon_type" value="4"  />
-										<label for="icon_type4"><img src="../static/images/corpImages/terminalIcons/icon_police1.png" class="icon" /></label>
+										<label for="icon_type4"><img src="{{static_url('images/corpImages/terminalIcons/icon_police1.png')}}" class="icon" /></label>
 										<input type="radio" id="icon_type5"  name="icon_type" value="5"  />
-										<label for="icon_type5"><img src="../static/images/corpImages/terminalIcons/icon_policeMoto1.png" class="icon" /></label>
+										<label for="icon_type5"><img src="{{static_url('images/corpImages/terminalIcons/icon_policeMoto1.png')}}" class="icon" /></label>
 									</td>
 								</tr>
 								<tr>
 									<td class="corp_terminalTdL" >业务类型:</td>
-									<td id="corp_biz_type" class="corp_radio j_corp_ListVal j_radio" t_val="">
+									<td id="corp_biz_type" class="corp_radio j_radio" t_val="">
 										<label id="t_corp_biz_type"></label>
 									</td>
 									<!--<td id="corp_biz_type" class="corp_radio j_corp_ListVal j_radio" t_val="">
@@ -559,6 +574,9 @@
 						</li>
 						<li>
 							<input type="checkbox" id="corp_region_out" class="j_corp_checkbox" title="出围栏告警" /><label for="corp_region_out">出围栏告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_speed_limit" class="j_corp_checkbox" title="超速告警" /><label for="corp_speed_limit">超速告警</label> 
 						</li>
 					</ul>
 					<div class="smsMobileDiv">
@@ -1089,17 +1107,17 @@
 						<td class="corp_radio">
 							<label class="cTerminalLabel">图标：</label>
 							<input type="radio" id="c_icon_type0"  name="c_icon_type" value="0" checked />
-							<label for="c_icon_type0"><img src="../static/images/corpImages/terminalIcons/icon_car1.png" class="icon" /></label>
+							<label for="c_icon_type0"><img src="{{static_url('images/corpImages/terminalIcons/icon_car1.png')}}" class="icon" /></label>
 							<input type="radio" id="c_icon_type1"  name="c_icon_type" value="1"  />
-							<label for="c_icon_type1"><img src="../static/images/corpImages/terminalIcons/icon_moto1.png" class="icon" /></label>
+							<label for="c_icon_type1"><img src="{{static_url('images/corpImages/terminalIcons/icon_moto1.png')}}" class="icon" /></label>
 							<input type="radio" id="c_icon_type2"  name="c_icon_type" value="2"  />
-							<label for="c_icon_type2"><img src="../static/images/corpImages/terminalIcons/icon_person1.png" class="icon"  /></label>
+							<label for="c_icon_type2"><img src="{{static_url('images/corpImages/terminalIcons/icon_person1.png')}}" class="icon"  /></label>
 							<input type="radio" id="c_icon_type3"  name="c_icon_type" value="3"   />
-							<label for="c_icon_type3"><img src="../static/images/corpImages/terminalIcons/icon_default1.png" class="icon"  /></label>
+							<label for="c_icon_type3"><img src="{{static_url('images/corpImages/terminalIcons/icon_default1.png')}}" class="icon"  /></label>
 							<input type="radio" id="c_icon_type4"  name="c_icon_type" value="4"  />
-							<label for="c_icon_type4"><img src="../static/images/corpImages/terminalIcons/icon_police0.png" class="icon" /></label>
+							<label for="c_icon_type4"><img src="{{static_url('images/corpImages/terminalIcons/icon_police0.png')}}" class="icon" /></label>
 							<input type="radio" id="c_icon_type5"  name="c_icon_type" value="5"  />
-							<label for="c_icon_type5"><img src="../static/images/corpImages/terminalIcons/icon_policeMoto0.png" class="icon" /></label>
+							<label for="c_icon_type5"><img src="{{static_url('images/corpImages/terminalIcons/icon_policeMoto0.png')}}" class="icon" /></label>
 						</td>
 					</tr>
 					<tr>
@@ -1239,6 +1257,10 @@
 						<li>
 							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="10" title="停留" />
 							<label class="x_label" title="停留">停留</label>
+						</li>
+						<li>
+							<input type="checkbox" name="event_type" class="x_eventTypeCheckbox" value="11" title="超速" />
+							<label class="x_label" title="超速">超速</label>
 						</li>
 						{% end %}
 					</ul>
@@ -1774,25 +1796,42 @@
 			</div>
 		</span>
 	</div>
+	<div id="control_panel" class="hide">
+		<!--按钮-->
+		<span id="trackSlide" title="比较快"></span>
+		<span class="trackBtn">
+			<a id="tPrev" class="tPrev j_trackBtnhover"></a>
+			<a id="tPlay" class="tPlay j_trackBtnhover"></a>
+			<a id="tPause" class="tPause hide j_trackBtnhover"></a>
+			<a id="tNext" class="tNext j_trackBtnhover"></a>
+		</span>
+	</div>
 	
 	<div class="j_delay hide">
 		<span class="disPanelCon j_disPanelCon">
 			<a class="disPanel j_arrowClick" href="#"></a>
 		</span>
 		<span class="delayPanel j_delayPanel">
-			<div class="delayDiv">
-				<span class="alarmTitle">
-					<span>停留点列表</span>
-					<a class="exportDelay j_exportDelay" id="exportDelay" target="_self">导出数据</a>
-				</span>
-				<table class="delayTable" id="delayTable">
-					<thead>
-						<tr><td>事件</td><td class="delayCenterTd">时间(开始)</td><td class="delayCenterTd">位置</td></tr>
-					</thead>
-					<tbody class="j_delayTbody">
-						
-					</tbody>
-				</table>
+			<div id="trackSearchPanel">
+				<div id="trackTerminalAlias">
+					<label id="trackAliasLabelPanel">定位器</label>&nbsp;：<label id="trackTerminalAliasLabel"></label>
+				</div>
+				<div class="track_deillPanel">
+					<label for="ceillid_flag">基站定位&nbsp;：</label><input type="checkbox" id="ceillid_flag" title="是否显示基站定位" />
+				</div>
+				<!--<span class="timeTip">时间范围:</span>-->
+				<div class="trackTime">
+					<label class="trackTime_label">开始时间&nbsp;：</label><input type="text" class="time" id="trackBeginTime" />
+					<label class="trackTime_label">结束时间&nbsp;：</label><input type="text" class="time" id="trackEndTime" />
+					<a id="trackSearch" class="tSearch"></a>
+				</div>
+			</div>
+			<div id="trackSearch_topShowIcon" style="left: 50%;"></div>
+			<div class="delayDataPanel">
+				<a class="exportDelay j_exportDelay hide" id="exportDelay" target="_self" title="导出停留点">导出数据</a>
+				<ul id="delayTable" class="delayTable">
+					<li class="default_delayItem">请选择开始和结束时间进行查询</li>
+				</ul>
 			</div>
 		</span>
 	</div>
@@ -1889,6 +1928,17 @@
 						<li>
 							<input type="checkbox" id="corp_alert_region_out" class="j_corpAlert_checkbox" title="出围栏告警" /><label for="corp_alert_region_out">出围栏告警</label> 
 						</li>
+						<li>
+							<input type="checkbox" id="corp_alert_powerdown" class="j_corpAlert_checkbox" title="断电告警" /><label for="corp_alert_powerdown">断电告警</label> 
+						</li>
+						<li>
+							<input type="checkbox" id="corp_alert_speed_limit" class="j_corpAlert_checkbox" title="超速告警" /><label for="corp_alert_speed_limit">超速告警</label>
+						</li>
+                        <!--
+						<li>
+							<input type="checkbox" id="corp_alert_stop" class="j_corpAlert_checkbox" title="停留告警" /><label for="corp_alert_stop">停留告警</label> 
+						</li>
+                        -->
 					</ul>
 				</fieldset>
 				<input type="button" value="" id="corp_alertOptionSave" class="corp_alertOptionButton j_save" />
@@ -1922,11 +1972,18 @@
 		</div>
 	</div>
 	<div id="accStatusCallBackWrapper" class="wrapper hide j_drag">
+		<div id="accStatusConfirmPanel" class="hide">
+			<div id="accStatus_confirmMsg" class="accCallBackFont"></div>
+			<div class="accCallBack_btnPanel">
+				<input id="accStatus_confirmSure" type="button" class="accStatusCallBackBtn" />
+				<input id="accStatus_confirmClose" type="button" class="accStatusCallBackBtn" value="关闭" />
+			</div>
+		</div>
 		<div id="accStatusCallBackSuccess" class="hide">
 			<div class="accCallBackFont">远程控制操作成功</div>
 			<input id="accCallBack_know" type="button" class="accStatusCallBackBtn" />
 		</div>
-		<div id="accStatusCallBackError">
+		<div id="accStatusCallBackError" class="hide">
 			<div class="accCallBackFont">远程控制操作失败</div>
 			<div class="accCallBack_btnPanel">
 				<input id="accCallBack_reTry" type="button" class="accStatusCallBackBtn" />
@@ -1934,5 +1991,117 @@
 			</div>
 		</div>
 	</div>
+	<!-- 集团单程管理展示页面 -->
+	<div id="corpMileageSetWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle corpMileageSetTitle">
+			<span class="close j_close" who="corpMileageSet"></span>
+			<span title="收起" class="hideOrShowContent min j_hosBtn"></span>
+		</div>
+		<div id="corpMileageSetContent" class="wrapperContent corpMileageSetContent">
+			<a id="corpMileageSetCreateBtn" class="j_corpMileageSetCreateBtn" href="#">新增起点</a>
+			<table id="corpMileageSetTable" class="dataTable regionTable" cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="corpMileageSetTableHeader">
+						<th>序号</th>
+						<th>起点名称</th>
+						<th>查看详情</th>
+						<th>操作</th>
+					</tr>
+				</tbody>
+			</table>
+			<span id="corpMileageSetNote">注意：新建的单程起点，需要选择定位器，并在右键菜单中点击“绑定单程起点”才能生效</span>
+		</div>
+	</div>
 	
+	<!-- 单程新增服务功能条-->
+	<div id="mileageSetCreateWrapper" class="wrapper hide j_drag">
+		<span id="mileageSetCreateBtnPanel" class="regionCreateBtnPanel">
+			<a id="mileageSetCreate_dragMap" href="#" class="regionCreate_dragMap">拖动地图</a>
+			<a id="mileageSetCreate_circle" href="#" class="regionCreate_circle" regiontype="circle">圆形起点</a>
+			<a id="mileageSetCreate_polygon" href="#" class="regionCreate_polygon" regiontype="polygon">多边形起点</a>
+		</span>
+		<a id="mileageSetCreateClose" class="tClose" title="关闭"></a>
+	</div>
+	<!-- 单程与终端绑定 -->
+	<div id="bindMileageSetWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle bindMileageSetTitle">
+			<span class="close j_close" title="关闭窗口" who="bindMileageSet"></span>
+		</div>
+		<div class="wrapperContent bindRegionContent">
+			<label id="corpMileageSetForTerminal" class="regionForTerminal">定位器：</label>
+			<table id="bindMileageSetTable" class="dataTable bindRegionTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="bindMileageSetTableHeader">
+						<th class="regionCheckTh"></th>
+						<th>序号</th>
+						<th>起点名称</th>
+						<th>查看详情</th>
+					</tr>
+				</tbody>
+			</table>
+			<input type="button" id="bindMileageSetSave" class="bindRegionSave j_save" />
+		</div>
+	</div>
+	<!-- 批量单程与终端绑定 -->
+	<div id="bindBatchMileageSetWrapper" class="wrapper hide j_drag">
+		<div class="wrapperTitle bindBatchMileageSetTitle">
+			<span class="close j_close" who="bindBatchMileageSet"></span>
+		</div>
+		<div class="wrapperContent bindBatchMileageSetContent">
+			<table id="bindBatchMileageSetTable" class="dataTable bindBatchMileageSetTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="bindBatchMileageSetTableHeader">
+						<th class="regionCheckTh"></th>
+						<th>序号</th>
+						<th>起点名称</th>
+						<th>查看详情</th>
+					</tr>
+				</tbody>
+			</table>
+			<input type="button" id="bindBatchMileageSetSave" class="bindRegionSave j_save" />
+			<span class="bindLineNote">注意：批量绑定单程起点会覆盖选中定位器的单程起点绑定信息。</span>
+		</div>
+	</div>
+	<!--单点查询-->
+	<div id="mileageSetWrapper" class="wrapper hide">
+		<!--<div class="wrapperTitle mileageTitle">
+			<span class="close j_close" title="关闭窗口" who="mileage"></span>
+		</div>-->
+		<div class="wrapperContent mileageContent j_wrapperContent">
+			<table class="mileageCondition commonCondition">
+				<tr>
+					<td colspan="4" class="title">
+						单程查询
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<span class="spanConditionsWord">定位器：</span> 
+						<select id="selectTerminals2">
+						</select>
+						<span class="spanConditions">
+						日期选择：<input type="text" id="mileageSetStartTime"  class="time" />
+						至 <input type="text" id="mileageSetEndTime"  class="time" />
+						</span>
+						<span id="mileageSet_searchBtn" class="eventBtn marginleft0 j_tBtnhover"></span>
+					</td>
+				</tr>
+			</table>
+			<table id="mileageSetTable" class="dataTable mileageTable"  cellspacing="0" border="1" borderColor="red" align="center">
+				<tbody>
+					<tr id="mileageSetTableHeader">
+						<th class="j_mileageNum">时间范围</th>
+						<th class="mileageAlias j_mileageTH">起点名称</th>
+						<th class="mileageDist">查看详情</th>
+					</tr>
+				</tbody>
+			</table>
+			<!-- 分页 -->
+			<div id="mileageSetPage" class="hide">
+				<span id="mileageSetPrevBtn" class="prevBtn j_pBtnHover"></span>
+				<span id="mileageSetPageNums" class="pageNums"><label id="mileageSetCurrentPage"></label>/<label id="mileageSetPageCount"></label></span>
+				<span id="mileageSetNextBtn" class="nextBtn j_pBtnHover"></span>
+			</div>
+		</div>
+	</div>
 </div>

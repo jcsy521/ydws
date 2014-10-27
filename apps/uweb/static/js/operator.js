@@ -1,5 +1,5 @@
 // 操作员保存
-window.dlf.fn_saveOperator = function() {
+dlf.fn_saveOperator = function() {
 	var	str_id = $('#hidOperatorId').val(),
 		arr_groups = $('#operatorGroups input:checked'),// $('#txt_operatorGroup').val(),
 		str_groupIds = '',
@@ -34,7 +34,7 @@ window.dlf.fn_saveOperator = function() {
 /**
 * 编辑操作员
 */
-window.dlf.fn_editOperator = function(n_id) {
+dlf.fn_editOperator = function(n_id) {
 	dlf.fn_onInputBlur();	// 操作员手机号事件侦听
 	$('#addOperatorForm input').css('color', '#000000');
 	if ( n_id ) {
@@ -71,7 +71,7 @@ window.dlf.fn_editOperator = function(n_id) {
 /**
 * 删除操作员
 */
-window.dlf.fn_deleteOperator = function(n_id) {
+dlf.fn_deleteOperator = function(n_id) {
 	if ( n_id ) {
 		if ( confirm('确定要删除该操作员吗？') ) {
 			$.delete_(OPERATOR_URL+'?ids='+n_id, '', function(data) {

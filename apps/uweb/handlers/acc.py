@@ -60,7 +60,7 @@ class ACCHandler(BaseHandler, BaseMixin):
                                                    op_type=op_type, 
                                                    timestamp=int(time.time()), 
                                                    op_status=0, # failed
-                                                   t2_tatus=0, # wait for T2 
+                                                   t2_status=0, # wait for T2 
                                                    acc_message=u'') 
                             self.redis.setvalue(acc_status_info_key, acc_status_info, UWEB.ACC_STATUS_EXPIRY)
                 except Exception as e: 

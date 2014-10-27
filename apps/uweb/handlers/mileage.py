@@ -317,8 +317,10 @@ class MileageDownloadHandler(MileageHandler):
                     ws.write(i, 1, result['alias'])
                     ws.write(i, 2, result['distance'])
                 last_row = len(results) + start_line
-                ws.write(last_row, 0, u'合计')
-                ws.write(last_row, 1, counts[0])
+                #NOTE: Here, use merge and center_style
+                center_style  = xlwt.easyxf('align: wrap on, vert centre, horiz center;')
+                ws.write_merge(last_row, last_row, 0, 1, u'合计', center_style)
+                ws.write(last_row, 2, counts[0])
             else: 
                 date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
                 
@@ -336,8 +338,10 @@ class MileageDownloadHandler(MileageHandler):
                     ws.write(i, 1, result['alias'])
                     ws.write(i, 2, result['distance'])
                 last_row = len(results) + start_line
-                ws.write(last_row, 0, u'合计')
-                ws.write(last_row, 1, counts[0])
+                #NOTE: Here, use merge and center_style
+                center_style  = xlwt.easyxf('align: wrap on, vert centre, horiz center;')
+                ws.write_merge(last_row, last_row, 0, 1, u'合计', center_style)
+                ws.write(last_row, 2, counts[0])
 
             _tmp_file = StringIO()
             wb.save(_tmp_file)

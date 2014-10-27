@@ -94,6 +94,9 @@ from handlers.operator import OperatorHandler
 from handlers.region import RegionHandler, RegionDetailHandler
 from handlers.corpregion import CorpRegionHandler
 from handlers.bindregion import BindRegionHandler
+from handlers.single import SingleHandler
+from handlers.corpsingle import CorpSingleHandler, CorpSingleListHandler, CorpSingleDetailHandler
+from handlers.bindsingle import BindSingleHandler
 from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.zfjsyncer import ZFJSyncerHandler
 from handlers.ownerservice import OwnerserviceHandler
@@ -117,6 +120,10 @@ from handlers.upload import UploadHandler
 from handlers.attendance import AttendanceHandler
 from handlers.bind import BindHandler
 from handlers.acc import ACCHandler
+from handlers.masspoint import MassPointHandler 
+from handlers.wspush import WSPushHandler
+
+from handlers.test import HCHandler
 
 # utils
 from handlers.uwebhelper import GEHandler
@@ -128,6 +135,7 @@ class Application(tornado.web.Application):
         handlers = [
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
+            (r"/index", MainHandler),
             (r"/login/*", LoginHandler),
             (r"/logintest/*", LoginTestHandler),
             (r"/checkupdate/ios/*", CheckUpdateIOSHandler),
@@ -206,7 +214,6 @@ class Application(tornado.web.Application):
 
             (r"/download/manual/*", DownloadManualHandler),
             (r"/download/online/*", OnlineDownloadHandler),
-            (r"/download/terminal/*", DownloadTerminalHandler),
             (r"/downloadsms/*", DownloadSmsHandler),
             (r"/uploadterminalfile/*", UploadTerminalHandler),
 
@@ -281,7 +288,17 @@ class Application(tornado.web.Application):
             (r"/download/*", DownloadHandler),
             (r"/corpregion/*", CorpRegionHandler),
 
-            (r"/test/*", EventHandler),
+            (r"/bindsingle/*", BindSingleHandler),
+            (r"/corpsingle/*", CorpSingleHandler),
+            (r"/corpsingle/list/*", CorpSingleListHandler),
+            (r"/corpsingle/detail/*", CorpSingleDetailHandler),
+            (r"/single/*", SingleHandler),
+
+            (r"/masspoint/*", MassPointHandler),
+
+            (r"/wspush/*", WSPushHandler),
+            (r"/flushpush/*", WSPushHandler),
+
 
             #znbc server handler
             (r"/passenger/*", PassengerHandler),
@@ -295,8 +312,11 @@ class Application(tornado.web.Application):
             # utils
             (r"/ge/*", GEHandler),
 
+            # utils
+            (r"/hctest/*", HCHandler),
+
             # handle the invalid url
-            (r".*", MainHandler),
+            #(r".*", MainHandler),
         ]
 
         settings = dict(
@@ -310,6 +330,7 @@ class Application(tornado.web.Application):
             login_url="/login",
             #debug=debug,
             app_name="ACBUWEB",
+            #xsrf_cookies=True,
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -317,7 +338,8 @@ class Application(tornado.web.Application):
         self.db = DBConnection().db
         self.redis = MyRedis()
         self.redis.setvalue('is_alived', ALIVED)
-        hash_ = get_static_hash(settings.get('static_path')) 
+        #hash_ = get_static_hash(settings.get('static_path')) 
+        hash_ = '' 
         self.redis.setvalue('static_hash', hash_)
 
 def shutdown(pool, server):

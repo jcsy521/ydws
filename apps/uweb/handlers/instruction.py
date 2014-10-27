@@ -37,7 +37,7 @@ class AndroidInsHandler(BaseHandler):
                     versioninfo=version_info.versioninfo,
                     updatetime=version_info.updatetime,
                     filesize=version_info.filesize,
-                    count=download_info.count)
+                    count=download_info.count if download_info else 0)
 
 class IOSInsHandler(BaseHandler):
 

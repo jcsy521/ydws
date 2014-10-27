@@ -68,7 +68,11 @@ class MileageJuniorHandler(BaseHandler):
             statistic_mode = 'single' 
             if not tids: # all terminals
                 statistic_mode = 'all' 
-                terminals = QueryHelper.get_terminals_by_cid(self.current_user.cid, self.db)
+                if self.current_user.oid == UWEB.DUMMY_OID: # enterprise 
+                    terminals = QueryHelper.get_terminals_by_cid(self.current_user.cid, self.db) 
+                else: # operator 
+                    terminals = QueryHelper.get_terminals_by_oid(self.current_user.oid, self.db)
+
                 tids = [terminal.tid for terminal in terminals]
         except Exception as e:
             logging.exception("[UWEB] cid:%s, oid:%s get mileage report failed. Exception: %s",

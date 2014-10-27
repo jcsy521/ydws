@@ -19,7 +19,7 @@ var postAddress = null,
 /**
 * 加载百度MAP
 */
-window.dlf.fn_loadMap = function(mapContainer) {                  	
+dlf.fn_loadMap = function(mapContainer) {                  	
 	mapObj = new BMap.Map(mapContainer); // 创建地图实例
 	markerPoint = new BMap.Point(116.39825820922851 ,39.904600759441024); // 创建点坐标
 	mapObj.centerAndZoom(markerPoint, 5); // 初始化地图，设置中心点坐标和地图级别 
@@ -29,7 +29,7 @@ window.dlf.fn_loadMap = function(mapContainer) {
 	
 	mapObj.addControl(obj_NavigationControl);	// 比例尺缩放
 	mapObj.addControl(new BMap.ScaleControl());  // 添加比例尺控件
-	
+	mapObj.setMinZoom(5);
 	/*添加相应的地图控件及服务对象*/
 	mapObj.addControl(new BMap.MapTypeControl({mapTypes: [BMAP_NORMAL_MAP,BMAP_SATELLITE_MAP], offset: new BMap.Size(100, 10)}));	// 地图类型 自定义显示 普通地图和卫星地图
 	
@@ -37,13 +37,28 @@ window.dlf.fn_loadMap = function(mapContainer) {
  	if ( mapContainer == 'mapObj' ) {
  		dlf.fn_setMapControl(10); /*设置相应的地图控件及服务对象*/
  	}
+	//若比例尺是国级别,不允许拖动地图
+	/*mapObj.addEventListener('dragstart', function(e) {
+		var n_zoomSize = mapObj.getZoom();
+		
+		if ( n_zoomSize <= 4 ) {
+			mapObj.disableDragging();
+		}
+	});
+	mapObj.addEventListener('zoomend', function(e) {
+		var n_zoomSize = mapObj.getZoom();
+		
+		if ( n_zoomSize > 4 ) {
+			mapObj.enableDragging();
+		}
+	});*/
 }
 
 /**
 * 设置地图控件的显示隐藏
 * b_menu: true: 显示 false: 隐藏
 */
-window.dlf.fn_hideControl = function(b_menu) {
+dlf.fn_hideControl = function(b_menu) {
 	var b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
 	if ( b_isHttps ) {
@@ -60,7 +75,7 @@ window.dlf.fn_hideControl = function(b_menu) {
 * 设置地图上地图类型,实时路况的位置
 * n_NumTop: 相对于地图上侧做的偏移值 
 */
-window.dlf.fn_setMapControl = function(n_NumTop) {
+dlf.fn_setMapControl = function(n_NumTop) {
 	var b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
 	if ( b_isHttps ) {
@@ -79,7 +94,7 @@ window.dlf.fn_setMapControl = function(n_NumTop) {
 /**
 * 百度地图生成点
 */
-window.dlf.fn_createMapPoint = function(n_lon, n_lat) {
+dlf.fn_createMapPoint = function(n_lon, n_lat) {
 	if ( n_lon == 0 || n_lat == 0 ) { 
 		return '-';
 	} else {
@@ -92,7 +107,7 @@ window.dlf.fn_createMapPoint = function(n_lon, n_lat) {
 * arr_drawLine: 轨迹线的点集合
 * options: 轨迹线的属性
 */
-window.dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
+dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
 	var obj_polyLine = null;
 	if ( arr_drawLine.length > 0 ) {
 		obj_polyLine = new BMap.Polyline(arr_drawLine, {'strokeOpacity': 0.5});
@@ -122,7 +137,7 @@ window.dlf.fn_createPolyline = function(arr_drawLine, obj_options) {
 * centers: point对象
 * zoom: 地图级别值
 */
-window.dlf.fn_setOptionsByType = function(type, centers, zoom) {
+dlf.fn_setOptionsByType = function(type, centers, zoom) {
 	switch (type) {
 		case 'center':	// 设置中心点
 			mapObj.setCenter(centers);
@@ -143,7 +158,7 @@ window.dlf.fn_setOptionsByType = function(type, centers, zoom) {
 * 百度地图添加图层
 * obj_overlay: 要添加的图层对象
 */
-window.dlf.fn_addOverlay = function(obj_overlay) {
+dlf.fn_addOverlay = function(obj_overlay) {
 	mapObj.addOverlay(obj_overlay);
 }
 
@@ -151,7 +166,7 @@ window.dlf.fn_addOverlay = function(obj_overlay) {
 * 清除页面上的地图图形数据
 * obj_overlays: 要删除的图层对象,如果没有则清除地图上所有图层
 */
-window.dlf.fn_clearMapComponent = function(obj_overlays) {
+dlf.fn_clearMapComponent = function(obj_overlays) {
 	if ( obj_overlays ) {
 		mapObj.removeOverlay(obj_overlays);
 	} else {
@@ -165,7 +180,7 @@ window.dlf.fn_clearMapComponent = function(obj_overlays) {
 * n_clon：经度
 * n_clat: 纬度
 */
-window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
+dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 	var str_keywords = '',
 		n_bounds = parseInt($('#txtBounds').val()),
 		obj_kw = $('#txtKeywords');
@@ -199,10 +214,10 @@ window.dlf.fn_searchPoints = function (obj_keywords, n_clon, n_clat) {
 * n_index: 轨迹点的索引值，根据其值获取对应的位置
 * n_counter : draw 时根据值修改数组中点的位置描述  下次就不用重新获取位置
 */
-window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
+dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 	var n_degree = dlf.fn_processDegree(obj_location.degree),  // 车辆方向角
 		str_loginSt =  obj_location.login,
-		str_imgUrl = str_loginSt == 1 ? 'default' : 'default_logout', 
+		str_imgUrl = str_loginSt == 0 ? 'default_logout' : 'default', 
 		myIcon = new BMap.Icon(BASEIMGURL + str_imgUrl + '.png', new BMap.Size(34, 34)),
 		n_clon = obj_location.clongitude,
 		n_clat = obj_location.clatitude,
@@ -251,9 +266,9 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		if ( str_iconType == 'actiontrack' ) {
 			if ( n_nowtime - n_timestamp < 300 && n_speed > 5 ) {	// 5分钟之内的点
 				b_flag = true;
-				if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4|| n_iconType == 5 ) {
+				if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4 || n_iconType == 5 ) {
 					obj_iconSize = new BMap.Size(50, 50);
-					if ( n_iconType == 1 ) {
+					if ( n_iconType == 1 || n_iconType == 4 || n_iconType == 5 ) {
 						obj_imageOffset = new BMap.Size(0, 0);
 					} else {
 						obj_imageOffset = new BMap.Size(-5, 0);
@@ -268,11 +283,11 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 		}
 		myIcon.imageUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标	
 	}
-	if ( str_iconType == 'start' ) {	// 轨迹起点图标
+	if ( str_iconType == 'start' || str_iconType == 'singlestart' ) {	// 轨迹起点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerA.png';
-	} else if ( str_iconType == 'end' ) {	// 轨迹终点图标
+	} else if ( str_iconType == 'end' || str_iconType == 'singleend' ) {	// 轨迹终点图标
 		myIcon.imageUrl = BASEIMGURL + 'green_MarkerB.png';
-	} else if ( str_iconType == 'draw' ) {
+	} else if ( str_iconType == 'draw' || str_iconType == 'singledraw' ) {
 		myIcon.imageUrl = BASEIMGURL + 'default.png';
 	} else if ( str_iconType == 'delay' ) {	// 停留点图标
 		myIcon.imageUrl = BASEIMGURL + 'delay_Marker.png';
@@ -282,7 +297,7 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 	marker= new BMap.Marker(mPoint, {icon: myIcon});
 	marker.setOffset(new BMap.Size(0, 0));
 	
-	if ( str_iconType == 'draw' ) {	// 轨迹播放点的marker设置
+	if ( str_iconType == 'draw'|| str_iconType == 'singledraw' ) {	// 轨迹播放点的marker设置
 		actionMarker = marker;
 		
 	} else if ( str_iconType == 'actiontrack' ) {	// lastinfo or realtime marker点设置
@@ -343,14 +358,14 @@ window.dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_in
 }
 
 // 百度分享js引用
-window.dlf.fn_loadBaiduShare = function() {
+dlf.fn_loadBaiduShare = function() {
 	var obj_script = document.createElement('script'),
 		obj_share = $('#bdshare_s'),
 		b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
-	if ( b_isHttps ) {
+	//if ( b_isHttps ) {
 		return;
-	}
+	//}
 	if ( dlf.fn_isEmptyObj(obj_share) ) {
 		obj_share.remove();
 	}
@@ -422,7 +437,7 @@ function fn_infoWindowCloseShow() {
 /*
 * 创建地图吹出框对象
 */
-window.dlf.fn_createMapInfoWindow = function(obj_location, str_type, n_pointIndex) {
+dlf.fn_createMapInfoWindow = function(obj_location, str_type, n_pointIndex) {
 	if ( !obj_mapInfoWindow ) {
 		obj_mapInfoWindow = new BMap.InfoWindow(dlf.fn_tipContents(obj_location, str_type, n_pointIndex));
 		
@@ -452,13 +467,16 @@ function fn_infoWindowTextUpdate(obj_location, str_type) {
 		b_viewport = true;
 	
 	dlf.fn_loadBaiduShare();
-	dlf.fn_updateOpenTrackStatusColor(obj_location.tid);
+	setTimeout(function() {
+		dlf.fn_updateOpenTrackStatusColor(obj_location.tid);
+	}, 100);
 	// 圆: 经纬度,半径 显示误差圈 //TODO
 	var obj_circleData = {'circle': {'longitude': n_clon, 'latitude': n_clat, 'radius': obj_location.locate_error}, 'region_shape': 0};
 	
-	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' || str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == 'draw' || str_type == 'actiontrack' ) {
+	if ( str_type == 'alarmInfo' || str_type == 'eventSurround' || str_type == 'region' || str_type == 'delay' || str_type == 'start' || str_type == 'end' || str_type == 'draw' || str_type == 'actiontrack' || str_type == 'singlestart' || str_type == 'singleend' || str_type == 'singledraw' ) {
 		b_viewport = false;
 	}
+	$('#corpMileageSetWrapper').data('mileage_set', false);
 	dlf.fn_displayMapShape(obj_circleData, b_viewport, true);
 }
 
@@ -470,7 +488,7 @@ function fn_infoWindowTextUpdate(obj_location, str_type) {
 * n_index: 轨迹索引
 * b_isGencoder: 是否进行逆地址编码
 */
-window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder) {
+dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder) {
 	var	address = obj_location.name, 
 		str_tempAddress = address,
 		speed = obj_location.speed,
@@ -499,7 +517,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 		b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
 		b_corpRegionWpST = $('#corpRegionWrapper').is(':visible'),
 		b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
-		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible');
+		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
+		b_corpMileageSetStatus = $('#corpMileageSetWrapper').is(':visible'),	// 单点里程设置
+		b_bindMileageSetStatus = $('#bindMileageSetWrapper').is(':visible'),	// 单点里程绑定
+		b_bindBatchMileageSetStatus = $('#bindBatchMileageSetWrapper').is(':visible'),	// 单点里程批量绑定
+		b_mileageSetCreateStatus = $('#mileageSetCreateWrapper').is(':visible');	// 单点里程新增;
 	
 	//address = fn_cutString(address); hs: 2014-6-30
 	if ( dlf.fn_userType() ) {	// 集团用户修改图标
@@ -511,7 +533,7 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 				b_flag = true;
 			}
 		}
-		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, true);	// 集团用户设置marker的图标
+		str_imgUrl = dlf.fn_setMarkerIconType(n_degree, n_iconType, str_loginSt, b_flag);	// 集团用户设置marker的图标
 		
 		if ( $('.j_carList .j_currentCar').length == 0 ) {
 			str_currenttid = str_currentTid;
@@ -598,8 +620,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 		// hs:2014.1.21 轨迹查询的吹出框增加里程显示
 		//-==============轨迹的播放点	
 		var n_tempDist = 0;
+		if ( str_iconType == 'singledraw' || str_iconType == 'singlestart' || str_iconType == 'singleend' ) {
+			arr_dataArr = $('#singleControl_panel').data('trackdata');
+		}
 		
-		if ( str_iconType == 'draw' ) { 
+		if ( str_iconType == 'draw' || str_iconType == 'singledraw' ) { 
 			// 距离计算
 			if ( n_index == 0 ) {
 				n_tempDist = 0;
@@ -616,11 +641,11 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 			}
 		}
 		//==============轨迹的起点
-		if ( str_iconType == 'start' ) { 
+		if ( str_iconType == 'start' || str_iconType == 'singlestart' ) { 
 			n_tempDist = 0;
 		}
 		//==============轨迹的终点
-		if ( str_iconType == 'end' ) {
+		if ( str_iconType == 'end' || str_iconType == 'singleend' ) {
 			var n_dataLen = arr_dataArr.length;
 			
 			for ( var i = 1 ; i < n_dataLen; i++ ) {
@@ -633,16 +658,19 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 				n_tempDist += n_pointDist;
 			}
 		}
-		if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' ) {
-			str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist/1000, 1) +' km</label></li>';
+		if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'singledraw' || str_iconType == 'singlestart' || str_iconType == 'singleend' ) {
+			if ( n_tempDist < 1000 ) {
+				str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist, 0) +' m</label></li>';
+			} else {
+				str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist/1000, 1) +' km</label></li>';
+			}
 		}
 		
 		str_html += '<li>时间： '+ date +'</li>' + 
 					'<li class="msgBox_addressLi" title="'+ str_tempAddress +'"><label class="msgBox_addressTip">位置：</label> <lable class="lblAddress">'+ address +'</label></li>';
-
-
+		
 		if ( str_iconType == 'actiontrack' ) {
-			if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
+			if ( b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_routeLineWpST || b_routeLineCreateWpST || b_corpRegionWpST || b_bindRegionWpST || b_corpMileageSetStatus || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus ) {	// 如果告警查询,告警统计 ,里程统计,围栏相关 ,轨迹是打开并操作的,不进行数据更新
 			
 			} else {
 				str_html+='<li class="top10"><a href="#" id="infowindow_realtime"  onclick="dlf.fn_currentQuery();">定位</a><a href="#" id="trackReplay" onclick="dlf.fn_initTrack();">轨迹</a>';
@@ -651,7 +679,8 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 				} else {	// 如果是个人用户
 					str_html += '<a href="#" id="infowindow_terminal" onclick="dlf.fn_initTerminal();">设置</a>';
 				}
-				str_html += '<a href="#" id="infowindow_defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a><a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
+				//<a href="#" id="infowindow_defend"  onclick="dlf.fn_defendQuery();">设防/撤防</a>
+				str_html += '<a href="#"  class ="j_openTrack" onclick="dlf.setTrack(\''+str_tid+'\', this);">'+ str_tempMsg +'</a></li>';
 				
 				if ( str_tid == str_currenttid || !str_currenttid ) {
 					var str_fileUrl = location.href,
@@ -661,9 +690,9 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 						str_shareUrl = 'http://api.map.baidu.com/staticimage?&width=600&height=600&markers=' + str_clon + ',' + str_clat + '&markerStyles=-1,' + str_fileUrl + str_iconUrl + ',-1,34,34',
 						b_isHttps = document.location.protocol == 'https:' ? true : false;
 	
-						if ( !b_isHttps ) {
-							str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录http://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
-						}
+						/*if ( !b_isHttps ) {
+							str_html += '<li><span class="share">分享到：</span><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{\'url\': \''+ str_shareUrl +'\', \'text\': \'中国移动推出的“移动卫士”产品太好用了，可以实时通过手机客户端看到车辆或小孩老人的位置和行动轨迹，还有移动或震动短信报警等功能，有了这个神器，从此不怕爱车丢失了，可以登录https://www.ydcws.com/查看详细情况哦!\',\'comment\': \'无需安装：定位器可放置监控目标任何位置隐藏（如抱枕内，后备箱，座位下，储物盒，箱包内，口袋等）。\', \'pic\': \''+ str_shareUrl +'\'}"><a class="bds_tsina"></a><a class="bds_qzone"></a><a class="bds_tqf"></a><a class="bds_renren"></a></div></li>';	// 分享代码
+						}*/
 				}
 			}
 		} else if ( str_iconType == 'alarmInfo' ) {
@@ -682,12 +711,12 @@ window.dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isG
 * str_result: 获取到的位置
 * n_index: 如果是轨迹则根据索引获取name
 */
-window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat) {
+dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat) {
 	var str_result = str_result,
 		str_tempResult = str_result;//fn_cutString(str_result),	// 位置描述过长显示省略号 kjj add in 2013-08-21 hs:2014-6-30
 		obj_selfmarker = obj_selfmarkers[tid],	// $('.j_carList a[tid='+tid+']').data('selfmarker'),
 		obj_addressLi = $('#markerWindowtitle ul li').eq(4);
-		
+	
 	if ( str_type == 'realtime' || str_type == 'actiontrack' ) {
 		var str_currentTid = $('.j_carList a[class*=j_currentCar]').attr('tid');
 		
@@ -731,16 +760,18 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 		var obj_trackLocation = '',
 			str_tempResult = str_result.length > 20 ? str_result.substr(0, 20) + '...' : str_result;
 		
-		$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_tempResult).attr('title', str_result);	// 修改右侧列表位置描述
+		//$('.j_delayTbody').children('tr').eq(n_index).children('td').eq(2).html(str_tempResult).attr('title', str_result);	// 修改右侧列表位置描述
+
 		if ( n_index >= 0 ) {
 			if ( str_type == 'delay' ) {
-				var arr_delayPoints = $('#trackHeader').data('delayPoints');
+				var arr_delayPoints = $('.j_delay').data('delayPoints');
 				
 				arr_delayPoints[n_index].name = str_result;
 				
 				obj_trackLocation = arr_delayPoints[n_index];
 				
-				$('#trackHeader').data('delayPoints', arr_delayPoints);
+				$('.j_delay').data('delayPoints', arr_delayPoints);
+				$('#trackLsAddressPanel'+n_index).html(str_tempResult).attr('title', str_result);
 			} else {
 				arr_dataArr[n_index].name = str_result;
 				obj_trackLocation = arr_dataArr[n_index];
@@ -762,6 +793,41 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 			dlf.fn_createMapInfoWindow(obj_trackLocation, str_type, n_index);
 			obj_trackMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 		}
+	} else if ( str_type == 'stop' ) {
+		var arr_delayPoints = $('.j_delay').data('delayPoints');
+		
+		arr_delayPoints[n_index].name = str_result;
+		
+		$('.j_delay').data('delayPoints', arr_delayPoints);
+		if ( n_index == 0 ) {
+			str_result += '（终点）';
+		} else if ( n_index == arr_delayPoints.length-1 ) {
+			str_result += '（起点）';
+		}
+		
+		$('#trackLsAddressPane'+n_index).html(str_result);
+		
+	} else if ( str_type == 'singledraw' || str_type == 'singlestart' || str_type == 'singleend' ) {
+		var arr_singleTrackData = $('#singleControl_panel').data('trackdata'),
+			obj_singleLocation = null;
+			
+		arr_singleTrackData[n_index].name = str_result;
+		if ( str_type == 'draw' ) {
+			obj_trackMarker = actionMarker;
+			obj_singleLocation = arr_singleTrackData[n_index];
+		} else if ( str_type == 'start' ) {
+			obj_trackMarker = $('#singleControl_panel').data('markers')[0];
+			obj_singleLocation = arr_singleTrackData[0];
+		} else if ( str_type == 'end' ) {
+			arr_singleTrackData[arr_singleTrackData.length - 1].name = str_result;
+			obj_singleLocation = arr_singleTrackData[arr_singleTrackData.length - 1];
+			obj_trackMarker = $('#singleControl_panel').data('markers')[1];
+		}
+		if ( obj_trackMarker && obj_trackMarker.infoWindow ) {
+			dlf.fn_createMapInfoWindow(obj_singleLocation, str_type, n_index);
+			obj_trackMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
+		}
+		$('#singleControl_panel').data('trackdata', arr_singleTrackData);
 	} else {
 		var obj_carDatas = $('.j_carList').data('carsData'),
 				obj_tempCarData = obj_carDatas[tid];
@@ -782,7 +848,7 @@ window.dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon
 * str_type: 类型: realtime lastinfo or draw
 * n_index: 如果是轨迹则显示轨迹点的索引
 */
-window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index) {
+dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index) {
 	var gc = new BMap.Geocoder(),
 		str_result = '',
 		str_surroundingPois = '',
@@ -805,6 +871,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 		
 		if ( str_result != '' ) {
 			dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
+			//TODO:暂时未加poi显示
 		}
 	});
 	/*jQuery.ajax({
@@ -860,7 +927,7 @@ window.dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index
 * tips:  data format is jsonp
 * b_geoCode: 是否进行逆地址请求
 */
-window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_geoCode) {
+dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_geoCode) {
 	$('.j_body').data('intervalkey', true);
 	var n_lng = obj_carInfo.longitude,
 		n_lat = obj_carInfo.latitude,
@@ -881,17 +948,19 @@ window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInf
 					point = new BMap.Point(lng, lat),
 					str_currentTid = $($('.j_carList a[class*=j_currentCar]')).attr('tid');
 				
-				if ( str_type == 'actiontrack' ) {
-					obj_carInfo.clongitude = point.lng*3600000;
-					obj_carInfo.clatitude = point.lat*3600000;
-					$('.j_carList').data('carsData')[obj_carInfo.tid] = obj_carInfo;
-					dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据		
-					if ( str_currentTid == obj_carInfo.tid ) {	// 更新当前车辆信息
-						dlf.fn_updateTerminalInfo(obj_carInfo);
-					}
-					// 偏转成功后进行逆地址操作 2014.1.15
-					if ( b_geoCode ) {
-						dlf.fn_getAddressByLngLat(obj_carInfo.clongitude, obj_carInfo.clatitude, obj_carInfo.tid, str_type);
+				if ( obj_resPoint.lon != 0 ) {
+					if ( str_type == 'actiontrack' ) {
+						obj_carInfo.clongitude = point.lng*3600000;
+						obj_carInfo.clatitude = point.lat*3600000;
+						$('.j_carList').data('carsData')[obj_carInfo.tid] = obj_carInfo;
+						dlf.fn_updateInfoData(obj_carInfo); // 工具箱动态数据		
+						if ( str_currentTid == obj_carInfo.tid ) {	// 更新当前车辆信息
+							dlf.fn_updateTerminalInfo(obj_carInfo);
+						}
+						// 偏转成功后进行逆地址操作 2014.1.15
+						if ( b_geoCode ) {
+							dlf.fn_getAddressByLngLat(obj_carInfo.clongitude, obj_carInfo.clatitude, obj_carInfo.tid, str_type);
+						}
 					}
 				}
 			}
@@ -905,7 +974,7 @@ window.dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInf
 /**
 * 点击地图添加标记
 */
-window.dlf.fn_clickMapToAddMarker = function() {
+dlf.fn_clickMapToAddMarker = function() {
 	//实例化鼠标绘制工具
 	obj_drawingManager = new BMapLib.DrawingManager(mapObj, {
 		isOpen: false, //是否开启绘制模式
@@ -917,7 +986,7 @@ window.dlf.fn_clickMapToAddMarker = function() {
 /**
 * 添加线路的标记
 */
-window.dlf.fn_addRouteLineMarker = function(obj_stations){ 
+dlf.fn_addRouteLineMarker = function(obj_stations){ 
 	var str_stationName = obj_stations.name,
 		obj_stationPoint = dlf.fn_createMapPoint(obj_stations.longitude, obj_stations.latitude),
 		obj_stationMarker = new BMap.Marker(obj_stationPoint); 
@@ -939,7 +1008,7 @@ window.dlf.fn_addRouteLineMarker = function(obj_stations){
 /**
 * 初始化画圆及事件绑定
 */
-window.dlf.fn_initCreateRegion = function() {
+dlf.fn_initCreateRegion = function() {
 	//实例化鼠标绘制工具
 	var str_regionType = $('.regionCreateBtnCurrent').attr('regiontype'),
 		obj_regionStyleOpts = {//圆的样式
@@ -983,7 +1052,7 @@ window.dlf.fn_initCreateRegion = function() {
 /**
 * 地图的右击事件
 */
-window.dlf.fn_mapRightClickFun = function() {
+dlf.fn_mapRightClickFun = function() {
 	if ( obj_regionShape ) { 
 		dlf.fn_clearRegionShape(); // 清除页面圆形
 		dlf.fn_clearMapComponent(obj_shapeLabel); // 清除地图上的半径提示
@@ -996,21 +1065,21 @@ window.dlf.fn_mapRightClickFun = function() {
 /**
 * 地图的右击事件移除
 */
-window.dlf.fn_mapRightClickRemoveFun = function() { 
+dlf.fn_mapRightClickRemoveFun = function() { 
 	mapObj.removeEventListener('rightclick', dlf.fn_mapRightClickFun);
 }
 
 /**
 * 地图开始画圆或者加点
 */
-window.dlf.fn_mapStartDraw = function() { 
+dlf.fn_mapStartDraw = function() { 
 	obj_drawingManager.open();
 }
 
 /**
 * 地图停止画图或者加点
 */
-window.dlf.fn_mapStopDraw = function() {
+dlf.fn_mapStopDraw = function() {
 	$('.regionCreateBtnPanel a').removeClass('regionCreateBtnCurrent currentCircle currentDrag');
 	$('#regionCreate_dragMap').addClass('regionCreateBtnCurrent');
 	if ( obj_drawingManager ) {	
@@ -1021,7 +1090,7 @@ window.dlf.fn_mapStopDraw = function() {
 /**
 * 获取围栏数据
 */
-window.dlf.fn_getShapeData = function() {
+dlf.fn_getShapeData = function() {
 	if ( obj_regionShape ) {
 		var str_regionType = obj_regionShape._className;
 		
@@ -1039,7 +1108,7 @@ window.dlf.fn_getShapeData = function() {
 * 显示图形
 * obj_centerPointer: 多边形围栏的告警点
 */
-window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateError, obj_centerPointer) {
+dlf.fn_displayMapShape = function(obj_shapeData, b_seCenter, b_locateError, obj_centerPointer) {
 	var shapeOptions = {//样式
 			strokeColor: '#5ca0ff',    //边线颜色。
 			fillColor: '#ced7e8',      //填充颜色。当参数为空时，圆形将没有填充效果。
@@ -1048,19 +1117,24 @@ window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateErro
 			fillOpacity: 0.5,      //填充的透明度，取值范围0 - 1。
 			strokeStyle: 'solid' //边线的样式，solid或dashed。
 		},
-		n_region_shape = obj_shpaeData.region_shape,
+		n_region_shape = obj_shapeData.region_shape,
 		arr_calboxData = [],
 		obj_tempRegionShape = null;
 	
+	//hs 2014-8-19如果是单起点显示使用single_shape
+	if ( $('#corpMileageSetWrapper').data('mileage_set') ) {
+		n_region_shape = obj_shapeData.single_shape;
+	}
+	
 	// hs:2013.12.24 根据不同的围栏类型进行相应操作显示
 	if ( n_region_shape == 0 ) { // 围栏类型 0: 圆形 1: 多边形
-		var obj_regionData = obj_shpaeData.circle
+		var obj_regionData = obj_shapeData.circle
 			centerPoint = dlf.fn_createMapPoint(obj_regionData.longitude, obj_regionData.latitude);
 			
 		obj_tempRegionShape = new BMap.Circle(centerPoint, obj_regionData.radius, shapeOptions);
 	} else {
 		var arr_tempPolygonData = [],
-			arr_polygonDatas = obj_shpaeData.polygon,
+			arr_polygonDatas = obj_shapeData.polygon,
 			n_lenPolygon = arr_polygonDatas.length;
 		
 		if ( obj_centerPointer ) {
@@ -1096,7 +1170,7 @@ window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateErro
 		mapObj.setCenter(centerPoint);
 		if ( n_region_shape == 0 ) {
 			// 计算bound显示 
-			var obj_circleData = obj_shpaeData.circle,
+			var obj_circleData = obj_shapeData.circle,
 				n_radius = obj_circleData.radius;
 				n_lng = obj_circleData.longitude,
 				n_lat = obj_circleData.latitude,
@@ -1118,7 +1192,7 @@ window.dlf.fn_displayMapShape = function(obj_shpaeData, b_seCenter, b_locateErro
 * kjj 2013-06-05
 * 计算点是否超出地图，如果超出设置地图中心点为当前点
 */
-window.dlf.fn_boundContainsPoint = function(obj_tempPoint) {
+dlf.fn_boundContainsPoint = function(obj_tempPoint) {
 	// 是否进行中心点移动操作 如果当前播放点在屏幕外则,设置当前点为中心点
 	var obj_mapBounds = mapObj.getBounds(), 
 		b_isInbound = null;
@@ -1134,7 +1208,7 @@ window.dlf.fn_boundContainsPoint = function(obj_tempPoint) {
 /**
 * 根据操作的参数,增加聚合点
 */
-window.dlf.fn_addMarkerClusterer = function(str_markerAction, arr_markers) {
+dlf.fn_addMarkerClusterer = function(str_markerAction, arr_markers) {
 	if ( !obj_mapMarkerClusterer ) {
 		obj_mapMarkerClusterer = new BMapLib.MarkerClusterer(mapObj);
 	}

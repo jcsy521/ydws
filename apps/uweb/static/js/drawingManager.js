@@ -1039,7 +1039,11 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				str_ieVersion = $.browser.version,
 				obj_startEventBtn = e.button, 
 				n_radius = Math.round(circle.getRadius()),
-				str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion(\'circle\');">重画</a></div>',
+				b_mileageSetShow = $('#mileageSetCreateWrapper').is(':visible'),
+				str_tempInputName = b_mileageSetShow ? '单程起点'  : '围栏',
+				str_tempSaveFun= b_mileageSetShow ? 'fn_saveMileageSet'  : 'fn_saveReginon',
+				str_tempResetFun = b_mileageSetShow ? 'fn_resetMileageSet'  : 'fn_resetRegion',
+				str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">'+ str_tempInputName +'名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.'+str_tempSaveFun+'();">保存</a><a href="#" onclick="dlf.'+str_tempResetFun+'(\'circle\');">重画</a></div>',
 				obj_clickInfoWindow = null;  // 创建信息窗口对象
 			
 			obj_regionShape = circle; // 圆形数据保存
@@ -1054,7 +1058,7 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 			}
 			if ( n_radius < 500 ) { 
 				labelPoint = e.point;
-				str_infoWindowText = '<div class="clickWindowPanel errorCircleInfo"><span class="errorCircle"></span><label class="clickWindowPolder">电子围栏半径最小为500米！</label><a href="#" onclick="dlf.fn_resetRegion(\'circle\');">重画</a></div>';
+				str_infoWindowText = '<div class="clickWindowPanel errorCircleInfo"><span class="errorCircle"></span><label class="clickWindowPolder">'+ str_tempInputName +'半径最小为500米！</label><a href="#" onclick="dlf.'+str_tempResetFun+'(\'circle\');">重画</a></div>';
 				/*obj_circleLabel = new BMap.Label('半径：'+Math.round(circle.getRadius())+'米', {position: labelPoint});
 				//todo 2013.4.22
 				mapObj.addOverlay(obj_circleLabel);	*/
@@ -1172,12 +1176,16 @@ var BMAP_DRAWING_MARKER    = "marker",     // 鼠标画点模式
 				str_ieVersion = $.browser.version,
 				obj_startEventBtn = e.button, 
 				arr_polygonData = obj_regionShape.getPath(),
-				str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">围栏名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.fn_saveReginon();">保存</a><a href="#" onclick="dlf.fn_resetRegion(\'polygon\');">重画</a></div>',
+				b_mileageSetShow = $('#mileageSetCreateWrapper').is(':visible'),
+				str_tempInputName = b_mileageSetShow ? '单程起点'  : '围栏',
+				str_tempSaveFun= b_mileageSetShow ? 'fn_saveMileageSet'  : 'fn_saveReginon',
+				str_tempResetFun = b_mileageSetShow ? 'fn_resetMileageSet'  : 'fn_resetRegion',
+				str_infoWindowText = '<div class="clickWindowPanel"><label class="clickWindowPolder">'+str_tempInputName+'名称：</label><input type="text" id="createRegionName" /><a href="#" onclick="dlf.'+str_tempSaveFun+'();">保存</a><a href="#" onclick="dlf.'+str_tempResetFun+'(\'polygon\');">重画</a></div>',
 				obj_clickInfoWindow = null,// 创建信息窗口对象
 				centerPoint = arr_polygonData[0];  
 			
 			if ( arr_polygonData.length < 3 ) { 
-				str_infoWindowText = '<div class="gaodeWindowPanel height38 clickWindowPanel errorCircleInfo"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">多边形围栏最少需要3个点！</label><a href="#" onclick="dlf.fn_resetRegion(\'polygon\');">重画</a></div>';
+				str_infoWindowText = '<div class="gaodeWindowPanel height38 clickWindowPanel errorCircleInfo"><span class="errorCircle errorTop10"></span><label class="clickWindowPolder">'+str_tempInputName+'最少需要3个点！</label><a href="#" onclick="dlf.'+str_tempResetFun+'(\'polygon\');">重画</a></div>';
 			}			
 			// 2013.4.22 绘画完圆后显示圆心点吹出框,提示用户保存或重绘
 			mapObj.removeOverlay(obj_shapeMarker);// 2013.4.22

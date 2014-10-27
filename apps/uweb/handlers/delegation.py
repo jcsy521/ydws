@@ -12,6 +12,8 @@ class DelegationHandler(BaseHandler):
     
     @tornado.web.removeslash
     def get(self, uid, tid, sim):
+        """Redirect to main.
+        """
         sign = self.get_argument('s', None)
         if not sign or not UWebHelper.check_sign(sign, 
                                                  ''.join([uid, tid, sim])):
@@ -22,5 +24,6 @@ class DelegationHandler(BaseHandler):
                            sim=sim,
                            cid=UWEB.DUMMY_CID,
                            oid=UWEB.DUMMY_OID))
+        #NOTE: header is import. 
         self.set_header("P3P", "CP=CAO PSA OUR")
         self.redirect("/?from=delegation")

@@ -39,8 +39,9 @@ $(function() {
 		debug: true, // 指定调试模式,不提交form
 		wideWord: false, // 一个汉字当一个字节
 		submitButtonID: 'btn_register', // 指定本form的submit按钮
-		onError: function(msg) {
+		onError: function(msg, ea) {
 			dlf.fn_jNotifyMessage(msg, 'message', false, 4000);
+			$(ea).addClass('borderRed');
 		}, 
 		onSuccess: function() { 
 			var str_mobile = $('#txt_umobile').val(),

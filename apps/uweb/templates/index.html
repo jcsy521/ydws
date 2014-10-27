@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block include %}
-	<script type="text/javascript" src="/static/js/WdatePicker.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/formValidator-4.1.1.js?v={{static_hash}}"></script>		
-	<script type="text/javascript" src="/static/js/jquery_cookie.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/formValidatorRegex.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/terminal.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/main.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/current.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/searchRecord.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/region.js?v={{static_hash}}"></script>
+	<script type="text/javascript" src="{{static_url('js/WdatePicker.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/formValidator-4.1.1.js')}}"></script>		
+	<script type="text/javascript" src="{{static_url('js/jquery_cookie.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/formValidatorRegex.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/terminal.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/main.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/current.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/searchRecord.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/region.js')}}"></script>
 	<!--<script type="text/javascript" src="/static/js/track.js"></script>
 	<script type="text/javascript" src="/static/js/announcement.js"></script>-->
 {% end %}
@@ -81,7 +81,14 @@
 					<li><a href="#" id="track" class="track j_click">轨迹查询</a></li>
 					<li><a href="#" id="eventSearch" class="eventSearch j_click">告警查询</a></li>
 					<li><a href="#" id="region" class="region j_click">电子围栏</a></li>
-					<li><a href="#" id="defend" class="defend j_click">设防/撤防</a></li>
+					<li>
+						<a href="#" id="defend" class="defend j_userDefend">设防/撤防</a>
+						<ul id="userProfileManageList" class="hide j_userDefendNavItem countUlIetm">
+							<li><a href="#" id="defend_smart" class="defend_smart j_click j_defendStatusItem" title="低频率通知">智能设防</a></li>
+							<li><a href="#" id="defend_powerful" class="defend_powerful j_click j_defendStatusItem" title="高频率通知">强力设防</a></li>
+							<li><a href="#" id="defend_disarm" class="defend_disarm j_click j_defendStatusItem">撤防</a></li>
+						</ul>
+					</li>
 					<li><a href="#" id="mileageNotificationSet" class="mileageNotificationSet j_click">保养提醒</a></li>
 					<!--<li><a href="#" id="terminal" class="terminal j_click"></a></li>
 					<li><a href="#" id="smsOption" class="smsOption j_click"></a></li>-->
@@ -120,31 +127,6 @@
 				<div class="j_draggable mapDragTitle hide">
 					<div class="eventMapClose j_close" id="mapClose" title="关闭窗口"></div>
 				</div>
-				<!--轨迹查询条件-->
-				<div class="trackHeader hide" id="trackHeader">
-					<!--时间选择-->
-					<span class="trackPos">
-						<!--<span class="timeTip">时间范围:</span>-->
-						<span class="trackTime">
-							<input type="text" class="time" id="trackBeginTime" />
-							至
-							<input type="text" class="time" id="trackEndTime" />
-						</span>
-						<input type="checkbox" id="ceillid_flag" title="是否显示基站定位" /><label for="ceillid_flag">基站定位</label>
-					</span>
-					<!--按钮-->
-					<span class="trackBtn">
-						<a id="trackSearch" class="tSearch"></a>
-						<a id="tPrev" class="tPrev hide j_trackBtnhover"></a>
-						<a id="tPlay" class="tPlay hide j_trackBtnhover"></a>
-						<a id="tPause" class="tPause hide j_trackBtnhover"></a>
-						<a id="tNext" class="tNext hide j_trackBtnhover"></a>
-					</span>
-					<span id="trackSpeed" class="trackSpeed hide">
-						<span>播放速度：</span>
-						<span id="trackSlide" title="比较快"></span>
-					</span>
-				</div>
 				<div id="mapObj" class="corpMapObj"></div>
 			</div>
 		</div> 
@@ -159,6 +141,6 @@
 	<input type="hidden" id="user_type" value="{{user_type}}" />
 	<input type="hidden" id="map_type" value="{{map_type}}" />
 	
-	<script type="text/javascript" src="/static/js/judge_logo.js?v={{static_hash}}"></script>
+	<script type="text/javascript" src="{{static_url('js/judge_logo.js')}}"></script>
 </body>
 {% end %}

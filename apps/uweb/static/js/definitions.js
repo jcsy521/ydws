@@ -69,6 +69,9 @@ var NOTIFYMANAGE_ADD_URL = '/announcement'; //通知新增
 var MILEAGENOTIFICATION_URL = '/mileagenotification';	// 保养提醒
 var CORP_ALERT_URL = '/alarmoption';	// 集团告警设置
 var ACCSTATUS_URL = '/acc';	// 供电/断电
+var MILEAGE_SET_URL = '/corpsingle';	// 单点设置
+var BIND_MILEAGE_SET_URL = '/bindsingle'; // 单点设置绑定
+var MILEAGE_SEARCH_URL = '/corpsingle/list';	// 单点查询
 /*常量*/
 var CHECK_INTERVAL = 10000; // 每N秒
 var CHECK_ROUNDNUM = 3; // 经纬度显示小数位截取

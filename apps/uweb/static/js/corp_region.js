@@ -3,7 +3,7 @@
 */
 
 // 围栏管理的初始化查询展示
-window.dlf.fn_initRegion = function() {
+dlf.fn_initRegion = function() {
 	var str_region = 'corpRegion', 
 		obj_regionWapper = $('#corpRegionWrapper'), 
 		obj_regionAddWapper = $('#regionCreateWrapper'),
@@ -115,7 +115,7 @@ function fn_displayCars () {
 /**
 * 重新绘制围栏
 */
-window.dlf.fn_resetRegion = function(str_regionType) {
+dlf.fn_resetRegion = function(str_regionType) {
 	dlf.fn_mapRightClickFun();
 	if ( obj_drawingManager ) {
 		dlf.fn_mapStartDraw();
@@ -136,7 +136,7 @@ window.dlf.fn_resetRegion = function(str_regionType) {
 /**
 * 围栏保存操作
 */
-window.dlf.fn_saveReginon = function() {
+dlf.fn_saveReginon = function() {
 	dlf.fn_mapStopDraw();
 	var str_regionName = $.trim($('#createRegionName').val()), 
 		n_radius = 0, 
@@ -157,6 +157,7 @@ window.dlf.fn_saveReginon = function() {
 				
 			if ( str_regionName == str_tempRegionName ) {
 				dlf.fn_jNotifyMessage('围栏名称与第'+ (i+1) +'个重复。', 'message', false, 3000);
+				$('#createRegionName').addClass('borderRed');
 				return;
 			}		
 		}
@@ -167,17 +168,21 @@ window.dlf.fn_saveReginon = function() {
 	}
 	if ( str_regionName == '' ) {
 		dlf.fn_jNotifyMessage('您还没有填写围栏名称。', 'message', false, 3000);
+		$('#createRegionName').addClass('borderRed');
 		return;
 	} else {
 		if ( str_regionName.length > 20 ) {
 			dlf.fn_jNotifyMessage('围栏名称长度不能大于20个字符。', 'message', false, 3000);
+			$('#createRegionName').addClass('borderRed');
 			return;
 		}
 		if ( !/^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(str_regionName) ) {
 			dlf.fn_jNotifyMessage('围栏名称只能由中文、数字、英文组成。', 'message', false, 3000);
+			$('#createRegionName').addClass('borderRed');
 			return;
 		}
 	}
+	$('#createRegionName').removeClass('borderRed');
 	var obj_shapeData = dlf.fn_getShapeData(),
 		arr_polygonData = [];
 	
@@ -220,11 +225,19 @@ window.dlf.fn_saveReginon = function() {
 /**
 * 查看围栏的详细信息
 */
-window.dlf.fn_detailRegion = function(n_seq) {
+dlf.fn_detailRegion = function(n_seq) {
 	var obj_regionDatas = $('#corpRegionTable').data('regions'),
 		obj_regionData = obj_regionDatas[n_seq], 
-		n_region_shape = obj_regionData.region_shape;	// 围栏类型 0: 圆形 1: 多边形
-		
+		n_region_shape = obj_regionData.region_shape,	// 围栏类型 0: 圆形 1: 多边形
+		n_id = obj_regionData.region_id;
+	
+	$('.j_regionSearchtd, .j_bindRegionSearchtd').removeClass('bg4876ff').addClass('bgfff');
+	$('#regionDetailTdPanel'+n_id).removeClass('bgfff').addClass('bg4876ff');
+	$('#bindRegionDetailTdPanel'+n_id).removeClass('bgfff').addClass('bg4876ff');
+	
+	$('.j_regionSearchA, .j_bindRegionSearchA').css({'color': '#4876ff'});
+	$('#regionDetailPanel'+n_id).css({'color': '#000'});
+	$('#bindRegionDetailPanel'+n_id).css({'color': '#000'});
 	dlf.fn_clearRegionShape();
 	dlf.fn_displayMapShape(obj_regionData, true);
 	if ( dlf.fn_isBMap() ) {
@@ -237,7 +250,7 @@ window.dlf.fn_detailRegion = function(n_seq) {
 /**
 * 删除围栏信息
 */
-window.dlf.fn_deleteRegion = function(n_id) {
+dlf.fn_deleteRegion = function(n_id) {
 	if ( n_id ) {
 		if ( confirm('确定要删除该围栏吗？') ) {
 			
@@ -252,6 +265,7 @@ window.dlf.fn_deleteRegion = function(n_id) {
 					obj_currentRegionTr.remove();
 					obj_regionTable.data('regionnum', n_regionNums - 1);
 					dlf.fn_clearRegionShape();
+					dlf.fn_initRegion(); // 重新显示围栏管理 
 				}
 				dlf.fn_jNotifyMessage(data.message, 'message', false, 3000);
 				dlf.fn_unLockScreen(); // 去除页面遮罩
@@ -265,7 +279,7 @@ window.dlf.fn_deleteRegion = function(n_id) {
 /*
 * 清除地图上显示的围栏图形 
 */
-window.dlf.fn_clearRegionShape = function() {
+dlf.fn_clearRegionShape = function() {
 	if ( obj_regionShape ) {
 		dlf.fn_clearMapComponent(obj_regionShape); // 清除页面图形
 	}
@@ -274,13 +288,13 @@ window.dlf.fn_clearRegionShape = function() {
 /*
 * 绑定围栏初始化
 */
-window.dlf.fn_initBindRegion = function() {
+dlf.fn_initBindRegion = function() {
 	var str_bindRegion = 'bindRegion',
 		obj_currentCar = $($('.j_carList a[class*=j_currentCar]')),
 		str_tid = obj_currentCar.attr('tid'),
 		str_alias = obj_currentCar.attr('alias'),
 		str_msg = '当前您还没有电子围栏，请新增电子围栏！',
-		b_trackStatus = $('#trackHeader').is(':visible');	// 轨迹是否打开着
+		b_trackStatus = $('.j_delay').is(':visible');	// 轨迹是否打开着
 		
 	if ( b_trackStatus ) {
 		dlf.fn_closeTrackWindow(false);	// 关闭轨迹查询,不操作lastinfo
@@ -320,7 +334,7 @@ window.dlf.fn_initBindRegion = function() {
 /*
 * 初始化批量电子围栏方法
 */
-window.dlf.fn_initBatchRegions = function(obj_group){
+dlf.fn_initBatchRegions = function(obj_group){
 	var str_bindBatchRegion = 'bindBatchRegion', 
 		arr_terminalIds = [];
 	
@@ -375,7 +389,7 @@ window.dlf.fn_initBatchRegions = function(obj_group){
 /*
 * 获取当前终端的围栏信息
 */
-window.dlf.fn_getCurrentRegions = function () {
+dlf.fn_getCurrentRegions = function () {
 	var obj_currentCar = $($('.j_carList a[class*=j_currentCar]')),
 		str_tid = obj_currentCar.attr('tid');
 	
