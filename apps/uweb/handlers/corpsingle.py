@@ -197,7 +197,7 @@ class CorpSingleListHandler(BaseHandler):
             # For paging
             page_size = int(data.get('pagesize', UWEB.LIMIT.PAGE_SIZE))
             page_number = int(data.pagenum) 
-            page_count = int(data.pagecnt)
+            pagecnt = int(data.pagecnt)
 
             logging.info("[UWEB] Single list request: %s, cid: %s",
                          data, self.current_user.cid)
@@ -210,7 +210,7 @@ class CorpSingleListHandler(BaseHandler):
 
         try:
             #NOTE: we need return the event count to GUI at first time query
-            if page_count == -1:
+            if pagecnt == -1:
                 res = self.db.get("SELECT COUNT(*) AS count"
                                   "  FROM T_SINGLE_EVENT AS tse, T_SINGLE AS ts"
                                   "  WHERE tse.tid = %s"
