@@ -1683,7 +1683,6 @@ body {
 	text-align: center;
 	padding: 22px 0;
 }
-
 .j_alarm .alarmWitchIcon {
 	border: 0 none;
 	width: 18px;
@@ -3498,7 +3497,7 @@ legend {
 	padding-left: 5px;
 }
 .groupCss {
-	background-color: #F2F3F3;
+/*	background-color: #F2F3F3;*/
 }
 /*info push*/
 #infoPushWrapper {

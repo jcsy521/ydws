@@ -857,7 +857,7 @@ dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 		//data.inst.open_all(-1);	// 默认展开所有的节点
 		dlf.fn_setCorpIconDiffBrowser();
 		// 更新定位器总数
-		fn_updateTerminalCount();
+		dlf.fn_updateTerminalCount();
 		// 循环所有定位器 找到当前定位器并更新车辆信息
 		var n_num = 0,
 			n_pointNum = 0,
@@ -1259,7 +1259,7 @@ function fn_nodeCurrentNode(target) {
 * str_operation: add(新增定位器)、sub(删除定位器)
 * num: 新增或删除定位器的个数
 */
-function fn_updateTerminalCount(str_operation, num) {
+dlf.fn_updateTerminalCount = function (str_operation, num) {
 	
 	switch ( str_operation ) {
 		case 'add':
@@ -1432,7 +1432,7 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 				n_onlineCnt = obj_corp.online,		// online count
 				n_offlineCnt = obj_corp.offline;	// offline count
 				
-				fn_updateTerminalCount();
+				dlf.fn_updateTerminalCount();
 				fn_updateTreeNode(data.res, b_isCloseTrackInfowindow);
 				return;
 			} else { // 2或者3 当用户有改变时,2,全部更新,3,前台自己判断是否要进行树更新				
@@ -1464,7 +1464,7 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 					str_tempCorpName = str_corpName.length > 10 ? str_corpName.substr(0,10)+ '...' : str_corpName;
 					str_html += '<li class="j_corp jstree-open" id="treeNode_'+ str_corpId +'"><a title="'+ str_corpName +'" corpid="'+ str_corpId +'" class="corpNode" href="#">'+ str_tempCorpName +'</a>';
 				}
-				fn_updateTerminalCount();	// lastinfo 每次更新在线个数 2013-07-29 kjj add
+				dlf.fn_updateTerminalCount();	// lastinfo 每次更新在线个数 2013-07-29 kjj add
 				//2状态 ,显示所有终端
 				$('#terminalInfo td').removeClass('currentTNum');
 				$('#carCount').parent().addClass('currentTNum');
@@ -1629,7 +1629,7 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								for ( var ia = 0; ia <arr_alarm.length; ia++ ) {	// 添加组下面的定位器
 									arr_alarm[ia].owner_mobile = obj_car.owner_mobile;
 								}
-								fn_updateAlarmList(arr_alarm);
+								//fn_updateAlarmList(arr_alarm);
 								b_isHasTerminal = true;
 							}
 							str_html += '</ul>';
@@ -1728,7 +1728,7 @@ function playMusic() {
 */
 var obj_trackPoint = {};
 
-function fn_updateAlarmList(arr_alarm) {
+dlf.fn_updateAlarmList = function(arr_alarm) {
 	var n_alarmLength = arr_alarm.length,
 		obj_table = $('.j_alarmTable'),
 		arr_temp = obj_table.data('markers'),
@@ -2075,7 +2075,7 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 				for ( var ia = 0; ia <arr_alarm.length; ia++ ) {	// 添加组下面的定位器
 					arr_alarm[ia].owner_mobile = obj_car.owner_mobile;
 				}
-				fn_updateAlarmList(arr_alarm);
+				//fn_updateAlarmList(arr_alarm);
 			}
 		}
 	}
@@ -2687,7 +2687,7 @@ function fn_removeTerminal(node) {
 				} else {
 					n_onlineCnt  -=1;
 				}
-				fn_updateTerminalCount();				
+				dlf.fn_updateTerminalCount();				
 				$("#corpTree").jstree('remove');				
 				// 删除地图marker
 				obj_actionTrack[str_param].status = 'no';
@@ -2777,7 +2777,7 @@ function fn_initBatchDeleteData(obj_params) {
 						obj_updateTd.html(str_status);	// 更新保存状态
 					}
 					n_successLen = arr_success.length;	// 成功删除的终端个数
-					fn_updateTerminalCount('sub', n_successLen);
+					dlf.fn_updateTerminalCount('sub', n_successLen);
 					
 					$('.j_batchDelete').attr('disabled', true);	// 批量删除按钮变成灰色并且不可用
 					/**

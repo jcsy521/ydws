@@ -6,8 +6,8 @@
 		<meta http-equiv="Expires" content="-1" />
 		<title>移动卫士--常见问题及咨询</title>
 		<link rel="shortcut icon" href="/static/favicon.ico" />
-		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
-		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>	
+		<link type="text/css" href="{{static_url('css/css.css')}}" rel="stylesheet" />
+		<script type="text/javascript" src="{{static_url('js/jquery-1.7.1.min.js')}}"></script>	
 		<script type="text/javascript">
 			$(function() {
 				$('.j_clickImg').unbind('click').bind('click', function() {
@@ -34,11 +34,11 @@
 			<h1>常见问题及咨询</h1>
 			<div class="mcatalog">
                 <ol>
-                    <li><img src="static/images/add.jpg" class="list-img j_clickImg"><a href="#qa001">1 业务办理</a></li>
+                    <li><img src="{{static_url('images/add.jpg')}}" class="list-img j_clickImg"><a href="#qa001">1 业务办理</a></li>
                         <ol class="mcsub-menu hide">
                             <li><a href="#qa0012">1.1 业务办理方式</a></li>
                         </ol>
-                    <li><img src="static/images/add.jpg" class="list-img j_clickImg"><a href="#qa002">2 常见问题及咨询</a></li>
+                    <li><img src="{{static_url('images/add.jpg')}}" class="list-img j_clickImg"><a href="#qa002">2 常见问题及咨询</a></li>
                         <ol class="mcsub-menu hide">
                             <li><a href="#qa0021">2.1 移动卫士共有几大功能？</a></li>
                             <li><a href="#qa0022">2.2 非法报警短信的下发是否收费呢？</a></li>
@@ -54,7 +54,7 @@
                             <li><a href="#qa00212">2.9 若用户在使用移动卫士业务时被监控物品被盗了，责任如何界定？</a></li>
                             <li><a href="#qa00213">2.10 指示灯状态</a></li>
                         </ol>
-					<li><img src="static/images/add.jpg" class="list-img j_clickImg"><a href="#qa003">3 常见业务故障及解决办法</a></li>
+					<li><img src="static_url('images/add.jpg')}}" class="list-img j_clickImg"><a href="#qa003">3 常见业务故障及解决办法</a></li>
 						 <ol class="mcsub-menu hide">
                             <li><a href="#qa0031">3.1 常见业务故障及解决办法</a></li>
                         </ol>					

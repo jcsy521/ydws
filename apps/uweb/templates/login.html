@@ -6,13 +6,13 @@
 		<meta http-equiv="Expires" content="-1" />
 		<link rel="shortcut icon" href="/static/favicon.ico" />
 		<title>移动卫士--登录</title>
-		<link rel="stylesheet" href="/static/css/bootstrap_web.css" />
-		<link  rel="stylesheet" href="/static/css/login.css" />
-		<script type="text/javascript" src="/static/js/base64.js"></script>
-		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>		
-		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
-		<script type="text/javascript" src="/static/js/bootstrap.js"></script>
-		<script type="text/javascript" src="/static/js/login.js"></script>
+		<link rel="stylesheet" href="{{static_url('css/bootstrap_web.css')}}" />
+		<link  rel="stylesheet" href="{{static_url('css/login.css')}}" />
+		<script type="text/javascript" src="{{static_url('js/base64.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery-1.7.1.min.js')}}"></script>		
+		<script type="text/javascript" src="{{static_url('js/jquery_cookie.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/bootstrap.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/login.js')}}"></script>
 	</head>
 	<body>
 		<div class="login_con">
@@ -42,23 +42,26 @@
 							<input type="text" id="login_username" class="loginText form-control font-size14" placeholder="登录名" value="{{username}}" autocomplete="off" tabindex="4" />
 						</div>
 					</div>
-					{% if message_captcha or message %}
+					<div class="form-group login_usernameMsgPanel hide">					
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<span id="login_usernameErrorMsg" class="errorMsg"></span>
+						</div>
+					</div>
+					{% if message_captcha %}
 						<div class="form-group login_msgPanel">
 					{% else %}
 						<div class="form-group login_msgPanel hide">
 					{% end %}
-							<label class="sr-only col-sm-2 control-label"></label>
-							<div>
-								<span id="login_errorMsg" class="errorMsg">
-									{% if message_captcha %}
-										{{ message_captcha }}
-									{% end %}
-									{% if message %}
-										{{ message }}
-									{% end %}
-								</span>
-							</div>
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<span class="login_errorMsg errorMsg">
+								{% if message_captcha %}
+									{{ message_captcha }}
+								{% end %}
+							</span>
 						</div>
+					</div>
 					<div class="form-group">
 						<label class="sr-only col-sm-2 control-label"></label>
 						<div>
@@ -86,6 +89,20 @@
 							</div>
 							<!--<button id="loginBtn" type="submit" class="loginBtn">登录</button>-->
 							<span id="loginBtn" class="loginBtn font-size20" tabindex="7">登录</span>
+						</div>
+					</div>
+					{% if message %}
+						<div class="form-group login_msgPanel">
+					{% else %}
+						<div class="form-group login_msgPanel hide">
+					{% end %}
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<span class="login_errorMsg errorMsg">
+								{% if message %}
+									{{ message }}
+								{% end %}
+							</span>
 						</div>
 					</div>
 					<div class="form-group">

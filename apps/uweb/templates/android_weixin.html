@@ -6,14 +6,14 @@
 		<meta http-equiv="Expires" content="-1" />
 		<title>移动卫士--android下载</title>
 		<link rel="shortcut icon" href="/static/favicon.ico" />
-		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
-		<link type="text/css" href="/static/css/download.css" rel="stylesheet" />
-		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
-		<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
-		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
-		<script type="text/javascript" src="/static/js/json2.js"></script>
-		<script type="text/javascript" src="/static/js/definitions.js"></script>
-		<script type="text/javascript" src="/static/js/download.js"></script>
+		<link type="text/css" href="{{static_url('css/css.css')}}" rel="stylesheet" />
+		<link type="text/css" href="{{static_url('css/download.css')}}" rel="stylesheet" />
+		<script type="text/javascript" src="{{static_url('js/jquery-1.7.1.min.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery-ui-1.8.18.custom.min.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery_cookie.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/json2.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/definitions.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/download.js')}}"></script>
 	</head>
 	<body>
 		<center>
@@ -21,7 +21,7 @@
 				<!--android下载说明-->
 				<div class="softInfo">
 					<div class="infoSign infoL">
-						<img src="/static/images/acb_downloadLogo.png"  width="96" alt="移动卫士" />
+						<img src="{{static_url('images/acb_downloadLogo.png')}}"  width="96" alt="移动卫士" />
 					</div>
 					<div class="infoText infoL">
 						<ul>
@@ -98,9 +98,10 @@
 					<!--图片展示-->
 					<div class="descImg">
 						<ul>
-							<li><img src="/static/images/android/acb_login.png" /></li>
-							<li><img src="/static/images/android/acb_realtime.png" /></li>
-							<li><img src="/static/images/android/acb_track.png" /></li>
+							<li><img src="{{static_url('images/android/acb_login.png')}}" /></li>
+							<li><img src="{{static_url(
+							'images/android/acb_realtime.png')}}" /></li>
+							<li><img src="{{static_url('images/android/acb_track.png')}}" /></li>
 						</ul>
 					</div>
 				</div>

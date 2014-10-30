@@ -33,7 +33,7 @@
 #login_header, #loginHeader_logo, #loginHeader_linkText, #loginForm, #login_footerLink, .login_copyright {
 	display: inline-block;
 }
-#loginBtn, #getPwd, #login_errorMsg, #corpGetPwd {
+#loginBtn, #getPwd, .login_errorMsg, #corpGetPwd, #login_usernameErrorMsg {
 	margin-left: 30px;
 }
 #loginHeader_logo {
@@ -144,4 +144,3 @@
 	margin: 0;
 	min-width: 1066px;
 }
-

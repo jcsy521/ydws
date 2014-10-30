@@ -178,6 +178,7 @@ dlf.fn_initCorpData = function() {
 	dlf.fn_lockContent($('.corpContent')); // 添加内容区域的遮罩
 	$('#corpForm input[type=text]').removeClass('borderRed');
 	$('#c_name').unbind('blur focus').bind('blur', function() {
+
 		var obj_this = $(this),
 			str_old = obj_this.data('c_name'),
 			str_new = obj_this.val(),
@@ -1273,6 +1274,7 @@ $(function () {
 		
 		//查询所有告警并存储
 		dlf.fn_getAlertOptionForUrl('init');
+		dlf.fn_initPushServices();
 		$('.j_alarmTable').data('markers', []);
 	}
 	
@@ -1474,4 +1476,5 @@ function fn_modiyListPanelPosition() {
 	//$('.j_disPanelCon').css({'left': n_delayIconLeft});
 	//obj_alarmPanel.css({'left': n_alarmLeft});
 	//$('.j_alarmPanelCon').css({'left': n_alarmIconLeft});
+
 }

@@ -8,7 +8,7 @@
 */
 dlf.fn_currentQuery = function(str_flag) {
 	var obj_pd = {'locate_flag': GPS_TYPE},
-		n_cLogin = $('.j_currentCar').attr('clogin');	
+		n_cLogin = $('.j_currentCar').attr('clogin');
 	
 	if ( n_cLogin == 0 ) {
 		//dlf.fn_jNotifyMessage('定位器不在线！', 'message', false, 4000);
@@ -211,7 +211,7 @@ dlf.fn_defendQuery = function(str_defendType, str_alias) {
 		str_msg = '',
 		obj_carData = $('.j_carList').data('carsData')[str_cTid],
 		n_defaultDefendSt = obj_carData.mannual_status,
-		n_cLogin = $('.j_currentCar').attr('clogin');	
+		n_cLogin = $('.j_currentCar').attr('clogin');
 	
 	if ( n_cLogin == 0 ) {
 		//dlf.fn_jNotifyMessage('定位器不在线！', 'message', false, 4000);
@@ -234,7 +234,6 @@ dlf.fn_defendQuery = function(str_defendType, str_alias) {
 		dlf.fn_jNotifyMessage('您已选择“'+str_msg+'”，请勿重复操作。', 'message', false, 4000);
 		return;
 	}
-	
 	if ( dlf.fn_userType() ) {
 		obj_currentCar = $('.j_terminal[tid='+str_currentTid+']');
 		

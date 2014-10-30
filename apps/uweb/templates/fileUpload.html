@@ -5,14 +5,14 @@
 		<meta http-equiv="Cache-Control" content="no-cache" />
 		<meta http-equiv="Expires" content="-1" />
 		<link rel="shortcut icon" href="/static/favicon.ico" />
-		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
-		<link type="text/css" href="/static/css/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
-		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
-		<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
-		<script type="text/javascript" src="/static/js/jquery.jnotify.js"></script>
-		<script type="text/javascript" src="/static/js/initialize_common.js"></script>
-		<script type="text/javascript" src="/static/js/json2.js"></script>
-		<script type="text/javascript" src="/static/js/fileupload.js"></script>
+		<link type="text/css" href="{{static_url('css/css.css')}}" rel="stylesheet" />
+		<link type="text/css" href="{{static_url('css/jquery-ui-1.8.18.custom.css')}}" rel="stylesheet" />
+		<script type="text/javascript" src="{{static_url('js/jquery-1.7.1.min.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery-ui-1.8.18.custom.min.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery.jnotify.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/initialize_common.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/json2.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/fileupload.js')}}"></script>
 		<title>文件上传</title>
 	</head>
 	<body style="background-color: #FFF;">
@@ -33,7 +33,7 @@
 		</form>
 		<div id="fileUploadTipPanel">
 			<label>批量导入文件示例：</label>
-			<img id="batchTerminalTipImg" src="/static/images/batchTerminal_tip.png" alt="批量导入示例" />	
+			<img id="batchTerminalTipImg" src="static_url('images/batchTerminal_tip.png')}}" alt="批量导入示例" />	
 		</div>
 		{% elif status == 0 %}
 			<table class="dataTable excelInfoTable" id="fileUploadTable">

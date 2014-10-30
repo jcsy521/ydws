@@ -7,17 +7,19 @@
 		<link rel="shortcut icon" href="/static/favicon.ico" />
         <link type="text/css" href="{{static_url('css/css.css')}}" rel="stylesheet" />
         <link type="text/css" href="{{static_url('css/jquery-ui-1.8.18.custom.css')}}" rel="stylesheet" />
-		<link type="text/css" href="/static/css/jquery-ui-1.8.18.custom.css?v={{static_hash}}" rel="stylesheet" />
-		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/jquery.jnotify.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/json2.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/definitions.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/initialize_common.js?v={{static_hash}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery-1.7.1.min.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery-ui-1.8.18.custom.min.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery.jnotify.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/json2.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/definitions.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/initialize_common.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/jquery_md5.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/socket.io.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/push_service.js')}}"></script>
 		<!-- baidu share -->
 		<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=698988" ></script>
 	{% if map_type == '1' %}
-		<script type="text/javascript" src="/static/js/initialize_baidu.js?v={{static_hash}}"></script>
+		<script type="text/javascript" src="{{static_url('js/initialize_baidu.js')}}"></script>
 		<!--<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.3"></script>-->
 		<script type="text/javascript">
 			var b_isHttps = document.location.protocol == 'https:' ? true : false;
@@ -43,21 +45,21 @@
 			}
 		
 		</script>
-		<link type="text/css" href="/static/css/TrafficControl.css?v={{static_hash}}"  rel="stylesheet" />
-		<script type="text/javascript" src="/static/js/TrafficControl.js?v={{static_hash}}"></script> 
+		<link type="text/css" href="{{static_url('css/TrafficControl.css')}}"  rel="stylesheet" />
+		<script type="text/javascript" src="{{static_url('js/TrafficControl.js')}}"></script> 
 		<!--<script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
 		<script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
 		-->
 		<!--加载鼠标绘制工具-->
-		<script type="text/javascript" src="/static/js/drawingManager.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/map_baidu.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/track.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/export_excel.js?v={{static_hash}}"></script>
+		<script type="text/javascript" src="{{static_url('js/drawingManager.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/map_baidu.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/track.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/export_excel.js')}}"></script>
 	{% else %}
-		<script type="text/javascript" src="/static/js/initialize_gaode.js?v={{static_hash}}"></script>
+		<script type="text/javascript" src="{{static_url('js/initialize_gaode.js')}}"></script>
 		<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.2&key=69cb5d8ade23a204ce385bcf862833ff"></script>
-		<script type="text/javascript" src="/static/js/map_gaode.js?v={{static_hash}}"></script>
-		<script type="text/javascript" src="/static/js/track_gaode.js?v={{static_hash}}"></script>
+		<script type="text/javascript" src="{{static_url('js/map_gaode.js')}}"></script>
+		<script type="text/javascript" src="{{static_url('js/track_gaode.js')}}"></script>
 	{% end %}	
 	{% block include %}{% end %}
 		<title>{% block title %}移动卫士{% end %}</title>

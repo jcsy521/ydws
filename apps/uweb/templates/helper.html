@@ -6,12 +6,12 @@
         <meta http-equiv="Expires" content="-1" />
 		<title>移动卫士--用户帮助</title>
 		<link rel="shortcut icon" href="/static/favicon.ico" />
-		<link type="text/css" href="/static/css/help-css.css" rel="stylesheet" />
-		<link rel="stylesheet" type="text/css" href="/static/css/jquery.fullPage.css" />
-		<link rel="stylesheet" type="text/css" href="/static/css/examples.css" />
-		<script src="/static/js/jquery-1.7.1.min.js"></script>
-		<script src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
-		<script type="text/javascript" src="/static/js/jquery.fullPage.js"></script>
+		<link type="text/css" href="{{static_url('css/help-css.css')}}" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="{{static_url('css/jquery.fullPage.css')}}" />
+		<link rel="stylesheet" type="text/css" href="{{static_url('css/examples.css')}}" />
+		<script src="{{static_url('js/jquery-1.7.1.min.js')}}"></script>
+		<script src="{{static_url('js/jquery-ui-1.8.18.custom.min.js')}}"></script>
+		<script type="text/javascript" src="{{{{static_url('js/jquery.fullPage.js')}}"></script>
 	</head>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -54,7 +54,7 @@
 				<h1>登录移动卫士平台（www.ydcws.com）</h1>
 				<p>输入正确的用户名、密码及验证码进行登录。</p>
 				
-				<img src="/static/images/helpImg/login.png" alt="登录移动卫士平台" />
+				<img src="{{static_url('images/helpImg/login.png')}}" alt="登录移动卫士平台" />
 			</div>
 			<div class="section">
 				<div class="slide">
@@ -63,7 +63,7 @@
 						<p>短信查询：用户编辑短信 "DW" 发送到定位器手机号，查询定位器当前位置。</p>
 						<p>平台查询：用户点击“实时定位”，系统将查询当前定位器的位置信息，上报到平台并显示。</p>
 						
-						<img class="cHrLine cImgPos" src="/static/images/helpImg/current1.png" alt="实时定位中" />
+						<img class="cHrLine cImgPos" src="{{static_url('images/helpImg/current1.png')}}" alt="实时定位中" />
                        
 					</div>
 				</div>
@@ -71,7 +71,7 @@
 					<div class="intro">
 						<h1>实时定位示例</h1>
 						
-						<img src="/static/images/helpImg/current2.png" alt="实时定位显示" />
+						<img src="{{static_url('images/helpImg/current2.png')}}" alt="实时定位显示" />
 					</div>
 				</div>
 			</div>
@@ -84,7 +84,7 @@
 						<p>在平台页面上通过点线的形式显示出来的行踪轨迹图，</p>
 						<p>该功能便于查看定位器的活动范围和路线轨迹。</p>
 						
-						<img class="cImgPos" src="/static/images/helpImg/track1.png" alt="轨迹查询" />
+						<img class="cImgPos" src="{{static_url('images/helpImg/track1.png')}}" alt="轨迹查询" />
                        
 					</div>
 				</div>
@@ -92,7 +92,7 @@
 					<div class="intro">
 						<h1>轨迹查询示例</h1>
 						
-						<img class="cImgPos" src="/static/images/helpImg/track2.png" alt="轨迹查询" />
+						<img class="cImgPos" src="{{static_url('images/helpImg/track2.png')}}" alt="轨迹查询" />
 					</div>
 				</div>
 			</div>
@@ -103,7 +103,7 @@
 						<p>用户在平台上查询定位器指定时间段内的电量告警、通讯异常、移动告警、震动告警等信息。</p>
 						<p>得到查询结果之后，用户点击位置可以查看具体的位置信息。</p>
 						
-						<img src="/static/images/helpImg/event1.png" alt="告警查询条件" />
+						<img src="{{static_url('images/helpImg/event1.png')}}" alt="告警查询条件" />
                        
 					</div>
 				</div>
@@ -111,7 +111,7 @@
 					<div class="intro">
 						<h1>告警查询示例</h1>
 						
-						<img src="/static/images/helpImg/event2.png" alt="告警查询结果" />
+						<img src="{{static_url('images/helpImg/event2.png')}}" alt="告警查询结果" />
 					</div>
 				</div>
 			</div>
@@ -121,7 +121,7 @@
 						<h1>电子围栏</h1>
 						<p> 用户在平台上画半径大于500米的圆形围栏，当定位器进入该区域内定位器将发生告警。</p>
 						
-						<img src="/static/images/helpImg/region.png" alt="围栏列表" />
+						<img src="{{static_url('images/helpImg/region.png')}}" alt="围栏列表" />
                        
 					</div>
 				</div>
@@ -129,14 +129,14 @@
 					<div class="intro">
 						<h1>电子围栏-&gt;新建围栏</h1>
 						
-						<img src="/static/images/helpImg/addRegion.png" alt="新建围栏" />
+						<img src="{{static_url('images/helpImg/addRegion.png')}}" alt="新建围栏" />
 					</div>
 				</div>
 				<div class="slide">
 					<div class="intro">
 						<h1>电子围栏-&gt;删除围栏</h1>
 						
-						<img src="/static/images/helpImg/deleteRegion.png" alt="删除围栏" />
+						<img src="{{static_url('images/helpImg/deleteRegion.png')}}" alt="删除围栏" />
 					</div>
 				</div>
 			</div>
@@ -147,37 +147,37 @@
 				<p class="fontRed">用户编辑短信 "SF" 发送到定位器手机号，远程对定位器进行设防。</p>
 				<p class="fontRed">用户编辑短信 "CF" 发送到定位器手机号，远程对定位器进行撤防。</p>
 				
-				<img src="/static/images/helpImg/defend.png" alt="设防/撤防" />
+				<img src="{{static_url('images/helpImg/defend.png')}}" alt="设防/撤防" />
 			</div>
 			<div class="section">
 				<h1>保养提醒</h1>
 				<p>提醒用户在相应的里程数时对车辆进行保养的提醒设置。</p>
 				
-				<img src="/static/images/helpImg/mileageWarranty.png" alt="保养提醒" />
+				<img src="{{static_url('images/helpImg/mileageWarranty.png')}}" alt="保养提醒" />
 			</div>
 			<div class="section">
 				<h1>定位器参数设置</h1>
 				<p>设定定位器客户端通知。</p>
 				
-				<img src="/static/images/helpImg/terminal1.png" alt="定位器参数设置" />
+				<img src="{{static_url('images/helpImg/terminal1.png')}}" alt="定位器参数设置" />
 			</div>
 			<div class="section">
 				<h1>短信告警设置</h1>
 				<p>用户选择是否接受告警和提醒信息。</p>
 				
-				<img class="cImgPos" src="/static/images/helpImg/sms.png" alt="短信设置" />
+				<img class="cImgPos" src="{{static_url('images/helpImg/sms.png')}}" alt="短信设置" />
 			</div>
 			<div class="section">
 				<h1>个人信息设置</h1>
 				<p>用户可以对个人的信息如:手机号、邮箱等进行修改设置。</p>
 				
-				<img class="cImgPos" src="/static/images/helpImg/personal.png" alt="个人信息设置" />
+				<img class="cImgPos" src="{{static_url('images/helpImg/personal.png')}}" alt="个人信息设置" />
 			</div>
 			<div class="section">
 				<h1>修改密码</h1>
 				<p>用户可以对个人登录密码修改设置。</p>
 				
-				<img class="cImgPos" src="/static/images/helpImg/pwd.png" alt="修改密码" />
+				<img class="cImgPos" src="{{static_url('images/helpImg/pwd.png')}}" alt="修改密码" />
 			</div>
 		</div>				
 	</body>

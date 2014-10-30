@@ -198,7 +198,7 @@ dlf.fn_closeTrackWindow = function(b_ifLastInfo) {
 			//	dlf.fn_corpLastinfoSwitch(true);
 			//}
 			
-			dlf.fn_corpGetCarData(true);
+			//dlf.fn_corpGetCarData(true);
 		}
 		dlf.fn_updateLastInfo();// 动态更新定位器相关数据
 	}
@@ -492,7 +492,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 						str_html += dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）';
 					}
 				}
-				str_html += '</div></div>';
+				str_html += '</div></div></li>';
 			}
 			$('#delayTable').html(str_html);
 			dlf.fn_calTrackMileageIsBr(); // 计算里程部分是否要换行显示
@@ -570,6 +570,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					for ( var x = 0; x < arr_trackLineDatas.length; x++ ) {
 						arr_trackLineDatas[x].alias = str_alias;
 						arr_trackLineDatas[x].tid = str_tid;
+						
 						arr_calboxData.push(dlf.fn_createMapPoint(arr_trackLineDatas[x].clongitude, arr_trackLineDatas[x].clatitude));
 					}				
 					
@@ -873,7 +874,7 @@ function fn_printDelayDatas(arr_delayPoints, str_operation) {
 				str_html +=dlf.fn_NumForRound(n_distance/1000, 1)+'</span>（公里）';
 			}
 		}
-		str_html += '</div></div>';
+		str_html += '</div></div></li>';
 		if ( str_operation == 'delay' ) { //显示停留点
 			obj_tempMarker = dlf.fn_addMarker(obj_tempTrackData, 'delay', 0, i);
 			arr_markers.push(obj_tempMarker);

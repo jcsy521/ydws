@@ -703,22 +703,26 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 *动态更新定位器相关数据
 */
 dlf.fn_updateLastInfo = function() {
-	dlf.fn_clearInterval(currentLastInfo); // 清除定时器
-	currentLastInfo = setInterval(function () { // 每15秒启动
-		if ( $('.j_body').data('intervalkey') ){
-			return;
-		}
-		$('.j_body').data('intervalkey', true);
-		if ( !dlf.fn_userType() ) {
-			dlf.fn_getCarData();
-		} else {
-			// 如果反选过，或者全选已经完成 再重新获取数据
-			if ( b_uncheckedAll || b_checkedAll ) {
-				dlf.fn_corpGetCarData();
-			}			
-		}		
-	}, INFOTIME);
-	n_currentLastInfoNum = currentLastInfo;
+	if ( dlf.fn_userType() ) {
+		dlf.fn_corpGetCarData();
+	} else {
+		dlf.fn_clearInterval(currentLastInfo); // 清除定时器
+		currentLastInfo = setInterval(function () { // 每15秒启动
+			if ( $('.j_body').data('intervalkey') ){
+				return;
+			}
+			$('.j_body').data('intervalkey', true);
+			if ( !dlf.fn_userType() ) {
+				dlf.fn_getCarData();
+			} else {
+				// 如果反选过，或者全选已经完成 再重新获取数据
+				if ( b_uncheckedAll || b_checkedAll ) {
+					dlf.fn_corpGetCarData();
+				}			
+			}		
+		}, INFOTIME);
+		n_currentLastInfoNum = currentLastInfo;
+	}
 }
 
 /**
@@ -2005,7 +2009,7 @@ dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					dlf.fn_unLockContent(); // 清除内容区域的遮罩
 					dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
 					str_currentTid = obj_data.tmobile;
-					dlf.fn_corpGetCarData();
+					//dlf.fn_corpGetCarData();
 					dlf.fn_jNotifyMessage('创建成功，请确保定位器已开机。', 'message', false, 3000);
 					return;
 				} else if ( str_who == 'operator' ) {

@@ -101,6 +101,22 @@ dlf.fn_initTerminalWR = function (str_tid) {
 			obj_auto.hide();
 		}
 	});
+	$('#corp_speed_statusSet input').unbind('click').bind('click', function() {
+		var str_val = $(this).val(),
+			obj_tdLimit = $('#td_corp_speed_limit'),
+			obj_inputSpeedLimit = $('#t_corp_speed_limit'),
+			n_newVal = 0,
+			n_oldVal = parseInt($('#corp_speed_limitLabel').attr('t_val'));
+		
+		if ( str_val == 1 ) {
+			obj_tdLimit.show();
+			n_newVal = parseInt(120);
+		} else {
+			obj_tdLimit.hide();
+			n_newVal = 0;
+		}
+		obj_inputSpeedLimit.val(n_newVal);
+	});
 	$('#corp_stop input').unbind('click').bind('click', function() {
 		var str_val = $(this).val(),
 			obj_tdStopInterval = $('#td_corp_stop_interval'),
@@ -188,7 +204,6 @@ dlf.fn_initTerminalWR = function (str_tid) {
 								n_isOpen = 1;
 							}
 							$('#corp_stop_status' + n_isOpen).attr('checked', 'checked');
-							
 							$('#t_corp_stop_interval').val(n_stopInterval).attr('t_val', str_val);
 						} else if ( param == 'speed_limit' ) { //超速设置
 							var n_speedInterval = parseInt(str_val);

@@ -2,17 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<!-- TODO: JXL 这里的URL 不应该硬编码 -->
 		<meta http-equiv="Refresh" content="5;url=http://192.168.1.4:6500">
 		<meta http-equiv="Cache-Control" content="no-cache" />
 		<meta http-equiv="Expires" content="-1" />
 		<title>移动车卫士-页面超时</title>
 		<link rel="shortcut icon" href="/static/favicon.ico" />
-		<link type="text/css" href="/static/css/css.css" rel="stylesheet" />
+		<link type="text/css" href="{{static_url('css/css.css')}}" rel="stylesheet" />
 	</head>
 	<body>
 		<p class="timeout">
 			会话超时，页面将在5秒后跳转...
-			<img src="/static/image/blue-wait.gif" />
+			<img src="{{static_url('image/blue-wait.gif')}}" />
 		</p>
 	</body>
 </html>

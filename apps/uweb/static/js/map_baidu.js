@@ -660,7 +660,6 @@ dlf.fn_tipContents = function (obj_location, str_iconType, n_index, b_isGencoder
 				n_tempDist += n_pointDist;
 			}
 		}
-		
 		if ( str_iconType == 'draw' || str_iconType == 'start' || str_iconType == 'end' || str_iconType == 'singledraw' || str_iconType == 'singlestart' || str_iconType == 'singleend' ) {
 			if ( n_tempDist < 1000 ) {
 				str_html += '<label class="labelRight">里程： '+ dlf.fn_NumForRound(n_tempDist, 0) +' m</label></li>';
@@ -915,6 +914,7 @@ dlf.fn_getAddressByLngLat = function(n_lon, n_lat, tid, str_type, n_index) {
 				dlf.fn_updateAddress(str_type, tid, str_result, n_index, n_lon, n_lat);
 				//TODO:暂时未加poi显示
 			}
+			//TODO:暂时未加poi显示
 		}
 	});
 	/*jQuery.ajax({

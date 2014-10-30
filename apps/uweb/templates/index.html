@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block include %}
-	<script type="text/javascript" src="/static/js/WdatePicker.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/formValidator-4.1.1.js?v={{static_hash}}"></script>		
-	<script type="text/javascript" src="/static/js/jquery_cookie.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/formValidatorRegex.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/terminal.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/main.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/current.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/searchRecord.js?v={{static_hash}}"></script>
-	<script type="text/javascript" src="/static/js/region.js?v={{static_hash}}"></script>
+	<script type="text/javascript" src="{{static_url('js/WdatePicker.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/formValidator-4.1.1.js')}}"></script>		
+	<script type="text/javascript" src="{{static_url('js/jquery_cookie.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/formValidatorRegex.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/terminal.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/main.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/current.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/searchRecord.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/region.js')}}"></script>
 	<!--<script type="text/javascript" src="/static/js/track.js"></script>
 	<script type="text/javascript" src="/static/js/announcement.js"></script>-->
 {% end %}
@@ -141,6 +141,6 @@
 	<input type="hidden" id="user_type" value="{{user_type}}" />
 	<input type="hidden" id="map_type" value="{{map_type}}" />
 	
-	<script type="text/javascript" src="/static/js/judge_logo.js?v={{static_hash}}"></script>
+	<script type="text/javascript" src="{{static_url('js/judge_logo.js')}}"></script>
 </body>
 {% end %}
