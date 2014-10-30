@@ -707,6 +707,7 @@ class TerminalStatistic(object):
 
     def statistic_misc(self):
         """Handle the old data.
+        #NOTE: Self-test & Deprecated
         """
         ##self.db.execute("truncate T_SUBSCRIPTION_LOG")
         ##self.db.execute("truncate T_STATISTIC")
