@@ -25,6 +25,7 @@ from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
+from helpers.wspushhelper import WSPushHelper
 
 from mixin.terminal import TerminalMixin 
 
@@ -293,6 +294,9 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             #    IOLoop.instance().add_callback(self.finish)
 
             self.write_ret(status)
+            #NOTE: wspush 
+            if status == ErrorCode.SUCCESS: 
+                WSPushHelper.pushS7(tid, self.db, self.redis)
         except Exception as e:
             logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
@@ -413,7 +417,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
                 self.db.execute("INSERT INTO T_CAR(tid, cnum)"
                                 "  VALUES(%s, %s)",
-                                data.tmobile, data.cnum )
+                                data.tmobile, data.cnum)
             else:
                 tid = get_tid_from_mobile_ydwq(data.tmobile)
                 activation_code = QueryHelper.get_activation_code(self.db)
@@ -436,7 +440,13 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 "  VALUES(%s, %s)",
                                 tid, data.cnum )
             # record the add action
-            record_add_action(data.tmobile, data.group_id, int(time.time()), self.db)
+            bind_info = dict(tid=data.tmobile,
+                             tmobile=data.tmobile,
+                             umobile=umobile,
+                             group_id=data.group_id,
+                             cid=self.current_user.cid,
+                             add_time=int(time.time()))
+            record_add_action(bind_info, self.db)
 
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:
@@ -459,6 +469,10 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                 umobile) 
             
             self.write_ret(status)
+            #NOTE: wspush 
+            if status == ErrorCode.SUCCESS: 
+                WSPushHelper.pushS3(tid, self.db, self.redis)
+
         except Exception as e:
             logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 
                               self.current_user.cid, e.args)
@@ -614,6 +628,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
 
             self.write_ret(status)
+            #NOTE: wspush 
+            if status == ErrorCode.SUCCESS: 
+                WSPushHelper.pushS3(tid, self.db, self.redis)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete terminal failed. Exception: %s", 
                               self.current_user.cid, e.args) 

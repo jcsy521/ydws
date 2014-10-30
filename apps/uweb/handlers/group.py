@@ -10,7 +10,8 @@ from utils.misc import DUMMY_IDS, DUMMY_IDS_STR, str_to_list
 from codes.errorcode import ErrorCode
 from constants import UWEB
 from base import BaseHandler, authenticated
-
+from helpers.queryhelper import QueryHelper
+from helpers.wspushhelper import WSPushHelper
        
 class GroupHandler(BaseHandler):
 
@@ -77,6 +78,10 @@ class GroupHandler(BaseHandler):
                            dict_=dict(gid=gid,
                                       cid=cid,
                                       name=name))
+            #NOTE: wspush
+            tid = self.current_user.tid
+            if status == ErrorCode.SUCCESS:
+                WSPushHelper.pushS3(tid, self.db, self.redis)
         except Exception as e:
             logging.exception("[UWEB] uid: %s create group failed. Exception: %s", 
                               self.current_user.uid, e.args) 
@@ -113,6 +118,10 @@ class GroupHandler(BaseHandler):
                             "  WHERE id = %s",
                             name, gid)
             self.write_ret(status)
+            #NOTE: wspush
+            tid = self.current_user.tid
+            if status == ErrorCode.SUCCESS:
+                WSPushHelper.pushS3(tid, self.db, self.redis)
         except Exception as e:
             logging.exception("[UWEB] cid: %s modify group failed. Exception: %s", 
                               self.current_user.cid, e.args) 
@@ -142,6 +151,10 @@ class GroupHandler(BaseHandler):
                 else: 
                     status = ErrorCode.GROUP_HAS_TERMINAL
             self.write_ret(status)
+            #NOTE: wspush
+            tid = self.current_user.tid
+            if status == ErrorCode.SUCCESS:
+                WSPushHelper.pushS3(tid, self.db, self.redis)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete group failed. Exception: %s", 
                               self.current_user.cid, e.args) 
@@ -172,8 +185,13 @@ class GroupTransferHandler(BaseHandler):
                         "  SET group_id = %s"
                         "  WHERE tid IN %s") % (gid, tuple(tids+DUMMY_IDS_STR))
             self.db.execute(sql_cmd)
-
             self.write_ret(status)
+
+            #NOTE: wspush
+            tid = self.current_user.tid
+            if status == ErrorCode.SUCCESS:
+                WSPushHelper.pushS3(tid, self.db, self.redis)
+
         except Exception as e:
             logging.exception("[UWEB] cid: %s change group failed. Exception: %s", 
                               self.current_user.cid, e.args) 

@@ -391,7 +391,13 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                 gid = group.id
 
             # record the add action, enterprise
-            record_add_action(fields.tmobile, gid, int(time.time()), self.db)
+            bind_info = dict(tid=fields.tmobile,
+                             tmobile=fields.tmobile,
+                             umobile=fields.umobile,
+                             group_id=gid,
+                             cid=fields.ecmobile,
+                             add_time=int(time.time()))
+            record_add_action(bind_info, self.db)
 
             if not fields.umobile:
                 user_mobile = fields.ecmobile

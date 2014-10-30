@@ -7,8 +7,8 @@ import tornado.web
 from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from helpers.downloadhelper import get_version_info,\
-     get_download_count, update_download_count
+from helpers.downloadhelper import (get_version_info,
+     get_download_count, update_download_count)
 from helpers.queryhelper import QueryHelper
 from constants import DOWNLOAD, UWEB
 from codes.errorcode import ErrorCode
@@ -37,7 +37,7 @@ class AndroidInsHandler(BaseHandler):
                     versioninfo=version_info.versioninfo,
                     updatetime=version_info.updatetime,
                     filesize=version_info.filesize,
-                    count=download_info.count)
+                    count=download_info.count if download_info else 0)
 
 class IOSInsHandler(BaseHandler):
 

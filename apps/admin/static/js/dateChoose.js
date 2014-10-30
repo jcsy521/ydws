@@ -22,7 +22,7 @@ function toTodayDate() { // 返回当天的日期的UTC表示:例如2010-11-05 �
 }
 function toHumanDate(myEpoch, flag) { // 将UTC时间转为正常时区时间
 	if ( !myEpoch ) {
-		return '';
+		return '__';
 	}
 	var myDate = new Date(Number(myEpoch)*1000);
 	var year = myDate.getFullYear();
@@ -57,7 +57,7 @@ function toHumanDate(myEpoch, flag) { // 将UTC时间转为正常时区时间
 		return day;
 	}else if (flag == 'no') {
 		return year + '-' + month + '-' + day;//2010-09-10 z
-	} else {
+	} else { // yes
 		return year + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + seconds;
 	}
 }

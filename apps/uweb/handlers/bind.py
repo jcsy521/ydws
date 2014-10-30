@@ -56,7 +56,6 @@ class BindHandler(BaseHandler, AvatarMixin):
         try:
             # record the add action 
             begintime = int(time.time())
-            #record_add_action(tmobile, group_id, begintime, self.db)
             now_ = datetime.datetime.now()
             endtime = now_ + relativedelta(years=1)
             endtime = int(time.mktime(endtime.timetuple()))
@@ -96,7 +95,13 @@ class BindHandler(BaseHandler, AvatarMixin):
             self.db.execute("INSERT INTO T_CAR(tid, cnum)"
                             "  VALUES(%s, %s)",
                             tid, cnum)
-            record_add_action(tmobile, group_id, begintime, self.db)
+            bind_info = dict(tid=tmobile, 
+                             tmobile=tmobile,
+                             umobile=umobile,
+                             group_id=group_id,
+                             cid=self.current_user.cid, 
+                             add_time=begintime)
+            record_add_action(bind_info, self.db)
             avatar_full_path, avatar_path, avatar_name, avatar_time = self.get_avatar_info(tmobile)
 
             register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)

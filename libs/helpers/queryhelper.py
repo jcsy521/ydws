@@ -5,7 +5,7 @@ import logging
 
 from utils.misc import (get_terminal_info_key, get_lq_sms_key,
      get_location_key, get_gps_location_key, get_login_time_key, 
-     get_activation_code, get_acc_status_info_key)
+     get_activation_code, get_acc_status_info_key, get_terminal_sessionID_key)
 from utils.dotdict import DotDict
 from constants import GATEWAY, EVENTER, UWEB
 
@@ -87,7 +87,7 @@ class QueryHelper(object):
 
     @staticmethod
     def get_corp_by_cid(cid, db):
-        corp = db.get("SELECT mobile, name, linkman, bizcode"
+        corp = db.get("SELECT cid, mobile, name, linkman, bizcode"
                       "  FROM T_CORP"
                       "  WHERE cid= %s LIMIT 1",
                       cid) 
@@ -95,11 +95,23 @@ class QueryHelper(object):
 
     @staticmethod
     def get_corp_by_oid(oid, db):
-        corp = db.get("SELECT tc.mobile, tc.name, tc.linkman, tc.bizcode"
+        corp = db.get("SELECT tc.cid, tc.mobile, tc.name, tc.linkman, tc.bizcode"
                       "  FROM T_CORP AS tc, T_OPERATOR AS toper"
                       "  WHERE toper.oid= %s"
                       "    AND toper.corp_id = tc.cid",
                       oid) 
+        return corp 
+
+    @staticmethod
+    def get_corp_by_gid(gid, db):
+        if int(gid) == -1:
+            corp = None
+        else:
+            corp = db.get("SELECT tc.cid, tc.mobile, tc.name, tc.linkman, tc.bizcode"
+                          "  FROM T_CORP AS tc, T_GROUP AS tg"
+                          "  WHERE tg.id= %s"
+                          "    AND tg.corp_id = tc.cid",
+                          gid) 
         return corp 
 
     @staticmethod
@@ -497,6 +509,13 @@ class QueryHelper(object):
     def get_uid_by_tid(tid, db): 
         uid = db.get("SELECT owner_mobile FROM T_TERMINAL_INFO WHERE tid = %s", tid) 
         return uid["owner_mobile"]
+
+    @staticmethod 
+    def get_terminal_sessionID(tid, redis): 
+        terminal_sessionID_key = get_terminal_sessionID_key(tid) 
+        #NOTE: eval is issued in getvalue method, if session contains 'e', the sessionid may becomes a float,  so use get method here.  
+        sessionID = redis.get(terminal_sessionID_key) 
+        return sessionID
 
     @staticmethod
     def get_acc_status_info_by_tid(client_id, tid, db, redis):

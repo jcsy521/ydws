@@ -51,13 +51,49 @@
 <table id="rDataTables" class="display">
     <thead>
         <tr>
-            <th>定位器手机号</th><th>注册时间</th><th>解绑时间</th><th>操作类型</th>
+            <th>定位器手机号</th>
+            <th>SN</th>
+            <th>车主手机号</th>
+            <th>集团手机号</th>
+            <th>组Id</th>
+            <th>注册时间</th>
+            <th>解绑时间</th>
+            <th>操作类型</th>
         </tr>
     </thead>
     <tbody>
+    {{res}}
 	{% for result in res %}
 		<tr>
-			<td>{{result['mobile']}}</td>
+			<td>{{result['tmobile']}}</td>
+			<td>
+				{% if result['tid'] %}
+				    {{result['tid']}}
+				{% else %}
+                    __	
+				{% end %}
+			</td>
+			<td>
+				{% if result['umobile'] %}
+				    {{result['umobile']}}
+				{% else %}
+                    __	
+				{% end %}
+			</td>
+            <td>
+				{% if result['cid'] %}
+                    {{result['cid']}}
+				{% else %}
+				    __	
+				{% end %}
+			</td>			
+			<td>
+				{% if int(result['group_id']) == -1 %}
+				    __	
+				{% else %}
+                    {{result['group_id']}}
+				{% end %}
+			</td>			
 			<td><script>document.write(toHumanDate({{result['add_time']}}, 'yes'));</script></td>
 			<td><script>document.write(toHumanDate({{result['del_time']}}, 'yes'));</script></td>
 			<td>

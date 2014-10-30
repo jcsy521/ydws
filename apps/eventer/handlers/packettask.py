@@ -16,6 +16,7 @@ from helpers.notifyhelper import NotifyHelper
 from helpers.urlhelper import URLHelper
 from helpers.confhelper import ConfHelper
 from helpers.uwebhelper import UWebHelper
+from helpers.wspushhelper import WSPushHelper
 from helpers.weixinpushhelper import WeixinPushHelper
 
 from utils.dotdict import DotDict
@@ -1033,7 +1034,7 @@ class PacketTask(object):
                     gsm=terminal.get('gsm'),
                     pbat=terminal.get('pbat'))
 
-
+        WSPushHelper.pushS5(tid, body, self.db, self.redis)
         WeixinPushHelper.push(tid, body, self.db, self.redis)
 
     def handle_power_status(self, report, name, report_name, terminal_time):

@@ -279,7 +279,13 @@ class BatchJHHandler(BaseHandler):
                         continue 
 
                 # record the add action, enterprise
-                record_add_action(tmobile, gid, int(time.time()), self.db)
+                bind_info = dict(tid=tmobile, 
+                                 tmobile=tmobile,
+                                 umobile=umobile,
+                                 group_id=gid,
+                                 cid=self.current_user.cid,
+                                 add_time=int(time.time()))
+                record_add_action(bind_info, self.db)
 
                 if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
                     t_id = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"

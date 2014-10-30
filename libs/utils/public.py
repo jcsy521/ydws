@@ -6,36 +6,57 @@ import time
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
 from helpers.emailhelper import EmailHelper
+from helpers.wspushhelper import WSPushHelper
+from helpers.lbmpsenderhelper import LbmpSenderHelper
 
 from misc import *
 from utils.dotdict import DotDict
 from constants import EVENTER, UWEB, GATEWAY
 
-def record_add_action(tmobile, group_id, add_time, db):
+# Feature: bind_log 
+def record_add_action(bind_info, db):
     """Record the add action of one mobile.
-    @params: tmobile, 
-             group_id, 
-             op_type, 
-             add_time,
+    @params: bind_info, {'tid':'',
+                         'tmobile':'', 
+                         'umobile':'', 
+                         'group_id','',
+                         'cid','',
+                         'add_time':'',}
+             db
     """
-    logging.info("[PUBLIC] Record the add action, tmobile: %s, group_id: %s, add_time: %s",
-                 tmobile, group_id, add_time)
-    db.execute("INSERT INTO T_BIND_LOG(tmobile, group_id, op_type, add_time)" 
-               " VALUES(%s, %s, %s, %s)", 
-               tmobile, group_id, UWEB.OP_TYPE.ADD, add_time)              
+    logging.info("[PUBLIC] Record the add action, bind_info:%s",
+                 bind_info)
+    db.execute("INSERT INTO T_BIND_LOG(tid, tmobile, umobile, group_id, cid, op_type, add_time)" 
+               " VALUES(%s, %s, %s, %s, %s, %s, %s)", 
+               bind_info.get('tid',''), 
+               bind_info.get('tmobile',''), 
+               bind_info.get('umobile',''), 
+               bind_info.get('group_id',-1), 
+               bind_info.get('cid',''), 
+               UWEB.OP_TYPE.ADD, 
+               bind_info.get('add_time',0))
                
-def record_del_action(tmobile, group_id, del_time, db):
+def record_del_action(bind_info, db):
     """Record the del action of one mobile.
-    @params: tmobile, 
-             group_id, 
-             op_type, 
-             del_time,
+    @params: bind_info, {'tid':'',
+                         'tmobile':'', 
+                         'umobile':'', 
+                         'group_id','',
+                         'cid','',
+                         'del_time':'',}
+             db
     """
-    logging.info("[PUBLIC] Record the del action, tmobile: %s, group_id: %s, del_time: %s",
-                 tmobile, group_id, del_time)
-    db.execute("INSERT INTO T_BIND_LOG(tmobile, group_id, op_type, del_time)" 
-               " VALUES(%s, %s, %s, %s)", 
-               tmobile, group_id, UWEB.OP_TYPE.DEL, del_time)              
+    logging.info("[PUBLIC] Record the del action, bind_info: %s",
+                 bind_info)
+    db.execute("INSERT INTO T_BIND_LOG(tid, tmobile, umobile, group_id, cid, op_type, del_time)" 
+               " VALUES(%s, %s, %s, %s, %s, %s, %s)", 
+               bind_info.get('tid',''), 
+               bind_info.get('tmobile',''), 
+               bind_info.get('umobile',''), 
+               bind_info.get('group_id',-1), 
+               bind_info.get('cid',''), 
+               UWEB.OP_TYPE.DEL, 
+               bind_info.get('del_time',0))
 
 def clear_data(tid, db, redis):
     """Just clear the info associated with terminal in platform.
@@ -108,7 +129,14 @@ def delete_terminal(tid, db, redis, del_user=True):
                       "  WHERE mobile = %s",
                       terminal.owner_mobile)
         #NOTE: record the del action.
-        record_del_action(terminal.mobile, terminal.group_id, int(time.time()), db)
+        corp = QueryHelper.get_corp_by_gid(terminal.group_id, db) 
+        bind_info = dict(tid=tid,
+                         tmobile=terminal.mobile,
+                         umobile=terminal.owner_mobile,
+                         group_id=terminal.group_id,
+                         cid=corp.get('cid', '') if corp else '',
+                         del_time=int(time.time()))
+        record_del_action(bind_info, db)
 
         #NOTE: check whether clear history data
         key = get_del_data_key(tid)
@@ -123,7 +151,7 @@ def delete_terminal(tid, db, redis, del_user=True):
                    tid) 
 
         logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
-                     tid, terminal['mobile'], terminal['owner_mobile'])
+                     tid, tmobile, umobile)
 
 def add_user(user, db, redis):
     """"Add a user.
@@ -137,8 +165,8 @@ def add_user(user, db, redis):
 
     """
     # add user
-    old_user = db.get("SELECT id FROM T_USER WHERE mobile = %s", user['umobile'])
-    if not old_user:
+    user = db.get("SELECT id FROM T_USER WHERE mobile = %s", user['umobile'])
+    if not user:
         db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
                    "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
                    user['umobile'], user['password'],
@@ -168,7 +196,7 @@ def add_terminal(terminal, db, redis):
                "  VALUES (%s, %s, %s, %s, %s, %s)",
                terminal['tmobile'],
                terminal['tmobile'], terminal['owner_mobile'],
-               terminal['begintime'], terminal['endtime'], terminal['begintime'])
+               terminal['begintime'], terminal['endtime'], fields.begintime)
     
     #add car tnum --> cnum
     db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
@@ -343,6 +371,96 @@ def notify_maintainer(db, redis, content, category):
     else:
         logging.info("[PUBLIC] Notify alarm is ignored in 5 minutes. content: %s, category: %s.",
                      content, category)
+
+def update_terminal_info(db, redis, t_info):
+    """Update terminal's info in db and redis.
+    NOTE: 
+    Only those properties which are different from platform is needed to change.
+    """
+    tid = t_info['dev_id']
+    terminal_info_key = get_terminal_info_key(t_info['dev_id'])
+    terminal_info = QueryHelper.get_terminal_info(t_info['dev_id'],
+                                                  db, redis)
+
+    #1: db
+    fields = []
+    # gps, gsm, pbat, changed by position report
+    keys = ['mobile', 'defend_status', 'login', 'keys_num', 'fob_status', 'mannual_status', 
+            'softversion', 'bt_mac', 'bt_name', 'dev_type']
+    for key in keys:
+        value = t_info.get(key, None)
+        t_value = terminal_info.get(key, '')
+        if value is not None and value != t_value:
+            fields.append(key + " = " + "'" + str(t_info[key]) + "'")
+    if 'login_time' in t_info:
+        fields.append('login_time' + " = " + str(t_info['login_time']))
+        login_time_key = get_login_time_key(t_info['dev_id'])
+        redis.setvalue(login_time_key, t_info['login_time'])
+    set_clause = ','.join(fields)
+    if set_clause:
+        sql_cmd = ("UPDATE T_TERMINAL_INFO "
+                   "  SET " + set_clause + 
+                   "  WHERE tid = %s")
+        db.execute(sql_cmd, t_info['dev_id'])
+    #2: redis
+    for key in terminal_info:
+        value = t_info.get(key, None)
+        if value is not None:
+            terminal_info[key] = value
+    redis.setvalue(terminal_info_key, terminal_info)
+
+    #terminal basic info
+    WSPushHelper.pushS6(tid, db, redis)
+    return terminal_info 
+
+def update_fob_info(db, redis, fobinfo):
+    """Update fob's information.
+    """
+    terminal_info_key = get_terminal_info_key(fobinfo['dev_id'])
+    terminal_info = QueryHelper.get_terminal_info(fobinfo['dev_id'],
+                                                  db, redis)
+
+    if int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.ADD:
+        db.execute("INSERT INTO T_FOB(tid, fobid)"
+                   "  VALUES(%s, %s)"
+                   "  ON DUPLICATE KEY"
+                   "  UPDATE tid = VALUES(tid),"
+                   "         fobid = VALUES(fobid)",
+                   fobinfo['dev_id'], fobinfo['fobid'])
+        fob_list = terminal_info['fob_list']
+        if fob_list:
+            fob_list.append(fobinfo['fobid'])
+        else:
+            fob_list = [fobinfo['fobid'],]
+        terminal_info['fob_list'] = list(set(fob_list))
+        terminal_info['keys_num'] = len(terminal_info['fob_list']) 
+        db.execute("UPDATE T_TERMINAL_INFO"
+                   "  SET keys_num = %s"
+                   "  WHERE tid = %s", 
+                   terminal_info['keys_num'], fobinfo['dev_id'])
+        redis.setvalue(terminal_info_key, terminal_info)
+    elif int(fobinfo['operate']) == GATEWAY.FOB_OPERATE.REMOVE:
+        db.execute("DELETE FROM T_FOB"
+                   "  WHERE fobid = %s"
+                   "    AND tid = %s",
+                   fobinfo['fobid'], fobinfo['dev_id'])
+        fob_list = terminal_info['fob_list']
+        if fob_list:
+            if fobinfo['fobid'] in fob_list:
+                fob_list.remove(fobinfo['fobid'])
+        else:
+            fob_list = []
+        terminal_info['fob_list'] = list(set(fob_list))
+        terminal_info['keys_num'] = len(terminal_info['fob_list']) 
+        db.execute("UPDATE T_TERMINAL_INFO"
+                   "  SET keys_num = %s"
+                   "  WHERE tid = %s", 
+                   terminal_info['keys_num'], fobinfo['dev_id'])
+        redis.setvalue(terminal_info_key, terminal_info)
+    else:
+        pass
+
+
 # For Weixin
 def get_weixin_push_key(uid, t):
     """Get key for push interface(register or push packet)"""
@@ -355,8 +473,22 @@ def get_weixin_push_key(uid, t):
 
     return key.decode('utf8')
 
+def subscription_lbmp(mobile):
+    """ Subscription LE for new sim
+    """
+    data = DotDict(sim=mobile,
+                   action="A")
+    response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data) 
+    response = json_decode(response) 
+    if response['success'] == '000': 
+        logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
+                     t_info['dev_id'], t_info['t_msisdn'])
+    else:
+        logging.error("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
+                     t_info['dev_id'], t_info['t_msisdn'], response)
+
 # for YDWQ
-def update_terminal_info(db, redis, t_info):
+def update_terminal_info_ydwq(db, redis, t_info):
     """Update terminal's info in db and redis.
     """
     terminal_info_key = get_terminal_info_key(t_info['tid'])

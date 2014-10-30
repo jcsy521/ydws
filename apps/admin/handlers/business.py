@@ -144,7 +144,13 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
             add_user(user_info, self.db, self.redis)
 
             # record the add action
-            record_add_action(fields.tmobile, -1, int(time.time()), self.db)
+            bind_info = dict(tid=fields.tmobile,
+                             tmobile=fields.tmobile,
+                             umobile=fields.umobile,
+                             group_id=-1,
+                             cid=fields.ecmobile,
+                             add_time=int(time.time()))
+            record_add_action(bind_info, self.db)
 
             # 2: add terminal
             if not fields.umobile:

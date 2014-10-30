@@ -30,8 +30,6 @@ class BindLogMixin(BaseMixin):
         if data:
             return data
 
-
-
 class BindLogSearchHandler(BaseHandler, BindLogMixin):
 
     @authenticated
@@ -52,8 +50,8 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
         status = ErrorCode.SUCCESS
         try:
             mobile = self.get_argument('mobile', 0)
-            sql = ("SELECT tmobile, op_type, add_time, del_time FROM T_BIND_LOG"
-                   " WHERE tmobile=%s") % mobile
+            sql = ("SELECT tid, tmobile, umobile, group_id, cid, op_type, add_time, del_time FROM T_BIND_LOG"
+                   "  WHERE tmobile=%s") % mobile
             retlist = self.db.query(sql)
             res = []
             if not retlist:
@@ -63,10 +61,14 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
                     op_type = ret.get('op_type', None)
                 else:
                     op_type = 0
-                _res = dict(op_type=op_type,
-                            mobile=mobile,
-                            add_time=ret.get('add_time'),
-                            del_time=ret.get('del_time'))
+                _res = dict(tmobile=ret['tmobile'],
+                            tid=ret['tid'],
+                            umobile=ret['umobile'],
+                            group_id=ret['group_id'],
+                            cid=ret['cid'],
+                            op_type=op_type,
+                            add_time=ret['add_time'],
+                            del_time=ret['del_time'])
                 res.append(_res)
 
             m = hashlib.md5()
