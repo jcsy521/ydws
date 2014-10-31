@@ -119,11 +119,12 @@ from handlers.clientsync import SyncHandler
 from handlers.avatar import AvatarHandler
 from handlers.upload import UploadHandler
 from handlers.attendance import AttendanceHandler
-from handlers.bind import BindHandler
+from handlers.bind import YDWQBindHandler
 from handlers.acc import ACCHandler
 from handlers.masspoint import MassPointHandler 
 from handlers.masspoint_basic import MassPointBasicHandler 
 from handlers.masspoint_day import MassPointDayHandler 
+from handlers.wspush import WSPushHandler
 
 # utils
 from handlers.uwebhelper import GEHandler
@@ -200,7 +201,7 @@ class Application(tornado.web.Application):
             (r"/activationcode/*", ActivationcodeHandler),
             (r"/activate/*", ActivateHandler),
             (r"/ydwq/activate/*", YDWQActivateHandler),
-            (r"/ydwq/bind/*", BindHandler),
+            (r"/ydwq/bind/*", YDWQBindHandler),
             (r"/upload/*", UploadHandler),
 
 
@@ -217,7 +218,6 @@ class Application(tornado.web.Application):
 
             (r"/download/manual/*", DownloadManualHandler),
             (r"/download/online/*", OnlineDownloadHandler),
-            (r"/download/terminal/*", DownloadTerminalHandler),
             (r"/downloadsms/*", DownloadSmsHandler),
             (r"/uploadterminalfile/*", UploadTerminalHandler),
 
@@ -293,6 +293,7 @@ class Application(tornado.web.Application):
             (r"/download/*", DownloadHandler),
             (r"/corpregion/*", CorpRegionHandler),
 
+
             (r"/bindsingle/*", BindSingleHandler),
             (r"/corpsingle/*", CorpSingleHandler),
             (r"/corpsingle/list/*", CorpSingleListHandler),
@@ -305,6 +306,12 @@ class Application(tornado.web.Application):
 
 
             (r"/test/*", EventHandler),
+
+
+            (r"/masspoint/*", MassPointHandler),
+
+            (r"/wspush/*", WSPushHandler),
+
 
             #znbc server handler
             (r"/passenger/*", PassengerHandler),
