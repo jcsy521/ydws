@@ -11,8 +11,7 @@ $(function(){
 		$('.top').css('background-image', 'url("/static/images/loginBg_ajt.png")');
 		$('#font_tipContent').html('安捷通');
 		$('#loginHeader_logo').css('background-image', 'url("/static/images/login/logo_ajt.png")');
-	} 
-	
+	}
 	
 	/**
 	* input 的change事件 不能输入汉字
@@ -72,16 +71,21 @@ $(function(){
 		$('#userRoleType').val('enterprise');
 	});
 	//登录 页面部分验证
+	$('#loginBtn').data('isvalid', true);
 	$('#login_username').unbind('blur').blur(function(e) {
 		var str_loginUserName = $.trim($(this).val()),
 			MOBILEREG = /^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/;
-		console.log('xx: ',str_loginUserName == '' || !MOBILEREG.test(str_loginUserName));
+		
 		if ( str_loginUserName == '' || MOBILEREG.test(str_loginUserName) ) {	// 手机号合法性验证
 			$('.login_usernameMsgPanel').hide();
 			$('#login_usernameErrorMsg').html('');
+			$('#loginBtn').data('isvalid', true);
 		} else {
 			$('.login_usernameMsgPanel').show();
-			$('#login_usernameErrorMsg').html('请输入规范的手机号');
+			$('#login_usernameErrorMsg').html('请输入规范的手机号码');
+			$('#loginBtn').data('isvalid', false);
+			$('.login_msgPanel').hide();
+			$('.login_errorMsg').html('');
 		}
 	});
 	
@@ -106,6 +110,11 @@ function fn_validLogin() {
 		str_loginPwd = $.trim($('#login_pwd').val()),
 		str_loginCaptcha = $.trim($('#login_captcha').val()),
 		str_randomStr = fn_createRandomStr(128);
+	
+	
+	if ( !$('#loginBtn').data('isvalid') ) {
+		return false;
+	}
 	
 	$('#loginHidden_username').val(base64encode(utf16to8(str_randomStr+str_loginName)));
 	$('#loginHidden_pwd').val(base64encode(utf16to8(str_randomStr+str_loginPwd)));

@@ -1597,9 +1597,9 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 								} else {
 									obj_carsData[str_tid] = obj_car;
 								}
-								if ( obj_car.acc_message != ''  ) {
-									dlf.fn_accCallback(obj_car.acc_message, str_tid);
-								}
+								//if ( obj_car.acc_message != ''  ) {
+								//	dlf.fn_accCallback(obj_car.acc_message, str_tid);
+								//}
 								// obj_carsData[str_tid] =  obj_car;
 								arr_tempTids.push(str_tid); //tid组string 串
 								if ( str_login == LOGINOUT ) {
@@ -2026,9 +2026,9 @@ function fn_updateTreeNode(obj_corp, b_isCloseTrackInfowindow) {
 					n_clon = obj_car.clongitude/NUMLNGLAT,	
 					n_clat = obj_car.clatitude/NUMLNGLAT;
 				
-				if ( obj_car.acc_message != '' ) {
-					dlf.fn_accCallback(obj_car.acc_message, str_tid);
-				}
+				//if ( obj_car.acc_message != '' ) {
+				//	dlf.fn_accCallback(obj_car.acc_message, str_tid);
+				//}
 				obj_car.tid = str_tid;
 				obj_carsData[str_tid] = obj_car;
 				if ( n_login == LOGINOUT ) {

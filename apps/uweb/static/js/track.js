@@ -448,7 +448,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 					trackLsItemSt = '';
 				
 				if ( n_tempWeekNum == n_currentWeekNum ) {
-					str_yearLabel = str_ymd;
+					str_yearLabel = str_md;
 					str_dateLabel = dlf.fn_changeTimestampToWeek(n_lcoateTime);
 				}
 				

@@ -48,20 +48,6 @@
 							<span id="login_usernameErrorMsg" class="errorMsg"></span>
 						</div>
 					</div>
-					{% if message_captcha %}
-						<div class="form-group login_msgPanel">
-					{% else %}
-						<div class="form-group login_msgPanel hide">
-					{% end %}
-						<label class="sr-only col-sm-2 control-label"></label>
-						<div>
-							<span class="login_errorMsg errorMsg">
-								{% if message_captcha %}
-									{{ message_captcha }}
-								{% end %}
-							</span>
-						</div>
-					</div>
 					<div class="form-group">
 						<label class="sr-only col-sm-2 control-label"></label>
 						<div>
@@ -77,6 +63,20 @@
 							<img alt="验证码图片" id="captchaimg" src="" class="captchaImg" alt="看不清？换一张" title="看不清？换一张" />
 							<a href="#"  id="captchaimgRp" title="看不清？换一张" class="font-size14">看不清？</a>
 						</div>
+					</div>					
+					{% if message_captcha %}
+						<div class="form-group login_msgPanel">
+					{% else %}
+						<div class="form-group login_msgPanel hide">
+					{% end %}
+						<label class="sr-only col-sm-2 control-label"></label>
+						<div>
+							<span class="login_errorMsg errorMsg">
+								{% if message_captcha %}
+									{{ message_captcha }}
+								{% end %}								
+							</span>
+						</div>
 					</div>
 					<div class="form-group loginForm-submit">
 						<label class="sr-only col-sm-2 control-label"></label>
@@ -90,7 +90,7 @@
 							<!--<button id="loginBtn" type="submit" class="loginBtn">登录</button>-->
 							<span id="loginBtn" class="loginBtn font-size20" tabindex="7">登录</span>
 						</div>
-					</div>
+					</div>					
 					{% if message %}
 						<div class="form-group login_msgPanel">
 					{% else %}

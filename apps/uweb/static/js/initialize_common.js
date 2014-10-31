@@ -696,7 +696,7 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 		}
 	}
 	dlf.fn_closeJNotifyMsg('#jNotifyMessage');  // 关闭消息提示
-	dlf.fn_updateLastInfo();
+	//dlf.fn_updateLastInfo();
 }
 
 /**

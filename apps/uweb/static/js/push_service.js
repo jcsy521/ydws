@@ -61,6 +61,10 @@ $(function () {
 					//定位器基本资料
 					fn_pushTerminalDataUpdate(obj_pushData);
 					break;
+				case 'S8':
+					//开解锁回显
+					fn_pushTerminal210AccMessageUpdate(obj_pushData);
+					break;
 			}
 		});
 		
@@ -301,6 +305,15 @@ $(function () {
 			$('.j_carList').data('carsData', obj_carDatas);
 		}
 		
+		fn_pushCallback(obj_pushCallbackData);
+	}
+	
+	//210开解锁消息回显
+	function fn_pushTerminal210AccMessageUpdate(obj_pushData) {
+		var obj_pushCallbackData = {'packet_type': 'C7', 'status': 0, 'msg': 'SUCCESS'},
+			obj_pushRes = obj_pushData.res;
+		
+		dlf.fn_accCallback(obj_pushRes.acc_message, obj_pushRes.tid);
 		fn_pushCallback(obj_pushCallbackData);
 	}
 	
