@@ -15,7 +15,7 @@ from base import authenticated, BaseHandler
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
 from utils.dotdict import DotDict
-from utils.public import record_add_action, delete_terminal 
+from utils.public import record_add_action, delete_terminal, add_terminal 
 from utils.misc import get_tid_from_mobile_ydwq 
 from utils.checker import check_zs_phone
 from constants import UWEB
@@ -23,8 +23,8 @@ from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 from helpers.confhelper import ConfHelper
 
-class BindHandler(BaseHandler, AvatarMixin):
-    """ Show avatar for mobile client loggin
+class YDWQBindHandler(BaseHandler, AvatarMixin):
+    """Show avatar for mobile client login.
     """
 
     @authenticated
@@ -82,19 +82,23 @@ class BindHandler(BaseHandler, AvatarMixin):
  
             tid = get_tid_from_mobile_ydwq(tmobile)
             activation_code = QueryHelper.get_activation_code(self.db)
-            self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                            "  defend_status, mannual_status, begintime, endtime, offline_time, "
-                            "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
-                            "  activation_code, service_status)"
-                            "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                            tid, group_id, tmobile, umobile, UWEB.DEFEND_STATUS.NO,
-                            UWEB.DEFEND_STATUS.NO, begintime, 4733481600,
-                            begintime, cnum, 0, 1, 1,
-                            1, 3, UWEB.BIZ_TYPE.YDWQ,
-                            activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
-            self.db.execute("INSERT INTO T_CAR(tid, cnum)"
-                            "  VALUES(%s, %s)",
-                            tid, cnum)
+            terminal_info = dict(tid=tid,
+                                 group_id=group_id,
+                                 tmobile=tmobile,
+                                 owner_mobile=umobile,
+                                 mannual_status=UWEB.DEFEND_STATUS.YES,
+                                 begintime=begintime,
+                                 endtime=4733481600,
+                                 offline_time=begintime,
+                                 cnum=cnum,
+                                 icon_type=0,
+                                 login_permit=1,
+                                 push_status=1,
+                                 vibl=1,
+                                 use_scene=3,
+                                 activation_code=activation_code,
+                                 service_status=UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
+            add_terminal(terminal_info, self.db, self.redis)
             bind_info = dict(tid=tmobile, 
                              tmobile=tmobile,
                              umobile=umobile,

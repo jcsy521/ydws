@@ -609,7 +609,7 @@ class PacketTask(object):
                             logging.info("[EVENTER] Tid: %s, dis_day: %s. pvt: %s.",
                                           pvt['dev_id'], dis_day, pvt)
 
-                self.push_to_weixin(pvt) 
+                self.push_to_client(pvt) 
         else:
             location.category = EVENTER.CATEGORY.UNKNOWN
             self.unknown_location_hook(location)
@@ -1010,8 +1010,8 @@ class PacketTask(object):
                     ios_badge = NotifyHelper.get_iosbadge(ios_id, self.redis) 
                     NotifyHelper.push_to_ios(category, dev_id, alias, location, ios_id, ios_badge, region_id)
 
-    def push_to_weixin(self, location):
-        """Push information to weixin.
+    def push_to_client(self, location):
+        """Push information to weixin and wspush.
         """
         tid = location['dev_id']
         terminal = QueryHelper.get_terminal_info(tid, self.db, self.redis)

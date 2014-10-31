@@ -13,10 +13,10 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.public import record_add_action, delete_terminal
-from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key, \
-    get_tid_from_mobile_ydwq
+from utils.public import record_add_action, delete_terminal, add_user
+from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,
+     get_tid_from_mobile_ydwq)
 from constants import UWEB, GATEWAY
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.smshelper import SMSHelper
@@ -278,6 +278,32 @@ class BatchJHHandler(BaseHandler):
                         r['status'] = ErrorCode.TERMINAL_ORDERED
                         continue 
 
+                terminal_info = dict(tid=tmobile,
+                                     group_id=gid,
+                                     tmobile=tmobile,
+                                     owner_mobile=umobile,
+                                     mannual_status=UWEB.DEFEND_STATUS.YES,
+                                     begintime=begintime,
+                                     endtime=4733481600,
+                                     offline_time=begintime,
+                                     login_permit=0,
+                                     biz_type=biz_type,
+                                     service_status=UWEB.SERVICE_STATUS.ON)
+
+                if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
+                    register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
+                    ret = SMSHelper.send_to_terminal(tmobile, register_sms)
+                else:
+                    activation_code = QueryHelper.get_activation_code(self.db)
+                    tid = get_tid_from_mobile_ydwq(tmobile)
+                    terminal_info['tid'] = tid
+                    terminal_info['activation_code'] = activation_code 
+                    terminal_info['service_status'] = UWEB.SERVICE_STATUS.TO_BE_ACTIVATED 
+
+                    register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
+                    ret = SMSHelper.send(tmobile, register_sms)
+
+                add_terminal(terminal_info, self.db, self.redis)
                 # record the add action, enterprise
                 bind_info = dict(tid=tmobile, 
                                  tmobile=tmobile,
@@ -286,29 +312,6 @@ class BatchJHHandler(BaseHandler):
                                  cid=self.current_user.cid,
                                  add_time=int(time.time()))
                 record_add_action(bind_info, self.db)
-
-                if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
-                    t_id = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
-                                          "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit)"
-                                          "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                          tmobile, tmobile, gid, umobile, 
-                                          UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
-                                          begintime, 4733481600, begintime, 0)
-                    register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
-                    ret = SMSHelper.send_to_terminal(tmobile, register_sms)
-                else:
-                    activation_code = QueryHelper.get_activation_code(self.db)
-                    tid = get_tid_from_mobile_ydwq(tmobile)
-                    t_id = self.db.execute("INSERT INTO T_TERMINAL_INFO(id, tid, mobile, group_id,"
-                                          "  owner_mobile, defend_status, mannual_status, begintime, endtime, offline_time, login_permit,"
-                                          "  biz_type, activation_code, service_status)"
-                                          "  VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                          tmobile, tid, gid, umobile, 
-                                          UWEB.DEFEND_STATUS.NO, UWEB.DEFEND_STATUS.NO, 
-                                          begintime, 4733481600, begintime, 0,
-                                          biz_type, activation_code, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
-                    register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
-                    ret = SMSHelper.send(tmobile, register_sms)
 
                 ret = DotDict(json_decode(ret))
                 if ret.status == ErrorCode.SUCCESS:
@@ -319,21 +322,16 @@ class BatchJHHandler(BaseHandler):
                 else:
                     r['status'] = ErrorCode.FAILED 
                     
-                self.db.execute("INSERT INTO T_CAR(tid)"
-                                "  VALUES(%s)",
-                                tmobile)
                 # 2. add user
                 existed_user = self.db.get("SELECT id FROM T_USER"
                                            " WHERE mobile = %s", umobile)
                 if existed_user:
                     pass
                 else:
-                    self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
-                                    "  VALUES (NULL, %s, password(%s), %s, %s)",
-                                    umobile, '111111', umobile, umobile)
-                    self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                    "  VALUES(%s)",
-                                    umobile)
+                    user_info = dict(umobile=umobile,
+                                     password='111111',
+                                     uname=umobile)
+                    add_user(user_info, self.db, self.redis)
                 res.append(r)
             self.write_ret(status, 
                            dict_=DotDict(res=res))

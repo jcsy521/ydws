@@ -2,11 +2,11 @@
 
 import logging
 
-
 from clw.packet.parser.acc_status import ACCStatusParser
 from clw.packet.composer.acc_status import ACCStatusComposer
 
 from helpers.queryhelper import QueryHelper
+from helpers.wspushhelper import WSPushHelper
             
 from error import GWException
 
@@ -47,6 +47,7 @@ def handle_acc_status(info, address, connection, channel, exchange, gw_binding, 
             if acc_status_info:  
                 acc_status_info['op_status'] = 1 # success
                 redis.setvalue(acc_status_info_key, acc_status_info, UWEB.ACC_STATUS_EXPIRY)
+                WSPushHelper.pushS8(dev_id, 1, db, redis)
             else: # It should never occur. 
                 logging.error("[GW] ACC_status can not be found. dev_id: %s",
                               dev_id)
@@ -83,7 +84,7 @@ def handle_acc_status_report(info, address, connection, channel, exchange, gw_bi
         else:
             uap = ACCStatusReportParser(body, head)
             t_info = uap.ret
-            #NOTE: Record it in db.
+            #NOTE: Just record it in db.
             db.execute("INSERT INTO T_ACC_STATUS_REPORT(tid, category, timestamp)"
                        "  VALUES(%s, %s, %s)",
                        t_info['dev_id'], t_info['category'], t_info['timestamp'])

@@ -167,42 +167,97 @@ def add_user(user, db, redis):
     # add user
     user = db.get("SELECT id FROM T_USER WHERE mobile = %s", user['umobile'])
     if not user:
-        db.execute("INSERT INTO T_USER(id, uid, password, name, mobile, address, email, remark)"
-                   "  VALUES(NULL, %s, password(%s), %s, %s, %s, %s, NULL)",
+        db.execute("INSERT INTO T_USER(uid, password, name, mobile, address, email)"
+                   "  VALUES(%s, password(%s), %s, %s, %s, %s)",
                    user['umobile'], user['password'],
                    user['uname'], user['umobile'],
                    user['address'], user['email'])
 
     # add sms_option
     sms_option = db.get("SELECT id FROM T_SMS_OPTION WHERE uid= %s", user['umobile'])
-    if not sms_option:
-        db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                   "  VALUES(%s)",
-                   user['umobile'])
+    if sms_option:
+        db.execute("DELETE FROM T_SMS_OPTION WHERE uid = %s", user['umobile'])
+    db.execute("INSERT INTO T_SMS_OPTION(uid)"
+               "  VALUES(%s)",
+               user['umobile'])
+
+    logging.info("[PUBLIC] Add user, umobile: %s, user: %s.",
+                 user['umobile'], user)
 
 def add_terminal(terminal, db, redis):
     """"Add a terminal.
-    @param: terminal, {'tmobile':'', 
+    @param: terminal, {'tid':'',
+                       'tmobile':'', 
                        'owner_mobile':'',
+                       'group_id':'',
+                       'dev_type':'',
+                       'imsi':'',
+                       'imei':'',
+                       'factory_name':'',
+                       'softversion':'',
+                       'keys_num':'',
+                       'bt_name':'',
+                       'bt_mac':'',
+                       'login':'',
+                       'mannual_status':'',
+                       'alias':'',
+                       'icon_type':'',
+                       'login_permit':'',
+                       'push_status':'',
+                       'vibl':'',
+                       'use_scene':'',
+                       'biz_type':'',
+                       'activation_code':'',
+                       'service_status':'',
                        'begintime':'',
                        'endtime':'',
-                       'offline_time':''}
+                       'offline_time':''
+                       # car
+                       'cnum':'',
+                       }
     @param: db
     @param: redis
     """
-    # add terminal
+    if terminal['tid']: 
+        tid = terminal['tid']
+    else:
+        tid = terminal['tmobile']
+
+    # add terminal 27 items.
     db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
-               "  begintime, endtime, offline_time)"
-               "  VALUES (%s, %s, %s, %s, %s, %s)",
-               terminal['tmobile'],
-               terminal['tmobile'], terminal['owner_mobile'],
-               terminal['begintime'], terminal['endtime'], fields.begintime)
+               "  group_id, dev_type, imsi, imei, factory_name, softversion,"
+               "  keys_num, bt_name, bt_mac, login, mannual_status, alias,"
+               "  icon_type, login_permit, push_stats, vibl, use_scene,"
+               "  biz_type, activation_code, service_status, begintime,"
+               "  endtime, offline_time, cnum)"
+               "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
+               "          %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
+               "          %s, %s, %s)",
+               tid, terminal.get('tmobile'), terminal('owner_mobile'),
+               terminal.get('group_id', -1), terminal.get('dev_type', 'A'),
+               terminal.get('imsi', ''), terminal.get('imei', ''),
+               terminal.get('factory_name', ''), terminal.get('softversion', ''),
+               terminal.get('keys_num', 0), terminal.get('bt_name', ''),
+               terminal.get('bt_mac', ''), terminal.get('login', 0),
+               terminal.get('mannual_status', 1), terminal.get('alias', ''),
+               terminal.get('icon_type', 0), terminal.get('activation_code', ''),
+               terminal.get('service_status', 1), terminal.get('begintime'), 
+               terminal.get('endtime'), terminal.get('offline_time'))
     
     #add car tnum --> cnum
+    car = db.get("SELECT id FROM T_CAR WHERE tid= %s", terminal['tid'])
+    if car:
+        db.execute("DELETE FROM T_CAR WHERE tid = %s", terminal['tid'])
+    
     db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
                "  VALUES(%s, %s, %s, %s, %s)",
-               terminal['tmobile'], terminal['cnum'], 
-               terminal['ctype'], terminal['ccolor'], terminal['cbrand'])
+               tid, terminal.get('cnum',''), 
+               terminal.get('ctype', 1), terminal.get('ccolor', 0), 
+               terminal.get('cbrand',''))
+    # wspush to client
+    WSPushHelper.pushS3(tid, db, redis)
+    logging.info("[PUBLIC] Add terminal, tid: %s, terminal: %s.",
+                 tid, terminal)
  
 def insert_location(location, db, redis):
     """Insert whole-data into T_LOCATION.

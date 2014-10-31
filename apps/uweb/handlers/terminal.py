@@ -14,7 +14,7 @@ from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
     get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key)
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
-from utils.public import record_add_action, delete_terminal
+from utils.public import record_add_action, delete_terminal, add_terminal
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
@@ -390,6 +390,25 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
             biz_type = data.get('biz_type', UWEB.BIZ_TYPE.YDWS)
 
+            terminal_info = dict(tid=data.tmobile,
+                                 group_id=data.group_id,
+                                 tmobile=data.tmobile,
+                                 owner_mobile=umobile,
+                                 mannual_status=UWEB.DEFEND_STATUS.YES,
+                                 begintime=begintime,
+                                 endtime=4733481600,
+                                 offline_time=begintime,
+                                 cnum=data.cnum,
+                                 icon_type=data.icon_type,
+                                 login_permit=data.login_permit,
+                                 push_status=data.push_status,
+                                 vibl=data.vibl,
+                                 use_scene=use_scene,
+                                 biz_type=biz_type,
+                                 speed_limit=data.speed_limit,
+                                 stop_interval=data.stop_interval,
+                                 service_status=UWEB.SERVICE_STATUS.ON)
+
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
 
                 # 0. check tmobile is whitelist or not
@@ -401,44 +420,22 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     self.write_ret(status, message=message)
                     return
 
-                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                                "  begintime, endtime, offline_time, "
-                                "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
-                                "  speed_limit, stop_interval)"
-                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                data.tmobile, data.group_id, data.tmobile, umobile,
-                                begintime, 4733481600, begintime, data.cnum, data.icon_type, 
-                                data.login_permit, data.push_status,
-                                data.vibl, use_scene, biz_type,
-                                data.speed_limit, data.stop_interval)
                 # 4: send message to terminal
                 register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
                 ret = SMSHelper.send_to_terminal(data.tmobile, register_sms)
 
-                self.db.execute("INSERT INTO T_CAR(tid, cnum)"
-                                "  VALUES(%s, %s)",
-                                data.tmobile, data.cnum)
+
+
             else:
                 tid = get_tid_from_mobile_ydwq(data.tmobile)
                 activation_code = QueryHelper.get_activation_code(self.db)
-                self.db.execute("INSERT INTO T_TERMINAL_INFO(tid, group_id, mobile, owner_mobile,"
-                                "  begintime, endtime, offline_time, "
-                                "  alias, icon_type, login_permit, push_status, vibl, use_scene, biz_type, "
-                                "  activation_code, service_status, speed_limit, stop_interval)"
-                                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                tid, data.group_id, data.tmobile, umobile, 
-                                begintime, 4733481600, begintime, data.cnum, data.icon_type, 
-                                data.login_permit, data.push_status,
-                                data.vibl, use_scene, biz_type,
-                                activation_code,
-                                UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
-                                data.speed_limit, data.stop_interval)
+                terminal_info['tid']=tid
+                terminal_info['activation_code']=activation_code 
+                terminal_info['service_status']=UWEB.SERVICE_STATUS.TO_BE_ACTIVATED
                 register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
                 ret = SMSHelper.send(data.tmobile, register_sms)
 
-                self.db.execute("INSERT INTO T_CAR(tid, cnum)"
-                                "  VALUES(%s, %s)",
-                                tid, data.cnum )
+            add_terminal(terminal_info, self.db, self.redis)
             # record the add action
             bind_info = dict(tid=data.tmobile,
                              tmobile=data.tmobile,

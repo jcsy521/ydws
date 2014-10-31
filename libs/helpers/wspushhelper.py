@@ -170,7 +170,6 @@ class WSPushHelper(object):
         else:
             res = []
 
-        res.append(packet)
         packet = dict(packet_type="S4",
                       res=res)
         res = WSPushHelper.push_packet(tid, packet, db, redis)
@@ -265,6 +264,23 @@ class WSPushHelper(object):
         packet = dict(packet_type="S7",
                       res=res)
         res = WSPushHelper.push_packet(tid, packet, db, redis)
+
+    @staticmethod
+    def pushS8(tid, acc_message, db, redis):
+        """
+        S8
+        Information about acc info.
+
+        res=dict(tid=tid,
+                 acc_message=1))
+        """
+        res=dict(tid=tid,
+                 acc_message=acc_message)
+
+        packet = dict(packet_type="S8",
+                      res=res)
+        res = WSPushHelper.push_packet(tid, packet, db, redis)
+
 
 if __name__ == '__main__':
     ConfHelper.load('../../conf/global.conf')
