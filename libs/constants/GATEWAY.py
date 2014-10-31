@@ -105,6 +105,7 @@ SERVICE_STATUS = DotDict(ON=1,
 DEFEND_STATUS = DotDict(SUCCESS="0",
                         FAILED="1")
 
+# login status of termianl
 TERMINAL_LOGIN = DotDict(OFFLINE=0,
                          ONLINE=1,
                          SLEEP=2,
