@@ -389,8 +389,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 use_scene = 3 # default car scene
 
             biz_type = data.get('biz_type', UWEB.BIZ_TYPE.YDWS)
+            tid=data.tmobile
 
-            terminal_info = dict(tid=data.tmobile,
+            terminal_info = dict(tid=tid,
                                  group_id=data.group_id,
                                  tmobile=data.tmobile,
                                  owner_mobile=umobile,

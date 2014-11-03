@@ -449,8 +449,9 @@ def handle_old_login(t_info, address, connection, channel, exchange, gw_binding,
     sms = None
     args = DotDict(success=GATEWAY.LOGIN_STATUS.SUCCESS,
                    sessionID='')
+    dev_id = t_info['dev_id']
 
-    resend_key, resend_flag = get_resend_flag(redis, dev_id, head.timestamp, head.command) 
+    resend_key, resend_flag = get_resend_flag(redis, dev_id, t_info.timestamp, t_info.command) 
 
     logging.info("[GW] Checking terminal mobile: %s and owner mobile: %s, Terminal: %s",
                  t_info['t_msisdn'], t_info['u_msisdn'], t_info['dev_id'])

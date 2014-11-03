@@ -15,7 +15,8 @@ from constants import EVENTER, GATEWAY, UWEB, SMS
 
 from utils.misc import get_acc_status_info_key
             
-from handlers.basic import append_gw_request, get_resend_flag 
+from handlers.basic import (append_gw_request, update_terminal_status, get_resend_flag)
+
 
 def handle_sleep(info, address, connection, channel, exchange, gw_binding, db, redis):
     """
@@ -57,7 +58,7 @@ def handle_sleep(info, address, connection, channel, exchange, gw_binding, db, r
                 del sleep_info['sleep_status']
                 update_terminal_info(db, redis, sleep_info)
 
-            update_terminal_status(redis, head.dev_id, address, is_sleep)
+            update_terminal_status(redis, dev_id, address, is_sleep)
 
         if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
             acc_status_info_key = get_acc_status_info_key(dev_id) 

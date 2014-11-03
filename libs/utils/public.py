@@ -22,7 +22,8 @@ def record_add_action(bind_info, db):
                          'group_id','',
                          'cid','',
                          'add_time':'',}
-             db
+
+    @param: db
     """
     logging.info("[PUBLIC] Record the add action, bind_info:%s",
                  bind_info)
@@ -151,7 +152,7 @@ def delete_terminal(tid, db, redis, del_user=True):
                    tid) 
 
         logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
-                     tid, tmobile, umobile)
+                     tid, terminal.mobile, terminal.owner_mobile)
 
 def add_user(user, db, redis):
     """"Add a user.
@@ -223,26 +224,28 @@ def add_terminal(terminal, db, redis):
     else:
         tid = terminal['tmobile']
 
-    # add terminal 27 items.
+    # add terminal 26 items.
     db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                "  group_id, dev_type, imsi, imei, factory_name, softversion,"
                "  keys_num, bt_name, bt_mac, login, mannual_status, alias,"
-               "  icon_type, login_permit, push_stats, vibl, use_scene,"
+               "  icon_type, login_permit, push_status, vibl, use_scene,"
                "  biz_type, activation_code, service_status, begintime,"
-               "  endtime, offline_time, cnum)"
+               "  endtime, offline_time)"
                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
                "          %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
-               "          %s, %s, %s)",
-               tid, terminal.get('tmobile'), terminal('owner_mobile'),
+               "          %s, %s)",
+               tid, terminal.get('tmobile'), terminal.get('owner_mobile'),
                terminal.get('group_id', -1), terminal.get('dev_type', 'A'),
                terminal.get('imsi', ''), terminal.get('imei', ''),
                terminal.get('factory_name', ''), terminal.get('softversion', ''),
                terminal.get('keys_num', 0), terminal.get('bt_name', ''),
                terminal.get('bt_mac', ''), terminal.get('login', 0),
                terminal.get('mannual_status', 1), terminal.get('alias', ''),
-               terminal.get('icon_type', 0), terminal.get('activation_code', ''),
-               terminal.get('service_status', 1), terminal.get('begintime'), 
-               terminal.get('endtime'), terminal.get('offline_time'))
+               terminal.get('icon_type', 0), terminal.get('login_permit', 1),
+               terminal.get('push_status', 1), terminal.get('vibl', 1),
+               terminal.get('use_scene', 3), terminal.get('biz_type', 0),
+               terminal.get('activation_code', ''), terminal.get('service_status', 1), 
+               terminal.get('begintime'), terminal.get('endtime'), terminal.get('offline_time'))
     
     #add car tnum --> cnum
     car = db.get("SELECT id FROM T_CAR WHERE tid= %s", terminal['tid'])

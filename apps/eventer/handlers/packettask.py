@@ -931,7 +931,7 @@ class PacketTask(object):
                     task = RepeatedTimer(30, _resend_alarm, 1) 
                     task.start()
 
-        self.push_to_weixin(report) 
+        self.push_to_client(report) 
 
     def event_hook(self, category, dev_id, terminal_type, timestamp, lid, pbat=None, fobid=None , rid=None):
         self.db.execute("INSERT INTO T_EVENT(tid, terminal_type, timestamp, fobid, lid, pbat, category, rid)"
