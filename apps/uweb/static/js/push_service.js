@@ -148,8 +148,9 @@ $(function () {
 						n_speed = obj_terminalData.speed;
 
 					// 设置marker的icon						
-					dlf.fn_setMarkerTraceIcon(n_imgDegree, n_tempPushIconType, n_tempLoginSt, obj_selfMarker, n_carTimestamp, n_speed);
+					dlf.fn_setMarkerTraceIcon(n_imgDegree, obj_terminalData.icon_type, n_tempPushLoginSt, obj_selfMarker, n_carTimestamp, n_speed);
 				}
+				obj_terminalData.login = n_tempPushLoginSt;
 				obj_carDatas[str_tempPushTid] = obj_terminalData;
 			}
 			$('.j_carList').data('carsData', obj_carDatas);
