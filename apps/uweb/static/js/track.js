@@ -552,7 +552,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 				str_actionState = 0;
 				fn_getTrackDatas(parseInt(str_itemTitleNum), 'trackDelayDay');
 				
-				if ( $('#delayTable').css('margin-top') == '60px' ) {
+				if ( $('#delayTable').css('margin-top') == '60px' && $('.j_delay').data('delayPoints') > 0 ) {
 					$('#delayTable').css('margin-top', 0);					
 					$('#delayTable').data('m60', false);
 				}
@@ -1023,7 +1023,7 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 						
 						arr_trackQueryLineData[i].alias = str_alias;
 						arr_trackQueryLineData[i].tid = str_tid;
-						if ( obj_tempTrackData.longitude != 0 ) {
+						if ( obj_tempTrackData.longitude != 0 && obj_tempTrackData.clongitude != 0) {
 							obj_tempTrackPoint = dlf.fn_createMapPoint(n_clon, n_clat);
 							
 							// 保存轨迹线数据
