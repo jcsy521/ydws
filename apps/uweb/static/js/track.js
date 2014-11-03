@@ -387,6 +387,10 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			fn_startDrawLineStatic(arr_trackDatas, true);
 		} else { //以停留形式显示数据
 			$('.j_delay').data('delayPoints', arr_trackQueryData);
+			
+			if ( arr_trackQueryData.length > 2 ) {
+				fn_exportDelayPoints(arr_trackQueryData, 'delay');
+			}
 			fn_startDrawLineStatic([], false);
 			$('#trackMileagePanel0').click();
 		}			
@@ -514,7 +518,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			}
 			
 			$('.j_body').data({'track_daydata': arr_trackDatas, 'track_daysearch': obj_locusDate });
-			$('.j_delay').data('delayPoints', arr_trackDatas);
+			
 			//添加 mouseover, mouseout,click事件
 			$('.j_trackMileagePanel').unbind('mouseover mouseout click').mouseover(function(e){
 				$(this).addClass('trackLsMileage_hover');
