@@ -213,6 +213,7 @@ def add_terminal(terminal, db, redis):
                        'begintime':'',
                        'endtime':'',
                        'offline_time':''
+                       'speed_limit':''
                        # car
                        'cnum':'',
                        }
@@ -230,7 +231,7 @@ def add_terminal(terminal, db, redis):
                "  keys_num, bt_name, bt_mac, login, mannual_status, alias,"
                "  icon_type, login_permit, push_status, vibl, use_scene,"
                "  biz_type, activation_code, service_status, begintime,"
-               "  endtime, offline_time)"
+               "  endtime, offline_time, speed_limit)"
                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
                "          %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
                "          %s, %s)",
@@ -245,7 +246,8 @@ def add_terminal(terminal, db, redis):
                terminal.get('push_status', 1), terminal.get('vibl', 1),
                terminal.get('use_scene', 3), terminal.get('biz_type', 0),
                terminal.get('activation_code', ''), terminal.get('service_status', 1), 
-               terminal.get('begintime'), terminal.get('endtime'), terminal.get('offline_time'))
+               terminal.get('begintime'), terminal.get('endtime'),
+               terminal.get('offline_time'), terminal.get('speed_limit', 120))
     
     #add car tnum --> cnum
     car = db.get("SELECT id FROM T_CAR WHERE tid= %s", terminal['tid'])
