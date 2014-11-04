@@ -41,7 +41,8 @@ class LoginMixin(BaseMixin):
         if not user:
             logging.info("[UWEB] user: %s can not be found.",
                           username)
-            return None, None, None, None, None, ErrorCode.USER_NOT_ORDERED
+            #return None, None, None, None, None, ErrorCode.USER_NOT_ORDERED
+            return None, None, None, None, None, ErrorCode.WRONG_PASSWORD
 
         return self.__internal_check(username, password, user_type)
 
