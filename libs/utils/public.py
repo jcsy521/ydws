@@ -59,6 +59,30 @@ def record_del_action(bind_info, db):
                UWEB.OP_TYPE.DEL, 
                bind_info.get('del_time',0))
 
+def record_manual_status(db, redis, tid, mannual_status):
+    """Record the mannual_status of one terminal.
+
+    @params: db
+    @params: redis 
+    @params: tid 
+    @params: mannual_status 
+    """
+
+    terminal = QueryHelper.get_terminal_basic_info(tid, db)
+    db.execute("INSERT INTO T_MANUAL_LOG(tid, tmobile, umobile,"
+               "    group_id, cid, manual_status, timestamp)" 
+               "  VALUES(%s, %s, %s, %s, %s, %s, %s)", 
+               terminal.get('tid',''), 
+               terminal.get('tmobile',''), 
+               terminal.get('umobile',''), 
+               terminal.get('group_id',-1), 
+               terminal.get('cid',''), 
+               mannual_status,
+               int(time.time()))
+
+    logging.info("[PUBLIC] Record the mannual status, tid: %s, mannual_status: %s",
+                 tid, mannual_status)
+
 def clear_data(tid, db, redis):
     """Just clear the info associated with terminal in platform.
     """
@@ -397,6 +421,7 @@ def update_mannual_status(db, redis, tid, mannual_status):
     logging.info("[PUBLIC] Terminal update mannual_status. tid: %s, mannual_status: %s",
                  tid, mannual_status)
 
+    record_manual_status(db, redis, tid, mannual_status)
 
 # Feature: notify_maintainer
 def notify_maintainer(db, redis, content, category):

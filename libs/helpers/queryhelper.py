@@ -245,6 +245,23 @@ class QueryHelper(object):
         return terminal_info
 
     @staticmethod
+    def get_terminal_basic_info(tid, db):
+        """Get tracker's terminal basic info.
+        """
+        res = {}
+        terminal = db.get("SELECT tid, mobile, owner_mobile, group_id"
+                          "  FROM T_TERMINAL_INFO WHERE tid = %s", tid)
+        if terminal:
+            group = db.get("SELECT corp_id FROM T_GROUP WHERE id = %s", 
+                          terminal['group_id'])
+            res = dict(tid=terminal['tid'],
+                       tmobile=terminal['mobile'],
+                       umobile=terminal['owner_mobile'],
+                       group_id=terminal['group_id'],
+                       cid=group.get('corp_id', '') if group else '')
+        return res
+
+    @staticmethod
     def get_login_time_by_tid(tid, db, redis):
         """Get tracker's login_time.
         """

@@ -177,6 +177,15 @@ BINDLOG_HEADER = (u"序号",
                   u"注册时间",
                   u"解绑时间",)
 
+MANUALLOG_FILE_NAME =u"终端设防记录表"
+MANUALLOG_SHEET = u"终端设防"
+MANUALLOG_HEADER = (u"序号",
+                    u"定位手机号",
+                    u"操作类型",
+                    u"操作时间")
+
+
+
 LOCATION_FILE_NAME = u"位置查询表"
 LOCATION_SHEET = u"位置查询"
 LOCATION_HEADER = (u"序号",

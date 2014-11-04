@@ -64,6 +64,7 @@ from handlers.username import UsernameHandler
 from handlers.resetpassword import ResetPasswordHandler 
 from handlers.locationre import LocationSearchHandler, LocationSearchDownloadHandler
 from handlers.bindlog import BindLogSearchHandler, BindLogDownloadHandler
+from handlers.manuallog import ManualLogSearchHandler, ManualLogDownloadHandler
 from handlers.ownerservice import OwnerServiceHandler, OwnerServiceDownloadHandler
 # ajt
 from handlers.whitelist_ajt import WhitelistAJTHandler, WhitelistAJTSearchHandler, WhitelistAJTBatchImportHandler,WhitelistAJTBatchAddHandler
@@ -120,6 +121,7 @@ class Application(tornado.web.Application):
 
             # termianl query
             (r"/bindlog/*", BindLogSearchHandler),
+            (r"/manuallog/*", ManualLogSearchHandler),
             (r"/location/*", LocationSearchHandler),
             (r"/ownerservice/*", OwnerServiceHandler),
             (r"/testsms/*", TestSMSHandler),
@@ -178,6 +180,7 @@ class Application(tornado.web.Application):
             
             (r"/download/business/search/(.*)/*", BusinessSearchDownloadHandler),
             (r"/download/bindlog/(.*)/*", BindLogDownloadHandler),
+            (r"/download/manuallog/(.*)/*", ManualLogDownloadHandler),
 	        (r"/download/location/(.*)/*", LocationSearchDownloadHandler),
             (r"/download/ownerservice/(.*)/*", OwnerServiceDownloadHandler), 
 
