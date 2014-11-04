@@ -13,7 +13,7 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.public import record_add_action, delete_terminal, add_user
+from utils.public import (record_add_action, delete_terminal, add_user, add_terminal)
 from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,
      get_tid_from_mobile_ydwq)
@@ -305,7 +305,7 @@ class BatchJHHandler(BaseHandler):
 
                 add_terminal(terminal_info, self.db, self.redis)
                 # record the add action, enterprise
-                bind_info = dict(tid=tmobile, 
+                bind_info = dict(tid=terminal_info['tid'], 
                                  tmobile=tmobile,
                                  umobile=umobile,
                                  group_id=gid,
@@ -317,8 +317,8 @@ class BatchJHHandler(BaseHandler):
                 if ret.status == ErrorCode.SUCCESS:
                     self.db.execute("UPDATE T_TERMINAL_INFO"
                                     "  SET msgid = %s"
-                                    "  WHERE id = %s",
-                                    ret['msgid'], t_id)
+                                    "  WHERE tid = %s",
+                                    ret['msgid'], terminal_info['tid'])
                 else:
                     r['status'] = ErrorCode.FAILED 
                     
