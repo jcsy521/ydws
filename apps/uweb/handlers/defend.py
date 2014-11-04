@@ -108,9 +108,9 @@ class DefendHandler(BaseHandler, BaseMixin):
                                  self.current_user.uid, tid, data.mannual_status)
                 except Exception as e: 
                     r.status = ErrorCode.FAILED
-                    logging.error("[UWEB] uid:%s, tid:%s set mannual status to %s failed. Exception: %s", 
-                                  self.current_user.uid, tid,
-                                  data.mannual_status, e.args)
+                    logging.exception("[UWEB] uid:%s, tid:%s set mannual status to %s failed. Exception: %s", 
+                                      self.current_user.uid, tid,
+                                      data.mannual_status, e.args)
                 finally:
                     res.append(r)
 
