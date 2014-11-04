@@ -1245,6 +1245,7 @@ $(function () {
 	*/
 	if ( !dlf.fn_userType() ) {
 		dlf.fn_getCarData('first');
+		dlf.fn_updateLastInfo();
 	} else {
 		$('.j_corpLeft').css('background-color', '#fff')
 		// 点击查询按钮触发自动搜索功能	

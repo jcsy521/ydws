@@ -154,6 +154,8 @@ $(function () {
 				obj_carDatas[str_tempPushTid] = obj_terminalData;
 			}
 			$('.j_carList').data('carsData', obj_carDatas);
+			if ( n_onlineCnt < 0 ) { n_onlineCnt = 0; }
+			if ( n_offlineCnt < 0 ) { n_offlineCnt = 0; }
 			dlf.fn_updateTerminalCount();
 		}
 		
