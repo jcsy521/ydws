@@ -238,6 +238,7 @@ def add_terminal(terminal, db, redis):
                        'endtime':'',
                        'offline_time':''
                        'speed_limit':''
+                       'stop_interval':''
                        # car
                        'cnum':'',
                        }
@@ -249,16 +250,16 @@ def add_terminal(terminal, db, redis):
     else:
         tid = terminal['tmobile']
 
-    # add terminal 26 items.
+    # add terminal 28 items.
     db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                "  group_id, dev_type, imsi, imei, factory_name, softversion,"
                "  keys_num, bt_name, bt_mac, login, mannual_status, alias,"
                "  icon_type, login_permit, push_status, vibl, use_scene,"
                "  biz_type, activation_code, service_status, begintime,"
-               "  endtime, offline_time, speed_limit)"
+               "  endtime, offline_time, speed_limit, stop_interval)"
                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
                "          %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
-               "          %s, %s)",
+               "          %s, %s, %s, %s)",
                tid, terminal.get('tmobile'), terminal.get('owner_mobile'),
                terminal.get('group_id', -1), terminal.get('dev_type', 'A'),
                terminal.get('imsi', ''), terminal.get('imei', ''),
@@ -271,7 +272,8 @@ def add_terminal(terminal, db, redis):
                terminal.get('use_scene', 3), terminal.get('biz_type', 0),
                terminal.get('activation_code', ''), terminal.get('service_status', 1), 
                terminal.get('begintime'), terminal.get('endtime'),
-               terminal.get('offline_time'), terminal.get('speed_limit', 120))
+               terminal.get('offline_time'), terminal.get('speed_limit', 120),
+               terminal.get('stop_interval',0))
     
     #add car tnum --> cnum
     car = db.get("SELECT id FROM T_CAR WHERE tid= %s", terminal['tid'])
@@ -351,10 +353,11 @@ def get_alarm_mobile(tid, db, redis):
     """
     alarm_mobile = ''
     t = db.get("SELECT cid FROM V_TERMINAL WHERE tid = %s LIMIT 1", tid)
-    cid = t.cid if t.get('cid', None) is not None else '0'
-    corp = db.get("SELECT name, alarm_mobile FROM T_CORP WHERE cid = %s", cid)
-    if corp:
-        alarm_mobile = corp['alarm_mobile']
+    if t:
+        cid = t.cid if t.get('cid', None) is not None else '0'
+        corp = db.get("SELECT name, alarm_mobile FROM T_CORP WHERE cid = %s", cid)
+        if corp:
+            alarm_mobile = corp['alarm_mobile']
     return alarm_mobile
 
 def get_terminal_type_by_tid(tid):

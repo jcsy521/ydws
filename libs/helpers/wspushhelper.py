@@ -125,25 +125,6 @@ class WSPushHelper(object):
                            'tid2', 
                            'tid3'])
         res = []
-
-    @staticmethod
-    def pushS3(tid, db, redis):
-        """
-        S3
-        Information about organization.
-
-        group_1=dict(group_id=1,
-                     group_name='jia',
-                     tids=['tid1',
-                           'tid2', 
-                           'tid3'])
-
-        group_2=dict(group_id=2,
-                     group_name='jia',
-                     tids=['tid1',
-                           'tid2', 
-                           'tid3'])
-        res = []
         res.append(group_1)
         res.append(group_2)
         """
