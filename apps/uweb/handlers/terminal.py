@@ -10,11 +10,12 @@ from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
 from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,
-    get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key)
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,
+     get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key)
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
-from utils.public import record_add_action, delete_terminal, add_terminal
+from utils.public import (record_add_action, delete_terminal, add_terminal, 
+     add_user)
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
@@ -459,21 +460,12 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 logging.error("[UWEB] Send %s to terminal %s failed.", register_sms, data.tmobile)
 
             # 1: add user
-            user = self.db.get("SELECT id FROM T_USER WHERE mobile = %s", umobile)
-            if not user:
-                self.db.execute("INSERT INTO T_USER(id, uid, password, name, mobile)"
-                                "  VALUES(NULL, %s, password(%s), %s, %s )",
-                                umobile, '111111',
-                                u'', umobile)
-                self.db.execute("INSERT INTO T_SMS_OPTION(uid)"
-                                "  VALUES(%s)",
-                                umobile) 
+            user_info = dict(umobile=umobile, 
+                             password='111111', 
+                             uname=umobile) 
+            add_user(user_info, self.db, self.redis)
             
             self.write_ret(status)
-            #NOTE: wspush 
-            if status == ErrorCode.SUCCESS: 
-                WSPushHelper.pushS3(tid, self.db, self.redis)
-
         except Exception as e:
             logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 
                               self.current_user.cid, e.args)
@@ -575,6 +567,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         """
         try:
             status = ErrorCode.SUCCESS
+
             tid = self.get_argument('tid', None)
             flag = self.get_argument('flag', 0)
             logging.info("[UWEB] Corp delete terminal request. tid: %s, flag: %s, cid: %s", 
@@ -632,6 +625,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                               self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
                 status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+
             if status == ErrorCode.SUCCESS: 
                 WSPushHelper.pushS3(tid, self.db, self.redis, t_info)
             self.write_ret(status)
