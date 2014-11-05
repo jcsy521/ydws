@@ -247,6 +247,12 @@ class QueryHelper(object):
     @staticmethod
     def get_terminal_basic_info(tid, db):
         """Get tracker's terminal basic info.
+
+        @return: res, {'tid':'',
+                       'tmobile':'',
+                       'umobile':'',
+                       'group_id':'',
+                       'cid':''}
         """
         res = {}
         terminal = db.get("SELECT tid, mobile, owner_mobile, group_id"

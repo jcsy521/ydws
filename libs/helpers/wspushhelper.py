@@ -90,28 +90,50 @@ class WSPushHelper(object):
             return json_data
 
     @staticmethod
-    def push_packet(tid, packet, db, redis):
+    def push_packet(tid, packet, db, redis, t_info=None):
         """Push packet to tid.
+
+        @param: tid
+        @param: db 
+        @param: redis 
+        @param: t_info:{'tid':'',
+                        'umobile':'',
+                        'group_id':'',
+                        'cid':''}
         """
-        #uid = QueryHelper.get_uid_by_tid(tid, db)
-        res = QueryHelper.get_terminal_basic_info(tid, db)
-        uid = res.get('owner_mobile','')
-        cid = res.get('cid','')
+        # NOTE: t_info has higher priority compared with tid
+        if not t_info: # tid is avaliable
+            t_info = QueryHelper.get_terminal_basic_info(tid, db)
+
+        uid = t_info.get('umobile','')
+        cid = t_info.get('cid','')
         
         t = int(time.time()) * 1000
-
+       
+        lst = []
         if uid:
-            push_key = get_push_key(uid, t)
-            res = WSPushHelper.push(uid, t, push_key, packet)
+            lst.append(uid)
         if cid:
-            push_key = get_push_key(cid, t)
-            res = WSPushHelper.push(cid, t, push_key, packet)
+            lst.append(cid)
+
+        for item in set(lst):
+            push_key = get_push_key(item, t)
+            res = WSPushHelper.push(item, t, push_key, packet)
+
 
     @staticmethod
-    def pushS3(tid, db, redis):
+    def pushS3(tid, db, redis, t_info=None):
         """
         S3
         Information about organization.
+
+        @param: tid
+        @param: db 
+        @param: redis 
+        @param: t_info:{'tid':'',
+                        'umobile':'',
+                        'group_id':'',
+                        'cid':''}
 
         group_1=dict(group_id=1,
                      group_name='jia',
@@ -129,27 +151,27 @@ class WSPushHelper(object):
         res.append(group_2)
         """
         res = []
-        corp = db.get("SELECT * FROM V_TERMINAL where tid = %s",
-                       tid) 
-        if corp:
-            groups = db.query("select * from T_GROUP where corp_id = %s",
-                               corp['cid'])
-            for group in groups:
-                terminals = db.query("SELECT * FROM T_TERMINAL_INFO"
-                                     "  WHERE group_id = %s "
-                                     "  AND service_status= 1", # only success
-                                     group['id'])
-                res.append(dict(group_id=group['id'],
-                                group_name=group['name'],
-                                tids=[terminal['tid'] for terminal in terminals]
-                                ))
-        else:
-            res = []
+        if not t_info:  # tid is avaliable
+            t_info = QueryHelper.get_terminal_basic_info(tid, db)
+
+        cid = t_info.get('cid', '')
+        
+        groups = db.query("SELECT * FROM T_GROUP WHERE corp_id = %s",
+                          cid)
+        for group in groups:
+            terminals = db.query("SELECT * FROM T_TERMINAL_INFO"
+                                 "  WHERE group_id = %s "
+                                 "  AND service_status= 1", # only success
+                                 group['id'])
+            res.append(dict(group_id=group['id'],
+                            group_name=group['name'],
+                            tids=[terminal['tid'] for terminal in terminals]
+                            ))
 
         packet = dict(packet_type="S3",
                       res=res)
 
-        res = WSPushHelper.push_packet(tid, packet, db, redis)
+        res = WSPushHelper.push_packet(tid, packet, db, redis, t_info)
 
     @staticmethod
     def pushS4(tid, db, redis):
