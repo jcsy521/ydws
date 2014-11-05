@@ -93,11 +93,38 @@ class WSPushHelper(object):
     def push_packet(tid, packet, db, redis):
         """Push packet to tid.
         """
-        uid = QueryHelper.get_uid_by_tid(tid, db)
+        #uid = QueryHelper.get_uid_by_tid(tid, db)
+        res = QueryHelper.get_terminal_basic_info(tid, db)
+        uid = res.get('owner_mobile','')
+        cid = res.get('cid','')
+        
         t = int(time.time()) * 1000
-        push_key = get_push_key(uid, t)
 
-        res = WSPushHelper.push(uid, t, push_key, packet)
+        if uid:
+            push_key = get_push_key(uid, t)
+            res = WSPushHelper.push(uid, t, push_key, packet)
+        if cid:
+            push_key = get_push_key(cid, t)
+            res = WSPushHelper.push(cid, t, push_key, packet)
+
+    @staticmethod
+    def pushS3(tid, db, redis):
+        """
+        S3
+        Information about organization.
+
+        group_1=dict(group_id=1,
+                     group_name='jia',
+                     tids=['tid1',
+                           'tid2', 
+                           'tid3'])
+
+        group_2=dict(group_id=2,
+                     group_name='jia',
+                     tids=['tid1',
+                           'tid2', 
+                           'tid3'])
+        res = []
 
     @staticmethod
     def pushS3(tid, db, redis):
