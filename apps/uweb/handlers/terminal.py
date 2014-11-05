@@ -577,7 +577,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             status = ErrorCode.SUCCESS
             tid = self.get_argument('tid', None)
             flag = self.get_argument('flag', 0)
-            logging.info("[UWEB] corp delete terminal tid: %s, flag: %s, cid: %s", 
+            logging.info("[UWEB] Corp delete terminal request. tid: %s, flag: %s, cid: %s", 
                          tid, flag, self.current_user.cid)
             terminal = self.db.get("SELECT id, mobile, owner_mobile, login FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
@@ -592,6 +592,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 return
 
+            t_info = QueryHelper.get_terminal_basic_info(tid, self.db)
             key = get_del_data_key(tid)
             self.redis.set(key, flag)
             biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db) 
@@ -601,14 +602,19 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                         delete_terminal(tid, self.db, self.redis)
                     else:
                         status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+
+                    if status == ErrorCode.SUCCESS: 
+                        WSPushHelper.pushS3(tid, self.db, self.redis, t_info)
                     self.write_ret(status)
                     return
             else: 
                 delete_terminal(tid, self.db, self.redis)
+                if status == ErrorCode.SUCCESS: 
+                    WSPushHelper.pushS3(tid, self.db, self.redis, t_info)
                 self.write_ret(status)
                 return
 
-            # unbind terminal
+            ## unbind terminal
             seq = str(int(time.time()*1000))[-4:]
             args = DotDict(seq=seq,
                            tid=tid)
@@ -618,7 +624,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             if response['success'] == ErrorCode.SUCCESS:
                 logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
                              self.current_user.uid, tid, terminal.mobile)
-
             else:
                 status = response['success']
                 # unbind failed. clear sessionID for relogin, then unbind it again
@@ -627,11 +632,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                 logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
                               self.current_user.uid, tid, terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
                 status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
-
-            self.write_ret(status)
-            #NOTE: wspush 
             if status == ErrorCode.SUCCESS: 
-                WSPushHelper.pushS3(tid, self.db, self.redis)
+                WSPushHelper.pushS3(tid, self.db, self.redis, t_info)
+            self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete terminal failed. Exception: %s", 
                               self.current_user.cid, e.args) 
