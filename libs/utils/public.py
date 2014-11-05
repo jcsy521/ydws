@@ -92,22 +92,13 @@ def clear_data(tid, db, redis):
         return 
     else:
         logging.info("[PUBLIC] Delete db data of terminal: %s", tid)
-
         # clear db 
-        db.execute("DELETE FROM T_LOCATION"
-                   "  WHERE tid = %s",
-                   tid)
-
-        db.execute("DELETE FROM T_MILEAGE_LOG"
-                   "  WHERE tid = %s",
-                   tid)
+        db.execute("DELETE FROM T_TERMINAL_INFO"
+                   "  WHERE tid = %s", 
+                   tid) 
 
         db.execute("DELETE FROM T_EVENT"
                    " WHERE tid = %s",
-                   tid)
-
-        db.execute("DELETE FROM T_STOP"
-                   "  WHERE tid = %s",
                    tid)
 
         db.execute("DELETE FROM T_CHARGE"
@@ -120,6 +111,23 @@ def clear_data(tid, db, redis):
 
         db.execute("delete FROM T_REGION_TERMINAL"
                    "  WHERE tid = %s", tid)
+
+        #NOTE: check whether clear history data
+        key = get_del_data_key(tid)
+        flag = redis.get(key)
+        if flag and int(flag) == 1: # clear history data
+            redis.delete(key)
+            db.execute("DELETE FROM T_LOCATION"
+                       "  WHERE tid = %s",
+                       tid)
+
+            db.execute("DELETE FROM T_MILEAGE_LOG"
+                       "  WHERE tid = %s",
+                       tid)
+
+            db.execute("DELETE FROM T_STOP"
+                       "  WHERE tid = %s",
+                       tid)
 
         # clear redis
         tmobile = terminal.mobile if terminal else ""
@@ -150,9 +158,6 @@ def delete_terminal(tid, db, redis, del_user=True):
         return
     else:
         t_info = QueryHelper.get_terminal_basic_info(tid, db)         
-        user = db.get("SELECT id FROM T_USER"
-                      "  WHERE mobile = %s",
-                      terminal.owner_mobile)
         #NOTE: record the del action.
         corp = QueryHelper.get_corp_by_gid(terminal.group_id, db) 
         bind_info = dict(tid=tid,
@@ -162,19 +167,8 @@ def delete_terminal(tid, db, redis, del_user=True):
                          cid=corp.get('cid', '') if corp else '',
                          del_time=int(time.time()))
         record_del_action(bind_info, db)
-
-        #NOTE: check whether clear history data
-        key = get_del_data_key(tid)
-        flag = redis.get(key)
-        if flag and int(flag) == 1:
-            clear_data(tid, db, redis)
-            redis.delete(key)
-
-        #NOTE: delete terminal
-        db.execute("DELETE FROM T_TERMINAL_INFO"
-                   "  WHERE tid = %s", 
-                   tid) 
         WSPushHelper.pushS3(tid, db, redis, t_info)
+        clear_data(tid, db, redis)
         logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
                      tid, terminal.mobile, terminal.owner_mobile)
 
@@ -190,8 +184,8 @@ def add_user(user, db, redis):
 
     """
     # add user
-    user = db.get("SELECT id FROM T_USER WHERE mobile = %s", user['umobile'])
-    if not user:
+    old_user = db.get("SELECT id FROM T_USER WHERE mobile = %s", user['umobile'])
+    if not old_user:
         db.execute("INSERT INTO T_USER(uid, password, name, mobile, address, email)"
                    "  VALUES(%s, password(%s), %s, %s, %s, %s)",
                    user['umobile'], user['password'],
