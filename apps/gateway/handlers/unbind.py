@@ -4,12 +4,15 @@ import logging
 
 from clw.packet.parser.unbind import UNBindParser
 from clw.packet.composer.unbind import UNBindComposer
+from clw.packet.parser.async import AsyncParser
+from clw.packet.composer.async import AsyncRespComposer
+
 
 from helpers.queryhelper import QueryHelper
 
 from error import GWException
 from utils.dotdict import DotDict
-from utils.public import update_terminal_info
+from utils.public import update_terminal_info, delete_terminal
             
 from constants import EVENTER, GATEWAY, UWEB, SMS
 
@@ -39,7 +42,7 @@ def handle_unbind_status(info, address, connection, channel, exchange, gw_bindin
         ap = AsyncParser(body, head)
         info = ap.ret 
         flag = info['flag']
-        delete_terminal(head.dev_id, db, redis)
+        delete_terminal(dev_id, db, redis)
         if int(flag) == 1: # clear historical data
             clear_data(head.dev_id, db)
 

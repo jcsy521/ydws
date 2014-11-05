@@ -446,12 +446,15 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                              add_time=int(time.time()))
             record_add_action(bind_info, self.db)
 
-            ret = DotDict(json_decode(ret))
-            if ret.status == ErrorCode.SUCCESS:
-                self.db.execute("UPDATE T_TERMINAL_INFO"
-                                "  SET msgid = %s"
-                                "  WHERE mobile = %s",
-                                ret['msgid'], data.tmobile)
+            if ret:
+                ret = DotDict(json_decode(ret))
+                if ret.status == ErrorCode.SUCCESS:
+                    self.db.execute("UPDATE T_TERMINAL_INFO"
+                                    "  SET msgid = %s"
+                                    "  WHERE mobile = %s",
+                                    ret['msgid'], data.tmobile)
+                else:
+                    logging.error("[UWEB] Send %s to terminal %s failed.", register_sms, data.tmobile)
             else:
                 logging.error("[UWEB] Send %s to terminal %s failed.", register_sms, data.tmobile)
 

@@ -2,6 +2,9 @@
 
 import logging
 import time
+import datetime
+from dateutil.relativedelta import relativedelta
+import thread
 
 from clw.packet.parser.login import LoginParser
 from clw.packet.composer.login import LoginRespComposer
@@ -19,6 +22,8 @@ from utils.public import (insert_location, delete_terminal,
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
 from helpers.wspushhelper import WSPushHelper
+from helpers.confhelper import ConfHelper
+
 
 from constants import EVENTER, GATEWAY, UWEB, SMS
 
@@ -558,6 +563,7 @@ def handle_old_login(t_info, address, connection, channel, exchange, gw_binding,
     logging.info("[GW] Terminal: %s, login url is: %s", t_info['t_msisdn'], url_out)
 
     if t_info['psd']:
+        flag = 0
         # check terminal exist or not when HK
         if not terminal:
             args.success = GATEWAY.LOGIN_STATUS.UNREGISTER
@@ -660,6 +666,7 @@ def handle_old_login(t_info, address, connection, channel, exchange, gw_binding,
                 logging.error("[GW] What happened? Cannot find old terminal by dev_id: %s",
                               t_info['dev_id']) 
     else:
+        flag = 1 
         # login or JH
         if terminal:
             # login
