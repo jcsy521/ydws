@@ -22,7 +22,6 @@ def record_add_action(bind_info, db):
                          'group_id','',
                          'cid','',
                          'add_time':'',}
-
     @param: db
     """
     logging.info("[PUBLIC] Record the add action, bind_info:%s",
@@ -45,7 +44,7 @@ def record_del_action(bind_info, db):
                          'group_id','',
                          'cid','',
                          'del_time':'',}
-             db
+    @param: db
     """
     logging.info("[PUBLIC] Record the del action, bind_info: %s",
                  bind_info)
@@ -150,6 +149,7 @@ def delete_terminal(tid, db, redis, del_user=True):
         logging.info("Terminal: %s already does not exist, do nothing.", tid)
         return
     else:
+        t_info = QueryHelper.get_terminal_basic_info(tid, db)         
         user = db.get("SELECT id FROM T_USER"
                       "  WHERE mobile = %s",
                       terminal.owner_mobile)
@@ -174,7 +174,7 @@ def delete_terminal(tid, db, redis, del_user=True):
         db.execute("DELETE FROM T_TERMINAL_INFO"
                    "  WHERE tid = %s", 
                    tid) 
-
+        WSPushHelper.pushS3(tid, db, redis, t_info)
         logging.info("[PUBLIC] Delete Terminal: %s, tmobile: %s, umobile: %s",
                      tid, terminal.mobile, terminal.owner_mobile)
 
