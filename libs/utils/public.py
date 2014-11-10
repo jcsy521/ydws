@@ -109,7 +109,13 @@ def clear_data(tid, db, redis):
                    "  WHERE tid = %s",
                    tid)
 
-        db.execute("delete FROM T_REGION_TERMINAL"
+        db.execute("DELETE FROM T_REGION_TERMINAL"
+                   "  WHERE tid = %s", tid)
+
+        db.execute("DELETE FROM T_DAY_NOTIFICATION"
+                   "  WHERE tid = %s", tid)
+
+        db.execute("DELETE FROM T_MILEAGE_NOTIFICATION"
                    "  WHERE tid = %s", tid)
 
         #NOTE: check whether clear history data
@@ -233,6 +239,7 @@ def add_terminal(terminal, db, redis):
                        'offline_time':''
                        'speed_limit':''
                        'stop_interval':''
+                       'distance_current':''
                        # car
                        'cnum':'',
                        }
@@ -250,10 +257,11 @@ def add_terminal(terminal, db, redis):
                "  keys_num, bt_name, bt_mac, login, mannual_status, alias,"
                "  icon_type, login_permit, push_status, vibl, use_scene,"
                "  biz_type, activation_code, service_status, begintime,"
-               "  endtime, offline_time, speed_limit, stop_interval)"
+               "  endtime, offline_time, speed_limit, stop_interval,"
+               "  distance_current)"
                "  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
                "          %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
-               "          %s, %s, %s, %s)",
+               "          %s, %s, %s, %s, %s)",
                tid, terminal.get('tmobile'), terminal.get('owner_mobile'),
                terminal.get('group_id', -1), terminal.get('dev_type', 'A'),
                terminal.get('imsi', ''), terminal.get('imei', ''),
@@ -267,7 +275,7 @@ def add_terminal(terminal, db, redis):
                terminal.get('activation_code', ''), terminal.get('service_status', 1), 
                terminal.get('begintime'), terminal.get('endtime'),
                terminal.get('offline_time'), terminal.get('speed_limit', 120),
-               terminal.get('stop_interval',0))
+               terminal.get('stop_interval',0), terminal.get('distance_current',0))
     
     #add car tnum --> cnum
     car = db.get("SELECT id FROM T_CAR WHERE tid= %s", terminal['tid'])
