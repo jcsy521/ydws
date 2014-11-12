@@ -49,7 +49,7 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             terminal = self.db.get("SELECT freq, alias, trace, cellid_status,"
                                    "       vibchk, tid as sn, mobile, vibl, move_val, static_val, alert_freq,"
                                    "       white_pop, push_status, icon_type, owner_mobile, login_permit,"
-                                   "       stop_interval, biz_type, speed_limit"
+                                   "       stop_interval, biz_type, speed_limit, mannual_status"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s"
                                    "    AND (service_status = %s"
@@ -64,10 +64,10 @@ class TerminalHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 return
             else: 
-                if terminal['move_val'] == 0: # move_val:0, static_val: 120
-                    terminal['parking_defend'] = 1
-                else:  # move_val:60, static_val:0
-                    terminal['parking_defend'] = 0
+                if terminal['mannual_status'] == 1: 
+                    terminal['parking_defend'] = 0 
+                else:  
+                    terminal['parking_defend'] = 1 
 
             # 2: whitelist
             user = QueryHelper.get_user_by_mobile(terminal.owner_mobile, self.db)
@@ -161,35 +161,11 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             if data.get("parking_defend") is not None:
                  parking_defend = data.get("parking_defend")
                  if parking_defend == 1:
-                     move_val = 0
-                     static_val = 180 #120,60 
                      mannual_status = UWEB.DEFEND_STATUS.SMART
                  else:
-                     move_val = 60
-                     static_val = 0 
                      mannual_status = UWEB.DEFEND_STATUS.YES
 
-                 self.db.execute("UPDATE T_TERMINAL_INFO "
-                                 "  SET move_val=%s, static_val=%s,"
-                                 "      mannual_status = %s, defend_status = %s"
-                                 "  WHERE tid=%s", 
-                                 move_val, static_val,
-                                 UWEB.DEFEND_STATUS.SMART,
-                                 UWEB.DEFEND_STATUS.SMART,
-                                 self.current_user.tid)
-                 logging.info("[UWEB] Terminal %s update move_val %s and static_val %s", 
-                              self.current_user.tid, move_val, static_val)
-                 sessionID_key = get_terminal_sessionID_key(self.current_user.tid)
-                 logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
-                 self.redis.delete(sessionID_key)
-
-                 # NOTE: modify the terminal_info in redis.
-                 terminal_info_key = get_terminal_info_key(self.current_user.tid)
-                 terminal_info = self.redis.getvalue(terminal_info_key)
-                 if terminal_info:
-                     terminal_info['mannual_status'] = mannual_status 
-                     self.redis.setvalue(terminal_info_key, terminal_info)
-
+                 update_mannual_status(self.db, self.redis, self.current_user.tid, mannual_status)
 
             # if stop_interval has been changed, then clear session to notify terminal
             if data.get("stop_interval"):
