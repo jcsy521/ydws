@@ -20,17 +20,18 @@ class ACBMTHandler(BaseHandler):
         try:
             content = self.get_argument("content")
             mobile = self.get_argument("mobile")
-            logging.info("[SMS] mobile = %s,  content = %s", mobile, content)
+            nosign = self.get_argumnet("nosign")
+            logging.info("[SMS] mobile = %s,  content = %s, nosign:%s", mobile, content, nosign)
             if mobile.startswith('20000'): # test trackers
                 logging.info("[SMS] %s starts with 20000, so skip the sms.", mobile)
                 self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
                 return
             
             self.db.execute("INSERT INTO T_SMS(msgid, mobile, content, "
-                            " insert_time, category, send_status) "
-                            "  VALUES(%s, %s, %s, %s, %s, %s)",
+                            " insert_time, category, send_status, nosign) "
+                            "  VALUES(%s, %s, %s, %s, %s, %s, %s)",
                             msgid, mobile, content, insert_time,
-                            SMS.CATEGORY.MT, SMS.SENDSTATUS.PREPARING)
+                            SMS.CATEGORY.MT, SMS.SENDSTATUS.PREPARING, nosign)
             logging.info("[SMS] acb-->sms save success! mobile = %s, content = %s", mobile, content)
             self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
         except Exception, msg:  

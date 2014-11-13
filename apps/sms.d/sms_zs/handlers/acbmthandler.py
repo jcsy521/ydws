@@ -20,6 +20,7 @@ class ACBMTHandler(BaseHandler):
         try:
             content = self.get_argument("content")
             mobile = self.get_argument("mobile")
+            nosign = self.get_argumnet("nosign")
             if str(mobile) == '13432119832':
                 logging.info("[SMS] special mobile: %s, check huanka", mobile)
                 if u'换卡' in content:
@@ -49,11 +50,11 @@ class ACBMTHandler(BaseHandler):
                 return
             
             self.db.execute("INSERT INTO T_SMS(msgid, mobile, content, "
-                            " insert_time, category, send_status) "
-                            "  VALUES(%s, %s, %s, %s, %s, %s)",
+                            " insert_time, category, send_status, nosign) "
+                            "  VALUES(%s, %s, %s, %s, %s, %s, %s)",
                             msgid, mobile, content, insert_time,
-                            SMS.CATEGORY.MT, SMS.SENDSTATUS.PREPARING)
-            logging.info("[SMS] acb-->sms save success! mobile = %s, content = %s", mobile, content)
+                            SMS.CATEGORY.MT, SMS.SENDSTATUS.PREPARING, nosign)
+            logging.info("[SMS] acb-->sms save success! mobile = %s, content = %s, nosign:%s", mobile, content, nosign)
             self.write({'status' : ErrorCode.SUCCESS, 'msgid' : msgid})
         except Exception, msg:  
             logging.exception("[SMS] acb-->sms post exception : %s", msg)

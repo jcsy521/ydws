@@ -13,7 +13,6 @@ import tornado.web
 from tornado.options import define, options
 
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
-#TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 define('port', type=int, default=6631)
 define('conf', default=os.path.join(TOP_DIR_, "conf/global.conf"))
@@ -86,7 +85,7 @@ def run_send_failed_mt_thread():
 def run_send_mt_thread():
     logging.info("MT thread started.")
     #time interval 3 second
-    INTERVAL = 3
+    INTERVAL = 1
     status = ErrorCode.FAILED
     mt = MT()
     try:
@@ -94,7 +93,7 @@ def run_send_mt_thread():
             time.sleep(INTERVAL)
             status = mt.fetch_mt_sms()
             if status == ErrorCode.SUCCESS:
-                INTERVAL = 3
+                INTERVAL = 1
             else:
                 INTERVAL = INTERVAL * 2
                 if INTERVAL > 600:
