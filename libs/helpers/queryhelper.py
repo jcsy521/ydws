@@ -135,6 +135,12 @@ class QueryHelper(object):
 
     @staticmethod
     def get_sms_option_by_uid(uid, category, db):
+        """Get sms options of a user.
+        @param: uid,
+                category,
+                db
+        @return: sms_option, // int. 1: send sms; 0: do not send sms
+        """
         sms_option = db.get("SELECT " + category +
                             "  FROM T_SMS_OPTION"
                             "  WHERE uid = %s",
@@ -147,7 +153,7 @@ class QueryHelper(object):
                                 "  FROM T_SMS_OPTION"
                                 "  WHERE uid = %s",
                                 uid)
-        return sms_option
+        return sms_option[category]
 
     @staticmethod
     def get_user_by_mobile(mobile, db):
@@ -224,7 +230,7 @@ class QueryHelper(object):
             terminal_info = db.get("SELECT mannual_status, defend_status,"
                                    "  fob_status, mobile, owner_mobile, login, gps, gsm,"
                                    "  pbat, keys_num, icon_type, softversion, bt_name, bt_mac,"
-                                   "  assist_mobile, distance_current, dev_type"
+                                   "  assist_mobile, distance_current, dev_type, biz_type"
                                    "  FROM T_TERMINAL_INFO"
                                    "  WHERE tid = %s", tid)
             car = db.get("SELECT cnum FROM T_CAR"
@@ -281,6 +287,38 @@ class QueryHelper(object):
             redis.set(login_time_key, login_time)
 
         return int(login_time)
+
+    @staticmethod
+    def get_regions(tid, db): 
+        """Get all regions associated with the tid."""
+        regions = db.query("SELECT tr.id AS region_id, tr.name AS region_name, "
+                           "       tr.longitude AS region_longitude, tr.latitude AS region_latitude, "
+                           "       tr.radius AS region_radius," 
+                           "       tr.points, tr.shape AS region_shape"
+                           "  FROM T_REGION tr, T_REGION_TERMINAL trt "
+                           "  WHERE tr.id = trt.rid"
+                           "  AND trt.tid = %s",
+                           tid)
+        if regions is None or len(regions) == 0:
+            return []
+        else:
+            return regions
+
+    @staticmethod
+    def get_singles(tid, db): 
+        """Get all singles associated with the tid."""
+        singles  = db.query("SELECT ts.id AS single_id, ts.name AS single_name, "
+                            "       ts.longitude AS single_longitude, ts.latitude AS single_latitude, "
+                            "       ts.radius AS single_radius," 
+                            "       ts.points, ts.shape AS single_shape"
+                            "  FROM T_SINGLE ts, T_SINGLE_TERMINAL tst "
+                            "  WHERE ts.id = tst.sid"
+                            "  AND tst.tid = %s",
+                            tid)
+        if singles is None or len(singles) == 0:
+            return []
+        else:
+            return singles
 
     @staticmethod
     def get_terminals_by_cid(cid, db):

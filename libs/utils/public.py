@@ -13,6 +13,8 @@ from misc import *
 from utils.dotdict import DotDict
 from constants import EVENTER, UWEB, GATEWAY
 
+##NOTE:Part  Record 
+
 # Feature: bind_log 
 def record_add_action(bind_info, db):
     """Record the add action of one mobile.
@@ -81,6 +83,54 @@ def record_manual_status(db, redis, tid, mannual_status):
 
     logging.info("[PUBLIC] Record the mannual status, tid: %s, mannual_status: %s",
                  tid, mannual_status)
+
+
+def record_alarm_info(db, redis, alarm):
+    """Record the alarm info in the redis.
+    @param: db
+    @param: redis 
+    @param: alarm 
+
+    tid --> alarm_info:[
+                         {
+                           keeptime // keep alarm's keeptime when kept in reids, not timestamp alarm occurs
+                           type, 
+                           category,
+                           latitude,
+                           longitude, 
+                           clatitude,
+                           clongitude,
+                           timestamp,
+                           name,
+                           degree, 
+                           speed,
+                           # for regions
+                           region_id,
+                         },
+                         ...
+                       ]
+    alarm_info is a list with one or many alarms.
+    """
+    alarm_info_key = get_alarm_info_key(alarm['tid'])
+    alarm_info = redis.getvalue(alarm_info_key)
+    alarm_info = alarm_info if alarm_info else []
+    alarm['keeptime'] = int(time.time())
+    alarm_info.append(alarm)
+
+    #NOTE: only store the alarm during past 10 minutes.
+    alarm_info_new = []
+    for alarm in alarm_info:
+        if alarm.get('keeptime', None) is None:
+            alarm['keeptime'] = alarm['timestamp']
+
+        if alarm['keeptime'] + 60*10 < int(time.time()):
+            pass
+        else:
+            alarm_info_new.append(alarm)
+
+    redis.setvalue(alarm_info_key, alarm_info_new, EVENTER.ALARM_EXPIRY)
+
+##NOTE: Part: Modify 
 
 def clear_data(tid, db, redis):
     """Just clear the info associated with terminal in platform.
@@ -154,7 +204,14 @@ def clear_data(tid, db, redis):
         logging.info("[PUBLIC] Delete terminal's keys in reids, tid: %s, tmobile: %s, umobile: %s, keys: %s",
                      tid, tmobile, umobile, keys)
 
+
 def delete_terminal(tid, db, redis, del_user=True):
+    """Delete terminal from platform and clear the associated info.
+    Ole version. Now, it does nothing.
+    """
+    pass
+
+def delete_terminal_new(tid, db, redis, del_user=True):
     """Delete terminal from platform and clear the associated info.
     """
     terminal = db.get("SELECT mobile, owner_mobile, group_id FROM T_TERMINAL_INFO"
@@ -468,8 +525,8 @@ def update_terminal_info(db, redis, t_info):
     Only those properties which are different from platform is needed to change.
     """
     tid = t_info['dev_id']
-    terminal_info_key = get_terminal_info_key(t_info['dev_id'])
-    terminal_info = QueryHelper.get_terminal_info(t_info['dev_id'],
+    terminal_info_key = get_terminal_info_key(tid)
+    terminal_info = QueryHelper.get_terminal_info(tid,
                                                   db, redis)
 
     #1: db
@@ -484,14 +541,14 @@ def update_terminal_info(db, redis, t_info):
             fields.append(key + " = " + "'" + str(t_info[key]) + "'")
     if 'login_time' in t_info:
         fields.append('login_time' + " = " + str(t_info['login_time']))
-        login_time_key = get_login_time_key(t_info['dev_id'])
+        login_time_key = get_login_time_key(tid)
         redis.setvalue(login_time_key, t_info['login_time'])
     set_clause = ','.join(fields)
     if set_clause:
         sql_cmd = ("UPDATE T_TERMINAL_INFO "
                    "  SET " + set_clause + 
                    "  WHERE tid = %s")
-        db.execute(sql_cmd, t_info['dev_id'])
+        db.execute(sql_cmd, tid)
     #2: redis
     for key in terminal_info:
         value = t_info.get(key, None)
@@ -502,6 +559,36 @@ def update_terminal_info(db, redis, t_info):
     #terminal basic info
     WSPushHelper.pushS6(tid, db, redis)
     return terminal_info 
+
+def update_terminal_dynamic_info(db, redis, location):
+    """Update terminal's dynamic info in db and redis.
+    Then inclues gps, gsm, pbat.
+    """
+    # db
+    tid = location.dev_id
+    fields = []
+
+    #NOTE: only gps, gsm, pbat should be updated
+    keys = ['gps', 'gsm', 'pbat']
+    for key in keys:
+        if location.get(key, None) is not None:
+            fields.append(key + " = " + str(location[key]))
+    set_clause = ','.join(fields)
+    if set_clause:
+        db.execute("UPDATE T_TERMINAL_INFO"
+                   "  SET " + set_clause +
+                   "  WHERE tid = %s",
+                   tid)
+    # redis
+    terminal_info = QueryHelper.get_terminal_info(tid, db, redis)
+    if terminal_info:
+        terminal_info_key = get_terminal_info_key(tid)
+        for key in terminal_info:
+            value = location.get(key, None)
+            if value is not None:
+                terminal_info[key] = value
+        redis.setvalue(terminal_info_key, terminal_info)
+
 
 def update_fob_info(db, redis, fobinfo):
     """Update fob's information.

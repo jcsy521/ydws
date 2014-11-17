@@ -15,6 +15,8 @@ class MainHandler(BaseHandler):
         self.write("It works!")
 
     def post(self):
+        """Put the body to correspongding queue(include position_queue, report_queue).
+        """
         try:
             body = json_decode(self.request.body)
             if body['t'] == EVENTER.INFO_TYPE.POSITION:
@@ -31,7 +33,6 @@ class MainHandler(BaseHandler):
                 logging.info("Current position_queue size:%s, pid:%s", self.position_queue.qsize(), os.getpid())
             else:
                 logging.warn("Get other request from sender:\n%s", body)
-            logging.info("Current position_queue size:%s", self.position_queue.qsize())
         except:
             logging.exception("[EVENTER] what's up")
 

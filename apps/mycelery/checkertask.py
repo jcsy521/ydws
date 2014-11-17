@@ -92,7 +92,7 @@ class CheckTask(object):
                                       (currenttime - 24*60*60))
             for terminal in terminals:
                 sms_option = QueryHelper.get_sms_option_by_uid(terminal.owner_mobile, 'heartbeat_lost', self.db)
-                if sms_option and sms_option.heartbeat_lost == UWEB.SMS_OPTION.SEND:
+                if sms_option == UWEB.SMS_OPTION.SEND:
                     ctime = get_terminal_time(currenttime)
                     ctime = safe_unicode(ctime)
 

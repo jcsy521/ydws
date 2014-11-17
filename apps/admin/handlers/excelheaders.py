@@ -159,6 +159,7 @@ BUSINESS_FILE_NAME = u"用户查询"
 BUSINESS_SHEET = u"用户"
 BUSINESS_HEADER = (u"序号", 
                    u"集团名称", 
+				   u"集团联系人", 
                    u"车主手机", 
                    u"终端手机", 
                    u"sn", 
@@ -167,7 +168,9 @@ BUSINESS_HEADER = (u"序号",
                    u"业务类型", 
                    u"在线/离线",
                    u"电量",
-                   u"开通时间")
+                   u"开通时间",
+				   u"bt_name",
+				   u"bt_mac",)
 
 BINDLOG_FILE_NAME =u"终端绑定记录表"
 BINDLOG_SHEET = u"终端绑定"

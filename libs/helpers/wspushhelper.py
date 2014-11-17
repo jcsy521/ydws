@@ -163,9 +163,17 @@ class WSPushHelper(object):
                                  "  WHERE group_id = %s "
                                  "  AND service_status= 1", # only success
                                  group['id'])
+
+            tids = []
+            for terminal in terminals:
+                t = QueryHelper.get_terminal_info(terminal['tid'], db, redis) 
+                dct = dict(tid=terminal['tid'],
+                           biz_type=t['biz_type'])
+                tids.append(dct)
+            
             res.append(dict(group_id=group['id'],
                             group_name=group['name'],
-                            tids=[terminal['tid'] for terminal in terminals]
+                            tids=tids,
                             ))
 
         packet = dict(packet_type="S3",
@@ -196,6 +204,7 @@ class WSPushHelper(object):
             for terminal in terminals:
                 t = QueryHelper.get_terminal_info(terminal['tid'], db, redis) 
                 res.append(dict(tid=terminal['tid'],
+                                biz_type=t['biz_type'],
                                 login_status=t['login']))
         else:
             res = []
@@ -232,6 +241,8 @@ class WSPushHelper(object):
 
         """
         res = []
+        terminal = QueryHelper.get_terminal_info(tid, db, redis)
+        body['biz_type'] = terminal['biz_type']
 
         res.append(body)
 
@@ -257,6 +268,7 @@ class WSPushHelper(object):
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
         packet=dict(tid=tid,
+                    biz_type=terminal['biz_type'],
                     gps=terminal['gps'],
                     gsm=terminal['gsm'],
                     pbat=terminal['pbat'])
@@ -284,6 +296,7 @@ class WSPushHelper(object):
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
         packet=dict(tid=tid,
+                    biz_type=terminal['biz_type'],
                     alias=terminal['alias'],
                     icon_type=terminal['icon_type'],
                     owner_mobile=terminal['owner_mobile'],

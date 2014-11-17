@@ -19,8 +19,8 @@ from base import BaseHandler, authenticated
 from checker import check_areas, check_privileges 
 from codes.errorcode import ErrorCode 
 from utils.checker import check_sql_injection, check_zs_phone
-from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, safe_unicode
+from utils.misc import (get_terminal_address_key, get_terminal_sessionID_key,
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, safe_unicode)
 from helpers.smshelper import SMSHelper
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
@@ -28,7 +28,7 @@ from helpers.queryhelper import QueryHelper
 from codes.smscode import SMSCode 
 from constants import PRIVILEGES, SMS, UWEB, GATEWAY
 from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
-from utils.public import record_add_action, delete_terminal, add_user, add_terminal
+from utils.public import record_add_action, delete_terminal_new, add_user, add_terminal
 from myutils import city_list
 from mongodb.mdaily import MDaily, MDailyMixin
 
@@ -70,7 +70,8 @@ class BusinessMixin(BaseMixin):
         """Get business info in detail throught tmobile.
         """
         business = self.db.get("SELECT tu.name as uname, tu.mobile as umobile, tu.address, tu.email, tt.mobile as tmobile,"
-                               "  tt.service_status, tt.begintime, tt.endtime, tc.cnum, tc.type as ctype, tc.color as ccolor,"
+                               "  tt.service_status, tt.begintime, tt.endtime, tt.bt_name, tt.bt_mac,"
+                               "  tc.cnum, tc.type as ctype, tc.color as ccolor,"
                                "  tc.brand as cbrand, tcorp.name as ecname"
                                "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_CAR as tc ON tt.tid = tc.tid"
                                "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"
@@ -262,7 +263,8 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
         try:
             sql = ("SELECT tt.tid, tt.login, tu.name as uname, tu.mobile as umobile, tt.mobile as tmobile,"
                    "  tt.softversion, tt.begintime, tt.endtime, tt.move_val, tt.static_val,"
-                   "  tt.service_status, tc.cnum, tcorp.name as ecname, tt.biz_type"
+                   "  tt.service_status, tt.bt_name, tt.bt_mac, tt.biz_type,"
+                   "  tc.cnum, tcorp.name as ecname, tcorp.mobile as cmobile"
                    "  FROM T_TERMINAL_INFO as tt LEFT JOIN T_CAR as tc ON tt.tid = tc.tid"
                    "                             LEFT JOIN T_USER as tu ON tt.owner_mobile = tu.mobile"
                    "                             LEFT JOIN T_GROUP as tg ON tt.group_id = tg.id"
@@ -344,18 +346,21 @@ class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
         for i, result in zip(range(start_line, len(results) + start_line), results):
             ws.write(i, 0, i)
             ws.write(i, 1, safe_unicode(result['ecname']) if result['ecname'] else u'')
-            ws.write(i, 2, result['umobile'])
-            ws.write(i, 3, result['tmobile'])
-            ws.write(i, 4, result['tid'])
-            ws.write(i, 5, result['softversion'])
-            ws.write(i, 6, result['alias'])
-            ws.write(i, 7, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
+            ws.write(i, 2, result['cmobile'])
+            ws.write(i, 3, result['umobile'])
+            ws.write(i, 4, result['tmobile'])
+            ws.write(i, 5, result['tid'])
+            ws.write(i, 6, result['softversion'])
+            ws.write(i, 7, result['alias'])
+            ws.write(i, 8, u'移动卫士' if int(result['biz_type']) == 0 else u'移动外勤')
             if int(result['login']) == 0:
-                ws.write(i, 8, u'离线', offline_style)
+                ws.write(i, 9, u'离线', offline_style)
             else:
-                ws.write(i, 8, u'在线', online_style)
-            ws.write(i, 9, '%s%%' % result['pbat'])
-            ws.write(i, 10, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
+                ws.write(i, 9, u'在线', online_style)
+            ws.write(i, 10, '%s%%' % result['pbat'])
+            ws.write(i, 11, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['begintime'])))
+            ws.write(i, 12, result['bt_name'])
+            ws.write(i, 13, result['bt_mac'])
 
         _tmp_file = StringIO()
         wb.save(_tmp_file)
@@ -494,11 +499,11 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
                 if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE: # offline
                     if terminal.mobile == tid:
-                        delete_terminal(tid, self.db, self.redis)
+                        delete_terminal_new(tid, self.db, self.redis)
                         logging.info('[ADMIN] Delete terminal. umobile:%s, tid: %s, tmobile:%s.', 
                                      pmobile, tid, tmobile)
                     else:
-                        delete_terminal(tid, self.db, self.redis)
+                        delete_terminal_new(tid, self.db, self.redis)
                         unbind_sms = SMSCode.SMS_UNBIND  
                         ret = SMSHelper.send_to_terminal(tmobile, unbind_sms)
                         ret = DotDict(json_decode(ret))
@@ -507,7 +512,7 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                     self.write_ret(status)
                     return
             else: 
-                delete_terminal(tid, self.db, self.redis)
+                delete_terminal_new(tid, self.db, self.redis)
                 self.write_ret(status)
                 return
 
