@@ -46,6 +46,11 @@ class TrackMixin(BaseMixin):
                                   "    GROUP BY timestamp"
                                   "    ORDER BY timestamp",
                                   tid, start_time, end_time)
+        #NOTE: handle the name 
+        for t in track:
+            if t['name'] is None:
+                t['name'] = ''
+            
         return track 
 
     def get_track_distance(self, track):
@@ -87,6 +92,11 @@ class TrackMixin(BaseMixin):
 
     def get_track_name(self, location):
         """Get name of a location which comes from a track.
+
+        @param: location, {'name':'',
+                           'clatitude':'',
+                           'clongitude':'',
+                           }
         """
         if not location:
             return ''
