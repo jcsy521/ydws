@@ -647,11 +647,6 @@ function fn_exportDelayPoints(arr_trackQueryData, str_who) {
 			arr_exportData = [],
 			b_exportType = true;
 		
-		if ( str_who == 'delay' ) {
-			arr_delayPoints[0] = null;
-			arr_delayPoints[arr_delayPoints.length-1] = null;
-		}
-		
 		if ( arr_cacheTrackDatas.length <= 0 && arr_delayPoints.length <= 0 ) {
 			arr_exportData = [];
 		} else if ( arr_cacheTrackDatas.length <= 0 && arr_delayPoints.length > 0 ) {
