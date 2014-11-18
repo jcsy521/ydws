@@ -25,7 +25,10 @@ class Terminal(object):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         #NOTE: connect the gateway
-        self.socket.connect(('192.168.1.105', 10025))
+        # online
+        self.socket.connect(('192.168.108.43', 10025))
+        # test
+        #self.socket.connect(('192.168.1.105', 10025))
         self.logging = self.initlog() 
 
     def __send__(self, packet):
@@ -42,7 +45,9 @@ class Terminal(object):
         logging.info('come into read mg')
         time.sleep(5)
         #NOTE: the gateway log has been pre-handled 
-        logfile = '/home/pabb/0703.log'
+        #logfile = '/home/ydcws/a.log'
+        logfile = '/home/ydcws/jia.log'
+        #logfile = '/home/ydcws/1104_left.log'
 
         f = open(logfile)
         for line in f:
@@ -61,7 +66,7 @@ class Terminal(object):
             line = line.replace(" ", "")
 
             self.__send__(line)
-            time.sleep(5)
+            time.sleep(0.1)
 
     def initlog(self): 
         logger = logging.getLogger() 
