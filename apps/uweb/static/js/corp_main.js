@@ -86,7 +86,7 @@ function customMenu(node) {
 		renameLabel = '重命名组';
 		deleteLabel = '删除分组';
 		singleCreateLabel = '添加单个定位器';
-		batchImportDeleteLabel = '批量导入/删除';
+		batchImportDeleteLabel = '批量导入';//删除';
 		batchDeleteLabel = '批量删除定位器';
 		batchDefendLabel = '批量设防/撤防';
 		batchRegionLabel = '批量绑定围栏';
@@ -319,7 +319,16 @@ function customMenu(node) {
 		},
 		"batchImportDelete": {	// 批量导入定位器操作菜单
 			"label" : batchImportDeleteLabel,
-			"submenu": {
+			"action" : function (obj) {
+				// todo 批量导入定位器操作
+				var obj_batch = obj.children('a'),
+					n_gid = obj_batch.attr('groupid'),
+					str_gname = obj_batch.attr('title');
+					
+				fn_initBatchImport(n_gid, str_gname);
+				return false;
+			}
+			/*"submenu": {
 				'batchImport': {
 					"label" : "批量导入定位器",
 					"action" : function (obj) {
@@ -338,7 +347,7 @@ function customMenu(node) {
 						fn_batchOperateValidate(obj, '删除');
 					}
 				}
-			}
+			}*/
 		},
 		"batchDefend" : {
 			"label" : batchDefendLabel,
@@ -445,13 +454,13 @@ function customMenu(node) {
 				}
 			}
 		},
-		"singleDelete" : {
+		/*"singleDelete" : {
 			"label" : singleDeleteLabel,
 			"action" : function (obj) {
 				fn_removeTerminal(obj);
 				return false;
 			}
-		},
+		},*/
 		"statics": {
 			"label": staticsLabel,
 			"action" : function (obj) {

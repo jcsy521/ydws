@@ -3591,7 +3591,7 @@
 				was_sep = false;
 				var str_tempClass = val._class || '';
 				
-				if ( i == 'event' || i == 'statics' || i == 'singleCreate' || i == 'moveTerminalForGroup' || i == 'defend' || i == 'singleDelete' || i == 'region' ) {
+				if ( i == 'event' || i == 'statics' || i == 'singleCreate' || i == 'moveTerminalForGroup' || i == 'defend' || i == 'region' ) {
 					str_tempClass = 'separator'
 				}
 				str += "<li class='" + (str_tempClass) + (val._disabled ? " jstree-contextmenu-disabled " : "") + "'><ins ";

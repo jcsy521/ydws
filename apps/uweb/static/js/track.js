@@ -365,7 +365,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			$('#exportDelay, #completeTrack').hide();
 			$('#delayTable').html('');
 		}
-		$('.j_delay').data('daymasspoint', false);
+		$('.j_delay').data({'daymasspoint': false, 'cacheTrackDatas': arr_trackDatas});
 		if ( n_flag == 0 ) { //直接显示数据				
 			for ( var x = 0; x < n_locLength; x++ ) {
 				arr_trackDatas[x].alias = str_alias;
@@ -403,6 +403,8 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			str_msg = '',
 			n_flag = data.track_sample,
 			arr_trackLineDatas = data.track;
+			
+		$('.j_delay').data({'cacheTrackDatas': arr_trackLineDatas});
 		
 		if ( arr_trackLineDatas.length <= 0) {
 			if ( obj_locusDate.cellid_flag == 0 ) {	// 如果没有勾选基站定位
@@ -640,20 +642,70 @@ function fn_exportDelayPoints(arr_trackQueryData, str_who) {
 			str_tableHtml = '',
 			b_isNullName = false,
 			arr_delayPoints = $('.j_delay').data('delayPoints'),
-			str_html = '<tr><td style="vnd.ms-excel.numberformat:@">事件</td><td style="vnd.ms-excel.numberformat:@">时间（开始）</td><td style="vnd.ms-excel.numberformat:@">位置</td></tr>',
-			i = 1,
-			leni = arr_delayPoints.length-1;
+			str_html = '<tr><td style="vnd.ms-excel.numberformat:@">时间</td><td style="vnd.ms-excel.numberformat:@">事件</td><td style="vnd.ms-excel.numberformat:@">速度</td><td style="vnd.ms-excel.numberformat:@">经纬度</td><td style="vnd.ms-excel.numberformat:@">位置</td></tr>',
+			arr_cacheTrackDatas = $('.j_delay').data('cacheTrackDatas'),
+			arr_exportData = [],
+			b_exportType = true;
 		
-		if ( str_who == 'trackDay' ) {
-			i = 0;
-			leni = arr_delayPoints.length;
-		} 
-		for ( i; i < leni; i++ ) {
-			var obj_tempTrackData = arr_delayPoints[i];
-			
-			str_html +='<tr><td style="vnd.ms-excel.numberformat:@">停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time) +'</td><td style="vnd.ms-excel.numberformat:@">'+ dlf.fn_changeNumToDateString(obj_tempTrackData.start_time) +'</td><td style="vnd.ms-excel.numberformat:@">'+ obj_tempTrackData.name +'</td></tr>';
+		if ( str_who == 'delay' ) {
+			arr_delayPoints[0] = null;
+			arr_delayPoints[arr_delayPoints.length-1] = null;
 		}
 		
+		if ( arr_cacheTrackDatas.length <= 0 && arr_delayPoints.length <= 0 ) {
+			arr_exportData = [];
+		} else if ( arr_cacheTrackDatas.length <= 0 && arr_delayPoints.length > 0 ) {
+			arr_exportData = arr_delayPoints;
+			b_exportType = false;
+		} else if ( arr_cacheTrackDatas.length > 0 && arr_delayPoints.length <= 0 ) {
+			arr_exportData = arr_cacheTrackDatas;
+		} else {
+			for (var x = 0; x < arr_delayPoints.length; x++ ) {
+				var obj_xData = arr_delayPoints[x],
+					n_xTime = obj_xData.start_time;
+				
+				if ( n_xTime ) {
+					for (var y = 0; y < arr_cacheTrackDatas.length; y++ ) {
+						var obj_yData = arr_cacheTrackDatas[y],
+							n_yTime = obj_yData.timestamp;
+						
+						if ( n_yTime == n_xTime ) {
+							arr_cacheTrackDatas[y].pointType = 'stop';
+							arr_cacheTrackDatas[y].start_time = obj_xData.start_time;
+							arr_cacheTrackDatas[y].end_time = obj_xData.end_time;
+							break;
+						}
+						
+					}
+				}
+			}
+			arr_exportData = arr_cacheTrackDatas;			
+		}		
+		
+		//生成导出数据
+		for ( i = 0; i < arr_exportData.length; i++ ) {
+			var obj_tempTrackData = arr_exportData[i];
+			
+			if ( obj_tempTrackData ) {
+				var str_poinType = obj_tempTrackData.pointType,
+					str_pointTypeText = '行驶',
+					n_lon = obj_tempTrackData.clongitude,
+					n_lat = obj_tempTrackData.clatitude,
+					str_address = obj_tempTrackData.name,
+					str_speed = obj_tempTrackData.speed+'km/h',
+					n_pointTime = obj_tempTrackData.timestamp,
+					str_lngLat =  'E '+(n_lon/3600000).toFixed(CHECK_ROUNDNUM)+',  N '+(n_lat/3600000).toFixed(CHECK_ROUNDNUM);
+				
+				
+				if ( !b_exportType || str_poinType == 'stop' ) {
+					n_pointTime = obj_tempTrackData.start_time;
+					str_pointTypeText = '停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time);
+					str_speed = '--'
+				}
+				
+				str_html +='<tr><td style="vnd.ms-excel.numberformat:@">'+ dlf.fn_changeNumToDateString(n_pointTime) +'</td><td style="vnd.ms-excel.numberformat:@">'+ str_pointTypeText +'</td><td style="vnd.ms-excel.numberformat:@">'+ str_speed +'</td><td style="vnd.ms-excel.numberformat:@">'+ str_lngLat +'</td><td style="vnd.ms-excel.numberformat:@">'+ str_address +'</td></tr>';
+			}
+		}
 		obj_table.html(str_html);
 		if ( b_isNullName ) {
 			dlf.fn_jNotifyMessage('正在获取数据，请稍等。', 'message', false, 3000);
