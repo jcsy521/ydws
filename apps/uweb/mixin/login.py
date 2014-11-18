@@ -137,7 +137,7 @@ class LoginMixin(BaseMixin):
     def login_sms_remind(self, uid, owner_mobile, terminals, login="WEB"):
 
         sms_option = QueryHelper.get_sms_option_by_uid(uid, 'login', self.db)
-        if sms_option.login == 1:
+        if sms_option == UWEB.SMS_OPTION.SEND:
             login_time = time.strftime("%Y-%m-%d %H:%M:%S")
             login_method = UWEB.LOGIN_WAY[login] 
             terminal_mobile = u'”，“'.join(terminal.alias for terminal in terminals)
