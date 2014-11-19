@@ -693,8 +693,14 @@ function fn_exportDelayPoints(arr_trackQueryData, str_who) {
 				
 				
 				if ( !b_exportType || str_poinType == 'stop' ) {
-					n_pointTime = obj_tempTrackData.start_time;
-					str_pointTypeText = '停留'+ dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time);
+					var str_stopTime = dlf.fn_changeTimestampToString(obj_tempTrackData.end_time-obj_tempTrackData.start_time);
+					
+					if ( i== 0 || i == arr_exportData.length - 1 ) {
+						str_stopTime = '';
+					}					
+					
+					n_pointTime = obj_tempTrackData.start_time;					
+					str_pointTypeText = '停留'+ str_stopTime;
 					str_speed = '--'
 				}
 				
