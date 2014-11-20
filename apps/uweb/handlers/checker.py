@@ -31,14 +31,17 @@ class CheckTMobileHandler(BaseHandler):
                 white_list = check_zs_phone(tmobile, self.db) 
                 if not white_list: 
                     logging.error("[UWEB] mobile: %s is not whitelist.", tmobile) 
-                    status = UWEB.TERMINAL_STATUS.MOBILE_NOT_ORDERED 
+                    status = ErrorCode.MOBILE_NOT_ORDERED
+                    message = message = ErrorCode.ERROR_MESSAGE[status] % tmobile
+                    self.write_ret(status, message=message)
+                    return
                 else:
                     status = ErrorCode.SUCCESS
                 
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 
-                              self.current_user.uid, e.args) 
+            logging.exception("[UWEB] Check tmobile failed. tmobile: %s, Exception: %s", 
+                              tmobile, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
