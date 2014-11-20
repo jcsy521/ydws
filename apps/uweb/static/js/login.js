@@ -111,10 +111,28 @@ function fn_validLogin() {
 		str_loginCaptcha = $.trim($('#login_captcha').val()),
 		str_randomStr = fn_createRandomStr(128);
 	
-	
 	if ( !$('#loginBtn').data('isvalid') ) {
 		return false;
 	}
+	
+	if ( str_loginName == '' ) {
+		$('#loginSubmitErrorMsgPanel').show();
+		$('#loginSubmitErrorMsg').html('登录名不能为空');
+		$('#login_captcha').val('');
+		return false;
+	}
+	if ( str_loginPwd == '' ) {
+		$('#loginSubmitErrorMsgPanel').show();
+		$('#loginSubmitErrorMsg').html('密码不能为空');
+		$('#login_captcha').val('');
+		return false;
+	}
+	if ( str_loginCaptcha == '' ) {
+		$('#loginSubmitErrorMsgPanel').show();
+		$('#loginSubmitErrorMsg').html('请输入验证码');
+		return false;
+	}
+	$('#loginSubmitErrorMsgPanel').hide();	
 	
 	$('#loginHidden_username').val(base64encode(utf16to8(str_randomStr+str_loginName)));
 	$('#loginHidden_pwd').val(base64encode(utf16to8(str_randomStr+str_loginPwd)));
