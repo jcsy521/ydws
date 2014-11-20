@@ -83,6 +83,7 @@ $(function(){
 		} else {
 			$('.login_usernameMsgPanel').show();
 			$('#login_usernameErrorMsg').html('请输入规范的手机号码');
+			$('#loginSubmitErrorMsgPanel, #loginCaptchaErrorMsgPanel').hide();
 			$('#loginBtn').data('isvalid', false);
 			$('.login_msgPanel').hide();
 			$('.login_errorMsg').html('');
@@ -119,17 +120,20 @@ function fn_validLogin() {
 		$('#loginSubmitErrorMsgPanel').show();
 		$('#loginSubmitErrorMsg').html('登录名不能为空');
 		$('#login_captcha').val('');
+		$('#loginCaptchaErrorMsgPanel').hide();
 		return false;
 	}
 	if ( str_loginPwd == '' ) {
 		$('#loginSubmitErrorMsgPanel').show();
 		$('#loginSubmitErrorMsg').html('密码不能为空');
 		$('#login_captcha').val('');
+		$('#loginCaptchaErrorMsgPanel').hide();
 		return false;
 	}
 	if ( str_loginCaptcha == '' ) {
 		$('#loginSubmitErrorMsgPanel').show();
 		$('#loginSubmitErrorMsg').html('请输入验证码');
+		$('#loginCaptchaErrorMsgPanel').hide();
 		return false;
 	}
 	$('#loginSubmitErrorMsgPanel').hide();	

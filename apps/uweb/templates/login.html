@@ -65,9 +65,9 @@
 						</div>
 					</div>					
 					{% if message_captcha %}
-						<div class="form-group login_msgPanel">
+						<div class="form-group login_msgPanel" id="loginCaptchaErrorMsgPanel">
 					{% else %}
-						<div class="form-group login_msgPanel hide">
+						<div class="form-group login_msgPanel hide" id="loginCaptchaErrorMsgPanel">
 					{% end %}
 						<label class="sr-only col-sm-2 control-label"></label>
 						<div>
