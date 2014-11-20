@@ -12,7 +12,7 @@ from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from utils.checker import check_zs_phone
 from utils.dotdict import DotDict
-from utils.public import delete_terminal
+from utils.public import delete_terminal, notify_maintainer
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 from helpers.confhelper import ConfHelper
@@ -39,7 +39,38 @@ class RegisterHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
+            
             umobile = self.get_argument('umobile','')
+
+            remote_ip = self.request.remote_ip
+
+            remote_ip_key = "register_remote_ip:%s" % remote_ip 
+            umobile_key = "register_umobile:%s" % umobile
+            remote_ip_times = self.redis.getvalue(remote_ip_key)  
+            umobile_times = self.redis.getvalue(umobile_key)  
+
+            if remote_ip_times is None:
+                remote_ip_times = 0
+
+            if umobile_times is None:
+                umobile_times = 0
+
+            logging.info("[UWEB] Register. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s",
+                         umobile, umobile_times, remote_ip, remote_ip_times)
+
+            REGISTER_EXPIRY = 60 * 60 * 24 # 1 day
+
+            if umobile_times > 3: # <= 3 is ok
+                status = ErrorCode.REGISTER_EXCESS
+            if remote_ip_times > 10: # <= 10 is ok
+                status = ErrorCode.REGISTER_EXCESS
+
+            if status == ErrorCode.REGISTER_EXCESS:
+                body = u'管理员您好：检测到频繁注册，请查看. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s' % (umobile, umobile_times, remote_ip, remote_ip_times) 
+                notify_maintainer(self.db, self.redis, body, 'register')
+                self.write_ret(status)
+                return
+
             psd = ''.join(random.choice(string.digits) for x in range(4))
             captcha_sms = SMSCode.SMS_REG % (psd) 
             ret = SMSHelper.send(umobile, captcha_sms)
@@ -49,6 +80,9 @@ class RegisterHandler(BaseHandler):
                              umobile, psd)
                 captcha_key = get_captcha_key(umobile)
                 self.redis.setvalue(captcha_key, psd, UWEB.SMS_CAPTCHA_INTERVAL)
+
+                self.redis.setvalue(umobile_key, umobile_times+1, REGISTER_EXPIRY)  
+                self.redis.setvalue(remote_ip_key, remote_ip_times+1, REGISTER_EXPIRY)  
             else:
                 status = ErrorCode.SERVER_BUSY
                 logging.error("[UWEB] umobile: %s get sms captcha failed.", umobile)

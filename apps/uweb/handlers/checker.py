@@ -8,6 +8,8 @@ from codes.errorcode import ErrorCode
 from constants import UWEB
 from base import BaseHandler
 
+from utils.checker import check_zs_phone
+
        
 class CheckTMobileHandler(BaseHandler):
 
@@ -25,6 +27,14 @@ class CheckTMobileHandler(BaseHandler):
                               tmobile, UWEB.SERVICE_STATUS.TO_BE_UNBIND)
             if res:
                 status = ErrorCode.TERMINAL_BINDED
+            else: 
+                white_list = check_zs_phone(tmobile, self.db) 
+                if not white_list: 
+                    logging.error("[UWEB] mobile: %s is not whitelist.", tmobile) 
+                    status = UWEB.TERMINAL_STATUS.MOBILE_NOT_ORDERED 
+                else:
+                    status = ErrorCode.SUCCESS
+                
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 
