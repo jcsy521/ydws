@@ -92,13 +92,13 @@
 						</div>
 					</div>					
 					{% if message %}
-						<div class="form-group login_msgPanel">
+						<div class="form-group login_msgPanel" id="loginSubmitErrorMsgPanel">
 					{% else %}
-						<div class="form-group login_msgPanel hide">
+						<div class="form-group login_msgPanel hide" id="loginSubmitErrorMsgPanel">
 					{% end %}
 						<label class="sr-only col-sm-2 control-label"></label>
 						<div>
-							<span class="login_errorMsg errorMsg">
+							<span id="loginSubmitErrorMsg" class="login_errorMsg errorMsg">
 								{% if message %}
 									{{ message }}
 								{% end %}
