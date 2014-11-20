@@ -1391,7 +1391,7 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 			
 			$('.j_body').data('lastinfo_time', data.res.lastinfo_time);	// 存储post返回的上次更新时间  返给后台
 			$('.j_alarm').show();
-			
+			$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
 			/**
 			* KJJ add 2014.05.28
 			* 判断缓存数据的点是否在移动，如果没有则修改marker的icon图标
