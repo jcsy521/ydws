@@ -3,13 +3,14 @@
 import logging
 import random
 import string
+import time
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.misc import get_today_last_month, get_captcha_key
-from utils.misc import get_terminal_sessionID_key, get_terminal_address_key,\
-    get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
+from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_date_from_utc, start_end_of_day)
 from utils.checker import check_zs_phone
 from utils.dotdict import DotDict
 from utils.public import delete_terminal, notify_maintainer
@@ -58,8 +59,13 @@ class RegisterHandler(BaseHandler):
             logging.info("[UWEB] Register. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s",
                          umobile, umobile_times, remote_ip, remote_ip_times)
 
-            REGISTER_EXPIRY = 60 * 60 * 24 # 1 day
 
+            #NOTE: In current day, the same remote_ip allows 10 times, the umobile, 3 times
+            current_time = int(time.time())
+            date = get_date_from_utc(current_time)
+            year, month, day = date.year, date.month, date.day
+            start_time_, end_time_ = start_end_of_day(year=year, month=month, day=day)
+        
             if umobile_times > 3: # <= 3 is ok
                 status = ErrorCode.REGISTER_EXCESS
             if remote_ip_times > 10: # <= 10 is ok
@@ -81,8 +87,10 @@ class RegisterHandler(BaseHandler):
                 captcha_key = get_captcha_key(umobile)
                 self.redis.setvalue(captcha_key, psd, UWEB.SMS_CAPTCHA_INTERVAL)
 
-                self.redis.setvalue(umobile_key, umobile_times+1, REGISTER_EXPIRY)  
-                self.redis.setvalue(remote_ip_key, remote_ip_times+1, REGISTER_EXPIRY)  
+                self.redis.set(umobile_key, umobile_times+1)  
+                self.redis.expireat(umobile_key, end_time_)  
+                self.redis.set(remote_ip_key, remote_ip_times+1)  
+                self.redis.expireat(remote_ip_key, end_time_)  
             else:
                 status = ErrorCode.SERVER_BUSY
                 logging.error("[UWEB] umobile: %s get sms captcha failed.", umobile)
