@@ -26,7 +26,9 @@ class Terminal(object):
 
         #NOTE: connect the gateway
         # online
-        self.socket.connect(('192.168.108.43', 10025))
+        ip = '192.168.1.205'
+        port = 10025
+        self.socket.connect((ip, port))
         # test
         #self.socket.connect(('192.168.1.105', 10025))
         self.logging = self.initlog() 
@@ -46,7 +48,7 @@ class Terminal(object):
         time.sleep(5)
         #NOTE: the gateway log has been pre-handled 
         #logfile = '/home/ydcws/a.log'
-        logfile = '/home/ydcws/jia.log'
+        logfile = '/home/pabb/18_new.log'
         #logfile = '/home/ydcws/1104_left.log'
 
         f = open(logfile)
@@ -60,6 +62,7 @@ class Terminal(object):
             sessionid = self.redis.get(key)
             logging.info('key:%s, sessionid: %s', key, sessionid)
             if not sessionid:
+                # TODO: generate sessionid
                 sessionid = ''
 
             line = line.replace(old_sessionid, sessionid)
