@@ -51,10 +51,10 @@ class RegisterHandler(BaseHandler):
             umobile_times = self.redis.getvalue(umobile_key)  
 
             if remote_ip_times is None:
-                remote_ip_times = 0
+                remote_ip_times = 1
 
             if umobile_times is None:
-                umobile_times = 0
+                umobile_times = 1
 
             logging.info("[UWEB] Register. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s",
                          umobile, umobile_times, remote_ip, remote_ip_times)

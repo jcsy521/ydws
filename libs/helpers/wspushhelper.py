@@ -78,11 +78,11 @@ class WSPushHelper(object):
                         logging.info("[WSPUSH] Push packet successfully! uid = %s, badge = %s, message = %s, packet = %s",
                                      uid, badge, message, packet)
                     else:
-                        logging.info("[WSPUSH] Push packet:%s failed!", packet)
+                        logging.error("[WSPUSH] Push packet:%s failed!", packet)
                 else:
-                    logging.exception("[WSPUSH] Push packet:%s failed!", packet)
+                    logging.error("[WSPUSH] Push packet:%s failed!", packet)
             else:
-                logging.exception("[WSPUSH] Push packet:%s failed, response: %s failed.", 
+                logging.error("[WSPUSH] Push packet:%s failed, response: %s failed.", 
                                   packet, response)
         except Exception as e:
             logging.exception("[WSPUSH] Push failed. Exception: %s", e.args)

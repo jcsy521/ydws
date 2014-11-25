@@ -75,7 +75,7 @@ def main():
 
     ConfHelper.load(options.conf)
     redis = MyRedis()
-    #db = DBConnection().db
+    db = DBConnection().db
 
     gwserver = None
     processes = None
@@ -86,7 +86,7 @@ def main():
         gwserver = MyGWServer(options.conf)
 
         gwserver.redis = redis
-        #gwserver.db = db
+        gwserver.db = db
 
         gw_send = Process(name='GWSender',
                           target=gwserver.consume,

@@ -178,11 +178,12 @@ class Base(object):
                 request = DotDict(packet=rc.buf,
                                   address=address,
                                   dev_id=dev_id)
+              
                 append_gw_request(request, connection, channel, self.exchange, self.gw_binding)
                 # resend flag
                 if not resend_flag:
                     self.redis.setvalue(resend_key, True, GATEWAY.RESEND_EXPIRY)
-            elif head.command == GATEWAY.T_MESSAGE_TYPE.UNBIND:
+            elif head.command == GATEWAY.T_MESSAGE_TYPE.UNBIND: # S24-->T24
                 logging.info("[GW] Head command: %s.", head.command)
                 up = UNBindParser(info.body, info.head)
                 status = up.ret['status']

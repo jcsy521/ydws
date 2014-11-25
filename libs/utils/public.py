@@ -8,6 +8,7 @@ from helpers.smshelper import SMSHelper
 from helpers.emailhelper import EmailHelper
 from helpers.wspushhelper import WSPushHelper
 from helpers.lbmpsenderhelper import LbmpSenderHelper
+from tornado.escape import json_decode, json_encode
 
 from misc import *
 from utils.dotdict import DotDict
@@ -252,16 +253,17 @@ def add_user(user, db, redis):
         db.execute("INSERT INTO T_USER(uid, password, name, mobile, address, email)"
                    "  VALUES(%s, password(%s), %s, %s, %s, %s)",
                    user['umobile'], user['password'],
-                   user['uname'], user['umobile'],
-                   user['address'], user['email'])
+                   user.get('uname',''), user['umobile'],
+                   user.get('address',''), user.get('email',''))
 
     # add sms_option
     sms_option = db.get("SELECT id FROM T_SMS_OPTION WHERE uid= %s", user['umobile'])
     if sms_option:
-        db.execute("DELETE FROM T_SMS_OPTION WHERE uid = %s", user['umobile'])
-    db.execute("INSERT INTO T_SMS_OPTION(uid)"
-               "  VALUES(%s)",
-               user['umobile'])
+        pass
+    else:
+        db.execute("INSERT INTO T_SMS_OPTION(uid)"
+                   "  VALUES(%s)",
+                   user['umobile'])
 
     logging.info("[PUBLIC] Add user, umobile: %s, user: %s.",
                  user['umobile'], user)
@@ -463,8 +465,8 @@ def update_mannual_status(db, redis, tid, mannual_status):
     智能设防: mannual_status 2：move_val  0 stati_val 180
     撤防 mannual_status 0：move_val  0 stati_val 180
 
-    开启停车设防: parking_defend 1  move_val  0 stati_val 180
-    关闭停车设防: parking_defend 0  move_val 60  staic_val 0
+    开启停车设防: parking_defend 1: mannual_status 2, move_val  0 stati_val 180
+    关闭停车设防: parking_defend 0: mannual_status 1, move_val 60  staic_val 0
     """
     # NOTE: modify the terminal_info in redis.
     terminal_info_key = get_terminal_info_key(tid)
@@ -658,11 +660,11 @@ def subscription_lbmp(mobile):
     response = LbmpSenderHelper.forward(LbmpSenderHelper.URLS.SUBSCRIPTION, data) 
     response = json_decode(response) 
     if response['success'] == '000': 
-        logging.info("[GW] Terminal: %s subscription LE success! SIM: %s",
-                     t_info['dev_id'], t_info['t_msisdn'])
+        logging.info("[GW] mobile: %s subscription LE success! ",
+                     mobile)
     else:
-        logging.error("[GW] Terminal: %s subscription LE failed! SIM: %s, response: %s",
-                     t_info['dev_id'], t_info['t_msisdn'], response)
+        logging.info("[GW] mobile: %s subscription LE failed! response:%s",
+                     mobile, response)
 
 # for YDWQ
 def update_terminal_info_ydwq(db, redis, t_info):

@@ -123,6 +123,7 @@ class PacketTask(PacketTaskMixin):
 
 
                 #NOTE: the time of keep last_pvt is import.
+                last_pvt_key = get_last_pvt_key(location['dev_id'])
                 last_pvt = pvt 
                 self.redis.setvalue(last_pvt_key, last_pvt, time=EVENTER.STOP_EXPIRY)
 

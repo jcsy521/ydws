@@ -18,7 +18,7 @@ class QueryHelper(object):
     def get_terminal_by_tid(tid, db):
         """Get terminal's info throught tid.
         """
-        terminal = db.get("SELECT mobile, tid, owner_mobile, alias, login"
+        terminal = db.get("SELECT mobile, tid, owner_mobile, assist_mobile, alias, login"
                           "  FROM T_TERMINAL_INFO"
                           "  WHERE tid = %s LIMIT 1",
                           tid) 
@@ -66,6 +66,19 @@ class QueryHelper(object):
            alias = terminal.mobile
 
         return alias
+
+    @staticmethod
+    def get_cnum_by_terminal(tid, tmobile, redis, db):
+
+        cnum = ''
+        car = db.get("SELECT cnum FROM T_CAR WHERE tid = %s", tid)
+        if car and car['cnum']: 
+            cnum = car['cnum'] 
+        else:
+            car = db.get("SELECT cnum FROM T_CAR WHERE tid = %s", tmobile)
+            if car and car['cnum']: 
+                cnum = car['cnum'] 
+        return cnum
 
     @staticmethod
     def get_user_by_tid(tid, db):

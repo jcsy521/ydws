@@ -14,8 +14,8 @@ from utils.dotdict import DotDict
 from codes.smscode import SMSCode
 
 from utils.misc import (get_resend_key, get_sessionID, 
-     get_terminal_sessionID_key)
-from utils.public import (insert_location, delete_terminal,
+     get_terminal_sessionID_key, get_psd)
+from utils.public import (insert_location, delete_terminal_new,
      record_add_action, get_terminal_type_by_tid, clear_data,
      update_terminal_info, subscription_lbmp, add_terminal, add_user) 
 
@@ -95,10 +95,12 @@ def handle_new_login(t_info, address, connection, channel, exchange, gw_binding,
     flag = t_info['psd'] 
     terminal = db.get("SELECT tid, group_id, mobile, imsi, owner_mobile, service_status,"
                       "   defend_status, mannual_status, icon_type, login_permit, "
-                      "   alias, vibl, use_scene, push_status, speed_limit, stop_interval"
+                      "   alias, vibl, use_scene, push_status, speed_limit, stop_interval,"
+                      "   distance_current"
                       "  FROM T_TERMINAL_INFO"
                       "  WHERE mobile = %s LIMIT 1",
                       t_info['t_msisdn']) 
+    cnum = QueryHelper.get_cnum_by_terminal(tid, t_info['t_msisdn'], redis, db)
 
     #NOTE: normal login
     if flag != "1": # normal login
@@ -180,6 +182,8 @@ def handle_new_login(t_info, address, connection, channel, exchange, gw_binding,
         use_scene = 3
         speed_limit = 120
         stop_interval = 0
+        distance_current = 0
+
         # send JH sms to terminal. default active time is one year.
         begintime = datetime.datetime.now() 
         endtime = begintime + relativedelta(years=1)
@@ -205,7 +209,7 @@ def handle_new_login(t_info, address, connection, channel, exchange, gw_binding,
         if terminal and terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
             logging.info("[GW] Delete terminal which is to_be_unbind. tid: %s, mobile: %s", 
                          terminal['tid'], terminal['mobile'])
-            delete_terminal(terminal['tid'], db, redis)
+            delete_terminal_new(terminal['tid'], db, redis)
             terminal = None
 
         # 3. add user info
@@ -271,6 +275,7 @@ def handle_new_login(t_info, address, connection, channel, exchange, gw_binding,
                 push_status = terminal.push_status
                 speed_limit = terminal.speed_limit
                 stop_interval = terminal.stop_interval
+                distance_current = terminal.distance_current
                 if terminal.tid == terminal.mobile:
                     # corp terminal login first, keep corp info
                     db.execute("UPDATE T_REGION_TERMINAL"
@@ -302,7 +307,7 @@ def handle_new_login(t_info, address, connection, channel, exchange, gw_binding,
                                  sms_, terminal.owner_mobile)
                 else:
                     del_user = False
-                delete_terminal(terminal.tid, db, redis, del_user=del_user)
+                delete_terminal_new(terminal.tid, db, redis, del_user=del_user)
 
         #NOTE: Normal JH.
         if not is_refurbishment:
@@ -329,7 +334,7 @@ def handle_new_login(t_info, address, connection, channel, exchange, gw_binding,
                         clear_data(tid_terminal['tid'], db, redis)
                 else:
                     del_user = False
-                delete_terminal(tid_terminal['tid'], db, redis, del_user=del_user)
+                delete_terminal_new(tid_terminal['tid'], db, redis, del_user=del_user)
 
             # 6 add terminal info
            
@@ -356,13 +361,17 @@ def handle_new_login(t_info, address, connection, channel, exchange, gw_binding,
                                  begintime=int(time.mktime(begintime.timetuple())),
                                  endtime=4733481600,
                                  offline_time=int(time.mktime(begintime.timetuple())),
-                                 cnum=alias,
+                                 cnum=cnum,
                                  login_permit=login_permit,
                                  bt_mac=t_info['bt_mac'],
                                  bt_name=t_info['bt_name'],
                                  vibl=vibl,
                                  use_scene=use_scene,
-                                 biz_type=UWEB.BIZ_TYPE.YDWS)
+                                 biz_type=UWEB.BIZ_TYPE.YDWS,
+                                 alias=alias,
+                                 speed_limit=speed_limit,
+                                 stop_interval=stop_interval,
+                                 distance_current=distance_current)
             add_terminal(terminal_info, db, redis)
 
             # record the add action, enterprise or individual
@@ -524,7 +533,7 @@ def handle_old_login(t_info, address, connection, channel, exchange, gw_binding,
                 logging.info("[GW] Delete old tid bind relation. tid: %s, owner_mobile: %s, service_status: %s",
                              t_info['dev_id'], t_info['u_msisdn'],
                              terminal.service_status)
-                delete_terminal(t_info['dev_id'], db, redis, del_user=False)
+                delete_terminal_new(t_info['dev_id'], db, redis, del_user=False)
                 exist = db.get("SELECT tid, owner_mobile, service_status FROM T_TERMINAL_INFO"
                                "  WHERE mobile = %s LIMIT 1",
                                t_info['t_msisdn'])
@@ -533,7 +542,7 @@ def handle_old_login(t_info, address, connection, channel, exchange, gw_binding,
                     t_status = None
                     logging.info("[GW] Delete old tmobile bind relation. tid: %s, mobile: %s",
                                  exist.tid, t_info['t_msisdn'])
-                    delete_terminal(exist.tid, db, redis, del_user=False)
+                    delete_terminal_new(exist.tid, db, redis, del_user=False)
                     if exist.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
                         logging.info("[GW] Terminal: %s of %s is to_be_unbind, delete it.",
                                      exist.tid, t_info['t_msisdn'])

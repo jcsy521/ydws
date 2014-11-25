@@ -73,7 +73,6 @@ class MyGWServer(RabbitMQMixin):
         logging.info("[GW] Consume process, name: %s, pid: %s started...", 
                      multiprocessing.current_process().name, os.getpid())
         try:
-            print 1
             consume_connection, consume_channel = self.connect_rabbitmq(host)
             while True:
                 try:
@@ -145,6 +144,7 @@ class MyGWServer(RabbitMQMixin):
 
     def recv(self, queue):
         """Recv packet from terminal.
+        @param: queue, mixin_queue 
         """
         try:
             response, address = self.socket.recvfrom(1024)
@@ -175,18 +175,17 @@ class MyGWServer(RabbitMQMixin):
                     continue
                 else:
                     try:
-                        if queue.qsize() != 0:
-                            item  = queue.get(False)
-                            packets = item.get('response')
-                            address = item.get('address')
-                            base = Base(db, self.redis, self.exchange, self.gw_binding, self.si_binding)
-                            base.handle_packets_from_terminal(packets, address, connection, channel, name)
-                        else:
-                            time.sleep(0.1)
+                        item = queue.get(False)
+                        packets = item.get('response')
+                        address = item.get('address')
+                        base = Base(db, self.redis, self.exchange, self.gw_binding, self.si_binding)
+                        base.handle_packets_from_terminal(packets, address, connection, channel, name)
                     except Empty:
                         logging.info("[GW] Thread%s queue empty.", name)
                         time.sleep(0.1)
                     except GWException:
+                        logging.exception("[GW] Thread%s handle packet Exception.", name) 
+                    except Exception:
                         logging.exception("[GW] Thread%s handle packet Exception.", name) 
             except:
                 logging.exception("[GW] Thread%s recv Exception.", name)
@@ -206,6 +205,8 @@ class MyGWServer(RabbitMQMixin):
         self.__close_socket()
         for db in self.db_list:
             db.close()
+
+        self.db.close()
 
     def __del__(self):
         """Invoke stop method.

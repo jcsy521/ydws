@@ -736,8 +736,11 @@ class TerminalStatistic(object):
         pass
         
 def statistic_offline_terminal():
-    ts = TerminalStatistic()
-    ts.statistic_offline_terminal(int(time.time()))
+    try:
+        ts = TerminalStatistic()
+        ts.statistic_offline_terminal(int(time.time()))
+    except Exception as e:
+        logging.info("[CELERY] statistic_offline_terminal Exception:%s", e.args)
 
 def statistic_online_terminal():
     ts = TerminalStatistic()

@@ -159,7 +159,8 @@ class CheckTask(object):
                                       "  WHERE distance_notification != 0"
                                       "  AND notify_count < 3")
             for terminal in terminals:
-                terminal_info = QueryHelper.get_terminal_info(terminal.tid, self.db, self.redis)
+                terminal_info = QueryHelper.get_terminal_by_tid(terminal.tid, self.db)
+
                 tid = terminal['tid']
 
                 owner_mobile = terminal_info['owner_mobile']
@@ -239,7 +240,7 @@ class CheckTask(object):
                     # it's not time to notify
                     continue
 
-                terminal_info = QueryHelper.get_terminal_info(terminal.tid, self.db, self.redis)
+                terminal_info = QueryHelper.get_terminal_by_tid(terminal.tid, self.db)
                 tid = terminal['tid']
 
                 owner_mobile = terminal_info['owner_mobile']
@@ -327,7 +328,7 @@ if __name__ == '__main__':
     #check_charge()
     #offline_remind()
     #mileage_notify()
-    day_notify()
+    #day_notify()
 else: 
     try: 
         from celery.decorators import task 

@@ -15,7 +15,7 @@ from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
 from utils.public import (record_add_action, delete_terminal, add_terminal, 
-     add_user)
+     add_user, update_mannual_status)
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
@@ -334,7 +334,6 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             now_ = datetime.datetime.now()
             endtime = now_ + relativedelta(years=1)
             endtime = int(time.mktime(endtime.timetuple()))
-
 
             # 1: add terminal
             #umobile = data.umobile if data.umobile else self.current_user.cid

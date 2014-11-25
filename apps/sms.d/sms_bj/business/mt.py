@@ -63,10 +63,13 @@ class MT(object):
                     continue
                 if mt["nosign"]:
                     send_status, result = self.send_mt_nosign(id, msgid, mobile, content)  
+                                 send_status) 
+                                 result) 
 
                     result = eval(result)
                     if send_status["status"] == '200':
-                        if result["flag"] == "success":
+                        if result["resultCode"] == "0":
+                        #if result["flag"] == "success":
                             logging.info("SMS-->Gateway nosign message send successfully, mobile:%s, content:%s",
                                          mobile, content)
                             status = ErrorCode.SUCCESS
@@ -275,9 +278,13 @@ class MT(object):
             return status
         
     def send_mt_nosign(self, id, msgid, mobile, content):
+        """Send mt without sign to terminal.
+       
+        OpenAPI.
+        """
         url = 'http://120.197.89.173:8081/openapi/router'
         secret = '494e58f3a9808daea3bef94078563109'
-        # system_para
+        #NOTE: system_para
         appKey = 'j1baerwhjp'
         sessionId = ''
         method = 'sms.service.send'
@@ -286,12 +293,12 @@ class MT(object):
         locale = ''
         sign = ''  #upper()
         system_para_dict = dict(appKey=appKey,
-                            method=method,
-                            v=v,
-                            format=format,
-                            locale=locale,
-                            sessionId=sessionId,
-                            sign=sign)
+                                method=method,
+                                v=v,
+                                format=format,
+                                locale=locale,
+                                sessionId=sessionId,
+                                sign=sign)
 
         system_para_list = []
         business_para_list = []
@@ -301,11 +308,12 @@ class MT(object):
         if sessionId:
             system_para_list.append("sessionId"+sessionId)
 
-        #business_para
+        #NOTE: business_para, 4 items.
         phoneNumbers = mobile
         Content = content 
         EntCode = '106571205329'
         ReportId = msgid
+
         isImmediately = True  #lower
 
         business_para_list = ["phoneNumbers"+phoneNumbers, "Content"+Content, "EntCode"+EntCode, "ReportId"+str(ReportId), "isImmediately"+str(isImmediately)]
@@ -320,11 +328,14 @@ class MT(object):
         system_para_dict['sign'] = sign
         request_url = self.get_request_url(url, system_para_dict, business_para_dict)
 
-        h = httplib2.Http()
-        send_status, result = h.request(request_url)
-        return send_status, result
+        h = httplib2.Http(timeout=20) # second
+        response, content = h.request(request_url)
+        return response, content 
 
     def get_parameters_list(self, system_para_list, business_para_list):
+        """Generate a parameters_list according to system_para_list and business_para_list.
+        Mixin method.
+        """
         parameters_list = []
         parameters_list.extend(system_para_list)
         parameters_list.extend(business_para_list)
@@ -332,6 +343,9 @@ class MT(object):
         return parameters_list
 
     def get_sign(self, secret, parameters_list):
+        """Generate a sign with secret and parameters_list.
+        Mixin method.
+        """
         parameters_str = ''.join(parameters_list)
         str = secret + parameters_str + secret
 
@@ -342,6 +356,9 @@ class MT(object):
         return sign
 
     def get_request_url(self, url, system_para_dict, business_para_dict):
+        """Composar a full URL.
+        Mixin method.
+        """
         request_url_list = []
         request_url = url + "?"
         for k, v in system_para_dict.iteritems():

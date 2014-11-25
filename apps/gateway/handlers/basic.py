@@ -2,6 +2,7 @@
 
 import pika
 import json
+import logging
 
 
 from utils.misc import (get_terminal_address_key, get_lq_interval_key, get_resend_key)
@@ -14,6 +15,8 @@ from constants.GATEWAY import HEARTBEAT_INTERVAL, SLEEP_HEARTBEAT_INTERVAL
 def append_gw_request(request, connection, channel, exchange, gw_binding):
     """Append request to GW.
     """
+    #BIG NOTE: json.dumps may be change the python object's struck. :
+    # For list, and tuple in python will become array in json. (ip,port)-->[ip,port]
     message = json.dumps(request)
     # make message not persistent
     properties = pika.BasicProperties(delivery_mode=1,)

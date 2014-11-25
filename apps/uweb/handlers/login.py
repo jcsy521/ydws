@@ -748,8 +748,8 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
             push = dict(id='', 
                         key='') 
             t = int(time.time()) * 1000 
-            push_key = get_push_key(uid, t)
-            json_data = WSPushHelper.register(uid, t, push_key) 
+            wspush_key = get_push_key(uid, t)
+            json_data = WSPushHelper.register(uid, t, wspush_key) 
             data = json_data['data'] 
             if data: 
                 id = data.get('push_id', '') 

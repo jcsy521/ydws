@@ -44,7 +44,8 @@ def handle_config(info, address, connection, channel, exchange, gw_binding, db, 
                        use_scene="",
                        stop_interval="",
                        test="",
-                       gps_enhanced="")
+                       gps_enhanced="",
+                       tracking_interval="")
         sessionID = QueryHelper.get_terminal_sessionID(head.dev_id, redis)
         if sessionID != head.sessionID:
             args.success = GATEWAY.RESPONSE_STATUS.INVALID_SESSIONID 
@@ -53,7 +54,8 @@ def handle_config(info, address, connection, channel, exchange, gw_binding, db, 
             #TODO:
             terminal = db.get("SELECT track, freq, trace, mannual_status,"
                               "       trace_para, vibl, domain,"
-                              "       use_scene, stop_interval, test, gps_enhanced"
+                              "       use_scene, stop_interval, test,"
+                              "       gps_enhanced, tracking_interval"
                               "  FROM T_TERMINAL_INFO"
                               "  WHERE tid = %s", head.dev_id)
             args.domain = terminal.domain
@@ -63,6 +65,7 @@ def handle_config(info, address, connection, channel, exchange, gw_binding, db, 
             args.stop_interval = terminal.stop_interval
             args.test = terminal.test
             args.gps_enhanced = terminal.gps_enhanced
+            args.tracking_interval = terminal.tracking_interval
             if terminal.track == 1: # turn on track
                 args.trace_para = "60:1"
             else:

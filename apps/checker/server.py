@@ -104,7 +104,7 @@ def main():
         thread.start_new_thread(check_terminal_status, ())
         thread.start_new_thread(check_service, ())
         thread.start_new_thread(simulator_terminal, ())
-        thread.start_new_thread(simulator_terminal_test, ())
+        #thread.start_new_thread(simulator_terminal_test, ())
         thread.start_new_thread(check_db, ())
         while True:
             time.sleep(60)

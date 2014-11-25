@@ -55,9 +55,9 @@ class PacketTaskMixin(object):
         """ 
         current_time = int(time.time())
         if timestamp < current_time - 60*60*3: 
-            return False 
-            logging.info("[EVENTER] timestamp is invalid, timestamp: %s.", 
+            logging.info("[EVENTER] Timestamp is invalid, ignore it.  timestamp: %s.", 
                          timestamp)
+            return False 
         return True
 
     def check_region_event(self, ori_location, region): 
@@ -549,8 +549,12 @@ class PacketTaskMixin(object):
     def push_to_client(self, location):
         """Push information to weixin and wspush.
         """
-
-        flag = self.check_timestamp(int(location['timestamp']))
+        #NOTE: use timestamp first. If it does not work, use gps_time.
+        if location.get('timestamp',''):
+            timestamp = location['timestamp']
+        else:
+            timestamp = location['gps_time']
+        flag = self.check_timestamp(int(timestamp))
         if not flag: 
             return
 
@@ -615,7 +619,8 @@ class PacketTaskMixin(object):
     def handle_region(self, pvt):
         """Check single-event.
         """
-        regions = QueryHelper.get_regions(pvt['dev_id'], self.db)
+        tid = pvt['dev_id']
+        regions = QueryHelper.get_regions(tid, self.db)
         if regions:
             pvt = lbmphelper.handle_location(pvt, self.redis,
                                              cellid=True, db=self.db) 
@@ -627,7 +632,8 @@ class PacketTaskMixin(object):
     def handle_single(self, pvt):
         """Check single-event.
         """
-        singles = QueryHelper.get_singles(pvt['dev_id'], self.db)
+        tid = pvt['dev_id']
+        singles = QueryHelper.get_singles(tid, self.db)
     
         if singles:
             pvt = lbmphelper.handle_location(pvt, self.redis,
@@ -639,13 +645,14 @@ class PacketTaskMixin(object):
     def handle_speed(self, pvt):
         """Check the speed limit.
         """
+        tid = pvt['dev_id']
         terminal = self.db.get("SELECT speed_limit "
                                "  FROM T_TERMINAL_INFO "
                                "  WHERE tid = %s AND group_id != -1",
-                               location['dev_id']) 
+                               tid) 
         speed_limit = terminal.get('speed_limit', '') if terminal else ''
         if speed_limit:
-            speed_limit_key = get_speed_limit_key(pvt['dev_id'])
+            speed_limit_key = get_speed_limit_key(tid)
             if int(pvt['speed']) > speed_limit:
                 if self.redis.exists(speed_limit_key): 
                     logging.info("[EVENTER] speed_limit has reported, ignore it. pvt: %s", pvt) 
@@ -667,16 +674,17 @@ class PacketTaskMixin(object):
     def handle_mileage(self, pvt):
         """Check the mileage.
         """
-        flag = self.check_timestamp(int(pvt['timestamp']))
+        flag = self.check_timestamp(int(pvt['gps_time']))
         if not flag: 
             return
 
         #NOTE: record the mileage
-        mileage_key = get_mileage_key(pvt['dev_id'])
+        tid = pvt['dev_id']
+        mileage_key = get_mileage_key(tid)
         mileage = self.redis.getvalue(mileage_key)
         if not mileage:
             logging.info("[EVENTER] Tid: %s, init mileage. pvt: %s.",
-                          pvt['dev_id'], pvt)
+                          tid, pvt)
             mileage = dict(lat=pvt.get('lat'),
                            lon=pvt.get('lon'),
                            dis=0,
@@ -685,7 +693,7 @@ class PacketTaskMixin(object):
         else:
             if pvt['gps_time'] < mileage['gps_time']:
                 logging.info("[EVENTER] Tid: %s, gps_time: %s is less than mileage['gps_time']: %s, drop it. pvt: %s, mileage: %s", 
-                             pvt['dev_id'],
+                             tid,
                              pvt['gps_time'],
                              mileage['gps_time'], 
                              pvt, 
@@ -699,10 +707,10 @@ class PacketTaskMixin(object):
                 self.db.execute("UPDATE T_TERMINAL_INFO" 
                                 "  SET distance_current = %s"
                                 "  WHERE tid = %s",
-                                dis_current, pvt['dev_id'])
+                                dis_current, tid)
 
                 logging.info("[EVENTER] Tid: %s, distance: %s. pvt: %s.",
-                              pvt['dev_id'], dis_current, pvt)
+                              tid, dis_current, pvt)
 
                 mileage = dict(lat=pvt.get('lat'),
                                lon=pvt.get('lon'),
@@ -717,27 +725,27 @@ class PacketTaskMixin(object):
                 mileage_log = self.db.get("SELECT * FROM T_MILEAGE_LOG"
                                           "  WHERE tid = %s"
                                           "  AND timestamp = %s",
-                                          pvt['dev_id'], day_end_time)
+                                          tid, day_end_time)
                 if mileage_log:
                     dis_day = mileage_log['distance'] + dis
                 else:
                     self.db.execute("INSERT INTO T_MILEAGE_LOG(tid, timestamp)"
                                     "  VALUES(%s, %s)",
-                                    pvt['dev_id'], day_end_time)
+                                    tid, day_end_time)
                     dis_day = dis
 
                 self.db.execute("INSERT INTO T_MILEAGE_LOG(tid, distance, timestamp)"
                                 "  VALUES(%s, %s, %s)"
                                 "  ON DUPLICATE KEY"
                                 "  UPDATE distance=values(distance)",
-                                pvt['dev_id'], dis_day, day_end_time)
+                                tid, dis_day, day_end_time)
                 logging.info("[EVENTER] Tid: %s, dis_day: %s. pvt: %s.",
-                              pvt['dev_id'], dis_day, pvt)
+                              tid, dis_day, pvt)
 
     def handle_stop(self, pvt):
         """Handle the stop point.
         """
-        flag = self.check_timestamp(int(pvt['timestamp']))
+        flag = self.check_timestamp(int(pvt['gps_time']))
         if not flag: 
             return
 

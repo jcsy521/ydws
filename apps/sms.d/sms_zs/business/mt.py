@@ -79,7 +79,8 @@ class MT(object):
 
                 result = eval(result)
                 if send_status["status"] == '200':
-                    if result["flag"] == "success":
+                    if result["resultCode"] == "0":
+                    #if result["flag"] == "success":
                         logging.info("SMS-->Gateway nosign message send successfully, mobile:%s, content:%s",
                                      sms["mobile"], sms["content"])
                         status = ErrorCode.SUCCESS
