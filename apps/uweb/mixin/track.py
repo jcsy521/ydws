@@ -46,6 +46,7 @@ class TrackMixin(BaseMixin):
                                   "    GROUP BY timestamp"
                                   "    ORDER BY timestamp",
                                   tid, start_time, end_time)
+        track = get_locations_with_clatlon(track, self.db)
         #NOTE: handle the name 
         for t in track:
             if t['name'] is None:
