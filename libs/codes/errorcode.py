@@ -25,10 +25,11 @@ class ErrorCode(object):
     LOGIN_FAILED = 200
     LOGIN_AGAIN = 201
     WRONG_CAPTCHA = 202
-    WRONG_PASSWORD = 203 
-    WRONG_OLD_PASSWORD = 204
-    NO_CAPTCHA = 205
-    TEST_NOT_PERMITED = 206
+    WRONG_CAPTCHA_IMAGE = 203
+    WRONG_PASSWORD = 204 
+    WRONG_OLD_PASSWORD = 205
+    NO_CAPTCHA = 206
+    TEST_NOT_PERMITED = 207
 
     USER_NOT_ORDERED = 213 
     TERMINAL_NOT_ORDERED = 214
@@ -128,6 +129,7 @@ class ErrorCode(object):
         ILLEGAL_LABEL:                 u"对不起，只允许输入数字和字母。",
         ILLEGAL_FILE:                  u"文件导入失败，请检查导入文件。",
         WRONG_CAPTCHA:                 u"验证码输入错误。",
+        WRONG_CAPTCHA_IMAGE:           u"图形验证码输入错误。",
         WRONG_PASSWORD:                u"用户名或密码错误，请重新输入。",
         WRONG_OLD_PASSWORD:            u"当前密码错误，请重新输入。",
         NO_CAPTCHA:                    u"验证码已失效，请重新获取。",
