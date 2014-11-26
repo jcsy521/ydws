@@ -74,7 +74,8 @@ class MT(object):
     def send_sms(self, sms):
         try:
             status = ErrorCode.SUCCESS
-            if sms["nosign"]:
+            if True:# sms["nosign"]:
+            #if sms["nosign"]:
                 send_status, result = self.send_mt_nosign(sms["id"], sms["msgid"], sms["mobile"], sms["content"])
 
                 result = eval(result)

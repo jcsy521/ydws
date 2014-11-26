@@ -61,10 +61,8 @@ class MT(object):
                 if not mobile:
                     logging.error("[SMS] Mobile is missing, drop it. mt: %s", mt)
                     continue
-                if mt["nosign"]:
+                if True: #mt["nosign"]:
                     send_status, result = self.send_mt_nosign(id, msgid, mobile, content)  
-                                 send_status) 
-                                 result) 
 
                     result = eval(result)
                     if send_status["status"] == '200':
