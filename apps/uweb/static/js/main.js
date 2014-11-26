@@ -695,7 +695,7 @@ $(function () {
 						setTimeout(function() {
 							mapObj.setCenter(obj_current.getPosition());
 							if ( obj_current.infoWindow ) {
-								obj_current.closeInfoWindow();
+								dlf.fn_createMapInfoWindow($('.j_carList').data('carsData')[str_currentTid], 'actiontrack');
 								obj_current.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 							}
 							

@@ -49,8 +49,9 @@ $(function() {
 			var str_mobile = $('#txt_umobile').val(),
 				str_tmobile = $('#txt_tmobile').val(),
 				str_captcha = $('#captcha').val(),
+				str_Imgcaptcha = $('#txt_imgCaptcha').val(),
 				str_url = '/register',
-				obj_param = {'umobile': str_mobile, 'tmobile': str_tmobile, 'captcha': str_captcha};
+				obj_param = {'umobile': str_mobile, 'tmobile': str_tmobile, 'captcha': str_captcha, 'captcha_img': str_Imgcaptcha};
 			
 			$.post_(str_url, JSON.stringify(obj_param), function(data) {
 				if ( data.status == 0 ) {
@@ -152,9 +153,33 @@ $(function() {
 	$('#txt_tmobile').formValidator().inputValidator({min: 1, onError: '请输入定位器手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'定位器手机号格式不正确，请重新输入！'});
 	
 	$('#captcha').formValidator().inputValidator({min: 1, onError: '请输入验证码！'});
+	
+	$('#txt_imgCaptcha').formValidator().inputValidator({min: 1, onError: '请输入图片验证码！'});
 
 	$('#serviceTerms').formValidator().inputValidator({min: 1, onError: '请阅读并同意遵守服务条款！'}); 
+	
+	/**
+	* 验证码图片及hash值得设置
+	*/
+	var obj_captchaImg= $('#captchaimg');
+	
+	obj_captchaImg.click(function () {
+		fn_getCaptcha($(this));
+	});
+	$('#captchaimgRp').click(function () {
+		fn_getCaptcha(obj_captchaImg);
+	});
+	fn_getCaptcha(obj_captchaImg);
 });
+
+/**
+* 验证码图片及hash值得设置
+*/
+function fn_getCaptcha($obj) {
+	$obj.attr('src', '/captchaimage?nocache=' + Math.random()).load(function () {
+		//$('#captchahash').val($.cookie('captchahash'));
+	});
+}
 
 /**
 * 找回密码的读秒操作

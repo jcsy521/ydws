@@ -596,3 +596,10 @@ ie-dummy:expression(this.hideFocus=true);
 	display: inline-block;
     line-height: 46px;
 }
+#txt_imgCaptcha {
+	width: 106px;
+}
+#captchaimg {
+	position: relative;
+	top: 6px;
+}
