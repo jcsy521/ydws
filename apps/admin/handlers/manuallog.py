@@ -76,7 +76,6 @@ class ManualLogSearchHandler(BaseHandler, ManualLogMixin):
 
 
 class ManualLogDownloadHandler(BaseHandler, ManualLogMixin):
-    #TODO:
 
     @authenticated
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])

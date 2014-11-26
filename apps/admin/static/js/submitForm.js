@@ -8,6 +8,7 @@ $(function () {
 });
 //formSubmit start end 
 function formSubmit(option) {
+
 	var starttime = $('#start_time1').val()+' 00:00:00',
 		endtime = $('#end_time1').val()+' 23:59:59',
 		dailytime = $('#daily_time').val(), // daily

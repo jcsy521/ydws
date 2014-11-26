@@ -208,3 +208,53 @@ function fn_changeUserName(str_userType, str_oUser) {
 	});
 	
 }
+
+
+//删除终端的限制功能
+function fn_delTerminalLimit(mobile, ip) {
+	// 初始化dialog
+	$('#delLimitDialog').dialog({
+		autoOpen: true,
+		height: 200,
+		width: 350,
+		position: [300, 100],
+		modal: true,
+		resizable: false
+	});
+	
+	$('#delLimitMobile').html(mobile);
+	
+	$('#delLimitIp').html(ip);
+	
+	//保存
+	$('#delLimit_submit').unbind('click').click(function(e) {
+		var str_delck1 = $('#clearDataCk1').attr('checked'),
+			str_delck2 = $('#clearDataCk2').attr('checked'),
+			str_mobile = $('#delLimitMobile').html(),
+			str_ip = $('#delLimitIp').html(),
+			str_url = '/register/delete?umobile=';
+		
+		if ( str_delck1 ) {
+			str_url += ''+str_mobile;
+		}
+		if ( str_delck2 ) {
+			str_url += '&remote_ip='+str_ip;
+		}
+		str_url += '&flag=del';
+		
+		fn_lockScreen('删除操作进行中...');
+		$.get(str_url, function (data) {
+			fn_unLockScreen();
+			if ( data.status == 0 ) {
+				$('#delLimitDialog').dialog('close');
+			} else {
+				alert("删除失败。");
+			}
+		});
+	});
+	
+	//取消
+	$('#delLimit_cancel').unbind('click').click(function(e) {
+		$('#delLimitDialog').dialog('close');
+	});
+}

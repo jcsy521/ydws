@@ -164,7 +164,7 @@
 					{{business.bt_mac}}%
 				</td>
 				<td>
-                    <a href="#" onclick="businessDelete({{business['tmobile']}}, {{ business['umobile'] }})">删除</a>
+                    <a href="#" onclick="fn_delTerminal({{business['tmobile']}}, {{ business['umobile'] }})">删除</a>
                 </td>
                 <!--
                 <td>
@@ -231,6 +231,19 @@
 			</td>
 		</tr>
 	</table>
+</div>
+<!-- 删除终端 -->
+<div id="deluserDialog" title="删除终端" class="hide">
+	<div class="deluser_titleTip">
+		是否删除该用户？
+	</div>
+	<div class="deluser_isClear">
+		<input type="checkbox" id="clearDataCk" />清除历史数据
+	</div>
+	<div class="deluser_btn">
+		<input type="button" width="100" value="确定" id="deluser_submit" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+		<input type="button" width="100" value="取消" id="deluser_cancel" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+	</div>
 </div>
 {% else %}
 	<div class="ui-widget" align="center">

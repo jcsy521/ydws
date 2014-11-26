@@ -117,6 +117,44 @@ function businessDelete(tmobile, mobile, tempType) {
 		});
 	}
 }
+
+//删除终端处理
+function fn_delTerminal(tmobile, mobile, tempType) {
+	// 初始化dialog
+	$('#deluserDialog').dialog({
+		autoOpen: true,
+		height: 160,
+		width: 350,
+		position: [300, 100],
+		modal: true,
+		resizable: false
+	});
+	
+	//保存
+	$('#deluser_submit').unbind('click').click(function(e) {
+		var str_id = 'business' + tmobile, 
+			str_isClear = $('#clearDataCk').attr('checked') ? 1 : 0 ,
+			str_url = '/business/delete/' + tmobile + '/' + mobile +'/'+str_isClear, 
+			obj_pos = oTable.fnGetPosition(document.getElementById(str_id));
+		
+		fn_lockScreen('删除操作进行中...');
+		$.post(str_url, function (data) {
+			fn_unLockScreen();
+			if ( data.status == 0 ) {
+				oTable.fnDeleteRow(obj_pos);
+				$('#deluserDialog').dialog('close');
+			} else {
+				alert("删除失败。");
+			}
+		});
+	});
+	
+	//取消
+	$('#deluser_cancel').unbind('click').click(function(e) {
+		$('#deluserDialog').dialog('close');
+	});
+}
+
 // 短信重发
 function fn_smsReset(tmobile, mobile, obj_panel) {
 	var obj_data = {

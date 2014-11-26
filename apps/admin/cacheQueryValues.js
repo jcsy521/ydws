@@ -2,7 +2,7 @@
     *当页面点击查询按钮时，将查询条件保存到cacheDatas中
     *当程序将查询结果返回时，调用cacheDatas中存储的数据，填写到查询输入框中
 */
-function fn_PushData(obj, name) {
+function fn_PushData(obj,name) {
     if (obj) {
 		var element = parent.document.getElementById('cacheDatas'), 
 			idArr = obj.split(','), 

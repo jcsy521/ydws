@@ -5,7 +5,7 @@
 <script type="text/javascript">
 	fn_lockScreen();
 </script>
-
+<!-- Css  -->
 <link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
 <link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
 <script src="/static/js/jquery.dataTables.min.js"></script>
@@ -20,21 +20,21 @@
 <script type="text/javascript" src="/static/js/groupChoose.js"></script>
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
 <script type="text/javascript" src="/static/js/json2.js"></script>
-<!-- query for data -->
 <script type="text/javascript" src="/static/js/cacheQueryValues.js"></script>
 {% block body %}
 <fieldset class="ui-widget ui-widget-content ui-corner-all">
 	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-		<span class="ui-button-text">终端设防/撤防查询</span>
+		<span class="ui-button-text">终端里程提醒查询</span>
 	</legend>
     <form method="post" action="" id="formID" onsubmit="return formSubmit('search');">
+    <!-- TODO:　query fields -->
         <table  class="searchTable0">
 			<tr>
 				<td align="right">
 					<label>终端手机号：</label>
 					<input type="text" name="mobile" id="mobile" maxlength="11" />
 					<input type="submit" value="查询" 					    
-							onclick="fn_PushData('mobile', 'terminalmanuallog');" 
+							onclick="fn_PushData('mobile', 'terminalnotification');" 
 							class="ui-button ui-widget ui-state-default ui-corner-all ui-state-focus" 
 							role="button" aria-disabled="false" />
 				</td>
@@ -44,70 +44,137 @@
 </fieldset>
 <div class="resultQuery">
     <h3>查询结果</h3>
-    <a id="exportData" href="/download/manuallog/{{hash_}}" 
+	<!--TODO:
+    <a id="exportData" href="/download/notification/{{hash_}}" 
         class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
         <span class="ui-button-text">导出Excel</span>
 	</a>
+	-->
 </div>
 <table id="rDataTables" class="display">
     <thead>
-        <tr>
-            <th>定位器手机号</th>
-            <th>SN</th>
-            <th>车主手机号</th>
-            <th>集团手机号</th>
-            <th>组Id</th>
-            <th>操作时间</th>           
-            <th>操作类型</th>
-        </tr>
+        <tr id="colspanTH">
+		    <th rowspan="2">SN</th>
+            <th rowspan="2">车主号码</th>
+            <th rowspan="2">第二通知号</th>
+          	<th colspan="4">里程提醒</th> 
+			<th colspan="4">时间提醒</th>
+		</tr>
+		<tr>
+		    <th>当前里程(公里)</th>
+			<th>提醒里程(公里)</th>
+			<th>已提醒次数</th>
+			<th>剩余天数</th>
+			<th>当前时间</th>
+			<th>提醒时间</th>
+			<th>已提醒次数</th>		
+			<th>剩余天数</th>			
+		</tr>	
     </thead>
     <tbody>
-	{% for result in res %}
+	{{res}}
 		<tr>
-			<td>{{result['tmobile']}}</td>
-			<td>
-				{% if result['tid'] %}
-				    {{result['tid']}}
-				{% else %}
-                    __	
-				{% end %}
-			</td>
-			<td>
-				{% if result['umobile'] %}
-				    {{result['umobile']}}
-				{% else %}
-                    __	
-				{% end %}
-			</td>
-            <td>
-				{% if result['cid'] %}
-                    {{result['cid']}}
-				{% else %}
-				    __	
-				{% end %}
-			</td>			
-			<td>
-				{% if int(result['group_id']) == -1 %}
-				    __	
-				{% else %}
-                    {{result['group_id']}}
-				{% end %}
-			</td>			
-			<td><script>document.write(toHumanDate({{result['timestamp']}}, 'yes'));</script></td>
 		    <td>
-				{% if result['manual_status'] == 1 %}
-					强力设防
-				{% elif result['manual_status'] == 2 %}
-					智能设防
+				{% if res.get('tid',None) %}
+				    {{res.get('tid')}}
 				{% else %}
-					撤防
-				{% end %}
+                    __	
+				{% end %}				
 			</td>
+		    <td>
+				{% if res.get('owner_mobile',None) %}
+				    {{res.get('owner_mobile')}}
+				{% else %}
+                    __	
+				{% end %}
+				
+			</td>
+		<td>
+			
+				{% if res.get('assist_mobile',None) %}
+				    {{res.get('assist_mobile')}}
+				{% else %}
+                    __	
+				{% end %}
+				
+			</td>
+			   	<td>
+				{% if res.get('mileage',None) %}
+				    {{res['mileage']['distance_current']/1000}}
+				{% else %}
+                    __	
+				{% end %}				
+			</td>
+	    	<td>
+				{% if res.get('mileage',None) %}
+				    {{res['mileage']['distance_notification']/1000}}
+				{% else %}
+                    __	
+				{% end %}				
+			</td>
+			
+			<td>
+			
+				{% if res.get('mileage',None) %}
+				    {{res['mileage']['notify_count']}}
+				{% else %}
+                    __	
+				{% end %}
+				
+			</td>
+			<td>
+			
+				{% if res.get('mileage',None) %}
+				    {{res['mileage']['left_days']}}
+				{% else %}
+                    __	
+				{% end %}
+				
+			</td>
+			<!-- Day -->
+			 <td>
+			
+				{% if res.get('day',None) %}			
+					<script>document.write(toHumanDate({{res['day']['current_time']}}))</script>
+				{% else %}
+				    --
+				{%end%}					
+			</td>
+		    <td>
+			
+				{% if res.get('day',None) %}			
+					<script>document.write(toHumanDate({{res['day']['day_notification']}}))</script>
+				{% else %}
+				    --
+				{%end%}					
+			</td>
+			
+			<td>
+			
+				{% if res.get('day',None) %}
+				    {{res['day']['notify_count']}}
+					
+				{% else %}
+                    __	
+				{% end %}
+				
+			</td>
+			<td>
+			
+				{% if res.get('day',None) %}
+				    {{res['day']['left_days']}}
+				{% else %}
+                    __	
+				{% end %}
+				
+			</td>
+		
+	
 		</tr>
-    {% end %}
+
     </tbody>
 </table>
 <script type="text/javascript">
-    fn_PopData('terminalmanuallog');
+    fn_PopData('terminalnotification');
 </script>
 {% end %}

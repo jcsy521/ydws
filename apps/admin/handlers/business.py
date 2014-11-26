@@ -20,7 +20,8 @@ from checker import check_areas, check_privileges
 from codes.errorcode import ErrorCode 
 from utils.checker import check_sql_injection, check_zs_phone
 from utils.misc import (get_terminal_address_key, get_terminal_sessionID_key,
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, safe_unicode)
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key,
+     safe_unicode, get_del_data_key)
 from helpers.smshelper import SMSHelper
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
@@ -163,6 +164,7 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
             terminal_info = dict(tmobile=fields.tmobile,
                                  owner_mobile=user_mobile,
                                  begintime=fields.begintime,
+                                 offline_time=fields.begintime,
                                  endtime=4733481600, # 2120.1.1
                                  cnum=fields.cnum,
                                  ctype=fields.ctype,
@@ -488,13 +490,25 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
     @authenticated
     @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
-    def post(self, tmobile, pmobile):
+    def post(self, tmobile, pmobile, is_clear):
+        """Delete a terminal. 
+        
+        @param: tmobile // terminal's mobile
+        @param: pmobile // owner_mobile
+        @param: is_clear:　清除// 1: 清除历史数据; 0: 不清楚历史数据
+
+        """
         status = ErrorCode.SUCCESS
         try:
+
+
             terminal = self.db.get("SELECT id, login, mobile, tid FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s",
                                    tmobile)
             tid = terminal.tid
+            #NOTE: record whether clear history in redis
+            key = get_del_data_key(tid)
+            self.redis.set(key, is_clear)
             biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, self.db) 
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
                 if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE: # offline
