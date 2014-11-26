@@ -55,8 +55,9 @@ $(function(){
 	$('#btnGetPwd').click(function() {
 		var str_val = $('#mobile').val(),
 			str_captchaVal = $('#pwd_captcha').val(),
+			str_captchaImgVal = $('#txt_imgCaptcha').val(),
 			str_msg = '',
-			obj_param = {'mobile': str_val, 'captcha': str_captchaVal},
+			obj_param = {'mobile': str_val, 'captcha': str_captchaVal, 'captcha_psd': str_captchaImgVal},
 			str_userType = $('#userRoleType').val(),
 			str_url = PWD_URL;
 			
@@ -80,6 +81,11 @@ $(function(){
 				dlf.fn_jNotifyMessage('验证码不能为空。', 'message', false, 3000);
 				return;
 			}
+			//验证图片验证码
+			if ( str_captchaImgVal == '' ) {
+				dlf.fn_jNotifyMessage('图片验证码不能为空。', 'message', false, 3000);
+				return;
+			}
 			if ( n_seconds < 60 ) {	// 如果小于60 秒 不能发送
 				$('#btnGetCaptcha').attr('disabled',true);
 			} else {
@@ -101,7 +107,29 @@ $(function(){
 			});
 		}
 	});
+	
+	/**
+	* 验证码图片及hash值得设置
+	*/
+	var obj_captchaImg= $('#captchaimg');
+	
+	obj_captchaImg.click(function () {
+		fn_getCaptcha($(this));
+	});
+	$('#captchaimgRp').click(function () {
+		fn_getCaptcha(obj_captchaImg);
+	});
+	fn_getCaptcha(obj_captchaImg);
 });
+
+/**
+* 验证码图片及hash值得设置
+*/
+function fn_getCaptcha($obj) {
+	$obj.attr('src', '/captchapsd?nocache=' + Math.random()).load(function () {
+		//$('#captchahash').val($.cookie('captchahash'));
+	});
+}
 
 /**
 * 找回密码的读秒操作

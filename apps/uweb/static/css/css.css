@@ -2369,7 +2369,7 @@ body {
 	width: 730px;
 }
 #pwdBox .pwdCnt {
-	margin-top: 36px;
+	margin: 20px 0 20px 0;
 	text-align: center;
 }
 #tab_pwd {
@@ -2377,7 +2377,8 @@ body {
 	margin: 0 auto;
 }
 #tab_pwd td {
-	width: 270px;
+	width: 330px;
+	height: 35px;
 	text-align: left;
 }
 #tab_pwd .pwdTips {
@@ -2404,7 +2405,7 @@ body {
 	padding-top: 10px;
 	color: #999;
 }
-#mobile, #pwd_captcha {
+#mobile, #pwd_captcha, #txt_imgCaptcha {
 	height: 22px;
 	line-height: 22px;
 	padding-left: 5px;
@@ -2429,7 +2430,12 @@ body {
 }
 .pwdBackTrPanel {
 	display: block;
-	margin: 15px 0 0 87px;
+	margin: 20px 0 0 87px;
+}
+.pwdBackTrPanel #captchaimg {
+	width: 100px;
+	position: relative; 
+	top: 5px;
 }
 /*service terms start */
 .services {
