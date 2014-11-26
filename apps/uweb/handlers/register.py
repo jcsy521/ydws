@@ -4,6 +4,7 @@ import logging
 import random
 import string
 import time
+import hashlib
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
@@ -119,7 +120,17 @@ class RegisterHandler(BaseHandler):
             umobile = data.umobile            
             tmobile = data.tmobile            
             captcha = data.captcha         
-
+            captcha_image = data.captcha_img
+            captchahash = self.get_cookie("captchahash_image", "")
+            if captcha_image:
+                m = hashlib.md5()
+                m.update(captcha_image.lower())
+                hash_ = m.hexdigest()
+                if hash_.lower() != captchahash.lower():
+                    status = ErrorCode.WRONG_CAPTCHA_IMAGE
+                    self.write_ret(status)
+                    return
+        
             # check tmobile is whitelist or not
             white_list = check_zs_phone(tmobile, self.db)
             if not white_list:
