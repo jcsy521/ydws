@@ -89,9 +89,9 @@ class GetCaptchaHandler(BaseHandler):
                     captcha_key = get_captcha_key(mobile)
                     self.redis.setvalue(captcha_key, captcha, UWEB.SMS_CAPTCHA_INTERVAL)
 
-                    self.redis.set(umobile_key, umobile_times+1)  
+                    self.redis.set(umobile_key, umobile_times)  
                     self.redis.expireat(umobile_key, end_time_)  
-                    self.redis.set(remote_ip_key, remote_ip_times+1)  
+                    self.redis.set(remote_ip_key, remote_ip_times)  
                     self.redis.expireat(remote_ip_key, end_time_)  
 
                 else:
@@ -177,9 +177,9 @@ class GetCaptchaCorpHandler(BaseHandler):
                     captcha_key = get_captcha_key(mobile)
                     self.redis.setvalue(captcha_key, captcha, UWEB.SMS_CAPTCHA_INTERVAL)
 
-                    self.redis.set(umobile_key, umobile_times+1)  
+                    self.redis.set(umobile_key, umobile_times)  
                     self.redis.expireat(umobile_key, end_time_)  
-                    self.redis.set(remote_ip_key, remote_ip_times+1)  
+                    self.redis.set(remote_ip_key, remote_ip_times)  
                     self.redis.expireat(remote_ip_key, end_time_)  
                 else:
                     status = ErrorCode.SERVER_BUSY
