@@ -134,7 +134,7 @@ class BindLogDownloadHandler(BaseHandler, BindLogMixin):
                 del_time = result['del_time']
 
             ws.write(i, 0, i)
-            ws.write(i, 1, result['mobile'])
+            ws.write(i, 1, result['tmobile'])
             ws.write(i, 2, bind, style)
             if add_time == 0:
                 ws.write(i, 3, '')

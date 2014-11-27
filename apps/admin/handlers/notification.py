@@ -72,10 +72,15 @@ class NotificationSearchHandler(BaseHandler, NotificationMixin):
             mileage = self.db.get(mileage_cmd)
             day = self.db.get(day_cmd)
 
-            mileage=mileage if mileage else {} 
-            day=day if day else {}
-            mileage['distance_current'] = terminal['distance_current']
-            day['current_time'] = int(time.time()) 
+            if mileage:
+                mileage['distance_current'] = terminal['distance_current']
+            else: 
+                mileage = []
+
+            if day:
+                day['current_time'] = int(time.time()) 
+            else: 
+                day = []
 
             res = dict(tid=tid,
                        owner_mobile=terminal['owner_mobile'],
