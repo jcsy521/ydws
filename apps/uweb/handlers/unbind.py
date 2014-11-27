@@ -41,6 +41,12 @@ class UNBindHandler(BaseHandler, BaseMixin):
             return 
 
         try:
+            #NOTE:delete is not permited
+            status = ErrorCode.DELETE_NOT_PERMITED 
+            self.write_ret(status)
+            self.finish()
+            return
+
             terminal = self.db.get("SELECT id, tid, owner_mobile, login FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s"
                                    "    AND service_status = %s",

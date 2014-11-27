@@ -96,8 +96,10 @@ class PacketTask(PacketTaskMixin):
         # NOTE: For pvt(T11)
         elif location.Tid == EVENTER.TRIGGERID.PVT:
             #NOTE: get speed_limit  
-
-            for pvt in location['pvts']:
+            # make pvts sortd according gsp_time
+            pvts = sorted(location['pvts'], key=lambda x:x['gps_time'])
+            for pvt in pvts:
+            #for pvt in location['pvts']:
                 # The 'future time' is drop 
                 if pvt['gps_time'] > (current_time + 24*60*60):
                     logging.info("[EVENTER] The location's (gps_time - current_time) is more than 24 hours, so drop it:%s", pvt)
@@ -121,8 +123,7 @@ class PacketTask(PacketTaskMixin):
                 #NOTE: handle speed 
                 self.handle_speed(pvt)
 
-
-                #NOTE: the time of keep last_pvt is import.
+                #NOTE: the time of keep last_pvt is import. First check single, then keep pvt
                 last_pvt_key = get_last_pvt_key(location['dev_id'])
                 last_pvt = pvt 
                 self.redis.setvalue(last_pvt_key, last_pvt, time=EVENTER.STOP_EXPIRY)

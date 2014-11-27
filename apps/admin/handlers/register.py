@@ -114,5 +114,3 @@ class RegisterSearchHandler(BaseHandler, RegisterMixin):
             logging.exception("Search register for %s,it is does'\nt exists", umobile)
             self.render('errors/error.html', message=ErrorCode.FAILED)
 
-
-       _tmp_file.close()

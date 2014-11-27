@@ -181,7 +181,7 @@ class MyGWServer(RabbitMQMixin):
                         base = Base(db, self.redis, self.exchange, self.gw_binding, self.si_binding)
                         base.handle_packets_from_terminal(packets, address, connection, channel, name)
                     except Empty:
-                        logging.info("[GW] Thread%s queue empty.", name)
+                        #logging.info("[GW] Thread%s queue empty.", name)
                         time.sleep(0.1)
                     except GWException:
                         logging.exception("[GW] Thread%s handle packet Exception.", name) 

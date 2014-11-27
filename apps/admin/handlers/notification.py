@@ -94,6 +94,3 @@ class NotificationSearchHandler(BaseHandler, NotificationMixin):
         except Exception as e:
             logging.exception("Search manual log for %s,it is does'\nt exists", mobile)
             self.render('errors/error.html', message=ErrorCode.FAILED)
-
-
-       _tmp_file.close()
