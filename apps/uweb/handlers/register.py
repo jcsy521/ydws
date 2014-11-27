@@ -41,9 +41,7 @@ class RegisterHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
-            
             umobile = self.get_argument('umobile','')
-
             remote_ip = self.request.remote_ip
 
             remote_ip_key = "register_remote_ip:%s" % remote_ip 

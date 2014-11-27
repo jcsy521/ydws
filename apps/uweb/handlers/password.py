@@ -3,6 +3,7 @@
 import logging
 import time
 import random
+import hashlib
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
@@ -89,6 +90,17 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                 logging.error("[UWEB] User: %s is just for test, has no right to access the function.", 
                               data.mobile) 
                 self.write_ret(status) 
+                return
+
+            captcha_password= data.captcha_psd
+            captchahash = self.get_cookie("captchahash_password", "")
+
+            m = hashlib.md5()
+            m.update(captcha_password.lower())
+            hash_ = m.hexdigest()
+            if hash_.lower() != captchahash.lower():
+                status = ErrorCode.WRONG_CAPTCHA_IMAGE
+                self.write_ret(status)
                 return
 
             psd = get_psd()                        
