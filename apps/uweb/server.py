@@ -37,7 +37,7 @@ from utils.misc import get_static_hash
 from helpers.confhelper import ConfHelper
 from constants.MEMCACHED import ALIVED
 
-from handlers.captcha import CaptchaHandler, CaptchaSmsHandler, CaptchaImageHandler
+from handlers.captcha import CaptchaHandler, CaptchaSmsHandler, CaptchaImageHandler, CaptchaPasswordHandler
 from handlers.login import LoginHandler, LogoutHandler, LoginTestHandler, IOSHandler, IOSLogoutHandler, IOSLoginTestHandler, AndroidHandler, AndroidLogoutHandler, AndroidLoginTestHandler
 from handlers.checkupdate import CheckUpdateAndroidHandler, CheckUpdateIOSHandler
 from handlers.car import SwitchCarHandler
@@ -144,6 +144,7 @@ class Application(tornado.web.Application):
             (r"/captcha", CaptchaHandler),
             (r"/captchasms", CaptchaSmsHandler),
             (r"/captchaimage", CaptchaImageHandler),
+            (r"/captchapsd", CaptchaPasswordHandler),
             (r"/logout/*", LogoutHandler),
             (r"/switchcar/(\S+)/*", SwitchCarHandler),
             (r"/wakeup/*", WakeupHandler),
