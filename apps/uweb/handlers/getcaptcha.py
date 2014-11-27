@@ -55,10 +55,10 @@ class GetCaptchaHandler(BaseHandler):
                 umobile_times = self.redis.getvalue(umobile_key)  
     
                 if remote_ip_times is None:
-                    remote_ip_times = 1
+                    remote_ip_times = 0 
     
                 if umobile_times is None:
-                    umobile_times = 1
+                    umobile_times = 0 
     
                 logging.info("[UWEB] Register. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s",
                              umobile, umobile_times, remote_ip, remote_ip_times)
@@ -69,9 +69,9 @@ class GetCaptchaHandler(BaseHandler):
                 year, month, day = date.year, date.month, date.day
                 start_time_, end_time_ = start_end_of_day(year=year, month=month, day=day)
         
-                if umobile_times > 3: # <= 3 is ok
+                if umobile_times >= 3: # <= 3 is ok
                     status = ErrorCode.REGISTER_EXCESS
-                if remote_ip_times > 10: # <= 10 is ok
+                if remote_ip_times >= 10: # <= 10 is ok
                     status = ErrorCode.REGISTER_EXCESS
 
                 if status == ErrorCode.REGISTER_EXCESS:
@@ -89,9 +89,9 @@ class GetCaptchaHandler(BaseHandler):
                     captcha_key = get_captcha_key(mobile)
                     self.redis.setvalue(captcha_key, captcha, UWEB.SMS_CAPTCHA_INTERVAL)
 
-                    self.redis.set(umobile_key, umobile_times)  
+                    self.redis.set(umobile_key, umobile_times+1)  
                     self.redis.expireat(umobile_key, end_time_)  
-                    self.redis.set(remote_ip_key, remote_ip_times)  
+                    self.redis.set(remote_ip_key, remote_ip_times+1)  
                     self.redis.expireat(remote_ip_key, end_time_)  
 
                 else:
@@ -143,10 +143,10 @@ class GetCaptchaCorpHandler(BaseHandler):
                 umobile_times = self.redis.getvalue(umobile_key)  
     
                 if remote_ip_times is None:
-                    remote_ip_times = 1
+                    remote_ip_times = 0 
     
                 if umobile_times is None:
-                    umobile_times = 1
+                    umobile_times = 0 
     
                 logging.info("[UWEB] Register. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s",
                              umobile, umobile_times, remote_ip, remote_ip_times)
@@ -157,9 +157,9 @@ class GetCaptchaCorpHandler(BaseHandler):
                 year, month, day = date.year, date.month, date.day
                 start_time_, end_time_ = start_end_of_day(year=year, month=month, day=day)
         
-                if umobile_times > 3: # <= 3 is ok
+                if umobile_times >= 3: # <= 3 is ok
                     status = ErrorCode.REGISTER_EXCESS
-                if remote_ip_times > 10: # <= 10 is ok
+                if remote_ip_times >= 10: # <= 10 is ok
                     status = ErrorCode.REGISTER_EXCESS
 
                 if status == ErrorCode.REGISTER_EXCESS:
@@ -177,9 +177,9 @@ class GetCaptchaCorpHandler(BaseHandler):
                     captcha_key = get_captcha_key(mobile)
                     self.redis.setvalue(captcha_key, captcha, UWEB.SMS_CAPTCHA_INTERVAL)
 
-                    self.redis.set(umobile_key, umobile_times)  
+                    self.redis.set(umobile_key, umobile_times+1)  
                     self.redis.expireat(umobile_key, end_time_)  
-                    self.redis.set(remote_ip_key, remote_ip_times)  
+                    self.redis.set(remote_ip_key, remote_ip_times+1)  
                     self.redis.expireat(remote_ip_key, end_time_)  
                 else:
                     status = ErrorCode.SERVER_BUSY
