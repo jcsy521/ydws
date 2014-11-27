@@ -95,8 +95,8 @@ $(function () {
 				if ( data.status == 0) {
 					var obj_pushData = data.wspush;
 					
-					$('#push_key').html(obj_pushData.key);
-					$('#push_id').html(obj_pushData.id);
+					$('#push_key').val(obj_pushData.key);
+					$('#push_id').val(obj_pushData.id);
 					
 					dlf.fn_initPushServices();
 				} else if ( data.status == 403 || data.status == 24 ) {

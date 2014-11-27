@@ -247,11 +247,21 @@ dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		if ( str_tempTid == str_currentTid ) {
 			dlf.fn_loadBaiduShare();
 		}
-	} else { 
-		if ( b_corpRegionST || b_bindBatchRegionWpST || b_regionCreateWpST || b_corpRegionWpST ) {	
-			dlf.fn_addMarker(obj_carInfo, 'region', str_tid); // 添加标记
+	} else { 		
+		if ( dlf.fn_userType() ) {
+			if ( $('#leafNode_'+str_tid).attr('class').search('jstree-checked') != -1 ) {			
+				if ( b_corpRegionST || b_bindBatchRegionWpST || b_regionCreateWpST || b_corpRegionWpST ) {	
+					dlf.fn_addMarker(obj_carInfo, 'region', str_tid); // 添加标记
+				} else {
+					dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid); // 添加标记
+				}
+			}
 		} else {
-			dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid); // 添加标记
+			if ( b_corpRegionST || b_bindBatchRegionWpST || b_regionCreateWpST || b_corpRegionWpST ) {	
+				dlf.fn_addMarker(obj_carInfo, 'region', str_tid); // 添加标记
+			} else {
+				dlf.fn_addMarker(obj_carInfo, 'actiontrack', str_tid); // 添加标记
+			}
 		}
 	}
 	
