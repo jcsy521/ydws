@@ -42,7 +42,8 @@ function fn_validCookie() {
 * 验证手机号是否合法
 */
 function fn_validMobile(str_mobile) {
-	var MOBILEREG = /^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/;
+	var MOBILEREG = /^[0-9]{11}$/;
+	// var MOBILEREG = /^(\+86){0,1}1(3[0-9]|5[012356789]|8[023456789]|47)\d{8}$/;
 	
 	if ( str_mobile == '' ) {
 		alert('请输入用户手机号！');
