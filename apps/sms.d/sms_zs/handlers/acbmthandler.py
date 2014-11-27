@@ -20,7 +20,7 @@ class ACBMTHandler(BaseHandler):
         try:
             content = self.get_argument("content")
             mobile = self.get_argument("mobile")
-            nosign = self.get_argumnet("nosign")
+            nosign = self.get_argumnet("nosign", 1)
             if str(mobile) == '13432119832':
                 logging.info("[SMS] special mobile: %s, check huanka", mobile)
                 if u'换卡' in content:

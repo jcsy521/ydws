@@ -20,7 +20,7 @@ class ACBMTHandler(BaseHandler):
         try:
             content = self.get_argument("content")
             mobile = self.get_argument("mobile")
-            nosign = self.get_argument("nosign")
+            nosign = self.get_argument("nosign", 1)
             logging.info("[SMS] mobile = %s,  content = %s, nosign:%s", mobile, content, nosign)
             if mobile.startswith('20000'): # test trackers
                 logging.info("[SMS] %s starts with 20000, so skip the sms.", mobile)
