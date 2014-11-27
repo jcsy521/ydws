@@ -258,3 +258,51 @@ function fn_delTerminalLimit(mobile, ip) {
 		$('#delLimitDialog').dialog('close');
 	});
 }
+
+//终端参数编辑功能
+function fn_editTerminalSetting(mobile, str_setKey, str_setVal) {
+	// 初始化dialog
+	$('#editTerminalSettingDialog').dialog({
+		autoOpen: true,
+		height: 200,
+		width: 350,
+		position: [300, 100],
+		modal: true,
+		resizable: false
+	});
+	
+	$('#terminalset_mobile').html(mobile);	
+	$('#terminalset_setKey').html(str_setKey);
+	$('#terminalset_setVal').val('');
+	
+	//保存
+	$('#editerminal_submit').unbind('click').click(function(e) {
+		var str_mobile = $('#terminalset_mobile').html(),
+			str_setKey = $('#terminalset_setKey').html(),
+			str_setVal = $('#terminalset_setVal').val(),
+			obj_setPost = {'tmobile': str_mobile, 'key': str_setKey, 'value': str_setVal};
+			
+		
+		fn_lockScreen('操作进行中...');
+		$.ajax({ 
+				url: '/setting', 
+				type: 'PUT',
+				dataType: 'json', 
+				data: JSON.stringify(obj_setPost),
+				success: function(data){
+					fn_unLockScreen();
+					if ( data.status == 0 ) {
+						alert("修改成功。");
+						$('#editTerminalSettingDialog').dialog('close');
+					} else {
+						alert("操作失败。");
+					}
+				}
+		});
+	});
+	
+	//取消
+	$('#editerminal_cancel').unbind('click').click(function(e) {
+		$('#editTerminalSettingDialog').dialog('close');
+	});
+}

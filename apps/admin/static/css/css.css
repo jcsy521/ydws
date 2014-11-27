@@ -1001,3 +1001,7 @@ tfoot {
 	padding-left: 100px;
 	line-height: 30px;
 }
+#editTerminalSettingDialog {
+	padding-left: 46px;
+	line-height: 38px;
+}
