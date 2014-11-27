@@ -451,7 +451,7 @@ def get_group_info_by_tid(db, tid):
     group_info = {'group_id':-1, 'group_name':''}
 
     group = db.query("SELECT T_GROUP.id as group_id, T_GROUP.name as group_name FROM T_TERMINAL_INFO,T_GROUP"
-                    " WHERE T_TERMINAL_INFO.group_id = T_GROUP.id and tid = %s", tid)
+                     "  WHERE T_TERMINAL_INFO.group_id = T_GROUP.id and tid = %s", tid)
     if group:
         group_info=group[0]
 
