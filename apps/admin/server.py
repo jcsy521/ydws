@@ -67,7 +67,7 @@ from handlers.bindlog import BindLogSearchHandler, BindLogDownloadHandler
 from handlers.manuallog import ManualLogSearchHandler, ManualLogDownloadHandler
 from handlers.notification import NotificationSearchHandler
 from handlers.register import RegisterSearchHandler, RegisterClearHandler
-#from handlers.register import SettingHandler
+from handlers.setting import SettingHandler
 from handlers.ownerservice import OwnerServiceHandler, OwnerServiceDownloadHandler
 # ajt
 from handlers.whitelist_ajt import WhitelistAJTHandler, WhitelistAJTSearchHandler, WhitelistAJTBatchImportHandler,WhitelistAJTBatchAddHandler
@@ -128,6 +128,7 @@ class Application(tornado.web.Application):
 			(r"/notification/*", NotificationSearchHandler),
 			(r"/register/*", RegisterSearchHandler),
 			(r"/register/delete/*", RegisterClearHandler),
+			(r"/setting/*", SettingHandler),
             (r"/location/*", LocationSearchHandler),
             (r"/ownerservice/*", OwnerServiceHandler),
             (r"/testsms/*", TestSMSHandler),
