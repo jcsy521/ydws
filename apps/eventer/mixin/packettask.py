@@ -563,7 +563,7 @@ class PacketTaskMixin(object):
         body = dict(tid=tid,
                     category=location['category'], 
                     type=location['type'], 
-                    timestamp=location.get('timestamp',0),
+                    timestamp=timestamp,
                     latitude=location.get('lat',0),
                     longitude=location.get('lon',0),
                     clatitude=location.get('cLat',0),

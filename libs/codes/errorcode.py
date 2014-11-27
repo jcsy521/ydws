@@ -30,6 +30,7 @@ class ErrorCode(object):
     WRONG_OLD_PASSWORD = 205
     NO_CAPTCHA = 206
     TEST_NOT_PERMITED = 207
+    DELETE_NOT_PERMITED = 207
 
     USER_NOT_ORDERED = 213 
     TERMINAL_NOT_ORDERED = 214
@@ -136,6 +137,7 @@ class ErrorCode(object):
         LOGIN_FAILED:                  u"用户名或密码输入错误。",
         LOGIN_AGAIN:                   u"业务信息发生变更，请重新登录。",
         TEST_NOT_PERMITED:             u"对不起，该账号是体验账号，不能使用该功能。",
+        DELETE_NOT_PERMITED:           u"对不起，解绑功能暂不提供，如有需要，请联系客服人员。",
         USER_NOT_ORDERED:              u"对不起, 该号码尚未订购移动卫士业务。",
         TRACK_POINTS_TOO_MUCH:         u"对不起，您的网速太慢，数据太多了，请缩小查询范围。",
         USER_NOT_EXIST:                u"对不起，当前用户不存在。",
