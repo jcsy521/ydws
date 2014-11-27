@@ -168,7 +168,8 @@ class WSPushHelper(object):
             for terminal in terminals:
                 t = QueryHelper.get_terminal_info(terminal['tid'], db, redis) 
                 dct = dict(tid=terminal['tid'],
-                           biz_type=t['biz_type'])
+                           biz_type=t.get('biz_type',0))
+                           #biz_type=t['biz_type'])
                 tids.append(dct)
             
             res.append(dict(group_id=group['id'],
@@ -196,18 +197,25 @@ class WSPushHelper(object):
         """
 
         res = [] 
-        corp = db.get("SELECT * FROM V_TERMINAL where tid = %s",
-                      tid) 
-        if corp:
-            terminals = db.query("SELECT tid FROM V_TERMINAL WHERE cid= %s",
-                                  corp['cid'])
-            for terminal in terminals:
-                t = QueryHelper.get_terminal_info(terminal['tid'], db, redis) 
-                res.append(dict(tid=terminal['tid'],
-                                biz_type=t['biz_type'],
-                                login_status=t['login']))
-        else:
-            res = []
+
+        t = QueryHelper.get_terminal_info(tid, db, redis) 
+        if t:
+            res.append(dict(tid=tid,
+                            biz_type=t.get('biz_type',0),
+                            #biz_type=t['biz_type'],
+                            login_status=t['login']))
+        #corp = db.get("SELECT * FROM V_TERMINAL where tid = %s",
+        #              tid) 
+        #if corp:
+        #    terminals = db.query("SELECT tid FROM V_TERMINAL WHERE cid= %s",
+        #                          corp['cid'])
+        #    for terminal in terminals:
+        #        t = QueryHelper.get_terminal_info(terminal['tid'], db, redis) 
+        #        res.append(dict(tid=terminal['tid'],
+        #                        biz_type=t['biz_type'],
+        #                        login_status=t['login']))
+        #else:
+        #    res = []
 
         packet = dict(packet_type="S4",
                       res=res)
@@ -242,7 +250,7 @@ class WSPushHelper(object):
         """
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
-        body['biz_type'] = terminal['biz_type']
+        body['biz_type'] = terminal.get('biz_type',0)
 
         res.append(body)
 
@@ -268,7 +276,8 @@ class WSPushHelper(object):
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
         packet=dict(tid=tid,
-                    biz_type=terminal['biz_type'],
+                    biz_type=terminal.get('biz_type',0),
+                    #biz_type=terminal['biz_type'],
                     gps=terminal['gps'],
                     gsm=terminal['gsm'],
                     pbat=terminal['pbat'])
@@ -296,7 +305,8 @@ class WSPushHelper(object):
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
         packet=dict(tid=tid,
-                    biz_type=terminal['biz_type'],
+                    biz_type=terminal.get('biz_type',0),
+                    #biz_type=terminal['biz_type'],
                     alias=terminal['alias'],
                     icon_type=terminal['icon_type'],
                     owner_mobile=terminal['owner_mobile'],
