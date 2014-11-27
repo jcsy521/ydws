@@ -13,7 +13,7 @@ from utils.public import update_terminal_info
             
 from constants import EVENTER, GATEWAY, UWEB, SMS
 
-from utils.misc import get_acc_status_info_key
+from utils.misc import get_acc_status_info_key, get_resend_key
 
 from handlers.basic import append_gw_request, get_resend_flag
 
@@ -28,12 +28,10 @@ def handle_runtime(info, address, connection, channel, exchange, gw_binding, db,
     1: invalid SessionID
     """
     try:
-        resend_key, resend_key = get_resend_key(dev_id, head.timestamp, head.command)
         head = info.head
         body = info.body
         dev_id = head.dev_id
-
-        resend_flag = get_resend_flag(redis, dev_id, head.timestamp, head.command) 
+        resend_key, resend_key = get_resend_flag(redis, dev_id, head.timestamp, head.command)
         if len(body) == 3:
             body.append('-1')
             body.append('0')
