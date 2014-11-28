@@ -124,6 +124,7 @@
     </thead>
 		
     <tbody id="adminTbody">
+  
 	{% for business in businesses %}
             <tr id="business{{business['tmobile']}}" >
 				<td>{{ business['seq'] }}</td>
@@ -158,10 +159,10 @@
 				    <script>document.write(toHumanDate({{business.begintime}}, 'yes'));</script>
 				</td>
 				<td>
-					{{business.bt_name}}%
+					{{business.get('bt_name','__')}}
 				</td>
 				<td>
-					{{business.bt_mac}}%
+					{{business.get('bt_mac','__')}}
 				</td>
 				<td>
                     <a href="#" onclick="fn_delTerminal({{business['tmobile']}}, {{ business['umobile'] }})">删除</a>
