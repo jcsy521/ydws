@@ -5,8 +5,6 @@ import logging
 from clw.packet.parser.locationdesc import LocationDescParser
 from clw.packet.composer.locationdesc import LocationDescRespComposer
 
-from error import GWException
-
 from helpers.queryhelper import QueryHelper
 
 from error import GWException
@@ -117,4 +115,4 @@ def handle_locationdesc(info, address, connection, channel, exchange, gw_binding
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle locationdesc exception.")
-        raise GWException
+        GWException().notify()

@@ -193,4 +193,4 @@ class Base(object):
                 logging.exception("[GW] Invalid command: %s.", head.command)
         except:
             logging.exception("[GW] Handle SI message exception.")
-            raise GWException
+            GWException().notify()

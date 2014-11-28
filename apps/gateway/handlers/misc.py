@@ -9,7 +9,6 @@ from clw.packet.composer.misc import MiscComposer
 
 from helpers.queryhelper import QueryHelper
             
-from error import GWException
 from utils.dotdict import DotDict
 from utils.public import update_terminal_info
             
@@ -60,4 +59,4 @@ def handle_misc(info, address, connection, channel, exchange, gw_binding, db, re
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle misc report exception.")
-        raise GWException
+        GWException().notify()

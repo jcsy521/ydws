@@ -47,7 +47,7 @@ def handle_fob_info(info, address, connection, channel, exchange, gw_binding, db
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle fob info report exception.")
-        raise GWException
+        GWException().notify()
 
 def handle_fob_status(info, address, connection, channel, exchange, gw_binding, db, redis):
     """
@@ -90,5 +90,4 @@ def handle_fob_status(info, address, connection, channel, exchange, gw_binding, 
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle fob status report exception.")
-        raise GWException
-    
+        GWException().notify()

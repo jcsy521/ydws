@@ -13,7 +13,7 @@ class GWException(Exception):
         self.emails= ('boliang.guan@dbjtech.com', 
                       'zhaoxia.guo@dbjtech.com', 
                       'xiaolei.jia@dbjtech.com',)
-        self.notify()
+        #self.notify()
 
     def notify(self):
         content = SMSCode.SMS_GW_ERROR_REPORT % ConfHelper.UWEB_CONF.url_out

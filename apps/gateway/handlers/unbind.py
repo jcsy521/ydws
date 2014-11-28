@@ -53,4 +53,4 @@ def handle_unbind_status(info, address, connection, channel, exchange, gw_bindin
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle unbind status report exception.")
-        raise GWException
+        GWException().notify()

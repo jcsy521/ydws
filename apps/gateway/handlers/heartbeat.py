@@ -98,7 +98,6 @@ def handle_heartbeat(info, address, connection, channel, exchange, gw_binding,db
                           address=address,
                           dev_id=dev_id)
         append_gw_request(request, connection, channel, exchange, gw_binding)
-    except Exception as e:
-        logging.exception("[GW] Hand heartbeat failed. Exception: %s.", 
-                          e.args)
-        raise GWException 
+    except:
+        logging.exception("[GW] Hand heartbeat failed.")
+        GWException().notify()

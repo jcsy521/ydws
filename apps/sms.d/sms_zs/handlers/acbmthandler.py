@@ -20,8 +20,8 @@ class ACBMTHandler(BaseHandler):
         try:
             content = self.get_argument("content")
             mobile = self.get_argument("mobile")
-            nosign = self.get_argumnet("nosign", 1)
-            if str(mobile) == '13432119832':
+            nosign = self.get_argument("nosign", 1)
+            if str(mobile) in ('13432119832', '13808009288'):
                 logging.info("[SMS] special mobile: %s, check huanka", mobile)
                 if u'换卡' in content:
                     logging.info("[SMS] mobile: %s, content: %s is in black list, so skip the sms.", mobile, content)

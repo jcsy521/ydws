@@ -85,6 +85,7 @@ def handle_login(info, address, connection, channel, exchange, gw_binding, db, r
         item = softversion.split(".")
         new_softversion = True
 
+
         if int(item[0]) > 2:
             new_softversion = True
         elif int(item[0]) == 2:
@@ -109,7 +110,6 @@ def handle_login(info, address, connection, channel, exchange, gw_binding, db, r
         ttype = get_terminal_type_by_tid(t_info['dev_id'])
         logging.info("[GW] Terminal %s 's type  is %s", t_info['dev_id'], ttype)
 
-    except:
-        logging.exception("[GW] Handle login exception.")
-        raise GWException
-
+    except Exception as e:
+        logging.exception("[GW] Handle login exception:%s.", e.args)
+        GWException().notify()

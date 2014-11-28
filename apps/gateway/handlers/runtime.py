@@ -6,16 +6,18 @@ from clw.packet.parser.async import AsyncParser
 from clw.packet.composer.runtime import RuntimeRespComposer
 
 from helpers.queryhelper import QueryHelper
+from helpers.smshelper import SMSHelper
 
 from error import GWException
 from utils.dotdict import DotDict
 from utils.public import update_terminal_info
+from codes.smscode import SMSCode
             
 from constants import EVENTER, GATEWAY, UWEB, SMS
 
 from utils.misc import get_acc_status_info_key, get_resend_key
 
-from handlers.basic import append_gw_request, get_resend_flag
+from handlers.basic import append_gw_request, get_resend_flag, update_terminal_status
 
 def handle_runtime(info, address, connection, channel, exchange, gw_binding, db, redis):
     """
@@ -31,7 +33,7 @@ def handle_runtime(info, address, connection, channel, exchange, gw_binding, db,
         head = info.head
         body = info.body
         dev_id = head.dev_id
-        resend_key, resend_key = get_resend_flag(redis, dev_id, head.timestamp, head.command)
+        resend_key, resend_flag = get_resend_flag(redis, dev_id, head.timestamp, head.command)
         if len(body) == 3:
             body.append('-1')
             body.append('0')
@@ -66,7 +68,6 @@ def handle_runtime(info, address, connection, channel, exchange, gw_binding, db,
 
                 is_send = int(runtime_info['is_send'])
                 if is_send:
-                    terminal_info_key = get_terminal_info_key(head.dev_id) 
                     terminal_info = QueryHelper.get_terminal_info(head.dev_id, db, redis)
                     alias = QueryHelper.get_alias_by_tid(head.dev_id, redis, db)
                     communication_staus = u'正常'
@@ -123,4 +124,4 @@ def handle_runtime(info, address, connection, channel, exchange, gw_binding, db,
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle runtime status report exception.")
-        raise GWException
+        GWException().notify()

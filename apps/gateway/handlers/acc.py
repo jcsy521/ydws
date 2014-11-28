@@ -5,6 +5,9 @@ import logging
 from clw.packet.parser.acc_status import ACCStatusParser
 from clw.packet.composer.acc_status import ACCStatusComposer
 
+from clw.packet.parser.acc_status_report import ACCStatusReportParser
+from clw.packet.composer.acc_status_report import ACCStatusReportComposer
+
 from helpers.queryhelper import QueryHelper
 from helpers.wspushhelper import WSPushHelper
             
@@ -60,7 +63,7 @@ def handle_acc_status(info, address, connection, channel, exchange, gw_binding, 
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle acc status exception.")
-        raise GWException
+        GWException().notify()
 
 def handle_acc_status_report(info, address, connection, channel, exchange, gw_binding, db, redis):
     """
@@ -95,5 +98,4 @@ def handle_acc_status_report(info, address, connection, channel, exchange, gw_bi
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle acc status report exception.")
-        raise GWException
-
+        GWException().notify()

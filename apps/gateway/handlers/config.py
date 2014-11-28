@@ -97,5 +97,5 @@ def handle_config(info, address, connection, channel, exchange, gw_binding, db, 
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Hand query config exception.")
-        raise GWException
+        GWException().notify()
 

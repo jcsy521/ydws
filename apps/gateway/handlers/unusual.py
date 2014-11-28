@@ -57,4 +57,4 @@ def handle_unusual(info, address, connection, channel, exchange, gw_binding, db,
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Hand unusual activate report exception.")
-        raise GWException
+        GWException().notify()

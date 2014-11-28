@@ -11,6 +11,10 @@ import hashlib
 import httplib2
 from urllib import urlencode
 
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 site.addsitedir(os.path.join(TOP_DIR_, "apps/sms"))

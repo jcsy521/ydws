@@ -75,6 +75,6 @@ def handle_sleep(info, address, connection, channel, exchange, gw_binding, db, r
         append_gw_request(request, connection, channel, exchange, gw_binding)
     except:
         logging.exception("[GW] Handle sleep status report exception.")
-        raise GWException
+        GWException().notify()
     
     
