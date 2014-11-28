@@ -142,7 +142,7 @@ $(function() {
 			return;
 		}
 		
-		$.get_('/register?umobile='+str_mobile+'&captcha_img='+str_Imgcaptcha, '', function(data) {
+		$.get_('/register?umobile='+str_mobile+'&tmobile='+str_tmobile+'&captcha_img='+str_Imgcaptcha, '', function(data) {
 			if ( data.status == 0 ) {
 				//  倒计时1分钟 同时 按钮不可用
 				dlf.fn_jNotifyMessage('验证码发送到您的手机，请在5分钟内激活。', 'message', false, 5000);

@@ -101,7 +101,9 @@ $(function(){
 			$.post_(str_url, JSON.stringify(obj_param) , function(data) {
 				if ( data.status == 0 ) { 
 					
-					$('#mobile, #pwd_captcha').val('');
+					$('#mobile, #pwd_captcha, #txt_imgCaptcha').val('');
+					$('#captchaimg').click();
+					
 					$('#btnGetPwd').attr('disabled', 'disabled');
 					str_msg = '您的密码已发送成功，请注意查收。';
 				} else {
