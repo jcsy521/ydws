@@ -598,6 +598,7 @@ ie-dummy:expression(this.hideFocus=true);
 }
 #txt_imgCaptcha {
 	width: 106px;
+	color: #000;
 }
 #captchaimg {
 	position: relative;

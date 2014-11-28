@@ -7,8 +7,9 @@ $(function(){
 	$('#pwd_captcha').val('');
 	// 找回密码获取验证码
 	$('#btnGetCaptcha').click(function() {
-		var str_val = $('#mobile').val(),
-			obj_param = {'mobile': str_val},
+		var str_val = $.trim($('#mobile').val()),
+			str_captchaImgVal = $.trim($('#txt_imgCaptcha').val()),
+			obj_param = {'mobile': str_val, 'captcha_psd': str_captchaImgVal},
 			str_updateTime = $('#flashTimeText').html(),
 			str_userType = $('#userRoleType').val(),
 			str_url = PWD_CAPCHA_URL;
@@ -20,6 +21,17 @@ $(function(){
 			dlf.fn_jNotifyMessage('请稍后获取。', 'message', false, 3000);
 			return;
 		}
+		
+		//验证图形验证码
+		if ( str_captchaImgVal == '' ) {
+			dlf.fn_jNotifyMessage('图形验证码不能为空。', 'message', false, 3000);
+			return;
+		}
+		if ( str_captchaImgVal.length < 4 ) {
+			dlf.fn_jNotifyMessage('请输入正确的图形验证码', 'message', false, 3000);
+			return;
+		}
+			
 		
 		if ( str_val == '' || str_val == null ) {	// 车主手机号不为空验证格式
 			dlf.fn_jNotifyMessage('手机号码不能为空。', 'message', false, 3000);
@@ -57,7 +69,7 @@ $(function(){
 			str_captchaVal = $('#pwd_captcha').val(),
 			str_captchaImgVal = $('#txt_imgCaptcha').val(),
 			str_msg = '',
-			obj_param = {'mobile': str_val, 'captcha': str_captchaVal, 'captcha_psd': str_captchaImgVal},
+			obj_param = {'mobile': str_val, 'captcha': str_captchaVal},
 			str_userType = $('#userRoleType').val(),
 			str_url = PWD_URL;
 			
@@ -79,11 +91,6 @@ $(function(){
 			//验证验证码
 			if ( str_captchaVal == '' ) {
 				dlf.fn_jNotifyMessage('验证码不能为空。', 'message', false, 3000);
-				return;
-			}
-			//验证图片验证码
-			if ( str_captchaImgVal == '' ) {
-				dlf.fn_jNotifyMessage('图片验证码不能为空。', 'message', false, 3000);
 				return;
 			}
 			if ( n_seconds < 60 ) {	// 如果小于60 秒 不能发送
@@ -109,7 +116,7 @@ $(function(){
 	});
 	
 	/**
-	* 验证码图片及hash值得设置
+	* 验证码图形及hash值得设置
 	*/
 	var obj_captchaImg= $('#captchaimg');
 	
@@ -123,7 +130,7 @@ $(function(){
 });
 
 /**
-* 验证码图片及hash值得设置
+* 验证码图形及hash值得设置
 */
 function fn_getCaptcha($obj) {
 	$obj.attr('src', '/captchapsd?nocache=' + Math.random()).load(function () {

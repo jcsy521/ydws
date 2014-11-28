@@ -51,7 +51,7 @@ $(function() {
 				str_captcha = $('#captcha').val(),
 				str_Imgcaptcha = $('#txt_imgCaptcha').val(),
 				str_url = '/register',
-				obj_param = {'umobile': str_mobile, 'tmobile': str_tmobile, 'captcha': str_captcha, 'captcha_img': str_Imgcaptcha};
+				obj_param = {'umobile': str_mobile, 'tmobile': str_tmobile, 'captcha': str_captcha};
 			
 			$.post_(str_url, JSON.stringify(obj_param), function(data) {
 				if ( data.status == 0 ) {
@@ -95,7 +95,8 @@ $(function() {
 			obj_captcha = $('#captcha'),
 			b_flag  = $('#mobileTip .onError').is(":visible"),
 			b_tmobile = $('#txt_tmobile').data('isvalid');
-			n_seconds = parseInt($('#flashTimeText').html());
+			n_seconds = parseInt($('#flashTimeText').html()),
+			str_Imgcaptcha = $.trim($('#txt_imgCaptcha').val());
 		
 		obj_mobile.parent().addClass('focus');
 		obj_mobile.focus();
@@ -105,7 +106,18 @@ $(function() {
 			return;
 		} else {
 			obj_captchaBtn.removeAttr('disabled');
-		}
+		}		
+		
+		if ( str_Imgcaptcha == '' ) {
+			dlf.fn_jNotifyMessage('请输入图形验证码', 'error', false, 3000);
+			$('#txt_imgCaptcha').focus();
+			return;
+		} else if ( str_Imgcaptcha.length < 4 ) {
+			dlf.fn_jNotifyMessage('请输入正确的图形验证码', 'error', false, 3000);
+			$('#txt_imgCaptcha').focus();
+			return;
+		}		
+		
 		if ( str_mobile == '' ) {  
 			dlf.fn_jNotifyMessage('请输入用户手机号！', 'error', false, 3000);
 			obj_mobile.focus();
@@ -130,8 +142,7 @@ $(function() {
 			return;
 		}
 		
-		
-		$.get_('/register?umobile='+str_mobile, '', function(data) {
+		$.get_('/register?umobile='+str_mobile+'&captcha_img='+str_Imgcaptcha, '', function(data) {
 			if ( data.status == 0 ) {
 				//  倒计时1分钟 同时 按钮不可用
 				dlf.fn_jNotifyMessage('验证码发送到您的手机，请在5分钟内激活。', 'message', false, 5000);
@@ -140,6 +151,9 @@ $(function() {
 				obj_captcha.parent().addClass('focus');
 				obj_captcha.focus();
 			} else {
+				if ( data.status == 203 ) {
+					$('#txt_imgCaptcha').focus();
+				}
 				dlf.fn_jNotifyMessage(data.message, 'error', false, 3000);
 			}
 		}, 
@@ -153,8 +167,6 @@ $(function() {
 	$('#txt_tmobile').formValidator().inputValidator({min: 1, onError: '请输入定位器手机号！'}).regexValidator({regExp: 'mobile', dataType: 'enum', onError:'定位器手机号格式不正确，请重新输入！'});
 	
 	$('#captcha').formValidator().inputValidator({min: 1, onError: '请输入验证码！'});
-	
-	$('#txt_imgCaptcha').formValidator().inputValidator({min: 1, onError: '请输入图片验证码！'});
 
 	$('#serviceTerms').formValidator().inputValidator({min: 1, onError: '请阅读并同意遵守服务条款！'}); 
 	
