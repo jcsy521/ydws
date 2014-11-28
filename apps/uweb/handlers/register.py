@@ -153,6 +153,7 @@ class RegisterHandler(BaseHandler):
         try:
             umobile = data.umobile            
             tmobile = data.tmobile            
+            captcha = data.captcha
 
             #NOTE: do not need check captcha-image
             #captcha = data.captcha         

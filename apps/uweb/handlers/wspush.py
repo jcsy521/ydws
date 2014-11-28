@@ -26,6 +26,7 @@ class WSPushHandler(BaseHandler):
         try:
             #NOTE:  get_uid
             uid = self.current_user.uid
+            logging.info("Get push account request from uid:%s", uid)
             wspush = dict(id='',
                           key='')
 
