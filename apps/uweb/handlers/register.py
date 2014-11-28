@@ -51,13 +51,13 @@ class RegisterHandler(BaseHandler):
             captchahash = self.get_cookie("captchahash_image", "")
 
             logging.info("[UWEB] Get captcha-sms request. umobile:%s, tmobile: %s, captcha_img: %s", 
-                         umobile, tmobile, captcha_img)
+                         umobile, tmobile, captcha_image)
 
             #NOTE: check captcha-sms for brower
             from_brower = True 
             if self.request.headers.get('User-Agent',None):
                 user_agent = self.request.headers.get('User-Agent').lower()
-                if re.search('android', user_agent) or re.search('ios', user_agent):
+                if re.search('android', user_agent) or re.search('iphone', user_agent):
                     logging.info("[UWEB] Come from client, do not check captcha-image")
                     from_brower = False 
 

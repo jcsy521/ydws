@@ -49,7 +49,7 @@ class GetCaptchaHandler(BaseHandler):
             from_brower = True 
             if self.request.headers.get('User-Agent',None):
                 user_agent = self.request.headers.get('User-Agent').lower()
-                if re.search('android', user_agent) or re.search('ios', user_agent):
+                if re.search('android', user_agent) or re.search('iphone', user_agent):
                     logging.info("[UWEB] Come from client, do not check captcha-image")
                     from_brower = False 
 
@@ -151,7 +151,7 @@ class GetCaptchaCorpHandler(BaseHandler):
             from_brower = True 
             if self.request.headers.get('User-Agent',None):
                 user_agent = self.request.headers.get('User-Agent').lower()
-                if re.search('android', user_agent) or re.search('ios', user_agent):
+                if re.search('android', user_agent) or re.search('iphone', user_agent):
                     logging.info("[UWEB] Come from client, do not check captcha-image")
                     from_brower = False 
 
