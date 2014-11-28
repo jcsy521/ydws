@@ -4,6 +4,8 @@ import logging
 import time
 import random
 import string
+import hashlib
+import re
 
 from tornado.escape import json_decode
 import tornado.web
@@ -39,6 +41,27 @@ class GetCaptchaHandler(BaseHandler):
                               data.mobile) 
                 self.write_ret(status) 
                 return
+
+            captcha_psd = data.get('captcha_psd','')
+            captchahash = self.get_cookie("captchahash_password", "")
+
+            #NOTE: check captcha-sms for brower
+            from_brower = True 
+            if self.request.headers.get('User-Agent',None):
+                user_agent = self.request.headers.get('User-Agent').lower()
+                if re.search('android', user_agent) or re.search('ios', user_agent):
+                    logging.info("[UWEB] Come from client, do not check captcha-image")
+                    from_brower = False 
+
+            if from_brower:
+                m = hashlib.md5()
+                m.update(captcha_psd.lower())
+                hash_ = m.hexdigest()
+                if hash_.lower() != captchahash.lower():
+                    status = ErrorCode.WRONG_CAPTCHA_IMAGE
+                    logging.info("[UWEB] Come from browser, captcha-check failed.")
+                    self.write_ret(status)
+                    return
 
             mobile = data.mobile
             umobile = data.mobile
@@ -102,7 +125,7 @@ class GetCaptchaHandler(BaseHandler):
                 logging.error("[UWEB] user uid: %s does not exist, get captcha failed.", mobile)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] user uid: %s retrieve password failed.  Exception: %s", mobile, e.args)
+            logging.exception("[UWEB] user uid: %s retrieve password failed. Exception: %s", mobile, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -121,6 +144,27 @@ class GetCaptchaCorpHandler(BaseHandler):
             return 
 
         try:
+            captcha_psd = data.get('captcha_psd','')
+            captchahash = self.get_cookie("captchahash_password", "")
+
+            #NOTE: check captcha-sms for brower
+            from_brower = True 
+            if self.request.headers.get('User-Agent',None):
+                user_agent = self.request.headers.get('User-Agent').lower()
+                if re.search('android', user_agent) or re.search('ios', user_agent):
+                    logging.info("[UWEB] Come from client, do not check captcha-image")
+                    from_brower = False 
+
+            if from_brower:
+                m = hashlib.md5()
+                m.update(captcha_psd.lower())
+                hash_ = m.hexdigest()
+                if hash_.lower() != captchahash.lower():
+                    status = ErrorCode.WRONG_CAPTCHA_IMAGE
+                    logging.info("[UWEB] Come from browser, captcha-check failed.")
+                    self.write_ret(status)
+                    return
+
             mobile = data.mobile
             umobile = data.mobile
             user = self.db.get("SELECT mobile"

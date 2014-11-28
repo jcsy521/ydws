@@ -5,6 +5,7 @@ import random
 import string
 import time
 import hashlib
+import re
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
@@ -41,9 +42,45 @@ class RegisterHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
+
             umobile = self.get_argument('umobile','')
+            tmobile = self.get_argument('tmobile','')
             remote_ip = self.request.remote_ip
 
+            captcha_image = self.get_argument('captcha_img','')
+            captchahash = self.get_cookie("captchahash_image", "")
+
+            logging.info("[UWEB] Get captcha-sms request. umobile:%s, tmobile: %s, captcha_img: %s", 
+                         umobile, tmobile, captcha_img)
+
+            #NOTE: check captcha-sms for brower
+            from_brower = True 
+            if self.request.headers.get('User-Agent',None):
+                user_agent = self.request.headers.get('User-Agent').lower()
+                if re.search('android', user_agent) or re.search('ios', user_agent):
+                    logging.info("[UWEB] Come from client, do not check captcha-image")
+                    from_brower = False 
+
+            if from_brower:
+                m = hashlib.md5()
+                m.update(captcha_image.lower())
+                hash_ = m.hexdigest()
+                if hash_.lower() != captchahash.lower():
+                    status = ErrorCode.WRONG_CAPTCHA_IMAGE
+                    logging.info("[UWEB] Come from browser, captcha-check failed.")
+                    self.write_ret(status)
+                    return
+
+            # check tmobile is whitelist or not
+            white_list = check_zs_phone(tmobile, self.db)
+            if not white_list:
+                logging.info("[UWEB] %s is not whitelist", tmobile)
+                status = ErrorCode.MOBILE_NOT_ORDERED
+                message = ErrorCode.ERROR_MESSAGE[status] % tmobile
+                self.write_ret(status, message=message)
+                return
+
+            #NOTE: check times
             remote_ip_key = "register_remote_ip:%s" % remote_ip 
             umobile_key = "register_umobile:%s" % umobile
             remote_ip_times = self.redis.getvalue(remote_ip_key)  
@@ -57,7 +94,6 @@ class RegisterHandler(BaseHandler):
 
             logging.info("[UWEB] Register. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s",
                          umobile, umobile_times, remote_ip, remote_ip_times)
-
 
             #NOTE: In current day, the same remote_ip allows 10 times, the umobile, 3 times
             current_time = int(time.time())
@@ -117,17 +153,19 @@ class RegisterHandler(BaseHandler):
         try:
             umobile = data.umobile            
             tmobile = data.tmobile            
-            captcha = data.captcha         
-            captcha_image = data.captcha_img
-            captchahash = self.get_cookie("captchahash_image", "")
-            if captcha_image:
-                m = hashlib.md5()
-                m.update(captcha_image.lower())
-                hash_ = m.hexdigest()
-                if hash_.lower() != captchahash.lower():
-                    status = ErrorCode.WRONG_CAPTCHA_IMAGE
-                    self.write_ret(status)
-                    return
+
+            #NOTE: do not need check captcha-image
+            #captcha = data.captcha         
+            #captcha_image = data.captcha_img
+            #captchahash = self.get_cookie("captchahash_image", "")
+            #if captcha_image:
+            #    m = hashlib.md5()
+            #    m.update(captcha_image.lower())
+            #    hash_ = m.hexdigest()
+            #    if hash_.lower() != captchahash.lower():
+            #        status = ErrorCode.WRONG_CAPTCHA_IMAGE
+            #        self.write_ret(status)
+            #        return
         
             # check tmobile is whitelist or not
             white_list = check_zs_phone(tmobile, self.db)

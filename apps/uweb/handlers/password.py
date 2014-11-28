@@ -92,16 +92,16 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                 self.write_ret(status) 
                 return
 
-            captcha_password= data.captcha_psd
-            captchahash = self.get_cookie("captchahash_password", "")
-
-            m = hashlib.md5()
-            m.update(captcha_password.lower())
-            hash_ = m.hexdigest()
-            if hash_.lower() != captchahash.lower():
-                status = ErrorCode.WRONG_CAPTCHA_IMAGE
-                self.write_ret(status)
-                return
+            #NOTE: do not need check captcha-image
+            #captcha_password= data.captcha_psd
+            #captchahash = self.get_cookie("captchahash_password", "")
+            #m = hashlib.md5()
+            #m.update(captcha_password.lower())
+            #hash_ = m.hexdigest()
+            #if hash_.lower() != captchahash.lower():
+            #    status = ErrorCode.WRONG_CAPTCHA_IMAGE
+            #    self.write_ret(status)
+            #    return
 
             psd = get_psd()                        
             user = self.db.get("SELECT mobile"
