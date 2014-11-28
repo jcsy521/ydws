@@ -375,7 +375,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			
 			$('#delayTable').height($('#delayTable').height()-60).css({'margin-top': 60});
 			$('#delayTable').data('m60', true);
-			if ( arr_trackQueryData.length > 2 ) {
+			if ( arr_trackQueryData.length > 0 ) {
 				fn_exportDelayPoints(arr_trackQueryData, 'delay');
 			}
 			
@@ -388,7 +388,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 		} else { //以停留形式显示数据
 			$('.j_delay').data('delayPoints', arr_trackQueryData);
 			
-			if ( arr_trackQueryData.length > 2 ) {
+			if ( arr_trackQueryData.length > 0 ) {
 				fn_exportDelayPoints(arr_trackQueryData, 'delay');
 			}
 			fn_startDrawLineStatic([], false);
@@ -503,7 +503,7 @@ function fn_dealTrackDatas (b_masspointFlag, data, obj_locusDate) {
 			$('#delayTable').html(str_html);
 			dlf.fn_calTrackMileageIsBr(); // 计算里程部分是否要换行显示
 			
-			if ( arr_trackQueryData.length > 0 ) {
+			if ( arr_trackDatas.length > 0 ) {
 				$('#delayTable').css('height', $('#delayTable').height()+60);	
 				fn_exportDelayPoints(arr_trackQueryData, 'trackDay');
 			}
