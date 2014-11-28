@@ -210,7 +210,7 @@ class PacketTask(PacketTaskMixin):
                                  info['dev_id'], info['rName'])
                     return
             
-        if info['rName'] in [EVENTER.RNAME.POWERDOWN,]:
+        if info['rName'] in [EVENTER.RNAME.POWERDOWN, EVENTER.RNAME.POWERLOW]:
             # if alert_freq_key is exists,return
             alert_freq_key = get_alert_freq_key(report.dev_id + info['rName'])
             alert_freq = QueryHelper.get_alert_freq_by_tid(info['dev_id'], self.db)
