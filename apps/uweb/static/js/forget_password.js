@@ -2,7 +2,12 @@ var obj_updateTimeInterval =null;	// 找回密码倒数计时
 $(function(){
 	$('#jNotifyMessage').css('top', 50);
 	$('#mobile').val('').keyup(function(e) {
-		$('#btnGetCaptcha').removeAttr('disabled');
+	
+		if ( $('#flashTimeText').html() != '' ) {	// 如果小于60 秒 不能发送
+			$('#btnGetCaptcha').attr('disabled',true);
+		} else {
+			$('#btnGetCaptcha').removeAttr('disabled');
+		}
 	});
 	$('#pwd_captcha').val('');
 	// 找回密码获取验证码
