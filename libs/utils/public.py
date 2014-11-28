@@ -305,7 +305,7 @@ def add_terminal(terminal, db, redis):
     @param: db
     @param: redis
     """
-    if terminal['tid']: 
+    if terminal.get('tid',''): 
         tid = terminal['tid']
     else:
         tid = terminal['tmobile']
@@ -337,9 +337,9 @@ def add_terminal(terminal, db, redis):
                terminal.get('stop_interval',0), terminal.get('distance_current',0))
     
     #add car tnum --> cnum
-    car = db.get("SELECT id FROM T_CAR WHERE tid= %s", terminal['tid'])
+    car = db.get("SELECT id FROM T_CAR WHERE tid= %s", tid)
     if car:
-        db.execute("DELETE FROM T_CAR WHERE tid = %s", terminal['tid'])
+        db.execute("DELETE FROM T_CAR WHERE tid = %s", tid)
     
     db.execute("INSERT INTO T_CAR(tid, cnum, type, color, brand)"
                "  VALUES(%s, %s, %s, %s, %s)",
