@@ -6,10 +6,11 @@ from clw.packet.parser.async import AsyncParser
 from clw.packet.composer.async import AsyncRespComposer
 
 from helpers.queryhelper import QueryHelper
+from helpers.smshelper import SMSHelper
 
 from error import GWException
 from utils.dotdict import DotDict
-from utils.public import update_terminal_info
+from utils.public import update_terminal_info, update_mannual_status
 from codes.smscode import SMSCode
             
 from constants import EVENTER, GATEWAY, UWEB, SMS
@@ -61,7 +62,7 @@ def handle_defend(info, address, connection, channel, exchange, gw_binding, db, 
                             SMSHelper.send(user.owner_mobile, sms)
                     del defend_info['defend_status']
                 del defend_info['defend_source']
-                update_mannual_status(db, redis, head.dev_id, update_mannual_status)
+                update_mannual_status(db, redis, head.dev_id, defend_info['mannual_status'])
             update_terminal_status(redis, head.dev_id, address)
 
         if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 

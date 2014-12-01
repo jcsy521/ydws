@@ -12,7 +12,7 @@ from helpers.queryhelper import QueryHelper
 
 from error import GWException
 from utils.dotdict import DotDict
-from utils.public import update_terminal_info, delete_terminal
+from utils.public import update_terminal_info, delete_terminal_new, clear_data
             
 from constants import EVENTER, GATEWAY, UWEB, SMS
 
@@ -42,9 +42,9 @@ def handle_unbind_status(info, address, connection, channel, exchange, gw_bindin
         ap = AsyncParser(body, head)
         info = ap.ret 
         flag = info['flag']
-        delete_terminal(dev_id, db, redis)
+        delete_terminal_new(dev_id, db, redis)
         if int(flag) == 1: # clear historical data
-            clear_data(head.dev_id, db)
+            clear_data(head.dev_id, db, redis)
 
         hc = AsyncRespComposer(args)
         request = DotDict(packet=hc.buf,
