@@ -136,26 +136,28 @@ $(function () {
 					obj_selfMarker = obj_selfmarkers[str_tempPushTid],
 					obj_leftTerminal = $('#leaf_'+str_tempPushTid);
 				
-				if ( n_tempPushLoginSt == 1 ) {
-					n_onlineCnt++;
-					n_offlineCnt--;
-				} else {
-					n_onlineCnt--;
-					n_offlineCnt++;
-				}
-				obj_leftTerminal.attr('clogin', n_tempPushLoginSt);
-				dlf.fn_updateTerminalLogin(obj_leftTerminal);
-				if ( obj_selfMarker ) {
-					var n_carTimestamp = obj_terminalData.timestamp,
-						n_degree = obj_terminalData.degree,
-						n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
-						n_speed = obj_terminalData.speed;
+				if ( obj_terminalData.login != n_tempPushLoginSt ) {
+					if ( n_tempPushLoginSt == 1 ) {
+						n_onlineCnt++;
+						n_offlineCnt--;
+					} else {
+						n_onlineCnt--;
+						n_offlineCnt++;
+					}
+					obj_leftTerminal.attr('clogin', n_tempPushLoginSt);
+					dlf.fn_updateTerminalLogin(obj_leftTerminal);
+					if ( obj_selfMarker ) {
+						var n_carTimestamp = obj_terminalData.timestamp,
+							n_degree = obj_terminalData.degree,
+							n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
+							n_speed = obj_terminalData.speed;
 
-					// 设置marker的icon						
-					dlf.fn_setMarkerTraceIcon(n_imgDegree, obj_terminalData.icon_type, n_tempPushLoginSt, obj_selfMarker, n_carTimestamp, n_speed);
+						// 设置marker的icon						
+						dlf.fn_setMarkerTraceIcon(n_imgDegree, obj_terminalData.icon_type, n_tempPushLoginSt, obj_selfMarker, n_carTimestamp, n_speed);
+					}
+					obj_terminalData.login = n_tempPushLoginSt;
+					obj_carDatas[str_tempPushTid] = obj_terminalData;
 				}
-				obj_terminalData.login = n_tempPushLoginSt;
-				obj_carDatas[str_tempPushTid] = obj_terminalData;
 			}
 			$('.j_carList').data('carsData', obj_carDatas);
 			if ( n_onlineCnt < 0 ) { n_onlineCnt = 0; }
