@@ -24,6 +24,7 @@ from helpers.smshelper import SMSHelper
 from helpers.emailhelper import EmailHelper 
 from helpers.lbmphelper import get_latlon_from_cellid
 from helpers.queryhelper import QueryHelper
+from helpers.wspushhelper import WSPushHelper
 from helpers.confhelper import ConfHelper
 
 if not 'conf' in options:
@@ -113,6 +114,10 @@ class CheckTerminalStatus(object):
     def heartbeat_lost_report(self, tid):
         """Recort the heartbeat-lost event and remind the associated staff.
         """
+        #NOTE: wspush to client 
+        WSPushHelper.pushS4(tid, self.db, self.redis)
+
+
         timestamp = int(time.time())
         rname = EVENTER.RNAME.HEARTBEAT_LOST
         category = EVENTER.CATEGORY[rname]
