@@ -33,12 +33,16 @@ $(function () {
 		socketCon = io.connect(str_basePushUrl, {'query': str_pushUrl, 'force new connection': true});
 		
 		//侦听服务
-		socketCon.on('api/resp', function(data) {
-            //TODO:
-		    var obj_pushData = JSON.parse(data),
-			//var obj_pushData = data,
-				str_packetType = obj_pushData.packet_type;
+		socketCon.on('api/resp', function(data) {	
+			//console.log('firsr push log:  ',data,typeof(data));
+		    //var obj_pushData = JSON.parse(data),
+			var obj_pushData = data,
+				str_packetType = '';//obj_pushData.packet_type;
 			
+			if ( typeof(obj_pushData) == 'string' ) {
+				obj_pushData = JSON.parse(data);
+			}
+			str_packetType = obj_pushData.packet_type;
 			//console.log('push log:   ',typeof(obj_pushData),str_packetType,obj_pushData);
 			switch (str_packetType) {
 				case 'S3':
