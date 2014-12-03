@@ -26,7 +26,9 @@ from helpers.queryhelper import QueryHelper
 class WSPushHelper(object):
 
     @staticmethod
-    def register(uid, t, key):
+    def register(uid, t, key, redis):
+        """Core method. 
+        """
         json_data = dict(data=dict(push_id='dummy',
                                    psd='dummy'))
         try:
@@ -45,6 +47,8 @@ class WSPushHelper(object):
                     json_data = json_decode(content)
                     if json_data['status_code'] == 200:
                         logging.info("[WSPUSH] Push register uid:%s successfully, response:%s", uid, json_data)
+                        #NOTE: keep the account in redis.
+                        redis.setvalue('wspush_registered:%s'%uid, True, 60*60*24)
                     else:
                         logging.error("[WSPUSH] Push register uid:%s failed!", uid)
                 else:
@@ -58,9 +62,16 @@ class WSPushHelper(object):
             return json_data
 
     @staticmethod
-    def push(uid, t, key, packet, message="", badge=""):
+    def push(uid, t, key, packet, redis, message="", badge=""):
+        """Core method. 
+        """
         json_data = None
         try:
+            is_registered = redis.getvalue('wspush_registered:%s'%uid)
+            if not is_registered:
+                logging.info("[WSPUSH] Uid has not registered, ignore it. uid: %s", uid)
+                return json_data
+            
             url = ConfHelper.PUSH_CONF.push_url
             http = httplib2.Http(timeout=3, disable_ssl_certificate_validation=True)
             data = dict(uid=uid,
@@ -91,6 +102,15 @@ class WSPushHelper(object):
             return json_data
 
     @staticmethod
+    def register_wspush(uid, redis):
+        """Register account in WSpush. 
+        """
+        t = int(time.time()) * 1000
+        key = get_push_key(uid, t)
+        res = WSPushHelper.register(uid, t, key, redis)
+        return res
+
+    @staticmethod
     def push_packet(tid, packet, db, redis, t_info=None):
         """Push packet to tid.
 
@@ -119,7 +139,7 @@ class WSPushHelper(object):
 
         for item in set(lst):
             push_key = get_push_key(item, t)
-            res = WSPushHelper.push(item, t, push_key, packet)
+            res = WSPushHelper.push(item, t, push_key, packet, redis)
 
 
     @staticmethod
@@ -334,7 +354,6 @@ class WSPushHelper(object):
         packet = dict(packet_type="S8",
                       res=res)
         res = WSPushHelper.push_packet(tid, packet, db, redis)
-
 
 if __name__ == '__main__':
     ConfHelper.load('../../conf/global.conf')

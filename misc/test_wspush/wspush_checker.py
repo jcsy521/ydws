@@ -43,9 +43,9 @@ class WsPush(Test):
         start_time = time.time()
         t = int(time.time()) * 1000
         push_key = get_push_key(self.uid, t)
-        res = WSPushHelper.register(self.uid, t, push_key)
+        res = WSPushHelper.register(self.uid, t, push_key, self.redis)
         end_time = time.time()
-        print "register time: %s" % (end_time - start_time)
+        print "register time used: %s" % (end_time - start_time)
         print res
         return res
 
@@ -64,10 +64,12 @@ class WsPush(Test):
 
         for item in set(lst):
             push_key = get_push_key(item, t)
-            res = WSPushHelper.push(item, t, push_key, packet, badge="")
+            res = WSPushHelper.push(item, t, push_key, packet, self.redis, badge="")
             end_time = time.time()
             #print "push time: %s" % (end_time - start_time)
             #print res
+
+        print "push time used: %s" % (end_time - start_time)
         return res
 
     def pushS3(self, category):
@@ -227,6 +229,10 @@ def send(content, mobile):
     logging.info("Response: %s", response)
 
 def send_sms():
+    # test 
+
+    print '[wspush-checer] wspush failed'
+    return
 
     redis = MyRedis()
     key = 'wspush_alarm'
@@ -255,14 +261,14 @@ def test_wspush():
         if (not res) or (res['status_code'] != 200):
             send_sms()
 
-        res = ps.pushS3(5)
-        print '[wspush-checer] s3 res', res
-        if (not res) or (res['status_code'] != 200):
-            send_sms()
+        ##res = ps.pushS3(5)
+        #print '[wspush-checer] s3 res', res
+        #if (not res) or (res['status_code'] != 200):
+        #    send_sms()
 
-        #ps.pushS4(1)
+        ps.pushS4(1)
 
-        #ps.pushS5(1)
+        ps.pushS5(1)
         #ps.pushS6()
         #ps.pushS7()
         #ps.pushS8()
@@ -274,7 +280,7 @@ def main():
 
     while True:
         test_wspush()
-        time.sleep(30)
+        time.sleep(0.1)
 
 if __name__ == "__main__":
     tornado.options.parse_command_line()
