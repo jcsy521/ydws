@@ -373,9 +373,7 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
 
             push = dict(id='', 
                         key='') 
-            t = int(time.time()) * 1000 
-            push_key = get_push_key(uid, t)
-            json_data = WSPushHelper.register(uid, t, push_key) 
+            json_data = WSPushHelper.register_wspush(uid, self.redis) 
             if json_data:
                 data = json_data['data'] 
                 id = data.get('push_id', '') 
@@ -747,9 +745,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
 
             push = dict(id='', 
                         key='') 
-            t = int(time.time()) * 1000 
-            wspush_key = get_push_key(uid, t)
-            json_data = WSPushHelper.register(uid, t, wspush_key) 
+            json_data = WSPushHelper.register_wspush(uid, self.redis) 
             data = json_data['data'] 
             if data: 
                 id = data.get('push_id', '') 

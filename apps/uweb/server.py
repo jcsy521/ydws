@@ -126,6 +126,8 @@ from handlers.masspoint_basic import MassPointBasicHandler
 from handlers.masspoint_day import MassPointDayHandler 
 from handlers.wspush import WSPushHandler
 
+from handlers.test_wspush import WSPushTestHandler
+
 # utils
 from handlers.uwebhelper import GEHandler
 
@@ -313,6 +315,7 @@ class Application(tornado.web.Application):
             (r"/masspoint/*", MassPointHandler),
 
             (r"/wspush/*", WSPushHandler),
+            (r"/testwspush/*", WSPushTestHandler),
 
 
             #znbc server handler

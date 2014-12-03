@@ -46,12 +46,20 @@ class GetCaptchaHandler(BaseHandler):
             captchahash = self.get_cookie("captchahash_password", "")
 
             #NOTE: check captcha-sms for brower
-            from_brower = True 
+            from_brower = False 
             if self.request.headers.get('User-Agent',None):
                 user_agent = self.request.headers.get('User-Agent').lower()
-                if re.search('android', user_agent) or re.search('iphone', user_agent):
-                    logging.info("[UWEB] Come from client, do not check captcha-image")
+                if re.search('darwin', user_agent): # Ios client
+                    logging.info("[UWEB] Come from IOS client, do not check captcha-image, User-Agent: %s", 
+                                 user_agent)
                     from_brower = False 
+                else:
+                    logging.info("[UWEB] Come from browser, check captcha-image, User-Agent: %s", 
+                                 user_agent)
+                    from_brower = True 
+            else: # Android client
+                from_brower = False 
+                logging.info("[UWEB] Come from Android client, do not check captcha-image")
 
             if from_brower:
                 m = hashlib.md5()
@@ -148,12 +156,20 @@ class GetCaptchaCorpHandler(BaseHandler):
             captchahash = self.get_cookie("captchahash_password", "")
 
             #NOTE: check captcha-sms for brower
-            from_brower = True 
+            from_brower = False 
             if self.request.headers.get('User-Agent',None):
                 user_agent = self.request.headers.get('User-Agent').lower()
-                if re.search('android', user_agent) or re.search('iphone', user_agent):
-                    logging.info("[UWEB] Come from client, do not check captcha-image")
+                if re.search('darwin', user_agent): # Ios client
+                    logging.info("[UWEB] Come from IOS client, do not check captcha-image, User-Agent: %s", 
+                                 user_agent)
                     from_brower = False 
+                else:
+                    logging.info("[UWEB] Come from browser, check captcha-image, User-Agent: %s", 
+                                 user_agent)
+                    from_brower = True 
+            else: # Android client
+                from_brower = False 
+                logging.info("[UWEB] Come from Android client, do not check captcha-image")
 
             if from_brower:
                 m = hashlib.md5()

@@ -54,12 +54,20 @@ class RegisterHandler(BaseHandler):
                          umobile, tmobile, captcha_image)
 
             #NOTE: check captcha-sms for brower
-            from_brower = True 
+            from_brower = False 
             if self.request.headers.get('User-Agent',None):
                 user_agent = self.request.headers.get('User-Agent').lower()
-                if re.search('android', user_agent) or re.search('iphone', user_agent):
-                    logging.info("[UWEB] Come from client, do not check captcha-image")
+                if re.search('darwin', user_agent): # Ios client
+                    logging.info("[UWEB] Come from IOS client, do not check captcha-image, User-Agent: %s", 
+                                 user_agent)
                     from_brower = False 
+                else:
+                    logging.info("[UWEB] Come from browser, check captcha-image, User-Agent: %s", 
+                                 user_agent)
+                    from_brower = True 
+            else: # Android client
+                from_brower = False 
+                logging.info("[UWEB] Come from Android client, do not check captcha-image")
 
             if from_brower:
                 m = hashlib.md5()
@@ -71,14 +79,14 @@ class RegisterHandler(BaseHandler):
                     self.write_ret(status)
                     return
 
-            # check tmobile is whitelist or not
-            white_list = check_zs_phone(tmobile, self.db)
-            if not white_list:
-                logging.info("[UWEB] %s is not whitelist", tmobile)
-                status = ErrorCode.MOBILE_NOT_ORDERED
-                message = ErrorCode.ERROR_MESSAGE[status] % tmobile
-                self.write_ret(status, message=message)
-                return
+                # check tmobile is whitelist or not
+                white_list = check_zs_phone(tmobile, self.db)
+                if not white_list:
+                    logging.info("[UWEB] %s is not whitelist", tmobile)
+                    status = ErrorCode.MOBILE_NOT_ORDERED
+                    message = ErrorCode.ERROR_MESSAGE[status] % tmobile
+                    self.write_ret(status, message=message)
+                    return
 
             #NOTE: check times
             remote_ip_key = "register_remote_ip:%s" % remote_ip 

@@ -64,9 +64,7 @@ class MainHandler(BaseHandler):
 
         wspush = dict(id='', 
                       key='') 
-        t = int(time.time()) * 1000 
-        push_key = get_push_key(umobile, t)
-        json_data = WSPushHelper.register(umobile, t, push_key) 
+        json_data = WSPushHelper.register_wspush(umobile, self.redis) 
         if json_data: 
             data = json_data['data'] 
             id = data.get('push_id', '') 

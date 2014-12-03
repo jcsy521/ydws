@@ -13,9 +13,8 @@ from helpers.wspushhelper import WSPushHelper
 from utils.public import get_push_key
 
 
-class WSPushHandler(BaseHandler):
+class WSPushTestHandler(BaseHandler):
 
-    @authenticated
     @tornado.web.removeslash
     def get(self):
         """Acquire push account through uid
@@ -26,7 +25,7 @@ class WSPushHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             #NOTE:  get_uid
-            uid = self.current_user.uid
+            uid = self.get_argument('uid','')
             logging.info("Get push account request from uid:%s", uid)
             wspush = dict(id='',
                           key='')
