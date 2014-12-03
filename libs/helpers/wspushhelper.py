@@ -27,10 +27,11 @@ class WSPushHelper(object):
 
     @staticmethod
     def register(uid, t, key):
-        json_data = None
+        json_data = dict(data=dict(push_id='dummy',
+                                   psd='dummy'))
         try:
             url = ConfHelper.PUSH_CONF.register_url
-            http = httplib2.Http(timeout=30, disable_ssl_certificate_validation=True)
+            http = httplib2.Http(timeout=3, disable_ssl_certificate_validation=True)
             data = dict(uid=uid,
                         t=t,
                         key=key)
@@ -61,7 +62,7 @@ class WSPushHelper(object):
         json_data = None
         try:
             url = ConfHelper.PUSH_CONF.push_url
-            http = httplib2.Http(timeout=30, disable_ssl_certificate_validation=True)
+            http = httplib2.Http(timeout=3, disable_ssl_certificate_validation=True)
             data = dict(uid=uid,
                         t=t,
                         key=key,
