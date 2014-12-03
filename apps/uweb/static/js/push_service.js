@@ -131,7 +131,7 @@ $(function () {
 			for ( var ia = 0; ia < obj_pushRes.length; ia++ ) {	// 添加组下面的定位器
 				var	obj_tempPushData = obj_pushRes[ia],
 					str_tempPushTid = obj_tempPushData.tid,
-					n_tempPushLoginSt = obj_tempPushData.login,
+					n_tempPushLoginSt = obj_tempPushData.login_status,
 					obj_terminalData = obj_carDatas[str_tempPushTid],
 					obj_selfMarker = obj_selfmarkers[str_tempPushTid],
 					obj_leftTerminal = $('#leaf_'+str_tempPushTid);
