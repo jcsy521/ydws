@@ -15,7 +15,7 @@ from constants import EVENTER, GATEWAY, UWEB, SMS
 
 from utils.misc import get_acc_status_info_key
 
-from handlers.basic import append_gw_request, update_terminal_status
+from handlers.basic import append_gw_request, get_resend_flag, update_terminal_status
 
 def handle_unusual(info, address, connection, channel, exchange, gw_binding, db, redis):
     """Unusual activate report packet: owner_mobile changed.
