@@ -906,7 +906,7 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
                     key='') 
         t = int(time.time()) * 1000 
         push_key = get_push_key(uid, t)
-        json_data = WSPushHelper.register(uid, t, push_key) 
+        json_data = WSPushHelper.register_wspush(uid, self.redis) 
         data = json_data['data'] 
         if data: 
             id = data.get('push_id', '') 
