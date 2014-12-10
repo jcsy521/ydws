@@ -10,6 +10,7 @@ from helpers.smshelper import SMSHelper
 from error import GWException
 from utils.dotdict import DotDict
 from utils.public import update_terminal_info
+from codes.smscode import SMSCode
             
 from constants import EVENTER, GATEWAY, UWEB, SMS
 
@@ -20,7 +21,6 @@ from handlers.basic import append_gw_request, get_resend_flag, update_terminal_s
 def handle_unusual(info, address, connection, channel, exchange, gw_binding, db, redis):
     """Unusual activate report packet: owner_mobile changed.
     S27 
-    NOTE: deprecated 
 
     0: success, then record new terminal's address
     1: invalid SessionID 
