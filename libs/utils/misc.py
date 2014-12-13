@@ -313,8 +313,16 @@ def get_psd():
 
     return psd 
 
+def get_client_id(username):
+    """Get a string consist of username and a random string 
+    with length is 10 as a client_id.
+    """
+    base_str = '23456789ABCDEFGHJKMNPQRSTUVWXYZ' 
+    client_id = username + ''.join(random.choice(base_str) for x in range(10))  
+    return client_id
+
 def get_activation_code():
-    """A string consist of digits and upercase, whose length is 10.  
+    """A string consist of digits and uppercase, whose length is 10.  
     Do not include number 0,1 and letter o,i,l.  
     """ 
     activation_code = '' 
@@ -448,16 +456,17 @@ def get_sampled_list(lst, number):
         d, m = divmod(len(lst), number) 
         step = (d+1) if m else d 
         res = lst[::step] 
-        res.append(lst[-1])
+        if not lst[-1] in res:
+            res.append(lst[-1])
     return res 
 
 if __name__ == '__main__':
 
-    psd = get_psd()
-    print 'psd', psd
+    #psd = get_psd()
+    #print 'psd', psd
 
     lst = []
-    lst = [0,1,2,3,4,5,6,7]
+    lst = [0,1,2,3,4,5,6,7,8]
     number = 5
     b = get_sampled_list(lst, number)
     print 'b', b

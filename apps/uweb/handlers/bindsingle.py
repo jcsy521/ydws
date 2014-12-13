@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for single-binding.
+"""
+
 import logging
 
 import tornado.web
@@ -7,7 +10,8 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import DUMMY_IDS_STR, str_to_list
-from utils.checker import check_sql_injection
+from utils.public import bind_region
+from helpers.queryhelper import QueryHelper
 from constants import UWEB
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
@@ -31,12 +35,7 @@ class BindSingleHandler(BaseHandler):
             return
 
         try:
-            res = self.db.query("SELECT ts.id AS single_id"
-                                "  FROM T_SINGLE ts, T_SINGLE_TERMINAL tst"
-                                "  WHERE ts.id = tst.sid"
-                                "  AND tst.tid = %s",
-                                tid)
-            
+            res = QueryHelper.get_bind_single(tid, self.db)            
             self.write_ret(status,
                            dict_=DotDict(res=res))
         except Exception as e:
@@ -65,17 +64,7 @@ class BindSingleHandler(BaseHandler):
             single_ids = data.single_ids
             tids = map(str, data.tids)
 
-            #NOTE: Clear the old data first.
-            sql = "DELETE FROM T_SINGLE_TERMINAL WHERE tid IN %s " % (tuple(tids + DUMMY_IDS_STR), )
-            self.db.execute(sql)
-
-            #NOTE:
-            for tid in tids:
-                for single_id in single_ids:
-                    self.db.execute("INSERT INTO T_SINGLE_TERMINAL(sid, tid)"
-                                    "  VALUES(%s, %s)",
-                                    single_id, tid)
-            
+            bind_single(self.db, tids, single_id)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s single bind post failed. Exception: %s", 

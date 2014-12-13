@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for delegation.
+"""
+
 import tornado.web
 
 from helpers.uwebhelper import UWebHelper

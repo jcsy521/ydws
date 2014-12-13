@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for registering terminal.
+"""
+
 import logging
 import random
 import string
@@ -10,7 +13,7 @@ import re
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
-from utils.misc import get_today_last_month, get_captcha_key
+from utils.misc import get_captcha_key
 from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_date_from_utc, start_end_of_day)
 from utils.checker import check_zs_phone
@@ -42,7 +45,6 @@ class RegisterHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
-
             umobile = self.get_argument('umobile','')
             tmobile = self.get_argument('tmobile','')
             remote_ip = self.request.remote_ip
@@ -125,7 +127,7 @@ class RegisterHandler(BaseHandler):
             ret = SMSHelper.send(umobile, captcha_sms)
             ret = DotDict(json_decode(ret))
             if ret.status == ErrorCode.SUCCESS:
-                logging.info("[UWEB] umobile: %s get sms captcha: %s successfully",
+                logging.info("[UWEB] Get sms captcha successfully. umobile: %s, captcha: %s.",
                              umobile, psd)
                 captcha_key = get_captcha_key(umobile)
                 self.redis.setvalue(captcha_key, psd, UWEB.SMS_CAPTCHA_INTERVAL)
@@ -136,11 +138,11 @@ class RegisterHandler(BaseHandler):
                 self.redis.expireat(remote_ip_key, end_time_)  
             else:
                 status = ErrorCode.SERVER_BUSY
-                logging.error("[UWEB] umobile: %s get sms captcha failed.", umobile)
+                logging.error("[UWEB] Get sms captcha failed. umobile: %s.", umobile)
 
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] umobile:%s get sms captcha failed. Exception: %s", 
+            logging.exception("[UWEB] Get sms captcha failed. umobile:%s. Exception: %s", 
                               umobile, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -152,34 +154,22 @@ class RegisterHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] register request: %s", data)
-        except Exception as e:
-            status = ErrorCode.ILLEGAL_DATA_FORMAT
-            self.write_ret(status)
-            return 
-
-        try:
+            logging.info("[UWEB] Register request: %s", data)
             umobile = data.umobile            
             tmobile = data.tmobile            
             captcha = data.captcha
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
+            self.write_ret(status)
+            return 
 
-            #NOTE: do not need check captcha-image
-            #captcha = data.captcha         
-            #captcha_image = data.captcha_img
-            #captchahash = self.get_cookie("captchahash_image", "")
-            #if captcha_image:
-            #    m = hashlib.md5()
-            #    m.update(captcha_image.lower())
-            #    hash_ = m.hexdigest()
-            #    if hash_.lower() != captchahash.lower():
-            #        status = ErrorCode.WRONG_CAPTCHA_IMAGE
-            #        self.write_ret(status)
-            #        return
-        
+        try:                
             # check tmobile is whitelist or not
             white_list = check_zs_phone(tmobile, self.db)
             if not white_list:
-                logging.info("[UWEB] %s is not whitelist", tmobile)
+                logging.info("[UWEB] Mobile is not whitelist. tmobile: %s.", tmobile)
                 status = ErrorCode.MOBILE_NOT_ORDERED
                 message = ErrorCode.ERROR_MESSAGE[status] % tmobile
                 self.write_ret(status, message=message)
@@ -196,9 +186,8 @@ class RegisterHandler(BaseHandler):
                             delete_terminal(terminal.tid, self.db, self.redis)
                         else:
                             status = ErrorCode.TERMINAL_ORDERED
-                            logging.info("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
+                            logging.info("[UWEB] Regist failed. umobile: %s, tmobile: %s  Message: %s",
                                          umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
-
                             self.write_ret(status)
                             return
 
@@ -206,26 +195,24 @@ class RegisterHandler(BaseHandler):
                     ret = SMSHelper.send_to_terminal(tmobile, register_sms)
                     ret = DotDict(json_decode(ret))
                     if ret.status == ErrorCode.SUCCESS:
-                        logging.info("[UWEB] umobile: %s, tmobile: %s regist successfully.",
-                                     umobile, tmobile)
-                        logging.info("[UWEB] captcha_key: %s, captcha: %s is removed.",
-                                     captcha_key, captcha_old)
+                        logging.info("[UWEB] Regist successfully. umobile: %s, tmobile: %s ",
+                                     umobile, tmobile)                                        
                         self.redis.delete(captcha_key)
                     else:
                         status = ErrorCode.REGISTER_FAILED
-                        logging.error("[UWEB] umobile: %s, tmobile: %s regist failed. Message: %s",
+                        logging.error("[UWEB] Regist failed. umobile: %s, tmobile: %s. Message: %s",
                                       umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
                 else:
                     status = ErrorCode.WRONG_CAPTCHA
-                    logging.error("umobile: %s regist failed. captcha: %s, captcha_old: %s, Message: %s",
+                    logging.error("[UWEB] Regist failed. umobile: %s, captcha: %s, captcha_old: %s, Message: %s",
                                   umobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
             else:
                 status = ErrorCode.NO_CAPTCHA
-                logging.error("umobile: %s regist failed. captcha: %s, Message: %s",
+                logging.error("[UWEB] Register failed. umobile: %s, captcha: %s, Message: %s",
                               umobile, captcha, ErrorCode.ERROR_MESSAGE[status])
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] umobile: %s tmobile: %s register failed, Exception: %s", 
+            logging.exception("[UWEB] Register failed. umobile: %s tmobile: %s , Exception: %s", 
                               umobile, tmobile, e.args)
             status = ErrorCode.REGISTER_FAILED
             self.write_ret(status)
@@ -235,11 +222,13 @@ class ReRegisterHandler(BaseHandler):
     @tornado.web.removeslash
     def post(self):
         """Reregist a pair of umobile and tmobile.
+
+        Send sms to terminal.
         """
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] register request: %s", data)
+            logging.info("[UWEB] Register request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
@@ -250,8 +239,7 @@ class ReRegisterHandler(BaseHandler):
             user = QueryHelper.get_user_by_tmobile(tmobile, self.db) 
             if user: 
                 umobile = user.owner_mobile            
-                terminal = self.db.get("SELECT biz_type FROM T_TERMINAL_INFO WHERE mobile = %s LIMIT 1", 
-                                       tmobile)
+                terminal = QueryHelper.get_terminal_by_tmobile(tmobile, self.db)
                 if int(terminal.biz_type) == UWEB.BIZ_TYPE.YDWS:
                     register_sms = SMSCode.SMS_REGISTER % (umobile, tmobile) 
                     ret = SMSHelper.send_to_terminal(tmobile, register_sms)
@@ -262,18 +250,18 @@ class ReRegisterHandler(BaseHandler):
 
                 ret = DotDict(json_decode(ret))
                 if ret.status == ErrorCode.SUCCESS:
-                    logging.info("[UWEB] umobile: %s, tmobile: %s reregist successfully.",
+                    logging.info("[UWEB] Reregist successfully. umobile: %s, tmobile: %s .",
                                  umobile, tmobile)
                 else:
                     status = ErrorCode.REGISTER_FAILED
-                    logging.error("[UWEB] umobile: %s, tmobile: %s reregist failed. Message: %s",
+                    logging.error("[UWEB] Reregister failed. umobile: %s, tmobile: %s. Message: %s",
                                   umobile, tmobile, ErrorCode.ERROR_MESSAGE[status])
             else: 
-                logging.exception("[UWEB] tmobile: %s has no user, ignore it. ", 
+                logging.exception("[UWEB] Terminal has no user, ignore it. tmobile: %s. ", 
                                   tmobile)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] tmobile: %s reregister failed, Exception: %s", 
+            logging.exception("[UWEB] Reregister failed. tmobile: %s , Exception: %s", 
                               tmobile, e.args)
             status = ErrorCode.REGISTER_FAILED
             self.write_ret(status)

@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for waking-up terminal. Now it's unused.
+
+#NOTE: deprecated.
+"""
+
 import logging
 import time
 

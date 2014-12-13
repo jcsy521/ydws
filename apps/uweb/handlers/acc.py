@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for zj210.
+
+#NOTE: deprecated.
+"""
+
 import logging
 import time
 
@@ -40,9 +45,7 @@ class ACCHandler(BaseHandler, BaseMixin):
                             status=ErrorCode.SUCCESS,
                             message=ErrorCode.ERROR_MESSAGE[status])
                 try:
-                    t = self.db.get("SELECT dev_type FROM T_TERMINAL_INFO"
-                                    "  where tid = %s LIMIT 1",
-                                    tid)
+                    t = QueryHelper.get_terminal_by_tid(tid, self.db)
                     if str(t['dev_type']) != 'D':
                         r['status'] = ErrorCode.ACC_NOT_ALLOWED
                         logging.info("[UWEB] Acc is not allowed. uid: %s, tid: %s, dev_type: %s", 

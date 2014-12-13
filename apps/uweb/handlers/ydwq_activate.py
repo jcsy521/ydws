@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for YDWQ.
+"""
+
 import logging
 
 from tornado.escape import json_decode, json_encode
@@ -101,4 +104,3 @@ class YDWQActivateHandler(BaseHandler):
                               e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-

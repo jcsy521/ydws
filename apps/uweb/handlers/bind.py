@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for YDWQ.
+
+#TODO: deprecated
+"""
+
 import time
 import logging
 import base64
@@ -59,14 +64,6 @@ class YDWQBindHandler(BaseHandler, AvatarMixin):
             now_ = datetime.datetime.now()
             endtime = now_ + relativedelta(years=1)
             endtime = int(time.mktime(endtime.timetuple()))
-
-            #white_list = check_zs_phone(tmobile, self.db) 
-            #if not white_list:
-            #    logging.error("[UWEB] mobile: %s is not whitelist.", tmobile)
-            #    status = ErrorCode.MOBILE_NOT_ORDERED
-            #    message = ErrorCode.ERROR_MESSAGE[status] % tmobile
-            #    self.write_ret(status, message=message)
-            #    return
 
             # avatar
             terminal = self.db.get("SELECT id, tid, service_status FROM T_TERMINAL_INFO WHERE mobile = %s",
@@ -129,7 +126,7 @@ class YDWQBindHandler(BaseHandler, AvatarMixin):
                     logging.info("[BIND] avatar_time: %s, tmobile: %s, user: %s",
                                  avatar_time, tmobile, self.current_user.cid)
                 else:
-                    logging.error("[BIND] Termianl: %s has no avatar.",
+                    logging.error("[BIND] Terminal: %s has no avatar.",
                                   tmobile)
             else:
                 logging.error("[BIND] Send %s to terminal %s failed.", register_sms, tmobile)

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for downloading of client.
+"""
+
 import logging
 
 import tornado.web

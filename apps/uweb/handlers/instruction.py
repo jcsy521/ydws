@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for instruction.
+
+#NOTE: deprecated.
+"""
+
 import logging
 import time
 
@@ -8,11 +13,12 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from helpers.downloadhelper import (get_version_info,
-     get_download_count, update_download_count)
+                                    get_download_count, update_download_count)
 from helpers.queryhelper import QueryHelper
 from constants import DOWNLOAD, UWEB
 from codes.errorcode import ErrorCode
 from base import BaseHandler
+
 
 class WebInsHandler(BaseHandler):
 
@@ -21,6 +27,7 @@ class WebInsHandler(BaseHandler):
         """Jump to web.html."""
         self.render('web.html')
 
+
 class AndroidInsHandler(BaseHandler):
 
     @tornado.web.removeslash
@@ -28,7 +35,8 @@ class AndroidInsHandler(BaseHandler):
         """Jump to android.html."""
         category = self.get_argument('category', '2')
         #version_info = get_version_info('android')
-        version_info = QueryHelper.get_version_info_by_category(UWEB.APK_TYPE.YDWS, self.db)
+        version_info = QueryHelper.get_version_info_by_category(
+            UWEB.APK_TYPE.YDWS, self.db)
         download_info = get_download_count(category, self.db)
 
         self.render('android.html',
@@ -39,6 +47,7 @@ class AndroidInsHandler(BaseHandler):
                     filesize=version_info.filesize,
                     count=download_info.count if download_info else 0)
 
+
 class IOSInsHandler(BaseHandler):
 
     @tornado.web.removeslash
@@ -46,12 +55,14 @@ class IOSInsHandler(BaseHandler):
         """Jump to ios.html."""
         self.render('ios.html')
 
+
 class SMSInsHandler(BaseHandler):
 
     @tornado.web.removeslash
     def get(self):
         """Jump to sms.html."""
         self.render('sms.html')
+
 
 class ManualInsHandler(BaseHandler):
 

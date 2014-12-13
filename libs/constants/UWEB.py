@@ -2,6 +2,9 @@
 
 from utils.dotdict import DotDict
 
+# cookie expire periods, in minutes. 12hours 
+EXPIRES_MINUTES = 12 * 60 
+
 # the priority is same with abt
 PRIORITY = DotDict(SMS=40, )
 

@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for client(Android, IOS) to unbind a terminal.. 
+
+#NOTE: deprecated.
+"""
+
+import math
 import logging
 import datetime
 import time

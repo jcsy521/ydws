@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for attendance of YDWQ.
+
+#NOTE：deprecated.
+"""
+
 import logging
 
 from tornado.escape import json_decode, json_encode

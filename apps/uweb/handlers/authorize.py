@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for authorize of YDWQ.
+
+# NOTE: deprecated
+"""
+
 import logging
 
 from tornado.escape import json_decode, json_encode
@@ -7,9 +12,10 @@ import tornado.web
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import UWEB 
+from constants import UWEB
 
 from base import BaseHandler, authenticated
+
 
 class AuthorizeHandler(BaseHandler):
 
@@ -20,8 +26,8 @@ class AuthorizeHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            activation_code = data.activation_code 
-            logging.info("[UWEB] authorize request: %s", 
+            activation_code = data.activation_code
+            logging.info("[UWEB] authorize request: %s",
                          data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -55,4 +61,3 @@ class AuthorizeHandler(BaseHandler):
             logging.exception("[UWEB] authorize YDWQ termianl failed. Exception: %s",
                               e.args)
             self.write_ret(status)
-

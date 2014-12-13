@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for register-captcha .
+"""
+
 import logging
 import time
 import random
@@ -183,6 +186,7 @@ class GetCaptchaCorpHandler(BaseHandler):
 
             mobile = data.mobile
             umobile = data.mobile
+            #TODO: optimize it
             user = self.db.get("SELECT mobile"
                                "  FROM T_CORP"
                                "  WHERE cid = %s"

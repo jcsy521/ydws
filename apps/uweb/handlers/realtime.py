@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for realtime.
+"""
+
 import logging
 from time import time
 
@@ -19,18 +22,15 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Get the latest usagle.
+        """Get the latest usable location.
+
+        #NOTE: deprecated
         """
         try: 
             tid = self.get_argument('tid',None) 
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            
-            terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
-                                   "  WHERE tid = %s"
-                                   "    AND service_status = %s",
-                                   self.current_user.tid,
-                                   UWEB.SERVICE_STATUS.ON)
+            terminal = QueryHelper.get_available_terminal(self.current_user.tid, self.db)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error("The terminal with tid: %s is noexist, redirect to login.html", self.current_user.tid)
@@ -53,6 +53,7 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
     @tornado.web.asynchronous
     def post(self):
         """Get a GPS location or cellid location.
+
         workflow:
         if gps:
             try to get a gps location
@@ -76,16 +77,11 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
         current_query = DotDict() 
         current_query.timestamp = int(time())
 
-        terminal = self.db.get("SELECT id FROM T_TERMINAL_INFO"
-                               "  WHERE tid = %s"
-                               "    AND (service_status = %s"
-                               "    OR service_status = %s)",
-                               self.current_user.tid,
-                               UWEB.SERVICE_STATUS.ON,
-                               UWEB.SERVICE_STATUS.TO_BE_ACTIVATED) 
+        terminal = QueryHelper.get_available_terminal(self.current_user.tid, self.db)
         if not terminal:
             status = ErrorCode.LOGIN_AGAIN
-            logging.error("The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+            logging.error("[UWEB] The terminal with tid: %s does not exist, redirect to login.html", 
+                          self.current_user.tid)
             self.write_ret(status)
             self.finish()
             return
@@ -102,7 +98,7 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             self.db = db
             self.request_realtime(current_query,
                                   callback=_on_finish)
+            #NOTE: deprecated. 
             self.keep_waking(self.current_user.sim, self.current_user.tid)
 
         self.queue.put((10, __callback))
-

@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for user profile.
+"""
+
 import logging
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
-from utils.misc import get_today_last_month, get_terminal_info_key, safe_unicode
+from utils.misc import get_terminal_info_key, safe_unicode
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_cnum, check_name
+from utils.public import update_operator, update_corp
+from helpers.queryhelper import QueryHelper
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
@@ -28,28 +33,22 @@ class ProfileHandler(BaseHandler):
 
             profile = DotDict()
             # 1: user
-            user = self.db.get("SELECT name, mobile, address, email, remark"
-                               "  FROM T_USER"
-                               "  WHERE uid = %s"
-                               "  LIMIT 1",
-                               self.current_user.uid) 
+            user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if not user:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("[UWEB] user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
+                logging.error("[UWEB] User does not exist, redirect to login.html. uid: %s.", 
+                              self.current_user.uid)
                 self.write_ret(status)
                 return
-            
-            # 2: car
-            car = self.db.get("SELECT cnum FROM T_CAR"
-                              "  WHERE tid = %s",
-                              self.current_user.tid)
-            
+
+            # 2: car 
+            car = QueryHelper.get_car_by_tid(self.current_user.tid, db)            
             profile.update(user)
             profile.update(car)
             self.write_ret(status,
                            dict_=dict(profile=profile))
         except Exception as e:
-            logging.exception("[UWEB] user uid:%s tid:%s get user profile failed. Exception: %s", 
+            logging.exception("[UWEB] Get user profile failed. uid:%s, tid:%s, Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -65,7 +64,7 @@ class ProfileHandler(BaseHandler):
             tid = data.get('tid',None) 
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            logging.info("[UWEB] user profile request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] User profile request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -73,65 +72,15 @@ class ProfileHandler(BaseHandler):
             return 
 
         try:
-            #status = self.check_privilege(self.current_user.uid, tid) 
-            #if status != ErrorCode.SUCCESS: 
-            #    logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
-            #                  tid, self.current_user.uid) 
-            #    self.write_ret(status) 
-            #    return
-
             if data.has_key('name')  and not check_name(data.name):
                 status = ErrorCode.ILLEGAL_NAME 
                 self.write_ret(status)
                 return
-
-            #if data.has_key('address')  and not check_sql_injection(data.address):
-            #    status = ErrorCode.ILLEGAL_ADDRESS
-            #    self.write_ret(status)
-            #    return
-
-            #if data.has_key('email')  and not check_sql_injection(data.email):
-            #    status = ErrorCode.ILLEGAL_EMAIL 
-            #    self.write_ret(status)
-            #    return
-
-            #if data.has_key('remark')  and not check_sql_injection(data.remark):
-            #    status = ErrorCode.ILLEGAL_REMARK 
-            #    self.write_ret(status)
-            #    return
-
-            #if data.has_key('cnum') and not check_cnum(data.cnum):
-            #    status = ErrorCode.ILLEGAL_CNUM 
-            #    self.write_ret(status)
-            #    return
-
-            #fields_ = DotDict()
-            #fields = DotDict(name="name = %s")
-            #                 #mobile="mobile = '%s'",
-            #                 #address="address = '%s'",
-            #                 #email="email = '%s'",
-            #                 #remark="remark = '%s'")
-            #for key, value in data.iteritems():
-            #    if key == 'name':
-            #        fields_.setdefault(key, fields[key] % value) 
-            #    elif key == 'cnum':
-            #        self.db.execute("UPDATE T_CAR"
-            #                        "  SET cnum = %s"
-            #                        "  WHERE tid = %s",
-            #                        safe_unicode(value), self.current_user.tid)
-            #        terminal_info_key = get_terminal_info_key(self.current_user.tid)
-            #        terminal_info = self.redis.getvalue(terminal_info_key)
-            #        if terminal_info:
-            #            terminal_info['alias'] = value if value else self.current_user.sim 
-            #            self.redis.setvalue(terminal_info_key, terminal_info)
-            #    else:
-            #        logging.error("[UWEB] invaid field: %s, drop it!", key)
-            #        pass
-
+     
             name = data.get('name', None)
             if name is not None:
-                sql = "UPDATE T_USER SET name = %s WHERE uid = %s"
-                self.db.execute(sql, 
+                sql_cmd = "UPDATE T_USER SET name = %s WHERE uid = %s"
+                self.db.execute(sql_cmd, 
                                 name, self.current_user.uid)
 
             cnum = data.get('cnum', None)
@@ -148,7 +97,7 @@ class ProfileHandler(BaseHandler):
 
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] user uid:%s tid:%s update profile failed.  Exception: %s", 
+            logging.exception("[UWEB] Update profile failed. uid:%s, tid:%s, Exception: %s", 
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -164,22 +113,19 @@ class ProfileCorpHandler(BaseHandler):
         try: 
             profile = DotDict()
             # 1: user
-            corp = self.db.get("SELECT name c_name, mobile c_mobile, alert_mobile c_alert_mobile, address c_address, email c_email, linkman c_linkman"
-                               "  FROM T_CORP"
-                               "  WHERE cid = %s"
-                               "  LIMIT 1",
-                               self.current_user.cid) 
+            corp = QueryHelper.get_corp_by_cid(self.current_user.cid, self.db)
             if not corp:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("[UWEB] corp with cid: %s does not exist, redirect to login.html", self.current_user.cid)
+                logging.error("[UWEB] Corp does not exist, redirect to login.html. cid: %s.", 
+                              self.current_user.cid)
                 self.write_ret(status)
                 return
-            
+
             profile.update(corp)
             self.write_ret(status,
                            dict_=dict(profile=profile))
         except Exception as e:
-            logging.exception("[UWEB] corp cid:%s tid:%s get corp profile failed. Exception: %s", 
+            logging.exception("[UWEB] Get corp profile failed. cid:%s, tid:%s, Exception: %s", 
                               self.current_user.cid, self.current_user.tid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -192,7 +138,7 @@ class ProfileCorpHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] corp profile request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] Corp profile request: %s, uid: %s, tid: %s", 
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -200,45 +146,19 @@ class ProfileCorpHandler(BaseHandler):
             return 
 
         try:
-            #if data.has_key('name')  and not check_sql_injection(data.name):
-            #    status = ErrorCode.ILLEGAL_NAME 
-            #    self.write_ret(status)
-            #    return
-
-            #if data.has_key('address')  and not check_sql_injection(data.address):
-            #    status = ErrorCode.ILLEGAL_ADDRESS
-            #    self.write_ret(status)
-            #    return
-
-            #if data.has_key('email')  and not check_sql_injection(data.email):
             if data.has_key('c_email') and len(data.c_email)>50:
                 status = ErrorCode.ILLEGAL_EMAIL 
                 self.write_ret(status, 
                                message=u'联系人邮箱的最大长度是50个字符！')
                 return
 
-
-            fields_ = DotDict()
-            fields = DotDict(c_name="name = '%s'",
-                             c_mobile="mobile = '%s'",
-                             c_alert_mobile="alert_mobile = '%s'",
-                             c_address="address = '%s'",
-                             c_linkman="linkman = '%s'",
-                             c_email="email = '%s'")
-            for key, value in data.iteritems():
-                fields_.setdefault(key, fields[key] % value) 
-            set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
-            if set_clause:
-                self.db.execute("UPDATE T_CORP SET " + set_clause +
-                                "  WHERE cid = %s",
-                                self.current_user.cid)
+            update_corp(data, self.current_user.cid, self.db, self.redis)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] corp cid:%s tid:%s update corp profile failed. Exception: %s", 
+            logging.exception("[UWEB] Update corp profile failed. cid:%s, tid:%s, Exception: %s", 
                               self.current_user.cid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-
 
 class ProfileOperHandler(BaseHandler):
 
@@ -250,15 +170,12 @@ class ProfileOperHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try: 
             profile = DotDict()
-            # 1: user
-            oper = self.db.get("SELECT name, mobile, address, email"
-                               "  FROM T_OPERATOR"
-                               "  WHERE oid = %s"
-                               "  LIMIT 1",
-                               self.current_user.oid) 
+            # 1: user     
+            oper = QueryHelper.get_operator_by_oid(self.current_user.oid, self.db)
             if not oper:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("[UWEB] operator with oid: %s does not exist, redirect to login.html", self.current_user.oid)
+                logging.error("[UWEB] Operator does not exist, redirect to login.html. oid: %s.", 
+                              self.current_user.oid)
                 self.write_ret(status)
                 return
             
@@ -268,7 +185,7 @@ class ProfileOperHandler(BaseHandler):
             self.write_ret(status,
                            dict_=dict(profile=profile))
         except Exception as e:
-            logging.exception("[UWEB] operator oid:%s tid:%s get corp profile failed. Exception: %s", 
+            logging.exception("[UWEB] Get corp profile failed. oid:%s, tid:%s, Exception: %s", 
                               self.current_user.oid, self.current_user.tid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -281,7 +198,7 @@ class ProfileOperHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] operator profile request: %s, oid: %s, tid: %s", 
+            logging.info("[UWEB] Operator profile request: %s, oid: %s, tid: %s", 
                          data, self.current_user.oid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -289,16 +206,6 @@ class ProfileOperHandler(BaseHandler):
             return 
 
         try:
-            #if data.has_key('name')  and not check_sql_injection(data.name):
-            #    status = ErrorCode.ILLEGAL_NAME 
-            #    self.write_ret(status)
-            #    return
-
-            #if data.has_key('address')  and not check_sql_injection(data.address):
-            #    status = ErrorCode.ILLEGAL_ADDRESS
-            #    self.write_ret(status)
-            #    return
-
             #if data.has_key('email')  and not check_sql_injection(data.email):
             if data.has_key('email') and len(data.email)>50:
                 status = ErrorCode.ILLEGAL_EMAIL 
@@ -306,20 +213,10 @@ class ProfileOperHandler(BaseHandler):
                                message=u'联系人邮箱的最大长度是50个字符！')
                 return
 
-
-            fields_ = DotDict()
-            fields = DotDict(address="address = '%s'",
-                             email="email = '%s'")
-            for key, value in data.iteritems():
-                fields_.setdefault(key, fields[key] % value) 
-            set_clause = ','.join([v for v in fields_.itervalues() if v is not None])
-            if set_clause:
-                self.db.execute("UPDATE T_OPERATOR SET " + set_clause +
-                                "  WHERE oid = %s",
-                                self.current_user.oid)
+            update_operator(data, self.current_user.oid, self.db, self.redis)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] operator oid:%s update oper profile failed. Exception: %s", 
+            logging.exception("[UWEB] Update operator profile failed. oid:%s, Exception: %s", 
                               self.current_user.oid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

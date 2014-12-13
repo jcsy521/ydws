@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for various checks.
+"""
+
 import logging
 
 import tornado.web
@@ -10,7 +13,7 @@ from base import BaseHandler
 
 from utils.checker import check_zs_phone
 
-       
+
 class CheckTMobileHandler(BaseHandler):
 
     @tornado.web.removeslash
@@ -22,28 +25,31 @@ class CheckTMobileHandler(BaseHandler):
             res = self.db.get("SELECT id"
                               "  FROM T_TERMINAL_INFO"
                               "  WHERE mobile = %s"
-                              "    AND service_status != %s" 
+                              "    AND service_status != %s"
                               "   LIMIT 1",
                               tmobile, UWEB.SERVICE_STATUS.TO_BE_UNBIND)
             if res:
                 status = ErrorCode.TERMINAL_BINDED
-            else: 
-                white_list = check_zs_phone(tmobile, self.db) 
-                if not white_list: 
-                    logging.error("[UWEB] mobile: %s is not whitelist.", tmobile) 
+            else:
+                white_list = check_zs_phone(tmobile, self.db)
+                if not white_list:
+                    logging.error(
+                        "[UWEB] mobile: %s is not whitelist.", tmobile)
                     status = ErrorCode.MOBILE_NOT_ORDERED
-                    message = message = ErrorCode.ERROR_MESSAGE[status] % tmobile
+                    message = message = ErrorCode.ERROR_MESSAGE[
+                        status] % tmobile
                     self.write_ret(status, message=message)
                     return
                 else:
                     status = ErrorCode.SUCCESS
-                
+
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] Check tmobile failed. tmobile: %s, Exception: %s", 
-                              tmobile, e.args) 
+            logging.exception("[UWEB] Check tmobile failed. tmobile: %s, Exception: %s",
+                              tmobile, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
 
 class CheckCNameHandler(BaseHandler):
 
@@ -59,14 +65,14 @@ class CheckCNameHandler(BaseHandler):
                               "   LIMIT 1",
                               name)
             if res:
-                #TODO: the status is ugly, maybe should be replaced on someday.
-                status = ErrorCode.SERVER_BUSY
+                status = ErrorCode.DATA_EXIST
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s check corp's namefailed. Exception: %s", 
-                              self.current_user.uid, e.args) 
+            logging.exception("[UWEB] uid: %s check corp's namefailed. Exception: %s",
+                              self.current_user.uid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
 
 class CheckCNumHandler(BaseHandler):
 
@@ -85,8 +91,8 @@ class CheckCNumHandler(BaseHandler):
                 status = ErrorCode.TERMINAL_BINDED
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s check cnum failed. Exception: %s", 
-                              self.current_user.uid, e.args) 
+            logging.exception("[UWEB] uid: %s check cnum failed. Exception: %s",
+                              self.current_user.uid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -117,12 +123,12 @@ class CheckOperMobileHandler(BaseHandler):
                     status = ErrorCode.OPERATOR_EXIST
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 
-                              self.current_user.uid, e.args) 
+            logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s",
+                              self.current_user.uid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-            
-            
+
+
 class CheckPassengerMobileHandler(BaseHandler):
 
     @tornado.web.removeslash
@@ -140,8 +146,7 @@ class CheckPassengerMobileHandler(BaseHandler):
                 status = ErrorCode.DATA_EXIST
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s", 
-                              self.current_user.uid, e.args) 
+            logging.exception("[UWEB] uid: %s check tmobile failed. Exception: %s",
+                              self.current_user.uid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-

@@ -73,6 +73,7 @@ class WeixinPushHelper(object):
             ret = dict(status=-1)
             headers = {"Content-type": "application/json; charset=utf-8"}
             response, content = h.request(url, 'POST', json_encode(data),headers=headers)
+            print '----res: %s, cont: %s' % (response, content)
             ret = json_decode(content)
             if ret['status'] == 0:
                 logging.info("Push to Wechat success! Message: %s, Tid: %s,openid: %s", ret['message'], tid, openid)

@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for other handlers.
+
+#TODO: login log
+"""
+
 import functools
 import urlparse
 import urllib
@@ -12,13 +17,12 @@ import tornado.web
 from tornado.escape import json_encode
 
 from utils.dotdict import DotDict
-from utils.misc import safe_utf8
+from utils.misc import safe_utf8, get_client_id
 from helpers.queryhelper import QueryHelper
 from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
 
-# cookie expire periods, in minutes. 12hours 
-EXPIRES_MINUTES = 12 * 60 
+from constants.UWEB import EXPIRES_MINUTES
 
 
 class _DBDescriptor(object):
@@ -35,7 +39,7 @@ def authenticated(method):
             if self.request.method == "POST":
                 raise tornado.web.HTTPError(403)
             elif self.request.method in ("GET", "HEAD"):
-                if "?" not in url:
+                if "?" not in url:                
                     if urlparse.urlsplit(url).scheme:
                         # if login url is absolute, make next absolute too
                         next_url = self.request.full_url()
@@ -43,7 +47,7 @@ def authenticated(method):
                         #next_url = self.request.uri
                         next_url = "/index" 
                     url += "?" + urllib.urlencode(dict(next=next_url))
-            logging.info("url:%s, uri:%s, next_url:%s, full url:%s", url, self.request.uri, next_url, self.request.full_url())
+         
             self.redirect(url)
             return
         return method(self, *args, **kwargs)
@@ -83,20 +87,19 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def set_client_id(self, username):
         """Set a value for client_id in cookie when login is invoked, then get
-        the client_id in folling request.
+        the client_id in following request.
         """
-        base_str = '23456789ABCDEFGHJKMNPQRSTUVWXYZ' 
-        client_id = username + ''.join(random.choice(base_str) for x in range(10))  
+        client_id = get_client_id(username)
         return self.set_cookie('client_id', client_id,
                                expires_days=float(EXPIRES_MINUTES)/(24 * 60),
                                httponly=True)
 
     @property
     def client_id(self):
-        """Return the virtual client_id of the current http request.
+        """Return the virtual client_id of the current HTTP request.
 
         Set a value for client_id in cookie when login is invoked, then get
-        the client_id in folling request.
+        the client_id in following request.
         """
         return self.get_cookie('client_id')
 
@@ -106,12 +109,17 @@ class BaseHandler(tornado.web.RequestHandler):
         super(BaseHandler, self).finish(chunk)
 
     def bookkeep(self, data_dict):
+        """Set cookie for current_user. 
+        """
         self.set_secure_cookie(self.app_name,
                                self.COOKIE_FORMAT % data_dict,
                                expires_days=float(EXPIRES_MINUTES)/(24 * 60),
                                httponly=True)
 
     def get_current_user(self):
+        """Override the method in tornado.web. 
+        Detect a logined user through cookie.
+        """
         app_data = self.get_secure_cookie(self.app_name)
         if app_data:
             res = self.COOKIE_PATTERN.match(app_data)
@@ -131,34 +139,45 @@ class BaseHandler(tornado.web.RequestHandler):
             ret.message = ErrorCode.ERROR_MESSAGE[status]
         else:
             ret.message = message
+
+        try:
+            ret['message'] = ret['message'].encode('utf8')
+        except:
+            pass
+
         if isinstance(dict_, dict):
             ret.update(dict_)
         self.set_header(*self.JSON_HEADER)
-        self.write(json_encode(ret))
+        t = json_encode(ret)
+        self.write(t)
 
     def check_tid(self, tid, finish=False):
-        """
-        check tid whether exists in request and modify the current_user.
+        """Check tid whether exists in request and modify the current_user.
+
+        workflow:
+        if tid is provided:
+            update the current_user
+
         """
         if tid:
-            terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
-            #if not terminal:
-            #    status = ErrorCode.LOGIN_AGAIN
-            #    logging.error("[UWEB] The terminal with uid: %s, tid: %s does not exist, login again", self.current_user.uid, tid)
-            #    self.write_ret(status)
-            #    if finish:
-            #        self.finish()
-            #    return
-  
+            terminal = QueryHelper.get_terminal_by_tid(tid, self.db)  
             self.current_user.tid=terminal.tid if terminal else tid
             self.current_user.sim=terminal.mobile if terminal else ''
 
     def check_privilege(self, uid, tid=None):
-        """Check the user whether is test only."""
-        status = ErrorCode.SUCCESS
-        #if tid:
-        #    if tid == ConfHelper.UWEB_CONF.test_tid: 
-        #        status = ErrorCode.TEST_NOT_PERMITED
+        """Check the user whether is test only.
+
+        The features needs to be checked contains:
+        * getting captcha for retrieve-password.
+        * modifying password.
+        * retrieving-password.
+
+        workflow:
+        if uid is test_uid:
+            deny it
+
+        """
+        status = ErrorCode.SUCCESS     
         if uid == ConfHelper.UWEB_CONF.test_uid:
             status = ErrorCode.TEST_NOT_PERMITED
         return status
@@ -171,12 +190,18 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def login_log(self, uid, role, method, versionname=None):
         """Keep the user's login log.
-        @params: role: 0: person; 
-                       1: operator; 
-                       2: enterprise 
-                 method:  0: web; 
-                          1: android; 
-                          2: ios 
+
+        :arg role: int. e.g.
+
+                        0: person; 
+                        1: operator; 
+                        2: enterprise 
+        
+        :arg method: int. e.g.
+
+                        0: web; 
+                        1: android; 
+                        2: ios 
         """
         self.db.execute("INSERT INTO T_LOGIN_LOG(uid, role, method, timestamp)"
                         "  values(%s, %s, %s, %s)",

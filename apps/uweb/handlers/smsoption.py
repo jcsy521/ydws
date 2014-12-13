@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for the querying and modifying of sms-option.
+"""
+
 import logging
-import datetime
-import time
 
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
-from helpers.seqgenerator import SeqGenerator
-from utils.dotdict import DotDict
+from helpers.queryhelper import QueryHelper
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
@@ -28,17 +28,7 @@ class SMSOptionHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
-            sms_options = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
-                                      "       illegalmove, sos, heartbeat_lost, charge, region_enter, region_out"
-                                      "  FROM T_SMS_OPTION"
-                                      "  WHERE uid = %s"
-                                      "  LIMIT 1",
-                                      self.current_user.uid) 
-            if not sms_options:
-                status = ErrorCode.LOGIN_AGAIN
-                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
-                self.write_ret(status)
-                return
+            sms_option = QueryHelper.get_sms_option(self.current_user.uid, db) 
             self.write_ret(status,
                            dict_=dict(sms_options=sms_options))
         except Exception as e:
@@ -62,13 +52,6 @@ class SMSOptionHandler(BaseHandler):
             return 
 
         try:
-            #status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
-            #if status != ErrorCode.SUCCESS: 
-            #    logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
-            #                  self.current_user.tid, self.current_user.uid) 
-            #    self.write_ret(status) 
-            #    return
-
             fields = DotDict(login="login = %s",
                              powerlow="powerlow = %s",
                              powerdown="powerdown = %s",
@@ -107,8 +90,10 @@ class SMSOptionCorpHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
-            terminals = self.db.query("SELECT tt.mobile, tt.owner_mobile FROM T_TERMINAL_INFO as tt, T_GROUP as tg, T_CORP as tc" 
-                                      "  WHERE tt.service_status = 1 AND tc.cid = %s AND tc.cid = tg.corp_id AND tt.group_id = tg.id",
+            terminals = self.db.query("SELECT tt.mobile, tt.owner_mobile FROM T_TERMINAL_INFO as tt, "
+                                      "  T_GROUP as tg, T_CORP as tc" 
+                                      "  WHERE tt.service_status = 1 AND tc.cid = %s "
+                                      "  AND tc.cid = tg.corp_id AND tt.group_id = tg.id",
                                       self.current_user.cid)
             mobiles = []
             for terminal in terminals:
@@ -116,19 +101,9 @@ class SMSOptionCorpHandler(BaseHandler):
                     mobiles.append(terminal.owner_mobile)
 
             sms_options = {} 
-            for mobile in mobiles:
-                sms_option = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
-                                          "       illegalmove, sos, heartbeat_lost, charge,"
-                                          "       region_enter, region_out, stop, speed_limit"
-                                          "  FROM T_SMS_OPTION"
-                                          "  WHERE uid = %s"
-                                          "  LIMIT 1",
-                                          mobile) 
-                #NOTE: sms_option should not be null
-                if not sms_option:
-                    logging.info("[UWEB] owner_mobile: %s can not be found in T_SMS_OPTION", mobile)
-                else:
-                    sms_options[mobile] = sms_option
+            for mobile in mobiles:              
+                sms_option = QueryHelper.get_sms_option(self.current_user.uid, db) 
+                sms_options[mobile] = sms_option
             self.write_ret(status,
                            dict_=dict(sms_options=sms_options))
         except Exception as e:

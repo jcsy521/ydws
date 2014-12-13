@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+
+"""This module is designed for owner-service, one activity in YDWS.
+
+#NOTE：deprecated.
+"""
+
 import time
 
 import tornado.web
@@ -30,7 +36,6 @@ class OwnerserviceHandler(BaseHandler):
                                     "VALUES(%s,%s,%s,%s)", umobile, cnum, add_time, car_type)
 
             self.write_ret(status=status)
-            # if status= 201?
         except Exception as e:
             status = ErrorCode.CREATE_USER_FAILURE
             messeage = ErrorCode.ERROR_MESSAGE[status]

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for log-in.
+"""
+
 import hashlib
 import time
 import logging
@@ -14,7 +17,7 @@ from utils.misc import (get_ios_push_list_key, get_ios_id_key, get_ios_badge_key
      get_android_push_list_key, get_terminal_info_key, get_location_key, get_lastinfo_time_key, DUMMY_IDS)
 from utils.checker import check_sql_injection, check_phone
 from utils.public import get_group_info_by_tid, update_mannual_status
-from utils.public import get_push_key
+from utils.public import get_push_key, record_login_user
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER, GATEWAY
 from helpers.notifyhelper import NotifyHelper
@@ -53,7 +56,7 @@ class LoginHandler(BaseHandler, LoginMixin):
 
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
         #NOTE: Get captchahash from cookie
-        captchahash = self.get_cookie("captchahash", "")
+        captchahash = self.get_secure_cookie("captchahash", "")
 
         logging.info("[UWEB] Browser login request, username: %s, password: %s, user_type: %s", username, password, user_type)
 
@@ -66,15 +69,6 @@ class LoginHandler(BaseHandler, LoginMixin):
                         message_captcha=None,
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.ILLEGAL_LABEL])
             return
-
-        #if not (check_sql_injection(username) and check_sql_injection(password)):
-        #    self.render("login.html",
-        #                username="",
-        #                password="",
-        #                user_type=user_type,
-        #                message_captcha=None,
-        #                message=ErrorCode.ERROR_MESSAGE[ErrorCode.LOGIN_FAILED])
-        #    return
 
         m = hashlib.md5()
         m.update(captcha.lower())
@@ -107,9 +101,13 @@ class LoginHandler(BaseHandler, LoginMixin):
             else:
                 logging.error("[UWEB] invalid user_type: %s", _user_type)
                 pass
+
             if (role is not None) and (user_id is not None):
-                # keep the login log
-                self.login_log(user_id, role, 0)
+                # NOTE: keep the login log
+                login_info = dict(uid=user_id,
+                                  role=role,
+                                  method=0)
+                record_login_user(login_info, self.db)
 
             #keep current_user in cookie
             self.bookkeep(dict(cid=cid,
@@ -186,17 +184,18 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
             status= ErrorCode.ILLEGAL_LABEL
             self.write_ret(status)
             return
-        #if not (check_sql_injection(username) and check_sql_injection(password)):
-        #    status= ErrorCode.LOGIN_FAILED
-        #    self.write_ret(status)
-        #    return
 
         # check the user, return uid, tid, sim and status
         cid, oid, uid, terminals, user_type, status = self.login_passwd_auth(username, password, user_type)
         logging.info("[UWEB] Login auth, cid:%s, oid:%s, uid:%s, user_type:%s", cid, oid, uid, user_type)
         if status == ErrorCode.SUCCESS: 
             # keep the login log
-            self.login_log(uid, 0, 2, versionname)
+            login_info = dict(uid=uid,
+                              role=0,
+                              method=2,
+                              versionname=versionname)
+            record_login_user(login_info, self.db)
+
             self.bookkeep(dict(cid=cid,
                                oid=oid,
                                uid=uid,
@@ -207,59 +206,14 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
             # NOTE: add cars_info, it's same as lastinfo
             cars_info = {} 
 
-            #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
-
             if user_type == UWEB.USER_TYPE.PERSON:
-                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                          "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
-                                          "  FROM T_TERMINAL_INFO"
-                                          "  WHERE (service_status = %s"
-                                          "         OR service_status = %s)"
-                                          "    AND biz_type = %s"
-                                          "    AND owner_mobile = %s"
-                                          "    AND login_permit = 1"
-                                          "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, 
-                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
-                                          biz_type,
-                                          uid)
-
+                terminals = QueryHelper.get_terminals_by_uid(uid, biz_type, self.db)
             elif user_type == UWEB.USER_TYPE.OPERATOR:
-                groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", oid)
-                gids = [g.group_id for g in groups]
-                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                          "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
-                                          "  FROM T_TERMINAL_INFO"
-                                          "  WHERE (service_status = %s"
-                                          "         OR service_status = %s)"
-                                          "    AND biz_type = %s"
-                                          "    AND group_id IN %s"
-                                          "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, 
-                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
-                                          biz_type,
-                                          tuple(DUMMY_IDS + gids))
+                terminals = QueryHelper.get_terminals_by_oid(oid, biz_type, self.db)
             elif user_type == UWEB.USER_TYPE.CORP:
-                groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", cid)
-                gids = [g.gid for g in groups]
-                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                          "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
-                                          "  FROM T_TERMINAL_INFO"
-                                          "  WHERE (service_status = %s"
-                                          "         OR service_status = %s)"
-                                          "    AND biz_type = %s"
-                                          "    AND group_id IN %s"
-                                          "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, 
-                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
-                                          biz_type,
-                                          tuple(DUMMY_IDS + gids))
+                terminals = QueryHelper.get_terminals_by_cid(cid, biz_type, self.db)
             else:
                 logging.error("[UWEB] invalid user_type: %s", user_type)
-                pass
 
             for terminal in terminals:
                 # 1: get terminal
@@ -415,6 +369,7 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
         tid = ConfHelper.UWEB_CONF.test_tid 
         sim = ConfHelper.UWEB_CONF.test_sim
         version_type = int(self.get_argument("version_type", 0))
+        biz_type = UWEB.BIZ_TYPE.YDWS
 
         self.bookkeep(dict(cid=cid,
                            oid=oid,
@@ -427,17 +382,8 @@ class IOSLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
         cars_info = {} 
 
         #NOTE: the code here is ugly, maybe some day the unwanted field is removed, the code canbe refactored.
-        terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                  "    gsm, gps, pbat, login, defend_status,"
-                                  "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
-                                  "  FROM T_TERMINAL_INFO"
-                                  "  WHERE service_status = %s"
-                                  "    AND owner_mobile = %s"
-                                  "    AND login_permit = 1"
-                                  "    ORDER BY LOGIN DESC",
-                                  UWEB.SERVICE_STATUS.ON, uid)
 
-
+        terminals = QueryHelper.get_terminals_by_uid(uid, biz_type, self.db)
         for terminal in terminals:
             # 1: get terminal
             tid = terminal.tid
@@ -552,10 +498,6 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
             status= ErrorCode.ILLEGAL_LABEL
             self.write_ret(status)
             return
-        #if not (check_sql_injection(username) and check_sql_injection(password)):
-        #    status= ErrorCode.LOGIN_FAILED
-        #    self.write_ret(status)
-        #    return
 
         # check the user, return uid, tid, sim and status
         cid, oid, uid, terminals, user_type, status = self.login_passwd_auth(username, password, user_type)
@@ -563,7 +505,12 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
         if status == ErrorCode.SUCCESS: 
             ## role: 0: person; 1: operator; 2: enterprise
             ## method 0: web; 1: android; 2: ios 
-            self.login_log(uid, 0, 1, versionname)
+            # NOTE: keep the login log
+            login_info = dict(uid=uid,
+                              role=0,
+                              method=1,
+                              versionname=versionname)
+            record_login_user(login_info, self.db)
 
             self.bookkeep(dict(cid=cid,
                                oid=oid,
@@ -577,54 +524,14 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
             cars_info = {} 
 
             if user_type == UWEB.USER_TYPE.PERSON:
-                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                          "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
-                                          "  FROM T_TERMINAL_INFO"
-                                          "  WHERE (service_status = %s"
-                                          "         OR service_status = %s)"
-                                          "    AND biz_type = %s"
-                                          "    AND owner_mobile = %s"
-                                          "    AND login_permit = 1"
-                                          "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, 
-                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
-                                          biz_type, uid)
-
+                terminals = QueryHelper.get_terminals_by_uid(uid, biz_type, self.db)
             elif user_type == UWEB.USER_TYPE.OPERATOR:
-                groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", oid)
-                gids = [g.group_id for g in groups]
-                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                          "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
-                                          "  FROM T_TERMINAL_INFO"
-                                          "  WHERE (service_status = %s"
-                                          "         OR service_status = %s)"
-                                          "    AND biz_type = %s"
-                                          "    AND group_id IN %s"
-                                          "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, 
-                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
-                                          biz_type, tuple(DUMMY_IDS + gids))
+                terminals = QueryHelper.get_terminals_by_oid(oid, biz_type, self.db)
             elif user_type == UWEB.USER_TYPE.CORP:
-                groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", cid)
-                gids = [g.gid for g in groups]
-                terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                          "    gsm, gps, pbat, login, defend_status,"
-                                          "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
-                                          "  FROM T_TERMINAL_INFO"
-                                          "  WHERE (service_status = %s"
-                                          "         OR service_status = %s)"
-                                          "    AND biz_type = %s"
-                                          "    AND group_id IN %s"
-                                          "    ORDER BY LOGIN DESC",
-                                          UWEB.SERVICE_STATUS.ON, 
-                                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
-                                          biz_type, tuple(DUMMY_IDS + gids))
+                terminals = QueryHelper.get_terminals_by_cid(cid, biz_type, self.db)
             else:
-                logging.error("[UWEB] Invalid user_type: %s", user_type)
-                pass
-
+                logging.error("[UWEB] invalid user_type: %s", user_type)
+                
             for terminal in terminals:
                 # 1: get terminal
                 tid = terminal.tid
@@ -794,6 +701,7 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
         tid = ConfHelper.UWEB_CONF.test_tid 
         sim = ConfHelper.UWEB_CONF.test_sim
         version_type = int(self.get_argument("version_type", 0))
+        biz_type = UWEB.BIZ_TYPE.YDWS
 
         self.bookkeep(dict(cid=cid,
                            oid=oid,
@@ -805,15 +713,8 @@ class AndroidLoginTestHandler(BaseHandler, LoginMixin, AvatarMixin):
 
         # NOTE: add cars_info, it's same as lastinfo
         cars_info = {} 
-        terminals = self.db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                                  "    gsm, gps, pbat, login, defend_status,"
-                                  "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
-                                  "  FROM T_TERMINAL_INFO"
-                                  "  WHERE service_status = %s"
-                                  "    AND owner_mobile = %s"
-                                  "    AND login_permit = 1"
-                                  "    ORDER BY LOGIN DESC",
-                                  UWEB.SERVICE_STATUS.ON, uid)
+
+        terminals = QueryHelper.get_terminals_by_uid(uid, biz_type, self.db)
         for terminal in terminals:
             # 1: get terminal
             tid = terminal.tid
@@ -948,26 +849,10 @@ class LogoutHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Clear the cookie and return to login.html."""
-        #uid = self.current_user.uid
-        #terminals = self.db.query("SELECT uid, default_status, defend_status FROM T_TERMINAL_INFO WHERE uid=%s", uid)
-        #for terminal in termianls:
-        #    if terminal["default_status"] != termianl["mannual_status"]:
-        #        self.db.update("UPDATE T_TERMINAL_INFO SET mannual_status=%s WHERE tid=%s",terminal["default_status"], terminal["tid"])
-        #        logging.info("[UWEB] terminal %s logout and change mannual status %s, uid is %s", terminal["tid"], terminal["default_status"], uid)
         self.clear_cookie(self.app_name)
         self.redirect(self.get_argument("next", "/"))
 
 class IOSLogoutHandler(BaseHandler):
-
-    #@authenticated
-    #@tornado.web.removeslash
-    #def get(self):
-    #    """Clear the cookie, ios_id and ios_badge. """
-    #    ios_id_key = get_ios_id_key(self.current_user.uid)
-    #    ios_badge_key = get_ios_badge_key(self.current_user.uid)
-    #    keys = [ios_id_key, ios_badge_key]
-    #    self.redis.delete(*keys)
-    #    self.clear_cookie(self.app_name)
 
     @authenticated
     @tornado.web.removeslash
@@ -1002,12 +887,6 @@ class IOSLogoutHandler(BaseHandler):
             self.write_ret(ErrorCode.SUCCESS)
 
 class AndroidLogoutHandler(BaseHandler):
-
-    #@authenticated
-    #@tornado.web.removeslash
-    #def get(self):
-    #    """Clear the cookie ."""
-    #    self.clear_cookie(self.app_name)
 
     @authenticated
     @tornado.web.removeslash

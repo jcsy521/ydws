@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for inclastinfo.
+"""
+
 import logging
 import time
 from copy import deepcopy
@@ -10,14 +13,13 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
-from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key,\
-     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS, get_track_key,\
-     get_corp_info_key, get_group_info_key, get_group_terminal_info_key, get_group_terminal_detail_key
+from utils.misc import (get_alarm_info_key, get_location_key,
+     DUMMY_IDS, get_track_key, get_corp_info_key, get_group_info_key, 
+     get_group_terminal_info_key, get_group_terminal_detail_key)
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
 from constants import UWEB, EVENTER, GATEWAY
-from constants.MEMCACHED import ALIVED
 from base import BaseHandler, authenticated
 
        
@@ -126,20 +128,7 @@ class IncLastInfoCorpHandler(BaseHandler):
  
                 for group in groups:
                     group['trackers'] = {} 
-                    #terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                    #                          "  WHERE group_id = %s"
-                    #                          "    AND (service_status = %s"
-                    #                          "    OR service_status = %s)"
-                    #                          "    ORDER BY id",
-                    #                          group.gid, UWEB.SERVICE_STATUS.ON, 
-                    #                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
-
-                    terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
-                                              "  WHERE group_id = %s"
-                                              "    AND (service_status = %s"
-                                              "    OR service_status = %s)",
-                                              group.gid, UWEB.SERVICE_STATUS.ON, 
-                                              UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
+                    terminals = QueryHelper.get_terminals_by_group_id(group.gid, db)
                     tids = [str(terminal.tid) for terminal in terminals]
                     _now_time = time.time()
                     if (_now_time - _start_time) > 5:
@@ -251,17 +240,6 @@ class IncLastInfoCorpHandler(BaseHandler):
                                 #endtime = int(basic_info['timestamp'])-1 if basic_info['timestamp'] else (current_time/1000)-1
                                 endtime = int(basic_info['timestamp'])-1 
                                 points_track = []
-                                #points_track = self.db.query("SELECT id, latitude, longitude," 
-                                #                             "   clatitude, clongitude, type, timestamp"
-                                #                             "  FROM T_LOCATION"
-                                #                             "  WHERE tid = %s"
-                                #                             "    AND NOT (latitude = 0 OR longitude = 0)"
-                                #                             "    AND (timestamp BETWEEN %s AND %s)"
-                                #                             "    AND type = 0"
-                                #                             "    ORDER BY timestamp",
-                                #                             tid,
-                                #                             int(item['track_time'])+1, endtime)
-
 
                                 logging.info("[UWEB] tid: %s, track_time, %s, %s", tid, int(item['track_time'])+1, endtime)
                                 #NOTE: offset latlon
@@ -284,17 +262,6 @@ class IncLastInfoCorpHandler(BaseHandler):
                         #3: build trace_info
                         trace_info = []
                         points_trace = []
-                        #points_trace = self.db.query("SELECT id, latitude, longitude," 
-                        #                             "    clatitude, clongitude, type, timestamp"
-                        #                             "  FROM T_LOCATION"
-                        #                             "  WHERE tid = %s"
-                        #                             "    AND NOT (latitude = 0 OR longitude = 0)"
-                        #                             "    AND (timestamp BETWEEN %s and %s)"
-                        #                             "    AND type = 0"
-                        #                             "    ORDER BY timestamp",
-                        #                             tid, basic_info['timestamp']-60*5, basic_info['timestamp'])
-                        #                             #tid, (current_time/1000)-60*5, basic_info['timestamp'])
-
                         points_trace = points_trace[-5:] 
                         #points_trace = get_locations_with_clatlon(points_trace, self.db)
                         len_trace = 0
@@ -328,12 +295,6 @@ class IncLastInfoCorpHandler(BaseHandler):
                                 if alarm['keeptime'] >= lastinfo_time/1000:
                                     alarm_info.append(alarm)
                             
-                        if alarm_info:
-                            # NOTE: here, do not remove alarm_info, it will automagically disappear after 1 day 
-                            #self.redis.delete(alarm_info_key)
-                            #logging.info("[UWEB] lastinfo_time: %s, alarm_info_key: %s, alarm_info: %s", lastinfo_time,  alarm_info_key, alarm_info)
-                            pass
-
                         for alarm in alarm_info:
                             alarm['alias'] = terminal['alias']
 

@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for event-statistic.
+
+#NOTE: deprecated
+"""
+
 import logging
 import datetime
 import time
@@ -27,7 +32,7 @@ class StatisticHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        """Provie some statistics about terminals.
+        """Provide some statistics about terminals.
         """
         status = ErrorCode.SUCCESS
         try:
@@ -310,7 +315,7 @@ class StatisticSingleDownloadHandler(StatisticSingleHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Provie some statistics about terminals.
+        """Provide some statistics about terminals.
         """
         status = ErrorCode.SUCCESS
         try:

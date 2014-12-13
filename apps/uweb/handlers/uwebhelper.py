@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import hashlib
-import hmac
+"""This module is designed for offset of latlon. 
+"""
+
 import logging
 
-from tornado.escape import json_encode
 import tornado.web
 
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from helpers import lbmphelper
-from utils.dotdict import DotDict
 
 
 class GEHandler(BaseHandler):

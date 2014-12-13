@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for lastposition.
+"""
+
 import logging
 import time
 

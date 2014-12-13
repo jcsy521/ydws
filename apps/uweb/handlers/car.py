@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for switching terminal.
+
+#NOTE：deprecated.
+"""
+
 import logging
 import time
 

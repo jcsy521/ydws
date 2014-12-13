@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for avatars of YDWQ.
+
+#TODO: deprecated.
+"""
+
 import time
 import logging
 import base64

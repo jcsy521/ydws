@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for Q&A.
+"""
+
 import logging
 
 import tornado.web
@@ -10,6 +13,6 @@ class ChargeHandler(BaseHandler):
 
     @tornado.web.removeslash
     def get(self):
-        """Jump to the coresponding charge.html."""
+        """Jump to the corresponding charge.html."""
         self.render('charge.html')
 

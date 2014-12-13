@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for operator.
+"""
+
 import logging
 
 import tornado.web
@@ -28,10 +31,6 @@ class OperatorHandler(BaseHandler):
             for key in fields.iterkeys():
                 v = self.get_argument(key, None)
                 if v:
-                    #if not check_sql_injection(v):
-                    #    status = ErrorCode.SELECT_CONDITION_ILLEGAL
-                    #    self.write_ret(status)
-                    #    return  
                     fields[key] = fields[key] % (v,)
                 else:
                     fields[key] = None
@@ -106,6 +105,7 @@ class OperatorHandler(BaseHandler):
             address = data.address
             group_id = data.group_id
             group_ids = map(int, str_to_list(group_id))
+
             oid = self.db.execute("INSERT T_OPERATOR(oid, mobile, password, name, corp_id, email, address)"
                                   "  VALUES(%s, %s, password(%s), %s, %s, %s, %s)",
                                   mobile, mobile, '111111', name, self.current_user.cid,
@@ -193,35 +193,3 @@ class OperatorHandler(BaseHandler):
                               self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-
-
-#class OperatorBindGroupHandler(BaseHandler):
-#
-#    @authenticated
-#    @tornado.web.removeslash
-#    def post(self):
-#        """Bind some groups to an operator.
-#        """
-#        try:
-#            data = DotDict(json_decode(self.request.body))
-#            gids = [str(gid) for gid in data.gids]
-#            oid = data.oid 
-#            logging.info("[UWEB] bind group to operator request: %s, cid: %s", 
-#                         data, self.current_user.cid)
-#        except Exception as e:
-#            status = ErrorCode.ILLEGAL_DATA_FORMAT
-#            self.write_ret(status)
-#            return
-#
-#        try:
-#            status = ErrorCode.SUCCESS
-#            self.db.executemany("INSERT INTO T_GROUP_OPERATOR(id, group_id, oper_id)"
-#                                "  VALUES(NULL, %s, %s)" %\
-#                                [(gid, oid) for gid in gids])
-#
-#            self.write_ret(status)
-#        except Exception as e:
-#            logging.exception("[UWEB] cid: %s bind group failed. Exception: %s", 
-#                              self.current_user.cid, e.args) 
-#            status = ErrorCode.SERVER_BUSY
-#            self.write_ret(status)

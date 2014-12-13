@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for YDWQ.
+"""
+
 import logging
 
 from tornado.escape import json_decode, json_encode
@@ -7,6 +10,7 @@ import tornado.web
 import time
 
 from utils.dotdict import DotDict
+from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode
 from constants import UWEB 
 
@@ -118,10 +122,7 @@ class ActivateHandler(BaseHandler):
                         self.write_ret(status,
                                        dict_=DotDict(mobile=terminal.mobile))
                     else: # has code, sn not exist: a new activate
-                        terminal = self.db.get("SELECT id, service_status, mobile"
-                                               "  FROM T_TERMINAL_INFO"
-                                               "  WHERE activation_code = %s LIMIT 1",
-                                               activation_code)
+                        terminal = QueryHelper.get_terminal_by_activation_code(activation_code, self.db)
                         if terminal['service_status'] == UWEB.SERVICE_STATUS.ON: # the code is used normal with another sn
                             status = ErrorCode.ACCOUNT_NOT_MATCH
                             logging.info("[UWEB] sn: %s has exist.", sn)
@@ -165,15 +166,11 @@ class ActivationcodeHandler(BaseHandler):
         try:
             terminal = None
             if tid:
-                terminal = self.db.get("SELECT activation_code, mobile, tid, biz_type FROM T_TERMINAL_INFO"
-                                       "  WHERE tid = %s", 
-                                       tid)
+                terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
+
             if not terminal:
                 if mobile:
-                    terminal = self.db.get("SELECT activation_code, mobile, tid, biz_type FROM T_TERMINAL_INFO"
-                                           "  WHERE mobile = %s", 
-                                           mobile)
-
+                    terminal = QueryHelper.get_terminal_by_tmobile(mobile, self.db)
 
             activation_code = terminal.get('activation_code', '') if terminal else ''
             tid = terminal.get('tid', '') if terminal else ''
@@ -187,7 +184,7 @@ class ActivationcodeHandler(BaseHandler):
                                          biz_type=biz_type))
         except Exception as e:
             status = ErrorCode.SERVER_BUSY
-            logging.exception("[ACTIVATIONCODE] get activation_code failed, body: %s. Exception: %s", 
+            logging.exception("[ACTIVATIONCODE] Get activation_code failed, body: %s. Exception: %s", 
                               self.request.body, e.args)
             self.write_ret(status)
 

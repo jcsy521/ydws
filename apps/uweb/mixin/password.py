@@ -42,32 +42,3 @@ class PasswordMixin(BaseMixin):
                           password, oid)
 
         return True if res else False 
-
-    def update_password(self, password, uid):
-        self.db.execute("UPDATE T_USER "
-                        "  SET password = password(%s)"
-                        "  WHERE uid = %s",
-                        password, uid)
-
-        #NOTE: clear ios push list 
-        ios_push_list_key = get_ios_push_list_key(uid) 
-        ios_push_list = self.redis.getvalue(ios_push_list_key) 
-        ios_push_list = ios_push_list if ios_push_list else []
-        for iosid in ios_push_list: 
-            ios_badge_key = get_ios_badge_key(iosid) 
-            self.redis.delete(ios_badge_key) 
-            ios_push_list.remove(iosid) 
-        self.redis.set(ios_push_list_key, []) 
-        logging.info("[UWEB] uid:%s clear ios_push_list.", uid)
-
-    def update_corp_password(self, password, cid):
-        self.db.execute("UPDATE T_CORP "
-                        "  SET password = password(%s)"
-                        "  WHERE cid = %s",
-                        password, cid)
-
-    def update_oper_password(self, password, oid):
-        self.db.execute("UPDATE T_OPERATOR"
-                        "  SET password = password(%s)"
-                        "  WHERE oid = %s",
-                        password, oid)

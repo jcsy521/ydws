@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for eventer-period .
+
+NOTE: deprecated.
+"""
+
 import logging
 
 from tornado.escape import json_decode, json_encode

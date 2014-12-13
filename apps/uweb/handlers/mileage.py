@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for mileage-static.
+#TODO:
+#NOTE: deprecated. 
+"""
+
 import logging
 import datetime
 import time

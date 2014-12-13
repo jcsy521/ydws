@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for regions.
+"""
+
 import logging
 
 import tornado.web
@@ -7,7 +10,7 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import DUMMY_IDS, str_to_list, get_region_status_key
-from utils.checker import check_sql_injection
+from utils.public import add_region, delete_region
 from constants import UWEB, LIMIT
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
@@ -31,11 +34,7 @@ class RegionDetailHandler(BaseHandler):
             return
         
         try:
-            region = self.db.get("SELECT id AS region_id, name AS region_name, longitude, latitude,"
-                                 "  radius, points, shape AS region_shape"
-                                 "  FROM T_REGION"
-                                 "  WHERE id = %s",
-                                 rid)
+            region = QueryHelper.get_region(rid, self.db)
             if not region:
                 status = ErrorCode.REGION_NOT_EXISTED
                 self.write_ret(status)
@@ -43,11 +42,11 @@ class RegionDetailHandler(BaseHandler):
 
             if region.region_shape == UWEB.REGION_SHAPE.CIRCLE:
                 res = DotDict(region_id=region.region_id,
-                            region_name=region.region_name,
-                            region_shape=region.region_shape,
-                            circle=DotDict(latitude=region.latitude,
-                                           longitude=region.longitude,
-                                           radius=region.radius),
+                              region_name=region.region_name,
+                              region_shape=region.region_shape,
+                              circle=DotDict(latitude=region.latitude,
+                                             longitude=region.longitude,
+                                             radius=region.radius),
                             )
             elif region.region_shape == UWEB.REGION_SHAPE.POLYGON:
                 polygon = []
@@ -90,21 +89,15 @@ class RegionHandler(BaseHandler):
 
         try:
             res = []
-            regions = self.db.query("SELECT tr.id AS region_id, tr.name AS region_name,"
-                                    "       tr.longitude, tr.latitude, tr.radius,"
-                                    "       tr.points, tr.shape AS region_shape"
-                                    "  FROM T_REGION tr, T_REGION_TERMINAL trt"
-                                    "  WHERE tr.id = trt.rid"
-                                    "  AND trt.tid = %s",
-                                    tid)
+            regions = QueryHelper.get_regions(tid, self.db)
             for region in regions:
                if region.region_shape == UWEB.REGION_SHAPE.CIRCLE:
                    r = DotDict(region_id=region.region_id,
                                region_name=region.region_name,
                                region_shape=region.region_shape,
-                               circle=DotDict(latitude=region.latitude,
-                                              longitude=region.longitude,
-                                              radius=region.radius),
+                               circle=DotDict(latitude=region.region_latitude,
+                                              longitude=region.region_longitude,
+                                              radius=region.region_radius),
                                )
                elif region.region_shape == UWEB.REGION_SHAPE.POLYGON:
                    polygon = []
@@ -125,7 +118,7 @@ class RegionHandler(BaseHandler):
             self.write_ret(status,
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[UWEB] tid: %s get regions failed. Exception: %s",
+            logging.exception("[UWEB] Get regions failed. tid: %s，Exception: %s",
                               tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -149,18 +142,8 @@ class RegionHandler(BaseHandler):
             self.write_ret(status)
             return
 
-        try:
-            #status = self.check_privilege(self.current_user.uid, tid) 
-            #if status != ErrorCode.SUCCESS: 
-            #    logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
-            #                  tid, self.current_user.uid) 
-            #    self.write_ret(status) 
-            #    return 
-
-            regions = self.db.query("SELECT id"
-                                    "  FROM T_REGION_TERMINAL"
-                                    "  WHERE tid = %s",
-                                    tid)
+        try:        
+            regions = QueryHelper.get_regions(tid, self.db)
             if len(regions) > LIMIT.REGION - 1:
                 self.write_ret(ErrorCode.REGION_ADDITION_EXCESS)
                 return
@@ -173,13 +156,14 @@ class RegionHandler(BaseHandler):
                 longitude = circle.longitude 
                 latitude = circle.latitude 
                 radius = circle.radius
-                rid = self.db.execute("INSERT T_REGION(name, longitude, latitude, radius, shape, uid)"
-                                      "  VALUES(%s, %s, %s, %s, %s, %s)",
-                                      region_name, longitude, latitude, radius, region_shape, self.current_user.uid)
-
-                self.db.execute("INSERT INTO T_REGION_TERMINAL(rid, tid)"
-                                "  VALUES(%s, %s)",
-                                rid, tid)
+                region_info = dict(region_name=region_name,
+                                   longitude=longitude,
+                                   latitude=latitude,
+                                   radius=radius,
+                                   shape=region_shape,
+                                   uid=self.current_user.uid,
+                                   tid=tid)                 
+                rid = add_region(region_info, self.db, self.redis)
             elif region_shape == UWEB.REGION_SHAPE.POLYGON:
                 polygon = data.polygon
                 points_lst = [] 
@@ -189,23 +173,20 @@ class RegionHandler(BaseHandler):
                     points += tmp
                     points_lst.append(tmp)
                 points = ':'.join(points_lst) 
-                rid = self.db.execute("INSERT T_REGION(name, points, shape, uid)"
-                                      "  VALUES(%s, %s, %s, %s)",
-                                      region_name, points, region_shape, self.current_user.uid)
 
-                self.db.execute("INSERT INTO T_REGION_TERMINAL(rid, tid)"
-                                "  VALUES(%s, %s)",
-                                rid, tid)
- 
+                region_info = dict(region_name=region_name,
+                                   points=points,                                  
+                                   shape=region_shape,
+                                   uid=self.current_user.uid,
+                                   tid=tid)                 
+                rid = add_region(region_info, self.db, self.redis) 
             else: 
                 logging.error("[UWEB] Add region failed, unknown region_shape: %s, uid: %s",
-                              region_shape, self.current_user.uid)
-                pass
-            
+                              region_shape, self.current_user.uid)          
             self.write_ret(status,
                            dict_=DotDict(rid=rid))
         except Exception as e:
-            logging.exception("[UWEB] uid: %s create region for tid: %s failed. Exception: %s",
+            logging.exception("[UWEB] Create region failed. uid: %s, tid: %s. Exception: %s",
                               self.current_user.uid, data.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -225,34 +206,8 @@ class RegionHandler(BaseHandler):
             self.write_ret(status)
 
         try:
-            #status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
-            #if status != ErrorCode.SUCCESS: 
-            #    logging.error("[UWEB] Terminal: %s, user: %s is just for test, has no right to access the function.", 
-            #                  self.current_user.tid, self.current_user.uid) 
-            #    self.write_ret(status) 
-            #    return
-
             status = ErrorCode.SUCCESS
-            #1: delete redis region status
-            for region_id in delete_ids:
-                terminals = self.db.query("SELECT tid"
-                                          "  FROM T_REGION_TERMINAL"
-                                          "  WHERE rid = %s",
-                                          region_id)
-                for terminal in terminals:
-                    region_status_key = get_region_status_key(terminal.tid, region_id)
-                    self.redis.delete(region_status_key)
-            
-            #2: delete region, region event and region terminal relation
-            self.db.execute("DELETE FROM T_REGION WHERE id IN %s",
-                            tuple(delete_ids + DUMMY_IDS)) 
-
-            self.db.execute("DELETE FROM T_EVENT WHERE rid IN %s",
-                            tuple(delete_ids + DUMMY_IDS))
-
-            self.db.execute("DELETE FROM T_REGION_TERMINAL WHERE rid IN %s",
-                            tuple(delete_ids + DUMMY_IDS))
-            
+            delete_region(delete_ids, self.db, self.redis)           
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s delete region failed. Exception: %s", 

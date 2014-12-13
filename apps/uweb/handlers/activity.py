@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for activity.
+"""
+
 import logging
 import time
 
@@ -7,7 +10,10 @@ import tornado.web
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
+from helpers.queryhelper import QueryHelper
+
 from base import BaseHandler
+
 
 class ActivityHandler(BaseHandler):
 
@@ -19,20 +25,12 @@ class ActivityHandler(BaseHandler):
         try:
             res = []
             timestamp = self.get_argument('timestamp', None)
-            if timestamp is None:
-                res = self.db.query("SELECT title, begintime, endtime, filename, html_name"
-                                    "  FROM T_ACTIVITY"
-                                    "  ORDER BY begintime DESC LIMIT 1")
+            if timestamp is None:   
+                res = QueryHelper.get_activity_list(self.db)
             elif int(timestamp) == -1:
-                res = self.db.query("SELECT title, begintime, endtime, filename, html_name"
-                                    "  FROM T_ACTIVITY"
-                                    "  WHERE endtime > %s",
-                                    int(time.time()))
+                res = QueryHelper.get_activity_avaliable(self.db)
             else:
-                res = self.db.query("SELECT title, begintime, endtime, filename, html_name"
-                                    "  FROM T_ACTIVITY"
-                                    "  WHERE begintime > %s",
-                                    timestamp)
+                res = QueryHelper.get_activity_by_begintime(timestamp, self.db)
             for r in res:
                 if r['filename']:
                     r['filepath'] = self.application.settings['activity_path'] + r['filename']
@@ -44,7 +42,7 @@ class ActivityHandler(BaseHandler):
             self.write_ret(status,
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[UWEB] get activities failed. Exception: %s",
+            logging.exception("[UWEB] Get activities failed. Exception: %s",
                               e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

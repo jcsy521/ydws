@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for corp.
+"""
+
 import logging
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
 
-       
+
 class CorpHandler(BaseHandler):
 
     @authenticated
@@ -19,7 +22,7 @@ class CorpHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] modify corp request: %s, cid: %s", 
+            logging.info("[UWEB] Modify corp request: %s, cid: %s",
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -36,7 +39,7 @@ class CorpHandler(BaseHandler):
                             name, cid)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] cid: %s modify corp failed. Exception: %s", 
-                              self.current_user.cid, e.args) 
+            logging.exception("[UWEB] Modify corp failed. cid: %s, Exception: %s",
+                              self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

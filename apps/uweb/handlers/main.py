@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for main page.
+"""
+
 import time
 import logging
 
@@ -24,7 +27,7 @@ class MainHandler(BaseHandler):
         index_html = "index.html"
         bizcode = None
         name = ''
-        if self.current_user.oid != UWEB.DUMMY_OID:
+        if self.current_user.oid != UWEB.DUMMY_OID: # operator
             index_html = "index_corp.html"
             umobile=self.current_user.oid
             user_info = QueryHelper.get_operator_by_oid(self.current_user.oid, self.db)
@@ -33,7 +36,7 @@ class MainHandler(BaseHandler):
                 name = user_info.name if user_info.name else user_info.mobile 
             user_type = UWEB.USER_TYPE.OPERATOR
             bizcode = corp_info.bizcode
-        elif self.current_user.cid != UWEB.DUMMY_CID:
+        elif self.current_user.cid != UWEB.DUMMY_CID: # corp
             index_html = "index_corp.html"
             umobile=self.current_user.cid
             user_info = QueryHelper.get_corp_by_cid(self.current_user.cid, self.db)
@@ -41,7 +44,7 @@ class MainHandler(BaseHandler):
                 name = user_info.linkman if user_info.linkman else user_info.mobile 
             user_type = UWEB.USER_TYPE.CORP
             bizcode = user_info.bizcode
-        else:
+        else: # user
             umobile=self.current_user.uid
             user_info = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if user_info:

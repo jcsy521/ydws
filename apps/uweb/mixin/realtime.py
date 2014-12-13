@@ -62,6 +62,7 @@ class RealtimeMixin(BaseMixin):
 
     def get_realtime(self, uid, sim):
         """Get the location of the current realtime request.
+
         workflow:
         if there is alive memcached, we can get location from it,
         else get location from db

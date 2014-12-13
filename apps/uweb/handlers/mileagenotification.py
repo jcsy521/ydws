@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for mileage-notification.
+"""
+
 import logging
 import datetime
 import time
@@ -13,7 +16,8 @@ from tornado.escape import json_decode, json_encode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, str_to_list, start_end_of_year, start_end_of_month, start_end_of_day, start_end_of_quarter, days_of_month, get_date_from_utc
+from utils.misc import (DUMMY_IDS, str_to_list, start_end_of_year, start_end_of_month, 
+     start_end_of_day, start_end_of_quarter, days_of_month, get_date_from_utc)
 from utils.dotdict import DotDict
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_distance
@@ -70,7 +74,6 @@ class MileageNotificationHandler(BaseHandler):
             distance_notification = data.get('distance_notification', None)
             day_notification = data.get('day_notification', None)
             assist_mobile =  data.get('assist_mobile', None)
-
             if distance_notification is not None:
                 self.db.execute("UPDATE T_MILEAGE_NOTIFICATION"
                                 "  SET distance_notification = %s,"

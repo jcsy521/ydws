@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+"""The module is designed for 中山执法局.
+When Open API is release, it becomes unused.
+
+#NOTE： deprecated.
+"""
+
 import logging
 import time
 import re
@@ -10,7 +16,6 @@ from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_locations_with_clatlon
 from base import BaseHandler, authenticated
-
 
 class ZFJSyncerHandler(BaseHandler):
 

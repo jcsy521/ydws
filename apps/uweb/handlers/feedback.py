@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for feedback.
+"""
+
 import logging
 import time
 

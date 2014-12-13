@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for the wapimg.
+"""
+
 import logging
 
 import tornado.web
@@ -21,4 +24,6 @@ class WapImgHandler(BaseHandler):
                     map_type=ConfHelper.LBMP_CONF.map_type,
                     home_url=ConfHelper.UWEB_CONF.url_out,
                     android_download=ConfHelper.UWEB_CONF.url_out + '/instruction/android')
+        logging.info("[UWEB] Render to wapimg. clon: %s, clat: %s.",
+                     clon, clat)
 

@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for ZNBC.
+
+#NOTE：deprecated.
+"""
+
 import logging
 
 import tornado.web

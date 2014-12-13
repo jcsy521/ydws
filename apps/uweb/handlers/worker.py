@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for multi-thread.
+
+Worker and Workers depend on the PriorityQueue created in Uweb-server. 
+
+"""
+
 from threading import Thread
 from collections import deque 
-import Queue
 import logging
 import time
 

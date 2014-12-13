@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for online-statistic.
+
+#NOTE: deprecated
+"""
+
 from os import SEEK_SET
 import datetime, time
 import logging
