@@ -21,6 +21,8 @@ from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
 from helpers.confhelper import ConfHelper
+from helpers.queryhelper import QueryHelper
+
 from constants import UWEB
 
 class PasswordHandler(BaseHandler, PasswordMixin):
@@ -39,7 +41,7 @@ class PasswordHandler(BaseHandler, PasswordMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] user modify password request: %s, uid: %s", 
+            logging.info("[UWEB] User modify password request: %s, uid: %s", 
                         data, self.current_user.uid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -162,7 +164,7 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] corp modify password request: %s, uid: %s", 
+            logging.info("[UWEB] Corp modify password request: %s, uid: %s", 
                          data, self.current_user.uid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT

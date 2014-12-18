@@ -12,7 +12,7 @@ from tornado.escape import json_encode, json_decode
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB
-
+from helpers.queryhelper import QueryHelper
 from base import BaseHandler, authenticated
 from mixin.realtime import RealtimeMixin
 
@@ -33,9 +33,9 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
             terminal = QueryHelper.get_available_terminal(self.current_user.tid, self.db)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The terminal with tid: %s is noexist, redirect to login.html", self.current_user.tid)
-                self.write_ret(status)
-                self.finish()
+                logging.error("[UWEB] The terminal with tid: %s is noexist, redirect to login.html", 
+                               self.current_user.tid)
+                self.write_ret(status)                
                 return
 
             ret = self.get_realtime(self.current_user.uid, 

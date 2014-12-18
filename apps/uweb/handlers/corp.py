@@ -15,6 +15,11 @@ from base import BaseHandler, authenticated
 
 class CorpHandler(BaseHandler):
 
+    """Handler for the corp's information.
+
+    :url /corp
+    """
+
     @authenticated
     @tornado.web.removeslash
     def put(self):
@@ -26,6 +31,8 @@ class CorpHandler(BaseHandler):
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 

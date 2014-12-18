@@ -24,6 +24,11 @@ from mixin.terminal import TerminalMixin
 
 class AppSettingsHandler(BaseHandler, TerminalMixin):
 
+    """Get basic information for Android, IOS.
+
+    :url /appsettings
+    """
+
     @authenticated
     @tornado.web.removeslash
     def get(self):
@@ -48,7 +53,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
                     "The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
-           
+
             # 撤防，智能设防
             if terminal['mannual_status'] != UWEB.DEFEND_STATUS.YES:
                 terminal['parking_defend'] = 1
@@ -64,7 +69,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
                 self.write_ret(status)
                 return
 
-            sos = dict(mobile='')            
+            sos = dict(mobile='')
             tracker.update(sos)
 
             tracker.update(dict(push_status=terminal.push_status))
@@ -74,7 +79,7 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             tracker.update(dict(parking_defend=terminal.parking_defend))
             tracker.update(dict(owner_mobile=terminal.owner_mobile))
             tracker.update(dict(speed_limit=terminal.speed_limit))
-            
+
             # part 2: profile
 
             profile = DotDict()

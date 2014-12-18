@@ -1,4 +1,3 @@
-#!/bin/bash
 # -*- coding:utf-8 -*-
 
 import os.path
@@ -38,26 +37,32 @@ class WSPushHelper(object):
                         t=t,
                         key=key)
             headers = {"Content-type": "application/json; charset=utf-8"}
-            response, content = http.request(url, 'POST', json_encode(data), headers=headers)
+            response, content = http.request(
+                url, 'POST', json_encode(data), headers=headers)
             logging.info("[WSPUSH] Push register response:%s", response)
             logging.info("[WSPUSH] Push register content:%s", content)
             if response['status'] == '200':
                 if content:
-                    content = content.replace("'",'"')
+                    content = content.replace("'", '"')
                     json_data = json_decode(content)
                     if json_data['status_code'] == 200:
-                        logging.info("[WSPUSH] Push register uid:%s successfully, response:%s", uid, json_data)
-                        #NOTE: keep the account in redis.
-                        redis.setvalue('wspush_registered:%s'%uid, True, 60*60*24)
+                        logging.info(
+                            "[WSPUSH] Push register uid:%s successfully, response:%s", uid, json_data)
+                        # NOTE: keep the account in redis.
+                        redis.setvalue('wspush_registered:%s' %
+                                       uid, True, 60 * 60 * 24)
                     else:
-                        logging.error("[WSPUSH] Push register uid:%s failed!", uid)
+                        logging.error(
+                            "[WSPUSH] Push register uid:%s failed!", uid)
                 else:
                     logging.error("[WSPUSH] Push register uid:%s failed!", uid)
             else:
-                logging.error("[WSPUSH] Push register uid:%s, response: %s", uid, response)
-            
+                logging.error(
+                    "[WSPUSH] Push register uid:%s, response: %s", uid, response)
+
         except Exception as e:
-            logging.exception("[WSPUSH] Register failed. Exception: %s", e.args)
+            logging.exception(
+                "[WSPUSH] Register failed. Exception: %s", e.args)
         finally:
             return json_data
 
@@ -67,11 +72,12 @@ class WSPushHelper(object):
         """
         json_data = None
         try:
-            is_registered = redis.getvalue('wspush_registered:%s'%uid)
+            is_registered = redis.getvalue('wspush_registered:%s' % uid)
             if not is_registered:
-                logging.info("[WSPUSH] Uid has not registered, ignore it. uid: %s", uid)
+                logging.info("[WSPUSH] Uid has not registered, ignore it. uid: %s", 
+                             uid)
                 return json_data
-            
+
             url = ConfHelper.PUSH_CONF.push_url
             http = httplib2.Http(timeout=3, disable_ssl_certificate_validation=True)
             data = dict(uid=uid,
@@ -84,18 +90,19 @@ class WSPushHelper(object):
             response, content = http.request(url, 'POST', json_encode(data), headers=headers)
             if response['status'] == '200':
                 if content:
-                    content = content.replace("'",'"')
+                    content = content.replace("'", '"')
                     json_data = json_decode(content)
                     if json_data['status_code'] == 200:
                         logging.info("[WSPUSH] Push packet successfully! uid = %s, badge = %s, message = %s, packet = %s",
                                      uid, badge, message, packet)
                     else:
-                        logging.error("[WSPUSH] Push packet:%s failed!", packet)
+                        logging.error("[WSPUSH] Push packet:%s failed!", 
+                                       packet)
                 else:
                     logging.error("[WSPUSH] Push packet:%s failed!", packet)
             else:
-                logging.error("[WSPUSH] Push packet:%s failed, response: %s failed.", 
-                                  packet, response)
+                logging.error("[WSPUSH] Push packet:%s failed, response: %s failed.",
+                              packet, response)
         except Exception as e:
             logging.exception("[WSPUSH] Push failed. Exception: %s", e.args)
         finally:
@@ -114,33 +121,38 @@ class WSPushHelper(object):
     def push_packet(tid, packet, db, redis, t_info=None):
         """Push packet to tid.
 
-        @param: tid
-        @param: db 
-        @param: redis 
-        @param: t_info:{'tid':'',
-                        'umobile':'',
-                        'group_id':'',
-                        'cid':''}
+        :arg tid: string
+        :arg db: database instance 
+        :arg redis: redis instance
+        :arg t_info: dict, e.g.
+
+            {
+               'tid':'',
+               'umobile':'',
+               'group_id':'',
+               'cid':''
+            }
+ 
         """
         # NOTE: t_info has higher priority compared with tid
-        if not t_info: # tid is avaliable
+        if not t_info:  # tid is avaliable
             t_info = QueryHelper.get_terminal_basic_info(tid, db)
 
-        uid = t_info.get('umobile','')
-        cid = t_info.get('cid','')
-        
+        uid = t_info.get('umobile', '')
+        cid = t_info.get('cid', '')
+
         t = int(time.time()) * 1000
-       
+
         lst = []
+
         if uid:
             lst.append(uid)
         if cid:
-            lst.append(cid)
+            lst.append(cid)    
 
         for item in set(lst):
             push_key = get_push_key(item, t)
             res = WSPushHelper.push(item, t, push_key, packet, redis)
-
 
     @staticmethod
     def pushS3(tid, db, redis, t_info=None):
@@ -148,13 +160,17 @@ class WSPushHelper(object):
         S3
         Information about organization.
 
-        @param: tid
-        @param: db 
-        @param: redis 
-        @param: t_info:{'tid':'',
-                        'umobile':'',
-                        'group_id':'',
-                        'cid':''}
+        :arg tid: string
+        :arg db: database instance
+        :arg redis: redis instance
+        :arg t_info: dict, record the terminal's basic info. it has higher privilege then tid. e.g.
+
+            {
+                'tid':'',
+                'umobile':'',
+                'group_id':'',
+                'cid':''
+            }
 
         group_1=dict(group_id=1,
                      group_name='jia',
@@ -176,23 +192,22 @@ class WSPushHelper(object):
             t_info = QueryHelper.get_terminal_basic_info(tid, db)
 
         cid = t_info.get('cid', '')
-        
+
         groups = db.query("SELECT * FROM T_GROUP WHERE corp_id = %s",
                           cid)
         for group in groups:
             terminals = db.query("SELECT * FROM T_TERMINAL_INFO"
                                  "  WHERE group_id = %s "
-                                 "  AND service_status= 1", # only success
+                                 "  AND service_status= 1",  # only success
                                  group['id'])
 
             tids = []
             for terminal in terminals:
-                t = QueryHelper.get_terminal_info(terminal['tid'], db, redis) 
+                t = QueryHelper.get_terminal_info(terminal['tid'], db, redis)
                 dct = dict(tid=terminal['tid'],
-                           biz_type=t.get('biz_type',0))
-                           #biz_type=t['biz_type'])
+                           biz_type=t.get('biz_type', 0))
                 tids.append(dct)
-            
+
             res.append(dict(group_id=group['id'],
                             group_name=group['name'],
                             tids=tids,
@@ -204,10 +219,36 @@ class WSPushHelper(object):
         res = WSPushHelper.push_packet(tid, packet, db, redis, t_info)
 
     @staticmethod
+    def pushS3_dummy(uids, db, redis):
+        """
+        S3
+        Wspush a dummy s3 packet to individuals.
+
+        :arg uids: list. e.g.
+            [
+                'xxx',
+                'yyy'
+            ]
+        :arg db: database instance
+        :arg redis: redis instance
+        """
+
+        t = int(time.time()) * 1000
+
+        packet = dict(packet_type="S3",
+                      res=[])
+        
+        for item in uids:
+            push_key = get_push_key(item, t)
+            res = WSPushHelper.push(item, t, push_key, packet, redis)
+
+    @staticmethod
     def pushS4(tid, db, redis):
         """
         S4
         Information about online, offline.
+
+        e.g.
 
         res = []
         res.append(dict(tid='tid1',
@@ -217,26 +258,13 @@ class WSPushHelper(object):
 
         """
 
-        res = [] 
+        res = []
 
-        t = QueryHelper.get_terminal_info(tid, db, redis) 
+        t = QueryHelper.get_terminal_info(tid, db, redis)
         if t:
             res.append(dict(tid=tid,
-                            biz_type=t.get('biz_type',0),
-                            #biz_type=t['biz_type'],
+                            biz_type=t.get('biz_type', 0),
                             login_status=t['login']))
-        #corp = db.get("SELECT * FROM V_TERMINAL where tid = %s",
-        #              tid) 
-        #if corp:
-        #    terminals = db.query("SELECT tid FROM V_TERMINAL WHERE cid= %s",
-        #                          corp['cid'])
-        #    for terminal in terminals:
-        #        t = QueryHelper.get_terminal_info(terminal['tid'], db, redis) 
-        #        res.append(dict(tid=terminal['tid'],
-        #                        biz_type=t['biz_type'],
-        #                        login_status=t['login']))
-        #else:
-        #    res = []
 
         packet = dict(packet_type="S4",
                       res=res)
@@ -271,7 +299,7 @@ class WSPushHelper(object):
         """
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
-        body['biz_type'] = terminal.get('biz_type',0)
+        body['biz_type'] = terminal.get('biz_type', 0)
 
         res.append(body)
 
@@ -296,12 +324,11 @@ class WSPushHelper(object):
         """
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
-        packet=dict(tid=tid,
-                    biz_type=terminal.get('biz_type',0),
-                    #biz_type=terminal['biz_type'],
-                    gps=terminal['gps'],
-                    gsm=terminal['gsm'],
-                    pbat=terminal['pbat'])
+        packet = dict(tid=tid,
+                      biz_type=terminal.get('biz_type', 0),
+                      gps=terminal['gps'],
+                      gsm=terminal['gsm'],
+                      pbat=terminal['pbat'])
         res.append(packet)
 
         packet = dict(packet_type="S6",
@@ -325,13 +352,12 @@ class WSPushHelper(object):
         """
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
-        packet=dict(tid=tid,
-                    biz_type=terminal.get('biz_type',0),
-                    #biz_type=terminal['biz_type'],
-                    alias=terminal['alias'],
-                    icon_type=terminal['icon_type'],
-                    owner_mobile=terminal['owner_mobile'],
-                    mannual_status=terminal['mannual_status'])
+        packet = dict(tid=tid,
+                      biz_type=terminal.get('biz_type', 0),
+                      alias=terminal['alias'],
+                      icon_type=terminal['icon_type'],
+                      owner_mobile=terminal['owner_mobile'],
+                      mannual_status=terminal['mannual_status'])
 
         res.append(packet)
 
@@ -348,8 +374,8 @@ class WSPushHelper(object):
         res=dict(tid=tid,
                  acc_message=1))
         """
-        res=dict(tid=tid,
-                 acc_message=acc_message)
+        res = dict(tid=tid,
+                   acc_message=acc_message)
 
         packet = dict(packet_type="S8",
                       res=res)

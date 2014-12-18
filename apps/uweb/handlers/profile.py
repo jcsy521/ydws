@@ -42,7 +42,7 @@ class ProfileHandler(BaseHandler):
                 return
 
             # 2: car 
-            car = QueryHelper.get_car_by_tid(self.current_user.tid, db)            
+            car = QueryHelper.get_car_by_tid(self.current_user.tid, self.db)            
             profile.update(user)
             profile.update(car)
             self.write_ret(status,

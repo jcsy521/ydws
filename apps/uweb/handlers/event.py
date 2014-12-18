@@ -19,7 +19,10 @@ from base import BaseHandler, authenticated
 
 class EventHandler(BaseHandler):
 
-    """Offer various events for web request."""
+    """Offer various events for web request.
+   
+    :url /event
+    """
 
     @authenticated
     @tornado.web.removeslash
@@ -44,12 +47,12 @@ class EventHandler(BaseHandler):
 
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            logging.info("[UWEB] event request: %s, uid: %s, tid: %s, tids: %s",
+            logging.info("[UWEB] Event request: %s, uid: %s, tid: %s, tids: %s",
                          data, self.current_user.uid, self.current_user.tid, tids)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] Invalid data format. Exception: %s",
-                              e.args)
+            logging.exception("[UWEB] Invalid data format. body: %s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return
 
@@ -58,7 +61,7 @@ class EventHandler(BaseHandler):
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
                 logging.error(
-                    "The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+                    "[UWEB] The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
                 self.write_ret(status)
                 return
 
@@ -136,7 +139,7 @@ class EventHandler(BaseHandler):
                 alias_dict[tid] = terminal_info['alias'] if terminal_info[
                     'alias'] else terminal_info['mobile']
 
-            # change the type form decimal to float.
+            # Adjust the fields in events.
             for event in events:
                 event['alias'] = alias_dict[event['tid']]
                 event['pbat'] = event['pbat'] if event[

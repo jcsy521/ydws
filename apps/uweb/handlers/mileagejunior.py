@@ -104,7 +104,6 @@ class MileageJuniorHandler(BaseHandler):
                 for item, tid in enumerate(tids):
                     seq = item + 1
                     # NOTE: It's amazing: In database, distance's type is long. sum(distance)'s type is Decimal
-                    # TODO:　optimize it
                     mileage_log = self.db.get("SELECT SUM(distance) AS distance"
                                               " FROM T_MILEAGE_LOG"
                                               "  WHERE tid = %s"
@@ -168,7 +167,6 @@ class MileageJuniorHandler(BaseHandler):
                     re = {}
                     re['alias'] = '-'.join([str(year), str(month), str(day)])
 
-                    # TODO: optimize it
                     mileage_log = self.db.get("SELECT distance FROM T_MILEAGE_LOG"
                                               "  WHERE tid = %s"
                                               "  AND timestamp = %s",

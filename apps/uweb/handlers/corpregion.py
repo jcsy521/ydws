@@ -18,16 +18,21 @@ from base import BaseHandler, authenticated
 
 class CorpRegionHandler(BaseHandler):
 
+    """Handle the regions of corp.
+
+    :url /corpregion
+    """
+
     @authenticated
     @tornado.web.removeslash
     def get(self):
         """ Get regions by cid"""
         status = ErrorCode.SUCCESS
         try:
-            cid = self.get_current_user()['cid']
+            cid = self.current_user.cid
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] uid: %s get region data format illegal. Exception: %s",
+            logging.exception("[UWEB] Get region data format illegal. uid: %s, Exception: %s",
                               self.current_user.uid, e.args)
             self.write_ret(status)
             return
@@ -79,14 +84,15 @@ class CorpRegionHandler(BaseHandler):
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] Create region data format illegal. cid: %s, Exception: %s",
-                              self.current_user.cid, e.args)
+            logging.exception("[UWEB] Invalid data format. body:%s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return
 
         try:
-            #NOTE: check numbers of regions of the corp.
-            regions = QueryHelper.get_regions_by_cid(self.current_user.cid, self.db)
+            # NOTE: check numbers of regions of the corp.
+            regions = QueryHelper.get_regions_by_cid(
+                self.current_user.cid, self.db)
             if len(regions) > LIMIT.REGION - 1:
                 self.write_ret(ErrorCode.REGION_ADDITION_EXCESS)
                 return

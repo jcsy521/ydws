@@ -41,7 +41,7 @@ class MainHandler(BaseHandler):
             umobile=self.current_user.cid
             user_info = QueryHelper.get_corp_by_cid(self.current_user.cid, self.db)
             if user_info:
-                name = user_info.linkman if user_info.linkman else user_info.mobile 
+                name = user_info.c_linkman if user_info.c_linkman else user_info.c_mobile 
             user_type = UWEB.USER_TYPE.CORP
             bizcode = user_info.bizcode
         else: # user

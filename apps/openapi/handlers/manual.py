@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for manual_status of Open API.
+"""
+
 import time
 import os
 import logging
@@ -25,42 +28,26 @@ class ManualHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            mobile = data.mobile
-            timestamp = data.timestamp
+            mobile = str(data.mobile)
             manual_status = data.manual_status
             token = data.token
             logging.info("[MANUAL] Request, data:%s", data)
         except Exception as e:
+            status = ErrorCode.DATA_FORMAT_INVALID
             logging.exception("[REBOO] Invalid data format, body: %s, mobile: %s.",
                               self.request.body, mobile)
-            status = ErrorCode.DATA_FORMAT_INVALID
             self.write_ret(status)
             return
 
         try:
-            # TODO：basic
-            if (not token) or not OpenapiHelper.check_token(token, self.redis):
-                status = ErrorCode.TOKEN_EXPIRED
-                logging.info("[MANUAL] Failed. Message: %s.",
-                             ErrorCode.ERROR_MESSAGE[status])
+            status = self.basic_check(token, mobile)                             
+            if status != ErrorCode.SUCCESS:
                 self.write_ret(status)
                 return
-            else:
-                #NOTE:TODO：
-                #NOTE: here, just get terminal which is valid.
-                terminal = self.db.get("SELECT tid FROM T_TERMINAL_INFO"
-                                       "  WHERE mobile = %s"
-                                       "  AND service_status = %s",
-                                       mobile, UWEB.SERVICE_STATUS.ON)
-                if not terminal:
-                    status = ErrorCode.MOBILE_NOT_EXISTED
-                    logging.info("[MANUAL] Failed. Message: %s.",
-                                 ErrorCode.ERROR_MESSAGE[status])
-                    self.write_ret(status)
-                else: 
-                    #TODO：
-                    tid = terminal.tid                    
-                    update_mannual_status(self.db, self.redis, tid, data.manual_status)
+    
+            terminal = QueryHelper.get_terminal_by_tmobile(mobile, self.db)
+            tid = terminal.tid                    
+            update_mannual_status(self.db, self.redis, tid, manual_status)
 
             self.write_ret(status)
 

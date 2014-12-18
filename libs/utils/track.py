@@ -102,4 +102,3 @@ def get_track_name(db, redis, location):
                        name, location['id'])
 
     return location['name'] if location['name'] else ''
-

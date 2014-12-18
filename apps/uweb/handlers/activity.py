@@ -25,7 +25,7 @@ class ActivityHandler(BaseHandler):
         try:
             res = []
             timestamp = self.get_argument('timestamp', None)
-            if timestamp is None:   
+            if timestamp is None:
                 res = QueryHelper.get_activity_list(self.db)
             elif int(timestamp) == -1:
                 res = QueryHelper.get_activity_avaliable(self.db)
@@ -33,7 +33,8 @@ class ActivityHandler(BaseHandler):
                 res = QueryHelper.get_activity_by_begintime(timestamp, self.db)
             for r in res:
                 if r['filename']:
-                    r['filepath'] = self.application.settings['activity_path'] + r['filename']
+                    r['filepath'] = self.application.settings[
+                        'activity_path'] + r['filename']
                 else:
                     r['filepath'] = ''
                 r['url'] = r['html_name']

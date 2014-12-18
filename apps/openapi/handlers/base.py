@@ -1,21 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import functools
 import logging
-import urlparse
-import urllib
-import re
-from time import strftime
 
 import tornado.web
 from tornado.escape import json_encode
 
 from utils.dotdict import DotDict
-from utils.misc import safe_utf8
-from helpers.queryhelper import QueryHelper
-from constants import UWEB
 from codes.openapi_errorcode import ErrorCode
-
+from helpers.queryhelper import QueryHelper 
+from helpers.openapihelper import OpenapiHelper 
 
 class _DBDescriptor(object):
     def __get__(self, obj, type=None):
@@ -51,12 +44,32 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         ret = DotDict(status=status)
         if message is None:
-            message = ErrorCode.ERROR_MESSAGE[status]
-
-        # use tornado local to translate the message. 
-        ret.message = self.locale.translate(message)
+            ret.message = ErrorCode.ERROR_MESSAGE[status]
 
         if isinstance(dict_, dict):
             ret.update(dict_)
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))
+
+    def basic_check(self, token, mobile):
+        """Check the request whether valid.
+        """
+        status = ErrorCode.SUCCESS
+        # check token
+        sp = OpenapiHelper.check_token(self.redis, token)         
+        if (not sp) or (not sp.get('cid','')): 
+            status = ErrorCode.TOKEN_EXPIRED
+            logging.info("[OPENAPI] Check token failed. token: %s, message: %s.",
+                         token, ErrorCode.ERROR_MESSAGE[status])
+            return status
+
+        # check mobile
+        terminals = QueryHelper.get_terminals_by_cid(sp.cid, self.db)
+        mobiles = [str(t.mobile) for t in terminals]
+        if mobile not in mobiles:                   
+            status = ErrorCode.MOBILE_NOT_EXISTED
+            logging.info("[OPENAPI] Check mobile failed. mobile: %s, message: %s.",
+                         mobile, ErrorCode.ERROR_MESSAGE[status])
+            return status
+
+        return status

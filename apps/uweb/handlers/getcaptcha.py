@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module is designed for register-captcha .
+"""This module is designed for captcha for retrieve-password.
 """
 
 import logging
@@ -24,6 +24,11 @@ from helpers.confhelper import ConfHelper
 from constants import UWEB
 
 class GetCaptchaHandler(BaseHandler):
+
+    """Get captcha for password of individual.
+
+    :url /getcaptcha
+    """
     
     @tornado.web.removeslash
     def post(self):
@@ -31,9 +36,11 @@ class GetCaptchaHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] get captcha request: %s", data)
+            logging.info("[UWEB] Get captcha request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body: %s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return 
 
@@ -46,7 +53,7 @@ class GetCaptchaHandler(BaseHandler):
                 return
 
             captcha_psd = data.get('captcha_psd','')
-            captchahash = self.get_cookie("captchahash_password", "")
+            captchahash = self.get_secure_cookie("captchahash_password", "")
 
             #NOTE: check captcha-sms for brower
             from_brower = False 
@@ -67,6 +74,7 @@ class GetCaptchaHandler(BaseHandler):
             if from_brower:
                 m = hashlib.md5()
                 m.update(captcha_psd.lower())
+                m.update(UWEB.HASH_SALT)
                 hash_ = m.hexdigest()
                 if hash_.lower() != captchahash.lower():
                     status = ErrorCode.WRONG_CAPTCHA_IMAGE
@@ -142,21 +150,28 @@ class GetCaptchaHandler(BaseHandler):
 
 class GetCaptchaCorpHandler(BaseHandler):
     
+    """Get captcha for password of enterprise.
+    
+    :url /getcaptcha/corp
+    """
+
     @tornado.web.removeslash
     def post(self):
         """Retrieve the password."""
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] corp retrieve password request: %s", data)
+            logging.info("[UWEB] Corp retrieve password request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body: %s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return 
 
         try:
             captcha_psd = data.get('captcha_psd','')
-            captchahash = self.get_cookie("captchahash_password", "")
+            captchahash = self.get_secure_cookie("captchahash_password", "")
 
             #NOTE: check captcha-sms for brower
             from_brower = False 
@@ -247,12 +262,12 @@ class GetCaptchaCorpHandler(BaseHandler):
                     self.redis.expireat(remote_ip_key, end_time_)  
                 else:
                     status = ErrorCode.SERVER_BUSY
-                    logging.error("[UWEB] corp mobile: %s get captcha failed.", mobile)
+                    logging.error("[UWEB] Get captcha failed. corp mobile: %s", mobile)
             else:
-                logging.error("[UWEB] corp mobile: %s does not exist, get captcha failed.", mobile)
+                logging.error("[UWEB] Get captcha failed. corp mobile: %s does not exist.", mobile)
                 status = ErrorCode.USER_NOT_ORDERED
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] corp mobile: %s get captcha failed. Exception: %s", mobile, e.args)
+            logging.exception("[UWEB] Get captcha failed. corp mobile: %s, Exception: %s", mobile, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

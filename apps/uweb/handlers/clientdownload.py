@@ -12,6 +12,10 @@ from helpers.downloadhelper import get_version_info
 
 class ClientDownloadHandler(BaseHandler):
 
+    """Show the download page.
+    :url /clientdownload
+    """
+
     @tornado.web.removeslash
     def get(self):
         """Jump to the clientDownload html."""

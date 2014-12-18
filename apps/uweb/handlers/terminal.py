@@ -13,25 +13,26 @@ from tornado.escape import json_decode, json_encode
 from tornado.ioloop import IOLoop
 
 from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_del_data_key,
-     get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key)
+                        get_terminal_info_key, get_lq_sms_key, get_lq_interval_key,
+                        get_del_data_key,
+                        get_alert_freq_key, get_tid_from_mobile_ydwq, get_acc_status_info_key)
 from utils.dotdict import DotDict
 from utils.checker import check_sql_injection, check_zs_phone, check_cnum
-from utils.public import (record_add_action, delete_terminal, add_terminal, 
-     add_user, update_mannual_status, clear_sessionID)
+from utils.public import (record_add_action, delete_terminal, add_terminal,
+                          add_user, update_mannual_status, clear_sessionID, get_use_scene_by_vibl)
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
-from codes.smscode import SMSCode 
+from codes.smscode import SMSCode
 from constants import UWEB, SMS, GATEWAY, EVENTER
 
-from helpers.queryhelper import QueryHelper  
+from helpers.queryhelper import QueryHelper
 from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 from helpers.wspushhelper import WSPushHelper
 
-from mixin.terminal import TerminalMixin 
+from mixin.terminal import TerminalMixin
 
 
 class TerminalHandler(BaseHandler, TerminalMixin):
@@ -43,52 +44,57 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         """
         status = ErrorCode.SUCCESS
         try:
-            tid = self.get_argument('tid',None) 
+            tid = self.get_argument('tid', None)
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-          
-            car_sets = DotDict() 
-            # 1: terminal      
+
+            car_sets = DotDict()
+
             terminal = QueryHelper.get_available_terminal(self.current_user.tid, self.db)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The terminal with tid: %s does not exist, redirect to login.html", 
-                               self.current_user.tid)
+                logging.error("[UWEB] The terminal with tid: %s does not exist, redirect to login.html",
+                              self.current_user.tid)
                 self.write_ret(status)
                 return
-            else: 
-                if terminal['mannual_status'] == 1: 
-                    terminal['parking_defend'] = 0 
-                else:  
-                    terminal['parking_defend'] = 1 
 
-            # 2: whitelist
             user = QueryHelper.get_user_by_mobile(terminal.owner_mobile, self.db)
             if not user:
-                logging.error("The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
+                logging.error("[UWEB] The user with uid: %s does not exist, redirect to login.html", 
+                              self.current_user.uid)
                 self.clear_cookie(self.app_name)
                 self.write_ret(ErrorCode.LOGIN_AGAIN)
                 return
 
-            # #NOTE: deprecated. 
-            whitelist = QueryHelper.get_white_list_by_tid(self.current_user.tid, self.db)
-            # # 3: car
-            car_info = QueryHelper.get_car_by_tid(self.current_user.tid, self.db)
-            car = dict(corp_cnum=car_info.get('cnum',''))
+            # NOTE: deprecated.
+            if terminal['mannual_status'] == 1:
+                terminal['parking_defend'] = 0
+            else:
+                terminal['parking_defend'] = 1
 
-            # add tow dict: terminal, car. add two value: whitelist_1, whitelist_2 
+            # NOTE: deprecated.
+            whitelist = QueryHelper.get_white_list_by_tid(
+                self.current_user.tid, self.db)
+
+            car_info = QueryHelper.get_car_by_tid(
+                self.current_user.tid, self.db)
+            car = dict(corp_cnum=car_info.get('cnum', ''))
+
+            # add tow dict: terminal, car. add two value: whitelist_1,
+            # whitelist_2
+            white_list = [terminal.owner_mobile]
+            for item in whitelist:
+                white_list.append(item['mobile'])
+
             car_sets.update(terminal)
             car_sets.update(car)
-            white_list = [terminal.owner_mobile]
-            for item in whitelist: 
-                white_list.append(item['mobile'])
             car_sets.update(DotDict(white_list=white_list))
             self.write_ret(status,
                            dict_=dict(car_sets=car_sets))
-        except Exception as e: 
+        except Exception as e:
             status = ErrorCode.SERVER_BUSY
-            logging.exception("[UWEB] uid: %s tid: %s get terminal failed. Exception: %s", 
-                              self.current_user.uid, self.current_user.tid, e.args) 
+            logging.exception("[UWEB] uid: %s tid: %s get terminal failed. Exception: %s",
+                              self.current_user.uid, self.current_user.tid, e.args)
             self.write_ret(status)
 
     @authenticated
@@ -99,65 +105,22 @@ class TerminalHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            tid = data.get('tid', None) 
+            tid = data.get('tid', None)
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            
-            logging.info("--------test "
-                         "   vxzv"
-                         "   yyy")
-            logging.info("[UWEB] Terminal request: %s, uid: %s, tid: %s", 
+            logging.info("[UWEB] Terminal request: %s, uid: %s, tid: %s",
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
-            return 
-        
+            return
+
         try:
-            if data.get("alert_freq"):
-                alert_freq_key = get_alert_freq_key(self.current_user.tid)
-                if self.redis.exists(alert_freq_key):
-                    logging.info("[UWEB] Termianl %s delete alert freq in redis.", self.current_user.tid)
-                    self.redis.delete(alert_freq_key)
-
-            # if vibl has been changed,then update use_scene as well
-            if data.get("vibl"):
-                 vibl = data.get("vibl")
-                 if vibl == 1:
-                     use_scene = 3
-                 elif vibl == 2:
-                     use_scene = 1
-                 elif vibl == 3:
-                     use_scene = 9 
-                 else:
-                     use_scene = 3
-                 self.db.execute("UPDATE T_TERMINAL_INFO SET use_scene=%s WHERE tid=%s", 
-                                 use_scene, self.current_user.tid)
-                 logging.info("[UWEB] Terminal %s update use_scene %s and vibl %s", 
-                              self.current_user.tid, use_scene, vibl)                 
-                 logging.info("[UWEB] Termianl %s delete session in redis.", self.current_user.tid)                 
-                 clear_sessionID(self.redis, self.current_user.tid)
-
-            # if vibl has been changed,then update use_scene as well
-            if data.get("parking_defend") is not None:
-                 parking_defend = data.get("parking_defend")
-                 if parking_defend == 1:
-                     mannual_status = UWEB.DEFEND_STATUS.SMART
-                 else:
-                     mannual_status = UWEB.DEFEND_STATUS.YES
-
-                 update_mannual_status(self.db, self.redis, self.current_user.tid, mannual_status)
-
-            # if stop_interval has been changed, then clear session to notify terminal
-            if data.get("stop_interval"):
-                 logging.info("[UWEB] Termianl %s delete session in redis.", 
-                              self.current_user.tid)
-                 clear_sessionID(self.redis, self.current_user.tid)
-
-            terminal = QueryHelper.get_available_terminal(self.current_user.tid, self.db)
+            terminal = QueryHelper.get_available_terminal(
+                self.current_user.tid, self.db)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The terminal with tid: %s does not exist, redirect to login.html", 
+                logging.error("[UWEB] The terminal with tid: %s does not exist, redirect to login.html",
                               self.current_user.tid)
                 self.write_ret(status)
                 return
@@ -165,35 +128,36 @@ class TerminalHandler(BaseHandler, TerminalMixin):
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if not user:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error("The user with uid: %s does not exist, redirect to login.html", 
-                               self.current_user.uid)
+                logging.error("[UWEB] The user with uid: %s does not exist, redirect to login.html",
+                              self.current_user.uid)
                 self.write_ret(status)
                 return
 
-            # sql injection 
+            # sql injection
             if data.has_key('corp_cnum') and not check_cnum(data.corp_cnum):
-                status = ErrorCode.ILLEGAL_CNUM 
+                status = ErrorCode.ILLEGAL_CNUM
                 self.write_ret(status)
                 return
 
-            #NOTE: deprecated
+            # NOTE: deprecated
             if data.has_key('white_list'):
                 white_list = ":".join(data.white_list)
                 if not check_sql_injection(white_list):
-                    status = ErrorCode.ILLEGAL_WHITELIST 
+                    status = ErrorCode.ILLEGAL_WHITELIST
                     self.write_ret(status)
                     return
-    
-            self.update_terminal_db(data) 
-            #NOTE: wspush 
-            if status == ErrorCode.SUCCESS: 
+
+            self.update_terminal_db(data)
+            # NOTE: wspush to client
+            if status == ErrorCode.SUCCESS:
                 WSPushHelper.pushS7(tid, self.db, self.redis)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s", 
+            logging.exception("[UWEB] uid:%s, tid:%s update terminal info failed. Exception: %s",
                               self.current_user.uid, self.current_user.tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
+
 
 class TerminalCorpHandler(BaseHandler, TerminalMixin):
 
@@ -204,12 +168,12 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         """
         status = ErrorCode.SUCCESS
         try:
-            if self.current_user.oid == UWEB.DUMMY_OID: # enterprise
+            if self.current_user.oid == UWEB.DUMMY_OID:  # enterprise
                 terminals = QueryHelper.get_terminals_by_cid(self.current_user.cid, self.db)
-            else: # operator
+            else:  # operator
                 terminals = QueryHelper.get_terminals_by_oid(self.current_user.oid, self.db)
-                
-            res=[]
+
+            res = []
             for terminal in terminals:
                 res.append(dict(tid=terminal.tid,
                                 tmobile=terminal.mobile))
@@ -218,7 +182,7 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                            dict_=dict(res=res))
         except Exception as e:
             logging.exception("[UWEB] Get terminal info failed. "
-                              "  cid:%s, tid:%s, Exception: %s", 
+                              "  cid:%s, tid:%s, Exception: %s",
                               self.current_user.cid, tid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -231,19 +195,19 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] corp add terminal request: %s, cid: %s", 
+            logging.info("[UWEB] Corp add terminal request: %s, cid: %s",
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
-            return 
-        
+            return
+
         try:
             if data.has_key('cnum') and not check_cnum(data.cnum):
-                status = ErrorCode.ILLEGAL_CNUM 
+                status = ErrorCode.ILLEGAL_CNUM
                 self.write_ret(status)
                 return
-            
+
             # 1 year
             begintime = int(time.time())
             now_ = datetime.datetime.now()
@@ -253,33 +217,27 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             # 1: add terminal
             #umobile = data.umobile if data.umobile else self.current_user.cid
             if data.umobile:
-                umobile = data.umobile 
+                umobile = data.umobile
             else:
                 corp = QueryHelper.get_corp_by_cid(self.current_user.cid, self.db)
-                umobile = corp.get('c_mobile','')
+                umobile = corp.get('c_mobile', '')
 
             terminal = QueryHelper.get_terminal_by_tmobile(data.tmobile, self.db)
             if terminal:
                 if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
                     delete_terminal(terminal.tid, self.db, self.redis)
                 else:
-                    logging.error("[UWEB] mobile: %s already existed.", data.tmobile)
+                    logging.error(
+                        "[UWEB] mobile: %s already existed.", data.tmobile)
                     status = ErrorCode.TERMINAL_ORDERED
                     self.write_ret(status)
                     return
 
             vibl = data.get("vibl")
-            if vibl == 1:
-                use_scene = 3 # car
-            elif vibl == 2:
-                use_scene = 1 # moto car
-            elif vibl == 3:
-                use_scene = 9 # human
-            else:
-                use_scene = 3 # default car scene
+            use_scene = get_use_scene_by_vibl(vibl)
 
             biz_type = data.get('biz_type', UWEB.BIZ_TYPE.YDWS)
-            tid=data.tmobile
+            tid = data.tmobile
 
             terminal_info = dict(tid=tid,
                                  group_id=data.group_id,
@@ -301,9 +259,8 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                  service_status=UWEB.SERVICE_STATUS.ON)
 
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
-
                 # 0. check tmobile is whitelist or not
-                white_list = check_zs_phone(data.tmobile, self.db) 
+                white_list = check_zs_phone(data.tmobile, self.db)
                 if not white_list:
                     logging.error("[UWEB] mobile: %s is not whitelist.", data.tmobile)
                     status = ErrorCode.MOBILE_NOT_ORDERED
@@ -312,14 +269,14 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                     return
 
                 # 4: send message to terminal
-                register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile) 
+                register_sms = SMSCode.SMS_REGISTER % (umobile, data.tmobile)
                 ret = SMSHelper.send_to_terminal(data.tmobile, register_sms)
             else:
                 tid = get_tid_from_mobile_ydwq(data.tmobile)
                 activation_code = QueryHelper.get_activation_code(self.db)
-                terminal_info['tid']=tid
-                terminal_info['activation_code']=activation_code 
-                terminal_info['service_status']=UWEB.SERVICE_STATUS.TO_BE_ACTIVATED
+                terminal_info['tid'] = tid
+                terminal_info['activation_code'] = activation_code
+                terminal_info['service_status'] = UWEB.SERVICE_STATUS.TO_BE_ACTIVATED
                 register_sms = SMSCode.SMS_REGISTER_YDWQ % (ConfHelper.UWEB_CONF.url_out, activation_code)
                 ret = SMSHelper.send(data.tmobile, register_sms)
 
@@ -341,23 +298,25 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
                                     "  WHERE mobile = %s",
                                     ret['msgid'], data.tmobile)
                 else:
-                    logging.error("[UWEB] Send %s to terminal %s failed.", register_sms, data.tmobile)
+                    logging.error("[UWEB] Send %s to terminal %s failed.", 
+                                  register_sms, data.tmobile)
             else:
-                logging.error("[UWEB] Send %s to terminal %s failed.", register_sms, data.tmobile)
+                logging.error("[UWEB] Send %s to terminal %s failed.", 
+                              register_sms, data.tmobile)
 
-            # 1: add user
-            user_info = dict(umobile=umobile, 
-                             password='111111', 
-                             uname=umobile) 
+            # NOTE: add user
+            user_info = dict(umobile=umobile,
+                             password='111111',
+                             uname=umobile)
             add_user(user_info, self.db, self.redis)
-            
+
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] cid:%s update terminal info failed. Exception: %s", 
+            logging.exception("[UWEB] Update terminal info failed. cid:%s, Exception: %s",
                               self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
- 
+
     @authenticated
     @tornado.web.removeslash
     def delete(self):
@@ -365,15 +324,15 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         """
         try:
             status = ErrorCode.SUCCESS
-
             tid = self.get_argument('tid', None)
             flag = self.get_argument('flag', 0)
-            logging.info("[UWEB] Corp delete terminal request. tid: %s, flag: %s, cid: %s", 
+            logging.info("[UWEB] Corp delete terminal request. tid: %s, flag: %s, cid: %s",
                          tid, flag, self.current_user.cid)
 
             terminal = QueryHelper.get_available_terminal(tid, self.db)
             if not terminal:
-                logging.error("[UWEB] The terminal with tid: %s does not exist!", tid)
+                logging.error("[UWEB] The terminal with tid: %s does not exist!", 
+                              tid)
                 status = ErrorCode.TERMINAL_NOT_EXISTED
                 self.write_ret(status)
                 return
@@ -381,49 +340,54 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
             t_info = QueryHelper.get_terminal_basic_info(tid, self.db)
             key = get_del_data_key(tid)
             self.redis.set(key, flag)
-            biz_type = QueryHelper.get_biz_type_by_tmobile(terminal.mobile, self.db) 
+            biz_type = QueryHelper.get_biz_type_by_tmobile(
+                terminal.mobile, self.db)
             if int(biz_type) == UWEB.BIZ_TYPE.YDWS:
                 if terminal.login != GATEWAY.TERMINAL_LOGIN.ONLINE:
                     if terminal.mobile == tid:
                         delete_terminal(tid, self.db, self.redis)
                     else:
-                        status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                        status = self.send_jb_sms(
+                            terminal.mobile, terminal.owner_mobile, tid)
 
-                    if status == ErrorCode.SUCCESS: 
+                    if status == ErrorCode.SUCCESS:
                         WSPushHelper.pushS3(tid, self.db, self.redis, t_info)
                     self.write_ret(status)
                     return
-            else: 
+            else:
                 delete_terminal(tid, self.db, self.redis)
-                if status == ErrorCode.SUCCESS: 
+                if status == ErrorCode.SUCCESS:
                     WSPushHelper.pushS3(tid, self.db, self.redis, t_info)
                 self.write_ret(status)
                 return
 
-            ## unbind terminal
-            seq = str(int(time.time()*1000))[-4:]
+            # unbind terminal
+            seq = str(int(time.time() * 1000))[-4:]
             args = DotDict(seq=seq,
                            tid=tid)
-            response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args) 
+            response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args)
             response = json_decode(response)
-            logging.info("[UWEB] UNBind terminal: %s, response: %s", tid, response)
+            logging.info(
+                "[UWEB] UNBind terminal: %s, response: %s", tid, response)
             if response['success'] == ErrorCode.SUCCESS:
-                logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
+                logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully",
                              self.current_user.uid, tid, terminal.mobile)
             else:
                 status = response['success']
-                # unbind failed. clear sessionID for relogin, then unbind it again
+                # unbind failed. clear sessionID for relogin, then unbind it
+                # again
                 clear_sessionID(redis, tid)
-                logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
-                              self.current_user.uid, tid, terminal.mobile, 
+                logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...',
+                              self.current_user.uid, tid, terminal.mobile,
                               ErrorCode.ERROR_MESSAGE[status])
-                status = self.send_jb_sms(terminal.mobile, terminal.owner_mobile, tid)
+                status = self.send_jb_sms(
+                    terminal.mobile, terminal.owner_mobile, tid)
 
-            if status == ErrorCode.SUCCESS: 
+            if status == ErrorCode.SUCCESS:
                 WSPushHelper.pushS3(tid, self.db, self.redis, t_info)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] Delete terminal failed. cid: %s, Exception: %s", 
-                              self.current_user.cid, e.args) 
+            logging.exception("[UWEB] Delete terminal failed. cid: %s, Exception: %s",
+                              self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

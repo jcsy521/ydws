@@ -12,6 +12,11 @@ from base import BaseHandler
 
 
 class DelegationHandler(BaseHandler):
+
+    """Delegation for admin server.
+    
+    :url /delegation/5Luj5a6i5pON5L2c/{uid}/{tid}/{sim}
+    """
     
     @tornado.web.removeslash
     def get(self, uid, tid, sim):

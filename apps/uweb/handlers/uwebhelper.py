@@ -15,6 +15,10 @@ from helpers import lbmphelper
 
 class GEHandler(BaseHandler):
     
+    """offset the lat, lon.
+    
+    :url /ge
+    """
     @authenticated
     @tornado.web.removeslash
     def get(self):

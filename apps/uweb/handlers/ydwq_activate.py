@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """This module is designed for YDWQ.
+
+#NOTE: deprecated.
 """
 
 import logging

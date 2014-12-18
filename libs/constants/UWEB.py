@@ -5,6 +5,10 @@ from utils.dotdict import DotDict
 # cookie expire periods, in minutes. 12hours 
 EXPIRES_MINUTES = 12 * 60 
 
+# salt for hash
+HASH_SALT = "jodjfhglbdfpafoe2340u459"
+
+
 # the priority is same with abt
 PRIORITY = DotDict(SMS=40, )
 

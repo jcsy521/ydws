@@ -8,6 +8,7 @@ import logging
 from tornado.escape import json_decode, json_encode
 import tornado.web
 
+from utils.dotdict import DotDict
 from helpers.queryhelper import QueryHelper
 
 from base import BaseHandler, authenticated
@@ -28,7 +29,7 @@ class SMSOptionHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
-            sms_option = QueryHelper.get_sms_option(self.current_user.uid, db) 
+            sms_options = QueryHelper.get_sms_option(self.current_user.uid, self.db) 
             self.write_ret(status,
                            dict_=dict(sms_options=sms_options))
         except Exception as e:
@@ -48,6 +49,8 @@ class SMSOptionHandler(BaseHandler):
                          data, self.current_user.uid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return 
 
@@ -102,7 +105,7 @@ class SMSOptionCorpHandler(BaseHandler):
 
             sms_options = {} 
             for mobile in mobiles:              
-                sms_option = QueryHelper.get_sms_option(self.current_user.uid, db) 
+                sms_option = QueryHelper.get_sms_option(mobile, self.db) 
                 sms_options[mobile] = sms_option
             self.write_ret(status,
                            dict_=dict(sms_options=sms_options))
@@ -124,6 +127,8 @@ class SMSOptionCorpHandler(BaseHandler):
                          data, self.current_user.uid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return 
 

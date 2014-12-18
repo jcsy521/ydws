@@ -174,7 +174,7 @@ def record_login_user(login_info, db):
                "  values(%s, %s, %s, %s)",
                login_info['uid'], login_info['role'], login_info['method'], int(time.time()))
 
-    versionname = login_info.get['versionname', '']
+    versionname = login_info.get('versionname', '')
     if versionname:
         if method == 1:  # android
             db.execute("UPDATE T_USER SET android_versionname = %s "
@@ -693,7 +693,7 @@ def add_region(region, db, redis):
     if uid:  # create region for user and bind it to terminal.
         rid = db.execute("INSERT T_REGION(name, longitude, latitude,"
                          "  radius, points, shape, uid)"
-                         "  VALUES(%s, %s, %s, %s, %s, %s)",
+                         "  VALUES(%s, %s, %s, %s, %s, %s, %s)",
                          region.get('region_name', ''),
                          region.get('longitude', 0),
                          region.get('latitude', 0),
@@ -708,7 +708,7 @@ def add_region(region, db, redis):
     else:  # create region for corp, and bind to terminal later.
         rid = db.execute("INSERT T_REGION(name, longitude, latitude,"
                          "  radius, points, shape, cid)"
-                         "  VALUES(%s, %s, %s, %s, %s, %s)",
+                         "  VALUES(%s, %s, %s, %s, %s, %s, %s)",
                          region.get('region_name', ''),
                          region.get('longitude', 0),
                          region.get('latitude', 0),
@@ -757,6 +757,21 @@ def delete_region(region_ids, db, redis):
     db.execute("DELETE FROM T_REGION_TERMINAL WHERE rid IN %s",
                tuple(region_ids + DUMMY_IDS))
 
+def bind_region(db, tids, region_ids):
+    """Bind regions for some terminals.
+    """
+    sql = "DELETE FROM T_REGION_TERMINAL WHERE tid IN %s " % (
+        tuple(tids + DUMMY_IDS_STR), )
+    db.execute(sql)
+
+    for tid in tids:
+        for region_id in region_ids:
+            db.execute("INSERT INTO T_REGION_TERMINAL(rid, tid)"
+                       "  VALUES(%s, %s)",
+                       region_id, tid)
+    logging.info("[PUBLIC] Bind region. tids：%s, region_id: %s",
+                 tids, region_id)
+
 
 """Part: Single.
 """
@@ -787,7 +802,7 @@ def add_single(single, db, redis):
     """
     single_id = db.execute("INSERT T_SINGLE(name, longitude, latitude,"
                            "  radius, points, shape, cid)"
-                           "  VALUES(%s, %s, %s, %s, %s, %s)",
+                           "  VALUES(%s, %s, %s, %s, %s, %s, %s)",
                            single.get('single_name', ''),
                            single.get('longitude', 0),
                            single.get('latitude', 0),
@@ -837,6 +852,47 @@ def delete_single(single_ids, db, redis):
 
     db.execute("DELETE FROM T_SINGLE_TERMINAL WHERE sid IN %s",
                tuple(single_ids + DUMMY_IDS))
+
+def bind_single(db, tids, single_ids):
+    """Bind singles for some terminals.
+    """
+    # NOTE: Clear the old data first.
+    sql = "DELETE FROM T_SINGLE_TERMINAL WHERE tid IN %s " % (
+        tuple(tids + DUMMY_IDS_STR), )
+    db.execute(sql)
+
+    # NOTE: Bind new single
+    for tid in tids:
+        for single_id in single_ids:
+            db.execute("INSERT INTO T_SINGLE_TERMINAL(sid, tid)"
+                       "  VALUES(%s, %s)",
+                       single_id, tid)
+
+"""Group
+"""
+
+def add_group(group, db, redis):
+    """"Add a group.
+
+    :arg single: dict, e.g.
+
+        {
+          'cid':'',
+          'name':'',
+          'type':'',
+        }
+
+    :arg db: database instance
+    :arg redis: redis instance
+
+    :arg gid: int 
+
+    """
+    gid = db.execute("INSERT T_GROUP(corp_id, name, type)"
+                     "  VALUES(%s, %s, %s)",
+                     group['cid'], group['name'], group['type'])
+    return gid
+
 
 """Part: Features.
 """
@@ -977,9 +1033,9 @@ def update_corp(corp, cid, db, redis):
         [v for v in set_clause_dct.itervalues() if v is not None])
 
     if set_clause:
-        execute("UPDATE T_CORP SET " + set_clause +
-                "  WHERE cid = %s",
-                cid)
+        db.execute("UPDATE T_CORP SET " + set_clause +
+                   "  WHERE cid = %s",
+                   cid)
 
 
 def update_alarm_option(alarm_option, uid, db, redis):
@@ -1048,42 +1104,6 @@ def restart_terminal(db, redis, tid, mobile):
                  tid, mobile)
     send_cq_sms(db, redis, tid, mobile)
 
-
-# Feature: bind region
-
-
-def bind_region(db, tids, region_id):
-    """Bind regions for some terminals.
-    """
-    sql = "DELETE FROM T_REGION_TERMINAL WHERE tid IN %s " % (
-        tuple(tids + DUMMY_IDS_STR), )
-    db.execute(sql)
-
-    for tid in tids:
-        for region_id in region_ids:
-            db.execute("INSERT INTO T_REGION_TERMINAL(rid, tid)"
-                       "  VALUES(%s, %s)",
-                       region_id, tid)
-    logging.info("[PUBLIC] Bind region. tids：%s, region_id: %s",
-                 tids, region_id)
-
-
-def bind_single(db, tids, single_id):
-    """Bind singles for some terminals.
-    """
-    # NOTE: Clear the old data first.
-    sql = "DELETE FROM T_SINGLE_TERMINAL WHERE tid IN %s " % (
-        tuple(tids + DUMMY_IDS_STR), )
-    db.execute(sql)
-
-    # NOTE: Bind new single
-    for tid in tids:
-        for single_id in single_ids:
-            db.execute("INSERT INTO T_SINGLE_TERMINAL(sid, tid)"
-                       "  VALUES(%s, %s)",
-                       single_id, tid)
-
-
 def add_script(db, script):
     """Add lua script.
     """
@@ -1095,6 +1115,20 @@ def add_script(db, script):
                "           filename = VALUES(filename),"
                "           timestamp = VALUES(timestamp)",
                script['versionname'], script['filename'], int(time.time()))
+
+def kqly(db, redis, tids):
+    """Start bluetooth.
+    """
+    for tid in tids:
+        terminal = QueryHelper.get_terminal_by_tid(tid, db)
+        kqly_key = get_kqly_key(tid)
+        kqly_value = redis.getvalue(kqly_key)
+        if not kqly_value:
+            interval = 30  # in minute
+            sms = SMSCode.SMS_KQLY % interval
+            SMSHelper.send_to_terminal(terminal.mobile, sms)
+            redis.setvalue(kqly_key, True, SMS.KQLY_SMS_INTERVAL)
+
 
 def send_cq_sms(db, redis, tid, mobile):
     """Send cq sms to terminal..
@@ -1148,6 +1182,22 @@ def subscription_lbmp(mobile):
 """Part: Utils and others.
 """
 
+def get_use_scene_by_vibl(vibl):
+    """Get use_scene through vibl.
+
+    :arg vibl: int
+
+    :return use_scene: int
+
+    """
+    use_scene = 3 # default car scene
+    if vibl == 1:
+        use_scene = 3 # car
+    elif vibl == 2:
+        use_scene = 1 # moto car
+    elif vibl == 3: 
+        use_scene = 9 # human
+    return use_scene
 
 def generate_sessionID(redis, tid):
     """Genreate a sessionID and keep it in redis for the terminal.
@@ -1267,7 +1317,6 @@ def get_terminal_type_by_tid(tid):
     elif ttype == '001':
         ttype = 'zj200'
     return ttype
-
 
 def get_group_info_by_tid(db, tid):
 

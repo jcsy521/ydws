@@ -12,7 +12,12 @@ from helpers.confhelper import ConfHelper
 
 
 class WapImgHandler(BaseHandler):
-    """Play with wapimg and uweb url and download url."""
+
+    """Play with wapimg and uweb url and download url.
+
+    :url /wapimg
+
+    """
 
     @tornado.web.removeslash
     def get(self):
@@ -26,4 +31,3 @@ class WapImgHandler(BaseHandler):
                     android_download=ConfHelper.UWEB_CONF.url_out + '/instruction/android')
         logging.info("[UWEB] Render to wapimg. clon: %s, clat: %s.",
                      clon, clat)
-

@@ -19,6 +19,11 @@ from base import BaseHandler, authenticated
 
 class CorpSingleHandler(BaseHandler):
 
+    """Handle the singles of corp.
+
+    :url /corpsingle
+    """
+
     @authenticated
     @tornado.web.removeslash
     def get(self):
@@ -75,12 +80,12 @@ class CorpSingleHandler(BaseHandler):
         """
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] add single request: %s, cid: %s",
+            logging.info("[UWEB] Add single request: %s, cid: %s",
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] cid: %s create single data format illegal. Exception: %s",
-                              self.current_user.cid, e.args)
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
@@ -99,7 +104,6 @@ class CorpSingleHandler(BaseHandler):
                 longitude = circle.longitude
                 latitude = circle.latitude
                 radius = circle.radius
-                # create new region
                 single_info = dict(single_name=single_name,
                                    longitude=longitude,
                                    latitude=latitude,
@@ -124,7 +128,6 @@ class CorpSingleHandler(BaseHandler):
             else:
                 logging.error("[UWEB] Add single failed, unknown single_shape: %s, uid: %s",
                               region_shape, self.current_user.uid)
-                pass
 
             self.write_ret(status,
                            dict_=DotDict(single_id=single_id))
@@ -139,26 +142,24 @@ class CorpSingleHandler(BaseHandler):
     def delete(self):
         """Delete single.
         """
-        try:
+        status = ErrorCode.SUCCESS
+        try:           
             delete_ids = map(
                 int, str_to_list(self.get_argument('single_ids', None)))
-            logging.info("[UWEB] delete single: %s, cid: %s",
+            logging.info("[UWEB] Delete single: %s, cid: %s",
                          delete_ids, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] cid: %s delete single illegal. Exception: %s",
-                              self.current_user.cid, e.args)
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
-        try:
-            status = ErrorCode.SUCCESS
-
+        try:           
             delete_single(delete_ids, self.db, self.redis)
-
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] cid: %s delete single failed. Exception: %s",
+            logging.exception("[UWEB] Delete single failed. cid: %s, Exception: %s",
                               self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -166,10 +167,15 @@ class CorpSingleHandler(BaseHandler):
 
 class CorpSingleListHandler(BaseHandler):
 
+    """Query the single-events.
+
+    :url /corpsingle/list
+    """
+
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        """Query all single event. 
+        """Query single-events through start_time, end_time and tid.
         """
         status = ErrorCode.SUCCESS
         try:
@@ -177,7 +183,6 @@ class CorpSingleListHandler(BaseHandler):
             start_time = data.start_time
             end_time = data.end_time
             tid = data.tid
-
             # For paging
             page_size = int(data.get('pagesize', UWEB.LIMIT.PAGE_SIZE))
             page_number = int(data.pagenum)
@@ -187,8 +192,8 @@ class CorpSingleListHandler(BaseHandler):
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] cid: %s single list  data format illegal. Exception: %s",
-                              self.current_user.cid, e.args)
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
@@ -217,14 +222,19 @@ class CorpSingleListHandler(BaseHandler):
 
 class CorpSingleDetailHandler(BaseHandler):
 
+    """Show the detail of the single-event.
+
+    :url /corpsingle/detail
+    """
+
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        """Just a new page. 
+        """Just just to a new page. 
         """
+        #NOTE: The se_id should can be found in platform.
         se_id = self.get_argument("se_id", '')
         single_event = QueryHelper.get_single_event_by_se_id(se_id, self.db)
-
         terminal = QueryHelper.get_terminal_info(
             single_event['tid'], self.db, self.redis)
         self.render("single_point.html",

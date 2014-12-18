@@ -13,6 +13,8 @@ from utils.misc import DUMMY_IDS, str_to_list, get_region_status_key
 from utils.public import add_region, delete_region
 from constants import UWEB, LIMIT
 from codes.errorcode import ErrorCode
+from helpers.queryhelper import QueryHelper
+
 from base import BaseHandler, authenticated
 
 

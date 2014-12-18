@@ -332,12 +332,12 @@ class QueryHelper(object):
     def get_terminals_by_group_id(group_id, db):
         """Get all trackers belongs to a group_id.
         """
-        terminals = query("SELECT tid FROM T_TERMINAL_INFO"
-                          "  WHERE group_id = %s"
-                          "    AND (service_status = %s"
-                          "    OR service_status = %s)",
-                          group_id, UWEB.SERVICE_STATUS.ON,
-                          UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
+        terminals = db.query("SELECT tid FROM T_TERMINAL_INFO"
+                             "  WHERE group_id = %s"
+                             "    AND (service_status = %s"
+                             "    OR service_status = %s)",
+                             group_id, UWEB.SERVICE_STATUS.ON,
+                             UWEB.SERVICE_STATUS.TO_BE_ACTIVATED)
         return terminals
 
     @staticmethod
@@ -558,6 +558,7 @@ class QueryHelper(object):
                        "  WHERE ts.id = tst.sid"
                        "  AND tst.tid = %s",
                        tid)
+        return res
 
     """Part: User, operator, corp information.
     """
@@ -672,6 +673,17 @@ class QueryHelper(object):
         return group
 
     @staticmethod
+    def get_groups_by_cid(cid, db):
+        """Get groups belong to the corp.
+        """
+
+        groups = db.query("SELECT id AS gid, name, type"
+                       "  FROM T_GROUP"
+                       "  WHERE corp_id = %s",
+                       cid)
+        return groups
+
+    @staticmethod
     def get_uid_by_tid(tid, db):
         uid = db.get(
             "SELECT owner_mobile FROM T_TERMINAL_INFO WHERE tid = %s", tid)
@@ -685,27 +697,27 @@ class QueryHelper(object):
         """Get sms options of a user.
         @param: uid,
                 db
-        @return: sms_option
+        @return: sms_options
         """
-        sms_options = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
-                                  "  illegalmove, sos, heartbeat_lost, charge, "
-                                  "  region_enter, region_out, speed_limit"
-                                  "  FROM T_SMS_OPTION"
-                                  "  WHERE uid = %s"
-                                  "  LIMIT 1",
-                                  uid)
-        if not sms_option:
+        sms_options = db.get("SELECT login, powerlow, powerdown, illegalshake,"
+                             "  illegalmove, sos, heartbeat_lost, charge, "
+                             "  region_enter, region_out, speed_limit"
+                             "  FROM T_SMS_OPTION"
+                             "  WHERE uid = %s"
+                             "  LIMIT 1",
+                             uid)
+        if not sms_options:
             db.execute("INSERT INTO T_SMS_OPTION(uid)"
                        "  VALUES(%s)",
                        uid)
-            sms_options = self.db.get("SELECT login, powerlow, powerdown, illegalshake,"
-                                      "  illegalmove, sos, heartbeat_lost, charge, "
-                                      "  region_enter, region_out, speed_limit"
-                                      "  FROM T_SMS_OPTION"
-                                      "  WHERE uid = %s"
-                                      "  LIMIT 1",
-                                      uid)
-        return sms_option
+            sms_options = db.get("SELECT login, powerlow, powerdown, illegalshake,"
+                                 "  illegalmove, sos, heartbeat_lost, charge, "
+                                 "  region_enter, region_out, speed_limit"
+                                 "  FROM T_SMS_OPTION"
+                                 "  WHERE uid = %s"
+                                 "  LIMIT 1",
+                                 uid)
+        return sms_options
 
     @staticmethod
     def get_sms_option_by_uid(uid, category, db):
@@ -738,7 +750,7 @@ class QueryHelper(object):
         :arg uid: string
         :arg db: database instance
 
-        :return alarm_option: dict.
+        :return alarm_options: dict.
 
         """
         alarm_options = db.get("SELECT login, powerlow, powerdown, illegalshake,"
@@ -760,7 +772,7 @@ class QueryHelper(object):
                                    "  WHERE uid = %s"
                                    "  LIMIT 1",
                                    uid)
-        return alarm_option
+        return alarm_options
 
     """Part: Region information.
     """
@@ -779,7 +791,7 @@ class QueryHelper(object):
         return regions
 
     @staticmethod
-    def get_regions_by_cid(tid, db):
+    def get_regions_by_cid(cid, db):
         """Get all regions associated with the cid."""
 
         regions = db.query("SELECT id AS region_id, name AS region_name,"
@@ -818,12 +830,15 @@ class QueryHelper(object):
         return singles
 
     @staticmethod
-    def get_regions_by_cid(cid, db):
-        """Get all regions associated with the cid."""
-        singles = db.query("SELECT id"
+    def get_singles_by_cid(cid, db):
+        """Get all singles associated with the cid."""
+        singles = db.query("SELECT id AS single_id, name AS single_name,"
+                           "       longitude, latitude, radius,"
+                           "       points, shape AS single_shape"
                            "  FROM T_SINGLE"
                            "  WHERE cid = %s",
                            cid)
+
         return singles
 
     @staticmethod
@@ -1053,7 +1068,7 @@ class QueryHelper(object):
                        "  LIMIT %s, %s",
                        cid,
                        start_time, end_time,
-                       offset, row)
+                       offset, rows)
         return res
 
     """Part: Utils information and others.

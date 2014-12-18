@@ -38,7 +38,10 @@ from mixin.base import BaseMixin
 
 class BatchImportHandler(BaseHandler):
 
-    """Batch."""
+    """Batch import terminal.
+    :url /batch/import 
+
+    """
 
     @authenticated
     @tornado.web.removeslash
@@ -51,7 +54,7 @@ class BatchImportHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        """Read excel.
+        """Read excel, parse the data and provide to browser.
         """
         try:
             upload_file = self.request.files['upload_file'][0]
@@ -59,6 +62,8 @@ class BatchImportHandler(BaseHandler):
                          self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
@@ -138,7 +143,7 @@ class BatchImportHandler(BaseHandler):
                         res=res)
 
         except Exception as e:
-            logging.exception("[UWEB] cid: %s batch import failed. Exception: %s",
+            logging.exception("[UWEB] Batch import failed. cid: %s, Exception: %s",
                               self.current_user.cid, e.args)
             status = ErrorCode.ILLEGAL_FILE
             self.render("fileUpload.html",
@@ -148,7 +153,10 @@ class BatchImportHandler(BaseHandler):
 
 class BatchDeleteHandler(BaseHandler, BaseMixin):
 
-    """Batch delete."""
+    """Batch delete terminal.
+
+    #NOTE: deprecated.
+    """
 
     @authenticated
     @tornado.web.removeslash
@@ -160,6 +168,8 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
@@ -250,12 +260,15 @@ class BatchDeleteHandler(BaseHandler, BaseMixin):
 
 class BatchJHHandler(BaseHandler):
 
-    """Batch jh."""
+    """Batch JH terminal.
+
+    :url /batch/JH
+
+    """
 
     @authenticated
     @tornado.web.removeslash
     def post(self):
-
         try:
             data = DotDict(json_decode(self.request.body))
             gid = data.gid
@@ -264,6 +277,8 @@ class BatchJHHandler(BaseHandler):
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
@@ -346,15 +361,10 @@ class BatchJHHandler(BaseHandler):
                     r['status'] = ErrorCode.FAILED
 
                 # 2. add user
-                existed_user = self.db.get("SELECT id FROM T_USER"
-                                           " WHERE mobile = %s", umobile)
-                if existed_user:
-                    pass
-                else:
-                    user_info = dict(umobile=umobile,
-                                     password='111111',
-                                     uname=umobile)
-                    add_user(user_info, self.db, self.redis)
+                user_info = dict(umobile=umobile,
+                                 password='111111',
+                                 uname=umobile)
+                add_user(user_info, self.db, self.redis)
                 res.append(r)
             self.write_ret(status,
                            dict_=DotDict(res=res))
@@ -367,7 +377,10 @@ class BatchJHHandler(BaseHandler):
 
 class BatchSpeedlimitHandler(BaseHandler):
 
-    """Batch set speedlimit."""
+    """Batch set speedlimit.
+
+    :url /batch/speedlimit
+    """
 
     @authenticated
     @tornado.web.removeslash

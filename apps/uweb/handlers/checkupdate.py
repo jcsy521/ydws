@@ -16,6 +16,10 @@ from base import BaseHandler
 
 
 class CheckUpdateAndroidHandler(BaseHandler):
+    """Check the latest information for Android.
+
+    :url /checkupdate
+    """
 
     @tornado.web.removeslash
     def get(self):
@@ -49,6 +53,11 @@ class CheckUpdateAndroidHandler(BaseHandler):
 
 
 class CheckUpdateIOSHandler(BaseHandler):
+    
+    """Check the latest information for IOS.
+
+    #NOTE: deprecated.
+    """
 
     @tornado.web.removeslash
     def get(self):

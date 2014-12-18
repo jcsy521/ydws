@@ -13,11 +13,17 @@ from utils.misc import DUMMY_IDS, DUMMY_IDS_STR, str_to_list
 from codes.errorcode import ErrorCode
 from constants import UWEB
 from base import BaseHandler, authenticated
+from utils.public import add_group
 from helpers.queryhelper import QueryHelper
 from helpers.wspushhelper import WSPushHelper
 
 
 class GroupHandler(BaseHandler):
+
+    """Handle the group's information.
+
+    :url /group
+    """
 
     def get_group_by_cid(self, cid, group_name):
         group = self.db.get("SELECT corp_id, name"
@@ -31,23 +37,19 @@ class GroupHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Get groups according to cid.
+
+        #NOTE: deprecated.
         """
         status = ErrorCode.SUCCESS
         try:
             res = []
             cid = self.get_argument('cid', None)
-            if cid is None:
-                res = []
-            else:
-                # TODO: optimize it.!!
-                res = self.db.query("SELECT id AS gid, name, type"
-                                    "  FROM T_GROUP"
-                                    "  WHERE corp_id = %s",
-                                    cid)
+            if not (cid is None):
+                res = QueryHelper.get_groups_by_cid(cid, self.db)
             self.write_ret(status,
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[UWEB] get groups failed. Exception: %s",
+            logging.exception("[UWEB] Get groups failed. Exception: %s",
                               e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -57,17 +59,19 @@ class GroupHandler(BaseHandler):
     def post(self):
         """Create a new group.
         """
+        status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
             logging.info("[UWEB] add group request: %s, cid: %s",
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body:%s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return
 
-        try:
-            status = ErrorCode.SUCCESS
+        try:            
             cid = data.cid
             name = data.name
             group = self.get_group_by_cid(cid, name)
@@ -75,10 +79,11 @@ class GroupHandler(BaseHandler):
                 status = ErrorCode.GROUP_EXIST
                 self.write_ret(status)
                 return
-            gid = self.db.execute("INSERT T_GROUP(id, corp_id, name, type)"
-                                  "  VALUES(NULL, %s, %s, %s)",
-                                  cid, name, UWEB.GROUP_TYPE.NEW)
 
+            group_info = dict(cid=cid,
+                              name=name,
+                              type=UWEB.GROUP_TYPE.NEW)
+            gid = add_group(group_info, self.db, self.redis)
             # NOTE: wspush to client
             tid = self.current_user.tid
             if status == ErrorCode.SUCCESS:
@@ -90,7 +95,7 @@ class GroupHandler(BaseHandler):
                                       name=name))
 
         except Exception as e:
-            logging.exception("[UWEB] uid: %s create group failed. Exception: %s",
+            logging.exception("[UWEB] Create group failed. uid: %s, Exception: %s",
                               self.current_user.uid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -100,38 +105,41 @@ class GroupHandler(BaseHandler):
     def put(self):
         """Modify a existing group.
         """
+        status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] modify group request: %s, cid: %s",
+            cid = self.current_user.cid
+            tid = self.current_user.tid
+            gid = data.gid
+            name = data.name
+            logging.info("[UWEB] Modify group request: %s, cid: %s",
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body:%s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return
 
-        try:
-            status = ErrorCode.SUCCESS
-            cid = self.current_user.cid
-            gid = data.gid
-            name = data.name
+        try:          
             group = self.get_group_by_cid(cid, name)
             if group:
                 status = ErrorCode.GROUP_EXIST
                 self.write_ret(status)
                 return
+
             self.db.execute("UPDATE T_GROUP"
                             "  SET name = %s"
                             "  WHERE id = %s",
                             name, gid)
 
-            # NOTE: wspush
-            tid = self.current_user.tid
+            # NOTE: wspush to client            
             if status == ErrorCode.SUCCESS:
                 WSPushHelper.pushS3(tid, self.db, self.redis)
 
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] cid: %s modify group failed. Exception: %s",
+            logging.exception("[UWEB] Modify group failed. cid: %s, Exception: %s",
                               self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -159,13 +167,13 @@ class GroupHandler(BaseHandler):
                 else:
                     status = ErrorCode.GROUP_HAS_TERMINAL
 
-            # NOTE: wspush
+            # NOTE: wspush to client
             tid = self.current_user.tid
             if status == ErrorCode.SUCCESS:
                 WSPushHelper.pushS3(tid, self.db, self.redis)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] cid: %s delete group failed. Exception: %s",
+            logging.exception("[UWEB] Delete group failed. cid: %s, Exception: %s",
                               self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -173,22 +181,29 @@ class GroupHandler(BaseHandler):
 
 class GroupTransferHandler(BaseHandler):
 
+    """Transfer a terminal to another group.
+
+    :url /changegroup
+    """
+
     @authenticated
     @tornado.web.removeslash
     def post(self):
-        """Tranfer some terminals to a existing group.
+        """Transfer some terminals to a existing group.
         """
+        status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] change group request: %s, cid: %s",
+            logging.info("[UWEB] Transfer group request: %s, cid: %s",
                          data, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body:%s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return
 
-        try:
-            status = ErrorCode.SUCCESS
+        try:            
             tids = [str(tid) for tid in data.tids]
             gid = data.gid
 
@@ -201,10 +216,10 @@ class GroupTransferHandler(BaseHandler):
             tid = self.current_user.tid
             if status == ErrorCode.SUCCESS:
                 WSPushHelper.pushS3(tid, self.db, self.redis)
-            self.write_ret(status)
 
+            self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] cid: %s change group failed. Exception: %s",
+            logging.exception("[UWEB] Transfer group failed. cid: %s, Exception: %s",
                               self.current_user.cid, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

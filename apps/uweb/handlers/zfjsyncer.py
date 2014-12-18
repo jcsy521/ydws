@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """The module is designed for 中山执法局.
+
 When Open API is release, it becomes unused.
 
 #NOTE： deprecated.

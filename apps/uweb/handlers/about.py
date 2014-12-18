@@ -10,13 +10,19 @@ import tornado.web
 
 from base import BaseHandler
 
+
 class AboutHandler(BaseHandler):
 
+    """
+    :url /about
+
+    """
     @tornado.web.removeslash
     def get(self):
         client = pysvn.Client()
-        #NOTE: svn_path = /path/to/trunk
-        svn_path = os.path.abspath(os.path.join(self.application.settings['server_path'], '../../'))
+        # NOTE: svn_path = /path/to/trunk
+        svn_path = os.path.abspath(
+            os.path.join(self.application.settings['server_path'], '../../'))
         entry = client.info(svn_path)
         self.render('about.html',
-                    version = entry.commit_revision.number)
+                    version=entry.commit_revision.number)

@@ -12,7 +12,11 @@ from codes.errorcode import ErrorCode
 from base import BaseHandler
 
 class TinyURLHandler(BaseHandler):
-    """tinyurl to url."""
+    """Transfer tinyurl to full-url.
+
+    :url /tl/{url}
+    
+    """
 
     @tornado.web.removeslash
     def get(self, tinyid):

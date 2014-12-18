@@ -4,8 +4,7 @@
 """
 
 import os.path
-DOWNLOAD_DIR_ = os.path.abspath(
-    os.path.join(__file__, "../../static/download"))
+DOWNLOAD_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/download"))
 
 import logging
 import hashlib
@@ -32,7 +31,10 @@ from base import BaseHandler, authenticated
 
 class DownloadHandler(BaseHandler):
 
-    """Download different file throught param."""
+    """Download different apk through category.
+
+    :url download
+    """
 
     # NOTE: never add authenticated. user may download it by 2-dimensionn code.
     #@authenticated
@@ -71,6 +73,11 @@ class DownloadHandler(BaseHandler):
 
 class DownloadTerminalHandler(BaseHandler):
 
+    """Download lua script for terminal.
+
+    :url /download/terminal
+    """
+
     @tornado.web.removeslash
     @tornado.web.asynchronous
     def get(self):
@@ -105,6 +112,11 @@ class DownloadTerminalHandler(BaseHandler):
 
 
 class UploadTerminalHandler(BaseHandler):
+
+    """Upload lua script for terminal.
+
+    #NOTE: deprecated.
+    """
 
     @tornado.web.removeslash
     def get(self):
@@ -149,22 +161,26 @@ class UploadTerminalHandler(BaseHandler):
 
 class DownloadSmsHandler(BaseHandler):
 
-    """Send download_url to user's mobile."""
+    """Send download_url to user's mobile.
+
+    :url /downloadsms
+    """
 
     @tornado.web.removeslash
     def post(self):
         """Send sms to user's mobile."""
         status = ErrorCode.SUCCESS
         try:
-            data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] downloadsms request: %s", data)
-
+            data = DotDict(json_decode(self.request.body))          
             mobile = data.mobile
             captcha_sms = data.captcha_sms
             captchahash_sms = self.get_cookie("captchahash_sms", "")
             category = data.category
+            logging.info("[UWEB] downloadsms request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body:%s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return
 
@@ -174,8 +190,8 @@ class DownloadSmsHandler(BaseHandler):
             hash_ = m.hexdigest()
             if hash_.lower() != captchahash_sms.lower():
                 status = ErrorCode.WRONG_CAPTCHA
-                logging.info(
-                    "[UWEB] downloadsms failed. Message: %s", ErrorCode.ERROR_MESSAGE[status])
+                logging.info("[UWEB] downloadsms failed. Message: %s", 
+                             ErrorCode.ERROR_MESSAGE[status])
             else:
                 version_info = get_version_info('android')
                 # downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
@@ -185,7 +201,7 @@ class DownloadSmsHandler(BaseHandler):
 
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] smsdownload failed. Exception: %s. ",
+            logging.exception("[UWEB] Smsdownload failed. Exception: %s. ",
                               e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
@@ -193,7 +209,10 @@ class DownloadSmsHandler(BaseHandler):
 
 class DownloadManualHandler(BaseHandler):
 
-    """Download different file throught param."""
+    """Download different manual file.
+    
+    :url /download/manual
+    """
 
     @tornado.web.removeslash
     def get(self):
@@ -208,6 +227,5 @@ class DownloadManualHandler(BaseHandler):
         filepath = os.path.join(DOWNLOAD_DIR_, filename)
         instruction = open(filepath)
         self.set_header('Content-Type', 'application/force-download')
-        self.set_header(
-            'Content-Disposition', 'attachment; filename=%s' % (filename,))
+        self.set_header('Content-Disposition', 'attachment; filename=%s' % (filename,))
         self.write(instruction.read())

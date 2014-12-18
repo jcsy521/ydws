@@ -21,10 +21,14 @@ from constants import UWEB
 from helpers.wspushhelper import WSPushHelper
 
 from base import BaseHandler, authenticated
-from mixin.base import BaseMixin
 
 
-class DefendHandler(BaseHandler, BaseMixin):
+class DefendHandler(BaseHandler):
+
+    """Handle the manual status of terminal.
+
+    :url /defend
+    """
 
     @authenticated
     @tornado.web.removeslash
@@ -37,13 +41,12 @@ class DefendHandler(BaseHandler, BaseMixin):
             terminal = QueryHelper.get_available_terminal(tid, self.db)
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error(
-                    "The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+                logging.error("[UWEB] The terminal with tid: %s does not exist, redirect to login.html", 
+                               self.current_user.tid)
                 self.write_ret(status)
                 return
             else:
-                terminal_info_key = get_terminal_info_key(
-                    self.current_user.tid)
+                terminal_info_key = get_terminal_info_key(self.current_user.tid)
                 terminal_info = self.redis.getvalue(terminal_info_key)
                 mannual_status = terminal_info['mannual_status']
 
@@ -62,16 +65,18 @@ class DefendHandler(BaseHandler, BaseMixin):
     @tornado.web.removeslash
     def post(self):
         status = ErrorCode.SUCCESS
-        try:
+        try: 
             data = DotDict(json_decode(self.request.body))
             tid = data.get('tid', None)
             tids = data.get('tids', None)
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            logging.info("[UWEB] defend request: %s, uid: %s, tid: %s, tids: %s",
+            logging.info("[UWEB] Defend request: %s, uid: %s, tid: %s, tids: %s",
                          data, self.current_user.uid, self.current_user.tid, tids)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body:%s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return
 
@@ -88,12 +93,11 @@ class DefendHandler(BaseHandler, BaseMixin):
                     if not terminal:
                         r.status = ErrorCode.LOGIN_AGAIN
                         res.append(r)
-                        logging.error(
-                            "The terminal with tid: %s does not exist, redirect to login.html", tid)
+                        logging.error("[UWEB] The terminal with tid: %s does not exist, redirect to login.html",
+                                       tid)
                         continue
 
-                    update_mannual_status(
-                        self.db, self.redis, tid, data.mannual_status)
+                    update_mannual_status(self.db, self.redis, tid, data.mannual_status)
 
                     logging.info("[UWEB] uid:%s, tid:%s set mannual status to %s successfully",
                                  self.current_user.uid, tid, data.mannual_status)
@@ -117,7 +121,12 @@ class DefendHandler(BaseHandler, BaseMixin):
             self.write_ret(status)
 
 
-class DefendWeixinHandler(BaseHandler, BaseMixin):
+class DefendWeixinHandler(BaseHandler):
+
+    """Hand the manual request from weixin.
+    
+    :url /defend/weixin
+    """
 
     @tornado.web.removeslash
     def post(self):
@@ -132,6 +141,8 @@ class DefendWeixinHandler(BaseHandler, BaseMixin):
 
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
@@ -141,7 +152,7 @@ class DefendWeixinHandler(BaseHandler, BaseMixin):
             m.update(tid + t + pri_key)
             hash_ = m.hexdigest()
             if hash_ != key:
-                logging.info("[UWEB] Delegation requeset key wrong")
+                logging.info("[UWEB] Delegation requeset key wrong.")
                 raise tornado.web.HTTPError(401)
 
             update_mannual_status(self.db, self.redis, tid, mannual_status)

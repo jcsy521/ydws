@@ -10,7 +10,7 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import DUMMY_IDS_STR, str_to_list
-from utils.public import bind_region
+from utils.public import bind_single
 from helpers.queryhelper import QueryHelper
 from constants import UWEB
 from codes.errorcode import ErrorCode
@@ -18,6 +18,11 @@ from base import BaseHandler, authenticated
 
 
 class BindSingleHandler(BaseHandler):
+
+    """Handle singles-bind for corp.
+
+    :url /bindsingle
+    """
 
     @authenticated
     @tornado.web.removeslash
@@ -29,8 +34,8 @@ class BindSingleHandler(BaseHandler):
             tid = self.get_argument('tid')
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
-            logging.exception("[UWEB] cid: %s get single data format illegal. Exception: %s", 
-                              self.current_user.cid, e.args) 
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
@@ -56,6 +61,8 @@ class BindSingleHandler(BaseHandler):
 
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body: %s, Exception: %s",
+                              self.request.body, e.args)
             self.write_ret(status)
             return
 
@@ -64,10 +71,10 @@ class BindSingleHandler(BaseHandler):
             single_ids = data.single_ids
             tids = map(str, data.tids)
 
-            bind_single(self.db, tids, single_id)
+            bind_single(self.db, tids, single_ids)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] cid: %s single bind post failed. Exception: %s", 
+            logging.exception("[UWEB] Single bind failed. cid: %s, Exception: %s", 
                               self.current_user.cid, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

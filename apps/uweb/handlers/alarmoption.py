@@ -11,6 +11,8 @@ from tornado.escape import json_decode
 import tornado.web
 
 from utils.dotdict import DotDict
+from utils.public import update_alarm_option
+from helpers.queryhelper import QueryHelper
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
@@ -19,6 +21,8 @@ from codes.errorcode import ErrorCode
 class AlarmOptionHandler(BaseHandler):
 
     """Options about alarm info.:
+
+    url: /alarmoption
 
     Key options of alarm info are as follows:
 
@@ -65,7 +69,7 @@ class AlarmOptionHandler(BaseHandler):
             return
 
         try:
-            alarm_options = QueryHelper.get_alarm_options(mobile, self.db)
+            alarm_options = QueryHelper.get_alarm_options(umobile, self.db)
             self.write_ret(status,
                            dict_=dict(res=alarm_options))
         except Exception as e:
@@ -78,6 +82,14 @@ class AlarmOptionHandler(BaseHandler):
     @tornado.web.removeslash
     def put(self):
         """Modify alarmoptions for current user.
+
+        :arg data: dict, e.g.
+
+            {
+              'umobile':'xxx' // must
+              'login':1,
+              ...
+            }
         """
         status = ErrorCode.SUCCESS
         try:
@@ -91,7 +103,7 @@ class AlarmOptionHandler(BaseHandler):
             return
 
         try:
-            del data['umobile']            
+            del data['umobile']
             update_alarm_option(data, umobile, self.db, self.redis)
             self.write_ret(status)
 

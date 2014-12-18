@@ -11,6 +11,7 @@ from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import safe_utf8, str_to_list, DUMMY_IDS
+from utils.public import record_announcement
 from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode
 from constants import UWEB
@@ -22,6 +23,8 @@ from base import BaseHandler, authenticated
 class AnnouncementHandler(BaseHandler):
 
     """Record the announcement info.
+
+    :url /announcement
     """
 
     @authenticated
@@ -87,6 +90,11 @@ class AnnouncementHandler(BaseHandler):
 
 
 class AnnouncementListHandler(BaseHandler):
+
+    """Query announcement records.
+
+    :url  /announcement/list
+    """
 
     @authenticated
     @tornado.web.removeslash

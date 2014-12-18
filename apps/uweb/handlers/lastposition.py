@@ -12,8 +12,8 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
-from utils.misc import get_terminal_info_key, get_location_key,\
-     get_lastposition_key, get_lastposition_time_key, get_track_key, DUMMY_IDS
+from utils.misc import (get_terminal_info_key, get_location_key,
+     get_lastposition_key, get_lastposition_time_key, get_track_key, DUMMY_IDS)
 from utils.public import get_group_info_by_tid
 from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
 from codes.errorcode import ErrorCode
@@ -25,6 +25,9 @@ from mixin.avatar import AvatarMixin
        
 class LastPositionHandler(BaseHandler, AvatarMixin):
     """Get the newest info of terminal from database.
+
+    :url /lastposition
+
     NOTE:It just retrieves data from db, not get info from terminal. 
     """
     @authenticated
@@ -37,6 +40,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
             try:
                 data = DotDict(json_decode(self.request.body))
                 biz_type = data.get("biz_type", UWEB.BIZ_TYPE.YDWS)
+                track_list = data.get("track_list", [])
                 version_type = int(data.get("version_type", 0))
                 logging.info("[UWEB] Lastposition request: %s", 
                              data)
@@ -199,7 +203,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                         res = {} 
                     else: 
                         usable = 1
-                        for item in data.track_list:
+                        for item in track_list:
                             track_tid = item['track_tid']
                             if track_tid not in tids:
                                 logging.error("The terminal with tid: %s does not exist", track_tid)
@@ -213,7 +217,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                                 res[track_tid]['track_info'] = track_info
                 else: 
                     usable = 1
-                    for item in data.track_list:
+                    for item in track_list:
                         track_tid = item['track_tid']
                         if track_tid not in tids:
                             logging.error("The terminal with tid: %s does not exist", track_tid)
