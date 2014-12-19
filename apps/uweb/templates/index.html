@@ -5,6 +5,7 @@
 	<script type="text/javascript" src="{{static_url('js/jquery_cookie.js')}}"></script>
 	<script type="text/javascript" src="{{static_url('js/formValidatorRegex.js')}}"></script>
 	<script type="text/javascript" src="{{static_url('js/terminal.js')}}"></script>
+	<script type="text/javascript" src="{{static_url('js/push_service_person.js')}}"></script>
 	<script type="text/javascript" src="{{static_url('js/main.js')}}"></script>
 	<script type="text/javascript" src="{{static_url('js/current.js')}}"></script>
 	<script type="text/javascript" src="{{static_url('js/searchRecord.js')}}"></script>
@@ -140,6 +141,8 @@
 	<!--辅助元素end-->
 	<input type="hidden" id="user_type" value="{{user_type}}" />
 	<input type="hidden" id="map_type" value="{{map_type}}" />
+	<input type="hidden" id="push_id" value="{{wspush['id']}}" />
+	<input type="hidden" id="push_key" value="{{wspush['key']}}" />
 	
 	<script type="text/javascript" src="{{static_url('js/judge_logo.js')}}"></script>
 </body>

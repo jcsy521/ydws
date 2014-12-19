@@ -105,3 +105,7 @@ var USER_CORP = 'enterprise'; // 集团管理员
 var USER_OPERATOR = 'operator'; // 集团 操作员
 var JSTREECLICKED = 'jstree-clicked';	// jstree节点被选中的样式
 var DOMAIN_HOST = window.location.host;
+var str_basePushUrl = 'http://192.168.1.9:6412';
+var str_baseHttpsPushUrl = 'https://192.168.1.9:6412';
+var str_baseichebaoPushUrl = 'http://push.ichebao.net:80';
+var str_baseYdcwsPushUrl = 'http://push.ydcws.com:80';

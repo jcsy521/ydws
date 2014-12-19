@@ -703,9 +703,15 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 *动态更新定位器相关数据
 */
 dlf.fn_updateLastInfo = function() {
+	if ( $('.j_body').data('intervalkey') ){
+		return;
+	}
+	$('.j_body').data('intervalkey', true);	
 	if ( dlf.fn_userType() ) {
 		dlf.fn_corpGetCarData();
 	} else {
+		dlf.fn_getCarData();
+		/*
 		dlf.fn_clearInterval(currentLastInfo); // 清除定时器
 		currentLastInfo = setInterval(function () { // 每15秒启动
 			if ( $('.j_body').data('intervalkey') ){
@@ -721,7 +727,7 @@ dlf.fn_updateLastInfo = function() {
 				}			
 			}		
 		}, INFOTIME);
-		n_currentLastInfoNum = currentLastInfo;
+		n_currentLastInfoNum = currentLastInfo;*/
 	}
 }
 

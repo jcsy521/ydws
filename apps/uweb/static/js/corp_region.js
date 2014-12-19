@@ -336,10 +336,9 @@ dlf.fn_initBindRegion = function() {
 */
 dlf.fn_initBatchRegions = function(obj_group){
 	var str_bindBatchRegion = 'bindBatchRegion', 
-		arr_terminalIds = [],
-		obj_currentGroupChildren = obj_group.children('ul').children('li:visible');
+		arr_terminalIds = dlf.fn_searchCheckTerminal(true, true, obj_group);
 	
-	if ( obj_currentGroupChildren.length <= 0 ) {	// 没有定位器，不能批量删除
+	if ( obj_group.children('ul').children('li').length <= 0 ) {	// 没有定位器，不能批量删除
 		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
 		return;
 	} else if ( obj_group.hasClass('jstree-unchecked') ) {	// 要删除定位器的组没有被选中
@@ -354,23 +353,6 @@ dlf.fn_initBatchRegions = function(obj_group){
 	//获取围栏数据 
 	dlf.fn_searchData(str_bindBatchRegion);
 	
-	// 获取组下的所有终端TID
-	var str_groupNodeId = $(obj_group).attr('id'), 
-		obj_leafUl = obj_group.children('ul').children('li:visible'),//$(obj_group).children('ul'),
-		n_leafUlLen = obj_leafUl.length;
-	
-	if ( n_leafUlLen != 0 ) { // 如果当前组下有终端
-		obj_leafUl.each(function() {
-			var obj_checkedTerminal = $(this),
-				obj_terminalALink = obj_checkedTerminal.children('a'),
-				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
-				str_tid = obj_terminalALink.attr('tid');
-			
-			if ( b_isChecked ) {
-				arr_terminalIds.push(str_tid);
-			}
-		});
-	}
 	// 绑定围栏保存
 	$('#bindBatchRegionSave').unbind('click').click(function(event) {
 		var obj_bindRegionData = {

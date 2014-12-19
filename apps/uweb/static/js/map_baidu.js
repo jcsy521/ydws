@@ -830,7 +830,7 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 			obj_trackMarker.openInfoWindow(obj_mapInfoWindow); // 显示吹出框
 		}
 		$('#singleControl_panel').data('trackdata', arr_singleTrackData);
-	} else if ( str_type = 'singleDelay' ) {
+	} else if ( str_type == 'singleDelay' ) {
 		var arr_singleTrackData = $('#singleControl_panel').data('idle_points'),
 			arr_sinlgeDelayMarkers = $('#singleControl_panel').data('sinlge_delaymarker'),
 			obj_singleLocation = arr_singleTrackData[n_index],
@@ -844,7 +844,7 @@ dlf.fn_updateAddress = function(str_type, tid, str_result, n_index, n_lon, n_lat
 		arr_singleTrackData[n_index].name = str_result;
 		
 		$('#singleControl_panel').data({'idle_points': arr_singleTrackData});
-	} else if ( str_type = 'delayFd' ) {
+	} else if ( str_type == 'delayFd' ) {
 		var arr_singleTrackData = $('.j_body').data('delayfd'),
 			arr_sinlgeDelayMarkers = $('.j_body').data('fdmarkers'),
 			obj_singleLocation = arr_singleTrackData[n_index],

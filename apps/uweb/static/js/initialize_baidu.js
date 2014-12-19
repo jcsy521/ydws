@@ -102,8 +102,19 @@ dlf.fn_updateInfoData = function(obj_carInfo, str_type) {
 		b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
 		b_corpRegionWpST = $('#bindRegionWrapper').is(':visible'),
 		b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
-		b_corpRegionST = $('#corpRegionWrapper').is(':visible');	// 电子围栏是否显示
-		
+		b_corpRegionST = $('#corpRegionWrapper').is(':visible'),	// 电子围栏是否显示
+		b_trackSt = $('.j_delay').is(':visible'), 
+		b_eventSearchWpST = $('#eventSearchWrapper').is(':visible'),		
+		b_operatorWpST = $('#operatorWrapper').is(':visible'),
+		b_notifyManageAddWpST = $('#notifyManageAddWrapper').is(':visible'),
+		b_mileageWpST = $('#mileageWrapper').is(':visible'),
+		b_mileageSetWpST = $('#mileageSetWrapper').is(':visible');
+	
+	if ( b_trackSt || b_eventSearchWpST || b_operatorWpST || b_notifyManageAddWpST || b_mileageWpST || b_mileageSetWpST ) {
+		return;
+	}
+	
+	
 	if ( n_lon != 0 && n_lat != 0 ) {
 		if ( n_clon != 0 && n_clat != 0 ) {
 			

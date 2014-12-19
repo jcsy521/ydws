@@ -1,7 +1,7 @@
 /**
-* ydcws-push.js
+* ydcws-person-push.js
 * hs
-* 2014-9-2
+* 2014-12-3
 **/
 $(function () {
 	var socketCon = null;
@@ -11,9 +11,6 @@ $(function () {
 		var str_pushId = $('#push_id').val(),
 			str_pushKey = $('#push_key').val(),
 			str_devid = $.cookie('YDCWSDEVID'),
-			b_isHttps = document.location.protocol == 'https:' ? true : false;
-			//str_basePushUrl = 'http://192.168.1.9:6412',
-			// str_basePushUrl = 'http://jiaxiaolei.nat123.net:6412',
 			str_bpushUrl = str_basePushUrl,
 			str_pushUrl = '';
 		
@@ -21,7 +18,7 @@ $(function () {
 			str_bpushUrl = str_baseYdcwsPushUrl;
 		} else if ( DOMAIN_HOST.search('ichebao') != -1 ) { 
 			str_bpushUrl = str_baseichebaoPushUrl;
-		}
+		} 
 		if ( !str_devid ) {
 			str_devid = new Date().getTime()+str_pushId;
 			$.cookie('YDCWSDEVID', $.md5(str_devid), {'expires': 6});
@@ -29,7 +26,7 @@ $(function () {
 		
 		str_pushUrl = 'packet_type=C1&from=0&push_id='+str_pushId+'&psd='+str_pushKey+'&devid='+str_devid;
 		
-		socketCon = io.connect(str_basePushUrl, {'query': str_pushUrl, 'reconnect': false});
+		socketCon = io.connect(str_basePushUrl, {'query': str_pushUrl, 'force new connection': true});
 		
 		//侦听服务
 		socketCon.on('api/resp', function(data) {	
@@ -83,7 +80,6 @@ $(function () {
 		});
 		
 	}
-	//TODO:
 	
 	//重新请求push信息
 	function fn_reRequestPush() {
@@ -114,7 +110,7 @@ $(function () {
 	}
 	//定位器组织结构变化
 	function fn_pushOrganiztionStatus(obj_pushData) {
-		dlf.fn_corpGetCarData();
+		dlf.fn_getCarData();
 		
 		var obj_pushCallbackData = {'packet_type': 'C3', 'status': 0, 'msg': 'SUCCESS'};
 		
@@ -133,35 +129,37 @@ $(function () {
 					n_tempPushLoginSt = obj_tempPushData.login_status,
 					obj_terminalData = obj_carDatas[str_tempPushTid],
 					obj_selfMarker = obj_selfmarkers[str_tempPushTid],
-					obj_leftTerminal = $('#leaf_'+str_tempPushTid);
+					obj_leftTerminal = $('#carList a[tid='+str_tempPushTid+']'),
+					str_loginClass = 'carlogin',
+					str_terminalLoginText = '(在线)';
+					str_terminalLoginTextClass = 'green',
+					str_carLoginImg = 'car1';
 				
-				if ( obj_terminalData.login != n_tempPushLoginSt ) {
-					if ( n_tempPushLoginSt == 1 ) {
-						n_onlineCnt++;
-						n_offlineCnt--;
-					} else {
-						n_onlineCnt--;
-						n_offlineCnt++;
-					}
-					obj_leftTerminal.attr('clogin', n_tempPushLoginSt);
-					dlf.fn_updateTerminalLogin(obj_leftTerminal);
-					if ( obj_selfMarker ) {
-						var n_carTimestamp = obj_terminalData.timestamp,
-							n_degree = obj_terminalData.degree,
-							n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
-							n_speed = obj_terminalData.speed;
-
-						// 设置marker的icon						
-						dlf.fn_setMarkerTraceIcon(n_imgDegree, obj_terminalData.icon_type, n_tempPushLoginSt, obj_selfMarker, n_carTimestamp, n_speed);
-					}
-					obj_terminalData.login = n_tempPushLoginSt;
-					obj_carDatas[str_tempPushTid] = obj_terminalData;
+				if ( n_tempPushLoginSt == 0 ) { // 在线
+					str_loginClass = 'carlogout';
+					str_terminalLoginTextClass = 'gray';
+					str_terminalLoginText = '(离线)';					
+					str_carLoginImg = 'carout1';
 				}
+				obj_leftTerminal.removeClass('carlogin carlogout').addClass(str_loginClass);
+				$(obj_leftTerminal.children()).attr('src', '/static/images/'+str_carLoginImg+'.png');
+				
+				$(obj_leftTerminal.nextAll()[0]).removeClass().addClass(str_terminalLoginTextClass);
+				$(obj_leftTerminal.nextAll()[1]).removeClass().addClass(str_terminalLoginTextClass).html(str_terminalLoginText);
+				
+				if ( obj_selfMarker ) {
+					var n_carTimestamp = obj_terminalData.timestamp,
+						n_degree = obj_terminalData.degree,
+						n_imgDegree = dlf.fn_processDegree(n_degree),	// 方向角处理
+						n_speed = obj_terminalData.speed;
+
+					// 设置marker的icon						
+					dlf.fn_setMarkerTraceIcon(n_imgDegree, obj_terminalData.icon_type, n_tempPushLoginSt, obj_selfMarker, n_carTimestamp, n_speed);
+				}
+				obj_terminalData.login = n_tempPushLoginSt;
+				obj_carDatas[str_tempPushTid] = obj_terminalData;
 			}
 			$('.j_carList').data('carsData', obj_carDatas);
-			if ( n_onlineCnt < 0 ) { n_onlineCnt = 0; }
-			if ( n_offlineCnt < 0 ) { n_offlineCnt = 0; }
-			dlf.fn_updateTerminalCount();
 		}
 		
 		fn_pushCallback(obj_pushCallbackData);
@@ -169,7 +167,6 @@ $(function () {
 	//定位器告警
 	function fn_pushTerminalAlert(obj_pushData) {
 		var obj_pushCallbackData = {'packet_type': 'C5', 'status': 0, 'msg': 'SUCCESS'},
-			arr_alarm = [],
 			obj_pushRes = obj_pushData.res,
 			obj_carDatas = $('.j_carList').data('carsData');
 		
@@ -178,10 +175,11 @@ $(function () {
 				var	obj_tempPushData = obj_pushRes[ia],
 					str_tempTid = obj_tempPushData.tid,
 					obj_terminalData = obj_carDatas[str_tempTid],
-					n_category = obj_tempPushData.category;
+					n_category = obj_tempPushData.category,
+					str_carcTid = dlf.fn_getCurrentTid();
 				
 				if ( obj_terminalData ) {
-					if ( n_category == 1 ) {
+					if ( n_category == 1 ) { //PVT
 						obj_terminalData.pbat = obj_tempPushData.pbat;
 						obj_terminalData.timestamp = obj_tempPushData.timestamp;
 						obj_terminalData.clongitude = obj_tempPushData.clongitude;
@@ -196,16 +194,16 @@ $(function () {
 						obj_terminalData.locate_error = obj_tempPushData.locate_error;
 						obj_terminalData.type = obj_tempPushData.type;
 						obj_terminalData.alias = obj_tempPushData.alias;
-					} else {
-						obj_tempPushData.owner_mobile = obj_terminalData.owner_mobile;
-						arr_alarm.push(obj_tempPushData);
 					}
 				}
+				if ( str_carcTid == str_tempTid ) {
+					dlf.fn_updateTerminalInfo(obj_terminalData);
+				}
+				
 				obj_carDatas[str_tempTid] = obj_terminalData;
 				dlf.fn_updateInfoData(obj_terminalData);
 			}
 			$('.j_carList').data('carsData', obj_carDatas);
-			dlf.fn_updateAlarmList(arr_alarm);
 		}
 		
 		fn_pushCallback(obj_pushCallbackData);
@@ -253,25 +251,21 @@ $(function () {
 				var	obj_tempPushData = obj_pushRes[ia],
 					str_tempPushTid = obj_tempPushData.tid,
 					str_tempPushAlias = obj_tempPushData.alias,
-					n_tempPushIconType = obj_tempPushData.icon_type,
-					str_tempPushOwnerMobile = obj_tempPushData.owner_mobile,					
+					str_tempPushOwnerMobile = obj_tempPushData.owner_mobile,				
 					str_tempManual_status = obj_tempPushData.mannual_status,
 					obj_terminalData = obj_carDatas[str_tempPushTid],
-					obj_selfMarker = obj_selfmarkers[str_tempPushTid],					
+					obj_selfMarker = obj_selfmarkers[str_tempPushTid],
 					str_carcTid = dlf.fn_getCurrentTid();
 			
 				if ( obj_terminalData ) {
 					var n_tempLoginSt = obj_terminalData.login,
-						obj_leftTerminal = $('#leaf_'+str_tempPushTid);
+						obj_leftTerminal = $('#carList a[tid='+str_tempPushTid+']');
 					
 					if ( str_tempPushAlias ) {
 						obj_carDatas[str_tempPushTid].alias = str_tempPushAlias;
-						obj_leftTerminal.attr('alias', dlf.fn_decode(str_tempPushAlias));
-						obj_leftTerminal.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + dlf.fn_encode(dlf.fn_dealAlias(str_tempPushAlias)))
-					}
-					if ( n_tempPushIconType ) {
-						obj_carDatas[str_tempPushTid].icon_type = n_tempPushIconType;
-						obj_leftTerminal.attr('icon_type', n_tempPushIconType);
+						obj_leftTerminal.attr('alias', dlf.fn_decode(str_tempPushAlias));						
+						$(obj_leftTerminal.nextAll()[0]).html(dlf.fn_encode(dlf.fn_dealAlias(str_tempPushAlias)));
+						
 					}
 					if ( str_tempPushOwnerMobile ) {
 						obj_carDatas[str_tempPushTid].owner_mobile = str_tempPushOwnerMobile;
@@ -308,14 +302,13 @@ $(function () {
 		
 						obj_selfMarker.setPosition(obj_tempPoint);
 						// 设置marker的icon						
-						dlf.fn_setMarkerTraceIcon(n_imgDegree, n_tempPushIconType, n_tempLoginSt, obj_selfMarker, n_carTimestamp, n_speed);
+						dlf.fn_setMarkerTraceIcon(n_imgDegree, obj_terminalData.icon_type, n_tempLoginSt, obj_selfMarker, n_carTimestamp, n_speed);
 						obj_selfmarkers[str_tempPushTid] = obj_selfMarker;
 						
 						if ( str_actionTrack == 'yes' ) {
 							dlf.fn_updateOpenTrackStatusColor(str_tempPushTid);
 						}
 					}
-					dlf.fn_updateTerminalLogin(obj_leftTerminal);
 				}
 			}
 			$('.j_carList').data('carsData', obj_carDatas);

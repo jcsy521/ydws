@@ -664,11 +664,10 @@ dlf.fn_alertOptionSave = function() {
 }
 //批量设置超速门限
 dlf.bindBatchSpeedLimit = function(obj_group) {
-	var arr_terminalIds = [],
-		obj_currentGroupChildren = obj_group.children('ul').children('li:visible'),
+	var arr_terminalIds = dlf.fn_searchCheckTerminal(true, true, obj_group),
 		str_groupName = dlf.fn_encode(obj_group.children('a').attr('title'));
 	
-	if ( obj_currentGroupChildren.length <= 0 ) {	// 没有定位器，不能批量删除
+	if ( obj_group.children('ul').children('li').length <= 0 ) {	// 没有定位器，不能批量删除
 		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
 		return;
 	} else if ( obj_group.hasClass('jstree-unchecked') ) {	// 要删除定位器的组没有被选中
@@ -685,16 +684,6 @@ dlf.bindBatchSpeedLimit = function(obj_group) {
 	
 	
 	$('#batch_speed_limit').val(120);
-	obj_currentGroupChildren.each(function() {
-		var obj_checkedTerminal = $(this),
-			obj_terminalALink = obj_checkedTerminal.children('a'),
-			b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
-			str_tid = obj_terminalALink.attr('tid');
-		
-		if ( b_isChecked ) {
-			arr_terminalIds.push(str_tid);
-		}
-	});
 	$('#batch_speed_limit').unbind('blur').blur(function() {
 		var reg = /^(1000|[1-9][0-9]{0,2})$/,
 			str_newSpeed = $.trim($(this).val()),

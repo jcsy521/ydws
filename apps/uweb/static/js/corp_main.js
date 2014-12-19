@@ -569,7 +569,7 @@ function customMenu(node) {
 * 批量操作的数据验证：批量删除、批量设防撤防 (判断是否选中的是定位器)
 */
 function fn_batchOperateValidate(obj, str_msg) {
-	var obj_currentGroupChildren = obj.children('ul').children('li:visible'),
+	var obj_currentGroupChildren = dlf.fn_searchCheckTerminal(false, false, obj);//obj.children('ul').children('li:visible'),
 		str_gname = obj.children('a').text(),	// 组名
 		str_tempMSg = str_msg;
 	
@@ -583,7 +583,7 @@ function fn_batchOperateValidate(obj, str_msg) {
 		}
 	}	
 	//  批量删除选中定位器操作
-	if ( obj_currentGroupChildren.length <= 0 ) {	// 没有定位器，不能批量删除
+	if ( obj.children('ul').children('li').length <= 0 ) {	// 没有定位器，不能批量删除
 		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
 		return false;
 	} else if ( obj.hasClass('jstree-unchecked') ) {	// 要删除定位器的组没有被选中
@@ -594,8 +594,8 @@ function fn_batchOperateValidate(obj, str_msg) {
 			arr_dataes = [],
 			obj_params = {};
 		// 当前组下选中的tid
-		obj_currentGroupChildren.each(function() {
-			var obj_checkedTerminal = $(this),
+		for ( var param in obj_currentGroupChildren ) {
+			var obj_checkedTerminal = obj_currentGroupChildren[param],
 				obj_terminalALink = obj_checkedTerminal.children('a'),
 				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
 				str_tid = obj_terminalALink.attr('tid'),
@@ -611,7 +611,7 @@ function fn_batchOperateValidate(obj, str_msg) {
 			obj_params['tids'] = arr_tids;
 			obj_params['characters'] = arr_dataes;
 			obj_params['gname'] = str_gname;
-		});
+		}
 		str_msg == '删除' ? fn_batchRemoveTerminals(obj_params) : dlf.fn_initBatchDefend(str_msg, obj_params);
 	}
 }
@@ -622,11 +622,11 @@ function fn_batchOperateValidate(obj, str_msg) {
 * str_operation: open:开启追踪  close: 取消追踪
 */
 function fn_batchOpenTrack(obj, str_operation) {
-	var obj_currentGroupChildren = obj.children('ul').children('li:visible'),
+	var obj_currentGroupChildren = dlf.fn_searchCheckTerminal(false, false, obj);//obj.children('ul').children('li:visible'),
 		str_gname = obj.children('a').text();	// 组名
 	
 	//  批量删除选中定位器操作
-	if ( obj_currentGroupChildren.length <= 0 ) {	// 没有定位器，不能批量删除
+	if ( obj.children('ul').children('li').length <= 0 ) {	// 没有定位器，不能批量删除
 		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
 		return false;
 	} else if ( obj.hasClass('jstree-unchecked') ) {	// 要删除定位器的组没有被选中
@@ -637,8 +637,8 @@ function fn_batchOpenTrack(obj, str_operation) {
 			arr_dataes = [],
 			obj_params = {};
 		// 当前组下选中的tid
-		obj_currentGroupChildren.each(function() {
-			var obj_checkedTerminal = $(this),
+		for ( var param in obj_currentGroupChildren ) {
+			var obj_checkedTerminal = obj_currentGroupChildren[param],
 				obj_terminalALink = obj_checkedTerminal.children('a'),
 				b_isChecked = obj_checkedTerminal.hasClass('jstree-checked'),
 				str_tid = obj_terminalALink.attr('tid'),
@@ -655,7 +655,7 @@ function fn_batchOpenTrack(obj, str_operation) {
 				}
 				arr_dataes.push({'alias': dlf.fn_encode(str_alias), 'tmobile': str_tmobile, 'tid': str_tid, 'track': str_actionTrack});
 			}
-		});
+		}
 		if ( arr_tids.length <= 0 ) {
 			dlf.fn_jNotifyMessage('您选中的定位器都'+ ( str_operation == 'open' ? '已' : '未' ) +'开启追踪。', 'message', false, 3000); // 执行操作失败，提示错误消息
 			return false;
@@ -1084,16 +1084,16 @@ dlf.fn_loadJsTree = function(str_checkedNodeId, str_html) {
 			b_checkedAll = true;			
 			//如果当前分组下可见的终端全部被选中
 			var obj_currentGroup = obj_currentLi.parent().parent(),
-				obj_groupVisibleTerminal = obj_currentGroup.children('ul').children('li:visible'),
+				obj_groupVisibleTerminal = dlf.fn_searchCheckTerminal(false, false, obj_currentGroup, true);//obj_currentGroup.children('ul').children('li:visible'),
 				str_currentGroupId = obj_currentGroup.attr('id'),
 				b_groupAllCheck = true;
 			
-			obj_groupVisibleTerminal.each(function(e) {
-				if ( $(this).hasClass('jstree-unchecked') ) {
+			for ( var param in obj_groupVisibleTerminal ) {
+				if ( obj_groupVisibleTerminal[param].hasClass('jstree-unchecked') ) {
 					b_groupAllCheck = false;
 					return;
 				}
-			});
+			}
 			// 设置组为'选中状态
 			if ( b_groupAllCheck ) {
 				$('#corpTree').jstree('check_node', '#'+str_currentGroupId);
@@ -1202,16 +1202,16 @@ function fn_uncheckedNode(obj) {
 			obj_current.removeClass('j_currentCar jstree-clicked');
 			//如果当前分组下可见的终端全部被选中
 			var obj_currentGroup = obj_currentLi.parent().parent(),
-				obj_groupVisibleTerminal = obj_currentGroup.children('ul').children('li:visible'),
+				obj_groupVisibleTerminal = dlf.fn_searchCheckTerminal(false, false, obj_currentGroup, true);//obj_currentGroup.children('ul').children('li:visible'),
 				str_currentGroupId = obj_currentGroup.attr('id'),
 				b_groupAllCheck = true;
 			
-			obj_groupVisibleTerminal.each(function(e) {
-				if ( $(this).hasClass('jstree-checked') ) {
+			for ( var param in obj_groupVisibleTerminal ) {
+				if ( obj_groupVisibleTerminal[param].hasClass('jstree-checked') ) {
 					b_groupAllCheck = false;
 					return;
 				}
-			});
+			}
 			// 设置组为不选中状态
 			if ( b_groupAllCheck ) {
 				$('#corpTree').jstree('uncheck_node', '#'+str_currentGroupId);

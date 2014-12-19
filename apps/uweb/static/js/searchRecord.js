@@ -326,7 +326,7 @@ dlf.fn_downloadData = function(str_who) {
 dlf.fn_searchData = function (str_who) {
 	var obj_conditionData = {}, 
 		str_getDataUrl = '', 
-		arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
+		arr_leafNodes = dlf.fn_searchCheckTerminal(true, true);//$('#corpTree .j_leafNode[class*=jstree-checked]'), 
 		str_cTid = $('.j_currentCar').attr('tid'),
 		n_tidsNums = arr_leafNodes.length;
 	
@@ -425,7 +425,7 @@ dlf.fn_searchData = function (str_who) {
 					dlf.fn_jNotifyMessage('请在左侧勾选定位器。', 'message', false, 6000);
 					return;	
 				}
-				obj_conditionData.tids = dlf.fn_searchCheckTerminal();
+				obj_conditionData.tids = dlf.fn_searchCheckTerminal(true, false);
 			}
 			break;
 		case 'mileage': // 里程统计
@@ -515,7 +515,7 @@ dlf.fn_searchData = function (str_who) {
 						'end_time': n_finishTime, 
 						'pagenum': n_dwRecordPageNum, 
 						'pagecnt': n_dwRecordPageCnt, 
-						'tids': dlf.fn_searchCheckTerminal()
+						'tids': dlf.fn_searchCheckTerminal(true, false)
 					};
 			break;
 		case 'singleEvent': // 单个定位器的告警统计
@@ -1561,10 +1561,19 @@ dlf.fn_getAllTerminals = function(str_who) {
 /**
 * 集团操作:查询当前选中的终端 
 */
-dlf.fn_searchCheckTerminal = function() {
+dlf.fn_searchCheckTerminal = function(b_isTids, b_arrTids, obj_group, b_isAll) {
 	// 获取当前选中的终端 
-	var arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]'), 
-		n_tidsNums = arr_leafNodes.length, 
+	var arr_leafNodes = $('#corpTree .j_leafNode[class*=jstree-checked]');
+	
+	if ( obj_group ) {
+		if ( b_isAll ) {
+			arr_leafNodes = obj_group.children('ul').children('li');
+		} else {
+			arr_leafNodes = obj_group.children('ul').children('li[class*=jstree-checked]');
+		}
+	}
+	
+	var n_tidsNums = arr_leafNodes.length, 
 		str_tids = '',
 		str_currentTNumId = $($('#terminalInfo .currentTNum').children()).attr('id'),
 		n_tShow = 2;
@@ -1577,21 +1586,48 @@ dlf.fn_searchCheckTerminal = function() {
 	} else {
 		n_tShow = '1';
 	}	
-	
-	for (var i = 0; i < n_tidsNums; i++ ) {
-		var obj_tempLeafNode = $($(arr_leafNodes[i]).children('a')),
-			str_clogin = obj_tempLeafNode.attr('clogin');
-		
-		if ( n_tShow == 2 ) {
-			str_tids += obj_tempLeafNode.attr('tid')+',';
-		} else {
-			if ( n_tShow == str_clogin ) {
+	if ( b_isTids ) {
+		for (var i = 0; i < n_tidsNums; i++ ) {
+			var obj_tempLeafNode = $($(arr_leafNodes[i]).children('a')),
+				str_clogin = obj_tempLeafNode.attr('clogin');
+			
+			if ( n_tShow == 2 ) {
 				str_tids += obj_tempLeafNode.attr('tid')+',';
+			} else {
+				if ( n_tShow == str_clogin ) {
+					str_tids += obj_tempLeafNode.attr('tid')+',';
+				}
 			}
 		}
+		str_tids = str_tids.substr(0,str_tids.length - 1);
+		
+		if ( b_arrTids ) {
+			if ( str_tids == '' ) {
+				return [];
+			} else {
+				return str_tids.split(',');
+			}
+		} else {
+			return str_tids;
+		}
+	} else {
+		var arr_terminalLeaf = []
+		
+		for (var i = 0; i < n_tidsNums; i++ ) {
+			var obj_tempNodeLi = $(arr_leafNodes[i]),
+				obj_tempLeafNode = $(obj_tempNodeLi.children('a')),
+				str_clogin = obj_tempLeafNode.attr('clogin');
+			
+			if ( n_tShow == 2 ) {
+				arr_terminalLeaf.push(obj_tempNodeLi);
+			} else {
+				if ( n_tShow == str_clogin ) {
+					arr_terminalLeaf.push(obj_tempNodeLi);
+				}
+			}
+		}
+		return arr_terminalLeaf;
 	}
-	str_tids = str_tids.substr(0,str_tids.length - 1);
-	return str_tids;
 }
 
 /**

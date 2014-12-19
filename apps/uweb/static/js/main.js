@@ -28,7 +28,7 @@ dlf.fn_personalData = function() {
 			if ( str_name.length > 4 ) {	// 姓名长度大于4显示...
 				str_newName = str_name.substr(0,4)+'...';
 			}
-			$('#spanWelcome').html('欢迎您，' + dlf.fn_encode(str_newName)).attr('title', str_name);	// 更新主页用户名
+			$('#userName').html('欢迎您，' + dlf.fn_encode(str_newName)).attr('title', str_name);	// 更新主页用户名
 			$('#phone').html(str_phone).data('phone', str_phone);
 			// $('#cnum').val(str_cnum).data('cnum', str_cnum);
 			
@@ -1245,7 +1245,8 @@ $(function () {
 	*/
 	if ( !dlf.fn_userType() ) {
 		dlf.fn_getCarData('first');
-		dlf.fn_updateLastInfo();
+		//dlf.fn_updateLastInfo();
+		dlf.fn_initPushServices();
 	} else {
 		$('.j_corpLeft').css('background-color', '#fff')
 		// 点击查询按钮触发自动搜索功能	
