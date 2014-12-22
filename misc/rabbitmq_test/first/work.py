@@ -2,7 +2,7 @@ import pika
 import time
 
 #connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='drone-105'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='drone-205'))
 #connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.1.105'))
 channel = connection.channel()
 

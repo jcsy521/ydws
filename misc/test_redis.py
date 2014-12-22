@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import time
 
 import os.path
 import site
@@ -89,6 +90,12 @@ class Test(object):
         print 'tid: %s, location_key: %s, location: %s' % (tid, 
                location_key, location)
 
+    def test_expire(self):
+        key = 'jia_expire'
+        timestamp = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,11,21,16,40,0), "%Y-%m-%d-%H-%M-%S")))
+        self.redis.set(key, '1')
+        self.redis.expireat(key, timestamp)
+
 def main():
     ConfHelper.load('../conf/global.conf')
     parse_command_line()
@@ -99,7 +106,8 @@ def main():
     #t.test_acc_status() 
     #t.test_alarm_info()
     #t.test_terminal_info() 
-    t.test_location() 
+    #t.test_location() 
+    t.test_expire() 
 
 if __name__ == "__main__": 
     main()
