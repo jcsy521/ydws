@@ -94,8 +94,6 @@ class SMSHelper:
                  'msgid': 
                 }
         """
-        response = "{'status':0, 'msgid':1111}"
-
         status = ErrorCode.SUCCESS 
         response = dict(status=status, 
                         message=ErrorCode.ERROR_MESSAGE[status],
