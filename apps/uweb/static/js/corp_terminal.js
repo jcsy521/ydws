@@ -71,7 +71,7 @@ dlf.fn_initSMSOption = function() {
 	dlf.fn_dialogPosition('corpSMSOption');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	
-	if ( $.browser.msie ) {
+	if ( $.browser.msie || parseInt($.browser.version) >= 11 ) {
 		$('.corp_smsList li').css('height', 16);	
 	}
 	
