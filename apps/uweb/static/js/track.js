@@ -611,7 +611,6 @@ dlf.fn_calTrackMileageIsBr = function() {
 				obj_trackBrPanel = $(this).children('.trackTextMilegePanel'),
 				obj_trackTextZooIn = $(this).children('.textZooIn');
 			
-			//console.log('tb: ',n_thisTextLength,obj_trackBrPanel,obj_trackTextZooIn);
 			if ( n_thisTextLength > 3 && $('.j_delayPanel').width() <= 400) {
 				obj_trackBrPanel.css('display', 'block');
 				obj_trackTextZooIn.css('margin-left', '14px');
@@ -1028,15 +1027,16 @@ function fn_getTrackDatas(n_stopNum, str_operator) {
 			return;
 		}
 		
+		
 		if ( n_stDateYmd ==  str_dayYmd ) { //和开始时间所在同一天
 			n_startTime = obj_locusDate.start_time;
-			n_endTime = new Date(str_dayYmd+' 23:59:59').getTime()/1000;
+			n_endTime = dlf.fn_changeDateStringToNum(str_dayYmd+' 23:59:59');
 		} else if ( n_endDateYmd ==  str_dayYmd ) { //和结束时间所在同一天
-			n_startTime = new Date(str_dayYmd+' 0:0:0').getTime()/1000;
+			n_startTime = dlf.fn_changeDateStringToNum(str_dayYmd+' 0:0:0');
 			n_endTime = obj_locusDate.end_time;
 		} else {
-			n_startTime = new Date(str_dayYmd+' 0:0:0').getTime()/1000;
-			n_endTime = new Date(str_dayYmd+' 23:59:59').getTime()/1000;
+			n_startTime = dlf.fn_changeDateStringToNum(str_dayYmd+' 0:0:0');
+			n_endTime = dlf.fn_changeDateStringToNum(str_dayYmd+' 23:59:59');
 		}		
 	} else {		
 		var n_lon = arr_trackQueryData[n_stopNum].longitude;

@@ -12,9 +12,9 @@ function fn_exportExcel(str_excelName) {
 	var obj_delayLink = $('#exportDelay');
 	
 	if( $.browser.msie ) {
-		obj_delayLink.unbind('click').click(function() {
+		//obj_delayLink.unbind('click').click(function() {
 			fn_tableToExcelFromIE('tempDelayTable',null, str_excelName);
-		});		
+		//});		
 	} else {
 		fn_tableToExcel('tempDelayTable', '停留点列表');
 		//obj_delayLink.attr('href', fn_tableToExcel('tempDelayTable', '停留点列表'));
@@ -29,7 +29,7 @@ function fn_tableToExcelFromIE(inTblId, inWindow, str_excelName) {
 	try { 
 		var allStr = "",
 			curStr = "",
-			fileName = str_excelName + '.csv';	// getExcelFileName();
+			fileName = str_excelName + '.xls';	// getExcelFileName();
 		
 		if ( inTblId != null && inTblId != '' && inTblId != 'null' ) { 
 			curStr = getTblData(inTblId, inWindow); 
