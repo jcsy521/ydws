@@ -52,7 +52,7 @@ class RegisterHandler(BaseHandler):
             remote_ip = self.request.remote_ip
 
             captcha_image = self.get_argument('captcha_img', '')
-            captchahash = self.get_secure_cookie("captchahash_image", "")
+            captchahash = self.get_secure_cookie("captchahash_image")
 
             logging.info("[UWEB] Get captcha-sms request. umobile:%s, tmobile: %s, captcha_img: %s",
                          umobile, tmobile, captcha_image)
@@ -179,8 +179,7 @@ class RegisterHandler(BaseHandler):
             # check tmobile is whitelist or not
             white_list = check_zs_phone(tmobile, self.db)
             if not white_list:
-                logging.info(
-                    "[UWEB] Mobile is not whitelist. tmobile: %s.", tmobile)
+                logging.info("[UWEB] Mobile is not whitelist. tmobile: %s.", tmobile)
                 status = ErrorCode.MOBILE_NOT_ORDERED
                 message = ErrorCode.ERROR_MESSAGE[status] % tmobile
                 self.write_ret(status, message=message)

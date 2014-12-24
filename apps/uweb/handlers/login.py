@@ -58,7 +58,7 @@ class LoginHandler(BaseHandler, LoginMixin):
 
         user_type = self.get_argument("user_type", UWEB.USER_TYPE.PERSON)
         # NOTE: Get captchahash from cookie
-        captchahash = self.get_secure_cookie('captchahash' "")
+        captchahash = self.get_secure_cookie("captchahash")
 
         logging.info("[UWEB] Browser login request, username: %s, password: %s, "
                      " user_type: %s, catpcha: %s, captchahash: %s", 

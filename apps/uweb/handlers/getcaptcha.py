@@ -36,6 +36,8 @@ class GetCaptchaHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            umobile = data.mobile
+            captcha_psd = data.get('captcha_psd','')
             logging.info("[UWEB] Get captcha request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -45,15 +47,15 @@ class GetCaptchaHandler(BaseHandler):
             return 
 
         try:
-            status = self.check_privilege(data.mobile) 
+
+            status = self.check_privilege(umobile) 
             if status != ErrorCode.SUCCESS: 
                 logging.error("[UWEB] User: %s is just for test, has no right to access the function.", 
-                              data.mobile) 
+                              umobile) 
                 self.write_ret(status) 
                 return
-
-            captcha_psd = data.get('captcha_psd','')
-            captchahash = self.get_secure_cookie("captchahash_password", "")
+           
+            captchahash = self.get_secure_cookie("captchahash_password")
 
             #NOTE: check captcha-sms for brower
             from_brower = False 
@@ -81,14 +83,12 @@ class GetCaptchaHandler(BaseHandler):
                     logging.info("[UWEB] Come from browser, captcha-check failed.")
                     self.write_ret(status)
                     return
-
-            mobile = data.mobile
-            umobile = data.mobile
+            
             user = self.db.get("SELECT mobile"
                                "  FROM T_USER"
                                "  WHERE mobile = %s"
                                "  LIMIT 1",
-                               mobile)
+                               umobile)
             if user:
                 remote_ip = self.request.remote_ip
                 remote_ip_key = "register_remote_ip:%s" % remote_ip 
@@ -117,18 +117,20 @@ class GetCaptchaHandler(BaseHandler):
                     status = ErrorCode.REGISTER_EXCESS
 
                 if status == ErrorCode.REGISTER_EXCESS:
-                    body = u'管理员您好：检测到频繁注册，请查看. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s' % (umobile, umobile_times, remote_ip, remote_ip_times) 
+                    body = u'管理员您好：检测到频繁注册，请查看. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s' % (
+                            umobile, umobile_times, remote_ip, remote_ip_times) 
                     notify_maintainer(self.db, self.redis, body, 'password')
                     self.write_ret(status)
                     return
 
                 captcha = ''.join(random.choice(string.digits) for x in range(4))
                 getcaptcha_sms = SMSCode.SMS_CAPTCHA % (captcha) 
-                ret = SMSHelper.send(mobile, getcaptcha_sms)
+                ret = SMSHelper.send(umobile, getcaptcha_sms)
                 ret = DotDict(json_decode(ret))
                 if ret.status == ErrorCode.SUCCESS:
-                    logging.info("[UWEB] user uid: %s get captcha success, the captcha: %s", mobile, captcha)
-                    captcha_key = get_captcha_key(mobile)
+                    logging.info("[UWEB] user uid: %s get captcha success, the captcha: %s", 
+                                 umobile, captcha)
+                    captcha_key = get_captcha_key(umobile)
                     self.redis.setvalue(captcha_key, captcha, UWEB.SMS_CAPTCHA_INTERVAL)
 
                     self.redis.set(umobile_key, umobile_times+1)  
@@ -138,13 +140,15 @@ class GetCaptchaHandler(BaseHandler):
 
                 else:
                     status = ErrorCode.SERVER_BUSY
-                    logging.error("[UWEB] user uid: %s get captcha failed.", mobile)
+                    logging.error("[UWEB] user uid: %s get captcha failed.", umobile)
             else:
                 status = ErrorCode.USER_NOT_ORDERED
-                logging.error("[UWEB] user uid: %s does not exist, get captcha failed.", mobile)
+                logging.error("[UWEB] user uid: %s does not exist, get captcha failed.", 
+                              umobile)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] user uid: %s retrieve password failed. Exception: %s", mobile, e.args)
+            logging.exception("[UWEB] user uid: %s retrieve password failed. Exception: %s", 
+                              umobile, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -161,6 +165,9 @@ class GetCaptchaCorpHandler(BaseHandler):
         status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
+            umobile = data.mobile
+            captcha_psd = data.get('captcha_psd','')
+            captchahash = self.get_secure_cookie("captchahash_password")
             logging.info("[UWEB] Corp retrieve password request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -170,9 +177,6 @@ class GetCaptchaCorpHandler(BaseHandler):
             return 
 
         try:
-            captcha_psd = data.get('captcha_psd','')
-            captchahash = self.get_secure_cookie("captchahash_password", "")
-
             #NOTE: check captcha-sms for brower
             from_brower = False 
             if self.request.headers.get('User-Agent',None):
@@ -192,6 +196,7 @@ class GetCaptchaCorpHandler(BaseHandler):
             if from_brower:
                 m = hashlib.md5()
                 m.update(captcha_psd.lower())
+                m.update(UWEB.HASH_SALT)
                 hash_ = m.hexdigest()
                 if hash_.lower() != captchahash.lower():
                     status = ErrorCode.WRONG_CAPTCHA_IMAGE
@@ -199,20 +204,19 @@ class GetCaptchaCorpHandler(BaseHandler):
                     self.write_ret(status)
                     return
 
-            mobile = data.mobile
-            umobile = data.mobile
-            #TODO: optimize it
+            
+
             user = self.db.get("SELECT mobile"
                                "  FROM T_CORP"
                                "  WHERE cid = %s"
                                "  LIMIT 1",
-                               mobile)
+                               umobile)
             if not user:
                 user = self.db.get("SELECT mobile"
                                    "  FROM T_OPERATOR"
                                    "  WHERE oid = %s"
                                    "  LIMIT 1",
-                                   mobile)
+                                   umobile)
 
             if user:
                 remote_ip = self.request.remote_ip
@@ -242,18 +246,20 @@ class GetCaptchaCorpHandler(BaseHandler):
                     status = ErrorCode.REGISTER_EXCESS
 
                 if status == ErrorCode.REGISTER_EXCESS:
-                    body = u'管理员您好：检测到频繁注册，请查看. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s' % (umobile, umobile_times, remote_ip, remote_ip_times) 
+                    body = u'管理员您好：检测到频繁注册，请查看. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s' % (
+                        umobile, umobile_times, remote_ip, remote_ip_times) 
                     notify_maintainer(self.db, self.redis, body, 'password')
                     self.write_ret(status)
                     return
 
                 captcha = ''.join(random.choice(string.digits) for x in range(4))
                 getcaptcha_sms = SMSCode.SMS_CAPTCHA % (captcha)
-                ret = SMSHelper.send(mobile, getcaptcha_sms)
+                ret = SMSHelper.send(umobile, getcaptcha_sms)
                 ret = DotDict(json_decode(ret))
                 if ret.status == ErrorCode.SUCCESS:
-                    logging.info("[UWEB] corp mobile: %s get captcha success, the captcha: %s", mobile, captcha)
-                    captcha_key = get_captcha_key(mobile)
+                    logging.info("[UWEB] corp mobile: %s get captcha success, the captcha: %s", 
+                                 umobile, captcha)
+                    captcha_key = get_captcha_key(umobile)
                     self.redis.setvalue(captcha_key, captcha, UWEB.SMS_CAPTCHA_INTERVAL)
 
                     self.redis.set(umobile_key, umobile_times+1)  
@@ -262,12 +268,15 @@ class GetCaptchaCorpHandler(BaseHandler):
                     self.redis.expireat(remote_ip_key, end_time_)  
                 else:
                     status = ErrorCode.SERVER_BUSY
-                    logging.error("[UWEB] Get captcha failed. corp mobile: %s", mobile)
+                    logging.error("[UWEB] Get captcha failed. corp mobile: %s", 
+                                  mobile)
             else:
-                logging.error("[UWEB] Get captcha failed. corp mobile: %s does not exist.", mobile)
+                logging.error("[UWEB] Get captcha failed. corp mobile: %s does not exist.", 
+                              mobile)
                 status = ErrorCode.USER_NOT_ORDERED
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] Get captcha failed. corp mobile: %s, Exception: %s", mobile, e.args)
+            logging.exception("[UWEB] Get captcha failed. corp mobile: %s, Exception: %s", 
+                               umobile, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
