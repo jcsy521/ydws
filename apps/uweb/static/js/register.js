@@ -33,7 +33,7 @@ $(function() {
 			dlf.fn_closeJNotifyMsg('#jNotifyMessage');
 		}, 
 		function (XMLHttpRequest, textStatus, errorThrown) {
-			dlf.fn_serverError(XMLHttpRequest);
+			//dlf.fn_serverError(XMLHttpRequest);
 		});
 	});
 	$.formValidator.initConfig({
@@ -81,7 +81,7 @@ $(function() {
 				}
 			}, 
 			function(XMLHttpRequest, textStatus, errorThrown) {
-				dlf.fn_serverError(XMLHttpRequest);
+				//dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
 	});
@@ -158,7 +158,7 @@ $(function() {
 			}
 		}, 
 		function (XMLHttpRequest, textStatus, errorThrown) {
-			dlf.fn_serverError(XMLHttpRequest);
+			//dlf.fn_serverError(XMLHttpRequest);
 		});
 	}).removeAttr('disabled');
 	

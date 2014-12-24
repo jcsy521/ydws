@@ -3194,6 +3194,11 @@ dlf.fn_accStatusSave = function() {
 	dlf.fn_lockScreen(); // 添加页面遮罩
 	$('#maskLayer').css('z-index', 1003);
 	
+	if ( $.browser.msie ) {
+		$('#accStatus_confirmClose').css('top', 0);		
+	}
+	
+	
 	$('#accStatusCallBackSuccess, #accStatusCallBackError').hide();
 	$('#accStatusConfirmPanel').show();
 	$('#accStatusCallBackWrapper').css(obj_accWrapperStyle);
@@ -3239,6 +3244,9 @@ dlf.fn_accCallback = function(n_status, n_tid) {
 			
 			dlf.fn_initAccStatus(str_alias);
 		});
+		if ( $.browser.msie ) {
+			$('#accCallBack_Close').css('top', 0);		
+		}
 		//关闭
 		$('#accCallBack_Close').unbind('click').click(function(e) {
 			$('#accStatusCallBackWrapper').hide();

@@ -29,7 +29,7 @@ $(function () {
 		
 		str_pushUrl = 'packet_type=C1&from=0&push_id='+str_pushId+'&psd='+str_pushKey+'&devid='+str_devid;
 		
-		socketCon = io.connect(str_basePushUrl, {'query': str_pushUrl, 'reconnect': false});
+		socketCon = io.connect(str_bpushUrl, {'query': str_pushUrl, 'reconnect': false});
 		
 		//侦听服务
 		socketCon.on('api/resp', function(data) {	

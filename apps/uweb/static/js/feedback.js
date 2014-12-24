@@ -69,6 +69,6 @@ function fn_fbsave() {
 		}
 	}, 
 	function (XMLHttpRequest, textStatus, errorThrown) {
-		dlf.fn_serverError(XMLHttpRequest);
+		//dlf.fn_serverError(XMLHttpRequest);
 	});
 }

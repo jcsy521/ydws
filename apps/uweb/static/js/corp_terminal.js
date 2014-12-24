@@ -70,6 +70,11 @@ dlf.fn_initCorpTerminal = function(str_tid) {
 dlf.fn_initSMSOption = function() {
 	dlf.fn_dialogPosition('corpSMSOption');  // 显示短信设置dialog	
 	dlf.fn_lockScreen(); // 添加页面遮罩
+	
+	if ( $.browser.msie ) {
+		$('.corp_smsList li').css('height', 16);	
+	}
+	
 	fn_initCorpSMS();	// 初始化SMS通知
 }
 

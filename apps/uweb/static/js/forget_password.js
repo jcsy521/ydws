@@ -61,7 +61,7 @@ $(function(){
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 			}, 
 			function(XMLHttpRequest, textStatus, errorThrown) {
-				dlf.fn_serverError(XMLHttpRequest);
+				//dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
 	}).attr('disabled',true);
@@ -117,7 +117,7 @@ $(function(){
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 3000);
 			}, 
 			function(XMLHttpRequest, textStatus, errorThrown) {
-				dlf.fn_serverError(XMLHttpRequest);
+				//dlf.fn_serverError(XMLHttpRequest);
 			});
 		}
 	});
