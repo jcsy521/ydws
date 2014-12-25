@@ -328,11 +328,15 @@ dlf.fn_searchData = function (str_who, b_cacheData) {
 		str_getDataUrl = '', 
 		arr_leafNodes = dlf.fn_searchCheckTerminal(true, true);//$('#corpTree .j_leafNode[class*=jstree-checked]'), 
 		str_cTid = $('.j_currentCar').attr('tid'),
-		n_tidsNums = arr_leafNodes.length;
+		n_tidsNums = arr_leafNodes.length,
+		obj_searchHeader = $('#'+str_who+'TableHeader');
 	
 	if ( $('.j_currentCar').length == 0 ) {
 		str_cTid = str_currentTid;
 	}
+	obj_searchHeader.hide();
+	$('#'+ str_who +'Page').hide();
+	obj_searchHeader.nextAll().remove();	//清除页面数据
 	switch (str_who) {
 		case 'operator': //  操作员查询
 			
@@ -627,6 +631,7 @@ dlf.fn_searchData = function (str_who, b_cacheData) {
 	
 	if ( b_cacheData ) {
 		obj_conditionData = $('.j_body').data('cachesearch');
+		obj_conditionData.pagenum = n_dwRecordPageNum;
 	}
 	$('.j_body').data('cachesearch', obj_conditionData);
 	
