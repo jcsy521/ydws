@@ -210,14 +210,14 @@ dlf.fn_setSearchRecord = function(str_who) {
 			return;
 		}
 		obj_currentPage.text(--n_dwRecordPageNum+1);
-		dlf.fn_searchData(str_who);
+		dlf.fn_searchData(str_who, true);
 	});
 	obj_nextPage.unbind('click').bind('click', function() {
 		if ( n_dwRecordPageNum >= n_dwRecordPageCnt-1 ) {
 			return;
 		}
 		obj_currentPage.text(++n_dwRecordPageNum+1);
-		dlf.fn_searchData(str_who);
+		dlf.fn_searchData(str_who, true);
 	});
 	obj_search.unbind('click').bind('click', function() {	// 查询数据事件
 		n_dwRecordPageCnt = -1;
@@ -323,7 +323,7 @@ dlf.fn_downloadData = function(str_who) {
 * 拼凑查询参数并查询数据
 * str_who: 根据wrapper来拼凑查询参数
 */
-dlf.fn_searchData = function (str_who) {
+dlf.fn_searchData = function (str_who, b_cacheData) {
 	var obj_conditionData = {}, 
 		str_getDataUrl = '', 
 		arr_leafNodes = dlf.fn_searchCheckTerminal(true, true);//$('#corpTree .j_leafNode[class*=jstree-checked]'), 
@@ -333,7 +333,6 @@ dlf.fn_searchData = function (str_who) {
 	if ( $('.j_currentCar').length == 0 ) {
 		str_cTid = str_currentTid;
 	}
-		
 	switch (str_who) {
 		case 'operator': //  操作员查询
 			
@@ -342,15 +341,16 @@ dlf.fn_searchData = function (str_who) {
 			
 			str_getDataUrl = OPERATOR_URL+'?name='+ str_name +'&mobile='+ str_mobile +'&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
 			
-			if ( str_name!= '' && !NAMEREG.test(str_name) ) {
-				dlf.fn_jNotifyMessage('操作员姓名只能由中文、数字、英文、空格组成!', 'message', false);
-				return;
+			if ( !b_cacheData ) {
+				if ( str_name!= '' && !NAMEREG.test(str_name) ) {
+					dlf.fn_jNotifyMessage('操作员姓名只能由中文、数字、英文、空格组成!', 'message', false);
+					return;
+				}
+				if ( str_mobile != '' && !/^\d*$/.test(str_mobile) ) {	// 手机号合法性验证
+					dlf.fn_jNotifyMessage('手机号只能输入数字!', 'message', false);
+					return;
+				}
 			}
-			if ( str_mobile != '' && !/^\d*$/.test(str_mobile) ) {	// 手机号合法性验证
-				dlf.fn_jNotifyMessage('手机号只能输入数字!', 'message', false);
-				return;
-			}
-				
 			break;
 		case 'passenger': //  乘客查询
 			
@@ -359,10 +359,11 @@ dlf.fn_searchData = function (str_who) {
 				
 			str_getDataUrl = PASSENGER_URL+'?name='+ str_name +'&mobile='+ str_mobile +'&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
 			
-			if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
-				dlf.fn_jNotifyMessage('您输入的手机号格式错误!', 'message', false);
+			if ( !b_cacheData ) {
+				if ( !MOBILEREG.test(str_mobile) ) {	// 手机号合法性验证
+					dlf.fn_jNotifyMessage('您输入的手机号格式错误!', 'message', false);
+				}
 			}
-				
 			break;
 		case 'infoPush': //  消息推送获取乘客信息
 			str_getDataUrl = PUSHINFO_URL+'?name=&mobile=&pagecnt='+ n_dwRecordPageCnt +'&pagenum='+ n_dwRecordPageNum;
@@ -406,26 +407,29 @@ dlf.fn_searchData = function (str_who) {
 						arr_category.push(str_typeVal);
 					}
 				});
-				
-				if ( arr_category.length == 0 ) {
-					dlf.fn_jNotifyMessage('请选择告警查询的类型。', 'message', false, 3000);
-					return;
+				if ( !b_cacheData ) {
+					if ( arr_category.length == 0 ) {
+						dlf.fn_jNotifyMessage('请选择告警查询的类型。', 'message', false, 3000);
+						return;
+					}
 				}
 				obj_conditionData.categories = arr_category;
 			}
 			
-			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
-				return;
-			}	
-			if ( str_userType ==  USER_PERSON ) {
-				obj_conditionData.tid = $('.j_currentCar').attr('tid');
-			} else {
-				if ( n_tidsNums <= 0 ) {
-					dlf.fn_jNotifyMessage('请在左侧勾选定位器。', 'message', false, 6000);
-					return;	
+			if ( !b_cacheData ) {
+				if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+					dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
+					return;
+				}	
+				if ( str_userType ==  USER_PERSON ) {
+					obj_conditionData.tid = $('.j_currentCar').attr('tid');
+				} else {
+					if ( n_tidsNums <= 0 ) {
+						dlf.fn_jNotifyMessage('请在左侧勾选定位器。', 'message', false, 6000);
+						return;	
+					}
+					obj_conditionData.tids = dlf.fn_searchCheckTerminal(true, false);
 				}
-				obj_conditionData.tids = dlf.fn_searchCheckTerminal(true, false);
 			}
 			break;
 		case 'mileage': // 里程统计
@@ -459,14 +463,17 @@ dlf.fn_searchData = function (str_who) {
 							'tids': str_tid,
 							'query_type': n_isAdvanced
 						};
-			if ( str_tid == '-1' ) {
-				dlf.fn_jNotifyMessage('该集团下无可用的定位器。', 'message', false, 3000);
-				return;
-			}
 			
-			if ( n_bgDate > n_finishDate ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
-				return;
+			if ( !b_cacheData ) {
+				if ( str_tid == '-1' ) {
+					dlf.fn_jNotifyMessage('该集团下无可用的定位器。', 'message', false, 3000);
+					return;
+				}
+				
+				if ( n_bgDate > n_finishDate ) {	// 判断选择时间
+					dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
+					return;
+				}
 			}
 			/*else if ( (n_finishDate-n_bgDate) > 24*60*60*31 ) {	// 判断选择时间
 				dlf.fn_jNotifyMessage('只能查询30天之内的数据，请重新选择时间段。', 'message', false, 3000);
@@ -492,10 +499,12 @@ dlf.fn_searchData = function (str_who) {
 							'pagenum': n_dwRecordPageNum, 
 							'pagecnt': n_dwRecordPageCnt
 						};
-
-			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
-				return;
+			
+			if ( !b_cacheData ) {
+				if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+					dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
+					return;
+				}
 			}
 			break;
 		case 'statics': // 告警统计
@@ -506,9 +515,11 @@ dlf.fn_searchData = function (str_who) {
 				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime); //结束时间
 			
-			if ( n_tidsNums <= 0 ) {
-				dlf.fn_jNotifyMessage('请在左侧选择定位器。', 'message', false, 6000);
-				return;	
+			if ( !b_cacheData ) {
+				if ( n_tidsNums <= 0 ) {
+					dlf.fn_jNotifyMessage('请在左侧选择定位器。', 'message', false, 6000);
+					return;	
+				}
 			}
 			obj_conditionData = {
 						'start_time': n_bgTime, 
@@ -570,9 +581,11 @@ dlf.fn_searchData = function (str_who) {
 				n_bgTime = dlf.fn_changeDateStringToNum(n_startTime), // 开始时间
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime); //结束时间
 			
-			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
-				return;
+			if ( !b_cacheData ) {
+				if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+					dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
+					return;
+				}
 			}
 			obj_conditionData = {
 						'start_time': n_bgTime, 
@@ -590,9 +603,11 @@ dlf.fn_searchData = function (str_who) {
 				n_finishTime = dlf.fn_changeDateStringToNum(n_endTime), //结束时间
 				str_tid = $('#selectTerminals2').val();				// 选中终端tid
 			
-			if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
-				dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
-				return;
+			if ( !b_cacheData ) {
+				if ( n_bgTime >= n_finishTime ) {	// 判断选择时间
+					dlf.fn_jNotifyMessage('开始时间必须小于结束时间，请重新选择其他时间段。', 'message', false, 3000);
+					return;
+				}
 			}
 			obj_conditionData = {
 						'start_time': n_bgTime, 
@@ -609,6 +624,12 @@ dlf.fn_searchData = function (str_who) {
 			$('#corpMileageSetTable').removeData();
 			break;
 	}
+	
+	if ( b_cacheData ) {
+		obj_conditionData = $('.j_body').data('cachesearch');
+	}
+	$('.j_body').data('cachesearch', obj_conditionData);
+	
 	dlf.fn_jNotifyMessage('记录查询中' + WAITIMG, 'message', true);
 	dlf.fn_lockScreen();
 	if ( str_who == 'operator' || str_who == 'region' || str_who == 'corpRegion' || str_who == 'bindRegion' || str_who == 'bindBatchRegion' || str_who == 'passenger' || str_who == 'infoPush' || str_who == 'routeLine' || str_who == 'alertSetting' || str_who == 'corpAlertSetting' || str_who == 'corpMileageSet' || str_who == 'bindMileageSet' || str_who == 'bindBatchMileageSet' ) {
