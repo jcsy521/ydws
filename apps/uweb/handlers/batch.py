@@ -309,8 +309,7 @@ class BatchJHHandler(BaseHandler):
                     if terminal.service_status == UWEB.SERVICE_STATUS.TO_BE_UNBIND:
                         delete_terminal(terminal.tid, self.db, self.redis)
                     else:
-                        logging.error(
-                            "[UWEB] mobile: %s already existed.", tmobile)
+                        logging.error("[UWEB] mobile: %s already existed.", tmobile)
                         r['status'] = ErrorCode.TERMINAL_ORDERED
                         continue
 

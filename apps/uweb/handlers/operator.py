@@ -15,6 +15,7 @@ from constants import UWEB
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
 
+from helpers.wspushhelper import WSPushHelper
        
 class OperatorHandler(BaseHandler):
 
@@ -36,6 +37,8 @@ class OperatorHandler(BaseHandler):
                     fields[key] = None
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
@@ -88,24 +91,25 @@ class OperatorHandler(BaseHandler):
     def post(self):
         """Create a new operator.
         """
+        status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] add operator request: %s, cid: %s", 
-                         data, self.current_user.cid)
-        except Exception as e:
-            status = ErrorCode.ILLEGAL_DATA_FORMAT
-            self.write_ret(status)
-            return
-
-        try:
-            status = ErrorCode.SUCCESS
             mobile = data.mobile
             name = data.name
             email = data.email
             address = data.address
             group_id = data.group_id
             group_ids = map(int, str_to_list(group_id))
+            logging.info("[UWEB] add operator request: %s, cid: %s", 
+                         data, self.current_user.cid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body:%s, Exception: %s",
+                              self.request.body, e.args)
+            self.write_ret(status)
+            return
 
+        try:
             oid = self.db.execute("INSERT T_OPERATOR(oid, mobile, password, name, corp_id, email, address)"
                                   "  VALUES(%s, %s, password(%s), %s, %s, %s, %s)",
                                   mobile, mobile, '111111', name, self.current_user.cid,
@@ -113,6 +117,7 @@ class OperatorHandler(BaseHandler):
             self.db.executemany("INSERT INTO T_GROUP_OPERATOR(group_id, oper_id)"
                                 "  VALUES( %s, %s)", 
                                 [(group_id, mobile) for group_id in group_ids])
+
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s create operator failed. Exception: %s", 
@@ -125,17 +130,9 @@ class OperatorHandler(BaseHandler):
     def put(self):
         """Modify a existing operator.
         """
+        status = ErrorCode.SUCCESS
         try:
             data = DotDict(json_decode(self.request.body))
-            logging.info("[UWEB] modify operator request: %s, cid: %s", 
-                         data, self.current_user.cid)
-
-        except Exception as e:
-            status = ErrorCode.ILLEGAL_DATA_FORMAT
-            self.write_ret(status)
-
-        try:
-            status = ErrorCode.SUCCESS
             id = data.id
             name = data.name
             mobile = data.mobile
@@ -143,8 +140,17 @@ class OperatorHandler(BaseHandler):
             address = data.address
             group_id = data.group_id
             group_ids = map(int, str_to_list(group_id))
+            logging.info("[UWEB] modify operator request: %s, cid: %s", 
+                         data, self.current_user.cid)
+        except Exception as e:
+            status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. body:%s, Exception: %s",
+                              self.request.body, e.args)
+            self.write_ret(status)
 
+        try:                
             operator = self.db.get("select oid from T_OPERATOR where id=%s", id)
+            uids = [mobile,]
 
             self.db.execute("UPDATE T_OPERATOR"
                             "  SET name = %s,"
@@ -162,6 +168,8 @@ class OperatorHandler(BaseHandler):
                 self.db.executemany("INSERT INTO T_GROUP_OPERATOR(group_id, oper_id)"
                                     "  VALUES(%s, %s)", 
                                     [(group_id, mobile) for group_id in group_ids])
+            
+            WSPushHelper.pushS3_dummy(uids, self.db, self.redis)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] cid: %s modify operator failed. Exception: %s", 
@@ -174,17 +182,19 @@ class OperatorHandler(BaseHandler):
     def delete(self):
         """Delete a operator.
         """
+        status = ErrorCode.SUCCESS
         try:
             delete_ids = map(int, str_to_list(self.get_argument('ids', None)))
             logging.info("[UWEB] delete operator: %s, cid: %s", 
                          delete_ids, self.current_user.cid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Invalid data format. Exception: %s",
+                              e.args)
             self.write_ret(status)
             return
 
-        try:
-            status = ErrorCode.SUCCESS
+        try:            
             self.db.execute("DELETE FROM T_OPERATOR WHERE id IN %s",
                             tuple(delete_ids + DUMMY_IDS)) 
             self.write_ret(status)
