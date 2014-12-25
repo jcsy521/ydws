@@ -130,7 +130,8 @@ class WSPushHelper(object):
                'tid':'',
                'umobile':'',
                'group_id':'',
-               'cid':''
+               'cid':'',
+               'oid':[]
             }
  
         """
@@ -140,6 +141,7 @@ class WSPushHelper(object):
 
         uid = t_info.get('umobile', '')
         cid = t_info.get('cid', '')
+        oid = t_info.get('oid', [])
 
         t = int(time.time()) * 1000
 
@@ -148,9 +150,11 @@ class WSPushHelper(object):
         if uid:
             lst.append(uid)
         if cid:
-            lst.append(cid)    
+            lst.append(cid) 
+        if oid:
+            lst.extend(oid)   
 
-        for item in set(lst):
+        for item in set(lst):      
             push_key = get_push_key(item, t)
             res = WSPushHelper.push(item, t, push_key, packet, redis)
 

@@ -284,6 +284,7 @@ def clear_data(tid, db, redis):
         key = get_del_data_key(tid)
         flag = redis.get(key)
         if flag and int(flag) == 1:  # clear history data
+            logging.info("Clear old history. tid: %s", tid)
             redis.delete(key)
             db.execute("DELETE FROM T_LOCATION"
                        "  WHERE tid = %s",

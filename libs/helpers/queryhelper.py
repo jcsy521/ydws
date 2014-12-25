@@ -248,19 +248,31 @@ class QueryHelper(object):
                        'tmobile':'',
                        'umobile':'',
                        'group_id':'',
+                       'oid':[],
                        'cid':''}
         """
         res = {}
         terminal = db.get("SELECT tid, mobile, owner_mobile, group_id"
                           "  FROM T_TERMINAL_INFO WHERE tid = %s", tid)
         if terminal:
+            cid = ''
+            oid = []
             group = db.get("SELECT corp_id FROM T_GROUP WHERE id = %s",
                            terminal['group_id'])
+            if group:
+                cid=group.get('corp_id', '') 
+                oper = db.query("SELECT oper_id"
+                       "  FROM T_GROUP_OPERATOR "
+                       "  WHERE group_id = %s",
+                       terminal['group_id'])
+                if oper:
+                    oid = [item.oper_id for item in oper]
             res = dict(tid=terminal['tid'],
                        tmobile=terminal['mobile'],
                        umobile=terminal['owner_mobile'],
                        group_id=terminal['group_id'],
-                       cid=group.get('corp_id', '') if group else '')
+                       cid=cid,
+                       oid=oid)
         return res
 
     @staticmethod
