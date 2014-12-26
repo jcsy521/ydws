@@ -93,14 +93,14 @@ class SMSHelper:
                  'status':int 0:success,-1:failed.
                  'msgid': 
                 }
-        """
+
         status = ErrorCode.SUCCESS 
         response = dict(status=status, 
                         message=ErrorCode.ERROR_MESSAGE[status],
                         msgid=1111)
         response = json_encode(response) 
         return response
-
+        """
         response = None
         f = None
         logging.info("[SMS] mobile=%s, content=%s, nosign:%s", mobile, content, nosign)
