@@ -26,7 +26,7 @@ $(function () {
 		
 		str_pushUrl = 'packet_type=C1&from=0&push_id='+str_pushId+'&psd='+str_pushKey+'&devid='+str_devid;
 		
-		socketCon = io.connect(str_bpushUrl, {'query': str_pushUrl, 'force new connection': true});
+		socketCon = io.connect(str_bpushUrl, {'query': str_pushUrl, 'reconnect': false, 'force new connection': true});
 		
 		//侦听服务
 		socketCon.on('api/resp', function(data) {	
@@ -77,6 +77,13 @@ $(function () {
 			setTimeout(function(e) {
 				fn_reRequestPush();
 			}, 1000*10);
+		});		
+		
+		socketCon.on('disconnect', function(event){
+			//console.log('push  disconnect:   ',event);
+			if ( confirm('网络连接已断开，是否重新连接?') ) {
+				fn_reRequestPush();
+			}
 		});
 		
 	}

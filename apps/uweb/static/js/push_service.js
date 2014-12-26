@@ -29,7 +29,7 @@ $(function () {
 		
 		str_pushUrl = 'packet_type=C1&from=0&push_id='+str_pushId+'&psd='+str_pushKey+'&devid='+str_devid;
 		
-		socketCon = io.connect(str_bpushUrl, {'query': str_pushUrl, 'reconnect': false});
+		socketCon = io.connect(str_bpushUrl, {'query': str_pushUrl, 'reconnect': false, 'force new connection': true});
 		
 		//侦听服务
 		socketCon.on('api/resp', function(data) {	
@@ -82,8 +82,13 @@ $(function () {
 			}, 1000*10);
 		});
 		
+		socketCon.on('disconnect', function(event){
+			//console.log('push  disconnect:   ',event);
+			if ( confirm('网络连接已断开，是否重新连接?') ) {
+				fn_reRequestPush();
+			}
+		});
 	}
-	//TODO:
 	
 	//重新请求push信息
 	function fn_reRequestPush() {
