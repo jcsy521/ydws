@@ -175,6 +175,7 @@ def record_login_user(login_info, db):
                login_info['uid'], login_info['role'], login_info['method'], int(time.time()))
 
     versionname = login_info.get('versionname', '')
+    method = login_info.get('method', None)
     if versionname:
         if method == 1:  # android
             db.execute("UPDATE T_USER SET android_versionname = %s "
@@ -393,6 +394,16 @@ def add_terminal(terminal, db, redis):
     else:
         tid = terminal['tmobile']
 
+    #NOTE: If mobile has exist, delete it. This should not appears often.
+    t = db.get("SELECT id, service_status, mobile, tid, owner_mobile, group_id"
+               "  FROM T_TERMINAL_INFO WHERE mobile = %s", 
+               terminal.get('tmobile'))
+    if t and int(t['service_status']) == 2:
+        db.execute("DELETE FROM T_TERMINAL_INFO WHERE mobile = %s", 
+                   terminal.get('tmobile'))
+        logging.info("[PUBLIC] Delete the existed but unvalid terminal. terminal: %s.",
+                     t)
+
     # add terminal 28 items.
     db.execute("INSERT INTO T_TERMINAL_INFO(tid, mobile, owner_mobile,"
                "  group_id, dev_type, imsi, imei, factory_name, softversion,"
@@ -407,16 +418,14 @@ def add_terminal(terminal, db, redis):
                tid, terminal.get('tmobile'), terminal.get('owner_mobile'),
                terminal.get('group_id', -1), terminal.get('dev_type', 'A'),
                terminal.get('imsi', ''), terminal.get('imei', ''),
-               terminal.get('factory_name', ''), terminal.get(
-                   'softversion', ''),
+               terminal.get('factory_name', ''), terminal.get('softversion', ''),
                terminal.get('keys_num', 0), terminal.get('bt_name', ''),
                terminal.get('bt_mac', ''), terminal.get('login', 0),
                terminal.get('mannual_status', 1), terminal.get('alias', ''),
                terminal.get('icon_type', 0), terminal.get('login_permit', 1),
                terminal.get('push_status', 1), terminal.get('vibl', 1),
                terminal.get('use_scene', 3), terminal.get('biz_type', 0),
-               terminal.get('activation_code', ''), terminal.get(
-                   'service_status', 1),
+               terminal.get('activation_code', ''), terminal.get('service_status', 1),
                terminal.get('begintime'), terminal.get('endtime'),
                terminal.get('offline_time'), terminal.get('speed_limit', 120),
                terminal.get('stop_interval', 0), terminal.get('distance_current', 0))
