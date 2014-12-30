@@ -8,6 +8,7 @@ import thread
 
 from clw.packet.parser.login import LoginParser
 from clw.packet.composer.login import LoginRespComposer
+from clw.packet.composer.unbind import UNBindComposer
 
 from utils.checker import check_phone, check_zs_phone
 from utils.dotdict import DotDict
