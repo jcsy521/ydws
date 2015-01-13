@@ -18,6 +18,7 @@ from constants import UWEB
 from utils.misc import get_acc_status_info_key
 
 from base import BaseHandler, authenticated
+from helpers.queryhelper import QueryHelper
 from mixin.base import BaseMixin
 
 
@@ -70,8 +71,8 @@ class ACCHandler(BaseHandler, BaseMixin):
                                 acc_status_info_key, acc_status_info, UWEB.ACC_STATUS_EXPIRY)
                 except Exception as e:
                     r['status'] = ErrorCode.FAILED
-                    logging.info("[UWEB] Set acc status failed, uid:%s, tid:%s, op_type:%s.",
-                                 self.current_user.uid, tid, op_type)
+                    logging.exception("[UWEB] Set acc status failed, uid:%s, tid:%s, op_type:%s.",
+                                      self.current_user.uid, tid, op_type)
                 finally:
                     r['message'] = ErrorCode.ERROR_MESSAGE[r['status']]
                     res.append(r)
