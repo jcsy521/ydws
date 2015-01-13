@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 import os.path
 import site
 import logging
@@ -47,6 +46,7 @@ class CheckTerminalStatus(object):
                                       "  WHERE login != %s"
                                       "    AND service_status = 1",
                                       GATEWAY.TERMINAL_LOGIN.OFFLINE)
+
             for terminal in terminals:
                 terminal_status_key = get_terminal_address_key(terminal.tid)
                 status = self.redis.getvalue(terminal_status_key)
@@ -56,15 +56,56 @@ class CheckTerminalStatus(object):
                     if not offline_lq_time:
                         self.send_cq_sms(terminal.tid, terminal.domain)
                         self.redis.setvalue(offline_lq_key, int(time.time()), 15*60)
-                    elif (time.time() - offline_lq_time) > 10 * 60:
-                        self.heartbeat_lost_report(terminal.tid)
-                        self.redis.delete(offline_lq_key)
                     else:
-                        pass
+                        if (time.time() - offline_lq_time) > 10 * 60: # 10 minutes
+                            self.heartbeat_lost_report(terminal.tid)
+                            self.redis.delete(offline_lq_key)
+                        else:
+                            # waiting LQ sms works 
+                            pass
+                else:
+                    # it is online
+                    pass
+
         except KeyboardInterrupt:
             logging.error("Ctrl-C is pressed.")
         except:
             logging.exception("[CK] Check terminal status exception.")
+
+    def check_terminal_status_by_tid(self, tid):
+        """Check terminal whether lose hearbeat and provide reminder for
+        associated staff.
+        """
+        try:
+            terminals = self.db.query("SELECT tid, domain FROM T_TERMINAL_INFO"
+                                      "  WHERE login != %s"
+                                      "    AND tid=%s"
+                                      "    AND service_status = 1",
+                                      GATEWAY.TERMINAL_LOGIN.OFFLINE, tid)
+            for terminal in terminals:
+                terminal_status_key = get_terminal_address_key(terminal.tid)
+                status = self.redis.getvalue(terminal_status_key)
+                offline_lq_key = get_offline_lq_key(terminal.tid)
+                offline_lq_time = self.redis.getvalue(offline_lq_key)
+                if not status:
+                    if not offline_lq_time:
+                        self.send_cq_sms(terminal.tid, terminal.domain)
+                        self.redis.setvalue(offline_lq_key, int(time.time()), 15*60)
+                    else:
+                        if (time.time() - offline_lq_time) > 10 * 60: # 10 minutes
+                            self.heartbeat_lost_report(terminal.tid)
+                            self.redis.delete(offline_lq_key)
+                        else:
+                            # waiting LQ sms works 
+                            pass
+                else:
+                    # it is online
+                    pass
+        except KeyboardInterrupt:
+            logging.error("Ctrl-C is pressed.")
+        except:
+            logging.exception("[CK] Check terminal status exception.")
+
 
     def send_cq_sms(self, tid, domain):
         """Send CQ sms to terminal.
@@ -114,10 +155,7 @@ class CheckTerminalStatus(object):
     def heartbeat_lost_report(self, tid):
         """Recort the heartbeat-lost event and remind the associated staff.
         """
-        #NOTE: wspush to client 
-        WSPushHelper.pushS4(tid, self.db, self.redis)
-
-
+        #NOTE: record the event
         timestamp = int(time.time())
         rname = EVENTER.RNAME.HEARTBEAT_LOST
         category = EVENTER.CATEGORY[rname]
@@ -197,14 +235,20 @@ class CheckTerminalStatus(object):
                 #    SMSHelper.send(corp.mobile, sms)
 
         logging.warn("[CK] Terminal %s Heartbeat lost!!!", tid)
+
+        #NOTE: modify mysql and redis
         # memcached clear sessionID
         terminal_sessionID_key = get_terminal_sessionID_key(tid)
         self.redis.delete(terminal_sessionID_key)
-        # db set offline 
+
+        #db set offline 
         info = DotDict(tid=tid,
                        login=GATEWAY.TERMINAL_LOGIN.OFFLINE,
                        offline_time=timestamp)
         self.update_terminal_status(info)
+
+        #NOTE: wspush to client 
+        WSPushHelper.pushS4(tid, self.db, self.redis)
 
         # remind maintenance personnel
         # corp's alert_mobile; zhuhai(liyun.sun, shi.chen, chunfan.yang);
@@ -310,6 +354,13 @@ if __name__ == '__main__':
     parse_command_line()
     logging.info('come into checkterminalstatus')
     cps = CheckTerminalStatus() 
-    #cps.check_terminal_status()
-    tid = 'T123SIMULATOR'
-    cps.heartbeat_lost_report(tid)
+
+    #tid = '36E24006F7'
+    #tid = 'T123SIMULATOR'
+    #cps.heartbeat_lost_report(tid)
+
+    #tid = '13011292220'
+    #tid = 'T123SIMULATOR'
+    #cps.check_terminal_status_by_tid(tid)
+
+    cps.check_terminal_status()
