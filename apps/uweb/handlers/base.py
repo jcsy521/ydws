@@ -27,16 +27,25 @@ class _DBDescriptor(object):
     def __get__(self, obj, type=None):
         return obj.application.db
 
-
 def authenticated(method):
-    """Decorate methods with this to require that the user be logged in."""
+    """Decorate methods with this to require that the user be logged in.
+    
+    workflow:
+    if not current_user:
+        if method is get or head:
+            redirect url 
+        else: # post, put, delete and so on.
+            raise 403            
+    else:
+        wrapper and return method
+    """
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
+
         if not self.current_user:
             url = self.get_login_url()
-            if self.request.method == "POST":
-                raise tornado.web.HTTPError(403)
-            elif self.request.method in ("GET", "HEAD"):
+
+            if self.request.method in ("GET", "HEAD"):
                 if "?" not in url:                
                     if urlparse.urlsplit(url).scheme:
                         # if login url is absolute, make next absolute too
@@ -45,12 +54,14 @@ def authenticated(method):
                         #next_url = self.request.uri
                         next_url = "/index" 
                     url += "?" + urllib.urlencode(dict(next=next_url))
-         
-            self.redirect(url)
+
+                self.redirect(url)
+            else: # POST and others
+                raise tornado.web.HTTPError(403)            
             return
+ 
         return method(self, *args, **kwargs)
     return wrapper 
-
 
 class BaseHandler(tornado.web.RequestHandler):
 

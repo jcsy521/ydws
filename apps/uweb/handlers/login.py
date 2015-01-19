@@ -221,14 +221,11 @@ class IOSHandler(BaseHandler, LoginMixin, AvatarMixin):
             cars_info = {}
 
             if user_type == UWEB.USER_TYPE.PERSON:
-                terminals = QueryHelper.get_terminals_by_uid(
-                    uid, biz_type, self.db)
+                terminals = QueryHelper.get_terminals_by_uid(uid, biz_type, self.db)
             elif user_type == UWEB.USER_TYPE.OPERATOR:
-                terminals = QueryHelper.get_terminals_by_oid(
-                    oid, biz_type, self.db)
+                terminals = QueryHelper.get_terminals_by_oid(oid, biz_type, self.db)
             elif user_type == UWEB.USER_TYPE.CORP:
-                terminals = QueryHelper.get_terminals_by_cid(
-                    cid, biz_type, self.db)
+                terminals = QueryHelper.get_terminals_by_cid(cid, biz_type, self.db)
             else:
                 logging.error("[UWEB] Invalid user_type: %s", user_type)
 
@@ -523,8 +520,7 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
             return
 
         # check the user, return uid, tid, sim and status
-        cid, oid, uid, terminals, user_type, status = self.login_passwd_auth(
-            username, password, user_type)
+        cid, oid, uid, terminals, user_type, status = self.login_passwd_auth(username, password, user_type)
         logging.info(
             "[UWEB] Login auth, cid:%s, oid:%s, uid:%s, user_type:%s", cid, oid, uid, user_type)
         if status == ErrorCode.SUCCESS:
@@ -549,16 +545,13 @@ class AndroidHandler(BaseHandler, LoginMixin, AvatarMixin):
             cars_info = {}
 
             if user_type == UWEB.USER_TYPE.PERSON:
-                terminals = QueryHelper.get_terminals_by_uid(
-                    uid, biz_type, self.db)
+                terminals = QueryHelper.get_terminals_by_uid(uid, biz_type, self.db)
             elif user_type == UWEB.USER_TYPE.OPERATOR:
-                terminals = QueryHelper.get_terminals_by_oid(
-                    oid, biz_type, self.db)
+                terminals = QueryHelper.get_terminals_by_oid(oid, biz_type, self.db)
             elif user_type == UWEB.USER_TYPE.CORP:
-                terminals = QueryHelper.get_terminals_by_cid(
-                    cid, biz_type, self.db)
+                terminals = QueryHelper.get_terminals_by_cid(cid, biz_type, self.db)
             else:
-                logging.error("[UWEB] invalid user_type: %s", user_type)
+                logging.error("[UWEB] Invalid user_type: %s", user_type)
 
             for terminal in terminals:
                 # 1: get terminal

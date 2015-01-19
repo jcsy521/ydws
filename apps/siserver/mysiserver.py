@@ -290,7 +290,6 @@ class MySIServer():
             elif recv send_data:
                 send data to terminal
         """
-
         gf = GFCheck(response)
         gfheads = gf.heads
         gfdatas = gf.datas
@@ -339,10 +338,18 @@ class MySIServer():
                 clwc = S_CLWCheck(sp.gfbody.Content)
                 terminal_type = clwc.head.command
                 t_address, t_status = self.get_terminal_status(terminal_id)
+
+                request = DotDict(packet=sp.gfbody.Content,
+                                  address=t_address)
+
                 if (t_address and t_address != DUMMY_FD): 
-                    request = DotDict(packet=sp.gfbody.Content,
-                                      address=t_address)
+                    logging.info("[SI] Append gw, adress:%s, status:%s, request:%s", 
+                                 t_address, t_status, request)                   
+
                     self.append_gw_request(request)
+                else:
+                    logging.info("[SI] Do not append gw, adress:%s, status:%s, request:%s", 
+                                 t_address, t_status, request)
                 
                 # response it.
                 args = DotDict(seq=gfhead.seq,
@@ -444,6 +451,13 @@ class MySIServer():
         all operations about socket: register fd, send request and recv
         response
         """
+        def show(fd):
+            if self.connections.has_key(fd):
+                logging.info('[SI] Show fd:%s, connection:%s, address:%s', 
+                             fd, self.connections[fd], self.addresses[fd])
+            else:
+                logging.info('[SI] Nothing can be show fd:%s', fd)
+
         while True:
             try:
                 if not self.epoll_fd:
@@ -460,6 +474,8 @@ class MySIServer():
                         self.connections[conn.fileno()] = conn
                         self.addresses[conn.fileno()] = addr
                     elif select.EPOLLIN & events:
+                        logging.info("[SI] Readable")
+                        show(fd)
                         try:
                             response = self.recv_response(fd)
                         except socket.error, msg:
@@ -475,7 +491,9 @@ class MySIServer():
                                          response)
                             self.handle_response_from_si(fd, response)
                             self.epoll_fd.modify(fd, select.EPOLLET | select.EPOLLIN | select.EPOLLOUT) 
-                    elif select.EPOLLOUT & events:
+                    elif select.EPOLLOUT & events:      
+                        logging.info("[SI] writable")
+                        show(fd)
                         self.handle_requests_to_si(fd)
                         try:
                             self.epoll_fd.modify(fd, select.EPOLLET | select.EPOLLIN | select.EPOLLOUT) 
@@ -484,8 +502,12 @@ class MySIServer():
                             logging.error("[SI] the pipe might be broken.")
                                 
                     elif select.EPOLLHUP & events:
+                        logging.info("[SI] hup")
+                        show(fd)
                         self.__stop_client(fd)
                     else:
+                        logging.info("[SI] continue")
+                        show(fd)
                         continue
             except select.error as e:
                 logging.exception("[SI] select error: %s", e.args)
