@@ -42,7 +42,8 @@ class WsPush(Test):
         start_time = time.time()
         t = int(time.time()) * 1000
         push_key = get_push_key(self.uid, t)
-        res = WSPushHelper.register(self.uid, t, push_key)
+        res = WSPushHelper.register_wspush(self.uid, self.redis)
+        
         end_time = time.time()
         print "register time: %s" % (end_time - start_time)
         print res
@@ -60,8 +61,7 @@ class WsPush(Test):
             lst.append(cid) 
         for item in set(lst):
             push_key = get_push_key(item, t)
-            print '------------ send', type(packet)
-            res = WSPushHelper.push(item, t, push_key, packet, badge="")
+            res = WSPushHelper.push(item, t, push_key, packet, self.redis) 
             end_time = time.time()
             print "push time: %s" % (end_time - start_time)
             print res
@@ -207,7 +207,7 @@ class WsPush(Test):
 def main():
 
     # jiaxiaolei
-    #tid = 'T123SIMULATOR'
+    tid = 'T123SIMULATOR'
 
     ps = WsPush(tid)
     ps.register()
