@@ -1009,6 +1009,7 @@ dlf.fn_translateToBMapPoint = function(n_lng, n_lat, str_type, obj_carInfo, b_ge
 			}
 		},
 		error : function(xyResult) {
+			dlf.fn_serverError(xyResult);
 			return;
 		}
 	});

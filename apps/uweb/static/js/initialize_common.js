@@ -2093,8 +2093,12 @@ dlf.fn_jsonPost = function(url, obj_data, str_who, str_msg) {
 					if ( obj_res.status == 0 ) {
 						b_closeWrapper = true;
 						dlf.fn_closeDialog(); // 窗口关闭 去除遮罩
-						dlf.fn_jNotifyMessage('操作中'+WAITIMG, 'message', true, 3000);
-						$('#accStatusWrapper').data('operator', true);
+						dlf.fn_jNotifyMessage('操作中'+WAITIMG, 'message', false, 90*1000);
+						$('#accStatusWrapper').data(obj_res.tid, true);
+						setTimeout(function(e) {
+							$('#accStatusWrapper').removeData(obj_res.tid);
+							dlf.fn_closeJNotifyMsg('#jNotifyMessage');
+						}, 90*1000);
 					} else {
 						b_closeWrapper = false;
 						dlf.fn_jNotifyMessage(obj_res.message, 'message', false, 3000); 
@@ -2638,6 +2642,10 @@ dlf.fn_secondNavValid = function() {
 */
 
 dlf.resetPanelDisplay = function(n_type) {
+	
+	if ($('#mileageSetWrapper').is(':visible') ) {
+		$('.mapContainer').css('left', '50px');
+	}
 	setTimeout(function() {
 		var n_windowHeight = document.documentElement.clientHeight,
 			n_bodyHeight = document.documentElement.scrollHeight,//$('.j_body').height(),
@@ -3155,10 +3163,10 @@ dlf.fn_mileageNotificationSave = function() {
 */
 
 dlf.fn_initAccStatus = function(str_alias) {
-	var b_accOperator = $('#accStatusWrapper').data('operator');
+	var b_accOperator = $('#accStatusWrapper').data(dlf.fn_getCurrentTid());
 	
 	if ( b_accOperator ) {
-		dlf.fn_jNotifyMessage('操作中'+WAITIMG, 'message', true, 3000);
+		dlf.fn_jNotifyMessage('对不起，您的操作过于频繁，请稍后再试。', 'message', false,3000);
 		return;
 	}
 	
@@ -3221,7 +3229,7 @@ dlf.fn_accStatusSave = function() {
 * 远程控制结果显示
 */
 dlf.fn_accCallback = function(n_status, n_tid) {
-	$('#accStatusWrapper').removeData('operator');
+	$('#accStatusWrapper').removeData(n_tid);
 	
 	$('#accStatusCallBackWrapper').show();
 	dlf.fn_lockScreen(); // 添加页面遮罩

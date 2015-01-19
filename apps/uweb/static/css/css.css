@@ -213,7 +213,7 @@ body {
 	text-align: center;
 	float: left;
 	width: 95px;
-	height: 110px;
+	height: 140px;
 }
 #carList li a {
 	text-decoration: none;
@@ -3184,7 +3184,7 @@ legend {
 	color: #4290cb;
 }
 #operatorTable, #passengerTable {
-	width: 850px;
+	width: 786px;
 }
 #operatorTableHeader, #passengerTableHeader, #routeLineTableHeader {
 	height: 38px;
@@ -3690,6 +3690,9 @@ legend {
 #regionWrapper, #corpRegionWrapper {
 	width: 510px;
 	height: 490px;
+}
+#corpRegionWrapper {
+	height: 515px;
 }
 .regionContent, .corpRegionContent {
 	height: 455px;
@@ -4200,7 +4203,6 @@ legend {
 }
 #accCallBack_know {
 	position: relative;
-	left: 28px;
 	top: 8px;
 }
 .accCallBack_btnPanel {

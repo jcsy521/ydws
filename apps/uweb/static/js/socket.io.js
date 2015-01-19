@@ -1964,8 +1964,10 @@ var io = ('undefined' === typeof module ? {} : module.exports);
     this.open = false;
 
     if (wasConnected || wasConnecting) {
-      this.transport.close();
-      this.transport.clearTimeouts();
+	  if ( this.transport ) {
+		this.transport.close();
+		this.transport.clearTimeouts();
+	  }
       if (wasConnected) {
         this.publish('disconnect', reason);
 

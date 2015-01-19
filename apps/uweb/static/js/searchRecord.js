@@ -1883,7 +1883,7 @@ dlf.fn_ShowOrHideMiniMap = function (b_isShow, event) {
 		if ( typeof(event) == 'string' ) {
 			// 设置地图父容器的样式
 			obj_mapContainer.css({	
-				'left': '27%', 
+				'left': '50px', 
 				'top': -3,
 				'backgroundColor': '#FFFFFF',
 				'border': '1px solid #BBBBBB',
