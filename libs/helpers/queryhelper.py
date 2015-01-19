@@ -54,7 +54,7 @@ class QueryHelper(object):
     @staticmethod
     def get_terminals_by_uid(uid, biz_type, db):
         terminals = db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                             "    gsm, gps, pbat, login, defend_status,"
+                             "    gsm, gps, pbat, login, defend_status, dev_type,"
                              "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                              "  FROM T_TERMINAL_INFO"
                              "  WHERE (service_status = %s"
@@ -76,8 +76,8 @@ class QueryHelper(object):
             "SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", oid)
         gids = [g.group_id for g in groups]
         terminals = db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                             "    gsm, gps, pbat, login, defend_status,"
-                             "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
+                             "    gsm, gps, pbat, login, defend_status, dev_type,"
+                             "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                              "  FROM T_TERMINAL_INFO"
                              "  WHERE (service_status = %s"
                              "         OR service_status = %s)"
@@ -88,6 +88,7 @@ class QueryHelper(object):
                              UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
                              biz_type,
                              tuple(DUMMY_IDS + gids))
+        return terminals
 
     @staticmethod
     def get_terminals_by_cid(cid, biz_type, db):
@@ -96,8 +97,8 @@ class QueryHelper(object):
             "SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", cid)
         gids = [g.gid for g in groups]
         terminals = db.query("SELECT tid, mobile, owner_mobile, login, keys_num"
-                             "    gsm, gps, pbat, login, defend_status,"
-                             "    mannual_status, fob_status, icon_type, bt_name, bt_mac, dev_type"
+                             "    gsm, gps, pbat, login, defend_status, dev_type,"
+                             "    mannual_status, fob_status, icon_type, bt_name, bt_mac"
                              "  FROM T_TERMINAL_INFO"
                              "  WHERE (service_status = %s"
                              "         OR service_status = %s)"
@@ -108,6 +109,7 @@ class QueryHelper(object):
                              UWEB.SERVICE_STATUS.TO_BE_ACTIVATED,
                              biz_type,
                              tuple(DUMMY_IDS + gids))
+        return terminals
 
     @staticmethod
     def get_tmobile_by_tid(tid, redis, db):
@@ -310,7 +312,7 @@ class QueryHelper(object):
         return int(login_time)
 
     @staticmethod
-    def get_terminals_by_cid(cid, db):
+    def get_all_terminals_by_cid(cid, db):
         """Get all trackers belongs to a corp.
         """
         terminals = db.query("SELECT tt.mobile, tt.owner_mobile, tt.tid"
@@ -326,7 +328,7 @@ class QueryHelper(object):
         return terminals
 
     @staticmethod
-    def get_terminals_by_oid(oid, db):
+    def get_all_terminals_by_oid(oid, db):
         """Get all trackers belongs to a operator.
         """
         terminals = db.query("SELECT mobile, owner_mobile, tid FROM T_TERMINAL_INFO "

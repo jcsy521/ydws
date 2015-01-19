@@ -85,6 +85,7 @@ class WSPushHelper(object):
                         key=key,
                         badge=badge,
                         message=message,
+                        project=1, # 1: ydws; 2:cloudhwak; 3:xiaobao; 4:qiji
                         packet=packet)
             headers = {"Content-type": "application/json; charset=utf-8"}
             response, content = http.request(url, 'POST', json_encode(data), headers=headers)
@@ -268,7 +269,7 @@ class WSPushHelper(object):
         if t:
             res.append(dict(tid=tid,
                             biz_type=t.get('biz_type', 0),
-                            login_status=t['login']))
+                            login_status=t['login'] if t['login'] == 0 else 1))
 
         packet = dict(packet_type="S4",
                       res=res)
@@ -375,11 +376,13 @@ class WSPushHelper(object):
         S8
         Information about acc info.
 
-        res=dict(tid=tid,
-                 acc_message=1))
+        res=[dict(tid=tid,
+                  acc_message=1))]
         """
-        res = dict(tid=tid,
-                   acc_message=acc_message)
+        res = []
+        packet = dict(tid=tid,
+                      acc_message=acc_message)
+        res.append(packet)
 
         packet = dict(packet_type="S8",
                       res=res)
