@@ -331,7 +331,7 @@ class Application(tornado.web.Application):
             (r"/ge/*", GEHandler),
 
             # handle the invalid url
-            #(r".*", MainHandler),
+            (r".*", MainHandler),
         ]
 
         settings = dict(
