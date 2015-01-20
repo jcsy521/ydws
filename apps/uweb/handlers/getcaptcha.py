@@ -64,7 +64,7 @@ class GetCaptchaHandler(BaseHandler):
                 pass
             else:
                 logging.info("[UWEB] Mobile is not come from GuanDong, reject it.")
-                status = ErrorCode.REGISTER_EXCESS
+                status = ErrorCode.UMOBILE_REGISTER_EXCESS
                 self.write_ret(status)
                 return
 
@@ -193,6 +193,16 @@ class GetCaptchaCorpHandler(BaseHandler):
             return 
 
         try:
+            # check the umobile whether belongs to guandong
+            is_guandong = check_gd_phone(umobile)
+            if is_guandong:
+                pass
+            else:
+                logging.info("[UWEB] Mobile is not come from GuanDong, reject it.")
+                status = ErrorCode.UMOBILE_REGISTER_EXCESS
+                self.write_ret(status)
+                return
+
             #NOTE: check captcha-sms for brower
             from_brower = False 
             if self.request.headers.get('User-Agent',None):
