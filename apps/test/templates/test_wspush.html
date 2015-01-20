@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>textPush</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  
+  <!-- TODO: econd_body about_body 这些从哪里来的？ -->
+  <body class="second_body about_body">
+    
+    
+    <span>WSPUSH测试：</span>
+    
+    <!-- 连接wspush -->
+    <div>
+      <span>连接WSPUSH:</span>
+      uid:
+      <input id="uid" type="text" placeholder="请输入uid" />
+      <input id="linkpush" type="button" value="连接push" />
+    </div>
+    
+    <!--发送WSPUSH -->
+    <div>
+      <span>发送WSPUSH:</span>
+      tid:
+      <input id="tid" type="text" name="tid" placeholder="请输入tid" />
+      S类型:
+      <input id="s_type" type="text" name="s_type" placeholder="请输入报文类型. S3~S7" />
+      category:
+      <input id="category" type="text" name="category" placeholder="请输入S5报文类型. 1~11" />
+      <input id="login_bt" type="button" value="发送"></input>
+      <!-- bind to a query -->
+    </div>
+    
+    <!-- 展示结果。-->
+    <div>
+      id:
+      <span id="pushId"></span>
+    </div>
+    
+    <div>
+      key:
+      <span id="pushkey"></span>
+    </div>
+    
+    <!-- 展示输出结果-->
+    <div id="pushlog" style="width: 500px; height: 500px;">
+      
+    </div>
+
+    <!-- 导入脚本。-->
+    <script type="text/javascript" src="{{static_url("js/socket.io.js")}}"></script>
+    <script type="text/javascript" src="{{static_url("js/jquery.js")}}"></script>
+    <script type="text/javascript" src="{{static_url("js/push_service.js")}}"></script>
+    <script type="text/javascript" src="{{static_url("js/test_wspush.js")}}"></script>
+  </body>
+</html>
