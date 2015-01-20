@@ -110,6 +110,7 @@ class ErrorCode(object):
     MASS_POINT_QUERY_EXCESS = 1401
     # frequent register
     REGISTER_EXCESS = 1402
+    UMOBILE_REGISTER_EXCESS = 1403
 
 
     ERROR_MESSAGE  = {
@@ -203,6 +204,7 @@ class ErrorCode(object):
         ACC_TOO_FREQUENCY:             u"对不起，您的操作过于频繁，请稍后再试。",
 
         MASS_POINT_QUERY_EXCESS:       u"对不起，8月1日之前的数据一次查询范围不能超过1周。",
-        REGISTER_EXCESS:               u"对不起，您的操作过于频繁。如仍需操作，请联系客服人员。",
+        REGISTER_EXCESS:               u"对不起，您的操作过于频繁。如仍需操作，请联系客服人员。客服电话：400-863-0388。",
+        UMOBILE_REGISTER_EXCESS:       u"对不起，该手机号不属于广东移动号码。如仍需操作，请联系客服人员。客服电话：400-863-0388。",
 
     }
