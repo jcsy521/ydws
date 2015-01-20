@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import re
+import logging
+import httplib2
 
 
 _sql_injection_pattern ='|'.join((r"\b(select|update|insert|delete|drop|create|alter|truncate|rename)\b",
@@ -105,6 +107,34 @@ def check_zs_phone(phone, db):
             else: 
                 return False
 
+def check_gd_phone(phone):
+    """Check if the phone comes from guangdong.
+    :return True：it's okay, comes from guangdong
+            False: it is not in guandong
+
+    http://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=15850781443
+
+    See:
+    http://blog.sina.com.cn/s/blog_7bac4707010143o2.html
+
+    """
+    is_guandong = True
+    try:
+        url = 'http://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=%s' % phone
+        http = httplib2.Http(timeout=5)
+        response, content = http.request(url, 'GET')
+        cont = content.decode('gbk')
+        cont = cont[cont.find('{'):]
+        logging.info("[CHECKER] content: %s", cont)
+        if cont.find(u'广东')>0:
+            is_guandong = True
+        else:
+            is_guandong = False 
+    except Exception as e:
+        logging.exception("[CHECKER] Check guandong phone failed. Exception:%s", 
+                          e.args)
+    finally:
+        return is_guandong 
 
 def check_filename(filename):
     """Check if the filename contains illegal character
