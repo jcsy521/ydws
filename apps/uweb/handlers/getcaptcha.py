@@ -16,6 +16,7 @@ import tornado.web
 from utils.misc import get_captcha_key, get_date_from_utc, start_end_of_day
 from utils.dotdict import DotDict
 from utils.public import notify_maintainer
+from utils.checker import check_zs_phone, check_gd_phone
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
@@ -57,6 +58,16 @@ class GetCaptchaHandler(BaseHandler):
            
             captchahash = self.get_secure_cookie("captchahash_password")
 
+            # check the umobile whether belongs to guandong
+            is_guandong = check_gd_phone(umobile)
+            if is_guandong:
+                pass
+            else:
+                logging.info("[UWEB] Mobile is not come from GuanDong, reject it.")
+                status = ErrorCode.REGISTER_EXCESS
+                self.write_ret(status)
+                return
+
             #NOTE: check captcha-sms for brower
             from_brower = False 
             if self.request.headers.get('User-Agent',None):
@@ -72,6 +83,11 @@ class GetCaptchaHandler(BaseHandler):
             else: # Android client
                 from_brower = False 
                 logging.info("[UWEB] Come from Android client, do not check captcha-image")
+
+            is_ajax = self.get_argument('_', '')
+            if is_ajax:
+                from_brower = True 
+                logging.info("[UWEB] Get _ in request, maybe comes from Browser. request: %s", self.request)
 
             if from_brower:
                 m = hashlib.md5()

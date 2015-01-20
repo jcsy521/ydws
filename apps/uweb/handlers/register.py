@@ -17,7 +17,7 @@ from utils.misc import get_captcha_key
 from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
                         get_terminal_info_key, get_lq_sms_key, get_lq_interval_key,
                         get_date_from_utc, start_end_of_day)
-from utils.checker import check_zs_phone
+from utils.checker import check_zs_phone, check_gd_phone
 from utils.dotdict import DotDict
 from utils.public import delete_terminal, notify_maintainer
 from helpers.smshelper import SMSHelper
@@ -57,9 +57,20 @@ class RegisterHandler(BaseHandler):
             logging.info("[UWEB] Get captcha-sms request. umobile:%s, tmobile: %s, captcha_img: %s",
                          umobile, tmobile, captcha_image)
 
-            # NOTE: check captcha-sms for brower
-            from_brower = False
-            if self.request.headers.get('User-Agent', None):
+            # check the umobile whether belongs to guandong
+            is_guandong = check_gd_phone(umobile)
+            if is_guandong:
+                pass
+            else:
+                logging.info("[UWEB] Mobile is not come from GuanDong, reject it. mobile: %s, request:%s",
+                             umobile, self.request)
+                status = ErrorCode.UMOBILE_REGISTER_EXCESS
+                self.write_ret(status)
+                return
+
+            #NOTE: check captcha-sms for brower
+            from_brower = False 
+            if self.request.headers.get('User-Agent',None):
                 user_agent = self.request.headers.get('User-Agent').lower()
                 if re.search('darwin', user_agent):  # Ios client
                     logging.info("[UWEB] Come from IOS client, do not check captcha-image, User-Agent: %s",
@@ -68,12 +79,17 @@ class RegisterHandler(BaseHandler):
                 else:
                     logging.info("[UWEB] Come from browser, check captcha-image, User-Agent: %s",
                                  user_agent)
-                    from_brower = True
-            else:  # Android client
-                from_brower = False
-                logging.info(
-                    "[UWEB] Come from Android client, do not check captcha-image")
+                    from_brower = True 
+            else: # Android client
+                from_brower = False 
+                logging.info("[UWEB] Come from Android client, do not check captcha-image. request: %s", self.request)
 
+            is_ajax = self.get_argument('_', '')
+            if is_ajax:
+                from_brower = True 
+                logging.info("[UWEB] Get _ in request, maybe comes from Browser. request: %s", self.request)
+
+            #from_brower = True 
             if from_brower:
                 m = hashlib.md5()
                 m.update(captcha_image.lower())
