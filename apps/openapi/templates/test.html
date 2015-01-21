@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="utf-8">
+		<title>TEST</title>		
+		<link rel="stylesheet" href="/static/css/testapi.css" />
+	</head>
+	<body>
+		<h1>THIS IS A TEST HTML FOR SHIT</h1>
+		<!--条件-->
+		<div class="searchPanel">
+			<div class="searchCon">
+				<label class="searchLabel">URL:</label>
+				<span>
+					<input type="text" class="inputText" id="searchUrl" value="" />
+				</span>
+			</div>
+			<div class="searchCon">
+				<label class="searchLabel">METHOD(POST/PUT/GET):</label>
+				<span>
+					<input type="text" class="inputText" id="searchMethod" value="" />
+				</span>
+			</div>
+			<div class="searchCon">
+				<label class="searchLabel searchLabelArgument">
+					参数列表:<br>
+					<i class="psLabel">参数间使用','来分隔,key与value之间使用':'分隔</i>
+				</label>
+				<span>
+					<textarea id="searchArgument" value=""></textarea>
+				</span>
+			</div>
+			<div class="searchCon">
+				<input type="button" id="searchBtn" value="GOTO SEARCH" />
+			</div>
+		</div>
+		<!--我是分隔线-->
+		<hr>
+		<!--结果-->
+		<label class="reslabelTitle">结果在我这:</label>
+		<div id="resDatas" class="resPanel"></div>
+		
+		<script type="text/javascript" src="/static/js/jquery.js"></script>
+		<script type="text/javascript" src="/static/js/testSearch.js"></script>
+	</body>
+</html>
