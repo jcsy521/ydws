@@ -901,8 +901,8 @@ class IOSLogoutHandler(BaseHandler):
         else:
             # 1: if there are tids, set defend
             for tid in data.tids:
-                update_mannual_status(
-                    self.db, self.redis, tid, UWEB.DEFEND_STATUS.YES)
+                update_mannual_status(self.db, self.redis, tid, UWEB.DEFEND_STATUS.YES)
+                WSPushHelper.pushS7(tid, self.db, self.redis)
 
             # 2: remove ios from push_list
             ios_push_list_key = get_ios_push_list_key(self.current_user.uid)
@@ -939,6 +939,7 @@ class AndroidLogoutHandler(BaseHandler):
             # 1: if there are tids, set defend
             for tid in data.tids:
                 update_mannual_status(self.db, self.redis, tid, UWEB.DEFEND_STATUS.YES)
+                WSPushHelper.pushS7(tid, self.db, self.redis)
 
             # 2: remove devid from android_push_list
             android_push_list_key = get_android_push_list_key(
