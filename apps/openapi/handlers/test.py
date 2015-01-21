@@ -18,6 +18,14 @@ from helpers.openapihelper import OpenapiHelper
 
 from base import BaseHandler
 
+class TestHandler(BaseHandler):
+
+    @tornado.web.removeslash
+    def get(self):
+        """Jump to the test.html.
+        """
+        self.render("test.html")
+ 
 
 class SignHandler(BaseHandler):
 

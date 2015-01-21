@@ -64,7 +64,7 @@ class BaseHandler(tornado.web.RequestHandler):
             return status
 
         # check mobile
-        terminals = QueryHelper.get_terminals_by_cid(sp.cid, self.db)
+        terminals = QueryHelper.get_all_terminals_by_cid(sp.cid, self.db)
         mobiles = [str(t.mobile) for t in terminals]
         if mobile not in mobiles:                   
             status = ErrorCode.MOBILE_NOT_EXISTED

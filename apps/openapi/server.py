@@ -36,6 +36,7 @@ from helpers.confhelper import ConfHelper
 from handlers.main import MainHandler
 
 # NOTE: features
+from handlers.test import TestHandler
 from handlers.token import TokenHandler
 from handlers.realtime import RealtimeHandler 
 from handlers.track import TrackHandler
@@ -53,6 +54,7 @@ class Application(tornado.web.Application):
             # NOTE: the order is important, the first matched pattern is used!!!
             (r"/", MainHandler),
             # NOTE: features
+            (r"/openapi/test/*", TestHandler),
             (r"/openapi/token/*", TokenHandler),
             (r"/openapi/realtime/*", RealtimeHandler),
             (r"/openapi/track/*", TrackHandler),
