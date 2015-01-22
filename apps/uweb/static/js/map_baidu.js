@@ -269,7 +269,7 @@ dlf.fn_addMarker = function(obj_location, str_iconType, str_tempTid, n_index) {
 				if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4 || n_iconType == 5 ) {
 					obj_iconSize = new BMap.Size(50, 50);
 					if ( n_iconType == 1 || n_iconType == 4 || n_iconType == 5 ) {
-						obj_imageOffset = new BMap.Size(0, 0);
+						obj_imageOffset = new BMap.Size(0, -10);
 					} else {
 						obj_imageOffset = new BMap.Size(-5, 0);
 					}

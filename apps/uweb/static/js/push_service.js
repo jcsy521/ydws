@@ -116,7 +116,7 @@ $(function () {
 					$('#push_id').val(obj_pushData.id);
 					
 					dlf.fn_initPushServices();
-				} else if ( data.status == 403 || data.status == 24 ) {
+				} else if ( data.status == 403 ) {
 					window.location.replace('/');
 				} else {
 					setTimeout(function(e) {
@@ -125,10 +125,7 @@ $(function () {
 				}
 			},
 			error : function(XMLHttpRequest) {
-				//dlf.fn_serverError(XMLHttpRequest);
-				setTimeout(function(e) {
-					fn_reRequestPush();
-				}, 1000*10);
+				dlf.fn_serverError(XMLHttpRequest);
 				return;
 			}
 		});

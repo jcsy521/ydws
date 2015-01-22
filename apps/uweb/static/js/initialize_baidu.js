@@ -320,7 +320,7 @@ dlf.fn_setMarkerTraceIcon = function(n_degree, n_iconType, str_loginSt, obj_curr
 			if ( n_iconType == 1 || n_iconType == 3 || n_iconType == 4|| n_iconType == 5 ) {
 				obj_iconSize = new BMap.Size(50, 50);
 				if ( n_iconType == 1 || n_iconType == 4 || n_iconType == 5 ) {
-					obj_imageOffset = new BMap.Size(0, 0);
+					obj_imageOffset = new BMap.Size(0, -10);
 				} else {
 					obj_imageOffset = new BMap.Size(-5, 0);
 				}

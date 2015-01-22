@@ -16,8 +16,13 @@ function fn_exportExcel(str_excelName) {
 			fn_tableToExcelFromIE('tempDelayTable',null, str_excelName);
 		//});		
 	} else {
-		fn_tableToExcel('tempDelayTable', '停留点列表');
 		//obj_delayLink.attr('href', fn_tableToExcel('tempDelayTable', '停留点列表'));
+		//ie11
+		if ( $.browser.mozilla && parseInt($.browser.version) == 11 ) {
+			fn_tableToExcelFromIE('tempDelayTable',null, str_excelName);
+		} else {
+			fn_tableToExcel('tempDelayTable', '停留点列表');
+		}
 	}
 }
 
@@ -95,7 +100,7 @@ function getTblData(inTbl, inWindow) {
 * IE 浏览器下导出excel文件
 */
 function doFileExport(inName, inStr) { 
-	var xlsWin = null; 
+	var xlsWin = null;
 	if (!!document.all("glbHideFrm")) { 
 		xlsWin = glbHideFrm; 
 	} else { 
