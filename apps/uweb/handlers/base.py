@@ -33,7 +33,10 @@ def authenticated(method):
     workflow:
     if not current_user:
         if method is get or head:
-            redirect url 
+            if request is index or login:
+                redirect url, and login it again 
+            else:
+                raise 403
         else: # post, put, delete and so on.
             raise 403            
     else:
@@ -46,16 +49,20 @@ def authenticated(method):
             url = self.get_login_url()
 
             if self.request.method in ("GET", "HEAD"):
-                if "?" not in url:                
-                    if urlparse.urlsplit(url).scheme:
-                        # if login url is absolute, make next absolute too
-                        next_url = self.request.full_url()
-                    else:
-                        #next_url = self.request.uri
-                        next_url = "/index" 
-                    url += "?" + urllib.urlencode(dict(next=next_url))
 
-                self.redirect(url)
+                if self.request.uri in ('/', '/index', '/login', 'logintest'): # froms client 
+                    if "?" not in url:                
+                        if urlparse.urlsplit(url).scheme:
+                            # if login url is absolute, make next absolute too
+                            next_url = self.request.full_url()
+                        else:
+                            #next_url = self.request.uri
+                            next_url = "/index" 
+                        url += "?" + urllib.urlencode(dict(next=next_url))
+
+                    self.redirect(url)
+                else: # request from client
+                    raise tornado.web.HTTPError(403)            
             else: # POST and others
                 raise tornado.web.HTTPError(403)            
             return
