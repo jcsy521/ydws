@@ -43,6 +43,7 @@ from handlers.checkupdate import CheckUpdateAndroidHandler, CheckUpdateIOSHandle
 from handlers.car import SwitchCarHandler
 from handlers.wakeup import WakeupHandler
 from handlers.register import RegisterHandler, RegisterBrowserHandler, ReRegisterHandler
+from handlers.secregister import SecRegisterHandler
 from handlers.lastinfo import LastInfoHandler, LastInfoCorpHandler
 from handlers.inclastinfo import IncLastInfoCorpHandler
 from handlers.lastposition import LastPositionHandler
@@ -63,6 +64,7 @@ from handlers.mileagejunior import MileageJuniorHandler
 from handlers.mileagesingle import MileageSingleHandler
 from handlers.password import PasswordHandler, PasswordCorpHandler, PasswordOperHandler
 from handlers.getcaptcha import GetCaptchaHandler, GetCaptchaCorpHandler
+from handlers.secgetcaptcha import SecGetCaptchaHandler, SecGetCaptchaCorpHandler
 from handlers.profile import ProfileHandler, ProfileCorpHandler, ProfileOperHandler
 from handlers.smsoption import SMSOptionHandler, SMSOptionCorpHandler
 from handlers.alarmoption import AlarmOptionHandler
@@ -182,8 +184,12 @@ class Application(tornado.web.Application):
             (r"/download/mileage/*", MileageDownloadHandler),
 
             (r"/terminal/corp/*", TerminalCorpHandler),
+            # depreacted
             (r"/getcaptcha/*", GetCaptchaHandler),
             (r"/getcaptcha/corp/*", GetCaptchaCorpHandler),
+            (r"/secgetcaptcha/*", SecGetCaptchaHandler),
+            (r"/secgetcaptcha/corp/*", SecGetCaptchaCorpHandler),
+
             (r"/password/*", PasswordHandler),
             (r"/password/corp/*", PasswordCorpHandler),
             (r"/password/oper/*", PasswordOperHandler),
@@ -247,7 +253,9 @@ class Application(tornado.web.Application):
             (r"/logintest/ios/*", IOSLoginTestHandler),
             (r"/logout/ios/*", IOSLogoutHandler),
 
+            # depreacted
             (r"/register/*", RegisterHandler),
+            (r"/secregister/*", SecRegisterHandler),
             (r"/reregister/*", ReRegisterHandler),
            
             #znbc client handler
