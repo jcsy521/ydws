@@ -106,6 +106,7 @@ $(function () {
 			url : '/wspush',
 			data: '',
 			dataType : 'json',
+			timeout: 15000,
 			cache: false,
 			contentType : 'application/json; charset=utf-8',
 			success : function(data) {
@@ -126,6 +127,9 @@ $(function () {
 			},
 			error : function(XMLHttpRequest) {
 				dlf.fn_serverError(XMLHttpRequest);
+				if ( XMLHttpRequest.statusText == 'timeout' ) {
+					fn_reRequestPush();
+				}
 				return;
 			}
 		});

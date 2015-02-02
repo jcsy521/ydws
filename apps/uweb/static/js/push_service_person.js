@@ -105,6 +105,7 @@ $(function () {
 			data: '',
 			dataType : 'json',
 			cache: false,
+			timeout: 15000,
 			contentType : 'application/json; charset=utf-8',
 			success : function(data) {
 				if ( data.status == 0) {
@@ -124,6 +125,9 @@ $(function () {
 			},
 			error : function(XMLHttpRequest) {
 				dlf.fn_serverError(XMLHttpRequest);
+				if ( XMLHttpRequest.statusText == 'timeout' ) {
+					fn_reRequestPush();
+				}
 				return;
 			}
 		});
