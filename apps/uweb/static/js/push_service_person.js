@@ -125,9 +125,7 @@ $(function () {
 			},
 			error : function(XMLHttpRequest) {
 				dlf.fn_serverError(XMLHttpRequest);
-				if ( XMLHttpRequest.statusText == 'timeout' ) {
-					fn_reRequestPush();
-				}
+				fn_reRequestPush();
 				return;
 			}
 		});
