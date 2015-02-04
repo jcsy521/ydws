@@ -125,7 +125,9 @@ $(function () {
 			},
 			error : function(XMLHttpRequest) {
 				dlf.fn_serverError(XMLHttpRequest);
-				fn_reRequestPush();
+				setTimeout(function(e) {
+					fn_reRequestPush();
+				}, 1000*10);
 				return;
 			}
 		});
