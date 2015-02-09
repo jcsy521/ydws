@@ -1387,10 +1387,26 @@ dlf.fn_corpGetCarData = function(b_isCloseTrackInfowindow) {
 		
 		if ( data.status == 0 ) {
 			var str_resDataType = data.res_type,
-				b_isDifferentData = true;
-			
+				b_isDifferentData = true,
+				b_trackSt = $('.j_delay').is(':visible'), 
+				b_eventSearchWpST = $('#eventSearchWrapper ').is(':visible'),
+				b_regionWpST = $('#regionWrapper').is(':visible'),
+				b_regionCreateWpST = $('#regionCreateWrapper').is(':visible'),
+				b_corpRegionWpST = $('#corpRegionWrapper').is(':visible'),
+				b_bindRegionWpST = $('#bindRegionWrapper').is(':visible'),
+				b_bindBatchRegionWpST = $('#bindBatchRegionWrapper').is(':visible'),
+				b_corpMileageSetStatus = $('#corpMileageSetWrapper').is(':visible'),	// 单点里程设置
+				b_bindMileageSetStatus = $('#bindMileageSetWrapper').is(':visible'),	// 单点里程绑定
+				b_bindBatchMileageSetStatus = $('#bindBatchMileageSetWrapper').is(':visible'),	// 单点里程批量绑定
+				b_mileageSetCreateStatus = $('#mileageSetCreateWrapper').is(':visible'),	// 单点里程新增
+				b_mileageSetSearchStatus = $('#mileageSetWrapper').is(':visible');	// 单点里程查询
+
 			$('.j_body').data('lastinfo_time', data.res.lastinfo_time);	// 存储post返回的上次更新时间  返给后台
-			$('.j_alarm').show();
+			
+			if ( b_trackSt || b_eventSearchWpST || b_regionWpST || b_bindBatchRegionWpST || b_regionCreateWpST || b_corpRegionWpST || b_bindRegionWpST || b_corpMileageSetStatus || b_bindMileageSetStatus || b_bindBatchMileageSetStatus || b_mileageSetCreateStatus ) {	
+			} else {
+				$('.j_alarm').show();
+			}
 			$('.j_alarmPanelCon').css('top', $('.j_alarmTable').height()/2+218);
 			/**
 			* KJJ add 2014.05.28

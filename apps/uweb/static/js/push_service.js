@@ -136,6 +136,7 @@ $(function () {
 	}
 	//定位器组织结构变化
 	function fn_pushOrganiztionStatus(obj_pushData) {
+		$('.j_body').data('ps3', true);
 		dlf.fn_corpGetCarData();
 		
 		var obj_pushCallbackData = {'packet_type': 'C3', 'status': 0, 'msg': 'SUCCESS'};

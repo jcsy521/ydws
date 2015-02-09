@@ -648,21 +648,25 @@ dlf.fn_switchCar = function(n_tid, obj_currentItem, str_flag) {
 				str_currentCarAlias = dlf.fn_encode(dlf.fn_dealAlias(str_tempAlias)); 
 			}
 			if ( b_trackSt ) {	
-				dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
-				
-				$('.j_delay').removeData('delayPoints');	// 清除停留点缓存数据
-				b_trackMsgStatus = true;
-				actionMarker = null;
-				$('#delayTable').css({'margin-top': 60});
-				$('#exportDelay, #completeTrack').hide();
-				$('#control_panel').hide();
-				$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
-				$('.j_trackBtnhover').show();
-				$('#tPause ').hide();
-				$('#trackTerminalAliasLabel').html(dlf.fn_encode(str_tempAlias)).attr('title', str_tempAlias);
-				
-				if ( $('#trackSearchPanel').css('display') != 'block' ) {
-					$('#trackSearch_topShowIcon').click();
+				if ( $('.j_body').data('ps3') ) {
+					$('.j_body').removeData('ps3');
+				} else {
+					dlf.fn_clearTrack('inittrack');	// 初始化清除数据;
+					
+					$('.j_delay').removeData('delayPoints');	// 清除停留点缓存数据
+					b_trackMsgStatus = true;
+					actionMarker = null;
+					$('#delayTable').css({'margin-top': 60});
+					$('#exportDelay, #completeTrack').hide();
+					$('#control_panel').hide();
+					$('#delayTable').html('<li class="default_delayItem">请选择开始和结束时间进行查询</li>');
+					$('.j_trackBtnhover').show();
+					$('#tPause ').hide();
+					$('#trackTerminalAliasLabel').html(dlf.fn_encode(str_tempAlias)).attr('title', str_tempAlias);
+					
+					if ( $('#trackSearchPanel').css('display') != 'block' ) {
+						$('#trackSearch_topShowIcon').click();
+					}
 				}
 			}
 			if ( b_eventSearchWpST ) {
