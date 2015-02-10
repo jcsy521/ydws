@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for query of individual.
+"""
+
 from os import SEEK_SET
-import datetime, time
+import time
 import logging
 import hashlib
+import xlwt
+from cStringIO import StringIO
 
 import tornado.web
-from tornado.escape import json_decode, json_encode
-from tornado.ioloop import IOLoop
+from tornado.escape import json_decode
 
-from constants import LOCATION, XXT
 from utils.dotdict import DotDict
-
 from mixin import BaseMixin
 from excelheaders import BUSINESS_FILE_NAME, BUSINESS_SHEET, BUSINESS_HEADER  
 from base import BaseHandler, authenticated
@@ -21,17 +23,13 @@ from codes.errorcode import ErrorCode
 from utils.checker import check_sql_injection, check_zs_phone
 from utils.misc import (get_terminal_address_key, get_terminal_sessionID_key,
      get_terminal_info_key, get_lq_sms_key, get_lq_interval_key,
-     safe_unicode, get_del_data_key)
+     safe_unicode, get_del_data_key, DUMMY_IDS)
 from helpers.smshelper import SMSHelper
-from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 from helpers.queryhelper import QueryHelper 
 from codes.smscode import SMSCode 
 from constants import PRIVILEGES, SMS, UWEB, GATEWAY
-from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
 from utils.public import record_add_action, delete_terminal_new, add_user, add_terminal
-from myutils import city_list
-from mongodb.mdaily import MDaily, MDailyMixin
 
 
 class BusinessMixin(BaseMixin):
@@ -194,7 +192,8 @@ class BusinessCreateHandler(BaseHandler, BusinessMixin):
                         status=ErrorCode.SUCCESS,
                         message='')
         except Exception as e:
-            logging.exception("Create business failed.")
+            logging.exception("Create business failed. Exception: %s.",
+                              e.args)
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_USER_FAILURE])
 
@@ -205,6 +204,8 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
     @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self):
+        """Just to search.html.
+        """
         corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
         self.render('business/search.html',
                     hash_='',
@@ -309,7 +310,8 @@ class BusinessSearchHandler(BaseHandler, BusinessMixin):
                         corplist=corplist,
                         hash_=hash_)
         except Exception as e:
-            logging.exception("Search business failed.")
+            logging.exception("Search business failed. Exception: %s.",
+                              e.args)
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.SEARCH_BUSINESS_FAILURE])
 
@@ -320,7 +322,8 @@ class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
     @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
-
+        """Download the records and save it as excel.
+        """
         mem_key = self.get_memcache_key(hash_)
 
         results = self.redis.getvalue(mem_key)
@@ -329,14 +332,10 @@ class BusinessSearchDownloadHandler(BaseHandler, BusinessMixin):
             self.render("errors/download.html")
             return
 
-        import xlwt
-        from cStringIO import StringIO
-
         filename = BUSINESS_FILE_NAME 
         online_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;') 
         offline_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
 
-        date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         wb = xlwt.Workbook()
         ws = wb.add_sheet(BUSINESS_SHEET)
 
@@ -431,7 +430,8 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
             fields[key] = self.get_argument(key, "")
             if fields[key]:
                 if not check_sql_injection(fields[key]):
-                    logging.error("Edit business condition contain SQL inject. %s : %s", key, fields[key])
+                    logging.error("Edit business condition contain SQL inject. %s : %s", 
+                                  key, fields[key])
                     self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.EDIT_CONDITION_ILLEGAL])
                     return
@@ -478,12 +478,11 @@ class BusinessEditHandler(BaseHandler, BusinessMixin):
                         status=ErrorCode.SUCCESS,
                         message='')
         except Exception as e:
-            logging.exception("Edit business failed.Terminal mobile: %s, owner mobile: %s",
-                              tmobile)
+            logging.exception("Edit business failed.mobile: %s, Exception: %s",
+                              tmobile, e.args)
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.EDIT_USER_FAILURE])
-        
-        
+                
         
 class BusinessDeleteHandler(BaseHandler, BusinessMixin):
 
@@ -500,9 +499,8 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
         """
         status = ErrorCode.SUCCESS
         try:
-
-
-            terminal = self.db.get("SELECT id, login, mobile, tid FROM T_TERMINAL_INFO"
+            terminal = self.db.get("SELECT id, login, mobile, tid"
+                                   " FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s",
                                    tmobile)
             tid = terminal.tid
@@ -537,15 +535,18 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
             response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args)
             response = json_decode(response)
             if response['success'] == ErrorCode.SUCCESS:
-                logging.info("[ADMIN] Umobile: %s, tid: %s, tmobile:%s GPRS unbind successfully", 
+                logging.info("[ADMIN] Umobile: %s, tid: %s, tmobile:%s"
+                             "  GPRS unbind successfully", 
                              pmobile, terminal.tid, tmobile)
             else:
                 status = response['success']
                 # unbind failed. clear sessionID for relogin, then unbind it again
                 sessionID_key = get_terminal_sessionID_key(terminal.tid)
                 self.redis.delete(sessionID_key)
-                logging.error("[ADMIN] Umobile:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...", 
-                              pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                logging.error("[ADMIN] Umobile:%s, tid: %s, tmobile:%s"
+                              "  GPRS unbind failed, message: %s, send JB sms...", 
+                              pmobile, terminal.tid, tmobile, 
+                              ErrorCode.ERROR_MESSAGE[status])
                 unbind_sms = SMSCode.SMS_UNBIND  
                 biz_type = QueryHelper.get_biz_type_by_tmobile(tmobile, self.db)
                 if biz_type != UWEB.BIZ_TYPE.YDWS:
@@ -560,15 +561,20 @@ class BusinessDeleteHandler(BaseHandler, BusinessMixin):
                                     "  WHERE id = %s",
                                     UWEB.SERVICE_STATUS.TO_BE_UNBIND,
                                     terminal.id)
-                    logging.info("[ADMIN] umobile: %s, tid: %s, tmobile: %s SMS unbind successfully.",
+                    logging.info("[ADMIN] umobile: %s, tid: %s, tmobile: %s"
+                                 "  SMS unbind successfully.",
                                  pmobile, terminal.tid, tmobile)
                 else:
-                    logging.error("[ADMIN] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
-                                  pmobile, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                    logging.error("[ADMIN] umobile: %s, tid: %s, tmobile: %s"
+                                  "  SMS unbind failed. Message: %s",
+                                  pmobile, terminal.tid, tmobile, 
+                                  ErrorCode.ERROR_MESSAGE[status])
 
         except Exception as e:
             status = ErrorCode.FAILED
-            logging.exception("[ADMIN] Delete service failed. tmobile: %s, owner mobile: %s", tmobile, pmobile)
+            logging.exception("[ADMIN] Delete service failed."
+                              " tmobile: %s, owner mobile: %s, Exception: %s", 
+                              tmobile, pmobile, e.args)
         self.write_ret(status)
             
 class BusinessServiceHandler(BaseHandler, BusinessMixin):
@@ -596,6 +602,8 @@ class BusinessServiceHandler(BaseHandler, BusinessMixin):
             self.redis.delete(*keys)
         except Exception as e:
             status = ErrorCode.FAILED
-            logging.exception("[ADMIN] Update service_status to %s failed. tmobile: %s", service_status, tmobile)
+            logging.exception("[ADMIN] Update service_status to %s failed."
+                              "  tmobile: %s, Exception: %s", 
+                              service_status, tmobile, e.args)
         self.write_ret(status)
             

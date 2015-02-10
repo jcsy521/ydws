@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""This module is designed for the manual-log of individual.
+"""
+
 import logging
 import time
 from os import SEEK_SET
@@ -9,26 +12,16 @@ import xlwt
 from cStringIO import StringIO
 
 import tornado.web
-from tornado.escape import json_decode
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from mixin import BaseMixin
 from excelheaders import MANUALLOG_FILE_NAME, MANUALLOG_SHEET, MANUALLOG_HEADER
-from utils.misc import safe_unicode
-
 from checker import check_privileges 
 from constants import PRIVILEGES
 
 class ManualLogMixin(BaseMixin):
     KEY_TEMPLATE = "manuallog_report_%s_%s"
-
-    def prepare_data(self, hash_):
-        mem_key = self.get_memcache_key(hash_)
-        data = self.getvalue(mem_key)
-
-        if data:
-            return data
 
 class ManualLogSearchHandler(BaseHandler, ManualLogMixin):
 
@@ -36,6 +29,8 @@ class ManualLogSearchHandler(BaseHandler, ManualLogMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
+        """Jump to the terminalmanuallog.html.
+        """
         username = self.get_current_user()
         self.render('report/terminalmanuallog.html',
                     username=username,
@@ -46,7 +41,9 @@ class ManualLogSearchHandler(BaseHandler, ManualLogMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def post(self):
-
+        """QueryHelper individuals according to the 
+        given parameters.
+        """
         status = ErrorCode.SUCCESS
         try:
             mobile = self.get_argument('mobile', 0)
@@ -71,7 +68,8 @@ class ManualLogSearchHandler(BaseHandler, ManualLogMixin):
                             status=status, res=res, hash_=hash_)
 
         except Exception as e:
-            logging.exception("Search manual log for %s,it is does'\nt exists", mobile)
+            logging.exception("Search manual log faild. mobile：%s, Exception: %s.", 
+                              mobile, e.args)
             self.render('errors/error.html', message=ErrorCode.FAILED)
 
 
@@ -81,7 +79,8 @@ class ManualLogDownloadHandler(BaseHandler, ManualLogMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
-        
+        """Download the records and save it as excel.
+        """
         mem_key = self.get_memcache_key(hash_)
         results = self.redis.getvalue(mem_key)
         if not results:
@@ -89,7 +88,6 @@ class ManualLogDownloadHandler(BaseHandler, ManualLogMixin):
             return
 
         filename = MANUALLOG_FILE_NAME
-        date_syle = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         green_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;')
         brown_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
         wb = xlwt.Workbook()

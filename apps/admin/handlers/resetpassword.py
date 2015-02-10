@@ -1,35 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from os import SEEK_SET
-import datetime, time
+
+"""This module is designed for seset-password of users.
+Include individual, enterprise).
+"""
+
 import logging
-import hashlib
 
 import tornado.web
-from tornado.escape import json_decode, json_encode
-from tornado.ioloop import IOLoop
+from tornado.escape import json_decode
 
-from constants import LOCATION, XXT
 from utils.dotdict import DotDict
-
-from mixin import BaseMixin
 from base import BaseHandler, authenticated
-
 from checker import check_areas, check_privileges 
+from constants import PRIVILEGES, UWEB
 from codes.errorcode import ErrorCode 
 from utils.checker import check_sql_injection, check_zs_phone
-from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
 from helpers.smshelper import SMSHelper
-from helpers.seqgenerator import SeqGenerator
-from helpers.gfsenderhelper import GFSenderHelper
-from helpers.queryhelper import QueryHelper 
 from codes.smscode import SMSCode 
-from constants import PRIVILEGES, SMS, UWEB, GATEWAY
-from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
-from utils.public import record_add_action
-from myutils import city_list
-from mongodb.mdaily import MDaily, MDailyMixin
+
 
 class ResetPasswordHandler(BaseHandler):
 
@@ -123,7 +112,8 @@ class ResetPasswordHandler(BaseHandler):
             self.write_ret(status)
         except Exception as e:
             status = ErrorCode.SERVER_BUSY
-            logging.exception("[ADMIN] Reset password failed.")
+            logging.exception("[ADMIN] Reset password failed. Exception: %s",
+                               e.args)
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[status])
 

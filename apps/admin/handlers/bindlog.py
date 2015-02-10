@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""This module is designed for the bind-log of terminal.
+"""
+
 import logging
 import time
 from os import SEEK_SET
@@ -9,26 +12,18 @@ import xlwt
 from cStringIO import StringIO
 
 import tornado.web
-from tornado.escape import json_decode
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from mixin import BaseMixin
 from excelheaders import BINDLOG_FILE_NAME, BINDLOG_SHEET, BINDLOG_HEADER
-from utils.misc import safe_unicode
 
 from checker import check_privileges 
 from constants import PRIVILEGES
 
+
 class BindLogMixin(BaseMixin):
     KEY_TEMPLATE = "binglog_report_%s_%s"
-
-    def prepare_data(self, hash_):
-        mem_key = self.get_memcache_key(hash_)
-        data = self.getvalue(mem_key)
-
-        if data:
-            return data
 
 class BindLogSearchHandler(BaseHandler, BindLogMixin):
 
@@ -36,6 +31,8 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
+        """Jump to the terminalbindlog.html.
+        """
         username = self.get_current_user()
         self.render('report/terminalbindlog.html',
                     username=username,
@@ -46,11 +43,15 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def post(self):
-
+        """QueryHelper individuals according to the 
+        given parameters.
+        """
         status = ErrorCode.SUCCESS
         try:
             mobile = self.get_argument('mobile', 0)
-            sql = ("SELECT tid, tmobile, umobile, group_id, cid, op_type, add_time, del_time FROM T_BIND_LOG"
+            sql = ("SELECT tid, tmobile, umobile,"
+                   "  group_id, cid, op_type,"
+                   "  add_time, del_time FROM T_BIND_LOG"
                    "  WHERE tmobile=%s") % mobile
             retlist = self.db.query(sql)
             res = []
@@ -87,7 +88,8 @@ class BindLogSearchHandler(BaseHandler, BindLogMixin):
                             status=status, res=res, hash_=hash_)
 
         except Exception as e:
-            logging.exception("Search bing log for %s,it is does'\nt exists", mobile)
+            logging.exception("[ADMIN] Search bing failed. mobile: %s, Exception: %s.", 
+                              mobile, e.args)
             self.render('errors/error.html', message=ErrorCode.FAILED)
 
 
@@ -97,7 +99,8 @@ class BindLogDownloadHandler(BaseHandler, BindLogMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
-        
+        """Download the records and save it as excel.
+        """
         mem_key = self.get_memcache_key(hash_)
         results = self.redis.getvalue(mem_key)
         if not results:
@@ -105,7 +108,6 @@ class BindLogDownloadHandler(BaseHandler, BindLogMixin):
             return
 
         filename = BINDLOG_FILE_NAME
-        date_syle = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         bind_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;')
         re_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')
         wb = xlwt.Workbook()

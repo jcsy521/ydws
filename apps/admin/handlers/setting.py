@@ -1,22 +1,18 @@
 #register!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""This module is designed for settings of terminal.
+"""
+
 import logging
-import time
-from os import SEEK_SET
-import hashlib
-import xlwt
-from cStringIO import StringIO
 
 import tornado.web
 from tornado.escape import json_decode
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
-from mixin import BaseMixin
-from excelheaders import MANUALLOG_FILE_NAME, MANUALLOG_SHEET, MANUALLOG_HEADER
 from helpers.queryhelper import QueryHelper
-from utils.misc import safe_unicode, get_terminal_sessionID_key
+from utils.misc import get_terminal_sessionID_key
 from utils.dotdict import DotDict
 
 from checker import check_privileges 
@@ -28,6 +24,8 @@ class SettingHandler(BaseHandler):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
+        """Jump to terminalsetting.html.
+        """
         username = self.get_current_user()
         self.render('report/terminalsetting.html',
                     username=username,
@@ -38,7 +36,8 @@ class SettingHandler(BaseHandler):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def post(self):
-
+        """Retrieve the setting according to the given parameters.
+        """
         status = ErrorCode.SUCCESS
         res = {}
         hash_ = ''
@@ -55,17 +54,18 @@ class SettingHandler(BaseHandler):
             self.render('report/terminalsetting.html',
                         status=status, res=res, hash_=hash_)
         except Exception as e:
-            logging.exception("Search register for %s,it is does'\nt exists", tmobile)
-            self.render('errors/error.html', message=ErrorCode.FAILED)
+            logging.exception("Search register failed. tmobile: %s, Exception: %s", 
+                              tmobile, e.args)
+            self.render('errors/error.html', 
+                         message=ErrorCode.FAILED)
 
     @authenticated
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def put(self):
-
+        """Modify the settings.
+        """
         status = ErrorCode.SUCCESS
-        res = {}
-        hash_ = ''
         try:
             data = DotDict(json_decode(self.request.body))
             logging.info("[UWEB] Setting modify request: %s", self.request.body) 
@@ -97,5 +97,7 @@ class SettingHandler(BaseHandler):
 
             self.write_ret(status)
         except Exception as e:
-            logging.exception("Modify setting failed. Exception: %s", e.args)
-            self.render('errors/error.html', message=ErrorCode.FAILED)
+            logging.exception("Modify setting failed. Exception: %s", 
+                              e.args)
+            self.render('errors/error.html', 
+                        message=ErrorCode.FAILED)

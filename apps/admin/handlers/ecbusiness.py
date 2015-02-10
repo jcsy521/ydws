@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for query of enterprise.
+"""
+
 import hashlib
 import logging
 import time
 
 import tornado.web
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 
 from utils.misc import DUMMY_IDS
-from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_tid_from_mobile_ydwq
+from utils.misc import (get_terminal_sessionID_key,
+     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key, get_tid_from_mobile_ydwq)
 from utils.dotdict import DotDict
 from base import BaseHandler, authenticated
 from checker import check_privileges 
-from constants import PRIVILEGES, GATEWAY, SMS, UWEB
+from constants import PRIVILEGES, UWEB
 from mixin import BaseMixin
 from helpers.queryhelper import QueryHelper
 from helpers.gfsenderhelper import GFSenderHelper
@@ -56,7 +59,7 @@ class ECBusinessMixin(BaseMixin):
         interval=[begintime, endtime]
         if not corp:
             corps = self.db.query("SELECT id, cid FROM T_CORP")
-            corps = [str(corp.cid) for corp in corps]
+            corps = [str(c.cid) for c in corps]
         else:
             corps = [str(corp),]
             
@@ -122,6 +125,8 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
     @check_privileges([PRIVILEGES.BUSINESS_HANDLE])
     @tornado.web.removeslash
     def get(self):
+        """Jump to create.html.
+        """
         bizlist = self.db.query("SELECT bizcode, bizname FROM T_BUSINESS")
             
         self.render('ecbusiness/create.html',
@@ -147,16 +152,16 @@ class ECBusinessCreateHandler(BaseHandler, ECBusinessMixin):
         for key in fields.iterkeys():
             fields[key] = self.get_argument(key,'').strip()
 
-        corpid = self.db.execute("INSERT INTO T_CORP(cid, name, mobile, password,"
-                                 "  linkman, address, email, timestamp, bizcode, type)"
-                                 "  VALUES(%s, %s, %s, password(%s), %s, %s, %s, %s, %s, %s)",
-                                 fields.ecmobile, fields.ecname, fields.ecmobile,
-                                 fields.password, fields.linkman,
-                                 fields.address, fields.email,
-                                 int(time.time()), fields.bizcode, fields.type)
-        group = self.db.execute("INSERT INTO T_GROUP(corp_id, name, type)"
-                                "  VALUES(%s, default, default)",
-                                fields.ecmobile)
+        self.db.execute("INSERT INTO T_CORP(cid, name, mobile, password,"
+                        "  linkman, address, email, timestamp, bizcode, type)"
+                        "  VALUES(%s, %s, %s, password(%s), %s, %s, %s, %s, %s, %s)",
+                        fields.ecmobile, fields.ecname, fields.ecmobile,
+                        fields.password, fields.linkman,
+                        fields.address, fields.email,
+                        int(time.time()), fields.bizcode, fields.type)
+        self.db.execute("INSERT INTO T_GROUP(corp_id, name, type)"
+                        "  VALUES(%s, default, default)",
+                        fields.ecmobile)
 
         self.redirect("/ecbusiness/list/%s" % fields.ecmobile)
         
@@ -183,6 +188,8 @@ class ECBusinessSearchHandler(BaseHandler, ECBusinessMixin):
     @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def get(self):
+        """Jump to search.html.
+        """
         corplist = self.db.query("SELECT id, cid, name FROM T_CORP")
         self.render('ecbusiness/search.html',
                     interval=[], 
@@ -263,6 +270,8 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
     @check_privileges([PRIVILEGES.BUSINESS_QUERY])
     @tornado.web.removeslash
     def post(self, ecmobile):
+        """Delete the corp.
+        """
         status = ErrorCode.SUCCESS
         try:
             ec = self.get_ecbusiness_info(ecmobile)
@@ -279,7 +288,8 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
                 response = GFSenderHelper.forward(GFSenderHelper.URLS.UNBIND, args)
                 response = json_decode(response)
                 if response['success'] == ErrorCode.SUCCESS:
-                    logging.info("[UWEB] umobile: %s, tid: %s, tmobile:%s GPRS unbind successfully", 
+                    logging.info("[ADMIN] umobile: %s, tid: %s, tmobile:%s"
+                                 "  GPRS unbind successfully", 
                                  terminal.owner_mobile, terminal.tid,
                                  terminal.mobile)
                 else:
@@ -287,7 +297,8 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
                     # unbind failed. clear sessionID for relogin, then unbind it again
                     sessionID_key = get_terminal_sessionID_key(terminal.tid)
                     self.redis.delete(sessionID_key)
-                    logging.error('[UWEB] umobile:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
+                    logging.error("[ADMIN] umobile:%s, tid: %s, tmobile:%s"
+                                  "  GPRS unbind failed, message: %s, send JB sms...", 
                                   terminal.owner_mobile, terminal.tid,
                                   terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
                     unbind_sms = SMSCode.SMS_UNBIND  
@@ -304,11 +315,13 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
                                         "  WHERE id = %s",
                                         UWEB.SERVICE_STATUS.TO_BE_UNBIND,
                                         terminal.id)
-                        logging.info("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind successfully.",
+                        logging.info("[ADMIN] umobile: %s, tid: %s, tmobile: %s"
+                                     "  SMS unbind successfully.",
                                      terminal.owner_mobile, terminal.tid,
                                      terminal.mobile)
                     else:
-                        logging.error("[UWEB] umobile: %s, tid: %s, tmobile: %s SMS unbind failed. Message: %s",
+                        logging.error("[ADMIN] umobile: %s, tid: %s, tmobile: %s"
+                                      " SMS unbind failed. Message: %s",
                                       terminal.owner_mobile, terminal.tid,
                                       terminal.mobile, ErrorCode.ERROR_MESSAGE[status])
 
@@ -316,7 +329,8 @@ class ECBusinessDeleteHandler(BaseHandler, ECBusinessMixin):
             
         except Exception as e:
             status = ErrorCode.FAILED
-            logging.exception("Delete service failed. ecmobile: %s", ecmobile)
+            logging.exception("Delete service failed. ecmobile: %s, Exception: %s.", 
+                              ecmobile, e.args)
         self.write_ret(status)
         
 
@@ -326,7 +340,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
     @check_privileges([PRIVILEGES.BUSINESS_HANDLE])
     @tornado.web.removeslash
     def get(self):
-        """Just to create.html.
+        """Jump to create.html.
         """
         corplist = self.db.query("SELECT id, cid, name, mobile as ecmobile FROM T_CORP")
         self.render('ecbusiness/addterminal.html',
@@ -452,7 +466,8 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                 sms_status = 1
             else:
                 sms_status = 0
-                logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", fields.tmobile, fields.umobile)
+                logging.error("Create business sms send failure. terminal mobile: %s, owner mobile: %s", 
+                              fields.tmobile, fields.umobile)
 
             fields.sms_status = sms_status
             fields.service_status = 1
@@ -461,6 +476,7 @@ class ECBusinessAddTerminalHandler(BaseHandler, ECBusinessMixin):
                         status=ErrorCode.SUCCESS,
                         message='')
         except Exception as e:
-            logging.exception("Add terminal failed.")
+            logging.exception("Add terminal failed. Exception: %s.",
+                              e.args)
             self.render('errors/error.html',
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.CREATE_USER_FAILURE])

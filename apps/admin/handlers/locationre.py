@@ -3,27 +3,18 @@
 import logging 
 import hashlib
 import time
-from os import SEEK_SET
-from datetime import date
-from calendar import monthrange
 import xlwt
 from cStringIO import StringIO
+from os import SEEK_SET
 
 import tornado.web
-from tornado.escape import json_decode
-
-from constants import LOCATION, ADMIN
 
 from mixin import BaseMixin
-from excelheaders import LOCATION_HEADER, LOCATION_SHEET, LOCATION_FILE_NAME
 from base import BaseHandler, authenticated
 from excelheaders import LOCATION_FILE_NAME, LOCATION_SHEET, LOCATION_HEADER
 
 from checker import check_areas, check_privileges
 from constants import PRIVILEGES
-from utils.misc import str_to_list, DUMMY_IDS
-from myutils import city_list, start_of_month, end_of_month, start_end_of_month
-from mongodb.mlocation import MLocation, MLocationMixin
 from codes.errorcode import ErrorCode
 
 
@@ -31,20 +22,14 @@ class LocationMixin(BaseMixin):
 
     KEY_TEMPLATE = "location_report_%s_%s"
 
-    def prepare_data(self, hash_):
-
-        mem_key = self.get_memcache_key(hash_)
-        data = self.redis.getvalue(mem_key)
-        if data:
-            return data
-
-
 class LocationSearchHandler(BaseHandler, LocationMixin):
     
     @authenticated
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
+        """Jump to the terminallocation.html.
+        """
         username = self.get_current_user()
         self.render('report/terminallocation.html',
                     username=username,
@@ -56,7 +41,9 @@ class LocationSearchHandler(BaseHandler, LocationMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def post(self):
-         
+        """QueryHelper individuals according to the 
+        given parameters.
+        """
         status = ErrorCode.SUCCESS
         try:
             mobile = self.get_argument('mobile', '')
@@ -126,7 +113,8 @@ class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
-
+        """Download the records and save it as excel.
+        """
         mem_key = self.get_memcache_key(hash_)
         results = self.redis.getvalue(mem_key)
 
@@ -134,7 +122,6 @@ class LocationSearchDownloadHandler(BaseHandler, LocationMixin):
             self.render("errors/download.html")
             return
 
-        date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         filename = LOCATION_FILE_NAME
         base_style = xlwt.easyxf('font: colour_index green, bold off; align: wrap on, vert centre, horiz center;')
         gps_style = xlwt.easyxf('font: colour_index brown, bold off; align: wrap on, vert centre, horiz center;')

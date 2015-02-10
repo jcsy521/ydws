@@ -1,34 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""This module is designed for mileage-notification-log of terminal.
+"""
+
 import logging
 import time
-from os import SEEK_SET
 import hashlib
-import xlwt
-from cStringIO import StringIO
 
 import tornado.web
-from tornado.escape import json_decode
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
 from mixin import BaseMixin
-from excelheaders import MANUALLOG_FILE_NAME, MANUALLOG_SHEET, MANUALLOG_HEADER
-from utils.misc import safe_unicode
 
 from checker import check_privileges 
 from constants import PRIVILEGES
 
+
 class NotificationMixin(BaseMixin):
     KEY_TEMPLATE = "notification_report_%s_%s"
-
-    def prepare_data(self, hash_):
-        mem_key = self.get_memcache_key(hash_)
-        data = self.getvalue(mem_key)
-
-        if data:
-            return data
 
 class NotificationSearchHandler(BaseHandler, NotificationMixin):
 
@@ -36,6 +27,8 @@ class NotificationSearchHandler(BaseHandler, NotificationMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
+        """Jump to the terminalnotification.html.
+        """
         username = self.get_current_user()
         self.render('report/terminalnotification.html',
                     username=username,
@@ -46,7 +39,9 @@ class NotificationSearchHandler(BaseHandler, NotificationMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def post(self):
-
+        """QueryHelper individuals according to the 
+        given parameters.
+        """
         status = ErrorCode.SUCCESS
         res = {}
         hash_ = ''
@@ -97,5 +92,6 @@ class NotificationSearchHandler(BaseHandler, NotificationMixin):
             self.render('report/terminalnotification.html',
                         status=status, res=res, hash_=hash_)
         except Exception as e:
-            logging.exception("Search manual log for %s,it is does'\nt exists", mobile)
+            logging.exception("Search notification failed. mobile: %s, Exception: %s.", 
+                               mobile, e.args)
             self.render('errors/error.html', message=ErrorCode.FAILED)

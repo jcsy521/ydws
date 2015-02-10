@@ -10,11 +10,13 @@ function clickGroup() {
 			return;
 		}
 }
+
 function fn_changeSchool() {
 	var selectCityId = $('#cities').val(); // 选中的option value
 	$('#citiesId').val(selectCityId); // 填充到hidden
 	fn_loadSchool();
 }
+
 function fn_loadSchool () {
 	var citiesId = $('#citiesId').val(), // 选中的cityid
 		group = $('#corps'),
@@ -48,6 +50,7 @@ function fn_loadSchool () {
 		});
 	}
 }
+
 // group init
 function fn_initGroup() {
 	groupNum = 'yes';

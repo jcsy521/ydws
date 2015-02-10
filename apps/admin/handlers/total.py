@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for statistic of total(includes individual and enterprise.).
+"""
+
 from os import SEEK_SET
 import time
 import hashlib
@@ -22,7 +25,15 @@ class TotalMixin(BaseMixin):
     KEY_TEMPLATE = "total_report_%s_%s"
 
     def prepare_data(self, hash_):
+        """Associated with the post method.
 
+        workflow:
+
+        if get value according the hash:
+            return value
+        else:
+            retrieve the db and return the result.
+        """
         mem_key = self.get_memcache_key(hash_)
         
         data = self.redis.getvalue(mem_key)
@@ -104,7 +115,7 @@ class TotalHandler(BaseHandler, TotalMixin):
     @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self):
-        """Just to create.html.
+        """Just to total.html.
         """
         self.render('report/total.html',
                     status=ErrorCode.SUCCESS,
@@ -118,7 +129,8 @@ class TotalHandler(BaseHandler, TotalMixin):
     @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def post(self):
-        """Create business for a couple of users.
+        """QueryHelper individuals according to the 
+        given parameters.
         """
         m = hashlib.md5()
         m.update(self.request.body)
@@ -138,7 +150,8 @@ class TotalDownloadHandler(BaseHandler, TotalMixin):
     @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self, hash_):
-
+        """Download the records and save it as excel.
+        """
         mem_key = self.get_memcache_key(hash_)
 
         r = self.redis.getvalue(mem_key)

@@ -6,10 +6,12 @@ import time
 from os import SEEK_SET
 from datetime import date
 from calendar import monthrange
+import xlwt
+from cStringIO import StringIO
 
 import tornado.web
 
-from constants import LOCATION, ADMIN
+from constants import ADMIN
 
 from mixin import BaseMixin
 from excelheaders import LOCATION_HEADER, LOCATION_SHEET, LOCATION_FILE_NAME
@@ -18,7 +20,7 @@ from base import BaseHandler, authenticated
 from checker import check_areas, check_privileges
 from constants import PRIVILEGES
 from utils.misc import str_to_list, DUMMY_IDS
-from myutils import city_list, start_of_month, end_of_month, start_end_of_month
+from myutils import city_list, start_of_month, end_of_month
 from mongodb.mlocation import MLocation, MLocationMixin
 
 
@@ -27,7 +29,15 @@ class LocationMixin(BaseMixin):
     KEY_TEMPLATE = "location_report_%s_%s"
 
     def prepare_data(self, hash_):
+        """Associated with the post method.
 
+        workflow:
+
+        if get value according the hash:
+            return value
+        else:
+            retrieve the db and return the result.
+        """
         mem_key = self.get_memcache_key(hash_)
         
         data = self.redis.getvalue(mem_key)
@@ -109,7 +119,8 @@ class LocationHandler(BaseHandler, LocationMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self):
-
+        """Jump to the location.html.
+        """
         self.render("report/location.html",
                     areas=self.areas,
                     results=[],
@@ -121,7 +132,9 @@ class LocationHandler(BaseHandler, LocationMixin):
     #@check_areas()
     @tornado.web.removeslash
     def post(self):
-
+        """QueryHelper individuals according to the 
+        given parameters.
+        """
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
@@ -140,7 +153,8 @@ class LocationDownloadHandler(BaseHandler, LocationMixin):
     @check_privileges([PRIVILEGES.TERMINAL_QUERY])
     @tornado.web.removeslash
     def get(self, hash_):
-
+        """Download the records and save it as excel.
+        """
         mem_key = self.get_memcache_key(hash_)
         r = self.redis.getvalue(mem_key)
         if r:
@@ -149,17 +163,12 @@ class LocationDownloadHandler(BaseHandler, LocationMixin):
             self.render("errors/download.html")
             return
 
-        import xlwt
-        from cStringIO import StringIO
-
         filename = LOCATION_FILE_NAME
 
         if timestamp:
             month = time.strftime('%m', time.localtime((timestamp/1000)))
             filename = month + u'月份' + filename
-
-        date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
-        
+      
         wb = xlwt.Workbook()
         ws = wb.add_sheet(LOCATION_SHEET)
 

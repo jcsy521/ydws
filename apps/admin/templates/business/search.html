@@ -23,240 +23,240 @@
 <script type="text/javascript" src="/static/js/cacheQueryValues.js"></script>
 <script type="text/javascript" src="/static/js/json2.js"></script>
 {% block body %}
-{% if status == 0 %}
-<fieldset class="ui-widget ui-widget-content ui-corner-all">
-	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-		<span class="ui-button-text">用户查询</span>
-	</legend>
-	<form method="post" action="" id="formID" onsubmit="return formSubmit('business');">
-		<table id="searchTable0" class="searchTable0">
-			<tr id="d_groups" >
-				<td align="right">集团名称：</td>
-				<td align="left">
-					<select id="corps_select" class="hide" selecttype="usersearch">
-						<option value="">全部</option>
-						{% for corp in corplist %}
-								<option value="{{corp.cid}}">{{corp.name}}</option>
-						{% end %}
-					</select>
-					
-					<input type="text" id="corps_input" class="j_userSelect" value="全部" ectype="business" />
-					<a id="corps_sign" href="#"></a>
-					
-					<input type="hidden" id="corps_hidden" name="corps" value="" />
-				</td>
-			</tr>
-			<tr>
-				<td align="right">车主手机号：</td>
-				<td align="left">
-					<input type="text" name="umobile" id="umobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
-				</td>
-			</tr>
-			<tr>
-				<td align="right">终端手机号：</td>
-				<td align="left">
-					<input type="text" name="tmobile" id="tmobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
-				</td>
-			</tr>
-		</table>
-		<table class="searchTable0">
-			<tr>
-				<td align="right">在线/离线：</td>
-				<td align="left" colspan="2">
-					<select id="login" name="login">
-						<option value="">全部</option>
-						<option value="1">在线</option>
-						<option value="0">离线</option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td align="right">开始时间：</td>
-				<td align="left" colspan="2"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
-			</tr>
-			<tr>
-				<td align="right">结束时间：</td>
-				<td><input type="text" name="end_time1" id="end_time1" readonly="true" /></td>
-				<td align="right">
-					<input type="hidden" id="begintime" name="begintime" value="" />
-					<input type="hidden" id="endtime" name="endtime" value="" />
-					<input type="submit" value="查询" 
-						onclick="fn_PushData('umobile,tmobile,corps_hidden,start_time1,end_time1','business');" 
-						class="ui-button ui-widget ui-state-default ui-corner-all" 
-						role="button" aria-disabled="false" />
-				</td>
-			</tr>
-		</table>
-	</form>
-</fieldset>
-<div class="resultQuery">
-   <div class="resultTitle">
-		<h3>查询结果</h3>		
-		<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
-	</div>
-    <a id="exportData" href="/download/business/search/{{hash_}}"
-       class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-        <span class="ui-button-text">导出Excel</span>
-    </a>
-</div>
-<table id="rDataTables" class="display">
-    <thead>
-        <tr>
-            <th>序号</th>
-			<th>集团名称</th>
-			<th>集团联系人</th>
-			<th>车主手机</th>
-			<th>终端手机</th>
-			<th>sn</th>
-			<th>版本号</th>
-			<th>定位器名称</th>
-			<th>业务类型</th>
-			<th>在线/离线</th>
-			<th>电量</th>
-            <th>开通时间</th>
-			<th>bt_name</th>
-			<th>bt_mac</th>
-			<th>删除</th>
-			<th>终端类型变更</th>
-            <!--2014.07.07 Jia Xiaolei. 暂时去掉“停用”功能。-->
-            <!--<th>开通时间</th><th>删除</th><th>终端启用/停用</th><th>终端类型变更</th>-->
-        </tr>
-    </thead>
-		
-    <tbody id="adminTbody">
-  
-	{% for business in businesses %}
-            <tr id="business{{business['tmobile']}}" >
-				<td>{{ business['seq'] }}</td>
-				<td>{{ business['ecname']}}</td>
-				<td>{{ business['cmobile']}}</td>
-                <td>
-					{{ business['umobile']}}
-				</td>
-                <td>{{ business['tmobile']}}</td>
-                <td>{{ business['tid']}}</td>
-                <td>{{ business['softversion']}}</td>
-                <td>{{ business['alias']}}</td>
-				<td>
-					{% if business['biz_type'] == 0 %}
-						移动卫士
-					{% else %}
-						移动外勤
-					{% end %}
-				</td>				
-                <td>
-					{% if business['login'] == 0 %}
-						离线
-					{% else %}
-						<label class="lblOnline">在线</label>
-					{% end %}
-				</td>
-				<td>
-					{{business.pbat}}%
-				</td>
-				
-				<td>
-				    <script>document.write(toHumanDate({{business.begintime}}, 'yes'));</script>
-				</td>
-				<td>
-					{{business.get('bt_name','__')}}
-				</td>
-				<td>
-					{{business.get('bt_mac','__')}}
-				</td>
-				<td>
-                    <a href="#" onclick="fn_delTerminal({{business['tmobile']}}, {{ business['umobile'] }})">删除</a>
-                </td>
-                <!--
-                <td>
-					{% if business['service_status'] == 0 %}
-						 <a href="#" onclick="businessStop({{business['tmobile']}}, {{business['seq']}});" service_status="{{business['service_status']}}" id="service_status{{business['seq']}}">启用</a>
-					{% else %}
-						 <a href="#" onclick="businessStop({{business['tmobile']}}, {{business['seq']}});" service_status="{{business['service_status']}}"  id="service_status{{business['seq']}}">停用</a>
-					{% end %}
-                </td>
-                -->
-				<td>
-					<a href="#" onclick="bus_changeUserType('{{ business['ecname']}}',{{business['tmobile']}})">变更</a>
-                </td>
-            </tr>
-    {% end %}
-    </tbody>
-</table>
-<div style="display:none">
-	<input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'business_begin'}}"/>
-	<input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'business_end'}}"/>
-</div>
-<!-- 业务变更页面 -->
-<div id="userTypeChangeDialog" title="业务变更" class="hide">
-	<table>
-		<tr>
-			<td>终端手机号：</td>
-			<td>
-				<label id="txt_changeTmobile" />
-			</td>
-		</tr>
-		<tr id="changeUserType_corpName">
-			<td>集团名称：</td>
-			<td>
-				<input type="text" id="changeUserType_input" class="j_userSelect" value="" />
-				<a id="changeUserType_sign" href="#"></a>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2" align="center">
-				<input type="hidden" id="changeUserType_hidden" value="" />
-				<input type="button" width="100" value="变更" id="changUserTypeSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
-			</td>
-		</tr>
-	</table>
-</div>
-<!-- 登录账号修改-->
-<div id="changeUserNameDialog" title="登录账号修改" class="hide">
-	<table>
-		<tr>
-			<td><label>当前账号：</label></td>
-			<td>
-				<label id="txt_oldUsername"></label>
-			</td>
-		</tr>
-		<tr>
-			<td><label for="txt_newChangeUsername">新账号：</label></td>
-			<td>
-			<input type="text" id="txt_newChangeUsername" class="text ui-widget-content ui-corner-all" />
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2" align="center">
-				<input type="button" width="100" value="修改" id="changeUsernameSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
-			</td>
-		</tr>
-	</table>
-</div>
-<!-- 删除终端 -->
-<div id="deluserDialog" title="删除终端" class="hide">
-	<div class="deluser_titleTip">
-		是否删除该用户？
-	</div>
-	<div class="deluser_isClear">
-		<input type="checkbox" id="clearDataCk" />清除历史数据
-	</div>
-	<div class="deluser_btn">
-		<input type="button" width="100" value="确定" id="deluser_submit" class="ui-button ui-widget ui-state-default ui-corner-all"/>
-		<input type="button" width="100" value="取消" id="deluser_cancel" class="ui-button ui-widget ui-state-default ui-corner-all"/>
-	</div>
-</div>
-{% else %}
-	<div class="ui-widget" align="center">
-		<div class="errorbox ui-state-error ui-corner-all">
-			<span class="ui-icon ui-icon-alert" style="float: left; margin-left: 1em; margin-right: .5em;"></span>
-			<strong style="float: left;">操作错误：</strong>
-			<br />
-			<br />
-			{{ message }}
+	{% if status == 0 %}
+		<fieldset class="ui-widget ui-widget-content ui-corner-all">
+			<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+				<span class="ui-button-text">用户查询</span>
+			</legend>
+			<form method="post" action="" id="formID" onsubmit="return formSubmit('business');">
+				<table id="searchTable0" class="searchTable0">
+					<tr id="d_groups" >
+						<td align="right">集团名称：</td>
+						<td align="left">
+							<select id="corps_select" class="hide" selecttype="usersearch">
+								<option value="">全部</option>
+								{% for corp in corplist %}
+									<option value="{{corp.cid}}">{{corp.name}}</option>
+								{% end %}
+							</select>
+							
+							<input type="text" id="corps_input" class="j_userSelect" value="全部" ectype="business" />
+							<a id="corps_sign" href="#"></a>
+							
+							<input type="hidden" id="corps_hidden" name="corps" value="" />
+						</td>
+					</tr>
+					<tr>
+						<td align="right">车主手机号：</td>
+						<td align="left">
+							<input type="text" name="umobile" id="umobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
+						</td>
+					</tr>
+					<tr>
+						<td align="right">终端手机号：</td>
+						<td align="left">
+							<input type="text" name="tmobile" id="tmobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
+						</td>
+					</tr>
+				</table>
+				<table class="searchTable0">
+					<tr>
+						<td align="right">在线/离线：</td>
+						<td align="left" colspan="2">
+							<select id="login" name="login">
+								<option value="">全部</option>
+								<option value="1">在线</option>
+								<option value="0">离线</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">开始时间：</td>
+						<td align="left" colspan="2"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
+					</tr>
+					<tr>
+						<td align="right">结束时间：</td>
+						<td><input type="text" name="end_time1" id="end_time1" readonly="true" /></td>
+						<td align="right">
+							<input type="hidden" id="begintime" name="begintime" value="" />
+							<input type="hidden" id="endtime" name="endtime" value="" />
+							<input type="submit" value="查询"
+							onclick="fn_PushData('umobile,tmobile,corps_hidden,start_time1,end_time1','business');"
+							class="ui-button ui-widget ui-state-default ui-corner-all"
+							role="button" aria-disabled="false" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</fieldset>
+		<div class="resultQuery">
+			<div class="resultTitle">
+				<h3>查询结果</h3>
+				<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
+			</div>
+			<a id="exportData" href="/download/business/search/{{hash_}}"
+				class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+				<span class="ui-button-text">导出Excel</span>
+			</a>
 		</div>
-		<br />
-		<a class="button" href="javascript:history.back(document.referrer);">返回</a>
-	</div>
-{% end %}
-{% end %}
+		<table id="rDataTables" class="display">
+			<thead>
+				<tr>
+					<th>序号</th>
+					<th>集团名称</th>
+					<th>集团联系人</th>
+					<th>车主手机</th>
+					<th>终端手机</th>
+					<th>sn</th>
+					<th>版本号</th>
+					<th>定位器名称</th>
+					<th>业务类型</th>
+					<th>在线/离线</th>
+					<th>电量</th>
+					<th>开通时间</th>
+					<th>bt_name</th>
+					<th>bt_mac</th>
+					<th>删除</th>
+					<th>终端类型变更</th>
+					<!--2014.07.07 Jia Xiaolei. 暂时去掉“停用”功能。-->
+					<!--<th>开通时间</th><th>删除</th><th>终端启用/停用</th><th>终端类型变更</th>-->
+				</tr>
+			</thead>
+			
+			<tbody id="adminTbody">
+				
+				{% for business in businesses %}
+					<tr id="business{{business['tmobile']}}" >
+						<td>{{ business['seq'] }}</td>
+						<td>{{ business['ecname']}}</td>
+						<td>{{ business['cmobile']}}</td>
+						<td>
+							{{ business['umobile']}}
+						</td>
+						<td>{{ business['tmobile']}}</td>
+						<td>{{ business['tid']}}</td>
+						<td>{{ business['softversion']}}</td>
+						<td>{{ business['alias']}}</td>
+						<td>
+							{% if business['biz_type'] == 0 %}
+								移动卫士
+							{% else %}
+								移动外勤
+							{% end %}
+						</td>
+						<td>
+							{% if business['login'] == 0 %}
+								离线
+							{% else %}
+								<label class="lblOnline">在线</label>
+							{% end %}
+						</td>
+						<td>
+							{{business.pbat}}%
+						</td>
+						
+						<td>
+							<script>document.write(toHumanDate({{business.begintime}}, 'yes'));</script>
+						</td>
+						<td>
+							{{business.get('bt_name','__')}}
+						</td>
+						<td>
+							{{business.get('bt_mac','__')}}
+						</td>
+						<td>
+							<a href="#" onclick="fn_delTerminal({{business['tmobile']}}, {{ business['umobile'] }})">删除</a>
+						</td>
+						<!--
+						<td>
+												{% if business['service_status'] == 0 %}
+														<a href="#" onclick="businessStop({{business['tmobile']}}, {{business['seq']}});" service_status="{{business['service_status']}}" id="service_status{{business['seq']}}">启用</a>
+												{% else %}
+														<a href="#" onclick="businessStop({{business['tmobile']}}, {{business['seq']}});" service_status="{{business['service_status']}}"  id="service_status{{business['seq']}}">停用</a>
+												{% end %}
+						</td>
+						-->
+						<td>
+							<a href="#" onclick="bus_changeUserType('{{ business['ecname']}}',{{business['tmobile']}})">变更</a>
+						</td>
+					</tr>
+				{% end %}
+			</tbody>
+		</table>
+		<div style="display:none">
+			<input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'business_begin'}}"/>
+			<input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'business_end'}}"/>
+		</div>
+		<!-- 业务变更页面 -->
+		<div id="userTypeChangeDialog" title="业务变更" class="hide">
+			<table>
+				<tr>
+					<td>终端手机号：</td>
+					<td>
+						<label id="txt_changeTmobile" />
+						</td>
+					</tr>
+					<tr id="changeUserType_corpName">
+						<td>集团名称：</td>
+						<td>
+							<input type="text" id="changeUserType_input" class="j_userSelect" value="" />
+							<a id="changeUserType_sign" href="#"></a>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" align="center">
+							<input type="hidden" id="changeUserType_hidden" value="" />
+							<input type="button" width="100" value="变更" id="changUserTypeSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<!-- 登录账号修改-->
+			<div id="changeUserNameDialog" title="登录账号修改" class="hide">
+				<table>
+					<tr>
+						<td><label>当前账号：</label></td>
+						<td>
+							<label id="txt_oldUsername"></label>
+						</td>
+					</tr>
+					<tr>
+						<td><label for="txt_newChangeUsername">新账号：</label></td>
+						<td>
+							<input type="text" id="txt_newChangeUsername" class="text ui-widget-content ui-corner-all" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" align="center">
+							<input type="button" width="100" value="修改" id="changeUsernameSave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<!-- 删除终端 -->
+			<div id="deluserDialog" title="删除终端" class="hide">
+				<div class="deluser_titleTip">
+					是否删除该用户？
+				</div>
+				<div class="deluser_isClear">
+					<input type="checkbox" id="clearDataCk" />清除历史数据
+				</div>
+				<div class="deluser_btn">
+					<input type="button" width="100" value="确定" id="deluser_submit" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+					<input type="button" width="100" value="取消" id="deluser_cancel" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+				</div>
+			</div>
+		{% else %}
+			<div class="ui-widget" align="center">
+				<div class="errorbox ui-state-error ui-corner-all">
+					<span class="ui-icon ui-icon-alert" style="float: left; margin-left: 1em; margin-right: .5em;"></span>
+					<strong style="float: left;">操作错误：</strong>
+					<br />
+					<br />
+					{{ message }}
+				</div>
+				<br />
+				<a class="button" href="javascript:history.back(document.referrer);">返回</a>
+			</div>
+		{% end %}
+	{% end %}

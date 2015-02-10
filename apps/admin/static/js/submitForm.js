@@ -7,6 +7,8 @@ $(function () {
 	}
 });
 //formSubmit start end 
+
+// 查询的主要方法
 function formSubmit(option) {
 
 	var starttime = $('#start_time1').val()+' 00:00:00',
@@ -89,6 +91,7 @@ function formSubmit(option) {
 		}
 	}
 }
+
 // 新建用户 验证数据 
 function fn_validateForm () {
 	var $mobile  = $('#mobile'),	 // 手机
