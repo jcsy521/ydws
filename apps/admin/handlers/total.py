@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from os import SEEK_SET
-import datetime, time
-import logging
+import time
 import hashlib
+import xlwt
+from cStringIO import StringIO
 
 import tornado.web
-from tornado.escape import json_decode, json_encode
-from tornado.ioloop import IOLoop
-
-from constants import LOCATION, XXT
-from utils.dotdict import DotDict
 
 from mixin import BaseMixin
 from base import BaseHandler, authenticated
@@ -18,16 +14,8 @@ from excelheaders import TOTAL_HEADER_TOP, TOTAL_HEADER, TOTAL_FILE_NAME, TOTAL_
 
 from checker import check_areas, check_privileges 
 from codes.errorcode import ErrorCode 
-from utils.checker import check_sql_injection, check_zs_phone
-from utils.misc import get_terminal_address_key, get_terminal_sessionID_key,\
-     get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
-from helpers.smshelper import SMSHelper
-from helpers.seqgenerator import SeqGenerator
-from helpers.gfsenderhelper import GFSenderHelper
-from helpers.queryhelper import QueryHelper 
-from codes.smscode import SMSCode 
-from constants import PRIVILEGES, SMS, UWEB, GATEWAY
-from utils.misc import str_to_list, DUMMY_IDS, get_terminal_info_key
+from constants import PRIVILEGES
+
 
 class TotalMixin(BaseMixin):
 
@@ -160,12 +148,8 @@ class TotalDownloadHandler(BaseHandler, TotalMixin):
             self.render("errors/download.html")
             return
 
-        import xlwt
-        from cStringIO import StringIO
-
         filename = TOTAL_FILE_NAME
 
-        date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         wb = xlwt.Workbook()
         ws = wb.add_sheet(TOTAL_SHEET)
 

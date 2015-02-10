@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for report of offline.
+"""
+
 from os import SEEK_SET
-import datetime, time
+import time
 import logging
 import hashlib
-from decimal import Decimal
+import xlwt
+from cStringIO import StringIO
 
 import tornado.web
 from tornado.escape import json_decode, json_encode
 
-from constants import LOCATION, XXT
 from utils.dotdict import DotDict
-
 from mixin import BaseMixin
 from excelheaders import OFFLINE_HEADER, OFFLINE_SHEET, OFFLINE_FILE_NAME
 from base import BaseHandler, authenticated
 
 from checker import check_areas, check_privileges
-from codes.errorcode import ErrorCode 
-from constants import PRIVILEGES, SMS, UWEB 
+from codes.errorcode import ErrorCode
+from constants import PRIVILEGES, UWEB
 from helpers.queryhelper import QueryHelper
-from utils.misc import str_to_list, safe_utf8, safe_unicode, seconds_to_label, DUMMY_IDS
-from utils.checker import check_sql_injection
-from myutils import city_list
+from utils.misc import safe_unicode, seconds_to_label
 
 
 class OfflineMixin(BaseMixin):
@@ -30,9 +30,16 @@ class OfflineMixin(BaseMixin):
     KEY_TEMPLATE = "offline_report_%s_%s"
 
     def prepare_data(self, hash_):
+        """Associated with the post method.
 
+        workflow:
+
+        if get value according the hash:
+            return value
+        else:
+            retrieve the db and return the result.
+        """
         mem_key = self.get_memcache_key(hash_)
-        
         data = self.redis.getvalue(mem_key)
         if data:
             if isinstance(data, str):
@@ -42,17 +49,21 @@ class OfflineMixin(BaseMixin):
         start_time = int(self.get_argument('start_time', 0))
         end_time = int(self.get_argument('end_time', 0))
 
-        res_ = self.db.query("SELECT id, tid, softversion, owner_mobile AS umobile, mobile AS tmobile,"
-                             "  begintime, offline_time, login_time, pbat, remark, group_id"
+        res_ = self.db.query("SELECT id, tid, softversion,"
+                             "  owner_mobile AS umobile,"
+                             "  mobile AS tmobile, begintime, offline_time,"
+                             "  login_time, pbat, remark, group_id"
                              "  FROM T_TERMINAL_INFO"
-                             "  WHERE service_status = 1 AND login =0 AND mobile like '14778%%'"
-                             "  ORDER BY offline_time DESC, pbat")
+                             "  WHERE service_status = 1 AND login =0"
+                             "    AND mobile like '14778%%'"
+                             "    ORDER BY offline_time DESC, pbat")
 
         for item in res_:
-            item['alias'] = QueryHelper.get_alias_by_tid(item['tid'], self.redis, self.db) 
-            item['corp_name'] = u'' 
+            item['alias'] = QueryHelper.get_alias_by_tid(
+                item['tid'], self.redis, self.db)
+            item['corp_name'] = u''
             if item['group_id'] == -1:
-                item['user_type'] = UWEB.USER_TYPE.PERSON 
+                item['user_type'] = UWEB.USER_TYPE.PERSON
                 #item['user_type'] = u'个人账户' 
             else:
                 item['user_type'] = UWEB.USER_TYPE.CORP 
@@ -109,7 +120,8 @@ class OfflineHandler(BaseHandler, OfflineMixin):
     @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self):
-        
+        """Jump to the page, offline.html.
+        """
         self.render('report/offline.html',
                     status=ErrorCode.SUCCESS,
                     message='',
@@ -123,6 +135,9 @@ class OfflineHandler(BaseHandler, OfflineMixin):
     #@check_areas()
     @tornado.web.removeslash
     def post(self):
+        """QueryHelper terminals are offline according to the 
+        given parameters.
+        """
         m = hashlib.md5()
         m.update(self.request.body)
         hash_ = m.hexdigest()
@@ -140,6 +155,8 @@ class OfflineHandler(BaseHandler, OfflineMixin):
     #@check_areas()
     @tornado.web.removeslash
     def put(self):
+        """Modify the remark of the offline-terminal.
+        """
         ret = DotDict(status=ErrorCode.SUCCESS,
                               message=None)
         try:
@@ -153,6 +170,8 @@ class OfflineHandler(BaseHandler, OfflineMixin):
         except Exception as e:
             ret.status = ErrorCode.FAILED
             ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
+            logging.exception("[UWEB] Modify remark failed. body: %s, Exception: %s",
+                              self.request.body, e.args)
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))
 
@@ -163,7 +182,8 @@ class OfflineDownloadHandler(BaseHandler, OfflineMixin):
     @check_privileges([PRIVILEGES.STATISTIC])
     @tornado.web.removeslash
     def get(self, hash_):
-
+        """Download the records and save it as excel.
+        """
         mem_key = self.get_memcache_key(hash_)
 
         r = self.redis.getvalue(mem_key)
@@ -173,11 +193,6 @@ class OfflineDownloadHandler(BaseHandler, OfflineMixin):
             self.render("errors/download.html")
             return
 
-        import xlwt
-        from cStringIO import StringIO
-
-        date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
-        
         wb = xlwt.Workbook()
         ws = wb.add_sheet(OFFLINE_SHEET)
 
@@ -209,10 +224,11 @@ class OfflineDownloadHandler(BaseHandler, OfflineMixin):
             ws.write(i, 9, time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(result['login_time'])))
             ws.write(i, 10, seconds_to_label(result['offline_period']))
             ws.write(i, 11, u'低电关机' if result['offline_cause'] == 2 else u'通讯异常')
-            terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO where id = %s", result['id'])
+            terminal_offline = self.db.get("SELECT remark FROM T_TERMINAL_INFO"
+                                           "  WHERE id = %s", result['id'])
             ws.write(i, 12, safe_unicode(terminal_offline['remark']))
 
-            
+          
         _tmp_file = StringIO()
         wb.save(_tmp_file)
         filename = self.generate_file_name(OFFLINE_FILE_NAME)
@@ -220,7 +236,7 @@ class OfflineDownloadHandler(BaseHandler, OfflineMixin):
         self.set_header('Content-Type', 'application/force-download')
         self.set_header('Content-Disposition', 'attachment; filename=%s.xls' % (filename,))
 
-        # move the the begging. 
+        # move the the begging.
         _tmp_file.seek(0, SEEK_SET)
         self.write(_tmp_file.read())
         _tmp_file.close()

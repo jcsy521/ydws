@@ -1,9 +1,10 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+"""This module is designed for whitelist-handler.
+"""
 
 import logging
 import re
-import time
 import os
 import random
 import string
@@ -12,28 +13,33 @@ import xlrd
 import tornado.web
 from tornado.escape import json_decode
 
-from base import authenticated,BaseHandler
+from base import authenticated, BaseHandler
 from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
-from utils.checker import check_zs_phone, ZS_PHONE_CHECKER, check_phone
+from utils.checker import check_zs_phone, check_phone
 
 from checker import check_privileges
 from constants import PRIVILEGES, UWEB
+
 
 class WLSearchHandler(BaseHandler):
 
     @authenticated
     @check_privileges([PRIVILEGES.WHITELIST])
     def get(self):
+        """Jump to the page for whitelist-search.
+        """
         username = self.get_current_user()
         self.render('whitelist/whitelist.html',
-                    username = username)
+                    username=username)
 
     @authenticated
     @check_privileges([PRIVILEGES.WHITELIST])
     @tornado.web.removeslash
-    def post(self):   
+    def post(self):
+        """Query the white_list according to the given parameters.
+        """
         status = ErrorCode.SUCCESS
         try:
             data = json_decode(self.request.body)
@@ -49,32 +55,37 @@ class WLSearchHandler(BaseHandler):
                     else:
                         biz_type = 0
                 whitelist = DotDict(mobile=mobile, biz_type=biz_type)
-                self.write_ret(status, dict_=DotDict(whitelist=whitelist)) 
+                self.write_ret(status, dict_=DotDict(whitelist=whitelist))
             else:
                 status = ErrorCode.MOBILE_NOT_ORDERED
                 message = ErrorCode.ERROR_MESSAGE[status] % mobile
                 self.write_ret(status=status, message=message)
         except Exception as e:
-            logging.exception("Search whitelist failed.Terminal mobile: %s, owner mobile: %s", mobile)
+            logging.exception("Search whitelist failed.Terminal mobile: %s,"
+                              " owner mobile: %s", mobile)
             self.render('errors/error.html',
                         message=ErrorCode.FAILED)
 
+
 class AddWLHandler(BaseHandler):
-    
+
     @authenticated
     @check_privileges([PRIVILEGES.WHITELIST])
     @tornado.web.removeslash
     def post(self):
+        """Add a whitelist.
+        """
         status = ErrorCode.SUCCESS
         try:
             data = json_decode(self.request.body)
             mobile = data.get('mobile')
             biz_type = data.get('biz_type')
             if check_zs_phone(mobile, self.db):
-                status=ErrorCode.DATA_EXIST
+                status = ErrorCode.DATA_EXIST
                 self.write_ret(status)
             else:
-                self.db.execute("INSERT INTO T_BIZ_WHITELIST VALUES (NULL, %s, %s)", mobile, biz_type)
+                self.db.execute("INSERT INTO T_BIZ_WHITELIST" 
+                                "  VALUES (NULL, %s, %s)", mobile, biz_type)
                 self.write_ret(status)
         except Exception as e:
             logging.exception("Add whitelist failed.Terminal mobile: %s, owner mobile: %s", mobile)
@@ -84,25 +95,31 @@ class AddWLHandler(BaseHandler):
     @check_privileges([PRIVILEGES.WHITELIST])
     @tornado.web.removeslash
     def put(self):
+        """Modify a whitelist.
+        """
         status = ErrorCode.SUCCESS
         try:
             data = json_decode(self.request.body)
             mobile = data.get('mobile')
             biz_type = data.get('biz_type')
             if check_zs_phone(mobile, self.db):
-                white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST where mobile = %s LIMIT 1", mobile)
+                white_list = self.db.get("SELECT id FROM T_BIZ_WHITELIST"
+                                         "  WHERE mobile = %s LIMIT 1", mobile)
                 if white_list:
-                    self.db.execute("UPDATE T_BIZ_WHITELIST SET biz_type= %s WHERE mobile= %s", biz_type, mobile)
+                    self.db.execute("UPDATE T_BIZ_WHITELIST"
+                                    "  SET biz_type= %s "
+                                    "  WHERE mobile= %s", biz_type, mobile)
                 else:
                     self.db.execute("INSERT INTO T_BIZ_WHITELIST VALUES (NULL, %s, %s)", mobile, biz_type)
                 self.write_ret(status)
             else:
                 status = ErrorCode.MOBILE_NOT_ORDERED
-                message = ErrorCode.ERROR_MESSAGE[status] % mobile 
+                message = ErrorCode.ERROR_MESSAGE[status] % mobile
                 self.write_ret(status=status, 
                                message=message)
         except Exception as e:
-            logging.exception("Edit whitelist failed.Terminal mobile: %s, owner mobile: %s", mobile)
+            logging.exception("Edit whitelist failed. Terminal mobile: %s, "
+                              "  owner mobile: %s", mobile)
             self.render('errors/error.html', message=ErrorCode.FAILED)
 
 class WhitelistBatchImportHandler(BaseHandler):
@@ -128,7 +145,7 @@ class WhitelistBatchImportHandler(BaseHandler):
             logging.info("[UWEB] batch import.")
         except Exception as e:
             logging.info("[ADMIN] Invalid data format, Exception: %s",
-                          e.args) 
+                e.args) 
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
             return
@@ -182,7 +199,7 @@ class WhitelistBatchImportHandler(BaseHandler):
                   
         except Exception as e:
             logging.exception("[UWEB] Batch import failed. Exception: %s",
-                               e.args)
+                e.args)
             status = ErrorCode.ILLEGAL_FILE
             self.render("whitelist/fileUpload.html",
                         status=status,
@@ -195,6 +212,8 @@ class WhitelistBatchAddHandler(BaseHandler):
     @check_privileges([PRIVILEGES.WHITELIST])
     @tornado.web.removeslash
     def post(self):
+        """Batch add whitelist.
+        """
         try:
             data = DotDict(json_decode(self.request.body))
             mobiles = list(data.mobiles)
@@ -219,7 +238,8 @@ class WhitelistBatchAddHandler(BaseHandler):
             self.write_ret(status, 
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[UWEB] Batch add whitelist failed. Exception: %s",
+            logging.exception("[UWEB] Batch add whitelist failed. "
+                              " Exception: %s",
                               e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

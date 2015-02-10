@@ -10,10 +10,7 @@ import random
 import string
 import cStringIO
 import hashlib
-import datetime
 import os.path
-
-from utils.dotdict import DotDict
 
 from base import BaseHandler
 
@@ -85,7 +82,9 @@ class CaptchaHandler(BaseHandler):
         m = hashlib.md5()
         m.update(rand_str.lower())
         hash_ = m.hexdigest()
+   
+        # set hash_ in cookie
+        self.set_secure_cookie('captchahash', hash_, httponly=True)
 
-        self.set_cookie('captchahash', hash_)
         self.set_header('Content-type', 'image/GIF')
         self.write(buf.getvalue())

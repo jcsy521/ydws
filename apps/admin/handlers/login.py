@@ -1,5 +1,8 @@
 # -*- coding:utf-8 -*-
 
+"""This module is designed for login.
+"""
+
 import os.path
 import uuid
 import hashlib
@@ -31,7 +34,9 @@ class LoginHandler(BaseHandler, BaseMixin):
 
     @tornado.web.removeslash
     def get(self):
-        self.render("login.html", 
+        """Jump to the page login.html.
+        """
+        self.render("login.html",
                     username="",
                     password="",
                     message_captcha=None,
@@ -39,10 +44,13 @@ class LoginHandler(BaseHandler, BaseMixin):
 
     @tornado.web.removeslash
     def post(self):
+        """Check the parameters of login and check whether or not prevent it.
+        """
         login = self.get_argument('username', '')
         password = self.get_argument('password', '')
         captcha = self.get_argument('captcha', '')
-        captchahash = self.get_argument('captchahash', '')
+        # NOTE: Get captchahash from cookie
+        captchahash = self.get_secure_cookie("captchahash")
 
         # must check username and password avoid sql injection.
         if not login.isalnum():
@@ -60,6 +68,7 @@ class LoginHandler(BaseHandler, BaseMixin):
                         message_captcha=None,
                         message=ErrorCode.LOGIN_FAILED)
             return
+
         # check the captcha(hash)
         m = hashlib.md5()
         m.update(captcha.lower())
@@ -80,16 +89,16 @@ class LoginHandler(BaseHandler, BaseMixin):
                         login, password, XXT.VALID.VALID)
         if r:
             self.__log(r.id)
-            self.bookkeep(dict(id=r.id, 
+            self.bookkeep(dict(id=r.id,
                                session_id=uuid.uuid4().hex),
-                               quote(safe_utf8(r.name)))
+                          quote(safe_utf8(r.name)))
             # update the privilege_area for current user.(through BaseMixin)
             key = self.get_area_memcache_key(r.id)
             areas = self.get_privilege_area(r.id)
             self.redis.setvalue(key, areas)
 
             self.clear_cookie('captchahash')
-            self.redirect(self.get_argument("next","/"))
+            self.redirect(self.get_argument("next", "/"))
         else:
             self.render("login.html",
                         username=login,
@@ -98,6 +107,8 @@ class LoginHandler(BaseHandler, BaseMixin):
                         message=ErrorCode.LOGIN_FAILED)
 
     def __log(self, id):
+        """Keep the log of login.
+        """
         if 'X-Real-Ip' in self.request.headers:
             # work behind nginx
             remote_ip = self.request.headers['X-Real-Ip']
@@ -113,21 +124,24 @@ class LoginHistoryHandler(BaseHandler):
     @authenticated
     @tornado.web.removeslash
     def get(self):
-        logins = self.db.query("SELECT source, timestamp" 
+        """Get the latest 20 records of login.
+        """
+        logins = self.db.query("SELECT source, timestamp"
                                "  FROM T_ADMINISTRATOR_LOGIN_LOG"
                                "  WHERE administrator_id = %s"
                                "  ORDER BY id DESC"
                                "  LIMIT 20",
                                self.current_user.id)
+        #NOTE: get address form IP.
         # python-MySQLdb coverts the date to GMT internally.
         for item in logins:
-            item.timestamp = datetime.fromtimestamp(item.timestamp/1000)
+            item.timestamp = datetime.fromtimestamp(item.timestamp / 1000)
             address = qqwry.getRecordByIP(item.source)
             if address:
-                item.address = u'，'.join([address[2].decode('gbk'),
-                                         address[3].decode('gbk')])
+                item.address = u'，'.join(
+                    [address[2].decode('gbk'), address[3].decode('gbk')])
             else:
-                item.address = u'未知区域' 
+                item.address = u'未知区域'
         # logins.sort(key=lambda item: item.timestamp, reverse=True)
 
         self.render("login_history.html", logins=logins)

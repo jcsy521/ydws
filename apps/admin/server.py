@@ -22,13 +22,11 @@ try:
     #options['logging'].set('warning')
     options['logging'].set('info')
 except:
-    options.logging='warning'
+    options.logging = 'warning'
 
 from helpers.confhelper import ConfHelper
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
-
-from utils.dotdict import DotDict
 
 from handlers.main import MainHandler
 from handlers.captcha import CaptchaHandler
@@ -51,7 +49,7 @@ from handlers.ecsubscriber import ECSubscriberHandler, ECSubscriberDownloadHandl
 #from handlers.yearly import YearlyHandler, YearlyDownloadHandler
 #from handlers.monthly import MonthlyHandler, MonthlyDownloadHandler
 #from handlers.daily import DailyHandler, DailyDownloadHandler
-from handlers.online import OnlineHandler, OnlineDownloadHandler
+# from handlers.online import OnlineHandler, OnlineDownloadHandler
 from handlers.individual import IndividualHandler, IndividualDownloadHandler
 from handlers.enterprise import EnterpriseHandler, EnterpriseDownloadHandler
 from handlers.total import TotalHandler, TotalDownloadHandler
@@ -72,6 +70,7 @@ from handlers.ownerservice import OwnerServiceHandler, OwnerServiceDownloadHandl
 # ajt
 from handlers.whitelist_ajt import WhitelistAJTHandler, WhitelistAJTSearchHandler, WhitelistAJTBatchImportHandler,WhitelistAJTBatchAddHandler
 from handlers.testsms import TestSMSHandler
+
 
 class Application(tornado.web.Application):
 
@@ -112,7 +111,7 @@ class Application(tornado.web.Application):
             (r"/business/edit/(\S+)/*", BusinessEditHandler), 
             (r"/business/delete/(\S+)/(\S+)/(\S+)/*", BusinessDeleteHandler),
             (r"/business/service/(\S+)/(\S+)/*", BusinessServiceHandler),
-            
+
             # EC business
             (r"/ecbusiness/search/*", ECBusinessSearchHandler),
             (r"/ecbusiness/createec/*", ECBusinessCreateHandler),
@@ -142,8 +141,8 @@ class Application(tornado.web.Application):
 
 
             # whitelist search add update
-            (r"/whitelist_search",WLSearchHandler),
-            (r"/whitelist",AddWLHandler),
+            (r"/whitelist_search", WLSearchHandler),
+            (r"/whitelist", AddWLHandler),
             (r"/whitelist/batch/import/*", WhitelistBatchImportHandler),
             (r"/whitelist/batch/add/*", WhitelistBatchAddHandler),
 
@@ -188,7 +187,7 @@ class Application(tornado.web.Application):
             (r"/download/business/search/(.*)/*", BusinessSearchDownloadHandler),
             (r"/download/bindlog/(.*)/*", BindLogDownloadHandler),
             (r"/download/manuallog/(.*)/*", ManualLogDownloadHandler),
-	        (r"/download/location/(.*)/*", LocationSearchDownloadHandler),
+            (r"/download/location/(.*)/*", LocationSearchDownloadHandler),
             (r"/download/ownerservice/(.*)/*", OwnerServiceDownloadHandler), 
 
             (r"/activity/*", ActivityHandler),
@@ -198,9 +197,8 @@ class Application(tornado.web.Application):
 
             (r"/usertype/*", UserTypeHandler),
             (r"/username/*", UsernameHandler),
-            (r"/resetpassword/*", ResetPasswordHandler),
-            
-            ] 
+            (r"/resetpassword/*", ResetPasswordHandler),       
+            ]
 
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
@@ -226,8 +224,10 @@ def shutdown(server):
     except:
         pass
 
+
 def usage():
-    print "python26 server.py --conf=/path/to/conf_file --port=port_num"
+    print "python server.py --conf=/path/to/conf_file --port=port_num"
+
 
 def main():
     tornado.options.parse_command_line()
@@ -244,11 +244,12 @@ def main():
     http_server = None
     try:
         ConfHelper.load(options.conf)
-        http_server = tornado.httpserver.HTTPServer(Application(debug=debug_mode), xheaders=True)
+        http_server = tornado.httpserver.HTTPServer(Application(debug=debug_mode), 
+                                                                xheaders=True)
         http_server.listen(options.port)
         logging.warn("[admin] running on: localhost:%d", options.port)
         tornado.ioloop.IOLoop.instance().start()
-    except KeyboardInterrupt: # todo: SystemExit?
+    except KeyboardInterrupt:   # todo: SystemExit?
         logging.error("Ctrl-C is pressed.")
     except:
         logging.exception("[admin] Exit Exception")

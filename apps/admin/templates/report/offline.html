@@ -21,158 +21,155 @@
 <script type="text/javascript" src="/static/js/cacheQueryValues.js"></script>
 <script type="text/javascript" src="/static/js/report.js"></script>
 {% block body %}
-<fieldset class="ui-widget ui-widget-content ui-corner-all">
-	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-		<span class="ui-button-text">离线用户统计查询</span>
-	</legend>
-	<form method="post" action="" onsubmit="return formSubmit('individual');" id="formID">
-		<table class="searchTable0" id="report">
-			<tr>
-				<td align="right">离线原因：</td>
-				<td align="left">
-					<select id="offline_cause" name="offline_cause">
-						<option value="">全部</option>
-						<option value="1">通讯异常</option>
-						<option value="2">低电关机</option>
-					</select>
-				</td>
-				<td align="right">累计离线时间：</td>
-				<td align="left">
-					<select id="offline_period" name="offline_period">
-						<option value="">全部</option>
-						<option value="1">1天以内</option>
-						<option value="2">1天以上</option>
-						<option value="3">2天以上</option>
-						<option value="4">3天以上</option>
-					</select>
-				</td>
-				<td align="right">用户类型：</td>
-				<td align="left">
-					<select id="user_type" name="user_type">
-						<option value="">全部</option>
-						<option value="individual">个人</option>
-						<option value="enterprise">集团</option>
-					</select>
-				</td>
-				<td colspan="2" align="right">
-					<input type="submit" value="查询" 
-						onclick="fn_PushData('offline_cause,offline_period,user_type','individual');" 
-						class="ui-button ui-widget ui-state-default ui-corner-all" 
+	<fieldset class="ui-widget ui-widget-content ui-corner-all">
+		<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+			<span class="ui-button-text">离线用户统计查询</span>
+		</legend>
+		<form method="post" action="" onsubmit="return formSubmit('individual');" id="formID">
+			<table class="searchTable0" id="report">
+				<tr>
+					<td align="right">离线原因：</td>
+					<td align="left">
+						<select id="offline_cause" name="offline_cause">
+							<option value="">全部</option>
+							<option value="1">通讯异常</option>
+							<option value="2">低电关机</option>
+						</select>
+					</td>
+					<td align="right">累计离线时间：</td>
+					<td align="left">
+						<select id="offline_period" name="offline_period">
+							<option value="">全部</option>
+							<option value="1">1天以内</option>
+							<option value="2">1天以上</option>
+							<option value="3">2天以上</option>
+							<option value="4">3天以上</option>
+						</select>
+					</td>
+					<td align="right">用户类型：</td>
+					<td align="left">
+						<select id="user_type" name="user_type">
+							<option value="">全部</option>
+							<option value="individual">个人</option>
+							<option value="enterprise">集团</option>
+						</select>
+					</td>
+					<td colspan="2" align="right">
+						<input type="submit" value="查询"						
+						onclick="fn_PushData('offline_cause, offline_period, user_type', 'offline');"
+						class="ui-button ui-widget ui-state-default ui-corner-all"
 						role="button" aria-disabled="false" />
-				</td>
-			</tr>
-		</table>
-	</form>
-</fieldset>
-{% if len(res) > 0 %}
-<div class="resultQuery">
-    <div class="resultTitle">
-		<h3>查询结果</h3>
-		<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
-	</div>
-    <a id="exportData" href="/download/offline/{{hash_}}" 
-        class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-        <span class="ui-button-text">导出Excel</span>
-    </a>
-</div>
-{% end %}
-
-{% if len(res) > 0 %}
-	<table id="staticsTables" class="display j_reportTable">
-{% else %}
-	<table id="staticsTables" class="hide j_reportTable">
-{% end %}
-		<thead>
-			<tr>
-				<th>用户类型</th>
-				<th>集团名称</th>
-				<th>车主号</th>
-				<th>终端号</th>
-				<th>sn</th>
-				<th>版本号</th>
-				<th>定位器名称</th>
-				<th>离线时间</th>
-				<th>最近登录时间</th>
-				<th>累计离线时间</th>
-				<th>离线原因</th>
-				<th>电量</th>
-				<th>添加备注</th>
-			</tr>
-		</thead>
-		<tbody id="adminTbody">
-		{% for r in res %}
-			<tr>
-				<td>
-					{% if r['user_type'] == 'individual' %}
-						个人用户
-					{% else %}
-						集团用户
-					{% end %}</td>
-				<td>{{r['corp_name']}}</td>
-				<td>{{r['umobile']}}</td>
-				<td>{{r['tmobile']}}</td>
-				<td>{{r['tid']}}</td>
-				<td>{{r['softversion']}}</td>
-				<td>{{r['alias']}}</td>
-				<td>
-					<script>document.write(toHumanDate({{r['offline_time']}}));</script>
-				</td>
-
-                                <!-- last login_time -->
-				<td>
-					<script>document.write(toHumanDate({{r['login_time']}}));</script>
-				</td>
-
-				<td>
-					{% if r['offline_period'] >= 86400 and r['offline_period'] < 172800 %}
-						<label class="color37ABF8">
-					{% elif r['offline_period'] >= 172800 and r['offline_period'] < 259200 %}
-						<label class="warnCss">
-					{% elif r['offline_period'] >= 259200 %}
-						<label class="failed">
+					</td>
+				</tr>
+			</table>
+		</form>
+	</fieldset>
+	{% if len(res) > 0 %}
+		<div class="resultQuery">
+			<div class="resultTitle">
+				<h3>查询结果</h3>
+				<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
+			</div>
+			<a id="exportData" href="/download/offline/{{hash_}}"
+				class="button download ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+				<span class="ui-button-text">导出Excel</span>
+			</a>
+		</div>
+	{% end %}
+	{% if len(res) > 0 %}
+		<table id="staticsTables" class="display j_reportTable">
+		{% else %}
+			<table id="staticsTables" class="hide j_reportTable">
+			{% end %}
+			<thead>
+				<tr>
+					<th>用户类型</th>
+					<th>集团名称</th>
+					<th>车主号</th>
+					<th>终端号</th>
+					<th>sn</th>
+					<th>版本号</th>
+					<th>定位器名称</th>
+					<th>离线时间</th>
+					<th>最近登录时间</th>
+					<th>累计离线时间</th>
+					<th>离线原因</th>
+					<th>电量</th>
+					<th>添加备注</th>
+				</tr>
+			</thead>
+			<tbody id="adminTbody">
+				{% for r in res %}
+					<tr>
+						<td>
+							{% if r['user_type'] == 'individual' %}
+								个人用户
+							{% else %}
+								集团用户
+							{% end %}</td>
+							<td>{{r['corp_name']}}</td>
+							<td>{{r['umobile']}}</td>
+							<td>{{r['tmobile']}}</td>
+							<td>{{r['tid']}}</td>
+							<td>{{r['softversion']}}</td>
+							<td>{{r['alias']}}</td>
+							<td>
+								<script>document.write(toHumanDate({{r['offline_time']}}));</script>
+							</td>
+							<!-- last login_time -->
+							<td>
+								<script>document.write(toHumanDate({{r['login_time']}}));</script>
+							</td>
+							<td>
+								{% if r['offline_period'] >= 86400 and r['offline_period'] < 172800 %}
+									<label class="color37ABF8">
+										{% elif r['offline_period'] >= 172800 and r['offline_period'] < 259200 %}
+										<label class="warnCss">
+											{% elif r['offline_period'] >= 259200 %}
+											<label class="failed">
+											{% end %}
+											<script>document.write(fn_changeTimestampToString({{r['offline_period']}}));</script>
+										</label>
+									</td>
+									<td>
+										{% if r['offline_cause'] == 1 %}
+											<label class="color1435F0">通讯异常</label>
+										{% else %}
+											<label class="colorF50F1E">低电关机</label>
+										{% end %}
+									</td>
+									<td>{{r['pbat']}}%</td>
+									<td width="300px">
+										<input type="text" class="remarkBlurCss j_remark" title="{{r['remark']}}" value="{{r['remark'] if len(r['remark'])<=20 else r['remark'][:20]+"..."}}"  val="{{r['remark']}}" remarkId = {{r['id']}}  />
+										<!--<a href="#" class="j_addRemark" >编辑</a>-->
+									</td>
+								</tr>
+							{% end %}
+						</tbody>
+					</table>
+					{% if len(res) > 0 %}
+						<ul class="reportFields">
+							<li>
+								用户类型：个人或集团；
+							</li>
+							<li>
+								离线时间：终端的离线时间；
+							</li>
+							<li>
+								累计离线时间：从终端离线到现在的时间间隔，<label class="color000">1天以内(黑色)</label>、<label class="color37ABF8">1天以上(浅蓝色)</label>、<label class="warnCss">2天以上(黄色)</label>、<label class="failed">3天以上(红色)</label>；
+							</li>
+							<li>
+								离线原因：<label class="color1435F0">通讯异常</label>、低电关机(可参考"电量")；
+							</li>
+							<li>
+								电量：终端离线时的电量；
+							</li>
+							<li>
+								添加备注：点击要添加备注的单元格给离线终端添加备注；
+							</li>
+						</ul>
 					{% end %}
-						<script>document.write(fn_changeTimestampToString({{r['offline_period']}}));</script>
-					</label>
-				</td>
-				<td>
-					{% if r['offline_cause'] == 1 %}
-						<label class="color1435F0">通讯异常</label>
-					{% else %}
-						<label class="colorF50F1E">低电关机</label>
-					{% end %}
-				</td>
-				<td>{{r['pbat']}}%</td>
-				<td width="300px">
-					<input type="text" class="remarkBlurCss j_remark" title="{{r['remark']}}" value="{{r['remark'] if len(r['remark'])<=20 else r['remark'][:20]+"..."}}"  val="{{r['remark']}}" remarkId = {{r['id']}}  />
-					<!--<a href="#" class="j_addRemark" >编辑</a>-->
-				</td>
-			</tr>
-		{% end %}
-	</tbody>
-</table>
-{% if len(res) > 0 %}
-<ul class="reportFields">
-	<li>
-		用户类型：个人或集团；
-	</li>
-	<li>
-		离线时间：终端的离线时间；
-	</li>
-	<li>
-		累计离线时间：从终端离线到现在的时间间隔，<label class="color000">1天以内(黑色)</label>、<label class="color37ABF8">1天以上(浅蓝色)</label>、<label class="warnCss">2天以上(黄色)</label>、<label class="failed">3天以上(红色)</label>；
-	</li>
-	<li>
-		离线原因：<label class="color1435F0">通讯异常</label>、低电关机(可参考"电量")；
-	</li>
-	<li>
-		电量：终端离线时的电量；
-	</li>
-	<li>
-		添加备注：点击要添加备注的单元格给离线终端添加备注；
-	</li>
-</ul>
-{% end %}
-<script type="text/javascript">
-    fn_PopData('individual');
-</script>
-{% end %}
+					<script type="text/javascript">
+					fn_PopData('offline');
+					</script>
+				{% end %}

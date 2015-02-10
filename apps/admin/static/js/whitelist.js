@@ -41,6 +41,7 @@ $(function () {
 			}
 		});
 	});
+
 	// 新增初始化dialog
 	$('#addWhitelistDialog, #modifyWhitelistDialog').dialog({
 		autoOpen: false,
@@ -50,6 +51,7 @@ $(function () {
 		modal: true,
 		resizable: false
 	});
+
 	// 将号码加入白名单中事件侦听 
 	$('#whitelist_add').click(function(e) { 
 		if ( fn_validCookie() ) {
@@ -60,6 +62,7 @@ $(function () {
 		$('#addWhitelistDialog').attr('title', '新增白名单号码').dialog('option', 'title', '新增白名单号码').dialog( "open" );
 		
 	});
+
 	// 保存白名单事件
 	$('#addWhitelistSave').click(function(e) {
 		if ( fn_validCookie() ) {
@@ -82,6 +85,7 @@ $(function () {
 		});
 		
 	});
+
 	// 套餐修改保存事件
 	$('#modifyWhitelistSave').click(function(e) {
 		if ( fn_validCookie() ) {

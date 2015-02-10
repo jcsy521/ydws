@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import tornado.web
+"""This module is designed for main-handler.
+"""
 
 from base import BaseHandler, authenticated
 

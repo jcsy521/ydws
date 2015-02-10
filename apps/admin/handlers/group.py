@@ -1,24 +1,24 @@
 # -*- coding:utf-8 -*-
 
-import logging 
+"""This module is designed for statistic of enterprise.
+"""
+
 import hashlib
 from os import SEEK_SET
+import xlwt
+from cStringIO import StringIO
 
 import tornado.web
 
 from utils.dotdict import DotDict
-from constants import AREA, XXT
-from utils.misc import DUMMY_IDS
+from constants import XXT
 
 from mixin import BaseMixin
 from excelheaders import GROUP_HEADER, GROUP_FILE_NAME, GROUP_SHEET
 from base import BaseHandler, authenticated
-from mongodb.mgroup import MGroup, MGroupMixin
 
 from checker import check_areas, check_privileges
 from constants import PRIVILEGES
-from utils.misc import str_to_list
-from myutils import city_list
 
 
 class GroupMixin(BaseMixin):
@@ -39,10 +39,9 @@ class GroupMixin(BaseMixin):
         counts = DotDict(group=0,
                          target=0)
         if int(city) == 0:
-            cities = [city.city_id for city in self.cities]
+            cities = [c.city_id for c in self.cities]
         else:
-            cities = [city,] 
-
+            cities = [city, ]            
         cities = [int(c) for c in cities]
         optype_status = (XXT.OPER_TYPE.CREATE,
                          XXT.OPER_TYPE.RESUME,
@@ -53,7 +52,8 @@ class GroupMixin(BaseMixin):
                             city)
             if self.type == "1":
                 groups = self.db.query("SELECT txg.name, txg.xxt_id"
-                                       "  FROM T_XXT_GROUP AS txg, T_ADMINISTRATOR AS ta"
+                                       "  FROM T_XXT_GROUP AS txg,"
+                                       "       T_ADMINISTRATOR AS ta"
                                        "  WHERE txg.city_id = %s"
                                        "    AND txg.phonenum = ta.login"
                                        "    AND ta.id = %s",
@@ -144,10 +144,6 @@ class GroupDownloadHandler(BaseHandler, GroupMixin):
             self.render("errors/download.html")
             return
         results, counts = res
-
-        import xlwt
-        from cStringIO import StringIO
-        date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
         
         wb = xlwt.Workbook()
         ws = wb.add_sheet(GROUP_SHEET)
