@@ -207,7 +207,7 @@ $(function () {
 				if ( obj_terminalData ) {
 					if ( obj_tempPushData.timestamp >= obj_terminalData.timestamp ) {
 						obj_terminalData.pbat = obj_tempPushData.pbat;
-						obj_terminalData.timestamp = obj_tempPushData.timestamp;
+						obj_terminalData.timestamp = obj_tempPushData.gps_time;
 						obj_terminalData.clongitude = obj_tempPushData.clongitude;
 						obj_terminalData.clatitude = obj_tempPushData.clatitude;
 						obj_terminalData.longitude = obj_tempPushData.longitude;

@@ -212,7 +212,7 @@ $(function () {
 							arr_alarm.push(obj_tempPushData);
 						}
 						obj_terminalData.pbat = obj_tempPushData.pbat;
-						obj_terminalData.timestamp = obj_tempPushData.timestamp;
+						obj_terminalData.timestamp = obj_tempPushData.gps_time;
 						obj_terminalData.clongitude = obj_tempPushData.clongitude;
 						obj_terminalData.clatitude = obj_tempPushData.clatitude;
 						obj_terminalData.longitude = obj_tempPushData.longitude;
@@ -302,7 +302,7 @@ $(function () {
 						obj_leftTerminal.attr('alias', dlf.fn_decode(str_tempPushAlias));
 						obj_leftTerminal.html('<ins class="jstree-checkbox">&nbsp;</ins><ins class="jstree-icon">&nbsp;</ins>' + dlf.fn_encode(dlf.fn_dealAlias(str_tempPushAlias)))
 					}
-					if ( n_tempPushIconType ) {
+					if ( n_tempPushIconType || n_tempPushIconType == 0 ) {
 						obj_carDatas[str_tempPushTid].icon_type = n_tempPushIconType;
 						obj_leftTerminal.attr('icon_type', n_tempPushIconType);
 					}
