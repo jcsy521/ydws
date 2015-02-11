@@ -564,6 +564,7 @@ class PacketTaskMixin(object):
                     category=location['category'], 
                     type=location['type'], 
                     timestamp=timestamp,
+                    gps_time=location['gps_time'],
                     latitude=location.get('lat',0),
                     longitude=location.get('lon',0),
                     clatitude=location.get('cLat',0),
