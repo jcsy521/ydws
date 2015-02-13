@@ -18,7 +18,8 @@ class ConfigRespComposer(BaseComposer):
         for key in ['domain', 'freq', 'trace', 'static_val', 'move_val',
                     'trace_para', 'vibl','use_scene', 'stop_interval', 
                     'test', 'gps_enhanced', 'tracking_interval']:
-            packet += ",%s=%s" % (key.upper(), args[key])
+            if args.has_key(key):
+                packet += ",%s=%s" % (key.upper(), args[key])
         request = self.format_packet(packet)
         
         return request
