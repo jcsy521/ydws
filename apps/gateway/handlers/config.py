@@ -82,6 +82,24 @@ def handle_config(info, address, connection, channel, exchange, gw_binding, db, 
             args.move_val = move_val
             args.static_val = static_val 
 
+        #NOTE: check the version.
+        # if version is after 2.4, add tracking-interval in S17 
+        softversion = head['softversion']
+        item = softversion.split(".")
+        old_softversion = False 
+
+        if int(item[0]) < 2: # 1.x.x
+            old_softversion = True
+        elif int(item[0]) == 2: # 2.x.x
+            if int(item[1]) < 4: # 2.3.x
+                old_softversion = True 
+            else: # 2.4.x 
+                old_softversion = False 
+        else: # 3.x
+            old_softversion = False
+        if old_softversion:
+             del args['tracking_interval']
+
         if args['success'] == GATEWAY.RESPONSE_STATUS.SUCCESS: 
             acc_status_info_key = get_acc_status_info_key(dev_id) 
             acc_status_info = redis.getvalue(acc_status_info_key) 
