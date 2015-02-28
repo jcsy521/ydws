@@ -280,7 +280,7 @@ class Application(tornado.web.Application):
 
             # a secret url for delegation: uid/tid/sim, sign is provided via
             # ?s=xxxx
-            (r"/delegation/5Luj5a6i5pON5L2c/(.*)/(.*)/(.*)/*", DelegationHandler),
+            (r"/delegation/5Luj5a6i5pON5L2c/(.*)/(.*)/(.*)/(.*)/(.*)/*", DelegationHandler),
             
             (r"/checktmobile/(\d+)/*", CheckTMobileHandler),
             (r"/checkcnum/(\S+)/*", CheckCNumHandler),
