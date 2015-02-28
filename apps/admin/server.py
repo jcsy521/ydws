@@ -40,7 +40,7 @@ from handlers.administrator import AdministratorCreateHandler
 from handlers.administrator import AdministratorDeleteHandler
 from handlers.privgroup import * 
 from handlers.password import MyPasswordHandler, OtherPasswordHandler
-from handlers.delegate import DelegationHandler, DelegationLogHandler
+from handlers.delegate import DelegationHandler, DelegationIndividualHandler, DelegationEnterpriseHandler, DelegationLogHandler
 from handlers.business import * 
 from handlers.ecbusiness import * 
 from handlers.whitelist import WLSearchHandler, AddWLHandler, WhitelistBatchImportHandler, WhitelistBatchAddHandler 
@@ -102,6 +102,8 @@ class Application(tornado.web.Application):
 
             # delegation
             (r"/delegation/*", DelegationHandler),
+            (r"/delegation/individual/*", DelegationIndividualHandler),
+            (r"/delegation/enterprise/*", DelegationEnterpriseHandler),
             (r"/delegation/log/*", DelegationLogHandler),
 
             # business 

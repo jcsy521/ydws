@@ -3,7 +3,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>移动卫士后台管理系统</title>
-        <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery.min.js"></script>
 		<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
 		<link href="/static/css/jquery-ui.css"rel="stylesheet"type="text/css"/>
 		<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
@@ -17,236 +17,241 @@
 		<script type="text/javascript" src="/static/js/initialize.js"></script>
 		<script type="text/javascript" src="/static/js/submitForm.js"></script>
 	</head>
-    {% block body %}
-	<div id="logo" class="ui-widget-header ui-corner-all">
-		移动卫士后台系统 v1.0
-	</div>
-	<div id="content">
-		<div id="left">
-			<div class="ui-widget ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 5px;">
-			  <span class="ui-icon ui-icon-person" style="float: left; margin-right: .5em"></span>
-			  <div id="loginUser" style="display: inline;"></div>
-			</div>
-			<div id="accordion">
-				<h3><a href="#">登录历史</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/loginhistory');">
-							<a href="#">登录历史</a>
-						</li>
-					</ul>
+	{% block body %}
+		<div id="logo" class="ui-widget-header ui-corner-all">
+			移动卫士后台系统 v1.0
+		</div>
+		<div id="content">
+			<div id="left">
+				<div class="ui-widget ui-state-highlight ui-corner-all" style="margin-bottom: 10px; padding: 5px;">
+					<span class="ui-icon ui-icon-person" style="float: left; margin-right: .5em"></span>
+					<div id="loginUser" style="display: inline;"></div>
 				</div>
-				<h3><a href="#">个人信息</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/administrator/me');">
-							<a href="#">基本信息</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/administrator/password/me');">
-							<a href="#">修改密码</a>
-						</li>
-					</ul>
-				</div>
-				{% if is_ajt == 0 %}
-				<h3><a href="#">系统管理</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li class="ultoggle">
-							<span id="adminUser">后台用户管理</span>
-							<ul class="hideul" id="toggle">
-								<li onclick="fn_CreateIframeSrc('/administrator/search');">
-									<a href="#">查询后台用户</a>
+				<div id="accordion">
+					<h3><a href="#">登录历史</a></h3>
+					<div>
+						<ul class="cUlItem">
+							<li onclick="fn_CreateIframeSrc('/loginhistory');">
+								<a href="#">登录历史</a>
+							</li>
+						</ul>
+					</div>
+					<h3><a href="#">个人信息</a></h3>
+					<div>
+						<ul class="cUlItem">
+							<li onclick="fn_CreateIframeSrc('/administrator/me');">
+								<a href="#">基本信息</a>
+							</li>
+							<li onclick="fn_CreateIframeSrc('/administrator/password/me');">
+								<a href="#">修改密码</a>
+							</li>
+						</ul>
+					</div>
+					{% if is_ajt == 0 %}
+						<h3><a href="#">系统管理</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li class="ultoggle">
+									<span id="adminUser">后台用户管理</span>
+									<ul class="hideul" id="toggle">
+										<li onclick="fn_CreateIframeSrc('/administrator/search');">
+											<a href="#">查询后台用户</a>
+										</li>
+										<li onclick="fn_CreateIframeSrc('/administrator/create');">
+											<a id="a_creatPerson" href="#">新增后台用户</a>
+										</li>
+									</ul>
 								</li>
-								<li onclick="fn_CreateIframeSrc('/administrator/create');">
-									<a id="a_creatPerson" href="#">新增后台用户</a>
+								<li onclick="fn_CreateIframeSrc('/privgroup/list');">
+									<a href="#">权限组管理</a>
 								</li>
-							</ul>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/privgroup/list');">
-							<a href="#">权限组管理</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/administrator/password/other');">
-							<a href="#">密码管理</a>
-						</li>
-					</ul>
-				</div>
-				<h3><a href="#">代客操作</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li id="begDelegation" onclick="fn_CreateIframeSrc('/delegation');">
-							<a href="#">代客操作</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/delegation/log');">
-							<a href="#">代客查询</a>
-						</li>
-					</ul>
-				</div>
-				<h3><a href="#">业务受理</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/business/create');">
-							<a href="#">个人用户</a>
-						</li>
-						<li class="ultoggle">
-							<span id="CorprationUser">集团用户</span>
-							<ul class="hideul" id="toggle1">
-								<li onclick="fn_CreateIframeSrc('/ecbusiness/createec');">
-									<a href="#">新增集团</a>
-								</li>
-								<li onclick="fn_CreateIframeSrc('/ecbusiness/addterminal');">
-									<a href="#">新增终端</a>
+								<li onclick="fn_CreateIframeSrc('/administrator/password/other');">
+									<a href="#">密码管理</a>
 								</li>
 							</ul>
-						</li>
-					</ul>
+						</div>
+						<h3><a href="#">代客操作</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li id="begDelegation" onclick="fn_CreateIframeSrc('/delegation');">
+									<a href="#">代客操作(终端)</a>
+								</li>
+								<li id="begDelegationIndividual" onclick="fn_CreateIframeSrc('/delegation/individual');">
+									<a href="#">代客操作(个人)</a>
+								</li>
+									<li id="begDelegationEnterprise" onclick="fn_CreateIframeSrc('/delegation/enterprise');">
+									<a href="#">代客操作(集团)</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/delegation/log');">
+									<a href="#">代客查询</a>
+								</li>
+							</ul>
+						</div>
+						<h3><a href="#">业务受理</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li onclick="fn_CreateIframeSrc('/business/create');">
+									<a href="#">个人用户</a>
+								</li>
+								<li class="ultoggle">
+									<span id="CorprationUser">集团用户</span>
+									<ul class="hideul" id="toggle1">
+										<li onclick="fn_CreateIframeSrc('/ecbusiness/createec');">
+											<a href="#">新增集团</a>
+										</li>
+										<li onclick="fn_CreateIframeSrc('/ecbusiness/addterminal');">
+											<a href="#">新增终端</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+						<h3><a href="#">业务查询</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li onclick="fn_CreateIframeSrc('/business/search');">
+									<a href="#">用户查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/ecbusiness/search');">
+									<a id="a_creatPerson" href="#">集团查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/resetpassword');">
+									<a id="a_resetUserPwd" href="#">用户密码管理</a>
+								</li>
+							</ul>
+						</div>
+						<h3><a href="#">终端信息查询</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li onclick="fn_CreateIframeSrc('/bindlog');">
+									<a href="#">终端绑定记录查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/manuallog');">
+									<a href="#">终端设防记录查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/notification');">
+									<a href="#">终端里程提醒查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/register');">
+									<a href="#">终端注册限制查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/setting');">
+									<a href="#">终端参数查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/location');">
+									<a href="#">终端位置查询</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/testsms');">
+									<a href="#">终端Test短信查询</a>
+								</li>
+							</ul>
+						</div>
+						<!--<h3><a href="#">业务统计</a></h3>
+						<div>
+								<ul class="cUlItem">
+										<li onclick="fn_CreateIframeSrc('/report/subscriber');">
+												<a href="#">地市用户统计</a>
+										</li>
+										<li onclick="fn_CreateIframeSrc('/report/ecsubscriber');">
+												<a href="#">集团用户统计</a>
+										</li>
+								</ul>
+						</div>-->
+						<h3><a href="#">报表统计</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<!--<li onclick="fn_CreateIframeSrc('/report/daily');"">
+										<a href="#">业务日报</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/report/monthly');"">
+										<a href="#">业务月报</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/report/yearly');">
+										<a href="#">业务年报</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/report/online');">
+										<a href="#">在线统计</a>
+								</li>-->
+								<li onclick="fn_CreateIframeSrc('/report/total');">
+									<a href="#">所有用户统计</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/report/individual');">
+									<a href="#">个人用户统计</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/report/enterprise');">
+									<a href="#">集团用户统计</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/report/offline');">
+									<a href="#">离线用户统计(实时)</a>
+								</li>
+								<!--<li onclick="fn_CreateIframeSrc('/report/fule');">
+										<a href="#">油耗统计</a>
+								</li>-->
+							</ul>
+						</div>
+						<h3><a href="#">白名单</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li onclick="fn_CreateIframeSrc('/whitelist_search');">
+									<a href="#">白名单</a>
+								</li>
+							</ul>
+						</div>
+					{% end %}
+					{% if is_ajt == 1 %}
+						<h3><a href="#">安捷通白名单</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li onclick="fn_CreateIframeSrc('/whitelist_ajt');">
+									<a href="#">安捷通</a>
+								</li>
+							</ul>
+						</div>
+					{% end %}
+					{% if is_ajt == 0 %}
+						<h3><a href="#">活动管理</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li onclick="fn_CreateIframeSrc('/activity');">
+									<a href="#">活动管理</a>
+								</li>
+								<li onclick="fn_CreateIframeSrc('/ownerservice');">
+									<a href="#">车主服务查询</a>
+								</li>
+							</ul>
+						</div>
+						<h3><a href="#">APK管理</a></h3>
+						<div>
+							<ul class="cUlItem">
+								<li onclick="fn_CreateIframeSrc('/apk');">
+									<a href="#">APK管理</a>
+								</li>
+							</ul>
+						</div>
+					{% end %}
+					<h3><a href="#">退出</a></h3>
+					<div>
+						<ul class="cUlItem">
+							<li><a href="#" onclick="if(confirm('你确定要退出吗？'))location.href='/logout';">退出</a></li>
+						</ul>
+					</div>
 				</div>
-				<h3><a href="#">业务查询</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/business/search');">
-							<a href="#">用户查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/ecbusiness/search');">
-							<a id="a_creatPerson" href="#">集团查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/resetpassword');">
-							<a id="a_resetUserPwd" href="#">用户密码管理</a>
-						</li>
-					</ul>
-				</div>
-				<h3><a href="#">终端信息查询</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/bindlog');">
-							<a href="#">终端绑定记录查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/manuallog');">
-							<a href="#">终端设防记录查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/notification');">
-							<a href="#">终端里程提醒查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/register');">
-							<a href="#">终端注册限制查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/setting');">
-							<a href="#">终端参数查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/location');">
-							<a href="#">终端位置查询</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/testsms');">
-							<a href="#">终端Test短信查询</a>
-						</li>
-					</ul>
-				</div>
-				<!--<h3><a href="#">业务统计</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/report/subscriber');">
-							<a href="#">地市用户统计</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/ecsubscriber');">
-							<a href="#">集团用户统计</a>
-						</li>
-					</ul>
-				</div>-->
-				<h3><a href="#">报表统计</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<!--<li onclick="fn_CreateIframeSrc('/report/daily');"">
-							<a href="#">业务日报</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/monthly');"">
-							<a href="#">业务月报</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/yearly');">
-							<a href="#">业务年报</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/online');">
-							<a href="#">在线统计</a>
-						</li>-->
-						<li onclick="fn_CreateIframeSrc('/report/total');">
-							<a href="#">所有用户统计</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/individual');">
-							<a href="#">个人用户统计</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/enterprise');">
-							<a href="#">集团用户统计</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/report/offline');">
-							<a href="#">离线用户统计(实时)</a>
-						</li>
-						<!--<li onclick="fn_CreateIframeSrc('/report/fule');">
-							<a href="#">油耗统计</a>
-						</li>-->
-					</ul>
-				</div>
-				<h3><a href="#">白名单</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/whitelist_search');">
-							<a href="#">白名单</a>
-						</li>
-					</ul>
-				</div>
-				{% end %}
-				{% if is_ajt == 1 %}
-				<h3><a href="#">安捷通白名单</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/whitelist_ajt');">
-							<a href="#">安捷通</a>
-						</li>
-					</ul>
-				</div>
-				{% end %}
-				{% if is_ajt == 0 %}
-				<h3><a href="#">活动管理</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/activity');">
-							<a href="#">活动管理</a>
-						</li>
-						<li onclick="fn_CreateIframeSrc('/ownerservice');">
-							<a href="#">车主服务查询</a>
-						</li>
-					</ul>
-				</div>
-				<h3><a href="#">APK管理</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li onclick="fn_CreateIframeSrc('/apk');">
-							<a href="#">APK管理</a>
-						</li>
-					</ul>
-				</div>
-				{% end %}
-				<h3><a href="#">退出</a></h3>
-				<div>
-					<ul class="cUlItem">
-						<li><a href="#" onclick="if(confirm('你确定要退出吗？'))location.href='/logout';">退出</a></li>
-					</ul>
-				</div>
-			</div>
 			<ul id="cacheDatas" style="display:none;"></ul>
 			<input type="hidden" id="loginIf" value="captchaimg" />
 			<div style="display:none;" id="totals"></div>
 		</div>
 		<div id="right">
-			{% block contents %}{% end %}
-		</div>
-		<div id="msg" class="msg">
-			<strong class="msgContent">
-				<span id="layerMsgContent">页面数据正在加载中...</span>
-				<img src="/static/image/blue-wait.gif"></img>
-			</strong>
-		</div>
-		<div id="maskLayer" class="iLayer">
-			<iframe scrolling="no" frameborder="0" style="width:100%; height:100%; top:0px; left:0px; position:absolute; z-index:-1; filter: alpha(opacity=20);"> 
-			</iframe>
-		</div>
+		{% block contents %}{% end %}
 	</div>
+	<div id="msg" class="msg">
+		<strong class="msgContent">
+		<span id="layerMsgContent">页面数据正在加载中...</span>
+		<img src="/static/image/blue-wait.gif"></img>
+		</strong>
+	</div>
+	<div id="maskLayer" class="iLayer">
+		<iframe scrolling="no" frameborder="0" style="width:100%; height:100%; top:0px; left:0px; position:absolute; z-index:-1; filter: alpha(opacity=20);">
+		</iframe>
+	</div>
+</div>
 {% end %}
-

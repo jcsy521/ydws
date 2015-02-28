@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for activity.
+"""
+
 import os
-import datetime, time
 APK_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/apk"))
 import logging
 
 import tornado.web
 
 from utils.dotdict import DotDict
-from codes.errorcode import ErrorCode 
+from codes.errorcode import ErrorCode
 from utils.misc import safe_utf8, str_to_list, DUMMY_IDS
-from utils.checker import check_filename 
+from utils.checker import check_filename
 
 from checker import check_privileges
 from constants import PRIVILEGES, UWEB
@@ -42,8 +44,9 @@ class ApkHandler(BaseHandler):
             upload_file = self.request.files['fileupload'][0]
             filename = safe_utf8(upload_file['filename'])
         except Exception as e:
-            logging.info("[ADMIN] Apk upload failed, exception:%s", e.args)
-            status = ErrorCode.FAILED 
+            logging.exception("[ADMIN] Apk upload failed, exception:%s", 
+                              e.args)
+            status = ErrorCode.FAILED
             self.write_ret(status) 
             return
 
@@ -120,6 +123,8 @@ class ApkListHandler(BaseHandler):
     @check_privileges([PRIVILEGES.APK])
     @tornado.web.removeslash
     def post(self):
+        """Show all activities.
+        """
         status = ErrorCode.SUCCESS
         try:
             res = self.db.query("SELECT id, versioncode, versionname, versioninfo,"
@@ -128,6 +133,7 @@ class ApkListHandler(BaseHandler):
             self.write_ret(status=status, 
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[ADMIN] Get apk list failed.")
+            logging.exception("[ADMIN] Get Apk list failed. Exception: %s",
+                              e.args)
             status = ErrorCode.SUCCESS
             self.write_ret(status=status) 

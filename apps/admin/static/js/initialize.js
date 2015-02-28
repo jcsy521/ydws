@@ -1,74 +1,87 @@
-$(document).ready(function () {
-	$.ajaxSetup({cache: false});
-    $("button, input:submit, input:reset, .button").button();
-	$("#accordion").accordion({autoHeight: false,navigation: true});
-	
-    $('#begDelegation').click(function () {
-        $('.hideLeft').show();
-    });
-		
+$(document).ready(function() {
+	$.ajaxSetup({
+		cache: false
+	});
+	$("button, input:submit, input:reset, .button").button();
+	$("#accordion").accordion({
+		autoHeight: false,
+		navigation: true
+	});
+
+	$('#begDelegation').click(function() {
+		$('.hideLeft').show();
+	});
+
 	/*
-		*index  loginhistory dataTable style
-	*/
+	 *index  loginhistory dataTable style
+	 */
 	$('#loginhistory').dataTable({
-		"aaSorting": [[0, "desc" ]],
+		"aaSorting": [
+			[0, "desc"]
+		],
 		"bScrollCollapse": true,
 		"bJQueryUI": true,
 		"bProcessing": true,
 		"sPaginationType": "full_numbers",
 		"oLanguage": {
-			"sUrl":"/static/js/dataTables.zh_CN.txt"
+			"sUrl": "/static/js/dataTables.zh_CN.txt"
 		}
 	});
-	
-    $('#loginhistory tr').hover(
-		function(){
+
+	$('#loginhistory tr').hover(
+		function() {
 			$(this).children().css({
-				'background-color' : '#87CEFF'
+				'background-color': '#87CEFF'
 			});
-		},function(){
+		},
+		function() {
 			$(this).children().removeAttr('style');
 		}
 	);
 
-	$('.hideLeft').toggle(function () {
+	$('.hideLeft').toggle(function() {
 		$('#left').hide();
-		$('#right').css({'width':'99%'});
+		$('#right').css({
+			'width': '99%'
+		});
 		$('.hideLeft').hide();
-        $('.hideRight').show();
-	}, function () {
+		$('.hideRight').show();
+	}, function() {
 		$('#left').show();
-		$('#right').css({'width':'82%'});
-        $('.hideLeft').show();
-        $('.hideRight').hide();
+		$('#right').css({
+			'width': '82%'
+		});
+		$('.hideLeft').show();
+		$('.hideRight').hide();
 	});
-    $('#adminUser').click(function () {
-        $('#toggle').toggle('fast');
-    });
-	$('#CorprationUser').click(function () {
-        $('#toggle1').toggle('fast');
-    });
-	
+	$('#adminUser').click(function() {
+		$('#toggle').toggle('fast');
+	});
+	$('#CorprationUser').click(function() {
+		$('#toggle1').toggle('fast');
+	});
+
 	// set left and right width 
 	var n_width = $(window).width() - 20;
-	$('#logo').width(n_width-15);
+	$('#logo').width(n_width - 15);
 	$('#content').width(n_width);
 	$('#right').width(n_width - 180);
 
 	$(window).resize(function() {
 		var n_width = $(window).width() - 20;
-		$('#logo').width(n_width-15);
+		$('#logo').width(n_width - 15);
 		$('#content').width(n_width);
 		$('#right').width(n_width - 180);
 	});
 });
+
 /*
-	*点击左侧菜单获得URL传递给 iframe的src
-*/
+ *点击左侧菜单获得URL传递给 iframe的src
+ */
 function fn_CreateIframeSrc(url) {
-	if ( url == '/user/search' ) {
+	if (url == '/user/search') {
 		var element = document.getElementById('cacheDatas');
 		$(element).children().remove();
 	}
-	$('#contantIframe').attr('src',url);
+	$('#contantIframe').attr('src', url);
 }

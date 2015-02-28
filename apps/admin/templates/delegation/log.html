@@ -3,7 +3,7 @@
 <link href="/static/css/jquery-ui.css"rel="stylesheet" type="text/css"/>
 <script src="/static/js/lockScreen.js"></script>
 <script type="text/javascript">
-	fn_lockScreen();
+fn_lockScreen();
 </script>
 <link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
 <link rel="stylesheet" href="/static/css/validationEngine.jquery.css" type="text/css" charset="utf-8" />
@@ -20,104 +20,103 @@
 <script type="text/javascript" src="/static/js/cacheQueryValues.js"></script>
 <script type="text/javascript" src="/static/js/submitForm.js"></script>
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
-
 {% block body %}
-<fieldset class="ui-widget ui-widget-content ui-corner-all">
-	<legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
-		<span class="ui-button-text">代客操作查询</span>
-	</legend>
-	<form id="formID" method="post" action="" onsubmit="return formSubmit();">
-		<table id="searchTable" align="left">
-			<tr>
-				<td align="right">登录名：</td>
-				<td align="left"> 
-                    <input type="text" name="login" id="logina" onKeyUp="fn_textKeyUp(this, 'user')" />
-                </td>
-			</tr>
-            <tr>
-				<td align="right">车主姓名：</td>
-				<td align="left"> 
-                    <input type="text" name="user_name" id="user_name" onKeyUp="fn_textKeyUp(this, 'text')" />
-                </td>
-			</tr>
-            <tr>
-				<!--<td align="right">操作员姓名：</td>
-				<td align="left">
-                    <input type="text" name="administrator" id="administrator" 
-                       class="validate[sp_char_space,length[40]]" onKeyUp="fn_textKeyUp(this, 'text')" />
-                </td>-->
-				<td>终端手机号：</td>
-				<td><input type="text" name="tmobile" id ="tmobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" /></td>
-			</tr>
-		</table>
-		<table>
-            <tr>
-				<td align="right">车主手机号：</td>
-				<td align="left"> 
-                    <input type="text" name="mobile" id ="mobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
-                </td>
-			</tr>
-			<tr>
-				<td align="right">代操作起始时间：</td>
-				<td align="left"> 
-                    <input type="text" name="start_time1" id="start_time1" readonly="true" />
-                </td>
-			</tr>
-			<tr>
-				<td align="right">代操作终止时间：</td>
-				<td align="left"> 
-                    <input type="text" name="end_time1" id="end_time1" readonly="true" />
-                </td>
-			</tr>
-			<tr>
-				<td align="right" colspan="2">
-					<input type="hidden" id="start_time" name="start_time" value="" />
-					<input type="hidden" id="end_time" name="end_time" value="" />
-					<input type="submit" value="查询" 
-                        onclick="fn_PushData('logina,user_name,tmobile,mobile','delegLog');" 
-                        class="ui-button ui-widget ui-state-default ui-corner-all" role="button" 
+    <fieldset class="ui-widget ui-widget-content ui-corner-all">
+        <legend class="button legend ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button">
+            <span class="ui-button-text">代客操作查询</span>
+        </legend>
+        <form id="formID" method="post" action="" onsubmit="return formSubmit();">
+            <table id="searchTable" align="left">
+                <tr>
+                    <td align="right">登录名：</td>
+                    <td align="left">
+                        <input type="text" name="login" id="logina" onKeyUp="fn_textKeyUp(this, 'user')" />
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">车主姓名：</td>
+                    <td align="left">
+                        <input type="text" name="user_name" id="user_name" onKeyUp="fn_textKeyUp(this, 'text')" />
+                    </td>
+                </tr>
+                <tr>
+                    <!--<td align="right">操作员姓名：</td>
+                    <td align="left">
+                        <input type="text" name="administrator" id="administrator"
+                        class="validate[sp_char_space,length[40]]" onKeyUp="fn_textKeyUp(this, 'text')" />
+                    </td>-->
+                    <td>终端手机号：</td>
+                    <td><input type="text" name="tmobile" id ="tmobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" /></td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td align="right">车主手机号：</td>
+                    <td align="left">
+                        <input type="text" name="mobile" id ="mobile" maxlength="11" onKeyUp="fn_textKeyUp(this, 'tel')" />
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">代操作起始时间：</td>
+                    <td align="left">
+                        <input type="text" name="start_time1" id="start_time1" readonly="true" />
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">代操作终止时间：</td>
+                    <td align="left">
+                        <input type="text" name="end_time1" id="end_time1" readonly="true" />
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right" colspan="2">
+                        <input type="hidden" id="start_time" name="start_time" value="" />
+                        <input type="hidden" id="end_time" name="end_time" value="" />
+                        <input type="submit" value="查询"
+                        onclick="fn_PushData('logina,user_name,tmobile,mobile','delegLog');"
+                        class="ui-button ui-widget ui-state-default ui-corner-all" role="button"
                         aria-disabled="false" />
-				</td>
-			</tr>
-		</table>
-	</form>
-</fieldset>
-<div class="resultQuery">
-   <div class="resultTitle">
-		<h3>查询结果</h3>		
-		<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
-	</div>
-</div>
-<table id="rDataTables" class="display">
-    <thead>
-        <tr>
-            <th>序号</th><th>操作员姓名</th><th>登陆名</th><th>车主姓名</th><th>终端手机号</th><th>操作时间</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for log in logs %}
-		<tr>
-			<td>{{log['id']}}</td>
-			<td>{{log.administrator}}</td>
-			<td>{{log.login}}</td>
-			<td>{{log.user_name}} </td>
-			<td>{{log.tmobile}} </td>
-			{% if log.timestamp %}
-				<td><script>document.write(toHumanDate({{log.timestamp}}, 'yes'));</script></td>
-			{% else %}
-				<td></td>
-			{% end %}
-		</tr>
-		{% end %}
-    </tbody>
-</table>
-<div id="delegationList">
-</div>
-<div style="display:none">
-	<input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'start'}}"/>
-	<input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'end'}}"/>
-</div>
-<script type="text/javascript">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </fieldset>
+    <div class="resultQuery">
+        <div class="resultTitle">
+            <h3>查询结果</h3>
+            <span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
+        </div>
+    </div>
+    <table id="rDataTables" class="display">
+        <thead>
+            <tr>
+                <th>序号</th><th>操作员姓名</th><th>登陆名</th><th>车主姓名</th><th>终端手机号</th><th>操作时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{log['id']}}</td>
+                    <td>{{log.administrator}}</td>
+                    <td>{{log.login}}</td>
+                    <td>{{log.user_name}} </td>
+                    <td>{{log.tmobile}} </td>
+                    {% if log.timestamp %}
+                        <td><script>document.write(toHumanDate({{log.timestamp}}, 'yes'));</script></td>
+                    {% else %}
+                        <td></td>
+                    {% end %}
+                </tr>
+            {% end %}
+        </tbody>
+    </table>
+    <div id="delegationList">
+    </div>
+    <div style="display:none">
+        <input type="text" id="start_temp" value="{{interval[0] if len(interval) != 0 else 'start'}}"/>
+        <input type="text" id="end_temp" value="{{interval[1] if len(interval) != 0 else 'end'}}"/>
+    </div>
+    <script type="text/javascript">
     fn_PopData('delegLog');
-</script>
+    </script>
 {% end %}

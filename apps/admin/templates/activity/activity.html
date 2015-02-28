@@ -9,7 +9,6 @@
 <script src="/static/js/jquery.dataTables.min.js"></script>
 <link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
 <link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
-
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
 <script type="text/javascript" src="/static/js/dateChoose.js"></script>
 <script type="text/javascript" src="/static/js/activity.js"></script>
@@ -23,12 +22,12 @@
 		<div class="ui-log-panel">
 			<table class="searchTable0">
 				<!--<tr>
-					<td align="right">开始时间：</td>
-					<td align="left"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
+							<td align="right">开始时间：</td>
+							<td align="left"><input type="text" name="start_time1" id="start_time1" readonly="true" /></td>
 				</tr>
 				<tr>
-					<td align="right">结束时间：</td>
-					<td><input type="text" name="end_time1" id="end_time1" readonly="true" /></td>
+							<td align="right">结束时间：</td>
+							<td><input type="text" name="end_time1" id="end_time1" readonly="true" /></td>
 				</tr>-->
 				<tr>
 					<td align="right">
@@ -39,73 +38,73 @@
 					</td>
 				</tr>
 			</table>
-		</div>	
+		</div>
 	</fieldset>
 	
 	<h3>查询结果</h3>
 	<table id="activitySearch_table" class="display">
-	<thead>
-		<tr>
-			<th>活动名称</th>
-			<th>活动上传人</th>
-			<th>活动开始时间</th>
-			<th>活动结束时间</th>
-			<th>html文件名</th>
-			<th>活动详情</th>
-			<th>删除</th>
-		</tr>
-	</thead>
-	<tbody id="activity_tbody">
-	
-	</tbody>
+		<thead>
+			<tr>
+				<th>活动名称</th>
+				<th>活动上传人</th>
+				<th>活动开始时间</th>
+				<th>活动结束时间</th>
+				<th>html文件名</th>
+				<th>活动详情</th>
+				<th>删除</th>
+			</tr>
+		</thead>
+		<tbody id="activity_tbody">
+			
+		</tbody>
 	</table>
-	</div>
-	<!-- 新增活动 -->
-	<div id="addActivityDialog" title="新增活动" class="hide">
-		<table>
-			<tr>
-				<td><label for="txt_acticityTitle">活动名称：</label></td>
-				<td>
-					<input type="text" name="txt_acticityTitle" id="txt_acticityTitle" class="text ui-widget-content ui-corner-all" />
-				</td>
-			</tr>
-			<tr>
-				<td><label for="txt_acticityStTime">活动开始时间：</label></td>
-				<td>
-					<input type="text" name="txt_acticityStTime" id="txt_acticityStTime" class="text ui-widget-content ui-corner-all" readonly="true" />
-				</td>
-			</tr>
-			<tr>
-				<td><label for="txt_acticityEndTime">活动结束时间：</label></td>
-				<td>
-					<input type="text" name="txt_acticityEndTime" id="txt_acticityEndTime" class="text ui-widget-content ui-corner-all" readonly="true" />
-				</td>
-			</tr>
-			<tr>
-				<td><label for="txt_acticityHtmlName">HTML文件名：</label></td>
-				<td>
-					<input type="text" name="txt_acticityHtmlName" id="txt_acticityHtmlName" class="text ui-widget-content ui-corner-all" />
-				</td>
-			</tr>
-			<tr>
-				<td><label for="filenamePanel">文件名：</label></td>
-				<td>
-					<input id="filenamePanel" class="hide" disabled="disabled" />
-					<input type="button" value="浏览..." id="fileBrowser" />
-					<div class="filePanel" id="fileUploadPanel">
-						<input type="file" class="files" id="fileUpload" name="fileupload" />
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="2" align="center">
-					<input type="button" width="100" value="上传" id="addActivitySave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<!-- 活动详情 -->
-	<div id="detailActivityDialog" title="活动详情" class="hide">
-		<img id="acitvityImgs" src="" alt="" onload="fn_activityImgLoad()" />
-	</div>
+</div>
+<!-- 新增活动 -->
+<div id="addActivityDialog" title="新增活动" class="hide">
+	<table>
+		<tr>
+			<td><label for="txt_acticityTitle">活动名称：</label></td>
+			<td>
+				<input type="text" name="txt_acticityTitle" id="txt_acticityTitle" class="text ui-widget-content ui-corner-all" />
+			</td>
+		</tr>
+		<tr>
+			<td><label for="txt_acticityStTime">活动开始时间：</label></td>
+			<td>
+				<input type="text" name="txt_acticityStTime" id="txt_acticityStTime" class="text ui-widget-content ui-corner-all" readonly="true" />
+			</td>
+		</tr>
+		<tr>
+			<td><label for="txt_acticityEndTime">活动结束时间：</label></td>
+			<td>
+				<input type="text" name="txt_acticityEndTime" id="txt_acticityEndTime" class="text ui-widget-content ui-corner-all" readonly="true" />
+			</td>
+		</tr>
+		<tr>
+			<td><label for="txt_acticityHtmlName">HTML文件名：</label></td>
+			<td>
+				<input type="text" name="txt_acticityHtmlName" id="txt_acticityHtmlName" class="text ui-widget-content ui-corner-all" />
+			</td>
+		</tr>
+		<tr>
+			<td><label for="filenamePanel">文件名：</label></td>
+			<td>
+				<input id="filenamePanel" class="hide" disabled="disabled" />
+				<input type="button" value="浏览..." id="fileBrowser" />
+				<div class="filePanel" id="fileUploadPanel">
+					<input type="file" class="files" id="fileUpload" name="fileupload" />
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<input type="button" width="100" value="上传" id="addActivitySave" class="ui-button ui-widget ui-state-default ui-corner-all"/>
+			</td>
+		</tr>
+	</table>
+</div>
+<!-- 活动详情 -->
+<div id="detailActivityDialog" title="活动详情" class="hide">
+	<img id="acitvityImgs" src="" alt="" onload="fn_activityImgLoad()" />
+</div>
 {% end %}

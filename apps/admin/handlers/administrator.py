@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for administrator.
+"""
+
 from urllib import quote
 
 import tornado.web
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_encode
 
 from utils.dotdict import DotDict
 from utils.misc import DUMMY_IDS, safe_utf8
 from constants import AREA
 from utils.misc import str_to_list
 from utils.checker import check_sql_injection
-
 from errors import ErrorCode
-from base import BaseHandler, authenticated 
+from base import BaseHandler, authenticated
 from mixin import BaseMixin
 from checker import check_privileges
 from constants import PRIVILEGES
@@ -24,20 +26,23 @@ class AdministratorSearchHandler(BaseHandler):
     @tornado.web.removeslash
     def prepare(self):
         self.sources = self.db.query("SELECT * FROM T_ADMINISTRATOR_SOURCE")
-        
+
     @authenticated
     @check_privileges([PRIVILEGES.QUERY_ADMINISTRATOR])
     @tornado.web.removeslash
     def get(self):
+        """Jump to the search.html.
+        """
         self.render("administrator/search.html",
                     sources=self.sources,
                     administrators=[])
-
 
     @authenticated
     @check_privileges([PRIVILEGES.QUERY_ADMINISTRATOR])
     @tornado.web.removeslash
     def post(self):
+        """Retrieve the administrators according to the given parameters.
+        """
         # TODO: this is ugly!
         fields = DotDict(corporation="corporation LIKE '%%%%%s%%%%'",
                          name="name LIKE '%%%%%s%%%%'",
@@ -49,12 +54,12 @@ class AdministratorSearchHandler(BaseHandler):
         for key in fields.iterkeys():
             v = self.get_argument(key, None)
             if v:
-                #if not check_sql_injection(v):
+                # if not check_sql_injection(v):
                 #    self.get()
-                #    return  
+                #    return
                 fields[key] = fields[key] % (v,)
             else:
-                 fields[key] = None
+                fields[key] = None
 
         where_clause = ' AND '.join([v for v in fields.itervalues()
                                      if v is not None])
@@ -77,7 +82,10 @@ class AdministratorSearchHandler(BaseHandler):
 
 
 class AdministratorMixin(BaseMixin):
+
     def get_administrator_info(self, administrator_id):
+        """Get the information of administrator.
+        """
         administrator = self.db.get("SELECT id, corporation, name, mobile,"
                                     "       phone, login, valid,"
                                     "       email, source_id, type"
@@ -89,36 +97,40 @@ class AdministratorMixin(BaseMixin):
                 if administrator[key] is None:
                     administrator[key] = ''
             administrator = DotDict(administrator)
-            
+
             privileges = self.db.query("SELECT tpg.id"
-                                       "  FROM T_PRIVILEGE AS tp, T_PRIVILEGE_GROUP AS tpg"
+                                       "  FROM T_PRIVILEGE AS tp, "
+                                       "    T_PRIVILEGE_GROUP AS tpg"
                                        "  WHERE tp.privilege_group_id = tpg.id"
                                        "    AND tp.administrator_id = %s",
                                        administrator_id)
             privilege_list = [p.id for p in privileges]
-            privilege_groups = self.db.query("SELECT id, name, builtin AS valid FROM T_PRIVILEGE_GROUP")
+            privilege_groups = self.db.query("SELECT id, name, builtin AS valid"
+                                             " FROM T_PRIVILEGE_GROUP")
             for p in privilege_groups:
                 if p['id'] in privilege_list:
                     p['valid'] = 1
                 else:
                     p['valid'] = 0
             administrator.privileges = privilege_groups
-            
+
             key = self.get_area_memcache_key(administrator_id)
             areas = self.redis.getvalue(key)
             if not areas:
                 areas = self.get_privilege_area(administrator_id)
                 self.redis.setvalue(key, areas)
-            administrator.cities = areas 
+            administrator.cities = areas
             return administrator
 
-        
+
 class AdministratorListHandler(BaseHandler, AdministratorMixin):
 
     @authenticated
     #@check_privileges([PRIVILEGES.LIST_ADMINISTRATOR])
     @tornado.web.removeslash
     def get(self, administrator_id):
+        """Jump to the list.html according to the administrator.
+        """
         success = True
         message = None
 
@@ -140,12 +152,15 @@ class AdministratorSelfEditHandler(BaseHandler):
     def get(self):
         self.redirect("/administrator/list/" + self.current_user.id)
 
+
 class AdministratorEditHandler(BaseHandler, AdministratorMixin):
 
     @authenticated
     #@check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
     @tornado.web.removeslash
     def get(self, administrator_id):
+        """Jump the edit.html of administrator.
+        """
         success = True
         message = None
 
@@ -182,11 +197,13 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                     success=success,
                     message=message,
                     is_self=administrator_id == self.current_user.id)
-        
+
     @authenticated
     @check_privileges([PRIVILEGES.EDIT_ADMINISTRATOR])
     @tornado.web.removeslash
     def post(self, administrator_id):
+        """Edit the administrator.
+        """
         is_self = (administrator_id == self.current_user.id)
 
         # update basic info
@@ -198,21 +215,22 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                          valid="valid = %s",
                          source_id="source_id = %s"
                          )
-        list_inject = ['corporation','name','mobile','phone'] 
+        list_inject = ['corporation', 'name', 'mobile', 'phone']
         for key in list_inject:
             v = self.get_argument(key, '')
-            #if not check_sql_injection(v):
-            #   self.get(administrator_id) 
+            # if not check_sql_injection(v):
+            #   self.get(administrator_id)
             #   return
         if is_self:
             del fields['valid']
             del fields['source_id']
 
-            self.bookkeep(dict(id=self.current_user.id, 
-                           session_id=self.current_user.session_id),
-                      quote(safe_utf8(self.get_argument('name', u""))))
+            self.bookkeep(dict(id=self.current_user.id,
+                               session_id=self.current_user.session_id),
+                          quote(safe_utf8(self.get_argument('name', u""))))
 
-        data = [self.get_argument(key, '') for key in fields.iterkeys()] + [administrator_id]
+        data = [self.get_argument(key, '')
+                for key in fields.iterkeys()] + [administrator_id]
 
         set_clause = ','.join([v for v in fields.itervalues()])
 
@@ -243,7 +261,8 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                                      for priv in new_ids])
 
             key = self.get_area_memcache_key(administrator_id)
-            cities = [int(i) for i in str_to_list(self.get_argument('cities', ''))]
+            cities = [int(i)
+                      for i in str_to_list(self.get_argument('cities', ''))]
             if len(cities) == 1 and int(cities[0]) == 0:
                 self.db.execute("DELETE FROM T_AREA_PRIVILEGE"
                                 "  WHERE administrator_id = %s",
@@ -251,7 +270,7 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                 self.db.execute("INSERT INTO T_AREA_PRIVILEGE"
                                 "  VALUES(NULL, %s, %s, %s)",
                                 administrator_id, AREA.CATEGORY.PROVINCE,
-                                AREA.PROVINCE.LIAONING) 
+                                AREA.PROVINCE.LIAONING)
                 cities = self.db.query("SELECT city_id, city_name FROM T_HLR_CITY"
                                        "  WHERE province_id = %s",
                                        AREA.PROVINCE.LIAONING)
@@ -294,16 +313,17 @@ class AdministratorEditHandler(BaseHandler, AdministratorMixin):
                                     administrator_id)
                     self.redis.delete(key)
 
-
         self.redirect("/administrator/list/%s" % administrator_id)
 
-        
+
 class AdministratorCreateHandler(BaseHandler, BaseMixin):
 
     @authenticated
     @check_privileges([PRIVILEGES.CREATE_ADMINISTRATOR])
     @tornado.web.removeslash
     def get(self):
+        """Jump the create.html for administrator.
+        """
         self.privilege_groups = self.db.query("SELECT * FROM T_PRIVILEGE_GROUP")
         self.sources = self.db.query("SELECT * FROM T_ADMINISTRATOR_SOURCE order by id")
         key = self.get_area_memcache_key(self.current_user.id)
@@ -320,6 +340,8 @@ class AdministratorCreateHandler(BaseHandler, BaseMixin):
     @check_privileges([PRIVILEGES.CREATE_ADMINISTRATOR])
     @tornado.web.removeslash
     def post(self):
+        """Create a administrator.
+        """
         # create
         fields = DotDict(corporation="",
                          name="",
@@ -331,19 +353,21 @@ class AdministratorCreateHandler(BaseHandler, BaseMixin):
                          valid="",
                          source_id="")
 
-        list_inject = ['name','password','mobile','phone']
+        list_inject = ['name', 'password', 'mobile', 'phone']
         for key in list_inject:
-            v = self.get_argument(key,'')
-            #if not check_sql_injection(v):
+            v = self.get_argument(key, '')
+            # if not check_sql_injection(v):
             #    self.get()
             #    return
         for key in fields.iterkeys():
-            fields[key] = self.get_argument(key,'')
+            fields[key] = self.get_argument(key, '')
 
         fields.source_id = fields.source_id if fields.source_id else 5
-        administrator_id = self.db.execute("INSERT INTO T_ADMINISTRATOR (login, password, name, mobile, phone, email, "
-                                           "corporation, source_id, valid, type)"
-                                           "  VALUES (%s, password(%s), %s, %s, %s, %s, %s, %s, %s, %s)",
+        administrator_id = self.db.execute("INSERT INTO T_ADMINISTRATOR (login, password, "
+                                           " name, mobile, phone, email, "
+                                           " corporation, source_id, valid, type)"
+                                           "  VALUES (%s, password(%s), %s, %s, "
+                                           "          %s, %s, %s, %s, %s, %s)",
                                            fields.login, fields.password,
                                            fields.name, fields.mobile,
                                            fields.phone, fields.email,
@@ -363,7 +387,7 @@ class AdministratorCreateHandler(BaseHandler, BaseMixin):
             self.db.execute("INSERT INTO T_AREA_PRIVILEGE"
                             "  VALUES(NULL, %s, %s, %s)",
                             administrator_id, AREA.CATEGORY.PROVINCE,
-                            AREA.PROVINCE.LIAONING) 
+                            AREA.PROVINCE.LIAONING)
             cities = self.db.query("SELECT city_id, city_name FROM T_HLR_CITY"
                                    "  WHERE province_id = %s",
                                    AREA.PROVINCE.LIAONING)
@@ -392,6 +416,8 @@ class AdministratorDeleteHandler(BaseHandler, BaseMixin):
     @check_privileges([PRIVILEGES.DELETE_ADMINISTRATOR])
     @tornado.web.removeslash
     def post(self, administrator_id):
+        """Delete a administrator.
+        """
         if administrator_id == self.current_user.id:
             ret = dict(status=1)
         else:
@@ -399,7 +425,7 @@ class AdministratorDeleteHandler(BaseHandler, BaseMixin):
                             "  WHERE id = %s",
                             administrator_id)
             ret = dict(status=0)
-            key = self.get_area_memcache_key(administrator_id) 
+            key = self.get_area_memcache_key(administrator_id)
             self.redis.delete(key)
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))

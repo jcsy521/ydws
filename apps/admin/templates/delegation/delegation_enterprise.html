@@ -15,11 +15,12 @@
         <div class="error">错误：{{ message }}</div>
         <hr />
       {% end %}
-      <form id="formID" method="post" action="" onsubmit="return showMsgAndSendMsg();">
+      <form id="formID" method="post" action="" onsubmit="return showMsgAndSendMsgEn();">
         <ul class="cDelegUL">
           <li>
-            <label for="tmobile">终端手机号：</label>
-            <input type="text"  maxlength="11" id="tmobile" name="tmobile" onKeyUp="fn_textKeyUp(this, 'tel')" />
+            <label for="cid">集团用户：</label>
+            <input type="text"  maxlength="11" id="cid" name="cid" />
+        <!--     <input type="text"  maxlength="11" id="cid" name="cid" onKeyUp="fn_textKeyUp(this, 'tel')" /> -->
             <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
             value="开始代操作" />
           </li>

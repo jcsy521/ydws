@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for activity.
+"""
+
 import os
-import datetime, time
 ACTIVITY_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/activity/pic"))
 import logging
 
@@ -12,7 +14,7 @@ from codes.errorcode import ErrorCode
 from utils.misc import safe_utf8, str_to_list, DUMMY_IDS
 from utils.checker import check_filename 
 from checker import check_privileges
-from constants import PRIVILEGES, UWEB
+from constants import PRIVILEGES
 
 from base import BaseHandler, authenticated
 
@@ -22,6 +24,8 @@ class ActivityHandler(BaseHandler):
     @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def get(self):
+        """Jump to the activity.html.
+        """
         self.render('activity/activity.html',
                     status=ErrorCode.SUCCESS,
                     message='')
@@ -30,6 +34,8 @@ class ActivityHandler(BaseHandler):
     @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def post(self):
+        """Add an activity.
+        """
         try:
             author = self.get_argument('author', '')
             title = self.get_argument('title', '')
@@ -41,7 +47,7 @@ class ActivityHandler(BaseHandler):
                 upload_file = self.request.files['fileupload'][0]
                 filename = safe_utf8(upload_file['filename'])
         except Exception as e:
-            logging.exception("[ADMIN] Script upload failed, exception:%s", 
+            logging.exception("[ADMIN] Script upload failed, exception:%s",
                               e.args)
             status = ErrorCode.FAILED 
             self.write_ret(status) 
@@ -74,7 +80,8 @@ class ActivityHandler(BaseHandler):
                 output_file.write(upload_file['body'])
                 output_file.close()
 
-            self.db.execute("INSERT INTO T_ACTIVITY(title, filename, begintime, endtime, author, html_name)"
+            self.db.execute("INSERT INTO T_ACTIVITY(title, filename,"
+                            "  begintime, endtime, author, html_name)"
                             "VALUES(%s, %s, %s, %s, %s, %s)",
                             title, filename, begintime, endtime, author, html_name)
             logging.info("[ADMIN] %s upload %s file success.", author, filename)
@@ -92,14 +99,14 @@ class ActivityHandler(BaseHandler):
         """Delete activity.  
         """
         status = ErrorCode.SUCCESS
-        try: 
+        try:
             delete_ids = map(int, str_to_list(self.get_argument('ids', None))) 
-            logging.info("[ADMIN] delete activity: %s", 
+            logging.info("[ADMIN] Delete activity: %s", 
                          delete_ids)
         except Exception as e: 
             status = ErrorCode.ILLEGAL_DATA_FORMAT 
             logging.exception("[ADMIN] data format illegal. Exception: %s", 
-                               e.args) 
+                              e.args) 
             self.write_ret(status)
             return
 
@@ -109,7 +116,7 @@ class ActivityHandler(BaseHandler):
             self.write_ret(status)
         except Exception as e: 
             status = ErrorCode.SERVER_BUSY
-            logging.exception("[ADMIN] delete activity failed. Exception: %s", 
+            logging.exception("[ADMIN] Delete activity failed. Exception: %s",
                               e.args) 
             self.write_ret(status)
 
@@ -119,13 +126,17 @@ class ActivityListHandler(BaseHandler):
     @check_privileges([PRIVILEGES.ACTIVITY])
     @tornado.web.removeslash
     def post(self):
+        """Show all activities.
+        """
         status = ErrorCode.SUCCESS
         try:
-            res = self.db.query("SELECT id, title, filename, begintime, endtime, author, html_name" 
+            res = self.db.query("SELECT id, title, filename, "
+                                "  begintime, endtime, author, html_name"
                                 "  FROM T_ACTIVITY ORDER BY begintime")
             self.write_ret(status=status, 
                            dict_=DotDict(res=res))
         except Exception as e:
-            logging.exception("[ADMIN] Get activity list failed.")
+            logging.exception("[ADMIN] Get activity list failed. Exception: %s",
+                              e.args)
             status = ErrorCode.SUCCESS
             self.write_ret(status=status) 
