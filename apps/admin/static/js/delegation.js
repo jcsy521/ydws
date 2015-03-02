@@ -22,13 +22,13 @@ function showMsgAndSendMsg() {
 
 // 代客操作（个人）
 function showMsgAndSendMsgIn() {
-    var $uid = $('#uid')；
+    var $uid = $('#uid');
 	return false;
 }
 
 // 代客操作（集团）
 function showMsgAndSendMsgEn() {
-	var $cid = $('#cid')；
+	var $cid = $('#cid');
 	return false;
 }
 
