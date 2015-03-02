@@ -4,16 +4,13 @@
 """
 
 import logging
-import time
-import random
-import hashlib
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from utils.misc import get_psd, get_captcha_key
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection, check_label
+from utils.checker import check_label
 from utils.public import update_password
 from mixin.password import PasswordMixin 
 from base import BaseHandler, authenticated
@@ -51,7 +48,8 @@ class PasswordHandler(BaseHandler, PasswordMixin):
         try:
             status = self.check_privilege(self.current_user.uid, self.current_user.tid) 
             if status != ErrorCode.SUCCESS: 
-                logging.error("[UWEB] Terminal is just for test, has no right to access the function. tid: %s, user: %s", 
+                logging.error("[UWEB] Terminal is just for test, "
+                              "  has no right to access the function. tid: %s, user: %s", 
                               self.current_user.tid, self.current_user.uid) 
                 self.write_ret(status) 
                 return
@@ -65,7 +63,8 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                 return
 
             if not self.check_user_by_password(old_password, self.current_user.uid): 
-                logging.error("[UWEB] User change password failed.  uid: %s,  old passwrod: %s, new passwrod: %s",
+                logging.error("[UWEB] User change password failed. "
+                              "  uid: %s, old passwrod: %s, new passwrod: %s",
                               self.current_user.uid, old_password, new_password)
                 status = ErrorCode.WRONG_OLD_PASSWORD
             else:    
@@ -75,7 +74,8 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                 update_password(psd_info, self.db, self.redis)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] User update password failed. Exception: %s", e.args)
+            logging.exception("[UWEB] User update password failed. Exception: %s", 
+                              e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
             
@@ -96,7 +96,8 @@ class PasswordHandler(BaseHandler, PasswordMixin):
         try:
             status = self.check_privilege(data.mobile) 
             if status != ErrorCode.SUCCESS: 
-                logging.error("[UWEB] User: %s is just for test, has no right to access the function.", 
+                logging.error("[UWEB] User: %s is just for test,"
+                              "  has no right to access the function.", 
                               data.mobile) 
                 self.write_ret(status) 
                 return
@@ -113,10 +114,13 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                     ret = SMSHelper.send(mobile, retrieve_password_sms)
                     ret = DotDict(json_decode(ret))
                     if ret.status == ErrorCode.SUCCESS:
-                        logging.info("[UWEB] user uid: %s retrieve password success, the new passwrod: %s", mobile, psd)
+                        logging.info("[UWEB] user uid: %s retrieve password success, "
+                                     "  the new passwrod: %s", 
+                                     mobile, psd)
                     else:
                         status = ErrorCode.SERVER_BUSY
-                        logging.error("[UWEB] user uid: %s retrieve password failed.", mobile)
+                        logging.error("[UWEB] user uid: %s retrieve password failed.", 
+                                      mobile)
                 else: # new version
                     captcha_key = get_captcha_key(mobile)
                     captcha_old = self.redis.get(captcha_key)
@@ -127,13 +131,17 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                             ret = SMSHelper.send(mobile, retrieve_password_sms)
                             ret = DotDict(json_decode(ret))
                             if ret.status == ErrorCode.SUCCESS:
-                                logging.info("[UWEB] user uid: %s retrieve password success, the new passwrod: %s", mobile, psd)
+                                logging.info("[UWEB] user uid: %s retrieve password success, "
+                                             "  the new passwrod: %s", 
+                                             mobile, psd)
                             else:
                                 status = ErrorCode.SERVER_BUSY
-                                logging.error("[UWEB] user uid: %s retrieve password failed.", mobile)
+                                logging.error("[UWEB] user uid: %s retrieve password failed.", 
+                                              mobile)
                         else:
                             status = ErrorCode.WRONG_CAPTCHA
-                            logging.error("mobile: %s retrieve password failed. captcha: %s, captcha_old: %s, Message: %s", 
+                            logging.error("mobile: %s retrieve password failed. "
+                                          "  captcha: %s, captcha_old: %s, Message: %s", 
                                            mobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
                     else:
                         status = ErrorCode.NO_CAPTCHA
@@ -141,10 +149,12 @@ class PasswordHandler(BaseHandler, PasswordMixin):
                                       mobile, captcha, ErrorCode.ERROR_MESSAGE[status])
             else: 
                 status = ErrorCode.USER_NOT_ORDERED
-                logging.error("[UWEB] umobile: %s does not exist, retrieve password failed.", mobile)
+                logging.error("[UWEB] umobile: %s does not exist, retrieve password failed.", 
+                              mobile)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] user uid: %s retrieve password failed.  Exception: %s", mobile, e.args)
+            logging.exception("[UWEB] user uid: %s retrieve password failed. Exception: %s", 
+                              mobile, e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -176,7 +186,8 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
             new_password = data.new_password
 
             if not self.check_corp_by_password(old_password, self.current_user.cid): 
-                logging.error("[UWEB] Corp change password failed. mobile: %s, old passwrod: %s, new passwrod: %s",
+                logging.error("[UWEB] Corp change password failed. "
+                              "  mobile: %s, old passwrod: %s, new passwrod: %s",
                               self.current_user.cid, old_password, new_password)
                 status = ErrorCode.WRONG_OLD_PASSWORD
             else:    
@@ -186,7 +197,8 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
                 update_password(psd_info, self.db, self.redis)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] corp update password failed. Exception: %s", e.args)
+            logging.exception("[UWEB] corp update password failed. Exception: %s", 
+                              e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
             
@@ -198,7 +210,8 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
             data = DotDict(json_decode(self.request.body))
             mobile = data.mobile
             captcha = data.get('captcha','')
-            logging.info("[UWEB] corp retrieve password request: %s", data)
+            logging.info("[UWEB] corp retrieve password request: %s", 
+                         data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
@@ -227,7 +240,8 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
                                           mobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
                     else:
                         status = ErrorCode.NO_CAPTCHA
-                        logging.error("[UWEB] Corp retrieve password failed. mobile: %s, captcha: %s, Message: %s", 
+                        logging.error("[UWEB] Corp retrieve password failed. "
+                                      "  mobile: %s, captcha: %s, Message: %s", 
                                       mobile, captcha, ErrorCode.ERROR_MESSAGE[status])
             else: 
                 user = QueryHelper.get_operator_by_oid(mobile, self.db)
@@ -245,26 +259,31 @@ class PasswordCorpHandler(BaseHandler, PasswordMixin):
                                 update_password(psd_info, self.db, self.redis)
                             else:
                                 status = ErrorCode.WRONG_CAPTCHA
-                                logging.error("[UWEB] Operator retrieve password failed. mobile: %s, captcha: %s, captcha_old: %s, Message: %s", 
+                                logging.error("[UWEB] Operator retrieve password failed. "
+                                              "  mobile: %s, captcha: %s, captcha_old: %s, Message: %s", 
                                                mobile, captcha, captcha_old, ErrorCode.ERROR_MESSAGE[status])
                         else:
                             status = ErrorCode.NO_CAPTCHA
-                            logging.error("[UWEB] Operator retrieve password failed. mobile: %s, captcha: %s, Message: %s", 
+                            logging.error("[UWEB] Operator retrieve password failed. "
+                                          "  mobile: %s, captcha: %s, Message: %s", 
                                           mobile, captcha, ErrorCode.ERROR_MESSAGE[status])
                 else:
                     status = ErrorCode.USER_NOT_ORDERED
-                    logging.error("[UWEB] Operator does not exist, retrieve password failed. mobile: %s", mobile)
+                    logging.error("[UWEB] Operator does not exist, retrieve password failed. mobile: %s", 
+                                  mobile)
 
             if status == ErrorCode.SUCCESS:
                 retrieve_password_sms = SMSCode.SMS_RETRIEVE_PASSWORD % (psd) 
                 ret = SMSHelper.send(mobile, retrieve_password_sms)
                 ret = DotDict(json_decode(ret))
                 if ret.status == ErrorCode.SUCCESS:
-                    logging.info("[UWEB] Corp retrieve password success, mobile: %s, the new passwrod: %s", 
+                    logging.info("[UWEB] Corp retrieve password success, "
+                                 "  mobile: %s, the new passwrod: %s", 
                                  mobile, psd)
                 else:
                     status = ErrorCode.SERVER_BUSY
-                    logging.error("[UWEB] Corp retrieve password failed. mobile: %s", mobile)
+                    logging.error("[UWEB] Corp retrieve password failed. mobile: %s", 
+                                  mobile)
             self.write_ret(status)
         except Exception as e:
             logging.exception("[UWEB] Corp retrieve password failed. mobile: %s, Exception: %s", 
@@ -293,7 +312,8 @@ class PasswordOperHandler(BaseHandler, PasswordMixin):
             new_password = data.new_password
 
             if not self.check_oper_by_password(old_password, self.current_user.oid): 
-                logging.error("[UWEB] Operator change password failed. oid: %s, old passwrod: %s, new passwrod: %s",
+                logging.error("[UWEB] Operator change password failed. "
+                              "  oid: %s, old passwrod: %s, new passwrod: %s",
                               self.current_user.oid, old_password, new_password)
                 status = ErrorCode.WRONG_OLD_PASSWORD
             else:        
@@ -303,6 +323,7 @@ class PasswordOperHandler(BaseHandler, PasswordMixin):
                 update_password(psd_info, self.db, self.redis)
             self.write_ret(status)
         except Exception as e:
-            logging.exception("[UWEB] operator update password failed. Exception: %s", e.args)
+            logging.exception("[UWEB] operator update password failed. Exception: %s", 
+                              e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)

@@ -8,14 +8,9 @@
 import logging
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
 
-from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, str_to_list
-from utils.checker import check_sql_injection
-from constants import UWEB
 from codes.errorcode import ErrorCode
-from base import BaseHandler, authenticated
+from base import BaseHandler
 
        
 class FocusCarHandler(BaseHandler):
@@ -27,7 +22,6 @@ class FocusCarHandler(BaseHandler):
         try:
             pid = self.get_argument('pid')
             line_id = self.get_argument('line_id')
-            iosid = self.get_argument('iosid')
             logging.info("[CLIENT] create line attention request pid: %s, line_id: %s", 
                          pid, line_id)
         except Exception as e:
@@ -57,7 +51,6 @@ class UnbindCarHandler(BaseHandler):
         try:
             pid = self.get_argument('pid')
             line_id = self.get_argument('line_id')
-            iosid = self.get_argument('iosid')
             logging.info("[CLIENT] delete line attention pid : %s, line_id: %s", 
                          pid, line_id)
         except Exception as e:

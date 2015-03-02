@@ -13,4 +13,3 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie(self.app_name)
         self.clear_cookie("%s_N" % (self.app_name,))
         self.redirect("/")
-

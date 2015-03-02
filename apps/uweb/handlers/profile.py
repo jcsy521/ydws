@@ -10,10 +10,9 @@ import tornado.web
 
 from utils.misc import get_terminal_info_key, safe_unicode
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection, check_cnum, check_name
+from utils.checker import check_name
 from utils.public import update_operator, update_corp
 from helpers.queryhelper import QueryHelper
-from helpers.wspushhelper import WSPushHelper
 
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
@@ -95,8 +94,6 @@ class ProfileHandler(BaseHandler):
                 if terminal_info:
                     terminal_info['alias'] = cnum if cnum else self.current_user.sim 
                     self.redis.setvalue(terminal_info_key, terminal_info)
-
-                WSPushHelper.pushS7(self.current_user.tid, self.db, self.redis)
 
             self.write_ret(status)
         except Exception as e:

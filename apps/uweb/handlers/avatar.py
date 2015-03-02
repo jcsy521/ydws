@@ -5,19 +5,17 @@
 #TODO: deprecated.
 """
 
-import time
 import logging
 import base64
 
 import tornado.web
-from tornado.web import removeslash
 from tornado.escape import json_decode
 
 from mixin.avatar import AvatarMixin
 from base import authenticated, BaseHandler
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
-from constants import UWEB
+
 
 class AvatarHandler(BaseHandler, AvatarMixin):
     """ Show avatar for mobile client loggin

@@ -8,7 +8,6 @@ import time
 import random
 import string
 import hashlib
-import re
 
 from tornado.escape import json_decode
 import tornado.web
@@ -16,11 +15,10 @@ import tornado.web
 from utils.misc import get_captcha_key, get_date_from_utc, start_end_of_day
 from utils.dotdict import DotDict
 from utils.public import notify_maintainer
-from base import BaseHandler, authenticated
+from base import BaseHandler
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
-from helpers.confhelper import ConfHelper
 from constants import UWEB
 
 class SecGetCaptchaHandler(BaseHandler):

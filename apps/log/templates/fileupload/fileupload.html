@@ -34,8 +34,8 @@
 		</div>
 		<!--data tables-->
 		<div class="resultQuery">
-		   <div class="resultTitle">
-				<h3>查询结果</h3>		
+			<div class="resultTitle">
+				<h3>查询结果</h3>
 				<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
 			</div>
 			<a href="#" id="addTerminalScript">上传脚本</a>
@@ -57,28 +57,28 @@
 			</thead>
 			<tbody id="search_tbody">
 				{% for file in files %}
-				<tr>
-					<td>{{file['timestamp']}}</td>
-					<td>{{file['author']}}</td>
-					<td>{{file['filename']}}</td>
-					<td>{{file['version']}}</td>
-					<td>
-					{% if file['islocked'] == 1 %}
-						<a href="#" onclick="fn_lockscript('{{file['islocked']}}', '{{file['id']}}')" class="red">解锁</a>
-					{% else %}
-						<a href="#" onclick="fn_lockscript('{{file['islocked']}}', '{{file['id']}}')" class="green">锁定</a>
-					{% end %}
-					</td>
-					<td><a href="/downloadluascript?filename={{file['filename']}}" target="_blank">下载</a></td>
-					
-					<td class="j_deleteTd">
-					{% if file['islocked'] == 1 %}
-						<a href="#" onclick="fn_terminalDel('{{file['filename']}}', {{file['islocked']}})" islocked="{{file['islocked']}}" class="j_deleteScript"></a>
-					{% else %}
-						<a href="#" onclick="fn_terminalDel('{{file['filename']}}', {{file['islocked']}})" islocked="{{file['islocked']}}" class="j_deleteScript">删除</a>
-					{% end %}
-					</td>
-				</tr>
+					<tr>
+						<td>{{file['timestamp']}}</td>
+						<td>{{file['author']}}</td>
+						<td>{{file['filename']}}</td>
+						<td>{{file['version']}}</td>
+						<td>
+							{% if file['islocked'] == 1 %}
+								<a href="#" onclick="fn_lockscript('{{file['islocked']}}', '{{file['id']}}')" class="red">解锁</a>
+							{% else %}
+								<a href="#" onclick="fn_lockscript('{{file['islocked']}}', '{{file['id']}}')" class="green">锁定</a>
+							{% end %}
+						</td>
+						<td><a href="/downloadluascript?filename={{file['filename']}}" target="_blank">下载</a></td>
+						
+						<td class="j_deleteTd">
+							{% if file['islocked'] == 1 %}
+								<a href="#" onclick="fn_terminalDel('{{file['filename']}}', {{file['islocked']}})" islocked="{{file['islocked']}}" class="j_deleteScript"></a>
+							{% else %}
+								<a href="#" onclick="fn_terminalDel('{{file['filename']}}', {{file['islocked']}})" islocked="{{file['islocked']}}" class="j_deleteScript">删除</a>
+							{% end %}
+						</td>
+					</tr>
 				{% end %}
 			</tbody>
 		</table>

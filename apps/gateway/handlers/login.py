@@ -1,30 +1,23 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import time
 
 from clw.packet.parser.login import LoginParser
 from clw.packet.composer.login import LoginRespComposer
 
-from utils.checker import check_phone, check_zs_phone
+from utils.checker import check_zs_phone
 from utils.dotdict import DotDict
 from codes.smscode import SMSCode
 
-from utils.misc import (get_resend_key, get_sessionID, 
-     get_terminal_sessionID_key)
-from utils.public import (insert_location, delete_terminal,
-     record_add_action, get_terminal_type_by_tid, clear_data,
-     update_terminal_info, subscription_lbmp, add_terminal, add_user) 
+from utils.public import get_terminal_type_by_tid
 
-from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
-from helpers.wspushhelper import WSPushHelper
 
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY
 
 from error import GWException
             
-from handlers.basic import (append_gw_request, update_terminal_status, get_resend_flag)
+from handlers.basic import append_gw_request
 from mixin.login import handle_new_login, handle_old_login
 
 def handle_login(info, address, connection, channel, exchange, gw_binding, db, redis):

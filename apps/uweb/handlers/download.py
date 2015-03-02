@@ -8,12 +8,9 @@ DOWNLOAD_DIR_ = os.path.abspath(os.path.join(__file__, "../../static/download"))
 
 import logging
 import hashlib
-import random
-import string
-import time
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
@@ -24,9 +21,9 @@ from helpers.downloadhelper import (get_version_info,
 from helpers.smshelper import SMSHelper
 from helpers.confhelper import ConfHelper
 from helpers.queryhelper import QueryHelper
-from constants import DOWNLOAD, UWEB
+from constants import UWEB
 
-from base import BaseHandler, authenticated
+from base import BaseHandler
 
 
 class DownloadHandler(BaseHandler):
@@ -84,8 +81,7 @@ class DownloadTerminalHandler(BaseHandler):
         """Download script for terminal, and keep the info in T_SCRIPT_DOWNLOAD.
         """
         def _on_finish(db):
-            self.db = db
-            status = ErrorCode.SUCCESS
+            self.db = db 
             versionname = self.get_argument('v', '')
             tid = self.get_argument('sn', '')
             version = self.db.get("SELECT filename FROM T_SCRIPT"
@@ -175,7 +171,6 @@ class DownloadSmsHandler(BaseHandler):
             mobile = data.mobile
             captcha_sms = data.captcha_sms
             captchahash_sms = self.get_cookie("captchahash_sms", "")
-            category = data.category
             logging.info("[UWEB] downloadsms request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -192,8 +187,7 @@ class DownloadSmsHandler(BaseHandler):
                 status = ErrorCode.WRONG_CAPTCHA
                 logging.info("[UWEB] downloadsms failed. Message: %s", 
                              ErrorCode.ERROR_MESSAGE[status])
-            else:
-                version_info = get_version_info('android')
+            else:                
                 # downloadurl = DOWNLOAD.URL.ANDROID % ConfHelper.UWEB_CONF.url_out
                 download_remind = SMSCode.SMS_DOWNLOAD_REMIND % (
                     ConfHelper.UWEB_CONF.url_out)

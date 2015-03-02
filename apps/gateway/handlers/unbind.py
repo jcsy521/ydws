@@ -2,23 +2,17 @@
 
 import logging
 
-from clw.packet.parser.unbind import UNBindParser
-from clw.packet.composer.unbind import UNBindComposer
 from clw.packet.parser.async import AsyncParser
 from clw.packet.composer.async import AsyncRespComposer
 
 
-from helpers.queryhelper import QueryHelper
-
 from error import GWException
 from utils.dotdict import DotDict
-from utils.public import update_terminal_info, delete_terminal_new, clear_data
+from utils.public import delete_terminal_new, clear_data
             
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY
 
-from utils.misc import get_acc_status_info_key
-
-from handlers.basic import append_gw_request, update_terminal_status
+from handlers.basic import append_gw_request
 
 def handle_unbind_status(info, address, connection, channel, exchange, gw_binding, db, redis):
     """

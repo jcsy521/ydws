@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import logging
-
 import tornado.web
 
 from constants import UWEB
 from base import BaseHandler
+
 
 class HelperHandler(BaseHandler):
 
@@ -17,4 +16,3 @@ class HelperHandler(BaseHandler):
             self.render('helper.html')
         else:
             self.render('helper_corp.html')
-

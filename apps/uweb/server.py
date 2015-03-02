@@ -32,7 +32,6 @@ except:
 
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
-from utils.dotdict import DotDict
 from utils.misc import get_static_hash 
 from helpers.confhelper import ConfHelper
 from constants.MEMCACHED import ALIVED

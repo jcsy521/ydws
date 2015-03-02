@@ -4,9 +4,10 @@ import logging
 
 from constants import UWEB
 from codes.smscode import SMSCode
-from utils.dotdict import DotDict
-from utils.misc import get_terminal_info_key, get_terminal_sessionID_key, safe_utf8, get_alert_freq_key
-from utils.public import clear_sessionID, get_use_scene_by_vibl, add_user
+from utils.misc import (get_terminal_info_key, 
+    safe_utf8, get_alert_freq_key)
+from utils.public import (clear_sessionID, 
+    get_use_scene_by_vibl, add_user, update_mannual_status)
 
 from helpers.queryhelper import QueryHelper
 from helpers.wspushhelper import WSPushHelper
@@ -139,7 +140,7 @@ class TerminalMixin(BaseMixin):
                     "[UWEB] Termianl %s delete session in redis.", self.current_user.tid)
             # NOTE: deprecated.
             elif key == "parking_defend" and value is not None:
-                if parking_defend == 1:
+                if value == 1:
                     mannual_status = UWEB.DEFEND_STATUS.SMART
                 else:
                     mannual_status = UWEB.DEFEND_STATUS.YES

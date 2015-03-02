@@ -1,135 +1,135 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <title>移动车卫士各模块日志监控系统</title>
-	<meta http-equiv="pragma" content="no-cache">
-	<meta http-equiv="cache-control" content="no-cache">
-	<meta http-equiv="expires" content="0">
-	<link type="text/css" href="/static/css/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
-	<link href="./static/css/css.css" rel="stylesheet" type="text/css"/>
-	<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
-	<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
-	<link rel="stylesheet" media="all" type="text/css" href="/static/css/jquery-ui-timepicker-addon.css" />
-	<script type="text/javascript" src="/static/js/jquery-1.6.2.min.js"></script>
-	<script type="text/javascript" src="/static/js/jquery-ui-1.8.14.custom.min.js"></script>
-	<script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
-	<script type="text/javascript" src="/static/js/jquery-ui-timepicker-addon.js"></script>
-	<script type="text/javascript" src="/static/js/jquery-ui-timepicker-zh-CN.js"></script>
-	<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
-	<script type="text/javascript" src="/static/js/json2.js"></script>
-	<script type="text/javascript" src="/static/js/searchRecord.js"></script>
-	<script type="text/javascript" src="/static/js/initialize.js"></script>
-  </head>
-  <body>
-	<div class="logHeader">
-		<ul id="logNavItemPanel" class="logNavPanel">
-			<li class="logNavItem logCurrentItem">
-				<a href="#">日志查询</a>
-			</li>
-			<li class="logNavItem">
-				<a href="/packet">报文查询</a>
-			</li>
-			<li class="logNavItem">
-				<a href="/battery">电量查询</a>
-			</li>
-			<li class="logNavItem">
-				<a href="/smssend">短信发送</a>
-			</li>
-			{% if role == 0 %}
-			<li class="logNavItem">
-				<a href="/feedback">意见反馈</a>
-			</li>
-			{% end %}
-			<li class="logNavItem">
-				<a href="/password">修改密码</a>
-			</li>
-		</ul>
-		<div class="right_title">
-			欢迎您，<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<title>移动车卫士各模块日志监控系统</title>
+		<meta http-equiv="pragma" content="no-cache">
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+		<link type="text/css" href="/static/css/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
+		<link href="./static/css/css.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+		<link rel="stylesheet" media="all" type="text/css" href="/static/css/jquery-ui-timepicker-addon.css" />
+		<script type="text/javascript" src="/static/js/jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-1.8.14.custom.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-timepicker-addon.js"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-timepicker-zh-CN.js"></script>
+		<script type="text/javascript" src="/static/js/jquery_cookie.js"></script>
+		<script type="text/javascript" src="/static/js/json2.js"></script>
+		<script type="text/javascript" src="/static/js/searchRecord.js"></script>
+		<script type="text/javascript" src="/static/js/initialize.js"></script>
+	</head>
+	<body>
+		<div class="logHeader">
+			<ul id="logNavItemPanel" class="logNavPanel">
+				<li class="logNavItem logCurrentItem">
+					<a href="#">日志查询</a>
+				</li>
+				<li class="logNavItem">
+					<a href="/packet">报文查询</a>
+				</li>
+				<li class="logNavItem">
+					<a href="/battery">电量查询</a>
+				</li>
+				<li class="logNavItem">
+					<a href="/smssend">短信发送</a>
+				</li>
+				{% if role == 0 %}
+					<li class="logNavItem">
+						<a href="/feedback">意见反馈</a>
+					</li>
+				{% end %}
+				<li class="logNavItem">
+					<a href="/password">修改密码</a>
+				</li>
+			</ul>
+			<div class="right_title">
+				欢迎您，<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
+			</div>
 		</div>
-	</div>
-	
-	<fieldset class="ui-widget ui-widget-content ui-corner-all">
-		<legend class="button legend ui-widget ui-state-default ui-corner-all ui-button-text-only legend-button" role="button">
-			<span class="ui-button-text legend-text">日志查询</span>
-		</legend>
-	
-		<table id="searchTable" align="center">
-			<tr>
-				<td align="right" nowrap="nowrap" class="log_tip_title">开始时间：</td>
-				<td align="left">
-					<input type="text" id="beginDate" class="tdStyle" readonly="true" />
-				</td>
-				<td align="right" nowrap="nowrap" class="log_tip_title">结束时间：</td>
-				<td align="left">
-					<input type="text" id="endDate" class="tdStyle" readonly="true" />
-				</td>
-				<td align="right" nowrap="nowrap" class="log_tip_title">模块：</td>
-				<td align="left">
-					<select id="plan_id" class="tdStyle">
-						<option value="">--请选择要查询的模块--</option>
-						<option value="uweb">1 uweb</option>
-						<option value="gf_sender">2 gf_sender</option>
-						<option value="lbmp_sender">3 lbmp_sender</option>
-						<option value="eventer">4 eventer</option>
-						<option value="sms">5 sms</option>
-						<option value="androidpush">6 androidpush</option>
-						<!-- <option value="celery">7 celery</option> -->
-						<option value="siserver">7 siserver</option>
-						<option value="gateway">8 gateway</option>
-						<!-- <option value="agps">10 agps</option> -->
-						<option value="admin">9 admin</option>
-					</select>
-				</td>
-				<td align="right" nowrap="nowrap" class="log_tip_title">错误级别：</td>
-				<td align="left">
-					<select id="level_id" class="tdStyle">
-						<option value="">--请选择要查询的错误级别--</option>
-						<option value="ERROR">ERROR</option>
-						<option value="WARN">WARN</option>
-						<option value="EXCEPTION">EXCEPTION</option>
-					</select>
-				</td>
-				<td>
-					<input id="search_button" type="button" value="查询"
-					class="ui-button ui-widget ui-state-default ui-corner-all"
-					role="button" aria-disabled="false" />
-				</td>
-			</tr>
+		
+		<fieldset class="ui-widget ui-widget-content ui-corner-all">
+			<legend class="button legend ui-widget ui-state-default ui-corner-all ui-button-text-only legend-button" role="button">
+				<span class="ui-button-text legend-text">日志查询</span>
+			</legend>
+			
+			<table id="searchTable" align="center">
+				<tr>
+					<td align="right" nowrap="nowrap" class="log_tip_title">开始时间：</td>
+					<td align="left">
+						<input type="text" id="beginDate" class="tdStyle" readonly="true" />
+					</td>
+					<td align="right" nowrap="nowrap" class="log_tip_title">结束时间：</td>
+					<td align="left">
+						<input type="text" id="endDate" class="tdStyle" readonly="true" />
+					</td>
+					<td align="right" nowrap="nowrap" class="log_tip_title">模块：</td>
+					<td align="left">
+						<select id="plan_id" class="tdStyle">
+							<option value="">--请选择要查询的模块--</option>
+							<option value="uweb">1 uweb</option>
+							<option value="gf_sender">2 gf_sender</option>
+							<option value="lbmp_sender">3 lbmp_sender</option>
+							<option value="eventer">4 eventer</option>
+							<option value="sms">5 sms</option>
+							<option value="androidpush">6 androidpush</option>
+							<!-- <option value="celery">7 celery</option> -->
+							<option value="siserver">7 siserver</option>
+							<option value="gateway">8 gateway</option>
+							<!-- <option value="agps">10 agps</option> -->
+							<option value="admin">9 admin</option>
+						</select>
+					</td>
+					<td align="right" nowrap="nowrap" class="log_tip_title">错误级别：</td>
+					<td align="left">
+						<select id="level_id" class="tdStyle">
+							<option value="">--请选择要查询的错误级别--</option>
+							<option value="ERROR">ERROR</option>
+							<option value="WARN">WARN</option>
+							<option value="EXCEPTION">EXCEPTION</option>
+						</select>
+					</td>
+					<td>
+						<input id="search_button" type="button" value="查询"
+						class="ui-button ui-widget ui-state-default ui-corner-all"
+						role="button" aria-disabled="false" />
+					</td>
+				</tr>
+			</table>
+			
+		</fieldset>
+		
+		<div class="resultQuery">
+			<div class="resultTitle">
+				<h3>查询结果</h3>
+				<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
+			</div>
+		</div>
+		<table id="search_table" class="display" whois="log">
+			<thead>
+				<tr>
+					<th class="timeTh">时间</th>
+					<th class="typeTh">服务名称</th>
+					<th class="timeTh">消息类别</th>
+					<th>消息内容</th>
+					<th>显示详细</th>
+				</tr>
+			</thead>
+			<tbody id="search_tbody">
+				
+			</tbody>
 		</table>
-	
-	</fieldset>
-	
-	<div class="resultQuery">
-	   <div class="resultTitle">
-			<h3>查询结果</h3>		
-			<span class="titleSortTips"> * 点击表格标题列可按照对应列进行排序。</span>
-		</div>
-	</div>
-	<table id="search_table" class="display" whois="log">
-		<thead>
-			<tr>
-				<th class="timeTh">时间</th>
-				<th class="typeTh">服务名称</th>
-				<th class="timeTh">消息类别</th>
-				<th>消息内容</th>
-				<th>显示详细</th>
-			</tr>
-		</thead>
-	<tbody id="search_tbody">
-	
-	</tbody>
-	</table>
-	<div id="msg" class="msg hide">
-		<strong class="msgContent">
+		<div id="msg" class="msg hide">
+			<strong class="msgContent">
 			<span id="layerMsgContent">页面数据正在加载中...</span>
 			<img src="/static/images/blue-wait.gif" />
-		</strong>
-	</div>
-	<div id="maskLayer" class="iLayer">
-		<iframe scrolling="no" frameborder="0" style="width:100%; height:100%; top:0px; left:0px; position:absolute; z-index:-1; filter: alpha(opacity=20);"> 
-		</iframe>
-	</div>
-  </body>
+			</strong>
+		</div>
+		<div id="maskLayer" class="iLayer">
+			<iframe scrolling="no" frameborder="0" style="width:100%; height:100%; top:0px; left:0px; position:absolute; z-index:-1; filter: alpha(opacity=20);">
+			</iframe>
+		</div>
+	</body>
 </html>

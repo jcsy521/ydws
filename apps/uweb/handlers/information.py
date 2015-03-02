@@ -9,12 +9,10 @@ import logging
 import httplib2
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, str_to_list, safe_utf8
-from utils.checker import check_sql_injection
-from constants import UWEB
+from utils.misc import safe_utf8
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
 from helpers.confhelper import ConfHelper
@@ -216,7 +214,7 @@ def push(pids, message):
             status = ErrorCode.SUCCESS
             return status
     except Exception as e:
-            logging.exception("[UWEB] Send message to push server failed. Exception: %s", 
-                              self.current_user.cid, e.args) 
-            status = ErrorCode.SERVER_BUSY
-            return status
+        logging.exception("[UWEB] Send message to push server failed. Exception: %s", 
+                          e.args) 
+        status = ErrorCode.SERVER_BUSY
+        return status

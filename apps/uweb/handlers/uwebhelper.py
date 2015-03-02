@@ -9,7 +9,6 @@ import tornado.web
 
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
-from codes.errorcode import ErrorCode
 from helpers import lbmphelper
 
 

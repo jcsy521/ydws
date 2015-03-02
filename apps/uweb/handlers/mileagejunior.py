@@ -7,23 +7,17 @@ import logging
 import datetime
 import time
 import hashlib
-from os import SEEK_SET
-import xlwt
-from cStringIO import StringIO
 from decimal import Decimal
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
-from utils.dotdict import DotDict
-from utils.misc import (DUMMY_IDS, str_to_list, start_end_of_year, start_end_of_month,
-                        start_end_of_day, start_end_of_quarter, days_of_month, get_date_from_utc)
+from utils.misc import (str_to_list, 
+    start_end_of_day, get_date_from_utc)
 from utils.dotdict import DotDict
 from helpers.queryhelper import QueryHelper
-from helpers.lbmphelper import get_distance
-from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
-from constants import UWEB, EXCEL
+from constants import UWEB
 from base import BaseHandler, authenticated
 
 
@@ -44,7 +38,6 @@ class MileageJuniorHandler(BaseHandler):
             data = DotDict(json_decode(self.request.body))
             page_size = UWEB.LIMIT.PAGE_SIZE
             page_number = int(data.pagenum)
-            page_count = int(data.pagecnt)
             start_time = data.start_time
             end_time = data.end_time
             query_type = data.query_type
@@ -74,10 +67,10 @@ class MileageJuniorHandler(BaseHandler):
             if not tids:  # all terminals
                 statistic_mode = 'all'
                 if self.current_user.oid == UWEB.DUMMY_OID:  # enterprise
-                    terminals = QueryHelper.get_all_terminals_by_cid(
+                    terminals = QueryHelper.get_terminals_by_cid(
                         self.current_user.cid, self.db)
                 else:  # operator
-                    terminals = QueryHelper.get_all_terminals_by_oid(
+                    terminals = QueryHelper.get_terminals_by_oid(
                         self.current_user.oid, self.db)
 
                 tids = [terminal.tid for terminal in terminals]
@@ -99,7 +92,6 @@ class MileageJuniorHandler(BaseHandler):
                     page_count = (d + 1) if m else d
 
                 reports = []
-                interval = [start_time, end_time]
                 dis_count = Decimal()
                 for item, tid in enumerate(tids):
                     seq = item + 1

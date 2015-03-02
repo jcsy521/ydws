@@ -6,20 +6,19 @@
 """
 
 import logging
-import datetime
 import time
 import hashlib
 from os import SEEK_SET
-from dateutil.relativedelta import relativedelta
 import xlwt
 from cStringIO import StringIO
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from helpers.queryhelper import QueryHelper 
 from helpers.confhelper import ConfHelper
-from utils.misc import DUMMY_IDS, str_to_list, start_end_of_year, start_end_of_month, start_end_of_day, start_end_of_quarter, days_of_month
+from utils.misc import (str_to_list, start_end_of_year, 
+     start_end_of_month, start_end_of_day, days_of_month)
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB, EVENTER, EXCEL
@@ -109,7 +108,6 @@ class StatisticDownloadHandler(StatisticHandler):
     def get(self):
         """Provie some statistics about terminals.
         """
-        status = ErrorCode.SUCCESS
         try:
             hash_ = self.get_argument('hash_', None)
 
@@ -123,9 +121,7 @@ class StatisticDownloadHandler(StatisticHandler):
                             home_url=ConfHelper.UWEB_CONF.url_out)
                 return
             results = res
-
-            date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
-            
+           
             wb = xlwt.Workbook()
             ws = wb.add_sheet(EXCEL.EVENT_STATISTIC_SHEET)
 
@@ -317,7 +313,6 @@ class StatisticSingleDownloadHandler(StatisticSingleHandler):
     def get(self):
         """Provide some statistics about terminals.
         """
-        status = ErrorCode.SUCCESS
         try:
             hash_ = self.get_argument('hash_', None)
 
@@ -331,9 +326,7 @@ class StatisticSingleDownloadHandler(StatisticSingleHandler):
                             home_url=ConfHelper.UWEB_CONF.url_out)
                 return
             results, counts, label = res
-
-            date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
-            
+          
             wb = xlwt.Workbook()
             ws = wb.add_sheet(EXCEL.EVENT_SINGLE_STATISTIC_SHEET)
 
@@ -372,4 +365,3 @@ class StatisticSingleDownloadHandler(StatisticSingleHandler):
             self.render("error.html",
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.EXPORT_FAILED],
                         home_url=ConfHelper.UWEB_CONF.url_out)
-

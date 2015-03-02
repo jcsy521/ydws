@@ -9,17 +9,16 @@ import logging
 import time
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
-from utils.misc import get_terminal_info_key, get_alarm_info_key, get_location_key,\
-     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS, get_track_key
+from utils.misc import (get_alarm_info_key, get_location_key,
+     get_lastinfo_key, get_lastinfo_time_key, DUMMY_IDS, get_track_key)
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
-from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
+from helpers.lbmphelper import get_locations_with_clatlon
 from constants import UWEB, EVENTER, GATEWAY
-from constants.MEMCACHED import ALIVED
 from base import BaseHandler, authenticated
 
        

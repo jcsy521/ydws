@@ -7,9 +7,7 @@ import functools
 import urlparse
 import urllib
 import re
-import logging
-import random
-from time import strftime, time
+from time import strftime
 
 import tornado.web
 from tornado.escape import json_encode

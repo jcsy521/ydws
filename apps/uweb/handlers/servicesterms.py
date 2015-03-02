@@ -11,4 +11,3 @@ class ServicesTermsHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         self.render('servicesTerms.html')
-    

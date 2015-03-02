@@ -4,19 +4,16 @@
 """
 
 import logging
-import time
 
 from tornado.escape import json_decode
 import tornado.web
 from hashlib import md5
 
-from utils.misc import (get_terminal_info_key, str_to_list,
-                        get_terminal_sessionID_key)
+from utils.misc import get_terminal_info_key, str_to_list
 from utils.public import update_mannual_status
 from helpers.queryhelper import QueryHelper
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import UWEB
 
 from helpers.wspushhelper import WSPushHelper
 

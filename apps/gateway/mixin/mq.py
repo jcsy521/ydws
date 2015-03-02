@@ -2,7 +2,6 @@
 
 import pika
 from pika.adapters import *
-import json
 import logging
 
 from helpers.confhelper import ConfHelper
@@ -88,4 +87,3 @@ class RabbitMQMixin(object):
                 logging.exception("[GW] Delete gw_queue failed: already delete. Exception: %s",
                                   e.args)
             connection.close()
-

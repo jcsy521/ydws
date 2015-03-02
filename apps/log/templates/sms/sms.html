@@ -1,146 +1,139 @@
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-  <head>
-  
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <title>移动车卫士各模块日志监控系统</title>
-	<meta http-equiv="pragma" content="no-cache">
-	<meta http-equiv="cache-control" content="no-cache">
-	<meta http-equiv="expires" content="0">    
+	<head>
+		
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<title>移动车卫士各模块日志监控系统</title>
+		<meta http-equiv="pragma" content="no-cache">
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+		
+		<link type="text/css" href="/static/css/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
+		<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
+		<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
+		
+		<script src="/static/js/jquery-1.6.2.min.js" type="text/javascript"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript"></script>
+		
+		<script src="/static/js/initialize.js" type="text/javascript"></script>
+		<script src="/static/js/jquery-ui-timepicker-addon-0.5.min.js" type="text/javascript"></script>
+		<script src="/static/js/myDateTime.js" type="text/javascript"></script>
+		<script src="/static/js/jquery_cookie.js" type="text/javascript"></script>
+		<script src="/static/js/json2.js" type="text/javascript"></script>
+		<script src="/static/js/sms.js" type="text/javascript"></script>
+	</head>
 	
-	<link type="text/css" href="/static/css/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
-	<link href="/static/css/css.css" rel="stylesheet" type="text/css"/>
-	<link href="/static/css/dataTables_jui.css" rel="stylesheet" type="text/css"/>
-	<link href="/static/css/dataTables_highlight.css" rel="stylesheet" type="text/css"/>
-	
-	<script src="/static/js/jquery-1.6.2.min.js" type="text/javascript"></script>
-	<script type="text/javascript" src="/static/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript"></script>
-	
-	<script src="/static/js/initialize.js" type="text/javascript"></script>
-	<script src="/static/js/jquery-ui-timepicker-addon-0.5.min.js" type="text/javascript"></script>
-	<script src="/static/js/myDateTime.js" type="text/javascript"></script>
-	<script src="/static/js/jquery_cookie.js" type="text/javascript"></script>
-	<script src="/static/js/json2.js" type="text/javascript"></script>
-	<script src="/static/js/sms.js" type="text/javascript"></script>
-
-  </head>
-  
-  <body>
-	<div class="logHeader">
-		<ul id="logNavItemPanel" class="logNavPanel">
-			{% if role == 0 %}
+	<body>
+		<div class="logHeader">
+			<ul id="logNavItemPanel" class="logNavPanel">
+				{% if role == 0 %}
+					<li class="logNavItem">
+						<a href="/systemlog">日志查询</a>
+					</li>
+				{% end %}
 				<li class="logNavItem">
-					<a href="/systemlog">日志查询</a>
+					<a href="/packet">报文查询</a>
 				</li>
-			{% end %}
-			<li class="logNavItem">
-				<a href="/packet">报文查询</a>
-			</li>
-			<li class="logNavItem">
-				<a href="/battery">电量查询</a>
-			</li>
-			<li class="logNavItem logCurrentItem">
-				<a href="#">短信发送</a>
-			</li>
-			{% if role == 0 %}
-			<li class="logNavItem">
-				<a href="/feedback">意见反馈</a>
-			</li>
-			{% end %}
-			<li class="logNavItem">
-				<a href="/password">修改密码</a>
-			</li>
-		</ul>
-		<div class="right_title">
-			欢迎您，<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
+				<li class="logNavItem">
+					<a href="/battery">电量查询</a>
+				</li>
+				<li class="logNavItem logCurrentItem">
+					<a href="#">短信发送</a>
+				</li>
+				{% if role == 0 %}
+					<li class="logNavItem">
+						<a href="/feedback">意见反馈</a>
+					</li>
+				{% end %}
+				<li class="logNavItem">
+					<a href="/password">修改密码</a>
+				</li>
+			</ul>
+			<div class="right_title">
+				欢迎您，<label id="username" class="username">{{username}}</label>|<a id="logout" href="#">退出</a>
+			</div>
 		</div>
-	</div>
-	
-	<fieldset class="ui-widget ui-widget-content ui-corner-all">
-		<legend class="button legend ui-widget ui-state-default ui-corner-all ui-button-text-only legend-button" role="button">
-			<span class="ui-button-text legend-text">短信发送</span>
-		</legend>
-		<div class="ui-log-panel">
-			<div id="sms_type_panel">
-				<label class="inputTypeTip">短信内容：</label>
-				
-				<input id="sms_jh" type="radio" value="JH" name="sms_type" checked/>
-				<label id="tpsLable1" for="sms_jh">终端激活</label>
-				
-				<input id="sms_jb" type="radio" value="JB" name="sms_type" />
-				<label id="tpsLable2" for="sms_jb">终端解绑</label>
-				
-				<input id="sms_del" type="radio" value="DEL" name="sms_type" />
-				<label id="tpsLable3" for="sms_del">终端删除(不发送解绑指令)</label>
-				
-				<input id="sms_cq" type="radio" value="CQ" name="sms_type" />
-				<label id="tpsLable4" for="sms_cq">终端重启</label>
-				
-				<input id="sms_dw" type="radio" value="DW" name="sms_type" />
-				<label id="tpsLable5" for="sms_dw">定位</label>
-				
-				<input id="sms_domain" type="radio" value="DOMAIN" name="sms_type" />
-				<label id="tpsLable6" for="sms_domain">服务器地址</label>
-				
-				<input id="sms_update" type="radio" value="UPDATE" name="sms_type" />
-				<label id="tpsLable7" for="sms_update">脚本更新</label>
-
-				<input id="sms_reboot" type="radio" value="REBOOT" name="sms_type" />
-				<label id="tpsLable8" for="sms_reboot">终端重启（直接重启）</label>
-
-				<input id="sms_test" type="radio" value="TEST" name="sms_type" />
-				<label id="tpsLable6" for="sms_reboot">测试短信</label>
-
-				<input id="sms_lqly" type="radio" value="KQLY" name="sms_type" />
-				<label id="tpsLable7" for="sms_kqly">开启蓝牙</label>
-
-				<input id="sms_lqgz" type="radio" value="LQGZ" name="sms_type" />
-				<label id="tpsLable8" for="sms_lqgz">拉起跟踪</label>
-
-				<!--
-				<input id="sms_sf" type="radio" value="SF" name="sms_type" />
-				<label id="tpsLable3" for="sms_sf">终端设防</label>
-				
-				<input id="sms_cf" type="radio" value="CF" name="sms_type" />
-				<label id="tpsLable4" for="sms_cf">终端撤防</label>
-				
-				<input id="sms_dl" type="radio" value="DL" name="sms_type" />
-				<label id="tpsLable6" for="sms_dl">查询终端电量</label>
-				
-				<input id="sms_help" type="radio" value="H" name="sms_type" />
-				<label id="tpsLable7" for="sms_help">查询短信指令</label>-->
-				
+		
+		<fieldset class="ui-widget ui-widget-content ui-corner-all">
+			<legend class="button legend ui-widget ui-state-default ui-corner-all ui-button-text-only legend-button" role="button">
+				<span class="ui-button-text legend-text">短信发送</span>
+			</legend>
+			<div class="ui-log-panel">
+				<div id="sms_type_panel">
+					<label class="inputTypeTip">短信内容：</label>
+					
+					<input id="sms_jh" type="radio" value="JH" name="sms_type" checked/>
+					<label id="tpsLable1" for="sms_jh">终端激活</label>
+					
+					<input id="sms_jb" type="radio" value="JB" name="sms_type" />
+					<label id="tpsLable2" for="sms_jb">终端解绑</label>
+					
+					<input id="sms_del" type="radio" value="DEL" name="sms_type" />
+					<label id="tpsLable3" for="sms_del">终端删除(不发送解绑指令)</label>
+					
+					<input id="sms_cq" type="radio" value="CQ" name="sms_type" />
+					<label id="tpsLable4" for="sms_cq">终端重启</label>
+					
+					<input id="sms_dw" type="radio" value="DW" name="sms_type" />
+					<label id="tpsLable5" for="sms_dw">定位</label>
+					
+					<input id="sms_domain" type="radio" value="DOMAIN" name="sms_type" />
+					<label id="tpsLable6" for="sms_domain">服务器地址</label>
+					
+					<input id="sms_update" type="radio" value="UPDATE" name="sms_type" />
+					<label id="tpsLable7" for="sms_update">脚本更新</label>
+					<input id="sms_reboot" type="radio" value="REBOOT" name="sms_type" />
+					<label id="tpsLable8" for="sms_reboot">终端重启（直接重启）</label>
+					<input id="sms_test" type="radio" value="TEST" name="sms_type" />
+					<label id="tpsLable6" for="sms_reboot">测试短信</label>
+					<input id="sms_lqly" type="radio" value="KQLY" name="sms_type" />
+					<label id="tpsLable7" for="sms_kqly">开启蓝牙</label>
+					<input id="sms_lqgz" type="radio" value="LQGZ" name="sms_type" />
+					<label id="tpsLable8" for="sms_lqgz">拉起跟踪</label>
+					<!--
+					<input id="sms_sf" type="radio" value="SF" name="sms_type" />
+					<label id="tpsLable3" for="sms_sf">终端设防</label>
+					
+					<input id="sms_cf" type="radio" value="CF" name="sms_type" />
+					<label id="tpsLable4" for="sms_cf">终端撤防</label>
+					
+					<input id="sms_dl" type="radio" value="DL" name="sms_type" />
+					<label id="tpsLable6" for="sms_dl">查询终端电量</label>
+					
+					<input id="sms_help" type="radio" value="H" name="sms_type" />
+					<label id="tpsLable7" for="sms_help">查询短信指令</label>-->
+					
+				</div>
+				<div>
+					<label class="inputPanelTip">终端号码：</label>
+					<input type="text" id="tmobile" class="tdStyle" maxlength="11" />
+				</div>
+				<div id="sms_jh_umobile_panel">
+					<label class="inputPanelTip">车主号码：</label>
+					<input type="text" id="umobile" class="tdStyle" maxlength="11" />
+				</div>
+				<div id="sms_jb_clear_panel" class="hide">
+					<label class="inputPanelTip">清除历史数据：</label>
+					<input id="data_clear_n" type="radio" value="0" name="data_clear" checked />
+					<label id="tpsLable8" for="data_clear_n">不清除</label>
+					
+					<input id="data_clear_y" type="radio" value="1" name="data_clear" />
+					<label id="tpsLable9" for="data_clear_y">清除</label>
+				</div>
+				<div id="sms_domain_panel" class="hide">
+					<label class="inputPanelTip">服务器地址：</label>
+					<select id="domain" class="tdStyle">
+						{% for domain in domains %}
+							<option value="{{domain}}">{{domain}}</option>
+						{% end %}
+					</select>
+				</div>
+				<div>
+					<input id="sms_send" type="button" value="发送" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
+				</div>
 			</div>
-			<div>
-				<label class="inputPanelTip">终端号码：</label>
-				<input type="text" id="tmobile" class="tdStyle" maxlength="11" />
-			</div>
-			<div id="sms_jh_umobile_panel">
-				<label class="inputPanelTip">车主号码：</label>
-				<input type="text" id="umobile" class="tdStyle" maxlength="11" />
-			</div>
-			<div id="sms_jb_clear_panel" class="hide">
-				<label class="inputPanelTip">清除历史数据：</label>
-				<input id="data_clear_n" type="radio" value="0" name="data_clear" checked />
-				<label id="tpsLable8" for="data_clear_n">不清除</label>
-				
-				<input id="data_clear_y" type="radio" value="1" name="data_clear" />
-				<label id="tpsLable9" for="data_clear_y">清除</label>
-			</div>
-			<div id="sms_domain_panel" class="hide">
-				 <label class="inputPanelTip">服务器地址：</label>
-				 <select id="domain" class="tdStyle">
-					{% for domain in domains %}
-						<option value="{{domain}}">{{domain}}</option>
-					{% end %}
-				 </select>
-			</div>
-			<div>
-				<input id="sms_send" type="button" value="发送" class="ui-button ui-widget ui-state-default ui-corner-all"	role="button" aria-disabled="false" />
-			</div>
-		</div>	
-	</fieldset>
-	
-  </body>
+		</fieldset>
+		
+	</body>
 </html>

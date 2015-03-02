@@ -5,7 +5,7 @@
 
 import logging
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from utils.dotdict import DotDict
@@ -93,7 +93,8 @@ class SMSOptionCorpHandler(BaseHandler):
         """
         status = ErrorCode.SUCCESS
         try: 
-            terminals = self.db.query("SELECT tt.mobile, tt.owner_mobile FROM T_TERMINAL_INFO as tt, "
+            terminals = self.db.query("SELECT tt.mobile, tt.owner_mobile"
+                                      "  FROM T_TERMINAL_INFO as tt, "
                                       "  T_GROUP as tg, T_CORP as tc" 
                                       "  WHERE tt.service_status = 1 AND tc.cid = %s "
                                       "  AND tc.cid = tg.corp_id AND tt.group_id = tg.id",

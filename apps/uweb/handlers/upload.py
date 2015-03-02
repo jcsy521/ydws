@@ -9,7 +9,8 @@ from tornado.escape import json_decode
 import tornado.web
 
 from helpers.queryhelper import QueryHelper 
-from utils.public import insert_location, update_terminal_info_ydwq, update_terminal_status, record_attendance
+from utils.public import (insert_location, 
+     update_terminal_info_ydwq, update_terminal_status, record_attendance)
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB 

@@ -12,7 +12,6 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 import tornado.web
-from tornado.web import removeslash
 from tornado.escape import json_decode
 
 from mixin.avatar import AvatarMixin
@@ -22,7 +21,6 @@ from codes.smscode import SMSCode
 from utils.dotdict import DotDict
 from utils.public import record_add_action, delete_terminal, add_terminal 
 from utils.misc import get_tid_from_mobile_ydwq 
-from utils.checker import check_zs_phone
 from constants import UWEB
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper

@@ -4,7 +4,6 @@ import logging
 import time
 
 from utils.dotdict import DotDict
-from helpers.confhelper import ConfHelper
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
 from constants import UWEB 
@@ -80,7 +79,8 @@ class LoginMixin(BaseMixin):
             return None, None, None, None, None, status 
         else:    
             if user_type == UWEB.USER_TYPE.PERSON:
-                terminals = self.db.query("SELECT id, tid, mobile as sim, login, keys_num"
+                terminals = self.db.query("SELECT id, tid, mobile as sim,"
+                                          "  login, keys_num"
                                           "  FROM T_TERMINAL_INFO"
                                           "  WHERE service_status = %s"
                                           "    AND owner_mobile = %s"
@@ -110,7 +110,8 @@ class LoginMixin(BaseMixin):
                     #corp = self.db.get("SELECT corp_id FROM T_GROUP WHERE id = %s", groups[0].group_id)
                     #cid = corp.corp_id
                     # NOTE：the codes above is ugly. one can get cid by T_OPERATOR, rather than T_GROUP
-                    operator = self.db.get("SELECT corp_id FROM T_OPERATOR WHERE oid = %s", oid)
+                    operator = self.db.get("SELECT corp_id FROM T_OPERATOR"
+                                           "  WHERE oid = %s", oid)
                     cid = operator.corp_id
                 else: # corp
                     cid = user.cid 
@@ -119,7 +120,8 @@ class LoginMixin(BaseMixin):
                                            user.cid)
                     group_ids = [str(group.id) for group in groups]
 
-                sql_cmd = ("SELECT id, tid, mobile as sim, login, keys_num, owner_mobile"
+                sql_cmd = ("SELECT id, tid, mobile as sim,"
+                           "  login, keys_num, owner_mobile"
                            "  FROM T_TERMINAL_INFO"
                            "  WHERE service_status = %s"
                            "    AND group_id IN %s") %\

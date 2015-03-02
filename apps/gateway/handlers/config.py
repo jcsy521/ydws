@@ -1,21 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import time
 
-from clw.packet.parser.config import ConfigParser
 from clw.packet.composer.config import ConfigRespComposer
 
 from utils.dotdict import DotDict
 
-from utils.misc import (get_resend_key, get_terminal_sessionID_key,
-get_acc_status_info_key)
+from utils.misc import get_acc_status_info_key
 
 from helpers.queryhelper import QueryHelper
-from helpers.smshelper import SMSHelper
-from helpers.wspushhelper import WSPushHelper
 
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY, UWEB
 
 from error import GWException
             
@@ -83,18 +78,18 @@ def handle_config(info, address, connection, channel, exchange, gw_binding, db, 
             args.static_val = static_val 
 
         #NOTE: check the version.
-        # if version is after 2.4, add tracking-interval in S17 
+        # if version is after 2.4, add tracking-interval in S17
         softversion = head['softversion']
         item = softversion.split(".")
-        old_softversion = False 
+        old_softversion = False
 
         if int(item[0]) < 2: # 1.x.x
             old_softversion = True
         elif int(item[0]) == 2: # 2.x.x
             if int(item[1]) < 4: # 2.3.x
-                old_softversion = True 
-            else: # 2.4.x 
-                old_softversion = False 
+                old_softversion = True
+            else: # 2.4.x
+                old_softversion = False
         else: # 3.x
             old_softversion = False
         if old_softversion:
@@ -116,4 +111,3 @@ def handle_config(info, address, connection, channel, exchange, gw_binding, db, 
     except:
         logging.exception("[GW] Hand query config exception.")
         GWException().notify()
-

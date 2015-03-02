@@ -7,15 +7,15 @@
 
 import logging
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from helpers.queryhelper import QueryHelper 
 from helpers.confhelper import ConfHelper
-from utils.misc import DUMMY_IDS_STR, DUMMY_IDS, safe_unicode, str_to_list, get_terminal_info_key
+from utils.misc import DUMMY_IDS_STR, str_to_list
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import UWEB, EVENTER 
+from constants import UWEB 
 from base import BaseHandler, authenticated
 
 class AttendanceHandler(BaseHandler):
@@ -31,8 +31,7 @@ class AttendanceHandler(BaseHandler):
                                "    AND service_status = %s",
                                mobile,
                                UWEB.SERVICE_STATUS.ON)
-        if not terminal:
-            status = ErrorCode.LOGIN_AGAIN
+        if not terminal:            
             logging.error("The terminal with mobile: %s does not exist, redirect to login.html", self.current_user.tid)
             self.render("login.html",
                         map_type=ConfHelper.LBMP_CONF.map_type,

@@ -9,7 +9,6 @@ TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
 import thread
-import time
 import signal
 import logging
 import multiprocessing
@@ -25,7 +24,7 @@ define('mode', default='deploy')
 try:
     options['logging'].set('info')
 except:
-    options.logging='info'
+    options.logging = 'info'
 
 from utils.myredis import MyRedis
 from db_.mysql import DBConnection
@@ -68,10 +67,10 @@ def main():
         usage()
         sys.exit(1)
 
-    if options.mode.lower() == "debug":
-        debug_mode = True
-    else:
-        debug_mode = False
+    # if options.mode.lower() == "debug":
+    #     debug_mode = True
+    # else:
+    #     debug_mode = False
 
     ConfHelper.load(options.conf)
     redis = MyRedis()

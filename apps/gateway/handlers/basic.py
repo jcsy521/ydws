@@ -2,8 +2,6 @@
 
 import pika
 import json
-import logging
-
 
 from utils.misc import (get_terminal_address_key, get_lq_interval_key, get_resend_key)
 from constants.GATEWAY import HEARTBEAT_INTERVAL, SLEEP_HEARTBEAT_INTERVAL

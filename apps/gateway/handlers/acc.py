@@ -14,9 +14,8 @@ from helpers.wspushhelper import WSPushHelper
 from error import GWException
 
 from utils.dotdict import DotDict
-from utils.public import update_terminal_info
             
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY, UWEB
 
 from utils.misc import get_acc_status_info_key
 

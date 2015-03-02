@@ -12,15 +12,14 @@ import os
 import random
 import string
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from utils.dotdict import DotDict
 from utils.public import (record_add_action, delete_terminal, add_user,
                           add_terminal, update_speed_limit)
-from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
-                        get_terminal_info_key, get_lq_sms_key,
-                        get_lq_interval_key, get_del_data_key,
+from utils.misc import (get_terminal_sessionID_key,
+                        get_del_data_key,
                         get_tid_from_mobile_ydwq)
 from constants import UWEB, GATEWAY
 from helpers.gfsenderhelper import GFSenderHelper

@@ -14,12 +14,9 @@ import thread
 
 from db_.mysql import DBConnection
 from utils.myredis import MyRedis
-from helpers.smshelper import SMSHelper
-from helpers.emailhelper import EmailHelper 
 from helpers.confhelper import ConfHelper
 from constants import GATEWAY
-from constants import SMS
-from codes.smscode import SMSCode
+
 
 class SimulatorTerminalTest(object):
     """Provide location for TEST Account. 

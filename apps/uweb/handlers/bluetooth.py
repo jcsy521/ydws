@@ -9,12 +9,9 @@ from tornado.escape import json_decode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.misc import get_kqly_key, str_to_list
-from constants import SMS
-from helpers.queryhelper import QueryHelper
-from helpers.smshelper import SMSHelper
+from utils.misc import str_to_list
+
 from codes.errorcode import ErrorCode
-from codes.smscode import SMSCode
 from utils.public import kqly
 
 from base import BaseHandler, authenticated
@@ -50,7 +47,7 @@ class KQLYHandler(BaseHandler, BaseMixin):
         try:
             tids = str_to_list(tids)
             tids = tids if tids else [self.current_user.tid, ]
-            tids = [str(tid) for tid in tids]          
+            tids = [str(t) for t in tids]          
             kqly(self.db, self.redis, tids)
             self.write_ret(status)
         except Exception as e:

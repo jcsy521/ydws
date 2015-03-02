@@ -19,7 +19,10 @@ class FeedBackHandler(BaseHandler):
         """Jump to feedback.html
         """
         username = self.get_current_user()
-        n_role = self.db.get("SELECT role FROM T_LOG_ADMIN WHERE name = %s", username)
+        n_role = self.db.get("SELECT role "
+                             "  FROM T_LOG_ADMIN"
+                             "  WHERE name = %s", 
+                             username)
         self.render("feedback/feedback.html",
                      username=username, 
                      role=n_role.role)
@@ -35,20 +38,25 @@ class FeedBackHandler(BaseHandler):
             end_time = data.get("end_time")
             isreplied = data.get("isreplied", -1)
         except Exception as e:
-            logging.info("[LOG] Feedback illegal data format. Exception: %s", e.args)
+            logging.info("[LOG] Feedback illegal data format. Exception: %s", 
+                         e.args)
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
 
         try: 
             if isreplied == -1: # all reply
-                res = self.acbdb.query("SELECT id, contact, email, content, timestamp, reply, reply_time, isreplied, category"
+                res = self.acbdb.query("SELECT id, contact, email, content,"
+                                       "  timestamp, reply, reply_time, "
+                                       "  isreplied, category"
                                        "  FROM T_FEEDBACK"
                                        "  WHERE timestamp BETWEEN %s AND %s"
                                        "  ORDER BY timestamp DESC",
                                        start_time, end_time)
 
             else:
-                res = self.acbdb.query("SELECT id, contact, email, content, timestamp, reply, reply_time, isreplied, category"
+                res = self.acbdb.query("SELECT id, contact, email, content,"
+                                       "  timestamp, reply, reply_time,"
+                                       "  isreplied, category"
                                        "  FROM T_FEEDBACK"
                                        "  WHERE timestamp BETWEEN %s AND %s AND isreplied = %s "
                                        "  ORDER BY timestamp DESC",
@@ -56,7 +64,8 @@ class FeedBackHandler(BaseHandler):
             self.write_ret(status,
                            dict_=DotDict(res=res))
         except Exception as e: 
-            logging.exception("[LOG] Feedback query failed. Exception: %s", e.args)
+            logging.exception("[LOG] Feedback query failed. Exception: %s", 
+                              e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -71,7 +80,8 @@ class FeedBackHandler(BaseHandler):
             reply = data.get("reply","")
             email = data.get("email", "")
         except Exception as e:
-            logging.info("[LOG] Feedback illegal data format. Exception: %s", e.args)
+            logging.info("[LOG] Feedback illegal data format. Exception: %s", 
+                         e.args)
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
 
@@ -93,7 +103,8 @@ class FeedBackHandler(BaseHandler):
             self.write_ret(status,
                            dict_=DotDict(reply_time=reply_time))
         except Exception as e: 
-            logging.exception("[LOG] Feedback query failed. Exception: %s", e.args)
+            logging.exception("[LOG] Feedback query failed. Exception: %s", 
+                              e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
 
@@ -104,7 +115,8 @@ class FeedBackHandler(BaseHandler):
         try:
             delete_ids = map(int, str_to_list(self.get_argument('ids', None)))
         except Exception as e:
-            logging.info("[LOG] Feedback illegal data format. Exception: %s", e.args)
+            logging.info("[LOG] Feedback illegal data format. Exception: %s", 
+                         e.args)
             status = ErrorCode.ILLEGAL_DATA_FORMAT
             self.write_ret(status)
 
@@ -114,8 +126,7 @@ class FeedBackHandler(BaseHandler):
                                tuple(delete_ids + DUMMY_IDS))
             self.write_ret(status)
         except Exception as e: 
-            logging.exception("[LOG] Feedback query failed. Exception: %s", e.args)
+            logging.exception("[LOG] Feedback query failed. Exception: %s", 
+                              e.args)
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-     
-        

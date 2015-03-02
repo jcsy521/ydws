@@ -5,12 +5,10 @@ import logging
 import Image
 import ImageDraw
 import ImageFont
-import ImageFilter
 import random
 import string
 import cStringIO
 import hashlib
-import datetime
 import os.path
 
 from constants import UWEB

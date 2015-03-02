@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import datetime
 import time
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from utils.dotdict import DotDict
 from utils.misc import  get_sampled_list
-from constants import UWEB, SMS
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_locations_with_clatlon
-from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
-from codes.smscode import SMSCode
 from constants import UWEB, LIMIT
 
 from base import BaseHandler, authenticated
@@ -103,7 +99,9 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
                         distance = self.get_track_distance(starts)
 
                         lid=starts[0]['id']
-                        location = self.db.get("SELECT * FROM T_LOCATION WHERE id = %s AND tid = %s LIMIT 1", lid, tid)
+                        location = self.db.get("SELECT * FROM T_LOCATION"
+                                               "  WHERE id = %s AND tid = %s LIMIT 1", 
+                                               lid, tid)
 
                         _start_time=starts[0]["timestamp"] 
                         _end_time=starts[-1]["timestamp"] 
@@ -127,7 +125,9 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
                     ends = self.get_track(tid, newest_stop['start_time'], end_time)
                     if ends:
                         lid=ends[-1]['id']
-                        location = self.db.get("SELECT * FROM T_LOCATION WHERE id = %s", lid)
+                        location = self.db.get("SELECT * FROM T_LOCATION"
+                                               "  WHERE id = %s", 
+                                               lid)
                         _start_time=ends[-1]["timestamp"] 
                         _end_time=int(time.time())
                         end = dict(lid=lid, 
@@ -221,11 +221,8 @@ class MassPointBasicHandler(BaseHandler, TrackMixin):
 
 
                 # modify name & degere 
-                terminal = QueryHelper.get_terminal_by_tid(tid, self.db)
                 for item in track:
                     item['degree'] = float(item['degree'])
-                    if item.name is None:
-                        name = '' 
 
                 # if start is equal end, just provide start
                 if start and end:

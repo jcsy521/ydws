@@ -16,22 +16,22 @@
 		<h3>日志详细信息</h3>
 		<table class="tableStyle">
 			{% for info in allinfo %}
-			<tr>
-				<td class="tLeft">时间:</td>
-				<td align="left">{{info.time}}</td>
-			</tr>
-			<tr>
-				<td class="tLeft">报错等级:</td>
-				<td align="left">{{info.level}}</td>
-			</tr>
-			<tr>
-				<td class="tLeft">来源:</td>
-				<td align="left">{{info.servername}}</td>
-			</tr>
-			<tr>
-				<td class="tLeft">简明报错信息:</td>
-				<td align="left">{{info.details}}</td>
-			</tr>
+				<tr>
+					<td class="tLeft">时间:</td>
+					<td align="left">{{info.time}}</td>
+				</tr>
+				<tr>
+					<td class="tLeft">报错等级:</td>
+					<td align="left">{{info.level}}</td>
+				</tr>
+				<tr>
+					<td class="tLeft">来源:</td>
+					<td align="left">{{info.servername}}</td>
+				</tr>
+				<tr>
+					<td class="tLeft">简明报错信息:</td>
+					<td align="left">{{info.details}}</td>
+				</tr>
 			{% end %}
 			<tr>
 				<td class="tLeft">详细报错信息:</td>

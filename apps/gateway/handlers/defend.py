@@ -10,10 +10,10 @@ from helpers.smshelper import SMSHelper
 
 from error import GWException
 from utils.dotdict import DotDict
-from utils.public import update_terminal_info, update_mannual_status
+from utils.public import update_mannual_status
 from codes.smscode import SMSCode
             
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY
 
 from utils.misc import get_acc_status_info_key
 
@@ -80,4 +80,3 @@ def handle_defend(info, address, connection, channel, exchange, gw_binding, db, 
     except:
         logging.exception("[GW] Handle defend status report exception.")
         GWException().notify()
-

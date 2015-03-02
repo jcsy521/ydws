@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import time
 
 import tornado.web
-from tornado.escape import json_decode, json_encode
 
-from base import BaseHandler, authenticated
-from utils.dotdict import DotDict
+from base import BaseHandler
 from codes.errorcode import ErrorCode
 from helpers.wspushhelper import WSPushHelper
-from utils.public import get_push_key
 
 
 class WSPushTestHandler(BaseHandler):

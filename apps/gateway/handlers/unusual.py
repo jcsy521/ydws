@@ -4,19 +4,15 @@ import logging
 from clw.packet.parser.unusualactivate import UnusualActivateParser
 from clw.packet.composer.unusualactivate import UnusualActivateComposer
 
-from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper 
 
 from error import GWException
 from utils.dotdict import DotDict
-from utils.public import update_terminal_info
 from codes.smscode import SMSCode
             
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY
 
-from utils.misc import get_acc_status_info_key
-
-from handlers.basic import append_gw_request, get_resend_flag, update_terminal_status
+from handlers.basic import append_gw_request, get_resend_flag
 
 def handle_unusual(info, address, connection, channel, exchange, gw_binding, db, redis):
     """Unusual activate report packet: owner_mobile changed.

@@ -23,8 +23,6 @@ try:
 except:
     options.logging='info'
 
-from utils.myredis import MyRedis
-from db_.mysql import DBConnection
 from helpers.confhelper import ConfHelper
 
 from checkterminalstatus import CheckTerminalStatus
@@ -46,7 +44,8 @@ def check_db():
             cdb.check_sms()
             cdb.check_push()
     except Exception as e:
-        logging.exception("[CK] Start check db failed.")
+        logging.exception("[CK] Start check db failed. Exception:%s",
+                          e.args)
 
 def check_terminal_status():
     logging.info("[CK] check terminal status thread started...")
@@ -56,7 +55,8 @@ def check_terminal_status():
             time.sleep(60)
             cps.check_terminal_status()
     except Exception as e:
-        logging.exception("[CK] Start check terminals status failed.")
+        logging.exception("[CK] Start check terminals status failed. Exception: %s",
+                          e.args)
 
 def simulator_terminal():
     logging.info("[CK] simulator terminal thread started...")
@@ -65,7 +65,8 @@ def simulator_terminal():
     try:
         st.udp_client()
     except Exception as e:
-        logging.exception("[CK] Start check simulator terminal failed.")
+        logging.exception("[CK] Start check simulator terminal failed. Exception:%s", 
+                          e.args)
 
 def simulator_terminal_test():
     logging.info("[CK] simulator terminal thread started...")
@@ -74,7 +75,8 @@ def simulator_terminal_test():
     try:
         st.udp_client()
     except Exception as e:
-        logging.exception("[CK] Start check simulator terminal failed.")
+        logging.exception("[CK] Start check simulator terminal failed. Exception:%s",
+                          e.args)
 
 def check_service():
     logging.info("[CK] check service thread started...")
@@ -82,7 +84,8 @@ def check_service():
     try:
         cs.check_service()
     except Exception as e:
-        logging.exception("[CK] Start check service failed.")
+        logging.exception("[CK] Start check service failed. Exception:%s",
+                          e.args)
 
 def main():
     tornado.options.parse_command_line()
@@ -91,10 +94,10 @@ def main():
         usage()
         sys.exit(1)
 
-    if options.mode.lower() == "debug":
-        debug_mode = True
-    else:
-        debug_mode = False
+    # if options.mode.lower() == "debug":
+    #     debug_mode = True
+    # else:
+    #     debug_mode = False
 
     ConfHelper.load(options.conf)
 
@@ -102,8 +105,8 @@ def main():
         logging.warn("[CK] running on: localhost. Parent process: %s", os.getpid())
         # run terminal
         thread.start_new_thread(check_terminal_status, ())
-        thread.start_new_thread(check_service, ())
-        thread.start_new_thread(simulator_terminal, ())
+        #thread.start_new_thread(check_service, ())
+        #thread.start_new_thread(simulator_terminal, ())
         #thread.start_new_thread(simulator_terminal_test, ())
         thread.start_new_thread(check_db, ())
         while True:

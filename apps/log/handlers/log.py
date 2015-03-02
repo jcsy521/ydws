@@ -3,23 +3,27 @@
 import logging
 
 import tornado.web
-from tornado.escape import  json_decode  
+from tornado.escape import json_decode  
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from base import authenticated,BaseHandler
+from base import authenticated, BaseHandler
+
 
 class Log(BaseHandler):
-    
+
     @authenticated
     def get(self):
         """Jump to log.html.
         """
         username = self.get_current_user()
-        n_role = self.db.get("SELECT role FROM T_LOG_ADMIN WHERE name = %s", username)
+        n_role = self.db.get("SELECT role"
+                             "  FROM T_LOG_ADMIN"
+                             "  WHERE name = %s", 
+                             username)
         self.render("log/log.html",
-                     username=username, 
-                     role=n_role.role)
+                    username=username, 
+                    role=n_role.role)
 
     @authenticated
     @tornado.web.removeslash
@@ -65,7 +69,7 @@ class Log(BaseHandler):
                                       "Exception: %s",
                                       start_time, end_time, plan_id, level, e.args)
                     self.write_ret(ErrorCode.FAILED)
-            else:#if time is null
+            else:  #if time is null
                 self.render("log/log.html",
                             allLog={},
                             start_time="",
@@ -74,9 +78,9 @@ class Log(BaseHandler):
                             level="",
                             username=None,)
         else:
-            if  start_time:#have time's value
+            if start_time:   # have time's value
                 try:
-                    if plan_id:#have the plan_id value  try:    except
+                    if plan_id:  #have the plan_id value  try:    except
                         allLog = self.db.query("SELECT id, level, servername, details,"
                                                "  DATE_FORMAT(time,'%%Y-%%m-%%d %%H:%%i:%%s')"
                                                "  AS time FROM T_LOG_DETAILS"
@@ -94,7 +98,8 @@ class Log(BaseHandler):
                         self.write_ret(ErrorCode.SUCCESS, 
                                        dict_=DotDict(res=allLog))
                 except Exception as e:
-                    logging.exception("[LOG] Log's inquiry failed. Inquiry condition:"
+                    logging.exception("[LOG] Log's inquiry failed."
+                                      " Inquiry condition:"
                                       "start_time: %s"
                                       "end_time: %s"
                                       "plan_id: %s"

@@ -9,14 +9,13 @@ import logging
 import time
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 from tornado.ioloop import IOLoop
 
 from utils.dotdict import DotDict
 from utils.misc import get_terminal_info_key
 from codes.errorcode import ErrorCode
 from constants import SMS, UWEB
-from helpers.seqgenerator import SeqGenerator
 from helpers.gfsenderhelper import GFSenderHelper
 
 from mixin.base import  BaseMixin

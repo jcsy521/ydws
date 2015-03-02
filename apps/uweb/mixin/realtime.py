@@ -3,17 +3,14 @@
 import logging
 import time
 
-from tornado.escape import json_decode, json_encode
-
-from helpers.gfsenderhelper import GFSenderHelper
-from helpers.seqgenerator import SeqGenerator
 from helpers.queryhelper import QueryHelper 
 from codes.errorcode import ErrorCode
 from utils.dotdict import DotDict
-from helpers.lbmphelper import handle_location, get_locations_with_clatlon, get_latlon_from_cellid, get_location_name, get_clocation_from_ge
+from helpers.lbmphelper import (get_locations_with_clatlon, 
+     get_latlon_from_cellid, get_location_name, get_clocation_from_ge)
 from utils.misc import get_location_key 
 from utils.public import insert_location
-from constants import UWEB, EVENTER, GATEWAY, SMS
+from constants import EVENTER
 from constants.MEMCACHED import ALIVED
 from base import BaseMixin
 
@@ -155,7 +152,8 @@ class RealtimeMixin(BaseMixin):
         else:
             ret.status = ErrorCode.LOCATION_CELLID_FAILED 
             ret.message = ErrorCode.ERROR_MESSAGE[ret.status]
-            logging.info("[UWEB] do not find any location, and cellid query failed. tid: %s", self.current_user.tid)
+            logging.info("[UWEB] Do not find any location, and cellid query failed. tid: %s", 
+                         self.current_user.tid)
 
         if callback:
             callback(ret)

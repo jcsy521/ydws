@@ -13,9 +13,9 @@ from codes.errorcode import ErrorCode
 from mysql import DBAcbConnection
 from db import DBConnection
 
-# expires period for cookie, it's 2 hours now.
-#EXPIRES_MINUTES = 120
-EXPIRES_MINUTES =  60*24 # 1 day
+# expires period for cookie, it's one day now.
+EXPIRES_MINUTES = 60 * 24  # 1 day
+
 
 def authenticated(method):
     """Decorate methods with this to require that the user be logged in."""
@@ -36,10 +36,11 @@ def authenticated(method):
         return method(self, *args, **kwargs)
     return wrapper
 
+
 class BaseHandler(tornado.web.RequestHandler):
 
-    SUPPORTED_METHODS = ("GET", "POST", "PUT", "DELETE" )
-    
+    SUPPORTED_METHODS = ("GET", "POST", "PUT", "DELETE")
+
     COOKIE_PATTERN = re.compile(r"ID=(?P<id>.+):SID=(?P<session_id>.+)")
     COOKIE_FORMAT = "ID=%(id)s:SID=%(session_id)s"
 
@@ -48,28 +49,26 @@ class BaseHandler(tornado.web.RequestHandler):
     def __init__(self, application, request):
         tornado.web.RequestHandler.__init__(self, application, request)
 
-        
-
     def bookkeep(self, data_dict, username=None):
         self.set_secure_cookie(self.app_name,
                                self.COOKIE_FORMAT % data_dict,
-                               expires_days=float(EXPIRES_MINUTES)/(24 * 60))
+                               expires_days=float(EXPIRES_MINUTES) / (24 * 60))
         self.set_cookie("%s_N" % (self.app_name,),
                         username,
-                        expires_days=float(EXPIRES_MINUTES)/(24 * 60))
+                        expires_days=float(EXPIRES_MINUTES) / (24 * 60))
+
     @property
     def memcached(self):
         return self.application.memcached
 
     @property
     def db(self):
-        log_db = DBConnection().db 
-        #print 'mydb---', log_db
+        log_db = DBConnection().db
         return log_db
-        
+
     @property
     def acbdb(self):
-        acbdb = DBAcbConnection().db 
+        acbdb = DBAcbConnection().db
         return acbdb
 
     @property
@@ -99,6 +98,6 @@ class BaseHandler(tornado.web.RequestHandler):
             ret.message = message
         if isinstance(dict_, dict):
             ret.update(dict_)
-                                                  
+
         self.set_header(*self.JSON_HEADER)
         self.write(json_encode(ret))

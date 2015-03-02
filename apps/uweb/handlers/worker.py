@@ -100,4 +100,3 @@ class WorkerPool(object):
             worker.join()
 
         self.workers.clear()
-

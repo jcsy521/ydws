@@ -5,18 +5,11 @@
 #NOTE: deprecated.
 """
 
-import logging
-import time
-
 import tornado.web
-from tornado.escape import json_encode, json_decode
 
-from utils.dotdict import DotDict
-from helpers.downloadhelper import (get_version_info,
-                                    get_download_count, update_download_count)
+from helpers.downloadhelper import get_download_count
 from helpers.queryhelper import QueryHelper
-from constants import DOWNLOAD, UWEB
-from codes.errorcode import ErrorCode
+from constants import UWEB
 from base import BaseHandler
 
 

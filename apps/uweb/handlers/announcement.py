@@ -4,13 +4,12 @@
 """
 
 import logging
-import time
 
 import tornado.web
 from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import safe_utf8, str_to_list, DUMMY_IDS
+from utils.misc import str_to_list, DUMMY_IDS
 from utils.public import record_announcement
 from helpers.queryhelper import QueryHelper
 from codes.errorcode import ErrorCode

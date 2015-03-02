@@ -6,20 +6,17 @@
 """
 
 import logging
-import time
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import get_terminal_info_key, get_location_key, get_lastinfo_line_key, get_lastinfo_line_time_key, DUMMY_IDS
+from utils.misc import get_terminal_info_key, get_location_key
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
-from constants import UWEB, EVENTER, GATEWAY
-from constants.MEMCACHED import ALIVED
-from base import BaseHandler, authenticated
+from constants import EVENTER, GATEWAY
+from base import BaseHandler
 
-       
+      
 class MAPHandler(BaseHandler):
     """Get the newest information of the line's terminal from redis or database.
     NOTE:It just retrieves data from db, not issue a location and get info from terminals of the line. 
@@ -132,4 +129,3 @@ class MAPHandler(BaseHandler):
                               line_id, e.args) 
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
-            

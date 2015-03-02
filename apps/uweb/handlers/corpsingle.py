@@ -6,10 +6,10 @@
 import logging
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, str_to_list, get_single_status_key
+from utils.misc import str_to_list
 from constants import UWEB, LIMIT
 from utils.public import add_single, delete_single
 from helpers.queryhelper import QueryHelper
@@ -127,7 +127,7 @@ class CorpSingleHandler(BaseHandler):
                 single_id = add_single(single_info, self.db, self.redis)
             else:
                 logging.error("[UWEB] Add single failed, unknown single_shape: %s, uid: %s",
-                              region_shape, self.current_user.uid)
+                              single_shape, self.current_user.uid)
 
             self.write_ret(status,
                            dict_=DotDict(single_id=single_id))

@@ -5,18 +5,13 @@
 #NOTE: deprecated.
 """
 
-import math
 import logging
-import datetime
 import time
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 from tornado.ioloop import IOLoop
 
-from helpers.seqgenerator import SeqGenerator
-from helpers.smshelper import SMSHelper
-from helpers.queryhelper import QueryHelper
 from helpers.gfsenderhelper import GFSenderHelper
 from utils.dotdict import DotDict
 from utils.misc import get_terminal_sessionID_key, get_del_data_key
@@ -24,7 +19,6 @@ from constants import UWEB, GATEWAY
 
 from base import BaseHandler, authenticated
 from mixin.base import BaseMixin
-from codes.smscode import SMSCode 
 from codes.errorcode import ErrorCode
 
 
@@ -53,14 +47,16 @@ class UNBindHandler(BaseHandler, BaseMixin):
             self.finish()
             return
 
-            terminal = self.db.get("SELECT id, tid, owner_mobile, login FROM T_TERMINAL_INFO"
+            terminal = self.db.get("SELECT id, tid, owner_mobile, login"
+                                   "  FROM T_TERMINAL_INFO"
                                    "  WHERE mobile = %s"
                                    "    AND service_status = %s",
                                    tmobile, 
                                    UWEB.SERVICE_STATUS.ON)
             if not terminal:
                 status = ErrorCode.TERMINAL_NOT_EXISTED
-                logging.error("The terminal with tmobile: %s does not exist!", tmobile)
+                logging.error("The terminal with tmobile: %s does not exist!", 
+                              tmobile)
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
                 return
@@ -77,15 +73,18 @@ class UNBindHandler(BaseHandler, BaseMixin):
                 status = ErrorCode.SUCCESS
                 response = json_decode(response)
                 if response['success'] == ErrorCode.SUCCESS:
-                    logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind successfully", 
+                    logging.info("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS"
+                                 "  unbind successfully", 
                                  self.current_user.uid, terminal.tid, tmobile)
                 else:
                     status = response['success']
                     # unbind failed. clear sessionID for relogin, then unbind it again
                     sessionID_key = get_terminal_sessionID_key(terminal.tid)
                     self.redis.delete(sessionID_key)
-                    logging.error('[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, message: %s, send JB sms...', 
-                                  self.current_user.uid, terminal.tid, tmobile, ErrorCode.ERROR_MESSAGE[status])
+                    logging.error("[UWEB] uid:%s, tid: %s, tmobile:%s GPRS unbind failed, "
+                                  "  message: %s, send JB sms...", 
+                                  self.current_user.uid, terminal.tid, 
+                                  tmobile, ErrorCode.ERROR_MESSAGE[status])
                     status = self.send_jb_sms(tmobile, terminal.owner_mobile, terminal.tid)
                 self.write_ret(status)
                 IOLoop.instance().add_callback(self.finish)
@@ -100,4 +99,3 @@ class UNBindHandler(BaseHandler, BaseMixin):
             status = ErrorCode.SERVER_BUSY
             self.write_ret(status)
             IOLoop.instance().add_callback(self.finish)
-

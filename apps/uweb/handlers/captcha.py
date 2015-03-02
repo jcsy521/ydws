@@ -5,9 +5,6 @@
 
 import tornado.web
 
-import cStringIO
-import hashlib
-
 from base import BaseHandler
 from mixin.captcha import CaptchaMixin
 

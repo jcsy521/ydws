@@ -8,18 +8,17 @@ import time
 
 import tornado.web
 from tornado.ioloop import IOLoop
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from utils.ordereddict import OrderedDict
-from utils.misc import (get_terminal_info_key, get_location_key,
+from utils.misc import (get_location_key,
      get_lastposition_key, get_lastposition_time_key, get_track_key, DUMMY_IDS)
 from utils.public import get_group_info_by_tid
-from helpers.lbmphelper import get_clocation_from_ge, get_locations_with_clatlon
+from helpers.lbmphelper import get_locations_with_clatlon
 from codes.errorcode import ErrorCode
 from helpers.queryhelper import QueryHelper
-from constants import UWEB, EVENTER, GATEWAY, LOCATION
-from constants.MEMCACHED import ALIVED
+from constants import UWEB, EVENTER, GATEWAY
 from base import BaseHandler, authenticated
 from mixin.avatar import AvatarMixin
        
@@ -64,7 +63,10 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                                               tid)
                 else:
                     if self.current_user.oid != UWEB.DUMMY_OID: # operator,Note: operator also has cid, so we check oid firstly.
-                        groups = self.db.query("SELECT group_id FROM T_GROUP_OPERATOR WHERE oper_id = %s", self.current_user.oid)
+                        groups = self.db.query("SELECT group_id "
+                                               "  FROM T_GROUP_OPERATOR"
+                                               "  WHERE oper_id = %s", 
+                                               self.current_user.oid)
                         gids = [g.group_id for g in groups]
                         terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                                   "  WHERE (service_status = %s"
@@ -72,11 +74,15 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                                                   "    AND biz_type = %s"
                                                   "    AND group_id IN %s"
                                                   "    ORDER BY LOGIN DESC",
-                                                  UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  UWEB.SERVICE_STATUS.ON, 
+                                                  UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
                                                   biz_type,
                                                   tuple(DUMMY_IDS + gids))
                     elif self.current_user.cid != UWEB.DUMMY_CID: # Corp 
-                        groups = self.db.query("SELECT id gid, name FROM T_GROUP WHERE corp_id = %s", self.current_user.cid)
+                        groups = self.db.query("SELECT id gid, name "
+                                               "  FROM T_GROUP"
+                                               "  WHERE corp_id = %s", 
+                                               self.current_user.cid)
                         gids = [g.gid for g in groups]
                         terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                                   "  WHERE (service_status = %s"
@@ -84,7 +90,8 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                                                   "    AND biz_type = %s"
                                                   "    AND group_id IN %s"
                                                   "    ORDER BY LOGIN DESC",
-                                                  UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  UWEB.SERVICE_STATUS.ON, 
+                                                  UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
                                                   biz_type,
                                                   tuple(DUMMY_IDS + gids))
                     else : # individual user
@@ -95,7 +102,8 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                                                   "    AND owner_mobile = %s"
                                                   "    AND login_permit = 1"
                                                   "    ORDER BY login DESC",
-                                                  UWEB.SERVICE_STATUS.ON, UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
+                                                  UWEB.SERVICE_STATUS.ON, 
+                                                  UWEB.SERVICE_STATUS.TO_BE_ACTIVATED, 
                                                   biz_type,
                                                   self.current_user.uid)
                 _now_time = time.time()
@@ -206,7 +214,8 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                         for item in track_list:
                             track_tid = item['track_tid']
                             if track_tid not in tids:
-                                logging.error("The terminal with tid: %s does not exist", track_tid)
+                                logging.error("The terminal with tid: %s does not exist", 
+                                              track_tid)
                             else:
                                 track_time = item['track_time']
                                 track_key = get_track_key(track_tid)
@@ -261,7 +270,8 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
 
     def get_track_info(self, tid, begintime, endtime):
         track_info = []
-        track = self.db.query("SELECT id, latitude, longitude, clatitude, clongitude, type, timestamp"
+        track = self.db.query("SELECT id, latitude, longitude,"
+                              "  clatitude, clongitude, type, timestamp"
                               "  FROM T_LOCATION"
                               "  WHERE tid = %s"
                               "    AND NOT (latitude = 0 OR longitude = 0)"

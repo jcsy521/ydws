@@ -8,23 +8,19 @@ import random
 import string
 import time
 import hashlib
-import re
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from utils.misc import get_captcha_key
-from utils.misc import (get_terminal_sessionID_key, get_terminal_address_key,
-                        get_terminal_info_key, get_lq_sms_key, get_lq_interval_key,
-                        get_date_from_utc, start_end_of_day)
+from utils.misc import get_date_from_utc, start_end_of_day
 from utils.checker import check_zs_phone
 from utils.dotdict import DotDict
 from utils.public import delete_terminal, notify_maintainer
 from helpers.smshelper import SMSHelper
 from helpers.queryhelper import QueryHelper
-from helpers.confhelper import ConfHelper
 
-from base import BaseHandler, authenticated
+from base import BaseHandler
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
 from constants import UWEB

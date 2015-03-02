@@ -6,28 +6,26 @@
 """
 
 import logging
-import datetime
 import time
-import re
 import hashlib
 from os import SEEK_SET
 import xlwt
 from cStringIO import StringIO
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.misc import (str_to_list, utc_to_date, seconds_to_label,
-                        get_terminal_sessionID_key, get_track_key, get_lqgz_key, get_lqgz_interval_key)
-from constants import UWEB, SMS
+from utils.misc import (str_to_list, utc_to_date, 
+     get_terminal_sessionID_key, get_track_key, get_lqgz_key, 
+     seconds_to_label, get_lqgz_interval_key)
+from constants import UWEB, SMS, EXCEL
 from helpers.queryhelper import QueryHelper
 from helpers.smshelper import SMSHelper
 from helpers.lbmphelper import get_distance, get_locations_with_clatlon
 from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
-from constants import UWEB, EXCEL
 
 from base import BaseHandler, authenticated
 from mixin.base import BaseMixin
@@ -47,7 +45,8 @@ class TrackLQHandler(BaseHandler, BaseMixin):
             flag = int(data.get('flag', 1))
             # check tid whether exist in request and update current_user
             self.check_tid(tid)
-            logging.info("[UWEB] track LQ request: %s, uid: %s, tid: %s, tids: %s, flag: %s",
+            logging.info("[UWEB] track LQ request: %s, "
+                         "  uid: %s, tid: %s, tids: %s, flag: %s",
                          data, self.current_user.uid, tid, tids, flag)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -147,7 +146,8 @@ class TrackHandler(BaseHandler):
             if cellid_flag == 1:
                 # gps track and cellid track
                 track = self.db.query("SELECT id, latitude, longitude, clatitude,"
-                                      "       clongitude, timestamp, name, type, speed, degree, locate_error"
+                                      "       clongitude, timestamp, name,"
+                                      "       type, speed, degree, locate_error"
                                       "  FROM T_LOCATION"
                                       "  WHERE tid = %s"
                                       "    AND NOT (latitude = 0 OR longitude = 0)"
@@ -159,7 +159,8 @@ class TrackHandler(BaseHandler):
             else:
                 # cellid_flag is None or 0, only gps track
                 track = self.db.query("SELECT id, latitude, longitude, clatitude,"
-                                      "       clongitude, timestamp, name, type, speed, degree, locate_error"
+                                      "       clongitude, timestamp, name, "
+                                      "       type, speed, degree, locate_error"
                                       "  FROM T_LOCATION"
                                       "  WHERE tid = %s"
                                       "    AND NOT (latitude = 0 OR longitude = 0)"
@@ -171,8 +172,9 @@ class TrackHandler(BaseHandler):
 
             # check track point count
             if track and len(track) > 500 and network_type == 0:
-                logging.info(
-                    "[UWEB] The %s track points length is: %s, and the newtork type is too low, so return error.", tid, len(track))
+                logging.info("[UWEB] The %s track points length is: %s, "
+                             "  and the newtork type is too low, so return error.", 
+                             tid, len(track))
                 self.write_ret(ErrorCode.TRACK_POINTS_TOO_MUCH)
                 self.finish()
                 return
@@ -224,8 +226,6 @@ class TrackHandler(BaseHandler):
                     idle_points.append(item_start)
 
             # modify name & degere
-            terminal = QueryHelper.get_terminal_by_tid(
-                self.current_user.tid, self.db)
             for item in track:
                 item['degree'] = float(item['degree'])
                 if item.name is None:
@@ -282,7 +282,6 @@ class TrackDownloadHandler(TrackHandler):
     def get(self):
         """Provide some report about track.
         """
-        status = ErrorCode.SUCCESS
         try:
             hash_ = self.get_argument('hash_', None)
 
@@ -298,8 +297,6 @@ class TrackDownloadHandler(TrackHandler):
                                 ErrorCode.EXPORT_FAILED],
                             home_url=ConfHelper.UWEB_CONF.url_out)
                 return
-
-            date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
 
             wb = xlwt.Workbook()
             ws = wb.add_sheet(EXCEL.TRACK_SHEET)

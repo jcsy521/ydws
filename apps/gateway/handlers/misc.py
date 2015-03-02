@@ -10,9 +10,8 @@ from clw.packet.composer.misc import MiscComposer
 from helpers.queryhelper import QueryHelper
             
 from utils.dotdict import DotDict
-from utils.public import update_terminal_info
             
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY
 
 from utils.misc import get_acc_status_info_key
 

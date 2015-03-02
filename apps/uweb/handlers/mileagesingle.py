@@ -6,26 +6,18 @@
 """
 
 import logging
-import datetime
 import time
 import hashlib
-from os import SEEK_SET
-import xlwt
-from cStringIO import StringIO
 from decimal import Decimal
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
 from utils.dotdict import DotDict
-from utils.misc import (DUMMY_IDS, str_to_list, start_end_of_year, start_end_of_month, start_end_of_day,
-                        start_end_of_quarter, days_of_month, get_date_from_utc)
-from utils.dotdict import DotDict
-from helpers.queryhelper import QueryHelper
-from helpers.lbmphelper import get_distance
-from helpers.confhelper import ConfHelper
+from utils.misc import (start_end_of_year, 
+    start_end_of_month, start_end_of_day, days_of_month)
 from codes.errorcode import ErrorCode
-from constants import UWEB, EXCEL
+from constants import UWEB
 from base import BaseHandler, authenticated
 
 
@@ -77,7 +69,8 @@ class MileageSingleHandler(BaseHandler):
                     re['name'] = str(month)
                     distance = Decimal()
 
-                    mileage_log = self.db.get("SELECT SUM(distance) AS distance FROM T_MILEAGE_LOG"
+                    mileage_log = self.db.get("SELECT SUM(distance) AS distance "
+                                              "  FROM T_MILEAGE_LOG"
                                               "  WHERE tid = %s"
                                               "  AND (timestamp BETWEEN %s AND %s)",
                                               tid, start_time_, end_time_)

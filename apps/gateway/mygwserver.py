@@ -5,7 +5,6 @@ import socket, select, errno
 import os
 import logging
 import time
-import pika
 from pika.adapters import *
 from pika.exceptions import AMQPConnectionError, AMQPChannelError
 import json
@@ -15,7 +14,6 @@ import multiprocessing
 
 from utils.dotdict import DotDict
 from db_.mysql import DBConnection
-from utils.myredis import MyRedis
 
 from helpers.confhelper import ConfHelper
   

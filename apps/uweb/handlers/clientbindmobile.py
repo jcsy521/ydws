@@ -10,15 +10,14 @@ import random
 import string
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import get_captcha_key
-from utils.checker import check_sql_injection
 from constants import UWEB
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode 
-from base import BaseHandler, authenticated
+from base import BaseHandler
 from helpers.smshelper import SMSHelper
        
        

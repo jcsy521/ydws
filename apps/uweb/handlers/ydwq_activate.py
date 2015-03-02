@@ -7,15 +7,14 @@
 
 import logging
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
-import time
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from constants import UWEB 
 
-from base import BaseHandler, authenticated
+from base import BaseHandler
 
 class YDWQActivateHandler(BaseHandler):
 
@@ -63,8 +62,9 @@ class YDWQActivateHandler(BaseHandler):
                                    UWEB.BIZ_TYPE.YDWQ)
             if not terminal:
                 status = ErrorCode.ACCOUNT_INVALID
-                logging.info("[UWEB] Monitored is activated by monitor failed. Account is invalid."
-                             "mobile: %s, activation_code: %s, sn: %s",
+                logging.info("[UWEB] Monitored is activated by monitor failed."
+                             "  Account is invalid."
+                             "  mobile: %s, activation_code: %s, sn: %s",
                              mobile, activation_code, sn)
             else:
                 if not sn: # it's activated by monitor
@@ -72,15 +72,17 @@ class YDWQActivateHandler(BaseHandler):
                                     "  SET service_status = %s"
                                     "  WHERE activation_code = %s",
                                     UWEB.SERVICE_STATUS.ON, activation_code)
-                    logging.info("[UWEB] Monitored is activated by monitor successful. mobile: %s, activation_code: %s, sn: %s",
+                    logging.info("[UWEB] Monitored is activated by monitor successful."
+                                 "  mobile: %s, activation_code: %s, sn: %s",
                                  mobile, activation_code, sn)
                 else:
                     if sn != terminal['sn']:  # sn is changed, 
                         t = self.get_terminal_by_sn(sn)
                         if t: # has activation_code, but sn is used 
                             status = ErrorCode.SN_USED
-                            logging.info("[UWEB] Monitored is activated by monitor failed. sn is used by others."
-                                         " mobile: %s, activation_code: %s, sn: %s",
+                            logging.info("[UWEB] Monitored is activated by monitor failed."
+                                         "  sn is used by others."
+                                         "  mobile: %s, activation_code: %s, sn: %s",
                                          mobile, activation_code, sn)
                         else:
                             self.db.execute("UPDATE T_TERMINAL_INFO"
@@ -88,8 +90,9 @@ class YDWQActivateHandler(BaseHandler):
                                             "      sn = %s"
                                             "  WHERE activation_code = %s",
                                             UWEB.SERVICE_STATUS.ON, sn, activation_code)
-                            logging.info("[UWEB] Monitored is activated by monitor successful. sn is changed to a new sn not used by others ."
-                                         " mobile: %s, activation_code: %s, sn: %s",
+                            logging.info("[UWEB] Monitored is activated by monitor successful."
+                                         "  sn is changed to a new sn not used by others ."
+                                         "  mobile: %s, activation_code: %s, sn: %s",
                                          mobile, activation_code, sn)
                     else: 
                         self.db.execute("UPDATE T_TERMINAL_INFO"
@@ -97,7 +100,8 @@ class YDWQActivateHandler(BaseHandler):
                                         "  WHERE activation_code = %s",
                                         UWEB.SERVICE_STATUS.ON, activation_code)
                         status = ErrorCode.SUCCESS
-                        logging.info("[UWEB] Monitored normal login. mobile: %s, activation_code: %s, sn: %s.", 
+                        logging.info("[UWEB] Monitored normal login. mobile: %s,"
+                                     " activation_code: %s, sn: %s.", 
                                      mobile, activation_code, sn)
 
             self.write_ret(status)

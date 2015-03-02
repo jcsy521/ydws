@@ -4,20 +4,13 @@
 """
 
 import logging
-import time
 
 import tornado.web
-from tornado.escape import json_decode, json_encode
-from tornado.ioloop import IOLoop
 
-from helpers.seqgenerator import SeqGenerator
-from helpers.gfsenderhelper import GFSenderHelper
-from utils.misc import get_today_last_month
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection
 from base import BaseHandler, authenticated
 from codes.errorcode import ErrorCode
-from constants import UWEB, SMS, GATEWAY
+from constants import UWEB
 from helpers.queryhelper import QueryHelper
 from mixin.terminal import TerminalMixin
 
@@ -49,8 +42,8 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
 
             if not terminal:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error(
-                    "The terminal with tid: %s does not exist, redirect to login.html", self.current_user.tid)
+                logging.error("The terminal with tid: %s does not exist, redirect to login.html", 
+                              self.current_user.tid)
                 self.write_ret(status)
                 return
 
@@ -64,8 +57,8 @@ class AppSettingsHandler(BaseHandler, TerminalMixin):
             user = QueryHelper.get_user_by_uid(self.current_user.uid, self.db)
             if not user:
                 status = ErrorCode.LOGIN_AGAIN
-                logging.error(
-                    "The user with uid: %s does not exist, redirect to login.html", self.current_user.uid)
+                logging.error("The user with uid: %s does not exist, redirect to login.html", 
+                              self.current_user.uid)
                 self.write_ret(status)
                 return
 

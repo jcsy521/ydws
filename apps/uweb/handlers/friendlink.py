@@ -3,11 +3,10 @@
 """This module is designed for friendlink .
 """
 
-import logging
-
 import tornado.web
 
 from base import BaseHandler
+
 
 class FriendLinkHandler(BaseHandler):
 
@@ -15,4 +14,3 @@ class FriendLinkHandler(BaseHandler):
     def get(self):
         """Jump to friendlink.html."""
         self.render('friendlink.html')
-

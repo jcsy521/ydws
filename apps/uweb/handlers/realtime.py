@@ -11,7 +11,6 @@ from tornado.escape import json_encode, json_decode
 
 from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
-from constants import UWEB
 from helpers.queryhelper import QueryHelper
 from base import BaseHandler, authenticated
 from mixin.realtime import RealtimeMixin
@@ -70,6 +69,8 @@ class RealtimeHandler(BaseHandler, RealtimeMixin):
                          data, self.current_user.uid, self.current_user.tid)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
+            logging.exception("[UWEB] Realtime failed. Exception: %s",
+                              e.args)
             self.write_ret(status)
             self.finish()
             return 

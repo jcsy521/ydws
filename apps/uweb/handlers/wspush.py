@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import time
 
 import tornado.web
-from tornado.escape import json_decode, json_encode
 
 from base import BaseHandler, authenticated
-from utils.dotdict import DotDict
 from codes.errorcode import ErrorCode
 from helpers.wspushhelper import WSPushHelper
-from utils.public import get_push_key
 
 
 class WSPushHandler(BaseHandler):
@@ -38,7 +34,8 @@ class WSPushHandler(BaseHandler):
                 key = data.get('psd', '')
                 wspush['id']=id
                 wspush['key']=key
-                logging.info("[UWEB] WSPushHandler get push account successfully. id:%s, key:%s",
+                logging.info("[UWEB] WSPushHandler get push account successfully."
+                             "  id:%s, key:%s",
                              id, key)
                 self.write_ret(status=status,
                                dict_=dict(wspush=wspush))

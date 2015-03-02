@@ -13,9 +13,9 @@ from utils.dotdict import DotDict
 from utils.public import update_terminal_info
 from codes.smscode import SMSCode
             
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY, UWEB
 
-from utils.misc import get_acc_status_info_key, get_resend_key
+from utils.misc import get_acc_status_info_key
 
 from handlers.basic import append_gw_request, get_resend_flag, update_terminal_status
 

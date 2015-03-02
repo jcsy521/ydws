@@ -3,19 +3,18 @@
 import logging
 
 from clw.packet.parser.fobinfo import FobInfoParser
+from clw.packet.parser.async import AsyncParser
 from clw.packet.composer.fobinfo import FobInfoRespComposer
+from clw.packet.composer.async import AsyncRespComposer
 
 from helpers.queryhelper import QueryHelper
 
 from error import GWException
 from utils.dotdict import DotDict
-from constants import EVENTER, GATEWAY, UWEB, SMS
-
-from utils.misc import get_acc_status_info_key
-
+from constants import GATEWAY
 from utils.public import update_terminal_info, update_fob_info
             
-from handlers.basic import append_gw_request, get_resend_flag
+from handlers.basic import append_gw_request, get_resend_flag, update_terminal_status
 
 def handle_fob_info(info, address, connection, channel, exchange, gw_binding, db, redis):
     """

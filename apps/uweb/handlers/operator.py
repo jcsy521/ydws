@@ -6,11 +6,10 @@
 import logging
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
 from utils.misc import DUMMY_IDS, str_to_list
-from utils.checker import check_sql_injection
 from constants import UWEB
 from codes.errorcode import ErrorCode
 from base import BaseHandler, authenticated
@@ -110,13 +109,14 @@ class OperatorHandler(BaseHandler):
             return
 
         try:
-            oid = self.db.execute("INSERT T_OPERATOR(oid, mobile, password, name, corp_id, email, address)"
-                                  "  VALUES(%s, %s, password(%s), %s, %s, %s, %s)",
-                                  mobile, mobile, '111111', name, self.current_user.cid,
-                                  email, address)
+            self.db.execute("INSERT T_OPERATOR(oid, mobile, password,"
+                            "  name, corp_id, email, address)"
+                            "  VALUES(%s, %s, password(%s), %s, %s, %s, %s)",
+                            mobile, mobile, '111111', name, self.current_user.cid,
+                            email, address)
             self.db.executemany("INSERT INTO T_GROUP_OPERATOR(group_id, oper_id)"
                                 "  VALUES( %s, %s)", 
-                                [(group_id, mobile) for group_id in group_ids])
+                                [(gid, mobile) for gid in group_ids])
 
             self.write_ret(status)
         except Exception as e:

@@ -16,12 +16,11 @@ import tornado.web
 from utils.misc import get_captcha_key, get_date_from_utc, start_end_of_day
 from utils.dotdict import DotDict
 from utils.public import notify_maintainer
-from utils.checker import check_zs_phone, check_gd_phone
-from base import BaseHandler, authenticated
+from utils.checker import check_gd_phone
+from base import BaseHandler
 from codes.errorcode import ErrorCode
 from codes.smscode import SMSCode
 from helpers.smshelper import SMSHelper
-from helpers.confhelper import ConfHelper
 from constants import UWEB
 
 class GetCaptchaHandler(BaseHandler):
@@ -295,10 +294,10 @@ class GetCaptchaCorpHandler(BaseHandler):
                 else:
                     status = ErrorCode.SERVER_BUSY
                     logging.error("[UWEB] Get captcha failed. corp mobile: %s", 
-                                  mobile)
+                                  umobile)
             else:
                 logging.error("[UWEB] Get captcha failed. corp mobile: %s does not exist.", 
-                              mobile)
+                              umobile)
                 status = ErrorCode.USER_NOT_ORDERED
             self.write_ret(status)
         except Exception as e:

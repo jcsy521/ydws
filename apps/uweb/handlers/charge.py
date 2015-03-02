@@ -3,8 +3,6 @@
 """This module is designed for Q&A.
 """
 
-import logging
-
 import tornado.web
 
 from base import BaseHandler

@@ -6,10 +6,10 @@
 import logging
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, str_to_list, get_region_status_key
+from utils.misc import str_to_list
 from utils.public import add_region, delete_region
 from constants import UWEB, LIMIT
 from codes.errorcode import ErrorCode

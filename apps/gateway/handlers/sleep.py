@@ -11,7 +11,7 @@ from error import GWException
 from utils.dotdict import DotDict
 from utils.public import update_terminal_info
             
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY
 
 from utils.misc import get_acc_status_info_key
             
@@ -76,5 +76,3 @@ def handle_sleep(info, address, connection, channel, exchange, gw_binding, db, r
     except:
         logging.exception("[GW] Handle sleep status report exception.")
         GWException().notify()
-    
-    

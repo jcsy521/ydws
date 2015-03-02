@@ -1,27 +1,24 @@
 
-import pika
-import json
 import time
 import logging
 
-from clw.packet.parser.codecheck import T_CLWCheck 
+from clw.packet.parser.codecheck import T_CLWCheck
 from clw.packet.composer.async import AsyncRespComposer
 from gf.packet.composer.uploaddatacomposer import UploadDataComposer
+from clw.packet.parser.unbind import UNBindParser
 
 
 from helpers.queryhelper import QueryHelper
-
+from utils.public import delete_terminal_new
 from utils.dotdict import DotDict
-
-from constants import EVENTER, GATEWAY, UWEB, SMS
-
-from handlers import (login, acc, config, defend, fob, heartbeat, locationdesc, misc, runtime, sleep, unbind, unusual)
-
-from handlers.basic import append_gw_request, append_si_request, get_resend_flag, update_terminal_status
-
 from utils.misc import get_acc_status_info_key
-
+from constants import GATEWAY
+from handlers import (login, acc, config, defend, fob, heartbeat,
+    locationdesc, misc, runtime, sleep, unbind, unusual)
+from handlers.basic import (append_gw_request, append_si_request, 
+    get_resend_flag, update_terminal_status)
 from error import GWException
+
 
 class Base(object):
     """Handle the packets.
@@ -188,7 +185,7 @@ class Base(object):
                 up = UNBindParser(info.body, info.head)
                 status = up.ret['status']
                 if status == GATEWAY.STATUS.SUCCESS:
-                    delete_terminal(dev_id, db, self.redis)
+                    delete_terminal_new(dev_id, db, self.redis)
             else:
                 logging.exception("[GW] Invalid command: %s.", head.command)
         except:

@@ -7,10 +7,9 @@ import logging
 import time
 
 import tornado.web
-from tornado.escape import json_encode, json_decode
+from tornado.escape import json_decode
 
 from utils.dotdict import DotDict
-from utils.checker import check_sql_injection
 from utils.misc import safe_unicode
 from helpers.confhelper import ConfHelper
 from codes.errorcode import ErrorCode
@@ -62,9 +61,11 @@ class FeedBackHandler(BaseHandler):
             #    self.write_ret(status)
             #    return
 
-            self.db.execute("INSERT INTO T_FEEDBACK(contact, mobile, email, content, timestamp, category)"
+            self.db.execute("INSERT INTO T_FEEDBACK(contact, mobile,"
+                            "  email, content, timestamp, category)"
                             "  VALUES(%s, %s, %s, %s, %s, %s)",
-                            data.contact, mobile, data.email, safe_unicode(data.content),
+                            data.contact, mobile, data.email, 
+                            safe_unicode(data.content),
                             int(time.time()), data.category)
             self.write_ret(status)
         except Exception as e:

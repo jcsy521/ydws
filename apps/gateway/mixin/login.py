@@ -6,17 +6,18 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import thread
 
-from clw.packet.parser.login import LoginParser
 from clw.packet.composer.login import LoginRespComposer
 from clw.packet.composer.unbind import UNBindComposer
 
-from utils.checker import check_phone, check_zs_phone
+from utils.checker import check_phone
 from utils.dotdict import DotDict
 from codes.smscode import SMSCode
 
-from utils.misc import (get_resend_key, get_sessionID, 
+from utils.misc import (get_sessionID, 
      get_terminal_sessionID_key, get_psd)
-from utils.public import (insert_location, delete_terminal_new,
+# for handle_old_login
+from utils.misc import get_terminal_address_key, get_terminal_info_key, get_lq_sms_key, get_lq_interval_key
+from utils.public import (delete_terminal_new,
      record_add_action, get_terminal_type_by_tid, clear_data,
      update_terminal_info, subscription_lbmp, add_terminal, add_user) 
 
@@ -26,7 +27,7 @@ from helpers.wspushhelper import WSPushHelper
 from helpers.confhelper import ConfHelper
 
 
-from constants import EVENTER, GATEWAY, UWEB, SMS
+from constants import GATEWAY, UWEB
 
 from error import GWException
             

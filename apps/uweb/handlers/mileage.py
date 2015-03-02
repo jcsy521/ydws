@@ -14,11 +14,11 @@ import xlwt
 from cStringIO import StringIO
 from decimal import Decimal
 
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 import tornado.web
 
-from utils.dotdict import DotDict
-from utils.misc import DUMMY_IDS, str_to_list, start_end_of_year, start_end_of_month, start_end_of_day, start_end_of_quarter, days_of_month, get_date_from_utc
+from utils.misc import (str_to_list, start_end_of_year, 
+    start_end_of_month, start_end_of_day, days_of_month, get_date_from_utc)
 from utils.dotdict import DotDict
 from helpers.queryhelper import QueryHelper
 from helpers.lbmphelper import get_distance
@@ -45,8 +45,7 @@ class MileageHandler(BaseHandler):
         try:
             data = DotDict(json_decode(self.request.body))
             page_size = UWEB.LIMIT.PAGE_SIZE
-            page_number = int(data.pagenum)
-            page_count = int(data.pagecnt)
+            page_number = int(data.pagenum) 
             start_time= data.start_time
             end_time = data.end_time
             query_type = data.query_type
@@ -101,8 +100,7 @@ class MileageHandler(BaseHandler):
                     d, m = divmod(count, page_size)
                     page_count = (d + 1) if m else d
 
-                reports = []
-                interval = [start_time, end_time]
+                reports = []                
                 for item, tid in enumerate(tids):
                     seq=item+1
                     dis_sum = Decimal()  
@@ -291,7 +289,6 @@ class MileageDownloadHandler(MileageHandler):
     def get(self):
         """Provide some statistics about terminals.
         """
-        status = ErrorCode.SUCCESS
         try:
             hash_ = self.get_argument('hash_', None)
 
@@ -300,14 +297,13 @@ class MileageDownloadHandler(MileageHandler):
             statistic_mode, results, counts = self.redis.getvalue(mem_key)
 
             if not results:
-                logging.exception("[UWEB] mileage statistic export excel failed, find no res by hash_:%s", hash_)
+                logging.exception("[UWEB] mileage statistic export excel failed, find no res by hash_:%s", 
+                                  hash_)
                 self.render("error.html",
                             message=ErrorCode.ERROR_MESSAGE[ErrorCode.EXPORT_FAILED],
                             home_url=ConfHelper.UWEB_CONF.url_out)
                 return
-            if statistic_mode == 'all':
-                date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
-                
+            if statistic_mode == 'all':                
                 wb = xlwt.Workbook()
                 ws = wb.add_sheet(EXCEL.MILEAGE_STATISTIC_SHEET_ALL)
 
@@ -326,9 +322,7 @@ class MileageDownloadHandler(MileageHandler):
                 center_style  = xlwt.easyxf('align: wrap on, vert centre, horiz center;')
                 ws.write_merge(last_row, last_row, 0, 1, u'合计', center_style)
                 ws.write(last_row, 2, counts[0])
-            else: 
-                date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
-                
+            else:                 
                 wb = xlwt.Workbook()
                 ws = wb.add_sheet(EXCEL.MILEAGE_STATISTIC_SHEET_SINGLE)
 
@@ -361,7 +355,8 @@ class MileageDownloadHandler(MileageHandler):
             _tmp_file.close()
  
         except Exception as e:
-            logging.exception("[UWEB] mileage statistic export excel failed, Exception: %s", e.args)
+            logging.exception("[UWEB] mileage statistic export excel failed, Exception: %s", 
+                              e.args)
             self.render("error.html",
                         message=ErrorCode.ERROR_MESSAGE[ErrorCode.EXPORT_FAILED],
                         home_url=ConfHelper.UWEB_CONF.url_out)
@@ -539,7 +534,6 @@ class MileageSingleDownloadHandler(MileageSingleHandler):
     def get(self):
         """Provide some statistics about terminals.
         """
-        status = ErrorCode.SUCCESS
         try:
             hash_ = self.get_argument('hash_', None)
 
@@ -547,15 +541,15 @@ class MileageSingleDownloadHandler(MileageSingleHandler):
 
             res = self.redis.getvalue(mem_key)
             if not res:
-                logging.exception("[UWEB] mileage single export excel failed, find no res by hash_:%s", hash_)
+                logging.exception("[UWEB] Mileage single export excel failed,"
+                                  "  find no res by hash_:%s", 
+                                  hash_)
                 self.render("error.html",
-                            message=ErrorCode.ERROR_MESSAGE[ERRORCODE.EXPORT_FAILED],
+                            message=ErrorCode.ERROR_MESSAGE[ErrorCode.EXPORT_FAILED],
                             home_url=ConfHelper.UWEB_CONF.url_out)
                 return 
             results, counts, label, statistics_type = res
-
-            date_style = xlwt.easyxf(num_format_str='YYYY-MM-DD HH:mm:ss')
-            
+           
             wb = xlwt.Workbook()
             ws = wb.add_sheet(EXCEL.MILEAGE_STATISTIC_SHEET_SINGLE)
 

@@ -3,12 +3,9 @@
 """This module is designed for downloading of client.
 """
 
-import logging
-
 import tornado.web
 
 from base import BaseHandler
-from helpers.downloadhelper import get_version_info
 
 class ClientDownloadHandler(BaseHandler):
 
