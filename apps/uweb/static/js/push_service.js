@@ -203,7 +203,8 @@ $(function () {
 				var	obj_tempPushData = obj_pushRes[ia],
 					str_tempTid = obj_tempPushData.tid,
 					obj_terminalData = obj_carDatas[str_tempTid],
-					n_category = obj_tempPushData.category;
+					n_category = obj_tempPushData.category,
+					str_carcTid = dlf.fn_getCurrentTid();
 				
 				if ( obj_terminalData ) {
 					if ( obj_tempPushData.timestamp >= obj_terminalData.timestamp ) {
@@ -231,7 +232,7 @@ $(function () {
 						
 						if ( dlf.fn_userType() ) {
 							if ( $('#leafNode_'+str_tempTid).attr('class').search('jstree-checked') != -1 ) {
-								if ( str_currentTid == str_tempTid ) {
+								if ( str_carcTid == str_tempTid ) {
 									dlf.fn_updateTerminalInfo(obj_terminalData);	// 更新车辆信息
 								}
 							}

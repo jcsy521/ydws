@@ -2953,7 +2953,7 @@ function fn_initBatchImport(gid, gname) {
 	$(obj_upfile).remove().html('');
 	$(obj_msg).html('');
 	dlf.fn_dialogPosition('fileUpload');	// 设置dialog的位置
-	dlf.fn_lockScreen();
+	dlf.fn_lockScreen();	
 	$('#hidGid').val(gid);
 	$('#hidGName').val(gname);
 	$('#fileUploadIframe').attr('src', BATCHIMPORT_URL);

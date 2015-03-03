@@ -108,6 +108,7 @@
 #login_footerLink, .login_copyright {
 	width: 830px;
 	margin-left: 70px;
+	text-align: center;
 }
 .login_copyright {
 	text-align: center;
