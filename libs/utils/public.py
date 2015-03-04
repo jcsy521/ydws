@@ -8,8 +8,7 @@ from helpers.smshelper import SMSHelper
 from helpers.emailhelper import EmailHelper
 from helpers.wspushhelper import WSPushHelper
 from helpers.lbmpsenderhelper import LbmpSenderHelper
-from helpers.smshelper import SMSHelper
-from tornado.escape import json_decode, json_encode
+from tornado.escape import json_decode
 
 from codes.smscode import SMSCode
 
@@ -1230,7 +1229,7 @@ def insert_location(location, db, redis):
     """Insert whole-data into T_LOCATION.
     """
     location = DotDict(location)
-    # NOTE if locate_error is bigger then 500, set it 500
+    # NOTE: if locate_error is bigger then 500, set it 500
     if int(location.locate_error) > 500:
         location.locate_error = 500
     lid = db.execute("INSERT INTO T_LOCATION(tid, latitude, longitude, altitude,"

@@ -7,16 +7,13 @@ TOP_DIR_ = os.path.abspath(os.path.join(__file__, "../../.."))
 site.addsitedir(os.path.join(TOP_DIR_, "libs"))
 
 
-from urllib import urlencode
 import httplib2
 import logging
-import base64
 import time
-from decimal import Decimal
-from utils.misc import get_push_key, get_alarm_info_key
+from utils.misc import get_push_key
 
 from tornado.escape import json_encode, json_decode
-from tornado.options import define, options, parse_command_line
+from tornado.options import parse_command_line
 
 from helpers.confhelper import ConfHelper
 from helpers.queryhelper import QueryHelper
@@ -46,19 +43,19 @@ class WSPushHelper(object):
                     content = content.replace("'", '"')
                     json_data = json_decode(content)
                     if json_data['status_code'] == 200:
-                        logging.info(
-                            "[WSPUSH] Push register uid:%s successfully, response:%s", uid, json_data)
+                        logging.info("[WSPUSH] Push register uid:%s successfully, response:%s", 
+                                     uid, json_data)
                         # NOTE: keep the account in redis.
                         redis.setvalue('wspush_registered:%s' %
                                        uid, True, 60 * 60 * 24)
                     else:
-                        logging.error(
-                            "[WSPUSH] Push register uid:%s failed!", uid)
+                        logging.error("[WSPUSH] Push register uid:%s failed!", 
+                                      uid)
                 else:
                     logging.error("[WSPUSH] Push register uid:%s failed!", uid)
             else:
-                logging.error(
-                    "[WSPUSH] Push register uid:%s, response: %s", uid, response)
+                logging.error("[WSPUSH] Push register uid:%s, response: %s", 
+                              uid, response)
 
         except Exception as e:
             logging.exception(
@@ -94,7 +91,8 @@ class WSPushHelper(object):
                     content = content.replace("'", '"')
                     json_data = json_decode(content)
                     if json_data['status_code'] == 200:
-                        logging.info("[WSPUSH] Push packet successfully! uid = %s, badge = %s, message = %s, packet = %s",
+                        logging.info("[WSPUSH] Push packet successfully! "
+                                     "  uid = %s, badge = %s, message = %s, packet = %s",
                                      uid, badge, message, packet)
                     else:
                         logging.error("[WSPUSH] Push packet:%s failed!", 
@@ -305,6 +303,7 @@ class WSPushHelper(object):
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
         body['biz_type'] = terminal.get('biz_type', 0)
+        body['speed'] = int(body['speed'])
 
         res.append(body)
 

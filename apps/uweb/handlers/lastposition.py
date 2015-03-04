@@ -95,6 +95,7 @@ class LastPositionHandler(BaseHandler, AvatarMixin):
                                                   biz_type,
                                                   tuple(DUMMY_IDS + gids))
                     else : # individual user
+                        #NOTE: only show the terminals with login_permit is 1
                         terminals = self.db.query("SELECT tid FROM T_TERMINAL_INFO"
                                                   "  WHERE (service_status = %s"
                                                   "         OR service_status = %s)"
