@@ -170,7 +170,7 @@ class DownloadSmsHandler(BaseHandler):
             data = DotDict(json_decode(self.request.body))          
             mobile = data.mobile
             captcha_sms = data.captcha_sms
-            captchahash_sms = self.get_cookie("captchahash_sms", "")
+            captchahash_sms = self.get_secure_cookie("captchahash_sms")                                                      
             logging.info("[UWEB] downloadsms request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
@@ -182,6 +182,7 @@ class DownloadSmsHandler(BaseHandler):
         try:
             m = hashlib.md5()
             m.update(captcha_sms.lower())
+            m.update(UWEB.HASH_SALT)
             hash_ = m.hexdigest()
             if hash_.lower() != captchahash_sms.lower():
                 status = ErrorCode.WRONG_CAPTCHA

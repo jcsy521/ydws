@@ -168,9 +168,9 @@ class TerminalCorpHandler(BaseHandler, TerminalMixin):
         status = ErrorCode.SUCCESS
         try:
             if self.current_user.oid == UWEB.DUMMY_OID:  # enterprise
-                terminals = QueryHelper.get_terminals_by_cid(self.current_user.cid, self.db)
+                terminals = QueryHelper.get_all_terminals_by_cid(self.current_user.cid, self.db)
             else:  # operator
-                terminals = QueryHelper.get_terminals_by_oid(self.current_user.oid, self.db)
+                terminals = QueryHelper.get_all_terminals_by_oid(self.current_user.oid, self.db)
 
             res = []
             for terminal in terminals:
