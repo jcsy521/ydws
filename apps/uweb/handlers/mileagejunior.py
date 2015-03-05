@@ -67,10 +67,10 @@ class MileageJuniorHandler(BaseHandler):
             if not tids:  # all terminals
                 statistic_mode = 'all'
                 if self.current_user.oid == UWEB.DUMMY_OID:  # enterprise
-                    terminals = QueryHelper.get_terminals_by_cid(
+                    terminals = QueryHelper.get_all_terminals_by_cid(
                         self.current_user.cid, self.db)
                 else:  # operator
-                    terminals = QueryHelper.get_terminals_by_oid(
+                    terminals = QueryHelper.get_all_terminals_by_oid(
                         self.current_user.oid, self.db)
 
                 tids = [terminal.tid for terminal in terminals]
