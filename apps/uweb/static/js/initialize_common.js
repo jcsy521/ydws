@@ -3137,12 +3137,12 @@ dlf.fn_mileageNotificationSave = function() {
 		return;
 	}*/
 	
-	if ( n_newDistanceTime <= n_currentDataTime ) {
-		dlf.fn_jNotifyMessage('下次保养时间必须大于今天。', 'message', false, 4000); 
-		return;
-	}
 	
 	if ( str_dayTimeVal != '' ) {
+		if ( n_newDistanceTime <= n_currentDataTime ) {
+			dlf.fn_jNotifyMessage('下次保养时间必须大于今天。', 'message', false, 4000); 
+			return;
+		}
 		if ( n_oldDistanceTime != n_newDistanceTime ) {
 			n_num ++;
 			obj_param.day_notification = n_newDistanceTime;
