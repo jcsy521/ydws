@@ -303,7 +303,7 @@ class WSPushHelper(object):
         res = []
         terminal = QueryHelper.get_terminal_info(tid, db, redis)
         body['biz_type'] = terminal.get('biz_type', 0)
-        body['speed'] = int(body['speed'])
+        body['speed'] = int(round(body['speed']))
 
         res.append(body)
 

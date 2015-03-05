@@ -915,6 +915,9 @@ class QueryHelper(object):
         if location and int(location['locate_error']) > 500:
             location['locate_error'] = 500
 
+        if location:
+            location['speed'] = int(round(location['speed'])) 
+        
         return location
 
     @staticmethod
