@@ -3087,7 +3087,7 @@ dlf.fn_initMileageNotification = function(str_tid) {
 			if ( n_distanceTime != 0 ) {
 				$('#txtDistanceNotificationTime').val(dlf.fn_changeNumToDateString(n_distanceTime*1000, 'ymd')).data('olddate', n_distanceTime);
 			} else {
-				$('#txtDistanceNotificationTime').val('');
+				$('#txtDistanceNotificationTime').val('').data('olddate', 0);
 			}
 			
 		} else if ( data.status == 201 ) {	// 业务变更
