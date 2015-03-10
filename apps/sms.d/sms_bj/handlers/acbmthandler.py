@@ -19,6 +19,7 @@ class ACBMTHandler(BaseHandler):
         msgid = str(insert_time)[-9:]
         try:
             content = self.get_argument("content")
+            content = u'[移动卫士]%s【珠海德百祺】' % content
             mobile = self.get_argument("mobile")
             nosign = self.get_argument("nosign", 1)
             logging.info("[SMS] mobile = %s,  content = %s, nosign:%s", mobile, content, nosign)
