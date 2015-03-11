@@ -393,6 +393,16 @@ def add_terminal(terminal, db, redis):
     else:
         tid = terminal['tmobile']
 
+    #NOTE: If tid has exist, delete it. This should never happen.
+    t = db.get("SELECT id, service_status, mobile, tid, owner_mobile, group_id"
+               "  FROM T_TERMINAL_INFO WHERE tid = %s", 
+               tid)
+    if t:
+        db.execute("DELETE FROM T_TERMINAL_INFO WHERE tid = %s", 
+                   tid)
+        logging.info("[PUBLIC] Delete the existed but unvalid terminal. terminal: %s.",
+                     t)
+
     #NOTE: If mobile has exist, delete it. This should not appears often.
     t = db.get("SELECT id, service_status, mobile, tid, owner_mobile, group_id"
                "  FROM T_TERMINAL_INFO WHERE mobile = %s", 
