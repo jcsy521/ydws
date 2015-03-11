@@ -29,7 +29,7 @@ class RegisterMixin(BaseMixin):
             retrieve the db and return the result.
         """
         mem_key = self.get_memcache_key(hash_)
-        data = self.getvalue(mem_key)
+        data = self.redis.getvalue(mem_key)
 
         if data:
             return data
