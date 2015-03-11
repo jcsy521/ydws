@@ -37,8 +37,8 @@ class MileageHandler(BaseHandler):
             logging.info("[MILEAGE] Request, data:%s", data)
         except Exception as e:
             status = ErrorCode.DATA_FORMAT_INVALID
-            logging.exception("[MILEAGE] Invalid data format, body: %s, mobile: %s.",
-                              self.request.body, mobile)
+            logging.exception("[MILEAGE] Invalid data format, body: %s, ",
+                              self.request.body)
             self.write_ret(status)
             return
 
