@@ -170,7 +170,8 @@ class DownloadSmsHandler(BaseHandler):
             data = DotDict(json_decode(self.request.body))          
             mobile = data.mobile
             captcha_sms = data.captcha_sms
-            captchahash_sms = self.get_secure_cookie("captchahash_sms")                                                      
+            captchahash_sms = self.get_secure_cookie("captchahash_sms")
+            category = data.category
             logging.info("[UWEB] downloadsms request: %s", data)
         except Exception as e:
             status = ErrorCode.ILLEGAL_DATA_FORMAT
