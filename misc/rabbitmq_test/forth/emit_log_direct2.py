@@ -3,8 +3,9 @@
 import pika
 import sys
 
+host='drone-205'
 connection = pika.AsyncoreConnection(pika.ConnectionParameters(
-        host='localhost'))
+        host=host))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='direct_logs',

@@ -2,8 +2,9 @@
 import pika
 import sys
 
+host='drone-205'
 connection = pika.SelectConnection(pika.ConnectionParameters(
-        host='localhost'))
+        host=host))
 channel = connection.channel()
 
 

@@ -13,48 +13,97 @@ from base import BaseParser
 
 class Terminal(object):
     
-    def __init__(self, tid, tmobile, imsi, imei):
+    def __init__(self, tid, tmobile, umobile, imsi, imei):
         self.tid = tid
         self.tmobile = tmobile
+        self.umobile = umobile
         self.imsi = imsi
         self.imei = imei
 
-        self.login_mg = "[%s,,1,2.3.0,%s,T1,%s,15901258591,%s,%s,CLW,2,1]"
-        self.heartbeat_mg = "[%s,%s,1,1.0.0,%s,T2,23:9:95,1,0]"
-        self.realtime_mg = "[%s,%s,1,1.0.0,%s,T4,%s,E,113.252432,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
+        #NOTE: JH
+        self.login_mg = "[%s,,D,2.3.0,%s,T1,%s,%s,%s,%s,CLW,2,1,DBJ-3771728252,e3-94-9c-6f-53-9c]"
+        #NOTE: normal login 
+        self.login_mg = "[%s,,D,2.3.0,%s,T1,%s,%s,%s,%s,CLW,2,0,DBJ-3771728252,e3-94-9c-6f-53-9c]"
 
-        self.location_mg = "[%s,%s,1,1.0.0,%s,T3,1,E,116.252,N,26.564,120.3,270.5,1,460:0:9876:3171,23:9:100,%s]"
+        #self.login_mg = "[%s,,1,2.3.0,%s,T1,%s,%s,%s,%s,CLW,2,1,DBJ-3771728252,e3-94-9c-6f-53-9c]"
+
+        #v 3.3
+        self.heartbeat_mg = "[%s,%s,1,2.0.0,%s,T2,23:9:95,1,0]"
+        #v 3.4
+        self.heartbeat_mg = "[%s,%s,1,3.2.RLYC205204,%s,T2,23:9:95,2,0]"
+
+        #NOTE: depressed
+        #self.realtime_mg = "[%s,%s,1,1.0.0,%s,T4,%s,E,113.252432,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s]"
+        #self.realtime_mg = "[%s,%s,1,1.0.0,%s,T4,%s,E,113.252432,N,22.564152,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,24]"
+
+        #self.location_mg = "[%s,%s,1,1.0.0,%s,T3,1,E,116.252,N,26.564,120.3,270.5,1,460:0:9876:3171,23:9:100,%s]"
+        self.location_mg = "[%s,%s,1,1.0.0,%s,T3,1,E,116.252,N,26.564,120.3,270.5,1,460:0:9876:3171,23:9:100,%s,23]"
+
         self.query_args_mg = "[%s,%s,1,1.0.0,%s,T5,%s]"
         self.set_args_mg = "[%s,%s,1,1.0.0,%s,T6,%s]"
         self.reboot_mg = "[%s,%s,1,1.0.0,%s,T7,1]"
         self.remote_set_mg = "[%s,%s,1,1.0.0,%s,T8,0]"
         self.remote_unset_mg = "[%s,%s,1,1.0.0,%s,T9,0]"
-        self.locationdesc_mg = "[%s,%s,1,1.0.0,%s,T10,e,120.93308,n,30.52336,460:0:22322:13215,4]"
+
         #self.locationdesc_mg = "[%s,%s,1,1.0.0,%s,T10,E,113.252432,N,22.564152,460:0:4489:25196,1]"
-        self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,113.252432,N,22.564152,120.3,270.5,1351492202},{E,114.252432,N,23.564152,130.3,280.5,1351492158},{E,115.252432,N,24.564152,130.3,280.5,1351492002},{E,116.252432,N,25.564152,130.3,280.5,1351492058},{E,117.252432,N,26.564152,130.3,280.5,1351491902}]"
-        self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,%s,N,%s,120.3,270.5,%s,1134:22.87:31.40:05:4105}]"
+        self.locationdesc_mg = "[%s,%s,1,1.0.0,%s,T10,E,113.252432,N,22.564152,460:0:4489:25196,1]"
+        #self.locationdesc_mg = "[%s,%s,1,1.0.0,%s,T10,E,113.252432,N,22.564152,460:0:4489:25196,1,30]"
+
+        #NOTE: multi-point
+        #self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,113.252432,N,22.564152,120.3,270.5,1351492202},{E,114.252432,N,23.564152,130.3,280.5,1351492158},{E,115.252432,N,24.564152,130.3,280.5,1351492002},{E,116.252432,N,25.564152,130.3,280.5,1351492058},{E,117.252432,N,26.564152,130.3,280.5,1351491902}]"
+
+        #self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,113.252432,N,22.564152,120.3,270.5,1351492202},{E,114.252432,N,23.564152,130.3,280.5,1351492158,31},{E,115.252432,N,24.564152,130.3,280.5,1351492002,31},{E,116.252432,N,25.564152,130.3,280.5,1351492058,31},{E,117.252432,N,26.564152,130.3,280.5,1351491902,31}]"
+        self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,113.252432,N,22.564152,133.3,270.5,1351492202}]"
+
+        #PVT: only one point
+        #self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,%s,N,%s,120.3,270.5,%s}]"
+        #self.pvt_mg = "[%s,%s,1,1.0.0,%s,T11,{E,%s,N,%s,120.3,270.5,%s,31}]"
+
         self.charge_mg = "[%s,%s,1,1.0.0,%s,T12,%s]"
         self.move_report_mg = "[%s,%s,1,1.0.0,%s,T13,2,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,]"
-        self.shake_report_mg = "[%s,%s,1,1.0.0,%s,T15,0,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,]"
+        #self.move_report_mg = "[%s,%s,1,1.0.0,%s,T13,2,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,,33]"
+
+        #no is_nofify
+        #self.shake_report_mg = "[%s,%s,1,1.0.0,%s,T15,0,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,]"
+        # is_notify
+        self.shake_report_mg = "[%s,%s,1,1.0.0,%s,T15,0,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,fobid,20,1]"
+        #self.shake_report_mg = "[%s,%s,1,1.0.0,%s,T15,0,E,113.252,N,22.564,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,,35]"
+
         self.terminal_powerlow_mg = "[%s,%s,1,1.0.0,%s,T14,0,E,114.252,N,24.564,123.3,273.5,1,460:00:10101:03633,23:9:3,%s,1,]"
+        #self.terminal_powerlow_mg = "[%s,%s,1,1.0.0,%s,T14,0,E,114.252,N,24.564,123.3,273.5,1,460:00:10101:03633,23:9:3,%s,1,,34]"
+
         self.fob_powerlow_mg = "[%s,%s,1,1.0.0,%s,T14,1,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:35,%s,0,9999]"
+        #self.fob_powerlow_mg = "[%s,%s,1,1.0.0,%s,T14,1,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:35,%s,0,9999,34]"
+
         self.terminal_poweroff_mg = "[%s,%s,1,1.0.0,%s,T14,1,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:3,%s,1,]"
-        self.terminal_powerfull_mg = "[%s,%s,1,1.0.0,%s,T14,1,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:100,%s,1,]"
-        self.terminal_powerdown_mg = "[%s,%s,1,1.0.0,%s,T26,0,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:10,%s,1,]"
+        #self.terminal_powerfull_mg = "[%s,%s,1,1.0.0,%s,T14,1,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:100,%s,1,,34]"
+
         self.terminal_stop_mg = "[%s,%s,1,1.0.0,%s,T29,0,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:10,%s,1,]"
         self.sos_report_mg = "[%s,%s,1,1.0.0,%s,T16,0,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,]" 
+        #self.sos_report_mg = "[%s,%s,1,1.0.0,%s,T16,0,E,113.2524,N,22.5641,120.3,270.5,1,460:00:10101:03633,23:9:100,%s,1,,36]" 
+
+        self.terminal_powerdown_mg = "[%s,%s,1,1.0.0,%s,T26,1,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:10,%s,1,]"
+        #self.terminal_powerdown_mg = "[%s,%s,1,1.0.0,%s,T26,1,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:10,%s,1,,46]"
+
+        self.terminal_stop_mg = "[%s,%s,1,1.0.0,%s,T29,1,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:10,%s,1,]"
+        #self.terminal_stop_mg = "[%s,%s,1,1.0.0,%s,T29,0,E,116.252,N,26.564,126.3,276.5,1,460:0:10101:03633,20:6:10,%s,1,,49]"
+
         self.config_mg = "[%s,%s,1,1.0.0,%s,T17]"
         self.defend_report_mg = "[%s,%s,1,1.0.0,%s,T18,0,0]"
         self.fobinfo_mg = "[%s,%s,1,1.0.0,%s,T19,ABCDEF,1]"
         self.fob_operate = "[%s,%s,1,1.0.0,%s,T20,0]"
         self.sleep_status_mg = "[%s,%s,1,1.0.0,%s,T21,1]"
         self.fob_status_mg = "[%s,%s,1,1.0.0,%s,T22,1]"
-        self.runtime_status_mg = "[%s,%s,1,1.0.0,%s,T23,1,0,23:9:100]"
+        self.runtime_status_mg = "[%s,%s,1,1.0.0,%s,T23,1,0,23:9:100,-1,1]"
         self.unbind_mg = "[%s,%s,1,1.0.0,%s,T24,0]"
         self.unbind_status_mg = "[%s,%s,1,1.0.0,%s,T25,1]"
         self.unusual_activate_mg = "[%s,%s,1,1.0.0,%s,T27,%s,%s,%s]"
 
         self.misc_mg = "[%s,%s,1,1.0.0,%s,T28,jiaxiaoleitest]"
+
+        self.power_status_mg = "[%s,%s,1,1.0.0,%s,T30,0,0,1405655013]"
+
+        self.power_status_report_mg = "[%s,%s,1,1.0.0,%s,T31,1]"
 
         self.ARGS = DotDict(PSW="111111",
                             GSM=16,
@@ -85,13 +134,14 @@ class Terminal(object):
                             )
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.connect(('192.168.1.5', 10025))
+        #self.socket.connect(('192.168.1.9', 6322))
+        self.socket.connect(('192.168.1.9', 10025))
         self.logging = self.initlog() 
 
     def login(self):
         t_time = int(time.time())
         #t_time = 1355454637
-        login_mg = self.login_mg % (t_time, self.tid, self.tmobile, self.imsi, self.imei)
+        login_mg = self.login_mg % (t_time, self.tid, self.tmobile, self.umobile, self.imsi, self.imei)
         self.logging.info("Send login message:\n%s", login_mg) 
         self.socket.send(login_mg)
         time.sleep(1)
@@ -113,35 +163,37 @@ class Terminal(object):
     def misc(self):
         #time.sleep(30)
         time.sleep(1)
-        misc= self.misc_mg % (int(time.time()), self.sessionID, self.tid)
+        misc_mg = self.misc_mg % (int(time.time()), self.sessionID, self.tid)
         self.logging.info("Send misc:\n%s", misc_mg)
         self.socket.send(misc_mg)
         time.sleep(10)
 
     def heartbeat(self):
-        time.sleep(30)
+        time.sleep(10)
+        #time.sleep(30)
         while True:
             heartbeat_mg = self.heartbeat_mg % (int(time.time()), self.sessionID, self.tid)
             self.logging.info("Send heartbeat:\n%s", heartbeat_mg)
             self.socket.send(heartbeat_mg)
-            time.sleep(30)
+            time.sleep(10)
+            #time.sleep(30)
     
-    def realtime(self, io_loop):
-        t_time = int(time.time())
-        def callback():
-            valid = 1
-            msg = self.realtime_mg % (t_time, self.sessionID,self.tid, valid, t_time)
-            self.logging.info("Send realtime response:\n%s", msg)
-            self.socket.send(msg)
-            #if valid != 1:
-            #    t_time2 = int(time.time())
-            #    l_msg = self.location_mg % (t_time2, self.sessionID, self.tid, t_time2)
-            #    time.sleep(5)
-            #    print 'before send...'
-            #    self.socket.send(l_msg)
-            #    print 'send: ', l_msg
-        io_loop.add_timeout(t_time+33, callback)
-        thread.start_new_thread(self.start_io_loop, (io_loop,))
+    #def realtime(self, io_loop):
+    #    t_time = int(time.time())
+    #    def callback():
+    #        valid = 1
+    #        msg = self.realtime_mg % (t_time, self.sessionID,self.tid, valid, t_time)
+    #        self.logging.info("Send realtime response:\n%s", msg)
+    #        self.socket.send(msg)
+    #        #if valid != 1:
+    #        #    t_time2 = int(time.time())
+    #        #    l_msg = self.location_mg % (t_time2, self.sessionID, self.tid, t_time2)
+    #        #    time.sleep(5)
+    #        #    print 'before send...'
+    #        #    self.socket.send(l_msg)
+    #        #    print 'send: ', l_msg
+    #    io_loop.add_timeout(t_time+33, callback)
+    #    thread.start_new_thread(self.start_io_loop, (io_loop,))
 
     def upload_position(self):
         time.sleep(5)
@@ -153,44 +205,69 @@ class Terminal(object):
             time.sleep(30)
  
     def report_once_mg(self):
-        time.sleep(5)
+        """Some special packet.
+        """
+        #time.sleep(5)
+        time.sleep(2)
+        #time.sleep(30)
         t_time = int(time.time())
 
         s = u'查询余额服务：您好，您的总账户余额为343.91元，感谢您的使用'
         #charge = base64.b64encode(s.encode("utf-8", 'ignore'))
         #charge_mg = self.charge_mg % (t_time, self.sessionID, self.tid, charge)
         #pvt_mg = self.pvt_mg % (t_time, self.sessionID, self.tid)
-        #unbind_status_mg = self.unbind_status_mg % (t_time, 'abcd', self.tid)
-        #defend_status_mg = self.defend_report_mg % (t_time, self.sessionID, self.tid)
-        #runtime_status_mg = self.runtime_status_mg % (t_time, self.sessionID, self.tid)
-        #sleep_status_mg = self.sleep_status_mg % (t_time, self.sessionID, self.tid)
-        #fob_status_mg = self.fob_status_mg % (t_time, self.sessionID, self.tid)
-        locationdesc_mg = self.locationdesc_mg % (t_time, self.sessionID, self.tid)
-        #fobinfo_mg = self.fobinfo_mg % (t_time, self.sessionID, self.tid)
-        #unusual_activate_mg = self.unusual_activate_mg % (t_time, self.sessionID, self.tid, '1234', '15901258591', self.imsi)
-        stop_mg = self.terminal_stop_mg % (t_time, self.sessionID, self.tid)
+        pvt_mg = self.pvt_mg % (t_time, self.sessionID, self.tid)
+        unbind_status_mg = self.unbind_status_mg % (t_time, 'abcd', self.tid)
+        defend_status_mg = self.defend_report_mg % (t_time, self.sessionID, self.tid)
+        runtime_status_mg = self.runtime_status_mg % (t_time, self.sessionID, self.tid)
+        sleep_status_mg = self.sleep_status_mg % (t_time, self.sessionID, self.tid)
+        fob_status_mg = self.fob_status_mg % (t_time, self.sessionID, self.tid)
 
-        mgs = [stop_mg,]
+        location_mg = self.location_mg % (t_time, self.sessionID, self.tid, t_time)
+        #realtime_mg = self.realtime_mg % (t_time, self.sessionID, self.tid, 1, t_time)
+        locationdesc_mg = self.locationdesc_mg % (t_time, self.sessionID, self.tid)
+
+        fobinfo_mg = self.fobinfo_mg % (t_time, self.sessionID, self.tid)
+        unusual_activate_mg = self.unusual_activate_mg % (t_time, self.sessionID, self.tid, '1234', '15901258591', self.imsi)
+
+        power_status_mg = self.power_status_mg % (t_time, self.sessionID, self.tid)
+        
+        power_status_report_mg = self.power_status_report_mg % (t_time, self.sessionID, self.tid)
+
         #mgs = [charge_mg, pvt_mg, locationdesc_mg, defend_status_mg]
+        #mgs = [runtime_status_mg]
+        #mgs = [power_status_mg]
+        #mgs = [power_status_report_mg]
+        mgs = [pvt_mg]
+        #mgs = [realtime_mg]
+        #NOTE: realtime_mg must has a S4 ahead 
         for mg in mgs:
             #self.logging.info("Send report mg:\n%s", mg)
             self.socket.send(mg)
-            time.sleep(15)
+            time.sleep(2)
+            #time.sleep(30)
+
         #lat = 116.420
         #lon = 39.912
-        #for i in range(100000):
+        ###for i in range(100000):
+        #for i in range(3):
         #    t_time = int(time.time())
         #    lat += 0.002
         #    lon += 0.003
         #    pvt_mg = self.pvt_mg % (t_time, self.sessionID, self.tid, lat, lon, t_time)
+        #    print 'args', (t_time, self.sessionID, self.tid, lat, lon, t_time)
+        #    print 'test', pvt_mg
         #    self.socket.send(pvt_mg)
         #    time.sleep(20)
 
     def report_mg(self):
         time.sleep(10)
-        report_mgs = [self.move_report_mg, self.terminal_powerlow_mg, self.shake_report_mg, self.sos_report_mg]
+        #report_mgs = [self.move_report_mg, self.terminal_powerlow_mg, self.shake_report_mg, self.sos_report_mg]
         #report_mgs = [self.terminal_powerfull_mg, self.terminal_powerlow_mg, self.terminal_poweroff_mg, self.fob_powerlow_mg]
-        report_mgs = [self.terminal_stop_mg, ]
+        #report_mgs = [self.move_report_mg, self.fob_powerlow_mg, self.shake_report_mg, self.sos_report_mg, self.terminal_powerdown_mg, self.terminal_stop_mg]
+        #report_mgs = [self.terminal_powerdown_mg]
+        report_mgs = [self.shake_report_mg]
+        #report_mgs = [self.terminal_stop_mg]
         while True:
             for report_mg in report_mgs:
                 t_time = int(time.time())
@@ -198,6 +275,7 @@ class Terminal(object):
                 self.logging.info("Send report mg:\n%s", msg)
                 self.socket.send(msg)
                 time.sleep(30)
+                #time.sleep(1)
 
     def query_args(self, bp):
         t_time = int(time.time())
@@ -258,8 +336,10 @@ class Terminal(object):
         desc = bp.packet_info[-1:][0]
         locationdesc = base64.b64decode(desc)
         locationdesc = locationdesc.decode("utf-8")
+
     def config(self, bp):
         self.logging.info("Report config success!")
+
     def defend_status(self, bp):
         self.logging.info("Report defend_status success!")
         t_time = int(time.time())
@@ -268,8 +348,10 @@ class Terminal(object):
 
     def pvt(self):
         self.logging.info("Report pvt success!")
+
     def charge(self):
         self.logging.info("Report charge success!")
+
     def async(self):
         self.logging.info("Report async success!")
 
@@ -283,10 +365,11 @@ class Terminal(object):
         #unbind_status_mg = self.unbind_status_mg % (t_time, self.sessionID, self.tid)
         #self.socket.send(unbind_status_mg)
 
-    def fob_operate(self, bp):
-        t_time = int(time.time())
-        msg = self.fob_operate % (t_time, self.sessionID, self.tid)
-        self.socket.send(msg)
+    #NOTE: depressed
+    #def fob_operate(self, bp):
+    #    t_time = int(time.time())
+    #    msg = self.fob_operate % (t_time, self.sessionID, self.tid)
+    #    self.socket.send(msg)
 
     def read_mg(self):
         """Read package from logfile then send them to gateway.
@@ -308,9 +391,10 @@ class Terminal(object):
     def start_each_thread(self):
         thread.start_new_thread(self.heartbeat, ())
         #thread.start_new_thread(self.upload_position, ())
-        thread.start_new_thread(self.report_mg, ())
-        #thread.start_new_thread(self.report_once_mg, ())
+        #thread.start_new_thread(self.report_mg, ())
+        thread.start_new_thread(self.report_once_mg, ())
         #thread.start_new_thread(self.misc, ())
+        #NOTE:  get log from log file
         #thread.start_new_thread(self.read_mg, ())
 
 
@@ -322,8 +406,8 @@ class Terminal(object):
             self.heartbeat_response()
         elif bp.type == "S3":
             self.upload_response()
-        elif bp.type == "S4":
-            self.realtime(io_loop)
+        #elif bp.type == "S4":
+        #    self.realtime(io_loop)
         elif bp.type == "S5":
             self.query_args(bp)
         elif bp.type == "S6":
@@ -372,13 +456,33 @@ class Terminal(object):
             self.socket.close()
 
     def initlog(self):
+
         logger = logging.getLogger()
+        #logger = logging.getLogger(color=True, fmt=DEFAULT_FORMAT, datefmt=DEFAULT_DATE_FORMAT, colors=DEFAULT_COLORS)
+        #logger = logging.getLogger(fmt=DEFAULT_FORMAT, datefmt=DEFAULT_DATE_FORMAT, colors=DEFAULT_COLORS)
+
         hdlr = logging.FileHandler("terminal.log")
-        formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+
+        #DEFAULT_FORMAT = '%(color)s[%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d]%(end_color)s %(message)s' 
+        DEFAULT_FORMAT = '%(asctime)s %(levelname)s %(message)s' 
+        #DEFAULT_FORMAT = '%(color)s[%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d]%(end_color)s %(message)s %y%m%d %H:%M:%S' 
+        DEFAULT_DATE_FORMAT = '%y%m%d %H:%M:%S' 
+        DEFAULT_COLORS = { 
+            logging.DEBUG: 4,  # Blue 
+            logging.INFO: 2,  # Green 
+            logging.WARNING: 3,  # Yellow 
+            logging.ERROR: 1,  # Red 
+        }
+
+
+        #formatter = logging.Formatter('---------------------  %(asctime)s %(levelname)s %(message)s')
+        formatter = logging.Formatter(fmt=DEFAULT_FORMAT, datefmt=DEFAULT_DATE_FORMAT)
+
         hdlr.setFormatter(formatter)
+
         logger.addHandler(hdlr)
-        logger.setLevel(logging.NOTSET)
-    
+        #logger.setLevel(logging.NOTSET) 
+
         return logger
 
     def start_io_loop(self, io_loop):
@@ -388,9 +492,11 @@ if __name__ == "__main__":
     import sys
     
     io_loop = IOLoop.instance()
-    args = dict(tid='ACB2012777',
-                tmobile='15919176710',
-                imsi='460029191653879',
+
+    args = dict(tid='T123SIMULATOR',
+                tmobile='13011292217',
+                umobile='18310505991',
+                imsi='18310505991',
                 imei='')
     keys = ['tid', 'tmobile', 'imsi', 'imei']
     for i, key in enumerate(keys):
@@ -399,7 +505,7 @@ if __name__ == "__main__":
         else:
             break
 
-    terminal = Terminal(args['tid'], args['tmobile'], args['imsi'], args['imei'])
+    terminal = Terminal(args['tid'], args['tmobile'], args['umobile'], args['imsi'], args['imei'])
     thread.start_new_thread(terminal.tcpClient, (io_loop,))
     while True:
         time.sleep(10)

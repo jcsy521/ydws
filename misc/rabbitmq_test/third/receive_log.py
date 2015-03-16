@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import pika
-
+host='drone-205'
 connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost'))
+        host=host))
 
 channel = connection.channel()
 

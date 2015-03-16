@@ -1,8 +1,9 @@
 import pika
 import sys
 
+host='drone-205'
 connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost'))
+        host=host))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='logs_test',
