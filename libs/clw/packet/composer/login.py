@@ -11,6 +11,9 @@ class LoginRespComposer(BaseComposer):
 
     def compose(self, args):
         """
+        :arg args: dict
+        :return request: str
+        
         eg: [1343278800,S1,0,1q2w3e45]
         """
         command = S_MESSAGE_TYPE.LOGIN 

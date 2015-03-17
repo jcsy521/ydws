@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for locate a terminal.
+
+#NOTE: deprecatd
+
+"""
+
 from base import BaseComposer
 from constants.GATEWAY import S_MESSAGE_TYPE
 
@@ -11,6 +17,9 @@ class RealtimeComposer(BaseComposer):
 
     def compose(self):
         """
+        :arg args: dict
+        :return request: str
+
         eg: [1343278800,S4]
         """
         packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.REALTIME)

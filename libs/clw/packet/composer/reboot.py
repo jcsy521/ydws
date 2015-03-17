@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for rebooting a terminal.
+
+#NOTE: deprecated
+
+"""
+
 from base import BaseComposer
 from constants.GATEWAY import S_MESSAGE_TYPE
 

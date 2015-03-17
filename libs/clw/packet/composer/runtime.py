@@ -11,6 +11,8 @@ class RuntimeRespComposer(BaseComposer):
 
     def compose(self, args):
         """
+        :arg args: dict
+        :return request: str
         eg: [1343278800,S23,0,1]
         """
         packet = "%s,%s,%s,%s" % (self.time, S_MESSAGE_TYPE.RUNTIMESTATUS, args['success'], args['mannual_status'])

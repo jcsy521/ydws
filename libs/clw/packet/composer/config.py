@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for configure a terminal.
+"""
+
 from base import BaseComposer
 from constants.GATEWAY import S_MESSAGE_TYPE
 

@@ -11,6 +11,9 @@ class LocationDescRespComposer(BaseComposer):
 
     def compose(self, args):
         """
+        :arg args: dict
+        :return request: str
+        
         eg: [1343278800,S10,0,xxx,E,xx,N,yy]
         """
         packet = "%s,%s,%s,%s,%s,%s,%s,%s" % (self.time, S_MESSAGE_TYPE.LOCATIONDESC, 

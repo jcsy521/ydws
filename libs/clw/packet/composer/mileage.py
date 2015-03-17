@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+#NOTE: deprecatd
+
+"""
 from base import BaseComposer
 from constants.GATEWAY import S_MESSAGE_TYPE
 
@@ -10,6 +14,10 @@ class MileageRespComposer(BaseComposer):
         self.buf = self.compose(args)
 
     def compose(self):
+        """        
+        :arg args: dict
+        :return request: str        
+        """
         packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.MILEAGE)
         request = self.format_packet(packet)
 

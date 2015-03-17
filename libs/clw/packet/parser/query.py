@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+#NOTE: deprecated
+
 import logging
 
 class QueryParser(object):

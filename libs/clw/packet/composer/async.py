@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for handle various asynchronous packets form a terminal.
+
+Mainly include event packets.
+"""
+
 from base import BaseComposer
 from constants.GATEWAY import S_MESSAGE_TYPE, T_MESSAGE_TYPE
 

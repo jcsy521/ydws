@@ -7,9 +7,11 @@ from utils.dotdict import DotDict
 from constants.GATEWAY import T_MESSAGE_TYPE
 
 class T_CLWCheck(object):
-    """ Report of terminal.
-     
-    Returns head, body
+    """Packet come from terminal. It's map to the packet from terminal(Tx).
+
+    It's has two parameters:
+    1. head
+    2. body
     
     An example. 
     head:
@@ -32,9 +34,15 @@ class T_CLWCheck(object):
      'bt_name']
     """
     def __init__(self, packet):
-        self.head, self.body = self.parse_head(packet)
+        self.head, self.body = self.__parse(packet)
 
-    def parse_head(self, packet):
+    def __parse(self, packet):
+        """Parse the head part of the packet. 
+
+        :arg packet: str
+        :return head: dict 
+        :return body: list
+        """
         head = DotDict()
         body = []
         if packet.startswith('[') and packet.endswith(']'):
@@ -46,19 +54,19 @@ class T_CLWCheck(object):
                 head.timestamp = int(head.timestamp) if head.timestamp else int(time.time())
                 body = p_info[len(keys):]
             else:
-                logging.error("Not a complete packet: %s", packet)
+                logging.error("[CLWPARSE] Not a complete packet: %s", packet)
         else:
-            logging.error("Invalid packet: %s", packet)
+            logging.error("[CLWPARSE] Invalid packet: %s", packet)
        
         return head, body 
     
 class S_CLWCheck(object):
-    """Report of service.
+    """Packet send to terminal. It's map to the packet from platform(Sx).
     """
     def __init__(self, packet):
-        self.head, self.body = self.parse_head(packet)
+        self.head, self.body = self.__parse(packet)
 
-    def parse_head(self, packet):
+    def __parse(self, packet):
         head = DotDict()
         body = []
         if packet.startswith('[') and packet.endswith(']'):
@@ -70,8 +78,8 @@ class S_CLWCheck(object):
                 head.timestamp = int(head.timestamp) if head.timestamp else int(time.time()) 
                 body = p_info[len(keys):]
             else:
-                logging.error("Not a complete packet: %s", packet)
+                logging.error("[CLWPARSE] Not a complete packet: %s", packet)
         else:
-            logging.error("Invalid packet: %s", packet)
-       
+            logging.error("[CLWPARSE] Invalid packet: %s", packet)
+
         return head, body 

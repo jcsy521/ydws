@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for misc.
+
+"""
 
 class MiscParser(object):
+    """T28
+    """
 
     def __init__(self, packet, ret):
         self.ret = self.parse(packet, ret)

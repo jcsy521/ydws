@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for add or remove a fob.
+
+#NOTE: deprecatd
+
+"""
+
 from base import BaseComposer
 from constants.GATEWAY import S_MESSAGE_TYPE
 
@@ -11,6 +17,9 @@ class FobOperateComposer(BaseComposer):
 
     def compose(self, args):
         """
+        :arg args: dict
+        :return request: str
+        
         eg: [1343278800,S20,ABCDE,0]
         """
         packet = "%s,%s,%s,%s" % (self.time, S_MESSAGE_TYPE.FOBOPERATE,

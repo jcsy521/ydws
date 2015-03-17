@@ -4,6 +4,8 @@ import time
 
 class BaseComposer(object):
     """Basic composer
+
+    It provide current_time and add [] for the packet.
     """
 
     def __init__(self):

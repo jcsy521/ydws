@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+"""This module is designed for parameters in platform needed by a terminal.
+
+#NOTE: deprecatd.
+
+"""
+
 from base import BaseComposer
 from constants.GATEWAY import S_MESSAGE_TYPE
 
@@ -11,6 +17,8 @@ class TerminalComposer(BaseComposer):
 
     def compose(self, args):
         """
+        :arg args: dict
+        :return request: str
         eg: [1343278800,S6,DOMAIN=pinganbb.info:9002,FREQ=15]
         """
         packet = "%s,%s" % (self.time, S_MESSAGE_TYPE.TERMINAL) 

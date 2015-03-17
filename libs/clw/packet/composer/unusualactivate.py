@@ -11,6 +11,8 @@ class UnusualActivateComposer(BaseComposer):
 
     def compose(self, args):
         """
+        :arg args: dict
+        :return request: str
         eg: [1343278800,S26,0]
         """
         packet = "%s,%s,%s" % (self.time, S_MESSAGE_TYPE.UNUSUALACTIVATE,

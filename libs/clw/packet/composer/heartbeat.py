@@ -11,6 +11,9 @@ class HeartbeatRespComposer(BaseComposer):
 
     def compose(self, args):
         """
+        :arg args: dict
+        :return request: str
+        
         eg: [1343278800,S2,0,0,1405650165]
 
         """
