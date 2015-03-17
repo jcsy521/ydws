@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import redis 
+import redis
 
 from dotdict import DotDict
 from helpers.confhelper import ConfHelper
 
+
 class MyRedis(redis.Redis):
+
     def __init__(self, **kwargs):
         assert ConfHelper.loaded
         host = ConfHelper.REDIS_CONF.host
@@ -29,5 +31,5 @@ class MyRedis(redis.Redis):
                 return e_value
             except:
                 return value
-        else: 
+        else:
             return None

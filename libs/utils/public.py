@@ -11,10 +11,12 @@ from helpers.lbmpsenderhelper import LbmpSenderHelper
 from tornado.escape import json_decode
 
 from codes.smscode import SMSCode
+from codes.gfcode import GFCode
 
 from misc import *
 from utils.dotdict import DotDict
 from constants import EVENTER, UWEB, GATEWAY, SMS
+from constants.GATEWAY import HEARTBEAT_INTERVAL, SLEEP_HEARTBEAT_INTERVAL
 
 """Part: Record log.
 """
@@ -52,7 +54,7 @@ def record_add_action(bind_info, db):
 def record_del_action(bind_info, db):
     """Record the del action of one mobile.
 
-    @arg bind_info: dict . e.g.
+    :arg bind_info: dict. e.g.
 
         {'tid':'',
          'tmobile':'', 
@@ -62,7 +64,7 @@ def record_del_action(bind_info, db):
          'del_time':'',
         }
 
-    @arg db: database instance.
+    :arg db: database instance.
 
     """
     logging.info("[PUBLIC] Record the del action, bind_info: %s",
@@ -1309,15 +1311,33 @@ def get_alarm_mobile(tid, db, redis):
     return alarm_mobile
 
 
+def dispatch(tid, seed):
+    """Map a tid(str) to a number. According to the number, 
+    forward to associated worker.
+
+    :arg tid: str
+    :arg seed: int
+    """
+    dispatch_value = 0
+    for c in tid:
+        dispatch_value += ord(c)
+    return dispatch_value % seed
+
 def get_terminal_type_by_tid(tid):
+    """
+    :arg tid: str
+    :return type: str. e.g.
+      zj100
+      zj200
+    """
     ttype = 'unknown'
     base = [str(x) for x in range(10)] + [chr(x)
                                           for x in range(ord('A'), ord('A') + 6)]
     try:
         tid_hex2dec = str(int(tid.upper(), 16))
     except:
-        logging.info(
-            "[PUBLIC] Terminal %s is illegale, can not transfer into 10 hexadecimal. It's type is unknown", tid)
+        logging.info("[PUBLIC] Terminal %s is illegale, can not transfer into 10 hexadecimal. "
+                     " It's type is unknown", tid)
         return ttype
     num = int(tid_hex2dec)
     mid = []
@@ -1348,6 +1368,45 @@ def get_group_info_by_tid(db, tid):
 
     return group_info
 
+
+def get_terminal_address(redis, tid):
+    """TODO:　tobe removed ....!!!!!!
+
+    terminal_fd: means the address of the socket client.
+    """
+
+    status = GFCode.SUCCESS 
+    tid = None
+    
+    address_key = get_terminal_address_key(tid)
+    address = redis.getvalue(address_key)
+               
+    return address, status   
+
+
+def update_terminal_address(redis, dev_id, address, is_sleep=False):
+    """Keep the latest address(ip+port) of terminal in redis.
+    Line or off-line is associated with it.
+    """
+    terminal_address_key = get_terminal_address_key(dev_id)
+    lq_interval_key = get_lq_interval_key(dev_id)
+    is_lq = redis.getvalue(lq_interval_key)
+    if is_sleep:
+        redis.delete(lq_interval_key)
+        is_lq = False
+
+    if is_lq and not is_sleep:
+        redis.setvalue(terminal_address_key, address, 10 * HEARTBEAT_INTERVAL)
+    else:
+        redis.setvalue(terminal_address_key, address, (1 * SLEEP_HEARTBEAT_INTERVAL + 300))
+
+def get_resend_flag(redis, tid, timestamp, command):
+    """Get resend flag.
+    """
+    resend_key = get_resend_key(tid, timestamp, command)
+    resend_flag = redis.getvalue(resend_key)
+    return resend_key, resend_flag
+
 """Part: Weixin.
 """
 
@@ -1362,6 +1421,8 @@ def get_weixin_push_key(uid, t):
     key = m.hexdigest()
 
     return key.decode('utf8')
+
+
 
 """Part: YDWQ.
 """

@@ -19,7 +19,7 @@ class RepeatedTimer(Thread):
         count = 0
         while not self.finished.is_set() and (self.iterations <= 0 or count < self.iterations):
             self.finished.wait(self.interval)
-            if not self.finished.is_set():
+            if not self.finished.is_set():  
                 self.function(*self.args, **self.kwargs)
                 count += 1
  
