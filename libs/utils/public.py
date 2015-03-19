@@ -791,7 +791,7 @@ def bind_region(db, tids, region_ids):
                        "  VALUES(%s, %s)",
                        region_id, tid)
     logging.info("[PUBLIC] Bind region. tids：%s, region_id: %s",
-                 tids, region_id)
+                 tids, region_ids)
 
 
 """Part: Single.
