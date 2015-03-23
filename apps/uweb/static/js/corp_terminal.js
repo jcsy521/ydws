@@ -676,7 +676,7 @@ dlf.bindBatchSpeedLimit = function(obj_group) {
 		dlf.fn_jNotifyMessage('该组下没有定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
 		return;
 	} else if ( obj_group.hasClass('jstree-unchecked') ) {	// 要删除定位器的组没有被选中
-		dlf.fn_jNotifyMessage('没有选中要批量置超速门限的定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
+		dlf.fn_jNotifyMessage('没有选中要批量设置超速门限的定位器。', 'message', false, 3000); // 执行操作失败，提示错误消息
 		return;
 	}
 	
