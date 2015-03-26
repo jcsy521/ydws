@@ -333,6 +333,7 @@ dlf.fn_initBindMileageSet = function() {
 				dlf.fn_jNotifyMessage(str_msg, 'message', false, 5000);
 				return;
 			}
+			dlf.fn_clearRegionShape();
 			dlf.fn_jsonPost(BIND_MILEAGE_SET_URL, obj_bindRegionData, str_bindRegion, '单程起点绑定中');
 		} else {
 			dlf.fn_jNotifyMessage(str_msg, 'message', false, 5000);
@@ -387,6 +388,7 @@ dlf.fn_initBatchMileageSet = function(obj_group){
 				dlf.fn_jNotifyMessage('当前组下没有定位器！', 'message', false, 5000);
 				return;
 			}
+			dlf.fn_clearRegionShape();
 			dlf.fn_jsonPost(BIND_MILEAGE_SET_URL, obj_bindRegionData, str_bindBatchRegion, '单程起点绑定中');
 		} else {
 			dlf.fn_jNotifyMessage('当前您还没有单程起点，请新增单程起点！', 'message', false, 5000);
