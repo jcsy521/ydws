@@ -1357,6 +1357,7 @@ dlf.fn_productTableContent = function (str_who, obj_reaData) {
 			dlf.fn_getCurrentMileageSet();
 		}		
 	}
+	obj_searchHeader.show();
 	$('#' + str_who + 'Wrapper').data('hash', str_hash);	// 存储hash值
 	// 重新计算高度，宽度
 	// dlf.resetPanelDisplay(2);
