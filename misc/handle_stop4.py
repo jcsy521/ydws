@@ -108,7 +108,7 @@ class Test():
                 if stop: #NOTE: time_diff is too short, drop the point. 
                     if pvt["timestamp"] - stop['start_time'] < 60: # 60 seconds 
                         cnt += 1  
-                        _stop = self.db.get("select distance from T_STOP_bak where lid =%s", stop['lid'])
+                        _stop = self.db.get("select distance from T_STOP where lid =%s", stop['lid'])
                         if _stop:
                             tmp_dis = _stop['distance']
                         else:
@@ -117,7 +117,7 @@ class Test():
                         distance = float(distance) + tmp_dis 
                         print 'tmp_dis distance', distance 
 
-                        self.db.execute("DELETE FROM T_STOP_bak WHERE lid = %s",
+                        self.db.execute("DELETE FROM T_STOP WHERE lid = %s",
                                         stop['lid'])
                         self.redis.delete(stop_key)
                         self.redis.setvalue(distance_key, distance, time=EVENTER.STOP_EXPIRY) 
@@ -125,7 +125,7 @@ class Test():
                     else: # close a stop point
                         cnt += 1  
                         self.redis.delete(stop_key)
-                        self.db.execute("UPDATE T_STOP_bak SET end_time = %s WHERE lid = %s",
+                        self.db.execute("UPDATE T_STOP SET end_time = %s WHERE lid = %s",
                                         pvt["timestamp"], stop['lid'])
                         logging.info("[EVENTER] Stop point is closed: %s", stop)
                 else:
@@ -146,7 +146,7 @@ class Test():
                                 pre_lat=pvt["latitude"], 
                                 distance=distance)
 
-                    self.db.execute("INSERT INTO T_STOP_bak(lid, tid, start_time, distance) VALUES(%s, %s, %s, %s)",
+                    self.db.execute("INSERT INTO T_STOP(lid, tid, start_time, distance) VALUES(%s, %s, %s, %s)",
                                     lid, tid, pvt["timestamp"], distance)
                     self.redis.setvalue(stop_key, stop, time=EVENTER.STOP_EXPIRY)
 
@@ -158,8 +158,9 @@ class Test():
             self.redis.setvalue(last_pvt_key, last_pvt, time=EVENTER.STOP_EXPIRY)
             print '---------------------- cnt', cnt
 
-    def clear_stop(self, tid):
-        self.db.execute("DELETE FROM T_STOP_bak WHERE tid = %s", tid)
+    def clear_stop(self, tid, start_time, end_time):
+        self.db.execute("DELETE FROM T_STOP WHERE tid = %s and start_time between %s and %s", 
+                        tid, start_time, end_time)
         stop_key = 'test_stop_redis:%s' % tid
         distance_key = 'test_distance_redis:%s' % tid
         last_pvt_key = 'test_last_pvt_redis:%s' % tid
@@ -170,26 +171,65 @@ class Test():
 def usage():
     print "Usage: python handle_stop.py"
 
-def main():
+def main_bak():
     test = Test()
-    start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+    start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,11,4,0,0,0),"%Y-%m-%d-%H-%M-%S")))
     #start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,0,0,0),"%Y-%m-%d-%H-%M-%S")))
     #end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,19,0,0),"%Y-%m-%d-%H-%M-%S")))
-    end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,9,10,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+    #end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,10,26,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+    end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,11,4,23,59,59),"%Y-%m-%d-%H-%M-%S")))
+    
+    print 'start_time', start_time
+    print 'end_time', end_time
     print time.localtime(start_time)
     print time.localtime(end_time)
+    #return
     
-    tid = '35C2000067'
+    tid = '384240108C' #  14778741221 
+    #tid = '35A600023B' # 15210016439
 
     #tid = '3A28200102'
     #tid = 'T123SIMULATOR'
 
     begin_time = time.localtime()
-    test.clear_stop(tid) 
+    test.clear_stop(tid, start_time, end_time) 
     test.handle_stop(tid, start_time, end_time) 
     end_time = time.localtime()
     print 'begin_time',begin_time
     print 'end_time',end_time
+
+def main_new(tid):
+    test = Test()
+    start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,11,4,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+    #start_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+    #end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,8,1,19,0,0),"%Y-%m-%d-%H-%M-%S")))
+    #end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,10,26,0,0,0),"%Y-%m-%d-%H-%M-%S")))
+    end_time = int(time.mktime(time.strptime("%s-%s-%s-%s-%s-%s"%(2014,11,4,23,59,59),"%Y-%m-%d-%H-%M-%S")))
+    
+    print 'start_time', start_time
+    print 'end_time', end_time
+    print time.localtime(start_time)
+    print time.localtime(end_time)
+
+    begin_time = time.localtime()
+    test.clear_stop(tid, start_time, end_time) 
+    test.handle_stop(tid, start_time, end_time) 
+    end_time = time.localtime()
+    print 'begin_time',begin_time
+    print 'end_time',end_time
+
+def main():
+    test = Test()
+    res = test.db.query("select tid from T_TERMINAL_INFO where service_status = 1")
+    tids = [r['tid'] for r in res]
+    print 'tids', tids
+    tids = ['3842400EA8','38424001B0','38424010C0']
+    print 'len tids', len(tids)
+    for tid in tids:
+        main_new(tid)
+        time.sleep(0.1)
+
+
 
 if __name__ == "__main__": 
     ConfHelper.load('../conf/global.conf')

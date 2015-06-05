@@ -48,7 +48,7 @@ def authenticated(method):
 
             if self.request.method in ("GET", "HEAD"):
 
-                if self.request.uri in ('/', '/index', '/login', 'logintest'): # froms client 
+                if self.request.uri in ('/', '/index', '/login', '/logintest'): # froms client 
                     if "?" not in url:                
                         if urlparse.urlsplit(url).scheme:
                             # if login url is absolute, make next absolute too

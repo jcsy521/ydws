@@ -9,10 +9,10 @@ class GWException(Exception):
 
     def __init__(self):
         Exception.__init__(self)
-        self.mobiles = (13693675352, 15901258591, 18310505991)
-        self.emails= ('boliang.guan@dbjtech.com', 
-                      'zhaoxia.guo@dbjtech.com', 
-                      'xiaolei.jia@dbjtech.com',)
+        self.mobiles = (15982463820, 15882081659, 15800022894)
+        self.emails= ('yueyong@supeq.com', 
+                      'fengliang@supeq.com', 
+                      'liusiming@supeq.com',)
         #self.notify()
 
     def notify(self):

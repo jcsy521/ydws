@@ -36,6 +36,8 @@ class LoginHandler(BaseHandler, LoginMixin):
 
     @tornado.web.removeslash
     def get(self):
+        #self.clear_cookie('client_id')
+        self.clear_all_cookies()
         self.render("login.html",
                     username='',
                     password='',
@@ -877,7 +879,10 @@ class LogoutHandler(BaseHandler):
     @tornado.web.removeslash
     def get(self):
         """Clear the cookie and return to login.html."""
-        self.clear_cookie(self.app_name)
+        #clear old client id for security
+        #self.clear_cookie('client_id')
+        #self.clear_cookie(self.app_name)
+        self.clear_all_cookies()
         self.redirect(self.get_argument("next", "/"))
 
 
