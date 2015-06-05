@@ -124,7 +124,8 @@ class RegisterHandler(BaseHandler):
             if status == ErrorCode.REGISTER_EXCESS:
                 body = u'管理员您好：检测到频繁注册，请查看. umobile: %s, umobile_times: %s, remote_ip: %s, remote_ip_times: %s' % (
                     umobile, umobile_times, remote_ip, remote_ip_times)
-                notify_maintainer(self.db, self.redis, body, 'register')
+                #NOTE:hide it briefly
+                #notify_maintainer(self.db, self.redis, body, 'register')
                 self.write_ret(status)
                 return
 

@@ -56,7 +56,7 @@ class SimulatorTerminalTest(object):
     def heartbeat(self):
         """Send packet T2.
         """
-        time.sleep(10)
+        time.sleep(300)
         logging.info("[CK] Simulator terminal heartbeat thread start...")
         while True:
             heartbeat_mg = self.heartbeat_mg % (int(time.time()), self.sessionID, self.tid)

@@ -217,8 +217,8 @@ class WsPush(Test):
         return res
 
 
-mobiles = ["18310505991"]
-#mobiles = ["13693675352","18310505991",'13425788834']
+#mobiles = ["18310505991"]
+mobiles = ["13693675352","18310505991",'13425788834']
 
 def send(content, mobile):
     logging.info("Send %s to %s", content, mobile)
@@ -253,7 +253,8 @@ def test_wspush():
 
     try:
         # jiaxiaolei
-        tid = 'T123SIMULATOR'
+        #tid = 'T123SIMULATOR'
+        tid = 'B123SIMULATOR'
 
         ps = WsPush(tid)
         res = ps.register()
@@ -273,14 +274,15 @@ def test_wspush():
         #ps.pushS7()
         #ps.pushS8()
     except Exception as e:
-        print '[wspush-checer] test_wspush excepton. Exception:%s' % e.args 
+        logging.exception('[wspush-checer] test_wspush excepton. Exception:%s' % e.args)
+        #print '[wspush-checer] test_wspush excepton. Exception:%s' % e.args 
         send_sms()
 
 def main():
 
     while True:
         test_wspush()
-        time.sleep(0.1)
+        time.sleep(30)
 
 if __name__ == "__main__":
     tornado.options.parse_command_line()
