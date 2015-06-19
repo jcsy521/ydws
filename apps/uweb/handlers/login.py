@@ -37,7 +37,11 @@ class LoginHandler(BaseHandler, LoginMixin):
     @tornado.web.removeslash
     def get(self):
         #self.clear_cookie('client_id')
-        self.clear_all_cookies()
+        if self.current_user:
+            self.clear_all_cookies()
+            self.redirect(self.get_argument("next", "/"))
+            return
+
         self.render("login.html",
                     username='',
                     password='',
