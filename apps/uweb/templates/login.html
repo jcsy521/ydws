@@ -27,7 +27,7 @@
 				</div>
 			</div>
 			<div id="login_section">
-				<form id="loginForm" action="/login" method="post" onsubmit="return fn_validLogin();">
+				<form id="loginForm" action="/login"  method="post" onsubmit="return fn_validLogin();">
 					<div id="loginSection_roleSwitch">
 						<a id="login_individual" title="个人登录" class="current font-size20" href="#" tabindex="2">个人登录</a>	
 						
@@ -81,12 +81,6 @@
 					<div class="form-group loginForm-submit">
 						<label class="sr-only col-sm-2 control-label"></label>
 						<div>
-							<div id="loginSubmit_hidden">
-								<input type="hidden" name="user_type" id="userRoleType" value="{{user_type}}" />
-								<input type="hidden" name="username" id="loginHidden_username" value="" />
-								<input type="hidden" name="password" id="loginHidden_pwd" value="" />
-								<input type="hidden" name="captcha" id="loginHidden_captcha" value="" />
-							</div>
 							<!--<button id="loginBtn" type="submit" class="loginBtn">登录</button>-->
 							<span id="loginBtn" class="loginBtn font-size20" tabindex="7">登录</span>
 						</div>
@@ -158,5 +152,13 @@
 			</div>
 		</div>
 		<hr id="login_footerHr">
+        <form id="loginForm2"></form>
+        <div id="loginSubmit_hidden">
+            <input type="hidden" name="user_type" id="userRoleType" value="{{user_type}}" />
+            <input type="hidden" name="username" id="loginHidden_username" value="" />
+            <input type="hidden" name="password" id="loginHidden_pwd" value="" />
+            <input type="hidden" name="captcha" id="loginHidden_captcha" value="" />
+        </div>
+        </form>
 	</body>
 </html>

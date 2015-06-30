@@ -141,7 +141,11 @@ function fn_validLogin() {
 	$('#loginHidden_username').val(base64encode(utf16to8(str_randomStr+str_loginName)));
 	$('#loginHidden_pwd').val(base64encode(utf16to8(str_randomStr+str_loginPwd)));
 	$('#loginHidden_captcha').val(base64encode(utf16to8(str_randomStr+str_loginCaptcha)));
-	return true;
+	$('#loginForm2').attr("action", "/login");
+	$('#loginForm2').attr("method", "POST");
+	$('#loginForm2').append($("#loginSubmit_hidden"));
+	$('#loginForm2').submit();
+	return false;
 }
 
 /**
